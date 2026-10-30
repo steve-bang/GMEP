@@ -67,7 +67,7 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
       <div data-v="s3" class="stack-2">
         <h3 class="card__title" style="font-size:var(--font-size-lg)">Xem lại trước khi xác nhận</h3>
         <dl class="g2q-kv"><dt>Hạng mục duyệt</dt><dd id="s3-ok">1, 2, 3 (3/4)</dd><dt>Tổng được duyệt</dt><dd><strong id="s3-tot">3.191.400 ₫</strong> (đã gồm thuế GTGT 8% số mẫu)</dd><dt>Không duyệt</dt><dd id="s3-no">4. Vệ sinh buồng đốt, 702.000 ₫ <span class="tag tag--warning">Lưu để nhắc lần sau</span></dd><dt>Cách xác nhận</dt><dd>Chữ ký trên màn hình · Nguyễn Hoàng Yến ghi nhận</dd></dl>
-        <ul class="impact-list"><li>Báo giá chuyển sang <strong>Duyệt một phần</strong>; nội dung đã duyệt bị khóa, không có phiên bản thay thế (thay đổi sau này dùng báo giá bổ sung).</li><li>Hệ thống tạo lệnh sửa chữa chỉ gồm hạng mục đã duyệt và giữ chỗ phụ tùng theo tồn khả dụng.</li><li id="s3-stock">Hạng mục 2 dùng má phanh Vios khả dụng 0 (đang về 10): hạng mục 2 bị khóa với thẻ “Thiếu phụ tùng”; hạng mục 1 và 3 vẫn làm được nên lệnh <strong>vẫn Đang sửa chữa</strong>. Lệnh chỉ Tạm dừng khi không còn hạng mục nào làm tiếp được.</li></ul>
+        <ul class="impact-list"><li>Báo giá chuyển sang <strong>Duyệt một phần</strong>; nội dung đã duyệt bị khóa, không có phiên bản thay thế (thay đổi sau này dùng báo giá bổ sung).</li><li>Hệ thống tạo lệnh sửa chữa ở trạng thái <strong>Đã duyệt</strong>, chỉ gồm hạng mục đã duyệt, và giữ chỗ phụ tùng theo tồn khả dụng. Lệnh chuyển sang Đang sửa chữa khi thợ bắt đầu hạng mục đầu tiên.</li><li id="s3-stock">Hạng mục 2 dùng má phanh Vios khả dụng 0 (đang về 10): hạng mục 2 bị khóa với thẻ “Thiếu phụ tùng”; hạng mục 1 và 3 vẫn làm được nên lệnh không bị chặn. Lệnh (đang ở Đã duyệt) chỉ chuyển Tạm dừng, lý do Chờ phụ tùng, khi đã Đang sửa chữa mà không còn hạng mục nào làm tiếp được.</li></ul>
       </div>
 
       <!-- Từ chối toàn bộ -->
@@ -109,8 +109,8 @@ window.g2qReady = function () {
     /* Hậu quả tồn kho theo hạng mục đang chọn: chỉ hạng mục 2 (má phanh Vios, khả dụng 0) bị khóa */
     var has2 = ok.indexOf(2) >= 0, others = ok.filter(function (x) { return x !== 2; });
     document.getElementById('s3-stock').innerHTML = !has2 ? 'Mọi phụ tùng của hạng mục đã chọn đều đủ tồn khả dụng: được giữ chỗ, không hạng mục nào bị khóa vì thiếu phụ tùng.'
-      : others.length ? 'Hạng mục 2 dùng má phanh Vios khả dụng 0 (đang về 10): hạng mục 2 bị khóa với thẻ “Thiếu phụ tùng”; hạng mục ' + others.join(', ') + ' vẫn làm được nên lệnh <strong>vẫn Đang sửa chữa</strong>. Lệnh chỉ Tạm dừng khi không còn hạng mục nào làm tiếp được.'
-      : 'Hạng mục 2 là hạng mục duy nhất và thiếu má phanh Vios (khả dụng 0): hạng mục bị khóa “Thiếu phụ tùng” và <strong>lệnh Tạm dừng</strong> (lý do Chờ phụ tùng) vì không còn việc làm tiếp.';
+      : others.length ? 'Hạng mục 2 dùng má phanh Vios khả dụng 0 (đang về 10): hạng mục 2 bị khóa với thẻ “Thiếu phụ tùng”; hạng mục ' + others.join(', ') + ' vẫn làm được nên lệnh không bị chặn. Lệnh (đang ở Đã duyệt) chỉ chuyển Tạm dừng, lý do Chờ phụ tùng, khi đã Đang sửa chữa mà không còn hạng mục nào làm tiếp được.'
+      : 'Hạng mục 2 là hạng mục duy nhất và thiếu má phanh Vios (khả dụng 0): hạng mục bị khóa “Thiếu phụ tùng”, lệnh giữ <strong>Đã duyệt</strong> và chưa bắt đầu được. Lệnh chỉ Tạm dừng (Chờ phụ tùng) từ Đang sửa chữa khi không còn việc làm tiếp.';
     var w = document.getElementById('req-warn'); w.hidden = reqOff.length === 0; document.getElementById('req-names').textContent = reqOff.join('; ');
     gate1();
   }

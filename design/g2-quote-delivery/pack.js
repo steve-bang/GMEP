@@ -192,8 +192,12 @@
     bar.innerHTML = ic('circle-check') + '<div class="alert__body"><span class="alert__title"></span><span class="g2q-undo__t"></span></div><button type="button" class="btn btn--secondary btn--xl">' + ic('undo') + 'Hoàn tác (<span class="g2q-undo__n">10</span>)</button>';
     bar.querySelector('.alert__title').textContent = p[0]; bar.querySelector('.g2q-undo__t').textContent = p[1];
     document.body.appendChild(bar);
-    var iv = setInterval(function () { left--; var n = bar.querySelector('.g2q-undo__n'); if (n) n.textContent = left; if (left <= 0) { clearInterval(iv); bar.remove(); } }, 1000);
-    bar.querySelector('button').addEventListener('click', function () { clearInterval(iv); bar.remove(); window.gmepToast('info', 'Đã hủy bắt đầu', 'Mốc “hủy bắt đầu” được ghi vết, không tính giờ làm.'); });
+    /* F3R3-01: chừa chỗ đáy để thanh không che thẻ vừa bấm, cuộn thẻ vào vùng nhìn, thanh nằm trên bottom nav */
+    document.body.classList.add('g2q-has-undo');
+    try { b.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {}
+    function done() { bar.remove(); document.body.classList.remove('g2q-has-undo'); }
+    var iv = setInterval(function () { left--; var n = bar.querySelector('.g2q-undo__n'); if (n) n.textContent = left; if (left <= 0) { clearInterval(iv); done(); } }, 1000);
+    bar.querySelector('button').addEventListener('click', function () { clearInterval(iv); done(); window.gmepToast('info', 'Đã hủy bắt đầu', 'Mốc “hủy bắt đầu” được ghi vết, không tính giờ làm.'); });
   });
   document.addEventListener('click', function (e) {
     if (e.target.closest('[data-print]')) window.print();

@@ -234,6 +234,10 @@ Câu trả lời BA đã áp dụng: câu 1 (QUO-01/03), 2 (QUO-02/05/06/08), 3 
 | F3R2-06 Nháp báo phát sinh chưa gửi không có dấu hiệu | Minor | Cảnh báo nổi bật đầu TEC-01 "1 báo hư hỏng phát sinh CHƯA gửi" kèm nút mở nháp | TEC-01 |
 | F3R2-07 RO-Q7-2610-00126 mâu thuẫn | Minor | DLV-01 dùng lệnh khác (00114, 00110) | DLV-01 |
 | F3R2-08 Câu hậu quả QUO-05 cứng | Minor | Sinh theo hạng mục đang chọn (có/không hạng mục 2, một hạng mục duy nhất thì lệnh Tạm dừng) | QUO-05 |
+| Vòng 3: F3R3-01 Thanh Hoàn tác che nút/bottom nav | Minor | Chừa padding đáy `.main` khi có thanh (`body.g2q-has-undo`), cuộn nút vừa bấm vào giữa vùng nhìn, trên mobile đặt thanh trên bottom nav | pack.js, pack.css |
+| Vòng 3: F3R3-02 Câu hậu quả QUO-05 | Minor | Lệnh mới tạo ở "Đã duyệt"; "Tạm dừng" chỉ chuyển từ "Đang sửa chữa" (ba-answers-02 A.1) | QUO-05 |
+| Vòng 3: F3R3-03 Nút hàng loạt QUO-08 | Minor | Khóa khi chưa chọn dòng nào, kèm lý do bằng chữ và tooltip | QUO-08 |
+| Vòng 3: nháp báo phát sinh chưa gửi | Quyết định BA | Giữ đến khi gửi/hủy, tối đa hết ca (24 giờ, cấu hình), không phụ thuộc khóa 3 phút, gắn thợ tạo, Quản đốc xem, hết hạn chuyển Quản đốc | TEC-01 |
 
 **Quyết định BA vòng 2 đã áp dụng.** (1) Mất mạng TEC: chặn gửi + nháp trên máy + Gửi khi có mạng, mốc giờ vẫn ghi bù (TEC-01/03/04). (2) Trạng thái yêu cầu phụ tùng thành badge: Đã gửi / Thủ kho đã nhận / Xuất một phần / Đã xuất đủ / Thiếu hàng, chờ hàng về / Đã hủy (TEC-03). (3) Biên bản điều chỉnh bằng hộp thoại từ DLV-04 đã giao, QL duyệt, mã BB mới liên kết bản gốc (DLV-04). (4) Cờ An toàn: giữ đến khi làm, bỏ nhắc có lý do hoặc hết hạn lưu (khởi tạo 12 tháng), có báo cáo QL (QUO-08). (5) Thuế làm tròn ở cấp hạng mục, 1 đồng (đề xuất; QUO-02 ghi chú). (6) Người ủy quyền: bắt buộc ảnh giấy tờ, cấu hình theo chi nhánh, miễn khi là người liên hệ doanh nghiệp, ảnh nhạy cảm (DLV-04). (7) "Khách đã yêu cầu": ghi kênh, giờ, ghi chú, người đặt cờ (QUO-02). (8) Phát sinh duyệt cùng cơ chế OTP/ngưỡng; xác nhận bằng lời qua điện thoại là ngoại lệ có rà soát (QUO-07 nút "Ghi nhận duyệt (quầy hoặc điện thoại)").
 
@@ -250,4 +254,5 @@ Câu trả lời BA đã áp dụng: câu 1 (QUO-01/03), 2 (QUO-02/05/06/08), 3 
 | --- | --- | --- |
 | 1 | Lỗi làm tròn thuế cấp hạng mục: kế toán chốt ví dụ kiểm thử có chữ ký (NFR-MNT-01) trước khi đóng cứng cách hiển thị? | QUO-05, 06, PRT-01 |
 | 2 | Báo giá bổ sung "Đã hủy" bởi cố vấn: đối tượng báo giá dùng trạng thái nào trong bộ 6 (hiện hiển thị badge "Đã hủy" như tag phụ)? | QUO-07 |
-| 3 | Thời hạn nháp "chưa gửi" của báo phát sinh trên máy: giữ đến hết ca hay hết phiên khóa 3 phút? | TEC-01, 04 |
+| 3 | (Đã trả lời vòng 3: nháp giữ đến khi gửi/hủy, tối đa hết ca, không phụ thuộc khóa 3 phút.) | TEC-01, 04 |
+| 4 | Báo giá bổ sung bị cố vấn hủy hiện badge "Đã hủy" như trạng thái thứ 7 của Báo giá (đề xuất, chờ chủ dự án xác nhận); nếu không chấp nhận thì dùng trạng thái nào trong bộ 6? | QUO-07 |

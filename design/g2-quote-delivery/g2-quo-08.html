@@ -39,7 +39,7 @@ g2q.scope('01/07–30/10/2026');
       <div class="table-toolbar"><span class="table-meta">6 hạng mục trên 5 xe · tổng giá cũ 9.792.000 ₫ (đã gồm thuế)</span><span class="t-body-sm text-secondary" style="margin-left:auto">Chọn hạng mục của cùng một xe để đưa vào báo giá mới.</span></div>
       <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count"><span data-bulk-count>0</span> hạng mục được chọn</span>
         <span id="bulk-mixed" class="tag tag--warning" hidden>Chọn hạng mục của cùng một xe</span>
-        <button class="btn btn--primary btn--sm" id="bulk-quote" data-show-roles="CV QL" data-href="g2-quo-02.html" onclick="location.href=this.getAttribute('data-href')">Đưa vào báo giá mới</button>
+        <span class="tooltip-host"><button class="btn btn--primary btn--sm" id="bulk-quote" aria-describedby="bulk-why" data-show-roles="CV QL" data-href="g2-quo-02.html" onclick="location.href=this.getAttribute('data-href')" disabled aria-disabled="true">Đưa vào báo giá mới</button><span class="tooltip" role="tooltip" id="bulk-why">Chọn ít nhất một hạng mục của cùng một xe. Xe đang có lệnh mở thì dùng báo giá bổ sung.</span></span>
         <button class="btn btn--secondary btn--sm" data-show-roles="CV QL" data-open="dlg-drop">Bỏ nhắc</button>
         <span class="g2q-note" data-show-roles="CH QV QD TN KT TK">Vai trò của bạn chỉ xem danh sách.</span>
         <button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
@@ -79,7 +79,8 @@ window.g2qReady = function () {
     if (!e.target.matches('[data-row-check],[data-select-all]')) return;
     setTimeout(function () {
       var plates = {}; document.querySelectorAll('tbody input[data-row-check]:checked').forEach(function (c) { plates[c.closest('tr').getAttribute('data-plate')] = 1; });
-      var multi = Object.keys(plates).length > 1; mixed.hidden = !multi; btn.disabled = multi; btn.setAttribute('aria-disabled', String(multi));
+      var cnt = Object.keys(plates).length, multi = cnt > 1; mixed.hidden = !multi; btn.disabled = multi || cnt === 0; btn.setAttribute('aria-disabled', String(btn.disabled));
+      document.getElementById('bulk-why').textContent = cnt === 0 ? 'Chưa chọn dòng nào: chọn ít nhất một hạng mục của cùng một xe.' : multi ? 'Đã chọn hạng mục của nhiều xe: chỉ lập báo giá cho từng xe một.' : 'Xe đang có lệnh mở thì dùng báo giá bổ sung.';
       /* Xe đang có lệnh mở: việc mới đi qua báo giá bổ sung (RULE-006), không tạo báo giá mới */
       var hasOpen = false; document.querySelectorAll('tbody input[data-row-check]:checked').forEach(function (c) { if (c.closest('tr').hasAttribute('data-open-ro')) hasOpen = true; });
       btn.textContent = hasOpen && !multi ? 'Lập báo giá bổ sung' : 'Đưa vào báo giá mới';

@@ -142,6 +142,8 @@ a.g2q-job:hover { border-color: var(--color-border-selected); box-shadow: var(--
 .g2q-reasons .g2q-choice { min-height: 72px; align-items: center; font-size: var(--font-size-lg); }
 .g2q-reasons .btn { min-height: var(--g2q-reason-h); font-size: var(--font-size-lg); font-weight: 600; white-space: normal; text-align: center; }
 .g2q-undo { position: fixed; left: var(--space-4); right: var(--space-4); bottom: var(--space-4); z-index: var(--z-toast); max-width: 640px; margin: 0 auto; align-items: center; box-shadow: var(--shadow-lg); }
+body.g2q-has-undo .main { padding-bottom: calc(var(--g2q-bar-clearance) - var(--space-4)); }
+@media (max-width: 639px) { .g2q-undo { bottom: calc(var(--space-4) + 72px); } }  /* trên bottom nav (mobile) */
 .g2q-big-check { min-height: 56px; font-size: var(--font-size-lg); }
 .g2q-timelog { display: flex; flex-direction: column; gap: var(--space-1); font-variant-numeric: tabular-nums; font-size: var(--font-size-md); }
 .g2q-timelog > div { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); }
