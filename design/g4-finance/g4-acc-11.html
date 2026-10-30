@@ -65,7 +65,7 @@
     <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Mặc định phân bổ vào lệnh <strong>nợ lâu nhất</strong> trước: RO-Q7-2610-00110 (4.600.000 ₫). Chỉnh phân bổ sau ở chi tiết phiếu thu.</span></div></div>
     <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đối chiếu số tiền với sao kê hoặc tiền thực nhận.</span></label>
   </div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-busy="Đang ghi nhận…" data-done-toast="success|Đã ghi nhận thu công nợ|Phiếu thu PT-Q7-2610-00932, dư nợ còn 19.275.000 ₫." disabled>Ghi nhận thu</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="co-ok" data-g4f-gate-btn data-g4f-submit data-lock="#co-ok" data-busy="Đang ghi nhận…" data-done-label="Đã ghi nhận thu" data-done-toast="success|Đã ghi nhận thu công nợ|Phiếu thu PT-Q7-2610-00934; dư nợ đã giảm." disabled>Ghi nhận thu</button></div></div></div>
 
 <div class="overlay" id="dlg-stmt" role="dialog" aria-modal="true" aria-labelledby="st-t"><div class="dialog">
   <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="st-t">Gửi bảng kê công nợ</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>

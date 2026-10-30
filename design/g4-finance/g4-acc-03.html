@@ -14,7 +14,7 @@
   <div data-g4f-actions>
     <button class="btn btn--secondary" data-open="dlg-print"><svg class="icon"><use href="#printer"/></svg>In phiếu thu</button>
     <button class="btn btn--secondary" data-open="drw-alloc" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán phân bổ thanh toán cho hóa đơn." data-vg="g" data-v-off="p1 locked">Phân bổ lại</button>
-    <button class="btn btn--danger-outline" data-open="dlg-reverse" data-g4f-need="TN KT QL" data-g4f-why="Đảo bút toán do Thu ngân/Kế toán đề xuất, Quản lý chi nhánh duyệt." data-g4f-online data-vg="g" data-v-off="locked"><svg class="icon"><use href="#undo"/></svg>Đảo bút toán</button>
+    <button class="btn btn--danger-outline" id="btn-rev" data-open="dlg-reverse" data-g4f-need="TN KT QL" data-g4f-why="Đảo bút toán do Thu ngân/Kế toán đề xuất, Quản lý chi nhánh duyệt." data-g4f-online data-vg="g" data-v-off="locked"><svg class="icon"><use href="#undo"/></svg>Đảo bút toán</button>
   </div>
 
   <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
@@ -62,7 +62,7 @@
         </tbody>
         <tfoot><tr><td colspan="4">Tổng phân bổ = số tiền phiếu thu</td><td class="col-num">4.800.000 ₫</td></tr></tfoot>
       </table></div>
-      <div class="card__body"><p class="t-body-sm text-secondary" style="margin:0">Lệnh RO-Q7-2610-00122 còn nợ <strong class="num">19.275.000 ₫</strong> sau lần phân bổ này (công nợ Công ty TNHH Vận tải Hòa Phát, xem <a href="g4-acc-11.html">G4-ACC-11</a>).</p></div>
+      <div class="card__body" data-g4f-roles="KT QL CH QV"><p class="t-body-sm text-secondary" style="margin:0">Lệnh RO-Q7-2610-00122 còn nợ <strong class="num">19.275.000 ₫</strong> sau lần phân bổ này (công nợ Công ty TNHH Vận tải Hòa Phát, xem <a href="g4-acc-11.html">G4-ACC-11</a>).</p></div>
     </section>
 
     <section class="card" aria-labelledby="h-hist">
@@ -84,7 +84,7 @@
     <div class="field"><label class="field__label" for="dr-r">Lý do đảo<span class="field__req" aria-hidden="true">*</span></label><textarea id="dr-r" class="textarea" data-confirm-reason placeholder="Ví dụ: nhập sai hình thức thanh toán"></textarea><span class="field__hint">Tối thiểu 5 ký tự. Lý do hiện trong nhật ký và trên phiếu đảo.</span></div>
     <div class="field"><label class="field__label" for="dr-c">Gõ <strong>PT-Q7-2610-00929</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="dr-c" class="input" data-confirm-input autocomplete="off"></div>
   </div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên phiếu</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu đảo bút toán|Chờ Quản lý chi nhánh duyệt. Phiếu gốc vẫn hiệu lực." disabled>Gửi yêu cầu đảo</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên phiếu</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-rev" data-busy="Đang gửi yêu cầu đảo…" data-done-label="Đang chờ duyệt đảo" data-done-toast="warning|Đã gửi yêu cầu đảo bút toán|Chờ Quản lý chi nhánh duyệt. Phiếu gốc vẫn hiệu lực; nút Đảo khóa tới khi có kết quả." disabled>Gửi yêu cầu đảo</button></div></div></div>
 
 <!-- Phân bổ lại -->
 <div class="overlay overlay--drawer" id="drw-alloc" role="dialog" aria-modal="true" aria-labelledby="da-t"><aside class="drawer">
@@ -96,7 +96,7 @@
     <div class="g4f-diff is-ok" id="al-diff" role="status"><div class="row row--between"><span>Tổng phân bổ</span><strong id="al-sum" class="num">4.800.000 ₫</strong></div><div class="row row--between"><span>Phần dư thành khoản nhận trước</span><strong id="al-rest" class="num">0 ₫</strong></div><div class="t-body-sm" id="al-msg" style="margin-top:6px">Khớp số tiền phiếu thu.</div></div>
     <div class="field"><label class="field__label" for="al-r">Lý do phân bổ lại<span class="field__req" aria-hidden="true">*</span></label><textarea id="al-r" class="textarea" placeholder="Ví dụ: khách yêu cầu trừ vào hóa đơn cũ trước"></textarea></div>
   </div>
-  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="al-ok" data-close data-toast="success|Đã phân bổ lại|Ghi nhận lịch sử phân bổ cũ và mới.">Lưu phân bổ</button></div></aside></div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="al-ok" data-g4f-submit data-lock="#al-ok" data-busy="Đang lưu…" data-done-label="Đã lưu phân bổ" data-done-toast="success|Đã phân bổ lại|Ghi nhận lịch sử phân bổ cũ và mới." data-g4f-need="KT" data-g4f-why="Chỉ Kế toán phân bổ." data-g4f-online>Lưu phân bổ</button></div></aside></div>
 
 <!-- In phiếu thu -->
 <div class="overlay" id="dlg-print" role="dialog" aria-modal="true" aria-labelledby="pr-t"><div class="dialog dialog--md" data-state-group>
@@ -131,6 +131,10 @@ window.G4F_PAGE = {
 <script>
 (function () {
   var $ = G4F.$, $$ = G4F.$$, fmt = G4F.fmt, num = G4F.num;
+  var allocOk = true;
+  function chkAlloc() { G4F.setEnabled($('#al-ok'), allocOk && $('#al-r').value.trim().length >= 5); }
+  document.addEventListener('input', function (e) { if (e.target.id === 'al-r') chkAlloc(); });
+  G4F.setEnabled($('#al-ok'), false);
   document.addEventListener('input', function (e) {
     if (!e.target.matches('[data-alloc]')) return;
     var s = $$('[data-alloc]').reduce(function (a, i) { return a + num(i.value); }, 0), rest = 4800000 - s;
@@ -138,7 +142,7 @@ window.G4F_PAGE = {
     var d = $('#al-diff'), ok = rest >= 0, m = $('#al-msg');
     d.className = 'g4f-diff ' + (rest === 0 ? 'is-ok' : ok ? '' : 'is-bad');
     m.textContent = rest === 0 ? 'Khớp số tiền phiếu thu.' : rest > 0 ? 'Chưa phân bổ hết: phần dư ' + fmt(rest) + ' sẽ thành khoản nhận trước.' : 'Phân bổ vượt số tiền phiếu thu ' + fmt(-rest) + '. Giảm bớt để lưu.';
-    $('#al-ok').disabled = !ok;
+    allocOk = ok; chkAlloc();
   });
   G4F.applyVar('g', 'p1');
 })();

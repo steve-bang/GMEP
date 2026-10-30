@@ -24,7 +24,7 @@ Cột “Trạng thái đã thiết kế” liệt kê các trạng thái bật 
 | G2-CRM-05 | Tạo / sửa xe | `g2-crm-05.html` | E | QL, CV | P1 | Mặc định, biển số trùng, km thấp hơn lần trước, biển đặc biệt, đang lưu, xung đột, chỉ đọc |
 | G2-CRM-06 | Hồ sơ xe và lịch sử sửa chữa | `g2-crm-06.html` | D | Như CRM-01 | P1 | Đủ lịch sử, lịch sử chi nhánh khác chỉ hiện phần được phép, xe mới chưa có lịch sử, đang tải, không tìm thấy, không quyền, lỗi |
 | G2-CRM-07 | Chuyển chủ xe / đổi biển số | `g2-crm-07.html` | E (Dlg) | QL, CV | P1 | Chuyển chủ, đổi biển, lỗi theo trường, đang lưu; xác nhận bằng gõ biển số |
-| G2-CRM-08 | Phát hiện trùng và hợp nhất | `g2-crm-08.html` | E | QL | P2+ | Có cặp trùng, đang tải, không có cặp trùng, lỗi, không quyền, xác nhận NH |
+| G2-CRM-08 | Phát hiện trùng và hợp nhất | `g2-crm-08.html` | E | QL (cùng chi nhánh; liên chi nhánh chỉ đề nghị); QV, CH (liên chi nhánh) | P2+ | Có cặp trùng, đang tải, không có cặp trùng, lỗi, không quyền, xác nhận NH |
 | G2-CRM-09 | Nhắc bảo dưỡng, đăng kiểm, bảo hiểm | `g2-crm-09.html` | C | CV, QL (S); CH, QV (X) | P2 | Có dữ liệu, tải, trống, trống do lọc, lỗi, không quyền, nút Nhắc khóa khi khách chưa đồng ý kênh |
 | G2-CRM-10 | Gửi tin nhắn và chiến dịch | `g2-crm-10.html` | E | CV, QL | P2 | Sẵn sàng gửi, chưa cấu hình nhà cung cấp (khóa gửi), đã gửi (kết quả từng tin), lỗi gửi; xác nhận số người nhận |
 | G2-CRM-11 | Yêu cầu của chủ dữ liệu | `g2-crm-11.html` | C + D | QL (xử lý); CH (duyệt xóa) | P1 | Có dữ liệu, tải, trống, trống do lọc, lỗi, không quyền, quá hạn xử lý |
@@ -36,7 +36,7 @@ Cột “Trạng thái đã thiết kế” liệt kê các trạng thái bật 
 | G2-REC-01 | Tiếp nhận xe (check-in) | `g2-rec-01.html` | W | CV (S), QL | P1 | 5 bước (chưa/đang/xong/lỗi), xe đã có, xe mới, km thấp hơn lần trước, ảnh đang tải/lỗi, lưu nháp, mất mạng, hủy hồ sơ (NH), đang tải xe, lỗi tra cứu |
 | G2-REC-02 | Danh sách lệnh sửa chữa | `g2-rec-02.html` | C | M2: CV (S), QL (D), còn lại X; TH (Xn) | P1 | Có dữ liệu (ba badge Lệnh/Thanh toán/Hóa đơn tách), tải, trống, trống do lọc, lỗi, không quyền, mobile card |
 | G2-REC-03 | Bảng điều phối chi nhánh | `g2-rec-03.html` | K | CV, QL, QĐ; CH, QV (X); TH (Xn) | P1 | Có dữ liệu, tải, trống, lỗi, không quyền, kéo thả có điều kiện, chuyển bằng nút (bàn phím/cảm ứng), chặn kèm lý do |
-| **G2-REC-04** | **Chi tiết lệnh sửa chữa (chuẩn số 1)** | `g2-rec-04.html` | D | Như REC-02; tab Thanh toán ẩn với TH, QĐ; tab Hóa đơn ẩn với TH, QĐ, CV | P1 | 8 biến thể: Đang sửa, Tạm dừng chờ phụ tùng, **Chờ QC**, **Sẵn sàng bàn giao** (xuất hóa đơn bật, danh sách kiểm), Hoàn tất (chỉ đọc), Ngày đã chốt sổ, Khách DN vượt hạn mức nợ, Đã hủy; tải, không tìm thấy, không quyền, lỗi; phát sinh chờ duyệt; vai trò Thợ |
+| **G2-REC-04** | **Chi tiết lệnh sửa chữa (chuẩn số 1)** | `g2-rec-04.html` | D | Như REC-02; tab Thanh toán ẩn với TH, QĐ; tab Hóa đơn ẩn với TH, QĐ, CV | P1 | 9 biến thể: Đang sửa, Tạm dừng chờ phụ tùng, **Đủ điều kiện gửi QC**, **Chờ QC**, **Sẵn sàng bàn giao** (xuất hóa đơn bật, danh sách kiểm), Hoàn tất (chỉ đọc), Ngày đã chốt sổ, Khách DN vượt hạn mức nợ, Đã hủy; tải, không tìm thấy, không quyền, lỗi; phát sinh chờ duyệt; vai trò Thợ |
 | G2-REC-05 | Phân thợ và tải việc | `g2-rec-05.html` | K/C | QĐ (S); QL (D); CV (X) | P1 | Có dữ liệu, tải, trống, lỗi, không quyền, quá tải, đổi thợ (NH khi đang làm) |
 | G2-REC-06 | Hủy lệnh và hoàn kho | `g2-rec-06.html` | Dlg/W | CV (đề xuất); QL (duyệt) | P1 | Soạn yêu cầu, chờ duyệt, QL duyệt, bị từ chối, lỗi gửi; nút gửi khóa tới khi đủ phiếu hoàn kho |
 | G2-REC-07 | Bảng đồng sơn theo công đoạn | `g2-rec-07.html` | K | QĐ, CV (S); QL; CH, QV (X) | P2+ | Có dữ liệu, tải, trống, lỗi, không quyền, trễ dự kiến, chưa có người phụ trách |
@@ -130,7 +130,7 @@ Template D: header, nội dung nghiệp vụ, sidebar liên quan, timeline.
 
 Biến thể bật bằng thanh “Biến thể lệnh” hoặc `?variant=working|paused|done|locked|debt|cancelled`.
 
-Theo vai trò: Thợ chỉ thấy hạng mục của mình, giá và thanh toán bị ẩn (••• ₫), PII bị chặn; CH/QV/QĐ/TK/TN/KT chỉ xem (nút chính và Hủy khóa kèm lý do); CV/QL thao tác; AD không truy cập (trang báo không quyền).
+Theo vai trò: Thợ chỉ thấy hạng mục của mình, giá và thanh toán bị ẩn (••• ₫), PII bị chặn; CH/QV/TK/TN/KT chỉ xem (nút chính và Hủy khóa kèm lý do); Quản đốc xem lệnh, được Gửi QC, Tạm dừng, chấm QC nhưng không thấy tab Thanh toán, Hóa đơn, công nợ (chỉ thấy cờ “Giữ xe: liên hệ Cố vấn” khi khách vượt hạn mức nợ); Cố vấn không thấy tab Hóa đơn (chỉ badge + số hóa đơn); CV/QL thao tác; AD không truy cập (trang báo không quyền).
 
 Tablet/mobile: sidebar xuống dưới nội dung chính; hàng hạng mục chuyển 2 cột; nhóm hành động xuống dòng, nút giãn đều, vạch ngăn ẩn, khu nguy hiểm xuống cuối.
 
@@ -282,7 +282,7 @@ Giả định 1 (mã): đổi thành `CD`, `LH`, `TX`. Giả định 3: xác nh�
 4. Mọi điều kiện chuyển trạng thái, hủy, xuất hóa đơn được máy chủ kiểm lại; giao diện chỉ phản ánh và nêu lý do. Danh sách kiểm xuất hóa đơn, lý do tạm dừng, mốc quá hạn, ngưỡng nhắc, công suất vượt tối đa là cấu hình có ngày hiệu lực.
 5. Gom ủy quyền sự kiện; không dùng nhiều `document.addEventListener('click')` rải rác như prototype. Kiểm thử trực quan 4 vai trò × 3 độ rộng cho REC-04.
 
-## 11. Chưa xử lý trọn vẹn
+## 11. Chưa xử lý trọn vẹn (bản 0.2; các mục 1, 2, 3, 4 đã xử lý ở mục 13)
 
 1. **F2-19**: cờ “Số km bất thường” mới được nêu ở cảnh báo của REC-01, chưa hiện thành tag ở REC-02 và REC-04 cho Quản lý.
 2. **F2-10**: ở biến thể liên chi nhánh, cột hồ sơ B chưa thu gọn xuống “mức tối thiểu” cho Quản lý chi nhánh (hiện cảnh báo bằng chữ).
@@ -298,3 +298,46 @@ Giả định 1 (mã): đổi thành `CD`, `LH`, `TX`. Giả định 3: xác nh�
 5. Quản lý vùng có được xem toàn bộ hồ sơ B ở CRM-08 liên chi nhánh, hay cũng ở mức tối thiểu cho tới khi duyệt?
 6. Cờ “Số km bất thường”: ngưỡng cuối cùng, và ai nhận thông báo ngoài Quản lý chi nhánh.
 7. Xác nhận QĐ xem tài chính: tab Thanh toán, Hóa đơn ẩn hoàn toàn (đã làm theo câu 11), còn cảnh báo vượt hạn mức nợ có cần cho QĐ biết để không giao xe?
+
+(Bảy câu trên đã được BA trả lời ở `review-02-round2-ba.md` mục 4; áp dụng ở mục 13.)
+
+## 13. Vòng review 2 (`review-02-round2-ba.md`, bản 0.3)
+
+### 13.1 Quyết định BA áp dụng
+1. Đủ điều kiện gửi QC: không tự chuyển; REC-04 có biến thể “Đủ điều kiện gửi QC” (banner xanh, nút chính bật). Thông báo trong ứng dụng và tag trên thẻ REC-03 là phần của hệ thống thông báo, chưa vẽ.
+2. “Tính phí khách” khi hủy: dòng phải thu thuộc chính lệnh gốc, FR-REC-037 mới, mặc định tắt; REC-06 hiện tùy chọn bị khóa, nhãn “chờ xác nhận nghiệp vụ”.
+3. Hai cách xử lý tiền (giữ đặt trước, trừ phí) cần màn con ở vòng thiết kế sau, chờ kế toán.
+4. “Thu đủ trước khi xuất hóa đơn”: điều kiện thứ 6 chỉ hiện khi cấu hình bật (mặc định tắt); chưa vẽ trong danh sách kiểm.
+5. CRM-08: QV xem đủ hai hồ sơ trong nhóm được giao; QL chi nhánh chỉ mức tối thiểu với hồ sơ ngoài phạm vi.
+6. Cờ “Số km bất thường”: ngưỡng giảm hơn 1.000 km, hiện tag cho QL, QV, CH.
+7. Quản đốc không thấy số nợ, chỉ cờ trung tính “Giữ xe: liên hệ Cố vấn”.
+
+### 13.2 Finding vòng 2 → đã xử lý ở đâu
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F2-01 (còn dở) Thợ thấy tiền công | Major | Bọc `data-g2w-money` cho “Công …” của 3 hạng mục; tổng giờ ở tab Công thợ ẩn với TH | `g2-rec-04.html` |
+| F2-07 Hộp Tạm dừng | Major | Nút chỉ mở khi chọn lý do; “Khác” bắt buộc ghi chú ≥ 5 ký tự, lý do khóa hiện dưới nút; thẻ REC-03 chuyển sang cột Tạm dừng kèm tag lý do; REC-04 chuyển sang biến thể Tạm dừng | `pack.js` (`pauseCheck`, `g2wForceMove`), `g2-rec-03.html`, `g2-rec-04.html` |
+| F2-10 CRM-08 cột B | Major | Liên chi nhánh: QL chi nhánh chỉ thấy tên viết tắt, SĐT che cứng (`data-mask`), không email, không bảng đồng ý; QV, CH xem đủ | `g2-crm-08.html`, `pack.js` |
+| F2R2-01 Ô đồng ý đánh sẵn | Major | Bỏ `checked` ở ô nhắc bảo dưỡng (CRM-02) và ô gửi xác nhận lịch (APT-02); ghi chú nêu đồng ý là hành động chủ động | `g2-crm-02.html`, `g2-apt-02.html` |
+| F2-16 Mốc thời gian | Minor | “Còn 6 giờ 30 phút”, giờ thực 0,1, tạm dừng 09:28, “Cập nhật lúc” đổi theo biến thể | `g2-rec-04.html` |
+| F2-19 Cờ km bất thường | Minor | Tag “Số km bất thường” ở REC-02 (dòng RO-…00127) và REC-04 (hiện với `?kmflag=1`), chỉ QL, QV, CH | `g2-rec-02.html`, `g2-rec-04.html` |
+| F2-27 Đồng bộ tài liệu | Minor | 9 biến thể; quyền CRM-08; quyền QĐ, CV ở §4.2; `index.html` | tài liệu, `index.html` |
+| F2R2-03 REC-02 cột tài chính cho QĐ | Minor | `data-g2w-hidecols="8,9|TH QD"`; bộ lọc Thanh toán ẩn với QĐ; ghi chú: thẻ mobile còn badge thanh toán cho QĐ (xem mục 14) | `g2-rec-02.html`, `pack.js` |
+| F2R2-04 Tag công nợ | Minor | Tag “Vượt hạn mức nợ”, “Nợ quá hạn” ẩn với TH, QĐ; thẻ mobile thống nhất với bảng | `g2-crm-01.html` |
+| F2R2-05 CRM-03 | Minor | Sửa câu cảnh báo (giao xe, mở thêm lệnh; thu tiền không bị chặn); tab Thanh toán ẩn với CV | `g2-crm-03.html` |
+| F2R2-06 APT-02 vượt công suất | Minor | Ô “Lý do đặt vượt công suất” bắt buộc, nút Lưu khóa kèm lý do; biến thể vượt mức tối đa đổi thành “Gửi Quản lý duyệt” | `g2-apt-02.html` |
+| F2R2-07 REC-04/06 | Minor | Biến thể “Đủ điều kiện gửi QC”; “Báo phát sinh”, “Yêu cầu phụ tùng” khóa từ Chờ QC; “Tính phí khách” khóa, nhãn chờ xác nhận | `g2-rec-04.html`, `g2-rec-06.html` |
+| F2R2-08 Dữ liệu mẫu | Minor | RO-…00124 = Ford Ranger 51A-246.80; RO-…00129 = Suzuki Ertiga 51M-345.67; REC-05 hạng mục Chờ QC/Sẵn sàng giao là Hoàn thành; kiểm tra lần 12/07 = 13 Tốt, 1 Theo dõi; phiếu hoàn PN 00098, 00099; sửa chữ bảo hành | REC-03, 04, 05, 06, CRM-06, INS-02, REC-01 |
+| F2R2-09 CRM-09/04 | Minor | Thẻ mobile, thanh hàng loạt đổi “Ghi nhận đã gọi”; nút gửi nhắc ở đầu trang khóa kèm lý do; dữ liệu mẫu theo ngưỡng; bỏ cảnh báo “còn 33 ngày” | `g2-crm-09.html`, `g2-crm-04.html` |
+| F2R2-10 CRM-11/01 | Minor | Biến thể “Chờ Chủ garage duyệt xóa” (Từ chối, Duyệt, chỉ CH); liên kết Hợp nhất mở cho QL, QV, CH | `g2-crm-11.html`, `g2-crm-01.html` |
+| F2R2-11 Quyền xem | Minor | (a) tổng giờ ẩn với TH; (b) CRM-06 TH thấy tên chủ xe, sửa chữ tab Sở hữu; (c) REC-05 đổi thợ đang làm gửi QL duyệt | REC-04, CRM-06, REC-05 |
+| F2R2-12 REC-07 | Minor | 9 công đoạn theo Journey §3 (sơn gộp một), cờ yêu cầu ảnh và ô ảnh trong hộp chuyển, lý do bắt buộc khi quay lại | `g2-rec-07.html` |
+
+## 14. Chưa xử lý trọn vẹn (vòng 2)
+
+1. Thẻ mobile của REC-02 vẫn hiện badge Thanh toán, Hóa đơn cho Quản đốc (bảng đã ẩn).
+2. Thông báo “đủ điều kiện gửi QC” và tag “Đủ điều kiện gửi QC” trên thẻ REC-03 chưa vẽ (thuộc hệ thống thông báo).
+3. Danh sách kiểm xuất hóa đơn chưa có điều kiện thứ 6 “thu đủ trước khi xuất” (chỉ khi cấu hình bật).
+4. Vai trò MH, NS vừa thêm ở `design/assets/app.js` chưa được rà trên từng màn; `data-g2w-deny` chưa liệt kê MH, NS (hai vai trò này không thuộc ma trận gói G2; cần khẳng định chúng bị chặn mặc định).
+5. Tính phí khách khi hủy lệnh và hai cách xử lý tiền chờ kế toán vẫn khóa, chưa có màn con.

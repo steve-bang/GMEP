@@ -57,12 +57,12 @@
         </div></div>
       </section>
       <section class="card card__body stack">
-        <div data-vg="s" data-v="draft"><button class="btn btn--primary btn--lg btn--block" data-open="dlg-send" data-g4f-need="KT TN QL" data-g4f-why="Kế toán, Thu ngân, Quản lý lập đề xuất chi.">Gửi duyệt</button><button class="btn btn--secondary btn--block" style="margin-top:8px" data-toast="info|Đã lưu nháp|Đề xuất chưa gửi duyệt.">Lưu nháp</button></div>
+        <div data-vg="s" data-v="draft"><button class="btn btn--primary btn--lg btn--block" id="btn-send5" data-open="dlg-send" data-g4f-need="KT TN QL" data-g4f-why="Kế toán, Thu ngân, Quản lý lập đề xuất chi.">Gửi duyệt</button><button class="btn btn--secondary btn--block" style="margin-top:8px" data-toast="info|Đã lưu nháp|Đề xuất chưa gửi duyệt.">Lưu nháp</button></div>
         <div data-vg="s" data-v="wait ok paid" hidden>
           <span class="tooltip-host" style="display:flex"><button class="btn btn--primary btn--lg btn--block" id="btn-pay" data-open="dlg-pay" data-vg="s" data-v-off="draft wait paid" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền sau khi khoản chi được duyệt." data-g4f-online>Chi tiền 6.800.000 ₫</button></span>
           <p class="g4f-why" data-vg="s" data-v="wait">Chưa chi được: khoản vượt hạn mức, chờ Quản lý vùng duyệt.</p>
           <p class="g4f-why" data-vg="s" data-v="paid">Đã chi. Không có nút xóa: nhầm thì hủy phiếu chi bằng bút toán đảo.</p>
-          <button class="btn btn--danger-outline btn--block" style="margin-top:8px" data-open="dlg-rev" data-vg="s" data-v="paid" hidden data-g4f-need="KT" data-g4f-why="Chỉ Kế toán đề xuất đảo phiếu chi; cần duyệt.">Đảo phiếu chi</button>
+          <button class="btn btn--danger-outline btn--block" id="btn-revpc" style="margin-top:8px" data-open="dlg-rev" data-vg="s" data-v="paid" hidden data-g4f-need="KT" data-g4f-why="Chỉ Kế toán đề xuất đảo phiếu chi; cần duyệt.">Đảo phiếu chi</button>
         </div>
       </section>
     </aside>
@@ -72,7 +72,7 @@
 <div class="overlay" id="dlg-send" role="dialog" aria-modal="true" aria-labelledby="sd-t"><div class="dialog">
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="sd-t">Gửi duyệt khoản chi 6.800.000 ₫?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><p>Khoản chi vượt hạn mức cấp Quản lý chi nhánh, chuyển <strong>Quản lý vùng</strong> duyệt. Chưa chi được cho tới khi được duyệt. Sau khi gửi, không sửa nội dung; muốn đổi phải rút và lập lại.</p></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi duyệt|Quản lý vùng nhận thông báo “Cần xử lý”.">Gửi duyệt</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-g4f-submit data-lock="#btn-send5" data-busy="Đang gửi duyệt…" data-done-label="Đã gửi duyệt" data-done-toast="success|Đã gửi duyệt|Quản lý vùng nhận thông báo “Cần xử lý”." data-g4f-online>Gửi duyệt</button></div></div></div>
 
 <div class="overlay" id="dlg-pay" role="alertdialog" aria-modal="true" aria-labelledby="py-t"><div class="dialog dialog--md" data-g4f-gate>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="py-t">Xác nhận chi tiền</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
@@ -84,7 +84,7 @@
 <div class="overlay" id="dlg-rev" role="alertdialog" aria-modal="true" aria-labelledby="rv-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="PC-Q7-2610-00043">
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="rv-t">Đảo phiếu chi PC-Q7-2610-00043?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><ul class="impact-list"><li>Phiếu chi không bị xóa; tạo bút toán đảo +6.800.000 ₫ liên kết phiếu gốc.</li><li>Cần Quản lý vùng duyệt; chưa duyệt thì phiếu gốc vẫn hiệu lực.</li></ul><div class="field"><label class="field__label" for="rv-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="rv-r" class="textarea" data-confirm-reason></textarea></div><div class="field"><label class="field__label" for="rv-c">Gõ <strong>PC-Q7-2610-00043</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="rv-c" class="input" data-confirm-input autocomplete="off"></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ phiếu</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu đảo|Chờ duyệt." disabled>Gửi yêu cầu đảo</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ phiếu</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-revpc" data-busy="Đang gửi yêu cầu đảo…" data-done-label="Đang chờ duyệt đảo" data-done-toast="warning|Đã gửi yêu cầu đảo|Chờ duyệt; phiếu chi gốc vẫn hiệu lực." disabled>Gửi yêu cầu đảo</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {

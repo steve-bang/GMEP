@@ -201,7 +201,7 @@
   }
   function applyNet() {
     var off = !!$('.net-banner.is-visible');
-    $$('[data-g4f-online]').forEach(function (el) {
+    $$('[data-g4f-online],[data-confirm-btn],[data-g4f-gate-btn]').forEach(function (el) {
       if (off) el.setAttribute('data-g4f-net', '1'); else el.removeAttribute('data-g4f-net');
       refreshBtn(el);
     });
@@ -248,12 +248,14 @@
     var s = e.target.closest('[data-g4f-submit]'); if (!s || s.disabled) return;
     var ov = s.closest('.overlay'); if (ov && window.gmepClose) window.gmepClose(ov);
     var tgt = s.getAttribute('data-lock') ? $(s.getAttribute('data-lock')) : null;
-    var label = tgt ? tgt.innerHTML : '';
+    if (tgt && tgt._label === undefined) tgt._label = tgt.innerHTML;
+    var label = tgt ? tgt._label : '', restore = s.hasAttribute('data-restore');
     if (tgt) { tgt.setAttribute('aria-busy', 'true'); tgt.setAttribute('data-g4f-keep-lock', '1'); refreshBtn(tgt); tgt.innerHTML = '<svg class="icon spin" aria-hidden="true"><use href="#loader"/></svg>' + esc(s.getAttribute('data-busy') || 'Đang xử lý…'); }
     var live = document.getElementById('g4f-live'); if (!live) { live = document.createElement('div'); live.id = 'g4f-live'; live.className = 'sr-only'; live.setAttribute('role', 'status'); body.appendChild(live); }
     live.textContent = s.getAttribute('data-busy') || 'Đang xử lý';
     setTimeout(function () {
-      if (tgt) { tgt.removeAttribute('aria-busy'); tgt.innerHTML = s.getAttribute('data-done-label') ? ic('check') + esc(s.getAttribute('data-done-label')) : label; }
+      if (tgt) { tgt.removeAttribute('aria-busy'); tgt.innerHTML = (!restore && s.getAttribute('data-done-label')) ? ic('check') + esc(s.getAttribute('data-done-label')) : label; if (restore) { tgt.removeAttribute('data-g4f-keep-lock'); refreshBtn(tgt); } }
+      document.dispatchEvent(new CustomEvent('g4f:done', { detail: { id: s.id, btn: s, target: tgt } }));
       var t = (s.getAttribute('data-done-toast') || '').split('|'); if (t[0] && window.gmepToast) window.gmepToast(t[0], t[1], t[2]);
       var show = s.getAttribute('data-done-show'); if (show) $$(show).forEach(function (x) { x.hidden = false; });
       var hide = s.getAttribute('data-done-hide'); if (hide) $$(hide).forEach(function (x) { x.hidden = true; });
@@ -270,6 +272,22 @@
     var op = e.target.closest('[data-open]'); if (!op) return; var d = document.getElementById(op.getAttribute('data-open')); if (!d) return;
     $$('[data-g4f-gate]', d).forEach(function (g) { $$('[data-g4f-gate-check]', g).forEach(function (c) { c.checked = false; }); $$('[data-g4f-gate-btn]', g).forEach(function (b) { b._gate = false; refreshBtn(b); }); });
   });
+  /* Hộp thoại mức 3 (gõ mã + lý do): app.js tự bật/tắt nút; pack.js ghép thêm các trường bắt buộc (data-g4f-req), khóa mạng và khóa đã gửi */
+  function guardCheck(g) {
+    var btn = $('[data-confirm-btn]', g); if (!btn) return;
+    var word = g.getAttribute('data-confirm-word') || '', typed = $('[data-confirm-input]', g), reason = $('[data-confirm-reason]', g);
+    var ok = (!typed || typed.value.trim() === word) && (!reason || reason.value.trim().length >= 5);
+    (g.getAttribute('data-g4f-req') || '').split(',').forEach(function (sel) {
+      sel = sel.trim(); if (!sel) return; var el = $(sel, g); if (!el) return;
+      var v = (el.value || '').trim(), pat = el.getAttribute('data-g4f-pattern'); if (!v || (pat && !new RegExp(pat).test(v))) ok = false;
+    });
+    btn._ok = ok; refreshBtn(btn);
+  }
+  ['input', 'change'].forEach(function (ev) { document.addEventListener(ev, function (e) { var g = e.target.closest && e.target.closest('[data-confirm-guard]'); if (g) setTimeout(function () { guardCheck(g); }, 0); }); });
+  document.addEventListener('click', function (e) { var op = e.target.closest('[data-open]'); if (!op) return; var d = document.getElementById(op.getAttribute('data-open')); if (!d) return; var g = $('[data-confirm-guard]', d); if (g) setTimeout(function () { guardCheck(g); }, 0); });
+  $$('[data-confirm-guard]').forEach(function (g) { setTimeout(function () { guardCheck(g); }, 0); });
+  /* Đặt lại nút đã khóa sau khi gửi (cho hộp thoại lặp lại được) */
+  function resetBtn(b) { b.removeAttribute('data-g4f-keep-lock'); b.removeAttribute('aria-busy'); if (b._label !== undefined) b.innerHTML = b._label; refreshBtn(b); }
   $$('[data-g4f-need],[data-g4f-online]').forEach(function (el) { if (el.disabled) el._ok = false; });
   $$('[data-g4f-gate-btn]').forEach(function (b) { b._gate = false; refreshBtn(b); });
 
@@ -322,10 +340,11 @@
   /* Giả lập cờ Kế toán trưởng (menu tài khoản) */
   document.addEventListener('click', function (e) {
     var k = e.target.closest('[data-g4f-ktt]'); if (!k) return;
-    var on = k.getAttribute('aria-checked') !== 'true'; k.setAttribute('aria-checked', String(on)); G4F.ktt = on;
+    var on = k.getAttribute('aria-checked') !== 'true'; k.setAttribute('aria-checked', String(on)); G4F.ktt = on; try { sessionStorage.setItem('g4f-ktt', on ? '1' : '0'); } catch (x) {}
     if (window.gmepToast) window.gmepToast('info', on ? 'Giả lập: Kế toán có cờ Kế toán trưởng' : 'Giả lập: Kế toán không có cờ Kế toán trưởng', 'Người lập vẫn không tự duyệt yêu cầu của mình.');
     document.dispatchEvent(new CustomEvent('g4f:ktt')); applyAccess();
   });
-  window.G4F = { fmt: fmt, num: num, wizard: wizard, applyVar: applyVar, refresh: applyAccess, setEnabled: setEnabled, refreshBtn: refreshBtn, canApprove: canApprove, user: function () { return USER[curRole()]; }, ktt: false, $: $, $$: $$ };
+  window.G4F = { fmt: fmt, num: num, wizard: wizard, applyVar: applyVar, refresh: applyAccess, setEnabled: setEnabled, refreshBtn: refreshBtn, resetBtn: resetBtn, canApprove: canApprove, user: function () { return USER[curRole()]; }, ktt: (function () { try { return sessionStorage.getItem('g4f-ktt') === '1'; } catch (x) { return false; } })(), $: $, $$: $$ };
+  $$('[data-g4f-ktt]').forEach(function (k) { k.setAttribute('aria-checked', String(G4F.ktt)); });
   applyAccess();
 })();

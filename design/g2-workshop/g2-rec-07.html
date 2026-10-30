@@ -22,7 +22,7 @@
   <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Không có xe đồng sơn|error:Lỗi|denied:Không có quyền"></div>
 
   <div data-state="data" class="g2w-stack g2w-stack--tight">
-    <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Danh sách công đoạn là giả định, chưa khảo sát xưởng</span><span>Tên và thứ tự công đoạn lấy từ cấu hình quy trình (G4-SYS-13). Đổi cấu hình thì cột đổi theo, thiết kế không cố định. Công đoạn là trạng thái của hạng mục, không phải của lệnh (workflow §3).</span></div></div>
+    <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">9 công đoạn là mẫu cấu hình mặc định, chưa khảo sát xưởng</span><span>Lấy từ Journey §3 (sơn lót, màu, bóng gộp một công đoạn “Sơn”; có thể tách khi cấu hình). Tên và thứ tự là cấu hình quy trình (G4-SYS-13); đổi cấu hình thì cột đổi theo. Công đoạn là trạng thái của hạng mục, không phải của lệnh. Mỗi công đoạn có cờ cấu hình “yêu cầu ảnh”.</span></div></div>
     <div class="alert alert--info" data-g2w-roles="CH QV" role="status"><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span>Bạn chỉ xem bảng. Chuyển công đoạn do Quản đốc, Cố vấn, Quản lý thực hiện.</span></div></div>
 
     <div class="filter-bar">
@@ -31,21 +31,20 @@
     </div>
 
     <div class="g2w-board" role="region" aria-label="Bảng đồng sơn theo công đoạn" tabindex="0">
-      <div class="kanban__col"><div class="kanban__head"><strong>1. Đánh giá</strong><span class="count-pill count-pill--warning">1</span></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>1. Tiếp nhận, chụp ảnh</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>2. Đánh giá hư hỏng</strong><span class="count-pill count-pill--warning">1</span></div>
         <div class="kanban__card is-warning"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00133</a><span class="plate-tag">51B-808.09</span></div><span class="text-secondary t-body-sm">Toyota Fortuner · móp cánh cửa phải</span><div class="g2w-card-meta"><span class="tag tag--warning">Chưa có người phụ trách</span><span class="g2w-due">06/11</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>2. Báo giá chi tiết</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>3. Tháo</strong><span class="count-pill">1</span></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>3. Báo giá chi tiết, khách duyệt</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>4. Tháo chi tiết</strong><span class="count-pill">1</span></div>
         <div class="kanban__card"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00134</a><span class="plate-tag">51N-123.99</span></div><span class="text-secondary t-body-sm">Mazda 3 · trầy cản sau</span><div class="g2w-card-meta"><span>Ngô Thanh Phong</span><span class="g2w-due">04/11</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>4. Gò</strong><span class="count-pill">1</span></div>
-        <div class="kanban__card"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00124</a><span class="plate-tag">51A-246.80</span></div><span class="text-secondary t-body-sm">Ford Ranger · cản trước, ba đờ sốc</span><div class="g2w-card-meta"><span>Ngô Thanh Phong</span><span class="g2w-due">02/11</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>5. Sơn lót</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>6. Sơn màu</strong><span class="count-pill count-pill--danger">1</span></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>5. Gò, sửa thân vỏ</strong><span class="count-pill">1</span></div>
+        <div class="kanban__card"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00124</a><span class="plate-tag">51A-246.80</span></div><span class="text-secondary t-body-sm">Ford Ranger · Võ Thanh Sơn · cản trước, ba đờ sốc</span><div class="g2w-card-meta"><span>Ngô Thanh Phong</span><span class="g2w-due">02/11</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>6. Sơn (lót, màu, bóng)</strong><span class="count-pill count-pill--danger">1</span></div>
         <div class="kanban__card is-overdue"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00120</a><span class="plate-tag">51K-111.22</span></div><span class="text-secondary t-body-sm">Hyundai Tucson · cửa trước trái</span><div class="g2w-card-meta"><span>Ngô Thanh Phong</span><span class="g2w-due is-late"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ · 29/10</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>7. Sơn bóng</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>8. Lắp ráp</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>9. Kiểm tra</strong><span class="count-pill">1</span></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>7. Lắp ráp</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>8. Kiểm tra chất lượng</strong><span class="count-pill">1</span></div>
         <div class="kanban__card"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00119</a><span class="plate-tag">59A-777.88</span></div><span class="text-secondary t-body-sm">Kia Morning · nắp capo</span><div class="g2w-card-meta"><span>Trần Văn Hậu</span><span class="g2w-due is-soon">30/10 hôm nay</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
-      <div class="kanban__col"><div class="kanban__head"><strong>10. Bàn giao</strong><span class="count-pill">0</span></div><div class="kanban__empty">Chưa có xe nào chờ bàn giao.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>9. Bàn giao</strong><span class="count-pill">0</span></div><div class="kanban__empty">Chưa có xe nào chờ bàn giao.</div></div>
     </div>
   </div>
 
@@ -59,13 +58,20 @@
 
 <div class="overlay" id="dlg-stage" role="dialog" aria-modal="true" aria-labelledby="st-t"><div class="dialog dialog--md">
   <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="st-t">Chuyển công đoạn</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body stack"><div class="form-grid"><div class="field"><label class="field__label" for="st-s">Công đoạn tiếp theo<span class="field__req" aria-hidden="true">*</span></label><select id="st-s" class="select"><option>5. Sơn lót</option><option>3. Tháo (quay lại)</option></select></div>
+  <div class="dialog__body stack"><div class="form-grid"><div class="field"><label class="field__label" for="st-s">Công đoạn tiếp theo<span class="field__req" aria-hidden="true">*</span></label><select id="st-s" class="select"><option value="fwd">6. Sơn (lót, màu, bóng)</option><option value="back">4. Tháo chi tiết (quay lại)</option></select></div>
     <div class="field"><label class="field__label" for="st-w">Người phụ trách</label><select id="st-w" class="select"><option>Ngô Thanh Phong</option><option>Trần Văn Hậu</option></select></div>
     <div class="field"><label class="field__label" for="st-d">Ngày dự kiến hoàn thành xe</label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="st-d" class="input" value="02/11/2026"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div></div>
-    <p class="g2w-muted">Đổi ngày dự kiến ảnh hưởng ngày hẹn giao nên khách được báo qua kênh đã đồng ý. Quay lại công đoạn trước cần ghi lý do trong lịch sử hạng mục.</p></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã chuyển công đoạn|Ghi người, thời điểm vào lịch sử hạng mục.">Chuyển</button></div></div></div>
+    <div data-upload class="field"><span class="field__label" id="st-ph">Ảnh công đoạn vừa xong<span class="field__req" aria-hidden="true">*</span></span>
+      <div class="upload__actions"><button type="button" class="btn btn--secondary" data-upload-pick="camera"><svg class="icon"><use href="#camera"/></svg>Chụp ảnh</button><button type="button" class="btn btn--secondary" data-upload-pick="file"><svg class="icon"><use href="#upload"/></svg>Chọn ảnh</button></div><input type="file" accept="image/*" multiple hidden><input type="file" accept="image/*" capture="environment" hidden><div class="upload__thumbs" aria-live="polite"></div>
+      <span class="field__hint">Công đoạn “Gò” đang bật cờ yêu cầu ảnh (cấu hình theo công đoạn). Công đoạn không bật cờ thì ảnh tùy chọn.</span></div>
+    <div class="field" id="st-back" hidden><label class="field__label" for="st-r">Lý do quay lại công đoạn trước<span class="field__req" aria-hidden="true">*</span></label><textarea id="st-r" class="textarea" style="min-height:56px" placeholder="Ví dụ: Phát hiện nứt chưa xử lý ở bước gò"></textarea><span class="field__hint">Tối thiểu 5 ký tự, ghi vào lịch sử hạng mục.</span></div>
+    <p class="g2w-muted">Đổi ngày dự kiến ảnh hưởng ngày hẹn giao nên khách được báo qua kênh đã đồng ý.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="st-ok" data-close data-toast="success|Đã chuyển công đoạn|Ghi người, thời điểm, ảnh vào lịch sử hạng mục.">Chuyển</button></div></div></div>
 
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
+<script>
+document.addEventListener('change', function (e) { if (e.target.id !== 'st-s') return; var back = e.target.value === 'back'; document.getElementById('st-back').hidden = !back; });
+</script>
 </body>
 </html>

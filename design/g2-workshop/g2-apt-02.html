@@ -18,12 +18,14 @@
   <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-apt-01.html">Lịch hẹn</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Tạo lịch hẹn</span></nav>
   <div data-g2w-scope data-time="Biểu mẫu mới" data-asof="09:17"></div>
   <div data-g2w-proto="offline draft"></div>
-  <div data-g2w-variants="default:Mặc định|over:Vượt công suất|error:Lỗi theo trường|saving:Đang lưu|conflict:Giờ vừa bị người khác đặt"></div>
+  <div data-g2w-variants="default:Mặc định|over:Vượt công suất (trong mức tối đa)|overmax:Vượt mức tối đa|error:Lỗi theo trường|saving:Đang lưu|conflict:Giờ vừa bị người khác đặt"></div>
 
   <section class="card" style="max-width:860px" aria-labelledby="h-apt">
     <div class="card__header"><div class="row row--nowrap"><div class="dialog__icon"><svg class="icon"><use href="#calendar"/></svg></div><div><h1 class="card__title" id="h-apt" style="font-size:var(--font-size-xl)">Tạo lịch hẹn</h1><div class="card__subtitle">Chi nhánh Quận 7 · đặt cho khách đã có hoặc khách mới</div></div></div></div>
     <form class="card__body stack" novalidate onsubmit="return false" data-g2w-vro="saving">
       <div class="alert alert--warning" data-g2w-vshow="over" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Ngày 03/11/2026 đã đủ công suất (20/20 xe)</span><span>Đặt tới mức tối đa vượt công suất (cấu hình, đề xuất 120%) cần lý do; vượt mức đó cần Quản lý duyệt. Lịch ghi nhận “vượt công suất” và hiện cảnh báo ở lịch (FR-REC-019). Hoặc chọn ngày khác còn chỗ: 04/11 (12/20), 05/11 (9/20).</span></div></div>
+      <div class="alert alert--danger" data-g2w-vshow="overmax" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Ngày 03/11/2026 đã vượt mức đặt tối đa (24/20 xe, tối đa 120%)</span><span>Không lưu thẳng được. Nhập lý do rồi gửi Quản lý chi nhánh duyệt, hoặc chọn ngày khác.</span></div></div>
+      <div class="field" data-g2w-vshow="over overmax" hidden><label class="field__label" for="a-over">Lý do đặt vượt công suất<span class="field__req" aria-hidden="true">*</span></label><textarea id="a-over" class="textarea" style="min-height:56px" aria-describedby="a-over-h" placeholder="Ví dụ: Khách VIP, xe đã hẹn từ tuần trước"></textarea><span class="field__hint" id="a-over-h">Tối thiểu 5 ký tự. Ghi vào lịch và hiện cảnh báo “vượt công suất”.</span></div>
       <div class="alert alert--danger" data-g2w-vshow="conflict" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Khung giờ vừa có người khác đặt</span><span>Cố vấn Phan Thanh Tùng kín lịch 10:00 vừa rồi. Chọn khung giờ khác; thông tin bạn nhập vẫn giữ.</span></div></div>
       <div class="alert alert--warning" data-g2w-vshow="error" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Còn 2 ô cần điền</span><span>Biển số xe và khung giờ.</span></div></div>
 
@@ -39,14 +41,30 @@
         <div class="field"><label class="field__label" for="a-slot">Khung giờ<span class="field__req" aria-hidden="true">*</span></label><select id="a-slot" class="select" data-g2w-verr="error"><option>08:00</option><option>09:00</option><option>10:00 (cố vấn Tùng đã kín)</option><option>13:30</option><option>15:00</option></select></div>
       </div>
       <div class="field"><label class="field__label" for="a-note">Ghi chú</label><textarea id="a-note" class="textarea" style="min-height:64px" placeholder="Ví dụ: Xe kêu gầm khi qua gờ, khách muốn xong trong ngày"></textarea></div>
-      <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Gửi xác nhận lịch cho khách <span class="g2w-muted">(qua kênh khách đã đồng ý; kênh chưa kích hoạt thì ghi nhận gọi điện)</span></span></label>
+      <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Gửi xác nhận lịch cho khách <span class="g2w-muted">(chỉ qua kênh khách đã đồng ý; kênh chưa kích hoạt thì ghi nhận đã gọi điện)</span></span></label>
     </form>
-    <div class="card__footer"><span class="badge badge--success badge--nodot g2w-right" style="margin-right:auto"><svg class="icon"><use href="#check"/></svg>Đã lưu nháp 09:17</span><a class="btn btn--secondary" href="g2-apt-01.html">Hủy</a><button class="btn btn--primary" data-g2w-vload="saving" data-toast="success|Đã tạo lịch hẹn|Lịch 03/11/2026 09:00, trạng thái Đã hẹn.">Lưu lịch hẹn</button></div>
+    <div class="card__footer"><span class="badge badge--success badge--nodot g2w-right" style="margin-right:auto"><svg class="icon"><use href="#check"/></svg>Đã lưu nháp 09:17</span><a class="btn btn--secondary" href="g2-apt-01.html">Hủy</a><button class="btn btn--primary" id="a-save" data-g2w-vload="saving" data-toast="success|Đã tạo lịch hẹn|Lịch 03/11/2026 09:00, trạng thái Đã hẹn.">Lưu lịch hẹn</button></div>
   </section>
 </div>
 </div></main>
 </div>
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
+<script>
+(function () {
+  var cur = 'default', b = document.getElementById('a-save'), why = document.createElement('p');
+  why.className = 'g2w-why'; why.setAttribute('role', 'status'); why.style.cssText = 'padding:0 var(--space-6) var(--space-4);margin:0'; b.closest('.card').appendChild(why);
+  function refresh() {
+    var over = cur === 'over' || cur === 'overmax', ok = !over || document.getElementById('a-over').value.trim().length >= 5;
+    b.textContent = cur === 'overmax' ? 'Gửi Quản lý duyệt' : 'Lưu lịch hẹn';
+    if (ok) b.removeAttribute('data-g2w-force-disabled'); else { b.setAttribute('data-g2w-force-disabled', ''); b.setAttribute('data-g2w-force-why', 'Nhập lý do đặt vượt công suất (tối thiểu 5 ký tự).'); }
+    why.innerHTML = ok ? '' : '<svg class="icon icon--sm"><use href="#lock"/></svg><span>Chưa lưu được: nhập lý do đặt vượt công suất (tối thiểu 5 ký tự).</span>';
+    if (window.g2wApply) window.g2wApply();
+  }
+  document.addEventListener('click', function (e) { var v = e.target.closest('[data-g2w-var]'); if (v) setTimeout(function () { cur = v.getAttribute('data-g2w-var'); refresh(); }, 0); });
+  document.addEventListener('input', function (e) { if (e.target.id === 'a-over') refresh(); });
+  setTimeout(refresh, 5);
+})();
+</script>
 </body>
 </html>

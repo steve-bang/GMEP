@@ -20,6 +20,7 @@
   <div data-g2w-scope data-time="Yêu cầu mở và 90 ngày gần nhất"></div>
   <div data-g2w-proto="offline"></div>
   <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Trống lần đầu|filtered:Trống do lọc|error:Lỗi|denied:Không có quyền"></div>
+  <div data-g2w-variants="process:Quản lý đang xử lý|approve:Chờ Chủ garage duyệt xóa" data-g2w-vlabel="Bước xử lý:"></div>
 
   <div data-state="data" class="g2w-split g2w-split--wide">
     <section class="card">
@@ -47,9 +48,12 @@
             <tr><td>Đồng ý dữ liệu và nhật ký truy cập</td><td><span class="tag">Giữ theo luật</span></td></tr></tbody></table></div></div>
         <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>Phần dữ liệu bắt buộc giữ theo luật (hóa đơn, kế toán) không được xóa. Hệ thống chỉ ẩn danh phần còn lại và ghi phạm vi đã xử lý. Thời hạn lưu là cấu hình, đang chờ khách chốt.</span></div></div>
         <div class="field"><label class="field__label" for="ds-n">Ghi chú xử lý</label><textarea id="ds-n" class="textarea" style="min-height:64px"></textarea></div>
-        <div class="alert alert--neutral" data-g2w-why-box="CH"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Việc xóa hoặc ẩn danh cần Chủ garage duyệt. Bạn xử lý và gửi duyệt.</span></div></div>
+        <div class="alert alert--neutral" data-g2w-vshow="process"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Việc xóa hoặc ẩn danh cần Chủ garage duyệt. Quản lý xử lý rồi gửi duyệt.</span></div></div>
+        <div class="alert alert--warning" data-g2w-vshow="approve" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Chờ Chủ garage duyệt xóa / ẩn danh</span><span>Quản lý Trần Thị Mai gửi 09:40. Phạm vi: số điện thoại, email, địa chỉ được xóa hoặc ẩn danh; hóa đơn, chứng từ kế toán, nhật ký truy cập giữ theo luật. Không hoàn tác sau khi duyệt.</span></div></div>
+        <div class="field" data-g2w-vshow="approve" hidden><label class="field__label" for="ds-ap">Ghi chú duyệt</label><textarea id="ds-ap" class="textarea" style="min-height:56px"></textarea></div>
       </div>
-      <div class="card__footer"><button class="btn btn--secondary" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh xử lý yêu cầu." data-toast="success|Đã cập nhật xử lý|Ghi chú lưu cùng người xử lý.">Lưu xử lý</button><button class="btn btn--danger-outline" data-open="dlg-erase" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh đề xuất, Chủ garage duyệt."><svg class="icon"><use href="#trash"/></svg>Xóa / ẩn danh dữ liệu…</button></div>
+      <div class="card__footer" data-g2w-vshow="approve" hidden><button class="btn btn--secondary" data-g2w-lock="CH" data-g2w-why="Chỉ Chủ garage duyệt xóa hoặc ẩn danh dữ liệu." data-toast="warning|Đã từ chối xóa|Yêu cầu quay lại Quản lý, dữ liệu giữ nguyên.">Từ chối</button><button class="btn btn--danger" data-g2w-lock="CH" data-g2w-why="Chỉ Chủ garage duyệt xóa hoặc ẩn danh dữ liệu." data-toast="success|Đã duyệt xóa / ẩn danh|Ghi phạm vi đã xử lý và người duyệt.">Duyệt xóa / ẩn danh</button></div>
+      <div class="card__footer" data-g2w-vshow="process"><button class="btn btn--secondary" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh xử lý yêu cầu." data-toast="success|Đã cập nhật xử lý|Ghi chú lưu cùng người xử lý.">Lưu xử lý</button><button class="btn btn--danger-outline" data-open="dlg-erase" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh đề xuất, Chủ garage duyệt."><svg class="icon"><use href="#trash"/></svg>Xóa / ẩn danh dữ liệu…</button></div>
     </aside>
   </div>
 
