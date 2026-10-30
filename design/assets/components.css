@@ -786,6 +786,27 @@ th[aria-sort="ascending"] .th-sort .icon, th[aria-sort="descending"] .th-sort .i
 .pre-order__label { font-weight: 600; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .pre-order__arrow { color: var(--color-text-tertiary); }
 
+/* ---- 14.10b Topbar mobile không được tràn (< 640px) ----
+   Nguyên nhân gốc của lỗi +6px: các nút trong topbar (menu, chi nhánh, tìm, chuông, avatar) đều có kích thước cố định/min-content
+   và cùng co giãn, tổng chiều rộng tối thiểu vượt 390px. Sửa: mọi nút cố định (flex: none), chỉ bộ chọn chi nhánh co lại
+   (flex: 1 1 0, min-width: 0, cắt chữ bằng dấu …); nút hành động thêm (vd. "Chờ duyệt 7") thu thành icon + badge số. */
+@media (max-width: 639px) {
+  .topbar { gap: 4px; min-width: 0; }
+  .topbar > .btn-icon, .topbar > .user-btn, .topbar > .dropdown, .topbar > .btn { flex: none; }
+  .topbar > .dropdown:has(> .branch-btn), .topbar > .branch-static { flex: 1 1 0; min-width: 0; max-width: none; }
+  .topbar .branch-btn { width: 100%; max-width: none; min-width: 0; }
+  .topbar .branch-btn .branch-btn__text { flex: 1 1 auto; min-width: 0; }
+  .topbar .branch-btn .branch-btn__name, .topbar .branch-static .branch-btn__name { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topbar .branch-static { padding: 0 var(--space-2); }
+  .topbar__spacer { flex: 0 0 0; }
+  .topbar .user-btn { min-width: 44px; padding: 0 6px; justify-content: center; }
+  .topbar .user-btn > .icon { display: none; }
+  /* Nút chữ trên topbar -> icon + badge số; chữ vẫn nằm trong DOM (font-size 0) nên trình đọc màn hình vẫn đọc được tên nút */
+  .topbar > .btn { position: relative; width: 44px; min-width: 44px; padding: 0; gap: 0; font-size: 0; margin-right: 0 !important; }
+  .topbar > .btn .icon { width: 20px; height: 20px; }
+  .topbar > .btn .count-pill { position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 4px; font-size: var(--font-size-xs); line-height: 18px; }
+}
+
 /* ---- 14.11 Toast đóng (thay style inline) ---- */
 .toast__x { margin-left: auto; width: 32px; height: 32px; flex: none; }
 

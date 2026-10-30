@@ -90,6 +90,8 @@ Ghi chú: các dữ liệu mẫu trong prototype vẫn dùng chuỗi `RO-2026-00
 | 640–1023 | Sidebar tự thu gọn 72px (icon + chấm báo; nhãn chế độ ẩn), tooltip bằng `title` | Lưới 2 cột; control ≥ 44px |
 | 0–639 | Sidebar thành drawer; Bottom nav (mục theo quyền) + “Thêm”; search thu thành icon | 1 cột; bảng → card list; dialog thành bottom sheet; page padding 16 |
 
+Topbar < 640px không được tràn (đã sửa gốc lỗi +6px ở `components.css` §14.10b): mọi nút trên topbar có kích thước cố định ≥ 44px, chỉ bộ chọn chi nhánh co lại và cắt chữ bằng “…”; nút hành động thêm đặt trực tiếp trong topbar (ví dụ “Chờ duyệt 7”) tự thu thành icon + badge số (chữ vẫn nằm trong DOM cho trình đọc màn hình); chuông thông báo và avatar luôn nhìn thấy; chữ trên avatar bỏ mũi tên. Gói màn hình khi thêm nút vào topbar dùng `.btn` hoặc `.btn-icon` trực tiếp dưới `.topbar`, không dùng chiều rộng cố định.
+
 Quy tắc thêm: không cuộn ngang toàn trang; bảng rộng cuộn ngang trong khung; touch target theo (v) ở §1; màn thợ trên tablet dùng nút xl (52px), bắt đầu/hoàn thành ≤ 2 chạm.
 
 ## 6. Trạng thái nghiệp vụ → Badge (theo `ba-decisions.md` A.2)

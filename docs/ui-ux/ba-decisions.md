@@ -1,6 +1,8 @@
 # BA – Quyết định cho Phase 0 (trả lời 17 câu hỏi của `00-foundation.md` §11)
 
-Phiên bản 0.1 · Ngày 30/10/2026 · Trạng thái: **BA đề xuất — chờ xác nhận** (theo ủy quyền của chủ dự án; designer dùng ngay để đi tiếp).
+Phiên bản 0.2 · Ngày 30/10/2026 · Trạng thái: **BA đề xuất — chờ xác nhận** (theo ủy quyền của chủ dự án; designer dùng ngay để đi tiếp).
+
+Thay đổi v0.2 (đồng bộ sau khi cả 6 gói qua review vòng 3, xem `STATUS.md`): bảng A.2 cập nhật theo các `ba-answers-02…05` (thêm A.2b, "Đã hủy" của báo giá, "Chờ hậu duyệt", yêu cầu phụ tùng 6 trạng thái); câu 4 đổi "Đang về" thành "Đang vận chuyển"; thêm **mục E** (chốt chính sách thợ mất mạng ở Phase 1 và các mâu thuẫn tài liệu khác). Khi `ba-decisions.md` mâu thuẫn với `ba-answers-0N.md` về cùng một điểm, bản **mới nhất** thắng, và mục E là bản mới nhất.
 
 Nguyên tắc áp dụng: nghiệp vụ trong BRD/FRD/Journey thắng; hình thức giao diện theo `docs/design-system.md`. Những điểm BRD/FRD đánh dấu `[Cần xác nhận]` mà khách chưa quyết (nhà cung cấp, hạn mức, cách tính công, giá vốn, máy in…) vẫn được thiết kế theo hướng **cấu hình**, không cố định. Quyết định nhất quán với `screen-inventory.md` §5 (D-06, D-07, D-08, D-10, D-11, D-12, D-13).
 
@@ -37,6 +39,7 @@ Quy ước: màu theo design-system §2 (Success/Warning/Danger/Info/Neutral/Pur
 | | Duyệt một phần | Warning | Duyệt một phần | Journey §7 (phần còn lại lưu để nhắc, BR-REC-11) |
 | | Từ chối | Danger | Từ chối | Journey §7 |
 | | Hết hạn | Neutral | Hết hạn | Journey §7 |
+| | **Đã hủy** (đề xuất trạng thái thứ 7, **chờ chủ dự án xác nhận**) | Neutral | Đã hủy (kèm lý do) | `03-quote-technician-delivery.md` §9 câu 2 và 4; `review-03-round2-ba.md` F3R2-02. Dùng khi cố vấn hủy báo giá hoặc báo giá bổ sung trước khi khách quyết định; khác "Từ chối" (khách từ chối) và không sinh lưu nhắc trừ khi cố vấn chọn. Nếu chủ dự án không chấp nhận: ghi nhận bằng cờ hủy trên "Hết hạn"/"Nháp" kèm lý do, bộ vẫn 6 trạng thái. `ba-answers-03` Câu 1 (giữ 6) nói về phiên bản bị thay, không phải về hủy, nên không mâu thuẫn |
 | Lệnh sửa chữa (7) | Đã duyệt | Neutral | Đã duyệt | Journey §7; "chưa bắt đầu" = Neutral (§2), tránh trùng màu với Đang sửa |
 | | Đang sửa | Info | Đang sửa chữa | design-system §2 |
 | | Tạm dừng | Warning | Tạm dừng (+ tag lý do, vd. Chờ phụ tùng) | Journey §7 |
@@ -50,6 +53,10 @@ Quy ước: màu theo design-system §2 (Success/Warning/Danger/Info/Neutral/Pur
 | | Hoàn thành | Success | Hoàn thành | |
 | | Trả lại | Danger | Trả lại (QC không đạt, FR-REC-016) | |
 | Hạng mục – thuộc tính duyệt (không phải trạng thái thứ 6) | Chờ khách duyệt (phát sinh) | Warning | Chờ khách duyệt | xem A.3 |
+| | Đã duyệt | Success | Đã duyệt | `ba-answers-03` Câu 3 (vào tổng lệnh, mở nút Bắt đầu) |
+| | Từ chối | Danger | Khách từ chối | `ba-answers-03` Câu 3; vào nhóm "Không thực hiện", có lưu nhắc |
+| | Hết hạn | Neutral | Hết hạn | `ba-answers-03` Câu 3 (hạn mặc định 24 giờ, cấu hình) |
+| | Đã hủy (cố vấn hủy) | Neutral | Đã hủy | `review-03-round2-ba.md` F3R2-02; tag, không phải trạng thái hạng mục |
 | Thanh toán | Chưa thanh toán | Warning | Chưa thanh toán | design-system §2 (Journey gọi "chưa thu") |
 | | Thanh toán một phần | Info | Thanh toán một phần | |
 | | Đã thanh toán | Success | Đã thanh toán | |
@@ -62,6 +69,37 @@ Quy ước: màu theo design-system §2 (Success/Warning/Danger/Info/Neutral/Pur
 | Kho (suy ra từ tồn khả dụng) | Đủ hàng | Success | Đủ hàng | design-system §2 |
 | | Sắp hết | Warning | Sắp hết | |
 | | Hết hàng | Danger | Hết hàng | |
+| | Chưa đặt định mức | Neutral | Chưa đặt định mức | `ba-answers-04` Phụ lục A |
+
+### A.2b Bộ badge của các đối tượng phụ (`ba-answers-04.md` Phụ lục A, 15 hàng / 16 bộ) và yêu cầu phụ tùng
+
+Nguồn chuẩn cho gói 3 (kho, mua hàng, nhân sự) là Phụ lục A của `ba-answers-04.md`; bảng dưới tóm tắt để tra một chỗ. "Tag" là nhãn phụ, **không phải trạng thái**. Quy tắc chung: "Chờ duyệt" luôn Warning; "Từ chối" luôn Danger; "Đã ghi sổ/Đã duyệt/Nhận đủ" Success; "Nháp/Đã hủy/Đã đóng" Neutral; tím chỉ cho "Chờ QC". Không dùng badge cho loại chứng từ hoặc loại biến động. (Hàng thứ 16 là bộ "Tài khoản" nằm trong hàng "Nhân sự" của Phụ lục A.)
+
+| # | Đối tượng | Trạng thái → màu | Tag phụ |
+| --- | --- | --- | --- |
+| 1 | Tồn kho | Đủ hàng Success · Sắp hết Warning · Hết hàng Danger · Chưa đặt định mức Neutral | "Đang vận chuyển N" Info · "Đã đặt N" Neutral · khả dụng < 0: Hết hàng + alert "Dữ liệu tồn lệch, báo QL" |
+| 2 | Chứng từ kho (PN, PX, HK, XN, TR, DC) | Nháp Neutral · Chờ duyệt Warning · Đã ghi sổ Success · Từ chối Danger · Đã hủy (chỉ nháp) Neutral | Lý do chờ duyệt (Warning); "Đã hoàn/đảo bằng HK-…" Neutral |
+| 3 | **Yêu cầu cấp phụ tùng** (một đối tượng, **6 trạng thái**, xem ghi chú dưới bảng) | Đã gửi Info · Thủ kho đã nhận Info · Đã xuất một phần Warning · Đã xuất đủ Success · Thiếu hàng, chờ hàng về Warning · Đã hủy Neutral | "Lý do: Chờ phụ tùng" trên lệnh/hạng mục Tạm dừng |
+| 4 | Yêu cầu mua | Nháp Neutral · Chờ duyệt Warning · **Chờ hậu duyệt Warning** · Đã duyệt Success · Từ chối Danger · Đã lập đơn Info · Đã hủy Neutral | "Mua gấp" Warning · "Chờ cấp: Chủ garage" Neutral |
+| 5 | Đơn mua | Nháp Neutral · Đã gửi Info · NCC xác nhận Info · Nhận một phần Warning · Nhận đủ Success · Đã đóng Neutral · Đã hủy (nháp) Neutral | "v2" Neutral · "Trễ N ngày" Danger · "Đóng khi chưa nhận đủ" Warning |
+| 6 | Phiếu chuyển kho (CK) | Nháp Neutral · Chờ duyệt Warning · Chờ gửi Info · **Đang vận chuyển** Info · Có chênh lệch Danger · Đã nhận Success · Đã đóng Neutral · Từ chối Danger | "Giá trị lớn" Warning · kết quả xử lý lệch Neutral |
+| 7 | Yêu cầu chuyển (YK) | Chờ bên gửi xác nhận Warning · Đã xác nhận Success · Bên gửi từ chối Danger | |
+| 8 | Đợt kiểm kê (KK) | Đang đếm Info · Chờ duyệt Warning · Đã ghi sổ Success · Từ chối (cần đếm lại) Danger · Đã hủy Neutral | "Quá hạn duyệt" Danger · "Lệch lặp lại" Warning |
+| 9 | Đối chiếu ba bên | Chờ hóa đơn Warning · Khớp Success · Lệch giá Danger · Lệch số lượng Danger · Chênh lệch chờ duyệt Warning · Đã ghi công nợ Success | |
+| 10 | Dòng công thợ | Chờ QC Purple · Đã ghi Success · QC trả lại Danger · Đã đảo Neutral | "Điều chỉnh chờ duyệt" Warning |
+| 11 | Hoa hồng | Chưa ghi nhận Neutral · Chờ duyệt Warning · Đã duyệt Success · Đã đảo Neutral | Thanh toán lệnh dùng badge Thanh toán ở A.2 |
+| 12 | Kỳ công | Đang mở Info · Đã duyệt Success · Đã khóa Neutral (icon khóa) | "Số tạm" Warning · "Chờ mở lại" Warning · "Đã mở lại" Info |
+| 13 | Nhân sự | Đang làm Success · Nghỉ phép Warning · Đã nghỉ Neutral | |
+| 14 | Tài khoản (nhân sự) | Đã liên kết / Chưa liên kết / Đã khóa (Neutral) | |
+| 15 | Chấm công | Đang trong ca Success · Chưa vào ca Neutral · Đã ra ca Neutral · Đi muộn N phút Warning | |
+| 16 | Nhà cung cấp | Đang hợp tác Success · Tạm ngừng Neutral · Ngừng hợp tác Neutral | |
+
+Ghi chú riêng:
+
+- **Yêu cầu cấp phụ tùng (hàng 3)** là một đối tượng nhìn từ hai phía: thợ ở G2-TEC-03 (`ba-answers-03` / `review-03-round2-ba.md` mục 2) và thủ kho ở G3-INV-06 (`ba-answers-04` Phụ lục A chỉ có 4 giá trị Chờ xuất, Thiếu hàng, Đã xuất, Đã hủy). **Chốt 6 trạng thái** (là tập đủ hơn, khớp FR-INV-029 đề xuất). Ánh xạ cho INV-06: tab/nhóm lọc "Chờ xuất" = {Đã gửi, Thủ kho đã nhận, Đã xuất một phần}; "Đã xuất" = Đã xuất đủ. **Màu "Thiếu hàng" = Warning** (không phải Danger như bản ban đầu của INV-06): đây là tình trạng chờ hàng về, đi cùng lệnh/hạng mục "Tạm dừng · Chờ phụ tùng" (Warning); Danger dành cho lỗi hoặc từ chối. "Hết hàng" của **tồn kho** vẫn Danger (đối tượng khác). BA đề xuất — chờ xác nhận. Designer sửa `g3-inv-06.html` (badge Thiếu hàng, bộ lọc, chữ "Đã xuất một phần") và kiểm tra `g1-dsh-05.html`.
+- **Chờ hậu duyệt (hàng 4)**: trạng thái của yêu cầu mua **Mua gấp** sau khi người mua đã nhập hàng, chờ cấp có thẩm quyền duyệt hậu kiểm trong hạn N giờ làm việc (mẫu 24 giờ, cấu hình). Người đề xuất không tự duyệt; "Không chấp nhận" bắt buộc lý do và gắn cờ cho Kế toán. Đã làm ở `g3-pur-01.html` (YM-Q7-2610-00006) và `g3-pur-03.html` (`04` §13c, review `review-04-round3-ba.md` F4R3-01). Ở bản `ba-answers-04` ban đầu đây chỉ là tag của "Đã duyệt tạm"; chốt là **trạng thái** (Warning) để lọc và đếm được.
+- **"Đã hủy" có hai màu có chủ đích**: lệnh sửa chữa và lịch hẹn Danger (design-system §2 gán Danger cho "Đã hủy" của lệnh); mọi đối tượng chứng từ/yêu cầu/báo giá còn lại Neutral (hủy là thao tác bình thường, không phải lỗi).
+- **Thanh toán** có hoàn tiền: không thêm trạng thái; "Hoàn tiền" Neutral khi thu ròng = 0 và đã hoàn toàn bộ; hoàn một phần là tag "Đã hoàn một phần N ₫" (`ba-answers-05` Câu 4).
 
 Ghi chú thực hiện:
 - Khác bản designer: (1) Báo giá "Đã gửi": Info thành Warning; (2) Lệnh "Đã duyệt": Info thành Neutral; (3) bỏ "Chờ tiếp nhận" và "Chờ duyệt báo giá" khỏi bộ Lệnh, thêm bộ Lịch hẹn/Tiếp nhận; (4) thêm tag lý do cho Tạm dừng. Các màu còn lại giữ nguyên.
@@ -95,9 +133,9 @@ Quyết định: **không thêm trạng thái thứ 6**. Hạng mục phát sinh
 
 ### Câu 4 – Công thức tồn khả dụng và ngưỡng badge Kho
 - **Công thức**: `Tồn khả dụng = Tồn thực tế − Tồn giữ chỗ`. **Hàng đang đi đường không cộng vào** (Journey §4: chưa cộng vào kho nhận cho đến khi nhận và xác nhận số lượng). Ví dụ FR-INV-020: thực tế 20, giữ chỗ 5, khả dụng 15.
-- **Ngưỡng** (so với khả dụng, không so với tồn thực tế, RULE-008): theo từng mặt hàng và từng chi nhánh, lấy từ định mức tồn tối thiểu/tối đa cấu hình (FR-INV-013). Hết hàng: khả dụng ≤ 0. Sắp hết: 0 < khả dụng ≤ định mức tối thiểu. Đủ hàng: khả dụng > định mức tối thiểu. Chưa đặt định mức: không hiện Đủ/Sắp hết mà hiện badge Neutral "Chưa đặt định mức" kèm liên kết cấu hình. Đang về > 0: chip phụ "Đang về N" (Info) và không đổi badge chính; khi khả dụng < 0 (dữ liệu sai lệch) hiện Hết hàng kèm cảnh báo dữ liệu.
+- **Ngưỡng** (so với khả dụng, không so với tồn thực tế, RULE-008): theo từng mặt hàng và từng chi nhánh, lấy từ định mức tồn tối thiểu/tối đa cấu hình (FR-INV-013). Hết hàng: khả dụng ≤ 0. Sắp hết: 0 < khả dụng ≤ định mức tối thiểu. Đủ hàng: khả dụng > định mức tối thiểu. Chưa đặt định mức: không hiện Đủ/Sắp hết mà hiện badge Neutral "Chưa đặt định mức" kèm liên kết cấu hình. Đang vận chuyển > 0: chip phụ "Đang vận chuyển N" (Info) và không đổi badge chính; hàng đã đặt nhà cung cấp nhưng chưa giao là chip phụ "Đã đặt N" (Neutral, không phải số tồn thứ năm; `ba-answers-04` câu 1); khi khả dụng < 0 (dữ liệu sai lệch) hiện Hết hàng kèm cảnh báo dữ liệu.
 - Ngưỡng tuyệt đối (ví dụ 5 cái) không cố định trong thiết kế.
-- Bốn số hiển thị theo thứ tự designer đã dùng (Thực tế / Đang giữ / Đang về / Khả dụng), khả dụng nhấn mạnh.
+- Bốn số hiển thị theo thứ tự designer đã dùng (Tồn thực tế / Giữ chỗ / Đang vận chuyển / Khả dụng), khả dụng nhấn mạnh. Nhãn thứ ba thống nhất là **"Đang vận chuyển"** (thay "Đang về" của bản 0.1; khớp "in-transit" của design-system/CLAUDE.md và trạng thái "Đang vận chuyển" của phiếu chuyển kho).
 - Căn cứ: BR-INV-10, FR-INV-013, FR-INV-020, RULE-008, UAT-13.
 
 ### Câu 5 – xem A.3.
