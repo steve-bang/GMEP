@@ -148,7 +148,7 @@ Giá trị đầy đủ không gửi xuống trình duyệt trước khi Hiện;
 
 ## 7. Bảng vai trò → menu (theo FRD §2; đã sửa theo F-06)
 
-Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT MH NS AD` (`QD` hiển thị là “QĐ”). “✓” tạo/sửa/duyệt (S, D) · Xem = chỉ xem (X) · Của tôi = chỉ phần của mình (Xn) · Hệ thống = chỉ sức khỏe hệ thống. Mục có Xem/Của tôi/Hệ thống hiện thêm nhãn nhỏ cạnh tên mục. Hành động không được phép trong mục đang hiện để disabled kèm lý do.
+Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT MH NS AD` (`QD` hiển thị là “QĐ”). “✓” tạo/sửa/duyệt (S, D) · Xem = chỉ xem (X) · Của tôi = chỉ phần của mình (Xn) · Hệ thống = chỉ sức khỏe hệ thống. Chế độ hiện là **dòng phụ 12px ngay dưới tên mục** (không còn chip cạnh tên, vì tràn ở sidebar 248px; F-FND-01); tên mục được xuống dòng thay vì bị cắt, badge số đếm giữ ở mép phải. Khi sidebar thu gọn 72px nhãn ẩn, chế độ nằm trong `aria-label` và `title` của mục (ví dụ “Kho phụ tùng (chỉ xem)”). Hành động không được phép trong mục đang hiện để disabled kèm lý do.
 
 | Menu | CH | QV | QL | CV | QĐ | TH | TK | TN | KT | MH | NS | AD |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

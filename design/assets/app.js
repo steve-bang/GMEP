@@ -354,12 +354,15 @@
     $$('[data-menu]').forEach(function (m) {
       var mode = cfg[m.getAttribute('data-menu')];
       m.hidden = !mode;
-      var tag = $('.nav-item__mode', m);
-      if (m.classList.contains('nav-item')) {
+      var tag = $('.nav-item__mode', m), lab = $('.nav-item__label', m);
+      if (m.classList.contains('nav-item') && lab) {
+        /* Chế độ quyền là dòng phụ NẰM DƯỚI tên mục (trong .nav-item__label), không còn chip cạnh tên: không tràn ở 248px */
+        var nm = lab.getAttribute('data-name') || (lab.firstChild ? lab.firstChild.nodeValue : lab.textContent).trim(); lab.setAttribute('data-name', nm);
+        if (tag && tag.parentNode !== lab) { tag.remove(); tag = null; }
         if (MODE_LABEL[mode]) {
-          if (!tag) { tag = document.createElement('span'); tag.className = 'nav-item__mode'; m.insertBefore(tag, $('.count-pill', m) || null); }
-          tag.textContent = MODE_LABEL[mode]; m.setAttribute('aria-label', $('.nav-item__label', m).textContent + ' (' + MODE_LABEL[mode].toLowerCase() + ')');
-        } else { if (tag) tag.remove(); m.removeAttribute('aria-label'); }
+          if (!tag) { tag = document.createElement('span'); tag.className = 'nav-item__mode'; lab.appendChild(tag); }
+          tag.textContent = MODE_LABEL[mode]; m.setAttribute('aria-label', nm + ' (' + MODE_LABEL[mode].toLowerCase() + ')'); m.setAttribute('title', nm + ' – ' + MODE_LABEL[mode]);
+        } else { if (tag) tag.remove(); m.removeAttribute('aria-label'); m.setAttribute('title', nm); }
       }
     });
     $$('[data-role-switch]').forEach(function (x) { x.setAttribute('aria-checked', String(x.getAttribute('data-role-switch') === role)); });

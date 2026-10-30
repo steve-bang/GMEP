@@ -29,7 +29,9 @@
         <tr><td class="cell-primary">Giảm giá (% giá trị lệnh)<span class="cell-sub">Cố vấn → Quản lý → Chủ garage</span></td><td><input class="input" aria-label="Giảm giá tự quyết, phần trăm" value="5 %" disabled></td><td><input class="input" aria-label="Giảm giá cấp 1, phần trăm" value="15 %" disabled></td><td><input class="input" aria-label="Giảm giá cấp 2, phần trăm" value="Không giới hạn" disabled></td><td>Quản lý chi nhánh → Chủ garage</td><td><input class="input" aria-label="Hạn xử lý giờ" value="4 giờ" disabled></td></tr>
         <tr><td class="cell-primary">Hoàn tiền cho khách (₫)<span class="cell-sub">Thu ngân → Quản lý → Chủ garage</span></td><td><input class="input" aria-label="Hoàn tiền tự quyết" value="500.000 ₫" disabled></td><td><input class="input" aria-label="Hoàn tiền cấp 1" value="5.000.000 ₫" disabled></td><td><input class="input" aria-label="Hoàn tiền cấp 2" value="Không giới hạn" disabled></td><td>Quản lý chi nhánh → Chủ garage</td><td><input class="input" aria-label="Hạn xử lý hoàn tiền" value="4 giờ" disabled></td></tr>
         <tr><td class="cell-primary">Chi tiền (₫)<span class="cell-sub">Thu ngân/Kế toán → Quản lý → Quản lý vùng/Chủ</span></td><td><input class="input" aria-label="Chi tự quyết" value="500.000 ₫" disabled></td><td><input class="input" aria-label="Chi cấp 1" value="5.000.000 ₫" disabled></td><td><input class="input" aria-label="Chi cấp 2" value="20.000.000 ₫" disabled></td><td>Quản lý chi nhánh → Quản lý vùng</td><td><input class="input" aria-label="Hạn xử lý chi" value="24 giờ" disabled></td></tr>
-        <tr><td class="cell-primary">Chênh lệch quỹ ca/ngày (₫)</td><td><input class="input" aria-label="Chênh lệch tự quyết" value="0 ₫" disabled></td><td><input class="input" aria-label="Chênh lệch cấp 1" value="200.000 ₫" disabled></td><td><input class="input" aria-label="Chênh lệch cấp 2" value="Không giới hạn" disabled></td><td>Quản lý chi nhánh → Chủ garage</td><td><input class="input" aria-label="Hạn xử lý chênh lệch" value="12 giờ" disabled></td></tr>
+        <tr><td class="cell-primary">Chênh lệch quỹ ca/ngày (₫)</td><td><input class="input" aria-label="Chênh lệch tự quyết (ngưỡng chỉ cần giải trình)" value="50.000 ₫" disabled> <span class="g4f-sample">minh họa</span></td><td><input class="input" aria-label="Chênh lệch cấp 1" value="200.000 ₫" disabled></td><td><input class="input" aria-label="Chênh lệch cấp 2" value="Không giới hạn" disabled></td><td>Quản lý chi nhánh → Chủ garage</td><td><input class="input" aria-label="Hạn xử lý chênh lệch" value="12 giờ" disabled></td></tr>
+        <tr><td class="cell-primary">Chênh lệch đối soát ngân hàng cần Kế toán trưởng (₫)<span class="cell-sub">Ghép lệch số tiền ở G4-ACC-16</span></td><td><input class="input" aria-label="Chênh lệch đối soát tự quyết" value="20.000 ₫" disabled> <span class="g4f-sample">minh họa</span></td><td><input class="input" aria-label="Chênh lệch đối soát cấp 1" value="Chưa chốt" disabled></td><td><input class="input" aria-label="Chênh lệch đối soát cấp 2" value="Chưa chốt" disabled></td><td>Kế toán trưởng (cờ quyền) → Chủ garage</td><td><input class="input" aria-label="Hạn xử lý đối soát" value="24 giờ" disabled></td></tr>
+        <tr><td class="cell-primary">Chi kèm ngoại lệ (chênh lệch 3 bên)<span class="cell-sub">Luôn duyệt, bất kể số tiền</span></td><td colspan="3" class="g4f-muted">Tối thiểu cấp Quản lý chi nhánh; vượt hạn mức QL thì theo dòng “Chi tiền”</td><td>Quản lý chi nhánh → Quản lý vùng/Chủ garage</td><td><input class="input" aria-label="Hạn xử lý chi ngoại lệ" value="24 giờ" disabled></td></tr>
         <tr><td class="cell-primary">Điều chỉnh kho, nhập lệch (giá trị ₫)</td><td><input class="input" aria-label="Điều chỉnh kho tự quyết" value="0 ₫" disabled></td><td><input class="input" aria-label="Điều chỉnh kho cấp 1" value="3.000.000 ₫" disabled></td><td><input class="input" aria-label="Điều chỉnh kho cấp 2" value="Không giới hạn" disabled></td><td>Quản lý chi nhánh → Chủ garage</td><td><input class="input" aria-label="Hạn xử lý kho" value="24 giờ" disabled></td></tr>
         <tr><td class="cell-primary">Chuyển kho giá trị lớn (₫)</td><td><input class="input" aria-label="Chuyển kho tự quyết" value="10.000.000 ₫" disabled></td><td><input class="input" aria-label="Chuyển kho cấp 1" value="50.000.000 ₫" disabled></td><td><input class="input" aria-label="Chuyển kho cấp 2" value="Không giới hạn" disabled></td><td>Quản lý chi nhánh gửi → Quản lý vùng</td><td><input class="input" aria-label="Hạn xử lý chuyển kho" value="24 giờ" disabled></td></tr>
         <tr><td class="cell-primary">Hủy lệnh sau khi xuất kho</td><td colspan="3" class="g4f-muted">Luôn cần duyệt, không theo giá trị</td><td>Quản lý chi nhánh</td><td><input class="input" aria-label="Hạn xử lý hủy lệnh" value="4 giờ" disabled></td></tr>
@@ -39,10 +41,18 @@
     </table></div>
     <div class="card__footer" id="edit-foot" hidden>
       <div class="field" style="margin-right:auto"><label class="field__label" for="eff">Có hiệu lực từ ngày<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="eff" class="input" value="01/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div><span class="field__hint">Yêu cầu đang chờ giữ ngưỡng cũ; từ ngày hiệu lực dùng ngưỡng mới (cấu hình có ngày hiệu lực).</span></div>
-      <button class="btn btn--secondary" id="btn-cancel">Hủy chỉnh sửa</button><button class="btn btn--primary" data-open="dlg-save">Xem tác động và lưu</button></div>
+      <button class="btn btn--secondary" id="btn-cancel">Hủy chỉnh sửa</button><button class="btn btn--primary" id="btn-sv" data-open="dlg-save" data-g4f-online>Xem tác động và lưu</button></div>
   </section>
 
   <div class="g4f-two g4f-two--even">
+    <section class="card" aria-labelledby="h-dl">
+      <div class="card__header"><div><h2 class="card__title" id="h-dl">Ủy quyền duyệt và cờ rủi ro</h2><div class="card__subtitle">Chỉ Chủ garage sửa; có ngày hiệu lực và nhật ký (BA câu 5, 8, 6)</div></div></div>
+      <div class="card__body stack">
+        <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Nhóm chi nhánh</th><th>Quản lý vùng duyệt mở lại ngày/kỳ</th><th>Hiệu lực từ</th></tr></thead><tbody><tr><td>Nhóm Miền Nam</td><td><span class="tag tag--neutral">Tắt (mặc định)</span></td><td class="num">—</td></tr><tr><td>Nhóm Miền Trung</td><td><span class="tag tag--neutral">Tắt (mặc định)</span></td><td class="num">—</td></tr></tbody></table></div>
+        <dl class="g4f-sum"><div><dt>Cờ rủi ro: yêu cầu lặp cho cùng đối tượng trong</dt><dd>24 giờ <span class="g4f-sample">tham số</span></dd></div><div><dt>Người có cờ Kế toán trưởng (duyệt hóa đơn)</dt><dd>Đặng Thu Hà · không tự duyệt yêu cầu mình lập, chuyển Chủ garage</dd></div></dl>
+        <button class="btn btn--secondary btn--sm" disabled aria-describedby="why-dl" style="align-self:flex-start">Sửa ủy quyền</button><span class="g4f-why" id="why-dl" style="margin:0">Bật khi vào chế độ chỉnh sửa; chỉ Chủ garage ban hành.</span>
+      </div>
+    </section>
     <section class="card" aria-labelledby="h-ex">
       <div class="card__header"><div><h2 class="card__title" id="h-ex">Ngoại lệ theo chi nhánh</h2><div class="card__subtitle">Chi nhánh có thể đặt ngưỡng riêng trong khung công ty</div></div></div>
       <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Chi nhánh</th><th>Hành động</th><th>Ngưỡng ghi đè</th></tr></thead><tbody><tr><td>Chi nhánh Đà Nẵng</td><td>Giảm giá</td><td class="num">Tự quyết 3 % <span class="g4f-sample">minh họa</span></td></tr><tr><td colspan="3" class="g4f-muted">Các chi nhánh khác dùng mặc định toàn chuỗi.</td></tr></tbody></table></div>
@@ -64,7 +74,7 @@
     <ul class="impact-list" style="margin-top:12px"><li>Thay đổi chỉ áp dụng từ 01/11/2026, không đổi các yêu cầu đã duyệt.</li><li>Mọi thay đổi ghi nhật ký (ai, khi nào, giá trị cũ và mới).</li></ul>
     <div class="field"><label class="field__label" for="sv-r">Lý do thay đổi<span class="field__req" aria-hidden="true">*</span></label><textarea id="sv-r" class="textarea" data-confirm-reason></textarea></div>
   </div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="success|Đã lưu phiên bản 2|Có hiệu lực từ 01/11/2026." disabled>Lưu phiên bản mới</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" id="sv-ok" data-confirm-btn data-g4f-submit data-lock="#btn-sv" data-busy="Đang xử lý…" data-done-label="Đã gửi" data-done-toast="success|Đã gửi ban hành phiên bản 2|Có hiệu lực từ 01/11/2026 sau khi Chủ garage ban hành." disabled>Ban hành phiên bản mới</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -83,6 +93,12 @@ window.G4F_PAGE = {
     $('#edit-foot').hidden = !on; $('#btn-edit').hidden = on; $('#mode-tag').textContent = on ? 'Đang chỉnh sửa (chưa lưu)' : 'Chế độ xem'; $('#mode-tag').className = 'tag ' + (on ? 'tag--warning' : 'tag--info');
     var b = document.querySelector('[aria-describedby="why-ex"]'); if (b) b.disabled = !on;
   }
+  /* Quản trị hệ thống chỉ soạn nháp rồi gửi Chủ garage ban hành; Chủ garage ban hành trực tiếp (mức 3, có ngày hiệu lực) */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-open="dlg-save"]')) return; var ad = document.body.getAttribute('data-role') !== 'CH';
+    $('#sv-t').textContent = ad ? 'Gửi Chủ garage ban hành thay đổi hạn mức?' : 'Ban hành thay đổi hạn mức?'; $('#sv-ok').textContent = ad ? 'Gửi Chủ garage ban hành' : 'Ban hành phiên bản mới';
+    G4F.resetBtn($('#btn-sv'));
+  });
   $('#btn-edit').addEventListener('click', function () { edit(true); });
   $('#btn-cancel').addEventListener('click', function () { edit(false); });
 })();

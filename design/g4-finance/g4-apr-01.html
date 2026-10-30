@@ -107,7 +107,7 @@
 <div class="overlay" id="dlg-bulk" role="alertdialog" aria-modal="true" aria-labelledby="bk-t"><div class="dialog" data-g4f-gate>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="bk-t">Duyệt hàng loạt <span id="bk-n">các mục</span> đã chọn?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><ul class="impact-list"><li>Chỉ gồm mục cùng loại, trong hạn mức cấp bạn.</li><li>Mỗi mục được ghi nhật ký riêng với tên bạn và thời điểm.</li><li>Không hoàn tác từng mục được; sai thì đảo bằng chứng từ mới.</li></ul><label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem từng mục đã chọn.</span></label></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-bulk" data-busy="Đang duyệt…" data-done-label="Đã duyệt" data-done-toast="success|Đã duyệt các mục đã chọn|Ghi nhật ký riêng cho từng yêu cầu." disabled>Duyệt</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" id="bk-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-bulk" data-busy="Đang duyệt…" data-done-label="Đã duyệt" data-done-toast="success|Đã duyệt các mục đã chọn|Ghi nhật ký riêng cho từng yêu cầu." disabled>Duyệt</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -168,6 +168,11 @@ window.G4F_PAGE = {
     var p = document.querySelector('#tb1 .count-pill'); if (p) p.textContent = String(Math.max(parseInt(p.textContent, 10) - 1, 0));
   });
   document.addEventListener('g4f:ktt', function () { drawerGate(); flags(); });
+  document.addEventListener('g4f:done', function (e) {
+    if (e.detail.id !== 'bk-ok') return; var tb = document.querySelector('#tp3 tbody');
+    G4F.$$('input[data-btype]:checked').forEach(function (c) { var tr = c.closest('tr'), b = $('[data-title]', tr), n = document.createElement('tr'); n.innerHTML = '<td><span class="tag tag--neutral">' + b.getAttribute('data-title') + '</span></td><td class="cell-primary">' + b.getAttribute('data-sub') + '</td><td><span class="tag tag--success">Đã duyệt (hàng loạt)</span></td><td>' + G4F.user() + '</td><td class="num">30/10/2026 09:16</td>'; tb.insertBefore(n, tb.firstChild); tr.remove(); });
+    G4F.resetBtn($('#btn-bulk')); bulk();
+  });
   /* Duyệt hàng loạt: chỉ một loại mỗi lần chọn, đúng quyền, mỗi mục ghi nhật ký riêng */
   function bulk() {
     var sel = G4F.$$('input[data-btype]:checked'), type = sel.length ? sel[0].getAttribute('data-btype') : null;

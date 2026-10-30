@@ -771,12 +771,12 @@ th[aria-sort="ascending"] .th-sort .icon, th[aria-sort="descending"] .th-sort .i
 .legal-filter { padding: var(--space-2) var(--space-3); }
 
 /* ---- 14.9 Chế độ quyền trên mục menu ---- */
-.nav-item__mode { margin-left: auto; padding: 0 6px; border-radius: var(--radius-xs); background: var(--color-surface-subtle); color: var(--color-text-secondary); font-size: var(--font-size-xs); line-height: 18px; white-space: nowrap; }
-.nav-item[aria-current="page"] .nav-item__mode { background: var(--color-surface); }
-.nav-item__mode + .count-pill { margin-left: 4px; }
-.app.is-collapsed .nav-item__mode { display: none; }
-@media (max-width: 1023px) { .app .nav-item__mode { display: none; } }
-@media (max-width: 639px) { .app .nav-item__mode { display: inline-flex; } }
+/* Chế độ quyền = dòng phụ dưới tên mục (nằm trong .nav-item__label). Tên mục được phép xuống dòng, không cắt; badge số giữ ở mép phải. */
+.nav-item__label { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: center; white-space: normal; overflow-wrap: anywhere; line-height: 20px; }
+.nav-item__mode { display: block; padding: 0; margin: 0; background: none; font-size: var(--font-size-xs); line-height: 16px; font-weight: 400; color: var(--color-text-secondary); white-space: nowrap; }
+.nav-item .count-pill { flex: none; }
+.nav-item { padding-top: 4px; padding-bottom: 4px; }
+@media (max-width: 639px) { .app .nav-item__label { display: flex; } }   /* ghi đè rule mobile "display: inline" ở trên */
 
 /* ---- 14.9b Phụ đề trong ô/tiêu đề, dùng được ngoài .table (F4-26c) ---- */
 .cell-sub { display: block; font-size: var(--font-size-sm); line-height: 18px; color: var(--color-text-secondary); font-weight: 400; }
