@@ -361,6 +361,17 @@ Chưa chạy trên trình duyệt thật (không có trình duyệt); rà bằng
 | F4-16 (còn lại) | Minor | Hoa hồng cố vấn có phiên bản h1, h2 chờ duyệt; so sánh nháp với bản hiện hành đưa vào backlog Phase 2 theo BA | `g3-hrm-06.html` |
 | F4-30 (còn lại) | Minor | Mục 3 có đoạn “Cập nhật bản 0.2” và ghi chú app.js đã vá | tài liệu này |
 
+### 13c. Vòng 3 (`review-04-round3-ba.md`)
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F4R3-01 hậu duyệt Mua gấp không có chỗ thực hiện | Major | PUR-01 thêm YM-Q7-2610-00006 (badge “Chờ hậu duyệt” Warning, tag “Mua gấp”, hạn còn lại); PUR-03 thêm trạng thái “Chờ hậu duyệt (Mua gấp)” với chi tiết đã nhập, ảnh hóa đơn, nút “Duyệt hậu kiểm” / “Không chấp nhận…” (bắt buộc lý do, hậu quả gắn cờ cho Kế toán), người đề xuất không tự duyệt | `g3-pur-01.html`, `g3-pur-03.html` |
+| F4R3-02 tab Bảng giá PUR-10 chưa khóa | Minor | Bọc tab 2 bằng `data-g3-edit="TK QL MH"`; CH, QV, KT chỉ xem kèm thông báo | `g3-pur-10.html` |
+| F4R3-03 hạn hậu duyệt mẫu | Minor | Hạn đổi thành “hết ngày làm việc 30/10/2026” (mua 29/10, quy tắc 24 giờ làm việc) | `g3-inv-09.html`, `g3-pur-01.html`, `g3-pur-03.html` |
+| Hàm dự phòng `applyExtraRole` | Chuyển dev | Đã gỡ khỏi `pack.js` cùng `EXTRA_MENU`, `EXTRA_MODE` (không còn nơi nào gọi); menu MH/NS do `app.js` đã vá xử lý | `pack.js` |
+
+Bảng badge yêu cầu mua bổ sung “Chờ hậu duyệt” (Warning) cho khoản Mua gấp đã ghi nhận; đề nghị BA đưa vào Phụ lục A.
+
 ## 14. Câu hỏi còn lại cho BA và việc chưa làm hết (đã cập nhật sau vòng 2)
 
 Các mục dưới đây được BA trả lời ở `review-04-round2-ba.md` §4: đơn giá giờ công (4.1, đã làm ở HRM-06), hạn hậu duyệt Mua gấp 24 giờ (4.2), quy cách NCC (4.3, đã làm ở PUR-10), mã `PT-xxxx` không đổi (4.4), F4-16 và F4-08 (4.5, 4.6, đã làm hoặc chuyển), thợ xem hồ sơ qua G1-PRF (4.7). Còn lại chỉ là kiểm tra bằng trình duyệt (mục 7 bên dưới) và việc cho dev.

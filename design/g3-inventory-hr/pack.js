@@ -10,9 +10,6 @@
   /* Hai nhóm giá (ba-answers-04 câu 2): giá vốn/giá trị tồn/giá nhập theo lô tồn -> COST_ROLES; giá đơn mua, giá nhập phiếu đang nhận, bảng giá NCC -> BUY_ROLES */
   var COST_ROLES = 'CH QV QL KT';
   var BUY_ROLES = 'CH QV QL KT TK MH';
-  /* MH, NS chưa có trong ROLE_MENU của design/assets/app.js (file do designer foundation vá riêng): pack.js tự dựng menu cho hai vai trò này */
-  var EXTRA_MENU = { MH: { pur: 'full', inv: 'view', rpt: 'own' }, NS: { hr: 'full', rpt: 'own' } };
-  var EXTRA_MODE = { view: 'Chỉ xem', own: 'Của tôi' };
   var MOD = {
     inv: { label: 'Kho phụ tùng', tabs: ['01', '04', '05', '06', '08', '12', '15', '19'] },
     pur: { label: 'Mua hàng', tabs: ['01', '04', '07', '08', '09'] },
@@ -391,28 +388,7 @@
   }
   function role_() { return role(); }
 
-  /* ---------- 9. Vai trò MH, NS: menu và phạm vi chi nhánh do pack.js dựng (app.js chưa có hai vai trò này) ---------- */
-  function applyExtraRole() {
-    var r = role(), cfg = EXTRA_MENU[r]; if (!cfg) return;
-    $$('[data-menu]').forEach(function (m) {
-      var mode = cfg[m.getAttribute('data-menu')]; m.hidden = !mode;
-      if (m.classList.contains('nav-item')) {
-        var tag = $('.nav-item__mode', m);
-        if (EXTRA_MODE[mode]) { if (!tag) { tag = document.createElement('span'); tag.className = 'nav-item__mode'; m.insertBefore(tag, $('.count-pill', m) || null); } tag.textContent = EXTRA_MODE[mode]; m.setAttribute('aria-label', $('.nav-item__label', m).textContent + ' (' + EXTRA_MODE[mode].toLowerCase() + ')'); }
-        else { if (tag) tag.remove(); m.removeAttribute('aria-label'); }
-      }
-    });
-    $$('[data-role-switch]').forEach(function (x) { x.setAttribute('aria-checked', String(x.getAttribute('data-role-switch') === r)); });
-    $$('[data-role-label]').forEach(function (l) { l.textContent = ROLE_NAME[r]; });
-    $$('.sidebar__nav .sidebar__group').forEach(function (g) { var n = g.nextElementSibling, any = false; while (n && !n.classList.contains('sidebar__group')) { if (n.hasAttribute('data-menu') && !n.hidden) any = true; n = n.nextElementSibling; } g.hidden = !any; });
-    $$('[data-show-roles]').forEach(function (x) { x.hidden = !has(x.getAttribute('data-show-roles'), r); });
-    var dd = $('[data-branch-dropdown]'), sta = $('[data-branch-static]'), note = $('[data-multi-note]');
-    if (dd && sta) { dd.hidden = false; sta.hidden = true; if (note) note.hidden = false; }
-    $$('[data-branch-label]').forEach(function (l) { l.textContent = 'Chi nhánh Quận 7'; });
-    $$('.branch-btn').forEach(function (b) { b.classList.remove('is-all'); });
-    $$('[data-scope-text]').forEach(function (l) { l.textContent = 'Chỉ Chi nhánh Quận 7 – không gồm chi nhánh khác'; });
-    $$('.scope-banner').forEach(function (b) { b.classList.add('scope-banner--branch'); });
-  }
+  /* Menu và phạm vi chi nhánh của MH, NS do design/assets/app.js xử lý (đã vá); pack.js chỉ giữ tên vai trò và quyền theo màn */
 
   /* Chặn click lên nút/liên kết bị khóa (giữ focus để đọc lý do), hiện lý do bằng toast để dùng được cả trên cảm ứng */
   document.addEventListener('click', function (e) {
@@ -423,8 +399,7 @@
   }, true);
 
   /* ---------- Khởi tạo ---------- */
-  /* applyExtraRole() chỉ là dự phòng: app.js đã vá MH/NS; chỉ gọi khi app.js chưa có vai trò (nhãn vai trò chưa khớp) */
-  function apply() { if (EXTRA_MENU[role()] && !document.querySelector('[data-role-label]') ) applyExtraRole(); renderSubnav(); applyRoleBits(); renderPII(); applyState(); }
+  function apply() { renderSubnav(); applyRoleBits(); renderPII(); applyState(); }
   function init() {
     expandStock(); buildScan(); initStates(); cards();
     var rq = (location.search.match(/[?&]role=([A-Z]{2})/) || [])[1];
