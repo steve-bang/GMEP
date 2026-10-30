@@ -93,7 +93,10 @@ flowchart LR
 
 ### 3.2 Luồng phụ
 
-- **Hoàn tiền (Journey, luồng phụ 3):** ACC-03 hoặc ACC-02 → **ACC-07** (lý do, số tiền ≤ đã thu) → gửi duyệt → **APR-01/02** → phiếu chi hoàn; đã có hóa đơn → **EIN-04** (điều chỉnh).
+- **Hoàn tiền (Journey, luồng phụ 3):** ACC-03 hoặc ACC-02 → **ACC-07** (lý do, số tiền ≤ đã thu) → gửi duyệt → **APR-01/02** → phiếu chi hoàn; đã có hóa đơn → **EIN-04** (điều chỉnh). Hoàn một phần: Thanh toán giữ trạng thái theo thu ròng kèm tag “Đã hoàn một phần”.
+- **Thu vượt và khoản nhận trước (BA câu 5):** ACC-01 (thu vượt, tích xác nhận; tiền mặt dư là tiền thối, không phải thu vượt) → khoản nhận trước gắn khách → **ACC-21**: bù vào lệnh sau của cùng khách, hoặc hoàn lại qua ACC-07 (duyệt như hoàn tiền). Chip “Khách có khoản nhận trước” hiện ở ACC-01, ACC-11, ACC-03.
+- **Mở lại ngày/kỳ (BA câu 10):** KT hoặc QL “Đề nghị mở lại” ở ACC-09/17 (lý do + mật khẩu + MFA) → yêu cầu `YC-…` vào **APR-01** → CH duyệt ở APR-02 → ngày/kỳ mở có hạn (mặc định 48 giờ) → “Hoàn tất điều chỉnh” hoặc hết hạn thì hệ thống kiểm điều kiện và tự khóa lại.
+- **Thu ngân thấy hóa đơn sai (BA câu 11):** EIN-03 “Báo kế toán hóa đơn này có sai” → thông báo “Cần xử lý” cho Kế toán → Kế toán lập EIN-04 → duyệt.
 - **Hóa đơn sai (luồng phụ 2):** EIN-03 → **EIN-04** → KTT duyệt ở APR-01/02 → gửi nhà cung cấp → EIN-03 cập nhật.
 - **Chi tiền:** ACC-12/13 hoặc ACC-04 → **ACC-05** (đề xuất, duyệt theo hạn mức, chi, đối soát) → ACC-06 danh sách → ACC-16 đối soát ngân hàng.
 - **Công nợ:** ACC-10 (tuổi nợ) → ACC-11 (khách) → thu nợ / nhắc nợ / đề xuất nới hạn mức → APR.
@@ -110,7 +113,7 @@ Shell chuẩn (sidebar 248/72, topbar 64, branch selector 3 cấp, banner phạm
 
 - **Mục đích:** thu tiền chính xác, truy vết được, sửa bằng bút toán đảo.
 - **ACC-01 (E):** cột trái là lệnh (3 badge riêng Lệnh, Thanh toán, Hóa đơn), bảng khoản phải thu, dòng thanh toán nhiều hình thức; cột phải (sticky) là tóm tắt: còn phải thu, ghi nhận lần này, còn nợ/dư. Thu vượt hiện cảnh báo và bắt tích “ghi thành khoản nhận trước”. Chân trang dính: lưu nháp (giữ khi mất mạng), Hủy, “Ghi nhận thanh toán X ₫” (số tiền nằm ngay trên nút).
-- **Phòng ngừa lỗi:** (1) ghi nhận luôn qua màn xác nhận tóm tắt có tích đối chiếu; (2) sau xác nhận nút khóa và có trạng thái “Đang ghi nhận…” rồi “Đã ghi nhận”, bấm hai lần không tạo phiếu thứ hai; (3) lệnh QC chưa đạt hoặc ngày khóa thì nút khóa kèm dòng lý do hiện sẵn; (4) mất kết nối khóa nút ghi tiền, báo giữ nháp.
+- **Phòng ngừa lỗi:** (1) ghi nhận luôn qua màn xác nhận tóm tắt có tích đối chiếu; ghi nhận tiền cọc cũng vậy (v0.2); (2) sau xác nhận nút khóa và có trạng thái “Đang ghi nhận…” rồi “Đã ghi nhận”, bấm hai lần không tạo phiếu thứ hai; (3) lệnh QC chưa đạt hoặc ngày khóa thì nút khóa kèm dòng lý do hiện sẵn; (4) mất kết nối khóa nút ghi tiền, báo giữ nháp, và không script nào của màn hình bật lại nút (một hàm `setEnabled` hợp nhất các cờ khóa); (5) badge của lệnh chỉ đổi sau khi ghi, trạng thái dự kiến là tag ở khối tóm tắt; (6) “Khách đưa” và “Tiền thối” chỉ là phép tính hỗ trợ, phiếu thu chỉ ghi phần thu thật (FR-ACC-024, Could).
 - **ACC-02 (C):** thẻ tổng hợp, filter bar, chip đang lọc, bảng có tổng ròng cuối bảng (đã trừ bút toán đảo), phiếu bị đảo gạch ngang, dòng bút toán đảo nền cảnh báo kèm lý do; chỉ có hành động “Mở”, không có “Xóa”. Mobile: card list.
 - **ACC-03 (D):** chuỗi 5 đối tượng báo giá, lệnh, thanh toán, phiếu thu, hóa đơn, mỗi cái badge riêng (FR-ACC-019). Bảng phân bổ nhiều-nhiều có dòng “phần dư thành khoản nhận trước”, tổng phân bổ = số phiếu. Hành động: In phiếu thu (A5 và nhiệt 80 mm, xem trước), Phân bổ lại (drawer, tổng kiểm tra tức thì), **Đảo bút toán** (nguy hiểm).
 - **ACC-07 (E):** phiếu gốc chỉ đọc, số hoàn không vượt đã thu (lỗi nêu cách sửa), tóm tắt “Sau khi hoàn”, cảnh báo vượt hạn mức kèm cấp duyệt, nhắc hóa đơn điều chỉnh nếu đã có hóa đơn. Nút “Gửi duyệt hoàn tiền” mở guard (lý do + gõ HOÀN TIỀN).
@@ -120,13 +123,15 @@ Shell chuẩn (sidebar 248/72, topbar 64, branch selector 3 cấp, banner phạm
 - **ACC-04:** bốn thẻ số dư (đầu ngày + thu − chi = cuối) và sổ quỹ có số dư chạy; ngày đã khóa là chế độ chỉ đọc kèm dòng bút toán đảo. Phiếu chi: chặn chi quá số dư quỹ; vượt hạn mức thì đổi nút thành “Gửi duyệt” và ghi rõ chưa trừ quỹ.
 - **ACC-05/06:** vòng đời Đề xuất → Duyệt → Chi → Đối soát bằng stepper; mỗi bước có người và thời điểm (FR-ACC-018); khoản vượt hạn mức không chi được cho tới khi duyệt, nút “Chi tiền” khóa kèm lý do.
 - **ACC-08 (wizard 4 bước):** rà lệnh → đếm quỹ theo mệnh giá (không điền sẵn số dự kiến) → giải trình (chỉ bắt buộc khi lệch) → xác nhận. Bước tiếp chỉ mở khi hợp lệ, lý do nêu bằng toast chữ. Chốt ca là xác nhận mức 2.
-- **ACC-09:** danh sách điều kiện với biểu tượng + chữ Đạt/Chặn/Cảnh báo; nút “Khóa ngày” khóa và hiện lý do khi còn chặn. Khóa ngày là hành động nguy hiểm (gõ ngày để xác nhận). Mở lại ngày chỉ cho CH, cần lý do, nhập lại mật khẩu (D-02) và gõ MỞ LẠI.
+- **ACC-09 (BA câu 1, 10):** danh sách điều kiện với biểu tượng + chữ Đạt/Chặn/Cảnh báo, nhãn đọc từ cấu hình chi nhánh. Mặc định **chặn**: chênh lệch quỹ chưa giải trình hoặc vượt ngưỡng chưa được Quản lý duyệt (trong ngưỡng chỉ cần giải trình), ca chưa chốt, thanh toán/phiếu chi đang xử lý dở. Mặc định **cảnh báo**: lệnh còn mở, lệnh hoàn tất chưa thu, chưa có hóa đơn, phiếu thiếu chứng từ gốc, yêu cầu phê duyệt đang chờ. Nút “Khóa ngày” khóa và hiện lý do khi còn chặn; khóa ngày là hành động nguy hiểm (gõ ngày). **Mở lại ngày không do CH bấm trực tiếp**: KT hoặc QL “Đề nghị mở lại” (lý do, mật khẩu, MFA) → CH duyệt ở APR → ngày mở có hạn, đếm ngược, tự khóa lại; QV chỉ duyệt khi CH ủy quyền bằng cấu hình.
+- **ACC-08:** ca mở khi Thu ngân nhận quỹ, đóng khi đếm quỹ cuối ca, mỗi quầy một ca mở; nhãn Ca sáng/Ca chiều chỉ là gợi ý. KT, CH, QV xem chỉ đọc (nút lưu nháp/chốt khóa kèm lý do).
 
 ### 4.4 Nhóm công nợ (ACC-10 đến 13)
 
 - **ACC-10/12:** KPI, thanh xếp chồng tuổi nợ 4 nhóm (sắc độ thương hiệu tăng dần, kèm nhãn và số trong chú giải, không dựa vào màu), bảng thay thế có tổng khớp tổng dư nợ. Nhắc nợ hàng loạt qua email; Zalo/SMS “Chưa kích hoạt”. Các mốc tuổi nợ là cấu hình.
-- **ACC-11:** thanh dư nợ/hạn mức có vạch hạn mức, chuyển đỏ khi vượt kèm cảnh báo bằng chữ; thu nợ mặc định phân bổ vào lệnh nợ lâu nhất; “Đề xuất nới hạn mức” là guard.
-- **ACC-13:** mỗi lần chi gắn một phiếu nhập; chi tiền vượt hạn mức đi qua đề xuất chi thay vì chi ngay.
+- **ACC-11 (BA câu 9):** thanh dư nợ/hạn mức có vạch hạn mức, chuyển đỏ khi vượt kèm cảnh báo bằng chữ; chính sách theo khách (cảnh báo / cần duyệt / chặn cứng, mặc định cần duyệt khi bàn giao hoặc hoàn tất lệnh); nới hạn mức là tạm thời có thời hạn và là guard; thu nợ mặc định phân bổ vào lệnh nợ lâu nhất. Cố vấn không vào màn này mà chỉ thấy số dư, hạn mức, cảnh báo trên lệnh và hồ sơ khách.
+- **ACC-13 (BA câu 6):** mỗi lần chi gắn một phiếu nhập; chênh lệch 3 bên vượt dung sai (cấu hình, mặc định 0) chặn chi thường; “Chi kèm ngoại lệ” bắt buộc lý do và luôn qua đề xuất chi; chi vượt hạn mức cũng đi qua đề xuất chi; nút ghi đổi nhãn theo số tiền và bị khóa khi số tiền không hợp lệ.
+- **ACC-21 (mới, BA câu 5):** khoản nhận trước gắn khách, không gắn lệnh; hai cách xử lý: bù vào lệnh còn nợ của cùng khách (không chuyển giữa khách) hoặc hoàn lại có duyệt.
 
 ### 4.5 Nhóm giá vốn, lãi lỗ, cuối kỳ (ACC-14 đến 20)
 

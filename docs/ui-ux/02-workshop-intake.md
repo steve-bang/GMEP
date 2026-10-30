@@ -216,3 +216,82 @@ Tablet/mobile: sidebar xuống dưới nội dung chính; hàng hạng mục chu
 14. **Đồng sơn (REC-07)**: danh sách công đoạn thật sau khảo sát xưởng; có gắn ảnh trước/sau từng công đoạn không.
 15. **Thời hạn lưu dữ liệu** sau khi xử lý yêu cầu xóa (CRM-11), mốc “quá hạn xử lý” tính bao nhiêu ngày.
 16. **Tạm dừng**: lý do “Nghỉ” và “Khác” của thợ có dừng đồng hồ giờ thực của hạng mục không (ba-decisions câu 13 đã nêu, cần xác nhận cho tính hiệu suất).
+
+## 9. Cập nhật theo `ba-answers-02.md` và `review-02-workshop-intake-ba.md` (bản 0.2)
+
+### 9.1 Bảng quyền theo bước chuyển trạng thái lệnh (dùng chung REC-03, REC-04)
+
+Nguồn: `ba-answers-02.md` A.1. Mọi lần chuyển ghi người, thời điểm, lý do. QĐ được “Gửi QC” và chấm QC, không tạo/sửa/hủy lệnh, không thu tiền, không xuất hóa đơn.
+
+| Bước | Ai | Cách thực hiện trên giao diện |
+| --- | --- | --- |
+| Đã duyệt → Đang sửa | Hệ thống, khi thợ bắt đầu hạng mục đầu tiên | Không có nút hay kéo thả; REC-03 nêu lý do khi cố kéo |
+| Đang sửa → Tạm dừng | Thợ (tablet), CV/QĐ/QL, hoặc hệ thống khi thiếu phụ tùng | Nút “Tạm dừng…” (REC-04), hộp chọn lý do khi kéo ở REC-03 |
+| Tạm dừng → Đang sửa | CV/QĐ/QL, hoặc tự động khi hết lý do | Nút chính “Tiếp tục sửa chữa”, khóa kèm lý do tới khi hết lý do |
+| Đang sửa → Chờ QC | CV, QĐ, QL | Nút chính “Chuyển sang Chờ QC”, khóa kèm lý do nếu thiếu điều kiện |
+| Chờ QC → Sẵn sàng bàn giao | QĐ/nhân viên QC | Nút “Mở màn chấm QC” (liên kết ngoài gói), không kéo thả |
+| Sẵn sàng bàn giao → Hoàn tất | CV tại màn giao xe | Nút “Giao xe…” (liên kết ngoài gói), không kéo thả |
+| → Đã hủy | CV/QL đề xuất, người khác duyệt | Chỉ từ Đã duyệt, Đang sửa, Tạm dừng; từ Chờ QC khóa kèm lý do |
+
+### 9.2 Finding → đã xử lý ở đâu
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F2-01 Thợ thấy tiền, báo giá, công nợ | Major | Ẩn khối Báo giá, Thanh toán, Hóa đơn, banner công nợ, mục timeline tài chính với TH | `g2-rec-04.html` (`data-g2w-hide-for`) |
+| F2-02 Quản đốc, Cố vấn thấy tab tài chính; nút hóa đơn không khóa | Major | Tab Thanh toán ẩn với TH, QĐ; tab Hóa đơn ẩn với TH, QĐ, CV; Điều chỉnh/Hủy hóa đơn chỉ KT, kèm lý do | `g2-rec-04.html` |
+| F2-03 Thiếu biến thể Chờ QC, Sẵn sàng bàn giao | Major | Thêm hai biến thể, Xuất hóa đơn bật khi đủ điều kiện, Thu tiền, biên bản giao xe | `g2-rec-04.html` (script `V.qc`, `V.ready`) |
+| F2-04 Hành động bật ở lệnh chỉ đọc | Major | `data-v-edit` cho Phân thợ, Yêu cầu phụ tùng, Báo phát sinh, đổi thợ, Thu tiền; khóa kèm lý do | `g2-rec-04.html` |
+| F2-05 Quyền chuyển trạng thái REC-03 khác REC-04 | Major | Một bảng quyền (9.1); `ROLES_MOVE` kiểm quyền trong `tryMove`; REC-04 mở nút chính cho CV, QĐ, QL | `pack.js`, `g2-rec-03.html`, `g2-rec-04.html` |
+| F2-06 Kéo thả qua mặt QC/biên bản | Major | `ALLOWED` chỉ còn 3 bước; các bước còn lại hiện lý do và liên kết, nút khóa trong hộp “Chuyển trạng thái…” | `pack.js`, `g2-rec-03.html` |
+| F2-07 Thiếu “Tạm dừng…” | Major | Nút và hộp thoại chọn lý do ở REC-04; hộp chọn lý do khi kéo ở REC-03 | `g2-rec-04.html`, `g2-rec-03.html` |
+| F2-08 REC-06 thiếu nhánh hoàn kho, tiền, chặn hóa đơn | Major | Viết lại: mỗi dòng Hoàn kho hoặc Đã dùng (Miễn/Tính phí); 4 cách xử lý tiền (2 cách tắt chờ kế toán); chặn khi có hóa đơn và từ Chờ QC; phiếu hoàn số riêng | `g2-rec-06.html` |
+| F2-09 Người đề xuất tự duyệt | Major | Trạng thái “QL tự đề xuất”: QL bị khóa, QV/CH duyệt; CH, QV được xem màn | `g2-rec-06.html` |
+| F2-10 CRM-08 cách ly chi nhánh, đồng ý, câu hỏi BA lọt giao diện | Major | Biến thể cùng chi nhánh/liên chi nhánh/khác loại; QL chỉ đề nghị khi liên chi nhánh; bảng xem trước đồng ý; công nợ giữ theo lệnh gốc; bỏ chữ “câu hỏi cho BA” | `g2-crm-08.html` |
+| F2-11 Điều kiện xuất hóa đơn chỉ một câu | Minor | Danh sách kiểm Đạt/Thiếu 5 điều kiện | `g2-rec-04.html` |
+| F2-12 Banner công nợ sai | Minor | Sửa câu (giao xe, mở thêm lệnh cần duyệt; thu tiền không bị chặn), bọc số tiền, ẩn với TH, QĐ | `g2-rec-04.html` |
+| F2-13 Biến thể Đã hủy làm mất sự thật | Minor | Giữ trạng thái cuối hạng mục, thêm tag Công đã đảo, Đã hoàn kho | `g2-rec-04.html` |
+| F2-14 Thiếu “Tạo lệnh bảo hành” | Minor | Nút ở biến thể Hoàn tất/Chốt sổ | `g2-rec-04.html` |
+| F2-15 Khóa Hủy theo bước | Minor | Khóa từ Chờ QC kèm dòng lý do hiển thị | `g2-rec-04.html` |
+| F2-16 Mốc thời gian lệch | Minor | Thống nhất 09:25 và “Cập nhật lúc 09:30” | `g2-rec-04.html` |
+| F2-17 Giá chi nhánh khác | Minor | Giá lịch sử chi nhánh khác chỉ hiện với vai trò có quyền xem lệnh chi nhánh đó (CH, QV, KT) | `g2-rec-01.html`, `g2-crm-03.html`, `g2-crm-06.html` |
+| F2-18 Bước 4 thiếu bắt buộc; phụ tùng khách mang | Minor | Ngày hẹn giao bắt buộc có lỗi theo trường; bảng dòng “Phụ tùng khách cung cấp” | `g2-rec-01.html` |
+| F2-19 Cờ km bất thường | Minor | Nêu ngưỡng và cờ cho QL ở cảnh báo; chưa hiện cờ ở REC-02/04 (xem mục 11) | `g2-rec-01.html` |
+| F2-20 Chân wizard lơ lửng | Minor | Chỉ nâng 72px dưới 640px, có `safe-area-inset-bottom` | `pack.css` |
+| F2-21 CRM-09 nhắc khi chưa có kênh | Minor | Nút “Ghi nhận đã gọi”, hiện ngưỡng hiện hành và quy tắc nhắc lặp | `g2-crm-09.html` |
+| F2-22 Dải Trước lệnh lộ cho Thợ | Minor | `data-g2w-hide-for="TH"` | `g2-rec-03.html` |
+| F2-23 Giá trị dự phòng cứng; chú thích sai | Minor | Bỏ giá trị dự phòng, sửa chú thích | `pack.css` |
+| F2-24 Mã tự đặt | Minor | `CD-`, `LH-`, `TX-`; phiếu hoàn kho `PN-` số riêng | CRM-11, APT-01, APT-04, REC-01, REC-06 |
+| F2-25 Shell dựng bằng JS | Minor | `<noscript>` trên mọi trang; ghi handoff mục 10 | tất cả trang, `pack.js` |
+| F2-26 Lọc theo vai trò ở máy khách | Minor | Ghi chú đầu `pack.js` và mục 10 | `pack.js`, tài liệu |
+| F2-27 Đồng bộ tài liệu | Minor | Mục 2, 5, 7, 8, 9, 10, 11, 12 cập nhật | tài liệu này |
+
+Rà thêm các màn BA chưa đọc hết, theo cùng tiêu chí: CRM-01 ẩn cột công nợ với CV (BA câu 11: CV không xem sổ công nợ tổng hợp); CRM-11 đổi mã `CD-`, hạn xử lý 15 ngày làm việc và mốc cấu hình; CRM-09 sửa kênh chưa kích hoạt; APT-02 nêu mức vượt công suất tối đa cấu hình; APT-04 đổi mã `LH-`.
+
+### 9.3 Giả định đã được BA xác nhận hoặc điều chỉnh
+
+Giả định 1 (mã): đổi thành `CD`, `LH`, `TX`. Giả định 3: xác nhận (Đã duyệt → Đang sửa tự động). Giả định 7 (hóa đơn): thay bằng danh sách kiểm A.3, thanh toán một phần vẫn xuất được. Giả định 9: xác nhận (công suất theo ngày). Giả định 10: CV không xem sổ công nợ tổng hợp; QĐ không thấy tài chính. Giả định 11, 12: xác nhận.
+
+## 10. Ghi chú handoff: máy chủ quyết định phân quyền và dữ liệu (F2-25, F2-26)
+
+1. **Khung ứng dụng (sidebar, topbar, bottom nav) phải render ở máy chủ hoặc bằng component của framework**, có khung tĩnh trước khi hydrate. Prototype dựng bằng `pack.js` (nên có `<noscript>`) chỉ để kiểm chứng giao diện; không sao chép cách dựng này.
+2. **Ẩn, che và khóa theo vai trò, chi nhánh phải do dữ liệu máy chủ quyết định**: API chỉ trả phần được phép (giá, thanh toán, hóa đơn, SĐT, địa chỉ, hạng mục của thợ khác không được gửi xuống thiết bị Thợ). Thuộc tính `hidden`/`disabled` ở prototype chỉ là minh họa, dễ bị bỏ qua nếu dùng làm cơ chế bảo mật.
+3. Tham số `?role=`, bảng `PHONES` trong `pack.js`, lệnh `?variant=` chỉ có ở bản demo.
+4. Mọi điều kiện chuyển trạng thái, hủy, xuất hóa đơn được máy chủ kiểm lại; giao diện chỉ phản ánh và nêu lý do. Danh sách kiểm xuất hóa đơn, lý do tạm dừng, mốc quá hạn, ngưỡng nhắc, công suất vượt tối đa là cấu hình có ngày hiệu lực.
+5. Gom ủy quyền sự kiện; không dùng nhiều `document.addEventListener('click')` rải rác như prototype. Kiểm thử trực quan 4 vai trò × 3 độ rộng cho REC-04.
+
+## 11. Chưa xử lý trọn vẹn
+
+1. **F2-19**: cờ “Số km bất thường” mới được nêu ở cảnh báo của REC-01, chưa hiện thành tag ở REC-02 và REC-04 cho Quản lý.
+2. **F2-10**: ở biến thể liên chi nhánh, cột hồ sơ B chưa thu gọn xuống “mức tối thiểu” cho Quản lý chi nhánh (hiện cảnh báo bằng chữ).
+3. Hộp “Tạm dừng…” chưa bắt buộc chọn lý do bằng ràng buộc nút (chỉ có nhãn bắt buộc).
+4. Thẻ ở REC-03 chưa tự di chuyển sang cột Tạm dừng sau khi chọn lý do (chờ máy chủ xác nhận).
+
+## 12. Câu hỏi còn lại cho BA
+
+1. Giao diện chuyển Đang sửa → Chờ QC: “nhắc khi đủ điều kiện” (thông báo) chưa vẽ; cần màn/thông báo nào cho CV, QĐ, QL?
+2. “Tính phí khách phần đã dùng” khi hủy lệnh (REC-06): tạo phiếu bán/hóa đơn nào, cần FR mới (gap G2-A); màn REC-06 chỉ ghi nhận lựa chọn.
+3. Hai cách xử lý tiền “giữ làm khoản đặt trước”, “trừ phí” đang tắt chờ kế toán: khi bật cần màn con nào (hạn giữ, đồng ý khách)?
+4. Yêu cầu “thu đủ trước khi xuất hóa đơn”: hiển thị trong danh sách kiểm như điều kiện thứ sáu khi bật cấu hình?
+5. Quản lý vùng có được xem toàn bộ hồ sơ B ở CRM-08 liên chi nhánh, hay cũng ở mức tối thiểu cho tới khi duyệt?
+6. Cờ “Số km bất thường”: ngưỡng cuối cùng, và ai nhận thông báo ngoài Quản lý chi nhánh.
+7. Xác nhận QĐ xem tài chính: tab Thanh toán, Hóa đơn ẩn hoàn toàn (đã làm theo câu 11), còn cảnh báo vượt hạn mức nợ có cần cho QĐ biết để không giao xe?

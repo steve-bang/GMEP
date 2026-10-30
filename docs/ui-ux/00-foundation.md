@@ -130,6 +130,10 @@ Quy tắc: xanh lá chỉ cho thành công; vàng/cam cảnh báo; đỏ lỗi/r
 
 Thay đổi so với bản trước: Báo giá “Đã gửi” Info → Warning (“Chờ khách duyệt”); Lệnh “Đã duyệt” Info → Neutral; bỏ “Chờ tiếp nhận” và “Chờ duyệt báo giá” khỏi bộ Lệnh, thêm bộ Lịch hẹn/Tiếp nhận; thêm tag lý do cho Tạm dừng. Đếm “Chờ duyệt báo giá 08” trên dashboard và pill menu Phiếu sửa chữa = báo giá ở trạng thái Đã gửi. “Xe chờ phụ tùng 04” = lệnh Tạm dừng có lý do Chờ phụ tùng.
 
+### 6a. Bộ badge cho kho, mua hàng, nhân sự (theo `ba-answers-04.md` Phụ lục A)
+
+Thêm 13 bộ trạng thái (chứng từ kho, yêu cầu cấp phụ tùng, yêu cầu mua, đơn mua, phiếu chuyển kho CK, yêu cầu chuyển YK, kiểm kê, đối chiếu ba bên, dòng công thợ, hoa hồng, kỳ công, nhân sự, chấm công, nhà cung cấp). Không cần class mới: dùng `badge--*` và `tag--*` hiện có. Quy tắc chung: “Chờ duyệt” luôn Warning; “Từ chối” luôn Danger; “Đã ghi sổ / Đã duyệt / Nhận đủ” Success; “Nháp / Đã hủy / Đã đóng” Neutral; tím chỉ cho “Chờ QC”; loại chứng từ và loại biến động là tag Neutral kèm icon, không phải badge. Số thứ tư của bốn số tồn kho đổi nhãn thành **“Đang vận chuyển”** (tag Info) và thêm tag Neutral **“Đã đặt N”**. Tiền tố mã mới: YK, HK, XN, CP (cùng YM, DC, TR); phiếu chuyển đánh số theo chi nhánh gửi.
+
 ### 6b. Hiện dữ liệu cá nhân theo vai trò (câu 8)
 
 | Vai trò | SĐT | Địa chỉ | Nút Hiện |
@@ -144,7 +148,7 @@ Giá trị đầy đủ không gửi xuống trình duyệt trước khi Hiện;
 
 ## 7. Bảng vai trò → menu (theo FRD §2; đã sửa theo F-06)
 
-Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT AD` (`QD` hiển thị là “QĐ”). “✓” tạo/sửa/duyệt (S, D) · Xem = chỉ xem (X) · Của tôi = chỉ phần của mình (Xn) · Hệ thống = chỉ sức khỏe hệ thống. Mục có Xem/Của tôi/Hệ thống hiện thêm nhãn nhỏ cạnh tên mục. Hành động không được phép trong mục đang hiện để disabled kèm lý do.
+Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT MH NS AD` (`QD` hiển thị là “QĐ”). “✓” tạo/sửa/duyệt (S, D) · Xem = chỉ xem (X) · Của tôi = chỉ phần của mình (Xn) · Hệ thống = chỉ sức khỏe hệ thống. Mục có Xem/Của tôi/Hệ thống hiện thêm nhãn nhỏ cạnh tên mục. Hành động không được phép trong mục đang hiện để disabled kèm lý do.
 
 | Menu | CH | QV | QL | CV | QĐ | TH | TK | TN | KT | MH | NS | AD |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

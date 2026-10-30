@@ -450,22 +450,63 @@
     else if (ok && autoDenied && btnData) { autoDenied = false; btnData.click(); }
     /* trường chỉ một số vai trò được sửa: khóa kèm lý do hiển thị (không âm thầm ẩn) */
     $$('[data-edit-roles]').forEach(function (el) {
+      if (el._d0 === undefined) el._d0 = el.disabled;   /* giữ trạng thái disabled có sẵn (nút lên/xuống ở đầu/cuối danh sách) */
       var can = el.getAttribute('data-edit-roles').split(' ').indexOf(role) >= 0;
-      el.disabled = !can; el.setAttribute('aria-disabled', String(!can));
+      el.disabled = !can || el._d0; el.setAttribute('aria-disabled', String(!can || el._d0));
     });
     $$('[data-why-roles]').forEach(function (el) { el.hidden = el.getAttribute('data-why-roles').split(' ').indexOf(role) >= 0; });
-    /* mục Cài đặt cho vai trò được phép xem màn hình này nhưng chưa có trong menu nền */
-    var set = $('[data-menu="set"]');
-    if (set && CFG.menu === 'set' && ok) set.hidden = false;
-    /* quyền xuất */
-    var canExport = ['CH', 'QV', 'QL', 'KT', 'AD'].indexOf(role) >= 0;
+    /* quyền xuất (BA-06 câu 3): CH QV QL KT xuất báo cáo; AD chỉ xuất nhật ký (SYS-19); cột cá nhân đầy đủ chỉ CH, KT */
+    var canExport = ['CH', 'QV', 'QL', 'KT'].indexOf(role) >= 0 || (role === 'AD' && CFG.code === 'G4-SYS-19');
     $$('[data-g4r-noexport]').forEach(function (n) { n.hidden = canExport; });
-    var go = $('#dx-go'); if (go) { go.disabled = !canExport; go.setAttribute('aria-disabled', String(!canExport)); }
-    var pii = $('#dx-pii'); if (pii) { var piiOk = ['CH', 'KT'].indexOf(role) >= 0; pii.disabled = !piiOk; if (!piiOk) { pii.checked = false; var w = $('#dx-warn'); if (w) w.hidden = true; } }
-    $$('[data-g4r-exportbtn]').forEach(function (b) { b.disabled = !canExport; b.setAttribute('aria-disabled', String(!canExport)); b.title = canExport ? '' : 'Vai trò của bạn chưa có quyền xuất dữ liệu. Liên hệ Chủ garage.'; });
+    var pii = $('#dx-pii'); if (pii) { var piiOk = ['CH', 'KT'].indexOf(role) >= 0; pii.disabled = !piiOk || role === 'AD'; if (!piiOk) { pii.checked = false; var w = $('#dx-warn'); if (w) w.hidden = true; } }
+    exportGo(canExport);
+    $$('[data-g4r-exportbtn]').forEach(function (b) {
+      b.disabled = !canExport; b.setAttribute('aria-disabled', String(!canExport)); b.title = canExport ? '' : 'Vai trò của bạn chưa có quyền xuất dữ liệu. Liên hệ Chủ garage.';
+      var nx = b.nextElementSibling; if (nx && nx.classList.contains('g4r-why')) nx.remove();
+      if (!canExport) { var s = document.createElement('span'); s.className = 'g4r-why'; s.textContent = 'Chưa có quyền xuất dữ liệu'; b.parentNode.insertBefore(s, b.nextSibling); }
+    });
+  }
+  /* nút Xuất tệp: bật khi có quyền; nếu chọn cột cá nhân thì cần lý do (>= 5 ký tự) và mật khẩu */
+  function exportGo(canExport) {
+    var go = $('#dx-go'); if (!go) return;
+    if (canExport === undefined) canExport = !$('[data-g4r-noexport]') || $('[data-g4r-noexport]').hidden;
+    var pii = $('#dx-pii'), need = pii && pii.checked, r = $('#dx-reason'), p = $('#dx-pw');
+    var ok = canExport && (!need || ((r.value.trim().length >= 5) && p.value.length > 0));
+    go.disabled = !ok; go.setAttribute('aria-disabled', String(!ok));
+  }
+  /* mức phạm vi: hợp nhất (CH/QV chọn Tất cả/Nhóm) hay theo từng chi nhánh – điều khiển khối .g4r-only-merged/.g4r-only-branch */
+  function syncLevel() {
+    var role = document.body.getAttribute('data-role') || 'CH', btn = $('.branch-btn');
+    var merged = ['CH', 'QV'].indexOf(role) >= 0 && btn && btn.classList.contains('is-all');
+    document.body.setAttribute('data-g4r-level', merged ? 'merged' : 'branch');
   }
   document.addEventListener('change', function (e) {
-    if (e.target.id === 'dx-pii') { var w = $('#dx-warn'); if (w) w.hidden = !e.target.checked; }
+    if (e.target.id === 'dx-pii') { var w = $('#dx-warn'); if (w) w.hidden = !e.target.checked; exportGo(); }
+  });
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'dx-reason' || e.target.id === 'dx-pw') exportGo();
+    /* ô mật khẩu xác nhận lại: bắt buộc trước khi bật nút xác nhận của hộp thoại (app.js chưa kiểm ô này) */
+    var g = e.target.closest && e.target.closest('[data-confirm-guard]'); if (!g) return;
+    var pw = g.querySelector('[data-g4r-pw]'); if (!pw) return;
+    if (e.target === pw) { var tr = g.querySelector('[data-confirm-reason],[data-confirm-input]'); if (tr) { tr.dispatchEvent(new Event('input', { bubbles: true })); return; } }
+    var b = g.querySelector('[data-confirm-btn]'); if (b && !pw.value) { b.disabled = true; b.setAttribute('aria-disabled', 'true'); }
+  });
+  /* duyệt / từ chối yêu cầu chờ duyệt */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-g4r-approve]'); if (!a) return;
+    var p = a.getAttribute('data-g4r-approve').split('|');
+    $('#ap-what').textContent = p[0]; $('#ap-who').textContent = p[1]; $('#ap-diff').innerHTML = (p[2] || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    $('#ap-ok').checked = false; $('#ap-rs').value = ''; $('#ap-yes').disabled = true; $('#ap-no').disabled = true;
+    if (window.gmepOpen) window.gmepOpen('dlg-approve');
+  });
+  document.addEventListener('input', function (e) { if (e.target.id === 'ap-rs') $('#ap-no').disabled = e.target.value.trim().length < 5; });
+  document.addEventListener('change', function (e) { if (e.target.id === 'ap-ok') $('#ap-yes').disabled = !e.target.checked; });
+  /* biểu đồ line: một điểm dừng Tab, di chuyển bằng mũi tên */
+  document.addEventListener('keydown', function (e) {
+    var d = e.target.closest && e.target.closest('.g4r-dot'); if (!d || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'Home' && e.key !== 'End')) return;
+    var pts = $$('.g4r-dot[data-g4r-pt="' + d.getAttribute('data-g4r-pt') + '"]', d.closest('svg')), i = pts.indexOf(d);
+    var n = e.key === 'ArrowRight' ? pts[i + 1] : e.key === 'ArrowLeft' ? pts[i - 1] : e.key === 'Home' ? pts[0] : pts[pts.length - 1];
+    if (n) { e.preventDefault(); pts.forEach(function (x) { x.tabIndex = -1; }); n.tabIndex = 0; n.focus(); }
   });
   document.addEventListener('DOMContentLoaded', function () {
     var q = new URLSearchParams(location.search), st = q.get('state'), rl = q.get('role');
@@ -479,5 +520,6 @@
     if (lbl) new MutationObserver(syncScope).observe(lbl, { childList: true, characterData: true, subtree: true });
     if (q.get('open')) { var ov = q.get('open'); if (document.getElementById(ov) && window.gmepOpen) window.gmepOpen(ov); }
     new MutationObserver(gate).observe(document.body, { attributes: true, attributeFilter: ['data-role'] });
+    var bb = $('.branch-btn'); if (bb) new MutationObserver(syncLevel).observe(bb, { attributes: true, attributeFilter: ['class'] });
   });
 })();
