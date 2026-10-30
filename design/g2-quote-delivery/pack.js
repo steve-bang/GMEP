@@ -89,7 +89,7 @@
       ['CH', 'QL', 'CV', 'QD', 'TH', 'TK', 'TN', 'KT', 'MH', 'NS'].map(function (k) { return '<button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="' + k + '" data-role-name="' + USERS[k][0] + '" aria-checked="' + (k === role) + '">' + USERS[k][0] + '</button>'; }).join('') +
       '</div></div></header>' +
       '<main class="main" id="main"><div class="main__inner">' +
-      '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể gửi báo giá, xuất phụ tùng, thu tiền, xuất hóa đơn. Mốc giờ làm việc vẫn được ghi và sẽ đồng bộ sau (đánh dấu “nhập bù”). Bản nháp chỉ lưu trên máy, chưa gửi tới ai.</span></div></div>');
+      '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể gửi báo giá, xuất phụ tùng, thu tiền, xuất hóa đơn. Giai đoạn 1 chặn ghi mốc giờ làm việc (Bắt đầu, Tạm dừng, Hoàn thành): ghi giờ thật lên phiếu giấy, khi có mạng dùng “Khai giờ thực” (nhãn “Nhập bù”, Quản đốc/Quản lý xác nhận). Bản nháp chỉ lưu trên máy, chưa gửi tới ai; không có đồng bộ tự động.</span></div></div>');
     if (techMode) html = techShell(html, active);
     w(html);
   };

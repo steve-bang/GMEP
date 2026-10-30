@@ -19,12 +19,13 @@
     <div class="page-header__actions">
       <a class="btn btn--secondary btn--lg" href="#" data-target="G2-TEC-03"><svg class="icon"><use href="#package"/></svg>Yêu cầu phụ tùng</a>
       <a class="btn btn--secondary btn--lg" href="#" data-target="G2-TEC-04"><svg class="icon"><use href="#plus"/></svg>Báo phát sinh</a>
+      <button type="button" class="btn btn--primary btn--lg" id="declare-btn" data-open="dlg-declare"><svg class="icon"><use href="#clock"/></svg>Khai giờ thực</button>
     </div>
   </div>
 
   <div data-g1-proto></div>
 
-  <div class="alert alert--warning" id="off-note" role="alert" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối: chưa ghi được Bắt đầu, Tạm dừng, Hoàn thành</span><span>Đồng hồ giờ công của hệ thống vẫn chạy cho việc đang làm. <strong>Nói trực tiếp với quản đốc</strong> và ghi giờ thật lên phiếu giấy dự phòng để quản đốc nhập bù khi có mạng. Bạn vẫn xem được các việc đã tải.</span><div class="alert__actions"><button type="button" class="btn btn--primary" id="queue-btn" data-toast="info|Chờ gửi|Chưa gửi được vì mất kết nối. Yêu cầu nằm trong hàng chờ trên máy và tự gửi khi có mạng; trong lúc này hãy nói trực tiếp với quản đốc.">Gửi khi có mạng</button><span class="tag tag--neutral" id="queue-tag" hidden>Chờ gửi</span><a class="btn btn--secondary" href="g1-err-04.html">Mở phiếu giấy dự phòng</a></div></div></div>
+  <div class="alert alert--warning" id="off-note" role="alert" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối: chưa ghi được Bắt đầu, Tạm dừng, Hoàn thành</span><span>Đồng hồ giờ công của hệ thống vẫn chạy cho việc đang làm. <strong>Nói trực tiếp với quản đốc</strong> và ghi giờ thật lên phiếu giấy dự phòng để quản đốc nhập bù khi có mạng. Bạn vẫn xem được các việc đã tải.</span><div class="alert__actions"><button type="button" class="btn btn--primary" id="queue-btn" data-toast="info|Chờ gửi|Chưa gửi được vì mất kết nối. Đây chỉ là lời nhắn báo quản đốc, không phải giờ làm; nó nằm trên máy cho đến khi có mạng. Trong lúc này hãy nói trực tiếp với quản đốc.">Gửi khi có mạng</button><span class="tag tag--neutral" id="queue-tag" hidden>Chờ gửi</span><a class="btn btn--secondary" href="g1-err-04.html">Mở phiếu giấy dự phòng</a></div></div></div>
 
   <section class="card" data-g1-card data-g1-title="Công hôm nay" data-g1-err aria-labelledby="h-sum">
     <div class="card__header"><div><h2 class="card__title" id="h-sum">Công hôm nay (tóm tắt)</h2><div class="card__subtitle">Chi nhánh Quận 7 · hôm nay 30/10/2026 · cập nhật 09:15. Hoa hồng không hiện ở đây.</div></div></div>
@@ -32,6 +33,14 @@
       <div><span class="g1-note">Giờ chuẩn đã hoàn thành</span><strong>1,8 giờ</strong></div>
       <div><span class="g1-note">Giờ làm thực tế</span><strong>2,3 giờ</strong></div>
       <div><span class="g1-note">Hạng mục hoàn thành</span><strong>2 / 6</strong></div>
+    </div>
+  </section>
+
+  <section class="card" data-g1-card data-g1-title="Yêu cầu nhập bù của tôi" aria-labelledby="h-bu">
+    <div class="card__header"><div><h2 class="card__title" id="h-bu">Yêu cầu nhập bù của tôi</h2><div class="card__subtitle">Giờ khai từ phiếu giấy khi mất mạng. Chênh lệch ≤ 15 phút so với đồng hồ hệ thống: quản đốc xác nhận; lớn hơn: quản lý chi nhánh duyệt. Sau đó bạn xác nhận lại bằng PIN. Bản ghi mang nhãn “Nhập bù”.</div></div></div>
+    <div id="bu-list">
+      <div class="g1-row"><span class="g1-row__main"><strong>Thay má phanh trước · <span class="code">RO-Q7-2610-00124</span></strong><span class="g1-row__sub">Khai kết thúc 09:02 · hệ thống 09:15 · chênh 13 phút</span></span><span class="g1-row__end"><span class="tag tag--neutral">Nhập bù</span><span class="badge badge--warning">Chờ quản đốc xác nhận</span></span></div>
+      <div class="g1-row"><span class="g1-row__main"><strong>Siết bu lông bánh trước · <span class="code">RO-Q7-2610-00109</span></strong><span class="g1-row__sub">29/10/2026 · khai 14:10–15:05 · chênh 6 phút · quản đốc đã xác nhận</span></span><span class="g1-row__end"><span class="tag tag--neutral">Nhập bù</span><span class="badge badge--success">Đã xác nhận</span><button type="button" class="btn btn--primary btn--sm" data-open="dlg-pin-bu">Xác nhận bằng PIN</button></span></div>
     </div>
   </section>
 
@@ -76,6 +85,20 @@
   </div>
 </div>
 
+<div class="overlay" id="dlg-declare" role="dialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="dd-t">Khai giờ thực theo phiếu giấy</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <p class="g1-m0">Dùng khi bạn đã làm lúc mất mạng. Giờ khai chỉ có hiệu lực sau khi quản đốc xác nhận (hoặc quản lý chi nhánh duyệt) và bạn xác nhận lại bằng PIN. Không xóa hay sửa giờ hệ thống đã ghi.</p>
+    <div class="field"><label class="field__label" for="dd-job">Hạng mục<span class="field__req" aria-hidden="true">*</span></label><select id="dd-job" class="select"><option>Thay má phanh trước · RO-Q7-2610-00124</option><option>Thay lọc dầu và dầu nhớt · RO-Q7-2610-00128</option></select></div>
+    <div class="field"><label class="field__label" for="dd-end">Giờ kết thúc ghi trên phiếu giấy (HH:mm)<span class="field__req" aria-hidden="true">*</span></label><input id="dd-end" class="input" inputmode="numeric" placeholder="09:02" autocomplete="off" aria-describedby="dd-diff dd-err"><span class="g1-diff" id="dd-diff" role="status">Đồng hồ hệ thống đang ghi việc này lúc 09:15. Nhập giờ để xem ai xác nhận.</span><span class="field__error" id="dd-err" hidden></span></div>
+    <div class="field"><label class="field__label" for="dd-why">Ghi chú</label><textarea id="dd-why" class="textarea" placeholder="Ví dụ: mất mạng từ 08:50 đến 09:10"></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="dd-send">Gửi yêu cầu nhập bù</button></div></div></div>
+
+<div class="overlay" id="dlg-pin-bu" role="dialog" aria-modal="true" aria-labelledby="pb-t"><div class="dialog">
+  <div class="dialog__header"><div><h2 class="dialog__title" id="pb-t">Xác nhận lại bằng PIN</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><p class="g1-m0">Quản đốc đã xác nhận giờ khai của bạn. Nhập PIN 6 số để xác nhận lần cuối.</p><div class="field"><label class="field__label" for="pb-pin">PIN<span class="field__req" aria-hidden="true">*</span></label><input id="pb-pin" class="input" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã xác nhận nhập bù|Giờ công được tính theo giờ đã xác nhận, nhãn “Nhập bù”.">Xác nhận</button></div></div></div>
+
 <div class="overlay" id="dlg-pause" role="dialog" aria-modal="true" aria-labelledby="dp-t"><div class="dialog">
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="dp-t">Vì sao tạm dừng?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><p>Chạm một lý do để tạm dừng. Giờ công chỉ tính thời gian đang làm.</p>
@@ -116,10 +139,37 @@
     var f = e.target.closest('[data-g1-jobfilter]');
     if (f) { var k = f.getAttribute('data-g1-jobfilter'); $$('[data-g1-jobfilter]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === f)); }); $$('.g1-job').forEach(function (a) { a.hidden = !(k === 'all' || a.getAttribute('data-job') === k); }); }
   });
+  /* Khai giờ thực: tính chênh lệch với đồng hồ hệ thống (09:15) để biết ai xác nhận */
+  function mins(s) { var m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(s.trim()); return m ? +m[1] * 60 + +m[2] : null; }
+  var SYS = 9 * 60 + 15;
+  function diffText() {
+    var v = mins(document.getElementById('dd-end').value), el = document.getElementById('dd-diff');
+    if (v === null) { el.className = 'g1-diff'; el.textContent = 'Đồng hồ hệ thống đang ghi việc này lúc 09:15. Nhập giờ để xem ai xác nhận.'; return null; }
+    var d = Math.abs(SYS - v);
+    el.className = 'g1-diff' + (d > 15 ? ' g1-diff--warn' : '');
+    el.textContent = 'Chênh ' + d + ' phút so với đồng hồ hệ thống. ' + (d > 15 ? 'Lớn hơn 15 phút nên cần quản lý chi nhánh duyệt, sau khi quản đốc xem.' : 'Quản đốc xác nhận.');
+    return d;
+  }
+  document.addEventListener('input', function (e) { if (e.target.id === 'dd-end') diffText(); });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#dd-send')) return;
+    var inp = document.getElementById('dd-end'), er = document.getElementById('dd-err'), d = diffText();
+    if (d === null) { er.hidden = false; er.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Nhập giờ theo HH:mm, ví dụ 09:02.</span>'; inp.setAttribute('aria-invalid', 'true'); inp.focus(); return; }
+    er.hidden = true; inp.removeAttribute('aria-invalid');
+    var job = document.getElementById('dd-job').value.split(' · ');
+    document.getElementById('bu-list').insertAdjacentHTML('afterbegin', '<div class="g1-row"><span class="g1-row__main"><strong>' + job[0].replace(/</g, '&lt;') + ' · <span class="code">' + job[1] + '</span></strong><span class="g1-row__sub">Khai kết thúc ' + inp.value.trim() + ' · chênh ' + d + ' phút · vừa gửi</span></span><span class="g1-row__end"><span class="tag tag--neutral">Nhập bù</span><span class="badge badge--warning">' + (d > 15 ? 'Chờ quản lý duyệt' : 'Chờ quản đốc xác nhận') + '</span></span></div>');
+    window.gmepClose(document.getElementById('dlg-declare')); window.gmepToast('success', 'Đã gửi yêu cầu nhập bù', d > 15 ? 'Quản lý chi nhánh sẽ duyệt sau khi quản đốc xem.' : 'Quản đốc sẽ xác nhận. Giờ công chưa tính cho đến khi xác nhận.');
+  });
   /* Mất kết nối: khóa ghi giờ để không sai giờ công, vẫn xem được việc đã tải */
   var nb = $('.net-banner');
   if (nb) new MutationObserver(function () {
     var off = nb.classList.contains('is-visible'); var on = document.getElementById('off-note'); if (on) on.hidden = !off;
+    /* Ba nút Bắt đầu / Tạm dừng / Hoàn thành khóa kèm lý do bằng chữ (không chỉ tooltip); Khai giờ thực chỉ khi có mạng */
+    $$('.g1-job__actions').forEach(function (a) {
+      var w = $('.g1-lockwhy', a); if (w) w.remove();
+      if (off && $('[data-job-act]', a)) a.insertAdjacentHTML('beforeend', '<p class="g1-lockwhy"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Đang khóa vì mất kết nối: không ghi được giờ. Ghi giờ thật lên phiếu giấy, rồi “Khai giờ thực” khi có mạng.</p>');
+    });
+    var dc = document.getElementById('declare-btn'); if (dc) { dc.disabled = off; dc.setAttribute('aria-disabled', String(off)); dc.title = off ? 'Cần có mạng để khai giờ thực' : ''; }
     $$('[data-job-act]').forEach(function (b) { if (off) { b.setAttribute('data-was', b.disabled ? '1' : '0'); b.disabled = true; b.title = 'Mất kết nối: ghi giờ trên phiếu giấy và báo quản đốc nhập bù'; } else if (b.getAttribute('data-was') === '0') { b.disabled = false; b.removeAttribute('title'); } });
   }).observe(nb, { attributes: true, attributeFilter: ['class'] });
 })();

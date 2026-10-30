@@ -14,7 +14,7 @@
 <div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
 
 <div class="g1-wrap">
-  <div data-g1-views="default:Mất kết nối|maintenance:Bảo trì|online:Có mạng lại, nhập bù|conflict:Xung đột khi đồng bộ" data-hint="Chỉ cảnh báo và giữ bản nháp. Làm việc không cần mạng (offline đầy đủ) là phạm vi riêng."></div>
+  <div data-g1-views="default:Mất kết nối|maintenance:Bảo trì|online:Có mạng lại|conflict:Nháp cũ hơn bản trên hệ thống" data-hint="Chỉ cảnh báo và giữ bản nháp. Không có ghi nền hay đồng bộ tự động: người dùng bấm Gửi từng nháp; giờ công của thợ đi qua “Khai giờ thực”."></div>
 
   <div class="alert alert--warning alert--banner" role="alert" style="max-width:720px;border-radius:var(--radius-md);border-width:1px" data-show="default" aria-label="Ví dụ banner mất kết nối trong ứng dụng"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể xuất kho, thu tiền, xuất hóa đơn.</span></div></div>
 
@@ -35,29 +35,28 @@
     <!-- Bảo trì -->
     <div data-show="maintenance" hidden class="stack">
       <div class="row row--nowrap"><div class="state__icon state__icon--brand" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none"><svg class="icon icon--lg"><use href="#settings"/></svg></div><div><h1 style="font-size:var(--font-size-xl);margin:0">Hệ thống đang bảo trì</h1><p class="g1-lead" style="margin:0">Dự kiến hoạt động lại lúc <strong class="num">22:30, 30/10/2026</strong> (giờ dự kiến do quản trị hệ thống cập nhật).</p></div></div>
-      <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Trong lúc chờ</span><span>1. Ghi xe nhận vào phiếu giấy dự phòng (bấm nút bên dưới để in). 2. Giữ phiếu cho tới khi hệ thống mở lại. 3. Khi có mạng, nhập bù vào hệ thống; bản ghi nhập bù có đánh dấu “Nhập bù” để đối chiếu.</span></div></div>
+      <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Trong lúc chờ</span><span>1. Ghi xe nhận vào phiếu giấy dự phòng (bấm nút bên dưới để in). 2. Giữ phiếu cho tới khi hệ thống mở lại. 3. Khi có mạng, nhập vào hệ thống; giờ công của thợ khai qua “Khai giờ thực” và mang nhãn “Nhập bù” để đối chiếu.</span></div></div>
       <div class="row"><button type="button" class="btn btn--primary btn--lg" data-open="dlg-slip"><svg class="icon"><use href="#printer"/></svg>Mở phiếu giấy dự phòng</button><button type="button" class="btn btn--secondary btn--lg" data-demo-loading data-toast="info|Hệ thống vẫn đang bảo trì|Thử lại sau giờ dự kiến. Bản nháp trên máy được giữ.">Kiểm tra lại</button></div>
     </div>
 
     <!-- Có mạng lại -->
     <div data-show="online" hidden class="stack">
-      <div class="row row--nowrap"><div class="state__icon state__icon--brand" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><div><h1 style="font-size:var(--font-size-xl);margin:0">Đã có mạng trở lại</h1><p class="g1-lead" style="margin:0">Đang đồng bộ 3 bản ghi nhập bù. Bản ghi được đánh dấu “Nhập bù” và giữ giờ thật bạn làm.</p></div></div>
+      <div class="row row--nowrap"><div class="state__icon state__icon--brand" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><div><h1 style="font-size:var(--font-size-xl);margin:0">Đã có mạng trở lại</h1><p class="g1-lead" style="margin:0">Hệ thống không tự gửi gì lên. Kiểm tra từng bản nháp rồi bấm Gửi; giờ công của thợ phải khai lại qua “Khai giờ thực”.</p></div></div>
       <div class="card">
-        <div class="g1-row"><span class="g1-row__main"><strong>Phiếu tiếp nhận xe <span class="plate">51H-123.45</span></strong><span class="g1-row__sub">Giờ thật: 09:14 · RO-Q7-2610-00135</span></span><span class="g1-row__end"><span class="tag tag--info">Nhập bù</span><span class="badge badge--success">Đã đồng bộ</span></span></div>
-        <div class="g1-row"><span class="g1-row__main"><strong>Ghi chú QC <span class="code">RO-Q7-2610-00122</span></strong><span class="g1-row__sub">Giờ thật: 09:12</span></span><span class="g1-row__end"><span class="tag tag--info">Nhập bù</span><span class="sync"><svg class="icon icon--sm spin"><use href="#loader"/></svg>Đang gửi…</span></span></div>
-        <div class="g1-row"><span class="g1-row__main"><strong>Cập nhật hạng mục <span class="code">RO-Q7-2610-00124</span></strong><span class="g1-row__sub">Giờ thật: 09:10 · lệnh đã thay đổi trong lúc mất mạng</span></span><span class="g1-row__end"><span class="tag tag--info">Nhập bù</span><span class="badge badge--warning">Cần xử lý xung đột</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Phiếu tiếp nhận xe <span class="plate">51H-123.45</span></strong><span class="g1-row__sub">Giờ thật: 09:14 · RO-Q7-2610-00135</span></span><span class="g1-row__end"><span class="tag tag--neutral">CHƯA gửi</span><button type="button" class="btn btn--primary btn--sm" data-toast="success|Đã gửi phiếu tiếp nhận|Phiếu được tạo với giờ của máy chủ lúc bấm Gửi.">Gửi</button></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Ghi chú QC <span class="code">RO-Q7-2610-00122</span></strong><span class="g1-row__sub">Giờ thật: 09:12</span></span><span class="g1-row__end"><span class="tag tag--neutral">CHƯA gửi</span><button type="button" class="btn btn--secondary btn--sm" data-toast="success|Đã gửi ghi chú|Ghi chú QC được gắn vào lệnh.">Gửi</button></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Giờ công hạng mục <span class="code">RO-Q7-2610-00124</span></strong><span class="g1-row__sub">Không ghi được giờ khi mất mạng. Khai giờ thực theo phiếu giấy.</span></span><span class="g1-row__end"><a class="btn btn--primary btn--sm" href="g1-dsh-07.html">Khai giờ thực</a></span></div>
       </div>
-      <p class="g1-note g1-m0">Giai đoạn 1: thợ không ghi được giờ khi mất mạng; quản đốc nhập bù giờ công từ phiếu giấy (có lý do, đánh dấu “Nhập bù”). Từ giai đoạn 2 trở đi, thao tác của thợ vào hàng đợi “Chờ đồng bộ” và lấy giờ máy chủ khi có mạng.</p>
+      <p class="g1-note g1-m0">Giai đoạn 1: thợ không ghi được giờ khi mất mạng. Khi có mạng, thợ “Khai giờ thực” từ phiếu giấy; quản đốc xác nhận nếu chênh lệch ≤ 15 phút, quản lý chi nhánh duyệt nếu lớn hơn; bản ghi mang nhãn “Nhập bù” và thợ xác nhận lại bằng PIN. Ghi giờ theo giờ thiết bị rồi đồng bộ sau (hàng đợi) bị hoãn sang giai đoạn 2 trở đi.</p>
       <div class="row"><button type="button" class="btn btn--primary btn--lg" data-g1-goto="conflict">Xử lý xung đột (1)</button><a class="btn btn--ghost btn--lg" href="g1-dsh-03.html">Về trang tổng quan</a></div>
     </div>
 
     <!-- Xung đột -->
     <div data-show="conflict" hidden class="stack">
-      <div><h1 style="font-size:var(--font-size-xl);margin:0">Chọn bản giữ lại cho hạng mục</h1><p class="g1-lead">Lệnh <span class="code">RO-Q7-2610-00124</span> đã được người khác sửa lúc 09:20, trong khi bạn đang mất mạng. Hệ thống không tự ghi đè.</p></div>
+      <div><h1 style="font-size:var(--font-size-xl);margin:0">Chọn bản ghi chú giữ lại (nháp trên máy, chỉ nội dung ghi chú, không có mốc giờ)</h1><p class="g1-lead">Lệnh <span class="code">RO-Q7-2610-00124</span> đã được người khác sửa lúc 09:20, trong khi bạn đang mất mạng. Hệ thống không tự ghi đè.</p></div>
       <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">So sánh hai bản của hạng mục</caption>
         <thead><tr><th scope="col">Trường</th><th scope="col">Bản của bạn (09:10, trên máy)</th><th scope="col">Bản trên hệ thống (09:20, Mai Văn Nam)</th></tr></thead>
-        <tbody><tr><th scope="row">Trạng thái hạng mục</th><td><span class="badge badge--info">Đang làm</span></td><td><span class="badge badge--warning">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ phụ tùng</span></td></tr>
-          <tr><th scope="row">Ghi chú</th><td>Đã tháo má phanh cũ</td><td>Chờ má phanh mới từ kho</td></tr></tbody></table></div>
+        <tbody><tr><th scope="row">Ghi chú</th><td>Đã tháo má phanh cũ</td><td>Chờ má phanh mới từ kho</td></tr></tbody></table></div>
       <fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="field__label">Giữ bản nào?</legend>
         <label class="radio"><input type="radio" name="cf" checked><span class="radio__box"></span><span>Dùng bản trên hệ thống (khuyến nghị, mới hơn)</span></label>
         <label class="radio"><input type="radio" name="cf"><span class="radio__box"></span><span>Ghi bản của tôi thành ghi chú bổ sung, giữ trạng thái trên hệ thống</span></label></fieldset>

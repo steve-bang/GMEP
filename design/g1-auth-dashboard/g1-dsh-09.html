@@ -31,6 +31,7 @@
     <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Xe QC trả lại"><span class="kpi__label"><svg class="icon icon--sm"><use href="#undo"/></svg>Xe QC trả lại</span><span class="kpi__value">01</span><span class="kpi__meta">Hạng mục ở trạng thái “Trả lại”</span><span class="kpi__scope">Chi nhánh Quận 7 · hôm nay 30/10/2026</span></a>
     <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Xe trễ hẹn"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Xe trễ hẹn giao</span><span class="kpi__value">03</span><span class="kpi__meta">Hẹn giao hiện hành đã qua, chưa trao xe</span><span class="kpi__scope">Chi nhánh Quận 7 · tại 09:15</span></a>
     <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Phát sinh chờ khách duyệt"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Phát sinh chờ khách duyệt</span><span class="kpi__value">02</span><span class="kpi__meta">Hạng mục bị khóa nút Bắt đầu</span><span class="kpi__scope">Chi nhánh Quận 7 · tại 09:15</span></a>
+    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Yêu cầu nhập bù"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Yêu cầu nhập bù</span><span class="kpi__value">02</span><span class="kpi__meta">1 chờ tôi xác nhận · 1 chờ quản lý duyệt</span><span class="kpi__scope">Chi nhánh Quận 7 · tại 09:15</span></a>
   </section>
 
   <div class="g1-cols">
@@ -72,6 +73,11 @@
         <div class="g1-row"><span class="g1-row__main"><strong><span class="plate">29C-246.88</span> · Hyundai Santa Fe</strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00125</span> · chờ 15 phút</span></span><span class="g1-row__end"><span class="badge badge--purple">Chờ QC</span><a class="btn btn--primary btn--sm" href="#" data-target="G2-DLV-02">Kiểm tra</a></span></div>
         <div class="g1-row"><span class="g1-row__main"><strong><span class="plate">51F-888.12</span> · Kia Carnival</strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00129</span> · chờ 5 phút</span></span><span class="g1-row__end"><span class="badge badge--purple">Chờ QC</span><a class="btn btn--primary btn--sm" href="#" data-target="G2-DLV-02">Kiểm tra</a></span></div>
       </section>
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Yêu cầu nhập bù giờ công" data-g1-empty="Không có yêu cầu nhập bù|Khi thợ khai giờ thực sau lúc mất mạng, yêu cầu hiện ở đây." aria-labelledby="h-bu">
+        <div class="card__header"><div><h2 class="card__title" id="h-bu">Yêu cầu nhập bù giờ công</h2><div class="card__subtitle">Thợ khai theo phiếu giấy. Chênh ≤ 15 phút: bạn xác nhận; lớn hơn: quản lý chi nhánh duyệt. Mọi bản ghi có nhãn “Nhập bù”.</div></div></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Đỗ Văn Tùng · <span class="code">RO-Q7-2610-00124</span></strong><span class="g1-row__sub">Thay má phanh trước · khai kết thúc 09:02, hệ thống 09:15 · chênh 13 phút</span></span><span class="g1-row__end"><span class="tag tag--neutral">Nhập bù</span><span class="badge badge--warning">Chờ xác nhận</span><button type="button" class="btn btn--primary btn--sm" data-toast="success|Đã xác nhận nhập bù|Chờ thợ xác nhận lại bằng PIN. Ghi nhật ký trước và sau.">Xác nhận</button><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-bu-fix">Sửa và xác nhận</button></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Lâm Quốc Việt · <span class="code">RO-Q7-2610-00128</span></strong><span class="g1-row__sub">Bảo dưỡng 20.000 km · khai kết thúc 08:40, hệ thống 09:15 · chênh 35 phút</span></span><span class="g1-row__end"><span class="tag tag--neutral">Nhập bù</span><span class="badge badge--warning">Chờ QL duyệt</span></span><p class="g1-lockwhy"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chênh lệch lớn hơn 15 phút nên bạn không tự xác nhận được; đã chuyển quản lý chi nhánh duyệt.</p></div>
+      </section>
       <section class="card" data-g1-card data-g1-title="Xe QC trả lại" data-g1-empty="Không có xe bị trả lại|Hạng mục QC không đạt sẽ hiện ở đây kèm ghi chú." aria-labelledby="h-ret">
         <div class="card__header"><h2 class="card__title" id="h-ret">Xe QC trả lại</h2></div>
         <div class="g1-row"><span class="g1-row__main"><strong><span class="plate">51D-112.33</span> · Mitsubishi Xpander</strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00109</span> · siết lại bu lông bánh trước · thợ Đỗ Văn Tùng · lúc 08:50</span></span><span class="g1-row__end"><span class="badge badge--danger">Trả lại</span></span></div>
@@ -84,6 +90,13 @@
     </div>
   </div>
 </div>
+<div class="overlay" id="dlg-bu-fix" role="dialog" aria-modal="true" aria-labelledby="bf-t"><div class="dialog">
+  <div class="dialog__header"><div><h2 class="dialog__title" id="bf-t">Sửa giờ khai và xác nhận</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><p class="g1-m0">Sửa giờ khai của thợ phải có lý do. Bản ghi vẫn mang nhãn “Nhập bù”, nhật ký lưu giá trị trước và sau, thợ xác nhận lại bằng PIN. Không xóa mốc giờ.</p>
+    <div class="field"><label class="field__label" for="bf-t1">Giờ kết thúc sau khi sửa (HH:mm)<span class="field__req" aria-hidden="true">*</span></label><input id="bf-t1" class="input" value="09:05" inputmode="numeric"></div>
+    <div class="field"><label class="field__label" for="bf-r">Lý do sửa<span class="field__req" aria-hidden="true">*</span></label><textarea id="bf-r" class="textarea" aria-describedby="bf-h"></textarea><span class="field__hint" id="bf-h">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="bf-ok" data-close data-toast="success|Đã sửa và xác nhận|Chờ thợ xác nhận lại bằng PIN." disabled>Sửa và xác nhận</button></div></div></div>
+<script>document.addEventListener('input', function (e) { if (e.target.id === 'bf-r') document.getElementById('bf-ok').disabled = e.target.value.trim().length < 5; });</script>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại. Nếu vẫn không xem được, <a href="g1-aut-01.html">quay lại đăng nhập</a> hoặc liên hệ quản lý chi nhánh.</div></noscript>
 <script src="g1-shell.js"></script>
 <script src="../assets/app.js"></script>

@@ -26,8 +26,14 @@
 fieldset.card { display: block; margin: 0; }
 .card .table-scroll, .card > .table-scroll, .table-wrap .table-scroll { max-width: 100%; overflow-x: auto; }
 .g4f-kv, .g4f-sum > div, .card__body, .card__header { min-width: 0; }
-.g4f-sum dd, .g4f-kv dd { overflow-wrap: anywhere; white-space: normal; }
-.g4f-sum dd.num, .g4f-sum dd { white-space: normal; }
+.g4f-kv dd { overflow-wrap: anywhere; }
+/* dd dài (vd. APR-03): cho dòng xuống hàng, dt/dd cùng co được; không dùng overflow-wrap:anywhere cho .g4f-sum vì làm min-content phình */
+.g4f-sum > div { flex-wrap: wrap; row-gap: var(--space-1); }
+.g4f-sum dt { flex: 1 1 140px; min-width: 0; }
+.g4f-sum dd { flex: 1 1 140px; min-width: 0; white-space: normal; text-align: right; overflow-wrap: break-word; }
+.g4f-sum dd.num { white-space: nowrap; flex: 0 0 auto; }
+.g4f-matrix .input, .g4f-matrix .select { max-width: 100%; }
+.card .input-group, .card .date-field, .card .datepicker-host { max-width: 100%; min-width: 0; }
 .page-header__actions .tooltip, .g4f-demo .tooltip { left: auto; right: 0; transform: none; max-width: min(280px, calc(100vw - 32px)); }
 @media (max-width: 639px) {
   .g4f-denom { grid-template-columns: minmax(0, 1fr); }
@@ -177,3 +183,7 @@ fieldset.card { display: block; margin: 0; }
   .g4f-printing .main { margin: 0; padding: 0; }
   .g4f-printing .g4f-receipt { border: 0; }
 }
+
+/* Chống tràn ngang 390px (đo bằng Playwright): dt cũng phải xuống dòng được, không chỉ dd */
+.g4f-sum dt { white-space: normal; overflow-wrap: break-word; }
+.g4f-sum dd:not(.num) { white-space: normal !important; }

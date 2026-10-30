@@ -96,7 +96,7 @@ flowchart TD
 | Kết thúc | "Kết thúc" → "Kết thúc hạng mục" = 2 chạm | 2 chạm |
 | Tạm dừng | "Tạm dừng" → chọn lý do = 2 chạm | 2 chạm |
 
-**Mất kết nối (chốt cho TEC-01/03/04, NFR-OFF-01, giai đoạn 1).** Chỉ cảnh báo và lưu nháp: mốc giờ bắt đầu/tạm dừng/kết thúc vẫn ghi trên máy và đồng bộ sau (nhãn "nhập bù"). **Yêu cầu phụ tùng và báo hư hỏng phát sinh bị chặn gửi**: nháp lưu trên máy hiện rõ "CHƯA gửi" (`sync--wait`), thợ báo trực tiếp quản đốc/cố vấn hoặc dùng phiếu giấy dự phòng; có mạng thì bấm "Gửi ngay". Không tự gửi nền (đó là offline đầy đủ, ngoài phạm vi).
+**Mất kết nối (chốt cho TEC-01/03/04, NFR-OFF-01, giai đoạn 1).** Theo `ba-decisions.md` mục E.1 (BA đề xuất, chờ xác nhận): **chặn ghi 3 mốc giờ** (Bắt đầu, Tạm dừng, Hoàn thành) khi mất mạng; ba nút khóa kèm lý do bằng chữ (TEC-01, TEC-02 biến thể "Mất mạng: chặn ghi giờ"); thợ ghi giờ thật lên phiếu giấy. Khi có mạng thợ dùng **"Khai giờ thực"** (TEC-02 biến thể "Có mạng lại: khai giờ thực", nhắc ở TEC-01): Quản đốc xác nhận nếu chênh ≤ 15 phút, Quản lý chi nhánh duyệt nếu lớn hơn; bản ghi mang nhãn "Nhập bù" và thợ xác nhận lại bằng PIN. Phương án ghi giờ theo giờ thiết bị rồi đồng bộ sau **hoãn sang Phase 2+**; không còn trạng thái "chờ đồng bộ" hay đồng bộ tự động. Hàng chờ "Yêu cầu nhập bù" của Quản đốc thuộc **gói 1** (phía thợ đã có ở `g1-dsh-07`; phía Quản đốc `g1-dsh-09` cần gói 1 bổ sung nếu chưa có), gói 3 chỉ tạo bản khai. **Yêu cầu phụ tùng và báo hư hỏng phát sinh bị chặn gửi**: nháp lưu trên máy hiện rõ "CHƯA gửi" (`sync--wait`), thợ báo trực tiếp quản đốc/cố vấn hoặc dùng phiếu giấy dự phòng; có mạng thì bấm "Gửi ngay". Không tự gửi nền (đó là offline đầy đủ, ngoài phạm vi).
 
 ## 5. Mô tả theo nhóm màn hình
 
@@ -151,7 +151,7 @@ Chỉ dùng token đã kiểm; badge/tag luôn có chữ; mọi điều kiện b
 2. Chế độ hiển thị giá: khách cá nhân đã gồm thuế, doanh nghiệp chưa thuế (cấu hình, `[Cần xác nhận]` kế toán/pháp chế).
 3. Số hóa đơn `C26TAA-0001302`, MST `0312345678`, mã biên bản `BB-Q7-2610-00041` là số mẫu; tiền tố `BB` chờ chủ dự án xác nhận.
 4. Khổ nhiệt `80mm 297mm` là giá trị mẫu, chiều dài theo máy in `[Cần xác nhận]`.
-5. Mất kết nối giai đoạn 1: chặn gửi + nháp trên máy + phiếu giấy (không tự gửi nền).
+5. Mất kết nối giai đoạn 1 (ba-decisions E.1): chặn ghi 3 mốc giờ + chặn gửi yêu cầu phụ tùng/báo phát sinh; nháp trên máy, phiếu giấy, "Khai giờ thực" khi có mạng (không đồng bộ tự động, không ghi theo giờ thiết bị).
 6. Kênh Zalo "đã kích hoạt" trong dữ liệu mẫu chỉ để minh họa; SMS chưa kích hoạt; không tên nhà cung cấp.
 7. Số điện thoại đầy đủ trong mô phỏng PRT-01 nằm trong mã prototype (như `PII_DB` của `app.js`); bản thật chỉ tải khi người in có quyền và ghi nhật ký.
 
@@ -171,7 +171,7 @@ Chỉ dùng token đã kiểm; badge/tag luôn có chữ; mọi điều kiện b
 | F3-10 `@page` nhiệt | Major | `80mm 297mm` + ghi chú thử máy thật | PRT-01. **Chưa kiểm thực tế được** |
 | F3-11 Shell nhân viên cho thợ | Major | Shell rút gọn (tech mode) | pack.js, TEC-01..05 |
 | F3-12 Bảo hành liên chi nhánh | Major | Che tên khách/thợ, nhãn Vô hiệu | DLV-05, 06 |
-| F3-13 Mất mạng báo phát sinh | Major | Chặn + nháp "Chưa gửi" + phiếu giấy; thống nhất TEC-01/03/04 | TEC-01, 03, 04 |
+| F3-13 Chính sách mất mạng (cập nhật theo ba-decisions E.1) | Major | Chặn ghi 3 mốc giờ (nút khóa kèm lý do), phiếu giấy, "Khai giờ thực" có nhãn Nhập bù + PIN, Quản đốc ≤ 15 phút / Quản lý chi nhánh > 15 phút; báo phát sinh và yêu cầu phụ tùng chặn gửi + nháp "Chưa gửi"; bỏ biến thể "chờ đồng bộ" | pack.js (banner), TEC-01, 02, 03, 04 |
 | F3-14 Token liên kết | Minor | Token dài, ghi chú bảo mật (≥128 bit, no-store, no-referrer) | QUO-04, 06, §8 |
 | F3-15 Trang khách: mã báo giá, "số mẫu" | Minor | Hiện mã + bản, bỏ nhãn "số mẫu" trên trang khách | QUO-06 |
 | F3-16 Tên truy cập, OTP, trạng thái thiếu | Minor | aria-label trên input, one-time-code, đã hủy/đã từ chối, không tìm thấy, lỗi/trống QUO-03 | QUO-06, 09, 03 |
@@ -210,7 +210,7 @@ Câu trả lời BA đã áp dụng: câu 1 (QUO-01/03), 2 (QUO-02/05/06/08), 3 
 
 | # | Câu hỏi | Ảnh hưởng |
 | --- | --- | --- |
-| 1 | Mất kết nối giai đoạn 1: chốt "chặn gửi, nháp trên máy, thợ bấm Gửi khi có mạng" cho báo phát sinh và yêu cầu phụ tùng. Review F3-13 từng nêu "tự gửi khi có mạng"; có chấp nhận bản chặn (đúng phạm vi cảnh báo + lưu nháp) không? | TEC-03, 04 |
+| 1 | (Đã trả lời: chính sách mất mạng E.1, xem §4.3.) Còn mở: bản khai giờ thực quá hạn không có người xác nhận thì xử lý ra sao; badge "Thiếu hàng" của yêu cầu phụ tùng giữ Warning (đã áp dụng). | TEC-02, 03 |
 | 2 | Trạng thái yêu cầu phụ tùng (câu 5) hiển thị ở TEC-03 chỉ là chữ gợi ý, chưa có badge chính thức; BA cung cấp tên và màu chính thức để thêm vào bảng A.2? | TEC-03 |
 | 3 | Lệnh có hạng mục phát sinh bị từ chối/hết hạn: hiển thị trong nhóm "Không thực hiện" ở G2-REC-04 (gói 2); cần gói 2 đồng bộ. Ai (gói 2/BA) cập nhật? | QUO-07, REC-04 |
 | 4 | "Khách đã yêu cầu" do cố vấn đặt: có cần lưu bằng chứng (ghi cuộc gọi/tin nhắn) không? | QUO-02, 06 |

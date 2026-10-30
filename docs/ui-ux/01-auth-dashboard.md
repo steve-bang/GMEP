@@ -48,7 +48,7 @@ Template theo `screen-inventory.md` §0.2. “Đã thiết kế” = đã có fi
 | G1-DSH-04 | Tổng quan Cố vấn dịch vụ | `g1-dsh-04.html` | B | CV | P1 | Chuẩn + trạng thái thẻ, “chưa có xe trong xưởng” |
 | G1-DSH-05 | Tổng quan Thủ kho | `g1-dsh-05.html` | B | TK | P1 | Chuẩn + trạng thái thẻ, nút xuất kho bị tắt có lý do khi hết hàng |
 | G1-DSH-06 | Tổng quan Kế toán | `g1-dsh-06.html` | B | KT | P1 (hóa đơn, đối soát), P2 (công nợ) | Chuẩn + trạng thái thẻ, Hiện SĐT có lý do |
-| G1-DSH-07 | Việc của tôi (Thợ, tablet) | `g1-dsh-07.html` | B | TH, QĐ | P1 | Việc đang làm, chưa làm, bị khóa chờ khách duyệt phát sinh, tạm dừng chờ phụ tùng, QC trả lại (thẻ có tên khách rút gọn, không SĐT), trống, mất mạng (chặn ghi giờ, chỉ dẫn nói trực tiếp, “Chờ gửi”) |
+| G1-DSH-07 | Việc của tôi (Thợ, tablet) | `g1-dsh-07.html` | B | TH, QĐ | P1 | Việc đang làm, chưa làm, bị khóa chờ khách duyệt phát sinh, tạm dừng chờ phụ tùng, QC trả lại (thẻ có tên khách rút gọn, không SĐT), trống, mất mạng (ba nút khóa kèm lý do bằng chữ, chỉ dẫn nói trực tiếp, “Chờ gửi” chỉ cho lời nhắn), “Khai giờ thực” khi có mạng lại, danh sách “Yêu cầu nhập bù của tôi” (xác nhận lại bằng PIN) |
 | G1-DSH-08 | Tổng quan Thu ngân | `g1-dsh-08.html` | B | TN | P1 (BA) | Chuẩn + trạng thái thẻ + ca chưa mở |
 | G1-DSH-09 | Tổng quan Quản đốc / QC | `g1-dsh-09.html` | B | QĐ | P1 | Chuẩn + trạng thái thẻ |
 | G1-DSH-10 | Tổng quan Quản trị hệ thống | `g1-dsh-10.html` | B | AD | P1 | Chuẩn + trạng thái thẻ |
@@ -315,7 +315,20 @@ Ngoài finding, đã áp dụng thêm từ `ba-answers-01.md`: quy định sử 
 
 Quy tắc bổ sung (BA vòng 2): khi ngày cuối của kỳ là số tạm, so sánh với kỳ trước đến cùng giờ hoặc ghi “chưa gồm cả ngày”. Tên khách ở thẻ việc của thợ chỉ là tên rút gọn.
 
+### 11c. Chính sách thợ mất mạng Phase 1 (`ba-decisions.md` mục E.1, BA đề xuất — chờ xác nhận)
+
+Thay thế mọi cách nói “tự đồng bộ” trong gói G1.
+
+- **Mất mạng**: chặn Bắt đầu / Tạm dừng / Hoàn thành; ba nút khóa bằng `disabled` kèm dòng lý do nhìn thấy ngay dưới nút (không chỉ tooltip). Banner: “Đồng hồ của hệ thống vẫn chạy với việc đang làm”, nói trực tiếp với quản đốc, ghi giờ thật lên phiếu giấy. “Gửi khi có mạng” chỉ là lời nhắn báo quản đốc với chỉ báo “Chờ gửi”, không phải mốc giờ và không báo thành công. Yêu cầu phụ tùng và báo phát sinh giữ như cũ (chặn gửi, lưu nháp, “CHƯA gửi”).
+- **Có mạng lại**: thợ mở “Khai giờ thực” (G1-DSH-07), nhập giờ theo phiếu giấy; hộp thoại tính ngay chênh lệch so với đồng hồ hệ thống và nói ai xử lý: ≤ 15 phút quản đốc xác nhận, lớn hơn quản lý chi nhánh duyệt (ngưỡng là tham số). Thợ theo dõi trong “Yêu cầu nhập bù của tôi” và xác nhận lại bằng PIN sau khi được xác nhận.
+- **Quản đốc (G1-DSH-09)**: KPI và khối “Yêu cầu nhập bù giờ công”: Xác nhận, hoặc “Sửa và xác nhận” với lý do bắt buộc (≥ 5 ký tự); yêu cầu chênh > 15 phút không có nút xác nhận, ghi lý do bằng chữ. **Quản lý chi nhánh (G1-DSH-03)**: khối “Nhập bù giờ công chờ tôi duyệt”, Duyệt / Từ chối (từ chối bắt buộc lý do ở G4-APR-02).
+- **Badge** (quy tắc chung của `ba-decisions.md` A.2b: “Chờ duyệt” luôn Warning, “Từ chối” Danger, “Đã duyệt/xác nhận” Success): Chờ quản đốc xác nhận, Chờ QL duyệt (Warning), Đã xác nhận (Success), Từ chối (Danger); “Nhập bù” là tag Neutral, không phải trạng thái. A.2b chưa liệt kê riêng đối tượng này, nên tên trạng thái là đề xuất (hỏi BA ở §12).
+- **ERR-04**: không còn hàng đợi tự đồng bộ; “Có mạng lại” liệt kê nháp “CHƯA gửi” để bấm Gửi từng cái và dẫn tới “Khai giờ thực”. Ghi giờ theo giờ thiết bị rồi đồng bộ sau hoãn sang Phase 2+.
+- **Chống tràn ngang 390px**: hàng danh sách (`g1-row`, `g1-row__end`) cho phép xuống dòng, nút thẻ việc `flex: 1 1 140px`, bảng nằm trong khung cuộn; chưa đo bằng trình duyệt (môi trường không có), rà bằng mã nguồn.
+
 ## 12. Câu hỏi còn lại cho BA
+
+0. Tên trạng thái của “Yêu cầu nhập bù” (Chờ quản đốc xác nhận, Chờ QL duyệt, Đã xác nhận, Từ chối) và hành vi khi quản đốc sửa giờ: thợ xác nhận lại PIN có bắt buộc khi quản đốc chỉ xác nhận nguyên giá trị không.
 
 **Đợt 2 đã được BA trả lời** (`review-01-round2-ba.md` mục 4): KT bắt buộc MFA, QĐ không; doanh thu ghi nhận theo ngày lệnh hoàn tất/giao xe, nhân công không tính ở Phase 1; số tổng đài là việc khách cung cấp trước pilot; văn bản quy định do luật sư của khách ban hành; chặn ghi giờ khi mất mạng ở Phase 1; QĐ nhập bù (≤ 15 phút tự nhập, lớn hơn cần QL duyệt); thợ quá tải = giờ chuẩn đã giao lớn hơn giờ khả dụng (vàng từ 90%); chậm luân chuyển = tồn khả dụng > 0 và không xuất kho trong N = 90 ngày (cấu hình theo nhóm hàng); cọc gắn báo giá; đăng ký lại thiết bị xưởng mỗi 90 ngày, 20 lần sai PIN trong 15 phút khóa thiết bị; TH không tìm/không liệt kê khách; QL không cần nhãn lợi nhuận riêng. Giữ lại danh sách cũ dưới đây để truy vết; chỉ còn các điểm khách phải xác nhận (KT/QĐ và MFA, mốc doanh thu theo kế toán, số tổng đài, văn bản quy định, cách xử lý hóa đơn cho tiền cọc).
 

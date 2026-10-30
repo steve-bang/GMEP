@@ -234,9 +234,23 @@ a.g1-row:hover { background: var(--color-surface-hover); text-decoration: none; 
 @page { size: A5; margin: 10mm; }
 @media print { .g1-auth-body:has(#dlg-slip) > *:not(#dlg-slip) { display: none !important; } #dlg-slip { position: static; display: block; background: none; padding: 0; } #dlg-slip .dialog { box-shadow: none; max-width: none; } #dlg-slip .dialog__footer, #dlg-slip .dialog__close { display: none; } }
 
+/* Yêu cầu nhập bù giờ công (thợ mất mạng, Phase 1) */
+.g1-lockwhy { flex-basis: 100%; margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); display: flex; gap: var(--space-2); align-items: flex-start; }
+.g1-diff { margin: 0; font-size: var(--font-size-sm); }
+.g1-diff--warn { color: var(--color-warning-text); font-weight: 600; }
+@media (max-width: 639px) {
+  .g1-row { flex-wrap: wrap; }
+  .g1-row__end { flex-wrap: wrap; }
+  .g1-job__actions .btn { min-width: 0; flex: 1 1 140px; }
+  .g1-notif { flex-wrap: wrap; }
+}
+
 /* Trang index */
 .g1-idx { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-4); display: flex; flex-direction: column; gap: var(--space-6); }
 .g1-idx h1 { font-size: var(--font-size-2xl); margin: 0; }
 .g1-idx h2 { font-size: var(--font-size-xl); margin: 0; }
 .g1-idx td, .g1-idx th { vertical-align: top; }
 .g1-role-links { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+/* Chống tràn ngang 390px (đo bằng Playwright): cụm tag/badge/nút cuối dòng được xuống dòng */
+.g1-row__end { flex: 0 1 auto; flex-wrap: wrap; min-width: 0; max-width: 100%; }

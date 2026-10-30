@@ -19,7 +19,7 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
 </script>
 
 <div class="g2q-tec" data-variants="list">
-  <script>g2q.proto([['list','Có việc'],['loading','Đang tải'],['empty','Chưa có việc'],['error','Lỗi tải'],['noperm','Không có quyền'],['offline','Mất mạng (dữ liệu đã tải)']], 'list');</script>
+  <script>g2q.proto([['list','Có việc'],['loading','Đang tải'],['empty','Chưa có việc'],['error','Lỗi tải'],['noperm','Không có quyền'],['offline','Mất mạng: chặn ghi giờ'],['rejoin','Có mạng lại: khai giờ thực']], 'list');</script>
 
   <section class="g2q-workerbar" aria-label="Thợ đang đăng nhập">
     <div class="g2q-workerbar__who"><span class="avatar avatar--lg" aria-hidden="true">LT</span><div><strong style="font-size:var(--font-size-xl)">Lê Minh Tuấn</strong><div class="g2q-note">Thợ chính · Chi nhánh Quận 7 · Thiết bị xưởng XT-02</div></div></div>
@@ -27,11 +27,12 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
     <button class="btn btn--secondary" data-toast="info|Đã khóa màn hình|Prototype: quay về lưới chọn thợ và nhập PIN (G1-AUT-10).">Khóa màn hình</button>
   </section>
 
-  <div class="alert alert--warning" role="alert" data-v="offline"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối — đang xem dữ liệu đã tải lúc 10:02</span><span>Bạn vẫn bắt đầu, tạm dừng, kết thúc được: mốc giờ ghi trên máy và đồng bộ sau (đánh dấu “nhập bù”). Yêu cầu phụ tùng và báo hư hỏng phát sinh <strong>cần có mạng</strong>: chỉ lưu nháp trên máy, <strong>chưa gửi</strong> tới thủ kho/cố vấn. Khi mất mạng lâu, báo trực tiếp quản đốc hoặc dùng phiếu giấy dự phòng.</span></div></div>
+  <div class="alert alert--warning" role="alert" id="off-why" data-v="offline"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối — đang xem dữ liệu đã tải lúc 10:02</span><span>Giai đoạn 1: <strong>không ghi được 3 mốc giờ</strong> (Bắt đầu, Tạm dừng, Hoàn thành); ba nút bị khóa vì cần mạng để ghi giờ đúng. Bạn <strong>ghi giờ thật lên phiếu giấy</strong>. Khi có mạng, vào “Khai giờ thực”: Quản đốc xác nhận nếu chênh ≤ 15 phút, Quản lý chi nhánh duyệt nếu lớn hơn; bản ghi mang nhãn “Nhập bù” và bạn xác nhận lại bằng PIN. Yêu cầu phụ tùng và báo hư hỏng phát sinh cũng <strong>chặn gửi</strong>, chỉ lưu nháp trên máy; cần báo gấp thì báo trực tiếp quản đốc.</span></div></div>
+  <div class="alert alert--info" role="status" data-v="rejoin"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Có mạng lại — còn 1 việc cần khai giờ thực</span><span>“Thay má phanh trước” (51H-123.45): bạn làm lúc mất mạng. Khai giờ ghi trên phiếu giấy để Quản đốc xác nhận.</span><div class="alert__actions"><a class="btn btn--primary btn--xl" href="g2-tec-02.html?v=declare">Khai giờ thực</a></div></div></div>
 
-  <div class="alert alert--warning" role="status" data-v="list offline"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">1 báo hư hỏng phát sinh CHƯA gửi tới cố vấn</span><span><span class="sync sync--wait"><svg class="icon icon--sm"><use href="#refresh"/></svg>Nháp trên máy, lưu 09:04</span> Cố vấn chưa biết nên khách chưa được hỏi. Có mạng thì bấm Gửi ngay; nếu chưa, báo trực tiếp cố vấn hoặc dùng phiếu giấy. Nháp gắn với thợ tạo, giữ đến khi gửi được hoặc thợ hủy, tối đa hết ca (mặc định 24 giờ, cấu hình), không phụ thuộc khóa màn hình 3 phút; Quản đốc xem được danh sách nháp chưa gửi. Hết hạn thì chuyển Quản đốc xử lý, không xóa im lặng.</span><div class="alert__actions"><a class="btn btn--primary btn--xl" href="g2-tec-04.html?v=draftlocal">Mở nháp và gửi</a></div></div></div>
+  <div class="alert alert--warning" role="status" data-v="list offline rejoin"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">1 báo hư hỏng phát sinh CHƯA gửi tới cố vấn</span><span><span class="sync sync--wait"><svg class="icon icon--sm"><use href="#refresh"/></svg>Nháp trên máy, lưu 09:04</span> Cố vấn chưa biết nên khách chưa được hỏi. Có mạng thì bấm Gửi ngay; nếu chưa, báo trực tiếp cố vấn hoặc dùng phiếu giấy. Nháp gắn với thợ tạo, giữ đến khi gửi được hoặc thợ hủy, tối đa hết ca (mặc định 24 giờ, cấu hình), không phụ thuộc khóa màn hình 3 phút; Quản đốc xem được danh sách nháp chưa gửi. Hết hạn thì chuyển Quản đốc xử lý, không xóa im lặng.</span><div class="alert__actions"><a class="btn btn--primary btn--xl" href="g2-tec-04.html?v=draftlocal">Mở nháp và gửi</a></div></div></div>
 
-  <div data-v="list offline" class="g2q-tec">
+  <div data-v="list offline rejoin" class="g2q-tec">
     <div class="g2q-sumtiles" aria-label="Tóm tắt việc hôm nay">
       <div class="g2q-tile"><span class="g2q-tile__v">1</span><span class="g2q-tile__l">Đang làm</span></div>
       <div class="g2q-tile"><span class="g2q-tile__v">2</span><span class="g2q-tile__l">Chưa làm (1 đang bị khóa)</span></div>
@@ -101,6 +102,21 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
   <div class="card" data-v="error"><script>g2q.state({kind:'error', title:'Không tải được việc của bạn', text:'Thử lại sau vài giây. Nếu vẫn lỗi, báo quản đốc. Các thao tác bạn đã làm không bị mất.', actions:'<button class="btn btn--primary btn--xl" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-TEC-30B2A9'})</script></div>
 </div>
 <script>g2q.end();</script>
+<script>
+/* Mất mạng: khóa 3 nút ghi giờ (Bắt đầu / Tạm dừng / Kết thúc) kèm lý do bằng chữ (alert #off-why) */
+window.g2qReady = function () {
+  var root = document.querySelector('[data-variants]');
+  function lock() {
+    var off = root.getAttribute('data-cur') === 'offline';
+    document.querySelectorAll('#jobs [data-g2q-undo], #jobs [data-open="dlg-pause"], #jobs [data-open="dlg-finish"]').forEach(function (b) {
+      if (off) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-describedby', 'off-why'); b.classList.add('is-disabled'); if (b.hasAttribute('data-open')) { b.setAttribute('data-open-saved', b.getAttribute('data-open')); b.removeAttribute('data-open'); } }
+      else { b.removeAttribute('aria-disabled'); b.classList.remove('is-disabled'); if (b.hasAttribute('data-open-saved')) { b.setAttribute('data-open', b.getAttribute('data-open-saved')); b.removeAttribute('data-open-saved'); } }
+    });
+  }
+  document.addEventListener('click', function (e) { var b = e.target.closest('.is-disabled[data-g2q-undo]'); if (b) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+  root.addEventListener('g2q:variant', lock); lock();
+};
+</script>
 <script>g2q.techDialogs();</script>
 
 <script src="../assets/app.js"></script>
