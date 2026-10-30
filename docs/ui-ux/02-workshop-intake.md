@@ -162,7 +162,10 @@ Tablet/mobile: sidebar xuống dưới nội dung chính; hàng hạng mục chu
 | REC-01 | FR-REC-001, 002, 003, 024, 025, 027; FR-CRM-004; BR-REC-01 |
 | REC-02/03 | FR-REC-010, 015, 022, 028, 030; FR-RPT-012; RULE-014 |
 | REC-04 | FR-REC-004, 009, 010, 012, 013, 014, 015, 016, 018, 021, 028, 029, 030; FR-INV-006, 007, 016, 020; FR-ACC-019; RULE-005, 006, 007, 008, 010, 014, 015 |
+| REC-04 (bổ sung) | FR-REC-017 (biên bản giao xe), 018 (lệnh bảo hành), 026 (duyệt tại quầy); FR-EIN (danh sách kiểm xuất hóa đơn) |
 | REC-05 | FR-REC-012, 029; FR-HRM-008, 013, 014 |
+| REC-07 (bổ sung) | FR-REC-033 |
+| INS (bổ sung) | FR-INS-004 (ghi chú, ảnh, video) |
 | REC-06 | FR-REC-021; FR-INV-008; FR-HRM-008; RULE-010 |
 | REC-07 | FR-REC-032, 033; BR-REC-13, 14 |
 | INS | FR-INS-001..008 (009 là Could, chỉ ghi chú) |

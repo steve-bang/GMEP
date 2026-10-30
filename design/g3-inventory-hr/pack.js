@@ -58,6 +58,14 @@
   ];
   var REG = {};
   R.forEach(function (r) { REG[r[0]] = { code: 'G3-' + r[0], id: r[0], mod: r[0].slice(0, 3).toLowerCase(), num: r[0].slice(4), title: r[1], tab: r[2] || r[0].slice(4), prio: r[3], fr: r[4], roles: r[5] }; });
+  /* Vai trò bổ sung theo ba-answers-04 Phụ lục C (MH, NS là vai trò riêng; CV xem danh mục và bảng giá, không xem INV-04) */
+  (function () {
+    var ADD = { 'INV-01': 'CV MH', 'INV-04': 'MH', 'INV-05': 'MH', 'INV-19': 'CV MH',
+      'PUR-01': 'MH', 'PUR-02': 'MH', 'PUR-03': 'MH', 'PUR-04': 'MH', 'PUR-05': 'MH', 'PUR-06': 'MH', 'PUR-07': 'MH', 'PUR-08': 'MH', 'PUR-09': 'MH', 'PUR-10': 'MH',
+      'HRM-01': 'NS', 'HRM-02': 'NS', 'HRM-03': 'NS', 'HRM-04': 'NS', 'HRM-05': 'NS', 'HRM-06': 'NS', 'HRM-07': 'NS', 'HRM-08': 'NS', 'HRM-09': 'NS', 'HRM-10': 'NS' };
+    Object.keys(ADD).forEach(function (k) { REG[k].roles += ' ' + ADD[k]; });
+    REG['HRM-07'].roles = REG['HRM-07'].roles.replace(' CV', '');   /* CV xem hoa hồng ở HRM-09, không có công thợ */
+  })();
   function file(id) { return 'g3-' + id.toLowerCase() + '.html'; }
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };

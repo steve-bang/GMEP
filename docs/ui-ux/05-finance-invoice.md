@@ -140,13 +140,13 @@ Shell chuẩn (sidebar 248/72, topbar 64, branch selector 3 cấp, banner phạm
 
 ### 4.6 Nhóm phê duyệt (APR-01 đến 03)
 
-- **APR-01 (C, mobile ưu tiên):** tab “Cần tôi duyệt / Tôi đã đề xuất / Đã xử lý”, lọc theo loại và độ trễ, cột “So với hạn mức” (giá trị lấy từ cấu hình, có nhãn minh họa), tag “Quá hạn” kèm chuyển cấp. Duyệt hàng loạt chỉ chọn được mục đủ điều kiện; mục còn lại có checkbox khóa kèm chữ “Duyệt riêng”. Người đề xuất (TN, CV, TK) chỉ thấy dòng của mình.
+- **APR-01 (C, mobile ưu tiên):** tab “Cần tôi duyệt / Tôi đã đề xuất / Đã xử lý”, lọc theo loại và độ trễ, cột “So với hạn mức” (giá trị lấy từ cấu hình, có nhãn minh họa), tag “Quá hạn” kèm chuyển cấp. Duyệt hàng loạt (BA câu 8) chỉ chọn được mục đủ điều kiện và **cùng loại** (chọn một loại thì ô chọn loại khác khóa kèm lý do), chỉ giảm giá và chênh lệch quỹ trong hạn mức; mục còn lại có checkbox khóa kèm chữ “Duyệt riêng”; hoàn tiền, hóa đơn, chi vượt hạn mức, hủy lệnh, mở lại ngày/kỳ, đổi cấu hình luôn duyệt riêng. Duyệt hàng loạt là xác nhận mức 2 và ghi nhật ký từng mục. Người đề xuất (TN, CV, TK) chỉ thấy dòng của mình. **Quyền duyệt** theo cặp (loại yêu cầu, vai trò) và “người lập ≠ người duyệt”: giảm giá/chênh lệch quỹ/hoàn tiền/hủy lệnh do QL, CH, QV; chi vượt hạn mức cấp QL do QV hoặc CH; hóa đơn điều chỉnh/thay thế/hủy do KT có cờ Kế toán trưởng (không phải người lập) hoặc CH; mở lại ngày/kỳ do CH. KT không duyệt hoàn tiền, chi hay chênh lệch quỹ (FRD §2: KT chỉ xem). Công tắc “Kế toán có cờ Kế toán trưởng” ở menu tài khoản để xem thử. Duyệt/từ chối/chuyển cấp dùng xác nhận (mức 2), khóa chống bấm đúp; từ chối bắt buộc lý do.
 - **APR-02:** Approval Panel đầy đủ: người đề xuất, lý do, giá trị, thanh so với hạn mức, bản ghi gốc, lịch sử. Duyệt (xác nhận, ghi nhật ký), Từ chối (lý do bắt buộc), Chuyển cấp. Trạng thái “đã được người khác duyệt” và “bản ghi gốc đã đổi” khóa mọi quyết định. APR-01 dùng drawer rút gọn cùng nội dung.
 - **APR-03:** ma trận Hành động × ngưỡng × cấp × thời hạn, mặc định chế độ xem; lưu phiên bản mới cần ngày hiệu lực và hiện số yêu cầu đang chờ bị ảnh hưởng. Banner “chưa ban hành chính thức”; mọi số là minh họa (D-11).
 
 ### 4.7 Nhóm hóa đơn điện tử (EIN-01 đến 08)
 
-- **EIN-01/03:** trạng thái hóa đơn dùng đúng bộ Chưa xuất/Đã xuất/Điều chỉnh/Thay thế/Hủy; **đồng bộ nhà cung cấp là chỉ báo `sync`** (đang gửi, lỗi phát hành, chờ truy vấn) cạnh badge, không là badge thứ 6 (ba-decisions A.2). Số hóa đơn do nhà cung cấp cấp, chưa có thì ghi “Chưa có số”.
+- **EIN-01/03 (BA câu 2):** trạng thái hóa đơn dùng đúng bộ Chưa xuất/Đã xuất/Điều chỉnh/Thay thế/Hủy, gán theo **loại chứng từ**: hóa đơn mới mang badge “Điều chỉnh”/“Thay thế” kèm liên kết hóa đơn gốc; **hóa đơn gốc giữ “Đã xuất”** và có tag “Chờ duyệt điều chỉnh/thay thế”, sau xác nhận là “Đã được điều chỉnh bởi số …” hoặc “Bị thay thế bởi số …” (gạch ngang, không mở lại để sửa); “Hủy” chỉ khi thao tác Hủy. Trên lệnh hiện hóa đơn hiệu lực mới nhất. Ánh xạ trạng thái nhà cung cấp → 5 trạng thái là bảng cấu hình trong lớp tích hợp; cách xử lý từng trường hợp theo Thông tư 91/2026 `[Cần kế toán xác nhận]`. **Đồng bộ nhà cung cấp là chỉ báo `sync`** (đang gửi, lỗi phát hành, chờ truy vấn) cạnh badge, không là badge thứ 6 (ba-decisions A.2). Số hóa đơn do nhà cung cấp cấp, chưa có thì ghi “Chưa có số”.
 - **EIN-02 (idempotent):** kiểm tra điều kiện (thuế suất, người mua, đơn vị phát hành, kết nối); thiếu điều kiện thì liệt kê và khóa nút, không gửi. Phát hành qua xác nhận, nút khóa “Đang gửi nhà cung cấp…”, hiển thị mã chống trùng. **Timeout:** thông báo rõ “không gửi lại”, chỉ có “Truy vấn trạng thái”. Đã có hóa đơn hợp lệ thì khóa. Chưa chọn nhà cung cấp: “Chưa kích hoạt”.
 - **EIN-04:** chọn Điều chỉnh/Thay thế/Hủy, lý do bắt buộc, bảng giá trị cũ → mới, luồng 4 bước; gửi KTT duyệt bằng guard (gõ số hóa đơn gốc). Hóa đơn gốc không bao giờ bị sửa.
 - **EIN-06:** lỗi dữ liệu phải sửa trước (nút Thử lại khóa kèm lý do), timeout truy vấn trước khi gửi; hủy yêu cầu là guard và vẫn truy vấn lần cuối.
@@ -168,12 +168,12 @@ Không màn hình nào có nút “Xóa” cho chứng từ đã ghi sổ; các 
 
 | Vai trò | Quyền trong gói |
 | --- | --- |
-| TN | Thu tiền, phiếu chi, chốt ca, phát hành hóa đơn; xem hóa đơn; đề xuất hoàn tiền; không thấy công nợ, giá vốn, lãi lỗ |
-| QL | Duyệt, khóa ngày; xem phần lớn; hóa đơn chỉ xem |
-| KT | Phân bổ, công nợ, giá vốn, hóa đơn, đối soát, kết xuất, khóa kỳ; SĐT/email khách che, Hiện cần lý do |
-| CH / QV | Xem, duyệt vượt hạn mức; CH mở lại ngày/kỳ, ban hành hạn mức |
-| CV | Xem trạng thái thu, công nợ khách; đề xuất giảm giá |
-| AD | Chỉ cấu hình kỹ thuật hóa đơn (EIN-07/08, APR-03 hỗ trợ); không dữ liệu nghiệp vụ |
+| TN | Thu tiền, phiếu chi, chốt ca, phát hành hóa đơn; xem hóa đơn và “Báo kế toán hóa đơn sai” (không lập điều chỉnh/hủy); đề xuất hoàn tiền; bù khoản nhận trước; không thấy công nợ, giá vốn, lãi lỗ; không duyệt |
+| QL | Duyệt (giảm giá, chênh lệch quỹ, hoàn tiền, hủy lệnh), khóa ngày, đề nghị mở lại ngày/kỳ; xem phần lớn; hóa đơn chỉ xem; lãi lỗ chỉ chi nhánh mình |
+| KT | Phân bổ, công nợ, giá vốn, hóa đơn (lập điều chỉnh/thay thế/hủy), đối soát, kết xuất, khóa kỳ, đề nghị mở lại ngày/kỳ; chỉ xem thu tiền và sổ quỹ; duyệt hóa đơn chỉ khi có cờ Kế toán trưởng và không phải người lập; SĐT/email khách che, Hiện cần lý do |
+| CH / QV | Xem, duyệt (QV/CH cho chi vượt hạn mức cấp QL; CH cho mở lại ngày/kỳ và ban hành hạn mức); QV duyệt mở lại chỉ khi CH ủy quyền |
+| CV | Xem trạng thái thu của lệnh mình (M8 = X); **không xem sổ công nợ** (M9 = “-”), chỉ thấy số dư, hạn mức, cảnh báo trên lệnh và hồ sơ khách; đề xuất giảm giá |
+| AD | Chỉ cấu hình kỹ thuật hóa đơn (EIN-07/08, APR-03 hỗ trợ); **không xem hàng chờ lỗi EIN-06** vì có dữ liệu người mua |
 
 ### 4.10 Responsive, in ấn, ngoại tuyến
 
@@ -201,6 +201,12 @@ Không màn hình nào có nút “Xóa” cho chứng từ đã ghi sổ; các 
 | ACC-18 | FR-ACC-012; BR-ACC-07 |
 | ACC-19 | FR-ACC-013 |
 | ACC-20 | FR-ACC-010, 009 (hiệu lực); BR-ACC-07 |
+| ACC-21 | FR-ACC-015, 022 (đề xuất), 016, 002; BR-ACC-09 |
+| ACC-01 (bổ sung) | FR-ACC-024 (đề xuất, Could: khách đưa/tiền thối); RULE-007 |
+| ACC-04, 05, 13 (bổ sung) | RULE-007 (chứng từ gốc của phiếu chi); FR-PUR-006 (chênh lệch 3 bên trước khi ghi công nợ) |
+| ACC-02, 10, 12, EIN-01 (xuất file) | FR-SYS-013 (quyền xuất) |
+| ACC-03, EIN-01, EIN-03 (trạng thái riêng) | FR-REC-028 (không dùng một status chung) |
+| ACC-09, 17 | FR-ACC-023 (đề xuất: điều kiện chặn/cảnh báo là cấu hình, mở lại có hạn); FR-ACC-021 (đề xuất: đảo bút toán) |
 | APR-01..03 | FR-SYS-004, 015; WF-09; RULE-011; BR-SYS-03, BR-SYS-07; D-11 |
 | EIN-01 | FR-EIN-005, 006; BR-EIN-03 |
 | EIN-02 | FR-EIN-001, 002, 003, 011, 012, 013; UAT-23 |
@@ -233,12 +239,14 @@ Không màn hình nào có nút “Xóa” cho chứng từ đã ghi sổ; các 
 3. KTT (kế toán trưởng) mô phỏng bằng vai trò KT có cờ quyền; chưa có vai trò riêng.
 4. Chênh lệch quỹ do QL duyệt (ma trận Journey); khi vượt ngưỡng cấu hình chuyển CH.
 5. “Ca” có hai giá trị mẫu Ca sáng/Ca chiều; số ca và giờ là cấu hình chi nhánh.
-6. Mã chứng từ theo ba-decisions: `PT-Q7-2610-00930`, `PC-…`, `RO-…`, `PN-…`; thêm tiền tố nội bộ `DX-` (đề xuất chi) và `YC-` (yêu cầu phê duyệt), `YC-EIN-` (yêu cầu phát hành). Đề nghị BA đưa vào danh mục loại chứng từ.
+6. Mã chứng từ theo ba-decisions và BA câu 16: `PT-Q7-2610-00930`, `PC-…`, `RO-…`, `PN-…`, `DX-` (đề xuất chi), `YC-` (yêu cầu phê duyệt), **`YH-Q7-2610-00231` (yêu cầu phát hành hóa đơn, thay `YC-EIN-`)**, `CQ-` (nạp/chuyển quỹ, giai đoạn 2). Mã chống trùng là khóa kỹ thuật, chỉ KT/AD thấy trong “Chi tiết kỹ thuật”, không in.
 7. Phiếu thu/chi không phải một trong 5 đối tượng có bộ trạng thái riêng; các nhãn “Đã đảo”, “Bút toán đảo”, “Cọc, chưa phân bổ”, “Đã phân bổ” dùng **tag**, không dùng badge của Thanh toán/Hóa đơn.
-8. Hóa đơn điều chỉnh/thay thế được nhận nhãn badge “Điều chỉnh”/“Thay thế” trên **hóa đơn mới**; hóa đơn gốc vẫn “Đã xuất” kèm tag “Chờ duyệt thay thế” trong lúc chờ. Chờ BA xác nhận (câu 2).
+8. (Đã chốt theo BA câu 2) Badge “Điều chỉnh”/“Thay thế” nằm trên **hóa đơn mới**; hóa đơn gốc giữ “Đã xuất” kèm tag trạng thái điều chỉnh/thay thế.
 9. Mô phỏng ngày hiện tại là 30/10/2026 09:15 cho mọi màn hình.
 
-## 8. Câu hỏi cho BA
+## 8. Câu hỏi cho BA ở v0.1: đã được trả lời (lưu vết)
+
+17 câu dưới đây đã được BA trả lời trong `docs/ui-ux/ba-answers-05.md`. Cột “Thiết kế tạm” là bản v0.1, **đã được thay bằng quyết định BA** ở các màn hình nêu (xem §4 và §10). Các câu còn mở nằm ở §11.
 
 | # | Câu hỏi | Màn hình ảnh hưởng | Thiết kế tạm |
 | --- | --- | --- | --- |
@@ -265,6 +273,8 @@ Không màn hình nào có nút “Xóa” cho chứng từ đã ghi sổ; các 
 - Không có trình duyệt nên **chưa xem trực quan**; chỉ rà cú pháp HTML, đường dẫn và tên class. Cần mở thử ở 1440, 768 và 375 px (đặc biệt `.g4f-two`, bảng rộng ACC-10/11, chuỗi `g4f-flow`, popup Date Picker trong drawer).
 - Khối shell và bộ chuyển trạng thái do `pack.js` sinh nên không xem được khi tắt JS; đây là chủ ý cho prototype, nhưng handoff cho dev phải dựa vào các mô tả ở §4, không phải mã `pack.js`.
 - Phần tử nhóm “nhiều pháp nhân” chỉ có ở EIN-08 (cột Pháp nhân) và bộ lọc topbar; báo cáo ACC-15 chưa tách theo pháp nhân.
-- Chưa có màn hình quản lý “khoản nhận trước”, “nhật ký truy cập” của gói (thuộc G4-SYS).
+- Khoản nhận trước đã có G4-ACC-21 (v0.2); “nhật ký truy cập” vẫn thuộc G4-SYS.
+- Che dữ liệu cá nhân (F5-14): `.pii` trong prototype chỉ minh họa hành vi của KT (Hiện có lý do, tự che 30 giây). Bảng quyền đúng (ba-decisions câu 8): CV, QL, TN thấy đầy đủ không cần Hiện; CH, QV có nút Hiện không cần lý do; KT bắt buộc lý do; TK che; TH, AD không thấy. Giá trị đầy đủ chỉ được tải về sau khi Hiện, không nằm sẵn trong HTML. Handoff dev theo bảng này, không theo hộp thoại dùng chung của prototype.
+- Rà class (F5-21): đã rà thủ công các class dùng trong gói với `components.css`/`base.css`/`pack.css`; môi trường không có công cụ chạy script nên chưa grep tự động toàn bộ, designer kế tiếp nên chạy lại.
 - Biểu đồ chỉ gồm thanh tuổi nợ và thanh lãi gộp dựng bằng HTML/CSS (không có thư viện biểu đồ); chưa có line chart xu hướng vì không nằm trong màn hình của gói.
 - Mẫu in A5/nhiệt/A4 là bản tham khảo, không thay G2-PRT.

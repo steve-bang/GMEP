@@ -10,11 +10,12 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="CH">
-<script src="pack.js" data-code="G4-RPT-01" data-menu="rpt" data-crumbs="Báo cáo|Trung tâm báo cáo" data-allow="CH QV QL KT CV QD TH TK TN" data-own="CV QD TH TK TN"></script>
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
+<script src="pack.js" data-code="G4-RPT-01" data-menu="rpt" data-crumbs="Báo cáo|Trung tâm báo cáo" data-allow="CH QV QL KT CV QD TH TK TN" data-own="CV QD TK"></script>
 <script>
 g4rPage({
   title: 'Trung tâm báo cáo',
-  desc: 'Chọn báo cáo theo nhóm. Chỉ hiện những báo cáo nằm trong quyền của bạn; mọi báo cáo nêu rõ phạm vi chi nhánh và thời điểm dữ liệu.',
+  desc: 'Chọn báo cáo theo nhóm. Chỉ hiện những báo cáo vai trò của bạn mở được; mọi báo cáo nêu rõ phạm vi chi nhánh và thời điểm dữ liệu.',
   prio: 'P1',
   period: 'chọn trong từng báo cáo',
   states: ['data', 'loading', 'empty', 'error', 'denied'],
@@ -22,41 +23,43 @@ g4rPage({
 });
 </script>
 
-<section aria-labelledby="h-fav" class="stack-2">
+<section aria-labelledby="h-fav" class="stack-2" data-g4r-group>
   <h2 class="t-heading-md" id="h-fav" style="margin:0">Thường dùng</h2>
-  <div class="row" data-show-roles="CH QV QL KT">
+  <div class="row g4r-favrow" data-show-roles="CH QV QL">
     <a class="btn btn--secondary" href="g4-rpt-03.html">Báo cáo chi nhánh theo ngày</a>
     <a class="btn btn--secondary" href="g4-rpt-05.html">Đối chiếu lệnh – kho – hóa đơn – tiền</a>
     <a class="btn btn--secondary" href="g4-rpt-04.html">Báo cáo lệnh sửa chữa</a>
   </div>
-  <div class="row" data-show-roles="CV QD TH TK TN"><a class="btn btn--secondary" href="g4-rpt-04.html">Lệnh sửa chữa của tôi</a><span class="t-body-sm text-secondary">Báo cáo “của tôi” chỉ gồm phần việc bạn phụ trách.</span></div>
+  <div class="row g4r-favrow" data-show-roles="KT">
+    <a class="btn btn--secondary" href="g4-rpt-03.html">Báo cáo chi nhánh theo ngày</a>
+    <a class="btn btn--secondary" href="g4-rpt-05.html">Đối chiếu lệnh – kho – hóa đơn – tiền</a>
+  </div>
+  <div class="row g4r-favrow" data-show-roles="CV QD"><a class="btn btn--secondary" href="g4-rpt-04.html">Lệnh sửa chữa của tôi</a></div>
+  <div class="row g4r-favrow" data-show-roles="TK"><a class="btn btn--secondary" href="g4-rpt-06.html">Báo cáo kho (số lượng)</a></div>
   <p class="t-body-sm text-secondary">Danh sách này lưu theo tài khoản; bấm “Ghim” trên thẻ báo cáo để thêm.</p>
 </section>
 
+<div id="rpt-none" class="table-wrap" hidden><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#chart-no-axes-combined"/></svg></div><div class="state__title">Vai trò của bạn chưa có báo cáo riêng</div><p class="state__text">Phần việc của bạn (việc được giao, công thợ, thu ngân trong ca) nằm ở mục Tổng quan. Báo cáo quản trị do Quản lý chi nhánh, Kế toán và Chủ garage xem.</p><div class="state__actions"><a class="btn btn--secondary" href="#">Mở Tổng quan</a></div></div></div>
+
 <script>
 (function () {
+  /* Chỉ thẻ báo cáo thuộc gói này. Báo cáo gói Tài chính/Nhân sự (phải thu, phải trả, lãi lỗ, năng suất thợ) chỉ hiện khi module bật và vai trò có quyền (BA-06 câu 8); prototype chưa bật nên ẩn, không để liên kết “#”. */
   var G = [
     ['Doanh thu và lợi nhuận', [
-      ['g4-rpt-03.html', 'chart-no-axes-combined', 'Báo cáo chi nhánh theo ngày và tháng', 'Doanh thu ngày khớp tổng phiếu thu và công nợ phát sinh.', 'QL KT CH QV', 'P1', 'Số tạm / chính thức'],
-      ['g4-rpt-02.html', 'layout-dashboard', 'So sánh chi nhánh', 'Xếp hạng chi nhánh theo chỉ số chọn, cùng kỳ.', 'CH QV KT', 'Giai đoạn 3', 'Ẩn khi chỉ có một chi nhánh'],
-      ['#', 'wallet', 'Lãi lỗ theo chi nhánh và nguồn doanh thu', 'Lợi nhuận gộp quản trị (G4-ACC-15, thuộc gói Tài chính).', 'CH QV KT', 'Giai đoạn 3', 'Gói khác']
+      ['g4-rpt-03.html', 'chart-no-axes-combined', 'Báo cáo chi nhánh theo ngày và tháng', 'Doanh thu ngày khớp tổng giá trị lệnh, đã thu và công nợ phát sinh.', 'QL KT CH QV', 'P1', 'Số tạm / chính thức'],
+      ['g4-rpt-02.html', 'layout-dashboard', 'So sánh chi nhánh', 'Xếp hạng chi nhánh trong phạm vi được giao theo chỉ số chọn, cùng kỳ.', 'CH QV KT', 'Giai đoạn 3', 'Ẩn khi chỉ có một chi nhánh']
     ]],
     ['Vận hành', [
       ['g4-rpt-04.html', 'clipboard-list', 'Báo cáo lệnh sửa chữa', 'Xe đang sửa, thời gian hoàn thành, tỷ lệ đúng hạn, xe trễ hẹn.', 'CH QV QL CV QD', 'P1', 'Của tôi với CV, QĐ'],
       ['g4-rpt-05.html', 'clipboard-check', 'Đối chiếu lệnh – xuất kho – hóa đơn – thu tiền', 'Mỗi lệnh đủ bốn thành phần; liệt kê lệnh thiếu.', 'KT QL CH QV', 'P1', 'Số liệu đối soát'],
-      ['g4-rpt-09.html', 'alert-triangle', 'Cảnh báo ngoại lệ', 'Xuất kho không chứng từ, lệch quỹ, xe trễ hẹn, lệnh chưa có hóa đơn.', 'CH QV QL', 'P2', 'Cần xử lý'],
-      ['#', 'wrench', 'Năng suất kỹ thuật viên', 'Hiệu suất, mức sử dụng, việc làm lại (G4 dùng lại G3-HRM-10).', 'CH QV QL QD KT TH', 'P2', 'Gói khác']
+      ['g4-rpt-09.html', 'alert-triangle', 'Cảnh báo ngoại lệ', 'Xuất kho không chứng từ, lệch quỹ, xe trễ hẹn, lệnh chưa có hóa đơn.', 'CH QV QL', 'P2', 'Cần xử lý']
     ]],
     ['Kho', [
-      ['g4-rpt-06.html', 'warehouse', 'Báo cáo kho', 'Tồn, hàng chậm luân chuyển, dưới định mức, chênh lệch kiểm kê.', 'CH QV QL KT TK', 'P2', 'Hiện bốn số tồn']
-    ]],
-    ['Công nợ', [
-      ['#', 'wallet', 'Công nợ phải thu theo tuổi nợ', 'Aging table (G4-ACC-10, thuộc gói Tài chính).', 'CH QV QL KT', 'P2', 'Gói khác'],
-      ['#', 'wallet', 'Công nợ phải trả theo tuổi nợ', 'Theo nhà cung cấp (G4-ACC-12, thuộc gói Tài chính).', 'CH QV QL KT', 'P2', 'Gói khác']
+      ['g4-rpt-06.html', 'warehouse', 'Báo cáo kho', 'Tồn bốn số, hàng dưới định mức, chậm luân chuyển, chênh lệch kiểm kê. Thủ kho chỉ thấy số lượng, không thấy giá vốn.', 'CH QV QL KT TK', 'P2', 'Hiện bốn số tồn']
     ]],
     ['Khách hàng và chỉ số', [
       ['g4-rpt-07.html', 'users', 'Báo cáo khách hàng', 'Khách mới, khách quay lại, giá trị, công nợ. Xuất theo quyền, che SĐT.', 'CH QV QL KT', 'P2+', 'Dữ liệu cá nhân'],
-      ['g4-rpt-08.html', 'chart-no-axes-combined', 'Chỉ số bổ sung', 'Giá trị trung bình mỗi lệnh, tỷ lệ báo giá được duyệt…', 'CH QV QL KT', 'P2+', 'Có công thức'],
+      ['g4-rpt-08.html', 'chart-no-axes-combined', 'Chỉ số bổ sung', 'Giá trị trung bình mỗi lệnh, tỷ lệ báo giá được duyệt, tỷ lệ QC trả lại…', 'CH QV QL KT', 'P2+', 'Có công thức'],
       ['g4-rpt-10.html', 'file-text', 'Danh sách chứng từ gốc', 'Mở từ bất kỳ con số trong báo cáo để xem chứng từ cấu thành.', 'CH QV QL KT CV TN', 'P1', 'Đi sâu']
     ]]
   ];
@@ -64,15 +67,21 @@ g4rPage({
   G.forEach(function (g, gi) {
     h += '<section class="stack-2" aria-labelledby="g' + gi + '" data-g4r-group><h2 class="t-heading-md" id="g' + gi + '" style="margin:0">' + g[0] + '</h2><div class="g4r-cards">';
     g[1].forEach(function (r) {
-      h += '<div class="card g4r-repcard card--interactive" data-show-roles="' + r[4] + '"><a class="g4r-repcard__title" href="' + r[0] + '" style="color:inherit;text-decoration:none"><svg class="icon" aria-hidden="true"><use href="#' + r[1] + '"/></svg>' + r[2] + '</a><p class="t-body-sm text-secondary" style="margin:0">' + r[3] + '</p><div class="g4r-repcard__meta"><span class="tag tag--neutral">' + r[5] + '</span><span>' + r[6] + '</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" aria-pressed="false" data-toast="success|Đã ghim|Báo cáo xuất hiện ở mục Thường dùng.">Ghim</button></div></div>';
+      h += '<div class="card g4r-repcard card--interactive" data-show-roles="' + r[4] + '"><a class="g4r-repcard__title" href="' + r[0] + '" style="color:inherit;text-decoration:none"><svg class="icon" aria-hidden="true"><use href="#' + r[1] + '"/></svg>' + r[2] + '</a><p class="t-body-sm text-secondary" style="margin:0">' + r[3] + '</p><div class="g4r-repcard__meta"><span class="tag tag--neutral">' + r[5] + '</span><span>' + r[6] + '</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" aria-pressed="false" data-g4r-pin>Ghim</button></div></div>';
     });
     h += '</div></section>';
   });
   document.write(h);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-g4r-pin]'); if (!b) return;
+    var on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Đã ghim' : 'Ghim';
+    if (window.gmepToast) window.gmepToast('success', on ? 'Đã ghim' : 'Đã bỏ ghim', on ? 'Báo cáo xuất hiện ở mục Thường dùng.' : 'Báo cáo bị bỏ khỏi mục Thường dùng.');
+  });
 })();
 </script>
 
-<div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Báo cáo thuộc gói khác (liên kết “#”) do designer gói Tài chính / Nhân sự làm; thẻ vẫn nằm ở đây để người dùng chỉ phải nhớ một nơi. Dashboard theo vai trò nằm ở mục Tổng quan, không lặp lại ở đây.</div></div>
+<div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Báo cáo của gói Tài chính / Nhân sự (phải thu, phải trả, lãi lỗ, năng suất thợ) sẽ hiện ở đây dưới dạng thẻ liên kết khi module được bật và vai trò có quyền; không để thẻ liên kết cụt. Dashboard theo vai trò nằm ở mục Tổng quan.</div></div>
 
 <script>g4rEnd()</script>
 </body>
