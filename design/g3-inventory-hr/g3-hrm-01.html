@@ -11,6 +11,7 @@
 <script src="pack.js"></script>
 </head>
 <body data-role="QL">
+<noscript><div class="g3-noscript"><strong>Cần bật JavaScript.</strong> Khung ứng dụng, tab phân hệ và trạng thái xem thử của prototype này được dựng bằng script (<code>pack.js</code>). Hãy bật JavaScript hoặc mở bằng trình duyệt thông thường.</div></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <script>G3.shell('hr')</script>
@@ -19,8 +20,8 @@
 
 <div class="page-header">
   <div class="page-header__text"><h1>Nhân sự</h1><p class="page-header__desc">Hồ sơ phục vụ phân thợ, ghi giờ công và hoa hồng. Hệ thống không tính lương, bảo hiểm hay thuế.</p></div>
-  <div class="page-header__actions"><button class="btn btn--secondary" data-g3-need="CH QL KT" data-g3-why="Xuất danh sách cần quyền xuất (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất Excel</button>
-    <a class="btn btn--primary" href="g3-hrm-02.html" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh (hoặc bộ phận nhân sự) thêm nhân sự."><svg class="icon"><use href="#plus"/></svg>Thêm nhân sự</a></div>
+  <div class="page-header__actions"><button class="btn btn--secondary" data-g3-need="CH QL KT NS" data-g3-why="Xuất danh sách cần quyền xuất (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất Excel</button>
+    <a class="btn btn--primary" href="g3-hrm-02.html" data-g3-need="QL NS" data-g3-why="Chỉ Quản lý chi nhánh hoặc nhân sự thêm nhân sự."><svg class="icon"><use href="#plus"/></svg>Thêm nhân sự</a></div>
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Tình trạng tại 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
 
@@ -45,7 +46,7 @@
       <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Đỗ Văn Khải</a></td><td>Thợ máy bậc 3</td><td><span class="badge badge--neutral">Đã nghỉ</span></td><td>Quận 7</td><td class="num">02/04/2021</td><td class="text-secondary">Nghỉ từ 30/09/2026</td><td><span data-g3-pii="s3" data-kind="phone"></span></td><td><span class="tag tag--neutral">Đã khóa</span></td></tr>
     </tbody></table></div>
     <div class="table-footer"><span class="table-meta">Hiển thị 1–8 trong 8 nhân sự</span></div></div>
-  <p class="t-body-sm text-secondary">Số điện thoại, căn cước và địa chỉ được che theo vai trò (Quản lý chi nhánh xem đầy đủ trong chi nhánh mình; Chủ garage và Quản lý vùng bấm “Hiện” có ghi nhật ký; Kế toán chỉ thấy số điện thoại đã che). Nhân sự có thể có nhiều chi nhánh và chức danh (hồ sơ).</p>
+  <p class="t-body-sm text-secondary">Dữ liệu cá nhân che theo ma trận nhân sự: Nhân sự xem đầy đủ; Quản lý chi nhánh xem SĐT và địa chỉ đầy đủ, căn cước bấm “Hiện”; Chủ garage và Quản lý vùng bấm “Hiện” (ghi nhật ký, tự che sau 30 giây); Kế toán chỉ thấy SĐT đã che; vai trò khác không thấy. Production không gửi giá trị đầy đủ xuống trình duyệt trước khi bấm Hiện (prototype chứa dữ liệu mô phỏng trong pack.js). Nhân sự có thể có nhiều chi nhánh và chức danh (hồ sơ).</p>
 </div>
 </div>
 

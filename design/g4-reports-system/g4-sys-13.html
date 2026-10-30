@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="AD">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-13" data-menu="set" data-crumbs="Cài đặt|Quy trình theo loại dịch vụ" data-allow="AD QL CH"></script>
 <script>
 g4rPage({
@@ -39,21 +40,23 @@ g4rPage({
 <script>
 (function () {
   var F = {
-    f1: [['Tiếp nhận và kiểm tra ban đầu', 'Cố vấn dịch vụ', 1, 1, 0], ['Lập báo giá và khách duyệt', 'Cố vấn dịch vụ', 1, 0, 0], ['Thực hiện sửa chữa', 'Thợ', 1, 1, 0], ['Kiểm tra chất lượng', 'Quản đốc / nhân viên QC', 1, 1, 1], ['Thu tiền, hóa đơn và bàn giao', 'Thu ngân', 1, 0, 0]],
-    f2: [['Tiếp nhận, ghi số km', 'Cố vấn dịch vụ', 1, 0, 0], ['Báo giá theo gói hoặc hạng mục', 'Cố vấn dịch vụ', 1, 0, 0], ['Thay dầu, lọc và kiểm tra theo gói', 'Thợ', 1, 1, 0], ['Kiểm tra chất lượng', 'Quản đốc / nhân viên QC', 1, 0, 1], ['Đặt lịch bảo dưỡng kế tiếp và bàn giao', 'Cố vấn dịch vụ', 0, 0, 0]],
-    f3: [['Tiếp nhận, chọn loại lốp', 'Cố vấn dịch vụ', 1, 0, 0], ['Tháo lắp lốp', 'Thợ', 1, 0, 0], ['Cân bằng động, cân chỉnh góc đặt bánh', 'Thợ', 1, 1, 0], ['Kiểm tra chất lượng và bàn giao', 'Quản đốc / nhân viên QC', 1, 0, 1]]
+    /* [tên bước, người phụ trách, bắt buộc, yêu cầu ảnh, qua cổng QC, khóa theo quy tắc: q = RULE-005/006, qc = FR-REC-016, pay = RULE-007] */
+    f1: [['Tiếp nhận và kiểm tra ban đầu', 'Cố vấn dịch vụ', 1, 1, 0, ''], ['Lập báo giá và khách duyệt', 'Cố vấn dịch vụ', 1, 0, 0, 'q'], ['Thực hiện sửa chữa', 'Thợ', 1, 1, 0, ''], ['Kiểm tra chất lượng', 'Quản đốc / nhân viên QC', 1, 1, 1, 'qc'], ['Thu tiền, hóa đơn và bàn giao', 'Thu ngân', 1, 0, 0, 'pay']],
+    f2: [['Tiếp nhận, ghi số km', 'Cố vấn dịch vụ', 1, 0, 0, ''], ['Báo giá theo gói hoặc hạng mục', 'Cố vấn dịch vụ', 1, 0, 0, 'q'], ['Thay dầu, lọc và kiểm tra theo gói', 'Thợ', 1, 1, 0, ''], ['Kiểm tra chất lượng', 'Quản đốc / nhân viên QC', 1, 0, 1, 'qc'], ['Đặt lịch bảo dưỡng kế tiếp và bàn giao', 'Cố vấn dịch vụ', 0, 0, 0, '']],
+    f3: [['Tiếp nhận, chọn loại lốp', 'Cố vấn dịch vụ', 1, 0, 0, ''], ['Tháo lắp lốp', 'Thợ', 1, 0, 0, ''], ['Cân bằng động, cân chỉnh góc đặt bánh', 'Thợ', 1, 1, 0, ''], ['Kiểm tra chất lượng và bàn giao', 'Quản đốc / nhân viên QC', 1, 0, 1, 'qc']]
   };
+  var WHY = { q: 'Khóa theo RULE-005/006: chỉ làm hạng mục khách đã duyệt', qc: 'Khóa theo FR-REC-016: lệnh chưa đạt QC không sang thu tiền', pay: 'Khóa theo RULE-007: thu tiền và hóa đơn phải gắn lệnh' };
   var h = '';
   Object.keys(F).forEach(function (k, ki) {
     h += '<div class="tab-panel" id="fp' + (ki + 1) + '" role="tabpanel" aria-labelledby="f' + (ki + 1) + '"' + (ki ? ' hidden' : '') + '><div class="table-wrap"><div class="table-toolbar"><strong>Các bước của loại dịch vụ</strong><span class="table-meta" style="margin-left:auto">12 lệnh đang chạy giữ bộ bước cũ khi đổi</span></div><div class="table-scroll"><table class="table"><caption class="sr-only">Các bước theo loại dịch vụ</caption><thead><tr><th>Thứ tự</th><th>Tên bước</th><th>Người phụ trách mặc định</th><th>Bắt buộc</th><th>Yêu cầu ảnh</th><th>Qua cổng QC</th><th>Sắp xếp</th></tr></thead><tbody>';
     F[k].forEach(function (s, i) {
       h += '<tr><td class="num">' + (i + 1) + '</td><td>' + s[0] + '</td><td><label class="sr-only" for="o' + ki + i + '">Người phụ trách bước ' + s[0] + '</label><select class="select" id="o' + ki + i + '" data-edit-roles="AD"><option>' + s[1] + '</option><option>Thợ</option><option>Quản đốc / nhân viên QC</option><option>Cố vấn dịch vụ</option><option>Thu ngân</option></select></td>' +
-        '<td><label class="switch"><input type="checkbox" role="switch" data-edit-roles="AD"' + (s[2] ? ' checked' : '') + ' aria-label="Bước ' + s[0] + ' bắt buộc"><span class="switch__track"></span></label></td>' +
+        '<td><label class="switch"><input type="checkbox" role="switch"' + (s[5] ? ' checked disabled aria-describedby="w' + ki + i + '"' : ' data-edit-roles="AD"' + (s[2] ? ' checked' : '')) + ' aria-label="Bước ' + s[0] + ' bắt buộc"><span class="switch__track"></span></label>' + (s[5] ? '<span class="g4r-why" id="w' + ki + i + '"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg> ' + WHY[s[5]] + '</span>' : '') + '</td>' +
         '<td><label class="check" style="min-height:44px"><input type="checkbox" data-edit-roles="AD"' + (s[3] ? ' checked' : '') + ' aria-label="Yêu cầu ảnh ở bước ' + s[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>' +
-        '<td><label class="check" style="min-height:44px"><input type="checkbox" data-edit-roles="AD"' + (s[4] ? ' checked' : '') + ' aria-label="Qua cổng QC ở bước ' + s[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>' +
+        '<td><label class="check" style="min-height:44px"><input type="checkbox"' + (s[5] === 'qc' ? ' checked disabled' : ' data-edit-roles="AD"' + (s[4] ? ' checked' : '')) + ' aria-label="Qua cổng QC ở bước ' + s[0] + (s[5] === 'qc' ? ' (khóa theo quy tắc)' : '') + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>' +
         '<td><div class="btn-group"><button class="btn-icon" data-edit-roles="AD" aria-label="Chuyển bước ' + s[0] + ' lên"' + (i === 0 ? ' disabled' : '') + '><svg class="icon"><use href="#arrow-up"/></svg></button><button class="btn-icon" data-edit-roles="AD" aria-label="Chuyển bước ' + s[0] + ' xuống"' + (i === F[k].length - 1 ? ' disabled' : '') + '><svg class="icon"><use href="#arrow-down"/></svg></button></div></td></tr>';
     });
-    h += '</tbody></table></div><div class="table-footer"><span class="table-meta">Trạng thái hạng mục cố định theo nghiệp vụ: Chưa làm, Đang làm, Tạm dừng, Hoàn thành, Trả lại. Cấu hình chỉ quyết định bước và người phụ trách.</span><button class="btn btn--secondary btn--sm" data-edit-roles="AD"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm bước</button></div></div></div>';
+    h += '</tbody></table></div><div class="table-footer"><span class="table-meta">Trạng thái hạng mục cố định theo nghiệp vụ: Chưa làm, Đang làm, Tạm dừng, Hoàn thành, Trả lại. Bước gắn với quy tắc nghiệp vụ (báo giá và khách duyệt, QC, thu tiền và hóa đơn) không tắt được cờ Bắt buộc hay cổng QC; cấu hình chỉ đổi tên, người phụ trách, thứ tự và yêu cầu ảnh.</span><button class="btn btn--secondary btn--sm" data-edit-roles="AD"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm bước</button></div></div></div>';
   });
   document.getElementById('flows').innerHTML = h;
 })();

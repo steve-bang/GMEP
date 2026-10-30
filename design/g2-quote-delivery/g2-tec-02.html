@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('TH', 'ro');
@@ -19,14 +20,14 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
 </script>
 
 <div class="g2q-tec" data-variants="running">
-  <script>g2q.proto([['todo','Chưa làm'],['running','Đang làm'],['paused','Tạm dừng'],['blocked-extra','Khóa: phát sinh chưa duyệt'],['blocked-parts','Khóa: thiếu phụ tùng'],['finished','Hoàn thành'],['returned','Bị trả lại sau QC'],['forgot','Quên kết thúc'],['queued','Mất mạng, chờ đồng bộ']], 'running');</script>
+  <script>g2q.proto([['todo','Chưa làm'],['running','Đang làm'],['paused','Tạm dừng'],['blocked-extra','Khóa: phát sinh chưa duyệt'],['blocked-parts','Tạm dừng: chờ phụ tùng chưa về'],['finished','Hoàn thành'],['returned','Bị trả lại sau QC'],['forgot','Quên kết thúc'],['queued','Mất mạng, chờ đồng bộ']], 'running');</script>
 
   <!-- Đầu trang theo nhóm biến thể -->
   <section class="card g2q-panel" aria-label="Thông tin hạng mục">
     <div class="g2q-job__top"><span class="g2q-job__plate"><span data-v="todo">59A-111.22</span><span data-v="running paused finished forgot queued blocked-extra">51H-123.45</span><span data-v="blocked-parts">51K-987.65</span><span data-v="returned">51G-765.43</span></span>
       <span>
-        <span class="badge badge--neutral badge--lg" data-v="todo blocked-extra blocked-parts">Chưa làm</span><span class="badge badge--info badge--lg" data-v="running forgot queued">Đang làm</span><span class="badge badge--warning badge--lg" data-v="paused">Tạm dừng</span><span class="badge badge--success badge--lg" data-v="finished">Hoàn thành</span><span class="badge badge--danger badge--lg" data-v="returned">Trả lại</span>
-        <span class="tag tag--reason tag--warning" data-v="paused">Chờ phụ tùng</span><span class="tag tag--warning" data-v="blocked-extra"><svg class="icon"><use href="#lock"/></svg>Chờ khách duyệt (phát sinh)</span><span class="tag tag--danger" data-v="blocked-parts"><svg class="icon"><use href="#package"/></svg>Thiếu phụ tùng</span></span></div>
+        <span class="badge badge--neutral badge--lg" data-v="todo blocked-extra">Chưa làm</span><span class="badge badge--info badge--lg" data-v="running forgot queued">Đang làm</span><span class="badge badge--warning badge--lg" data-v="paused blocked-parts">Tạm dừng</span><span class="badge badge--success badge--lg" data-v="finished">Hoàn thành</span><span class="badge badge--danger badge--lg" data-v="returned">Trả lại</span>
+        <span class="tag tag--reason tag--warning" data-v="paused blocked-parts">Chờ phụ tùng</span><span class="tag tag--warning" data-v="blocked-extra"><svg class="icon"><use href="#lock"/></svg>Chờ khách duyệt (phát sinh)</span></span></div>
     <div><div class="g2q-job__name"><span data-v="todo">Thay bugi (4 cái)</span><span data-v="running paused finished forgot queued">Thay má phanh trước</span><span data-v="blocked-extra">Thay lọc gió điều hòa</span><span data-v="blocked-parts">Thay má phanh sau</span><span data-v="returned">Xiết lại và kiểm tra lực xiết bánh sau</span></div>
       <div class="g2q-job__meta"><span class="code" data-v="todo">RO-Q7-2610-00126</span><span class="code" data-v="running paused finished forgot queued blocked-extra"><a href="../g2-workshop/g2-rec-04.html">RO-Q7-2610-00128</a></span><span class="code" data-v="blocked-parts">RO-Q7-2610-00121</span><span class="code" data-v="returned">RO-Q7-2610-00122</span>
         <span data-v="todo">Honda City 2018</span><span data-v="running paused finished forgot queued blocked-extra">Toyota Vios 1.5G 2019</span><span data-v="blocked-parts">Mazda CX-5 2020</span><span data-v="returned">Toyota Fortuner 2017</span>

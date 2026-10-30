@@ -11,6 +11,7 @@
 <script src="pack.js"></script>
 </head>
 <body data-role="TK">
+<noscript><div class="g3-noscript"><strong>Cần bật JavaScript.</strong> Khung ứng dụng, tab phân hệ và trạng thái xem thử của prototype này được dựng bằng script (<code>pack.js</code>). Hãy bật JavaScript hoặc mở bằng trình duyệt thông thường.</div></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <script>G3.shell('pur')</script>
@@ -19,7 +20,7 @@
 
 <div class="page-header">
   <div class="page-header__text"><h1>Nhà cung cấp</h1><p class="page-header__desc">Danh bạ dùng chung toàn chuỗi: liên hệ, điều khoản thanh toán, dư nợ và đánh giá giao hàng.</p></div>
-  <div class="page-header__actions"><a class="btn btn--primary" href="g3-pur-10.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh thêm nhà cung cấp."><svg class="icon"><use href="#plus"/></svg>Thêm nhà cung cấp</a></div>
+  <div class="page-header__actions"><a class="btn btn--primary" href="g3-pur-10.html" data-g3-need="TK QL MH" data-g3-why="Chỉ nhân viên mua hàng, Thủ kho và Quản lý chi nhánh thêm nhà cung cấp."><svg class="icon"><use href="#plus"/></svg>Thêm nhà cung cấp</a></div>
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> danh bạ <strong>toàn chuỗi</strong>; dư nợ tính theo chi nhánh đang chọn (<span data-scope-text>Chỉ Chi nhánh Quận 7</span>)</span><span>· Cập nhật lúc 09:15</span></div>
 
@@ -34,10 +35,10 @@
       <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-001</a></td><td>Công ty TNHH Phụ tùng Hoàng Long</td><td><span class="badge badge--success">Đang hợp tác</span></td><td>Lâm Quốc Hùng</td><td><span data-g3-pii="n1" data-group="supplier" data-kind="phone"></span></td><td>Công nợ 30 ngày</td><td class="col-num" data-g3-hide="TK MH"><span data-g3-cost="5.850.000 ₫"></span></td><td>4,6/5</td></tr>
       <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-002</a></td><td>Công ty CP Dầu nhớt Đại Phát</td><td><span class="badge badge--success">Đang hợp tác</span></td><td>Hoàng Thị Lan</td><td><span data-g3-pii="n2" data-group="supplier" data-kind="phone"></span></td><td>Công nợ 15 ngày</td><td class="col-num" data-g3-hide="TK MH"><span data-g3-cost="0 ₫"></span></td><td>4,2/5</td></tr>
       <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-003</a></td><td>Đại lý Michelin Miền Nam</td><td><span class="badge badge--success">Đang hợp tác</span></td><td>Phạm Văn Tiến</td><td><span data-g3-pii="n3" data-group="supplier" data-kind="phone"></span></td><td>Đặt cọc khi đặt, còn lại khi nhận</td><td class="col-num" data-g3-hide="TK MH"><span data-g3-cost="0 ₫"></span></td><td>4,8/5</td></tr>
-      <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-004</a></td><td>Công ty TNHH Mobis Việt</td><td><span class="badge badge--neutral">Tạm ngừng</span></td><td>Đỗ Thành Nam</td><td><span data-g3-pii="n1" data-group="supplier" data-kind="phone"></span></td><td>Công nợ 45 ngày</td><td class="col-num"><span data-g3-cost="1.980.000 ₫"></span></td><td>3,9/5</td></tr>
+      <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-004</a></td><td>Công ty TNHH Mobis Việt</td><td><span class="badge badge--neutral">Tạm ngừng</span></td><td>Đỗ Thành Nam</td><td><span data-g3-pii="n1" data-group="supplier" data-kind="phone"></span></td><td>Công nợ 45 ngày</td><td class="col-num" data-g3-hide="TK MH"><span data-g3-cost="1.980.000 ₫"></span></td><td>3,9/5</td></tr>
     </tbody></table></div>
     <div class="table-footer"><span class="table-meta">Hiển thị 1–4 trong 4 nhà cung cấp</span></div></div>
-  <p class="t-body-sm text-secondary">Điện thoại người liên hệ cá nhân được che theo vai trò (Chủ garage, Quản lý vùng, Kế toán bấm “Hiện” có ghi nhật ký; Thủ kho và Quản lý chi nhánh xem đầy đủ). Dư nợ chỉ hiện với vai trò được xem số liệu tài chính. Đánh giá là mức Could (P2+).</p>
+  <p class="t-body-sm text-secondary">Điện thoại người liên hệ được che theo vai trò (Chủ garage, Quản lý vùng, Kế toán bấm “Hiện” có ghi nhật ký; Thủ kho, nhân viên mua hàng, Quản lý chi nhánh xem đầy đủ). Cột Dư nợ phải trả bị ẩn hẳn với Thủ kho và nhân viên mua hàng (chỉ Chủ garage, Quản lý vùng, Quản lý chi nhánh, Kế toán xem). Đánh giá là mức Could (P2+).</p>
 </div>
 </div>
 

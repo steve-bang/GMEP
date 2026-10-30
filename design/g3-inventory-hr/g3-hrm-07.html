@@ -11,6 +11,7 @@
 <script src="pack.js"></script>
 </head>
 <body data-role="QL">
+<noscript><div class="g3-noscript"><strong>Cần bật JavaScript.</strong> Khung ứng dụng, tab phân hệ và trạng thái xem thử của prototype này được dựng bằng script (<code>pack.js</code>). Hãy bật JavaScript hoặc mở bằng trình duyệt thông thường.</div></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <script>G3.shell('hr')</script>
@@ -25,7 +26,7 @@
 
 <div id="g3-body" data-noun="công thợ" data-cols="8" data-empty-icon="wrench" data-empty-text="Chưa có hạng mục nào được ghi giờ trong khoảng thời gian này. Công phát sinh khi thợ hoàn thành và hạng mục đạt kiểm tra chất lượng.">
 <div data-g3-state="data" class="stack">
-  <div class="alert alert--info" data-g3-roles="TH CV" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy dữ liệu của mình. Cố vấn xem hoa hồng ở mục <a href="g3-hrm-09.html">Hoa hồng</a>, không có công thợ.</span></div></div>
+  <div class="alert alert--info" data-g3-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy công của mình. Cố vấn không có công thợ; cố vấn xem hoa hồng ở mục <a href="g3-hrm-09.html">Hoa hồng</a>.</span></div></div>
   <div class="filter-bar" role="search" data-g3-hide="TH CV">
     <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm lệnh, hạng mục</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: RO-Q7-2610-00128 hoặc thay dau"></div></div>
     <div class="field"><label class="field__label" for="f-t">Thợ</label><select id="f-t" class="select"><option>Tất cả thợ</option><option>Lê Minh Tuấn</option><option>Phạm Quốc Bảo</option></select></div>
@@ -42,7 +43,7 @@
       <tr data-g3-hide="TH CV"><td class="code">RO-Q7-2610-00119</td><td>Thay gương chiếu hậu</td><td>Phạm Quốc Bảo</td><td class="col-num">0,80</td><td class="col-num">0,20</td><td class="col-num">0,00<span class="cell-sub">đã đảo −0,80</span></td><td><span class="badge badge--neutral">Đã đảo</span></td><td>Lệnh hủy 30/10: đảo công bằng bút toán, không xóa</td></tr>
     </tbody>
     <tfoot data-g3-hide="TH CV"><tr><td colspan="3">Tổng 5 hạng mục</td><td class="col-num">5,10</td><td class="col-num">4,95</td><td class="col-num">2,80</td><td colspan="2"></td></tr></tfoot></table></div></div>
-  <p class="t-body-sm text-secondary">Đổi thợ, làm lại hoặc hủy lệnh tạo dòng đảo công, không sửa dòng cũ (RULE-010). Đơn vị công và công thức theo <a href="g3-hrm-06.html">Quy tắc tính công</a> đang hiệu lực.</p>
+  <p class="t-body-sm text-secondary">Đổi thợ, làm lại hoặc hủy lệnh tạo dòng đảo công, không sửa dòng cũ (RULE-010). Cột “Công đã ghi” là giờ công quy đổi; tiền công (₫) = giờ công × đơn giá theo cấp bậc hoặc số tiền trực tiếp (khoán, %) theo <a href="g3-hrm-06.html">Quy tắc tính công</a> đang hiệu lực, hiện ở Bảng công theo kỳ. Công ghi khi hạng mục đạt QC (khác hoa hồng, ghi khi lệnh thu đủ).</p>
 </div>
 </div>
 

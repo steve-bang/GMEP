@@ -11,6 +11,7 @@
 <script src="pack.js"></script>
 </head>
 <body data-role="QL">
+<noscript><div class="g3-noscript"><strong>Cần bật JavaScript.</strong> Khung ứng dụng, tab phân hệ và trạng thái xem thử của prototype này được dựng bằng script (<code>pack.js</code>). Hãy bật JavaScript hoặc mở bằng trình duyệt thông thường.</div></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <script>G3.shell('hr')</script>
@@ -19,14 +20,14 @@
 
 <div class="page-header">
   <div class="page-header__text"><h1>Ca làm việc và chấm công</h1><p class="page-header__desc">Giờ vào/ra theo ca, tách khỏi đồng hồ công việc của thợ. Sửa giờ phải có lý do và để lại vết.</p></div>
-  <div class="page-header__actions"><button class="btn btn--secondary" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh (hoặc bộ phận nhân sự) xếp ca." data-toast="info|Xếp ca|Prototype: mở bảng xếp ca tuần."><svg class="icon"><use href="#calendar"/></svg>Xếp ca tuần</button></div>
+  <div class="page-header__actions"><button class="btn btn--secondary" data-g3-need="QL NS" data-g3-why="Chỉ Quản lý chi nhánh hoặc nhân sự xếp ca." data-toast="info|Xếp ca|Prototype: mở bảng xếp ca tuần."><svg class="icon"><use href="#calendar"/></svg>Xếp ca tuần</button></div>
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Tuần 26/10 – 01/11/2026</span><span>· Cập nhật lúc 09:15</span></div>
 
 <div id="g3-body" data-noun="lịch ca" data-cols="6" data-empty-icon="calendar" data-empty-text="Chưa xếp ca cho tuần này. Xếp ca để thợ và nhân viên chấm công vào/ra." data-g3-states="data;locked:Kỳ đã khóa;loading;empty;error;denied">
 <div data-g3-state="data" class="stack">
   <div class="alert alert--info" data-g3-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy ca và giờ công của mình.</span></div></div>
-  <section class="card g3-tablet-xl" data-g3-roles="TH" aria-labelledby="mine"><div class="card__header"><h2 class="card__title" id="mine">Ca hôm nay của bạn</h2><span class="badge badge--info">Ca hành chính 08:00 – 17:00</span></div><div class="card__body row"><button class="btn btn--primary btn--xl" data-toast="success|Đã vào ca|Giờ vào 07:56 ghi lúc 07:56 30/10/2026."><svg class="icon"><use href="#clock"/></svg>Vào ca</button><button class="btn btn--secondary btn--xl" data-toast="info|Chưa thể ra ca|Bạn còn hạng mục đang làm. Tạm dừng hoặc hoàn thành trước khi ra ca.">Ra ca</button><span class="t-body-sm text-secondary">Vào ca lúc 07:56. Đồng hồ công việc của từng hạng mục chạy riêng.</span></div></section>
+  <section class="card g3-tablet-xl" data-g3-roles="TH" aria-labelledby="mine"><div class="card__header"><h2 class="card__title" id="mine">Ca hôm nay của bạn</h2><span class="badge badge--info">Ca hành chính 08:00 – 17:00</span></div><div class="card__body row"><button class="btn btn--primary btn--xl" data-g3-needs-net data-toast="success|Đã vào ca|Giờ vào 07:56 ghi lúc 07:56 30/10/2026."><svg class="icon"><use href="#clock"/></svg>Vào ca</button><button class="btn btn--secondary btn--xl" data-g3-needs-net data-toast="info|Chưa thể ra ca|Bạn còn hạng mục đang làm. Tạm dừng hoặc hoàn thành trước khi ra ca.">Ra ca</button><span class="t-body-sm text-secondary">Vào ca lúc 07:56. Đồng hồ công việc của từng hạng mục chạy riêng.</span></div></section>
 
   <section class="card" aria-labelledby="h1"><div class="card__header"><h2 class="card__title" id="h1">Lịch ca tuần</h2><div class="row"><button class="btn-icon" aria-label="Tuần trước"><svg class="icon"><use href="#chevron-left"/></svg></button><span class="num">26/10 – 01/11/2026</span><button class="btn-icon" aria-label="Tuần sau"><svg class="icon"><use href="#chevron-right"/></svg></button></div></div>
     <div class="table-scroll"><table class="g3-matrix"><caption class="sr-only">Lịch ca từng nhân viên trong tuần</caption>
@@ -49,7 +50,7 @@
 </div>
 
 <div data-g3-state="locked" class="stack" hidden>
-  <div class="alert alert--warning" role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kỳ công 16/10 – 31/10/2026 đang khóa</span><span>Chấm công chỉ đọc. Muốn sửa phải mở lại kỳ (cần Chủ garage duyệt, có lý do) ở <a href="g3-hrm-08.html">Bảng công theo kỳ</a>.</span></div></div>
+  <div class="alert alert--warning" role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kỳ công 01/10 – 15/10/2026 đã khóa</span><span>Chấm công của kỳ này chỉ đọc. Muốn sửa phải mở lại kỳ (cần Chủ garage duyệt, có lý do) ở <a href="g3-hrm-08.html">Bảng công theo kỳ</a>. Kỳ hiện tại 16/10 – 31/10/2026 đang mở.</span></div></div>
 </div>
 </div>
 
@@ -59,7 +60,7 @@
 
 <div class="overlay" id="dlg-edit" role="alertdialog" aria-modal="true" aria-labelledby="ed-t"><div class="dialog dialog--md" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#pencil"/></svg></div><div><h2 class="dialog__title" id="ed-t">Sửa giờ chấm công của Phạm Quốc Bảo</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body"><ul class="impact-list"><li>Giờ cũ (08:21) được giữ trong lịch sử cùng người sửa và lý do.</li><li>Chỉ ảnh hưởng chấm công theo ca; không đổi giờ công của hạng mục.</li></ul>
+  <div class="dialog__body"><ul class="impact-list"><li>Giờ cũ (08:21) được giữ trong lịch sử cùng người sửa và lý do.</li><li>Chỉ ảnh hưởng chấm công theo ca; không đổi giờ công của hạng mục.</li><li>Không tự sửa giờ của chính mình: giờ của Quản lý chi nhánh do cấp trên sửa.</li></ul>
     <div class="form-grid"><div class="field"><label class="field__label" for="ed-in">Giờ vào mới<span class="field__req" aria-hidden="true">*</span></label><input id="ed-in" class="input" value="08:00" inputmode="numeric"></div><div class="field"><label class="field__label" for="ed-out">Giờ ra</label><input id="ed-out" class="input" placeholder="HH:mm"></div>
     <div class="field span-2"><label class="field__label" for="ed-r">Lý do sửa<span class="field__req" aria-hidden="true">*</span></label><textarea id="ed-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã sửa giờ vào|Ghi vết: Đặng Hữu Phúc sửa 08:21 thành 08:00." disabled>Lưu sửa giờ</button></div></div></div>

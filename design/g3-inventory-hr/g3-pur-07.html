@@ -11,6 +11,7 @@
 <script src="pack.js"></script>
 </head>
 <body data-role="KT">
+<noscript><div class="g3-noscript"><strong>Cần bật JavaScript.</strong> Khung ứng dụng, tab phân hệ và trạng thái xem thử của prototype này được dựng bằng script (<code>pack.js</code>). Hãy bật JavaScript hoặc mở bằng trình duyệt thông thường.</div></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <script>G3.shell('pur')</script>
@@ -31,8 +32,13 @@
       <tr data-href="g3-pur-07.html"><td class="code"><a href="g3-pur-07.html">DM-Q7-2610-00012</a></td><td>Công ty TNHH Phụ tùng Hoàng Long</td><td class="num">0004790 · 28/10/2026</td><td><span class="badge badge--success">Khớp</span></td><td class="col-num"><span class="g3-var g3-var--ok">0 ₫</span></td></tr>
       <tr data-href="g3-pur-07.html"><td class="code"><a href="g3-pur-07.html">DM-Q7-2609-00028</a></td><td>Công ty CP Dầu nhớt Đại Phát</td><td class="text-secondary">Chưa có hóa đơn</td><td><span class="badge badge--warning">Chờ hóa đơn</span></td><td class="col-num">–</td></tr></tbody></table></div></section>
 
-  <h2 class="g3-section-title">DM-Q7-2610-00014 · Phiếu nhập lần 1 · Hóa đơn 0004821</h2>
-  <div class="alert alert--danger" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Hóa đơn ghi giá cao hơn đơn mua: chặn ghi công nợ</span><span>Má phanh trước Accent: đơn 410.000 ₫, hóa đơn 415.000 ₫, chênh +5.000 ₫ × 10 = +50.000 ₫ (+1,2%). Số lượng và mã khớp.</span></div></div>
+  <h2 class="g3-section-title">DM-Q7-2610-00014 · Hóa đơn 0004821</h2>
+  <section class="card" aria-labelledby="hpn"><div class="card__header"><h2 class="card__title" id="hpn">Phiếu nhập thuộc hóa đơn này</h2><span class="table-meta">Một hóa đơn có thể gộp nhiều lần nhận của cùng đơn mua</span></div>
+    <div class="card__body stack-2">
+      <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span><span class="code">PN-Q7-2610-00031</span> · lần 1 · 24/10/2026 · 10 đơn vị · <span class="badge badge--success">Đã ghi sổ</span></span></label>
+      <label class="check"><input type="checkbox" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span><span class="code">PN-Q7-2610-00034</span> · lần 2 · 29/10/2026 · 14 đơn vị · <span class="badge badge--warning">Chờ duyệt</span> <span class="tag tag--warning">Lệch giá</span></span></label>
+      <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>PN-Q7-2610-00034 chưa ghi sổ nên chưa đưa vào đối chiếu được. Hóa đơn này chỉ phủ lần nhận 1; phần còn lại sẽ đối chiếu khi có hóa đơn tiếp theo hoặc khi PN được duyệt.</span></div></div></div></section>
+  <div class="alert alert--danger" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Hóa đơn ghi giá cao hơn đơn mua: chặn ghi công nợ</span><span>Má phanh trước Accent: đơn 410.000 ₫, hóa đơn 415.000 ₫, chênh +5.000 ₫ × 10 = +50.000 ₫ (+1,2%), vượt dung sai cấu hình <span class="g3-sample">1.000 ₫/đơn vị · giá trị mẫu</span>. Số lượng và mã khớp.</span></div></div>
   <div class="g3-3way">
     <section class="g3-3way__col" aria-label="Đơn mua"><header><span>Đơn mua</span><span class="code">DM-Q7-2610-00014 v2</span></header><div>
       <div class="g3-line"><span>PT-0002 Má phanh Accent</span><span>10 × 410.000</span></div>
@@ -50,7 +56,9 @@
       <fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="sr-only">Cách xử lý</legend>
         <label class="radio"><input type="radio" name="hd" checked><span class="radio__box"></span><span>Yêu cầu nhà cung cấp điều chỉnh hóa đơn</span></label>
         <label class="radio"><input type="radio" name="hd"><span class="radio__box"></span><span>Chấp nhận chênh lệch (cần Quản lý duyệt)</span></label>
-        <label class="radio"><input type="radio" name="hd"><span class="radio__box"></span><span>Trả hàng nhà cung cấp</span></label></fieldset></div></section>
+        <label class="radio"><input type="radio" name="hd"><span class="radio__box"></span><span>Trả hàng nhà cung cấp</span></label></fieldset>
+      <a class="btn btn--secondary btn--sm" href="g3-pur-08.html" data-g3-need="TK" data-g3-why="Chỉ Thủ kho lập phiếu trả hàng; mở phiếu với dòng điền sẵn từ hóa đơn.">Mở phiếu trả hàng (điền sẵn)</a>
+      <p class="t-body-sm text-secondary">Sau khi trả hàng, hệ thống nhắc điều chỉnh hoặc credit note của nhà cung cấp trước khi ghi công nợ.</p></div></section>
     <section class="card"><div class="card__body stack">
       <button class="btn btn--primary btn--lg btn--block" disabled aria-disabled="true" aria-describedby="why-ok">Xác nhận khớp và ghi công nợ phải trả</button><span class="g3-why" id="why-ok">Chưa dùng được: còn chênh lệch +50.000 ₫. Xử lý hoặc ghi nhận chênh lệch với lý do.</span>
       <button class="btn btn--secondary btn--block" data-open="dlg-var" data-g3-need="KT" data-g3-why="Chỉ Kế toán ghi nhận chênh lệch.">Ghi nhận chênh lệch…</button></div></section>

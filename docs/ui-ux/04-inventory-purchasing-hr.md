@@ -1,6 +1,6 @@
 # UI/UX – Gói G3: Kho, Mua hàng, Nhân sự (INV · PUR · HRM)
 
-Phiên bản 0.1 · 30/10/2026 · Người lập: Designer · Trạng thái: bản nháp chờ BA review. Nguồn chuẩn: `docs/design-system.md`, `docs/ui-ux/00-foundation.md`, `docs/ui-ux/ba-decisions.md`, `docs/ui-ux/screen-inventory.md` §4–§7, FRD, Journey.
+Phiên bản 0.2 · 30/10/2026 · Người lập: Designer · Trạng thái: đã xử lý review BA (31 finding F4-01…F4-31, xem mục 13) và 20 câu trả lời `ba-answers-04.md`. Các mục 3, 4, 10, 11 bên dưới là bản 0.1; nơi nào mâu thuẫn thì mục 12–15 thắng. Nguồn chuẩn: `docs/design-system.md`, `docs/ui-ux/00-foundation.md`, `docs/ui-ux/ba-decisions.md`, `docs/ui-ux/screen-inventory.md` §4–§7, FRD, Journey.
 
 Prototype: `design/g3-inventory-hr/` (mở `index.html`; HTML/CSS thuần chạy bằng `file://`, không sửa `design/assets/*`; style bổ sung nằm ở `pack.css`, tiền tố class `g3-`).
 
@@ -75,9 +75,9 @@ Cột “Trạng thái xem thử” là các nút trong thanh “Xem thử trạ
 
 Số màn hình đã thiết kế: 39/39.
 
-## 4. Bộ badge đề xuất cho các đối tượng mới của gói
+## 4. Bộ badge cho các đối tượng mới của gói (đã thay bằng Phụ lục A của `ba-answers-04.md`)
 
-Bảng A.2 của `ba-decisions.md` chưa có các đối tượng dưới đây. Designer đề xuất (chờ BA chốt, đưa vào “Câu hỏi cho BA”). Mỗi đối tượng có bộ trạng thái riêng, không dùng chung. Màu theo quy tắc: xanh lá chỉ cho thành công; vàng cho cần chú ý; đỏ cho lỗi; xanh dương cho đang xử lý/đang vận chuyển; tím chỉ “Chờ QC”.
+Bảng dưới là đề xuất bản 0.1; prototype đã áp dụng Phụ lục A (khác biệt chính: loại biến động trong thẻ kho là tag Neutral chứ không phải badge; “Đã nhận” của phiếu chuyển không kèm tag “Đã đóng”; “Nhận một phần” luôn Warning; “Đã đếm” của kiểm kê là Info; giá và ngày nằm ngoài badge; “Chờ duyệt” luôn Warning; “Đã đặt N” là tag Neutral ngoài bốn số). Trước đó bảng A.2 của `ba-decisions.md` chưa có các đối tượng này. Mỗi đối tượng có bộ trạng thái riêng, không dùng chung. Màu theo quy tắc: xanh lá chỉ cho thành công; vàng cho cần chú ý; đỏ cho lỗi; xanh dương cho đang xử lý/đang vận chuyển; tím chỉ “Chờ QC”.
 
 | Đối tượng | Trạng thái → màu |
 | --- | --- |
@@ -242,7 +242,7 @@ Chưa chạy trên trình duyệt thật (không có trình duyệt); rà bằng
 6. Một số chứng từ dùng tiền tố mã tạm (YM yêu cầu mua, DC điều chỉnh tồn, TR trả hàng NCC), chờ BA.
 7. Danh sách đánh giá NCC, kỹ năng nhân sự (Could) chỉ là bản phác.
 
-## 10. Giả định (đánh dấu rõ, dễ đổi)
+## 10. Giả định ban đầu bản 0.1 (đã được BA trả lời, xem mục 12)
 
 | Mã | Giả định | Ảnh hưởng |
 | --- | --- | --- |
@@ -261,7 +261,7 @@ Chưa chạy trên trình duyệt thật (không có trình duyệt); rà bằng
 | A-13 | Che dữ liệu nhân sự: QL xem đầy đủ trong chi nhánh; CH, QV bấm Hiện (ghi nhật ký); KT chỉ thấy SĐT đã che; thợ xem hồ sơ của mình đầy đủ; vai trò khác không thấy | HRM-01/02, PUR-09/10 |
 | A-14 | Thông báo trong hệ thống ở hai mức “Cần xử lý / Thông tin” (đã chốt D-07); ở gói này chỉ hiện ví dụ trong chuông | Shell |
 
-## 11. Câu hỏi cho BA
+## 11. Câu hỏi bản 0.1 (đã được BA trả lời trong `ba-answers-04.md`)
 
 1. **Đang vận chuyển:** có gồm số đã đặt ở đơn mua đã NCC xác nhận nhưng chưa giao, hay chỉ hàng đã thực sự xuất đi (phiếu chuyển kho, NCC đã giao vận)? `ba-decisions` dùng “Đang về”, `screen-inventory` dùng “Đang vận chuyển”: thống nhất nhãn.
 2. **Giá vốn và giá nhập:** vai trò nào xem giá vốn (A-01)? Thủ kho có xem giá nhập khi nhận hàng để đối chiếu đơn mua không?
@@ -283,3 +283,76 @@ Chưa chạy trên trình duyệt thật (không có trình duyệt); rà bằng
 18. **Khách trả phụ tùng chưa lắp:** chính sách (thời hạn, phí, tình trạng hàng) và liên kết hoàn tiền G4-ACC-07.
 19. **Hiển thị dư nợ NCC** ở danh bạ: vai trò nào được xem (prototype dùng nhóm xem giá vốn).
 20. **Mẫu in:** gói này có cần mẫu in nhiệt (INV-18 bán lẻ) và mẫu PN/PX/CK/KK chính thức theo khổ nào? Hiện chỉ xem trước PX A5, PN A4.
+
+## 12. Quyết định BA đã áp dụng vào prototype (bản 0.2)
+
+| Chủ đề | Áp dụng |
+| --- | --- |
+| Đang vận chuyển (câu 1) | Chỉ hàng đã gửi theo phiếu chuyển kho (CK, kho tổng, chênh lệch treo). Hàng đặt NCC chưa giao là tag “Đã đặt N” và cột “Đã đặt – chờ giao” (INV-04/05, PUR-02), ngoài bốn số. Dữ liệu mẫu: PT-0002 Đang vận chuyển 4 (CK-TD-2610-00014) và Đã đặt 10 (DM-Q7-2610-00014); PT-0008 Đang vận chuyển 6 |
+| Giá (câu 2, 19) | Hai cờ: `data-g3-cost` (giá vốn, giá trị tồn: CH QV QL KT) và `data-g3-buy` (giá đơn, giá nhập phiếu đang nhận, bảng giá NCC: thêm TK, MH). Dư nợ NCC ẩn cột với TK, MH |
+| MH, NS (câu 5) | Vai trò riêng trong `ROLE_NAME` và registry quyền của `pack.js` (MH: PUR, INV-01/04/05/19 xem; NS: HRM). Menu/phạm vi do `design/assets/app.js` (đã vá) xử lý; `pack.js` có hàm dự phòng |
+| CV (câu 6) | CV mở INV-01 và INV-19 chỉ đọc (chỉ Khả dụng, giá niêm yết, không giá vốn); không mở INV-04; tra tồn qua bộ chọn báo giá; INV-18 vào từ Tài chính |
+| Gợi ý đặt hàng (câu 7) | Đề xuất = Tối đa − (Khả dụng + Đang vận chuyển + Đã đặt); “số có thể cho” = Khả dụng − tối thiểu của chi nhánh kia |
+| Mua gấp (câu 8) | Yêu cầu mua có cờ “Mua gấp”, hậu duyệt trong thời hạn cấu hình; phiếu nhập lấy YM làm chứng từ gốc |
+| Xuất kho (câu 9) | Xuất tối đa = giữ chỗ còn lại của chính lệnh + Khả dụng; hiện trên INV-06/07 |
+| Hạn mức (câu 10) | Mọi hạn mức là giá trị mẫu, ghi “giá trị mẫu”; vẫn cấu hình G4-APR-03 |
+| Chuyển kho (câu 11) | YK (yêu cầu chuyển) → CK mã chi nhánh gửi; biên bản chênh lệch có cách xử lý và “bên chịu giá trị” |
+| Kiểm kê (câu 12) | Không đóng băng kho; mỗi dòng có thời điểm đếm; cột “Phát sinh trong lúc đếm” ở INV-17; ô chưa đếm để trống, không chốt khi còn mã chưa đếm; người đếm khác người duyệt |
+| Năng suất (câu 13) | Ba công thức giữ nguyên, thêm định nghĩa giờ có mặt, giờ thực, giờ chuẩn bán ra |
+| Công và hoa hồng (câu 14) | Tách: công ghi khi QC đạt (HRM-07, 08), hoa hồng ghi khi lệnh thu đủ (HRM-09). HRM-08 có hai cột tiền công và hoa hồng, khớp HRM-09 |
+| Kỳ công (câu 15) | Chu kỳ cấu hình; khóa kỳ chỉ từ ngày kết thúc kỳ, chặn khi còn điều chỉnh chờ duyệt, không chặn vì hạng mục chờ QC |
+| Dữ liệu nhân sự (câu 16) | Ma trận Phụ lục D trong `piiPolicy` |
+| Mẫu in (câu 20) | PX A5, PN A4, BL nhiệt 80 mm xem trước; khi in chỉ in tờ phiếu |
+
+## 13. Bảng Finding → đã xử lý ở đâu
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F4-01 tab “Chi nhánh khác” lộ Thực tế/Giữ chỗ | Blocker | Chỉ hiện Khả dụng và Số có thể cho, kèm “tính đến”; bỏ dòng chi nhánh ngoài phạm vi; INV-05 chỉ nói “có thể cho N” | `g3-inv-03.html` tab 4; `g3-inv-05.html` |
+| F4-02 thẻ mobile INV-04 thiếu 3 số | Blocker | `data-card="stock4"` vẽ lưới 4 số (Khả dụng nhấn mạnh) dùng chung `stock4HTML` | `pack.js` `cards()`; `g3-inv-04.html` |
+| F4-03 Đang vận chuyển lẫn hàng đặt NCC | Major | Tách “Đang về” và “Đã đặt”; sửa dữ liệu INV-01/04/05/06/12/14, PUR-02, hộp thoại đóng đơn PUR-06; bỏ chữ “chờ BA” ở INV-05 | các file trên; `pack.js` `stockBadge` |
+| F4-04 MH, NS | Major | Thêm vào `ROLE_NAME`, registry quyền, danh sách nhánh; sửa nhãn nút PUR, HRM; ghi chú app.js đã vá | `pack.js`; PUR-01/02/05/09/10, HRM-01/02/03/04/08 |
+| F4-05 một cờ giá | Major | Tách `data-g3-buy`; INV-03 bảng giá NCC, INV-08 giá trị PN, PUR-10; INV-13 TK thấy “vượt hạn mức cấp bạn” không số giá vốn; PUR-09/10 ẩn dư nợ cho TK, MH | `pack.js`; các file đó |
+| F4-06 CV INV-01/19 | Major | Thêm CV (chỉ Khả dụng, không giá vốn), thông báo chế độ chỉ xem; INV-04 không mở cho CV | `pack.js` registry; `g3-inv-01.html`, `g3-inv-19.html` |
+| F4-07 giữ chỗ của chính lệnh | Major | Hiện “Giữ chỗ cho lệnh này”, xuất tối đa; sửa thẻ 2 và 3, “sau xuất” | `g3-inv-06.html`, `g3-inv-07.html` |
+| F4-08 phát sinh lúc đếm | Major | Cột thời điểm đếm, cột “Phát sinh trong lúc đếm”, cảnh báo ở INV-13; sửa số PT-0001 | `g3-inv-16.html`, `g3-inv-17.html`, `g3-inv-13.html` |
+| F4-09 dòng chưa đếm | Major | Ô trống “–”; chặn chốt, cần QL cho loại mã kèm lý do; đếm lại | `g3-inv-16.html` |
+| F4-10 PUR-03 thiếu Duyệt | Major | Thêm trạng thái “trong hạn mức” và “cấp Chủ garage/QV” có nút Duyệt, Từ chối; không tự duyệt | `g3-pur-03.html` |
+| F4-11 đối chiếu 1:1 | Major | Chọn tập PN, PN chưa ghi sổ chặn, dung sai, mở phiếu trả điền sẵn | `g3-pur-07.html` |
+| F4-12 thẻ INV-05 thiếu cột | Major | Thêm mọi cột vào thẻ và nút “Tạo phiếu chuyển/yêu cầu mua” trên thẻ (`data-g3-card-actions`) | `g3-inv-05.html`, `pack.js` |
+| F4-13 HRM-09 trộn công khoán | Major | Bỏ dòng khoán; ghi chú công vs hoa hồng; cột điều kiện ghi nhận ở HRM-06 | `g3-hrm-09.html`, `g3-hrm-06.html` |
+| F4-14 số HRM-08 ≠ HRM-09 | Major | Hai cột tiền công và hoa hồng; hoa hồng 271.500 ₫ khớp; kỳ HRM-10 thống nhất | `g3-hrm-08/09/10.html` |
+| F4-15 khóa kỳ sớm | Major | Nút duyệt/khóa bị khóa có lý do (`data-g3-block`); điều kiện khóa; trạng thái đã khóa hiện bảng chỉ đọc | `g3-hrm-08.html`, `pack.js` |
+| F4-16 HRM-06 sửa v1 trực tiếp | Minor | v1 chỉ đọc, nút “Soạn nháp phiên bản mới”, ghi đè có hiệu lực riêng, cảnh báo xung đột ngày hiệu lực | `g3-hrm-06.html` |
+| F4-17 PII | Minor | `piiPolicy` theo Phụ lục D, thêm NS; handoff ghi production không gửi giá trị đầy đủ | `pack.js`; mục 15 |
+| F4-18 / F4-19 rủi ro thẻ JS và document.write | Minor | Bỏ `<a>` lồng, mang `data-g3-hide/roles` sang thẻ; thêm `<noscript>`; ghi rủi ro vào handoff | `pack.js`; 39 file `<noscript>`; mục 15 |
+| F4-20 thiếu trạng thái | Minor | Thêm `notfound` cho INV-07/09/10/11/13/16/18, PUR-02/05/08; banner mất mạng theo phân hệ; Vào/Ra ca khóa khi mất mạng | `pack.js`; các file đó; `g3-hrm-04.html` |
+| F4-21 nút khóa dùng disabled | Minor | `aria-disabled` + chặn click ở pha capture + toast lý do, giữ focus | `pack.js` |
+| F4-22 badge | Minor | Tag Neutral cho loại biến động; “Nhận một phần” Warning; INV-19 tách badge và giá; bỏ tag “Đã đóng”; “Đã đếm” Info; thêm badge “Chờ xuất/Thiếu hàng” | INV-03/09/12/14/16/19, INV-06 |
+| F4-23 dữ liệu mẫu | Minor | Sửa 25 phút, PN-00031, 11 mã khớp, Thủ Đức có thể cho, RO-126 “Đang sửa chữa”, kỳ công thống nhất | PUR-02/03/05, INV-17/06, HRM-04/10 |
+| F4-24 in ấn | Minor | Chỉ in `.g3-paper` khi hộp thoại mở; thêm xem trước nhiệt 80 mm cho BL | `pack.css`; `g3-inv-18.html` |
+| F4-25 mã PT trùng tiền tố | Minor | Chỉ ghi chú ở INV-01 (chưa đổi mã mẫu, xem mục 14) | `g3-inv-01.html` |
+| F4-26 CSS | Minor | `.g3-cell--off` đổi màu, giới hạn `.g3-subnav .tab`, `.cell-sub` trong matrix, tag “Dữ liệu tồn lệch”, bottom nav có Nhân sự | `pack.css`, `pack.js` |
+| F4-27 HRM-10 | Minor | Thay câu “khớp bảng công”, thêm định nghĩa đầu vào và chú giải ngưỡng | `g3-hrm-10.html` |
+| F4-28 INV-10, INV-09 | Minor | Nút “Gửi duyệt hoàn kho”; cột Chất lượng ở PN | `g3-inv-10.html`, `g3-inv-09.html` |
+| F4-29 BS-2, HRM-07 CV | Minor | Ghi “sự kiện hệ thống”; bỏ CV khỏi HRM-07 | `g3-inv-06.html`, `pack.js` |
+| F4-30 tài liệu | Minor | Cập nhật tài liệu này (mục 12–15) | tài liệu này |
+| F4-31 phân tách nhiệm vụ | Minor | Ghi chú người đếm ≠ người duyệt, không tự sửa giờ mình, không tự duyệt yêu cầu mình lập | INV-16/17, HRM-04, PUR-03 |
+
+## 14. Câu hỏi còn lại cho BA và việc chưa làm hết
+
+1. **F4-25:** có đổi mã phụ tùng mẫu (ví dụ `LD-0001`) trên toàn gói không? Prototype mới ghi chú vì đổi 39 file dễ lệch dữ liệu; nên chốt quy ước mã phụ tùng của khách trước.
+2. **F4-16 (một phần):** chỉ có nháp phiên bản mới ở HRM-06, chưa có so sánh nháp với bản hiện hành và chưa có phiên bản riêng cho bảng “Hoa hồng cố vấn”.
+3. **F4-08 (một phần):** cảnh báo “mã đang trong đợt đếm” mới có ở INV-13 (lốp); chưa có ở INV-07/09; tùy chọn “đóng băng nhóm hàng” chưa thiết kế màn cấu hình.
+4. **F4-17 (c):** thợ xem hồ sơ của mình qua Hồ sơ cá nhân (G1-PRF), chưa có trong gói này.
+5. **F4-04:** menu MH/NS và phạm vi chi nhánh do `app.js`; bản `pack.js` có hàm dự phòng không còn được gọi. Cần chủ Phase 0 giữ `00-foundation.md` §7 đồng bộ.
+6. Câu hỏi mới: tiền công = giờ công × đơn giá giờ theo cấp bậc (đơn giá mẫu ở HRM-08 là giả định), cần bảng đơn giá do khách cung cấp; thời hạn hậu duyệt “mua gấp” và quy cách đóng gói NCC (làm tròn đề xuất) là cấu hình cần giá trị mặc định.
+7. Chưa kiểm tra bằng trình duyệt: các thay đổi JS mới (`cards()` stock4, chặn click, `data-g3-block`, `data-g3-needs-net`) chỉ rà bằng đọc mã.
+
+## 15. Ghi chú bàn giao (dev)
+
+- **Không sao chép markup shell từ `pack.js`.** Sidebar, topbar, breadcrumb, tab phân hệ và bottom nav được ghi bằng `document.write` chỉ để prototype gọn; hỏng nếu `pack.js` đặt `defer/async/module`, không dùng được với CSP chặn script nội tuyến, và công cụ kiểm tra tĩnh chỉ thấy trang sau khi script chạy. Dev lấy shell từ `design/foundation/shell.html`. Mỗi trang có `<noscript>` báo cần bật JavaScript.
+- **Thẻ mobile do JS sinh** từ `<th data-card>` (title, sub, badge, meta, foot, stock4) và `data-g3-card-actions`. Production: một component dữ liệu, hai bố cục; mỗi cột khai báo vị trí thẻ hoặc `none` (lint cột thiếu khai báo); không lồng `<a>`; kiểm tay ở 375 px: INV-01, 04, 05, PUR-03.
+- **Dữ liệu cá nhân**: giá trị đầy đủ của nhân sự/NCC nằm trong `PIID` của `pack.js` chỉ để mô phỏng. Production không gửi giá trị đầy đủ xuống trình duyệt trước khi bấm Hiện; ghi nhật ký; tự che sau 30 giây.
+- **Nút khóa**: dùng `aria-disabled` + chặn click + toast lý do (không dùng `disabled`) để vẫn nhận focus; `data-g3-block` là khóa theo trạng thái nghiệp vụ; `data-g3-needs-net` khóa khi mất mạng.
+- **Cờ dữ liệu**: `data-g3-cost`, `data-g3-buy`, `data-g3-roles`, `data-g3-hide`, `data-g3-need`, `data-g3-edit`, `data-g3-pii`, `data-g3-stock4`, `data-s`/`data-min`/`data-ordered` chỉ là hook prototype; quyền thật do API.

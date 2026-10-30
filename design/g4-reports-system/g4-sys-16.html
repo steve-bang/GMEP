@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="AD">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-16" data-menu="set" data-crumbs="Cài đặt|Tích hợp hóa đơn điện tử" data-allow="AD KT CH"></script>
 <script>
 g4rPage({
@@ -27,6 +28,7 @@ g4rPage({
 
 <div class="alert alert--neutral" role="note" data-why-roles="AD"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Vai trò của bạn chỉ <strong>xem</strong> tình trạng tích hợp. Quản trị hệ thống cấu hình, Chủ garage duyệt việc chuyển sang môi trường thật.</div></div>
 
+<script>g4rPending([{ what: 'Chuyển hóa đơn điện tử sang môi trường thật', who: 'Đỗ Thanh Tâm (Quản trị hệ thống)', when: '29/10/2026 17:20', diff: '<del>Thử nghiệm</del> → <ins>Thật</ins>' }]);</script>
 <section class="grid grid--3" aria-label="Tình trạng kết nối">
   <div class="card kpi"><span class="kpi__label">Môi trường đang dùng</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">Thử nghiệm</span><span class="kpi__meta"><span class="tag tag--warning">Chưa phát hành hóa đơn thật</span></span></div>
   <div class="card kpi"><span class="kpi__label">Kết nối</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">Thông</span><span class="kpi__meta"><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Phản hồi 420 ms lúc 09:10</span></span></div>

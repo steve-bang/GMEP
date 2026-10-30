@@ -245,6 +245,7 @@
       if (has(buy ? BUY_ROLES : COST_ROLES, r)) { x.className = 'num'; x.removeAttribute('title'); x.textContent = v; }
       else { var what = buy ? 'giá mua' : 'giá vốn'; x.className = 'g3-masked'; x.title = 'Bạn chưa có quyền xem ' + what; x.innerHTML = '•••••<span class="sr-only">Không có quyền xem ' + what + '</span>'; }
     });
+    $$('[data-g3-block]').forEach(function (x) { x.setAttribute('aria-disabled', 'true'); x.setAttribute('title', x.getAttribute('data-g3-block')); });   /* khóa theo trạng thái nghiệp vụ, kèm lý do */
     $$('[data-g3-needs-net]').forEach(function (x) {   /* thao tác cần mạng (ghi giờ vào/ra ca): khóa khi mất kết nối, không ghi giờ giả */
       var off = !!$('.net-banner.is-visible'); x.setAttribute('aria-disabled', String(off));
       if (off) x.setAttribute('title', 'Cần kết nối mạng để ghi giờ'); else x.removeAttribute('title');
@@ -415,9 +416,9 @@
 
   /* Chặn click lên nút/liên kết bị khóa (giữ focus để đọc lý do), hiện lý do bằng toast để dùng được cả trên cảm ứng */
   document.addEventListener('click', function (e) {
-    var n = e.target.closest('[data-g3-need][aria-disabled="true"],[data-g3-needs-net][aria-disabled="true"]'); if (!n) return;
+    var n = e.target.closest('[data-g3-need][aria-disabled="true"],[data-g3-needs-net][aria-disabled="true"],[data-g3-block]'); if (!n) return;
     e.preventDefault(); e.stopImmediatePropagation();
-    var why = n.hasAttribute('data-g3-needs-net') ? 'Cần kết nối mạng để ghi giờ vào/ra ca. Hệ thống không ghi giờ giả khi mất mạng.' : (n.getAttribute('data-g3-why') || 'Bạn không có quyền thực hiện thao tác này.');
+    var why = n.hasAttribute('data-g3-block') ? n.getAttribute('data-g3-block') : n.hasAttribute('data-g3-needs-net') ? 'Cần kết nối mạng để ghi giờ vào/ra ca. Hệ thống không ghi giờ giả khi mất mạng.' : (n.getAttribute('data-g3-why') || 'Bạn không có quyền thực hiện thao tác này.');
     if (window.gmepToast) window.gmepToast('warning', 'Chưa thực hiện được', why);
   }, true);
 

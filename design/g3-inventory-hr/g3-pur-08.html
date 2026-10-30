@@ -11,6 +11,7 @@
 <script src="pack.js"></script>
 </head>
 <body data-role="TK">
+<noscript><div class="g3-noscript"><strong>Cần bật JavaScript.</strong> Khung ứng dụng, tab phân hệ và trạng thái xem thử của prototype này được dựng bằng script (<code>pack.js</code>). Hãy bật JavaScript hoặc mở bằng trình duyệt thông thường.</div></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <script>G3.shell('pur')</script>
@@ -23,7 +24,7 @@
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Trả từ Kho Quận 7</span><span>· 30/10/2026</span></div>
 
-<div id="g3-body" data-noun="phiếu trả hàng" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div id="g3-body" data-noun="phiếu trả hàng" data-g3-states="data:Soạn phiếu;loading;notfound;error;denied" data-skel="detail" data-back="g3-inv-08.html">
 <div data-g3-state="data" class="stack">
   <div class="g3-ro-flag alert alert--info" data-for="f-rtv" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Thủ kho lập phiếu trả; Quản lý chi nhánh duyệt.</span></div></div>
   <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng:</span><button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="e-sold">Trả hàng đã xuất cho lệnh</button></div>

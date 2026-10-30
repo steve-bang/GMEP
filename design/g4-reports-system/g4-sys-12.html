@@ -19,7 +19,8 @@
 </style>
 </head>
 <body data-role="AD">
-<script src="pack.js" data-code="G4-SYS-12" data-menu="set" data-crumbs="Cài đặt|Mẫu chứng từ, mẫu in" data-allow="AD KT"></script>
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
+<script src="pack.js" data-code="G4-SYS-12" data-menu="set" data-crumbs="Cài đặt|Mẫu chứng từ, mẫu in" data-allow="AD KT CH QL"></script>
 <script>
 g4rPage({
   sub: 'sys',
@@ -34,6 +35,7 @@ g4rPage({
 
 <div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body">Loại máy in và mẫu kế toán chưa chốt <b>[Cần xác nhận]</b>. Mẫu được thiết kế theo <strong>khổ giấy</strong> (A4, A5, nhiệt 80 mm; 58 mm cấu hình), không theo hãng máy in.</div></div>
 
+<div class="alert alert--neutral" role="note" data-why-roles="AD"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Chỉ Quản trị hệ thống sửa mẫu. Kế toán <strong>duyệt</strong> mẫu kế toán (phiếu thu, phiếu chi, kho); Chủ garage và Quản lý chi nhánh xem. Nút sửa bị khóa với vai trò của bạn.</div></div>
 <div class="tabs" role="tablist" aria-label="Loại mẫu">
   <button class="tab" role="tab" id="t1" aria-selected="true" aria-controls="tp1">Mẫu in chứng từ</button>
   <button class="tab" role="tab" id="t2" aria-selected="false" tabindex="-1" aria-controls="tp2">Mẫu tin nhắn</button>
@@ -43,12 +45,12 @@ g4rPage({
   <div class="table-wrap"><div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Mẫu in chứng từ</caption>
     <thead><tr><th>Mẫu</th><th>Khổ giấy</th><th>Phiên bản đang dùng</th><th>Hiệu lực từ</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
     <tbody>
-      <tr><td>Báo giá</td><td>A4, A5</td><td class="num">v3</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
-      <tr><td>Lệnh sửa chữa</td><td>A4, A5</td><td class="num">v4</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
-      <tr><td>Biên bản bàn giao xe</td><td>A5</td><td class="num">v2</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
-      <tr><td>Phiếu thu <span class="tag tag--info">Mẫu kế toán</span></td><td>A5, nhiệt 80 mm</td><td class="num">v2 → <strong>v3</strong></td><td class="num">01/12/2026</td><td><span class="tag tag--warning">Chờ Kế toán duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="KT" data-toast="success|Đã duyệt mẫu|Phiếu thu v3 áp dụng từ 01/12/2026.">Duyệt</button><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
-      <tr><td>Phiếu chi <span class="tag tag--info">Mẫu kế toán</span></td><td>A5</td><td class="num">v1</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
-      <tr><td>Phiếu nhập / xuất kho <span class="tag tag--info">Mẫu kế toán</span></td><td>A4, A5</td><td class="num">v1</td><td class="num">01/07/2026</td><td><span class="tag tag--neutral">Nháp phiên bản mới</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
+      <tr><td>Báo giá</td><td>A4, A5</td><td class="num">v3</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-tpl" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
+      <tr><td>Lệnh sửa chữa</td><td>A4, A5</td><td class="num">v4</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-tpl" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
+      <tr><td>Biên bản bàn giao xe</td><td>A5</td><td class="num">v2</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-tpl" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
+      <tr><td>Phiếu thu <span class="tag tag--info">Mẫu kế toán</span></td><td>A5, nhiệt 80 mm</td><td class="num">v2 → <strong>v3</strong></td><td class="num">01/12/2026</td><td><span class="tag tag--warning">Chờ Kế toán duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="KT" data-g4r-approve="Mẫu Phiếu thu v3 (mẫu kế toán)|Đỗ Thanh Tâm (Quản trị hệ thống)|v2 → v3: thêm dòng “Bằng chữ” và chữ ký kế toán, áp dụng từ 01/12/2026">Xem và duyệt</button><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-tpl" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
+      <tr><td>Phiếu chi <span class="tag tag--info">Mẫu kế toán</span></td><td>A5</td><td class="num">v1</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-tpl" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
+      <tr><td>Phiếu nhập / xuất kho <span class="tag tag--info">Mẫu kế toán</span></td><td>A4, A5</td><td class="num">v1</td><td class="num">01/07/2026</td><td><span class="tag tag--neutral">Nháp phiên bản mới</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-tpl" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
     </tbody></table></div></div>
     <div class="record-list record-list--responsive" style="padding:var(--space-4)"><div class="record"><div class="record__top"><div><div class="record__title">Phiếu thu</div>A5, nhiệt 80 mm · v2 → v3</div><span class="tag tag--warning">Chờ Kế toán duyệt</span></div></div></div>
   </div>
@@ -86,9 +88,9 @@ g4rPage({
   <div class="table-wrap"><div class="table-scroll"><table class="table"><caption class="sr-only">Mẫu tin nhắn</caption>
     <thead><tr><th>Mẫu tin</th><th>Kênh</th><th>Đối tượng nhận</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
     <tbody>
-      <tr><td>Gửi báo giá cho khách</td><td>Email <span class="tag tag--success">Hoạt động</span> · Zalo <span class="tag tag--neutral">Chưa kích hoạt</span> · SMS <span class="tag tag--neutral">Chưa kích hoạt</span></td><td>Khách</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-msg">Sửa</button></td></tr>
-      <tr><td>Nhắc đăng kiểm / bảo dưỡng</td><td>Email · Zalo (chưa kích hoạt)</td><td>Khách đã đồng ý nhận</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-msg">Sửa</button></td></tr>
-      <tr><td>Gửi hóa đơn điện tử</td><td>Email</td><td>Khách</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-msg">Sửa</button></td></tr>
+      <tr><td>Gửi báo giá cho khách</td><td>Email <span class="tag tag--success">Hoạt động</span> · Zalo <span class="tag tag--neutral">Chưa kích hoạt</span> · SMS <span class="tag tag--neutral">Chưa kích hoạt</span></td><td>Khách</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-msg" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
+      <tr><td>Nhắc đăng kiểm / bảo dưỡng</td><td>Email · Zalo (chưa kích hoạt)</td><td>Khách đã đồng ý nhận</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-msg" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
+      <tr><td>Gửi hóa đơn điện tử</td><td>Email</td><td>Khách</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-msg" title="Chỉ Quản trị hệ thống sửa mẫu">Sửa</button></td></tr>
     </tbody></table></div></div>
 </div>
 

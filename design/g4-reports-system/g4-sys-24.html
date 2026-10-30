@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="AD">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-24" data-menu="set" data-crumbs="Cài đặt|Bảo mật và phiên" data-allow="AD CH"></script>
 <script>
 g4rPage({
@@ -27,6 +28,7 @@ g4rPage({
 <div class="alert alert--neutral" role="note" data-why-roles="AD"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Chủ garage <strong>duyệt</strong> khi Quản trị hạ mức bảo mật; không sửa trực tiếp.</div></div>
 <div class="alert alert--warning" id="lower" role="status" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><div class="alert__title">Bạn đang hạ mức bảo mật</div>Thay đổi này cần Chủ garage duyệt. Chính sách cũ vẫn áp dụng cho tới khi được duyệt.</div></div>
 
+<script>g4rPending([{ what: 'Hạ mức bảo mật: thời gian hết phiên của Kế toán', who: 'Đỗ Thanh Tâm (Quản trị hệ thống)', when: '29/10/2026 10:30', diff: '<del>15 phút</del> → <ins>30 phút</ins>' }]);</script>
 <div class="g4r-sec">
   <section class="card" aria-labelledby="s-pw"><div class="card__header"><h2 class="card__title" id="s-pw">Mật khẩu</h2></div><div class="card__body stack">
     <div class="field"><label class="field__label" for="pw-l">Độ dài tối thiểu</label><div class="input-group input-group--suffix"><input class="input input--num" id="pw-l" value="10" data-edit-roles="AD" data-sec inputmode="numeric"><span class="input-group__suffix">ký tự</span></div></div>
@@ -76,13 +78,16 @@ g4rPage({
 
 <script>
 document.addEventListener('input', lowerCheck); document.addEventListener('change', lowerCheck);
+/* Hướng “yếu đi” của từng ô: up = tăng là yếu hơn, down = giảm là yếu hơn; bỏ tick bắt buộc cũng là yếu đi */
+var G4R_WEAKER = { 'pw-l': 'down', 'pw-h': 'down', 'lk-n': 'up', 'lk-m': 'down', 'lk-l': 'up', 'lk-i': 'up', 'mf-t': 'up', 'se-g': 'up', 'se-k': 'up', 'se-t': 'up', 'se-a': 'up' };
 function lowerCheck(e) {
   var t = e.target; if (!t.hasAttribute || !t.hasAttribute('data-sec')) return;
   var low = false;
   document.querySelectorAll('[data-sec]').forEach(function (x) {
     if (x.type === 'checkbox' && !x.checked) low = true;
-    if (x.hasAttribute('data-up') && (+x.value) > (+x.defaultValue)) low = true;
-    if (x.id === 'pw-l' && (+x.value) < (+x.defaultValue)) low = true;
+    var w = G4R_WEAKER[x.id];
+    if (w === 'up' && (+x.value) > (+x.defaultValue)) low = true;
+    if (w === 'down' && (+x.value) < (+x.defaultValue)) low = true;
   });
   document.getElementById('lower').hidden = !low;
   document.getElementById('save-t').textContent = low ? 'Gửi Chủ garage duyệt' : 'Lưu';
