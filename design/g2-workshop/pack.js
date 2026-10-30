@@ -161,7 +161,7 @@
   function role() { return body.getAttribute('data-role') || 'CV'; }
   function applyG2W() {
     var r = role();
-    var inn = $('.main__inner'), deny = (body.getAttribute('data-g2w-deny') || '').split(' ').indexOf(r) >= 0;
+    var inn = $('.main__inner'), deny = (body.getAttribute('data-g2w-deny') || '').split(' ').indexOf(r) >= 0 || ((r === 'MH' || r === 'NS') && (body.getAttribute('data-g2w-allow') || '').split(' ').indexOf(r) < 0);   /* MH, NS không thuộc ma trận gói G2: chặn mặc định */
     if (inn) Array.prototype.forEach.call(inn.children, function (c) {
       if (c.classList.contains('net-banner')) return;
       c.hidden = c.hasAttribute('data-g2w-denied') ? !deny : deny;

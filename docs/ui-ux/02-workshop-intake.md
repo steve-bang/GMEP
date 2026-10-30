@@ -334,6 +334,17 @@ Giả định 1 (mã): đổi thành `CD`, `LH`, `TX`. Giả định 3: xác nh�
 | F2R2-11 Quyền xem | Minor | (a) tổng giờ ẩn với TH; (b) CRM-06 TH thấy tên chủ xe, sửa chữ tab Sở hữu; (c) REC-05 đổi thợ đang làm gửi QL duyệt | REC-04, CRM-06, REC-05 |
 | F2R2-12 REC-07 | Minor | 9 công đoạn theo Journey §3 (sơn gộp một), cờ yêu cầu ảnh và ô ảnh trong hộp chuyển, lý do bắt buộc khi quay lại | `g2-rec-07.html` |
 
+### 13.3 Vòng 3 (`review-02-round3-ba.md`) → đã xử lý ở đâu
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F2R3-01 Câu “thu tiền và giao xe cần duyệt” | Minor | Sửa: thu tiền làm giảm nợ nên không bị chặn; chỉ giao xe hoặc ghi nợ thêm cần duyệt | `g2-rec-04.html` (biến thể debt), `g2-crm-02.html` |
+| F2R3-02 Tab Công thợ lệch danh sách hạng mục | Minor | Mốc và giờ thực của hạng mục 2, 3 và tổng giờ tính từ cùng nguồn với danh sách ở mọi biến thể (ok2qc, qc, ready, done…) | `g2-rec-04.html` (`lb2-*`, `lb3-*`, `lb-sum`) |
+| F2R3-03 Xác nhận Tạm dừng | Minor | Nhãn, ghi chú và banner lấy đúng lý do đã chọn; banner thiếu phụ tùng chỉ hiện khi chọn “Chờ phụ tùng” | `g2-rec-04.html` |
+| BA quyết: thẻ mobile REC-02 | Minor | Bọc badge Thanh toán/Hóa đơn từng thẻ, ẩn với Quản đốc | `g2-rec-02.html` |
+| BA quyết: MH, NS | Minor | `pack.js` chặn mặc định MH, NS ở mọi màn có shell (trừ khi `data-g2w-allow`) | `pack.js` |
+| BA quyết: nhóm “Không thực hiện” | Minor | Nhóm trong tab Hạng mục: phát sinh/hạng mục khách từ chối hoặc hết hạn, không tính tiền, không vào việc của thợ, tag “Đã lưu nhắc”, ẩn với Thợ | `g2-rec-04.html` (gói 3 QUO-07, `ba-answers-03.md`) |
+
 ## 14. Chưa xử lý trọn vẹn (vòng 2)
 
 1. Thẻ mobile của REC-02 vẫn hiện badge Thanh toán, Hóa đơn cho Quản đốc (bảng đã ẩn).
