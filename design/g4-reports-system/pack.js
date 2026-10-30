@@ -126,9 +126,12 @@
     var sc = '<div class="scope-banner" role="status">' + ico('map-pin', 'icon--sm');
     if (o.cfgScope) {
       sc += '<span><strong>Phạm vi cấu hình:</strong> ' + o.cfgScope + '</span>';
+    } else if (o.scopeText) {
+      sc += '<span><strong>Phạm vi:</strong> ' + o.scopeText + '</span>';
     } else {
       sc += '<span><strong>Phạm vi:</strong> <span data-scope-text>Tất cả chi nhánh – số liệu hợp nhất</span></span>';
     }
+    if (o.sample) sc += '<span class="tag tag--neutral">Dữ liệu mẫu minh họa: ' + o.sample + '</span>';
     if (o.period) sc += '<span>· <strong>Thời gian:</strong> ' + o.period + '</span>';
     sc += '<span>· ' + (o.asof || 'Cập nhật lúc 09:15 30/10/2026') + '</span>';
     sc += '<button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16.">' + ico('refresh', 'icon--sm') + 'Làm mới</button></div>';
@@ -145,22 +148,46 @@
     document.write(h + '<div data-state-group class="' + (o.sub === 'sys' ? 'stack' : 'stack') + '">' + bar + '<div data-state="data" class="stack">');
   };
 
+  /* Vai trò được mở từng màn cài đặt (khớp data-allow của từng trang). Thanh điều hướng chỉ liệt kê màn trong quyền (BA-06 câu 1). */
+  var SYS_ALLOW = {
+    '01': 'AD CH QL', '02': 'AD CH QL', '03': 'AD CH QL', '04': 'AD CH', '05': 'AD CH', '06': 'AD QL CH', '07': 'AD QL CH KT CV', '08': 'AD QL CH', '09': 'CH QV QL',
+    '10': 'KT CH', '11': 'AD QL CH', '12': 'AD KT CH QL', '13': 'AD QL CH', '14': 'AD QD QL CH', '15': 'AD CH', '16': 'AD KT CH', '17': 'AD QL CH', '18': 'AD CH',
+    '19': 'AD CH QL KT', '20': 'AD QL KT TK CH', '21': 'AD CH QL', '22': 'AD CH', '23': 'AD CH KT', '24': 'AD CH'
+  };
   function subnav() {
     var cur = CFG.code.replace('G4-SYS-', '');
     var out = '<div><nav class="g4r-subnav" aria-label="Mục cài đặt">';
     var sel = '<label class="field g4r-subnav__pick"><span class="field__label">Mục cài đặt</span><select class="select" onchange="location.href=this.value" aria-label="Chuyển mục cài đặt">';
     SYS_GROUPS.forEach(function (g) {
-      out += '<div class="g4r-subnav__group">' + g[0] + '</div>';
+      out += '<div class="g4r-subnav__group" data-g4r-sg>' + g[0] + '</div>';
       sel += '<optgroup label="' + g[0] + '">';
       g[1].forEach(function (n) {
         var f = 'g4-sys-' + n + '.html';
-        out += '<a href="' + f + '"' + (n === cur ? ' aria-current="page"' : '') + '><span>' + SYS_NAMES[n] + '</span><span class="t-caption text-tertiary">' + n + '</span></a>';
-        sel += '<option value="' + f + '"' + (n === cur ? ' selected' : '') + '>' + n + ' · ' + SYS_NAMES[n] + '</option>';
+        out += '<a href="' + f + '" data-g4r-roles="' + SYS_ALLOW[n] + '"' + (n === cur ? ' aria-current="page"' : '') + '><span>' + SYS_NAMES[n] + '</span><span class="t-caption text-tertiary">' + n + '</span></a>';
+        sel += '<option value="' + f + '" data-g4r-roles="' + SYS_ALLOW[n] + '"' + (n === cur ? ' selected' : '') + '>' + n + ' · ' + SYS_NAMES[n] + '</option>';
       });
       sel += '</optgroup>';
     });
     return out + '</nav>' + sel + '</select></label></div>';
   }
+  /* Màn cài đặt đầu tiên vai trò được mở (đích của mục menu “Cài đặt”) */
+  function firstSys(role) { var all = [].concat.apply([], SYS_GROUPS.map(function (g) { return g[1]; })); for (var i = 0; i < all.length; i++) { if (SYS_ALLOW[all[i]].split(' ').indexOf(role) >= 0) return 'g4-sys-' + all[i] + '.html'; } return ''; }
+
+  /* Hộp thoại duyệt / từ chối dùng chung cho mọi yêu cầu chờ duyệt (FR-SYS-013: Duyệt và Từ chối, từ chối bắt buộc lý do) */
+  function approveDialog() {
+    return '<div class="overlay" id="dlg-approve" role="dialog" aria-modal="true" aria-labelledby="ap-t"><div class="dialog dialog--md"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning">' + ico('check') + '</div><div><h2 class="dialog__title" id="ap-t">Duyệt yêu cầu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng">' + ico('x') + '</button></div>' +
+      '<div class="dialog__body"><dl class="g4r-kv"><dt>Nội dung</dt><dd id="ap-what"></dd><dt>Người đề xuất</dt><dd id="ap-who"></dd><dt>Thay đổi</dt><dd id="ap-diff" class="g4r-diff"></dd></dl>' +
+      '<div class="g4r-diffbox"><strong>Ảnh hưởng</strong><ul class="impact-list"><li>Chỉ áp dụng cho chứng từ tạo từ ngày hiệu lực; chứng từ đã tạo không đổi.</li><li>Nếu duyệt muộn hơn ngày hiệu lực đã chọn, bạn phải chọn ngày hiệu lực mới (không lùi ngày).</li><li>Mọi quyết định được ghi nhật ký (người duyệt, thời điểm, lý do).</li></ul></div>' +
+      '<label class="check"><input type="checkbox" id="ap-ok"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem thay đổi và ảnh hưởng ở trên.</span></label>' +
+      '<div class="field"><label class="field__label" for="ap-rs">Lý do từ chối (bắt buộc khi Từ chối)</label><textarea class="textarea" id="ap-rs" style="min-height:56px" placeholder="Ví dụ: Cần xác nhận lại với kế toán trước khi áp dụng"></textarea></div></div>' +
+      '<div class="dialog__footer"><button class="btn btn--secondary" data-close>Để sau</button><button class="btn btn--danger-outline" id="ap-no" disabled data-close data-toast="warning|Đã từ chối yêu cầu|Người đề xuất nhận thông báo kèm lý do.">Từ chối</button><button class="btn btn--primary" id="ap-yes" disabled data-close data-toast="success|Đã duyệt yêu cầu|Có hiệu lực từ ngày hiệu lực; ghi nhật ký.">Duyệt</button></div></div></div>';
+  }
+  /* Thẻ “Yêu cầu chờ duyệt” (chỉ Chủ garage thấy). items: [{what, who, when, diff}] */
+  window.g4rPending = function (items) {
+    var h = '<section class="table-wrap" data-show-roles="CH" aria-label="Yêu cầu chờ duyệt"><div class="table-toolbar"><strong>Yêu cầu chờ Chủ garage duyệt</strong><span class="count-pill count-pill--warning">' + items.length + '</span></div><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Yêu cầu chờ duyệt</caption><thead><tr><th>Nội dung</th><th>Người đề xuất</th><th>Gửi lúc</th><th><span class="sr-only">Thao tác</span></th></tr></thead><tbody>';
+    items.forEach(function (x) { h += '<tr><td>' + x.what + '<span class="g4r-formula g4r-diff">' + x.diff + '</span></td><td>' + x.who + '</td><td class="num">' + x.when + '</td><td><button class="btn btn--primary btn--sm" data-g4r-approve="' + esc(x.what) + '|' + esc(x.who) + '|' + esc(x.diff) + '">Xem và duyệt</button></td></tr>'; });
+    document.write(h + '</tbody></table></div></section>');
+  };
 
   window.g4rEnd = function (extra, overlays) {
     var o = PAGE, e = o.empty || {};
@@ -175,7 +202,7 @@
     h += '</div>';  /* đóng state-group */
     if (o.sub === 'sys') h += '</div></div>';
     h += shellEnd();
-    h += (overlays || '') + exportDialog();
+    h += (overlays || '') + exportDialog() + approveDialog();
     document.write(h);
     document.write('<script src="../assets/app.js"><\/script>');
   };
@@ -219,7 +246,8 @@
       '<label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tên khách hàng</span></label>',
       '<label class="check"><input type="checkbox" id="dx-pii" data-g4r-pii><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Số điện thoại, địa chỉ khách (dữ liệu cá nhân)</span></label>',
       '</div><span class="field__hint">Mặc định các cột dữ liệu cá nhân được che (09•• ••• 123). Chỉ vai trò có quyền “Xuất dữ liệu cá nhân” mới chọn được cột đầy đủ.</span></fieldset>',
-      '<div class="alert alert--warning" id="dx-warn" hidden>' + ico('alert-triangle') + '<div class="alert__body"><div class="alert__title">Xuất dữ liệu cá nhân</div>Thao tác được ghi nhật ký (người xuất, thời điểm, phạm vi, số dòng). Chỉ dùng cho mục đích công việc; không chia sẻ tệp ra ngoài công ty.<div class="field" style="margin-top:8px"><label class="field__label" for="dx-reason">Lý do xuất<span class="field__req">*</span></label><textarea class="textarea" id="dx-reason" style="min-height:56px" placeholder="Ví dụ: Gửi bảng kê công nợ cho khách"></textarea></div></div></div>',
+      '<div class="alert alert--warning" id="dx-warn" hidden>' + ico('alert-triangle') + '<div class="alert__body"><div class="alert__title">Xuất dữ liệu cá nhân</div>Thao tác được ghi nhật ký (người xuất, thời điểm, phạm vi, số dòng). Chỉ dùng cho mục đích công việc; không chia sẻ tệp ra ngoài công ty.<div class="field" style="margin-top:8px"><label class="field__label" for="dx-reason">Lý do xuất<span class="field__req">*</span></label><textarea class="textarea" id="dx-reason" style="min-height:56px" placeholder="Ví dụ: Gửi bảng kê công nợ cho khách"></textarea></div><div class="field" style="margin-top:8px"><label class="field__label" for="dx-pw">Nhập lại mật khẩu của bạn<span class="field__req">*</span></label><input class="input" id="dx-pw" type="password" autocomplete="current-password"><span class="field__hint">Xuất danh sách có dữ liệu cá nhân luôn hỏi lại mật khẩu (D-02).</span></div></div></div>',
+      '<p class="t-body-sm text-secondary" style="margin:0">Ước tính 234 dòng (tối đa 50.000 dòng mỗi tệp; tệp lớn xử lý ở nền). Tệp tải về giữ 7 ngày; lịch sử các lần xuất của bạn giữ 12 tháng (hai thời hạn khác nhau).</p>',
       '<div class="alert alert--neutral" role="note" data-g4r-noexport>' + ico('lock') + '<div class="alert__body">Vai trò hiện tại <strong>chưa có quyền xuất dữ liệu</strong> (FR-SYS-013). Hộp thoại này sẽ bị ẩn nút Xuất; xin quyền với Chủ garage.</div></div>',
       '<div class="t-body-sm text-secondary"><strong>Xem trước dòng đầu tệp:</strong><div class="g4r-mono" style="margin-top:4px">GMEP · Phạm vi: <span data-branch-label>Tất cả chi nhánh</span> · Kỳ: 01/10/2026–30/10/2026 · Xuất lúc: 09:15 30/10/2026 · Người xuất: Trần Hoàng Anh</div></div>',
       '<div class="progress progress--info" id="dx-prog" hidden><div class="progress__head"><span>Đang tạo tệp ở nền (tệp lớn)…</span><span class="num">42%</span></div><div class="progress__track" role="progressbar" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ tạo tệp"><span class="progress__bar" style="width:42%"></span></div></div>',
@@ -254,11 +282,12 @@
   function vn(n) { var s = Math.abs(Math.round(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + s; }
   function dec(n, d) { return n.toFixed(d).replace('.', ','); }
   window.g4r = { vn: vn, dec: dec };
-  function nice(max) { var p = Math.pow(10, Math.floor(Math.log(max) / Math.LN10)), f = max / p; var m = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10; return m * p; }
+  /* Đỉnh trục là bội của 4 khoảng đẹp (4 vạch chia) để nhãn trục là số nguyên gọn */
+  function nice(max) { var p = Math.pow(10, Math.floor(Math.log(max) / Math.LN10)), f = max / p, S = [1, 1.2, 1.6, 2, 2.4, 2.8, 3.2, 4, 4.8, 6, 8, 10], m = 10; for (var i = 0; i < S.length; i++) { if (f <= S[i] + 1e-9) { m = S[i]; break; } } return m * p; }
 
-  function shell(spec, id, bodyChart, altHead, altRows, legend) {
+  function shell(spec, id, bodyChart, altHead, altRows, legend, altCls) {
     var t = '<table class="table table--compact"><caption class="sr-only">' + esc(spec.title) + ' – bảng số liệu</caption><thead><tr>' + altHead.map(function (x, i) { return '<th' + (i ? ' class="col-num"' : '') + '>' + x + '</th>'; }).join('') + '</tr></thead><tbody>' +
-      altRows.map(function (r) { return '<tr>' + r.map(function (c, i) { return '<td' + (i ? ' class="col-num"' : '') + '>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
+      altRows.map(function (r, ri) { return '<tr class="' + ((altCls && altCls[ri]) || '') + '">' + r.map(function (c, i) { return '<td' + (i ? ' class="col-num"' : '') + '>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
     return '<figure class="g4r-chart" data-g4r-chart><figcaption class="g4r-chart__head"><div><div class="g4r-chart__title" id="' + id + '-t">' + spec.title + '</div><div class="g4r-chart__unit">' + spec.unit + '</div></div>' +
       '<div class="segmented" role="group" aria-label="Cách xem ' + esc(spec.title) + '"><button class="segmented__item" data-g4r-view="chart" aria-pressed="true">Biểu đồ</button><button class="segmented__item" data-g4r-view="table" aria-pressed="false">Bảng số liệu</button></div></figcaption>' +
       '<div data-g4r-pane="chart">' + bodyChart + '</div><div data-g4r-pane="table" hidden><div class="table-scroll">' + t + '</div></div>' +
@@ -282,15 +311,15 @@
       spec.labels.forEach(function (lb, i) { if (i % step === 0 || i === n - 1) svg += '<text class="g4r-svg-text" x="' + x(i) + '" y="' + (H - 10) + '" text-anchor="middle">' + lb + '</text>'; });
       spec.series.forEach(function (s, si) {
         var d = s.values.map(function (v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' ');
-        svg += '<path class="g4r-line s' + (si + 1) + '" d="' + d + '"' + (s.dash ? ' stroke-dasharray="7 5"' : '') + '/>';
+        svg += '<path class="g4r-line g4r-s' + (si + 1) + '" d="' + d + '"' + (s.dash ? ' stroke-dasharray="7 5"' : '') + '/>';
         s.values.forEach(function (v, i) {
           var tip = spec.labels[i] + '\n' + s.name + ': ' + (spec.fmt || vn)(v) + (spec.markLast && i === n - 1 && si === 0 ? '\n(' + spec.markLast + ')' : '');
           var hollow = spec.markLast && i === n - 1 && si === 0;
-          svg += '<circle class="g4r-dot s' + (si + 1) + '" cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="' + (hollow ? 6 : 4) + '" tabindex="0" data-tip="' + esc(tip) + '"' + (hollow ? ' stroke-dasharray="3 2"' : '') + ' aria-label="' + esc(tip.replace(/\n/g, ', ')) + '"/>';
+          svg += '<circle class="g4r-dot g4r-s' + (si + 1) + '" data-g4r-pt="' + si + '" cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="' + (hollow ? 6 : 4) + '" tabindex="' + (i === 0 && si === 0 ? '0' : '-1') + '" data-tip="' + esc(tip) + '"' + (hollow ? ' stroke-dasharray="3 2"' : '') + ' aria-label="' + esc(tip.replace(/\n/g, ', ')) + '"/>';
         });
       });
       svg += '</svg></div>';
-      var legend = spec.series.map(function (s, i) { return '<span class="g4r-legend__item"><span class="g4r-legend__sw ' + (s.dash ? 'g4r-legend__sw--dash' : 'b' + (i + 1)) + '"' + (s.dash ? ' style="border-top-color:var(--chart-series-' + (i + 1) + ')"' : '') + '></span>' + s.name + '</span>'; }).join('') + (spec.markLast ? '<span class="g4r-legend__item">○ Điểm cuối: ' + spec.markLast + '</span>' : '');
+      var legend = spec.series.map(function (s, i) { return '<span class="g4r-legend__item"><span class="g4r-legend__sw ' + (s.dash ? 'g4r-legend__sw--dash' : 'g4r-b' + (i + 1)) + '"' + (s.dash ? ' style="border-top-color:var(--chart-series-' + (i + 1) + ')"' : '') + '></span>' + s.name + '</span>'; }).join('') + (spec.markLast ? '<span class="g4r-legend__item">○ Điểm cuối: ' + spec.markLast + '</span>' : '');
       var rows = spec.labels.map(function (lb, i) { return [lb].concat(spec.series.map(function (s) { return (spec.fmt || vn)(s.values[i]); })); });
       return shell(spec, id, svg, ['Mốc'].concat(spec.series.map(function (s) { return s.name; })), rows, legend);
     },
@@ -302,7 +331,7 @@
       for (var k = 0; k <= 4; k++) { var v = top * k / 4; svg += '<line class="g4r-grid-line" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text class="g4r-svg-text" x="' + (L - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (spec.axisFmt ? spec.axisFmt(v) : vn(v)) + '</text>'; }
       spec.labels.forEach(function (lb, i) {
         var cx = L + pw / n * (i + .5), yy = y(spec.values[i]), tip = lb + ': ' + (spec.fmt || vn)(spec.values[i]) + ' ' + spec.short;
-        svg += '<rect class="g4r-bar f1" x="' + (cx - bw / 2) + '" y="' + yy + '" width="' + bw + '" height="' + (y(0) - yy) + '" rx="3" tabindex="0" data-tip="' + esc(tip) + '" aria-label="' + esc(tip) + '"/>';
+        svg += '<rect class="g4r-bar g4r-f1" x="' + (cx - bw / 2) + '" y="' + yy + '" width="' + bw + '" height="' + (y(0) - yy) + '" rx="3" tabindex="0" data-tip="' + esc(tip) + '" aria-label="' + esc(tip) + '"/>';
         svg += '<text class="g4r-svg-text g4r-svg-text--strong" x="' + cx + '" y="' + (yy - 5) + '" text-anchor="middle">' + (spec.fmt || vn)(spec.values[i]) + '</text>';
         svg += '<text class="g4r-svg-text" x="' + cx + '" y="' + (H - 28) + '" text-anchor="middle">' + lb + '</text>';
       });
@@ -316,23 +345,23 @@
       var h = '<div class="g4r-hbar" role="list" aria-labelledby="' + id + '-t">';
       rows.forEach(function (r) {
         var tip = r.label + ': ' + (spec.fmt || vn)(r.value) + (r.sub ? '\n' + r.sub : '');
-        h += '<div class="g4r-hbar__row" role="listitem" tabindex="0" data-tip="' + esc(tip) + '"><span class="g4r-hbar__label">' + r.label + '</span><span class="g4r-hbar__track"><span class="g4r-hbar__fill f1 b1" style="width:' + (r.value / max * 100).toFixed(1) + '%"></span></span><span class="g4r-hbar__val">' + (spec.fmt || vn)(r.value) + (r.sub ? ' <span class="g4r-hbar__sub">' + r.sub + '</span>' : '') + '</span></div>';
+        h += '<div class="g4r-hbar__row ' + (r.cls || '') + '" role="listitem" tabindex="0" data-tip="' + esc(tip) + '"><span class="g4r-hbar__label">' + r.label + '</span><span class="g4r-hbar__track"><span class="g4r-hbar__fill g4r-b1" style="width:' + (r.value / max * 100).toFixed(1) + '%"></span></span><span class="g4r-hbar__val">' + (spec.fmt || vn)(r.value) + (r.sub ? ' <span class="g4r-hbar__sub">' + r.sub + '</span>' : '') + '</span></div>';
       });
       h += '</div>';
-      return shell(spec, id, h, ['Hạng mục', spec.short || 'Giá trị'], rows.map(function (r) { return [r.label, (spec.fmt || vn)(r.value)]; }), '');
+      return shell(spec, id, h, ['Hạng mục', spec.short || 'Giá trị'], rows.map(function (r) { return [r.label, (spec.fmt || vn)(r.value)]; }), '', rows.map(function (r) { return r.cls || ''; }));
     },
     stack: function (spec, id) {
       var h = '<div class="g4r-stack" role="list" aria-labelledby="' + id + '-t">', max = 0;
       spec.rows.forEach(function (r) { var s = r.parts.reduce(function (a, b) { return a + b; }, 0); r.total = s; if (s > max) max = s; });
       spec.rows.forEach(function (r) {
         var tip = r.label + ' (' + r.total + ')\n' + spec.series.map(function (n, i) { return n + ': ' + r.parts[i]; }).join('\n');
-        h += '<div class="g4r-stack__row" role="listitem"><span class="g4r-hbar__label">' + r.label + '</span><div class="g4r-stack__bar" style="width:' + (r.total / max * 100).toFixed(1) + '%" tabindex="0" data-tip="' + esc(tip) + '" aria-label="' + esc(tip.replace(/\n/g, ', ')) + '">';
-        r.parts.forEach(function (p, i) { if (p > 0) h += '<span class="g4r-stack__seg b' + (i + 1) + '" style="flex:' + p + ' 1 0%">' + p + '</span>'; });
+        h += '<div class="g4r-stack__row ' + (r.cls || '') + '" role="listitem"><span class="g4r-hbar__label">' + r.label + '</span><div class="g4r-stack__bar" style="width:' + (r.total / max * 100).toFixed(1) + '%" tabindex="0" data-tip="' + esc(tip) + '" aria-label="' + esc(tip.replace(/\n/g, ', ')) + '">';
+        r.parts.forEach(function (p, i) { if (p > 0) h += '<span class="g4r-stack__seg g4r-b' + (i + 1) + '" style="flex:' + p + ' 1 0%">' + p + '</span>'; });
         h += '</div><span class="g4r-stack__total">' + r.total + '</span></div>';
       });
       h += '</div>';
-      var legend = spec.series.map(function (s, i) { return '<span class="g4r-legend__item"><span class="g4r-legend__sw b' + (i + 1) + '"></span>' + s + '</span>'; }).join('');
-      return shell(spec, id, h, ['Hạng mục'].concat(spec.series).concat(['Tổng']), spec.rows.map(function (r) { return [r.label].concat(r.parts).concat([r.total]); }), legend);
+      var legend = spec.series.map(function (s, i) { return '<span class="g4r-legend__item"><span class="g4r-legend__sw g4r-b' + (i + 1) + '"></span>' + s + '</span>'; }).join('');
+      return shell(spec, id, h, ['Hạng mục'].concat(spec.series).concat(['Tổng']), spec.rows.map(function (r) { return [r.label].concat(r.parts).concat([r.total]); }), legend, spec.rows.map(function (r) { return r.cls || ''; }));
     }
   };
   /* g4rChart('mã', {type, ...}) ghi vào chỗ gọi (document.write) */
@@ -399,9 +428,23 @@
   /* cổng quyền: vai trò ngoài danh sách được phép thì chuyển sang trạng thái "Không có quyền" */
   var autoDenied = false;
   function gate() {
-    $$('[data-g4r-group]').forEach(function (g) { g.hidden = !$$('.g4r-repcard', g).some(function (c) { return !c.hidden; }); });
+    $$('[data-g4r-group]').forEach(function (g) { g.hidden = !$$('.g4r-repcard, .g4r-favrow', g).some(function (c) { return !c.hidden; }); });
+    var none = $('#rpt-none'); if (none) none.hidden = $$('.g4r-repcard').some(function (c) { return !c.hidden; });
+    var role = document.body.getAttribute('data-role') || 'CH';
+    /* Menu “Cài đặt” (BA-06 câu 1): hiện cho vai trò có ít nhất một màn SYS; đích là màn đầu tiên trong quyền. Shim prototype cho tới khi app.js ROLE_MENU có set:'limited'. */
+    var setm = $('[data-menu="set"]'), fs = firstSys(role);
+    if (setm && fs) {
+      setm.hidden = false; setm.setAttribute('href', fs);
+      if (['QV', 'KT', 'CV', 'QD', 'TK'].indexOf(role) >= 0 && !$('.nav-item__mode', setm)) { var tg = document.createElement('span'); tg.className = 'nav-item__mode'; tg.textContent = 'Danh mục'; setm.appendChild(tg); }
+      if (['QV', 'KT', 'CV', 'QD', 'TK'].indexOf(role) < 0) { var tg2 = $('.nav-item__mode', setm); if (tg2) tg2.remove(); }
+    } else if (setm && !fs) { setm.hidden = true; }
+    /* thanh điều hướng cài đặt chỉ liệt kê màn trong quyền; nhóm rỗng thì ẩn */
+    $$('[data-g4r-roles]').forEach(function (a) { a.hidden = a.getAttribute('data-g4r-roles').split(' ').indexOf(role) < 0; if (a.tagName === 'OPTION') a.disabled = a.hidden; });
+    $$('.g4r-subnav__group').forEach(function (g) { var n = g.nextElementSibling, any = false; while (n && !n.classList.contains('g4r-subnav__group')) { if (!n.hidden) any = true; n = n.nextElementSibling; } g.hidden = !any; });
+    $$('.g4r-subnav__pick optgroup').forEach(function (g) { g.hidden = !$$('option', g).some(function (o) { return !o.hidden; }); });
+    syncLevel();
     if (!CFG.allow.length) return;
-    var role = document.body.getAttribute('data-role') || 'CH', ok = CFG.allow.indexOf(role) >= 0;
+    var ok = CFG.allow.indexOf(role) >= 0;
     var btnDenied = $('[data-state-switch="denied"]'), btnData = $('[data-state-switch="data"]');
     if (!ok && btnDenied) { autoDenied = true; btnDenied.click(); }
     else if (ok && autoDenied && btnData) { autoDenied = false; btnData.click(); }

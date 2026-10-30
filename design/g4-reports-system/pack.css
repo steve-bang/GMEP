@@ -32,7 +32,8 @@ body[data-role="CV"] .g4r-own, body[data-role="QD"] .g4r-own, body[data-role="TH
 .g4r-chart__unit { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .g4r-chart__pane[hidden] { display: none; }
 .g4r-chart__scroll { overflow-x: auto; }
-.g4r-chart__scroll svg { display: block; min-width: 520px; width: 100%; height: auto; }
+/* min-width bằng đúng rộng viewBox (640) nên hệ số thu nhỏ luôn >= 1: chữ trục 12px không bao giờ nhỏ hơn 12px; khung hẹp thì cuộn ngang */
+.g4r-chart__scroll svg { display: block; min-width: 640px; width: 100%; height: auto; }
 .g4r-chart__note { margin: 0; font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-secondary); }
 .g4r-svg-text { font-size: 12px; fill: var(--chart-axis); font-family: inherit; font-variant-numeric: tabular-nums; }
 .g4r-svg-text--strong { fill: var(--color-text-primary); font-weight: 600; }
@@ -46,9 +47,33 @@ body[data-role="CV"] .g4r-own, body[data-role="QD"] .g4r-own, body[data-role="TH
 .g4r-bar:hover, .g4r-bar:focus { opacity: .85; outline: none; }
 .g4r-bar:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .g4r-target { stroke: var(--chart-target); stroke-width: 1.5; stroke-dasharray: 6 4; }
-.s1 { stroke: var(--chart-series-1); } .s2 { stroke: var(--chart-series-2); } .s3 { stroke: var(--chart-series-3); } .s4 { stroke: var(--chart-series-4); } .s5 { stroke: var(--chart-series-5); }
-.f1 { fill: var(--chart-series-1); } .f2 { fill: var(--chart-series-2); } .f3 { fill: var(--chart-series-3); } .f4 { fill: var(--chart-series-4); } .f5 { fill: var(--chart-series-5); }
-.b1 { background: var(--chart-series-1); } .b2 { background: var(--chart-series-2); } .b3 { background: var(--chart-series-3); } .b4 { background: var(--chart-series-4); } .b5 { background: var(--chart-series-5); }
+.g4r-s1 { stroke: var(--chart-series-1); } .g4r-s2 { stroke: var(--chart-series-2); } .g4r-s3 { stroke: var(--chart-series-3); } .g4r-s4 { stroke: var(--chart-series-4); } .g4r-s5 { stroke: var(--chart-series-5); }
+.g4r-f1 { fill: var(--chart-series-1); } .g4r-f2 { fill: var(--chart-series-2); } .g4r-f3 { fill: var(--chart-series-3); } .g4r-f4 { fill: var(--chart-series-4); } .g4r-f5 { fill: var(--chart-series-5); }
+.g4r-b1 { background: var(--chart-series-1); } .g4r-b2 { background: var(--chart-series-2); } .g4r-b3 { background: var(--chart-series-3); } .g4r-b4 { background: var(--chart-series-4); } .g4r-b5 { background: var(--chart-series-5); }
+
+/* Phạm vi: chế độ hợp nhất (CH/QV chọn Tất cả/Nhóm) và theo từng chi nhánh – pack.js gắn body[data-g4r-level] */
+body[data-g4r-level="merged"] .g4r-only-branch { display: none !important; }
+body:not([data-g4r-level="merged"]) .g4r-only-merged { display: none !important; }
+body:not([data-g4r-level="merged"]) .g4r-notq7 { display: none !important; }
+/* Giới hạn theo vai trò */
+body[data-role="KT"] .g4r-notkt, body[data-role="QV"] .g4r-notqv { display: none !important; }
+.g4r-v-kt, .g4r-v-qv { display: none; }
+body[data-role="KT"] .g4r-v-kt, body[data-role="QV"] .g4r-v-qv { display: inline; }
+body[data-role="KT"] .g4r-v-ch, body[data-role="QV"] .g4r-v-ch { display: none; }
+tr.g4r-v-kt, tr.g4r-v-qv { display: none; }
+body[data-role="KT"] tr.g4r-v-kt, body[data-role="QV"] tr.g4r-v-qv { display: table-row; }
+body[data-role="TK"] .g4r-money { display: none !important; }
+.g4r-tk-only { display: none; }
+body[data-role="TK"] .g4r-tk-only { display: flex; }
+body[data-role="CV"] .g4r-notcv { display: none !important; }
+.g4r-cv-only { display: none; }
+body[data-role="CV"] .g4r-cv-only { display: table-row; }
+body[data-role="CV"] .g4r-hide-cv { display: none !important; }
+.g4r-noscript { max-width: 640px; margin: var(--space-8) auto; padding: var(--space-4) var(--space-6); border: 1px solid var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); border-radius: var(--radius-lg); }
+.table .check { min-width: 44px; justify-content: center; }
+@media (pointer: coarse) { .g4r-hbar__row { min-height: 44px; } }
+.g4r-why { font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-secondary); display: block; }
+.g4r-fav .btn { margin-right: var(--space-2); }
 
 .g4r-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .g4r-legend__item { display: inline-flex; align-items: center; gap: var(--space-2); }

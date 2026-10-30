@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="CV" data-nav="appt" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<noscript><p style="padding:16px;background:#fff;color:#111">Prototype cần bật JavaScript để dựng khung ứng dụng và khóa/ẩn theo vai trò. Bản sản phẩm render khung và phân quyền ở máy chủ.</p></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <main class="main" id="main"><div class="main__inner">
@@ -22,7 +23,7 @@
   <section class="card" style="max-width:860px" aria-labelledby="h-apt">
     <div class="card__header"><div class="row row--nowrap"><div class="dialog__icon"><svg class="icon"><use href="#calendar"/></svg></div><div><h1 class="card__title" id="h-apt" style="font-size:var(--font-size-xl)">Tạo lịch hẹn</h1><div class="card__subtitle">Chi nhánh Quận 7 · đặt cho khách đã có hoặc khách mới</div></div></div></div>
     <form class="card__body stack" novalidate onsubmit="return false" data-g2w-vro="saving">
-      <div class="alert alert--warning" data-g2w-vshow="over" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Ngày 03/11/2026 đã đủ công suất (20/20 xe)</span><span>Vẫn đặt được nếu cần. Lịch ghi nhận “vượt công suất” và hiện cảnh báo ở lịch (FR-REC-019). Hoặc chọn ngày khác còn chỗ: 04/11 (12/20), 05/11 (9/20).</span></div></div>
+      <div class="alert alert--warning" data-g2w-vshow="over" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Ngày 03/11/2026 đã đủ công suất (20/20 xe)</span><span>Đặt tới mức tối đa vượt công suất (cấu hình, đề xuất 120%) cần lý do; vượt mức đó cần Quản lý duyệt. Lịch ghi nhận “vượt công suất” và hiện cảnh báo ở lịch (FR-REC-019). Hoặc chọn ngày khác còn chỗ: 04/11 (12/20), 05/11 (9/20).</span></div></div>
       <div class="alert alert--danger" data-g2w-vshow="conflict" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Khung giờ vừa có người khác đặt</span><span>Cố vấn Phan Thanh Tùng kín lịch 10:00 vừa rồi. Chọn khung giờ khác; thông tin bạn nhập vẫn giữ.</span></div></div>
       <div class="alert alert--warning" data-g2w-vshow="error" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Còn 2 ô cần điền</span><span>Biển số xe và khung giờ.</span></div></div>
 

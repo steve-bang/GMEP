@@ -20,7 +20,8 @@
     for (var k in attrs) if (Object.prototype.hasOwnProperty.call(attrs, k)) e.setAttribute(k, attrs[k]);
     if (parent) parent.appendChild(e); return e;
   }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  /* Thoát đủ cho cả nội dung và giá trị thuộc tính. Khi dùng dữ liệu thật: dựng DOM bằng textContent/setAttribute (xem tài liệu, mục rủi ro JS) */
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
   function nice(max) {
     if (!(max > 0)) return { top: 1, step: 0.25 };
     var raw = max / 4, mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), nrm = raw / mag;
@@ -47,9 +48,10 @@
       leg += '<li>' + (cfg.type === 'line' ? '<span class="g1-sw g1-sw--line g1-b' + (i + 1) + (s.dash ? ' g1-sw--dash' : '') + '"></span>' : '<span class="g1-sw g1-b' + (i + 1) + '"></span>') + esc(s.name) + '</li>';
     });
     if (cfg.targets) leg += '<li><span class="g1-sw g1-sw--tick"></span>' + esc(cfg.targets.name) + '</li>';
+    if (cfg.provisional !== undefined) leg += '<li><span class="g1-sw g1-sw--prov"></span>' + esc(cfg.provNote || 'Số tạm (chưa chốt ngày)') + '</li>';
     fig.innerHTML = '<script type="application/json">' + fig._json + '<\/script>' +
       '<div class="g1-chart__head"><div><h3 class="g1-chart__title" id="' + id + '">' + esc(base.title) + '</h3><p class="g1-chart__unit">' + sub + '</p></div>' +
-      '<div class="segmented" role="group" aria-label="Cách xem: ' + esc(base.title) + '"><button class="segmented__item" aria-pressed="true" data-g1-view="chart">Biểu đồ</button><button class="segmented__item" aria-pressed="false" data-g1-view="table">Bảng số liệu</button></div></div>' +
+      '<div class="segmented" role="group" aria-label="Cách xem: ' + esc(base.title) + '"><button class="segmented__item" aria-pressed="true" data-g1-chartview="chart">Biểu đồ</button><button class="segmented__item" aria-pressed="false" data-g1-chartview="table">Bảng số liệu</button></div></div>' +
       '<div class="g1-chart__plot"></div><div class="g1-chart__table" hidden></div><ul class="g1-chart__legend" aria-label="Chú giải">' + leg + '</ul>' +
       (base.foot ? '<p class="g1-chart__foot">' + esc(base.foot) + '</p>' : '');
     fig.setAttribute('aria-labelledby', id);
@@ -62,7 +64,7 @@
     if (cfg.targets) h += '<th scope="col" class="col-num">' + esc(cfg.targets.name) + ' (' + esc(u) + ')</th>';
     var rows = '';
     cfg.labels.forEach(function (l, i) {
-      var sum = 0, r = '<th scope="row">' + esc(l) + '</th>';
+      var sum = 0, r = '<th scope="row">' + esc(l) + (cfg.provisional === i ? ' (số tạm)' : '') + '</th>';
       cfg.series.forEach(function (s) { sum += s.data[i]; r += '<td class="col-num">' + fmt(s.data[i], cfg.dec) + '</td>'; });
       if (tot) r += '<td class="col-num"><strong>' + fmt(sum, cfg.dec) + '</strong></td>';
       if (cfg.targets) r += '<td class="col-num">' + fmt(cfg.targets.data[i], cfg.dec) + '</td>';
@@ -110,9 +112,15 @@
       var k = Math.ceil(n / (narrow ? 4 : 7));
       cfg.labels.forEach(function (l, i) { if (i % k === 0 || i === n - 1 && (n - 1) % k > k / 2) T(X(i), H - 8, l, 'g1-ax', 'middle'); });
       cfg.series.forEach(function (s, si) {
-        var d = s.data.map(function (val, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(val).toFixed(1); }).join(' ');
+        var prov = !s.dash && cfg.provisional === n - 1 && n > 1;       /* điểm cuối là số tạm: đoạn cuối nét chấm, điểm rỗng */
+        var upto = prov ? n - 1 : n;
+        var d = s.data.slice(0, upto).map(function (val, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(val).toFixed(1); }).join(' ');
         var attrs = { class: 'g1-line g1-k' + (si + 1), d: d }; if (s.dash) attrs['stroke-dasharray'] = '7 5';
         svgEl('path', attrs, svg);
+        if (prov) {
+          svgEl('path', { class: 'g1-line g1-k' + (si + 1), 'stroke-dasharray': '2 5', d: 'M' + X(n - 2).toFixed(1) + ' ' + Y(s.data[n - 2]).toFixed(1) + ' L' + X(n - 1).toFixed(1) + ' ' + Y(s.data[n - 1]).toFixed(1) }, svg);
+          svgEl('circle', { class: 'g1-open g1-k' + (si + 1), r: 4.5, cx: X(n - 1), cy: Y(s.data[n - 1]) }, svg);
+        }
       });
       cursor = svgEl('line', { class: 'g1-cursor', x1: 0, x2: 0, y1: mt, y2: mt + ph, visibility: 'hidden' }, svg);
       cfg.series.forEach(function (s, si) { dots.push(svgEl('circle', { class: 'g1-dot g1-f' + (si + 1), r: 5, cx: 0, cy: 0, visibility: 'hidden' }, svg)); });
@@ -138,7 +146,7 @@
         cfg.series.forEach(function (s, si) {
           var val = s.data[i], r = stacked ? R(i, off0, thick, run, run + val) : R(i, off0 + si * thick, thick, 0, val);
           run += val;
-          if (r.w > 0 && r.h > 0) svgEl('rect', { class: 'g1-f' + (si + 1) + (stacked ? ' g1-seg' : ''), x: r.x.toFixed(1), y: r.y.toFixed(1), width: r.w.toFixed(1), height: r.h.toFixed(1), rx: stacked ? 0 : 2 }, svg);
+          if (r.w > 0 && r.h > 0) svgEl('rect', { class: 'g1-f' + (si + 1) + (stacked ? ' g1-seg' : '') + (cfg.provisional === i ? ' g1-prov' : ''), x: r.x.toFixed(1), y: r.y.toFixed(1), width: r.w.toFixed(1), height: r.h.toFixed(1), rx: stacked ? 0 : 2 }, svg);
           if (cfg.valueLabels && !stacked) {
             if (horiz) T(r.x + r.w + 6, r.y + r.h / 2 + 4, fmt(val, cfg.dec), 'g1-val');
             else T(r.x + r.w / 2, r.y - 6, fmt(val, cfg.dec), 'g1-val', 'middle');
@@ -159,16 +167,17 @@
     plot.appendChild(svg);
 
     /* Tooltip + tương tác */
-    var tip = document.createElement('div'); tip.className = 'g1-tip'; tip.setAttribute('role', 'tooltip'); tip.hidden = true; plot.appendChild(tip);
+    var tip = document.createElement('div'); tip.className = 'g1-tip'; tip.setAttribute('aria-hidden', 'true'); tip.hidden = true; plot.appendChild(tip);
     var sr = document.createElement('span'); sr.className = 'sr-only'; sr.setAttribute('aria-live', 'polite'); plot.appendChild(sr);
     var active = -1;
     function hide() {
       active = -1; tip.hidden = true; hl.setAttribute('visibility', 'hidden');
       if (cursor) cursor.setAttribute('visibility', 'hidden'); dots.forEach(function (d) { d.setAttribute('visibility', 'hidden'); });
     }
-    function show(i) {
+    function show(i, kb) {
       i = Math.max(0, Math.min(n - 1, i)); if (i === active) return; active = i;
-      var html = '<b>' + esc(cfg.labels[i]) + '</b>', speak = cfg.labels[i] + ': ', sum = 0;
+      var lab = cfg.labels[i] + (cfg.provisional === i ? ' (số tạm)' : '');
+      var html = '<b>' + esc(lab) + '</b>', speak = lab + ': ', sum = 0;
       cfg.series.forEach(function (s, si) {
         sum += s.data[i];
         html += '<span><span><i class="g1-b' + (si + 1) + '"></i>' + esc(s.name) + '</span><strong>' + fmt(s.data[i], cfg.dec) + ' ' + esc(cfg.unit) + '</strong></span>';
@@ -176,7 +185,7 @@
       });
       if (stacked) { html += '<span><span>Tổng</span><strong>' + fmt(sum, cfg.dec) + ' ' + esc(cfg.unit) + '</strong></span>'; speak += 'tổng ' + fmt(sum, cfg.dec) + '. '; }
       if (cfg.targets) { html += '<span><span>' + esc(cfg.targets.name) + '</span><strong>' + fmt(cfg.targets.data[i], cfg.dec) + ' ' + esc(cfg.unit) + '</strong></span>'; speak += cfg.targets.name + ' ' + fmt(cfg.targets.data[i], cfg.dec) + '.'; }
-      tip.innerHTML = html; tip.hidden = false; sr.textContent = speak;
+      tip.innerHTML = html; tip.hidden = false; if (kb) sr.textContent = speak;   /* chỉ đọc khi dùng bàn phím, tránh ồn khi rê chuột; bảng số liệu là đường chính cho trình đọc màn hình */
       var tw = tip.offsetWidth, th = tip.offsetHeight, lx, ly;
       if (cfg.type === 'line') {
         var cx = X(i); cursor.setAttribute('x1', cx); cursor.setAttribute('x2', cx); cursor.setAttribute('visibility', 'visible');
@@ -199,7 +208,7 @@
     svg.addEventListener('pointermove', function (e) { var i = idxAt(e); if (i >= 0 && i < n) show(i); else hide(); });
     svg.addEventListener('pointerdown', function (e) { var i = idxAt(e); if (i >= 0 && i < n) { active = -1; show(i); } });
     svg.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && document.activeElement !== svg) hide(); });
-    svg.addEventListener('focus', function () { show(active < 0 ? 0 : active); });
+    svg.addEventListener('focus', function () { show(active < 0 ? 0 : active, true); });
     svg.addEventListener('blur', hide);
     svg.addEventListener('keydown', function (e) {
       var cur = active < 0 ? 0 : active, nx = null;
@@ -207,7 +216,7 @@
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') nx = cur - 1;
       else if (e.key === 'Home') nx = 0; else if (e.key === 'End') nx = n - 1;
       else if (e.key === 'Escape') { hide(); return; }
-      if (nx !== null) { e.preventDefault(); active = -1; show(nx); }
+      if (nx !== null) { e.preventDefault(); active = -1; show(nx, true); }
     });
   }
   function initChart(fig) {
@@ -222,9 +231,11 @@
   G1.initCharts = initCharts;
 
   document.addEventListener('click', function (e) {
-    var v = e.target.closest('[data-g1-view]'); if (!v) return;
-    var fig = v.closest('[data-g1-chart]'), chart = v.getAttribute('data-g1-view') === 'chart';
-    $$('[data-g1-view]', fig).forEach(function (x) { x.setAttribute('aria-pressed', String(x === v)); });
+    var how = e.target.closest('[data-g1-how]');
+    if (how) { var pn = document.getElementById(how.getAttribute('data-g1-how')); var open = how.getAttribute('aria-expanded') !== 'true'; how.setAttribute('aria-expanded', String(open)); if (pn) pn.hidden = !open; return; }
+    var v = e.target.closest('[data-g1-chartview]'); if (!v) return;
+    var fig = v.closest('[data-g1-chart]'), chart = v.getAttribute('data-g1-chartview') === 'chart';
+    $$('[data-g1-chartview]', fig).forEach(function (x) { x.setAttribute('aria-pressed', String(x === v)); });
     $('.g1-chart__plot', fig).hidden = !chart; $('.g1-chart__table', fig).hidden = chart;
     if (chart) draw(fig);
   });
@@ -264,7 +275,8 @@
     }
     if (e.target.closest('[data-g1-apply]')) {
       var f2 = e.target.closest('.g1-filter'), a = parseD($('#g1-from', f2).value), z = parseD($('#g1-to', f2).value), er = $('[data-g1-cerr]', f2);
-      var msg = !a || !z ? 'Nhập ngày theo dd/MM/yyyy, ví dụ 01/10/2026.' : a > z ? 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.' : '';
+      var TODAY = new Date(2026, 9, 30);
+      var msg = !a || !z ? 'Nhập ngày theo dd/MM/yyyy, ví dụ 01/10/2026.' : a > z ? 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.' : z > TODAY ? 'Không chọn được ngày trong tương lai. Chọn đến hết 30/10/2026.' : (z - a) / 86400000 + 1 > 366 ? 'Khoảng ngày tối đa 366 ngày (để báo cáo toàn chuỗi vẫn nhanh). Chọn khoảng ngắn hơn.' : '';
       er.hidden = !msg; er.innerHTML = msg ? ic('alert-triangle') + msg : '';
       $('#g1-from', f2).setAttribute('aria-invalid', String(!!msg)); $('#g1-to', f2).setAttribute('aria-invalid', String(!!msg));
       if (!msg) { setPeriod('custom', $('#g1-from', f2).value + ' – ' + $('#g1-to', f2).value); toast('info', 'Đã áp dụng khoảng ngày', 'Prototype: số KPI là số mẫu cố định.'); }
@@ -280,7 +292,12 @@
   });
 
   /* ---------- Trạng thái thẻ (loading / rỗng / lỗi từng thẻ / không quyền / cũ / mất mạng) ---------- */
-  var STATES = [['normal', 'Bình thường'], ['loading', 'Đang tải'], ['empty', 'Trống'], ['error', 'Lỗi một số thẻ'], ['denied', 'Thiếu quyền'], ['stale', 'Dữ liệu cũ'], ['offline', 'Mất kết nối']];
+  /* Chỉ hiện nút xem thử khi dashboard có thẻ minh họa trạng thái đó (tránh “0 khối đã ẩn”) */
+  var STATES = [['normal', 'Bình thường'], ['loading', 'Đang tải']];
+  if ($('[data-g1-empty]')) STATES.push(['empty', 'Trống']);
+  if ($('[data-g1-err]')) STATES.push(['error', 'Lỗi một số thẻ']);
+  if ($('[data-g1-deny]')) STATES.push(['denied', 'Thiếu quyền']);
+  STATES.push(['stale', 'Dữ liệu cũ'], ['offline', 'Mất kết nối']);
   if ($('[data-g1-multi]')) STATES.push(['pilot', 'Pilot 1 chi nhánh']);
   $$('[data-g1-proto]').forEach(function (h) {
     h.className = 'g1-proto';
@@ -302,15 +319,33 @@
     if (c.classList.contains('kpi')) return '<span class="kpi__label">' + esc(title(c)) + '</span><span class="kpi__value">0</span><span class="kpi__meta">' + esc(p[0] || 'Chưa có dữ liệu trong kỳ') + '</span>';
     return '<div class="state"><div class="state__icon state__icon--brand">' + ic('inbox', 'icon--lg') + '</div><div class="state__title">' + esc(p[0] || 'Chưa có dữ liệu trong kỳ này') + '</div><p class="state__text">' + esc(p[1] || 'Khi có phát sinh, dữ liệu sẽ hiện ở đây.') + '</p></div>';
   }
+  /* Thẻ KPI là <a>: khi chứa nút (Thử lại) phải đổi thành <div> để không lồng <button> trong <a>; khôi phục lại <a> khi tải lại */
+  function retag(c, tag, href) {
+    var n = document.createElement(tag);
+    Array.prototype.forEach.call(c.attributes, function (a) { if (a.name !== 'href') n.setAttribute(a.name, a.value); });
+    if (href) n.setAttribute('href', href);
+    n.innerHTML = c.innerHTML; n._g1orig = c._g1orig; n._g1cls = c._g1cls; n._g1href = tag === 'DIV' ? c.getAttribute('href') : undefined;
+    c.parentNode.replaceChild(n, c); return n;
+  }
   function restore(c) {
     if (c._g1orig === undefined) return;
     c.innerHTML = c._g1orig; c.className = c._g1cls; c.hidden = false; c._g1orig = undefined;
+    if (c._g1href) c = retag(c, 'A', c._g1href);
     if (c.hasAttribute('data-g1-chart')) initChart(c); else initCharts(c);
   }
-  function setCard(c, html, cls) { if (c._g1orig === undefined) { c._g1orig = c.innerHTML; c._g1cls = c.className; } c.innerHTML = html; if (cls) c.classList.add(cls); }
+  function setCard(c, html, cls) {
+    if (c.tagName === 'A') c = retag(c, 'DIV');
+    if (c._g1orig === undefined) { c._g1orig = c.innerHTML; c._g1cls = c.className; }
+    c.innerHTML = html; if (cls) c.classList.add(cls); return c;
+  }
+  function chip(c, text, cls) {
+    var t = c.querySelector('.kpi__scope, .card__subtitle, .g1-chart__unit'); if (!t) return;
+    t.insertAdjacentHTML('beforeend', ' <span class="tag ' + cls + ' g1-chip-state">' + esc(text) + '</span>'); c.classList.add('g1-stale');
+  }
   function applyState(name) {
     $$('[data-g1-card]').forEach(restore);
-    $$('.g1-statebar').forEach(function (x) { x.remove(); });
+    $$('.g1-statebar, .g1-chip-state').forEach(function (x) { x.remove(); });
+    $$('.g1-stale').forEach(function (x) { x.classList.remove('g1-stale'); });
     var nb = $('.net-banner'); if (nb) nb.classList.toggle('is-visible', name === 'offline');
     var first = $('[data-g1-card]'), anchor = first ? first.closest('.g1-kpis') || first.parentNode : null;
     var hidden = [];
@@ -318,7 +353,9 @@
       if (name === 'loading') setCard(c, skeleton(c));
       else if (name === 'error' && c.hasAttribute('data-g1-err')) setCard(c, errMark(c));
       else if (name === 'empty' && c.hasAttribute('data-g1-empty')) setCard(c, emptyMark(c));
-      else if (name === 'denied' && c.hasAttribute('data-g1-deny')) { hidden.push(title(c)); setCard(c, c.innerHTML); c.hidden = true; }
+      else if (name === 'denied' && c.hasAttribute('data-g1-deny')) { hidden.push(title(c)); c = setCard(c, c.innerHTML); c.hidden = true; }
+      else if (name === 'stale') chip(c, 'Cập nhật 07:58', 'tag--warning');
+      else if (name === 'offline') chip(c, 'Số lúc 09:14', 'tag--neutral');
     });
     var msg = '';
     if (name === 'pilot') {

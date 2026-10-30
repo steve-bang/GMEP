@@ -36,7 +36,7 @@ Cột “Trạng thái đã thiết kế” liệt kê các trạng thái bật 
 | G2-REC-01 | Tiếp nhận xe (check-in) | `g2-rec-01.html` | W | CV (S), QL | P1 | 5 bước (chưa/đang/xong/lỗi), xe đã có, xe mới, km thấp hơn lần trước, ảnh đang tải/lỗi, lưu nháp, mất mạng, hủy hồ sơ (NH), đang tải xe, lỗi tra cứu |
 | G2-REC-02 | Danh sách lệnh sửa chữa | `g2-rec-02.html` | C | M2: CV (S), QL (D), còn lại X; TH (Xn) | P1 | Có dữ liệu (ba badge Lệnh/Thanh toán/Hóa đơn tách), tải, trống, trống do lọc, lỗi, không quyền, mobile card |
 | G2-REC-03 | Bảng điều phối chi nhánh | `g2-rec-03.html` | K | CV, QL, QĐ; CH, QV (X); TH (Xn) | P1 | Có dữ liệu, tải, trống, lỗi, không quyền, kéo thả có điều kiện, chuyển bằng nút (bàn phím/cảm ứng), chặn kèm lý do |
-| **G2-REC-04** | **Chi tiết lệnh sửa chữa (chuẩn số 1)** | `g2-rec-04.html` | D | Như REC-02 | P1 | Đang sửa, tạm dừng chờ phụ tùng, hoàn tất (chỉ đọc), ngày đã chốt sổ, khách DN vượt hạn mức nợ, đã hủy; tải, không tìm thấy, không quyền, lỗi; phát sinh chờ duyệt; vai trò Thợ |
+| **G2-REC-04** | **Chi tiết lệnh sửa chữa (chuẩn số 1)** | `g2-rec-04.html` | D | Như REC-02; tab Thanh toán ẩn với TH, QĐ; tab Hóa đơn ẩn với TH, QĐ, CV | P1 | 8 biến thể: Đang sửa, Tạm dừng chờ phụ tùng, **Chờ QC**, **Sẵn sàng bàn giao** (xuất hóa đơn bật, danh sách kiểm), Hoàn tất (chỉ đọc), Ngày đã chốt sổ, Khách DN vượt hạn mức nợ, Đã hủy; tải, không tìm thấy, không quyền, lỗi; phát sinh chờ duyệt; vai trò Thợ |
 | G2-REC-05 | Phân thợ và tải việc | `g2-rec-05.html` | K/C | QĐ (S); QL (D); CV (X) | P1 | Có dữ liệu, tải, trống, lỗi, không quyền, quá tải, đổi thợ (NH khi đang làm) |
 | G2-REC-06 | Hủy lệnh và hoàn kho | `g2-rec-06.html` | Dlg/W | CV (đề xuất); QL (duyệt) | P1 | Soạn yêu cầu, chờ duyệt, QL duyệt, bị từ chối, lỗi gửi; nút gửi khóa tới khi đủ phiếu hoàn kho |
 | G2-REC-07 | Bảng đồng sơn theo công đoạn | `g2-rec-07.html` | K | QĐ, CV (S); QL; CH, QV (X) | P2+ | Có dữ liệu, tải, trống, lỗi, không quyền, trễ dự kiến, chưa có người phụ trách |
@@ -183,7 +183,7 @@ Tablet/mobile: sidebar xuống dưới nội dung chính; hàng hạng mục chu
 | Giảm chuyển động | Theo `base.css` |
 | Chưa kiểm | Screen reader thật; thiết bị cảm ứng thật; roving tabindex cho lịch tuần; kéo thả bằng bàn phím chỉ qua nút thay thế |
 
-## 7. Giả định
+## 7. Giả định (bản 0.1, đã đối chiếu BA ở mục 9; mục nào BA đổi thì theo mục 9)
 
 1. Mã chứng từ theo `ba-decisions.md` câu 11. Mã **yêu cầu chủ dữ liệu** `DS-Q7-2610-00003` và **yêu cầu đặt lịch** `DL-Q7-2610-00019` do designer tạm đặt theo cùng quy tắc, chưa có trong bảng tiền tố của BA.
 2. Stepper tiến trình lệnh có 5 bước (Đã duyệt → Đang sửa chữa → Chờ QC → Sẵn sàng bàn giao → Hoàn tất), Tạm dừng và Đã hủy là rẽ nhánh.
@@ -198,7 +198,7 @@ Tablet/mobile: sidebar xuống dưới nội dung chính; hàng hạng mục chu
 11. Trạng thái “nhắc” (Chưa nhắc, Đã nhắc, Đã đặt hẹn, Bỏ qua) dùng `tag`, không phải badge của 5 đối tượng.
 12. Vai trò TH xem được “hạng mục của mình” trong lệnh và biển số/tên khách, không xem hạng mục của thợ khác.
 
-## 8. Câu hỏi cho BA
+## 8. Câu hỏi cho BA (bản 0.1, BA đã trả lời cả 16 câu trong `ba-answers-02.md`; câu còn mở ở mục 12)
 
 1. **Chuyển trạng thái lệnh**: “Đã duyệt → Đang sửa chữa” có tự động khi thợ bắt đầu hạng mục đầu, hay do cố vấn bấm? Điều kiện chính xác để “Đang sửa chữa → Chờ QC” (mọi hạng mục Hoàn thành, trừ phát sinh chưa duyệt đã đúng chưa?).
 2. **Hủy lệnh sau khi xuất kho**: các lựa chọn xử lý tiền đã thu (hoàn lại, giữ làm cọc cho lệnh khác, trừ phí…) và hạn mức duyệt hoàn tiền; ai duyệt khi QL là người đề xuất.

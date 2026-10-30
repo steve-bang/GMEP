@@ -61,7 +61,8 @@
       <div class="card__footer" style="flex-wrap:wrap">
         <button class="btn btn--danger-outline" data-open="dlg-reject" data-vg="s" data-v-off="done stale">Từ chối</button>
         <button class="btn btn--secondary" data-open="dlg-escalate" data-vg="s" data-v-off="done stale" data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền mới chuyển cấp.">Chuyển cấp</button>
-        <button class="btn btn--primary btn--lg" id="btn-appr" data-open="dlg-approve" data-vg="s" data-v-off="done stale" data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền mới duyệt." data-g4f-online>Duyệt</button>
+        <p class="g4f-why" id="appr-why" role="status" style="flex-basis:100%;margin:0"></p>
+        <button class="btn btn--primary btn--lg" id="btn-appr" data-open="dlg-approve" data-vg="s" data-v-off="done stale" data-g4f-online>Duyệt</button>
       </div>
     </section>
 
@@ -107,7 +108,20 @@ window.G4F_PAGE = {
 </script>
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
-<script>G4F.applyVar('t', 'disc'); G4F.applyVar('s', 'pending');
-document.addEventListener('g4f:var', function (e) { if (e.detail.group === 's') G4F.refresh(); });</script>
+<script>
+(function () {
+  var P = { disc: 'Nguyễn Hoàng Yến', refund: 'Phạm Thị Lan', spend: 'Võ Minh Quân', inv: 'Đặng Thu Hà' }, type = 'disc';
+  /* Quyền duyệt theo (loại, vai trò) và người lập ≠ người duyệt; cấp duyệt thật lấy từ G4-APR-03 */
+  function gate() {
+    var r = G4F.canApprove(type, document.body.getAttribute('data-role'), P[type]);
+    G4F.setEnabled(document.getElementById('btn-appr'), r.ok); G4F.setEnabled(document.querySelector('[data-open="dlg-reject"]'), r.ok);
+    document.getElementById('appr-why').textContent = r.ok ? '' : 'Nút Duyệt và Từ chối bị khóa: ' + r.why;
+  }
+  document.addEventListener('g4f:var', function (e) { if (e.detail.group === 't') { type = e.detail.v; } gate(); });
+  document.addEventListener('g4f:ktt', gate);
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(gate, 5); });
+  G4F.applyVar('t', 'disc'); G4F.applyVar('s', 'pending');
+})();
+</script>
 </body>
 </html>

@@ -50,7 +50,9 @@
 window.G4F_PAGE = {
   code: 'G4-ACC-15', title: 'Lãi lỗ theo chi nhánh và nguồn doanh thu', desc: 'Doanh thu, giá vốn và lãi gộp quản trị của từng chi nhánh và toàn chuỗi.',
   menu: 'fin', role: 'CH', allow: ['CH', 'QV', 'QL', 'KT'], updated: '09:15', time: 'tháng 10/2026 (số tạm)',
-  states: ['data', 'loading', 'error', 'denied']
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'chart-no-axes-combined', title: 'Chưa có dữ liệu trong khoảng thời gian này', text: 'Chưa có lệnh hoàn tất trong kỳ đã chọn, hoặc chưa có ngày nào được khóa nên chưa có số chính thức. Số tạm hiện khi có lệnh hoàn tất.' },
+  filteredText: 'Không có chi nhánh nào khớp nguồn doanh thu “Công” trong tháng 10/2026.'
 };
 </script>
 <script src="pack.js"></script>

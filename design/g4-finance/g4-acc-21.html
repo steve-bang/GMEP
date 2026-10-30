@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-21 · Khoản nhận trước · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-acc-02.html">Danh sách phiếu thu</a></div>
+
+  <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Khoản nhận trước là khoản phải trả khách, gắn khách, không gắn lệnh nào</span><span>Sinh ra khi thu vượt (chuyển khoản, thẻ dư hoặc khách để lại; tiền thối của tiền mặt không tính). Xử lý bằng hai cách: <strong>bù vào lệnh sau của cùng khách</strong> (do Thu ngân/Kế toán chọn, không tự động) hoặc <strong>hoàn lại</strong> qua <a href="g4-acc-07.html">G4-ACC-07</a> (cần duyệt như hoàn tiền). Không chuyển giữa các khách khác nhau (FR-ACC-015, FR-ACC-022).</span></div></div>
+
+  <section aria-label="Tổng hợp"><div class="grid grid--3">
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Tổng khoản nhận trước</span><span class="kpi__value">1,55<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Chính xác: 1.550.000 ₫ · 3 khách</span><span class="kpi__scope">Quận 7 · đến 30/10/2026 09:15</span></div>
+    <div class="card kpi"><span class="kpi__label">Có thể bù vào lệnh còn nợ</span><span class="kpi__value">1,5<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">2 khách đang có lệnh còn nợ</span></div>
+    <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Tồn lâu nhất</span><span class="kpi__value">10<span class="kpi__unit">ngày</span></span><span class="kpi__meta">Nguyễn Văn An · nên xử lý trước khi khóa kỳ</span></div>
+  </div></section>
+
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm khách</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Tên khách, MST, biển số (có/không dấu)"></div></div>
+    <div class="field"><label class="field__label" for="f1">Tình trạng</label><select id="f1" class="select"><option>Tất cả</option><option>Có lệnh còn nợ để bù</option><option>Không có lệnh để bù</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-scroll"><table class="table">
+      <caption class="sr-only">Khoản nhận trước theo khách</caption>
+      <thead><tr><th>Khách</th><th>Từ phiếu thu</th><th class="col-nowrap">Ngày thu</th><th>Lệnh còn nợ của khách</th><th class="col-num" aria-sort="descending"><button class="th-sort">Khoản nhận trước<svg class="icon"><use href="#arrow-down"/></svg></button></th><th class="col-actions" style="width:240px">Xử lý</th></tr></thead>
+      <tbody>
+        <tr><td class="cell-primary">Công ty CP Du lịch Sao Mai<span class="cell-sub">Khách doanh nghiệp</span></td><td class="code"><a href="g4-acc-03.html">PT-Q7-2610-00911</a></td><td class="num col-nowrap">26/10/2026</td><td><span class="code">RO-Q7-2610-00103</span> · còn nợ 2.800.000 ₫</td><td class="col-num">1.200.000 ₫</td><td class="col-actions"><div class="row" style="justify-content:flex-end"><button class="btn btn--primary btn--sm" data-open="dlg-off" data-cust="Công ty CP Du lịch Sao Mai" data-amt="1200000" data-ro="RO-Q7-2610-00103" data-owe="2800000" data-g4f-need="KT TN" data-g4f-why="Thu ngân và Kế toán bù khoản nhận trước.">Bù vào lệnh</button><a class="btn btn--secondary btn--sm" href="g4-acc-07.html" data-g4f-need="KT TN" data-g4f-why="Thu ngân và Kế toán đề xuất hoàn.">Hoàn lại</a></div></td></tr>
+        <tr><td class="cell-primary">Nguyễn Văn An<span class="cell-sub">Khách lẻ</span></td><td class="code"><a href="g4-acc-03.html">PT-Q7-2610-00890</a></td><td class="num col-nowrap">20/10/2026 <span class="tag tag--warning">10 ngày</span></td><td><span class="code">RO-Q7-2610-00131</span> · còn nợ 5.650.000 ₫</td><td class="col-num">300.000 ₫</td><td class="col-actions"><div class="row" style="justify-content:flex-end"><button class="btn btn--primary btn--sm" data-open="dlg-off" data-cust="Nguyễn Văn An" data-amt="300000" data-ro="RO-Q7-2610-00131" data-owe="5650000" data-g4f-need="KT TN" data-g4f-why="Thu ngân và Kế toán bù khoản nhận trước.">Bù vào lệnh</button><a class="btn btn--secondary btn--sm" href="g4-acc-07.html" data-g4f-need="KT TN" data-g4f-why="Thu ngân và Kế toán đề xuất hoàn.">Hoàn lại</a></div></td></tr>
+        <tr><td class="cell-primary">Lê Quốc Huy<span class="cell-sub">Khách lẻ</span></td><td class="code"><a href="g4-acc-03.html">PT-Q7-2610-00866</a></td><td class="num col-nowrap">17/10/2026</td><td class="g4f-muted">Không có lệnh còn nợ</td><td class="col-num">50.000 ₫</td><td class="col-actions"><div class="row" style="justify-content:flex-end"><span class="tooltip-host"><button class="btn btn--primary btn--sm" disabled aria-describedby="tt-no">Bù vào lệnh</button><span class="tooltip" id="tt-no" role="tooltip">Khách không có lệnh còn nợ để bù. Hoàn lại hoặc giữ cho lệnh sau.</span></span><a class="btn btn--secondary btn--sm" href="g4-acc-07.html" data-g4f-need="KT TN" data-g4f-why="Thu ngân và Kế toán đề xuất hoàn.">Hoàn lại</a></div></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="4">Tổng khoản nhận trước</td><td class="col-num">1.550.000 ₫</td><td></td></tr></tfoot>
+    </table></div>
+  </div>
+  <div class="record-list record-list--responsive">
+    <div class="record"><div class="record__top"><div class="record__title">Công ty CP Du lịch Sao Mai</div><strong class="num">1.200.000 ₫</strong></div><div class="record__meta"><span class="code">PT-Q7-2610-00911</span><span>Lệnh còn nợ RO-Q7-2610-00103</span></div><div class="record__foot"><button class="btn btn--primary btn--sm" data-open="dlg-off" data-cust="Công ty CP Du lịch Sao Mai" data-amt="1200000" data-ro="RO-Q7-2610-00103" data-owe="2800000">Bù vào lệnh</button><a class="btn btn--secondary btn--sm" href="g4-acc-07.html">Hoàn lại</a></div></div>
+    <div class="record"><div class="record__top"><div class="record__title">Nguyễn Văn An</div><strong class="num">300.000 ₫</strong></div><div class="record__meta"><span class="code">PT-Q7-2610-00890</span><span class="tag tag--warning">10 ngày</span></div><div class="record__foot"><button class="btn btn--primary btn--sm" data-open="dlg-off" data-cust="Nguyễn Văn An" data-amt="300000" data-ro="RO-Q7-2610-00131" data-owe="5650000">Bù vào lệnh</button><a class="btn btn--secondary btn--sm" href="g4-acc-07.html">Hoàn lại</a></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-off" role="alertdialog" aria-modal="true" aria-labelledby="of-t"><div class="dialog dialog--md" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="of-t">Bù khoản nhận trước vào lệnh</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <dl class="g4f-sum"><div><dt>Khách</dt><dd id="of-c"></dd></div><div><dt>Khoản nhận trước hiện có</dt><dd id="of-a"></dd></div><div><dt>Lệnh còn nợ (cùng khách)</dt><dd><span class="code" id="of-r"></span> · <span id="of-o"></span></dd></div></dl>
+    <div class="field"><label class="field__label" for="of-v">Số tiền bù<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="of-v" class="input input--num" data-money inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div><span class="field__error" id="of-e" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Không bù quá khoản nhận trước hoặc quá số còn nợ của lệnh.</span></div>
+    <ul class="impact-list"><li>Phiếu bù liên kết khoản nhận trước với lệnh; không sửa phiếu thu gốc.</li><li>Công nợ của lệnh giảm đúng số bù; chỉ bù trong cùng khách.</li></ul>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã kiểm tra đúng khách và đúng lệnh.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="of-ok" data-g4f-gate-btn data-g4f-submit data-busy="Đang bù…" data-done-toast="success|Đã bù khoản nhận trước|Công nợ của lệnh giảm; ghi nhật ký." disabled>Bù</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-21', title: 'Khoản nhận trước', desc: 'Phần thu vượt của khách: bù vào lệnh sau của cùng khách hoặc hoàn lại có duyệt.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'TN', 'QL', 'CH', 'QV'], updated: '09:15', time: 'đến 30/10/2026',
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'wallet', title: 'Không có khoản nhận trước', text: 'Khi thu vượt số còn phải thu, phần dư ghi thành khoản nhận trước và hiện ở đây.' },
+  filteredText: 'Không có khách nào khớp tình trạng “Không có lệnh để bù” và từ khóa đã nhập.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, MAXV = 0;
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-cust]'); if (!b) return;
+    var a = +b.getAttribute('data-amt'), o = +b.getAttribute('data-owe'); MAXV = Math.min(a, o);
+    $('#of-c').textContent = b.getAttribute('data-cust'); $('#of-a').textContent = G4F.fmt(a); $('#of-r').textContent = b.getAttribute('data-ro'); $('#of-o').textContent = 'còn nợ ' + G4F.fmt(o);
+    $('#of-v').value = String(MAXV).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); upd(); });
+  function upd() { var v = G4F.num($('#of-v').value), bad = v === 0 || v > MAXV; $('#of-e').hidden = !(v > MAXV); $('#of-v').classList.toggle('is-error', v > MAXV); $('#of-ok').textContent = v ? 'Bù ' + G4F.fmt(v) : 'Bù'; G4F.setEnabled($('#of-ok'), !bad); }
+  document.addEventListener('input', function (e) { if (e.target.id === 'of-v') upd(); });
+})();
+</script>
+</body>
+</html>

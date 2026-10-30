@@ -11,9 +11,9 @@
 </head>
 <body>
 <div id="g4f-body">
-  <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Cách xem prototype</span><span>Mở từng màn hình bên dưới bằng trình duyệt (file://). Ở góc phải trên, menu tài khoản có mục “Xem thử theo vai trò” (lựa chọn được nhớ trong phiên). Thanh “Xem thử trạng thái” trên mỗi màn hình chuyển giữa có dữ liệu, đang tải, trống, lỗi, không quyền; nhiều màn hình có thêm bộ “Xem thử tình huống”. Hạn mức, thuế suất, tỷ lệ trong mock là giá trị minh họa, có nhãn riêng.</span></div></div>
+  <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Cách xem prototype</span><span>Mở từng màn hình bên dưới bằng trình duyệt (file://). Ở góc phải trên, menu tài khoản có mục “Xem thử theo vai trò” (lựa chọn được nhớ trong phiên). Thanh “Xem thử trạng thái” trên mỗi màn hình chuyển giữa có dữ liệu, đang tải, trống, lỗi, không quyền; nhiều màn hình có thêm bộ “Xem thử tình huống”. Menu tài khoản còn có công tắc giả lập “Kế toán có cờ Kế toán trưởng” (người lập vẫn không tự duyệt). Hạn mức, thuế suất, tỷ lệ trong mock là giá trị minh họa, có nhãn riêng.</span></div></div>
 
-  <section class="card"><div class="card__header"><div><h2 class="card__title">Tài chính: thu chi, quỹ, công nợ, giá vốn (G4-ACC)</h2><div class="card__subtitle">20 màn hình · tài liệu: docs/ui-ux/05-finance-invoice.md</div></div></div>
+  <section class="card"><div class="card__header"><div><h2 class="card__title">Tài chính: thu chi, quỹ, công nợ, giá vốn (G4-ACC)</h2><div class="card__subtitle">21 màn hình (ACC-21 mới) · tài liệu: docs/ui-ux/05-finance-invoice.md</div></div></div>
     <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Danh mục màn hình ACC</caption><thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Vai trò chính</th><th>Ưu tiên</th></tr></thead><tbody>
       <tr><td class="code"><a href="g4-acc-01.html">G4-ACC-01</a></td><td>Thu tiền theo lệnh</td><td>E</td><td>TN (S); QL (D); CV, KT, CH, QV (X)</td><td><span class="tag tag--success">P1 (BA)</span></td></tr>
       <tr><td class="code"><a href="g4-acc-02.html">G4-ACC-02</a></td><td>Danh sách phiếu thu / thanh toán</td><td>C</td><td>TN (S); KT, QL, CH, QV (X)</td><td><span class="tag tag--success">P1 (BA)</span></td></tr>
@@ -34,6 +34,7 @@
       <tr><td class="code"><a href="g4-acc-17.html">G4-ACC-17</a></td><td>Khóa kỳ kế toán</td><td>E</td><td>KT (S); CH (D mở lại)</td><td><span class="tag tag--warning">P3</span></td></tr>
       <tr><td class="code"><a href="g4-acc-18.html">G4-ACC-18</a></td><td>Kết xuất dữ liệu sang phần mềm kế toán</td><td>E</td><td>KT (S)</td><td><span class="tag tag--warning">P3</span></td></tr>
       <tr><td class="code"><a href="g4-acc-19.html">G4-ACC-19</a></td><td>Phân bổ chi phí chung toàn chuỗi</td><td>E</td><td>KT (S); CH (D)</td><td><span class="tag tag--warning">P3 (Could)</span></td></tr>
+      <tr><td class="code"><a href="g4-acc-21.html">G4-ACC-21</a></td><td>Khoản nhận trước (mới, theo BA câu 5)</td><td>C</td><td>KT (S); TN bù/đề xuất hoàn; QL, CH, QV (X)</td><td><span class="tag tag--info">P2</span></td></tr>
       <tr><td class="code"><a href="g4-acc-20.html">G4-ACC-20</a></td><td>Sơ đồ tài khoản và định khoản tự động</td><td>S</td><td>KT (S); CH (D)</td><td><span class="tag tag--warning">P3</span></td></tr>
     </tbody></table></div></section>
 
@@ -49,13 +50,13 @@
       <tr><td class="code"><a href="g4-ein-01.html">G4-EIN-01</a></td><td>Danh sách hóa đơn</td><td>C</td><td>TN, KT (S); CH, QV, QL (X)</td><td><span class="tag tag--success">P1</span></td></tr>
       <tr><td class="code"><a href="g4-ein-02.html">G4-EIN-02</a></td><td>Phát hành hóa đơn từ lệnh (idempotent)</td><td>E (Dlg)</td><td>TN, KT (S)</td><td><span class="tag tag--success">P1</span></td></tr>
       <tr><td class="code"><a href="g4-ein-03.html">G4-EIN-03</a></td><td>Chi tiết hóa đơn</td><td>D</td><td>TN, KT (S); CH, QV, QL (X)</td><td><span class="tag tag--success">P1</span></td></tr>
-      <tr><td class="code"><a href="g4-ein-04.html">G4-EIN-04</a></td><td>Hóa đơn điều chỉnh / thay thế / hủy</td><td>E</td><td>KT (S); KTT (D)</td><td><span class="tag tag--warning">P3</span></td></tr>
+      <tr><td class="code"><a href="g4-ein-04.html">G4-EIN-04</a></td><td>Hóa đơn điều chỉnh / thay thế / hủy</td><td>E</td><td>KT lập (S); KTT hoặc CH duyệt; TN chỉ báo kế toán</td><td><span class="tag tag--success">P1 mức tối thiểu (BA đề xuất)</span></td></tr>
       <tr><td class="code"><a href="g4-ein-05.html">G4-EIN-05</a></td><td>Lệnh hoàn tất chưa có hóa đơn</td><td>C</td><td>TN, KT (S); QL, CH (X)</td><td><span class="tag tag--success">P1</span></td></tr>
       <tr><td class="code"><a href="g4-ein-06.html">G4-EIN-06</a></td><td>Hàng chờ lỗi và thử lại phát hành</td><td>C</td><td>KT (S); AD (X)</td><td><span class="tag tag--success">P1</span></td></tr>
       <tr><td class="code"><a href="g4-ein-07.html">G4-EIN-07</a></td><td>Tình trạng kết nối nhà cung cấp hóa đơn</td><td>B</td><td>KT (X); AD (S)</td><td><span class="tag tag--success">P1</span></td></tr>
       <tr><td class="code"><a href="g4-ein-08.html">G4-EIN-08</a></td><td>Cấu hình đơn vị phát hành, ký hiệu, loại hóa đơn</td><td>S</td><td>KT, AD (S); CH (D)</td><td><span class="tag tag--success">P1</span></td></tr>
     </tbody></table></div></section>
-  <p class="t-body-sm text-secondary" style="margin:0">Tổng: 31 màn hình. Ký hiệu template theo screen-inventory §0.2; P1 (BA) = BA đề xuất vào Phase 1 (khoảng trống G-01).</p>
+  <p class="t-body-sm text-secondary" style="margin:0">Tổng: 32 màn hình (ACC 01..21, APR 01..03, EIN 01..08). Ký hiệu template theo screen-inventory §0.2; P1 (BA) = BA đề xuất vào Phase 1 (khoảng trống G-01).</p>
 </div>
 
 <script>

@@ -79,11 +79,11 @@
         <div class="menu-sep" data-show-roles="CH QV"></div>
         <div class="menu-label">Từng chi nhánh</div>
         <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Quận 1" data-show-roles="CH QV">Chi nhánh Quận 1</button>
-        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Quận 7" data-show-roles="CH QV QL KT">Chi nhánh Quận 7</button>
-        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Thủ Đức" data-show-roles="CH QV QL KT">Chi nhánh Thủ Đức</button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Quận 7" data-show-roles="CH QV QL KT MH NS">Chi nhánh Quận 7</button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Thủ Đức" data-show-roles="CH QV QL KT MH NS">Chi nhánh Thủ Đức</button>
         <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Biên Hòa" data-show-roles="CH QV">Chi nhánh Biên Hòa</button>
         <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Đà Nẵng" data-show-roles="CH">Chi nhánh Đà Nẵng</button>
-        <button class="menu-item menu-item--indent" role="menuitemradio" aria-disabled="true" data-level="branch" data-show-roles="QL KT"><svg class="icon"><use href="#lock"/></svg>Chi nhánh Biên Hòa<span class="menu-item__hint">Chưa được cấp quyền</span></button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-disabled="true" data-level="branch" data-show-roles="QL KT MH NS"><svg class="icon"><use href="#lock"/></svg>Chi nhánh Biên Hòa<span class="menu-item__hint">Chưa được cấp quyền</span></button>
         <div class="legal-filter" data-legal hidden>
           <div class="field"><label class="field__label" for="legal">Pháp nhân</label><select id="legal" class="select"><option>Tất cả pháp nhân được xem</option><option>Công ty TNHH Garage A</option><option>Công ty TNHH Garage B</option></select><span class="field__hint">Báo cáo chính thức không cộng gộp số liệu giữa các pháp nhân.</span></div>
         </div>
@@ -136,6 +136,8 @@
         <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="TK" data-role-name="Thủ kho" aria-checked="false">Thủ kho</button>
         <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="TN" data-role-name="Thu ngân" aria-checked="false">Thu ngân</button>
         <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="KT" data-role-name="Kế toán" aria-checked="false">Kế toán</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="MH" data-role-name="Mua hàng" aria-checked="false">Mua hàng</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="NS" data-role-name="Nhân sự" aria-checked="false">Nhân sự</button>
         <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="AD" data-role-name="Quản trị hệ thống" aria-checked="false">Quản trị hệ thống</button>
       </div>
     </div>
@@ -202,22 +204,22 @@
       </div>
 
       <section class="card" aria-labelledby="h-role">
-        <div class="card__header"><div><h2 class="card__title" id="h-role">Vai trò → menu (đề xuất, theo FRD §2)</h2><div class="card__subtitle">Đổi vai trò ở menu tài khoản (góc phải) để xem sidebar thay đổi. Ghi chú trên mục menu: “Chỉ xem” (X), “Của tôi” (Xn), “Hệ thống” (AD). “✓” = tạo/sửa/duyệt. Khóa vai trò kỹ thuật: CH, QV, QL, CV, QD (nhãn QĐ), TH, TK, TN, KT, AD.</div></div></div>
+        <div class="card__header"><div><h2 class="card__title" id="h-role">Vai trò → menu (đề xuất, theo FRD §2)</h2><div class="card__subtitle">Đổi vai trò ở menu tài khoản (góc phải) để xem sidebar thay đổi. Ghi chú trên mục menu: “Chỉ xem” (X), “Của tôi” (Xn), “Hệ thống” (AD), “Danh mục” (chỉ các màn cài đặt trong quyền). “✓” = tạo/sửa/duyệt. Khóa vai trò kỹ thuật: CH, QV, QL, CV, QD (nhãn QĐ), TH, TK, TN, KT, MH (Mua hàng), NS (Nhân sự), AD. MH và NS không có dashboard riêng: trang đầu là Mua hàng / Nhân sự.</div></div></div>
         <div class="table-scroll"><table class="table table--compact role-table">
-          <thead><tr><th>Menu</th><th>CH</th><th>QV</th><th>QL</th><th>CV</th><th>QĐ</th><th>TH</th><th>TK</th><th>TN</th><th>KT</th><th>AD</th></tr></thead>
+          <thead><tr><th>Menu</th><th>CH</th><th>QV</th><th>QL</th><th>CV</th><th>QĐ</th><th>TH</th><th>TK</th><th>TN</th><th>KT</th><th>MH</th><th>NS</th><th>AD</th></tr></thead>
           <tbody>
-            <tr><td>Tổng quan (dashboard theo vai trò)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Của tôi</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Hệ thống</td></tr>
-            <tr><td>Phiếu sửa chữa (báo giá, lệnh)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Lịch hẹn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
-            <tr><td>Khách hàng &amp; Xe</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="no">–</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Kho phụ tùng</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Mua hàng</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Nhân sự &amp; Công thợ</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="no">–</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Tài chính (thu tiền, sổ quỹ, công nợ)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td></tr>
-            <tr><td>Hóa đơn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td></tr>
-            <tr><td>Báo cáo</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Cài đặt (người dùng, phân quyền, cấu hình)</td><td class="yes">✓ (duyệt)</td><td class="no">–</td><td class="yes">✓ (chi nhánh mình)</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td></tr>
-            <tr><td>Phạm vi chi nhánh</td><td>Tất cả + Nhóm + Chi nhánh</td><td>Các nhóm được giao</td><td>Chi nhánh được gán (chọn)</td><td colspan="5">Một chi nhánh (hiện tên, không có bộ chọn)</td><td>Chi nhánh được gán (chọn)</td><td>Không gắn chi nhánh</td></tr>
+            <tr><td>Tổng quan (dashboard theo vai trò)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Của tôi</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="yes">Hệ thống</td></tr>
+            <tr><td>Phiếu sửa chữa (báo giá, lệnh)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Lịch hẹn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Khách hàng &amp; Xe</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="no">–</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Kho phụ tùng</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Mua hàng</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Nhân sự &amp; Công thợ</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="no">–</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td></tr>
+            <tr><td>Tài chính (thu tiền, sổ quỹ, công nợ)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Hóa đơn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Báo cáo</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="no">–</td></tr>
+            <tr><td>Cài đặt (người dùng, phân quyền, cấu hình)</td><td class="yes">✓ (duyệt)</td><td class="yes">Danh mục</td><td class="yes">✓ (chi nhánh mình)</td><td class="yes">Danh mục</td><td class="yes">Danh mục</td><td class="no">–</td><td class="yes">Danh mục</td><td class="no">–</td><td class="yes">Danh mục</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td></tr>
+            <tr><td>Phạm vi chi nhánh</td><td>Tất cả + Nhóm + Chi nhánh</td><td>Các nhóm được giao</td><td>Chi nhánh được gán (chọn)</td><td colspan="5">Một chi nhánh (hiện tên, không có bộ chọn)</td><td>Chi nhánh được gán (chọn)</td><td>Chi nhánh được gán (chọn)</td><td>Chi nhánh được gán (chọn)</td><td>Không gắn chi nhánh</td></tr>
           </tbody></table></div>
         <div class="card__body" style="padding-top:12px"><p class="t-body-sm text-secondary">Bảng theo FRD §2 (đã đối chiếu, BA review F-06). Mục bị ẩn hoàn toàn khi vai trò không có quyền nào; hành động bị cấm trong mục có quyền để disabled kèm lý do. Quản trị hệ thống chỉ thấy tổng quan sức khỏe hệ thống, không dữ liệu nghiệp vụ.</p></div>
       </section>
@@ -230,6 +232,8 @@
     <a class="bottom-nav__item" href="#" data-menu="ro"><svg class="icon"><use href="#clipboard-list"/></svg>Phiếu</a>
     <a class="bottom-nav__item" href="#" data-menu="appt"><svg class="icon"><use href="#calendar"/></svg>Lịch hẹn</a>
     <a class="bottom-nav__item" href="#" data-menu="inv"><svg class="icon"><use href="#warehouse"/></svg>Kho</a>
+    <a class="bottom-nav__item" href="#" data-menu="pur" data-bn-extra hidden><svg class="icon"><use href="#shopping-cart"/></svg>Mua hàng</a>
+    <a class="bottom-nav__item" href="#" data-menu="hr" data-bn-extra hidden><svg class="icon"><use href="#id-card"/></svg>Nhân sự</a>
     <button class="bottom-nav__item" data-nav-open aria-label="Mở toàn bộ menu"><svg class="icon"><use href="#menu"/></svg>Thêm</button>
   </nav>
 </div>

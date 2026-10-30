@@ -1,10 +1,10 @@
 # UI/UX Gói 5: Tài chính và hóa đơn (G4-ACC, G4-APR, G4-EIN)
 
-Phiên bản 0.1 · 30/10/2026 · Designer · Trạng thái: đã dựng đủ 31/31 màn hình, chờ BA review. Prototype: `design/g4-finance/` (mở `index.html` bằng trình duyệt, `file://`). Class riêng có tiền tố `g4f-`. Nguồn: `design-system.md`, `00-foundation.md`, `ba-decisions.md`, `screen-inventory.md` §8.1 đến §8.3, FRD (ACC, EIN, SYS-004), Journey (WF-05, WF-06, WF-09).
+Phiên bản 0.2 · 30/10/2026 · Designer · Trạng thái: đã dựng đủ 32/32 màn hình (31 màn hình ban đầu + G4-ACC-21 mới) và đã xử lý 22 finding của BA (`review-05-finance-invoice-ba.md`) theo 17 quyết định (`ba-answers-05.md`, BA đề xuất, chờ chủ dự án xác nhận). Xem bảng “Finding → đã xử lý ở đâu” ở §10. Prototype: `design/g4-finance/` (mở `index.html` bằng trình duyệt, `file://`). Class riêng có tiền tố `g4f-`. Nguồn: `design-system.md`, `00-foundation.md`, `ba-decisions.md`, `screen-inventory.md` §8.1 đến §8.3, FRD (ACC, EIN, SYS-004), Journey (WF-05, WF-06, WF-09).
 
 ## 1. Phạm vi và kế hoạch đã thực hiện
 
-Gói gồm 31 màn hình: G4-ACC-01..20 (thu tiền, sổ quỹ, chi, hoàn tiền, chốt ca/ngày/kỳ, công nợ phải thu/phải trả có tuổi nợ, giá vốn, lãi lỗ, đối soát ngân hàng, kết xuất, phân bổ chi phí chung, sơ đồ tài khoản), G4-APR-01..03 (hàng chờ phê duyệt, chi tiết, cấu hình hạn mức), G4-EIN-01..08 (hóa đơn điện tử). Trọng tâm thiết kế là **phòng ngừa lỗi khi xử lý tiền và hóa đơn**: xác nhận thao tác tiền, bút toán đảo thay vì xóa, ghi lý do, nhật ký, khóa chống bấm đúp.
+Gói gồm 32 màn hình: G4-ACC-01..21 (ACC-21 “Khoản nhận trước” thêm theo BA câu 5; thu tiền, sổ quỹ, chi, hoàn tiền, chốt ca/ngày/kỳ, công nợ phải thu/phải trả có tuổi nợ, giá vốn, lãi lỗ, đối soát ngân hàng, kết xuất, phân bổ chi phí chung, sơ đồ tài khoản), G4-APR-01..03 (hàng chờ phê duyệt, chi tiết, cấu hình hạn mức), G4-EIN-01..08 (hóa đơn điện tử). Trọng tâm thiết kế là **phòng ngừa lỗi khi xử lý tiền và hóa đơn**: xác nhận thao tác tiền, bút toán đảo thay vì xóa, ghi lý do, nhật ký, khóa chống bấm đúp.
 
 Thứ tự đã làm: (1) hạ tầng dùng chung `pack.js`/`pack.css`; (2) luồng Phase 1 sống còn ACC-01/02/03/04/08/09, APR-01/02/03, EIN-01 đến 08; (3) công nợ, giá vốn, lãi lỗ, hoàn tiền, đề xuất chi (P2/P3); (4) ngân hàng, khóa kỳ, kết xuất, phân bổ, sơ đồ tài khoản; (5) tài liệu, index, tự review.
 
@@ -12,10 +12,10 @@ Thứ tự đã làm: (1) hạ tầng dùng chung `pack.js`/`pack.css`; (2) lu�
 
 | File | Nội dung |
 | --- | --- |
-| `design/g4-finance/index.html` | Danh mục 31 màn hình (mã, tên, link, template, vai trò, ưu tiên) |
-| `design/g4-finance/g4-acc-01.html` … `g4-ein-08.html` | 31 màn hình, tên file = mã màn hình viết thường |
+| `design/g4-finance/index.html` | Danh mục 32 màn hình (mã, tên, link, template, vai trò, ưu tiên) |
+| `design/g4-finance/g4-acc-01.html` … `g4-ein-08.html` | 32 màn hình, tên file = mã màn hình viết thường |
 | `design/g4-finance/pack.css` | Style bổ sung, class `g4f-*`, chỉ dùng token, không hex |
-| `design/g4-finance/pack.js` | Dựng Application Shell chuẩn (sidebar, topbar, branch selector, scope banner, bottom nav), thanh “Xem thử trạng thái”, khóa nút theo vai trò và theo mất kết nối, khóa chống bấm đúp, cổng xác nhận, wizard, biến thể tình huống, nâng ô ngày thành Date Picker. Không sửa `design/assets/*` |
+| `design/g4-finance/pack.js` | Dựng Application Shell chuẩn (sidebar, topbar, branch selector, scope banner, bottom nav), thanh “Xem thử trạng thái”, khóa nút theo vai trò và theo mất kết nối, khóa chống bấm đúp, cổng xác nhận, wizard, biến thể tình huống, nâng ô ngày thành Date Picker. Từ v0.2: một hàm duy nhất quyết định nút có bật không (`G4F.setEnabled`/`refreshBtn`: hợp lệ theo trang AND biến thể AND cổng xác nhận AND NOT khóa vai trò AND NOT mất mạng AND NOT đã gửi), và `G4F.canApprove(loại, vai trò, người lập)` cho quyền duyệt. Không sửa `design/assets/*` |
 
 Mỗi trang khai báo `window.G4F_PAGE` (mã, tên, vai trò mặc định, danh sách vai trò được xem, các trạng thái) rồi nạp `pack.js` trước `../assets/app.js`. Nội dung màn hình nằm trong `#g4f-body`. Đây là cách làm cho prototype; khi dev chọn stack, lớp shell và bộ chuyển trạng thái được thay bằng component thật, nội dung từng màn hình giữ nguyên.
 
@@ -29,35 +29,36 @@ Template theo `screen-inventory.md` §0.2. Trạng thái thiết kế: các tr�
 
 | Mã | Tên | File | Template | Vai trò (FRD M8/M9/M10) | Trạng thái đặc thù đã thiết kế |
 | --- | --- | --- | --- | --- | --- |
-| G4-ACC-01 | Thu tiền theo lệnh | g4-acc-01.html | E | TN (S); QL (D); CV, KT, CH, QV (X) | QC chưa đạt chặn thu; ngày khóa chỉ đọc; thu một phần/đủ/vượt (khoản nhận trước); tiền cọc; nháp; mất mạng |
+| G4-ACC-01 | Thu tiền theo lệnh | g4-acc-01.html | E | TN (S); QL (D); CV, KT, CH, QV (X) | QC chưa đạt chặn thu; ngày khóa chỉ đọc; thu một phần/đủ/vượt (khoản nhận trước + chip khách có khoản nhận trước); “khách đưa/tiền thối”; tiền cọc có xác nhận mức 2; nháp; mất mạng. Badge hiện tại không đổi trước khi ghi, trạng thái dự kiến là tag ở khối tóm tắt |
 | G4-ACC-02 | Danh sách phiếu thu | g4-acc-02.html | C | TN (S); KT, QL, CH, QV, CV (X) | Dòng bút toán đảo và phiếu bị đảo; xuất file cần quyền xuất; card list mobile |
-| G4-ACC-03 | Chi tiết thanh toán và phân bổ | g4-acc-03.html | D | Như ACC-02; KT phân bổ | Chuỗi 5 đối tượng; phân bổ nhiều-nhiều (drawer); đảo bút toán (guard); in A5/nhiệt 80 mm; ngày khóa chỉ đọc |
-| G4-ACC-04 | Sổ quỹ tiền mặt | g4-acc-04.html | C | TN (S); QL (D); KT, CH, QV (X) | Số dư chạy; phiếu chi (dialog, cảnh báo vượt hạn mức, chặn chi quá số dư); ngày khóa; dòng đảo |
+| G4-ACC-03 | Chi tiết thanh toán và phân bổ | g4-acc-03.html | D | Như ACC-02; KT phân bổ | Chuỗi 5 đối tượng; Phase 1: “Phân bổ lại nhiều-nhiều” hiển thị nhưng khóa kèm lý do “có từ giai đoạn 2”, Phase 2: phân bổ (drawer); đảo bút toán (guard); in A5/nhiệt 80 mm; ngày khóa chỉ đọc |
+| G4-ACC-04 | Sổ quỹ tiền mặt | g4-acc-04.html | C | TN (S); QL (D); KT, CH, QV (X) | Số dư chạy; phiếu chi (xác nhận mức 2, cảnh báo vượt hạn mức, chặn cứng chi quá số dư kèm hai lối thoát: chuyển khoản hoặc nạp quỹ, nút “Nạp quỹ” khóa tới giai đoạn 2); phiếu thiếu chứng từ gốc; ngày khóa; dòng đảo |
 | G4-ACC-05 | Đề xuất chi / phiếu chi | g4-acc-05.html | E | KT, TN, QL (S); QL/QV/CH (D) | Nháp, chờ duyệt, đã duyệt, đã chi/chờ đối soát; nút chi khóa kèm lý do; đảo phiếu chi |
 | G4-ACC-06 | Danh sách đề xuất chi | g4-acc-06.html | C | Như ACC-05 | Chip lọc nhanh; phiếu đã đảo; thiếu chứng từ gốc |
-| G4-ACC-07 | Hoàn tiền cho khách | g4-acc-07.html | E | TN, KT (S); QL (D); CH/QV (D vượt hạn mức) | Chưa/đã có hóa đơn (nhắc điều chỉnh); vượt số đã thu; vượt hạn mức |
-| G4-ACC-08 | Chốt ca | g4-acc-08.html | W | TN (S); QL (D chênh lệch) | 4 bước; đếm tiền theo mệnh giá; chênh lệch bắt buộc giải trình; ca đã chốt |
-| G4-ACC-09 | Chốt ngày chi nhánh | g4-acc-09.html | W | QL (D); TN, KT (X); CH mở lại | Bị chặn / đủ điều kiện / đã khóa; mở lại ngày (CH) |
+| G4-ACC-07 | Hoàn tiền cho khách | g4-acc-07.html | E | TN, KT (S); QL (D); CH/QV (D vượt hạn mức) | Chưa/đã có hóa đơn (nhắc điều chỉnh); vượt số đã thu; vượt hạn mức; trạng thái Thanh toán dự kiến theo thu ròng/tổng phải thu (Hoàn tiền / Đã thanh toán / Thanh toán một phần) kèm tag “Đã hoàn một phần X ₫” |
+| G4-ACC-08 | Chốt ca | g4-acc-08.html | W | TN (S); QL (D chênh lệch) | 4 bước; đếm tiền theo mệnh giá; chênh lệch bắt buộc giải trình; ca đã chốt; KT, CH, QV xem chỉ đọc; ca mở khi nhận quỹ, một ca mở mỗi quầy |
+| G4-ACC-09 | Chốt ngày chi nhánh | g4-acc-09.html | W | QL (D); TN, KT (X); đề nghị mở lại: KT, QL; duyệt: CH | Bị chặn (chênh lệch chưa duyệt, ca chưa chốt) / đủ điều kiện / đã khóa / đang được mở lại (có hạn, tự khóa lại); đề nghị mở lại có mật khẩu và MFA |
 | G4-ACC-10 | Công nợ phải thu (tuổi nợ) | g4-acc-10.html | C/B | KT (S); CH, QV, QL (X) | Thanh xếp chồng tuổi nợ + bảng thay thế; nhắc nợ hàng loạt (Zalo/SMS “Chưa kích hoạt”); quá hạn; vượt hạn mức |
-| G4-ACC-11 | Chi tiết công nợ khách | g4-acc-11.html | D | KT (S); CV, QL, CH (X) | Trong/vượt hạn mức công nợ; thu nợ; bảng kê; đề xuất nới hạn mức; SĐT/email che (`.pii`, KT cần lý do) |
+| G4-ACC-11 | Chi tiết công nợ khách | g4-acc-11.html | D | KT (S); QL, CH, QV (X); **không có CV** (CV chỉ thấy số dư/hạn mức/cảnh báo trên lệnh và hồ sơ khách) | Trong/vượt hạn mức công nợ; thu nợ; bảng kê; nới hạn mức tạm thời có hạn và cần duyệt khi bàn giao; khoản nhận trước của khách; SĐT/email che (`.pii`, KT cần lý do) |
 | G4-ACC-12 | Công nợ phải trả | g4-acc-12.html | C/B | KT (S); CH, QV, QL (X) | Tuổi nợ phải trả; lên lịch thanh toán |
-| G4-ACC-13 | Chi tiết công nợ nhà cung cấp | g4-acc-13.html | D | KT (S) | Mỗi lần chi gắn phiếu nhập; chi lệch 3 bên bị khóa; chi vượt hạn mức đi qua đề xuất chi |
+| G4-ACC-13 | Chi tiết công nợ nhà cung cấp | g4-acc-13.html | D | KT (S) | Mỗi lần chi gắn phiếu nhập; chênh lệch 3 bên chặn chi thường, có “Chi kèm ngoại lệ” (lý do bắt buộc, luôn qua đề xuất chi và duyệt); chi vượt hạn mức đi qua đề xuất chi; nút ghi đúng theo số tiền hợp lệ |
 | G4-ACC-14 | Giá vốn và lãi gộp theo lệnh | g4-acc-14.html | C/D | KT (S); CH, QV, QL (X) | Banner “phương pháp chưa chốt”; công thức (drawer); đổi phương pháp (guard); lệnh lãi thấp |
 | G4-ACC-15 | Lãi lỗ theo chi nhánh và nguồn | g4-acc-15.html | B/C (M) | KT (S); CH, QV, QL (X) | Số tạm; chi nhánh lỗ; tổng chi nhánh = toàn chuỗi (tính lại theo vai trò); card mobile |
-| G4-ACC-16 | Giao dịch ngân hàng và đối soát | g4-acc-16.html | C | KT (S) | Ghép hai khung; lệch số tiền cần ghi chú; bỏ ghép (guard); định dạng sao kê chưa chốt |
-| G4-ACC-17 | Khóa kỳ kế toán | g4-acc-17.html | E | KT (S); CH (D mở lại) | Kỳ chưa kết thúc / chưa đủ điều kiện / đủ / đã khóa; mở lại kỳ (guard + mật khẩu) |
+| G4-ACC-16 | Giao dịch ngân hàng và đối soát | g4-acc-16.html | C | KT (S) | Ghép hai khung; lệch số tiền cần loại lý do (Phí chuyển khoản, Làm tròn, Khác) và ghi chú, lưu thành chênh lệch đối soát; bỏ ghép (guard + khóa chống bấm đúp); định dạng sao kê chưa chốt |
+| G4-ACC-17 | Khóa kỳ kế toán | g4-acc-17.html | E | KT (S); CH (D mở lại) | Kỳ chưa kết thúc / chưa đủ điều kiện (ngày chưa khóa, yêu cầu phê duyệt đang chờ, kỳ trước chưa khóa) / đủ / đã khóa; đề nghị mở lại kỳ (KT, QL đề nghị; CH duyệt; mật khẩu + MFA; mở có hạn rồi tự khóa) |
+| G4-ACC-21 | Khoản nhận trước (mới) | g4-acc-21.html | C | KT (S); TN bù/đề xuất hoàn; QL, CH, QV (X) | Bù vào lệnh còn nợ của cùng khách (xác nhận mức 2); hoàn lại qua ACC-07; khách không có lệnh để bù (khóa kèm lý do); P2 |
 | G4-ACC-18 | Kết xuất sang phần mềm kế toán | g4-acc-18.html | E | KT (S) | Chưa chọn định dạng (khóa); kỳ đã kết xuất (cảnh báo trùng); xem trước Nợ = Có |
 | G4-ACC-19 | Phân bổ chi phí chung | g4-acc-19.html | E | KT (S); CH (D) | Tiêu chí cấu hình, tính lại tức thì; kỳ khóa chỉ xem; chạy lại (guard) |
 | G4-ACC-20 | Sơ đồ tài khoản | g4-acc-20.html | S | KT (S); CH (D) | Cân đối Nợ = Có; ngày hiệu lực; đổi sơ đồ khi đã có bút toán (guard) |
-| G4-APR-01 | Hàng chờ phê duyệt | g4-apr-01.html | C (M) | CH, QV, QL, KT (D); người đề xuất xem của mình | 3 tab; duyệt hàng loạt chỉ cho mục đủ điều kiện; quá hạn; drawer chi tiết; card mobile |
+| G4-APR-01 | Hàng chờ phê duyệt | g4-apr-01.html | C (M) | CH, QV, QL, KT (D); người đề xuất xem của mình | 3 tab; duyệt hàng loạt chỉ cho mục đủ điều kiện và **cùng một loại** (ô chọn loại khác khóa kèm lý do); duyệt/từ chối/chuyển cấp theo (loại yêu cầu × vai trò) và người lập ≠ người duyệt; xác nhận mức 2 và khóa chống bấm đúp; từ chối bắt buộc lý do; quá hạn; drawer; card mobile |
 | G4-APR-02 | Chi tiết yêu cầu phê duyệt | g4-apr-02.html | D/Dlg (M) | Như APR-01 | 4 loại (giảm giá, hoàn tiền, chi, hóa đơn thay thế); đã được người khác duyệt; bản ghi gốc đã đổi |
 | G4-APR-03 | Cấu hình hạn mức và ma trận | g4-apr-03.html | S | CH (D); AD (S kỹ thuật) | “Chưa ban hành”; chế độ xem/sửa; ngày hiệu lực; tác động lên yêu cầu đang chờ |
-| G4-EIN-01 | Danh sách hóa đơn | g4-ein-01.html | C | TN, KT (S); CH, QV, QL (X) | Đã xuất/điều chỉnh/hủy; chỉ báo `sync` (đang gửi, lỗi, chờ truy vấn); chưa kích hoạt |
+| G4-EIN-01 | Danh sách hóa đơn | g4-ein-01.html | C | TN, KT (S); CH, QV, QL (X) | Đã xuất/Điều chỉnh/Thay thế/Hủy; hóa đơn gốc giữ “Đã xuất” + tag “Đã được điều chỉnh bởi…” / “Bị thay thế bởi…” (gạch ngang), hóa đơn mới mang badge theo loại; chỉ báo `sync`; chưa kích hoạt |
 | G4-EIN-02 | Phát hành hóa đơn từ lệnh | g4-ein-02.html | E (Dlg) | TN, KT (S) | Đủ điều kiện / thiếu / đang gửi / timeout / đã có hóa đơn / chưa kích hoạt; mã chống trùng |
-| G4-EIN-03 | Chi tiết hóa đơn | g4-ein-03.html | D | TN, KT (S); CH, QV, QL (X) | Đã xuất, chờ duyệt thay thế, gửi khách lỗi, đã hủy (chỉ đọc); in A4; Zalo/SMS “Chưa kích hoạt” |
-| G4-EIN-04 | Điều chỉnh / thay thế / hủy | g4-ein-04.html | E | KT (S); KTT (D) | Lập mới / chờ duyệt (khóa form) / bị từ chối; guard |
+| G4-EIN-03 | Chi tiết hóa đơn | g4-ein-03.html | D | TN, KT (S); CH, QV, QL (X) | Đã xuất, chờ duyệt thay thế, đã bị thay thế, gửi khách lỗi, đã hủy (chỉ đọc); in A4; Zalo/SMS “Chưa kích hoạt”; Thu ngân có nút “Báo kế toán hóa đơn này có sai” (không tạo yêu cầu); mã chống trùng chỉ KT/AD thấy |
+| G4-EIN-04 | Điều chỉnh / thay thế / hủy | g4-ein-04.html | E | KT lập (S); duyệt: KT có cờ Kế toán trưởng (không phải người lập) hoặc CH | Lập mới / chờ duyệt (khóa form) / bị từ chối; guard; P1 mức tối thiểu (BA đề xuất) |
 | G4-EIN-05 | Lệnh hoàn tất chưa có hóa đơn | g4-ein-05.html | C | TN, KT (S); QL, CH (X) | Tuổi, lý do; “Khách không lấy hóa đơn” khóa vì chưa xác nhận quy tắc |
-| G4-EIN-06 | Hàng chờ lỗi và thử lại | g4-ein-06.html | C | KT (S); AD (X) | Lỗi dữ liệu (phải sửa trước), từ chối, timeout; “Thử lại” = truy vấn trước; hủy yêu cầu (guard) |
+| G4-EIN-06 | Hàng chờ lỗi và thử lại | g4-ein-06.html | C | KT (S); CH, QV, QL (X); **AD không xem** (chẩn đoán ở EIN-07) | Lỗi dữ liệu (phải sửa trước), từ chối, timeout; mã yêu cầu `YH-…`; “Thử lại” = truy vấn trước; hủy yêu cầu: truy vấn lần cuối rồi mới hủy, guard và khóa chống bấm đúp |
 | G4-EIN-07 | Tình trạng kết nối nhà cung cấp | g4-ein-07.html | B | KT (X); AD (S) | **Chưa kích hoạt (mặc định)**, đã kết nối (môi trường thử), mất kết nối; đổi sang môi trường thật (guard) |
 | G4-EIN-08 | Cấu hình đơn vị phát hành | g4-ein-08.html | S | KT, AD (S); CH (D) | Ngày hiệu lực; quy tắc `[Cần xác nhận]` mặc định “Chưa chốt”; cột Pháp nhân tự hiện |
 

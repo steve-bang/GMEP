@@ -221,7 +221,7 @@
     approve: '<span class="tag tag--warning">Chờ khách duyệt (phát sinh)</span><span class="t-caption text-tertiary">Thuộc tính duyệt đi kèm “Chưa làm”, không phải trạng thái thứ 6</span>',
     overdue: '<span class="tag tag--danger">Quá hạn</span><span class="t-caption text-tertiary">Cờ công nợ, không phải trạng thái</span>',
     sync: '<span class="sync"><svg class="icon icon--sm spin"><use href="#loader"/></svg>Đang gửi nhà cung cấp…</span><span class="sync sync--error"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lỗi phát hành – thử lại</span><span class="sync sync--wait"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ truy vấn lại</span>',
-    inv: '<span class="tag tag--info">Đang về 10</span><span class="t-caption text-tertiary">Chip phụ, không đổi badge chính</span>'
+    inv: '<span class="tag tag--info">Đang vận chuyển 10</span><span class="t-caption text-tertiary">Chip phụ, không đổi badge chính</span>'
   };
   document.getElementById('statusMap').innerHTML = groups.map(function (g) {
     return '<div class="map-group"><h3 style="margin-top:0">' + g[0] + '</h3><div class="row">' + g[1].map(function (s) {

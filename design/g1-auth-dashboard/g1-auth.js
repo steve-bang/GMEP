@@ -23,6 +23,7 @@
     $$('[data-loading-in]').forEach(function (el) { var on = inList(el, 'data-loading-in', v); el.classList.toggle('is-loading', on); if (on) el.setAttribute('aria-busy', 'true'); else el.removeAttribute('aria-busy'); });
     $$('.g1-proto [data-g1-view]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-g1-view') === v)); });
     $$('[data-countdown]').forEach(function (c) { c._left = +c.getAttribute('data-countdown'); paintCd(c); });
+    var fi = $('[data-focus-in~="' + v + '"]'); if (fi && fi.offsetParent !== null) setTimeout(function () { fi.focus(); }, 0);
     var live = $('[data-live-view]'); if (live) { var on = $('[data-g1-view="' + v + '"]'); live.textContent = on ? 'Đang xem trạng thái: ' + on.textContent : ''; }
   }
   $$('[data-g1-views]').forEach(function (h) {
@@ -41,8 +42,9 @@
   function fieldErr(inp, msg) {
     var id = inp.id, er = document.getElementById(id + '-err');
     if (!er) return;
-    if (msg) { er.hidden = false; er.innerHTML = ic('alert-triangle') + '<span>' + msg + '</span>'; inp.setAttribute('aria-invalid', 'true'); inp.setAttribute('aria-describedby', id + '-err'); }
-    else { er.hidden = true; er.innerHTML = ''; inp.removeAttribute('aria-invalid'); }
+    if (inp._d0 === undefined) inp._d0 = inp.getAttribute('aria-describedby') || '';
+    if (msg) { er.hidden = false; er.innerHTML = ic('alert-triangle') + '<span>' + msg + '</span>'; inp.setAttribute('aria-invalid', 'true'); inp.setAttribute('aria-describedby', (inp._d0 + ' ' + id + '-err').trim()); }
+    else { er.hidden = true; er.innerHTML = ''; inp.removeAttribute('aria-invalid'); if (inp._d0) inp.setAttribute('aria-describedby', inp._d0); else inp.removeAttribute('aria-describedby'); }
   }
   function validate(inp) {
     var rules = (inp.getAttribute('data-rule') || '').split('|'), v = inp.value.trim(), msg = '';
@@ -186,6 +188,30 @@
     var lk = e.target.closest('[data-branch-card][aria-disabled="true"]'); if (lk) toast('info', 'Chi nhánh chỉ xem', 'Chi nhánh này đang khóa sổ hoặc bạn chưa được cấp quyền thao tác. Liên hệ quản lý để được hỗ trợ.');
   });
 
+  /* PIN tạm → đặt PIN mới (AUT-10) và mã ghép thiết bị */
+  document.addEventListener('click', function (e) {
+    var s = e.target.closest('[data-setpin-save]');
+    if (s) {
+      var a = $('#np1').value, c = $('#np2').value, er = $('#np-err'), msg = '';
+      if (!/^\d{6}$/.test(a)) msg = 'PIN gồm đúng 6 số. Ví dụ: 4 8 2 0 1 5.';
+      else if (/^(\d)\1{5}$/.test(a) || '01234567890'.indexOf(a) >= 0 || '09876543210'.indexOf(a) >= 0) msg = 'PIN này dễ đoán (dãy lặp hoặc liên tiếp như 111111, 123456). Chọn 6 số khác.';
+      else if (a !== c) msg = 'Hai PIN chưa giống nhau. Nhập lại PIN ở ô thứ hai.';
+      er.hidden = !msg; er.innerHTML = msg ? ic('alert-triangle') + '<span>' + msg + '</span>' : '';
+      if (msg) { $('#np1').setAttribute('aria-invalid', 'true'); $('#np1').focus(); return; }
+      toast('success', 'Đã đặt PIN mới', 'PIN mới dùng được ngay. PIN tạm không còn hiệu lực.'); setTimeout(function () { location.href = 'g1-dsh-07.html'; }, 700);
+    }
+    var p = e.target.closest('[data-pair-save]');
+    if (p) {
+      var code = $('#pair').value.replace(/\s/g, ''), pe = $('#pair-err');
+      var pm = code.length !== 8 ? 'Mã ghép gồm 8 ký tự, hiệu lực 10 phút. Nhờ quản lý hoặc quản trị hệ thống tạo mã mới nếu đã quá hạn.' : '';
+      pe.hidden = !pm; pe.innerHTML = pm ? ic('alert-triangle') + '<span>' + pm + '</span>' : '';
+      if (pm) { $('#pair').focus(); return; }
+      toast('success', 'Đã đăng ký thiết bị xưởng', 'Thiết bị gắn với Chi nhánh Quận 7.'); setView('default');
+    }
+  });
+
   var q = /[?&]state=([a-z0-9-]+)/.exec(location.search);
   setView(q && $('[data-g1-view="' + q[1] + '"]') ? q[1] : 'default');
+  /* Trang biểu mẫu một ô: đưa focus vào ô đầu khi tải (không làm với trang có khung ứng dụng) */
+  if (!b.hasAttribute('data-g1-shell')) { var ff = $('[data-first-focus]'); if (ff && ff.offsetParent !== null) ff.focus(); }
 })();

@@ -778,6 +778,9 @@ th[aria-sort="ascending"] .th-sort .icon, th[aria-sort="descending"] .th-sort .i
 @media (max-width: 1023px) { .app .nav-item__mode { display: none; } }
 @media (max-width: 639px) { .app .nav-item__mode { display: inline-flex; } }
 
+/* ---- 14.9b Phụ đề trong ô/tiêu đề, dùng được ngoài .table (F4-26c) ---- */
+.cell-sub { display: block; font-size: var(--font-size-sm); line-height: 18px; color: var(--color-text-secondary); font-weight: 400; }
+
 /* ---- 14.10 Dải "Trước lệnh" trên bảng điều phối ---- */
 .pre-order { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface-subtle); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-lg); }
 .pre-order__label { font-weight: 600; font-size: var(--font-size-sm); color: var(--color-text-secondary); }

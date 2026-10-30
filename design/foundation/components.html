@@ -198,6 +198,8 @@
           <option value="TN">Thu ngân (TN) – đầy đủ</option>
           <option value="QD">Quản đốc (QĐ) – đầy đủ</option>
           <option value="TK">Thủ kho (TK) – SĐT che, không có nút Hiện, không thấy địa chỉ</option>
+          <option value="MH">Mua hàng (MH) – không thấy</option>
+          <option value="NS">Nhân sự (NS) – không thấy dữ liệu khách</option>
           <option value="TH">Thợ (TH) – không thấy</option>
           <option value="AD">Quản trị hệ thống (AD) – không thấy</option>
         </select></div>
@@ -318,8 +320,8 @@
       <div class="row"><span class="badge badge--warning">Chưa thanh toán</span><span class="tag tag--danger">Quá hạn</span></div>
       <p class="t-body-sm text-secondary">“Quá hạn” là cờ công nợ cạnh trạng thái, không phải trạng thái.</p></div>
     <div class="demo stack"><h3 style="margin:0">Kho</h3><div class="row">
-      <span class="badge badge--success">Đủ hàng</span><span class="badge badge--warning">Sắp hết</span><span class="badge badge--danger">Hết hàng</span><span class="badge badge--neutral">Chưa đặt định mức</span><span class="tag tag--info">Đang về 10</span></div>
-      <p class="t-body-sm text-secondary">Khả dụng = Thực tế − Đang giữ (hàng đang về không cộng). So với định mức tối thiểu của từng mặt hàng/chi nhánh (RULE-008, FR-INV-013). Chưa đặt định mức: không hiện Đủ/Sắp hết. “Đang về N” là chip phụ, không đổi badge chính.</p></div>
+      <span class="badge badge--success">Đủ hàng</span><span class="badge badge--warning">Sắp hết</span><span class="badge badge--danger">Hết hàng</span><span class="badge badge--neutral">Chưa đặt định mức</span><span class="tag tag--info">Đang vận chuyển 10</span><span class="tag tag--neutral">Đã đặt 20</span></div>
+      <p class="t-body-sm text-secondary">Khả dụng = Thực tế − Đang giữ (hàng đang về không cộng). So với định mức tối thiểu của từng mặt hàng/chi nhánh (RULE-008, FR-INV-013). Chưa đặt định mức: không hiện Đủ/Sắp hết. “Đang vận chuyển N” là chip phụ, không đổi badge chính.</p></div>
     <div class="demo stack"><h3 style="margin:0">Hóa đơn điện tử</h3><div class="row">
       <span class="badge badge--neutral">Chưa xuất</span><span class="badge badge--success">Đã xuất</span><span class="badge badge--info">Điều chỉnh</span><span class="badge badge--info">Thay thế</span><span class="badge badge--danger">Hủy</span></div>
       <div class="row"><span class="badge badge--neutral">Chưa xuất</span><span class="sync"><svg class="icon icon--sm spin"><use href="#loader"/></svg>Đang gửi nhà cung cấp…</span></div>
@@ -656,10 +658,10 @@
         <div class="tech-card__actions"><button class="btn btn--secondary btn--xl"><svg class="icon"><use href="#clock"/></svg>Tạm dừng</button><button class="btn btn--primary btn--xl"><svg class="icon"><use href="#check"/></svg>Hoàn thành</button></div></div>
 
       <span class="lbl" style="margin-top:8px">Parts Item (4 số tồn kho – cảnh báo theo khả dụng)</span>
-      <div class="card"><div class="part-item"><div><div class="part-item__name">Má phanh trước Hyundai Accent</div><div class="part-item__sku">PT-0002 · Kệ B3-04</div></div><div><div class="part-item__price">620.000 ₫</div><div style="text-align:right"><span class="badge badge--warning">Sắp hết</span> <span class="tag tag--info">Đang về 10</span></div></div>
-        <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">5</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">10</div></div><div class="stock4__cell stock4__cell--low"><div class="stock4__label">Khả dụng</div><div class="stock4__value">3</div></div></div></div>
+      <div class="card"><div class="part-item"><div><div class="part-item__name">Má phanh trước Hyundai Accent</div><div class="part-item__sku">PT-0002 · Kệ B3-04</div></div><div><div class="part-item__price">620.000 ₫</div><div style="text-align:right"><span class="badge badge--warning">Sắp hết</span> <span class="tag tag--info">Đang vận chuyển 10</span></div></div>
+        <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">5</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang vận chuyển</div><div class="stock4__value">10</div></div><div class="stock4__cell stock4__cell--low"><div class="stock4__label">Khả dụng</div><div class="stock4__value">3</div></div></div></div>
         <div class="part-item"><div><div class="part-item__name">Dầu nhớt 5W-30 (lít)</div><div class="part-item__sku">PT-0003 · Kệ A1-01</div></div><div><div class="part-item__price">1.250.000 ₫</div><div style="text-align:right"><span class="badge badge--danger">Hết hàng</span></div></div>
-        <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">0</div></div><div class="stock4__cell stock4__cell--out"><div class="stock4__label">Khả dụng</div><div class="stock4__value">0</div></div></div></div></div>
+        <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang vận chuyển</div><div class="stock4__value">0</div></div><div class="stock4__cell stock4__cell--out"><div class="stock4__label">Khả dụng</div><div class="stock4__value">0</div></div></div></div></div>
     </div>
   </div>
 

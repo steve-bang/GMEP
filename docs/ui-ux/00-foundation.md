@@ -146,19 +146,21 @@ Giá trị đầy đủ không gửi xuống trình duyệt trước khi Hiện;
 
 Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT AD` (`QD` hiển thị là “QĐ”). “✓” tạo/sửa/duyệt (S, D) · Xem = chỉ xem (X) · Của tôi = chỉ phần của mình (Xn) · Hệ thống = chỉ sức khỏe hệ thống. Mục có Xem/Của tôi/Hệ thống hiện thêm nhãn nhỏ cạnh tên mục. Hành động không được phép trong mục đang hiện để disabled kèm lý do.
 
-| Menu | CH | QV | QL | CV | QĐ | TH | TK | TN | KT | AD |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Tổng quan | ✓ | ✓ | ✓ | ✓ | ✓ | Của tôi | ✓ | ✓ | ✓ | Hệ thống |
-| Phiếu sửa chữa (báo giá, lệnh) | Xem | Xem | ✓ | ✓ | Xem | Của tôi | Xem | Xem | Xem | – |
-| Lịch hẹn | Xem | Xem | ✓ | ✓ | – | – | – | – | – | – |
-| Khách hàng & Xe | Xem | Xem | ✓ | ✓ | Xem | Của tôi | – | Xem | Xem | – |
-| Kho phụ tùng | Xem | Xem | ✓ | – | – | – | ✓ | – | Xem | – |
-| Mua hàng | Xem | Xem | ✓ | – | – | – | ✓ | – | Xem | – |
-| Nhân sự & Công thợ | Xem | Xem | ✓ | Của tôi | Xem | Của tôi | – | – | Xem | – |
-| Tài chính (thu tiền, sổ quỹ, công nợ) | Xem | Xem | ✓ | Xem | – | – | – | ✓ | ✓ | – |
-| Hóa đơn | Xem | Xem | Xem | – | – | – | – | ✓ | ✓ | – |
-| Báo cáo | Xem | Xem | Xem | Của tôi | Của tôi | Của tôi | Của tôi | Của tôi | Xem | – |
-| Cài đặt | ✓ (duyệt) | – | ✓ (chi nhánh mình) | – | – | – | – | – | – | ✓ |
+| Menu | CH | QV | QL | CV | QĐ | TH | TK | TN | KT | MH | NS | AD |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Tổng quan | ✓ | ✓ | ✓ | ✓ | ✓ | Của tôi | ✓ | ✓ | ✓ | – | – | Hệ thống |
+| Phiếu sửa chữa (báo giá, lệnh) | Xem | Xem | ✓ | ✓ | Xem | Của tôi | Xem | Xem | Xem | – | – | – |
+| Lịch hẹn | Xem | Xem | ✓ | ✓ | – | – | – | – | – | – | – | – |
+| Khách hàng & Xe | Xem | Xem | ✓ | ✓ | Xem | Của tôi | – | Xem | Xem | – | – | – |
+| Kho phụ tùng | Xem | Xem | ✓ | – | – | – | ✓ | – | Xem | Xem | – | – |
+| Mua hàng | Xem | Xem | ✓ | – | – | – | ✓ | – | Xem | ✓ | – | – |
+| Nhân sự & Công thợ | Xem | Xem | ✓ | Của tôi | Xem | Của tôi | – | – | Xem | – | ✓ | – |
+| Tài chính (thu tiền, sổ quỹ, công nợ) | Xem | Xem | ✓ | Xem | – | – | – | ✓ | ✓ | – | – | – |
+| Hóa đơn | Xem | Xem | Xem | – | – | – | – | ✓ | ✓ | – | – | – |
+| Báo cáo | Xem | Xem | Xem | Của tôi | Của tôi | Của tôi | Của tôi | Của tôi | Xem | Của tôi | Của tôi | – |
+| Cài đặt | ✓ (duyệt) | Danh mục | ✓ (chi nhánh mình) | Danh mục | Danh mục | – | Danh mục | – | Danh mục | – | – | ✓ |
+
+Cập nhật theo `ba-answers-04.md` (Câu 5, Phụ lục C) và `ba-answers-06.md` (Câu 1): thêm hai vai trò riêng **MH** (Mua hàng: Mua hàng đầy đủ, Kho phụ tùng chỉ xem, Báo cáo của tôi; không thấy giá vốn, không nhận hàng) và **NS** (Nhân sự: Nhân sự & Công thợ đầy đủ, Báo cáo của tôi; xem dữ liệu nhân sự theo ma trận che Phụ lục D). MH và NS **không có dashboard riêng** (D-09): trang đầu là Mua hàng / Nhân sự, nên menu không có “Tổng quan” và nhãn trang hiện tại chuyển sang mục đầu tiên còn hiện; trên bottom nav mobile hiện thêm “Mua hàng” (MH) hoặc “Nhân sự” (NS). Phạm vi chi nhánh của MH/NS: chọn trong các chi nhánh được gán (`pick`). Mục “Cài đặt” là một mục duy nhất ở chân sidebar; chế độ **“Danh mục”** (`limited`) nghĩa là chỉ liệt kê các màn cài đặt vai trò được mở, nhóm rỗng ẩn; TH, TN, MH, NS không có mục này.
 
 Thay đổi so với bản trước: QĐ thêm Khách hàng & Xe (Xem); TH thêm Khách hàng & Xe (Của tôi), Nhân sự & Công thợ (Của tôi); CV thêm Nhân sự & Công thợ (Của tôi) và Tài chính (Xem trạng thái thu); AD thêm Tổng quan (Hệ thống); CH, QV chuyển các mục thành Xem đúng FRD; KT Phiếu sửa chữa = Xem.
 
@@ -168,7 +170,7 @@ Phạm vi chi nhánh (branch selector):
 | --- | --- |
 | CH | 3 cấp: “Tất cả chi nhánh” (toàn chuỗi) · Nhóm chi nhánh · Từng chi nhánh |
 | QV | “Tất cả nhóm được giao” · các nhóm được giao · chi nhánh trong nhóm |
-| QL, KT | Chọn trong các chi nhánh được gán; không có hợp nhất; chi nhánh chưa cấp quyền hiện khóa kèm lý do |
+| QL, KT, MH, NS | Chọn trong các chi nhánh được gán; không có hợp nhất; chi nhánh chưa cấp quyền hiện khóa kèm lý do |
 | CV, QĐ, TH, TK, TN (Phase 1 pilot) | Không có bộ chọn: hiện tên chi nhánh tĩnh “Chi nhánh của bạn” |
 | AD | Không gắn chi nhánh |
 

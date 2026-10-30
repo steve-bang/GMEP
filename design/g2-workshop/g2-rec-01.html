@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="CV" data-nav="ro" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<noscript><p style="padding:16px;background:#fff;color:#111">Prototype cần bật JavaScript để dựng khung ứng dụng và khóa/ẩn theo vai trò. Bản sản phẩm render khung và phân quyền ở máy chủ.</p></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <main class="main" id="main"><div class="main__inner">
@@ -18,7 +19,7 @@
   <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Tiếp nhận xe</span></nav>
 
   <div class="page-header">
-    <div class="page-header__text"><h1>Tiếp nhận xe</h1><p class="page-header__desc">Ghi nhận xe vào xưởng theo 5 bước. Bản nháp tự lưu sau mỗi bước.</p></div>
+    <div class="page-header__text"><h1>Tiếp nhận xe</h1><p class="page-header__desc">Ghi nhận xe vào xưởng theo 5 bước. Bản nháp tự lưu sau mỗi bước. Mã hồ sơ <span class="code">TX-Q7-2610-00057</span> được cấp ngay khi tạo nháp; mã lệnh chỉ có khi khách duyệt báo giá.</p></div>
     <div class="page-header__actions"><a class="btn btn--ghost" href="g2-apt-01.html"><svg class="icon"><use href="#calendar"/></svg>Chọn từ lịch hẹn</a></div>
   </div>
 
@@ -63,7 +64,7 @@
           </div>
           <div class="card"><div class="card__header"><div><h3 class="card__title" style="font-size:var(--font-size-lg)">Lịch sử gần nhất tại các chi nhánh</h3><div class="card__subtitle">Trong phạm vi quyền của bạn (FR-CRM-004)</div></div><a class="btn btn--ghost btn--sm" href="g2-crm-06.html">Xem hồ sơ xe</a></div>
             <div class="g2w-hist"><div class="g2w-hist__item"><span class="num">12/07/2026</span><div><div>Bảo dưỡng 40.000 km: thay dầu, lọc dầu, kiểm tra phanh</div><div class="g2w-muted">Chi nhánh Quận 7 · 43.900 km</div></div><span class="num g2w-money" data-g2w-money>2.150.000 ₫</span></div>
-              <div class="g2w-hist__item"><span class="num">03/03/2026</span><div><div>Thay lốp trước, cân chỉnh góc đặt bánh</div><div class="g2w-muted">Chi nhánh Thủ Đức · 39.200 km</div></div><span class="num g2w-money" data-g2w-money>4.800.000 ₫</span></div></div></div>
+              <div class="g2w-hist__item"><span class="num">03/03/2026</span><div><div>Thay lốp trước, cân chỉnh góc đặt bánh</div><div class="g2w-muted">Chi nhánh Thủ Đức · 39.200 km · bảo hành lốp còn hạn đến 03/09/2026 (đã hết)</div></div><span class="g2w-muted"><span data-g2w-roles="CH QV KT"><span data-g2w-money>4.800.000 ₫</span></span><span data-g2w-hide-for="CH QV KT">Giá không hiện (chi nhánh khác)</span></span></div></div></div>
         </div>
 
         <!-- Xe mới (nhúng G2-CRM-05) -->
@@ -92,7 +93,7 @@
             <span class="field__error" id="km-e" data-g2w-err-for="km" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Nhập số km trên đồng hồ để tiếp tục.</span></div>
           <div class="field"><span class="field__label" id="fuel-l">Mức nhiên liệu</span><div class="g2w-fuel" role="group" aria-labelledby="fuel-l"><button class="chip-filter" aria-pressed="false">Cạn</button><button class="chip-filter" aria-pressed="false">1/4</button><button class="chip-filter" aria-pressed="true">1/2</button><button class="chip-filter" aria-pressed="false">3/4</button><button class="chip-filter" aria-pressed="false">Đầy</button></div></div>
         </div>
-        <div class="alert alert--warning" data-g2w-km-warn hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Số km thấp hơn lần sửa trước (43.900 km)</span><span>Có thể nhập nhầm hoặc đã thay đồng hồ. Nhập lý do để tiếp tục (FR-REC-003).</span>
+        <div class="alert alert--warning" data-g2w-km-warn hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Số km thấp hơn lần sửa trước (43.900 km)</span><span>Có thể nhập nhầm hoặc đã thay đồng hồ. Nhập lý do để tiếp tục (FR-REC-003). Không cần duyệt vì khách đang chờ; nếu chênh lệch vượt ngưỡng cấu hình (đề xuất giảm hơn 1.000 km) hồ sơ gắn cờ “Số km bất thường” cho Quản lý xem trong ngày, nhật ký ghi giá trị cũ, mới và lý do.</span>
           <div class="field" style="margin-top:8px"><label class="field__label" for="km-reason">Lý do<span class="field__req" aria-hidden="true">*</span></label><input id="km-reason" class="input" aria-describedby="km-reason-e" placeholder="Ví dụ: đã thay đồng hồ táp-lô"><span class="field__error" id="km-reason-e" data-g2w-err-for="km-reason" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Nhập lý do để lưu số km thấp hơn lần trước.</span></div></div></div>
         <div class="field"><label class="field__label" for="yc">Yêu cầu của khách (theo lời khách)<span class="field__req" aria-hidden="true">*</span></label><textarea id="yc" class="textarea" data-g2w-req aria-describedby="yc-e" placeholder="Ghi đúng lời khách, ví dụ: Xe kêu cọt kẹt khi đạp phanh, thay nhớt định kỳ 50.000 km"></textarea>
           <span class="field__error" id="yc-e" data-g2w-err-for="yc" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Ghi yêu cầu của khách để tiếp tục.</span></div>
@@ -137,10 +138,14 @@
         <div class="form-grid">
           <div class="field"><label class="field__label" for="sv">Loại dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="sv" class="select"><option>Bảo dưỡng</option><option>Sửa chữa chung</option><option>Lốp &amp; mâm</option><option>Đồng sơn</option></select><span class="field__hint">Đồng sơn có quy trình công đoạn riêng (cấu hình).</span></div>
           <div class="field"><label class="field__label" for="cvs">Cố vấn tiếp nhận<span class="field__req" aria-hidden="true">*</span></label><select id="cvs" class="select"><option>Nguyễn Hoàng Yến</option><option>Phan Thanh Tùng</option></select></div>
-          <div class="field"><label class="field__label" for="hg">Ngày hẹn giao<span class="field__req" aria-hidden="true">*</span></label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="hg" class="input" value="30/10/2026" placeholder="dd/MM/yyyy"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div>
+          <div class="field"><label class="field__label" for="hg">Ngày hẹn giao<span class="field__req" aria-hidden="true">*</span></label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="hg" class="input" value="30/10/2026" placeholder="dd/MM/yyyy" data-g2w-req aria-describedby="hg-e"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div><span class="field__error" id="hg-e" data-g2w-err-for="hg" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Chọn ngày hẹn giao, không trước hôm nay.</span></div>
           <div class="field"><label class="field__label" for="hg-h">Giờ hẹn giao</label><input id="hg-h" class="input input--num" inputmode="numeric" value="16:00" placeholder="HH:mm"><span class="field__hint">Công suất xưởng hôm nay: 14/20 xe.</span></div>
         </div>
-        <div class="field"><label class="field__label" for="pt-kh">Phụ tùng khách mang đến</label><textarea id="pt-kh" class="textarea" style="min-height:64px" placeholder="Ví dụ: 1 bộ má phanh trước Toyota chính hãng (khách tự mua). Để trống nếu không có"></textarea><span class="field__hint">Ghi nhận để không lẫn vào kho; bảo hành phụ tùng khách mang theo theo chính sách xưởng (cần xác nhận).</span></div>
+        <fieldset style="border:0;padding:0;margin:0"><legend class="field__label">Phụ tùng khách mang đến (Phụ tùng khách cung cấp)</legend>
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Phụ tùng khách cung cấp</caption><thead><tr><th>Tên phụ tùng</th><th class="col-num">SL</th><th>Tình trạng</th><th>Ảnh</th><th class="col-actions"><span class="sr-only">Xóa dòng</span></th></tr></thead>
+            <tbody><tr><td><input class="input" aria-label="Tên phụ tùng khách cung cấp" value="Má phanh trước Toyota (bộ), chính hãng"></td><td class="col-num"><input class="input input--num" aria-label="Số lượng" value="1" style="max-width:64px"></td><td><input class="input" aria-label="Tình trạng" value="Mới, còn niêm phong"></td><td><button type="button" class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#camera"/></svg>Chụp</button></td><td class="col-actions"><button type="button" class="btn-icon" aria-label="Bỏ dòng phụ tùng khách cung cấp"><svg class="icon"><use href="#x"/></svg></button></td></tr></tbody></table></div>
+          <div class="row" style="margin-top:8px"><button type="button" class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm dòng</button></div>
+          <span class="field__hint">Không nhập kho, không giữ chỗ, không tính giá vốn hay doanh thu phụ tùng; lệnh chỉ tính công. Mặc định bảo hành công, không bảo hành phụ tùng này (điều khoản mẫu cấu hình). Khách xác nhận trên phiếu tiếp nhận. Để trống nếu không có.</span></fieldset>
         <div class="field"><label class="field__label" for="gc">Ghi chú nội bộ</label><textarea id="gc" class="textarea" style="min-height:64px" placeholder="Chỉ nhân viên thấy"></textarea></div>
       </div>
     </section>
@@ -194,7 +199,7 @@
 
 <div class="overlay" id="dlg-print" role="dialog" aria-modal="true" aria-labelledby="pr-t"><div class="dialog dialog--md">
   <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#printer"/></svg></div><div><h2 class="dialog__title" id="pr-t">Phiếu tiếp nhận xe (A5)</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body"><div class="g2w-print-preview"><strong>GARAGE OS – Chi nhánh Quận 7</strong><br>PHIẾU TIẾP NHẬN XE · 30/10/2026 09:16<br>Biển số: <b class="plate">51H-123.45</b> · Toyota Vios 1.5G<br>Khách: Nguyễn Văn An · SĐT in đầy đủ khi người in có quyền<br>Số km: 48.200 · Nhiên liệu 1/2<br>Yêu cầu: Bảo dưỡng 50.000 km, xe kêu khi đạp phanh<br>Đồ đạc: giấy tờ xe, thẻ đỗ xe, camera hành trình, bình chữa cháy<br>Hẹn giao: 16:00 30/10/2026<br><br>Khách ký xác nhận: ____________ Cố vấn: Nguyễn Hoàng Yến</div></div>
+  <div class="dialog__body"><div class="g2w-print-preview"><strong>GARAGE OS – Chi nhánh Quận 7</strong><br>PHIẾU TIẾP NHẬN XE TX-Q7-2610-00057 · 30/10/2026 09:16<br>Biển số: <b class="plate">51H-123.45</b> · Toyota Vios 1.5G<br>Khách: Nguyễn Văn An · SĐT in đầy đủ khi người in có quyền<br>Số km: 48.200 · Nhiên liệu 1/2<br>Yêu cầu: Bảo dưỡng 50.000 km, xe kêu khi đạp phanh<br>Đồ đạc: giấy tờ xe, thẻ đỗ xe, camera hành trình, bình chữa cháy<br>Hẹn giao: 16:00 30/10/2026<br><br>Khách ký xác nhận: ____________ Cố vấn: Nguyễn Hoàng Yến</div></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" data-close data-toast="info|Đã in phiếu tiếp nhận|Khổ A5.">In</button></div></div></div>
 
 <script src="pack.js"></script>

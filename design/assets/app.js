@@ -331,19 +331,22 @@
      Mục nào không có trong bảng của vai trò thì ẩn hẳn (khớp ma trận FRD §2). */
   var ROLE_MENU = {
     CH: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'view', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'full' },
-    QV: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'view', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view' },
+    QV: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'view', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'limited' },
     QL: { dash: 'full', ro: 'full', appt: 'full', cust: 'full', inv: 'full', pur: 'full', hr: 'full', fin: 'full', einv: 'view', rpt: 'view', set: 'full' },
-    CV: { dash: 'full', ro: 'full', appt: 'full', cust: 'full', hr: 'own', fin: 'view', rpt: 'own' },
-    QD: { dash: 'full', ro: 'view', cust: 'view', hr: 'view', rpt: 'own' },
+    CV: { dash: 'full', ro: 'full', appt: 'full', cust: 'full', hr: 'own', fin: 'view', rpt: 'own', set: 'limited' },
+    QD: { dash: 'full', ro: 'view', cust: 'view', hr: 'view', rpt: 'own', set: 'limited' },
     TH: { dash: 'own', ro: 'own', cust: 'own', hr: 'own', rpt: 'own' },
-    TK: { dash: 'full', ro: 'view', inv: 'full', pur: 'full', rpt: 'own' },
+    TK: { dash: 'full', ro: 'view', inv: 'full', pur: 'full', rpt: 'own', set: 'limited' },
     TN: { dash: 'full', ro: 'view', cust: 'view', fin: 'full', einv: 'full', rpt: 'own' },
-    KT: { dash: 'full', ro: 'view', cust: 'view', inv: 'view', pur: 'view', hr: 'view', fin: 'full', einv: 'full', rpt: 'view' },
+    KT: { dash: 'full', ro: 'view', cust: 'view', inv: 'view', pur: 'view', hr: 'view', fin: 'full', einv: 'full', rpt: 'view', set: 'limited' },
+    /* MH (Mua hàng) và NS (Nhân sự): vai trò riêng, ba-answers-04 Phụ lục C. Không có dashboard riêng (D-09): trang đầu là Mua hàng / Nhân sự */
+    MH: { pur: 'full', inv: 'view', rpt: 'own' },
+    NS: { hr: 'full', rpt: 'own' },
     AD: { dash: 'sys', set: 'full' }
   };
-  var MODE_LABEL = { view: 'Chỉ xem', own: 'Của tôi', sys: 'Hệ thống' };
+  var MODE_LABEL = { view: 'Chỉ xem', own: 'Của tôi', sys: 'Hệ thống', limited: 'Danh mục' };
   /* Phạm vi chi nhánh theo vai trò: multi = có cấp Tất cả/Nhóm/Chi nhánh; pick = chọn trong vài chi nhánh được gán; single = 1 chi nhánh (tĩnh); none = không gắn chi nhánh */
-  var SCOPE_TYPE = { CH: 'multi', QV: 'multi', QL: 'pick', KT: 'pick', CV: 'single', QD: 'single', TH: 'single', TK: 'single', TN: 'single', AD: 'none' };
+  var SCOPE_TYPE = { CH: 'multi', QV: 'multi', QL: 'pick', KT: 'pick', MH: 'pick', NS: 'pick', CV: 'single', QD: 'single', TH: 'single', TK: 'single', TN: 'single', AD: 'none' };
   function currentRole() { return document.body.getAttribute('data-role') || 'CH'; }
 
   function applyRole() {
@@ -367,6 +370,18 @@
       while (n && !n.classList.contains('sidebar__group')) { if (n.hasAttribute('data-menu') && !n.hidden) any = true; n = n.nextElementSibling; }
       g.hidden = !any;
     });
+    /* Nếu mục đang active bị ẩn (vd. MH/NS không có Tổng quan) thì chuyển active sang mục đầu tiên còn hiện */
+    [['.sidebar__nav .nav-item[data-menu]', '.nav-item'], ['.bottom-nav .bottom-nav__item[data-menu]', '.bottom-nav__item']].forEach(function (p) {
+      /* Nhớ mục "trang hiện tại" ban đầu (data-home); chỉ di chuyển khi nó bị ẩn, và trả lại khi hiện lại. Không đụng tới trang không có mục active. */
+      var items = $$(p[0]), home = items.filter(function (x) { return x.hasAttribute('data-home'); })[0];
+      if (!home) { home = items.filter(function (x) { return x.getAttribute('aria-current') === 'page'; })[0]; if (home) home.setAttribute('data-home', '1'); }
+      if (!home) return;
+      var target = !home.hidden ? home : items.filter(function (x) { return !x.hidden && !x.hasAttribute('data-bn-extra'); })[0] || items.filter(function (x) { return !x.hidden; })[0];
+      items.forEach(function (x) { x.removeAttribute('aria-current'); });
+      if (target) target.setAttribute('aria-current', 'page');
+    });
+    /* Bottom nav mobile: Mua hàng / Nhân sự chỉ hiện cho vai trò không có Phiếu sửa chữa (MH, NS) */
+    $$('[data-bn-extra]').forEach(function (x) { x.hidden = !!cfg.ro || !cfg[x.getAttribute('data-menu')]; });
     /* Phạm vi chi nhánh */
     $$('[data-show-roles]').forEach(function (x) { x.hidden = x.getAttribute('data-show-roles').split(' ').indexOf(role) < 0; });
     var st = SCOPE_TYPE[role], dd = $('[data-branch-dropdown]'), sta = $('[data-branch-static]');

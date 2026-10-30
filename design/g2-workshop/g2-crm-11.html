@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="QL" data-nav="cust" data-g2w-deny="QV CV QD TH TK TN KT AD">
+<noscript><p style="padding:16px;background:#fff;color:#111">Prototype cần bật JavaScript để dựng khung ứng dụng và khóa/ẩn theo vai trò. Bản sản phẩm render khung và phân quyền ở máy chủ.</p></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <main class="main" id="main"><div class="main__inner">
@@ -22,19 +23,20 @@
 
   <div data-state="data" class="g2w-split g2w-split--wide">
     <section class="card">
+      <p class="g2w-muted" style="padding:var(--space-3) var(--space-6) 0;margin:0">Mốc xử lý (cấu hình, theo ngày làm việc từ lúc tiếp nhận): rút lại đồng ý 2 ngày; xem, sửa, xóa 15 ngày. Số ngày pháp định do pháp chế của khách xác nhận.</p>
       <div class="table-toolbar"><span class="table-meta">5 yêu cầu · 1 quá hạn xử lý</span><div class="g2w-seg-row" style="margin-left:auto"><button class="chip-filter" aria-pressed="true">Đang mở <span class="count-pill">4</span></button><button class="chip-filter" aria-pressed="false">Quá hạn <span class="count-pill count-pill--danger">1</span></button><button class="chip-filter" aria-pressed="false">Hoàn tất</button></div></div>
       <div class="table-scroll"><table class="table">
         <caption class="sr-only">Danh sách yêu cầu của chủ dữ liệu</caption>
         <thead><tr><th>Mã</th><th>Loại yêu cầu</th><th>Người yêu cầu</th><th>Hạn xử lý</th><th>Xử lý</th></tr></thead>
         <tbody>
-          <tr class="is-selected"><td class="code">DS-Q7-2610-00003</td><td><span class="tag tag--danger">Xóa</span></td><td>Nguyễn Văn An</td><td class="col-nowrap num">12/11/2026</td><td><span class="tag tag--info">Đang xử lý</span></td></tr>
-          <tr><td class="code">DS-Q7-2610-00002</td><td><span class="tag">Xem</span></td><td>Phạm Thị Hoa</td><td class="col-nowrap num"><span class="text-danger" style="font-weight:600">26/10/2026 · Quá hạn</span></td><td><span class="tag tag--warning">Mới</span></td></tr>
-          <tr><td class="code">DS-Q7-2610-00001</td><td><span class="tag tag--info">Sửa</span></td><td>Võ Thanh Sơn</td><td class="col-nowrap num">08/11/2026</td><td><span class="tag tag--success">Hoàn tất</span></td></tr>
+          <tr class="is-selected"><td class="code">CD-Q7-2610-00003</td><td><span class="tag tag--danger">Xóa</span></td><td>Nguyễn Văn An</td><td class="col-nowrap num">19/11/2026</td><td><span class="tag tag--info">Đang xử lý</span></td></tr>
+          <tr><td class="code">CD-Q7-2610-00002</td><td><span class="tag">Xem</span></td><td>Phạm Thị Hoa</td><td class="col-nowrap num"><span class="text-danger" style="font-weight:600">26/10/2026 · Quá hạn</span></td><td><span class="tag tag--warning">Mới</span></td></tr>
+          <tr><td class="code">CD-Q7-2610-00001</td><td><span class="tag tag--info">Sửa</span></td><td>Võ Thanh Sơn</td><td class="col-nowrap num">08/11/2026</td><td><span class="tag tag--success">Hoàn tất</span></td></tr>
         </tbody></table></div>
     </section>
 
     <aside class="card" aria-labelledby="ds-h">
-      <div class="card__header"><div><h2 class="card__title" id="ds-h">DS-Q7-2610-00003 · Yêu cầu xóa</h2><div class="card__subtitle">Nguyễn Văn An · nhận 29/10/2026 · hạn 12/11/2026</div></div><span class="tag tag--info">Đang xử lý</span></div>
+      <div class="card__header"><div><h2 class="card__title" id="ds-h">CD-Q7-2610-00003 · Yêu cầu xóa</h2><div class="card__subtitle">Nguyễn Văn An · nhận 29/10/2026 · hạn 19/11/2026 (15 ngày làm việc, cấu hình)</div></div><span class="tag tag--info">Đang xử lý</span></div>
       <div class="card__body stack">
         <dl class="g2w-kv"><dt>Người xử lý</dt><dd>Trần Thị Mai (Quản lý Quận 7)</dd><dt>Kênh nhận</dt><dd>Khách đến quầy, ký đơn</dd><dt>Xác minh danh tính</dt><dd>Đối chiếu CCCD tại quầy</dd></dl>
         <div><div class="field__label">Phạm vi dữ liệu</div>
@@ -60,11 +62,11 @@
 </div></main>
 </div>
 
-<div class="overlay" id="dlg-erase" role="alertdialog" aria-modal="true" aria-labelledby="er-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="DS-Q7-2610-00003">
+<div class="overlay" id="dlg-erase" role="alertdialog" aria-modal="true" aria-labelledby="er-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="CD-Q7-2610-00003">
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="er-t">Xóa / ẩn danh dữ liệu của Nguyễn Văn An?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body stack"><ul class="impact-list"><li>Số điện thoại, email, địa chỉ được xóa hoặc ẩn danh, không khôi phục được.</li><li>Hóa đơn, chứng từ kế toán, nhật ký truy cập vẫn được giữ theo luật.</li><li>Cần Chủ garage duyệt. Ghi lại phạm vi đã xử lý.</li></ul>
     <div class="field"><label class="field__label" for="er-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="er-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
-    <div class="field"><label class="field__label" for="er-c">Gõ <strong>DS-Q7-2610-00003</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="er-c" class="input" data-confirm-input autocomplete="off"></div></div>
+    <div class="field"><label class="field__label" for="er-c">Gõ <strong>CD-Q7-2610-00003</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="er-c" class="input" data-confirm-input autocomplete="off"></div></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi Chủ garage duyệt|Chờ duyệt xóa / ẩn danh." disabled>Gửi duyệt</button></div></div></div>
 
 <script src="pack.js"></script>

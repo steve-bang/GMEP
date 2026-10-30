@@ -24,7 +24,8 @@
   var period = b.getAttribute('data-period') || 'none';
   var initials = info[1].split(' ').slice(-2).map(function (w) { return w.charAt(0); }).join('');
   var content = document.getElementById('g1-content');
-  var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+  /* Thoát đủ cho nội dung và thuộc tính; dữ liệu thật phải dựng bằng DOM API (textContent/setAttribute) */
+  var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
 
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
   function nav(key, label, icon, extra) {
@@ -91,7 +92,7 @@
 
   var topbar =
     '<header class="topbar"><button class="btn-icon menu-btn" data-nav-open aria-label="Mở menu">' + ic('menu') + '</button>' + branchDd +
-    '<form class="topbar__search" action="g1-shl-02.html" role="search">' + ic('search') + '<input class="input" data-global-search name="q" type="search" placeholder="Tìm phiếu, biển số, khách, phụ tùng…" aria-label="Tìm kiếm toàn hệ thống"><span class="kbd" aria-hidden="true">Ctrl K</span></form>' +
+    '<form class="topbar__search" action="g1-shl-02.html" role="search">' + ic('search') + '<input class="input" data-global-search name="q" type="search" placeholder="' + (role === 'AD' ? 'Tìm người dùng, thiết bị, cấu hình…' : role === 'TH' ? 'Tìm việc của tôi…' : 'Tìm phiếu, biển số, khách, phụ tùng…') + '" aria-label="' + (role === 'AD' ? 'Tìm người dùng, thiết bị, cấu hình' : role === 'TH' ? 'Tìm việc của tôi' : 'Tìm kiếm trong phạm vi quyền của bạn') + '"><span class="kbd" aria-hidden="true">Ctrl K</span></form>' +
     '<div class="topbar__spacer"></div><a class="btn-icon topbar__search-btn" href="g1-shl-02.html" aria-label="Tìm kiếm">' + ic('search') + '</a>' + notifDd + userDd + '</header>';
 
   var crumbs = (b.getAttribute('data-crumb') || 'Tổng quan').split('|');
@@ -108,7 +109,8 @@
       '<span data-legal hidden>· <strong>Pháp nhân:</strong> Tất cả pháp nhân được xem (không cộng gộp trong báo cáo chính thức)</span>' +
       (period !== 'none' ? '<span>· <strong>Thời gian:</strong> <span data-g1-period-text>' + G1.PERIODS[period] + '</span></span>' : '') +
       '<span>· Cập nhật lúc <span data-g1-asof>09:15</span></span>' +
-      (figure ? '<span class="badge badge--info badge--nodot" title="Số tạm có thể thay đổi cho đến khi chốt ngày (FR-RPT-010)">' + figure + '</span>' : '') +
+      (figure ? '<span class="badge badge--' + (figure === 'Số chính thức' ? 'success' : 'warning') + ' badge--nodot">' + esc(figure) + '</span>' +
+        (b.getAttribute('data-figure-tip') ? '<span class="t-caption">' + esc(b.getAttribute('data-figure-tip')) + '</span>' : '') : '') +
       '<button class="btn btn--ghost btn--sm" style="margin-left:auto" data-g1-refresh>' + ic('refresh', 'icon--sm') + 'Làm mới</button></div>';
   }
 
