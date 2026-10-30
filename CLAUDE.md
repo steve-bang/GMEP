@@ -33,7 +33,7 @@ Use `ba` before `designer` when a requirement is unclear or missing.
 
 ## UI/UX design work (`design/`, `docs/ui-ux/`)
 
-Prototype HTML/CSS for the whole dashboard lives in `design/` (shared `assets/`, `foundation/`, and six screen packs). Tokens in `docs/design-system.md` are mandatory and must not be changed. The BA decisions in `docs/ui-ux/ba-decisions.md` and `ba-answers-0N.md` are proposals pending client confirmation. **Current progress, review-round table and the next steps are in `docs/ui-ux/STATUS.md`; read it before continuing this work.** Run at most 2 agents in parallel.
+Prototype HTML/CSS for the whole dashboard lives in `design/` (shared `assets/`, `foundation/`, and six screen packs). Tokens in `docs/design-system.md` are mandatory and must not be changed. The BA decisions in `docs/ui-ux/ba-decisions.md` and `ba-answers-0N.md` are proposals pending client confirmation. The whole dashboard (184 screens in six packs) is designed as HTML/CSS prototype and has passed the BA↔designer review rounds. **Read `docs/ui-ux/ui-ux-flow.md` (overall UI/UX flow) and `docs/ui-ux/STATUS.md` (progress, open decisions, next steps) before continuing this work.** Run at most 2 agents in parallel. Playwright is preinstalled and was used to measure overflow/JS errors across all pages (see `docs/ui-ux/mobile-overflow-report.md`); prefer measuring over reading code for layout issues.
 
 ## Domain model and rules that span modules
 
