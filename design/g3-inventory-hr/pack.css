@@ -143,4 +143,7 @@
   .g3-statebar { padding: var(--space-2); }
   .page-header__actions > .btn, .page-header__actions > .dropdown { flex: 1 1 auto; }
 }
+.g3-chip-badges { flex-wrap: wrap; max-width: 100%; min-width: 0; }
+.g3-chip-badges .badge, .g3-chip-badges .tag { max-width: 100%; height: auto; min-height: 24px; white-space: normal; }
+.record__top > div { min-width: 0; }
 .g3-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2) var(--space-4); }
