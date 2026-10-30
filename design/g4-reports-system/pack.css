@@ -72,6 +72,9 @@ body[data-role="CV"] .g4r-notcv { display: none !important; }
 .g4r-cv-only { display: none; }
 body[data-role="CV"] .g4r-cv-only { display: revert; }
 body[data-role="CV"] .g4r-hide-cv { display: none !important; }
+body[data-role="TN"] .g4r-nottn, body[data-role="TN"] .g4r-hide-tn { display: none !important; }
+.g4r-tn-only { display: none; }
+body[data-role="TN"] .g4r-tn-only { display: revert; }
 .g4r-noscript { max-width: 640px; margin: var(--space-8) auto; padding: var(--space-4) var(--space-6); border: 1px solid var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); border-radius: var(--radius-lg); }
 .table .check { min-width: 44px; justify-content: center; }
 @media (pointer: coarse) { .g4r-hbar__row { min-height: 44px; } }
@@ -124,6 +127,10 @@ body[data-role="CV"] .g4r-hide-cv { display: none !important; }
 .g4r-repcard__meta { margin-top: auto; display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .g4r-repcard.is-locked { background: var(--color-surface-subtle); }
 .g4r-repcard.is-locked .g4r-repcard__title { color: var(--color-text-secondary); }
+/* Hạng tính lại theo các hàng đang hiện (hàng bị ẩn theo vai trò/phạm vi không được đếm) */
+.g4r-ranked tbody { counter-reset: g4rrank; }
+.g4r-ranked tbody tr:not(.g4r-total-row) { counter-increment: g4rrank; }
+.g4r-rank::before { content: counter(g4rrank); }
 .g4r-rank { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 999px; background: var(--color-surface-subtle); font-weight: 600; font-size: var(--font-size-sm); font-variant-numeric: tabular-nums; }
 
 /* Ma trận phân quyền */

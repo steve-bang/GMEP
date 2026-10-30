@@ -37,7 +37,7 @@ g4rFilters({ fields: ['period', 'service'], sel: { period: 2 }, chips: ['Tháng 
     ['Tỷ lệ hạng mục QC trả lại', '2,1', '%', 'good-down', '0,4 điểm', 'thấp hơn 01–30/09', 'Số hạng mục có trạng thái Trả lại ít nhất một lần ÷ số hạng mục Hoàn thành trong kỳ. Đơn vị là hạng mục, không phải lệnh. Thấp hơn là tốt.', 'kpi--warning'],
     ['Tỷ lệ quay lại sửa lỗi (30 ngày)', '1,4', '%', 'good-down', '0,2 điểm', 'thấp hơn 01–30/09', 'Số lệnh bảo hành / làm lại cùng xe, cùng hạng mục mở trong 30 ngày sau Hoàn tất ÷ số lệnh Hoàn tất. Số ngày N là cấu hình. Thấp hơn là tốt.', ''],
     ['Tỷ trọng doanh thu nhân công', '46,0', '%', 'flat', '0,0', 'như 01–30/09', 'Doanh thu dòng công ÷ tổng doanh thu, cùng cơ sở chưa thuế. Phần còn lại là phụ tùng và dịch vụ khác.', ''],
-    ['Số ngày thu tiền bình quân (DSO)', '1,7', 'ngày', 'bad-up', '1,4 ngày', 'cao hơn 01–30/09', 'Công nợ phải thu cuối kỳ (gồm thuế) ÷ doanh thu gồm thuế trong kỳ × số ngày thực của kỳ = 37.500.000 ÷ 673.640.000 × 30. Chỉ hiển thị cho kỳ từ 1 tháng; cao hơn là xấu. Ngưỡng cảnh báo cấu hình.', 'kpi--danger'],
+    ['Số ngày thu tiền bình quân (DSO)', '1,7', 'ngày', 'bad-up', '1,4 ngày', 'cao hơn 01–30/09', 'Công nợ phải thu cuối kỳ (gồm thuế) ÷ doanh thu gồm thuế trong kỳ × số ngày thực của kỳ = 37.500.000 ÷ 673.640.000 × 30. Chỉ hiển thị cho kỳ từ 1 tháng; cao hơn là xấu. Chưa đặt ngưỡng cảnh báo (cấu hình) nên thẻ không tô màu cảnh báo.', ''],
     ['Lệnh có hóa đơn đúng ngày', '96,3', '%', 'up', '1,0 điểm', 'so với 01–30/09', 'Lệnh Hoàn tất có hóa đơn Đã xuất / Thay thế / Điều chỉnh (không tính Hủy) với ngày lập ≤ ngày Hoàn tất ÷ số lệnh Hoàn tất (FR-EIN-009). Chính sách lệnh khách không lấy hóa đơn chờ kế toán.', '']
   ];
   var h = '';
@@ -56,7 +56,7 @@ g4rFilters({ fields: ['period', 'service'], sel: { period: 2 }, chips: ['Tháng 
   g4rChart({ type: 'stack', title: 'Kết quả báo giá đã gửi theo chi nhánh', unit: 'Đơn vị: báo giá (phiên bản cuối) · 01–30/10/2026',
     note: 'Tỷ lệ được duyệt chỉ tính báo giá có kết quả; Hết hạn hiển thị riêng, không tính vào mẫu số. Cùng một kết quả luôn cùng một màu ở mọi biểu đồ; màu không mang nghĩa tốt/xấu.',
     series: ['Duyệt toàn phần', 'Duyệt một phần', 'Từ chối', 'Hết hạn'],
-    rows: [{ label: 'Chi nhánh Quận 7', parts: [142, 31, 29, 8] }, { label: 'Chi nhánh Quận 1', parts: [128, 26, 27, 7], cls: 'g4r-notq7' }, { label: 'Chi nhánh Thủ Đức', parts: [101, 22, 24, 6], cls: 'g4r-notq7' }, { label: 'Chi nhánh Đà Nẵng', parts: [79, 17, 17, 5], cls: 'g4r-notq7' }, { label: 'Chi nhánh Biên Hòa', parts: [64, 14, 17, 4], cls: 'g4r-notq7' }] });
+    rows: [{ label: 'Chi nhánh Quận 7', parts: [142, 31, 29, 8] }, { label: 'Chi nhánh Quận 1', parts: [128, 26, 27, 7], cls: 'g4r-notq7' }, { label: 'Chi nhánh Thủ Đức', parts: [101, 22, 24, 6], cls: 'g4r-notq7' }, { label: 'Chi nhánh Đà Nẵng', parts: [79, 17, 17, 5], cls: 'g4r-notq7 g4r-notqv' }, { label: 'Chi nhánh Biên Hòa', parts: [64, 14, 17, 4], cls: 'g4r-notq7' }] });
 </script></section>
 
 <script>g4rEnd()</script>

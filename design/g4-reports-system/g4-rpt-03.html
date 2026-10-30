@@ -36,7 +36,7 @@ g4rFilters({ fields: ['period', 'service'], sel: { period: 0 }, chips: ['Hôm na
   <div class="card kpi kpi--warning"><span class="kpi__label">Công nợ phát sinh (gồm thuế)</span><span class="kpi__value">5.500.000<span class="kpi__unit">₫</span></span><span class="kpi__meta">1 lệnh hoàn tất chưa thu</span><span class="kpi__scope">Quận 7 · 30/10/2026 · 09:15</span></div>
 </section>
 
-<div class="alert alert--success" role="status"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><strong>Khớp số liệu (FR-RPT-003):</strong> đã thu của lệnh trong ngày 19.350.000 ₫ + công nợ phát sinh 5.500.000 ₫ = tổng giá trị lệnh gồm thuế 24.850.000 ₫. Doanh thu chưa thuế 22.590.909 ₫ + thuế GTGT 2.259.091 ₫ = 24.850.000 ₫. <a href="g4-rpt-10.html">Xem 6 lệnh cấu thành</a></div></div>
+<div class="alert alert--success" role="status"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><strong>Khớp số liệu (FR-RPT-003):</strong> đã thu của lệnh trong ngày 19.350.000 ₫ + công nợ phát sinh 5.500.000 ₫ = tổng giá trị lệnh gồm thuế 24.850.000 ₫. Doanh thu chưa thuế 22.590.909 ₫ + thuế GTGT 2.259.091 ₫ = 24.850.000 ₫. <a href="g4-rpt-10.html">Xem 6 lệnh cấu thành</a><span class="g4r-formula">Số chưa thuế trong bản mẫu suy từ thuế 10% minh họa; số thật là Σ giá chưa thuế từng dòng (mỗi dòng một thuế suất), không chia 1,1.</span></div></div>
 
 <div class="g4r-split">
   <section class="card g4r-chartcard" aria-label="Doanh thu theo ngày"><script>
@@ -88,8 +88,9 @@ g4rFilters({ fields: ['period', 'service'], sel: { period: 0 }, chips: ['Hôm na
       <tr><td>Chi nhánh Quận 7</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">22.590.909 ₫</td></tr>
       <tr><td>Chi nhánh Thủ Đức</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">24.000.000 ₫</td></tr>
       <tr><td>Chi nhánh Biên Hòa</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">17.000.000 ₫</td></tr>
-      <tr><td>Chi nhánh Đà Nẵng</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">24.863.636 ₫</td></tr>
-      <tr class="g4r-total-row"><td>Tổng các chi nhánh trong phạm vi (5)</td><td></td><td class="col-num">116.818.181 ₫</td></tr>
+      <tr class="g4r-notqv"><td>Chi nhánh Đà Nẵng <span class="tag tag--info">Ngừng nhận lệnh mới</span></td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">24.863.636 ₫</td></tr>
+      <tr class="g4r-total-row g4r-v-ch"><td>Tổng các chi nhánh trong phạm vi (5)</td><td></td><td class="col-num">116.818.181 ₫</td></tr>
+      <tr class="g4r-total-row g4r-v-qv"><td>Tổng các chi nhánh trong phạm vi (4, nhóm được giao)</td><td></td><td class="col-num">91.954.545 ₫</td></tr>
     </tbody></table></div>
   <div class="table-footer"><span class="table-meta">Tổng chưa thuế 116.818.181 ₫ tương ứng 128.500.000 ₫ gồm thuế trên bảng điều khiển. Khi có nhiều pháp nhân, tổng theo từng pháp nhân là số chính thức; “Tổng toàn chuỗi” chỉ để quản trị.</span></div>
 </section>

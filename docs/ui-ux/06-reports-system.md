@@ -1,6 +1,6 @@
 # UI/UX – Gói 6: Báo cáo và Hệ thống (G4-RPT, G4-SYS)
 
-Phiên bản 0.2 (đã xử lý review BA F6-01…F6-35 và trả lời 14 câu hỏi) · Người lập: designer · Căn cứ: `docs/design-system.md`, `docs/ui-ux/00-foundation.md`, `docs/ui-ux/ba-decisions.md`, `docs/ui-ux/screen-inventory.md` §8.4–8.5, §5, §6, §7, §9, FRD (FR-RPT, FR-SYS), Journey, `docs/ui-ux/ba-answers-06.md`, `docs/ui-ux/review-06-reports-system-ba.md`.
+Phiên bản 0.3 (đã xử lý review BA vòng 1 F6-01…F6-35, vòng 2 F6R2-01…09 và trả lời các câu hỏi) · Người lập: designer · Căn cứ: `docs/design-system.md`, `docs/ui-ux/00-foundation.md`, `docs/ui-ux/ba-decisions.md`, `docs/ui-ux/screen-inventory.md` §8.4–8.5, §5, §6, §7, §9, FRD (FR-RPT, FR-SYS), Journey, `docs/ui-ux/ba-answers-06.md`, `docs/ui-ux/review-06-reports-system-ba.md`.
 
 Sản phẩm: `design/g4-reports-system/` (35 file `.html` + `index.html` + `pack.css` + `pack.js`). Prototype HTML/CSS thuần, mở bằng trình duyệt (file://), dùng chung `../assets/tokens.css`, `base.css`, `components.css`, `app.js` (không sửa). Tiền tố class của gói: `g4r-`.
 
@@ -174,7 +174,7 @@ Không gắn tên/logo nhà cung cấp. SYS-16: thẻ tình trạng (môi trư�
 
 | Cơ chế | Cách làm trong prototype |
 | --- | --- |
-| Menu | Dùng `app.js` (ROLE_MENU). Mục **Cài đặt** hiện cho vai trò có ít nhất một màn SYS (BA-06 câu 1) với nhãn “Danh mục” cho QV KT CV QĐ TK; liên kết dẫn tới màn đầu tiên trong quyền; đây là shim trong `pack.js` cho tới khi `ROLE_MENU` thêm `set: 'limited'` (câu hỏi còn lại 1). Thanh điều hướng cài đặt chỉ liệt kê màn trong quyền, nhóm rỗng ẩn. |
+| Menu | Dùng `app.js` (ROLE_MENU). Mục **Cài đặt** và nhãn chế độ (“Danh mục”, “Xem và duyệt”) do `app.js` đã vá quyết định (`set: full / approve / limited`); `pack.js` chỉ đặt đích liên kết là màn cài đặt đầu tiên vai trò được mở. Thanh điều hướng cài đặt chỉ liệt kê màn trong quyền, nhóm rỗng ẩn. |
 | Màn hình ngoài quyền | `data-allow` mỗi trang; đổi vai trò sang vai trò không thuộc danh sách thì tự chuyển sang trạng thái “Không có quyền”. |
 | Nút/trường chỉ vài vai trò sửa | `data-edit-roles` (disabled + `aria-disabled` + `title`), kèm dòng giải thích `data-why-roles` hiện cho vai trò chỉ xem. |
 | Duyệt / Từ chối | Nút “Xem và duyệt” (`data-show-roles`) và thẻ “Yêu cầu chờ Chủ garage duyệt” mở hộp thoại dùng chung có Duyệt và Từ chối (lý do bắt buộc). |
@@ -321,7 +321,9 @@ Không có finding nào còn bỏ ngỏ; các điểm xử lý một phần đư
 
 `pack.js` chèn shell, phần đầu/đuôi trang và `app.js` bằng `document.write` để mỗi file chỉ giữ nội dung nghiệp vụ. Chỉ chấp nhận cho prototype xem nội bộ qua `file://`. Khi chuyển cho dev: **không sao chép kỹ thuật ghép này**; dựng shell thành component dùng chung của framework được chọn, cấu trúc DOM/class bám `design/foundation/shell.html`. Rủi ro đã biết: không có JavaScript hoặc lỗi giữa chừng thì trang trắng (đã thêm `<noscript>` báo rõ), chặn phân tích HTML, không dùng được CSP chặt vì có script nội tuyến, skip link và landmark chỉ có sau khi script chạy. Mã lọc theo vai trò/phạm vi (`data-*`, CSS) trong prototype chỉ minh họa; sản phẩm thật phải lọc ở máy chủ (NFR-ISO-01).
 
-## 13. Câu hỏi còn lại cho BA
+## 13. Câu hỏi còn lại cho BA (bản 0.2): đã được BA trả lời ở vòng 2
+
+11 câu dưới đây đã được BA trả lời tại `docs/ui-ux/review-06-round2-ba.md` §4 (BA đề xuất, chờ xác nhận) và đã áp vào bản 0.3: menu theo `app.js` đã vá (shim chỉ còn đổi đích liên kết); QV chỉ xuất trong nhóm được giao, xuất cột cá nhân đầy đủ là quyền riêng (mặc định CH, KT); “Nhóm chi nhánh” là danh mục có ngày hiệu lực ở SYS-05; KT Quận 7 + Thủ Đức là mẫu cấu hình; doanh thu chưa thuế là Σ giá chưa thuế từng dòng, làm tròn theo dòng; thuế chỉ có gợi ý ở Nháp; hàng chờ duyệt dùng chung lọc theo người duyệt (G4-APR-03 ánh xạ loại yêu cầu → cấp duyệt); khóa chi nhánh hai bước có danh sách mục chặn đầy đủ; dữ liệu giá thật vào danh sách Discovery; palette giữ BA-06 câu 14. Nội dung gốc các câu hỏi giữ lại bên dưới để đối chiếu.
 
 1. **Cài đặt `ROLE_MENU`**: `00-foundation.md` §7 và `app.js` cần thêm chế độ `set: 'limited'` (nhãn “Danh mục”) cho QV, KT, CV, QĐ, TK như BA-06 câu 1; prototype dùng shim trong `pack.js`. Xác nhận nhãn chế độ.
 2. **Quyền xuất của QV với dữ liệu ngoài nhóm được giao** và việc QL “xuất hàng loạt cột cá nhân” cần quyền riêng: BA-06 câu 3 nêu nguyên tắc, cần danh sách quyền cụ thể ở SYS-04 (mặc định tắt).
@@ -334,6 +336,22 @@ Không có finding nào còn bỏ ngỏ; các điểm xử lý một phần đư
 9. **Khóa chi nhánh bước 2**: danh sách mục chặn (lệnh mở, phiếu thu chưa chốt ca, hàng đang đi đường, hóa đơn lỗi) đã đủ chưa; bước 1 có cần CH duyệt không (prototype: không, chỉ lý do và gõ NGUNG).
 10. **Dữ liệu mẫu giá và thuế**: mọi số trong SYS-07…10 là minh họa; cần số thật từ khách trước khi nghiệm thu.
 11. **Palette biểu đồ chỉ có 5 màu**: giữ nguyên theo BA-06 câu 14; đề nghị chủ dự án ghi vào phụ lục `design-system.md` thứ tự màu cố định theo quy trình (không phải câu hỏi nghiệp vụ).
+
+## 15. Finding vòng 2 (review-06-round2-ba.md) → đã xử lý ở đâu
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F6-04 (còn lại) | M | Quản lý vùng ở phạm vi hợp nhất không thấy Đà Nẵng ở RPT-03 (hàng + dòng tổng 4 chi nhánh 91.954.545 ₫ chưa thuế), RPT-04 (KPI 35 xe, 87,0%, biểu đồ, bảng), RPT-08 (biểu đồ), cùng quy tắc với RPT-02; Thu ngân ở RPT-10 chỉ thấy 4 phiếu thu mình lập và 3 lệnh gắn các phiếu đó (tổng 16.600.000 ₫ gồm thuế / 15.090.909 ₫ chưa thuế) | `pack.css` (`g4r-nottn`, `g4r-tn-only`), RPT-03, 04, 08, 10 |
+| F6R2-01 | M | Hộp thoại “Duyệt yêu cầu” có phần “Ảnh hưởng” theo từng loại yêu cầu (ngày hiệu lực mặc định; khôi phục thật nêu dữ liệu mất và hóa đơn đã gửi thuế; ẩn danh; hoàn tác lô; môi trường thật; hạ bảo mật; đổi quyền) và bắt buộc nhập lại mật khẩu cho loại rủi ro cao trước khi bật nút Duyệt | `pack.js` approveDialog, g4rPending (`imp`, `risk`), SYS-04, 16, 21, 22, 23, 24 |
+| F6R2-02 | m | Shim menu chỉ còn đặt `href` theo màn đầu tiên trong quyền; bỏ tạo/xóa nhãn và đổi `hidden` (nhãn do `app.js` quyết định) | `pack.js` gate |
+| F6R2-03 | m | Chương trình giảm 10% mẫu được hiển thị là “Hạn mức riêng đã duyệt (Chủ garage 28/09/2026)”, chỉ Quản lý vùng đề xuất đổi; QL chỉ thêm chương trình ≤ 5% (drawer mẫu 5%, nút thử lỗi vượt hạn mức) | SYS-09 |
+| F6R2-04 | m | Bỏ thẻ RPT-10 khỏi Trung tâm báo cáo (mở từ con số), TN/TH rơi vào trạng thái rỗng; “Mở Tổng quan” trỏ `../g1-auth-dashboard/index.html`; lọc Thu ngân ở RPT-10 | RPT-01, RPT-10 |
+| F6R2-05 | m | Thêm danh mục “Nhóm chi nhánh” (nhóm, chi nhánh, Quản lý vùng, hiệu lực, đổi nhóm có ngày hiệu lực và duyệt); SYS-02 gán Quản lý vùng theo nhóm | SYS-05, SYS-02 |
+| F6R2-06 | m | Khối “Yêu cầu chờ … duyệt” (cùng hàng chờ dùng chung G4-APR-01 lọc theo người duyệt) ở SYS-06, 11 (Chủ garage) và SYS-13 (Quản lý chi nhánh) | SYS-06, 11, 13, `pack.js` g4rPending(roles, who) |
+| F6R2-07 | m | Hạng tính động bằng CSS counter trên các hàng đang hiện; tag “Ngừng nhận lệnh mới” cho Đà Nẵng | RPT-02, `pack.css` |
+| F6R2-08 | m | DSO không tô màu cảnh báo khi chưa có ngưỡng; SYS-05 dùng 7 lệnh đang mở (khớp RPT-04) + 5 lệnh Hoàn tất còn công nợ | RPT-08, SYS-05 |
+| F6R2-09 | m | SYS-04 tách “Xuất báo cáo (đã che)” và “Xuất cột cá nhân đầy đủ” (chỉ ở Hồ sơ khách và xe; mặc định CH, KT; AD không có; cần có quyền Xem; cấp cho QL cần Chủ garage duyệt; QV chỉ trong nhóm được giao) | SYS-04 |
+| Quyết định mới BA | — | Khóa chi nhánh hai bước kèm danh sách mục chặn mở rộng và tồn kho phải chọn cách xử lý; Bước 1 do CH (AD chỉ đề xuất); doanh thu chưa thuế Σ theo dòng và quy tắc làm tròn; mức thuế chỉ gợi ý ở Nháp | SYS-05, RPT-03, SYS-10 |
 
 ## 14. Điểm yếu còn lại
 
