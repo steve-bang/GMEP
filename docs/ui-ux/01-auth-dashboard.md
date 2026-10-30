@@ -28,7 +28,7 @@ Template theo `screen-inventory.md` §0.2. “Đã thiết kế” = đã có fi
 | G1-SHL-01 | Khung ứng dụng theo vai trò | `g1-shl-01.html` | A | Mọi vai trò | P1 | Banner mất kết nối, chi nhánh bị khóa (chỉ xem) kèm nút bị tắt có lý do, phiên sắp hết, nháp chưa lưu khi đăng xuất/đổi phạm vi, nhiều pháp nhân, đổi góc nhìn vai trò, sidebar thu gọn, tablet, mobile (ngăn kéo + thanh dưới) |
 | G1-SHL-02 | Kết quả tìm kiếm toàn cục | `g1-shl-02.html` | C | Mọi vai trò (lọc theo quyền) | P1 | Có kết quả, không có kết quả, quá nhiều kết quả, đang tìm, lỗi, mất mạng, SĐT che theo vai trò |
 | G1-AUT-01 | Đăng nhập | `g1-aut-01.html` | Độc lập | Công khai | P1 | Mặc định, sai thông tin (trung lập), khóa tạm, mất mạng, đang xử lý, lối tắt thiết bị xưởng |
-| G1-AUT-02 | Xác thực hai lớp: nhập mã | `g1-aut-02.html` | Độc lập | CH, QV, QL, KT, AD | P1 | Nhập mã, mã sai/hết hạn, đồng hồ lệch, quá số lần thử, mã khôi phục, mã qua email, đang xác nhận |
+| G1-AUT-02 | Xác thực hai lớp: nhập mã | `g1-aut-02.html` | Độc lập | CH, QV, QL, KT, AD | P1 | Theo vai trò: CH/QV/QL (tin cậy 14 ngày, không mã email), KT/AD (không tin cậy thiết bị), vai trò tự bật (có mã email); mã sai/hết hạn, đồng hồ lệch, quá số lần thử (nhờ người có thẩm quyền đặt lại), mã khôi phục, đang xác nhận |
 | G1-AUT-03 | Thiết lập xác thực hai lớp lần đầu | `g1-aut-03.html` | W | Vai trò bắt buộc MFA | P1 | 4 bước (cài ứng dụng, quét mã, mã thử, mã khôi phục), mã thử sai, chưa xác nhận đã lưu mã, hết thời gian thiết lập |
 | G1-AUT-04 | Quên mật khẩu | `g1-aut-04.html` | Độc lập | Công khai | P1 | Nhập thông tin, đã gửi (trung lập, đếm lùi gửi lại), gửi quá nhiều lần, mất mạng |
 | G1-AUT-05 | Đặt lại mật khẩu | `g1-aut-05.html` | Độc lập | Công khai (có token) | P1 | Chính sách + thanh độ mạnh, trùng mật khẩu cũ, thành công, mất mạng; liên kết hết hạn chuyển ERR-05 |
@@ -36,7 +36,7 @@ Template theo `screen-inventory.md` §0.2. “Đã thiết kế” = đã có fi
 | G1-AUT-07 | Đổi mật khẩu bắt buộc | `g1-aut-07.html` | E | Người dùng có mật khẩu tạm | P1 | Mặc định, mật khẩu tạm sai, trùng mật khẩu cũ, mất mạng, đang lưu |
 | G1-AUT-08 | Chọn chi nhánh làm việc | `g1-aut-08.html` | Độc lập (card) | Người có từ 2 chi nhánh | P1 | Quản lý nhiều chi nhánh, CH/QV (hợp nhất, nhóm), chi nhánh vừa bị khóa (chỉ xem), chưa được gán chi nhánh |
 | G1-AUT-09 | Hết phiên và khóa màn hình | `g1-aut-09.html` | Dlg toàn trang | Mọi vai trò | P1 | Đếm lùi 60 giây, đã khóa, sai mật khẩu, mất mạng lúc khóa, hết phiên tuyệt đối 12 giờ, bị thu hồi quyền |
-| G1-AUT-10 | Thiết bị xưởng: chọn thợ và nhập PIN | `g1-aut-10.html` | Độc lập (tablet) | TH, QĐ | P1 | Chọn thợ, PIN sai, khóa tạm sau 5 lần sai, tự khóa 3 phút, mất mạng, thiết bị chưa đăng ký |
+| G1-AUT-10 | Thiết bị xưởng: chọn thợ và nhập PIN | `g1-aut-10.html` | Độc lập (tablet) | TH, QĐ | P1 | Chọn thợ, PIN sai, khóa đến khi QĐ/QL mở, Đặt PIN mới (sau PIN tạm), tự khóa 3 phút, mất mạng, thiết bị chưa đăng ký (nhập mã ghép), thiết bị bị thu hồi |
 | G1-ERR-01 | 403 Không có quyền | `g1-err-01.html` | Err | Mọi vai trò | P1 | Mặc định, quyền ở chi nhánh khác, đã gửi yêu cầu cấp quyền, mất mạng |
 | G1-ERR-02 | 404 Không tìm thấy | `g1-err-02.html` | Err | Mọi vai trò | P1 | Mặc định (gộp “không có” và “không được xem”) |
 | G1-ERR-03 | Lỗi hệ thống (5xx) | `g1-err-03.html` | Err | Mọi vai trò | P1 | Đã giữ nháp, không có việc đang soạn, chưa giữ được nháp, đang thử lại |
@@ -44,18 +44,18 @@ Template theo `screen-inventory.md` §0.2. “Đã thiết kế” = đã có fi
 | G1-ERR-05 | Liên kết hết hạn hoặc không hợp lệ | `g1-err-05.html` | Err / P | Công khai | P1 | Nhân viên (đặt lại mật khẩu), nhân viên (lời mời), khách hàng (gọi chi nhánh), mất mạng |
 | G1-DSH-01 | Tổng quan Chủ garage | `g1-dsh-01.html` | B | CH | P1 | Chuẩn + trạng thái thẻ + pilot 1 chi nhánh |
 | G1-DSH-02 | Tổng quan Quản lý vùng | `g1-dsh-02.html` | B | QV | P2 | Chuẩn + trạng thái thẻ + pilot |
-| G1-DSH-03 | Tổng quan Quản lý chi nhánh | `g1-dsh-03.html` | B | QL | P1 | Chuẩn + trạng thái thẻ + cảnh báo chưa chốt ngày |
+| G1-DSH-03 | Tổng quan Quản lý chi nhánh | `g1-dsh-03.html` | B | QL | P1 | Chuẩn + trạng thái thẻ (thiếu quyền: KPI lợi nhuận, khối Kho); KPI lợi nhuận chi nhánh “chưa gồm nhân công”; “Xe trễ hẹn giao” thay “Công việc quá hạn”; cảnh báo chưa chốt ngày |
 | G1-DSH-04 | Tổng quan Cố vấn dịch vụ | `g1-dsh-04.html` | B | CV | P1 | Chuẩn + trạng thái thẻ, “chưa có xe trong xưởng” |
 | G1-DSH-05 | Tổng quan Thủ kho | `g1-dsh-05.html` | B | TK | P1 | Chuẩn + trạng thái thẻ, nút xuất kho bị tắt có lý do khi hết hàng |
 | G1-DSH-06 | Tổng quan Kế toán | `g1-dsh-06.html` | B | KT | P1 (hóa đơn, đối soát), P2 (công nợ) | Chuẩn + trạng thái thẻ, Hiện SĐT có lý do |
-| G1-DSH-07 | Việc của tôi (Thợ, tablet) | `g1-dsh-07.html` | B | TH, QĐ | P1 | Việc đang làm, chưa làm, bị khóa chờ khách duyệt phát sinh, tạm dừng chờ phụ tùng, QC trả lại, trống, mất mạng |
+| G1-DSH-07 | Việc của tôi (Thợ, tablet) | `g1-dsh-07.html` | B | TH, QĐ | P1 | Việc đang làm, chưa làm, bị khóa chờ khách duyệt phát sinh, tạm dừng chờ phụ tùng, QC trả lại (thẻ có tên khách rút gọn, không SĐT), trống, mất mạng (chặn ghi giờ, chỉ dẫn nói trực tiếp, “Chờ gửi”) |
 | G1-DSH-08 | Tổng quan Thu ngân | `g1-dsh-08.html` | B | TN | P1 (BA) | Chuẩn + trạng thái thẻ + ca chưa mở |
 | G1-DSH-09 | Tổng quan Quản đốc / QC | `g1-dsh-09.html` | B | QĐ | P1 | Chuẩn + trạng thái thẻ |
 | G1-DSH-10 | Tổng quan Quản trị hệ thống | `g1-dsh-10.html` | B | AD | P1 | Chuẩn + trạng thái thẻ |
 | G1-NTF-01 | Trung tâm thông báo | `g1-ntf-01.html` | C / Dlg | Mọi vai trò | P1 (trong hệ thống), P2 (email, Zalo) | Có thông báo, trống, đang tải, lỗi, mất mạng, mục đã xử lý bởi người khác, liên kết ngoài quyền, ngăn kéo |
 | G1-NTF-02 | Cài đặt thông báo cá nhân | `g1-ntf-02.html` | S | Mọi vai trò | P2 | Mặc định, kênh Zalo bị khóa kèm giải thích, “Luôn bật” cho việc Cần xử lý, lưu lỗi, mất mạng |
 | G1-PRF-01 | Hồ sơ cá nhân | `g1-prf-01.html` | D / E | Mọi vai trò | P1 | Mặc định, lỗi nhập liệu, đã lưu, mất mạng, trường chỉ đọc kèm lý do, ảnh sai định dạng/quá lớn |
-| G1-PRF-02 | Bảo mật tài khoản | `g1-prf-02.html` | D / E | Mọi vai trò | P1 | Quản lý (MFA bắt buộc, nút tắt bị khóa có lý do), thợ (MFA tùy chọn, PIN), step-up mật khẩu, mất mạng |
+| G1-PRF-02 | Bảo mật tài khoản | `g1-prf-02.html` | D / E | Mọi vai trò | P1 | Quản lý (MFA bắt buộc, nút tắt bị khóa có lý do), thợ (MFA tùy chọn, PIN), Đổi email có xác minh (chờ xác nhận email mới), thiết bị tin cậy, step-up mật khẩu, mất mạng |
 
 ## 3. UI/UX flow
 
@@ -302,7 +302,24 @@ Prototype dựng khung ứng dụng và biểu đồ bằng JS để gọn và n
 
 Ngoài finding, đã áp dụng thêm từ `ba-answers-01.md`: quy định sử dụng ghi “Nội dung mẫu” và phiên bản (AUT-06, PRF-01); ma trận thông báo và email mặc định (NTF-02, mục bảo mật luôn bật; tóm tắt 06:00–10:00); mặc định bộ lọc theo vai trò; “hôm nay so cùng giờ thứ tuần trước” (DSH-03).
 
+### 11b. Vòng 2 (review `review-01-round2-ba.md`)
+
+| Finding | Mức | Xử lý | Ở đâu | Tình trạng |
+| --- | --- | --- | --- | --- |
+| F1R2-01 Chip chế độ menu của CH/QV/QL | Major | Nằm ở `design/assets/app.js` nên do designer foundation sửa (thêm chế độ “Xem và duyệt” cho CH: Kho phụ tùng, Cài đặt; QV: Kho phụ tùng; QL: thu chi). Gói G1 nhất quán: DSH-01 có nút “Mở hàng chờ phê duyệt” cho CH, các hành động Duyệt chỉ là duyệt, không tạo chứng từ | `docs` | Chờ foundation. Gói G1 không sửa `assets` |
+| F1R2-02 “Báo quản đốc” báo thành công giả khi mất mạng | Major | Bỏ nút gửi; chỉ dẫn “Nói trực tiếp với quản đốc” + phiếu giấy; nút “Gửi khi có mạng” đưa vào hàng chờ với thẻ “Chờ gửi” (không phải trạng thái hạng mục), toast nói chưa gửi được | `g1-dsh-07.html` | Xong |
+| F1R2-03 Đích “Thợ quá tải” | Minor | Đổi sang G2-REC-05 (CH có quyền xem phân thợ) | `g1-dsh-01.html` | Xong |
+| F1R2-04 Delta so ngày số tạm | Minor | Theo quy tắc: so 01–29/10 với 01–29/09, ghi “chưa gồm ngày 30/10 (số tạm)”; DSH-01/02/06 là +8,4%, +8,4%, +11,3%; cột “So với…” của bảng chi nhánh ghi rõ kỳ | `g1-dsh-01/02/06.html` | Xong |
+| F1R2-05 Tên khách ở thẻ việc của Thợ | Minor | Thêm “Khách: anh An” (tên rút gọn, không SĐT, không địa chỉ) vào mỗi thẻ việc | `g1-dsh-07.html` | Xong |
+| F1-14, F1-23, F1-28 (Một phần ở vòng 1) | – | BA đã trả lời: F1-14 đóng; F1-23 (128 dòng `style=`) và F1-28 (bộ lọc nối truy vấn thật) chuyển dev, không chặn gói | §10, §12 | Chuyển dev |
+
+Quy tắc bổ sung (BA vòng 2): khi ngày cuối của kỳ là số tạm, so sánh với kỳ trước đến cùng giờ hoặc ghi “chưa gồm cả ngày”. Tên khách ở thẻ việc của thợ chỉ là tên rút gọn.
+
 ## 12. Câu hỏi còn lại cho BA
+
+**Đợt 2 đã được BA trả lời** (`review-01-round2-ba.md` mục 4): KT bắt buộc MFA, QĐ không; doanh thu ghi nhận theo ngày lệnh hoàn tất/giao xe, nhân công không tính ở Phase 1; số tổng đài là việc khách cung cấp trước pilot; văn bản quy định do luật sư của khách ban hành; chặn ghi giờ khi mất mạng ở Phase 1; QĐ nhập bù (≤ 15 phút tự nhập, lớn hơn cần QL duyệt); thợ quá tải = giờ chuẩn đã giao lớn hơn giờ khả dụng (vàng từ 90%); chậm luân chuyển = tồn khả dụng > 0 và không xuất kho trong N = 90 ngày (cấu hình theo nhóm hàng); cọc gắn báo giá; đăng ký lại thiết bị xưởng mỗi 90 ngày, 20 lần sai PIN trong 15 phút khóa thiết bị; TH không tìm/không liệt kê khách; QL không cần nhãn lợi nhuận riêng. Giữ lại danh sách cũ dưới đây để truy vết; chỉ còn các điểm khách phải xác nhận (KT/QĐ và MFA, mốc doanh thu theo kế toán, số tổng đài, văn bản quy định, cách xử lý hóa đơn cho tiền cọc).
+
+(Danh sách đợt 1 để truy vết)
 
 1. (BA §E1) KT, QĐ có thuộc nhóm bắt buộc MFA không (prototype theo đề xuất: KT bắt buộc, QĐ không).
 2. (BA §E2) Mốc ghi nhận doanh thu và thành phần nhân công trong lợi nhuận gộp theo kế toán của khách; “Cách tính” đang ghi theo FR-RPT-013.
