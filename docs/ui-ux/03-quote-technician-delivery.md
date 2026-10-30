@@ -206,7 +206,7 @@ Câu trả lời BA đã áp dụng: câu 1 (QUO-01/03), 2 (QUO-02/05/06/08), 3 
 - Chưa có màn hình cho cấu hình ("Cho phép khách bỏ hạng mục bắt buộc", OTP ba mức, chế độ hiển thị giá, ngưỡng): thuộc G4-SYS; gói này chỉ phản ánh kết quả.
 - Chưa kiểm bằng trình duyệt: mọi nhận định hiển thị là tự rà mã.
 
-## 11. Câu hỏi còn lại cho BA
+## 11. Câu hỏi vòng 1 (BA đã trả lời ở `review-03-round2-ba.md` §4, đã áp dụng ở §12)
 
 | # | Câu hỏi | Ảnh hưởng |
 | --- | --- | --- |
@@ -220,3 +220,34 @@ Câu trả lời BA đã áp dụng: câu 1 (QUO-01/03), 2 (QUO-02/05/06/08), 3 
 | 8 | Phát sinh được duyệt tại quầy (QUO-05) hay qua liên kết: có áp cùng ngưỡng OTP/giá trị như báo giá thường không? | QUO-05, 06, 07 |
 | 9 | Báo giá nhiều trang khi in: yêu cầu đếm trang và lặp tiêu đề bảng; có cần giới hạn số dòng trên A4/A5? | PRT-01 |
 | 10 | Giao xe cho người ủy quyền: bắt buộc ảnh giấy tờ cho mọi chi nhánh hay cấu hình? Thời hạn lưu ảnh? | DLV-04 |
+
+## 12. Vòng 2: Finding → đã xử lý ở đâu
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F3R2-01 Nút hàng loạt tạo báo giá mới cho xe có lệnh mở | Major | Dòng xe có lệnh mở gắn `data-open-ro`; chọn một xe như vậy thì nút đổi thành "Lập báo giá bổ sung" → QUO-07; chọn nhiều xe thì khóa | QUO-08 |
+| F3-26 Hoàn tác phải sống 10 giây | Minor | Thanh hoàn tác riêng cố định dưới màn hình, đếm ngược 10 giây (không dùng toast chung tự xóa sau 5 giây); hoàn tác ghi mốc "hủy bắt đầu" có vết | pack.js, pack.css (`.g2q-undo`), TEC-01, 02 |
+| F3R2-02 "Hủy phát sinh" hiện là "Khách từ chối" | Minor | Biến thể "Cố vấn đã hủy" với badge/tag "Đã hủy", nhóm "Không thực hiện", không tự lưu nhắc (cố vấn chọn) | QUO-07 |
+| F3R2-03 Giá cũ "đã gồm thuế" sai | Minor | 650.000 → 702.000 ₫ (giá hiện tại cùng nguồn QUO-06), tổng 9.792.000 ₫ | QUO-08 |
+| F3R2-04 DLV-03 `extra` đếm sai | Minor | Biến thể `extra`: thu đủ tiền ở "Đạt" (badge Đã thanh toán), chỉ còn 1 điều kiện phát sinh | DLV-03 |
+| F3R2-05 Khách cá nhân còn nợ thiếu đường xin duyệt | Minor | Ở `pending`, CV/QL có "Đề nghị duyệt giao xe còn nợ (ngoại lệ)" dùng hộp thoại `dlg-debt` | DLV-03 |
+| F3R2-06 Nháp báo phát sinh chưa gửi không có dấu hiệu | Minor | Cảnh báo nổi bật đầu TEC-01 "1 báo hư hỏng phát sinh CHƯA gửi" kèm nút mở nháp | TEC-01 |
+| F3R2-07 RO-Q7-2610-00126 mâu thuẫn | Minor | DLV-01 dùng lệnh khác (00114, 00110) | DLV-01 |
+| F3R2-08 Câu hậu quả QUO-05 cứng | Minor | Sinh theo hạng mục đang chọn (có/không hạng mục 2, một hạng mục duy nhất thì lệnh Tạm dừng) | QUO-05 |
+
+**Quyết định BA vòng 2 đã áp dụng.** (1) Mất mạng TEC: chặn gửi + nháp trên máy + Gửi khi có mạng, mốc giờ vẫn ghi bù (TEC-01/03/04). (2) Trạng thái yêu cầu phụ tùng thành badge: Đã gửi / Thủ kho đã nhận / Xuất một phần / Đã xuất đủ / Thiếu hàng, chờ hàng về / Đã hủy (TEC-03). (3) Biên bản điều chỉnh bằng hộp thoại từ DLV-04 đã giao, QL duyệt, mã BB mới liên kết bản gốc (DLV-04). (4) Cờ An toàn: giữ đến khi làm, bỏ nhắc có lý do hoặc hết hạn lưu (khởi tạo 12 tháng), có báo cáo QL (QUO-08). (5) Thuế làm tròn ở cấp hạng mục, 1 đồng (đề xuất; QUO-02 ghi chú). (6) Người ủy quyền: bắt buộc ảnh giấy tờ, cấu hình theo chi nhánh, miễn khi là người liên hệ doanh nghiệp, ảnh nhạy cảm (DLV-04). (7) "Khách đã yêu cầu": ghi kênh, giờ, ghi chú, người đặt cờ (QUO-02). (8) Phát sinh duyệt cùng cơ chế OTP/ngưỡng; xác nhận bằng lời qua điện thoại là ngoại lệ có rà soát (QUO-07 nút "Ghi nhận duyệt (quầy hoặc điện thoại)").
+
+## 13. Chưa xử lý trọn vẹn / chuyển cho dev hoặc gói khác
+
+- Nhóm "Không thực hiện" ở G2-REC-04: thuộc gói 2, designer cập nhật lượt gói 2 kế tiếp (BA câu 3).
+- Báo giá nhiều trang: "Trang x/y" thật và lặp tiêu đề bảng cần CSS paged media hoặc PDF phía máy chủ; A4 là khổ mặc định cho báo giá dài (yêu cầu dev).
+- `@page` nhiệt, máy in thật, trình duyệt khác Chromium, tablet cảm ứng thật: chưa kiểm.
+- Chưa có màn cấu hình (G4-SYS); `document.write`/regex `techShell`, số điện thoại mô phỏng trong PRT-01: giữ ở prototype.
+
+## 14. Câu hỏi còn lại cho BA
+
+| # | Câu hỏi | Ảnh hưởng |
+| --- | --- | --- |
+| 1 | Lỗi làm tròn thuế cấp hạng mục: kế toán chốt ví dụ kiểm thử có chữ ký (NFR-MNT-01) trước khi đóng cứng cách hiển thị? | QUO-05, 06, PRT-01 |
+| 2 | Báo giá bổ sung "Đã hủy" bởi cố vấn: đối tượng báo giá dùng trạng thái nào trong bộ 6 (hiện hiển thị badge "Đã hủy" như tag phụ)? | QUO-07 |
+| 3 | Thời hạn nháp "chưa gửi" của báo phát sinh trên máy: giữ đến hết ca hay hết phiên khóa 3 phút? | TEC-01, 04 |

@@ -185,12 +185,15 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-g2q-undo]'); if (!b || !window.gmepToast) return;
     var p = b.getAttribute('data-g2q-undo').split('|');
-    window.gmepToast('success', p[0], p[1]);
-    var reg = document.querySelector('.toast-region'), t = reg && reg.lastElementChild; if (!t) return;
-    var u = document.createElement('button'); u.type = 'button'; u.className = 'btn btn--secondary btn--sm'; u.innerHTML = ic('undo', 'icon--sm') + 'Hoàn tác';
-    t.appendChild(u);
-    var timer = setTimeout(function () { if (u.parentNode) u.remove(); }, 10000);
-    u.addEventListener('click', function () { clearTimeout(timer); t.remove(); window.gmepToast('info', 'Đã hủy bắt đầu', 'Mốc “hủy bắt đầu” được ghi vết, không tính giờ làm.'); });
+    /* Thanh hoàn tác riêng (không dùng toast chung vì toast tự xóa sau 5 giây): sống đủ 10 giây, có đếm ngược */
+    var old = document.getElementById('g2q-undo'); if (old) old.remove();
+    var bar = document.createElement('div'); bar.id = 'g2q-undo'; bar.setAttribute('role', 'status'); bar.className = 'alert alert--success g2q-undo';
+    var left = 10;
+    bar.innerHTML = ic('circle-check') + '<div class="alert__body"><span class="alert__title"></span><span class="g2q-undo__t"></span></div><button type="button" class="btn btn--secondary btn--xl">' + ic('undo') + 'Hoàn tác (<span class="g2q-undo__n">10</span>)</button>';
+    bar.querySelector('.alert__title').textContent = p[0]; bar.querySelector('.g2q-undo__t').textContent = p[1];
+    document.body.appendChild(bar);
+    var iv = setInterval(function () { left--; var n = bar.querySelector('.g2q-undo__n'); if (n) n.textContent = left; if (left <= 0) { clearInterval(iv); bar.remove(); } }, 1000);
+    bar.querySelector('button').addEventListener('click', function () { clearInterval(iv); bar.remove(); window.gmepToast('info', 'Đã hủy bắt đầu', 'Mốc “hủy bắt đầu” được ghi vết, không tính giờ làm.'); });
   });
   document.addEventListener('click', function (e) {
     if (e.target.closest('[data-print]')) window.print();

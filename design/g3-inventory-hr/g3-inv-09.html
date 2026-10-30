@@ -28,21 +28,26 @@
 <div data-g3-state="data" class="stack">
   <div class="g3-ro-flag alert alert--info" data-for="f-grn" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho ghi nhập kho; Quản lý chi nhánh duyệt khi nhập lệch số lượng hoặc giá.</span></div></div>
   <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng:</span>
-    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="blk-nopo">Nhập không có đơn mua</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="blk-ym">Chứng từ gốc: yêu cầu Mua gấp (YM)</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="blk-nopo">Nhập không có đơn mua (hiếm)</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="a-count">Mã đang trong đợt kiểm kê</button>
     <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="" data-g3-busy="btn-grn">Đang ghi</button></div>
 
+  <div class="alert alert--warning" id="a-count" hidden role="note"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>PT-0005 đang trong đợt kiểm kê <a href="g3-inv-16.html">KK-Q7-2610-00004</a>. Vẫn nhập được (chỉ cảnh báo, không chặn); phần nhập sau thời điểm đếm hiện ở cột “Phát sinh trong lúc đếm” khi duyệt kiểm kê.</span></div></div>
   <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Có 1 dòng lệch giá vượt ngưỡng cấu hình: cần Quản lý chi nhánh duyệt mới ghi nhập</span><span>Bugi Denso: giá đơn mua 520.000 ₫, giá nhập thực 560.000 ₫ (+40.000 ₫ mỗi bộ, +7,7%). Ngưỡng chênh lệch lấy từ cấu hình G4-APR-03.</span></div></div>
 
   <form id="f-grn" class="g3-split" data-g3-edit="TK" onsubmit="return false">
     <div class="stack-6">
       <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Thông tin giao nhận</h2>
         <div class="form-grid">
-          <div class="field"><label class="field__label" for="n-po">Đơn mua</label><input id="n-po" class="input" value="DM-Q7-2610-00014 (nhận một phần, còn mở)" readonly></div>
+          <div class="field"><label class="field__label" for="n-po">Chứng từ gốc<span class="field__req" aria-hidden="true">*</span></label><select id="n-po" class="select"><option>DM-Q7-2610-00014 · đơn mua (nhận một phần, còn mở)</option><option>YM-Q7-2610-00006 · yêu cầu Mua gấp (đã ghi nhận, chờ hậu duyệt)</option><option>Không có đơn mua (hiếm: hàng tặng, hàng bù, nhập tồn)</option></select><span class="field__hint">Mua gấp đi theo yêu cầu YM làm chứng từ gốc; “không có đơn mua” luôn cần Quản lý duyệt.</span></div>
           <div class="field"><label class="field__label" for="n-dn">Số phiếu giao hàng của NCC<span class="field__req" aria-hidden="true">*</span></label><input id="n-dn" class="input" value="GH-HL-88217"></div>
           <div class="field"><label class="field__label" for="n-date">Ngày nhận<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="n-date" class="input" value="29/10/2026"><svg class="icon"><use href="#calendar"/></svg></div><span class="field__hint">Định dạng dd/MM/yyyy.</span></div>
           <div class="field"><label class="field__label" for="n-who">Người nhận</label><input id="n-who" class="input" value="Trần Thị Mai Anh" readonly></div>
         </div>
-        <div id="blk-nopo" hidden style="margin-top:16px"><div class="field"><label class="field__label" for="n-why">Lý do nhập không có đơn mua<span class="field__req" aria-hidden="true">*</span></label><textarea id="n-why" class="textarea" placeholder="Ví dụ: mua gấp tại cửa hàng cho lệnh RO-Q7-2610-00126"></textarea><span class="field__hint">Bắt buộc, tối thiểu 5 ký tự; ghi nhật ký và cần Quản lý chi nhánh duyệt.</span></div></div></section>
+        <div id="blk-ym" hidden style="margin-top:16px" class="stack-2"><div class="alert alert--warning"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">YM-Q7-2610-00006 · Mua gấp · chờ hậu duyệt đến 10:30 31/10/2026</span><span>Mua tại cửa hàng Ánh Dương cho lệnh RO-Q7-2610-00126, giá trị trong hạn mức tự quyết của người lập (<span class="g3-sample">2.000.000 ₫ · giá trị mẫu</span>). Hàng nhập vào bằng phiếu này; quá hạn hậu duyệt hệ thống nhắc và gắn cờ cho Kế toán, không chặn nhập kho.</span></div></div>
+          <div class="field"><label class="field__label" for="n-bill">Ảnh hóa đơn / biên lai<span class="field__req" aria-hidden="true">*</span></label><input id="n-bill" class="input" type="file" accept="image/*" capture="environment"><span class="field__hint">Bắt buộc với nguồn Mua gấp.</span></div></div>
+        <div id="blk-nopo" hidden style="margin-top:16px"><div class="field"><label class="field__label" for="n-why">Lý do nhập không có đơn mua<span class="field__req" aria-hidden="true">*</span></label><textarea id="n-why" class="textarea" placeholder="Ví dụ: nhà cung cấp tặng hàng khuyến mại, hàng bù cho lô lỗi"></textarea><span class="field__hint">Bắt buộc, tối thiểu 5 ký tự; ghi nhật ký và cần Quản lý chi nhánh duyệt.</span></div></div></section>
 
       <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Đối chiếu với đơn mua</h2><span class="table-meta">2 dòng · lần này: 14 đơn vị</span></div>
         <div class="table-scroll" data-g3-scan-target><table class="table"><caption class="sr-only">Đối chiếu số lượng, mã, giá giữa đơn mua và hàng nhận</caption>

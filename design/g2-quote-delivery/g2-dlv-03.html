@@ -36,7 +36,7 @@ g2q.scope('hôm nay 30/10/2026', '10:50');
       </div>
       <div class="g2q-badges">
         <div class="g2q-badges__item">Lệnh <span class="badge badge--success" data-vx="readonly">Sẵn sàng bàn giao</span><span class="badge badge--success" data-v="readonly">Hoàn tất</span></div>
-        <div class="g2q-badges__item">Thanh toán <span class="badge badge--info" data-v="pending extra debt-ok debt-over approval">Thanh toán một phần</span><span class="badge badge--success" data-v="ready readonly">Đã thanh toán</span></div>
+        <div class="g2q-badges__item">Thanh toán <span class="badge badge--info" data-v="pending debt-ok debt-over approval">Thanh toán một phần</span><span class="badge badge--success" data-v="extra ready readonly">Đã thanh toán</span></div>
         <div class="g2q-badges__item">Hóa đơn <span class="badge badge--neutral" data-v="pending debt-over approval">Chưa xuất</span><span class="badge badge--success" data-v="extra ready debt-ok readonly">Đã xuất</span></div>
       </div>
     </section>
@@ -53,14 +53,15 @@ g2q.scope('hôm nay 30/10/2026', '10:50');
           <div class="g2q-cond"><span class="g2q-cond__ico g2q-cond__ico--ok" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span><div><div class="g2q-cond__title">Kiểm tra chất lượng đã đạt</div><div class="g2q-note">Đạt 11/11 mục · Phạm Quốc Bảo · 10:42 30/10/2026</div></div><span class="g2q-cond__state g2q-cond__state--ok">Đạt</span></div>
 
           <div class="g2q-cond">
-            <span class="g2q-cond__ico g2q-cond__ico--no" data-v="pending extra debt-over" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--todo" data-v="approval" aria-hidden="true"><svg class="icon icon--sm"><use href="#clock"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--ok" data-v="ready debt-ok readonly" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span>
+            <span class="g2q-cond__ico g2q-cond__ico--no" data-v="pending debt-over" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--todo" data-v="approval" aria-hidden="true"><svg class="icon icon--sm"><use href="#clock"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--ok" data-v="extra ready debt-ok readonly" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span>
             <div><div class="g2q-cond__title">Đã thu đủ tiền (hoặc ghi công nợ hợp lệ)</div>
-              <div class="g2q-note" data-v="pending extra">Còn phải thu <strong class="num">2.416.000 ₫</strong> (tổng 2.916.000 ₫, đã đặt cọc 500.000 ₫ - PT-Q7-2610-00302).</div>
-              <div class="g2q-note" data-v="ready readonly">Đã thu đủ 2.916.000 ₫ · PT-Q7-2610-00331 (tiền mặt 2.416.000 ₫ + cọc 500.000 ₫) · Mai Thu Thảo 10:52.</div>
+              <div class="g2q-note" data-v="pending">Còn phải thu <strong class="num">2.416.000 ₫</strong> (tổng 2.916.000 ₫, đã đặt cọc 500.000 ₫ - PT-Q7-2610-00302).</div>
+              <div class="g2q-note" data-v="extra ready readonly">Đã thu đủ 2.916.000 ₫ · PT-Q7-2610-00331 (tiền mặt 2.416.000 ₫ + cọc 500.000 ₫) · Mai Thu Thảo 10:52.</div>
               <div class="g2q-note" data-v="debt-ok">Ghi công nợ 2.416.000 ₫: công nợ sau ghi 31.200.000 ₫ so với hạn mức 40.000.000 ₫ (giá trị mẫu, lấy từ hồ sơ khách). Trong hạn mức, không cần duyệt.</div>
               <div class="g2q-note" data-v="debt-over approval">Ghi công nợ 2.416.000 ₫: vượt hạn mức khách, cần duyệt.</div></div>
-            <div><span class="g2q-cond__state g2q-cond__state--no" data-v="pending extra debt-over">Chưa đạt</span><span class="g2q-cond__state g2q-cond__state--todo" data-v="approval">Chờ duyệt</span><span class="g2q-cond__state g2q-cond__state--ok" data-v="ready debt-ok readonly">Đạt</span>
-              <div class="row" style="margin-top:8px" data-v="pending extra"><a class="btn btn--primary btn--sm" data-show-roles="TN" href="../g4-finance/g4-acc-01.html">Thu tiền</a><span class="g2q-note" data-show-roles="CV QL CH QV QD TK KT">Chờ Thu ngân thu tiền (cố vấn chỉ xem trạng thái thu)</span></div>
+            <div><span class="g2q-cond__state g2q-cond__state--no" data-v="pending debt-over">Chưa đạt</span><span class="g2q-cond__state g2q-cond__state--todo" data-v="approval">Chờ duyệt</span><span class="g2q-cond__state g2q-cond__state--ok" data-v="extra ready debt-ok readonly">Đạt</span>
+              <div class="row" style="margin-top:8px" data-v="pending"><a class="btn btn--primary btn--sm" data-show-roles="TN" href="../g4-finance/g4-acc-01.html">Thu tiền</a><span class="g2q-note" data-show-roles="CV QL CH QV QD TK KT">Chờ Thu ngân thu tiền (cố vấn chỉ xem trạng thái thu)</span></div>
+              <div class="row" style="margin-top:8px" data-v="pending"><button class="btn btn--ghost btn--sm" data-open="dlg-debt" data-show-roles="CV QL">Đề nghị duyệt giao xe còn nợ (ngoại lệ)</button><span class="g2q-note" data-show-roles="CV QL">Khách cá nhân hạn mức 0: cần Quản lý duyệt</span></div>
               <div class="row" style="margin-top:8px" data-v="debt-over"><button class="btn btn--danger-outline btn--sm" data-open="dlg-debt" data-show-roles="CV QL">Đề nghị duyệt giao xe còn nợ</button></div></div>
           </div>
 
@@ -115,7 +116,7 @@ g2q.scope('hôm nay 30/10/2026', '10:50');
         <section class="card"><div class="card__header"><h2 class="card__title">Tiền của lệnh</h2></div><div class="g2q-totals">
           <div class="g2q-totals__row"><span>Cộng trước thuế</span><span>2.700.000 ₫</span></div><div class="g2q-totals__row"><span>Thuế GTGT 8% (số mẫu)</span><span>216.000 ₫</span></div><div class="g2q-totals__row g2q-totals__row--final"><span>Tổng lệnh</span><span>2.916.000 ₫</span></div>
           <div class="g2q-totals__row g2q-totals__row--sub"><span>Đã thu (cọc)</span><span>500.000 ₫</span></div>
-          <div class="g2q-totals__row g2q-totals__row--ok" data-v="pending extra debt-over approval"><span>Còn phải thu</span><span>2.416.000 ₫</span></div><div class="g2q-totals__row g2q-totals__row--ok" data-v="ready readonly"><span>Còn phải thu</span><span>0 ₫</span></div><div class="g2q-totals__row g2q-totals__row--ok" data-v="debt-ok"><span>Ghi công nợ</span><span>2.416.000 ₫</span></div></div></section>
+          <div class="g2q-totals__row g2q-totals__row--ok" data-v="pending debt-over approval"><span>Còn phải thu</span><span>2.416.000 ₫</span></div><div class="g2q-totals__row g2q-totals__row--ok" data-v="extra ready readonly"><span>Còn phải thu</span><span>0 ₫</span></div><div class="g2q-totals__row g2q-totals__row--ok" data-v="debt-ok"><span>Ghi công nợ</span><span>2.416.000 ₫</span></div></div></section>
         <section class="card"><div class="card__header"><h2 class="card__title">Bảo hành sẽ in trên biên bản</h2></div><div class="g2q-links"><div class="g2q-links__item"><span>Thay dầu và lọc dầu<span class="g2q-links__type">Theo cấu hình hạng mục</span></span><span class="tag">5.000 km hoặc 6 tháng</span></div><div class="g2q-links__item"><span>Thay má phanh sau<span class="g2q-links__type">Theo cấu hình hạng mục</span></span><span class="tag">6 tháng</span></div><div class="g2q-links__item"><span>Cân chỉnh góc đặt bánh<span class="g2q-links__type">Theo cấu hình hạng mục</span></span><span class="tag">30 ngày</span></div></div></section>
       </aside>
     </div>
@@ -125,7 +126,7 @@ g2q.scope('hôm nay 30/10/2026', '10:50');
 
 <div class="overlay" id="dlg-debt" role="alertdialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dd-t">Đề nghị duyệt giao xe còn nợ?</h2></div></div>
-  <div class="dialog__body"><ul class="impact-list"><li>Công nợ sau khi ghi: 48.500.000 ₫, vượt hạn mức khách 40.000.000 ₫ (số mẫu, theo hồ sơ khách).</li><li>Đề nghị gửi Quản lý chi nhánh duyệt ở G4-APR-02; chưa giao xe trước khi được duyệt. Người đề xuất không tự duyệt.</li><li>Hành động ghi vào nhật ký.</li></ul>
+  <div class="dialog__body"><ul class="impact-list"><li>Khách còn nợ so với hạn mức trong hồ sơ (khách cá nhân mặc định 0; mẫu doanh nghiệp: 48.500.000 ₫ so với 40.000.000 ₫).</li><li>Đề nghị gửi Quản lý chi nhánh duyệt ở G4-APR-02; chưa giao xe trước khi được duyệt. Người đề xuất không tự duyệt.</li><li>Hành động ghi vào nhật ký.</li></ul>
     <div class="field"><label class="field__label" for="dd-r">Lý do đề nghị <span class="field__req">*</span></label><textarea id="dd-r" class="textarea" data-confirm-reason placeholder="Ví dụ: khách thanh toán cuối tháng theo hợp đồng"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-set="approval" data-for="hd" data-toast="info|Đã gửi đề nghị duyệt|Chờ Quản lý chi nhánh duyệt. Chưa giao xe.">Gửi đề nghị</button></div></div></div>
 

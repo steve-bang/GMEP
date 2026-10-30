@@ -29,7 +29,9 @@
   <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng:</span>
     <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="e-src">Thiếu chứng từ gốc</button>
     <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="e-over">Xuất vượt Khả dụng</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="a-count">Mã đang trong đợt kiểm kê</button>
     <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="" data-g3-busy="btn-post">Đang ghi</button></div>
+  <div class="alert alert--warning" id="a-count" hidden role="note"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>Dòng lốp PT-0005 đang trong đợt kiểm kê <a href="g3-inv-16.html">KK-Q7-2610-00004</a>. Vẫn xuất được (chỉ cảnh báo, không chặn); số xuất sau thời điểm đếm hiện ở cột “Phát sinh trong lúc đếm” khi duyệt. Đóng băng nhóm hàng đang đếm là cấu hình ở Cài đặt (G4-SYS), không thiết kế ở gói này.</span></div></div>
   <div class="g3-ro-flag alert alert--info" data-for="f-gin" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho lập và xác nhận phiếu xuất; Quản lý chi nhánh duyệt xuất bất thường.</span></div></div>
   <form id="f-gin" class="g3-split" data-g3-edit="TK" onsubmit="return false">
     <div class="stack-6">
