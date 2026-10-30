@@ -22,6 +22,14 @@ The docs are drafts (BRD v0.3), not yet confirmed by the client. Items marked `[
 
 Three embedded diagrams in these docs were lost in export (placeholders only: repair process, inter-branch stock transfer, repair-order lifecycle). Module codes: REC, INS, CRM, INV, PUR, HRM, ACC, EIN, RPT, SYS. Cite FR/RULE ids when implementing.
 
+## Agents and skills (`.claude/`)
+
+- `agents/ba.md` — Business Analyst: requirements, FR/user stories, acceptance criteria, workflows, consistency and traceability across `docs/`, turning open items into client questions. Does not write code or pick the tech stack.
+- `agents/designer.md` — Web Dashboard UI/UX Designer: screens, flows, design system, handoff specs, prototypes under `design/`. Must load the `dashboard-ui-ux` skill first; on domain behavior the docs win, on UI/UX practice the skill wins. Sends requirement gaps back to `ba`.
+- `skills/dashboard-ui-ux/` — dashboard UI/UX process and checklists (layout, tables/filters, charts/KPI, design tokens, states, accessibility/performance, Vietnamese localization, templates), copied into the repo so it is available to everyone who clones it.
+
+Use `ba` before `designer` when a requirement is unclear or missing.
+
 ## Domain model and rules that span modules
 
 - **Multi-branch**: Company → Branch → Warehouse (must extend to multiple legal entities later). Every business record carries creator, timestamp and branch; every change is audit-logged (FR-SYS-003). Branch data isolation must hold in lists, search, reports, exports and API (NFR-ISO-01). Adding a branch is configuration only.
