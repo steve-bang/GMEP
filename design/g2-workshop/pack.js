@@ -178,9 +178,9 @@
       e.title = off ? why : e.__lbl;
     });
     $$('a[data-g2w-lock-link]').forEach(function (e) {
-      var ok = e.getAttribute('data-g2w-lock-link').split(' ').indexOf(r) >= 0;
-      e.setAttribute('aria-disabled', String(!ok)); e.style.pointerEvents = ok ? '' : 'none'; e.style.opacity = ok ? '' : '.5';
-      e.title = ok ? '' : 'Vai trò hiện tại không có quyền thao tác này.';
+      var ok = e.getAttribute('data-g2w-lock-link').split(' ').indexOf(r) >= 0, forced = e.hasAttribute('data-g2w-force-disabled'), off = !ok || forced;
+      e.setAttribute('aria-disabled', String(off)); e.style.pointerEvents = off ? 'none' : ''; e.style.opacity = off ? '.5' : '';
+      e.title = !ok ? 'Vai trò hiện tại không có quyền thao tác này.' : (forced ? (e.getAttribute('data-g2w-force-why') || '') : '');
     });
     $$('[data-g2w-why-box]').forEach(function (e) { e.hidden = e.getAttribute('data-g2w-why-box').split(' ').indexOf(r) >= 0; });
     $$('[data-g2w-money]').forEach(function (e) {

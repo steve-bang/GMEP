@@ -94,6 +94,7 @@
             <a class="btn btn--danger-outline" href="g2-rec-06.html" id="cancel-btn" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#x"/></svg>Hủy lệnh…</a>
           </div>
         </div>
+        <p class="g2w-why" id="cancel-why" role="status" hidden><svg class="icon icon--sm"><use href="#lock"/></svg><span id="cancel-why-text"></span></p>
         <p class="g2w-why" id="primary-why" role="status"><svg class="icon icon--sm"><use href="#info"/></svg><span id="primary-why-text">Chưa thể chuyển sang Chờ QC: còn 2 hạng mục chưa hoàn thành (“Thay má phanh trước” đang làm, “Cân chỉnh góc đặt bánh xe” chưa làm). Hạng mục phát sinh chưa được duyệt không chặn bước này.</span></p>
       </div>
     </header>
@@ -371,6 +372,18 @@
   </div></div>
   <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button></div></aside></div>
 
+<div class="overlay" id="dlg-pause" role="dialog" aria-modal="true" aria-labelledby="pz-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="pz-t">Tạm dừng lệnh RO-Q7-2610-00128</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="field__label">Lý do tạm dừng<span class="field__req" aria-hidden="true">*</span></legend>
+      <label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Chờ phụ tùng</span></label>
+      <label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Chờ khách duyệt phát sinh</span></label>
+      <label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Nghỉ</span></label>
+      <label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Khác (bắt buộc ghi chú)</span></label></fieldset>
+    <div class="field"><label class="field__label" for="pz-n">Ghi chú</label><textarea id="pz-n" class="textarea" style="min-height:56px" placeholder="Bắt buộc khi chọn “Khác”"></textarea></div>
+    <ul class="impact-list"><li>Lệnh chuyển “Tạm dừng” kèm lý do, hạng mục đang làm dừng đồng hồ giờ thực.</li><li>Chọn “Chờ phụ tùng” thì tạo yêu cầu cho thủ kho.</li><li>Danh sách lý do là cấu hình; ghi người và thời điểm vào lịch sử.</li></ul></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã tạm dừng lệnh|Lý do được ghi vào lịch sử.">Tạm dừng</button></div></div></div>
+
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
 <script>
@@ -378,7 +391,12 @@
 (function () {
   var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
   function badge(id, cls, text) { var e = $(id); if (e) { e.className = 'badge badge--' + cls; e.textContent = text; } }
-  var STEP = { working: 2, paused: 2, done: 5, locked: 5, debt: 2, cancelled: 0 };
+  var STEP = { working: 2, paused: 2, qc: 3, ready: 4, done: 5, locked: 5, debt: 2, cancelled: 0 };
+  var INV_ITEMS = ['Lệnh ở Sẵn sàng bàn giao hoặc Hoàn tất (đã qua QC), không ở Đã hủy', 'Không còn hạng mục phát sinh chờ duyệt, không có cờ “Chờ duyệt hủy”', 'Thông tin người mua đủ (cá nhân: tên; doanh nghiệp: pháp nhân, MST, địa chỉ)', 'Thuế suất theo ngày lập và đơn vị phát hành đã cấu hình', 'Chưa có hóa đơn hiệu lực cho lệnh này (chống trùng)'];
+  function renderCheck(missing) {
+    $('#inv-checklist').innerHTML = INV_ITEMS.map(function (t, i) { var miss = missing.indexOf(i + 1) >= 0; return '<li><span class="badge badge--' + (miss ? 'danger' : 'success') + '">' + (miss ? 'Thiếu' : 'Đạt') + '</span><span>' + t + '</span></li>'; }).join('');
+    $('#inv-alert-t').textContent = missing.length ? 'Chưa đủ điều kiện xuất hóa đơn (' + missing.length + ' điều kiện còn thiếu)' : 'Đủ điều kiện xuất hóa đơn';
+  }
   var V = {
     working: { ro: ['info', 'Đang sửa chữa'], note: 'Bắt đầu 08:52 bởi Lê Minh Tuấn', pay: ['info', 'Thanh toán một phần'], inv: ['neutral', 'Chưa xuất'], it: { 1: ['success', 'Hoàn thành'], 2: ['info', 'Đang làm'], 3: ['neutral', 'Chưa làm'] },
       primary: ['Chuyển sang Chờ QC', true, 'Chưa thể chuyển sang Chờ QC: còn 2 hạng mục chưa hoàn thành (“Thay má phanh trước” đang làm, “Cân chỉnh góc đặt bánh xe” chưa làm). Hạng mục phát sinh chưa được duyệt không chặn bước này.'] },
@@ -390,47 +408,64 @@
       primary: ['Xem biên bản giao xe', false, 'Ngày đã chốt sổ: chỉ điều chỉnh bằng chứng từ mới.'], ro_only: true, lockedDay: true },
     debt: { ro: ['info', 'Đang sửa chữa'], note: 'Bắt đầu 08:52 bởi Lê Minh Tuấn', pay: ['warning', 'Chưa thanh toán'], flag: true, inv: ['neutral', 'Chưa xuất'], it: { 1: ['success', 'Hoàn thành'], 2: ['info', 'Đang làm'], 3: ['neutral', 'Chưa làm'] },
       primary: ['Chuyển sang Chờ QC', true, 'Chưa thể chuyển sang Chờ QC: còn 2 hạng mục chưa hoàn thành. Lưu ý riêng: khách doanh nghiệp vượt hạn mức công nợ, thu tiền và giao xe cần duyệt.'], debt: true },
-    cancelled: { ro: ['danger', 'Đã hủy'], note: 'Hủy 10:05 bởi Nguyễn Hoàng Yến, duyệt Quản lý Trần Thị Mai. Lý do: khách chuyển xe sang xưởng khác', pay: ['neutral', 'Hoàn tiền'], inv: ['neutral', 'Chưa xuất'], it: { 1: ['neutral', 'Chưa làm'], 2: ['neutral', 'Chưa làm'], 3: ['neutral', 'Chưa làm'] },
-      primary: ['Lệnh đã hủy', false, 'Lệnh đã hủy chỉ xem. Phiếu hoàn kho PN-Q7-2610-00098 và bút toán đảo công đã được tạo.'], ro_only: true, readonly: ['Lệnh đã hủy, chỉ xem', 'Lịch sử, lý do hủy và các phiếu hoàn kho/đảo công được giữ nguyên, không xóa (RULE-010).'] }
+    cancelled: { ro: ['danger', 'Đã hủy'], note: 'Hủy 10:05: Nguyễn Hoàng Yến đề xuất, Quản lý Trần Thị Mai duyệt. Lý do: khách chuyển xe sang xưởng khác', pay: ['neutral', 'Hoàn tiền'], inv: ['neutral', 'Chưa xuất'], it: { 1: ['success', 'Hoàn thành'], 2: ['warning', 'Tạm dừng'], 3: ['neutral', 'Chưa làm'] },
+      primary: ['Lệnh đã hủy', true, 'Lệnh đã hủy chỉ xem. Phiếu hoàn kho PN-Q7-2610-00098…00100 và bút toán đảo công đã được tạo.'], ro_only: true, cancelled: true, readonly: ['Lệnh đã hủy, chỉ xem', 'Hạng mục giữ trạng thái cuối; công được đảo và phụ tùng hoàn kho bằng chứng từ riêng. Lịch sử, lý do hủy được giữ nguyên, không xóa (RULE-010).'] },
+    qc: { ro: ['purple', 'Chờ QC'], note: 'Gửi QC 11:05 bởi Lê Minh Tuấn và Nguyễn Hoàng Yến xác nhận; chờ Quản đốc chấm checklist', pay: ['info', 'Thanh toán một phần'], inv: ['neutral', 'Chưa xuất'], it: { 1: ['success', 'Hoàn thành'], 2: ['success', 'Hoàn thành'], 3: ['success', 'Hoàn thành'] }, hoursFull: true,
+      primary: ['Mở màn chấm QC', false, 'Chấm checklist QC ở màn QC (G2-DLV-01/02) do Quản đốc hoặc nhân viên QC thực hiện. Hạng mục phát sinh còn chờ khách duyệt phải được chốt trước Sẵn sàng bàn giao.'], roles: 'QD', toast: 'info|Mở màn QC|Chuyển tới G2-DLV-01 (ngoài gói G2 phần 1).', extra: true, cancelWhy: 'Từ bước Chờ QC trở đi không hủy được: trả lại thợ ở màn QC hoặc dùng chứng từ điều chỉnh (Journey §7).', missing: [1, 2], pauseOk: false },
+    ready: { ro: ['success', 'Sẵn sàng bàn giao'], note: 'QC đạt 11:40 (Phạm Quốc Bảo). Phát sinh đã chốt: Hết hạn không duyệt', pay: ['info', 'Thanh toán một phần'], inv: ['neutral', 'Chưa xuất'], it: { 1: ['success', 'Hoàn thành'], 2: ['success', 'Hoàn thành'], 3: ['success', 'Hoàn thành'] }, hoursFull: true,
+      primary: ['Giao xe…', false, 'Giao xe ở màn G2-DLV-03/04: cần biên bản giao xe có khách xác nhận, thanh toán đủ hoặc công nợ hợp lệ, hóa đơn đã xuất hoặc khách không lấy hóa đơn.'], roles: 'CV QL', toast: 'info|Mở màn giao xe|Chuyển tới G2-DLV-03 (ngoài gói G2 phần 1).', cancelWhy: 'Từ bước Chờ QC trở đi không hủy được: dùng chứng từ điều chỉnh.', missing: [], canInvoice: true, handover: true, pauseOk: false }
   };
   function apply(k) {
     var v = V[k], steps = $$('#flow .stepper__step'), idx = STEP[k];
     badge('#ro-badge', v.ro[0], v.ro[1]); $('#ro-tag').hidden = !v.tag; $('#ro-note').textContent = v.note;
     badge('#pay-badge', v.pay[0], v.pay[1]); $('#pay-flag').hidden = !v.flag; badge('#side-pay', v.pay[0], v.pay[1]);
     badge('#inv-badge', v.inv[0], v.inv[1]); badge('#inv-badge2', v.inv[0], v.inv[1]); badge('#side-inv-badge', v.inv[0], v.inv[1]);
-    var money = $('#pay-note'); var full = (k === 'done' || k === 'locked');
+    var money = $('#pay-note'); var full = (k === 'done' || k === 'locked'), hf = full || !!v.hoursFull;
     money.querySelector('span').textContent = full ? 'Đã thu 3.191.400 ₫ / 3.191.400 ₫' : (k === 'cancelled' ? 'Đã hoàn lại 1.000.000 ₫' : (k === 'debt' ? 'Chưa thu · công nợ khách doanh nghiệp' : 'Đã thu 1.000.000 ₫ / 3.191.400 ₫'));
     money.querySelector('span').__v = money.querySelector('span').textContent;
     $('#inv-note').textContent = v.invNote || 'Chưa có hóa đơn cho lệnh này'; $('#side-inv').textContent = v.invNote || 'Chưa có hóa đơn';
     [1, 2, 3].forEach(function (n) { badge('#it' + n + '-badge', v.it[n][0], v.it[n][1]); });
-    $('#sum-working').hidden = full || k === 'cancelled'; $('#sum-todo').hidden = full || k === 'cancelled';
+    $('#sum-working').hidden = hf || k === 'cancelled'; $('#sum-todo').hidden = hf || k === 'cancelled';
     steps.forEach(function (s, i) {
       var n = i + 1; s.classList.toggle('is-done', idx > 0 && n < idx || (idx === 5 && n <= 5)); s.classList.toggle('is-current', idx > 0 && n === idx && idx < 5); s.classList.toggle('is-error', idx === 0 && n === 1);
       if (idx > 0 && n === idx && idx < 5) s.setAttribute('aria-current', 'step'); else s.removeAttribute('aria-current');
       var num = s.querySelector('.stepper__num'); num.innerHTML = (s.classList.contains('is-done')) ? '<svg class="icon icon--sm" style="width:14px;height:14px"><use href="#check"/></svg>' : (idx === 0 && n === 1 ? '!' : String(n));
     });
-    var p = $('#primary-btn'); $('#primary-text').textContent = v.primary[0]; p.setAttribute('data-g2w-lock', v.primary[1] ? 'CV QL' : 'CV QL QD TH TK TN KT CH QV'); $('#primary-why-text').textContent = v.primary[2];
+    var p = $('#primary-btn'); $('#primary-text').textContent = v.primary[0]; $('#primary-why-text').textContent = v.primary[2];
+    var ctl = (k === 'done' || k === 'locked') ? 'CV QL QD TH TK TN KT CH QV' : (v.roles || 'CV QD QL');
+    p.setAttribute('data-g2w-lock', ctl); p.setAttribute('data-g2w-why', 'Vai trò hiện tại không thực hiện bước này (xem bảng quyền theo bước).');
+    if (v.toast) p.setAttribute('data-toast', v.toast); else p.removeAttribute('data-toast');
     if (v.primary[1]) { p.setAttribute('data-g2w-force-disabled', ''); p.setAttribute('data-g2w-force-why', v.primary[2]); } else { p.removeAttribute('data-g2w-force-disabled'); }
-    $('#bn-extra').hidden = k !== 'working' && k !== 'debt' && k !== 'paused'; $('#bn-parts').hidden = !v.parts; $('#bn-debt').hidden = !v.debt; $('#bn-locked').hidden = !v.lockedDay;
+    $('#bn-extra').hidden = !(k === 'working' || k === 'debt' || k === 'paused' || k === 'qc'); $('#bn-parts').hidden = !v.parts; $('#bn-debt').hidden = !v.debt; $('#bn-locked').hidden = !v.lockedDay;
     var ro = $('#bn-readonly'); ro.hidden = !v.readonly && !v.lockedDay; if (v.readonly) { $('#bn-readonly-title').textContent = v.readonly[0]; $('#bn-readonly-text').textContent = v.readonly[1]; } else if (v.lockedDay) { $('#bn-readonly-title').textContent = 'Lệnh đã hoàn tất, chỉ xem'; $('#bn-readonly-text').textContent = 'Không sửa hạng mục hay số liệu của lệnh đã hoàn tất.'; }
-    $('#due').className = 'g2w-due ' + (full ? '' : (k === 'cancelled' ? '' : 'is-soon')); $('#due-text').textContent = full ? 'Đã giao 15:40 (hẹn 16:00)' : (k === 'cancelled' ? 'Hẹn giao 16:00 30/10/2026 (đã hủy)' : 'Hẹn giao 16:00 hôm nay (30/10/2026) · còn 6 giờ 45 phút');
-    $('#part2-state').innerHTML = v.parts ? '<span class="tag tag--danger">Thiếu hàng: khả dụng 0</span> <span class="tag tag--info">Đang về 10</span>' : '<span class="tag tag--success">Đã xuất 1/1</span> <a class="code" href="#">PX-Q7-2610-00417</a>';
-    $('#it2-time').textContent = k === 'paused' ? 'Tạm dừng 09:40' : (full ? '09:25 – 10:20' : (k === 'cancelled' ? '' : 'Bắt đầu 09:25'));
-    $('#it2-h').textContent = full ? '1,4' : (k === 'cancelled' ? '0' : '0,7'); $('#it2-bar').style.width = full ? '93%' : (k === 'cancelled' ? '0%' : '47%');
-    $('#it3-h').textContent = full ? '1,0' : '0'; $('#it3-bar').style.width = full ? '100%' : '0%';
+    $('#due').className = 'g2w-due ' + (full ? '' : (k === 'cancelled' ? '' : 'is-soon')); $('#due-text').textContent = full ? 'Đã giao 15:40 (hẹn 16:00)' : (k === 'cancelled' ? 'Hẹn giao 16:00 30/10/2026 (đã hủy)' : (k === 'ready' ? 'Hẹn giao 16:00 hôm nay · sẵn sàng giao' : 'Hẹn giao 16:00 hôm nay (30/10/2026) · còn 6 giờ 45 phút'));
+    $('#part2-state').innerHTML = v.parts ? '<span class="tag tag--danger">Thiếu hàng: khả dụng 0</span> <span class="tag tag--info">Đang về 10</span>' : (k === 'cancelled' ? '<span class="tag tag--info">Đã hoàn kho PN-Q7-2610-00100</span>' : '<span class="tag tag--success">Đã xuất 1/1</span> <a class="code" href="#">PX-Q7-2610-00417</a>');
+    $('#it1-tag').hidden = k !== 'cancelled';
+    $('#it2-time').textContent = k === 'paused' ? 'Tạm dừng 09:40' : (hf ? '09:25 – 10:20' : (k === 'cancelled' ? 'Dừng khi hủy lệnh' : 'Bắt đầu 09:25'));
+    $('#it2-h').textContent = hf ? '1,4' : (k === 'cancelled' ? '0,7' : '0,7'); $('#it2-bar').style.width = hf ? '93%' : '47%';
+    $('#it3-h').textContent = hf ? '1,0' : '0'; $('#it3-bar').style.width = hf ? '100%' : '0%';
     var ro_only = !!v.ro_only;
-    $('#it4').style.display = ro_only ? 'none' : '';
-    $$('[data-v-edit]').forEach(function (b) { if (ro_only) { b.setAttribute('data-g2w-force-disabled', ''); b.setAttribute('data-g2w-force-why', 'Lệnh ở trạng thái chỉ xem nên không sửa được.'); } else { b.removeAttribute('data-g2w-force-disabled'); } });
-    var cb = $('#cancel-btn'); if (ro_only) { cb.setAttribute('data-g2w-force-disabled', ''); cb.setAttribute('data-g2w-force-why', 'Lệnh đã hoàn tất hoặc đã hủy không hủy được nữa.'); } else { cb.removeAttribute('data-g2w-force-disabled'); }
-    $('#mi-handover').setAttribute('aria-disabled', String(!full)); $('#mi-handover').querySelector('.menu-item__hint').textContent = full ? 'A4' : 'Chưa đạt QC';
+    $('#it4').style.display = (ro_only || k === 'ready') ? 'none' : '';
+    $$('[data-v-edit]').forEach(function (b) { if (ro_only) { b.setAttribute('data-g2w-force-disabled', ''); b.setAttribute('data-g2w-force-why', b.id === 'collect-btn' ? 'Lệnh đã đóng hoặc không còn khoản phải thu.' : 'Lệnh ở trạng thái chỉ xem nên không thao tác được.'); } else { b.removeAttribute('data-g2w-force-disabled'); } });
+    var cb = $('#cancel-btn'), cancelOk = !ro_only && k !== 'qc' && k !== 'ready';
+    if (!cancelOk) { cb.setAttribute('data-g2w-force-disabled', ''); cb.setAttribute('data-g2w-force-why', v.cancelWhy || 'Lệnh đã hoàn tất hoặc đã hủy không hủy được nữa.'); } else { cb.removeAttribute('data-g2w-force-disabled'); }
+    $('#cancel-why').hidden = cancelOk || k === 'working'; $('#cancel-why-text').textContent = 'Hủy lệnh bị khóa: ' + (v.cancelWhy || 'lệnh đã hoàn tất hoặc đã hủy, không hủy được nữa.');
+    var pb = $('#pause-btn'), pauseOk = (k === 'working' || k === 'debt');
+    if (!pauseOk) { pb.setAttribute('data-g2w-force-disabled', ''); pb.setAttribute('data-g2w-force-why', 'Chỉ tạm dừng được lệnh đang sửa chữa. Lệnh ở trạng thái này không tạm dừng.'); } else { pb.removeAttribute('data-g2w-force-disabled'); }
+    var hv = full || !!v.handover; $('#mi-handover').setAttribute('aria-disabled', String(!hv)); $('#mi-handover').querySelector('.menu-item__hint').textContent = hv ? 'A4' : 'Chưa đạt QC';
+    $('#warranty-btn').hidden = !full;
+    renderCheck(v.missing || (k === 'working' || k === 'paused' || k === 'debt' ? [1, 2] : []));
+    var canInv = !!v.canInvoice, ib = $('#inv-btn');
+    if (canInv) { ib.removeAttribute('data-g2w-force-disabled'); $('#inv-why').querySelector('span').textContent = 'Đủ điều kiện. Chỉ Thu ngân và Kế toán xuất; bấm nhiều lần vẫn chỉ ra một hóa đơn.'; } else { ib.setAttribute('data-g2w-force-disabled', ''); ib.setAttribute('data-g2w-force-why', 'Còn điều kiện xuất hóa đơn chưa đạt (xem danh sách bên trên).'); $('#inv-why').querySelector('span').textContent = 'Nút bị khóa: còn điều kiện chưa đạt (xem danh sách bên trên).'; }
     $('#inv-btn').hidden = full; $('#inv-why').hidden = full; $('#inv-alert').hidden = full; $('#inv-done').hidden = !full;
-    $('#pay-left').textContent = full ? '0 ₫' : '2.191.400 ₫'; $('#pay-left').__v = $('#pay-left').textContent;
+    $('#pay-left').textContent = full ? '0 ₫' : (k === 'cancelled' ? '0 ₫' : '2.191.400 ₫'); $('#pay-left').__v = $('#pay-left').textContent;
+    $('#pay-lock-note').hidden = k !== 'locked';
     document.body.setAttribute('data-variant', k);
     if (window.g2wApply) window.g2wApply();
     $$('.segmented__item[data-variant]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-variant') === k)); });
   }
   document.addEventListener('click', function (e) { var b = e.target.closest('.segmented__item[data-variant]'); if (b) apply(b.getAttribute('data-variant')); });
-  var q = new URLSearchParams(location.search).get('variant'); if (q && V[q]) apply(q);
+  var q = new URLSearchParams(location.search).get('variant'); apply(q && V[q] ? q : 'working');
   /* Thanh biến thể chỉ hiện khi đang ở trạng thái “Có dữ liệu” */
   document.addEventListener('click', function (e) { var s = e.target.closest('[data-state-switch]'); if (s) { $('#variant-bar').hidden = s.getAttribute('data-state-switch') !== 'data'; } });
 })();

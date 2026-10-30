@@ -12,14 +12,16 @@
 <body>
 <div id="g4f-body">
   <div data-g4f-actions>
-    <button class="btn btn--secondary" data-open="dlg-reopen" data-vg="g" data-v="locked" hidden data-g4f-need="CH" data-g4f-why="Chỉ Chủ garage duyệt mở lại ngày đã khóa (FR-ACC-005).">Mở lại ngày</button>
-    <button class="btn btn--primary btn--lg" id="btn-lock" data-open="dlg-lock" data-vg="g" data-v-not="locked" data-v-off="blocked" data-g4f-need="QL" data-g4f-why="Quản lý chi nhánh khóa ngày; Thu ngân và Kế toán chỉ xem." data-g4f-online><svg class="icon"><use href="#lock"/></svg>Khóa ngày 30/10/2026</button>
+    <button class="btn btn--secondary" data-open="dlg-reopen" data-vg="g" data-v="locked" hidden data-g4f-need="KT QL" data-g4f-why="Kế toán hoặc Quản lý chi nhánh đề nghị mở lại; Chủ garage duyệt (FR-ACC-005).">Đề nghị mở lại ngày</button>
+    <button class="btn btn--primary" id="btn-finish" data-vg="g" data-v="reopened" hidden data-g4f-need="KT QL" data-g4f-why="Kế toán hoặc Quản lý chi nhánh hoàn tất điều chỉnh." data-g4f-online data-toast="success|Đã khóa lại ngày 30/10/2026|Hệ thống kiểm lại điều kiện khóa trước khi khóa.">Hoàn tất điều chỉnh, khóa lại</button>
+    <button class="btn btn--primary btn--lg" id="btn-lock" data-open="dlg-lock" data-vg="g" data-v-not="locked reopened" data-v-off="blocked" data-g4f-need="QL" data-g4f-why="Quản lý chi nhánh khóa ngày; Thu ngân và Kế toán chỉ xem." data-g4f-online><svg class="icon"><use href="#lock"/></svg>Khóa ngày 30/10/2026</button>
   </div>
 
   <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
-    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="blocked" data-vg="g" aria-pressed="true">Còn chênh lệch chưa giải trình</button><button class="segmented__item" data-g4f-var="ready" data-vg="g" aria-pressed="false">Đủ điều kiện khóa</button><button class="segmented__item" data-g4f-var="locked" data-vg="g" aria-pressed="false">Đã khóa</button></div></div>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="blocked" data-vg="g" aria-pressed="true">Còn chênh lệch chưa giải trình</button><button class="segmented__item" data-g4f-var="ready" data-vg="g" aria-pressed="false">Đủ điều kiện khóa</button><button class="segmented__item" data-g4f-var="locked" data-vg="g" aria-pressed="false">Đã khóa</button><button class="segmented__item" data-g4f-var="reopened" data-vg="g" aria-pressed="false">Đang được mở lại</button></div></div>
+  <div class="alert alert--warning" data-vg="g" data-v="reopened" hidden role="status"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Ngày 30/10/2026 đang được mở lại đến 21:50 01/11/2026 (còn 47 giờ)</span><span>Chủ garage Trần Hoàng Anh duyệt lúc 21:50 30/10/2026 (đề nghị của Đặng Thu Hà, đã xác thực lại mật khẩu và MFA). Số liệu chuyển về “tạm”. Hết hạn hoặc khi bấm “Hoàn tất điều chỉnh”, hệ thống kiểm lại điều kiện khóa và tự khóa lại; nếu còn điều kiện chặn sẽ báo người đề nghị.</span></div></div>
 
-  <div class="alert alert--danger" data-vg="g" data-v="blocked" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Chưa khóa ngày được: còn 1 chênh lệch quỹ chưa giải trình</span><span>Ca sáng lệch −150.000 ₫ đã được Thu ngân giải trình nhưng chưa được Quản lý duyệt. Duyệt ở <a href="g4-apr-01.html">hàng chờ phê duyệt</a> rồi quay lại (FR-ACC-004, UAT-07).</span></div></div>
+  <div class="alert alert--danger" data-vg="g" data-v="blocked" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Chưa khóa ngày được: còn 2 điều kiện chặn</span><span>Ca sáng lệch −150.000 ₫ vượt ngưỡng, đã giải trình nhưng chưa được Quản lý chi nhánh duyệt, và ca chiều chưa chốt. Duyệt ở <a href="g4-apr-01.html">hàng chờ phê duyệt</a> và chốt ca rồi quay lại (FR-ACC-004, UAT-07).</span></div></div>
   <div class="alert alert--info" data-vg="g" data-v="ready" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Đủ điều kiện bắt buộc để khóa</span><span>Còn 4 cảnh báo cần xem (không chặn). Khóa ngày xong, số trên dashboard chuyển từ “số tạm” thành “số chính thức”.</span></div></div>
   <div class="alert alert--success" data-vg="g" data-v="locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ngày 30/10/2026 đã khóa lúc 21:42 bởi Võ Minh Quân</span><span>Chứng từ trong ngày chỉ đọc. Số liệu trên dashboard là số chính thức. Điều chỉnh chỉ bằng chứng từ mới có lý do, hoặc Chủ garage mở lại ngày.</span></div></div>
 
@@ -28,20 +30,21 @@
       <div class="card__header"><div><h2 class="card__title" id="h-chk">Điều kiện trước khi khóa ngày</h2><div class="card__subtitle">Chi nhánh Quận 7 · ngày 30/10/2026 · kiểm tra lúc 21:30</div></div><span class="tag tag--neutral" data-vg="g" data-v="blocked ready">Ngày đang mở</span></div>
       <div class="card__body">
         <ul class="g4f-checks">
-          <li data-vg="g" data-v="blocked" class="is-fail"><span class="g4f-checks__ic"><svg class="icon"><use href="#x"/></svg></span><div><div class="g4f-checks__title">Chênh lệch quỹ chưa giải trình xong <span class="tag tag--danger">Chặn khóa</span></div><div class="g4f-checks__sub">Ca sáng −150.000 ₫: đã giải trình, chờ Quản lý duyệt. Ca chiều: khớp.</div></div><a class="btn btn--secondary btn--sm" href="g4-apr-01.html">Duyệt</a></li>
-          <li data-vg="g" data-v="ready locked" hidden class="is-pass"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Chênh lệch quỹ đã giải trình và duyệt <span class="tag tag--success">Đạt</span></div><div class="g4f-checks__sub">Ca sáng −150.000 ₫ được duyệt 21:25 (Võ Minh Quân). Ca chiều: khớp.</div></div><a class="btn btn--ghost btn--sm" href="g4-acc-08.html">Xem</a></li>
+          <li data-vg="g" data-v="blocked" class="is-fail"><span class="g4f-checks__ic"><svg class="icon"><use href="#x"/></svg></span><div><div class="g4f-checks__title">Chênh lệch quỹ vượt ngưỡng chưa được Quản lý duyệt <span class="tag tag--danger">Chặn khóa</span></div><div class="g4f-checks__sub">Ca sáng −150.000 ₫ đã giải trình, chờ duyệt. Chênh lệch trong ngưỡng chỉ cần giải trình, không chặn.</div></div><a class="btn btn--secondary btn--sm" href="g4-apr-01.html">Duyệt</a></li>
+          <li data-vg="g" data-v="blocked" class="is-fail"><span class="g4f-checks__ic"><svg class="icon"><use href="#x"/></svg></span><div><div class="g4f-checks__title">Còn ca chưa chốt trong ngày <span class="tag tag--danger">Chặn khóa</span></div><div class="g4f-checks__sub">Ca chiều chưa đếm quỹ và bàn giao.</div></div><a class="btn btn--secondary btn--sm" href="g4-acc-08.html">Chốt ca</a></li>
+          <li data-vg="g" data-v="ready locked reopened" hidden class="is-pass"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Chênh lệch quỹ đã giải trình và duyệt, mọi ca đã chốt <span class="tag tag--success">Đạt</span></div><div class="g4f-checks__sub">Ca sáng −150.000 ₫ được duyệt 21:25 (Võ Minh Quân). Ca chiều: khớp.</div></div><a class="btn btn--ghost btn--sm" href="g4-acc-08.html">Xem</a></li>
           <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">3 lệnh còn mở <span class="tag tag--warning">Cảnh báo</span></div><div class="g4f-checks__sub">RO-Q7-2610-00131 (sẵn sàng bàn giao), RO-Q7-2610-00127 (Chờ QC), RO-Q7-2610-00122 (tạm dừng, chờ phụ tùng). Ngày hôm sau tiếp tục xử lý.</div></div><a class="btn btn--ghost btn--sm" href="#">Xem lệnh</a></li>
           <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#wallet"/></svg></span><div><div class="g4f-checks__title">1 lệnh hoàn tất chưa thu tiền <span class="tag tag--warning">Cảnh báo</span></div><div class="g4f-checks__sub">RO-Q7-2610-00118 · 51G-765.43 · còn nợ 6.300.000 ₫ (ghi nhận công nợ nếu khách được nợ).</div></div><a class="btn btn--ghost btn--sm" href="g4-acc-01.html">Thu tiền</a></li>
           <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#receipt"/></svg></span><div><div class="g4f-checks__title">3 lệnh hoàn tất chưa có hóa đơn <span class="tag tag--warning">Cảnh báo</span></div><div class="g4f-checks__sub">Xử lý trước khi hết ngày để không sót kỳ kê khai (FR-EIN-009).</div></div><a class="btn btn--ghost btn--sm" href="g4-ein-05.html">Mở danh sách</a></li>
           <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#file-text"/></svg></span><div><div class="g4f-checks__title">1 phiếu chi chưa có chứng từ gốc <span class="tag tag--warning">Cảnh báo</span></div><div class="g4f-checks__sub">PC-Q7-2610-00041 chưa đính kèm ảnh hóa đơn (RULE-007).</div></div><a class="btn btn--ghost btn--sm" href="g4-acc-04.html">Bổ sung</a></li>
         </ul>
-        <p class="g4f-why" style="margin-top:12px">Mục nào chặn khóa là cấu hình. Theo FR-ACC-004 chỉ chênh lệch quỹ chưa giải trình chắc chắn chặn; các mục còn lại đang để “cảnh báo” cho tới khi BA/khách xác nhận.</p>
+        <p class="g4f-why" style="margin-top:12px">Nhãn “Chặn”/“Cảnh báo” đọc từ cấu hình của chi nhánh (có ngày hiệu lực). Mặc định chặn: chênh lệch quỹ chưa giải trình hoặc chưa được duyệt, ca chưa chốt, thanh toán đang xử lý dở. Mặc định cảnh báo: các mục còn lại bên dưới; đổi thành “Chặn” được bằng cấu hình.</p>
       </div>
     </section>
 
     <aside class="g4f-aside">
       <section class="card">
-        <div class="card__header"><div><h2 class="card__title">Số liệu ngày</h2><div class="card__subtitle" id="num-kind">Số tạm: chưa chốt</div></div><span class="tag tag--warning" data-vg="g" data-v="blocked ready">Tạm</span><span class="tag tag--success" data-vg="g" data-v="locked" hidden>Chính thức</span></div>
+        <div class="card__header"><div><h2 class="card__title">Số liệu ngày</h2><div class="card__subtitle" id="num-kind">Số tạm: chưa chốt</div></div><span class="tag tag--warning" data-vg="g" data-v="blocked ready reopened">Tạm</span><span class="tag tag--success" data-vg="g" data-v="locked" hidden>Chính thức</span></div>
         <div class="card__body"><dl class="g4f-sum">
           <div><dt>Doanh thu ghi nhận</dt><dd>31.250.000 ₫</dd></div>
           <div><dt>Đã thu tiền mặt</dt><dd>1.250.000 ₫</dd></div>
@@ -54,11 +57,11 @@
         <div class="card__header"><h2 class="card__title">Chênh lệch quỹ theo ca</h2></div>
         <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Ca</th><th class="col-num">Lệch</th><th>Giải trình</th></tr></thead><tbody>
           <tr><td>Ca sáng</td><td class="col-num g4f-bad">−150.000 ₫</td><td><span class="tag tag--warning" data-vg="g" data-v="blocked">Chờ duyệt</span><span class="tag tag--success" data-vg="g" data-v="ready locked" hidden>Đã duyệt</span></td></tr>
-          <tr><td>Ca chiều</td><td class="col-num">0 ₫</td><td><span class="tag tag--neutral">Không cần</span></td></tr></tbody></table></div>
+          <tr><td>Ca chiều</td><td class="col-num">0 ₫</td><td><span class="tag tag--danger" data-vg="g" data-v="blocked">Chưa chốt</span><span class="tag tag--neutral" data-vg="g" data-v="ready locked reopened" hidden>Không cần</span></td></tr></tbody></table></div>
       </section>
     </aside>
   </div>
-  <p class="g4f-why" id="why-lock" data-vg="g" data-v="blocked" style="text-align:right">Lý do nút “Khóa ngày” bị khóa: còn 1 chênh lệch quỹ chưa được duyệt.</p>
+  <p class="g4f-why" id="why-lock" data-vg="g" data-v="blocked" style="text-align:right">Lý do nút “Khóa ngày” bị khóa: còn chênh lệch quỹ chưa được duyệt và ca chiều chưa chốt.</p>
 </div>
 
 <div class="overlay" id="dlg-lock" role="alertdialog" aria-modal="true" aria-labelledby="lk-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="30/10/2026">
@@ -71,14 +74,15 @@
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Chưa khóa</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-lock" data-busy="Đang khóa ngày…" data-done-label="Đã khóa ngày" data-done-toast="success|Đã khóa ngày 30/10/2026|Số liệu chuyển thành chính thức." disabled>Khóa ngày</button></div></div></div>
 
 <div class="overlay" id="dlg-reopen" role="alertdialog" aria-modal="true" aria-labelledby="ro-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="MỞ LẠI">
-  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="ro-t">Mở lại ngày 30/10/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="ro-t">Đề nghị mở lại ngày 30/10/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body">
-    <ul class="impact-list"><li>Chứng từ ngày này sửa được trở lại cho tới khi khóa lần nữa; số liệu về “tạm”.</li><li>Ghi nhật ký người mở, lý do, thời điểm. Báo cáo đã chốt ngày này có thể đổi.</li></ul>
+    <ul class="impact-list"><li>Đề nghị chuyển <strong>Chủ garage duyệt</strong> (Quản lý vùng chỉ duyệt khi được Chủ garage ủy quyền bằng cấu hình). Chưa duyệt thì ngày vẫn khóa.</li><li>Khi được duyệt, ngày mở có thời hạn (mặc định 48 giờ, cấu hình) rồi tự khóa lại; số liệu về “tạm”, báo cáo đã chốt ngày này có thể đổi.</li><li>Ghi nhật ký người đề nghị, người duyệt, lý do, thời điểm.</li></ul>
     <div class="field"><label class="field__label" for="ro-r">Lý do mở lại<span class="field__req" aria-hidden="true">*</span></label><textarea id="ro-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
-    <div class="field"><label class="field__label" for="ro-p">Nhập lại mật khẩu để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="ro-p" class="input" type="password" autocomplete="current-password"></div>
+    <div class="form-grid"><div class="field"><label class="field__label" for="ro-p">Nhập lại mật khẩu<span class="field__req" aria-hidden="true">*</span></label><input id="ro-p" class="input" type="password" autocomplete="current-password"></div>
+    <div class="field"><label class="field__label" for="ro-m">Mã xác thực hai lớp (MFA)<span class="field__req" aria-hidden="true">*</span></label><input id="ro-m" class="input" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6 chữ số"></div></div>
     <div class="field"><label class="field__label" for="ro-c">Gõ <strong>MỞ LẠI</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="ro-c" class="input" data-confirm-input autocomplete="off"></div>
   </div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ khóa</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã mở lại ngày 30/10/2026|Ghi nhật ký; nhớ khóa lại sau khi điều chỉnh." disabled>Mở lại ngày</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ khóa</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi đề nghị mở lại ngày|Chờ Chủ garage duyệt ở hàng chờ phê duyệt; ngày vẫn khóa." disabled>Gửi đề nghị</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
