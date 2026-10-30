@@ -13,13 +13,14 @@
 <div id="g4f-body">
   <div data-g4f-actions>
     <button class="btn btn--secondary" data-open="dlg-print"><svg class="icon"><use href="#printer"/></svg>In phiếu thu</button>
-    <button class="btn btn--secondary" data-open="drw-alloc" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán phân bổ thanh toán cho hóa đơn." data-vg="g" data-v-off="locked">Phân bổ lại</button>
+    <button class="btn btn--secondary" data-open="drw-alloc" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán phân bổ thanh toán cho hóa đơn." data-vg="g" data-v-off="p1 locked">Phân bổ lại</button>
     <button class="btn btn--danger-outline" data-open="dlg-reverse" data-g4f-need="TN KT QL" data-g4f-why="Đảo bút toán do Thu ngân/Kế toán đề xuất, Quản lý chi nhánh duyệt." data-g4f-online data-vg="g" data-v-off="locked"><svg class="icon"><use href="#undo"/></svg>Đảo bút toán</button>
   </div>
 
   <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
-    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="ok" data-vg="g" aria-pressed="true">Phiếu đang hiệu lực</button><button class="segmented__item" data-g4f-var="locked" data-vg="g" aria-pressed="false">Ngày đã khóa sổ</button></div></div>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="p1" data-vg="g" aria-pressed="true">Phase 1 (phân bổ nhiều-nhiều khóa)</button><button class="segmented__item" data-g4f-var="ok" data-vg="g" aria-pressed="false">Phase 2 (đủ chức năng)</button><button class="segmented__item" data-g4f-var="locked" data-vg="g" aria-pressed="false">Ngày đã khóa sổ</button></div></div>
 
+  <div class="alert alert--info" data-vg="g" data-v="p1"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Nút “Phân bổ lại” bị khóa: có từ giai đoạn 2</span><span>Giai đoạn 1 một thanh toán gắn một lệnh; phần dư là khoản nhận trước (<a href="g4-acc-21.html">G4-ACC-21</a>). Xem, in và đảo bút toán vẫn dùng được (FR-ACC-015 xếp giai đoạn 2).</span></div></div>
   <div class="alert alert--neutral" data-vg="g" data-v="locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ngày 29/10/2026 đã khóa sổ: phiếu ở chế độ chỉ đọc</span><span>Nút phân bổ lại và đảo bút toán bị khóa. Cần điều chỉnh thì tạo chứng từ điều chỉnh mới trong ngày đang mở, hoặc Chủ garage mở lại ngày kèm lý do (G4-ACC-09).</span></div></div>
 
   <section class="card" aria-labelledby="h-head">
@@ -57,7 +58,7 @@
           <tr><td class="code">C26TAA-0000412</td><td class="code">RO-Q7-2610-00124</td><td><span class="badge badge--success">Đã xuất</span></td><td class="col-num">2.000.000 ₫</td><td class="col-num">2.000.000 ₫</td></tr>
           <tr><td class="code">C26TAA-0000411</td><td class="code">RO-Q7-2610-00122</td><td><span class="badge badge--success">Đã xuất</span></td><td class="col-num">21.075.000 ₫</td><td class="col-num">1.800.000 ₫</td></tr>
           <tr><td class="code">C26TAA-0000410</td><td class="code">RO-Q7-2610-00121</td><td><span class="badge badge--success">Đã xuất</span></td><td class="col-num">1.000.000 ₫</td><td class="col-num">1.000.000 ₫</td></tr>
-          <tr><td colspan="4">Phần dư thành khoản nhận trước</td><td class="col-num">0 ₫</td></tr>
+          <tr><td colspan="4">Phần dư thành khoản nhận trước (xem <a href="g4-acc-21.html">G4-ACC-21</a>)</td><td class="col-num">0 ₫</td></tr>
         </tbody>
         <tfoot><tr><td colspan="4">Tổng phân bổ = số tiền phiếu thu</td><td class="col-num">4.800.000 ₫</td></tr></tfoot>
       </table></div>
@@ -139,7 +140,7 @@ window.G4F_PAGE = {
     m.textContent = rest === 0 ? 'Khớp số tiền phiếu thu.' : rest > 0 ? 'Chưa phân bổ hết: phần dư ' + fmt(rest) + ' sẽ thành khoản nhận trước.' : 'Phân bổ vượt số tiền phiếu thu ' + fmt(-rest) + '. Giảm bớt để lưu.';
     $('#al-ok').disabled = !ok;
   });
-  G4F.applyVar('g', 'ok');
+  G4F.applyVar('g', 'p1');
 })();
 </script>
 </body>

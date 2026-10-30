@@ -22,7 +22,7 @@
     </ol>
 
     <section class="card" data-g4f-step>
-      <div class="card__header"><div><h2 class="card__title">Bước 1. Rà soát lệnh còn mở và lệnh chưa thu</h2><div class="card__subtitle">Ca sáng · Phạm Thị Lan · 08:00 đến 12:00 ngày 30/10/2026</div></div></div>
+      <div class="card__header"><div><h2 class="card__title">Bước 1. Rà soát lệnh còn mở và lệnh chưa thu</h2><div class="card__subtitle">Ca sáng (nhãn gợi ý) · mở khi Phạm Thị Lan nhận quỹ 08:05 ngày 30/10/2026 · mỗi quầy chỉ một ca mở; ca đóng khi đếm quỹ cuối ca</div></div></div>
       <div class="table-scroll"><table class="table table--compact">
         <caption class="sr-only">Lệnh còn mở hoặc chưa thu tiền trong ca</caption>
         <thead><tr><th>Lệnh</th><th>Xe</th><th>Trạng thái lệnh</th><th>Thanh toán</th><th class="col-num">Còn phải thu</th><th class="col-actions"></th></tr></thead>
@@ -73,7 +73,7 @@
     <div class="g4f-steps-actions">
       <button class="btn btn--ghost" data-g4f-prev>Quay lại</button>
       <div class="row">
-        <button class="btn btn--secondary" data-toast="info|Đã lưu nháp ca|Số đếm được giữ trên thiết bị, chưa khóa ca.">Lưu nháp</button>
+        <button class="btn btn--secondary" data-g4f-need="TN" data-g4f-why="Chỉ Thu ngân đếm quỹ và chốt ca; Quản lý duyệt chênh lệch; Kế toán, Chủ garage, Quản lý vùng chỉ xem." data-toast="info|Đã lưu nháp ca|Số đếm được giữ trên thiết bị, chưa khóa ca.">Lưu nháp</button>
         <button class="btn btn--primary" data-g4f-next>Tiếp tục</button>
         <button class="btn btn--primary btn--lg" id="btn-close" data-g4f-final data-open="dlg-close" data-g4f-need="TN" data-g4f-why="Thu ngân chốt ca; Quản lý chi nhánh duyệt chênh lệch." data-g4f-online>Chốt ca sáng</button>
       </div>
@@ -96,7 +96,7 @@
 <script>
 window.G4F_PAGE = {
   code: 'G4-ACC-08', title: 'Chốt ca', desc: 'Đếm quỹ, giải trình chênh lệch và khóa ca làm việc của thu ngân.',
-  menu: 'fin', role: 'TN', allow: ['TN', 'QL'], updated: '12:00', time: 'ca sáng 30/10/2026',
+  menu: 'fin', role: 'TN', allow: ['TN', 'QL', 'KT', 'CH', 'QV'], updated: '12:00', time: 'ca sáng 30/10/2026',
   states: ['data', 'closed', 'loading', 'error', 'denied']
 };
 </script>

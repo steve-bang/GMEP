@@ -40,13 +40,13 @@
       <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button></div>
     </div>
 
-    <div class="pre-order" aria-label="Trước lệnh: lịch hẹn, tiếp nhận, báo giá"><span class="pre-order__label">Trước lệnh</span>
+    <div class="pre-order" data-g2w-hide-for="TH" aria-label="Trước lệnh: lịch hẹn, tiếp nhận, báo giá"><span class="pre-order__label">Trước lệnh</span>
       <a class="badge badge--info" href="g2-apt-01.html" style="text-decoration:none">Đã hẹn · 5</a><svg class="icon icon--sm pre-order__arrow" aria-hidden="true"><use href="#arrow-right"/></svg>
       <a class="badge badge--neutral" href="g2-apt-01.html" style="text-decoration:none">Chờ tiếp nhận · 2</a><svg class="icon icon--sm pre-order__arrow" aria-hidden="true"><use href="#arrow-right"/></svg>
       <a class="badge badge--warning" href="#" style="text-decoration:none" data-g2w-hide-for="TH">Báo giá chờ khách duyệt · 8</a>
       <span class="t-body-sm text-secondary">Lệnh chỉ bắt đầu khi khách duyệt báo giá (WF-01). Bấm để mở danh sách tương ứng.</span></div>
 
-    <p class="g2w-drag-hint"><svg class="icon icon--sm"><use href="#info"/></svg>Kéo thẻ sang cột kế tiếp để chuyển trạng thái. Chỉ chuyển được khi đủ điều kiện, ngược lại hệ thống chặn và nêu lý do (FR-REC-015). Trên cảm ứng hoặc bàn phím dùng nút “Chuyển trạng thái…”.</p>
+    <p class="g2w-drag-hint"><svg class="icon icon--sm"><use href="#info"/></svg>Kéo thả chỉ dùng cho 3 bước: Đang sửa chữa → Chờ QC, Đang sửa chữa ⇄ Tạm dừng (bắt buộc chọn lý do). “Đã duyệt → Đang sửa” tự động khi thợ bắt đầu; Chờ QC → Sẵn sàng bàn giao chấm ở màn QC; Hoàn tất ở màn giao xe. Chặn kèm lý do (FR-REC-015). Trên cảm ứng hoặc bàn phím dùng nút “Chuyển trạng thái…”.</p>
 
     <div class="g2w-board" role="region" aria-label="Bảng điều phối theo trạng thái lệnh" tabindex="0">
       <!-- ĐÃ DUYỆT -->
@@ -127,14 +127,21 @@
 <div class="overlay" id="dlg-move" role="dialog" aria-modal="true" aria-labelledby="mv-t"><div class="dialog">
   <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="mv-t">Chuyển trạng thái lệnh</h2><p class="t-body-sm text-secondary" data-g2w-move-title style="margin:0"></p></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body stack-2">
-    <p>Chỉ chuyển được sang bước kế tiếp hợp lệ. Nút xám là chưa thể chuyển; nếu thiếu điều kiện, hệ thống nêu lý do sau khi bạn chọn.</p>
-    <button class="btn btn--secondary btn--block" data-to="working"><span class="badge badge--info">Đang sửa chữa</span></button>
-    <button class="btn btn--secondary btn--block" data-to="paused"><span class="badge badge--warning">Tạm dừng</span></button>
-    <button class="btn btn--secondary btn--block" data-to="qc"><span class="badge badge--purple">Chờ QC</span></button>
-    <button class="btn btn--secondary btn--block" data-to="ready"><span class="badge badge--success">Sẵn sàng bàn giao</span></button>
-    <button class="btn btn--secondary btn--block" data-to="done"><span class="badge badge--success">Hoàn tất</span></button>
+    <p>Chỉ 3 bước chuyển thủ công ở bảng này. Nút xám là bước có màn riêng hoặc tự động; lý do hiện ngay dưới nút. Nếu thiếu điều kiện, hệ thống nêu lý do sau khi bạn chọn.</p>
+    <button class="btn btn--secondary btn--block" data-to="working"><span class="badge badge--info">Đang sửa chữa</span></button><p class="g2w-why" data-why-for="working" hidden></p>
+    <button class="btn btn--secondary btn--block" data-to="paused"><span class="badge badge--warning">Tạm dừng</span> <span class="g2w-muted">chọn lý do</span></button><p class="g2w-why" data-why-for="paused" hidden></p>
+    <button class="btn btn--secondary btn--block" data-to="qc"><span class="badge badge--purple">Chờ QC</span></button><p class="g2w-why" data-why-for="qc" hidden></p>
+    <button class="btn btn--secondary btn--block" data-to="ready"><span class="badge badge--success">Sẵn sàng bàn giao</span></button><p class="g2w-why" data-why-for="ready" hidden></p>
+    <button class="btn btn--secondary btn--block" data-to="done"><span class="badge badge--success">Hoàn tất</span></button><p class="g2w-why" data-why-for="done" hidden></p>
   </div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button></div></div></div>
+
+<div class="overlay" id="dlg-pause" role="dialog" aria-modal="true" aria-labelledby="pz-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="pz-t">Tạm dừng lệnh: chọn lý do</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="field__label">Lý do tạm dừng<span class="field__req" aria-hidden="true">*</span></legend>
+      <label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Chờ phụ tùng</span></label><label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Chờ khách duyệt phát sinh</span></label><label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Nghỉ</span></label><label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Khác (bắt buộc ghi chú)</span></label></fieldset>
+    <div class="field"><label class="field__label" for="pz-n">Ghi chú</label><textarea id="pz-n" class="textarea" style="min-height:56px"></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã tạm dừng lệnh|Thẻ chuyển sang cột Tạm dừng khi máy chủ xác nhận.">Tạm dừng</button></div></div></div>
 
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
