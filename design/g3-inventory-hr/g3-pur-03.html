@@ -23,7 +23,7 @@
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Cập nhật lúc 09:15</span></div>
 
-<div id="g3-body" data-noun="yêu cầu mua" data-g3-states="data:Chờ duyệt;approved:Đã duyệt;over:Đã chuyển cấp trên;loading;notfound;error;denied" data-skel="detail" data-back="g3-pur-01.html">
+<div id="g3-body" data-noun="yêu cầu mua" data-g3-states="data:Chờ duyệt – vượt hạn mức QL;inlimit:Chờ duyệt – trong hạn mức;upper:Chờ duyệt – cấp Chủ garage/QV;approved:Đã duyệt;loading;notfound;error;denied" data-skel="detail" data-back="g3-pur-01.html">
 <div data-g3-state="data" class="stack">
   <ol class="stepper" aria-label="Quy trình mua hàng">
     <li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm" style="width:14px;height:14px"><use href="#check"/></svg></span><span class="stepper__text">Yêu cầu</span></div></li>
@@ -31,17 +31,17 @@
     <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Đơn mua</span></div></li>
     <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Nhận hàng</span></div></li>
     <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">5</span><span class="stepper__text">Hóa đơn NCC</span></div></li></ol>
-  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Chờ duyệt 1 giờ 25 phút</span><span>Quá hạn duyệt sẽ nhắc và chuyển cấp trên theo cấu hình.</span></div></div>
+  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Chờ duyệt 25 phút</span><span>Quá hạn duyệt sẽ nhắc và chuyển cấp trên theo cấu hình.</span></div></div>
   <div class="g3-split">
     <div class="stack-6">
       <section class="card" aria-labelledby="h1"><div class="card__header"><h2 class="card__title" id="h1">Dòng hàng</h2></div>
         <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Mặt hàng trong yêu cầu mua</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Khả dụng</th><th class="col-num">SL</th><th>NCC gợi ý</th><th class="col-num">Giá</th><th class="col-num">Thành tiền</th></tr></thead><tbody>
           <tr><td><span class="code">PT-0003</span> Dầu nhớt Castrol 5W-30 (can 4 lít)</td><td class="col-num">0</td><td class="col-num">24</td><td>Công ty CP Dầu nhớt Đại Phát</td><td class="col-num">890.000 ₫</td><td class="col-num">21.360.000 ₫</td></tr></tbody>
           <tfoot><tr><td colspan="5">Tổng</td><td class="col-num">21.360.000 ₫</td></tr></tfoot></table></div>
-        <div class="card__body"><dl class="g3-kv"><div><dt>Lý do đề xuất</dt><dd>Hết hàng, Khả dụng 0 thấp hơn mức tối thiểu 6; không có chi nhánh dư.</dd></div><div><dt>Cần hàng trước</dt><dd class="num">05/11/2026</dd></div></dl></div></section>
+        <div class="card__body"><dl class="g3-kv"><div><dt>Lý do đề xuất</dt><dd>Hết hàng, Khả dụng 0 thấp hơn mức tối thiểu 6. Thủ Đức có thể cho 20 nhưng không đủ nhu cầu tuần tới; nhà cung cấp đóng theo thùng 24 can.</dd></div><div><dt>Cần hàng trước</dt><dd class="num">05/11/2026</dd></div></dl></div></section>
       <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Lịch sử duyệt</h2></div><div class="card__body"><div class="timeline">
         <div class="timeline__item timeline__item--warning"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Chờ Quản lý chi nhánh duyệt</div><div class="timeline__meta">Đặng Hữu Phúc · từ 08:50</div></div></div>
-        <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi duyệt</div><div class="timeline__meta">Trần Thị Mai Anh · 30/10/2026 08:50</div></div></div></div></div></section>
+        <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi duyệt (người lập: Trần Thị Mai Anh, không tự duyệt)</div><div class="timeline__meta">Trần Thị Mai Anh · 30/10/2026 08:50</div></div></div></div></div></section>
     </div>
     <aside class="g3-side">
       <section class="card"><div class="card__header"><h2 class="card__title">Giá trị và hạn mức</h2></div><div class="card__body stack">
@@ -51,7 +51,7 @@
       <section class="card"><div class="card__body stack">
         <button class="btn btn--primary btn--lg btn--block" data-open="dlg-fwd" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh có hạn mức duyệt ở cấp này.">Duyệt và chuyển cấp trên…</button>
         <button class="btn btn--danger-outline btn--block" data-open="dlg-no" data-g3-need="QL CH QV" data-g3-why="Chỉ người có thẩm quyền duyệt mới từ chối.">Từ chối…</button>
-        <p class="t-body-sm text-secondary">Thủ kho chỉ xem trạng thái và theo dõi.</p></div></section>
+        <p class="t-body-sm text-secondary">Người lập yêu cầu không tự duyệt yêu cầu của mình. Thủ kho và nhân viên mua hàng chỉ xem trạng thái và theo dõi. Xem thêm các trạng thái “trong hạn mức” và “cấp Chủ garage/QV” ở thanh xem thử.</p></div></section>
     </aside>
   </div>
 </div>
@@ -59,8 +59,13 @@
 <div data-g3-state="approved" class="stack" hidden>
   <div class="alert alert--success" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã duyệt bởi Trần Hoàng Anh (Chủ garage) lúc 10:12</span><span>Bước tiếp theo: lập đơn mua gửi nhà cung cấp.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="g3-pur-05.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý lập đơn mua.">Lập đơn mua từ yêu cầu</a></div></div></div>
 </div>
-<div data-g3-state="over" class="stack" hidden>
-  <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Đã chuyển cấp trên lúc 09:30</span><span>Đang chờ Trần Hoàng Anh (Chủ garage). Quản lý chi nhánh đã duyệt cấp mình. Thông báo “Cần xử lý” đã gửi.</span></div></div>
+<div data-g3-state="inlimit" class="stack" hidden>
+  <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Giá trị 14.240.000 ₫ nằm trong hạn mức cấp Quản lý chi nhánh</span><span>So với hạn mức cấp này <span class="g3-sample">20.000.000 ₫ · giá trị mẫu</span>. Quản lý chi nhánh duyệt được. Ví dụ hiển thị cho yêu cầu YM-Q7-2610-00003 (Lốp Michelin ×8, 14.240.000 ₫).</span></div></div>
+  <section class="card"><div class="card__body row"><button class="btn btn--primary btn--lg" data-open="dlg-ok" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh (khác người lập) duyệt yêu cầu trong hạn mức cấp này.">Duyệt yêu cầu</button><button class="btn btn--danger-outline btn--lg" data-open="dlg-no" data-g3-need="QL CH QV" data-g3-why="Chỉ người có thẩm quyền duyệt mới từ chối.">Từ chối…</button><span class="t-body-sm text-secondary">Nút ≥ 44 px để duyệt nhanh trên điện thoại.</span></div></section>
+</div>
+<div data-g3-state="upper" class="stack" hidden>
+  <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Đã chuyển cấp trên lúc 09:30 · chờ cấp Chủ garage / Quản lý vùng</span><span>Quản lý chi nhánh đã duyệt cấp mình; giá trị 21.360.000 ₫ vượt hạn mức cấp QL <span class="g3-sample">20.000.000 ₫ · giá trị mẫu</span> và nằm trong hạn mức cấp Quản lý vùng <span class="g3-sample">100.000.000 ₫ · giá trị mẫu</span>.</span></div></div>
+  <section class="card"><div class="card__body row"><button class="btn btn--primary btn--lg" data-open="dlg-ok" data-g3-need="CH QV" data-g3-why="Chỉ Chủ garage hoặc Quản lý vùng duyệt ở cấp này.">Duyệt yêu cầu</button><button class="btn btn--danger-outline btn--lg" data-open="dlg-no" data-g3-need="CH QV" data-g3-why="Chỉ Chủ garage hoặc Quản lý vùng từ chối ở cấp này.">Từ chối…</button><span class="t-body-sm text-secondary">Đổi sang vai trò Chủ garage hoặc Quản lý vùng để dùng hai nút này.</span></div></section>
 </div>
 </div>
 
@@ -72,6 +77,10 @@
   <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="fw-t">Duyệt và chuyển cấp trên?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><p>Giá trị 21.360.000 ₫ vượt hạn mức của bạn nên cần thêm cấp duyệt. Yêu cầu chuyển sang Trần Hoàng Anh (Chủ garage); đơn mua chưa lập được cho đến khi duyệt xong.</p></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="info|Đã chuyển cấp trên|Chờ Chủ garage duyệt YM-Q7-2610-00004.">Duyệt và chuyển</button></div></div></div>
+<div class="overlay" id="dlg-ok" role="dialog" aria-modal="true" aria-labelledby="ok-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="ok-t">Duyệt yêu cầu mua?</h2></div></div>
+  <div class="dialog__body"><p>Yêu cầu được duyệt và chuyển sang bước lập đơn mua. Việc duyệt được ghi nhật ký (người duyệt, thời điểm, cấp duyệt).</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã duyệt|Yêu cầu mua chuyển sang Đã duyệt; nhân viên mua hàng lập đơn.">Duyệt</button></div></div></div>
 <div class="overlay" id="dlg-no" role="alertdialog" aria-modal="true" aria-labelledby="no-t"><div class="dialog dialog--md" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="no-t">Từ chối yêu cầu mua?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><ul class="impact-list"><li>Yêu cầu chuyển sang “Từ chối”, người đề xuất nhận lý do. Lịch sử được lưu.</li></ul><div class="field"><label class="field__label" for="no-r">Lý do từ chối<span class="field__req" aria-hidden="true">*</span></label><textarea id="no-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>

@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="QL">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-06" data-menu="set" data-crumbs="Cài đặt|Cơ cấu tổ chức|Cấu hình Chi nhánh Quận 7" data-allow="AD QL CH"></script>
 <script>
 g4rPage({
@@ -35,12 +36,12 @@ g4rPage({
     <div class="field"><label class="field__label" for="b-cap">Công suất xưởng (xe tối đa mỗi ngày)</label><input class="input input--num" id="b-cap" value="45" inputmode="numeric" aria-describedby="b-cap-h"><span class="field__hint" id="b-cap-h">Dùng để cảnh báo quá tải khi đặt lịch. “Khoang” là trường tùy chọn, chưa bật.</span></div>
   </div></div></section>
 
-  <section class="card" aria-labelledby="c2"><div class="card__header"><div><h2 class="card__title" id="c2">Tài chính và pháp lý</h2><div class="card__subtitle">Quản trị hệ thống và Chủ garage sửa. <span class="tag tag--warning" data-why-roles="AD CH">Chỉ xem với vai trò của bạn</span></div></div></div><div class="card__body"><div class="form-grid">
-    <div class="field"><label class="field__label" for="b-wh">Kho gán cho chi nhánh</label><select class="select" id="b-wh" data-edit-roles="AD CH"><option>Kho Quận 7</option><option>Kho tổng (trụ sở)</option></select></div>
-    <div class="field"><label class="field__label" for="b-inv">Đơn vị phát hành hóa đơn</label><select class="select" id="b-inv" data-edit-roles="AD CH" aria-describedby="b-inv-h"><option>Công ty TNHH Garage ABC (mặc định)</option></select><span class="field__hint" id="b-inv-h">Đổi đơn vị phát hành chỉ áp dụng cho hóa đơn mới.</span></div>
-    <div class="field"><label class="field__label" for="b-pr">Bảng giá áp dụng</label><select class="select" id="b-pr" data-edit-roles="AD CH"><option>Bảng giá chung, hiệu lực từ 01/07/2026</option><option>Bảng giá khu vực 1 (sắp hiệu lực 01/12/2026)</option></select></div>
-    <div class="field"><label class="field__label" for="b-fx">Đơn giá giờ công</label><div class="input-group input-group--suffix"><input class="input input--num" id="b-fx" value="180.000" data-edit-roles="AD CH"><span class="input-group__suffix">₫/giờ</span></div><span class="field__hint">Chi tiết theo hạng mục ở “Dịch vụ, giờ chuẩn, đơn giá”.</span></div>
-  </div></div></section>
+  <section class="card" aria-labelledby="c2"><div class="card__header"><div><h2 class="card__title" id="c2">Tài chính và pháp lý</h2><div class="card__subtitle">Các giá trị có ngày hiệu lực: Quản trị hệ thống đề xuất thay đổi, Chủ garage duyệt. Quản lý chi nhánh chỉ xem. <span class="tag tag--warning" data-why-roles="AD">Chỉ xem với vai trò của bạn</span></div></div></div><div class="card__body"><dl class="g4r-kv">
+    <dt>Kho gán cho chi nhánh</dt><dd class="row">Kho Quận 7 <span class="tag tag--success">Hiện hành từ 01/03/2026</span><button type="button" class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-fin1" title="Chỉ Quản trị hệ thống đề xuất; Chủ garage duyệt">Đổi…</button></dd>
+    <dt>Đơn vị phát hành hóa đơn</dt><dd class="row">Công ty TNHH Garage ABC (mặc định) <span class="tag tag--success">Hiện hành từ 01/03/2026</span><button type="button" class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-fin1" title="Chỉ Quản trị hệ thống đề xuất; Chủ garage duyệt">Đổi…</button><span class="g4r-formula">Đổi đơn vị phát hành chỉ áp dụng cho hóa đơn mới.</span></dd>
+    <dt>Bảng giá áp dụng</dt><dd class="row">Bảng giá chung <span class="tag tag--success">Hiện hành từ 01/07/2026</span><span class="tag tag--info">Sắp hiệu lực: Bảng giá khu vực 1 từ 01/12/2026</span><button type="button" class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-fin2" title="Chỉ Quản trị hệ thống đề xuất; Chủ garage duyệt">Đổi…</button></dd>
+    <dt>Đơn giá giờ công</dt><dd class="row">180.000 ₫/giờ <span class="tag tag--success">Hiện hành từ 01/07/2026</span><button type="button" class="btn btn--secondary btn--sm" data-edit-roles="AD" data-open="dlg-fin3" title="Chỉ Quản trị hệ thống đề xuất; Chủ garage duyệt">Đổi…</button><a class="btn btn--ghost btn--sm" href="g4-sys-07.html">Chi tiết theo hạng mục</a></dd>
+  </dl></div></section>
 
   <section class="card" aria-labelledby="c3"><div class="card__header"><div><h2 class="card__title" id="c3">Quy trình theo loại dịch vụ được bật</h2><div class="card__subtitle">Bộ bước và trạng thái hạng mục cấu hình ở “Quy trình theo loại dịch vụ”.</div></div></div><div class="card__body"><div class="stack-2">
     <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Sửa chữa chung</span></label>
@@ -51,13 +52,19 @@ g4rPage({
   </div></div></section>
 
   <div class="row" style="position:sticky;bottom:0;z-index:var(--z-sticky);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4)">
-    <span class="t-body-sm text-secondary">Thay đổi có hiệu lực ngay cho chứng từ tạo mới; chứng từ đã tạo không đổi.</span><span style="margin-left:auto"></span>
+    <span class="t-body-sm text-secondary">Thông tin chung lưu có hiệu lực ngay (ghi nhật ký). Phần tài chính và pháp lý chỉ đổi qua “Đổi…” với ngày hiệu lực và chờ Chủ garage duyệt; chứng từ đã tạo không đổi.</span><span style="margin-left:auto"></span>
     <button class="btn btn--ghost" type="button">Hủy</button><button class="btn btn--primary" type="button" data-toast="success|Đã lưu cấu hình chi nhánh|Ghi nhật ký giá trị trước và sau.">Lưu</button>
   </div>
 </form>
 
 <script>
-g4rEnd('<div data-state="locked" hidden><div class="alert alert--warning" role="alert"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><div class="alert__title">Chi nhánh đang bị khóa, cấu hình ở chế độ chỉ đọc</div>Không tạo được chứng từ mới ở chi nhánh bị khóa (FR-SYS-011). Chủ garage hoặc Quản trị hệ thống mở lại ở Cơ cấu tổ chức.<div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g4-sys-05.html">Mở Cơ cấu tổ chức</a></div></div></div></div>');
+g4rEnd('<div data-state="locked" hidden><div class="alert alert--warning" role="alert"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><div class="alert__title">Chi nhánh đang bị khóa, cấu hình ở chế độ chỉ đọc</div>Không tạo được chứng từ mới ở chi nhánh bị khóa (FR-SYS-011). Chủ garage hoặc Quản trị hệ thống mở lại ở Cơ cấu tổ chức.<div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g4-sys-05.html">Mở Cơ cấu tổ chức</a></div></div></div></div>',
+g4rDrawer({ id: 'dlg-fin1', title: 'Đổi kho / đơn vị phát hành hóa đơn', sub: 'Chi nhánh Quận 7', guard: true, effDate: '01/12/2026', cta: 'Gửi Chủ garage duyệt', toast: 'Đã gửi Chủ garage duyệt', impact: ['Chỉ áp dụng cho chứng từ và hóa đơn tạo từ ngày hiệu lực; hóa đơn đã phát hành vẫn thuộc đơn vị cũ.', 'Cần Chủ garage duyệt trước khi có hiệu lực.'],
+  fields: ['<div class="field"><label class="field__label" for="f1-w">Kho gán<span class="field__req">*</span></label><select class="select" id="f1-w"><option>Kho Quận 7</option><option>Kho tổng (trụ sở)</option></select></div>', '<div class="field"><label class="field__label" for="f1-i">Đơn vị phát hành hóa đơn<span class="field__req">*</span></label><select class="select" id="f1-i"><option>Công ty TNHH Garage ABC (mặc định)</option></select></div>'] })
++ g4rDrawer({ id: 'dlg-fin2', title: 'Đổi bảng giá áp dụng', sub: 'Chi nhánh Quận 7', guard: true, effDate: '01/12/2026', cta: 'Gửi Chủ garage duyệt', toast: 'Đã gửi Chủ garage duyệt', impact: ['Báo giá lập từ ngày hiệu lực dùng bảng giá mới; báo giá đã gửi giữ phiên bản giá cũ.'],
+  fields: ['<div class="field"><label class="field__label" for="f2-p">Bảng giá<span class="field__req">*</span></label><select class="select" id="f2-p"><option>Bảng giá khu vực 1</option><option>Bảng giá chung</option></select></div>'] })
++ g4rDrawer({ id: 'dlg-fin3', title: 'Đổi đơn giá giờ công', sub: 'Chi nhánh Quận 7 · hiện hành 180.000 ₫/giờ', guard: true, effDate: '01/12/2026', cta: 'Gửi Chủ garage duyệt', toast: 'Đã gửi Chủ garage duyệt', impact: ['Tính công cho lệnh tạo từ ngày hiệu lực; lệnh cũ không đổi.'],
+  fields: ['<div class="field"><label class="field__label" for="f3-v">Đơn giá giờ công mới<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="f3-v" value="190.000"><span class="input-group__suffix">₫/giờ</span></div></div>'] }));
 </script>
 </body>
 </html>

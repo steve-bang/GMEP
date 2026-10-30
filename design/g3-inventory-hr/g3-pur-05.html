@@ -23,11 +23,11 @@
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Giao về Kho Quận 7</span><span>· 30/10/2026</span></div>
 
-<div id="g3-body" data-noun="đơn mua" data-g3-states="data:Soạn đơn;sent:Điều chỉnh đơn đã gửi;loading;error;denied" data-skel="detail" data-back="g3-pur-04.html">
+<div id="g3-body" data-noun="đơn mua" data-g3-states="data:Soạn đơn;sent:Điều chỉnh đơn đã gửi;loading;notfound;error;denied" data-skel="detail" data-back="g3-pur-04.html">
 <div data-g3-state="data" class="stack">
   <div class="g3-ro-flag alert alert--info" data-for="f-po" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh lập đơn mua.</span></div></div>
   <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng:</span><button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="blk-price e-price">Sửa giá khác bảng giá NCC</button></div>
-  <form id="f-po" class="g3-split" data-g3-edit="TK QL" onsubmit="return false">
+  <form id="f-po" class="g3-split" data-g3-edit="TK QL MH" onsubmit="return false">
     <div class="stack-6">
       <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Nhà cung cấp và điều khoản</h2>
         <div class="form-grid">
@@ -43,13 +43,13 @@
         <div id="blk-price" hidden class="card__body"><div class="field"><label class="field__label" for="o-why">Lý do sửa giá<span class="field__req" aria-hidden="true">*</span></label><textarea id="o-why" class="textarea" aria-describedby="e-price"></textarea><span class="field__error" id="e-price"><svg class="icon"><use href="#alert-triangle"/></svg>Giá đặt khác bảng giá nhà cung cấp. Nhập lý do (tối thiểu 5 ký tự) để lưu vết.</span></div></div></section>
     </div>
     <aside class="g3-side"><section class="card"><div class="card__body stack">
-      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-po" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh gửi đơn.">Gửi nhà cung cấp</button><button class="btn btn--secondary btn--block" type="button" data-toast="success|Đã lưu nháp|DM-Q7-2610-00015 lưu lúc 09:23.">Lưu nháp</button>
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-po" data-g3-need="TK QL MH" data-g3-why="Chỉ nhân viên mua hàng, Thủ kho và Quản lý chi nhánh gửi đơn.">Gửi nhà cung cấp</button><button class="btn btn--secondary btn--block" type="button" data-toast="success|Đã lưu nháp|DM-Q7-2610-00015 lưu lúc 09:23.">Lưu nháp</button>
       <p class="t-body-sm text-secondary">Giá trị đơn vượt hạn mức của người lập sẽ cần duyệt trước khi gửi (hạn mức lấy từ G4-APR-03).</p></div></section></aside>
   </form>
 </div>
 
 <div data-g3-state="sent" class="stack" hidden>
-  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đơn DM-Q7-2610-00014 đã gửi nhà cung cấp</span><span>Sửa đơn đã gửi không ghi đè: hệ thống tạo phiên bản mới v3 và giữ v1, v2 để đối chiếu. Phần đã nhận (10 đơn vị) không đổi.</span><div class="alert__actions"><button class="btn btn--primary btn--sm" data-open="dlg-ver" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh tạo phiên bản đơn.">Tạo phiên bản v3…</button></div></div></div>
+  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đơn DM-Q7-2610-00014 đã gửi nhà cung cấp</span><span>Sửa đơn đã gửi không ghi đè: hệ thống tạo phiên bản mới v3 và giữ v1, v2 để đối chiếu. Phần đã nhận (10 đơn vị) không đổi.</span><div class="alert__actions"><button class="btn btn--primary btn--sm" data-open="dlg-ver" data-g3-need="TK QL MH" data-g3-why="Chỉ nhân viên mua hàng, Thủ kho và Quản lý chi nhánh tạo phiên bản đơn.">Tạo phiên bản v3…</button></div></div></div>
 </div>
 </div>
 
@@ -63,7 +63,7 @@
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi nhà cung cấp|DM-Q7-2610-00015 ở trạng thái Đã gửi.">Gửi đơn</button></div></div></div>
 <div class="overlay" id="dlg-ver" role="alertdialog" aria-modal="true" aria-labelledby="vr-t"><div class="dialog dialog--md" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="vr-t">Tạo phiên bản v3 của đơn đã gửi?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body"><ul class="impact-list"><li>v1, v2 giữ nguyên để đối chiếu; v3 cần gửi lại và nhà cung cấp xác nhận.</li><li>Phần đã nhận qua PN-Q7-2610-00033 không bị ảnh hưởng.</li></ul><div class="field"><label class="field__label" for="vr-r">Lý do điều chỉnh<span class="field__req" aria-hidden="true">*</span></label><textarea id="vr-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__body"><ul class="impact-list"><li>v1, v2 giữ nguyên để đối chiếu; v3 cần gửi lại và nhà cung cấp xác nhận.</li><li>Phần đã nhận qua PN-Q7-2610-00031 không bị ảnh hưởng.</li></ul><div class="field"><label class="field__label" for="vr-r">Lý do điều chỉnh<span class="field__req" aria-hidden="true">*</span></label><textarea id="vr-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã tạo phiên bản v3|Gửi lại nhà cung cấp để xác nhận." disabled>Tạo phiên bản v3</button></div></div></div>
 
 <script src="../assets/app.js"></script>

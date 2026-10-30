@@ -16,6 +16,7 @@
 </style>
 </head>
 <body data-role="AD">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-04" data-menu="set" data-crumbs="Cài đặt|Vai trò và quyền" data-allow="AD CH"></script>
 <script>
 g4rPage({
@@ -33,6 +34,7 @@ g4rPage({
 <div class="alert alert--info g4r-chonly" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Bạn là Chủ garage: bạn <strong>duyệt</strong> thay đổi quyền do Quản trị hệ thống đề xuất, không sửa trực tiếp. Điều khiển chỉnh sửa bị khóa.</div></div>
 <div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Quản trị hệ thống cấu hình được nhưng <strong>không xem được dữ liệu nghiệp vụ nhạy cảm của khách</strong> (SĐT, địa chỉ). Dòng AD trong bảng che dữ liệu cá nhân luôn bị khóa.</div></div>
 
+<script>g4rPending([{ what: 'Quyền vai trò Thủ kho: bật “Xuất dữ liệu” ở Nhập, xuất, kiểm kê kho', who: 'Đỗ Thanh Tâm (Quản trị hệ thống)', when: '29/10/2026 15:12', diff: '<del>Tắt</del> → <ins>Bật</ins>' }]);</script>
 <div class="tabs" role="tablist" aria-label="Phân quyền">
   <button class="tab" role="tab" id="p1" aria-selected="true" aria-controls="pp1">Ma trận theo chức năng</button>
   <button class="tab" role="tab" id="p2" aria-selected="false" tabindex="-1" aria-controls="pp2">Quyền theo hành động</button>
@@ -43,7 +45,7 @@ g4rPage({
 <div class="tab-panel stack" id="pp1" role="tabpanel" aria-labelledby="p1">
   <div class="g4r-legend-keys" aria-label="Chú giải ký hiệu"><span><span class="g4r-cell g4r-cell--S">S</span> tạo và sửa</span><span><span class="g4r-cell g4r-cell--D">D</span> duyệt (kèm xem)</span><span><span class="g4r-cell g4r-cell--X">X</span> chỉ xem</span><span><span class="g4r-cell g4r-cell--Xn">Xn</span> chỉ phần của mình</span><span><span class="g4r-cell g4r-cell--none">–</span> không có quyền</span><span><span class="g4r-cell g4r-cell--X is-diff">D</span> khung vàng: khác ma trận chuẩn</span></div>
   <div class="table-wrap"><div class="table-scroll"><table class="table table--compact g4r-matrix" id="mx"><caption class="sr-only">Ma trận phân quyền vai trò theo chức năng</caption></table></div>
-    <div class="table-footer"><span class="table-meta">Cột “Kế toán trưởng” là vai trò tự tạo từ Kế toán (một cấu hình quyền, FRD §2 ghi chú). Quyền cộng gộp theo từng chi nhánh khi một người có nhiều vai trò.</span></div></div>
+    <div class="table-footer"><span class="table-meta">Cột “Kế toán trưởng” là vai trò tự tạo, sao chép từ <strong>vai trò nền Kế toán</strong>; quyền tối đa = ma trận chuẩn của vai trò nền cộng ngoại lệ ghi trong FRD §2 (hóa đơn điện tử: duyệt điều chỉnh, thay thế, hủy). Giao diện không cho thêm quyền vượt ma trận; muốn vượt phải đổi FRD §2. Quyền cộng gộp theo từng chi nhánh khi một người có nhiều vai trò.</span></div></div>
 </div>
 
 <div class="tab-panel stack" id="pp2" role="tabpanel" aria-labelledby="p2" hidden>
@@ -51,13 +53,13 @@ g4rPage({
     <div class="field"><label class="field__label" for="sel-br">Áp dụng cho chi nhánh</label><select class="select" id="sel-br" data-ad><option>Mọi chi nhánh được gán</option><option>Chỉ Chi nhánh Quận 7</option></select></div></div>
   <div class="alert alert--warning g4r-dirty" id="dirty" role="status"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span id="dirty-n">0</span> thay đổi chưa lưu. Lưu sẽ yêu cầu xem trước ảnh hưởng và gửi Chủ garage duyệt.<div class="alert__actions"><button class="btn btn--primary btn--sm" data-open="dlg-impact">Xem trước ảnh hưởng và lưu</button></div></div></div>
   <div class="table-wrap"><div class="table-scroll"><table class="table table--compact g4r-matrix" id="act"><caption class="sr-only">Quyền theo hành động của vai trò đang chọn</caption></table></div>
-    <div class="table-footer"><span class="table-meta">Ô xám bị khóa vì vượt mức tối đa của ma trận chuẩn (ví dụ Thủ kho tạo phiếu xuất nhưng không tự duyệt phiếu bất thường). Quyền “Xuất dữ liệu” cấp riêng, mặc định tắt.</span></div></div>
+    <div class="table-footer"><span class="table-meta">Ô xám bị khóa vì vượt mức tối đa của ma trận chuẩn (ví dụ Thủ kho tạo phiếu xuất nhưng không tự duyệt phiếu bất thường). “Xuất dữ liệu” và “Quản lý” chỉ chọn được khi chức năng đó đã có quyền Xem; quyền xuất cấp riêng, mặc định tắt.</span></div></div>
 </div>
 
 <div class="tab-panel stack" id="pp3" role="tabpanel" aria-labelledby="p3" hidden>
   <div class="table-wrap"><div class="table-toolbar"><strong>Quyền che SĐT, email, địa chỉ khách theo vai trò</strong><span class="table-meta" style="margin-left:auto">Giá trị đầy đủ không gửi xuống trình duyệt trước khi bấm Hiện</span></div>
     <div class="table-scroll"><table class="table table--compact" id="pii"><caption class="sr-only">Quyền che dữ liệu cá nhân</caption></table></div>
-    <div class="table-footer"><span class="table-meta">Mặc định theo quyết định BA (câu 8, D-10), chờ khách xác nhận. Mỗi lần Hiện ghi nhật ký; tự che lại sau 30 giây.</span></div></div>
+    <div class="table-footer"><span class="table-meta">Mặc định theo quyết định đề xuất, chờ khách xác nhận. Mỗi vai trò có mức tối đa theo luật (ô xám bị khóa): Quản trị luôn Không hiển thị, Thợ chỉ thấy tên và biển số việc mình, Thủ kho không xem địa chỉ, Kế toán không được Đầy đủ. Chỉnh theo vai trò, không theo từng người. Nới mức che cần Chủ garage duyệt, có lý do, ghi nhật ký. Mỗi lần Hiện ghi nhật ký; tự che lại sau 30 giây.</span></div></div>
 </div>
 </div>
 
@@ -135,7 +137,7 @@ g4rPage({
 <p class="sr-only" id="ad-why">Quản trị hệ thống không được xem dữ liệu cá nhân của khách theo Luật bảo vệ dữ liệu cá nhân.</p>
 
 <script>
-g4rEnd('', '<div class="overlay" id="dlg-impact" role="alertdialog" aria-modal="true" aria-labelledby="im-t"><div class="dialog" data-confirm-guard><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="im-t">Xem trước ảnh hưởng của thay đổi quyền</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Vai trò Thủ kho: ảnh hưởng 2 người dùng (Phạm Văn Đạt, Nguyễn Hữu Lộc) ở 2 chi nhánh.</li><li>Thay đổi có hiệu lực sau khi Chủ garage duyệt; đang chờ duyệt thì quyền cũ vẫn áp dụng.</li><li>Ghi nhật ký giá trị trước và sau.</li></ul><div class="field"><label class="field__label" for="im-r">Lý do thay đổi<span class="field__req">*</span></label><textarea class="textarea" id="im-r" data-confirm-reason style="min-height:56px"></textarea></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại chỉnh</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã gửi Chủ garage duyệt|Quyền mới chưa áp dụng cho tới khi được duyệt.">Gửi duyệt thay đổi</button></div></div></div>');
+g4rEnd('', '<div class="overlay" id="dlg-impact" role="alertdialog" aria-modal="true" aria-labelledby="im-t"><div class="dialog" data-confirm-guard><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="im-t">Xem trước ảnh hưởng của thay đổi quyền</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Vai trò <strong id="im-role">Thủ kho</strong>: <strong id="im-n">0</strong> thay đổi quyền, ảnh hưởng <strong id="im-users">5</strong> người dùng đang giữ vai trò này.</li><li>Thay đổi có hiệu lực sau khi Chủ garage duyệt; đang chờ duyệt thì quyền cũ vẫn áp dụng.</li><li>Ghi nhật ký giá trị trước và sau.</li></ul><div class="field"><label class="field__label" for="im-r">Lý do thay đổi<span class="field__req">*</span></label><textarea class="textarea" id="im-r" data-confirm-reason style="min-height:56px"></textarea></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại chỉnh</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã gửi Chủ garage duyệt|Quyền mới chưa áp dụng cho tới khi được duyệt.">Gửi duyệt thay đổi</button></div></div></div>');
 </script>
 </body>
 </html>

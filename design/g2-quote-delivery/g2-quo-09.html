@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body class="g2q-cust-page">
+<noscript><p style="padding:16px">Trang này cần bật JavaScript. Anh/chị vui lòng gọi chi nhánh 028 7300 1234 để được hỗ trợ.</p></noscript>
 <script src="pack.js"></script>
 <div class="g2q-phone" id="trk" data-variants="progress">
   <header class="g2q-phone__head">
@@ -26,6 +27,7 @@
       <button type="button" class="segmented__item" data-set="delivered" aria-pressed="false">Đã giao</button>
       <button type="button" class="segmented__item" data-set="loading" aria-pressed="false">Đang tải</button>
       <button type="button" class="segmented__item" data-set="error" aria-pressed="false">Lỗi</button>
+      <button type="button" class="segmented__item" data-set="notfound" aria-pressed="false">Không tìm thấy</button>
       <button type="button" class="segmented__item" data-set="expired" aria-pressed="false">Liên kết hết hạn</button></div></details>
 
   <main class="g2q-phone__body g2q-phone__body--plain" id="main" data-v="progress waiting ready delivered">
@@ -40,7 +42,7 @@
 
     <section class="card" data-v="waiting" aria-labelledby="h-act" style="border-left:6px solid var(--color-warning)">
       <div class="card__header"><h2 class="card__title" id="h-act">Cần anh quyết định</h2><span class="tag tag--warning">Chờ anh duyệt</span></div>
-      <div class="card__body--compact" style="padding:16px;display:grid;gap:12px"><div><strong class="g2q-cust-item__name">Thay lọc gió điều hòa</strong><div class="g2q-cust-item__why">Thợ phát hiện lọc gió bẩn nhiều. Garage chưa làm việc này cho tới khi anh đồng ý. Thêm khoảng 20 phút, 324.000 ₫ đã gồm thuế.</div></div><a class="btn btn--primary btn--block" href="g2-quo-06.html?v=extra">Xem và quyết định</a></div></section>
+      <div class="card__body--compact" style="padding:16px;display:grid;gap:12px"><div><strong class="g2q-cust-item__name">Thay lọc gió điều hòa</strong><div class="g2q-cust-item__why">Thợ phát hiện lọc gió bẩn nhiều. Garage chưa làm việc này cho tới khi anh đồng ý. Thêm khoảng 20 phút, 324.000 ₫ đã gồm thuế. Anh trả lời trước 16:00 hôm nay.</div></div><a class="btn btn--primary btn--block" href="g2-quo-06.html?v=extra">Xem và quyết định</a></div></section>
 
     <section class="card" aria-labelledby="h-tr"><div class="card__header"><h2 class="card__title" id="h-tr">Tiến độ</h2></div>
       <div class="card__body"><div class="g2q-track" role="list">
@@ -64,6 +66,7 @@
 
   <main class="g2q-phone__body g2q-phone__body--plain" data-v="loading" aria-busy="true"><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--block"></span></main>
   <main class="g2q-phone__body g2q-phone__body--plain" data-v="error"><script>g2q.state({kind:'error', title:'Chưa tải được tiến độ', text:'Có lỗi ở phía garage hoặc điện thoại đang mất mạng. Anh thử lại sau ít phút, hoặc gọi chi nhánh.', actions:'<button class="btn btn--primary" data-set="progress" data-for="trk">Tải lại</button><a class="btn btn--secondary" href="tel:02873001234">Gọi 028 7300 1234</a>', ref:'Mã tham chiếu: ERR-TRK-82C1F0'})</script></main>
+  <main class="g2q-phone__body g2q-phone__body--plain" data-v="notfound"><script>g2q.state({kind:'notfound', title:'Không tìm thấy thông tin xe', text:'Liên kết không đúng hoặc đã bị thu hồi. Anh vui lòng kiểm tra lại tin nhắn hoặc gọi chi nhánh.', actions:'<a class="btn btn--primary" href="tel:02873001234"><svg class="icon"><use href="#phone"/></svg>Gọi 028 7300 1234</a>'})</script></main>
   <main class="g2q-phone__body g2q-phone__body--plain" data-v="expired"><script>g2q.state({kind:'error', title:'Liên kết đã hết hạn', text:'Liên kết theo dõi chỉ có hiệu lực trong thời gian xe ở garage. Anh gọi chi nhánh nếu cần biết thêm.', actions:'<a class="btn btn--primary" href="tel:02873001234"><svg class="icon"><use href="#phone"/></svg>Gọi 028 7300 1234</a>'})</script></main>
 
   <footer class="t-note" style="padding:16px;text-align:center">Garage Chi nhánh Quận 7 · 12 Nguyễn Văn Linh, Quận 7, TP.HCM</footer>

@@ -116,21 +116,21 @@ Mục đích: một khung duy nhất cho mọi vai trò, luôn trả lời “t�
 Mục đích: vào hệ thống an toàn mà không làm nhân viên quầy/xưởng chậm. Layout riêng: nền `surface.page`, logo, thẻ rộng tối đa 440px (wizard 600px, tablet xưởng 720px), cùng token và component với phần còn lại.
 
 Nguyên tắc chung:
-- **Không lộ tài khoản có tồn tại hay không**: thông báo sai thông tin, khóa tạm, “đã gửi liên kết” luôn giống nhau với mọi tài khoản. Tài khoản bị vô hiệu cũng hiện đúng thông báo “Không đăng nhập được” như sai mật khẩu. Khóa tạm áp theo thiết bị + tên nhập (kể cả tên không tồn tại).
+- **Không lộ tài khoản có tồn tại hay không**: thông báo sai thông tin, khóa tạm, “đã gửi liên kết” luôn giống nhau với mọi tài khoản. Tài khoản bị vô hiệu cũng hiện đúng thông báo “Không đăng nhập được” như sai mật khẩu. Ba bộ đếm đều áp cả cho tên không tồn tại để hành vi giống nhau (BA câu 1): A theo (thiết bị + tên nhập) khóa 15 phút; B theo tên nhập trên mọi thiết bị chỉ làm chậm và báo AD (không khóa cứng, tránh bị khóa cố ý); C theo địa chỉ mạng làm chậm. Mở sớm: hoàn tất “Quên mật khẩu” hoặc QL/CH/AD mở khóa (nhập lại mật khẩu của người mở, ghi nhật ký, email cho chủ tài khoản). Ngoài màn hình, người bị vô hiệu/khóa nhận email và QL/AD thấy lý do ở G4-SYS-03.
 - **Thông báo lỗi nêu cách sửa**: mỗi lỗi trường có ví dụ đúng (“Ví dụ: ha.nguyen@garage.vn hoặc NV0123”), lỗi chung nói bước tiếp theo (Quên mật khẩu, liên hệ quản lý chi nhánh).
 - Label luôn hiện, dấu * giải thích “Bắt buộc nhập”, `autocomplete` đúng (username, current-password, new-password, one-time-code), hiện/ẩn mật khẩu bằng nút có nhãn, cảnh báo Caps Lock, focus vào ô đầu.
 - Nút chính 1 cái/màn hình, `btn--lg` toàn chiều ngang; nút bị tắt đều có dòng lý do ngay phía trên (không chỉ tooltip).
 - Mất mạng: giữ nguyên dữ liệu đã nhập, nói rõ chưa gửi được, có “Thử kết nối lại”.
 
 Chi tiết theo màn hình:
-- AUT-01: email/mã nhân viên, mật khẩu, “Ghi nhớ thiết bị” kèm cảnh báo không bật trên máy dùng chung; lối tắt PIN chỉ hiện khi thiết bị đã đăng ký là thiết bị xưởng.
-- AUT-02: 6 ô nhập (dán cả mã), “tin cậy 14 ngày”, đếm số lần còn lại, gợi ý kiểm tra giờ điện thoại, mã khôi phục, mã email dự phòng (hiệu lực 5 phút, gửi lại sau đếm lùi), quá số lần thì khóa tạm kèm cách khác.
+- AUT-01: email/mã nhân viên, mật khẩu (không còn “Ghi nhớ thiết bị”, tránh trùng khái niệm với “tin cậy thiết bị” của MFA); lối tắt PIN chỉ hiện khi thiết bị đã đăng ký là thiết bị xưởng; khóa tạm nói cách mở sớm.
+- AUT-02: 6 ô nhập (dán cả mã), đếm số lần còn lại, gợi ý kiểm tra giờ điện thoại, mã khôi phục. Theo vai trò (BA câu 2): CH, QV, QL có “tin cậy thiết bị 14 ngày”; KT, AD không có; **nhóm bắt buộc MFA (CH, QV, QL, KT, AD) không có mã dự phòng qua email** (cùng hộp thư với Quên mật khẩu), thay bằng mã khôi phục hoặc nhờ người có thẩm quyền đặt lại (xác minh danh tính, nhật ký, email); mã email chỉ cho vai trò tự bật MFA (CV, QĐ, TK, TN).
 - AUT-03: bước không bỏ qua được; QR chỉ là hình minh họa; mã khôi phục chỉ hiện một lần, nút “Hoàn tất” bật sau khi đánh dấu đã lưu; hết thời gian thiết lập 10 phút phải làm lại.
 - AUT-04/05: thanh độ mạnh có chữ, danh sách yêu cầu đánh dấu đạt/chưa đạt bằng biểu tượng + chữ ẩn cho trình đọc màn hình; “không trùng 5 mật khẩu gần nhất” kiểm tra khi lưu.
 - AUT-06: thông tin (họ tên, email, chi nhánh, vai trò) chỉ đọc, sai thì dừng và báo quản lý; đồng ý quy định bằng ô tích bắt buộc.
 - AUT-08: mỗi chi nhánh là một thẻ bấm được (≥ 64px) kèm vai trò của mình ở chi nhánh đó, “Gần nhất” được chọn sẵn để vào bằng 1 chạm, chi nhánh khóa có nhãn “Chỉ xem”, “Nhớ lựa chọn”.
 - AUT-09: đếm lùi 60 giây bằng số lớn; sau khóa chỉ hỏi mật khẩu, nói rõ bản nháp đã giữ; phiên tuyệt đối 12 giờ và thu hồi quyền có thông báo riêng.
-- AUT-10: lưới tên thợ (ảnh/tên, thẻ ≥ 112px), bàn phím số 72px, chấm tròn thể hiện số số đã nhập, PIN không hiện chữ; khóa tạm sau 5 lần sai kèm báo quản đốc.
+- AUT-10 (BA câu 3): lưới tên thợ (thẻ ≥ 112px), bàn phím số 72px, chấm tròn, PIN không hiện chữ. 5 lần sai khóa tên đó đến khi QĐ/QL mở (không tự mở), báo quản đốc. Thêm trạng thái **Đặt PIN mới** (sau PIN tạm do QĐ/QL cấp: nhập hai lần, chặn PIN dễ đoán, không trùng 3 PIN gần nhất), **Thiết bị chưa đăng ký** (nhập mã ghép 8 ký tự hiệu lực 10 phút) và **Thiết bị bị thu hồi**.
 
 ### 4.3 Trang lỗi (G1-ERR)
 
@@ -140,13 +140,13 @@ Layout cùng nhóm xác thực. Mỗi trang: mã lớn, tiêu đề dễ hiểu,
 
 Bố cục chung: page header (tiêu đề, mô tả vai trò, tối đa 3 hành động) → thanh xem thử → bộ lọc (khoảng thời gian: các lối tắt + “Tùy chọn” hai ô dd/MM/yyyy có kiểm tra; chi nhánh; “Cập nhật lúc”; Làm mới; Đặt lại mặc định) → hàng KPI (nhiều nhất 6) → hai cột (khối chính rộng trái, việc cần xử lý phải). Màn đầu không quá 5–6 khối ngoài hàng KPI; việc cần hành động ngay (phê duyệt, trễ hẹn, hết hàng) nằm ở khối nổi bật (`g1-hl-card`) chứ không chôn trong biểu đồ.
 
-Quy tắc dữ liệu (RULE-015, FR-RPT-010): mọi KPI/biểu đồ có dòng ghi chi nhánh · kỳ · thời điểm; dải phạm vi của shell có nhãn “Số tạm” hoặc “Số chính thức”; con số không chắc chắn nói rõ “số tạm”. Số tiền ở KPI rút gọn có đơn vị (“1.713,9 tr ₫”), ở bảng và chứng từ dùng số đầy đủ (“505.700.000 ₫”). Mã chứng từ theo `ba-decisions.md` (RO-Q7-2610-00128, BG-Q7-2610-00231-v2), biển số `51H-123.45`.
+Quy tắc dữ liệu (RULE-015, FR-RPT-010, BA câu 5): mọi KPI/biểu đồ có dòng ghi chi nhánh · kỳ · thời điểm. **Số theo kỳ** (doanh thu, lợi nhuận, lượt xe, thu/chi) là “Số chính thức” chỉ khi mọi ngày × mọi chi nhánh trong phạm vi và kỳ đã chốt, nếu không là “Số tạm” theo trường hợp xấu nhất; badge ở dải phạm vi kèm dòng chữ nêu chi nhánh/ngày chưa chốt (ví dụ “Đã chốt đến 28/10. 2 trên 5 chi nhánh chưa chốt 29/10: Quận 7, Thủ Đức”). **Số tại một thời điểm** (xe đang sửa, công nợ, tồn, hàng chờ) ghi “tại hh:mm”, không dùng tạm/chính thức. Điểm của ngày chưa chốt trên biểu đồ đường vẽ nét chấm, điểm rỗng, tooltip “số tạm”. Số tiền ở KPI rút gọn có đơn vị (“1.713,9 tr ₫”), ở bảng và chứng từ dùng số đầy đủ (“505.700.000 ₫”). Mã chứng từ theo `ba-decisions.md` (RO-Q7-2610-00128, BG-Q7-2610-00231-v2), biển số `51H-123.45`.
 
 Biểu đồ (design-system §9): tên, đơn vị và phạm vi dưới tên; trục bắt đầu từ 0; không dùng biểu đồ tròn, 3D hay hai trục; tooltip bằng chuột, chạm, focus và phím mũi tên (đọc được cả bằng trình đọc màn hình qua vùng `aria-live`); nút “Biểu đồ / Bảng số liệu” chuyển sang bảng thay thế đầy đủ (có tổng khi xếp chồng); legend có chữ; đường “kỳ trước” là nét đứt (không chỉ khác màu); vạch định mức là vạch đậm riêng. Màu dãy dữ liệu là `--chart-series-1..5` (tím, xanh ngọc, hổ phách, ghi, hồng), không dùng đỏ/xanh lá trang trí. Màu biểu đồ khác màu badge trạng thái nên biểu đồ trạng thái lệnh phải đọc qua chú giải/bảng.
 
 | Mã | Câu hỏi vai trò cần trả lời | Khối chính | Hành động chính |
 | --- | --- | --- | --- |
-| DSH-01 CH | Chuỗi đang thế nào, cần tôi quyết gì? | 6 KPI (doanh thu, lợi nhuận gộp, lượt xe, xe đang sửa, giá trị tồn, công nợ phải thu); đường doanh thu theo ngày (so kỳ trước, đổi 7 ngày/tháng); thanh nhóm doanh thu + lợi nhuận theo chi nhánh; bảng xếp hạng “dẫn đầu/cần chú ý”; việc cần tôi phê duyệt; cảnh báo ngoại lệ | Mở hàng chờ phê duyệt |
+| DSH-01 CH | Trả lời 10 câu sáng của chủ garage (BRD §3): 1 xe đang sửa = KPI “Xe đang sửa”; 2 chi nhánh tốt nhất, 10 chi nhánh cần can thiệp = bảng xếp hạng + thanh nhóm; 3 lệnh chậm = “Xe trễ hẹn giao” (đi tới danh sách lệnh trễ hẹn); 4 thợ quá tải = “Thợ quá tải” (đi tới DSH-09 của chi nhánh); 5 phụ tùng thiếu/tồn lâu = “Phụ tùng thiếu hoặc tồn lâu”; 6 doanh thu cao lợi nhuận thấp = cột biên LN gộp; 7 khách nợ = KPI công nợ phải thu; 8 tiền mặt khớp = “Lệch quỹ”; 9 khoản chi chưa duyệt = “Việc cần tôi phê duyệt” | 6 KPI (lợi nhuận gộp ghi “chưa gồm nhân công” + nút Cách tính); đường doanh thu theo ngày; thanh nhóm doanh thu + lợi nhuận theo chi nhánh; bảng xếp hạng; việc cần tôi phê duyệt; cảnh báo ngoại lệ (5 dòng) | Mở hàng chờ phê duyệt |
 | DSH-02 QV | Nhóm được giao thế nào? | KPI, đường doanh thu nhóm, bảng xếp hạng chọn chỉ số (doanh thu, biên LN, lượt xe, trễ hẹn), phê duyệt cấp vùng, ngoại lệ | Phê duyệt cấp vùng |
 | DSH-03 QL | Hôm nay chi nhánh có vấn đề gì? | Cảnh báo chưa chốt ngày; 4 KPI; thanh xếp chồng lệnh đang mở theo loại dịch vụ × trạng thái; công việc quá hạn; hàng chờ duyệt; kỹ thuật viên; kho sắp hết (theo khả dụng) | Duyệt hàng chờ |
 | DSH-04 CV | Việc ở quầy hôm nay? | 6 KPI; lịch hẹn hôm nay; báo giá chờ khách duyệt kèm thời gian chờ + “Nhắc khách”; xe chờ bàn giao (3 badge lệnh/thanh toán/hóa đơn tách riêng); xe đang sửa của tôi | + Tiếp nhận xe |
@@ -160,7 +160,8 @@ Biểu đồ (design-system §9): tên, đơn vị và phạm vi dưới tên; t
 Trạng thái mỗi khối (TT-B): đang tải (skeleton cùng kích thước, không spinner toàn trang), trống từng khối (nói vì sao và làm gì), **lỗi từng khối** (các khối khác vẫn dùng được, nút “Thử lại”, mã tham chiếu), khối ẩn do thiếu quyền (có dòng thông báo liệt kê khối bị ẩn), dữ liệu cũ (banner ghi lần cập nhật gần nhất), mất kết nối (banner của shell). Nút/khối bị tắt luôn có lý do nhìn thấy.
 
 Quy tắc hiển thị theo vai trò:
-- Lợi nhuận gộp, giá trị tồn: có ở CH, QV; không ở QL/CV/TH/TN (không trong quyền báo cáo của họ theo FRD §2); KT thấy phải thu/phải trả, không thấy lợi nhuận.
+- Lợi nhuận gộp và giá trị tồn (BA câu 6): CH, QV (phạm vi được giao) và **QL (chỉ chi nhánh mình, KPI thêm vào DSH-03)**; KT xem ở báo cáo chứ không có KPI trên DSH-06; CV, QĐ, TH, TN, AD không; TK chỉ số lượng. Quyền xem là cấu hình G4-SYS-04. Giai đoạn 1 nhãn luôn là “Lợi nhuận gộp (chưa gồm nhân công)” vì chưa có công thợ; nút “Cách tính” nêu công thức, phạm vi, phương pháp giá vốn và thành phần chưa gồm.
+- “Xe trễ hẹn giao” là tên và định nghĩa duy nhất (lệnh chưa hoàn tất/hủy có hẹn giao hiện hành đã qua; BA câu 7), cùng một con số trên DSH-01/02/03/09 (Quận 7: 3, Đà Nẵng: 1).
 - SĐT khách: CV, QL, TN, QĐ đầy đủ; CH, QV che + “Hiện”; KT che + “Hiện” bắt buộc chọn lý do; TK che; TH, AD không thấy (cơ chế `.pii` có sẵn).
 - AD: chỉ số vận hành, không có doanh thu hay khách; có dòng giải thích lý do.
 - TH: chỉ việc của mình; không hiện hoa hồng.
@@ -209,6 +210,8 @@ Chưa kiểm hoặc còn yếu: chưa thử trình đọc màn hình thật; ch�
 
 ## 7. Giả định
 
+**Cập nhật sau review BA (ba-answers-01.md):** giả định 2 (khóa theo thiết bị + tên) thay bằng ba bộ đếm; giả định 4 (trễ hẹn) thay bằng định nghĩa chính thức; giả định 5 (lợi nhuận chỉ CH, QV) thay bằng thêm QL; giả định 8 (thợ mất mạng chặn) giờ là quyết định Phase 1 (chặn + phiếu giấy + quản đốc nhập bù); giả định 3 vẫn đúng. Các giả định còn lại giữ nguyên.
+
 1. Không có tự đăng ký; “đăng ký” = kích hoạt lời mời 72 giờ (D-01). Chính sách mật khẩu và khóa tạm theo D-03/D-05; các số (10 ký tự, 5 lần sai, 15 phút, 30 phút, 12 giờ, 3 phút xưởng) hiển thị nhưng là tham số cấu hình G4-SYS-24, không hard-code ý nghĩa nghiệp vụ.
 2. Khóa tạm áp theo thiết bị + tên nhập và thông báo trung lập để không lộ tài khoản (xem câu hỏi 1).
 3. Ở AUT-06, thiết lập MFA (AUT-03) diễn ra sau khi bấm “Kích hoạt” chứ không nhúng trong cùng wizard (tránh mất trạng thái khi chuyển trang); bước 3 chỉ thông báo.
@@ -220,7 +223,7 @@ Chưa kiểm hoặc còn yếu: chưa thử trình đọc màn hình thật; ch�
 9. Đổi kỳ trên dashboard chỉ cập nhật nhãn và biểu đồ đường (các biểu đồ ảnh chụp không phụ thuộc kỳ và ghi rõ); số KPI trong prototype cố định. Biểu đồ không đổi theo chi nhánh trong prototype.
 10. Dữ liệu mẫu: 5 chi nhánh (Quận 1, Quận 7, Thủ Đức, Biên Hòa, Đà Nẵng), doanh thu tháng 10/2026 toàn chuỗi 1.713,9 tr ₫ (tổng khớp các chi nhánh), nhóm Miền Nam 4 chi nhánh 1.525,6 tr ₫.
 
-## 8. Câu hỏi cho BA
+## 8. Câu hỏi cho BA (đợt 1: đã được trả lời trong `ba-answers-01.md`, giữ lại để truy vết; câu còn mở ở §12)
 
 1. **Khóa tài khoản và tài khoản vô hiệu**: để không lộ tồn tại tài khoản, giao diện dùng cùng một thông báo cho sai mật khẩu, tài khoản không tồn tại và tài khoản bị vô hiệu; khóa tạm theo (thiết bị + tên nhập). Có chấp nhận hệ quả là người bị vô hiệu không được báo lý do trên màn hình (phải hỏi quản lý)? Quy tắc mở khóa sớm là gì?
 2. **MFA**: KT, QĐ có bắt buộc không (G-02)? Mã MFA dự phòng qua email có làm yếu yêu cầu bảo mật của vai trò tài chính không? “Tin cậy thiết bị 14 ngày” có áp cho KT, AD?

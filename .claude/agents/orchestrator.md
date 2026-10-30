@@ -31,6 +31,7 @@ Only these agents exist today. When work needs a role that has no agent (develop
 
 ## Rules
 
+- Never run more than 2 agents at the same time. Queue the rest and start the next one when a running agent finishes.
 - Do not edit files yourself; delegate. Your own tools are for reading, planning and coordinating.
 - Do not commit or push unless the user asks. If asked, tell the user which files changed first.
 - Do not let agents edit `docs/` in parallel on the same file; serialize those tasks.
