@@ -327,14 +327,15 @@
 
   /* ---------- 11. Menu theo vai trò (prototype) ---------- */
   /* Khóa vai trò kỹ thuật không dấu: CH QV QL CV QD(Quản đốc, nhãn "QĐ") TH TK TN KT AD.
-     Chế độ theo FRD §2: full = tạo/sửa/duyệt (S, D) · view = chỉ xem (X) · own = chỉ phần của mình (Xn) · sys = chỉ sức khỏe hệ thống.
+     Chế độ theo FRD §2: full = tạo/sửa (S) · approve = xem và duyệt (D) · view = chỉ xem (X) · own = chỉ phần của mình (Xn) · sys = chỉ sức khỏe hệ thống.
      Mục nào không có trong bảng của vai trò thì ẩn hẳn (khớp ma trận FRD §2). */
   var ROLE_MENU = {
-    CH: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'view', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'full' },
-    QV: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'view', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'limited' },
-    QL: { dash: 'full', ro: 'full', appt: 'full', cust: 'full', inv: 'full', pur: 'full', hr: 'full', fin: 'full', einv: 'view', rpt: 'view', set: 'full' },
+    /* FRD §2: D (duyệt, kèm xem) = 'approve' "Xem và duyệt"; mục gộp nhiều hàng FRD lấy mức cao nhất (S > D > X > Xn) */
+    CH: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'approve', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'approve' },   /* inv: danh mục phụ tùng D, chuyển kho D; set: người dùng/cấu hình D */
+    QV: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'approve', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'limited' },       /* inv: chuyển kho D */
+    QL: { dash: 'full', ro: 'approve', appt: 'full', cust: 'full', inv: 'full', pur: 'approve', hr: 'approve', fin: 'approve', einv: 'view', rpt: 'view', set: 'full' },  /* ro/hr/fin: D; công nợ chỉ X; inv: chuyển kho S */
     CV: { dash: 'full', ro: 'full', appt: 'full', cust: 'full', hr: 'own', fin: 'view', rpt: 'own', set: 'limited' },
-    QD: { dash: 'full', ro: 'view', cust: 'view', hr: 'view', rpt: 'own', set: 'limited' },
+    QD: { dash: 'full', ro: 'full', cust: 'view', hr: 'view', rpt: 'own', set: 'limited' },                                                                              /* ro: phân thợ, QC = S */
     TH: { dash: 'own', ro: 'own', cust: 'own', hr: 'own', rpt: 'own' },
     TK: { dash: 'full', ro: 'view', inv: 'full', pur: 'full', rpt: 'own', set: 'limited' },
     TN: { dash: 'full', ro: 'view', cust: 'view', fin: 'full', einv: 'full', rpt: 'own' },
@@ -344,7 +345,7 @@
     NS: { hr: 'full', rpt: 'own' },
     AD: { dash: 'sys', set: 'full' }
   };
-  var MODE_LABEL = { view: 'Chỉ xem', own: 'Của tôi', sys: 'Hệ thống', limited: 'Danh mục' };
+  var MODE_LABEL = { view: 'Chỉ xem', own: 'Của tôi', sys: 'Hệ thống', limited: 'Danh mục', approve: 'Xem và duyệt' };
   /* Phạm vi chi nhánh theo vai trò: multi = có cấp Tất cả/Nhóm/Chi nhánh; pick = chọn trong vài chi nhánh được gán; single = 1 chi nhánh (tĩnh); none = không gắn chi nhánh */
   var SCOPE_TYPE = { CH: 'multi', QV: 'multi', QL: 'pick', KT: 'pick', MH: 'pick', NS: 'pick', CV: 'single', QD: 'single', TH: 'single', TK: 'single', TN: 'single', AD: 'none' };
   function currentRole() { return document.body.getAttribute('data-role') || 'CH'; }

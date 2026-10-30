@@ -148,21 +148,21 @@ Giá trị đầy đủ không gửi xuống trình duyệt trước khi Hiện;
 
 ## 7. Bảng vai trò → menu (theo FRD §2; đã sửa theo F-06)
 
-Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT MH NS AD` (`QD` hiển thị là “QĐ”). “✓” tạo/sửa/duyệt (S, D) · Xem = chỉ xem (X) · Của tôi = chỉ phần của mình (Xn) · Hệ thống = chỉ sức khỏe hệ thống. Chế độ hiện là **dòng phụ 12px ngay dưới tên mục** (không còn chip cạnh tên, vì tràn ở sidebar 248px; F-FND-01); tên mục được xuống dòng thay vì bị cắt, badge số đếm giữ ở mép phải. Khi sidebar thu gọn 72px nhãn ẩn, chế độ nằm trong `aria-label` và `title` của mục (ví dụ “Kho phụ tùng (chỉ xem)”). Hành động không được phép trong mục đang hiện để disabled kèm lý do.
+Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT MH NS AD` (`QD` hiển thị là “QĐ”). “✓” tạo/sửa (S) · Xem và duyệt = D của FRD §2 (xem và duyệt, không tạo/sửa chứng từ; mục gộp nhiều hàng FRD lấy mức cao nhất S > D > X > Xn) · Xem = chỉ xem (X) · Của tôi = chỉ phần của mình (Xn) · Hệ thống = chỉ sức khỏe hệ thống. Chế độ hiện là **dòng phụ 12px ngay dưới tên mục** (không còn chip cạnh tên, vì tràn ở sidebar 248px; F-FND-01); tên mục được xuống dòng thay vì bị cắt, badge số đếm giữ ở mép phải. Khi sidebar thu gọn 72px nhãn ẩn, chế độ nằm trong `aria-label` và `title` của mục (ví dụ “Kho phụ tùng (chỉ xem)”). Hành động không được phép trong mục đang hiện để disabled kèm lý do.
 
 | Menu | CH | QV | QL | CV | QĐ | TH | TK | TN | KT | MH | NS | AD |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Tổng quan | ✓ | ✓ | ✓ | ✓ | ✓ | Của tôi | ✓ | ✓ | ✓ | – | – | Hệ thống |
-| Phiếu sửa chữa (báo giá, lệnh) | Xem | Xem | ✓ | ✓ | Xem | Của tôi | Xem | Xem | Xem | – | – | – |
+| Phiếu sửa chữa (báo giá, lệnh) | Xem | Xem | Xem và duyệt | ✓ | ✓ | Của tôi | Xem | Xem | Xem | – | – | – |
 | Lịch hẹn | Xem | Xem | ✓ | ✓ | – | – | – | – | – | – | – | – |
 | Khách hàng & Xe | Xem | Xem | ✓ | ✓ | Xem | Của tôi | – | Xem | Xem | – | – | – |
-| Kho phụ tùng | Xem | Xem | ✓ | – | – | – | ✓ | – | Xem | Xem | – | – |
-| Mua hàng | Xem | Xem | ✓ | – | – | – | ✓ | – | Xem | ✓ | – | – |
-| Nhân sự & Công thợ | Xem | Xem | ✓ | Của tôi | Xem | Của tôi | – | – | Xem | – | ✓ | – |
-| Tài chính (thu tiền, sổ quỹ, công nợ) | Xem | Xem | ✓ | Xem | – | – | – | ✓ | ✓ | – | – | – |
+| Kho phụ tùng | Xem và duyệt | Xem và duyệt | ✓ | – | – | – | ✓ | – | Xem | Xem | – | – |
+| Mua hàng | Xem | Xem | Xem và duyệt | – | – | – | ✓ | – | Xem | ✓ | – | – |
+| Nhân sự & Công thợ | Xem | Xem | Xem và duyệt | Của tôi | Xem | Của tôi | – | – | Xem | – | ✓ | – |
+| Tài chính (thu tiền, sổ quỹ, công nợ) | Xem | Xem | Xem và duyệt | Xem | – | – | – | ✓ | ✓ | – | – | – |
 | Hóa đơn | Xem | Xem | Xem | – | – | – | – | ✓ | ✓ | – | – | – |
 | Báo cáo | Xem | Xem | Xem | Của tôi | Của tôi | Của tôi | Của tôi | Của tôi | Xem | Của tôi | Của tôi | – |
-| Cài đặt | ✓ (duyệt) | Danh mục | ✓ (chi nhánh mình) | Danh mục | Danh mục | – | Danh mục | – | Danh mục | – | – | ✓ |
+| Cài đặt | Xem và duyệt | Danh mục | ✓ (chi nhánh mình) | Danh mục | Danh mục | – | Danh mục | – | Danh mục | – | – | ✓ |
 
 Cập nhật theo `ba-answers-04.md` (Câu 5, Phụ lục C) và `ba-answers-06.md` (Câu 1): thêm hai vai trò riêng **MH** (Mua hàng: Mua hàng đầy đủ, Kho phụ tùng chỉ xem, Báo cáo của tôi; không thấy giá vốn, không nhận hàng) và **NS** (Nhân sự: Nhân sự & Công thợ đầy đủ, Báo cáo của tôi; xem dữ liệu nhân sự theo ma trận che Phụ lục D). MH và NS **không có dashboard riêng** (D-09): trang đầu là Mua hàng / Nhân sự, nên menu không có “Tổng quan” và nhãn trang hiện tại chuyển sang mục đầu tiên còn hiện; trên bottom nav mobile hiện thêm “Mua hàng” (MH) hoặc “Nhân sự” (NS). Phạm vi chi nhánh của MH/NS: chọn trong các chi nhánh được gán (`pick`). Mục “Cài đặt” là một mục duy nhất ở chân sidebar; chế độ **“Danh mục”** (`limited`) nghĩa là chỉ liệt kê các màn cài đặt vai trò được mở, nhóm rỗng ẩn; TH, TN, MH, NS không có mục này.
 
