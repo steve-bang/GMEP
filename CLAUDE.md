@@ -24,6 +24,7 @@ Three embedded diagrams in these docs were lost in export (placeholders only: re
 
 ## Agents and skills (`.claude/`)
 
+- `agents/orchestrator.md` — coordinator: plans multi-step work, routes tasks to `ba`/`designer` (parallel when independent), verifies output against `docs/`, escalates open decisions to the user. Run as the main-thread agent (`claude --agent orchestrator`) because subagents cannot launch other agents; it does not edit files itself.
 - `agents/ba.md` — Business Analyst: requirements, FR/user stories, acceptance criteria, workflows, consistency and traceability across `docs/`, turning open items into client questions. Does not write code or pick the tech stack.
 - `agents/designer.md` — Web Dashboard UI/UX Designer: screens, flows, design system, handoff specs, prototypes under `design/`. Must load the `dashboard-ui-ux` skill first; on domain behavior the docs win, on UI/UX practice the skill wins. Sends requirement gaps back to `ba`.
 - `skills/dashboard-ui-ux/` — dashboard UI/UX process and checklists (layout, tables/filters, charts/KPI, design tokens, states, accessibility/performance, Vietnamese localization, templates), copied into the repo so it is available to everyone who clones it.
