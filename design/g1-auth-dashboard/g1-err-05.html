@@ -14,7 +14,7 @@
 <div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
 
 <div class="g1-wrap">
-  <div data-g1-views="default:Nhân viên (đặt lại mật khẩu)|invite:Nhân viên (lời mời)|customer:Khách hàng (liên kết báo giá)|offline:Mất mạng" data-hint="Thông báo trung lập: không nói liên kết hết hạn, đã dùng hay nhập sai, để không lộ trạng thái."></div>
+  <div data-g1-views="default:Nhân viên (đặt lại mật khẩu)|invite:Nhân viên (lời mời)|customer:Khách hàng (chưa cấu hình số)|customer-set:Khách hàng (đã cấu hình số)|offline:Mất mạng" data-hint="Thông báo trung lập: không nói liên kết hết hạn, đã dùng hay nhập sai, để không lộ trạng thái."></div>
 
   <main class="g1-auth-card g1-err" id="main" aria-labelledby="t">
     <div class="state__icon state__icon--warning" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg class="icon icon--xl"><use href="#clock"/></svg></div>
@@ -31,14 +31,21 @@
       <p style="margin:0"><strong>Cách lấy liên kết mới:</strong> nhờ quản lý chi nhánh gửi lại lời mời kích hoạt tài khoản cho bạn. Lời mời mới có hiệu lực 72 giờ. Nếu bạn đã kích hoạt rồi, hãy đăng nhập hoặc chọn “Quên mật khẩu”.</p>
       <div class="g1-err__actions"><a class="btn btn--primary btn--lg" href="g1-aut-01.html">Đăng nhập</a><a class="btn btn--ghost btn--lg" href="g1-aut-04.html">Quên mật khẩu</a></div>
     </div>
-    <div data-show="customer" hidden class="stack" style="width:100%;text-align:left">
-      <p style="margin:0"><strong>Cách lấy liên kết mới:</strong> gọi cho garage để được gửi lại báo giá. Nhân viên sẽ gửi liên kết mới cho bạn ngay.</p>
-      <dl class="g1-err__facts"><dt>Chi nhánh</dt><dd>Garage Quận 7</dd><dt>Điện thoại (số mẫu)</dt><dd class="num">028 7300 1234</dd><dt>Giờ làm việc (mẫu)</dt><dd class="num">07:30 – 18:00, Thứ Hai đến Thứ Bảy</dd></dl>
-      <a class="btn btn--primary btn--xl btn--block" href="tel:02873001234"><svg class="icon"><use href="#phone"/></svg>Gọi chi nhánh</a>
+    <div data-show="customer" hidden class="stack g1-full">
+      <p class="g1-m0"><strong>Cách lấy liên kết mới:</strong> hãy liên hệ garage nơi bạn gửi xe để được gửi lại báo giá. Nhân viên sẽ gửi liên kết mới cho bạn ngay.</p>
+      <div class="alert alert--neutral"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Chưa cấu hình số tổng đài hỗ trợ khách nên không hiện nút gọi. Quản trị cập nhật ở cấu hình công ty (G4-SYS-05).</span></div></div>
+    </div>
+    <div data-show="customer-set" hidden class="stack g1-full">
+      <p class="g1-m0"><strong>Cách lấy liên kết mới:</strong> gọi cho garage để được gửi lại báo giá. Nhân viên sẽ gửi liên kết mới cho bạn ngay.</p>
+      <dl class="g1-err__facts"><dt>Tổng đài hỗ trợ</dt><dd class="num">[Số tổng đài – lấy từ cấu hình]</dd><dt>Giờ làm việc</dt><dd class="num">[Giờ làm việc – lấy từ cấu hình]</dd></dl>
+      <button type="button" class="btn btn--primary btn--xl btn--block" data-toast="info|Gọi tổng đài|Trong sản phẩm thật, nút này mở cuộc gọi tới số tổng đài đã cấu hình."><svg class="icon"><use href="#phone"/></svg>Gọi tổng đài</button>
+      <button type="button" class="btn btn--secondary btn--xl btn--block" data-toast="info|Gọi chi nhánh|Chỉ hiện khi liên kết từng tồn tại (đã hết hạn hoặc đã dùng) nên nhận ra chi nhánh; số công khai của chi nhánh."><svg class="icon"><use href="#phone"/></svg>Gọi chi nhánh [tên chi nhánh]</button>
+      <p class="t-body-sm text-secondary g1-m0">Hai số trên là chỗ giữ chỗ, không phải số thật.</p>
     </div>
   </main>
   <footer class="g1-auth-foot"><span>GARAGE OS · Liên kết chỉ có hiệu lực trong thời gian ngắn để bảo vệ thông tin của bạn.</span></footer>
 </div>
+<noscript><div class="g1-noscript">Liên kết này không dùng được nữa. Nhân viên: <a href="g1-aut-04.html">lấy liên kết đặt lại mới</a>. Khách hàng: hãy liên hệ garage nơi bạn gửi xe.</div></noscript>
 <script src="../assets/app.js"></script>
 <script src="g1-auth.js"></script>
 </body>

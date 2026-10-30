@@ -29,8 +29,8 @@
       <span class="avatar avatar--lg" id="av" style="width:96px;height:96px;font-size:var(--font-size-2xl)">TH</span>
       <strong>Nguyễn Thị Thu Hà</strong><span class="text-secondary">Quản lý chi nhánh</span>
       <label class="btn btn--secondary" for="avf" style="cursor:pointer"><svg class="icon"><use href="#camera"/></svg>Đổi ảnh</label>
-      <input id="avf" type="file" accept="image/*" class="sr-only">
-      <span class="field__hint" id="av-h">Ảnh JPG hoặc PNG, tối đa 10 MB.</span>
+      <input id="avf" type="file" accept="image/jpeg,image/png" class="sr-only" aria-describedby="av-h">
+      <span class="field__hint" id="av-h">Ảnh JPG hoặc PNG, tối đa 2 MB (máy chủ kiểm tra lại).</span>
       <span class="field__error" id="av-err" hidden></span>
     </div></section>
 
@@ -44,25 +44,27 @@
         <p class="field__hint" id="ro-why"><svg class="icon icon--sm" aria-hidden="true" style="vertical-align:-3px"><use href="#lock"/></svg> Hai mục này do quản trị gán. Cần đổi? Liên hệ quản trị hệ thống.</p>
         <div class="form-grid">
           <div class="field"><label class="field__label" for="f-phone">Số điện thoại liên hệ<span class="field__req" aria-hidden="true">*</span></label><input id="f-phone" class="input" inputmode="tel" autocomplete="tel" value="0987 112 233" aria-required="true" data-rule="required" data-msg-required="Nhập số điện thoại để quản lý và đồng nghiệp liên hệ khi cần." data-first-focus><span class="field__error" id="f-phone-err" hidden></span></div>
-          <div class="field"><label class="field__label" for="f-mail">Email công việc<span class="field__req" aria-hidden="true">*</span></label><input id="f-mail" class="input" type="email" autocomplete="email" value="ha.nguyen@garage.vn" aria-required="true" data-rule="required|email" data-msg-required="Nhập email công việc. Email dùng để khôi phục mật khẩu." data-msg-email="Email chưa đúng định dạng. Ví dụ: ha.nguyen@garage.vn"><span class="field__error" id="f-mail-err" hidden></span><span class="field__hint">Đổi email cần xác nhận lại mật khẩu ở mục Bảo mật tài khoản.</span></div>
+          <div class="field"><label class="field__label" for="f-mail">Email đăng nhập</label><div class="row row--nowrap"><input id="f-mail" class="input" type="email" value="ha.nguyen@garage.vn" readonly aria-describedby="f-mail-h"><a class="btn btn--secondary" href="g1-prf-02.html#doi-email">Đổi email</a></div><span class="field__hint" id="f-mail-h">Email là tên đăng nhập và nơi nhận liên kết đặt lại mật khẩu nên đổi bằng quy trình riêng: nhập lại mật khẩu, xác nhận qua email mới, báo email cũ.</span></div>
         </div>
         <div class="field"><span class="field__label" id="roles-l">Chi nhánh và vai trò được gán</span>
           <div class="table-scroll"><table class="table table--compact" aria-labelledby="roles-l"><thead><tr><th scope="col">Chi nhánh</th><th scope="col">Vai trò của bạn</th><th scope="col">Tình trạng</th></tr></thead><tbody>
             <tr><td>Chi nhánh Quận 7</td><td>Quản lý chi nhánh</td><td><span class="badge badge--success">Đang làm việc</span></td></tr>
             <tr><td>Chi nhánh Thủ Đức</td><td>Quản lý chi nhánh</td><td><span class="badge badge--success">Đang làm việc</span></td></tr>
             <tr><td>Chi nhánh Quận 1</td><td>Cố vấn dịch vụ</td><td><span class="badge badge--success">Đang làm việc</span></td></tr>
-            <tr><td>Chi nhánh Biên Hòa</td><td>Chỉ xem</td><td><span class="badge badge--warning">Chi nhánh đang khóa</span></td></tr></tbody></table></div>
+            <tr><td>Chi nhánh Biên Hòa</td><td>Quản lý chi nhánh</td><td><span class="badge badge--warning">Chi nhánh đang khóa, chỉ xem</span></td></tr></tbody></table></div>
           <span class="field__hint"><svg class="icon icon--sm" aria-hidden="true" style="vertical-align:-3px"><use href="#lock"/></svg> Do quản trị gán, chỉ đọc.</span></div>
         <div class="form-grid">
           <div class="field"><label class="field__label" for="f-lang">Ngôn ngữ</label><input id="f-lang" class="input" value="Tiếng Việt" readonly aria-describedby="lang-why"></div>
           <div class="field"><label class="field__label" for="f-fmt">Định dạng hiển thị</label><input id="f-fmt" class="input" value="VND, dd/MM/yyyy" readonly aria-describedby="lang-why"></div>
         </div>
         <p class="field__hint" id="lang-why">Ngôn ngữ và định dạng cố định theo cấu hình hệ thống.</p>
+        <p class="field__hint g1-m0">Quy định sử dụng và bảo mật dữ liệu bạn đã đồng ý: phiên bản <span class="code">[mã phiên bản – cấu hình]</span>, lúc <span class="num">01/10/2026 08:20</span>. <a href="#" data-toast="info|Xem lại quy định|Mở văn bản đúng phiên bản bạn đã đồng ý (nội dung mẫu cho đến khi có bản chính thức).">Xem lại văn bản</a></p>
       </div>
       <div class="card__footer"><span class="g1-note" style="margin-right:auto"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</span><button type="button" class="btn btn--ghost" id="cancel">Hủy thay đổi</button><button type="submit" class="btn btn--primary">Lưu</button></div>
     </form>
   </div>
 </div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại. Nếu vẫn không xem được, <a href="g1-aut-01.html">quay lại đăng nhập</a>.</div></noscript>
 <script src="g1-shell.js"></script>
 <script src="../assets/app.js"></script>
 <script src="g1-auth.js"></script>
@@ -83,7 +85,7 @@
   document.addEventListener('click', function (e) { if (e.target.closest('.g1-proto [data-g1-view="error"]')) { setTimeout(function () { var p = document.getElementById('f-phone'); p.value = '0903 45'; f.requestSubmit ? f.requestSubmit() : f.dispatchEvent(new Event('submit', { cancelable: true })); }, 0); } });
   document.getElementById('avf').addEventListener('change', function (e) {
     var file = e.target.files[0], er = document.getElementById('av-err'), av = document.getElementById('av'); if (!file) return;
-    if (!/^image\//.test(file.type) || file.size > 10 * 1024 * 1024) { er.hidden = false; er.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>' + (!/^image\//.test(file.type) ? 'Tệp này không phải ảnh. Chọn ảnh JPG hoặc PNG.' : 'Ảnh quá 10 MB. Chọn ảnh nhỏ hơn.') + '</span>'; return; }
+    if (!/^image\/(jpeg|png)$/.test(file.type) || file.size > 2 * 1024 * 1024) { er.hidden = false; er.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>' + (!/^image\/(jpeg|png)$/.test(file.type) ? 'Tệp này không phải ảnh JPG hoặc PNG. Chọn ảnh khác.' : 'Ảnh quá 2 MB. Chọn ảnh nhỏ hơn.') + '</span>'; return; }
     er.hidden = true; av.innerHTML = '<img alt="Ảnh đại diện mới" style="width:100%;height:100%;object-fit:cover" src="' + URL.createObjectURL(file) + '">'; window.gmepToast('success', 'Đã chọn ảnh', 'Bấm Lưu để cập nhật ảnh đại diện.');
   });
 })();

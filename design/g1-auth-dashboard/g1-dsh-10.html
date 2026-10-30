@@ -29,9 +29,9 @@
 
   <section class="g1-kpis" aria-label="Chỉ số chính">
     <a class="card kpi" href="#" data-g1-card data-g1-title="Sao lưu gần nhất" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#download"/></svg>Sao lưu gần nhất</span><span class="kpi__value">02:00</span><span class="kpi__meta"><span class="badge badge--success">Thành công</span>30/10/2026 · dung lượng 18,4 GB</span><span class="kpi__scope">Toàn hệ thống · cập nhật 09:15</span></a>
-    <a class="card kpi" href="#" data-g1-card data-g1-title="Thử khôi phục gần nhất" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#history"/></svg>Thử khôi phục gần nhất</span><span class="kpi__value">15/10</span><span class="kpi__meta"><span class="badge badge--success">Đạt</span>Lần tới theo lịch cấu hình: 15/11/2026</span><span class="kpi__scope">Toàn hệ thống · cập nhật 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Thử khôi phục gần nhất" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#history"/></svg>Thử khôi phục gần nhất</span><span class="kpi__value">15/10</span><span class="kpi__meta"><span class="badge badge--success">Đạt</span>Chu kỳ hằng tháng · cảnh báo vàng quá 35 ngày</span><span class="kpi__scope">Toàn hệ thống · cập nhật 09:15</span></a>
     <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Kết nối tích hợp"><span class="kpi__label"><svg class="icon icon--sm"><use href="#send"/></svg>Kết nối tích hợp</span><span class="kpi__value">1 / 3</span><span class="kpi__meta">Hoạt động · 1 lỗi gián đoạn · 1 chưa kích hoạt</span><span class="kpi__scope">Toàn hệ thống · cập nhật 09:15</span></a>
-    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Đăng nhập bất thường"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Đăng nhập bất thường</span><span class="kpi__value">03</span><span class="kpi__meta">Tài khoản bị khóa tạm do nhập sai nhiều lần</span><span class="kpi__scope">Toàn hệ thống · <span data-g1-period-text>24–30/10/2026</span></span></a>
+    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Lượt khóa tạm"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lượt khóa tạm</span><span class="kpi__value">03</span><span class="kpi__meta">Lượt khóa theo thiết bị + tên nhập · 2 tên đăng nhập bị dò trên nhiều thiết bị</span><span class="kpi__scope">Toàn hệ thống · <span data-g1-period-text>24–30/10/2026</span></span></a>
     <a class="card kpi" href="#" data-g1-card data-g1-title="Lời mời chờ kích hoạt"><span class="kpi__label"><svg class="icon icon--sm"><use href="#mail"/></svg>Lời mời chờ kích hoạt</span><span class="kpi__value">04</span><span class="kpi__meta">1 lời mời sắp hết hạn trong 24 giờ</span><span class="kpi__scope">Toàn hệ thống · cập nhật 09:15</span></a>
   </section>
 
@@ -61,11 +61,16 @@
     <div class="g1-stack">
       <section class="card g1-hl-card" data-g1-card data-g1-title="Lời mời chờ kích hoạt" data-g1-empty="Không có lời mời nào chờ|Người được mời kích hoạt tài khoản qua liên kết có hiệu lực 72 giờ." aria-labelledby="h-inv">
         <div class="card__header"><div><h2 class="card__title" id="h-inv">Lời mời chờ kích hoạt</h2><div class="card__subtitle">Liên kết hiệu lực 72 giờ, dùng một lần</div></div></div>
-        <div class="g1-row"><span class="g1-row__main"><strong>Trần Văn Khôi</strong><span class="g1-row__sub">Thợ · Chi nhánh Thủ Đức · gửi 28/10/2026</span></span><span class="g1-row__end"><span class="tag tag--warning">Còn 24 giờ</span><button class="btn btn--secondary btn--sm" data-toast="success|Đã gửi lại lời mời|Liên kết cũ bị vô hiệu, liên kết mới có hiệu lực 72 giờ.">Gửi lại</button></span></div>
-        <div class="g1-row"><span class="g1-row__main"><strong>Lương Thị Hạnh</strong><span class="g1-row__sub">Thu ngân · Chi nhánh Quận 1 · gửi 29/10/2026</span></span><span class="g1-row__end"><span class="tag tag--info">Còn 2 ngày</span></span></div>
-        <div class="g1-row"><span class="g1-row__main"><strong>Ngô Đức Hiển</strong><span class="g1-row__sub">Cố vấn dịch vụ · Chi nhánh Biên Hòa · gửi 29/10/2026</span></span><span class="g1-row__end"><span class="tag tag--info">Còn 2 ngày</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Trần Văn Khôi</strong><span class="g1-row__sub">Thợ · Chi nhánh Thủ Đức · kh•••@garage.vn · gửi 28/10/2026</span></span><span class="g1-row__end"><span class="tag tag--warning">Còn 24 giờ</span><button class="btn btn--secondary btn--sm" data-toast="success|Đã gửi lại lời mời|Liên kết cũ bị vô hiệu, liên kết mới có hiệu lực 72 giờ.">Gửi lại</button></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Lương Thị Hạnh</strong><span class="g1-row__sub">Thu ngân · Chi nhánh Quận 1 · lu•••@garage.vn · gửi 29/10/2026</span></span><span class="g1-row__end"><span class="tag tag--info">Còn 2 ngày</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Ngô Đức Hiển</strong><span class="g1-row__sub">Cố vấn dịch vụ · Chi nhánh Biên Hòa · ng•••@garage.vn · gửi 29/10/2026</span></span><span class="g1-row__end"><span class="tag tag--info">Còn 2 ngày</span></span></div>
       </section>
 
+      <section class="card" data-g1-card data-g1-title="Hàng đợi tích hợp và thiết bị xưởng" aria-labelledby="h-q">
+        <div class="card__header"><h2 class="card__title" id="h-q">Hàng đợi tích hợp và thiết bị xưởng</h2></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Hàng đợi tích hợp bị lỗi</strong><span class="g1-row__sub">2 bản ghi (chỉ số lượng, không nội dung)</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">02</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Thiết bị xưởng đã đăng ký</strong><span class="g1-row__sub">3 tablet · kết nối cuối 09:12 · 0 thiết bị chờ thu hồi</span></span><span class="g1-row__end"><a class="btn btn--ghost btn--sm" href="#" data-target="G4-SYS-03">Quản lý</a></span></div>
+      </section>
       <section class="card" data-g1-card data-g1-title="Lô nhập Excel gần đây" data-g1-err data-g1-empty="Chưa có lô nhập nào|Nhập danh mục phụ tùng, khách và xe từ Excel ở mục Nhập dữ liệu." aria-labelledby="h-imp">
         <div class="card__header"><h2 class="card__title" id="h-imp">Lô nhập Excel gần đây</h2></div>
         <div class="g1-row"><span class="g1-row__main"><strong>Danh mục phụ tùng</strong><span class="g1-row__sub">1.248 dòng · 12 dòng lỗi đã sửa · 28/10/2026</span></span><span class="g1-row__end"><span class="badge badge--success">Đã xác nhận</span></span></div>
@@ -75,6 +80,7 @@
     </div>
   </div>
 </div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại. Nếu vẫn không xem được, <a href="g1-aut-01.html">quay lại đăng nhập</a>.</div></noscript>
 <script src="g1-shell.js"></script>
 <script src="../assets/app.js"></script>
 <script src="g1-charts.js"></script>

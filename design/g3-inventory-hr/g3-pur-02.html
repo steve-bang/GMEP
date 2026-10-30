@@ -23,19 +23,20 @@
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Ngày lập 30/10/2026</span></div>
 
-<div id="g3-body" data-noun="yêu cầu mua hàng" data-g3-states="data:Soạn yêu cầu;loading;error;denied" data-skel="detail" data-back="g3-pur-01.html">
+<div id="g3-body" data-noun="yêu cầu mua hàng" data-g3-states="data:Soạn yêu cầu;loading;notfound;error;denied" data-skel="detail" data-back="g3-pur-01.html">
 <div data-g3-state="data" class="stack">
   <div class="g3-ro-flag alert alert--info" data-for="f-pr" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh lập yêu cầu mua.</span></div></div>
   <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng cấu hình:</span><button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="a-nostep">Chi nhánh tắt bước duyệt</button><button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="blk-urgent">Mua gấp tại cửa hàng</button></div>
   <div class="alert alert--info" id="a-nostep" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Chi nhánh này không dùng bước duyệt yêu cầu</span><span>Nút chính đổi thành “Lập đơn mua”; yêu cầu vẫn được lưu làm chứng từ gốc của đơn.</span></div></div>
 
-  <form id="f-pr" class="g3-split" data-g3-edit="TK QL" onsubmit="return false">
+  <div class="alert alert--warning" role="note"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chi nhánh Thủ Đức có thể cho 20 Dầu nhớt Castrol (PT-0003)</span><span>Chính sách ưu tiên lấy hàng từ chi nhánh có thể cho đang bật. Vẫn mua nhà cung cấp thì cần ghi lý do (đã ghi ở ô “Lý do đề xuất”). <a href="g3-inv-13.html">Lập phiếu chuyển thay thế</a></span></div></div>
+  <form id="f-pr" class="g3-split" data-g3-edit="TK QL MH" onsubmit="return false">
     <div class="stack-6">
       <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Thông tin chung</h2>
         <div class="form-grid">
           <div class="field"><label class="field__label" for="p-src">Nguồn tạo</label><select id="p-src" class="select"><option>Từ danh sách hàng dưới định mức (2 mã)</option><option>Nhập tay</option></select></div>
           <div class="field"><label class="field__label" for="p-need">Cần hàng trước ngày</label><div class="input-group date-field"><input id="p-need" class="input" value="05/11/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
-          <div class="field span-2"><label class="field__label" for="p-why">Lý do đề xuất<span class="field__req" aria-hidden="true">*</span></label><textarea id="p-why" class="textarea">Dầu nhớt Castrol hết hàng, Khả dụng 0 thấp hơn mức tối thiểu 6; không có chi nhánh nào dư.</textarea></div>
+          <div class="field span-2"><label class="field__label" for="p-why">Lý do đề xuất<span class="field__req" aria-hidden="true">*</span></label><textarea id="p-why" class="textarea">Dầu nhớt Castrol hết hàng, Khả dụng 0 thấp hơn mức tối thiểu 6. Thủ Đức có thể cho 20 nhưng không đủ nhu cầu tuần tới; nhà cung cấp đóng theo thùng 24 can.</textarea></div>
         </div>
         <div id="blk-urgent" hidden style="margin-top:16px"><div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mua gấp tại cửa hàng</span><span>Chưa có quy tắc ghi nhận mua trực tiếp (Discovery). Prototype giả định: vẫn lập yêu cầu có lý do, hàng nhận bằng phiếu nhập “không có đơn mua” kèm lý do (G3-INV-09). Chờ BA xác nhận.</span></div></div></div></section>
 
@@ -47,7 +48,7 @@
         <div class="card__footer"><button class="btn btn--secondary" type="button" data-toast="info|Mở chọn phụ tùng|Prototype: thêm dòng bằng tìm tên, mã hoặc quét mã vạch."><svg class="icon"><use href="#plus"/></svg>Thêm mặt hàng</button><span class="t-body-sm text-secondary">Dòng SL 0 bị bỏ khi gửi.</span></div></section>
     </div>
     <aside class="g3-side"><section class="card"><div class="card__body stack">
-      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-pr" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh gửi duyệt.">Gửi duyệt</button><button class="btn btn--secondary btn--block" type="button" data-toast="success|Đã lưu nháp|YM-Q7-2610-00005 lưu lúc 09:22.">Lưu nháp</button>
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-pr" data-g3-need="TK QL MH" data-g3-why="Chỉ nhân viên mua hàng, Thủ kho và Quản lý chi nhánh gửi duyệt.">Gửi duyệt</button><button class="btn btn--secondary btn--block" type="button" data-toast="success|Đã lưu nháp|YM-Q7-2610-00005 lưu lúc 09:22.">Lưu nháp</button>
       <p class="t-body-sm text-secondary">Người duyệt đúng cấp được chọn theo giá trị và cấu hình hạn mức (G4-APR-03).</p></div></section></aside>
   </form>
 </div>

@@ -10,55 +10,62 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="QL">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-RPT-04" data-menu="rpt" data-crumbs="Báo cáo|Báo cáo lệnh sửa chữa" data-allow="CH QV QL CV QD" data-own="CV QD"></script>
 <script>
 g4rPage({
   title: 'Báo cáo lệnh sửa chữa',
-  desc: 'Xe đang sửa, thời gian hoàn thành trung bình, tỷ lệ đúng hạn và xe trễ hẹn. Số xe trễ hẹn khớp bảng điều phối lệnh (G2-REC-03).',
+  desc: 'Xe đang sửa, thời gian hoàn thành, tỷ lệ giao đúng hạn và xe trễ hẹn. Số xe trễ hẹn dùng cùng truy vấn với bảng điều phối lệnh (G2-REC-03).',
   prio: 'P1',
-  period: 'Tháng 10/2026 · xe đang sửa tính đến 09:15 30/10/2026',
+  period: 'Tháng 10/2026 · xe đang sửa tính tại 09:15 30/10/2026',
   actions: g4rExportBtn(),
   empty: { title: 'Chưa có lệnh sửa chữa nào trong kỳ', text: 'Khi chi nhánh bắt đầu tiếp nhận xe, báo cáo sẽ có số liệu.' }
 });
-g4rFilters({ fields: ['period', 'service', 'status', 'staff'], sel: { period: 2 }, chips: ['Tháng này (01–30/10/2026)'] });
+g4rFilters({ fields: ['period', 'service', 'status', 'staff'], sel: { period: 2 }, chips: ['Tháng này (01–30/10/2026)', 'Không gồm lệnh bảo hành'] });
 </script>
 
 <section class="grid grid--4" aria-label="Chỉ số lệnh sửa chữa">
-  <a class="card kpi" href="g4-rpt-10.html"><span class="kpi__label">Xe đang sửa</span><span class="kpi__value">42</span><span class="kpi__meta">Lệnh chưa Hoàn tất / Đã hủy</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 09:15</span></a>
-  <div class="card kpi"><span class="kpi__label">Thời gian hoàn thành TB<span class="g4r-formula">Từ lúc lệnh được duyệt đến Hoàn tất</span></span><span class="kpi__value">1,8<span class="kpi__unit">ngày</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-down"/></svg>0,2 ngày</span>nhanh hơn tháng 09</span><span class="kpi__scope">01–30/10/2026</span></div>
-  <div class="card kpi"><span class="kpi__label">Tỷ lệ giao đúng hạn<span class="g4r-formula">Hoàn tất ≤ giờ hẹn ÷ hoàn tất</span></span><span class="kpi__value">87,5<span class="kpi__unit">%</span></span><span class="kpi__meta">Mục tiêu chi nhánh 90% (cấu hình)</span><span class="kpi__scope">01–30/10/2026</span></div>
-  <a class="card kpi kpi--danger" href="#late"><span class="kpi__label">Xe trễ hẹn</span><span class="kpi__value">03</span><span class="kpi__meta">Quá giờ hẹn giao, chưa hoàn tất</span><span class="kpi__scope">Khớp bảng điều phối G2-REC-03</span></a>
+  <a class="card kpi" href="g4-rpt-10.html"><span class="kpi__label">Xe đang sửa<span class="g4r-formula">Lệnh ở Đã duyệt, Đang sửa, Tạm dừng, Chờ QC, Sẵn sàng bàn giao; ảnh chụp tại 09:15</span></span><span class="kpi__value"><span class="g4r-only-merged">42</span><span class="g4r-only-branch">12</span></span><span class="kpi__meta">Không có kỳ, là số tại thời điểm xem</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 09:15</span></a>
+  <div class="card kpi"><span class="kpi__label">Thời gian hoàn thành TB<span class="g4r-formula">Từ Đã duyệt đến Sẵn sàng bàn giao, theo giờ làm việc; trừ các khoảng Tạm dừng “Chờ khách duyệt phát sinh”</span></span><span class="kpi__value">1,8<span class="kpi__unit">ngày làm việc</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-down"/></svg>0,2 ngày</span>nhanh hơn tháng 09 · trung vị 1,5 ngày</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026</span></div>
+  <div class="card kpi"><span class="kpi__label">Tỷ lệ giao đúng hạn<span class="g4r-formula">Sẵn sàng bàn giao ≤ giờ hẹn hiện hành ÷ lệnh có hẹn đã đến hạn trong kỳ</span></span><span class="kpi__value"><span class="g4r-only-merged">87,5</span><span class="g4r-only-branch">91,6</span><span class="kpi__unit">%</span></span><span class="kpi__meta">Mục tiêu chi nhánh 90% (cấu hình) · đúng hẹn gốc: 85,2%</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026</span></div>
+  <a class="card kpi kpi--danger" href="#late"><span class="kpi__label">Xe trễ hẹn<span class="g4r-formula">Lệnh mở có giờ hẹn giao hiện hành &lt; giờ hiện tại</span></span><span class="kpi__value"><span class="g4r-only-merged">03</span><span class="g4r-only-branch">01</span></span><span class="kpi__meta">Khớp bảng điều phối G2-REC-03</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 09:15</span></a>
 </section>
 
-<section class="card g4r-chartcard" aria-label="Trạng thái lệnh theo chi nhánh"><script>
+<section class="card g4r-chartcard g4r-only-merged" aria-label="Trạng thái lệnh theo chi nhánh"><script>
   g4rChart({ type: 'stack', title: 'Lệnh đang xử lý theo trạng thái lệnh và chi nhánh', unit: 'Đơn vị: lệnh · tại 09:15 30/10/2026 · tổng 42 lệnh',
-    note: 'Bảy trạng thái lệnh được gom: “Hoàn tất” và “Đã hủy” không tính vào xe đang sửa. Màu chỉ phân biệt phần tử trong biểu đồ này; trạng thái nghiệp vụ luôn ghi bằng chữ ở bảng.',
+    note: 'Hoàn tất và Đã hủy không tính vào xe đang sửa. Mỗi trạng thái luôn dùng cùng một màu ở mọi biểu đồ (thứ tự theo quy trình); màu chỉ phân biệt phần tử, trạng thái nghiệp vụ luôn ghi bằng chữ ở bảng.',
     series: ['Đã duyệt', 'Đang sửa chữa', 'Tạm dừng', 'Chờ QC', 'Sẵn sàng bàn giao'],
     rows: [{ label: 'Chi nhánh Quận 7', parts: [2, 5, 2, 2, 1] }, { label: 'Chi nhánh Quận 1', parts: [2, 5, 1, 1, 1] }, { label: 'Chi nhánh Thủ Đức', parts: [1, 4, 1, 1, 1] }, { label: 'Chi nhánh Đà Nẵng', parts: [1, 3, 1, 1, 1] }, { label: 'Chi nhánh Biên Hòa', parts: [1, 2, 1, 1, 0] }] });
+</script></section>
+<section class="card g4r-chartcard g4r-only-branch" aria-label="Trạng thái lệnh của chi nhánh"><script>
+  g4rChart({ type: 'stack', title: 'Lệnh đang xử lý theo trạng thái lệnh, Chi nhánh Quận 7', unit: 'Đơn vị: lệnh · tại 09:15 30/10/2026 · tổng 12 lệnh',
+    note: 'Hoàn tất và Đã hủy không tính vào xe đang sửa. Cùng một trạng thái luôn cùng một màu ở mọi biểu đồ.',
+    series: ['Đã duyệt', 'Đang sửa chữa', 'Tạm dừng', 'Chờ QC', 'Sẵn sàng bàn giao'],
+    rows: [{ label: 'Chi nhánh Quận 7', parts: [2, 5, 2, 2, 1] }] });
 </script></section>
 
 <section class="table-wrap" id="late" aria-label="Danh sách lệnh cần chú ý">
   <div class="table-toolbar">
     <div class="input-group" style="flex:1 1 260px;max-width:360px"><svg class="icon"><use href="#search"/></svg><input class="input" data-g4r-filter="tb-ro" placeholder="Tìm mã lệnh, biển số…" aria-label="Tìm lệnh trong bảng"></div>
-    <span class="table-meta" style="margin-left:auto">Lệnh trễ hẹn và đang tạm dừng · 6 lệnh</span>
+    <span class="table-meta" style="margin-left:auto">Lệnh trễ hẹn, tạm dừng và sắp đến hạn</span>
   </div>
   <div class="table-wrap--responsive"><div class="table-scroll"><table class="table" id="tb-ro">
     <caption class="sr-only">Lệnh sửa chữa trễ hẹn hoặc tạm dừng</caption>
     <thead><tr><th>Mã lệnh</th><th>Chi nhánh</th><th>Biển số</th><th>Trạng thái lệnh</th><th>Hẹn giao</th><th>Tình trạng hẹn</th><th>Phụ trách</th></tr></thead>
     <tbody>
       <tr><td class="code"><a href="#">RO-Q7-2610-00238</a></td><td>Quận 7</td><td><span class="plate">51K-987.65</span></td><td><span class="badge badge--warning">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ phụ tùng</span></td><td class="num">30/10/2026 10:00</td><td><span class="g4r-miss"><svg class="icon"><use href="#clock"/></svg>Trễ 2 giờ 15 phút</span></td><td>Nguyễn Văn Bình</td></tr>
-      <tr><td class="code"><a href="#">RO-Q1-2610-00417</a></td><td>Quận 1</td><td><span class="plate">51F-246.80</span></td><td><span class="badge badge--info">Đang sửa chữa</span></td><td class="num">29/10/2026 17:00</td><td><span class="g4r-miss"><svg class="icon"><use href="#clock"/></svg>Trễ 1 ngày</span></td><td>Lê Thị Mai</td></tr>
-      <tr><td class="code"><a href="#">RO-BH-2610-00096</a></td><td>Biên Hòa</td><td><span class="plate">60C-135.79</span></td><td><span class="badge badge--purple">Chờ QC</span></td><td class="num">30/10/2026 09:00</td><td><span class="g4r-miss"><svg class="icon"><use href="#clock"/></svg>Trễ 15 phút</span></td><td>Phạm Quang Huy</td></tr>
+      <tr class="g4r-notq7"><td class="code"><a href="#">RO-Q1-2610-00417</a></td><td>Quận 1</td><td><span class="plate">51F-246.80</span></td><td><span class="badge badge--info">Đang sửa chữa</span></td><td class="num">29/10/2026 17:00</td><td><span class="g4r-miss"><svg class="icon"><use href="#clock"/></svg>Trễ 1 ngày</span></td><td>Lê Thị Mai</td></tr>
+      <tr class="g4r-notq7"><td class="code"><a href="#">RO-BH-2610-00096</a></td><td>Biên Hòa</td><td><span class="plate">60C-135.79</span></td><td><span class="badge badge--purple">Chờ QC</span></td><td class="num">30/10/2026 09:00</td><td><span class="g4r-miss"><svg class="icon"><use href="#clock"/></svg>Trễ 15 phút</span></td><td>Phạm Quang Huy</td></tr>
       <tr><td class="code"><a href="#">RO-Q7-2610-00245</a></td><td>Quận 7</td><td><span class="plate">59A-111.22</span></td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td class="num">30/10/2026 15:00</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đúng hạn</span></td><td>Nguyễn Văn Bình</td></tr>
-      <tr><td class="code"><a href="#">RO-TD-2610-00183</a></td><td>Thủ Đức</td><td><span class="plate">61A-864.20</span></td><td><span class="badge badge--warning">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ khách duyệt phát sinh</span></td><td class="num">31/10/2026 11:00</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Còn 1 ngày</span></td><td>Đặng Thị Lan</td></tr>
-      <tr><td class="code"><a href="#">RO-DN-2610-00159</a></td><td>Đà Nẵng</td><td><span class="plate">43A-579.31</span></td><td><span class="badge badge--neutral">Đã duyệt</span></td><td class="num">31/10/2026 16:30</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Còn 1 ngày</span></td><td>Trương Văn Hải</td></tr>
+      <tr class="g4r-notq7"><td class="code"><a href="#">RO-TD-2610-00183</a></td><td>Thủ Đức</td><td><span class="plate">61A-864.20</span></td><td><span class="badge badge--warning">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ khách duyệt phát sinh</span></td><td class="num">31/10/2026 11:00</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Còn 1 ngày</span></td><td>Mai Thị Hồng</td></tr>
+      <tr class="g4r-notq7"><td class="code"><a href="#">RO-DN-2610-00159</a></td><td>Đà Nẵng</td><td><span class="plate">43A-579.31</span></td><td><span class="badge badge--neutral">Đã duyệt</span></td><td class="num">31/10/2026 16:30</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Còn 1 ngày</span></td><td>Trương Văn Hải</td></tr>
     </tbody></table></div></div>
   <div class="record-list record-list--responsive" style="padding:var(--space-4)">
     <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00238</div><span class="plate">51K-987.65</span> · Quận 7</div><span class="badge badge--warning">Tạm dừng</span></div><div class="record__meta"><span>Hẹn 30/10/2026 10:00</span><span class="g4r-miss">Trễ 2 giờ 15 phút</span></div></a>
-    <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q1-2610-00417</div><span class="plate">51F-246.80</span> · Quận 1</div><span class="badge badge--info">Đang sửa chữa</span></div><div class="record__meta"><span>Hẹn 29/10/2026 17:00</span><span class="g4r-miss">Trễ 1 ngày</span></div></a>
-    <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-BH-2610-00096</div><span class="plate">60C-135.79</span> · Biên Hòa</div><span class="badge badge--purple">Chờ QC</span></div><div class="record__meta"><span>Hẹn 30/10/2026 09:00</span><span class="g4r-miss">Trễ 15 phút</span></div></a>
+    <a class="record g4r-notq7" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q1-2610-00417</div><span class="plate">51F-246.80</span> · Quận 1</div><span class="badge badge--info">Đang sửa chữa</span></div><div class="record__meta"><span>Hẹn 29/10/2026 17:00</span><span class="g4r-miss">Trễ 1 ngày</span></div></a>
+    <a class="record g4r-notq7" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-BH-2610-00096</div><span class="plate">60C-135.79</span> · Biên Hòa</div><span class="badge badge--purple">Chờ QC</span></div><div class="record__meta"><span>Hẹn 30/10/2026 09:00</span><span class="g4r-miss">Trễ 15 phút</span></div></a>
   </div>
-  <div class="table-footer"><span class="table-meta">Hiển thị 6 trong 42 lệnh đang xử lý (đã lọc: trễ hẹn, tạm dừng, sắp đến hạn)</span><a class="btn btn--ghost btn--sm" href="g4-rpt-10.html">Xem toàn bộ 42 lệnh</a></div>
+  <div class="table-footer"><span class="table-meta">Chỉ hiện lệnh trong phạm vi chi nhánh của bạn (lọc ở máy chủ). Cố vấn, Quản đốc chỉ thấy lệnh mình phụ trách.</span><a class="btn btn--ghost btn--sm" href="g4-rpt-10.html">Xem toàn bộ lệnh đang xử lý</a></div>
 </section>
 
 <script>g4rEnd()</script>

@@ -24,6 +24,8 @@
 
   <div data-g1-proto></div>
 
+  <div class="alert alert--warning" id="off-note" role="alert" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối: chưa ghi được Bắt đầu, Tạm dừng, Hoàn thành</span><span>Đồng hồ giờ công của hệ thống vẫn chạy cho việc đang làm. Ghi giờ thật lên phiếu giấy dự phòng và báo quản đốc nhập bù khi có mạng. Bạn vẫn xem được các việc đã tải.</span><div class="alert__actions"><button type="button" class="btn btn--primary" data-toast="success|Đã báo quản đốc|Quản đốc nhận thông báo để ghi giờ hộ khi có mạng. Nếu chưa gửi được, nói trực tiếp.">Báo quản đốc ghi hộ</button><a class="btn btn--secondary" href="g1-err-04.html">Mở phiếu giấy dự phòng</a></div></div></div>
+
   <section class="card" data-g1-card data-g1-title="Công hôm nay" data-g1-err aria-labelledby="h-sum">
     <div class="card__header"><div><h2 class="card__title" id="h-sum">Công hôm nay (tóm tắt)</h2><div class="card__subtitle">Chi nhánh Quận 7 · hôm nay 30/10/2026 · cập nhật 09:15. Hoa hồng không hiện ở đây.</div></div></div>
     <div class="card__body g1-sum">
@@ -80,6 +82,7 @@
     <div class="g1-reasons"><button class="btn btn--secondary" data-pause-reason="Chờ phụ tùng">Chờ phụ tùng</button><button class="btn btn--secondary" data-pause-reason="Chờ khách duyệt phát sinh">Chờ khách duyệt phát sinh</button><button class="btn btn--secondary" data-pause-reason="Nghỉ">Nghỉ</button><button class="btn btn--secondary" data-pause-reason="Khác">Khác</button></div></div>
   <div class="dialog__footer"><button class="btn btn--ghost btn--lg" data-close>Quay lại, tiếp tục làm</button></div></div></div>
 
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại. Nếu vẫn không xem được, <a href="g1-aut-01.html">quay lại đăng nhập</a> hoặc báo quản đốc để được ghi việc trên phiếu giấy.</div></noscript>
 <script src="g1-shell.js"></script>
 <script src="../assets/app.js"></script>
 <script src="g1-charts.js"></script>
@@ -115,8 +118,8 @@
   /* Mất kết nối: khóa ghi giờ để không sai giờ công, vẫn xem được việc đã tải */
   var nb = $('.net-banner');
   if (nb) new MutationObserver(function () {
-    var off = nb.classList.contains('is-visible');
-    $$('[data-job-act]').forEach(function (b) { if (off) { b.setAttribute('data-was', b.disabled ? '1' : '0'); b.disabled = true; b.title = 'Cần có kết nối để ghi giờ công chính xác'; } else if (b.getAttribute('data-was') === '0') { b.disabled = false; b.removeAttribute('title'); } });
+    var off = nb.classList.contains('is-visible'); var on = document.getElementById('off-note'); if (on) on.hidden = !off;
+    $$('[data-job-act]').forEach(function (b) { if (off) { b.setAttribute('data-was', b.disabled ? '1' : '0'); b.disabled = true; b.title = 'Mất kết nối: ghi giờ trên phiếu giấy và báo quản đốc nhập bù'; } else if (b.getAttribute('data-was') === '0') { b.disabled = false; b.removeAttribute('title'); } });
   }).observe(nb, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>

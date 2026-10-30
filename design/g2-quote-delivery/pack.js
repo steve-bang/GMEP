@@ -22,11 +22,31 @@
   }
 
   /* ---------------- Application Shell (đóng ở g.end) ---------------- */
+  /* LƯU Ý HANDOFF (F3-36): shell dựng bằng document.write chỉ để prototype không lặp ~150 dòng mỗi trang.
+     Sản phẩm thật dùng component của framework (giữ nguyên class/cấu trúc), không sao chép document.write, và nên chạy được với CSP nghiêm ngặt (không script inline). */
+  var techMode = false;
+  /* Shell rút gọn cho thiết bị xưởng (F3-11): thợ không có tìm kiếm toàn hệ thống, không có menu khách/báo cáo/cài đặt,
+     thông báo chỉ gồm việc mới, QC trả lại, phát sinh được duyệt, phụ tùng sẵn sàng; không có menu "xem thử theo vai trò". */
+  function techShell(h, active) {
+    h = h.replace(/<div class="sidebar__group">Workspace<\/div>[\s\S]*?(?=<\/nav><div class="sidebar__footer">)/,
+      '<div class="sidebar__group">Thiết bị xưởng</div>' + nav('ro', 'clipboard-list', 'Việc của tôi', 'g2-tec-01.html', active) + nav('hr', 'id-card', 'Công của tôi', 'g2-tec-05.html', active));
+    h = h.replace(/<a class="nav-item" href="#" data-menu="set"[\s\S]*?<\/a>(?=<button class="nav-item collapse-btn")/, '');
+    h = h.replace('<div class="branch-static" data-branch-static hidden>', '<div class="branch-static" data-branch-static>');
+    h = h.replace(/<div class="dropdown" data-branch-dropdown>[\s\S]*?(?=<div class="topbar__search">)/, '');
+    h = h.replace(/<div class="topbar__search">[\s\S]*?(?=<div class="topbar__spacer">)/, '');
+    h = h.replace(/<button class="btn-icon topbar__search-btn"[\s\S]*?<\/button>/, '');
+    h = h.replace(/<a class="notif-item is-unread" href="g2-quo-03\.html"[\s\S]*?<\/a><a class="notif-item is-unread" href="g2-quo-07\.html"[\s\S]*?<\/a>/,
+      '<a class="notif-item is-unread" href="g2-tec-01.html" style="color:inherit"><span class="notif-item__icon">' + ic('undo', 'icon--sm') + '</span><div><div style="font-weight:600">QC trả lại: xiết lại lực xiết bánh sau (51G-765.43)</div><div class="t-body-sm text-secondary">08:40 · Cần xử lý</div></div></a>' +
+      '<a class="notif-item is-unread" href="g2-tec-01.html" style="color:inherit"><span class="notif-item__icon">' + ic('wrench', 'icon--sm') + '</span><div><div style="font-weight:600">Việc mới: thay bugi (4 cái) (59A-111.22)</div><div class="t-body-sm text-secondary">09:10 · Thông tin</div></div></a>');
+    h = h.replace(/<div class="menu-sep"><\/div><div class="menu-label">Xem thử theo vai trò[\s\S]*?(?=<\/div><\/div><\/header>)/, '');
+    return h;
+  }
   g.begin = function (role, active) {
     var r = Q.get('role'); if (r && USERS[r]) role = r;
     document.body.setAttribute('data-role', role);
     var u = USERS[role];
-    w('<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a><div class="app" id="app">' +
+    techMode = (role === 'TH');
+    var html = ('<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a><div class="app" id="app">' +
       '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span>' +
       '<button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div><nav class="sidebar__nav">' +
       '<div class="sidebar__group">Workspace</div>' +
@@ -69,7 +89,9 @@
       ['CH', 'QL', 'CV', 'QD', 'TH', 'TK', 'TN', 'KT'].map(function (k) { return '<button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="' + k + '" data-role-name="' + USERS[k][0] + '" aria-checked="' + (k === role) + '">' + USERS[k][0] + '</button>'; }).join('') +
       '</div></div></header>' +
       '<main class="main" id="main"><div class="main__inner">' +
-      '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể gửi báo giá, xuất phụ tùng, thu tiền, xuất hóa đơn. Mốc giờ làm việc vẫn được ghi và sẽ đồng bộ sau (đánh dấu “nhập bù”).</span></div></div>');
+      '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể gửi báo giá, xuất phụ tùng, thu tiền, xuất hóa đơn. Mốc giờ làm việc vẫn được ghi và sẽ đồng bộ sau (đánh dấu “nhập bù”). Bản nháp chỉ lưu trên máy, chưa gửi tới ai.</span></div></div>');
+    if (techMode) html = techShell(html, active);
+    w(html);
   };
 
   g.header = function (o) {
@@ -86,6 +108,10 @@
       '<button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16.">' + ic('refresh', 'icon--sm') + 'Làm mới</button></div>');
   };
   g.end = function () {
+    if (techMode) {
+      w('</div></main><nav class="bottom-nav" aria-label="Điều hướng nhanh"><a class="bottom-nav__item" href="g2-tec-01.html" data-menu="ro">' + ic('clipboard-list') + 'Việc của tôi</a><a class="bottom-nav__item" href="g2-tec-05.html" data-menu="hr">' + ic('id-card') + 'Công của tôi</a></nav></div>');
+      return;
+    }
     w('</div></main><nav class="bottom-nav" aria-label="Điều hướng nhanh">' +
       '<a class="bottom-nav__item" href="#" data-menu="dash">' + ic('layout-dashboard') + 'Tổng quan</a>' +
       '<a class="bottom-nav__item" href="g2-quo-01.html" data-menu="ro">' + ic('clipboard-list') + 'Phiếu</a>' +
@@ -125,8 +151,8 @@
       '<div class="overlay" id="dlg-finish" role="alertdialog" aria-modal="true" aria-labelledby="df-t"><div class="dialog g2q-dlg-sheet">' +
       '<div class="dialog__header"><div class="dialog__icon" style="background:var(--color-success-bg);color:var(--color-success-text)">' + ic('check') + '</div><div><h2 class="dialog__title" id="df-t">Kết thúc hạng mục này?</h2></div></div>' +
       '<div class="dialog__body"><div class="g2q-kv" style="grid-template-columns:110px minmax(0,1fr)"><dt>Hạng mục</dt><dd>Thay má phanh trước</dd><dt>Xe</dt><dd>51H-123.45 · Toyota Vios</dd><dt>Giờ thực</dt><dd>0 giờ 40 phút (giờ chuẩn 1,5 giờ)</dd></div>' +
-      '<p>Hạng mục chuyển <strong>Hoàn thành</strong> và bị khóa. Khi tất cả hạng mục xong, lệnh chuyển sang <strong>Chờ QC</strong>. Công chỉ được ghi sau khi QC đạt.</p></div>' +
-      '<div class="dialog__footer"><button class="btn btn--secondary" data-close style="min-height:var(--btn-height-xl)">Chưa xong</button><button class="btn btn--primary" data-close style="min-height:var(--btn-height-xl)" data-toast="success|Đã kết thúc 10:05|Hạng mục Hoàn thành, đã vào hàng chờ QC khi các hạng mục khác xong.">Kết thúc hạng mục</button></div></div></div>');
+      '<p>Hạng mục chuyển <strong>Hoàn thành</strong> và bị khóa. Khi hạng mục cuối cùng xong, hệ thống <strong>nhắc quản đốc</strong> chuyển lệnh sang Chờ QC (lệnh không tự chuyển). Công chỉ được ghi sau khi QC đạt.</p></div>' +
+      '<div class="dialog__footer"><button class="btn btn--secondary" data-close style="min-height:var(--btn-height-xl)">Chưa xong</button><button class="btn btn--primary" data-close style="min-height:var(--btn-height-xl)" data-toast="success|Đã kết thúc 10:05|Hạng mục Hoàn thành. Quản đốc được nhắc chuyển lệnh sang Chờ QC khi hết hạng mục.">Kết thúc hạng mục</button></div></div></div>');
   };
 
   /* ---------------- Khởi tạo sau app.js ---------------- */
@@ -154,6 +180,17 @@
     var b = e.target.closest('[data-set]'); if (!b) return;
     var root = b.getAttribute('data-for') ? document.getElementById(b.getAttribute('data-for')) : owner(b);
     if (root) apply(root, b.getAttribute('data-set'));
+  });
+  /* Toast "Bắt đầu" có nút Hoàn tác 10 giây (F3-26): hoàn tác tạo mốc "hủy bắt đầu" có ghi vết, không xóa mốc, không tính giờ */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-g2q-undo]'); if (!b || !window.gmepToast) return;
+    var p = b.getAttribute('data-g2q-undo').split('|');
+    window.gmepToast('success', p[0], p[1]);
+    var reg = document.querySelector('.toast-region'), t = reg && reg.lastElementChild; if (!t) return;
+    var u = document.createElement('button'); u.type = 'button'; u.className = 'btn btn--secondary btn--sm'; u.innerHTML = ic('undo', 'icon--sm') + 'Hoàn tác';
+    t.appendChild(u);
+    var timer = setTimeout(function () { if (u.parentNode) u.remove(); }, 10000);
+    u.addEventListener('click', function () { clearTimeout(timer); t.remove(); window.gmepToast('info', 'Đã hủy bắt đầu', 'Mốc “hủy bắt đầu” được ghi vết, không tính giờ làm.'); });
   });
   document.addEventListener('click', function (e) {
     if (e.target.closest('[data-print]')) window.print();

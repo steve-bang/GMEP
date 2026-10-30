@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('CV', 'ro');
@@ -40,26 +41,26 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
       <div data-v="form error nochannel">
         <fieldset class="field" style="border:0;padding:0;margin:0"><legend class="field__label" style="margin-bottom:8px">Gửi bằng kênh nào? <span class="field__req">*</span></legend>
           <div class="g2q-choices">
-            <label class="g2q-choice"><input type="radio" name="ch" checked><span class="radio__box"></span><span><span class="g2q-choice__title">Zalo <span class="tag tag--success" data-vx="nochannel">Đã kích hoạt</span></span><span class="g2q-choice__text">Gửi liên kết duyệt tới số điện thoại khách đã đồng ý nhận tin. Khách mở trên điện thoại, không cần tài khoản.</span></span></label>
+            <label class="g2q-choice" data-vx="nochannel"><input type="radio" name="ch" data-k="zalo" checked><span class="radio__box"></span><span><span class="g2q-choice__title">Zalo <span class="tag tag--success">Đã kích hoạt</span></span><span class="g2q-choice__text">Gửi liên kết duyệt tới số điện thoại khách đã đồng ý nhận tin. Khách mở trên điện thoại, không cần tài khoản.</span></span></label>
             <label class="g2q-choice"><input type="radio" name="ch"><span class="radio__box"></span><span><span class="g2q-choice__title">Email</span><span class="g2q-choice__text">Gửi liên kết và bản PDF báo giá tới email của khách.</span></span></label>
-            <label class="g2q-choice"><input type="radio" name="ch"><span class="radio__box"></span><span><span class="g2q-choice__title">Sao chép liên kết</span><span class="g2q-choice__text">Tạo liên kết riêng cho phiên bản v2, hiệu lực 7 ngày (đến 06/11/2026). Tự gửi qua kênh bạn muốn.</span></span></label>
+            <label class="g2q-choice"><input type="radio" name="ch" data-k="link"><span class="radio__box"></span><span><span class="g2q-choice__title">Sao chép liên kết</span><span class="g2q-choice__text">Tạo liên kết riêng cho phiên bản v2, hiệu lực 7 ngày (đến 06/11/2026). Tự gửi qua kênh bạn muốn.</span></span></label>
             <label class="g2q-choice"><input type="radio" name="ch"><span class="radio__box"></span><span><span class="g2q-choice__title">In giấy (A4) để khách xem và ký tại quầy</span><span class="g2q-choice__text">Mở bản in xem trước. Khách duyệt tại quầy ghi nhận ở G2-QUO-05.</span></span></label>
             <label class="g2q-choice"><input type="radio" name="ch" disabled aria-describedby="sms-why"><span class="radio__box"></span><span><span class="g2q-choice__title">SMS <span class="tag tag--neutral">Chưa kích hoạt</span></span><span class="g2q-choice__text" id="sms-why">Chưa cấu hình nhà cung cấp SMS. Liên hệ quản trị hệ thống để bật kênh này.</span></span></label>
-            <label class="g2q-choice" data-v="nochannel"><input type="radio" name="ch" disabled><span class="radio__box"></span><span><span class="g2q-choice__title">Zalo <span class="tag tag--neutral">Chưa kích hoạt</span></span><span class="g2q-choice__text">Chưa cấu hình nhà cung cấp Zalo.</span></span></label>
+            <label class="g2q-choice" data-v="nochannel"><input type="radio" name="ch" disabled aria-describedby="zl-why"><span class="radio__box"></span><span><span class="g2q-choice__title">Zalo <span class="tag tag--neutral">Chưa kích hoạt</span></span><span class="g2q-choice__text" id="zl-why">Kênh Zalo chưa được cấu hình nên không chọn được. Quản trị hệ thống bật kênh ở G4-SYS-17.</span></span></label>
           </div></fieldset>
         <div class="g2q-kv" style="margin-top:16px;grid-template-columns:120px minmax(0,1fr)"><dt>Điện thoại khách</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd><dt>Email khách</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="email"></span></dd><dt>Đồng ý nhận tin</dt><dd>Có, cho thông tin dịch vụ (cập nhật 02/07/2026)</dd></div>
         <label class="check" style="margin-top:8px"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Gửi kèm kết quả kiểm tra xe số (2 mục vàng/đỏ, 3 ảnh)</span></label>
-        <div class="alert alert--info" style="margin-top:8px"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Xác thực OTP khi khách duyệt: <strong>Tắt</strong> (cấu hình hệ thống). Khi bật, mã gửi tới số điện thoại khách trước khi duyệt.</span></div></div>
+        <div class="alert alert--info" style="margin-top:8px"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Xác thực OTP khi khách duyệt: <strong>Tắt</strong> (mặc định pilot). Cấu hình ba mức: Tắt / Bật khi giá trị vượt ngưỡng / Luôn bật; chỉ bật được khi kênh SMS đã kích hoạt. Khi bật, mã 6 số gửi tới số điện thoại khách trước khi duyệt.</span></div></div>
       </div>
 
       <section class="card card__body--compact" style="padding:16px" data-v="form error nochannel sending" aria-label="Xem trước nội dung tin nhắn">
         <div class="row row--between"><strong>Nội dung khách nhận</strong><a class="btn btn--ghost btn--sm" href="g2-quo-06.html?preview=1" target="_blank" rel="noopener">Xem trước trang khách<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
-        <p class="t-body-sm" style="margin-top:8px;color:var(--color-text-secondary)">“Garage Chi nhánh Quận 7 gửi anh Nguyễn Văn An báo giá sửa chữa xe 51H-123.45: 3.893.400 ₫. Anh chọn các hạng mục đồng ý tại: garage.example.vn/b/Xk7p-93aQ. Báo giá có hiệu lực đến 06/11/2026. Cần hỗ trợ, gọi 028 7300 1234.”</p>
+        <p class="t-body-sm" style="margin-top:8px;color:var(--color-text-secondary)">“Garage Chi nhánh Quận 7 gửi anh Nguyễn Văn An báo giá sửa chữa xe 51H-123.45: 3.893.400 ₫. Anh chọn các hạng mục đồng ý tại: garage.example.vn/b/7Qm2Zt9xLw4PcN8vRa1KdYs6HfJe3Uo5. Báo giá có hiệu lực đến 06/11/2026. Cần hỗ trợ, gọi 028 7300 1234.”</p>
       </section>
 
       <div data-v="sending" role="status" aria-live="polite"><div class="progress progress--indeterminate"><div class="progress__head"><span>Đang gửi qua Zalo…</span></div><div class="progress__track"><div class="progress__bar"></div></div></div><p class="g2q-note" style="margin-top:8px">Hệ thống chống gửi trùng: bấm nhiều lần chỉ gửi một tin.</p></div>
 
-      <div data-v="sent" class="stack-2"><div class="g2q-kv" style="grid-template-columns:140px minmax(0,1fr)"><dt>Zalo</dt><dd><span class="badge badge--success">Đã gửi</span> 08:35</dd><dt>Liên kết</dt><dd class="code">garage.example.vn/b/Xk7p-93aQ <button class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép liên kết|Liên kết riêng của phiên bản v2.">Sao chép</button></dd><dt>Hết hiệu lực</dt><dd>06/11/2026</dd></div></div>
+      <div data-v="sent" class="stack-2"><div class="g2q-kv" style="grid-template-columns:140px minmax(0,1fr)"><dt>Zalo</dt><dd><span class="badge badge--success">Đã gửi</span> 08:35</dd><dt>Liên kết</dt><dd class="code" style="overflow-wrap:anywhere">garage.example.vn/b/7Qm2Zt9xLw4PcN8vRa1KdYs6HfJe3Uo5 <button class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép liên kết|Liên kết riêng của phiên bản v2.">Sao chép</button></dd><dt>Hết hiệu lực</dt><dd>06/11/2026</dd></div></div>
     </div>
 
     <div class="dialog__footer" data-v="form error nochannel sending"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-set="sending" data-for="dlg-send" data-v="form error nochannel">Gửi báo giá</button><button class="btn btn--primary is-loading" disabled aria-busy="true" data-v="sending"><span class="btn__spinner"><svg class="icon spin"><use href="#loader"/></svg></span>Đang gửi</button></div>
@@ -68,5 +69,18 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
 </div>
 
 <script src="../assets/app.js"></script>
+<script>
+/* Handoff liên kết khách (F3-14): token ngẫu nhiên >= 128 bit, không chứa biển số/tên; thu hồi khi bị thay/hủy/hết hạn; giới hạn tần suất; Cache-Control: no-store; Referrer-Policy: no-referrer. */
+window.g2qReady = function () {
+  var root = document.getElementById('dlg-send');
+  function sync() {
+    var cur = root.getAttribute('data-cur'), z = root.querySelector('input[data-k="zalo"]'), l = root.querySelector('input[data-k="link"]');
+    if (cur === 'nochannel') { if (l) l.checked = true; } else if (z) { z.checked = true; }
+    var btn = root.querySelector('button[data-set="sending"][data-v]'), chosen = root.querySelector('input[name="ch"]:checked');
+    if (btn) { var ok = !!chosen && !chosen.disabled; btn.disabled = !ok; btn.setAttribute('aria-disabled', String(!ok)); }
+  }
+  root.addEventListener('g2q:variant', sync); root.addEventListener('change', sync); sync();
+};
+</script>
 </body>
 </html>

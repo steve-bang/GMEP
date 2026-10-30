@@ -207,6 +207,10 @@ a.g1-row:hover { background: var(--color-surface-hover); text-decoration: none; 
 .g1-noscript a { font-weight: 600; }
 /* Tiện ích thay cho thuộc tính style rải rác */
 .g1-m0 { margin: 0; }
+.g1-state-flush { padding: 0; }
+.g1-state-wide { max-width: none; padding: var(--space-12) var(--space-6); }
+.g1-grow { flex: 1 1 320px; }
+.g1-fieldset { border: 0; padding: 0; margin: 0; }
 .g1-mt3 { margin-top: var(--space-3); }
 .g1-mt5 { margin-top: var(--space-5); }
 .g1-full { width: 100%; text-align: left; }

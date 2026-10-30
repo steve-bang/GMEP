@@ -11,11 +11,15 @@
 <style>
   .g4r-qlonly { display: none; }
   body[data-role="QL"] .g4r-qlonly { display: flex; }
+  .g4r-dup-neutral { display: none; }
+  body[data-role="QL"] .g4r-dup-neutral { display: inline; }
+  body[data-role="QL"] .g4r-dup-detail { display: none; }
   .g4r-assign { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: var(--space-3); align-items: end; padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); }
   @media (max-width: 639px) { .g4r-assign { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body data-role="AD">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-02" data-menu="set" data-crumbs="Cài đặt|Người dùng|Mời người dùng" data-allow="AD CH QL"></script>
 <script>
 g4rPage({
@@ -31,6 +35,15 @@ g4rPage({
 
 <div class="alert alert--info g4r-qlonly" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Bạn là Quản lý chi nhánh: chỉ gán được vai trò thấp hơn mình và chỉ cho <strong>Chi nhánh Quận 7</strong>. Các vai trò khác bị khóa kèm lý do.</div></div>
 
+<script>
+/* Quản lý chi nhánh: khóa vai trò vượt quyền và đặt dòng mặc định theo vai trò (chọn vai trò cao hơn là không được) */
+function g4rRoleLock() {
+  var ql = document.body.getAttribute('data-role') === 'QL', s = document.getElementById('r1'); if (!s) return;
+  Array.prototype.forEach.call(s.options, function (o) { o.disabled = ql && o.hasAttribute('data-hi'); });
+  if (ql && s.options[s.selectedIndex].disabled) s.value = 'Cố vấn dịch vụ';
+}
+document.addEventListener('DOMContentLoaded', function () { g4rRoleLock(); new MutationObserver(g4rRoleLock).observe(document.body, { attributes: true, attributeFilter: ['data-role'] }); });
+</script>
 <form class="stack" onsubmit="return false" aria-label="Mời người dùng">
   <section class="card" aria-labelledby="f1"><div class="card__header"><h2 class="card__title" id="f1">1. Thông tin cơ bản</h2></div>
     <div class="card__body"><div class="form-grid">
@@ -42,7 +55,7 @@ g4rPage({
 
   <section class="card" aria-labelledby="f2"><div class="card__header"><div><h2 class="card__title" id="f2">2. Vai trò theo chi nhánh</h2><div class="card__subtitle">Một người có thể có nhiều vai trò, nhiều chi nhánh; quyền là phần hợp theo từng chi nhánh (FR-SYS-012).</div></div></div>
     <div class="card__body">
-      <div class="g4r-assign"><div class="field"><label class="field__label" for="r1">Vai trò<span class="field__req">*</span></label><select class="select" id="r1"><option>Kế toán</option><option>Cố vấn dịch vụ</option><option>Thợ</option><option>Thủ kho</option><option>Thu ngân</option><option>Quản đốc</option><option>Quản lý chi nhánh</option><option>Quản lý vùng</option></select></div>
+      <div class="g4r-assign"><div class="field"><label class="field__label" for="r1">Vai trò<span class="field__req">*</span></label><select class="select" id="r1" data-g4r-rolesel><option data-hi>Kế toán</option><option>Cố vấn dịch vụ</option><option>Thợ</option><option>Thủ kho</option><option>Thu ngân</option><option>Quản đốc</option><option>Nhân viên mua hàng</option><option>Nhân sự</option><option>Nhân viên kiểm tra chất lượng</option><option data-hi>Quản lý chi nhánh</option><option data-hi>Quản lý vùng</option><option data-hi>Chủ garage</option><option data-hi>Quản trị hệ thống</option></select><span class="field__hint g4r-qlonly">Một số vai trò bị khóa: Quản lý chi nhánh chỉ gán được vai trò vận hành trong chi nhánh mình. Kế toán, Quản lý chi nhánh, Quản lý vùng, Chủ garage và Quản trị do Chủ garage hoặc Quản trị hệ thống gán.</span></div>
         <div class="field"><label class="field__label" for="b1">Chi nhánh<span class="field__req">*</span></label><select class="select" id="b1"><option>Chi nhánh Thủ Đức</option><option>Chi nhánh Quận 7</option><option>Chi nhánh Quận 1</option></select></div>
         <button class="btn btn--ghost" aria-label="Bỏ dòng gán vai trò này">Bỏ dòng</button></div>
       <div class="g4r-assign"><div class="field"><label class="field__label" for="r2">Vai trò</label><select class="select" id="r2"><option>Kế toán</option></select></div>
@@ -58,7 +71,7 @@ g4rPage({
 
   <section class="card" aria-labelledby="f3"><div class="card__header"><h2 class="card__title" id="f3">3. Dữ liệu cá nhân của khách mà người này được thấy</h2></div>
     <div class="card__body"><div class="form-grid">
-      <div class="field"><label class="field__label" for="pii">Mức hiển thị SĐT, địa chỉ</label><select class="select" id="pii" aria-describedby="pii-h"><option>Theo vai trò (Kế toán: che, Hiện có lý do)</option><option>Che hoàn toàn</option><option>Đầy đủ (cần Chủ garage duyệt)</option></select><span class="field__hint" id="pii-h">Mặc định lấy từ bảng quyền che ở “Vai trò và quyền”. Mỗi lần Hiện đều ghi nhật ký.</span></div>
+      <div class="field"><label class="field__label" for="pii">Mức hiển thị SĐT, địa chỉ</label><select class="select" id="pii" aria-describedby="pii-h"><option>Theo vai trò (Kế toán: che, Hiện phải chọn lý do)</option></select><span class="field__hint" id="pii-h">Quyền che chỉnh theo từng vai trò ở “Vai trò và quyền”, không đặt riêng cho từng người. Mỗi lần Hiện đều ghi nhật ký.</span></div>
       <div class="field"><label class="field__label" for="mfa">Xác thực hai lớp</label><select class="select" id="mfa" disabled aria-describedby="mfa-h"><option>Bắt buộc theo vai trò</option></select><span class="field__hint" id="mfa-h">Đang khóa vì vai trò Kế toán bắt buộc xác thực hai lớp; chỉnh ở “Bảo mật và phiên”.</span></div>
     </div></div></section>
 
@@ -72,7 +85,7 @@ g4rPage({
 </form>
 
 <script>
-g4rEnd('<div data-state="dup" hidden><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><div class="alert__body"><div class="alert__title">Email này đã có tài khoản</div>thu.ngo@garage-abc.vn thuộc tài khoản “Ngô Thị Thu” (Chi nhánh Quận 1, đang hoạt động). Mỗi email chỉ một tài khoản. Hãy mở tài khoản đó để thêm vai trò hoặc chi nhánh.<div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở tài khoản đã có</a></div></div></div></div><div data-state="sent" hidden><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#mail"/></svg></div><div class="state__title">Đã gửi lời mời tới thu.ngo@garage-abc.vn</div><p class="state__text">Liên kết có hiệu lực đến 17:30 02/11/2026 (72 giờ), dùng một lần. Trạng thái tài khoản: Đã mời, chờ kích hoạt. Bạn có thể gửi lại hoặc thu hồi lời mời ở trang chi tiết người dùng.</p><div class="state__actions"><a class="btn btn--primary" href="g4-sys-01.html">Về danh sách người dùng</a></div></div></div>',
+g4rEnd('<div data-state="dup" hidden><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><div class="alert__body"><div class="alert__title">Email này đã có tài khoản</div><span class="g4r-dup-detail">thu.ngo@garage-abc.vn thuộc tài khoản “Ngô Thị Thu” (Chi nhánh Quận 1, đang hoạt động). Mỗi email chỉ một tài khoản. Hãy mở tài khoản đó để thêm vai trò hoặc chi nhánh.</span><span class="g4r-dup-neutral">Email này đã được dùng cho một tài khoản. Nhờ Chủ garage hoặc Quản trị hệ thống xử lý (tài khoản có thể thuộc chi nhánh khác nên không hiển thị chi tiết).</span><div class="alert__actions"><a class="btn btn--secondary btn--sm g4r-dup-detail" href="g4-sys-03.html">Mở tài khoản đã có</a></div></div></div></div><div data-state="sent" hidden><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#mail"/></svg></div><div class="state__title">Đã gửi lời mời tới thu.ngo@garage-abc.vn</div><p class="state__text">Liên kết có hiệu lực đến 17:30 02/11/2026 (72 giờ), dùng một lần. Trạng thái tài khoản: Đã mời, chờ kích hoạt. Bạn có thể gửi lại hoặc thu hồi lời mời ở trang chi tiết người dùng.</p><div class="state__actions"><a class="btn btn--primary" href="g4-sys-01.html">Về danh sách người dùng</a></div></div></div>',
 '<div class="overlay" id="dlg-hi" role="alertdialog" aria-modal="true" aria-labelledby="hi-t"><div class="dialog" data-confirm-guard><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="hi-t">Gán vai trò Kế toán cho Ngô Thị Thu?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Thấy và thao tác thu chi, công nợ, hóa đơn của Chi nhánh Thủ Đức và Quận 7.</li><li>Bắt buộc xác thực hai lớp ở lần đăng nhập đầu.</li><li>Việc gán được ghi nhật ký (người gán, thời điểm, quyền được cấp).</li></ul><div class="field"><label class="field__label" for="hi-r">Lý do gán<span class="field__req">*</span></label><textarea class="textarea" id="hi-r" data-confirm-reason style="min-height:64px" placeholder="Ví dụ: Kế toán mới thay chị Hà phụ trách Thủ Đức"></textarea></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại chỉnh</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã gửi lời mời|Liên kết kích hoạt hiệu lực 72 giờ.">Xác nhận và gửi lời mời</button></div></div></div>');
 </script>
 </body>

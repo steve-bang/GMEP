@@ -18,12 +18,12 @@
 <script>G3.top('INV-18')</script>
 
 <div class="page-header">
-  <div class="page-header__text"><h1>Bán lẻ phụ tùng <span class="code">BL-Q7-2610-00014</span></h1><p class="page-header__desc">Bán phụ tùng không kèm lệnh sửa chữa. Phiếu bán lẻ là chứng từ gốc cho xuất kho, thu tiền và hóa đơn (RULE-007).</p></div>
-  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span></div>
+  <div class="page-header__text"><h1>Bán lẻ phụ tùng <span class="code">BL-Q7-2610-00014</span></h1><p class="page-header__desc">Bán phụ tùng không kèm lệnh sửa chữa. Phiếu bán lẻ là chứng từ gốc cho xuất kho, thu tiền và hóa đơn (RULE-007). Lối vào: Tài chính › Bán lẻ phụ tùng (cố vấn, thu ngân) hoặc tab Bán lẻ trong Kho (thủ kho, quản lý); bộ chọn chỉ hiện Khả dụng và giá niêm yết.</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><button class="btn btn--secondary" data-open="dlg-print-bl"><svg class="icon"><use href="#printer"/></svg>Xem mẫu in nhiệt 80 mm</button></div>
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Kho Quận 7</span><span>· 30/10/2026</span></div>
 
-<div id="g3-body" data-noun="phiếu bán lẻ" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div id="g3-body" data-noun="phiếu bán lẻ" data-g3-states="data:Soạn phiếu;loading;notfound;error;denied" data-skel="detail" data-back="g3-inv-08.html">
 <div data-g3-state="data" class="stack">
   <div class="alert alert--info" role="note"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Tính năng bán lẻ chờ khách xác nhận (BRD câu 10)</span><span>Có thể bật/tắt theo cấu hình chi nhánh và phân quyền: Cố vấn, Thủ kho, Thu ngân được lập phiếu theo cấu hình.</span></div></div>
   <div class="g3-ro-flag alert alert--info" data-for="f-rt" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Vai trò của bạn không được lập phiếu bán lẻ.</span></div></div>
@@ -59,6 +59,16 @@
   <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="rt-t">Gửi Quản lý chi nhánh duyệt giảm giá?</h2></div></div>
   <div class="dialog__body"><p>Phiếu BL-Q7-2610-00014 (366.000 ₫) chờ duyệt vì giảm giá vượt hạn mức. Kho chưa trừ và chưa thu tiền cho đến khi được duyệt.</p></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã gửi duyệt|Chờ Đặng Hữu Phúc duyệt giảm giá.">Gửi duyệt</button></div></div></div>
+
+<div class="overlay" id="dlg-print-bl" role="dialog" aria-modal="true" aria-labelledby="pb-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#printer"/></svg></div><div><h2 class="dialog__title" id="pb-t">Xem trước phiếu bán lẻ · nhiệt 80 mm</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div class="g3-paper-scroll"><div class="g3-paper g3-paper--thermal">
+    <strong style="text-align:center">GARAGE OS – Chi nhánh Quận 7</strong>
+    <div style="text-align:center">PHIẾU BÁN LẺ<br><span class="code">BL-Q7-2610-00014</span><br>30/10/2026 09:40</div>
+    <table><tbody><tr><td>Nước làm mát Prestone 1 lít<br>2 × 98.000</td><td class="r">196.000</td></tr><tr><td>Lọc dầu động cơ Vios<br>1 × 170.000 (giá niêm yết 185.000)</td><td class="r">170.000</td></tr></tbody><tfoot><tr><td><strong>Phải thu</strong></td><td class="r"><strong>366.000 ₫</strong></td></tr></tfoot></table>
+    <div style="text-align:center">Hình thức: tiền mặt · Cảm ơn quý khách</div></div></div>
+    <p class="t-body-sm text-secondary" style="margin-top:8px">Mẫu in theo khổ, không theo hãng máy (58 mm cấu hình). Phiếu in không có giá vốn.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" onclick="window.print()"><svg class="icon"><use href="#printer"/></svg>In</button></div></div></div>
 
 <script src="../assets/app.js"></script>
 <script>G3.init()</script>

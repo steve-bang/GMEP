@@ -32,36 +32,39 @@
     <div class="card__body" style="border-top:1px solid var(--color-border)">
       <div class="stack">
         <label class="switch"><input type="checkbox" id="digest" role="switch" checked><span class="switch__track"></span><span>Nhận tóm tắt hằng ngày qua email<br><span class="t-body-sm text-secondary">Dành cho Chủ garage, Quản lý vùng, Quản lý chi nhánh: số việc cần xử lý, doanh thu hôm qua, xe trễ hẹn.</span></span></label>
-        <div class="field" style="max-width:240px"><label class="field__label" for="dtime">Giờ gửi tóm tắt</label><select id="dtime" class="select"><option>07:00</option><option selected>07:30</option><option>08:00</option></select><span class="field__hint">Giờ gửi mặc định do quản trị cấu hình.</span></div>
+        <div class="field" style="max-width:240px"><label class="field__label" for="dtime">Giờ gửi tóm tắt</label><select id="dtime" class="select"><option>06:00</option><option>07:00</option><option selected>07:30</option><option>08:00</option><option>09:00</option><option>10:00</option></select><span class="field__hint">Chọn trong khoảng 06:00–10:00; mặc định 07:30. Số liệu hôm qua ghi rõ “số chính thức” hay “số tạm”. Email không chứa tên hay SĐT khách.</span></div>
       </div>
     </div>
     <div class="card__footer"><button class="btn btn--ghost" id="reset">Đặt lại mặc định</button><button class="btn btn--primary" id="save" disabled aria-describedby="why-save">Lưu</button></div>
   </section>
   <p class="g1-note" id="why-save">Nút “Lưu” bật khi bạn thay đổi lựa chọn.</p>
 </div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
 <script src="g1-shell.js"></script>
 <script src="../assets/app.js"></script>
 <script src="g1-auth.js"></script>
 <script>
 (function () {
   var EV = [
+    ['Bảo mật tài khoản của tôi (khóa tạm, thiết bị mới, đổi mật khẩu hoặc MFA)', 'act', 1, 1, 1],
     ['Cần phê duyệt (giảm giá, chi, chuyển kho vượt hạn mức)', 'act', 1, 1],
     ['Phê duyệt quá hạn hoặc chuyển cấp', 'act', 1, 1],
-    ['Phát sinh chờ khách duyệt', 'act', 1, 0],
-    ['Kiểm tra chất lượng trả lại', 'act', 1, 0],
+    ['Phát sinh chờ khách duyệt', 'act', 1, 1],
+    ['Kiểm tra chất lượng trả lại', 'act', 1, 1],
     ['Hóa đơn lỗi phát hành', 'act', 1, 1],
-    ['Thiếu phụ tùng cho lệnh', 'act', 1, 0],
-    ['Nhắc chốt ngày', 'act', 1, 1],
+    ['Thiếu phụ tùng cho lệnh', 'act', 1, 1],
+    ['Lệch quỹ cần giải trình, nhắc chốt ca và chốt ngày', 'act', 1, 1],
+    ['Xe trễ hẹn giao', 'act', 1, 1],
     ['Báo giá được khách duyệt hoặc từ chối', 'info', 1, 0],
-    ['Tồn dưới định mức', 'info', 1, 1],
+    ['Tồn dưới định mức', 'info', 1, 0],
     ['Xe sẵn sàng bàn giao', 'info', 1, 0]
-  ];
+  ];   /* danh sách thật là ma trận sự kiện × vai trò (BA, câu 10): chỉ hiện sự kiện thuộc quyền và chi nhánh của người dùng; email của mục Cần xử lý bật mặc định (tắt với TH, QĐ) */
   var tb = document.getElementById('rows'), html = '';
   EV.forEach(function (e, i) {
     var act = e[1] === 'act';
     html += '<tr><th scope="row">' + e[0] + '</th><td>' + (act ? '<span class="badge badge--warning">Cần xử lý</span>' : '<span class="badge badge--neutral">Thông tin</span>') + '</td>' +
       '<td><label class="check" style="min-height:44px"><input type="checkbox" checked ' + (act ? 'disabled aria-describedby="lk' + i + '"' : '') + ' data-def="1" aria-label="Trong hệ thống: ' + e[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span>' + (act ? '<span class="t-caption text-secondary" id="lk' + i + '">Luôn bật</span>' : '<span class="sr-only">Bật</span>') + '</label></td>' +
-      '<td><label class="check" style="min-height:44px"><input type="checkbox" ' + (e[3] ? 'checked' : '') + ' data-def="' + e[3] + '" aria-label="Email: ' + e[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="sr-only">Bật</span></label></td>' +
+      '<td><label class="check" style="min-height:44px"><input type="checkbox" ' + (e[3] ? 'checked' : '') + (e[4] ? ' disabled aria-describedby="lkm' + i + '"' : '') + ' data-def="' + e[3] + '" aria-label="Email: ' + e[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span>' + (e[4] ? '<span class="t-caption text-secondary" id="lkm' + i + '">Luôn bật</span>' : '<span class="sr-only">Bật</span>') + '</label></td>' +
       '<td><label class="check" style="min-height:44px"><input type="checkbox" disabled aria-label="Zalo: ' + e[0] + ' (chưa kích hoạt)"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="t-caption text-secondary">Chưa kích hoạt</span></label></td></tr>';
   });
   tb.innerHTML = html;

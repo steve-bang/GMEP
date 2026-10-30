@@ -10,14 +10,15 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="QL">
-<script src="pack.js" data-code="G4-RPT-10" data-menu="rpt" data-crumbs="Báo cáo|Báo cáo chi nhánh theo ngày và tháng|Chứng từ gốc" data-allow="CH QV QL KT CV TN"></script>
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
+<script src="pack.js" data-code="G4-RPT-10" data-menu="rpt" data-crumbs="Báo cáo|Báo cáo chi nhánh theo ngày và tháng|Chứng từ gốc" data-allow="CH QV QL KT CV TN" data-own="CV TN"></script>
 <script>
 g4rPage({
   title: 'Chứng từ cấu thành chỉ số',
-  desc: 'Mở từ một con số trong báo cáo: liệt kê các lệnh và phiếu tạo nên con số đó. Tổng danh sách luôn bằng con số đã bấm.',
+  desc: 'Mở từ một con số trong báo cáo: liệt kê các lệnh và phiếu tạo nên con số đó. Tổng danh sách luôn bằng con số đã bấm. Cố vấn, Thu ngân chỉ thấy chứng từ mình phụ trách.',
   prio: 'P1',
-  cfgScope: 'Chi nhánh Quận 7 (kế thừa từ báo cáo nguồn)',
-  period: 'Ngày 30/10/2026',
+  scopeText: 'Chi nhánh Quận 7 (kế thừa từ báo cáo nguồn, không đổi theo bộ chọn)',
+  period: 'Ngày 30/10/2026 (số tạm)',
   actions: '<a class="btn btn--secondary" href="g4-rpt-03.html"><svg class="icon" aria-hidden="true"><use href="#arrow-right" style="transform:scaleX(-1)"/></svg>Về báo cáo chi nhánh</a>' + g4rExportBtn(),
   empty: { title: 'Không có chứng từ nào cấu thành con số này', text: 'Con số bằng 0 hoặc đã bị lọc hết. Quay lại báo cáo để chọn chỉ số khác.' }
 });
@@ -25,10 +26,11 @@ g4rPage({
 
 <div class="card card--attention" style="padding:var(--space-4) var(--space-6)">
   <div class="row row--between">
-    <div><div class="t-body-sm text-secondary">Con số đã bấm</div><div class="t-heading-md">Doanh thu ngày 30/10/2026 · Chi nhánh Quận 7 <span class="tag tag--warning">Số tạm</span></div></div>
-    <div class="num" style="font-size:var(--font-size-2xl);font-weight:700">24.850.000 ₫</div>
+    <div><div class="t-body-sm text-secondary">Con số đã bấm</div><div class="t-heading-md">Tổng giá trị lệnh hoàn tất ngày 30/10/2026 (gồm thuế) · Chi nhánh Quận 7 <span class="tag tag--warning">Số tạm</span></div></div>
+    <div class="num" style="font-size:var(--font-size-2xl);font-weight:700"><span class="g4r-hide-cv">24.850.000 ₫</span><span class="g4r-cv-only">18.650.000 ₫</span></div>
   </div>
-  <div class="g4r-ok" style="margin-top:8px"><svg class="icon"><use href="#circle-check"/></svg>Tổng danh sách bên dưới = 24.850.000 ₫, khớp con số đã bấm.</div>
+  <div class="g4r-ok g4r-hide-cv" style="margin-top:8px"><svg class="icon"><use href="#circle-check"/></svg>Tổng danh sách bên dưới = 24.850.000 ₫ (gồm thuế), khớp con số đã bấm. Doanh thu chưa thuế tương ứng: 22.590.909 ₫.</div>
+  <div class="alert alert--info g4r-cv-only" role="note" style="margin-top:8px"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Bạn là Cố vấn dịch vụ: danh sách chỉ gồm lệnh bạn phụ trách (3/6 lệnh) và con số trên là phần của bạn.</div></div>
 </div>
 
 <div class="tabs" role="tablist" aria-label="Loại chứng từ">
@@ -39,24 +41,27 @@ g4rPage({
 <div class="tab-panel" id="dp1" role="tabpanel" aria-labelledby="d1">
   <div class="table-wrap">
     <div class="table-wrap--responsive"><div class="table-scroll"><table class="table">
-      <caption class="sr-only">Lệnh sửa chữa cấu thành doanh thu ngày 30/10/2026</caption>
-      <thead><tr><th>Mã lệnh</th><th>Biển số</th><th>Trạng thái lệnh</th><th>Thanh toán</th><th class="col-num">Giá trị lệnh</th></tr></thead>
+      <caption class="sr-only">Lệnh sửa chữa cấu thành tổng giá trị lệnh hoàn tất ngày 30/10/2026</caption>
+      <thead><tr><th>Mã lệnh</th><th>Biển số</th><th>Trạng thái lệnh</th><th>Thanh toán</th><th class="col-num">Chưa thuế</th><th class="col-num">Gồm thuế</th></tr></thead>
       <tbody>
-        <tr><td class="code"><a href="#">RO-Q7-2610-00239</a></td><td><span class="plate">51D-675.30</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">1.500.000 ₫</td></tr>
-        <tr><td class="code"><a href="#">RO-Q7-2610-00241</a></td><td><span class="plate">51H-123.45</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">4.250.000 ₫</td></tr>
-        <tr><td class="code"><a href="#">RO-Q7-2610-00242</a></td><td><span class="plate">51G-765.43</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">3.450.000 ₫</td></tr>
-        <tr><td class="code"><a href="#">RO-Q7-2610-00243</a></td><td><span class="plate">51A-902.17</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">8.900.000 ₫</td></tr>
-        <tr><td class="code"><a href="#">RO-Q7-2610-00244</a></td><td><span class="plate">59C-318.46</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">1.250.000 ₫</td></tr>
-        <tr><td class="code"><a href="#">RO-Q7-2610-00246</a></td><td><span class="plate">51L-702.58</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-num">5.500.000 ₫</td></tr>
+        <tr class="g4r-notcv"><td class="code"><a href="#">RO-Q7-2610-00239</a></td><td><span class="plate">51D-675.30</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">1.363.636 ₫</td><td class="col-num">1.500.000 ₫</td></tr>
+        <tr><td class="code"><a href="#">RO-Q7-2610-00241</a></td><td><span class="plate">51H-123.45</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">3.863.636 ₫</td><td class="col-num">4.250.000 ₫</td></tr>
+        <tr class="g4r-notcv"><td class="code"><a href="#">RO-Q7-2610-00242</a></td><td><span class="plate">51G-765.43</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">3.136.364 ₫</td><td class="col-num">3.450.000 ₫</td></tr>
+        <tr><td class="code"><a href="#">RO-Q7-2610-00243</a></td><td><span class="plate">51A-902.17</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">8.090.909 ₫</td><td class="col-num">8.900.000 ₫</td></tr>
+        <tr class="g4r-notcv"><td class="code"><a href="#">RO-Q7-2610-00244</a></td><td><span class="plate">59C-318.46</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">1.136.364 ₫</td><td class="col-num">1.250.000 ₫</td></tr>
+        <tr><td class="code"><a href="#">RO-Q7-2610-00246</a></td><td><span class="plate">51L-702.58</span></td><td><span class="badge badge--success">Hoàn tất</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-num">5.000.000 ₫</td><td class="col-num">5.500.000 ₫</td></tr>
       </tbody>
-      <tfoot><tr class="g4r-total-row"><td colspan="4">Tổng 6 lệnh</td><td class="col-num">24.850.000 ₫</td></tr></tfoot>
+      <tfoot>
+        <tr class="g4r-total-row g4r-hide-cv"><td colspan="4">Tổng 6 lệnh</td><td class="col-num">22.590.909 ₫</td><td class="col-num">24.850.000 ₫</td></tr>
+        <tr class="g4r-total-row g4r-cv-only"><td colspan="4">Tổng 3 lệnh bạn phụ trách</td><td class="col-num">16.954.545 ₫</td><td class="col-num">18.650.000 ₫</td></tr>
+      </tfoot>
     </table></div></div>
     <div class="record-list record-list--responsive" style="padding:var(--space-4)">
-      <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00246</div><span class="plate">51L-702.58</span></div><span class="badge badge--warning">Chưa thanh toán</span></div><div class="record__foot"><span class="badge badge--success">Hoàn tất</span><strong class="num">5.500.000 ₫</strong></div></a>
-      <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00243</div><span class="plate">51A-902.17</span></div><span class="badge badge--success">Đã thanh toán</span></div><div class="record__foot"><span class="badge badge--success">Hoàn tất</span><strong class="num">8.900.000 ₫</strong></div></a>
-      <p class="t-body-sm text-secondary" style="margin:0">Tổng 6 lệnh: 24.850.000 ₫</p>
+      <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00246</div><span class="plate">51L-702.58</span></div><span class="badge badge--warning">Chưa thanh toán</span></div><div class="record__foot"><span class="badge badge--success">Hoàn tất</span><strong class="num">5.500.000 ₫ gồm thuế</strong></div></a>
+      <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00243</div><span class="plate">51A-902.17</span></div><span class="badge badge--success">Đã thanh toán</span></div><div class="record__foot"><span class="badge badge--success">Hoàn tất</span><strong class="num">8.900.000 ₫ gồm thuế</strong></div></a>
+      <p class="t-body-sm text-secondary g4r-hide-cv" style="margin:0">Tổng 6 lệnh: 24.850.000 ₫ gồm thuế</p>
     </div>
-    <div class="table-footer"><span class="table-meta">Mở lệnh theo quyền của bạn. Cố vấn dịch vụ mở được lệnh, không mở được hóa đơn; chứng từ ngoài quyền hiện khóa kèm lý do.</span></div>
+    <div class="table-footer"><span class="table-meta">Mở lệnh theo quyền của bạn. Cố vấn dịch vụ mở được lệnh, không mở được hóa đơn; chứng từ ngoài quyền hiện khóa kèm lý do. Lọc theo người phụ trách thực hiện ở máy chủ.</span></div>
   </div>
 </div>
 
@@ -64,7 +69,7 @@ g4rPage({
   <div class="table-wrap">
     <div class="table-scroll"><table class="table">
       <caption class="sr-only">Phiếu thu trong ngày 30/10/2026</caption>
-      <thead><tr><th>Phiếu thu</th><th>Lệnh</th><th>Hình thức</th><th>Người thu</th><th class="col-num">Số tiền</th></tr></thead>
+      <thead><tr><th>Phiếu thu</th><th>Lệnh</th><th>Hình thức</th><th>Người thu</th><th class="col-num">Số tiền (gồm thuế)</th></tr></thead>
       <tbody>
         <tr><td class="code"><a href="#">PT-Q7-2610-00277</a></td><td class="code">RO-Q7-2610-00241</td><td>Chuyển khoản</td><td>Hoàng Thị Yến</td><td class="col-num">4.250.000 ₫</td></tr>
         <tr><td class="code"><a href="#">PT-Q7-2610-00278</a></td><td class="code">RO-Q7-2610-00242</td><td>Tiền mặt</td><td>Hoàng Thị Yến</td><td class="col-num">3.450.000 ₫</td></tr>
@@ -73,9 +78,9 @@ g4rPage({
         <tr><td class="code"><a href="#">PT-Q7-2610-00281</a></td><td class="code">RO-Q7-2610-00244</td><td>Tiền mặt</td><td>Hoàng Thị Yến</td><td class="col-num">1.250.000 ₫</td></tr>
         <tr><td class="code"><a href="#">PT-Q7-2610-00282</a></td><td class="code">RO-Q7-2610-00239</td><td>Tiền mặt</td><td>Hoàng Thị Yến</td><td class="col-num">1.500.000 ₫</td></tr>
       </tbody>
-      <tfoot><tr class="g4r-total-row"><td colspan="4">Tổng 6 phiếu thu (đã thu trong ngày)</td><td class="col-num">19.350.000 ₫</td></tr></tfoot>
+      <tfoot><tr class="g4r-total-row"><td colspan="4">Tổng 6 phiếu thu (đã thu của lệnh trong ngày)</td><td class="col-num">19.350.000 ₫</td></tr></tfoot>
     </table></div>
-    <div class="table-footer"><span class="table-meta">19.350.000 ₫ đã thu + 5.500.000 ₫ công nợ (lệnh 00246) = 24.850.000 ₫.</span></div>
+    <div class="table-footer"><span class="table-meta">19.350.000 ₫ đã thu + 5.500.000 ₫ công nợ (lệnh 00246) = 24.850.000 ₫ tổng giá trị lệnh gồm thuế. Thu nợ cũ và tiền cọc trong ngày (2.300.000 ₫) là các phiếu khác, không thuộc danh sách này.</span></div>
   </div>
 </div>
 

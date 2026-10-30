@@ -19,7 +19,7 @@
     <div class="page-header__actions"><a class="btn btn--secondary" href="g1-prf-01.html"><svg class="icon"><use href="#user"/></svg>Hồ sơ cá nhân</a></div>
   </div>
 
-  <div data-g1-views="default:Quản lý (MFA bắt buộc)|tho:Thợ (MFA tùy chọn, có PIN)|offline:Mất mạng"></div>
+  <div data-g1-views="default:Quản lý (MFA bắt buộc)|tho:Thợ (MFA tùy chọn, có PIN)|email-pending:Đã gửi xác nhận đổi email|offline:Mất mạng"></div>
   <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span>Mất kết nối nên các thao tác bảo mật tạm khóa. Kiểm tra mạng rồi thử lại.</span></div></div>
 
   <div class="g1-cols g1-cols--even">
@@ -38,6 +38,13 @@
           <p class="g1-note" id="why-mfa" data-hide="tho"><svg class="icon icon--sm" aria-hidden="true" style="vertical-align:-3px"><use href="#lock"/></svg> Không tắt được vì vai trò của bạn bắt buộc xác thực hai lớp (quy định bảo mật).</p>
           <div data-show="tho" hidden><a class="btn btn--primary" href="g1-aut-03.html">Bật xác thực hai lớp</a></div>
         </div></section>
+
+      <section class="card" id="doi-email" aria-labelledby="h-mail"><div class="card__header"><div><h2 class="card__title" id="h-mail" tabindex="-1">Email đăng nhập</h2><div class="card__subtitle">ha.nguyen@garage.vn</div></div></div>
+        <div class="card__body stack">
+          <p class="g1-m0">Email là tên đăng nhập và nơi nhận liên kết đặt lại mật khẩu. Đổi email cần: nhập lại mật khẩu, xác nhận qua liên kết gửi tới email mới (30 phút, dùng một lần), và email cũ nhận thông báo. Email mới chỉ có hiệu lực sau khi xác nhận.</p>
+          <div class="alert alert--info" role="status" data-show="email-pending" hidden><svg class="icon"><use href="#mail"/></svg><div class="alert__body"><span class="alert__title">Đã gửi liên kết xác nhận tới ha.nguyen@garage-moi.vn</span><span>Mở liên kết trong email mới trong 30 phút. Email đăng nhập vẫn là địa chỉ cũ cho đến khi bạn xác nhận. Không phải bạn? <a href="#" data-toast="success|Đã hủy yêu cầu đổi email|Liên kết xác nhận không còn dùng được.">Hủy yêu cầu</a>.</span></div></div>
+          <p class="g1-note g1-m0">Nhân viên không có email (ví dụ thợ): quản lý chi nhánh hoặc quản trị cập nhật.</p></div>
+        <div class="card__footer"><button class="btn btn--primary" data-open="dlg-mail" data-disable-in="offline">Đổi email</button></div></section>
 
       <section class="card" data-show="tho" hidden aria-labelledby="h-pin"><div class="card__header"><div><h2 class="card__title" id="h-pin">PIN thiết bị xưởng</h2><div class="card__subtitle">Dùng khi chọn tên trên tablet xưởng</div></div><span class="badge badge--success">Đã đặt</span></div>
         <div class="card__body"><p style="margin:0">PIN 6 số, riêng của bạn, chỉ dùng được trên tablet xưởng đã đăng ký. Không đưa PIN cho người khác.</p></div>
@@ -72,6 +79,13 @@
     <div class="field"><label class="field__label" for="pw1">Mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label><input id="pw1" class="input" type="password" autocomplete="new-password" aria-describedby="pw1-h"><span class="field__hint" id="pw1-h">Ít nhất 10 ký tự, không phải mật khẩu thông dụng, khác 5 mật khẩu gần nhất.</span></div></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-su-btn data-toast="success|Đã đổi mật khẩu|Các thiết bị khác đã bị đăng xuất." data-close disabled>Đổi mật khẩu</button></div></div></div>
 
+<div class="overlay" id="dlg-mail" role="dialog" aria-modal="true" aria-labelledby="ml-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#mail"/></svg></div><div><h2 class="dialog__title" id="ml-t">Đổi email đăng nhập</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="field"><label class="field__label" for="ml0">Mật khẩu hiện tại<span class="field__req" aria-hidden="true">*</span></label><input id="ml0" class="input" type="password" autocomplete="current-password" data-su></div>
+    <div class="field"><label class="field__label" for="ml1">Email mới<span class="field__req" aria-hidden="true">*</span></label><input id="ml1" class="input" type="email" autocomplete="email" aria-describedby="ml1-h"><span class="field__hint" id="ml1-h">Chúng tôi gửi liên kết xác nhận tới địa chỉ này và báo cho email cũ.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-su-btn data-toast="success|Đã gửi liên kết xác nhận|Kiểm tra email mới trong 30 phút." data-close disabled>Gửi xác nhận</button></div></div></div>
+
 <div class="overlay" id="dlg-regen" role="alertdialog" aria-modal="true" aria-labelledby="rg-t"><div class="dialog">
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rg-t">Tạo lại mã khôi phục?</h2></div></div>
   <div class="dialog__body stack"><p>8 mã khôi phục hiện có sẽ <strong>mất hiệu lực ngay</strong>. Bạn sẽ nhận 8 mã mới, chỉ hiện một lần. Việc này được ghi nhật ký.</p>
@@ -91,6 +105,7 @@
     <div class="field"><label class="field__label" for="pn1">PIN mới (6 số)<span class="field__req" aria-hidden="true">*</span></label><input id="pn1" class="input" inputmode="numeric" maxlength="6" autocomplete="off" aria-describedby="pn1-h"><span class="field__hint" id="pn1-h">Không dùng dãy dễ đoán như 123456 hoặc 000000.</span></div></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-su-btn data-toast="success|Đã đổi PIN|PIN mới dùng được ngay trên tablet xưởng." data-close disabled>Lưu PIN</button></div></div></div>
 
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại. Nếu vẫn không xem được, <a href="g1-aut-01.html">quay lại đăng nhập</a>.</div></noscript>
 <script src="g1-shell.js"></script>
 <script src="../assets/app.js"></script>
 <script src="g1-auth.js"></script>

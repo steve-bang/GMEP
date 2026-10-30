@@ -273,7 +273,7 @@
     $$('td[data-g3-s4]').forEach(function (td) {
       var tr = td.closest('tr'), s = parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered'));
       var cls = s.avail <= 0 ? ' g3-var--over' : (s.min !== null && s.avail <= s.min ? ' g3-var--short' : '');
-      td.outerHTML = '<td class="col-num" data-g3-hide="CV">' + s.real + '</td><td class="col-num" data-g3-hide="CV">' + s.res + '</td><td class="col-num" data-g3-hide="CV">' + s.tr + '</td><td class="col-num"><strong class="g3-var' + cls + '">' + s.avail + '</strong></td><td>' + stockBadge(s.avail, s.min, s.tr, s.ord) + '</td>';
+      td.outerHTML = '<td class="col-num" data-g3-hide="CV MH">' + s.real + '</td><td class="col-num" data-g3-hide="CV MH">' + s.res + '</td><td class="col-num" data-g3-hide="CV">' + s.tr + '</td><td class="col-num"><strong class="g3-var' + cls + '">' + s.avail + '</strong></td><td>' + stockBadge(s.avail, s.min, s.tr, s.ord) + '</td>';
     });
     $$('[data-g3-stock4]').forEach(function (d) {
       var s = parseS(d.getAttribute('data-g3-stock4'), d.getAttribute('data-min')), k = s.avail <= 0 ? ' stock4__cell--out' : (s.min !== null && s.avail <= s.min ? ' stock4__cell--low' : ' stock4__cell--available');
@@ -301,7 +301,7 @@
           else if (c === 'badge') badge = '<div class="g3-chip-badges">' + inner(td) + '</div>';
           else if (c === 'meta') meta += '<span' + gate(td) + '>' + (label ? label + ': ' : '') + inner(td) + '</span>';
           else if (c === 'foot') foot += '<span class="num"' + gate(td) + '>' + inner(td) + '</span>';
-          else if (c === 'stock4' && tr.hasAttribute('data-s')) s4 = stock4HTML(parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered')));   /* đủ bốn số tồn trên thẻ (F4-02) */
+          else if (c === 'stock4' && tr.hasAttribute('data-s')) s4 = '<div' + (ths[i].hasAttribute('data-g3-hide') ? ' data-g3-hide="' + ths[i].getAttribute('data-g3-hide') + '"' : '') + '>' + stock4HTML(parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered'))) + '</div>';   /* đủ bốn số tồn trên thẻ (F4-02) */
         });
         var el = document.createElement(href ? 'a' : 'div');
         el.className = 'record'; if (href) { el.href = href; el.style.color = 'inherit'; el.style.textDecoration = 'none'; }
@@ -429,6 +429,7 @@
     if (rq && ROLE_NAME[rq]) { var sw = $('[data-role-switch="' + rq + '"]'); document.body.setAttribute('data-role', rq); if (sw) sw.click(); }
     apply();
     new MutationObserver(apply).observe(document.body, { attributes: true, attributeFilter: ['data-role'] });
+    var nb = $('.net-banner'); if (nb) new MutationObserver(applyRoleBits).observe(nb, { attributes: true, attributeFilter: ['class'] });
   }
   window.G3 = { shell: shell, top: top, tail: tail, init: init, REG: REG, apply: apply };
 })();

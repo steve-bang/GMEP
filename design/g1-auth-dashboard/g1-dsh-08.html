@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="../assets/components.css">
 <link rel="stylesheet" href="pack.css">
 </head>
-<body data-g1-shell data-role="TN" data-g1-menu="dash" data-crumb="Tổng quan" data-period="today" data-figure="Số tạm · ca sáng đang mở">
+<body data-g1-shell data-role="TN" data-g1-menu="dash" data-crumb="Tổng quan" data-period="today" data-figure="Số tạm" data-figure-tip="Ca sáng đang mở; Quận 7 chưa chốt ngày 29/10 và 30/10.">
 <div id="g1-content" hidden>
   <div class="page-header">
     <div class="page-header__text">
@@ -23,23 +23,23 @@
     </div>
   </div>
 
-  <div class="alert alert--warning" id="shift-closed" role="status" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ca làm việc chưa mở</span><span>Chưa thu tiền được vì chưa có ca đang mở. Mở ca và nhập tiền đầu ca để bắt đầu; các lệnh sẵn sàng thu vẫn xem được.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="#" data-target="G4-ACC-08">Mở ca</a></div></div></div>
+  <div class="alert alert--warning" id="shift-closed" role="status" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ca làm việc chưa mở</span><span>Chưa thu tiền được vì chưa có ca đang mở. Mở ca và nhập tiền đầu ca (có thể bằng 0) để bắt đầu; các lệnh sẵn sàng thu vẫn xem được.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="#" data-target="G4-ACC-08">Mở ca</a></div></div></div>
 
   <div data-g1-proto></div>
   <div data-g1-filter data-periods="today,7d,month" data-default="today"></div>
 
   <section class="g1-kpis" aria-label="Chỉ số chính">
-    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Lệnh sẵn sàng thu tiền"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Lệnh sẵn sàng thu tiền</span><span class="kpi__value">03</span><span class="kpi__meta">Còn phải thu 6.830.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
-    <a class="card kpi" href="#" data-g1-card data-g1-title="Đã thu một phần"><span class="kpi__label"><svg class="icon icon--sm"><use href="#arrow-left-right"/></svg>Đã thu một phần</span><span class="kpi__value">01</span><span class="kpi__meta">Còn nợ 2.100.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Lệnh sẵn sàng thu tiền"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Lệnh sẵn sàng thu tiền</span><span class="kpi__value">03</span><span class="kpi__meta">Còn phải thu 6.830.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · tại 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Đã thu một phần"><span class="kpi__label"><svg class="icon icon--sm"><use href="#arrow-left-right"/></svg>Đã thu một phần</span><span class="kpi__value">01</span><span class="kpi__meta">Còn nợ 2.100.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · tại 09:15</span></a>
     <a class="card kpi" href="#" data-g1-card data-g1-title="Quỹ tiền mặt ca hiện tại" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Quỹ tiền mặt ca này</span><span class="kpi__value">8,4<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Đầu ca 2,0 tr ₫ + thu tiền mặt 6,4 tr ₫</span><span class="kpi__scope">Ca sáng · mở lúc 07:45 · số tạm</span></a>
     <a class="card kpi" href="#" data-g1-card data-g1-title="Phiếu thu hôm nay" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#receipt"/></svg>Phiếu thu hôm nay</span><span class="kpi__value">06</span><span class="kpi__meta">Tổng 14.600.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · <span data-g1-period-text>hôm nay 30/10/2026</span> · số tạm</span></a>
-    <a class="card kpi" href="#" data-g1-card data-g1-title="Hóa đơn cần xuất"><span class="kpi__label"><svg class="icon icon--sm"><use href="#file-text"/></svg>Hóa đơn cần xuất</span><span class="kpi__value">04</span><span class="kpi__meta">Lệnh đã thu đủ, chưa có hóa đơn</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Hóa đơn cần xuất"><span class="kpi__label"><svg class="icon icon--sm"><use href="#file-text"/></svg>Hóa đơn cần xuất</span><span class="kpi__value">04</span><span class="kpi__meta">Lệnh đã thu đủ, chưa có hóa đơn</span><span class="kpi__scope">Chi nhánh Quận 7 · tại 09:15</span></a>
   </section>
 
   <div class="g1-cols">
     <div class="g1-stack">
       <section class="card g1-hl-card" data-g1-card data-g1-title="Lệnh sẵn sàng thu tiền" data-g1-err data-g1-empty="Chưa có lệnh nào chờ thu tiền|Khi xe qua kiểm tra chất lượng và sẵn sàng bàn giao, lệnh hiện ở đây." aria-labelledby="h-pay">
-        <div class="card__header"><div><h2 class="card__title" id="h-pay">Lệnh sẵn sàng thu tiền</h2><div class="card__subtitle">Thu tiền luôn gắn với một lệnh sửa chữa (RULE-007)</div></div></div>
+        <div class="card__header"><div><h2 class="card__title" id="h-pay">Lệnh sẵn sàng thu tiền</h2><div class="card__subtitle">Mỗi khoản thu gắn với một lệnh sửa chữa; tiền cọc gắn báo giá đã gửi và chuyển sang lệnh khi khách duyệt</div></div></div>
         <div class="table-scroll"><table class="table table--compact">
           <caption class="sr-only">Lệnh sẵn sàng thu tiền</caption>
           <thead><tr><th scope="col">Lệnh</th><th scope="col">Biển số · khách</th><th scope="col">Trạng thái lệnh</th><th scope="col">Thanh toán</th><th scope="col" class="col-num">Còn phải thu</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
@@ -86,6 +86,7 @@
     </div>
   </div>
 </div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại. Nếu vẫn không xem được, <a href="g1-aut-01.html">quay lại đăng nhập</a> hoặc liên hệ quản lý chi nhánh.</div></noscript>
 <script src="g1-shell.js"></script>
 <script src="../assets/app.js"></script>
 <script src="g1-charts.js"></script>

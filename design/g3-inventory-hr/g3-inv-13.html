@@ -23,7 +23,7 @@
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span> (kho đi)</span><span>· Ngày lập 30/10/2026</span></div>
 
-<div id="g3-body" data-noun="phiếu chuyển kho" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-12.html">
+<div id="g3-body" data-noun="phiếu chuyển kho" data-g3-states="data:Soạn phiếu;loading;notfound;error;denied" data-skel="detail" data-back="g3-inv-12.html">
 <div data-g3-state="data" class="stack">
   <div class="g3-ro-flag alert alert--info" data-for="f-sto" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho và Quản lý chi nhánh lập phiếu chuyển; Chủ garage/Quản lý vùng duyệt phiếu giá trị lớn.</span></div></div>
   <form id="f-sto" class="g3-split" data-g3-edit="TK QL" onsubmit="return false">
@@ -34,7 +34,7 @@
           <div class="field"><label class="field__label" for="s-to">Kho đến<span class="field__req" aria-hidden="true">*</span></label><select id="s-to" class="select"><option>Chi nhánh Quận 1 – Kho Quận 1</option><option>Chi nhánh Thủ Đức – Kho Thủ Đức</option><option>Kho tổng Thủ Đức</option></select></div>
           <div class="field span-2"><label class="field__label" for="s-ro">Lệnh sửa chữa đang thiếu hàng (tùy chọn)</label><input id="s-ro" class="input" value="RO-Q1-2610-00077" placeholder="Mã lệnh ở chi nhánh nhận"><span class="field__hint">Nếu nhập, hàng đến sẽ được giữ chỗ cho lệnh này và thợ nhận thông báo.</span></div>
         </div>
-        <span class="g3-why">Nếu kho đi không phải chi nhánh của bạn, phiếu trở thành “Yêu cầu chuyển” gửi bên kho đi xác nhận (quy trình chưa được khách chốt).</span></section>
+        <span class="g3-why">Nếu kho đi không phải chi nhánh của bạn, bạn lập “Yêu cầu chuyển” (mã YK); bên gửi xác nhận thì hệ thống sinh phiếu CK mang mã chi nhánh gửi và liên kết YK.</span></section>
 
       <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Phụ tùng chuyển</h2><span class="table-meta">2 dòng · 6 đơn vị</span></div>
         <div class="table-scroll"><table class="table"><caption class="sr-only">Dòng phụ tùng chuyển kho với Khả dụng tại kho đi</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Khả dụng kho đi</th><th class="col-num">SL chuyển</th><th class="col-num">Còn lại sau chuyển</th><th class="col-num">Giá trị</th></tr></thead><tbody>
@@ -43,7 +43,8 @@
           <tfoot><tr><td colspan="4">Tổng giá trị chuyển</td><td class="col-num"><span data-g3-cost="8.160.000 ₫"></span></td></tr></tfoot></table></div>
         <div class="card__footer"><button class="btn btn--secondary" type="button" data-toast="info|Mở chọn phụ tùng|Prototype: thêm dòng bằng tìm tên, mã hoặc quét mã vạch."><svg class="icon"><use href="#plus"/></svg>Thêm phụ tùng</button><span class="t-body-sm text-secondary">Không chuyển quá Khả dụng kho đi (không để tồn âm).</span></div></section>
       <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Sau chuyển, Lốp Michelin tại Quận 7 còn Khả dụng 0, thấp hơn mức tối thiểu 4</span><span>Bạn vẫn gửi được; hệ thống sẽ cảnh báo đặt hàng bổ sung cho Quận 7.</span></div></div>
-      <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Phiếu cần duyệt trước khi gửi hàng</span><span>Giá trị <span data-g3-cost="8.160.000 ₫"></span> so với hạn mức cấp Quản lý chi nhánh <span class="g3-sample">5.000.000 ₫ · giá trị mẫu từ G4-APR-03</span>. Người duyệt: Chủ garage hoặc Quản lý vùng được giao.</span></div></div>
+      <div class="alert alert--warning" role="note"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>PT-0005 đang trong đợt kiểm kê <a href="g3-inv-16.html">KK-Q7-2610-00004</a>. Phiếu vẫn lập được; số chuyển sau thời điểm đếm hiện ở cột “Phát sinh trong lúc đếm” khi duyệt kiểm kê (không chặn).</span></div></div>
+      <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Phiếu cần duyệt trước khi gửi hàng</span><span data-g3-roles="CH QV QL KT">Giá trị (giá vốn) <span data-g3-cost="8.160.000 ₫"></span> so với hạn mức cấp Quản lý chi nhánh <span class="g3-sample">5.000.000 ₫ · giá trị mẫu từ G4-APR-03</span>. </span><span data-g3-hide="CH QV QL KT">Giá trị phiếu <strong>vượt hạn mức cấp bạn</strong> (hệ thống so sánh theo giá vốn, bạn không xem số giá vốn).</span><span> Người duyệt: Chủ garage hoặc Quản lý vùng được giao.</span></div></div>
     </div>
     <aside class="g3-side"><section class="card"><div class="card__body stack">
       <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-sto" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh gửi phiếu.">Gửi duyệt</button><button class="btn btn--secondary btn--block" type="button">Lưu nháp</button>

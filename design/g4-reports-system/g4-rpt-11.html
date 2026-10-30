@@ -10,13 +10,14 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="QL">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-RPT-11" data-menu="rpt" data-crumbs="Báo cáo|Xuất báo cáo" data-allow="CH QV QL KT"></script>
 <script>
 g4rPage({
   title: 'Xuất báo cáo',
   desc: 'Hộp thoại xuất dùng chung cho mọi báo cáo (mở bằng nút “Xuất báo cáo”). Trang này hiển thị hộp thoại ở nhiều trạng thái và lịch sử các lần xuất của tài khoản.',
   prio: 'P2 (Could)',
-  cfgScope: 'Theo báo cáo nguồn; ghi vào dòng đầu của tệp',
+  scopeText: 'theo báo cáo nguồn (ghi vào dòng đầu của tệp xuất)',
   period: 'Theo báo cáo nguồn',
   actions: g4rExportBtn('btn--primary'),
   states: ['data', 'loading', 'empty', 'error', 'denied'],
@@ -29,12 +30,12 @@ g4rPage({
   <div class="card__body row">
     <button class="btn btn--primary" data-open="dlg-export">Mở hộp thoại xuất</button>
     <button class="btn btn--secondary" data-g4r-toggle="dx-prog" aria-expanded="false">Bật / tắt: tệp lớn đang tạo ở nền</button>
-    <span class="t-body-sm text-secondary">Cột dữ liệu cá nhân chỉ tick được với Chủ garage và Kế toán (quyền xuất dữ liệu cá nhân); khi tick hiện cảnh báo, yêu cầu lý do và ghi nhật ký.</span>
+    <span class="t-body-sm text-secondary">Cột dữ liệu cá nhân chỉ tick được với Chủ garage và Kế toán (quyền xuất dữ liệu cá nhân); khi tick hiện cảnh báo, yêu cầu lý do, nhập lại mật khẩu và ghi nhật ký. Quản trị hệ thống không xuất báo cáo nghiệp vụ (chỉ xuất nhật ký ở G4-SYS-19).</span>
   </div>
 </section>
 
 <section class="table-wrap" aria-label="Lịch sử xuất tệp">
-  <div class="table-toolbar"><strong>Lịch sử xuất tệp của tôi</strong><span class="table-meta" style="margin-left:auto">Lưu 12 tháng (cấu hình)</span></div>
+  <div class="table-toolbar"><strong>Lịch sử xuất tệp của tôi</strong><span class="table-meta" style="margin-left:auto">Lịch sử giữ 12 tháng; tệp tải về giữ 7 ngày (hai thời hạn khác nhau, cấu hình)</span></div>
   <div class="table-wrap--responsive"><div class="table-scroll"><table class="table">
     <caption class="sr-only">Lịch sử xuất tệp</caption>
     <thead><tr><th>Thời điểm</th><th>Báo cáo</th><th>Phạm vi và kỳ</th><th>Định dạng</th><th>Dữ liệu cá nhân</th><th>Trạng thái</th><th><span class="sr-only">Tải</span></th></tr></thead>

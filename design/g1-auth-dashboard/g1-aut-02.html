@@ -14,7 +14,7 @@
 <div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
 
 <div class="g1-wrap">
-  <div data-g1-views="default:Nhập mã|error:Mã sai hoặc hết hạn|clock:Đồng hồ lệch|limit:Quá số lần thử|recovery:Mã khôi phục|email:Mã qua email|loading:Đang xác nhận" data-hint="Thử: nhập 000000 báo mã sai, giá trị khác tiếp tục sang chọn chi nhánh."></div>
+  <div data-g1-views="default:CH, QV, QL|kt:KT, AD (không tin cậy thiết bị)|optional:Vai trò tự bật MFA (có mã email)|error:Mã sai hoặc hết hạn|clock:Đồng hồ lệch|limit:Quá số lần thử|recovery:Mã khôi phục|email:Mã qua email (vai trò tự bật)|loading:Đang xác nhận" data-hint="Nhóm bắt buộc MFA (CH, QV, QL, KT, AD) không có mã dự phòng qua email. Thử: nhập 000000 báo mã sai, giá trị khác tiếp tục."></div>
 
   <main class="g1-auth-card" id="main" aria-labelledby="t">
     <div><h1 id="t">Xác thực hai lớp</h1>
@@ -23,7 +23,7 @@
 
     <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mã chưa đúng hoặc đã hết hạn</span><span>Mã trong ứng dụng đổi mỗi 30 giây. Đợi mã mới hiện ra rồi nhập lại. Bạn còn 3 lần thử.</span></div></div>
     <div class="alert alert--warning" role="alert" data-show="clock" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Mã vẫn chưa đúng? Giờ điện thoại có thể bị lệch</span><span>Vào Cài đặt, mục Ngày và giờ, bật “Tự động” rồi mở lại ứng dụng xác thực. Còn 1 lần thử.</span></div></div>
-    <div class="alert alert--danger" role="alert" data-show="limit" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Đã nhập sai quá số lần cho phép</span><span>Để bảo vệ tài khoản, hãy đợi <strong class="num" data-countdown="300" data-countdown-view="default">05:00</strong> rồi thử lại, hoặc dùng mã khôi phục. Nếu không còn mã, nhờ quản lý chi nhánh hoặc quản trị hệ thống đặt lại xác thực hai lớp.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="limit" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Đã nhập sai quá số lần cho phép</span><span>Để bảo vệ tài khoản, hãy đợi <strong class="num" data-countdown="300" data-countdown-view="default">05:00</strong> rồi thử lại, hoặc dùng mã khôi phục. Nếu không còn mã khôi phục: nhờ người có thẩm quyền đặt lại xác thực hai lớp (quản lý chi nhánh với nhân viên chi nhánh; chủ garage hoặc quản trị hệ thống với vai trò còn lại). Họ sẽ xác minh danh tính, việc này được ghi nhật ký và bạn nhận email thông báo.</span></div></div>
     <div class="alert alert--info" role="status" data-show="email" hidden><svg class="icon"><use href="#mail"/></svg><div class="alert__body"><span class="alert__title">Đã gửi mã tới ha•••@garage.vn</span><span>Mã có hiệu lực 5 phút. Chưa thấy thư? Kiểm tra mục thư rác. Gửi lại được sau <strong class="num" data-countdown="30" data-countdown-enable="#resend">00:30</strong><span data-cd-text></span>.</span></div></div>
 
     <form class="g1-form" data-g1-form novalidate data-route-field="otp" data-routes="000000=view:error;111111=view:clock;222222=view:limit;*=go:g1-aut-08.html" data-hide="recovery">
@@ -37,7 +37,7 @@
           <span class="field__error" id="otp-err" hidden></span>
           <span class="field__hint">Có thể dán cả mã 6 số vào ô đầu tiên.</span>
         </div>
-        <label class="check"><input type="checkbox" name="trust"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tin cậy thiết bị này trong 14 ngày<br><span class="t-body-sm text-secondary">Chỉ bật trên máy của riêng bạn. Thao tác nhạy cảm vẫn hỏi lại mật khẩu.</span></span></label>
+        <label class="check" data-hide="kt"><input type="checkbox" name="trust"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tin cậy thiết bị này trong 14 ngày<br><span class="t-body-sm text-secondary">Chỉ bật trên máy của riêng bạn. Thao tác nhạy cảm vẫn hỏi lại mật khẩu.</span></span></label>
       </fieldset>
       <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="limit" data-loading-in="loading"><span>Xác nhận</span><span class="btn__spinner" aria-hidden="true"></span></button>
     </form>
@@ -54,13 +54,15 @@
     <div class="g1-auth-links" style="flex-direction:column;align-items:stretch;gap:var(--space-3)">
       <button type="button" class="btn btn--ghost btn--block" data-g1-goto="recovery" data-hide="recovery">Dùng mã khôi phục</button>
       <button type="button" class="btn btn--ghost btn--block" data-g1-goto="default" data-show="recovery" hidden>Quay lại nhập mã 6 số</button>
-      <button type="button" class="btn btn--ghost btn--block" data-g1-goto="email" data-hide="email recovery">Gửi mã qua email thay thế</button>
+      <button type="button" class="btn btn--ghost btn--block" data-g1-goto="email" data-show="optional" hidden>Gửi mã qua email thay thế</button>
+      <p class="t-body-sm text-secondary g1-m0" data-hide="optional email recovery">Mất điện thoại và không còn mã khôi phục? Nhờ người có thẩm quyền đặt lại xác thực hai lớp (có xác minh danh tính).</p>
       <button type="button" class="btn btn--secondary btn--block" id="resend" data-show="email" disabled hidden data-toast="success|Đã gửi lại mã|Mã mới có hiệu lực 5 phút, mã cũ không dùng được nữa.">Gửi lại mã</button>
       <a href="g1-aut-01.html" class="t-body-sm" style="text-align:center">Quay lại đăng nhập</a>
     </div>
   </main>
   <footer class="g1-auth-foot"><span>GARAGE OS · Xác thực hai lớp bắt buộc cho Chủ garage, Quản lý vùng, Quản lý chi nhánh, Kế toán, Quản trị hệ thống.</span></footer>
 </div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
 <script src="../assets/app.js"></script>
 <script src="g1-auth.js"></script>
 </body>

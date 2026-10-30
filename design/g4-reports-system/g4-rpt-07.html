@@ -10,12 +10,14 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="QL">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-RPT-07" data-menu="rpt" data-crumbs="Báo cáo|Báo cáo khách hàng" data-allow="CH QV QL KT"></script>
 <script>
 g4rPage({
   title: 'Báo cáo khách hàng',
   desc: 'Khách mới, khách quay lại, giá trị và công nợ. SĐT, địa chỉ được che theo vai trò; tệp xuất mặc định đã che và cần quyền xuất riêng.',
   prio: 'P2+',
+  sample: 'Chi nhánh Quận 7',
   period: 'Tháng 10/2026 (01–30/10/2026)',
   actions: g4rExportBtn(),
   empty: { title: 'Chưa có khách hàng trong kỳ', text: 'Khách được ghi nhận khi tiếp nhận xe. Chọn kỳ khác để xem.' }
@@ -26,10 +28,10 @@ g4rFilters({ fields: ['period', 'service'], sel: { period: 2 }, chips: ['Tháng 
 <div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#eye-off"/></svg><div class="alert__body">Dữ liệu cá nhân trong báo cáo này được che theo vai trò <strong>(đổi vai trò ở menu tài khoản để xem thử)</strong>: Quản lý chi nhánh thấy đầy đủ trong chi nhánh mình; Chủ garage, Quản lý vùng bấm Hiện (có ghi nhật ký); Kế toán phải chọn lý do.</div></div>
 
 <section class="grid grid--4" aria-label="Chỉ số khách hàng">
-  <div class="card kpi"><span class="kpi__label">Khách mới</span><span class="kpi__value">148</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>4,2%</span>so với tháng 09 (142)</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026</span></div>
-  <div class="card kpi"><span class="kpi__label">Khách quay lại</span><span class="kpi__value">312</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>3,7%</span>so với tháng 09 (301)</span><span class="kpi__scope">01–30/10/2026</span></div>
-  <div class="card kpi"><span class="kpi__label">Tỷ lệ quay lại<span class="g4r-formula">Khách có từ 2 lần sửa trong 12 tháng ÷ khách trong kỳ</span></span><span class="kpi__value">67,8<span class="kpi__unit">%</span></span><span class="kpi__meta">Công thức do BA xác nhận</span><span class="kpi__scope">01–30/10/2026</span></div>
-  <div class="card kpi kpi--warning"><span class="kpi__label">Công nợ khách còn phải thu</span><span class="kpi__value">37,5<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">12 khách còn nợ</span><span class="kpi__scope">tại 09:15 30/10/2026</span></div>
+  <div class="card kpi"><span class="kpi__label">Khách mới<span class="g4r-formula">Khách có lệnh đầu tiên (toàn công ty) trong kỳ</span></span><span class="kpi__value">148</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>4,2%</span>so với tháng 09 (142)</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026</span></div>
+  <div class="card kpi"><span class="kpi__label">Khách quay lại<span class="g4r-formula">Có lệnh trong kỳ và có ≥ 1 lệnh Hoàn tất trước kỳ trong 12 tháng</span></span><span class="kpi__value">312</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>3,7%</span>so với tháng 09 (301)</span><span class="kpi__scope">01–30/10/2026</span></div>
+  <div class="card kpi"><span class="kpi__label">Tỷ lệ quay lại<span class="g4r-formula">Khách quay lại ÷ (khách mới + khách quay lại) = 312 ÷ 460</span></span><span class="kpi__value">67,8<span class="kpi__unit">%</span></span><span class="kpi__meta">Đơn vị là khách (người hoặc doanh nghiệp), không phải xe</span><span class="kpi__scope">01–30/10/2026</span></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label">Công nợ khách còn phải thu (gồm thuế)<span class="g4r-formula">Σ dư nợ lệnh của khách tại thời điểm xem</span></span><span class="kpi__value">37,5<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">12 khách còn nợ</span><span class="kpi__scope">tại 09:15 30/10/2026</span></div>
 </section>
 
 <section class="card g4r-chartcard" aria-label="Khách mới và quay lại"><script>

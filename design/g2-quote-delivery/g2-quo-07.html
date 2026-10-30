@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('CV', 'ro');
@@ -18,25 +19,26 @@ g2q.scope('hôm nay 30/10/2026', '09:15');
 </script>
 
 <div class="stack-6" id="px" data-variants="draft">
-  <script>g2q.proto([['draft','Cố vấn đang lập'],['waiting','Chờ khách duyệt'],['approved','Khách đã duyệt'],['rejected','Khách từ chối'],['proposal','Thợ xem đề xuất của mình'],['loading','Đang tải']], 'draft');</script>
+  <script>g2q.proto([['draft','Cố vấn đang lập'],['waiting','Chờ khách duyệt'],['approved','Khách đã duyệt'],['rejected','Khách từ chối'],['expired','Hết hạn'],['proposal','Thợ xem đề xuất của mình'],['loading','Đang tải']], 'draft');</script>
 
   <div data-v="loading" aria-busy="true" class="card" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--block"></span></div>
 
-  <div class="alert alert--warning" data-v="draft waiting proposal"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Hạng mục này đang bị khóa với thợ</span><span>Nút “Bắt đầu” của hạng mục bị khóa cho tới khi có bằng chứng khách duyệt. Số tiền chưa tính vào tổng lệnh.</span></div></div>
-  <div class="alert alert--success" role="status" data-v="approved"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Khách đã duyệt lúc 09:21</span><span>Hạng mục vào lệnh RO-Q7-2610-00128 (tổng lệnh tăng 324.000 ₫), phụ tùng được giữ chỗ, thợ nhận thông báo và nút Bắt đầu mở. <a href="../g2-workshop/g2-rec-04.html">Mở lệnh</a></span></div></div>
-  <div class="alert alert--danger" role="status" data-v="rejected"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Khách từ chối lúc 09:21</span><span>Hạng mục không vào lệnh và được lưu để nhắc lần sau (<a href="g2-quo-08.html">danh sách hạng mục lưu nhắc</a>). Thợ được thông báo, không làm hạng mục này.</span></div></div>
+  <div class="alert alert--warning" data-v="draft waiting proposal"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Hạng mục này đang bị khóa với thợ</span><span>Nút “Bắt đầu” của hạng mục bị khóa cho tới khi có bằng chứng khách duyệt. Số tiền chưa tính vào tổng lệnh. Hạn duyệt mặc định 24 giờ kể từ lúc gửi và không muộn hơn giờ hẹn giao (cấu hình): <strong>16:00 hôm nay</strong>. Phát sinh còn ở trạng thái Chờ khách duyệt thì lệnh <strong>không chuyển được sang Sẵn sàng bàn giao</strong>.</span></div></div>
+  <div class="alert alert--neutral" role="status" data-v="expired"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Hết hạn duyệt lúc 16:00</span><span>Khách chưa trả lời. Hạng mục giữ lại trong lệnh với tag “Hết hạn”, không tính tiền, <strong>ẩn khỏi việc của thợ</strong> và vào danh sách lưu nhắc. Cố vấn gia hạn được một lần có lý do, hoặc chốt không làm để lệnh sang được bước bàn giao.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-open="dlg-ext">Gia hạn có lý do</button><a class="btn btn--ghost btn--sm" href="g2-quo-08.html">Xem danh sách lưu nhắc</a></div></div></div>
+  <div class="alert alert--success" role="status" data-v="approved"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Khách đã duyệt lúc 09:21</span><span>Hạng mục phát sinh vào lệnh RO-Q7-2610-00128 (tổng lệnh tăng 324.000 ₫), phụ tùng được giữ chỗ, thợ nhận thông báo và nút Bắt đầu mở. <a href="../g2-workshop/g2-rec-04.html">Mở lệnh</a></span></div></div>
+  <div class="alert alert--danger" role="status" data-v="rejected"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Khách từ chối lúc 09:21</span><span>Dòng giữ lại trong lệnh với tag “Khách từ chối” ở nhóm “Không thực hiện”, không tính tiền, ẩn khỏi việc của thợ, và vào <a href="g2-quo-08.html">danh sách lưu nhắc</a>. Thợ được thông báo, không làm hạng mục này.</span></div></div>
 
   <div class="g2q-split" data-v="draft waiting approved rejected proposal">
     <div class="g2q-split__main">
-      <section class="card" aria-labelledby="h-de"><div class="card__header"><div><h2 class="card__title" id="h-de">Đề xuất của thợ</h2><div class="card__subtitle">Lê Minh Tuấn · 09:05 30/10/2026 · gắn với hạng mục 2 “Thay má phanh trước”</div></div><span class="badge badge--neutral">Chưa làm</span></div>
+      <section class="card" aria-labelledby="h-de"><div class="card__header"><div><h2 class="card__title" id="h-de">Đề xuất của thợ</h2><div class="card__subtitle">Lê Minh Tuấn · 09:05 30/10/2026 · phát hiện khi làm hạng mục 2 “Thay má phanh trước”</div></div><span class="badge badge--neutral">Chưa làm</span></div>
         <div class="card__body stack"><p>“Lọc gió điều hòa bẩn nhiều, có mùi, nên thay. Phát hiện khi tháo nắp hộc găng tay.”</p>
           <div class="g2q-photos"><div class="g2q-photo" style="width:112px;height:112px" role="img" aria-label="Ảnh 1: lọc gió bẩn"><svg class="icon"><use href="#camera"/></svg>Ảnh 1</div><div class="g2q-photo" style="width:112px;height:112px" role="img" aria-label="Ảnh 2: vị trí lọc gió"><svg class="icon"><use href="#camera"/></svg>Ảnh 2</div></div></div></section>
 
-      <section class="card" aria-labelledby="h-li" data-vx="proposal"><div class="card__header"><div><h2 class="card__title" id="h-li">Nội dung báo giá bổ sung</h2><div class="card__subtitle">Hạng mục phát sinh số 4 của lệnh · giá theo bảng giá tháng 10/2026</div></div></div>
+      <section class="card" aria-labelledby="h-li" data-vx="proposal"><div class="card__header"><div><h2 class="card__title" id="h-li">Nội dung báo giá bổ sung</h2><div class="card__subtitle">Hạng mục phát sinh P1 của lệnh (đánh số riêng, không trùng báo giá gốc) · giá theo bảng giá tháng 10/2026</div></div></div>
         <div class="table-scroll"><table class="table table--compact g2q-lines">
           <thead><tr><th>Dòng</th><th class="col-num">SL / giờ chuẩn</th><th class="col-num">Đơn giá</th><th class="col-num">Thành tiền</th></tr></thead>
           <tbody>
-            <tr class="g2q-group"><td colspan="3">4. Thay lọc gió điều hòa <span class="tag tag--info">Phát sinh</span> <span class="tag tag--neutral">Tùy chọn</span></td><td class="col-num">300.000 ₫</td></tr>
+            <tr class="g2q-group"><td colspan="3">P1. Thay lọc gió điều hòa <span class="tag tag--info">Phát sinh</span> <span class="tag tag--neutral">Tùy chọn</span></td><td class="col-num">300.000 ₫</td></tr>
             <tr><td><span class="cell-primary">Công thay lọc gió điều hòa</span></td><td class="col-num">0,3 giờ (giá gói)</td><td class="col-num"><span data-v="draft"><input class="input input--num" value="80.000" aria-label="Giá công"></span><span data-vx="draft">80.000</span></td><td class="col-num">80.000 ₫</td></tr>
             <tr><td><span class="cell-primary">Lọc gió điều hòa Vios</span><span class="cell-sub num">PT-0021</span><span class="g2q-stock">Khả dụng 14 · Đủ hàng · chưa giữ chỗ, giữ khi khách duyệt</span></td><td class="col-num">1</td><td class="col-num"><span data-v="draft"><input class="input input--num" value="220.000" aria-label="Giá lọc gió"></span><span data-vx="draft">220.000</span></td><td class="col-num">220.000 ₫</td></tr>
           </tbody>
@@ -53,10 +55,10 @@ g2q.scope('hôm nay 30/10/2026', '09:15');
 
     <aside class="g2q-split__side">
       <section class="card"><div class="card__header"><h2 class="card__title">Trạng thái liên quan</h2></div><div class="g2q-links">
-        <div class="g2q-links__item"><span><span class="g2q-links__type">Báo giá bổ sung</span><span class="code">BG-Q7-2610-00236</span></span><span><span class="badge badge--neutral" data-v="draft">Nháp</span><span class="badge badge--warning" data-v="waiting proposal">Chờ khách duyệt</span><span class="badge badge--success" data-v="approved">Duyệt toàn phần</span><span class="badge badge--danger" data-v="rejected">Từ chối</span></span></div>
-        <div class="g2q-links__item"><span><span class="g2q-links__type">Hạng mục 4 của lệnh</span>Thay lọc gió điều hòa</span><span><span class="badge badge--neutral" data-v="draft waiting proposal rejected">Chưa làm</span><span class="tag tag--warning" data-v="draft waiting proposal">Chờ khách duyệt (phát sinh)</span><span class="badge badge--neutral" data-v="approved">Chưa làm</span><span class="tag tag--success" data-v="approved">Đã duyệt</span></span></div>
+        <div class="g2q-links__item"><span><span class="g2q-links__type">Báo giá bổ sung</span><span class="code">BG-Q7-2610-00236</span></span><span><span class="badge badge--neutral" data-v="draft">Nháp</span><span class="badge badge--warning" data-v="waiting proposal">Chờ khách duyệt</span><span class="badge badge--success" data-v="approved">Duyệt toàn phần</span><span class="badge badge--danger" data-v="rejected">Từ chối</span><span class="badge badge--neutral" data-v="expired">Hết hạn</span></span></div>
+        <div class="g2q-links__item"><span><span class="g2q-links__type">Hạng mục phát sinh P1 của lệnh</span>Thay lọc gió điều hòa</span><span><span class="badge badge--neutral" data-v="draft waiting proposal rejected expired approved">Chưa làm</span><span class="tag tag--warning" data-v="draft waiting proposal">Chờ khách duyệt (phát sinh)</span><span class="tag tag--success" data-v="approved">Đã duyệt</span><span class="tag tag--danger" data-v="rejected">Khách từ chối</span><span class="tag tag--neutral" data-v="expired">Hết hạn</span></span></div>
         <a class="g2q-links__item" href="../g2-workshop/g2-rec-04.html"><span><span class="g2q-links__type">Lệnh sửa chữa</span><span class="code">RO-Q7-2610-00128</span></span><span class="badge badge--info">Đang sửa chữa</span></a>
-        <a class="g2q-links__item" href="g2-quo-03.html"><span><span class="g2q-links__type">Báo giá gốc</span><span class="code">BG-Q7-2610-00231-v2</span></span><span class="badge badge--warning">Duyệt một phần</span></a>
+        <a class="g2q-links__item" data-vx="proposal" href="g2-quo-03.html"><span><span class="g2q-links__type">Báo giá gốc</span><span class="code">BG-Q7-2610-00231-v2</span></span><span class="badge badge--warning">Duyệt một phần</span></a>
       </div></section>
     </aside>
   </div>

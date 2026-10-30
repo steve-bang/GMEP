@@ -10,12 +10,14 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="TK">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-RPT-06" data-menu="rpt" data-crumbs="Báo cáo|Báo cáo kho" data-allow="TK KT QL CH QV" data-own="TK"></script>
 <script>
 g4rPage({
   title: 'Báo cáo kho',
   desc: 'Tồn kho theo bốn số (thực tế, đang giữ, đang về, khả dụng), hàng dưới định mức, hàng chậm luân chuyển và chênh lệch kiểm kê. Cảnh báo so với tồn khả dụng, không so với tồn thực tế (RULE-008).',
   prio: 'P2',
+  sample: 'Kho Quận 7',
   period: 'Tồn tại 09:15 30/10/2026 · kiểm kê gần nhất 22/10/2026',
   actions: g4rExportBtn(),
   empty: { title: 'Kho chưa có mặt hàng nào', text: 'Nhập danh mục phụ tùng từ Excel (Cài đặt, Nhập dữ liệu) hoặc tạo phiếu nhập đầu tiên.', cta: '<a class="btn btn--primary" href="g4-sys-20.html">Nhập từ Excel</a>' }
@@ -23,14 +25,15 @@ g4rPage({
 g4rFilters({ fields: ['period'], sel: { period: 2 }, search: 'Tìm mã hoặc tên phụ tùng', searchTarget: 'tb-stock', chips: ['Tháng này (01–30/10/2026)'] });
 </script>
 
+<div class="alert alert--info g4r-tk-only" role="note"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Vai trò Thủ kho chỉ xem <strong>số lượng</strong> (bốn số tồn, định mức, chênh lệch kiểm kê theo số lượng). Giá trị tồn, giá vốn và hao hụt bằng tiền chỉ Chủ garage, Quản lý vùng, Quản lý chi nhánh và Kế toán xem (FRD §2).</div></div>
 <section class="grid grid--4" aria-label="Chỉ số kho">
-  <div class="card kpi"><span class="kpi__label">Giá trị tồn kho</span><span class="kpi__value">329,9<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Theo phương pháp giá vốn đang cấu hình</span><span class="kpi__scope">Kho Quận 7 · tại 09:15 30/10/2026</span></div>
+  <div class="card kpi g4r-money"><span class="kpi__label">Giá trị tồn kho</span><span class="kpi__value">329,9<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Theo phương pháp giá vốn đang cấu hình</span><span class="kpi__scope">Kho Quận 7 · tại 09:15 30/10/2026</span></div>
   <a class="card kpi kpi--warning" href="#low"><span class="kpi__label">Dưới định mức tối thiểu</span><span class="kpi__value">05</span><span class="kpi__meta">So với tồn khả dụng</span><span class="kpi__scope">Kho Quận 7 · 09:15</span></a>
   <div class="card kpi"><span class="kpi__label">Độ chính xác tồn<span class="g4r-formula">Mặt hàng không lệch ÷ mặt hàng kiểm kê</span></span><span class="kpi__value">96,2<span class="kpi__unit">%</span></span><span class="kpi__meta">Kiểm kê 22/10/2026: 4 mặt hàng lệch / 105</span><span class="kpi__scope">Kho Quận 7</span></div>
-  <div class="card kpi"><span class="kpi__label">Vòng quay tồn<span class="g4r-formula">Giá vốn xuất ÷ tồn bình quân</span></span><span class="kpi__value">0,9<span class="kpi__unit">lần/tháng</span></span><span class="kpi__meta">Hao hụt kỳ này: 1.240.000 ₫</span><span class="kpi__scope">01–30/10/2026</span></div>
+  <div class="card kpi g4r-money"><span class="kpi__label">Vòng quay tồn<span class="g4r-formula">Giá vốn hàng xuất trong kỳ ÷ giá trị tồn bình quân; số ngày tồn = số ngày kỳ ÷ vòng quay</span></span><span class="kpi__value">0,9<span class="kpi__unit">lần/tháng</span></span><span class="kpi__meta">≈ 33 ngày tồn · Hao hụt kỳ này: 1.240.000 ₫<span class="g4r-formula">Hao hụt = Σ (số lượng lệch âm × giá vốn); điều chỉnh dương không bù trừ</span></span><span class="kpi__scope">01–30/10/2026 · phương pháp giá vốn: bình quân gia quyền (cấu hình, chưa chốt)</span></div>
 </section>
 
-<section class="card g4r-chartcard" aria-label="Tồn theo nhóm"><script>
+<section class="card g4r-chartcard g4r-money" aria-label="Tồn theo nhóm"><script>
   g4rChart({ type: 'bar', title: 'Giá trị tồn kho theo nhóm hàng', unit: 'Đơn vị: triệu ₫ · Kho Quận 7 · tại 09:15 30/10/2026', short: 'triệu ₫',
     labels: ['Lốp', 'Dầu nhớt', 'Điện', 'Phanh', 'Lọc', 'Phụ kiện'], values: [148.9, 61.5, 41.3, 38.2, 22.4, 17.6],
     fmt: function (v) { return g4r.dec(v, 1); }, axisFmt: function (v) { return g4r.dec(v, 0); },
@@ -59,13 +62,13 @@ g4rFilters({ fields: ['period'], sel: { period: 2 }, search: 'Tìm mã hoặc t�
 
 <div class="g4r-split">
   <section class="table-wrap" aria-label="Hàng chậm luân chuyển">
-    <div class="table-toolbar"><strong>Hàng chậm luân chuyển</strong><span class="table-meta" style="margin-left:auto">Không xuất quá 90 ngày (ngưỡng cấu hình)</span></div>
+    <div class="table-toolbar"><strong>Hàng chậm luân chuyển</strong><span class="table-meta" style="margin-left:auto">Tồn &gt; 0 và không có lần xuất nào quá 90 ngày (ngưỡng cấu hình theo nhóm hàng)</span></div>
     <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Hàng chậm luân chuyển</caption>
-      <thead><tr><th>Phụ tùng</th><th class="col-num">Tồn</th><th class="col-num">Lần xuất cuối</th><th class="col-num">Giá trị</th></tr></thead>
+      <thead><tr><th>Phụ tùng</th><th class="col-num">Tồn</th><th class="col-num">Lần xuất cuối</th><th class="col-num g4r-money">Giá trị</th></tr></thead>
       <tbody>
-        <tr><td>Bố thắng sau Kia Morning</td><td class="col-num">6</td><td class="col-num">02/06/2026</td><td class="col-num">2.340.000 ₫</td></tr>
-        <tr><td>Bugi NGK Iridium</td><td class="col-num">24</td><td class="col-num">18/07/2026</td><td class="col-num">4.920.000 ₫</td></tr>
-        <tr><td>Nước làm mát (can 4 lít)</td><td class="col-num">11</td><td class="col-num">29/07/2026</td><td class="col-num">1.650.000 ₫</td></tr>
+        <tr><td>Bố thắng sau Kia Morning</td><td class="col-num">6</td><td class="col-num">02/06/2026</td><td class="col-num g4r-money">2.340.000 ₫</td></tr>
+        <tr><td>Bugi NGK Iridium</td><td class="col-num">24</td><td class="col-num">18/07/2026</td><td class="col-num g4r-money">4.920.000 ₫</td></tr>
+        <tr><td>Nước làm mát (can 4 lít)</td><td class="col-num">11</td><td class="col-num">29/07/2026</td><td class="col-num g4r-money">1.650.000 ₫</td></tr>
       </tbody></table></div>
   </section>
   <section class="table-wrap" aria-label="Chênh lệch kiểm kê">

@@ -78,7 +78,8 @@ g4rPage({
 
   var A = ['Xem', 'Tạo', 'Sửa', 'Lưu trữ', 'Duyệt', 'Từ chối', 'Xuất dữ liệu', 'Quản lý'];
   var sel = document.getElementById('sel-role'); sel.innerHTML = RN.map(function (n, i) { return '<option value="' + i + '"' + (i === 6 ? ' selected' : '') + '>' + n + '</option>'; }).join('');
-  var dirty = 0;
+  var USERS = [1, 2, 5, 7, 5, 22, 5, 5, 3, 1];
+  /* Xuất dữ liệu (ai=6) và Quản lý (ai=7) chỉ chọn được khi chức năng đó đã có quyền Xem (BA-06 câu 10.4) */
   function render() {
     var ri = +sel.value, h = '<thead><tr><th>Chức năng</th>' + A.map(function (a) { return '<th>' + a + '</th>'; }).join('') + '</tr></thead><tbody>';
     F.forEach(function (f, fi) {
@@ -86,17 +87,31 @@ g4rPage({
       var def = max.slice(); if (lv === 'S') def[3] = 0;
       h += '<tr><th scope="row" style="font-weight:500">' + f[0] + ' ' + cell(lv) + '</th>';
       A.forEach(function (a, ai) {
-        var can = max[ai] === 1 || ai >= 6, dis = !can && ai < 6, on = def[ai] === 1;
-        if (ai >= 6) { dis = false; on = false; }
-        h += '<td><label class="check" style="justify-content:center;min-height:44px"><input type="checkbox" data-pk' + (on ? ' checked' : '') + (dis ? ' disabled' : '') + ' aria-label="' + RN[ri] + ': ' + a + ' ' + f[0] + (dis ? ' (khóa, vượt ma trận chuẩn)' : '') + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>';
+        var allowed = ai < 6 ? max[ai] === 1 : lv !== '-', on = ai < 6 ? def[ai] === 1 : false, why = ai < 6 ? 'vượt ma trận chuẩn' : 'cần có quyền Xem trước';
+        h += '<td><label class="check" style="justify-content:center;min-height:44px"><input type="checkbox" data-pk data-ai="' + ai + '" data-orig="' + (on ? 1 : 0) + '"' + (on ? ' checked' : '') + (allowed ? '' : ' disabled data-lk') + ' aria-label="' + RN[ri] + ': ' + a + ' ' + f[0] + (allowed ? '' : ' (khóa, ' + why + ')') + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>';
       });
       h += '</tr>';
     });
-    document.getElementById('act').innerHTML = h + '</tbody>'; dirty = 0; upd(); lock();
+    document.getElementById('act').innerHTML = h + '</tbody>'; upd(); lock();
+    var ir = document.getElementById('im-role'); if (ir) ir.textContent = RN[ri];
   }
-  function upd() { var d = document.getElementById('dirty'); d.classList.toggle('is-on', dirty > 0); document.getElementById('dirty-n').textContent = dirty; }
+  /* số thay đổi = số ô khác giá trị đã lưu (bật rồi tắt lại thì không tính) */
+  function upd() {
+    var n = 0; document.querySelectorAll('#act [data-pk]').forEach(function (x) { if ((x.checked ? 1 : 0) !== +x.getAttribute('data-orig')) n++; });
+    var d = document.getElementById('dirty'); d.classList.toggle('is-on', n > 0); document.getElementById('dirty-n').textContent = n;
+    var im = document.getElementById('im-n'); if (im) im.textContent = n;
+    var iu = document.getElementById('im-users'); if (iu) iu.textContent = USERS[+sel.value];
+    var ir = document.getElementById('im-role'); if (ir) ir.textContent = RN[+sel.value];
+  }
   sel.addEventListener('change', render); render();
-  document.getElementById('act').addEventListener('change', function (e) { if (e.target.matches('[data-pk]')) { dirty++; upd(); } });
+  document.getElementById('act').addEventListener('change', function (e) {
+    var x = e.target; if (!x.matches('[data-pk]')) return;
+    if (x.getAttribute('data-ai') === '0') {   /* bỏ quyền Xem thì Xuất và Quản lý cũng bị khóa và tắt */
+      var tr = x.closest('tr'); [6, 7].forEach(function (ai) { var o = tr.querySelector('[data-ai="' + ai + '"]'); if (!o) return; if (!x.checked) { o.checked = false; o.disabled = true; o.setAttribute('data-lk', ''); } else if (!tr.querySelector('[data-ai="0"]').disabled) { o.disabled = false; o.removeAttribute('data-lk'); } });
+    }
+    upd();
+  });
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-open="dlg-impact"]')) upd(); });
 
   var P = [['CH', 'reveal', 'reveal', 'reveal'], ['QV', 'reveal', 'reveal', 'reveal'], ['QL', 'full', 'full', 'full'], ['CV', 'full', 'full', 'full'], ['QĐ', 'full', 'full', 'full'], ['TH', 'hidden', 'hidden', 'hidden'], ['TK', 'masked', 'masked', 'hidden'], ['TN', 'full', 'full', 'full'], ['KT', 'why', 'why', 'why'], ['AD', 'hidden', 'hidden', 'hidden']];
   var O = [['full', 'Đầy đủ'], ['reveal', 'Che, có nút Hiện'], ['why', 'Che, Hiện phải chọn lý do'], ['masked', 'Che, không có Hiện'], ['hidden', 'Không hiển thị']];
@@ -105,13 +120,15 @@ g4rPage({
     p += '<tr><th scope="row" style="font-weight:500">' + RN[R.indexOf(r[0])] + (r[0] === 'AD' ? ' <span class="tag tag--neutral">Khóa theo luật</span>' : '') + '</th>';
     for (var k = 1; k <= 3; k++) {
       var id = 'pii' + i + k;
-      p += '<td><label class="sr-only" for="' + id + '">' + ['SĐT', 'Email', 'Địa chỉ'][k - 1] + ' của ' + RN[R.indexOf(r[0])] + '</label><select class="select" id="' + id + '"' + (r[0] === 'AD' ? ' disabled aria-describedby="ad-why"' : '') + '>' + O.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === r[k] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></td>';
+      /* trần theo luật: mức không nâng được cho vai trò (AD luôn Không hiển thị; TH chỉ tên + biển số; TK không xem địa chỉ và không có Hiện; KT không được Đầy đủ) */
+      var off = r[0] === 'TH' ? ['full', 'reveal', 'why', 'masked'] : r[0] === 'TK' ? (k === 3 ? ['full', 'reveal', 'why', 'masked'] : ['full', 'reveal', 'why']) : r[0] === 'KT' ? ['full'] : [];
+      p += '<td><label class="sr-only" for="' + id + '">' + ['SĐT', 'Email', 'Địa chỉ'][k - 1] + ' của ' + RN[R.indexOf(r[0])] + '</label><select class="select" id="' + id + '"' + (r[0] === 'AD' ? ' disabled aria-describedby="ad-why"' : '') + '>' + O.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === r[k] ? ' selected' : '') + (off.indexOf(o[0]) >= 0 || (r[0] === 'AD' && o[0] !== 'hidden') ? ' disabled' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></td>';
     }
     p += '</tr>';
   });
   document.getElementById('pii').innerHTML = p + '</tbody>';
   /* Chủ garage chỉ duyệt: khóa điều khiển */
-  function lock() { var ch = document.body.getAttribute('data-role') === 'CH'; document.querySelectorAll('#roleapp select, #roleapp input').forEach(function (x) { if (!x.hasAttribute('data-ad')) x.disabled = ch || x.closest('tr') && x.closest('tr').innerHTML.indexOf('Khóa theo luật') > -1 || (x.hasAttribute('aria-label') && /khóa, vượt/.test(x.getAttribute('aria-label'))); }); }
+  function lock() { var ch = document.body.getAttribute('data-role') === 'CH'; document.querySelectorAll('#roleapp select, #roleapp input').forEach(function (x) { if (!x.hasAttribute('data-ad')) x.disabled = ch || x.hasAttribute('data-lk') || (x.closest('tr') && x.closest('tr').innerHTML.indexOf('Khóa theo luật') > -1); }); }
   new MutationObserver(lock).observe(document.body, { attributes: true, attributeFilter: ['data-role'] }); lock();
 })();
 </script>

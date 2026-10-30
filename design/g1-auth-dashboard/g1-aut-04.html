@@ -36,9 +36,9 @@
       <div class="g1-auth-links"><a href="g1-aut-01.html">Quay lại đăng nhập</a><span class="t-body-sm text-secondary"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</span></div>
     </form>
 
-    <div data-show="sent" hidden>
+    <div data-show="sent" hidden role="status">
       <div class="state" style="padding:0"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#mail"/></svg></div>
-        <h2 class="state__title">Kiểm tra email của bạn</h2>
+        <h1 class="state__title" tabindex="-1" data-focus-in="sent">Kiểm tra email của bạn</h1>
         <p class="state__text">Nếu thông tin vừa nhập khớp một tài khoản, hướng dẫn đặt lại mật khẩu đã được gửi. Liên kết có hiệu lực 30 phút và chỉ dùng một lần.</p>
         <p class="state__text">Chưa thấy email? Xem mục thư rác. Có thể gửi lại sau <strong class="num" data-countdown="60" data-countdown-enable="#again">01:00</strong>.</p>
         <div class="state__actions"><button type="button" class="btn btn--secondary" id="again" disabled data-toast="success|Đã gửi lại|Nếu tài khoản tồn tại, liên kết mới đã được gửi.">Gửi lại</button><a class="btn btn--ghost" href="g1-aut-01.html">Quay lại đăng nhập</a></div>
@@ -48,6 +48,7 @@
   </main>
   <footer class="g1-auth-foot"><span>GARAGE OS · Cần hỗ trợ? Liên hệ quản lý chi nhánh của bạn.</span></footer>
 </div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
 <script src="../assets/app.js"></script>
 <script src="g1-auth.js"></script>
 </body>

@@ -10,36 +10,41 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="CH">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-RPT-08" data-menu="rpt" data-crumbs="Báo cáo|Chỉ số bổ sung" data-allow="CH QV QL KT"></script>
 <script>
 g4rPage({
   title: 'Chỉ số bổ sung',
-  desc: 'Các chỉ số quản trị thêm: mỗi chỉ số ghi công thức cạnh tên và bấm vào được danh sách chứng từ cấu thành (FR-RPT-011, 016).',
+  desc: 'Các chỉ số quản trị thêm: mỗi chỉ số ghi công thức dưới tên và bấm vào được danh sách chứng từ cấu thành (FR-RPT-011, 016). Công thức là định nghĩa mặc định, tham số cấu hình được.',
   prio: 'P2+',
-  period: 'Tháng 10/2026 (01–30/10/2026)',
+  sample: 'Chi nhánh Quận 7',
+  period: 'Tháng 10/2026 (01–30/10/2026) · gồm 1 ngày chưa chốt',
   actions: g4rExportBtn(),
   states: ['data', 'loading', 'empty', 'error', 'denied'],
   empty: { title: 'Chưa đủ dữ liệu để tính chỉ số', text: 'Các chỉ số cần ít nhất một lệnh hoàn tất trong kỳ.' }
 });
-g4rFilters({ fields: ['period', 'service'], sel: { period: 2 }, chips: ['Tháng này (01–30/10/2026)'] });
+g4rFilters({ fields: ['period', 'service'], sel: { period: 2 }, chips: ['Tháng này (01–30/10/2026)', 'Không gồm lệnh bảo hành'] });
 </script>
 
 <section aria-label="Chỉ số" id="metrics" class="grid grid--3"></section>
 <script>
 (function () {
+  /* [tên, giá trị, đơn vị, hướng(up|bad-up|good-down|flat), delta, so sánh, công thức, lớp thẻ, ghi chú công thức] */
   var M = [
-    ['Giá trị trung bình mỗi lệnh', '2.861.682', '₫', 'up', '1,7%', 'so với tháng 09', 'Doanh thu ÷ số lệnh hoàn tất trong kỳ (612.400.000 ₫ ÷ 214 lệnh).', ''],
-    ['Tỷ lệ báo giá được duyệt', '84,6', '%', 'up', '2,1 điểm', 'so với tháng 09', 'Báo giá có trạng thái Duyệt toàn phần hoặc Duyệt một phần ÷ báo giá đã gửi và có kết quả. Báo giá còn Chờ khách duyệt hoặc Nháp không tính.', ''],
-    ['Tỷ lệ lệnh làm lại (trả lại sau QC)', '2,1', '%', 'good-down', '0,4 điểm', 'thấp hơn tháng 09', 'Hạng mục có trạng thái Trả lại ÷ tổng hạng mục hoàn thành. Thấp hơn là tốt.', 'kpi--warning'],
-    ['Tỷ trọng doanh thu nhân công', '46,0', '%', 'flat', '0,0', 'như tháng 09', 'Doanh thu dòng công ÷ tổng doanh thu. Phần còn lại là phụ tùng và dịch vụ khác.', ''],
-    ['Số ngày công nợ bình quân (DSO)', '19', 'ngày', 'bad-up', '3 ngày', 'cao hơn tháng 09', 'Công nợ phải thu cuối kỳ ÷ doanh thu kỳ × 30 ngày. Cao hơn là xấu: tiền về chậm hơn.', 'kpi--danger'],
-    ['Tỷ lệ lệnh có hóa đơn đúng ngày', '96,3', '%', 'up', '1,0 điểm', 'so với tháng 09', 'Lệnh hoàn tất có hóa đơn hợp lệ trong ngày hoàn tất ÷ lệnh hoàn tất (FR-EIN-009).', '']
+    ['Giá trị trung bình mỗi lệnh hoàn tất (chưa thuế)', '2.958.454', '₫', 'up', '2,0%', 'so với 01–30/09', 'Doanh thu chưa thuế ÷ số lệnh hoàn tất (612.400.000 ₫ ÷ 207 lệnh). Loại lệnh Đã hủy và lệnh bảo hành. Cùng công thức với So sánh chi nhánh.', ''],
+    ['Tỷ lệ báo giá được duyệt', '85,6', '%', 'up', '2,1 điểm', 'so với 01–30/09', 'Báo giá (phiên bản cuối) Duyệt toàn phần hoặc Duyệt một phần ÷ báo giá đã gửi có kết quả (Duyệt toàn phần + Duyệt một phần + Từ chối) = 173 ÷ 202. Không tính Nháp, Chờ khách duyệt, Hết hạn.', ''],
+    ['Tỷ lệ giá trị báo giá được duyệt', '81,2', '%', 'up', '1,5 điểm', 'so với 01–30/09', 'Σ giá trị dòng được duyệt ÷ Σ giá trị báo giá có kết quả. Bổ sung cho tỷ lệ theo số báo giá vì có duyệt một phần.', ''],
+    ['Tỷ lệ hạng mục QC trả lại', '2,1', '%', 'good-down', '0,4 điểm', 'thấp hơn 01–30/09', 'Số hạng mục có trạng thái Trả lại ít nhất một lần ÷ số hạng mục Hoàn thành trong kỳ. Đơn vị là hạng mục, không phải lệnh. Thấp hơn là tốt.', 'kpi--warning'],
+    ['Tỷ lệ quay lại sửa lỗi (30 ngày)', '1,4', '%', 'good-down', '0,2 điểm', 'thấp hơn 01–30/09', 'Số lệnh bảo hành / làm lại cùng xe, cùng hạng mục mở trong 30 ngày sau Hoàn tất ÷ số lệnh Hoàn tất. Số ngày N là cấu hình. Thấp hơn là tốt.', ''],
+    ['Tỷ trọng doanh thu nhân công', '46,0', '%', 'flat', '0,0', 'như 01–30/09', 'Doanh thu dòng công ÷ tổng doanh thu, cùng cơ sở chưa thuế. Phần còn lại là phụ tùng và dịch vụ khác.', ''],
+    ['Số ngày thu tiền bình quân (DSO)', '1,7', 'ngày', 'bad-up', '1,4 ngày', 'cao hơn 01–30/09', 'Công nợ phải thu cuối kỳ (gồm thuế) ÷ doanh thu gồm thuế trong kỳ × số ngày thực của kỳ = 37.500.000 ÷ 673.640.000 × 30. Chỉ hiển thị cho kỳ từ 1 tháng; cao hơn là xấu. Ngưỡng cảnh báo cấu hình.', 'kpi--danger'],
+    ['Lệnh có hóa đơn đúng ngày', '96,3', '%', 'up', '1,0 điểm', 'so với 01–30/09', 'Lệnh Hoàn tất có hóa đơn Đã xuất / Thay thế / Điều chỉnh (không tính Hủy) với ngày lập ≤ ngày Hoàn tất ÷ số lệnh Hoàn tất (FR-EIN-009). Chính sách lệnh khách không lấy hóa đơn chờ kế toán.', '']
   ];
   var h = '';
   M.forEach(function (m, i) {
     var up = (m[3] === 'up' || m[3] === 'good-down') ? 'up' : m[3] === 'flat' ? 'flat' : 'down', ic = m[3] === 'flat' ? 'minus' : ((m[3] === 'up' || m[3] === 'bad-up') ? 'arrow-up' : 'arrow-down');
     h += '<div class="card kpi ' + m[7] + '"><span class="kpi__label">' + m[0] + '</span><span class="kpi__value">' + m[1] + '<span class="kpi__unit">' + m[2] + '</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--' + up + '"><svg class="icon icon--sm" aria-hidden="true"><use href="#' + ic + '"/></svg>' + m[4] + '</span>' + m[5] + '</span>' +
-      '<span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026 · 09:15</span>' +
+      '<span class="kpi__scope">Dữ liệu mẫu Quận 7 · 01–30/10/2026 · 09:15</span>' +
       '<div class="row"><button class="btn btn--ghost btn--sm" data-g4r-toggle="f' + i + '" aria-expanded="false"><svg class="icon icon--sm"><use href="#info"/></svg>Cách tính</button><a class="btn btn--ghost btn--sm" href="g4-rpt-10.html">Xem chứng từ<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>' +
       '<p class="t-body-sm text-secondary" id="f' + i + '" hidden style="margin:0">' + m[6] + '</p></div>';
   });
@@ -48,10 +53,10 @@ g4rFilters({ fields: ['period', 'service'], sel: { period: 2 }, chips: ['Tháng 
 </script>
 
 <section class="card g4r-chartcard" aria-label="Kết quả báo giá"><script>
-  g4rChart({ type: 'stack', title: 'Kết quả báo giá đã gửi theo chi nhánh', unit: 'Đơn vị: báo giá · 01–30/10/2026',
-    note: 'Chỉ tính báo giá đã có kết quả. Báo giá Hết hạn xử lý riêng, không tính vào tỷ lệ duyệt.',
+  g4rChart({ type: 'stack', title: 'Kết quả báo giá đã gửi theo chi nhánh', unit: 'Đơn vị: báo giá (phiên bản cuối) · 01–30/10/2026',
+    note: 'Tỷ lệ được duyệt chỉ tính báo giá có kết quả; Hết hạn hiển thị riêng, không tính vào mẫu số. Cùng một kết quả luôn cùng một màu ở mọi biểu đồ; màu không mang nghĩa tốt/xấu.',
     series: ['Duyệt toàn phần', 'Duyệt một phần', 'Từ chối', 'Hết hạn'],
-    rows: [{ label: 'Chi nhánh Quận 7', parts: [142, 31, 29, 8] }, { label: 'Chi nhánh Quận 1', parts: [128, 26, 27, 7] }, { label: 'Chi nhánh Thủ Đức', parts: [101, 22, 24, 6] }, { label: 'Chi nhánh Đà Nẵng', parts: [79, 17, 17, 5] }, { label: 'Chi nhánh Biên Hòa', parts: [64, 14, 17, 4] }] });
+    rows: [{ label: 'Chi nhánh Quận 7', parts: [142, 31, 29, 8] }, { label: 'Chi nhánh Quận 1', parts: [128, 26, 27, 7], cls: 'g4r-notq7' }, { label: 'Chi nhánh Thủ Đức', parts: [101, 22, 24, 6], cls: 'g4r-notq7' }, { label: 'Chi nhánh Đà Nẵng', parts: [79, 17, 17, 5], cls: 'g4r-notq7' }, { label: 'Chi nhánh Biên Hòa', parts: [64, 14, 17, 4], cls: 'g4r-notq7' }] });
 </script></section>
 
 <script>g4rEnd()</script>

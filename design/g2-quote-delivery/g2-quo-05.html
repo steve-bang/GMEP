@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('CV', 'ro');
@@ -17,70 +18,74 @@ g2q.header({ crumbs: [['Phiếu sửa chữa', 'g2-quo-01.html'], ['Báo giá', 
   actions: '<button class="btn btn--primary" data-open="dlg-approve">' + g2q.ic('check') + 'Mở hộp thoại duyệt</button>' });
 g2q.scope('báo giá tạo 30/10/2026 08:10');
 </script>
-<section class="card"><div class="card__header"><div><h2 class="card__title"><span class="code">BG-Q7-2610-00231-v2</span> <span class="badge badge--warning">Chờ khách duyệt</span></h2><div class="card__subtitle">51H-123.45 · Nguyễn Văn An · Tổng báo giá 3.893.400 ₫ · Hiệu lực đến 06/11/2026</div></div><a class="btn btn--secondary btn--sm" href="g2-quo-03.html?v=sent">Quay lại chi tiết</a></div></section>
+<section class="card"><div class="card__header"><div><h2 class="card__title"><span class="code">BG-Q7-2610-00231-v2</span> <span class="badge badge--warning">Chờ khách duyệt</span></h2><div class="card__subtitle">51H-123.45 · Nguyễn Văn An (khách cá nhân) · Tổng báo giá 3.893.400 ₫ · Hiệu lực đến 06/11/2026</div></div><a class="btn btn--secondary btn--sm" href="g2-quo-03.html?v=sent">Quay lại chi tiết</a></div></section>
 <script>g2q.end();</script>
 
 <div class="overlay" id="dlg-approve" role="dialog" aria-modal="true" aria-labelledby="da-t" data-variants="s1" data-autoopen>
   <div class="dialog g2q-dlg-lg">
     <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#clipboard-check"/></svg></div>
-      <div><h2 class="dialog__title" id="da-t">Ghi nhận khách duyệt tại quầy</h2><div class="g2q-note"><span class="code">BG-Q7-2610-00231-v2</span> · Nguyễn Văn An · 51H-123.45 · <strong data-v="s1">Bước 1/3: chọn hạng mục</strong><strong data-v="s2">Bước 2/3: cách khách xác nhận</strong><strong data-v="s3">Bước 3/3: xem lại và xác nhận</strong><strong data-v="reject">Từ chối toàn bộ</strong><strong data-v="done">Hoàn tất</strong></div></div>
+      <div><h2 class="dialog__title" id="da-t">Ghi nhận khách duyệt tại quầy</h2><div class="g2q-note"><span class="code">BG-Q7-2610-00231-v2</span> · Nguyễn Văn An · 51H-123.45 · <strong data-v="s1 lockreq">Bước 1/3: chọn hạng mục</strong><strong data-v="s2">Bước 2/3: cách khách xác nhận</strong><strong data-v="s3">Bước 3/3: xem lại và xác nhận</strong><strong data-v="reject">Từ chối toàn bộ báo giá</strong><strong data-v="done">Hoàn tất</strong></div></div>
       <button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
 
     <div class="dialog__body">
-      <script>g2q.proto([['s1','Bước 1'],['s2','Bước 2'],['s3','Bước 3'],['reject','Từ chối toàn bộ'],['done','Hoàn tất'],['superseded','Phiên bản đã bị thay'],['expired','Báo giá hết hạn']], 's1', 'Xem thử (chỉ prototype)', 'dlg-approve');</script>
+      <script>g2q.proto([['s1','Bước 1'],['lockreq','Bước 1 (cấu hình khóa hạng mục bắt buộc)'],['s2','Bước 2'],['s3','Bước 3'],['reject','Từ chối toàn bộ'],['done','Hoàn tất'],['superseded','Phiên bản đã bị thay'],['expired','Báo giá hết hạn']], 's1', 'Xem thử (chỉ prototype)', 'dlg-approve');</script>
 
       <div class="alert alert--danger" role="alert" data-v="superseded"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Không thể duyệt phiên bản v2</span><span>Báo giá đã có phiên bản mới v3 (gửi 09:10). Chỉ phiên bản mới nhất được duyệt. Mở v3 để ghi nhận.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g2-quo-03.html">Mở chi tiết báo giá</a></div></div></div>
-      <div class="alert alert--neutral" role="alert" data-v="expired"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Báo giá đã hết hạn</span><span>Hết hạn 06/11/2026 nên không ghi nhận duyệt được. Tạo phiên bản mới với giá cập nhật.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g2-quo-02.html">Tạo phiên bản mới</a></div></div></div>
+      <div class="alert alert--neutral" role="alert" data-v="expired"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Báo giá đã hết hạn</span><span>Hết hạn 06/11/2026 nên không ghi nhận duyệt được. Tạo phiên bản mới với giá cập nhật (chưa có hạng mục nào được duyệt nên được phép).</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g2-quo-02.html">Tạo phiên bản mới</a></div></div></div>
 
       <!-- Bước 1 -->
-      <div data-v="s1" class="stack-2">
-        <p class="t-body-sm">Tích hạng mục khách <strong>đồng ý</strong>. Hạng mục không tích sẽ được lưu để nhắc lần sau. Hạng mục bắt buộc không bỏ từng phần được; nếu khách không đồng ý, chọn “Từ chối toàn bộ”.</p>
+      <div data-v="s1 lockreq" class="stack-2">
+        <p class="t-body-sm">Tích hạng mục khách <strong>đồng ý</strong>; mỗi hạng mục gồm công và phụ tùng đi kèm, được duyệt hoặc từ chối cùng nhau. “Bắt buộc” là khuyến nghị an toàn của garage, <strong>khách vẫn có quyền không đồng ý</strong>: hệ thống sẽ cảnh báo và ghi lý do. Hạng mục tùy chọn chỉ tick sẵn khi khách đã yêu cầu. Giá hiển thị đã gồm thuế (khách cá nhân; chế độ hiển thị theo cấu hình).</p>
+        <div class="alert alert--info" data-v="lockreq"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Cấu hình “Cho phép khách bỏ hạng mục bắt buộc” đang <strong>Tắt</strong> cho chi nhánh này: ô tick của hạng mục bắt buộc bị khóa. Khách không đồng ý thì chọn “Từ chối toàn bộ” hoặc nhờ Quản lý chi nhánh xử lý.</span></div></div>
         <div class="approval" style="border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden">
-          <label class="approval__line" style="cursor:default"><span class="check"><input type="checkbox" class="js-q" data-amt="1585000" checked disabled aria-describedby="req-why"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">1. Thay dầu động cơ và lọc dầu</span> <span class="tag tag--neutral">Bắt buộc</span><span class="approval__sub" style="display:block">Công 150.000 · dầu nhớt 1.250.000 · lọc dầu 185.000</span></span><span class="num" style="font-weight:600">1.585.000 ₫</span></label>
-          <label class="approval__line" style="cursor:default"><span class="check"><input type="checkbox" class="js-q" data-amt="1070000" checked disabled aria-describedby="req-why"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">2. Thay má phanh trước</span> <span class="tag tag--neutral">Bắt buộc</span><span class="approval__sub" style="display:block">Công 450.000 · má phanh Vios 620.000</span></span><span class="num" style="font-weight:600">1.070.000 ₫</span></label>
-          <label class="approval__line"><span class="check"><input type="checkbox" class="js-q" data-amt="300000" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">3. Cân chỉnh góc đặt bánh xe</span> <span class="tag tag--neutral">Tùy chọn</span><span class="approval__sub" style="display:block">Công 1,0 giờ 300.000</span></span><span class="num" style="font-weight:600">300.000 ₫</span></label>
-          <label class="approval__line"><span class="check"><input type="checkbox" class="js-q" data-amt="650000"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">4. Vệ sinh buồng đốt</span> <span class="tag tag--neutral">Tùy chọn</span><span class="approval__sub" style="display:block">Công 400.000 · dung dịch 250.000</span></span><span class="num" style="font-weight:600">650.000 ₫</span></label>
-          <div class="approval__total"><span>Được duyệt: <strong id="t-cnt">3</strong>/4 hạng mục · trước thuế <span id="t-pre">2.955.000 ₫</span> · thuế 8% (số mẫu) <span id="t-vat">236.400 ₫</span></span><strong id="t-tot">3.191.400 ₫</strong></div>
+          <label class="approval__line"><span class="check"><input type="checkbox" class="js-q js-req" data-amt="1585000" data-name="1. Thay dầu động cơ và lọc dầu" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">1. Thay dầu động cơ và lọc dầu</span> <span class="tag tag--neutral">Bắt buộc</span><span class="approval__sub" style="display:block">Công 150.000 · dầu nhớt 1.250.000 · lọc dầu 185.000 (chưa thuế)</span></span><span class="num" style="font-weight:600">1.711.800 ₫</span></label>
+          <label class="approval__line"><span class="check"><input type="checkbox" class="js-q js-req" data-amt="1070000" data-name="2. Thay má phanh trước" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">2. Thay má phanh trước</span> <span class="tag tag--neutral">Bắt buộc</span><span class="approval__sub" style="display:block">Công 450.000 · má phanh Vios 620.000 (chưa thuế)</span></span><span class="num" style="font-weight:600">1.155.600 ₫</span></label>
+          <label class="approval__line"><span class="check"><input type="checkbox" class="js-q" data-amt="300000" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">3. Cân chỉnh góc đặt bánh xe</span> <span class="tag tag--neutral">Tùy chọn</span> <span class="tag tag--info">Khách đã yêu cầu</span><span class="approval__sub" style="display:block">Công 1,0 giờ 300.000 (chưa thuế)</span></span><span class="num" style="font-weight:600">324.000 ₫</span></label>
+          <label class="approval__line"><span class="check"><input type="checkbox" class="js-q" data-amt="650000"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></span><span><span class="approval__name">4. Vệ sinh buồng đốt</span> <span class="tag tag--neutral">Tùy chọn</span><span class="approval__sub" style="display:block">Công 400.000 · dung dịch 250.000 (chưa thuế)</span></span><span class="num" style="font-weight:600">702.000 ₫</span></label>
+          <div class="approval__total"><span>Được duyệt: <strong id="t-cnt">3</strong>/4 hạng mục · trong đó thuế GTGT 8% (số mẫu) <span id="t-vat">236.400 ₫</span></span><strong id="t-tot">3.191.400 ₫</strong></div>
         </div>
-        <p class="g2q-note" id="req-why">Tổng báo giá 3.893.400 ₫. Dòng khách không duyệt chỉ để nhắc lần sau, không vào lệnh.</p>
+        <div class="alert alert--warning" id="req-warn" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Khách không đồng ý hạng mục bắt buộc: <span id="req-names"></span></span><span>Đây là hạng mục garage khuyến nghị làm vì an toàn/kỹ thuật. Đã giải thích rủi ro cho khách và ghi lý do bên dưới; hệ thống ghi “Từ chối hạng mục bắt buộc” vào bằng chứng và lưu nhắc lần sau với cờ <span class="tag tag--danger">An toàn</span>.</span>
+          <div class="field" style="margin-top:8px"><label class="field__label" for="req-reason">Lý do khách nêu <span class="field__req">*</span></label><select id="req-reason" class="select"><option value="">Chọn lý do</option><option>Để lần sau</option><option>Giá cao hơn dự kiến</option><option>Đã sửa ở nơi khác</option><option>Lý do khác</option></select></div></div></div>
+        <p class="g2q-note" id="req-why">Tổng báo giá 3.893.400 ₫ (đã gồm thuế). Dòng khách không duyệt chỉ để nhắc lần sau, không vào lệnh.</p>
       </div>
 
       <!-- Bước 2 -->
       <div data-v="s2" class="stack-2">
-        <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Tổng được duyệt <strong class="num" id="t-tot2">3.191.400 ₫</strong> (3/4 hạng mục). Chọn cách khách xác nhận để lưu làm bằng chứng.</span></div></div>
+        <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Tổng được duyệt <strong class="num" id="t-tot2">3.191.400 ₫</strong> (<span id="t-cnt2">3</span>/4 hạng mục). Chọn cách khách xác nhận để lưu làm bằng chứng.</span></div></div>
         <div class="g2q-choices" data-variants="sign" data-key="m" id="methods">
-          <label class="g2q-choice"><input type="radio" name="m" checked data-set="sign"><span class="radio__box"></span><span><span class="g2q-choice__title">Chữ ký của khách trên màn hình</span><span class="g2q-choice__text">Đưa tablet cho khách ký ngay tại quầy.</span></span></label>
-          <label class="g2q-choice"><input type="radio" name="m" data-set="otp"><span class="radio__box"></span><span><span class="g2q-choice__title">Mã OTP gửi tới điện thoại khách</span><span class="g2q-choice__text">Chỉ dùng được khi quản trị bật OTP và có nhà cung cấp SMS (G4-SYS-17).</span></span></label>
-          <label class="g2q-choice"><input type="radio" name="m" data-set="verbal"><span class="radio__box"></span><span><span class="g2q-choice__title">Khách xác nhận bằng lời <span class="tag tag--warning">Ngoại lệ</span></span><span class="g2q-choice__text">Bắt buộc ghi chú; người ghi nhận chịu trách nhiệm và được lưu nhật ký.</span></span></label>
-          <div data-v="sign"><div class="g2q-sign" id="sign-box"><span id="sign-ph">Khách ký tại đây<br><button class="btn btn--secondary btn--sm js-sign" type="button" style="margin-top:8px">Mô phỏng chữ ký</button></span><span class="g2q-sign__line" aria-hidden="true"></span></div><div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--sm" id="sign-clear" type="button">Xóa chữ ký</button><span class="g2q-note">Chữ ký lưu kèm thời điểm, thiết bị và người ghi nhận.</span></div></div>
-          <div data-v="otp"><div class="stack-2"><span class="g2q-note">Mã 6 số đã gửi tới <span class="pii" data-pii-id="c1" data-pii-kind="phone"></span> · hết hạn sau 05:00 (cấu hình)</span><div class="otp" role="group" aria-label="Nhập mã OTP 6 số"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 1"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 2"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 3"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 4"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 5"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 6"></div><button class="btn btn--ghost btn--sm" disabled style="align-self:flex-start">Gửi lại mã sau 28 giây</button></div></div>
-          <div data-v="verbal"><div class="field"><label class="field__label" for="vb">Ghi chú xác nhận bằng lời <span class="field__req">*</span></label><textarea id="vb" class="textarea" placeholder="Ví dụ: Khách đồng ý trực tiếp tại quầy lúc 08:50, đã nghe đọc lại 3 hạng mục và tổng tiền."></textarea><span class="field__hint" id="vb-hint">Nhập tối thiểu 5 ký tự. Ghi rõ khách đã nghe nội dung và số tiền.</span></div></div>
+          <label class="g2q-choice"><input type="radio" name="m" checked data-set="sign"><span class="radio__box"></span><span><span class="g2q-choice__title">Chữ ký của khách trên màn hình</span><span class="g2q-choice__text">Lưu ảnh nét ký, gói bằng chứng (mã báo giá, hạng mục, tổng, thời điểm, người ghi nhận, thiết bị) và mã băm SHA-256. Đây là bằng chứng nghiệp vụ nội bộ, không phải chữ ký số.</span></span></label>
+          <label class="g2q-choice"><input type="radio" name="m" data-set="otp" disabled aria-describedby="otp-why"><span class="radio__box"></span><span><span class="g2q-choice__title">Mã OTP gửi tới điện thoại khách <span class="tag tag--neutral">Chưa kích hoạt</span></span><span class="g2q-choice__text" id="otp-why">OTP bật được khi nhà cung cấp SMS đã kích hoạt (G4-SYS-17). Hiện chưa kích hoạt nên phương án này bị khóa.</span></span></label>
+          <label class="g2q-choice"><input type="radio" name="m" data-set="verbal"><span class="radio__box"></span><span><span class="g2q-choice__title">Khách xác nhận bằng lời <span class="tag tag--warning">Ngoại lệ</span></span><span class="g2q-choice__text">Không cần quản lý đồng ý trước nhưng bắt buộc ghi chú, tick đã đọc lại, và tự vào danh sách “Ngoại lệ cần rà soát” của Quản lý chi nhánh cuối ngày.</span></span></label>
+          <div data-v="sign"><div class="g2q-sign" id="sign-box"><span id="sign-ph">Khách ký tại đây<br><button class="btn btn--secondary btn--sm js-sign" type="button" style="margin-top:8px">Mô phỏng chữ ký</button></span><span class="g2q-sign__line" aria-hidden="true"></span></div><div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--sm" id="sign-clear" type="button">Xóa chữ ký</button><span class="g2q-note">Lưu kèm thời điểm giờ máy chủ, thiết bị và người ghi nhận.</span></div></div>
+          <div data-v="otp"><div class="stack-2"><span class="g2q-note">Mã 6 số đã gửi tới <span class="pii" data-pii-id="c1" data-pii-kind="phone"></span> · hết hạn sau 05:00 (cấu hình)</span><div class="otp" role="group" aria-label="Nhập mã OTP 6 số"><input class="otp__cell" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Chữ số 1"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 2"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 3"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 4"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 5"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Chữ số 6"></div><button class="btn btn--ghost btn--sm" disabled style="align-self:flex-start">Gửi lại mã sau 28 giây</button></div></div>
+          <div data-v="verbal"><div class="stack-2"><div class="field"><label class="field__label" for="vb">Ghi chú xác nhận bằng lời <span class="field__req">*</span></label><textarea id="vb" class="textarea" placeholder="Ví dụ: Khách đồng ý trực tiếp tại quầy lúc 08:50, đã nghe đọc lại 3 hạng mục và tổng tiền."></textarea><span class="field__hint" id="vb-hint">Nhập tối thiểu 10 ký tự, nêu rõ khách đã nghe nội dung gì. Cấu hình ngưỡng giá trị: vượt ngưỡng thì cần Quản lý duyệt (chưa đặt ngưỡng).</span></div>
+            <label class="check"><input type="checkbox" id="vb-read"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Đã đọc lại hạng mục và tổng tiền cho khách</span></label></div></div>
         </div>
       </div>
 
       <!-- Bước 3 -->
       <div data-v="s3" class="stack-2">
         <h3 class="card__title" style="font-size:var(--font-size-lg)">Xem lại trước khi xác nhận</h3>
-        <dl class="g2q-kv"><dt>Hạng mục duyệt</dt><dd>1, 2, 3 (3/4)</dd><dt>Tổng được duyệt</dt><dd><strong>3.191.400 ₫</strong> (đã gồm thuế 8% số mẫu)</dd><dt>Không duyệt</dt><dd>4. Vệ sinh buồng đốt, 702.000 ₫ <span class="tag tag--warning">Lưu để nhắc lần sau</span></dd><dt>Cách xác nhận</dt><dd>Chữ ký trên màn hình · Nguyễn Hoàng Yến ghi nhận</dd></dl>
-        <ul class="impact-list"><li>Báo giá chuyển sang <strong>Duyệt một phần</strong>; nội dung đã duyệt không sửa được nữa.</li><li>Hệ thống tạo lệnh sửa chữa chỉ gồm 3 hạng mục đã duyệt và giữ chỗ phụ tùng (tồn khả dụng giảm tương ứng).</li><li>Phụ tùng thiếu hàng (má phanh trước Vios) sẽ khiến lệnh Tạm dừng, lý do “Chờ phụ tùng”.</li></ul>
+        <dl class="g2q-kv"><dt>Hạng mục duyệt</dt><dd id="s3-ok">1, 2, 3 (3/4)</dd><dt>Tổng được duyệt</dt><dd><strong id="s3-tot">3.191.400 ₫</strong> (đã gồm thuế GTGT 8% số mẫu)</dd><dt>Không duyệt</dt><dd id="s3-no">4. Vệ sinh buồng đốt, 702.000 ₫ <span class="tag tag--warning">Lưu để nhắc lần sau</span></dd><dt>Cách xác nhận</dt><dd>Chữ ký trên màn hình · Nguyễn Hoàng Yến ghi nhận</dd></dl>
+        <ul class="impact-list"><li>Báo giá chuyển sang <strong>Duyệt một phần</strong>; nội dung đã duyệt bị khóa, không có phiên bản thay thế (thay đổi sau này dùng báo giá bổ sung).</li><li>Hệ thống tạo lệnh sửa chữa chỉ gồm hạng mục đã duyệt và giữ chỗ phụ tùng theo tồn khả dụng.</li><li>Hạng mục 2 dùng má phanh Vios khả dụng 0 (đang về 10): hạng mục 2 bị khóa với thẻ “Thiếu phụ tùng”; hạng mục 1 và 3 vẫn làm được nên lệnh <strong>vẫn Đang sửa chữa</strong>. Lệnh chỉ Tạm dừng khi không còn hạng mục nào làm tiếp được.</li></ul>
       </div>
 
       <!-- Từ chối toàn bộ -->
       <div data-v="reject" class="stack-2">
-        <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Từ chối toàn bộ báo giá</span><span>Không tạo lệnh. Cả 4 hạng mục được lưu để nhắc khi xe vào lại. Hành động ghi vào nhật ký.</span></div></div>
+        <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Từ chối toàn bộ báo giá</span><span>Báo giá chuyển sang trạng thái Từ chối, không tạo lệnh. Cả 4 hạng mục được lưu để nhắc khi xe vào lại. Hành động ghi vào nhật ký.</span></div></div>
         <div class="field"><label class="field__label" for="rj">Lý do khách từ chối <span class="field__req">*</span></label><textarea id="rj" class="textarea" placeholder="Ví dụ: Khách nói sẽ so giá, hẹn quay lại cuối tuần"></textarea></div>
       </div>
 
       <!-- Hoàn tất -->
       <div data-v="done" class="stack-2">
-        <div class="alert alert--success" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã ghi nhận khách duyệt một phần</span><span>Lệnh <span class="code">RO-Q7-2610-00128</span> đã được tạo với 3 hạng mục. Hạng mục 4 được lưu nhắc lần sau.</span></div></div>
+        <div class="alert alert--success" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã ghi nhận khách duyệt một phần</span><span>Lệnh <span class="code">RO-Q7-2610-00128</span> đã được tạo với 3 hạng mục. Hạng mục 4 được lưu nhắc lần sau. Gói bằng chứng đã lưu kèm mã băm.</span></div></div>
       </div>
     </div>
 
-    <div class="dialog__footer" data-v="s1"><button class="btn btn--danger-outline" data-set="reject" data-for="dlg-approve" style="margin-right:auto">Từ chối toàn bộ</button><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-set="s2" data-for="dlg-approve">Tiếp tục<svg class="icon"><use href="#arrow-right"/></svg></button></div>
+    <div class="dialog__footer" data-v="s1 lockreq"><button class="btn btn--danger-outline" data-set="reject" data-for="dlg-approve" style="margin-right:auto">Từ chối toàn bộ báo giá</button><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="s1-next" data-set="s2" data-for="dlg-approve">Tiếp tục<svg class="icon"><use href="#arrow-right"/></svg></button></div>
     <div class="dialog__footer" data-v="s2"><button class="btn btn--secondary" data-set="s1" data-for="dlg-approve">Quay lại</button><button class="btn btn--primary" id="s2-next" data-set="s3" data-for="dlg-approve" disabled>Tiếp tục<svg class="icon"><use href="#arrow-right"/></svg></button></div>
     <div class="dialog__footer" data-v="s3"><button class="btn btn--secondary" data-set="s2" data-for="dlg-approve">Quay lại</button><button class="btn btn--primary" data-set="done" data-for="dlg-approve">Xác nhận duyệt và mở lệnh</button></div>
-    <div class="dialog__footer" data-v="reject"><button class="btn btn--secondary" data-set="s1" data-for="dlg-approve">Quay lại</button><button class="btn btn--danger" data-close data-toast="success|Đã ghi nhận từ chối|Báo giá chuyển sang Từ chối; các hạng mục được lưu nhắc.">Xác nhận từ chối</button></div>
+    <div class="dialog__footer" data-v="reject"><button class="btn btn--secondary" data-set="s1" data-for="dlg-approve">Quay lại</button><button class="btn btn--danger" data-close data-toast="success|Đã ghi nhận từ chối|Báo giá chuyển sang Từ chối; các hạng mục được lưu nhắc.">Xác nhận từ chối toàn bộ</button></div>
     <div class="dialog__footer" data-v="done"><button class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" href="../g2-workshop/g2-rec-04.html">Mở lệnh RO-Q7-2610-00128</a></div>
     <div class="dialog__footer" data-v="superseded expired"><button class="btn btn--secondary" data-close>Đóng</button></div>
   </div>
@@ -89,20 +94,39 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
 <script src="../assets/app.js"></script>
 <script>
 window.g2qReady = function () {
-  var fmt = g2q.fmt;
+  var fmt = g2q.fmt, root = document.getElementById('dlg-approve');
   function recalc() {
-    var s = 0, n = 0; document.querySelectorAll('.js-q').forEach(function (c) { if (c.checked) { s += +c.getAttribute('data-amt'); n++; } });
-    var v = Math.round(s * 0.08);
-    document.getElementById('t-cnt').textContent = n; document.getElementById('t-pre').textContent = fmt(s);
-    document.getElementById('t-vat').textContent = fmt(v); document.getElementById('t-tot').textContent = fmt(s + v); document.getElementById('t-tot2').textContent = fmt(s + v);
+    var s = 0, n = 0, ok = [], no = [], reqOff = [];
+    document.querySelectorAll('.js-q').forEach(function (c, i) {
+      var nm = c.getAttribute('data-name') || '', lab = c.closest('label').querySelector('.approval__name').textContent;
+      if (c.checked) { s += +c.getAttribute('data-amt'); n++; ok.push(i + 1); } else { no.push(lab); if (c.classList.contains('js-req')) reqOff.push(lab); }
+    });
+    var v = Math.round(s * 0.08), tot = fmt(s + v);
+    document.getElementById('t-cnt').textContent = n; document.getElementById('t-cnt2').textContent = n; document.getElementById('t-vat').textContent = fmt(v);
+    document.getElementById('t-tot').textContent = tot; document.getElementById('t-tot2').textContent = tot; document.getElementById('s3-tot').textContent = tot;
+    document.getElementById('s3-ok').textContent = ok.join(', ') + ' (' + n + '/4)';
+    document.getElementById('s3-no').innerHTML = no.length ? no.join('; ') + ' <span class="tag tag--warning">Lưu để nhắc lần sau</span>' : 'Không có';
+    var w = document.getElementById('req-warn'); w.hidden = reqOff.length === 0; document.getElementById('req-names').textContent = reqOff.join('; ');
+    gate1();
+  }
+  function gate1() {
+    var needReason = !document.getElementById('req-warn').hidden && !document.getElementById('req-reason').value;
+    var cnt = +document.getElementById('t-cnt').textContent, b = document.getElementById('s1-next');
+    b.disabled = needReason || cnt === 0; b.setAttribute('aria-disabled', String(b.disabled));
   }
   document.querySelectorAll('.js-q').forEach(function (c) { c.addEventListener('change', recalc); });
+  document.getElementById('req-reason').addEventListener('change', gate1);
+  root.addEventListener('g2q:variant', function () {
+    var lock = root.getAttribute('data-cur') === 'lockreq';
+    document.querySelectorAll('.js-req').forEach(function (c) { c.disabled = lock; if (lock) c.checked = true; });
+    recalc();
+  });
   var signed = false, box = document.getElementById('sign-box');
   function gate() {
     var m = document.getElementById('methods').getAttribute('data-cur'), ok = false;
     if (m === 'sign') ok = signed;
     else if (m === 'otp') ok = Array.prototype.every.call(document.querySelectorAll('#methods .otp__cell'), function (x) { return x.value; });
-    else ok = document.getElementById('vb').value.trim().length >= 5;
+    else ok = document.getElementById('vb').value.trim().length >= 10 && document.getElementById('vb-read').checked;
     var b = document.getElementById('s2-next'); b.disabled = !ok; b.setAttribute('aria-disabled', String(!ok));
   }
   box.addEventListener('click', function (e) {
@@ -115,9 +139,10 @@ window.g2qReady = function () {
     document.getElementById('sign-ph').innerHTML = 'Khách ký tại đây<br><button class="btn btn--secondary btn--sm js-sign" type="button" style="margin-top:8px">Mô phỏng chữ ký</button>'; gate();
   });
   document.getElementById('methods').addEventListener('input', gate);
+  document.getElementById('methods').addEventListener('change', gate);
   document.getElementById('methods').addEventListener('click', function () { setTimeout(gate, 0); });
   document.getElementById('methods').addEventListener('g2q:variant', gate);
-  gate();
+  recalc(); gate();
 };
 </script>
 </body>

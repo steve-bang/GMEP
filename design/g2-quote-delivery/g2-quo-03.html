@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('CV', 'ro');
@@ -18,7 +19,9 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
 </script>
 
 <div class="stack-6" data-variants="partial">
-  <script>g2q.proto([['partial','Duyệt một phần'],['full','Duyệt toàn phần'],['sent','Chờ khách duyệt'],['draft','Nháp'],['rejected','Từ chối'],['expired','Hết hạn'],['loading','Đang tải'],['notfound','Không tìm thấy'],['noperm','Không có quyền']], 'partial');</script>
+  <script>g2q.proto([['partial','Duyệt một phần'],['full','Duyệt toàn phần'],['sent','Chờ khách duyệt'],['draft','Nháp'],['rejected','Từ chối'],['expired','Hết hạn'],['loading','Đang tải'],['error','Lỗi tải'],['empty','Chưa có phiên bản'],['notfound','Không tìm thấy'],['noperm','Không có quyền']], 'partial');</script>
+  <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được báo giá', text:'Thử lại sau vài giây. Dữ liệu đang xem có thể đã cũ.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-QUO-3B7C10'})</script></div>
+  <div data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Báo giá chưa có nội dung', text:'Bản nháp này chưa có hạng mục nào. Mở màn lập báo giá để thêm công và phụ tùng.', actions:'<a class="btn btn--primary" href="g2-quo-02.html">Lập báo giá</a>'})</script></div>
 
   <div data-v="loading" aria-busy="true"><div class="card" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--text" style="width:60%"></span><br><br><span class="skeleton skeleton--block"></span></div></div>
   <div data-v="notfound" class="card"><script>g2q.state({kind:'notfound', title:'Không tìm thấy báo giá', text:'Báo giá này không tồn tại hoặc nằm ngoài phạm vi chi nhánh bạn được xem.', actions:'<a class="btn btn--secondary" href="g2-quo-01.html">Về danh sách báo giá</a>'})</script></div>
@@ -46,7 +49,9 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
           <a class="btn btn--primary" data-v="sent" href="g2-quo-05.html"><svg class="icon"><use href="#check"/></svg>Ghi nhận duyệt tại quầy</a>
           <a class="btn btn--primary" data-v="draft" href="g2-quo-04.html"><svg class="icon"><use href="#send"/></svg>Gửi cho khách</a>
           <span class="tooltip-host" data-v="draft sent rejected expired"><button class="btn btn--secondary" aria-disabled="true" aria-describedby="why-open"><svg class="icon"><use href="#lock"/></svg>Mở lệnh</button><span class="tooltip" role="tooltip" id="why-open">Chưa mở lệnh được: báo giá chưa được khách duyệt (hoặc đã bị từ chối, hết hạn). Lệnh chỉ chứa các dòng khách đã duyệt.</span></span>
-          <a class="btn btn--secondary" href="g2-quo-02.html" data-v="partial full sent rejected expired draft">Tạo phiên bản mới</a>
+          <a class="btn btn--secondary" href="g2-quo-02.html" data-v="sent rejected expired">Tạo phiên bản mới</a>
+          <a class="btn btn--secondary" href="g2-quo-07.html" data-v="partial full">Lập báo giá bổ sung</a>
+          <span class="tooltip-host" data-v="partial full"><button class="btn btn--secondary" aria-disabled="true" aria-describedby="why-ver"><svg class="icon"><use href="#lock"/></svg>Tạo phiên bản mới</button><span class="tooltip" role="tooltip" id="why-ver">Đã có hạng mục được duyệt nên nội dung bị khóa và lệnh đã mở. Không thay bằng phiên bản mới; dùng báo giá bổ sung cho phần thay đổi.</span></span>
           <a class="btn btn--secondary" href="g2-prt-01.html?doc=quote"><svg class="icon"><use href="#printer"/></svg>In</a>
           <button class="btn btn--secondary" data-v="sent" data-toast="success|Đã gửi lại|Liên kết duyệt gửi lại qua kênh đã chọn lúc 09:16.">Gửi lại</button>
           <button class="btn btn--danger-outline" data-v="draft sent" data-open="dlg-cancel">Hủy báo giá</button>
@@ -54,7 +59,7 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
       </div>
     </section>
 
-    <div class="alert alert--neutral" data-v="partial full"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Nội dung đã duyệt không sửa được</span><span>Muốn thay đổi, tạo phiên bản mới hoặc báo giá bổ sung (phát sinh). Lệnh RO-Q7-2610-00128 chỉ chứa các hạng mục khách đã duyệt.</span></div></div>
+    <div class="alert alert--neutral" data-v="partial full"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Nội dung đã duyệt không sửa được</span><span>Không có phiên bản thay thế sau khi đã duyệt: muốn thay đổi, lập báo giá bổ sung (phát sinh). Lệnh RO-Q7-2610-00128 chỉ chứa các hạng mục khách đã duyệt.</span></div></div>
     <div class="alert alert--warning" data-v="sent"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang chờ khách duyệt · còn 6 ngày</span><span>Khách chưa mở liên kết. Hết hạn 06/11/2026 thì báo giá chuyển “Hết hạn” và không duyệt được nữa.</span></div></div>
     <div class="alert alert--danger" data-v="rejected"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Khách từ chối toàn bộ báo giá</span><span>Không tạo lệnh. Các hạng mục được lưu để nhắc khi xe vào lại (<a href="g2-quo-08.html">xem danh sách lưu nhắc</a>).</span></div></div>
     <div class="alert alert--neutral" data-v="expired"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Báo giá đã hết hạn</span><span>Hết hạn 24/10/2026 nên không duyệt được. Tạo phiên bản mới để cập nhật giá và gửi lại cho khách.</span></div></div>
@@ -98,7 +103,7 @@ g2q.scope('báo giá tạo 30/10/2026 08:10');
                 <div class="g2q-totals__row" data-v="rejected"><span>Tổng được duyệt</span><span>0 ₫</span></div>
                 <div class="g2q-totals__row g2q-totals__row--sub" data-v="partial"><span>Không duyệt, lưu nhắc (1 hạng mục)</span><span>702.000 ₫</span></div>
               </div>
-              <div class="approval__evidence" data-v="partial full rejected"><svg class="icon icon--sm"><use href="#circle-check"/></svg><span><strong>Bằng chứng duyệt:</strong> khách bấm duyệt trên liên kết (gửi Zalo) lúc 08:50 30/10/2026; xác thực OTP: không bật; ghi nhận bởi Nguyễn Hoàng Yến lúc 08:51; thiết bị di động, địa chỉ mạng được lưu trong nhật ký.</span></div>
+              <div class="approval__evidence" data-v="partial full rejected"><svg class="icon icon--sm"><use href="#circle-check"/></svg><span><strong>Bằng chứng duyệt:</strong> khách bấm duyệt trên liên kết (gửi Zalo) lúc 08:50 30/10/2026; xác thực OTP: không bật; ghi nhận bởi Nguyễn Hoàng Yến lúc 08:51; thiết bị di động, địa chỉ mạng được lưu trong nhật ký. Gói bằng chứng (mã và phiên bản báo giá, hạng mục duyệt/từ chối, tổng) có mã băm SHA-256 để phát hiện sửa đổi; đây là bằng chứng nghiệp vụ nội bộ, không phải chữ ký số.</span></div>
               <div class="approval__evidence" data-v="sent draft expired"><svg class="icon icon--sm"><use href="#info"/></svg><span>Chưa có bằng chứng duyệt. Ghi nhận được: liên kết, OTP, chữ ký trên màn hình hoặc xác nhận bằng lời (bắt buộc ghi chú).</span></div>
             </div>
             <div id="view-v1" hidden>

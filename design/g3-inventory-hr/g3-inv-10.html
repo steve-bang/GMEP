@@ -18,12 +18,12 @@
 <script>G3.top('INV-10')</script>
 
 <div class="page-header">
-  <div class="page-header__text"><h1>Phiếu hoàn kho</h1><p class="page-header__desc">Đưa phụ tùng đã xuất cho lệnh trở lại kho bằng chứng từ mới. Phiếu xuất gốc giữ nguyên để truy vết (RULE-009, RULE-010).</p></div>
+  <div class="page-header__text"><h1>Phiếu hoàn kho <span class="code">HK-Q7-2610-00001</span></h1><p class="page-header__desc">Đưa phụ tùng đã xuất cho lệnh trở lại kho bằng chứng từ mới. Phiếu xuất gốc giữ nguyên để truy vết (RULE-009, RULE-010).</p></div>
   <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><a class="btn btn--secondary" href="g3-inv-08.html">Về chứng từ kho</a></div>
 </div>
 <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Nhập lại vào Kho Quận 7</span><span>· Ngày lập 30/10/2026</span></div>
 
-<div id="g3-body" data-noun="phiếu hoàn kho" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div id="g3-body" data-noun="phiếu hoàn kho" data-g3-states="data:Soạn phiếu;loading;notfound;error;denied" data-skel="detail" data-back="g3-inv-08.html">
 <div data-g3-state="data" class="stack">
   <div class="g3-ro-flag alert alert--info" data-for="f-rtn" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Thủ kho lập phiếu hoàn kho; Quản lý chi nhánh duyệt.</span></div></div>
   <div class="row"><div class="segmented" role="group" aria-label="Loại hoàn kho"><button class="segmented__item" aria-pressed="true">Hoàn kho theo lệnh <span class="tag tag--neutral">P1</span></button><button class="segmented__item" aria-pressed="false" data-g3-toggle="blk-cust">Khách trả phụ tùng chưa lắp <span class="tag tag--neutral">P2+</span></button></div></div>
@@ -48,9 +48,9 @@
         <span class="g3-why">Chính sách trả hàng của khách (thời hạn, phí) chưa được xác nhận; màn hình chỉ ghi nhận tình trạng, không tự quyết định hoàn tiền.</span></div>
     </div>
     <aside class="g3-side"><section class="card"><div class="card__body stack">
-      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-rtn" data-g3-need="TK" data-g3-why="Chỉ Thủ kho xác nhận hoàn kho.">Xác nhận hoàn kho</button>
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-rtn" data-g3-need="TK" data-g3-why="Chỉ Thủ kho gửi duyệt hoàn kho.">Gửi duyệt hoàn kho</button>
       <button class="btn btn--secondary btn--block" type="button">Lưu nháp</button>
-      <p class="t-body-sm text-secondary">Sau khi ghi sổ, tồn Thực tế tăng 1 và Khả dụng tăng 1. Phiếu không sửa hoặc xóa được.</p></div></section></aside>
+      <p class="t-body-sm text-secondary">Phiếu này cần duyệt vì lệnh đã có hóa đơn (hoàn kho lệnh đã hủy hoặc giá trị vượt ngưỡng cũng cần duyệt). Khi không thuộc các trường hợp đó, nút đổi thành “Ghi sổ hoàn kho”. Sau khi ghi sổ, Thực tế tăng 1 và Khả dụng tăng 1; phiếu không sửa hoặc xóa được.</p></div></section></aside>
   </form>
 </div>
 </div>

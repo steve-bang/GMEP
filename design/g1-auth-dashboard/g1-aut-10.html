@@ -14,14 +14,19 @@
 <div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
 
 <div class="g1-wrap">
-  <div data-g1-views="default:Chọn thợ|error:PIN sai|locked:Khóa tạm sau 5 lần sai|idle:Tự khóa 3 phút|offline:Mất mạng|unregistered:Thiết bị chưa đăng ký" data-hint="Thử: PIN 000000 báo sai, PIN khác vào Việc của tôi (G1-DSH-07)."></div>
+  <div data-g1-views="default:Chọn thợ|error:PIN sai|locked:Khóa đến khi QĐ/QL mở|setpin:Đặt PIN mới (sau PIN tạm)|idle:Tự khóa 3 phút|offline:Mất mạng|unregistered:Thiết bị chưa đăng ký|revoked:Thiết bị bị thu hồi" data-hint="Thử: PIN 000000 báo sai, PIN khác vào Việc của tôi (G1-DSH-07)."></div>
 
   <main class="g1-auth-card g1-auth-card--tablet" id="main" aria-labelledby="t">
     <div data-show="unregistered" hidden>
-      <div class="state" style="padding:0"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#lock"/></svg></div><h1 class="state__title">Thiết bị này chưa đăng ký là thiết bị xưởng</h1><p class="state__text">Chỉ tablet đã được quản lý hoặc quản trị đăng ký cho chi nhánh mới dùng PIN. Đăng nhập đầy đủ bằng tài khoản của bạn, hoặc nhờ quản lý đăng ký thiết bị.</p><div class="state__actions"><a class="btn btn--primary btn--xl" href="g1-aut-01.html">Đăng nhập đầy đủ</a></div></div>
+      <div class="state g1-state-flush"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#lock"/></svg></div><h1 class="state__title">Thiết bị này chưa đăng ký là thiết bị xưởng</h1><p class="state__text">Chỉ tablet đã được quản lý hoặc quản trị đăng ký cho chi nhánh mới dùng PIN. Nhờ quản lý hoặc quản trị tạo <strong>mã ghép 8 ký tự</strong> (hiệu lực 10 phút) rồi nhập vào đây, hoặc đăng nhập đầy đủ bằng tài khoản của bạn.</p>
+        <div class="field g1-full"><label class="field__label" for="pair">Mã ghép thiết bị<span class="field__req" aria-hidden="true">*</span></label><input id="pair" class="input" maxlength="9" autocomplete="off" autocapitalize="characters" aria-required="true" placeholder="Ví dụ: K7F29QXM"><span class="field__error" id="pair-err" hidden></span></div>
+        <div class="state__actions"><button type="button" class="btn btn--primary btn--xl" data-pair-save>Đăng ký thiết bị</button><a class="btn btn--ghost btn--xl" href="g1-aut-01.html">Đăng nhập đầy đủ</a></div></div>
+    </div>
+    <div data-show="revoked" hidden>
+      <div class="state g1-state-flush"><div class="state__icon state__icon--danger"><svg class="icon icon--lg"><use href="#lock"/></svg></div><h1 class="state__title">Thiết bị này đã bị thu hồi</h1><p class="state__text">Quản lý hoặc quản trị đã thu hồi đăng ký của tablet này (ví dụ máy mất hoặc ngừng dùng). Mọi phiên PIN trên máy đã kết thúc và nháp lưu trên máy sẽ bị xóa khi có kết nối. Nếu đây là nhầm lẫn, nhờ quản lý đăng ký lại bằng mã ghép.</p><div class="state__actions"><a class="btn btn--primary btn--xl" href="g1-aut-01.html">Đăng nhập đầy đủ</a></div></div>
     </div>
 
-    <div data-hide="unregistered" class="stack">
+    <div data-hide="unregistered revoked" class="stack">
       <div><h1 id="t">Ai đang dùng máy này?</h1><p class="g1-lead">Chạm tên của bạn rồi nhập PIN 6 số. Mỗi người một PIN riêng, không dùng chung.</p></div>
       <div class="g1-device"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span>Tablet xưởng 02 · Chi nhánh Quận 7 · ca 30/10/2026</span></div>
 
@@ -39,11 +44,18 @@
 
       <section data-pin-step hidden aria-labelledby="pin-t" class="stack g1-center" style="border-top:1px solid var(--color-border);padding-top:var(--space-5)">
         <h2 id="pin-t" style="font-size:var(--font-size-xl);margin:0">Xin chào <span data-worker-name></span>, nhập PIN</h2>
-        <div class="g1-pin-dots" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div data-show="setpin" hidden class="g1-full">
+          <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Bạn đang dùng PIN tạm</span><span>Đặt PIN mới của riêng bạn để tiếp tục. PIN gồm 6 số, không dùng dãy lặp hoặc liên tiếp (như 111111, 123456), không trùng 3 PIN gần nhất.</span></div></div>
+          <div class="field g1-mt3"><label class="field__label" for="np1">PIN mới (6 số)<span class="field__req" aria-hidden="true">*</span></label><input id="np1" class="input" type="password" inputmode="numeric" maxlength="6" autocomplete="off" aria-required="true" aria-describedby="np-err"></div>
+          <div class="field g1-mt3"><label class="field__label" for="np2">Nhập lại PIN mới<span class="field__req" aria-hidden="true">*</span></label><input id="np2" class="input" type="password" inputmode="numeric" maxlength="6" autocomplete="off" aria-required="true"></div>
+          <span class="field__error g1-mt3" id="np-err" hidden></span>
+          <button type="button" class="btn btn--primary btn--xl btn--block g1-mt5" data-setpin-save>Lưu PIN mới</button>
+        </div>
+        <div class="g1-pin-dots" aria-hidden="true" data-hide="setpin"><span></span><span></span><span></span><span></span><span></span><span></span></div>
         <div class="sr-only" role="status" aria-live="polite" data-pin-live></div>
         <div class="alert alert--danger" role="alert" data-show="error" hidden style="text-align:left"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">PIN chưa đúng</span><span>Nhập lại PIN 6 số của bạn. Còn 3 lần thử trước khi tên bạn bị khóa tạm.</span></div></div>
-        <div class="alert alert--danger" role="alert" data-show="locked" hidden style="text-align:left"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tên này tạm khóa vì nhập sai PIN 5 lần</span><span>Đã báo quản đốc. Quản đốc hoặc quản lý sẽ mở khóa và giúp bạn đặt PIN mới. Trong lúc chờ, bạn có thể đăng nhập đầy đủ bằng email và mật khẩu.</span><div class="alert__actions"><a class="btn btn--secondary" href="g1-aut-01.html">Đăng nhập đầy đủ</a></div></div></div>
-        <div class="g1-pinpad" role="group" aria-label="Bàn phím số PIN">
+        <div class="alert alert--danger" role="alert" data-show="locked" hidden style="text-align:left"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tên này bị khóa vì nhập sai PIN 5 lần</span><span>Khóa không tự mở. Đã báo quản đốc; quản đốc hoặc quản lý chi nhánh sẽ mở khóa và cấp PIN tạm cho bạn. Trong lúc chờ, bạn có thể đăng nhập đầy đủ bằng email và mật khẩu (nếu có).</span><div class="alert__actions"><a class="btn btn--secondary" href="g1-aut-01.html">Đăng nhập đầy đủ</a></div></div></div>
+        <div class="g1-pinpad" role="group" aria-label="Bàn phím số PIN" data-hide="setpin">
           <button type="button" data-pin="1" aria-label="Số 1" data-disable-in="locked offline">1</button><button type="button" data-pin="2" aria-label="Số 2" data-disable-in="locked offline">2</button><button type="button" data-pin="3" aria-label="Số 3" data-disable-in="locked offline">3</button>
           <button type="button" data-pin="4" aria-label="Số 4" data-disable-in="locked offline">4</button><button type="button" data-pin="5" aria-label="Số 5" data-disable-in="locked offline">5</button><button type="button" data-pin="6" aria-label="Số 6" data-disable-in="locked offline">6</button>
           <button type="button" data-pin="7" aria-label="Số 7" data-disable-in="locked offline">7</button><button type="button" data-pin="8" aria-label="Số 8" data-disable-in="locked offline">8</button><button type="button" data-pin="9" aria-label="Số 9" data-disable-in="locked offline">9</button>
@@ -55,15 +67,16 @@
     </div>
   </main>
 </div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại. Nếu tablet không dùng được, báo quản đốc để ghi việc trên phiếu giấy.</div></noscript>
 <script src="../assets/app.js"></script>
 <script src="g1-auth.js"></script>
 <script>
 /* Ở trạng thái PIN sai / khóa, chọn sẵn một thợ để thấy phần nhập PIN */
-(function () { var v0 = document.body.getAttribute('data-view'); if (v0 === 'error' || v0 === 'locked') document.querySelector('[data-worker]').click(); })();
+(function () { var v0 = document.body.getAttribute('data-view'); if (v0 === 'error' || v0 === 'locked' || v0 === 'setpin') document.querySelector('[data-worker]').click(); })();
 document.addEventListener('click', function (e) {
   if (!e.target.closest('.g1-proto [data-g1-view]')) return;
   var v = e.target.closest('[data-g1-view]').getAttribute('data-g1-view');
-  if (v === 'error' || v === 'locked') setTimeout(function () {
+  if (v === 'error' || v === 'locked' || v === 'setpin') setTimeout(function () {
     if (!document.querySelector('[data-worker][aria-pressed="true"]')) {
       document.querySelector('[data-worker]').click();
     }

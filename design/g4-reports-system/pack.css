@@ -70,7 +70,7 @@ body[data-role="TK"] .g4r-money { display: none !important; }
 body[data-role="TK"] .g4r-tk-only { display: flex; }
 body[data-role="CV"] .g4r-notcv { display: none !important; }
 .g4r-cv-only { display: none; }
-body[data-role="CV"] .g4r-cv-only { display: table-row; }
+body[data-role="CV"] .g4r-cv-only { display: revert; }
 body[data-role="CV"] .g4r-hide-cv { display: none !important; }
 .g4r-noscript { max-width: 640px; margin: var(--space-8) auto; padding: var(--space-4) var(--space-6); border: 1px solid var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); border-radius: var(--radius-lg); }
 .table .check { min-width: 44px; justify-content: center; }

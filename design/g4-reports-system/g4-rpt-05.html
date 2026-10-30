@@ -10,12 +10,14 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="KT">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-RPT-05" data-menu="rpt" data-crumbs="Báo cáo|Đối chiếu lệnh – xuất kho – hóa đơn – thu tiền" data-allow="KT QL CH QV"></script>
 <script>
 g4rPage({
   title: 'Đối chiếu lệnh, xuất kho, hóa đơn, thu tiền',
   desc: 'Mỗi lệnh hoàn tất phải có đủ bốn thành phần. Cột thiếu thành phần nào hiện chữ và biểu tượng cảnh báo tương ứng, không chỉ dùng màu.',
   prio: 'P1 · UAT-01',
+  sample: 'Chi nhánh Quận 7 và Quận 1',
   period: '27–30/10/2026 (lệnh Hoàn tất)',
   actions: g4rExportBtn(),
   empty: { title: 'Không có lệnh nào thiếu chứng từ', text: 'Tất cả lệnh hoàn tất trong kỳ đều có đủ phiếu xuất kho, hóa đơn và thu tiền. Đây là kết quả tốt, không phải lỗi.' },
@@ -28,7 +30,7 @@ g4rFilters({ fields: ['period', 'service'], options: { period: ['Hôm nay 30/10/
   <div class="card kpi"><span class="kpi__label">Lệnh hoàn tất trong kỳ</span><span class="kpi__value">31</span><span class="kpi__meta">27–30/10/2026</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 09:15</span></div>
   <div class="card kpi"><span class="kpi__label">Đủ bốn thành phần</span><span class="kpi__value">27</span><span class="kpi__meta">87,1% số lệnh hoàn tất</span><span class="kpi__scope">27–30/10/2026</span></div>
   <div class="card kpi kpi--danger"><span class="kpi__label">Thiếu thành phần</span><span class="kpi__value">03</span><span class="kpi__meta">1 thiếu hóa đơn · 1 thiếu phiếu xuất · 1 chưa thu quá 3 ngày</span><span class="kpi__scope">27–30/10/2026</span></div>
-  <div class="card kpi kpi--warning"><span class="kpi__label">Công nợ hợp lệ</span><span class="kpi__value">01</span><span class="kpi__meta">Có hóa đơn, chờ thu trong hạn (5.500.000 ₫)</span><span class="kpi__scope">27–30/10/2026</span></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label">Công nợ hợp lệ<span class="g4r-formula">Có hạn thanh toán được duyệt, chưa quá hạn</span></span><span class="kpi__value">01</span><span class="kpi__meta">Có hóa đơn, chờ thu trong hạn (5.500.000 ₫)</span><span class="kpi__scope">27–30/10/2026</span></div>
 </section>
 
 <section class="table-wrap" aria-label="Bảng đối chiếu">
@@ -42,7 +44,7 @@ g4rFilters({ fields: ['period', 'service'], options: { period: ['Hôm nay 30/10/
     <tbody>
       <tr><td class="code"><a href="#">RO-Q7-2610-00233</a><span class="g4r-formula">29/10/2026</span></td><td><span class="plate">51B-221.09</span></td><td class="col-num">3.800.000 ₫</td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PX-Q7-2610-00287</span></td>
-        <td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Thiếu hóa đơn</span></td>
+        <td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Chưa có hóa đơn hợp lệ</span><span class="g4r-formula">Nhà cung cấp: quá thời gian chờ, đang truy vấn lại</span></td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PT-Q7-2610-00263</span></td>
         <td><span class="badge badge--danger">Thiếu 1 thành phần</span></td><td><a class="btn btn--secondary btn--sm" href="#">Mở lệnh xử lý</a></td></tr>
       <tr><td class="code"><a href="#">RO-Q7-2610-00229</a><span class="g4r-formula">28/10/2026</span></td><td><span class="plate">59D-884.12</span></td><td class="col-num">2.150.000 ₫</td>
@@ -50,7 +52,7 @@ g4rFilters({ fields: ['period', 'service'], options: { period: ['Hôm nay 30/10/
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>0000398</span></td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PT-Q7-2610-00251</span></td>
         <td><span class="badge badge--danger">Thiếu 1 thành phần</span></td><td><a class="btn btn--secondary btn--sm" href="#">Mở lệnh xử lý</a></td></tr>
-      <tr><td class="code"><a href="#">RO-Q1-2610-00402</a><span class="g4r-formula">27/10/2026</span></td><td><span class="plate">51H-332.64</span></td><td class="col-num">1.980.000 ₫</td>
+      <tr class="g4r-notq7 g4r-notkt"><td class="code"><a href="#">RO-Q1-2610-00402</a><span class="g4r-formula">27/10/2026</span></td><td><span class="plate">51H-332.64</span></td><td class="col-num">1.980.000 ₫</td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PX-Q1-2610-00355</span></td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>0000381</span></td>
         <td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Chưa thu quá 3 ngày</span></td>
@@ -60,6 +62,11 @@ g4rFilters({ fields: ['period', 'service'], options: { period: ['Hôm nay 30/10/
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>0000417</span></td>
         <td><span class="badge badge--warning">Chưa thanh toán</span> <span class="t-caption text-secondary">công nợ trong hạn</span></td>
         <td><span class="badge badge--success">Đủ (còn công nợ)</span></td><td></td></tr>
+      <tr class="g4r-full" hidden><td class="code"><a href="#">RO-Q7-2610-00244</a><span class="g4r-formula">30/10/2026 · chỉ có dòng công</span></td><td><span class="plate">59C-318.46</span></td><td class="col-num">1.250.000 ₫</td>
+        <td><span class="tag tag--neutral">Không áp dụng</span><span class="g4r-formula">Lệnh không có phụ tùng</span></td>
+        <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>0000416 · Đã xuất</span></td>
+        <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PT-Q7-2610-00281</span></td>
+        <td><span class="badge badge--success">Đủ (các thành phần áp dụng)</span></td><td></td></tr>
       <tr class="g4r-full" hidden><td class="code"><a href="#">RO-Q7-2610-00243</a><span class="g4r-formula">30/10/2026</span></td><td><span class="plate">51A-902.17</span></td><td class="col-num">8.900.000 ₫</td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PX-Q7-2610-00304</span></td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>0000415</span></td>
@@ -67,7 +74,7 @@ g4rFilters({ fields: ['period', 'service'], options: { period: ['Hôm nay 30/10/
         <td><span class="badge badge--success">Đủ bốn thành phần</span></td><td></td></tr>
       <tr class="g4r-full" hidden><td class="code"><a href="#">RO-Q7-2610-00241</a><span class="g4r-formula">30/10/2026</span></td><td><span class="plate">51H-123.45</span></td><td class="col-num">4.250.000 ₫</td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PX-Q7-2610-00301</span></td>
-        <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>0000412</span></td>
+        <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>0000412 · Đã xuất</span></td>
         <td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>PT-Q7-2610-00277</span></td>
         <td><span class="badge badge--success">Đủ bốn thành phần</span></td><td></td></tr>
     </tbody>
@@ -76,9 +83,9 @@ g4rFilters({ fields: ['period', 'service'], options: { period: ['Hôm nay 30/10/
   <div class="record-list record-list--responsive" style="padding:var(--space-4)">
     <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00233</div><span class="plate">51B-221.09</span> · 3.800.000 ₫</div><span class="badge badge--danger">Thiếu 1 thành phần</span></div><div class="record__meta"><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Thiếu hóa đơn</span></div></a>
     <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00229</div><span class="plate">59D-884.12</span> · 2.150.000 ₫</div><span class="badge badge--danger">Thiếu 1 thành phần</span></div><div class="record__meta"><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Thiếu phiếu xuất kho</span></div></a>
-    <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q1-2610-00402</div><span class="plate">51H-332.64</span> · 1.980.000 ₫</div><span class="badge badge--danger">Thiếu 1 thành phần</span></div><div class="record__meta"><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Chưa thu quá 3 ngày</span></div></a>
+    <a class="record g4r-notq7 g4r-notkt" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-Q1-2610-00402</div><span class="plate">51H-332.64</span> · 1.980.000 ₫</div><span class="badge badge--danger">Thiếu 1 thành phần</span></div><div class="record__meta"><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Chưa thu quá 3 ngày</span></div></a>
   </div>
-  <div class="table-footer"><span class="table-meta">Quy tắc: không xuất kho, thu tiền hay hóa đơn nào nằm ngoài lệnh (RULE-007). Ngưỡng “quá 3 ngày” là cấu hình, chờ BA xác nhận.</span></div>
+  <div class="table-footer"><span class="table-meta">Quy tắc “thiếu”: (1) Phiếu xuất kho: chỉ tính với lệnh có dòng phụ tùng, lệnh chỉ có công hiện “Không áp dụng”. (2) Hóa đơn: chỉ tính là có khi trạng thái nhà cung cấp là Đã xuất / Thay thế / Điều chỉnh; Hủy, lỗi hoặc đang chờ = thiếu. (3) Thu tiền: lệnh còn nợ quá 3 ngày kể từ Hoàn tất (mặc định, cấu hình theo chi nhánh và nhóm khách) là thiếu; công nợ có hạn thanh toán được duyệt và chưa quá hạn là “Công nợ hợp lệ”; quá hạn chuyển sang báo cáo tuổi nợ. Không xuất kho, thu tiền hay hóa đơn nào nằm ngoài lệnh (RULE-007).</span></div>
 </section>
 
 <script>
