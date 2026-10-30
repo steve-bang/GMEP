@@ -184,9 +184,9 @@
       '<div class="dialog__footer"><button class="btn btn--secondary" data-close>Để sau</button><button class="btn btn--danger-outline" id="ap-no" disabled data-close data-toast="warning|Đã từ chối yêu cầu|Người đề xuất nhận thông báo kèm lý do.">Từ chối</button><button class="btn btn--primary" id="ap-yes" disabled data-close data-toast="success|Đã duyệt yêu cầu|Có hiệu lực từ ngày hiệu lực; ghi nhật ký.">Duyệt</button></div></div></div>';
   }
   /* Thẻ “Yêu cầu chờ duyệt” (chỉ Chủ garage thấy). items: [{what, who, when, diff}] */
-  window.g4rPending = function (items) {
-    var h = '<section class="table-wrap" data-show-roles="CH" aria-label="Yêu cầu chờ duyệt"><div class="table-toolbar"><strong>Yêu cầu chờ Chủ garage duyệt</strong><span class="count-pill count-pill--warning">' + items.length + '</span></div><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Yêu cầu chờ duyệt</caption><thead><tr><th>Nội dung</th><th>Người đề xuất</th><th>Gửi lúc</th><th><span class="sr-only">Thao tác</span></th></tr></thead><tbody>';
-    items.forEach(function (x) { h += '<tr><td>' + x.what + '<span class="g4r-formula g4r-diff">' + x.diff + '</span></td><td>' + x.who + '</td><td class="num">' + x.when + '</td><td><button class="btn btn--primary btn--sm" data-g4r-approve="' + esc(x.what) + '|' + esc(x.who) + '|' + esc(x.diff) + '">Xem và duyệt</button></td></tr>'; });
+  window.g4rPending = function (items, roles, who) {
+    var h = '<section class="table-wrap" data-show-roles="' + (roles || 'CH') + '" aria-label="Yêu cầu chờ duyệt"><div class="table-toolbar"><strong>Yêu cầu chờ ' + (who || 'Chủ garage') + ' duyệt</strong><span class="table-meta">Cùng hàng chờ dùng chung G4-APR-01 lọc theo người duyệt (ánh xạ loại yêu cầu → cấp duyệt ở G4-APR-03)</span><span class="count-pill count-pill--warning">' + items.length + '</span></div><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Yêu cầu chờ duyệt</caption><thead><tr><th>Nội dung</th><th>Người đề xuất</th><th>Gửi lúc</th><th><span class="sr-only">Thao tác</span></th></tr></thead><tbody>';
+    items.forEach(function (x) { h += '<tr><td>' + x.what + '<span class="g4r-formula g4r-diff">' + x.diff + '</span></td><td>' + x.who + '</td><td class="num">' + x.when + '</td><td><button class="btn btn--primary btn--sm" data-g4r-approve="' + esc(x.what) + '|' + esc(x.who) + '|' + esc(x.diff) + '|' + esc(x.imp || '') + '|' + (x.risk ? '1' : '0') + '">Xem và duyệt</button></td></tr>'; });
     document.write(h + '</tbody></table></div></section>');
   };
 
@@ -494,11 +494,18 @@
     var a = e.target.closest('[data-g4r-approve]'); if (!a) return;
     var p = a.getAttribute('data-g4r-approve').split('|');
     $('#ap-what').textContent = p[0]; $('#ap-who').textContent = p[1]; $('#ap-diff').innerHTML = (p[2] || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    /* “Ảnh hưởng” theo loại yêu cầu (các ý ngăn bằng ¦); không truyền thì là cấu hình có ngày hiệu lực */
+    var imp = p[3] ? p[3].split('¦') : ['Chỉ áp dụng cho chứng từ tạo từ ngày hiệu lực; chứng từ đã tạo không đổi.', 'Nếu duyệt muộn hơn ngày hiệu lực đã chọn, bạn phải chọn ngày hiệu lực mới (không lùi ngày).'];
+    imp.push('Mọi quyết định được ghi nhật ký (người duyệt, thời điểm, lý do).');
+    $('#ap-imp').innerHTML = imp.map(function (x) { return '<li>' + x + '</li>'; }).join('');
+    var risk = p[4] === '1'; $('#ap-pwf').hidden = !risk; $('#ap-pw').value = ''; $('#ap-pw').setAttribute('data-risk', risk ? '1' : '0');
     $('#ap-ok').checked = false; $('#ap-rs').value = ''; $('#ap-yes').disabled = true; $('#ap-no').disabled = true;
     if (window.gmepOpen) window.gmepOpen('dlg-approve');
   });
   document.addEventListener('input', function (e) { if (e.target.id === 'ap-rs') $('#ap-no').disabled = e.target.value.trim().length < 5; });
-  document.addEventListener('change', function (e) { if (e.target.id === 'ap-ok') $('#ap-yes').disabled = !e.target.checked; });
+  function apCheck() { var pw = $('#ap-pw'), need = pw.getAttribute('data-risk') === '1'; $('#ap-yes').disabled = !($('#ap-ok').checked && (!need || pw.value.length > 0)); }
+  document.addEventListener('change', function (e) { if (e.target.id === 'ap-ok') apCheck(); });
+  document.addEventListener('input', function (e) { if (e.target.id === 'ap-pw') apCheck(); });
   /* biểu đồ line: một điểm dừng Tab, di chuyển bằng mũi tên */
   document.addEventListener('keydown', function (e) {
     var d = e.target.closest && e.target.closest('.g4r-dot'); if (!d || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'Home' && e.key !== 'End')) return;

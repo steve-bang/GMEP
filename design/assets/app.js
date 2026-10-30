@@ -334,7 +334,7 @@
     CH: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'approve', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'approve' },   /* inv: danh mục phụ tùng D, chuyển kho D; set: người dùng/cấu hình D */
     QV: { dash: 'full', ro: 'view', appt: 'view', cust: 'view', inv: 'approve', pur: 'view', hr: 'view', fin: 'view', einv: 'view', rpt: 'view', set: 'limited' },       /* inv: chuyển kho D */
     QL: { dash: 'full', ro: 'approve', appt: 'full', cust: 'full', inv: 'full', pur: 'approve', hr: 'approve', fin: 'approve', einv: 'view', rpt: 'view', set: 'full' },  /* ro/hr/fin: D; công nợ chỉ X; inv: chuyển kho S */
-    CV: { dash: 'full', ro: 'full', appt: 'full', cust: 'full', hr: 'own', fin: 'view', rpt: 'own', set: 'limited' },
+    CV: { dash: 'full', ro: 'full', appt: 'full', cust: 'full', inv: 'view', hr: 'own', fin: 'view', rpt: 'own', set: 'limited' },
     QD: { dash: 'full', ro: 'full', cust: 'view', hr: 'view', rpt: 'own', set: 'limited' },                                                                              /* ro: phân thợ, QC = S */
     TH: { dash: 'own', ro: 'own', cust: 'own', hr: 'own', rpt: 'own' },
     TK: { dash: 'full', ro: 'view', inv: 'full', pur: 'full', rpt: 'own', set: 'limited' },

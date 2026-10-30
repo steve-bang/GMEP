@@ -156,13 +156,17 @@ Khóa vai trò kỹ thuật không dấu: `CH QV QL CV QD TH TK TN KT MH NS AD` 
 | Phiếu sửa chữa (báo giá, lệnh) | Xem | Xem | Xem và duyệt | ✓ | ✓ | Của tôi | Xem | Xem | Xem | – | – | – |
 | Lịch hẹn | Xem | Xem | ✓ | ✓ | – | – | – | – | – | – | – | – |
 | Khách hàng & Xe | Xem | Xem | ✓ | ✓ | Xem | Của tôi | – | Xem | Xem | – | – | – |
-| Kho phụ tùng | Xem và duyệt | Xem và duyệt | ✓ | – | – | – | ✓ | – | Xem | Xem | – | – |
+| Kho phụ tùng | Xem và duyệt | Xem và duyệt | ✓ | Xem | – | – | ✓ | – | Xem | Xem | – | – |
 | Mua hàng | Xem | Xem | Xem và duyệt | – | – | – | ✓ | – | Xem | ✓ | – | – |
 | Nhân sự & Công thợ | Xem | Xem | Xem và duyệt | Của tôi | Xem | Của tôi | – | – | Xem | – | ✓ | – |
 | Tài chính (thu tiền, sổ quỹ, công nợ) | Xem | Xem | Xem và duyệt | Xem | – | – | – | ✓ | ✓ | – | – | – |
 | Hóa đơn | Xem | Xem | Xem | – | – | – | – | ✓ | ✓ | – | – | – |
 | Báo cáo | Xem | Xem | Xem | Của tôi | Của tôi | Của tôi | Của tôi | Của tôi | Xem | Của tôi | Của tôi | – |
 | Cài đặt | Xem và duyệt | Danh mục | ✓ (chi nhánh mình) | Danh mục | Danh mục | – | Danh mục | – | Danh mục | – | – | ✓ |
+
+CV có mục Kho phụ tùng **chỉ xem** (FRD §2: X ở danh mục phụ tùng và bảng giá; tìm kiếm cho CV tra phụ tùng): chỉ mở các màn INV-01/19 chế độ chỉ đọc và chỉ thấy tồn Khả dụng, không thấy giá vốn; CV tra tồn trong lúc lập báo giá qua bộ chọn phụ tùng (ba-answers-04).
+
+Ghi chú mục “Cài đặt” chế độ “Danh mục” của QV, CV, QĐ, TK, KT: **BA đề xuất ghi chú vào FRD §2: các vai trò này được xem danh mục dùng chung — chờ chủ dự án xác nhận.** Giữ nguyên trong thiết kế cho đến khi có xác nhận.
 
 Cập nhật theo `ba-answers-04.md` (Câu 5, Phụ lục C) và `ba-answers-06.md` (Câu 1): thêm hai vai trò riêng **MH** (Mua hàng: Mua hàng đầy đủ, Kho phụ tùng chỉ xem, Báo cáo của tôi; không thấy giá vốn, không nhận hàng) và **NS** (Nhân sự: Nhân sự & Công thợ đầy đủ, Báo cáo của tôi; xem dữ liệu nhân sự theo ma trận che Phụ lục D). MH và NS **không có dashboard riêng** (D-09): trang đầu là Mua hàng / Nhân sự, nên menu không có “Tổng quan” và nhãn trang hiện tại chuyển sang mục đầu tiên còn hiện; trên bottom nav mobile hiện thêm “Mua hàng” (MH) hoặc “Nhân sự” (NS). Phạm vi chi nhánh của MH/NS: chọn trong các chi nhánh được gán (`pick`). Mục “Cài đặt” là một mục duy nhất ở chân sidebar; chế độ **“Danh mục”** (`limited`) nghĩa là chỉ liệt kê các màn cài đặt vai trò được mở, nhóm rỗng ẩn; TH, TN, MH, NS không có mục này.
 
