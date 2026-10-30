@@ -194,11 +194,16 @@
       if (m) { m.disabled = !ok; m.title = ok ? '' : 'Chỉ Cố vấn, Quản đốc và Quản lý chi nhánh chuyển trạng thái lệnh.'; }
     });
     $$('.g2w-pii').forEach(function (e) {
-      var p = PHONES[e.getAttribute('data-id')] || '', full = ['CV', 'QL', 'TN', 'QD'].indexOf(r) >= 0;
+      var p = PHONES[e.getAttribute('data-id')] || '', full = ['CV', 'QL', 'TN', 'QD'].indexOf(r) >= 0 && !e.hasAttribute('data-mask');
       e.classList.remove('is-denied');
       if (r === 'TH' || r === 'AD') { e.classList.add('is-denied'); e.innerHTML = '<svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Không có quyền xem'; return; }
       e.textContent = full ? p.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3') : p.slice(0, 2) + '•• ••• ' + p.slice(-3);
       e.title = full ? 'Việc mở hồ sơ khách được ghi nhật ký' : 'Đã che. Mở hồ sơ khách để bấm Hiện (ghi nhật ký).';
+    });
+    /* Ẩn cột theo vai trò: <table data-g2w-hidecols="8,9|TH QD"> (chỉ số cột bắt đầu từ 1) */
+    $$('table[data-g2w-hidecols]').forEach(function (t) {
+      var p = t.getAttribute('data-g2w-hidecols').split('|'), cols = p[0].split(',').map(Number), hide = p[1].split(' ').indexOf(r) >= 0;
+      $$('tr', t).forEach(function (tr) { Array.prototype.forEach.call(tr.children, function (c, i) { if (cols.indexOf(i + 1) >= 0) c.style.display = hide ? 'none' : ''; }); });
     });
     var rb = $('[data-g2w-role-badge]'); if (rb) rb.textContent = r;
   }
@@ -277,6 +282,31 @@
     toastMsg('success', 'Đã chuyển sang “' + COLNAME[to] + '”', 'Ghi nhật ký: người chuyển, thời điểm 09:16 30/10/2026.');
     return true;
   }
+  /* Chuyển thẻ sang cột khác sau khi đã có xác nhận (prototype; bản thật chờ máy chủ) */
+  window.g2wForceMove = function (card, to, reasonText) {
+    var col = $('[data-col="' + to + '"] .kanban__cards'); if (!col || !card) return;
+    var emp = $('.kanban__empty', col); if (emp) emp.remove();
+    card.classList.toggle('is-warning', to === 'paused');
+    var old = $('.tag--reason', card); if (old) old.remove();
+    if (reasonText) { var t = document.createElement('span'); t.className = 'tag tag--reason tag--warning'; t.textContent = reasonText; card.insertBefore(t, $('.g2w-move', card)); }
+    col.appendChild(card);
+    $$('[data-col]').forEach(function (c) { var n = $$('.kanban__card', c).length, p = $('.count-pill', c); if (p) p.textContent = n; });
+  };
+  /* Hộp Tạm dừng: bắt buộc chọn lý do; “Khác” bắt buộc ghi chú (A.1, WF-09) */
+  function pauseCheck(d) {
+    var r = $('input[name="pz"]:checked', d), note = $('textarea', d), b = $('[data-pause-ok]', d), other = r && r.value === 'other', ok = !!r && (!other || note.value.trim().length >= 5), w = $('[data-pause-why]', d);
+    b.disabled = !ok; b.setAttribute('aria-disabled', String(!ok));
+    if (w) w.textContent = ok ? '' : (!r ? 'Chọn lý do tạm dừng để mở nút.' : 'Lý do “Khác” bắt buộc ghi chú tối thiểu 5 ký tự.');
+  }
+  $$('[data-g2w-pause]').forEach(pauseCheck);
+  ['change', 'input'].forEach(function (ev) { document.addEventListener(ev, function (e) { var d = e.target.closest && e.target.closest('[data-g2w-pause]'); if (d) pauseCheck(d); }); });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-pause-ok]'); if (!b || b.disabled) return;
+    var d = b.closest('[data-g2w-pause]'), r = $('input[name="pz"]:checked', d), lab = r ? r.closest('label').textContent.trim().replace(/\s*\(.*\)$/, '') : '';
+    if (window.__pauseCard) { window.g2wForceMove(window.__pauseCard, 'paused', lab); window.__pauseCard = null; }
+    window.gmepClose(d.closest('.overlay'));
+    toastMsg('warning', 'Đã tạm dừng lệnh', 'Lý do “' + lab + '” ghi vào lịch sử; đồng hồ giờ thực của hạng mục dừng.');
+  });
   var dragged = null;
   document.addEventListener('dragstart', function (e) { var c = e.target.closest && e.target.closest('.kanban__card[draggable]'); if (c) { dragged = c; e.dataTransfer.setData('text/plain', c.id || 'card'); } });
   document.addEventListener('dragover', function (e) { var col = e.target.closest && e.target.closest('[data-col]'); if (col && dragged) e.preventDefault(); });
