@@ -16,7 +16,7 @@ Before designing, read what is relevant:
 - `docs/functional-requirements.md` for the FR of the screen you design, the role/branch permission matrix, and NFR (usability, devices, printing).
 - `docs/business-requirements.md` for scope, phases and the questions the owner must answer each morning.
 
-**Mandatory:** before any design, review or handoff work, load the `anthropic-skills:dashboard-ui-ux` skill with the Skill tool and follow its process, principles and checklists (layout, KPI cards, data tables, filters, loading/empty/error states, dark mode, accessibility WCAG 2.2, performance, Vietnamese localization, developer handoff). Do this once at the start of every task, even for small ones. Where the skill and the project docs conflict on domain behavior, the docs win; on UI/UX practice, the skill wins. If the skill cannot be loaded, say so to the user and stop instead of designing without it.
+**Mandatory:** before any design, review or handoff work, load the `dashboard-ui-ux` skill (in `.claude/skills/dashboard-ui-ux`) with the Skill tool and follow its process, principles and checklists (layout, KPI cards, data tables, filters, loading/empty/error states, dark mode, accessibility WCAG 2.2, performance, Vietnamese localization, developer handoff). Do this once at the start of every task, even for small ones. Where the skill and the project docs conflict on domain behavior, the docs win; on UI/UX practice, the skill wins. If the skill cannot be loaded, say so to the user and stop instead of designing without it.
 
 ## Design context
 
