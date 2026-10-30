@@ -117,4 +117,30 @@
   .g3-paper-scroll { overflow: visible !important; max-height: none !important; padding: 0 !important; background: none !important; }
   .g3-paper { box-shadow: none; border: 0; max-width: none; }
 }
+/* ===== Responsive: không để trang cuộn ngang ở 390px (cuộn ngang chỉ trong tab, bảng, stepper, ma trận) ===== */
+.main__inner, .main__inner > *, .stack > *, .stack-2 > *, .stack-6 > *, .g3-split > *, .g3-split--even > *, .grid > *, .row > *,
+.card, .card__body, .card__header, .form-section, .table-wrap, .alert__body, .page-header__text, .dialog, .drawer, .filter-bar > * { min-width: 0; }
+.main__inner { max-width: 100%; }
+.table-scroll, .tabs, .stepper, .g3-paper-scroll { max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
+.tabs::-webkit-scrollbar { display: block; height: 6px; }   /* chỉ báo cuộn ngang của dãy tab */
+.stepper { padding-bottom: var(--space-1); }
+.stepper__step { flex-shrink: 0; min-width: 120px; }
+.dialog { max-width: calc(100vw - 32px); }
+.input, .select, .textarea, .input-group, .field, .combobox { max-width: 100%; }
+.g3-statebar .segmented, .form-footer, .page-header__actions, .bulk-bar, .table-toolbar, .card__footer, .alert__actions, .state__actions { flex-wrap: wrap; }
+.code, .plate, .num { overflow-wrap: anywhere; }
+@media (max-width: 1279px) {
+  .g3-split, .g3-split--even { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 1023px) {
+  .g3-3way { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 639px) {
+  .g3-kv { grid-template-columns: minmax(0, 1fr); }
+  .g3-num { max-width: 100%; }
+  .g3-paper { padding: var(--space-3); }
+  .g3-paper--a4, .g3-paper--a5 { aspect-ratio: auto; }
+  .g3-statebar { padding: var(--space-2); }
+  .page-header__actions > .btn, .page-header__actions > .dropdown { flex: 1 1 auto; }
+}
 .g3-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2) var(--space-4); }

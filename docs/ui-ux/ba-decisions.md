@@ -272,3 +272,74 @@ Giá trị đề xuất cho (iv):
 | `docs/design-system.md` | Phụ lục token bổ sung (badge text, link, focus outline, input border); sửa §5 radius; ghi đối tượng sở hữu của từng nhãn ở "Màu theo nghiệp vụ" |
 | `docs/functional-requirements.md` | Có thể thêm FR cho nhật ký truy cập khi "Hiện" dữ liệu cá nhân (nay chỉ NFR-SEC-03, FR-SYS-003), format mã chứng từ (mở rộng FR-REC-030), lý do tạm dừng; thêm UAT tương ứng. Chưa sửa vì chưa được yêu cầu |
 | `docs/ui-ux/00-foundation.md` §6, §11 | Cập nhật theo bảng A.2 sau khi designer sửa |
+
+Danh sách đề xuất thay đổi chi tiết cho FRD, BRD, Journey, design-system nằm ở `docs/ui-ux/proposed-doc-changes.md` (mục D ở trên chỉ là bản rút gọn từ v0.1).
+
+---
+
+## E. Quyết định đồng bộ sau tổng hợp (30/10/2026) — BA đề xuất, chờ xác nhận
+
+Nguồn: Phụ lục C của `ui-ux-flow.md` (các mâu thuẫn C-1…C-15). Theo ủy quyền của chủ dự án, BA chốt các điểm dưới đây để designer đồng bộ prototype.
+
+### E.1 Chính sách thợ mất mạng ở Phase 1 (giải quyết C-3)
+
+**Mâu thuẫn.** Hai quyết định cùng "đạt" ở gói của mình nhưng trái nhau:
+
+- `ba-answers-01.md` Câu 4 và `G1-DSH-07`: Phase 1 **chặn** ghi Bắt đầu / Tạm dừng / Hoàn thành khi mất mạng; phiếu giấy; Quản đốc nhập bù.
+- `ba-answers-03.md` Câu 8 (gạch thứ ba), `review-03-round2-ba.md` mục 1 và `03` §4.3 (`G2-TEC-01/02`): mốc giờ **vẫn ghi trên máy theo giờ thiết bị**, tự đồng bộ khi có mạng, nhãn "nhập bù", cờ nếu lệch giờ máy chủ > 5 phút; chỉ chặn gửi yêu cầu phụ tùng và báo phát sinh.
+
+**Phương án đã cân nhắc.**
+
+| Phương án | Ưu | Nhược / rủi ro | Kết luận |
+| --- | --- | --- | --- |
+| A. **Chặn** ghi mốc giờ khi mất mạng; phiếu giấy; sau khi có mạng thợ khai giờ thực, Quản đốc xác nhận ("Nhập bù") | Giờ công luôn lấy theo giờ máy chủ; đúng NFR-OFF-01 (chỉ cảnh báo và lưu nháp); không có hàng đợi đồng bộ phải thiết kế và kiểm thử; có người thứ hai (Quản đốc) xác nhận mọi mốc giờ ngoài giờ máy chủ | Thợ phải ghi giấy lúc mất mạng; thêm việc cho Quản đốc | **Chọn cho Phase 1** |
+| B. Ghi mốc giờ cục bộ theo giờ thiết bị, tự đồng bộ sau, cờ lệch > 5 phút | Thợ không bị gián đoạn | Là hàng đợi ghi nền, tức **offline một phần**, vượt NFR-OFF-01 (offline đầy đủ là phạm vi riêng); giờ công và hoa hồng (BR-HRM-03, FR-HRM-009) phụ thuộc đồng hồ thiết bị, thợ có thể chỉnh giờ máy trước khi ngắt mạng; cờ 5 phút chỉ bắt được lệch lớn và phải xử lý xung đột đồng bộ | Hoãn sang Phase 2+ |
+| C. Ghi cục bộ nhưng không tính công đến khi Quản đốc xác nhận | Thợ không bị gián đoạn, có kiểm soát | Vẫn là hàng đợi ghi nền (như B) cộng thêm quy trình duyệt; phức tạp nhất | Không chọn |
+
+**Quyết định.** Chọn **A** cho Phase 1 trên toàn bộ ba mốc giờ. Lý do: (1) FRD NFR-OFF-01 và `CLAUDE.md` chỉ cho "cảnh báo khi mất mạng và lưu nháp"; ghi mốc giờ để đồng bộ sau là một phần của offline đầy đủ; (2) rủi ro gian lận giờ công: giờ quyết định công thợ và hoa hồng nên chỉ giờ máy chủ được coi là đáng tin, mọi giờ khác phải có người thứ hai xác nhận; (3) pilot chỉ một chi nhánh, mất mạng ngắn, chi phí phiếu giấy thấp; (4) nhất quán với cách đã chốt cho yêu cầu phụ tùng và báo phát sinh (chặn gửi, giữ nháp).
+
+**Hành vi chốt (Phase 1).**
+
+1. Khi mất mạng, màn thợ (tablet) hiện banner cảnh báo và **khóa** ba nút Bắt đầu / Tạm dừng / Hoàn thành (khóa bằng `aria-disabled`, kèm lý do bằng chữ, không ẩn). Thợ vẫn xem được việc đã tải. Hệ thống không ghi bất kỳ mốc giờ nào từ thiết bị.
+2. Màn hình ghi rõ: "Đồng hồ của hệ thống vẫn chạy với việc đang làm; hãy ghi giờ thật lên phiếu giấy và nói trực tiếp với quản đốc". Nút "Gửi khi có mạng" chỉ đưa **yêu cầu báo quản đốc** vào hàng chờ cục bộ với chỉ báo "Chờ gửi" (không phải trạng thái hạng mục, không phải mốc giờ); không xác nhận thành công giả.
+3. Khi có mạng, thợ mở "Khai giờ thực", nhập giờ theo phiếu giấy. Hệ thống tạo **yêu cầu nhập bù** (giờ khai báo của thợ, giờ máy chủ lúc khai, mốc đang chạy trên máy chủ). Quản đốc xác nhận hoặc sửa với **lý do bắt buộc**, nhãn "Nhập bù", nhật ký trước/sau (FR-SYS-003); chênh lệch so với đồng hồ hệ thống **≤ 15 phút** Quản đốc tự xác nhận, **> 15 phút** cần Quản lý chi nhánh duyệt (theo `ba-answers-01` Câu 6); thợ xác nhận lại bằng PIN. Ngưỡng là tham số cấu hình. Không xóa mốc giờ.
+4. Khi chưa có xác nhận nhập bù, việc đang chạy trên máy chủ không được tính công cho tới khi chốt mốc kết thúc; báo cáo năng suất và hoa hồng chỉ dùng mốc đã xác nhận.
+5. Theo dõi lạm dụng: số lần nhập bù theo thợ và theo ngày được báo cáo cho Quản đốc/QL (tham số: ví dụ trên 3 lần/tuần/thợ thì cảnh báo). Cờ "lệch giờ máy > 5 phút" của `ba-answers-03` Câu 8 **không dùng ở Phase 1** (không còn giờ thiết bị); giữ làm thiết kế Phase 2+.
+6. Yêu cầu phụ tùng (G2-TEC-03) và báo phát sinh (G2-TEC-04): giữ như đã thống nhất, chặn gửi, lưu nháp trên máy tới hết ca, chỉ báo "CHƯA gửi", thợ bấm Gửi khi có mạng. Không gửi nền.
+7. Từ Phase 2 (khi có phạm vi offline riêng): hàng đợi ba thao tác, nhãn "Chờ đồng bộ", giờ thiết bị kèm giờ máy chủ, cờ lệch > 5 phút, Quản đốc xác nhận khi lệch lớn. Đây là phương án B; cần chủ dự án xác nhận lại khi đó.
+
+**Điều kiện xem lại sớm (đề xuất).** Nếu trong pilot số lần nhập bù do mất mạng vượt 5% số mốc giờ trong một tháng thì đề xuất làm sớm hàng đợi ở Phase 2 hoặc cải thiện hạ tầng mạng xưởng. Câu hỏi Discovery kèm theo: chất lượng Wi-Fi/4G thực tế trong xưởng và số lần mất mạng/ngày (mặc định BA: ít, ngắn).
+
+**Căn cứ.** NFR-OFF-01, BR-HRM-03, FR-HRM-005, FR-HRM-009, FR-REC-013, FR-SYS-003, WF-08, `CLAUDE.md` (Offline), `ba-answers-01` Câu 4, 6, `review-01-round2-ba.md`.
+
+**Văn bản bị thay thế** (bản mới nhất thắng là mục E này): `ba-answers-03.md` Câu 8 gạch "Mốc giờ khi mất mạng"; `review-03-round2-ba.md` mục 1 câu "Riêng mốc giờ…"; `03-quote-technician-delivery.md` §4.3 đoạn "Mất kết nối (chốt cho TEC-01/03/04…)". Các văn bản này không được sửa trong lượt này; designer ghi chú đã bị thay khi sửa tài liệu gói.
+
+**Designer phải sửa (gói 3 và liên quan).**
+
+| Tệp / màn | Việc cần sửa |
+| --- | --- |
+| `design/g2-quote-delivery/g2-tec-02.html` (G2-TEC-02) | Bỏ biến thể `queued` "Mất mạng, chờ đồng bộ" (dòng ~23, 42, 104: "mốc giờ đã ghi trên máy", "chờ đồng bộ", "tự gửi và đánh dấu nhập bù"). Thay bằng biến thể "Mất mạng: ghi giờ bị chặn": ba nút khóa kèm lý do, chỉ dẫn phiếu giấy, nút "Gửi khi có mạng" (yêu cầu báo quản đốc), và biến thể "Có mạng lại: khai giờ thực, chờ quản đốc xác nhận" |
+| `design/g2-quote-delivery/g2-tec-01.html` (G2-TEC-01) | Biến thể `offline`: khóa nút Bắt đầu/Tiếp tục, thêm lý do và chỉ dẫn như G1-DSH-07; giữ cảnh báo nháp "CHƯA gửi" |
+| `design/g2-quote-delivery/pack.js` (banner mất mạng, dòng ~92) | Bỏ câu "Mốc giờ làm việc vẫn được ghi và sẽ đồng bộ sau (đánh dấu nhập bù)"; thay bằng "Không ghi được giờ làm việc khi mất mạng; ghi giờ thật lên phiếu giấy và báo quản đốc" |
+| `design/g1-auth-dashboard/g1-dsh-07.html` (G1-DSH-07) | Giữ bản chặn hiện có; thêm nút/luồng "Khai giờ thực" sau khi có mạng và dòng giải thích 15 phút/QL duyệt cho đồng bộ với G2-TEC-02 |
+| `design/g1-auth-dashboard/g1-err-04.html` (G1-ERR-04) | Các dòng ở view "Có mạng lại, nhập bù" đang mô tả hệ thống tự "đồng bộ 3 bản ghi": sửa thành bản nháp đã giữ trên máy mà người dùng bấm Gửi (hoặc nhập lại từ phiếu giấy); nhãn "Nhập bù" chỉ dùng cho bản ghi do người có thẩm quyền nhập sau từ phiếu giấy kèm giờ thật |
+| Màn Quản đốc (G3-HRM-04 hoặc G2-REC-05 hoặc DSH-09; designer chọn nơi hợp lý) | Hàng chờ "Yêu cầu nhập bù" của thợ: giờ khai, giờ máy chủ, chênh lệch, lý do, Xác nhận/Sửa/Chuyển QL; nếu chưa có chỗ, thêm biến thể vào màn đã có chứ không thêm màn mới (hoặc báo BA nếu cần màn riêng) |
+| `docs/ui-ux/03-quote-technician-delivery.md` §4.3, §11/§13 | Đổi đoạn "Mất kết nối" theo E.1; ghi finding mới (không đổi kết quả ĐẠT của gói) |
+| `docs/ui-ux/01-auth-dashboard.md` | Đồng bộ mô tả DSH-07 và ERR-04; sửa 6 chỗ nhắc "nhập bù/đồng bộ" |
+| `docs/ui-ux/ui-ux-flow.md` §3 (luồng thợ), §4, Phụ lục C | Bỏ nhánh "ghi giờ cục bộ"; đánh dấu C-3 đã giải quyết |
+
+### E.2 Các mâu thuẫn khác của Phụ lục C (đã chốt)
+
+| Mã | Quyết định | Nơi áp dụng |
+| --- | --- | --- |
+| C-1, C-2 | Tiến độ review thực tế và tổng **184** màn (G4 = 67 vì G4-ACC-21) | `STATUS.md`, `screen-inventory.md` §1 (đã sửa) |
+| C-4 | Báo giá chỉ tạo **phiên bản mới khi chưa có hạng mục nào được duyệt**; đã Duyệt toàn phần/một phần thì thay đổi đi qua báo giá bổ sung (`ba-answers-03` Câu 1) | `screen-inventory.md` §7.4 bước 6 (đã sửa) |
+| C-5 | Lệnh **tự** vào "Đang sửa" khi hạng mục đầu tiên "Đang làm"; hệ thống chỉ **nhắc** khi đủ điều kiện chuyển "Chờ QC", người dùng (CV, QĐ, QL) bấm chuyển (`ba-answers-02` A.1) | `screen-inventory.md` §7.4 (đã sửa); Journey §7 (đề xuất) |
+| C-6 | Số tồn thứ ba là **"Đang vận chuyển"** ở mọi nơi; "Đã đặt N" là chip phụ | Mục câu 4 ở trên; `screen-inventory.md` §4.1 (đã sửa); designer làm sạch bảng 4 ở `04` §4 |
+| C-7 | Bảng màn hình bản 0.1 trong gói 1 và gói 4 chỉ là lịch sử; bản 0.2 và `00-foundation.md` §7 thắng. CV **không** có quyền ở INV-04 (FRD §2: CV "-" ở kho), CV tra tồn qua bộ chọn trong báo giá, INV-01/19 chỉ đọc | `screen-inventory.md` §4.1 (đã sửa); designer xóa/ghi chú bảng cũ |
+| C-8 | Mã chứng từ chuẩn `LOẠI-MÃCN-YYMM-STT`; `RO-2026-001284` của foundation chỉ là dữ liệu mẫu cũ, đổi khi chạm màn | designer (Minor) |
+| C-9 | Nhãn "Chờ tiếp nhận / Chờ duyệt báo giá / Sẵn sàng bàn giao" gán đúng đối tượng theo A.1 (Lịch hẹn/Tiếp nhận; Báo giá; Lệnh) | `proposed-doc-changes.md` (design-system §2) |
+| C-12 | Touch target: 40px (md) / 32px (sm) chỉ khi `pointer: fine` **và** ≥ 1024px; còn lại ≥ 44px; màn thợ 52px (mục C(v)) | `proposed-doc-changes.md` (design-system §11) |
+| C-13 | FR-ACC-009: giá trị gợi ý chỉ ở trạng thái Nháp; FRD §2 tách hàng "Danh mục và cấu hình nghiệp vụ" (`ba-answers-06` Phụ lục B) | `proposed-doc-changes.md` |
+| C-15 | Bảng "Yêu cầu cấp phụ tùng" có **6 trạng thái** (A.2b hàng 3), ánh xạ cho INV-06 như ghi chú | A.2b |
+| C-10, C-11, C-14 | Giữ như Phụ lục C: C-10 và C-11 là đề xuất sửa design-system và FRD §13; C-14 chờ sơ đồ gốc | `proposed-doc-changes.md` |
