@@ -41,7 +41,7 @@
         <caption class="sr-only">Các yêu cầu phê duyệt đang chờ</caption>
         <thead><tr>
           <th class="col-check"><span class="sr-only">Chọn để duyệt hàng loạt (chỉ mục đủ điều kiện, cùng loại)</span></th>
-          <th>Loại</th><th>Nội dung</th><th>Người đề xuất</th><th class="col-num">Giá trị</th><th>So với hạn mức</th><th>Chờ</th><th class="col-actions"><span class="sr-only">Mở</span></th></tr></thead>
+          <th>Loại</th><th>Nội dung</th><th>Người đề xuất</th><th class="col-num">Giá trị</th><th>So với hạn mức</th><th>Cờ rủi ro</th><th>Chờ</th><th class="col-actions"><span class="sr-only">Mở</span></th></tr></thead>
         <tbody>
           <tr data-g4f-roles="CH QV QL KT CV"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check data-btype="disc" aria-label="Chọn giảm giá RO-Q7-2610-00129"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--warning">Giảm giá</span></td><td><span class="code cell-primary">RO-Q7-2610-00129</span><span class="cell-sub">Giảm 12% cho khách quen Lê Quốc Huy</span></td><td>Nguyễn Hoàng Yến<span class="cell-sub">CV · Chi nhánh Quận 7</span></td><td class="col-num">1.560.000 ₫</td><td>12% / 5% <span class="g4f-sample">minh họa</span></td><td class="col-nowrap">2 giờ</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Giảm giá vượt hạn mức" data-sub="RO-Q7-2610-00129">Xem</button></td></tr>
           <tr data-g4f-roles="CH QV QL KT TN"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check data-btype="diff" aria-label="Chọn chênh lệch quỹ ca sáng 30/10"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--danger">Chênh lệch quỹ</span></td><td><span class="cell-primary">Ca sáng 30/10/2026</span><span class="cell-sub">Đã giải trình: thiếu tiền thối khách</span></td><td>Phạm Thị Lan<span class="cell-sub">TN · Chi nhánh Quận 7</span></td><td class="col-num">−150.000 ₫</td><td>Trong ngưỡng QL <span class="g4f-sample">minh họa</span></td><td class="col-nowrap">20 phút</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Chênh lệch quỹ ca sáng" data-sub="Ca sáng 30/10/2026">Xem</button></td></tr>
@@ -84,24 +84,25 @@
     <div><div class="row row--between t-body-sm"><span>Giảm giá</span><strong class="num">12% / 5% hạn mức cấp CV</strong></div><div class="g4f-limit" role="img" aria-label="12% so với hạn mức 5%, vượt hạn mức"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:41%"></span></div><div class="g4f-limit__cap"><span>0%</span><span>Hạn mức 5% <span class="g4f-sample">minh họa, từ G4-APR-03</span></span><span>12%</span></div></div>
     <a class="btn btn--ghost btn--sm" href="g4-apr-02.html" style="align-self:flex-start">Mở chi tiết đầy đủ và lịch sử<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a>
     <p class="g4f-why" id="appr-why" role="status" style="margin:0"></p>
+    <div class="alert alert--neutral" id="appr-result" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"></div></div>
   </div>
   <div class="card__footer" style="margin-top:auto;flex-wrap:wrap"><button class="btn btn--danger-outline" id="btn-rej" data-open="dlg-reject">Từ chối</button><button class="btn btn--secondary" id="btn-esc" data-open="dlg-esc">Chuyển cấp</button><button class="btn btn--primary" id="btn-appr" data-open="dlg-approve" data-g4f-online>Duyệt</button></div></aside></div>
 
 <div class="overlay" id="dlg-approve" role="alertdialog" aria-modal="true" aria-labelledby="ap-t"><div class="dialog" data-g4f-gate>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="ap-t">Duyệt yêu cầu này?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body stack"><dl class="g4f-sum"><div><dt>Yêu cầu</dt><dd id="ap-what">Giảm giá vượt hạn mức · RO-Q7-2610-00129</dd></div><div><dt>Người duyệt</dt><dd id="ap-who"></dd></div></dl><p class="t-body-sm text-secondary" style="margin:0">Hệ thống thực hiện ngay hành động đã đề xuất và ghi nhật ký (người duyệt, giá trị, thời điểm). Bấm hai lần không duyệt hai lần.</p>
+  <div class="dialog__body stack"><dl class="g4f-sum"><div><dt>Yêu cầu</dt><dd id="ap-what">Giảm giá vượt hạn mức · RO-Q7-2610-00129</dd></div><div><dt>Giá trị</dt><dd id="ap-val">—</dd></div><div><dt>Người duyệt</dt><dd id="ap-who"></dd></div></dl><p class="t-body-sm text-secondary" style="margin:0">Hệ thống thực hiện ngay hành động đã đề xuất và ghi nhật ký (người duyệt, giá trị, thời điểm). Bấm hai lần không duyệt hai lần.</p>
     <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem giá trị, lý do và so với hạn mức.</span></label></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-appr" data-busy="Đang duyệt…" data-done-label="Đã duyệt" data-done-toast="success|Đã duyệt|Người đề xuất được thông báo; ghi nhật ký." disabled>Duyệt</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" id="ap-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-appr" data-busy="Đang duyệt…" data-done-label="Đã duyệt" data-done-toast="success|Đã duyệt|Người đề xuất được thông báo; ghi nhật ký." disabled>Duyệt</button></div></div></div>
 
 <div class="overlay" id="dlg-reject" role="alertdialog" aria-modal="true" aria-labelledby="rj-t"><div class="dialog" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#circle-x"/></svg></div><div><h2 class="dialog__title" id="rj-t">Từ chối yêu cầu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><p class="t-body-sm text-secondary">Người đề xuất sẽ nhận lý do này. Hành động đề xuất không được thực hiện.</p><div class="field"><label class="field__label" for="rj-r">Lý do từ chối<span class="field__req" aria-hidden="true">*</span></label><textarea id="rj-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-rej" data-busy="Đang từ chối…" data-done-label="Đã từ chối" data-done-toast="warning|Đã từ chối yêu cầu|Lý do được gửi cho người đề xuất." disabled>Từ chối</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" id="rj-ok" data-confirm-btn data-g4f-submit data-lock="#btn-rej" data-busy="Đang từ chối…" data-done-label="Đã từ chối" data-done-toast="warning|Đã từ chối yêu cầu|Lý do được gửi cho người đề xuất." disabled>Từ chối</button></div></div></div>
 
 <div class="overlay" id="dlg-esc" role="dialog" aria-modal="true" aria-labelledby="es-t"><div class="dialog">
   <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="es-t">Chuyển lên cấp trên</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body"><p>Yêu cầu chuyển sang cấp duyệt kế tiếp theo ma trận (G4-APR-03) kèm ghi chú của bạn.</p></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="info|Đã chuyển cấp|Người nhận được thông báo.">Chuyển cấp</button></div></div></div>
+  <div class="dialog__body stack"><p style="margin:0">Yêu cầu chuyển sang cấp duyệt kế tiếp theo ma trận (G4-APR-03) kèm ghi chú của bạn.</p><div class="field"><label class="field__label" for="es-n">Ghi chú cho cấp trên<span class="field__req" aria-hidden="true">*</span></label><textarea id="es-n" class="textarea" style="min-height:64px"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="es-ok" data-g4f-submit data-lock="#btn-esc" data-busy="Đang chuyển cấp…" data-done-label="Đã chuyển cấp" data-done-toast="info|Đã chuyển cấp|Người nhận được thông báo kèm ghi chú." data-g4f-online disabled>Chuyển cấp</button></div></div></div>
 
 <div class="overlay" id="dlg-bulk" role="alertdialog" aria-modal="true" aria-labelledby="bk-t"><div class="dialog" data-g4f-gate>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="bk-t">Duyệt hàng loạt <span id="bk-n">các mục</span> đã chọn?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
@@ -122,35 +123,66 @@ window.G4F_PAGE = {
 <script>
 (function () {
   var T = { 'Giảm giá vượt hạn mức': ['disc', 'Nguyễn Hoàng Yến'], 'Chênh lệch quỹ ca sáng': ['diff', 'Phạm Thị Lan'], 'Hoàn tiền cho khách': ['refund', 'Phạm Thị Lan'], 'Hóa đơn thay thế': ['inv', 'Đặng Thu Hà'], 'Chi vượt hạn mức': ['spend', 'Võ Minh Quân'], 'Hủy lệnh sau xuất kho': ['cancel', 'Nguyễn Hoàng Yến'], 'Mở lại ngày đã khóa': ['reopen', 'Đặng Thu Hà'] };
-  var $ = G4F.$, cur = null;
+  var $ = G4F.$, cur = null, curEl = null, DONE = {};
+  var V = { disc: 1560000, diff: 150000, refund: 1250000, inv: 3200000, spend: 6800000, cancel: 2140000, reopen: 0 };
+  var FLAG = { 'Chi vượt hạn mức': ['Thiếu chứng từ gốc'], 'Hủy lệnh sau xuất kho': ['Lặp trong 24 giờ'] };
   function role() { return document.body.getAttribute('data-role'); }
-  /* Quyền duyệt theo (loại, vai trò, người lập ≠ người duyệt) */
+  function money(v) { return v ? ' ' + G4F.fmt(v) : ''; }
+  /* Cột Cờ rủi ro: cờ dữ liệu + "Người lập = bạn" tính theo vai trò đang xem (người đề xuất chỉ thấy dòng của mình, không thấy cờ của người khác) */
+  function flags() {
+    G4F.$$('tbody tr').forEach(function (tr) {
+      var b = $('[data-title]', tr); if (!b) return; var t = b.getAttribute('data-title'), c = T[t] || [], td = $('.js-flag', tr);
+      if (!td) { td = document.createElement('td'); td.className = 'js-flag'; var tds = tr.children; tr.insertBefore(td, tds[tds.length - 2]); }
+      var list = (FLAG[t] || []).slice(); if (c[1] && c[1] === G4F.user()) list.push('Người lập = bạn');
+      td.innerHTML = list.length ? list.map(function (x) { return '<span class="tag tag--warning">' + x + '</span>'; }).join(' ') : '<span class="g4f-muted">Không</span>';
+      var chk = $('input[data-btype]', tr); if (chk) { chk.dataset.me = (c[1] === G4F.user()) ? '1' : ''; }
+    });
+  }
+  /* Quyền duyệt theo (loại, vai trò, người lập ≠ người duyệt); khóa là trạng thái của YÊU CẦU, không phải của nút */
   function drawerGate() {
-    if (!cur) return; var r = G4F.canApprove(cur[0], role(), cur[1]);
-    G4F.setEnabled($('#btn-appr'), r.ok); G4F.setEnabled($('#btn-rej'), r.ok);
-    $('#appr-why').textContent = r.ok ? '' : 'Nút Duyệt và Từ chối bị khóa: ' + r.why;
+    if (!cur) return; var key = curEl, st = DONE[key], r = G4F.canApprove(cur[0], role(), cur[1]), ok = r.ok && !st;
+    ['#btn-appr', '#btn-rej', '#btn-esc'].forEach(function (s) { G4F.setEnabled($(s), ok); });
+    $('#appr-why').textContent = st ? '' : (r.ok ? '' : 'Nút Duyệt, Từ chối, Chuyển cấp bị khóa: ' + r.why);
+    $('#appr-result').hidden = !st; $('#appr-result .alert__body').textContent = st ? 'Đã xử lý: ' + st + '. Không quyết định ngược trên yêu cầu này.' : '';
     $('#ap-who').textContent = G4F.user();
   }
-  document.addEventListener('click', function (e) {
-    var o = e.target.closest('[data-open="drw-apr"]'); if (!o) return;
-    var t = o.getAttribute('data-title') || ''; document.getElementById('da-t').textContent = t; document.getElementById('da-s').textContent = o.getAttribute('data-sub') || '';
-    cur = T[t] || ['disc', '']; document.getElementById('ap-what').textContent = t + ' · ' + (o.getAttribute('data-sub') || ''); drawerGate();
+  function openReq(o) {
+    var t = o.getAttribute('data-title') || '', s = o.getAttribute('data-sub') || ''; curEl = t + '|' + s; cur = T[t] || ['disc', ''];
+    document.getElementById('da-t').textContent = t; document.getElementById('da-s').textContent = s; document.getElementById('ap-what').textContent = t + ' · ' + s;
+    ['#btn-appr', '#btn-rej', '#btn-esc'].forEach(function (x) { G4F.resetBtn($(x)); });
+    var v = V[cur[0]] || 0; $('#btn-appr').innerHTML = 'Duyệt' + money(v); $('#btn-appr')._label = $('#btn-appr').innerHTML;
+    $('#ap-ok').textContent = 'Duyệt' + money(v); $('#ap-val').textContent = v ? G4F.fmt(v) : '—'; drawerGate();
+  }
+  document.addEventListener('click', function (e) { var o = e.target.closest('[data-open="drw-apr"]'); if (o) openReq(o); });
+  document.addEventListener('input', function (e) { if (e.target.id === 'es-n') G4F.setEnabled($('#es-ok'), e.target.value.trim().length >= 5); });
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-open="dlg-esc"]')) { $('#es-n').value = ''; G4F.resetBtn($('#es-ok')); G4F.setEnabled($('#es-ok'), false); } });
+  /* Sau một quyết định: khóa cả ba nút của yêu cầu đó, chuyển dòng sang tab "Đã xử lý" */
+  document.addEventListener('g4f:done', function (e) {
+    var map = { 'ap-ok': 'Đã duyệt', 'rj-ok': 'Đã từ chối', 'es-ok': 'Đã chuyển cấp' }, res = map[e.detail.id]; if (!res || !curEl) return;
+    DONE[curEl] = res; drawerGate();
+    var btn = G4F.$$('[data-open="drw-apr"]').filter(function (b) { return (b.getAttribute('data-title') + '|' + b.getAttribute('data-sub')) === curEl; });
+    btn.forEach(function (b) {
+      var tr = b.closest('tr'), rec = b.closest('.record'); if (rec) rec.hidden = true;
+      if (tr) { var tb = document.querySelector('#tp3 tbody'), n = document.createElement('tr'); n.innerHTML = '<td><span class="tag tag--neutral">' + b.getAttribute('data-title') + '</span></td><td class="cell-primary">' + b.getAttribute('data-sub') + '</td><td><span class="tag ' + (res === 'Đã từ chối' ? 'tag--danger' : res === 'Đã duyệt' ? 'tag--success' : 'tag--info') + '">' + res + '</span></td><td>' + G4F.user() + '</td><td class="num">30/10/2026 09:16</td>'; tb.insertBefore(n, tb.firstChild); tr.remove(); }
+    });
+    var p = document.querySelector('#tb1 .count-pill'); if (p) p.textContent = String(Math.max(parseInt(p.textContent, 10) - 1, 0));
   });
-  document.addEventListener('g4f:ktt', drawerGate);
+  document.addEventListener('g4f:ktt', function () { drawerGate(); flags(); });
   /* Duyệt hàng loạt: chỉ một loại mỗi lần chọn, đúng quyền, mỗi mục ghi nhật ký riêng */
   function bulk() {
     var sel = G4F.$$('input[data-btype]:checked'), type = sel.length ? sel[0].getAttribute('data-btype') : null;
-    G4F.$$('input[data-btype]').forEach(function (i) { var diff = type && i.getAttribute('data-btype') !== type; i.disabled = !!diff; i.title = diff ? 'Chỉ chọn cùng một loại trong một lần duyệt hàng loạt.' : ''; });
+    G4F.$$('input[data-btype]').forEach(function (i) { var diff = type && i.getAttribute('data-btype') !== type, me = i.dataset.me === '1'; i.disabled = !!diff || me; i.title = me ? 'Bạn là người đề xuất; người lập không tự duyệt.' : diff ? 'Chỉ chọn cùng một loại trong một lần duyệt hàng loạt.' : ''; });
     var b = $('#btn-bulk'), w = $('#bulk-why');
     if (!type) { G4F.setEnabled(b, false); w.textContent = 'Chọn ít nhất một mục.'; return; }
-    var r = G4F.canApprove(type, role(), type === 'disc' ? 'Nguyễn Hoàng Yến' : 'Phạm Thị Lan');
-    G4F.setEnabled(b, r.ok); w.textContent = r.ok ? 'Đã chọn ' + sel.length + ' mục cùng loại “' + (type === 'disc' ? 'Giảm giá' : 'Chênh lệch quỹ') + '”.' : r.why;
-    document.getElementById('bk-n').textContent = sel.length + ' mục “' + (type === 'disc' ? 'Giảm giá' : 'Chênh lệch quỹ') + '”';
+    var who = type === 'disc' ? 'Nguyễn Hoàng Yến' : 'Phạm Thị Lan', r = G4F.canApprove(type, role(), who), total = sel.length * V[type];
+    var nm = type === 'disc' ? 'Giảm giá' : 'Chênh lệch quỹ';
+    G4F.setEnabled(b, r.ok); b.lastChild.textContent = 'Duyệt ' + sel.length + ' mục · ' + G4F.fmt(total); w.textContent = r.ok ? 'Đã chọn ' + sel.length + ' mục cùng loại “' + nm + '”.' : r.why;
+    document.getElementById('bk-n').textContent = sel.length + ' mục “' + nm + '” (tổng ' + G4F.fmt(total) + ')';
   }
   document.addEventListener('change', function (e) { if (e.target.matches('input[data-btype]')) bulk(); });
   document.addEventListener('click', function (e) { if (e.target.closest('[data-bulk-clear]')) setTimeout(bulk, 5); });
   bulk();
-  function note() { var r = document.body.getAttribute('data-role'); document.getElementById('own-note').hidden = ['TN', 'CV', 'TK'].indexOf(r) < 0; $$r(); bulk(); drawerGate(); }
+  function note() { var r = document.body.getAttribute('data-role'); document.getElementById('own-note').hidden = ['TN', 'CV', 'TK'].indexOf(r) < 0; $$r(); flags(); bulk(); drawerGate(); }
   function $$r() { var r = document.body.getAttribute('data-role'); G4F.$$('tbody tr[data-g4f-roles]').forEach(function (tr) { tr.hidden = tr.getAttribute('data-g4f-roles').split(' ').indexOf(r) < 0; }); }
   document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(note, 5); });
   note();
