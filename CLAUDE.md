@@ -31,6 +31,10 @@ Three embedded diagrams in these docs were lost in export (placeholders only: re
 
 Use `ba` before `designer` when a requirement is unclear or missing.
 
+## UI/UX design work (`design/`, `docs/ui-ux/`)
+
+Prototype HTML/CSS for the whole dashboard lives in `design/` (shared `assets/`, `foundation/`, and six screen packs). Tokens in `docs/design-system.md` are mandatory and must not be changed. The BA decisions in `docs/ui-ux/ba-decisions.md` and `ba-answers-0N.md` are proposals pending client confirmation. **Current progress, review-round table and the next steps are in `docs/ui-ux/STATUS.md`; read it before continuing this work.** Run at most 2 agents in parallel.
+
 ## Domain model and rules that span modules
 
 - **Multi-branch**: Company → Branch → Warehouse (must extend to multiple legal entities later). Every business record carries creator, timestamp and branch; every change is audit-logged (FR-SYS-003). Branch data isolation must hold in lists, search, reports, exports and API (NFR-ISO-01). Adding a branch is configuration only.

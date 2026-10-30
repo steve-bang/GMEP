@@ -19,7 +19,7 @@
   <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
     <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="ok" data-vg="l" aria-pressed="true">Trong hạn mức</button><button class="segmented__item" data-g4f-var="over" data-vg="l" aria-pressed="false">Vượt hạn mức</button></div></div>
 
-  <div class="alert alert--danger" data-vg="l" data-v="over" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Dư nợ vượt hạn mức công nợ</span><span>Dư nợ 53.100.000 ₫ so với hạn mức 50.000.000 ₫ <span class="g4f-sample">minh họa</span>. Lập báo giá/lệnh chỉ hiện cảnh báo cho Cố vấn; khi <strong>bàn giao xe hoặc hoàn tất lệnh</strong> làm dư nợ vượt hạn mức thì cần Quản lý chi nhánh duyệt (nới tạm thời có thời hạn và lý do). Chính sách đổi được theo khách: chỉ cảnh báo, cần duyệt hoặc chặn cứng <span class="g4f-sample">cấu hình, mặc định cần duyệt</span>.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-open="dlg-lim" data-g4f-need="KT" data-g4f-why="Kế toán đề xuất nới hạn mức; Chủ garage/Quản lý duyệt.">Đề xuất nới hạn mức</button></div></div></div>
+  <div class="alert alert--danger" data-vg="l" data-v="over" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Dư nợ vượt hạn mức công nợ</span><span>Dư nợ 53.100.000 ₫ so với hạn mức 50.000.000 ₫ <span class="g4f-sample">minh họa</span>. Lập báo giá/lệnh chỉ hiện cảnh báo cho Cố vấn; khi <strong>bàn giao xe hoặc hoàn tất lệnh</strong> làm dư nợ vượt hạn mức thì cần Quản lý chi nhánh duyệt (nới tạm thời có thời hạn và lý do). Chính sách đổi được theo khách: chỉ cảnh báo, cần duyệt hoặc chặn cứng <span class="g4f-sample">cấu hình, mặc định cần duyệt</span>.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" id="btn-lim" data-open="dlg-lim" data-g4f-need="KT" data-g4f-why="Kế toán đề xuất nới hạn mức; Chủ garage/Quản lý duyệt.">Đề xuất nới hạn mức</button></div></div></div>
 
   <section class="card" aria-labelledby="h-c">
     <div class="card__body stack">
@@ -59,7 +59,7 @@
 <div class="overlay" id="dlg-collect" role="alertdialog" aria-modal="true" aria-labelledby="co-t"><div class="dialog dialog--md" data-g4f-gate>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="co-t">Ghi nhận thu công nợ</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body stack">
-    <div class="form-grid"><div class="field"><label class="field__label" for="co-a">Số tiền thu<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="co-a" class="input input--num" data-money value="4.600.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
+    <div class="form-grid"><div class="field"><label class="field__label" for="co-a">Số tiền thu<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="co-a" class="input input--num" data-money value="4.600.000" inputmode="numeric" style="padding-left:12px" aria-describedby="co-e"><span class="input-group__suffix">₫</span></div><span class="field__error" id="co-e" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Số tiền phải lớn hơn 0 và không vượt tổng dư nợ của khách.</span></div>
       <div class="field"><label class="field__label" for="co-m">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="co-m" class="select"><option>Chuyển khoản</option><option>Tiền mặt</option></select></div></div>
     <div class="field"><label class="field__label" for="co-r">Mã giao dịch<span class="field__req" aria-hidden="true">*</span></label><input id="co-r" class="input" placeholder="Ví dụ: VCB 4 số cuối"></div>
     <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Mặc định phân bổ vào lệnh <strong>nợ lâu nhất</strong> trước: RO-Q7-2610-00110 (4.600.000 ₫). Chỉnh phân bổ sau ở chi tiết phiếu thu.</span></div></div>
@@ -75,7 +75,7 @@
 <div class="overlay" id="dlg-lim" role="alertdialog" aria-modal="true" aria-labelledby="lm-t"><div class="dialog dialog--md" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="lm-t">Đề xuất nới hạn mức công nợ?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><ul class="impact-list"><li>Nới <strong>tạm thời</strong> có thời hạn; cần Quản lý chi nhánh duyệt ở hàng chờ phê duyệt (loại yêu cầu riêng, không duyệt hàng loạt).</li><li>Cho phép giao xe/lập lệnh mới mà dư nợ vẫn vượt, nên rủi ro không thu hồi được tăng.</li></ul><div class="field"><label class="field__label" for="lm-d">Nới đến ngày<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="lm-d" class="input" value="15/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div><div class="field"><label class="field__label" for="lm-r">Lý do, kế hoạch thu hồi<span class="field__req" aria-hidden="true">*</span></label><textarea id="lm-r" class="textarea" data-confirm-reason></textarea></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi duyệt|Chờ Chủ garage duyệt." disabled>Gửi duyệt</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-lim" data-busy="Đang gửi duyệt…" data-done-label="Đã gửi duyệt nới hạn mức" data-done-toast="info|Đã gửi duyệt nới hạn mức|Chờ Quản lý chi nhánh duyệt." disabled>Gửi duyệt</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -87,6 +87,25 @@ window.G4F_PAGE = {
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
 <script>
+/* Thu công nợ: số tiền 1..dư nợ, mã giao dịch bắt buộc với chuyển khoản, khóa chống thu trùng, đặt lại khi mở lại */
+(function () {
+  var $ = G4F.$, DEBT = 23875000;
+  function upd() {
+    var v = G4F.num($('#co-a').value), ref = $('#co-r').value.trim(), cash = $('#co-m').value === 'Tiền mặt';
+    var bad = v === 0 || v > DEBT || (!cash && ref.length < 3);
+    $('#co-e').hidden = !(v > DEBT); $('#co-a').classList.toggle('is-error', v > DEBT);
+    $('#co-ok').textContent = v ? 'Ghi nhận thu ' + G4F.fmt(v) : 'Ghi nhận thu';
+    if (!$('#co-ok').hasAttribute('data-g4f-keep-lock')) G4F.setEnabled($('#co-ok'), !bad);
+  }
+  document.addEventListener('input', function (e) { if (e.target.id === 'co-a' || e.target.id === 'co-r') upd(); });
+  document.addEventListener('change', function (e) { if (e.target.id === 'co-m') upd(); });
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-open="dlg-collect"]')) { G4F.resetBtn($('#co-ok')); $('#co-a').value = ''; $('#co-r').value = ''; upd(); } });
+  document.addEventListener('g4f:done', function (e) {
+    if (e.detail.id !== 'co-ok') return; var v = G4F.num($('#co-a').value); DEBT = Math.max(DEBT - v, 0);
+    G4F.$$('#lim-debt,#tot-debt').forEach(function (x) { x.textContent = G4F.fmt(DEBT); }); $('#lim-pct').textContent = (DEBT / 50000000 * 100).toFixed(1).replace('.', ',') + '%'; $('#lim-bar').style.width = Math.min(DEBT / 500000, 100) + '%';
+  });
+  G4F.setEnabled($('#co-ok'), false);
+})();
 document.addEventListener('g4f:var', function (e) {
   if (e.detail.group !== 'l') return; var over = e.detail.v === 'over', bar = document.getElementById('lim-bar');
   bar.className = 'g4f-limit__bar' + (over ? ' is-over' : ''); bar.style.width = over ? '100%' : '47.8%';

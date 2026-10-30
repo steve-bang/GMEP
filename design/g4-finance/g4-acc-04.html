@@ -71,10 +71,10 @@
     <div class="field"><label class="field__label" for="ex-n">Người nhận tiền<span class="field__req" aria-hidden="true">*</span></label><input id="ex-n" class="input" placeholder="Họ tên hoặc tên cửa hàng"></div>
     <div class="field"><label class="field__label" for="ex-d">Diễn giải<span class="field__req" aria-hidden="true">*</span></label><textarea id="ex-d" class="textarea" style="min-height:64px" placeholder="Chi cho việc gì"></textarea></div>
     <div class="field"><label class="field__label" for="ex-c">Chứng từ gốc (số hóa đơn hoặc ảnh)</label><input id="ex-c" class="input" placeholder="Phiếu chi cần có chứng từ gốc (RULE-007)"><span class="field__hint">Chọn ảnh hóa đơn ở bước đính kèm nếu có; thiếu chứng từ vẫn lưu được nhưng bị liệt kê ở bước chốt ngày.</span></div>
-    <div class="alert alert--warning" id="ex-over" hidden role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Vượt hạn mức chi: cần duyệt trước khi chi</span><span>Số này so với hạn mức của cấp Thu ngân: <strong class="num">1.200.000 ₫</strong> / <strong class="num">500.000 ₫</strong> <span class="g4f-sample">Giá trị minh họa, lấy từ cấu hình G4-APR-03</span>. Phiếu sẽ ở trạng thái “Chờ duyệt”, chưa trừ quỹ.</span></div></div>
+    <div class="alert alert--warning" id="ex-over" hidden role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Vượt hạn mức chi: cần duyệt trước khi chi</span><span>Số này so với hạn mức của cấp Thu ngân: <strong class="num" id="ex-ov-a">0 ₫</strong> / <strong class="num">500.000 ₫</strong> <span class="g4f-sample">Giá trị minh họa, lấy từ cấu hình G4-APR-03</span>. Phiếu sẽ ở trạng thái “Chờ duyệt”, chưa trừ quỹ.</span></div></div>
     <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã kiểm tra người nhận, loại chi phí và số tiền; chứng từ gốc đã có hoặc sẽ bổ sung trước khi chốt ngày.</span></label>
   </div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="ex-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-exp" data-busy="Đang ghi nhận chi…" data-done-label="Đã ghi nhận chi" data-done-toast="success|Đã chi tiền|Phiếu chi PC-Q7-2610-00042 đã trừ quỹ." disabled>Chi tiền</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="ex-ok" data-g4f-gate-btn data-g4f-submit data-lock="#ex-ok" data-busy="Đang ghi nhận chi…" data-done-label="Đã ghi nhận chi" data-done-toast="success|Đã chi tiền|Phiếu chi PC-Q7-2610-00042 đã trừ quỹ." disabled>Chi tiền</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -90,13 +90,22 @@ window.G4F_PAGE = {
 (function () {
   var $ = G4F.$;
   var BAL = 5870000, LIM = 500000;
-  document.addEventListener('input', function (e) {
-    if (e.target.id !== 'ex-a') return;
-    var v = G4F.num(e.target.value), err = $('#ex-err'), t = $('#ex-err-t'), over = $('#ex-over'), ok = $('#ex-ok');
-    err.hidden = true; over.hidden = true; e.target.classList.remove('is-error'); e.target.removeAttribute('aria-invalid');
-    if (v > BAL) { err.hidden = false; t.textContent = 'Số dư quỹ chỉ còn ' + G4F.fmt(BAL) + ', không chi âm quỹ được. Cách xử lý: chi bằng chuyển khoản, hoặc lập phiếu nạp/chuyển quỹ có chứng từ (từ giai đoạn 2) rồi chi tiếp.'; e.target.classList.add('is-error'); e.target.setAttribute('aria-invalid', 'true'); G4F.setEnabled(ok, false); }
-    else { G4F.setEnabled(ok, v > 0); if (v > LIM) { over.hidden = false; ok.textContent = 'Gửi duyệt ' + G4F.fmt(v); ok.setAttribute('data-done-toast', 'warning|Đã gửi duyệt|Chờ Quản lý chi nhánh duyệt, chưa trừ quỹ.'); } else { ok.textContent = v ? 'Chi tiền ' + G4F.fmt(v) : 'Chi tiền'; ok.setAttribute('data-done-toast', 'success|Đã chi tiền|Phiếu chi PC-Q7-2610-00042 đã trừ quỹ.'); } }
-  });
+  /* Nút chỉ bật khi Loại, Số tiền, Người nhận, Diễn giải đều hợp lệ; cảnh báo hiện số thật đang nhập */
+  function upd() {
+    var a = $('#ex-a'), v = G4F.num(a.value), err = $('#ex-err'), t = $('#ex-err-t'), over = $('#ex-over'), ok = $('#ex-ok');
+    var filled = $('#ex-l').value && $('#ex-n').value.trim().length >= 2 && $('#ex-d').value.trim().length >= 5;
+    err.hidden = true; over.hidden = true; a.classList.remove('is-error'); a.removeAttribute('aria-invalid');
+    if (v > BAL) { err.hidden = false; t.textContent = 'Số dư quỹ chỉ còn ' + G4F.fmt(BAL) + ', không chi âm quỹ được. Cách xử lý: chi bằng chuyển khoản, hoặc lập phiếu nạp/chuyển quỹ có chứng từ (từ giai đoạn 2) rồi chi tiếp.'; a.classList.add('is-error'); a.setAttribute('aria-invalid', 'true'); }
+    var needApr = v > LIM && v <= BAL;
+    if (needApr) { over.hidden = false; $('#ex-ov-a').textContent = G4F.fmt(v); }
+    ok.textContent = needApr ? 'Gửi duyệt ' + G4F.fmt(v) : (v ? 'Chi tiền ' + G4F.fmt(v) : 'Chi tiền');
+    ok.setAttribute('data-done-toast', needApr ? 'warning|Đã gửi duyệt|Chờ Quản lý chi nhánh duyệt, chưa trừ quỹ.' : 'success|Đã chi tiền|Phiếu chi PC-Q7-2610-00042 đã trừ quỹ.');
+    if (!ok.hasAttribute('data-g4f-keep-lock')) G4F.setEnabled(ok, v > 0 && v <= BAL && !!filled);
+  }
+  document.addEventListener('input', function (e) { if (['ex-a', 'ex-n', 'ex-d', 'ex-c'].indexOf(e.target.id) >= 0) upd(); });
+  document.addEventListener('change', function (e) { if (e.target.id === 'ex-l') upd(); });
+  /* Mỗi lần mở là một phiếu mới: xóa trắng form và nhả khóa của lần trước */
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-open="dlg-expense"]')) { ['ex-a', 'ex-n', 'ex-d', 'ex-c'].forEach(function (i) { $('#' + i).value = ''; }); G4F.resetBtn($('#ex-ok')); upd(); } });
   G4F.setEnabled($('#ex-ok'), false);
   G4F.applyVar('d', 'd30');
 })();
