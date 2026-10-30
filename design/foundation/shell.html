@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GMEP – Application Shell</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Phông Be Vietnam Pro tự host: khai báo @font-face trong ../assets/base.css, file WOFF2 đặt ở ../assets/fonts/ -->
 <link rel="stylesheet" href="../assets/tokens.css">
 <link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="../assets/components.css">
@@ -33,7 +32,7 @@
     <nav class="sidebar__nav">
       <div class="sidebar__group">Workspace</div>
       <a class="nav-item" href="#" data-menu="dash" aria-current="page" title="Tổng quan"><svg class="icon"><use href="#layout-dashboard"/></svg><span class="nav-item__label">Tổng quan</span></a>
-      <a class="nav-item" href="#" data-menu="ro" title="Phiếu sửa chữa"><svg class="icon"><use href="#clipboard-list"/></svg><span class="nav-item__label">Phiếu sửa chữa</span><span class="count-pill count-pill--warning" aria-label="8 phiếu chờ duyệt">8</span><span class="nav-item__dot" aria-hidden="true"></span></a>
+      <a class="nav-item" href="#" data-menu="ro" title="Phiếu sửa chữa"><svg class="icon"><use href="#clipboard-list"/></svg><span class="nav-item__label">Phiếu sửa chữa</span><span class="count-pill count-pill--warning" aria-label="8 báo giá chờ khách duyệt" title="8 báo giá chờ khách duyệt">8</span><span class="nav-item__dot" aria-hidden="true"></span></a>
       <a class="nav-item" href="#" data-menu="appt" title="Lịch hẹn"><svg class="icon"><use href="#calendar"/></svg><span class="nav-item__label">Lịch hẹn</span></a>
       <a class="nav-item" href="#" data-menu="cust" title="Khách hàng và Xe"><svg class="icon"><use href="#car-front"/></svg><span class="nav-item__label">Khách hàng &amp; Xe</span></a>
       <div class="sidebar__group">Kho &amp; mua hàng</div>
@@ -57,26 +56,39 @@
   <header class="topbar">
     <button class="btn-icon menu-btn" data-nav-open aria-label="Mở menu"><svg class="icon"><use href="#menu"/></svg></button>
 
-    <div class="dropdown">
+    <!-- Phạm vi dữ liệu. 3 cấp: Tất cả được phép / Nhóm chi nhánh / Từng chi nhánh. Pháp nhân là bộ lọc phụ, ẩn khi 1 pháp nhân.
+         Vai trò 1 chi nhánh (CV, QĐ, TH, TK, TN) -> hiện tên tĩnh [data-branch-static]; AD không gắn chi nhánh. -->
+    <div class="branch-static" data-branch-static hidden>
+      <svg class="icon" aria-hidden="true"><use href="#map-pin"/></svg>
+      <span class="branch-static__text"><span class="branch-btn__caption">Chi nhánh của bạn</span><span class="branch-btn__name" data-static-label>Chi nhánh Quận 7</span></span>
+    </div>
+    <div class="dropdown" data-branch-dropdown>
       <button class="branch-btn is-all" aria-haspopup="menu" aria-expanded="false" aria-label="Chọn phạm vi chi nhánh">
         <svg class="icon"><use href="#map-pin"/></svg>
         <span class="branch-btn__text"><span class="branch-btn__caption">Phạm vi dữ liệu</span><span class="branch-btn__name" data-branch-label>Tất cả chi nhánh</span></span>
         <svg class="icon icon--sm"><use href="#chevron-down"/></svg>
       </button>
-      <div class="dropdown__menu" role="menu" style="min-width:300px">
-        <div data-multi-only>
-          <div class="menu-label">Hợp nhất</div>
-          <button class="menu-item" role="menuitemradio" aria-checked="true" data-branch="Tất cả chi nhánh" data-branch-all><svg class="icon"><use href="#layout-dashboard"/></svg>Tất cả chi nhánh<span class="menu-item__hint">8 chi nhánh</span></button>
-          <div class="menu-sep"></div>
-        </div>
+      <div class="dropdown__menu" role="menu" style="min-width:320px">
+        <div class="menu-label" data-show-roles="CH QV">Hợp nhất</div>
+        <button class="menu-item" role="menuitemradio" aria-checked="true" data-level="all" data-branch="Tất cả chi nhánh" data-branch-all data-show-roles="CH"><svg class="icon"><use href="#layout-dashboard"/></svg>Tất cả chi nhánh<span class="menu-item__hint">toàn chuỗi</span></button>
+        <button class="menu-item" role="menuitemradio" aria-checked="false" data-level="all" data-branch="Tất cả nhóm được giao" data-branch-all data-show-roles="QV" hidden><svg class="icon"><use href="#layout-dashboard"/></svg>Tất cả nhóm được giao</button>
+        <div class="menu-sep" data-show-roles="CH QV"></div>
+        <div class="menu-label" data-show-roles="CH QV">Nhóm chi nhánh (vùng)</div>
+        <button class="menu-item menu-item--group" role="menuitemradio" aria-checked="false" data-level="group" data-branch="Nhóm Miền Nam" data-show-roles="CH QV"><svg class="icon"><use href="#users"/></svg>Nhóm Miền Nam</button>
+        <button class="menu-item menu-item--group" role="menuitemradio" aria-checked="false" data-level="group" data-branch="Nhóm Miền Trung" data-show-roles="CH"><svg class="icon"><use href="#users"/></svg>Nhóm Miền Trung</button>
+        <div class="menu-sep" data-show-roles="CH QV"></div>
         <div class="menu-label">Từng chi nhánh</div>
-        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Quận 1"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Quận 1</button>
-        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Quận 7"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Quận 7</button>
-        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Thủ Đức"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Thủ Đức</button>
-        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Biên Hòa"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Biên Hòa</button>
-        <button class="menu-item" role="menuitemradio" aria-disabled="true"><svg class="icon"><use href="#lock"/></svg>Chi nhánh Đà Nẵng<span class="menu-item__hint">Chưa được cấp quyền</span></button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Quận 1" data-show-roles="CH QV">Chi nhánh Quận 1</button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Quận 7" data-show-roles="CH QV QL KT">Chi nhánh Quận 7</button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Thủ Đức" data-show-roles="CH QV QL KT">Chi nhánh Thủ Đức</button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Biên Hòa" data-show-roles="CH QV">Chi nhánh Biên Hòa</button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh Đà Nẵng" data-show-roles="CH">Chi nhánh Đà Nẵng</button>
+        <button class="menu-item menu-item--indent" role="menuitemradio" aria-disabled="true" data-level="branch" data-show-roles="QL KT"><svg class="icon"><use href="#lock"/></svg>Chi nhánh Biên Hòa<span class="menu-item__hint">Chưa được cấp quyền</span></button>
+        <div class="legal-filter" data-legal hidden>
+          <div class="field"><label class="field__label" for="legal">Pháp nhân</label><select id="legal" class="select"><option>Tất cả pháp nhân được xem</option><option>Công ty TNHH Garage A</option><option>Công ty TNHH Garage B</option></select><span class="field__hint">Báo cáo chính thức không cộng gộp số liệu giữa các pháp nhân.</span></div>
+        </div>
         <div class="menu-sep"></div>
-        <p class="t-body-sm text-secondary" style="padding:8px 12px" data-multi-note hidden>Tài khoản của bạn chỉ xem được chi nhánh được gán. Xem hợp nhất dành cho Chủ garage và Quản lý vùng.</p>
+        <p class="t-body-sm text-secondary" style="padding:8px 12px" data-multi-note hidden>Tài khoản của bạn chỉ xem được các chi nhánh được gán. Xem hợp nhất dành cho Chủ garage và Quản lý vùng. Đổi phạm vi khi đang soạn chứng từ sẽ hỏi lưu nháp trước.</p>
       </div>
     </div>
 
@@ -87,7 +99,7 @@
     </div>
     <div class="topbar__spacer"></div>
     <button class="btn-icon topbar__search-btn" aria-label="Tìm kiếm"><svg class="icon"><use href="#search"/></svg></button>
-    <button class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng/tối (thử nghiệm)"><svg class="icon"><use href="#moon"/></svg></button>
+    <button class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng/tối (bản nháp, không thuộc phạm vi phát hành)" title="Dark mode: bản nháp, chưa phát hành"><svg class="icon"><use href="#moon"/></svg></button>
 
     <div class="dropdown">
       <button class="btn-icon" aria-haspopup="menu" aria-expanded="false" aria-label="Thông báo, 3 chưa đọc"><svg class="icon"><use href="#bell"/></svg><span class="btn-icon__dot" aria-hidden="true">3</span></button>
@@ -112,7 +124,9 @@
         <button class="menu-item" role="menuitem"><svg class="icon"><use href="#history"/></svg>Nhật ký truy cập của tôi</button>
         <button class="menu-item" role="menuitem"><svg class="icon"><use href="#log-out"/></svg>Đăng xuất</button>
         <div class="menu-sep"></div>
-        <div class="menu-label">Xem thử theo vai trò (chỉ prototype)</div>
+        <div class="menu-label">Giả lập (chỉ prototype)</div>
+        <button class="menu-item" role="menuitemcheckbox" data-keep-open data-legal-toggle aria-checked="false"><svg class="icon"><use href="#settings"/></svg>Nhiều pháp nhân (hiện bộ lọc Pháp nhân)</button>
+        <div class="menu-label">Xem thử theo vai trò</div>
         <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="CH" data-role-name="Chủ garage" aria-checked="true">Chủ garage</button>
         <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="QV" data-role-name="Quản lý vùng" aria-checked="false">Quản lý vùng</button>
         <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="QL" data-role-name="Quản lý chi nhánh" aria-checked="false">Quản lý chi nhánh</button>
@@ -142,6 +156,7 @@
           <p class="page-header__desc">Thứ Sáu, 30/10/2026 · <span data-scope-label data-branch-label>Tất cả chi nhánh</span></p>
         </div>
         <div class="page-header__actions">
+          <button class="btn btn--secondary" data-toggle-draft aria-pressed="false"><svg class="icon"><use href="#pencil"/></svg><span>Thử: đang soạn phiếu</span></button>
           <button class="btn btn--secondary" data-toggle-offline><svg class="icon"><use href="#wifi-off"/></svg>Thử: mất kết nối</button>
           <button class="btn btn--secondary"><svg class="icon"><use href="#download"/></svg>Xuất báo cáo</button>
           <button class="btn btn--primary" data-menu="ro"><svg class="icon"><use href="#plus"/></svg>Tạo phiếu sửa chữa</button>
@@ -150,7 +165,8 @@
 
       <div class="scope-banner" role="status">
         <svg class="icon icon--sm"><use href="#map-pin"/></svg>
-        <span><strong>Phạm vi:</strong> <span data-scope-text>Tất cả chi nhánh (8 chi nhánh) – số liệu hợp nhất</span></span>
+        <span><strong>Phạm vi:</strong> <span data-scope-text>Tất cả chi nhánh – số liệu hợp nhất</span></span>
+        <span data-legal hidden>· <strong>Pháp nhân:</strong> Tất cả pháp nhân được xem (không cộng gộp trong báo cáo chính thức)</span>
         <span>· <strong>Thời gian:</strong> hôm nay 30/10/2026</span>
         <span>· Cập nhật lúc 09:15</span>
         <button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button>
@@ -158,8 +174,8 @@
 
       <section aria-label="Chỉ số chính"><div class="grid grid--4">
         <a class="card kpi" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Doanh thu</span><span class="kpi__value">128,5<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>12,4%</span>so với hôm qua</span></a>
-        <a class="card kpi" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wrench"/></svg>Xe đang sửa</span><span class="kpi__value">42</span><span class="kpi__meta">Trong 8 chi nhánh</span></a>
-        <a class="card kpi kpi--warning" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ duyệt báo giá</span><span class="kpi__value">08</span><span class="kpi__meta">Cần xử lý hôm nay</span></a>
+        <a class="card kpi" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wrench"/></svg>Xe đang sửa</span><span class="kpi__value">42</span><span class="kpi__meta">Trong phạm vi đang xem</span></a>
+        <a class="card kpi kpi--warning" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Báo giá chờ khách duyệt</span><span class="kpi__value">08</span><span class="kpi__meta">Báo giá đang ở trạng thái “Chờ khách duyệt”</span></a>
         <a class="card kpi kpi--danger" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ hẹn</span><span class="kpi__value">03</span><span class="kpi__meta">Quá hạn giao xe</span></a>
       </div></section>
 
@@ -171,39 +187,39 @@
             <tbody>
               <tr><td class="code">RO-2026-001284</td><td><span class="plate">51H-123.45</span></td><td><span class="badge badge--info">Đang sửa chữa</span></td><td class="col-num">3.450.000 ₫</td></tr>
               <tr><td class="code">RO-2026-001283</td><td><span class="plate">30G-456.78</span></td><td><span class="badge badge--purple">Chờ QC</span></td><td class="col-num">12.800.000 ₫</td></tr>
-              <tr><td class="code">RO-2026-001282</td><td><span class="plate">51K-987.65</span></td><td><span class="badge badge--warning">Chờ duyệt báo giá</span></td><td class="col-num">21.075.000 ₫</td></tr>
+              <tr><td class="code">RO-2026-001282</td><td><span class="plate">51K-987.65</span></td><td><span class="badge badge--warning">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ phụ tùng</span></td><td class="col-num">21.075.000 ₫</td></tr>
               <tr><td class="code">RO-2026-001281</td><td><span class="plate">59A-111.22</span></td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td class="col-num">1.250.000 ₫</td></tr>
-              <tr><td class="code">RO-2026-001280</td><td><span class="plate">51G-765.43</span></td><td><span class="badge badge--neutral">Chờ tiếp nhận</span></td><td class="col-num">—</td></tr>
+              <tr><td class="code">RO-2026-001280</td><td><span class="plate">51G-765.43</span></td><td><span class="badge badge--neutral">Đã duyệt</span></td><td class="col-num">6.300.000 ₫</td></tr>
             </tbody></table></div>
         </section>
         <section class="card" aria-labelledby="h-att">
           <div class="card__header"><h2 class="card__title" id="h-att">Công việc cần chú ý</h2></div>
-          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#clock"/></svg>Chờ duyệt báo giá</span><span class="count-pill count-pill--warning">08</span></a>
-          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#package"/></svg>Xe chờ phụ tùng</span><span class="count-pill count-pill--warning">04</span></a>
+          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#clock"/></svg>Báo giá chờ khách duyệt</span><span class="count-pill count-pill--warning">08</span></a>
+          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#package"/></svg>Xe chờ phụ tùng <span class="t-caption text-secondary">(Tạm dừng, lý do chờ phụ tùng)</span></span><span class="count-pill count-pill--warning">04</span></a>
           <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#clipboard-check"/></svg>Chờ kiểm tra QC</span><span class="count-pill">06</span></a>
           <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#alert-triangle"/></svg>Trễ hẹn giao xe</span><span class="count-pill count-pill--danger">03</span></a>
         </section>
       </div>
 
       <section class="card" aria-labelledby="h-role">
-        <div class="card__header"><div><h2 class="card__title" id="h-role">Vai trò → menu (đề xuất, theo FRD §2)</h2><div class="card__subtitle">Đổi vai trò ở menu tài khoản (góc phải) để xem sidebar thay đổi. “Xn” = chỉ xem phần của mình.</div></div></div>
+        <div class="card__header"><div><h2 class="card__title" id="h-role">Vai trò → menu (đề xuất, theo FRD §2)</h2><div class="card__subtitle">Đổi vai trò ở menu tài khoản (góc phải) để xem sidebar thay đổi. Ghi chú trên mục menu: “Chỉ xem” (X), “Của tôi” (Xn), “Hệ thống” (AD). “✓” = tạo/sửa/duyệt. Khóa vai trò kỹ thuật: CH, QV, QL, CV, QD (nhãn QĐ), TH, TK, TN, KT, AD.</div></div></div>
         <div class="table-scroll"><table class="table table--compact role-table">
           <thead><tr><th>Menu</th><th>CH</th><th>QV</th><th>QL</th><th>CV</th><th>QĐ</th><th>TH</th><th>TK</th><th>TN</th><th>KT</th><th>AD</th></tr></thead>
           <tbody>
-            <tr><td>Tổng quan (dashboard theo vai trò)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓ (việc của tôi)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td></tr>
-            <tr><td>Phiếu sửa chữa</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Lịch hẹn</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
-            <tr><td>Khách hàng &amp; Xe</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Kho phụ tùng</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Mua hàng</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Nhân sự &amp; Công thợ</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
-            <tr><td>Tài chính (thu chi, công nợ)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓ (thu tiền)</td><td class="yes">✓</td><td class="no">–</td></tr>
+            <tr><td>Tổng quan (dashboard theo vai trò)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Của tôi</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Hệ thống</td></tr>
+            <tr><td>Phiếu sửa chữa (báo giá, lệnh)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Lịch hẹn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Khách hàng &amp; Xe</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="no">–</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Kho phụ tùng</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Mua hàng</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Nhân sự &amp; Công thợ</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="no">–</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Tài chính (thu tiền, sổ quỹ, công nợ)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td></tr>
             <tr><td>Hóa đơn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td></tr>
-            <tr><td>Báo cáo</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xn</td><td class="yes">Xn</td><td class="no">–</td><td class="yes">Xn</td><td class="yes">Xn</td><td class="yes">✓</td><td class="no">–</td></tr>
-            <tr><td>Cài đặt (người dùng, phân quyền, cấu hình)</td><td class="yes">Duyệt</td><td class="no">–</td><td class="yes">✓ (chi nhánh mình)</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td></tr>
-            <tr><td>Phạm vi chi nhánh</td><td>Tất cả</td><td>Nhóm được giao</td><td colspan="8">Chỉ chi nhánh được gán</td></tr>
+            <tr><td>Báo cáo</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Của tôi</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Cài đặt (người dùng, phân quyền, cấu hình)</td><td class="yes">✓ (duyệt)</td><td class="no">–</td><td class="yes">✓ (chi nhánh mình)</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td></tr>
+            <tr><td>Phạm vi chi nhánh</td><td>Tất cả + Nhóm + Chi nhánh</td><td>Các nhóm được giao</td><td>Chi nhánh được gán (chọn)</td><td colspan="5">Một chi nhánh (hiện tên, không có bộ chọn)</td><td>Chi nhánh được gán (chọn)</td><td>Không gắn chi nhánh</td></tr>
           </tbody></table></div>
-        <div class="card__body" style="padding-top:12px"><p class="t-body-sm text-secondary">Bảng suy ra từ FRD §2 và user-journey; các ô Xem/Xn là cách diễn giải của designer, cần BA xác nhận. Mục bị ẩn hoàn toàn khi vai trò không có bất kỳ quyền nào; hành động bị cấm trong mục có quyền sẽ để disabled kèm lý do.</p></div>
+        <div class="card__body" style="padding-top:12px"><p class="t-body-sm text-secondary">Bảng theo FRD §2 (đã đối chiếu, BA review F-06). Mục bị ẩn hoàn toàn khi vai trò không có quyền nào; hành động bị cấm trong mục có quyền để disabled kèm lý do. Quản trị hệ thống chỉ thấy tổng quan sức khỏe hệ thống, không dữ liệu nghiệp vụ.</p></div>
       </section>
     </div>
   </main>
@@ -217,6 +233,11 @@
     <button class="bottom-nav__item" data-nav-open aria-label="Mở toàn bộ menu"><svg class="icon"><use href="#menu"/></svg>Thêm</button>
   </nav>
 </div>
+
+<div class="overlay" id="dlg-scope" role="alertdialog" aria-modal="true" aria-labelledby="ds-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#pencil"/></svg></div><div><h2 class="dialog__title" id="ds-t">Lưu nháp trước khi đổi phạm vi?</h2></div></div>
+  <div class="dialog__body"><p>Bạn đang soạn một phiếu. Đổi phạm vi chi nhánh sẽ làm số liệu và danh mục khác đi. Phiếu được lưu thành bản nháp của chi nhánh hiện tại rồi mới đổi.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Ở lại, tiếp tục soạn</button><button class="btn btn--primary" data-scope-confirm>Lưu nháp và đổi phạm vi</button></div></div></div>
 
 <script src="../assets/app.js"></script>
 </body>

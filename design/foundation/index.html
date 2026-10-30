@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GMEP – Design System (Foundation)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Phông Be Vietnam Pro tự host: khai báo @font-face trong ../assets/base.css, file WOFF2 đặt ở ../assets/fonts/ -->
 <link rel="stylesheet" href="../assets/tokens.css">
 <link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="../assets/components.css">
@@ -54,7 +53,7 @@
     <strong style="margin-right:12px">GMEP Design System</strong>
     <a href="#mau">Màu</a><a href="#status">Trạng thái nghiệp vụ</a><a href="#type">Typography</a><a href="#space">Spacing</a><a href="#radius">Radius &amp; Elevation</a><a href="#grid">Grid</a><a href="#motion">Motion</a><a href="#icons">Icon</a><a href="#contrast">Tương phản</a>
     <a href="components.html">Component →</a><a href="shell.html">Shell →</a>
-    <button class="btn btn--secondary btn--sm" data-theme-toggle style="margin-left:auto" aria-label="Đổi giao diện sáng/tối (dark mode mức cấu trúc)"><svg class="icon icon--sm"><use href="#moon"/></svg>Sáng/Tối</button>
+    <button class="btn btn--secondary btn--sm" data-theme-toggle style="margin-left:auto" aria-label="Đổi giao diện sáng/tối (bản nháp, không thuộc phạm vi phát hành)"><svg class="icon icon--sm"><use href="#moon"/></svg>Tối (bản nháp)</button>
   </div>
 </nav>
 
@@ -207,20 +206,28 @@
   function fillHex() { document.querySelectorAll('.hex').forEach(function (e) { e.textContent = (e.parentElement.classList.contains('sw__t') ? '' : ' ') + v(e.getAttribute('data-v')); if (!e.parentElement.classList.contains('sw__t')) e.style.cssText = 'display:block;font-weight:400;font-size:12px'; }); }
 
   // Status map
+  /* Theo docs/ui-ux/ba-decisions.md mục A.2 (BA đề xuất, chờ xác nhận). Nguồn: DS = design-system §2, UJ = user-journey §7, BA = BA đề xuất */
   var groups = [
-    ['Báo giá (user-journey §7)', [['Nháp','neutral'],['Đã gửi','info'],['Duyệt toàn phần','success'],['Duyệt một phần','warning'],['Từ chối','danger'],['Hết hạn','neutral']], 'journey'],
-    ['Lệnh sửa chữa (Repair Order)', [['Chờ tiếp nhận','neutral','DS'],['Chờ duyệt báo giá','warning','DS'],['Đã duyệt','info','UJ'],['Đang sửa chữa','info','DS'],['Tạm dừng','warning','UJ'],['Chờ QC','purple','DS'],['Sẵn sàng bàn giao','success','DS'],['Hoàn tất','success','UJ'],['Đã hủy','danger','DS']]],
-    ['Hạng mục sửa chữa', [['Chưa làm','neutral'],['Đang làm','info'],['Tạm dừng','warning'],['Hoàn thành','success'],['Trả lại','danger']], 'journey'],
-    ['Kho (Inventory)', [['Đủ hàng','success','DS'],['Sắp hết','warning','DS'],['Hết hàng','danger','DS']]],
-    ['Thanh toán (Payment)', [['Chưa thanh toán','warning','DS'],['Thanh toán một phần','info','DS'],['Đã thanh toán','success','DS'],['Hoàn tiền','neutral','DS']]],
-    ['Hóa đơn điện tử (trạng thái từ nhà cung cấp)', [['Chưa xuất','neutral'],['Đã xuất','success'],['Điều chỉnh','info'],['Thay thế','info'],['Hủy','danger']], 'journey']
+    ['Lịch hẹn / Tiếp nhận (trước lệnh)', [['Chờ xác nhận','warning','BA'],['Đã hẹn','info','BA'],['Chờ tiếp nhận','neutral','DS'],['Đã tiếp nhận','success','BA'],['Không đến','neutral','BA'],['Đã hủy','danger','BA']]],
+    ['Báo giá', [['Nháp','neutral','UJ'],['Chờ khách duyệt (= Đã gửi)','warning','DS'],['Duyệt toàn phần','success','UJ'],['Duyệt một phần','warning','UJ'],['Từ chối','danger','UJ'],['Hết hạn','neutral','UJ']]],
+    ['Lệnh sửa chữa (7 trạng thái)', [['Đã duyệt','neutral','UJ'],['Đang sửa chữa','info','DS'],['Tạm dừng','warning','UJ'],['Chờ QC','purple','DS'],['Sẵn sàng bàn giao','success','DS'],['Hoàn tất','success','UJ'],['Đã hủy','danger','DS']], 'reason'],
+    ['Hạng mục sửa chữa (5 trạng thái)', [['Chưa làm','neutral','UJ'],['Đang làm','info','UJ'],['Tạm dừng','warning','UJ'],['Hoàn thành','success','UJ'],['Trả lại','danger','UJ']], 'approve'],
+    ['Thanh toán', [['Chưa thanh toán','warning','DS'],['Thanh toán một phần','info','DS'],['Đã thanh toán','success','DS'],['Hoàn tiền','neutral','DS']], 'overdue'],
+    ['Hóa đơn điện tử (trạng thái lấy từ nhà cung cấp)', [['Chưa xuất','neutral','UJ'],['Đã xuất','success','UJ'],['Điều chỉnh','info','UJ'],['Thay thế','info','UJ'],['Hủy','danger','UJ']], 'sync'],
+    ['Kho (suy ra từ tồn khả dụng)', [['Đủ hàng','success','DS'],['Sắp hết','warning','DS'],['Hết hàng','danger','DS'],['Chưa đặt định mức','neutral','BA']], 'inv']
   ];
+  var extras = {
+    reason: '<span class="tag tag--reason tag--warning">Chờ phụ tùng</span><span class="tag tag--reason tag--warning">Chờ khách duyệt phát sinh</span><span class="tag t-caption">Tag lý do kèm badge Tạm dừng, không phải trạng thái riêng</span>',
+    approve: '<span class="tag tag--warning">Chờ khách duyệt (phát sinh)</span><span class="t-caption text-tertiary">Thuộc tính duyệt đi kèm “Chưa làm”, không phải trạng thái thứ 6</span>',
+    overdue: '<span class="tag tag--danger">Quá hạn</span><span class="t-caption text-tertiary">Cờ công nợ, không phải trạng thái</span>',
+    sync: '<span class="sync"><svg class="icon icon--sm spin"><use href="#loader"/></svg>Đang gửi nhà cung cấp…</span><span class="sync sync--error"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lỗi phát hành – thử lại</span><span class="sync sync--wait"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ truy vấn lại</span>',
+    inv: '<span class="tag tag--info">Đang về 10</span><span class="t-caption text-tertiary">Chip phụ, không đổi badge chính</span>'
+  };
   document.getElementById('statusMap').innerHTML = groups.map(function (g) {
     return '<div class="map-group"><h3 style="margin-top:0">' + g[0] + '</h3><div class="row">' + g[1].map(function (s) {
-      var src = g[2] === 'journey' ? 'UJ' : (s[2] || '');
-      return '<span class="row" style="gap:6px"><span class="badge badge--' + s[1] + '">' + s[0] + '</span><span class="t-caption text-tertiary">' + (src === 'DS' ? 'DS §2' : 'UJ §7') + '</span></span>';
-    }).join('') + '</div></div>';
-  }).join('') + '<p class="t-body-sm text-secondary">DS = design-system.md §2 (chủ dự án chốt). UJ = user-journey-business-workflow.md §7. Màu cho trạng thái UJ chưa có trong DS là đề xuất của designer, cần BA/chủ dự án xác nhận (xem docs/ui-ux/00-foundation.md).</p>';
+      return '<span class="row" style="gap:6px"><span class="badge badge--' + s[1] + '">' + s[0] + '</span><span class="t-caption text-tertiary">' + s[2] + '</span></span>';
+    }).join('') + (extras[g[2]] ? '</div><div class="row" style="margin-top:8px">' + extras[g[2]] : '') + '</div></div>';
+  }).join('') + '<p class="t-body-sm text-secondary">DS = design-system.md §2 · UJ = user-journey §7 · BA = đề xuất của BA (ba-decisions.md A.2, chờ xác nhận). Năm đối tượng, năm bộ trạng thái riêng; màn chi tiết lệnh hiện song song “Lệnh – Thanh toán – Hóa đơn”. “Chờ duyệt báo giá” là nhãn dashboard của Báo giá “Đã gửi”, không phải trạng thái Lệnh.</p>';
 
   // Spacing
   var sp = [[0,'Không'],[1,'Icon + text sát'],[2,'Gap nhỏ'],[3,'Form field, badge'],[4,'Padding mặc định'],[5,'Nhóm nội dung'],[6,'Card padding'],[8,'Section gap'],[10,'Nhóm lớn'],[12,'Layout section'],[16,'Khoảng lớn']];
@@ -259,7 +266,12 @@
     ['Tím gốc #635BFF làm chữ trên nền trang (không dùng làm chữ link)', '--color-primary', '--color-page', 4.5],
     ['Chữ tím đậm (selected) trên brand.subtle', '--color-brand-800', '--color-primary-subtle', 4.5],
     ['Menu active: brand-700 trên brand.subtle', '--sidebar-item-active-fg', '--sidebar-item-active-bg', 4.5],
-    ['Viền input (border.strong) trên card – thành phần UI', '--color-border-strong', '--color-surface', 3],
+    ['Viền input/checkbox/radio/switch (--input-border) trên card – WCAG 1.4.11', '--input-border', '--color-surface', 3],
+    ['Viền input (--input-border) trên nền trang', '--input-border', '--color-page', 3],
+    ['Viền input hover (--input-border-hover) trên card', '--input-border-hover', '--color-surface', 3],
+    ['Viền border.strong #D1D5DB (chỉ cho card/bảng/divider, KHÔNG dùng cho input)', '--color-border-strong', '--color-surface', 3],
+    ['Chữ nút ghost/secondary (text.secondary) trên card', '--btn-ghost-fg', '--color-surface', 4.5],
+    ['Placeholder (text.tertiary) trên card', '--input-placeholder', '--color-surface', 4.5],
     ['Badge Success: chữ đậm / nền nhạt', '--color-success-text', '--color-success-bg', 4.5],
     ['Badge Warning', '--color-warning-text', '--color-warning-bg', 4.5],
     ['Badge Danger', '--color-danger-text', '--color-danger-bg', 4.5],
