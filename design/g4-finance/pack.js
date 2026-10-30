@@ -203,7 +203,7 @@
     var off = !!$('.net-banner.is-visible');
     $$('[data-g4f-online]').forEach(function (el) {
       if (off) { if (!el.hasAttribute('data-g4f-net')) el.setAttribute('data-g4f-net', el.disabled ? '1' : '0'); el.disabled = true; el.setAttribute('aria-disabled', 'true'); el.title = 'Mất kết nối: thao tác ghi tiền/hóa đơn tạm khóa để tránh ghi trùng.'; }
-      else if (el.hasAttribute('data-g4f-net')) { if (el.getAttribute('data-g4f-net') === '0' && !el.hasAttribute('data-g4f-keep')) { el.disabled = false; el.removeAttribute('aria-disabled'); el.removeAttribute('title'); } el.removeAttribute('data-g4f-net'); }
+      else if (el.hasAttribute('data-g4f-net')) { if (el.getAttribute('data-g4f-net') === '0' && !el.hasAttribute('data-g4f-keep') && !el.hasAttribute('data-g4f-keep-lock')) { el.disabled = false; el.removeAttribute('aria-disabled'); el.removeAttribute('title'); } el.removeAttribute('data-g4f-net'); }
     });
   }
   document.addEventListener('click', function (e) {

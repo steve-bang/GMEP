@@ -64,6 +64,11 @@ body[data-view="error"] .otp .otp__cell, body[data-view="clock"] .otp .otp__cell
 .g1-pinpad button:disabled { color: var(--color-text-disabled); cursor: not-allowed; }
 .g1-device { display: flex; align-items: center; justify-content: center; gap: var(--space-2); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
 
+/* Vòng xoay trong nút đang xử lý (components.css chỉ định vị .btn__spinner, chưa vẽ vòng) */
+.btn__spinner:empty::after { content: ""; width: 18px; height: 18px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: g1-spin .8s linear infinite; }
+@keyframes g1-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .btn__spinner:empty::after { animation: none; border-right-color: currentColor; } }
+
 /* ---------- Lỗi ---------- */
 .g1-err { text-align: center; align-items: center; }
 .g1-err__code { font-size: 64px; line-height: 72px; font-weight: 700; color: var(--color-brand-700); font-variant-numeric: tabular-nums; }

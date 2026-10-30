@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMEP · Gói 3: Báo giá, Thợ, Giao xe, Mẫu in – Danh mục màn hình</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  .g2q-idx { max-width: 1280px; margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-16); display: flex; flex-direction: column; gap: var(--space-6); }
+  .g2q-idx table td, .g2q-idx table th { height: auto; padding-top: var(--space-2); padding-bottom: var(--space-2); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Bỏ qua tới nội dung chính</a>
+<main class="g2q-idx" id="main">
+  <header>
+    <h1>Gói 3 · Báo giá, Thợ (tablet), Giao xe và Bảo hành, Mẫu in</h1>
+    <p class="text-secondary">21 màn hình: G2-QUO (9), G2-TEC (5), G2-DLV (6), G2-PRT (1). Prototype HTML/CSS thuần, mở trực tiếp bằng trình duyệt. Tiền tố class <code>g2q-</code>. Tài liệu: <code>docs/ui-ux/03-quote-technician-delivery.md</code>.</p>
+  </header>
+
+  <section class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Cách xem thử</span>
+    <span>Mỗi trang có thanh “Xem thử trạng thái (chỉ prototype)” để đổi giữa có dữ liệu, đang tải, trống, lỗi, không quyền, chỉ đọc… Có thể mở thẳng bằng tham số: <code>?v=sent</code> (trạng thái), <code>?role=CV|QL|QD|TH|TN|KT</code> (vai trò), <code>?dlg=0</code> (không tự mở hộp thoại). Mất kết nối thử bằng nút “Thử: mất kết nối” ở đầu trang. Dữ liệu mẫu dùng chung với gói 2: lệnh RO-Q7-2610-00128, báo giá BG-Q7-2610-00231-v2, thuế GTGT 8% là số mẫu lấy từ cấu hình.</span></div></section>
+
+  <section class="table-wrap" aria-label="Danh mục màn hình">
+    <div class="table-scroll"><table class="table table--compact">
+      <thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Thiết bị chính</th><th>Vai trò</th><th>Ưu tiên</th><th>Trạng thái xem thử chính</th></tr></thead>
+      <tbody>
+        <tr><td class="code"><a href="g2-quo-01.html">G2-QUO-01</a></td><td>Danh sách báo giá</td><td>C</td><td>Desktop, tablet</td><td>CV (S), QL (D); CH, QV, QĐ, TK, TN, KT (X)</td><td>P1</td><td>có dữ liệu, tải, trống, trống do lọc, lỗi, không quyền</td></tr>
+        <tr><td class="code"><a href="g2-quo-02.html">G2-QUO-02</a></td><td>Lập / sửa báo giá</td><td>E</td><td>Desktop, tablet</td><td>CV (S); giá vốn chỉ QL, CH</td><td>P1</td><td>soạn, lỗi trường, vượt hạn mức giảm giá, sửa sau khi gửi (v3), xung đột, chỉ đọc, đã lưu</td></tr>
+        <tr><td class="code"><a href="g2-quo-03.html">G2-QUO-03</a></td><td>Chi tiết báo giá và phiên bản</td><td>D</td><td>Desktop, tablet</td><td>CV, QL, CH, QV, QĐ, TK, TN, KT</td><td>P1</td><td>duyệt một phần / toàn phần, chờ khách duyệt, nháp, từ chối, hết hạn, tải, không tìm thấy, không quyền</td></tr>
+        <tr><td class="code"><a href="g2-quo-04.html">G2-QUO-04</a></td><td>Gửi báo giá cho khách</td><td>Dlg</td><td>Desktop, tablet</td><td>CV</td><td>P1 (liên kết, email, in), P2 (Zalo/SMS)</td><td>chọn kênh, đang gửi, đã gửi, lỗi gửi, chưa cấu hình Zalo/SMS</td></tr>
+        <tr><td class="code"><a href="g2-quo-05.html">G2-QUO-05</a></td><td>Ghi nhận duyệt tại quầy (toàn phần / một phần)</td><td>Dlg / W</td><td>Desktop, tablet</td><td>CV</td><td>P1</td><td>3 bước, từ chối toàn bộ, hoàn tất, phiên bản bị thay, hết hạn</td></tr>
+        <tr><td class="code"><a href="g2-quo-06.html">G2-QUO-06</a></td><td>Trang khách duyệt báo giá qua liên kết (điện thoại)</td><td>P</td><td>Điện thoại</td><td>KH (không tài khoản)</td><td>P1</td><td>báo giá, phát sinh, tải, mất kết nối, lỗi, đã gửi, đã duyệt rồi, có bản mới, hết hạn, OTP (cấu hình)</td></tr>
+        <tr><td class="code"><a href="g2-quo-07.html">G2-QUO-07</a></td><td>Hạng mục phát sinh: đề xuất và báo giá bổ sung</td><td>E / Dlg</td><td>Desktop, tablet</td><td>TH, QĐ (đề xuất); CV (lập); QL (duyệt)</td><td>P1</td><td>đang lập, chờ khách, khách duyệt, khách từ chối, thợ xem</td></tr>
+        <tr><td class="code"><a href="g2-quo-08.html">G2-QUO-08</a></td><td>Hạng mục khách từ chối / chưa làm</td><td>C</td><td>Desktop, tablet</td><td>CV, QL (S/X)</td><td>P2</td><td>có dữ liệu, tải, trống, trống do lọc, lỗi, không quyền; chọn nhiều dòng</td></tr>
+        <tr><td class="code"><a href="g2-quo-09.html">G2-QUO-09</a></td><td>Trang khách theo dõi tiến độ xe (điện thoại)</td><td>P</td><td>Điện thoại</td><td>KH (liên kết)</td><td>P2+ (BA đề xuất)</td><td>đang sửa, cần khách quyết định, sẵn sàng giao, đã giao, tải, lỗi, hết hạn</td></tr>
+        <tr><td class="code"><a href="g2-tec-01.html">G2-TEC-01</a></td><td>Việc được giao (việc của tôi)</td><td>C / B</td><td>Tablet xưởng</td><td>TH (Xn), QĐ</td><td>P1</td><td>có việc, tải, chưa có việc, lỗi, mất mạng</td></tr>
+        <tr><td class="code"><a href="g2-tec-02.html">G2-TEC-02</a></td><td>Hạng mục: Bắt đầu / Tạm dừng / Kết thúc</td><td>D / E</td><td>Tablet xưởng</td><td>TH (Xn)</td><td>P1</td><td>chưa làm, đang làm, tạm dừng, khóa vì phát sinh / thiếu phụ tùng, hoàn thành, bị trả lại, quên kết thúc, chờ đồng bộ</td></tr>
+        <tr><td class="code"><a href="g2-tec-03.html">G2-TEC-03</a></td><td>Yêu cầu phụ tùng</td><td>Dlg</td><td>Tablet xưởng</td><td>TH (S theo lệnh)</td><td>P1</td><td>gửi được, thiếu hàng, đang gửi, đã gửi, lỗi, mất mạng</td></tr>
+        <tr><td class="code"><a href="g2-tec-04.html">G2-TEC-04</a></td><td>Báo hư hỏng phát sinh</td><td>Dlg</td><td>Tablet xưởng</td><td>TH (S)</td><td>P1</td><td>soạn, thiếu thông tin, đang gửi, đã gửi, lỗi, mất mạng (nháp)</td></tr>
+        <tr><td class="code"><a href="g2-tec-05.html">G2-TEC-05</a></td><td>Công của tôi</td><td>C</td><td>Tablet, điện thoại</td><td>TH (Xn); QL, KT (X)</td><td>P2</td><td>có dữ liệu, kỳ đã khóa, tải, trống, lỗi, không quyền</td></tr>
+        <tr><td class="code"><a href="g2-dlv-01.html">G2-DLV-01</a></td><td>Hàng chờ kiểm tra chất lượng</td><td>C</td><td>Tablet, desktop</td><td>QĐ / QC (S), QL (D), CV (X)</td><td>P1</td><td>có xe chờ, tải, không có xe chờ, lỗi, không quyền</td></tr>
+        <tr><td class="code"><a href="g2-dlv-02.html">G2-DLV-02</a></td><td>Thực hiện kiểm tra chất lượng (checklist)</td><td>E</td><td>Tablet</td><td>QĐ / QC (S)</td><td>P1</td><td>đang kiểm (tương tác), mất mạng, đã QC đạt, tải, không quyền</td></tr>
+        <tr><td class="code"><a href="g2-dlv-03.html">G2-DLV-03</a></td><td>Chuẩn bị bàn giao xe</td><td>D</td><td>Desktop, tablet</td><td>CV (S); TN (X)</td><td>P1</td><td>chưa đủ điều kiện, đủ điều kiện, nợ trong / vượt hạn mức, chờ duyệt, đã bàn giao, tải, không tìm thấy</td></tr>
+        <tr><td class="code"><a href="g2-dlv-04.html">G2-DLV-04</a></td><td>Biên bản giao xe và xác nhận của khách</td><td>E</td><td>Desktop, tablet</td><td>CV (S)</td><td>P1</td><td>đang lập (tương tác chữ ký), đã lưu nháp, mất mạng, đã giao (chỉ đọc), tải</td></tr>
+        <tr><td class="code"><a href="g2-dlv-05.html">G2-DLV-05</a></td><td>Danh sách bảo hành</td><td>C</td><td>Desktop, tablet</td><td>CV, QL (S); CH, QV (X)</td><td>P2</td><td>có dữ liệu (kể cả chi nhánh khác, giới hạn), tải, trống, trống do lọc, lỗi, không quyền</td></tr>
+        <tr><td class="code"><a href="g2-dlv-06.html">G2-DLV-06</a></td><td>Tạo lệnh bảo hành</td><td>E</td><td>Desktop, tablet</td><td>CV, QL (S)</td><td>P2</td><td>trong hạn, ngoài hạn (cần duyệt), chi nhánh khác, đã lưu nháp, mất mạng, tải</td></tr>
+        <tr><td class="code"><a href="g2-prt-01.html">G2-PRT-01</a></td><td>Xem trước và in chứng từ (báo giá, lệnh sửa chữa, phiếu giao nhận; A4, A5, nhiệt 80 mm)</td><td>Dlg / P</td><td>Desktop, tablet</td><td>Theo quyền xem chứng từ</td><td>P1</td><td>bình thường, thiếu thông tin bắt buộc, in lại, đang tạo, không quyền. Thử: <a href="g2-prt-01.html?doc=ro&amp;size=a5">lệnh A5</a>, <a href="g2-prt-01.html?doc=handover&amp;size=thermal">phiếu giao nhận nhiệt 80 mm</a></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card"><div class="card__header"><h2 class="card__title">Luồng chính (thử theo thứ tự)</h2></div><div class="card__body">
+    <ol class="stack-2">
+      <li>Cố vấn <a href="g2-quo-01.html">QUO-01</a> → <a href="g2-quo-02.html">QUO-02</a> lập báo giá → <a href="g2-quo-04.html">QUO-04</a> gửi khách.</li>
+      <li>Khách mở <a href="g2-quo-06.html">QUO-06</a> trên điện thoại, chọn hạng mục và duyệt (hoặc cố vấn ghi nhận tại quầy <a href="g2-quo-05.html">QUO-05</a>) → <a href="g2-quo-03.html">QUO-03</a> thấy duyệt một phần → mở lệnh (gói 2: <a href="../g2-workshop/g2-rec-04.html">G2-REC-04</a>).</li>
+      <li>Thợ <a href="g2-tec-01.html">TEC-01</a> → <a href="g2-tec-02.html">TEC-02</a> bắt đầu / kết thúc; thiếu phụ tùng <a href="g2-tec-03.html">TEC-03</a>; phát sinh <a href="g2-tec-04.html">TEC-04</a> → <a href="g2-quo-07.html">QUO-07</a> → khách duyệt.</li>
+      <li>Quản đốc <a href="g2-dlv-01.html">DLV-01</a> → <a href="g2-dlv-02.html">DLV-02</a> QC → cố vấn <a href="g2-dlv-03.html">DLV-03</a> kiểm điều kiện (thu tiền, hóa đơn: gói 4) → <a href="g2-dlv-04.html">DLV-04</a> biên bản giao xe → in <a href="g2-prt-01.html?doc=handover">PRT-01</a>.</li>
+      <li>Sau giao: <a href="g2-dlv-05.html">DLV-05</a> bảo hành → <a href="g2-dlv-06.html">DLV-06</a>; hạng mục lưu nhắc <a href="g2-quo-08.html">QUO-08</a>; khách theo dõi <a href="g2-quo-09.html">QUO-09</a>.</li>
+    </ol></div></section>
+</main>
+<script src="../assets/app.js"></script>
+</body>
+</html>

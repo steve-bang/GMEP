@@ -140,8 +140,10 @@
     '<div class="overlay" id="dlg-scope" role="alertdialog" aria-modal="true" aria-labelledby="ds-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning">' + ic('pencil') + '</div><div><h2 class="dialog__title" id="ds-t">Lưu nháp trước khi đổi phạm vi?</h2></div></div>' +
     '<div class="dialog__body"><p>Bạn đang soạn một phiếu. Đổi phạm vi chi nhánh sẽ làm số liệu và danh mục khác đi. Phiếu được lưu thành bản nháp của chi nhánh hiện tại rồi mới đổi.</p></div>' +
     '<div class="dialog__footer"><button class="btn btn--secondary" data-close>Ở lại, tiếp tục soạn</button><button class="btn btn--primary" data-scope-confirm>Lưu nháp và đổi phạm vi</button></div></div></div>';
-  while (dlgs.firstChild) b.insertBefore(dlgs.firstChild, b.querySelector('script'));
-  Array.prototype.forEach.call(inner.querySelectorAll('.overlay'), function (o) { b.insertBefore(o, b.querySelector('script')); });
+  var ref = null;
+  Array.prototype.some.call(b.children, function (c) { if (c.tagName === 'SCRIPT') { ref = c; return true; } return false; });
+  while (dlgs.firstChild) b.insertBefore(dlgs.firstChild, ref);
+  Array.prototype.forEach.call(inner.querySelectorAll('.overlay'), function (o) { b.insertBefore(o, ref); });
 
   document.addEventListener('click', function (e) {
     if (e.target.closest('[data-open="dlg-logout"]')) {
