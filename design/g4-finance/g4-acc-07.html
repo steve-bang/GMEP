@@ -14,13 +14,17 @@
   <div data-g4f-actions><a class="btn btn--secondary" href="g4-acc-03.html">Về phiếu thu gốc</a></div>
 
   <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
-    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="noinv" data-vg="h" aria-pressed="true">Chưa có hóa đơn</button><button class="segmented__item" data-g4f-var="inv" data-vg="h" aria-pressed="false">Đã có hóa đơn</button></div></div>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="noinv" data-vg="h" aria-pressed="true">Chưa có hóa đơn</button><button class="segmented__item" data-g4f-var="inv" data-vg="h" aria-pressed="false">Đã có hóa đơn</button><button class="segmented__item" data-g4f-var="adv" data-vg="h" aria-pressed="false">Hoàn khoản nhận trước</button></div></div>
 
   <div class="g4f-two">
     <div class="stack">
-      <section class="card" aria-labelledby="h-g">
+      <section class="card" data-vg="h" data-v="adv" hidden aria-labelledby="h-adv">
+        <div class="card__header"><div><h2 class="card__title" id="h-adv">Khoản nhận trước của khách</h2><div class="card__subtitle">Lấy từ G4-ACC-21; không gắn lệnh nào; phiếu thu nguồn không bị sửa</div></div></div>
+        <div class="card__body"><dl class="g4f-kv"><div><dt>Khách</dt><dd id="adv-c">Nguyễn Văn An</dd></div><div><dt>Phiếu thu nguồn</dt><dd class="code" id="adv-s">PT-Q7-2610-00890</dd></div><div><dt>Số dư nhận trước</dt><dd class="num" id="adv-a" style="font-weight:700">300.000 ₫</dd></div><div><dt>Hình thức hoàn mặc định</dt><dd>Theo phiếu thu nguồn (tiền mặt)</dd></div></dl><p class="g4f-why">Không nhắc hóa đơn điều chỉnh vì khoản này chưa gắn hóa đơn. Duyệt như hoàn tiền (QL; CH/QV khi vượt hạn mức).</p></div>
+      </section>
+      <section class="card" data-vg="h" data-v="noinv inv" aria-labelledby="h-g">
         <div class="card__header"><div><h2 class="card__title" id="h-g">Khoản thanh toán gốc</h2><div class="card__subtitle">Không sửa, không xóa; hoàn tiền tạo phiếu chi hoàn liên kết</div></div></div>
-        <div class="card__body"><dl class="g4f-kv"><div><dt>Phiếu thu</dt><dd class="code"><a href="g4-acc-03.html">PT-Q7-2610-00930</a></dd></div><div><dt>Lệnh · xe</dt><dd><span class="code">RO-Q7-2610-00126</span> · <span class="plate">59A-111.22</span></dd></div><div><dt>Khách</dt><dd>Lê Quốc Huy</dd></div><div><dt>Đã thu · hình thức</dt><dd class="num">1.250.000 ₫ · Tiền mặt</dd></div><div><dt>Trạng thái thanh toán hiện tại</dt><dd><span class="badge badge--success">Đã thanh toán</span></dd></div><div><dt>Hóa đơn</dt><dd><span class="badge badge--neutral" data-vg="h" data-v="noinv">Chưa xuất</span><span class="badge badge--success" data-vg="h" data-v="inv" hidden>Đã xuất · C26TAA-0000413</span></dd></div></dl></div>
+        <div class="card__body"><dl class="g4f-kv"><div><dt>Phiếu thu</dt><dd class="code"><a href="g4-acc-03.html">PT-Q7-2610-00930</a></dd></div><div><dt>Lệnh · xe</dt><dd><span class="code">RO-Q7-2610-00126</span> · <span class="plate">59A-111.22</span></dd></div><div><dt>Khách</dt><dd>Lê Quốc Huy</dd></div><div><dt>Đã thu · hình thức</dt><dd class="num">1.250.000 ₫ · Tiền mặt</dd></div><div><dt>Trạng thái thanh toán hiện tại</dt><dd><span class="badge badge--success">Đã thanh toán</span></dd></div><div><dt>Hóa đơn</dt><dd><span class="badge badge--neutral" data-vg="h" data-v="noinv">Chưa xuất</span><span class="badge badge--success" data-vg="h" data-v="inv" hidden>Đã xuất · C26TAA-0000414</span></dd></div></dl></div>
       </section>
 
       <section class="card" aria-labelledby="h-f">
@@ -32,7 +36,7 @@
           </div>
           <div class="field" style="max-width:420px"><label class="field__label" for="rs">Lý do<span class="field__req" aria-hidden="true">*</span></label><select id="rs" class="select"><option value="">Chọn lý do</option><option selected>Khách hủy hạng mục sau khi đã thanh toán</option><option>Thu nhầm số tiền</option><option>Dịch vụ không đạt, thương lượng với khách</option><option>Khác</option></select></div>
           <div class="field"><label class="field__label" for="rt">Mô tả<span class="field__req" aria-hidden="true">*</span></label><textarea id="rt" class="textarea" style="min-height:64px">Khách hủy hạng mục thay lọc gió sau khi đã trả đủ.</textarea><span class="field__hint">Tối thiểu 5 ký tự. Lưu vào nhật ký và phiếu chi hoàn.</span></div>
-          <div class="alert alert--warning" data-vg="h" data-v="inv" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Lệnh đã có hóa đơn C26TAA-0000413</span><span>Sau khi hoàn tiền cần lập hóa đơn điều chỉnh (giảm) để số hóa đơn khớp. Hệ thống tạo sẵn yêu cầu ở <a href="g4-ein-04.html">G4-EIN-04</a> khi hoàn tiền được duyệt (FR-ACC-016).</span></div></div>
+          <div class="alert alert--warning" data-vg="h" data-v="inv" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Lệnh đã có hóa đơn C26TAA-0000414</span><span>Sau khi hoàn tiền cần lập hóa đơn điều chỉnh (giảm) để số hóa đơn khớp. Hệ thống tạo sẵn yêu cầu ở <a href="g4-ein-04.html">G4-EIN-04</a> khi hoàn tiền được duyệt (FR-ACC-016).</span></div></div>
         </div>
       </section>
     </div>
@@ -52,7 +56,7 @@
 </div>
 
 <div class="overlay" id="dlg-ref" role="alertdialog" aria-modal="true" aria-labelledby="rf-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="HOÀN TIỀN">
-  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="rf-t">Gửi đề xuất hoàn <span id="rf-a">1.250.000 ₫</span> cho khách?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="rf-t">Gửi đề xuất hoàn <span id="rf-a">1.250.000 ₫</span> cho <span id="rf-t-sub">khách</span>?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><ul class="impact-list"><li>Khách Lê Quốc Huy nhận lại tiền theo hình thức đã chọn sau khi Quản lý duyệt.</li><li>Tạo phiếu chi hoàn liên kết PT-Q7-2610-00930; phiếu thu gốc <strong>giữ nguyên</strong>.</li><li>Công nợ và trạng thái thanh toán của lệnh cập nhật theo số hoàn.</li></ul>
     <div class="field"><label class="field__label" for="rf-r">Xác nhận lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="rf-r" class="textarea" data-confirm-reason style="min-height:64px">Khách hủy hạng mục thay lọc gió sau khi đã trả đủ.</textarea></div>
     <div class="field"><label class="field__label" for="rf-c">Gõ <strong>HOÀN TIỀN</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="rf-c" class="input" data-confirm-input autocomplete="off"></div></div>
@@ -73,7 +77,7 @@ window.G4F_PAGE = {
   document.addEventListener('input', function (e) {
     if (e.target.id !== 'a') return; var v = G4F.num(e.target.value), err = $('#a-e'), b = $('#btn-ref');
     var bad = v === 0 || v > MAX; err.hidden = !(v > MAX || v === 0); e.target.classList.toggle('is-error', bad); if (bad) e.target.setAttribute('aria-invalid', 'true'); else e.target.removeAttribute('aria-invalid');
-    $('#a-et').textContent = v > MAX ? 'Không hoàn quá số đã thu (1.250.000 ₫). Giảm số tiền.' : 'Nhập số tiền hoàn lớn hơn 0.';
+    $('#a-et').textContent = v > MAX ? 'Không hoàn quá số tối đa (' + G4F.fmt(MAX) + '). Giảm số tiền.' : 'Nhập số tiền hoàn lớn hơn 0.';
     $('#s-ref').textContent = '−' + G4F.fmt(v); $('#s-left').textContent = G4F.fmt(Math.max(MAX - v, 0)); $('#rf-a').textContent = G4F.fmt(v);
     G4F.setEnabled(b, !bad); expect(v);
   });
@@ -85,7 +89,16 @@ window.G4F_PAGE = {
     else if (v > 0) { bd.className = 'badge badge--info'; bd.textContent = 'Thanh toán một phần'; tg.hidden = false; tg.textContent = 'Đã hoàn một phần ' + G4F.fmt(v); n.textContent = 'Tổng phải thu không đổi nên thu ròng thấp hơn: hiện “Thanh toán một phần” kèm tag.'; }
   }
   document.addEventListener('change', function (e) { if (e.target.id === 'reduce') expect(G4F.num($('#a').value)); });
-  G4F.applyVar('h', 'noinv');
+  /* Biến thể “Hoàn khoản nhận trước”: đầu vào từ ACC-21 (?adv=1&cust=&amt=&src=), số hoàn ≤ số dư nhận trước, không nhắc hóa đơn */
+  var Q = new URLSearchParams(location.search), ADV = { c: Q.get('cust') || 'Nguyễn Văn An', a: parseInt(Q.get('amt') || '300000', 10), s: Q.get('src') || 'PT-Q7-2610-00890' };
+  document.addEventListener('g4f:var', function (e) {
+    if (e.detail.group !== 'h') return; var adv = e.detail.v === 'adv'; MAX = adv ? ADV.a : 1250000; G4F.resetBtn($('#btn-ref'));
+    if (adv) { $('#adv-c').textContent = ADV.c; $('#adv-s').textContent = ADV.s; $('#adv-a').textContent = G4F.fmt(ADV.a); }
+    $('#a').value = String(MAX).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); $('#a-h').textContent = 'Tối đa bằng ' + (adv ? 'số dư khoản nhận trước' : 'số đã thu còn lại') + ': ' + G4F.fmt(MAX) + '.';
+    $('#reduce').closest('label').hidden = adv; $('#exp-badge').closest('.row').hidden = adv; $('#exp-note').hidden = adv; $('#rf-t-sub').textContent = adv ? 'khoản nhận trước của ' + ADV.c : 'khách';
+    $('#a').dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  G4F.applyVar('h', Q.get('adv') === '1' ? 'adv' : 'noinv');
 })();
 </script>
 </body>

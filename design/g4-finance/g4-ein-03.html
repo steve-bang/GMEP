@@ -15,7 +15,7 @@
     <button class="btn btn--secondary" data-toast="info|Đang tạo PDF|Tải bản thể hiện từ kho lưu cục bộ."><svg class="icon"><use href="#download"/></svg>PDF</button>
     <button class="btn btn--secondary" data-toast="info|Đang tạo XML|Tải bản XML đã lưu cục bộ."><svg class="icon"><use href="#download"/></svg>XML</button>
     <button class="btn btn--secondary" data-g4f-print><svg class="icon"><use href="#printer"/></svg>In A4</button>
-    <button class="btn btn--secondary" data-open="dlg-report" data-g4f-roles="TN"><svg class="icon"><use href="#alert-triangle"/></svg>Báo kế toán hóa đơn này có sai</button>
+    <button class="btn btn--secondary" id="btn-report" data-open="dlg-report" data-g4f-roles="TN"><svg class="icon"><use href="#alert-triangle"/></svg>Báo kế toán hóa đơn này có sai</button>
     <a class="btn btn--danger-outline" href="g4-ein-04.html" data-vg="v" data-v="issued sendfail" data-g4f-need="KT" data-g4f-why="Điều chỉnh, thay thế, hủy do Kế toán lập và Kế toán trưởng duyệt."><svg class="icon"><use href="#pencil"/></svg>Điều chỉnh, thay thế, hủy</a>
   </div>
 
@@ -75,8 +75,8 @@
         <div class="card__body stack">
           <dl class="g4f-kv"><div><dt>Người liên hệ</dt><dd>Nguyễn Văn An</dd></div><div><dt>Số điện thoại</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd></div></dl>
           <div class="row"><span class="tag tag--success" data-vg="v" data-v="issued pending void">Email: đã gửi 09:03</span><span class="tag tag--danger" data-vg="v" data-v="sendfail" hidden>Email: lỗi (trả lại)</span><span class="tag tag--neutral">Zalo: Chưa kích hoạt</span><span class="tag tag--neutral">SMS: Chưa kích hoạt</span></div>
-          <div class="field"><label class="field__label" for="mail">Email nhận</label><input id="mail" class="input" type="email" value="ketoan@hoaphat-vt.example.vn"></div>
-          <button class="btn btn--primary" data-g4f-submit data-lock="#btn-send" id="btn-send" data-busy="Đang gửi email…" data-done-label="Đã gửi lại" data-done-toast="success|Đã gửi hóa đơn|Email gửi tới ketoan@hoaphat-vt.example.vn." data-vg="v" data-v-off="void replaced" data-g4f-need="TN KT" data-g4f-why="Thu ngân và Kế toán gửi hóa đơn cho khách."><svg class="icon"><use href="#send"/></svg>Gửi lại cho khách</button>
+          <div class="field"><span class="field__label">Email nhận (lấy từ hồ sơ khách)</span><span class="pii" data-pii-id="c1" data-pii-kind="email"></span><span class="field__hint">Giá trị đầy đủ chỉ tải về khi bấm Hiện theo quyền; đổi email ở hồ sơ khách.</span></div>
+          <button class="btn btn--primary" data-g4f-submit data-lock="#btn-send" id="btn-send" data-busy="Đang gửi email…" data-done-label="Đã gửi lại" data-done-toast="success|Đã gửi hóa đơn|Email gửi tới địa chỉ trong hồ sơ khách." data-vg="v" data-v-off="void replaced" data-g4f-need="TN KT" data-g4f-why="Thu ngân và Kế toán gửi hóa đơn cho khách."><svg class="icon"><use href="#send"/></svg>Gửi lại cho khách</button>
           <p class="g4f-why" style="margin:0">Kênh Zalo/SMS hiện “Chưa kích hoạt” cho tới khi chọn nhà cung cấp tin nhắn (D-13).</p>
         </div>
       </section>
@@ -94,7 +94,7 @@
 <div class="overlay" id="dlg-report" role="dialog" aria-modal="true" aria-labelledby="rp-t"><div class="dialog">
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rp-t">Báo kế toán hóa đơn này có sai</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body stack"><p class="t-body-sm text-secondary" style="margin:0">Thu ngân không tự điều chỉnh hóa đơn. Báo này gửi thông báo “Cần xử lý” cho Kế toán; Kế toán lập yêu cầu điều chỉnh, thay thế hoặc hủy và Kế toán trưởng duyệt.</p><div class="field"><label class="field__label" for="rp-n">Sai ở đâu?<span class="field__req" aria-hidden="true">*</span></label><textarea id="rp-n" class="textarea" placeholder="Ví dụ: khách báo sai mã số thuế"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã báo kế toán|Kế toán nhận thông báo Cần xử lý kèm ghi chú.">Gửi báo</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="rp-ok" data-g4f-submit data-lock="#btn-report" data-busy="Đang gửi…" data-done-label="Đã báo kế toán" data-done-toast="success|Đã báo kế toán|Kế toán nhận thông báo Cần xử lý kèm ghi chú." data-g4f-online disabled>Gửi báo</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -106,6 +106,8 @@ window.G4F_PAGE = {
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
 <script>
+document.addEventListener('input', function (e) { if (e.target.id === 'rp-n') G4F.setEnabled(document.getElementById('rp-ok'), e.target.value.trim().length >= 5); });
+G4F.setEnabled(document.getElementById('rp-ok'), false);
 document.addEventListener('g4f:var', function (e) { document.getElementById('inv-doc').classList.toggle('is-void', e.detail.v === 'void' || e.detail.v === 'replaced'); if (e.detail.v !== 'void') G4F.refresh(); });
 G4F.applyVar('v', 'issued');
 </script>

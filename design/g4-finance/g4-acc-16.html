@@ -52,7 +52,7 @@
 <div class="overlay" id="dlg-match" role="alertdialog" aria-modal="true" aria-labelledby="mc-t"><div class="dialog" data-g4f-gate>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#arrow-left-right"/></svg></div><div><h2 class="dialog__title" id="mc-t">Ghép giao dịch với phiếu?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body stack"><p id="mc-text">Ghép giao dịch ngân hàng với phiếu đã chọn.</p><ul class="impact-list"><li>Phiếu chuyển sang “Đã đối soát”; ghi nhật ký người ghép.</li><li>Ghép nhầm sửa bằng “Bỏ ghép” có lý do, không xóa dữ liệu.</li></ul><label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đối chiếu nội dung và số tiền.</span></label></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-g4f-gate-btn data-close data-toast="success|Đã ghép|Phiếu chuyển sang đã đối soát." disabled>Ghép</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-match" data-busy="Đang ghép…" data-done-label="Đã ghép" data-done-toast="success|Đã ghép|Phiếu chuyển sang đã đối soát." disabled>Ghép</button></div></div></div>
 
 <div class="overlay" id="dlg-unm" role="alertdialog" aria-modal="true" aria-labelledby="um-t"><div class="dialog" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="um-t">Bỏ ghép giao dịch?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
@@ -86,7 +86,7 @@ window.G4F_PAGE = {
     else if ((b < 0) !== (o < 0)) m.textContent = 'Không ghép được: một bên là thu, một bên là chi.';
     else if (b === o) { m.textContent = 'Khớp số tiền ' + G4F.fmt(b) + '. Có thể ghép.'; ok = true; }
     else { m.textContent = 'Lệch ' + G4F.fmt(Math.abs(Math.abs(b) - Math.abs(o))) + ' giữa sao kê và sổ. Chọn loại lý do và ghi chú (≥ 5 ký tự) mới ghép được; chênh lệch lưu gắn cặp ghép và hiện trong báo cáo đối soát. Vượt ngưỡng cấu hình thì cần Kế toán trưởng duyệt.'; dn.hidden = false; $('#diff-kind').hidden = false; ok = $('#dn').value.trim().length >= 5; }
-    btn.setAttribute('data-ok', ok ? '1' : '0'); G4F.setEnabled(btn, ok);
+    btn.setAttribute('data-ok', ok ? '1' : '0'); if (btn.hasAttribute('data-g4f-keep-lock')) G4F.resetBtn(btn); G4F.setEnabled(btn, ok);
     $('#mc-text').textContent = b !== null && o !== null ? 'Ghép sao kê ' + G4F.fmt(b) + ' với phiếu ' + G4F.fmt(o) + '.' : '';
   }
   document.addEventListener('change', function (e) { if (e.target.name === 'bk' || e.target.name === 'bo') upd(); });

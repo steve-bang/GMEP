@@ -35,7 +35,7 @@
       <div class="field"><label class="field__label" for="r2">Tiền đặt cọc</label><select id="r2" class="select" data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình."><option>Chưa chốt (chờ kế toán xác nhận)</option><option>Không lập hóa đơn khi nhận cọc</option><option>Lập hóa đơn khi nhận cọc</option></select></div>
       <div class="field"><label class="field__label" for="r3">Có hiệu lực từ ngày</label><div class="input-group date-field"><input id="r3" class="input" value="01/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
     </div></div>
-    <div class="card__footer"><button class="btn btn--secondary">Hủy thay đổi</button><button class="btn btn--primary" data-toast="success|Đã lưu quy tắc|Có hiệu lực từ 01/11/2026, lưu lịch sử." data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình.">Lưu (có ngày hiệu lực)</button></div>
+    <div class="card__footer"><button class="btn btn--secondary">Hủy thay đổi</button><button class="btn btn--primary" id="btn-rule" data-open="dlg-rule" data-g4f-online data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống soạn; Chủ garage duyệt.">Gửi duyệt (có ngày hiệu lực)</button></div>
   </section>
 </div>
 
@@ -49,12 +49,17 @@
     <div class="field"><label class="field__label" for="d-e">Hiệu lực từ ngày<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="d-e" class="input" value="01/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
     <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đổi đơn vị phát hành ảnh hưởng hóa đơn mới</span><span>Hóa đơn đã phát hành giữ nguyên. Cần Chủ garage duyệt.</span></div></div>
   </div>
-  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-open="dlg-iss">Xem tác động và lưu</button></div></aside></div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="btn-iss" data-open="dlg-iss" data-g4f-online>Xem tác động và lưu</button></div></aside></div>
 
 <div class="overlay" id="dlg-iss" role="alertdialog" aria-modal="true" aria-labelledby="is-t"><div class="dialog" data-confirm-guard data-confirm-word="ĐỔI">
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="is-t">Đổi đơn vị phát hành của chi nhánh?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><ul class="impact-list"><li>Hóa đơn phát hành từ 01/11/2026 mang đơn vị và ký hiệu mới; hóa đơn cũ giữ nguyên.</li><li>Gửi Chủ garage duyệt trước khi có hiệu lực.</li></ul><div class="field"><label class="field__label" for="is-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="is-r" class="textarea" data-confirm-reason></textarea></div><div class="field"><label class="field__label" for="is-c">Gõ <strong>ĐỔI</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="is-c" class="input" data-confirm-input autocomplete="off"></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi Chủ garage duyệt|Có hiệu lực sau khi được duyệt." disabled>Gửi duyệt</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-iss" data-busy="Đang gửi duyệt…" data-done-label="Đã gửi duyệt" data-done-toast="info|Đã gửi Chủ garage duyệt|Có hiệu lực sau khi được duyệt." disabled>Gửi duyệt</button></div></div></div>
+
+<div class="overlay" id="dlg-rule" role="alertdialog" aria-modal="true" aria-labelledby="ru-t"><div class="dialog" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#receipt"/></svg></div><div><h2 class="dialog__title" id="ru-t">Gửi duyệt quy tắc lập hóa đơn?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list" style="margin:0"><li>Quy tắc thời điểm lập hóa đơn và xử lý tiền cọc ảnh hưởng thuế; chỉ có hiệu lực sau khi Chủ garage duyệt, từ ngày hiệu lực đã chọn.</li><li>Hóa đơn đã phát hành không đổi. Ghi nhật ký người soạn, người duyệt, giá trị cũ và mới.</li></ul><label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Quy tắc này đã được kế toán của khách xác nhận bằng ví dụ.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-rule" data-busy="Đang gửi duyệt…" data-done-label="Đã gửi duyệt" data-done-toast="info|Đã gửi Chủ garage duyệt|Quy tắc có hiệu lực sau khi được duyệt." disabled>Gửi duyệt</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {

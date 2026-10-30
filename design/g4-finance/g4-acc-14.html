@@ -12,7 +12,7 @@
 <body>
 <div id="g4f-body">
   <div data-g4f-actions>
-    <button class="btn btn--danger-outline" data-open="dlg-method" data-g4f-need="KT CH" data-g4f-why="Chỉ Kế toán và Chủ garage đổi phương pháp giá vốn, một lần mỗi kỳ."><svg class="icon"><use href="#alert-triangle"/></svg>Đổi phương pháp giá vốn</button>
+    <button class="btn btn--danger-outline" id="btn-mth" data-open="dlg-method" data-g4f-need="KT CH" data-g4f-why="Chỉ Kế toán và Chủ garage đổi phương pháp giá vốn, một lần mỗi kỳ."><svg class="icon"><use href="#alert-triangle"/></svg>Đổi phương pháp giá vốn</button>
   </div>
 
   <div class="alert alert--warning"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Phương pháp giá vốn đang dùng: bình quân gia quyền (cấu hình mặc định)</span><span>Kế toán của khách <strong>chưa chốt</strong> phương pháp; số liệu dưới đây có thể đổi khi chốt <span class="g4f-sample">[Cần xác nhận] D-13</span>. Cách phân bổ chi phí chung cũng chưa chốt.</span></div></div>
@@ -69,7 +69,7 @@
     <ul class="impact-list" style="margin-top:12px"><li>Chỉ được đổi <strong>một lần mỗi kỳ</strong>, chỉ áp dụng cho kỳ chưa khóa kể từ ngày hiệu lực.</li><li>Giá vốn, lãi gộp của các lệnh và báo cáo chi nhánh trong kỳ sẽ tính lại; số đã chốt không đổi.</li><li>Ghi nhật ký người đổi, lý do, phương pháp cũ và mới.</li></ul>
     <div class="field"><label class="field__label" for="mt-r">Lý do (nêu căn cứ kế toán)<span class="field__req" aria-hidden="true">*</span></label><textarea id="mt-r" class="textarea" data-confirm-reason></textarea></div>
     <div class="field"><label class="field__label" for="mt-c">Gõ <strong>ĐỔI GIÁ VỐN</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="mt-c" class="input" data-confirm-input autocomplete="off"></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu đổi phương pháp|Chờ Chủ garage duyệt." disabled>Gửi yêu cầu đổi</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-mth" data-busy="Đang gửi yêu cầu…" data-done-label="Đã gửi, chờ CH duyệt" data-done-toast="warning|Đã gửi yêu cầu đổi phương pháp|Chờ Chủ garage duyệt; kỳ này chỉ được đổi một lần." disabled>Gửi yêu cầu đổi</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {

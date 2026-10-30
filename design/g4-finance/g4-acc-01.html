@@ -198,7 +198,9 @@ window.G4F_PAGE = {
     else if (diff === 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = '0 ₫'; note.textContent = 'Thu đủ: lệnh chuyển sang “Đã thanh toán”.'; tag.textContent = 'Dự kiến: Đã thanh toán'; tag.className = 'tag tag--success'; }
     else { l.textContent = 'Phần dư (khoản nhận trước)'; v.textContent = fmt(-diff); note.textContent = 'Thu vượt: cần xác nhận phần dư.'; over.hidden = false; $('#over-text').textContent = 'Dư ' + fmt(-diff) + ' so với số còn phải thu. Phần dư không bị mất: ghi thành khoản nhận trước của khách (xem G4-ACC-21), sau đó bù vào lệnh sau của cùng khách hoặc hoàn lại có duyệt.'; tag.textContent = 'Dự kiến: Đã thanh toán + khoản nhận trước'; tag.className = 'tag tag--success'; }
     btn.textContent = t ? 'Ghi nhận thanh toán ' + fmt(t) : 'Ghi nhận thanh toán';
-    var bad = t === 0 || (diff < 0 && !$('#over-chk').checked);
+    var noRef = $$('#pay-lines [data-line]').some(function (r) { return num($('[data-amount]', r).value) > 0 && $('[data-method]', r).value !== 'Tiền mặt' && $('input:not([data-amount])', r).value.trim().length < 3; });
+    var bad = t === 0 || noRef || (diff < 0 && !$('#over-chk').checked);
+    if (noRef && t) note.textContent += ' Cần mã giao dịch cho hình thức không phải tiền mặt.';
     btn.setAttribute('data-bad', bad ? '1' : '0');
     if (!btn.hasAttribute('data-g4f-keep-lock')) G4F.setEnabled(btn, !bad);
     var cash = $$('#pay-lines [data-line]').filter(function (r) { return $('[data-method]', r).value === 'Tiền mặt'; }).reduce(function (s, r) { return s + num($('[data-amount]', r).value); }, 0), given = num($('#given').value);
@@ -229,6 +231,15 @@ window.G4F_PAGE = {
     $('#pay-lines').classList.toggle('g4f-readonly', v !== 'ok');
     if (v === 'ok') G4F.refresh();
   });
+  /* Sau khi ghi: badge Thanh toán cập nhật, form khóa để không ghi lần hai */
+  document.addEventListener('g4f:done', function (e) {
+    if (e.detail.id !== 'dp-ok') return; var b = $('#pay-badge'), full = total() >= DUE;
+    b.className = 'badge ' + (full ? 'badge--success' : 'badge--info'); b.textContent = full ? 'Đã thanh toán' : 'Thanh toán một phần';
+    $$('#pay-lines input, #pay-lines select, #pay-lines button, #add-line, #given').forEach(function (x) { x.disabled = true; });
+  });
+  function canEdit() { var ro = document.body.getAttribute('data-role') !== 'TN'; $$('#pay-lines input, #pay-lines select, #given').forEach(function (x) { x.readOnly = ro; if (x.tagName === 'SELECT') x.disabled = ro; }); }
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(canEdit, 10); });
+  canEdit();
   G4F.setEnabled($('#dep-ok'), false);
   G4F.applyVar('g', 'ok'); recalc();
 })();

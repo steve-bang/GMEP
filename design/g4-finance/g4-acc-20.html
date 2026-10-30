@@ -43,12 +43,12 @@
     <div class="g4f-diff is-ok" role="status"><div class="row row--between"><span>Tổng Nợ</span><strong class="num">100%</strong></div><div class="row row--between"><span>Tổng Có</span><strong class="num">100%</strong></div><div class="t-body-sm" style="margin-top:6px">Cân đối nợ = có.</div></div>
     <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đã có bút toán theo sơ đồ cũ</span><span>Thay đổi chỉ áp dụng từ ngày hiệu lực; bút toán đã sinh giữ nguyên.</span></div></div>
   </div>
-  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-open="dlg-map">Xem tác động và lưu</button></div></aside></div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="btn-map" data-open="dlg-map" data-g4f-online>Xem tác động và lưu</button></div></aside></div>
 
 <div class="overlay" id="dlg-map" role="alertdialog" aria-modal="true" aria-labelledby="mp-t"><div class="dialog dialog--md" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="mp-t">Đổi sơ đồ khi đã có bút toán?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body"><ul class="impact-list"><li>Bút toán từ 01/11/2026 dùng tài khoản mới; trước đó giữ nguyên.</li><li>Cần Chủ garage duyệt; ghi nhật ký giá trị cũ và mới.</li></ul><div class="field"><label class="field__label" for="mp-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="mp-r" class="textarea" data-confirm-reason></textarea></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi Chủ garage duyệt|Có hiệu lực từ 01/11/2026 sau khi duyệt." disabled>Gửi duyệt</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-map" data-busy="Đang gửi duyệt…" data-done-label="Đã gửi duyệt" data-done-toast="info|Đã gửi Chủ garage duyệt|Có hiệu lực từ 01/11/2026 sau khi duyệt." disabled>Gửi duyệt</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {

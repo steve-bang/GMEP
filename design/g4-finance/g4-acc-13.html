@@ -25,7 +25,7 @@
         <tbody>
           <tr><td><span class="code cell-primary">PN-Q7-2610-00064</span><span class="cell-sub">HĐ NCC 0001234</span></td><td class="num col-nowrap">12/09/2026</td><td class="num col-nowrap">12/10/2026 <span class="tag tag--danger">Quá hạn</span></td><td><span class="tag tag--success">Khớp</span></td><td class="col-num">12.600.000 ₫</td><td class="col-actions"><button class="btn btn--primary btn--sm" data-open="dlg-pay" data-ref="PN-Q7-2610-00064" data-max="12600000" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền cho nhà cung cấp." data-g4f-online>Chi tiền</button></td></tr>
           <tr><td><span class="code cell-primary">PN-Q7-2610-00071</span><span class="cell-sub">HĐ NCC 0001301</span></td><td class="num col-nowrap">20/10/2026</td><td class="num col-nowrap">19/11/2026</td><td><span class="tag tag--success">Khớp</span></td><td class="col-num">14.400.000 ₫</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-pay" data-ref="PN-Q7-2610-00071" data-max="14400000" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền cho nhà cung cấp." data-g4f-online>Chi tiền</button></td></tr>
-          <tr><td><span class="code cell-primary">PN-Q7-2610-00077</span><span class="cell-sub">HĐ NCC 0001322</span></td><td class="num col-nowrap">25/10/2026</td><td class="num col-nowrap">24/11/2026</td><td><span class="tag tag--warning">Chênh lệch 1 dòng</span></td><td class="col-num">14.000.000 ₫</td><td class="col-actions"><div class="row" style="gap:6px;justify-content:flex-end"><a class="btn btn--ghost btn--sm" href="#">Xử lý ở Mua hàng</a><button class="btn btn--danger-outline btn--sm" data-open="dlg-pay" data-ref="PN-Q7-2610-00077" data-max="14000000" data-ex="1" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền cho nhà cung cấp.">Chi kèm ngoại lệ</button></div></td></tr>
+          <tr><td><span class="code cell-primary">PN-Q7-2610-00077</span><span class="cell-sub">HĐ NCC 0001322</span></td><td class="num col-nowrap">25/10/2026</td><td class="num col-nowrap">24/11/2026</td><td><span class="tag tag--warning">Chênh lệch 1 dòng</span></td><td class="col-num">14.000.000 ₫</td><td class="col-actions"><div class="row" style="gap:6px;justify-content:flex-end"><a class="btn btn--ghost btn--sm" href="#">Xử lý ở Mua hàng</a><button class="btn btn--danger-outline btn--sm" data-open="dlg-pay" data-ref="PN-Q7-2610-00077" data-max="14000000" data-ex="1" data-g4f-online data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền cho nhà cung cấp.">Chi kèm ngoại lệ</button></div></td></tr>
         </tbody>
         <tfoot><tr><td colspan="4">Tổng phải trả</td><td class="col-num">41.000.000 ₫</td><td></td></tr></tfoot></table></div>
       <div class="card__body"><p class="g4f-why" style="margin:0">Chênh lệch ba bên vượt dung sai <span class="g4f-sample">cấu hình, mặc định 0</span> thì chặn chi thường (FR-PUR-006). Hai đường: xử lý ở Mua hàng rồi chi, hoặc “Chi kèm ngoại lệ” bắt buộc lý do và luôn cần duyệt.</p></div>
@@ -41,10 +41,10 @@
   <div class="dialog__body stack">
     <div class="form-grid"><div class="field"><label class="field__label" for="py-a">Số tiền chi<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="py-a" class="input input--num" data-money value="12.600.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div><span class="field__error" id="py-e" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Không chi vượt số còn nợ của phiếu nhập.</span></div>
       <div class="field"><label class="field__label" for="py-m">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="py-m" class="select"><option>Chuyển khoản</option><option>Tiền mặt</option></select></div></div>
-    <div class="alert alert--warning" id="py-lim"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>Số này vượt hạn mức chi của Kế toán <span class="g4f-sample">minh họa</span>: phiếu chi đi vào quy trình <a href="g4-acc-05.html">đề xuất chi</a> để duyệt; chưa chi tiền ngay.</span></div></div>
+    <div class="alert alert--warning" id="py-lim"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span id="py-lim-t"></span></div></div>
     <div class="field" id="py-exf" hidden><label class="field__label" for="py-ex">Lý do chi kèm ngoại lệ (đối chiếu 3 bên đang chênh lệch)<span class="field__req" aria-hidden="true">*</span></label><textarea id="py-ex" class="textarea" style="min-height:64px" placeholder="Ví dụ: NCC giao thiếu 1 dòng, đã thống nhất trừ vào đợt sau"></textarea><span class="field__hint">Tối thiểu 5 ký tự. Luôn đi vào đề xuất chi và cần duyệt, bất kể số tiền.</span></div>
     <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã kiểm tra nhà cung cấp, số tài khoản và hóa đơn.</span></label></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="py-ok" data-g4f-gate-btn data-g4f-submit data-busy="Đang ghi nhận…" data-done-toast="info|Đã gửi đề xuất chi|Chờ duyệt theo hạn mức, chưa trừ tiền." disabled>Chi tiền</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="py-ok" data-g4f-gate-btn data-g4f-submit data-lock="#py-ok" data-busy="Đang ghi nhận…" data-done-toast="info|Đã gửi đề xuất chi|Chờ duyệt theo hạn mức, chưa trừ tiền." disabled>Chi tiền</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -58,17 +58,26 @@ window.G4F_PAGE = {
 <script src="../assets/app.js"></script>
 <script>
 (function () {
+  var curBtn = null;
+  /* Sau khi gửi: nếu chi thật thì giảm còn nợ của phiếu nhập; nếu đi qua duyệt thì khóa dòng, tránh chi hai lần */
+  document.addEventListener('g4f:done', function (e) {
+    if (e.detail.id !== 'py-ok' || !curBtn) return; var tr = curBtn.closest('tr'), cell = tr.querySelector('td.col-num'), v = G4F.num(document.getElementById('py-a').value);
+    var apr = EX || v > LIM;
+    if (apr) { G4F.$$('button', tr).forEach(function (b) { G4F.setEnabled(b, false); }); cell.insertAdjacentHTML('beforeend', '<span class="cell-sub"><span class="tag tag--warning">Đã gửi đề xuất chi</span></span>'); }
+    else { var left = Math.max(MAX - v, 0); cell.textContent = G4F.fmt(left); curBtn.setAttribute('data-max', String(left)); if (!left) G4F.setEnabled(curBtn, false); }
+  });
   var MAX = 12600000, EX = false, LIM = 5000000; /* LIM: hạn mức minh họa, lấy từ cấu hình G4-APR-03 */
   function upd() {
     var a = document.getElementById('py-a'), ok = document.getElementById('py-ok'), v = G4F.num(a.value);
     var bad = v > MAX || v === 0 || (EX && document.getElementById('py-ex').value.trim().length < 5);
     document.getElementById('py-e').hidden = !(v > MAX); a.classList.toggle('is-error', v > MAX); if (v > MAX) a.setAttribute('aria-invalid', 'true'); else a.removeAttribute('aria-invalid');
     var needApr = EX || v > LIM; document.getElementById('py-lim').hidden = !needApr;
+    document.getElementById('py-lim-t').innerHTML = EX ? 'Chi kèm ngoại lệ luôn cần duyệt tối thiểu cấp Quản lý chi nhánh, bất kể số tiền: đi vào <a href="g4-acc-05.html">đề xuất chi</a>, chưa trừ tiền.' : 'Số này vượt hạn mức chi của Kế toán <span class="g4f-sample">minh họa</span>: phiếu chi đi vào quy trình <a href="g4-acc-05.html">đề xuất chi</a> để duyệt; chưa chi tiền ngay.';
     ok.textContent = needApr ? 'Gửi đề xuất chi' + (v ? ' ' + G4F.fmt(v) : '') : 'Chi tiền' + (v ? ' ' + G4F.fmt(v) : '');
     ok.setAttribute('data-done-toast', needApr ? 'info|Đã gửi đề xuất chi|Chờ duyệt, chưa trừ tiền.' : 'success|Đã chi tiền|Phiếu chi đã ghi, gắn phiếu nhập.');
     G4F.setEnabled(ok, !bad);
   }
-  document.addEventListener('click', function (e) { var b = e.target.closest('[data-ref]'); if (!b) return; MAX = parseInt(b.getAttribute('data-max'), 10); EX = b.getAttribute('data-ex') === '1'; document.getElementById('py-ref').textContent = b.getAttribute('data-ref'); document.getElementById('py-exf').hidden = !EX; document.getElementById('py-ex').value = ''; var a = document.getElementById('py-a'); a.value = String(MAX).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); upd(); });
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-ref]'); if (!b) return; MAX = parseInt(b.getAttribute('data-max'), 10); EX = b.getAttribute('data-ex') === '1'; document.getElementById('py-ref').textContent = b.getAttribute('data-ref'); document.getElementById('py-exf').hidden = !EX; document.getElementById('py-ex').value = ''; curBtn = b; G4F.resetBtn(document.getElementById('py-ok')); var a = document.getElementById('py-a'); a.value = String(MAX).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); upd(); });
   document.addEventListener('input', function (e) { if (e.target.id === 'py-a' || e.target.id === 'py-ex') upd(); });
 })();
 </script>

@@ -50,7 +50,7 @@
     <section class="card"><div class="card__header"><h2 class="card__title">Môi trường</h2></div><div class="card__body stack">
       <div class="segmented" role="group" aria-label="Môi trường hiện tại"><button class="segmented__item" aria-pressed="true">Thử</button><button class="segmented__item" aria-pressed="false" disabled>Thật</button></div>
       <p class="t-body-sm text-secondary" style="margin:0">Môi trường thử và thật tách biệt hoàn toàn (khóa kết nối, hóa đơn, số). Chuyển sang môi trường thật do Quản trị hệ thống làm và cần Chủ garage duyệt.</p>
-      <button class="btn btn--danger-outline" data-open="dlg-env" data-g4f-need="AD" data-g4f-why="Chỉ Quản trị hệ thống đổi môi trường; Kế toán chỉ xem."><svg class="icon"><use href="#alert-triangle"/></svg>Chuyển sang môi trường thật</button></div></section>
+      <button class="btn btn--danger-outline" id="btn-env" data-open="dlg-env" data-g4f-need="AD" data-g4f-why="Chỉ Quản trị hệ thống đổi môi trường; Kế toán chỉ xem."><svg class="icon"><use href="#alert-triangle"/></svg>Chuyển sang môi trường thật</button></div></section>
     <section class="card"><div class="card__header"><h2 class="card__title">Chứng thư và khóa kết nối</h2></div><div class="card__body"><dl class="g4f-sum"><div><dt>Hạn chứng thư số</dt><dd>còn 214 ngày</dd></div><div><dt>Khóa API</dt><dd>Hiệu lực</dd></div><div><dt>Cảnh báo trước hạn</dt><dd>30 ngày <span class="g4f-sample">cấu hình</span></dd></div></dl></div></section>
   </div>
 
@@ -73,7 +73,7 @@
   <div class="dialog__body"><ul class="impact-list"><li>Từ lúc chuyển, mọi hóa đơn phát hành có giá trị pháp lý và gửi cơ quan thuế.</li><li>Không quay lại môi trường thử cho cùng ký hiệu; hóa đơn sai phải điều chỉnh/thay thế/hủy có duyệt.</li><li>Cần Chủ garage đã duyệt và đã kiểm tra đơn vị phát hành ở G4-EIN-08.</li></ul>
     <div class="field"><label class="field__label" for="ev-r">Lý do, người duyệt<span class="field__req" aria-hidden="true">*</span></label><textarea id="ev-r" class="textarea" data-confirm-reason></textarea></div>
     <div class="field"><label class="field__label" for="ev-c">Gõ <strong>MÔI TRƯỜNG THẬT</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="ev-c" class="input" data-confirm-input autocomplete="off"></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ môi trường thử</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu chuyển môi trường|Chờ Chủ garage duyệt." disabled>Gửi yêu cầu chuyển</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ môi trường thử</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-env" data-busy="Đang gửi yêu cầu…" data-done-label="Đã gửi, chờ CH duyệt" data-done-toast="warning|Đã gửi yêu cầu chuyển môi trường|Chờ Chủ garage duyệt." disabled>Gửi yêu cầu chuyển</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {

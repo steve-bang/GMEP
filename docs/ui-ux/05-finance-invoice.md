@@ -122,7 +122,7 @@ Shell chuẩn (sidebar 248/72, topbar 64, branch selector 3 cấp, banner phạm
 
 - **ACC-04:** bốn thẻ số dư (đầu ngày + thu − chi = cuối) và sổ quỹ có số dư chạy; ngày đã khóa là chế độ chỉ đọc kèm dòng bút toán đảo. Phiếu chi: chặn chi quá số dư quỹ; vượt hạn mức thì đổi nút thành “Gửi duyệt” và ghi rõ chưa trừ quỹ.
 - **ACC-05/06:** vòng đời Đề xuất → Duyệt → Chi → Đối soát bằng stepper; mỗi bước có người và thời điểm (FR-ACC-018); khoản vượt hạn mức không chi được cho tới khi duyệt, nút “Chi tiền” khóa kèm lý do.
-- **ACC-08 (wizard 4 bước):** rà lệnh → đếm quỹ theo mệnh giá (không điền sẵn số dự kiến) → giải trình (chỉ bắt buộc khi lệch) → xác nhận. Bước tiếp chỉ mở khi hợp lệ, lý do nêu bằng toast chữ. Chốt ca là xác nhận mức 2.
+- **ACC-08 (wizard 4 bước):** rà lệnh → đếm quỹ theo mệnh giá (không điền sẵn số theo sổ; số tờ trong prototype là dữ liệu mẫu đã đếm) → giải trình (chỉ bắt buộc khi lệch) → xác nhận. Bước tiếp chỉ mở khi hợp lệ, lý do nêu bằng toast chữ. Chốt ca là xác nhận mức 2.
 - **ACC-09 (BA câu 1, 10):** danh sách điều kiện với biểu tượng + chữ Đạt/Chặn/Cảnh báo, nhãn đọc từ cấu hình chi nhánh. Mặc định **chặn**: chênh lệch quỹ chưa giải trình hoặc vượt ngưỡng chưa được Quản lý duyệt (trong ngưỡng chỉ cần giải trình), ca chưa chốt, thanh toán/phiếu chi đang xử lý dở. Mặc định **cảnh báo**: lệnh còn mở, lệnh hoàn tất chưa thu, chưa có hóa đơn, phiếu thiếu chứng từ gốc, yêu cầu phê duyệt đang chờ. Nút “Khóa ngày” khóa và hiện lý do khi còn chặn; khóa ngày là hành động nguy hiểm (gõ ngày). **Mở lại ngày không do CH bấm trực tiếp**: KT hoặc QL “Đề nghị mở lại” (lý do, mật khẩu, MFA) → CH duyệt ở APR → ngày mở có hạn, đếm ngược, tự khóa lại; QV chỉ duyệt khi CH ủy quyền bằng cấu hình.
 - **ACC-08:** ca mở khi Thu ngân nhận quỹ, đóng khi đếm quỹ cuối ca, mỗi quầy một ca mở; nhãn Ca sáng/Ca chiều chỉ là gợi ý. KT, CH, QV xem chỉ đọc (nút lưu nháp/chốt khóa kèm lý do).
 
@@ -274,8 +274,8 @@ Không màn hình nào có nút “Xóa” cho chứng từ đã ghi sổ; các 
 - Khối shell và bộ chuyển trạng thái do `pack.js` sinh nên không xem được khi tắt JS; đây là chủ ý cho prototype, nhưng handoff cho dev phải dựa vào các mô tả ở §4, không phải mã `pack.js`.
 - Phần tử nhóm “nhiều pháp nhân” chỉ có ở EIN-08 (cột Pháp nhân) và bộ lọc topbar; báo cáo ACC-15 chưa tách theo pháp nhân.
 - Khoản nhận trước đã có G4-ACC-21 (v0.2); “nhật ký truy cập” vẫn thuộc G4-SYS.
-- Che dữ liệu cá nhân (F5-14): `.pii` trong prototype chỉ minh họa hành vi của KT (Hiện có lý do, tự che 30 giây). Bảng quyền đúng (ba-decisions câu 8): CV, QL, TN thấy đầy đủ không cần Hiện; CH, QV có nút Hiện không cần lý do; KT bắt buộc lý do; TK che; TH, AD không thấy. Giá trị đầy đủ chỉ được tải về sau khi Hiện, không nằm sẵn trong HTML. Handoff dev theo bảng này, không theo hộp thoại dùng chung của prototype.
-- Rà class (F5-21): đã rà thủ công các class dùng trong gói với `components.css`/`base.css`/`pack.css`; môi trường không có công cụ chạy script nên chưa grep tự động toàn bộ, designer kế tiếp nên chạy lại.
+- Che dữ liệu cá nhân (F5-14, BA đã đóng): prototype đã theo ba-decisions câu 8 qua `app.js` (`piiPolicy`): CV, QL, TN, QĐ thấy đầy đủ; CH, QV có nút Hiện không cần lý do; KT bắt buộc chọn lý do; TK che; TH, AD không thấy. Dev theo bảng này; giá trị đầy đủ chỉ tải về sau khi Hiện, không nằm sẵn trong HTML. Email nhận hóa đơn ở EIN-03 lấy từ hồ sơ khách qua `.pii`, không viết cứng. Tên, MST, địa chỉ người mua trên hóa đơn là nội dung chứng từ: hiện đủ cho người phát hành (TN, KT) và ghi nhật ký truy cập; CH, QV, QL xem danh sách thì che theo chính sách (BA đề xuất, cần xác nhận theo Luật BVDLCN 2025).
+- Rà class (F5-21, BA đã đóng): BA đối chiếu khoảng 60 class với `components.css`, `base.css`, `pack.css`, đều có; không cần chạy công cụ, designer chạy kiểm một lần trước handoff nhưng không chặn.
 - Biểu đồ chỉ gồm thanh tuổi nợ và thanh lãi gộp dựng bằng HTML/CSS (không có thư viện biểu đồ); chưa có line chart xu hướng vì không nằm trong màn hình của gói.
 - Mẫu in A5/nhiệt/A4 là bản tham khảo, không thay G2-PRT.
 
@@ -298,7 +298,7 @@ Nguồn: `docs/ui-ux/review-05-finance-invoice-ba.md` (22 finding) và `docs/ui-
 | F5-11 AD xem hàng chờ lỗi có dữ liệu người mua | Minor | Bỏ AD khỏi `allow` EIN-06 và khỏi nút “Hàng chờ lỗi” ở EIN-01; AD chẩn đoán ở EIN-07 | `g4-ein-06.html`; `g4-ein-01.html` |
 | F5-12 Badge Thanh toán đổi trước khi ghi | Minor | Badge giữ nguyên; trạng thái dự kiến là tag “Dự kiến: …” ở khối tóm tắt | `g4-acc-01.html` |
 | F5-13 Hoàn một phần chưa có trạng thái và tag | Minor | Khối “Dự kiến sau khi duyệt” theo thu ròng/tổng phải thu (tùy chọn tổng phải thu giảm) với tag “Đã hoàn một phần X ₫” (BA câu 4) | `g4-acc-07.html` |
-| F5-14 Che PII mô phỏng chưa theo bảng quyền | Minor | **Xử lý một phần**: chưa đổi hành vi nút Hiện theo vai trò trong prototype; ghi bảng quyền đúng và yêu cầu dev theo bảng, giá trị đầy đủ không nằm sẵn trong HTML | §9 |
+| F5-14 Che PII mô phỏng chưa theo bảng quyền | Minor | Vòng 2 BA xác nhận prototype đã theo bảng quyền qua `piiPolicy` của `app.js`: Đạt, đóng; §9 sửa lại; email hóa đơn dùng `.pii` | §9; `g4-ein-03.html` |
 | F5-15 Dữ liệu mẫu PC-…00041 mâu thuẫn | Minor | ACC-04 ghi “Thiếu chứng từ gốc” khớp ACC-09 | `g4-acc-04.html` |
 | F5-16 Điều kiện chặn khóa ngày chưa khớp BA câu 1 | Minor | Thêm chặn “ca chưa chốt” và “chênh lệch vượt ngưỡng chưa duyệt”; nhãn Chặn/Cảnh báo là cấu hình; bỏ câu “chờ BA/khách xác nhận” khỏi giao diện; ACC-17 thêm chặn yêu cầu phê duyệt đang chờ, kỳ trước | `g4-acc-09.html`; `g4-acc-17.html` |
 | F5-17 Mã YC-EIN- và mã chống trùng hiện cho Thu ngân | Minor | Đổi sang `YH-Q7-2610-NNNNN`; mã chống trùng nằm trong “Chi tiết kỹ thuật” chỉ KT/AD thấy | `g4-ein-02/03/06/07.html` |
@@ -314,7 +314,51 @@ Ngoài finding, đã áp dụng các quyết định BA: câu 1 (ACC-09/17), 2 (
 
 P1: ACC-01 (kèm cọc), 02, 03 (xem, in, đảo; phân bổ nhiều-nhiều khóa tới P2), 04, 08, 09; APR-01/02/03; EIN-01 đến 03, 05 đến 08, **EIN-04 mức tối thiểu**. P2: ACC-05, 06, 07, 10 đến 13, 21 và phân bổ nhiều-nhiều. P3: ACC-14 (chốt phương pháp), 15, 17 đến 20. P4: ACC-16.
 
+### 10b. Finding vòng 2 → đã xử lý ở đâu
+
+Nguồn: `docs/ui-ux/review-05-round2-ba.md`. Cơ chế chung thêm ở `pack.js` v0.3: (1) `data-g4f-req` + `data-g4f-pattern` ghép trường bắt buộc (mật khẩu, MFA…) vào nút của hộp thoại mức 3, thay cho việc chỉ dựa vào `app.js`; (2) nút xác nhận `data-confirm-btn`/`data-g4f-gate-btn` cũng nhận khóa mất kết nối; (3) `G4F.resetBtn`, sự kiện `g4f:done` để đặt lại khóa theo từng yêu cầu/phiếu; (4) `data-restore` cho nút lặp lại được; (5) cờ Kế toán trưởng giữ qua các trang (sessionStorage).
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F5-01 (APR-02 từ chối khóa) | Major | Từ chối khóa nút `btn-rej`, sau quyết định khóa cả Duyệt/Từ chối/Chuyển cấp; hộp thoại duyệt nêu loại và số tiền, nút ghi “Duyệt X ₫” | `g4-apr-02.html` |
+| F5-03, F5-11, F5-22 (index còn ghi CV, AD, 31 màn) | Minor | Sửa vai trò ACC-11, EIN-06, ACC-09 và số màn hình | `index.html` |
+| F5-05 (nút chi bật khi thiếu trường) | Major | Nút chi bật chỉ khi Loại, Số tiền, Người nhận, Diễn giải hợp lệ; cảnh báo hiện số thật; xóa trắng form và nhả khóa khi mở phiếu mới | `g4-acc-04.html` |
+| F5-07 (guard bỏ qua khóa mạng) | Major | Xử lý ở `pack.js` (không sửa `app.js`): `guardCheck` tính lại điều kiện của app.js rồi qua `refreshBtn`; nút xác nhận được khóa khi mất kết nối | `pack.js` |
+| F5-09 (mật khẩu/MFA không ràng buộc) | Major | `data-g4f-req="#ro-p,#ro-m"` + mẫu 6 chữ số; khóa chống gửi trùng; “Hoàn tất điều chỉnh” có hộp thoại mức 3 và nêu việc kiểm lại điều kiện | `g4-acc-09.html`, `g4-acc-17.html` |
+| F5-16 (điều kiện chặn khóa ngày) | Minor | Thêm chặn “thanh toán/phiếu chi đang xử lý dở”, cảnh báo “yêu cầu phê duyệt đang chờ” | `g4-acc-09.html` |
+| F5-21 (liên kết trần dẫn TN tới màn bị từ chối) | Minor | `data-g4f-roles` cho liên kết/thẻ tới EIN-06 | `g4-ein-01.html`, `g4-ein-05.html` |
+| F5R2-01 (chống gửi trùng mức 3) | Major | Mọi hộp thoại gửi yêu cầu có `data-g4f-submit` + `data-lock` tới nút mở và nhãn “Đã gửi…, chờ…”: đảo phiếu thu/phiếu chi, đề nghị mở lại ngày/kỳ, từ chối, nới hạn mức, đổi phương pháp giá vốn, sơ đồ tài khoản, lưu hạn mức, đổi môi trường hóa đơn, đơn vị phát hành, quy tắc hóa đơn, ghép ngân hàng, gửi duyệt đề xuất chi | `g4-acc-03/05/09/11/14/16/17/20`, `g4-apr-02/03`, `g4-ein-07/08` |
+| F5R2-02 (mật khẩu/MFA, hoàn tất điều chỉnh) | Major | Như F5-09 | `g4-acc-09.html`, `g4-acc-17.html` |
+| F5R2-03 (APR-01 quyết định ngược, keep-lock rò) | Major | Khóa theo yêu cầu: sau quyết định khóa cả ba nút + tag kết quả, mở yêu cầu khác thì đặt lại; dòng chuyển sang tab “Đã xử lý”, giảm pill | `g4-apr-01.html` |
+| F5R2-04 (ACC-11 thu nợ) | Major | Số tiền 1..dư nợ, mã giao dịch bắt buộc với chuyển khoản, nhãn kèm số tiền, khóa chống thu trùng, đặt lại khi mở, dư nợ giảm sau khi ghi | `g4-acc-11.html` |
+| F5R2-05 (ACC-04 phiếu chi) | Major | Như F5-05 | `g4-acc-04.html` |
+| F5R2-06 (cấu hình qua duyệt, AD) | Major | APR-03: AD chỉ “Gửi Chủ garage ban hành”, CH “Ban hành” (mức 3, ngày hiệu lực); EIN-08 quy tắc lập hóa đơn đổi từ “Lưu” sang “Gửi duyệt” có xác nhận | `g4-apr-03.html`, `g4-ein-08.html` |
+| F5R2-07 (ACC-21) | Major | Thẻ mobile có `data-g4f-need` và `data-g4f-online`; bù khoản nhận trước giảm số dư sau khi ghi, khóa khi hết, không bù lại cùng khoản; “Hoàn lại” truyền khách, số tiền, phiếu nguồn sang biến thể “Hoàn khoản nhận trước” của ACC-07 | `g4-acc-21.html`, `g4-acc-07.html` |
+| F5R2-08 (lộ công nợ cho TN/CV) | Minor | ACC-21 ẩn cột “Lệnh còn nợ” với TN; ACC-03 ẩn câu và liên kết công nợ với TN, CV | `g4-acc-21.html`, `g4-acc-03.html` |
+| F5R2-09 (khóa mạng chưa phủ hết) | Minor | Nút xác nhận trong hộp thoại nhận khóa mạng qua `applyNet`; bỏ gán `disabled` thủ công; ACC-03 “Lưu phân bổ” cần lý do, vai trò, mạng, khóa | `pack.js`, `g4-acc-03/09/17/18` |
+| F5R2-10 (ACC-13) | Minor | “Chi kèm ngoại lệ” có `data-g4f-online`; thông báo theo ngoại lệ hay vượt hạn mức; khóa chống chi trùng, giảm còn nợ hoặc khóa dòng khi đã gửi duyệt | `g4-acc-13.html` |
+| F5R2-11 (APR giá trị, chuyển cấp, KTT, bulk) | Minor | Hộp thoại duyệt, duyệt hàng loạt nêu giá trị/tổng và nhãn nút; chuyển cấp kiểm quyền và bắt ghi chú; cờ KTT lưu sessionStorage; bulk kiểm người lập theo từng dòng | `g4-apr-01.html`, `pack.js` |
+| F5R2-12 (ACC-09) | Minor | Thêm điều kiện (d), cảnh báo yêu cầu chờ; đồng hồ mô phỏng 22:00 | `g4-acc-09.html` |
+| F5R2-13 (EIN) | Minor | EIN-02 chặn phát hành khi khách có MST thiếu/sai, thiếu tên/địa chỉ; EIN-03 “Gửi báo” cần lý do, email dùng `.pii`; “Truy vấn” có khóa `data-restore` | `g4-ein-02.html`, `g4-ein-03.html` |
+| F5R2-14 (index, liên kết, xuất file) | Minor | Sửa index; xuất file ACC-10/12 cần quyền xuất (KT, QL, CH, QV) | `index.html`, `g4-acc-10/12.html` |
+| F5R2-15 (dữ liệu mẫu) | Minor | EIN-05 dùng RO-…00114; ACC-09 dùng RO-…00116; thu nợ ACC-11 là PT-…00934; hóa đơn ACC-07 là C26TAA-0000414; mô tả ACC-08 sửa | các file trên; §4.3 |
+| F5R2-16 (ACC-01) | Minor | Badge Thanh toán cập nhật sau khi ghi; mã giao dịch bắt buộc với hình thức không phải tiền mặt; ô nhập chỉ đọc với vai trò chỉ xem | `g4-acc-01.html` |
+| F5R2-17 (quyền lập của KT) | Minor | Theo D-R2-3: KT lập đề xuất hoàn tiền chuyển khoản và bù khoản nhận trước, không ghi tiền mặt, không duyệt; ghi chú đề nghị đưa vào FRD §2 | §4.9; §11 |
+
+### 10c. Tám quyết định BA vòng 2 đã áp dụng
+
+(1) Biến thể “Hoàn khoản nhận trước” của ACC-07 (đầu vào từ ACC-21, số hoàn ≤ số dư, không nhắc hóa đơn). (2) Chỉ bù khoản nhận trước ở ACC-21, ACC-01 giữ chip và liên kết. (3) “Chi kèm ngoại lệ” duyệt tối thiểu QL chi nhánh, dòng riêng ở APR-03. (4) Cột “Cờ rủi ro” ở APR-01 (Lặp trong 24 giờ, Thiếu chứng từ gốc, Người lập = bạn) khóa ô chọn kèm lý do. (5) Ủy quyền Quản lý vùng duyệt mở lại cấu hình ở APR-03 (mặc định tắt). (6) Một kế toán: yêu cầu hóa đơn do người có cờ KTT lập tự chuyển Chủ garage; danh sách người có cờ ở APR-03. (7) Hóa đơn gốc “Đã xuất” kèm tag “Đang chờ thay thế/điều chỉnh” cho tới khi xác nhận. (8) Ngưỡng chênh lệch quỹ (50.000 ₫ minh họa) và ngưỡng đối soát ngân hàng (20.000 ₫ minh họa) ở APR-03.
+
 ## 11. Câu hỏi còn lại cho BA
+
+Tám câu của v0.2 đã được BA trả lời (`review-05-round2-ba.md` §3) và được áp dụng ở §10c. Còn lại sau vòng 2 (chưa có yêu cầu mới ngoài các điểm sau, đề nghị BA xác nhận):
+
+| # | Câu hỏi | Màn hình | Thiết kế tạm |
+| --- | --- | --- | --- |
+| 1 | Thêm ghi chú vào FRD §2: KT được lập đề xuất hoàn tiền (chuyển khoản) và bù khoản nhận trước nhưng không ghi tiền mặt (D-R2-3) | ACC-07, 21 | Theo D-R2-3 |
+| 2 | Chủ garage ủy quyền Quản lý vùng duyệt mở lại: mặc định “Tắt” theo nhóm chi nhánh có đủ không, hay cần ủy quyền theo từng yêu cầu? | APR-03, ACC-09, 17 | Theo nhóm chi nhánh, có ngày hiệu lực |
+
+### Bản v0.2 (lưu vết)
 
 | # | Câu hỏi | Màn hình | Thiết kế tạm |
 | --- | --- | --- | --- |
