@@ -178,14 +178,12 @@
     $$('[data-g4f-need]').forEach(function (el) {
       var allowed = el.getAttribute('data-g4f-need').split(' ').indexOf(r) >= 0;
       if (!allowed) {
-        if (!el.hasAttribute('data-g4f-keep')) { el.setAttribute('data-g4f-keep', el.disabled ? '1' : '0'); }
-        el.disabled = true; el.setAttribute('aria-disabled', 'true'); el.title = el.getAttribute('data-g4f-why') || '';
+        el.setAttribute('data-g4f-keep', '1');
         var w = el.getAttribute('data-g4f-why'); if (w && why.indexOf(w) < 0) why.push(w);
-      } else if (el.hasAttribute('data-g4f-keep')) {
-        if (el.getAttribute('data-g4f-keep') === '0') { el.disabled = false; el.removeAttribute('aria-disabled'); el.removeAttribute('title'); }
-        el.removeAttribute('data-g4f-keep');
-      }
+      } else el.removeAttribute('data-g4f-keep');
+      refreshBtn(el);
     });
+    $$('.user-btn__text strong').forEach(function (s) { s.textContent = USER[r] || ''; });
     var note = document.getElementById('g4f-rolenote');
     if (note) {
       note.hidden = !(why.length && !forcedDenied);
@@ -202,9 +200,28 @@
   function applyNet() {
     var off = !!$('.net-banner.is-visible');
     $$('[data-g4f-online]').forEach(function (el) {
-      if (off) { if (!el.hasAttribute('data-g4f-net')) el.setAttribute('data-g4f-net', el.disabled ? '1' : '0'); el.disabled = true; el.setAttribute('aria-disabled', 'true'); el.title = 'Mất kết nối: thao tác ghi tiền/hóa đơn tạm khóa để tránh ghi trùng.'; }
-      else if (el.hasAttribute('data-g4f-net')) { if (el.getAttribute('data-g4f-net') === '0' && !el.hasAttribute('data-g4f-keep') && !el.hasAttribute('data-g4f-keep-lock')) { el.disabled = false; el.removeAttribute('aria-disabled'); el.removeAttribute('title'); } el.removeAttribute('data-g4f-net'); }
+      if (off) el.setAttribute('data-g4f-net', '1'); else el.removeAttribute('data-g4f-net');
+      refreshBtn(el);
     });
+  }
+  /* Một nơi duy nhất quyết định nút có bật không: AND của (hợp lệ theo trang, biến thể, cổng xác nhận) và NOT (khóa vai trò, mất mạng, đã gửi) */
+  function refreshBtn(el) {
+    var keep = el.hasAttribute('data-g4f-keep'), net = el.hasAttribute('data-g4f-net'), lk = el.hasAttribute('data-g4f-keep-lock');
+    var dis = el._ok === false || el._ov === false || el._gate === false || keep || net || lk;
+    el.disabled = dis; if (dis) el.setAttribute('aria-disabled', 'true'); else el.removeAttribute('aria-disabled');
+    if (keep) el.title = el.getAttribute('data-g4f-why') || ''; else if (net) el.title = 'Mất kết nối: thao tác ghi tiền/hóa đơn tạm khóa để tránh ghi trùng.'; else if (el._t) el.removeAttribute('title');
+    el._t = keep || net;
+  }
+  function setEnabled(el, ok) { el._ok = !!ok; refreshBtn(el); }
+  /* Quyền duyệt theo (loại yêu cầu, vai trò) và người lập khác người duyệt (F5-02). Cấp duyệt thật lấy từ G4-APR-03. */
+  var APPR = { disc: ['QL CH QV', 'Quản lý chi nhánh trở lên'], diff: ['QL CH QV', 'Quản lý chi nhánh trở lên'], refund: ['QL CH QV', 'Quản lý chi nhánh (CH/QV khi vượt hạn mức)'], spend: ['QV CH', 'Quản lý vùng hoặc Chủ garage (vượt hạn mức cấp Quản lý)'], cancel: ['QL CH QV', 'Quản lý chi nhánh'], inv: ['KTT CH', 'Kế toán trưởng (cờ quyền) hoặc Chủ garage'], reopen: ['CH', 'Chủ garage'] };
+  function canApprove(type, role, proposer) {
+    var cfg = APPR[type]; if (!cfg) return { ok: false, why: 'Loại yêu cầu chưa có trong ma trận.' };
+    if (proposer && proposer === USER[role]) return { ok: false, why: 'Bạn là người đề xuất yêu cầu này; người lập không tự duyệt.' };
+    var roles = cfg[0].split(' ');
+    if (roles.indexOf(role) >= 0) return { ok: true };
+    if (role === 'KT' && roles.indexOf('KTT') >= 0 && window.G4F && G4F.ktt) return { ok: true };
+    return { ok: false, why: 'Vai trò “' + ROLE_NAME[role] + '” không duyệt loại này. Cấp duyệt: ' + cfg[1] + '.' };
   }
   document.addEventListener('click', function (e) {
     var sw = e.target.closest('[data-role-switch]');
@@ -230,7 +247,7 @@
     var ov = s.closest('.overlay'); if (ov && window.gmepClose) window.gmepClose(ov);
     var tgt = s.getAttribute('data-lock') ? $(s.getAttribute('data-lock')) : null;
     var label = tgt ? tgt.innerHTML : '';
-    if (tgt) { tgt.disabled = true; tgt.setAttribute('aria-busy', 'true'); tgt.setAttribute('data-g4f-keep-lock', '1'); tgt.innerHTML = '<svg class="icon spin" aria-hidden="true"><use href="#loader"/></svg>' + esc(s.getAttribute('data-busy') || 'Đang xử lý…'); }
+    if (tgt) { tgt.setAttribute('aria-busy', 'true'); tgt.setAttribute('data-g4f-keep-lock', '1'); refreshBtn(tgt); tgt.innerHTML = '<svg class="icon spin" aria-hidden="true"><use href="#loader"/></svg>' + esc(s.getAttribute('data-busy') || 'Đang xử lý…'); }
     var live = document.getElementById('g4f-live'); if (!live) { live = document.createElement('div'); live.id = 'g4f-live'; live.className = 'sr-only'; live.setAttribute('role', 'status'); body.appendChild(live); }
     live.textContent = s.getAttribute('data-busy') || 'Đang xử lý';
     setTimeout(function () {
@@ -244,8 +261,14 @@
   /* Cổng xác nhận bằng ô tích (dùng cho hộp thoại tiền không cần gõ mã) */
   document.addEventListener('change', function (e) {
     var c = e.target.closest('[data-g4f-gate-check]'); if (!c) return;
-    var box = c.closest('[data-g4f-gate]'); $$('[data-g4f-gate-btn]', box).forEach(function (b) { b.disabled = !c.checked; b.setAttribute('aria-disabled', String(!c.checked)); });
+    var box = c.closest('[data-g4f-gate]'); $$('[data-g4f-gate-btn]', box).forEach(function (b) { b._gate = c.checked; refreshBtn(b); });
   });
+  /* Mở hộp thoại có cổng: luôn bỏ tích và khóa nút xác nhận lại */
+  document.addEventListener('click', function (e) {
+    var op = e.target.closest('[data-open]'); if (!op) return; var d = document.getElementById(op.getAttribute('data-open')); if (!d) return;
+    $$('[data-g4f-gate]', d).forEach(function (g) { $$('[data-g4f-gate-check]', g).forEach(function (c) { c.checked = false; }); $$('[data-g4f-gate-btn]', g).forEach(function (b) { b._gate = false; refreshBtn(b); }); });
+  });
+  $$('[data-g4f-gate-btn]').forEach(function (b) { b._gate = false; refreshBtn(b); });
 
   /* ---------- Tiện ích dùng chung ---------- */
   function fmt(n) { var neg = n < 0; n = Math.round(Math.abs(n)); return (neg ? '−' : '') + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫'; }
