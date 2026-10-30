@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMEP – Application Shell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<style>
+  .role-table td, .role-table th { white-space: nowrap; }
+  .role-table .yes { color: var(--color-success-text); font-weight: 600; }
+  .role-table .no { color: var(--color-text-disabled); }
+  .attn { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: 0 var(--space-4); min-height: 56px; border-bottom: 1px solid var(--color-border); color: inherit; }
+  .attn:last-child { border-bottom: 0; } .attn:hover { background: var(--color-surface-hover); text-decoration: none; }
+  .layout-2 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-6); }
+  @media (max-width: 1279px) { .layout-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-role="CH">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+
+<div class="app" id="app">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" aria-label="Điều hướng chính">
+    <div class="sidebar__brand">
+      <span class="sidebar__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>
+      <span class="sidebar__brand-name">GARAGE OS</span>
+      <button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto"><svg class="icon"><use href="#x"/></svg></button>
+    </div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__group">Workspace</div>
+      <a class="nav-item" href="#" data-menu="dash" aria-current="page" title="Tổng quan"><svg class="icon"><use href="#layout-dashboard"/></svg><span class="nav-item__label">Tổng quan</span></a>
+      <a class="nav-item" href="#" data-menu="ro" title="Phiếu sửa chữa"><svg class="icon"><use href="#clipboard-list"/></svg><span class="nav-item__label">Phiếu sửa chữa</span><span class="count-pill count-pill--warning" aria-label="8 phiếu chờ duyệt">8</span><span class="nav-item__dot" aria-hidden="true"></span></a>
+      <a class="nav-item" href="#" data-menu="appt" title="Lịch hẹn"><svg class="icon"><use href="#calendar"/></svg><span class="nav-item__label">Lịch hẹn</span></a>
+      <a class="nav-item" href="#" data-menu="cust" title="Khách hàng và Xe"><svg class="icon"><use href="#car-front"/></svg><span class="nav-item__label">Khách hàng &amp; Xe</span></a>
+      <div class="sidebar__group">Kho &amp; mua hàng</div>
+      <a class="nav-item" href="#" data-menu="inv" title="Kho phụ tùng"><svg class="icon"><use href="#warehouse"/></svg><span class="nav-item__label">Kho phụ tùng</span><span class="count-pill count-pill--danger" aria-label="5 mặt hàng sắp hết">5</span><span class="nav-item__dot" aria-hidden="true"></span></a>
+      <a class="nav-item" href="#" data-menu="pur" title="Mua hàng"><svg class="icon"><use href="#shopping-cart"/></svg><span class="nav-item__label">Mua hàng</span></a>
+      <div class="sidebar__group">Nhân sự &amp; tài chính</div>
+      <a class="nav-item" href="#" data-menu="hr" title="Nhân sự và Công thợ"><svg class="icon"><use href="#id-card"/></svg><span class="nav-item__label">Nhân sự &amp; Công thợ</span></a>
+      <a class="nav-item" href="#" data-menu="fin" title="Tài chính"><svg class="icon"><use href="#wallet"/></svg><span class="nav-item__label">Tài chính</span></a>
+      <a class="nav-item" href="#" data-menu="einv" title="Hóa đơn"><svg class="icon"><use href="#receipt"/></svg><span class="nav-item__label">Hóa đơn</span></a>
+      <div class="sidebar__group">Phân tích</div>
+      <a class="nav-item" href="#" data-menu="rpt" title="Báo cáo"><svg class="icon"><use href="#chart-no-axes-combined"/></svg><span class="nav-item__label">Báo cáo</span></a>
+    </nav>
+    <div class="sidebar__footer">
+      <a class="nav-item" href="#" data-menu="set" title="Cài đặt"><svg class="icon"><use href="#settings"/></svg><span class="nav-item__label">Cài đặt</span></a>
+      <button class="nav-item collapse-btn" data-sidebar-toggle aria-expanded="true" aria-label="Thu gọn thanh bên" style="width:100%" title="Thu gọn / mở rộng"><svg class="icon"><use href="#panel-left"/></svg><span class="nav-item__label">Thu gọn</span></button>
+    </div>
+  </aside>
+  <div class="drawer-nav-backdrop" data-nav-close></div>
+
+  <!-- ================= TOPBAR ================= -->
+  <header class="topbar">
+    <button class="btn-icon menu-btn" data-nav-open aria-label="Mở menu"><svg class="icon"><use href="#menu"/></svg></button>
+
+    <div class="dropdown">
+      <button class="branch-btn is-all" aria-haspopup="menu" aria-expanded="false" aria-label="Chọn phạm vi chi nhánh">
+        <svg class="icon"><use href="#map-pin"/></svg>
+        <span class="branch-btn__text"><span class="branch-btn__caption">Phạm vi dữ liệu</span><span class="branch-btn__name" data-branch-label>Tất cả chi nhánh</span></span>
+        <svg class="icon icon--sm"><use href="#chevron-down"/></svg>
+      </button>
+      <div class="dropdown__menu" role="menu" style="min-width:300px">
+        <div data-multi-only>
+          <div class="menu-label">Hợp nhất</div>
+          <button class="menu-item" role="menuitemradio" aria-checked="true" data-branch="Tất cả chi nhánh" data-branch-all><svg class="icon"><use href="#layout-dashboard"/></svg>Tất cả chi nhánh<span class="menu-item__hint">8 chi nhánh</span></button>
+          <div class="menu-sep"></div>
+        </div>
+        <div class="menu-label">Từng chi nhánh</div>
+        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Quận 1"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Quận 1</button>
+        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Quận 7"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Quận 7</button>
+        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Thủ Đức"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Thủ Đức</button>
+        <button class="menu-item" role="menuitemradio" aria-checked="false" data-branch="Chi nhánh Biên Hòa"><svg class="icon"><use href="#map-pin"/></svg>Chi nhánh Biên Hòa</button>
+        <button class="menu-item" role="menuitemradio" aria-disabled="true"><svg class="icon"><use href="#lock"/></svg>Chi nhánh Đà Nẵng<span class="menu-item__hint">Chưa được cấp quyền</span></button>
+        <div class="menu-sep"></div>
+        <p class="t-body-sm text-secondary" style="padding:8px 12px" data-multi-note hidden>Tài khoản của bạn chỉ xem được chi nhánh được gán. Xem hợp nhất dành cho Chủ garage và Quản lý vùng.</p>
+      </div>
+    </div>
+
+    <div class="topbar__search">
+      <svg class="icon"><use href="#search"/></svg>
+      <input class="input" data-global-search type="search" placeholder="Tìm phiếu, biển số, khách, phụ tùng…" aria-label="Tìm kiếm toàn hệ thống">
+      <span class="kbd" aria-hidden="true">Ctrl K</span>
+    </div>
+    <div class="topbar__spacer"></div>
+    <button class="btn-icon topbar__search-btn" aria-label="Tìm kiếm"><svg class="icon"><use href="#search"/></svg></button>
+    <button class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng/tối (thử nghiệm)"><svg class="icon"><use href="#moon"/></svg></button>
+
+    <div class="dropdown">
+      <button class="btn-icon" aria-haspopup="menu" aria-expanded="false" aria-label="Thông báo, 3 chưa đọc"><svg class="icon"><use href="#bell"/></svg><span class="btn-icon__dot" aria-hidden="true">3</span></button>
+      <div class="dropdown__menu dropdown__menu--right notif-panel" role="menu" data-keep-open>
+        <div class="notif-panel__head"><strong>Thông báo</strong><button class="btn btn--ghost btn--sm">Đánh dấu đã đọc</button></div>
+        <a class="notif-item is-unread" href="#" style="color:inherit"><span class="notif-item__icon"><svg class="icon icon--sm"><use href="#clock"/></svg></span><div><div style="font-weight:600">Báo giá RO-2026-001282 được khách duyệt một phần</div><div class="t-body-sm text-secondary">Chi nhánh Quận 7 · 5 phút trước</div></div></a>
+        <a class="notif-item is-unread" href="#" style="color:inherit"><span class="notif-item__icon"><svg class="icon icon--sm"><use href="#package"/></svg></span><div><div style="font-weight:600">Má phanh trước Accent chỉ còn 3 khả dụng</div><div class="t-body-sm text-secondary">Kho Quận 7 · 20 phút trước</div></div></a>
+        <a class="notif-item is-unread" href="#" style="color:inherit"><span class="notif-item__icon"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg></span><div><div style="font-weight:600">Chênh lệch quỹ cuối ngày cần giải trình</div><div class="t-body-sm text-secondary">Chi nhánh Thủ Đức · hôm qua</div></div></a>
+        <div style="padding:8px 16px"><a href="#">Xem tất cả thông báo</a></div>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Menu tài khoản">
+        <span class="avatar avatar--sm">TH</span>
+        <span class="user-btn__text"><strong class="t-body-sm" style="line-height:16px">Trần Hoàng Anh</strong><span class="user-btn__role" data-role-label>Chủ garage</span></span>
+        <svg class="icon icon--sm"><use href="#chevron-down"/></svg>
+      </button>
+      <div class="dropdown__menu dropdown__menu--right" role="menu" style="min-width:280px">
+        <div class="menu-label">Tài khoản</div>
+        <button class="menu-item" role="menuitem"><svg class="icon"><use href="#user"/></svg>Hồ sơ cá nhân</button>
+        <button class="menu-item" role="menuitem"><svg class="icon"><use href="#history"/></svg>Nhật ký truy cập của tôi</button>
+        <button class="menu-item" role="menuitem"><svg class="icon"><use href="#log-out"/></svg>Đăng xuất</button>
+        <div class="menu-sep"></div>
+        <div class="menu-label">Xem thử theo vai trò (chỉ prototype)</div>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="CH" data-role-name="Chủ garage" aria-checked="true">Chủ garage</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="QV" data-role-name="Quản lý vùng" aria-checked="false">Quản lý vùng</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="QL" data-role-name="Quản lý chi nhánh" aria-checked="false">Quản lý chi nhánh</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="CV" data-role-name="Cố vấn dịch vụ" aria-checked="false">Cố vấn dịch vụ</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="QD" data-role-name="Quản đốc" aria-checked="false">Quản đốc</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="TH" data-role-name="Thợ" aria-checked="false">Thợ</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="TK" data-role-name="Thủ kho" aria-checked="false">Thủ kho</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="TN" data-role-name="Thu ngân" aria-checked="false">Thu ngân</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="KT" data-role-name="Kế toán" aria-checked="false">Kế toán</button>
+        <button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="AD" data-role-name="Quản trị hệ thống" aria-checked="false">Quản trị hệ thống</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main" id="main">
+    <div class="main__inner">
+      <div class="alert alert--warning alert--banner net-banner" role="alert"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể xuất kho, thu tiền, xuất hóa đơn.</span></div></div>
+
+      <div>
+        <nav class="breadcrumb" aria-label="Đường dẫn"><a href="#">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Tổng quan</span></nav>
+      </div>
+
+      <div class="page-header">
+        <div class="page-header__text">
+          <h1>Tổng quan</h1>
+          <p class="page-header__desc">Thứ Sáu, 30/10/2026 · <span data-scope-label data-branch-label>Tất cả chi nhánh</span></p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn btn--secondary" data-toggle-offline><svg class="icon"><use href="#wifi-off"/></svg>Thử: mất kết nối</button>
+          <button class="btn btn--secondary"><svg class="icon"><use href="#download"/></svg>Xuất báo cáo</button>
+          <button class="btn btn--primary" data-menu="ro"><svg class="icon"><use href="#plus"/></svg>Tạo phiếu sửa chữa</button>
+        </div>
+      </div>
+
+      <div class="scope-banner" role="status">
+        <svg class="icon icon--sm"><use href="#map-pin"/></svg>
+        <span><strong>Phạm vi:</strong> <span data-scope-text>Tất cả chi nhánh (8 chi nhánh) – số liệu hợp nhất</span></span>
+        <span>· <strong>Thời gian:</strong> hôm nay 30/10/2026</span>
+        <span>· Cập nhật lúc 09:15</span>
+        <button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button>
+      </div>
+
+      <section aria-label="Chỉ số chính"><div class="grid grid--4">
+        <a class="card kpi" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Doanh thu</span><span class="kpi__value">128,5<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>12,4%</span>so với hôm qua</span></a>
+        <a class="card kpi" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wrench"/></svg>Xe đang sửa</span><span class="kpi__value">42</span><span class="kpi__meta">Trong 8 chi nhánh</span></a>
+        <a class="card kpi kpi--warning" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ duyệt báo giá</span><span class="kpi__value">08</span><span class="kpi__meta">Cần xử lý hôm nay</span></a>
+        <a class="card kpi kpi--danger" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ hẹn</span><span class="kpi__value">03</span><span class="kpi__meta">Quá hạn giao xe</span></a>
+      </div></section>
+
+      <div class="layout-2">
+        <section class="card" aria-labelledby="h-veh">
+          <div class="card__header"><div><h2 class="card__title" id="h-veh">Xe đang sửa</h2><div class="card__subtitle">5 phiếu gần nhất</div></div><a class="btn btn--ghost btn--sm" href="#">Xem tất cả<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+          <div class="table-scroll"><table class="table table--compact">
+            <thead><tr><th>Mã phiếu</th><th>Biển số</th><th>Trạng thái</th><th class="col-num">Tổng tiền</th></tr></thead>
+            <tbody>
+              <tr><td class="code">RO-2026-001284</td><td><span class="plate">51H-123.45</span></td><td><span class="badge badge--info">Đang sửa chữa</span></td><td class="col-num">3.450.000 ₫</td></tr>
+              <tr><td class="code">RO-2026-001283</td><td><span class="plate">30G-456.78</span></td><td><span class="badge badge--purple">Chờ QC</span></td><td class="col-num">12.800.000 ₫</td></tr>
+              <tr><td class="code">RO-2026-001282</td><td><span class="plate">51K-987.65</span></td><td><span class="badge badge--warning">Chờ duyệt báo giá</span></td><td class="col-num">21.075.000 ₫</td></tr>
+              <tr><td class="code">RO-2026-001281</td><td><span class="plate">59A-111.22</span></td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td class="col-num">1.250.000 ₫</td></tr>
+              <tr><td class="code">RO-2026-001280</td><td><span class="plate">51G-765.43</span></td><td><span class="badge badge--neutral">Chờ tiếp nhận</span></td><td class="col-num">—</td></tr>
+            </tbody></table></div>
+        </section>
+        <section class="card" aria-labelledby="h-att">
+          <div class="card__header"><h2 class="card__title" id="h-att">Công việc cần chú ý</h2></div>
+          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#clock"/></svg>Chờ duyệt báo giá</span><span class="count-pill count-pill--warning">08</span></a>
+          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#package"/></svg>Xe chờ phụ tùng</span><span class="count-pill count-pill--warning">04</span></a>
+          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#clipboard-check"/></svg>Chờ kiểm tra QC</span><span class="count-pill">06</span></a>
+          <a class="attn" href="#"><span class="row"><svg class="icon"><use href="#alert-triangle"/></svg>Trễ hẹn giao xe</span><span class="count-pill count-pill--danger">03</span></a>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="h-role">
+        <div class="card__header"><div><h2 class="card__title" id="h-role">Vai trò → menu (đề xuất, theo FRD §2)</h2><div class="card__subtitle">Đổi vai trò ở menu tài khoản (góc phải) để xem sidebar thay đổi. “Xn” = chỉ xem phần của mình.</div></div></div>
+        <div class="table-scroll"><table class="table table--compact role-table">
+          <thead><tr><th>Menu</th><th>CH</th><th>QV</th><th>QL</th><th>CV</th><th>QĐ</th><th>TH</th><th>TK</th><th>TN</th><th>KT</th><th>AD</th></tr></thead>
+          <tbody>
+            <tr><td>Tổng quan (dashboard theo vai trò)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓ (việc của tôi)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td></tr>
+            <tr><td>Phiếu sửa chữa</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Lịch hẹn</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td></tr>
+            <tr><td>Khách hàng &amp; Xe</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Kho phụ tùng</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Mua hàng</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Nhân sự &amp; Công thợ</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">Xem</td><td class="no">–</td></tr>
+            <tr><td>Tài chính (thu chi, công nợ)</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">✓</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓ (thu tiền)</td><td class="yes">✓</td><td class="no">–</td></tr>
+            <tr><td>Hóa đơn</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="yes">Xem</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">–</td></tr>
+            <tr><td>Báo cáo</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">Xn</td><td class="yes">Xn</td><td class="no">–</td><td class="yes">Xn</td><td class="yes">Xn</td><td class="yes">✓</td><td class="no">–</td></tr>
+            <tr><td>Cài đặt (người dùng, phân quyền, cấu hình)</td><td class="yes">Duyệt</td><td class="no">–</td><td class="yes">✓ (chi nhánh mình)</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="no">–</td><td class="yes">✓</td></tr>
+            <tr><td>Phạm vi chi nhánh</td><td>Tất cả</td><td>Nhóm được giao</td><td colspan="8">Chỉ chi nhánh được gán</td></tr>
+          </tbody></table></div>
+        <div class="card__body" style="padding-top:12px"><p class="t-body-sm text-secondary">Bảng suy ra từ FRD §2 và user-journey; các ô Xem/Xn là cách diễn giải của designer, cần BA xác nhận. Mục bị ẩn hoàn toàn khi vai trò không có bất kỳ quyền nào; hành động bị cấm trong mục có quyền sẽ để disabled kèm lý do.</p></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= BOTTOM NAV (mobile) ================= -->
+  <nav class="bottom-nav" aria-label="Điều hướng nhanh">
+    <a class="bottom-nav__item" href="#" aria-current="page"><svg class="icon"><use href="#layout-dashboard"/></svg>Tổng quan</a>
+    <a class="bottom-nav__item" href="#"><svg class="icon"><use href="#clipboard-list"/></svg>Phiếu</a>
+    <a class="bottom-nav__item" href="#"><svg class="icon"><use href="#calendar"/></svg>Lịch hẹn</a>
+    <a class="bottom-nav__item" href="#"><svg class="icon"><use href="#warehouse"/></svg>Kho</a>
+    <button class="bottom-nav__item" data-nav-open aria-label="Mở toàn bộ menu"><svg class="icon"><use href="#menu"/></svg>Thêm</button>
+  </nav>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

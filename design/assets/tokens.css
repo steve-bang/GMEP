@@ -138,7 +138,7 @@
 :root {
   /* Text */
   --color-text-on-primary: #FFFFFF;
-  --color-text-link: var(--color-primary);
+  --color-text-link: var(--color-brand-600);      /* #5148E5: ≥ 4,5:1 cả trên nền trang (brand-500 chỉ ~4,4:1) */
   --color-text-inverse: #FFFFFF;
 
   /* Surface */
@@ -323,6 +323,7 @@
   --color-primary-active: var(--color-brand-200);
   --color-primary-subtle: rgba(99,91,255,.16);
   --color-text-on-primary: #0B0F1A;
+  --color-text-link: var(--color-brand-300);
 
   --color-text-primary: #F3F4F6;
   --color-text-secondary: #C4C8D4;

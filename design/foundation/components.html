@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMEP – Thư viện Component</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<style>
+  .doc { max-width: 1280px; margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-16); display: flex; flex-direction: column; gap: var(--space-12); }
+  .doc__nav { position: sticky; top: 0; z-index: var(--z-topbar); background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+  .doc__nav-in { max-width: 1280px; margin: 0 auto; display: flex; gap: var(--space-1); align-items: center; padding: 0 var(--space-6); overflow-x: auto; }
+  .doc__nav a { padding: 12px 10px; white-space: nowrap; color: var(--color-text-secondary); font-weight: 500; }
+  .sec > h2 { margin-bottom: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--color-border-strong); }
+  .sec > p.lead { color: var(--color-text-secondary); margin-bottom: var(--space-5); max-width: 780px; }
+  .sec h3 { margin: var(--space-6) 0 var(--space-3); }
+  .states { display: grid; grid-template-columns: 120px repeat(6, minmax(0, 1fr)); gap: var(--space-3) var(--space-3); align-items: center; }
+  .states > .h { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); }
+  .states > .r { font-weight: 600; font-size: var(--font-size-sm); }
+  .scroll-x { overflow-x: auto; padding-bottom: 8px; } .scroll-x > .states { min-width: 860px; }
+  .demo { padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+  .demo--page { background: var(--color-page); }
+  .mobile-frame { width: 375px; max-width: 100%; padding: 12px; }
+  .cols-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-6); } @media (max-width: 900px) { .cols-2 { grid-template-columns: 1fr; } }
+  .cols-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-4); } @media (max-width: 1000px) { .cols-3 { grid-template-columns: 1fr; } }
+  .lbl { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); margin-bottom: var(--space-2); display: block; }
+  .static-overlay { position: relative; inset: auto; display: flex; z-index: 0; background: var(--color-surface-overlay); min-height: 380px; border-radius: var(--radius-lg); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+<nav class="doc__nav" aria-label="Mục lục">
+  <div class="doc__nav-in">
+    <strong style="margin-right:12px">Component</strong>
+    <a href="#btn">Button</a><a href="#form">Form</a><a href="#badge">Badge</a><a href="#card">Card/KPI</a><a href="#table">Table</a><a href="#filter">Filter/Phân trang</a><a href="#nav">Tabs/Stepper</a><a href="#kanban">Kanban</a><a href="#overlay">Dialog/Dropdown</a><a href="#feedback">Toast/Alert</a><a href="#states">Empty/Error</a><a href="#garage">Garage</a>
+    <a href="index.html">← Foundation</a><a href="shell.html">Shell →</a>
+    <button class="btn btn--secondary btn--sm" data-theme-toggle style="margin-left:auto"><svg class="icon icon--sm"><use href="#moon"/></svg>Sáng/Tối</button>
+  </div>
+</nav>
+
+<main class="doc" id="main">
+<header>
+  <h1>Thư viện Component</h1>
+  <p class="text-secondary" style="margin-top:8px;max-width:780px">Mỗi component có đủ trạng thái khi phù hợp: Default, Hover, Focus, Active, Disabled, Loading, Error. Trạng thái Hover/Focus/Active ở đây là bản giả lập tĩnh (lớp <code>.is-hover</code>, <code>.is-focus</code>, <code>.is-active</code>); trong sản phẩm dùng <code>:hover</code>, <code>:focus-visible</code>, <code>:active</code>. Thử nhấn Tab để xem focus thật.</p>
+</header>
+
+<!-- ============ BUTTON ============ -->
+<section class="sec" id="btn">
+  <h2>1. Button</h2>
+  <p class="lead">Mỗi màn hình chỉ một nút chính (tím). Nút nguy hiểm (đỏ) chỉ khi thực sự cần và luôn đi qua xác nhận.</p>
+  <div class="demo scroll-x"><div class="states">
+    <span></span><span class="h">Default</span><span class="h">Hover</span><span class="h">Focus</span><span class="h">Active</span><span class="h">Disabled</span><span class="h">Loading</span>
+
+    <span class="r">Primary</span>
+    <button class="btn btn--primary"><svg class="icon"><use href="#plus"/></svg>Tạo phiếu</button>
+    <button class="btn btn--primary is-hover">Tạo phiếu</button>
+    <button class="btn btn--primary is-focus">Tạo phiếu</button>
+    <button class="btn btn--primary is-active">Tạo phiếu</button>
+    <button class="btn btn--primary" disabled>Tạo phiếu</button>
+    <button class="btn btn--primary is-loading" aria-busy="true"><span>Tạo phiếu</span><span class="btn__spinner"><svg class="icon spin"><use href="#loader"/></svg></span></button>
+
+    <span class="r">Secondary</span>
+    <button class="btn btn--secondary"><svg class="icon"><use href="#printer"/></svg>In phiếu</button>
+    <button class="btn btn--secondary is-hover">In phiếu</button>
+    <button class="btn btn--secondary is-focus">In phiếu</button>
+    <button class="btn btn--secondary is-active">In phiếu</button>
+    <button class="btn btn--secondary" disabled>In phiếu</button>
+    <button class="btn btn--secondary is-loading"><span>In phiếu</span><span class="btn__spinner"><svg class="icon spin"><use href="#loader"/></svg></span></button>
+
+    <span class="r">Ghost</span>
+    <button class="btn btn--ghost"><svg class="icon"><use href="#history"/></svg>Lịch sử</button>
+    <button class="btn btn--ghost is-hover">Lịch sử</button>
+    <button class="btn btn--ghost is-focus">Lịch sử</button>
+    <button class="btn btn--ghost is-active">Lịch sử</button>
+    <button class="btn btn--ghost" disabled>Lịch sử</button>
+    <button class="btn btn--ghost is-loading"><span>Lịch sử</span><span class="btn__spinner"><svg class="icon spin"><use href="#loader"/></svg></span></button>
+
+    <span class="r">Danger</span>
+    <button class="btn btn--danger">Hủy phiếu</button>
+    <button class="btn btn--danger is-hover">Hủy phiếu</button>
+    <button class="btn btn--danger is-focus">Hủy phiếu</button>
+    <button class="btn btn--danger is-active">Hủy phiếu</button>
+    <button class="btn btn--danger" disabled>Hủy phiếu</button>
+    <button class="btn btn--danger is-loading"><span>Hủy phiếu</span><span class="btn__spinner"><svg class="icon spin"><use href="#loader"/></svg></span></button>
+  </div></div>
+
+  <h3>Kích thước &amp; biến thể</h3>
+  <div class="demo stack">
+    <div class="row">
+      <button class="btn btn--primary btn--sm">Nhỏ 32px (chuột)</button>
+      <button class="btn btn--primary">Mặc định 40px</button>
+      <button class="btn btn--primary btn--lg">Lớn 44px</button>
+      <button class="btn btn--primary btn--xl">Xl 52px (tablet xưởng)</button>
+      <span class="t-body-sm text-secondary">Khi cảm ứng hoặc &lt; 1024px, mọi nút tự nâng lên ≥ 44px.</span>
+    </div>
+    <div class="row">
+      <button class="btn btn--danger-outline"><svg class="icon"><use href="#undo"/></svg>Đảo bút toán</button>
+      <button class="btn-icon btn-icon--outline" aria-label="Thêm"><svg class="icon"><use href="#plus"/></svg></button>
+      <button class="btn-icon" aria-label="Tải xuống"><svg class="icon"><use href="#download"/></svg></button>
+      <button class="btn-icon is-hover" aria-label="Hover"><svg class="icon"><use href="#pencil"/></svg></button>
+      <button class="btn-icon is-focus" aria-label="Focus"><svg class="icon"><use href="#eye"/></svg></button>
+      <button class="btn-icon" disabled aria-label="Vô hiệu"><svg class="icon"><use href="#trash"/></svg></button>
+      <button class="btn-icon" aria-label="Thông báo, 3 chưa đọc"><svg class="icon"><use href="#bell"/></svg><span class="btn-icon__dot" aria-hidden="true">3</span></button>
+      <div class="btn-group">
+        <button class="btn btn--primary">Cập nhật tiến độ</button>
+        <div class="dropdown"><button class="btn btn--primary" style="border-radius:0 8px 8px 0" aria-haspopup="menu" aria-expanded="false" aria-label="Thêm hành động"><svg class="icon"><use href="#chevron-down"/></svg></button>
+          <div class="dropdown__menu dropdown__menu--right" role="menu">
+            <button class="menu-item" role="menuitem">Chuyển Chờ QC</button>
+            <button class="menu-item" role="menuitem">Tạm dừng hạng mục</button>
+          </div></div>
+      </div>
+    </div>
+    <div class="row"><button class="btn btn--primary" data-demo-loading><svg class="icon"><use href="#send"/></svg>Bấm để xem trạng thái đang xử lý</button><span class="t-body-sm text-secondary">Nút khóa khi đang xử lý để tránh bấm lặp (xuất hóa đơn phải idempotent – FR-EIN).</span></div>
+    <div class="row">
+      <span class="tooltip-host"><button class="btn btn--primary" aria-disabled="true" aria-describedby="tt-dis" disabled>Xuất kho</button><span class="tooltip" id="tt-dis" role="tooltip">Chưa thể xuất: tồn khả dụng 0 (còn 2 đang giữ cho phiếu khác).</span></span>
+      <span class="t-body-sm text-secondary">Nút bị khóa phải nói lý do (rê chuột/focus để xem) thay vì ẩn lặng lẽ.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FORM ============ -->
+<section class="sec" id="form">
+  <h2>2. Form</h2>
+  <p class="lead">Label luôn hiện, dấu * cho trường bắt buộc, lỗi nêu rõ nguyên nhân và cách sửa. Input cao 40px (44px khi cảm ứng/mobile).</p>
+  <p class="t-body-sm text-secondary" style="margin-bottom:12px">Dấu <span class="text-danger">*</span> là trường bắt buộc.</p>
+  <div class="demo scroll-x"><div class="states" style="grid-template-columns:120px repeat(5,minmax(0,1fr))">
+    <span></span><span class="h">Default</span><span class="h">Hover</span><span class="h">Focus</span><span class="h">Error</span><span class="h">Disabled</span>
+    <span class="r">Input</span>
+    <div class="field"><label class="field__label" for="i1">Biển số xe<span class="field__req" aria-hidden="true">*</span></label><input id="i1" class="input" placeholder="51H-123.45"></div>
+    <div class="field"><label class="field__label" for="i2">Biển số xe<span class="field__req" aria-hidden="true">*</span></label><input id="i2" class="input is-hover" value="51H-123.45"></div>
+    <div class="field"><label class="field__label" for="i3">Biển số xe<span class="field__req" aria-hidden="true">*</span></label><input id="i3" class="input is-focus" value="51H-123.45"></div>
+    <div class="field"><label class="field__label" for="i4">Biển số xe<span class="field__req" aria-hidden="true">*</span></label><input id="i4" class="input is-error" value="51H-12" aria-invalid="true" aria-describedby="i4e"><span class="field__error" id="i4e"><svg class="icon"><use href="#alert-triangle"/></svg>Biển số chưa đủ ký tự. Ví dụ: 51H-123.45</span></div>
+    <div class="field"><label class="field__label" for="i5">Biển số xe</label><input id="i5" class="input" value="51H-123.45" disabled></div>
+
+    <span class="r">Select</span>
+    <div class="field"><label class="field__label" for="s1">Loại dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="s1" class="select"><option>Sửa chữa chung</option><option>Bảo dưỡng</option><option>Lốp &amp; mâm</option><option>Đồng sơn</option></select></div>
+    <div class="field"><label class="field__label" for="s2">Loại dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="s2" class="select is-hover"><option>Bảo dưỡng</option></select></div>
+    <div class="field"><label class="field__label" for="s3">Loại dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="s3" class="select is-focus"><option>Bảo dưỡng</option></select></div>
+    <div class="field"><label class="field__label" for="s4">Loại dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="s4" class="select is-error" aria-invalid="true"><option>Chọn loại dịch vụ</option></select><span class="field__error"><svg class="icon"><use href="#alert-triangle"/></svg>Chọn một loại dịch vụ để tiếp tục.</span></div>
+    <div class="field"><label class="field__label" for="s5">Loại dịch vụ</label><select id="s5" class="select" disabled><option>Bảo dưỡng</option></select></div>
+
+    <span class="r">Textarea</span>
+    <div class="field"><label class="field__label" for="t1">Yêu cầu của khách</label><textarea id="t1" class="textarea" placeholder="Ví dụ: xe rung vô lăng khi chạy trên 80 km/h"></textarea></div>
+    <div class="field"><label class="field__label" for="t2">Yêu cầu của khách</label><textarea id="t2" class="textarea is-hover">Kiểm tra phanh</textarea></div>
+    <div class="field"><label class="field__label" for="t3">Yêu cầu của khách</label><textarea id="t3" class="textarea is-focus">Kiểm tra phanh</textarea></div>
+    <div class="field"><label class="field__label" for="t4">Lý do điều chỉnh<span class="field__req" aria-hidden="true">*</span></label><textarea id="t4" class="textarea is-error" aria-invalid="true"></textarea><span class="field__error"><svg class="icon"><use href="#alert-triangle"/></svg>Nhập lý do (tối thiểu 5 ký tự) để lưu vết.</span></div>
+    <div class="field"><label class="field__label" for="t5">Ghi chú</label><textarea id="t5" class="textarea" disabled>Đã khóa</textarea></div>
+
+    <span class="r">Ngày dd/MM/yyyy</span>
+    <div class="field"><label class="field__label" for="d1">Hẹn giao xe</label><div class="input-group date-field"><input id="d1" class="input" placeholder="dd/MM/yyyy" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="d2">Hẹn giao xe</label><div class="input-group date-field"><input id="d2" class="input is-hover" value="30/10/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="d3">Hẹn giao xe</label><div class="input-group date-field"><input id="d3" class="input is-focus" value="30/10/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="d4">Hẹn giao xe<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="d4" class="input is-error" value="31/02/2026" aria-invalid="true"><svg class="icon"><use href="#calendar"/></svg></div><span class="field__error"><svg class="icon"><use href="#alert-triangle"/></svg>Ngày không tồn tại. Nhập theo dd/MM/yyyy.</span></div>
+    <div class="field"><label class="field__label" for="d5">Hẹn giao xe</label><div class="input-group date-field"><input id="d5" class="input" value="30/10/2026" disabled><svg class="icon"><use href="#calendar"/></svg></div></div>
+
+    <span class="r">Tiền (VND)</span>
+    <div class="field"><label class="field__label" for="m1">Giảm giá</label><div class="input-group input-group--suffix"><input id="m1" class="input input--num" value="1.250.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div><span class="field__hint">Tối đa 5% theo hạn mức chi nhánh.</span></div>
+    <span></span><span></span>
+    <div class="field"><label class="field__label" for="m4">Giảm giá</label><div class="input-group input-group--suffix"><input id="m4" class="input input--num is-error" value="9.999.999" aria-invalid="true" style="padding-left:12px"><span class="input-group__suffix">₫</span></div><span class="field__error"><svg class="icon"><use href="#alert-triangle"/></svg>Vượt hạn mức. Cần quản lý chi nhánh duyệt.</span></div>
+    <span></span>
+  </div></div>
+
+  <h3>Checkbox · Radio · Switch</h3>
+  <div class="demo cols-3">
+    <fieldset style="border:0;padding:0;margin:0"><legend class="lbl">Checkbox</legend>
+      <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chưa chọn</span></label>
+      <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Đã chọn</span></label>
+      <label class="check"><input type="checkbox" checked><span class="check__box is-focus"><svg class="icon"><use href="#check"/></svg></span><span>Focus</span></label>
+      <label class="check is-error"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Lỗi: cần đồng ý điều khoản</span></label>
+      <label class="check"><input type="checkbox" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Vô hiệu</span></label>
+    </fieldset>
+    <fieldset style="border:0;padding:0;margin:0"><legend class="lbl">Radio – Hình thức thu</legend>
+      <label class="radio"><input type="radio" name="r1" checked><span class="radio__box"></span><span>Tiền mặt</span></label>
+      <label class="radio"><input type="radio" name="r1"><span class="radio__box"></span><span>Chuyển khoản</span></label>
+      <label class="radio"><input type="radio" name="r1"><span class="radio__box is-focus"></span><span>Quẹt thẻ (focus)</span></label>
+      <label class="radio"><input type="radio" name="r1" disabled><span class="radio__box"></span><span>Ví điện tử (chưa bật)</span></label>
+    </fieldset>
+    <fieldset style="border:0;padding:0;margin:0"><legend class="lbl">Switch</legend>
+      <label class="switch"><input type="checkbox" role="switch"><span class="switch__track"></span><span>Tắt</span></label>
+      <label class="switch"><input type="checkbox" role="switch" checked><span class="switch__track"></span><span>Nhắc khách qua Zalo/SMS</span></label>
+      <label class="switch"><input type="checkbox" role="switch"><span class="switch__track is-focus"></span><span>Focus</span></label>
+      <label class="switch"><input type="checkbox" role="switch" disabled><span class="switch__track"></span><span>Vô hiệu</span></label>
+    </fieldset>
+  </div>
+
+  <h3>Dữ liệu bị che theo quyền (SĐT, địa chỉ)</h3>
+  <div class="demo row">
+    <span class="masked"><svg class="icon icon--sm"><use href="#phone"/></svg><span data-masked="090••• ••321" data-clear="0903 456 321">090••• ••321</span></span>
+    <button class="btn btn--ghost btn--sm" data-reveal aria-pressed="false"><svg class="icon icon--sm"><use href="#eye"/></svg>Hiện số (có ghi nhật ký)</button>
+    <span class="masked"><svg class="icon icon--sm"><use href="#lock"/></svg>Địa chỉ: bạn không có quyền xem</span>
+  </div>
+</section>
+
+<!-- ============ BADGE ============ -->
+<section class="sec" id="badge">
+  <h2>3. Badge trạng thái</h2>
+  <p class="lead">Nền nhạt + chữ đậm + luôn có chữ (chấm màu chỉ phụ trợ). Sáu màu: Neutral, Warning, Info, Purple (chỉ cho “Chờ QC”), Success, Danger. Năm đối tượng có bộ trạng thái riêng; không dùng chung một trạng thái.</p>
+  <div class="cols-2">
+    <div class="demo stack"><h3 style="margin:0">Lệnh sửa chữa</h3><div class="row">
+      <span class="badge badge--neutral">Chờ tiếp nhận</span><span class="badge badge--warning">Chờ duyệt báo giá</span><span class="badge badge--info">Đã duyệt</span><span class="badge badge--info">Đang sửa chữa</span><span class="badge badge--warning">Tạm dừng</span><span class="badge badge--purple">Chờ QC</span><span class="badge badge--success">Sẵn sàng bàn giao</span><span class="badge badge--success">Hoàn tất</span><span class="badge badge--danger">Đã hủy</span></div>
+      <p class="t-body-sm text-secondary">“Chờ tiếp nhận / Chờ duyệt báo giá / Sẵn sàng bàn giao” theo design-system §2; “Đã duyệt / Tạm dừng / Hoàn tất” theo user-journey §7. Xem mục Cần BA xác nhận.</p></div>
+    <div class="demo stack"><h3 style="margin:0">Báo giá</h3><div class="row">
+      <span class="badge badge--neutral">Nháp</span><span class="badge badge--info">Đã gửi</span><span class="badge badge--success">Duyệt toàn phần</span><span class="badge badge--warning">Duyệt một phần</span><span class="badge badge--danger">Từ chối</span><span class="badge badge--neutral">Hết hạn</span><span class="tag">Phiên bản 2</span></div></div>
+    <div class="demo stack"><h3 style="margin:0">Hạng mục sửa chữa</h3><div class="row">
+      <span class="badge badge--neutral">Chưa làm</span><span class="badge badge--info">Đang làm</span><span class="badge badge--warning">Tạm dừng</span><span class="badge badge--success">Hoàn thành</span><span class="badge badge--danger">Trả lại</span><span class="badge badge--warning">Chờ khách duyệt (phát sinh)</span></div></div>
+    <div class="demo stack"><h3 style="margin:0">Thanh toán</h3><div class="row">
+      <span class="badge badge--warning">Chưa thanh toán</span><span class="badge badge--info">Thanh toán một phần</span><span class="badge badge--success">Đã thanh toán</span><span class="badge badge--neutral">Hoàn tiền</span></div></div>
+    <div class="demo stack"><h3 style="margin:0">Kho</h3><div class="row">
+      <span class="badge badge--success">Đủ hàng</span><span class="badge badge--warning">Sắp hết</span><span class="badge badge--danger">Hết hàng</span></div>
+      <p class="t-body-sm text-secondary">So sánh với tồn khả dụng, không phải tồn thực tế (RULE-008).</p></div>
+    <div class="demo stack"><h3 style="margin:0">Hóa đơn điện tử</h3><div class="row">
+      <span class="badge badge--neutral">Chưa xuất</span><span class="badge badge--success">Đã xuất</span><span class="badge badge--info">Điều chỉnh</span><span class="badge badge--info">Thay thế</span><span class="badge badge--danger">Hủy</span></div>
+      <p class="t-body-sm text-secondary">Trạng thái lấy từ nhà cung cấp hóa đơn; hiển thị kèm “Cập nhật lúc …”.</p></div>
+  </div>
+  <h3>Badge lớn, đếm, tag</h3>
+  <div class="demo row"><span class="badge badge--lg badge--info">Đang sửa chữa</span><span class="count-pill">12</span><span class="count-pill count-pill--warning">8</span><span class="count-pill count-pill--danger">3</span><span class="tag">Bảo hành</span><span class="tag">Khách VIP</span><span class="plate-tag">51H-123.45</span></div>
+</section>
+
+<!-- ============ CARD / KPI ============ -->
+<section class="sec" id="card">
+  <h2>4. Card &amp; KPI Card</h2>
+  <p class="lead">KPI luôn có nhãn, đơn vị, so sánh kỳ trước và phạm vi (chi nhánh + thời gian). Có thể bấm để drill-down.</p>
+  <div class="demo demo--page"><div class="grid grid--4">
+    <a class="card kpi" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Doanh thu hôm nay</span><span class="kpi__value">128,5<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>12,4%</span>so với hôm qua</span><span class="kpi__scope">Tất cả chi nhánh · 30/10/2026</span></a>
+    <a class="card kpi" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wrench"/></svg>Xe đang sửa</span><span class="kpi__value">42</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--flat">Không đổi</span>so với hôm qua</span><span class="kpi__scope">Tất cả chi nhánh · 30/10/2026</span></a>
+    <a class="card kpi kpi--warning" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ duyệt báo giá</span><span class="kpi__value">08</span><span class="kpi__meta"><span class="badge badge--warning">Cần xử lý</span></span><span class="kpi__scope">Tất cả chi nhánh · 30/10/2026</span></a>
+    <a class="card kpi kpi--danger" href="#"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ hẹn</span><span class="kpi__value">03</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--down"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>2</span>so với hôm qua (tăng là xấu)</span><span class="kpi__scope">Tất cả chi nhánh · 30/10/2026</span></a>
+  </div>
+  <div class="grid grid--3" style="margin-top:16px">
+    <div class="card kpi is-loading" aria-busy="true"><span class="skeleton skeleton--text" style="width:50%"></span><span class="skeleton skeleton--kpi"></span><span class="skeleton skeleton--text" style="width:70%"></span><span class="sr-only">Đang tải</span></div>
+    <div class="card kpi"><span class="kpi__label">Doanh thu hôm nay</span><span class="kpi__value text-disabled">—</span><span class="kpi__meta"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Chưa tải được. <button class="btn btn--ghost btn--sm">Thử lại</button></span></div>
+    <div class="card kpi"><span class="kpi__label">Doanh thu (dữ liệu cũ)</span><span class="kpi__value">96,2<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="badge badge--warning badge--nodot">Cập nhật lúc 07:58</span></span><span class="kpi__scope">Chi nhánh Quận 7 · 30/10/2026</span></div>
+  </div></div>
+  <h3>Card thường</h3>
+  <div class="demo demo--page"><div class="grid grid--3">
+    <div class="card"><div class="card__header"><div><div class="card__title">Tiêu đề card</div><div class="card__subtitle">Mô tả ngắn</div></div><button class="btn-icon" aria-label="Thêm"><svg class="icon"><use href="#ellipsis"/></svg></button></div><div class="card__body">Nội dung với padding 24px, bo 12px, viền tinh tế, shadow-sm.</div><div class="card__footer"><button class="btn btn--secondary btn--sm">Hủy</button><button class="btn btn--primary btn--sm">Lưu</button></div></div>
+    <div class="card card--interactive"><div class="card__body"><div class="card__title">Card tương tác (hover)</div><p class="text-secondary">Đổi viền khi di chuột.</p></div></div>
+    <div class="card card--selected"><div class="card__body"><div class="card__title">Card đã chọn</div><p class="text-secondary">Nền brand.subtle + viền tím.</p></div></div>
+  </div></div>
+</section>
+
+<!-- ============ TABLE ============ -->
+<section class="sec" id="table">
+  <h2>5. Data Table</h2>
+  <p class="lead">Chữ 14px, hàng 52px (compact 44px), sticky header, cột tiền căn phải tabular-nums, chọn dòng + thanh thao tác hàng loạt, tổng ở chân bảng. Dưới 640px chuyển sang danh sách thẻ. Mỗi dòng có hành động “Xem”, không có “Xóa” (chứng từ tài chính điều chỉnh bằng bút toán đảo).</p>
+
+  <div class="demo stack" data-state-group>
+    <div class="row"><span class="lbl" style="margin:0">Trạng thái demo:</span>
+      <div class="segmented" role="group" aria-label="Chọn trạng thái bảng">
+        <button class="segmented__item" data-state-switch="data" aria-pressed="true">Có dữ liệu</button>
+        <button class="segmented__item" data-state-switch="loading" aria-pressed="false">Đang tải</button>
+        <button class="segmented__item" data-state-switch="empty" aria-pressed="false">Trống (lần đầu)</button>
+        <button class="segmented__item" data-state-switch="filtered" aria-pressed="false">Trống (do lọc)</button>
+        <button class="segmented__item" data-state-switch="error" aria-pressed="false">Lỗi</button>
+        <button class="segmented__item" data-state-switch="denied" aria-pressed="false">Không có quyền</button>
+      </div>
+    </div>
+
+    <div data-state="data">
+      <div class="scope-line" style="margin-bottom:8px"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span>Phạm vi: <strong>Chi nhánh Quận 7</strong> · Từ 01/10/2026 đến 30/10/2026 · Cập nhật lúc 08:42</span></div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="input-group" style="flex:1 1 260px;max-width:360px"><svg class="icon"><use href="#search"/></svg><input class="input" placeholder="Tìm mã phiếu, biển số, tên khách…" aria-label="Tìm phiếu sửa chữa"></div>
+          <button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#filter"/></svg>Bộ lọc</button>
+          <button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#columns"/></svg>Cột hiển thị</button>
+          <span class="table-meta" style="margin-left:auto">128 phiếu</span>
+        </div>
+        <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt">
+          <span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> phiếu</span>
+          <button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#printer"/></svg>In phiếu</button>
+          <button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#users"/></svg>Phân thợ</button>
+          <span class="tooltip-host"><button class="btn btn--secondary btn--sm" disabled aria-describedby="tt-bulk">Xuất hóa đơn</button><span class="tooltip" id="tt-bulk" role="tooltip">Chỉ xuất hóa đơn từng phiếu đã hoàn tất.</span></span>
+          <button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button>
+        </div>
+        <div class="table-scroll" style="--table-max-height:440px">
+          <table class="table">
+            <caption class="sr-only">Danh sách phiếu sửa chữa</caption>
+            <thead><tr>
+              <th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th>
+              <th aria-sort="descending"><button class="th-sort">Mã phiếu<svg class="icon"><use href="#arrow-down"/></svg></button></th>
+              <th>Biển số / Xe</th><th>Khách hàng</th><th>Trạng thái</th><th>Thanh toán</th>
+              <th aria-sort="none"><button class="th-sort">Hẹn giao<svg class="icon"><use href="#chevrons-up-down"/></svg></button></th>
+              <th class="col-num" aria-sort="none"><button class="th-sort">Tổng tiền<svg class="icon"><use href="#chevrons-up-down"/></svg></button></th>
+              <th class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+            <tbody>
+              <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-2026-001284"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">RO-2026-001284</td><td><span class="plate">51H-123.45</span><span class="cell-sub">Toyota Vios 2019</span></td><td>Nguyễn Văn An<span class="cell-sub">090••• ••321</span></td><td><span class="badge badge--info">Đang sửa chữa</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-nowrap num">30/10/2026</td><td class="col-num">3.450.000 ₫</td><td class="col-actions"><button class="btn-icon" aria-label="Xem phiếu RO-2026-001284"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+              <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-2026-001283"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">RO-2026-001283</td><td><span class="plate">30G-456.78</span><span class="cell-sub">Hyundai Accent 2021</span></td><td>Trần Thị Bích Ngọc<span class="cell-sub">093••• ••874</span></td><td><span class="badge badge--purple">Chờ QC</span></td><td><span class="badge badge--info">Thanh toán một phần</span></td><td class="col-nowrap num"><span class="text-danger" style="font-weight:600">29/10/2026 · Trễ</span></td><td class="col-num">12.800.000 ₫</td><td class="col-actions"><button class="btn-icon" aria-label="Xem phiếu RO-2026-001283"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+              <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-2026-001282"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">RO-2026-001282</td><td><span class="plate">51K-987.65</span><span class="cell-sub">Mazda CX-5 2020</span></td><td>Công ty TNHH Vận tải Hòa Phát (tên dài để kiểm tra cắt chữ)<span class="cell-sub">Khách doanh nghiệp</span></td><td><span class="badge badge--warning">Chờ duyệt báo giá</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-nowrap num">31/10/2026</td><td class="col-num">21.075.000 ₫</td><td class="col-actions"><button class="btn-icon" aria-label="Xem phiếu RO-2026-001282"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+              <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-2026-001281"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">RO-2026-001281</td><td><span class="plate">59A-111.22</span><span class="cell-sub">Honda City 2018</span></td><td>Lê Quốc Huy<span class="cell-sub">097••• ••012</span></td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-nowrap num">30/10/2026</td><td class="col-num">1.250.000 ₫</td><td class="col-actions"><button class="btn-icon" aria-label="Xem phiếu RO-2026-001281"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+              <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-2026-001279"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">RO-2026-001279</td><td><span class="plate">51F-333.44</span><span class="cell-sub">Kia Morning 2017</span></td><td>Phạm Thị Hoa<span class="cell-sub">098••• ••560</span></td><td><span class="badge badge--danger">Đã hủy</span></td><td><span class="badge badge--neutral">Hoàn tiền</span></td><td class="col-nowrap num">28/10/2026</td><td class="col-num">0 ₫</td><td class="col-actions"><button class="btn-icon" aria-label="Xem phiếu RO-2026-001279"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+            </tbody>
+            <tfoot><tr><td></td><td colspan="6">Tổng 5 phiếu đang hiển thị</td><td class="col-num">38.575.000 ₫</td><td></td></tr></tfoot>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span class="table-meta">Hiển thị 1–5 trong 128 phiếu</span>
+          <nav class="pagination" aria-label="Phân trang">
+            <button class="pagination__item" aria-label="Trang trước" aria-disabled="true" disabled><svg class="icon icon--sm"><use href="#chevron-left"/></svg></button>
+            <a class="pagination__item" href="#" aria-current="page">1</a><a class="pagination__item" href="#">2</a><a class="pagination__item" href="#">3</a><span class="pagination__item" aria-hidden="true">…</span><a class="pagination__item" href="#">26</a>
+            <a class="pagination__item" href="#" aria-label="Trang sau"><svg class="icon icon--sm"><use href="#chevron-right"/></svg></a>
+          </nav>
+          <label class="row" style="gap:8px"><span class="table-meta">Số dòng</span><select class="select" style="width:84px" aria-label="Số dòng mỗi trang"><option>25</option><option>50</option><option>100</option></select></label>
+        </div>
+      </div>
+    </div>
+
+    <div data-state="loading" hidden>
+      <div class="table-wrap" aria-busy="true"><div class="table-scroll"><table class="table"><thead><tr><th>Mã phiếu</th><th>Biển số / Xe</th><th>Khách hàng</th><th>Trạng thái</th><th class="col-num">Tổng tiền</th></tr></thead><tbody>
+        <tr class="skeleton-row"><td><span class="skeleton skeleton--text" style="width:110px"></span></td><td><span class="skeleton skeleton--text" style="width:90px"></span></td><td><span class="skeleton skeleton--text" style="width:140px"></span></td><td><span class="skeleton skeleton--text" style="width:96px;height:24px"></span></td><td><span class="skeleton skeleton--text" style="width:90px;margin-left:auto"></span></td></tr>
+        <tr class="skeleton-row"><td><span class="skeleton skeleton--text" style="width:110px"></span></td><td><span class="skeleton skeleton--text" style="width:90px"></span></td><td><span class="skeleton skeleton--text" style="width:120px"></span></td><td><span class="skeleton skeleton--text" style="width:96px;height:24px"></span></td><td><span class="skeleton skeleton--text" style="width:80px;margin-left:auto"></span></td></tr>
+        <tr class="skeleton-row"><td><span class="skeleton skeleton--text" style="width:110px"></span></td><td><span class="skeleton skeleton--text" style="width:90px"></span></td><td><span class="skeleton skeleton--text" style="width:150px"></span></td><td><span class="skeleton skeleton--text" style="width:96px;height:24px"></span></td><td><span class="skeleton skeleton--text" style="width:90px;margin-left:auto"></span></td></tr>
+      </tbody></table></div></div>
+    </div>
+    <div data-state="empty" hidden><div class="table-wrap"><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#clipboard-list"/></svg></div><div class="state__title">Chưa có phiếu sửa chữa nào</div><p class="state__text">Tạo phiếu mới để bắt đầu tiếp nhận xe.</p><div class="state__actions"><button class="btn btn--primary"><svg class="icon"><use href="#plus"/></svg>Tạo phiếu sửa chữa</button></div></div></div></div>
+    <div data-state="filtered" hidden><div class="table-wrap"><div class="state"><div class="state__icon"><svg class="icon icon--lg"><use href="#search"/></svg></div><div class="state__title">Không tìm thấy phiếu phù hợp</div><p class="state__text">Không có phiếu nào khớp với “51H-999” và trạng thái “Đang sửa chữa”. Thử bỏ bớt bộ lọc.</p><div class="state__actions"><button class="btn btn--secondary">Xóa tất cả bộ lọc</button></div></div></div></div>
+    <div data-state="error" hidden><div class="table-wrap"><div class="state"><div class="state__icon state__icon--danger"><svg class="icon icon--lg"><use href="#alert-triangle"/></svg></div><div class="state__title">Không tải được danh sách phiếu</div><p class="state__text">Kết nối tới máy chủ bị gián đoạn. Dữ liệu bạn đã nhập vẫn được giữ. Hãy thử lại sau ít phút.</p><div class="state__actions"><button class="btn btn--primary" data-demo-loading><svg class="icon"><use href="#refresh"/></svg>Thử lại</button><button class="btn btn--ghost">Báo sự cố</button></div><span class="state__ref">Mã lỗi: ERR-RO-5003 · 08:42 30/10/2026</span></div></div></div>
+    <div data-state="denied" hidden><div class="table-wrap"><div class="state"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#lock"/></svg></div><div class="state__title">Bạn chưa có quyền xem mục này</div><p class="state__text">Vai trò Thủ kho không xem được công nợ và giá vốn. Liên hệ Quản lý chi nhánh nếu bạn cần quyền này.</p><div class="state__actions"><button class="btn btn--secondary">Quay lại Tổng quan</button><button class="btn btn--ghost">Gửi yêu cầu cấp quyền</button></div></div></div></div>
+  </div>
+
+  <h3>Compact (44px) &amp; dòng chọn / hover</h3>
+  <div class="demo"><div class="table-wrap"><table class="table table--compact"><thead><tr><th>Mã phụ tùng</th><th>Tên</th><th class="col-num">Tồn khả dụng</th><th class="col-num">Giá bán</th><th>Kho</th></tr></thead><tbody>
+    <tr><td class="code">PT-0001</td><td>Lọc dầu động cơ Vios</td><td class="col-num">24</td><td class="col-num">185.000 ₫</td><td><span class="badge badge--success">Đủ hàng</span></td></tr>
+    <tr class="is-hover"><td class="code">PT-0002</td><td>Má phanh trước Accent (hover)</td><td class="col-num">3</td><td class="col-num">620.000 ₫</td><td><span class="badge badge--warning">Sắp hết</span></td></tr>
+    <tr class="is-selected"><td class="code">PT-0003</td><td>Dầu nhớt 5W-30 (đã chọn)</td><td class="col-num">0</td><td class="col-num">1.250.000 ₫</td><td><span class="badge badge--danger">Hết hàng</span></td></tr>
+  </tbody></table></div></div>
+
+  <h3>Mobile (&lt; 640px): bảng → danh sách thẻ</h3>
+  <div class="demo demo--page"><div class="device-frame force-mobile mobile-frame">
+    <div class="table-wrap table-wrap--responsive"><table class="table"><tbody><tr><td>ẩn trên mobile</td></tr></tbody></table></div>
+    <div class="record-list record-list--responsive">
+      <div class="scope-line"><svg class="icon icon--sm"><use href="#map-pin"/></svg>Chi nhánh Quận 7 · 128 phiếu</div>
+      <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-2026-001284</div><span class="plate">51H-123.45</span> · Toyota Vios</div><span class="badge badge--info">Đang sửa chữa</span></div><div class="record__meta"><span>Nguyễn Văn An</span><span>Hẹn: 30/10/2026</span></div><div class="record__foot"><span class="badge badge--warning">Chưa thanh toán</span><strong class="num">3.450.000 ₫</strong></div></a>
+      <a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">RO-2026-001283</div><span class="plate">30G-456.78</span> · Hyundai Accent</div><span class="badge badge--purple">Chờ QC</span></div><div class="record__meta"><span>Trần Thị Bích Ngọc</span><span class="text-danger" style="font-weight:600">Trễ hẹn 29/10/2026</span></div><div class="record__foot"><span class="badge badge--info">Thanh toán một phần</span><strong class="num">12.800.000 ₫</strong></div></a>
+    </div></div></div>
+  <p class="t-body-sm text-secondary" style="margin-top:8px">Khung 375px mô phỏng bằng lớp <code>.force-mobile</code>; trên thiết bị thật CSS tự chuyển ở &lt; 640px bằng media query. Thu nhỏ cửa sổ trình duyệt để thấy bảng trên đầu trang chuyển thành thẻ.</p>
+</section>
+
+<!-- ============ FILTER ============ -->
+<section class="sec" id="filter">
+  <h2>6. Filter bar · Chip · Pagination</h2>
+  <p class="lead">Bộ lọc đang áp dụng luôn hiện dưới dạng chip có nút xóa và “Xóa tất cả”. Phạm vi chi nhánh + thời gian luôn ghi rõ.</p>
+  <div class="demo demo--page">
+    <div class="filter-bar">
+      <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm kiếm</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Mã phiếu, biển số, tên khách (có/không dấu)"></div></div>
+      <div class="field"><label class="field__label" for="f1">Trạng thái</label><select id="f1" class="select"><option>Tất cả</option><option>Đang sửa chữa</option><option>Chờ QC</option></select></div>
+      <div class="field"><label class="field__label" for="f2">Từ ngày</label><div class="input-group date-field"><input id="f2" class="input" value="01/10/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+      <div class="field"><label class="field__label" for="f3">Đến ngày</label><div class="input-group date-field"><input id="f3" class="input" value="30/10/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+      <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+    </div>
+    <div class="chip-row" aria-label="Bộ lọc đang áp dụng"><span class="t-body-sm text-secondary">Đang lọc:</span>
+      <span class="chip">Chi nhánh Quận 7<button class="chip__x" aria-label="Bỏ lọc chi nhánh"><svg class="icon"><use href="#x"/></svg></button></span>
+      <span class="chip">Trạng thái: Đang sửa chữa<button class="chip__x" aria-label="Bỏ lọc trạng thái"><svg class="icon"><use href="#x"/></svg></button></span>
+      <span class="chip">01/10/2026 – 30/10/2026<button class="chip__x" aria-label="Bỏ lọc thời gian"><svg class="icon"><use href="#x"/></svg></button></span>
+      <button class="btn btn--ghost btn--sm">Xóa tất cả</button></div>
+    <div class="row" style="margin-top:16px"><button class="chip-filter" aria-pressed="true">Tất cả <span class="count-pill">42</span></button><button class="chip-filter" aria-pressed="false">Chờ duyệt <span class="count-pill count-pill--warning">8</span></button><button class="chip-filter" aria-pressed="false">Trễ hẹn <span class="count-pill count-pill--danger">3</span></button><button class="chip-filter" aria-pressed="false">Chờ phụ tùng <span class="count-pill">4</span></button></div>
+  </div>
+  <h3>Pagination (default · hover · current · disabled)</h3>
+  <div class="demo"><nav class="pagination" aria-label="Phân trang mẫu"><button class="pagination__item" disabled aria-label="Trang đầu"><svg class="icon icon--sm"><use href="#chevrons-left"/></svg></button><button class="pagination__item" disabled aria-label="Trang trước"><svg class="icon icon--sm"><use href="#chevron-left"/></svg></button><a class="pagination__item" href="#" aria-current="page">1</a><a class="pagination__item" href="#" style="background:var(--color-surface-subtle)">2 (hover)</a><a class="pagination__item" href="#">3</a><a class="pagination__item" href="#" aria-label="Trang sau"><svg class="icon icon--sm"><use href="#chevron-right"/></svg></a><a class="pagination__item" href="#" aria-label="Trang cuối"><svg class="icon icon--sm"><use href="#chevrons-right"/></svg></a></nav></div>
+</section>
+
+<!-- ============ NAV ============ -->
+<section class="sec" id="nav">
+  <h2>7. Tabs · Breadcrumb · Stepper · Timeline · Progress</h2>
+  <div class="cols-2">
+    <div class="demo stack"><span class="lbl">Tabs (Tab chọn bằng ← →)</span>
+      <div class="tabs" role="tablist" aria-label="Chi tiết phiếu">
+        <button class="tab" role="tab" id="tb1" aria-selected="true" aria-controls="tp1">Hạng mục</button>
+        <button class="tab" role="tab" id="tb2" aria-selected="false" tabindex="-1" aria-controls="tp2">Phụ tùng <span class="count-pill">5</span></button>
+        <button class="tab is-hover" role="tab" id="tb3" aria-selected="false" tabindex="-1" aria-controls="tp3">Thanh toán (hover)</button>
+        <button class="tab" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1">Hóa đơn (chưa có)</button>
+      </div>
+      <div class="tab-panel" id="tp1" role="tabpanel" aria-labelledby="tb1">Nội dung tab Hạng mục.</div>
+      <div class="tab-panel" id="tp2" role="tabpanel" aria-labelledby="tb2" hidden>Nội dung tab Phụ tùng.</div>
+      <div class="tab-panel" id="tp3" role="tabpanel" aria-labelledby="tb3" hidden>Nội dung tab Thanh toán.</div>
+      <span class="lbl" style="margin-top:12px">Segmented</span>
+      <div class="segmented" role="group" aria-label="Khoảng thời gian"><button class="segmented__item" aria-pressed="false">Hôm nay</button><button class="segmented__item" aria-pressed="true">Tuần này</button><button class="segmented__item" aria-pressed="false">Tháng này</button></div>
+    </div>
+    <div class="demo stack"><span class="lbl">Breadcrumb</span>
+      <nav class="breadcrumb" aria-label="Đường dẫn"><a href="#">Tổng quan</a><svg class="icon"><use href="#chevron-right"/></svg><a href="#">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">RO-2026-001284</span></nav>
+      <span class="lbl" style="margin-top:12px">Progress</span>
+      <div class="progress"><div class="progress__head"><span>Tiến độ hạng mục</span><span>3/5 · 60%</span></div><div class="progress__track" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ hạng mục"><div class="progress__bar" style="width:60%"></div></div></div>
+      <div class="progress progress--warning"><div class="progress__head"><span>Ngân sách phụ tùng</span><span>92%</span></div><div class="progress__track"><div class="progress__bar" style="width:92%"></div></div></div>
+      <div class="progress progress--success"><div class="progress__head"><span>Đã thu</span><span>100%</span></div><div class="progress__track"><div class="progress__bar" style="width:100%"></div></div></div>
+      <div class="progress progress--indeterminate"><div class="progress__head"><span>Đang đồng bộ…</span></div><div class="progress__track"><div class="progress__bar"></div></div></div>
+    </div>
+  </div>
+  <h3>Stepper (tiếp nhận xe – nhiều bước)</h3>
+  <div class="demo stack-6">
+    <ol class="stepper" aria-label="Các bước tiếp nhận">
+      <li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm" style="width:14px;height:14px"><use href="#check"/></svg></span><span class="stepper__text">Khách &amp; xe</span></div></li>
+      <li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Yêu cầu</span></div></li>
+      <li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Kiểm tra &amp; ảnh</span></div></li>
+      <li class="stepper__step is-error"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Báo giá (thiếu thông tin)</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">5</span><span class="stepper__text">Xác nhận</span></div></li>
+    </ol>
+  </div>
+  <h3>Timeline (lịch sử trạng thái – ghi người, thời điểm, lý do)</h3>
+  <div class="demo"><div class="timeline" style="max-width:560px">
+    <div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#wrench"/></svg></div><div><div class="timeline__title">Chuyển “Đang sửa chữa”</div><div class="timeline__meta">Lê Minh Tuấn (Thợ) · 09:15 30/10/2026</div></div></div>
+    <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Khách duyệt báo giá v2 (một phần: 3/4 hạng mục)</div><div class="timeline__meta">Nguyễn Hoàng Yến (Cố vấn) · 08:50 30/10/2026</div><div class="timeline__note">Bằng chứng: tin nhắn Zalo đính kèm.</div></div></div>
+    <div class="timeline__item timeline__item--warning"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Gửi báo giá v2 cho khách</div><div class="timeline__meta">Nguyễn Hoàng Yến · 08:20 30/10/2026</div></div></div>
+    <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#car-front"/></svg></div><div><div class="timeline__title">Tiếp nhận xe 51H-123.45</div><div class="timeline__meta">Nguyễn Hoàng Yến · 08:00 30/10/2026</div></div></div>
+  </div></div>
+</section>
+
+<!-- ============ KANBAN ============ -->
+<section class="sec" id="kanban">
+  <h2>8. Kanban (điều phối phiếu của cố vấn)</h2>
+  <p class="lead">Mỗi cột = một trạng thái lệnh sửa chữa. Cột/thẻ luôn có chữ trạng thái; trễ hẹn đánh dấu bằng viền và chữ “Trễ”.</p>
+  <div class="demo demo--page"><div class="kanban">
+    <div class="kanban__col"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--warning">Chờ duyệt báo giá</span></div><span class="count-pill">2</span></div>
+      <div class="kanban__card is-warning"><div class="row row--between row--nowrap"><span class="code">RO-2026-001282</span><span class="plate-tag">51K-987.65</span></div><span class="text-secondary t-body-sm">Mazda CX-5 · Công ty Hòa Phát</span><div class="row row--between"><span class="t-body-sm">Gửi 2 giờ trước</span><strong class="num">21.075.000 ₫</strong></div></div>
+      <div class="kanban__card"><div class="row row--between row--nowrap"><span class="code">RO-2026-001285</span><span class="plate-tag">51A-246.80</span></div><span class="text-secondary t-body-sm">Ford Ranger · Võ Thanh Sơn</span><div class="row row--between"><span class="t-body-sm">Gửi 15 phút trước</span><strong class="num">6.300.000 ₫</strong></div></div></div>
+    <div class="kanban__col"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--info">Đang sửa chữa</span></div><span class="count-pill">1</span></div>
+      <div class="kanban__card"><div class="row row--between row--nowrap"><span class="code">RO-2026-001284</span><span class="plate-tag">51H-123.45</span></div><span class="text-secondary t-body-sm">Toyota Vios · Nguyễn Văn An</span><div class="progress"><div class="progress__track"><div class="progress__bar" style="width:60%"></div></div><div class="progress__head"><span>Thợ Lê Minh Tuấn</span><span>3/5</span></div></div></div></div>
+    <div class="kanban__col"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--purple">Chờ QC</span></div><span class="count-pill count-pill--danger">1</span></div>
+      <div class="kanban__card is-overdue"><div class="row row--between row--nowrap"><span class="code">RO-2026-001283</span><span class="plate-tag">30G-456.78</span></div><span class="text-secondary t-body-sm">Hyundai Accent · Trần Thị Bích Ngọc</span><div class="row row--between"><span class="text-danger t-body-sm" style="font-weight:600">Trễ hẹn 1 ngày</span><strong class="num">12.800.000 ₫</strong></div></div></div>
+    <div class="kanban__col"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--success">Sẵn sàng bàn giao</span></div><span class="count-pill">0</span></div>
+      <div class="kanban__empty">Chưa có xe nào sẵn sàng bàn giao.</div></div>
+  </div></div>
+</section>
+
+<!-- ============ OVERLAY ============ -->
+<section class="sec" id="overlay">
+  <h2>9. Dialog · Confirmation · Dropdown</h2>
+  <p class="lead">Mức thường: xác nhận ngắn, nêu hậu quả. Mức nguy hiểm: nêu tác động, bắt buộc nhập lý do và gõ mã để mở khóa nút. Dùng “Hủy/Đảo bút toán”, không dùng “Xóa” cho chứng từ tài chính (RULE-010).</p>
+  <div class="demo row">
+    <button class="btn btn--primary" data-open="dlg-normal">Mở dialog thường</button>
+    <button class="btn btn--danger-outline" data-open="dlg-danger">Mở dialog nguy hiểm (hủy phiếu)</button>
+    <button class="btn btn--danger-outline" data-open="dlg-reverse">Mở dialog đảo bút toán</button>
+    <button class="btn btn--secondary" data-open="drw">Mở drawer chi tiết</button>
+    <button class="btn btn--secondary" data-open="dlg-draft">Dialog lưu nháp khi mất kết nối</button>
+  </div>
+
+  <div class="cols-2" style="margin-top:16px">
+    <div><span class="lbl">Dialog thường (hiển thị tĩnh)</span><div class="static-overlay" style="align-items:center;justify-content:center;padding:16px">
+      <div class="dialog" role="dialog" aria-labelledby="sd1"><div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="sd1">Gửi báo giá cho khách?</h2></div></div>
+      <div class="dialog__body"><p>Báo giá v2 (4 hạng mục, 6.300.000 ₫) sẽ gửi tới Nguyễn Văn An qua Zalo. Khách có thể duyệt toàn phần hoặc một phần.</p></div>
+      <div class="dialog__footer"><button class="btn btn--secondary">Hủy</button><button class="btn btn--primary">Gửi báo giá</button></div></div></div></div>
+    <div><span class="lbl">Dialog nguy hiểm (hiển thị tĩnh)</span><div class="static-overlay" style="align-items:center;justify-content:center;padding:16px">
+      <div class="dialog" role="alertdialog" aria-labelledby="sd2"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="sd2">Hủy lệnh RO-2026-001284?</h2></div></div>
+      <div class="dialog__body"><ul class="impact-list"><li>Đã xuất 2 phụ tùng: cần lập phiếu hoàn kho.</li><li>Cần Quản lý chi nhánh duyệt.</li><li>Không hoàn tác được; lịch sử vẫn được lưu.</li></ul><div class="field"><label class="field__label">Lý do hủy<span class="field__req">*</span></label><textarea class="textarea" style="min-height:64px"></textarea></div></div>
+      <div class="dialog__footer"><button class="btn btn--secondary">Giữ lại phiếu</button><button class="btn btn--danger" disabled>Gửi yêu cầu hủy</button></div></div></div></div>
+  </div>
+
+  <h3>Dropdown / Menu</h3>
+  <div class="demo row" style="align-items:flex-start;min-height:260px">
+    <div class="dropdown"><button class="btn btn--secondary" aria-haspopup="menu" aria-expanded="false">Thao tác<svg class="icon"><use href="#chevron-down"/></svg></button>
+      <div class="dropdown__menu" role="menu">
+        <button class="menu-item" role="menuitem"><svg class="icon"><use href="#eye"/></svg>Xem chi tiết</button>
+        <button class="menu-item" role="menuitem"><svg class="icon"><use href="#printer"/></svg>In phiếu<span class="menu-item__hint">A4 · A5</span></button>
+        <button class="menu-item" role="menuitem"><svg class="icon"><use href="#history"/></svg>Xem lịch sử</button>
+        <button class="menu-item" role="menuitem" aria-disabled="true"><svg class="icon"><use href="#lock"/></svg>Xuất hóa đơn<span class="menu-item__hint">Chưa hoàn tất</span></button>
+        <div class="menu-sep"></div>
+        <button class="menu-item menu-item--danger" role="menuitem" data-open="dlg-danger"><svg class="icon"><use href="#x"/></svg>Hủy phiếu…</button>
+      </div></div>
+    <div><span class="lbl">Menu tĩnh (hover/selected/disabled)</span><div class="dropdown__menu is-static" role="menu">
+      <div class="menu-label">Chi nhánh</div>
+      <button class="menu-item" role="menuitemradio" aria-checked="false">Chi nhánh Quận 1</button>
+      <button class="menu-item is-hover" role="menuitemradio" aria-checked="false">Chi nhánh Quận 7 (hover)</button>
+      <button class="menu-item" role="menuitemradio" aria-checked="true"><svg class="icon"><use href="#check"/></svg>Chi nhánh Thủ Đức (đang chọn)</button>
+      <button class="menu-item" role="menuitemradio" aria-disabled="true">Chi nhánh Đà Nẵng (không có quyền)</button></div></div>
+  </div>
+</section>
+
+<!-- ============ FEEDBACK ============ -->
+<section class="sec" id="feedback">
+  <h2>10. Toast · Alert · Tooltip · Offline</h2>
+  <div class="cols-2">
+    <div class="demo stack"><span class="lbl">Toast (tự đóng 5 giây; có thể đóng tay)</span>
+      <div class="toast toast--success is-static"><svg class="icon toast__icon"><use href="#circle-check"/></svg><div><div class="toast__title">Đã lưu phiếu RO-2026-001284</div><div class="toast__text">Cập nhật lúc 09:15</div></div></div>
+      <div class="toast toast--danger is-static"><svg class="icon toast__icon"><use href="#circle-x"/></svg><div><div class="toast__title">Không thu được tiền</div><div class="toast__text">Cổng thanh toán từ chối. Thử lại hoặc chọn hình thức khác.</div></div><button class="toast__action">Thử lại</button></div>
+      <div class="toast toast--warning is-static"><svg class="icon toast__icon"><use href="#alert-triangle"/></svg><div><div class="toast__title">Tồn khả dụng thấp</div><div class="toast__text">Lọc dầu Vios còn 2.</div></div></div>
+      <div class="row"><button class="btn btn--secondary btn--sm" data-toast="success|Đã lưu nháp|Bản nháp lưu lúc 09:15.">Bật toast thành công</button><button class="btn btn--secondary btn--sm" data-toast="danger|Lưu thất bại|Kiểm tra kết nối rồi thử lại.">Bật toast lỗi</button></div>
+    </div>
+    <div class="demo stack"><span class="lbl">Alert</span>
+      <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Báo giá có 2 phiên bản</span><span>Phiên bản 2 đang chờ khách duyệt.</span></div></div>
+      <div class="alert alert--success"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã xuất hóa đơn</span><span>Số 0001284, ký hiệu C26TAA.</span></div></div>
+      <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Phát sinh chờ khách duyệt</span><span>Thợ không được làm hạng mục này khi chưa có duyệt.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm">Gửi duyệt bổ sung</button></div></div></div>
+      <div class="alert alert--danger"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Giá bán thấp hơn giá vốn</span><span>Cần người có quyền duyệt trước khi lưu.</span></div></div>
+    </div>
+  </div>
+  <h3>Mất kết nối &amp; bản nháp</h3>
+  <div class="demo stack">
+    <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Bản nháp đã được lưu trên thiết bị lúc 09:14. Hệ thống sẽ đồng bộ khi có mạng; chưa thể xuất kho, thu tiền hay xuất hóa đơn.</span></div></div>
+    <div class="alert alert--neutral"><svg class="icon"><use href="#history"/></svg><div class="alert__body"><span class="alert__title">Có bản nháp chưa lưu</span><span>Phiếu tiếp nhận xe 51H-123.45 · lưu lúc 09:14.</span><div class="alert__actions"><button class="btn btn--primary btn--sm">Tiếp tục chỉnh sửa</button><button class="btn btn--ghost btn--sm">Bỏ bản nháp</button></div></div></div>
+    <div class="row"><span class="badge badge--success badge--nodot"><svg class="icon"><use href="#check"/></svg>Đã lưu nháp lúc 09:15</span><span class="badge badge--warning"><svg class="icon" style="display:none"></svg>Chưa đồng bộ</span></div>
+  </div>
+  <h3>Tooltip</h3>
+  <div class="demo row" style="padding-top:56px">
+    <span class="tooltip-host"><button class="btn btn--secondary">Rê chuột hoặc Tab vào đây</button><span class="tooltip" role="tooltip">Tooltip ngắn, không chứa thông tin thiết yếu duy nhất.</span></span>
+    <span class="tooltip-host"><button class="btn-icon btn-icon--outline" aria-label="Cách tính tồn khả dụng"><svg class="icon"><use href="#help-circle"/></svg></button><span class="tooltip" role="tooltip">Khả dụng = Thực tế − Đang giữ + Đang về (nếu cấu hình). [Cần BA xác nhận công thức]</span></span>
+  </div>
+</section>
+
+<!-- ============ STATES ============ -->
+<section class="sec" id="states">
+  <h2>11. Empty · Skeleton · Error · Permission · Avatar</h2>
+  <div class="cols-2">
+    <div class="demo"><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#car-front"/></svg></div><div class="state__title">Chưa có xe nào của khách này</div><p class="state__text">Thêm xe để tạo phiếu sửa chữa và theo dõi lịch bảo dưỡng.</p><div class="state__actions"><button class="btn btn--primary"><svg class="icon"><use href="#plus"/></svg>Thêm xe</button></div></div></div>
+    <div class="demo"><div class="state"><div class="state__icon state__icon--danger"><svg class="icon icon--lg"><use href="#alert-triangle"/></svg></div><div class="state__title">Không tải được dữ liệu tồn kho</div><p class="state__text">Chưa lấy được dữ liệu. Đây không phải “kho trống”. Hãy thử lại.</p><div class="state__actions"><button class="btn btn--primary"><svg class="icon"><use href="#refresh"/></svg>Thử lại</button></div><span class="state__ref">Mã lỗi: ERR-INV-5001</span></div></div>
+    <div class="demo"><div class="state"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#lock"/></svg></div><div class="state__title">Không có quyền xem giá vốn</div><p class="state__text">Giá vốn chỉ hiển thị với Kế toán và Quản lý. Nếu cần, gửi yêu cầu cấp quyền.</p><div class="state__actions"><button class="btn btn--secondary">Gửi yêu cầu</button></div></div></div>
+    <div class="demo stack"><span class="lbl">Skeleton (đúng hình dạng nội dung)</span>
+      <div class="row row--nowrap"><span class="skeleton skeleton--circle"></span><div class="grow stack-2"><span class="skeleton skeleton--text" style="width:40%"></span><span class="skeleton skeleton--text" style="width:70%"></span></div></div>
+      <span class="skeleton skeleton--block"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text" style="width:80%"></span></div>
+  </div>
+  <h3>Avatar</h3>
+  <div class="demo row"><span class="avatar avatar--sm">NA</span><span class="avatar">LT</span><span class="avatar avatar--lg">YN</span><span class="avatar avatar--neutral">+3</span><span class="avatar-status avatar-status--busy"><span class="avatar">MT</span></span><span class="avatar-status avatar-status--free"><span class="avatar">HK</span></span><span class="avatar-status"><span class="avatar">VS</span></span><span class="t-body-sm text-secondary">Chấm: đang làm việc (xanh dương) · rảnh (xanh lá) · nghỉ (xám). Luôn kèm chữ ở nơi dùng.</span></div>
+</section>
+
+<!-- ============ GARAGE ============ -->
+<section class="sec" id="garage">
+  <h2>12. Component riêng của Garage</h2>
+  <div class="cols-2">
+    <div class="stack">
+      <span class="lbl">Vehicle Card</span>
+      <div class="card vehicle-card"><div class="vehicle-card__icon"><svg class="icon icon--xl"><use href="#car-front"/></svg></div><div>
+        <div class="row row--between row--nowrap"><div><span class="plate-tag">51H-123.45</span></div><span class="badge badge--info">Đang sửa chữa</span></div>
+        <div class="vehicle-card__title" style="margin-top:8px">Toyota Vios 1.5G 2019</div>
+        <dl class="vehicle-card__meta"><div><dt>Chủ xe</dt><dd>Nguyễn Văn An</dd></div><div><dt>Số km</dt><dd>48.200 km</dd></div><div><dt>Số khung</dt><dd class="truncate">RL4B…F2891</dd></div><div><dt>Đăng kiểm đến</dt><dd>12/03/2027</dd></div></dl>
+        <div class="alert alert--warning vehicle-card__alert"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span>Đến hạn bảo dưỡng 50.000 km</span></div></div></div></div>
+
+      <span class="lbl" style="margin-top:8px">Repair Order Card</span>
+      <div class="card ro-card card--interactive"><div class="ro-card__head"><div><div class="ro-card__code">RO-2026-001284</div><div class="t-body-sm text-secondary">Bảo dưỡng 50.000 km · Cố vấn Yến</div></div><span class="badge badge--info">Đang sửa chữa</span></div>
+        <div class="ro-card__row"><span class="plate-tag">51H-123.45</span><span class="t-body-sm">Toyota Vios</span><span class="badge badge--warning">Chưa thanh toán</span><span class="badge badge--neutral">Hóa đơn: Chưa xuất</span></div>
+        <div class="progress"><div class="progress__head"><span>Hạng mục</span><span>3/5</span></div><div class="progress__track"><div class="progress__bar" style="width:60%"></div></div></div>
+        <div class="ro-card__foot"><span class="ro-card__due is-soon"><svg class="icon icon--sm" style="display:inline;vertical-align:-3px"><use href="#clock"/></svg> Hẹn 16:00 hôm nay</span><strong class="num">3.450.000 ₫</strong></div></div>
+    </div>
+
+    <div class="stack">
+      <span class="lbl">Technician Card (tablet xưởng – nút lớn, 2 chạm bắt đầu/hoàn thành)</span>
+      <div class="card tech-card"><span class="avatar-status avatar-status--busy"><span class="avatar avatar--lg">MT</span></span><div><div class="t-heading-sm">Lê Minh Tuấn</div><div class="t-body-sm text-secondary">Thợ máy · Khoang 2</div></div><span class="badge badge--info">Đang làm</span>
+        <div class="tech-card__job"><div class="row row--between"><span class="code">RO-2026-001284</span><span class="plate-tag">51H-123.45</span></div><div>Thay má phanh trước</div><div class="row row--between"><span class="t-body-sm text-secondary">Chuẩn 1,5 giờ</span><span class="tech-card__timer" aria-label="Thời gian đã làm">00:42:18</span></div></div>
+        <div class="tech-card__actions"><button class="btn btn--secondary btn--xl"><svg class="icon"><use href="#clock"/></svg>Tạm dừng</button><button class="btn btn--primary btn--xl"><svg class="icon"><use href="#check"/></svg>Hoàn thành</button></div></div>
+
+      <span class="lbl" style="margin-top:8px">Parts Item (4 số tồn kho – cảnh báo theo khả dụng)</span>
+      <div class="card"><div class="part-item"><div><div class="part-item__name">Má phanh trước Hyundai Accent</div><div class="part-item__sku">PT-0002 · Kệ B3-04</div></div><div><div class="part-item__price">620.000 ₫</div><div style="text-align:right"><span class="badge badge--warning">Sắp hết</span></div></div>
+        <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">5</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">10</div></div><div class="stock4__cell stock4__cell--low"><div class="stock4__label">Khả dụng</div><div class="stock4__value">3</div></div></div></div>
+        <div class="part-item"><div><div class="part-item__name">Dầu nhớt 5W-30 (lít)</div><div class="part-item__sku">PT-0003 · Kệ A1-01</div></div><div><div class="part-item__price">1.250.000 ₫</div><div style="text-align:right"><span class="badge badge--danger">Hết hàng</span></div></div>
+        <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">0</div></div><div class="stock4__cell stock4__cell--out"><div class="stock4__label">Khả dụng</div><div class="stock4__value">0</div></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="cols-2" style="margin-top:24px">
+    <div class="stack"><span class="lbl">Inspection Checklist (Tốt / Cần theo dõi / Hỏng – luôn có chữ)</span>
+      <div class="card checklist">
+        <div class="checklist__item"><span class="checklist__name">Má phanh trước</span><div class="rating" role="group" aria-label="Đánh giá má phanh trước"><button class="rating__opt rating__opt--ok" aria-pressed="false"><svg class="icon icon--sm"><use href="#check"/></svg>Tốt</button><button class="rating__opt rating__opt--watch" aria-pressed="false"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Theo dõi</button><button class="rating__opt rating__opt--bad" aria-pressed="true"><svg class="icon icon--sm"><use href="#x"/></svg>Hỏng</button></div><span class="checklist__note">Mòn còn 1,5 mm, cần thay. Ảnh đính kèm: 2.</span></div>
+        <div class="checklist__item"><span class="checklist__name">Dầu động cơ</span><div class="rating" role="group" aria-label="Đánh giá dầu động cơ"><button class="rating__opt rating__opt--ok" aria-pressed="false"><svg class="icon icon--sm"><use href="#check"/></svg>Tốt</button><button class="rating__opt rating__opt--watch" aria-pressed="true"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Theo dõi</button><button class="rating__opt rating__opt--bad" aria-pressed="false"><svg class="icon icon--sm"><use href="#x"/></svg>Hỏng</button></div></div>
+        <div class="checklist__item"><span class="checklist__name">Đèn chiếu sáng</span><div class="rating" role="group" aria-label="Đánh giá đèn chiếu sáng"><button class="rating__opt rating__opt--ok" aria-pressed="true"><svg class="icon icon--sm"><use href="#check"/></svg>Tốt</button><button class="rating__opt rating__opt--watch" aria-pressed="false"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Theo dõi</button><button class="rating__opt rating__opt--bad" aria-pressed="false"><svg class="icon icon--sm"><use href="#x"/></svg>Hỏng</button></div></div>
+      </div></div>
+
+    <div class="stack"><span class="lbl">Approval Panel (báo giá – duyệt một phần, giữ bằng chứng)</span>
+      <div class="card approval">
+        <div class="card__header"><div><div class="card__title">Báo giá v2</div><div class="card__subtitle">Gửi 08:20 30/10/2026 · Hạn duyệt 02/11/2026</div></div><span class="badge badge--warning">Duyệt một phần</span></div>
+        <div class="approval__line"><label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="sr-only">Duyệt</span></label><div><div class="approval__name">Thay má phanh trước</div><div class="approval__sub">Công 450.000 ₫ + Phụ tùng 620.000 ₫</div></div><strong class="num">1.070.000 ₫</strong></div>
+        <div class="approval__line"><label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="sr-only">Duyệt</span></label><div><div class="approval__name">Thay dầu động cơ</div><div class="approval__sub">Công 150.000 ₫ + Phụ tùng 1.250.000 ₫</div></div><strong class="num">1.400.000 ₫</strong></div>
+        <div class="approval__line is-rejected"><label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="sr-only">Duyệt</span></label><div><div class="approval__name">Cân chỉnh góc đặt bánh xe</div><div class="approval__sub">Khách từ chối · lưu thành đề xuất nhắc lại</div></div><strong class="num">800.000 ₫</strong></div>
+        <div class="approval__total"><span>Tổng đã duyệt (2/3 hạng mục)</span><strong>2.470.000 ₫</strong></div>
+        <div class="approval__evidence"><svg class="icon icon--sm"><use href="#file-text"/></svg>Bằng chứng: tin nhắn Zalo 08:50 (đính kèm)</div>
+        <div class="card__footer"><button class="btn btn--secondary">Gửi lại khách</button><button class="btn btn--primary">Tạo lệnh từ hạng mục đã duyệt</button></div>
+      </div></div>
+  </div>
+
+  <h3>Mẫu in (ghi chú)</h3>
+  <div class="alert alert--info"><svg class="icon"><use href="#printer"/></svg><div class="alert__body"><span class="alert__title">Bố cục in sẽ thiết kế cùng từng màn hình ở các giai đoạn sau</span><span>Báo giá, lệnh sửa chữa, hóa đơn, phiếu bàn giao trên A4/A5/nhiệt. Phase 0 đã có <code>@media print</code> ẩn sidebar/topbar. Mẫu in cần danh sách kiểu máy in từ khách (câu hỏi cho BA).</span></div></div>
+</section>
+</main>
+
+<!-- Overlays -->
+<div class="overlay" id="dlg-normal" role="dialog" aria-modal="true" aria-labelledby="dn-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="dn-t">Gửi báo giá cho khách?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p>Báo giá v2 (4 hạng mục, 6.300.000 ₫) sẽ gửi tới Nguyễn Văn An qua Zalo.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi báo giá|Trạng thái: Đã gửi.">Gửi báo giá</button></div></div></div>
+
+<div class="overlay" id="dlg-danger" role="alertdialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="RO-2026-001284">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dd-t">Hủy lệnh RO-2026-001284?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <ul class="impact-list"><li>Đã xuất 2 phụ tùng cho lệnh này: cần lập phiếu hoàn kho.</li><li>Hủy sau khi xuất phụ tùng cần Quản lý chi nhánh duyệt.</li><li>Lịch sử và lý do hủy được lưu, không thể xóa.</li></ul>
+    <div class="field"><label class="field__label" for="dd-r">Lý do hủy<span class="field__req">*</span></label><textarea id="dd-r" class="textarea" data-confirm-reason placeholder="Ví dụ: Khách đổi ý, mang xe đi nơi khác"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
+    <div class="field"><label class="field__label" for="dd-c">Gõ <strong>RO-2026-001284</strong> để xác nhận<span class="field__req">*</span></label><input id="dd-c" class="input" data-confirm-input autocomplete="off"></div>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ lại phiếu</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu hủy|Chờ Quản lý chi nhánh duyệt." disabled>Gửi yêu cầu hủy</button></div></div></div>
+
+<div class="overlay" id="dlg-reverse" role="alertdialog" aria-modal="true" aria-labelledby="dr-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="dr-t">Đảo bút toán thu tiền?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p>Phiếu thu PT-2026-000912 (1.250.000 ₫) không bị xóa. Hệ thống tạo bút toán đảo liên kết với phiếu gốc.</p>
+    <div class="field"><label class="field__label" for="dr-r">Lý do điều chỉnh<span class="field__req">*</span></label><textarea id="dr-r" class="textarea" data-confirm-reason></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close disabled>Tạo bút toán đảo</button></div></div></div>
+
+<div class="overlay" id="dlg-draft" role="dialog" aria-modal="true" aria-labelledby="dg-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wifi-off"/></svg></div><div><h2 class="dialog__title" id="dg-t">Mất kết nối</h2></div></div>
+  <div class="dialog__body"><p>Chưa lưu được lên máy chủ. Bản nháp được giữ trên thiết bị và sẽ tự đồng bộ khi có mạng.</p></div>
+  <div class="dialog__footer"><button class="btn btn--primary" data-close>Đã hiểu, tiếp tục</button></div></div></div>
+
+<div class="overlay overlay--drawer" id="drw" role="dialog" aria-modal="true" aria-labelledby="dw-t"><aside class="drawer">
+  <div class="card__header"><div><h2 class="card__title" id="dw-t">Chi tiết hạng mục</h2><div class="card__subtitle">RO-2026-001284</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack"><div class="row"><span class="badge badge--info">Đang làm</span><span>Thay má phanh trước</span></div><div class="timeline"><div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#wrench"/></svg></div><div><div class="timeline__title">Bắt đầu làm</div><div class="timeline__meta">Lê Minh Tuấn · 09:15</div></div></div></div></div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" data-close>Hoàn thành hạng mục</button></div></aside></div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

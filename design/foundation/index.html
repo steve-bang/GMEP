@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMEP – Design System (Foundation)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<style>
+  .doc { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-16); display: flex; flex-direction: column; gap: var(--space-12); }
+  .doc__nav { position: sticky; top: 0; z-index: var(--z-topbar); background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+  .doc__nav-in { max-width: 1200px; margin: 0 auto; display: flex; gap: var(--space-1); align-items: center; padding: 0 var(--space-6); overflow-x: auto; }
+  .doc__nav a { padding: 12px 10px; white-space: nowrap; color: var(--color-text-secondary); font-weight: 500; }
+  .doc__nav a:hover { color: var(--color-primary); text-decoration: none; }
+  .sec > h2 { margin-bottom: var(--space-2); } .sec > p { color: var(--color-text-secondary); margin-bottom: var(--space-6); max-width: 760px; }
+  .sec h3 { margin: var(--space-6) 0 var(--space-3); }
+  .sw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); }
+  .sw { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); }
+  .sw__c { height: 56px; border-bottom: 1px solid var(--color-border); }
+  .sw__t { padding: var(--space-2) var(--space-3); font-size: var(--font-size-sm); line-height: 18px; }
+  .sw__t code { display: block; color: var(--color-text-secondary); font-size: var(--font-size-xs); word-break: break-all; }
+  .scale { display: grid; grid-template-columns: repeat(10, 1fr); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); }
+  .scale div { height: 72px; padding: 6px; font-size: var(--font-size-xs); font-weight: 600; display: flex; flex-direction: column; justify-content: flex-end; }
+  @media (max-width: 639px) { .scale { grid-template-columns: repeat(5, 1fr); } }
+  .spec-table th, .spec-table td { padding: 10px 12px; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: middle; }
+  .spec-table { width: 100%; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); border-collapse: separate; border-spacing: 0; overflow: hidden; }
+  .spec-table th { background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .spec-table .num { text-align: right; }
+  .bar-sp { display: inline-block; height: 16px; background: var(--color-brand-300); border-radius: 2px; vertical-align: middle; }
+  .rad-box { width: 72px; height: 72px; background: var(--color-primary-subtle); border: 1.5px solid var(--color-brand-400); }
+  .elev-box { width: 160px; height: 88px; background: var(--color-surface); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-sm); border: 1px solid var(--color-border); }
+  .ic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: var(--space-2); }
+  .ic-cell { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); font-size: var(--font-size-xs); color: var(--color-text-secondary); text-align: center; word-break: break-all; }
+  .ic-cell .icon { color: var(--color-text-primary); }
+  .grid-demo { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+  .grid-demo div { height: 48px; background: var(--color-brand-100); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-sm); color: var(--color-brand-800); font-weight: 600; }
+  .motion-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--color-primary); }
+  .motion-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); }
+  .motion-track { flex: 1; height: 20px; position: relative; }
+  .motion-track .motion-dot { position: absolute; left: 0; transition: left var(--d) var(--ease-standard); }
+  .motion-track:hover .motion-dot { left: calc(100% - 20px); }
+  .pass { color: var(--color-success-text); font-weight: 600; } .fail { color: var(--color-danger-text); font-weight: 600; }
+  .sample { display: inline-block; padding: 4px 10px; border-radius: var(--radius-xs); font-weight: 600; }
+  .map-group { margin-bottom: var(--space-6); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+<nav class="doc__nav" aria-label="Mục lục">
+  <div class="doc__nav-in">
+    <strong style="margin-right:12px">GMEP Design System</strong>
+    <a href="#mau">Màu</a><a href="#status">Trạng thái nghiệp vụ</a><a href="#type">Typography</a><a href="#space">Spacing</a><a href="#radius">Radius &amp; Elevation</a><a href="#grid">Grid</a><a href="#motion">Motion</a><a href="#icons">Icon</a><a href="#contrast">Tương phản</a>
+    <a href="components.html">Component →</a><a href="shell.html">Shell →</a>
+    <button class="btn btn--secondary btn--sm" data-theme-toggle style="margin-left:auto" aria-label="Đổi giao diện sáng/tối (dark mode mức cấu trúc)"><svg class="icon icon--sm"><use href="#moon"/></svg>Sáng/Tối</button>
+  </div>
+</nav>
+
+<main class="doc" id="main">
+  <header>
+    <h1>Design Foundation</h1>
+    <p class="text-secondary" style="max-width:760px;margin-top:8px">Calm Enterprise · Purple Accent. Nguồn chuẩn: <code>docs/design-system.md</code>. Token nằm trong <code>assets/tokens.css</code> (3 lớp: primitive → semantic → component). Dark mode mới ở mức cấu trúc, chưa kiểm thử đầy đủ.</p>
+  </header>
+
+  <section class="sec" id="mau">
+    <h2>1. Màu sắc</h2>
+    <p>Tím <code>#635BFF</code> chỉ dành cho hành động chính, trạng thái tương tác và điểm nhấn thương hiệu. Phần lớn giao diện là nền trung tính.</p>
+    <h3>Thang Brand</h3>
+    <div class="scale" id="brandScale"></div>
+    <h3>Text / Surface / Border (semantic)</h3>
+    <div class="sw-grid" id="swSemantic"></div>
+    <h3>Màu chức năng</h3>
+    <div class="sw-grid" id="swFunc"></div>
+    <h3>Neutral primitive (--palette-*)</h3>
+    <div class="sw-grid" id="swNeutral"></div>
+    <h3>Chart (đề xuất, ≤ 5 màu)</h3>
+    <div class="sw-grid" id="swChart"></div>
+    <p class="t-body-sm text-secondary" style="margin-top:12px">Biểu đồ không dùng đỏ/xanh lá làm màu trang trí; luôn kèm tên, đơn vị và bảng dữ liệu thay thế (design-system §9).</p>
+  </section>
+
+  <section class="sec" id="status">
+    <h2>2. Trạng thái nghiệp vụ → Badge</h2>
+    <p>Mỗi đối tượng có bộ trạng thái riêng, không gộp chung. Badge = nền nhạt + chữ đậm + luôn có chữ. Cột “Nguồn” cho biết trạng thái lấy từ design-system §2 hay từ user-journey §7.</p>
+    <div id="statusMap"></div>
+  </section>
+
+  <section class="sec" id="type">
+    <h2>3. Typography</h2>
+    <p>Be Vietnam Pro (fallback hệ thống). Chữ bảng 14px; không dùng cỡ 11px; số tiền/biển số/mã phiếu dùng tabular-nums.</p>
+    <table class="spec-table">
+      <thead><tr><th>Token</th><th>Size / Line</th><th>Weight</th><th>Mẫu</th></tr></thead>
+      <tbody>
+        <tr><td><code>display.lg</code></td><td>32 / 40</td><td>700</td><td><span class="t-display num">128.500.000 ₫</span></td></tr>
+        <tr><td><code>heading.xl</code></td><td>24 / 32</td><td>600</td><td><span class="t-heading-xl">Phiếu sửa chữa</span></td></tr>
+        <tr><td><code>heading.lg</code></td><td>20 / 28</td><td>600</td><td><span class="t-heading-lg">Công việc cần chú ý</span></td></tr>
+        <tr><td><code>heading.md</code></td><td>18 / 26</td><td>600</td><td><span class="t-heading-md">Thông tin xe</span></td></tr>
+        <tr><td><code>heading.sm</code></td><td>16 / 24</td><td>600</td><td><span class="t-heading-sm">Hạng mục sửa chữa</span></td></tr>
+        <tr><td><code>body.lg</code></td><td>16 / 24</td><td>400</td><td><span class="t-body-lg">Khách yêu cầu kiểm tra phanh và thay dầu động cơ.</span></td></tr>
+        <tr><td><code>body.md</code></td><td>14 / 20</td><td>400</td><td><span class="t-body-md">Nội dung mặc định, chữ trong bảng.</span></td></tr>
+        <tr><td><code>body.sm</code></td><td>13 / 18</td><td>400</td><td><span class="t-body-sm">Mô tả phụ, ghi chú.</span></td></tr>
+        <tr><td><code>label.md</code></td><td>14 / 20</td><td>500</td><td><span class="t-label">Biển số xe *</span></td></tr>
+        <tr><td><code>caption</code></td><td>12 / 16</td><td>400</td><td><span class="t-caption">Cập nhật lúc 08:42 30/10/2026</span></td></tr>
+      </tbody>
+    </table>
+    <h3>Kiểm tra dấu tiếng Việt &amp; tabular-nums</h3>
+    <div class="card card__body stack-2">
+      <div class="t-heading-sm">Ắ Ằ Ẳ Ẵ Ặ Ế Ề Ể Ễ Ệ Ố Ồ Ổ Ỗ Ộ Ớ Ờ Ở Ỡ Ợ Ứ Ừ Ử Ữ Ự Ỳ Ỷ Ỹ Ỵ — đường nét dấu không bị cắt</div>
+      <div class="num">1.250.000 ₫ &nbsp;|&nbsp; 11.111.111 ₫ &nbsp;|&nbsp; 51H-123.45 &nbsp;|&nbsp; RO-2026-001284 (các chữ số thẳng hàng)</div>
+    </div>
+  </section>
+
+  <section class="sec" id="space">
+    <h2>4. Spacing (nền 4px)</h2>
+    <p>Khoảng thường dùng: 8 · 12 · 16 · 24 · 32. Card padding 24, form field gap 16, page padding 32/24.</p>
+    <table class="spec-table" id="spaceTable"><thead><tr><th>Token</th><th class="num">px</th><th>Dùng</th><th>Trực quan</th></tr></thead><tbody></tbody></table>
+    <h3>Layout desktop</h3>
+    <table class="spec-table"><tbody>
+      <tr><td>Sidebar mở / thu gọn</td><td class="num">248 / 72 px</td><td><code>--sidebar-width</code>, <code>--sidebar-collapsed-width</code></td></tr>
+      <tr><td>Topbar</td><td class="num">64 px</td><td><code>--topbar-height</code></td></tr>
+      <tr><td>Page padding ngang / dọc</td><td class="num">32 / 24 px</td><td>giảm còn 24/24 (tablet), 16/16 (mobile)</td></tr>
+      <tr><td>Content max-width</td><td class="num">1600 px</td><td><code>--content-max-width</code></td></tr>
+      <tr><td>Hàng bảng</td><td class="num">52–56 px (compact 44)</td><td><code>--table-row-height*</code></td></tr>
+      <tr><td>Touch target</td><td class="num">≥ 44 × 44 px</td><td>áp dụng khi cảm ứng hoặc &lt; 1024px</td></tr>
+    </tbody></table>
+  </section>
+
+  <section class="sec" id="radius">
+    <h2>5. Radius &amp; Elevation</h2>
+    <p>Ưu tiên border để phân tách; shadow chỉ cho lớp nổi (dropdown, dialog).</p>
+    <div class="row" style="gap:24px;align-items:flex-end" id="radRow"></div>
+    <h3>Elevation</h3>
+    <div class="row" style="gap:24px;padding:24px;background:var(--color-page);border-radius:12px">
+      <div class="elev-box" style="box-shadow:none">shadow.none<br>Bảng, trang</div>
+      <div class="elev-box" style="box-shadow:var(--shadow-sm)">shadow.sm<br>Card</div>
+      <div class="elev-box" style="box-shadow:var(--shadow-md)">shadow.md<br>Dropdown</div>
+      <div class="elev-box" style="box-shadow:var(--shadow-lg)">shadow.lg<br>Modal</div>
+      <div class="elev-box" style="box-shadow:var(--shadow-focus)">shadow.focus<br>Focus ring</div>
+    </div>
+    <div class="alert alert--info" style="margin-top:16px"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Ghi chú về focus</span><span>Token <code>--shadow-focus</code> (alpha 18%) giữ nguyên nhưng chỉ ~1,3:1 so với nền trắng. Mọi control dùng thêm viền đặc 2px màu tím (<code>:focus-visible</code>) để đạt rõ ràng cho bàn phím.</span></div></div>
+  </section>
+
+  <section class="sec" id="grid">
+    <h2>6. Grid &amp; Breakpoint</h2>
+    <p>12 cột, gutter 24px ở 1440. Không ép bảng nhiều cột vào điện thoại: chuyển thành danh sách thẻ.</p>
+    <div class="grid-demo" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div></div>
+    <h3>Breakpoint</h3>
+    <table class="spec-table"><thead><tr><th>Tên</th><th>Rộng</th><th>Thiết kế</th></tr></thead><tbody>
+      <tr><td>mobile</td><td>0–639</td><td>1 cột, sidebar ẩn → drawer + bottom nav; bảng → danh sách thẻ</td></tr>
+      <tr><td>tablet</td><td>640–1023</td><td>2 cột, sidebar thu gọn 72px</td></tr>
+      <tr><td>desktop</td><td>1024–1279</td><td>Sidebar compact (mặc định mở 248; người dùng có thể thu gọn)</td></tr>
+      <tr><td>wide</td><td>1280–1535</td><td>Dashboard tiêu chuẩn</td></tr>
+      <tr><td>ultrawide</td><td>≥ 1536</td><td>Nội dung giới hạn 1600px, căn giữa</td></tr>
+    </tbody></table>
+  </section>
+
+  <section class="sec" id="motion">
+    <h2>7. Motion</h2>
+    <p>Di chuột vào thanh để xem. Nhanh, nhẹ; tôn trọng <code>prefers-reduced-motion</code> (tắt hoạt ảnh ở base.css).</p>
+    <div id="motionList"></div>
+  </section>
+
+  <section class="sec" id="icons">
+    <h2>8. Icon (Lucide, outline)</h2>
+    <p>Stroke 1,75–2px; 16px nhỏ · 20px mặc định · 24px lớn. Không trộn outline và filled. Icon luôn đi kèm chữ hoặc <code>aria-label</code>.</p>
+    <div class="row" style="gap:32px;margin-bottom:16px">
+      <span class="row"><svg class="icon icon--sm"><use href="#wrench"/></svg> 16px</span>
+      <span class="row"><svg class="icon"><use href="#wrench"/></svg> 20px</span>
+      <span class="row"><svg class="icon icon--lg"><use href="#wrench"/></svg> 24px</span>
+    </div>
+    <div class="ic-grid" id="icGrid"></div>
+  </section>
+
+  <section class="sec" id="contrast">
+    <h2>9. Kiểm tra tương phản (tính tự động)</h2>
+    <p>Tỷ lệ tính theo công thức WCAG 2.x từ giá trị token thực tế đang áp dụng (đổi theme sẽ tính lại). Ngưỡng: chữ thường ≥ 4,5:1; chữ lớn và thành phần đồ họa ≥ 3:1.</p>
+    <table class="spec-table" id="contrastTable"><thead><tr><th>Cặp màu</th><th>Mẫu</th><th class="num">Tỷ lệ</th><th>Ngưỡng</th><th>Kết quả</th></tr></thead><tbody></tbody></table>
+    <div class="alert alert--warning" style="margin-top:16px"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Màu trạng thái gốc không dùng làm chữ</span><span>Các màu #16A34A, #D97706 chỉ ~3,3:1 và ~3,2:1 trên trắng nên chỉ dùng cho chấm, viền, icon lớn. Chữ trong badge dùng bản đậm (<code>--color-*-text</code>).</span></div></div>
+  </section>
+</main>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var cs = function () { return getComputedStyle(document.documentElement); };
+  var v = function (n) { return cs().getPropertyValue(n).trim(); };
+  var sw = function (id, items) {
+    document.getElementById(id).innerHTML = items.map(function (n) {
+      return '<div class="sw"><div class="sw__c" style="background:var(' + n[0] + ')"></div><div class="sw__t"><strong>' + n[1] + '</strong><code>' + n[0] + '</code><code class="hex" data-v="' + n[0] + '"></code></div></div>';
+    }).join('');
+  };
+  // Brand scale
+  var b = ''; [50,100,200,300,400,500,600,700,800,900].forEach(function (k) {
+    var dark = k >= 500;
+    b += '<div style="background:var(--color-brand-' + k + ');color:' + (dark ? '#fff' : '#111827') + '">' + k + '<span class="hex" data-v="--color-brand-' + k + '"></span></div>';
+  });
+  document.getElementById('brandScale').innerHTML = b;
+  sw('swSemantic', [['--color-primary','brand.primary'],['--color-primary-hover','brand.hover'],['--color-primary-active','brand.active'],['--color-primary-subtle','brand.subtle'],
+    ['--color-text-primary','text.primary'],['--color-text-secondary','text.secondary'],['--color-text-tertiary','text.tertiary'],['--color-text-disabled','text.disabled'],
+    ['--color-page','surface.page'],['--color-surface','surface.card'],['--color-surface-subtle','surface.subtle'],['--color-border','border.default'],['--color-border-strong','border.strong']]);
+  sw('swFunc', [['--color-success','Success'],['--color-success-bg','Success bg'],['--color-success-text','Success text*'],['--color-warning','Warning'],['--color-warning-bg','Warning bg'],['--color-warning-text','Warning text*'],
+    ['--color-danger','Danger'],['--color-danger-bg','Danger bg'],['--color-danger-text','Danger text*'],['--color-info','Info'],['--color-info-bg','Info bg'],['--color-info-text','Info text*'],
+    ['--color-neutral','Neutral'],['--color-neutral-bg','Neutral bg*'],['--color-neutral-text','Neutral text*'],['--color-purple','Purple (Chờ QC)*'],['--color-purple-bg','Purple bg*'],['--color-purple-text','Purple text*']]);
+  sw('swNeutral', [['--palette-gray-50','gray-50'],['--palette-gray-100','gray-100'],['--palette-gray-200','gray-200'],['--palette-gray-300','gray-300'],['--palette-gray-400','gray-400'],['--palette-gray-500','gray-500'],['--palette-gray-600','gray-600'],['--palette-gray-900','gray-900'],['--palette-slate-500','slate-500'],['--palette-slate-700','slate-700']]);
+  sw('swChart', [['--chart-series-1','Series 1 (brand)'],['--chart-series-2','Series 2 (teal)'],['--chart-series-3','Series 3 (amber đậm)'],['--chart-series-4','Series 4 (slate)'],['--chart-series-5','Series 5 (rose)']]);
+  function fillHex() { document.querySelectorAll('.hex').forEach(function (e) { e.textContent = (e.parentElement.classList.contains('sw__t') ? '' : ' ') + v(e.getAttribute('data-v')); if (!e.parentElement.classList.contains('sw__t')) e.style.cssText = 'display:block;font-weight:400;font-size:12px'; }); }
+
+  // Status map
+  var groups = [
+    ['Báo giá (user-journey §7)', [['Nháp','neutral'],['Đã gửi','info'],['Duyệt toàn phần','success'],['Duyệt một phần','warning'],['Từ chối','danger'],['Hết hạn','neutral']], 'journey'],
+    ['Lệnh sửa chữa (Repair Order)', [['Chờ tiếp nhận','neutral','DS'],['Chờ duyệt báo giá','warning','DS'],['Đã duyệt','info','UJ'],['Đang sửa chữa','info','DS'],['Tạm dừng','warning','UJ'],['Chờ QC','purple','DS'],['Sẵn sàng bàn giao','success','DS'],['Hoàn tất','success','UJ'],['Đã hủy','danger','DS']]],
+    ['Hạng mục sửa chữa', [['Chưa làm','neutral'],['Đang làm','info'],['Tạm dừng','warning'],['Hoàn thành','success'],['Trả lại','danger']], 'journey'],
+    ['Kho (Inventory)', [['Đủ hàng','success','DS'],['Sắp hết','warning','DS'],['Hết hàng','danger','DS']]],
+    ['Thanh toán (Payment)', [['Chưa thanh toán','warning','DS'],['Thanh toán một phần','info','DS'],['Đã thanh toán','success','DS'],['Hoàn tiền','neutral','DS']]],
+    ['Hóa đơn điện tử (trạng thái từ nhà cung cấp)', [['Chưa xuất','neutral'],['Đã xuất','success'],['Điều chỉnh','info'],['Thay thế','info'],['Hủy','danger']], 'journey']
+  ];
+  document.getElementById('statusMap').innerHTML = groups.map(function (g) {
+    return '<div class="map-group"><h3 style="margin-top:0">' + g[0] + '</h3><div class="row">' + g[1].map(function (s) {
+      var src = g[2] === 'journey' ? 'UJ' : (s[2] || '');
+      return '<span class="row" style="gap:6px"><span class="badge badge--' + s[1] + '">' + s[0] + '</span><span class="t-caption text-tertiary">' + (src === 'DS' ? 'DS §2' : 'UJ §7') + '</span></span>';
+    }).join('') + '</div></div>';
+  }).join('') + '<p class="t-body-sm text-secondary">DS = design-system.md §2 (chủ dự án chốt). UJ = user-journey-business-workflow.md §7. Màu cho trạng thái UJ chưa có trong DS là đề xuất của designer, cần BA/chủ dự án xác nhận (xem docs/ui-ux/00-foundation.md).</p>';
+
+  // Spacing
+  var sp = [[0,'Không'],[1,'Icon + text sát'],[2,'Gap nhỏ'],[3,'Form field, badge'],[4,'Padding mặc định'],[5,'Nhóm nội dung'],[6,'Card padding'],[8,'Section gap'],[10,'Nhóm lớn'],[12,'Layout section'],[16,'Khoảng lớn']];
+  document.querySelector('#spaceTable tbody').innerHTML = sp.map(function (s) {
+    var px = s[0] * 4; return '<tr><td><code>--space-' + s[0] + '</code></td><td class="num">' + px + '</td><td>' + s[1] + '</td><td><span class="bar-sp" style="width:' + Math.max(px, 1) + 'px"></span></td></tr>';
+  }).join('');
+
+  // Radius
+  var rd = [['xs',4,'Badge, tag'],['sm',6,'Control nhỏ'],['md',8,'Button, input, dropdown'],['lg',12,'Card, panel'],['xl',16,'Modal'],['2xl',20,'Feature container'],['full',999,'Avatar, pill']];
+  document.getElementById('radRow').innerHTML = rd.map(function (r) { return '<div class="stack-2" style="align-items:center;text-align:center"><div class="rad-box" style="border-radius:var(--radius-' + r[0] + ')"></div><strong>' + r[0] + ' · ' + (r[1] === 999 ? '999' : r[1]) + '</strong><span class="t-caption text-secondary">' + r[2] + '</span></div>'; }).join('');
+
+  // Motion
+  var mo = [['hover','--dur-hover',120],['button press','--dur-press',100],['dropdown','--dur-dropdown',150],['modal','--dur-modal',180],['page transition','--dur-page',200],['toast','--dur-toast',200]];
+  document.getElementById('motionList').innerHTML = mo.map(function (m) { return '<div class="motion-row"><div style="width:180px"><strong>' + m[0] + '</strong><div class="t-caption text-secondary"><code>' + m[1] + '</code> · ' + m[2] + 'ms</div></div><div class="motion-track" style="--d:' + m[2] + 'ms"><div class="motion-dot"></div></div></div>'; }).join('');
+
+  // Icons
+  document.getElementById('icGrid').innerHTML = (window.GMEP_ICON_NAMES || []).map(function (n) { return '<div class="ic-cell"><svg class="icon icon--lg"><use href="#' + n + '"/></svg>' + n + '</div>'; }).join('');
+
+  // Contrast
+  function rgb(h) { h = h.replace('#', ''); if (h.length === 3) h = h.replace(/(.)/g, '$1$1'); var n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function lum(h) { var c = rgb(h).map(function (x) { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+  function ratio(a, b) { var l1 = lum(a), l2 = lum(b); return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); }
+  var pairs = [
+    ['Chữ chính trên card', '--color-text-primary', '--color-surface', 4.5],
+    ['Chữ chính trên nền trang', '--color-text-primary', '--color-page', 4.5],
+    ['Chữ phụ (secondary) trên card', '--color-text-secondary', '--color-surface', 4.5],
+    ['Chữ metadata (tertiary) trên card', '--color-text-tertiary', '--color-surface', 4.5],
+    ['Chữ metadata (tertiary) trên nền trang', '--color-text-tertiary', '--color-page', 4.5],
+    ['Chữ metadata (tertiary) trên surface.subtle', '--color-text-tertiary', '--color-surface-subtle', 4.5],
+    ['Chữ disabled trên card (miễn trừ WCAG)', '--color-text-disabled', '--color-surface', 3],
+    ['Chữ trắng trên nút tím', '--color-text-on-primary', '--color-primary', 4.5],
+    ['Chữ trắng trên nút tím hover', '--color-text-on-primary', '--color-primary-hover', 4.5],
+    ['Chữ trắng trên nút tím active', '--color-text-on-primary', '--color-primary-active', 4.5],
+    ['Link (brand-600) trên card', '--color-text-link', '--color-surface', 4.5],
+    ['Link (brand-600) trên nền trang', '--color-text-link', '--color-page', 4.5],
+    ['Tím gốc #635BFF làm chữ trên nền trang (không dùng làm chữ link)', '--color-primary', '--color-page', 4.5],
+    ['Chữ tím đậm (selected) trên brand.subtle', '--color-brand-800', '--color-primary-subtle', 4.5],
+    ['Menu active: brand-700 trên brand.subtle', '--sidebar-item-active-fg', '--sidebar-item-active-bg', 4.5],
+    ['Viền input (border.strong) trên card – thành phần UI', '--color-border-strong', '--color-surface', 3],
+    ['Badge Success: chữ đậm / nền nhạt', '--color-success-text', '--color-success-bg', 4.5],
+    ['Badge Warning', '--color-warning-text', '--color-warning-bg', 4.5],
+    ['Badge Danger', '--color-danger-text', '--color-danger-bg', 4.5],
+    ['Badge Info', '--color-info-text', '--color-info-bg', 4.5],
+    ['Badge Neutral', '--color-neutral-text', '--color-neutral-bg', 4.5],
+    ['Badge Chờ QC (tím)', '--color-purple-text', '--color-purple-bg', 4.5],
+    ['Màu gốc Success #16A34A làm chữ trên trắng (KHÔNG dùng làm chữ)', '--color-success', '--color-surface', 4.5],
+    ['Màu gốc Warning #D97706 làm chữ trên trắng (KHÔNG dùng làm chữ)', '--color-warning', '--color-surface', 4.5],
+    ['Màu gốc Danger #DC2626 trên trắng', '--color-danger', '--color-surface', 4.5],
+    ['Màu gốc Info #2563EB trên trắng', '--color-info', '--color-surface', 4.5],
+    ['Chữ trắng trên nút nguy hiểm', '--color-text-on-primary', '--btn-danger-bg', 4.5],
+    ['Icon/biểu đồ series 1 trên card', '--chart-series-1', '--color-surface', 3],
+    ['Icon/biểu đồ series 2 trên card', '--chart-series-2', '--color-surface', 3],
+    ['Icon/biểu đồ series 3 trên card', '--chart-series-3', '--color-surface', 3],
+    ['Icon/biểu đồ series 4 trên card', '--chart-series-4', '--color-surface', 3],
+    ['Icon/biểu đồ series 5 trên card', '--chart-series-5', '--color-surface', 3]
+  ];
+  function drawContrast() {
+    document.querySelector('#contrastTable tbody').innerHTML = pairs.map(function (p) {
+      var f = v(p[1]), g = v(p[2]); if (!/^#/.test(f) || !/^#/.test(g)) return '<tr><td>' + p[0] + '</td><td colspan="4" class="text-secondary">Giá trị có alpha (' + f + ' / ' + g + ') – kiểm tra thủ công</td></tr>';
+      var r = ratio(f, g), ok = r >= p[3], warn = /KHÔNG|miễn trừ/.test(p[0]);
+      return '<tr><td>' + p[0] + '<div class="t-caption text-tertiary">' + f + ' trên ' + g + '</div></td><td><span class="sample" style="color:' + f + ';background:' + g + ';border:1px solid var(--color-border)">Aa 1.250.000 ₫</span></td><td class="num num">' + r.toFixed(2).replace('.', ',') + ' : 1</td><td>≥ ' + String(p[3]).replace('.', ',') + ' : 1</td><td class="' + (ok ? 'pass' : 'fail') + '">' + (ok ? 'Đạt' : (warn ? 'Không đạt (có chủ ý, không dùng)' : 'Không đạt')) + '</td></tr>';
+    }).join('');
+  }
+  fillHex(); drawContrast();
+  new MutationObserver(function () { fillHex(); drawContrast(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
+</body>
+</html>
