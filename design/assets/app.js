@@ -265,7 +265,7 @@
     TH: ['dash','ro'],
     TK: ['dash','ro','inv','pur','rpt'],
     TN: ['dash','ro','cust','fin','einv','rpt'],
-    KT: ['dash','cust','inv','pur','hr','fin','einv','rpt'],
+    KT: ['dash','ro','cust','inv','pur','hr','fin','einv','rpt'],
     AD: ['set']
   };
   function applyRole() {
