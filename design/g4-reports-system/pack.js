@@ -177,8 +177,9 @@
   function approveDialog() {
     return '<div class="overlay" id="dlg-approve" role="dialog" aria-modal="true" aria-labelledby="ap-t"><div class="dialog dialog--md"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning">' + ico('check') + '</div><div><h2 class="dialog__title" id="ap-t">Duyệt yêu cầu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng">' + ico('x') + '</button></div>' +
       '<div class="dialog__body"><dl class="g4r-kv"><dt>Nội dung</dt><dd id="ap-what"></dd><dt>Người đề xuất</dt><dd id="ap-who"></dd><dt>Thay đổi</dt><dd id="ap-diff" class="g4r-diff"></dd></dl>' +
-      '<div class="g4r-diffbox"><strong>Ảnh hưởng</strong><ul class="impact-list"><li>Chỉ áp dụng cho chứng từ tạo từ ngày hiệu lực; chứng từ đã tạo không đổi.</li><li>Nếu duyệt muộn hơn ngày hiệu lực đã chọn, bạn phải chọn ngày hiệu lực mới (không lùi ngày).</li><li>Mọi quyết định được ghi nhật ký (người duyệt, thời điểm, lý do).</li></ul></div>' +
+      '<div class="g4r-diffbox"><strong>Ảnh hưởng</strong><ul class="impact-list" id="ap-imp"></ul></div>' +
       '<label class="check"><input type="checkbox" id="ap-ok"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem thay đổi và ảnh hưởng ở trên.</span></label>' +
+      '<div class="field" id="ap-pwf" hidden><label class="field__label" for="ap-pw">Nhập lại mật khẩu của bạn để duyệt<span class="field__req">*</span></label><input class="input" id="ap-pw" type="password" autocomplete="current-password"><span class="field__hint">Thao tác rủi ro cao (khôi phục, ẩn danh, hoàn tác lô, môi trường thật, hạ bảo mật, đổi quyền) luôn hỏi lại mật khẩu (D-02).</span></div>' +
       '<div class="field"><label class="field__label" for="ap-rs">Lý do từ chối (bắt buộc khi Từ chối)</label><textarea class="textarea" id="ap-rs" style="min-height:56px" placeholder="Ví dụ: Cần xác nhận lại với kế toán trước khi áp dụng"></textarea></div></div>' +
       '<div class="dialog__footer"><button class="btn btn--secondary" data-close>Để sau</button><button class="btn btn--danger-outline" id="ap-no" disabled data-close data-toast="warning|Đã từ chối yêu cầu|Người đề xuất nhận thông báo kèm lý do.">Từ chối</button><button class="btn btn--primary" id="ap-yes" disabled data-close data-toast="success|Đã duyệt yêu cầu|Có hiệu lực từ ngày hiệu lực; ghi nhật ký.">Duyệt</button></div></div></div>';
   }
@@ -431,13 +432,10 @@
     $$('[data-g4r-group]').forEach(function (g) { g.hidden = !$$('.g4r-repcard, .g4r-favrow', g).some(function (c) { return !c.hidden; }); });
     var none = $('#rpt-none'); if (none) none.hidden = $$('.g4r-repcard').some(function (c) { return !c.hidden; });
     var role = document.body.getAttribute('data-role') || 'CH';
-    /* Menu “Cài đặt” (BA-06 câu 1): hiện cho vai trò có ít nhất một màn SYS; đích là màn đầu tiên trong quyền. Shim prototype cho tới khi app.js ROLE_MENU có set:'limited'. */
+    /* Menu “Cài đặt”: app.js (ROLE_MENU, set: full / approve / limited) quyết định hiện hay ẩn và nhãn chế độ.
+       Shim còn lại một việc: đặt đích liên kết là màn cài đặt đầu tiên vai trò được mở (app.js trỏ cố định g4-sys-01). */
     var setm = $('[data-menu="set"]'), fs = firstSys(role);
-    if (setm && fs) {
-      setm.hidden = false; setm.setAttribute('href', fs);
-      if (['QV', 'KT', 'CV', 'QD', 'TK'].indexOf(role) >= 0 && !$('.nav-item__mode', setm)) { var tg = document.createElement('span'); tg.className = 'nav-item__mode'; tg.textContent = 'Danh mục'; setm.appendChild(tg); }
-      if (['QV', 'KT', 'CV', 'QD', 'TK'].indexOf(role) < 0) { var tg2 = $('.nav-item__mode', setm); if (tg2) tg2.remove(); }
-    } else if (setm && !fs) { setm.hidden = true; }
+    if (setm && fs) setm.setAttribute('href', fs);
     /* thanh điều hướng cài đặt chỉ liệt kê màn trong quyền; nhóm rỗng thì ẩn */
     $$('[data-g4r-roles]').forEach(function (a) { a.hidden = a.getAttribute('data-g4r-roles').split(' ').indexOf(role) < 0; if (a.tagName === 'OPTION') a.disabled = a.hidden; });
     $$('.g4r-subnav__group').forEach(function (g) { var n = g.nextElementSibling, any = false; while (n && !n.classList.contains('g4r-subnav__group')) { if (!n.hidden) any = true; n = n.nextElementSibling; } g.hidden = !any; });

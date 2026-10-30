@@ -48,9 +48,13 @@
     <section class="card" aria-labelledby="h-dl">
       <div class="card__header"><div><h2 class="card__title" id="h-dl">Ủy quyền duyệt và cờ rủi ro</h2><div class="card__subtitle">Chỉ Chủ garage sửa; có ngày hiệu lực và nhật ký (BA câu 5, 8, 6)</div></div></div>
       <div class="card__body stack">
-        <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Nhóm chi nhánh</th><th>Quản lý vùng duyệt mở lại ngày/kỳ</th><th>Hiệu lực từ</th></tr></thead><tbody><tr><td>Nhóm Miền Nam</td><td><span class="tag tag--neutral">Tắt (mặc định)</span></td><td class="num">—</td></tr><tr><td>Nhóm Miền Trung</td><td><span class="tag tag--neutral">Tắt (mặc định)</span></td><td class="num">—</td></tr></tbody></table></div>
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Ủy quyền Quản lý vùng duyệt mở lại, theo nhóm chi nhánh</caption><thead><tr><th>Nhóm chi nhánh</th><th>Mở lại ngày</th><th>Mở lại kỳ</th><th>Ủy quyền hết hạn<span class="field__req" aria-hidden="true">*</span></th></tr></thead><tbody>
+          <tr><td>Nhóm Miền Nam</td><td><select class="select dl-in" aria-label="Mở lại ngày, nhóm Miền Nam" data-dl disabled><option>Tắt (mặc định)</option><option>Bật</option></select></td><td><select class="select dl-in" aria-label="Mở lại kỳ, nhóm Miền Nam" data-dl disabled><option>Tắt (mặc định)</option><option>Bật</option></select></td><td><div class="input-group date-field"><input class="input dl-in" aria-label="Ngày hết hạn ủy quyền, nhóm Miền Nam" data-dl-exp disabled placeholder="dd/MM/yyyy" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></td></tr>
+          <tr><td>Nhóm Miền Trung</td><td><select class="select dl-in" aria-label="Mở lại ngày, nhóm Miền Trung" data-dl disabled><option>Tắt (mặc định)</option><option>Bật</option></select></td><td><select class="select dl-in" aria-label="Mở lại kỳ, nhóm Miền Trung" data-dl disabled><option>Tắt (mặc định)</option><option>Bật</option></select></td><td><div class="input-group date-field"><input class="input dl-in" aria-label="Ngày hết hạn ủy quyền, nhóm Miền Trung" data-dl-exp disabled placeholder="dd/MM/yyyy" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></td></tr></tbody></table></div>
+        <p class="g4f-why" style="margin:0">Mặc định tắt cả hai (kỳ nên không ủy quyền). Bật mục nào thì phải nhập ngày hết hạn. Mỗi lần Quản lý vùng duyệt theo ủy quyền đều ghi nhật ký và báo Chủ garage. Thay đổi ủy quyền chỉ do Chủ garage ban hành, có ngày hiệu lực.</p>
+        <span class="field__error" id="dl-err" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Bật ủy quyền cần nhập ngày hết hạn (dd/MM/yyyy).</span>
         <dl class="g4f-sum"><div><dt>Cờ rủi ro: yêu cầu lặp cho cùng đối tượng trong</dt><dd>24 giờ <span class="g4f-sample">tham số</span></dd></div><div><dt>Người có cờ Kế toán trưởng (duyệt hóa đơn)</dt><dd>Đặng Thu Hà · không tự duyệt yêu cầu mình lập, chuyển Chủ garage</dd></div></dl>
-        <button class="btn btn--secondary btn--sm" disabled aria-describedby="why-dl" style="align-self:flex-start">Sửa ủy quyền</button><span class="g4f-why" id="why-dl" style="margin:0">Bật khi vào chế độ chỉnh sửa; chỉ Chủ garage ban hành.</span>
+        <div class="row"><button class="btn btn--secondary btn--sm" id="btn-dl-edit" data-g4f-need="CH" data-g4f-why="Chỉ Chủ garage sửa và ban hành ủy quyền; Quản trị hệ thống và vai trò khác chỉ xem.">Sửa ủy quyền</button><button class="btn btn--primary btn--sm" id="btn-dl" data-open="dlg-dl" data-g4f-online data-g4f-need="CH" data-g4f-why="Chỉ Chủ garage ban hành ủy quyền." hidden>Xem tác động và lưu</button></div>
       </div>
     </section>
     <section class="card" aria-labelledby="h-ex">
@@ -66,6 +70,11 @@
     </section>
   </div>
 </div>
+
+<div class="overlay" id="dlg-dl" role="alertdialog" aria-modal="true" aria-labelledby="dl-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="ỦY QUYỀN">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dl-t">Ban hành ủy quyền Quản lý vùng duyệt mở lại?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Quản lý vùng được duyệt mở lại ngày/kỳ của nhóm đã bật, đến ngày hết hạn; sau đó tự tắt.</li><li>Mỗi lần duyệt theo ủy quyền đều ghi nhật ký và gửi thông báo cho Chủ garage.</li><li>Mở lại có hiệu lực qua mật khẩu và MFA như bình thường.</li></ul><div class="field"><label class="field__label" for="dl-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="dl-r" class="textarea" data-confirm-reason></textarea></div><div class="field"><label class="field__label" for="dl-c">Gõ <strong>ỦY QUYỀN</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="dl-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-dl" data-busy="Đang ban hành…" data-done-label="Đã ban hành" data-done-toast="success|Đã ban hành ủy quyền|Ghi nhật ký; có hiệu lực từ ngày chọn." disabled>Ban hành ủy quyền</button></div></div></div>
 
 <div class="overlay" id="dlg-save" role="alertdialog" aria-modal="true" aria-labelledby="sv-t"><div class="dialog dialog--md" data-confirm-guard>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="sv-t">Lưu thay đổi hạn mức?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
@@ -99,6 +108,11 @@ window.G4F_PAGE = {
     $('#sv-t').textContent = ad ? 'Gửi Chủ garage ban hành thay đổi hạn mức?' : 'Ban hành thay đổi hạn mức?'; $('#sv-ok').textContent = ad ? 'Gửi Chủ garage ban hành' : 'Ban hành phiên bản mới';
     G4F.resetBtn($('#btn-sv'));
   });
+  /* Ủy quyền: bật mục nào thì bắt buộc ngày hết hạn; nút Lưu chỉ bật khi hợp lệ */
+  function dlOk() { var bad = false; $$('tbody tr', $('#h-dl').closest('.card')).forEach(function (tr) { var on = $$('[data-dl]', tr).some(function (s) { return s.selectedIndex === 1; }), d = $('[data-dl-exp]', tr).value.trim(); if (on && !/^\d{2}\/\d{2}\/\d{4}$/.test(d)) bad = true; }); $('#dl-err').hidden = !bad; G4F.setEnabled($('#btn-dl'), !bad); }
+  document.addEventListener('change', function (e) { if (e.target.closest('[data-dl]') || e.target.matches('[data-dl]')) dlOk(); });
+  document.addEventListener('input', function (e) { if (e.target.matches('[data-dl-exp]')) dlOk(); });
+  $('#btn-dl-edit').addEventListener('click', function () { $$('.dl-in').forEach(function (x) { x.disabled = false; }); $('#btn-dl').hidden = false; $('#btn-dl-edit').hidden = true; dlOk(); });
   $('#btn-edit').addEventListener('click', function () { edit(true); });
   $('#btn-cancel').addEventListener('click', function () { edit(false); });
 })();

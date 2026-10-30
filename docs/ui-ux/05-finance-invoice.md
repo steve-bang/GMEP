@@ -170,7 +170,7 @@ Không màn hình nào có nút “Xóa” cho chứng từ đã ghi sổ; các 
 | --- | --- |
 | TN | Thu tiền, phiếu chi, chốt ca, phát hành hóa đơn; xem hóa đơn và “Báo kế toán hóa đơn sai” (không lập điều chỉnh/hủy); đề xuất hoàn tiền; bù khoản nhận trước; không thấy công nợ, giá vốn, lãi lỗ; không duyệt |
 | QL | Duyệt (giảm giá, chênh lệch quỹ, hoàn tiền, hủy lệnh), khóa ngày, đề nghị mở lại ngày/kỳ; xem phần lớn; hóa đơn chỉ xem; lãi lỗ chỉ chi nhánh mình |
-| KT | Phân bổ, công nợ, giá vốn, hóa đơn (lập điều chỉnh/thay thế/hủy), đối soát, kết xuất, khóa kỳ, đề nghị mở lại ngày/kỳ; chỉ xem thu tiền và sổ quỹ; duyệt hóa đơn chỉ khi có cờ Kế toán trưởng và không phải người lập; SĐT/email khách che, Hiện cần lý do |
+| KT | Phân bổ, công nợ, giá vốn, hóa đơn (lập điều chỉnh/thay thế/hủy), đối soát, kết xuất, khóa kỳ, đề nghị mở lại ngày/kỳ; chỉ xem thu tiền và sổ quỹ (không ghi tiền mặt tại quầy; được lập đề xuất hoàn tiền chuyển khoản, bù khoản nhận trước, đề xuất chi, không duyệt); duyệt hóa đơn chỉ khi có cờ Kế toán trưởng và không phải người lập; SĐT/email khách che, Hiện cần lý do |
 | CH / QV | Xem, duyệt (QV/CH cho chi vượt hạn mức cấp QL; CH cho mở lại ngày/kỳ và ban hành hạn mức); QV duyệt mở lại chỉ khi CH ủy quyền |
 | CV | Xem trạng thái thu của lệnh mình (M8 = X); **không xem sổ công nợ** (M9 = “-”), chỉ thấy số dư, hạn mức, cảnh báo trên lệnh và hồ sơ khách; đề xuất giảm giá |
 | AD | Chỉ cấu hình kỹ thuật hóa đơn (EIN-07/08, APR-03 hỗ trợ); **không xem hàng chờ lỗi EIN-06** vì có dữ liệu người mua |
@@ -348,6 +348,18 @@ Nguồn: `docs/ui-ux/review-05-round2-ba.md`. Cơ chế chung thêm ở `pack.js
 ### 10c. Tám quyết định BA vòng 2 đã áp dụng
 
 (1) Biến thể “Hoàn khoản nhận trước” của ACC-07 (đầu vào từ ACC-21, số hoàn ≤ số dư, không nhắc hóa đơn). (2) Chỉ bù khoản nhận trước ở ACC-21, ACC-01 giữ chip và liên kết. (3) “Chi kèm ngoại lệ” duyệt tối thiểu QL chi nhánh, dòng riêng ở APR-03. (4) Cột “Cờ rủi ro” ở APR-01 (Lặp trong 24 giờ, Thiếu chứng từ gốc, Người lập = bạn) khóa ô chọn kèm lý do. (5) Ủy quyền Quản lý vùng duyệt mở lại cấu hình ở APR-03 (mặc định tắt). (6) Một kế toán: yêu cầu hóa đơn do người có cờ KTT lập tự chuyển Chủ garage; danh sách người có cờ ở APR-03. (7) Hóa đơn gốc “Đã xuất” kèm tag “Đang chờ thay thế/điều chỉnh” cho tới khi xác nhận. (8) Ngưỡng chênh lệch quỹ (50.000 ₫ minh họa) và ngưỡng đối soát ngân hàng (20.000 ₫ minh họa) ở APR-03.
+
+### 10d. Finding vòng 3 → đã xử lý ở đâu
+
+Nguồn: `docs/ui-ux/review-05-round3-ba.md` (3 Minor).
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F5R3-01 EIN-05 liệt kê RO-…00114 “chưa có yêu cầu phát hành” kèm nút Phát hành trong khi đang timeout ở EIN-01/06 | Minor | Đổi dòng mẫu sang RO-Q7-2610-00113 (1.050.000 ₫), cập nhật tổng 9.830.000 ₫; ghi rõ lệnh đang timeout không nằm ở đây và không có nút Phát hành để tránh phát hành trùng | `g4-ein-05.html` |
+| F5R3-02 Ủy quyền Quản lý vùng ở APR-03 chưa là điều khiển thật | Minor | Bảng theo nhóm chi nhánh với chọn riêng “Mở lại ngày” và “Mở lại kỳ” (mặc định Tắt, kỳ nên không ủy quyền), ngày hết hạn bắt buộc khi bật (lỗi nêu cách sửa), nút “Sửa ủy quyền” chỉ bật với Chủ garage, lưu qua hộp thoại mức 3 (lý do, gõ ỦY QUYỀN, khóa chống gửi trùng), ghi chú mỗi lần duyệt ghi nhật ký và báo Chủ garage | `g4-apr-03.html` |
+| F5R3-03 EIN-07 dẫn Quản trị hệ thống tới EIN-06 bị từ chối quyền | Minor | Thẻ “Hóa đơn lỗi” và nút “Mở hàng chờ” chỉ hiện với KT, CH, QV, QL; AD thấy câu hướng dẫn dùng nhật ký gọi | `g4-ein-07.html` |
+
+Quyền lập của Kế toán (đã trả lời BA): KT được **lập đề xuất** hoàn tiền chuyển khoản, bù khoản nhận trước và đề xuất chi; KT **không ghi tiền mặt tại quầy** (phiếu thu/phiếu chi tiền mặt, chốt ca là việc của Thu ngân) và **không duyệt**. Thể hiện ở ACC-07, ACC-21, ACC-05 và §4.9.
 
 ## 11. Câu hỏi còn lại cho BA
 
