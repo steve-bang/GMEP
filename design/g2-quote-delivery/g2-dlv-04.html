@@ -20,7 +20,9 @@ g2q.scope('hôm nay 30/10/2026', '11:02');
 </script>
 
 <div class="stack-6" id="bb" data-variants="form">
-  <script>g2q.proto([['form','Đang lập'],['saved','Đã lưu nháp'],['offline','Mất mạng'],['done','Đã giao (chỉ đọc)'],['loading','Đang tải']], 'form');</script>
+  <script>g2q.proto([['form','Đang lập'],['saved','Đã lưu nháp'],['offline','Mất mạng'],['done','Đã giao (chỉ đọc)'],['loading','Đang tải'],['error','Lỗi tải'],['noperm','Không có quyền']], 'form');</script>
+  <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được biên bản giao xe', text:'Thử lại sau vài giây. Nội dung bạn đã nhập được lưu nháp trên máy.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-DLV-7C33A0'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền lập biên bản giao xe', text:'Chỉ Cố vấn dịch vụ và Quản lý chi nhánh lập biên bản; Thu ngân chỉ xem.', actions:'<a class="btn btn--secondary" href="g2-dlv-03.html">Về chuẩn bị bàn giao</a>'})</script></div>
 
   <div data-v="loading" aria-busy="true" class="card" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--block"></span></div>
   <div class="alert alert--success" data-v="saved"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span>Đã lưu nháp biên bản lúc 11:01. Chưa xác nhận giao xe.</span></div></div>
@@ -43,13 +45,16 @@ g2q.scope('hôm nay 30/10/2026', '11:02');
 
       <section class="card" aria-labelledby="h-dd"><div class="card__header"><h2 class="card__title" id="h-dd">Đồ đạc và phụ tùng cũ trả khách</h2></div>
         <div class="checklist">
-          <label class="checklist__item"><span class="check"><input type="checkbox" class="js-ack" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Áo mưa, thẻ gửi xe, 1 USB (ghi lúc tiếp nhận 29/10/2026)</span></span></label>
-          <label class="checklist__item"><span class="check"><input type="checkbox" class="js-ack" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Má phanh sau cũ (khách yêu cầu giữ)</span></span></label>
-          <label class="checklist__item"><span class="check"><input type="checkbox" class="js-ack" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Khách đã xem lại các hạng mục đã làm và số tiền</span></span></label>
+          <label class="checklist__item"><span class="check"><input type="checkbox" class="js-ack"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Áo mưa, thẻ gửi xe, 1 USB (ghi lúc tiếp nhận 29/10/2026)</span></span></label>
+          <label class="checklist__item"><span class="check"><input type="checkbox" class="js-ack"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Má phanh sau cũ (khách yêu cầu giữ)</span></span></label>
+          <label class="checklist__item"><span class="check"><input type="checkbox" class="js-ack"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Khách đã xem lại các hạng mục đã làm và số tiền</span></span></label>
         </div></section>
 
       <section class="card" aria-labelledby="h-ks"><div class="card__header"><h2 class="card__title" id="h-ks">Xác nhận của khách</h2></div><div class="card__body stack">
-        <div class="form-grid"><div class="field"><label class="field__label" for="nn">Người nhận xe <span class="field__req">*</span></label><select id="nn" class="select"><option>Đinh Thị Hạnh (chủ xe)</option><option>Người khác được chủ xe ủy quyền</option></select></div></div>
+        <div class="form-grid"><div class="field"><label class="field__label" for="nn">Người nhận xe <span class="field__req">*</span></label><select id="nn" class="select"><option value="owner">Đinh Thị Hạnh (chủ xe)</option><option value="proxy">Người khác được chủ xe ủy quyền</option></select></div></div>
+        <div id="proxy" hidden class="stack-2"><div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Giao cho người được ủy quyền: cần xác minh</span><span>Bắt buộc ghi họ tên, số điện thoại, quan hệ với chủ xe và đính ảnh giấy ủy quyền/giấy tờ (theo cấu hình chi nhánh). Thông tin in trong biên bản.</span></div></div>
+          <div class="form-grid"><div class="field"><label class="field__label" for="px-n">Họ tên người nhận <span class="field__req">*</span></label><input id="px-n" class="input" autocomplete="name"></div><div class="field"><label class="field__label" for="px-p">Số điện thoại người nhận <span class="field__req">*</span></label><input id="px-p" class="input" inputmode="tel" autocomplete="tel"></div><div class="field"><label class="field__label" for="px-r">Quan hệ với chủ xe <span class="field__req">*</span></label><select id="px-r" class="select"><option value="">Chọn quan hệ</option><option>Người thân trong gia đình</option><option>Nhân viên của chủ xe</option><option>Khác</option></select></div>
+          <div class="field span-2"><span class="field__label" id="px-up">Ảnh giấy ủy quyền / giấy tờ người nhận <span class="field__req">*</span></span><div class="upload" data-upload aria-labelledby="px-up"><div class="upload__actions"><button class="btn btn--secondary" type="button" data-upload-pick="camera"><svg class="icon"><use href="#camera"/></svg>Chụp ảnh</button><button class="btn btn--secondary" type="button" data-upload-pick="file"><svg class="icon"><use href="#upload"/></svg>Chọn tệp</button></div><input type="file" accept="image/*" capture="environment" hidden><input type="file" accept="image/*" hidden><div class="upload__thumbs"></div></div></div></div></div>
         <fieldset class="field" style="border:0;padding:0;margin:0"><legend class="field__label" style="margin-bottom:8px">Cách xác nhận <span class="field__req">*</span></legend>
           <div class="g2q-choices" data-variants="screen" data-key="sg" id="sg">
             <label class="g2q-choice"><input type="radio" name="sg" checked data-set="screen"><span class="radio__box"></span><span><span class="g2q-choice__title">Khách ký trên màn hình</span></span></label>
@@ -57,6 +62,7 @@ g2q.scope('hôm nay 30/10/2026', '11:02');
             <div data-v="screen"><div class="g2q-sign" id="sign-box"><span id="sign-ph">Khách ký vào khung này<br><button class="btn btn--secondary js-sign" type="button" style="margin-top:8px">Mô phỏng chữ ký</button></span><span class="g2q-sign__line" aria-hidden="true"></span></div><div class="row" style="margin-top:8px"><button class="btn btn--ghost btn--sm" id="sign-clear" type="button">Xóa chữ ký</button><span class="field__error" id="sign-err"><svg class="icon"><use href="#alert-triangle"/></svg>Chưa có chữ ký của khách.</span></div></div>
             <div data-v="paper"><div class="upload" data-upload><div class="upload__actions"><button class="btn btn--secondary" type="button" data-upload-pick="camera"><svg class="icon"><use href="#camera"/></svg>Chụp bản đã ký</button><button class="btn btn--secondary" type="button" data-upload-pick="file"><svg class="icon"><use href="#upload"/></svg>Chọn tệp</button></div><span class="g2q-note">Cần đính kèm ảnh bản đã ký để xác nhận.</span><input type="file" accept="image/*" capture="environment" hidden><input type="file" accept="image/*,application/pdf" hidden><div class="upload__thumbs"></div></div></div>
           </div></fieldset>
+        <p class="g2q-note">Chữ ký lưu kèm gói bằng chứng (mã biên bản, hạng mục, người nhận, thời điểm giờ máy chủ, thiết bị) và mã băm SHA-256; đây là bằng chứng nghiệp vụ nội bộ, không phải chữ ký số. Biên bản chỉ có một bản hiệu lực cho mỗi lệnh; sai sót sửa bằng biên bản điều chỉnh có lý do.</p>
       </div></section>
 
       <div class="g2q-sticky-foot" role="region" aria-label="Thao tác biên bản" data-vx="done">
@@ -68,7 +74,7 @@ g2q.scope('hôm nay 30/10/2026', '11:02');
     <aside class="g2q-split__side">
       <section class="card vehicle-card" style="grid-template-columns:1fr"><div><div class="row"><span class="plate-tag">29A-345.67</span><span class="vehicle-card__title">Hyundai i10 2020</span></div><dl class="vehicle-card__meta"><div><dt>Khách</dt><dd>Đinh Thị Hạnh</dd></div><div><dt>Cố vấn</dt><dd>Nguyễn Hoàng Yến</dd></div><div><dt>Lệnh</dt><dd><span class="badge badge--success">Sẵn sàng bàn giao</span></dd></div><div><dt>Tổng lệnh</dt><dd>2.916.000 ₫</dd></div></dl></div></section>
       <section class="card"><div class="card__header"><h2 class="card__title">Điều kiện bàn giao</h2></div><div class="g2q-links"><div class="g2q-links__item"><span>QC đạt 11/11</span><span class="tag tag--success"><svg class="icon"><use href="#check"/></svg>Đạt</span></div><div class="g2q-links__item"><span>Đã thu đủ tiền</span><span class="tag tag--success"><svg class="icon"><use href="#check"/></svg>Đạt</span></div><div class="g2q-links__item"><span>Có hóa đơn hợp lệ</span><span class="tag tag--success"><svg class="icon"><use href="#check"/></svg>Đạt</span></div></div><div class="card__footer"><a class="btn btn--ghost btn--sm" href="g2-dlv-03.html">Xem chi tiết điều kiện</a></div></section>
-      <section class="card" data-v="done"><div class="card__header"><h2 class="card__title">Bản lưu</h2></div><div class="card__body"><dl class="g2q-kv" style="grid-template-columns:110px minmax(0,1fr)"><dt>Giao lúc</dt><dd>11:06 30/10/2026</dd><dt>Người giao</dt><dd>Nguyễn Hoàng Yến</dd><dt>Cách xác nhận</dt><dd>Chữ ký trên màn hình</dd><dt>Mã biên bản</dt><dd class="code">BB-Q7-2610-00123</dd></dl></div></section>
+      <section class="card" data-v="done"><div class="card__header"><h2 class="card__title">Bản lưu</h2></div><div class="card__body"><dl class="g2q-kv" style="grid-template-columns:110px minmax(0,1fr)"><dt>Giao lúc</dt><dd>11:06 30/10/2026</dd><dt>Người giao</dt><dd>Nguyễn Hoàng Yến</dd><dt>Cách xác nhận</dt><dd>Chữ ký trên màn hình</dd><dt>Mã biên bản</dt><dd class="code">BB-Q7-2610-00041</dd></dl></div></section>
     </aside>
   </div>
 </div>
@@ -88,8 +94,10 @@ window.g2qReady = function () {
     var acks = Array.prototype.every.call(document.querySelectorAll('.js-ack'), function (c) { return c.checked; });
     var mode = sg.getAttribute('data-cur'), sig = mode === 'paper' ? document.querySelectorAll('#sg .thumb:not(.is-error)').length > 0 : signed;
     document.getElementById('sign-err').hidden = signed || mode !== 'screen';
-    var ok = acks && sig && !offline; btn.disabled = !ok; btn.setAttribute('aria-disabled', String(!ok));
-    msg.textContent = offline ? 'Mất kết nối: chưa xác nhận giao xe được. Biên bản vẫn lưu nháp trên máy.' : ok ? 'Đủ thông tin. Có thể xác nhận giao xe.' : !acks ? 'Cần tick xác nhận đủ đồ đạc và hạng mục.' : mode === 'paper' ? 'Cần đính kèm ảnh bản giấy đã ký.' : 'Cần chữ ký của khách trên màn hình.';
+    var isProxy = document.getElementById('nn').value === 'proxy'; document.getElementById('proxy').hidden = !isProxy;
+    var proxyOk = !isProxy || (document.getElementById('px-n').value.trim() && document.getElementById('px-p').value.trim() && document.getElementById('px-r').value && document.querySelectorAll('#proxy .thumb:not(.is-error)').length > 0);
+    var ok = acks && sig && !offline && proxyOk; btn.disabled = !ok; btn.setAttribute('aria-disabled', String(!ok));
+    msg.textContent = offline ? 'Mất kết nối: chưa xác nhận giao xe được. Biên bản vẫn lưu nháp trên máy.' : ok ? 'Đủ thông tin. Có thể xác nhận giao xe.' : !acks ? 'Cần tick xác nhận đủ đồ đạc và hạng mục.' : !proxyOk ? 'Cần đủ họ tên, SĐT, quan hệ và ảnh giấy ủy quyền của người nhận.' : mode === 'paper' ? 'Cần đính kèm ảnh bản giấy đã ký.' : 'Cần chữ ký của khách trên màn hình.';
   }
   box.addEventListener('click', function (e) {
     if (!e.target.closest('.js-sign')) return; signed = true; box.classList.add('is-signed');
@@ -97,6 +105,7 @@ window.g2qReady = function () {
   });
   document.getElementById('sign-clear').addEventListener('click', function () { signed = false; box.classList.remove('is-signed'); document.getElementById('sign-ph').innerHTML = 'Khách ký vào khung này<br><button class="btn btn--secondary js-sign" type="button" style="margin-top:8px">Mô phỏng chữ ký</button>'; gate(); });
   document.addEventListener('change', function () { setTimeout(gate, 0); });
+  document.addEventListener('input', function () { setTimeout(gate, 0); });
   document.addEventListener('click', function () { setTimeout(gate, 50); });
   document.getElementById('bb').addEventListener('g2q:variant', gate);
   gate();

@@ -11,6 +11,7 @@
 <style id="page-size">@page { size: A4; margin: 0; }</style>
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và chuyển khổ giấy. Bản in thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('CV', 'ro');
@@ -21,23 +22,25 @@ g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Xem trước và in']], title:
   <section class="card g2q-noprint" aria-label="Tùy chọn in">
     <div class="card__body stack">
       <div class="g2q-proto"><span class="g2q-proto__label">Xem thử trạng thái (chỉ prototype)</span>
-        <div class="segmented" role="group" aria-label="Trạng thái bản in"><button type="button" class="segmented__item" data-st="ok" aria-pressed="true">Bình thường</button><button type="button" class="segmented__item" data-st="missing" aria-pressed="false">Thiếu thông tin bắt buộc</button><button type="button" class="segmented__item" data-st="reprint" aria-pressed="false">In lại (lần 2)</button><button type="button" class="segmented__item" data-st="loading" aria-pressed="false">Đang tạo bản in</button><button type="button" class="segmented__item" data-st="noperm" aria-pressed="false">Không có quyền</button></div></div>
+        <div class="segmented" role="group" aria-label="Trạng thái bản in"><button type="button" class="segmented__item" data-st="ok" aria-pressed="true">Bình thường</button><button type="button" class="segmented__item" data-st="missing" aria-pressed="false">Thiếu thông tin bắt buộc</button><button type="button" class="segmented__item" data-st="reprint" aria-pressed="false">In lại (lần 2)</button><button type="button" class="segmented__item" data-st="loading" aria-pressed="false">Đang tạo bản in</button><button type="button" class="segmented__item" data-st="error" aria-pressed="false">Lỗi tạo bản in</button><button type="button" class="segmented__item" data-st="noperm" aria-pressed="false">Không có quyền</button></div></div>
       <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
         <div class="field"><span class="field__label" id="l-doc">Loại chứng từ</span><div class="segmented" role="group" aria-labelledby="l-doc"><button type="button" class="segmented__item" data-set="quote" data-for="pdoc" aria-pressed="true">Báo giá</button><button type="button" class="segmented__item" data-set="ro" data-for="pdoc" aria-pressed="false">Lệnh sửa chữa</button><button type="button" class="segmented__item" data-set="handover" data-for="pdoc" aria-pressed="false">Phiếu giao nhận</button></div></div>
         <div class="field"><span class="field__label" id="l-size">Khổ giấy</span><div class="segmented" role="group" aria-labelledby="l-size"><button type="button" class="segmented__item" data-size="a4" aria-pressed="true">A4</button><button type="button" class="segmented__item" data-size="a5" aria-pressed="false">A5</button><button type="button" class="segmented__item" data-size="thermal" aria-pressed="false">Nhiệt 80 mm</button></div></div>
         <div class="field"><label class="field__label" for="mi">Máy in</label><select id="mi" class="select"><option>Máy in mặc định của chi nhánh</option><option>Lưu PDF</option></select><span class="field__hint">Model máy in <span class="tag tag--neutral">[Cần xác nhận]</span></span></div>
       </div>
       <div class="row">
-        <label class="check"><input type="checkbox" id="full-phone"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>In số điện thoại đầy đủ của khách (chỉ khi bạn có quyền)</span></label>
+        <label class="check" data-show-roles="CV QL TN"><input type="checkbox" id="full-phone"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>In số điện thoại đầy đủ của khách (chỉ khi bạn có quyền)</span></label>
         <div class="field" style="flex-direction:row;align-items:center;gap:8px"><label class="field__label" for="sb">Số bản</label><div class="qty"><button class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon icon--sm"><use href="#minus"/></svg></button><input id="sb" class="qty__input" value="1" min="1" max="5"><button class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon icon--sm"><use href="#plus"/></svg></button></div></div>
         <span style="margin-left:auto" class="row"><button class="btn btn--secondary" data-toast="success|Đã tạo PDF|Tệp PDF lưu kèm chứng từ.">Tải PDF</button><button class="btn btn--secondary" data-toast="info|Gửi email|Gửi bản PDF tới email khách đã đồng ý nhận tin.">Gửi email</button><button class="btn btn--primary" id="btn-print" data-print><svg class="icon"><use href="#printer"/></svg>In</button></span>
       </div>
+      <p class="g2q-note" data-show-roles="CH QV QD TK KT"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#lock"/></svg> Ô “In số điện thoại đầy đủ” bị khóa với vai trò của bạn: bản in luôn che số (09•• ••• 321).</p>
       <p class="g2q-note" id="size-hint">Khổ A4: dùng cho báo giá và biên bản giao xe.</p>
     </div>
   </section>
 
   <div class="alert alert--warning g2q-noprint" id="al-missing" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Thiếu thông tin bắt buộc theo mẫu</span><span>Mẫu báo giá yêu cầu: tên pháp nhân khách và mã số thuế (khi khách cần hóa đơn đứng tên công ty), địa chỉ chi nhánh. Bổ sung ở hồ sơ khách rồi in lại; vẫn in nháp được nhưng bản in ghi “Thiếu thông tin”.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#">Mở hồ sơ khách</a></div></div></div>
-  <div class="alert alert--info g2q-noprint" id="al-reprint" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Đây là bản in lại</span><span>Chứng từ đã in lúc 09:40 bởi Nguyễn Hoàng Yến. Bản in lại ghi “BẢN IN LẠI (lần 2)” và được ghi vào nhật ký in (FR-ACC-014).</span></div></div>
+  <div class="alert alert--info g2q-noprint" id="al-reprint" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Đây là bản in lại</span><span>Chứng từ đã in lúc 09:40 bởi Nguyễn Hoàng Yến. Bản in lại ghi “BẢN IN LẠI (lần 2)”; mỗi lần in ghi nhật ký (ai, khi nào, khổ, máy hoặc PDF, số bản; FR-SYS-003, đề xuất FR-SYS-019). Lý do in lại là tùy chọn với báo giá, lệnh và <strong>bắt buộc</strong> với biên bản giao xe và chứng từ tài chính.</span><div class="field" style="margin-top:8px"><label class="field__label" for="rp-r">Lý do in lại</label><select id="rp-r" class="select"><option value="">Chọn lý do</option><option>Khách làm mất bản cũ</option><option>In lỗi, rách</option><option>Cần thêm bản</option><option>Lý do khác</option></select></div></div></div>
+  <div class="alert alert--danger g2q-noprint" id="al-error" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa tạo được bản in</span><span>Mẫu in hoặc dịch vụ tạo PDF không phản hồi. Thử lại; nếu vẫn lỗi, dùng phiếu giấy dự phòng và báo quản trị (mã ERR-PRT-5E02B8).</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-demo-loading>Thử lại</button></div></div></div>
   <div class="card g2q-noprint" id="al-loading" hidden aria-busy="true" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--block"></span></div>
   <div class="card g2q-noprint" id="al-noperm" hidden><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền in chứng từ này', text:'Quyền in theo quyền xem chứng từ. Báo giá và lệnh dành cho Cố vấn dịch vụ và Quản lý chi nhánh; phiếu giao nhận cho Cố vấn, Quản lý chi nhánh (Thu ngân chỉ xem).', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
 
@@ -54,21 +57,21 @@ g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Xem trước và in']], title:
           <div><b>Cố vấn</b><span>Nguyễn Hoàng Yến</span></div><div><b>Số km nhận</b><span class="num">48.200 km</span></div>
         </div>
         <div class="g2q-dl g2q-dl--h"><span>Nội dung</span><span>SL</span><span>Đơn giá</span><span>Thành tiền</span></div>
-        <div class="g2q-dl g2q-dl--g"><span>1. Thay dầu động cơ và lọc dầu (bắt buộc)</span><span>1.585.000</span></div>
+        <div class="g2q-dl g2q-dl--g"><span>1. Thay dầu động cơ và lọc dầu (bắt buộc) · <i class="g2q-d-check"></i>Đồng ý <i class="g2q-d-check"></i>Không</span><span>1.711.800</span></div>
         <div class="g2q-dl"><span>Công thay dầu + lọc dầu</span><span>0,5</span><span>300.000</span><span>150.000</span></div>
         <div class="g2q-dl"><span>Dầu nhớt 5W-30 (can 4 lít)</span><span>1</span><span>1.250.000</span><span>1.250.000</span></div>
         <div class="g2q-dl"><span>Lọc dầu động cơ Vios</span><span>1</span><span>185.000</span><span>185.000</span></div>
-        <div class="g2q-dl g2q-dl--g"><span>2. Thay má phanh trước (bắt buộc)</span><span>1.070.000</span></div>
+        <div class="g2q-dl g2q-dl--g"><span>2. Thay má phanh trước (bắt buộc) · <i class="g2q-d-check"></i>Đồng ý <i class="g2q-d-check"></i>Không</span><span>1.155.600</span></div>
         <div class="g2q-dl"><span>Công thay má phanh trước</span><span>1,5</span><span>300.000</span><span>450.000</span></div>
         <div class="g2q-dl"><span>Má phanh trước Toyota Vios (bộ)</span><span>1</span><span>620.000</span><span>620.000</span></div>
-        <div class="g2q-dl g2q-dl--g"><span>3. Cân chỉnh góc đặt bánh xe (tùy chọn)</span><span>300.000</span></div>
+        <div class="g2q-dl g2q-dl--g"><span>3. Cân chỉnh góc đặt bánh xe (tùy chọn) · <i class="g2q-d-check"></i>Đồng ý <i class="g2q-d-check"></i>Không</span><span>324.000</span></div>
         <div class="g2q-dl"><span>Công cân chỉnh góc đặt bánh xe</span><span>1,0</span><span>300.000</span><span>300.000</span></div>
-        <div class="g2q-dl g2q-dl--g"><span>4. Vệ sinh buồng đốt (tùy chọn)</span><span>650.000</span></div>
+        <div class="g2q-dl g2q-dl--g"><span>4. Vệ sinh buồng đốt (tùy chọn) · <i class="g2q-d-check"></i>Đồng ý <i class="g2q-d-check"></i>Không</span><span>702.000</span></div>
         <div class="g2q-dl"><span>Công vệ sinh buồng đốt (giá gói)</span><span>1</span><span>400.000</span><span>400.000</span></div>
         <div class="g2q-dl"><span>Dung dịch vệ sinh buồng đốt</span><span>1</span><span>250.000</span><span>250.000</span></div>
-        <div class="g2q-d-tot"><div><span>Cộng trước thuế</span><span class="num">3.605.000 ₫</span></div><div><span>Thuế GTGT 8% (số mẫu)</span><span class="num">288.400 ₫</span></div><div class="g2q-d-final"><span>Tổng cộng</span><span class="num">3.893.400 ₫</span></div></div>
-        <p class="g2q-d-note">Bằng chữ: Ba triệu tám trăm chín mươi ba nghìn bốn trăm đồng. Giá giữ theo bảng giá tháng 10/2026 đến hết 06/11/2026. Hạng mục bắt buộc cần thực hiện để bảo đảm an toàn; hạng mục tùy chọn do khách quyết định. Việc phát sinh ngoài báo giá chỉ làm khi khách đồng ý.</p>
-        <div class="g2q-d-sign"><div>Khách hàng<br><small>(ký, ghi rõ họ tên, đồng ý các hạng mục đã khoanh)</small><i>&nbsp;</i></div><div>Cố vấn dịch vụ<i>Nguyễn Hoàng Yến</i></div><div>Quản lý chi nhánh<i>&nbsp;</i></div></div>
+        <div class="g2q-d-tot"><div class="g2q-d-final"><span>Tổng cộng (đã gồm thuế)</span><span class="num">3.893.400 ₫</span></div><div><span>Trong đó thuế GTGT 8% (số mẫu)</span><span class="num">288.400 ₫</span></div><div><span>Chưa thuế</span><span class="num">3.605.000 ₫</span></div></div>
+        <p class="g2q-d-note">Bằng chữ: Ba triệu tám trăm chín mươi ba nghìn bốn trăm đồng. Chế độ hiển thị giá: khách cá nhân (giá hạng mục đã gồm thuế; cấu hình theo loại khách). Giá giữ theo bảng giá tháng 10/2026 đến hết 06/11/2026. Hạng mục “bắt buộc” là khuyến nghị an toàn của garage; khách quyết định từng hạng mục (khoanh Đồng ý hoặc Không). Việc phát sinh ngoài báo giá chỉ làm khi khách đồng ý. Bảo hành theo từng hạng mục, tính từ ngày giao xe.</p>
+        <div class="g2q-d-sign"><div>Khách hàng<br><small>(ký, ghi rõ họ tên, đồng ý các hạng mục đã khoanh)</small><i>&nbsp;</i></div><div>Cố vấn dịch vụ<i>Nguyễn Hoàng Yến</i></div><div class="g2q-d-hide-thermal">Quản lý chi nhánh<br><small>(chỉ khi có duyệt giảm giá vượt hạn mức)</small><i>&nbsp;</i></div></div>
         <footer class="g2q-d-foot"><span>In 10:12 30/10/2026 · Nguyễn Hoàng Yến</span><span>Bản in <span class="g2q-copy">lần 1</span> · Trang 1/1</span></footer>
       </div>
 
@@ -92,9 +95,9 @@ g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Xem trước và in']], title:
 
       <!-- ============ PHIẾU GIAO NHẬN ============ -->
       <div data-v="handover" hidden>
-        <header class="g2q-d-head"><div><div class="g2q-d-brand">GARAGE OS · Chi nhánh Quận 7</div><div class="g2q-d-sub">12 Nguyễn Văn Linh, Quận 7, TP.HCM · ĐT 028 7300 1234</div></div><div class="g2q-d-qr g2q-d-hide-thermal" role="img" aria-label="Mã QR tra cứu bảo hành"><svg class="icon"><use href="#qr-code"/></svg></div></header>
-        <div class="g2q-d-title"><h2>Phiếu giao nhận xe</h2><p>Số BB-Q7-2610-00123 · Lệnh RO-Q7-2610-00123 · 30/10/2026 11:06<span class="g2q-reprint" hidden> · BẢN IN LẠI (lần 2)</span></p></div>
-        <div class="g2q-d-grid"><div><b>Khách hàng</b><span>Đinh Thị Hạnh</span></div><div><b>Biển số</b><span class="plate">29A-345.67</span></div><div><b>Xe</b><span>Hyundai i10 2020</span></div><div><b>Km khi giao</b><span class="num">41.575 km</span></div></div>
+        <header class="g2q-d-head"><div><div class="g2q-d-brand">GARAGE OS · Chi nhánh Quận 7</div><div class="g2q-d-sub">12 Nguyễn Văn Linh, Quận 7, TP.HCM · ĐT 028 7300 1234</div></div><div></div></header>
+        <div class="g2q-d-title"><h2>Phiếu giao nhận xe</h2><p>Số BB-Q7-2610-00041 · Lệnh RO-Q7-2610-00123 · 30/10/2026 11:06<span class="g2q-reprint" hidden> · BẢN IN LẠI (lần 2)</span></p></div>
+        <div class="g2q-d-grid"><div><b>Khách hàng</b><span>Đinh Thị Hạnh</span></div><div><b>Biển số</b><span class="plate">29A-345.67</span></div><div><b>Xe</b><span>Hyundai i10 2020</span></div><div><b>Km khi giao</b><span class="num">41.575 km</span></div><div><b>Người nhận</b><span>Đinh Thị Hạnh (chủ xe) · nếu người được ủy quyền: ghi họ tên, SĐT, quan hệ</span></div></div>
         <div class="g2q-d-sec">Hạng mục đã làm và bảo hành</div>
         <div class="g2q-hl"><span>Thay dầu động cơ và lọc dầu</span><span>5.000 km hoặc 6 tháng</span></div>
         <div class="g2q-hl"><span>Thay má phanh sau</span><span>6 tháng, đến 30/04/2027</span></div>
@@ -102,7 +105,7 @@ g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Xem trước và in']], title:
         <div class="g2q-d-sec">Thanh toán</div>
         <div class="g2q-hl"><span>Tổng cộng (đã gồm thuế GTGT 8% số mẫu)</span><span class="num">2.916.000 ₫</span></div>
         <div class="g2q-hl"><span>Đã thanh toán (cọc 500.000 + tiền mặt 2.416.000)</span><span class="num">2.916.000 ₫</span></div>
-        <div class="g2q-hl"><span>Hóa đơn</span><span class="num">C26TAA-0001302</span></div>
+        <div class="g2q-hl"><span>Hóa đơn (số do nhà cung cấp cấp; số mẫu)</span><span class="num">C26TAA-0001302</span></div>
         <div class="g2q-d-sec">Khách xác nhận đã nhận</div>
         <p><i class="g2q-d-check"></i>Xe, đồ đạc: áo mưa, thẻ gửi xe, 1 USB &nbsp; <i class="g2q-d-check"></i>Má phanh sau cũ &nbsp; <i class="g2q-d-check"></i>Đã xem các hạng mục và số tiền</p>
         <p class="g2q-d-note">Khách giữ phiếu này để được bảo hành. Bảo hành tính từ ngày giao, áp dụng theo điều kiện của từng hạng mục.</p>
@@ -117,10 +120,10 @@ g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Xem trước và in']], title:
 <script>
 window.g2qReady = function () {
   var sheet = document.getElementById('sheet'), Q = new URLSearchParams(location.search);
-  var HINT = { a4: 'Khổ A4: dùng cho báo giá, biên bản giao xe, báo cáo.', a5: 'Khổ A5: dùng cho phiếu tiếp nhận, lệnh sửa chữa bản xưởng, phiếu giao xe.', thermal: 'Nhiệt 80 mm (58 mm cấu hình): dùng cho phiếu thu, bán lẻ, phiếu hẹn nhanh. Báo giá và lệnh sửa chữa in nhiệt chỉ nên dùng khi in nhanh.' };
+  var HINT = { a4: 'Khổ A4: dùng cho báo giá, biên bản giao xe, báo cáo.', a5: 'Khổ A5: dùng cho phiếu tiếp nhận, lệnh sửa chữa bản xưởng, phiếu giao xe.', thermal: 'Nhiệt 80 mm (58 mm cấu hình): dùng cho phiếu thu, bán lẻ, phiếu hẹn nhanh. Báo giá và lệnh sửa chữa in nhiệt chỉ nên dùng khi in nhanh. Lưu ý: `@page size` nhận hai độ dài (80mm × chiều dài cấu hình theo máy) hoặc `auto` cho cả trang, không trộn “80mm auto”; kiểm thử trên máy nhiệt thật và Chrome/Edge/Safari trước pilot.' };
   function setSize(s) {
     sheet.className = 'g2q-sheet g2q-sheet--' + s;
-    document.getElementById('page-size').textContent = '@page { size: ' + (s === 'a4' ? 'A4' : s === 'a5' ? 'A5' : '80mm auto') + '; margin: 0; }';
+    document.getElementById('page-size').textContent = '@page { size: ' + (s === 'a4' ? 'A4' : s === 'a5' ? 'A5' : '80mm 297mm') + '; margin: 0; }';
     document.querySelectorAll('[data-size]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-size') === s)); });
     document.getElementById('size-hint').textContent = HINT[s];
   }
@@ -128,8 +131,9 @@ window.g2qReady = function () {
     document.querySelectorAll('[data-st]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-st') === s)); });
     document.getElementById('al-missing').hidden = s !== 'missing'; document.getElementById('al-reprint').hidden = s !== 'reprint';
     document.getElementById('al-loading').hidden = s !== 'loading'; document.getElementById('al-noperm').hidden = s !== 'noperm';
-    document.getElementById('paper').hidden = s === 'loading' || s === 'noperm';
-    document.getElementById('btn-print').disabled = s === 'loading' || s === 'noperm';
+    document.getElementById('al-error').hidden = s !== 'error';
+    document.getElementById('paper').hidden = s === 'loading' || s === 'noperm' || s === 'error';
+    document.getElementById('btn-print').disabled = s === 'loading' || s === 'noperm' || s === 'error';
     document.querySelectorAll('.g2q-reprint').forEach(function (e) { e.hidden = s !== 'reprint'; });
     document.querySelectorAll('.g2q-copy').forEach(function (e) { e.textContent = s === 'reprint' ? 'lần 2 (in lại)' : 'lần 1'; });
   }
@@ -140,7 +144,10 @@ window.g2qReady = function () {
   document.getElementById('full-phone').addEventListener('change', function (e) {
     document.querySelectorAll('.js-phone').forEach(function (x) { x.textContent = e.target.checked ? '0903 456 321' : '09•• ••• 321'; });
   });
-  setSize(['a4', 'a5', 'thermal'].indexOf(Q.get('size')) >= 0 ? Q.get('size') : 'a4'); setSt(Q.get('st') || 'ok');
+  /* Khổ mặc định theo loại chứng từ (ba-decisions câu 12): báo giá A4, lệnh xưởng A5, phiếu giao nhận A5 (nhiệt cho bản rút gọn) */
+  var DEF = { quote: 'a4', ro: 'a5', handover: 'a5' }, explicit = ['a4', 'a5', 'thermal'].indexOf(Q.get('size')) >= 0;
+  document.getElementById('pdoc').addEventListener('g2q:variant', function (e) { if (!explicit) setSize(DEF[e.detail] || 'a4'); explicit = false; });
+  setSize(explicit ? Q.get('size') : (DEF[document.getElementById('pdoc').getAttribute('data-cur')] || 'a4')); setSt(Q.get('st') || 'ok');
 };
 </script>
 </body>

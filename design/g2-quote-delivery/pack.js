@@ -10,7 +10,7 @@
     /* Tên khớp gói 2 (g2-rec-04): CV Nguyễn Hoàng Yến, Quản đốc Phạm Quốc Bảo, thợ Lê Minh Tuấn / Trần Văn Hậu, thu ngân Mai Thu Thảo */
     CH: ['Chủ garage', 'Trần Hoàng Anh', 'TA'], QV: ['Quản lý vùng', 'Lê Minh Quân', 'LQ'], QL: ['Quản lý chi nhánh', 'Nguyễn Thị Thu Hà', 'NH'],
     CV: ['Cố vấn dịch vụ', 'Nguyễn Hoàng Yến', 'NY'], QD: ['Quản đốc', 'Phạm Quốc Bảo', 'PB'], TH: ['Thợ', 'Lê Minh Tuấn', 'LT'],
-    TK: ['Thủ kho', 'Hoàng Thị Lan', 'HL'], TN: ['Thu ngân', 'Mai Thu Thảo', 'MT'], KT: ['Kế toán', 'Đặng Thu Trang', 'ĐT'], AD: ['Quản trị hệ thống', 'Ngô Quang Huy', 'NH']
+    TK: ['Thủ kho', 'Hoàng Thị Lan', 'HL'], TN: ['Thu ngân', 'Mai Thu Thảo', 'MT'], KT: ['Kế toán', 'Đặng Thu Trang', 'ĐT'], MH: ['Nhân viên mua hàng', 'Lý Thanh Bình', 'LB'], NS: ['Nhân sự', 'Phùng Thị Ngọc', 'PN'], AD: ['Quản trị hệ thống', 'Ngô Quang Huy', 'NH']
   };
   var w = function (s) { document.write(s); };
   var ic = g.ic = function (n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; };
@@ -86,7 +86,7 @@
       '<span class="user-btn__text"><strong class="t-body-sm" style="line-height:16px" data-g2q-user>' + u[1] + '</strong><span class="user-btn__role" data-role-label>' + u[0] + '</span></span>' + ic('chevron-down', 'icon--sm') + '</button>' +
       '<div class="dropdown__menu dropdown__menu--right" role="menu" style="min-width:280px"><div class="menu-label">Tài khoản</div>' +
       '<button class="menu-item" role="menuitem">' + ic('user') + 'Hồ sơ cá nhân</button><button class="menu-item" role="menuitem">' + ic('log-out') + 'Đăng xuất</button><div class="menu-sep"></div><div class="menu-label">Xem thử theo vai trò (chỉ prototype)</div>' +
-      ['CH', 'QL', 'CV', 'QD', 'TH', 'TK', 'TN', 'KT'].map(function (k) { return '<button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="' + k + '" data-role-name="' + USERS[k][0] + '" aria-checked="' + (k === role) + '">' + USERS[k][0] + '</button>'; }).join('') +
+      ['CH', 'QL', 'CV', 'QD', 'TH', 'TK', 'TN', 'KT', 'MH', 'NS'].map(function (k) { return '<button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="' + k + '" data-role-name="' + USERS[k][0] + '" aria-checked="' + (k === role) + '">' + USERS[k][0] + '</button>'; }).join('') +
       '</div></div></header>' +
       '<main class="main" id="main"><div class="main__inner">' +
       '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể gửi báo giá, xuất phụ tùng, thu tiền, xuất hóa đơn. Mốc giờ làm việc vẫn được ghi và sẽ đồng bộ sau (đánh dấu “nhập bù”). Bản nháp chỉ lưu trên máy, chưa gửi tới ai.</span></div></div>');

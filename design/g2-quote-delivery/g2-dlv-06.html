@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('CV', 'ro');
@@ -34,7 +35,7 @@ g2q.scope('hôm nay 30/10/2026', '09:15');
         <div class="card vehicle-card" style="box-shadow:none">
           <div class="vehicle-card__icon"><svg class="icon icon--lg"><use href="#car-front"/></svg></div>
           <div><div class="row"><span class="plate-tag"><span data-v="in">29A-345.67</span><span data-v="out">50H-118.04</span><span data-v="cross">59A-111.22</span></span><span class="vehicle-card__title"><span data-v="in">Hyundai i10 2020</span><span data-v="out">Mazda 3 2019</span><span data-v="cross">Honda City 2018</span></span></div>
-            <dl class="vehicle-card__meta"><div><dt>Lệnh gốc</dt><dd class="code"><span data-v="in">RO-Q7-2610-00123</span><span data-v="out">RO-Q7-2609-00771</span><span data-v="cross">RO-TD-2605-00288</span></dd></div><div><dt>Chi nhánh gốc</dt><dd><span data-v="in out">Quận 7 (chi nhánh bạn)</span><span data-v="cross">Thủ Đức</span></dd></div><div><dt>Ngày giao</dt><dd><span data-v="in">30/10/2026</span><span data-v="out">20/09/2026</span><span data-v="cross">11/05/2026</span></dd></div><div><dt>Thợ gốc</dt><dd><span data-v="in out">Trần Văn Hậu</span><span data-v="cross">Võ Minh Phát (chi nhánh Thủ Đức)</span></dd></div></dl></div></div></div></section>
+            <dl class="vehicle-card__meta"><div><dt>Lệnh gốc</dt><dd class="code"><span data-v="in">RO-Q7-2610-00123</span><span data-v="out">RO-Q7-2609-00771</span><span data-v="cross">RO-TD-2605-00288</span></dd></div><div><dt>Chi nhánh gốc</dt><dd><span data-v="in out">Quận 7 (chi nhánh bạn)</span><span data-v="cross">Thủ Đức</span></dd></div><div><dt>Ngày giao</dt><dd><span data-v="in">30/10/2026</span><span data-v="out">20/09/2026</span><span data-v="cross">11/05/2026</span></dd></div><div><dt>Thợ gốc</dt><dd><span data-v="in out">Trần Văn Hậu</span><span data-v="cross">Không hiển thị (gắn bằng mã nội bộ)</span></dd></div></dl></div></div></div></section>
 
       <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">2. Hạng mục bảo hành và điều kiện</h2></div>
         <div class="checklist">
@@ -49,7 +50,7 @@ g2q.scope('hôm nay 30/10/2026', '09:15');
         <div class="field span-2"><label class="field__label" for="loi">Lỗi khách báo <span class="field__req">*</span></label><textarea id="loi" class="textarea" placeholder="Ví dụ: Xe chạy bị lệch lái sang phải sau khi cân chỉnh">Xe chạy hơi lệch sang phải khi giữ tay lái thả lỏng, sau 3 ngày kể từ khi cân chỉnh.</textarea></div>
         <div class="field"><label class="field__label" for="km">Số km hiện tại</label><div class="input-group input-group--suffix"><input id="km" class="input input--num" value="41.820"><span class="input-group__suffix">km</span></div><span class="field__hint">Nhập thấp hơn lần giao sẽ cảnh báo và hỏi lý do.</span></div>
         <div class="field"><label class="field__label" for="lc">Loại chi phí</label><select id="lc" class="select" disabled><option>Bảo hành</option></select><span class="field__hint">Cố định, không tính tiền khách.</span></div>
-        <div class="field"><label class="field__label" for="tg">Thợ gốc (gắn tự động)</label><input id="tg" class="input" value="Trần Văn Hậu" readonly><span class="field__hint">Quản đốc có thể phân thợ khác, ghi vết.</span></div>
+        <div class="field"><label class="field__label" for="tg">Thợ gốc (gắn tự động)</label><input id="tg" class="input" value="Gắn tự động theo thợ làm lệnh gốc" readonly><span class="field__hint">Quản đốc có thể phân thợ khác, ghi vết.</span></div>
         <div class="field"><label class="field__label" for="cp">Chi nhánh chịu chi phí <span class="field__req">*</span></label><select id="cp" class="select"><option>Chi nhánh gốc (theo cấu hình)</option><option>Chi nhánh thực hiện</option><option>Công ty</option></select><span class="field__hint">Mặc định theo cấu hình <span class="tag tag--neutral">[Cần xác nhận]</span>.</span></div>
       </div></div></section>
 
