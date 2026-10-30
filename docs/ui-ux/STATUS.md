@@ -9,6 +9,8 @@ Cập nhật: 2026-10-30. Thiết kế toàn bộ web dashboard Garage ERP (gồ
 - Mỗi gói có tài liệu riêng `01`…`06-*.md` (bảng màn hình, flow, bảng "Finding → đã xử lý ở đâu") và các file `review-0N-*`, `ba-answers-0N.md`.
 - Chuẩn bắt buộc: `docs/design-system.md` (token không đổi). Quyết định BA: `ba-decisions.md` (đề xuất, chờ xác nhận).
 
+Ảnh chụp toàn bộ 193 trang: `screenshots/README.md` (chụp lại bằng `node scripts/screenshot-all.js`).
+
 ## Tiến độ review (tất cả ĐẠT: không còn Blocker/Major)
 
 | Gói | Màn | Vòng đạt | Ghi chú |
