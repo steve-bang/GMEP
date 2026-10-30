@@ -20,7 +20,22 @@
 .g4f-two { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: var(--space-6); align-items: start; }
 .g4f-two--even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .g4f-aside { position: sticky; top: calc(var(--topbar-height) + var(--space-4)); display: flex; flex-direction: column; gap: var(--space-4); }
-@media (max-width: 1279px) { .g4f-two, .g4f-two--even { grid-template-columns: 1fr; } .g4f-aside { position: static; } }
+@media (max-width: 1279px) { .g4f-two, .g4f-two--even { grid-template-columns: minmax(0, 1fr); } .g4f-aside { position: static; } }
+/* Chống tràn ngang: mọi ô lưới/flex được phép co (min-width:0); bảng cuộn ngang bên trong thẻ, không làm cả trang cuộn */
+.g4f-two > *, .g4f-aside, .g4f-aside > *, .stack > *, .card, fieldset.card, .main__inner > * { min-width: 0; max-width: 100%; }
+fieldset.card { display: block; margin: 0; }
+.card .table-scroll, .card > .table-scroll, .table-wrap .table-scroll { max-width: 100%; overflow-x: auto; }
+.g4f-kv, .g4f-sum > div, .card__body, .card__header { min-width: 0; }
+.g4f-sum dd, .g4f-kv dd { overflow-wrap: anywhere; white-space: normal; }
+.g4f-sum dd.num, .g4f-sum dd { white-space: normal; }
+.page-header__actions .tooltip, .g4f-demo .tooltip { left: auto; right: 0; transform: none; max-width: min(280px, calc(100vw - 32px)); }
+@media (max-width: 639px) {
+  .g4f-denom { grid-template-columns: minmax(0, 1fr); }
+  .g4f-pane__item { grid-template-columns: 44px minmax(0, 1fr); } .g4f-pane__item > :last-child { grid-column: 2; }
+  .g4f-matrix .input, .g4f-matrix .select { min-width: 0; }
+  .g4f-invoice { padding: var(--space-4); }
+  .g4f-limit__cap { flex-wrap: wrap; gap: var(--space-1) var(--space-3); }
+}
 .g4f-kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-3) var(--space-6); margin: 0; }
 .g4f-kv dt { font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-tertiary); }
 .g4f-kv dd { margin: 2px 0 0; font-size: var(--font-size-md); line-height: 20px; color: var(--color-text-primary); overflow-wrap: anywhere; }

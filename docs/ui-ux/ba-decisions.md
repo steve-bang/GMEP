@@ -310,7 +310,7 @@ Nguồn: Phụ lục C của `ui-ux-flow.md` (các mâu thuẫn C-1…C-15). The
 
 **Điều kiện xem lại sớm (đề xuất).** Nếu trong pilot số lần nhập bù do mất mạng vượt 5% số mốc giờ trong một tháng thì đề xuất làm sớm hàng đợi ở Phase 2 hoặc cải thiện hạ tầng mạng xưởng. Câu hỏi Discovery kèm theo: chất lượng Wi-Fi/4G thực tế trong xưởng và số lần mất mạng/ngày (mặc định BA: ít, ngắn).
 
-**Căn cứ.** NFR-OFF-01, BR-HRM-03, FR-HRM-005, FR-HRM-009, FR-REC-013, FR-SYS-003, WF-08, `CLAUDE.md` (Offline), `ba-answers-01` Câu 4, 6, `review-01-round2-ba.md`.
+**Căn cứ.** NFR-OFF-01 (FRD §11: dòng "nhập bù có dấu hiệu, giai đoạn 2 trở đi" và dòng bản 0.3 "cảnh báo mất mạng và lưu nháp; offline đầy đủ là phạm vi riêng" — hai dòng này cần thống nhất, xem `proposed-doc-changes.md` C-11), BR-HRM-03, FR-HRM-005, FR-HRM-009, FR-REC-013, FR-SYS-003, WF-08, `CLAUDE.md` (Offline), `ba-answers-01` Câu 4, 6, `review-01-round2-ba.md`. FR đề xuất kèm theo: FR-HRM-019 (nhập bù giờ công), `proposed-doc-changes.md` mục B.
 
 **Văn bản bị thay thế** (bản mới nhất thắng là mục E này): `ba-answers-03.md` Câu 8 gạch "Mốc giờ khi mất mạng"; `review-03-round2-ba.md` mục 1 câu "Riêng mốc giờ…"; `03-quote-technician-delivery.md` §4.3 đoạn "Mất kết nối (chốt cho TEC-01/03/04…)". Các văn bản này không được sửa trong lượt này; designer ghi chú đã bị thay khi sửa tài liệu gói.
 

@@ -349,6 +349,10 @@ Nguồn: `docs/ui-ux/review-05-round2-ba.md`. Cơ chế chung thêm ở `pack.js
 
 (1) Biến thể “Hoàn khoản nhận trước” của ACC-07 (đầu vào từ ACC-21, số hoàn ≤ số dư, không nhắc hóa đơn). (2) Chỉ bù khoản nhận trước ở ACC-21, ACC-01 giữ chip và liên kết. (3) “Chi kèm ngoại lệ” duyệt tối thiểu QL chi nhánh, dòng riêng ở APR-03. (4) Cột “Cờ rủi ro” ở APR-01 (Lặp trong 24 giờ, Thiếu chứng từ gốc, Người lập = bạn) khóa ô chọn kèm lý do. (5) Ủy quyền Quản lý vùng duyệt mở lại cấu hình ở APR-03 (mặc định tắt). (6) Một kế toán: yêu cầu hóa đơn do người có cờ KTT lập tự chuyển Chủ garage; danh sách người có cờ ở APR-03. (7) Hóa đơn gốc “Đã xuất” kèm tag “Đang chờ thay thế/điều chỉnh” cho tới khi xác nhận. (8) Ngưỡng chênh lệch quỹ (50.000 ₫ minh họa) và ngưỡng đối soát ngân hàng (20.000 ₫ minh họa) ở APR-03.
 
+### 10e. Responsive: chống cuộn ngang ở 390 px
+
+Playwright đo thấy 8 trang gói 5 làm trang cuộn ngang ở 390 px (`docs/ui-ux/mobile-overflow-report.md`). Nguyên nhân chính: cột lưới `.g4f-two` dưới 1280 px dùng `1fr` (tương đương `minmax(auto,1fr)`) nên thẻ chứa bảng giãn theo nội dung; ô flex/grid không có `min-width:0`; giá trị `dd` trong `.g4f-sum` để `nowrap`; tooltip tuyệt đối vượt mép. Đã sửa trong `pack.css` (không đụng `design/assets/*`, không đổi token): cột `minmax(0,1fr)`; `min-width:0; max-width:100%` cho con của `.g4f-two`, `.g4f-aside`, `.stack`, `.card`, `fieldset.card`, `.main__inner`; bảng cuộn ngang trong `.table-scroll` của thẻ; `dd` được xuống dòng; tooltip ở đầu trang canh phải và giới hạn `min(280px, 100vw − 32px)`; dưới 640 px lưới đếm quỹ, khung đối soát, ma trận, hóa đơn được thu gọn. Desktop 1440 px không đổi (chỉ ràng buộc co, không đổi kích thước). **Chưa đo lại** vì môi trường không có Bash/Playwright; cần chạy lại phép đo `scrollWidth − clientWidth` cho 8 trang: ACC-13, 03, 11, 19, 04, APR-03, EIN-04, EIN-02.
+
 ### 10d. Finding vòng 3 → đã xử lý ở đâu
 
 Nguồn: `docs/ui-ux/review-05-round3-ba.md` (3 Minor).

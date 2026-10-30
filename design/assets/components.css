@@ -232,7 +232,7 @@ a.kpi:hover { text-decoration: none; border-color: var(--color-border-selected);
 
 /* ===================== 5. DATA TABLE ===================== */
 .table-wrap { position: relative; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--card-radius); overflow: hidden; }
-.table-scroll { overflow: auto; max-height: var(--table-max-height, none); }
+.table-scroll { position: relative; overflow: auto; max-height: var(--table-max-height, none); }
 .table { width: 100%; font-size: var(--table-font-size); line-height: 20px; }
 .table th, .table td { padding: 0 var(--space-4); text-align: left; vertical-align: middle; height: var(--table-row-height); border-bottom: 1px solid var(--color-border); }
 .table--lg th, .table--lg td { height: var(--table-row-height-lg); }
@@ -828,3 +828,7 @@ th[aria-sort="ascending"] .th-sort .icon, th[aria-sort="descending"] .th-sort .i
   .otp__cell { height: 56px; }
   .tab, .nav-item { min-height: 44px; }
 }
+
+/* 14.11 Chống tràn ngang dùng chung (đo bằng Playwright ở 390px, 2026-10-30) */
+.segmented { max-width: 100%; overflow-x: auto; }
+.card, .table-wrap { min-width: 0; max-width: 100%; }
