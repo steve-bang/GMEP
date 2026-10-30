@@ -6,8 +6,13 @@
    4) Ô tồn kho bốn con số (Khả dụng = Thực tế - Giữ chỗ, hàng đang vận chuyển không cộng), bảng -> card list trên mobile, giả lập quét mã bằng camera. */
 (function () {
   'use strict';
-  var ROLE_NAME = { CH: 'Chủ garage', QV: 'Quản lý vùng', QL: 'Quản lý chi nhánh', CV: 'Cố vấn dịch vụ', QD: 'Quản đốc', TH: 'Thợ', TK: 'Thủ kho', TN: 'Thu ngân', KT: 'Kế toán', AD: 'Quản trị hệ thống' };
-  var COST_ROLES = 'CH QV QL KT';      /* giả định: ai thấy giá vốn (cần BA xác nhận) */
+  var ROLE_NAME = { CH: 'Chủ garage', QV: 'Quản lý vùng', QL: 'Quản lý chi nhánh', CV: 'Cố vấn dịch vụ', QD: 'Quản đốc', TH: 'Thợ', TK: 'Thủ kho', TN: 'Thu ngân', KT: 'Kế toán', MH: 'Nhân viên mua hàng', NS: 'Nhân sự', AD: 'Quản trị hệ thống' };
+  /* Hai nhóm giá (ba-answers-04 câu 2): giá vốn/giá trị tồn/giá nhập theo lô tồn -> COST_ROLES; giá đơn mua, giá nhập phiếu đang nhận, bảng giá NCC -> BUY_ROLES */
+  var COST_ROLES = 'CH QV QL KT';
+  var BUY_ROLES = 'CH QV QL KT TK MH';
+  /* MH, NS chưa có trong ROLE_MENU của design/assets/app.js (file do designer foundation vá riêng): pack.js tự dựng menu cho hai vai trò này */
+  var EXTRA_MENU = { MH: { pur: 'full', inv: 'view', rpt: 'own' }, NS: { hr: 'full', rpt: 'own' } };
+  var EXTRA_MODE = { view: 'Chỉ xem', own: 'Của tôi' };
   var MOD = {
     inv: { label: 'Kho phụ tùng', tabs: ['01', '04', '05', '06', '08', '12', '15', '19'] },
     pur: { label: 'Mua hàng', tabs: ['01', '04', '07', '08', '09'] },
@@ -100,10 +105,10 @@
     h += '<div class="menu-sep" data-show-roles="CH QV"></div><div class="menu-label" data-show-roles="CH QV">Nhóm chi nhánh (vùng)</div>';
     h += '<button class="menu-item menu-item--group" role="menuitemradio" aria-checked="false" data-level="group" data-branch="Nhóm Miền Nam" data-show-roles="CH QV">' + ic('users') + 'Nhóm Miền Nam</button><button class="menu-item menu-item--group" role="menuitemradio" aria-checked="false" data-level="group" data-branch="Nhóm Miền Trung" data-show-roles="CH">' + ic('users') + 'Nhóm Miền Trung</button>';
     h += '<div class="menu-sep" data-show-roles="CH QV"></div><div class="menu-label">Từng chi nhánh</div>';
-    [['Quận 1', 'CH QV'], ['Quận 7', 'CH QV QL KT'], ['Thủ Đức', 'CH QV QL KT'], ['Biên Hòa', 'CH QV'], ['Đà Nẵng', 'CH']].forEach(function (b) {
+    [['Quận 1', 'CH QV'], ['Quận 7', 'CH QV QL KT MH NS'], ['Thủ Đức', 'CH QV QL KT MH NS'], ['Biên Hòa', 'CH QV'], ['Đà Nẵng', 'CH']].forEach(function (b) {
       h += '<button class="menu-item menu-item--indent" role="menuitemradio" aria-checked="false" data-level="branch" data-branch="Chi nhánh ' + b[0] + '" data-show-roles="' + b[1] + '">Chi nhánh ' + b[0] + '</button>';
     });
-    h += '<button class="menu-item menu-item--indent" role="menuitemradio" aria-disabled="true" data-level="branch" data-show-roles="QL KT">' + ic('lock') + 'Chi nhánh Biên Hòa<span class="menu-item__hint">Chưa được cấp quyền</span></button>';
+    h += '<button class="menu-item menu-item--indent" role="menuitemradio" aria-disabled="true" data-level="branch" data-show-roles="QL KT MH NS">' + ic('lock') + 'Chi nhánh Biên Hòa<span class="menu-item__hint">Chưa được cấp quyền</span></button>';
     h += '<div class="legal-filter" data-legal hidden><div class="field"><label class="field__label" for="legal">Pháp nhân</label><select id="legal" class="select"><option>Tất cả pháp nhân được xem</option><option>Công ty TNHH Garage A</option><option>Công ty TNHH Garage B</option></select><span class="field__hint">Báo cáo chính thức không cộng gộp số liệu giữa các pháp nhân.</span></div></div>';
     h += '<div class="menu-sep"></div><p class="t-body-sm text-secondary" style="padding:8px 12px" data-multi-note hidden>Tài khoản của bạn chỉ xem được các chi nhánh được gán. Xem hợp nhất dành cho Chủ garage và Quản lý vùng. Đổi phạm vi khi đang soạn chứng từ sẽ hỏi lưu nháp trước.</p></div></div>';
     h += '<div class="topbar__search">' + ic('search') + '<input class="input" data-global-search type="search" placeholder="Tìm phụ tùng, mã vạch, chứng từ, nhà cung cấp…" aria-label="Tìm kiếm toàn hệ thống"><span class="kbd" aria-hidden="true">Ctrl K</span></div><div class="topbar__spacer"></div>';
@@ -123,7 +128,8 @@
   function top(id) {
     var s = REG[id]; cur = id; if (!s) return;
     var parent = s.tab !== s.num ? REG[s.id.slice(0, 3) + '-' + s.tab] : null;
-    var h = '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể ghi sổ kho, gửi duyệt hay gửi đơn mua cho đến khi có mạng.</span></div></div>';
+    var offMsg = { inv: 'Chưa thể ghi sổ kho, gửi duyệt hay chốt số đếm cho đến khi có mạng.', pur: 'Chưa thể gửi duyệt, gửi đơn mua hay ghi nhận hóa đơn cho đến khi có mạng.', hrm: 'Chưa thể ghi giờ vào/ra ca, duyệt hay khóa kỳ công cho đến khi có mạng; không ghi giờ giả.' }[s.mod];
+    var h = '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). ' + offMsg + '</span></div></div>';
     h += '<nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a>' + ic('chevron-right') + '<a href="' + file(s.mod.toUpperCase() + '-' + MOD[s.mod].tabs[0]) + '">' + MOD[s.mod].label + '</a>';
     if (parent) h += ic('chevron-right') + '<a href="' + file(parent.id) + '">' + parent.title + '</a>';
     h += ic('chevron-right') + '<span aria-current="page">' + s.title + '</span></nav>';
@@ -132,7 +138,7 @@
     document.write(h);
   }
   function tail() {
-    document.write('<nav class="bottom-nav" aria-label="Điều hướng nhanh"><a class="bottom-nav__item" href="#" data-menu="dash">' + ic('layout-dashboard') + 'Tổng quan</a><a class="bottom-nav__item" href="#" data-menu="ro">' + ic('clipboard-list') + 'Phiếu</a><a class="bottom-nav__item" href="g3-inv-01.html" data-menu="inv"' + (cur && cur.slice(0, 3) === 'INV' ? ' aria-current="page"' : '') + '>' + ic('warehouse') + 'Kho</a><a class="bottom-nav__item" href="g3-pur-01.html" data-menu="pur"' + (cur && cur.slice(0, 3) === 'PUR' ? ' aria-current="page"' : '') + '>' + ic('shopping-cart') + 'Mua hàng</a><button class="bottom-nav__item" data-nav-open aria-label="Mở toàn bộ menu">' + ic('menu') + 'Thêm</button></nav>');
+    document.write('<nav class="bottom-nav" aria-label="Điều hướng nhanh"><a class="bottom-nav__item" href="#" data-menu="dash">' + ic('layout-dashboard') + 'Tổng quan</a><a class="bottom-nav__item" href="g3-inv-01.html" data-menu="inv"' + (cur && cur.slice(0, 3) === 'INV' ? ' aria-current="page"' : '') + '>' + ic('warehouse') + 'Kho</a><a class="bottom-nav__item" href="g3-pur-01.html" data-menu="pur"' + (cur && cur.slice(0, 3) === 'PUR' ? ' aria-current="page"' : '') + '>' + ic('shopping-cart') + 'Mua hàng</a><a class="bottom-nav__item" href="g3-hrm-01.html" data-menu="hr"' + (cur && cur.slice(0, 3) === 'HRM' ? ' aria-current="page"' : '') + '>' + ic('id-card') + 'Nhân sự</a><button class="bottom-nav__item" data-nav-open aria-label="Mở toàn bộ menu">' + ic('menu') + 'Thêm</button></nav>');
   }
 
   /* ---------- 2. Tab phân hệ theo vai trò ---------- */
@@ -219,7 +225,8 @@
     $$('[data-g3-hide]').forEach(function (x) { x.hidden = has(x.getAttribute('data-g3-hide'), r); });
     $$('[data-g3-need]').forEach(function (x) {
       var ok = has(x.getAttribute('data-g3-need'), r), why = x.getAttribute('data-g3-why') || 'Bạn không có quyền thực hiện thao tác này.';
-      x.disabled = !ok; x.setAttribute('aria-disabled', String(!ok));
+      /* aria-disabled (không dùng disabled thật) để nút vẫn nhận focus bàn phím và đọc được lý do; click bị chặn ở bộ lọc capture bên dưới (F4-21) */
+      x.setAttribute('aria-disabled', String(!ok));
       if (x.tagName === 'A') {   /* liên kết không có thuộc tính disabled: gỡ href khi không có quyền */
         if (!ok && x.hasAttribute('href')) { x.setAttribute('data-href0', x.getAttribute('href')); x.removeAttribute('href'); x.setAttribute('tabindex', '0'); }
         if (ok && x.hasAttribute('data-href0')) { x.setAttribute('href', x.getAttribute('data-href0')); x.removeAttribute('data-href0'); x.removeAttribute('tabindex'); }
@@ -233,28 +240,40 @@
       $$('input,select,textarea,button:not([data-g3-keep])', f).forEach(function (i) { if (!i.closest('[data-g3-keep]')) { if (!ok) { if (!i.hasAttribute('data-was')) i.setAttribute('data-was', i.disabled ? '1' : '0'); i.disabled = true; } else if (i.getAttribute('data-was') === '0') { i.disabled = false; } } });
       $$('.g3-ro-flag').forEach(function (x) { if (x.getAttribute('data-for') === f.id) x.hidden = ok; });
     });
-    $$('[data-g3-cost]').forEach(function (x) {
-      if (has(COST_ROLES, r)) { x.className = 'num'; x.removeAttribute('title'); x.textContent = x.getAttribute('data-g3-cost'); }
-      else { x.className = 'g3-masked'; x.title = 'Bạn chưa có quyền xem giá vốn'; x.innerHTML = '•••••<span class="sr-only">Không có quyền xem giá vốn</span>'; }
+    $$('[data-g3-cost],[data-g3-buy]').forEach(function (x) {
+      var buy = x.hasAttribute('data-g3-buy'), v = x.getAttribute(buy ? 'data-g3-buy' : 'data-g3-cost');
+      if (has(buy ? BUY_ROLES : COST_ROLES, r)) { x.className = 'num'; x.removeAttribute('title'); x.textContent = v; }
+      else { var what = buy ? 'giá mua' : 'giá vốn'; x.className = 'g3-masked'; x.title = 'Bạn chưa có quyền xem ' + what; x.innerHTML = '•••••<span class="sr-only">Không có quyền xem ' + what + '</span>'; }
+    });
+    $$('[data-g3-needs-net]').forEach(function (x) {   /* thao tác cần mạng (ghi giờ vào/ra ca): khóa khi mất kết nối, không ghi giờ giả */
+      var off = !!$('.net-banner.is-visible'); x.setAttribute('aria-disabled', String(off));
+      if (off) x.setAttribute('title', 'Cần kết nối mạng để ghi giờ'); else x.removeAttribute('title');
     });
   }
 
   /* ---------- 5. Ô tồn kho 4 số + trạng thái đủ/sắp hết/hết (RULE-008) ---------- */
-  function stockBadge(avail, min, transit) {
+  /* "Đang về N" = đang vận chuyển đến kho này (phiếu CK); "Đã đặt N" = đã đặt NCC chưa giao, NẰM NGOÀI bốn số, không vào Khả dụng */
+  function stockBadge(avail, min, transit, ordered) {
     var b;
     if (avail <= 0) b = '<span class="badge badge--danger">Hết hàng</span>';
     else if (min === null) b = '<span class="badge badge--neutral">Chưa đặt định mức</span>';
     else if (avail <= min) b = '<span class="badge badge--warning">Sắp hết</span>';
     else b = '<span class="badge badge--success">Đủ hàng</span>';
+    if (avail < 0) b += ' <span class="tag tag--danger">Dữ liệu tồn lệch, báo Quản lý</span>';
     if (transit > 0) b += ' <span class="tag tag--info">Đang về ' + transit + '</span>';
+    if (ordered > 0) b += ' <span class="tag tag--neutral">Đã đặt ' + ordered + '</span>';
     return b;
   }
-  function parseS(v, minAttr) { var p = v.split(',').map(Number); var m = minAttr === null || minAttr === '' || minAttr === undefined || minAttr === '-' ? null : +minAttr; return { real: p[0], res: p[1], tr: p[2], avail: p[0] - p[1], min: m }; }
+  function parseS(v, minAttr, ordAttr) { var p = v.split(',').map(Number); var m = minAttr === null || minAttr === '' || minAttr === undefined || minAttr === '-' ? null : +minAttr; return { real: p[0], res: p[1], tr: p[2], avail: p[0] - p[1], min: m, ord: +ordAttr || 0 }; }
+  function stock4HTML(s) {
+    var k = s.avail <= 0 ? ' stock4__cell--out' : (s.min !== null && s.avail <= s.min ? ' stock4__cell--low' : ' stock4__cell--available');
+    return '<div class="stock4" role="group" aria-label="Tồn kho: thực tế ' + s.real + ', giữ chỗ ' + s.res + ', đang vận chuyển ' + s.tr + ', khả dụng ' + s.avail + '"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">' + s.real + '</div></div><div class="stock4__cell"><div class="stock4__label">Giữ chỗ</div><div class="stock4__value">' + s.res + '</div></div><div class="stock4__cell"><div class="stock4__label">Đang vận chuyển</div><div class="stock4__value">' + s.tr + '</div></div><div class="stock4__cell' + k + '"><div class="stock4__label">Khả dụng</div><div class="stock4__value">' + s.avail + '</div></div></div>';
+  }
   function expandStock() {
     $$('td[data-g3-s4]').forEach(function (td) {
-      var tr = td.closest('tr'), s = parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'));
+      var tr = td.closest('tr'), s = parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered'));
       var cls = s.avail <= 0 ? ' g3-var--over' : (s.min !== null && s.avail <= s.min ? ' g3-var--short' : '');
-      td.outerHTML = '<td class="col-num">' + s.real + '</td><td class="col-num">' + s.res + '</td><td class="col-num">' + s.tr + '</td><td class="col-num"><strong class="g3-var' + cls + '">' + s.avail + '</strong></td><td>' + stockBadge(s.avail, s.min, s.tr) + '</td>';
+      td.outerHTML = '<td class="col-num" data-g3-hide="CV">' + s.real + '</td><td class="col-num" data-g3-hide="CV">' + s.res + '</td><td class="col-num" data-g3-hide="CV">' + s.tr + '</td><td class="col-num"><strong class="g3-var' + cls + '">' + s.avail + '</strong></td><td>' + stockBadge(s.avail, s.min, s.tr, s.ord) + '</td>';
     });
     $$('[data-g3-stock4]').forEach(function (d) {
       var s = parseS(d.getAttribute('data-g3-stock4'), d.getAttribute('data-min')), k = s.avail <= 0 ? ' stock4__cell--out' : (s.min !== null && s.avail <= s.min ? ' stock4__cell--low' : ' stock4__cell--available');
@@ -270,18 +289,23 @@
       var ths = $$('thead th', t), map = ths.map(function (th) { return th.getAttribute('data-card') || ''; });
       var list = document.createElement('div'); list.className = 'record-list record-list--responsive';
       $$('tbody tr', t).forEach(function (tr) {
-        var tds = $$('td', tr), top = '', sub = '', badge = '', meta = '', foot = '';
+        var tds = $$('td', tr), top = '', sub = '', badge = '', meta = '', foot = '', s4 = '', href = tr.getAttribute('data-href');
+        /* Thẻ là <a> khi dòng có data-href: bỏ <a> lồng bên trong (HTML không hợp lệ, hai điểm dừng Tab) */
+        function inner(td) { var c = td.cloneNode(true); if (href) $$('a', c).forEach(function (a) { a.replaceWith.apply(a, Array.prototype.slice.call(a.childNodes)); }); return c.innerHTML; }
+        function gate(td) { return (td.hasAttribute('data-g3-hide') ? ' data-g3-hide="' + td.getAttribute('data-g3-hide') + '"' : '') + (td.hasAttribute('data-g3-roles') ? ' data-g3-roles="' + td.getAttribute('data-g3-roles') + '"' : ''); }
         tds.forEach(function (td, i) {
-          var c = map[i], label = ths[i] ? ths[i].textContent.trim() : '';
-          if (c === 'title') top = '<div class="record__title code">' + td.innerHTML + '</div>';
-          else if (c === 'sub') sub = '<div>' + td.innerHTML + '</div>';
-          else if (c === 'badge') badge = '<div class="g3-chip-badges">' + td.innerHTML + '</div>';
-          else if (c === 'meta') meta += '<span>' + (label ? label + ': ' : '') + td.innerHTML + '</span>';
-          else if (c === 'foot') foot += '<span class="num">' + td.innerHTML + '</span>';
+          var c = map[i], label = ths[i] ? ths[i].textContent.replace(/\s+/g, ' ').trim() : '';
+          if (ths[i] && ths[i].querySelector('.cell-sub')) label = ths[i].childNodes[0].textContent.trim() || label;
+          if (c === 'title') top = '<div class="record__title code">' + inner(td) + '</div>';
+          else if (c === 'sub') sub = '<div>' + inner(td) + '</div>';
+          else if (c === 'badge') badge = '<div class="g3-chip-badges">' + inner(td) + '</div>';
+          else if (c === 'meta') meta += '<span' + gate(td) + '>' + (label ? label + ': ' : '') + inner(td) + '</span>';
+          else if (c === 'foot') foot += '<span class="num"' + gate(td) + '>' + inner(td) + '</span>';
+          else if (c === 'stock4' && tr.hasAttribute('data-s')) s4 = stock4HTML(parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered')));   /* đủ bốn số tồn trên thẻ (F4-02) */
         });
-        var href = tr.getAttribute('data-href'), el = document.createElement(href ? 'a' : 'div');
+        var el = document.createElement(href ? 'a' : 'div');
         el.className = 'record'; if (href) { el.href = href; el.style.color = 'inherit'; el.style.textDecoration = 'none'; }
-        el.innerHTML = '<div class="record__top"><div>' + top + sub + '</div>' + badge + '</div>' + (meta ? '<div class="record__meta">' + meta + '</div>' : '') + (foot ? '<div class="record__foot">' + foot + '</div>' : '');
+        el.innerHTML = '<div class="record__top"><div>' + top + sub + '</div>' + badge + '</div>' + s4 + (meta ? '<div class="record__meta">' + meta + '</div>' : '') + (foot ? '<div class="record__foot">' + foot + '</div>' : '') + (t.getAttribute('data-g3-card-actions') ? '<div class="g3-card-actions">' + t.getAttribute('data-g3-card-actions') + '</div>' : '');
         ['data-g3-roles', 'data-g3-hide'].forEach(function (a) { if (tr.hasAttribute(a)) el.setAttribute(a, tr.getAttribute(a)); });
         list.appendChild(el);
       });
@@ -336,10 +360,12 @@
   };
   function piiMask(k, r) { return k === 'phone' ? r.phone.slice(0, 2) + '•• ••• ' + r.phone.slice(-3) : k === 'cccd' ? '•••••••• ' + r.cccd.slice(-3) : '••••, ' + r.area; }
   function piiFull(k, r) { return k === 'phone' ? r.phone.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3') : k === 'cccd' ? r.cccd : r.addr + ', ' + r.area; }
+  /* Ma trận che dữ liệu (ba-answers-04 Phụ lục D cho nhân sự; câu 19 cho liên hệ NCC) */
   function piiPolicy(group, kind, role, own) {
     if (own) return 'full';
-    if (group === 'supplier') return has('TK QL', role) ? 'full' : has('CH QV KT', role) ? 'reveal' : 'hidden';
-    if (role === 'QL') return 'full';
+    if (group === 'supplier') return has('TK MH QL', role) ? 'full' : has('CH QV KT', role) ? 'reveal' : 'hidden';
+    if (role === 'NS') return 'full';
+    if (role === 'QL') return kind === 'cccd' ? 'reveal' : 'full';
     if (has('CH QV', role)) return 'reveal';
     if (role === 'KT') return kind === 'phone' ? 'masked' : 'hidden';
     return 'hidden';
@@ -364,8 +390,39 @@
   }
   function role_() { return role(); }
 
+  /* ---------- 9. Vai trò MH, NS: menu và phạm vi chi nhánh do pack.js dựng (app.js chưa có hai vai trò này) ---------- */
+  function applyExtraRole() {
+    var r = role(), cfg = EXTRA_MENU[r]; if (!cfg) return;
+    $$('[data-menu]').forEach(function (m) {
+      var mode = cfg[m.getAttribute('data-menu')]; m.hidden = !mode;
+      if (m.classList.contains('nav-item')) {
+        var tag = $('.nav-item__mode', m);
+        if (EXTRA_MODE[mode]) { if (!tag) { tag = document.createElement('span'); tag.className = 'nav-item__mode'; m.insertBefore(tag, $('.count-pill', m) || null); } tag.textContent = EXTRA_MODE[mode]; m.setAttribute('aria-label', $('.nav-item__label', m).textContent + ' (' + EXTRA_MODE[mode].toLowerCase() + ')'); }
+        else { if (tag) tag.remove(); m.removeAttribute('aria-label'); }
+      }
+    });
+    $$('[data-role-switch]').forEach(function (x) { x.setAttribute('aria-checked', String(x.getAttribute('data-role-switch') === r)); });
+    $$('[data-role-label]').forEach(function (l) { l.textContent = ROLE_NAME[r]; });
+    $$('.sidebar__nav .sidebar__group').forEach(function (g) { var n = g.nextElementSibling, any = false; while (n && !n.classList.contains('sidebar__group')) { if (n.hasAttribute('data-menu') && !n.hidden) any = true; n = n.nextElementSibling; } g.hidden = !any; });
+    $$('[data-show-roles]').forEach(function (x) { x.hidden = !has(x.getAttribute('data-show-roles'), r); });
+    var dd = $('[data-branch-dropdown]'), sta = $('[data-branch-static]'), note = $('[data-multi-note]');
+    if (dd && sta) { dd.hidden = false; sta.hidden = true; if (note) note.hidden = false; }
+    $$('[data-branch-label]').forEach(function (l) { l.textContent = 'Chi nhánh Quận 7'; });
+    $$('.branch-btn').forEach(function (b) { b.classList.remove('is-all'); });
+    $$('[data-scope-text]').forEach(function (l) { l.textContent = 'Chỉ Chi nhánh Quận 7 – không gồm chi nhánh khác'; });
+    $$('.scope-banner').forEach(function (b) { b.classList.add('scope-banner--branch'); });
+  }
+
+  /* Chặn click lên nút/liên kết bị khóa (giữ focus để đọc lý do), hiện lý do bằng toast để dùng được cả trên cảm ứng */
+  document.addEventListener('click', function (e) {
+    var n = e.target.closest('[data-g3-need][aria-disabled="true"],[data-g3-needs-net][aria-disabled="true"]'); if (!n) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    var why = n.hasAttribute('data-g3-needs-net') ? 'Cần kết nối mạng để ghi giờ vào/ra ca. Hệ thống không ghi giờ giả khi mất mạng.' : (n.getAttribute('data-g3-why') || 'Bạn không có quyền thực hiện thao tác này.');
+    if (window.gmepToast) window.gmepToast('warning', 'Chưa thực hiện được', why);
+  }, true);
+
   /* ---------- Khởi tạo ---------- */
-  function apply() { renderSubnav(); applyRoleBits(); renderPII(); applyState(); }
+  function apply() { applyExtraRole(); renderSubnav(); applyRoleBits(); renderPII(); applyState(); }
   function init() {
     expandStock(); buildScan(); initStates(); cards();
     var rq = (location.search.match(/[?&]role=([A-Z]{2})/) || [])[1];

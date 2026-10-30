@@ -60,6 +60,9 @@ body[data-role="KT"] .g4r-notkt, body[data-role="QV"] .g4r-notqv { display: none
 .g4r-v-kt, .g4r-v-qv { display: none; }
 body[data-role="KT"] .g4r-v-kt, body[data-role="QV"] .g4r-v-qv { display: inline; }
 body[data-role="KT"] .g4r-v-ch, body[data-role="QV"] .g4r-v-ch { display: none; }
+.g4r-kt-only { display: none; }
+body[data-role="KT"] .g4r-kt-only { display: flex; }
+body[data-role="KT"] tr.g4r-v-ch, body[data-role="QV"] tr.g4r-v-ch { display: none; }
 tr.g4r-v-kt, tr.g4r-v-qv { display: none; }
 body[data-role="KT"] tr.g4r-v-kt, body[data-role="QV"] tr.g4r-v-qv { display: table-row; }
 body[data-role="TK"] .g4r-money { display: none !important; }

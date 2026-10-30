@@ -10,14 +10,15 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="CH">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-RPT-02" data-menu="rpt" data-crumbs="Báo cáo|So sánh chi nhánh" data-allow="CH QV KT"></script>
 <script>
 g4rPage({
   title: 'So sánh chi nhánh',
-  desc: 'Xếp hạng các chi nhánh theo chỉ số chọn, cùng một kỳ và cùng công thức. Dùng thanh ngang, không dùng biểu đồ tròn.',
+  desc: 'Xếp hạng các chi nhánh trong phạm vi được giao theo chỉ số chọn, cùng một kỳ và cùng công thức. Dùng thanh ngang, không dùng biểu đồ tròn. Doanh thu hiển thị chưa thuế GTGT.',
   prio: 'P3 (thiết kế sẵn cho pilot)',
-  period: 'Tháng 10/2026 (01–30/10/2026)',
-  asof: 'Cập nhật lúc 09:15 30/10/2026 · gồm số tạm của ngày 30/10',
+  period: 'Tháng 10/2026 (01–30/10/2026) · so với 01–30/09/2026 (cùng 30 ngày)',
+  asof: 'Cập nhật lúc 09:15 30/10/2026 · gồm 1 ngày chưa chốt (30/10)',
   actions: g4rExportBtn(),
   states: ['data', 'loading', 'empty', 'error', 'denied'],
   extraStates: [['single', 'Chỉ có 1 chi nhánh']],
@@ -26,58 +27,61 @@ g4rPage({
 g4rFilters({ fields: ['period'], sel: { period: 2 }, chips: ['Tháng này (01–30/10/2026)'] });
 </script>
 
-<div class="alert alert--info" data-legal hidden role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><strong>Nhiều pháp nhân:</strong> báo cáo chính thức không cộng gộp giữa các pháp nhân. Ở đây chi nhánh được nhóm theo pháp nhân; tổng toàn chuỗi chỉ để quản trị.</div></div>
+<div class="alert alert--info" data-legal hidden role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><strong>Nhiều pháp nhân:</strong> báo cáo chính thức không cộng gộp giữa các pháp nhân. Chi nhánh được nhóm theo pháp nhân, tổng theo từng pháp nhân là số chính thức; “Tổng các chi nhánh” chỉ để quản trị, không phải số chính thức theo pháp nhân.</div></div>
+<div class="alert alert--neutral g4r-kt-only" role="note"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Bạn chỉ thấy các chi nhánh được gán (Quận 7, Thủ Đức). Chi nhánh khác không hiện trong bảng, biểu đồ và tổng.</div></div>
 
-<section class="grid grid--4" aria-label="Tổng toàn chuỗi">
-  <div class="card kpi"><span class="kpi__label">Doanh thu toàn chuỗi</span><span class="kpi__value">2.228,5<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>2,8%</span>so với tháng 09/2026</span><span class="kpi__scope">5 chi nhánh · 01–30/10/2026 · 09:15</span></div>
-  <div class="card kpi"><span class="kpi__label">Số lệnh</span><span class="kpi__value">781</span><span class="kpi__meta">Lệnh phát sinh trong kỳ</span><span class="kpi__scope">5 chi nhánh · 01–30/10/2026</span></div>
-  <div class="card kpi"><span class="kpi__label">Giá trị TB mỗi lệnh</span><span class="kpi__value">2.853.393<span class="kpi__unit">₫</span></span><span class="kpi__meta">Doanh thu ÷ số lệnh</span><span class="kpi__scope">5 chi nhánh · 01–30/10/2026</span></div>
-  <div class="card kpi kpi--warning"><span class="kpi__label">Chi nhánh thấp nhất đúng hạn</span><span class="kpi__value">Biên Hòa</span><span class="kpi__meta">79,4% đúng hạn (mức chung 87,5%)</span><span class="kpi__scope">01–30/10/2026</span></div>
+<section class="grid grid--4" aria-label="Tổng trong phạm vi">
+  <div class="card kpi"><span class="kpi__label">Doanh thu (chưa thuế)</span><span class="kpi__value"><span class="g4r-v-ch">2.228,5</span><span class="g4r-v-qv">1.891,3</span><span class="g4r-v-kt">1.044,1</span><span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg><span class="g4r-v-ch">2,8%</span><span class="g4r-v-qv">1,4%</span><span class="g4r-v-kt">3,0%</span></span>so với 01–30/09/2026</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026 · gồm 1 ngày chưa chốt</span></div>
+  <div class="card kpi"><span class="kpi__label">Số lệnh mở<span class="g4r-formula">Lệnh mở trong kỳ, không tính Đã hủy</span></span><span class="kpi__value"><span class="g4r-v-ch">781</span><span class="g4r-v-qv">660</span><span class="g4r-v-kt">370</span></span><span class="kpi__meta">Hoàn tất: <span class="g4r-v-ch">752</span><span class="g4r-v-qv">636</span><span class="g4r-v-kt">357</span> lệnh</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026</span></div>
+  <div class="card kpi"><span class="kpi__label">Giá trị TB mỗi lệnh hoàn tất<span class="g4r-formula">Doanh thu chưa thuế ÷ số lệnh hoàn tất</span></span><span class="kpi__value"><span class="g4r-v-ch">2.963.431</span><span class="g4r-v-qv">2.973.742</span><span class="g4r-v-kt">2.924.650</span><span class="kpi__unit">₫</span></span><span class="kpi__meta">Không gồm lệnh bảo hành</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026</span></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label">Chi nhánh thấp nhất về đúng hạn</span><span class="kpi__value"><span class="g4r-v-ch">Biên Hòa</span><span class="g4r-v-qv">Biên Hòa</span><span class="g4r-v-kt">Thủ Đức</span></span><span class="kpi__meta"><span class="g4r-v-ch">79,4% (mức chung 87,5%)</span><span class="g4r-v-qv">79,4% (mức chung 87,0%)</span><span class="g4r-v-kt">84,0% (mức chung 88,4%)</span></span><span class="kpi__scope">01–30/10/2026</span></div>
 </section>
 
 <section class="card g4r-chartcard" aria-label="Xếp hạng theo chỉ số">
   <div class="tabs" role="tablist" aria-label="Chỉ số so sánh">
     <button class="tab" role="tab" id="m1" aria-selected="true" aria-controls="mp1">Doanh thu</button>
-    <button class="tab" role="tab" id="m2" aria-selected="false" tabindex="-1" aria-controls="mp2">Số lệnh</button>
+    <button class="tab" role="tab" id="m2" aria-selected="false" tabindex="-1" aria-controls="mp2">Số lệnh mở</button>
     <button class="tab" role="tab" id="m3" aria-selected="false" tabindex="-1" aria-controls="mp3">Giá trị TB mỗi lệnh</button>
     <button class="tab" role="tab" id="m4" aria-selected="false" tabindex="-1" aria-controls="mp4">Tỷ lệ đúng hạn</button>
   </div>
   <div class="tab-panel" id="mp1" role="tabpanel" aria-labelledby="m1"><script>
-    g4rChart({ type: 'hbar', title: 'Doanh thu theo chi nhánh', unit: 'Đơn vị: ₫ · 01–30/10/2026 · gồm số tạm ngày 30/10', short: 'Doanh thu (₫)', fmt: function (v) { return g4r.vn(v) + ' ₫'; }, note: 'Công thức: tổng thành tiền các lệnh có phát sinh trong kỳ, đã trừ giảm giá, chưa gồm hoàn tiền kỳ sau. Trục bắt đầu từ 0.',
-      rows: [{ label: 'Chi nhánh Quận 7', value: 612400000, sub: '+7,2%' }, { label: 'Chi nhánh Quận 1', value: 548900000, sub: '+3,1%' }, { label: 'Chi nhánh Thủ Đức', value: 431700000, sub: '−2,4%' }, { label: 'Chi nhánh Đà Nẵng', value: 337200000, sub: '+11,5%' }, { label: 'Chi nhánh Biên Hòa', value: 298300000, sub: '−6,8%' }] });
+    g4rChart({ type: 'hbar', title: 'Doanh thu (chưa thuế) theo chi nhánh', unit: 'Đơn vị: ₫, chưa thuế GTGT · 01–30/10/2026 · gồm 1 ngày chưa chốt', short: 'Doanh thu chưa thuế (₫)', fmt: function (v) { return g4r.vn(v) + ' ₫'; }, note: 'Công thức: tổng thành tiền các lệnh chuyển sang Hoàn tất trong kỳ, sau giảm giá, chưa thuế GTGT; không gồm lệnh Đã hủy và lệnh bảo hành. Mũi tên/phần trăm: so với 01–30/09/2026. Trục bắt đầu từ 0.',
+      rows: [{ label: 'Chi nhánh Quận 7', value: 612400000, sub: '+7,2%' }, { label: 'Chi nhánh Quận 1', value: 548900000, sub: '+3,1%', cls: 'g4r-notkt' }, { label: 'Chi nhánh Thủ Đức', value: 431700000, sub: '−2,4%' }, { label: 'Chi nhánh Đà Nẵng', value: 337200000, sub: '+11,5%', cls: 'g4r-notkt g4r-notqv' }, { label: 'Chi nhánh Biên Hòa', value: 298300000, sub: '−6,8%', cls: 'g4r-notkt' }] });
   </script></div>
   <div class="tab-panel" id="mp2" role="tabpanel" aria-labelledby="m2" hidden><script>
-    g4rChart({ type: 'hbar', title: 'Số lệnh theo chi nhánh', unit: 'Đơn vị: lệnh · 01–30/10/2026', short: 'Số lệnh', note: 'Công thức: số lệnh mở trong kỳ, không tính lệnh đã hủy.',
-      rows: [{ label: 'Chi nhánh Quận 7', value: 214 }, { label: 'Chi nhánh Quận 1', value: 188 }, { label: 'Chi nhánh Thủ Đức', value: 156 }, { label: 'Chi nhánh Đà Nẵng', value: 121 }, { label: 'Chi nhánh Biên Hòa', value: 102 }] });
+    g4rChart({ type: 'hbar', title: 'Số lệnh mở theo chi nhánh', unit: 'Đơn vị: lệnh · 01–30/10/2026', short: 'Số lệnh mở', note: 'Công thức: lệnh mở trong kỳ (theo ngày duyệt lệnh), không tính Đã hủy. Khác “Số lệnh hoàn tất”.',
+      rows: [{ label: 'Chi nhánh Quận 7', value: 214 }, { label: 'Chi nhánh Quận 1', value: 188, cls: 'g4r-notkt' }, { label: 'Chi nhánh Thủ Đức', value: 156 }, { label: 'Chi nhánh Đà Nẵng', value: 121, cls: 'g4r-notkt g4r-notqv' }, { label: 'Chi nhánh Biên Hòa', value: 102, cls: 'g4r-notkt' }] });
   </script></div>
   <div class="tab-panel" id="mp3" role="tabpanel" aria-labelledby="m3" hidden><script>
-    g4rChart({ type: 'hbar', title: 'Giá trị trung bình mỗi lệnh', unit: 'Đơn vị: ₫ · 01–30/10/2026', short: 'Giá trị TB (₫)', fmt: function (v) { return g4r.vn(v) + ' ₫'; }, note: 'Công thức: doanh thu ÷ số lệnh của từng chi nhánh.',
-      rows: [{ label: 'Chi nhánh Biên Hòa', value: 2924510 }, { label: 'Chi nhánh Quận 1', value: 2919681 }, { label: 'Chi nhánh Quận 7', value: 2861682 }, { label: 'Chi nhánh Đà Nẵng', value: 2786777 }, { label: 'Chi nhánh Thủ Đức', value: 2767308 }] });
+    g4rChart({ type: 'hbar', title: 'Giá trị trung bình mỗi lệnh hoàn tất (chưa thuế)', unit: 'Đơn vị: ₫, chưa thuế GTGT · 01–30/10/2026', short: 'Giá trị TB (₫)', fmt: function (v) { return g4r.vn(v) + ' ₫'; }, note: 'Công thức: doanh thu chưa thuế ÷ số lệnh hoàn tất của từng chi nhánh (cùng công thức với Chỉ số bổ sung G4-RPT-08).',
+      rows: [{ label: 'Chi nhánh Biên Hòa', value: 3043878, cls: 'g4r-notkt' }, { label: 'Chi nhánh Quận 1', value: 3032597, cls: 'g4r-notkt' }, { label: 'Chi nhánh Quận 7', value: 2958454 }, { label: 'Chi nhánh Đà Nẵng', value: 2906897, cls: 'g4r-notkt g4r-notqv' }, { label: 'Chi nhánh Thủ Đức', value: 2878000 }] });
   </script></div>
   <div class="tab-panel" id="mp4" role="tabpanel" aria-labelledby="m4" hidden><script>
-    g4rChart({ type: 'hbar', title: 'Tỷ lệ lệnh giao đúng hạn', unit: 'Đơn vị: % · 01–30/10/2026', short: 'Đúng hạn (%)', fmt: function (v) { return g4r.dec(v, 1) + '%'; }, note: 'Công thức: lệnh hoàn tất không muộn hơn giờ hẹn giao ÷ lệnh hoàn tất trong kỳ.',
-      rows: [{ label: 'Chi nhánh Quận 7', value: 91.6 }, { label: 'Chi nhánh Đà Nẵng', value: 90.1 }, { label: 'Chi nhánh Quận 1', value: 88.3 }, { label: 'Chi nhánh Thủ Đức', value: 84.0 }, { label: 'Chi nhánh Biên Hòa', value: 79.4 }] });
+    g4rChart({ type: 'hbar', title: 'Tỷ lệ giao đúng hạn', unit: 'Đơn vị: % · 01–30/10/2026', short: 'Đúng hạn (%)', fmt: function (v) { return g4r.dec(v, 1) + '%'; }, note: 'Công thức: lệnh Sẵn sàng bàn giao không muộn hơn giờ hẹn giao hiện hành ÷ lệnh có hẹn đã đến hạn trong kỳ (xem G4-RPT-04).',
+      rows: [{ label: 'Chi nhánh Quận 7', value: 91.6 }, { label: 'Chi nhánh Đà Nẵng', value: 90.1, cls: 'g4r-notkt g4r-notqv' }, { label: 'Chi nhánh Quận 1', value: 88.3, cls: 'g4r-notkt' }, { label: 'Chi nhánh Thủ Đức', value: 84.0 }, { label: 'Chi nhánh Biên Hòa', value: 79.4, cls: 'g4r-notkt' }] });
   </script></div>
 </section>
 
 <section class="table-wrap" aria-label="Bảng xếp hạng">
   <div class="table-toolbar"><strong>Bảng xếp hạng chi nhánh</strong><span class="table-meta" style="margin-left:auto">Bấm tên chi nhánh để mở báo cáo chi nhánh (G4-RPT-03)</span></div>
   <div class="table-scroll"><table class="table">
-    <caption class="sr-only">Xếp hạng chi nhánh theo doanh thu tháng 10/2026</caption>
-    <thead><tr><th>Hạng</th><th>Chi nhánh</th><th class="col-num">Doanh thu</th><th class="col-num">Số lệnh</th><th class="col-num">Giá trị TB/lệnh</th><th class="col-num">Đúng hạn</th><th class="col-num">So với tháng 09</th></tr></thead>
+    <caption class="sr-only">Xếp hạng chi nhánh theo doanh thu chưa thuế tháng 10/2026</caption>
+    <thead><tr><th>Hạng</th><th>Chi nhánh</th><th class="col-num">Doanh thu (chưa thuế)</th><th class="col-num">Số lệnh mở</th><th class="col-num">Số lệnh hoàn tất</th><th class="col-num">Giá trị TB/lệnh hoàn tất</th><th class="col-num">Đúng hạn</th><th class="col-num">So với 01–30/09</th></tr></thead>
     <tbody>
-      <tr><td><span class="g4r-rank">1</span></td><td><a href="g4-rpt-03.html">Chi nhánh Quận 7</a></td><td class="col-num">612.400.000 ₫</td><td class="col-num">214</td><td class="col-num">2.861.682 ₫</td><td class="col-num">91,6%</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>7,2% tăng</span></td></tr>
-      <tr><td><span class="g4r-rank">2</span></td><td><a href="#">Chi nhánh Quận 1</a></td><td class="col-num">548.900.000 ₫</td><td class="col-num">188</td><td class="col-num">2.919.681 ₫</td><td class="col-num">88,3%</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>3,1% tăng</span></td></tr>
-      <tr><td><span class="g4r-rank">3</span></td><td><a href="#">Chi nhánh Thủ Đức</a></td><td class="col-num">431.700.000 ₫</td><td class="col-num">156</td><td class="col-num">2.767.308 ₫</td><td class="col-num">84,0%</td><td class="col-num"><span class="kpi__delta kpi__delta--down"><svg class="icon icon--sm"><use href="#arrow-down"/></svg>2,4% giảm</span></td></tr>
-      <tr><td><span class="g4r-rank">4</span></td><td><a href="#">Chi nhánh Đà Nẵng</a></td><td class="col-num">337.200.000 ₫</td><td class="col-num">121</td><td class="col-num">2.786.777 ₫</td><td class="col-num">90,1%</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>11,5% tăng</span></td></tr>
-      <tr><td><span class="g4r-rank">5</span></td><td><a href="#">Chi nhánh Biên Hòa</a></td><td class="col-num">298.300.000 ₫</td><td class="col-num">102</td><td class="col-num">2.924.510 ₫</td><td class="col-num">79,4%</td><td class="col-num"><span class="kpi__delta kpi__delta--down"><svg class="icon icon--sm"><use href="#arrow-down"/></svg>6,8% giảm</span></td></tr>
-      <tr class="g4r-total-row"><td></td><td>Toàn chuỗi (5 chi nhánh)</td><td class="col-num">2.228.500.000 ₫</td><td class="col-num">781</td><td class="col-num">2.853.393 ₫</td><td class="col-num">87,5%</td><td class="col-num">+2,8%</td></tr>
+      <tr><td><span class="g4r-rank">1</span></td><td><a href="g4-rpt-03.html">Chi nhánh Quận 7</a></td><td class="col-num">612.400.000 ₫</td><td class="col-num">214</td><td class="col-num">207</td><td class="col-num">2.958.454 ₫</td><td class="col-num">91,6%</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>7,2% tăng</span></td></tr>
+      <tr class="g4r-notkt"><td><span class="g4r-rank">2</span></td><td><a href="#">Chi nhánh Quận 1</a></td><td class="col-num">548.900.000 ₫</td><td class="col-num">188</td><td class="col-num">181</td><td class="col-num">3.032.597 ₫</td><td class="col-num">88,3%</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>3,1% tăng</span></td></tr>
+      <tr><td><span class="g4r-rank">3</span></td><td><a href="#">Chi nhánh Thủ Đức</a></td><td class="col-num">431.700.000 ₫</td><td class="col-num">156</td><td class="col-num">150</td><td class="col-num">2.878.000 ₫</td><td class="col-num">84,0%</td><td class="col-num"><span class="kpi__delta kpi__delta--down"><svg class="icon icon--sm"><use href="#arrow-down"/></svg>2,4% giảm</span></td></tr>
+      <tr class="g4r-notkt g4r-notqv"><td><span class="g4r-rank">4</span></td><td><a href="#">Chi nhánh Đà Nẵng</a></td><td class="col-num">337.200.000 ₫</td><td class="col-num">121</td><td class="col-num">116</td><td class="col-num">2.906.897 ₫</td><td class="col-num">90,1%</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>11,5% tăng</span></td></tr>
+      <tr class="g4r-notkt"><td><span class="g4r-rank">5</span></td><td><a href="#">Chi nhánh Biên Hòa</a></td><td class="col-num">298.300.000 ₫</td><td class="col-num">102</td><td class="col-num">98</td><td class="col-num">3.043.878 ₫</td><td class="col-num">79,4%</td><td class="col-num"><span class="kpi__delta kpi__delta--down"><svg class="icon icon--sm"><use href="#arrow-down"/></svg>6,8% giảm</span></td></tr>
+      <tr class="g4r-total-row g4r-v-ch"><td></td><td>Tổng các chi nhánh trong phạm vi (5)</td><td class="col-num">2.228.500.000 ₫</td><td class="col-num">781</td><td class="col-num">752</td><td class="col-num">2.963.431 ₫</td><td class="col-num">87,5%</td><td class="col-num">+2,8%</td></tr>
+      <tr class="g4r-total-row g4r-v-qv"><td></td><td>Tổng các chi nhánh trong phạm vi (4)</td><td class="col-num">1.891.300.000 ₫</td><td class="col-num">660</td><td class="col-num">636</td><td class="col-num">2.973.742 ₫</td><td class="col-num">87,0%</td><td class="col-num">+1,4%</td></tr>
+      <tr class="g4r-total-row g4r-v-kt"><td></td><td>Tổng các chi nhánh trong phạm vi (2)</td><td class="col-num">1.044.100.000 ₫</td><td class="col-num">370</td><td class="col-num">357</td><td class="col-num">2.924.650 ₫</td><td class="col-num">88,4%</td><td class="col-num">+3,0%</td></tr>
     </tbody></table></div>
-  <div class="table-footer"><span class="table-meta">Tổng các chi nhánh bằng số toàn chuỗi (kiểm tra khớp: 612,4 + 548,9 + 431,7 + 337,2 + 298,3 = 2.228,5 triệu ₫).</span></div>
+  <div class="table-footer"><span class="table-meta">Tổng các chi nhánh trong phạm vi bằng tổng các dòng (kiểm tra khớp, Chủ garage: 612,4 + 548,9 + 431,7 + 337,2 + 298,3 = 2.228,5 triệu ₫). Tháng 10 chưa kết thúc: so sánh dùng cùng 30 ngày 01–30. Giá trị TB tính trên lệnh hoàn tất, không phải lệnh mở.</span></div>
 </section>
 
-<div data-single-note class="alert alert--neutral" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Màn hình này tự ẩn khỏi menu khi hệ thống chỉ có một chi nhánh (giai đoạn pilot), nhưng thiết kế và dữ liệu đã sẵn sàng khi mở thêm chi nhánh (G-10).</div></div>
-
-<script>g4rEnd('<div data-state="single" hidden><div class="table-wrap"><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#map-pin"/></svg></div><div class="state__title">Chưa có gì để so sánh</div><p class="state__text">Hệ thống mới có một chi nhánh đang hoạt động. Khi thêm chi nhánh thứ hai (Cài đặt, Cơ cấu tổ chức), bảng xếp hạng sẽ tự xuất hiện.</p><div class="state__actions"><a class="btn btn--secondary" href="g4-sys-05.html">Mở Cơ cấu tổ chức</a></div></div></div></div>')</script>
+<script>
+g4rEnd('<div data-state="single" hidden><div class="table-wrap"><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#map-pin"/></svg></div><div class="state__title">Chưa có gì để so sánh</div><p class="state__text">Hệ thống mới có một chi nhánh đang hoạt động. Màn hình này tự ẩn khỏi menu cho tới khi có chi nhánh thứ hai (Cài đặt, Cơ cấu tổ chức). Thiết kế và dữ liệu đã sẵn sàng khi mở thêm chi nhánh (G-10).</p><div class="state__actions"><a class="btn btn--secondary" href="g4-sys-05.html">Mở Cơ cấu tổ chức</a></div></div></div></div>')
+</script>
 </body>
 </html>

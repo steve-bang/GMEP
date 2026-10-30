@@ -278,3 +278,51 @@ Không màn hình nào có nút “Xóa” cho chứng từ đã ghi sổ; các 
 - Rà class (F5-21): đã rà thủ công các class dùng trong gói với `components.css`/`base.css`/`pack.css`; môi trường không có công cụ chạy script nên chưa grep tự động toàn bộ, designer kế tiếp nên chạy lại.
 - Biểu đồ chỉ gồm thanh tuổi nợ và thanh lãi gộp dựng bằng HTML/CSS (không có thư viện biểu đồ); chưa có line chart xu hướng vì không nằm trong màn hình của gói.
 - Mẫu in A5/nhiệt/A4 là bản tham khảo, không thay G2-PRT.
+
+## 10. Finding → đã xử lý ở đâu
+
+Nguồn: `docs/ui-ux/review-05-finance-invoice-ba.md` (22 finding) và `docs/ui-ux/ba-answers-05.md`. “Đã xử lý” = đã sửa trong prototype và tài liệu; chưa kiểm bằng trình duyệt.
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F5-01 Duyệt trong drawer và hàng loạt thiếu xác nhận mức 2, không khóa bấm đúp; từ chối không bắt lý do | Major | Duyệt = dialog tóm tắt + tích đọc + khóa chống bấm đúp; Từ chối = guard bắt lý do ≥ 5 ký tự; Chuyển cấp có dialog; duyệt hàng loạt có `data-g4f-submit` | `g4-apr-01.html` (drawer, `dlg-approve`, `dlg-reject`, `dlg-bulk`) |
+| F5-02 Quyền duyệt rộng hơn FRD §2; không kiểm soát người lập ≠ người duyệt | Major | `G4F.canApprove(loại, vai trò, người lập)`: KT không duyệt hoàn tiền/chi/chênh lệch quỹ; hóa đơn chỉ KT có cờ Kế toán trưởng hoặc CH; chi vượt cấp QL do QV/CH; mở lại do CH; người lập bị khóa kèm lý do; công tắc cờ KTT ở menu tài khoản; tên người dùng theo vai trò | `pack.js`; `g4-apr-01.html`; `g4-apr-02.html`; ghi chú `g4-apr-03.html`; §4.6, §4.9 |
+| F5-03 ACC-11 cho CV xem sổ công nợ | Major | Bỏ CV khỏi `allow` ACC-11 và subnav “Công nợ”; CV chỉ thấy số dư/hạn mức/cảnh báo trên lệnh và hồ sơ | `g4-acc-11.html`; `pack.js`; §2, §4.4, §4.9 |
+| F5-04 ACC-13 gửi được số tiền sai, nhãn nút không đổi | Major | Nút khóa khi số tiền = 0, > còn nợ, hoặc thiếu lý do ngoại lệ; nhãn “Chi tiền X ₫” / “Gửi đề xuất chi X ₫” theo hạn mức (minh họa); thêm “Chi kèm ngoại lệ” (BA câu 6) | `g4-acc-13.html` |
+| F5-05 Phiếu chi ở ACC-04 thiếu xác nhận mức 2 | Major | Dialog `alertdialog` có cổng tích đối chiếu, nhãn nút kèm số tiền, khóa chính nút “Phiếu chi” bằng `data-lock`; chặn chi quá quỹ nêu hai lối thoát (BA câu 14); nút “Nạp quỹ” khóa tới giai đoạn 2 | `g4-acc-04.html` |
+| F5-06 Ghi nhận tiền cọc ghi thẳng | Major | Dialog cọc theo mẫu mức 2 (tóm tắt, tích, khóa chống bấm đúp, số tiền > 0, nhãn kèm số tiền) | `g4-acc-01.html` (`dlg-deposit`) |
+| F5-07 Khóa mất kết nối bị script ghi đè | Major | `G4F.setEnabled`/`refreshBtn`: nút bật chỉ khi mọi cờ cho phép (trang, biến thể, cổng, vai trò, mạng, đã gửi); thay mọi chỗ gán `disabled` của nút tiền | `pack.js`; `g4-acc-01/04/07/13/16/21`, `g4-apr-01/02` |
+| F5-08 Bỏ ghép và hủy yêu cầu không khóa bấm đúp | Major | `data-g4f-submit` + `data-lock`; EIN-06 hủy: truy vấn lần cuối trước khi hủy, nhãn nút “Truy vấn lần cuối rồi hủy” | `g4-acc-16.html`; `g4-ein-06.html` |
+| F5-09 ACC-09 CH mở lại trực tiếp, không có đề nghị, không có hạn | Major | “Đề nghị mở lại ngày” (KT, QL) + mật khẩu + MFA → CH duyệt; thêm biến thể “Đang được mở lại” có hạn 48 giờ, đếm ngược, “Hoàn tất điều chỉnh”, tự khóa lại; ACC-17 cùng mẫu (có cảnh báo kỳ đã kết xuất, thứ tự kỳ) | `g4-acc-09.html`; `g4-acc-17.html`; §3.2, §4.3 |
+| F5-10 Chưa có chỗ xem khoản nhận trước | Major | Màn mới G4-ACC-21; chip ở ACC-01; dòng ở ACC-03 và ACC-11; hoàn lại qua ACC-07 | `g4-acc-21.html`; `g4-acc-01/03/11.html`; `index.html`; §2, §3.2 |
+| F5-11 AD xem hàng chờ lỗi có dữ liệu người mua | Minor | Bỏ AD khỏi `allow` EIN-06 và khỏi nút “Hàng chờ lỗi” ở EIN-01; AD chẩn đoán ở EIN-07 | `g4-ein-06.html`; `g4-ein-01.html` |
+| F5-12 Badge Thanh toán đổi trước khi ghi | Minor | Badge giữ nguyên; trạng thái dự kiến là tag “Dự kiến: …” ở khối tóm tắt | `g4-acc-01.html` |
+| F5-13 Hoàn một phần chưa có trạng thái và tag | Minor | Khối “Dự kiến sau khi duyệt” theo thu ròng/tổng phải thu (tùy chọn tổng phải thu giảm) với tag “Đã hoàn một phần X ₫” (BA câu 4) | `g4-acc-07.html` |
+| F5-14 Che PII mô phỏng chưa theo bảng quyền | Minor | **Xử lý một phần**: chưa đổi hành vi nút Hiện theo vai trò trong prototype; ghi bảng quyền đúng và yêu cầu dev theo bảng, giá trị đầy đủ không nằm sẵn trong HTML | §9 |
+| F5-15 Dữ liệu mẫu PC-…00041 mâu thuẫn | Minor | ACC-04 ghi “Thiếu chứng từ gốc” khớp ACC-09 | `g4-acc-04.html` |
+| F5-16 Điều kiện chặn khóa ngày chưa khớp BA câu 1 | Minor | Thêm chặn “ca chưa chốt” và “chênh lệch vượt ngưỡng chưa duyệt”; nhãn Chặn/Cảnh báo là cấu hình; bỏ câu “chờ BA/khách xác nhận” khỏi giao diện; ACC-17 thêm chặn yêu cầu phê duyệt đang chờ, kỳ trước | `g4-acc-09.html`; `g4-acc-17.html` |
+| F5-17 Mã YC-EIN- và mã chống trùng hiện cho Thu ngân | Minor | Đổi sang `YH-Q7-2610-NNNNN`; mã chống trùng nằm trong “Chi tiết kỹ thuật” chỉ KT/AD thấy | `g4-ein-02/03/06/07.html` |
+| F5-18 Thiếu tag hóa đơn gốc sau điều chỉnh/thay thế | Minor | Tag “Đã được điều chỉnh bởi…”, “Bị thay thế bởi…” (gạch ngang), biến thể “Đã bị thay thế” ở EIN-03, hóa đơn thay thế mang badge “Thay thế” | `g4-ein-01.html`; `g4-ein-03.html` |
+| F5-19 Thiếu empty/filtered ở báo cáo và danh sách | Minor | ACC-15 thêm empty/filtered; ACC-13 thêm empty; ACC-21 đủ | `g4-acc-15.html`; `g4-acc-13.html`; `g4-acc-21.html` |
+| F5-20 Duyệt hàng loạt cho chọn khác loại | Minor | Chọn một loại thì ô loại khác khóa kèm lý do; bỏ “chọn tất cả” | `g4-apr-01.html` |
+| F5-21 Liên kết dẫn tới màn bị từ chối; chưa đối chiếu class | Minor | ACC-08 cho KT, CH, QV xem chỉ đọc; liên kết “Xem lỗi” ở EIN-05 ẩn theo vai trò. **Class: rà thủ công, chưa grep tự động** (không có công cụ chạy script) | `g4-acc-08.html`; `g4-ein-05.html`; §9 |
+| F5-22 Tài liệu cần cập nhật | Minor | Cập nhật §2, §3, §4, §5, §7, §8; thêm §10, §11 | tài liệu này |
+
+Ngoài finding, đã áp dụng các quyết định BA: câu 1 (ACC-09/17), 2 (EIN), 3 (EIN-05/08 giữ `[Cần xác nhận]`), 4 (ACC-07), 5 (ACC-01/21, tiền thối), 6 (ACC-13), 7 (ACC-16), 8 (APR-01/03), 9 (ACC-11), 10 (ACC-09/17/APR), 11 (EIN-03), 12 (cờ KTT, APR-03), 13 (ACC-14/15 giữ chi nhánh mình), 14 (ACC-04), 15 (ACC-08), 16 (mã YH-), 17 (ACC-03 hai chế độ, ưu tiên Phase 1).
+
+### Phase 1 sau quyết định BA (câu 17)
+
+P1: ACC-01 (kèm cọc), 02, 03 (xem, in, đảo; phân bổ nhiều-nhiều khóa tới P2), 04, 08, 09; APR-01/02/03; EIN-01 đến 03, 05 đến 08, **EIN-04 mức tối thiểu**. P2: ACC-05, 06, 07, 10 đến 13, 21 và phân bổ nhiều-nhiều. P3: ACC-14 (chốt phương pháp), 15, 17 đến 20. P4: ACC-16.
+
+## 11. Câu hỏi còn lại cho BA
+
+| # | Câu hỏi | Màn hình | Thiết kế tạm |
+| --- | --- | --- | --- |
+| 1 | Hoàn khoản nhận trước (không gắn lệnh) dùng ACC-07 thế nào, vì ACC-07 hiện lấy “phiếu thu gốc” làm đầu vào? Có cần biến thể “Hoàn khoản nhận trước” riêng? | ACC-07, 21 | ACC-21 chỉ liên kết sang ACC-07; chưa có biến thể riêng |
+| 2 | Khi thu tiền ở ACC-01, có thêm hình thức thanh toán “Dùng khoản nhận trước” để bù ngay trong lúc thu, hay chỉ bù ở ACC-21? | ACC-01, 21 | Chỉ chip và ACC-21 |
+| 3 | “Chi kèm ngoại lệ” (ACC-13) luôn cần duyệt: cấp duyệt nào (QL hay QV/CH) khi số tiền nhỏ? | ACC-13, APR-03 | Đi vào đề xuất chi, cấp theo ma trận hạn mức |
+| 4 | Cờ rủi ro “yêu cầu lặp trong 24 giờ” và “thiếu chứng từ gốc” của duyệt hàng loạt: hiển thị thế nào và ai thấy? | APR-01 | Mới có điều kiện “cùng loại, trong hạn mức”; chưa có dữ liệu mẫu cho hai cờ này |
+| 5 | Ủy quyền Quản lý vùng duyệt mở lại ngày/kỳ: cấu hình đặt ở G4-APR-03 hay G4-SYS, theo nhóm chi nhánh? | ACC-09, 17, APR-03 | Chỉ ghi chú, chưa có điều khiển cấu hình |
+| 6 | Phase 1 chỉ có một chi nhánh và có thể một người kế toán: ai giữ cờ Kế toán trưởng để duyệt EIN-04 khi người lập là chính kế toán đó? (BA câu 12 cho chuyển Chủ garage) | EIN-04, APR | Chủ garage duyệt thay |
+| 7 | Hiển thị Thanh toán của lệnh khi hóa đơn thay thế đang chờ cơ quan thuế: lệnh hiện hóa đơn gốc hay hóa đơn mới? (câu 2 nêu “hiệu lực mới nhất”, chưa nói trạng thái chờ) | EIN-03, lệnh G2 | Hiện gốc cho tới khi nhà cung cấp xác nhận |
+| 8 | Ngưỡng “chênh lệch quỹ trong ngưỡng” và ngưỡng ghép đối soát cần Kế toán trưởng: đặt ở cấu hình nào (APR-03 hay G4-SYS-23) và có giá trị khởi tạo không? | ACC-08, 09, 16 | Giá trị minh họa, chưa có điều khiển cấu hình riêng |
