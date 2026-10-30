@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-03 – Chi tiết khách hàng · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="cust" data-g2w-deny="TK AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-01.html">Khách hàng</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Nguyễn Văn An</span></nav>
+  <div data-g2w-scope data-time="Toàn bộ lịch sử trong phạm vi quyền"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|notfound:Không tìm thấy|denied:Không có quyền|error:Lỗi"></div>
+  <div data-g2w-variants="ind:Khách cá nhân|biz:Khách doanh nghiệp (vượt hạn mức nợ)" data-g2w-vlabel="Loại khách demo:"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info" data-g2w-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Vai trò Thợ chỉ thấy tên khách và biển số của việc mình. Liên hệ, địa chỉ, tiền bị ẩn.</span></div></div>
+
+    <header class="g2w-ro-head">
+      <div class="g2w-profile">
+        <div class="g2w-profile__id"><span class="avatar avatar--lg" aria-hidden="true">AN</span>
+          <div class="stack-2" style="min-width:0">
+            <h1 class="g2w-ro-head__code" style="font-size:var(--font-size-xl)"><span data-g2w-vshow="ind">Nguyễn Văn An</span><span data-g2w-vshow="biz" hidden>Công ty TNHH Vận tải Hòa Phát và Đối tác Logistics Miền Nam</span></h1>
+            <div class="g2w-seg-row"><span class="tag" data-g2w-vshow="ind">Cá nhân</span><span class="tag" data-g2w-vshow="biz" hidden>Doanh nghiệp · MST 0312345678</span><span class="tag" data-g2w-vshow="ind">VIP</span><span class="tag" data-g2w-vshow="biz" hidden>Hợp đồng</span><span class="g2w-muted">Khách từ 05/01/2023 · Chi nhánh tạo: Quận 7</span></div>
+          </div></div>
+        <div class="g2w-actions" role="group" aria-label="Hành động trên hồ sơ khách">
+          <a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#plus"/></svg>Tiếp nhận xe</a>
+          <a class="btn btn--secondary" href="g2-crm-02.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#pencil"/></svg>Sửa</a>
+          <a class="btn btn--secondary" href="g2-crm-10.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#send"/></svg>Gửi tin</a>
+          <div class="dropdown"><button class="btn btn--ghost" aria-haspopup="menu" aria-expanded="false" aria-label="Thao tác khác"><svg class="icon"><use href="#ellipsis"/></svg></button>
+            <div class="dropdown__menu dropdown__menu--right" role="menu">
+              <button class="menu-item" role="menuitem" data-toast="success|Đã thêm ghi chú|Ghi chú lưu cùng người viết và thời điểm."><svg class="icon"><use href="#pencil"/></svg>Thêm ghi chú hoặc nhãn</button>
+              <div class="menu-sep"></div>
+              <button class="menu-item menu-item--danger" role="menuitem" data-open="dlg-withdraw" data-g2w-lock="CV QL"><svg class="icon"><use href="#x"/></svg>Rút đồng ý…</button>
+              <a class="menu-item menu-item--danger" role="menuitem" href="g2-crm-11.html"><svg class="icon"><use href="#trash"/></svg>Ghi nhận yêu cầu xóa/ẩn dữ liệu…</a>
+            </div></div>
+        </div>
+      </div>
+      <dl class="g2w-objects" style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+        <div class="g2w-obj"><dt class="g2w-obj__label">Điện thoại</dt><dd style="margin:0"><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd></div>
+        <div class="g2w-obj"><dt class="g2w-obj__label">Email</dt><dd style="margin:0"><span class="pii" data-pii-id="c1" data-pii-kind="email"></span></dd></div>
+        <div class="g2w-obj"><dt class="g2w-obj__label">Địa chỉ</dt><dd style="margin:0"><span class="pii" data-pii-id="c1" data-pii-kind="address"></span></dd></div>
+        <div class="g2w-obj" data-g2w-hide-for="TH QD"><dt class="g2w-obj__label">Công nợ hiện tại</dt><dd style="margin:0"><span class="g2w-money" data-g2w-vshow="ind" data-g2w-money>0 ₫</span><span class="g2w-money text-danger" data-g2w-vshow="biz" hidden style="font-weight:700"><span data-g2w-money>48.500.000 ₫</span></span></dd></div>
+      </dl>
+    </header>
+
+    <div data-g2w-hide-for="TH QD"><div class="alert alert--danger" data-g2w-vshow="biz" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Vượt hạn mức công nợ</span><span>Công nợ 48.500.000 ₫ so với hạn mức 40.000.000 ₫ (giá trị mẫu, lấy từ cấu hình khách). Thu tiền, giao xe cần người có thẩm quyền duyệt vượt hạn mức (FR-ACC-020).</span></div></div></div>
+
+    <section class="card">
+      <div class="tabs" role="tablist" aria-label="Thông tin khách" style="padding:0 var(--space-6);overflow-x:auto">
+        <button class="tab" role="tab" id="t-xe" aria-selected="true" aria-controls="p-xe">Xe <span class="count-pill">2</span></button>
+        <button class="tab" role="tab" id="t-ls" aria-selected="false" tabindex="-1" aria-controls="p-ls">Lịch sử sửa chữa</button>
+        <button class="tab" role="tab" id="t-bg" aria-selected="false" tabindex="-1" aria-controls="p-bg" data-g2w-hide-for="TH">Báo giá</button>
+        <button class="tab" role="tab" id="t-tt" aria-selected="false" tabindex="-1" aria-controls="p-tt" data-g2w-hide-for="TH QD">Thanh toán và công nợ</button>
+        <button class="tab" role="tab" id="t-dy" aria-selected="false" tabindex="-1" aria-controls="p-dy" data-g2w-hide-for="TH">Đồng ý dữ liệu</button>
+        <button class="tab" role="tab" id="t-gc" aria-selected="false" tabindex="-1" aria-controls="p-gc" data-g2w-hide-for="TH">Ghi chú và tin nhắn</button>
+        <button class="tab" role="tab" id="t-dn" aria-selected="false" tabindex="-1" aria-controls="p-dn" data-g2w-vshow="biz" hidden>Hợp đồng và liên hệ</button>
+      </div>
+
+      <div class="tab-panel" id="p-xe" role="tabpanel" aria-labelledby="t-xe" style="padding:var(--space-4) var(--space-6)">
+        <div class="g2w-two">
+          <div class="card vehicle-card"><div class="vehicle-card__icon"><svg class="icon icon--xl"><use href="#car-front"/></svg></div><div><div class="row row--between row--nowrap"><a href="g2-crm-06.html" class="plate-tag">51H-123.45</a><span class="badge badge--info">Đang sửa chữa</span></div><div class="vehicle-card__title" style="margin-top:8px">Toyota Vios 1.5G 2019</div><dl class="vehicle-card__meta"><div><dt>Chủ từ</dt><dd class="num">05/01/2023</dd></div><div><dt>Số km gần nhất</dt><dd class="num">48.200 km</dd></div></dl></div></div>
+          <div class="card vehicle-card"><div class="vehicle-card__icon"><svg class="icon icon--xl"><use href="#car-front"/></svg></div><div><div class="row row--between row--nowrap"><a href="g2-crm-06.html" class="plate-tag">51G-765.43</a><span class="tag">Không có lệnh mở</span></div><div class="vehicle-card__title" style="margin-top:8px">Toyota Camry 2.0E 2016</div><dl class="vehicle-card__meta"><div><dt>Chủ từ</dt><dd class="num">18/08/2024</dd></div><div><dt>Đăng kiểm đến</dt><dd class="num">02/12/2026</dd></div></dl><div class="alert alert--warning vehicle-card__alert"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span>Đăng kiểm còn 33 ngày</span></div></div></div></div>
+        </div>
+        <p class="g2w-muted" style="margin-top:12px">Chỉ liệt kê xe mà khách đang sở hữu theo quan hệ sở hữu có hiệu lực. Xe đã bán nằm trong lịch sử của xe, không nằm ở đây (RULE-003).</p>
+      </div>
+
+      <div class="tab-panel" id="p-ls" role="tabpanel" aria-labelledby="t-ls" hidden style="padding:0">
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Lịch sử sửa chữa của khách</caption>
+          <thead><tr><th>Ngày</th><th>Mã lệnh</th><th>Xe</th><th>Dịch vụ</th><th>Chi nhánh</th><th>Lệnh</th><th class="col-num" data-g2w-hide-for="TH">Tổng tiền</th></tr></thead>
+          <tbody>
+            <tr><td class="num col-nowrap">30/10/2026</td><td class="code"><a href="g2-rec-04.html">RO-Q7-2610-00128</a></td><td class="plate">51H-123.45</td><td>Bảo dưỡng</td><td>Quận 7</td><td><span class="badge badge--info">Đang sửa chữa</span></td><td class="col-num" data-g2w-hide-for="TH" data-g2w-money>3.191.400 ₫</td></tr>
+            <tr><td class="num col-nowrap">12/07/2026</td><td class="code"><a href="g2-rec-04.html?variant=done">RO-Q7-2607-00093</a></td><td class="plate">51H-123.45</td><td>Bảo dưỡng</td><td>Quận 7</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="col-num" data-g2w-hide-for="TH" data-g2w-money>2.150.000 ₫</td></tr>
+            <tr><td class="num col-nowrap">03/03/2026</td><td class="code"><a href="g2-rec-04.html?variant=done">RO-TD-2603-00041</a></td><td class="plate">51H-123.45</td><td>Lốp &amp; mâm</td><td>Thủ Đức</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="col-num" data-g2w-hide-for="TH" data-g2w-money>4.800.000 ₫</td></tr>
+          </tbody></table></div>
+      </div>
+
+      <div class="tab-panel" id="p-bg" role="tabpanel" aria-labelledby="t-bg" hidden style="padding:0">
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Báo giá của khách</caption>
+          <thead><tr><th>Mã báo giá</th><th>Xe</th><th>Gửi lúc</th><th>Trạng thái báo giá</th><th class="col-num">Tổng</th></tr></thead>
+          <tbody>
+            <tr><td class="code">BG-Q7-2610-00231-v2</td><td class="plate">51H-123.45</td><td class="num col-nowrap">08:20 30/10/2026</td><td><span class="badge badge--warning">Duyệt một phần</span></td><td class="col-num" data-g2w-money>3.191.400 ₫</td></tr>
+            <tr><td class="code">BG-Q7-2610-00236</td><td class="plate">51H-123.45</td><td class="num col-nowrap">09:05 30/10/2026</td><td><span class="badge badge--warning">Chờ khách duyệt</span></td><td class="col-num" data-g2w-money>324.000 ₫</td></tr>
+            <tr><td class="code">BG-Q7-2607-00118</td><td class="plate">51H-123.45</td><td class="num col-nowrap">11/07/2026</td><td><span class="badge badge--success">Duyệt toàn phần</span></td><td class="col-num" data-g2w-money>2.150.000 ₫</td></tr>
+          </tbody></table></div>
+      </div>
+
+      <div class="tab-panel" id="p-tt" role="tabpanel" aria-labelledby="t-tt" hidden style="padding:var(--space-4) var(--space-6)">
+        <div class="stack"><div class="g2w-three"><div class="card kpi"><span class="kpi__label">Đã thanh toán (12 tháng)</span><span class="kpi__value"><span data-g2w-money>8.140.000</span><span class="kpi__unit">₫</span></span><span class="kpi__scope">Mọi chi nhánh trong quyền · đến 30/10/2026</span></div><div class="card kpi"><span class="kpi__label">Công nợ hiện tại</span><span class="kpi__value"><span data-g2w-money>0</span><span class="kpi__unit">₫</span></span><span class="kpi__scope">Cập nhật 09:15 30/10/2026</span></div><div class="card kpi"><span class="kpi__label">Hạn mức công nợ</span><span class="kpi__value"><span class="text-disabled">—</span></span><span class="kpi__meta">Khách cá nhân không đặt hạn mức</span></div></div>
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Phiếu thu của khách</caption><thead><tr><th>Phiếu</th><th>Lệnh</th><th>Hình thức</th><th>Ngày</th><th>Trạng thái thanh toán của lệnh</th><th class="col-num">Số tiền</th></tr></thead>
+            <tbody><tr><td class="code">PT-Q7-2610-00312</td><td class="code">RO-Q7-2610-00128</td><td>Chuyển khoản</td><td class="num">30/10/2026</td><td><span class="badge badge--info">Thanh toán một phần</span></td><td class="col-num" data-g2w-money>1.000.000 ₫</td></tr>
+              <tr><td class="code">PT-Q7-2607-00533</td><td class="code">RO-Q7-2607-00093</td><td>Tiền mặt</td><td class="num">12/07/2026</td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num" data-g2w-money>2.150.000 ₫</td></tr></tbody></table></div></div>
+      </div>
+
+      <div class="tab-panel" id="p-dy" role="tabpanel" aria-labelledby="t-dy" hidden style="padding:0">
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Đồng ý xử lý dữ liệu</caption>
+          <thead><tr><th>Mục đích</th><th>Kênh</th><th>Tình trạng</th><th>Ghi nhận</th></tr></thead>
+          <tbody>
+            <tr><td>Cung cấp dịch vụ sửa chữa</td><td>Mọi kênh nội bộ</td><td><span class="badge badge--success">Đang đồng ý</span></td><td class="num">05/01/2023 · tại quầy · Nguyễn Hoàng Yến</td></tr>
+            <tr><td>Nhắc bảo dưỡng, đăng kiểm</td><td>SMS, Zalo</td><td><span class="badge badge--success">Đang đồng ý</span></td><td class="num">05/01/2023 · tại quầy</td></tr>
+            <tr><td>Khuyến mãi, quảng cáo</td><td>SMS</td><td><span class="badge badge--neutral">Đã rút</span></td><td class="num">Rút 14/03/2025 · yêu cầu qua điện thoại · Trần Thị Mai</td></tr>
+          </tbody></table></div>
+        <div class="card__footer"><button class="btn btn--danger-outline" data-open="dlg-withdraw" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh ghi nhận rút đồng ý."><svg class="icon"><use href="#x"/></svg>Rút đồng ý…</button><span class="g2w-muted">Lịch sử đồng ý và rút đồng ý được giữ, không xóa.</span></div>
+      </div>
+
+      <div class="tab-panel" id="p-gc" role="tabpanel" aria-labelledby="t-gc" hidden style="padding:var(--space-4) var(--space-6)">
+        <div class="stack"><div class="g2w-chips"><span class="tag">VIP</span><button class="btn btn--ghost btn--sm"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm nhãn</button></div>
+          <div class="stack-2"><div><div class="t-body-sm"><strong>Nguyễn Hoàng Yến</strong> · 30/10/2026 08:30</div><div>Khách thích được gọi trước khi làm thêm hạng mục. Hay đi sân bay chiều.</div></div><div><div class="t-body-sm"><strong>Trần Thị Mai</strong> · 12/07/2026 14:10</div><div>Đã tặng phiếu rửa xe do chờ lâu.</div></div></div>
+          <h3 class="g2w-sec-title">Tin nhắn đã gửi</h3>
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Tin nhắn đã gửi cho khách</caption><thead><tr><th>Thời điểm</th><th>Kênh</th><th>Nội dung</th><th>Kết quả</th></tr></thead>
+            <tbody><tr><td class="num col-nowrap">30/10/2026 08:20</td><td>Zalo</td><td>Liên kết báo giá BG-Q7-2610-00231-v2</td><td><span class="badge badge--success">Đã gửi</span></td></tr>
+              <tr><td class="num col-nowrap">30/10/2026 09:05</td><td>Zalo</td><td>Liên kết báo giá bổ sung BG-Q7-2610-00236</td><td><span class="badge badge--success">Đã gửi</span></td></tr>
+              <tr><td class="num col-nowrap">10/07/2026 09:00</td><td>SMS</td><td>Nhắc bảo dưỡng 40.000 km</td><td><span class="badge badge--danger">Lỗi</span> <span class="g2w-muted">Số không liên lạc được</span></td></tr></tbody></table></div></div>
+      </div>
+
+      <div class="tab-panel" id="p-dn" role="tabpanel" aria-labelledby="t-dn" hidden style="padding:var(--space-4) var(--space-6)">
+        <div class="stack"><dl class="g2w-kv"><dt>Hợp đồng</dt><dd>HĐ-DV-2026-007 · hiệu lực 01/01/2026 – 31/12/2026</dd><dt>Bảng giá riêng</dt><dd>Giảm công 8% (trong biên giảm giá cho phép của chi nhánh)</dd><dt>Kỳ thanh toán</dt><dd>30 ngày</dd></dl>
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Người liên hệ</caption><thead><tr><th>Người liên hệ</th><th>Chức vụ</th><th>Điện thoại</th></tr></thead><tbody><tr><td>Lương Văn Quang</td><td>Trưởng phòng điều hành</td><td><span class="g2w-pii" data-id="c3"></span></td></tr><tr><td>Nguyễn Thị Hạnh</td><td>Kế toán</td><td><span class="g2w-pii" data-id="c11"></span></td></tr></tbody></table></div></div>
+      </div>
+    </section>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--text" style="width:40%;height:28px"></span><span class="skeleton skeleton--text" style="width:70%"></span><span class="skeleton skeleton--block" style="height:200px"></span></div></div><p class="g2w-muted" role="status">Đang tải hồ sơ khách…</p></div>
+  <div data-state="notfound" hidden data-g2w-tpl="empty" data-icon="search" data-title="Không tìm thấy khách hàng" data-text="Hồ sơ không tồn tại hoặc nằm ngoài phạm vi chi nhánh bạn được xem." data-cta="Về danh sách khách" data-href="g2-crm-01.html"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem hồ sơ khách này" data-text="Thợ chỉ xem khách có việc được giao cho mình."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được hồ sơ khách" data-ref="ERR-CRM-5003"></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-withdraw" role="alertdialog" aria-modal="true" aria-labelledby="wd-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="wd-t">Rút đồng ý của khách?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="field"><label class="field__label" for="wd-s">Rút đồng ý cho mục đích<span class="field__req" aria-hidden="true">*</span></label><select id="wd-s" class="select"><option>Nhắc bảo dưỡng, đăng kiểm (SMS, Zalo)</option><option>Khuyến mãi, quảng cáo</option></select></div>
+    <ul class="impact-list"><li>Hệ thống dừng ngay các hoạt động cần đồng ý này với khách (nhắc, chiến dịch).</li><li>Dữ liệu phục vụ dịch vụ đang thực hiện vẫn được giữ theo luật.</li><li>Lịch sử đồng ý và lần rút được lưu, không xóa. Khách đồng ý lại thì ghi nhận lần mới.</li></ul>
+    <div class="field"><label class="field__label" for="wd-r">Cách khách yêu cầu và ghi chú<span class="field__req" aria-hidden="true">*</span></label><textarea id="wd-r" class="textarea" data-confirm-reason placeholder="Ví dụ: Khách gọi điện lúc 09:20 yêu cầu ngừng nhắn tin quảng cáo"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã ghi nhận rút đồng ý|Các hoạt động liên quan đã dừng." disabled>Rút đồng ý</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

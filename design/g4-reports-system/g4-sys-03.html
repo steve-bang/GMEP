@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-03 – Chi tiết người dùng và phiên đăng nhập · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-03" data-menu="set" data-crumbs="Cài đặt|Người dùng|Lê Minh Quân" data-allow="AD CH QL"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Lê Minh Quân',
+  desc: 'Quản lý chi nhánh · Chi nhánh Quận 7 · tài khoản tạo 12/03/2026. Vai trò, thiết bị tin cậy, phiên đang hoạt động và lịch sử đăng nhập.',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống · Quản lý chi nhánh chỉ mở được người dùng chi nhánh mình',
+  actions: '<button class="btn btn--secondary" data-toast="success|Đã gửi lại lời mời|Liên kết mới có hiệu lực 72 giờ, liên kết cũ bị vô hiệu.">Gửi lại lời mời</button><button class="btn btn--secondary" data-toast="info|Đã cấp mã tạm|Mã tạm hiện một lần và buộc đổi ở lần đăng nhập đầu.">Cấp mã tạm</button><div class="dropdown"><button class="btn btn--secondary" aria-haspopup="menu" aria-expanded="false">Thao tác rủi ro<svg class="icon icon--sm" aria-hidden="true"><use href="#chevron-down"/></svg></button><div class="dropdown__menu dropdown__menu--right" role="menu"><button class="menu-item" role="menuitem" data-open="dlg-sess"><svg class="icon" aria-hidden="true"><use href="#log-out"/></svg>Đăng xuất mọi phiên</button><button class="menu-item" role="menuitem" data-open="dlg-sess"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg>Buộc đặt lại xác thực hai lớp</button><div class="menu-sep"></div><button class="menu-item menu-item--danger" role="menuitem" data-open="dlg-lock"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg>Khóa tài khoản…</button></div></div><button class="btn btn--primary" data-toast="success|Đã lưu|Thay đổi được ghi nhật ký.">Lưu</button>',
+  states: ['data', 'loading', 'error', 'denied'],
+  extraStates: [['locked', 'Tài khoản đã khóa'], ['notfound', 'Không tìm thấy']]
+});
+</script>
+
+<section class="card" aria-label="Tóm tắt tài khoản"><div class="card__body">
+  <div class="row row--between"><div class="row"><span class="avatar avatar--lg">LQ</span><div><div class="t-heading-md">Lê Minh Quân</div><div class="text-secondary">quan.le@garage-abc.vn</div></div></div>
+  <div class="row"><span class="tag tag--success">Đang hoạt động</span><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Xác thực hai lớp: đã bật (bắt buộc)</span><span class="text-secondary">Đăng nhập cuối 30/10/2026 08:30</span></div></div>
+</div></section>
+
+<div class="tabs" role="tablist" aria-label="Chi tiết người dùng">
+  <button class="tab" role="tab" id="u1" aria-selected="true" aria-controls="up1">Vai trò và chi nhánh</button>
+  <button class="tab" role="tab" id="u2" aria-selected="false" tabindex="-1" aria-controls="up2">Thiết bị và phiên <span class="count-pill">3</span></button>
+  <button class="tab" role="tab" id="u3" aria-selected="false" tabindex="-1" aria-controls="up3">Lịch sử đăng nhập</button>
+</div>
+
+<div class="tab-panel stack" id="up1" role="tabpanel" aria-labelledby="u1">
+  <div class="table-wrap"><div class="table-toolbar"><strong>Vai trò × chi nhánh</strong><button class="btn btn--secondary btn--sm" style="margin-left:auto" onclick="location.href='g4-sys-02.html'"><svg class="icon icon--sm" aria-hidden="true"><use href="#plus"/></svg>Thêm vai trò</button></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Vai trò theo chi nhánh của người dùng</caption>
+      <thead><tr><th>Vai trò</th><th>Chi nhánh</th><th>Hiệu lực từ</th><th>Người gán</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag--info">Quản lý chi nhánh</span></td><td>Chi nhánh Quận 7</td><td class="num">12/03/2026</td><td>Trần Hoàng Anh</td><td><button class="btn btn--ghost btn--sm" data-open="dlg-lock">Thu hồi vai trò</button></td></tr>
+        <tr><td><span class="tag tag--neutral">Cố vấn dịch vụ</span></td><td>Chi nhánh Quận 7</td><td class="num">12/03/2026</td><td>Trần Hoàng Anh</td><td><button class="btn btn--ghost btn--sm" data-open="dlg-lock">Thu hồi vai trò</button></td></tr>
+      </tbody></table></div></div>
+  <div class="alert alert--neutral" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Quyền thực tế là phần hợp của hai vai trò ở Chi nhánh Quận 7, không hơn. Xem ma trận ở <a href="g4-sys-04.html">Vai trò và quyền</a>. Khi người này nghỉ việc: khóa tài khoản và xử lý dữ liệu cá nhân ở <a href="g4-sys-23.html">Chính sách lưu trữ</a>.</div></div>
+</div>
+
+<div class="tab-panel stack" id="up2" role="tabpanel" aria-labelledby="u2" hidden>
+  <div class="table-wrap"><div class="table-toolbar"><strong>Thiết bị tin cậy (14 ngày) và phiên đang hoạt động</strong></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Thiết bị và phiên của người dùng</caption>
+      <thead><tr><th>Thiết bị</th><th>Chi nhánh / vị trí</th><th>Phiên</th><th>Tin cậy đến</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+      <tbody>
+        <tr><td>Chrome trên Windows (máy quầy)</td><td>Quận 7</td><td><span class="tag tag--success">Đang hoạt động · phiên này</span></td><td class="num">12/11/2026</td><td></td></tr>
+        <tr><td>Safari trên iPhone</td><td>Quận 7</td><td><span class="tag tag--success">Đang hoạt động</span></td><td class="num">05/11/2026</td><td><button class="btn btn--ghost btn--sm" data-toast="success|Đã đăng xuất thiết bị|Phiên trên iPhone kết thúc.">Đăng xuất thiết bị</button></td></tr>
+        <tr><td>Chrome trên Android (máy tính bảng xưởng)</td><td>Quận 7 · thiết bị đã đăng ký</td><td><span class="tag tag--neutral">Không có phiên</span></td><td class="num">–</td><td><button class="btn btn--ghost btn--sm" data-toast="info|Đã đặt lại PIN|PIN mới hiện một lần cho người dùng.">Đặt lại PIN</button></td></tr>
+      </tbody></table></div></div>
+</div>
+
+<div class="tab-panel stack" id="up3" role="tabpanel" aria-labelledby="u3" hidden>
+  <div class="table-wrap"><div class="table-toolbar"><strong>Lịch sử đăng nhập</strong><span class="table-meta" style="margin-left:auto">Không sửa, không xóa (FR-SYS-014)</span></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Lịch sử đăng nhập</caption>
+      <thead><tr><th>Thời điểm</th><th>Thiết bị</th><th>Địa chỉ mạng</th><th>Kết quả</th></tr></thead>
+      <tbody>
+        <tr><td class="num">30/10/2026 08:30</td><td>Chrome / Windows</td><td class="num">113.161.•••.••</td><td><span class="tag tag--success">Thành công</span></td></tr>
+        <tr><td class="num">29/10/2026 18:02</td><td>Safari / iPhone</td><td class="num">27.74.•••.••</td><td><span class="tag tag--success">Thành công</span></td></tr>
+        <tr><td class="num">29/10/2026 08:21</td><td>Chrome / Windows</td><td class="num">113.161.•••.••</td><td><span class="tag tag--danger">Sai mật khẩu</span></td></tr>
+        <tr><td class="num">29/10/2026 08:22</td><td>Chrome / Windows</td><td class="num">113.161.•••.••</td><td><span class="tag tag--success">Thành công</span></td></tr>
+      </tbody></table></div></div>
+</div>
+
+<script>
+g4rEnd('<div data-state="locked" hidden><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><div class="alert__title">Tài khoản đang bị khóa (sai mật khẩu 5 lần lúc 16:02 26/10/2026)</div>Tự mở sau 15 phút theo chính sách, hoặc Quản trị/Chủ garage mở khóa thủ công. Vai trò vẫn được giữ; dữ liệu và nhật ký không bị xóa.<div class="alert__actions"><button class="btn btn--secondary btn--sm" data-toast="success|Đã mở khóa|Người dùng đăng nhập lại bình thường.">Mở khóa</button></div></div></div></div><div data-state="notfound" hidden><div class="state"><div class="state__icon">' + '<svg class="icon icon--lg"><use href="#search"/></svg></div><div class="state__title">Không tìm thấy người dùng</div><p class="state__text">Người dùng không tồn tại hoặc không thuộc phạm vi chi nhánh của bạn.</p><div class="state__actions"><a class="btn btn--secondary" href="g4-sys-01.html">Về danh sách</a></div></div></div>',
+'<div class="overlay" id="dlg-lock" role="alertdialog" aria-modal="true" aria-labelledby="lk-t"><div class="dialog" data-confirm-guard data-confirm-word="Lê Minh Quân"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="lk-t">Khóa tài khoản Lê Minh Quân?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Người này đăng xuất khỏi mọi thiết bị ngay và không đăng nhập được.</li><li>Lệnh, chứng từ và nhật ký của họ được giữ nguyên, không bị xóa.</li><li>Có thể mở khóa lại; thao tác được ghi nhật ký.</li></ul><div class="field"><label class="field__label" for="lk-r">Lý do<span class="field__req">*</span></label><textarea class="textarea" id="lk-r" data-confirm-reason style="min-height:56px"></textarea></div><div class="field"><label class="field__label" for="lk-w">Gõ đúng tên để xác nhận: Lê Minh Quân</label><input class="input" id="lk-w" data-confirm-input autocomplete="off"></div><div class="field"><label class="field__label" for="lk-p">Nhập lại mật khẩu của bạn<span class="field__req">*</span></label><input class="input" id="lk-p" type="password" autocomplete="current-password"></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="success|Đã khóa tài khoản|Người dùng bị đăng xuất khỏi mọi phiên.">Khóa tài khoản</button></div></div></div><div class="overlay" id="dlg-sess" role="alertdialog" aria-modal="true" aria-labelledby="ss-t"><div class="dialog" data-confirm-guard><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="ss-t">Đăng xuất mọi phiên / đặt lại xác thực hai lớp?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><p>Người dùng phải đăng nhập lại; nếu đặt lại xác thực hai lớp, họ cần thiết lập lại ở lần đăng nhập kế tiếp.</p><div class="field"><label class="field__label" for="ss-r">Lý do<span class="field__req">*</span></label><textarea class="textarea" id="ss-r" data-confirm-reason style="min-height:56px"></textarea></div><div class="field"><label class="field__label" for="ss-p">Nhập lại mật khẩu của bạn<span class="field__req">*</span></label><input class="input" id="ss-p" type="password" autocomplete="current-password"></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã thực hiện|Thao tác được ghi nhật ký.">Xác nhận</button></div></div></div>');
+</script>
+</body>
+</html>

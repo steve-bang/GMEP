@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-RPT-09 – Cảnh báo ngoại lệ · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CH">
+<script src="pack.js" data-code="G4-RPT-09" data-menu="rpt" data-crumbs="Báo cáo|Cảnh báo ngoại lệ" data-allow="CH QV QL"></script>
+<script>
+g4rPage({
+  title: 'Cảnh báo ngoại lệ',
+  desc: 'Những việc lệch khỏi quy trình: xuất kho không chứng từ, lệch quỹ, xe trễ hẹn, lệnh chưa có hóa đơn. Mỗi cảnh báo có chi nhánh và người chịu trách nhiệm.',
+  prio: 'P2',
+  period: '27–30/10/2026',
+  actions: g4rExportBtn(),
+  empty: { title: 'Không có ngoại lệ nào', text: 'Không có việc nào lệch quy trình trong phạm vi và thời gian đang xem. Đây là tín hiệu tốt, không phải lỗi hiển thị.' },
+  filteredText: 'Không có cảnh báo thuộc loại này. Chọn “Tất cả” để xem lại.'
+});
+</script>
+
+<div class="tabs" role="tablist" aria-label="Loại cảnh báo">
+  <button class="tab" role="tab" id="e0" aria-selected="true" aria-controls="ep" >Tất cả <span class="count-pill count-pill--danger">5</span></button>
+  <button class="tab" role="tab" id="e1" aria-selected="false" tabindex="-1" aria-controls="ep">Xuất kho không chứng từ <span class="count-pill">1</span></button>
+  <button class="tab" role="tab" id="e2" aria-selected="false" tabindex="-1" aria-controls="ep">Lệch quỹ <span class="count-pill">1</span></button>
+  <button class="tab" role="tab" id="e3" aria-selected="false" tabindex="-1" aria-controls="ep">Xe trễ hẹn <span class="count-pill">2</span></button>
+  <button class="tab" role="tab" id="e4" aria-selected="false" tabindex="-1" aria-controls="ep">Chưa có hóa đơn <span class="count-pill">1</span></button>
+</div>
+
+<div class="table-wrap" id="ep" role="tabpanel" aria-labelledby="e0">
+  <div class="table-toolbar"><span class="table-meta">5 cảnh báo · 4 chưa xem</span><span class="table-meta" style="margin-left:auto">Chọn dòng để đánh dấu đã xem hàng loạt</span></div>
+  <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt">
+    <span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> cảnh báo</span>
+    <button class="btn btn--secondary btn--sm" data-toast="success|Đã đánh dấu đã xem|Các cảnh báo được chọn chuyển sang Đã xem.">Đánh dấu đã xem</button>
+    <button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button>
+  </div>
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table">
+    <caption class="sr-only">Cảnh báo ngoại lệ</caption>
+    <thead><tr><th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th><th>Loại</th><th>Chi nhánh</th><th>Nội dung</th><th>Người chịu trách nhiệm</th><th>Phát sinh</th><th>Đã xem</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn cảnh báo 1"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Xuất kho không chứng từ</span></td><td>Quận 1</td><td>Phiếu xuất PX-Q1-2610-00366 xuất 3 má phanh nhưng không gắn lệnh sửa chữa</td><td>Phạm Văn Đạt (Thủ kho)</td><td class="num">30/10/2026 07:10</td><td><span class="tag tag--warning">Chưa xem</span></td><td><a class="btn btn--secondary btn--sm" href="#">Mở phiếu</a> <button class="btn btn--ghost btn--sm" data-open="dlg-ask">Yêu cầu xử lý</button></td></tr>
+      <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn cảnh báo 2"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Lệch quỹ</span></td><td>Thủ Đức</td><td>Chốt ca sáng 29/10 lệch −150.000 ₫, chưa giải trình</td><td>Đặng Thị Lan (Thu ngân)</td><td class="num">29/10/2026 12:05</td><td><span class="tag tag--warning">Chưa xem</span></td><td><a class="btn btn--secondary btn--sm" href="#">Mở ca</a> <button class="btn btn--ghost btn--sm" data-open="dlg-ask">Yêu cầu xử lý</button></td></tr>
+      <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn cảnh báo 3"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="g4r-miss"><svg class="icon"><use href="#clock"/></svg>Xe trễ hẹn</span></td><td>Quận 7</td><td>RO-Q7-2610-00238 · 51K-987.65 trễ 2 giờ 15 phút, đang Tạm dừng chờ phụ tùng</td><td>Nguyễn Văn Bình (Cố vấn)</td><td class="num">30/10/2026 10:00</td><td><span class="tag tag--warning">Chưa xem</span></td><td><a class="btn btn--secondary btn--sm" href="#">Mở lệnh</a> <button class="btn btn--ghost btn--sm" data-open="dlg-ask">Yêu cầu xử lý</button></td></tr>
+      <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn cảnh báo 4"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="g4r-miss"><svg class="icon"><use href="#clock"/></svg>Xe trễ hẹn</span></td><td>Biên Hòa</td><td>RO-BH-2610-00096 · 60C-135.79 trễ 15 phút, đang Chờ QC</td><td>Phạm Quang Huy (Quản đốc)</td><td class="num">30/10/2026 09:00</td><td><span class="tag tag--warning">Chưa xem</span></td><td><a class="btn btn--secondary btn--sm" href="#">Mở lệnh</a> <button class="btn btn--ghost btn--sm" data-open="dlg-ask">Yêu cầu xử lý</button></td></tr>
+      <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn cảnh báo 5"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="g4r-miss"><svg class="icon"><use href="#receipt"/></svg>Chưa có hóa đơn</span></td><td>Quận 7</td><td>RO-Q7-2610-00233 hoàn tất 29/10, chưa có hóa đơn hợp lệ</td><td>Lê Minh Quân (Quản lý chi nhánh)</td><td class="num">29/10/2026 18:30</td><td><span class="tag tag--neutral">Đã xem 09:02</span></td><td><a class="btn btn--secondary btn--sm" href="#">Mở lệnh</a> <button class="btn btn--ghost btn--sm" data-open="dlg-ask">Yêu cầu xử lý</button></td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+    <div class="record"><div class="record__top"><div><div class="record__title g4r-miss">Xuất kho không chứng từ</div>Quận 1 · 07:10 30/10/2026</div><span class="tag tag--warning">Chưa xem</span></div><div class="record__meta"><span>PX-Q1-2610-00366: 3 má phanh không gắn lệnh</span></div><div class="record__foot"><span>Phạm Văn Đạt</span><a class="btn btn--secondary btn--sm" href="#">Mở phiếu</a></div></div>
+    <div class="record"><div class="record__top"><div><div class="record__title g4r-miss">Lệch quỹ</div>Thủ Đức · 12:05 29/10/2026</div><span class="tag tag--warning">Chưa xem</span></div><div class="record__meta"><span>Lệch −150.000 ₫, chưa giải trình</span></div><div class="record__foot"><span>Đặng Thị Lan</span><a class="btn btn--secondary btn--sm" href="#">Mở ca</a></div></div>
+  </div>
+  <div class="table-footer"><span class="table-meta">Cảnh báo chỉ hiện trong phạm vi chi nhánh của bạn. “Yêu cầu xử lý” gửi thông báo mức “Cần xử lý” cho người chịu trách nhiệm.</span></div>
+</div>
+
+<script>
+g4rEnd('', '<div class="overlay" id="dlg-ask" role="dialog" aria-modal="true" aria-labelledby="ask-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon">' + '<svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="ask-t">Yêu cầu người chịu trách nhiệm xử lý</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><div class="field"><label class="field__label" for="ask-note">Ghi chú gửi kèm<span class="field__req">*</span></label><textarea class="textarea" id="ask-note" placeholder="Ví dụ: Giải trình lý do xuất kho trong hôm nay"></textarea></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi yêu cầu|Người chịu trách nhiệm nhận thông báo Cần xử lý.">Gửi yêu cầu</button></div></div></div>')
+</script>
+</body>
+</html>

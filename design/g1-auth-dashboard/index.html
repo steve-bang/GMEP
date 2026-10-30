@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gói G1 – Xác thực và Dashboard theo vai trò – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  .g1-idx { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-4); display: flex; flex-direction: column; gap: var(--space-6); }
+  .g1-idx h1 { font-size: var(--font-size-2xl); margin: 0; }
+  .g1-idx h2 { font-size: var(--font-size-xl); margin: 0; }
+  .g1-idx td, .g1-idx th { vertical-align: top; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Bỏ qua, tới danh sách</a>
+<main class="g1-idx" id="main">
+  <header class="stack-2">
+    <h1>Gói G1 – Xác thực và Dashboard theo vai trò</h1>
+    <p class="text-secondary" style="margin:0">31 màn hình prototype HTML/CSS thuần (mở trực tiếp bằng trình duyệt). Tài liệu mô tả: <code>docs/ui-ux/01-auth-dashboard.md</code>. Mỗi trang xác thực và lỗi có thanh “Xem thử trạng thái” hoặc tham số <code>?state=...</code>; mỗi dashboard có thanh xem thử trạng thái thẻ (đang tải, trống, lỗi một thẻ, thiếu quyền, dữ liệu cũ, mất kết nối). Trang cần JavaScript để dựng khung ứng dụng và biểu đồ.</p>
+    <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Luồng đăng nhập thử: <a href="g1-aut-01.html">Đăng nhập</a> (mật khẩu bất kỳ) → <a href="g1-aut-02.html">Xác thực hai lớp</a> (mã bất kỳ ngoài 000000) → <a href="g1-aut-08.html">Chọn chi nhánh</a> → <a href="g1-dsh-03.html">Tổng quan</a>. Quên mật khẩu: <a href="g1-aut-04.html">AUT-04</a> → <a href="g1-aut-05.html">AUT-05</a>. Lời mời: <a href="g1-aut-06.html">AUT-06</a>.</span></div></div>
+  </header>
+
+  <section class="card" aria-labelledby="h1">
+    <div class="card__header"><h2 class="card__title" id="h1">Khung ứng dụng và tìm kiếm (SHL)</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Mã</th><th scope="col">Tên</th><th scope="col">Template</th><th scope="col">Vai trò</th><th scope="col">Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code"><a href="g1-shl-01.html">G1-SHL-01</a></td><td>Khung ứng dụng theo vai trò (và các biến thể banner)</td><td>A</td><td>Mọi vai trò</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-shl-02.html">G1-SHL-02</a></td><td>Kết quả tìm kiếm toàn cục</td><td>C</td><td>Mọi vai trò (lọc theo quyền)</td><td>P1</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h2">
+    <div class="card__header"><h2 class="card__title" id="h2">Xác thực (AUT, không dùng khung ứng dụng)</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Mã</th><th scope="col">Tên</th><th scope="col">Template</th><th scope="col">Vai trò</th><th scope="col">Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code"><a href="g1-aut-01.html">G1-AUT-01</a></td><td>Đăng nhập</td><td>Độc lập</td><td>Công khai</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-02.html">G1-AUT-02</a></td><td>Xác thực hai lớp: nhập mã</td><td>Độc lập</td><td>CH, QV, QL, KT, AD</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-03.html">G1-AUT-03</a></td><td>Thiết lập xác thực hai lớp lần đầu</td><td>W</td><td>Vai trò bắt buộc MFA</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-04.html">G1-AUT-04</a></td><td>Quên mật khẩu</td><td>Độc lập</td><td>Công khai</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-05.html">G1-AUT-05</a></td><td>Đặt lại mật khẩu (qua liên kết)</td><td>Độc lập</td><td>Công khai (có token)</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-06.html">G1-AUT-06</a></td><td>Kích hoạt tài khoản qua lời mời</td><td>W</td><td>Người được mời</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-07.html">G1-AUT-07</a></td><td>Đổi mật khẩu bắt buộc</td><td>E</td><td>Người dùng có mật khẩu tạm</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-08.html">G1-AUT-08</a></td><td>Chọn chi nhánh làm việc</td><td>Độc lập (card)</td><td>Người có từ 2 chi nhánh</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-09.html">G1-AUT-09</a></td><td>Hết phiên và khóa màn hình</td><td>Dlg toàn trang</td><td>Mọi vai trò</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-aut-10.html">G1-AUT-10</a></td><td>Thiết bị xưởng: chọn thợ và nhập PIN</td><td>Độc lập (tablet)</td><td>TH, QĐ</td><td>P1</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h3">
+    <div class="card__header"><h2 class="card__title" id="h3">Trang lỗi (ERR)</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Mã</th><th scope="col">Tên</th><th scope="col">Template</th><th scope="col">Vai trò</th><th scope="col">Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code"><a href="g1-err-01.html">G1-ERR-01</a></td><td>403 Không có quyền</td><td>Err</td><td>Mọi vai trò</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-err-02.html">G1-ERR-02</a></td><td>404 Không tìm thấy</td><td>Err</td><td>Mọi vai trò</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-err-03.html">G1-ERR-03</a></td><td>Lỗi hệ thống (5xx)</td><td>Err</td><td>Mọi vai trò</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-err-04.html">G1-ERR-04</a></td><td>Mất kết nối và bảo trì (kèm phiếu giấy dự phòng, nhập bù, xung đột)</td><td>Err / banner</td><td>Mọi vai trò</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-err-05.html">G1-ERR-05</a></td><td>Liên kết hết hạn hoặc không hợp lệ</td><td>Err / P</td><td>Công khai (nhân viên, khách)</td><td>P1</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h4">
+    <div class="card__header"><h2 class="card__title" id="h4">Dashboard theo vai trò (DSH, template B)</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Mã</th><th scope="col">Tên</th><th scope="col">Thiết bị chính</th><th scope="col">Vai trò</th><th scope="col">Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code"><a href="g1-dsh-01.html">G1-DSH-01</a></td><td>Tổng quan Chủ garage (biểu đồ đường, thanh nhóm, xếp hạng)</td><td>Điện thoại</td><td>CH</td><td>P1 (một chi nhánh), mở rộng khi thêm chi nhánh</td></tr>
+      <tr><td class="code"><a href="g1-dsh-02.html">G1-DSH-02</a></td><td>Tổng quan Quản lý vùng (xếp hạng chọn chỉ số)</td><td>Máy tính</td><td>QV</td><td>P2</td></tr>
+      <tr><td class="code"><a href="g1-dsh-03.html">G1-DSH-03</a></td><td>Tổng quan Quản lý chi nhánh (thanh xếp chồng trạng thái lệnh)</td><td>Máy tính, tablet</td><td>QL</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-dsh-04.html">G1-DSH-04</a></td><td>Tổng quan Cố vấn dịch vụ</td><td>Máy tính</td><td>CV</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-dsh-05.html">G1-DSH-05</a></td><td>Tổng quan Thủ kho (cột tồn khả dụng so với định mức)</td><td>Máy tính</td><td>TK</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-dsh-06.html">G1-DSH-06</a></td><td>Tổng quan Kế toán (tuổi nợ, thu chi)</td><td>Máy tính</td><td>KT</td><td>P1 (hóa đơn, đối soát), P2 (công nợ)</td></tr>
+      <tr><td class="code"><a href="g1-dsh-07.html">G1-DSH-07</a></td><td>Việc của tôi (Thợ, tablet)</td><td>Tablet</td><td>TH, QĐ</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-dsh-08.html">G1-DSH-08</a></td><td>Tổng quan Thu ngân</td><td>Máy tính</td><td>TN</td><td>P1 (BA đề xuất)</td></tr>
+      <tr><td class="code"><a href="g1-dsh-09.html">G1-DSH-09</a></td><td>Tổng quan Quản đốc / QC</td><td>Tablet, máy tính</td><td>QĐ</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-dsh-10.html">G1-DSH-10</a></td><td>Tổng quan Quản trị hệ thống</td><td>Máy tính</td><td>AD</td><td>P1</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h5">
+    <div class="card__header"><h2 class="card__title" id="h5">Thông báo và hồ sơ cá nhân (NTF, PRF)</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Mã</th><th scope="col">Tên</th><th scope="col">Template</th><th scope="col">Vai trò</th><th scope="col">Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code"><a href="g1-ntf-01.html">G1-NTF-01</a></td><td>Trung tâm thông báo (trang đầy đủ và ngăn kéo)</td><td>C / Dlg</td><td>Mọi vai trò</td><td>P1 (trong hệ thống), P2 (email, Zalo)</td></tr>
+      <tr><td class="code"><a href="g1-ntf-02.html">G1-NTF-02</a></td><td>Cài đặt thông báo cá nhân</td><td>S</td><td>Mọi vai trò</td><td>P2</td></tr>
+      <tr><td class="code"><a href="g1-prf-01.html">G1-PRF-01</a></td><td>Hồ sơ cá nhân</td><td>D / E</td><td>Mọi vai trò</td><td>P1</td></tr>
+      <tr><td class="code"><a href="g1-prf-02.html">G1-PRF-02</a></td><td>Bảo mật tài khoản</td><td>D / E</td><td>Mọi vai trò</td><td>P1</td></tr>
+    </tbody></table></div>
+  </section>
+  <p class="g1-note">Liên kết tới màn hình của gói khác (ví dụ G2-REC-04, G4-APR-01) được ghi bằng mã trong thuộc tính <code>data-target</code> và chưa dẫn đi đâu trong prototype của gói này.</p>
+</main>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-07 · Phiếu xuất kho (PX) – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-07')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Phiếu xuất kho <span class="code">PX-Q7-2610-00189</span></h1><p class="page-header__desc">Xuất theo lệnh RO-Q7-2610-00131. Xác nhận xuất sẽ chuyển phần giữ chỗ thành xuất thực và ghi giá vốn tự động.</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><a class="btn btn--secondary" href="g3-inv-06.html">Về hàng chờ xuất</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Kho Quận 7</span><span>· Ngày lập 30/10/2026 09:18</span></div>
+
+<div id="g3-body" data-noun="phiếu xuất kho" data-g3-states="data:Soạn phiếu;posted:Đã ghi sổ;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div data-g3-state="data" class="stack">
+  <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng:</span>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="e-src">Thiếu chứng từ gốc</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="e-over">Xuất vượt Khả dụng</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="" data-g3-busy="btn-post">Đang ghi</button></div>
+  <div class="g3-ro-flag alert alert--info" data-for="f-gin" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho lập và xác nhận phiếu xuất; Quản lý chi nhánh duyệt xuất bất thường.</span></div></div>
+  <form id="f-gin" class="g3-split" data-g3-edit="TK" onsubmit="return false">
+    <div class="stack-6">
+      <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Chứng từ gốc và người nhận</h2>
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="g-src">Chứng từ gốc (lệnh sửa chữa)<span class="field__req" aria-hidden="true">*</span></label>
+            <div class="input-group"><svg class="icon"><use href="#clipboard-list"/></svg><input id="g-src" class="input" value="RO-Q7-2610-00131" aria-describedby="e-src" autocomplete="off" placeholder="Mã lệnh, mã phiếu bán lẻ hoặc phiếu chuyển"></div>
+            <span class="field__hint">Không thể xuất kho nếu không có lệnh, phiếu bán lẻ hoặc phiếu chuyển (RULE-007).</span>
+            <span class="field__error" id="e-src" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Chọn lệnh sửa chữa, phiếu bán lẻ hoặc phiếu chuyển kho để tạo phiếu xuất.</span></div>
+          <div class="field"><label class="field__label" for="g-rcv">Người nhận (thợ)<span class="field__req" aria-hidden="true">*</span></label><select id="g-rcv" class="select"><option>Lê Minh Tuấn – Thợ máy</option><option>Phạm Quốc Bảo – Thợ đồng</option><option>Nguyễn Văn Hậu – Thợ điện</option></select></div>
+        </div></section>
+
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Phụ tùng xuất</h2><span class="table-meta">2 dòng</span></div>
+        <div class="alert alert--danger" id="e-over" hidden style="margin:16px"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Dầu nhớt Castrol 5W-30: xuất 1, Khả dụng 0</span><span>Bị chặn vì làm tồn âm. Ngoại lệ chỉ áp dụng khi cấu hình cho phép và có Quản lý chi nhánh duyệt (FR-INV-019); khi đó phiếu chuyển sang trạng thái “Chờ duyệt”.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm">Bỏ dòng này</button><a class="btn btn--secondary btn--sm" href="g3-inv-13.html">Lấy từ chi nhánh khác</a></div></div></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Dòng phụ tùng của phiếu xuất</caption>
+          <thead><tr><th>Phụ tùng</th><th>Lô / serial</th><th class="col-num">Giữ cho lệnh</th><th class="col-num">Khả dụng</th><th class="col-num">SL xuất</th><th class="col-num">Giá vốn (tự ghi)</th></tr></thead>
+          <tbody>
+            <tr><td><span class="code">PT-0001</span> Lọc dầu động cơ Toyota Vios<span class="cell-sub">Toyota · cái</span></td><td><select class="select" aria-label="Lô PT-0001" style="min-width:150px"><option>L2609-B (còn 16)</option><option>L2610-A (còn 10)</option></select><span class="cell-sub">Gợi ý lô nhập trước</span></td><td class="col-num">1</td><td class="col-num">24</td><td class="col-num"><div class="qty" role="group" aria-label="Số lượng xuất PT-0001"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="1" min="1" max="24" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num"><span data-g3-cost="117.000 ₫"></span></td></tr>
+            <tr><td><span class="code">PT-0006</span> Nước làm mát Prestone 1 lít<span class="cell-sub">Prestone · chai · không theo lô</span></td><td class="text-secondary">Không áp dụng</td><td class="col-num">0</td><td class="col-num">12</td><td class="col-num"><div class="qty" role="group" aria-label="Số lượng xuất PT-0006"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="1" min="1" max="12" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num"><span data-g3-cost="62.000 ₫"></span></td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="4">Tổng giá vốn xuất</td><td class="col-num">2</td><td class="col-num"><span data-g3-cost="179.000 ₫"></span></td></tr></tfoot></table></div>
+        <div class="card__footer"><button class="btn btn--secondary" type="button" data-open="dlg-scan-out"><svg class="icon"><use href="#camera"/></svg>Quét mã vạch để thêm dòng</button><span class="t-body-sm text-secondary">Dòng PT-0006 không có giữ chỗ nên Khả dụng được kiểm tra khi xác nhận.</span></div></section>
+    </div>
+
+    <aside class="g3-side">
+      <section class="card"><div class="card__header"><h2 class="card__title">Lệnh gốc</h2><span class="badge badge--info">Đang sửa chữa</span></div><div class="card__body"><dl class="g3-kv g3-kv--1">
+        <div><dt>Lệnh · Biển số</dt><dd><a class="code" href="#">RO-Q7-2610-00131</a> · <span class="plate">30A-222.33</span></dd></div><div><dt>Xe</dt><dd>Toyota Vios 2019</dd></div><div><dt>Hạng mục cần phụ tùng</dt><dd>Thay dầu và lọc dầu</dd></div><div><dt>Thanh toán · Hóa đơn</dt><dd><span class="badge badge--warning">Chưa thanh toán</span> <span class="badge badge--neutral">Chưa xuất</span></dd></div></dl></div></section>
+      <section class="card"><div class="card__body stack"><span class="g3-why" style="margin:0">Sau khi ghi sổ, phiếu <strong>không sửa hoặc xóa</strong>. Nhầm lẫn xử lý bằng phiếu hoàn kho.</span>
+        <button class="btn btn--primary btn--lg btn--block" type="button" id="btn-post" data-open="dlg-post" data-g3-need="TK" data-g3-why="Chỉ Thủ kho xác nhận xuất kho.">Xác nhận xuất kho</button>
+        <button class="btn btn--secondary btn--block" type="button">Lưu nháp</button></div></section>
+    </aside>
+  </form>
+</div>
+
+<div data-g3-state="posted" class="stack" hidden>
+  <div class="alert alert--success" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã ghi sổ lúc 09:19 bởi Trần Thị Mai Anh</span><span>Phần giữ chỗ 1 đã chuyển thành xuất thực. Phiếu ở chế độ chỉ đọc; không có nút sửa hoặc xóa.</span></div></div>
+  <div class="g3-split">
+    <section class="card"><div class="card__header"><h2 class="card__title">PX-Q7-2610-00189 · Xuất theo lệnh RO-Q7-2610-00131</h2><span class="badge badge--success">Đã ghi sổ</span></div>
+      <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Phụ tùng</th><th>Lô</th><th class="col-num">SL xuất</th><th class="col-num">Giá vốn</th></tr></thead><tbody>
+        <tr><td>PT-0001 Lọc dầu động cơ Toyota Vios</td><td class="code">L2609-B</td><td class="col-num">1</td><td class="col-num"><span data-g3-cost="117.000 ₫"></span></td></tr>
+        <tr><td>PT-0006 Nước làm mát Prestone 1 lít</td><td>–</td><td class="col-num">1</td><td class="col-num"><span data-g3-cost="62.000 ₫"></span></td></tr></tbody></table></div></section>
+    <aside class="g3-side"><section class="card"><div class="card__body stack">
+      <button class="btn btn--secondary btn--block" data-open="dlg-print-gin"><svg class="icon"><use href="#printer"/></svg>In phiếu xuất (A5)</button>
+      <a class="btn btn--secondary btn--block" href="g3-inv-10.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho lập, Quản lý duyệt phiếu hoàn kho.">Lập phiếu hoàn kho</a>
+      <p class="t-body-sm text-secondary">Xuất nhầm số lượng hoặc lệnh bị hủy: dùng phiếu hoàn kho, phiếu gốc giữ nguyên để truy vết.</p></div></section></aside>
+  </div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-post" role="alertdialog" aria-modal="true" aria-labelledby="po-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#package"/></svg></div><div><h2 class="dialog__title" id="po-t">Xác nhận xuất 2 mặt hàng cho RO-Q7-2610-00131?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Giữ chỗ 1 của PT-0001 chuyển thành xuất thực; Thực tế giảm 2, Khả dụng PT-0006 giảm 1.</li><li>Giá vốn xuất được ghi theo phương pháp đang cấu hình và cộng vào giá vốn của lệnh.</li><li>Phiếu sau khi ghi không sửa hoặc xóa; sai sót sửa bằng phiếu hoàn kho.</li></ul></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Xem lại</button><button class="btn btn--primary" data-close data-toast="success|Đã xuất kho|PX-Q7-2610-00189 đã ghi sổ. Chuyển sang tab Đã ghi sổ để xem.">Xác nhận xuất kho</button></div></div></div>
+
+<div class="overlay" id="dlg-scan-out" role="dialog" aria-modal="true" aria-labelledby="so-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#camera"/></svg></div><div><h2 class="dialog__title" id="so-t">Quét mã vạch phụ tùng</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div data-g3-scan-target hidden><table><tbody><tr data-barcode="8935001230012"><td data-name>Lọc dầu động cơ Toyota Vios</td></tr><tr data-barcode="8935001230067"><td data-name>Nước làm mát Prestone 1 lít</td></tr></tbody></table></div><div data-g3-scan></div></div>
+  <div class="dialog__footer"><button class="btn btn--primary" data-close>Xong</button></div></div></div>
+
+<div class="overlay" id="dlg-print-gin" role="dialog" aria-modal="true" aria-labelledby="pg-t"><div class="dialog" style="max-width:640px">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#printer"/></svg></div><div><h2 class="dialog__title" id="pg-t">Xem trước phiếu xuất kho · khổ A5 ngang</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div class="g3-paper-scroll"><div class="g3-paper g3-paper--a5" id="g3-paper">
+    <div class="row row--between row--nowrap"><div><strong>GARAGE OS – Chi nhánh Quận 7</strong><br>Kho Quận 7</div><div class="r" style="text-align:right">Mẫu PX · 30/10/2026 09:19<br><span class="code">PX-Q7-2610-00189</span></div></div>
+    <h3>PHIẾU XUẤT KHO</h3>
+    <div>Theo lệnh: <span class="code">RO-Q7-2610-00131</span> · Biển số <span class="plate">30A-222.33</span> · Người nhận: Lê Minh Tuấn</div>
+    <table><thead><tr><th>Mã</th><th>Phụ tùng</th><th>Lô</th><th class="r">SL</th></tr></thead><tbody><tr><td>PT-0001</td><td>Lọc dầu động cơ Toyota Vios</td><td>L2609-B</td><td class="r">1</td></tr><tr><td>PT-0006</td><td>Nước làm mát Prestone 1 lít</td><td>–</td><td class="r">1</td></tr></tbody></table>
+    <div class="g3-paper__sign"><div>Thủ kho<span></span></div><div>Người nhận<span></span></div><div>Quản đốc<span></span></div></div></div></div>
+    <p class="t-body-sm text-secondary" style="margin-top:8px">Phiếu in không có giá vốn (giá vốn chỉ dành cho vai trò được xem). Khổ A4, A5, nhiệt 80 mm là cấu hình mẫu in theo chi nhánh (G2-PRT-01).</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" onclick="window.print()"><svg class="icon"><use href="#printer"/></svg>In</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

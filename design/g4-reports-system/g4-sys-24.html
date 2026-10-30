@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-24 – Bảo mật và phiên làm việc · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-24" data-menu="set" data-crumbs="Cài đặt|Bảo mật và phiên" data-allow="AD CH"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Bảo mật và phiên làm việc',
+  desc: 'Chính sách mật khẩu, xác thực hai lớp, thời gian hết phiên, khóa tạm và thiết bị xưởng. Giá trị hiển thị là mặc định đề xuất (D-02 đến D-05), đổi được; hạ mức bảo mật cần Chủ garage duyệt.',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống (áp dụng cho mọi chi nhánh)',
+  asof: 'Phiên bản cấu hình từ 12/03/2026',
+  actions: '<button class="btn btn--primary" id="save" data-edit-roles="AD" data-toast="success|Đã lưu chính sách bảo mật|Có hiệu lực cho lần đăng nhập kế tiếp." title="Chỉ Quản trị hệ thống lưu"><svg class="icon" aria-hidden="true"><use href="#check"/></svg><span id="save-t">Lưu</span></button>',
+  states: ['data', 'loading', 'error', 'denied']
+});
+</script>
+
+<div class="alert alert--neutral" role="note" data-why-roles="AD"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Chủ garage <strong>duyệt</strong> khi Quản trị hạ mức bảo mật; không sửa trực tiếp.</div></div>
+<div class="alert alert--warning" id="lower" role="status" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><div class="alert__title">Bạn đang hạ mức bảo mật</div>Thay đổi này cần Chủ garage duyệt. Chính sách cũ vẫn áp dụng cho tới khi được duyệt.</div></div>
+
+<div class="g4r-sec">
+  <section class="card" aria-labelledby="s-pw"><div class="card__header"><h2 class="card__title" id="s-pw">Mật khẩu</h2></div><div class="card__body stack">
+    <div class="field"><label class="field__label" for="pw-l">Độ dài tối thiểu</label><div class="input-group input-group--suffix"><input class="input input--num" id="pw-l" value="10" data-edit-roles="AD" data-sec inputmode="numeric"><span class="input-group__suffix">ký tự</span></div></div>
+    <label class="check"><input type="checkbox" checked data-edit-roles="AD" data-sec><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chặn mật khẩu thông dụng</span></label>
+    <label class="check"><input type="checkbox" data-edit-roles="AD"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Buộc đổi mật khẩu định kỳ <span class="t-caption text-secondary">(mặc định tắt)</span></span></label>
+    <div class="field"><label class="field__label" for="pw-h">Không dùng lại số mật khẩu gần nhất</label><input class="input input--num" id="pw-h" value="5" data-edit-roles="AD" data-sec inputmode="numeric"></div>
+  </div></section>
+
+  <section class="card" aria-labelledby="s-lk"><div class="card__header"><h2 class="card__title" id="s-lk">Khóa tạm khi sai mật khẩu</h2></div><div class="card__body stack">
+    <div class="field"><label class="field__label" for="lk-n">Số lần sai tối đa</label><input class="input input--num" id="lk-n" value="5" data-edit-roles="AD" data-sec inputmode="numeric"></div>
+    <div class="field"><label class="field__label" for="lk-m">Khóa trong</label><div class="input-group input-group--suffix"><input class="input input--num" id="lk-m" value="15" data-edit-roles="AD" data-sec inputmode="numeric"><span class="input-group__suffix">phút</span></div></div>
+    <div class="field"><label class="field__label" for="lk-l">Hiệu lực liên kết đặt lại mật khẩu</label><div class="input-group input-group--suffix"><input class="input input--num" id="lk-l" value="30" data-edit-roles="AD" data-sec inputmode="numeric"><span class="input-group__suffix">phút</span></div></div>
+    <div class="field"><label class="field__label" for="lk-i">Hiệu lực liên kết lời mời</label><div class="input-group input-group--suffix"><input class="input input--num" id="lk-i" value="72" data-edit-roles="AD" data-sec inputmode="numeric"><span class="input-group__suffix">giờ</span></div></div>
+  </div></section>
+
+  <section class="card" aria-labelledby="s-mfa"><div class="card__header"><h2 class="card__title" id="s-mfa">Xác thực hai lớp bắt buộc cho vai trò</h2></div><div class="card__body stack">
+    <p class="t-body-sm text-secondary" style="margin:0">Đề xuất D-02: Chủ garage, Quản lý vùng, Quản lý chi nhánh, Kế toán, Quản trị. Việc Kế toán có thuộc “quản lý trở lên” hay không chờ xác nhận <b>[G-02]</b>.</p>
+    <div class="row">
+      <label class="check"><input type="checkbox" checked data-edit-roles="AD" data-sec><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chủ garage</span></label>
+      <label class="check"><input type="checkbox" checked data-edit-roles="AD" data-sec><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Quản lý vùng</span></label>
+      <label class="check"><input type="checkbox" checked data-edit-roles="AD" data-sec><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Quản lý chi nhánh</span></label>
+      <label class="check"><input type="checkbox" checked data-edit-roles="AD" data-sec><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Kế toán</span></label>
+      <label class="check"><input type="checkbox" checked data-edit-roles="AD" data-sec><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Quản trị hệ thống</span></label>
+      <label class="check"><input type="checkbox" data-edit-roles="AD"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Cố vấn, Thu ngân, Thủ kho, Quản đốc, Thợ (tùy chọn)</span></label>
+    </div>
+    <div class="field"><label class="field__label" for="mf-t">Tin cậy thiết bị</label><div class="input-group input-group--suffix"><input class="input input--num" id="mf-t" value="14" data-edit-roles="AD" data-sec inputmode="numeric"><span class="input-group__suffix">ngày</span></div><span class="field__hint">Thao tác nguy hiểm (mở lại kỳ, hủy hóa đơn, đổi vai trò, xuất danh sách khách) luôn hỏi lại mật khẩu.</span></div>
+  </div></section>
+
+  <section class="card" aria-labelledby="s-se"><div class="card__header"><h2 class="card__title" id="s-se">Hết phiên</h2></div><div class="card__body stack">
+    <div class="field"><label class="field__label" for="se-g">Không hoạt động (nhân viên thường)</label><div class="input-group input-group--suffix"><input class="input input--num" id="se-g" value="30" data-edit-roles="AD" data-sec data-up inputmode="numeric"><span class="input-group__suffix">phút</span></div></div>
+    <div class="field"><label class="field__label" for="se-k">Không hoạt động (Kế toán, Quản trị, Chủ garage)</label><div class="input-group input-group--suffix"><input class="input input--num" id="se-k" value="15" data-edit-roles="AD" data-sec data-up inputmode="numeric"><span class="input-group__suffix">phút</span></div></div>
+    <div class="field"><label class="field__label" for="se-t">Tablet xưởng (thợ)</label><div class="input-group input-group--suffix"><input class="input input--num" id="se-t" value="3" data-edit-roles="AD" data-sec data-up inputmode="numeric"><span class="input-group__suffix">phút</span></div></div>
+    <div class="field"><label class="field__label" for="se-a">Phiên tối đa</label><div class="input-group input-group--suffix"><input class="input input--num" id="se-a" value="12" data-edit-roles="AD" data-sec data-up inputmode="numeric"><span class="input-group__suffix">giờ</span></div><span class="field__hint">Cảnh báo 60 giây trước khi khóa; nháp luôn được giữ.</span></div>
+  </div></section>
+</div>
+
+<section class="table-wrap" aria-label="Thiết bị xưởng đã đăng ký">
+  <div class="table-toolbar"><strong>Thiết bị xưởng đã đăng ký</strong><button class="btn btn--secondary btn--sm" style="margin-left:auto" data-edit-roles="AD" data-toast="info|Mã đăng ký thiết bị|Mã hiện một lần, hiệu lực 15 phút."><svg class="icon icon--sm" aria-hidden="true"><use href="#plus"/></svg>Đăng ký thiết bị</button></div>
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Thiết bị xưởng đã đăng ký</caption>
+    <thead><tr><th>Thiết bị</th><th>Chi nhánh</th><th>Đăng ký lúc</th><th>Hoạt động cuối</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Máy tính bảng xưởng 1</td><td>Quận 7</td><td class="num">12/03/2026</td><td class="num">30/10/2026 09:10</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><button class="btn btn--ghost btn--sm" data-edit-roles="AD" data-toast="warning|Đã thu hồi thiết bị|Thiết bị không còn đăng nhập bằng PIN được.">Thu hồi</button></td></tr>
+      <tr><td>Máy tính bảng xưởng 2</td><td>Quận 7</td><td class="num">12/03/2026</td><td class="num">29/10/2026 17:30</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><button class="btn btn--ghost btn--sm" data-edit-roles="AD" data-toast="warning|Đã thu hồi thiết bị|Thiết bị không còn đăng nhập bằng PIN được.">Thu hồi</button></td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)"><div class="record"><div class="record__top"><div><div class="record__title">Máy tính bảng xưởng 1</div>Quận 7 · hoạt động cuối 09:10</div><span class="tag tag--success">Đang hoạt động</span></div></div></div>
+</section>
+
+<script>
+document.addEventListener('input', lowerCheck); document.addEventListener('change', lowerCheck);
+function lowerCheck(e) {
+  var t = e.target; if (!t.hasAttribute || !t.hasAttribute('data-sec')) return;
+  var low = false;
+  document.querySelectorAll('[data-sec]').forEach(function (x) {
+    if (x.type === 'checkbox' && !x.checked) low = true;
+    if (x.hasAttribute('data-up') && (+x.value) > (+x.defaultValue)) low = true;
+    if (x.id === 'pw-l' && (+x.value) < (+x.defaultValue)) low = true;
+  });
+  document.getElementById('lower').hidden = !low;
+  document.getElementById('save-t').textContent = low ? 'Gửi Chủ garage duyệt' : 'Lưu';
+}
+</script>
+<script>g4rEnd()</script>
+</body>
+</html>

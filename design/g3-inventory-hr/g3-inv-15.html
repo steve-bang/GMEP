@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-15 · Danh sách đợt kiểm kê – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-15')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Kiểm kê kho</h1><p class="page-header__desc">Mỗi đợt chụp tồn sổ sách lúc bắt đầu, đếm thực tế, rồi duyệt chênh lệch bằng phiếu điều chỉnh. Không có cách sửa tồn trực tiếp.</p></div>
+  <div class="page-header__actions"><button class="btn btn--primary" data-open="dlg-new" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh tạo đợt kiểm kê."><svg class="icon"><use href="#plus"/></svg>Tạo đợt kiểm kê</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· 01/09/2026 – 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="đợt kiểm kê" data-cols="7" data-empty-icon="clipboard-check" data-empty-text="Chưa có đợt kiểm kê nào. Tạo đợt kiểm kê theo nhóm hàng hoặc toàn kho để đối chiếu tồn thực tế." data-empty-cta="Tạo đợt kiểm kê">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar" role="search">
+    <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm mã đợt</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: KK-Q7-2610-00003"></div></div>
+    <div class="field"><label class="field__label" for="f-s">Trạng thái</label><select id="f-s" class="select"><option>Tất cả</option><option>Đang đếm</option><option>Chờ duyệt</option><option>Đã ghi sổ</option><option>Từ chối</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Các đợt kiểm kê của Chi nhánh Quận 7</caption>
+    <thead><tr><th data-card="title">Mã đợt</th><th data-card="sub">Phạm vi</th><th data-card="badge">Trạng thái</th><th>Người thực hiện</th><th data-card="meta">Bắt đầu</th><th data-card="meta">Tiến độ đếm</th><th class="col-num" data-card="foot">Tổng chênh lệch (giá vốn)</th></tr></thead>
+    <tbody>
+      <tr data-href="g3-inv-16.html"><td class="code"><a href="g3-inv-16.html">KK-Q7-2610-00004</a></td><td>Nhóm Lốp (5 mã)</td><td><span class="badge badge--info">Đang đếm</span></td><td>Trần Thị Mai Anh</td><td class="num">30/10/2026 08:30</td><td><div class="progress"><div class="progress__track" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ đếm 3 trên 5 mã"><div class="progress__bar" style="width:60%"></div></div><div class="progress__head"><span>3/5 mã</span></div></div></td><td class="col-num text-secondary">Chưa chốt</td></tr>
+      <tr data-href="g3-inv-17.html" class="g3-row--flag"><td class="code"><a href="g3-inv-17.html">KK-Q7-2610-00003</a></td><td>Nhóm Lọc, Phanh (12 mã)</td><td><span class="badge badge--warning">Chờ duyệt</span></td><td>Trần Thị Mai Anh</td><td class="num">29/10/2026 08:30</td><td><div class="progress progress--success"><div class="progress__track" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Đã đếm 12 trên 12 mã"><div class="progress__bar" style="width:100%"></div></div><div class="progress__head"><span>12/12 mã</span></div></div></td><td class="col-num"><span data-g3-cost="−410.000 ₫"></span></td></tr>
+      <tr data-href="g3-inv-17.html"><td class="code"><a href="g3-inv-17.html">KK-Q7-2610-00002</a></td><td>Nhóm Lọc (6 mã)</td><td><span class="badge badge--success">Đã ghi sổ</span></td><td>Trần Thị Mai Anh</td><td class="num">20/10/2026 08:30</td><td><div class="progress progress--success"><div class="progress__track" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Đã đếm 6 trên 6 mã"><div class="progress__bar" style="width:100%"></div></div><div class="progress__head"><span>6/6 mã</span></div></div></td><td class="col-num"><span data-g3-cost="−118.000 ₫"></span></td></tr>
+      <tr data-href="g3-inv-17.html"><td class="code"><a href="g3-inv-17.html">KK-Q7-2609-00005</a></td><td>Toàn kho (128 mã)</td><td><span class="badge badge--success">Đã ghi sổ</span></td><td>Trần Thị Mai Anh</td><td class="num">30/09/2026 17:00</td><td><div class="progress progress--success"><div class="progress__track" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Đã đếm 128 trên 128 mã"><div class="progress__bar" style="width:100%"></div></div><div class="progress__head"><span>128/128 mã</span></div></div></td><td class="col-num"><span data-g3-cost="−1.240.000 ₫"></span></td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–4 trong 4 đợt</span></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-new" role="dialog" aria-modal="true" aria-labelledby="nw-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#clipboard-check"/></svg></div><div><h2 class="dialog__title" id="nw-t">Tạo đợt kiểm kê</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="field"><label class="field__label" for="nw-s">Phạm vi<span class="field__req" aria-hidden="true">*</span></label><select id="nw-s" class="select"><option>Theo nhóm hàng</option><option>Toàn kho</option></select></div>
+    <div class="field"><label class="field__label" for="nw-g">Nhóm hàng</label><select id="nw-g" class="select"><option>Lốp</option><option>Dầu nhớt</option><option>Điện</option></select></div>
+    <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Tồn sổ sách được <strong>chụp tại thời điểm bắt đầu</strong>. Phát sinh nhập, xuất trong lúc đếm hiển thị riêng để bạn đối chiếu, không làm đổi số đã chụp.</span></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><a class="btn btn--primary" href="g3-inv-16.html">Bắt đầu đếm</a></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

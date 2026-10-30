@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-17 – Tích hợp tin nhắn: SMS, Zalo, email · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-17" data-menu="set" data-crumbs="Cài đặt|Tích hợp tin nhắn" data-allow="AD QL"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Tích hợp tin nhắn: SMS, Zalo, email',
+  desc: 'Kênh gửi tin cho khách và nhân viên. Giai đoạn 1 chỉ email; Zalo và SMS hiện “Chưa kích hoạt” cho tới khi chọn nhà cung cấp, nút gửi bị khóa kèm giải thích.',
+  prio: 'P1 (email) · P2 (Zalo, SMS)',
+  cfgScope: 'Toàn hệ thống',
+  asof: 'Cập nhật lúc 09:15 30/10/2026',
+  actions: '<button class="btn btn--secondary" data-edit-roles="AD" data-open="dlg-test" title="Chỉ Quản trị hệ thống gửi thử"><svg class="icon" aria-hidden="true"><use href="#send"/></svg>Gửi thử</button>',
+  empty: { title: 'Chưa có kênh nào được cấu hình', text: 'Cấu hình email trước (không cần nhà cung cấp ngoài), rồi Zalo hoặc SMS khi đã chọn nhà cung cấp.' }
+});
+</script>
+
+<div class="alert alert--neutral" role="note" data-why-roles="AD"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Quản lý chi nhánh chỉ <strong>xem</strong> tình trạng kênh và nhật ký gửi của chi nhánh mình.</div></div>
+
+<section class="grid grid--3" aria-label="Các kênh">
+  <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm" aria-hidden="true"><use href="#mail"/></svg>Email</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">Hoạt động</span><span class="kpi__meta"><span class="tag tag--success">Đã kích hoạt</span>Hạn mức 500 thư / ngày</span><span class="kpi__scope">Đã gửi hôm nay: 37 · lỗi: 1</span></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm" aria-hidden="true"><use href="#send"/></svg>Zalo</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">Chưa kích hoạt</span><span class="kpi__meta"><span class="tag tag--neutral">Chưa chọn nhà cung cấp</span> <b>[Cần xác nhận]</b></span><button class="btn btn--secondary btn--sm" style="align-self:flex-start" data-edit-roles="AD" data-open="dlg-chan">Cấu hình</button></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm" aria-hidden="true"><use href="#phone"/></svg>SMS</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">Chưa kích hoạt</span><span class="kpi__meta"><span class="tag tag--neutral">Chưa chọn nhà cung cấp</span> <b>[Cần xác nhận]</b></span><button class="btn btn--secondary btn--sm" style="align-self:flex-start" data-edit-roles="AD" data-open="dlg-chan">Cấu hình</button></div>
+</section>
+
+<section class="card" aria-labelledby="gs"><div class="card__header"><h2 class="card__title" id="gs">Quy tắc gửi</h2></div><div class="card__body"><div class="form-grid">
+  <div class="field"><label class="field__label" for="gs-r">Số lần thử lại khi lỗi</label><input class="input input--num" id="gs-r" value="3" inputmode="numeric" data-edit-roles="AD"></div>
+  <div class="field"><label class="field__label" for="gs-i">Cách nhau (phút)</label><input class="input input--num" id="gs-i" value="5" inputmode="numeric" data-edit-roles="AD"></div>
+  <div class="field"><label class="field__label" for="gs-l">Hạn mức gửi mỗi ngày (mọi kênh)</label><input class="input input--num" id="gs-l" value="500" inputmode="numeric" data-edit-roles="AD"></div>
+  <div class="field"><span class="field__label">Gửi tin cho khách</span><label class="switch"><input type="checkbox" role="switch" data-edit-roles="AD" data-open="dlg-on" aria-describedby="sw-h"><span class="switch__track"></span><span>Bật gửi tin tự động cho khách (qua kênh đang hoạt động)</span></label><span class="field__hint" id="sw-h">Chỉ gửi cho khách đã đồng ý nhận (FR-CRM-010). Bật là thao tác rủi ro: cần xác nhận.</span></div>
+</div></div></section>
+
+<section class="table-wrap" aria-label="Nhật ký gửi">
+  <div class="table-toolbar"><strong>Nhật ký gửi gần đây</strong><span class="table-meta" style="margin-left:auto">Người nhận được che</span></div>
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Nhật ký gửi tin nhắn</caption>
+    <thead><tr><th>Thời điểm</th><th>Kênh</th><th>Người nhận</th><th>Mẫu tin</th><th>Kết quả</th><th class="col-num">Số lần thử</th></tr></thead>
+    <tbody>
+      <tr><td class="num">30/10/2026 08:58</td><td>Email</td><td>a•••@gmail.com</td><td>Gửi báo giá</td><td><span class="tag tag--success">Đã gửi</span></td><td class="col-num">1</td></tr>
+      <tr><td class="num">30/10/2026 08:41</td><td>Email</td><td>n•••@example.vn</td><td>Gửi hóa đơn điện tử</td><td><span class="tag tag--danger">Lỗi: hộp thư đầy</span></td><td class="col-num">3</td></tr>
+      <tr><td class="num">30/10/2026 08:20</td><td>Zalo</td><td>09•• ••• 123</td><td>Gửi báo giá</td><td><span class="tag tag--neutral">Không gửi: kênh chưa kích hoạt</span></td><td class="col-num">0</td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)"><div class="record"><div class="record__top"><div><div class="record__title">Email · a•••@gmail.com</div>Gửi báo giá · 08:58</div><span class="tag tag--success">Đã gửi</span></div></div></div>
+</section>
+
+<script>
+g4rEnd('', '<div class="overlay" id="dlg-test" role="dialog" aria-modal="true" aria-labelledby="ts-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="ts-t">Gửi thử tin nhắn</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><div class="field"><label class="field__label" for="ts-c">Kênh</label><select class="select" id="ts-c"><option>Email</option><option disabled>Zalo (chưa kích hoạt)</option><option disabled>SMS (chưa kích hoạt)</option></select><span class="field__hint">Kênh chưa kích hoạt bị khóa; kích hoạt khi đã chọn nhà cung cấp.</span></div><div class="field"><label class="field__label" for="ts-t2">Gửi tới (địa chỉ của bạn)<span class="field__req">*</span></label><input class="input" id="ts-t2" type="email" value="tam.do@garage-abc.vn"></div><div class="field"><label class="field__label" for="ts-m">Mẫu tin</label><select class="select" id="ts-m"><option>Gửi báo giá cho khách</option><option>Nhắc đăng kiểm / bảo dưỡng</option></select></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi thử|Kiểm tra hộp thư tam.do@garage-abc.vn.">Gửi thử</button></div></div></div><div class="overlay" id="dlg-chan" role="dialog" aria-modal="true" aria-labelledby="ch-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#info"/></svg></div><div><h2 class="dialog__title" id="ch-t">Chưa thể cấu hình kênh này</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><p>Chưa chọn nhà cung cấp Zalo / SMS. Khi khách xác nhận nhà cung cấp, Quản trị nhập thông tin kết nối tại đây (địa chỉ dịch vụ, mã tài khoản, khóa bí mật chỉ ghi, mẫu tin được nhà cung cấp phê duyệt).</p><p>Trong lúc chờ, nút gửi cho khách qua Zalo/SMS ở báo giá và nhắc lịch bị khóa kèm giải thích.</p></div><div class="dialog__footer"><button class="btn btn--primary" data-close>Đã hiểu</button></div></div></div><div class="overlay" id="dlg-on" role="alertdialog" aria-modal="true" aria-labelledby="on-t"><div class="dialog" data-confirm-guard><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="on-t">Bật gửi tin tự động cho khách?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Báo giá, hóa đơn và nhắc lịch được gửi tới khách qua email ngay khi phát sinh.</li><li>Chỉ gửi cho khách đã đồng ý nhận tin; không gửi qua kênh chưa kích hoạt.</li><li>Mỗi tin gửi được ghi nhật ký.</li></ul><div class="field"><label class="field__label" for="on-r">Lý do<span class="field__req">*</span></label><textarea class="textarea" id="on-r" data-confirm-reason style="min-height:56px"></textarea></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Chưa bật</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã bật gửi tin cho khách|Qua kênh email.">Bật gửi tin</button></div></div></div>');
+</script>
+</body>
+</html>

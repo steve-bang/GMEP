@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-05 – Tạo / sửa xe · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="cust" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack">
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-04.html">Xe</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Thêm xe</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Thêm xe</h1><p class="page-header__desc">Cũng dùng dạng nhúng trong bước 1 của tiếp nhận xe (G2-REC-01).</p></div></div>
+  <div data-g2w-scope data-time="Biểu mẫu mới" data-asof="09:16"></div>
+  <div data-g2w-proto="offline draft"></div>
+  <div data-g2w-variants="default:Mặc định|dup:Biển số trùng|km:Km thấp hơn lần trước|plate:Biển đặc biệt|saving:Đang lưu|conflict:Xung đột phiên bản|readonly:Chỉ đọc"></div>
+
+  <div class="g2w-split">
+    <form class="g2w-stack g2w-stack--tight" novalidate onsubmit="return false" data-g2w-vro="readonly">
+
+      <div class="alert alert--danger" data-g2w-vshow="dup" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Biển số 51H-123.45 đã có trong hệ thống</span><span>Biển số là duy nhất toàn hệ thống. Mở xe có sẵn thay vì tạo mới.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="g2-crm-06.html" data-g2w-keep>Mở xe Toyota Vios 51H-123.45</a></div></div></div>
+      <div class="alert alert--warning" data-g2w-vshow="km" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Số km thấp hơn lần trước (43.900 km)</span><span>Nhập lý do để tiếp tục, ví dụ đã thay đồng hồ (FR-REC-003).</span><div class="field" style="margin-top:8px"><label class="field__label" for="km-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><input id="km-r" class="input" aria-describedby="km-r-e" data-g2w-verr="km"><span class="field__error" id="km-r-e"><svg class="icon"><use href="#alert-triangle"/></svg>Nhập lý do để lưu số km thấp hơn.</span></div></div></div>
+      <div class="alert alert--info" data-g2w-vshow="plate"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Biển ngoại giao, quân đội, tạm, nước ngoài: nhập tự do, chỉ cảnh báo nếu không khớp mẫu, không chặn lưu. Màu nền biển không dùng để phân loại.</span></div></div>
+      <div class="alert alert--danger" data-g2w-vshow="conflict" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Hồ sơ xe vừa được người khác sửa</span><span>Trần Thị Mai lưu lúc 09:15. Tải lại để xem thay đổi trước khi lưu.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" type="button" data-g2w-keep>Tải lại bản mới</button></div></div></div>
+      <div class="alert alert--neutral" data-g2w-vshow="readonly"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Bạn không có quyền sửa xe hoặc chi nhánh đang bị khóa (FR-SYS-011).</span></div></div>
+
+      <section class="card" aria-labelledby="v1"><div class="card__header"><h2 class="card__title" id="v1">Nhận dạng xe</h2></div>
+        <div class="card__body stack"><div class="form-grid">
+          <div class="field"><label class="field__label" for="v-plate">Biển số<span class="field__req" aria-hidden="true">*</span></label><input id="v-plate" class="input plate" data-g2w-verr="dup" aria-describedby="v-plate-h" value="51h12345"><span class="field__hint" id="v-plate-h">Sẽ lưu và hiển thị dạng chuẩn: <strong>51H-123.45</strong></span></div>
+          <div class="field"><label class="field__label" for="v-pt">Loại biển</label><select id="v-pt" class="select"><option>Biển trong nước thường</option><option>Xe máy</option><option>Ngoại giao</option><option>Quân đội</option><option>Biển tạm</option><option>Nước ngoài</option></select></div>
+          <div class="field"><label class="field__label" for="v-vin">Số khung</label><input id="v-vin" class="input" placeholder="17 ký tự" value="RL4B…F2891"></div>
+          <div class="field"><label class="field__label" for="v-eng">Số máy</label><input id="v-eng" class="input" placeholder="Số máy"></div>
+          <div class="field"><label class="field__label" for="v-brand">Hãng<span class="field__req" aria-hidden="true">*</span></label><select id="v-brand" class="select"><option>Toyota</option><option>Hyundai</option><option>Kia</option><option>Mazda</option><option>Honda</option><option>Ford</option></select></div>
+          <div class="field"><label class="field__label" for="v-model">Dòng xe<span class="field__req" aria-hidden="true">*</span></label><input id="v-model" class="input" value="Vios 1.5G"></div>
+          <div class="field"><label class="field__label" for="v-year">Năm sản xuất</label><input id="v-year" class="input input--num" inputmode="numeric" value="2019"></div>
+          <div class="field"><label class="field__label" for="v-km">Số km hiện tại<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="v-km" class="input input--num" inputmode="numeric" value="48.200" data-g2w-verr="km"><span class="input-group__suffix">km</span></div></div>
+          <div class="field"><span class="field__label" id="v-biz">Xe kinh doanh vận tải</span><label class="switch"><input type="checkbox" role="switch" aria-labelledby="v-biz"><span class="switch__track"></span><span>Không</span></label><span class="field__hint">Bật thì chu kỳ nhắc đăng kiểm theo quy định xe kinh doanh vận tải (cấu hình có ngày hiệu lực).</span></div>
+        </div></div></section>
+
+      <section class="card" aria-labelledby="v2"><div class="card__header"><h2 class="card__title" id="v2">Chủ xe và hạn giấy tờ</h2></div>
+        <div class="card__body stack"><div class="form-grid">
+          <div class="field"><label class="field__label" for="v-own">Chủ xe<span class="field__req" aria-hidden="true">*</span></label>
+            <div class="combobox" id="cbc" data-combobox="customer"><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="v-own" class="input" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="cbc-list" autocomplete="off" value="Nguyễn Văn An"></div><div class="combobox__list" id="cbc-list"></div></div><span class="field__hint">Tạo quan hệ sở hữu có hiệu lực từ ngày tạo. Đổi chủ dùng G2-CRM-07.</span></div>
+          <div class="field"><label class="field__label" for="v-dk">Đăng kiểm đến</label><div class="datepicker-host" data-datepicker="single"><div class="input-group date-field"><input id="v-dk" class="input" value="12/03/2027" placeholder="dd/MM/yyyy"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày đăng kiểm" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div>
+          <div class="field"><label class="field__label" for="v-bh">Bảo hiểm đến</label><div class="datepicker-host" data-datepicker="single"><div class="input-group date-field"><input id="v-bh" class="input" value="15/01/2027" placeholder="dd/MM/yyyy"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày bảo hiểm" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div>
+          <div class="field"><label class="field__label" for="v-wr">Bảo hành xe (còn hạn đến)</label><input id="v-wr" class="input" placeholder="Ví dụ 12/07/2027 hoặc 60.000 km"><span class="field__hint">Bảo hành của hãng hoặc xưởng. Không thay cho bảo hành từng hạng mục.</span></div>
+        </div>
+        <div data-upload><div class="upload"><svg class="icon icon--xl" aria-hidden="true"><use href="#camera"/></svg><div class="t-heading-sm">Ảnh xe</div><p class="text-secondary">Kéo thả, chọn từ máy hoặc chụp bằng camera.</p><div class="upload__actions"><button type="button" class="btn btn--secondary" data-upload-pick="camera"><svg class="icon"><use href="#camera"/></svg>Chụp ảnh</button><button type="button" class="btn btn--secondary" data-upload-pick="file"><svg class="icon"><use href="#upload"/></svg>Chọn ảnh</button></div><input type="file" accept="image/*" multiple hidden><input type="file" accept="image/*" capture="environment" hidden></div><div class="upload__thumbs" aria-live="polite"></div></div>
+        </div></section>
+
+      <div class="g2w-wizard-foot" role="group" aria-label="Lưu biểu mẫu">
+        <span class="g2w-wizard-foot__draft"><span class="badge badge--success badge--nodot" data-g2w-vshow="default dup km plate conflict readonly"><svg class="icon"><use href="#check"/></svg>Đã lưu nháp lúc 09:16</span><span class="g2w-muted" data-g2w-vshow="saving" role="status">Đang lưu xe…</span></span>
+        <a class="btn btn--ghost" href="g2-crm-04.html" data-g2w-keep>Hủy</a>
+        <button class="btn btn--primary" type="button" data-g2w-vload="saving" data-toast="success|Đã lưu xe 51H-123.45|Tạo quan hệ sở hữu với Nguyễn Văn An.">Lưu</button>
+      </div>
+    </form>
+    <aside class="g2w-stack g2w-stack--tight"><section class="card"><div class="card__header"><h2 class="card__title">Chuẩn hóa biển số</h2></div><div class="card__body stack-2"><p class="g2w-muted">Hệ thống lưu bản chuẩn hóa (in hoa, bỏ khoảng trắng, dấu chấm, gạch) để kiểm tra trùng và tìm kiếm.</p><dl class="g2w-kv"><dt>Ô tô 5 số</dt><dd class="plate">51H-123.45</dd><dt>Ô tô 4 số</dt><dd class="plate">51H-1234</dd><dt>Xe máy</dt><dd class="plate">59-X1 123.45</dd></dl></div></section></aside>
+  </div>
+</div>
+</div></main>
+</div>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

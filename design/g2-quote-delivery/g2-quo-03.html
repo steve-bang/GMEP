@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-QUO-03 · Chi tiết báo giá và phiên bản – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa', 'g2-quo-01.html'], ['Báo giá', 'g2-quo-01.html'], ['BG-Q7-2610-00231-v2']], title: 'Chi tiết báo giá', desc: 'Xem phiên bản, giá tại thời điểm gửi và bằng chứng khách duyệt từng hạng mục.' });
+g2q.scope('báo giá tạo 30/10/2026 08:10');
+</script>
+
+<div class="stack-6" data-variants="partial">
+  <script>g2q.proto([['partial','Duyệt một phần'],['full','Duyệt toàn phần'],['sent','Chờ khách duyệt'],['draft','Nháp'],['rejected','Từ chối'],['expired','Hết hạn'],['loading','Đang tải'],['notfound','Không tìm thấy'],['noperm','Không có quyền']], 'partial');</script>
+
+  <div data-v="loading" aria-busy="true"><div class="card" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--text" style="width:60%"></span><br><br><span class="skeleton skeleton--block"></span></div></div>
+  <div data-v="notfound" class="card"><script>g2q.state({kind:'notfound', title:'Không tìm thấy báo giá', text:'Báo giá này không tồn tại hoặc nằm ngoài phạm vi chi nhánh bạn được xem.', actions:'<a class="btn btn--secondary" href="g2-quo-01.html">Về danh sách báo giá</a>'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem báo giá', text:'Vai trò hiện tại không có quyền xem báo giá và lệnh sửa chữa ở chi nhánh này.', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
+
+  <div class="stack-6" data-v="partial full sent draft rejected expired">
+    <!-- Header -->
+    <section class="card g2q-head" aria-label="Thông tin báo giá">
+      <div class="stack-2" style="min-width:0">
+        <div class="row"><h2 class="g2q-head__code" style="font-size:var(--font-size-2xl)">BG-Q7-2610-00231</h2>
+          <div class="segmented" role="group" aria-label="Chọn phiên bản đang xem"><button class="segmented__item" data-ver="v2" aria-pressed="true">v2 (hiện tại)</button><button class="segmented__item" data-ver="v1" aria-pressed="false">v1 (cũ)</button></div></div>
+        <div class="g2q-head__sub"><span class="plate-tag">51H-123.45</span><span>Toyota Vios 1.5G 2019</span><span>·</span><span>Nguyễn Văn An</span><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></div>
+        <div class="g2q-note">Cố vấn Nguyễn Hoàng Yến · Gửi 30/10/2026 08:35 · Hiệu lực đến 06/11/2026 · Giá theo bảng giá tháng 10/2026</div>
+      </div>
+      <div class="stack-2" style="align-items:flex-end">
+        <div class="g2q-badges">
+          <div class="g2q-badges__item">Báo giá
+            <span class="badge badge--warning" data-v="partial">Duyệt một phần</span><span class="badge badge--success" data-v="full">Duyệt toàn phần</span><span class="badge badge--warning" data-v="sent">Chờ khách duyệt</span><span class="badge badge--neutral" data-v="draft">Nháp</span><span class="badge badge--danger" data-v="rejected">Từ chối</span><span class="badge badge--neutral" data-v="expired">Hết hạn</span></div>
+          <div class="g2q-badges__item" data-v="partial full">Lệnh sửa chữa <span class="badge badge--info">Đang sửa chữa</span></div>
+          <div class="g2q-badges__item" data-v="partial full">Thanh toán <span class="badge badge--info">Thanh toán một phần</span></div>
+          <div class="g2q-badges__item" data-v="partial full">Hóa đơn <span class="badge badge--neutral">Chưa xuất</span></div>
+        </div>
+        <div class="row" style="justify-content:flex-end">
+          <a class="btn btn--primary" data-v="partial full" href="../g2-workshop/g2-rec-04.html"><svg class="icon"><use href="#arrow-right"/></svg>Xem lệnh RO-Q7-2610-00128</a>
+          <a class="btn btn--primary" data-v="sent" href="g2-quo-05.html"><svg class="icon"><use href="#check"/></svg>Ghi nhận duyệt tại quầy</a>
+          <a class="btn btn--primary" data-v="draft" href="g2-quo-04.html"><svg class="icon"><use href="#send"/></svg>Gửi cho khách</a>
+          <span class="tooltip-host" data-v="draft sent rejected expired"><button class="btn btn--secondary" aria-disabled="true" aria-describedby="why-open"><svg class="icon"><use href="#lock"/></svg>Mở lệnh</button><span class="tooltip" role="tooltip" id="why-open">Chưa mở lệnh được: báo giá chưa được khách duyệt (hoặc đã bị từ chối, hết hạn). Lệnh chỉ chứa các dòng khách đã duyệt.</span></span>
+          <a class="btn btn--secondary" href="g2-quo-02.html" data-v="partial full sent rejected expired draft">Tạo phiên bản mới</a>
+          <a class="btn btn--secondary" href="g2-prt-01.html?doc=quote"><svg class="icon"><use href="#printer"/></svg>In</a>
+          <button class="btn btn--secondary" data-v="sent" data-toast="success|Đã gửi lại|Liên kết duyệt gửi lại qua kênh đã chọn lúc 09:16.">Gửi lại</button>
+          <button class="btn btn--danger-outline" data-v="draft sent" data-open="dlg-cancel">Hủy báo giá</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="alert alert--neutral" data-v="partial full"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Nội dung đã duyệt không sửa được</span><span>Muốn thay đổi, tạo phiên bản mới hoặc báo giá bổ sung (phát sinh). Lệnh RO-Q7-2610-00128 chỉ chứa các hạng mục khách đã duyệt.</span></div></div>
+    <div class="alert alert--warning" data-v="sent"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang chờ khách duyệt · còn 6 ngày</span><span>Khách chưa mở liên kết. Hết hạn 06/11/2026 thì báo giá chuyển “Hết hạn” và không duyệt được nữa.</span></div></div>
+    <div class="alert alert--danger" data-v="rejected"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Khách từ chối toàn bộ báo giá</span><span>Không tạo lệnh. Các hạng mục được lưu để nhắc khi xe vào lại (<a href="g2-quo-08.html">xem danh sách lưu nhắc</a>).</span></div></div>
+    <div class="alert alert--neutral" data-v="expired"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Báo giá đã hết hạn</span><span>Hết hạn 24/10/2026 nên không duyệt được. Tạo phiên bản mới để cập nhật giá và gửi lại cho khách.</span></div></div>
+
+    <div class="g2q-split">
+      <div class="g2q-split__main">
+        <section class="card" aria-label="Nội dung báo giá">
+          <div class="tabs" role="tablist" aria-label="Nội dung báo giá" style="padding:0 var(--space-6)">
+            <button class="tab" role="tab" id="tb-c" aria-selected="true" aria-controls="tp-c">Nội dung &amp; duyệt</button>
+            <button class="tab" role="tab" id="tb-v" aria-selected="false" tabindex="-1" aria-controls="tp-v">Phiên bản <span class="count-pill">2</span></button>
+            <button class="tab" role="tab" id="tb-h" aria-selected="false" tabindex="-1" aria-controls="tp-h">Lịch sử</button>
+          </div>
+
+          <!-- Nội dung -->
+          <div class="tab-panel" id="tp-c" role="tabpanel" aria-labelledby="tb-c" style="padding:0">
+            <div id="view-v2">
+              <div class="approval" role="list" aria-label="Các hạng mục và quyết định của khách">
+                <div class="approval__line" role="listitem">
+                  <span class="g2q-cond__ico g2q-cond__ico--ok" data-v="partial full" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--no" data-v="rejected" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico" data-v="sent draft expired" aria-hidden="true"><svg class="icon icon--sm"><use href="#clock"/></svg></span>
+                  <div><div class="approval__name">1. Thay dầu động cơ và lọc dầu <span class="tag tag--neutral">Bắt buộc</span></div><div class="approval__sub">Công 0,5 giờ 150.000 ₫ · Dầu nhớt 5W-30 (can 4 lít) ×1 1.250.000 ₫ · Lọc dầu Vios ×1 185.000 ₫</div></div>
+                  <div style="text-align:right"><div class="num" style="font-weight:600">1.585.000 ₫</div><span class="tag tag--success" data-v="partial full">Khách duyệt</span><span class="tag tag--danger" data-v="rejected">Khách từ chối</span><span class="tag" data-v="sent draft expired">Chưa phản hồi</span></div></div>
+                <div class="approval__line" role="listitem">
+                  <span class="g2q-cond__ico g2q-cond__ico--ok" data-v="partial full" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--no" data-v="rejected" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico" data-v="sent draft expired" aria-hidden="true"><svg class="icon icon--sm"><use href="#clock"/></svg></span>
+                  <div><div class="approval__name">2. Thay má phanh trước <span class="tag tag--neutral">Bắt buộc</span></div><div class="approval__sub">Công 1,5 giờ 450.000 ₫ · Má phanh trước Toyota Vios (bộ) ×1 620.000 ₫</div></div>
+                  <div style="text-align:right"><div class="num" style="font-weight:600">1.070.000 ₫</div><span class="tag tag--success" data-v="partial full">Khách duyệt</span><span class="tag tag--danger" data-v="rejected">Khách từ chối</span><span class="tag" data-v="sent draft expired">Chưa phản hồi</span></div></div>
+                <div class="approval__line" role="listitem">
+                  <span class="g2q-cond__ico g2q-cond__ico--ok" data-v="partial full" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--no" data-v="rejected" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico" data-v="sent draft expired" aria-hidden="true"><svg class="icon icon--sm"><use href="#clock"/></svg></span>
+                  <div><div class="approval__name">3. Cân chỉnh góc đặt bánh xe <span class="tag tag--neutral">Tùy chọn</span> <span class="tag tag--info">Thêm ở v2</span></div><div class="approval__sub">Công 1,0 giờ 300.000 ₫</div></div>
+                  <div style="text-align:right"><div class="num" style="font-weight:600">300.000 ₫</div><span class="tag tag--success" data-v="partial full">Khách duyệt</span><span class="tag tag--danger" data-v="rejected">Khách từ chối</span><span class="tag" data-v="sent draft expired">Chưa phản hồi</span></div></div>
+                <div class="approval__line" role="listitem">
+                  <span class="g2q-cond__ico g2q-cond__ico--ok" data-v="full" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--no" data-v="partial rejected" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico" data-v="sent draft expired" aria-hidden="true"><svg class="icon icon--sm"><use href="#clock"/></svg></span>
+                  <div><div class="approval__name"><span data-v="partial rejected" style="text-decoration:line-through">4. Vệ sinh buồng đốt</span><span data-vx="partial rejected">4. Vệ sinh buồng đốt</span> <span class="tag tag--neutral">Tùy chọn</span></div><div class="approval__sub">Công (giá gói) 400.000 ₫ · Dung dịch vệ sinh buồng đốt ×1 250.000 ₫</div><div class="approval__sub" data-v="partial rejected"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#history"/></svg> Lưu để nhắc lần sau · <a href="g2-quo-08.html">xem trong danh sách lưu nhắc</a></div></div>
+                  <div style="text-align:right"><div class="num" style="font-weight:600">650.000 ₫</div><span class="tag tag--success" data-v="full">Khách duyệt</span><span class="tag tag--danger" data-v="partial rejected">Khách từ chối</span><span class="tag" data-v="sent draft expired">Chưa phản hồi</span></div></div>
+              </div>
+              <div class="g2q-totals">
+                <div class="g2q-totals__row g2q-totals__row--sub"><span>Cộng 4 hạng mục (trước thuế)</span><span>3.605.000 ₫</span></div>
+                <div class="g2q-totals__row g2q-totals__row--sub"><span>Thuế GTGT 8% (số mẫu)</span><span>288.400 ₫</span></div>
+                <div class="g2q-totals__row"><span><strong>Tổng báo giá</strong></span><span><strong>3.893.400 ₫</strong></span></div>
+                <div class="g2q-totals__row g2q-totals__row--ok" data-v="partial"><span>Tổng được duyệt (3/4 hạng mục)</span><span>3.191.400 ₫</span></div>
+                <div class="g2q-totals__row g2q-totals__row--ok" data-v="full"><span>Tổng được duyệt (4/4 hạng mục)</span><span>3.893.400 ₫</span></div>
+                <div class="g2q-totals__row" data-v="rejected"><span>Tổng được duyệt</span><span>0 ₫</span></div>
+                <div class="g2q-totals__row g2q-totals__row--sub" data-v="partial"><span>Không duyệt, lưu nhắc (1 hạng mục)</span><span>702.000 ₫</span></div>
+              </div>
+              <div class="approval__evidence" data-v="partial full rejected"><svg class="icon icon--sm"><use href="#circle-check"/></svg><span><strong>Bằng chứng duyệt:</strong> khách bấm duyệt trên liên kết (gửi Zalo) lúc 08:50 30/10/2026; xác thực OTP: không bật; ghi nhận bởi Nguyễn Hoàng Yến lúc 08:51; thiết bị di động, địa chỉ mạng được lưu trong nhật ký.</span></div>
+              <div class="approval__evidence" data-v="sent draft expired"><svg class="icon icon--sm"><use href="#info"/></svg><span>Chưa có bằng chứng duyệt. Ghi nhận được: liên kết, OTP, chữ ký trên màn hình hoặc xác nhận bằng lời (bắt buộc ghi chú).</span></div>
+            </div>
+            <div id="view-v1" hidden>
+              <div class="alert alert--neutral" style="margin:16px 24px"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Phiên bản cũ, chỉ đọc</span><span>v1 gửi 08:20, bị thay thế bởi v2 lúc 08:35; khách không duyệt được v1.</span></div></div>
+              <div class="approval">
+                <div class="approval__line"><span></span><div><div class="approval__name">1. Thay dầu động cơ và lọc dầu</div></div><div class="num" style="font-weight:600">1.585.000 ₫</div></div>
+                <div class="approval__line"><span></span><div><div class="approval__name">2. Thay má phanh trước</div></div><div class="num" style="font-weight:600">1.070.000 ₫</div></div>
+                <div class="approval__line"><span></span><div><div class="approval__name">4. Vệ sinh buồng đốt</div></div><div class="num" style="font-weight:600">650.000 ₫</div></div>
+              </div>
+              <div class="g2q-totals"><div class="g2q-totals__row g2q-totals__row--final"><span>Tổng v1 (đã gồm thuế 8%)</span><span>3.569.400 ₫</span></div></div>
+            </div>
+          </div>
+
+          <!-- Phiên bản -->
+          <div class="tab-panel" id="tp-v" role="tabpanel" aria-labelledby="tb-v" hidden style="padding:0">
+            <div class="table-scroll"><table class="table table--compact">
+              <caption class="sr-only">So sánh phiên bản v1 và v2</caption>
+              <thead><tr><th>Hạng mục</th><th class="col-num">v1 (08:20)</th><th class="col-num">v2 (08:35)</th><th>Thay đổi</th></tr></thead>
+              <tbody>
+                <tr><td>1. Thay dầu động cơ và lọc dầu</td><td class="col-num">1.585.000</td><td class="col-num">1.585.000</td><td><span class="tag">Không đổi</span></td></tr>
+                <tr><td>2. Thay má phanh trước</td><td class="col-num">1.070.000</td><td class="col-num">1.070.000</td><td><span class="tag">Không đổi</span></td></tr>
+                <tr class="g2q-diff--add"><td>3. Cân chỉnh góc đặt bánh xe</td><td class="col-num text-tertiary">—</td><td class="col-num">300.000</td><td><span class="tag tag--success"><svg class="icon"><use href="#plus"/></svg>Thêm mới</span></td></tr>
+                <tr><td>4. Vệ sinh buồng đốt</td><td class="col-num">650.000</td><td class="col-num">650.000</td><td><span class="tag">Không đổi</span></td></tr>
+              </tbody>
+              <tfoot><tr><td>Tổng đã gồm thuế 8% (số mẫu)</td><td class="col-num">3.569.400 ₫</td><td class="col-num">3.893.400 ₫</td><td></td></tr></tfoot>
+            </table></div>
+            <div class="card__body stack">
+              <div class="row"><strong>v2</strong><span class="tag tag--neutral">Phiên bản hiện tại</span><span class="g2q-note">Gửi 08:35 · bảng giá 10/2026 (hiệu lực từ 01/10/2026) · thuế theo cấu hình hiệu lực 30/10/2026</span></div>
+              <div class="row"><strong>v1</strong><span class="tag tag--neutral">Phiên bản cũ · chỉ đọc</span><span class="g2q-note">Gửi 08:20 · bị thay thế khi v2 gửi · giữ nguyên giá tại thời điểm gửi</span></div>
+              <p class="g2q-note">Mỗi phiên bản giữ nguyên giá và thuế tại thời điểm gửi; đổi bảng giá sau đó không làm đổi báo giá đã gửi. Chỉ phiên bản mới nhất được duyệt.</p>
+            </div>
+          </div>
+
+          <!-- Lịch sử -->
+          <div class="tab-panel" id="tp-h" role="tabpanel" aria-labelledby="tb-h" hidden>
+            <div class="timeline">
+              <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Ghi nhận khách duyệt v2 (3/4 hạng mục) và mở lệnh RO-Q7-2610-00128</div><div class="timeline__meta">Nguyễn Hoàng Yến · 08:51 30/10/2026</div></div></div>
+              <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Khách duyệt trên liên kết: duyệt 1, 2, 3; từ chối 4</div><div class="timeline__meta">Khách (liên kết) · 08:50 30/10/2026</div></div></div>
+              <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#eye"/></svg></div><div><div class="timeline__title">Khách mở liên kết v2</div><div class="timeline__meta">08:48 30/10/2026</div></div></div>
+              <div class="timeline__item timeline__item--info"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi v2 cho khách (Zalo)</div><div class="timeline__meta">Nguyễn Hoàng Yến · 08:35 30/10/2026</div></div></div>
+              <div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#pencil"/></svg></div><div><div class="timeline__title">Tạo v2 từ v1: thêm hạng mục 3 theo yêu cầu khách</div><div class="timeline__meta">Nguyễn Hoàng Yến · 08:30 30/10/2026</div><div class="timeline__note">Lý do: khách gọi điện hỏi thêm cân chỉnh góc đặt bánh xe. v1 bị thay thế.</div></div></div>
+              <div class="timeline__item timeline__item--info"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi v1 cho khách</div><div class="timeline__meta">Nguyễn Hoàng Yến · 08:20 30/10/2026</div></div></div>
+              <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#file-text"/></svg></div><div><div class="timeline__title">Tạo nháp v1</div><div class="timeline__meta">Nguyễn Hoàng Yến · 08:10 30/10/2026</div></div></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="g2q-split__side" aria-label="Đối tượng liên quan">
+        <section class="card">
+          <div class="card__header"><h2 class="card__title">Đối tượng liên quan</h2></div>
+          <div class="g2q-links">
+            <a class="g2q-links__item" href="../g2-workshop/g2-rec-04.html" data-v="partial full"><span><span class="g2q-links__type">Lệnh sửa chữa</span><span class="code">RO-Q7-2610-00128</span></span><span class="badge badge--info">Đang sửa chữa</span></a>
+            <a class="g2q-links__item" href="g2-quo-07.html" data-v="partial full"><span><span class="g2q-links__type">Báo giá bổ sung (phát sinh)</span><span class="code">BG-Q7-2610-00236</span></span><span class="badge badge--warning">Chờ khách duyệt</span></a>
+            <a class="g2q-links__item" href="#" data-v="partial full"><span><span class="g2q-links__type">Thanh toán</span><span class="code">PT-Q7-2610-00312</span> · đặt cọc 1.000.000 ₫</span><span class="badge badge--info">Thanh toán một phần</span></a>
+            <a class="g2q-links__item" href="#" data-v="partial full"><span><span class="g2q-links__type">Hóa đơn</span>Chưa có hóa đơn</span><span class="badge badge--neutral">Chưa xuất</span></a>
+            <a class="g2q-links__item" href="#"><span><span class="g2q-links__type">Kiểm tra xe số</span>2 mục vàng/đỏ đã đưa vào báo giá</span><svg class="icon icon--sm"><use href="#chevron-right"/></svg></a>
+            <a class="g2q-links__item" href="g2-quo-08.html" data-v="partial rejected"><span><span class="g2q-links__type">Hạng mục lưu nhắc</span>Vệ sinh buồng đốt</span><svg class="icon icon--sm"><use href="#chevron-right"/></svg></a>
+          </div>
+        </section>
+        <section class="card"><div class="card__header"><h2 class="card__title">Giá và thuế</h2></div><div class="card__body"><dl class="g2q-kv" style="grid-template-columns:100px minmax(0,1fr)"><dt>Bảng giá</dt><dd>Giá bán chi nhánh Q7 · 10/2026</dd><dt>Giờ công</dt><dd>300.000 ₫/giờ</dd><dt>Thuế GTGT</dt><dd>8% (số mẫu), hiệu lực 30/10/2026</dd><dt>Hiệu lực báo giá</dt><dd>7 ngày, đến 06/11/2026</dd></dl><p class="g2q-note" style="margin-top:8px">Giá vốn không hiện ở màn này với vai trò Cố vấn dịch vụ.</p></div></section>
+      </aside>
+    </div>
+  </div>
+</div>
+<script>g2q.end();</script>
+
+<!-- Hộp thoại hủy báo giá (NH: lý do bắt buộc) -->
+<div class="overlay" id="dlg-cancel" role="alertdialog" aria-modal="true" aria-labelledby="dc-t"><div class="dialog" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dc-t">Hủy báo giá BG-Q7-2610-00231?</h2></div></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Liên kết duyệt gửi cho khách ngừng hoạt động ngay.</li><li>Không tạo lệnh sửa chữa từ báo giá này; lịch sử các phiên bản vẫn được giữ.</li><li>Hành động ghi vào nhật ký, không xóa dữ liệu.</li></ul>
+    <div class="field"><label class="field__label" for="cancel-r">Lý do hủy <span class="field__req">*</span></label><textarea id="cancel-r" class="textarea" data-confirm-reason placeholder="Ví dụ: khách đổi ý, xe chuyển sang garage khác"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Không hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="success|Đã hủy báo giá|Báo giá chuyển sang trạng thái hủy, ghi vào nhật ký.">Hủy báo giá</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-ver]'); if (!b) return;
+  var v1 = b.getAttribute('data-ver') === 'v1';
+  document.getElementById('view-v1').hidden = !v1; document.getElementById('view-v2').hidden = v1;
+  document.querySelectorAll('[data-ver]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+});
+</script>
+</body>
+</html>

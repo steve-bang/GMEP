@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-03 · Điều chuyển nhân sự – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-03')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Điều chuyển nhân sự</h1><p class="page-header__desc">Hộp thoại điều chuyển mở trên hồ sơ nhân sự. Trang này hiện hồ sơ phía sau để thấy ngữ cảnh.</p></div>
+  <div class="page-header__actions"><button class="btn btn--primary" data-open="dlg-xfer" data-g3-need="QL CH" data-g3-why="Chỉ Quản lý chi nhánh hoặc Chủ garage điều chuyển nhân sự."><svg class="icon"><use href="#arrow-left-right"/></svg>Mở hộp thoại điều chuyển</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span></div>
+
+<div id="g3-body" data-noun="hồ sơ nhân sự" data-g3-states="data;loading;error;denied" data-skel="detail" data-back="g3-hrm-01.html">
+<div data-g3-state="data" class="stack">
+  <section class="card"><div class="card__header"><h2 class="card__title">Lê Minh Tuấn</h2><span class="badge badge--success">Đang làm</span></div><div class="card__body"><dl class="g3-kv"><div><dt>Chi nhánh hiện tại</dt><dd>Quận 7</dd></div><div><dt>Chức danh</dt><dd>Thợ máy bậc 4</dd></div><div><dt>Việc đang dở</dt><dd>2 hạng mục (RO-Q7-2610-00127, RO-Q7-2610-00131)</dd></div></dl></div></section>
+  <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Công đã ghi trước ngày hiệu lực vẫn thuộc chi nhánh lúc phát sinh. Lịch điều chuyển nằm ở tab “Chi nhánh và chức danh” của hồ sơ.</span></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-xfer" role="dialog" aria-modal="true" aria-labelledby="xf-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-left-right"/></svg></div><div><h2 class="dialog__title" id="xf-t">Điều chuyển Lê Minh Tuấn</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="form-grid"><div class="field"><label class="field__label" for="xf-from">Chi nhánh đi</label><input id="xf-from" class="input" value="Quận 7" readonly></div>
+      <div class="field"><label class="field__label" for="xf-to">Chi nhánh đến<span class="field__req" aria-hidden="true">*</span></label><select id="xf-to" class="select"><option>Thủ Đức</option><option>Quận 1</option><option value="far">Đà Nẵng (khác vùng)</option></select></div>
+      <div class="field"><label class="field__label" for="xf-d">Ngày hiệu lực<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="xf-d" class="input" value="02/11/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+      <div class="field"><label class="field__label" for="xf-p">Chức danh tại chi nhánh mới</label><select id="xf-p" class="select"><option>Thợ máy bậc 4</option><option>Tổ trưởng</option></select></div></div>
+    <div class="alert alert--warning" id="xf-far" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Điều chuyển khác vùng cần Chủ garage duyệt</span><span>Yêu cầu sẽ chờ duyệt; ngày hiệu lực chưa có tác dụng cho đến khi được duyệt.</span></div></div>
+    <ul class="impact-list"><li>Còn 2 hạng mục đang làm ở Quận 7: giao lại thợ khác trước ngày hiệu lực.</li><li>Công đã ghi vẫn thuộc Quận 7; công mới thuộc chi nhánh đến.</li></ul></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã lên lịch điều chuyển|Hiệu lực 02/11/2026; hồ sơ ghi lịch sử điều chuyển.">Xác nhận điều chuyển</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init();
+document.getElementById('xf-to').addEventListener('change', function () { document.getElementById('xf-far').hidden = this.value !== 'far'; });
+window.addEventListener('load', function () { if (window.gmepOpen && new URLSearchParams(location.search).get('open') !== '0') window.gmepOpen('dlg-xfer'); });</script>
+</body>
+</html>

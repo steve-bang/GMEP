@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-REC-06 – Hủy lệnh và hoàn kho · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="ro" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-04.html">RO-Q7-2610-00128</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Hủy lệnh</span></nav>
+
+  <div data-g2w-scope data-time="Lệnh RO-Q7-2610-00128"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Soạn yêu cầu hủy|pending:Chờ duyệt|approve:Quản lý duyệt|rejected:Bị từ chối|error:Lỗi gửi"></div>
+
+  <!-- ===== SOẠN YÊU CẦU ===== -->
+  <div data-state="data" class="g2w-stack g2w-stack--tight" style="max-width:860px">
+    <section class="card" aria-labelledby="h6">
+      <div class="card__header"><div class="row row--nowrap"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h1 class="card__title" id="h6" style="font-size:var(--font-size-xl)">Hủy lệnh RO-Q7-2610-00128?</h1><div class="card__subtitle"><span class="plate">51H-123.45</span> · Toyota Vios · Nguyễn Văn An · <span class="badge badge--info">Đang sửa chữa</span></div></div></div></div>
+      <div class="card__body stack">
+        <div class="alert alert--danger"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Hậu quả khi hủy lệnh đã xuất phụ tùng</span>
+          <ul class="impact-list" style="margin-top:4px"><li>3 phụ tùng đã xuất kho phải được hoàn kho bằng phiếu hoàn trước khi hủy.</li><li>Công đã ghi (hạng mục 1, 0,5 giờ, thợ Lê Minh Tuấn) sẽ bị đảo, không xóa.</li><li>Đã thu cọc 1.000.000 ₫: chọn cách xử lý bên dưới.</li><li>Cần Quản lý chi nhánh duyệt. Lệnh chỉ chuyển “Đã hủy” sau khi được duyệt.</li><li>Không hoàn tác. Lịch sử, lý do và chứng từ liên quan vẫn được lưu (RULE-010).</li></ul></div></div>
+
+        <div class="field"><label class="field__label" for="r-type">Nhóm lý do<span class="field__req" aria-hidden="true">*</span></label><select id="r-type" class="select"><option>Khách đổi ý, không sửa nữa</option><option>Khách mang xe đi nơi khác</option><option>Không đồng ý giá</option><option>Lập nhầm lệnh</option><option>Khác</option></select><span class="field__hint">Danh sách nhóm lý do là cấu hình.</span></div>
+        <div class="field"><label class="field__label" for="r-note">Giải thích chi tiết<span class="field__req" aria-hidden="true">*</span></label><textarea id="r-note" class="textarea" data-g2w-reason placeholder="Ví dụ: Khách báo bán xe, không sửa nữa. Đã gọi xác nhận lúc 09:50"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
+
+        <fieldset class="stack-2" style="border:0;padding:0;margin:0"><legend class="field__label">Phụ tùng đã xuất cần hoàn kho<span class="field__req" aria-hidden="true">*</span></legend>
+          <div class="table-wrap"><div class="table-scroll"><table class="table table--compact">
+            <caption class="sr-only">Phụ tùng cần hoàn kho</caption>
+            <thead><tr><th>Phụ tùng</th><th class="col-num">SL đã xuất</th><th>Phiếu xuất</th><th>Phiếu hoàn kho</th></tr></thead>
+            <tbody>
+              <tr><td>Dầu nhớt 5W-30 (can 4 lít)<span class="cell-sub">PT-0003</span></td><td class="col-num">1</td><td class="code">PX-Q7-2610-00417</td><td data-g2w-ret><button class="btn btn--secondary btn--sm" data-g2w-make-ret>Tạo phiếu hoàn kho</button></td></tr>
+              <tr><td>Lọc dầu động cơ Vios<span class="cell-sub">PT-0001</span></td><td class="col-num">1</td><td class="code">PX-Q7-2610-00417</td><td data-g2w-ret><button class="btn btn--secondary btn--sm" data-g2w-make-ret>Tạo phiếu hoàn kho</button></td></tr>
+              <tr><td>Má phanh trước Toyota Vios (bộ)<span class="cell-sub">PT-0012</span></td><td class="col-num">1</td><td class="code">PX-Q7-2610-00417</td><td data-g2w-ret><button class="btn btn--secondary btn--sm" data-g2w-make-ret>Tạo phiếu hoàn kho</button></td></tr>
+            </tbody></table></div></div>
+          <p class="g2w-muted">Phụ tùng đã lắp vào xe hoặc dầu đã đổ không hoàn kho nguyên trạng được. Thủ kho quyết định nhập lại hay ghi hao hụt ở phiếu hoàn (G3-INV-10); số liệu kho không sửa trực tiếp.</p></fieldset>
+
+        <fieldset class="stack-2" style="border:0;padding:0;margin:0"><legend class="field__label">Xử lý số tiền đã thu (cọc 1.000.000 ₫, PT-Q7-2610-00312)<span class="field__req" aria-hidden="true">*</span></legend>
+          <div class="reason-list">
+            <label class="radio"><input type="radio" name="money" checked><span class="radio__box"></span><span>Hoàn tiền cho khách (tạo phiếu chi hoàn; vượt hạn mức hoàn tiền thì cần duyệt)</span></label>
+            <label class="radio"><input type="radio" name="money"><span class="radio__box"></span><span>Khác (ghi rõ trong giải thích, Quản lý chi nhánh quyết định)</span></label></div></fieldset>
+
+        <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Hạng mục phát sinh chờ khách duyệt (BG-Q7-2610-00236) sẽ tự chuyển “Hết hạn/Từ chối” theo lệnh và không còn gửi nhắc cho khách.</span></div></div>
+      </div>
+      <div class="card__footer">
+        <a class="btn btn--secondary" href="g2-rec-04.html" data-g2w-back>Giữ lại lệnh</a>
+        <button class="btn btn--danger" id="submit-cancel" data-open="dlg-confirm" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn đề xuất, Quản lý chi nhánh duyệt hủy." data-g2w-force-disabled data-g2w-force-why="Cần lý do (≥ 5 ký tự) và phiếu hoàn kho cho cả 3 phụ tùng." aria-describedby="submit-why" disabled>Gửi duyệt hủy lệnh</button>
+      </div>
+      <p class="g2w-why" id="submit-why" style="padding:0 var(--space-6) var(--space-4);margin:0" role="status"><svg class="icon icon--sm"><use href="#lock"/></svg><span id="submit-why-text">Chưa gửi được: cần nhập giải thích và tạo phiếu hoàn kho cho 3/3 phụ tùng (đã tạo 0/3).</span></p>
+    </section>
+  </div>
+
+  <!-- ===== CHỜ DUYỆT ===== -->
+  <div data-state="pending" hidden class="g2w-stack" style="max-width:860px">
+    <div class="alert alert--warning"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đã gửi yêu cầu hủy, chờ Quản lý chi nhánh duyệt</span><span>Gửi lúc 09:48 bởi Nguyễn Hoàng Yến. Trong lúc chờ, lệnh vẫn “Đang sửa chữa” nhưng thợ không thể bắt đầu hạng mục mới. Phiếu hoàn kho PN-Q7-2610-00098 đã tạo, thủ kho chưa nhận.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-toast="info|Đã nhắc Quản lý|Thông báo gửi Trần Thị Mai lúc 09:49.">Nhắc Quản lý duyệt</button><button class="btn btn--ghost btn--sm" data-toast="success|Đã rút yêu cầu|Lệnh trở lại bình thường.">Rút yêu cầu</button></div></div></div>
+  </div>
+
+  <!-- ===== QUẢN LÝ DUYỆT ===== -->
+  <div data-state="approve" hidden class="g2w-stack" style="max-width:860px">
+    <section class="card"><div class="card__header"><div><h2 class="card__title">Duyệt hủy lệnh RO-Q7-2610-00128</h2><div class="card__subtitle">Đề xuất bởi Nguyễn Hoàng Yến · 09:48 · Lý do: khách báo bán xe, không sửa nữa</div></div><span class="badge badge--warning">Chờ duyệt</span></div>
+      <div class="card__body stack"><dl class="g2w-kv"><dt>Phiếu hoàn kho</dt><dd class="code">PN-Q7-2610-00098 · 3 dòng · chờ thủ kho nhận</dd><dt>Công bị đảo</dt><dd>0,5 giờ – Lê Minh Tuấn</dd><dt>Tiền đã thu</dt><dd><span data-g2w-money>1.000.000 ₫ (hoàn lại khách)</span></dd></dl>
+        <div class="field"><label class="field__label" for="ap-n">Ghi chú duyệt</label><textarea id="ap-n" class="textarea" style="min-height:64px"></textarea></div>
+        <div class="alert alert--neutral" data-g2w-why-box="QL"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Bạn không phải người duyệt. Chỉ Quản lý chi nhánh (hoặc cấp cao hơn theo cấu hình G4-APR-03) duyệt hủy lệnh.</span></div></div></div>
+      <div class="card__footer"><button class="btn btn--secondary" data-g2w-lock="QL" data-g2w-why="Chỉ Quản lý chi nhánh duyệt hủy lệnh." data-toast="warning|Đã từ chối hủy|Lệnh tiếp tục sửa chữa. Lý do từ chối gửi cho cố vấn.">Từ chối</button><button class="btn btn--danger" data-g2w-lock="QL" data-g2w-why="Chỉ Quản lý chi nhánh duyệt hủy lệnh." data-toast="success|Đã duyệt hủy lệnh|Lệnh chuyển Đã hủy, công được đảo, phiếu hoàn kho chờ thủ kho.">Duyệt hủy lệnh</button></div></section>
+  </div>
+
+  <!-- ===== BỊ TỪ CHỐI ===== -->
+  <div data-state="rejected" hidden class="g2w-stack" style="max-width:860px">
+    <div class="alert alert--danger"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Quản lý từ chối yêu cầu hủy</span><span>Trần Thị Mai · 10:02: “Khách vẫn muốn thay má phanh, liên hệ lại khách trước.” Lệnh giữ trạng thái Đang sửa chữa. Phiếu hoàn kho đã tạo được hủy theo.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g2-rec-04.html">Về lệnh</a></div></div></div>
+  </div>
+
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Chưa gửi được yêu cầu hủy" data-text="Kết nối bị gián đoạn. Nội dung bạn nhập vẫn được giữ trên màn hình. Thử gửi lại, không cần nhập lại." data-ref="ERR-REC-5021"></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-confirm" role="alertdialog" aria-modal="true" aria-labelledby="cf-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="RO-Q7-2610-00128">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="cf-t">Gửi yêu cầu hủy lệnh?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><p>Yêu cầu chuyển tới Quản lý chi nhánh. Bạn không hoàn tác được sau khi lệnh được duyệt hủy.</p>
+    <div class="field"><label class="field__label" for="cf-c">Gõ <strong>RO-Q7-2610-00128</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="cf-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu hủy|Chờ Quản lý chi nhánh duyệt." disabled>Gửi duyệt hủy</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var done = 0;
+  function check() {
+    var ok = done === 3 && $('#r-note').value.trim().length >= 5, b = $('#submit-cancel');
+    if (ok) b.removeAttribute('data-g2w-force-disabled'); else b.setAttribute('data-g2w-force-disabled', '');
+    $('#submit-why-text').textContent = ok ? 'Đủ điều kiện gửi duyệt.' : 'Chưa gửi được: cần giải thích tối thiểu 5 ký tự và phiếu hoàn kho cho 3/3 phụ tùng (đã tạo ' + done + '/3).';
+    if (window.g2wApply) window.g2wApply();
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-g2w-make-ret]'); if (!b) return;
+    var td = b.closest('td'); td.innerHTML = '<span class="tag tag--info">PN-Q7-2610-00098 · chờ thủ kho nhận</span>'; done++; check();
+  });
+  document.addEventListener('input', function (e) { if (e.target.matches('[data-g2w-reason]')) check(); });
+  check();
+})();
+</script>
+</body>
+</html>

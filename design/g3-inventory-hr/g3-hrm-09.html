@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-09 · Hoa hồng cố vấn và thợ – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-09')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Hoa hồng cố vấn và thợ</h1><p class="page-header__desc">Hoa hồng chỉ được ghi nhận khi lệnh đã thu đủ tiền. Lệnh chưa thu đủ hiện “Chưa ghi nhận” và tự chuyển khi đủ.</p></div>
+  <div class="page-header__actions"><button class="btn btn--primary" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh duyệt hoa hồng." data-toast="success|Đã duyệt|1 dòng hoa hồng được duyệt."><svg class="icon"><use href="#check"/></svg>Duyệt các dòng chọn</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Kỳ:</strong> 16/10/2026 – 31/10/2026</span><span class="badge badge--warning">Số tạm</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="hoa hồng" data-cols="8" data-empty-icon="wallet" data-empty-text="Chưa có hoa hồng nào trong kỳ. Hoa hồng phát sinh khi lệnh sửa chữa được thu đủ tiền.">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--info" data-g3-roles="TH CV" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy hoa hồng của mình.</span></div></div>
+  <section class="grid grid--3" aria-label="Tóm tắt kỳ">
+    <div class="card kpi"><span class="kpi__label">Đã ghi nhận</span><span class="kpi__value">451.500<span class="kpi__unit">₫</span></span><span class="kpi__meta">3 dòng, lệnh đã thu đủ</span><span class="kpi__scope">Chi nhánh Quận 7 · 16–31/10/2026</span></div>
+    <div class="card kpi kpi--warning"><span class="kpi__label">Chưa ghi nhận</span><span class="kpi__value">383.250<span class="kpi__unit">₫</span></span><span class="kpi__meta">2 dòng, lệnh chưa thu đủ</span><span class="kpi__scope">Chi nhánh Quận 7 · 16–31/10/2026</span></div>
+    <div class="card kpi"><span class="kpi__label">Chờ duyệt</span><span class="kpi__value">1</span><span class="kpi__meta">dòng đã đủ điều kiện</span><span class="kpi__scope">Chi nhánh Quận 7 · 16–31/10/2026</span></div></section>
+  <div class="table-wrap">
+    <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> dòng</span><button class="btn btn--secondary btn--sm" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh duyệt." data-toast="success|Đã duyệt|Hoa hồng đã chọn được duyệt.">Duyệt</button><button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
+    <div class="table-scroll"><table class="table" data-g3-cards>
+      <caption class="sr-only">Hoa hồng theo lệnh và người nhận</caption>
+      <thead><tr><th class="col-check"><span class="sr-only">Chọn</span></th><th data-card="title">Lệnh</th><th data-card="sub">Người nhận</th><th>Vai trò</th><th class="col-num">Cơ sở tính</th><th class="col-num">Quy tắc</th><th class="col-num" data-card="foot">Hoa hồng</th><th data-card="meta">Thanh toán lệnh</th><th data-card="badge">Ghi nhận</th></tr></thead>
+      <tbody>
+        <tr data-g3-hide="TH"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-Q7-2610-00121 Nguyễn Hoàng Yến"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">RO-Q7-2610-00121</td><td>Nguyễn Hoàng Yến</td><td>Cố vấn</td><td class="col-num">4.560.000 ₫</td><td class="col-num">2,5%</td><td class="col-num">114.000 ₫</td><td><span class="badge badge--success">Đã thanh toán</span></td><td><span class="badge badge--warning">Chờ duyệt</span></td></tr>
+        <tr data-g3-hide="TH"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-Q7-2610-00124 Nguyễn Hoàng Yến" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">RO-Q7-2610-00124</td><td>Nguyễn Hoàng Yến</td><td>Cố vấn</td><td class="col-num">6.300.000 ₫</td><td class="col-num">2,5%</td><td class="col-num">157.500 ₫</td><td><span class="badge badge--success">Đã thanh toán</span></td><td><span class="badge badge--success">Đã duyệt</span></td></tr>
+        <tr data-g3-hide="TH"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-Q7-2610-00128 Nguyễn Hoàng Yến" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">RO-Q7-2610-00128</td><td>Nguyễn Hoàng Yến</td><td>Cố vấn</td><td class="col-num">3.450.000 ₫</td><td class="col-num">2,5%</td><td class="col-num text-secondary">86.250 ₫</td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td><span class="badge badge--neutral">Chưa ghi nhận</span></td></tr>
+        <tr data-g3-hide="CV"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-Q7-2610-00124 Lê Minh Tuấn" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">RO-Q7-2610-00124</td><td>Lê Minh Tuấn</td><td>Thợ</td><td class="col-num">4 lốp</td><td class="col-num">45.000 ₫/lốp</td><td class="col-num">180.000 ₫</td><td><span class="badge badge--success">Đã thanh toán</span></td><td><span class="badge badge--success">Đã duyệt</span></td></tr>
+        <tr data-g3-hide="TH CV"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn RO-Q7-2610-00126 Phạm Quốc Bảo" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">RO-Q7-2610-00126</td><td>Phạm Quốc Bảo</td><td>Thợ</td><td class="col-num">1.650.000 ₫</td><td class="col-num">18%</td><td class="col-num text-secondary">297.000 ₫</td><td><span class="badge badge--info">Thanh toán một phần</span></td><td><span class="badge badge--neutral">Chưa ghi nhận</span></td></tr>
+      </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Quy tắc và tỷ lệ là giá trị mẫu theo <a href="g3-hrm-06.html">Quy tắc tính công và hoa hồng</a>, chờ khách chốt. Dòng “Chưa ghi nhận” hiện số dự kiến mờ, chưa tính vào bảng công.</span></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

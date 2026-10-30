@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-10 · Hoàn kho / khách trả phụ tùng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-10')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Phiếu hoàn kho</h1><p class="page-header__desc">Đưa phụ tùng đã xuất cho lệnh trở lại kho bằng chứng từ mới. Phiếu xuất gốc giữ nguyên để truy vết (RULE-009, RULE-010).</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><a class="btn btn--secondary" href="g3-inv-08.html">Về chứng từ kho</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Nhập lại vào Kho Quận 7</span><span>· Ngày lập 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="phiếu hoàn kho" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div data-g3-state="data" class="stack">
+  <div class="g3-ro-flag alert alert--info" data-for="f-rtn" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Thủ kho lập phiếu hoàn kho; Quản lý chi nhánh duyệt.</span></div></div>
+  <div class="row"><div class="segmented" role="group" aria-label="Loại hoàn kho"><button class="segmented__item" aria-pressed="true">Hoàn kho theo lệnh <span class="tag tag--neutral">P1</span></button><button class="segmented__item" aria-pressed="false" data-g3-toggle="blk-cust">Khách trả phụ tùng chưa lắp <span class="tag tag--neutral">P2+</span></button></div></div>
+
+  <form id="f-rtn" class="g3-split" data-g3-edit="TK" onsubmit="return false">
+    <div class="stack-6">
+      <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Chứng từ gốc</h2>
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="r-src">Lệnh sửa chữa<span class="field__req" aria-hidden="true">*</span></label><div class="input-group"><svg class="icon"><use href="#clipboard-list"/></svg><input id="r-src" class="input" value="RO-Q7-2610-00121"></div></div>
+          <div class="field"><label class="field__label" for="r-px">Phiếu xuất gốc</label><input id="r-px" class="input" value="PX-Q7-2610-00181 · 29/10/2026 16:05" readonly></div>
+          <div class="field span-2"><label class="field__label" for="r-why">Lý do hoàn kho<span class="field__req" aria-hidden="true">*</span></label><select id="r-why" class="select"><option>Khách đổi ý, không dùng</option><option>Xuất nhầm</option><option>Lệnh bị hủy</option><option>Phụ tùng không đúng chủng loại</option><option>Khác (ghi chú bắt buộc)</option></select></div>
+        </div></section>
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Phụ tùng hoàn</h2></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Dòng phụ tùng hoàn kho</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Đã xuất cho lệnh</th><th class="col-num">Đã hoàn trước</th><th class="col-num">SL hoàn</th><th>Lô nhập lại</th><th class="col-num">Giá vốn lệnh giảm</th></tr></thead>
+          <tbody><tr><td><span class="code">PT-0001</span> Lọc dầu động cơ Toyota Vios</td><td class="col-num">2</td><td class="col-num">0</td><td class="col-num"><div class="qty" role="group" aria-label="Số lượng hoàn"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="1" min="1" max="2" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td>L2609-B</td><td class="col-num"><span data-g3-cost="117.000 ₫"></span></td></tr></tbody></table></div></section>
+
+      <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Lệnh này đã xuất hóa đơn điện tử số 0001201</span><span>Hoàn phụ tùng đã tính tiền cần lập hóa đơn điều chỉnh để số tiền khớp. Hệ thống sẽ nhắc Kế toán sau khi phiếu được duyệt (BR-INV-04, BR-INV-12). Phần hoàn tiền cho khách xử lý ở <a href="#">Tài chính › Hoàn tiền (G4-ACC-07)</a>.</span></div></div>
+
+      <div id="blk-cust" hidden class="form-section"><h2 class="card__title" style="margin-bottom:16px">Khách trả phụ tùng chưa lắp</h2>
+        <div class="form-grid"><div class="field"><label class="field__label" for="c-cus">Khách hàng</label><input id="c-cus" class="input" value="Nguyễn Văn An"><span class="field__hint">Hồ sơ khách hiện theo quyền; số điện thoại không hiện ở đây.</span></div>
+          <div class="field"><label class="field__label" for="c-cond">Tình trạng hàng<span class="field__req" aria-hidden="true">*</span></label><select id="c-cond" class="select"><option>Còn nguyên, nhập lại kho</option><option>Đã mở bao bì, kiểm tra</option><option>Không nhận lại</option></select></div></div>
+        <span class="g3-why">Chính sách trả hàng của khách (thời hạn, phí) chưa được xác nhận; màn hình chỉ ghi nhận tình trạng, không tự quyết định hoàn tiền.</span></div>
+    </div>
+    <aside class="g3-side"><section class="card"><div class="card__body stack">
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-rtn" data-g3-need="TK" data-g3-why="Chỉ Thủ kho xác nhận hoàn kho.">Xác nhận hoàn kho</button>
+      <button class="btn btn--secondary btn--block" type="button">Lưu nháp</button>
+      <p class="t-body-sm text-secondary">Sau khi ghi sổ, tồn Thực tế tăng 1 và Khả dụng tăng 1. Phiếu không sửa hoặc xóa được.</p></div></section></aside>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-rtn" role="alertdialog" aria-modal="true" aria-labelledby="rt-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rt-t">Hoàn phụ tùng của lệnh đã có hóa đơn?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Nhập lại 1 Lọc dầu vào Kho Quận 7 (lô L2609-B); giá vốn lệnh giảm 117.000 ₫.</li><li>Phiếu chờ Quản lý chi nhánh duyệt trước khi ghi sổ.</li><li>Kế toán nhận nhắc lập hóa đơn điều chỉnh cho số 0001201.</li></ul>
+    <div class="field"><label class="field__label" for="rt-r">Ghi chú gửi Quản lý<span class="field__req" aria-hidden="true">*</span></label><textarea id="rt-r" class="textarea" data-confirm-reason placeholder="Ví dụ: khách chỉ thay 1 lọc, lọc còn lại giữ cho lần sau"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="warning|Đã gửi duyệt hoàn kho|Chờ Đặng Hữu Phúc duyệt; Kế toán sẽ nhận nhắc hóa đơn điều chỉnh." disabled>Gửi duyệt hoàn kho</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

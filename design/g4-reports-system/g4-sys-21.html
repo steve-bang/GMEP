@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-21 – Lịch sử lô nhập và hoàn tác · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-21" data-menu="set" data-crumbs="Cài đặt|Nhập dữ liệu từ Excel|Lịch sử lô nhập" data-allow="AD CH"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Lịch sử lô nhập và hoàn tác',
+  desc: 'Mỗi lần nhập là một lô. Hoàn tác một lô chỉ mất đúng dữ liệu của lô đó và bị chặn nếu dữ liệu đã phát sinh giao dịch (FR-SYS-007, UAT-12).',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống (mọi chi nhánh)',
+  actions: '<a class="btn btn--primary" href="g4-sys-20.html"><svg class="icon" aria-hidden="true"><use href="#upload"/></svg>Nhập lô mới</a>',
+  empty: { title: 'Chưa có lô nhập nào', text: 'Khi nhập dữ liệu từ Excel, mỗi lô được lưu ở đây cùng tệp nguồn để đối chiếu và hoàn tác.', cta: '<a class="btn btn--primary" href="g4-sys-20.html">Nhập lô đầu tiên</a>' }
+});
+</script>
+
+<div class="alert alert--neutral" role="note" data-why-roles="AD"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Chủ garage <strong>duyệt</strong> yêu cầu hoàn tác do Quản trị đề xuất; không tự đề xuất.</div></div>
+
+<div class="table-wrap">
+  <div class="table-toolbar"><span class="table-meta">4 lô · sắp xếp mới nhất trước</span></div>
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Lịch sử lô nhập</caption>
+    <thead><tr><th>Lô</th><th>Loại dữ liệu</th><th>Chi nhánh / môi trường</th><th>Người nhập</th><th>Thời điểm</th><th class="col-num">Số dòng</th><th>Trạng thái</th><th>Tệp nguồn</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td class="code">L-0012</td><td>Danh mục phụ tùng</td><td>Quận 7 · Thử nghiệm</td><td>Đỗ Thanh Tâm</td><td class="num">30/10/2026 09:21</td><td class="col-num">1.245</td><td><span class="tag tag--success">Đã ghi</span></td><td><a href="#">phu-tung-q7.xlsx</a></td><td><button class="btn btn--ghost btn--sm" data-edit-roles="AD" data-open="dlg-undo" title="Chỉ Quản trị đề xuất hoàn tác; Chủ garage duyệt">Hoàn tác…</button></td></tr>
+      <tr><td class="code">L-0011</td><td>Khách hàng và xe</td><td>Quận 7 · Thật</td><td>Lê Minh Quân</td><td class="num">28/10/2026 14:05</td><td class="col-num">860</td><td><span class="tag tag--warning">Chờ Chủ garage duyệt hoàn tác</span></td><td><a href="#">khach-xe-q7.xlsx</a></td><td><button class="btn btn--primary btn--sm" data-show-roles="CH" data-open="dlg-undo">Duyệt hoàn tác</button></td></tr>
+      <tr><td class="code">L-0010</td><td>Tồn kho đầu kỳ</td><td>Quận 7 · Thật</td><td>Phạm Văn Đạt</td><td class="num">22/10/2026 16:30</td><td class="col-num">312</td><td><span class="tag tag--success">Đã ghi</span></td><td><a href="#">ton-dau-ky-q7.xlsx</a></td><td><button class="btn btn--ghost btn--sm" disabled aria-describedby="why10">Hoàn tác…</button><span class="g4r-formula" id="why10">Không hoàn tác được: 312 mặt hàng đã có phiếu xuất. Dùng phiếu điều chỉnh.</span></td></tr>
+      <tr><td class="code">L-0009</td><td>Dịch vụ, giờ chuẩn, bảng giá</td><td>Toàn hệ thống · Thật</td><td>Đỗ Thanh Tâm</td><td class="num">01/07/2026 08:00</td><td class="col-num">6</td><td><span class="tag tag--neutral">Đã hoàn tác 02/07/2026</span></td><td><a href="#">dich-vu-v1.xlsx</a></td><td></td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+    <div class="record"><div class="record__top"><div><div class="record__title code">L-0012</div>Danh mục phụ tùng · 1.245 dòng</div><span class="tag tag--success">Đã ghi</span></div><div class="record__foot"><span>30/10/2026 09:21</span><button class="btn btn--ghost btn--sm" data-open="dlg-undo">Hoàn tác…</button></div></div>
+  </div>
+  <div class="table-footer"><span class="table-meta">Lô đã hoàn tác không xóa lịch sử: vẫn xem được người nhập, tệp nguồn và người hoàn tác.</span></div>
+</div>
+
+<script>
+g4rEnd('', '<div class="overlay" id="dlg-undo" role="alertdialog" aria-modal="true" aria-labelledby="un-t"><div class="dialog" data-confirm-guard data-confirm-word="L-0012"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="un-t">Hoàn tác lô L-0012?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Gỡ đúng 1.245 phụ tùng thuộc lô này; dữ liệu ngoài lô không bị đụng tới.</li><li>Đã kiểm tra: chưa có phiếu nhập, xuất hay báo giá nào dùng các mã này.</li><li>Cần Chủ garage duyệt; lô vẫn xem được ở lịch sử với trạng thái Đã hoàn tác.</li></ul><div class="field"><label class="field__label" for="un-r">Lý do<span class="field__req">*</span></label><textarea class="textarea" id="un-r" data-confirm-reason style="min-height:56px"></textarea></div><div class="field"><label class="field__label" for="un-w">Gõ L-0012 để xác nhận</label><input class="input" id="un-w" data-confirm-input autocomplete="off"></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ lô</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu hoàn tác|Chờ Chủ garage duyệt.">Gửi yêu cầu hoàn tác</button></div></div></div>');
+</script>
+</body>
+</html>

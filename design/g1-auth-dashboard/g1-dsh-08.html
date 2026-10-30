@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-DSH-08 · Tổng quan Thu ngân – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="TN" data-g1-menu="dash" data-crumb="Tổng quan" data-period="today" data-figure="Số tạm · ca sáng đang mở">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Tổng quan thu ngân</h1>
+      <p class="page-header__desc">Thứ Sáu, 30/10/2026 · Thu ngân · Chi nhánh Quận 7</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--secondary" data-g1-shift-toggle aria-pressed="false"><svg class="icon"><use href="#clock"/></svg><span>Thử: ca chưa mở</span></button>
+      <a class="btn btn--secondary" href="#" data-target="G4-ACC-08"><svg class="icon"><use href="#wallet"/></svg>Chốt ca</a>
+      <a class="btn btn--primary" href="#" data-target="G4-ACC-01" data-needs-shift><svg class="icon"><use href="#plus"/></svg>Thu tiền</a>
+    </div>
+  </div>
+
+  <div class="alert alert--warning" id="shift-closed" role="status" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ca làm việc chưa mở</span><span>Chưa thu tiền được vì chưa có ca đang mở. Mở ca và nhập tiền đầu ca để bắt đầu; các lệnh sẵn sàng thu vẫn xem được.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="#" data-target="G4-ACC-08">Mở ca</a></div></div></div>
+
+  <div data-g1-proto></div>
+  <div data-g1-filter data-periods="today,7d,month" data-default="today"></div>
+
+  <section class="g1-kpis" aria-label="Chỉ số chính">
+    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Lệnh sẵn sàng thu tiền"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Lệnh sẵn sàng thu tiền</span><span class="kpi__value">03</span><span class="kpi__meta">Còn phải thu 6.830.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Đã thu một phần"><span class="kpi__label"><svg class="icon icon--sm"><use href="#arrow-left-right"/></svg>Đã thu một phần</span><span class="kpi__value">01</span><span class="kpi__meta">Còn nợ 2.100.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Quỹ tiền mặt ca hiện tại" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Quỹ tiền mặt ca này</span><span class="kpi__value">8,4<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Đầu ca 2,0 tr ₫ + thu tiền mặt 6,4 tr ₫</span><span class="kpi__scope">Ca sáng · mở lúc 07:45 · số tạm</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Phiếu thu hôm nay" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#receipt"/></svg>Phiếu thu hôm nay</span><span class="kpi__value">06</span><span class="kpi__meta">Tổng 14.600.000 ₫</span><span class="kpi__scope">Chi nhánh Quận 7 · <span data-g1-period-text>hôm nay 30/10/2026</span> · số tạm</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Hóa đơn cần xuất"><span class="kpi__label"><svg class="icon icon--sm"><use href="#file-text"/></svg>Hóa đơn cần xuất</span><span class="kpi__value">04</span><span class="kpi__meta">Lệnh đã thu đủ, chưa có hóa đơn</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+  </section>
+
+  <div class="g1-cols">
+    <div class="g1-stack">
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Lệnh sẵn sàng thu tiền" data-g1-err data-g1-empty="Chưa có lệnh nào chờ thu tiền|Khi xe qua kiểm tra chất lượng và sẵn sàng bàn giao, lệnh hiện ở đây." aria-labelledby="h-pay">
+        <div class="card__header"><div><h2 class="card__title" id="h-pay">Lệnh sẵn sàng thu tiền</h2><div class="card__subtitle">Thu tiền luôn gắn với một lệnh sửa chữa (RULE-007)</div></div></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Lệnh sẵn sàng thu tiền</caption>
+          <thead><tr><th scope="col">Lệnh</th><th scope="col">Biển số · khách</th><th scope="col">Trạng thái lệnh</th><th scope="col">Thanh toán</th><th scope="col" class="col-num">Còn phải thu</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <tbody>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00121</a></td><td><span class="plate">59A-111.22</span><br>Lê Quốc Huy</td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-num money">1.250.000 ₫</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G4-ACC-01" data-needs-shift>Thu tiền</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00120</a></td><td><span class="plate">51G-765.43</span><br>Võ Thanh Sơn</td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td><span class="badge badge--info">Thanh toán một phần</span><br><span class="t-caption text-secondary">Đã thu 4.200.000 ₫ trên 6.300.000 ₫</span></td><td class="col-num money">2.100.000 ₫</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G4-ACC-01" data-needs-shift>Thu tiếp</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00123</a></td><td><span class="plate">29A-333.45</span><br>Phạm Thị Hoa</td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-num money">3.480.000 ₫</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G4-ACC-01" data-needs-shift>Thu tiền</a></td></tr>
+          </tbody>
+          <tfoot><tr><th scope="row" colspan="4">Tổng còn phải thu (3 lệnh)</th><td class="col-num money"><strong>6.830.000 ₫</strong></td><td></td></tr></tfoot>
+        </table></div>
+      </section>
+
+      <section class="card" data-g1-card data-g1-title="Phiếu thu hôm nay" data-g1-err data-g1-empty="Hôm nay chưa có phiếu thu|Phiếu thu tạo trong ca sẽ hiện ở đây." aria-labelledby="h-rcp">
+        <div class="card__header"><div><h2 class="card__title" id="h-rcp">Phiếu thu hôm nay</h2><div class="card__subtitle">6 phiếu · 14.600.000 ₫ · phiếu đã ghi sổ chỉ được đảo, không xóa</div></div></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Phiếu thu hôm nay</caption>
+          <thead><tr><th scope="col">Phiếu thu</th><th scope="col">Giờ</th><th scope="col">Lệnh</th><th scope="col">Hình thức</th><th scope="col" class="col-num">Số tiền</th></tr></thead>
+          <tbody>
+            <tr><td class="code">PT-Q7-2610-00216</td><td class="num">09:08</td><td class="code">RO-Q7-2610-00118</td><td>Chuyển khoản</td><td class="col-num money">5.420.000 ₫</td></tr>
+            <tr><td class="code">PT-Q7-2610-00215</td><td class="num">08:52</td><td class="code">RO-Q7-2610-00115</td><td>Tiền mặt</td><td class="col-num money">2.350.000 ₫</td></tr>
+            <tr><td class="code">PT-Q7-2610-00214</td><td class="num">08:30</td><td class="code">RO-Q7-2610-00113</td><td>Tiền mặt</td><td class="col-num money">3.450.000 ₫</td></tr>
+            <tr><td class="code">PT-Q7-2610-00213</td><td class="num">08:12</td><td class="code">BG-Q7-2610-00229</td><td>Tiền mặt · đặt cọc</td><td class="col-num money">600.000 ₫</td></tr>
+            <tr><td class="code">PT-Q7-2610-00212</td><td class="num">07:58</td><td class="code">RO-Q7-2610-00111</td><td>Quẹt thẻ</td><td class="col-num money">1.380.000 ₫</td></tr>
+            <tr><td class="code">PT-Q7-2610-00211</td><td class="num">07:50</td><td class="code">RO-Q7-2610-00110</td><td>Chuyển khoản</td><td class="col-num money">1.400.000 ₫</td></tr>
+          </tbody>
+          <tfoot><tr><th scope="row" colspan="4">Tổng thu hôm nay</th><td class="col-num money"><strong>14.600.000 ₫</strong></td></tr></tfoot>
+        </table></div>
+      </section>
+    </div>
+
+    <div class="g1-stack">
+      <section class="card" data-g1-card data-g1-title="Ca và ngày" aria-labelledby="h-shift">
+        <div class="card__header"><h2 class="card__title" id="h-shift">Trạng thái ca và ngày</h2></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Ca sáng 30/10/2026</strong><span class="g1-row__sub">Mở lúc 07:45 bởi Bùi Ngọc Mai</span></span><span class="g1-row__end"><span class="badge badge--info">Đang mở</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Ngày 29/10/2026</strong><span class="g1-row__sub">Quản lý chi nhánh chưa chốt ngày</span></span><span class="g1-row__end"><span class="badge badge--warning">Chưa chốt</span></span></div>
+        <div class="card__footer"><a class="btn btn--secondary btn--sm" href="#" data-target="G4-ACC-08">Mở chốt ca</a></div>
+      </section>
+      <section class="card" data-g1-card data-g1-title="Hóa đơn cần xuất" data-g1-empty="Không có hóa đơn cần xuất|Lệnh đã thu đủ tiền mà chưa có hóa đơn sẽ hiện ở đây." aria-labelledby="h-inv">
+        <div class="card__header"><div><h2 class="card__title" id="h-inv">Hóa đơn cần xuất</h2><div class="card__subtitle">Trạng thái hóa đơn tách khỏi thanh toán</div></div></div>
+        <div class="g1-row"><span class="g1-row__main"><strong class="code">RO-Q7-2610-00111</strong><span class="g1-row__sub">Kia Cerato · 1.380.000 ₫</span></span><span class="g1-row__end"><span class="badge badge--neutral">Chưa xuất</span><a class="btn btn--primary btn--sm" href="#" data-target="G4-EIN-02">Xuất</a></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong class="code">RO-Q7-2610-00115</strong><span class="g1-row__sub">Honda CR-V · 2.350.000 ₫</span></span><span class="g1-row__end"><span class="badge badge--neutral">Chưa xuất</span><a class="btn btn--primary btn--sm" href="#" data-target="G4-EIN-02">Xuất</a></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong class="code">RO-Q7-2610-00113</strong><span class="g1-row__sub">Ford Everest · 3.450.000 ₫</span></span><span class="g1-row__end"><span class="badge badge--neutral">Chưa xuất</span><span class="sync"><svg class="icon icon--sm spin"><use href="#loader"/></svg>Đang gửi…</span></span></div>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-g1-shift-toggle]'); if (!t) return;
+    var closed = t.getAttribute('aria-pressed') !== 'true';
+    t.setAttribute('aria-pressed', String(closed)); t.querySelector('span').textContent = closed ? 'Thử: ca đang mở' : 'Thử: ca chưa mở';
+    document.getElementById('shift-closed').hidden = !closed;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-needs-shift]'), function (b) {
+      if (closed) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('title', 'Chưa có ca đang mở. Mở ca trước khi thu tiền.'); b.style.pointerEvents = 'none'; b.style.opacity = '.5'; }
+      else { b.removeAttribute('aria-disabled'); b.removeAttribute('title'); b.style.pointerEvents = ''; b.style.opacity = ''; }
+    });
+  });
+})();
+</script>
+</body>
+</html>

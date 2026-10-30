@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-DSH-09 · Tổng quan Quản đốc / QC – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QD" data-g1-menu="dash" data-crumb="Tổng quan" data-period="today">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Tổng quan quản đốc</h1>
+      <p class="page-header__desc">Thứ Sáu, 30/10/2026 · Quản đốc · Phân việc và kiểm tra chất lượng</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--secondary btn--lg" href="#" data-target="G2-DLV-01"><svg class="icon"><use href="#clipboard-check"/></svg>Kiểm tra chất lượng (6)</a>
+      <a class="btn btn--primary btn--lg" href="#" data-target="G2-REC-05"><svg class="icon"><use href="#users"/></svg>Phân thợ (5)</a>
+    </div>
+  </div>
+
+  <div data-g1-proto></div>
+  <div data-g1-filter data-periods="today,7d,month" data-default="today"></div>
+
+  <section class="g1-kpis" aria-label="Chỉ số chính">
+    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Hạng mục chưa phân thợ"><span class="kpi__label"><svg class="icon icon--sm"><use href="#users"/></svg>Hạng mục chưa phân thợ</span><span class="kpi__value">05</span><span class="kpi__meta">Thuộc 4 lệnh</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Xe chờ QC"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Xe chờ QC</span><span class="kpi__value">06</span><span class="kpi__meta">Lệnh “Chờ QC”, lâu nhất 40 phút</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Xe QC trả lại"><span class="kpi__label"><svg class="icon icon--sm"><use href="#undo"/></svg>Xe QC trả lại</span><span class="kpi__value">01</span><span class="kpi__meta">Hạng mục ở trạng thái “Trả lại”</span><span class="kpi__scope">Chi nhánh Quận 7 · hôm nay 30/10/2026</span></a>
+    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Xe trễ hẹn"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Xe trễ hẹn</span><span class="kpi__value">03</span><span class="kpi__meta">Quá giờ hẹn giao</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Phát sinh chờ khách duyệt"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Phát sinh chờ khách duyệt</span><span class="kpi__value">02</span><span class="kpi__meta">Hạng mục bị khóa nút Bắt đầu</span><span class="kpi__scope">Chi nhánh Quận 7 · lúc 09:15</span></a>
+  </section>
+
+  <div class="g1-cols">
+    <div class="g1-stack">
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Hạng mục chưa phân thợ" data-g1-err data-g1-empty="Mọi hạng mục đã có thợ|Hạng mục mới từ lệnh sẽ hiện ở đây để bạn phân thợ." aria-labelledby="h-un">
+        <div class="card__header"><div><h2 class="card__title" id="h-un">Hạng mục chưa phân thợ</h2><div class="card__subtitle">Mỗi hạng mục một thợ chính</div></div></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Hạng mục chưa phân thợ</caption>
+          <thead><tr><th scope="col">Lệnh</th><th scope="col">Biển số</th><th scope="col">Hạng mục</th><th scope="col" class="col-num">Giờ chuẩn</th><th scope="col">Thợ gợi ý</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <tbody>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00131</a></td><td><span class="plate">51A-868.86</span></td><td>Thay bộ ly hợp</td><td class="col-num">3,0 giờ</td><td>Phạm Gia Bảo (còn 1,0 giờ)</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G2-REC-05">Phân thợ</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00132</a></td><td><span class="plate">51H-777.01</span></td><td>Cân bằng động bánh xe</td><td class="col-num">0,5 giờ</td><td>Trương Minh Hiếu (còn 7,2 giờ)</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G2-REC-05">Phân thợ</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00132</a></td><td><span class="plate">51H-777.01</span></td><td>Đảo lốp</td><td class="col-num">0,4 giờ</td><td>Trương Minh Hiếu (còn 7,2 giờ)</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G2-REC-05">Phân thợ</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00133</a></td><td><span class="plate">72A-345.67</span></td><td>Thay dầu hộp số</td><td class="col-num">1,0 giờ</td><td>Nguyễn Thái Sơn (còn 4,0 giờ)</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G2-REC-05">Phân thợ</a></td></tr>
+          </tbody></table></div>
+        <div class="card__footer"><a class="btn btn--ghost btn--sm" href="#" data-target="G2-REC-05">Xem tất cả 5 hạng mục<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+      </section>
+
+      <section class="card" data-g1-card data-g1-title="Tải việc của thợ" data-g1-err data-g1-empty="Chưa có thợ trong ca|Danh sách thợ lấy từ ca làm việc hôm nay." aria-labelledby="h-load">
+        <div class="card__header"><div><h2 class="card__title" id="h-load">Tải việc của thợ</h2><div class="card__subtitle">Giờ chuẩn đã giao so với giờ khả dụng hôm nay · đơn vị: giờ · Chi nhánh Quận 7 · lúc 09:15</div></div></div>
+        <div role="list" aria-label="Tải việc từng thợ">
+          <div class="g1-bar" role="listitem"><strong>Lê Hoàng Phúc</strong><span class="progress progress--danger"><span class="progress__track" role="progressbar" aria-label="Lê Hoàng Phúc: 8,6 trên 8,0 giờ" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8"><span class="progress__bar" style="width:100%"></span></span></span><span class="num"><span class="tag tag--danger">Quá tải</span> 8,6 / 8,0</span></div>
+          <div class="g1-bar" role="listitem"><strong>Đỗ Văn Tùng</strong><span class="progress progress--warning"><span class="progress__track" role="progressbar" aria-label="Đỗ Văn Tùng: 7,8 trên 8,0 giờ" aria-valuemin="0" aria-valuemax="8" aria-valuenow="7.8"><span class="progress__bar" style="width:97.5%"></span></span></span><span class="num">7,8 / 8,0</span></div>
+          <div class="g1-bar" role="listitem"><strong>Phạm Gia Bảo</strong><span class="progress progress--warning"><span class="progress__track" role="progressbar" aria-label="Phạm Gia Bảo: 7,0 trên 8,0 giờ" aria-valuemin="0" aria-valuemax="8" aria-valuenow="7"><span class="progress__bar" style="width:87.5%"></span></span></span><span class="num">7,0 / 8,0</span></div>
+          <div class="g1-bar" role="listitem"><strong>Lâm Quốc Việt</strong><span class="progress progress--info"><span class="progress__track" role="progressbar" aria-label="Lâm Quốc Việt: 6,5 trên 8,0 giờ" aria-valuemin="0" aria-valuemax="8" aria-valuenow="6.5"><span class="progress__bar" style="width:81.25%"></span></span></span><span class="num">6,5 / 8,0</span></div>
+          <div class="g1-bar" role="listitem"><strong>Mai Văn Nam</strong><span class="progress progress--info"><span class="progress__track" role="progressbar" aria-label="Mai Văn Nam: 5,2 trên 8,0 giờ" aria-valuemin="0" aria-valuemax="8" aria-valuenow="5.2"><span class="progress__bar" style="width:65%"></span></span></span><span class="num">5,2 / 8,0</span></div>
+          <div class="g1-bar" role="listitem"><strong>Nguyễn Thái Sơn</strong><span class="progress progress--info"><span class="progress__track" role="progressbar" aria-label="Nguyễn Thái Sơn: 4,0 trên 8,0 giờ" aria-valuemin="0" aria-valuemax="8" aria-valuenow="4"><span class="progress__bar" style="width:50%"></span></span></span><span class="num">4,0 / 8,0</span></div>
+          <div class="g1-bar" role="listitem"><strong>Huỳnh Tấn Lộc</strong><span class="progress progress--info"><span class="progress__track" role="progressbar" aria-label="Huỳnh Tấn Lộc: 3,5 trên 6,0 giờ" aria-valuemin="0" aria-valuemax="6" aria-valuenow="3.5"><span class="progress__bar" style="width:58.3%"></span></span></span><span class="num">3,5 / 6,0 <span class="tag tag--neutral">nghỉ nửa ngày</span></span></div>
+          <div class="g1-bar" role="listitem"><strong>Trương Minh Hiếu</strong><span class="progress progress--info"><span class="progress__track" role="progressbar" aria-label="Trương Minh Hiếu: 0,8 trên 8,0 giờ" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0.8"><span class="progress__bar" style="width:10%"></span></span></span><span class="num"><span class="tag tag--success">Còn rảnh</span> 0,8 / 8,0</span></div>
+        </div>
+        <div class="card__footer"><span class="g1-note">Thanh đầy = đã giao hết giờ khả dụng. Giờ chuẩn lấy từ cấu hình; cách tính công thợ là quy tắc riêng (không hiện ở đây).</span></div>
+      </section>
+    </div>
+
+    <div class="g1-stack">
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Xe chờ QC" data-g1-err data-g1-empty="Chưa có xe chờ QC|Xe thợ báo hoàn thành sẽ hiện ở đây để kiểm tra." aria-labelledby="h-qc">
+        <div class="card__header"><div><h2 class="card__title" id="h-qc">Xe chờ kiểm tra chất lượng</h2><div class="card__subtitle">3 trong 6 xe · lâu nhất ở trên</div></div></div>
+        <div class="g1-row"><span class="g1-row__main"><strong><span class="plate">51A-123.99</span> · Toyota Fortuner</strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00122</span> · chờ 40 phút</span></span><span class="g1-row__end"><span class="badge badge--purple">Chờ QC</span><a class="btn btn--primary btn--sm" href="#" data-target="G2-DLV-02">Kiểm tra</a></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong><span class="plate">29C-246.88</span> · Hyundai Santa Fe</strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00125</span> · chờ 15 phút</span></span><span class="g1-row__end"><span class="badge badge--purple">Chờ QC</span><a class="btn btn--primary btn--sm" href="#" data-target="G2-DLV-02">Kiểm tra</a></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong><span class="plate">51F-888.12</span> · Kia Carnival</strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00129</span> · chờ 5 phút</span></span><span class="g1-row__end"><span class="badge badge--purple">Chờ QC</span><a class="btn btn--primary btn--sm" href="#" data-target="G2-DLV-02">Kiểm tra</a></span></div>
+      </section>
+      <section class="card" data-g1-card data-g1-title="Xe QC trả lại" data-g1-empty="Không có xe bị trả lại|Hạng mục QC không đạt sẽ hiện ở đây kèm ghi chú." aria-labelledby="h-ret">
+        <div class="card__header"><h2 class="card__title" id="h-ret">Xe QC trả lại</h2></div>
+        <div class="g1-row"><span class="g1-row__main"><strong><span class="plate">51D-112.33</span> · Mitsubishi Xpander</strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00109</span> · siết lại bu lông bánh trước · thợ Đỗ Văn Tùng · lúc 08:50</span></span><span class="g1-row__end"><span class="badge badge--danger">Trả lại</span></span></div>
+      </section>
+      <section class="card" data-g1-card data-g1-title="Phát sinh chờ khách duyệt" data-g1-empty="Không có phát sinh chờ duyệt|Hạng mục ngoài báo giá cần khách duyệt sẽ hiện ở đây." aria-labelledby="h-ex">
+        <div class="card__header"><div><h2 class="card__title" id="h-ex">Phát sinh chờ khách duyệt</h2><div class="card__subtitle">Thợ chưa bắt đầu được cho đến khi khách duyệt (RULE-005)</div></div></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Thay dây curoa · <span class="plate">30G-456.78</span></strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00127</span> · 1.680.000 ₫ · chờ 50 phút</span></span><span class="g1-row__end"><span class="tag tag--warning">Chờ khách duyệt (phát sinh)</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Thay cao su chân máy · <span class="plate">51H-123.45</span></strong><span class="g1-row__sub"><span class="code">RO-Q7-2610-00128</span> · 2.450.000 ₫ · chờ 15 phút</span></span><span class="g1-row__end"><span class="tag tag--warning">Chờ khách duyệt (phát sinh)</span></span></div>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+</body>
+</html>

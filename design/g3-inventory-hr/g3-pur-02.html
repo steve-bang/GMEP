@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-PUR-02 · Tạo yêu cầu mua hàng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('pur')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('PUR-02')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Tạo yêu cầu mua hàng</h1><p class="page-header__desc">Lập từ danh sách hàng dưới định mức hoặc nhập tay. Nếu chi nhánh tắt bước duyệt, yêu cầu chuyển thẳng sang lập đơn mua.</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><a class="btn btn--secondary" href="g3-pur-01.html">Về danh sách</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Ngày lập 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="yêu cầu mua hàng" data-g3-states="data:Soạn yêu cầu;loading;error;denied" data-skel="detail" data-back="g3-pur-01.html">
+<div data-g3-state="data" class="stack">
+  <div class="g3-ro-flag alert alert--info" data-for="f-pr" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh lập yêu cầu mua.</span></div></div>
+  <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng cấu hình:</span><button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="a-nostep">Chi nhánh tắt bước duyệt</button><button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="blk-urgent">Mua gấp tại cửa hàng</button></div>
+  <div class="alert alert--info" id="a-nostep" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Chi nhánh này không dùng bước duyệt yêu cầu</span><span>Nút chính đổi thành “Lập đơn mua”; yêu cầu vẫn được lưu làm chứng từ gốc của đơn.</span></div></div>
+
+  <form id="f-pr" class="g3-split" data-g3-edit="TK QL" onsubmit="return false">
+    <div class="stack-6">
+      <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Thông tin chung</h2>
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="p-src">Nguồn tạo</label><select id="p-src" class="select"><option>Từ danh sách hàng dưới định mức (2 mã)</option><option>Nhập tay</option></select></div>
+          <div class="field"><label class="field__label" for="p-need">Cần hàng trước ngày</label><div class="input-group date-field"><input id="p-need" class="input" value="05/11/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+          <div class="field span-2"><label class="field__label" for="p-why">Lý do đề xuất<span class="field__req" aria-hidden="true">*</span></label><textarea id="p-why" class="textarea">Dầu nhớt Castrol hết hàng, Khả dụng 0 thấp hơn mức tối thiểu 6; không có chi nhánh nào dư.</textarea></div>
+        </div>
+        <div id="blk-urgent" hidden style="margin-top:16px"><div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mua gấp tại cửa hàng</span><span>Chưa có quy tắc ghi nhận mua trực tiếp (Discovery). Prototype giả định: vẫn lập yêu cầu có lý do, hàng nhận bằng phiếu nhập “không có đơn mua” kèm lý do (G3-INV-09). Chờ BA xác nhận.</span></div></div></div></section>
+
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Mặt hàng cần mua</h2><span class="table-meta">2 dòng</span></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Dòng mặt hàng đề xuất mua với nhà cung cấp gợi ý</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Khả dụng</th><th class="col-num">Đang về</th><th class="col-num">SL mua</th><th>Nhà cung cấp gợi ý</th><th class="col-num">Giá NCC</th><th class="col-num">Thành tiền</th></tr></thead><tbody>
+          <tr><td><span class="code">PT-0003</span> Dầu nhớt Castrol 5W-30 (can 4 lít)</td><td class="col-num">0</td><td class="col-num">0</td><td class="col-num"><input class="input input--num g3-num" value="24" aria-label="SL mua PT-0003"></td><td><select class="select" aria-label="NCC PT-0003" style="min-width:210px"><option>Công ty CP Dầu nhớt Đại Phát</option><option>Công ty TNHH Phụ tùng Hoàng Long</option></select></td><td class="col-num">890.000 ₫</td><td class="col-num">21.360.000 ₫</td></tr>
+          <tr><td><span class="code">PT-0008</span> Dây curoa tổng Kia Morning</td><td class="col-num">0</td><td class="col-num">6</td><td class="col-num"><input class="input input--num g3-num" value="0" aria-label="SL mua PT-0008"></td><td class="text-secondary">Đã có 6 đang vận chuyển, không cần mua</td><td class="col-num">165.000 ₫</td><td class="col-num">0 ₫</td></tr></tbody>
+          <tfoot><tr><td colspan="6">Tổng giá trị ước tính</td><td class="col-num">21.360.000 ₫</td></tr></tfoot></table></div>
+        <div class="card__footer"><button class="btn btn--secondary" type="button" data-toast="info|Mở chọn phụ tùng|Prototype: thêm dòng bằng tìm tên, mã hoặc quét mã vạch."><svg class="icon"><use href="#plus"/></svg>Thêm mặt hàng</button><span class="t-body-sm text-secondary">Dòng SL 0 bị bỏ khi gửi.</span></div></section>
+    </div>
+    <aside class="g3-side"><section class="card"><div class="card__body stack">
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-pr" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh gửi duyệt.">Gửi duyệt</button><button class="btn btn--secondary btn--block" type="button" data-toast="success|Đã lưu nháp|YM-Q7-2610-00005 lưu lúc 09:22.">Lưu nháp</button>
+      <p class="t-body-sm text-secondary">Người duyệt đúng cấp được chọn theo giá trị và cấu hình hạn mức (G4-APR-03).</p></div></section></aside>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-pr" role="dialog" aria-modal="true" aria-labelledby="pr-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="pr-t">Gửi yêu cầu mua để duyệt?</h2></div></div>
+  <div class="dialog__body"><p>Yêu cầu 24 can Dầu nhớt (21.360.000 ₫) sẽ gửi Quản lý chi nhánh. Sau khi gửi, chỉnh sửa tạo bản mới thay vì ghi đè.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="info|Đã gửi duyệt|YM-Q7-2610-00004 chờ Quản lý chi nhánh.">Gửi duyệt</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-DSH-05 · Tổng quan Thủ kho – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="TK" data-g1-menu="dash" data-crumb="Tổng quan" data-period="today">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Tổng quan kho</h1>
+      <p class="page-header__desc">Thứ Sáu, 30/10/2026 · Thủ kho · Kho Chi nhánh Quận 7</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--secondary" href="#" data-target="G3-INV-09"><svg class="icon"><use href="#download"/></svg>Nhập hàng</a>
+      <a class="btn btn--secondary" href="#" data-target="G3-INV-13"><svg class="icon"><use href="#truck"/></svg>Chuyển kho</a>
+      <a class="btn btn--primary" href="#" data-target="G3-INV-06"><svg class="icon"><use href="#package"/></svg>Yêu cầu cấp phụ tùng (7)</a>
+    </div>
+  </div>
+
+  <div data-g1-proto></div>
+  <div data-g1-filter data-periods="today,7d,month" data-default="today"></div>
+
+  <section class="g1-kpis" aria-label="Chỉ số chính">
+    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Yêu cầu cấp phụ tùng chờ xuất"><span class="kpi__label"><svg class="icon icon--sm"><use href="#package"/></svg>Chờ xuất theo lệnh</span><span class="kpi__value">07</span><span class="kpi__meta">Yêu cầu cấp phụ tùng từ thợ</span><span class="kpi__scope">Kho Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Phiếu nhập chờ xử lý"><span class="kpi__label"><svg class="icon icon--sm"><use href="#download"/></svg>Phiếu nhập chờ xử lý</span><span class="kpi__value">03</span><span class="kpi__meta">1 đơn mua giao thiếu</span><span class="kpi__scope">Kho Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Phiếu xuất hôm nay"><span class="kpi__label"><svg class="icon icon--sm"><use href="#upload"/></svg>Phiếu xuất hôm nay</span><span class="kpi__value">18</span><span class="kpi__meta">Tất cả có lệnh sửa chữa nguồn</span><span class="kpi__scope">Kho Quận 7 · hôm nay 30/10/2026</span></a>
+    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Mặt hàng dưới định mức"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Mặt hàng dưới định mức</span><span class="kpi__value">05</span><span class="kpi__meta">So với tồn khả dụng, không phải tồn thực tế</span><span class="kpi__scope">Kho Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Chuyển kho"><span class="kpi__label"><svg class="icon icon--sm"><use href="#truck"/></svg>Chuyển kho</span><span class="kpi__value">02</span><span class="kpi__meta">1 đang đi đường · 1 chờ nhận</span><span class="kpi__scope">Kho Quận 7 · lúc 09:15</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Đợt kiểm kê đang mở"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Kiểm kê đang mở</span><span class="kpi__value">01</span><span class="kpi__meta">KK-Q7-2610-00003 · đã đếm 62%</span><span class="kpi__scope">Kho Quận 7 · lúc 09:15</span></a>
+  </section>
+
+  <div class="g1-cols">
+    <div class="g1-stack">
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Yêu cầu cấp phụ tùng chờ xuất" data-g1-err data-g1-empty="Không có yêu cầu chờ xuất|Thợ gửi yêu cầu cấp phụ tùng từ tablet thì yêu cầu hiện ở đây." aria-labelledby="h-req">
+        <div class="card__header"><div><h2 class="card__title" id="h-req">Yêu cầu cấp phụ tùng chờ xuất</h2><div class="card__subtitle">4 trong 7 yêu cầu · xuất kho luôn theo lệnh sửa chữa (RULE-007)</div></div></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Yêu cầu cấp phụ tùng chờ xuất</caption>
+          <thead><tr><th scope="col">Lệnh</th><th scope="col">Phụ tùng</th><th scope="col" class="col-num">Cần</th><th scope="col" class="col-num">Khả dụng</th><th scope="col">Người yêu cầu</th><th scope="col">Chờ</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <tbody>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00128</a></td><td>Lọc dầu động cơ Vios</td><td class="col-num">1</td><td class="col-num">24</td><td>Đỗ Văn Tùng</td><td class="num">6 phút</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G3-INV-07">Xuất kho</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00124</a></td><td>Má phanh trước Hyundai Accent</td><td class="col-num">2</td><td class="col-num">3</td><td>Đỗ Văn Tùng</td><td class="num">12 phút</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G3-INV-07">Xuất kho</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00126</a></td><td>Bugi Iridium Mazda CX-5</td><td class="col-num">4</td><td class="col-num">12</td><td>Lâm Quốc Việt</td><td class="num">20 phút</td><td><a class="btn btn--primary btn--sm" href="#" data-target="G3-INV-07">Xuất kho</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00130</a></td><td>Dầu nhớt 5W-30 (lít)</td><td class="col-num">4</td><td class="col-num"><span class="badge badge--danger">Hết hàng · 0</span></td><td>Lâm Quốc Việt</td><td class="num">25 phút</td><td><button class="btn btn--secondary btn--sm" disabled aria-describedby="why-oil">Xuất kho</button><div class="g1-note" id="why-oil">Không đủ tồn khả dụng. Đã có 120 lít đang về; lệnh sẽ tạm dừng “Chờ phụ tùng”.</div></td></tr>
+          </tbody></table></div>
+        <div class="card__footer"><a class="btn btn--ghost btn--sm" href="#" data-target="G3-INV-06">Xem tất cả 7 yêu cầu<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+      </section>
+
+      <figure class="card g1-chart" data-g1-chart data-g1-card data-g1-title="Tồn khả dụng theo nhóm hàng" data-g1-err>
+        <script type="application/json">{"id":"stk","title":"Tồn khả dụng theo nhóm hàng so với định mức tối thiểu","unit":"đơn vị tính (cái, lít, bộ)","dec":0,"type":"bars","dir":"v","mode":"grouped","catName":"Nhóm hàng","valueLabels":true,"snapshot":true,"scope":"Kho Quận 7",
+          "foot":"Khả dụng = thực tế trừ đang giữ; hàng đang về chưa cộng. Vạch đậm là tổng định mức tối thiểu của nhóm. Nhóm có cột thấp hơn vạch là nhóm có mặt hàng cần bổ sung.",
+          "labels":["Dầu nhớt","Phanh","Lọc","Bugi, điện","Lốp, mâm","Ắc quy"],
+          "series":[{"name":"Tồn khả dụng","data":[86,42,118,64,36,11]}],
+          "targets":{"name":"Định mức tối thiểu","data":[120,30,90,50,24,12]}}</script>
+      </figure>
+    </div>
+
+    <div class="g1-stack">
+      <section class="card" data-g1-card data-g1-title="Hàng dưới định mức" data-g1-err data-g1-empty="Không có mặt hàng dưới định mức|Tồn khả dụng đang trên định mức tối thiểu." aria-labelledby="h-low">
+        <div class="card__header"><div><h2 class="card__title" id="h-low">Hàng dưới định mức</h2><div class="card__subtitle">3 trong 5 mặt hàng · bốn con số tồn</div></div></div>
+        <div class="card__body stack">
+          <div class="part-item"><div class="stack-2" style="flex:1"><span class="part-item__name">Dầu nhớt 5W-30 (lít)</span><span class="part-item__sku">PT-0003 · định mức tối thiểu 40</span>
+            <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">4</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">4</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">120</div></div><div class="stock4__cell stock4__cell--out"><div class="stock4__label">Khả dụng</div><div class="stock4__value">0</div></div></div>
+            <span class="row"><span class="badge badge--danger">Hết hàng</span><span class="tag tag--info">Đang về 120</span></span></div></div>
+          <div class="part-item"><div class="stack-2" style="flex:1"><span class="part-item__name">Má phanh trước Hyundai Accent</span><span class="part-item__sku">PT-0002 · định mức tối thiểu 6</span>
+            <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">5</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">2</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">10</div></div><div class="stock4__cell stock4__cell--low"><div class="stock4__label">Khả dụng</div><div class="stock4__value">3</div></div></div>
+            <span class="row"><span class="badge badge--warning">Sắp hết</span><span class="tag tag--info">Đang về 10</span></span></div></div>
+          <div class="part-item"><div class="stack-2" style="flex:1"><span class="part-item__name">Ắc quy GS 12V-60Ah</span><span class="part-item__sku">PT-0019 · chưa đặt định mức</span>
+            <div class="stock4"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">3</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ</div><div class="stock4__value">0</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">0</div></div><div class="stock4__cell stock4__cell--available"><div class="stock4__label">Khả dụng</div><div class="stock4__value">3</div></div></div>
+            <span class="row"><span class="badge badge--neutral">Chưa đặt định mức</span><a href="#" data-target="G3-INV-03">Đặt định mức</a></span></div></div>
+        </div>
+      </section>
+
+      <section class="card" data-g1-card data-g1-title="Chuyển kho, nhập hàng, kiểm kê" data-g1-empty="Chưa có chứng từ kho đang xử lý|Phiếu nhập, chuyển kho và kiểm kê đang mở sẽ hiện ở đây." aria-labelledby="h-doc">
+        <div class="card__header"><h2 class="card__title" id="h-doc">Chứng từ kho đang xử lý</h2></div>
+        <a class="g1-row" href="#" data-target="G3-INV-12"><span class="g1-row__main"><strong class="code">CK-Q7-2610-00014</strong><span class="g1-row__sub">Quận 7 → Biên Hòa · 12 dòng hàng</span></span><span class="g1-row__end"><span class="tag tag--info">Đang đi đường</span></span></a>
+        <a class="g1-row" href="#" data-target="G3-INV-14"><span class="g1-row__main"><strong class="code">CK-TĐ-2610-00009</strong><span class="g1-row__sub">Thủ Đức → Quận 7 · chờ nhận và đối chiếu số lượng</span></span><span class="g1-row__end"><span class="tag tag--warning">Chờ nhận</span></span></a>
+        <a class="g1-row" href="#" data-target="G3-INV-09"><span class="g1-row__main"><strong class="code">DM-Q7-2610-00031</strong><span class="g1-row__sub">Nhận lần 1/2 · giao thiếu 6 bộ lọc gió</span></span><span class="g1-row__end"><span class="tag tag--warning">Giao thiếu</span></span></a>
+        <a class="g1-row" href="#" data-target="G3-INV-16"><span class="g1-row__main"><strong class="code">KK-Q7-2610-00003</strong><span class="g1-row__sub">Nhóm Lọc · đã đếm 62%</span></span><span class="g1-row__end"><span class="tag tag--info">Đang đếm</span></span></a>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-08 · Chọn chi nhánh làm việc – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới danh sách chi nhánh</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Quản lý (nhiều chi nhánh)|group:Chủ garage / Quản lý vùng|locked:Chi nhánh vừa bị khóa|none:Chưa được gán chi nhánh" data-hint="Người chỉ có một chi nhánh bỏ qua màn hình này và vào thẳng tổng quan."></div>
+
+  <main class="g1-auth-card g1-auth-card--wide" id="main" aria-labelledby="t">
+    <div><h1 id="t">Chọn chi nhánh làm việc</h1><p class="g1-lead">Chi nhánh bạn chọn hiện ở thanh trên cùng và gắn vào mọi chứng từ bạn tạo. Đổi chi nhánh bất cứ lúc nào mà không cần đăng nhập lại.</p></div>
+
+    <div class="alert alert--warning" role="status" data-show="locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chi nhánh Thủ Đức vừa bị khóa</span><span>Quản trị đã khóa chi nhánh này (ví dụ khóa sổ cuối kỳ). Bạn vẫn xem được số liệu nhưng chưa tạo hay sửa chứng từ được cho đến khi mở khóa.</span></div></div>
+
+    <div data-show="none" hidden>
+      <div class="state" style="padding:0"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#map-pin"/></svg></div><h2 class="state__title">Tài khoản chưa được gán chi nhánh nào</h2><p class="state__text">Bạn cần được gán ít nhất một chi nhánh và vai trò mới làm việc được. Nhờ quản lý chi nhánh hoặc quản trị hệ thống gán giúp, rồi đăng nhập lại.</p><div class="state__actions"><a class="btn btn--primary" href="g1-aut-01.html">Đăng xuất</a></div></div>
+    </div>
+
+    <div data-hide="none">
+      <div class="g1-branch-list" role="group" aria-label="Chi nhánh làm việc">
+        <button type="button" class="g1-branch" data-branch-card data-next="g1-dsh-01.html" aria-pressed="false" data-show="group" hidden><span class="g1-radio-dot" aria-hidden="true"></span><span class="g1-branch__main"><strong>Tất cả chi nhánh</strong><span class="g1-branch__sub">Xem hợp nhất toàn chuỗi (5 chi nhánh) · vai trò: Chủ garage</span></span><span class="tag tag--purple">Hợp nhất</span></button>
+        <button type="button" class="g1-branch" data-branch-card data-next="g1-dsh-02.html" aria-pressed="false" data-show="group" hidden><span class="g1-radio-dot" aria-hidden="true"></span><span class="g1-branch__main"><strong>Nhóm Miền Nam</strong><span class="g1-branch__sub">4 chi nhánh: Quận 1, Quận 7, Thủ Đức, Biên Hòa · vai trò: Quản lý vùng</span></span><span class="tag tag--purple">Nhóm</span></button>
+
+        <button type="button" class="g1-branch" data-branch-card data-next="g1-dsh-03.html" aria-pressed="true" data-hide="group"><span class="g1-radio-dot" aria-hidden="true"></span><span class="g1-branch__main"><strong>Chi nhánh Quận 7</strong><span class="g1-branch__sub">Vai trò của bạn: Quản lý chi nhánh · lần làm việc trước: 29/10/2026</span></span><span class="tag tag--info">Gần nhất</span></button>
+        <button type="button" class="g1-branch" data-branch-card data-next="g1-dsh-03.html" aria-pressed="false" data-hide="group"><span class="g1-radio-dot" aria-hidden="true"></span><span class="g1-branch__main"><strong>Chi nhánh Thủ Đức</strong><span class="g1-branch__sub">Vai trò của bạn: Quản lý chi nhánh<span data-show="locked" hidden> · đang bị khóa, chỉ xem</span></span></span><span class="tag tag--warning" data-show="locked" hidden>Chỉ xem</span></button>
+        <button type="button" class="g1-branch" data-branch-card data-next="g1-dsh-04.html" aria-pressed="false" data-hide="group"><span class="g1-radio-dot" aria-hidden="true"></span><span class="g1-branch__main"><strong>Chi nhánh Quận 1</strong><span class="g1-branch__sub">Vai trò của bạn: Cố vấn dịch vụ</span></span></button>
+        <button type="button" class="g1-branch" data-branch-card data-next="g1-dsh-03.html" aria-pressed="false" data-hide="group"><span class="g1-radio-dot" aria-hidden="true"></span><span class="g1-branch__main"><strong>Chi nhánh Biên Hòa</strong><span class="g1-branch__sub">Chi nhánh đang khóa sổ cuối kỳ: bạn chỉ xem được số liệu</span></span><span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chỉ xem</span></button>
+      </div>
+      <label class="check" style="margin-top:var(--space-4)"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Nhớ lựa chọn cho lần đăng nhập sau</span></label>
+      <button type="button" class="btn btn--primary btn--lg btn--block" style="margin-top:var(--space-5)" data-branch-go data-next="g1-dsh-03.html"><span>Vào chi nhánh đã chọn</span><span class="btn__spinner" aria-hidden="true"></span></button>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+/* Khi đổi giữa hai kiểu người dùng, chọn sẵn mục đầu của danh sách đang hiện */
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.g1-proto [data-g1-view]')) return;
+  setTimeout(function () {
+    var cards = Array.prototype.filter.call(document.querySelectorAll('[data-branch-card]'), function (c) { return !c.hidden; });
+    if (cards.length) cards[0].click();
+  }, 0);
+});
+</script>
+</body>
+</html>

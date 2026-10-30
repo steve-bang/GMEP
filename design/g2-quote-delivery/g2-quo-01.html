@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-QUO-01 · Danh sách báo giá – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({
+  crumbs: [['Phiếu sửa chữa', 'g2-quo-01.html'], ['Báo giá']],
+  title: 'Báo giá',
+  desc: 'Báo giá có phiên bản riêng; chỉ dòng khách đã duyệt mới chuyển thành lệnh sửa chữa.',
+  actions: '<button class="btn btn--primary" data-show-roles="CV QL" data-open="dlg-new">' + g2q.ic('plus') + 'Lập báo giá</button>' +
+    '<span class="tooltip-host" data-show-roles="CH QV QD TN KT TK"><button class="btn btn--primary" aria-disabled="true" aria-describedby="tip-new">' + g2q.ic('lock') + 'Lập báo giá</button><span class="tooltip" role="tooltip" id="tip-new">Chỉ Cố vấn dịch vụ và Quản lý chi nhánh được lập báo giá. Vai trò của bạn chỉ xem.</span></span>'
+});
+g2q.scope('01–30/10/2026');
+</script>
+
+<div class="stack-6" data-variants="default">
+  <script>g2q.proto([['default','Có dữ liệu'],['loading','Đang tải'],['empty','Trống lần đầu'],['filter','Trống do lọc'],['error','Lỗi tải'],['noperm','Không có quyền']], 'default');</script>
+
+  <!-- Bộ lọc: luôn hiện, có chip bộ lọc đang áp dụng -->
+  <section data-v="default loading filter" aria-label="Bộ lọc báo giá">
+    <div class="filter-bar">
+      <div class="field filter-bar__search"><label class="field__label" for="q">Tìm báo giá</label>
+        <div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input id="q" class="input" type="search" placeholder="Mã, biển số, tên khách (không cần gõ dấu)" data-v-filter></div></div>
+      <div class="field"><label class="field__label" for="f-st">Trạng thái báo giá</label><select id="f-st" class="select"><option>Tất cả trạng thái</option><option>Nháp</option><option>Chờ khách duyệt</option><option>Duyệt toàn phần</option><option>Duyệt một phần</option><option>Từ chối</option><option>Hết hạn</option></select></div>
+      <div class="field"><label class="field__label" for="f-dt">Khoảng thời gian</label><select id="f-dt" class="select"><option>Tháng này (01–30/10/2026)</option><option>Hôm nay</option><option>7 ngày qua</option><option>Chọn khoảng ngày…</option></select></div>
+      <div class="field"><label class="field__label" for="f-cv">Cố vấn</label><select id="f-cv" class="select"><option>Tất cả cố vấn</option><option>Nguyễn Hoàng Yến</option><option>Trần Minh Tâm</option></select></div>
+      <div class="filter-bar__actions"><button class="btn btn--secondary">Đặt lại</button></div>
+    </div>
+    <div class="chip-row" aria-label="Bộ lọc đang áp dụng">
+      <span class="t-body-sm text-secondary">Đang lọc:</span>
+      <span class="chip">Tháng 10/2026<button class="chip__x" aria-label="Bỏ lọc tháng 10/2026"><svg class="icon"><use href="#x"/></svg></button></span>
+      <span class="chip" data-v="filter">Từ khóa “99Z-000.00”<button class="chip__x" aria-label="Bỏ lọc từ khóa"><svg class="icon"><use href="#x"/></svg></button></span>
+      <button class="btn btn--ghost btn--sm">Xóa tất cả bộ lọc</button>
+    </div>
+  </section>
+
+  <!-- Có dữ liệu -->
+  <section data-v="default" aria-label="Danh sách báo giá">
+    <div class="row" style="margin-bottom:12px" role="group" aria-label="Lọc nhanh theo trạng thái">
+      <button class="chip-filter" aria-pressed="true">Tất cả <span class="count-pill">126</span></button>
+      <button class="chip-filter" aria-pressed="false">Nháp <span class="count-pill">4</span></button>
+      <button class="chip-filter" aria-pressed="false">Chờ khách duyệt <span class="count-pill count-pill--warning">8</span></button>
+      <button class="chip-filter" aria-pressed="false">Duyệt một phần <span class="count-pill">11</span></button>
+      <button class="chip-filter" aria-pressed="false">Duyệt toàn phần <span class="count-pill">78</span></button>
+      <button class="chip-filter" aria-pressed="false">Từ chối <span class="count-pill">9</span></button>
+      <button class="chip-filter" aria-pressed="false">Hết hạn <span class="count-pill">16</span></button>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar"><span class="table-meta">Hiển thị 1–10 trong 126 báo giá · sắp xếp: mã mới nhất</span><span style="margin-left:auto" class="t-body-sm text-secondary">Số tiền là tổng đã gồm thuế (thuế suất theo cấu hình có hiệu lực)</span></div>
+      <div class="table-scroll"><table class="table" data-cardify>
+        <thead><tr>
+          <th aria-sort="descending"><button class="th-sort">Mã báo giá<svg class="icon"><use href="#arrow-down"/></svg></button></th>
+          <th>Biển số</th><th>Khách hàng</th><th>Phiên bản</th><th>Trạng thái báo giá</th>
+          <th class="col-num">Tổng báo giá</th><th class="col-num">Tổng được duyệt</th><th>Thời gian chờ / hiệu lực</th><th>Cố vấn</th><th class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+        <tbody>
+          <tr><td class="code" data-card="title"><a href="g2-quo-07.html">BG-Q7-2610-00236</a> <span class="tag tag--info">Bổ sung</span></td><td data-label="Biển số"><span class="plate">51H-123.45</span></td><td data-label="Khách">Nguyễn Văn An</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--warning">Chờ khách duyệt</span></td><td class="col-num" data-label="Tổng">324.000 ₫</td><td class="col-num text-tertiary">—</td><td class="text-secondary">Chờ 10 phút · phát sinh lệnh RO-Q7-2610-00128</td><td data-label="Cố vấn">Nguyễn Hoàng Yến</td><td class="col-actions" data-card="foot"><button class="btn btn--secondary btn--sm" data-toast="success|Đã nhắc khách|Tin nhắc gửi qua kênh khách đã đồng ý.">Nhắc khách</button></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-02.html">BG-Q7-2610-00235</a></td><td data-label="Biển số"><span class="plate">51G-765.43</span></td><td data-label="Khách">Võ Thanh Sơn</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--neutral">Nháp</span></td><td class="col-num" data-label="Tổng">1.875.000 ₫</td><td class="col-num text-tertiary">—</td><td class="text-secondary">Chưa gửi</td><td data-label="Cố vấn">Nguyễn Hoàng Yến</td><td class="col-actions" data-card="foot"><a class="btn btn--ghost btn--sm" href="g2-quo-02.html">Tiếp tục soạn</a></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html?v=sent">BG-Q7-2610-00234</a></td><td data-label="Biển số"><span class="plate">59A-111.22</span></td><td data-label="Khách">Lê Quốc Huy</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--warning">Chờ khách duyệt</span></td><td class="col-num" data-label="Tổng">2.310.000 ₫</td><td class="col-num text-tertiary">—</td><td class="text-secondary">Chờ 1 giờ 05 phút</td><td data-label="Cố vấn">Nguyễn Hoàng Yến</td><td class="col-actions" data-card="foot"><button class="btn btn--secondary btn--sm" data-toast="success|Đã nhắc khách|Tin nhắc gửi qua kênh khách đã đồng ý. Ghi vào lịch sử báo giá.">Nhắc khách</button></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html?v=sent">BG-Q7-2610-00233</a></td><td data-label="Biển số"><span class="plate">51K-987.65</span></td><td data-label="Khách">Cty TNHH Vận tải Hòa Phát</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--warning">Chờ khách duyệt</span></td><td class="col-num" data-label="Tổng">21.075.000 ₫</td><td class="col-num text-tertiary">—</td><td class="text-secondary">Chờ 1 ngày 2 giờ · còn 6 ngày</td><td data-label="Cố vấn">Trần Minh Tâm</td><td class="col-actions" data-card="foot"><button class="btn btn--secondary btn--sm" data-toast="success|Đã nhắc khách|Tin nhắc gửi qua kênh khách đã đồng ý.">Nhắc khách</button></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html">BG-Q7-2610-00231-v2</a></td><td data-label="Biển số"><span class="plate">51H-123.45</span></td><td data-label="Khách">Nguyễn Văn An</td><td class="num" data-label="Phiên bản">v2 <span class="t-caption text-secondary">(có v1)</span></td><td data-card="status"><span class="badge badge--warning">Duyệt một phần</span></td><td class="col-num" data-label="Tổng">3.893.400 ₫</td><td class="col-num">3.191.400 ₫</td><td class="text-secondary">Duyệt 30/10/2026 08:50</td><td data-label="Cố vấn">Nguyễn Hoàng Yến</td><td class="col-actions" data-card="foot"><a class="btn btn--ghost btn--sm" href="g2-quo-03.html">Xem chi tiết</a></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html?v=full">BG-Q7-2610-00230</a></td><td data-label="Biển số"><span class="plate">30G-456.78</span></td><td data-label="Khách">Trần Thị Bích Ngọc</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--success">Duyệt toàn phần</span></td><td class="col-num" data-label="Tổng">2.740.100 ₫</td><td class="col-num">2.740.100 ₫</td><td class="text-secondary">Duyệt 29/10/2026 16:20</td><td data-label="Cố vấn">Nguyễn Hoàng Yến</td><td class="col-actions" data-card="foot"><a class="btn btn--ghost btn--sm" href="g2-quo-03.html?v=full">Xem chi tiết</a></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html?v=rejected">BG-Q7-2610-00229</a></td><td data-label="Biển số"><span class="plate">59-X1 123.45</span></td><td data-label="Khách">Phạm Thị Hoa</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--danger">Từ chối</span></td><td class="col-num" data-label="Tổng">850.000 ₫</td><td class="col-num">0 ₫</td><td class="text-secondary">Từ chối 28/10/2026</td><td data-label="Cố vấn">Trần Minh Tâm</td><td class="col-actions" data-card="foot"><a class="btn btn--ghost btn--sm" href="g2-quo-08.html">Hạng mục lưu nhắc</a></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html?v=full">BG-Q7-2610-00225</a></td><td data-label="Biển số"><span class="plate">50H-118.04</span></td><td data-label="Khách">Ngô Thị Phượng</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--success">Duyệt toàn phần</span></td><td class="col-num" data-label="Tổng">1.620.000 ₫</td><td class="col-num">1.620.000 ₫</td><td class="text-secondary">Duyệt 27/10/2026 11:05</td><td data-label="Cố vấn">Trần Minh Tâm</td><td class="col-actions" data-card="foot"><a class="btn btn--ghost btn--sm" href="g2-quo-03.html?v=full">Xem chi tiết</a></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html?v=expired">BG-Q7-2610-00226</a></td><td data-label="Biển số"><span class="plate">51F-222.33</span></td><td data-label="Khách">Hoàng Gia Bảo</td><td class="num" data-label="Phiên bản">v1</td><td data-card="status"><span class="badge badge--neutral">Hết hạn</span></td><td class="col-num" data-label="Tổng">4.120.000 ₫</td><td class="col-num">0 ₫</td><td class="text-secondary">Hết hạn 24/10/2026</td><td data-label="Cố vấn">Nguyễn Hoàng Yến</td><td class="col-actions" data-card="foot"><a class="btn btn--ghost btn--sm" href="g2-quo-02.html">Tạo phiên bản mới</a></td></tr>
+          <tr><td class="code" data-card="title"><a href="g2-quo-03.html?v=sent">BG-Q7-2610-00224-v3</a></td><td data-label="Biển số"><span class="plate">29A-345.67</span></td><td data-label="Khách">Đinh Thị Hạnh</td><td class="num" data-label="Phiên bản">v3 <span class="t-caption text-secondary">(có v1, v2)</span></td><td data-card="status"><span class="badge badge--warning">Chờ khách duyệt</span></td><td class="col-num" data-label="Tổng">5.560.000 ₫</td><td class="col-num text-tertiary">—</td><td class="text-secondary">Chờ 2 ngày · còn 5 ngày</td><td data-label="Cố vấn">Trần Minh Tâm</td><td class="col-actions" data-card="foot"><button class="btn btn--secondary btn--sm" data-toast="success|Đã nhắc khách|Tin nhắc gửi qua kênh khách đã đồng ý.">Nhắc khách</button></td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="5">Tổng giá trị 10 báo giá trên trang</td><td class="col-num">44.367.500 ₫</td><td class="col-num">7.551.500 ₫</td><td colspan="3"></td></tr></tfoot>
+      </table></div>
+      <div class="table-footer"><span class="table-meta">10 dòng/trang</span>
+        <nav class="pagination" aria-label="Phân trang"><a class="pagination__item" aria-disabled="true" href="#" aria-label="Trang trước"><svg class="icon icon--sm"><use href="#chevron-left"/></svg></a><a class="pagination__item" aria-current="page" href="#">1</a><a class="pagination__item" href="#">2</a><a class="pagination__item" href="#">3</a><span class="pagination__item" aria-hidden="true">…</span><a class="pagination__item" href="#">13</a><a class="pagination__item" href="#" aria-label="Trang sau"><svg class="icon icon--sm"><use href="#chevron-right"/></svg></a></nav></div>
+    </div>
+    <p class="g2q-note" style="margin-top:12px">Quá hạn hiệu lực tự chuyển sang “Hết hạn” (thời hạn mặc định 7 ngày, cấu hình). Nhắc khách chỉ gửi qua kênh khách đã đồng ý (FR-CRM-010). Tên khách hiển thị đầy đủ; SĐT không xuất hiện trong danh sách.</p>
+  </section>
+
+  <!-- Loading -->
+  <section data-v="loading" aria-busy="true" aria-label="Đang tải danh sách"><div class="table-wrap"><div class="table-scroll"><table class="table"><thead><tr><th>Mã báo giá</th><th>Biển số</th><th>Khách hàng</th><th>Phiên bản</th><th>Trạng thái</th><th>Tổng</th><th>Được duyệt</th><th>Chờ</th></tr></thead><tbody><script>g2q.skelRows(7, 8)</script></tbody></table></div></div></section>
+
+  <!-- Trống lần đầu / do lọc / lỗi / không quyền -->
+  <section data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Chưa có báo giá nào', text:'Lập báo giá từ kết quả kiểm tra xe số hoặc từ lệnh tiếp nhận. Khách duyệt xong, hệ thống mới mở lệnh sửa chữa.', actions:'<button class="btn btn--primary" data-open="dlg-new">' + g2q.ic('plus') + 'Lập báo giá</button>'})</script></section>
+  <section data-v="filter" class="card"><script>g2q.state({kind:'filter', title:'Không có báo giá phù hợp bộ lọc', text:'Không tìm thấy báo giá nào khớp “99Z-000.00” trong tháng 10/2026. Thử bỏ bớt bộ lọc hoặc kiểm tra lại biển số.', actions:'<button class="btn btn--secondary">Xóa tất cả bộ lọc</button>'})</script></section>
+  <section data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được danh sách báo giá', text:'Hệ thống chưa trả dữ liệu. Danh sách bạn đang xem có thể đã cũ. Thử lại sau vài giây.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-QUO-7F3A21'})</script></section>
+  <section data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem báo giá', text:'Vai trò hiện tại không có quyền xem mục này ở chi nhánh Quận 7. Liên hệ quản lý chi nhánh nếu cần.', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a><button class="btn btn--ghost" data-toast="info|Đã gửi yêu cầu|Yêu cầu cấp quyền đã gửi tới quản lý chi nhánh.">Yêu cầu cấp quyền</button>'})</script></section>
+</div>
+<script>g2q.end();</script>
+
+<!-- Hộp thoại chọn nguồn lập báo giá -->
+<div class="overlay" id="dlg-new" role="dialog" aria-modal="true" aria-labelledby="dn-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#file-text"/></svg></div><div><h2 class="dialog__title" id="dn-t">Lập báo giá cho xe nào?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <div class="field combobox" data-combobox="vehicle" id="cb-new"><label class="field__label" for="cb-new-in">Biển số hoặc lệnh tiếp nhận <span class="field__req">*</span></label><input id="cb-new-in" class="input" role="combobox" aria-expanded="false" aria-controls="cb-new-l" placeholder="Gõ biển số, ví dụ 30g45678" autocomplete="off"><div class="combobox__list" id="cb-new-l"></div><span class="field__hint">Biển số được chuẩn hóa khi gõ. Xe mới sẽ được tạo ở bước tiếp nhận.</span></div>
+    <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Lấy dòng gợi ý từ kết quả kiểm tra xe số (nếu có)</span></label>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><a class="btn btn--primary" href="g2-quo-02.html">Tiếp tục</a></div></div></div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

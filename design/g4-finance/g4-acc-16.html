@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-16 · Giao dịch ngân hàng và đối soát · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><button class="btn btn--secondary" data-open="dlg-imp" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán nhập sao kê và đối soát."><svg class="icon"><use href="#upload"/></svg>Nhập sao kê</button></div>
+
+  <div class="alert alert--warning"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Định dạng sao kê ngân hàng chưa chốt <span class="g4f-sample">[Cần xác nhận] FR-ACC-017</span></span><span>Tạm thời nhập tay hoặc dán dòng giao dịch; khung chọn định dạng sẵn sàng khi khách chốt ngân hàng và mẫu sao kê. Phase 4.</span></div></div>
+
+  <section aria-label="Tóm tắt đối soát"><div class="grid grid--3">
+    <div class="card kpi"><span class="kpi__label">Giao dịch ngân hàng chưa khớp</span><span class="kpi__value">04</span><span class="kpi__meta">Tổng +2.440.000 ₫ (thu trừ chi)</span><span class="kpi__scope">Quận 7 · TK ngân hàng VCB ••8821 · 30/10/2026 09:15</span></div>
+    <div class="card kpi"><span class="kpi__label">Phiếu thu/chi chưa có giao dịch ngân hàng</span><span class="kpi__value">03</span><span class="kpi__meta">Chuyển khoản và thẻ</span></div>
+    <div class="card kpi"><span class="kpi__label">Đã ghép hôm nay</span><span class="kpi__value">09</span><span class="kpi__meta">Khớp đúng số tiền</span></div>
+  </div></section>
+
+  <div class="g4f-two g4f-two--even" id="panes">
+    <section class="g4f-pane" aria-labelledby="h-bk"><div class="g4f-pane__head"><span id="h-bk">Giao dịch ngân hàng (sao kê)</span><span class="t-caption">chọn 1 dòng</span></div>
+      <div role="group" aria-label="Giao dịch ngân hàng chưa khớp">
+        <label class="g4f-pane__item"><span class="radio"><input type="radio" name="bk" data-amt="4800000" aria-label="Chọn giao dịch CT DEN HOA PHAT"><span class="radio__box"></span></span><span><strong>CT ĐẾN: HOA PHAT TT HD 412</strong><span class="cell-sub num" style="display:block">08:44 30/10/2026</span></span><strong class="num">+4.800.000 ₫</strong></label>
+        <label class="g4f-pane__item"><span class="radio"><input type="radio" name="bk" data-amt="1250000" aria-label="Chọn giao dịch CK NGUYEN VAN BINH"><span class="radio__box"></span></span><span><strong>CK NGUYEN VAN BINH</strong><span class="cell-sub num" style="display:block">09:00 30/10/2026</span></span><strong class="num">+1.250.000 ₫</strong></label>
+        <label class="g4f-pane__item"><span class="radio"><input type="radio" name="bk" data-amt="-3910000" aria-label="Chọn giao dịch chi CONG TY CO KHI TAN PHU"><span class="radio__box"></span></span><span><strong>CK ĐI: CONG TY CO KHI TAN PHU (gồm phí)</strong><span class="cell-sub num" style="display:block">28/10/2026</span></span><strong class="num g4f-bad">−3.910.000 ₫</strong></label>
+        <label class="g4f-pane__item"><span class="radio"><input type="radio" name="bk" data-amt="300000" aria-label="Chọn giao dịch không rõ nguồn"><span class="radio__box"></span></span><span><strong>CT ĐẾN: ND KHONG RO</strong><span class="cell-sub num" style="display:block">29/10/2026 · không rõ nguồn</span></span><strong class="num">+300.000 ₫</strong></label>
+      </div></section>
+    <section class="g4f-pane" aria-labelledby="h-bo"><div class="g4f-pane__head"><span id="h-bo">Phiếu thu, phiếu chi trong hệ thống</span><span class="t-caption">chọn 1 dòng</span></div>
+      <div role="group" aria-label="Phiếu chưa có giao dịch ngân hàng">
+        <label class="g4f-pane__item"><span class="radio"><input type="radio" name="bo" data-amt="4800000" aria-label="Chọn phiếu thu PT-929"><span class="radio__box"></span></span><span><strong class="code">PT-Q7-2610-00929</strong><span class="cell-sub" style="display:block">Hòa Phát · RO-Q7-2610-00124</span></span><strong class="num">+4.800.000 ₫</strong></label>
+        <label class="g4f-pane__item"><span class="radio"><input type="radio" name="bo" data-amt="1250000" aria-label="Chọn phiếu thu PT-933"><span class="radio__box"></span></span><span><strong class="code">PT-Q7-2610-00933</strong><span class="cell-sub" style="display:block">Nguyễn Văn Bình · thu công nợ</span></span><strong class="num">+1.250.000 ₫</strong></label>
+        <label class="g4f-pane__item"><span class="radio"><input type="radio" name="bo" data-amt="-3900000" aria-label="Chọn phiếu chi PC-043"><span class="radio__box"></span></span><span><strong class="code">PC-Q7-2610-00043</strong><span class="cell-sub" style="display:block">Công ty Cơ khí Tân Phú</span></span><strong class="num g4f-bad">−3.900.000 ₫</strong></label>
+      </div></section>
+  </div>
+
+  <div class="card"><div class="card__body row row--between">
+    <div id="match-msg" role="status" aria-live="polite" class="t-body-sm text-secondary">Chọn một giao dịch ngân hàng và một phiếu để ghép.</div>
+    <div class="row"><div class="field" id="diff-note" hidden style="min-width:260px"><label class="field__label" for="dn">Ghi chú chênh lệch<span class="field__req" aria-hidden="true">*</span></label><input id="dn" class="input" placeholder="Ví dụ: phí chuyển khoản 10.000 ₫"></div>
+      <button class="btn btn--primary" id="btn-match" data-open="dlg-match" disabled aria-describedby="match-msg" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán ghép giao dịch.">Ghép</button></div></div></div>
+
+  <section class="card" aria-labelledby="h-m">
+    <div class="card__header"><div><h2 class="card__title" id="h-m">Đã ghép gần đây</h2><div class="card__subtitle">Bỏ ghép phải có lý do và được ghi nhật ký</div></div></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Giao dịch ngân hàng</th><th>Phiếu</th><th class="col-num">Số tiền</th><th>Ghép bởi</th><th class="col-actions"></th></tr></thead><tbody>
+      <tr><td>CT ĐẾN: DAI PHAT TT RO 118 · 29/10/2026</td><td class="code">PT-Q7-2610-00918</td><td class="col-num">3.100.000 ₫</td><td>Đặng Thu Hà · 29/10 17:10</td><td class="col-actions"><button class="btn btn--danger-outline btn--sm" data-open="dlg-unm" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán bỏ ghép.">Bỏ ghép</button></td></tr></tbody></table></div>
+  </section>
+</div>
+
+<div class="overlay" id="dlg-match" role="alertdialog" aria-modal="true" aria-labelledby="mc-t"><div class="dialog" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#arrow-left-right"/></svg></div><div><h2 class="dialog__title" id="mc-t">Ghép giao dịch với phiếu?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><p id="mc-text">Ghép giao dịch ngân hàng với phiếu đã chọn.</p><ul class="impact-list"><li>Phiếu chuyển sang “Đã đối soát”; ghi nhật ký người ghép.</li><li>Ghép nhầm sửa bằng “Bỏ ghép” có lý do, không xóa dữ liệu.</li></ul><label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đối chiếu nội dung và số tiền.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-g4f-gate-btn data-close data-toast="success|Đã ghép|Phiếu chuyển sang đã đối soát." disabled>Ghép</button></div></div></div>
+
+<div class="overlay" id="dlg-unm" role="alertdialog" aria-modal="true" aria-labelledby="um-t"><div class="dialog" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="um-t">Bỏ ghép giao dịch?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Giao dịch và phiếu quay lại danh sách chưa khớp; lịch sử ghép vẫn lưu.</li></ul><div class="field"><label class="field__label" for="um-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="um-r" class="textarea" data-confirm-reason></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ ghép</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã bỏ ghép|Ghi nhật ký lý do." disabled>Bỏ ghép</button></div></div></div>
+
+<div class="overlay" id="dlg-imp" role="dialog" aria-modal="true" aria-labelledby="im-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#upload"/></svg></div><div><h2 class="dialog__title" id="im-t">Nhập sao kê ngân hàng</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="field"><label class="field__label" for="im-f">Định dạng sao kê</label><select id="im-f" class="select"><option>Chưa chốt định dạng (chờ khách cung cấp mẫu)</option></select></div><div class="field"><label class="field__label" for="im-t2">Hoặc dán/nhập tay các dòng giao dịch</label><textarea id="im-t2" class="textarea" placeholder="Ngày, nội dung, số tiền mỗi dòng"></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="info|Xem trước dòng nhập|Chưa lưu cho tới khi xác nhận.">Xem trước</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-16', title: 'Giao dịch ngân hàng và đối soát', desc: 'Ghép giao dịch sao kê với phiếu thu, phiếu chi; liệt kê các giao dịch chưa khớp.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV'], updated: '09:15', time: 'đến 30/10/2026',
+  states: ['data', 'loading', 'empty', 'error', 'denied'],
+  empty: { icon: 'circle-check', title: 'Mọi giao dịch đã khớp', text: 'Không còn giao dịch ngân hàng hay phiếu thu/chi chờ đối soát trong phạm vi này.' }
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$;
+  function sel(n) { var r = document.querySelector('input[name=' + n + ']:checked'); return r ? parseInt(r.getAttribute('data-amt'), 10) : null; }
+  function upd() {
+    var b = sel('bk'), o = sel('bo'), m = $('#match-msg'), btn = $('#btn-match'), dn = $('#diff-note');
+    document.querySelectorAll('.g4f-pane__item').forEach(function (x) { x.classList.toggle('is-selected', x.querySelector('input').checked); });
+    dn.hidden = true; var ok = false;
+    if (b === null || o === null) m.textContent = 'Chọn một giao dịch ngân hàng và một phiếu để ghép.';
+    else if ((b < 0) !== (o < 0)) m.textContent = 'Không ghép được: một bên là thu, một bên là chi.';
+    else if (b === o) { m.textContent = 'Khớp số tiền ' + G4F.fmt(b) + '. Có thể ghép.'; ok = true; }
+    else { m.textContent = 'Lệch ' + G4F.fmt(Math.abs(Math.abs(b) - Math.abs(o))) + ' giữa sao kê và sổ. Ghi chú lý do chênh lệch (ví dụ phí) mới ghép được.'; dn.hidden = false; ok = $('#dn').value.trim().length >= 5; }
+    btn.setAttribute('data-ok', ok ? '1' : '0'); if (!btn.hasAttribute('data-g4f-keep')) { btn.disabled = !ok; btn.setAttribute('aria-disabled', String(!ok)); }
+    $('#mc-text').textContent = b !== null && o !== null ? 'Ghép sao kê ' + G4F.fmt(b) + ' với phiếu ' + G4F.fmt(o) + '.' : '';
+  }
+  document.addEventListener('change', function (e) { if (e.target.name === 'bk' || e.target.name === 'bo') upd(); });
+  document.addEventListener('input', function (e) { if (e.target.id === 'dn') upd(); });
+  upd();
+})();
+</script>
+</body>
+</html>

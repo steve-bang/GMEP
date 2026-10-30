@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-REC-01 – Tiếp nhận xe (check-in nhiều bước) · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="ro" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Tiếp nhận xe</span></nav>
+
+  <div class="page-header">
+    <div class="page-header__text"><h1>Tiếp nhận xe</h1><p class="page-header__desc">Ghi nhận xe vào xưởng theo 5 bước. Bản nháp tự lưu sau mỗi bước.</p></div>
+    <div class="page-header__actions"><a class="btn btn--ghost" href="g2-apt-01.html"><svg class="icon"><use href="#calendar"/></svg>Chọn từ lịch hẹn</a></div>
+  </div>
+
+  <div data-g2w-scope data-time="Hôm nay 30/10/2026" data-asof="09:14"></div>
+  <div data-g2w-proto="offline draft"></div>
+  <div data-g2w-states="data:Biểu mẫu|loading:Đang tải xe|error:Lỗi tra cứu xe"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight" data-g2w-wizard>
+    <div class="alert alert--info" role="status"><svg class="icon"><use href="#calendar"/></svg><div class="alert__body"><span class="alert__title">Điền sẵn từ lịch hẹn 08:00 hôm nay</span><span>Khách Nguyễn Văn An, xe 51H-123.45, dịch vụ Bảo dưỡng 50.000 km. Kiểm tra lại và sửa nếu khác thực tế.</span></div></div>
+
+    <section class="card g2w-flow" aria-label="Các bước tiếp nhận">
+      <ol class="stepper" aria-label="Các bước tiếp nhận xe">
+        <li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Xe và khách</span></div></li>
+        <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Hiện trạng</span></div></li>
+        <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Đồ đạc trong xe</span></div></li>
+        <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Dịch vụ và hẹn giao</span></div></li>
+        <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">5</span><span class="stepper__text">Xem lại</span></div></li>
+      </ol>
+      <p class="g2w-muted" style="margin:var(--space-3) 0 0" data-g2w-step-title>Bước 1/5</p>
+    </section>
+
+    <!-- ===== BƯỚC 1: BIỂN SỐ, XE, KHÁCH ===== -->
+    <section class="card g2w-wizard-panel" data-g2w-step="1" aria-labelledby="s1-h">
+      <div class="card__header"><div><h2 class="card__title" id="s1-h">Bước 1. Xe và khách hàng</h2><div class="card__subtitle">Nhập biển số, hệ thống tự điền xe và chủ xe nếu đã có (FR-REC-001).</div></div>
+        <div class="segmented" role="group" aria-label="Loại xe"><button class="segmented__item" data-g2w-s1="found" aria-pressed="true">Xe đã có hồ sơ</button><button class="segmented__item" data-g2w-s1="new" aria-pressed="false">Xe mới</button></div></div>
+      <div class="card__body stack">
+        <div class="field"><label class="field__label" for="cb-plate">Biển số xe<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="combobox" id="cbv" data-combobox="vehicle"><div class="input-group"><svg class="icon"><use href="#car-front"/></svg><input id="cb-plate" class="input" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="cbv-list" autocomplete="off" value="51H-123.45" placeholder="Nhập biển số, ví dụ 51h12345"></div><div class="combobox__list" id="cbv-list"></div></div>
+          <span class="field__hint">Gõ không dấu, không dấu chấm cũng tìm được. Biển ngoại giao, quân đội, tạm hoặc nước ngoài: chọn “Xe mới” rồi chọn loại biển; chỉ cảnh báo, không chặn lưu.</span></div>
+
+        <!-- Xe đã có -->
+        <div id="s1-found" class="stack">
+          <div class="g2w-vehicle-found">
+            <div class="card vehicle-card"><div class="vehicle-card__icon"><svg class="icon icon--xl"><use href="#car-front"/></svg></div><div>
+              <div class="row row--between row--nowrap"><span class="plate-tag">51H-123.45</span><span class="badge badge--success">Đã có hồ sơ</span></div>
+              <div class="vehicle-card__title" style="margin-top:8px">Toyota Vios 1.5G 2019</div>
+              <dl class="vehicle-card__meta"><div><dt>Số km lần trước</dt><dd class="num">43.900 km</dd></div><div><dt>Sửa gần nhất</dt><dd class="num">12/07/2026</dd></div><div><dt>Số khung</dt><dd class="truncate">RL4B…F2891</dd></div><div><dt>Đăng kiểm đến</dt><dd class="num">12/03/2027</dd></div></dl></div></div>
+            <div class="card"><div class="card__body stack-2">
+              <div class="row row--between"><strong>Chủ xe</strong><span class="tag">Cá nhân</span></div>
+              <dl class="g2w-kv"><dt>Họ tên</dt><dd>Nguyễn Văn An</dd><dt>Điện thoại</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd><dt>Địa chỉ</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="address"></span></dd></dl>
+              <div class="g2w-inline-actions"><a class="btn btn--ghost btn--sm" href="g2-crm-03.html">Xem hồ sơ khách</a><a class="btn btn--ghost btn--sm" href="g2-crm-07.html">Xe đã đổi chủ?</a></div></div></div>
+          </div>
+          <div class="card"><div class="card__header"><div><h3 class="card__title" style="font-size:var(--font-size-lg)">Lịch sử gần nhất tại các chi nhánh</h3><div class="card__subtitle">Trong phạm vi quyền của bạn (FR-CRM-004)</div></div><a class="btn btn--ghost btn--sm" href="g2-crm-06.html">Xem hồ sơ xe</a></div>
+            <div class="g2w-hist"><div class="g2w-hist__item"><span class="num">12/07/2026</span><div><div>Bảo dưỡng 40.000 km: thay dầu, lọc dầu, kiểm tra phanh</div><div class="g2w-muted">Chi nhánh Quận 7 · 43.900 km</div></div><span class="num g2w-money" data-g2w-money>2.150.000 ₫</span></div>
+              <div class="g2w-hist__item"><span class="num">03/03/2026</span><div><div>Thay lốp trước, cân chỉnh góc đặt bánh</div><div class="g2w-muted">Chi nhánh Thủ Đức · 39.200 km</div></div><span class="num g2w-money" data-g2w-money>4.800.000 ₫</span></div></div></div>
+        </div>
+
+        <!-- Xe mới (nhúng G2-CRM-05) -->
+        <div id="s1-new" class="stack" hidden>
+          <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Biển số này chưa có trong hệ thống. Nhập thông tin xe; hồ sơ được tạo cùng lúc với tiếp nhận (dạng nhúng của G2-CRM-05).</span></div></div>
+          <div class="form-grid">
+            <div class="field"><label class="field__label" for="n-plate-type">Loại biển</label><select id="n-plate-type" class="select"><option>Biển trong nước thường</option><option>Biển ngoại giao</option><option>Biển quân đội</option><option>Biển tạm</option><option>Biển nước ngoài</option></select></div>
+            <div class="field"><label class="field__label" for="n-brand">Hãng, dòng xe<span class="field__req" aria-hidden="true">*</span></label><input id="n-brand" class="input" placeholder="Ví dụ Kia Seltos"></div>
+            <div class="field"><label class="field__label" for="n-year">Năm sản xuất</label><input id="n-year" class="input" inputmode="numeric" placeholder="2022"></div>
+            <div class="field"><label class="field__label" for="n-vin">Số khung</label><input id="n-vin" class="input" placeholder="17 ký tự (nên có)"></div>
+            <div class="field"><label class="field__label" for="n-cust">Chủ xe<span class="field__req" aria-hidden="true">*</span></label>
+              <div class="combobox" id="cbc" data-combobox="customer"><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="n-cust" class="input" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="cbc-list" autocomplete="off" placeholder="Tên hoặc số điện thoại, hoặc thêm khách mới"></div><div class="combobox__list" id="cbc-list"></div></div></div>
+            <div class="field"><span class="field__label" id="n-biz">Dùng kinh doanh vận tải</span><label class="switch"><input type="checkbox" role="switch" aria-labelledby="n-biz"><span class="switch__track"></span><span>Không</span></label><span class="field__hint">Dùng để nhắc đăng kiểm đúng chu kỳ.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BƯỚC 2: HIỆN TRẠNG ===== -->
+    <section class="card g2w-wizard-panel" data-g2w-step="2" aria-labelledby="s2-h" hidden>
+      <div class="card__header"><div><h2 class="card__title" id="s2-h">Bước 2. Hiện trạng xe</h2><div class="card__subtitle">Số km và yêu cầu của khách là bắt buộc (FR-REC-002).</div></div></div>
+      <div class="card__body stack">
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="km">Số km hiện tại<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="km" class="input input--num" inputmode="numeric" data-g2w-req data-g2w-km data-last-km="43900" placeholder="Ví dụ 48.200" aria-describedby="km-h km-e"><span class="input-group__suffix">km</span></div>
+            <span class="field__hint" id="km-h">Lần trước 43.900 km (12/07/2026).</span>
+            <span class="field__error" id="km-e" data-g2w-err-for="km" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Nhập số km trên đồng hồ để tiếp tục.</span></div>
+          <div class="field"><span class="field__label" id="fuel-l">Mức nhiên liệu</span><div class="g2w-fuel" role="group" aria-labelledby="fuel-l"><button class="chip-filter" aria-pressed="false">Cạn</button><button class="chip-filter" aria-pressed="false">1/4</button><button class="chip-filter" aria-pressed="true">1/2</button><button class="chip-filter" aria-pressed="false">3/4</button><button class="chip-filter" aria-pressed="false">Đầy</button></div></div>
+        </div>
+        <div class="alert alert--warning" data-g2w-km-warn hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Số km thấp hơn lần sửa trước (43.900 km)</span><span>Có thể nhập nhầm hoặc đã thay đồng hồ. Nhập lý do để tiếp tục (FR-REC-003).</span>
+          <div class="field" style="margin-top:8px"><label class="field__label" for="km-reason">Lý do<span class="field__req" aria-hidden="true">*</span></label><input id="km-reason" class="input" aria-describedby="km-reason-e" placeholder="Ví dụ: đã thay đồng hồ táp-lô"><span class="field__error" id="km-reason-e" data-g2w-err-for="km-reason" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Nhập lý do để lưu số km thấp hơn lần trước.</span></div></div></div>
+        <div class="field"><label class="field__label" for="yc">Yêu cầu của khách (theo lời khách)<span class="field__req" aria-hidden="true">*</span></label><textarea id="yc" class="textarea" data-g2w-req aria-describedby="yc-e" placeholder="Ghi đúng lời khách, ví dụ: Xe kêu cọt kẹt khi đạp phanh, thay nhớt định kỳ 50.000 km"></textarea>
+          <span class="field__error" id="yc-e" data-g2w-err-for="yc" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Ghi yêu cầu của khách để tiếp tục.</span></div>
+        <div class="field"><label class="field__label" for="ht">Hiện trạng bên ngoài và bên trong</label><textarea id="ht" class="textarea" placeholder="Ví dụ: trầy nhẹ cản sau bên phải, đèn báo áp suất lốp sáng"></textarea></div>
+        <div data-upload>
+          <div class="upload"><svg class="icon icon--xl" aria-hidden="true"><use href="#camera"/></svg><div class="t-heading-sm">Ảnh hiện trạng xe</div><p class="text-secondary">Kéo thả ảnh vào đây, chọn từ máy hoặc chụp bằng camera (tối đa 10 MB mỗi ảnh, tự nén).</p>
+            <div class="upload__actions"><button type="button" class="btn btn--primary" data-upload-pick="camera"><svg class="icon"><use href="#camera"/></svg>Chụp ảnh</button><button type="button" class="btn btn--secondary" data-upload-pick="file"><svg class="icon"><use href="#upload"/></svg>Chọn ảnh</button></div>
+            <input type="file" accept="image/*" multiple hidden><input type="file" accept="image/*" capture="environment" hidden></div>
+          <div class="upload__thumbs" aria-live="polite">
+            <div class="thumb"><div class="thumb__img"><svg class="icon icon--lg" aria-hidden="true"><use href="#car-front"/></svg><button type="button" class="thumb__remove" aria-label="Xóa ảnh cản sau"><svg class="icon icon--sm"><use href="#x"/></svg></button></div><div class="thumb__meta">Cản sau · Đã nén 312 KB</div></div>
+            <div class="thumb"><div class="thumb__img"><svg class="icon icon--lg" aria-hidden="true"><use href="#car-front"/></svg><button type="button" class="thumb__remove" aria-label="Xóa ảnh đang tải"><svg class="icon icon--sm"><use href="#x"/></svg></button><div class="thumb__bar"><span style="width:60%"></span></div></div><div class="thumb__meta">Đang tải… 60%</div></div>
+            <div class="thumb is-error"><div class="thumb__img"><svg class="icon icon--lg" aria-hidden="true"><use href="#alert-triangle"/></svg><button type="button" class="thumb__remove" aria-label="Xóa ảnh lỗi"><svg class="icon icon--sm"><use href="#x"/></svg></button></div><div class="thumb__meta">Quá 10 MB – chọn ảnh nhỏ hơn</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BƯỚC 3: ĐỒ ĐẠC ===== -->
+    <section class="card g2w-wizard-panel" data-g2w-step="3" aria-labelledby="s3-h" hidden>
+      <div class="card__header"><div><h2 class="card__title" id="s3-h">Bước 3. Đồ đạc trong xe và nhắc từ lần trước</h2><div class="card__subtitle">Ghi tài sản khách để lại, in trên phiếu tiếp nhận (FR-REC-025).</div></div></div>
+      <div class="card__body stack">
+        <div class="alert alert--warning" role="status"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">2 hạng mục từng bị khách từ chối hoặc chưa làm (FR-REC-024)</span>
+          <ul style="margin:4px 0 0;padding-left:20px"><li>Thay lọc gió điều hòa – khách từ chối 12/07/2026 (Chi nhánh Quận 7)</li><li>Cân chỉnh góc đặt bánh xe – khách chưa làm 12/07/2026</li></ul>
+          <div class="alert__actions"><span class="g2w-muted">Gợi ý nhắc khách khi lập báo giá. Chưa thêm vào báo giá tự động.</span></div></div></div>
+        <fieldset style="border:0;padding:0;margin:0"><legend class="field__label">Tài sản và đồ đạc để lại trong xe</legend>
+          <div class="g2w-asset-grid">
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Giấy đăng ký, đăng kiểm</span></label>
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Thẻ đỗ xe</span></label>
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Camera hành trình</span></label>
+            <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Lốp dự phòng</span></label>
+            <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Bộ đồ nghề</span></label>
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Bình chữa cháy</span></label>
+          </div></fieldset>
+        <div class="field"><label class="field__label" for="tskhac">Đồ khác, vật có giá trị</label><input id="tskhac" class="input" placeholder="Ví dụ: ô gấp, tai nghe; hoặc ghi “Không có”"><span class="field__hint">Dặn khách mang theo vật có giá trị nếu có thể.</span></div>
+      </div>
+    </section>
+
+    <!-- ===== BƯỚC 4: DỊCH VỤ, HẸN GIAO ===== -->
+    <section class="card g2w-wizard-panel" data-g2w-step="4" aria-labelledby="s4-h" hidden>
+      <div class="card__header"><div><h2 class="card__title" id="s4-h">Bước 4. Dịch vụ, cố vấn và hẹn giao</h2><div class="card__subtitle">Loại dịch vụ quyết định bộ bước làm việc (cấu hình, FR-REC-032).</div></div></div>
+      <div class="card__body stack">
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="sv">Loại dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="sv" class="select"><option>Bảo dưỡng</option><option>Sửa chữa chung</option><option>Lốp &amp; mâm</option><option>Đồng sơn</option></select><span class="field__hint">Đồng sơn có quy trình công đoạn riêng (cấu hình).</span></div>
+          <div class="field"><label class="field__label" for="cvs">Cố vấn tiếp nhận<span class="field__req" aria-hidden="true">*</span></label><select id="cvs" class="select"><option>Nguyễn Hoàng Yến</option><option>Phan Thanh Tùng</option></select></div>
+          <div class="field"><label class="field__label" for="hg">Ngày hẹn giao<span class="field__req" aria-hidden="true">*</span></label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="hg" class="input" value="30/10/2026" placeholder="dd/MM/yyyy"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div>
+          <div class="field"><label class="field__label" for="hg-h">Giờ hẹn giao</label><input id="hg-h" class="input input--num" inputmode="numeric" value="16:00" placeholder="HH:mm"><span class="field__hint">Công suất xưởng hôm nay: 14/20 xe.</span></div>
+        </div>
+        <div class="field"><label class="field__label" for="pt-kh">Phụ tùng khách mang đến</label><textarea id="pt-kh" class="textarea" style="min-height:64px" placeholder="Ví dụ: 1 bộ má phanh trước Toyota chính hãng (khách tự mua). Để trống nếu không có"></textarea><span class="field__hint">Ghi nhận để không lẫn vào kho; bảo hành phụ tùng khách mang theo theo chính sách xưởng (cần xác nhận).</span></div>
+        <div class="field"><label class="field__label" for="gc">Ghi chú nội bộ</label><textarea id="gc" class="textarea" style="min-height:64px" placeholder="Chỉ nhân viên thấy"></textarea></div>
+      </div>
+    </section>
+
+    <!-- ===== BƯỚC 5: XEM LẠI ===== -->
+    <section class="card g2w-wizard-panel" data-g2w-step="5" aria-labelledby="s5-h" hidden>
+      <div class="card__header"><div><h2 class="card__title" id="s5-h">Bước 5. Xem lại và hoàn tất</h2><div class="card__subtitle">Kiểm tra trước khi in phiếu tiếp nhận (A5) và chuyển sang bước tiếp theo.</div></div></div>
+      <div class="card__body stack">
+        <div class="g2w-review">
+          <div class="card"><div class="card__body stack-2"><div class="g2w-review__head"><strong>Xe và khách</strong><button class="btn btn--ghost btn--sm" data-g2w-goto="1">Sửa</button></div><dl class="g2w-kv"><dt>Biển số</dt><dd class="plate">51H-123.45</dd><dt>Xe</dt><dd>Toyota Vios 1.5G 2019</dd><dt>Chủ xe</dt><dd>Nguyễn Văn An</dd></dl></div></div>
+          <div class="card"><div class="card__body stack-2"><div class="g2w-review__head"><strong>Hiện trạng</strong><button class="btn btn--ghost btn--sm" data-g2w-goto="2">Sửa</button></div><dl class="g2w-kv"><dt>Số km</dt><dd class="num" data-g2w-echo="km">48.200 km</dd><dt>Yêu cầu</dt><dd data-g2w-echo="yc">Bảo dưỡng 50.000 km, xe kêu cọt kẹt khi đạp phanh</dd><dt>Ảnh</dt><dd>1 ảnh đã tải, 1 đang tải, 1 lỗi cần xóa</dd></dl></div></div>
+          <div class="card"><div class="card__body stack-2"><div class="g2w-review__head"><strong>Đồ đạc trong xe</strong><button class="btn btn--ghost btn--sm" data-g2w-goto="3">Sửa</button></div><div class="g2w-chips"><span class="tag">Giấy đăng ký, đăng kiểm</span><span class="tag">Thẻ đỗ xe</span><span class="tag">Camera hành trình</span><span class="tag">Bình chữa cháy</span></div></div></div>
+          <div class="card"><div class="card__body stack-2"><div class="g2w-review__head"><strong>Dịch vụ và hẹn giao</strong><button class="btn btn--ghost btn--sm" data-g2w-goto="4">Sửa</button></div><dl class="g2w-kv"><dt>Dịch vụ</dt><dd>Bảo dưỡng</dd><dt>Cố vấn</dt><dd>Nguyễn Hoàng Yến</dd><dt>Hẹn giao</dt><dd class="num">16:00 30/10/2026</dd></dl></div></div>
+        </div>
+        <div class="alert alert--warning"><svg class="icon"><use href="#upload"/></svg><div class="alert__body"><span>Còn 1 ảnh đang tải và 1 ảnh lỗi. Xóa ảnh lỗi hoặc chờ tải xong trước khi hoàn tất, nếu không ảnh sẽ không nằm trong phiếu.</span></div></div>
+        <div class="row"><button class="btn btn--secondary" data-open="dlg-print"><svg class="icon"><use href="#printer"/></svg>Xem trước phiếu tiếp nhận (A5)</button><span class="g2w-muted">Hồ sơ chưa có số lệnh. Lệnh chỉ mở khi khách duyệt báo giá.</span></div>
+      </div>
+    </section>
+
+    <!-- Chân dính: lưu nháp, quay lại, tiếp tục -->
+    <div class="g2w-wizard-foot" role="group" aria-label="Điều khiển các bước">
+      <span class="g2w-wizard-foot__draft"><span class="badge badge--success badge--nodot"><svg class="icon"><use href="#check"/></svg>Đã lưu nháp lúc 09:14</span></span>
+      <button class="btn btn--ghost" data-open="dlg-cancel"><svg class="icon"><use href="#x"/></svg>Hủy hồ sơ</button>
+      <button class="btn btn--secondary" data-toast="success|Đã lưu nháp|Bản nháp tiếp nhận xe 51H-123.45 lưu lúc 09:16. Mở lại từ danh sách nháp."><svg class="icon"><use href="#pencil"/></svg>Lưu nháp</button>
+      <button class="btn btn--secondary" data-g2w-prev hidden><svg class="icon"><use href="#chevron-left"/></svg>Quay lại</button>
+      <button class="btn btn--primary" data-g2w-next>Tiếp tục<svg class="icon"><use href="#chevron-right"/></svg></button>
+      <button class="btn btn--primary" data-g2w-finish hidden data-open="dlg-next"><svg class="icon"><use href="#check"/></svg>Hoàn tất tiếp nhận</button>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--text" style="width:40%"></span><span class="skeleton skeleton--block" style="height:140px"></span><span class="skeleton skeleton--block" style="height:140px"></span></div></div><p class="g2w-muted" role="status">Đang tra cứu xe và lịch sử…</p></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tra cứu được xe" data-text="Chưa lấy được dữ liệu xe. Bạn vẫn nhập tay được, dữ liệu sẽ khớp lại khi có kết nối. Đây không phải là “xe chưa có hồ sơ”." data-ref="ERR-CRM-5002"></div>
+</div>
+</div></main>
+</div>
+
+<!-- Hộp thoại -->
+<div class="overlay" id="dlg-next" role="dialog" aria-modal="true" aria-labelledby="nx-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="nx-t">Đã tiếp nhận xe 51H-123.45</h2></div></div>
+  <div class="dialog__body stack-2"><p>Hồ sơ tiếp nhận ở trạng thái <span class="badge badge--success">Đã tiếp nhận</span>. Chọn bước tiếp theo:</p>
+    <a class="btn btn--primary btn--block" href="g2-ins-01.html"><svg class="icon"><use href="#clipboard-check"/></svg>Kiểm tra xe số (thợ làm trên tablet)</a>
+    <a class="btn btn--secondary btn--block" href="#"><svg class="icon"><use href="#file-text"/></svg>Lập báo giá ngay</a>
+    <button class="btn btn--ghost btn--block" data-toast="info|Đã in phiếu tiếp nhận|Phiếu A5 gửi tới máy in quầy."><svg class="icon"><use href="#printer"/></svg>In phiếu tiếp nhận (A5)</button></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Ở lại hồ sơ</button></div></div></div>
+
+<div class="overlay" id="dlg-cancel" role="alertdialog" aria-modal="true" aria-labelledby="cn-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="cn-t">Hủy hồ sơ tiếp nhận xe 51H-123.45?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Hồ sơ chuyển sang “Đã hủy”, ảnh và ghi chú vẫn được lưu để tra cứu.</li><li>Lịch hẹn liên quan (nếu có) chuyển “Không đến” hoặc “Đã hủy” theo bạn chọn ở lịch.</li><li>Chưa có lệnh hay phụ tùng bị ảnh hưởng.</li></ul>
+    <div class="field"><label class="field__label" for="cn-r">Lý do hủy<span class="field__req" aria-hidden="true">*</span></label><textarea id="cn-r" class="textarea" data-confirm-reason placeholder="Ví dụ: Khách đổi ý, mang xe đi nơi khác"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ hồ sơ</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã hủy hồ sơ tiếp nhận|Lý do được lưu vào lịch sử." disabled>Hủy hồ sơ</button></div></div></div>
+
+<div class="overlay" id="dlg-print" role="dialog" aria-modal="true" aria-labelledby="pr-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#printer"/></svg></div><div><h2 class="dialog__title" id="pr-t">Phiếu tiếp nhận xe (A5)</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div class="g2w-print-preview"><strong>GARAGE OS – Chi nhánh Quận 7</strong><br>PHIẾU TIẾP NHẬN XE · 30/10/2026 09:16<br>Biển số: <b class="plate">51H-123.45</b> · Toyota Vios 1.5G<br>Khách: Nguyễn Văn An · SĐT in đầy đủ khi người in có quyền<br>Số km: 48.200 · Nhiên liệu 1/2<br>Yêu cầu: Bảo dưỡng 50.000 km, xe kêu khi đạp phanh<br>Đồ đạc: giấy tờ xe, thẻ đỗ xe, camera hành trình, bình chữa cháy<br>Hẹn giao: 16:00 30/10/2026<br><br>Khách ký xác nhận: ____________ Cố vấn: Nguyễn Hoàng Yến</div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" data-close data-toast="info|Đã in phiếu tiếp nhận|Khổ A5.">In</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  /* Bước 1: chuyển Xe đã có / Xe mới */
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-g2w-s1]'); if (!b) return; var k = b.getAttribute('data-g2w-s1'); $('#s1-found').hidden = k !== 'found'; $('#s1-new').hidden = k !== 'new'; $$('[data-g2w-s1]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); });
+  /* Bước 5: lặp lại giá trị đã nhập */
+  document.addEventListener('click', function (e) { if (!e.target.closest('[data-g2w-next]')) return; var km = $('#km').value.trim(), yc = $('#yc').value.trim(); if (km) $('[data-g2w-echo="km"]').textContent = km + ' km'; if (yc) $('[data-g2w-echo="yc"]').textContent = yc; });
+})();
+</script>
+</body>
+</html>

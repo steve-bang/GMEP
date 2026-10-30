@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-APT-03 – Lịch đặt trực tuyến chờ xác nhận · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="appt" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-apt-01.html">Lịch hẹn</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Chờ xác nhận</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Lịch đặt trực tuyến chờ xác nhận</h1><p class="page-header__desc">Khách tự đặt qua trang đặt lịch. Chỉ thành lịch hẹn khi nhân viên xác nhận (BR-REC-09). Ưu tiên Should, sau pilot.</p></div></div>
+  <div data-g2w-scope data-time="Yêu cầu chưa xử lý" data-asof="09:17"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Không có yêu cầu|error:Lỗi|denied:Không có quyền"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Chưa xác nhận trong thời hạn cấu hình thì yêu cầu hiện nhắc quá hạn. Khách chỉ nhận “đã gửi, chờ nhân viên xác nhận”, chưa phải lịch chính thức.</span></div></div>
+    <div class="table-wrap table-wrap--responsive"><div class="table-scroll"><table class="table">
+      <caption class="sr-only">Yêu cầu đặt lịch trực tuyến</caption>
+      <thead><tr><th>Gửi lúc</th><th>Khách, xe</th><th>Dịch vụ</th><th>Khung giờ khách chọn</th><th>Trạng thái</th><th>Công suất ngày</th><th class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+      <tbody>
+        <tr><td class="col-nowrap num">08:41 30/10</td><td>Mai Văn Lộc<span class="cell-sub g2w-pii" data-id="c9"></span><span class="plate">51C-909.09</span> Hyundai Santa Fe</td><td>Bảo dưỡng</td><td class="col-nowrap num">10:00 30/10/2026</td><td><span class="badge badge--warning">Chờ xác nhận</span></td><td>14/20 <span class="tag tag--success">Còn chỗ</span></td><td class="col-actions"><div class="g2w-inline-actions"><button class="btn btn--primary btn--sm" data-toast="success|Đã xác nhận lịch|Đã báo khách qua kênh đồng ý lúc 09:18." data-g2w-lock="CV QL">Xác nhận</button><button class="btn btn--secondary btn--sm" data-open="dlg-propose" data-g2w-lock="CV QL">Đề xuất giờ khác</button><button class="btn btn--danger-outline btn--sm" data-open="dlg-reject" data-g2w-lock="CV QL">Từ chối…</button></div></td></tr>
+        <tr><td class="col-nowrap num">22:10 29/10</td><td>Trương Gia Bảo<span class="cell-sub g2w-pii" data-id="c10"></span><span class="plate">51F-808.88</span> Kia Carens</td><td>Sửa chữa chung</td><td class="col-nowrap num">13:30 31/10/2026</td><td><span class="badge badge--warning">Chờ xác nhận</span> <span class="tag tag--danger">Quá hạn xử lý</span></td><td>6/20 <span class="tag tag--success">Còn chỗ</span></td><td class="col-actions"><div class="g2w-inline-actions"><button class="btn btn--primary btn--sm" data-g2w-lock="CV QL">Xác nhận</button><button class="btn btn--secondary btn--sm" data-open="dlg-propose" data-g2w-lock="CV QL">Đề xuất giờ khác</button><button class="btn btn--danger-outline btn--sm" data-open="dlg-reject" data-g2w-lock="CV QL">Từ chối…</button></div></td></tr>
+        <tr><td class="col-nowrap num">20:02 29/10</td><td>Đinh Thị Thu<span class="cell-sub g2w-pii" data-id="c11"></span><span class="plate">51G-100.20</span> Mazda 3</td><td>Lốp &amp; mâm</td><td class="col-nowrap num">09:00 27/10/2026</td><td><span class="badge badge--warning">Chờ xác nhận</span></td><td>22/20 <span class="tag tag--danger">Vượt công suất</span></td><td class="col-actions"><div class="g2w-inline-actions"><button class="btn btn--secondary btn--sm" data-toast="warning|Vượt công suất|Xác nhận sẽ ghi “vượt công suất”. Nên đề xuất giờ khác." data-g2w-lock="CV QL">Xác nhận vẫn</button><button class="btn btn--primary btn--sm" data-open="dlg-propose" data-g2w-lock="CV QL">Đề xuất giờ khác</button></div></td></tr>
+      </tbody></table></div></div>
+    <div class="record-list record-list--responsive">
+      <div class="record"><div class="record__top"><div><div class="record__title plate">51C-909.09</div>Mai Văn Lộc · Bảo dưỡng</div><span class="badge badge--warning">Chờ xác nhận</span></div><div class="record__meta"><span>10:00 30/10/2026</span><span>14/20 xe</span></div><div class="record__foot"><button class="btn btn--primary btn--sm">Xác nhận</button><button class="btn btn--secondary btn--sm">Đề xuất giờ khác</button></div></div>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden data-g2w-tpl="loading" data-rows="3" data-cols="6"></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="inbox" data-title="Không có yêu cầu đặt lịch nào chờ xác nhận" data-text="Khi khách đặt qua trang đặt lịch, yêu cầu hiện ở đây để bạn xác nhận."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được yêu cầu đặt lịch" data-ref="ERR-APT-5003"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xác nhận lịch" data-text="Chỉ Cố vấn và Quản lý chi nhánh xác nhận lịch đặt trực tuyến."></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-propose" role="dialog" aria-modal="true" aria-labelledby="pp-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="pp-t">Đề xuất giờ khác cho khách</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="form-grid"><div class="field"><label class="field__label" for="pp-d">Ngày đề xuất</label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="pp-d" class="input" value="31/10/2026"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div><div class="field"><label class="field__label" for="pp-h">Khung giờ</label><select id="pp-h" class="select"><option>08:00</option><option>13:30</option><option>15:00</option></select></div></div>
+    <p class="g2w-muted">Khách nhận đề xuất qua kênh đã đồng ý và xác nhận lại. Chưa có phản hồi thì lịch vẫn ở “Chờ xác nhận”.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi đề xuất|Chờ khách phản hồi.">Gửi đề xuất</button></div></div></div>
+
+<div class="overlay" id="dlg-reject" role="alertdialog" aria-modal="true" aria-labelledby="rj-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rj-t">Từ chối yêu cầu đặt lịch?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list"><li>Yêu cầu chuyển “Đã hủy”. Khách nhận thông báo kèm lý do (nếu đã đồng ý nhận tin).</li></ul><div class="field"><label class="field__label" for="rj-r">Lý do từ chối<span class="field__req" aria-hidden="true">*</span></label><textarea id="rj-r" class="textarea" data-confirm-reason placeholder="Ví dụ: Xưởng nghỉ lễ ngày này, đã gọi khách đổi lịch"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã từ chối yêu cầu|Khách nhận thông báo kèm lý do." disabled>Từ chối</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-APT-04 – Trang đặt lịch cho khách · GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CH">
+<a class="skip-link" href="#pub">Bỏ qua, tới biểu mẫu đặt lịch</a>
+<!-- Trang công khai cho khách (không đăng nhập, không có Application Shell) -->
+<div class="g2w-public-bar"><span class="sidebar__logo" aria-hidden="true" style="display:inline-grid"><svg class="icon"><use href="#wrench"/></svg></span><strong>GARAGE OS</strong><span class="g2w-muted">Đặt lịch sửa xe trực tuyến</span></div>
+<main class="g2w-public" id="pub">
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-variants="form:Biểu mẫu|submitting:Đang gửi|success:Đã gửi|full:Khung giờ hết chỗ|error:Lỗi|spam:Gửi quá nhiều lần" data-g2w-vlabel="Trạng thái (prototype):"></div>
+
+  <div class="alert alert--danger" data-g2w-vshow="error" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được yêu cầu</span><span>Kết nối bị gián đoạn. Thông tin bạn nhập vẫn còn, hãy bấm gửi lại. Hoặc gọi 028 3xxx xxxx để đặt lịch.</span></div></div>
+  <div class="alert alert--warning" data-g2w-vshow="spam" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Bạn đã gửi quá nhiều yêu cầu</span><span>Vui lòng thử lại sau 10 phút hoặc gọi điện thoại cho xưởng. (Giới hạn chống gửi tràn, giá trị cấu hình.)</span></div></div>
+  <div class="alert alert--warning" data-g2w-vshow="full" hidden role="status"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Khung giờ 10:00 đã hết chỗ</span><span>Chọn khung giờ khác còn chỗ bên dưới. Các khung giờ hết chỗ được gạch và ghi “Hết chỗ”.</span></div></div>
+
+  <section class="card" data-g2w-vshow="form submitting full error spam" aria-labelledby="pub-h">
+    <div class="card__header"><div><h1 class="card__title" id="pub-h" style="font-size:var(--font-size-xl)">Đặt lịch sửa xe</h1><div class="card__subtitle">Điền 3 bước. Xưởng sẽ xác nhận lại qua điện thoại hoặc Zalo.</div></div></div>
+    <form class="card__body stack" novalidate onsubmit="return false" data-g2w-vro="submitting spam">
+      <div class="field"><label class="field__label" for="p-br">1. Chọn chi nhánh<span class="field__req" aria-hidden="true">*</span></label><select id="p-br" class="select g2w-pub-input"><option>Chi nhánh Quận 7 – 123 Huỳnh Tấn Phát, Quận 7</option><option>Chi nhánh Thủ Đức – 45 Võ Văn Ngân, TP. Thủ Đức</option><option>Chi nhánh Biên Hòa – 8 Nguyễn Ái Quốc, Biên Hòa</option></select></div>
+      <div class="field"><label class="field__label" for="p-sv">Dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="p-sv" class="select g2w-pub-input"><option>Bảo dưỡng định kỳ</option><option>Sửa chữa chung</option><option>Lốp và mâm</option><option>Đồng sơn</option></select></div>
+      <div class="field"><label class="field__label" for="p-dt">2. Chọn ngày<span class="field__req" aria-hidden="true">*</span></label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-30"><div class="input-group date-field"><input id="p-dt" class="input g2w-pub-input" value="31/10/2026" placeholder="dd/MM/yyyy" inputmode="numeric"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:44px;height:44px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div>
+      <div class="field"><span class="field__label" id="p-sl">Khung giờ<span class="field__req" aria-hidden="true">*</span></span>
+        <div class="g2w-slots" role="group" aria-labelledby="p-sl">
+          <button type="button" class="chip-filter" aria-pressed="false">08:00</button><button type="button" class="chip-filter" aria-pressed="true">09:00</button><button type="button" class="chip-filter" aria-pressed="false" disabled aria-disabled="true"><s>10:00</s> Hết chỗ</button><button type="button" class="chip-filter" aria-pressed="false">13:30</button><button type="button" class="chip-filter" aria-pressed="false">15:00</button><button type="button" class="chip-filter" aria-pressed="false" disabled aria-disabled="true"><s>16:00</s> Hết chỗ</button></div></div>
+      <div class="field"><label class="field__label" for="p-nm">3. Họ và tên<span class="field__req" aria-hidden="true">*</span></label><input id="p-nm" class="input g2w-pub-input" autocomplete="name" placeholder="Ví dụ: Nguyễn Văn An"></div>
+      <div class="field"><label class="field__label" for="p-ph">Số điện thoại<span class="field__req" aria-hidden="true">*</span></label><input id="p-ph" class="input g2w-pub-input" inputmode="tel" autocomplete="tel" placeholder="09xx xxx xxx"></div>
+      <div class="field"><label class="field__label" for="p-pl">Biển số xe<span class="field__req" aria-hidden="true">*</span></label><input id="p-pl" class="input plate g2w-pub-input" autocomplete="off" placeholder="Ví dụ 51H-123.45"><span class="field__hint">Gõ liền cũng được, hệ thống tự chuẩn hóa.</span></div>
+      <div class="field" aria-hidden="true" style="position:absolute;left:-9999px"><label for="p-hp">Để trống ô này</label><input id="p-hp" tabindex="-1" autocomplete="off"></div>
+      <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đồng ý để xưởng dùng họ tên, số điện thoại, biển số của tôi để xác nhận lịch hẹn. <a href="#">Chính sách bảo vệ dữ liệu cá nhân</a></span></label>
+      <div class="g2w-muted">Hệ thống chống gửi tràn bằng giới hạn số lần theo địa chỉ mạng; phương án xác minh (ô ẩn, OTP, CAPTCHA) là cấu hình, chưa chốt nhà cung cấp.</div>
+      <button class="btn btn--primary btn--xl btn--block" data-g2w-vload="submitting" data-g2w-keep>Gửi yêu cầu đặt lịch</button>
+      <p class="g2w-muted" style="text-align:center">Đây là yêu cầu, chưa phải lịch chính thức. Xưởng xác nhận lại với bạn.</p>
+    </form>
+  </section>
+
+  <section class="card" data-g2w-vshow="success" hidden role="status" aria-live="polite">
+    <div class="state" style="padding:var(--space-8) var(--space-4)"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><div class="state__title">Đã gửi yêu cầu đặt lịch</div>
+      <p class="state__text">Chờ nhân viên xác nhận. Chúng tôi sẽ liên hệ số <strong>09•• ••• 321</strong> trước 17:00 hôm nay.</p>
+      <dl class="g2w-kv" style="text-align:left;margin-top:var(--space-4)"><dt>Chi nhánh</dt><dd>Quận 7</dd><dt>Dịch vụ</dt><dd>Bảo dưỡng định kỳ</dd><dt>Thời gian</dt><dd class="num">09:00 · 31/10/2026</dd><dt>Biển số</dt><dd class="plate">51H-123.45</dd><dt>Mã yêu cầu</dt><dd class="code">DL-Q7-2610-00019</dd></dl>
+      <div class="state__actions"><button class="btn btn--secondary" data-g2w-var="form">Đặt lịch khác</button></div></div>
+  </section>
+</main>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+/* Biến thể “Hết chỗ”: nhấn mạnh khung giờ đã chọn không còn */
+document.addEventListener('click', function (e) {
+  var v = e.target.closest('[data-g2w-var]'); if (v) return;
+  var s = e.target.closest('.g2w-slots .chip-filter'); if (s && !s.disabled) { s.parentElement.querySelectorAll('.chip-filter').forEach(function (x) { x.setAttribute('aria-pressed', String(x === s)); }); }
+});
+</script>
+</body>
+</html>

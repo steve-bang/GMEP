@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-12 · Công nợ phải trả · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--secondary" data-toast="info|Đang tạo file|Báo cáo tuổi nợ phải trả, phạm vi Chi nhánh Quận 7."><svg class="icon"><use href="#download"/></svg>Xuất báo cáo</button>
+    <a class="btn btn--secondary" href="g4-acc-10.html">Công nợ phải thu</a>
+  </div>
+
+  <section aria-label="Chỉ số công nợ phải trả"><div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Tổng phải trả nhà cung cấp</span><span class="kpi__value">62,9<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Chính xác: 62.850.000 ₫ · 3 nhà cung cấp</span><span class="kpi__scope">Quận 7 · đến 30/10/2026 09:15</span></div>
+    <div class="card kpi"><span class="kpi__label">Trong hạn</span><span class="kpi__value">38,2<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">60,8%</span></div>
+    <div class="card kpi kpi--danger"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Quá hạn</span><span class="kpi__value">24,7<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">39,2% · cần lên lịch thanh toán</span></div>
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#calendar"/></svg>Đến hạn 7 ngày tới</span><span class="kpi__value">11,4<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">2 phiếu nhập</span></div>
+  </div></section>
+
+  <section class="card" aria-labelledby="h-ag">
+    <div class="card__header"><div><h2 class="card__title" id="h-ag">Phải trả theo tuổi nợ</h2><div class="card__subtitle">Đơn vị: ₫ · các mốc ngày là cấu hình</div></div></div>
+    <div class="card__body">
+      <div class="g4f-aging" role="img" aria-label="Phải trả: trong hạn 38.200.000, quá hạn 1 đến 30 ngày 19.350.000, 31 đến 60 ngày 3.200.000, trên 60 ngày 2.100.000 đồng. Bảng bên dưới có số liệu đầy đủ."><span class="g4f-seg-1" style="width:60.8%"></span><span class="g4f-seg-2" style="width:30.8%"></span><span class="g4f-seg-3" style="width:5.1%"></span><span class="g4f-seg-4" style="width:3.3%"></span></div>
+      <ul class="g4f-legend">
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-1"></span>Trong hạn</span><strong>38.200.000 ₫</strong></li>
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-2"></span>Quá hạn 1–30 ngày</span><strong>19.350.000 ₫</strong></li>
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-3"></span>Quá hạn 31–60 ngày</span><strong>3.200.000 ₫</strong></li>
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-4"></span>Quá hạn trên 60 ngày</span><strong>2.100.000 ₫</strong></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-toolbar"><span class="table-meta">3 nhà cung cấp · số dư khớp báo cáo nhà cung cấp (FR-ACC-007)</span></div>
+    <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> nhà cung cấp</span><a class="btn btn--primary btn--sm" href="g4-acc-05.html" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán lên lịch thanh toán."><svg class="icon icon--sm"><use href="#calendar"/></svg>Lên lịch thanh toán</a><button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
+    <div class="table-scroll"><table class="table">
+      <caption class="sr-only">Công nợ phải trả theo nhà cung cấp</caption>
+      <thead><tr><th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th><th>Nhà cung cấp</th><th class="col-num">Trong hạn</th><th class="col-num">1–30 ngày</th><th class="col-num">31–60 ngày</th><th class="col-num">Trên 60 ngày</th><th class="col-num" aria-sort="descending"><button class="th-sort">Tổng phải trả<svg class="icon"><use href="#arrow-down"/></svg></button></th><th>Hạn gần nhất</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn Công ty TNHH Phụ tùng Ô tô Minh Long"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="cell-primary">Công ty TNHH Phụ tùng Ô tô Minh Long<span class="cell-sub"><span class="tag tag--danger">Quá hạn</span></span></td><td class="col-num">28.400.000 ₫</td><td class="col-num">12.600.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">0 ₫</td><td class="col-num">41.000.000 ₫</td><td class="num col-nowrap">12/10/2026</td><td class="col-actions"><a class="btn-icon" href="g4-acc-13.html" aria-label="Mở công nợ Minh Long"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn Công ty CP Dầu nhớt Việt"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="cell-primary">Công ty CP Dầu nhớt Việt<span class="cell-sub"><span class="tag tag--danger">Quá hạn</span></span></td><td class="col-num">9.800.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">3.200.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">13.000.000 ₫</td><td class="num col-nowrap">22/09/2026</td><td class="col-actions"><a class="btn-icon" href="g4-acc-13.html" aria-label="Mở công nợ Dầu nhớt Việt"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn Cửa hàng Lốp Hoàng Gia"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="cell-primary">Cửa hàng Lốp Hoàng Gia<span class="cell-sub"><span class="tag tag--danger">Quá hạn</span></span></td><td class="col-num">0 ₫</td><td class="col-num">6.750.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">2.100.000 ₫</td><td class="col-num">8.850.000 ₫</td><td class="num col-nowrap">20/08/2026</td><td class="col-actions"><a class="btn-icon" href="g4-acc-13.html" aria-label="Mở công nợ Lốp Hoàng Gia"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+      </tbody>
+      <tfoot><tr><td></td><td>Tổng cộng</td><td class="col-num">38.200.000 ₫</td><td class="col-num">19.350.000 ₫</td><td class="col-num">3.200.000 ₫</td><td class="col-num">2.100.000 ₫</td><td class="col-num">62.850.000 ₫</td><td colspan="2"></td></tr></tfoot>
+    </table></div>
+  </div>
+  <div class="record-list record-list--responsive">
+    <a class="record" href="g4-acc-13.html" style="color:inherit;text-decoration:none"><div class="record__top"><div class="record__title">Công ty TNHH Phụ tùng Ô tô Minh Long</div><span class="tag tag--danger">Quá hạn</span></div><div class="record__meta"><span>Quá hạn 1–30 ngày: <strong class="num">12.600.000 ₫</strong></span></div><div class="record__foot"><span class="t-body-sm text-secondary">Tổng phải trả</span><strong class="num">41.000.000 ₫</strong></div></a>
+  </div>
+</div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-12', title: 'Công nợ phải trả', desc: 'Số phải trả nhà cung cấp theo tuổi nợ và hạn; lên lịch thanh toán.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV', 'QL'], updated: '09:15', time: 'đến 30/10/2026',
+  states: ['data', 'loading', 'empty', 'error', 'denied'],
+  empty: { icon: 'wallet', title: 'Chưa có công nợ phải trả', text: 'Khi nhận hàng theo đơn mua mà chưa thanh toán, khoản phải trả hiện ở đây theo phiếu nhập.' }
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

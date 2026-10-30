@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-12 – Xuất danh sách khách · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QL" data-nav="cust" data-g2w-deny="TK AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack">
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-01.html">Khách hàng</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Xuất danh sách</span></nav>
+  <div data-g2w-scope data-time="Theo bộ lọc của danh sách khách"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-variants="ok:Có quyền xuất|nopermit:Không có quyền xuất|large:Danh sách lớn (xuất nền)|error:Lỗi tạo tệp"></div>
+
+  <div class="alert alert--neutral" data-g2w-vshow="nopermit" role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Bạn chưa có quyền xuất dữ liệu</span><span>Xuất danh sách khách cần quyền “xuất dữ liệu” riêng (FR-SYS-013). Nhờ Chủ garage hoặc Quản lý chi nhánh cấp quyền.</span></div></div>
+  <div class="alert alert--danger" data-g2w-vshow="error" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Chưa tạo được tệp xuất</span><span>Máy chủ gặp lỗi. Lần xuất này vẫn được ghi nhật ký. Thử lại sau.</span></div></div>
+
+  <section class="card" style="max-width:820px" aria-labelledby="h12" data-g2w-vro="nopermit">
+    <div class="card__header"><div class="row row--nowrap"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#download"/></svg></div><div><h1 class="card__title" id="h12" style="font-size:var(--font-size-xl)">Xuất danh sách khách hàng</h1><div class="card__subtitle">Thao tác nhạy cảm: ghi nhật ký người xuất, thời điểm, phạm vi, lý do (UAT-20).</div></div></div></div>
+    <form class="card__body stack" novalidate onsubmit="return false">
+      <dl class="g2w-kv"><dt>Chi nhánh</dt><dd>Chi nhánh Quận 7</dd><dt>Bộ lọc</dt><dd>Loại khách: tất cả · Nhãn: tất cả</dd><dt>Số bản ghi</dt><dd class="num"><strong>1.286 khách</strong> <span data-g2w-vshow="large" hidden class="tag tag--warning">Lớn: tạo nền, gửi thông báo khi xong</span></dd></dl>
+
+      <fieldset style="border:0;padding:0;margin:0"><legend class="field__label">Cột được xuất</legend>
+        <div class="g2w-asset-grid">
+          <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Họ tên, loại khách</span></label>
+          <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Số xe, sửa gần nhất</span></label>
+          <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Nhãn, chi nhánh</span></label>
+          <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Số điện thoại (<strong>đã che</strong>)</span></label>
+          <label class="check is-disabled"><input type="checkbox" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Số điện thoại đầy đủ <span class="g2w-muted">(cần quyền xuất đầy đủ dữ liệu cá nhân)</span></span></label>
+          <label class="check is-disabled"><input type="checkbox" disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Địa chỉ <span class="g2w-muted">(không xuất)</span></span></label>
+        </div><span class="field__hint">Mặc định xuất đã che số điện thoại, giống danh sách hiển thị (NFR-EXP-01).</span></fieldset>
+
+      <div class="form-grid">
+        <div class="field"><label class="field__label" for="x-why">Lý do xuất<span class="field__req" aria-hidden="true">*</span></label><select id="x-why" class="select"><option>Gửi cho kế toán đối chiếu công nợ</option><option>Chiến dịch chăm sóc khách</option><option>Báo cáo quản lý</option><option>Khác (ghi rõ bên dưới)</option></select></div>
+        <div class="field"><label class="field__label" for="x-fmt">Định dạng</label><select id="x-fmt" class="select"><option>Excel (.xlsx)</option><option>CSV (UTF-8, có dấu)</option></select></div>
+      </div>
+      <div class="field"><label class="field__label" for="x-note">Ghi chú</label><textarea id="x-note" class="textarea" style="min-height:56px" placeholder="Không bắt buộc, trừ khi chọn “Khác”"></textarea></div>
+      <div class="field"><label class="field__label" for="x-pw">Nhập lại mật khẩu để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="x-pw" class="input" type="password" autocomplete="current-password" style="max-width:320px"><span class="field__hint">Thao tác nhạy cảm cần xác nhận lại danh tính (D-02).</span></div>
+      <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Tệp xuất có ghi phạm vi, thời điểm và người xuất ở đầu trang (RULE-015). Tệp tạo trong 5 phút được tải về từ thông báo.</span></div></div>
+    </form>
+    <div class="card__footer"><a class="btn btn--secondary" href="g2-crm-01.html" data-g2w-keep>Hủy</a><button class="btn btn--danger-outline" data-toast="success|Đang tạo tệp|Xuất 1.286 khách (đã che SĐT). Đã ghi nhật ký." data-g2w-lock="CH QL KT" data-g2w-why="Cần quyền xuất dữ liệu riêng (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất danh sách</button></div>
+  </section>
+</div>
+</div></main>
+</div>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+/* Biến thể “Không có quyền”: khóa nút xuất, nêu lý do */
+document.addEventListener('click', function (e) { var v = e.target.closest('[data-g2w-var]'); if (!v) return; var b = document.querySelector('.card__footer .btn--danger-outline'); if (v.getAttribute('data-g2w-var') === 'nopermit') { b.setAttribute('data-g2w-force-disabled', ''); b.setAttribute('data-g2w-force-why', 'Bạn chưa có quyền xuất dữ liệu (FR-SYS-013).'); } else b.removeAttribute('data-g2w-force-disabled'); setTimeout(function () { window.g2wApply && window.g2wApply(); }, 0); });
+</script>
+</body>
+</html>

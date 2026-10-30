@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-PUR-04 · Danh sách đơn mua – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('pur')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('PUR-04')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Đơn mua hàng</h1><p class="page-header__desc">Theo dõi từ lúc gửi nhà cung cấp đến khi nhận đủ. Mỗi lần nhận hàng là một phiếu nhập; đơn nhận một phần vẫn mở.</p></div>
+  <div class="page-header__actions"><a class="btn btn--primary" href="g3-pur-05.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh lập đơn."><svg class="icon"><use href="#plus"/></svg>Lập đơn mua</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· 01/10/2026 – 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="đơn mua" data-cols="7" data-empty-icon="shopping-cart" data-empty-text="Chưa có đơn mua. Lập đơn từ yêu cầu đã duyệt hoặc tạo trực tiếp." data-empty-cta="Lập đơn mua">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar" role="search">
+    <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm mã đơn, nhà cung cấp</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: hoang long hoặc DM-Q7-2610-00014"></div></div>
+    <div class="field"><label class="field__label" for="f-s">Trạng thái</label><select id="f-s" class="select"><option>Tất cả</option><option>Nháp</option><option>Đã gửi</option><option>NCC xác nhận</option><option>Nhận một phần</option><option>Nhận đủ</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Đơn mua hàng của Chi nhánh Quận 7</caption>
+    <thead><tr><th data-card="title">Mã đơn</th><th data-card="sub">Nhà cung cấp</th><th data-card="badge">Trạng thái</th><th data-card="meta">Đã nhận / đặt</th><th data-card="meta">Giao dự kiến</th><th class="col-num" data-card="foot">Giá trị</th></tr></thead>
+    <tbody>
+      <tr data-href="g3-pur-06.html" class="g3-row--flag"><td class="code"><a href="g3-pur-06.html">DM-Q7-2610-00014</a> <span class="tag tag--neutral">v2</span></td><td>Công ty TNHH Phụ tùng Hoàng Long</td><td><span class="badge badge--warning">Nhận một phần</span></td><td class="num">10 / 28</td><td class="num">29/10/2026 <span class="tag tag--warning">Trễ 1 ngày</span></td><td class="col-num">12.360.000 ₫</td></tr>
+      <tr data-href="g3-pur-06.html"><td class="code"><a href="g3-pur-06.html">DM-Q7-2610-00013</a></td><td>Công ty TNHH Mobis Việt</td><td><span class="badge badge--info">Đã gửi</span> <span class="tag tag--neutral">Chờ NCC xác nhận</span></td><td class="num">0 / 12</td><td class="num">03/11/2026</td><td class="col-num">1.980.000 ₫</td></tr>
+      <tr data-href="g3-pur-06.html"><td class="code"><a href="g3-pur-06.html">DM-Q7-2610-00012</a></td><td>Công ty TNHH Phụ tùng Hoàng Long</td><td><span class="badge badge--success">Nhận đủ</span></td><td class="num">10 / 10</td><td class="num">28/10/2026</td><td class="col-num">1.196.000 ₫</td></tr>
+      <tr data-href="g3-pur-05.html"><td class="code"><a href="g3-pur-05.html">DM-Q7-2610-00015</a></td><td>Đại lý Michelin Miền Nam</td><td><span class="badge badge--neutral">Nháp</span></td><td class="num">0 / 8</td><td class="num">–</td><td class="col-num">14.240.000 ₫</td></tr>
+      <tr data-href="g3-pur-06.html"><td class="code"><a href="g3-pur-06.html">DM-Q7-2609-00031</a></td><td>Công ty CP Dầu nhớt Đại Phát</td><td><span class="badge badge--info">NCC xác nhận</span></td><td class="num">0 / 36</td><td class="num">02/11/2026</td><td class="col-num">32.040.000 ₫</td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–5 trong 5 đơn</span></div></div>
+  <p class="t-body-sm text-secondary">Đơn mua không có “xóa”: đơn nháp được hủy, đơn đã gửi chỉnh bằng phiên bản mới (v2, v3…). Đơn nhận thiếu vẫn mở cho đến khi nhận đủ hoặc đóng có lý do.</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

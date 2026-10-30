@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-08 · Chốt ca · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-acc-04.html">Xem sổ quỹ</a></div>
+
+  <div id="wiz" class="stack">
+    <ol class="stepper" aria-label="Các bước chốt ca">
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Rà soát lệnh</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Đếm quỹ</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Giải trình chênh lệch</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Xác nhận</span></div></li>
+    </ol>
+
+    <section class="card" data-g4f-step>
+      <div class="card__header"><div><h2 class="card__title">Bước 1. Rà soát lệnh còn mở và lệnh chưa thu</h2><div class="card__subtitle">Ca sáng · Phạm Thị Lan · 08:00 đến 12:00 ngày 30/10/2026</div></div></div>
+      <div class="table-scroll"><table class="table table--compact">
+        <caption class="sr-only">Lệnh còn mở hoặc chưa thu tiền trong ca</caption>
+        <thead><tr><th>Lệnh</th><th>Xe</th><th>Trạng thái lệnh</th><th>Thanh toán</th><th class="col-num">Còn phải thu</th><th class="col-actions"></th></tr></thead>
+        <tbody>
+          <tr><td class="code">RO-Q7-2610-00131</td><td><span class="plate">51H-123.45</span></td><td><span class="badge badge--success">Sẵn sàng bàn giao</span></td><td><span class="badge badge--info">Thanh toán một phần</span></td><td class="col-num">5.650.000 ₫</td><td class="col-actions"><a class="btn btn--secondary btn--sm" href="g4-acc-01.html">Thu</a></td></tr>
+          <tr><td class="code">RO-Q7-2610-00127</td><td><span class="plate">30G-456.78</span></td><td><span class="badge badge--purple">Chờ QC</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-num">12.800.000 ₫</td><td class="col-actions"></td></tr>
+          <tr><td class="code">RO-Q7-2610-00122</td><td><span class="plate">51K-987.65</span></td><td><span class="badge badge--warning">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ phụ tùng</span></td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-num">19.275.000 ₫</td><td class="col-actions"></td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="4">3 lệnh còn mở hoặc chưa thu</td><td class="col-num">37.725.000 ₫</td><td></td></tr></tfoot>
+      </table></div>
+      <div class="card__body stack">
+        <p class="t-body-sm text-secondary" style="margin:0">Lệnh còn mở không chặn chốt ca, nhưng phải được bàn giao rõ cho ca sau. Chốt ngày sẽ kiểm tra lại (G4-ACC-09).</p>
+        <label class="check"><input type="checkbox" id="ack1"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem danh sách và bàn giao các lệnh chưa thu cho ca chiều.</span></label>
+      </div>
+    </section>
+
+    <section class="card" data-g4f-step hidden>
+      <div class="card__header"><div><h2 class="card__title">Bước 2. Đếm tiền mặt trong két</h2><div class="card__subtitle">Nhập số tờ theo mệnh giá. Không nhập sẵn số dự kiến để tránh đếm theo sổ.</div></div></div>
+      <div class="card__body stack">
+        <div class="g4f-denom" id="denom"></div>
+        <div class="g4f-two g4f-two--even" style="gap:16px">
+          <dl class="g4f-sum"><div><dt>Tổng đếm thực tế</dt><dd id="cnt">0 ₫</dd></div><div><dt>Số dư theo sổ quỹ (08:05 đến nay)</dt><dd>5.870.000 ₫</dd></div></dl>
+          <div class="g4f-diff" id="diff" role="status" aria-live="polite"><div class="t-caption">Chênh lệch (thực tế − sổ)</div><div class="g4f-big g4f-big--md" id="diff-v">−5.870.000 ₫</div><div class="t-body-sm" id="diff-m">Chưa đếm.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-g4f-step hidden>
+      <div class="card__header"><div><h2 class="card__title">Bước 3. Giải trình chênh lệch</h2><div class="card__subtitle" id="s3-sub">Bắt buộc khi quỹ lệch; chênh lệch cần Quản lý chi nhánh duyệt.</div></div></div>
+      <div class="card__body stack">
+        <div class="alert alert--success" id="s3-none" hidden><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Quỹ khớp sổ</span><span>Không cần giải trình. Sang bước tiếp theo.</span></div></div>
+        <div id="s3-form" class="stack">
+          <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Quỹ lệch <span id="s3-diff">−150.000 ₫</span> so với sổ</span><span>Không chốt được cho đến khi giải trình. Quản lý chi nhánh sẽ duyệt giải trình ở hàng chờ G4-APR-01.</span></div></div>
+          <div class="field" style="max-width:360px"><label class="field__label" for="cause">Nguyên nhân<span class="field__req" aria-hidden="true">*</span></label><select id="cause" class="select"><option value="">Chọn nguyên nhân</option><option>Thiếu tiền thối cho khách</option><option>Nhập sai số tiền vào phiếu thu</option><option>Chi chưa ghi phiếu chi</option><option>Chưa rõ nguyên nhân</option></select></div>
+          <div class="field"><label class="field__label" for="expl">Giải trình<span class="field__req" aria-hidden="true">*</span></label><textarea id="expl" class="textarea" placeholder="Mô tả cụ thể: lệnh nào, lúc nào, ai biết"></textarea><span class="field__hint">Tối thiểu 5 ký tự. Nội dung lưu vĩnh viễn trong nhật ký ca.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-g4f-step hidden>
+      <div class="card__header"><div><h2 class="card__title">Bước 4. Xác nhận chốt ca</h2><div class="card__subtitle">Xem lại trước khi khóa ca</div></div></div>
+      <div class="card__body stack">
+        <dl class="g4f-sum"><div><dt>Số dư theo sổ quỹ</dt><dd>5.870.000 ₫</dd></div><div><dt>Tiền đếm thực tế</dt><dd id="c4-cnt">0 ₫</dd></div><div class="is-total"><dt>Chênh lệch</dt><dd id="c4-diff">0 ₫</dd></div></dl>
+        <div class="g4f-lock"><svg class="icon"><use href="#lock"/></svg><span>Sau khi chốt, ca bị khóa: không thêm hay sửa phiếu trong ca này. Sai sót phát hiện sau xử lý bằng bút toán đảo hoặc điều chỉnh có lý do. Chênh lệch được gửi Quản lý chi nhánh duyệt.</span></div>
+      </div>
+    </section>
+
+    <div class="g4f-steps-actions">
+      <button class="btn btn--ghost" data-g4f-prev>Quay lại</button>
+      <div class="row">
+        <button class="btn btn--secondary" data-toast="info|Đã lưu nháp ca|Số đếm được giữ trên thiết bị, chưa khóa ca.">Lưu nháp</button>
+        <button class="btn btn--primary" data-g4f-next>Tiếp tục</button>
+        <button class="btn btn--primary btn--lg" id="btn-close" data-g4f-final data-open="dlg-close" data-g4f-need="TN" data-g4f-why="Thu ngân chốt ca; Quản lý chi nhánh duyệt chênh lệch." data-g4f-online>Chốt ca sáng</button>
+      </div>
+    </div>
+  </div>
+
+  <div data-state="closed" data-label="Ca đã chốt" hidden>
+    <div class="alert alert--neutral"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ca sáng 29/10/2026 đã chốt lúc 12:08: chỉ xem</span><span>Chênh lệch 0 ₫. Muốn điều chỉnh, lập chứng từ điều chỉnh trong ngày đang mở.</span></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-close" role="alertdialog" aria-modal="true" aria-labelledby="cl-t"><div class="dialog dialog--md" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#lock"/></svg></div><div><h2 class="dialog__title" id="cl-t">Chốt ca sáng ngày 30/10/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <ul class="impact-list"><li>Ca bị khóa, không thêm hay sửa phiếu thu/chi trong ca.</li><li id="cl-diff-li">Quỹ lệch <strong>−150.000 ₫</strong> gửi Quản lý chi nhánh duyệt.</li><li>Hành động được ghi nhật ký (người chốt, thời điểm, số đếm).</li></ul>
+    <label class="check" style="margin-top:12px"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi xác nhận số đếm và giải trình là đúng.</span></label>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-close" data-busy="Đang chốt ca…" data-done-label="Đã chốt ca" data-done-toast="success|Đã chốt ca sáng|Chênh lệch chờ Quản lý chi nhánh duyệt." disabled>Chốt ca</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-08', title: 'Chốt ca', desc: 'Đếm quỹ, giải trình chênh lệch và khóa ca làm việc của thu ngân.',
+  menu: 'fin', role: 'TN', allow: ['TN', 'QL'], updated: '12:00', time: 'ca sáng 30/10/2026',
+  states: ['data', 'closed', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, $$ = G4F.$$, fmt = G4F.fmt, EXP = 5870000;
+  var D = [[500000, 8], [200000, 4], [100000, 7], [50000, 4], [20000, 1], [10000, 0], [5000, 0], [2000, 0], [1000, 0]];
+  $('#denom').innerHTML = D.map(function (d, i) { return '<div class="g4f-denom__row"><label class="field__label" for="dn' + i + '" style="margin:0">' + String(d[0]).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫</label><input id="dn' + i + '" class="input input--num" type="number" min="0" inputmode="numeric" value="' + d[1] + '" data-d="' + d[0] + '" aria-label="Số tờ mệnh giá ' + d[0] + '"><span class="g4f-denom__sub" id="ds' + i + '">0 ₫</span></div>'; }).join('');
+  function count() { var t = 0; $$('#denom input').forEach(function (i, k) { var n = Math.max(0, parseInt(i.value || '0', 10)), s = n * parseInt(i.getAttribute('data-d'), 10); $('#ds' + k).textContent = fmt(s); t += s; }); return t; }
+  function refresh() {
+    var t = count(), diff = t - EXP, box = $('#diff');
+    $('#cnt').textContent = fmt(t); $('#diff-v').textContent = fmt(diff);
+    box.className = 'g4f-diff ' + (diff === 0 ? 'is-ok' : 'is-bad');
+    $('#diff-m').textContent = diff === 0 ? 'Khớp sổ quỹ.' : (diff < 0 ? 'Thiếu ' : 'Thừa ') + fmt(Math.abs(diff)) + ' so với sổ. Cần giải trình ở bước sau.';
+    $('#s3-diff').textContent = fmt(diff); $('#s3-none').hidden = diff !== 0; $('#s3-form').hidden = diff === 0;
+    $('#c4-cnt').textContent = fmt(t); $('#c4-diff').textContent = fmt(diff);
+    $('#cl-diff-li').innerHTML = diff === 0 ? 'Quỹ khớp sổ, không cần duyệt chênh lệch.' : 'Quỹ lệch <strong>' + fmt(diff) + '</strong> gửi Quản lý chi nhánh duyệt.';
+    return diff;
+  }
+  document.addEventListener('input', function (e) { if (e.target.closest('#denom')) refresh(); });
+  G4F.wizard($('#wiz'), { canNext: function (s) {
+    var d = refresh();
+    if (s === 0 && !$('#ack1').checked) return { ok: false, msg: 'Tích xác nhận đã bàn giao các lệnh chưa thu cho ca sau.' };
+    if (s === 1 && count() === 0) return { ok: false, msg: 'Nhập số tờ tiền đã đếm trước khi sang bước tiếp.' };
+    if (s === 2 && d !== 0 && (!$('#cause').value || $('#expl').value.trim().length < 5)) return { ok: false, msg: 'Quỹ lệch nên cần chọn nguyên nhân và giải trình (tối thiểu 5 ký tự).' };
+    return { ok: true };
+  } });
+  refresh();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-10 – Thuế suất theo ngày hiệu lực · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="KT">
+<script src="pack.js" data-code="G4-SYS-10" data-menu="set" data-crumbs="Cài đặt|Thuế suất" data-allow="KT CH"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Thuế suất theo ngày hiệu lực',
+  desc: 'Thuế suất là cấu hình có ngày hiệu lực, không nằm trong mã nguồn. Báo giá, lệnh và hóa đơn lập sau ngày hiệu lực dùng mức mới; chứng từ đã lập không đổi (FR-ACC-009, UAT-09).',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống (theo nhóm hàng / dịch vụ)',
+  actions: '<button class="btn btn--primary" data-edit-roles="KT" data-open="dlg-tax" title="Chỉ Kế toán lưu mức thuế mới; Chủ garage duyệt"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Thêm mức thuế mới</button>',
+  empty: { title: 'Chưa cấu hình thuế suất nào', text: 'Thêm thuế suất cho nhóm hàng / dịch vụ để báo giá và hóa đơn tính thuế.', cta: '<button class="btn btn--primary" data-open="dlg-tax">Thêm mức thuế</button>' }
+});
+</script>
+
+<div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><div class="alert__title">Thuế suất dưới đây là số minh họa</div>Mức thuế thực tế và mốc áp dụng từ 01/01/2027 <b>[Cần kế toán xác nhận]</b> (Journey §8). Hệ thống không tự đặt mức thuế; kế toán nhập và Chủ garage duyệt.</div></div>
+
+<section class="table-wrap" aria-label="Thuế suất theo nhóm">
+  <div class="table-toolbar"><strong>Thuế suất theo nhóm hàng / dịch vụ</strong><span class="table-meta" style="margin-left:auto">Hiển thị phiên bản hiệu lực tại 30/10/2026 và phiên bản kế tiếp</span></div>
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Thuế suất theo nhóm hàng và dịch vụ</caption>
+    <thead><tr><th>Nhóm</th><th class="col-num">Thuế suất hiện hành</th><th>Hiệu lực từ</th><th>Phiên bản kế tiếp</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Nhân công sửa chữa, bảo dưỡng</td><td class="col-num">10%</td><td class="num">01/01/2026</td><td><span class="tag tag--info">Từ 01/01/2027: chờ kế toán nhập</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="KT" data-open="dlg-tax">Thêm mức mới</button></td></tr>
+      <tr><td>Phụ tùng, vật tư</td><td class="col-num">10%</td><td class="num">01/01/2026</td><td><span class="tag tag--info">Từ 01/01/2027: chờ kế toán nhập</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="KT" data-open="dlg-tax">Thêm mức mới</button></td></tr>
+      <tr><td>Lốp và mâm</td><td class="col-num">10%</td><td class="num">01/01/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="KT" data-open="dlg-tax">Thêm mức mới</button></td></tr>
+      <tr><td>Dịch vụ khác (rửa xe, cứu hộ)</td><td class="col-num">8%</td><td class="num">01/01/2026</td><td><span class="tag tag--warning">8% → 10% từ 01/01/2027, chờ Chủ garage duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="CH" data-toast="success|Đã duyệt mức thuế|Áp dụng từ 01/01/2027.">Duyệt</button><button class="btn btn--secondary btn--sm" data-edit-roles="KT" data-open="dlg-tax">Thêm mức mới</button></td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+    <div class="record"><div class="record__top"><div><div class="record__title">Nhân công sửa chữa, bảo dưỡng</div>Từ 01/01/2026</div><strong class="num">10%</strong></div><div class="record__meta"><span class="tag tag--info">Từ 01/01/2027: chờ kế toán nhập</span></div></div>
+  </div>
+  <div class="table-footer"><span class="table-meta">Thay đổi thuế suất không làm đổi chứng từ đã lập. Lịch sử đầy đủ xem ở nhật ký thao tác.</span></div>
+</section>
+
+<section class="table-wrap" aria-label="Ví dụ kiểm thử">
+  <div class="table-toolbar"><div><strong>Ví dụ kiểm thử công thức thuế</strong><div class="t-body-sm text-secondary">Kế toán ký xác nhận kết quả; hệ thống chạy lại mỗi lần đổi cấu hình (NFR-MNT-01)</div></div><button class="btn btn--secondary btn--sm" style="margin-left:auto" data-toast="success|Đã chạy lại 3 ví dụ|3 đạt, 0 lệch.">Chạy lại kiểm thử</button></div>
+  <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Ví dụ kiểm thử công thức thuế</caption>
+    <thead><tr><th>Ví dụ</th><th class="col-num">Giá trước thuế</th><th class="col-num">Thuế suất</th><th class="col-num">Thuế mong đợi</th><th class="col-num">Hệ thống tính</th><th>Kết quả</th><th>Xác nhận</th></tr></thead>
+    <tbody>
+      <tr><td>Dòng công thay má phanh</td><td class="col-num">450.000 ₫</td><td class="col-num">10%</td><td class="col-num">45.000 ₫</td><td class="col-num">45.000 ₫</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đạt</span></td><td>Phạm Thu Hà, 15/10/2026</td></tr>
+      <tr><td>Dòng phụ tùng má phanh</td><td class="col-num">620.000 ₫</td><td class="col-num">10%</td><td class="col-num">62.000 ₫</td><td class="col-num">62.000 ₫</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đạt</span></td><td>Phạm Thu Hà, 15/10/2026</td></tr>
+      <tr><td>Lệnh đủ hai dòng</td><td class="col-num">1.070.000 ₫</td><td class="col-num">10%</td><td class="col-num">107.000 ₫</td><td class="col-num">107.000 ₫</td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đạt</span></td><td>Phạm Thu Hà, 15/10/2026</td></tr>
+    </tbody></table></div>
+</section>
+
+<script>
+g4rEnd('', g4rDrawer({ id: 'dlg-tax', title: 'Thêm mức thuế mới', sub: 'Nhóm: Nhân công sửa chữa, bảo dưỡng · hiện hành 10%', guard: true, effDate: '01/01/2027', cta: 'Lưu và gửi duyệt', toast: 'Đã gửi Chủ garage duyệt', toastText: 'Mức mới áp dụng từ ngày hiệu lực sau khi được duyệt.',
+  impact: ['Lệnh và hóa đơn lập từ ngày hiệu lực dùng mức mới; lệnh lập trước đó giữ mức cũ.', 'Ví dụ xem trước (minh họa): lệnh 1.070.000 ₫ nếu thuế 8% thì thuế còn 85.600 ₫ (giảm 21.400 ₫ so với 107.000 ₫).', '3 ví dụ kiểm thử sẽ chạy lại; chỉ có hiệu lực khi kế toán xác nhận kết quả.'],
+  fields: ['<div class="field"><label class="field__label" for="tx-r">Thuế suất mới<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="tx-r" placeholder="Nhập theo quy định hiện hành"><span class="input-group__suffix">%</span></div><span class="field__hint">Chưa có giá trị mặc định: kế toán tự nhập theo văn bản pháp luật.</span></div>'] }));
+</script>
+</body>
+</html>

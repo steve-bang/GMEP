@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-01 – Danh sách người dùng · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  .g4r-qlonly { display: none; }
+  body[data-role="QL"] .g4r-qlonly { display: flex; }
+  body[data-role="QL"] .g4r-notq7 { display: none; }
+</style>
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-01" data-menu="set" data-crumbs="Cài đặt|Người dùng" data-allow="AD CH QL"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Người dùng',
+  desc: 'Mỗi người một tài khoản cá nhân, không dùng chung. Tài khoản do Quản trị, Chủ garage hoặc Quản lý chi nhánh tạo và mời qua email; không có tự đăng ký (D-01).',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống (Quản lý chi nhánh chỉ thấy người dùng chi nhánh mình)',
+  actions: '<a class="btn btn--primary" href="g4-sys-02.html"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Mời người dùng</a>',
+  empty: { title: 'Chưa có người dùng nào ngoài bạn', text: 'Mời nhân viên đầu tiên bằng email. Họ nhận liên kết kích hoạt hiệu lực 72 giờ để đặt mật khẩu.', cta: '<a class="btn btn--primary" href="g4-sys-02.html">Mời người dùng</a>' },
+  filteredText: 'Không có người dùng khớp bộ lọc. Thử bỏ lọc vai trò hoặc trạng thái.'
+});
+</script>
+
+<div class="alert alert--info g4r-qlonly" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Bạn là Quản lý chi nhánh: chỉ thấy và quản lý người dùng thuộc <strong>Chi nhánh Quận 7</strong>, và không gán được vai trò cao hơn vai trò của bạn (FRD §2).</div></div>
+
+<div class="filter-bar" role="search">
+  <div class="field filter-bar__search"><label class="field__label" for="u-s">Tìm tên hoặc email</label><input class="input" id="u-s" type="search" data-g4r-filter="tb-user" placeholder="Gõ có dấu hoặc không dấu, ví dụ “quan”"></div>
+  <div class="field"><label class="field__label" for="u-r">Vai trò</label><select class="select" id="u-r"><option>Tất cả vai trò</option><option>Chủ garage</option><option>Quản lý chi nhánh</option><option>Cố vấn dịch vụ</option><option>Thợ</option><option>Thủ kho</option><option>Thu ngân</option><option>Kế toán</option><option>Quản trị hệ thống</option></select></div>
+  <div class="field"><label class="field__label" for="u-b">Chi nhánh</label><select class="select" id="u-b"><option>Tất cả chi nhánh được xem</option><option>Quận 7</option><option>Quận 1</option><option>Thủ Đức</option></select></div>
+  <div class="field"><label class="field__label" for="u-t">Trạng thái</label><select class="select" id="u-t"><option>Tất cả</option><option>Đã mời</option><option>Đang hoạt động</option><option>Bị khóa</option></select></div>
+  <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+</div>
+
+<div class="table-wrap">
+  <div class="table-toolbar"><span class="table-meta">10 người dùng · 1 chờ kích hoạt · 1 bị khóa</span><span class="table-meta" style="margin-left:auto">Sắp xếp: lần đăng nhập cuối, mới nhất trước</span></div>
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table" id="tb-user">
+    <caption class="sr-only">Danh sách người dùng</caption>
+    <thead><tr><th>Họ tên</th><th>Email</th><th>Vai trò theo chi nhánh</th><th>Trạng thái</th><th>Xác thực hai lớp</th><th aria-sort="descending"><button class="th-sort">Đăng nhập cuối<svg class="icon"><use href="#arrow-down"/></svg></button></th><th><span class="sr-only">Mở</span></th></tr></thead>
+    <tbody>
+      <tr class="g4r-notq7"><td><div class="row row--nowrap"><span class="avatar avatar--sm">TA</span>Trần Hoàng Anh</div></td><td>hoanganh@garage-abc.vn</td><td><span class="tag tag--purple">Chủ garage</span> Toàn chuỗi</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đã bật (bắt buộc)</span></td><td class="num">30/10/2026 08:55</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr><td><div class="row row--nowrap"><span class="avatar avatar--sm">LQ</span>Lê Minh Quân</div></td><td>quan.le@garage-abc.vn</td><td><span class="tag tag--info">Quản lý chi nhánh</span> Quận 7</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đã bật (bắt buộc)</span></td><td class="num">30/10/2026 08:30</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr><td><div class="row row--nowrap"><span class="avatar avatar--sm">NB</span>Nguyễn Văn Bình</div></td><td>binh.nguyen@garage-abc.vn</td><td><span class="tag tag--neutral">Cố vấn dịch vụ</span> Quận 7</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Chưa bật (không bắt buộc)</span></td><td class="num">30/10/2026 07:50</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr><td><div class="row row--nowrap"><span class="avatar avatar--sm">HY</span>Hoàng Thị Yến</div></td><td>yen.hoang@garage-abc.vn</td><td><span class="tag tag--neutral">Thu ngân</span> Quận 7</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="text-secondary">Chưa bật (không bắt buộc)</span></td><td class="num">30/10/2026 07:45</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr><td><div class="row row--nowrap"><span class="avatar avatar--sm">VC</span>Võ Quốc Cường</div></td><td><span class="text-secondary">Không có email · đăng nhập bằng PIN trên thiết bị xưởng</span></td><td><span class="tag tag--neutral">Thợ</span> Quận 7</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="text-secondary">Không áp dụng (PIN)</span></td><td class="num">30/10/2026 07:32</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr class="g4r-notq7"><td><div class="row row--nowrap"><span class="avatar avatar--sm">PĐ</span>Phạm Văn Đạt</div></td><td>dat.pham@garage-abc.vn</td><td><span class="tag tag--neutral">Thủ kho</span> <span class="tag tag--neutral">Thu ngân</span> Quận 1 <span class="t-caption text-secondary">(kiêm 2 vai, quyền cộng gộp)</span></td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="text-secondary">Chưa bật (không bắt buộc)</span></td><td class="num">30/10/2026 07:10</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr class="g4r-notq7"><td><div class="row row--nowrap"><span class="avatar avatar--sm">PH</span>Phạm Thu Hà</div></td><td>ha.pham@garage-abc.vn</td><td><span class="tag tag--info">Kế toán</span> <span class="tag tag--warning">Kế toán trưởng</span> Quận 7, Thủ Đức</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đã bật (bắt buộc)</span></td><td class="num">29/10/2026 17:40</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr class="g4r-notq7"><td><div class="row row--nowrap"><span class="avatar avatar--sm">ĐT</span>Đỗ Thanh Tâm</div></td><td>tam.do@garage-abc.vn</td><td><span class="tag tag--purple">Quản trị hệ thống</span> Không gắn chi nhánh</td><td><span class="tag tag--success">Đang hoạt động</span></td><td><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Đã bật (bắt buộc)</span></td><td class="num">29/10/2026 15:12</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr class="g4r-notq7"><td><div class="row row--nowrap"><span class="avatar avatar--sm">MH</span>Mai Thị Hồng</div></td><td>hong.mai@garage-abc.vn</td><td><span class="tag tag--neutral">Cố vấn dịch vụ</span> Thủ Đức</td><td><span class="tag tag--warning">Đã mời, chờ kích hoạt (còn 2 ngày)</span></td><td><span class="text-secondary">Chưa kích hoạt</span></td><td class="num">Chưa đăng nhập</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+      <tr class="g4r-notq7"><td><div class="row row--nowrap"><span class="avatar avatar--sm avatar--neutral">TH</span>Trương Văn Hải</div></td><td>hai.truong@garage-abc.vn</td><td><span class="tag tag--neutral">Quản đốc</span> Đà Nẵng</td><td><span class="tag tag--danger">Bị khóa</span> <span class="t-caption text-secondary">sai mật khẩu 5 lần</span></td><td><span class="text-secondary">Chưa bật</span></td><td class="num">26/10/2026 16:02</td><td><a class="btn btn--secondary btn--sm" href="g4-sys-03.html">Mở</a></td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+    <a class="record" href="g4-sys-03.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title">Lê Minh Quân</div>Quản lý chi nhánh · Quận 7</div><span class="tag tag--success">Đang hoạt động</span></div><div class="record__meta"><span>MFA đã bật</span><span>Đăng nhập cuối 30/10/2026 08:30</span></div></a>
+    <a class="record" href="g4-sys-03.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title">Mai Thị Hồng</div>Cố vấn dịch vụ · Thủ Đức</div><span class="tag tag--warning">Đã mời</span></div><div class="record__meta"><span>Chờ kích hoạt, còn 2 ngày</span></div></a>
+  </div>
+  <div class="table-footer"><span class="table-meta">Hiển thị 1–10 trong 10 người dùng. Không có nút “Xóa”: người nghỉ việc được khóa/vô hiệu hóa để giữ nhật ký (RULE-012).</span></div>
+</div>
+
+<script>g4rEnd()</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-07 · Công thợ theo lệnh và hạng mục – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-07')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Công thợ theo lệnh và hạng mục</h1><p class="page-header__desc">Giờ thực chỉ tính thời gian đang làm (trừ khoảng tạm dừng). Công chỉ được ghi sau khi hạng mục đạt kiểm tra chất lượng.</p></div>
+  <div class="page-header__actions"><button class="btn btn--secondary" data-open="dlg-adj" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh điều chỉnh công thủ công."><svg class="icon"><use href="#pencil"/></svg>Điều chỉnh công…</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Thời gian:</strong> 26/10/2026 – 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="công thợ" data-cols="8" data-empty-icon="wrench" data-empty-text="Chưa có hạng mục nào được ghi giờ trong khoảng thời gian này. Công phát sinh khi thợ hoàn thành và hạng mục đạt kiểm tra chất lượng.">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--info" data-g3-roles="TH CV" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy dữ liệu của mình. Cố vấn xem hoa hồng ở mục <a href="g3-hrm-09.html">Hoa hồng</a>, không có công thợ.</span></div></div>
+  <div class="filter-bar" role="search" data-g3-hide="TH CV">
+    <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm lệnh, hạng mục</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: RO-Q7-2610-00128 hoặc thay dau"></div></div>
+    <div class="field"><label class="field__label" for="f-t">Thợ</label><select id="f-t" class="select"><option>Tất cả thợ</option><option>Lê Minh Tuấn</option><option>Phạm Quốc Bảo</option></select></div>
+    <div class="field"><label class="field__label" for="f-s">Trạng thái công</label><select id="f-s" class="select"><option>Tất cả</option><option>Đã ghi</option><option>Chờ QC</option><option>QC trả lại</option><option>Đã đảo</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Giờ chuẩn, giờ thực và công đã ghi theo hạng mục</caption>
+    <thead><tr><th data-card="title">Lệnh</th><th data-card="sub">Hạng mục</th><th data-card="meta">Thợ</th><th class="col-num" data-card="meta">Giờ chuẩn</th><th class="col-num" data-card="meta">Giờ thực</th><th class="col-num" data-card="meta">Công đã ghi (giờ công)</th><th data-card="badge">Trạng thái</th><th>Ghi chú</th></tr></thead>
+    <tbody>
+      <tr data-g3-hide="CV"><td class="code">RO-Q7-2610-00128</td><td>Thay dầu động cơ và lọc dầu</td><td>Lê Minh Tuấn</td><td class="col-num">0,30</td><td class="col-num">0,40<span class="cell-sub">đã trừ tạm dừng 0,20</span></td><td class="col-num"><strong>0,30</strong></td><td><span class="badge badge--success">Đã ghi</span></td><td>QC đạt 29/10 15:40</td></tr>
+      <tr data-g3-hide="CV"><td class="code">RO-Q7-2610-00128</td><td>Kiểm tra hệ thống phanh</td><td>Lê Minh Tuấn</td><td class="col-num">0,50</td><td class="col-num">0,45</td><td class="col-num text-secondary">–</td><td><span class="badge badge--purple">Chờ QC</span></td><td>Chưa phát sinh công</td></tr>
+      <tr class="g3-row--flag" data-g3-hide="CV"><td class="code">RO-Q7-2610-00127</td><td>Thay má phanh trước Accent</td><td>Lê Minh Tuấn</td><td class="col-num">1,00</td><td class="col-num">0,80</td><td class="col-num text-secondary">0,00</td><td><span class="badge badge--danger">QC trả lại</span></td><td>Làm lại; công chỉ ghi khi đạt QC</td></tr>
+      <tr data-g3-hide="TH CV"><td class="code">RO-Q7-2610-00126</td><td>Gò đồng cánh cửa trước</td><td>Phạm Quốc Bảo</td><td class="col-num">2,50</td><td class="col-num">3,10</td><td class="col-num"><strong>2,50</strong></td><td><span class="badge badge--success">Đã ghi</span></td><td>Công theo giờ chuẩn (cấu hình)</td></tr>
+      <tr data-g3-hide="TH CV"><td class="code">RO-Q7-2610-00119</td><td>Thay gương chiếu hậu</td><td>Phạm Quốc Bảo</td><td class="col-num">0,80</td><td class="col-num">0,20</td><td class="col-num">0,00<span class="cell-sub">đã đảo −0,80</span></td><td><span class="badge badge--neutral">Đã đảo</span></td><td>Lệnh hủy 30/10: đảo công bằng bút toán, không xóa</td></tr>
+    </tbody>
+    <tfoot data-g3-hide="TH CV"><tr><td colspan="3">Tổng 5 hạng mục</td><td class="col-num">5,10</td><td class="col-num">4,95</td><td class="col-num">2,80</td><td colspan="2"></td></tr></tfoot></table></div></div>
+  <p class="t-body-sm text-secondary">Đổi thợ, làm lại hoặc hủy lệnh tạo dòng đảo công, không sửa dòng cũ (RULE-010). Đơn vị công và công thức theo <a href="g3-hrm-06.html">Quy tắc tính công</a> đang hiệu lực.</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-adj" role="alertdialog" aria-modal="true" aria-labelledby="aj-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#pencil"/></svg></div><div><h2 class="dialog__title" id="aj-t">Điều chỉnh công thủ công</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div class="form-grid"><div class="field"><label class="field__label" for="aj-i">Hạng mục<span class="field__req" aria-hidden="true">*</span></label><select id="aj-i" class="select"><option>RO-Q7-2610-00127 · Thay má phanh trước Accent</option></select></div><div class="field"><label class="field__label" for="aj-v">Điều chỉnh (giờ công)<span class="field__req" aria-hidden="true">*</span></label><input id="aj-v" class="input input--num" value="+0,50" inputmode="decimal"></div></div>
+    <ul class="impact-list" style="margin-top:12px"><li>Tạo dòng điều chỉnh liên kết dòng gốc; dòng gốc không sửa.</li><li>Cần Chủ garage duyệt khi vượt hạn mức điều chỉnh công (cấu hình G4-APR-03).</li></ul>
+    <div class="field"><label class="field__label" for="aj-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="aj-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="info|Đã gửi duyệt|Điều chỉnh +0,50 giờ công chờ duyệt." disabled>Gửi điều chỉnh</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

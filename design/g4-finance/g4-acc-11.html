@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-11 · Chi tiết công nợ khách và đối soát · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--secondary" data-open="dlg-stmt" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán gửi bảng kê công nợ."><svg class="icon"><use href="#send"/></svg>Gửi bảng kê</button>
+    <button class="btn btn--primary" data-open="dlg-collect" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán ghi nhận thu công nợ." data-g4f-online><svg class="icon"><use href="#wallet"/></svg>Ghi nhận thu</button>
+  </div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="ok" data-vg="l" aria-pressed="true">Trong hạn mức</button><button class="segmented__item" data-g4f-var="over" data-vg="l" aria-pressed="false">Vượt hạn mức</button></div></div>
+
+  <div class="alert alert--danger" data-vg="l" data-v="over" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Dư nợ vượt hạn mức công nợ</span><span>Dư nợ 53.100.000 ₫ so với hạn mức 50.000.000 ₫ <span class="g4f-sample">minh họa</span>. Lập lệnh mới hiện cảnh báo; giao xe khi vượt hạn mức cần duyệt <span class="g4f-sample">[Cần xác nhận chính sách]</span>.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-open="dlg-lim" data-g4f-need="KT" data-g4f-why="Kế toán đề xuất nới hạn mức; Chủ garage/Quản lý duyệt.">Đề xuất nới hạn mức</button></div></div></div>
+
+  <section class="card" aria-labelledby="h-c">
+    <div class="card__body stack">
+      <div class="row row--between"><h2 class="card__title" id="h-c" style="font-size:20px">Công ty TNHH Vận tải Hòa Phát</h2><span class="tag tag--info">Khách doanh nghiệp</span></div>
+      <dl class="g4f-kv"><div><dt>Mã số thuế</dt><dd class="num">0312345678</dd></div><div><dt>Kỳ thanh toán</dt><dd>30 ngày kể từ ngày hoàn tất</dd></div><div><dt>Người liên hệ</dt><dd>Nguyễn Văn An (Kế toán)</dd></div><div><dt>Số điện thoại</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd></div><div><dt>Email</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="email"></span></dd></div><div><dt>Xe của khách</dt><dd><span class="plate">51K-987.65</span>, <span class="plate">29C-123.45</span>, <span class="plate">51D-456.78</span></dd></div></dl>
+      <div>
+        <div class="row row--between t-body-sm"><strong>Dư nợ so với hạn mức công nợ</strong><span class="g4f-sample">Hạn mức minh họa (FR-ACC-020)</span></div>
+        <div class="g4f-limit" role="img" aria-label="Dư nợ 23.875.000 trên hạn mức 50.000.000"><span class="g4f-limit__bar" id="lim-bar" style="width:47.8%"></span><span class="g4f-limit__mark" style="left:100%"></span></div>
+        <div class="g4f-limit__cap"><span>Dư nợ <strong class="num" id="lim-debt">23.875.000 ₫</strong> (<span id="lim-pct">47,8%</span>)</span><span>Hạn mức 50.000.000 ₫</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="g4f-two">
+    <section class="card" aria-labelledby="h-o">
+      <div class="card__header"><div><h2 class="card__title" id="h-o">Dư nợ từng lệnh</h2><div class="card__subtitle">Tổng dư nợ khách bằng tổng nợ các lệnh</div></div></div>
+      <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Các lệnh còn nợ</caption>
+        <thead><tr><th>Lệnh · xe</th><th>Hoàn tất</th><th>Hạn thanh toán</th><th>Thanh toán</th><th class="col-num">Còn nợ</th></tr></thead>
+        <tbody>
+          <tr><td><span class="code cell-primary">RO-Q7-2610-00122</span><span class="cell-sub plate">51K-987.65</span></td><td class="num col-nowrap">16/10/2026</td><td class="num col-nowrap">15/11/2026</td><td><span class="badge badge--info">Thanh toán một phần</span></td><td class="col-num">19.275.000 ₫</td></tr>
+          <tr><td><span class="code cell-primary">RO-Q7-2610-00110</span><span class="cell-sub plate">29C-123.45</span></td><td class="num col-nowrap">18/09/2026</td><td class="num col-nowrap">18/10/2026</td><td><span class="badge badge--warning">Chưa thanh toán</span> <span class="tag tag--danger">Quá hạn 12 ngày</span></td><td class="col-num">4.600.000 ₫</td></tr>
+          <tr data-vg="l" data-v="over" hidden><td><span class="code cell-primary">RO-Q7-2610-00130</span><span class="cell-sub plate">51D-456.78</span></td><td class="num col-nowrap">29/10/2026</td><td class="num col-nowrap">28/11/2026</td><td><span class="badge badge--warning">Chưa thanh toán</span></td><td class="col-num">29.225.000 ₫</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="4">Tổng dư nợ</td><td class="col-num" id="tot-debt">23.875.000 ₫</td></tr></tfoot></table></div>
+    </section>
+    <div class="stack">
+      <section class="card"><div class="card__header"><h2 class="card__title">Lịch sử nhắc nợ</h2></div><div class="card__body"><div class="timeline">
+        <div class="timeline__item timeline__item--warning"><div class="timeline__dot"><svg class="icon"><use href="#mail"/></svg></div><div><div class="timeline__title">Nhắc nợ lần 1 qua email</div><div class="timeline__meta">Đặng Thu Hà · 20/10/2026 · khách xem lúc 21/10 08:12</div></div></div>
+        <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#file-text"/></svg></div><div><div class="timeline__title">Gửi bảng kê tháng 09/2026</div><div class="timeline__meta">Đặng Thu Hà · 05/10/2026</div></div></div></div></div></section>
+      <section class="card"><div class="card__header"><h2 class="card__title">Thanh toán gần đây</h2></div><div class="table-scroll"><table class="table table--compact"><tbody>
+        <tr><td class="code"><a href="g4-acc-03.html">PT-Q7-2610-00929</a></td><td class="num">30/10/2026</td><td class="col-num">4.800.000 ₫</td></tr>
+        <tr><td class="code">PT-Q7-2610-00871</td><td class="num">16/10/2026</td><td class="col-num">8.000.000 ₫</td></tr></tbody></table></div></section>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-collect" role="alertdialog" aria-modal="true" aria-labelledby="co-t"><div class="dialog dialog--md" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="co-t">Ghi nhận thu công nợ</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="form-grid"><div class="field"><label class="field__label" for="co-a">Số tiền thu<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="co-a" class="input input--num" data-money value="4.600.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
+      <div class="field"><label class="field__label" for="co-m">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="co-m" class="select"><option>Chuyển khoản</option><option>Tiền mặt</option></select></div></div>
+    <div class="field"><label class="field__label" for="co-r">Mã giao dịch<span class="field__req" aria-hidden="true">*</span></label><input id="co-r" class="input" placeholder="Ví dụ: VCB 4 số cuối"></div>
+    <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Mặc định phân bổ vào lệnh <strong>nợ lâu nhất</strong> trước: RO-Q7-2610-00110 (4.600.000 ₫). Chỉnh phân bổ sau ở chi tiết phiếu thu.</span></div></div>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đối chiếu số tiền với sao kê hoặc tiền thực nhận.</span></label>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-busy="Đang ghi nhận…" data-done-toast="success|Đã ghi nhận thu công nợ|Phiếu thu PT-Q7-2610-00932, dư nợ còn 19.275.000 ₫." disabled>Ghi nhận thu</button></div></div></div>
+
+<div class="overlay" id="dlg-stmt" role="dialog" aria-modal="true" aria-labelledby="st-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="st-t">Gửi bảng kê công nợ</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><p>Gửi bảng kê dư nợ đến 30/10/2026 cho Nguyễn Văn An qua <strong>email</strong>. Zalo/SMS: <span class="tag tag--neutral">Chưa kích hoạt</span></p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi bảng kê|Ghi lịch sử nhắc.">Gửi email</button></div></div></div>
+
+<div class="overlay" id="dlg-lim" role="alertdialog" aria-modal="true" aria-labelledby="lm-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="lm-t">Đề xuất nới hạn mức công nợ?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Cần Chủ garage hoặc Quản lý duyệt; chính sách cho giao xe khi vượt hạn mức đang <span class="g4f-sample">[Cần xác nhận]</span>.</li><li>Cho phép giao xe/lập lệnh mới mà dư nợ vẫn vượt, nên rủi ro không thu hồi được tăng.</li></ul><div class="field"><label class="field__label" for="lm-r">Lý do, kế hoạch thu hồi<span class="field__req" aria-hidden="true">*</span></label><textarea id="lm-r" class="textarea" data-confirm-reason></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi duyệt|Chờ Chủ garage duyệt." disabled>Gửi duyệt</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-11', title: 'Chi tiết công nợ khách và đối soát', desc: 'Dư nợ từng lệnh, hạn mức công nợ, lịch sử nhắc và thu nợ của một khách.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CV', 'QL', 'CH', 'QV'], updated: '09:15', time: 'đến 30/10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+document.addEventListener('g4f:var', function (e) {
+  if (e.detail.group !== 'l') return; var over = e.detail.v === 'over', bar = document.getElementById('lim-bar');
+  bar.className = 'g4f-limit__bar' + (over ? ' is-over' : ''); bar.style.width = over ? '100%' : '47.8%';
+  document.getElementById('lim-debt').textContent = over ? '53.100.000 ₫' : '23.875.000 ₫'; document.getElementById('lim-pct').textContent = over ? '106,2%' : '47,8%'; document.getElementById('tot-debt').textContent = over ? '53.100.000 ₫' : '23.875.000 ₫';
+});
+G4F.applyVar('l', 'ok');
+</script>
+</body>
+</html>

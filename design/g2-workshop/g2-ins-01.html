@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-INS-01 – Thực hiện kiểm tra xe số · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="TH" data-nav="ro" data-g2w-deny="TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Kiểm tra xe số</span></nav>
+  <div data-g2w-scope data-time="Hôm nay 30/10/2026" data-asof="09:31"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Đang kiểm tra|loading:Đang tải mẫu|notfound:Chưa có mẫu cho dịch vụ|error:Lỗi tải mẫu|denied:Không có quyền"></div>
+  <div data-g2w-variants="default:8/14 hạng mục|allrated:Đã chấm đủ 14/14|media:Ảnh tải chậm và lỗi" data-g2w-vlabel="Kịch bản kiểm tra:"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info" data-g2w-roles="CV QL CH QV" role="status"><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span>Bạn chỉ xem kết quả đang kiểm tra. Thợ và Quản đốc chấm mức và ghi chú.</span></div></div>
+
+    <header class="g2w-ro-head">
+      <div class="g2w-ro-head__top">
+        <div class="stack-2" style="min-width:0"><div class="g2w-ro-head__id"><h1 class="g2w-ro-head__code" style="font-size:var(--font-size-xl)">Kiểm tra xe số</h1><span class="plate-tag g2w-ro-head__plate">51H-123.45</span><span class="tag">Mẫu: Bảo dưỡng v3</span></div>
+          <div class="g2w-ro-head__sub">Toyota Vios 1.5G 2019 · 48.200 km · Hồ sơ tiếp nhận 08:00 · Thợ Lê Minh Tuấn</div></div>
+        <div class="stack-2" style="align-items:flex-end;min-width:220px"><div class="progress" style="min-width:220px"><div class="progress__head"><span id="prog-t"><strong>8</strong>/14 hạng mục đã chấm</span></div><div class="progress__track" role="progressbar" aria-label="Tiến độ kiểm tra" aria-valuemin="0" aria-valuemax="14" aria-valuenow="8" id="prog"><div class="progress__bar" id="prog-b" style="width:57%"></div></div></div></div>
+      </div>
+      <div class="g2w-seg-row" id="legend"><span class="badge badge--success">Tốt</span><span class="badge badge--warning">Theo dõi</span><span class="badge badge--danger">Hỏng</span><span class="g2w-muted">Mỗi hạng mục chọn đúng một mức. Mỗi lần chọn tự lưu (FR-INS-003).</span></div>
+    </header>
+
+    <section class="card" aria-label="Danh sách hạng mục kiểm tra"><div id="ins-list"></div></section>
+
+    <div class="g2w-ins-sticky" role="group" aria-label="Hoàn tất kiểm tra">
+      <span class="badge badge--success badge--nodot" id="saved"><svg class="icon"><use href="#check"/></svg>Đã lưu tự động 09:31</span>
+      <span class="g2w-muted" id="finish-why" role="status">Còn 6 hạng mục chưa chấm.</span>
+      <button class="btn btn--primary btn--xl g2w-right" id="finish" data-open="dlg-finish" data-g2w-lock="TH QD" data-g2w-why="Chỉ Thợ và Quản đốc hoàn tất kiểm tra." data-g2w-force-disabled data-g2w-force-why="Còn hạng mục chưa chấm." disabled><svg class="icon"><use href="#check"/></svg>Hoàn tất kiểm tra</button>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--block" style="height:96px"></span><span class="skeleton skeleton--block" style="height:96px"></span><span class="skeleton skeleton--block" style="height:96px"></span></div></div><p class="g2w-muted" role="status">Đang tải mẫu kiểm tra…</p></div>
+  <div data-state="notfound" hidden data-g2w-tpl="empty" data-icon="clipboard-check" data-title="Chưa có mẫu kiểm tra cho loại dịch vụ này" data-text="Quản trị phát hành mẫu cho chi nhánh ở mục quản lý mẫu. Bạn vẫn kiểm tra sơ bộ bằng lời và ghi vào yêu cầu của khách." data-cta="Về hồ sơ tiếp nhận" data-href="g2-rec-02.html"></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được mẫu kiểm tra" data-text="Kết quả bạn đã chấm vẫn được giữ trên tablet. Thử lại khi có mạng." data-ref="ERR-INS-5001"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem kiểm tra xe số" data-text="Kết quả dành cho Thợ, Quản đốc, Cố vấn, Quản lý và Chủ garage."></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-finish" role="dialog" aria-modal="true" aria-labelledby="fi-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="fi-t">Hoàn tất kiểm tra xe 51H-123.45?</h2></div></div>
+  <div class="dialog__body"><div class="g2w-seg-row"><span class="badge badge--danger" id="fi-bad">1 Hỏng</span><span class="badge badge--warning" id="fi-watch">2 Theo dõi</span><span class="badge badge--success" id="fi-ok">11 Tốt</span></div><p style="margin-top:12px">Cố vấn sẽ nhận danh sách lỗi để lập báo giá. Sau khi hoàn tất, mức đã chấm không sửa trực tiếp; cần sửa thì Quản đốc mở lại và ghi lý do.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary btn--lg" data-close>Quay lại kiểm tra</button><a class="btn btn--primary btn--lg" href="g2-ins-02.html">Hoàn tất</a></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var G = [
+    ['Phanh', [['Má phanh trước', 'bad', 'Mòn còn 1,5 mm, cần thay.', 2], ['Má phanh sau', 'ok', '', 0], ['Dầu phanh', 'watch', 'Hơi sẫm màu, theo dõi lần sau.', 1], ['Đĩa phanh', 'ok', '', 0]]],
+    ['Lốp và gầm', [['Lốp trước', 'ok', '', 0], ['Lốp sau', 'ok', '', 0], ['Áp suất lốp', 'ok', '', 0], ['Giảm xóc', 'watch', 'Hơi rỉ dầu giảm xóc trước phải.', 0]]],
+    ['Dầu và dung dịch', [['Dầu động cơ', null], ['Nước làm mát', null], ['Dầu hộp số', null]]],
+    ['Điện và đèn', [['Ắc quy', null], ['Đèn chiếu sáng', null], ['Gạt mưa', null]]]
+  ];
+  var LAB = { ok: 'Tốt', watch: 'Theo dõi', bad: 'Hỏng' }, ICO = { ok: 'check', watch: 'alert-triangle', bad: 'x' }, html = '', n = 0;
+  G.forEach(function (g) {
+    html += '<div class="card__header"><h2 class="card__title">' + g[0] + '</h2></div>';
+    g[1].forEach(function (it) {
+      n++; var id = 'it' + n, lv = it[1];
+      html += '<div class="g2w-ins-item" data-item="' + id + '" data-name="' + it[0] + '"><div class="g2w-ins-item__head"><span class="g2w-ins-item__name" id="' + id + '-n">' + n + '. ' + it[0] + '</span><span class="g2w-muted" data-saved>' + (lv ? '<svg class="icon icon--sm" style="vertical-align:-3px"><use href="#check"/></svg> Đã lưu' : 'Chưa chấm') + '</span></div>' +
+        '<div class="g2w-rating-xl rating" role="group" aria-labelledby="' + id + '-n">';
+      ['ok', 'watch', 'bad'].forEach(function (k) { html += '<button type="button" class="rating__opt rating__opt--' + k + '" aria-pressed="' + (lv === k) + '" data-lvl="' + k + '" data-g2w-lock="TH QD" data-g2w-why="Chỉ Thợ và Quản đốc chấm kiểm tra."><svg class="icon icon--sm"><use href="#' + ICO[k] + '"/></svg>' + LAB[k] + '</button>'; });
+      html += '</div><div class="field"><label class="field__label" for="' + id + '-t">Ghi chú chẩn đoán</label><input id="' + id + '-t" class="input" value="' + (it[2] || '') + '" placeholder="Không bắt buộc, trừ khi chọn Hỏng" data-g2w-lock="TH QD"></div>' +
+        '<div class="g2w-media-row"><button type="button" class="btn btn--secondary btn--lg" data-g2w-lock="TH QD"><svg class="icon"><use href="#camera"/></svg>Chụp ảnh</button><button type="button" class="btn btn--secondary btn--lg" data-g2w-lock="TH QD"><svg class="icon"><use href="#camera"/></svg>Quay video</button>' +
+        (it[3] ? '<span class="g2w-media" aria-label="Ảnh 1"><svg class="icon icon--lg"><use href="#camera"/></svg><span class="g2w-media__tag">Ảnh 1</span></span><span class="g2w-media" aria-label="Ảnh 2"><svg class="icon icon--lg"><use href="#camera"/></svg><span class="g2w-media__tag">Ảnh 2</span></span>' : '') + '</div></div>';
+    });
+  });
+  $('#ins-list').innerHTML = html;
+  var total = n;
+  function counts() { var rated = $$('.g2w-ins-item').filter(function (e) { return $('.rating__opt[aria-pressed="true"]', e); }); return rated.length; }
+  function refresh() {
+    var c = counts(), b = $('#finish'), done = c === total;
+    $('#prog-t').innerHTML = '<strong>' + c + '</strong>/' + total + ' hạng mục đã chấm'; $('#prog-b').style.width = Math.round(c / total * 100) + '%'; $('#prog').setAttribute('aria-valuenow', c);
+    if (done) b.removeAttribute('data-g2w-force-disabled'); else b.setAttribute('data-g2w-force-disabled', '');
+    $('#finish-why').textContent = done ? 'Đã chấm đủ. Có thể hoàn tất.' : 'Còn ' + (total - c) + ' hạng mục chưa chấm.';
+    var cnt = { ok: 0, watch: 0, bad: 0 }; $$('.rating__opt[aria-pressed="true"]').forEach(function (e) { cnt[e.getAttribute('data-lvl')]++; });
+    $('#fi-bad').textContent = cnt.bad + ' Hỏng'; $('#fi-watch').textContent = cnt.watch + ' Theo dõi'; $('#fi-ok').textContent = cnt.ok + ' Tốt';
+    if (window.g2wApply) window.g2wApply();
+  }
+  document.addEventListener('click', function (e) {
+    var o = e.target.closest('.rating__opt[data-lvl]'); if (!o || o.disabled) return;
+    setTimeout(function () { var it = o.closest('.g2w-ins-item'); $('[data-saved]', it).innerHTML = '<svg class="icon icon--sm" style="vertical-align:-3px"><use href="#check"/></svg> Đã lưu ' + '09:32'; $('#saved').lastChild.textContent = 'Đã lưu tự động 09:32'; refresh(); }, 0);
+  });
+  var changed = false;
+  function setVariant(k) {
+    if (k === 'default' && changed) { location.reload(); return; }
+    if (k !== 'default') changed = true;
+    if (k === 'allrated') { $$('.g2w-ins-item').forEach(function (it, i) { if (!$('.rating__opt[aria-pressed="true"]', it)) { var o = $('.rating__opt--ok', it); o.setAttribute('aria-pressed', 'true'); $('[data-saved]', it).innerHTML = '<svg class="icon icon--sm" style="vertical-align:-3px"><use href="#check"/></svg> Đã lưu'; } }); }
+    $$('.g2w-media-demo').forEach(function (m) { m.remove(); });
+    if (k === 'media') { var row = $('[data-item="it1"] .g2w-media-row'); row.insertAdjacentHTML('beforeend', '<span class="thumb g2w-media-demo"><span class="thumb__img"><svg class="icon icon--lg" aria-hidden="true"><use href="#camera"/></svg><span class="thumb__bar"><span style="width:40%"></span></span></span><span class="thumb__meta">Đang tải… 40%</span></span><span class="thumb is-error g2w-media-demo"><span class="thumb__img"><svg class="icon icon--lg" aria-hidden="true"><use href="#alert-triangle"/></svg></span><span class="thumb__meta">Video quá 10 MB, chọn lại</span></span>'); }
+    refresh();
+  }
+  document.addEventListener('click', function (e) { var v = e.target.closest('[data-g2w-var]'); if (v) setTimeout(function () { setVariant(v.getAttribute('data-g2w-var')); }, 0); });
+  refresh();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-NTF-01 · Trung tâm thông báo – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QL" data-g1-menu="dash" data-crumb="Thông báo" data-period="none" data-multirole="QL,CV">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Thông báo</h1>
+      <p class="page-header__desc">Chỉ gồm thông báo trong phạm vi quyền và chi nhánh của bạn. Thông báo đã xử lý ẩn khỏi chuông sau 30 ngày, vẫn xem được ở đây 12 tháng (có thể cấu hình).</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--secondary" href="g1-ntf-02.html"><svg class="icon"><use href="#settings"/></svg>Cài đặt thông báo</a>
+      <button class="btn btn--secondary" data-open="drw-ntf"><svg class="icon"><use href="#bell"/></svg>Xem dạng ngăn kéo</button>
+      <button class="btn btn--primary" id="mark-all"><svg class="icon"><use href="#check"/></svg>Đánh dấu tất cả đã đọc</button>
+    </div>
+  </div>
+
+  <div data-g1-views="default:Có thông báo|empty:Không có thông báo|loading:Đang tải|error:Lỗi tải|offline:Mất mạng"></div>
+
+  <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không tải được thông báo</span><span>Việc này không làm mất thông báo của bạn. Thử lại sau ít giây.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-g1-goto="default">Thử lại</button></div></div></div>
+  <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span>Mất kết nối nên danh sách có thể chưa mới nhất (cập nhật lúc 09:10). Thông báo mới sẽ hiện khi có mạng.</span></div></div>
+
+  <div class="g1-filter" id="nf">
+    <div class="g1-filter__item"><span class="g1-filter__label" id="nf-l">Mức</span><div class="segmented" role="group" aria-labelledby="nf-l">
+      <button class="segmented__item" aria-pressed="true" data-lv="all">Tất cả</button><button class="segmented__item" aria-pressed="false" data-lv="act">Cần xử lý <span class="count-pill count-pill--warning" id="c-act">7</span></button><button class="segmented__item" aria-pressed="false" data-lv="info">Thông tin <span class="count-pill" id="c-info">5</span></button></div></div>
+    <div class="g1-filter__item"><label class="g1-filter__label" for="nf-t">Loại sự kiện</label><select id="nf-t" class="select" style="min-width:220px"><option value="">Tất cả loại</option><option value="apr">Phê duyệt</option><option value="quo">Báo giá và phát sinh</option><option value="qc">Kiểm tra chất lượng</option><option value="inv">Hóa đơn</option><option value="stk">Kho</option><option value="day">Chốt ngày</option></select></div>
+    <div class="g1-filter__item"><label class="check" style="min-height:40px"><input type="checkbox" id="nf-u"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chỉ chưa đọc</span></label></div>
+    <div class="g1-filter__asof"><span>Chi nhánh: <strong data-branch-label>Chi nhánh Quận 7</strong></span></div>
+  </div>
+
+  <section class="card" id="list" aria-labelledby="h-l" data-hide="empty loading">
+    <div class="card__header"><h2 class="card__title" id="h-l">Danh sách thông báo</h2><span class="g1-note" id="n-sum" role="status" aria-live="polite"></span></div>
+    <div id="items">
+      <div class="g1-notif g1-notif--act is-unread" data-lv="act" data-t="apr"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#circle-check"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Cần duyệt: giảm giá vượt hạn mức</span><span>BG-Q7-2610-00231-v2 · Cố vấn Phạm Quốc Bảo xin giảm giá cao hơn hạn mức chi nhánh.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · 35 phút trước</span></div><div class="g1-notif__end"><a class="btn btn--primary btn--sm" href="#" data-target="G4-APR-02">Duyệt</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif g1-notif--act is-unread" data-lv="act" data-t="apr"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#clock"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Phê duyệt quá hạn, đã chuyển cấp</span><span>Phiếu chi PC-Q7-2610-00041 chờ quá 4 giờ nên đã chuyển lên Chủ garage.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · 1 giờ trước</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G4-APR-01">Xem</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif g1-notif--act is-unread" data-lv="act" data-t="quo"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#file-text"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Phát sinh chờ khách duyệt</span><span>RO-Q7-2610-00127 · thay dây curoa 1.680.000 ₫. Thợ chưa bắt đầu được.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · 50 phút trước</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G2-REC-04">Mở lệnh</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif g1-notif--act is-unread" data-lv="act" data-t="qc"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#undo"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">QC trả lại hạng mục</span><span>RO-Q7-2610-00109 · siết lại bu lông bánh trước.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · lúc 08:50</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G2-REC-04">Mở lệnh</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif g1-notif--act is-unread" data-lv="act" data-t="inv"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Hóa đơn lỗi phát hành</span><span>RO-Q7-2610-00119 · nhà cung cấp trả lỗi, kế toán đang xử lý.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · lúc 08:47</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G4-EIN-03">Xem hóa đơn</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif g1-notif--act is-unread" data-lv="act" data-t="stk"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#package"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Thiếu phụ tùng cho lệnh</span><span>RO-Q7-2610-00130 cần 4 lít dầu nhớt 5W-30, khả dụng 0 (đang về 120).</span><span class="g1-notif__meta">Kho Quận 7 · 25 phút trước</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G3-INV-04">Xem tồn</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif g1-notif--act" data-lv="act" data-t="day"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#calendar"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Nhắc chốt ngày 29/10/2026</span><span>Còn 1 chênh lệch quỹ chưa giải trình.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · 07:30 · <span class="tag tag--success">Đã xử lý bởi Bùi Ngọc Mai lúc 09:05</span></span></div><div class="g1-notif__end"><a class="btn btn--ghost btn--sm" href="#" data-target="G4-ACC-09">Xem</a></div></div>
+
+      <div class="g1-notif is-unread" data-lv="info" data-t="quo"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#circle-check"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Báo giá được khách duyệt một phần</span><span>BG-Q7-2610-00225 · phần còn lại được lưu để nhắc khách sau.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · 5 phút trước</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G2-QUO-03">Mở báo giá</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif is-unread" data-lv="info" data-t="stk"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#package"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Tồn dưới định mức</span><span>Má phanh trước Hyundai Accent còn 3 khả dụng, định mức tối thiểu 6.</span><span class="g1-notif__meta">Kho Quận 7 · 20 phút trước</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G3-INV-03">Xem phụ tùng</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif is-unread" data-lv="info" data-t="quo"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#car-front"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Xe sẵn sàng bàn giao</span><span>RO-Q7-2610-00121 · 59A-111.22 Honda City.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · lúc 09:02</span></div><div class="g1-notif__end"><a class="btn btn--secondary btn--sm" href="#" data-target="G2-DLV-03">Mở lệnh</a><button class="btn btn--ghost btn--sm" data-read>Đánh dấu đã đọc</button></div></div>
+      <div class="g1-notif" data-lv="info" data-t="quo"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#calendar"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Lịch hẹn mới chờ xác nhận</span><span>60C-789.01 Toyota Fortuner · 13:30 hôm nay.</span><span class="g1-notif__meta">Chi nhánh Quận 7 · lúc 08:30</span></div><div class="g1-notif__end"><a class="btn btn--ghost btn--sm" href="#" data-target="G2-APT-03">Xem</a></div></div>
+      <div class="g1-notif" data-lv="info" data-t="inv"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#lock"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Hóa đơn của chi nhánh khác</span><span>Thông báo này trỏ tới bản ghi ngoài quyền của bạn.</span><span class="g1-notif__meta">Chi nhánh Biên Hòa · hôm qua</span></div><div class="g1-notif__end"><a class="btn btn--ghost btn--sm" href="g1-err-01.html?state=branch">Mở (sẽ báo không có quyền)</a></div></div>
+    </div>
+    <div class="state" id="n-empty" hidden><div class="state__icon"><svg class="icon icon--lg"><use href="#inbox"/></svg></div><div class="state__title">Không có thông báo phù hợp</div><p class="state__text">Không có thông báo nào khớp bộ lọc hiện tại.</p><div class="state__actions"><button class="btn btn--secondary" id="n-clear">Xóa bộ lọc</button></div></div>
+  </section>
+
+  <div class="stack" data-show="loading" hidden aria-busy="true"><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--block"></span><span class="sr-only">Đang tải thông báo</span></div>
+  <div class="state card" data-show="empty" hidden style="max-width:none;padding:var(--space-12) var(--space-6)"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#bell"/></svg></div><div class="state__title">Không có thông báo mới</div><p class="state__text">Khi có việc cần bạn xử lý (phê duyệt, QC trả lại, hóa đơn lỗi, tồn dưới định mức), thông báo sẽ hiện ở đây và trên biểu tượng chuông.</p></div>
+</div>
+
+<div class="overlay overlay--drawer" id="drw-ntf" role="dialog" aria-modal="true" aria-labelledby="dn-t"><aside class="drawer">
+  <div class="card__header"><div><h2 class="card__title" id="dn-t">Thông báo</h2><div class="card__subtitle">Như khi bấm biểu tượng chuông</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body" style="padding:0;overflow:auto">
+    <div class="menu-label">Cần xử lý</div>
+    <div class="g1-notif g1-notif--act is-unread"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#circle-check"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Cần duyệt: giảm giá vượt hạn mức</span><span class="g1-notif__meta">BG-Q7-2610-00231-v2 · 35 phút trước</span></div></div>
+    <div class="g1-notif g1-notif--act is-unread"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#file-text"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Phát sinh chờ khách duyệt</span><span class="g1-notif__meta">RO-Q7-2610-00127 · 50 phút trước</span></div></div>
+    <div class="menu-label">Thông tin</div>
+    <div class="g1-notif is-unread"><span class="g1-notif__icon"><svg class="icon icon--sm"><use href="#package"/></svg></span><div class="g1-notif__body"><span class="g1-notif__title">Tồn dưới định mức</span><span class="g1-notif__meta">Má phanh trước Hyundai Accent · 20 phút trước</span></div></div>
+  </div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" data-close>Mở trang thông báo</button></div></aside></div>
+
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+(function () {
+  var lv = 'all', q = function (s, r) { return (r || document).querySelector(s); }, qa = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function run() {
+    var t = q('#nf-t').value, un = q('#nf-u').checked, shown = 0;
+    qa('#items .g1-notif').forEach(function (n) {
+      var ok = (lv === 'all' || n.getAttribute('data-lv') === lv) && (!t || n.getAttribute('data-t') === t) && (!un || n.classList.contains('is-unread'));
+      n.hidden = !ok; if (ok) shown++;
+    });
+    q('#n-empty').hidden = shown !== 0;
+    var ua = qa('#items .g1-notif.is-unread[data-lv="act"]').length, ui = qa('#items .g1-notif.is-unread[data-lv="info"]').length;
+    q('#c-act').textContent = ua; q('#c-info').textContent = ui;
+    q('#n-sum').textContent = shown + ' thông báo · ' + (ua + ui) + ' chưa đọc';
+  }
+  document.addEventListener('click', function (e) {
+    var s = e.target.closest('#nf [data-lv]'); if (s) { lv = s.getAttribute('data-lv'); qa('#nf [data-lv]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === s)); }); run(); }
+    var r = e.target.closest('[data-read]'); if (r) { var n = r.closest('.g1-notif'); n.classList.remove('is-unread'); r.remove(); run(); }
+    if (e.target.closest('#mark-all')) { qa('#items .g1-notif').forEach(function (n) { n.classList.remove('is-unread'); var b = q('[data-read]', n); if (b) b.remove(); }); run(); window.gmepToast('success', 'Đã đánh dấu tất cả đã đọc', 'Các việc “Cần xử lý” vẫn hiện cho đến khi được xử lý.'); }
+    if (e.target.closest('#n-clear')) { lv = 'all'; q('#nf-t').value = ''; q('#nf-u').checked = false; qa('#nf [data-lv]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-lv') === 'all')); }); run(); }
+  });
+  document.addEventListener('change', function (e) { if (e.target.id === 'nf-t' || e.target.id === 'nf-u') run(); });
+  run();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-11 – Chu kỳ nhắc đăng kiểm, bảo dưỡng, bảo hiểm · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-11" data-menu="set" data-crumbs="Cài đặt|Chu kỳ nhắc" data-allow="AD QL CH"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Chu kỳ nhắc đăng kiểm, bảo dưỡng, bảo hiểm',
+  desc: 'Chu kỳ theo loại xe và năm sản xuất, có ngày hiệu lực vì quy định đăng kiểm thay đổi. Hệ thống dùng bảng này để tính ngày nhắc khách (FR-CRM-006, 007, 008).',
+  prio: 'P2',
+  cfgScope: 'Danh mục chung toàn hệ thống',
+  actions: '<button class="btn btn--primary" data-edit-roles="AD QL" data-open="dlg-cyc"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Thêm chu kỳ</button>',
+  empty: { title: 'Chưa cấu hình chu kỳ nhắc nào', text: 'Thêm chu kỳ đăng kiểm theo loại xe để hệ thống nhắc khách đúng hạn.', cta: '<button class="btn btn--primary" data-open="dlg-cyc">Thêm chu kỳ</button>' }
+});
+</script>
+
+<div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><div class="alert__title">Số liệu minh họa, chưa phải quy định</div>Chu kỳ đăng kiểm theo luật hiện hành cần Quản trị đối chiếu văn bản trước khi dùng. Hệ thống không tự đặt chu kỳ <b>[Cần xác nhận]</b>.</div></div>
+
+<div class="tabs" role="tablist" aria-label="Loại chu kỳ">
+  <button class="tab" role="tab" id="k1" aria-selected="true" aria-controls="kp1">Đăng kiểm</button>
+  <button class="tab" role="tab" id="k2" aria-selected="false" tabindex="-1" aria-controls="kp2">Bảo dưỡng</button>
+  <button class="tab" role="tab" id="k3" aria-selected="false" tabindex="-1" aria-controls="kp3">Bảo hiểm</button>
+</div>
+
+<div class="tab-panel stack" id="kp1" role="tabpanel" aria-labelledby="k1">
+  <div class="table-wrap"><div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Chu kỳ đăng kiểm theo loại xe và năm sản xuất</caption>
+    <thead><tr><th>Loại xe</th><th>Năm sản xuất</th><th class="col-num">Chu kỳ lần đầu (tháng)</th><th class="col-num">Chu kỳ định kỳ (tháng)</th><th class="col-num">Nhắc trước (ngày)</th><th>Hiệu lực từ</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Ô tô con đến 9 chỗ, không kinh doanh vận tải</td><td>Sản xuất đến 7 năm</td><td class="col-num">30</td><td class="col-num">18</td><td class="col-num">30, 7</td><td class="num">01/01/2026</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-cyc">Sửa</button></td></tr>
+      <tr><td>Ô tô con đến 9 chỗ, không kinh doanh vận tải</td><td>Sản xuất trên 7 năm</td><td class="col-num">–</td><td class="col-num">12</td><td class="col-num">30, 7</td><td class="num">01/01/2026</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-cyc">Sửa</button></td></tr>
+      <tr><td>Ô tô kinh doanh vận tải</td><td>Mọi năm</td><td class="col-num">12</td><td class="col-num">6</td><td class="col-num">30, 14, 7</td><td class="num">01/01/2026</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-cyc">Sửa</button></td></tr>
+    </tbody></table></div></div>
+    <div class="record-list record-list--responsive" style="padding:var(--space-4)"><div class="record"><div class="record__top"><div><div class="record__title">Ô tô con đến 9 chỗ</div>Sản xuất đến 7 năm</div><span class="tag tag--success">Hiện hành</span></div><div class="record__meta"><span>Lần đầu 30 tháng</span><span>Định kỳ 18 tháng</span><span>Nhắc trước 30, 7 ngày</span></div></div></div>
+    <div class="table-footer"><span class="table-meta">Đổi chu kỳ chỉ áp dụng cho lịch nhắc tính từ ngày hiệu lực; lịch nhắc đã tạo giữ nguyên.</span></div></div>
+</div>
+
+<div class="tab-panel stack" id="kp2" role="tabpanel" aria-labelledby="k2" hidden>
+  <div class="table-wrap"><div class="table-scroll"><table class="table"><caption class="sr-only">Chu kỳ bảo dưỡng</caption>
+    <thead><tr><th>Nhóm xe</th><th class="col-num">Mỗi (km)</th><th class="col-num">Hoặc mỗi (tháng)</th><th class="col-num">Nhắc trước (ngày)</th><th>Hiệu lực từ</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Xe xăng dưới 2.0L</td><td class="col-num">10.000</td><td class="col-num">6</td><td class="col-num">14</td><td class="num">01/07/2026</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-cyc">Sửa</button></td></tr>
+      <tr><td>Xe dầu và xe tải nhẹ</td><td class="col-num">7.500</td><td class="col-num">6</td><td class="col-num">14</td><td class="num">01/07/2026</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-cyc">Sửa</button></td></tr>
+    </tbody></table></div></div>
+</div>
+
+<div class="tab-panel stack" id="kp3" role="tabpanel" aria-labelledby="k3" hidden>
+  <div class="table-wrap"><div class="table-scroll"><table class="table"><caption class="sr-only">Chu kỳ bảo hiểm</caption>
+    <thead><tr><th>Loại bảo hiểm</th><th class="col-num">Thời hạn (tháng)</th><th class="col-num">Nhắc trước (ngày)</th><th>Hiệu lực từ</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Bảo hiểm trách nhiệm dân sự bắt buộc</td><td class="col-num">12</td><td class="col-num">30, 7</td><td class="num">01/01/2026</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-cyc">Sửa</button></td></tr>
+      <tr><td>Bảo hiểm vật chất xe</td><td class="col-num">12</td><td class="col-num">30</td><td class="num">01/01/2026</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-cyc">Sửa</button></td></tr>
+    </tbody></table></div></div>
+</div>
+
+<script>
+g4rEnd('', g4rDrawer({ id: 'dlg-cyc', title: 'Sửa chu kỳ nhắc', sub: 'Ô tô con đến 9 chỗ · sản xuất đến 7 năm', cta: 'Lưu phiên bản mới', toast: 'Đã lưu chu kỳ', effDate: '01/01/2027', impact: ['Lịch nhắc tính từ ngày hiệu lực dùng chu kỳ mới.', 'Lịch nhắc đã tạo cho khách không đổi.', 'Khách chỉ nhận tin nhắc khi đã đồng ý nhận (FR-CRM-010).'],
+  fields: ['<div class="form-grid"><div class="field"><label class="field__label" for="cy-1">Chu kỳ lần đầu (tháng)</label><input class="input input--num" id="cy-1" value="30" inputmode="numeric"></div><div class="field"><label class="field__label" for="cy-2">Chu kỳ định kỳ (tháng)<span class="field__req">*</span></label><input class="input input--num" id="cy-2" value="18" inputmode="numeric"></div><div class="field span-2"><label class="field__label" for="cy-3">Nhắc trước (ngày, ngăn cách bằng dấu phẩy)</label><input class="input" id="cy-3" value="30, 7"></div></div>'] }));
+</script>
+</body>
+</html>

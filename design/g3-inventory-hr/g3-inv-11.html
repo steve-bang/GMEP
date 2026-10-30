@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-11 · Xuất dùng nội bộ và vật tư tiêu hao – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-11')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Xuất dùng nội bộ và vật tư tiêu hao</h1><p class="page-header__desc">Chứng từ riêng cho hàng dùng trong xưởng, không gắn lệnh sửa chữa. Cần lý do và người duyệt.</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><a class="btn btn--secondary" href="g3-inv-08.html">Về chứng từ kho</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Kho Quận 7</span><span>· Ngày lập 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="phiếu xuất dùng nội bộ" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div data-g3-state="data" class="stack">
+  <div class="g3-ro-flag alert alert--info" data-for="f-int" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Thủ kho lập phiếu, Quản lý chi nhánh duyệt.</span></div></div>
+  <form id="f-int" class="g3-split" data-g3-edit="TK" onsubmit="return false">
+    <div class="stack-6">
+      <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Thông tin chung</h2>
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="i-type">Loại<span class="field__req" aria-hidden="true">*</span></label><select id="i-type" class="select"><option>Vật tư tiêu hao xưởng</option><option>Xuất dùng nội bộ (văn phòng, thử nghiệm)</option></select></div>
+          <div class="field"><label class="field__label" for="i-alloc">Phân bổ chi phí</label><select id="i-alloc" class="select"><option>Chi phí chi nhánh (không gắn lệnh)</option><option>Phân bổ theo lệnh sửa chữa</option></select><span class="field__hint">Cách phân bổ vật tư tiêu hao chưa được khách chốt, nên đây là lựa chọn cấu hình.</span></div>
+          <div class="field span-2"><label class="field__label" for="i-why">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="i-why" class="textarea">Bổ sung vật tư tiêu hao cho khu rửa phanh và thay dầu, tuần 44.</textarea></div>
+        </div></section>
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Vật tư xuất</h2><span class="table-meta">3 dòng</span></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Dòng vật tư xuất dùng nội bộ</caption><thead><tr><th>Vật tư</th><th class="col-num">Khả dụng</th><th class="col-num">SL xuất</th><th class="col-num">Giá vốn</th></tr></thead><tbody>
+          <tr><td><span class="code">VT-0012</span> Dung dịch rửa phanh 500 ml</td><td class="col-num">14</td><td class="col-num"><input class="input input--num g3-num" value="6" aria-label="SL VT-0012"></td><td class="col-num"><span data-g3-cost="468.000 ₫"></span></td></tr>
+          <tr><td><span class="code">VT-0003</span> Giẻ lau máy (kg)</td><td class="col-num">22</td><td class="col-num"><input class="input input--num g3-num" value="10" aria-label="SL VT-0003"></td><td class="col-num"><span data-g3-cost="320.000 ₫"></span></td></tr>
+          <tr><td><span class="code">VT-0021</span> Găng tay cao su (đôi)</td><td class="col-num">40</td><td class="col-num"><input class="input input--num g3-num" value="20" aria-label="SL VT-0021"></td><td class="col-num"><span data-g3-cost="360.000 ₫"></span></td></tr></tbody>
+          <tfoot><tr><td colspan="3">Tổng giá trị</td><td class="col-num"><span data-g3-cost="1.148.000 ₫"></span></td></tr></tfoot></table></div></section>
+      <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Vượt hạn mức xuất dùng nội bộ của Thủ kho: cần Quản lý chi nhánh duyệt</span><span>Giá trị phiếu <span data-g3-cost="1.148.000 ₫"></span> so với hạn mức cấp Thủ kho <span class="g3-sample">1.000.000 ₫ · giá trị mẫu, lấy từ G4-APR-03</span>.</span></div></div>
+    </div>
+    <aside class="g3-side"><section class="card"><div class="card__body stack">
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-int" data-g3-need="TK" data-g3-why="Chỉ Thủ kho gửi duyệt.">Gửi duyệt</button><button class="btn btn--secondary btn--block" type="button">Lưu nháp</button>
+      <p class="t-body-sm text-secondary">Tồn chỉ giảm sau khi Quản lý chi nhánh duyệt. Chứng từ đã ghi sổ không sửa hoặc xóa.</p></div></section>
+      <section class="card"><div class="card__header"><h2 class="card__title">Người duyệt</h2></div><div class="card__body"><div class="approval__line"><div><div class="approval__name">Đặng Hữu Phúc</div><div class="approval__sub">Quản lý chi nhánh Quận 7 · cấp theo cấu hình</div></div><span class="badge badge--warning">Chờ gửi</span></div></div></section></aside>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-int" role="dialog" aria-modal="true" aria-labelledby="in-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="in-t">Gửi phiếu xuất dùng nội bộ cho Quản lý duyệt?</h2></div></div>
+  <div class="dialog__body"><p>Phiếu 3 dòng sẽ chờ Đặng Hữu Phúc duyệt. Kho chưa trừ tồn cho đến khi được duyệt.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="info|Đã gửi duyệt|Chờ Quản lý chi nhánh duyệt.">Gửi duyệt</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

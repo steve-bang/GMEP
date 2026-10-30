@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-03 · Thiết lập xác thực hai lớp – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung thiết lập</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Đang thiết lập|expired:Hết thời gian thiết lập" data-hint="Thử bước 3: nhập 000000 để thấy lỗi mã thử."></div>
+
+  <main class="g1-auth-card g1-auth-card--wide" id="main" aria-labelledby="t" data-wizard>
+    <div><h1 id="t">Thiết lập xác thực hai lớp</h1><p class="g1-lead">Vai trò của bạn bắt buộc xác thực hai lớp để bảo vệ dữ liệu tiền, hóa đơn và khách hàng. Bước này không bỏ qua được. Phiên thiết lập còn <strong class="num" data-countdown="600" data-countdown-view="expired">10:00</strong>.</p></div>
+
+    <ol class="stepper" aria-label="Các bước thiết lập">
+      <li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Cài ứng dụng</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Quét mã</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Nhập mã thử</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Mã khôi phục</span></div></li>
+    </ol>
+
+    <div class="alert alert--danger" role="alert" data-show="expired" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Hết thời gian thiết lập</span><span>Phiên thiết lập chỉ kéo dài 10 phút để giữ an toàn. Bấm “Bắt đầu lại” để nhận mã QR mới. Mã QR cũ không còn dùng được.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="g1-aut-03.html">Bắt đầu lại</a></div></div></div>
+
+    <div data-hide="expired">
+      <section data-step="1" aria-labelledby="s1">
+        <h2 class="heading-sm" id="s1" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 1. Cài ứng dụng xác thực trên điện thoại</h2>
+        <ul class="stack-2" style="padding-left:var(--space-5);margin:0 0 var(--space-5)">
+          <li>Mở cửa hàng ứng dụng trên điện thoại của bạn.</li>
+          <li>Tìm và cài một ứng dụng xác thực (loại tạo mã 6 số đổi mỗi 30 giây).</li>
+          <li>Mở ứng dụng rồi quay lại đây để sang bước 2.</li>
+        </ul>
+        <div class="row"><button type="button" class="btn btn--primary btn--lg" data-step-go="2">Tiếp tục</button><button type="button" class="btn btn--secondary btn--lg" data-toast="success|Đã gửi hướng dẫn|Hướng dẫn thiết lập được gửi tới email công việc của bạn.">Gửi hướng dẫn qua email</button></div>
+      </section>
+
+      <section data-step="2" aria-labelledby="s2" hidden>
+        <h2 id="s2" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 2. Quét mã QR bằng ứng dụng</h2>
+        <div class="row" style="align-items:flex-start;gap:var(--space-6)">
+          <div class="g1-qr" id="qr" role="img" aria-label="Mã QR để thêm GARAGE OS vào ứng dụng xác thực (hình minh họa)"></div>
+          <div class="stack-2" style="flex:1;min-width:220px">
+            <p style="margin:0">Trong ứng dụng, chọn “Thêm tài khoản” rồi quét mã. Không quét được? Nhập khóa này:</p>
+            <div class="g1-key" aria-label="Khóa thiết lập">JBSW Y3DP EHPK 3PXP</div>
+            <p class="t-body-sm text-secondary" style="margin:0">Không chia sẻ mã QR hoặc khóa này với ai, kể cả quản lý.</p>
+          </div>
+        </div>
+        <div class="row" style="margin-top:var(--space-5)"><button type="button" class="btn btn--ghost btn--lg" data-step-go="1">Quay lại</button><button type="button" class="btn btn--primary btn--lg" data-step-go="3">Tôi đã quét xong</button></div>
+      </section>
+
+      <section data-step="3" aria-labelledby="s3" hidden>
+        <h2 id="s3" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 3. Nhập mã thử để kiểm tra</h2>
+        <div class="field">
+          <span class="field__label" id="otp-l">Mã 6 số đang hiển thị trong ứng dụng<span class="field__req" aria-hidden="true">*</span></span>
+          <div class="otp" role="group" aria-labelledby="otp-l"><input class="otp__cell" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Số thứ 1"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 2"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 3"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 4"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 5"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 6"></div>
+          <span class="field__error" id="otp-err" hidden></span>
+        </div>
+        <div class="row" style="margin-top:var(--space-5)"><button type="button" class="btn btn--ghost btn--lg" data-step-go="2">Quay lại</button><button type="button" class="btn btn--primary btn--lg" data-step-go="4" data-otp-check>Kiểm tra mã</button></div>
+      </section>
+
+      <section data-step="4" aria-labelledby="s4" hidden>
+        <h2 id="s4" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 4. Lưu mã khôi phục</h2>
+        <div class="alert alert--warning" style="margin-bottom:var(--space-4)"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mã này chỉ hiện một lần</span><span>Mất điện thoại mà không có mã khôi phục, bạn phải nhờ quản trị hệ thống đặt lại. Mỗi mã dùng được một lần.</span></div></div>
+        <div class="g1-codes" aria-label="Danh sách mã khôi phục"><span>K7F2-9QXM</span><span>4DPA-83LZ</span><span>M2TC-X9WV</span><span>7HNB-5RKE</span><span>Q3YJ-D6UA</span><span>V8GS-2PCN</span><span>E5WZ-T4HM</span><span>B9XR-J7LQ</span></div>
+        <div class="row" style="margin:var(--space-3) 0"><button type="button" class="btn btn--secondary" data-toast="success|Đã tải mã khôi phục|Tệp lưu trên thiết bị này. Cất ở nơi an toàn."><svg class="icon"><use href="#download"/></svg>Tải về</button><button type="button" class="btn btn--secondary" onclick="window.print()"><svg class="icon"><use href="#printer"/></svg>In</button></div>
+        <label class="check"><input type="checkbox" id="ack"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã lưu các mã khôi phục ở nơi an toàn</span></label>
+        <div class="row" style="margin-top:var(--space-5)"><button type="button" class="btn btn--primary btn--lg" data-requires="ack" data-step-go="5">Hoàn tất thiết lập</button></div>
+        <p class="t-body-sm text-secondary" style="margin:var(--space-2) 0 0">Nút “Hoàn tất” bật lên sau khi bạn xác nhận đã lưu mã.</p>
+      </section>
+
+      <section data-step="5" aria-labelledby="s5" hidden>
+        <div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><h2 class="state__title" id="s5" data-step-title tabindex="-1">Đã bật xác thực hai lớp</h2><p class="state__text">Từ lần đăng nhập sau, bạn nhập thêm mã 6 số từ ứng dụng.</p><div class="state__actions"><a class="btn btn--primary btn--lg" href="g1-aut-08.html">Tiếp tục vào hệ thống</a></div></div>
+      </section>
+    </div>
+    <div class="g1-auth-links"><a href="g1-aut-01.html">Đăng xuất</a><span class="t-body-sm text-secondary">Thiết lập dở dang sẽ phải làm lại từ bước 1.</span></div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+(function () {
+  /* Hình QR minh họa (không quét được) */
+  var q = document.getElementById('qr'), html = '', n = 12, i, j;
+  for (i = 0; i < n; i++) for (j = 0; j < n; j++) {
+    var finder = (i < 3 && j < 3) || (i < 3 && j > 8) || (i > 8 && j < 3);
+    var on = finder || ((i * 7 + j * 11 + i * j) % 3 === 0);
+    html += '<i class="' + (on ? '' : 'o') + '"></i>';
+  }
+  q.innerHTML = html;
+})();
+</script>
+</body>
+</html>

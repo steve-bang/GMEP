@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-01 · Thu tiền theo lệnh · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <a class="btn btn--secondary" href="g4-acc-02.html">Danh sách phiếu thu</a>
+    <button class="btn btn--secondary" data-open="dlg-deposit" data-g4f-need="TN" data-g4f-why="Chỉ Thu ngân ghi nhận tiền cọc." data-g4f-online>Ghi nhận tiền cọc</button>
+  </div>
+
+  <!-- Biến thể chỉ để xem thử -->
+  <div class="g4f-demo" role="group" aria-label="Xem thử biến thể của phiếu (chỉ prototype)">
+    <span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
+    <div class="segmented" role="group" aria-label="Tình huống">
+      <button class="segmented__item" data-g4f-var="ok" data-vg="g" aria-pressed="true">Bình thường</button>
+      <button class="segmented__item" data-g4f-var="qc" data-vg="g" aria-pressed="false">QC chưa đạt (chặn thu)</button>
+      <button class="segmented__item" data-g4f-var="locked" data-vg="g" aria-pressed="false">Ngày đã khóa sổ</button>
+    </div>
+  </div>
+
+  <div class="alert alert--danger" data-vg="g" data-v="qc" hidden role="alert">
+    <svg class="icon"><use href="#circle-x"/></svg>
+    <div class="alert__body"><span class="alert__title">Chưa thu tiền được: lệnh chưa qua kiểm tra chất lượng</span><span>Lệnh RO-Q7-2610-00131 đang ở trạng thái “Chờ QC”. Quản đốc cần duyệt QC (FR-REC-016) trước khi thu tiền và giao xe.</span>
+      <div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#">Mở lệnh để xem phiếu QC</a></div></div>
+  </div>
+  <div class="alert alert--neutral" data-vg="g" data-v="locked" hidden>
+    <svg class="icon"><use href="#lock"/></svg>
+    <div class="alert__body"><span class="alert__title">Ngày 29/10/2026 đã khóa sổ: chỉ xem</span><span>Không sửa trực tiếp. Muốn điều chỉnh, tạo chứng từ điều chỉnh mới có lý do trong ngày đang mở (WF-06) hoặc nhờ Chủ garage mở lại ngày.</span></div>
+  </div>
+
+  <div class="g4f-two">
+    <div class="stack">
+      <section class="card" aria-labelledby="h-ro">
+        <div class="card__header"><div><h2 class="card__title" id="h-ro">Lệnh cần thu tiền</h2><div class="card__subtitle">Thu tiền luôn gắn với một lệnh sửa chữa (RULE-007)</div></div><a class="btn btn--ghost btn--sm" href="#">Mở lệnh<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+        <div class="card__body stack">
+          <div class="row" style="gap:16px">
+            <span class="code" style="font-size:18px;font-weight:600">RO-Q7-2610-00131</span>
+            <span class="plate">51H-123.45</span><span class="text-secondary">Toyota Vios 2019</span>
+          </div>
+          <dl class="g4f-kv">
+            <div><dt>Khách hàng</dt><dd>Nguyễn Văn An</dd></div>
+            <div><dt>Cố vấn dịch vụ</dt><dd>Nguyễn Hoàng Yến</dd></div>
+            <div><dt>Chi nhánh</dt><dd>Chi nhánh Quận 7</dd></div>
+            <div><dt>Ngày giao dự kiến</dt><dd class="num">30/10/2026</dd></div>
+          </dl>
+          <div>
+            <div class="t-caption text-tertiary" style="margin-bottom:6px">Ba trạng thái riêng của cùng một lệnh (không gộp)</div>
+            <div class="row">
+              <span class="row" style="gap:6px"><span class="t-body-sm text-secondary">Lệnh</span><span class="badge badge--success" data-vg="g" data-v="ok locked">Sẵn sàng bàn giao</span><span class="badge badge--purple" data-vg="g" data-v="qc" hidden>Chờ QC</span></span>
+              <span class="row" style="gap:6px"><span class="t-body-sm text-secondary">Thanh toán</span><span class="badge badge--info" id="pay-badge">Thanh toán một phần</span></span>
+              <span class="row" style="gap:6px"><span class="t-body-sm text-secondary">Hóa đơn</span><span class="badge badge--neutral">Chưa xuất</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-lines">
+        <div class="card__header"><div><h2 class="card__title" id="h-lines">Nội dung phải thu</h2><div class="card__subtitle">Số liệu lấy từ lệnh, không nhập lại</div></div></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Các khoản của lệnh RO-Q7-2610-00131</caption>
+          <thead><tr><th>Khoản</th><th>Chi tiết</th><th class="col-num">Thành tiền</th></tr></thead>
+          <tbody>
+            <tr><td>Công sửa chữa</td><td>Thay má phanh trước, cân chỉnh góc đặt bánh xe</td><td class="col-num">2.300.000 ₫</td></tr>
+            <tr><td>Phụ tùng</td><td>Má phanh trước Vios (1 bộ), dầu phanh DOT4 (2 chai)</td><td class="col-num">5.700.000 ₫</td></tr>
+            <tr><td>Giảm giá</td><td>Khách quen, trong hạn mức chi nhánh</td><td class="col-num g4f-bad">−350.000 ₫</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="2">Tổng phải thu (đã gồm thuế theo cấu hình hiệu lực)</td><td class="col-num">7.650.000 ₫</td></tr></tfoot>
+        </table></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-pay">
+        <div class="card__header"><div><h2 class="card__title" id="h-pay">Ghi nhận thanh toán</h2><div class="card__subtitle">Có thể chia nhiều hình thức trong một lần thu (FR-ACC-001)</div></div></div>
+        <div class="card__body">
+          <div id="pay-lines">
+            <div class="g4f-pay" data-line>
+              <div class="field"><label class="field__label" for="m1">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="m1" class="select" data-method><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ (POS)</option><option>Ví điện tử</option></select></div>
+              <div class="field"><label class="field__label" for="a1">Số tiền<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="a1" class="input input--num" data-money data-amount inputmode="numeric" value="3.650.000" style="padding-left:12px" autocomplete="off"><span class="input-group__suffix">₫</span></div></div>
+              <div class="field"><label class="field__label" for="r1">Mã giao dịch / ghi chú</label><input id="r1" class="input" placeholder="Không bắt buộc với tiền mặt"></div>
+              <button class="btn-icon btn-icon--outline" aria-label="Bỏ dòng thanh toán này" data-remove-line>
+                <svg class="icon"><use href="#x"/></svg></button>
+            </div>
+            <div class="g4f-pay" data-line>
+              <div class="field"><label class="field__label" for="m2">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="m2" class="select" data-method><option>Tiền mặt</option><option selected>Chuyển khoản</option><option>Thẻ (POS)</option><option>Ví điện tử</option></select></div>
+              <div class="field"><label class="field__label" for="a2">Số tiền<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="a2" class="input input--num" data-money data-amount inputmode="numeric" value="2.000.000" style="padding-left:12px" autocomplete="off"><span class="input-group__suffix">₫</span></div></div>
+              <div class="field"><label class="field__label" for="r2">Mã giao dịch / ghi chú<span class="field__req" aria-hidden="true">*</span></label><input id="r2" class="input" value="VCB 4 số cuối 8821"></div>
+              <button class="btn-icon btn-icon--outline" aria-label="Bỏ dòng thanh toán này" data-remove-line>
+                <svg class="icon"><use href="#x"/></svg></button>
+            </div>
+          </div>
+          <button class="btn btn--secondary btn--sm" id="add-line" data-vg="g" data-v-off="qc locked"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm hình thức</button>
+          <div id="over-ack" class="alert alert--warning" style="margin-top:16px" hidden role="status">
+            <svg class="icon"><use href="#alert-triangle"/></svg>
+            <div class="alert__body"><span class="alert__title">Số thu lớn hơn số còn phải thu</span><span id="over-text"></span>
+              <label class="check" style="margin-top:8px"><input type="checkbox" id="over-chk"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi xác nhận phần dư ghi thành <strong>khoản nhận trước</strong> của khách, không thu nhầm.</span></label></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="alert alert--success" id="done" hidden role="status">
+        <svg class="icon"><use href="#circle-check"/></svg>
+        <div class="alert__body"><span class="alert__title">Đã ghi nhận: phiếu thu PT-Q7-2610-00931</span><span>Lệnh chuyển “Thanh toán” sang trạng thái mới. Phiếu đã ghi sổ, không xóa được; nếu nhầm, dùng “Đảo bút toán” trong chi tiết phiếu.</span>
+          <div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g4-acc-03.html"><svg class="icon icon--sm"><use href="#printer"/></svg>Xem và in phiếu thu</a><a class="btn btn--primary btn--sm" href="g4-ein-02.html">Phát hành hóa đơn</a></div></div>
+      </div>
+    </div>
+
+    <aside class="g4f-aside" aria-label="Tóm tắt thu tiền">
+      <section class="card">
+        <div class="card__header"><h2 class="card__title">Tóm tắt</h2></div>
+        <div class="card__body">
+          <dl class="g4f-sum">
+            <div><dt>Tổng phải thu</dt><dd>7.650.000 ₫</dd></div>
+            <div><dt>Đã thu cọc (PT-Q7-2610-00902)</dt><dd>2.000.000 ₫</dd></div>
+            <div><dt>Đã thu các lần trước</dt><dd>0 ₫</dd></div>
+            <div class="is-total"><dt>Còn phải thu</dt><dd id="due">5.650.000 ₫</dd></div>
+            <div><dt>Lần này ghi nhận</dt><dd id="sum-now">5.650.000 ₫</dd></div>
+            <div id="row-after"><dt id="after-l">Còn nợ sau khi thu</dt><dd id="after-v">0 ₫</dd></div>
+          </dl>
+          <p class="t-body-sm text-secondary" id="after-note" style="margin:12px 0 0">Thu đủ: lệnh chuyển sang “Đã thanh toán”.</p>
+        </div>
+      </section>
+      <section class="card card__body">
+        <h3 class="g4f-section-title" style="font-size:16px">Phòng ngừa nhầm lẫn</h3>
+        <ul class="impact-list" style="margin:0">
+          <li>Bấm “Ghi nhận” chỉ mở màn xác nhận; chưa ghi gì.</li>
+          <li>Sau khi ghi, nút khóa lại: bấm hai lần hoặc timeout không tạo phiếu thứ hai.</li>
+          <li>Phiếu đã ghi sổ không có nút xóa; sửa bằng bút toán đảo có lý do.</li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+
+  <div class="form-footer" role="group" aria-label="Thao tác thu tiền">
+    <span class="t-body-sm text-secondary" style="margin-right:auto"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#history"/></svg> Bản nháp tự lưu lúc 09:14, giữ cả khi mất mạng</span>
+    <a class="btn btn--ghost" href="g4-acc-02.html">Hủy, không ghi</a>
+    <button class="btn btn--secondary" data-toast="info|Đã lưu nháp|Phiếu thu chưa ghi sổ; tiếp tục sau.">Lưu nháp</button>
+    <span class="tooltip-host"><button class="btn btn--primary btn--lg" id="btn-pay" data-open="dlg-pay" data-g4f-need="TN" data-g4f-why="Chỉ Thu ngân ghi nhận thanh toán; Quản lý chi nhánh duyệt, vai trò khác chỉ xem." data-g4f-online data-vg="g" data-v-off="qc locked" aria-describedby="why-pay">Ghi nhận thanh toán 5.650.000 ₫</button><span class="tooltip" id="why-pay" role="tooltip">Hãy kiểm tra lại số tiền và hình thức trước khi ghi.</span></span>
+  </div>
+  <p class="g4f-why" id="lock-why" data-vg="g" data-v="qc locked" hidden style="text-align:right">Lý do nút “Ghi nhận” bị khóa: <span id="lock-why-t"></span></p>
+</div>
+
+<!-- Xác nhận ghi nhận thanh toán -->
+<div class="overlay" id="dlg-pay" role="alertdialog" aria-modal="true" aria-labelledby="dp-t"><div class="dialog dialog--md" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="dp-t">Xác nhận ghi nhận thanh toán</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <p>Lệnh <strong class="code">RO-Q7-2610-00131</strong> · <span class="plate">51H-123.45</span> · Nguyễn Văn An</p>
+    <ul class="impact-list" id="dp-lines"></ul>
+    <dl class="g4f-sum"><div class="is-total"><dt>Tổng ghi nhận lần này</dt><dd id="dp-total">5.650.000 ₫</dd></div><div><dt>Còn nợ sau khi ghi</dt><dd id="dp-after">0 ₫</dd></div></dl>
+    <p class="t-body-sm text-secondary" style="margin:12px 0">Sau khi ghi sổ không xóa được. Nếu nhầm, tạo bút toán đảo có lý do (cần Quản lý chi nhánh duyệt).</p>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đối chiếu số tiền và hình thức với thực tế nhận.</span></label>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại sửa</button>
+    <button class="btn btn--primary" id="dp-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-pay" data-busy="Đang ghi nhận…" data-done-label="Đã ghi nhận" data-done-toast="success|Đã ghi nhận thanh toán|Phiếu thu PT-Q7-2610-00931 · 5.650.000 ₫." data-done-show="#done" disabled>Ghi nhận</button></div></div></div>
+
+<!-- Tiền cọc -->
+<div class="overlay" id="dlg-deposit" role="dialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="dd-t">Ghi nhận tiền cọc</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <p class="t-body-sm text-secondary">Tiền cọc được trừ vào thanh toán cuối và hiện trên lệnh (FR-ACC-002). Cọc hoàn lại phải có phiếu chi.</p>
+    <div class="field"><label class="field__label" for="dep-a">Số tiền cọc<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="dep-a" class="input input--num" data-money inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
+    <div class="field"><label class="field__label" for="dep-m">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="dep-m" class="select"><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ (POS)</option></select></div>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã ghi nhận tiền cọc|Cọc hiển thị trên lệnh RO-Q7-2610-00131.">Ghi nhận cọc</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-01', title: 'Thu tiền theo lệnh', desc: 'Ghi nhận thanh toán nhiều hình thức cho một lệnh sửa chữa.',
+  menu: 'fin', role: 'TN', allow: ['TN', 'QL', 'CV', 'KT', 'CH', 'QV'], updated: '09:15',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, $$ = G4F.$$, DUE = 5650000, fmt = G4F.fmt, num = G4F.num;
+  function total() { return $$('#pay-lines [data-amount]').reduce(function (s, i) { return s + num(i.value); }, 0); }
+  function recalc() {
+    var t = total(), diff = DUE - t, badge = $('#pay-badge'), btn = $('#btn-pay');
+    $('#sum-now').textContent = fmt(t);
+    var l = $('#after-l'), v = $('#after-v'), note = $('#after-note'), over = $('#over-ack');
+    over.hidden = true;
+    if (t === 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = fmt(DUE); note.textContent = 'Chưa nhập số tiền.'; badge.className = 'badge badge--info'; badge.textContent = 'Thanh toán một phần'; }
+    else if (diff > 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = fmt(diff); note.textContent = 'Thu một phần: lệnh giữ trạng thái “Thanh toán một phần”, còn nợ ' + fmt(diff) + '.'; badge.className = 'badge badge--info'; badge.textContent = 'Thanh toán một phần'; }
+    else if (diff === 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = '0 ₫'; note.textContent = 'Thu đủ: lệnh chuyển sang “Đã thanh toán”.'; badge.className = 'badge badge--success'; badge.textContent = 'Đã thanh toán'; }
+    else { l.textContent = 'Phần dư (khoản nhận trước)'; v.textContent = fmt(-diff); note.textContent = 'Thu vượt: cần xác nhận phần dư.'; over.hidden = false; $('#over-text').textContent = 'Dư ' + fmt(-diff) + ' so với số còn phải thu. Phần dư không bị mất: nó thành khoản nhận trước để trừ vào lệnh sau.'; badge.className = 'badge badge--success'; badge.textContent = 'Đã thanh toán'; }
+    btn.textContent = t ? 'Ghi nhận thanh toán ' + fmt(t) : 'Ghi nhận thanh toán';
+    var bad = t === 0 || (diff < 0 && !$('#over-chk').checked);
+    btn.setAttribute('data-bad', bad ? '1' : '0');
+    if (!btn.hasAttribute('data-g4f-keep-lock')) { btn.disabled = bad || btn.hasAttribute('data-g4f-keep'); btn.setAttribute('aria-disabled', String(btn.disabled)); }
+  }
+  document.addEventListener('input', function (e) { if (e.target.closest('#pay-lines')) recalc(); });
+  document.addEventListener('change', function (e) { if (e.target.id === 'over-chk') recalc(); });
+  document.addEventListener('click', function (e) {
+    var rm = e.target.closest('[data-remove-line]'); if (rm && $$('#pay-lines [data-line]').length > 1) { rm.closest('[data-line]').remove(); recalc(); }
+    if (e.target.closest('#add-line')) {
+      var n = $$('#pay-lines [data-line]').length + 1, d = document.createElement('div'); d.className = 'g4f-pay'; d.setAttribute('data-line', '');
+      d.innerHTML = '<div class="field"><label class="field__label" for="m' + n + '">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="m' + n + '" class="select"><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ (POS)</option><option>Ví điện tử</option></select></div><div class="field"><label class="field__label" for="a' + n + '">Số tiền<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="a' + n + '" class="input input--num" data-money data-amount inputmode="numeric" style="padding-left:12px" autocomplete="off"><span class="input-group__suffix">₫</span></div></div><div class="field"><label class="field__label" for="r' + n + '">Mã giao dịch / ghi chú</label><input id="r' + n + '" class="input"></div><button class="btn-icon btn-icon--outline" aria-label="Bỏ dòng thanh toán này" data-remove-line><svg class="icon"><use href="#x"/></svg></button>';
+      $('#pay-lines').appendChild(d); $('input[data-amount]', d).focus(); recalc();
+    }
+    if (e.target.closest('#btn-pay')) { /* điền màn xác nhận trước khi mở */
+      var ul = $('#dp-lines'); ul.innerHTML = '';
+      $$('#pay-lines [data-line]').forEach(function (r) { var a = num($('[data-amount]', r).value); if (a) { var li = document.createElement('li'); li.innerHTML = '<strong>' + $('[data-method]', r).value + '</strong>: <span class="num">' + fmt(a) + '</span>'; ul.appendChild(li); } });
+      $('#dp-total').textContent = fmt(total()); $('#dp-after').textContent = total() >= DUE ? '0 ₫' : fmt(DUE - total());
+      var ok = $('#dp-ok'); ok.disabled = true; $('[data-g4f-gate-check]').checked = false;
+    }
+  });
+  document.addEventListener('g4f:var', function (e) {
+    var v = e.detail.v, t = $('#lock-why-t');
+    t.textContent = v === 'qc' ? 'lệnh đang “Chờ QC”, cần Quản đốc duyệt QC trước.' : v === 'locked' ? 'ngày đã khóa sổ, chỉ điều chỉnh bằng chứng từ mới.' : '';
+    var b = $('#btn-pay'); b.disabled = v !== 'ok' || b.getAttribute('data-bad') === '1'; b.setAttribute('aria-disabled', String(b.disabled));
+    var ab = $('#add-line'); ab.disabled = v !== 'ok';
+    $$('#pay-lines input, #pay-lines select, #pay-lines button').forEach(function (x) { x.disabled = v !== 'ok'; });
+    $('#pay-lines').classList.toggle('g4f-readonly', v !== 'ok');
+    if (v === 'ok') G4F.refresh();
+  });
+  G4F.applyVar('g', 'ok'); recalc();
+})();
+</script>
+</body>
+</html>

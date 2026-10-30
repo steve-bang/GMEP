@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-DSH-03 · Tổng quan Quản lý chi nhánh – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QL" data-g1-menu="dash" data-crumb="Tổng quan" data-period="today" data-figure="Số tạm · chưa chốt ngày 30/10" data-multirole="QL,CV">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Tổng quan chi nhánh</h1>
+      <p class="page-header__desc">Thứ Sáu, 30/10/2026 · Quản lý chi nhánh · Vận hành trong ngày</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--secondary" href="#" data-target="G2-REC-03"><svg class="icon"><use href="#clipboard-list"/></svg>Bảng điều phối xe</a>
+      <a class="btn btn--primary" href="#" data-target="G4-APR-01"><svg class="icon"><use href="#circle-check"/></svg>Duyệt hàng chờ (5)</a>
+    </div>
+  </div>
+
+  <div data-g1-proto></div>
+
+  <div class="alert alert--warning" role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa chốt ngày 29/10/2026</span><span>Còn 2 lệnh hoàn tất chưa thu đủ tiền và 1 chênh lệch quỹ chưa giải trình. Chốt ngày để khóa số liệu thành số chính thức.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#" data-target="G4-ACC-09">Mở chốt ngày</a></div></div></div>
+
+  <div data-g1-filter data-periods="today,7d,month" data-default="today"></div>
+
+  <section class="g1-kpis" aria-label="Chỉ số chính">
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Doanh thu trong ngày" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Doanh thu trong ngày</span><span class="kpi__value">12,6<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--flat">Chưa so sánh được</span>mới 09:15, hôm qua cả ngày 18,4 tr ₫</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · <span data-g1-period-text>hôm nay 30/10/2026</span> · số tạm</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Xe đang tiếp nhận"><span class="kpi__label"><svg class="icon icon--sm"><use href="#car-front"/></svg>Xe đang tiếp nhận</span><span class="kpi__value">32</span><span class="kpi__meta">Lệnh đang mở, chưa giao xe</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · lúc 09:15 hôm nay</span></a>
+    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Công việc quá hạn"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Công việc quá hạn</span><span class="kpi__value">03</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--down"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>+1</span>so với hôm qua (tăng là xấu)</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · lúc 09:15 hôm nay</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Kỹ thuật viên đang làm"><span class="kpi__label"><svg class="icon icon--sm"><use href="#users"/></svg>Kỹ thuật viên đang làm</span><span class="kpi__value">9<span class="kpi__unit">/ 12 thợ</span></span><span class="kpi__meta">3 thợ đang rảnh hoặc chờ việc</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · lúc 09:15 hôm nay</span></a>
+  </section>
+
+  <div class="g1-cols">
+    <div class="g1-stack">
+      <figure class="card g1-chart" data-g1-chart data-g1-card data-g1-title="Lệnh đang mở theo loại dịch vụ" data-g1-err>
+        <script type="application/json">{"id":"ros","title":"Lệnh sửa chữa đang mở theo loại dịch vụ và trạng thái","unit":"lệnh","dec":0,"type":"bars","dir":"h","mode":"stacked","catName":"Loại dịch vụ","valueLabels":true,"snapshot":true,
+          "foot":"Chỉ tính lệnh chưa hoàn tất hoặc hủy. Màu biểu đồ là màu phân biệt dãy dữ liệu, khác với màu badge trạng thái; đối chiếu bằng chú giải và bảng số liệu.",
+          "labels":["Sửa chữa chung","Bảo dưỡng","Lốp & mâm","Đồng sơn"],
+          "series":[{"name":"Đã duyệt","data":[2,1,1,0]},{"name":"Đang sửa chữa","data":[6,5,2,1]},{"name":"Tạm dừng","data":[3,0,0,2]},{"name":"Chờ QC","data":[3,2,1,0]},{"name":"Sẵn sàng bàn giao","data":[1,2,0,0]}]}</script>
+      </figure>
+
+      <section class="card" data-g1-card data-g1-title="Công việc quá hạn" data-g1-err data-g1-empty="Không có việc quá hạn|Mọi lệnh đang đúng hẹn giao." aria-labelledby="h-late">
+        <div class="card__header"><div><h2 class="card__title" id="h-late">Công việc quá hạn</h2><div class="card__subtitle">Lệnh quá giờ hẹn giao · lúc 09:15</div></div><a class="btn btn--ghost btn--sm" href="#" data-target="G2-REC-03">Xem bảng điều phối<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Lệnh sửa chữa quá hạn</caption>
+          <thead><tr><th scope="col">Mã lệnh</th><th scope="col">Biển số · xe</th><th scope="col">Trạng thái lệnh</th><th scope="col">Hẹn giao</th><th scope="col">Quá hạn</th></tr></thead>
+          <tbody>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00117</a></td><td><span class="plate">51F-246.80</span> · Kia Morning</td><td><span class="badge badge--info">Đang sửa chữa</span></td><td class="num">08:30 30/10/2026</td><td><span class="tag tag--danger">Trễ 45 phút</span></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00112</a></td><td><span class="plate">60A-135.79</span> · Ford Ranger</td><td><span class="badge badge--warning">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ phụ tùng</span></td><td class="num">17:00 29/10/2026</td><td><span class="tag tag--danger">Trễ 16 giờ 15 phút</span></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00109</a></td><td><span class="plate">51D-112.33</span> · Mitsubishi Xpander</td><td><span class="badge badge--info">Đang sửa chữa</span> <span class="tag tag--danger">QC trả lại</span></td><td class="num">15:00 29/10/2026</td><td><span class="tag tag--danger">Trễ 18 giờ 15 phút</span></td></tr>
+          </tbody></table></div>
+      </section>
+    </div>
+
+    <div class="g1-stack">
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Hàng chờ phê duyệt" data-g1-empty="Không có yêu cầu chờ duyệt|Yêu cầu giảm giá, hủy lệnh hay chi vượt hạn mức sẽ hiện ở đây." aria-labelledby="h-apr">
+        <div class="card__header"><div><h2 class="card__title" id="h-apr">Hàng chờ phê duyệt</h2><div class="card__subtitle">5 yêu cầu · hạn mức theo cấu hình</div></div></div>
+        <a class="g1-row" href="#" data-target="G4-APR-02"><span class="g1-row__main"><strong>Giảm giá vượt hạn mức</strong><span class="g1-row__sub">BG-Q7-2610-00231-v2 · Cố vấn Phạm Quốc Bảo · chờ 35 phút</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">02</span></span></a>
+        <a class="g1-row" href="#" data-target="G4-APR-02"><span class="g1-row__main"><strong>Hủy lệnh sau khi đã xuất phụ tùng</strong><span class="g1-row__sub">RO-Q7-2610-00105 · cần hoàn kho</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">01</span></span></a>
+        <a class="g1-row" href="#" data-target="G4-APR-02"><span class="g1-row__main"><strong>Chi vượt hạn mức</strong><span class="g1-row__sub">Phiếu chi PC-Q7-2610-00041</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">01</span></span></a>
+        <a class="g1-row" href="#" data-target="G4-APR-02"><span class="g1-row__main"><strong>Giải trình chênh lệch quỹ</strong><span class="g1-row__sub">Ca chiều 29/10/2026</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">01</span></span></a>
+      </section>
+
+      <section class="card" data-g1-card data-g1-title="Kỹ thuật viên đang làm" data-g1-empty="Chưa có thợ nào đang làm|Thợ bắt đầu việc trên tablet thì trạng thái hiện ở đây." aria-labelledby="h-tech">
+        <div class="card__header"><div><h2 class="card__title" id="h-tech">Kỹ thuật viên</h2><div class="card__subtitle">9 đang làm · 3 rảnh</div></div></div>
+        <div class="g1-row"><span class="row row--nowrap"><span class="avatar avatar--sm">DT</span><span class="g1-row__main"><strong>Đỗ Văn Tùng</strong><span class="g1-row__sub">Thay má phanh · <span class="plate">51K-987.65</span></span></span></span><span class="g1-row__end"><span class="badge badge--info">Đang làm</span></span></div>
+        <div class="g1-row"><span class="row row--nowrap"><span class="avatar avatar--sm">LV</span><span class="g1-row__main"><strong>Lâm Quốc Việt</strong><span class="g1-row__sub">Bảo dưỡng 20.000 km · <span class="plate">51H-123.45</span></span></span></span><span class="g1-row__end"><span class="badge badge--info">Đang làm</span></span></div>
+        <div class="g1-row"><span class="row row--nowrap"><span class="avatar avatar--sm">MN</span><span class="g1-row__main"><strong>Mai Văn Nam</strong><span class="g1-row__sub">Cân chỉnh góc đặt bánh · <span class="plate">51F-246.80</span></span></span></span><span class="g1-row__end"><span class="badge badge--info">Đang làm</span></span></div>
+        <div class="g1-row"><span class="row row--nowrap"><span class="avatar avatar--sm">TH</span><span class="g1-row__main"><strong>Trương Minh Hiếu</strong><span class="g1-row__sub">Chưa nhận việc</span></span></span><span class="g1-row__end"><span class="badge badge--neutral">Rảnh</span></span></div>
+      </section>
+
+      <section class="card" data-g1-card data-g1-title="Kho sắp hết" data-g1-err data-g1-empty="Không có mặt hàng dưới định mức|Tồn khả dụng của mọi mặt hàng đang trên định mức tối thiểu." aria-labelledby="h-stock">
+        <div class="card__header"><div><h2 class="card__title" id="h-stock">Kho sắp hết</h2><div class="card__subtitle">So với tồn khả dụng, không phải tồn thực tế</div></div></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Dầu nhớt 5W-30 (lít)</strong><span class="g1-row__sub">Khả dụng 0 · tối thiểu 40 · <span class="tag tag--info">Đang về 120</span></span></span><span class="g1-row__end"><span class="badge badge--danger">Hết hàng</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Má phanh trước Hyundai Accent</strong><span class="g1-row__sub">Khả dụng 3 (thực tế 5, đang giữ 2) · tối thiểu 6</span></span><span class="g1-row__end"><span class="badge badge--warning">Sắp hết</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Lọc gió Mazda CX-5</strong><span class="g1-row__sub">Khả dụng 2 · tối thiểu 4</span></span><span class="g1-row__end"><span class="badge badge--warning">Sắp hết</span></span></div>
+        <div class="card__footer"><a class="btn btn--ghost btn--sm" href="#" data-target="G3-INV-01">Xem tất cả 5 mặt hàng<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+</body>
+</html>

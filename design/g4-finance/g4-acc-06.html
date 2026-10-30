@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-06 · Danh sách đề xuất chi và phiếu chi · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--primary" href="g4-acc-05.html" data-g4f-need="KT TN QL" data-g4f-why="Kế toán, Thu ngân, Quản lý lập đề xuất chi."><svg class="icon"><use href="#plus"/></svg>Đề xuất chi</a></div>
+
+  <div class="row" role="group" aria-label="Lọc nhanh theo trạng thái">
+    <button class="chip-filter" aria-pressed="true">Tất cả <span class="count-pill">6</span></button>
+    <button class="chip-filter" aria-pressed="false">Chờ duyệt <span class="count-pill count-pill--warning">1</span></button>
+    <button class="chip-filter" aria-pressed="false">Đã duyệt, chờ chi <span class="count-pill">1</span></button>
+    <button class="chip-filter" aria-pressed="false">Đã chi, chờ đối soát <span class="count-pill">2</span></button>
+  </div>
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm kiếm</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Mã đề xuất, phiếu chi, người nhận"></div></div>
+    <div class="field"><label class="field__label" for="f1">Loại chi phí</label><select id="f1" class="select"><option>Tất cả</option><option>Sửa chữa thiết bị xưởng</option><option>Vật tư văn phòng</option><option>Điện nước</option></select></div>
+    <div class="field"><label class="field__label" for="f2">Từ ngày</label><div class="input-group date-field"><input id="f2" class="input" value="01/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="f3">Đến ngày</label><div class="input-group date-field"><input id="f3" class="input" value="30/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-scroll"><table class="table">
+      <caption class="sr-only">Đề xuất chi và phiếu chi</caption>
+      <thead><tr><th>Mã</th><th>Loại chi phí</th><th>Người đề xuất</th><th>Người nhận</th><th>Người duyệt</th><th>Giai đoạn</th><th class="col-num">Số tiền</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        <tr><td class="code cell-primary">DX-Q7-2610-00007</td><td>Sửa chữa thiết bị xưởng</td><td>Võ Minh Quân</td><td>Công ty TNHH Thiết bị Khí nén Việt</td><td>Lê Thanh Sơn (QV)</td><td><span class="tag tag--warning">Chờ duyệt</span><span class="cell-sub">Vượt hạn mức QL</span></td><td class="col-num">6.800.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-05.html" aria-label="Mở DX-Q7-2610-00007"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">DX-Q7-2610-00006</td><td>Điện nước</td><td>Đặng Thu Hà</td><td>Điện lực TP.HCM</td><td>Võ Minh Quân</td><td><span class="tag tag--info">Đã duyệt, chờ chi</span></td><td class="col-num">4.150.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-05.html" aria-label="Mở DX-Q7-2610-00006"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">PC-Q7-2610-00043</td><td>Sửa chữa thiết bị xưởng</td><td>Võ Minh Quân</td><td>Công ty Cơ khí Tân Phú</td><td>Võ Minh Quân</td><td><span class="tag tag--success">Đã chi</span><span class="cell-sub">Chờ đối soát ngân hàng</span></td><td class="col-num">3.900.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-05.html" aria-label="Mở PC-Q7-2610-00043"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">PC-Q7-2610-00041</td><td>Vật tư văn phòng</td><td>Phạm Thị Lan</td><td>Cửa hàng VPP Hòa Bình</td><td>Trong hạn mức TN</td><td><span class="tag tag--success">Đã chi</span><span class="cell-sub">Thiếu chứng từ gốc</span></td><td class="col-num">180.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-04.html" aria-label="Mở PC-Q7-2610-00041"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr class="g4f-reversed"><td class="code cell-primary">PC-Q7-2610-00038</td><td>Tiếp khách</td><td>Phạm Thị Lan</td><td>Quán cà phê Bình An</td><td>Võ Minh Quân</td><td><span class="tag tag--neutral">Đã đảo</span></td><td class="col-num">500.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-05.html" aria-label="Mở PC-Q7-2610-00038"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">DX-Q7-2610-00004</td><td>Chi phí khác</td><td>Võ Minh Quân</td><td>Công ty Vệ sinh Xanh</td><td>Lê Thanh Sơn (QV)</td><td><span class="tag tag--danger">Từ chối</span><span class="cell-sub">Chưa có hợp đồng</span></td><td class="col-num">8.000.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-05.html" aria-label="Mở DX-Q7-2610-00004"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="6">Tổng đã chi hiệu lực (không tính đã đảo)</td><td class="col-num">4.080.000 ₫</td><td></td></tr></tfoot>
+    </table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–6 trong 6 · Chi nhánh Quận 7 · 01–30/10/2026</span></div>
+  </div>
+  <div class="record-list record-list--responsive">
+    <a class="record" href="g4-acc-05.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">DX-Q7-2610-00007</div><span class="t-body-sm">Sửa chữa thiết bị xưởng</span></div><span class="tag tag--warning">Chờ duyệt</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Võ Minh Quân</span><strong class="num">6.800.000 ₫</strong></div></a>
+    <a class="record" href="g4-acc-05.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">DX-Q7-2610-00006</div><span class="t-body-sm">Điện nước</span></div><span class="tag tag--info">Đã duyệt</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Chờ chi</span><strong class="num">4.150.000 ₫</strong></div></a>
+  </div>
+</div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-06', title: 'Danh sách đề xuất chi và phiếu chi', desc: 'Đề xuất chi, người duyệt và phiếu chi đã ghi của chi nhánh.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'TN', 'QL', 'CH', 'QV'], updated: '09:15', time: '01–30/10/2026',
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'wallet', title: 'Chưa có đề xuất chi nào', text: 'Khi cần chi vượt khoản nhỏ lẻ, tạo đề xuất để người có thẩm quyền duyệt trước khi chi.', cta: 'Đề xuất chi', href: 'g4-acc-05.html' },
+  filteredText: 'Không có đề xuất chi nào khớp “Điện nước” và giai đoạn “Chờ duyệt”.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

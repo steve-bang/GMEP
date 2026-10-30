@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-01 · Đăng nhập – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu đăng nhập</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Mặc định|error:Sai thông tin|locked:Khóa tạm|offline:Mất mạng|loading:Đang xử lý|workshop:Thiết bị xưởng" data-hint="Thử: mật khẩu “sai” báo lỗi, “khoa” khóa tạm, “tam” sang đổi mật khẩu bắt buộc, giá trị khác sang xác thực hai lớp."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div><h1 id="t">Đăng nhập</h1><p class="g1-lead">Dùng tài khoản do quản lý chi nhánh cấp. Chưa có tài khoản? Nhờ quản lý chi nhánh gửi lời mời kích hoạt.</p></div>
+
+    <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không đăng nhập được</span><span>Email, mã nhân viên hoặc mật khẩu chưa đúng. Kiểm tra phím Caps Lock rồi nhập lại, hoặc chọn “Quên mật khẩu”. Nếu vẫn không vào được, liên hệ quản lý chi nhánh.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tạm dừng đăng nhập trên thiết bị này</span><span>Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau <strong class="num" data-countdown="900" data-countdown-view="default">15:00</strong> hoặc dùng “Quên mật khẩu” để đặt mật khẩu mới.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa đăng nhập được. Kiểm tra Wi-Fi hoặc 4G rồi bấm “Thử kết nối lại”. Thông tin bạn đã nhập vẫn được giữ.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-g1-goto="default">Thử kết nối lại</button></div></div></div>
+
+    <form class="g1-form" data-g1-form novalidate data-route-field="g1-pw" data-routes="sai=view:error;khoa=view:locked;tam=go:g1-aut-07.html;*=go:g1-aut-02.html">
+      <fieldset class="g1-fs" data-disable-in="locked">
+        <legend class="sr-only">Thông tin đăng nhập</legend>
+        <div class="field">
+          <label class="field__label" for="g1-id">Email hoặc mã nhân viên<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="g1-id" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" data-first-focus data-rule="required" data-msg-required="Nhập email hoặc mã nhân viên. Ví dụ: ha.nguyen@garage.vn hoặc NV0123.">
+          <span class="field__error" id="g1-id-err" hidden></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="g1-pw">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="g1-pw"><input id="g1-pw" class="input" name="password" type="password" autocomplete="current-password" aria-required="true" data-rule="required" data-msg-required="Nhập mật khẩu của bạn."><button type="button" class="btn-icon g1-pw__toggle" data-pw-toggle="g1-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__hint" data-caps hidden>Caps Lock đang bật. Mật khẩu phân biệt chữ hoa, chữ thường.</span>
+          <span class="field__error" id="g1-pw-err" hidden></span>
+        </div>
+        <label class="check"><input type="checkbox" name="remember"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Ghi nhớ thiết bị này<br><span class="t-body-sm text-secondary">Chỉ bật trên máy của riêng bạn, không bật trên máy dùng chung ở quầy hoặc xưởng.</span></span></label>
+      </fieldset>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="locked offline" data-loading-in="loading"><span>Đăng nhập</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <p class="t-body-sm text-secondary" data-show="locked offline" hidden>Nút đăng nhập tạm khóa vì lý do ở phía trên.</p>
+      <div class="g1-auth-links"><a href="g1-aut-04.html">Quên mật khẩu?</a><span class="t-body-sm text-secondary"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</span></div>
+    </form>
+
+    <div data-show="workshop" hidden>
+      <hr style="border:0;border-top:1px solid var(--color-border);margin:0 0 var(--space-4)">
+      <p class="t-body-sm text-secondary">Thiết bị này đã đăng ký là thiết bị xưởng của Chi nhánh Quận 7.</p>
+      <a class="btn btn--secondary btn--lg btn--block" href="g1-aut-10.html"><svg class="icon"><use href="#users"/></svg>Chọn tên thợ và nhập PIN</a>
+    </div>
+  </main>
+
+  <footer class="g1-auth-foot"><span>GARAGE OS · Phiên bản 0.3 (bản nháp)</span><span>Cần hỗ trợ? Liên hệ quản lý chi nhánh của bạn.</span></footer>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+</body>
+</html>

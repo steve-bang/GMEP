@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-07 – Dịch vụ, giờ chuẩn và đơn giá giờ công · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QL">
+<script src="pack.js" data-code="G4-SYS-07" data-menu="set" data-crumbs="Cài đặt|Dịch vụ, giờ chuẩn, đơn giá" data-allow="AD QL CH KT CV"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Dịch vụ, giờ chuẩn và đơn giá giờ công',
+  desc: 'Mỗi giá trị có ngày hiệu lực và lịch sử. Đổi giờ chuẩn hay đơn giá chỉ áp dụng cho lệnh tạo từ ngày hiệu lực, không đổi lệnh cũ (FR-SYS-006).',
+  prio: 'P1',
+  cfgScope: 'Danh mục chung; đơn giá giờ công theo từng chi nhánh',
+  asof: 'Cập nhật lúc 09:15 30/10/2026',
+  actions: '<button class="btn btn--primary" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được thêm / sửa"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Thêm hạng mục</button>',
+  empty: { title: 'Chưa có hạng mục dịch vụ nào', text: 'Nhập danh mục từ Excel hoặc thêm từng hạng mục. Hạng mục cần có giờ chuẩn và nhóm dịch vụ.', cta: '<a class="btn btn--primary" href="g4-sys-20.html">Nhập từ Excel</a>' },
+  filteredText: 'Không có hạng mục nào khớp tìm kiếm hoặc bộ lọc.'
+});
+</script>
+
+<div class="alert alert--neutral" role="note" data-why-roles="AD QL CH"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Vai trò của bạn chỉ <strong>xem</strong> danh mục này. Nút sửa bị khóa; liên hệ Quản lý chi nhánh để đề xuất thay đổi.</div></div>
+
+<div class="tabs" role="tablist" aria-label="Danh mục dịch vụ">
+  <button class="tab" role="tab" id="s1" aria-selected="true" aria-controls="sp1">Hạng mục và giờ chuẩn</button>
+  <button class="tab" role="tab" id="s2" aria-selected="false" tabindex="-1" aria-controls="sp2">Đơn giá giờ công theo chi nhánh</button>
+  <button class="tab" role="tab" id="s3" aria-selected="false" tabindex="-1" aria-controls="sp3">Lịch sử thay đổi</button>
+</div>
+
+<div class="tab-panel stack" id="sp1" role="tabpanel" aria-labelledby="s1">
+  <div class="filter-bar" role="search"><div class="field filter-bar__search"><label class="field__label" for="s-s">Tìm hạng mục</label><input class="input" id="s-s" type="search" data-g4r-filter="tb-svc" placeholder="Ví dụ: phanh, dau nhot"></div>
+    <div class="field"><label class="field__label" for="s-g">Nhóm dịch vụ</label><select class="select" id="s-g"><option>Tất cả nhóm</option><option>Sửa chữa chung</option><option>Bảo dưỡng</option><option>Lốp và mâm</option><option>Đồng sơn</option></select></div>
+    <div class="field"><label class="field__label" for="s-v">Xem phiên bản</label><select class="select" id="s-v"><option>Hiện hành (30/10/2026)</option><option>Sắp hiệu lực (01/12/2026)</option></select></div></div>
+  <div class="table-wrap">
+    <div class="table-wrap--responsive"><div class="table-scroll"><table class="table" id="tb-svc"><caption class="sr-only">Hạng mục dịch vụ và giờ chuẩn</caption>
+      <thead><tr><th>Mã</th><th>Hạng mục</th><th>Nhóm dịch vụ</th><th class="col-num">Giờ chuẩn</th><th>Hiệu lực từ</th><th>Phiên bản</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+      <tbody>
+        <tr><td class="code">DV-001</td><td>Thay dầu động cơ và lọc dầu</td><td>Bảo dưỡng</td><td class="col-num">0,5 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
+        <tr><td class="code">DV-002</td><td>Thay má phanh trước (1 trục)</td><td>Sửa chữa chung</td><td class="col-num">1,0 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
+        <tr><td class="code">DV-003</td><td>Cân chỉnh góc đặt bánh xe</td><td>Lốp và mâm</td><td class="col-num">1,2 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
+        <tr><td class="code">DV-004</td><td>Vệ sinh kim phun, buồng đốt</td><td>Sửa chữa chung</td><td class="col-num">1,5 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
+        <tr><td class="code">DV-005</td><td>Đảo lốp, cân bằng động 4 bánh</td><td>Lốp và mâm</td><td class="col-num">0,8 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
+        <tr><td class="code">DV-006</td><td>Bảo dưỡng 10.000 km (gói cơ bản)</td><td>Bảo dưỡng</td><td class="col-num"><span class="g4r-diff"><del>2,0 giờ</del> <ins>2,2 giờ</ins></span></td><td class="num">01/07/2026 → <strong>01/12/2026</strong></td><td><span class="tag tag--info">Sắp hiệu lực</span> <span class="tag tag--warning">Chờ Chủ garage duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="CH" data-toast="success|Đã duyệt phiên bản|Giờ chuẩn 2,2 giờ áp dụng từ 01/12/2026.">Duyệt</button><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc">Sửa</button></td></tr>
+      </tbody></table></div></div>
+    <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+      <div class="record"><div class="record__top"><div><div class="record__title">Thay má phanh trước (1 trục)</div><span class="code">DV-002</span> · Sửa chữa chung</div><span class="tag tag--success">Hiện hành</span></div><div class="record__meta"><span>Giờ chuẩn 1,0 giờ</span><span>Từ 01/07/2026</span></div></div>
+      <div class="record"><div class="record__top"><div><div class="record__title">Bảo dưỡng 10.000 km (gói cơ bản)</div><span class="code">DV-006</span> · Bảo dưỡng</div><span class="tag tag--info">Sắp hiệu lực</span></div><div class="record__meta"><span>2,0 → 2,2 giờ từ 01/12/2026</span></div></div>
+    </div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 6 trong 6 hạng mục. Không có nút “Xóa”: hạng mục ngừng dùng được “Ngưng áp dụng” từ một ngày.</span></div>
+  </div>
+</div>
+
+<div class="tab-panel stack" id="sp2" role="tabpanel" aria-labelledby="s2" hidden>
+  <div class="table-wrap"><div class="table-scroll"><table class="table"><caption class="sr-only">Đơn giá giờ công theo chi nhánh</caption>
+    <thead><tr><th>Chi nhánh</th><th class="col-num">Đơn giá giờ công hiện hành</th><th>Hiệu lực từ</th><th>Phiên bản kế tiếp</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Chi nhánh Quận 7</td><td class="col-num">180.000 ₫/giờ</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-rate">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Quận 1</td><td class="col-num">200.000 ₫/giờ</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-rate">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Thủ Đức</td><td class="col-num">170.000 ₫/giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--info">190.000 ₫ từ 01/12/2026</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-rate">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Biên Hòa</td><td class="col-num">160.000 ₫/giờ</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-rate">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Đà Nẵng</td><td class="col-num">165.000 ₫/giờ</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-rate">Sửa</button></td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Số liệu mẫu minh họa, chưa phải bảng giá thật. Quản lý chi nhánh chỉ sửa được đơn giá chi nhánh mình (Quận 7).</span></div></div>
+</div>
+
+<div class="tab-panel stack" id="sp3" role="tabpanel" aria-labelledby="s3" hidden>
+  <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Lịch sử thay đổi danh mục dịch vụ</caption>
+    <thead><tr><th>Thời điểm</th><th>Người thay đổi</th><th>Đối tượng</th><th>Trước → Sau</th><th>Hiệu lực từ</th><th>Lý do</th></tr></thead>
+    <tbody>
+      <tr><td class="num">29/10/2026 16:40</td><td>Lê Minh Quân</td><td>DV-006 giờ chuẩn</td><td class="g4r-diff"><del>2,0 giờ</del> → <ins>2,2 giờ</ins></td><td class="num">01/12/2026</td><td>Thêm kiểm tra hệ thống điều hòa</td></tr>
+      <tr><td class="num">28/10/2026 10:12</td><td>Lê Minh Quân</td><td>Thủ Đức · đơn giá giờ công</td><td class="g4r-diff"><del>170.000 ₫</del> → <ins>190.000 ₫</ins></td><td class="num">01/12/2026</td><td>Điều chỉnh theo mặt bằng tiền công</td></tr>
+      <tr><td class="num">01/07/2026 08:00</td><td>Đỗ Thanh Tâm</td><td>Nhập danh mục từ Excel (lô L-0007)</td><td>6 hạng mục tạo mới</td><td class="num">01/07/2026</td><td>Nhập dữ liệu khởi tạo</td></tr>
+    </tbody></table></div></div>
+</div>
+
+<script>
+g4rEnd('', g4rDrawer({ id: 'dlg-svc', title: 'Sửa hạng mục DV-002', sub: 'Thay má phanh trước (1 trục)', guard: true, cta: 'Lưu phiên bản mới', toast: 'Đã lưu phiên bản mới', impact: ['Báo giá và lệnh tạo từ ngày hiệu lực dùng giờ chuẩn mới.', 'Lệnh đã tạo và báo giá đã gửi giữ nguyên giờ chuẩn cũ (báo giá lưu phiên bản giá).', 'Phiên bản mới cần Chủ garage duyệt.'],
+  fields: ['<div class="field"><label class="field__label" for="sv-n">Tên hạng mục</label><input class="input" id="sv-n" value="Thay má phanh trước (1 trục)"></div>', '<div class="form-grid"><div class="field"><label class="field__label" for="sv-h">Giờ chuẩn mới<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="sv-h" value="1,2"><span class="input-group__suffix">giờ</span></div><span class="field__hint">Hiện hành: 1,0 giờ</span></div><div class="field"><label class="field__label" for="sv-g">Nhóm dịch vụ</label><select class="select" id="sv-g"><option>Sửa chữa chung</option><option>Bảo dưỡng</option><option>Lốp và mâm</option></select></div></div>'] })
+ + g4rDrawer({ id: 'dlg-rate', title: 'Sửa đơn giá giờ công Chi nhánh Quận 7', sub: 'Hiện hành 180.000 ₫/giờ từ 01/07/2026', guard: true, cta: 'Lưu phiên bản mới', toast: 'Đã lưu đơn giá mới', impact: ['Tính công cho lệnh tạo từ ngày hiệu lực.', 'Hoa hồng và công thợ lấy giờ chuẩn × đơn giá của phiên bản hiệu lực lúc tạo lệnh.'],
+  fields: ['<div class="field"><label class="field__label" for="rt-v">Đơn giá giờ công mới<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="rt-v" value="190.000"><span class="input-group__suffix">₫/giờ</span></div></div>'] }));
+</script>
+</body>
+</html>

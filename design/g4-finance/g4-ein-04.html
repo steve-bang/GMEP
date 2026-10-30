@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-EIN-04 · Hóa đơn điều chỉnh, thay thế, hủy · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-ein-03.html"><svg class="icon"><use href="#chevron-left"/></svg>Về hóa đơn gốc</a></div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="new" data-vg="s" aria-pressed="true">Lập yêu cầu mới</button><button class="segmented__item" data-g4f-var="pending" data-vg="s" aria-pressed="false">Chờ Kế toán trưởng duyệt</button><button class="segmented__item" data-g4f-var="rejected" data-vg="s" aria-pressed="false">Bị từ chối</button></div></div>
+
+  <div class="alert alert--warning" data-vg="s" data-v="pending" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đã gửi duyệt lúc 09:00: chờ Kế toán trưởng</span><span>Chưa gửi nhà cung cấp. Biểu mẫu khóa để tránh sửa khi đang duyệt. Muốn đổi, rút yêu cầu rồi lập lại.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-toast="info|Đã rút yêu cầu|Có thể lập lại.">Rút yêu cầu</button></div></div></div>
+  <div class="alert alert--danger" data-vg="s" data-v="rejected" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Kế toán trưởng từ chối lúc 09:10</span><span>Lý do: “Sai MST đã có giấy phép kinh doanh, nên lập hóa đơn thay thế thay vì điều chỉnh.” Sửa lại loại thao tác rồi gửi duyệt lần nữa.</span></div></div>
+
+  <section class="card" aria-labelledby="h-o">
+    <div class="card__header"><div><h2 class="card__title" id="h-o">Hóa đơn gốc</h2><div class="card__subtitle">Liên kết bắt buộc; hóa đơn gốc không bị sửa</div></div><span class="badge badge--success">Đã xuất</span></div>
+    <div class="card__body"><dl class="g4f-kv"><div><dt>Số · ký hiệu</dt><dd class="code">0000398 · C26TAA</dd></div><div><dt>Ngày lập</dt><dd class="num">22/10/2026</dd></div><div><dt>Người mua</dt><dd>Công ty CP Du lịch Sao Mai</dd></div><div><dt>MST đã ghi</dt><dd class="num g4f-bad">0309876534 (sai 2 chữ số)</dd></div><div><dt>Lệnh gốc</dt><dd class="code">RO-Q7-2610-00097</dd></div><div><dt>Tổng tiền</dt><dd class="num">3.200.000 ₫</dd></div></dl></div>
+  </section>
+
+  <div class="g4f-two">
+    <fieldset class="card" style="border:1px solid var(--color-border)" data-vg="s" data-v-lock>
+      <legend class="sr-only">Biểu mẫu điều chỉnh, thay thế, hủy</legend>
+      <div class="card__header"><div><h2 class="card__title">Loại thao tác</h2><div class="card__subtitle">Từng trường hợp lập sai theo Thông tư 91/2026 <span class="g4f-sample">[Cần kế toán xác nhận]</span></div></div></div>
+      <div class="card__body stack" id="form-body">
+        <div role="radiogroup" aria-label="Loại thao tác" class="stack-2">
+          <label class="radio"><input type="radio" name="tp" value="adj"><span class="radio__box"></span><span><strong>Điều chỉnh</strong> · sửa tăng/giảm giá trị hoặc thông tin trên hóa đơn đã xuất</span></label>
+          <label class="radio"><input type="radio" name="tp" value="rep" checked><span class="radio__box"></span><span><strong>Thay thế</strong> · lập hóa đơn mới thay cho hóa đơn gốc (ví dụ sai MST)</span></label>
+          <label class="radio"><input type="radio" name="tp" value="can"><span class="radio__box"></span><span><strong>Hủy</strong> · hóa đơn gốc không còn giá trị (ví dụ lập trùng)</span></label>
+        </div>
+        <div class="field" style="max-width:420px"><label class="field__label" for="rs">Lý do<span class="field__req" aria-hidden="true">*</span></label><select id="rs" class="select"><option value="">Chọn lý do</option><option selected>Sai thông tin người mua</option><option>Sai số lượng, đơn giá, thành tiền</option><option>Sai thuế suất</option><option>Lập trùng</option><option>Khác</option></select></div>
+        <div class="field"><label class="field__label" for="rt">Mô tả chi tiết<span class="field__req" aria-hidden="true">*</span></label><textarea id="rt" class="textarea" placeholder="Nêu rõ sai gì, đối chiếu giấy tờ nào">Khách báo sai 2 chữ số cuối mã số thuế; đối chiếu giấy phép kinh doanh đúng là 0309876543.</textarea><span class="field__hint">Tối thiểu 5 ký tự. Nội dung hiện cho Kế toán trưởng và lưu nhật ký.</span></div>
+        <div id="chg" class="stack-2">
+          <h3 class="g4f-section-title" style="font-size:16px;margin:0">Nội dung thay đổi</h3>
+          <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Trường</th><th>Giá trị trên hóa đơn gốc</th><th>Giá trị mới</th></tr></thead><tbody>
+            <tr><td>Mã số thuế người mua</td><td class="num">0309876534</td><td><input class="input" aria-label="Mã số thuế mới" value="0309876543" inputmode="numeric"></td></tr>
+            <tr><td>Tổng tiền</td><td class="num">3.200.000 ₫</td><td><input class="input input--num" aria-label="Tổng tiền mới" value="3.200.000" disabled></td></tr></tbody></table></div>
+          <p class="g4f-why">Điều chỉnh tiền: nhập phần chênh (+/−). Thay thế: nhập lại đầy đủ giá trị mới.</p>
+        </div>
+        <div class="alert alert--info" id="can-note" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Khi hủy hóa đơn</span><span>Lệnh RO-Q7-2610-00097 quay lại danh sách “Lệnh hoàn tất chưa có hóa đơn”. Thanh toán không đổi; nếu phải trả lại tiền, lập hoàn tiền ở <a href="g4-acc-07.html">G4-ACC-07</a>.</span></div></div>
+      </div>
+    </fieldset>
+
+    <aside class="g4f-aside">
+      <section class="card">
+        <div class="card__header"><h2 class="card__title">Luồng xử lý</h2></div>
+        <div class="card__body"><ol class="stepper" style="flex-direction:column;gap:12px" aria-label="Các bước xử lý">
+          <li class="stepper__step is-current"><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Kế toán lập yêu cầu</span></div></li>
+          <li class="stepper__step"><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Kế toán trưởng duyệt</span></div></li>
+          <li class="stepper__step"><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Gửi nhà cung cấp</span></div></li>
+          <li class="stepper__step"><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Cơ quan thuế xác nhận</span></div></li>
+        </ol></div>
+      </section>
+      <section class="card card__body stack">
+        <button class="btn btn--primary btn--lg btn--block" id="btn-sub" data-open="dlg-sub" data-vg="s" data-v-off="pending" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán lập yêu cầu điều chỉnh, thay thế, hủy." data-g4f-online>Gửi Kế toán trưởng duyệt</button>
+        <p class="g4f-why" style="margin:0">Chưa gửi nhà cung cấp cho tới khi được duyệt (FR-EIN-007, UAT-08).</p>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-sub" role="alertdialog" aria-modal="true" aria-labelledby="sb-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="0000398">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="sb-t">Gửi yêu cầu <span id="sb-type">thay thế</span> hóa đơn 0000398?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <ul class="impact-list"><li>Yêu cầu chuyển Kế toán trưởng duyệt; chưa gửi cơ quan thuế.</li><li>Sau khi được duyệt và nhà cung cấp xác nhận, thao tác không hoàn tác được; hai bản hóa đơn (gốc và mới) vẫn xem được cùng nhau.</li><li>Ghi nhật ký người lập, lý do, thời điểm.</li></ul>
+    <div class="field"><label class="field__label" for="sb-r">Xác nhận lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="sb-r" class="textarea" data-confirm-reason style="min-height:64px">Sai thông tin người mua (MST).</textarea></div>
+    <div class="field"><label class="field__label" for="sb-c">Gõ số hóa đơn gốc <strong>0000398</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="sb-c" class="input" data-confirm-input autocomplete="off" inputmode="numeric"></div>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-sub" data-busy="Đang gửi duyệt…" data-done-label="Đã gửi duyệt" data-done-toast="success|Đã gửi Kế toán trưởng|Yêu cầu YC-Q7-2610-00066 chờ duyệt." disabled>Gửi duyệt</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-EIN-04', title: 'Hóa đơn điều chỉnh, thay thế, hủy', desc: 'Lập yêu cầu sửa hóa đơn đã xuất bằng chứng từ mới có lý do, gửi Kế toán trưởng duyệt.',
+  menu: 'einv', role: 'KT', allow: ['KT', 'CH', 'QV', 'QL'], updated: '09:15', time: 'hôm nay 30/10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, $$ = G4F.$$;
+  var N = { adj: 'điều chỉnh', rep: 'thay thế', can: 'hủy' };
+  function typ() { var r = $('input[name=tp]:checked'); return r ? r.value : 'rep'; }
+  function upd() { var t = typ(); $('#chg').hidden = t === 'can'; $('#can-note').hidden = t !== 'can'; $('#sb-type').textContent = N[t]; var ta = $('#chg tbody tr:nth-child(2) input'); if (ta) ta.disabled = t === 'rep' ? false : t === 'adj' ? false : true; }
+  $$('input[name=tp]').forEach(function (r) { r.addEventListener('change', upd); });
+  document.addEventListener('g4f:var', function (e) {
+    var v = e.detail.v; $$('#form-body input, #form-body select, #form-body textarea').forEach(function (x) { x.disabled = v === 'pending'; });
+    $('#form-body').classList.toggle('g4f-readonly', v === 'pending'); if (v !== 'pending') upd(); G4F.refresh();
+  });
+  upd(); G4F.applyVar('s', 'new');
+})();
+</script>
+</body>
+</html>

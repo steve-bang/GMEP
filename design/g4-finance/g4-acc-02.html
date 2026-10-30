@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-02 · Danh sách phiếu thu · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--secondary" data-open="dlg-export" data-g4f-need="KT QL CH" data-g4f-why="Xuất file cần quyền xuất riêng (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất file</button>
+    <a class="btn btn--primary" href="g4-acc-01.html" data-g4f-roles="TN"><svg class="icon"><use href="#plus"/></svg>Thu tiền theo lệnh</a>
+  </div>
+
+  <section aria-label="Tổng hợp trong bộ lọc"><div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Thu ròng trong bộ lọc</span><span class="kpi__value">11,2<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Đã trừ bút toán đảo · 5 phiếu hiệu lực</span><span class="kpi__scope">Quận 7 · 01–30/10/2026</span></div>
+    <div class="card kpi"><span class="kpi__label">Tiền mặt</span><span class="kpi__value">3,25<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Đã trừ bút toán đảo · khớp sổ quỹ</span></div>
+    <div class="card kpi"><span class="kpi__label">Chuyển khoản, thẻ, ví</span><span class="kpi__value">7,95<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Chờ đối soát ngân hàng: 1</span></div>
+    <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm"><use href="#undo"/></svg>Bút toán đảo</span><span class="kpi__value">01</span><span class="kpi__meta">Phiếu PT-Q7-2610-00912 đã được đảo</span></div>
+  </div></section>
+
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm kiếm</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Mã phiếu, mã lệnh, biển số, tên khách (có/không dấu)"></div></div>
+    <div class="field"><label class="field__label" for="f1">Hình thức</label><select id="f1" class="select"><option>Tất cả</option><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ (POS)</option><option>Ví điện tử</option></select></div>
+    <div class="field"><label class="field__label" for="f4">Ca</label><select id="f4" class="select"><option>Tất cả ca</option><option>Ca sáng</option><option>Ca chiều</option></select></div>
+    <div class="field"><label class="field__label" for="f2">Từ ngày</label><div class="input-group date-field"><input id="f2" class="input" value="01/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="f3">Đến ngày</label><div class="input-group date-field"><input id="f3" class="input" value="30/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+  <div class="chip-row" aria-label="Bộ lọc đang áp dụng"><span class="t-body-sm text-secondary">Đang lọc:</span>
+    <span class="chip">Chi nhánh Quận 7<button class="chip__x" aria-label="Bỏ lọc chi nhánh"><svg class="icon"><use href="#x"/></svg></button></span>
+    <span class="chip">01/10/2026 – 30/10/2026<button class="chip__x" aria-label="Bỏ lọc thời gian"><svg class="icon"><use href="#x"/></svg></button></span>
+    <button class="btn btn--ghost btn--sm" data-g4f-clear>Xóa tất cả</button></div>
+
+  <!-- Bảng (desktop, tablet) -->
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-toolbar"><span class="table-meta">6 dòng · gồm 1 phiếu đã bị đảo và 1 bút toán đảo</span><button class="btn btn--secondary btn--sm" style="margin-left:auto"><svg class="icon icon--sm"><use href="#columns"/></svg>Cột hiển thị</button></div>
+    <div class="table-scroll" style="--table-max-height:520px"><table class="table">
+      <caption class="sr-only">Danh sách phiếu thu chi nhánh Quận 7</caption>
+      <thead><tr>
+        <th aria-sort="descending"><button class="th-sort">Mã phiếu<svg class="icon"><use href="#arrow-down"/></svg></button></th>
+        <th>Thời điểm</th><th>Lệnh / Hóa đơn</th><th>Hình thức</th><th>Người thu · Ca</th><th>Phân bổ</th>
+        <th class="col-num" aria-sort="none"><button class="th-sort">Số tiền<svg class="icon"><use href="#chevrons-up-down"/></svg></button></th><th class="col-actions"><span class="sr-only">Mở</span></th></tr></thead>
+      <tbody>
+        <tr><td class="code cell-primary">PT-Q7-2610-00930</td><td class="col-nowrap num">09:02 30/10/2026</td><td><span class="code">RO-Q7-2610-00126</span><span class="cell-sub">Hóa đơn: chưa xuất</span></td><td>Tiền mặt</td><td>Phạm Thị Lan<span class="cell-sub">Ca sáng</span></td><td><span class="tag tag--success">Đã phân bổ</span></td><td class="col-num">1.250.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-03.html" aria-label="Mở phiếu PT-Q7-2610-00930"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">PT-Q7-2610-00929</td><td class="col-nowrap num">08:41 30/10/2026</td><td><span class="code">RO-Q7-2610-00124</span><span class="cell-sub">Hóa đơn: C26TAA-0000412</span></td><td>Chuyển khoản</td><td>Phạm Thị Lan<span class="cell-sub">Ca sáng</span></td><td><span class="tag tag--success">Đã phân bổ</span></td><td class="col-num">4.800.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-03.html" aria-label="Mở phiếu PT-Q7-2610-00929"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">PT-Q7-2610-00927</td><td class="col-nowrap num">17:40 29/10/2026</td><td><span class="code">RO-Q7-2610-00120</span><span class="cell-sub">Hóa đơn: C26TAA-0000409</span></td><td>Thẻ (POS)</td><td>Phạm Thị Lan<span class="cell-sub">Ca chiều</span></td><td><span class="tag tag--success">Đã phân bổ</span></td><td class="col-num">3.150.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-03.html" aria-label="Mở phiếu PT-Q7-2610-00927"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr class="g4f-entry-rev"><td class="code cell-primary">PT-Q7-2610-00913</td><td class="col-nowrap num">10:30 29/10/2026</td><td><span class="code">RO-Q7-2610-00126</span><span class="cell-sub">Bút toán đảo của PT-Q7-2610-00912</span></td><td>Tiền mặt</td><td>Võ Minh Quân (duyệt)<span class="cell-sub">Ca sáng · Lý do: nhập sai hình thức</span></td><td><span class="tag tag--warning">Bút toán đảo</span></td><td class="col-num">−1.250.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-03.html" aria-label="Mở bút toán đảo PT-Q7-2610-00913"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr class="g4f-reversed"><td class="code cell-primary">PT-Q7-2610-00912</td><td class="col-nowrap num">10:12 29/10/2026</td><td><span class="code">RO-Q7-2610-00126</span><span class="cell-sub">Hóa đơn: chưa xuất</span></td><td>Tiền mặt</td><td>Phạm Thị Lan<span class="cell-sub">Ca sáng</span></td><td><span class="tag tag--neutral">Đã bị đảo</span></td><td class="col-num">1.250.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-03.html" aria-label="Mở phiếu PT-Q7-2610-00912"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">PT-Q7-2610-00902</td><td class="col-nowrap num">15:20 28/10/2026</td><td><span class="code">RO-Q7-2610-00131</span><span class="cell-sub">Tiền cọc · hóa đơn: chưa xuất</span></td><td>Tiền mặt</td><td>Phạm Thị Lan<span class="cell-sub">Ca chiều</span></td><td><span class="tag tag--info">Cọc, chưa phân bổ</span></td><td class="col-num">2.000.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-03.html" aria-label="Mở phiếu PT-Q7-2610-00902"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="6">Tổng thu ròng (phiếu hiệu lực + bút toán đảo)</td><td class="col-num">11.200.000 ₫</td><td></td></tr></tfoot>
+    </table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–6 trong 6 phiếu</span>
+      <nav class="pagination" aria-label="Phân trang"><button class="pagination__item" aria-label="Trang trước" disabled><svg class="icon icon--sm"><use href="#chevron-left"/></svg></button><a class="pagination__item" href="#" aria-current="page">1</a><button class="pagination__item" aria-label="Trang sau" disabled><svg class="icon icon--sm"><use href="#chevron-right"/></svg></button></nav></div>
+  </div>
+
+  <!-- Thẻ (mobile) -->
+  <div class="record-list record-list--responsive">
+    <a class="record" href="g4-acc-03.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">PT-Q7-2610-00930</div><span class="code">RO-Q7-2610-00126</span></div><span class="tag tag--success">Đã phân bổ</span></div><div class="record__meta"><span>09:02 30/10/2026</span><span>Tiền mặt</span><span>Phạm Thị Lan · Ca sáng</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Hóa đơn: chưa xuất</span><strong class="num">1.250.000 ₫</strong></div></a>
+    <a class="record" href="g4-acc-03.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">PT-Q7-2610-00913</div><span class="t-body-sm">Bút toán đảo của PT-Q7-2610-00912</span></div><span class="tag tag--warning">Bút toán đảo</span></div><div class="record__meta"><span>10:30 29/10/2026</span><span>Duyệt: Võ Minh Quân</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Lý do: nhập sai hình thức</span><strong class="num g4f-bad">−1.250.000 ₫</strong></div></a>
+    <a class="record" href="g4-acc-03.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">PT-Q7-2610-00902</div><span class="code">RO-Q7-2610-00131</span></div><span class="tag tag--info">Cọc</span></div><div class="record__meta"><span>15:20 28/10/2026</span><span>Tiền mặt</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Chưa phân bổ</span><strong class="num">2.000.000 ₫</strong></div></a>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-export" role="dialog" aria-modal="true" aria-labelledby="ex-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#download"/></svg></div><div><h2 class="dialog__title" id="ex-t">Xuất danh sách phiếu thu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="scope-banner scope-banner--branch"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi file:</strong> Chi nhánh Quận 7 · 01–30/10/2026 · dữ liệu lúc 09:15 30/10/2026</span></div>
+    <ul class="impact-list"><li>Tên khách và SĐT trong file được che theo quyền của bạn.</li><li>Bút toán đảo xuất thành dòng riêng, không bị gộp mất.</li><li>Việc xuất file được ghi nhật ký (người xuất, thời điểm, bộ lọc).</li></ul>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã tạo file xuất|PT_Q7_01-30-10-2026.xlsx đã được ghi nhật ký xuất.">Xuất Excel</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-02', title: 'Danh sách phiếu thu', desc: 'Mọi lần thu tiền, kể cả bút toán đảo, của chi nhánh trong kỳ lọc.',
+  menu: 'fin', role: 'TN', allow: ['TN', 'QL', 'KT', 'CH', 'QV', 'CV'], updated: '09:15', time: '01–30/10/2026',
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'wallet', title: 'Chưa có phiếu thu nào', text: 'Phiếu thu được tạo khi thu tiền theo lệnh sửa chữa. Mở một lệnh đã sẵn sàng bàn giao để thu tiền.', cta: 'Thu tiền theo lệnh', href: 'g4-acc-01.html' },
+  filteredText: 'Không có phiếu thu nào khớp “51K-999” trong 01–30/10/2026. Thử bỏ bớt bộ lọc.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

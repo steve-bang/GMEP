@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-03 · Chi tiết thanh toán và phân bổ · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--secondary" data-open="dlg-print"><svg class="icon"><use href="#printer"/></svg>In phiếu thu</button>
+    <button class="btn btn--secondary" data-open="drw-alloc" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán phân bổ thanh toán cho hóa đơn." data-vg="g" data-v-off="locked">Phân bổ lại</button>
+    <button class="btn btn--danger-outline" data-open="dlg-reverse" data-g4f-need="TN KT QL" data-g4f-why="Đảo bút toán do Thu ngân/Kế toán đề xuất, Quản lý chi nhánh duyệt." data-g4f-online data-vg="g" data-v-off="locked"><svg class="icon"><use href="#undo"/></svg>Đảo bút toán</button>
+  </div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="ok" data-vg="g" aria-pressed="true">Phiếu đang hiệu lực</button><button class="segmented__item" data-g4f-var="locked" data-vg="g" aria-pressed="false">Ngày đã khóa sổ</button></div></div>
+
+  <div class="alert alert--neutral" data-vg="g" data-v="locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ngày 29/10/2026 đã khóa sổ: phiếu ở chế độ chỉ đọc</span><span>Nút phân bổ lại và đảo bút toán bị khóa. Cần điều chỉnh thì tạo chứng từ điều chỉnh mới trong ngày đang mở, hoặc Chủ garage mở lại ngày kèm lý do (G4-ACC-09).</span></div></div>
+
+  <section class="card" aria-labelledby="h-head">
+    <div class="card__body stack">
+      <div class="row row--between">
+        <div class="row" style="gap:16px"><h2 id="h-head" class="card__title code" style="font-size:20px">PT-Q7-2610-00929</h2><span class="badge badge--success">Đã thanh toán</span><span class="tag tag--success">Đã phân bổ</span></div>
+        <span class="t-body-sm text-secondary">Ghi sổ 08:41 30/10/2026 · Phạm Thị Lan · Ca sáng</span>
+      </div>
+      <dl class="g4f-kv">
+        <div><dt>Khách hàng</dt><dd>Công ty TNHH Vận tải Hòa Phát</dd></div>
+        <div><dt>Mã số thuế</dt><dd class="num">0312345678</dd></div>
+        <div><dt>Hình thức</dt><dd>Chuyển khoản · VCB 4 số cuối 6402</dd></div>
+        <div><dt>Số tiền</dt><dd class="num" style="font-weight:700">4.800.000 ₫</dd></div>
+      </dl>
+      <div>
+        <div class="t-caption text-tertiary" style="margin-bottom:6px">Năm đối tượng liên kết (mỗi loại có trạng thái riêng, FR-ACC-019)</div>
+        <ol class="g4f-flow">
+          <li><span class="g4f-flow__kind">Báo giá</span><a class="g4f-flow__code" href="#">BG-Q7-2610-00231-v2</a><span class="badge badge--success">Duyệt toàn phần</span></li>
+          <li><span class="g4f-flow__kind">Lệnh sửa chữa</span><a class="g4f-flow__code" href="#">RO-Q7-2610-00124</a><span class="badge badge--success">Hoàn tất</span></li>
+          <li><span class="g4f-flow__kind">Thanh toán</span><span class="g4f-flow__code">Của lệnh 00124</span><span class="badge badge--success">Đã thanh toán</span></li>
+          <li class="is-current" aria-current="true"><span class="g4f-flow__kind">Phiếu thu (đang xem)</span><span class="g4f-flow__code">PT-Q7-2610-00929</span><span class="tag tag--success">Đã phân bổ</span></li>
+          <li><span class="g4f-flow__kind">Hóa đơn</span><a class="g4f-flow__code" href="g4-ein-03.html">C26TAA-0000412</a><span class="badge badge--success">Đã xuất</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <div class="g4f-two">
+    <section class="card" aria-labelledby="h-alloc">
+      <div class="card__header"><div><h2 class="card__title" id="h-alloc">Phân bổ cho hóa đơn</h2><div class="card__subtitle">Một khoản trả có thể chia cho nhiều hóa đơn và ngược lại (FR-ACC-015, UAT-14)</div></div></div>
+      <div class="table-scroll"><table class="table table--compact">
+        <caption class="sr-only">Phân bổ phiếu thu PT-Q7-2610-00929</caption>
+        <thead><tr><th>Hóa đơn</th><th>Lệnh</th><th>Trạng thái hóa đơn</th><th class="col-num">Giá trị hóa đơn</th><th class="col-num">Phân bổ lần này</th></tr></thead>
+        <tbody>
+          <tr><td class="code">C26TAA-0000412</td><td class="code">RO-Q7-2610-00124</td><td><span class="badge badge--success">Đã xuất</span></td><td class="col-num">2.000.000 ₫</td><td class="col-num">2.000.000 ₫</td></tr>
+          <tr><td class="code">C26TAA-0000411</td><td class="code">RO-Q7-2610-00122</td><td><span class="badge badge--success">Đã xuất</span></td><td class="col-num">21.075.000 ₫</td><td class="col-num">1.800.000 ₫</td></tr>
+          <tr><td class="code">C26TAA-0000410</td><td class="code">RO-Q7-2610-00121</td><td><span class="badge badge--success">Đã xuất</span></td><td class="col-num">1.000.000 ₫</td><td class="col-num">1.000.000 ₫</td></tr>
+          <tr><td colspan="4">Phần dư thành khoản nhận trước</td><td class="col-num">0 ₫</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="4">Tổng phân bổ = số tiền phiếu thu</td><td class="col-num">4.800.000 ₫</td></tr></tfoot>
+      </table></div>
+      <div class="card__body"><p class="t-body-sm text-secondary" style="margin:0">Lệnh RO-Q7-2610-00122 còn nợ <strong class="num">19.275.000 ₫</strong> sau lần phân bổ này (công nợ Công ty TNHH Vận tải Hòa Phát, xem <a href="g4-acc-11.html">G4-ACC-11</a>).</p></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-hist">
+      <div class="card__header"><h2 class="card__title" id="h-hist">Lịch sử phiếu</h2></div>
+      <div class="card__body"><div class="timeline">
+        <div class="timeline__item timeline__item--info"><div class="timeline__dot"><svg class="icon"><use href="#file-text"/></svg></div><div><div class="timeline__title">Phân bổ cho 3 hóa đơn</div><div class="timeline__meta">Đặng Thu Hà (Kế toán) · 08:55 30/10/2026</div></div></div>
+        <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Ghi nhận thanh toán 4.800.000 ₫</div><div class="timeline__meta">Phạm Thị Lan (Thu ngân) · 08:41 30/10/2026</div><div class="timeline__note">Đối chiếu ngân hàng: chờ (xem G4-ACC-16).</div></div></div>
+        <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#printer"/></svg></div><div><div class="timeline__title">In phiếu thu (A5), lần 1</div><div class="timeline__meta">Phạm Thị Lan · 08:42 30/10/2026</div></div></div>
+      </div></div>
+    </section>
+  </div>
+</div>
+
+<!-- Đảo bút toán -->
+<div class="overlay" id="dlg-reverse" role="alertdialog" aria-modal="true" aria-labelledby="dr-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="PT-Q7-2610-00929">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="dr-t">Đảo bút toán phiếu thu PT-Q7-2610-00929?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <ul class="impact-list"><li>Phiếu thu <strong>không bị xóa</strong>. Hệ thống tạo bút toán đảo −4.800.000 ₫ liên kết với phiếu gốc; cả hai đều còn trong lịch sử.</li><li>Công nợ của 3 hóa đơn tăng lại tổng 4.800.000 ₫; sổ quỹ/ngân hàng ghi nhận khoản đảo.</li><li>Cần Quản lý chi nhánh duyệt (xem hàng chờ G4-APR-01). Chưa duyệt thì phiếu gốc vẫn hiệu lực.</li></ul>
+    <div class="field"><label class="field__label" for="dr-r">Lý do đảo<span class="field__req" aria-hidden="true">*</span></label><textarea id="dr-r" class="textarea" data-confirm-reason placeholder="Ví dụ: nhập sai hình thức thanh toán"></textarea><span class="field__hint">Tối thiểu 5 ký tự. Lý do hiện trong nhật ký và trên phiếu đảo.</span></div>
+    <div class="field"><label class="field__label" for="dr-c">Gõ <strong>PT-Q7-2610-00929</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="dr-c" class="input" data-confirm-input autocomplete="off"></div>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên phiếu</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu đảo bút toán|Chờ Quản lý chi nhánh duyệt. Phiếu gốc vẫn hiệu lực." disabled>Gửi yêu cầu đảo</button></div></div></div>
+
+<!-- Phân bổ lại -->
+<div class="overlay overlay--drawer" id="drw-alloc" role="dialog" aria-modal="true" aria-labelledby="da-t"><aside class="drawer">
+  <div class="card__header"><div><h2 class="card__title" id="da-t">Phân bổ lại phiếu thu</h2><div class="card__subtitle">PT-Q7-2610-00929 · 4.800.000 ₫</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack">
+    <div class="field"><label class="field__label" for="al1">C26TAA-0000412 · còn nợ 2.000.000 ₫</label><div class="input-group input-group--suffix"><input id="al1" class="input input--num" data-money data-alloc value="2.000.000" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
+    <div class="field"><label class="field__label" for="al2">C26TAA-0000411 · còn nợ 21.075.000 ₫</label><div class="input-group input-group--suffix"><input id="al2" class="input input--num" data-money data-alloc value="1.800.000" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
+    <div class="field"><label class="field__label" for="al3">C26TAA-0000410 · còn nợ 1.000.000 ₫</label><div class="input-group input-group--suffix"><input id="al3" class="input input--num" data-money data-alloc value="1.000.000" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
+    <div class="g4f-diff is-ok" id="al-diff" role="status"><div class="row row--between"><span>Tổng phân bổ</span><strong id="al-sum" class="num">4.800.000 ₫</strong></div><div class="row row--between"><span>Phần dư thành khoản nhận trước</span><strong id="al-rest" class="num">0 ₫</strong></div><div class="t-body-sm" id="al-msg" style="margin-top:6px">Khớp số tiền phiếu thu.</div></div>
+    <div class="field"><label class="field__label" for="al-r">Lý do phân bổ lại<span class="field__req" aria-hidden="true">*</span></label><textarea id="al-r" class="textarea" placeholder="Ví dụ: khách yêu cầu trừ vào hóa đơn cũ trước"></textarea></div>
+  </div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="al-ok" data-close data-toast="success|Đã phân bổ lại|Ghi nhận lịch sử phân bổ cũ và mới.">Lưu phân bổ</button></div></aside></div>
+
+<!-- In phiếu thu -->
+<div class="overlay" id="dlg-print" role="dialog" aria-modal="true" aria-labelledby="pr-t"><div class="dialog dialog--md" data-state-group>
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#printer"/></svg></div><div><h2 class="dialog__title" id="pr-t">In phiếu thu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="segmented" role="group" aria-label="Khổ in"><button class="segmented__item" data-state-switch="a5" aria-pressed="true">A5 (bản lưu)</button><button class="segmented__item" data-state-switch="th" aria-pressed="false">Nhiệt 80 mm (quầy)</button></div>
+    <div data-state="a5" class="g4f-print-area"><div class="g4f-a5 stack" style="gap:8px">
+      <div class="row row--between"><strong>Garage Tuấn Phát · Chi nhánh Quận 7</strong><span class="t-caption">Mẫu tham khảo TT 99/2025, kế toán xác nhận</span></div>
+      <h3 style="text-align:center;margin:4px 0;font-size:18px">PHIẾU THU</h3>
+      <div class="t-body-sm" style="text-align:center">Số <span class="code">PT-Q7-2610-00929</span> · Ngày 30/10/2026</div>
+      <div class="t-body-sm">Người nộp: Công ty TNHH Vận tải Hòa Phát (MST 0312345678)<br>Lý do: thu tiền sửa chữa theo lệnh RO-Q7-2610-00124 và 2 lệnh khác (3 hóa đơn)<br>Số tiền: <strong class="num">4.800.000 ₫</strong> (Bốn triệu tám trăm nghìn đồng) · Chuyển khoản</div>
+      <div class="row row--between t-body-sm" style="margin-top:12px"><span>Người nộp tiền<br><em>(ký, ghi họ tên)</em></span><span>Thu ngân<br><em>Phạm Thị Lan</em></span></div>
+    </div></div>
+    <div data-state="th" hidden class="g4f-print-area"><div class="g4f-receipt">
+      <h3>GARAGE TUẤN PHÁT</h3><div class="c">Chi nhánh Quận 7</div><hr>
+      <div class="c"><strong>PHIẾU THU</strong></div><div class="c">PT-Q7-2610-00929 · 30/10/2026 08:41</div><hr>
+      <div class="r"><span>Lệnh</span><span>RO-Q7-2610-00124</span></div><div class="r"><span>Hình thức</span><span>Chuyển khoản</span></div><hr>
+      <div class="r"><span>Số tiền</span><strong>4.800.000 ₫</strong></div><hr><div class="c">Thu ngân: Phạm Thị Lan<br>Cảm ơn quý khách!</div></div></div>
+    <p class="t-body-sm text-secondary" style="margin:0">Mẫu in là cấu hình theo chi nhánh và theo khổ giấy (không theo hãng máy in). Lần in được ghi nhật ký; in lại ghi “bản sao”.</p>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" data-g4f-print><svg class="icon"><use href="#printer"/></svg>In</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-03', title: 'Chi tiết thanh toán và phân bổ', desc: 'Phiếu thu PT-Q7-2610-00929 và cách chia cho các hóa đơn.',
+  menu: 'fin', role: 'KT', allow: ['TN', 'QL', 'KT', 'CH', 'QV', 'CV'], updated: '09:15', time: 'phiếu ghi sổ 08:41 30/10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, $$ = G4F.$$, fmt = G4F.fmt, num = G4F.num;
+  document.addEventListener('input', function (e) {
+    if (!e.target.matches('[data-alloc]')) return;
+    var s = $$('[data-alloc]').reduce(function (a, i) { return a + num(i.value); }, 0), rest = 4800000 - s;
+    $('#al-sum').textContent = fmt(s); $('#al-rest').textContent = fmt(Math.max(rest, 0));
+    var d = $('#al-diff'), ok = rest >= 0, m = $('#al-msg');
+    d.className = 'g4f-diff ' + (rest === 0 ? 'is-ok' : ok ? '' : 'is-bad');
+    m.textContent = rest === 0 ? 'Khớp số tiền phiếu thu.' : rest > 0 ? 'Chưa phân bổ hết: phần dư ' + fmt(rest) + ' sẽ thành khoản nhận trước.' : 'Phân bổ vượt số tiền phiếu thu ' + fmt(-rest) + '. Giảm bớt để lưu.';
+    $('#al-ok').disabled = !ok;
+  });
+  G4F.applyVar('g', 'ok');
+})();
+</script>
+</body>
+</html>

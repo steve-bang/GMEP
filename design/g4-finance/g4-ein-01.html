@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-EIN-01 · Danh sách hóa đơn · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <a class="btn btn--secondary" href="g4-ein-06.html" data-g4f-roles="KT AD">Hàng chờ lỗi</a>
+    <a class="btn btn--primary" href="g4-ein-05.html" data-g4f-need="TN KT" data-g4f-why="Chỉ Thu ngân và Kế toán phát hành hóa đơn."><svg class="icon"><use href="#receipt"/></svg>Phát hành từ lệnh</a>
+  </div>
+
+  <section aria-label="Tình hình hóa đơn hôm nay"><div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#receipt"/></svg>Đã xuất hôm nay</span><span class="kpi__value">12</span><span class="kpi__meta">Chi nhánh Quận 7 · lúc 09:15</span></div>
+    <a class="card kpi kpi--warning" href="g4-ein-05.html"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Lệnh hoàn tất chưa hóa đơn</span><span class="kpi__value">03</span><span class="kpi__meta">Xem danh sách cuối ngày</span></a>
+    <a class="card kpi kpi--danger" href="g4-ein-06.html"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lỗi phát hành</span><span class="kpi__value">02</span><span class="kpi__meta">Cần xử lý, không mất yêu cầu</span></a>
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#refresh"/></svg>Chờ truy vấn lại</span><span class="kpi__value">01</span><span class="kpi__meta">Timeout: hệ thống tự hỏi lại trạng thái</span></div>
+  </div></section>
+
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tra cứu</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Số hóa đơn, mã lệnh, tên khách, MST, biển số"></div></div>
+    <div class="field"><label class="field__label" for="f1">Trạng thái hóa đơn</label><select id="f1" class="select"><option>Tất cả</option><option>Chưa xuất</option><option>Đã xuất</option><option>Điều chỉnh</option><option>Thay thế</option><option>Hủy</option></select></div>
+    <div class="field"><label class="field__label" for="f2">Từ ngày</label><div class="input-group date-field"><input id="f2" class="input" value="01/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="f3">Đến ngày</label><div class="input-group date-field"><input id="f3" class="input" value="30/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+  <div class="chip-row" aria-label="Bộ lọc đang áp dụng"><span class="t-body-sm text-secondary">Đang lọc:</span>
+    <span class="chip">Chi nhánh Quận 7<button class="chip__x" aria-label="Bỏ lọc chi nhánh"><svg class="icon"><use href="#x"/></svg></button></span>
+    <span class="chip">01/10/2026 – 30/10/2026<button class="chip__x" aria-label="Bỏ lọc thời gian"><svg class="icon"><use href="#x"/></svg></button></span>
+    <button class="btn btn--ghost btn--sm" data-g4f-clear>Xóa tất cả</button></div>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-toolbar"><span class="table-meta">7 hóa đơn · đơn vị phát hành: Công ty TNHH Garage A (Chi nhánh Quận 7)</span><button class="btn btn--secondary btn--sm" style="margin-left:auto"><svg class="icon icon--sm"><use href="#columns"/></svg>Cột hiển thị</button></div>
+    <div class="table-scroll" style="--table-max-height:560px"><table class="table">
+      <caption class="sr-only">Danh sách hóa đơn điện tử</caption>
+      <thead><tr><th>Số · ký hiệu</th><th aria-sort="descending"><button class="th-sort">Ngày<svg class="icon"><use href="#arrow-down"/></svg></button></th><th>Người mua</th><th>Lệnh gốc</th><th class="col-num">Tổng tiền</th><th>Trạng thái</th><th>Mã cơ quan thuế</th><th class="col-actions"><span class="sr-only">Mở</span></th></tr></thead>
+      <tbody>
+        <tr><td class="code cell-primary"><a href="g4-ein-03.html">0000412</a><span class="cell-sub">C26TAA</span></td><td class="col-nowrap num">30/10/2026</td><td>Công ty TNHH Vận tải Hòa Phát<span class="cell-sub">MST 0312345678</span></td><td class="code">RO-Q7-2610-00124</td><td class="col-num">2.000.000 ₫</td><td><span class="badge badge--success">Đã xuất</span></td><td class="code">00A1B2C3…E9F0</td><td class="col-actions"><a class="btn-icon" href="g4-ein-03.html" aria-label="Mở hóa đơn 0000412"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">Chưa có số<span class="cell-sub">C26TAA</span></td><td class="col-nowrap num">30/10/2026</td><td>Lê Quốc Huy<span class="cell-sub">Khách lẻ</span></td><td class="code">RO-Q7-2610-00126</td><td class="col-num">1.250.000 ₫</td><td><span class="badge badge--neutral">Chưa xuất</span> <span class="sync"><svg class="icon icon--sm spin"><use href="#loader"/></svg>Đang gửi nhà cung cấp…</span></td><td class="g4f-muted">—</td><td class="col-actions"><a class="btn-icon" href="g4-ein-03.html" aria-label="Mở yêu cầu phát hành RO-Q7-2610-00126"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">Chưa có số<span class="cell-sub">C26TAA</span></td><td class="col-nowrap num">29/10/2026</td><td>Trần Thị Bích Ngọc<span class="cell-sub">Khách lẻ</span></td><td class="code">RO-Q7-2610-00118</td><td class="col-num">6.300.000 ₫</td><td><span class="badge badge--neutral">Chưa xuất</span> <span class="sync sync--error"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lỗi phát hành</span><span class="cell-sub g4f-bad">Lý do: địa chỉ người mua thiếu phường/xã</span></td><td class="g4f-muted">—</td><td class="col-actions"><a class="btn-icon" href="g4-ein-06.html" aria-label="Mở hàng chờ lỗi"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary">Chưa có số<span class="cell-sub">C26TAA</span></td><td class="col-nowrap num">29/10/2026</td><td>Phạm Thị Hoa<span class="cell-sub">Khách lẻ</span></td><td class="code">RO-Q7-2610-00114</td><td class="col-num">890.000 ₫</td><td><span class="badge badge--neutral">Chưa xuất</span> <span class="sync sync--wait"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ truy vấn lại</span></td><td class="g4f-muted">—</td><td class="col-actions"><a class="btn-icon" href="g4-ein-06.html" aria-label="Mở hàng chờ lỗi"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary"><a href="g4-ein-03.html">0000398</a><span class="cell-sub">C26TAA</span></td><td class="col-nowrap num">22/10/2026</td><td>Công ty CP Du lịch Sao Mai<span class="cell-sub">MST 0309876543</span></td><td class="code">RO-Q7-2610-00097</td><td class="col-num">3.200.000 ₫</td><td><span class="badge badge--success">Đã xuất</span> <span class="tag tag--warning">Chờ duyệt thay thế</span></td><td class="code">00D4E5F6…A1B2</td><td class="col-actions"><a class="btn-icon" href="g4-ein-03.html" aria-label="Mở hóa đơn 0000398"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="code cell-primary"><a href="g4-ein-03.html">0000391</a><span class="cell-sub">C26TAA</span></td><td class="col-nowrap num">20/10/2026</td><td>Công ty TNHH Vận tải Hòa Phát<span class="cell-sub">MST 0312345678</span></td><td class="code">RO-Q7-2610-00088</td><td class="col-num">−500.000 ₫</td><td><span class="badge badge--info">Điều chỉnh</span> <span class="cell-sub">Điều chỉnh giảm cho 0000385</span></td><td class="code">00G7H8I9…C3D4</td><td class="col-actions"><a class="btn-icon" href="g4-ein-03.html" aria-label="Mở hóa đơn 0000391"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr class="g4f-reversed"><td class="code cell-primary"><a href="g4-ein-03.html">0000380</a><span class="cell-sub">C26TAA</span></td><td class="col-nowrap num">12/10/2026</td><td>Nguyễn Văn An<span class="cell-sub">Khách lẻ</span></td><td class="code">RO-Q7-2610-00061</td><td class="col-num">4.100.000 ₫</td><td><span class="badge badge--danger">Hủy</span> <span class="cell-sub">Hủy ngày 13/10/2026, lý do: lập trùng</span></td><td class="code">00J1K2L3…E5F6</td><td class="col-actions"><a class="btn-icon" href="g4-ein-03.html" aria-label="Mở hóa đơn 0000380"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="4">Tổng giá trị hóa đơn hiệu lực trong bộ lọc (không tính “Hủy” và “Chưa xuất”)</td><td class="col-num">4.700.000 ₫</td><td colspan="3"></td></tr></tfoot>
+    </table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–7 trong 7 hóa đơn</span></div>
+  </div>
+
+  <div data-state="inactive" data-label="Chưa kích hoạt (chưa chọn NCC)" hidden>
+    <div class="table-wrap"><div class="state"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#receipt"/></svg></div><div class="state__title">Hóa đơn điện tử chưa kích hoạt</div><p class="state__text">Chưa chọn nhà cung cấp hóa đơn điện tử nên chưa phát hành và chưa đồng bộ trạng thái được. Lệnh vẫn thu tiền và giao xe bình thường; hóa đơn sẽ được phát hành bù sau khi kích hoạt (danh sách “Lệnh hoàn tất chưa có hóa đơn” vẫn đếm).</p><div class="state__actions"><a class="btn btn--primary" href="g4-ein-07.html">Xem tình trạng kết nối</a><a class="btn btn--secondary" href="g4-ein-05.html">Lệnh chưa có hóa đơn</a></div><p class="state__ref">Việc chọn nhà cung cấp do Chủ garage và Quản trị hệ thống thực hiện (G4-EIN-07, G4-SYS-16).</p></div></div>
+  </div>
+
+  <div class="record-list record-list--responsive">
+    <a class="record" href="g4-ein-03.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title code">0000412 · C26TAA</div><span class="t-body-sm">Công ty TNHH Vận tải Hòa Phát</span></div><span class="badge badge--success">Đã xuất</span></div><div class="record__meta"><span class="code">RO-Q7-2610-00124</span><span>30/10/2026</span></div><div class="record__foot"><span class="t-body-sm text-secondary">MST 0312345678</span><strong class="num">2.000.000 ₫</strong></div></a>
+    <a class="record" href="g4-ein-06.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title">Chưa có số · <span class="code">RO-Q7-2610-00118</span></div><span class="t-body-sm">Trần Thị Bích Ngọc</span></div><span class="badge badge--neutral">Chưa xuất</span></div><div class="record__meta"><span class="sync sync--error"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lỗi phát hành</span></div><div class="record__foot"><span class="t-body-sm g4f-bad">Địa chỉ người mua thiếu phường/xã</span><strong class="num">6.300.000 ₫</strong></div></a>
+  </div>
+</div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-EIN-01', title: 'Danh sách hóa đơn', desc: 'Tra cứu hóa đơn điện tử theo số, lệnh, khách, ngày; trạng thái lấy từ nhà cung cấp.',
+  menu: 'einv', role: 'KT', allow: ['TN', 'KT', 'CH', 'QV', 'QL'], updated: '09:15', time: '01–30/10/2026',
+  states: ['data', 'inactive', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'receipt', title: 'Chưa có hóa đơn nào', text: 'Hóa đơn được phát hành từ lệnh sửa chữa đã hoàn tất. Mở danh sách lệnh chưa có hóa đơn để bắt đầu.', cta: 'Phát hành từ lệnh', href: 'g4-ein-05.html' },
+  filteredText: 'Không có hóa đơn nào khớp “Hủy” trong 01–30/10/2026.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

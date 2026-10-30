@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-08 · Bảng công theo kỳ – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-08')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Bảng công theo kỳ</h1><p class="page-header__desc">Tổng hợp giờ và công để Kế toán đối chiếu. Hệ thống không tính lương; sau khi khóa kỳ không sửa trực tiếp.</p></div>
+  <div class="page-header__actions">
+    <button class="btn btn--secondary" data-open="dlg-exp" data-g3-need="QL KT CH" data-g3-why="Xuất tệp bảng công cần quyền xuất (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất tệp bảng công</button>
+    <button class="btn btn--secondary" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh duyệt kỳ." data-toast="success|Đã duyệt kỳ|Kỳ 16/10 – 31/10/2026 ở trạng thái Đã duyệt, còn khóa kỳ.">Duyệt kỳ</button>
+    <button class="btn btn--danger-outline" data-open="dlg-lock" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh khóa kỳ.">Khóa kỳ…</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Kỳ:</strong> 16/10/2026 – 31/10/2026</span><span class="badge badge--warning">Số tạm</span><span class="t-body-sm">Kỳ chưa kết thúc (còn 1 ngày); số liệu thay đổi.</span></div>
+
+<div id="g3-body" data-noun="bảng công" data-cols="7" data-g3-states="data:Kỳ đang mở;locked:Kỳ đã khóa;loading;empty;error;denied" data-empty-icon="calendar" data-empty-text="Chưa có giờ công trong kỳ này. Bảng công tự tổng hợp từ ca làm việc và công thợ.">
+<div data-g3-state="data" class="stack">
+  <div class="row"><div class="field" style="min-width:240px"><label class="field__label" for="k-p">Kỳ công</label><select id="k-p" class="select"><option>16/10/2026 – 31/10/2026 · Đang mở</option><option>01/10/2026 – 15/10/2026 · Đã khóa</option><option>16/09/2026 – 30/09/2026 · Đã khóa</option></select></div>
+    <ol class="stepper" aria-label="Trạng thái kỳ" style="flex:1 1 360px"><li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Đang mở</span></div></li><li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Đã duyệt</span></div></li><li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Đã khóa</span></div></li></ol></div>
+  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Còn 1 hạng mục chờ QC và 1 điều chỉnh công chờ duyệt</span><span>Nên xử lý trước khi khóa kỳ; sau khi khóa chỉ điều chỉnh bằng chứng từ mới.</span></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Giờ ca, giờ thực, công và hoa hồng từng nhân viên trong kỳ</caption>
+    <thead><tr><th data-card="title">Nhân viên</th><th data-card="sub">Chức danh</th><th class="col-num" data-card="meta">Giờ ca</th><th class="col-num" data-card="meta">Giờ thực</th><th class="col-num" data-card="meta">Công (giờ công)</th><th class="col-num" data-card="foot">Hoa hồng ghi nhận</th><th data-card="badge">Kiểm tra</th></tr></thead>
+    <tbody>
+      <tr><td class="cell-primary">Lê Minh Tuấn</td><td>Thợ máy bậc 4</td><td class="col-num">88,0</td><td class="col-num">74,6</td><td class="col-num">76,2</td><td class="col-num">1.180.000 ₫</td><td><span class="badge badge--warning">1 hạng mục chờ QC</span></td></tr>
+      <tr><td class="cell-primary">Phạm Quốc Bảo</td><td>Thợ đồng</td><td class="col-num">88,0</td><td class="col-num">71,2</td><td class="col-num">69,5</td><td class="col-num">1.020.000 ₫</td><td><span class="badge badge--success">Khớp</span></td></tr>
+      <tr><td class="cell-primary">Nguyễn Văn Hậu</td><td>Thợ điện</td><td class="col-num">64,0</td><td class="col-num">52,3</td><td class="col-num">55,0</td><td class="col-num">790.000 ₫</td><td><span class="badge badge--success">Khớp</span> <span class="tag tag--neutral">Phép 3 ngày</span></td></tr>
+      <tr><td class="cell-primary">Huỳnh Gia Bảo</td><td>Thợ học việc</td><td class="col-num">88,0</td><td class="col-num">36,4</td><td class="col-num">30,0</td><td class="col-num">0 ₫</td><td><span class="badge badge--success">Khớp</span></td></tr>
+      <tr><td class="cell-primary">Nguyễn Hoàng Yến</td><td>Cố vấn dịch vụ</td><td class="col-num">88,0</td><td class="col-num text-secondary">–</td><td class="col-num text-secondary">–</td><td class="col-num">2.640.000 ₫</td><td><span class="badge badge--warning">2 lệnh chưa thu đủ</span></td></tr>
+    </tbody>
+    <tfoot><tr><td colspan="2">Tổng 5 nhân viên</td><td class="col-num">416,0</td><td class="col-num">234,5</td><td class="col-num">230,7</td><td class="col-num">5.630.000 ₫</td><td></td></tr></tfoot></table></div>
+    <div class="table-footer"><span class="table-meta">Hoa hồng và công theo quy tắc hiệu lực trong kỳ (<a href="g3-hrm-06.html">xem quy tắc</a>); đơn vị mẫu minh họa, chờ khách chốt công thức.</span></div></div>
+</div>
+
+<div data-g3-state="locked" class="stack" hidden>
+  <div class="alert alert--neutral" role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kỳ 01/10/2026 – 15/10/2026 đã khóa lúc 16/10/2026 08:45 bởi Đặng Hữu Phúc</span><span>Bảng công chỉ đọc. Không sửa trực tiếp; muốn điều chỉnh phải mở lại kỳ (cần Chủ garage duyệt, có lý do) hoặc lập điều chỉnh công ở kỳ đang mở.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reopen" data-g3-need="QL CH" data-g3-why="Chỉ Chủ garage duyệt mở lại kỳ; Quản lý chi nhánh gửi yêu cầu.">Yêu cầu mở lại kỳ…</button></div></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-lock" role="alertdialog" aria-modal="true" aria-labelledby="lk-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="KHOA">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="lk-t">Khóa kỳ 16/10/2026 – 31/10/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Không sửa được giờ, công và hoa hồng của kỳ; sai sót xử lý bằng chứng từ điều chỉnh ở kỳ sau.</li><li>Mở lại kỳ phải có Chủ garage duyệt và lý do, và được ghi nhật ký.</li><li>Còn 1 hạng mục chờ QC sẽ tính sang kỳ sau khi đạt QC.</li></ul>
+    <div class="field"><label class="field__label" for="lk-c">Gõ <strong>KHOA</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="lk-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã khóa kỳ|Bảng công kỳ 16/10 – 31/10/2026 chỉ đọc." disabled>Khóa kỳ</button></div></div></div>
+
+<div class="overlay" id="dlg-reopen" role="alertdialog" aria-modal="true" aria-labelledby="ro-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="ro-t">Yêu cầu mở lại kỳ đã khóa?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Yêu cầu chuyển tới Chủ garage; kỳ chỉ mở sau khi được duyệt.</li><li>Mọi thay đổi trong kỳ mở lại đều ghi vết.</li></ul><div class="field"><label class="field__label" for="ro-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="ro-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi yêu cầu|Chờ Chủ garage duyệt mở lại kỳ." disabled>Gửi yêu cầu</button></div></div></div>
+
+<div class="overlay" id="dlg-exp" role="dialog" aria-modal="true" aria-labelledby="ex-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#download"/></svg></div><div><h2 class="dialog__title" id="ex-t">Xuất tệp bảng công</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p>Tệp Excel gồm 5 nhân viên, kỳ 16/10/2026 – 31/10/2026, <strong>Chi nhánh Quận 7</strong>, xuất lúc 09:30 30/10/2026. Kỳ chưa khóa nên tệp ghi “Số tạm”. Việc xuất được ghi nhật ký.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã tạo tệp|BangCong_Q7_20261016-20261031_SoTam.xlsx.">Xuất Excel</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

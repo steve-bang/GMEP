@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-04 – Vai trò và quyền theo hành động · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  .g4r-chonly { display: none; }
+  body[data-role="CH"] .g4r-chonly { display: flex; }
+  .g4r-dirty { display: none; }
+  .g4r-dirty.is-on { display: flex; }
+</style>
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-04" data-menu="set" data-crumbs="Cài đặt|Vai trò và quyền" data-allow="AD CH"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Vai trò và quyền',
+  desc: 'Ma trận vai trò × chức năng theo FRD §2, quyền chi tiết theo hành động (FR-SYS-013) và quyền che dữ liệu cá nhân. Quản trị đề xuất, Chủ garage duyệt; mọi thay đổi ghi nhật ký.',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống · quyền áp dụng theo từng chi nhánh được gán',
+  asof: 'Phiên bản cấu hình hiện hành từ 12/03/2026',
+  actions: '<button class="btn btn--secondary" data-toast="info|Đã tạo bản so sánh|So sánh với ma trận chuẩn: 1 khác biệt.">So với ma trận chuẩn</button>',
+  states: ['data', 'loading', 'error', 'denied']
+});
+</script>
+
+<div class="alert alert--info g4r-chonly" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Bạn là Chủ garage: bạn <strong>duyệt</strong> thay đổi quyền do Quản trị hệ thống đề xuất, không sửa trực tiếp. Điều khiển chỉnh sửa bị khóa.</div></div>
+<div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Quản trị hệ thống cấu hình được nhưng <strong>không xem được dữ liệu nghiệp vụ nhạy cảm của khách</strong> (SĐT, địa chỉ). Dòng AD trong bảng che dữ liệu cá nhân luôn bị khóa.</div></div>
+
+<div class="tabs" role="tablist" aria-label="Phân quyền">
+  <button class="tab" role="tab" id="p1" aria-selected="true" aria-controls="pp1">Ma trận theo chức năng</button>
+  <button class="tab" role="tab" id="p2" aria-selected="false" tabindex="-1" aria-controls="pp2">Quyền theo hành động</button>
+  <button class="tab" role="tab" id="p3" aria-selected="false" tabindex="-1" aria-controls="pp3">Che dữ liệu cá nhân</button>
+</div>
+
+<div id="roleapp" class="stack">
+<div class="tab-panel stack" id="pp1" role="tabpanel" aria-labelledby="p1">
+  <div class="g4r-legend-keys" aria-label="Chú giải ký hiệu"><span><span class="g4r-cell g4r-cell--S">S</span> tạo và sửa</span><span><span class="g4r-cell g4r-cell--D">D</span> duyệt (kèm xem)</span><span><span class="g4r-cell g4r-cell--X">X</span> chỉ xem</span><span><span class="g4r-cell g4r-cell--Xn">Xn</span> chỉ phần của mình</span><span><span class="g4r-cell g4r-cell--none">–</span> không có quyền</span><span><span class="g4r-cell g4r-cell--X is-diff">D</span> khung vàng: khác ma trận chuẩn</span></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table table--compact g4r-matrix" id="mx"><caption class="sr-only">Ma trận phân quyền vai trò theo chức năng</caption></table></div>
+    <div class="table-footer"><span class="table-meta">Cột “Kế toán trưởng” là vai trò tự tạo từ Kế toán (một cấu hình quyền, FRD §2 ghi chú). Quyền cộng gộp theo từng chi nhánh khi một người có nhiều vai trò.</span></div></div>
+</div>
+
+<div class="tab-panel stack" id="pp2" role="tabpanel" aria-labelledby="p2" hidden>
+  <div class="filter-bar"><div class="field"><label class="field__label" for="sel-role">Vai trò đang chỉnh</label><select class="select" id="sel-role" data-ad></select></div>
+    <div class="field"><label class="field__label" for="sel-br">Áp dụng cho chi nhánh</label><select class="select" id="sel-br" data-ad><option>Mọi chi nhánh được gán</option><option>Chỉ Chi nhánh Quận 7</option></select></div></div>
+  <div class="alert alert--warning g4r-dirty" id="dirty" role="status"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span id="dirty-n">0</span> thay đổi chưa lưu. Lưu sẽ yêu cầu xem trước ảnh hưởng và gửi Chủ garage duyệt.<div class="alert__actions"><button class="btn btn--primary btn--sm" data-open="dlg-impact">Xem trước ảnh hưởng và lưu</button></div></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table table--compact g4r-matrix" id="act"><caption class="sr-only">Quyền theo hành động của vai trò đang chọn</caption></table></div>
+    <div class="table-footer"><span class="table-meta">Ô xám bị khóa vì vượt mức tối đa của ma trận chuẩn (ví dụ Thủ kho tạo phiếu xuất nhưng không tự duyệt phiếu bất thường). Quyền “Xuất dữ liệu” cấp riêng, mặc định tắt.</span></div></div>
+</div>
+
+<div class="tab-panel stack" id="pp3" role="tabpanel" aria-labelledby="p3" hidden>
+  <div class="table-wrap"><div class="table-toolbar"><strong>Quyền che SĐT, email, địa chỉ khách theo vai trò</strong><span class="table-meta" style="margin-left:auto">Giá trị đầy đủ không gửi xuống trình duyệt trước khi bấm Hiện</span></div>
+    <div class="table-scroll"><table class="table table--compact" id="pii"><caption class="sr-only">Quyền che dữ liệu cá nhân</caption></table></div>
+    <div class="table-footer"><span class="table-meta">Mặc định theo quyết định BA (câu 8, D-10), chờ khách xác nhận. Mỗi lần Hiện ghi nhật ký; tự che lại sau 30 giây.</span></div></div>
+</div>
+</div>
+
+<script>
+(function () {
+  var R = ['CH', 'QV', 'QL', 'CV', 'QĐ', 'TH', 'TK', 'TN', 'KT', 'AD'];
+  var RN = ['Chủ garage', 'Quản lý vùng', 'Quản lý chi nhánh', 'Cố vấn dịch vụ', 'Quản đốc', 'Thợ', 'Thủ kho', 'Thu ngân', 'Kế toán', 'Quản trị hệ thống'];
+  var F = [
+    ['Hồ sơ khách và xe', 'X X S S X Xn - X X -'], ['Báo giá và lệnh sửa chữa', 'X X D S X Xn X X X -'], ['Phân thợ, kiểm tra chất lượng', 'X X D X S Xn - - - -'],
+    ['Danh mục phụ tùng và bảng giá', 'D X X X - - S - X -'], ['Nhập, xuất, kiểm kê kho', 'X X D - - - S - X -'], ['Chuyển kho liên chi nhánh', 'D D S - - - S - X -'],
+    ['Công thợ và hoa hồng', 'X X D Xn X Xn - - X -'], ['Thu tiền và sổ quỹ', 'X X D X - - - S X -'], ['Công nợ và giá vốn', 'X X X - - - - - S -'],
+    ['Hóa đơn điện tử', 'X X X - - - - S S -'], ['Báo cáo và dashboard', 'X X X Xn Xn Xn Xn Xn X -'], ['Người dùng, phân quyền, cấu hình', 'D - S - - - - - - S']
+  ];
+  function cell(v, diff) { var c = v === '-' ? 'none' : v; return '<span class="g4r-cell g4r-cell--' + c + (diff ? ' is-diff' : '') + '" title="' + ({ S: 'Tạo và sửa', D: 'Duyệt', X: 'Chỉ xem', Xn: 'Chỉ phần của mình', none: 'Không có quyền' })[c] + '">' + (v === '-' ? '–' : v) + '</span>'; }
+  var t = '<thead><tr><th>Chức năng</th>' + R.map(function (r, i) { return '<th title="' + RN[i] + '">' + r + '</th>'; }).join('') + '<th title="Vai trò tự tạo từ Kế toán">Kế toán trưởng</th></tr></thead><tbody>';
+  F.forEach(function (f) { var v = f[1].split(' '); t += '<tr><th scope="row" style="font-weight:500">' + f[0] + '</th>' + v.map(function (x) { return '<td>' + cell(x) + '</td>'; }).join('') + '<td>' + cell(f[0] === 'Hóa đơn điện tử' ? 'D' : v[8], f[0] === 'Hóa đơn điện tử') + '</td></tr>'; });
+  document.getElementById('mx').innerHTML = t + '</tbody>';
+
+  var A = ['Xem', 'Tạo', 'Sửa', 'Lưu trữ', 'Duyệt', 'Từ chối', 'Xuất dữ liệu', 'Quản lý'];
+  var sel = document.getElementById('sel-role'); sel.innerHTML = RN.map(function (n, i) { return '<option value="' + i + '"' + (i === 6 ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+  var dirty = 0;
+  function render() {
+    var ri = +sel.value, h = '<thead><tr><th>Chức năng</th>' + A.map(function (a) { return '<th>' + a + '</th>'; }).join('') + '</tr></thead><tbody>';
+    F.forEach(function (f, fi) {
+      var lv = f[1].split(' ')[ri], max = { S: [1, 1, 1, 1, 0, 0, 0, 0], D: [1, 0, 0, 0, 1, 1, 0, 0], X: [1, 0, 0, 0, 0, 0, 0, 0], Xn: [1, 0, 0, 0, 0, 0, 0, 0], '-': [0, 0, 0, 0, 0, 0, 0, 0] }[lv];
+      var def = max.slice(); if (lv === 'S') def[3] = 0;
+      h += '<tr><th scope="row" style="font-weight:500">' + f[0] + ' ' + cell(lv) + '</th>';
+      A.forEach(function (a, ai) {
+        var can = max[ai] === 1 || ai >= 6, dis = !can && ai < 6, on = def[ai] === 1;
+        if (ai >= 6) { dis = false; on = false; }
+        h += '<td><label class="check" style="justify-content:center;min-height:44px"><input type="checkbox" data-pk' + (on ? ' checked' : '') + (dis ? ' disabled' : '') + ' aria-label="' + RN[ri] + ': ' + a + ' ' + f[0] + (dis ? ' (khóa, vượt ma trận chuẩn)' : '') + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>';
+      });
+      h += '</tr>';
+    });
+    document.getElementById('act').innerHTML = h + '</tbody>'; dirty = 0; upd(); lock();
+  }
+  function upd() { var d = document.getElementById('dirty'); d.classList.toggle('is-on', dirty > 0); document.getElementById('dirty-n').textContent = dirty; }
+  sel.addEventListener('change', render); render();
+  document.getElementById('act').addEventListener('change', function (e) { if (e.target.matches('[data-pk]')) { dirty++; upd(); } });
+
+  var P = [['CH', 'reveal', 'reveal', 'reveal'], ['QV', 'reveal', 'reveal', 'reveal'], ['QL', 'full', 'full', 'full'], ['CV', 'full', 'full', 'full'], ['QĐ', 'full', 'full', 'full'], ['TH', 'hidden', 'hidden', 'hidden'], ['TK', 'masked', 'masked', 'hidden'], ['TN', 'full', 'full', 'full'], ['KT', 'why', 'why', 'why'], ['AD', 'hidden', 'hidden', 'hidden']];
+  var O = [['full', 'Đầy đủ'], ['reveal', 'Che, có nút Hiện'], ['why', 'Che, Hiện phải chọn lý do'], ['masked', 'Che, không có Hiện'], ['hidden', 'Không hiển thị']];
+  var p = '<thead><tr><th>Vai trò</th><th>Số điện thoại</th><th>Email</th><th>Địa chỉ</th></tr></thead><tbody>';
+  P.forEach(function (r, i) {
+    p += '<tr><th scope="row" style="font-weight:500">' + RN[R.indexOf(r[0])] + (r[0] === 'AD' ? ' <span class="tag tag--neutral">Khóa theo luật</span>' : '') + '</th>';
+    for (var k = 1; k <= 3; k++) {
+      var id = 'pii' + i + k;
+      p += '<td><label class="sr-only" for="' + id + '">' + ['SĐT', 'Email', 'Địa chỉ'][k - 1] + ' của ' + RN[R.indexOf(r[0])] + '</label><select class="select" id="' + id + '"' + (r[0] === 'AD' ? ' disabled aria-describedby="ad-why"' : '') + '>' + O.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === r[k] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></td>';
+    }
+    p += '</tr>';
+  });
+  document.getElementById('pii').innerHTML = p + '</tbody>';
+  /* Chủ garage chỉ duyệt: khóa điều khiển */
+  function lock() { var ch = document.body.getAttribute('data-role') === 'CH'; document.querySelectorAll('#roleapp select, #roleapp input').forEach(function (x) { if (!x.hasAttribute('data-ad')) x.disabled = ch || x.closest('tr') && x.closest('tr').innerHTML.indexOf('Khóa theo luật') > -1 || (x.hasAttribute('aria-label') && /khóa, vượt/.test(x.getAttribute('aria-label'))); }); }
+  new MutationObserver(lock).observe(document.body, { attributes: true, attributeFilter: ['data-role'] }); lock();
+})();
+</script>
+<p class="sr-only" id="ad-why">Quản trị hệ thống không được xem dữ liệu cá nhân của khách theo Luật bảo vệ dữ liệu cá nhân.</p>
+
+<script>
+g4rEnd('', '<div class="overlay" id="dlg-impact" role="alertdialog" aria-modal="true" aria-labelledby="im-t"><div class="dialog" data-confirm-guard><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="im-t">Xem trước ảnh hưởng của thay đổi quyền</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Vai trò Thủ kho: ảnh hưởng 2 người dùng (Phạm Văn Đạt, Nguyễn Hữu Lộc) ở 2 chi nhánh.</li><li>Thay đổi có hiệu lực sau khi Chủ garage duyệt; đang chờ duyệt thì quyền cũ vẫn áp dụng.</li><li>Ghi nhật ký giá trị trước và sau.</li></ul><div class="field"><label class="field__label" for="im-r">Lý do thay đổi<span class="field__req">*</span></label><textarea class="textarea" id="im-r" data-confirm-reason style="min-height:56px"></textarea></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại chỉnh</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã gửi Chủ garage duyệt|Quyền mới chưa áp dụng cho tới khi được duyệt.">Gửi duyệt thay đổi</button></div></div></div>');
+</script>
+</body>
+</html>

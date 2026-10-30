@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-QUO-02 · Lập / sửa báo giá – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({
+  crumbs: [['Phiếu sửa chữa', 'g2-quo-01.html'], ['Báo giá', 'g2-quo-01.html'], ['Lập / sửa báo giá']],
+  title: 'Lập báo giá <span class="code" style="font-weight:500">BG-Q7-2610-00231-v2</span> <span class="badge badge--neutral badge--lg">Nháp</span>',
+  desc: 'Phiên bản v2 đang soạn (v1 đã gửi 08:20 và bị thay thế khi v2 gửi). Xe 51H-123.45 · Chi nhánh Quận 7. Mục tiêu: lập xong dưới 15 phút.',
+  actions: '<a class="btn btn--secondary" href="g2-quo-03.html">Xem các phiên bản</a>'
+});
+</script>
+
+<div class="stack-6" data-variants="draft">
+  <script>g2q.proto([['draft','Đang soạn'],['invalid','Lỗi theo trường'],['overlimit','Giảm giá vượt hạn mức'],['sent','Sửa sau khi đã gửi'],['conflict','Xung đột phiên bản'],['readonly','Chỉ đọc'],['saved','Đã lưu nháp']], 'draft');</script>
+
+  <div class="alert alert--danger" role="alert" data-v="invalid"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Có 2 lỗi cần sửa trước khi gửi</span><span>1) Hạng mục 3 “Cân chỉnh góc đặt bánh xe”: nhập giá thực tế lớn hơn 0. 2) Hạng mục 1, dòng dầu nhớt: số lượng phải từ 1 trở lên.</span></div></div>
+  <div class="alert alert--danger" role="alert" data-v="overlimit"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không thể gửi: giảm giá vượt hạn mức</span><span>Giảm thêm <strong class="num">8%</strong> trên tổng đơn, vượt hạn mức của Cố vấn dịch vụ <strong class="num">5%</strong> (giá trị mẫu, lấy từ cấu hình phê duyệt G4-APR-02/03). Gửi yêu cầu để Quản lý chi nhánh duyệt, hoặc giảm lại.</span><div class="alert__actions"><a class="btn btn--danger-outline btn--sm" href="#">Gửi yêu cầu duyệt giảm giá</a><button class="btn btn--ghost btn--sm">Đặt lại về 0%</button></div></div></div>
+  <div class="alert alert--info" data-v="sent"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Báo giá v2 đã gửi cho khách lúc 08:35</span><span>Phiên bản đã gửi không được sửa. Khi bạn lưu, hệ thống tạo <strong>phiên bản v3</strong> từ bản này; v2 giữ nguyên để đối chiếu và bị thay thế khi v3 được gửi. Khách không duyệt được v2 sau khi v3 gửi đi.</span></div></div>
+  <div class="alert alert--warning" role="alert" data-v="conflict"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Báo giá vừa được người khác sửa</span><span>Nguyễn Thị Thu Hà (Quản lý) đã lưu thay đổi lúc 08:32 (đổi giá thực tế hạng mục 3). Tải lại để xem; thay đổi của bạn chưa lưu vẫn được giữ ở bản nháp trên máy.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm">Tải lại bản mới nhất</button><button class="btn btn--ghost btn--sm">So sánh khác biệt</button></div></div></div>
+  <div class="alert alert--neutral" data-v="readonly"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ xem</span><span>Phiên bản này đã bị thay thế, hoặc bạn không có quyền sửa (chỉ Cố vấn dịch vụ lập báo giá). Mở <a href="g2-quo-03.html">chi tiết báo giá</a> để tạo phiên bản mới.</span></div></div>
+  <div class="alert alert--success" data-v="saved"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span>Đã lưu nháp lúc 08:31. Bản nháp cũng được giữ trên thiết bị nếu mất kết nối.</span></div></div>
+
+  <div class="g2q-split">
+    <div class="g2q-split__main">
+      <section class="card vehicle-card" aria-label="Xe và khách">
+        <div class="vehicle-card__icon"><svg class="icon icon--lg"><use href="#car-front"/></svg></div>
+        <div>
+          <div class="row"><span class="plate-tag">51H-123.45</span><span class="vehicle-card__title">Toyota Vios 1.5G 2019</span><span class="tag tag--neutral">Tiếp nhận 30/10/2026 08:00</span></div>
+          <dl class="vehicle-card__meta"><div><dt>Chủ xe</dt><dd>Nguyễn Văn An</dd></div><div><dt>Điện thoại</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd></div><div><dt>Số km lúc nhận</dt><dd>48.200 km</dd></div><div><dt>Nguồn dòng gợi ý</dt><dd><a href="#">Kiểm tra xe số: 2 mục vàng/đỏ</a></dd></div></dl>
+          <div class="alert alert--info vehicle-card__alert"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Xe này từng từ chối hạng mục “Vệ sinh buồng đốt” (lần trước, 02/07/2026). Đã tự thêm vào hạng mục 4 theo nhắc từ <a href="g2-quo-08.html">danh sách hạng mục lưu nhắc</a>.</span></div></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-lines">
+        <div class="card__header"><div><h2 class="card__title" id="h-lines">Hạng mục, công và phụ tùng</h2><div class="card__subtitle">Khách duyệt theo hạng mục: mỗi hạng mục gồm công và phụ tùng đi kèm. Giờ công = giờ chuẩn × đơn giá giờ 300.000 ₫ (cấu hình chi nhánh, hiệu lực từ 01/10/2026).</div></div>
+          <div class="row"><button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm hạng mục</button><button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#package"/></svg>Thêm gói bảo dưỡng</button></div></div>
+        <div class="card__body--compact" style="padding:16px 24px 0"><div class="field combobox" data-combobox="part" id="cb-part"><label class="field__label" for="cb-part-in">Thêm phụ tùng vào hạng mục đang chọn</label><input id="cb-part-in" class="input" role="combobox" aria-expanded="false" aria-controls="cb-part-l" placeholder="Tên hoặc mã phụ tùng, ví dụ “bugi”, PT-0012 (không cần gõ dấu)" autocomplete="off"><div class="combobox__list" id="cb-part-l"></div></div></div>
+        <div class="table-scroll"><table class="table table--compact g2q-lines">
+          <thead><tr><th>Dòng</th><th class="col-num">SL / giờ chuẩn</th><th class="col-num">Giá niêm yết</th><th class="col-num">Giá thực tế</th><th class="col-num">Thành tiền</th><th data-show-roles="QL CH" class="col-num">Giá vốn</th><th class="col-actions"><span class="sr-only">Bỏ dòng</span></th></tr></thead>
+          <tbody>
+            <tr class="g2q-group"><td colspan="4">1. Thay dầu động cơ và lọc dầu <span class="tag tag--neutral">Bắt buộc</span></td><td class="col-num">1.585.000 ₫</td><td data-show-roles="QL CH"></td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ hạng mục 1"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+            <tr><td><span class="cell-primary">Công thay dầu + lọc dầu</span></td><td class="col-num">0,5 giờ</td><td class="col-num">150.000</td><td class="col-num"><input class="input input--num" value="150.000" aria-label="Giá thực tế công hạng mục 1"></td><td class="col-num">150.000 ₫</td><td data-show-roles="QL CH" class="col-num">—</td><td></td></tr>
+            <tr><td><span class="cell-primary">Dầu nhớt 5W-30 (can 4 lít)</span><span class="cell-sub num">PT-0003</span><span class="g2q-stock">Khả dụng 6 · Đủ hàng</span><span class="field__error" data-v="invalid"><svg class="icon"><use href="#alert-triangle"/></svg>Số lượng phải từ 1 trở lên.</span></td>
+              <td class="col-num"><div class="qty" data-vx="invalid"><button class="qty__btn" data-qty="dec" aria-label="Giảm số lượng"><svg class="icon icon--sm"><use href="#minus"/></svg></button><input class="qty__input" value="1" min="1" max="99" aria-label="Số lượng dầu nhớt"><button class="qty__btn" data-qty="inc" aria-label="Tăng số lượng"><svg class="icon icon--sm"><use href="#plus"/></svg></button></div><div class="qty is-error" data-v="invalid"><button class="qty__btn" aria-label="Giảm số lượng" disabled><svg class="icon icon--sm"><use href="#minus"/></svg></button><input class="qty__input" value="0" aria-invalid="true" aria-label="Số lượng dầu nhớt"><button class="qty__btn" aria-label="Tăng số lượng"><svg class="icon icon--sm"><use href="#plus"/></svg></button></div></td>
+              <td class="col-num">1.250.000</td><td class="col-num"><input class="input input--num" value="1.250.000" aria-label="Giá thực tế dầu nhớt"></td><td class="col-num">1.250.000 ₫</td><td data-show-roles="QL CH" class="col-num">930.000</td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ dòng dầu nhớt"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+            <tr><td><span class="cell-primary">Lọc dầu động cơ Vios</span><span class="cell-sub num">PT-0001</span><span class="g2q-stock">Khả dụng 24 · Đủ hàng</span></td><td class="col-num"><div class="qty"><button class="qty__btn" data-qty="dec" aria-label="Giảm số lượng"><svg class="icon icon--sm"><use href="#minus"/></svg></button><input class="qty__input" value="1" min="1" max="99" aria-label="Số lượng lọc dầu"><button class="qty__btn" data-qty="inc" aria-label="Tăng số lượng"><svg class="icon icon--sm"><use href="#plus"/></svg></button></div></td><td class="col-num">185.000</td><td class="col-num"><input class="input input--num" value="185.000" aria-label="Giá thực tế lọc dầu"></td><td class="col-num">185.000 ₫</td><td data-show-roles="QL CH" class="col-num">121.000</td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ dòng lọc dầu"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+
+            <tr class="g2q-group"><td colspan="4">2. Thay má phanh trước <span class="tag tag--neutral">Bắt buộc</span></td><td class="col-num">1.070.000 ₫</td><td data-show-roles="QL CH"></td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ hạng mục 2"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+            <tr><td><span class="cell-primary">Công thay má phanh trước</span></td><td class="col-num">1,5 giờ</td><td class="col-num">450.000</td><td class="col-num"><input class="input input--num" value="450.000" aria-label="Giá thực tế công hạng mục 2"></td><td class="col-num">450.000 ₫</td><td data-show-roles="QL CH" class="col-num">—</td><td></td></tr>
+            <tr><td><span class="cell-primary">Má phanh trước Toyota Vios (bộ)</span><span class="cell-sub num">PT-0012</span><span class="g2q-stock g2q-stock--out">Khả dụng 0 · Hết hàng · Đang về 10 <button class="btn-icon" style="min-height:24px;width:24px;height:24px" aria-label="Xem 4 số tồn: thực tế 0, giữ chỗ 0, đang về 10, khả dụng 0" title="Thực tế 0 · Giữ chỗ 0 · Đang về 10 · Khả dụng 0"><svg class="icon icon--sm"><use href="#info"/></svg></button></span><span class="g2q-stock">Chi nhánh Thủ Đức còn khả dụng 4 · <a href="#">Yêu cầu chuyển kho</a></span></td><td class="col-num"><div class="qty"><button class="qty__btn" data-qty="dec" aria-label="Giảm số lượng"><svg class="icon icon--sm"><use href="#minus"/></svg></button><input class="qty__input" value="1" min="1" max="99" aria-label="Số lượng má phanh"><button class="qty__btn" data-qty="inc" aria-label="Tăng số lượng"><svg class="icon icon--sm"><use href="#plus"/></svg></button></div></td><td class="col-num">620.000</td><td class="col-num"><input class="input input--num" value="620.000" aria-label="Giá thực tế má phanh"></td><td class="col-num">620.000 ₫</td><td data-show-roles="QL CH" class="col-num">452.000</td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ dòng má phanh"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+
+            <tr class="g2q-group"><td colspan="4">3. Cân chỉnh góc đặt bánh xe <span class="tag tag--neutral">Tùy chọn</span> <span class="tag tag--info">Gợi ý từ kiểm tra xe số (vàng)</span></td><td class="col-num">300.000 ₫</td><td data-show-roles="QL CH"></td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ hạng mục 3"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+            <tr><td><span class="cell-primary">Công cân chỉnh góc đặt bánh xe</span><span class="field__error" data-v="invalid"><svg class="icon"><use href="#alert-triangle"/></svg>Nhập giá thực tế lớn hơn 0.</span></td><td class="col-num">1,0 giờ</td><td class="col-num">300.000</td><td class="col-num"><input class="input input--num" value="300.000" aria-label="Giá thực tế công hạng mục 3" data-vx="invalid"><input class="input input--num is-error" value="" aria-invalid="true" aria-label="Giá thực tế công hạng mục 3" data-v="invalid"></td><td class="col-num">300.000 ₫</td><td data-show-roles="QL CH" class="col-num">—</td><td></td></tr>
+
+            <tr class="g2q-group"><td colspan="4">4. Vệ sinh buồng đốt <span class="tag tag--neutral">Tùy chọn</span> <span class="tag tag--warning">Từng bị khách từ chối</span></td><td class="col-num">650.000 ₫</td><td data-show-roles="QL CH"></td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ hạng mục 4"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+            <tr><td><span class="cell-primary">Công vệ sinh buồng đốt</span></td><td class="col-num">Giá gói</td><td class="col-num">400.000</td><td class="col-num"><input class="input input--num" value="400.000" aria-label="Giá thực tế công hạng mục 4"></td><td class="col-num">400.000 ₫</td><td data-show-roles="QL CH" class="col-num">—</td><td></td></tr>
+            <tr><td><span class="cell-primary">Dung dịch vệ sinh buồng đốt</span><span class="cell-sub num">PT-0034</span><span class="g2q-stock">Khả dụng 9 · Đủ hàng</span></td><td class="col-num">1</td><td class="col-num">250.000</td><td class="col-num"><input class="input input--num" value="250.000" aria-label="Giá thực tế dung dịch"></td><td class="col-num">250.000 ₫</td><td data-show-roles="QL CH" class="col-num">160.000</td><td class="col-actions"><button class="btn-icon" aria-label="Bỏ dòng dung dịch"><svg class="icon"><use href="#x"/></svg></button></td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="4">Cộng 4 hạng mục (3 có công, 4 dòng phụ tùng)</td><td class="col-num">3.605.000 ₫</td><td data-show-roles="QL CH"></td><td></td></tr></tfoot>
+        </table></div>
+        <div class="card__body"><div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Má phanh trước Toyota Vios đang hết hàng</span><span>Vẫn lập được báo giá. Khi khách duyệt mà khả dụng chưa đủ, hạng mục không giữ chỗ được và lệnh có thể Tạm dừng với lý do “Chờ phụ tùng”. Nên báo khách hàng về (đang về 10 cái) hoặc yêu cầu chuyển từ Thủ Đức (còn 4).</span></div></div></div>
+      </section>
+
+      <section class="card"><div class="card__body"><div class="form-grid">
+        <div class="field span-2"><label class="field__label" for="ghichu">Ghi chú cho khách (hiện trên trang duyệt và bản in)</label><textarea id="ghichu" class="textarea" placeholder="Ví dụ: Má phanh đã mòn còn 2 mm, nên thay trong tuần này.">Má phanh trước đã mòn còn khoảng 2 mm, nên thay sớm để đảm bảo an toàn.</textarea></div>
+        <div class="field"><label class="field__label" for="hl">Hiệu lực báo giá</label><select id="hl" class="select"><option>7 ngày (đến 06/11/2026)</option><option>3 ngày</option><option>14 ngày</option></select><span class="field__hint">Mặc định theo cấu hình; hết hạn thì báo giá chuyển “Hết hạn”.</span></div>
+      </div></div></section>
+    </div>
+
+    <aside class="g2q-split__side" aria-label="Tóm tắt báo giá">
+      <section class="card">
+        <div class="card__header"><h2 class="card__title">Tóm tắt</h2></div>
+        <div class="g2q-totals">
+          <div class="g2q-totals__row"><span>Tiền công (4 hạng mục)</span><span>1.300.000 ₫</span></div>
+          <div class="g2q-totals__row"><span>Tiền phụ tùng (4 dòng)</span><span>2.305.000 ₫</span></div>
+          <div class="field" style="margin:4px 0"><label class="field__label" for="gg">Giảm giá thêm trên tổng đơn</label><div class="input-group input-group--suffix"><input id="gg" class="input input--num" value="0" data-vx="overlimit"><input class="input input--num is-error" value="8" aria-invalid="true" data-v="overlimit" aria-label="Giảm giá thêm trên tổng đơn"><span class="input-group__suffix">%</span></div></div>
+          <div class="g2q-totals__row" data-v="overlimit"><span>Giảm giá 8%</span><span>−288.400 ₫</span></div>
+          <div class="g2q-totals__row"><span>Cộng trước thuế</span><span><span data-vx="overlimit">3.605.000 ₫</span><span data-v="overlimit">3.316.600 ₫</span></span></div>
+          <div class="g2q-totals__row"><span>Thuế GTGT 8% <span class="tag tag--neutral">số mẫu</span></span><span><span data-vx="overlimit">288.400 ₫</span><span data-v="overlimit">265.328 ₫</span></span></div>
+          <div class="g2q-totals__row g2q-totals__row--final"><span>Tổng báo giá</span><span><span data-vx="overlimit">3.893.400 ₫</span><span data-v="overlimit">3.581.928 ₫</span></span></div>
+        </div>
+        <div class="card__body" style="padding-top:0"><p class="g2q-note">Thuế suất lấy từ cấu hình có ngày hiệu lực, không cố định trong giao diện; 8% chỉ là số mẫu.</p></div>
+      </section>
+      <section class="card"><div class="card__header"><h2 class="card__title">Phiên bản giá</h2></div><div class="card__body"><dl class="g2q-kv" style="grid-template-columns:90px minmax(0,1fr)"><dt>Bảng giá</dt><dd>Giá bán chi nhánh Q7 · tháng 10/2026</dd><dt>Hiệu lực</dt><dd>từ 01/10/2026</dd><dt>Giữ giá</dt><dd>Báo giá giữ giá theo phiên bản này khi gửi cho khách</dd></dl></div></section>
+      <section class="card" data-show-roles="QL CH"><div class="card__header"><h2 class="card__title">Biên lợi nhuận</h2><span class="tag tag--neutral">chỉ vai trò có quyền</span></div><div class="card__body"><dl class="g2q-kv" style="grid-template-columns:130px minmax(0,1fr)"><dt>Giá vốn phụ tùng</dt><dd>1.663.000 ₫</dd><dt>Lợi nhuận gộp phụ tùng</dt><dd>642.000 ₫ (27,9%)</dd><dt>Dòng bán dưới giá vốn</dt><dd>Không có</dd></dl></div></section>
+      <section class="card" data-show-roles="CV"><div class="card__body"><p class="g2q-note"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#lock"/></svg> Giá vốn và biên lợi nhuận bị ẩn với vai trò Cố vấn dịch vụ. Dòng bán thấp hơn giá vốn bị chặn và chuyển cho người có quyền duyệt (WF-07).</p></div></section>
+      <section class="card"><div class="card__header"><h2 class="card__title">Tồn dòng đang chọn</h2></div><div class="card__body"><p class="t-body-sm" style="margin-bottom:8px"><strong>Má phanh trước Toyota Vios</strong> · Chi nhánh Quận 7</p>
+        <div class="stock4" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stock4__cell"><div class="stock4__label">Tồn thực tế</div><div class="stock4__value">0</div></div><div class="stock4__cell"><div class="stock4__label">Đang giữ chỗ</div><div class="stock4__value">0</div></div><div class="stock4__cell"><div class="stock4__label">Đang về</div><div class="stock4__value">10</div></div><div class="stock4__cell stock4__cell--out"><div class="stock4__label">Khả dụng</div><div class="stock4__value">0</div></div></div></div></section>
+    </aside>
+  </div>
+
+  <div class="g2q-sticky-foot" role="region" aria-label="Thao tác báo giá">
+    <span class="g2q-note" data-vx="saved"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#pencil"/></svg> Bản nháp v2 · chưa lưu thay đổi gần nhất</span>
+    <span class="g2q-note text-success" data-v="saved"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#circle-check"/></svg> Đã lưu nháp lúc 08:31</span>
+    <div class="row">
+      <a class="btn btn--ghost" href="g2-prt-01.html?doc=quote">Xem trước bản in</a>
+      <button class="btn btn--secondary" data-demo-loading data-toast="success|Đã lưu nháp|Báo giá v2 lưu lúc 08:31.">Lưu nháp</button>
+      <span data-vx="overlimit invalid readonly conflict" class="row"><a class="btn btn--primary" href="g2-quo-04.html">Gửi cho khách<svg class="icon"><use href="#send"/></svg></a></span>
+      <span class="tooltip-host" data-v="overlimit invalid readonly conflict"><button class="btn btn--primary" aria-disabled="true" aria-describedby="why-send"><svg class="icon"><use href="#lock"/></svg>Gửi cho khách</button><span class="tooltip" role="tooltip" id="why-send">Chưa gửi được: có lỗi trong báo giá, giảm giá vượt hạn mức, xung đột phiên bản hoặc bạn chỉ có quyền xem.</span></span>
+    </div>
+  </div>
+</div>
+<script>g2q.end();</script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

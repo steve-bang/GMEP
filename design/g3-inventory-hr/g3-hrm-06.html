@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-06 · Quy tắc tính công và hoa hồng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-06')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Quy tắc tính công và hoa hồng</h1><p class="page-header__desc">Cấu hình có ngày hiệu lực, không cố định công thức trong hệ thống. Hệ thống chỉ cấp dữ liệu giờ công và hoa hồng; không tính lương, bảo hiểm, thuế.</p></div>
+  <div class="page-header__actions"><button class="btn btn--primary" data-open="dlg-rule" data-g3-need="QL CH" data-g3-why="Chỉ Quản lý chi nhánh (trong quyền được cấp) và Chủ garage lưu quy tắc mới."><svg class="icon"><use href="#plus"/></svg>Lưu quy tắc mới…</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> chính sách chuẩn <strong>toàn công ty</strong>; ghi đè riêng cho <span data-scope-text>Chỉ Chi nhánh Quận 7</span> trong quyền được cấp</span><span>· Hiệu lực tại 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="quy tắc tính công" data-g3-states="data;loading;error;denied" data-skel="detail">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--warning" role="note"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Công thức công thợ và hoa hồng chưa được khách chốt</span><span>Bảng dưới là <strong>giá trị mẫu</strong> để minh họa cấu hình. Mỗi công thức cần ví dụ do khách cung cấp và Kế toán xác nhận trước khi dùng thật (NFR-MNT-01, UAT-11). Đổi quy tắc không làm đổi công đã tính.</span></div></div>
+  <div class="g3-ro-flag alert alert--info" data-for="f-rule" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Chủ garage và Quản lý chi nhánh (trong quyền được cấp) sửa quy tắc; Kế toán xem để đối chiếu.</span></div></div>
+
+  <form id="f-rule" class="g3-split" data-g3-edit="QL CH" onsubmit="return false">
+    <div class="stack-6">
+      <section class="card" aria-labelledby="h1"><div class="card__header"><div><h2 class="card__title" id="h1">Phương pháp theo loại việc</h2><div class="card__subtitle">Phiên bản v1 · hiệu lực từ 01/07/2026 · chính sách chuẩn công ty</div></div></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Phương pháp và tham số tính công theo loại việc</caption><thead><tr><th>Loại việc</th><th>Phương pháp</th><th class="col-num">Tham số</th><th>Ghi đè Quận 7</th><th>Ví dụ đã xác nhận</th></tr></thead><tbody>
+          <tr><td>Bảo dưỡng định kỳ</td><td><select class="select" aria-label="Phương pháp bảo dưỡng"><option>Giờ chuẩn</option><option>Khoán cố định</option><option>Giờ thực được duyệt</option><option>Tỷ lệ % trên tiền công</option><option>Cố định cộng thưởng</option></select></td><td class="col-num"><input class="input input--num g3-num" value="1,0" aria-label="Hệ số giờ chuẩn"><span class="cell-sub">hệ số × giờ chuẩn</span></td><td><span class="tag tag--neutral">Theo chuẩn</span></td><td><span class="badge badge--warning">Chưa xác nhận</span></td></tr>
+          <tr><td>Sửa chữa chung</td><td><select class="select" aria-label="Phương pháp sửa chữa chung"><option>Giờ thực được duyệt</option><option>Giờ chuẩn</option><option>Khoán cố định</option><option>Tỷ lệ % trên tiền công</option></select></td><td class="col-num"><input class="input input--num g3-num" value="1,0" aria-label="Hệ số"><span class="cell-sub">giờ thực được duyệt</span></td><td><span class="tag tag--info">Ghi đè: hệ số 1,1</span></td><td><span class="badge badge--warning">Chưa xác nhận</span></td></tr>
+          <tr><td>Lốp, mâm</td><td><select class="select" aria-label="Phương pháp lốp mâm"><option>Khoán cố định</option><option>Giờ chuẩn</option><option>Tỷ lệ % trên tiền công</option></select></td><td class="col-num"><input class="input input--num g3-num" value="45.000" aria-label="Số tiền khoán"><span class="cell-sub">₫ mỗi lốp</span></td><td><span class="tag tag--neutral">Theo chuẩn</span></td><td><span class="badge badge--warning">Chưa xác nhận</span></td></tr>
+          <tr><td>Đồng sơn <span class="tag tag--neutral">chưa khảo sát</span></td><td><select class="select" aria-label="Phương pháp đồng sơn"><option>Tỷ lệ % trên tiền công</option><option>Cố định cộng thưởng</option></select></td><td class="col-num"><input class="input input--num g3-num" value="18" aria-label="Tỷ lệ phần trăm"><span class="cell-sub">% tiền công</span></td><td><span class="tag tag--neutral">Theo chuẩn</span></td><td><span class="badge badge--warning">Chưa xác nhận</span></td></tr></tbody></table></div>
+        <div class="card__footer"><span class="t-body-sm text-secondary">Hệ số theo chức danh (học việc, bậc 3, bậc 4…) là một bảng riêng cùng cơ chế hiệu lực; chưa có số liệu từ khách.</span></div></section>
+
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Hoa hồng cố vấn dịch vụ</h2><span class="tag tag--neutral">giá trị mẫu</span></div>
+        <div class="card__body"><div class="form-grid"><div class="field"><label class="field__label" for="hc-base">Tính trên</label><select id="hc-base" class="select"><option>Doanh thu dịch vụ của lệnh (chưa thuế)</option><option>Lợi nhuận gộp của lệnh</option></select><span class="field__hint">Cơ sở tính chưa chốt, nên là cấu hình.</span></div><div class="field"><label class="field__label" for="hc-rate">Tỷ lệ (%)</label><input id="hc-rate" class="input input--num" value="2,5" inputmode="decimal"></div></div>
+          <p class="t-body-sm text-secondary" style="margin-top:12px">Quy tắc cố định theo yêu cầu (FR-HRM-009): chỉ ghi nhận hoa hồng khi lệnh đã thu đủ tiền.</p></div></section>
+
+      <section class="card" aria-labelledby="h3"><div class="card__header"><h2 class="card__title" id="h3">Phiên bản và hiệu lực</h2></div><div class="card__body"><div class="timeline">
+        <div class="timeline__item timeline__item--info"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">v2 · Lốp, mâm khoán 50.000 ₫ · hiệu lực 01/12/2026</div><div class="timeline__meta">Đặng Hữu Phúc · 28/10/2026 · Chờ Chủ garage duyệt</div></div></div>
+        <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">v1 · hiệu lực từ 01/07/2026 (đang dùng)</div><div class="timeline__meta">Trần Hoàng Anh duyệt · 25/06/2026</div></div></div></div></div></section>
+    </div>
+
+    <aside class="g3-side">
+      <section class="card" aria-labelledby="h4" data-g3-keep><div class="card__header"><h2 class="card__title" id="h4">Bảng thử tính</h2><span class="tag tag--neutral">ví dụ mẫu</span></div><div class="card__body stack">
+        <p class="t-body-sm text-secondary">Nhập ví dụ của khách để kiểm tra trước khi lưu. Ví dụ sau chỉ minh họa, không phải công thức chốt.</p>
+        <div class="field"><label class="field__label" for="tm">Phương pháp</label><select id="tm" class="select"><option value="std">Giờ chuẩn</option><option value="flat">Khoán cố định</option><option value="act">Giờ thực được duyệt</option><option value="pct">Tỷ lệ % trên tiền công</option><option value="fix">Cố định cộng thưởng</option></select></div>
+        <div class="form-grid"><div class="field"><label class="field__label" for="tp">Tham số</label><input id="tp" class="input input--num" value="1,0" inputmode="decimal"></div><div class="field"><label class="field__label" for="tb">Thưởng (nếu có)</label><input id="tb" class="input input--num" value="0" inputmode="decimal"></div>
+          <div class="field"><label class="field__label" for="ts">Giờ chuẩn</label><input id="ts" class="input input--num" value="0,3" inputmode="decimal"></div><div class="field"><label class="field__label" for="ta">Giờ thực được duyệt</label><input id="ta" class="input input--num" value="0,4" inputmode="decimal"></div>
+          <div class="field span-2"><label class="field__label" for="tl">Tiền công của hạng mục (₫)</label><input id="tl" class="input input--num" value="150.000" inputmode="numeric"></div></div>
+        <div class="g3-formula" id="tr" role="status" aria-live="polite"></div>
+        <p class="t-body-sm text-secondary">Ví dụ gốc: thay dầu 0,3 giờ chuẩn. Kết quả hiển thị đơn vị công (giờ hoặc tiền) kèm công thức đang áp dụng.</p></div></section>
+      <section class="card"><div class="card__body stack"><p class="t-body-sm text-secondary">Chi nhánh chỉ chỉnh được tham số trong phạm vi Chủ garage cấp. Chỉnh ngoài quyền bị chặn.</p>
+        <div class="alert alert--danger"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Quận 7 chưa được cấp quyền đổi <strong>phương pháp</strong> của “Lốp, mâm”. Chỉ đổi được tham số.</span></div></div></div></section>
+    </aside>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-rule" role="alertdialog" aria-modal="true" aria-labelledby="rl-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rl-t">Lưu quy tắc tính công phiên bản mới?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div class="field"><label class="field__label" for="rl-d">Ngày hiệu lực<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="rl-d" class="input" value="01/12/2026"><svg class="icon"><use href="#calendar"/></svg></div><span class="field__hint">Chỉ chọn ngày sau hôm nay.</span></div>
+    <ul class="impact-list" style="margin-top:12px"><li>Công đã tính không đổi; quy tắc mới chỉ áp dụng cho hạng mục hoàn thành từ ngày hiệu lực.</li><li>Cần Chủ garage duyệt trước khi có hiệu lực; Kế toán nhận thông báo để đối chiếu.</li></ul>
+    <div class="field"><label class="field__label" for="rl-r">Lý do thay đổi<span class="field__req" aria-hidden="true">*</span></label><textarea id="rl-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="info|Đã gửi duyệt|Quy tắc v3 hiệu lực 01/12/2026 chờ Chủ garage duyệt." disabled>Gửi duyệt</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>
+G3.init();
+(function () {
+  function num(s) { return parseFloat(String(s).replace(/\./g, '').replace(',', '.')) || 0; }
+  function f(n, d) { return n.toLocaleString('vi-VN', { maximumFractionDigits: d === undefined ? 2 : d }); }
+  function calc() {
+    var m = document.getElementById('tm').value, p = num(document.getElementById('tp').value), b = num(document.getElementById('tb').value),
+        s = num(document.getElementById('ts').value), a = num(document.getElementById('ta').value), l = num(document.getElementById('tl').value), t;
+    if (m === 'std') t = 'Giờ chuẩn: ' + f(s) + ' × hệ số ' + f(p) + ' = <strong>' + f(s * p) + ' giờ công</strong>';
+    else if (m === 'flat') t = 'Khoán cố định: <strong>' + f(p, 0) + ' ₫</strong> cho hạng mục';
+    else if (m === 'act') t = 'Giờ thực được duyệt: ' + f(a) + ' × hệ số ' + f(p) + ' = <strong>' + f(a * p) + ' giờ công</strong>';
+    else if (m === 'pct') t = 'Tỷ lệ: ' + f(p) + '% × ' + f(l, 0) + ' ₫ = <strong>' + f(l * p / 100, 0) + ' ₫</strong>';
+    else t = 'Cố định ' + f(p, 0) + ' ₫ + thưởng ' + f(b, 0) + ' ₫ = <strong>' + f(p + b, 0) + ' ₫</strong>';
+    document.getElementById('tr').innerHTML = t;
+  }
+  ['tm', 'tp', 'tb', 'ts', 'ta', 'tl'].forEach(function (id) { document.getElementById(id).addEventListener('input', calc); document.getElementById(id).addEventListener('change', calc); });
+  calc();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-EIN-08 · Cấu hình đơn vị phát hành, ký hiệu, loại hóa đơn · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><button class="btn btn--primary" data-open="drw-issuer" data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình; Chủ garage duyệt."><svg class="icon"><use href="#plus"/></svg>Thêm cấu hình</button></div>
+
+  <div class="alert alert--neutral"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Cấu hình có ngày hiệu lực</span><span>Mỗi thay đổi có ngày hiệu lực và lưu lịch sử; hóa đơn đã phát hành không đổi. Hệ thống đang giả định <strong>một pháp nhân</strong>; cột Pháp nhân tự hiện khi có nhiều pháp nhân (bật “Nhiều pháp nhân” ở menu tài khoản để xem thử, D-13).</span></div></div>
+
+  <section class="card" aria-labelledby="h-is">
+    <div class="card__header"><div><h2 class="card__title" id="h-is">Đơn vị phát hành theo chi nhánh</h2><div class="card__subtitle">Hóa đơn của mỗi chi nhánh mang đúng đơn vị phát hành (FR-EIN-003)</div></div></div>
+    <div class="table-scroll"><table class="table">
+      <caption class="sr-only">Cấu hình đơn vị phát hành</caption>
+      <thead><tr><th data-legal hidden>Pháp nhân</th><th>Chi nhánh</th><th>Đơn vị phát hành · MST</th><th>Ký hiệu</th><th>Loại hóa đơn</th><th>Hiệu lực từ</th><th>Trạng thái</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        <tr><td data-legal hidden>Công ty TNHH Garage A</td><td>Chi nhánh Quận 7</td><td>Công ty TNHH Garage A<span class="cell-sub num">MST 0312000111</span></td><td class="code">C26TAA</td><td>Giá trị gia tăng</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-issuer" aria-label="Sửa cấu hình Chi nhánh Quận 7" data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td data-legal hidden>Công ty TNHH Garage A</td><td>Chi nhánh Quận 1</td><td>Công ty TNHH Garage A<span class="cell-sub num">MST 0312000111</span></td><td class="code">C26TAA</td><td>Giá trị gia tăng</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-issuer" aria-label="Sửa cấu hình Chi nhánh Quận 1" data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td data-legal hidden>Công ty TNHH Garage B</td><td>Chi nhánh Đà Nẵng</td><td>Công ty TNHH Garage B<span class="cell-sub num">MST 0401234567</span></td><td class="code">C26TBB</td><td>Giá trị gia tăng</td><td class="num">01/07/2026</td><td><span class="tag tag--warning">Chờ Chủ garage duyệt</span> <span class="cell-sub">Đổi từ C26TAA, hiệu lực 01/11/2026</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-issuer" aria-label="Sửa cấu hình Chi nhánh Đà Nẵng" data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-ru">
+    <div class="card__header"><div><h2 class="card__title" id="h-ru">Quy tắc lập hóa đơn</h2><div class="card__subtitle">Phù hợp Nghị định 254/2026/NĐ-CP; kế toán của khách chốt bằng ví dụ (FR-EIN-012)</div></div><span class="g4f-sample">[Cần xác nhận]</span></div>
+    <div class="card__body"><div class="form-grid">
+      <div class="field"><label class="field__label" for="r1">Thời điểm lập hóa đơn</label><select id="r1" class="select" data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình."><option>Chưa chốt (chờ kế toán xác nhận)</option><option>Khi lệnh hoàn tất</option><option>Khi khách thanh toán đủ</option><option>Khi giao xe</option></select><span class="field__hint">Chưa chốt: hệ thống không tự lập, người dùng phát hành thủ công.</span></div>
+      <div class="field"><label class="field__label" for="r2">Tiền đặt cọc</label><select id="r2" class="select" data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình."><option>Chưa chốt (chờ kế toán xác nhận)</option><option>Không lập hóa đơn khi nhận cọc</option><option>Lập hóa đơn khi nhận cọc</option></select></div>
+      <div class="field"><label class="field__label" for="r3">Có hiệu lực từ ngày</label><div class="input-group date-field"><input id="r3" class="input" value="01/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    </div></div>
+    <div class="card__footer"><button class="btn btn--secondary">Hủy thay đổi</button><button class="btn btn--primary" data-toast="success|Đã lưu quy tắc|Có hiệu lực từ 01/11/2026, lưu lịch sử." data-g4f-need="KT AD" data-g4f-why="Kế toán và Quản trị hệ thống cấu hình.">Lưu (có ngày hiệu lực)</button></div>
+  </section>
+</div>
+
+<div class="overlay overlay--drawer" id="drw-issuer" role="dialog" aria-modal="true" aria-labelledby="dw-t"><aside class="drawer" style="max-width:520px">
+  <div class="card__header"><div><h2 class="card__title" id="dw-t">Cấu hình đơn vị phát hành</h2><div class="card__subtitle">Áp dụng cho hóa đơn mới từ ngày hiệu lực</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack" style="overflow:auto">
+    <div class="field"><label class="field__label" for="d-b">Chi nhánh<span class="field__req" aria-hidden="true">*</span></label><select id="d-b" class="select"><option>Chi nhánh Quận 7</option><option>Chi nhánh Quận 1</option><option>Chi nhánh Đà Nẵng</option></select></div>
+    <div class="field"><label class="field__label" for="d-u">Đơn vị phát hành<span class="field__req" aria-hidden="true">*</span></label><select id="d-u" class="select"><option>Công ty TNHH Garage A · 0312000111</option><option>Công ty TNHH Garage B · 0401234567</option></select></div>
+    <div class="form-grid"><div class="field"><label class="field__label" for="d-k">Ký hiệu<span class="field__req" aria-hidden="true">*</span></label><input id="d-k" class="input" value="C26TAA"></div>
+      <div class="field"><label class="field__label" for="d-l">Loại hóa đơn<span class="field__req" aria-hidden="true">*</span></label><select id="d-l" class="select"><option>Giá trị gia tăng</option><option>Bán hàng</option></select></div></div>
+    <div class="field"><label class="field__label" for="d-e">Hiệu lực từ ngày<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="d-e" class="input" value="01/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đổi đơn vị phát hành ảnh hưởng hóa đơn mới</span><span>Hóa đơn đã phát hành giữ nguyên. Cần Chủ garage duyệt.</span></div></div>
+  </div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-open="dlg-iss">Xem tác động và lưu</button></div></aside></div>
+
+<div class="overlay" id="dlg-iss" role="alertdialog" aria-modal="true" aria-labelledby="is-t"><div class="dialog" data-confirm-guard data-confirm-word="ĐỔI">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="is-t">Đổi đơn vị phát hành của chi nhánh?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Hóa đơn phát hành từ 01/11/2026 mang đơn vị và ký hiệu mới; hóa đơn cũ giữ nguyên.</li><li>Gửi Chủ garage duyệt trước khi có hiệu lực.</li></ul><div class="field"><label class="field__label" for="is-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="is-r" class="textarea" data-confirm-reason></textarea></div><div class="field"><label class="field__label" for="is-c">Gõ <strong>ĐỔI</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="is-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi Chủ garage duyệt|Có hiệu lực sau khi được duyệt." disabled>Gửi duyệt</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-EIN-08', title: 'Cấu hình đơn vị phát hành, ký hiệu, loại hóa đơn', desc: 'Đơn vị phát hành theo pháp nhân/chi nhánh, ký hiệu và quy tắc lập hóa đơn có ngày hiệu lực.',
+  menu: 'einv', role: 'KT', allow: ['KT', 'AD', 'CH'], updated: '09:15', time: 'hiệu lực theo ngày',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

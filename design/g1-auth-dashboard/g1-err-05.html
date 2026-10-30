@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-ERR-05 · Liên kết hết hạn hoặc không hợp lệ – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Nhân viên (đặt lại mật khẩu)|invite:Nhân viên (lời mời)|customer:Khách hàng (liên kết báo giá)|offline:Mất mạng" data-hint="Thông báo trung lập: không nói liên kết hết hạn, đã dùng hay nhập sai, để không lộ trạng thái."></div>
+
+  <main class="g1-auth-card g1-err" id="main" aria-labelledby="t">
+    <div class="state__icon state__icon--warning" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg class="icon icon--xl"><use href="#clock"/></svg></div>
+    <div><h1 id="t">Liên kết này không dùng được nữa</h1>
+      <p class="g1-lead">Liên kết có thể đã hết hạn, đã được dùng hoặc bị sao chép thiếu. Không sao, bạn chỉ cần lấy một liên kết mới.</p></div>
+
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden style="text-align:left"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span>Mất kết nối mạng nên chưa kiểm tra lại được. Kiểm tra mạng rồi tải lại trang.</span></div></div>
+
+    <div data-show="default" class="stack" style="width:100%;text-align:left">
+      <p style="margin:0"><strong>Cách lấy liên kết mới:</strong> vào trang đăng nhập, chọn “Quên mật khẩu” và nhập lại email hoặc mã nhân viên. Liên kết mới có hiệu lực 30 phút và chỉ dùng một lần.</p>
+      <div class="g1-err__actions"><a class="btn btn--primary btn--lg" href="g1-aut-04.html">Lấy liên kết đặt lại mới</a><a class="btn btn--ghost btn--lg" href="g1-aut-01.html">Về trang đăng nhập</a></div>
+    </div>
+    <div data-show="invite" hidden class="stack" style="width:100%;text-align:left">
+      <p style="margin:0"><strong>Cách lấy liên kết mới:</strong> nhờ quản lý chi nhánh gửi lại lời mời kích hoạt tài khoản cho bạn. Lời mời mới có hiệu lực 72 giờ. Nếu bạn đã kích hoạt rồi, hãy đăng nhập hoặc chọn “Quên mật khẩu”.</p>
+      <div class="g1-err__actions"><a class="btn btn--primary btn--lg" href="g1-aut-01.html">Đăng nhập</a><a class="btn btn--ghost btn--lg" href="g1-aut-04.html">Quên mật khẩu</a></div>
+    </div>
+    <div data-show="customer" hidden class="stack" style="width:100%;text-align:left">
+      <p style="margin:0"><strong>Cách lấy liên kết mới:</strong> gọi cho garage để được gửi lại báo giá. Nhân viên sẽ gửi liên kết mới cho bạn ngay.</p>
+      <dl class="g1-err__facts"><dt>Chi nhánh</dt><dd>Garage Quận 7</dd><dt>Điện thoại (số mẫu)</dt><dd class="num">028 7300 1234</dd><dt>Giờ làm việc (mẫu)</dt><dd class="num">07:30 – 18:00, Thứ Hai đến Thứ Bảy</dd></dl>
+      <a class="btn btn--primary btn--xl btn--block" href="tel:02873001234"><svg class="icon"><use href="#phone"/></svg>Gọi chi nhánh</a>
+    </div>
+  </main>
+  <footer class="g1-auth-foot"><span>GARAGE OS · Liên kết chỉ có hiệu lực trong thời gian ngắn để bảo vệ thông tin của bạn.</span></footer>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+</body>
+</html>

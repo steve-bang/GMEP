@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMEP · Gói G2 (phần 1) – Vận hành xưởng: danh mục màn hình</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body style="background:var(--color-page)">
+<a class="skip-link" href="#main">Bỏ qua, tới danh mục</a>
+<main id="main" style="max-width:1280px;margin:0 auto;padding:var(--space-8) var(--space-6)" class="g2w-stack">
+  <header class="stack-2">
+    <span class="g2w-muted">GMEP · Design system Calm Enterprise · prefix class gói: g2w-</span>
+    <h1>Gói G2 (phần 1) – Vận hành xưởng</h1>
+    <p>CRM (khách hàng, xe), Lịch hẹn, Tiếp nhận và Lệnh sửa chữa, Kiểm tra xe số. 26 màn hình, mở trực tiếp bằng trình duyệt (file://). Màn hình chuẩn số 1 để kiểm chứng design system: <a href="g2-rec-04.html"><strong>G2-REC-04 Chi tiết lệnh sửa chữa</strong></a>.</p>
+  </header>
+
+  <section class="card"><div class="card__header"><h2 class="card__title">Cách xem thử</h2></div><div class="card__body stack-2">
+    <ul class="impact-list">
+      <li><strong>Đổi vai trò:</strong> menu tài khoản (góc phải trên) → “Xem thử theo vai trò”, hoặc thêm <code>?role=TH</code> (CH, QV, QL, CV, QD, TH, TK, TN, KT, AD) vào đường dẫn. Menu, nút bị khóa (kèm lý do), cột tiền, SĐT thay đổi theo vai trò.</li>
+      <li><strong>Trạng thái:</strong> thanh “Trạng thái demo” ở đầu mỗi màn hình (Có dữ liệu, Đang tải, Trống lần đầu, Trống do lọc, Lỗi, Không có quyền), hoặc <code>?state=empty</code>, <code>?state=error</code>…</li>
+      <li><strong>Biến thể nghiệp vụ:</strong> thanh “Biến thể” (ví dụ G2-REC-04 có 6 biến thể: Đang sửa, Tạm dừng chờ phụ tùng, Hoàn tất, Ngày đã chốt sổ, Khách DN vượt hạn mức nợ, Đã hủy; mở trực tiếp bằng <code>g2-rec-04.html?variant=paused</code>). Các màn hình biểu mẫu dùng <code>?v=</code>.</li>
+      <li><strong>Mất kết nối:</strong> nút “Thử: mất kết nối” trong khung công cụ prototype; “Thử: đang soạn” thử hộp thoại lưu nháp khi đổi phạm vi chi nhánh.</li>
+      <li><strong>Co giãn:</strong> thu nhỏ cửa sổ để xem tablet (&lt; 1024px) và mobile (&lt; 640px, bảng thành thẻ).</li>
+      <li>Shell (sidebar, topbar, bottom nav) được dựng bằng <code>pack.js</code> từ cùng một khối, giống <code>design/foundation/shell.html</code>.</li>
+    </ul></div></section>
+
+  <section class="card"><div class="card__header"><h2 class="card__title">Khách hàng và xe (CRM) – 12</h2></div>
+    <div class="table-scroll"><table class="table table--compact g2w-index-table"><caption class="sr-only">Màn hình nhóm CRM</caption><thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Vai trò</th><th>Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code">G2-CRM-01</td><td><a href="g2-crm-01.html">Danh sách khách hàng</a></td><td>C</td><td class="col-wrap">QL, CV (S); CH, QV, QĐ, TN, KT (X); TH (Xn)</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-02</td><td><a href="g2-crm-02.html">Tạo / sửa khách hàng</a></td><td>E</td><td class="col-wrap">QL, CV</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-03</td><td><a href="g2-crm-03.html">Chi tiết khách hàng</a> · <a href="g2-crm-03.html?v=biz">bản doanh nghiệp</a></td><td>D</td><td class="col-wrap">Như CRM-01</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-04</td><td><a href="g2-crm-04.html">Danh sách xe</a></td><td>C</td><td class="col-wrap">Như CRM-01</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-05</td><td><a href="g2-crm-05.html">Tạo / sửa xe</a></td><td>E</td><td class="col-wrap">QL, CV</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-06</td><td><a href="g2-crm-06.html">Hồ sơ xe và lịch sử sửa chữa</a></td><td>D</td><td class="col-wrap">Như CRM-01</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-07</td><td><a href="g2-crm-07.html">Chuyển chủ xe / đổi biển số</a> (Dlg)</td><td>E (Dlg)</td><td class="col-wrap">QL, CV</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-08</td><td><a href="g2-crm-08.html">Phát hiện trùng và hợp nhất hồ sơ</a></td><td>E</td><td class="col-wrap">QL</td><td>P2+</td></tr>
+      <tr><td class="code">G2-CRM-09</td><td><a href="g2-crm-09.html">Nhắc bảo dưỡng, đăng kiểm, bảo hiểm</a></td><td>C</td><td class="col-wrap">CV, QL (S); CH, QV (X)</td><td>P2</td></tr>
+      <tr><td class="code">G2-CRM-10</td><td><a href="g2-crm-10.html">Gửi tin nhắn và chiến dịch</a></td><td>E</td><td class="col-wrap">CV, QL</td><td>P2</td></tr>
+      <tr><td class="code">G2-CRM-11</td><td><a href="g2-crm-11.html">Yêu cầu của chủ dữ liệu</a></td><td>C + D</td><td class="col-wrap">QL (xử lý); CH (duyệt xóa)</td><td>P1</td></tr>
+      <tr><td class="code">G2-CRM-12</td><td><a href="g2-crm-12.html">Xuất danh sách khách</a> (Dlg)</td><td>Dlg</td><td class="col-wrap">Có quyền “xuất dữ liệu”</td><td>P1</td></tr>
+    </tbody></table></div></section>
+
+  <section class="card"><div class="card__header"><h2 class="card__title">Lịch hẹn (APT) – 4</h2></div>
+    <div class="table-scroll"><table class="table table--compact g2w-index-table"><caption class="sr-only">Màn hình nhóm APT</caption><thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Vai trò</th><th>Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code">G2-APT-01</td><td><a href="g2-apt-01.html">Lịch hẹn (ngày / tuần)</a></td><td>K</td><td class="col-wrap">CV (S); QL; CH, QV (X)</td><td>P2 (lối tắt vãng lai: P1)</td></tr>
+      <tr><td class="code">G2-APT-02</td><td><a href="g2-apt-02.html">Tạo / sửa lịch hẹn</a> (Dlg)</td><td>E (Dlg)</td><td class="col-wrap">CV, QL</td><td>P2</td></tr>
+      <tr><td class="code">G2-APT-03</td><td><a href="g2-apt-03.html">Lịch đặt trực tuyến chờ xác nhận</a></td><td>C</td><td class="col-wrap">CV, QL</td><td>P2+</td></tr>
+      <tr><td class="code">G2-APT-04</td><td><a href="g2-apt-04.html">Trang đặt lịch cho khách</a> (công khai, không shell)</td><td>P</td><td class="col-wrap">KH</td><td>P2+</td></tr>
+    </tbody></table></div></section>
+
+  <section class="card"><div class="card__header"><h2 class="card__title">Tiếp nhận xe và lệnh sửa chữa (REC) – 7</h2></div>
+    <div class="table-scroll"><table class="table table--compact g2w-index-table"><caption class="sr-only">Màn hình nhóm REC</caption><thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Vai trò</th><th>Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code">G2-REC-01</td><td><a href="g2-rec-01.html">Tiếp nhận xe (check-in 5 bước)</a></td><td>W</td><td class="col-wrap">CV (S), QL</td><td>P1</td></tr>
+      <tr><td class="code">G2-REC-02</td><td><a href="g2-rec-02.html">Danh sách lệnh sửa chữa</a></td><td>C</td><td class="col-wrap">M2: CV (S), QL (D), còn lại X; TH (Xn)</td><td>P1</td></tr>
+      <tr><td class="code">G2-REC-03</td><td><a href="g2-rec-03.html">Bảng điều phối chi nhánh (kanban)</a></td><td>K</td><td class="col-wrap">CV, QL, QĐ; CH, QV (X); TH (Xn)</td><td>P1</td></tr>
+      <tr><td class="code">G2-REC-04</td><td><a href="g2-rec-04.html"><strong>Chi tiết lệnh sửa chữa – màn hình chuẩn số 1</strong></a></td><td>D</td><td class="col-wrap">Như REC-02</td><td>P1</td></tr>
+      <tr><td class="code">G2-REC-05</td><td><a href="g2-rec-05.html">Phân thợ và tải việc</a></td><td>K/C</td><td class="col-wrap">QĐ (S); QL (D); CV (X)</td><td>P1</td></tr>
+      <tr><td class="code">G2-REC-06</td><td><a href="g2-rec-06.html">Hủy lệnh và hoàn kho</a> (Dlg/W)</td><td>Dlg/W</td><td class="col-wrap">CV (đề xuất); QL (duyệt)</td><td>P1</td></tr>
+      <tr><td class="code">G2-REC-07</td><td><a href="g2-rec-07.html">Bảng đồng sơn theo công đoạn</a></td><td>K</td><td class="col-wrap">QĐ, CV (S); QL; CH, QV (X)</td><td>P2+</td></tr>
+    </tbody></table></div></section>
+
+  <section class="card"><div class="card__header"><h2 class="card__title">Kiểm tra xe số (INS) – 3</h2></div>
+    <div class="table-scroll"><table class="table table--compact g2w-index-table"><caption class="sr-only">Màn hình nhóm INS</caption><thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Vai trò</th><th>Ưu tiên</th></tr></thead><tbody>
+      <tr><td class="code">G2-INS-01</td><td><a href="g2-ins-01.html">Thực hiện kiểm tra xe số</a> (tablet)</td><td>E/W</td><td class="col-wrap">TH, QĐ (S); CV, QL, CH, QV (X)</td><td>P1?</td></tr>
+      <tr><td class="code">G2-INS-02</td><td><a href="g2-ins-02.html">Kết quả kiểm tra và danh sách lỗi</a></td><td>D</td><td class="col-wrap">CV (S); QL, CH, QV (X); TH, QĐ</td><td>P1?</td></tr>
+      <tr><td class="code">G2-INS-03</td><td><a href="g2-ins-03.html">Quản lý mẫu kiểm tra</a></td><td>S</td><td class="col-wrap">AD / quản trị trụ sở; QL (X)</td><td>P1?</td></tr>
+    </tbody></table></div></section>
+
+  <p class="g2w-muted">Tài liệu mô tả: <code>docs/ui-ux/02-workshop-intake.md</code>. Chú giải ưu tiên: P1 giai đoạn 1 pilot; P1? nếu khách xác nhận cần kiểm tra xe số; P2, P2+ sau pilot.</p>
+</main>
+<script src="../assets/app.js"></script>
+</body>
+</html>

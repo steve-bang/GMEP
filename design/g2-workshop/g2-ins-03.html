@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-INS-03 – Quản lý mẫu kiểm tra · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD" data-nav="set" data-g2w-deny="QV CV QD TH TK TN KT">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="#">Cài đặt</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Mẫu kiểm tra xe số</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Mẫu kiểm tra xe số</h1><p class="page-header__desc">Quản trị trụ sở soạn mẫu theo loại dịch vụ và phát hành xuống chi nhánh (FR-INS-001, FR-SYS-016). Mẫu được phát hành là cấu hình có phiên bản.</p></div>
+    <div class="page-header__actions"><button class="btn btn--primary" data-toast="info|Đã tạo mẫu nháp|Bản nháp “Mẫu mới” chưa phát hành." data-g2w-lock="AD CH" data-g2w-why="Chỉ quản trị trụ sở tạo mẫu."><svg class="icon"><use href="#plus"/></svg>Tạo mẫu</button></div></div>
+  <div data-g2w-scope data-time="Phiên bản hiện hành 30/10/2026" data-asof="09:20"></div>
+  <div data-g2w-proto="offline draft"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Chưa có mẫu|error:Lỗi|denied:Không có quyền"></div>
+  <div data-g2w-variants="edit:Soạn bản nháp v4|old:Xem phiên bản cũ (chỉ đọc)|conflict:Xung đột phiên bản" data-g2w-vlabel="Trình soạn:"></div>
+
+  <div data-state="data" class="g2w-split g2w-split--wide">
+    <section class="card" aria-labelledby="tp-l">
+      <div class="card__header"><h2 class="card__title" id="tp-l">Mẫu và phiên bản</h2></div>
+      <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Danh sách mẫu kiểm tra</caption>
+        <thead><tr><th>Mẫu</th><th>Phiên bản</th><th>Tình trạng</th><th>Chi nhánh</th></tr></thead>
+        <tbody>
+          <tr class="is-selected"><td class="cell-primary">Bảo dưỡng<span class="cell-sub">14 hạng mục</span></td><td class="num">v4</td><td><span class="tag tag--warning">Bản nháp</span></td><td>Chưa phát hành</td></tr>
+          <tr><td class="cell-primary">Bảo dưỡng<span class="cell-sub">14 hạng mục</span></td><td class="num">v3</td><td><span class="tag tag--success">Đang dùng</span></td><td>8/8 chi nhánh</td></tr>
+          <tr><td class="cell-primary">Bảo dưỡng<span class="cell-sub">12 hạng mục</span></td><td class="num">v2</td><td><span class="tag">Đã thay thế</span></td><td>Chỉ đọc</td></tr>
+          <tr><td class="cell-primary">Sửa chữa chung<span class="cell-sub">9 hạng mục</span></td><td class="num">v1</td><td><span class="tag tag--success">Đang dùng</span></td><td>Quận 7, Thủ Đức</td></tr>
+          <tr><td class="cell-primary">Lốp và mâm<span class="cell-sub">7 hạng mục</span></td><td class="num">v2</td><td><span class="tag tag--success">Đang dùng</span></td><td>8/8 chi nhánh</td></tr>
+        </tbody></table></div>
+      <div class="card__body"><p class="g2w-muted">Phiên bản cũ chỉ đọc để tra cứu kết quả đã làm. Đợt kiểm tra đang dở vẫn dùng đúng phiên bản lúc bắt đầu.</p></div>
+    </section>
+
+    <section class="card" aria-labelledby="tp-e">
+      <div class="card__header"><div><h2 class="card__title" id="tp-e"><span data-g2w-vshow="edit conflict">Mẫu Bảo dưỡng · bản nháp v4</span><span data-g2w-vshow="old" hidden>Mẫu Bảo dưỡng · v2 (đã thay thế)</span></h2><div class="card__subtitle">Loại dịch vụ: Bảo dưỡng</div></div></div>
+      <div class="alert alert--neutral" data-g2w-vshow="old" hidden style="margin:0 var(--space-6)"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Phiên bản cũ chỉ đọc. Muốn dùng lại nội dung, nhân bản thành bản nháp mới.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-g2w-keep>Nhân bản thành v5</button></div></div></div>
+      <div class="alert alert--danger" data-g2w-vshow="conflict" hidden style="margin:0 var(--space-6)" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Bản nháp vừa được người khác sửa</span><span>Quản trị Lê Hữu Phước lưu lúc 09:19. Tải lại để xem rồi mới lưu.</span></div></div>
+      <form class="card__body stack" novalidate onsubmit="return false" data-g2w-vro="old">
+        <div class="form-grid"><div class="field"><label class="field__label" for="m-n">Tên mẫu<span class="field__req" aria-hidden="true">*</span></label><input id="m-n" class="input" value="Bảo dưỡng"></div><div class="field"><label class="field__label" for="m-s">Loại dịch vụ<span class="field__req" aria-hidden="true">*</span></label><select id="m-s" class="select"><option>Bảo dưỡng</option><option>Sửa chữa chung</option><option>Lốp và mâm</option><option>Đồng sơn</option></select></div></div>
+        <div><div class="field__label">Hạng mục kiểm tra (theo nhóm)</div>
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Hạng mục của mẫu</caption><thead><tr><th>Nhóm</th><th>Hạng mục</th><th>Bắt buộc ảnh khi Hỏng</th><th class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+            <tbody>
+              <tr><td>Phanh</td><td>Má phanh trước</td><td>Có</td><td class="col-actions"><div class="g2w-inline-actions"><button class="btn-icon" aria-label="Lên: Má phanh trước"><svg class="icon"><use href="#arrow-up"/></svg></button><button class="btn-icon" aria-label="Xuống: Má phanh trước"><svg class="icon"><use href="#arrow-down"/></svg></button></div></td></tr>
+              <tr><td>Phanh</td><td>Má phanh sau</td><td>Có</td><td class="col-actions"><div class="g2w-inline-actions"><button class="btn-icon" aria-label="Lên: Má phanh sau"><svg class="icon"><use href="#arrow-up"/></svg></button><button class="btn-icon" aria-label="Xuống: Má phanh sau"><svg class="icon"><use href="#arrow-down"/></svg></button></div></td></tr>
+              <tr><td>Dầu và dung dịch</td><td>Dầu động cơ</td><td>Không</td><td class="col-actions"><div class="g2w-inline-actions"><button class="btn-icon" aria-label="Lên: Dầu động cơ"><svg class="icon"><use href="#arrow-up"/></svg></button><button class="btn-icon" aria-label="Xuống: Dầu động cơ"><svg class="icon"><use href="#arrow-down"/></svg></button></div></td></tr>
+              <tr><td>Điện và đèn</td><td>Lọc gió điều hòa <span class="tag tag--info">Mới ở v4</span></td><td>Không</td><td class="col-actions"><div class="g2w-inline-actions"><button class="btn-icon" aria-label="Lên: Lọc gió điều hòa"><svg class="icon"><use href="#arrow-up"/></svg></button><button class="btn-icon" aria-label="Xuống: Lọc gió điều hòa"><svg class="icon"><use href="#arrow-down"/></svg></button></div></td></tr>
+            </tbody></table></div>
+          <div class="row" style="margin-top:8px"><button class="btn btn--secondary btn--sm" type="button"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm hạng mục</button><span class="g2w-muted">Hiện 4/14 hạng mục để gọn. Bỏ hạng mục khỏi mẫu mới không xóa kết quả cũ.</span></div></div>
+      </form>
+      <div class="card__footer" style="flex-wrap:wrap"><span class="badge badge--success badge--nodot" style="margin-right:auto"><svg class="icon"><use href="#check"/></svg>Đã lưu nháp 09:19</span>
+        <button class="btn btn--danger-outline" data-open="dlg-revoke" data-g2w-lock="AD CH" data-g2w-why="Chỉ quản trị trụ sở thu hồi mẫu."><svg class="icon"><use href="#undo"/></svg>Thu hồi v3…</button>
+        <button class="btn btn--primary" data-open="dlg-publish" data-g2w-lock="AD CH" data-g2w-why="Chỉ quản trị trụ sở phát hành mẫu.">Lưu và phát hành…</button></div>
+      <p class="g2w-why" style="padding:0 var(--space-6) var(--space-4);margin:0" data-g2w-roles="QL" role="status"><svg class="icon icon--sm"><use href="#lock"/></svg><span>Bạn chỉ xem. Quản trị trụ sở soạn và phát hành mẫu (quản lý chi nhánh: chỉ xem).</span></p>
+    </section>
+  </div>
+
+  <div data-state="loading" hidden data-g2w-tpl="loading" data-rows="5" data-cols="4"></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="clipboard-check" data-title="Chưa có mẫu kiểm tra nào" data-text="Tạo mẫu theo loại dịch vụ rồi phát hành xuống chi nhánh để thợ kiểm tra xe số." data-cta="Tạo mẫu" data-href="#"></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được danh sách mẫu" data-ref="ERR-INS-5003"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền quản lý mẫu kiểm tra" data-text="Mẫu do quản trị trụ sở soạn; Quản lý chi nhánh chỉ xem."></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-publish" role="dialog" aria-modal="true" aria-labelledby="pu-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#upload"/></svg></div><div><h2 class="dialog__title" id="pu-t">Phát hành mẫu Bảo dưỡng v4</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <fieldset style="border:0;padding:0;margin:0"><legend class="field__label">Chi nhánh áp dụng<span class="field__req" aria-hidden="true">*</span></legend><div class="g2w-asset-grid">
+      <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chi nhánh Quận 7 (pilot)</span></label><label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chi nhánh Thủ Đức</span></label><label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chi nhánh Biên Hòa</span></label></div></fieldset>
+    <div class="field"><label class="field__label" for="pu-d">Hiệu lực từ ngày<span class="field__req" aria-hidden="true">*</span></label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="pu-d" class="input" value="01/11/2026"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div><span class="field__hint">Mẫu có ngày hiệu lực. Đợt kiểm tra đang dở không đổi phiên bản.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã phát hành v4|Áp dụng cho Quận 7 từ 01/11/2026.">Phát hành</button></div></div></div>
+
+<div class="overlay" id="dlg-revoke" role="alertdialog" aria-modal="true" aria-labelledby="rv2-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="Bảo dưỡng v3">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rv2-t">Thu hồi mẫu Bảo dưỡng v3?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list"><li>Chi nhánh đang dùng v3 không tạo kiểm tra mới từ mẫu này; có 2 đợt kiểm tra đang dở vẫn hoàn tất bằng v3.</li><li>Kết quả đã làm giữ nguyên, xem lại được.</li><li>Ghi nhật ký người thu hồi, thời điểm, lý do.</li></ul>
+    <div class="field"><label class="field__label" for="rv2-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="rv2-r" class="textarea" data-confirm-reason></textarea></div>
+    <div class="field"><label class="field__label" for="rv2-c">Gõ <strong>Bảo dưỡng v3</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="rv2-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã thu hồi mẫu v3|Chi nhánh chưa có mẫu Bảo dưỡng cho tới khi phát hành bản mới." disabled>Thu hồi</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

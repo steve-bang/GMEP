@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-19 · Phân bổ chi phí chung toàn chuỗi · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><button class="btn btn--primary btn--lg" id="btn-run" data-open="dlg-run" data-g4f-need="KT" data-g4f-why="Kế toán chạy phân bổ; Chủ garage duyệt tiêu chí." data-g4f-online data-vg="k" data-v-off="locked"><svg class="icon"><use href="#refresh"/></svg>Chạy phân bổ</button></div>
+
+  <div class="alert alert--warning"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Tiêu chí phân bổ chưa chốt <span class="g4f-sample">[Cần xác nhận] FR-ACC-013 (Could)</span></span><span>Tiêu chí là cấu hình, có thể đổi mà không sửa mã. Kết quả ảnh hưởng lãi gộp từng chi nhánh (<a href="g4-acc-15.html">G4-ACC-15</a>) và từng lệnh.</span></div></div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ KỲ</span><div class="segmented" role="group" aria-label="Kỳ"><button class="segmented__item" data-g4f-var="open" data-vg="k" aria-pressed="true">Tháng 10/2026 (chưa khóa)</button><button class="segmented__item" data-g4f-var="locked" data-vg="k" aria-pressed="false">Tháng 9/2026 (đã khóa)</button></div></div>
+  <div class="alert alert--neutral" data-vg="k" data-v="locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kỳ đã khóa: chỉ xem kết quả đã phân bổ</span><span>Không chạy lại cho kỳ đã khóa. Muốn đổi, Chủ garage mở lại kỳ (G4-ACC-17).</span></div></div>
+
+  <div class="g4f-two">
+    <section class="card" aria-labelledby="h-cfg">
+      <div class="card__header"><h2 class="card__title" id="h-cfg">Cấu hình phân bổ</h2></div>
+      <div class="card__body stack">
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="pool">Tổng chi phí chung cần phân bổ<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="pool" class="input input--num" data-money value="120.000.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div><span class="field__hint">Lấy từ phiếu chi loại “chi phí chung” trong kỳ.</span></div>
+          <div class="field"><label class="field__label" for="crit">Tiêu chí phân bổ<span class="field__req" aria-hidden="true">*</span></label><select id="crit" class="select"><option value="rev">Theo doanh thu</option><option value="ro">Theo số lệnh hoàn tất</option><option value="hc">Theo số nhân viên</option><option value="eq">Chia đều</option></select><span class="field__hint">Danh sách tiêu chí lấy từ cấu hình.</span></div>
+        </div>
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Kết quả phân bổ theo chi nhánh</caption><thead><tr><th>Chi nhánh</th><th class="col-num" id="th-b">Cơ sở (doanh thu)</th><th class="col-num">Tỷ lệ</th><th class="col-num">Chi phí chung phân bổ</th></tr></thead><tbody id="tb"></tbody><tfoot id="tf"></tfoot></table></div>
+      </div>
+    </section>
+    <aside class="g4f-aside"><section class="card"><div class="card__header"><h2 class="card__title">Kiểm tra</h2></div><div class="card__body"><ul class="g4f-checks"><li class="is-pass" id="chk-sum"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Tổng phân bổ = tổng chi phí chung</div><div class="g4f-checks__sub" id="chk-t"></div></div><span></span></li><li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">Chạy lại được cho kỳ chưa khóa</div><div class="g4f-checks__sub">Kết quả cũ lưu lịch sử, không ghi đè mất dấu.</div></div><span></span></li></ul></div></section></aside>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-run" role="alertdialog" aria-modal="true" aria-labelledby="rn-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="PHÂN BỔ">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rn-t">Chạy phân bổ chi phí chung tháng 10/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Giá vốn và lãi gộp của 5 chi nhánh trong kỳ được tính lại.</li><li>Đã có kết quả phân bổ lần trước: lần này tạo phiên bản mới, bản cũ lưu lịch sử.</li><li>Cần Chủ garage duyệt tiêu chí nếu đổi so với lần trước.</li></ul><div class="field"><label class="field__label" for="rn-r">Lý do chạy lại<span class="field__req" aria-hidden="true">*</span></label><textarea id="rn-r" class="textarea" data-confirm-reason></textarea></div><div class="field"><label class="field__label" for="rn-c">Gõ <strong>PHÂN BỔ</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="rn-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-run" data-busy="Đang phân bổ…" data-done-label="Đã phân bổ" data-done-toast="success|Đã phân bổ chi phí chung|Lãi gộp chi nhánh được tính lại." disabled>Chạy phân bổ</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-19', title: 'Phân bổ chi phí chung toàn chuỗi', desc: 'Chia chi phí chung cho chi nhánh theo tiêu chí cấu hình; chạy lại được cho kỳ chưa khóa.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH'], updated: '09:15', time: 'tháng 10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, fmt = G4F.fmt;
+  var B = [['Chi nhánh Quận 1', 535000000, 612, 28], ['Chi nhánh Quận 7', 480000000, 548, 25], ['Chi nhánh Thủ Đức', 328000000, 371, 18], ['Chi nhánh Biên Hòa', 238000000, 280, 14], ['Chi nhánh Đà Nẵng', 159000000, 190, 10]];
+  var LBL = { rev: 'Cơ sở (doanh thu)', ro: 'Cơ sở (số lệnh)', hc: 'Cơ sở (số nhân viên)', eq: 'Cơ sở (đều)' };
+  function run() {
+    var c = $('#crit').value, pool = G4F.num($('#pool').value), base = B.map(function (b) { return c === 'rev' ? b[1] : c === 'ro' ? b[2] : c === 'hc' ? b[3] : 1; });
+    var tot = base.reduce(function (a, b) { return a + b; }, 0), acc = 0;
+    var out = base.map(function (x, i) { var v = i === base.length - 1 ? pool - acc : Math.round(pool * x / tot); acc += v; return v; });
+    $('#th-b').textContent = LBL[c];
+    $('#tb').innerHTML = B.map(function (b, i) { return '<tr><td>' + b[0] + '</td><td class="col-num">' + (c === 'rev' ? fmt(base[i]) : c === 'eq' ? 'Chia đều' : base[i].toLocaleString('vi-VN')) + '</td><td class="col-num">' + (base[i] / tot * 100).toFixed(1).replace('.', ',') + '%</td><td class="col-num">' + fmt(out[i]) + '</td></tr>'; }).join('');
+    $('#tf').innerHTML = '<tr><td>Tổng toàn chuỗi</td><td class="col-num">' + (c === 'rev' ? fmt(tot) : c === 'eq' ? '' : tot.toLocaleString('vi-VN')) + '</td><td class="col-num">100,0%</td><td class="col-num">' + fmt(pool) + '</td></tr>';
+    $('#chk-t').textContent = 'Tổng 5 chi nhánh = ' + fmt(out.reduce(function (a, b) { return a + b; }, 0)) + '; chi nhánh cuối nhận phần làm tròn.';
+  }
+  document.addEventListener('input', function (e) { if (e.target.id === 'pool') run(); });
+  document.addEventListener('change', function (e) { if (e.target.id === 'crit') run(); });
+  run(); G4F.applyVar('k', 'open');
+})();
+</script>
+</body>
+</html>

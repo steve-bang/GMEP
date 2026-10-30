@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-NTF-02 · Cài đặt thông báo cá nhân – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QL" data-g1-menu="dash" data-crumb="Thông báo|Cài đặt thông báo" data-period="none" data-no-scope data-multirole="QL,CV">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Cài đặt thông báo</h1>
+      <p class="page-header__desc">Chọn kênh nhận cho từng loại sự kiện. Chỉ có sự kiện thuộc quyền và chi nhánh của bạn. Thông báo trong hệ thống của việc “Cần xử lý” luôn bật để không sót việc.</p>
+    </div>
+  </div>
+
+  <div data-g1-views="default:Mặc định|error:Lưu lỗi|offline:Mất mạng"></div>
+  <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa lưu được cài đặt</span><span>Lỗi hệ thống, không phải do lựa chọn của bạn. Lựa chọn vẫn được giữ trên màn hình; bấm “Lưu” để thử lại.</span></div></div>
+  <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span>Mất kết nối nên chưa lưu được. Lựa chọn của bạn được giữ trên máy, bấm “Lưu” khi có mạng.</span></div></div>
+
+  <section class="card" aria-labelledby="h-m">
+    <div class="card__header"><div><h2 class="card__title" id="h-m">Sự kiện và kênh nhận</h2><div class="card__subtitle">Zalo chưa có nhà cung cấp nên chưa kích hoạt</div></div>
+      <span class="badge badge--neutral" id="dirty" hidden>Có thay đổi chưa lưu</span></div>
+    <div class="table-scroll"><table class="table table--compact g1-matrix">
+      <caption class="sr-only">Bảng chọn kênh nhận thông báo theo sự kiện</caption>
+      <thead><tr><th scope="col">Sự kiện</th><th scope="col">Mức</th><th scope="col">Trong hệ thống</th><th scope="col">Email</th><th scope="col">Zalo <span class="tag tag--neutral">Chưa kích hoạt</span></th></tr></thead>
+      <tbody id="rows"></tbody></table></div>
+    <div class="card__body" style="border-top:1px solid var(--color-border)">
+      <div class="stack">
+        <label class="switch"><input type="checkbox" id="digest" role="switch" checked><span class="switch__track"></span><span>Nhận tóm tắt hằng ngày qua email<br><span class="t-body-sm text-secondary">Dành cho Chủ garage, Quản lý vùng, Quản lý chi nhánh: số việc cần xử lý, doanh thu hôm qua, xe trễ hẹn.</span></span></label>
+        <div class="field" style="max-width:240px"><label class="field__label" for="dtime">Giờ gửi tóm tắt</label><select id="dtime" class="select"><option>07:00</option><option selected>07:30</option><option>08:00</option></select><span class="field__hint">Giờ gửi mặc định do quản trị cấu hình.</span></div>
+      </div>
+    </div>
+    <div class="card__footer"><button class="btn btn--ghost" id="reset">Đặt lại mặc định</button><button class="btn btn--primary" id="save" disabled aria-describedby="why-save">Lưu</button></div>
+  </section>
+  <p class="g1-note" id="why-save">Nút “Lưu” bật khi bạn thay đổi lựa chọn.</p>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+(function () {
+  var EV = [
+    ['Cần phê duyệt (giảm giá, chi, chuyển kho vượt hạn mức)', 'act', 1, 1],
+    ['Phê duyệt quá hạn hoặc chuyển cấp', 'act', 1, 1],
+    ['Phát sinh chờ khách duyệt', 'act', 1, 0],
+    ['Kiểm tra chất lượng trả lại', 'act', 1, 0],
+    ['Hóa đơn lỗi phát hành', 'act', 1, 1],
+    ['Thiếu phụ tùng cho lệnh', 'act', 1, 0],
+    ['Nhắc chốt ngày', 'act', 1, 1],
+    ['Báo giá được khách duyệt hoặc từ chối', 'info', 1, 0],
+    ['Tồn dưới định mức', 'info', 1, 1],
+    ['Xe sẵn sàng bàn giao', 'info', 1, 0]
+  ];
+  var tb = document.getElementById('rows'), html = '';
+  EV.forEach(function (e, i) {
+    var act = e[1] === 'act';
+    html += '<tr><th scope="row">' + e[0] + '</th><td>' + (act ? '<span class="badge badge--warning">Cần xử lý</span>' : '<span class="badge badge--neutral">Thông tin</span>') + '</td>' +
+      '<td><label class="check" style="min-height:44px"><input type="checkbox" checked ' + (act ? 'disabled aria-describedby="lk' + i + '"' : '') + ' data-def="1" aria-label="Trong hệ thống: ' + e[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span>' + (act ? '<span class="t-caption text-secondary" id="lk' + i + '">Luôn bật</span>' : '<span class="sr-only">Bật</span>') + '</label></td>' +
+      '<td><label class="check" style="min-height:44px"><input type="checkbox" ' + (e[3] ? 'checked' : '') + ' data-def="' + e[3] + '" aria-label="Email: ' + e[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="sr-only">Bật</span></label></td>' +
+      '<td><label class="check" style="min-height:44px"><input type="checkbox" disabled aria-label="Zalo: ' + e[0] + ' (chưa kích hoạt)"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="t-caption text-secondary">Chưa kích hoạt</span></label></td></tr>';
+  });
+  tb.innerHTML = html;
+  var save = document.getElementById('save'), dirty = document.getElementById('dirty');
+  function mark() { save.disabled = false; dirty.hidden = false; document.getElementById('why-save').hidden = true; }
+  document.addEventListener('change', function (e) { if (e.target.closest('#rows') || e.target.id === 'digest' || e.target.id === 'dtime') mark(); });
+  save.addEventListener('click', function () {
+    var v = document.body.getAttribute('data-view');
+    if (v === 'offline') { window.gmepToast('warning', 'Chưa có kết nối', 'Lựa chọn được giữ trên máy. Bấm Lưu khi có mạng.'); return; }
+    if (v === 'error') { window.gmepToast('danger', 'Chưa lưu được', 'Thử lại sau ít giây.'); return; }
+    save.disabled = true; dirty.hidden = true; window.gmepToast('success', 'Đã lưu cài đặt thông báo', 'Áp dụng từ lần thông báo kế tiếp.');
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    Array.prototype.forEach.call(tb.querySelectorAll('input[data-def]'), function (c) { c.checked = c.getAttribute('data-def') === '1'; });
+    document.getElementById('digest').checked = true; document.getElementById('dtime').value = '07:30'; mark();
+    window.gmepToast('info', 'Đã đặt lại mặc định', 'Bấm Lưu để áp dụng.');
+  });
+})();
+</script>
+</body>
+</html>

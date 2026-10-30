@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-20 · Sơ đồ tài khoản và định khoản tự động · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><button class="btn btn--primary" data-open="drw-map" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ; Chủ garage duyệt."><svg class="icon"><use href="#plus"/></svg>Thêm quy tắc</button></div>
+
+  <div class="alert alert--neutral"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Hệ thống làm kế toán vận hành, không thay phần mềm kế toán</span><span>Mỗi sự kiện nghiệp vụ sinh bút toán tự động cân đối nợ và có (FR-ACC-010). Mã tài khoản dưới đây là <strong>ví dụ</strong>; Kế toán trưởng chọn theo Thông tư 99/2025 (hoặc 152/2025 cho hộ kinh doanh) <span class="g4f-sample">[Cần xác nhận]</span>.</span></div></div>
+
+  <section class="card" aria-labelledby="h-mp">
+    <div class="card__header"><div><h2 class="card__title" id="h-mp">Quy tắc định khoản</h2><div class="card__subtitle">Có ngày hiệu lực; đổi sơ đồ không sửa bút toán đã sinh</div></div><span class="tag tag--success">Cân đối: 8/8 quy tắc</span></div>
+    <div class="table-scroll"><table class="table g4f-matrix"><caption class="sr-only">Sơ đồ tài khoản theo sự kiện nghiệp vụ</caption>
+      <thead><tr><th>Sự kiện nghiệp vụ</th><th>Tài khoản Nợ</th><th>Tài khoản Có</th><th>Hiệu lực từ</th><th>Trạng thái</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        <tr><td class="cell-primary">Thu tiền mặt theo lệnh</td><td><span class="code">1111</span> Tiền mặt</td><td><span class="code">131</span> Phải thu khách hàng</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc thu tiền mặt" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td class="cell-primary">Thu chuyển khoản, thẻ</td><td><span class="code">1121</span> Tiền gửi ngân hàng</td><td><span class="code">131</span> Phải thu khách hàng</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc thu chuyển khoản" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td class="cell-primary">Ghi nhận doanh thu dịch vụ khi hoàn tất lệnh</td><td><span class="code">131</span> Phải thu khách hàng</td><td><span class="code">5113</span> Doanh thu cung cấp dịch vụ<br><span class="code">3331</span> Thuế GTGT phải nộp</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc ghi nhận doanh thu" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td class="cell-primary">Nhập kho phụ tùng</td><td><span class="code">1561</span> Hàng hóa</td><td><span class="code">331</span> Phải trả người bán</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc nhập kho" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td class="cell-primary">Xuất kho phụ tùng cho lệnh (giá vốn)</td><td><span class="code">632</span> Giá vốn hàng bán</td><td><span class="code">1561</span> Hàng hóa</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc xuất kho" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td class="cell-primary">Chi tiền theo loại chi phí</td><td><span class="code">642x</span> Chi phí (theo loại)</td><td><span class="code">1111</span> / <span class="code">1121</span></td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc chi tiền" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td class="cell-primary">Hoàn tiền cho khách</td><td><span class="code">131</span> Phải thu khách hàng</td><td><span class="code">1111</span> / <span class="code">1121</span></td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang áp dụng</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc hoàn tiền" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+        <tr><td class="cell-primary">Bút toán đảo</td><td colspan="2" class="g4f-muted">Tự động đảo chiều đúng quy tắc của chứng từ gốc, không cấu hình riêng</td><td class="num">—</td><td><span class="tag tag--neutral">Hệ thống</span></td><td class="col-actions"></td></tr>
+        <tr><td class="cell-primary">Phân bổ chi phí chung</td><td><span class="code">632</span> / <span class="code">642x</span></td><td><span class="code">1111</span> / <span class="code">334</span></td><td class="num">01/11/2026</td><td><span class="tag tag--warning">Chờ Chủ garage duyệt</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-map" aria-label="Sửa quy tắc phân bổ" data-g4f-need="KT" data-g4f-why="Kế toán cấu hình sơ đồ."><svg class="icon"><use href="#pencil"/></svg></button></td></tr>
+      </tbody></table></div>
+  </section>
+</div>
+
+<div class="overlay overlay--drawer" id="drw-map" role="dialog" aria-modal="true" aria-labelledby="dm-t"><aside class="drawer" style="max-width:520px">
+  <div class="card__header"><div><h2 class="card__title" id="dm-t">Quy tắc định khoản</h2><div class="card__subtitle">Áp dụng cho bút toán mới từ ngày hiệu lực</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack" style="overflow:auto">
+    <div class="field"><label class="field__label" for="m-e">Sự kiện nghiệp vụ<span class="field__req" aria-hidden="true">*</span></label><select id="m-e" class="select"><option>Thu tiền mặt theo lệnh</option><option>Thu chuyển khoản, thẻ</option><option>Nhập kho phụ tùng</option></select></div>
+    <div class="form-grid"><div class="field"><label class="field__label" for="m-n">Tài khoản Nợ<span class="field__req" aria-hidden="true">*</span></label><select id="m-n" class="select"><option>1111 Tiền mặt</option><option>1121 Tiền gửi ngân hàng</option><option>131 Phải thu khách hàng</option></select></div>
+      <div class="field"><label class="field__label" for="m-c">Tài khoản Có<span class="field__req" aria-hidden="true">*</span></label><select id="m-c" class="select"><option>131 Phải thu khách hàng</option><option>5113 Doanh thu dịch vụ</option><option>331 Phải trả người bán</option></select></div></div>
+    <div class="field"><label class="field__label" for="m-d">Hiệu lực từ ngày<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="m-d" class="input" value="01/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="g4f-diff is-ok" role="status"><div class="row row--between"><span>Tổng Nợ</span><strong class="num">100%</strong></div><div class="row row--between"><span>Tổng Có</span><strong class="num">100%</strong></div><div class="t-body-sm" style="margin-top:6px">Cân đối nợ = có.</div></div>
+    <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đã có bút toán theo sơ đồ cũ</span><span>Thay đổi chỉ áp dụng từ ngày hiệu lực; bút toán đã sinh giữ nguyên.</span></div></div>
+  </div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-open="dlg-map">Xem tác động và lưu</button></div></aside></div>
+
+<div class="overlay" id="dlg-map" role="alertdialog" aria-modal="true" aria-labelledby="mp-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="mp-t">Đổi sơ đồ khi đã có bút toán?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Bút toán từ 01/11/2026 dùng tài khoản mới; trước đó giữ nguyên.</li><li>Cần Chủ garage duyệt; ghi nhật ký giá trị cũ và mới.</li></ul><div class="field"><label class="field__label" for="mp-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="mp-r" class="textarea" data-confirm-reason></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="info|Đã gửi Chủ garage duyệt|Có hiệu lực từ 01/11/2026 sau khi duyệt." disabled>Gửi duyệt</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-20', title: 'Sơ đồ tài khoản và định khoản tự động', desc: 'Sự kiện nghiệp vụ → tài khoản nợ/có, có ngày hiệu lực và kiểm tra cân đối.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV'], updated: '09:15', time: 'hiệu lực theo ngày',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

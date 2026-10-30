@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-10 – Gửi tin nhắn và chiến dịch · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="cust" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack">
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-01.html">Khách hàng</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Gửi tin nhắn</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Gửi tin nhắn và chiến dịch</h1><p class="page-header__desc">Chọn mẫu, kênh và danh sách khách. Hệ thống tự loại khách chưa đồng ý (FR-CRM-009, FR-CRM-013).</p></div></div>
+  <div data-g2w-scope data-time="Chiến dịch mới" data-asof="09:18"></div>
+  <div data-g2w-proto="offline draft"></div>
+  <div data-g2w-variants="ready:Sẵn sàng gửi|noprov:Chưa cấu hình nhà cung cấp|sent:Đã gửi (kết quả từng tin)|error:Lỗi gửi"></div>
+
+  <div class="alert alert--warning" data-g2w-vshow="noprov" role="alert"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kênh SMS và Zalo chưa được kích hoạt</span><span>Nhà cung cấp tin nhắn do khách chọn và cấu hình ở Cài đặt (G4-SYS-17). Chưa gửi được; bạn vẫn soạn và lưu nháp.</span></div></div>
+  <div class="alert alert--danger" data-g2w-vshow="error" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Nhà cung cấp tin nhắn phản hồi lỗi</span><span>Chưa gửi được 12/38 tin. Các tin đã gửi không gửi lại. Thử lại sau vài phút.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-g2w-keep>Thử lại 12 tin lỗi</button></div></div></div>
+
+  <div class="g2w-split">
+    <div class="g2w-stack g2w-stack--tight">
+      <section class="card" aria-labelledby="m1"><div class="card__header"><h2 class="card__title" id="m1">Soạn tin</h2></div>
+        <form class="card__body stack" novalidate onsubmit="return false">
+          <div class="form-grid">
+            <div class="field"><label class="field__label" for="m-tpl">Mẫu tin<span class="field__req" aria-hidden="true">*</span></label><select id="m-tpl" class="select"><option>Nhắc bảo dưỡng định kỳ</option><option>Nhắc đăng kiểm</option><option>Nhắc bảo hiểm</option><option>Khuyến mãi tháng 11</option></select></div>
+            <div class="field"><label class="field__label" for="m-ch">Kênh gửi<span class="field__req" aria-hidden="true">*</span></label><select id="m-ch" class="select"><option>Zalo (ưu tiên)</option><option>SMS</option></select><span class="field__hint">Khách không dùng Zalo sẽ chuyển SMS nếu bạn bật tự chuyển.</span></div>
+          </div>
+          <div class="field"><label class="field__label" for="m-body">Nội dung<span class="field__req" aria-hidden="true">*</span></label><textarea id="m-body" class="textarea" style="min-height:96px">Chào {Tên khách}, xe {Biển số} sắp đến hạn bảo dưỡng 50.000 km. GARAGE OS Quận 7 xin mời anh/chị đặt lịch, liên hệ 028 3xxx xxxx.</textarea><span class="field__hint">Biến {Tên khách}, {Biển số} tự thay. Nội dung quảng cáo cần khách đã đồng ý nhận quảng cáo.</span></div>
+          <div class="field"><span class="field__label" id="m-rcv">Người nhận</span>
+            <div class="g2w-chips" role="group" aria-labelledby="m-rcv"><span class="chip">Xe đến hạn bảo dưỡng 50.000 km (Quận 7)<button class="chip__x" type="button" aria-label="Bỏ nhóm"><svg class="icon"><use href="#x"/></svg></button></span><button class="btn btn--ghost btn--sm" type="button"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm nhóm hoặc khách</button></div></div>
+          <div class="alert alert--info"><svg class="icon"><use href="#users"/></svg><div class="alert__body"><span class="alert__title">38 khách sẽ nhận · 6 khách bị loại</span><span>6 khách bị loại vì chưa đồng ý nhận loại tin này hoặc đã rút đồng ý (FR-CRM-013). <a href="#">Xem danh sách bị loại</a></span></div></div>
+        </form>
+        <div class="card__footer"><button class="btn btn--secondary" data-toast="success|Đã lưu nháp|Chiến dịch lưu lúc 09:18.">Lưu nháp</button><button class="btn btn--danger-outline" id="send-btn" data-open="dlg-send" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh gửi tin hàng loạt."><svg class="icon"><use href="#send"/></svg>Gửi 38 tin…</button></div>
+        <p class="g2w-why" id="send-why" style="padding:0 var(--space-6) var(--space-4);margin:0" data-g2w-vshow="noprov"><svg class="icon icon--sm"><use href="#lock"/></svg><span>Nút Gửi bị khóa: chưa kích hoạt kênh gửi tin (G4-SYS-17).</span></p>
+      </section>
+
+      <section class="card" aria-labelledby="m2" data-g2w-vshow="sent error"><div class="card__header"><div><h2 class="card__title" id="m2">Kết quả gửi</h2><div class="card__subtitle">Cập nhật 09:20 · mỗi dòng một tin</div></div></div>
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Trạng thái gửi từng tin</caption><thead><tr><th>Khách</th><th>Kênh</th><th>Kết quả</th><th class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <tbody><tr><td>Nguyễn Văn An<span class="cell-sub g2w-pii" data-id="c1"></span></td><td>Zalo</td><td><span class="badge badge--success">Đã gửi</span></td><td></td></tr>
+            <tr><td>Võ Thanh Sơn<span class="cell-sub g2w-pii" data-id="c5"></span></td><td>SMS</td><td><span class="badge badge--danger">Lỗi</span> <span class="g2w-muted">Số không liên lạc được</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-g2w-keep>Thử lại</button></td></tr>
+            <tr><td>Lê Quốc Huy<span class="cell-sub g2w-pii" data-id="c4"></span></td><td>Zalo</td><td><span class="badge badge--warning">Đang gửi</span></td><td></td></tr></tbody></table></div></section>
+    </div>
+
+    <aside class="g2w-stack g2w-stack--tight"><section class="card"><div class="card__header"><h2 class="card__title">Xem trước</h2></div><div class="card__body stack-2">
+      <div class="g2w-print-preview" style="max-width:100%"><strong>GARAGE OS Quận 7</strong><br>Chào Nguyễn Văn An, xe 51H-123.45 sắp đến hạn bảo dưỡng 50.000 km. GARAGE OS Quận 7 xin mời anh/chị đặt lịch, liên hệ 028 3xxx xxxx.</div>
+      <p class="g2w-muted">Độ dài 168 ký tự (3 tin SMS). Số tin tính phí hiển thị theo nhà cung cấp khi có.</p>
+      <p class="g2w-muted">Tin gửi khách là kênh riêng, khác thông báo nội bộ (D-07).</p></div></section></aside>
+  </div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-send" role="alertdialog" aria-modal="true" aria-labelledby="sd-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="38">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="sd-t">Gửi tin hàng loạt cho 38 khách?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list"><li>38 khách nhận tin qua Zalo, 6 khách bị loại do chưa đồng ý.</li><li>Tin đã gửi không thu hồi được. Ghi nhật ký người gửi và danh sách nhận.</li></ul>
+    <div class="field"><label class="field__label" for="sd-c">Gõ số người nhận <strong>38</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="sd-c" class="input input--num" data-confirm-input autocomplete="off" inputmode="numeric"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đang gửi 38 tin|Theo dõi trạng thái ở bảng kết quả." disabled>Gửi tin</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+/* Biến thể “Chưa cấu hình”: khóa nút gửi kèm lý do */
+document.addEventListener('click', function (e) { if (!e.target.closest('[data-g2w-var]')) return; var k = e.target.closest('[data-g2w-var]').getAttribute('data-g2w-var'), b = document.getElementById('send-btn'); if (k === 'noprov') { b.setAttribute('data-g2w-force-disabled', ''); b.setAttribute('data-g2w-force-why', 'Chưa kích hoạt nhà cung cấp tin nhắn (G4-SYS-17).'); } else b.removeAttribute('data-g2w-force-disabled'); if (window.g2wApply) setTimeout(window.g2wApply, 0); });
+</script>
+</body>
+</html>

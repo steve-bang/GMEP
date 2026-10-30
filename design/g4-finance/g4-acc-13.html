@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-13 · Chi tiết công nợ nhà cung cấp · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-acc-12.html"><svg class="icon"><use href="#chevron-left"/></svg>Về công nợ phải trả</a></div>
+
+  <section class="card"><div class="card__body stack">
+    <div class="row row--between"><h2 class="card__title" style="font-size:20px">Công ty TNHH Phụ tùng Ô tô Minh Long</h2><span class="tag tag--danger">Có phiếu quá hạn</span></div>
+    <dl class="g4f-kv"><div><dt>Mã số thuế</dt><dd class="num">0301122334</dd></div><div><dt>Điều khoản thanh toán</dt><dd>30 ngày từ ngày nhập</dd></div><div><dt>Tổng phải trả</dt><dd class="num" style="font-weight:700">41.000.000 ₫</dd></div><div><dt>Trong đó quá hạn</dt><dd class="num g4f-bad">12.600.000 ₫</dd></div></dl></div></section>
+
+  <div class="g4f-two">
+    <section class="card" aria-labelledby="h-pn">
+      <div class="card__header"><div><h2 class="card__title" id="h-pn">Phiếu nhập còn nợ</h2><div class="card__subtitle">Mỗi lần chi gắn với một phiếu nhập (FR-ACC-007)</div></div></div>
+      <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Phiếu nhập còn nợ</caption>
+        <thead><tr><th>Phiếu nhập · hóa đơn NCC</th><th>Ngày nhập</th><th>Hạn</th><th>Đối chiếu 3 bên</th><th class="col-num">Còn nợ</th><th class="col-actions" style="width:150px"></th></tr></thead>
+        <tbody>
+          <tr><td><span class="code cell-primary">PN-Q7-2610-00064</span><span class="cell-sub">HĐ NCC 0001234</span></td><td class="num col-nowrap">12/09/2026</td><td class="num col-nowrap">12/10/2026 <span class="tag tag--danger">Quá hạn</span></td><td><span class="tag tag--success">Khớp</span></td><td class="col-num">12.600.000 ₫</td><td class="col-actions"><button class="btn btn--primary btn--sm" data-open="dlg-pay" data-ref="PN-Q7-2610-00064" data-max="12600000" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền cho nhà cung cấp." data-g4f-online>Chi tiền</button></td></tr>
+          <tr><td><span class="code cell-primary">PN-Q7-2610-00071</span><span class="cell-sub">HĐ NCC 0001301</span></td><td class="num col-nowrap">20/10/2026</td><td class="num col-nowrap">19/11/2026</td><td><span class="tag tag--success">Khớp</span></td><td class="col-num">14.400.000 ₫</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-pay" data-ref="PN-Q7-2610-00071" data-max="14400000" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền cho nhà cung cấp." data-g4f-online>Chi tiền</button></td></tr>
+          <tr><td><span class="code cell-primary">PN-Q7-2610-00077</span><span class="cell-sub">HĐ NCC 0001322</span></td><td class="num col-nowrap">25/10/2026</td><td class="num col-nowrap">24/11/2026</td><td><span class="tag tag--warning">Chênh lệch 1 dòng</span></td><td class="col-num">14.000.000 ₫</td><td class="col-actions"><span class="tooltip-host"><button class="btn btn--secondary btn--sm" disabled aria-describedby="tt-pn">Chi tiền</button><span class="tooltip" id="tt-pn" role="tooltip">Đối chiếu 3 bên đang chênh lệch; xử lý ở Mua hàng trước khi chi.</span></span></td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="4">Tổng phải trả</td><td class="col-num">41.000.000 ₫</td><td></td></tr></tfoot></table></div>
+      <div class="card__body"><p class="g4f-why" style="margin:0">Chặn chi khi đối chiếu 3 bên chênh lệch là đề xuất giao diện <span class="g4f-sample">[hỏi BA]</span>; FRD chỉ yêu cầu mỗi lần chi gắn phiếu nhập.</p></div>
+    </section>
+    <section class="card"><div class="card__header"><h2 class="card__title">Các lần chi</h2></div><div class="table-scroll"><table class="table table--compact"><thead><tr><th>Phiếu chi</th><th>Phiếu nhập</th><th class="col-num">Số tiền</th></tr></thead><tbody>
+      <tr><td class="code">PC-Q7-2610-00030<span class="cell-sub num">05/10/2026</span></td><td class="code">PN-Q7-2610-00060</td><td class="col-num">5.000.000 ₫</td></tr>
+      <tr><td class="code">PC-Q7-2610-00022<span class="cell-sub num">28/09/2026</span></td><td class="code">PN-Q7-2610-00058</td><td class="col-num">11.200.000 ₫</td></tr></tbody></table></div></section>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-pay" role="alertdialog" aria-modal="true" aria-labelledby="py-t"><div class="dialog dialog--md" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="py-t">Chi tiền cho phiếu nhập <span id="py-ref">PN-Q7-2610-00064</span></h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="form-grid"><div class="field"><label class="field__label" for="py-a">Số tiền chi<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="py-a" class="input input--num" data-money value="12.600.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div><span class="field__error" id="py-e" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Không chi vượt số còn nợ của phiếu nhập.</span></div>
+      <div class="field"><label class="field__label" for="py-m">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="py-m" class="select"><option>Chuyển khoản</option><option>Tiền mặt</option></select></div></div>
+    <div class="alert alert--warning" id="py-lim"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>Số này vượt hạn mức chi của Kế toán <span class="g4f-sample">minh họa</span>: phiếu chi đi vào quy trình <a href="g4-acc-05.html">đề xuất chi</a> để duyệt; chưa chi tiền ngay.</span></div></div>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã kiểm tra nhà cung cấp, số tài khoản và hóa đơn.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="py-ok" data-g4f-gate-btn data-g4f-submit data-busy="Đang ghi nhận…" data-done-toast="info|Đã gửi đề xuất chi|Chờ duyệt theo hạn mức, chưa trừ tiền." disabled>Gửi đề xuất chi</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-13', title: 'Chi tiết công nợ nhà cung cấp', desc: 'Phiếu nhập còn nợ, hóa đơn nhà cung cấp và các lần chi.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV', 'QL'], updated: '09:15', time: 'đến 30/10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var MAX = 12600000;
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-ref]'); if (!b) return; MAX = parseInt(b.getAttribute('data-max'), 10); document.getElementById('py-ref').textContent = b.getAttribute('data-ref'); var a = document.getElementById('py-a'); a.value = String(MAX).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); a.dispatchEvent(new Event('input', { bubbles: true })); });
+  document.addEventListener('input', function (e) { if (e.target.id !== 'py-a') return; var v = G4F.num(e.target.value), bad = v > MAX || v === 0; document.getElementById('py-e').hidden = !(v > MAX); e.target.classList.toggle('is-error', bad); var ok = document.getElementById('py-ok'); ok.setAttribute('data-bad', bad ? '1' : '0'); document.getElementById('py-lim').hidden = v <= 5000000; });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-16 – Tích hợp hóa đơn điện tử · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-16" data-menu="set" data-crumbs="Cài đặt|Tích hợp hóa đơn điện tử" data-allow="AD KT CH"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Tích hợp hóa đơn điện tử',
+  desc: 'Kết nối qua lớp tích hợp, không phụ thuộc một nhà cung cấp. Môi trường thử và thật tách biệt. Trạng thái hóa đơn luôn lấy từ nhà cung cấp, hệ thống không tự đặt (FR-EIN-005).',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống; đơn vị phát hành theo chi nhánh cấu hình ở G4-EIN-08',
+  asof: 'Kiểm tra kết nối lần cuối 09:10 30/10/2026',
+  actions: '<button class="btn btn--secondary" data-edit-roles="AD" data-g4r-conn title="Chỉ Quản trị hệ thống kiểm tra kết nối"><svg class="icon" aria-hidden="true"><use href="#refresh"/></svg>Kiểm tra kết nối</button><button class="btn btn--primary" data-edit-roles="AD" data-toast="success|Đã lưu cấu hình|Khóa bí mật không hiện lại; thay đổi ghi nhật ký." title="Chỉ Quản trị hệ thống lưu">Lưu</button>',
+  states: ['data', 'loading', 'error', 'denied'],
+  extraStates: [['unset', 'Chưa chọn nhà cung cấp'], ['fail', 'Kết nối lỗi']]
+});
+</script>
+
+<div class="alert alert--neutral" role="note" data-why-roles="AD"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Vai trò của bạn chỉ <strong>xem</strong> tình trạng tích hợp. Quản trị hệ thống cấu hình, Chủ garage duyệt việc chuyển sang môi trường thật.</div></div>
+
+<section class="grid grid--3" aria-label="Tình trạng kết nối">
+  <div class="card kpi"><span class="kpi__label">Môi trường đang dùng</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">Thử nghiệm</span><span class="kpi__meta"><span class="tag tag--warning">Chưa phát hành hóa đơn thật</span></span></div>
+  <div class="card kpi"><span class="kpi__label">Kết nối</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">Thông</span><span class="kpi__meta"><span class="g4r-ok"><svg class="icon"><use href="#circle-check"/></svg>Phản hồi 420 ms lúc 09:10</span></span></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label">Hóa đơn đang chờ / lỗi</span><span class="kpi__value" style="font-size:var(--font-size-2xl)">0 / 1</span><span class="kpi__meta"><a href="#">Mở hàng chờ lỗi (G4-EIN-06)</a></span></div>
+</section>
+
+<section class="card" aria-labelledby="pv"><div class="card__header"><div><h2 class="card__title" id="pv">Nhà cung cấp và môi trường</h2><div class="card__subtitle">Nhà cung cấp hóa đơn chưa chốt <b>[Cần xác nhận]</b>; chọn loại bộ chuyển đổi trong danh sách.</div></div></div>
+  <div class="card__body"><div class="form-grid">
+    <div class="field"><label class="field__label" for="pv-t">Bộ chuyển đổi nhà cung cấp<span class="field__req">*</span></label><select class="select" id="pv-t" data-edit-roles="AD"><option>Chuẩn kết nối REST (mẫu)</option><option>Chuẩn kết nối SOAP (mẫu)</option><option>Chưa chọn</option></select><span class="field__hint">Thêm nhà cung cấp mới không làm thay đổi các màn hình hóa đơn.</span></div>
+    <div class="field"><span class="field__label">Môi trường</span><div class="segmented" role="group" aria-label="Môi trường"><button class="segmented__item" aria-pressed="true" data-edit-roles="AD">Thử nghiệm</button><button class="segmented__item" aria-pressed="false" data-edit-roles="AD" data-open="dlg-env">Thật</button></div><span class="field__hint">Bộ khóa thử và thật tách riêng, không dùng chung.</span></div>
+    <div class="field span-2"><label class="field__label" for="pv-u">Địa chỉ dịch vụ (URL)<span class="field__req">*</span></label><input class="input" id="pv-u" value="https://sandbox.einvoice.example/api/v1" data-edit-roles="AD"></div>
+    <div class="field"><label class="field__label" for="pv-a">Mã đơn vị / tài khoản<span class="field__req">*</span></label><input class="input" id="pv-a" value="GARAGEABC-TEST" data-edit-roles="AD"></div>
+    <div class="field"><label class="field__label" for="pv-k">Khóa bí mật</label><div class="input-group"><input class="input" id="pv-k" value="••••••••••••••••" readonly aria-describedby="pv-kh"><button class="input-group__btn btn btn--secondary" data-edit-roles="AD" data-open="dlg-env" type="button">Thay khóa</button></div><span class="field__hint" id="pv-kh">Chỉ ghi, không đọc lại. Khóa mới hiện một lần khi tạo.</span></div>
+    <div class="field"><label class="field__label" for="pv-c">Chứng thư số hết hạn</label><input class="input" id="pv-c" value="14/03/2027" readonly aria-describedby="pv-ch"><span class="field__hint" id="pv-ch">Nhắc trước 30 ngày. Còn 135 ngày.</span></div>
+  </div></div></section>
+
+<div id="conn" class="alert alert--success" role="status" hidden><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><strong>Kết nối thành công</strong> lúc 09:16 30/10/2026 (phản hồi 395 ms). Môi trường: Thử nghiệm.</div></div>
+<script>
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-g4r-conn]'); if (!b) return;
+  b.classList.add('is-loading'); setTimeout(function () { b.classList.remove('is-loading'); document.getElementById('conn').hidden = false; }, 900);
+});
+</script>
+
+<section class="table-wrap" aria-label="Nhật ký gọi gần đây">
+  <div class="table-toolbar"><strong>Nhật ký gọi nhà cung cấp gần đây</strong><a class="btn btn--ghost btn--sm" style="margin-left:auto" href="g4-sys-19.html">Xem trong nhật ký thao tác</a></div>
+  <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Nhật ký gọi nhà cung cấp hóa đơn</caption>
+    <thead><tr><th>Thời điểm</th><th>Hành động</th><th>Lệnh liên quan</th><th>Kết quả</th></tr></thead>
+    <tbody>
+      <tr><td class="num">30/10/2026 09:10</td><td>Kiểm tra kết nối</td><td>–</td><td><span class="tag tag--success">Thành công</span></td></tr>
+      <tr><td class="num">29/10/2026 18:30</td><td>Phát hành hóa đơn</td><td class="code">RO-Q7-2610-00233</td><td><span class="tag tag--danger">Quá thời gian chờ</span> <span class="t-caption text-secondary">truy vấn lại trước khi gửi lại</span></td></tr>
+      <tr><td class="num">29/10/2026 17:02</td><td>Phát hành hóa đơn</td><td class="code">RO-Q7-2610-00228</td><td><span class="tag tag--success">Thành công</span></td></tr>
+    </tbody></table></div>
+</section>
+
+<script>
+g4rEnd('<div data-state="unset" hidden><div class="state"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#receipt"/></svg></div><div class="state__title">Chưa chọn nhà cung cấp hóa đơn điện tử</div><p class="state__text">Chưa thể phát hành hóa đơn. Lệnh hoàn tất vẫn tạo được; hóa đơn sẽ xếp hàng ở “Lệnh hoàn tất chưa có hóa đơn”. Quản trị hệ thống chọn bộ chuyển đổi và nhập thông tin kết nối.</p><div class="state__actions"><button class="btn btn--primary" data-state-switch="data" data-edit-roles="AD">Chọn bộ chuyển đổi</button></div></div></div><div data-state="fail" hidden><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><div class="alert__body"><div class="alert__title">Kết nối nhà cung cấp lỗi từ 08:40</div>Máy chủ nhà cung cấp không phản hồi (quá 30 giây). Hóa đơn đang phát hành được truy vấn lại, không gửi trùng. Kế toán đã nhận thông báo.<div class="alert__actions"><button class="btn btn--secondary btn--sm" data-state-switch="data">Kiểm tra lại</button><a class="btn btn--ghost btn--sm" href="#">Mở hàng chờ lỗi</a></div></div></div></div>',
+'<div class="overlay" id="dlg-env" role="alertdialog" aria-modal="true" aria-labelledby="en-t"><div class="dialog" data-confirm-guard data-confirm-word="THAT"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="en-t">Chuyển sang môi trường thật?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Từ lúc chuyển, hóa đơn phát hành là hóa đơn thật, có hiệu lực pháp lý và gửi cơ quan thuế.</li><li>Không hoàn tác được; hóa đơn thử vẫn xem được nhưng không dùng thay hóa đơn thật.</li><li>Cần Chủ garage duyệt và Kế toán trưởng xác nhận đơn vị phát hành, ký hiệu, thuế suất.</li></ul><div class="field"><label class="field__label" for="en-r">Lý do<span class="field__req">*</span></label><textarea class="textarea" id="en-r" data-confirm-reason style="min-height:56px"></textarea></div><div class="field"><label class="field__label" for="en-w">Gõ THAT để xác nhận</label><input class="input" id="en-w" data-confirm-input autocomplete="off"></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Ở lại môi trường thử</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu chuyển môi trường|Chờ Chủ garage duyệt.">Gửi yêu cầu chuyển</button></div></div></div>');
+</script>
+</body>
+</html>

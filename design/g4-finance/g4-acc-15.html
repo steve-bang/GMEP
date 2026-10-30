@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-15 · Lãi lỗ theo chi nhánh và nguồn doanh thu · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--secondary" data-open="dlg-export" data-g4f-need="KT CH QV" data-g4f-why="Xuất file cần quyền xuất riêng."><svg class="icon"><use href="#download"/></svg>Xuất báo cáo</button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="field"><label class="field__label" for="f1">Kỳ</label><select id="f1" class="select"><option>Tháng 10/2026 (01–30/10)</option><option>Tháng 9/2026 (đã khóa)</option><option>Quý 3/2026</option></select></div>
+    <div class="field"><label class="field__label" for="f2">So sánh</label><select id="f2" class="select"><option>Không so sánh</option><option>Kỳ trước</option><option>Cùng kỳ năm trước</option></select></div>
+    <div class="field"><label class="field__label" for="f3">Nguồn doanh thu</label><select id="f3" class="select"><option>Tất cả</option><option>Công</option><option>Phụ tùng</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+
+  <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Cách tính: lãi gộp quản trị, không phải lợi nhuận sau thuế</span><span>Lãi gộp = Doanh thu − Giá vốn (phụ tùng, nhân công, chi phí chung đã phân bổ). Chưa gồm chi phí chung toàn chuỗi chưa phân bổ <span class="g4f-sample">[Cần xác nhận]</span> (xem <a href="g4-acc-19.html">G4-ACC-19</a>). Tổng các chi nhánh luôn bằng toàn chuỗi (FR-ACC-011).</span></div></div>
+
+  <section aria-label="Tổng hợp" class="grid grid--4" id="kpis"></section>
+
+  <section class="card" aria-labelledby="h-bar">
+    <div class="card__header"><div><h2 class="card__title" id="h-bar">Lãi gộp theo chi nhánh</h2><div class="card__subtitle">Đơn vị: ₫ · Tháng 10/2026 · số tạm · bảng bên dưới là dữ liệu thay thế</div></div></div>
+    <div class="card__body"><ul class="g4f-hbars" id="bars" aria-label="Lãi gộp theo chi nhánh"></ul></div>
+  </section>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-scroll"><table class="table" id="tbl">
+      <caption class="sr-only">Lãi lỗ theo chi nhánh và nguồn doanh thu</caption>
+      <thead><tr><th>Chi nhánh</th><th class="col-num">Doanh thu công</th><th class="col-num">Doanh thu phụ tùng</th><th class="col-num">Doanh thu khác</th><th class="col-num">Tổng doanh thu</th><th class="col-num">Giá vốn</th><th class="col-num" aria-sort="descending"><button class="th-sort">Lãi gộp<svg class="icon"><use href="#arrow-down"/></svg></button></th><th class="col-num">Tỷ suất</th><th>Số liệu</th></tr></thead>
+      <tbody id="tb"></tbody><tfoot id="tf"></tfoot>
+    </table></div>
+  </div>
+  <div class="record-list record-list--responsive" id="cards"></div>
+</div>
+
+<div class="overlay" id="dlg-export" role="dialog" aria-modal="true" aria-labelledby="ex-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#download"/></svg></div><div><h2 class="dialog__title" id="ex-t">Xuất báo cáo lãi lỗ</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="scope-banner"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi file:</strong> <span data-scope-text>Tất cả chi nhánh</span> · tháng 10/2026 · số tạm · dữ liệu lúc 09:15</span></div><p class="t-body-sm text-secondary" style="margin:0">File ghi rõ phạm vi, kỳ, thời điểm dữ liệu và công thức. Việc xuất được ghi nhật ký.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã tạo file|LaiLo_T10-2026.xlsx">Xuất Excel</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-15', title: 'Lãi lỗ theo chi nhánh và nguồn doanh thu', desc: 'Doanh thu, giá vốn và lãi gộp quản trị của từng chi nhánh và toàn chuỗi.',
+  menu: 'fin', role: 'CH', allow: ['CH', 'QV', 'QL', 'KT'], updated: '09:15', time: 'tháng 10/2026 (số tạm)',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, fmt = G4F.fmt;
+  var D = [
+    { n: 'Chi nhánh Quận 1', r: 'CH QV', c: 210400000, p: 318600000, o: 6000000, g: 372500000 },
+    { n: 'Chi nhánh Quận 7', r: 'CH QV QL KT', c: 184200000, p: 291300000, o: 4500000, g: 330000000 },
+    { n: 'Chi nhánh Thủ Đức', r: 'CH QV KT', c: 120000000, p: 205000000, o: 3000000, g: 238000000 },
+    { n: 'Chi nhánh Biên Hòa', r: 'CH QV', c: 95500000, p: 140500000, o: 2000000, g: 191000000 },
+    { n: 'Chi nhánh Đà Nẵng', r: 'CH', c: 60000000, p: 98000000, o: 1000000, g: 171400000 }
+  ];
+  function pct(a, b) { return (a / b * 100).toFixed(1).replace('.', ',').replace('-', '−') + '%'; }
+  function render() {
+    var role = document.body.getAttribute('data-role') || 'CH';
+    var rows = D.filter(function (x) { return x.r.split(' ').indexOf(role) >= 0; }).map(function (x) { x.t = x.c + x.p + x.o; x.l = x.t - x.g; return x; });
+    rows.sort(function (a, b) { return b.l - a.l; });
+    var T = rows.reduce(function (s, x) { s.c += x.c; s.p += x.p; s.o += x.o; s.t += x.t; s.g += x.g; s.l += x.l; return s; }, { c: 0, p: 0, o: 0, t: 0, g: 0, l: 0 });
+    var max = Math.max.apply(null, rows.map(function (x) { return Math.abs(x.l); }).concat([1]));
+    var scope = rows.length > 1 ? (role === 'CH' ? 'toàn chuỗi' : 'các chi nhánh được gán') : rows.length ? rows[0].n : 'không có dữ liệu';
+    $('#kpis').innerHTML =
+      '<div class="card kpi"><span class="kpi__label">Doanh thu</span><span class="kpi__value">' + (T.t / 1e6).toFixed(1).replace('.', ',') + '<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">' + fmt(T.t) + '</span><span class="kpi__scope">' + scope + ' · T10/2026</span></div>' +
+      '<div class="card kpi"><span class="kpi__label">Giá vốn</span><span class="kpi__value">' + (T.g / 1e6).toFixed(1).replace('.', ',') + '<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">' + fmt(T.g) + '</span></div>' +
+      '<div class="card kpi"><span class="kpi__label">Lãi gộp</span><span class="kpi__value">' + (T.l / 1e6).toFixed(1).replace('.', ',') + '<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">' + fmt(T.l) + '</span></div>' +
+      '<div class="card kpi' + (rows.some(function (x) { return x.l < 0; }) ? ' kpi--danger' : '') + '"><span class="kpi__label">Tỷ suất lãi gộp</span><span class="kpi__value">' + pct(T.l, T.t).replace('%', '') + '<span class="kpi__unit">%</span></span><span class="kpi__meta">' + rows.filter(function (x) { return x.l < 0; }).length + ' chi nhánh đang lỗ gộp</span></div>';
+    $('#bars').innerHTML = rows.map(function (x) { var w = Math.max(Math.abs(x.l) / max * 100, 2).toFixed(1); return '<li><span>' + x.n + '</span><span class="g4f-hbars__track"><span class="g4f-hbars__fill' + (x.l < 0 ? ' g4f-hbars__fill--loss' : '') + '" style="width:' + w + '%"></span></span><span' + (x.l < 0 ? ' class="g4f-bad"' : '') + '>' + (x.l < 0 ? 'Lỗ ' : '') + fmt(x.l) + '</span></li>'; }).join('');
+    $('#tb').innerHTML = rows.map(function (x) { return '<tr><td class="cell-primary"><a href="#">' + x.n + '</a></td><td class="col-num">' + fmt(x.c) + '</td><td class="col-num">' + fmt(x.p) + '</td><td class="col-num">' + fmt(x.o) + '</td><td class="col-num">' + fmt(x.t) + '</td><td class="col-num">' + fmt(x.g) + '</td><td class="col-num' + (x.l < 0 ? ' g4f-bad' : '') + '">' + fmt(x.l) + '</td><td class="col-num' + (x.l < 0 ? ' g4f-bad' : '') + '">' + pct(x.l, x.t) + '</td><td><span class="tag tag--warning">Số tạm</span></td></tr>'; }).join('');
+    $('#tf').innerHTML = '<tr><td>' + (rows.length > 1 ? 'Tổng ' + scope : 'Tổng') + '</td><td class="col-num">' + fmt(T.c) + '</td><td class="col-num">' + fmt(T.p) + '</td><td class="col-num">' + fmt(T.o) + '</td><td class="col-num">' + fmt(T.t) + '</td><td class="col-num">' + fmt(T.g) + '</td><td class="col-num">' + fmt(T.l) + '</td><td class="col-num">' + pct(T.l, T.t) + '</td><td></td></tr>';
+    $('#cards').innerHTML = rows.map(function (x) { return '<a class="record" href="#" style="color:inherit;text-decoration:none"><div class="record__top"><div class="record__title">' + x.n + '</div><span class="tag tag--warning">Số tạm</span></div><div class="record__meta"><span>Doanh thu ' + fmt(x.t) + '</span><span>Giá vốn ' + fmt(x.g) + '</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Lãi gộp · ' + pct(x.l, x.t) + '</span><strong class="num' + (x.l < 0 ? ' g4f-bad' : '') + '">' + fmt(x.l) + '</strong></div></a>'; }).join('');
+  }
+  render();
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(render, 10); });
+})();
+</script>
+</body>
+</html>

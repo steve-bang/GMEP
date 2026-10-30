@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-EIN-05 · Lệnh hoàn tất chưa có hóa đơn · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-ein-01.html">Danh sách hóa đơn</a></div>
+
+  <section aria-label="Tổng hợp"><div class="grid grid--3">
+    <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Lệnh hoàn tất chưa có hóa đơn hợp lệ</span><span class="kpi__value">03</span><span class="kpi__meta">Chi nhánh Quận 7 · lúc 09:15</span></div>
+    <div class="card kpi"><span class="kpi__label">Giá trị chưa xuất hóa đơn</span><span class="kpi__value">9.670.000<span class="kpi__unit">₫</span></span><span class="kpi__meta">Tổng 3 lệnh</span></div>
+    <div class="card kpi kpi--danger"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lâu nhất</span><span class="kpi__value">3<span class="kpi__unit">ngày</span></span><span class="kpi__meta">RO-Q7-2610-00109 · xử lý trước khi chốt ngày</span></div>
+  </div></section>
+
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm kiếm</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Mã lệnh, biển số, tên khách"></div></div>
+    <div class="field"><label class="field__label" for="f1">Lý do chưa xuất</label><select id="f1" class="select"><option>Tất cả</option><option>Chưa có yêu cầu phát hành</option><option>Phát hành lỗi</option><option>Thiếu thông tin người mua</option></select></div>
+    <div class="field"><label class="field__label" for="f2">Tuổi (ngày kể từ hoàn tất)</label><select id="f2" class="select"><option>Tất cả</option><option>Từ 1 ngày</option><option>Từ 3 ngày</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-scroll"><table class="table">
+      <caption class="sr-only">Lệnh hoàn tất chưa có hóa đơn hợp lệ</caption>
+      <thead><tr><th>Lệnh · xe</th><th>Khách</th><th>Hoàn tất</th><th aria-sort="descending"><button class="th-sort">Tuổi<svg class="icon"><use href="#arrow-down"/></svg></button></th><th>Lý do chưa xuất</th><th>Thanh toán</th><th class="col-num">Giá trị</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00109</span><span class="cell-sub plate">51G-765.43</span></td><td>Lê Quốc Huy<span class="cell-sub">Khách lẻ</span></td><td class="num col-nowrap">27/10/2026</td><td class="col-nowrap"><span class="tag tag--danger">3 ngày</span></td><td>Thiếu thông tin người mua<span class="cell-sub">Khách chưa cung cấp tên đơn vị và MST</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">2.480.000 ₫</td><td class="col-actions"><a class="btn btn--primary btn--sm" href="g4-ein-02.html" data-g4f-need="TN KT" data-g4f-why="Chỉ Thu ngân và Kế toán phát hành.">Phát hành</a></td></tr>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00118</span><span class="cell-sub plate">30G-456.78</span></td><td>Trần Thị Bích Ngọc<span class="cell-sub">Khách lẻ</span></td><td class="num col-nowrap">29/10/2026</td><td class="col-nowrap"><span class="tag tag--warning">1 ngày</span></td><td>Phát hành lỗi<span class="cell-sub g4f-bad">Địa chỉ người mua thiếu phường/xã</span></td><td><span class="badge badge--success">Đã thanh toán</span></td><td class="col-num">6.300.000 ₫</td><td class="col-actions"><a class="btn btn--secondary btn--sm" href="g4-ein-06.html">Xem lỗi</a></td></tr>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00121</span><span class="cell-sub plate">51F-333.44</span></td><td>Phạm Thị Hoa<span class="cell-sub">Khách lẻ</span></td><td class="num col-nowrap">29/10/2026</td><td class="col-nowrap"><span class="tag tag--warning">1 ngày</span></td><td>Chưa có yêu cầu phát hành</td><td><span class="badge badge--info">Thanh toán một phần</span></td><td class="col-num">890.000 ₫</td><td class="col-actions"><a class="btn btn--primary btn--sm" href="g4-ein-02.html" data-g4f-need="TN KT" data-g4f-why="Chỉ Thu ngân và Kế toán phát hành.">Phát hành</a></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="6">3 lệnh</td><td class="col-num">9.670.000 ₫</td><td></td></tr></tfoot>
+    </table></div>
+    <div class="table-footer"><span class="table-meta">Danh sách đủ các lệnh hoàn tất chưa có hóa đơn hợp lệ (FR-EIN-009). Lệnh có hóa đơn đang gửi hoặc chờ truy vấn lại không nằm ở đây.</span>
+      <span class="tooltip-host" style="margin-left:auto"><button class="btn btn--secondary btn--sm" disabled aria-describedby="tt-nb">Ghi nhận khách không lấy hóa đơn</button><span class="tooltip" id="tt-nb" role="tooltip">Quy tắc chờ kế toán xác nhận (FR-EIN-009 [Cần xác nhận]); chưa bật trong cấu hình.</span></span></div>
+  </div>
+
+  <div class="record-list record-list--responsive">
+    <div class="record"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00109</div><span class="plate">51G-765.43</span> · Lê Quốc Huy</div><span class="tag tag--danger">3 ngày</span></div><div class="record__meta"><span>Thiếu thông tin người mua</span></div><div class="record__foot"><strong class="num">2.480.000 ₫</strong><a class="btn btn--primary btn--sm" href="g4-ein-02.html">Phát hành</a></div></div>
+    <div class="record"><div class="record__top"><div><div class="record__title code">RO-Q7-2610-00118</div><span class="plate">30G-456.78</span> · Trần Thị Bích Ngọc</div><span class="tag tag--warning">1 ngày</span></div><div class="record__meta"><span class="g4f-bad">Địa chỉ người mua thiếu phường/xã</span></div><div class="record__foot"><strong class="num">6.300.000 ₫</strong><a class="btn btn--secondary btn--sm" href="g4-ein-06.html">Xem lỗi</a></div></div>
+  </div>
+</div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-EIN-05', title: 'Lệnh hoàn tất chưa có hóa đơn', desc: 'Danh sách cuối ngày các lệnh hoàn tất mà chưa có hóa đơn hợp lệ.',
+  menu: 'einv', role: 'TN', allow: ['TN', 'KT', 'QL', 'CH', 'QV'], updated: '09:15', time: 'đến 30/10/2026',
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'circle-check', title: 'Không còn lệnh nào thiếu hóa đơn', text: 'Mọi lệnh hoàn tất trong phạm vi đã có hóa đơn hợp lệ. Danh sách này tự cập nhật khi có lệnh hoàn tất mới.' },
+  filteredText: 'Không có lệnh nào khớp lý do “Phát hành lỗi” và tuổi “Từ 3 ngày”.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

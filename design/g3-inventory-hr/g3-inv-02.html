@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-02 · Tạo / sửa phụ tùng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-02')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Thêm phụ tùng</h1><p class="page-header__desc">Danh mục dùng chung toàn chuỗi. Biểu mẫu này không có ô nhập số lượng tồn: tồn chỉ thay đổi bằng phiếu nhập, xuất, chuyển, kiểm kê.</p></div>
+  <div class="page-header__actions"><a class="btn btn--secondary" href="g3-inv-01.html">Về danh mục</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> danh mục toàn chuỗi · định mức theo từng chi nhánh</span><span>· Cập nhật lúc 09:15 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="biểu mẫu phụ tùng" data-g3-states="data:Biểu mẫu;loading;error;denied" data-skel="form">
+<div data-g3-state="data" class="stack">
+  <div class="g3-ro-flag alert alert--info" data-for="f-part" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho được tạo và sửa danh mục phụ tùng (FRD §2, M4). Chủ garage duyệt thay đổi giá ở Bảng giá.</span></div></div>
+  <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng trong biểu mẫu:</span>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="e-code e-name">Mã trùng + tên trùng nghĩa</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="a-conflict">Xung đột phiên bản</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="a-draft">Đã lưu nháp</button>
+    <button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="" data-g3-busy="btn-save">Đang lưu</button></div>
+  <div class="alert alert--warning" id="a-conflict" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Phụ tùng này vừa được Trần Thị Mai Anh sửa lúc 09:12</span><span>Bản của bạn dựa trên phiên bản cũ. Tải lại để xem thay đổi trước khi lưu, tránh ghi đè.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm">Tải lại phiên bản mới</button></div></div></div>
+  <div class="alert alert--neutral" id="a-draft" hidden role="status"><svg class="icon"><use href="#history"/></svg><div class="alert__body"><span class="alert__title">Bản nháp đã lưu lúc 09:14</span><span>Nháp nằm trên thiết bị này. Rời trang sẽ được hỏi nếu còn thay đổi chưa lưu.</span></div></div>
+
+  <form id="f-part" class="stack-6" data-g3-edit="TK" onsubmit="return false">
+    <section class="form-section" aria-labelledby="s1"><h2 class="card__title" id="s1" style="margin-bottom:16px">Thông tin chung</h2>
+      <div class="form-grid">
+        <div class="field"><label class="field__label" for="p-code">Mã phụ tùng<span class="field__req" aria-hidden="true">*</span></label><input id="p-code" class="input" value="PT-0009" aria-describedby="p-code-h e-code"><span class="field__hint" id="p-code-h">Duy nhất toàn chuỗi. Hệ thống gợi ý mã kế tiếp, có thể nhập mã nhà sản xuất.</span><span class="field__error" id="e-code" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Mã PT-0001 đã tồn tại (Lọc dầu động cơ Toyota Vios). Dùng mã khác hoặc mở phụ tùng đó.</span></div>
+        <div class="field"><label class="field__label" for="p-name">Tên phụ tùng<span class="field__req" aria-hidden="true">*</span></label><input id="p-name" class="input" value="Lọc dầu động cơ Toyota (Oil Filter)"><span class="field__error" id="e-name" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Có thể trùng nghĩa với PT-0001 “Lọc dầu động cơ Toyota Vios”. <a href="g3-inv-03.html">Xem PT-0001</a> trước khi tạo mới.</span></div>
+        <div class="field"><label class="field__label" for="p-brand">Hãng</label><input id="p-brand" class="input" value="Toyota"></div>
+        <div class="field"><label class="field__label" for="p-group">Nhóm hàng<span class="field__req" aria-hidden="true">*</span></label><select id="p-group" class="select"><option>Lọc</option><option>Phanh</option><option>Dầu nhớt</option><option>Lốp</option><option>Điện</option><option>Hóa chất</option></select></div>
+        <div class="field"><label class="field__label" for="p-unit">Đơn vị tính<span class="field__req" aria-hidden="true">*</span></label><select id="p-unit" class="select"><option>cái</option><option>bộ</option><option>can</option><option>lít</option><option>chai</option><option>sợi</option></select></div>
+        <div class="field"><label class="field__label" for="p-bar">Mã vạch</label><div class="input-group"><svg class="icon"><use href="#qr-code"/></svg><input id="p-bar" class="input" inputmode="numeric" value="8935001230098"></div><span class="field__hint">Có thể quét bằng camera điện thoại. Mã vạch không được trùng phụ tùng khác.</span></div>
+      </div></section>
+
+    <section class="form-section" aria-labelledby="s2"><h2 class="card__title" id="s2" style="margin-bottom:16px">Dòng xe tương thích</h2>
+      <div class="field"><label class="field__label" for="p-cars">Thêm dòng xe</label><input id="p-cars" class="input" placeholder="Gõ tên dòng xe, ví dụ Vios, Camry (tìm không dấu)"></div>
+      <div class="chip-row" style="margin-top:12px"><span class="chip">Toyota Vios 2014–2022<button class="chip__x" aria-label="Bỏ Toyota Vios"><svg class="icon"><use href="#x"/></svg></button></span><span class="chip">Toyota Yaris 2014–2020<button class="chip__x" aria-label="Bỏ Toyota Yaris"><svg class="icon"><use href="#x"/></svg></button></span></div></section>
+
+    <section class="form-section" aria-labelledby="s3"><h2 class="card__title" id="s3" style="margin-bottom:16px">Theo dõi tồn và định mức</h2>
+      <div class="stack">
+        <label class="switch"><input type="checkbox" role="switch"><span class="switch__track"></span><span>Quản lý theo lô (ghi lô và giá nhập từng lô)</span></label>
+        <label class="switch"><input type="checkbox" role="switch"><span class="switch__track"></span><span>Quản lý theo số serial (bắt buộc chọn serial khi xuất)</span></label>
+        <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Định mức tồn tối thiểu và tối đa theo chi nhánh</caption>
+          <thead><tr><th>Chi nhánh</th><th class="col-num">Tối thiểu</th><th class="col-num">Tối đa</th><th>Ghi chú</th></tr></thead>
+          <tbody>
+            <tr><td>Chi nhánh Quận 7</td><td><input class="input input--num g3-num" value="10" aria-label="Tối thiểu Quận 7"></td><td><input class="input input--num g3-num" value="40" aria-label="Tối đa Quận 7"></td><td class="text-secondary">Cảnh báo và gợi ý đặt hàng so với Khả dụng, không so với Thực tế.</td></tr>
+            <tr><td>Chi nhánh Thủ Đức</td><td><input class="input input--num g3-num" value="6" aria-label="Tối thiểu Thủ Đức"></td><td><input class="input input--num g3-num" value="24" aria-label="Tối đa Thủ Đức"></td><td class="text-secondary"></td></tr>
+            <tr><td>Chi nhánh Quận 1</td><td><input class="input input--num g3-num" value="" aria-label="Tối thiểu Quận 1"></td><td><input class="input input--num g3-num" value="" aria-label="Tối đa Quận 1"></td><td><span class="badge badge--neutral">Chưa đặt định mức</span></td></tr>
+          </tbody></table></div></div>
+        <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Không có ô “Số lượng tồn”. Tồn đầu kỳ được nhập bằng <a href="#">Nhập dữ liệu Excel</a> hoặc phiếu nhập; chênh lệch thực tế xử lý bằng kiểm kê và phiếu điều chỉnh (RULE-009).</span></div></div>
+      </div></section>
+
+    <div class="form-footer"><span class="table-meta" style="margin-right:auto">Mã sẽ được ghi nhật ký tạo: người tạo, thời điểm, chi nhánh (FR-SYS-003).</span>
+      <button class="btn btn--ghost" type="button">Hủy</button><button class="btn btn--secondary" type="button" data-toast="success|Đã lưu và thêm tiếp|Phụ tùng PT-0009 đã được thêm vào danh mục.">Lưu và thêm tiếp</button><button class="btn btn--primary" type="button" id="btn-save" data-toast="success|Đã lưu phụ tùng|PT-0009 đã vào danh mục, tồn bằng 0.">Lưu phụ tùng</button></div>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

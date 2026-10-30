@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-RPT-08 – Chỉ số bổ sung · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CH">
+<script src="pack.js" data-code="G4-RPT-08" data-menu="rpt" data-crumbs="Báo cáo|Chỉ số bổ sung" data-allow="CH QV QL KT"></script>
+<script>
+g4rPage({
+  title: 'Chỉ số bổ sung',
+  desc: 'Các chỉ số quản trị thêm: mỗi chỉ số ghi công thức cạnh tên và bấm vào được danh sách chứng từ cấu thành (FR-RPT-011, 016).',
+  prio: 'P2+',
+  period: 'Tháng 10/2026 (01–30/10/2026)',
+  actions: g4rExportBtn(),
+  states: ['data', 'loading', 'empty', 'error', 'denied'],
+  empty: { title: 'Chưa đủ dữ liệu để tính chỉ số', text: 'Các chỉ số cần ít nhất một lệnh hoàn tất trong kỳ.' }
+});
+g4rFilters({ fields: ['period', 'service'], sel: { period: 2 }, chips: ['Tháng này (01–30/10/2026)'] });
+</script>
+
+<section aria-label="Chỉ số" id="metrics" class="grid grid--3"></section>
+<script>
+(function () {
+  var M = [
+    ['Giá trị trung bình mỗi lệnh', '2.861.682', '₫', 'up', '1,7%', 'so với tháng 09', 'Doanh thu ÷ số lệnh hoàn tất trong kỳ (612.400.000 ₫ ÷ 214 lệnh).', ''],
+    ['Tỷ lệ báo giá được duyệt', '84,6', '%', 'up', '2,1 điểm', 'so với tháng 09', 'Báo giá có trạng thái Duyệt toàn phần hoặc Duyệt một phần ÷ báo giá đã gửi và có kết quả. Báo giá còn Chờ khách duyệt hoặc Nháp không tính.', ''],
+    ['Tỷ lệ lệnh làm lại (trả lại sau QC)', '2,1', '%', 'good-down', '0,4 điểm', 'thấp hơn tháng 09', 'Hạng mục có trạng thái Trả lại ÷ tổng hạng mục hoàn thành. Thấp hơn là tốt.', 'kpi--warning'],
+    ['Tỷ trọng doanh thu nhân công', '46,0', '%', 'flat', '0,0', 'như tháng 09', 'Doanh thu dòng công ÷ tổng doanh thu. Phần còn lại là phụ tùng và dịch vụ khác.', ''],
+    ['Số ngày công nợ bình quân (DSO)', '19', 'ngày', 'bad-up', '3 ngày', 'cao hơn tháng 09', 'Công nợ phải thu cuối kỳ ÷ doanh thu kỳ × 30 ngày. Cao hơn là xấu: tiền về chậm hơn.', 'kpi--danger'],
+    ['Tỷ lệ lệnh có hóa đơn đúng ngày', '96,3', '%', 'up', '1,0 điểm', 'so với tháng 09', 'Lệnh hoàn tất có hóa đơn hợp lệ trong ngày hoàn tất ÷ lệnh hoàn tất (FR-EIN-009).', '']
+  ];
+  var h = '';
+  M.forEach(function (m, i) {
+    var up = (m[3] === 'up' || m[3] === 'good-down') ? 'up' : m[3] === 'flat' ? 'flat' : 'down', ic = m[3] === 'flat' ? 'minus' : ((m[3] === 'up' || m[3] === 'bad-up') ? 'arrow-up' : 'arrow-down');
+    h += '<div class="card kpi ' + m[7] + '"><span class="kpi__label">' + m[0] + '</span><span class="kpi__value">' + m[1] + '<span class="kpi__unit">' + m[2] + '</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--' + up + '"><svg class="icon icon--sm" aria-hidden="true"><use href="#' + ic + '"/></svg>' + m[4] + '</span>' + m[5] + '</span>' +
+      '<span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026 · 09:15</span>' +
+      '<div class="row"><button class="btn btn--ghost btn--sm" data-g4r-toggle="f' + i + '" aria-expanded="false"><svg class="icon icon--sm"><use href="#info"/></svg>Cách tính</button><a class="btn btn--ghost btn--sm" href="g4-rpt-10.html">Xem chứng từ<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>' +
+      '<p class="t-body-sm text-secondary" id="f' + i + '" hidden style="margin:0">' + m[6] + '</p></div>';
+  });
+  document.getElementById('metrics').innerHTML = h;
+})();
+</script>
+
+<section class="card g4r-chartcard" aria-label="Kết quả báo giá"><script>
+  g4rChart({ type: 'stack', title: 'Kết quả báo giá đã gửi theo chi nhánh', unit: 'Đơn vị: báo giá · 01–30/10/2026',
+    note: 'Chỉ tính báo giá đã có kết quả. Báo giá Hết hạn xử lý riêng, không tính vào tỷ lệ duyệt.',
+    series: ['Duyệt toàn phần', 'Duyệt một phần', 'Từ chối', 'Hết hạn'],
+    rows: [{ label: 'Chi nhánh Quận 7', parts: [142, 31, 29, 8] }, { label: 'Chi nhánh Quận 1', parts: [128, 26, 27, 7] }, { label: 'Chi nhánh Thủ Đức', parts: [101, 22, 24, 6] }, { label: 'Chi nhánh Đà Nẵng', parts: [79, 17, 17, 5] }, { label: 'Chi nhánh Biên Hòa', parts: [64, 14, 17, 4] }] });
+</script></section>
+
+<script>g4rEnd()</script>
+</body>
+</html>

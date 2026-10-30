@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-PRF-02 · Bảo mật tài khoản – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QL" data-g1-menu="dash" data-crumb="Tài khoản|Bảo mật tài khoản" data-period="none" data-no-scope data-multirole="QL,CV">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Bảo mật tài khoản</h1>
+      <p class="page-header__desc">Mật khẩu, xác thực hai lớp, thiết bị đang đăng nhập và lịch sử đăng nhập của chính bạn. Thao tác nhạy cảm sẽ hỏi lại mật khẩu.</p>
+    </div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="g1-prf-01.html"><svg class="icon"><use href="#user"/></svg>Hồ sơ cá nhân</a></div>
+  </div>
+
+  <div data-g1-views="default:Quản lý (MFA bắt buộc)|tho:Thợ (MFA tùy chọn, có PIN)|offline:Mất mạng"></div>
+  <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span>Mất kết nối nên các thao tác bảo mật tạm khóa. Kiểm tra mạng rồi thử lại.</span></div></div>
+
+  <div class="g1-cols g1-cols--even">
+    <div class="g1-stack">
+      <section class="card" aria-labelledby="h-pw"><div class="card__header"><div><h2 class="card__title" id="h-pw">Mật khẩu</h2><div class="card__subtitle">Đổi gần nhất: 02/10/2026</div></div></div>
+        <div class="card__body"><p style="margin:0">Mật khẩu từ 10 ký tự, không dùng lại 5 mật khẩu gần nhất. Đổi mật khẩu sẽ đăng xuất các thiết bị khác.</p></div>
+        <div class="card__footer"><button class="btn btn--primary" data-open="dlg-pw" data-disable-in="offline">Đổi mật khẩu</button></div></section>
+
+      <section class="card" aria-labelledby="h-mfa"><div class="card__header"><div><h2 class="card__title" id="h-mfa">Xác thực hai lớp</h2></div>
+          <span class="badge badge--success" data-hide="tho">Đang bật</span><span class="badge badge--neutral" data-show="tho" hidden>Chưa bật</span></div>
+        <div class="card__body stack">
+          <p style="margin:0" data-hide="tho">Vai trò Quản lý chi nhánh bắt buộc dùng xác thực hai lớp. Còn 6 trên 8 mã khôi phục.</p>
+          <p style="margin:0" data-show="tho" hidden>Vai trò của bạn không bắt buộc, nhưng bật sẽ an toàn hơn. Cần điện thoại có ứng dụng xác thực.</p>
+          <div class="row" data-hide="tho"><button class="btn btn--secondary" data-open="dlg-regen" data-disable-in="offline">Tạo lại mã khôi phục</button>
+            <button class="btn btn--danger-outline" disabled aria-describedby="why-mfa">Tắt xác thực hai lớp</button></div>
+          <p class="g1-note" id="why-mfa" data-hide="tho"><svg class="icon icon--sm" aria-hidden="true" style="vertical-align:-3px"><use href="#lock"/></svg> Không tắt được vì vai trò của bạn bắt buộc xác thực hai lớp (quy định bảo mật).</p>
+          <div data-show="tho" hidden><a class="btn btn--primary" href="g1-aut-03.html">Bật xác thực hai lớp</a></div>
+        </div></section>
+
+      <section class="card" data-show="tho" hidden aria-labelledby="h-pin"><div class="card__header"><div><h2 class="card__title" id="h-pin">PIN thiết bị xưởng</h2><div class="card__subtitle">Dùng khi chọn tên trên tablet xưởng</div></div><span class="badge badge--success">Đã đặt</span></div>
+        <div class="card__body"><p style="margin:0">PIN 6 số, riêng của bạn, chỉ dùng được trên tablet xưởng đã đăng ký. Không đưa PIN cho người khác.</p></div>
+        <div class="card__footer"><button class="btn btn--primary" data-open="dlg-pin">Đổi PIN</button></div></section>
+    </div>
+
+    <div class="g1-stack">
+      <section class="card" aria-labelledby="h-dev"><div class="card__header"><div><h2 class="card__title" id="h-dev">Thiết bị đang đăng nhập</h2></div><button class="btn btn--secondary btn--sm" data-toast="success|Đã đăng xuất 2 phiên khác|Thiết bị này vẫn đăng nhập." data-disable-in="offline">Đăng xuất phiên khác</button></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Chrome trên Windows · quầy Quận 7</strong><span class="g1-row__sub">Hoạt động 09:15 hôm nay</span></span><span class="g1-row__end"><span class="badge badge--success">Thiết bị này</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Safari trên iPhone</strong><span class="g1-row__sub">Hoạt động 08:20 hôm nay · TP. Hồ Chí Minh</span></span><span class="g1-row__end"><button class="btn btn--ghost btn--sm" data-toast="success|Đã đăng xuất iPhone|Phiên trên iPhone đã kết thúc.">Đăng xuất</button></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Chrome trên Android</strong><span class="g1-row__sub">Hoạt động 28/10/2026 · TP. Hồ Chí Minh · thiết bị tin cậy đến 11/11/2026</span></span><span class="g1-row__end"><button class="btn btn--ghost btn--sm" data-toast="success|Đã đăng xuất thiết bị|Thiết bị không còn được tin cậy.">Đăng xuất</button></span></div>
+        <div class="card__footer"><button class="btn btn--danger-outline" data-open="dlg-all" data-disable-in="offline"><svg class="icon"><use href="#log-out"/></svg>Đăng xuất mọi thiết bị</button></div></section>
+
+      <section class="card" id="lich-su" aria-labelledby="h-his"><div class="card__header"><div><h2 class="card__title" id="h-his" tabindex="-1">Lịch sử đăng nhập của tôi</h2><div class="card__subtitle">Chỉ hiện của chính bạn, 5 lần gần nhất</div></div></div>
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Lịch sử đăng nhập</caption>
+          <thead><tr><th scope="col">Thời điểm</th><th scope="col">Thiết bị</th><th scope="col">Kết quả</th></tr></thead>
+          <tbody>
+            <tr><td class="num">07:42 30/10/2026</td><td>Chrome · Windows</td><td><span class="badge badge--success">Thành công</span></td></tr>
+            <tr><td class="num">07:41 30/10/2026</td><td>Chrome · Windows</td><td><span class="badge badge--warning">Sai mật khẩu</span></td></tr>
+            <tr><td class="num">08:15 29/10/2026</td><td>Safari · iPhone</td><td><span class="badge badge--success">Thành công</span></td></tr>
+            <tr><td class="num">22:03 27/10/2026</td><td>Thiết bị lạ · Hà Nội</td><td><span class="badge badge--danger">Bị từ chối</span> <a href="#" data-toast="info|Đã báo bảo mật|Quản trị hệ thống nhận báo cáo của bạn. Nên đổi mật khẩu.">Không phải tôi?</a></td></tr>
+            <tr><td class="num">08:02 27/10/2026</td><td>Chrome · Windows</td><td><span class="badge badge--success">Thành công</span></td></tr>
+          </tbody></table></div></section>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-pw" role="dialog" aria-modal="true" aria-labelledby="pw-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#lock"/></svg></div><div><h2 class="dialog__title" id="pw-t">Đổi mật khẩu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="field"><label class="field__label" for="pw0">Mật khẩu hiện tại<span class="field__req" aria-hidden="true">*</span></label><input id="pw0" class="input" type="password" autocomplete="current-password" data-su></div>
+    <div class="field"><label class="field__label" for="pw1">Mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label><input id="pw1" class="input" type="password" autocomplete="new-password" aria-describedby="pw1-h"><span class="field__hint" id="pw1-h">Ít nhất 10 ký tự, không phải mật khẩu thông dụng, khác 5 mật khẩu gần nhất.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-su-btn data-toast="success|Đã đổi mật khẩu|Các thiết bị khác đã bị đăng xuất." data-close disabled>Đổi mật khẩu</button></div></div></div>
+
+<div class="overlay" id="dlg-regen" role="alertdialog" aria-modal="true" aria-labelledby="rg-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rg-t">Tạo lại mã khôi phục?</h2></div></div>
+  <div class="dialog__body stack"><p>8 mã khôi phục hiện có sẽ <strong>mất hiệu lực ngay</strong>. Bạn sẽ nhận 8 mã mới, chỉ hiện một lần. Việc này được ghi nhật ký.</p>
+    <div class="field"><label class="field__label" for="rg0">Nhập lại mật khẩu để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="rg0" class="input" type="password" autocomplete="current-password" data-su></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-su-btn data-toast="success|Đã tạo mã khôi phục mới|Tải về hoặc in và cất ở nơi an toàn." data-close disabled>Tạo mã mới</button></div></div></div>
+
+<div class="overlay" id="dlg-all" role="alertdialog" aria-modal="true" aria-labelledby="al-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#log-out"/></svg></div><div><h2 class="dialog__title" id="al-t">Đăng xuất mọi thiết bị?</h2></div></div>
+  <div class="dialog__body stack"><p>Tất cả thiết bị, kể cả máy này, sẽ bị đăng xuất. Bản nháp trên từng máy vẫn được giữ. Dùng khi nghi ngờ lộ mật khẩu hoặc mất thiết bị.</p>
+    <div class="field"><label class="field__label" for="al0">Nhập lại mật khẩu để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="al0" class="input" type="password" autocomplete="current-password" data-su></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><a class="btn btn--danger" data-su-btn href="g1-aut-01.html" aria-disabled="true" style="pointer-events:none;opacity:.5">Đăng xuất mọi thiết bị</a></div></div></div>
+
+<div class="overlay" id="dlg-pin" role="dialog" aria-modal="true" aria-labelledby="pn-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#lock"/></svg></div><div><h2 class="dialog__title" id="pn-t">Đổi PIN thiết bị xưởng</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="field"><label class="field__label" for="pn0">Mật khẩu tài khoản<span class="field__req" aria-hidden="true">*</span></label><input id="pn0" class="input" type="password" autocomplete="current-password" data-su></div>
+    <div class="field"><label class="field__label" for="pn1">PIN mới (6 số)<span class="field__req" aria-hidden="true">*</span></label><input id="pn1" class="input" inputmode="numeric" maxlength="6" autocomplete="off" aria-describedby="pn1-h"><span class="field__hint" id="pn1-h">Không dùng dãy dễ đoán như 123456 hoặc 000000.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-su-btn data-toast="success|Đã đổi PIN|PIN mới dùng được ngay trên tablet xưởng." data-close disabled>Lưu PIN</button></div></div></div>
+
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+document.addEventListener('input', function (e) {
+  var o = e.target.closest('.overlay'); if (!o || !e.target.closest('.dialog')) return;
+  var btn = o.querySelector('[data-su-btn]'); if (!btn) return;
+  var ok = Array.prototype.every.call(o.querySelectorAll('input.input'), function (i) { return i.value.length >= (i.id === 'pn1' ? 6 : i.id === 'pw1' ? 10 : 1); });
+  if (btn.tagName === 'A') { btn.style.pointerEvents = ok ? '' : 'none'; btn.style.opacity = ok ? '' : '.5'; btn.setAttribute('aria-disabled', String(!ok)); } else btn.disabled = !ok;
+});
+</script>
+</body>
+</html>

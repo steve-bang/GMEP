@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-APR-01 · Hàng chờ phê duyệt · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-apr-03.html" data-g4f-roles="CH QV">Cấu hình hạn mức</a></div>
+
+  <div class="alert alert--info" id="own-note" role="status" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy các yêu cầu do chính bạn đề xuất. Việc duyệt do cấp có thẩm quyền thực hiện.</span></div></div>
+
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm kiếm</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Mã chứng từ, người đề xuất, nội dung"></div></div>
+    <div class="field"><label class="field__label" for="ft">Loại yêu cầu</label><select id="ft" class="select"><option>Tất cả loại</option><option>Giảm giá vượt hạn mức</option><option>Hoàn tiền</option><option>Chi vượt hạn mức</option><option>Chênh lệch quỹ</option><option>Hủy lệnh sau xuất kho</option><option>Hóa đơn điều chỉnh, thay thế, hủy</option><option>Mở lại ngày hoặc kỳ</option></select></div>
+    <div class="field"><label class="field__label" for="fd">Độ trễ</label><select id="fd" class="select"><option>Tất cả</option><option>Quá thời hạn xử lý</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Hàng chờ phê duyệt">
+    <button class="tab" role="tab" id="tb1" aria-selected="true" aria-controls="tp1">Cần tôi duyệt <span class="count-pill count-pill--warning">7</span></button>
+    <button class="tab" role="tab" id="tb2" aria-selected="false" tabindex="-1" aria-controls="tp2">Tôi đã đề xuất <span class="count-pill">2</span></button>
+    <button class="tab" role="tab" id="tb3" aria-selected="false" tabindex="-1" aria-controls="tp3">Đã xử lý</button>
+  </div>
+
+  <div class="tab-panel" id="tp1" role="tabpanel" aria-labelledby="tb1">
+    <div class="table-wrap table-wrap--responsive">
+      <div class="table-toolbar"><span class="table-meta">7 yêu cầu chờ · 1 quá thời hạn</span></div>
+      <div class="bulk-bar" role="region" aria-label="Duyệt hàng loạt">
+        <span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> yêu cầu đủ điều kiện</span>
+        <button class="btn btn--primary btn--sm" data-open="dlg-bulk" data-g4f-need="QL CH QV KT" data-g4f-why="Chỉ cấp có thẩm quyền duyệt."><svg class="icon icon--sm"><use href="#check"/></svg>Duyệt các mục đã chọn</button>
+        <button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button>
+      </div>
+      <div class="table-scroll" style="--table-max-height:560px"><table class="table">
+        <caption class="sr-only">Các yêu cầu phê duyệt đang chờ</caption>
+        <thead><tr>
+          <th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả mục đủ điều kiện duyệt hàng loạt"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th>
+          <th>Loại</th><th>Nội dung</th><th>Người đề xuất</th><th class="col-num">Giá trị</th><th>So với hạn mức</th><th>Chờ</th><th class="col-actions"><span class="sr-only">Mở</span></th></tr></thead>
+        <tbody>
+          <tr data-g4f-roles="CH QV QL KT CV"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn giảm giá RO-Q7-2610-00129"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--warning">Giảm giá</span></td><td><span class="code cell-primary">RO-Q7-2610-00129</span><span class="cell-sub">Giảm 12% cho khách quen Lê Quốc Huy</span></td><td>Nguyễn Hoàng Yến<span class="cell-sub">CV · Chi nhánh Quận 7</span></td><td class="col-num">1.560.000 ₫</td><td>12% / 5% <span class="g4f-sample">minh họa</span></td><td class="col-nowrap">2 giờ</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Giảm giá vượt hạn mức" data-sub="RO-Q7-2610-00129">Xem</button></td></tr>
+          <tr data-g4f-roles="CH QV QL KT TN"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn chênh lệch quỹ ca sáng 30/10"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--danger">Chênh lệch quỹ</span></td><td><span class="cell-primary">Ca sáng 30/10/2026</span><span class="cell-sub">Đã giải trình: thiếu tiền thối khách</span></td><td>Phạm Thị Lan<span class="cell-sub">TN · Chi nhánh Quận 7</span></td><td class="col-num">−150.000 ₫</td><td>Trong ngưỡng QL <span class="g4f-sample">minh họa</span></td><td class="col-nowrap">20 phút</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Chênh lệch quỹ ca sáng" data-sub="Ca sáng 30/10/2026">Xem</button></td></tr>
+          <tr data-g4f-roles="CH QV QL KT TN"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" disabled aria-label="Hoàn tiền: duyệt riêng, không duyệt hàng loạt" aria-describedby="nb1"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--info">Hoàn tiền</span></td><td><span class="code cell-primary">PT-Q7-2610-00930</span><span class="cell-sub">Khách hủy hạng mục · có hóa đơn: cần điều chỉnh <span class="g4f-muted" id="nb1">(Duyệt riêng)</span></span></td><td>Phạm Thị Lan<span class="cell-sub">TN · Chi nhánh Quận 7</span></td><td class="col-num">1.250.000 ₫</td><td>Vượt hạn mức TN <span class="g4f-sample">minh họa</span></td><td class="col-nowrap">45 phút</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Hoàn tiền cho khách" data-sub="PT-Q7-2610-00930">Xem</button></td></tr>
+          <tr data-g4f-roles="CH QV QL KT"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" disabled aria-label="Hóa đơn thay thế: cần kế toán trưởng, duyệt riêng"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--info">Hóa đơn thay thế</span></td><td><span class="code cell-primary">C26TAA-0000398</span><span class="cell-sub">Sai MST người mua · cần Kế toán trưởng <span class="g4f-muted">(Duyệt riêng)</span></span></td><td>Đặng Thu Hà<span class="cell-sub">KT · Chi nhánh Quận 7</span></td><td class="col-num">3.200.000 ₫</td><td>Kế toán trưởng duyệt</td><td class="col-nowrap">3 giờ</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Hóa đơn thay thế" data-sub="C26TAA-0000398">Xem</button></td></tr>
+          <tr data-g4f-roles="CH QV QL KT"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" disabled aria-label="Chi vượt hạn mức: duyệt riêng"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--warning">Chi vượt hạn mức</span></td><td><span class="cell-primary">Sửa máy nén khí xưởng</span><span class="cell-sub">Vượt hạn mức cấp QL, cần cấp trên <span class="g4f-muted">(Duyệt riêng)</span></span></td><td>Võ Minh Quân<span class="cell-sub">QL · Chi nhánh Quận 7</span></td><td class="col-num">6.800.000 ₫</td><td>6.800.000 / 5.000.000 <span class="g4f-sample">minh họa</span></td><td class="col-nowrap"><span class="tag tag--danger">Quá hạn</span> 1 ngày 3 giờ</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Chi vượt hạn mức" data-sub="Sửa máy nén khí xưởng">Xem</button></td></tr>
+          <tr data-g4f-roles="CH QV QL"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" disabled aria-label="Hủy lệnh sau xuất kho: duyệt riêng"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--danger">Hủy lệnh sau xuất kho</span></td><td><span class="code cell-primary">RO-Q7-2610-00119</span><span class="cell-sub">Khách bỏ xe, đã xuất 2 phụ tùng <span class="g4f-muted">(Duyệt riêng)</span></span></td><td>Nguyễn Hoàng Yến<span class="cell-sub">CV · Chi nhánh Quận 7</span></td><td class="col-num">2.140.000 ₫</td><td>Cần QL duyệt</td><td class="col-nowrap">5 giờ</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Hủy lệnh sau xuất kho" data-sub="RO-Q7-2610-00119">Xem</button></td></tr>
+          <tr data-g4f-roles="CH"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" disabled aria-label="Mở lại ngày: Chủ garage duyệt riêng"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td><span class="tag tag--neutral">Mở lại ngày</span></td><td><span class="cell-primary">Ngày 29/10/2026 · Chi nhánh Thủ Đức</span><span class="cell-sub">Điều chỉnh phiếu thu nhập sai <span class="g4f-muted">(Duyệt riêng)</span></span></td><td>Đặng Thu Hà<span class="cell-sub">KT · Chi nhánh Thủ Đức</span></td><td class="col-num">—</td><td>Chủ garage duyệt</td><td class="col-nowrap">1 giờ</td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="drw-apr" data-title="Mở lại ngày đã khóa" data-sub="29/10/2026 · Thủ Đức">Xem</button></td></tr>
+        </tbody>
+      </table></div>
+      <div class="table-footer"><span class="table-meta">Mục đủ điều kiện duyệt hàng loạt: cùng loại, trong hạn mức cấp bạn, không có cờ rủi ro. Mục còn lại duyệt riêng để đọc kỹ.</span></div>
+    </div>
+
+    <div class="record-list record-list--responsive">
+      <button class="record" data-open="drw-apr" data-title="Giảm giá vượt hạn mức" data-sub="RO-Q7-2610-00129" style="text-align:left"><div class="record__top"><div><div class="record__title">Giảm giá · <span class="code">RO-Q7-2610-00129</span></div><span class="t-body-sm text-secondary">Nguyễn Hoàng Yến · Quận 7</span></div><span class="tag tag--warning">2 giờ</span></div><div class="record__foot"><span class="t-body-sm">12% / 5% (minh họa)</span><strong class="num">1.560.000 ₫</strong></div></button>
+      <button class="record" data-open="drw-apr" data-title="Chi vượt hạn mức" data-sub="Sửa máy nén khí xưởng" style="text-align:left"><div class="record__top"><div><div class="record__title">Chi vượt hạn mức · Sửa máy nén khí</div><span class="t-body-sm text-secondary">Võ Minh Quân · Quận 7</span></div><span class="tag tag--danger">Quá hạn</span></div><div class="record__foot"><span class="t-body-sm">Cần cấp trên</span><strong class="num">6.800.000 ₫</strong></div></button>
+      <button class="record" data-open="drw-apr" data-title="Chênh lệch quỹ ca sáng" data-sub="Ca sáng 30/10/2026" style="text-align:left"><div class="record__top"><div><div class="record__title">Chênh lệch quỹ · Ca sáng 30/10</div><span class="t-body-sm text-secondary">Phạm Thị Lan · Quận 7</span></div><span class="tag tag--warning">20 phút</span></div><div class="record__foot"><span class="t-body-sm">Đã giải trình</span><strong class="num g4f-bad">−150.000 ₫</strong></div></button>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tp2" role="tabpanel" aria-labelledby="tb2" hidden>
+    <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><thead><tr><th>Loại</th><th>Nội dung</th><th>Đang chờ</th><th class="col-num">Giá trị</th><th>Trạng thái</th></tr></thead><tbody>
+      <tr><td><span class="tag tag--warning">Giảm giá</span></td><td class="cell-primary">RO-Q7-2610-00129</td><td>Võ Minh Quân (QL)</td><td class="col-num">1.560.000 ₫</td><td><span class="tag tag--warning">Chờ duyệt</span></td></tr>
+      <tr><td><span class="tag tag--info">Hoàn tiền</span></td><td class="cell-primary">PT-Q7-2610-00930</td><td>Võ Minh Quân (QL)</td><td class="col-num">1.250.000 ₫</td><td><span class="tag tag--warning">Chờ duyệt</span></td></tr></tbody></table></div></div>
+  </div>
+  <div class="tab-panel" id="tp3" role="tabpanel" aria-labelledby="tb3" hidden>
+    <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><thead><tr><th>Loại</th><th>Nội dung</th><th>Kết quả</th><th>Người xử lý</th><th>Thời điểm</th></tr></thead><tbody>
+      <tr><td><span class="tag tag--danger">Chênh lệch quỹ</span></td><td class="cell-primary">Ca chiều 29/10/2026</td><td><span class="tag tag--success">Đã duyệt</span></td><td>Võ Minh Quân</td><td class="num">29/10/2026 19:02</td></tr>
+      <tr><td><span class="tag tag--warning">Giảm giá</span></td><td class="cell-primary">RO-Q7-2610-00117</td><td><span class="tag tag--danger">Từ chối</span> <span class="cell-sub">Lý do: vượt mức, khách không phải thân quen</span></td><td>Võ Minh Quân</td><td class="num">29/10/2026 14:20</td></tr>
+      <tr><td><span class="tag tag--warning">Chi vượt hạn mức</span></td><td class="cell-primary">Mua dụng cụ nâng xe</td><td><span class="tag tag--info">Chuyển cấp</span> <span class="cell-sub">Sang Chủ garage do quá thời hạn</span></td><td>Hệ thống</td><td class="num">28/10/2026 09:00</td></tr></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- Drawer APR-02 (rút gọn; bản đầy đủ nhiều loại ở g4-apr-02.html) -->
+<div class="overlay overlay--drawer" id="drw-apr" role="dialog" aria-modal="true" aria-labelledby="da-t"><aside class="drawer" style="max-width:520px">
+  <div class="card__header"><div><h2 class="card__title" id="da-t">Giảm giá vượt hạn mức</h2><div class="card__subtitle" id="da-s">RO-Q7-2610-00129</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack" style="overflow:auto">
+    <div class="row"><span class="tag tag--warning">Chờ duyệt 2 giờ</span><span class="t-body-sm text-secondary">Cấp duyệt: Quản lý chi nhánh</span></div>
+    <dl class="g4f-kv"><div><dt>Người đề xuất</dt><dd>Nguyễn Hoàng Yến (CV)</dd></div><div><dt>Chi nhánh</dt><dd>Chi nhánh Quận 7</dd></div><div><dt>Giá trị</dt><dd class="num" style="font-weight:700">1.560.000 ₫</dd></div><div><dt>Lý do của người đề xuất</dt><dd>Khách quen 4 năm, xe thứ 3 trong nhà</dd></div></dl>
+    <div><div class="row row--between t-body-sm"><span>Giảm giá</span><strong class="num">12% / 5% hạn mức cấp CV</strong></div><div class="g4f-limit" role="img" aria-label="12% so với hạn mức 5%, vượt hạn mức"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:41%"></span></div><div class="g4f-limit__cap"><span>0%</span><span>Hạn mức 5% <span class="g4f-sample">minh họa, từ G4-APR-03</span></span><span>12%</span></div></div>
+    <a class="btn btn--ghost btn--sm" href="g4-apr-02.html" style="align-self:flex-start">Mở chi tiết đầy đủ và lịch sử<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a>
+    <div class="field"><label class="field__label" for="rej-r">Lý do (bắt buộc khi từ chối)</label><textarea id="rej-r" class="textarea" style="min-height:64px"></textarea></div>
+  </div>
+  <div class="card__footer" style="margin-top:auto;flex-wrap:wrap"><button class="btn btn--danger-outline" data-close data-toast="warning|Đã từ chối|Người đề xuất được thông báo kèm lý do." data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền duyệt hoặc từ chối.">Từ chối</button><button class="btn btn--secondary" data-close data-toast="info|Đã chuyển cấp|Yêu cầu sang Quản lý vùng.">Chuyển cấp</button><button class="btn btn--primary" data-close data-toast="success|Đã duyệt|Người đề xuất được thông báo; ghi nhật ký." data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền duyệt hoặc từ chối.">Duyệt</button></div></aside></div>
+
+<div class="overlay" id="dlg-bulk" role="alertdialog" aria-modal="true" aria-labelledby="bk-t"><div class="dialog" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="bk-t">Duyệt hàng loạt các mục đã chọn?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Chỉ gồm mục cùng loại, trong hạn mức cấp bạn.</li><li>Mỗi mục được ghi nhật ký riêng với tên bạn và thời điểm.</li><li>Không hoàn tác từng mục được; sai thì đảo bằng chứng từ mới.</li></ul><label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem từng mục đã chọn.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-g4f-gate-btn data-close data-toast="success|Đã duyệt các mục đã chọn|Ghi nhật ký cho từng yêu cầu." disabled>Duyệt</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-APR-01', title: 'Hàng chờ phê duyệt', desc: 'Mọi yêu cầu cần duyệt: giảm giá, hoàn tiền, chi vượt hạn mức, hóa đơn điều chỉnh, mở lại ngày.',
+  menu: 'fin', role: 'QL', allow: ['CH', 'QV', 'QL', 'KT', 'TN', 'CV', 'TK'], updated: '09:15', time: 'đang chờ',
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'check', title: 'Không có yêu cầu nào cần duyệt', text: 'Khi nhân viên đề xuất giảm giá, hoàn tiền hoặc chi vượt hạn mức, yêu cầu hiện ở đây và gửi thông báo cho bạn.' },
+  filteredText: 'Không có yêu cầu nào khớp loại “Hoàn tiền” và độ trễ “Quá thời hạn”.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var o = e.target.closest('[data-open="drw-apr"]'); if (!o) return;
+    document.getElementById('da-t').textContent = o.getAttribute('data-title') || ''; document.getElementById('da-s').textContent = o.getAttribute('data-sub') || '';
+  });
+  function note() { var r = document.body.getAttribute('data-role'); document.getElementById('own-note').hidden = ['TN', 'CV', 'TK'].indexOf(r) < 0; $$r(); }
+  function $$r() { var r = document.body.getAttribute('data-role'); G4F.$$('tbody tr[data-g4f-roles]').forEach(function (tr) { tr.hidden = tr.getAttribute('data-g4f-roles').split(' ').indexOf(r) < 0; }); }
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(note, 5); });
+  note();
+})();
+</script>
+</body>
+</html>

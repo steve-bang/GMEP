@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-SHL-02 · Kết quả tìm kiếm toàn cục – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QL" data-g1-menu="dash" data-crumb="Kết quả tìm kiếm" data-period="none" data-multirole="QL,CV">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Kết quả tìm kiếm</h1>
+      <p class="page-header__desc">Tìm theo biển số, mã phiếu, tên khách, phụ tùng, chứng từ. Không phân biệt dấu, bỏ qua dấu chấm và gạch ngang trong biển số.</p>
+    </div>
+  </div>
+
+  <div data-g1-views="default:Có kết quả|empty:Không có kết quả|many:Quá nhiều kết quả|loading:Đang tìm|error:Lỗi tìm kiếm|offline:Mất mạng" data-hint="Kết quả luôn lọc theo quyền và chi nhánh của bạn (NFR-ISO-01)."></div>
+
+  <form class="g1-filter" role="search" id="sform" aria-label="Tìm kiếm toàn hệ thống">
+    <div class="g1-filter__item" style="flex:1 1 320px"><label class="g1-filter__label" for="sq">Từ khóa</label>
+      <div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input id="sq" name="q" type="search" class="input" value="51H" autocomplete="off" placeholder="Ví dụ: 51h12345, RO-Q7-2610-00128, nguyen van an"></div></div>
+    <div class="g1-filter__item"><span class="g1-filter__label" id="sc">Phạm vi chi nhánh</span><span class="row" style="min-height:40px" aria-labelledby="sc"><svg class="icon" aria-hidden="true"><use href="#map-pin"/></svg><strong data-branch-label>Chi nhánh Quận 7</strong><span class="t-caption text-secondary">chỉ trong quyền của bạn</span></span></div>
+    <button class="btn btn--primary" type="submit"><svg class="icon"><use href="#search"/></svg>Tìm</button>
+  </form>
+
+  <div class="row" role="group" aria-label="Lọc theo loại kết quả" id="chips">
+    <button class="chip-filter" aria-pressed="true" data-type="all">Tất cả <span class="count-pill" data-count="all">0</span></button>
+    <button class="chip-filter" aria-pressed="false" data-type="xe">Xe <span class="count-pill" data-count="xe">0</span></button>
+    <button class="chip-filter" aria-pressed="false" data-type="khach">Khách hàng <span class="count-pill" data-count="khach">0</span></button>
+    <button class="chip-filter" aria-pressed="false" data-type="lenh">Lệnh <span class="count-pill" data-count="lenh">0</span></button>
+    <button class="chip-filter" aria-pressed="false" data-type="bg">Báo giá <span class="count-pill" data-count="bg">0</span></button>
+    <button class="chip-filter" aria-pressed="false" data-type="pt">Phụ tùng <span class="count-pill" data-count="pt">0</span></button>
+    <button class="chip-filter" aria-pressed="false" data-type="ct">Chứng từ <span class="count-pill" data-count="ct">0</span></button>
+  </div>
+  <p class="g1-note" role="status" aria-live="polite" id="sum"></p>
+
+  <div class="alert alert--info" data-show="many" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Có hơn 200 kết quả, đang hiện 50 kết quả đầu tiên</span><span>Thu hẹp bằng biển số đầy đủ, mã phiếu hoặc chọn một loại ở trên.</span></div></div>
+  <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không tìm được lúc này</span><span>Hệ thống tìm kiếm tạm lỗi, không phải do từ khóa của bạn. Thử lại sau ít giây.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-g1-goto="default">Thử lại</button></div></div></div>
+  <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa tìm được. Kiểm tra mạng rồi bấm “Tìm” lại.</span></div></div>
+  <div class="stack" data-show="loading" hidden aria-busy="true"><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--block"></span><span class="sr-only">Đang tìm</span></div>
+
+  <div class="state card" id="noresult" hidden style="padding:var(--space-12) var(--space-6);max-width:none"><div class="state__icon"><svg class="icon icon--lg"><use href="#search"/></svg></div><div class="state__title">Không tìm thấy kết quả cho “<span id="nq"></span>”</div><p class="state__text">Trong phạm vi Chi nhánh Quận 7 và quyền của bạn, không có bản ghi nào khớp. Thử bỏ bớt ký tự, nhập thiếu dấu, hoặc tìm bằng số điện thoại (nếu bạn có quyền xem). Dữ liệu chi nhánh khác không hiện ở đây.</p></div>
+
+  <div class="stack" id="results" data-hide="empty loading error offline">
+    <section class="card" data-group="xe" aria-labelledby="g-xe"><div class="card__header"><h2 class="card__title" id="g-xe">Xe</h2></div>
+      <a class="g1-row" href="#" data-type="xe"><span class="g1-row__main"><strong><span class="plate">51H-123.45</span> · Toyota Vios 2019</strong><span class="g1-row__sub">Chủ xe: Nguyễn Văn An · hạn đăng kiểm 12/2026</span></span><span class="g1-row__end"><svg class="icon" aria-hidden="true"><use href="#chevron-right"/></svg></span></a>
+      <a class="g1-row" href="#" data-type="xe"><span class="g1-row__main"><strong><span class="plate">51H-777.01</span> · Kia Seltos 2022</strong><span class="g1-row__sub">Chủ xe: Phạm Thị Hoa · bảo hành còn đến 03/2027</span></span><span class="g1-row__end"><svg class="icon" aria-hidden="true"><use href="#chevron-right"/></svg></span></a>
+      <a class="g1-row" href="#" data-type="xe"><span class="g1-row__main"><strong><span class="plate">30G-456.78</span> · Hyundai Accent 2021</strong><span class="g1-row__sub">Chủ xe: Trần Thị Bích Ngọc</span></span><span class="g1-row__end"><svg class="icon" aria-hidden="true"><use href="#chevron-right"/></svg></span></a>
+    </section>
+    <section class="card" data-group="khach" aria-labelledby="g-kh"><div class="card__header"><h2 class="card__title" id="g-kh">Khách hàng</h2></div>
+      <a class="g1-row" href="#" data-type="khach"><span class="g1-row__main"><strong>Nguyễn Văn An</strong><span class="g1-row__sub">2 xe: 51H-123.45, 51G-765.43 · <span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></span></span><span class="g1-row__end"><svg class="icon" aria-hidden="true"><use href="#chevron-right"/></svg></span></a>
+      <a class="g1-row" href="#" data-type="khach"><span class="g1-row__main"><strong>Trần Thị Bích Ngọc</strong><span class="g1-row__sub">1 xe: 30G-456.78 · <span class="pii" data-pii-id="c2" data-pii-kind="phone"></span></span></span><span class="g1-row__end"><svg class="icon" aria-hidden="true"><use href="#chevron-right"/></svg></span></a>
+    </section>
+    <section class="card" data-group="lenh" aria-labelledby="g-lenh"><div class="card__header"><h2 class="card__title" id="g-lenh">Lệnh sửa chữa</h2></div>
+      <a class="g1-row" href="#" data-type="lenh"><span class="g1-row__main"><strong class="code">RO-Q7-2610-00128</strong><span class="g1-row__sub"><span class="plate">51H-123.45</span> · Toyota Vios · hẹn giao 15:00 30/10/2026</span></span><span class="g1-row__end"><span class="badge badge--info">Đang sửa chữa</span></span></a>
+      <a class="g1-row" href="#" data-type="lenh"><span class="g1-row__main"><strong class="code">RO-Q7-2610-00124</strong><span class="g1-row__sub"><span class="plate">51K-987.65</span> · Mazda CX-5 · thợ Đỗ Văn Tùng</span></span><span class="g1-row__end"><span class="badge badge--warning">Tạm dừng</span><span class="tag tag--reason tag--warning">Chờ phụ tùng</span></span></a>
+    </section>
+    <section class="card" data-group="bg" aria-labelledby="g-bg"><div class="card__header"><h2 class="card__title" id="g-bg">Báo giá</h2></div>
+      <a class="g1-row" href="#" data-type="bg"><span class="g1-row__main"><strong class="code">BG-Q7-2610-00231-v2</strong><span class="g1-row__sub"><span class="plate">51H-123.45</span> · 4.850.000 ₫ · phiên bản 2</span></span><span class="g1-row__end"><span class="badge badge--warning">Chờ khách duyệt</span></span></a>
+    </section>
+    <section class="card" data-group="pt" aria-labelledby="g-pt"><div class="card__header"><h2 class="card__title" id="g-pt">Phụ tùng</h2></div>
+      <a class="g1-row" href="#" data-type="pt"><span class="g1-row__main"><strong>Lọc dầu động cơ Vios</strong><span class="g1-row__sub code">PT-0001 · khả dụng 24</span></span><span class="g1-row__end"><span class="badge badge--success">Đủ hàng</span></span></a>
+      <a class="g1-row" href="#" data-type="pt"><span class="g1-row__main"><strong>Má phanh trước Hyundai Accent</strong><span class="g1-row__sub code">PT-0002 · khả dụng 3 · tối thiểu 6</span></span><span class="g1-row__end"><span class="badge badge--warning">Sắp hết</span></span></a>
+    </section>
+    <section class="card" data-group="ct" aria-labelledby="g-ct"><div class="card__header"><h2 class="card__title" id="g-ct">Chứng từ</h2></div>
+      <a class="g1-row" href="#" data-type="ct"><span class="g1-row__main"><strong class="code">PX-Q7-2610-00352</strong><span class="g1-row__sub">Phiếu xuất kho cho RO-Q7-2610-00128 · lọc dầu Vios</span></span><span class="g1-row__end"><span class="tag tag--neutral">Phiếu xuất</span></span></a>
+    </section>
+  </div>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+(function () {
+  function norm(s) { return s.toLowerCase().replace(/đ/g, 'd').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, ''); }
+  var inp = document.getElementById('sq'), type = 'all';
+  var qs = /[?&]q=([^&]*)/.exec(location.search); if (qs) inp.value = decodeURIComponent(qs[1].replace(/\+/g, ' '));
+  function run() {
+    var q = norm(inp.value), counts = { all: 0 }, groupsShown = 0;
+    document.querySelectorAll('#results .g1-row').forEach(function (r) {
+      var t = r.getAttribute('data-type'), hit = !q || norm(r.textContent).indexOf(q) >= 0;
+      r._hit = hit; if (hit) { counts[t] = (counts[t] || 0) + 1; counts.all++; }
+      r.hidden = !(hit && (type === 'all' || type === t));
+    });
+    document.querySelectorAll('#results [data-group]').forEach(function (g) { var any = !!g.querySelector('.g1-row:not([hidden])'); g.hidden = !any; if (any) groupsShown++; });
+    document.querySelectorAll('[data-count]').forEach(function (c) { c.textContent = counts[c.getAttribute('data-count')] || 0; });
+    var none = counts.all === 0, v = document.body.getAttribute('data-view') || 'default';
+    var showEmpty = none && v !== 'loading' && v !== 'error' && v !== 'offline';
+    document.getElementById('noresult').hidden = !showEmpty; document.getElementById('nq').textContent = inp.value;
+    document.getElementById('results').hidden = showEmpty || ['loading', 'error', 'offline'].indexOf(v) >= 0;
+    document.getElementById('sum').textContent = none ? '' : 'Tìm thấy ' + counts.all + ' kết quả cho “' + inp.value + '” trong Chi nhánh Quận 7.';
+  }
+  inp.addEventListener('input', run);
+  document.getElementById('sform').addEventListener('submit', function (e) { e.preventDefault(); run(); });
+  document.getElementById('chips').addEventListener('click', function (e) {
+    var c = e.target.closest('[data-type]'); if (!c) return; type = c.getAttribute('data-type');
+    document.querySelectorAll('#chips [data-type]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); }); run();
+  });
+  document.addEventListener('click', function (e) {
+    var v = e.target.closest('.g1-proto [data-g1-view]'); if (!v) return;
+    var k = v.getAttribute('data-g1-view'); if (k === 'empty') inp.value = '51X-999.99'; else if (!inp.value || inp.value === '51X-999.99') inp.value = '51H';
+    setTimeout(run, 0);
+  });
+  run();
+})();
+</script>
+</body>
+</html>

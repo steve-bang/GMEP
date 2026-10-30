@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-APT-01 – Lịch hẹn (ngày / tuần) · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="appt" data-g2w-deny="QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Lịch hẹn</span></nav>
+  <div class="page-header">
+    <div class="page-header__text"><h1>Lịch hẹn</h1><p class="page-header__desc">Lịch theo ngày hoặc tuần, công suất xưởng theo số xe mỗi ngày. Khách không hẹn trước vẫn tiếp nhận ngay được.</p></div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="g2-apt-03.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#inbox"/></svg>Chờ xác nhận <span class="count-pill count-pill--warning">3</span></a><a class="btn btn--primary" href="g2-apt-02.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#plus"/></svg>Tạo lịch hẹn</a></div>
+  </div>
+  <div data-g2w-scope data-time="Thứ Sáu 30/10/2026" data-asof="09:16"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Ngày không có lịch|error:Lỗi|denied:Không có quyền"></div>
+  <div data-g2w-variants="day:Ngày|week:Tuần" hidden></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info" data-g2w-roles="CH QV" role="status"><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span>Bạn chỉ xem lịch. Tạo, đổi, hủy lịch do Cố vấn và Quản lý chi nhánh thực hiện.</span></div></div>
+
+    <div class="g2w-walkin"><div><strong>Xe vãng lai, không có lịch hẹn?</strong><div class="g2w-muted">Tiếp nhận ngay, không cần tạo lịch trước (FR-REC-027).</div></div><a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#car-front"/></svg>Tiếp nhận xe vãng lai</a></div>
+
+    <div class="filter-bar">
+      <div class="field"><span class="field__label" id="v-l">Kiểu xem</span><div class="segmented" role="group" aria-labelledby="v-l"><button class="segmented__item" data-g2w-var="day" aria-pressed="true">Ngày</button><button class="segmented__item" data-g2w-var="week" aria-pressed="false">Tuần</button></div></div>
+      <div class="field"><span class="field__label" id="n-l">Chuyển ngày</span><div class="row" role="group" aria-labelledby="n-l"><button class="btn-icon btn-icon--outline" aria-label="Ngày trước"><svg class="icon"><use href="#chevron-left"/></svg></button>
+        <div class="datepicker-host" data-datepicker="single"><div class="input-group date-field"><input id="a-dt" class="input" value="30/10/2026" aria-label="Ngày xem" style="max-width:160px"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div>
+        <button class="btn-icon btn-icon--outline" aria-label="Ngày sau"><svg class="icon"><use href="#chevron-right"/></svg></button><button class="btn btn--secondary btn--sm">Hôm nay</button></div></div>
+      <div class="field"><label class="field__label" for="a-cv">Cố vấn</label><select id="a-cv" class="select"><option>Tất cả cố vấn</option><option>Nguyễn Hoàng Yến</option><option>Phan Thanh Tùng</option></select></div>
+      <div class="field g2w-capacity"><span class="field__label" id="cap-l">Công suất hôm nay</span><div class="progress progress--warning"><div class="progress__head"><span><strong>14/20</strong> xe</span><span>70%</span></div><div class="progress__track" role="progressbar" aria-labelledby="cap-l" aria-valuenow="14" aria-valuemin="0" aria-valuemax="20"><div class="progress__bar" style="width:70%"></div></div></div></div>
+    </div>
+
+    <!-- NGÀY -->
+    <div class="g2w-cal-wrap" data-g2w-vshow="day">
+      <div class="g2w-cal g2w-cal--day" role="grid" aria-label="Lịch hẹn Thứ Sáu 30/10/2026">
+        <div class="g2w-cal__head" role="columnheader"><span class="sr-only">Giờ</span></div><div class="g2w-cal__head is-today" role="columnheader">Thứ Sáu 30/10/2026 <span class="g2w-muted" style="font-weight:400">14 lịch · 2 chờ xác nhận</span></div>
+        <div class="g2w-cal__time">08:00</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--done" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51H-123.45</strong><span class="badge badge--success">Đã tiếp nhận</span></span><span>Nguyễn Văn An · Bảo dưỡng 50.000 km</span><span class="g2w-muted">Cố vấn Yến · RO-Q7-2610-00128</span></button></div>
+        <div class="g2w-cal__time">09:00</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51L-222.33</strong><span class="badge badge--neutral">Chờ tiếp nhận</span></span><span>Hoàng Văn Thái · Sửa chữa chung (kêu gầm)</span><span class="g2w-muted">Khách đã đến 08:55 · Cố vấn Tùng</span></button></div>
+        <div class="g2w-cal__time">10:00</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">59-S1 4567</strong><span class="badge badge--info">Đã hẹn</span></span><span>Lý Thị Mỹ · Xe máy Honda Wave, thay nhớt</span><span class="g2w-muted">Cố vấn Yến</span></button><button class="g2w-appt g2w-appt--wait" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51C-909.09</strong><span class="badge badge--warning">Chờ xác nhận</span></span><span>Mai Văn Lộc · Đặt trực tuyến, Bảo dưỡng</span><span class="g2w-muted">Chưa phân cố vấn</span></button></div>
+        <div class="g2w-cal__time">11:00</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--cancel" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">60A-123.45</strong><span class="badge badge--danger">Đã hủy</span></span><span>Bùi Thị Hạnh · Lốp &amp; mâm</span><span class="g2w-muted">Khách báo bận 08:30</span></button></div>
+        <div class="g2w-cal__time">12:00</div><div class="g2w-cal__cell is-closed"><span class="g2w-muted" style="padding:var(--space-2)">Nghỉ trưa (cấu hình giờ làm việc)</span></div>
+        <div class="g2w-cal__time">13:30</div><div class="g2w-cal__cell"><span class="g2w-muted" style="padding:var(--space-2)">Chưa có lịch · <a href="g2-apt-02.html">Tạo lịch hẹn</a></span></div>
+        <div class="g2w-cal__time">14:00</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--cancel" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51A-246.80</strong><span class="badge badge--neutral">Không đến</span></span><span>Võ Thanh Sơn · Bảo dưỡng 25.000 km</span><span class="g2w-muted">Quá giờ 40 phút, chưa liên lạc được</span></button></div>
+        <div class="g2w-cal__time">15:00</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51K-987.65</strong><span class="badge badge--info">Đã hẹn</span></span><span>Công ty TNHH Vận tải Hòa Phát… · Kiểm tra trước đăng kiểm</span><span class="g2w-muted">Cố vấn Tùng</span></button></div>
+      </div>
+    </div>
+
+    <!-- TUẦN -->
+    <div class="g2w-cal-wrap" data-g2w-vshow="week" hidden style="overflow-x:auto">
+      <div class="g2w-cal g2w-cal--week" role="grid" aria-label="Lịch hẹn tuần 26/10 – 31/10/2026">
+        <div class="g2w-cal__head" role="columnheader"><span class="sr-only">Khung giờ</span></div>
+        <div class="g2w-cal__head" role="columnheader">Thứ 2 · 26/10<span class="tag">12/20 xe</span></div>
+        <div class="g2w-cal__head" role="columnheader">Thứ 3 · 27/10<span class="tag tag--danger">22/20 · vượt công suất</span></div>
+        <div class="g2w-cal__head" role="columnheader">Thứ 4 · 28/10<span class="tag">9/20 xe</span></div>
+        <div class="g2w-cal__head" role="columnheader">Thứ 5 · 29/10<span class="tag">15/20 xe</span></div>
+        <div class="g2w-cal__head is-today" role="columnheader">Thứ 6 · 30/10 (hôm nay)<span class="tag tag--warning">14/20 xe</span></div>
+        <div class="g2w-cal__head" role="columnheader">Thứ 7 · 31/10<span class="tag">6/20 xe</span></div>
+        <div class="g2w-cal__time">08:00 – 10:00</div><div class="g2w-cal__cell">4 lịch</div><div class="g2w-cal__cell is-full">9 lịch</div><div class="g2w-cal__cell">3 lịch</div><div class="g2w-cal__cell">5 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--done" data-open="drw-appt"><strong class="plate">51H-123.45</strong><span>Đã tiếp nhận</span></button><button class="g2w-appt" data-open="drw-appt"><strong class="plate">51L-222.33</strong><span>Chờ tiếp nhận</span></button></div><div class="g2w-cal__cell">3 lịch</div>
+        <div class="g2w-cal__time">10:00 – 12:00</div><div class="g2w-cal__cell">3 lịch</div><div class="g2w-cal__cell is-full">8 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell">4 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--wait" data-open="drw-appt"><strong class="plate">51C-909.09</strong><span>Chờ xác nhận</span></button><span class="g2w-muted">+ 2 lịch khác</span></div><div class="g2w-cal__cell">2 lịch</div>
+        <div class="g2w-cal__time">13:30 – 15:00</div><div class="g2w-cal__cell">3 lịch</div><div class="g2w-cal__cell is-full">3 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell">4 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--cancel" data-open="drw-appt"><strong class="plate">51A-246.80</strong><span>Không đến</span></button></div><div class="g2w-cal__cell is-closed">Nghỉ chiều T7</div>
+        <div class="g2w-cal__time">15:00 – 17:00</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell is-full">2 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><strong class="plate">51K-987.65</strong><span>Đã hẹn</span></button></div><div class="g2w-cal__cell is-closed">Nghỉ chiều T7</div>
+      </div>
+      <p class="g2w-muted" style="margin-top:8px">Ô nền vàng nhạt là ngày vượt công suất (kèm nhãn chữ “vượt công suất” ở đầu cột). Công suất mỗi ngày và giờ làm việc là cấu hình theo chi nhánh.</p>
+    </div>
+
+    <!-- Mobile: danh sách theo giờ -->
+    <div class="g2w-agenda" aria-label="Lịch hẹn hôm nay dạng danh sách">
+      <div class="scope-line"><svg class="icon icon--sm"><use href="#map-pin"/></svg>Thứ Sáu 30/10/2026 · 14/20 xe</div>
+      <button class="record" data-open="drw-appt"><div class="record__top"><div><div class="record__title num">08:00 · 51H-123.45</div>Nguyễn Văn An · Bảo dưỡng</div><span class="badge badge--success">Đã tiếp nhận</span></div></button>
+      <button class="record" data-open="drw-appt"><div class="record__top"><div><div class="record__title num">09:00 · 51L-222.33</div>Hoàng Văn Thái · Sửa chữa chung</div><span class="badge badge--neutral">Chờ tiếp nhận</span></div></button>
+      <button class="record" data-open="drw-appt"><div class="record__top"><div><div class="record__title num">10:00 · 51C-909.09</div>Mai Văn Lộc · đặt trực tuyến</div><span class="badge badge--warning">Chờ xác nhận</span></div></button>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--block" style="height:60px"></span><span class="skeleton skeleton--block" style="height:60px"></span><span class="skeleton skeleton--block" style="height:60px"></span></div></div><p class="g2w-muted" role="status">Đang tải lịch hẹn…</p></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="calendar" data-title="Chưa có lịch hẹn nào trong ngày" data-text="Tạo lịch hẹn để giữ chỗ cho khách, hoặc tiếp nhận xe vãng lai ngay." data-cta="Tạo lịch hẹn" data-href="g2-apt-02.html"></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được lịch hẹn" data-ref="ERR-APT-5001"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem lịch hẹn" data-text="Lịch hẹn dành cho Cố vấn, Quản lý và Chủ garage."></div>
+</div>
+</div></main>
+</div>
+
+<!-- Chi tiết lịch (drawer) -->
+<div class="overlay overlay--drawer" id="drw-appt" role="dialog" aria-modal="true" aria-labelledby="ap-t"><aside class="drawer">
+  <div class="card__header"><div><h2 class="card__title" id="ap-t">Lịch hẹn 09:00 · 51L-222.33</h2><div class="card__subtitle">Hoàng Văn Thái · Kia Seltos 2022</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack">
+    <div class="row"><span class="badge badge--neutral">Chờ tiếp nhận</span><span class="g2w-muted">Khách bấm đã đến lúc 08:55</span></div>
+    <dl class="g2w-kv"><dt>Dịch vụ</dt><dd>Sửa chữa chung (kêu gầm khi qua gờ)</dd><dt>Điện thoại</dt><dd><span class="g2w-pii" data-id="c12"></span></dd><dt>Cố vấn</dt><dd>Phan Thanh Tùng</dd><dt>Ghi chú</dt><dd>Xe chạy 31.000 km, đã bảo dưỡng ở Thủ Đức</dd></dl>
+    <div class="field"><label class="field__label" for="ap-cv">Chuyển cố vấn</label><select id="ap-cv" class="select" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh chuyển cố vấn."><option>Phan Thanh Tùng</option><option>Nguyễn Hoàng Yến</option></select></div>
+  </div>
+  <div class="card__footer" style="margin-top:auto;flex-wrap:wrap"><button class="btn btn--danger-outline" data-open="dlg-cancel" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh hủy lịch."><svg class="icon"><use href="#x"/></svg>Hủy lịch…</button><a class="btn btn--secondary" href="g2-apt-02.html" data-g2w-lock-link="CV QL">Sửa lịch</a><a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#check"/></svg>Đã đến, tiếp nhận</a></div></aside></div>
+
+<div class="overlay" id="dlg-cancel" role="alertdialog" aria-modal="true" aria-labelledby="ca-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="ca-t">Hủy lịch hẹn 09:00 của 51L-222.33?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list"><li>Lịch chuyển “Đã hủy”, giải phóng một chỗ trong công suất ngày.</li><li>Khách có thể nhận tin báo hủy nếu đã đồng ý nhận qua kênh tin nhắn.</li></ul><div class="field"><label class="field__label" for="ca-r">Lý do hủy<span class="field__req" aria-hidden="true">*</span></label><textarea id="ca-r" class="textarea" data-confirm-reason placeholder="Ví dụ: Khách báo bận, đổi sang tuần sau"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ lịch</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã hủy lịch hẹn|Lý do được lưu vào lịch sử." disabled>Hủy lịch</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

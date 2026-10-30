@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-08 · Danh sách chứng từ kho – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-08')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Chứng từ kho</h1><p class="page-header__desc">Mọi biến động tồn đều có chứng từ: nhập, xuất, chuyển, kiểm kê, điều chỉnh, trả hàng. Chứng từ đã ghi sổ không sửa hoặc xóa.</p></div>
+  <div class="page-header__actions">
+    <button class="btn btn--secondary" data-g3-need="CH QL TK KT" data-g3-why="Xuất danh sách cần quyền xuất (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất Excel</button>
+    <div class="dropdown"><button class="btn btn--primary" aria-haspopup="menu" aria-expanded="false" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh lập chứng từ kho."><svg class="icon"><use href="#plus"/></svg>Lập chứng từ<svg class="icon icon--sm"><use href="#chevron-down"/></svg></button>
+      <div class="dropdown__menu dropdown__menu--right" role="menu"><a class="menu-item" role="menuitem" href="g3-inv-09.html">Phiếu nhập kho (PN)</a><a class="menu-item" role="menuitem" href="g3-inv-06.html">Phiếu xuất theo lệnh (PX)</a><a class="menu-item" role="menuitem" href="g3-inv-10.html">Phiếu hoàn kho</a><a class="menu-item" role="menuitem" href="g3-inv-11.html">Xuất dùng nội bộ</a><a class="menu-item" role="menuitem" href="g3-inv-13.html">Phiếu chuyển kho (CK)</a><a class="menu-item" role="menuitem" href="g3-pur-08.html">Trả hàng nhà cung cấp</a></div></div>
+  </div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Thời gian:</strong> 01/10/2026 – 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="chứng từ kho" data-cols="8" data-empty-icon="file-text" data-empty-text="Chưa có chứng từ kho trong khoảng thời gian này. Lập phiếu nhập kho hoặc xuất kho theo lệnh để bắt đầu." data-empty-cta="Lập phiếu nhập kho">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar" role="search">
+    <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm theo số chứng từ, chứng từ gốc</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: PX-Q7-2610-00188 hoặc 00188"></div></div>
+    <div class="field"><label class="field__label" for="f-t">Loại chứng từ</label><select id="f-t" class="select"><option>Tất cả loại</option><option>Nhập kho (PN)</option><option>Xuất kho (PX)</option><option>Chuyển kho (CK)</option><option>Kiểm kê (KK)</option><option>Điều chỉnh (DC)</option><option>Trả hàng NCC (TR)</option></select></div>
+    <div class="field"><label class="field__label" for="f-st">Trạng thái</label><select id="f-st" class="select"><option>Tất cả</option><option>Nháp</option><option>Chờ duyệt</option><option>Đã ghi sổ</option><option>Từ chối</option></select></div>
+    <div class="field"><label class="field__label" for="f-d1">Từ ngày</label><div class="input-group date-field"><input id="f-d1" class="input" value="01/10/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="f-d2">Đến ngày</label><div class="input-group date-field"><input id="f-d2" class="input" value="30/10/2026"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-toolbar"><button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#columns"/></svg>Cột hiển thị</button><span class="table-meta" style="margin-left:auto">8 chứng từ · 2 cần xử lý</span></div>
+    <div class="table-scroll"><table class="table" data-g3-cards>
+      <caption class="sr-only">Chứng từ kho của Chi nhánh Quận 7</caption>
+      <thead><tr><th aria-sort="descending" data-card="title"><button class="th-sort">Số chứng từ<svg class="icon"><use href="#arrow-down"/></svg></button></th><th data-card="sub">Loại</th><th data-card="meta">Chứng từ gốc</th><th>Người lập</th><th>Người duyệt</th><th data-card="badge">Trạng thái</th><th data-card="meta">Ngày</th><th class="col-num" data-card="foot">Giá trị</th></tr></thead>
+      <tbody>
+        <tr data-href="g3-inv-07.html"><td class="code"><a href="g3-inv-07.html">PX-Q7-2610-00189</a></td><td>Xuất theo lệnh</td><td class="code">RO-Q7-2610-00131</td><td>Trần Thị Mai Anh</td><td class="text-secondary">–</td><td><span class="badge badge--neutral">Nháp</span></td><td class="num col-nowrap">30/10/2026 09:18</td><td class="col-num"><span data-g3-cost="179.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-07.html"><td class="code"><a href="g3-inv-07.html">PX-Q7-2610-00188</a></td><td>Xuất theo lệnh</td><td class="code">RO-Q7-2610-00128</td><td>Trần Thị Mai Anh</td><td class="text-secondary">–</td><td><span class="badge badge--success">Đã ghi sổ</span></td><td class="num col-nowrap">30/10/2026 08:40</td><td class="col-num"><span data-g3-cost="117.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-09.html" class="g3-row--flag"><td class="code"><a href="g3-inv-09.html">PN-Q7-2610-00034</a></td><td>Nhập kho (theo đơn mua)</td><td class="code">DM-Q7-2610-00014</td><td>Trần Thị Mai Anh</td><td class="text-secondary">Chờ Quản lý chi nhánh</td><td><span class="badge badge--warning">Chờ duyệt</span> <span class="tag tag--warning">Lệch giá</span></td><td class="num col-nowrap">29/10/2026 14:05</td><td class="col-num"><span data-g3-cost="6.940.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-17.html" class="g3-row--flag"><td class="code"><a href="g3-inv-17.html">KK-Q7-2610-00003</a></td><td>Kiểm kê</td><td>Nhóm Lọc, Phanh</td><td>Trần Thị Mai Anh</td><td class="text-secondary">Chờ Quản lý chi nhánh</td><td><span class="badge badge--warning">Chờ duyệt</span> <span class="tag tag--warning">Có chênh lệch</span></td><td class="num col-nowrap">29/10/2026 17:20</td><td class="col-num"><span data-g3-cost="−410.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-09.html"><td class="code"><a href="g3-inv-09.html">PN-Q7-2610-00033</a></td><td>Nhập kho (theo đơn mua)</td><td class="code">DM-Q7-2610-00012</td><td>Trần Thị Mai Anh</td><td>Đặng Hữu Phúc</td><td><span class="badge badge--success">Đã ghi sổ</span></td><td class="num col-nowrap">28/10/2026 10:20</td><td class="col-num"><span data-g3-cost="1.196.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-14.html"><td class="code"><a href="g3-inv-14.html">CK-Q7-2610-00007</a></td><td>Chuyển kho (nhận từ Thủ Đức)</td><td class="code">CK-TD-2610-00011</td><td>Trần Thị Mai Anh</td><td>Đặng Hữu Phúc</td><td><span class="badge badge--success">Đã ghi sổ</span></td><td class="num col-nowrap">27/10/2026 15:00</td><td class="col-num"><span data-g3-cost="2.460.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-17.html"><td class="code"><a href="g3-inv-17.html">DC-Q7-2610-00002</a></td><td>Điều chỉnh sau kiểm kê</td><td class="code">KK-Q7-2610-00002</td><td>Trần Thị Mai Anh</td><td>Đặng Hữu Phúc</td><td><span class="badge badge--success">Đã ghi sổ</span></td><td class="num col-nowrap">20/10/2026 17:30</td><td class="col-num"><span data-g3-cost="−118.000 ₫"></span></td></tr>
+        <tr data-href="g3-pur-08.html"><td class="code"><a href="g3-pur-08.html">TR-Q7-2610-00001</a></td><td>Trả hàng nhà cung cấp</td><td class="code">PN-Q7-2610-00029</td><td>Trần Thị Mai Anh</td><td>Đặng Hữu Phúc</td><td><span class="badge badge--success">Đã ghi sổ</span></td><td class="num col-nowrap">12/10/2026 11:10</td><td class="col-num"><span data-g3-cost="−840.000 ₫"></span></td></tr>
+      </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–8 trong 8 chứng từ</span><nav class="pagination" aria-label="Phân trang"><a class="pagination__item" href="#" aria-current="page">1</a></nav></div>
+  </div>
+  <p class="t-body-sm text-secondary">Tiền tố số chứng từ: PN nhập, PX xuất, CK chuyển, KK kiểm kê (theo quyết định BA); DC (điều chỉnh) và TR (trả hàng) là tiền tố tạm, chờ BA chốt. Giá trị theo giá vốn nên chỉ hiện với vai trò được xem giá vốn.</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

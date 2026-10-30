@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-10 · Thiết bị xưởng: chọn thợ và nhập PIN – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới danh sách thợ</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Chọn thợ|error:PIN sai|locked:Khóa tạm sau 5 lần sai|idle:Tự khóa 3 phút|offline:Mất mạng|unregistered:Thiết bị chưa đăng ký" data-hint="Thử: PIN 000000 báo sai, PIN khác vào Việc của tôi (G1-DSH-07)."></div>
+
+  <main class="g1-auth-card g1-auth-card--tablet" id="main" aria-labelledby="t">
+    <div data-show="unregistered" hidden>
+      <div class="state" style="padding:0"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#lock"/></svg></div><h1 class="state__title">Thiết bị này chưa đăng ký là thiết bị xưởng</h1><p class="state__text">Chỉ tablet đã được quản lý hoặc quản trị đăng ký cho chi nhánh mới dùng PIN. Đăng nhập đầy đủ bằng tài khoản của bạn, hoặc nhờ quản lý đăng ký thiết bị.</p><div class="state__actions"><a class="btn btn--primary btn--xl" href="g1-aut-01.html">Đăng nhập đầy đủ</a></div></div>
+    </div>
+
+    <div data-hide="unregistered" class="stack">
+      <div><h1 id="t">Ai đang dùng máy này?</h1><p class="g1-lead">Chạm tên của bạn rồi nhập PIN 6 số. Mỗi người một PIN riêng, không dùng chung.</p></div>
+      <div class="g1-device"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span>Tablet xưởng 02 · Chi nhánh Quận 7 · ca 30/10/2026</span></div>
+
+      <div class="alert alert--info" role="status" data-show="idle" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span>Máy đã tự khóa vì 3 phút không dùng. Việc đang làm vẫn được ghi, chỉ cần chọn lại tên để tiếp tục.</span></div></div>
+      <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa đăng nhập mới được vì cần mạng để kiểm tra PIN. Thợ đã đăng nhập vẫn xem được việc đã tải. Báo quản đốc nếu mạng không trở lại.</span><div class="alert__actions"><button type="button" class="btn btn--secondary" data-g1-goto="default">Thử kết nối lại</button></div></div></div>
+
+      <div class="g1-workers" role="group" aria-label="Thợ trong ca hôm nay">
+        <button type="button" class="g1-worker" data-worker="Đỗ Văn Tùng" aria-pressed="false" data-disable-in="offline"><span class="avatar avatar--lg">ĐT</span>Đỗ Văn Tùng<small>Đang có 3 việc</small></button>
+        <button type="button" class="g1-worker" data-worker="Lâm Quốc Việt" aria-pressed="false" data-disable-in="offline"><span class="avatar avatar--lg">LV</span>Lâm Quốc Việt<small>Đang có 2 việc</small></button>
+        <button type="button" class="g1-worker" data-worker="Mai Văn Nam" aria-pressed="false" data-disable-in="offline"><span class="avatar avatar--lg">MN</span>Mai Văn Nam<small>Đang có 2 việc</small></button>
+        <button type="button" class="g1-worker" data-worker="Nguyễn Thái Sơn" aria-pressed="false" data-disable-in="offline"><span class="avatar avatar--lg">NS</span>Nguyễn Thái Sơn<small>Đang có 1 việc</small></button>
+        <button type="button" class="g1-worker" data-worker="Phạm Gia Bảo" aria-pressed="false" data-disable-in="offline"><span class="avatar avatar--lg">PB</span>Phạm Gia Bảo<small>Đang có 2 việc</small></button>
+        <button type="button" class="g1-worker" data-worker="Trương Minh Hiếu" aria-pressed="false" data-disable-in="offline"><span class="avatar avatar--lg">TH</span>Trương Minh Hiếu<small>Chưa có việc</small></button>
+      </div>
+
+      <section data-pin-step hidden aria-labelledby="pin-t" class="stack g1-center" style="border-top:1px solid var(--color-border);padding-top:var(--space-5)">
+        <h2 id="pin-t" style="font-size:var(--font-size-xl);margin:0">Xin chào <span data-worker-name></span>, nhập PIN</h2>
+        <div class="g1-pin-dots" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="sr-only" role="status" aria-live="polite" data-pin-live></div>
+        <div class="alert alert--danger" role="alert" data-show="error" hidden style="text-align:left"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">PIN chưa đúng</span><span>Nhập lại PIN 6 số của bạn. Còn 3 lần thử trước khi tên bạn bị khóa tạm.</span></div></div>
+        <div class="alert alert--danger" role="alert" data-show="locked" hidden style="text-align:left"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tên này tạm khóa vì nhập sai PIN 5 lần</span><span>Đã báo quản đốc. Quản đốc hoặc quản lý sẽ mở khóa và giúp bạn đặt PIN mới. Trong lúc chờ, bạn có thể đăng nhập đầy đủ bằng email và mật khẩu.</span><div class="alert__actions"><a class="btn btn--secondary" href="g1-aut-01.html">Đăng nhập đầy đủ</a></div></div></div>
+        <div class="g1-pinpad" role="group" aria-label="Bàn phím số PIN">
+          <button type="button" data-pin="1" aria-label="Số 1" data-disable-in="locked offline">1</button><button type="button" data-pin="2" aria-label="Số 2" data-disable-in="locked offline">2</button><button type="button" data-pin="3" aria-label="Số 3" data-disable-in="locked offline">3</button>
+          <button type="button" data-pin="4" aria-label="Số 4" data-disable-in="locked offline">4</button><button type="button" data-pin="5" aria-label="Số 5" data-disable-in="locked offline">5</button><button type="button" data-pin="6" aria-label="Số 6" data-disable-in="locked offline">6</button>
+          <button type="button" data-pin="7" aria-label="Số 7" data-disable-in="locked offline">7</button><button type="button" data-pin="8" aria-label="Số 8" data-disable-in="locked offline">8</button><button type="button" data-pin="9" aria-label="Số 9" data-disable-in="locked offline">9</button>
+          <button type="button" data-pin="clear" aria-label="Xóa hết" style="font-size:var(--font-size-md)" data-disable-in="locked offline">Xóa hết</button><button type="button" data-pin="0" aria-label="Số 0" data-disable-in="locked offline">0</button><button type="button" data-pin="back" aria-label="Xóa số cuối" data-disable-in="locked offline"><svg class="icon icon--lg"><use href="#chevron-left"/></svg></button>
+        </div>
+      </section>
+
+      <div class="g1-auth-links"><a class="btn btn--ghost btn--lg" href="g1-aut-01.html">Không thấy tên tôi? Đăng nhập đầy đủ</a><span class="t-body-sm text-secondary">Máy tự khóa sau 3 phút không dùng.</span></div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+/* Ở trạng thái PIN sai / khóa, chọn sẵn một thợ để thấy phần nhập PIN */
+(function () { var v0 = document.body.getAttribute('data-view'); if (v0 === 'error' || v0 === 'locked') document.querySelector('[data-worker]').click(); })();
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.g1-proto [data-g1-view]')) return;
+  var v = e.target.closest('[data-g1-view]').getAttribute('data-g1-view');
+  if (v === 'error' || v === 'locked') setTimeout(function () {
+    if (!document.querySelector('[data-worker][aria-pressed="true"]')) {
+      document.querySelector('[data-worker]').click();
+    }
+  }, 0);
+});
+</script>
+</body>
+</html>

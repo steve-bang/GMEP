@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-INS-02 – Kết quả kiểm tra và danh sách lỗi · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="ro" data-g2w-deny="TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Kết quả kiểm tra xe số</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Kết quả kiểm tra xe 51H-123.45</h1><p class="page-header__desc">Toyota Vios 1.5G · Mẫu Bảo dưỡng v3 · Thợ Lê Minh Tuấn · hoàn tất 09:42 30/10/2026</p></div></div>
+  <div data-g2w-scope data-time="Lần kiểm tra 30/10/2026" data-asof="09:42"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|notfound:Không tìm thấy|denied:Không có quyền|error:Lỗi"></div>
+  <div data-g2w-variants="default:Có lỗi cần xử lý|incomplete:Kiểm tra chưa hoàn tất|clean:Không có hạng mục lỗi|after:Đã đưa vào báo giá" data-g2w-vlabel="Kịch bản kết quả:"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--warning" data-g2w-vshow="incomplete" role="status"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Kiểm tra chưa hoàn tất (11/14 hạng mục)</span><span>Chưa thể đưa vào báo giá cho tới khi thợ hoàn tất. Hiện kết quả tạm tính từ các hạng mục đã chấm.</span></div></div>
+    <div class="alert alert--success" data-g2w-vshow="after" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã đưa 1 hạng mục vào báo giá BG-Q7-2610-00238 (Nháp)</span><span>Hạng mục xanh không sinh dòng. Tiếp tục chỉnh báo giá rồi gửi khách.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#">Mở báo giá nháp</a></div></div></div>
+    <div class="alert alert--info" data-g2w-roles="TH QD" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Giá và đề xuất báo giá chỉ hiện với Cố vấn, Quản lý. Bạn xem mức và ghi chú kiểm tra.</span></div></div>
+
+    <div class="g2w-ins-sum" role="group" aria-label="Tóm tắt kết quả">
+      <div class="g2w-ins-sum__cell g2w-ins-sum__cell--bad"><span><span class="badge badge--danger">Hỏng</span></span><strong id="s-bad">1</strong><span class="g2w-muted">cần thay hoặc sửa</span></div>
+      <div class="g2w-ins-sum__cell g2w-ins-sum__cell--watch"><span><span class="badge badge--warning">Theo dõi</span></span><strong id="s-watch">2</strong><span class="g2w-muted">nên nhắc lần sau</span></div>
+      <div class="g2w-ins-sum__cell g2w-ins-sum__cell--ok"><span><span class="badge badge--success">Tốt</span></span><strong id="s-ok">11</strong><span class="g2w-muted">không cần xử lý</span></div>
+    </div>
+
+    <div class="g2w-split g2w-split--wide">
+      <section class="card" aria-labelledby="ls">
+        <div class="card__header"><div><h2 class="card__title" id="ls">Danh sách lỗi</h2><div class="card__subtitle">Hạng mục Hỏng và Theo dõi. Chọn dòng để đưa vào báo giá.</div></div></div>
+        <div data-g2w-vshow="default incomplete after">
+          <div class="g2w-ins-item"><div class="g2w-ins-item__head"><label class="check"><input type="checkbox" checked data-add data-price="1070000" aria-label="Đưa vào báo giá: Má phanh trước"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="g2w-ins-item__name">Má phanh trước</span></label><span class="badge badge--danger">Hỏng</span></div>
+            <div>Mòn còn 1,5 mm, cần thay. Có tiếng kêu khi phanh.</div>
+            <div class="g2w-media-row"><span class="g2w-media"><svg class="icon icon--lg"><use href="#camera"/></svg><span class="g2w-media__tag">Ảnh 1</span></span><span class="g2w-media"><svg class="icon icon--lg"><use href="#camera"/></svg><span class="g2w-media__tag">Ảnh 2</span></span></div>
+            <div class="alert alert--neutral" data-g2w-hide-for="TH QD"><svg class="icon"><use href="#wrench"/></svg><div class="alert__body"><span><strong>Đề xuất:</strong> Thay má phanh trước (1,5 giờ) · công <span data-g2w-money>450.000 ₫</span> + Má phanh trước Toyota Vios (bộ) <span data-g2w-money>620.000 ₫</span> <span class="badge badge--danger">Hết hàng</span> <span class="tag tag--info">Đang về 10</span></span></div></div></div>
+          <div class="g2w-ins-item"><div class="g2w-ins-item__head"><label class="check"><input type="checkbox" data-add data-price="430000" aria-label="Đưa vào báo giá: Dầu phanh"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="g2w-ins-item__name">Dầu phanh</span></label><span class="badge badge--warning">Theo dõi</span></div>
+            <div>Hơi sẫm màu, theo dõi lần sau.</div>
+            <div class="alert alert--neutral" data-g2w-hide-for="TH QD"><svg class="icon"><use href="#wrench"/></svg><div class="alert__body"><span><strong>Đề xuất:</strong> Thay dầu phanh DOT4 · công <span data-g2w-money>250.000 ₫</span> + dầu phanh 1 lít <span data-g2w-money>180.000 ₫</span> <span class="badge badge--success">Đủ hàng</span></span></div></div>
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Nhắc ở lần sau nếu chưa làm (FR-INS-006)</span></label></div>
+          <div class="g2w-ins-item"><div class="g2w-ins-item__head"><label class="check"><input type="checkbox" data-add data-price="200000" aria-label="Đưa vào báo giá: Giảm xóc"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span class="g2w-ins-item__name">Giảm xóc</span></label><span class="badge badge--warning">Theo dõi</span></div>
+            <div>Hơi rỉ dầu giảm xóc trước phải.</div>
+            <div class="alert alert--neutral" data-g2w-hide-for="TH QD"><svg class="icon"><use href="#wrench"/></svg><div class="alert__body"><span><strong>Đề xuất:</strong> Kiểm tra lại giảm xóc trước phải (0,5 giờ) · công <span data-g2w-money>200.000 ₫</span></span></div></div>
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Nhắc ở lần sau nếu chưa làm</span></label></div>
+        </div>
+        <div data-g2w-vshow="clean" hidden><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><div class="state__title">Không có hạng mục cần xử lý</div><p class="state__text">Cả 14 hạng mục ở mức Tốt. Không có dòng nào để đưa vào báo giá; bạn vẫn lập báo giá theo yêu cầu của khách.</p><div class="state__actions"><a class="btn btn--secondary" href="#">Lập báo giá theo yêu cầu khách</a></div></div></div>
+      </section>
+
+      <aside class="g2w-stack g2w-stack--tight" data-g2w-hide-for="TH QD">
+        <section class="card" aria-labelledby="pv"><div class="card__header"><div><h2 class="card__title" id="pv">Dòng sẽ tạo trong báo giá</h2><div class="card__subtitle">Một thao tác, sinh dòng công và phụ tùng gợi ý</div></div></div>
+          <div class="card__body stack-2"><div class="row row--between"><span>Số hạng mục đã chọn</span><strong id="pv-n">1</strong></div><div class="row row--between"><span>Cộng trước thuế (tạm tính)</span><strong class="money" id="pv-t" data-g2w-money>1.070.000 ₫</strong></div><p class="g2w-muted">Thuế, giảm giá và giá chính thức tính ở báo giá theo bảng giá hiệu lực. Phụ tùng hết hàng sẽ cảnh báo ở báo giá.</p></div>
+          <div class="card__footer" style="flex-wrap:wrap">
+            <button class="btn btn--secondary" data-g2w-lock="CV QL" data-g2w-why="Kênh Zalo/SMS chưa được kích hoạt (G4-SYS-17)." data-g2w-force-disabled data-g2w-force-why="Chưa kích hoạt kênh gửi khách (Zalo/SMS). In kết quả để đưa khách." disabled><svg class="icon"><use href="#send"/></svg>Gửi khách kèm báo giá</button>
+            <button class="btn btn--primary" id="to-quote" data-toast="success|Đã tạo báo giá nháp|BG-Q7-2610-00238 gồm 1 hạng mục từ kết quả kiểm tra." data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn đưa kết quả vào báo giá."><svg class="icon"><use href="#file-text"/></svg>Đưa vào báo giá</button></div></section>
+        <section class="card"><div class="card__header"><h2 class="card__title">So với lần kiểm tra trước (12/07/2026)</h2></div><div class="card__body"><ul class="impact-list"><li>Má phanh trước: Tốt → Hỏng.</li><li>Dầu phanh: Tốt → Theo dõi.</li><li>Lốp, đèn: không đổi (Tốt).</li></ul></div></section>
+      </aside>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="g2w-ins-sum"><span class="skeleton skeleton--block" style="height:96px"></span><span class="skeleton skeleton--block" style="height:96px"></span><span class="skeleton skeleton--block" style="height:96px"></span></div><p class="g2w-muted" role="status">Đang tải kết quả kiểm tra…</p></div>
+  <div data-state="notfound" hidden data-g2w-tpl="empty" data-icon="search" data-title="Chưa có kết quả kiểm tra xe số" data-text="Xe này chưa được kiểm tra hoặc mẫu chưa được áp dụng." data-cta="Về danh sách phiếu" data-href="g2-rec-02.html"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem kết quả kiểm tra" data-text="Kết quả dành cho Thợ, Quản đốc, Cố vấn, Quản lý và Chủ garage."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được kết quả kiểm tra" data-ref="ERR-INS-5002"></div>
+</div>
+</div></main>
+</div>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  function vnd(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫'; }
+  function recalc() {
+    var s = 0, c = 0; Array.prototype.forEach.call(document.querySelectorAll('input[data-add]'), function (i) { if (i.checked) { s += +i.getAttribute('data-price'); c++; } });
+    document.getElementById('pv-n').textContent = c;
+    var t = document.getElementById('pv-t'); t.textContent = vnd(s); t.__v = t.textContent;
+    if (window.g2wApply) window.g2wApply();
+  }
+  document.addEventListener('change', function (e) { if (e.target.matches('input[data-add]')) recalc(); });
+  document.addEventListener('click', function (e) {
+    var v = e.target.closest('[data-g2w-var]'); if (!v) return; var k = v.getAttribute('data-g2w-var'), b = document.getElementById('to-quote');
+    var off = k === 'incomplete' || k === 'clean' || k === 'after';
+    if (off) { b.setAttribute('data-g2w-force-disabled', ''); b.setAttribute('data-g2w-force-why', k === 'incomplete' ? 'Thợ chưa hoàn tất kiểm tra.' : (k === 'clean' ? 'Không có hạng mục lỗi để đưa vào báo giá.' : 'Đã đưa vào báo giá rồi.')); } else b.removeAttribute('data-g2w-force-disabled');
+    setTimeout(function () { window.g2wApply && window.g2wApply(); }, 0);
+  });
+})();
+</script>
+</body>
+</html>

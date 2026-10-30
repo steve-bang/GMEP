@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-05 · Hàng dưới định mức và gợi ý đặt hàng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-05')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Hàng dưới định mức</h1><p class="page-header__desc">So Khả dụng với định mức tối thiểu của từng mặt hàng tại chi nhánh. Xem chi nhánh đang có hàng trước khi đặt nhà cung cấp.</p></div>
+  <div class="page-header__actions"><button class="btn btn--secondary"><svg class="icon"><use href="#download"/></svg>Xuất Excel</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Tồn tính đến 09:15 30/10/2026</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button></div>
+
+<div id="g3-body" data-noun="mặt hàng dưới định mức" data-cols="9" data-empty-icon="circle-check" data-empty-text="Mọi mặt hàng đang có định mức đều đủ Khả dụng. Các mặt hàng chưa đặt định mức không được cảnh báo; vào danh mục để đặt định mức.">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--info" role="note"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Chính sách gợi ý: ưu tiên lấy từ chi nhánh đang dư trước khi đặt nhà cung cấp</span><span>Đang <strong>bật</strong>. Chính sách này chưa được khách xác nhận nên là cấu hình, không cố định trong giao diện. <span data-g3-roles="CH"><a href="#">Đổi cấu hình</a></span></span></div></div>
+
+  <div class="table-wrap">
+    <div class="table-toolbar"><div class="input-group" style="flex:1 1 260px;max-width:360px"><svg class="icon"><use href="#search"/></svg><input class="input" placeholder="Tìm mã, tên phụ tùng…" aria-label="Tìm mặt hàng dưới định mức"></div>
+      <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Chỉ hiện Hết hàng và Sắp hết</span></label><span class="table-meta" style="margin-left:auto">4 mặt hàng</span></div>
+    <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> mặt hàng</span>
+      <a class="btn btn--primary btn--sm" href="g3-inv-13.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh lập phiếu chuyển.">Tạo phiếu chuyển</a><a class="btn btn--secondary btn--sm" href="g3-pur-02.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh lập yêu cầu mua.">Tạo yêu cầu mua</a><button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
+    <div class="table-scroll"><table class="table" data-g3-cards>
+      <caption class="sr-only">Mặt hàng có Khả dụng bằng hoặc thấp hơn định mức tối thiểu</caption>
+      <thead><tr><th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th>
+        <th data-card="title">Mã</th><th data-card="sub">Phụ tùng</th><th data-card="badge">Trạng thái</th><th class="col-num" data-card="meta">Khả dụng</th><th class="col-num">Tối thiểu</th><th class="col-num" data-card="meta">Đang về</th><th>Gợi ý nguồn (P2)</th><th class="col-num">Số lượng đề xuất</th></tr></thead>
+      <tbody>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0008"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0008</td><td>Dây curoa tổng Kia Morning</td><td><span class="badge badge--danger">Hết hàng</span> <span class="tag tag--info">Đang về 6</span></td><td class="col-num"><strong class="g3-var g3-var--over">0</strong></td><td class="col-num">3</td><td class="col-num">6</td><td>Chưa nhận: phiếu chuyển <a href="g3-inv-14.html">CK-TD-2610-00014</a> dự kiến đến 31/10/2026</td><td class="col-num"><input class="input input--num g3-num" value="6" aria-label="Số lượng đề xuất PT-0008"></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0003"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0003</td><td>Dầu nhớt Castrol 5W-30 (can 4 lít)</td><td><span class="badge badge--danger">Hết hàng</span></td><td class="col-num"><strong class="g3-var g3-var--over">0</strong></td><td class="col-num">6</td><td class="col-num">0</td><td>Chi nhánh Thủ Đức có 20 khả dụng (trên mức tối thiểu của họ)</td><td class="col-num"><input class="input input--num g3-num" value="24" aria-label="Số lượng đề xuất PT-0003"></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0002"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0002</td><td>Má phanh trước Hyundai Accent</td><td><span class="badge badge--warning">Sắp hết</span> <span class="tag tag--info">Đang về 10</span></td><td class="col-num"><strong class="g3-var g3-var--short">3</strong></td><td class="col-num">6</td><td class="col-num">10</td><td>Thủ Đức có 15 khả dụng; hoặc chờ 10 đang về</td><td class="col-num"><input class="input input--num g3-num" value="11" aria-label="Số lượng đề xuất PT-0002"></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0005"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0005</td><td>Lốp Michelin Primacy 4 205/55R16</td><td><span class="badge badge--warning">Sắp hết</span></td><td class="col-num"><strong class="g3-var g3-var--short">4</strong></td><td class="col-num">4</td><td class="col-num">0</td><td>Không có chi nhánh dư → đặt <a href="g3-pur-10.html">Đại lý Michelin Miền Nam</a></td><td class="col-num"><input class="input input--num g3-num" value="12" aria-label="Số lượng đề xuất PT-0005"></td></tr>
+      </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Số lượng đề xuất mặc định = định mức tối đa − (Khả dụng + Đang về); công thức là cấu hình, chờ BA xác nhận.</span></div>
+  </div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

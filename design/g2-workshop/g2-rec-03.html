@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-REC-03 – Bảng điều phối chi nhánh · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QL" data-nav="ro" data-g2w-deny="AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Bảng điều phối</span></nav>
+
+  <div class="page-header">
+    <div class="page-header__text"><h1>Bảng điều phối chi nhánh</h1><p class="page-header__desc">Xe theo trạng thái lệnh. Dải “Trước lệnh” thuộc Lịch hẹn và Báo giá, không phải trạng thái của lệnh.</p></div>
+    <div class="page-header__actions">
+      <div class="segmented" role="group" aria-label="Kiểu xem"><a class="segmented__item" aria-pressed="false" href="g2-rec-02.html" style="text-decoration:none"><svg class="icon icon--sm"><use href="#columns"/></svg>Danh sách</a><a class="segmented__item" aria-pressed="true" href="g2-rec-03.html" style="text-decoration:none"><svg class="icon icon--sm"><use href="#layout-dashboard"/></svg>Bảng điều phối</a></div>
+      <a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#plus"/></svg>Tiếp nhận xe</a>
+    </div>
+  </div>
+
+  <div data-g2w-scope data-time="Hôm nay 30/10/2026" data-asof="09:16"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Trống|error:Lỗi|denied:Không có quyền"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info" data-g2w-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Vai trò Thợ chỉ thấy xe có hạng mục của mình và không kéo thả được.</span></div></div>
+    <div class="alert alert--info" data-g2w-roles="CH QV KT TK TN" role="status"><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span>Bạn chỉ xem bảng. Chuyển trạng thái do Cố vấn, Quản đốc hoặc Quản lý chi nhánh thực hiện.</span></div></div>
+
+    <div class="filter-bar">
+      <div class="field"><label class="field__label" for="k-th">Thợ chính</label><select id="k-th" class="select"><option>Tất cả</option><option>Lê Minh Tuấn</option><option>Trần Văn Hậu</option><option>Ngô Thanh Phong</option></select></div>
+      <div class="field"><label class="field__label" for="k-dt">Ngày hẹn giao</label><div class="datepicker-host" data-datepicker="single"><div class="input-group date-field"><input id="k-dt" class="input" value="30/10/2026" placeholder="dd/MM/yyyy"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div>
+      <div class="field"><span class="field__label" id="k-quick">Lọc nhanh</span><div class="g2w-seg-row" role="group" aria-labelledby="k-quick"><button class="chip-filter" aria-pressed="false">Trễ hẹn <span class="count-pill count-pill--danger">1</span></button><button class="chip-filter" aria-pressed="false">Chờ phụ tùng <span class="count-pill count-pill--warning">1</span></button></div></div>
+      <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button></div>
+    </div>
+
+    <div class="pre-order" aria-label="Trước lệnh: lịch hẹn, tiếp nhận, báo giá"><span class="pre-order__label">Trước lệnh</span>
+      <a class="badge badge--info" href="g2-apt-01.html" style="text-decoration:none">Đã hẹn · 5</a><svg class="icon icon--sm pre-order__arrow" aria-hidden="true"><use href="#arrow-right"/></svg>
+      <a class="badge badge--neutral" href="g2-apt-01.html" style="text-decoration:none">Chờ tiếp nhận · 2</a><svg class="icon icon--sm pre-order__arrow" aria-hidden="true"><use href="#arrow-right"/></svg>
+      <a class="badge badge--warning" href="#" style="text-decoration:none" data-g2w-hide-for="TH">Báo giá chờ khách duyệt · 8</a>
+      <span class="t-body-sm text-secondary">Lệnh chỉ bắt đầu khi khách duyệt báo giá (WF-01). Bấm để mở danh sách tương ứng.</span></div>
+
+    <p class="g2w-drag-hint"><svg class="icon icon--sm"><use href="#info"/></svg>Kéo thẻ sang cột kế tiếp để chuyển trạng thái. Chỉ chuyển được khi đủ điều kiện, ngược lại hệ thống chặn và nêu lý do (FR-REC-015). Trên cảm ứng hoặc bàn phím dùng nút “Chuyển trạng thái…”.</p>
+
+    <div class="g2w-board" role="region" aria-label="Bảng điều phối theo trạng thái lệnh" tabindex="0">
+      <!-- ĐÃ DUYỆT -->
+      <div class="kanban__col" data-col="approved"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--neutral">Đã duyệt</span></div><span class="count-pill">2</span></div>
+        <div class="kanban__cards stack-2">
+          <div class="kanban__card" draggable="true" data-g2w-drag="CV QL QD" data-code="RO-Q7-2610-00129" data-block-working="Hạng mục chưa có thợ chính: phân thợ trước khi bắt đầu (FR-REC-012)." data-g2w-hide-for="TH">
+            <div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00129</a><span class="plate-tag">51A-246.80</span></div>
+            <span class="text-secondary t-body-sm">Ford Ranger · Võ Thanh Sơn</span>
+            <div class="g2w-card-meta"><span class="tag tag--warning">Chưa phân thợ</span><span class="g2w-due">02/11 17:00</span></div>
+            <button class="btn btn--secondary btn--sm g2w-move" data-g2w-move>Chuyển trạng thái…</button></div>
+          <div class="kanban__card" draggable="true" data-g2w-drag="CV QL QD" data-code="RO-Q7-2610-00124" data-g2w-hide-for="TH">
+            <div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00124</a><span class="plate-tag">51B-808.09</span></div>
+            <span class="text-secondary t-body-sm">Toyota Fortuner · Hồ Minh Châu</span>
+            <div class="g2w-card-meta"><span>Thợ Ngô Thanh Phong</span><span class="g2w-due">01/11 09:00</span></div>
+            <button class="btn btn--secondary btn--sm g2w-move" data-g2w-move>Chuyển trạng thái…</button></div>
+        </div></div>
+      <!-- ĐANG SỬA -->
+      <div class="kanban__col" data-col="working"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--info">Đang sửa chữa</span></div><span class="count-pill">1</span></div>
+        <div class="kanban__cards stack-2">
+          <div class="kanban__card" draggable="true" data-g2w-drag="CV QL QD" data-code="RO-Q7-2610-00128" data-block-qc="Còn 2 hạng mục chưa hoàn thành (Thay má phanh trước, Cân chỉnh góc đặt bánh xe)." id="k128">
+            <div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00128</a><span class="plate-tag">51H-123.45</span></div>
+            <span class="text-secondary t-body-sm">Toyota Vios · Nguyễn Văn An</span>
+            <div class="progress"><div class="progress__head"><span>Hạng mục hoàn thành</span><span>1/3</span></div><div class="progress__track" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" aria-label="Hạng mục hoàn thành 1 trên 3"><div class="progress__bar" style="width:33%"></div></div></div>
+            <div class="g2w-card-meta"><span>Thợ Lê Minh Tuấn</span><span class="g2w-due is-soon"><svg class="icon icon--sm"><use href="#clock"/></svg>16:00 hôm nay</span></div>
+            <span class="tag tag--warning"><svg class="icon"><use href="#lock"/></svg>1 phát sinh chờ khách duyệt</span>
+            <button class="btn btn--secondary btn--sm g2w-move" data-g2w-move>Chuyển trạng thái…</button></div>
+        </div></div>
+      <!-- TẠM DỪNG -->
+      <div class="kanban__col" data-col="paused"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--warning">Tạm dừng</span></div><span class="count-pill count-pill--warning">1</span></div>
+        <div class="kanban__cards stack-2">
+          <div class="kanban__card is-warning" draggable="true" data-g2w-drag="CV QL QD" data-code="RO-Q7-2610-00126" data-block-working="Phụ tùng “Má phanh trước Toyota Vios” chưa có (khả dụng 0). Chờ thủ kho xuất kho.">
+            <div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html?variant=paused">RO-Q7-2610-00126</a><span class="plate-tag">51K-987.65</span></div>
+            <span class="text-secondary t-body-sm">Mazda CX-5 · Công ty TNHH Vận tải Hòa Phát…</span>
+            <div class="g2w-card-meta"><span class="tag tag--reason tag--warning">Chờ phụ tùng</span><span class="g2w-due">31/10 10:00</span></div>
+            <span class="t-body-sm text-secondary">Thợ Lê Minh Tuấn · tạm dừng 09:40</span>
+            <button class="btn btn--secondary btn--sm g2w-move" data-g2w-move>Chuyển trạng thái…</button></div>
+        </div></div>
+      <!-- CHỜ QC -->
+      <div class="kanban__col" data-col="qc"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--purple">Chờ QC</span></div><span class="count-pill count-pill--danger">1</span></div>
+        <div class="kanban__cards stack-2">
+          <div class="kanban__card is-overdue" draggable="true" data-g2w-drag="CV QL QD" data-code="RO-Q7-2610-00127" data-block-ready="Chưa đạt kiểm tra chất lượng: checklist QC chưa hoàn tất (FR-REC-016)." data-block-working="Trả lại thợ cần ghi lỗi QC. Mở màn hình QC để trả lại (G2-DLV-02)." data-g2w-hide-for="TH">
+            <div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00127</a><span class="plate-tag">30G-456.78</span></div>
+            <span class="text-secondary t-body-sm">Hyundai Accent · Trần Thị Bích Ngọc</span>
+            <div class="g2w-card-meta"><span class="text-danger" style="font-weight:600"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#alert-triangle"/></svg> Trễ hẹn 1 ngày</span><span class="g2w-due is-late">29/10 11:00</span></div>
+            <span class="t-body-sm text-secondary">Thợ Trần Văn Hậu</span>
+            <button class="btn btn--secondary btn--sm g2w-move" data-g2w-move>Chuyển trạng thái…</button></div>
+        </div></div>
+      <!-- SẴN SÀNG -->
+      <div class="kanban__col" data-col="ready"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--success">Sẵn sàng bàn giao</span></div><span class="count-pill">1</span></div>
+        <div class="kanban__cards stack-2">
+          <div class="kanban__card" draggable="true" data-g2w-drag="CV QL QD" data-code="RO-Q7-2610-00125" data-block-done="Chưa có biên bản giao xe có khách xác nhận (G2-DLV-04)." data-g2w-hide-for="TH">
+            <div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00125</a><span class="plate-tag">59A-111.22</span></div>
+            <span class="text-secondary t-body-sm">Honda City · Lê Quốc Huy</span>
+            <div class="g2w-card-meta"><span class="badge badge--success">Đã thanh toán</span><span class="g2w-due">14:00 hôm nay</span></div>
+            <button class="btn btn--secondary btn--sm g2w-move" data-g2w-move>Chuyển trạng thái…</button></div>
+        </div></div>
+      <!-- HOÀN TẤT -->
+      <div class="kanban__col" data-col="done"><div class="kanban__head"><div class="kanban__title"><span class="badge badge--success">Hoàn tất</span></div><span class="count-pill">1</span></div>
+        <div class="kanban__cards stack-2">
+          <div class="kanban__card" data-code="RO-Q7-2610-00122" data-g2w-hide-for="TH">
+            <div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html?variant=done">RO-Q7-2610-00122</a><span class="plate-tag">51D-555.66</span></div>
+            <span class="text-secondary t-body-sm">Mitsubishi Xpander · Đặng Thị Lan</span>
+            <div class="g2w-card-meta"><span>Giao 27/10 15:00</span><span class="tag">Chỉ xem</span></div></div>
+        </div></div>
+    </div>
+    <p class="g2w-muted">Lệnh “Đã hủy” không hiện ở bảng; xem ở danh sách lệnh với bộ lọc trạng thái. Cập nhật tự động khi trạng thái đổi; đồng bộ với số liệu báo cáo FR-RPT-012.</p>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="g2w-board"><div class="kanban__col"><span class="skeleton skeleton--block" style="height:120px"></span><span class="skeleton skeleton--block" style="height:120px"></span></div><div class="kanban__col"><span class="skeleton skeleton--block" style="height:120px"></span></div><div class="kanban__col"><span class="skeleton skeleton--block" style="height:120px"></span></div></div><p class="g2w-muted" role="status">Đang tải bảng điều phối…</p></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="layout-dashboard" data-title="Chưa có xe nào trong xưởng" data-text="Khi có lệnh sửa chữa, xe hiện ở đây theo trạng thái. Tiếp nhận xe mới để bắt đầu." data-cta="Tiếp nhận xe" data-href="g2-rec-01.html"></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được bảng điều phối" data-ref="ERR-REC-5010"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem bảng điều phối" data-text="Bảng này dành cho Cố vấn, Quản đốc, Quản lý và Chủ garage."></div>
+</div>
+</div></main>
+</div>
+
+<!-- Chuyển trạng thái bằng nút (thay cho kéo thả: bàn phím, cảm ứng) -->
+<div class="overlay" id="dlg-move" role="dialog" aria-modal="true" aria-labelledby="mv-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="mv-t">Chuyển trạng thái lệnh</h2><p class="t-body-sm text-secondary" data-g2w-move-title style="margin:0"></p></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack-2">
+    <p>Chỉ chuyển được sang bước kế tiếp hợp lệ. Nút xám là chưa thể chuyển; nếu thiếu điều kiện, hệ thống nêu lý do sau khi bạn chọn.</p>
+    <button class="btn btn--secondary btn--block" data-to="working"><span class="badge badge--info">Đang sửa chữa</span></button>
+    <button class="btn btn--secondary btn--block" data-to="paused"><span class="badge badge--warning">Tạm dừng</span></button>
+    <button class="btn btn--secondary btn--block" data-to="qc"><span class="badge badge--purple">Chờ QC</span></button>
+    <button class="btn btn--secondary btn--block" data-to="ready"><span class="badge badge--success">Sẵn sàng bàn giao</span></button>
+    <button class="btn btn--secondary btn--block" data-to="done"><span class="badge badge--success">Hoàn tất</span></button>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

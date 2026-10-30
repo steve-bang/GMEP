@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-PUR-09 · Danh sách nhà cung cấp – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('pur')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('PUR-09')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Nhà cung cấp</h1><p class="page-header__desc">Danh bạ dùng chung toàn chuỗi: liên hệ, điều khoản thanh toán, dư nợ và đánh giá giao hàng.</p></div>
+  <div class="page-header__actions"><a class="btn btn--primary" href="g3-pur-10.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh thêm nhà cung cấp."><svg class="icon"><use href="#plus"/></svg>Thêm nhà cung cấp</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> danh bạ <strong>toàn chuỗi</strong>; dư nợ tính theo chi nhánh đang chọn (<span data-scope-text>Chỉ Chi nhánh Quận 7</span>)</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="nhà cung cấp" data-cols="6" data-empty-icon="truck" data-empty-text="Thêm nhà cung cấp đầu tiên để lập đơn mua và theo dõi công nợ phải trả." data-empty-cta="Thêm nhà cung cấp">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar" role="search"><div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm theo tên, mã, người liên hệ</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: hoang long"></div></div>
+    <div class="field"><label class="field__label" for="f-s">Trạng thái</label><select id="f-s" class="select"><option>Đang hợp tác</option><option>Tạm ngừng</option><option>Tất cả</option></select></div><div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Danh sách nhà cung cấp</caption>
+    <thead><tr><th data-card="title">Mã</th><th data-card="sub">Nhà cung cấp</th><th data-card="badge">Trạng thái</th><th>Người liên hệ</th><th>Điện thoại</th><th data-card="meta">Điều khoản</th><th class="col-num" data-card="foot">Dư nợ phải trả</th><th data-card="meta">Đánh giá <span class="tag tag--neutral">P2+</span></th></tr></thead>
+    <tbody>
+      <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-001</a></td><td>Công ty TNHH Phụ tùng Hoàng Long</td><td><span class="badge badge--success">Đang hợp tác</span></td><td>Lâm Quốc Hùng</td><td><span data-g3-pii="n1" data-group="supplier" data-kind="phone"></span></td><td>Công nợ 30 ngày</td><td class="col-num"><span data-g3-cost="5.850.000 ₫"></span></td><td>4,6/5</td></tr>
+      <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-002</a></td><td>Công ty CP Dầu nhớt Đại Phát</td><td><span class="badge badge--success">Đang hợp tác</span></td><td>Hoàng Thị Lan</td><td><span data-g3-pii="n2" data-group="supplier" data-kind="phone"></span></td><td>Công nợ 15 ngày</td><td class="col-num"><span data-g3-cost="0 ₫"></span></td><td>4,2/5</td></tr>
+      <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-003</a></td><td>Đại lý Michelin Miền Nam</td><td><span class="badge badge--success">Đang hợp tác</span></td><td>Phạm Văn Tiến</td><td><span data-g3-pii="n3" data-group="supplier" data-kind="phone"></span></td><td>Đặt cọc khi đặt, còn lại khi nhận</td><td class="col-num"><span data-g3-cost="0 ₫"></span></td><td>4,8/5</td></tr>
+      <tr data-href="g3-pur-10.html"><td class="code"><a href="g3-pur-10.html">NCC-004</a></td><td>Công ty TNHH Mobis Việt</td><td><span class="badge badge--neutral">Tạm ngừng</span></td><td>Đỗ Thành Nam</td><td><span data-g3-pii="n1" data-group="supplier" data-kind="phone"></span></td><td>Công nợ 45 ngày</td><td class="col-num"><span data-g3-cost="1.980.000 ₫"></span></td><td>3,9/5</td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–4 trong 4 nhà cung cấp</span></div></div>
+  <p class="t-body-sm text-secondary">Điện thoại người liên hệ cá nhân được che theo vai trò (Chủ garage, Quản lý vùng, Kế toán bấm “Hiện” có ghi nhật ký; Thủ kho và Quản lý chi nhánh xem đầy đủ). Dư nợ chỉ hiện với vai trò được xem số liệu tài chính. Đánh giá là mức Could (P2+).</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

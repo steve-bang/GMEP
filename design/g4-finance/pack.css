@@ -1,0 +1,164 @@
+/* GMEP – Gói 5 (G4 Tài chính & hóa đơn): style bổ sung. Tiền tố g4f-. Chỉ dùng token, không hard-code hex. */
+
+/* ---------- Thanh xem thử (chỉ prototype) ---------- */
+.g4f-demo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface); }
+.g4f-demo__label { font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-secondary); font-weight: 600; }
+.g4f-demo .segmented { flex-wrap: wrap; }
+
+/* ---------- Điều hướng con của module Tài chính / Hóa đơn ---------- */
+.g4f-subnav { display: flex; gap: var(--space-1); overflow-x: auto; border-bottom: 1px solid var(--color-border); scrollbar-width: none; }
+.g4f-subnav::-webkit-scrollbar { display: none; }
+.g4f-subnav a { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4); color: var(--color-text-secondary); font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; text-decoration: none; }
+.g4f-subnav a:hover { color: var(--color-text-primary); background: var(--color-surface-hover); }
+.g4f-subnav a[aria-current="page"] { color: var(--color-text-link); border-bottom-color: var(--color-primary); font-weight: 600; }
+.g4f-subnav a[hidden] { display: none; }
+.g4f-sublinks { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--font-size-sm); }
+.g4f-sublinks a { padding: 6px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-surface); color: var(--color-text-secondary); text-decoration: none; min-height: 32px; display: inline-flex; align-items: center; }
+.g4f-sublinks a[aria-current="page"] { background: var(--color-primary-subtle); border-color: var(--color-brand-200); color: var(--color-brand-800); font-weight: 600; }
+
+/* ---------- Bố cục ---------- */
+.g4f-two { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: var(--space-6); align-items: start; }
+.g4f-two--even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g4f-aside { position: sticky; top: calc(var(--topbar-height) + var(--space-4)); display: flex; flex-direction: column; gap: var(--space-4); }
+@media (max-width: 1279px) { .g4f-two, .g4f-two--even { grid-template-columns: 1fr; } .g4f-aside { position: static; } }
+.g4f-kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-3) var(--space-6); margin: 0; }
+.g4f-kv dt { font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-tertiary); }
+.g4f-kv dd { margin: 2px 0 0; font-size: var(--font-size-md); line-height: 20px; color: var(--color-text-primary); overflow-wrap: anywhere; }
+.g4f-kv--wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+/* ---------- Dòng tiền / tổng kết ---------- */
+.g4f-sum { display: flex; flex-direction: column; margin: 0; }
+.g4f-sum > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); font-size: var(--font-size-md); }
+.g4f-sum > div:last-child { border-bottom: 0; }
+.g4f-sum dt { color: var(--color-text-secondary); margin: 0; }
+.g4f-sum dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.g4f-sum .is-total { padding-top: var(--space-3); border-top: 2px solid var(--color-border-strong); border-bottom: 0; font-weight: 700; font-size: var(--font-size-lg); }
+.g4f-sum .is-total dt { color: var(--color-text-primary); }
+.g4f-sum .is-neg dd { color: var(--color-danger-text); }
+.g4f-big { font-size: var(--font-size-3xl); line-height: 40px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.g4f-big--md { font-size: var(--font-size-2xl); line-height: 32px; }
+.g4f-ok { color: var(--color-success-text); font-weight: 600; }
+.g4f-bad { color: var(--color-danger-text); font-weight: 600; }
+.g4f-warn { color: var(--color-warning-text); font-weight: 600; }
+.g4f-muted { color: var(--color-text-secondary); }
+.g4f-nowrap { white-space: nowrap; }
+.g4f-money { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+
+/* ---------- Chuỗi 5 đối tượng liên kết (báo giá, lệnh, thanh toán, phiếu thu, hóa đơn) ---------- */
+.g4f-flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.g4f-flow > li { position: relative; display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); min-width: 0; }
+.g4f-flow > li.is-current { border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
+.g4f-flow__kind { font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-tertiary); }
+.g4f-flow__code { font-variant-numeric: tabular-nums; font-weight: 600; overflow-wrap: anywhere; }
+.g4f-flow a { color: var(--color-text-link); }
+@media (max-width: 1023px) { .g4f-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .g4f-flow { grid-template-columns: 1fr; } }
+
+/* ---------- Dòng thanh toán nhiều hình thức ---------- */
+.g4f-pay { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(160px, 1fr) minmax(140px, 1fr) 44px; gap: var(--space-3); align-items: end; padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); }
+.g4f-pay:last-of-type { border-bottom: 0; }
+@media (max-width: 767px) { .g4f-pay { grid-template-columns: 1fr 1fr; } .g4f-pay > :nth-child(3) { grid-column: 1 / -1; } }
+
+/* ---------- Dòng bút toán đảo / không còn hiệu lực ---------- */
+.g4f-reversed td { color: var(--color-text-secondary); }
+.g4f-reversed .g4f-money, .g4f-reversed .col-num { text-decoration: line-through; text-decoration-thickness: 1px; }
+.g4f-entry-rev td { background: var(--color-warning-bg); }
+.g4f-entry-rev .col-num { color: var(--color-danger-text); }
+
+/* ---------- Khóa / chỉ đọc ---------- */
+.g4f-lock { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface-subtle); color: var(--color-text-secondary); font-size: var(--font-size-sm); line-height: 18px; }
+.g4f-lock .icon { flex: none; margin-top: 1px; }
+.g4f-why { display: block; margin-top: var(--space-1); font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-secondary); }
+.g4f-rolenote { margin: 0; }
+.g4f-readonly :is(input, select, textarea) { background: var(--color-surface-subtle); }
+
+/* ---------- Danh sách điều kiện (kiểm tra trước khi phát hành / chốt) ---------- */
+.g4f-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.g4f-checks > li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: var(--space-3); align-items: start; padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); }
+.g4f-checks > li:last-child { border-bottom: 0; }
+.g4f-checks__ic { width: 24px; height: 24px; border-radius: var(--radius-full); display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+.g4f-checks__ic .icon { width: 16px; height: 16px; }
+.g4f-checks .is-pass .g4f-checks__ic { background: var(--color-success-bg); color: var(--color-success-text); }
+.g4f-checks .is-fail .g4f-checks__ic { background: var(--color-danger-bg); color: var(--color-danger-text); }
+.g4f-checks .is-wait .g4f-checks__ic { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.g4f-checks__title { font-weight: 600; }
+.g4f-checks__sub { font-size: var(--font-size-sm); line-height: 18px; color: var(--color-text-secondary); }
+@media (max-width: 639px) { .g4f-checks > li { grid-template-columns: 28px minmax(0, 1fr); } .g4f-checks > li > :last-child { grid-column: 2; } }
+
+/* ---------- Biểu đồ: tuổi nợ (thanh xếp chồng) và thanh ngang theo chi nhánh ---------- */
+.g4f-aging { display: flex; width: 100%; height: 32px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); }
+.g4f-aging > span { display: block; height: 100%; border-right: 2px solid var(--color-surface); min-width: 2px; }
+.g4f-aging > span:last-child { border-right: 0; }
+.g4f-seg-1 { background: var(--color-brand-200); } .g4f-seg-2 { background: var(--color-brand-400); } .g4f-seg-3 { background: var(--color-brand-600); } .g4f-seg-4 { background: var(--color-brand-900); }
+.g4f-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-3); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.g4f-legend li { display: flex; flex-direction: column; gap: 2px; font-size: var(--font-size-sm); }
+.g4f-legend__key { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-text-secondary); }
+.g4f-legend__sw { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--color-border-strong); flex: none; }
+.g4f-legend strong { font-size: var(--font-size-lg); font-variant-numeric: tabular-nums; }
+.g4f-hbars { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.g4f-hbars li { display: grid; grid-template-columns: 150px minmax(0, 1fr) 150px; gap: var(--space-3); align-items: center; font-size: var(--font-size-md); }
+.g4f-hbars__track { height: 20px; background: var(--color-surface-subtle); border-radius: var(--radius-xs); overflow: hidden; border: 1px solid var(--color-border); }
+.g4f-hbars__fill { display: block; height: 100%; background: var(--chart-series-1); }
+.g4f-hbars__fill--loss { background: var(--color-danger); }
+.g4f-hbars li > :last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+@media (max-width: 639px) { .g4f-hbars li { grid-template-columns: 1fr auto; } .g4f-hbars__track { grid-column: 1 / -1; order: 3; } }
+
+/* ---------- Hạn mức (thanh có mốc) ---------- */
+.g4f-limit { position: relative; height: 12px; background: var(--color-surface-subtle); border-radius: var(--radius-full); border: 1px solid var(--color-border-strong); overflow: visible; }
+.g4f-limit__bar { position: absolute; inset: 0 auto 0 0; border-radius: var(--radius-full); background: var(--color-info); }
+.g4f-limit__bar.is-over { background: var(--color-danger); }
+.g4f-limit__mark { position: absolute; top: -5px; bottom: -5px; width: 2px; background: var(--color-text-primary); }
+.g4f-limit__cap { display: flex; justify-content: space-between; margin-top: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
+/* ---------- Đếm quỹ (mệnh giá) ---------- */
+.g4f-denom { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: var(--space-3); }
+.g4f-denom__row { display: grid; grid-template-columns: 96px 88px minmax(0, 1fr); gap: var(--space-2); align-items: center; }
+.g4f-denom__row .qty, .g4f-denom__row .input { min-width: 0; }
+.g4f-denom__sub { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+.g4f-diff { padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); }
+.g4f-diff.is-ok { background: var(--color-success-bg); border-color: var(--color-success-border); }
+.g4f-diff.is-bad { background: var(--color-danger-bg); border-color: var(--color-danger-border); }
+
+/* ---------- Đối soát hai khung ---------- */
+.g4f-pane { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--card-radius); overflow: hidden; }
+.g4f-pane__head { padding: var(--space-3) var(--space-4); background: var(--color-surface-subtle); font-weight: 600; display: flex; justify-content: space-between; gap: var(--space-3); align-items: center; }
+.g4f-pane__item { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; padding: var(--space-3) var(--space-4); border-top: 1px solid var(--color-border); }
+.g4f-pane__item.is-selected { background: var(--color-surface-selected); }
+.g4f-pane__item .check { margin: 0; }
+
+/* ---------- Phiếu thu in (nhiệt 80 mm) ---------- */
+.g4f-receipt { width: 302px; max-width: 100%; margin: 0 auto; padding: var(--space-4); background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border-strong); font-size: 13px; line-height: 18px; font-variant-numeric: tabular-nums; }
+.g4f-receipt h3 { margin: 0 0 4px; text-align: center; font-size: 16px; line-height: 22px; }
+.g4f-receipt .c { text-align: center; } .g4f-receipt hr { border: 0; border-top: 1px dashed var(--color-text-secondary); margin: 8px 0; }
+.g4f-receipt .r { display: flex; justify-content: space-between; gap: 8px; } .g4f-receipt .r strong { font-size: 15px; }
+.g4f-a5 { width: 100%; max-width: 560px; padding: var(--space-6); border: 1px solid var(--color-border-strong); background: var(--color-surface); }
+
+/* ---------- Xem trước hóa đơn ---------- */
+.g4f-invoice { border: 1px solid var(--color-border-strong); background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+.g4f-invoice__head { display: flex; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-3); }
+.g4f-invoice__title { text-align: center; font-weight: 700; font-size: var(--font-size-xl); line-height: 28px; letter-spacing: .02em; }
+.g4f-invoice.is-void { opacity: .8; background: var(--color-surface-subtle); }
+.g4f-invoice.is-void .g4f-invoice__title { text-decoration: line-through; }
+
+/* ---------- Cấu hình / sơ đồ ---------- */
+.g4f-matrix td, .g4f-matrix th { white-space: nowrap; }
+.g4f-matrix .input, .g4f-matrix .select { min-width: 120px; }
+.g4f-sample { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--radius-xs); background: var(--color-warning-bg); color: var(--color-warning-text); font-size: var(--font-size-xs); line-height: 16px; font-weight: 600; white-space: nowrap; }
+
+/* ---------- Mục chuyển tiếp trong form ---------- */
+.g4f-section-title { margin: 0 0 var(--space-3); font-size: var(--font-size-lg); line-height: 24px; font-weight: 600; }
+.g4f-steps-actions { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; padding-top: var(--space-4); }
+.g4f-hint-row { display: flex; gap: var(--space-2); align-items: flex-start; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
+/* ---------- Trang index ---------- */
+.g4f-idx-group { margin-top: var(--space-8); }
+.g4f-idx-group h2 { margin: 0 0 var(--space-3); font-size: var(--font-size-xl); line-height: 28px; font-weight: 600; }
+
+/* In: JS đánh dấu chuỗi tổ tiên của .g4f-print-area (class g4f-pa-anc) rồi ẩn mọi thứ ngoài chuỗi đó */
+@media print {
+  .g4f-printing .g4f-pa-anc > :not(.g4f-pa-anc):not(.g4f-print-area) { display: none !important; }
+  .g4f-printing .overlay.is-open { position: static; background: none; display: block; padding: 0; }
+  .g4f-printing .dialog, .g4f-printing .app { box-shadow: none; max-width: none; display: block; width: auto; }
+  .g4f-printing .main { margin: 0; padding: 0; }
+  .g4f-printing .g4f-receipt { border: 0; }
+}

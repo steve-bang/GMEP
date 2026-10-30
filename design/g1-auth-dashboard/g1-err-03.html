@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-ERR-03 · Lỗi hệ thống – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Đã giữ nháp|none:Không có việc đang soạn|failed:Chưa giữ được nháp|loading:Đang thử lại"></div>
+
+  <main class="g1-auth-card g1-err" id="main" aria-labelledby="t">
+    <div class="g1-err__code" aria-hidden="true">500</div>
+    <div><h1 id="t">Hệ thống đang gặp sự cố</h1>
+      <p class="g1-lead">Lỗi này không do bạn. Chúng tôi chưa xử lý được yêu cầu vừa rồi. Hãy thử lại sau vài giây; nếu vẫn lỗi, báo mã tham chiếu bên dưới cho quản lý chi nhánh hoặc quản trị hệ thống.</p></div>
+
+    <div class="alert alert--success" role="status" data-show="default" style="text-align:left"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Việc bạn đang soạn đã được giữ nháp</span><span>Phiếu tiếp nhận xe 51H-123.45, lưu lúc 09:14 trên thiết bị này. Sau khi hệ thống ổn định, mở lại để tiếp tục.</span></div></div>
+    <div class="alert alert--info" role="status" data-show="none" hidden style="text-align:left"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn không có chứng từ nào đang soạn dở nên không có gì bị mất.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="failed" hidden style="text-align:left"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa giữ được bản nháp</span><span>Đừng tải lại trang. Chụp màn hình hoặc ghi lại thông tin quan trọng (biển số, yêu cầu khách) trước, rồi mới thử lại.</span></div></div>
+
+    <dl class="g1-err__facts">
+      <dt>Mã tham chiếu</dt><dd class="num" id="ref">ERR-20261030-0915-A7</dd>
+      <dt>Thời điểm</dt><dd class="num">09:15 30/10/2026</dd>
+      <dt>Chi nhánh</dt><dd>Chi nhánh Quận 7</dd>
+    </dl>
+
+    <div class="g1-err__actions">
+      <button type="button" class="btn btn--primary btn--lg" data-loading-in="loading" data-g1-goto="loading" id="retry"><svg class="icon"><use href="#refresh"/></svg><span>Thử lại</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <button type="button" class="btn btn--secondary btn--lg" id="copy"><svg class="icon"><use href="#clipboard-list"/></svg>Sao chép mã lỗi</button>
+      <button type="button" class="btn btn--ghost btn--lg" data-toast="info|Đã ghi nhận báo lỗi|Quản trị hệ thống nhận được mã ERR-20261030-0915-A7 kèm thời điểm và chi nhánh của bạn."><svg class="icon"><use href="#send"/></svg>Báo cho hỗ trợ</button>
+    </div>
+    <p class="t-body-sm text-secondary" style="margin:0"><a href="g1-dsh-04.html">Về trang tổng quan</a></p>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+<script>
+document.getElementById('copy').addEventListener('click', function () {
+  var t = document.getElementById('ref').textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).catch(function () {});
+  window.gmepToast('success', 'Đã sao chép mã lỗi', t);
+});
+document.getElementById('retry').addEventListener('click', function () { setTimeout(function () { window.gmepToast('warning', 'Vẫn chưa kết nối được', 'Thử lại sau ít phút. Mã tham chiếu vẫn là ERR-20261030-0915-A7.'); var d = document.querySelector('.g1-proto [data-g1-view="default"]'); if (d) d.click(); }, 1500); });
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-14 · Giá vốn dịch vụ và lãi gộp theo lệnh · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--danger-outline" data-open="dlg-method" data-g4f-need="KT CH" data-g4f-why="Chỉ Kế toán và Chủ garage đổi phương pháp giá vốn, một lần mỗi kỳ."><svg class="icon"><use href="#alert-triangle"/></svg>Đổi phương pháp giá vốn</button>
+  </div>
+
+  <div class="alert alert--warning"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Phương pháp giá vốn đang dùng: bình quân gia quyền (cấu hình mặc định)</span><span>Kế toán của khách <strong>chưa chốt</strong> phương pháp; số liệu dưới đây có thể đổi khi chốt <span class="g4f-sample">[Cần xác nhận] D-13</span>. Cách phân bổ chi phí chung cũng chưa chốt.</span></div></div>
+
+  <section aria-label="Tổng hợp lãi gộp"><div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label">Doanh thu (5 lệnh)</span><span class="kpi__value">43,4<span class="kpi__unit">tr ₫</span></span><span class="kpi__scope">Quận 7 · 28–30/10/2026 · số tạm</span></div>
+    <div class="card kpi"><span class="kpi__label">Tổng giá vốn</span><span class="kpi__value">31,7<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Phụ tùng + nhân công + chi phí chung</span></div>
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Lãi gộp</span><span class="kpi__value">11,7<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Chính xác: 11.675.000 ₫</span></div>
+    <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Tỷ suất lãi gộp</span><span class="kpi__value">26,9<span class="kpi__unit">%</span></span><span class="kpi__meta">1 lệnh dưới 15% <span class="g4f-sample">ngưỡng cấu hình</span></span></div>
+  </div></section>
+
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm lệnh</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Mã lệnh, biển số"></div></div>
+    <div class="field"><label class="field__label" for="f1">Loại dịch vụ</label><select id="f1" class="select"><option>Tất cả</option><option>Sửa chữa chung</option><option>Bảo dưỡng</option><option>Lốp và mâm</option><option>Đồng sơn</option></select></div>
+    <div class="field"><label class="field__label" for="f2">Từ ngày</label><div class="input-group date-field"><input id="f2" class="input" value="28/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="f3">Đến ngày</label><div class="input-group date-field"><input id="f3" class="input" value="30/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-scroll"><table class="table">
+      <caption class="sr-only">Lãi gộp theo lệnh</caption>
+      <thead><tr><th>Lệnh · xe</th><th class="col-num">Doanh thu</th><th class="col-num">Giá vốn phụ tùng</th><th class="col-num">Nhân công</th><th class="col-num">Chi phí chung phân bổ</th><th class="col-num" aria-sort="none"><button class="th-sort">Lãi gộp<svg class="icon"><use href="#chevrons-up-down"/></svg></button></th><th class="col-num">Tỷ suất</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00131</span><span class="cell-sub plate">51H-123.45</span></td><td class="col-num">7.650.000 ₫</td><td class="col-num">3.150.000 ₫</td><td class="col-num">900.000 ₫</td><td class="col-num">380.000 ₫</td><td class="col-num">3.220.000 ₫</td><td class="col-num">42,1%</td><td class="col-actions"><button class="btn-icon" data-open="drw-f" aria-label="Xem công thức lệnh RO-Q7-2610-00131"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00126</span><span class="cell-sub plate">59A-111.22</span></td><td class="col-num">1.250.000 ₫</td><td class="col-num">520.000 ₫</td><td class="col-num">150.000 ₫</td><td class="col-num">60.000 ₫</td><td class="col-num">520.000 ₫</td><td class="col-num">41,6%</td><td class="col-actions"><button class="btn-icon" data-open="drw-f" aria-label="Xem công thức lệnh RO-Q7-2610-00126"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00124</span><span class="cell-sub plate">51K-987.65</span></td><td class="col-num">2.000.000 ₫</td><td class="col-num">800.000 ₫</td><td class="col-num">280.000 ₫</td><td class="col-num">100.000 ₫</td><td class="col-num">820.000 ₫</td><td class="col-num">41,0%</td><td class="col-actions"><button class="btn-icon" data-open="drw-f" aria-label="Xem công thức lệnh RO-Q7-2610-00124"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00122</span><span class="cell-sub plate">51K-987.65</span></td><td class="col-num">21.075.000 ₫</td><td class="col-num">11.900.000 ₫</td><td class="col-num">2.200.000 ₫</td><td class="col-num">1.000.000 ₫</td><td class="col-num">5.975.000 ₫</td><td class="col-num">28,4%</td><td class="col-actions"><button class="btn-icon" data-open="drw-f" aria-label="Xem công thức lệnh RO-Q7-2610-00122"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+        <tr><td><span class="code cell-primary">RO-Q7-2610-00129</span><span class="cell-sub plate">51F-333.44</span><span class="cell-sub"><span class="tag tag--warning">Giảm giá 12% đã duyệt</span></span></td><td class="col-num">11.440.000 ₫</td><td class="col-num">9.100.000 ₫</td><td class="col-num">600.000 ₫</td><td class="col-num">600.000 ₫</td><td class="col-num g4f-warn">1.140.000 ₫</td><td class="col-num g4f-warn">10,0%</td><td class="col-actions"><button class="btn-icon" data-open="drw-f" aria-label="Xem công thức lệnh RO-Q7-2610-00129"><svg class="icon"><use href="#eye"/></svg></button></td></tr>
+      </tbody>
+      <tfoot><tr><td>Tổng 5 lệnh</td><td class="col-num">43.415.000 ₫</td><td class="col-num">25.470.000 ₫</td><td class="col-num">4.130.000 ₫</td><td class="col-num">2.140.000 ₫</td><td class="col-num">11.675.000 ₫</td><td class="col-num">26,9%</td><td></td></tr></tfoot>
+    </table></div>
+  </div>
+  <div class="record-list record-list--responsive">
+    <button class="record" data-open="drw-f" style="text-align:left"><div class="record__top"><div class="record__title code">RO-Q7-2610-00129</div><span class="tag tag--warning">10,0%</span></div><div class="record__meta"><span>Doanh thu 11.440.000 ₫</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Lãi gộp</span><strong class="num">1.140.000 ₫</strong></div></button>
+    <button class="record" data-open="drw-f" style="text-align:left"><div class="record__top"><div class="record__title code">RO-Q7-2610-00131</div><span class="tag tag--success">42,1%</span></div><div class="record__meta"><span>Doanh thu 7.650.000 ₫</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Lãi gộp</span><strong class="num">3.220.000 ₫</strong></div></button>
+  </div>
+</div>
+
+<div class="overlay overlay--drawer" id="drw-f" role="dialog" aria-modal="true" aria-labelledby="fm-t"><aside class="drawer" style="max-width:520px">
+  <div class="card__header"><div><h2 class="card__title" id="fm-t">Công thức lãi gộp</h2><div class="card__subtitle">RO-Q7-2610-00131 · 51H-123.45</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack" style="overflow:auto">
+    <p class="t-body-sm" style="margin:0"><strong>Lãi gộp = Doanh thu − (Giá vốn phụ tùng + Nhân công + Chi phí chung phân bổ)</strong></p>
+    <dl class="g4f-sum"><div><dt>Doanh thu (sau giảm giá)</dt><dd>7.650.000 ₫</dd></div><div class="is-neg"><dt>Giá vốn phụ tùng (bình quân gia quyền)</dt><dd>−3.150.000 ₫</dd></div><div class="is-neg"><dt>Nhân công (giờ công thực tế)</dt><dd>−900.000 ₫</dd></div><div class="is-neg"><dt>Chi phí chung phân bổ</dt><dd>−380.000 ₫</dd></div><div class="is-total"><dt>Lãi gộp</dt><dd>3.220.000 ₫</dd></div></dl>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Giá vốn từng phụ tùng</caption><thead><tr><th>Phụ tùng</th><th class="col-num">SL</th><th class="col-num">Giá vốn đơn vị</th></tr></thead><tbody><tr><td>Má phanh trước Vios</td><td class="col-num">1</td><td class="col-num">1.850.000 ₫</td></tr><tr><td>Dầu phanh DOT4</td><td class="col-num">2</td><td class="col-num">650.000 ₫</td></tr></tbody></table></div>
+    <p class="g4f-why">Cách phân bổ chi phí chung <span class="g4f-sample">[Cần xác nhận]</span>. Đây là lãi gộp quản trị, không phải lợi nhuận sau thuế.</p>
+  </div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" href="#">Mở lệnh</a></div></aside></div>
+
+<div class="overlay" id="dlg-method" role="alertdialog" aria-modal="true" aria-labelledby="mt-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="ĐỔI GIÁ VỐN">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="mt-t">Đổi phương pháp tính giá vốn?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <div class="field"><label class="field__label" for="mt-m">Phương pháp mới<span class="field__req" aria-hidden="true">*</span></label><select id="mt-m" class="select"><option>Bình quân gia quyền (đang dùng)</option><option>Nhập trước, xuất trước</option></select><span class="field__hint">Danh sách phương pháp lấy từ cấu hình.</span></div>
+    <ul class="impact-list" style="margin-top:12px"><li>Chỉ được đổi <strong>một lần mỗi kỳ</strong>, chỉ áp dụng cho kỳ chưa khóa kể từ ngày hiệu lực.</li><li>Giá vốn, lãi gộp của các lệnh và báo cáo chi nhánh trong kỳ sẽ tính lại; số đã chốt không đổi.</li><li>Ghi nhật ký người đổi, lý do, phương pháp cũ và mới.</li></ul>
+    <div class="field"><label class="field__label" for="mt-r">Lý do (nêu căn cứ kế toán)<span class="field__req" aria-hidden="true">*</span></label><textarea id="mt-r" class="textarea" data-confirm-reason></textarea></div>
+    <div class="field"><label class="field__label" for="mt-c">Gõ <strong>ĐỔI GIÁ VỐN</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="mt-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu đổi phương pháp|Chờ Chủ garage duyệt." disabled>Gửi yêu cầu đổi</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-14', title: 'Giá vốn dịch vụ và lãi gộp theo lệnh', desc: 'Giá vốn phụ tùng, nhân công, chi phí chung phân bổ và lãi gộp từng lệnh.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV', 'QL'], updated: '09:15', time: '28–30/10/2026 (số tạm)',
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'chart-no-axes-combined', title: 'Chưa có lệnh hoàn tất trong kỳ', text: 'Lãi gộp được tính khi lệnh hoàn tất và có đủ giá vốn phụ tùng, nhân công.' },
+  filteredText: 'Không có lệnh nào khớp loại dịch vụ “Đồng sơn” trong 28–30/10/2026.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-06 · Kích hoạt tài khoản – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung kích hoạt</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Vai trò cần MFA|no-mfa:Vai trò không cần MFA|expired:Lời mời hết hạn|used:Lời mời đã dùng|revoked:Vai trò bị thu hồi" data-hint="Không có tự đăng ký: tài khoản do quản lý tạo, người được mời kích hoạt qua liên kết 72 giờ, dùng một lần."></div>
+
+  <main class="g1-auth-card g1-auth-card--wide" id="main" aria-labelledby="t" data-wizard>
+    <div data-hide="expired used revoked"><h1 id="t">Kích hoạt tài khoản GARAGE OS</h1><p class="g1-lead">Bạn được mời tham gia hệ thống. Hoàn tất 4 bước ngắn dưới đây để bắt đầu làm việc.</p></div>
+
+    <div data-show="expired" hidden>
+      <div class="state" style="padding:0"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#clock"/></svg></div><h1 class="state__title">Lời mời đã hết hạn</h1><p class="state__text">Lời mời chỉ có hiệu lực 72 giờ. Nhờ quản lý chi nhánh gửi lại lời mời mới, rồi mở liên kết trong email mới.</p><div class="state__actions"><a class="btn btn--primary" href="g1-err-05.html">Xem hướng dẫn</a><a class="btn btn--ghost" href="g1-aut-01.html">Về trang đăng nhập</a></div></div>
+    </div>
+    <div data-show="used" hidden>
+      <div class="state" style="padding:0"><div class="state__icon"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><h1 class="state__title">Lời mời này đã được dùng</h1><p class="state__text">Tài khoản có thể đã được kích hoạt. Hãy đăng nhập. Quên mật khẩu thì dùng “Quên mật khẩu” ở trang đăng nhập.</p><div class="state__actions"><a class="btn btn--primary" href="g1-aut-01.html">Đăng nhập</a><a class="btn btn--ghost" href="g1-aut-04.html">Quên mật khẩu</a></div></div>
+    </div>
+    <div data-show="revoked" hidden>
+      <div class="state" style="padding:0"><div class="state__icon state__icon--danger"><svg class="icon icon--lg"><use href="#lock"/></svg></div><h1 class="state__title">Lời mời không còn hiệu lực</h1><p class="state__text">Quyền của lời mời này đã bị thu hồi trước khi bạn kích hoạt. Liên hệ quản lý chi nhánh để được xác nhận lại.</p><div class="state__actions"><a class="btn btn--ghost" href="g1-aut-01.html">Về trang đăng nhập</a></div></div>
+    </div>
+
+    <div data-hide="expired used revoked">
+      <ol class="stepper" aria-label="Các bước kích hoạt">
+        <li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Thông tin</span></div></li>
+        <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Mật khẩu</span></div></li>
+        <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Bảo mật</span></div></li>
+        <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Quy định</span></div></li>
+      </ol>
+
+      <section data-step="1" aria-labelledby="s1" style="margin-top:var(--space-5)">
+        <h2 id="s1" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 1. Kiểm tra thông tin của bạn</h2>
+        <dl class="g1-kv" style="margin-bottom:var(--space-4)">
+          <dt>Họ và tên</dt><dd>Lê Thanh Tùng</dd>
+          <dt>Email công việc</dt><dd>tung.le@garage.vn</dd>
+          <dt>Chi nhánh được gán</dt><dd>Chi nhánh Thủ Đức</dd>
+          <dt>Vai trò</dt><dd><span data-hide="no-mfa">Quản lý chi nhánh</span><span data-show="no-mfa" hidden>Thợ</span></dd>
+        </dl>
+        <div class="alert alert--info" style="margin-bottom:var(--space-4)"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Thông tin do quản lý gán, bạn không tự sửa được. Sai thông tin? Dừng lại và báo quản lý chi nhánh trước khi kích hoạt.</span></div></div>
+        <button type="button" class="btn btn--primary btn--lg" data-step-go="2">Thông tin đúng, tiếp tục</button>
+      </section>
+
+      <section data-step="2" aria-labelledby="s2" hidden style="margin-top:var(--space-5)">
+        <h2 id="s2" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 2. Đặt mật khẩu</h2>
+        <div class="stack">
+          <div class="field">
+            <label class="field__label" for="g1-new">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+            <div class="g1-pw"><input id="g1-new" class="input" type="password" autocomplete="new-password" aria-required="true" aria-describedby="g1-rules" data-pw-policy data-rule="required|minlen:10|notcommon" data-msg-required="Nhập mật khẩu." data-msg-minlen="Mật khẩu cần ít nhất 10 ký tự. Gợi ý: dùng một cụm từ dễ nhớ, ví dụ garage-thuduc-mua-thu." data-msg-notcommon="Mật khẩu này quá phổ biến nên dễ bị đoán. Chọn một cụm từ khác, dài hơn."><button type="button" class="btn-icon g1-pw__toggle" data-pw-toggle="g1-new" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+            <div class="g1-strength" data-level="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <span class="field__hint">Độ mạnh: <strong data-strength-text>Chưa nhập</strong></span>
+            <ul class="g1-rules" id="g1-rules" aria-label="Yêu cầu mật khẩu">
+              <li data-r="len"><svg class="icon"><use href="#circle-x"/></svg><span><span class="sr-only">Chưa đạt: </span>Ít nhất 10 ký tự</span></li>
+              <li data-r="common"><svg class="icon"><use href="#circle-x"/></svg><span><span class="sr-only">Chưa đạt: </span>Không phải mật khẩu thông dụng</span></li>
+            </ul>
+            <span class="field__error" id="g1-new-err" hidden></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="g1-new2">Nhập lại mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+            <input id="g1-new2" class="input" type="password" autocomplete="new-password" aria-required="true" data-rule="required|match:#g1-new" data-msg-required="Nhập lại mật khẩu để xác nhận." data-msg-match="Hai mật khẩu chưa giống nhau. Nhập lại đúng mật khẩu ở ô trên.">
+            <span class="field__error" id="g1-new2-err" hidden></span>
+          </div>
+        </div>
+        <div class="row" style="margin-top:var(--space-5)"><button type="button" class="btn btn--ghost btn--lg" data-step-go="1">Quay lại</button><button type="button" class="btn btn--primary btn--lg" data-step-go="3" data-validate>Tiếp tục</button></div>
+      </section>
+
+      <section data-step="3" aria-labelledby="s3" hidden style="margin-top:var(--space-5)">
+        <h2 id="s3" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 3. Xác thực hai lớp</h2>
+        <div class="alert alert--warning" data-hide="no-mfa"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Vai trò Quản lý chi nhánh bắt buộc xác thực hai lớp</span><span>Sau khi kích hoạt, bạn được dẫn thẳng tới màn hình thiết lập (khoảng 3 phút, cần điện thoại). Chưa thiết lập xong thì chưa vào được hệ thống.</span></div></div>
+        <div class="alert alert--info" data-show="no-mfa" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Vai trò của bạn không bắt buộc xác thực hai lớp</span><span>Bạn nên bật sau trong mục Bảo mật tài khoản để an toàn hơn.</span></div></div>
+        <div class="row" style="margin-top:var(--space-5)"><button type="button" class="btn btn--ghost btn--lg" data-step-go="2">Quay lại</button><button type="button" class="btn btn--primary btn--lg" data-step-go="4">Đã hiểu, tiếp tục</button></div>
+      </section>
+
+      <section data-step="4" aria-labelledby="s4" hidden style="margin-top:var(--space-5)">
+        <h2 id="s4" data-step-title tabindex="-1" style="font-size:var(--font-size-lg);margin:0 0 var(--space-3)">Bước 4. Quy định sử dụng và bảo mật dữ liệu</h2>
+        <div class="card" style="max-height:180px;overflow:auto" tabindex="0" aria-label="Tóm tắt quy định"><div class="card__body t-body-md"><ul style="margin:0;padding-left:var(--space-5)"><li>Mỗi người một tài khoản, không chia sẻ mật khẩu hay mã xác thực.</li><li>Chỉ xem dữ liệu khách hàng khi có việc cần; mọi lần xem được ghi nhật ký.</li><li>Không chụp, sao chép, gửi thông tin khách ra ngoài hệ thống.</li><li>Báo ngay cho quản lý khi nghi ngờ lộ mật khẩu hoặc mất thiết bị.</li></ul></div></div>
+        <p class="t-body-sm text-secondary" style="margin:var(--space-2) 0"><a href="#" data-toast="info|Quy định đầy đủ|Văn bản quy định đầy đủ do doanh nghiệp ban hành, mở ở tab mới.">Đọc quy định đầy đủ</a></p>
+        <label class="check"><input type="checkbox" id="agree"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đọc và đồng ý với quy định sử dụng và bảo mật dữ liệu</span></label>
+        <div class="row" style="margin-top:var(--space-5)"><button type="button" class="btn btn--ghost btn--lg" data-step-go="3">Quay lại</button><button type="button" class="btn btn--primary btn--lg" data-requires="agree" data-step-go="5">Kích hoạt tài khoản</button></div>
+      </section>
+
+      <section data-step="5" aria-labelledby="s5" hidden>
+        <div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><h2 class="state__title" id="s5" data-step-title tabindex="-1">Tài khoản đã được kích hoạt</h2>
+          <p class="state__text" data-hide="no-mfa">Bước cuối: thiết lập xác thực hai lớp để vào hệ thống.</p><p class="state__text" data-show="no-mfa" hidden>Bạn có thể vào hệ thống ngay.</p>
+          <div class="state__actions"><a class="btn btn--primary btn--lg" href="g1-aut-03.html" data-hide="no-mfa">Thiết lập xác thực hai lớp</a><a class="btn btn--primary btn--lg" href="g1-aut-08.html" data-show="no-mfa" hidden>Vào hệ thống</a></div></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+</body>
+</html>

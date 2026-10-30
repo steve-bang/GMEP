@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-DSH-06 · Tổng quan Kế toán – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="KT" data-g1-menu="dash" data-crumb="Tổng quan" data-period="month" data-figure="Số tạm hôm nay · đã chốt đến 29/10/2026">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Tổng quan kế toán</h1>
+      <p class="page-header__desc">Thứ Sáu, 30/10/2026 · Kế toán · Kiểm soát tài chính của chi nhánh được gán</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--secondary" href="#" data-target="G4-ACC-08"><svg class="icon"><use href="#wallet"/></svg>Đối soát quỹ</a>
+      <a class="btn btn--primary" href="#" data-target="G4-EIN-05"><svg class="icon"><use href="#receipt"/></svg>Xử lý hóa đơn (6)</a>
+    </div>
+  </div>
+
+  <div data-g1-proto></div>
+  <div data-g1-filter data-periods="today,7d,month" data-default="month"></div>
+
+  <section class="g1-kpis" aria-label="Chỉ số chính">
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Doanh thu" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Doanh thu</span><span class="kpi__value">505,7<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>+11,3%</span>so với 01–30/09/2026</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · <span data-g1-period-text>01–30/10/2026</span> · số tạm</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Tổng thu và chi" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#arrow-left-right"/></svg>Thu và chi (sổ quỹ)</span><span class="kpi__value">412,8<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Thu 502,1 tr ₫ · Chi 89,3 tr ₫</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · <span data-g1-period-text>01–30/10/2026</span> · số tạm</span></a>
+    <a class="card kpi kpi--warning" href="#" data-g1-card data-g1-title="Công nợ phải thu"><span class="kpi__label"><svg class="icon icon--sm"><use href="#receipt"/></svg>Công nợ phải thu</span><span class="kpi__value">142,3<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="tag tag--danger">Quá hạn</span>63,7 tr ₫ quá hạn</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · tại 09:15 hôm nay</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Công nợ phải trả"><span class="kpi__label"><svg class="icon icon--sm"><use href="#shopping-cart"/></svg>Công nợ phải trả</span><span class="kpi__value">96,0<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">15,5 tr ₫ quá hạn thanh toán nhà cung cấp</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · tại 09:15 hôm nay</span></a>
+    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Hóa đơn cần xử lý"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Hóa đơn cần xử lý</span><span class="kpi__value">06</span><span class="kpi__meta">2 lỗi phát hành · 4 lệnh hoàn tất chưa xuất</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · tại 09:15 hôm nay</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Kỳ sắp khóa"><span class="kpi__label"><svg class="icon icon--sm"><use href="#lock"/></svg>Kỳ sắp khóa</span><span class="kpi__value">10/2026</span><span class="kpi__meta">Chưa khóa · ngày khóa theo cấu hình: 05/11/2026</span><span class="kpi__scope"><span data-branch-label>Chi nhánh Quận 7</span> · tại 09:15 hôm nay</span></a>
+  </section>
+
+  <div class="g1-cols">
+    <div class="g1-stack">
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Hóa đơn cần xử lý" data-g1-err data-g1-empty="Không có hóa đơn cần xử lý|Hóa đơn lỗi hoặc lệnh hoàn tất chưa xuất sẽ hiện ở đây." aria-labelledby="h-inv">
+        <div class="card__header"><div><h2 class="card__title" id="h-inv">Hóa đơn cần xử lý</h2><div class="card__subtitle">4 trong 6 · trạng thái hóa đơn lấy từ nhà cung cấp, tách khỏi trạng thái lệnh và thanh toán</div></div></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Hóa đơn cần xử lý</caption>
+          <thead><tr><th scope="col">Lệnh</th><th scope="col">Khách hàng</th><th scope="col" class="col-num">Giá trị</th><th scope="col">Thanh toán</th><th scope="col">Hóa đơn</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <tbody>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00119</a></td><td>Công ty TNHH Vận tải Hòa Phát<br><span class="t-caption text-secondary">MST 0312345678</span></td><td class="col-num money">21.075.000 ₫</td><td><span class="badge badge--success">Đã thanh toán</span></td><td><span class="badge badge--neutral">Chưa xuất</span><br><span class="sync sync--error"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lỗi phát hành</span></td><td><button class="btn btn--secondary btn--sm" data-toast="info|Đang thử lại|Hệ thống chặn xuất trùng: một lệnh chỉ có một hóa đơn dù bấm nhiều lần.">Thử lại</button></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00116</a></td><td>Trần Thị Bích Ngọc<br><span class="pii" data-pii-id="c2" data-pii-kind="phone"></span></td><td class="col-num money">6.240.000 ₫</td><td><span class="badge badge--success">Đã thanh toán</span></td><td><span class="badge badge--neutral">Chưa xuất</span><br><span class="sync sync--wait"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ truy vấn lại</span></td><td><button class="btn btn--ghost btn--sm" data-toast="info|Đang truy vấn|Hỏi lại nhà cung cấp trạng thái hóa đơn.">Truy vấn lại</button></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00114</a></td><td>Lê Quốc Huy</td><td class="col-num money">1.250.000 ₫</td><td><span class="badge badge--info">Thanh toán một phần</span></td><td><span class="badge badge--neutral">Chưa xuất</span></td><td><a class="btn btn--primary btn--sm" href="#" data-target="G4-EIN-02">Phát hành</a></td></tr>
+            <tr><td class="code"><a href="#">RO-Q7-2610-00113</a></td><td>Võ Thanh Sơn</td><td class="col-num money">3.450.000 ₫</td><td><span class="badge badge--success">Đã thanh toán</span></td><td><span class="badge badge--neutral">Chưa xuất</span></td><td><a class="btn btn--primary btn--sm" href="#" data-target="G4-EIN-02">Phát hành</a></td></tr>
+          </tbody></table></div>
+        <div class="card__footer"><a class="btn btn--ghost btn--sm" href="#" data-target="G4-EIN-05">Xem tất cả 6<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+      </section>
+
+      <figure class="card g1-chart" data-g1-chart data-g1-card data-g1-title="Công nợ theo tuổi nợ" data-g1-err>
+        <script type="application/json">{"id":"aging","title":"Công nợ phải thu và phải trả theo tuổi nợ","unit":"triệu ₫","dec":1,"type":"bars","dir":"h","mode":"stacked","catName":"Loại công nợ","valueLabels":true,"snapshot":true,"scope":"Chi nhánh Quận 7",
+          "foot":"Tuổi nợ tính từ ngày đến hạn. Phần “Chưa đến hạn” không phải nợ quá hạn.",
+          "labels":["Phải thu","Phải trả"],
+          "series":[{"name":"Chưa đến hạn","data":[78.6,52.4]},{"name":"Quá hạn 1–30 ngày","data":[41.2,28.1]},{"name":"Quá hạn 31–60 ngày","data":[12.5,9.8]},{"name":"Quá hạn 61–90 ngày","data":[6.7,5.7]},{"name":"Quá hạn trên 90 ngày","data":[3.3,0]}]}</script>
+      </figure>
+
+      <figure class="card g1-chart" data-g1-chart data-g1-card data-g1-title="Thu và chi 7 ngày" data-g1-err>
+        <script type="application/json">{"id":"cash","title":"Thu và chi sổ quỹ 7 ngày gần nhất","unit":"triệu ₫","dec":1,"type":"bars","dir":"v","mode":"grouped","catName":"Ngày","valueLabels":true,"snapshot":true,"scope":"Chi nhánh Quận 7",
+          "foot":"Số liệu 30/10 là số tạm đến 09:15.",
+          "labels":["24/10","25/10","26/10","27/10","28/10","29/10","30/10"],
+          "series":[{"name":"Thu","data":[22.4,18.9,25.1,14.2,16.8,19.7,14.6]},{"name":"Chi","data":[8.1,6.4,9.8,5.2,7.5,6.9,3.2]}]}</script>
+      </figure>
+    </div>
+
+    <div class="g1-stack">
+      <section class="card" data-g1-card data-g1-title="Đối soát quỹ" data-g1-err aria-labelledby="h-rec">
+        <div class="card__header"><div><h2 class="card__title" id="h-rec">Đối soát quỹ theo ca và ngày</h2><div class="card__subtitle">Quận 7 · 29–30/10/2026</div></div></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Ca sáng 30/10</strong><span class="g1-row__sub">Đang mở · thu tiền mặt 6,4 tr ₫</span></span><span class="g1-row__end"><span class="badge badge--info">Đang mở</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Ca chiều 29/10</strong><span class="g1-row__sub">Thiếu 350.000 ₫ so với sổ · chờ giải trình</span></span><span class="g1-row__end"><span class="badge badge--warning">Lệch quỹ</span></span></div>
+        <div class="g1-row"><span class="g1-row__main"><strong>Ca sáng 29/10</strong><span class="g1-row__sub">Khớp sổ quỹ</span></span><span class="g1-row__end"><span class="badge badge--success">Đã khớp</span></span></div>
+        <div class="card__footer"><a class="btn btn--secondary btn--sm" href="#" data-target="G4-ACC-08">Mở đối soát</a></div>
+      </section>
+      <section class="card" data-g1-card data-g1-title="Việc cần chú ý" data-g1-empty="Không có việc cần chú ý|Hạn chốt kỳ và khoản nợ sắp đến hạn sẽ hiện ở đây." aria-labelledby="h-att">
+        <div class="card__header"><h2 class="card__title" id="h-att">Việc cần chú ý</h2></div>
+        <a class="g1-row" href="#" data-target="G4-ACC-10"><span class="g1-row__main"><strong>Khoản phải thu quá hạn trên 60 ngày</strong><span class="g1-row__sub">3 khách · 10,0 tr ₫</span></span><span class="g1-row__end"><span class="tag tag--danger">Quá hạn</span></span></a>
+        <a class="g1-row" href="#" data-target="G4-ACC-12"><span class="g1-row__main"><strong>Khoản phải trả đến hạn trong 3 ngày</strong><span class="g1-row__sub">2 nhà cung cấp · 22,4 tr ₫</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">02</span></span></a>
+        <a class="g1-row" href="#" data-target="G4-ACC-09"><span class="g1-row__main"><strong>Chưa chốt ngày 29/10/2026</strong><span class="g1-row__sub">Chi nhánh Quận 7</span></span><span class="g1-row__end"><span class="badge badge--warning">Chưa chốt</span></span></a>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-reveal" role="alertdialog" aria-modal="true" aria-labelledby="rv-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#eye"/></svg></div><div><h2 class="dialog__title" id="rv-t">Hiện số điện thoại của khách</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p>Kế toán cần chọn lý do. Việc xem được ghi nhật ký (người xem, thời điểm, bản ghi, lý do) và tự che lại sau 30 giây.</p>
+    <fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="sr-only">Lý do xem</legend>
+      <label class="radio"><input type="radio" name="rv"><span class="radio__box"></span><span>Đối chiếu hóa đơn</span></label>
+      <label class="radio"><input type="radio" name="rv"><span class="radio__box"></span><span>Thu hồi công nợ</span></label>
+      <label class="radio"><input type="radio" name="rv"><span class="radio__box"></span><span>Lý do khác</span></label></fieldset></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-reveal-confirm disabled>Hiện và ghi nhật ký</button></div></div></div>
+
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+</body>
+</html>

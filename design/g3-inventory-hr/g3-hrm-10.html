@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-10 · Năng suất kỹ thuật viên – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-10')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Năng suất kỹ thuật viên</h1><p class="page-header__desc">Ba chỉ số từ giờ chuẩn bán ra, giờ thực làm và giờ có mặt. Số này khớp bảng công của cùng kỳ.</p></div>
+  <div class="page-header__actions"><button class="btn btn--secondary" data-g3-need="CH QV QL KT" data-g3-why="Xuất báo cáo cần quyền xuất."><svg class="icon"><use href="#download"/></svg>Xuất Excel</button></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Kỳ:</strong> 16/10/2026 – 30/10/2026</span><span class="badge badge--warning">Số tạm</span><span>· Cập nhật lúc 09:15</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button></div>
+
+<div id="g3-body" data-noun="báo cáo năng suất" data-cols="7" data-empty-icon="chart-no-axes-combined" data-empty-text="Chưa có giờ làm trong kỳ này nên chưa tính được năng suất. Chọn kỳ khác hoặc kiểm tra ca và công thợ." data-skel="detail">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar"><div class="field"><label class="field__label" for="f-p">Kỳ</label><select id="f-p" class="select"><option>16/10/2026 – 30/10/2026</option><option>01/10/2026 – 15/10/2026</option><option>Tháng 9/2026</option></select></div>
+    <div class="field" data-g3-roles="CH QV KT"><label class="field__label" for="f-b">Chi nhánh</label><select id="f-b" class="select"><option>Theo phạm vi đang chọn</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+  <div class="alert alert--info" data-g3-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy năng suất của mình.</span></div></div>
+
+  <section class="grid grid--3" aria-label="Ba chỉ số chi nhánh" data-g3-hide="TH">
+    <div class="card kpi"><span class="kpi__label">Hiệu suất làm việc</span><span class="kpi__value">98,4<span class="kpi__unit">%</span></span><span class="kpi__meta">= giờ chuẩn bán ra ÷ giờ thực làm (230,7 ÷ 234,5)</span><span class="kpi__scope">Chi nhánh Quận 7 · 16–30/10/2026</span></div>
+    <div class="card kpi"><span class="kpi__label">Mức sử dụng</span><span class="kpi__value">71,5<span class="kpi__unit">%</span></span><span class="kpi__meta">= giờ thực làm ÷ giờ có mặt (234,5 ÷ 328,0)</span><span class="kpi__scope">Chi nhánh Quận 7 · 16–30/10/2026</span></div>
+    <div class="card kpi"><span class="kpi__label">Năng suất tổng</span><span class="kpi__value">70,3<span class="kpi__unit">%</span></span><span class="kpi__meta">= giờ chuẩn bán ra ÷ giờ có mặt (230,7 ÷ 328,0)</span><span class="kpi__scope">Chi nhánh Quận 7 · 16–30/10/2026</span></div></section>
+
+  <section class="card" aria-labelledby="h1"><div class="card__header"><div><h2 class="card__title" id="h1">Theo thợ</h2><div class="card__subtitle">Bảng số liệu kèm thanh so sánh; thanh luôn đi cùng con số.</div></div></div>
+    <div class="table-scroll"><table class="table" data-g3-cards>
+      <caption class="sr-only">Năng suất từng thợ: giờ có mặt, giờ thực làm, giờ chuẩn bán ra và ba chỉ số</caption>
+      <thead><tr><th data-card="title">Thợ</th><th class="col-num">Giờ có mặt</th><th class="col-num">Giờ thực làm</th><th class="col-num">Giờ chuẩn bán ra</th>
+        <th data-card="meta">Hiệu suất<span class="cell-sub">chuẩn ÷ thực</span></th><th data-card="meta">Mức sử dụng<span class="cell-sub">thực ÷ có mặt</span></th><th data-card="meta">Năng suất tổng<span class="cell-sub">chuẩn ÷ có mặt</span></th><th class="col-num" data-card="foot">Việc làm lại</th></tr></thead>
+      <tbody>
+        <tr><td class="cell-primary">Lê Minh Tuấn</td><td class="col-num">88,0</td><td class="col-num">74,6</td><td class="col-num">76,2</td><td><strong class="num">102,1%</strong><div class="g3-bar--track g3-bar--ok" aria-hidden="true"><i style="width:100%"></i></div></td><td><strong class="num">84,8%</strong><div class="g3-bar--track g3-bar--info" aria-hidden="true"><i style="width:84.8%"></i></div></td><td><strong class="num">86,6%</strong><div class="g3-bar--track g3-bar--brand" aria-hidden="true"><i style="width:86.6%"></i></div></td><td class="col-num">2</td></tr>
+        <tr data-g3-hide="TH"><td class="cell-primary">Phạm Quốc Bảo</td><td class="col-num">88,0</td><td class="col-num">71,2</td><td class="col-num">69,5</td><td><strong class="num">97,6%</strong><div class="g3-bar--track g3-bar--ok" aria-hidden="true"><i style="width:97.6%"></i></div></td><td><strong class="num">80,9%</strong><div class="g3-bar--track g3-bar--info" aria-hidden="true"><i style="width:80.9%"></i></div></td><td><strong class="num">79,0%</strong><div class="g3-bar--track g3-bar--brand" aria-hidden="true"><i style="width:79%"></i></div></td><td class="col-num">1</td></tr>
+        <tr data-g3-hide="TH"><td class="cell-primary">Nguyễn Văn Hậu</td><td class="col-num">64,0</td><td class="col-num">52,3</td><td class="col-num">55,0</td><td><strong class="num">105,2%</strong><div class="g3-bar--track g3-bar--ok" aria-hidden="true"><i style="width:100%"></i></div></td><td><strong class="num">81,7%</strong><div class="g3-bar--track g3-bar--info" aria-hidden="true"><i style="width:81.7%"></i></div></td><td><strong class="num">85,9%</strong><div class="g3-bar--track g3-bar--brand" aria-hidden="true"><i style="width:85.9%"></i></div></td><td class="col-num">0</td></tr>
+        <tr data-g3-hide="TH"><td class="cell-primary">Huỳnh Gia Bảo <span class="tag tag--neutral">Học việc</span></td><td class="col-num">88,0</td><td class="col-num">36,4</td><td class="col-num">30,0</td><td><strong class="num">82,4%</strong><div class="g3-bar--track g3-bar--warn" aria-hidden="true"><i style="width:82.4%"></i></div></td><td><strong class="num">41,4%</strong><div class="g3-bar--track g3-bar--warn" aria-hidden="true"><i style="width:41.4%"></i></div></td><td><strong class="num">34,1%</strong><div class="g3-bar--track g3-bar--warn" aria-hidden="true"><i style="width:34.1%"></i></div></td><td class="col-num">3</td></tr>
+      </tbody>
+      <tfoot data-g3-hide="TH"><tr><td>Chi nhánh Quận 7</td><td class="col-num">328,0</td><td class="col-num">234,5</td><td class="col-num">230,7</td><td class="num">98,4%</td><td class="num">71,5%</td><td class="num">70,3%</td><td class="col-num">6</td></tr></tfoot></table></div>
+    <div class="card__footer"><span class="t-body-sm text-secondary">Công thức hiện cạnh tên chỉ số theo cách hiểu phổ biến của xưởng dịch vụ; chưa có định nghĩa chính thức trong FRD nên đây là mục chờ BA/khách xác nhận (hiển thị lấy từ cấu hình). Hiệu suất trên 100% nghĩa là thợ làm nhanh hơn giờ chuẩn; có thể vượt 100%, nên thanh chặn ở 100%.</span></div></section>
+
+  <section class="card" aria-labelledby="h2" data-g3-roles="CH QV KT"><div class="card__header"><h2 class="card__title" id="h2">So sánh chi nhánh</h2><span class="tag tag--neutral">số liệu mẫu</span></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Ba chỉ số theo chi nhánh</caption><thead><tr><th>Chi nhánh</th><th class="col-num">Hiệu suất</th><th class="col-num">Mức sử dụng</th><th class="col-num">Năng suất tổng</th></tr></thead><tbody>
+      <tr><td>Quận 7</td><td class="col-num">98,4%</td><td class="col-num">71,5%</td><td class="col-num">70,3%</td></tr><tr><td>Thủ Đức</td><td class="col-num">96,1%</td><td class="col-num">76,2%</td><td class="col-num">73,2%</td></tr><tr><td>Quận 1</td><td class="col-num">100,3%</td><td class="col-num">68,9%</td><td class="col-num">69,1%</td></tr></tbody></table></div>
+    <div class="card__footer"><span class="t-body-sm text-secondary">Chủ garage và Quản lý vùng chọn phạm vi hợp nhất ở thanh trên cùng để so sánh; báo cáo ghi rõ chi nhánh, kỳ và thời điểm cập nhật.</span></div></section>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

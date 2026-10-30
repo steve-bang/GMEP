@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMEP – Gói G3: Kho, Mua hàng, Nhân sự (INV · PUR · HRM)</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  body { background: var(--color-page); }
+  .g3-index { max-width: 1280px; margin: 0 auto; padding: var(--space-8) var(--space-6); display: flex; flex-direction: column; gap: var(--space-6); }
+  .g3-index h1 { margin: 0; }
+  .g3-index h2 { margin: 0; font-size: var(--font-size-xl); line-height: 28px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Bỏ qua tới nội dung chính</a>
+<main class="g3-index" id="main">
+  <header class="stack-2">
+    <h1>Gói G3 – Kho, Mua hàng, Nhân sự</h1>
+    <p class="text-secondary">39 màn hình prototype HTML/CSS thuần (mở bằng file://), dùng Application Shell và design system chung. Tài liệu mô tả: <code>docs/ui-ux/04-inventory-purchasing-hr.md</code>. Dữ liệu mẫu: Chi nhánh Quận 7, ngày 30/10/2026.</p>
+  </header>
+
+  <section class="card" aria-labelledby="how"><div class="card__header"><h2 id="how">Cách xem thử</h2></div><div class="card__body stack-2">
+    <p>Trong mỗi màn hình: mở menu tài khoản (góc phải trên) để đổi vai trò, các nút bị khóa sẽ hiện lý do, giá vốn và dữ liệu cá nhân thay đổi theo vai trò. Thanh “Xem thử trạng thái” phía trên nội dung chuyển giữa dữ liệu, đang tải, trống, lỗi, không có quyền, và các trạng thái đặc thù. Có thể mở trực tiếp bằng đường dẫn, ví dụ <a href="g3-inv-04.html?state=error">g3-inv-04.html?state=error</a> hoặc <a href="g3-inv-01.html?role=QV">g3-inv-01.html?role=QV</a>.</p>
+    <p class="t-body-sm text-secondary">Mọi số liệu tiền, tỷ lệ, hạn mức trong prototype là giá trị mẫu; hạn mức duyệt và công thức công/hoa hồng là cấu hình (G4-APR-03, G3-HRM-06). Các giá trị đánh dấu “mẫu” không phải quy tắc nghiệp vụ.</p></div></section>
+
+  <section aria-labelledby="inv" class="stack-2"><h2 id="inv">Kho phụ tùng (INV) – 19 màn hình</h2>
+    <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Màn hình nhóm INV</caption>
+      <thead><tr><th>Mã</th><th>Tên</th><th>Mẫu</th><th>Thiết bị</th><th>Vai trò chính</th><th>Ưu tiên</th></tr></thead><tbody>
+        <tr><td class="code">G3-INV-01</td><td><a href="g3-inv-01.html">Danh mục phụ tùng</a></td><td>C</td><td>D, M</td><td>TK (S), CH, QV, QL, KT (X)</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-02</td><td><a href="g3-inv-02.html">Tạo / sửa phụ tùng</a></td><td>E</td><td>D</td><td>TK (S)</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-03</td><td><a href="g3-inv-03.html">Chi tiết phụ tùng và thẻ kho</a></td><td>D</td><td>D, T</td><td>TK, QL, CH, QV, KT</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-04</td><td><a href="g3-inv-04.html">Tồn kho – bốn con số</a></td><td>C</td><td>D, M</td><td>TK, QL (S); CH, QV, KT (X)</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-05</td><td><a href="g3-inv-05.html">Hàng dưới định mức và gợi ý đặt hàng</a></td><td>C</td><td>D, M</td><td>TK, QL</td><td>P1 / P2</td></tr>
+        <tr><td class="code">G3-INV-06</td><td><a href="g3-inv-06.html">Yêu cầu cấp phụ tùng</a></td><td>C</td><td>D, T</td><td>TK</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-07</td><td><a href="g3-inv-07.html">Phiếu xuất kho (PX) + mẫu in A5</a></td><td>D/E</td><td>D, T</td><td>TK; QL duyệt xuất bất thường</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-08</td><td><a href="g3-inv-08.html">Danh sách chứng từ kho</a></td><td>C</td><td>D</td><td>TK, QL; CH, QV, KT (X)</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-09</td><td><a href="g3-inv-09.html">Phiếu nhập kho (PN) + mẫu in A4</a></td><td>E</td><td>D, T</td><td>TK; QL duyệt khi lệch</td><td>P1</td></tr>
+        <tr><td class="code">G3-INV-10</td><td><a href="g3-inv-10.html">Hoàn kho / khách trả phụ tùng</a></td><td>E</td><td>D, T</td><td>TK; QL duyệt</td><td>P1 / P2+</td></tr>
+        <tr><td class="code">G3-INV-11</td><td><a href="g3-inv-11.html">Xuất dùng nội bộ và vật tư tiêu hao</a></td><td>E</td><td>D</td><td>TK; QL duyệt</td><td>P2+</td></tr>
+        <tr><td class="code">G3-INV-12</td><td><a href="g3-inv-12.html">Danh sách phiếu chuyển kho</a></td><td>C</td><td>D, T</td><td>TK, QL; CH, QV duyệt</td><td>P2</td></tr>
+        <tr><td class="code">G3-INV-13</td><td><a href="g3-inv-13.html">Tạo / gửi phiếu chuyển kho</a></td><td>E</td><td>D, T</td><td>TK, QL</td><td>P2</td></tr>
+        <tr><td class="code">G3-INV-14</td><td><a href="g3-inv-14.html">Nhận hàng chuyển kho và biên bản chênh lệch</a></td><td>D/E</td><td>D, T</td><td>TK bên nhận; QL duyệt</td><td>P2</td></tr>
+        <tr><td class="code">G3-INV-15</td><td><a href="g3-inv-15.html">Danh sách đợt kiểm kê</a></td><td>C</td><td>D</td><td>QL (D), TK (S)</td><td>P2</td></tr>
+        <tr><td class="code">G3-INV-16</td><td><a href="g3-inv-16.html">Thực hiện kiểm kê (quét mã vạch)</a></td><td>E</td><td>M, T</td><td>TK</td><td>P2</td></tr>
+        <tr><td class="code">G3-INV-17</td><td><a href="g3-inv-17.html">Duyệt chênh lệch kiểm kê (ADJ)</a></td><td>D</td><td>D</td><td>QL; CH, QV khi vượt ngưỡng</td><td>P2</td></tr>
+        <tr><td class="code">G3-INV-18</td><td><a href="g3-inv-18.html">Bán lẻ phụ tùng tại quầy</a></td><td>E</td><td>D</td><td>CV, TK, TN, QL</td><td>P2+</td></tr>
+        <tr><td class="code">G3-INV-19</td><td><a href="g3-inv-19.html">Bảng giá phụ tùng (giá niêm yết)</a></td><td>C + E</td><td>D</td><td>TK (S), CH (D)</td><td>P1</td></tr>
+      </tbody></table></div></div></section>
+
+  <section aria-labelledby="pur" class="stack-2"><h2 id="pur">Mua hàng (PUR) – 10 màn hình</h2>
+    <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Màn hình nhóm PUR</caption>
+      <thead><tr><th>Mã</th><th>Tên</th><th>Mẫu</th><th>Thiết bị</th><th>Vai trò chính</th><th>Ưu tiên</th></tr></thead><tbody>
+        <tr><td class="code">G3-PUR-01</td><td><a href="g3-pur-01.html">Danh sách yêu cầu mua hàng</a></td><td>C</td><td>D</td><td>TK (mua hàng), QL; KT (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-02</td><td><a href="g3-pur-02.html">Tạo yêu cầu mua hàng</a></td><td>E</td><td>D, T</td><td>TK, QL</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-03</td><td><a href="g3-pur-03.html">Chi tiết và phê duyệt yêu cầu mua</a></td><td>D</td><td>D, M</td><td>QL; CH, QV theo hạn mức</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-04</td><td><a href="g3-pur-04.html">Danh sách đơn mua</a></td><td>C</td><td>D</td><td>TK, QL; KT (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-05</td><td><a href="g3-pur-05.html">Lập / điều chỉnh đơn mua</a></td><td>E</td><td>D</td><td>TK, QL</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-06</td><td><a href="g3-pur-06.html">Chi tiết đơn mua</a></td><td>D</td><td>D</td><td>TK, QL; KT (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-07</td><td><a href="g3-pur-07.html">Hóa đơn nhà cung cấp và đối chiếu ba bên</a></td><td>D</td><td>D</td><td>KT; TK (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-08</td><td><a href="g3-pur-08.html">Phiếu trả hàng cho nhà cung cấp</a></td><td>E</td><td>D</td><td>TK; QL duyệt</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-09</td><td><a href="g3-pur-09.html">Danh sách nhà cung cấp</a></td><td>C</td><td>D</td><td>TK, QL; KT (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-PUR-10</td><td><a href="g3-pur-10.html">Chi tiết / sửa nhà cung cấp</a></td><td>D/E</td><td>D</td><td>TK, QL; KT (X)</td><td>P2 (đánh giá P2+)</td></tr>
+      </tbody></table></div></div></section>
+
+  <section aria-labelledby="hrm" class="stack-2"><h2 id="hrm">Nhân sự và công thợ (HRM) – 10 màn hình</h2>
+    <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Màn hình nhóm HRM</caption>
+      <thead><tr><th>Mã</th><th>Tên</th><th>Mẫu</th><th>Thiết bị</th><th>Vai trò chính</th><th>Ưu tiên</th></tr></thead><tbody>
+        <tr><td class="code">G3-HRM-01</td><td><a href="g3-hrm-01.html">Danh sách nhân sự</a></td><td>C</td><td>D</td><td>QL (S); CH, QV, KT (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-02</td><td><a href="g3-hrm-02.html">Hồ sơ nhân sự</a></td><td>D/E</td><td>D</td><td>QL (S); CH (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-03</td><td><a href="g3-hrm-03.html">Điều chuyển nhân sự (hộp thoại)</a></td><td>E (Dlg)</td><td>D</td><td>QL; CH duyệt khác vùng</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-04</td><td><a href="g3-hrm-04.html">Ca làm việc và chấm công</a></td><td>K/C</td><td>D, T</td><td>QL (S); TH (Xn)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-05</td><td><a href="g3-hrm-05.html">Lịch làm việc và tải việc thợ</a></td><td>K</td><td>D, T</td><td>QĐ, QL (S); CV (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-06</td><td><a href="g3-hrm-06.html">Quy tắc tính công và hoa hồng (cấu hình)</a></td><td>S</td><td>D</td><td>CH (D); QL (S trong quyền); KT (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-07</td><td><a href="g3-hrm-07.html">Công thợ theo lệnh và hạng mục</a></td><td>C</td><td>D, T</td><td>QL (D); KT, CH, QV (X); TH, CV (Xn)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-08</td><td><a href="g3-hrm-08.html">Bảng công theo kỳ (duyệt, khóa, xuất)</a></td><td>C/D</td><td>D</td><td>QL (D); KT (X, nhận xuất)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-09</td><td><a href="g3-hrm-09.html">Hoa hồng cố vấn và thợ</a></td><td>C</td><td>D</td><td>QL (D); CV, TH (Xn); KT, CH (X)</td><td>P2</td></tr>
+        <tr><td class="code">G3-HRM-10</td><td><a href="g3-hrm-10.html">Năng suất kỹ thuật viên</a></td><td>B/C</td><td>D, T</td><td>QL, QĐ; CH, QV, KT (X); TH (Xn)</td><td>P2</td></tr>
+      </tbody></table></div></div></section>
+
+  <p class="t-body-sm text-secondary">Mẫu: A Application Shell · B Dashboard · C List · D Detail · E Create/Edit · K lịch/kanban · S cấu hình · Dlg hộp thoại. Thiết bị: D desktop · T tablet · M mobile. Ưu tiên theo <code>screen-inventory.md</code> §0.6.</p>
+</main>
+</body>
+</html>

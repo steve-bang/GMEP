@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-17 · Khóa kỳ kế toán · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--danger-outline" data-open="dlg-reopen" data-vg="p" data-v="locked" hidden data-g4f-need="CH" data-g4f-why="Chỉ Chủ garage duyệt mở lại kỳ đã khóa (FR-ACC-005).">Đề nghị mở lại kỳ</button>
+    <button class="btn btn--primary btn--lg" id="btn-lock" data-open="dlg-lock" data-vg="p" data-v-not="locked" data-v-off="notend blocked" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán khóa kỳ; Chủ garage duyệt mở lại." data-g4f-online><svg class="icon"><use href="#lock"/></svg>Khóa kỳ</button>
+  </div>
+
+  <div class="filter-bar"><div class="field"><label class="field__label" for="per">Kỳ kế toán</label><select id="per" class="select"><option>Tháng 10/2026 (01–31/10)</option><option>Tháng 9/2026</option><option>Tháng 8/2026</option></select></div>
+    <div class="filter-bar__actions"><span class="t-body-sm text-secondary">Xem thử tình huống:</span><div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="notend" data-vg="p" aria-pressed="true">Kỳ chưa kết thúc</button><button class="segmented__item" data-g4f-var="blocked" data-vg="p" aria-pressed="false">Chưa đủ điều kiện</button><button class="segmented__item" data-g4f-var="ready" data-vg="p" aria-pressed="false">Đủ điều kiện</button><button class="segmented__item" data-g4f-var="locked" data-vg="p" aria-pressed="false">Đã khóa</button></div></div></div>
+
+  <div class="alert alert--neutral" data-vg="p" data-v="notend"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Kỳ tháng 10/2026 chưa kết thúc</span><span>Hôm nay 30/10/2026; chỉ khóa kỳ sau ngày cuối kỳ và khi mọi ngày trong kỳ đã khóa.</span></div></div>
+  <div class="alert alert--danger" data-vg="p" data-v="blocked" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Chưa khóa kỳ được: còn 2 điều kiện chưa đạt</span><span>Xử lý các mục bên dưới rồi quay lại.</span></div></div>
+  <div class="alert alert--success" data-vg="p" data-v="locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kỳ đã khóa lúc 09:10 01/11/2026 bởi Đặng Thu Hà</span><span>Chứng từ trong kỳ chỉ đọc. Muốn điều chỉnh, lập chứng từ điều chỉnh ở kỳ đang mở, hoặc Chủ garage duyệt mở lại kỳ kèm lý do.</span></div></div>
+
+  <div class="g4f-two">
+    <section class="card" aria-labelledby="h-ck">
+      <div class="card__header"><div><h2 class="card__title" id="h-ck">Điều kiện khóa kỳ</h2><div class="card__subtitle">Kỳ tháng 10/2026 · phạm vi: Chi nhánh Quận 7</div></div></div>
+      <div class="card__body"><ul class="g4f-checks">
+        <li class="is-pass" data-vg="p" data-v="ready locked" hidden><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Cả 31 ngày trong kỳ đã khóa</div></div><span class="tag tag--success">Đạt</span></li>
+        <li class="is-fail" data-vg="p" data-v="notend blocked"><span class="g4f-checks__ic"><svg class="icon"><use href="#x"/></svg></span><div><div class="g4f-checks__title">Còn ngày chưa khóa</div><div class="g4f-checks__sub">29 trên 31 ngày đã khóa; còn 30/10 và 31/10.</div></div><a class="btn btn--ghost btn--sm" href="g4-acc-09.html">Chốt ngày</a></li>
+        <li class="is-pass" data-vg="p" data-v="ready locked" hidden><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Đối soát công nợ phải thu đã xong</div></div><span class="tag tag--success">Đạt</span></li>
+        <li class="is-fail" data-vg="p" data-v="blocked"><span class="g4f-checks__ic"><svg class="icon"><use href="#x"/></svg></span><div><div class="g4f-checks__title">Công nợ phải trả chưa đối soát với nhà cung cấp</div><div class="g4f-checks__sub">Công ty CP Dầu nhớt Việt chênh lệch 120.000 ₫.</div></div><a class="btn btn--ghost btn--sm" href="g4-acc-12.html">Xem</a></li>
+        <li class="is-pass" data-vg="p" data-v="ready locked" hidden><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Không còn hóa đơn lỗi tồn đọng</div></div><span class="tag tag--success">Đạt</span></li>
+        <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">Kiểm kê kho cuối kỳ</div><div class="g4f-checks__sub">Đợt kiểm kê tháng 10 đã duyệt chênh lệch. Cảnh báo, không chặn.</div></div><span class="tag tag--warning">Cảnh báo</span></li>
+      </ul></div>
+    </section>
+    <aside class="g4f-aside"><section class="card"><div class="card__header"><h2 class="card__title">Trạng thái kỳ</h2></div><div class="card__body"><dl class="g4f-sum"><div><dt>Kỳ</dt><dd>T10/2026</dd></div><div><dt>Trạng thái</dt><dd><span class="tag tag--info" data-vg="p" data-v="notend blocked ready">Đang mở</span><span class="tag tag--success" data-vg="p" data-v="locked" hidden>Đã khóa</span></dd></div><div><dt>Kỳ trước (T9/2026)</dt><dd><span class="tag tag--success">Đã khóa</span></dd></div></dl>
+      <p class="g4f-why">Mở lại kỳ cần Chủ garage duyệt kèm lý do và nhập lại mật khẩu; có nhật ký (FR-ACC-005).</p></div></section></aside>
+  </div>
+  <p class="g4f-why" id="why-lock" style="text-align:right" data-vg="p" data-v="notend blocked">Lý do nút “Khóa kỳ” bị khóa: kỳ chưa đủ điều kiện (xem danh sách trên).</p>
+</div>
+
+<div class="overlay" id="dlg-lock" role="alertdialog" aria-modal="true" aria-labelledby="lk-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="T10/2026">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#lock"/></svg></div><div><h2 class="dialog__title" id="lk-t">Khóa kỳ tháng 10/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Mọi chứng từ trong kỳ chỉ đọc, kể cả phiếu thu/chi, hóa đơn, phiếu kho.</li><li>Điều chỉnh về sau chỉ bằng chứng từ mới ở kỳ đang mở; mở lại kỳ cần Chủ garage duyệt.</li><li>Số báo cáo của kỳ trở thành chính thức.</li></ul><div class="field"><label class="field__label" for="lk-c">Gõ <strong>T10/2026</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="lk-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Chưa khóa</button><button class="btn btn--danger" data-confirm-btn data-g4f-submit data-lock="#btn-lock" data-busy="Đang khóa kỳ…" data-done-label="Đã khóa kỳ" data-done-toast="success|Đã khóa kỳ T10/2026|Số liệu chính thức." disabled>Khóa kỳ</button></div></div></div>
+
+<div class="overlay" id="dlg-reopen" role="alertdialog" aria-modal="true" aria-labelledby="ro-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="MỞ LẠI KỲ">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="ro-t">Mở lại kỳ tháng 10/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Chứng từ trong kỳ sửa được trở lại; báo cáo đã xuất cho kỳ này có thể không còn khớp.</li><li>Ghi nhật ký người mở, lý do, thời điểm; yêu cầu vào hàng chờ duyệt.</li></ul><div class="field"><label class="field__label" for="ro-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="ro-r" class="textarea" data-confirm-reason></textarea></div><div class="field"><label class="field__label" for="ro-p">Nhập lại mật khẩu<span class="field__req" aria-hidden="true">*</span></label><input id="ro-p" class="input" type="password" autocomplete="current-password"></div><div class="field"><label class="field__label" for="ro-c">Gõ <strong>MỞ LẠI KỲ</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="ro-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ khóa</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi đề nghị mở lại kỳ|Chờ Chủ garage duyệt." disabled>Gửi đề nghị</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-17', title: 'Khóa kỳ kế toán', desc: 'Kiểm tra điều kiện rồi khóa kỳ; mở lại kỳ cần Chủ garage duyệt, lý do và nhật ký.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV', 'QL'], updated: '09:15', time: 'tháng 10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+document.addEventListener('g4f:var', function (e) { if (e.detail.v === 'ready') { var b = document.getElementById('btn-lock'); b.disabled = false; b.removeAttribute('aria-disabled'); G4F.refresh(); } });
+G4F.applyVar('p', 'notend');
+</script>
+</body>
+</html>

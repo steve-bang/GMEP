@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-QUO-07 · Hạng mục phát sinh: đề xuất và báo giá bổ sung – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa', 'g2-quo-01.html'], ['Lệnh RO-Q7-2610-00128', '../g2-workshop/g2-rec-04.html'], ['Báo giá bổ sung (phát sinh)']], title: 'Báo giá bổ sung <span class="code" style="font-weight:500">BG-Q7-2610-00236</span>', desc: 'Hạng mục phát sinh khi đang sửa. Chưa có khách duyệt thì thợ không bắt đầu được hạng mục này (RULE-005, RULE-006).' });
+g2q.scope('hôm nay 30/10/2026', '09:15');
+</script>
+
+<div class="stack-6" id="px" data-variants="draft">
+  <script>g2q.proto([['draft','Cố vấn đang lập'],['waiting','Chờ khách duyệt'],['approved','Khách đã duyệt'],['rejected','Khách từ chối'],['proposal','Thợ xem đề xuất của mình'],['loading','Đang tải']], 'draft');</script>
+
+  <div data-v="loading" aria-busy="true" class="card" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--block"></span></div>
+
+  <div class="alert alert--warning" data-v="draft waiting proposal"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Hạng mục này đang bị khóa với thợ</span><span>Nút “Bắt đầu” của hạng mục bị khóa cho tới khi có bằng chứng khách duyệt. Số tiền chưa tính vào tổng lệnh.</span></div></div>
+  <div class="alert alert--success" role="status" data-v="approved"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Khách đã duyệt lúc 09:21</span><span>Hạng mục vào lệnh RO-Q7-2610-00128 (tổng lệnh tăng 324.000 ₫), phụ tùng được giữ chỗ, thợ nhận thông báo và nút Bắt đầu mở. <a href="../g2-workshop/g2-rec-04.html">Mở lệnh</a></span></div></div>
+  <div class="alert alert--danger" role="status" data-v="rejected"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Khách từ chối lúc 09:21</span><span>Hạng mục không vào lệnh và được lưu để nhắc lần sau (<a href="g2-quo-08.html">danh sách hạng mục lưu nhắc</a>). Thợ được thông báo, không làm hạng mục này.</span></div></div>
+
+  <div class="g2q-split" data-v="draft waiting approved rejected proposal">
+    <div class="g2q-split__main">
+      <section class="card" aria-labelledby="h-de"><div class="card__header"><div><h2 class="card__title" id="h-de">Đề xuất của thợ</h2><div class="card__subtitle">Lê Minh Tuấn · 09:05 30/10/2026 · gắn với hạng mục 2 “Thay má phanh trước”</div></div><span class="badge badge--neutral">Chưa làm</span></div>
+        <div class="card__body stack"><p>“Lọc gió điều hòa bẩn nhiều, có mùi, nên thay. Phát hiện khi tháo nắp hộc găng tay.”</p>
+          <div class="g2q-photos"><div class="g2q-photo" style="width:112px;height:112px" role="img" aria-label="Ảnh 1: lọc gió bẩn"><svg class="icon"><use href="#camera"/></svg>Ảnh 1</div><div class="g2q-photo" style="width:112px;height:112px" role="img" aria-label="Ảnh 2: vị trí lọc gió"><svg class="icon"><use href="#camera"/></svg>Ảnh 2</div></div></div></section>
+
+      <section class="card" aria-labelledby="h-li" data-vx="proposal"><div class="card__header"><div><h2 class="card__title" id="h-li">Nội dung báo giá bổ sung</h2><div class="card__subtitle">Hạng mục phát sinh số 4 của lệnh · giá theo bảng giá tháng 10/2026</div></div></div>
+        <div class="table-scroll"><table class="table table--compact g2q-lines">
+          <thead><tr><th>Dòng</th><th class="col-num">SL / giờ chuẩn</th><th class="col-num">Đơn giá</th><th class="col-num">Thành tiền</th></tr></thead>
+          <tbody>
+            <tr class="g2q-group"><td colspan="3">4. Thay lọc gió điều hòa <span class="tag tag--info">Phát sinh</span> <span class="tag tag--neutral">Tùy chọn</span></td><td class="col-num">300.000 ₫</td></tr>
+            <tr><td><span class="cell-primary">Công thay lọc gió điều hòa</span></td><td class="col-num">0,3 giờ (giá gói)</td><td class="col-num"><span data-v="draft"><input class="input input--num" value="80.000" aria-label="Giá công"></span><span data-vx="draft">80.000</span></td><td class="col-num">80.000 ₫</td></tr>
+            <tr><td><span class="cell-primary">Lọc gió điều hòa Vios</span><span class="cell-sub num">PT-0021</span><span class="g2q-stock">Khả dụng 14 · Đủ hàng · chưa giữ chỗ, giữ khi khách duyệt</span></td><td class="col-num">1</td><td class="col-num"><span data-v="draft"><input class="input input--num" value="220.000" aria-label="Giá lọc gió"></span><span data-vx="draft">220.000</span></td><td class="col-num">220.000 ₫</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3">Cộng trước thuế</td><td class="col-num">300.000 ₫</td></tr></tfoot>
+        </table></div>
+        <div class="g2q-totals"><div class="g2q-totals__row g2q-totals__row--sub"><span>Thuế GTGT 8% (số mẫu)</span><span>24.000 ₫</span></div><div class="g2q-totals__row g2q-totals__row--final"><span>Tổng báo giá bổ sung</span><span>324.000 ₫</span></div></div>
+        <div class="card__body" style="padding-top:0" data-v="draft"><p class="g2q-note">Giảm giá vượt hạn mức hoặc bán dưới giá vốn cần Quản lý chi nhánh duyệt (G4-APR-02), như báo giá thường.</p></div>
+      </section>
+
+      <section class="card" data-v="proposal" aria-labelledby="h-pr"><div class="card__header"><h2 class="card__title" id="h-pr">Đề xuất của bạn đang ở đâu?</h2></div><div class="card__body">
+        <ol class="stepper" aria-label="Các bước xử lý phát sinh"><li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm"><use href="#check"/></svg></span><span class="stepper__text">Thợ báo 09:05</span></div></li><li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm"><use href="#check"/></svg></span><span class="stepper__text">Cố vấn báo giá 09:05</span></div></li><li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Chờ khách duyệt</span></div></li><li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Bắt đầu làm</span></div></li></ol>
+        <p class="g2q-note" style="margin-top:12px">Thợ chỉ xem trạng thái, không xem giá và không sửa báo giá (RULE-006).</p></div></section>
+    </div>
+
+    <aside class="g2q-split__side">
+      <section class="card"><div class="card__header"><h2 class="card__title">Trạng thái liên quan</h2></div><div class="g2q-links">
+        <div class="g2q-links__item"><span><span class="g2q-links__type">Báo giá bổ sung</span><span class="code">BG-Q7-2610-00236</span></span><span><span class="badge badge--neutral" data-v="draft">Nháp</span><span class="badge badge--warning" data-v="waiting proposal">Chờ khách duyệt</span><span class="badge badge--success" data-v="approved">Duyệt toàn phần</span><span class="badge badge--danger" data-v="rejected">Từ chối</span></span></div>
+        <div class="g2q-links__item"><span><span class="g2q-links__type">Hạng mục 4 của lệnh</span>Thay lọc gió điều hòa</span><span><span class="badge badge--neutral" data-v="draft waiting proposal rejected">Chưa làm</span><span class="tag tag--warning" data-v="draft waiting proposal">Chờ khách duyệt (phát sinh)</span><span class="badge badge--neutral" data-v="approved">Chưa làm</span><span class="tag tag--success" data-v="approved">Đã duyệt</span></span></div>
+        <a class="g2q-links__item" href="../g2-workshop/g2-rec-04.html"><span><span class="g2q-links__type">Lệnh sửa chữa</span><span class="code">RO-Q7-2610-00128</span></span><span class="badge badge--info">Đang sửa chữa</span></a>
+        <a class="g2q-links__item" href="g2-quo-03.html"><span><span class="g2q-links__type">Báo giá gốc</span><span class="code">BG-Q7-2610-00231-v2</span></span><span class="badge badge--warning">Duyệt một phần</span></a>
+      </div></section>
+    </aside>
+  </div>
+
+  <div class="g2q-sticky-foot" role="region" aria-label="Thao tác báo giá bổ sung" data-v="draft waiting">
+    <span class="g2q-note" data-v="draft">Bản nháp báo giá bổ sung · gửi xong, hạng mục vẫn khóa tới khi khách duyệt.</span><span class="g2q-note" data-v="waiting">Đã gửi khách qua Zalo lúc 09:05 · hạn duyệt 02/11/2026 · khách chưa mở liên kết.</span>
+    <div class="row" data-v="draft"><button class="btn btn--secondary" data-toast="success|Đã lưu nháp|Báo giá bổ sung lưu lúc 09:04.">Lưu nháp</button><a class="btn btn--secondary" href="g2-quo-05.html">Khách duyệt tại quầy</a><a class="btn btn--primary" href="g2-quo-04.html">Gửi khách duyệt<svg class="icon"><use href="#send"/></svg></a></div>
+    <div class="row" data-v="waiting"><button class="btn btn--secondary" data-toast="success|Đã nhắc khách|Liên kết gửi lại qua Zalo lúc 09:16.">Gửi nhắc khách</button><a class="btn btn--secondary" href="g2-quo-05.html">Ghi nhận duyệt tại quầy</a><button class="btn btn--danger-outline" data-open="dlg-cx">Hủy phát sinh</button></div>
+  </div>
+</div>
+<script>g2q.end();</script>
+
+<div class="overlay" id="dlg-cx" role="alertdialog" aria-modal="true" aria-labelledby="dcx-t"><div class="dialog" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dcx-t">Hủy báo giá bổ sung?</h2></div></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Liên kết duyệt gửi khách ngừng hoạt động; hạng mục không vào lệnh.</li><li>Thợ được thông báo không làm hạng mục này; đề xuất được lưu trong lịch sử.</li></ul><div class="field"><label class="field__label" for="cx-r">Lý do hủy <span class="field__req">*</span></label><textarea id="cx-r" class="textarea" data-confirm-reason placeholder="Ví dụ: khách nói không cần, đã báo qua điện thoại"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Không hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-set="rejected" data-for="px" data-toast="success|Đã hủy báo giá bổ sung|Hạng mục không vào lệnh.">Hủy báo giá bổ sung</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

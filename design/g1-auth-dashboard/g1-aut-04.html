@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-04 · Quên mật khẩu – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Nhập thông tin|sent:Đã gửi|rate:Gửi quá nhiều lần|offline:Mất mạng|loading:Đang xử lý" data-hint="Thông báo sau khi gửi luôn giống nhau, dù tài khoản có tồn tại hay không."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div data-hide="sent"><h1 id="t">Quên mật khẩu</h1><p class="g1-lead">Nhập email hoặc mã nhân viên. Nếu khớp một tài khoản, chúng tôi gửi liên kết đặt mật khẩu mới.</p></div>
+
+    <div class="alert alert--warning" role="alert" data-show="rate" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Bạn đã yêu cầu quá nhiều lần</span><span>Vì an toàn, hãy đợi 15 phút rồi thử lại. Nếu cần vào gấp, nhờ quản lý chi nhánh cấp mã tạm.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa gửi được. Kiểm tra Wi-Fi hoặc 4G rồi thử lại. Thông tin bạn nhập vẫn được giữ.</span></div></div>
+
+    <form class="g1-form" data-g1-form novalidate data-route-field="g1-id" data-routes="*=view:sent" data-hide="sent">
+      <fieldset class="g1-fs" data-disable-in="rate">
+        <legend class="sr-only">Tài khoản cần đặt lại mật khẩu</legend>
+        <div class="field">
+          <label class="field__label" for="g1-id">Email hoặc mã nhân viên<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="g1-id" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" aria-describedby="g1-id-h" data-first-focus data-rule="required" data-msg-required="Nhập email hoặc mã nhân viên. Ví dụ: ha.nguyen@garage.vn hoặc NV0123.">
+          <span class="field__hint" id="g1-id-h">Nhân viên chưa có email (ví dụ thợ): nhờ quản lý chi nhánh cấp mã tạm thay vì dùng trang này.</span>
+          <span class="field__error" id="g1-id-err" hidden></span>
+        </div>
+      </fieldset>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="rate offline" data-loading-in="loading"><span>Gửi liên kết đặt lại</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <div class="g1-auth-links"><a href="g1-aut-01.html">Quay lại đăng nhập</a><span class="t-body-sm text-secondary"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</span></div>
+    </form>
+
+    <div data-show="sent" hidden>
+      <div class="state" style="padding:0"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#mail"/></svg></div>
+        <h2 class="state__title">Kiểm tra email của bạn</h2>
+        <p class="state__text">Nếu thông tin vừa nhập khớp một tài khoản, hướng dẫn đặt lại mật khẩu đã được gửi. Liên kết có hiệu lực 30 phút và chỉ dùng một lần.</p>
+        <p class="state__text">Chưa thấy email? Xem mục thư rác. Có thể gửi lại sau <strong class="num" data-countdown="60" data-countdown-enable="#again">01:00</strong>.</p>
+        <div class="state__actions"><button type="button" class="btn btn--secondary" id="again" disabled data-toast="success|Đã gửi lại|Nếu tài khoản tồn tại, liên kết mới đã được gửi.">Gửi lại</button><a class="btn btn--ghost" href="g1-aut-01.html">Quay lại đăng nhập</a></div>
+        <p class="t-body-sm text-secondary" style="margin:0">Prototype: <a href="g1-aut-05.html">mở liên kết đặt lại trong email (giả lập)</a>.</p>
+      </div>
+    </div>
+  </main>
+  <footer class="g1-auth-foot"><span>GARAGE OS · Cần hỗ trợ? Liên hệ quản lý chi nhánh của bạn.</span></footer>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+</body>
+</html>

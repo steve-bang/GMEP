@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-REC-07 – Bảng đồng sơn theo công đoạn · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QD" data-nav="ro" data-g2w-deny="TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Bảng đồng sơn</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Bảng đồng sơn theo công đoạn</h1><p class="page-header__desc">Mỗi xe đồng sơn ở một công đoạn, có người phụ trách và ngày dự kiến hoàn thành (FR-REC-033). Ưu tiên Should, cần khảo sát xưởng.</p></div></div>
+  <div data-g2w-scope data-time="Xe đồng sơn đang làm" data-asof="09:17"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Không có xe đồng sơn|error:Lỗi|denied:Không có quyền"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Danh sách công đoạn là giả định, chưa khảo sát xưởng</span><span>Tên và thứ tự công đoạn lấy từ cấu hình quy trình (G4-SYS-13). Đổi cấu hình thì cột đổi theo, thiết kế không cố định. Công đoạn là trạng thái của hạng mục, không phải của lệnh (workflow §3).</span></div></div>
+    <div class="alert alert--info" data-g2w-roles="CH QV" role="status"><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span>Bạn chỉ xem bảng. Chuyển công đoạn do Quản đốc, Cố vấn, Quản lý thực hiện.</span></div></div>
+
+    <div class="filter-bar">
+      <div class="field"><label class="field__label" for="p-w">Người phụ trách</label><select id="p-w" class="select"><option>Tất cả</option><option>Ngô Thanh Phong</option><option>Trần Văn Hậu</option></select></div>
+      <div class="field"><span class="field__label" id="p-q">Lọc nhanh</span><div class="g2w-seg-row" role="group" aria-labelledby="p-q"><button class="chip-filter" aria-pressed="false">Trễ dự kiến <span class="count-pill count-pill--danger">1</span></button><button class="chip-filter" aria-pressed="false">Chưa có người phụ trách <span class="count-pill count-pill--warning">1</span></button></div></div>
+    </div>
+
+    <div class="g2w-board" role="region" aria-label="Bảng đồng sơn theo công đoạn" tabindex="0">
+      <div class="kanban__col"><div class="kanban__head"><strong>1. Đánh giá</strong><span class="count-pill count-pill--warning">1</span></div>
+        <div class="kanban__card is-warning"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00133</a><span class="plate-tag">51B-808.09</span></div><span class="text-secondary t-body-sm">Toyota Fortuner · móp cánh cửa phải</span><div class="g2w-card-meta"><span class="tag tag--warning">Chưa có người phụ trách</span><span class="g2w-due">06/11</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>2. Báo giá chi tiết</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>3. Tháo</strong><span class="count-pill">1</span></div>
+        <div class="kanban__card"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00134</a><span class="plate-tag">51N-123.99</span></div><span class="text-secondary t-body-sm">Mazda 3 · trầy cản sau</span><div class="g2w-card-meta"><span>Ngô Thanh Phong</span><span class="g2w-due">04/11</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>4. Gò</strong><span class="count-pill">1</span></div>
+        <div class="kanban__card"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00124</a><span class="plate-tag">51A-246.80</span></div><span class="text-secondary t-body-sm">Ford Ranger · cản trước, ba đờ sốc</span><div class="g2w-card-meta"><span>Ngô Thanh Phong</span><span class="g2w-due">02/11</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>5. Sơn lót</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>6. Sơn màu</strong><span class="count-pill count-pill--danger">1</span></div>
+        <div class="kanban__card is-overdue"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00120</a><span class="plate-tag">51K-111.22</span></div><span class="text-secondary t-body-sm">Hyundai Tucson · cửa trước trái</span><div class="g2w-card-meta"><span>Ngô Thanh Phong</span><span class="g2w-due is-late"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ · 29/10</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>7. Sơn bóng</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>8. Lắp ráp</strong><span class="count-pill">0</span></div><div class="kanban__empty">Không có xe ở công đoạn này.</div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>9. Kiểm tra</strong><span class="count-pill">1</span></div>
+        <div class="kanban__card"><div class="row row--between row--nowrap"><a class="code" href="g2-rec-04.html">RO-Q7-2610-00119</a><span class="plate-tag">59A-777.88</span></div><span class="text-secondary t-body-sm">Kia Morning · nắp capo</span><div class="g2w-card-meta"><span>Trần Văn Hậu</span><span class="g2w-due is-soon">30/10 hôm nay</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-stage" data-g2w-lock="QD CV QL" data-g2w-why="Chỉ Quản đốc, Cố vấn, Quản lý chi nhánh chuyển công đoạn.">Chuyển công đoạn…</button></div></div>
+      <div class="kanban__col"><div class="kanban__head"><strong>10. Bàn giao</strong><span class="count-pill">0</span></div><div class="kanban__empty">Chưa có xe nào chờ bàn giao.</div></div>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="g2w-board"><div class="kanban__col"><span class="skeleton skeleton--block" style="height:120px"></span></div><div class="kanban__col"><span class="skeleton skeleton--block" style="height:120px"></span></div><div class="kanban__col"><span class="skeleton skeleton--block" style="height:120px"></span></div></div><p class="g2w-muted" role="status">Đang tải bảng đồng sơn…</p></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="clipboard-list" data-title="Chưa có xe đồng sơn nào" data-text="Lệnh có loại dịch vụ Đồng sơn sẽ hiện ở đây theo công đoạn."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được bảng đồng sơn" data-ref="ERR-REC-5071"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem bảng đồng sơn" data-text="Bảng dành cho Quản đốc, Cố vấn, Quản lý và Chủ garage."></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-stage" role="dialog" aria-modal="true" aria-labelledby="st-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="st-t">Chuyển công đoạn</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="form-grid"><div class="field"><label class="field__label" for="st-s">Công đoạn tiếp theo<span class="field__req" aria-hidden="true">*</span></label><select id="st-s" class="select"><option>5. Sơn lót</option><option>3. Tháo (quay lại)</option></select></div>
+    <div class="field"><label class="field__label" for="st-w">Người phụ trách</label><select id="st-w" class="select"><option>Ngô Thanh Phong</option><option>Trần Văn Hậu</option></select></div>
+    <div class="field"><label class="field__label" for="st-d">Ngày dự kiến hoàn thành xe</label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="st-d" class="input" value="02/11/2026"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div></div>
+    <p class="g2w-muted">Đổi ngày dự kiến ảnh hưởng ngày hẹn giao nên khách được báo qua kênh đã đồng ý. Quay lại công đoạn trước cần ghi lý do trong lịch sử hạng mục.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã chuyển công đoạn|Ghi người, thời điểm vào lịch sử hạng mục.">Chuyển</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

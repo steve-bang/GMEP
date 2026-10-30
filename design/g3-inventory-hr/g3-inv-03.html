@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-03 · Chi tiết phụ tùng và thẻ kho – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-03')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Lọc dầu động cơ Toyota Vios</h1>
+    <p class="page-header__desc"><span class="code">PT-0001</span> · Toyota · cái · mã vạch <span class="num">8935001230012</span> · Nhóm Lọc · <span id="st-badge"></span></p></div>
+  <div class="page-header__actions">
+    <a class="btn btn--secondary" href="g3-inv-02.html" data-g3-need="TK" data-g3-why="Chỉ Thủ kho được sửa danh mục phụ tùng."><svg class="icon"><use href="#pencil"/></svg>Sửa thông tin</a>
+    <div class="dropdown"><button class="btn btn--primary" aria-haspopup="menu" aria-expanded="false" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh tạo phiếu chuyển/đặt hàng."><svg class="icon"><use href="#plus"/></svg>Tạo phiếu chuyển / đặt hàng<svg class="icon icon--sm"><use href="#chevron-down"/></svg></button>
+      <div class="dropdown__menu dropdown__menu--right" role="menu"><a class="menu-item" role="menuitem" href="g3-inv-13.html"><svg class="icon"><use href="#truck"/></svg>Tạo phiếu chuyển kho (lấy từ chi nhánh dư)</a><a class="menu-item" role="menuitem" href="g3-pur-02.html"><svg class="icon"><use href="#shopping-cart"/></svg>Tạo yêu cầu mua hàng</a></div></div>
+  </div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Kho:</strong> Kho Quận 7</span><span>· Tồn tính đến 09:15 30/10/2026</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button></div>
+
+<div id="g3-body" data-noun="phụ tùng" data-g3-states="data;loading;notfound;error;denied" data-skel="detail" data-back="g3-inv-01.html">
+<div data-g3-state="data" class="stack">
+  <div data-g3-stock4="26,2,0" data-min="10"></div>
+  <div class="row"><span class="t-body-sm text-secondary">Khả dụng 24 = Thực tế 26 − Giữ chỗ 2. Định mức tối thiểu tại Quận 7: 10. Hàng đang vận chuyển chưa tính vào Khả dụng.</span></div>
+
+  <div class="g3-split">
+    <section class="card" aria-label="Chi tiết tồn kho">
+      <div class="tabs" role="tablist" aria-label="Chi tiết phụ tùng">
+        <button class="tab" role="tab" id="t1" aria-selected="true" aria-controls="p1">Tồn theo lô</button>
+        <button class="tab" role="tab" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1">Thẻ kho</button>
+        <button class="tab" role="tab" id="t3" aria-selected="false" aria-controls="p3" tabindex="-1">Giữ chỗ theo lệnh <span class="count-pill">2</span></button>
+        <button class="tab" role="tab" id="t4" aria-selected="false" aria-controls="p4" tabindex="-1">Chi nhánh khác</button>
+        <button class="tab" role="tab" id="t5" aria-selected="false" aria-controls="p5" tabindex="-1">Giá và nhà cung cấp</button>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="p1" aria-labelledby="t1"><div class="table-scroll"><table class="table table--compact">
+        <caption class="sr-only">Tồn theo lô tại Kho Quận 7</caption>
+        <thead><tr><th>Lô</th><th>Ngày nhập</th><th>Phiếu nhập</th><th class="col-num">Còn lại</th><th class="col-num">Giá nhập</th></tr></thead>
+        <tbody>
+          <tr><td class="code">L2609-B</td><td class="num">18/09/2026</td><td class="code">PN-Q7-2609-00044</td><td class="col-num">16</td><td class="col-num"><span data-g3-cost="117.000 ₫"></span></td></tr>
+          <tr><td class="code">L2610-A</td><td class="num">28/10/2026</td><td class="code">PN-Q7-2610-00033</td><td class="col-num">10</td><td class="col-num"><span data-g3-cost="119.600 ₫"></span></td></tr></tbody>
+        <tfoot><tr><td colspan="3">Tổng các lô (khớp Thực tế)</td><td class="col-num">26</td><td class="col-num"></td></tr></tfoot></table></div></div>
+      <div class="tab-panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden><div class="table-scroll"><table class="table table--compact">
+        <caption class="sr-only">Thẻ kho: mọi chứng từ làm đổi tồn thực tế, mới nhất ở trên</caption>
+        <thead><tr><th>Thời điểm</th><th>Chứng từ</th><th>Loại</th><th>Chứng từ gốc</th><th class="col-num">Nhập</th><th class="col-num">Xuất</th><th class="col-num">Tồn sau</th><th>Người lập</th></tr></thead>
+        <tbody>
+          <tr><td class="num col-nowrap">30/10/2026 08:40</td><td class="code"><a href="g3-inv-07.html">PX-Q7-2610-00188</a></td><td><span class="badge badge--info">Xuất theo lệnh</span></td><td class="code">RO-Q7-2610-00128</td><td class="col-num"></td><td class="col-num">1</td><td class="col-num">26</td><td>Trần Thị Mai Anh</td></tr>
+          <tr><td class="num col-nowrap">29/10/2026 16:05</td><td class="code">PX-Q7-2610-00181</td><td><span class="badge badge--info">Xuất theo lệnh</span></td><td class="code">RO-Q7-2610-00121</td><td class="col-num"></td><td class="col-num">2</td><td class="col-num">27</td><td>Trần Thị Mai Anh</td></tr>
+          <tr><td class="num col-nowrap">28/10/2026 10:20</td><td class="code"><a href="g3-inv-09.html">PN-Q7-2610-00033</a></td><td><span class="badge badge--success">Nhập kho</span></td><td class="code">DM-Q7-2610-00012</td><td class="col-num">10</td><td class="col-num"></td><td class="col-num">29</td><td>Trần Thị Mai Anh</td></tr>
+          <tr><td class="num col-nowrap">27/10/2026 15:30</td><td class="code">PX-Q7-2610-00170</td><td><span class="badge badge--info">Xuất theo lệnh</span></td><td class="code">RO-Q7-2610-00114</td><td class="col-num"></td><td class="col-num">1</td><td class="col-num">19</td><td>Trần Thị Mai Anh</td></tr>
+          <tr><td class="num col-nowrap">01/10/2026 07:30</td><td class="code">Nhập dữ liệu</td><td><span class="badge badge--neutral">Tồn đầu kỳ</span></td><td>Nhập Excel lô 01</td><td class="col-num">20</td><td class="col-num"></td><td class="col-num">20</td><td>Quản trị hệ thống</td></tr></tbody></table></div>
+        <p class="t-body-sm text-secondary" style="padding:12px 16px">Không có nút sửa số lượng. Muốn thay đổi tồn phải lập chứng từ (nhập, xuất, chuyển, hoàn kho) hoặc <a href="g3-inv-15.html">kiểm kê và phiếu điều chỉnh</a>.</p></div>
+      <div class="tab-panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden><div class="table-scroll"><table class="table table--compact">
+        <caption class="sr-only">Phiếu giữ chỗ theo lệnh sửa chữa</caption>
+        <thead><tr><th>Lệnh</th><th>Biển số</th><th class="col-num">Giữ</th><th>Trạng thái lệnh</th><th>Đã xuất?</th></tr></thead>
+        <tbody>
+          <tr><td class="code">RO-Q7-2610-00130</td><td><span class="plate">51G-765.43</span></td><td class="col-num">1</td><td><span class="badge badge--neutral">Đã duyệt</span></td><td><span class="badge badge--neutral">Chưa xuất</span></td></tr>
+          <tr><td class="code">RO-Q7-2610-00131</td><td><span class="plate">30A-222.33</span></td><td class="col-num">1</td><td><span class="badge badge--info">Đang sửa chữa</span></td><td><span class="badge badge--neutral">Chưa xuất</span></td></tr></tbody>
+        <tfoot><tr><td colspan="2">Tổng giữ chỗ</td><td class="col-num">2</td><td colspan="2"></td></tr></tfoot></table></div></div>
+      <div class="tab-panel" role="tabpanel" id="p4" aria-labelledby="t4" hidden><div class="table-scroll"><table class="table table--compact">
+        <caption class="sr-only">Tồn các chi nhánh khác trong phạm vi quyền</caption>
+        <thead><tr><th>Chi nhánh / kho</th><th class="col-num">Thực tế</th><th class="col-num">Giữ chỗ</th><th class="col-num">Khả dụng</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Kho tổng Thủ Đức</td><td class="col-num">60</td><td class="col-num">0</td><td class="col-num"><strong>60</strong></td><td class="col-actions"><a class="btn btn--secondary btn--sm" href="g3-inv-13.html">Yêu cầu chuyển</a></td></tr>
+          <tr><td>Chi nhánh Thủ Đức</td><td class="col-num">14</td><td class="col-num">2</td><td class="col-num"><strong>12</strong></td><td class="col-actions"><a class="btn btn--secondary btn--sm" href="g3-inv-13.html">Yêu cầu chuyển</a></td></tr>
+          <tr><td>Chi nhánh Quận 1</td><td class="col-num">3</td><td class="col-num">0</td><td class="col-num"><strong>3</strong></td><td class="col-actions"></td></tr>
+          <tr><td><svg class="icon icon--sm"><use href="#lock"/></svg> Chi nhánh Biên Hòa</td><td colspan="3" class="text-secondary">Ngoài phạm vi quyền của bạn</td><td></td></tr></tbody></table></div></div>
+      <div class="tab-panel" role="tabpanel" id="p5" aria-labelledby="t5" hidden><div class="card__body stack">
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Nhà cung cấp và giá nhập gần nhất</caption><thead><tr><th>Nhà cung cấp</th><th class="col-num">Giá nhập gần nhất</th><th>Hiệu lực</th></tr></thead>
+          <tbody><tr><td><a href="g3-pur-10.html">Công ty TNHH Phụ tùng Hoàng Long</a></td><td class="col-num"><span data-g3-cost="119.600 ₫"></span></td><td class="num">từ 15/10/2026</td></tr>
+          <tr><td>Đại lý Toyota Tân Cảng</td><td class="col-num"><span data-g3-cost="124.000 ₫"></span></td><td class="num">từ 01/09/2026</td></tr></tbody></table></div></div></div>
+    </section>
+
+    <aside class="g3-side" aria-label="Ba loại giá">
+      <section class="card"><div class="card__header"><h2 class="card__title">Ba loại giá</h2></div><div class="card__body"><dl class="g3-kv g3-kv--1">
+        <div><dt>Giá vốn (bình quân gia quyền)</dt><dd><span data-g3-cost="118.000 ₫"></span> <span class="g3-sample">phương pháp theo cấu hình</span></dd></div>
+        <div><dt>Giá niêm yết (bảng giá v3, hiệu lực 01/10/2026)</dt><dd class="num">185.000 ₫ · <a href="g3-inv-19.html">Xem bảng giá</a></dd></div>
+        <div><dt>Giá bán thực tế</dt><dd>Chốt theo từng báo giá trong hạn mức giảm (gần nhất: <span class="num">175.000 ₫</span>)</dd></div></dl></div></section>
+      <section class="card"><div class="card__header"><h2 class="card__title">Thông tin</h2></div><div class="card__body"><dl class="g3-kv g3-kv--1">
+        <div><dt>Dòng xe tương thích</dt><dd>Toyota Vios 2014–2022, Toyota Yaris 2014–2020</dd></div>
+        <div><dt>Quản lý theo lô</dt><dd>Có · không theo serial</dd></div>
+        <div><dt>Định mức Quận 7 (tối thiểu / tối đa)</dt><dd class="num">10 / 40</dd></div></dl>
+        <p class="t-body-sm text-secondary" style="margin-top:12px">Muốn điều chỉnh tồn: dùng <a href="g3-inv-15.html">kiểm kê</a> để tạo phiếu điều chỉnh có duyệt. Không có thao tác sửa tồn trực tiếp.</p></div></section>
+    </aside>
+  </div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init(); document.getElementById('st-badge').innerHTML = '<span class="badge badge--success">Đủ hàng</span>';</script>
+</body>
+</html>

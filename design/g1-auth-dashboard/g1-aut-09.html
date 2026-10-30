@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-09 · Hết phiên và khóa màn hình – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Sắp hết phiên (60 giây)|locked:Đã khóa màn hình|error:Sai mật khẩu mở khóa|offline:Mất mạng lúc khóa|absolute:Hết phiên tuyệt đối 12 giờ|revoked:Bị thu hồi quyền" data-hint="Thời gian không hoạt động (30 phút; 15 phút với KT, AD, CH), 12 giờ tuyệt đối và 3 phút tablet xưởng là tham số cấu hình (G4-SYS-24)."></div>
+
+  <main class="g1-auth-card" id="main" tabindex="-1">
+    <!-- 1. Sắp hết phiên -->
+    <div data-show="default" class="stack g1-center">
+      <div class="state__icon state__icon--warning" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg class="icon icon--lg"><use href="#clock"/></svg></div>
+      <h1 id="t">Phiên làm việc sắp hết</h1>
+      <p class="g1-lead" id="d">Bạn không thao tác một lúc nên màn hình sẽ tự khóa sau</p>
+      <div class="g1-countdown" role="timer" aria-live="off" data-countdown="60" data-countdown-view="locked">01:00</div>
+      <p class="t-body-sm text-secondary" style="margin:0">Việc bạn đang soạn được lưu thành bản nháp. Không mất dữ liệu.</p>
+      <div class="row" style="justify-content:center"><button type="button" class="btn btn--primary btn--lg" data-g1-goto="default" data-toast="success|Đã gia hạn phiên|Phiên tiếp tục. Bộ đếm được đặt lại."> Tiếp tục làm việc</button><a class="btn btn--secondary btn--lg" href="g1-aut-01.html">Đăng xuất</a></div>
+    </div>
+
+    <!-- 2. Đã khóa -->
+    <div data-show="locked error offline" hidden class="stack">
+      <div class="row row--nowrap"><span class="avatar avatar--lg">TH</span><div><h1 style="font-size:var(--font-size-xl);margin:0" id="t2">Màn hình đã khóa</h1><div class="text-secondary">Nguyễn Thị Thu Hà · Quản lý chi nhánh · Chi nhánh Quận 7</div></div></div>
+      <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Bản nháp đã được giữ</span><span>Phiếu tiếp nhận xe 51H-123.45 (lưu lúc 09:14). Nhập lại mật khẩu để tiếp tục đúng chỗ đang làm.</span></div></div>
+      <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mật khẩu chưa đúng</span><span>Nhập lại mật khẩu của bạn. Quên mật khẩu? Đăng xuất rồi chọn “Quên mật khẩu”.</span></div></div>
+      <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối, chưa mở khóa được</span><span>Cần có mạng để kiểm tra mật khẩu. Bản nháp vẫn an toàn trên máy này. Kiểm tra Wi-Fi hoặc 4G rồi thử lại.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-g1-goto="locked">Thử kết nối lại</button></div></div></div>
+      <form class="g1-form" data-g1-form novalidate data-route-field="g1-pw" data-routes="sai=view:error;*=go:g1-dsh-03.html">
+        <div class="field">
+          <label class="field__label" for="g1-pw">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="g1-pw"><input id="g1-pw" class="input" type="password" autocomplete="current-password" aria-required="true" data-first-focus data-rule="required" data-msg-required="Nhập mật khẩu để mở khóa." data-disable-in="offline"><button type="button" class="btn-icon g1-pw__toggle" data-pw-toggle="g1-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__error" id="g1-pw-err" hidden></span>
+        </div>
+        <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="offline"><span>Mở khóa</span><span class="btn__spinner" aria-hidden="true"></span></button>
+        <div class="g1-auth-links"><a href="g1-aut-01.html">Đăng xuất</a><a href="g1-aut-01.html">Đăng nhập bằng tài khoản khác</a></div>
+      </form>
+    </div>
+
+    <!-- 3. Tuyệt đối 12 giờ -->
+    <div data-show="absolute" hidden class="stack g1-center">
+      <div class="state__icon state__icon--brand" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg class="icon icon--lg"><use href="#clock"/></svg></div>
+      <h1 style="font-size:var(--font-size-xl);margin:0">Hết phiên làm việc, hãy đăng nhập lại</h1>
+      <p class="g1-lead">Bạn đã làm việc liên tục 12 giờ. Vì an toàn, cần đăng nhập đầy đủ lại (kể cả mã xác thực hai lớp nếu tài khoản có). Bản nháp vẫn được giữ và hiện lại sau khi đăng nhập.</p>
+      <a class="btn btn--primary btn--lg btn--block" href="g1-aut-01.html">Đăng nhập lại</a>
+    </div>
+
+    <!-- 4. Thu hồi quyền -->
+    <div data-show="revoked" hidden class="stack g1-center">
+      <div class="state__icon state__icon--danger" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg class="icon icon--lg"><use href="#lock"/></svg></div>
+      <h1 style="font-size:var(--font-size-xl);margin:0">Quyền truy cập của bạn đã thay đổi</h1>
+      <p class="g1-lead">Quản lý hoặc quản trị đã đổi quyền hay chi nhánh của tài khoản này nên phiên làm việc kết thúc. Đăng nhập lại để cập nhật. Nếu bạn nghĩ đây là nhầm lẫn, liên hệ quản lý chi nhánh.</p>
+      <a class="btn btn--primary btn--lg btn--block" href="g1-aut-01.html">Đăng nhập lại</a>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+</body>
+</html>

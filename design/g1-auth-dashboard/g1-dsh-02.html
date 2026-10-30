@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-DSH-02 · Tổng quan Quản lý vùng – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QV" data-g1-menu="dash" data-crumb="Tổng quan" data-period="month" data-figure="Số tạm hôm nay · đã chốt đến 29/10/2026">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Tổng quan vùng</h1>
+      <p class="page-header__desc">Thứ Sáu, 30/10/2026 · Quản lý vùng · Chỉ gồm nhóm chi nhánh được giao (Nhóm Miền Nam, 4 chi nhánh)</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--secondary" data-toast="info|Xuất báo cáo|Tệp xuất chỉ gồm chi nhánh trong nhóm được giao, ghi rõ kỳ và thời điểm."><svg class="icon"><use href="#download"/></svg>Xuất báo cáo</button>
+      <a class="btn btn--primary" href="#" data-target="G4-APR-01"><svg class="icon"><use href="#circle-check"/></svg>Phê duyệt cấp vùng (5)</a>
+    </div>
+  </div>
+
+  <div data-g1-proto></div>
+  <div data-g1-filter data-periods="7d,month" data-default="month"></div>
+
+  <section class="g1-kpis" aria-label="Chỉ số chính">
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Doanh thu" data-g1-err><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Doanh thu</span><span class="kpi__value">1.525,6<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>+8,4%</span>so với 01–30/09/2026</span><span class="kpi__scope"><span data-branch-label>Tất cả nhóm được giao</span> · <span data-g1-period-text>01–30/10/2026</span> · số tạm</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Lợi nhuận gộp" data-g1-deny><span class="kpi__label"><svg class="icon icon--sm"><use href="#chart-no-axes-combined"/></svg>Lợi nhuận gộp</span><span class="kpi__value">431,4<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">28,3% doanh thu · công thức theo cấu hình</span><span class="kpi__scope"><span data-branch-label>Tất cả nhóm được giao</span> · <span data-g1-period-text>01–30/10/2026</span> · số tạm</span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Lượt xe tiếp nhận"><span class="kpi__label"><svg class="icon icon--sm"><use href="#car-front"/></svg>Lượt xe tiếp nhận</span><span class="kpi__value">3.512</span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>+4,6%</span>so với kỳ trước</span><span class="kpi__scope"><span data-branch-label>Tất cả nhóm được giao</span> · <span data-g1-period-text>01–30/10/2026</span></span></a>
+    <a class="card kpi" href="#" data-g1-card data-g1-title="Xe đang sửa"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wrench"/></svg>Xe đang sửa</span><span class="kpi__value">36</span><span class="kpi__meta">Lệnh “Đang sửa chữa”</span><span class="kpi__scope"><span data-branch-label>Tất cả nhóm được giao</span> · lúc 09:15 hôm nay</span></a>
+    <a class="card kpi kpi--danger" href="#" data-g1-card data-g1-title="Trễ hẹn giao xe"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ hẹn giao xe</span><span class="kpi__value">02</span><span class="kpi__meta">Cả hai ở Chi nhánh Quận 7</span><span class="kpi__scope"><span data-branch-label>Tất cả nhóm được giao</span> · lúc 09:15 hôm nay</span></a>
+  </section>
+
+  <div class="g1-cols">
+    <div class="g1-stack">
+      <figure class="card g1-chart" data-g1-chart data-g1-card data-g1-title="Doanh thu theo ngày" data-g1-err>
+        <script type="application/json">{"id":"rev","title":"Doanh thu theo ngày của nhóm được giao","unit":"triệu ₫","dec":1,"type":"line","catName":"Ngày","foot":"Ngày 30/10 là số tạm. Dùng phím ← → khi đang chọn biểu đồ để xem từng ngày.","scope":"Tất cả nhóm được giao",
+          "labels":["01/10","02/10","03/10","04/10","05/10","06/10","07/10","08/10","09/10","10/10","11/10","12/10","13/10","14/10","15/10","16/10","17/10","18/10","19/10","20/10","21/10","22/10","23/10","24/10","25/10","26/10","27/10","28/10","29/10","30/10"],
+          "series":[{"name":"Tháng 10/2026","data":[46.6,51.7,54.9,51.0,44.3,38.5,34.3,49.8,53.6,56.4,53.2,57.1,42.4,36.5,51.4,55.5,58.6,54.7,59.5,44.7,39.8,52.8,57.4,60.7,56.2,62.1,46.8,41.0,55.1,59.1]},{"name":"Tháng 9/2026 (cùng ngày)","dash":true,"data":[43.6,47.5,49.9,47.0,41.1,35.7,32.8,45.7,49.6,51.5,48.6,52.7,39.6,34.5,47.1,51.3,53.5,50.1,54.5,41.7,37.3,48.4,52.5,55.8,51.4,56.9,43.4,38.3,50.4,54.7]}],
+          "byPeriod":{"7d":{"labels":["24/10","25/10","26/10","27/10","28/10","29/10","30/10"],"series":[{"name":"7 ngày gần nhất","data":[60.7,56.2,62.1,46.8,41.0,55.1,59.1]},{"name":"7 ngày trước đó","dash":true,"data":[58.6,54.7,59.5,44.7,39.8,52.8,57.4]}]}}}</script>
+      </figure>
+
+      <section class="card" data-g1-card data-g1-title="Xếp hạng chi nhánh" data-g1-multi data-g1-err aria-labelledby="h-rank">
+        <div class="card__header"><div><h2 class="card__title" id="h-rank">Xếp hạng chi nhánh trong nhóm</h2><div class="card__subtitle">Nhóm Miền Nam · <span data-g1-period-text>01–30/10/2026</span> · số tạm · cập nhật 09:15</div></div>
+          <div class="field" style="min-width:200px"><label class="field__label" for="rank-by">Xếp theo</label><select id="rank-by" class="select"><option value="rev">Doanh thu</option><option value="m">Biên lợi nhuận gộp</option><option value="v">Lượt xe tiếp nhận</option><option value="late">Số xe trễ hẹn (ít là tốt)</option></select></div></div>
+        <div class="table-scroll"><table class="table table--compact">
+          <caption class="sr-only">Xếp hạng chi nhánh trong nhóm được giao</caption>
+          <thead><tr><th scope="col" class="col-num">Hạng</th><th scope="col">Chi nhánh</th><th scope="col" class="col-num">Doanh thu</th><th scope="col" class="col-num">Biên LN gộp</th><th scope="col" class="col-num">Lượt xe</th><th scope="col" class="col-num">Xe trễ hẹn</th></tr></thead>
+          <tbody id="rank-body"></tbody>
+        </table></div>
+        <div class="card__footer"><span class="g1-note" id="rank-note" role="status">Đang xếp theo doanh thu, từ cao đến thấp.</span></div>
+      </section>
+    </div>
+
+    <div class="g1-stack">
+      <section class="card g1-hl-card" data-g1-card data-g1-title="Phê duyệt cấp vùng" data-g1-empty="Không có yêu cầu cấp vùng|Yêu cầu vượt quyền quản lý chi nhánh sẽ chuyển lên bạn." aria-labelledby="h-apr">
+        <div class="card__header"><div><h2 class="card__title" id="h-apr">Phê duyệt cấp vùng</h2><div class="card__subtitle">5 yêu cầu · hạn mức lấy từ cấu hình (G4-APR-03)</div></div></div>
+        <a class="g1-row" href="#" data-target="G4-APR-01"><span class="g1-row__main"><strong>Giảm giá vượt hạn mức chi nhánh</strong><span class="g1-row__sub">Quận 1 · Thủ Đức · chờ 2 giờ</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">02</span></span></a>
+        <a class="g1-row" href="#" data-target="G4-APR-01"><span class="g1-row__main"><strong>Chuyển kho giá trị lớn</strong><span class="g1-row__sub">Quận 7 → Biên Hòa · hàng chưa đi</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">02</span></span></a>
+        <a class="g1-row" href="#" data-target="G4-APR-01"><span class="g1-row__main"><strong>Chi vượt hạn mức quản lý chi nhánh</strong><span class="g1-row__sub">Thủ Đức</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">01</span></span></a>
+        <div class="card__footer"><a class="btn btn--primary btn--sm" href="#" data-target="G4-APR-01">Mở hàng chờ phê duyệt</a></div>
+      </section>
+      <section class="card" data-g1-card data-g1-title="Cảnh báo ngoại lệ" data-g1-empty="Không có ngoại lệ|Không có lệch quỹ hay lệnh thiếu hóa đơn trong nhóm." aria-labelledby="h-exc">
+        <div class="card__header"><h2 class="card__title" id="h-exc">Cảnh báo ngoại lệ trong nhóm</h2></div>
+        <a class="g1-row" href="#"><span class="g1-row__main"><strong class="g1-inline-icon"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Lệch quỹ cuối ngày</strong><span class="g1-row__sub">Thủ Đức · 29/10/2026 · thiếu 350.000 ₫</span></span><span class="g1-row__end"><span class="badge badge--warning">Chờ giải trình</span></span></a>
+        <a class="g1-row" href="#"><span class="g1-row__main"><strong class="g1-inline-icon"><svg class="icon icon--sm"><use href="#receipt"/></svg>Lệnh hoàn tất chưa có hóa đơn</strong><span class="g1-row__sub">Quận 1: 3 · Biên Hòa: 1</span></span><span class="g1-row__end"><span class="count-pill count-pill--warning">04</span></span></a>
+        <a class="g1-row" href="#"><span class="g1-row__main"><strong class="g1-inline-icon"><svg class="icon icon--sm"><use href="#warehouse"/></svg>Mặt hàng dưới định mức</strong><span class="g1-row__sub">Theo tồn khả dụng, cả nhóm</span></span><span class="g1-row__end"><span class="count-pill count-pill--danger">09</span></span></a>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+<script>
+(function () {
+  var D = [{ n: 'Quận 7', rev: 505700000, m: 32.5, v: 1188, late: 2 }, { n: 'Quận 1', rev: 412600000, m: 28.7, v: 1026, late: 0 }, { n: 'Thủ Đức', rev: 365400000, m: 26.5, v: 892, late: 0 }, { n: 'Biên Hòa', rev: 241900000, m: 21.5, v: 406, late: 0 }];
+  var NAMES = { rev: 'doanh thu, từ cao đến thấp', m: 'biên lợi nhuận gộp, từ cao đến thấp', v: 'lượt xe tiếp nhận, từ cao đến thấp', late: 'số xe trễ hẹn, từ ít đến nhiều' };
+  function money(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫'; }
+  function render() {
+    var k = document.getElementById('rank-by').value, asc = k === 'late';
+    var rows = D.slice().sort(function (a, b) { return asc ? a[k] - b[k] || b.rev - a.rev : b[k] - a[k]; });
+    document.getElementById('rank-body').innerHTML = rows.map(function (r, i) {
+      return '<tr><td class="col-num">' + (i + 1) + '</td><th scope="row"><a href="#">Chi nhánh ' + r.n + '</a></th><td class="col-num money">' + money(r.rev) + '</td><td class="col-num">' + String(r.m).replace('.', ',') + '%</td><td class="col-num">' + r.v.toLocaleString('vi-VN') + '</td><td class="col-num">' + (r.late ? '<span class="tag tag--danger">' + r.late + ' xe</span>' : '0') + '</td></tr>';
+    }).join('');
+    document.getElementById('rank-note').textContent = 'Đang xếp theo ' + NAMES[k] + '.';
+  }
+  document.addEventListener('change', function (e) { if (e.target.id === 'rank-by') render(); }); render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-12 · Danh sách phiếu chuyển kho – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-12')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Phiếu chuyển kho giữa chi nhánh</h1><p class="page-header__desc">Hàng đang vận chuyển chưa tính vào Khả dụng của cả hai chi nhánh cho đến khi bên nhận xác nhận số lượng.</p></div>
+  <div class="page-header__actions"><a class="btn btn--primary" href="g3-inv-13.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh lập phiếu chuyển."><svg class="icon"><use href="#plus"/></svg>Tạo phiếu chuyển</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span> (phiếu gửi đi và cần nhận của chi nhánh này)</span><span>· 01/10/2026 – 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="phiếu chuyển kho" data-cols="8" data-empty-icon="truck" data-empty-text="Chưa có phiếu chuyển kho. Khi một mặt hàng thiếu mà chi nhánh khác còn dư, tạo phiếu chuyển thay vì đặt nhà cung cấp." data-empty-cta="Tạo phiếu chuyển">
+<div data-g3-state="data" class="stack">
+  <div class="row"><div class="segmented" role="group" aria-label="Hướng chuyển"><button class="segmented__item" aria-pressed="false">Gửi đi <span class="count-pill">2</span></button><button class="segmented__item" aria-pressed="true">Cần nhận <span class="count-pill count-pill--warning">2</span></button><button class="segmented__item" aria-pressed="false">Tất cả</button></div>
+    <div class="input-group" style="flex:1 1 240px;max-width:340px"><svg class="icon"><use href="#search"/></svg><input class="input" placeholder="Tìm số phiếu, chi nhánh…" aria-label="Tìm phiếu chuyển kho"></div></div>
+  <div class="table-wrap">
+    <div class="table-scroll"><table class="table" data-g3-cards>
+      <caption class="sr-only">Phiếu chuyển kho theo hướng Cần nhận</caption>
+      <thead><tr><th data-card="title">Số phiếu</th><th data-card="sub">Tuyến</th><th data-card="badge">Trạng thái</th><th class="col-num" data-card="meta">Số mã / đơn vị</th><th data-card="meta">Ngày gửi</th><th data-card="meta">Dự kiến đến</th><th class="col-num" data-card="foot">Giá trị</th></tr></thead>
+      <tbody>
+        <tr data-href="g3-inv-14.html"><td class="code"><a href="g3-inv-14.html">CK-TD-2610-00014</a></td><td>Thủ Đức → Quận 7</td><td><span class="badge badge--info">Đang vận chuyển</span></td><td class="col-num">2 mã / 16</td><td class="num">29/10/2026</td><td class="num">31/10/2026</td><td class="col-num"><span data-g3-cost="5.090.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-14.html" class="g3-row--flag"><td class="code"><a href="g3-inv-14.html">CK-BH-2610-00005</a></td><td>Biên Hòa → Quận 7</td><td><span class="badge badge--danger">Có chênh lệch</span></td><td class="col-num">2 mã / 8</td><td class="num">26/10/2026</td><td class="num">28/10/2026</td><td class="col-num"><span data-g3-cost="3.120.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-13.html"><td class="code"><a href="g3-inv-13.html">CK-Q7-2610-00009</a></td><td>Quận 7 → Quận 1</td><td><span class="badge badge--warning">Chờ duyệt</span> <span class="tag tag--warning">Giá trị lớn</span></td><td class="col-num">2 mã / 6</td><td class="num">–</td><td class="num">–</td><td class="col-num"><span data-g3-cost="8.160.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-13.html"><td class="code"><a href="g3-inv-13.html">CK-Q7-2610-00008</a></td><td>Quận 7 → Thủ Đức</td><td><span class="badge badge--neutral">Nháp</span></td><td class="col-num">1 mã / 4</td><td class="num">–</td><td class="num">–</td><td class="col-num"><span data-g3-cost="1.640.000 ₫"></span></td></tr>
+        <tr data-href="g3-inv-14.html"><td class="code"><a href="g3-inv-14.html">CK-TD-2610-00011</a></td><td>Thủ Đức → Quận 7</td><td><span class="badge badge--success">Đã nhận</span> <span class="tag tag--neutral">Đã đóng</span></td><td class="col-num">2 mã / 10</td><td class="num">25/10/2026</td><td class="num">27/10/2026</td><td class="col-num"><span data-g3-cost="2.460.000 ₫"></span></td></tr>
+      </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–5 trong 5 phiếu (tab Tất cả)</span></div>
+  </div>
+  <p class="t-body-sm text-secondary">Phiếu giá trị lớn cần Chủ garage hoặc Quản lý vùng duyệt; ngưỡng lấy từ cấu hình (FR-SYS-004), không cố định trong giao diện. Tab “Cần nhận” ưu tiên phiếu đang vận chuyển và có chênh lệch.</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

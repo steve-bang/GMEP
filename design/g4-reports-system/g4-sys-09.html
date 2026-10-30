@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-09 – Hạn mức giảm giá và chương trình giảm · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QV">
+<script src="pack.js" data-code="G4-SYS-09" data-menu="set" data-crumbs="Cài đặt|Hạn mức giảm giá" data-allow="CH QV QL"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Hạn mức giảm giá và chương trình giảm',
+  desc: 'Chi nhánh chỉ giảm giá trong hạn mức cấu hình; vượt hạn mức phải chờ người duyệt theo ma trận phê duyệt (G4-APR-03). Chương trình giảm có thời hạn và phạm vi.',
+  prio: 'P1',
+  cfgScope: 'Theo từng chi nhánh (Quản lý vùng và Quản lý chi nhánh sửa trong phạm vi được giao)',
+  actions: '<button class="btn btn--primary" data-edit-roles="QV QL" data-open="dlg-prog"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Thêm chương trình</button>',
+  empty: { title: 'Chưa có chương trình giảm giá nào', text: 'Tạo chương trình có thời hạn (ví dụ giảm 10% công bảo dưỡng tháng 12) để cố vấn áp dụng đúng.', cta: '<button class="btn btn--primary" data-open="dlg-prog">Thêm chương trình</button>' }
+});
+</script>
+
+<div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Con số hạn mức dưới đây là <strong>ví dụ minh họa</strong>; hạn mức chính thức do Chủ garage ban hành <b>[Cần chốt]</b>. Hạn mức duyệt (vượt thì gửi ai) cấu hình ở <a href="#">Ma trận phê duyệt (G4-APR-03)</a>.</div></div>
+
+<div class="tabs" role="tablist" aria-label="Giảm giá">
+  <button class="tab" role="tab" id="g1" aria-selected="true" aria-controls="gp1">Hạn mức theo chi nhánh</button>
+  <button class="tab" role="tab" id="g2" aria-selected="false" tabindex="-1" aria-controls="gp2">Chương trình giảm giá <span class="count-pill">3</span></button>
+</div>
+
+<div class="tab-panel" id="gp1" role="tabpanel" aria-labelledby="g1">
+  <div class="table-wrap"><div class="table-scroll"><table class="table"><caption class="sr-only">Hạn mức giảm giá theo chi nhánh</caption>
+    <thead><tr><th>Chi nhánh</th><th class="col-num">Giảm tối đa trên công</th><th class="col-num">Giảm tối đa trên phụ tùng</th><th>Hiệu lực từ</th><th>Phiên bản kế tiếp</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Chi nhánh Quận 7</td><td class="col-num">5%</td><td class="col-num">3%</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="QV QL" data-open="dlg-lim">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Quận 1</td><td class="col-num">5%</td><td class="col-num">3%</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="QV QL" data-open="dlg-lim">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Thủ Đức</td><td class="col-num">5%</td><td class="col-num">3%</td><td class="num">01/07/2026</td><td><span class="tag tag--info">10% công từ 01/12/2026</span> <span class="tag tag--warning">Chờ Chủ garage duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="CH" data-toast="success|Đã duyệt hạn mức mới|Áp dụng từ 01/12/2026.">Duyệt</button><button class="btn btn--secondary btn--sm" data-edit-roles="QV QL" data-open="dlg-lim">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Biên Hòa</td><td class="col-num">5%</td><td class="col-num">3%</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="QV QL" data-open="dlg-lim">Sửa</button></td></tr>
+      <tr><td>Chi nhánh Đà Nẵng</td><td class="col-num">5%</td><td class="col-num">3%</td><td class="num">01/07/2026</td><td>–</td><td><button class="btn btn--secondary btn--sm" data-edit-roles="QV QL" data-open="dlg-lim">Sửa</button></td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Quản lý chi nhánh chỉ sửa được dòng chi nhánh mình; nâng hạn mức vượt mức công ty cần Chủ garage duyệt.</span></div></div>
+</div>
+
+<div class="tab-panel" id="gp2" role="tabpanel" aria-labelledby="g2" hidden>
+  <div class="table-wrap">
+    <div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Chương trình giảm giá</caption>
+      <thead><tr><th>Chương trình</th><th>Phạm vi</th><th class="col-num">Mức giảm</th><th>Thời hạn</th><th>Chi nhánh</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tri ân khách quen tháng 10</strong></td><td>Công bảo dưỡng</td><td class="col-num">10%</td><td class="num">01/10 – 31/10/2026</td><td>Tất cả</td><td><span class="tag tag--success">Đang chạy</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="QV QL" data-open="dlg-prog">Sửa</button></td></tr>
+        <tr><td><strong>Mua lốp tặng cân bằng động</strong></td><td>Lốp (phụ tùng)</td><td class="col-num">Tặng công 0,8 giờ</td><td class="num">15/11 – 30/11/2026</td><td>Quận 7, Quận 1</td><td><span class="tag tag--info">Sắp chạy</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="QV QL" data-open="dlg-prog">Sửa</button></td></tr>
+        <tr><td><strong>Khuyến mãi hè</strong></td><td>Công sửa chữa chung</td><td class="col-num">7%</td><td class="num">01/06 – 31/08/2026</td><td>Tất cả</td><td><span class="tag tag--neutral">Hết hạn</span></td><td><span class="text-secondary">Chỉ xem</span></td></tr>
+      </tbody></table></div></div>
+    <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+      <div class="record"><div class="record__top"><div><div class="record__title">Tri ân khách quen tháng 10</div>Công bảo dưỡng · 01–31/10/2026</div><span class="tag tag--success">Đang chạy</span></div><div class="record__foot"><span>Tất cả chi nhánh</span><strong>10%</strong></div></div>
+    </div>
+    <div class="table-footer"><span class="table-meta">Chương trình hết hạn không xóa; vẫn tra cứu được lệnh đã áp dụng.</span></div>
+  </div>
+</div>
+
+<script>
+g4rEnd('', g4rDrawer({ id: 'dlg-lim', title: 'Sửa hạn mức giảm Chi nhánh Thủ Đức', sub: 'Hiện hành: công 5%, phụ tùng 3%', guard: true, cta: 'Gửi duyệt hạn mức mới', toast: 'Đã gửi Chủ garage duyệt', impact: ['Nâng hạn mức: cố vấn giảm được nhiều hơn mà không cần duyệt thêm.', 'Báo giá và lệnh đã tạo không đổi.', 'Cần Chủ garage duyệt vì vượt mức công ty.'],
+  fields: ['<div class="form-grid"><div class="field"><label class="field__label" for="lm-c">Giảm tối đa trên công<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="lm-c" value="10"><span class="input-group__suffix">%</span></div></div><div class="field"><label class="field__label" for="lm-p">Giảm tối đa trên phụ tùng<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="lm-p" value="3"><span class="input-group__suffix">%</span></div></div></div>'] })
+ + g4rDrawer({ id: 'dlg-prog', title: 'Chương trình giảm giá', sub: 'Tri ân khách quen tháng 10', cta: 'Lưu chương trình', toast: 'Đã lưu chương trình', noeff: true,
+  fields: ['<div class="field"><label class="field__label" for="pg-n">Tên chương trình<span class="field__req">*</span></label><input class="input" id="pg-n" value="Tri ân khách quen tháng 10"></div>', '<div class="form-grid"><div class="field"><label class="field__label" for="pg-a">Từ ngày<span class="field__req">*</span></label><input class="input" id="pg-a" value="01/10/2026" inputmode="numeric"></div><div class="field"><label class="field__label" for="pg-b">Đến ngày<span class="field__req">*</span></label><input class="input" id="pg-b" value="31/10/2026" inputmode="numeric"></div><div class="field"><label class="field__label" for="pg-s">Phạm vi</label><select class="select" id="pg-s"><option>Công bảo dưỡng</option><option>Công sửa chữa chung</option><option>Phụ tùng</option></select></div><div class="field"><label class="field__label" for="pg-m">Mức giảm</label><div class="input-group input-group--suffix"><input class="input input--num" id="pg-m" value="10"><span class="input-group__suffix">%</span></div></div></div>'] }));
+</script>
+</body>
+</html>

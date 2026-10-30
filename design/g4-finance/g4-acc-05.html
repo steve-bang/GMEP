@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-05 · Đề xuất chi và phiếu chi · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-acc-06.html">Danh sách đề xuất chi</a></div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử giai đoạn (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ GIAI ĐOẠN</span>
+    <div class="segmented" role="group" aria-label="Giai đoạn"><button class="segmented__item" data-g4f-var="draft" data-vg="s" aria-pressed="true">Đang soạn</button><button class="segmented__item" data-g4f-var="wait" data-vg="s" aria-pressed="false">Chờ duyệt</button><button class="segmented__item" data-g4f-var="ok" data-vg="s" aria-pressed="false">Đã duyệt, chờ chi</button><button class="segmented__item" data-g4f-var="paid" data-vg="s" aria-pressed="false">Đã chi, chờ đối soát</button></div></div>
+
+  <ol class="stepper" aria-label="Các bước của khoản chi" id="flow">
+    <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Đề xuất</span></div></li>
+    <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Duyệt theo hạn mức</span></div></li>
+    <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Chi tiền</span></div></li>
+    <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Đối soát</span></div></li>
+  </ol>
+
+  <div class="g4f-two">
+    <fieldset class="card" id="fs-form" style="border:1px solid var(--color-border)">
+      <legend class="sr-only">Thông tin đề xuất chi</legend>
+      <div class="card__header"><div><h2 class="card__title">Đề xuất chi DX-Q7-2610-00007</h2><div class="card__subtitle">Chi nhánh Quận 7 · người đề xuất Võ Minh Quân (Quản lý)</div></div>
+        <span class="tag tag--neutral" data-vg="s" data-v="draft">Nháp</span><span class="tag tag--warning" data-vg="s" data-v="wait" hidden>Chờ duyệt</span><span class="tag tag--info" data-vg="s" data-v="ok" hidden>Đã duyệt</span><span class="tag tag--success" data-vg="s" data-v="paid" hidden>Đã chi</span></div>
+      <div class="card__body stack">
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="e1">Loại chi phí<span class="field__req" aria-hidden="true">*</span></label><select id="e1" class="select"><option>Sửa chữa thiết bị xưởng</option><option>Vật tư văn phòng</option><option>Điện nước</option><option>Tiếp khách</option><option>Chi phí khác</option></select></div>
+          <div class="field"><label class="field__label" for="e2">Số tiền<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="e2" class="input input--num" data-money value="6.800.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
+          <div class="field"><label class="field__label" for="e3">Người nhận, nhà cung cấp<span class="field__req" aria-hidden="true">*</span></label><input id="e3" class="input" value="Công ty TNHH Thiết bị Khí nén Việt"></div>
+          <div class="field"><label class="field__label" for="e4">Hình thức chi<span class="field__req" aria-hidden="true">*</span></label><select id="e4" class="select"><option>Chuyển khoản</option><option>Tiền mặt</option></select></div>
+          <div class="field"><label class="field__label" for="e5">Hạn thanh toán</label><div class="input-group date-field"><input id="e5" class="input" value="02/11/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+        </div>
+        <div class="field"><label class="field__label" for="e6">Lý do chi<span class="field__req" aria-hidden="true">*</span></label><textarea id="e6" class="textarea" style="min-height:64px">Máy nén khí xưởng hỏng van, 2 khoang không dùng được; báo giá 2 nhà cung cấp, chọn giá thấp hơn.</textarea></div>
+        <div class="field"><span class="field__label">Chứng từ đính kèm<span class="field__req" aria-hidden="true">*</span></span><div class="row"><span class="chip"><svg class="icon icon--sm"><use href="#file-text"/></svg>bao-gia-ncc-1.pdf</span><span class="chip"><svg class="icon icon--sm"><use href="#file-text"/></svg>bao-gia-ncc-2.pdf</span><button class="btn btn--secondary btn--sm" data-vg="s" data-v-off="wait ok paid"><svg class="icon icon--sm"><use href="#upload"/></svg>Thêm tệp</button></div><span class="field__hint">Mỗi bước chi cần chứng từ gốc (RULE-007).</span></div>
+        <div>
+          <div class="row row--between t-body-sm"><strong>So với hạn mức</strong><span class="g4f-sample">Giá trị minh họa, từ G4-APR-03</span></div>
+          <div class="g4f-limit" role="img" aria-label="6.800.000 so với hạn mức Quản lý chi nhánh 5.000.000: vượt"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:74%"></span></div>
+          <div class="g4f-limit__cap"><span>Đề xuất 6.800.000 ₫</span><span>Hạn mức Quản lý 5.000.000 ₫ → cần Quản lý vùng hoặc Chủ garage</span></div>
+        </div>
+      </div>
+    </fieldset>
+
+    <aside class="g4f-aside">
+      <section class="card">
+        <div class="card__header"><h2 class="card__title">Người và thời điểm từng bước</h2></div>
+        <div class="card__body"><div class="timeline">
+          <div class="timeline__item" data-vg="s" data-v="paid" hidden><div class="timeline__dot"><svg class="icon"><use href="#wallet"/></svg></div><div><div class="timeline__title">Chi tiền: PC-Q7-2610-00043</div><div class="timeline__meta">Đặng Thu Hà (Kế toán) · 09:12 30/10/2026</div><div class="timeline__note">Đối soát ngân hàng: chờ sao kê (G4-ACC-16).</div></div></div>
+          <div class="timeline__item timeline__item--success" data-vg="s" data-v="ok paid" hidden><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Quản lý vùng Lê Thanh Sơn duyệt</div><div class="timeline__meta">08:40 30/10/2026</div></div></div>
+          <div class="timeline__item timeline__item--warning" data-vg="s" data-v="wait"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Chờ Quản lý vùng duyệt</div><div class="timeline__meta">Sau 24 giờ không xử lý sẽ chuyển Chủ garage (cấu hình)</div></div></div>
+          <div class="timeline__item timeline__item--brand" data-vg="s" data-v="wait ok paid" hidden><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi duyệt</div><div class="timeline__meta">Võ Minh Quân · 07:50 30/10/2026</div></div></div>
+        </div></div>
+      </section>
+      <section class="card card__body stack">
+        <div data-vg="s" data-v="draft"><button class="btn btn--primary btn--lg btn--block" data-open="dlg-send" data-g4f-need="KT TN QL" data-g4f-why="Kế toán, Thu ngân, Quản lý lập đề xuất chi.">Gửi duyệt</button><button class="btn btn--secondary btn--block" style="margin-top:8px" data-toast="info|Đã lưu nháp|Đề xuất chưa gửi duyệt.">Lưu nháp</button></div>
+        <div data-vg="s" data-v="wait ok paid" hidden>
+          <span class="tooltip-host" style="display:flex"><button class="btn btn--primary btn--lg btn--block" id="btn-pay" data-open="dlg-pay" data-vg="s" data-v-off="draft wait paid" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán chi tiền sau khi khoản chi được duyệt." data-g4f-online>Chi tiền 6.800.000 ₫</button></span>
+          <p class="g4f-why" data-vg="s" data-v="wait">Chưa chi được: khoản vượt hạn mức, chờ Quản lý vùng duyệt.</p>
+          <p class="g4f-why" data-vg="s" data-v="paid">Đã chi. Không có nút xóa: nhầm thì hủy phiếu chi bằng bút toán đảo.</p>
+          <button class="btn btn--danger-outline btn--block" style="margin-top:8px" data-open="dlg-rev" data-vg="s" data-v="paid" hidden data-g4f-need="KT" data-g4f-why="Chỉ Kế toán đề xuất đảo phiếu chi; cần duyệt.">Đảo phiếu chi</button>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-send" role="dialog" aria-modal="true" aria-labelledby="sd-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="sd-t">Gửi duyệt khoản chi 6.800.000 ₫?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p>Khoản chi vượt hạn mức cấp Quản lý chi nhánh, chuyển <strong>Quản lý vùng</strong> duyệt. Chưa chi được cho tới khi được duyệt. Sau khi gửi, không sửa nội dung; muốn đổi phải rút và lập lại.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi duyệt|Quản lý vùng nhận thông báo “Cần xử lý”.">Gửi duyệt</button></div></div></div>
+
+<div class="overlay" id="dlg-pay" role="alertdialog" aria-modal="true" aria-labelledby="py-t"><div class="dialog dialog--md" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="py-t">Xác nhận chi tiền</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><dl class="g4f-sum"><div><dt>Người nhận</dt><dd>Công ty TNHH Thiết bị Khí nén Việt</dd></div><div><dt>Hình thức</dt><dd>Chuyển khoản</dd></div><div class="is-total"><dt>Số tiền chi</dt><dd>6.800.000 ₫</dd></div></dl>
+    <ul class="impact-list"><li>Đã được Quản lý vùng duyệt lúc 08:40; số tiền không được sửa sau khi duyệt.</li><li>Phiếu chi ghi sổ, không xóa được; hủy bằng bút toán đảo.</li></ul>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã kiểm tra người nhận, số tài khoản và số tiền.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-pay" data-busy="Đang ghi nhận chi…" data-done-label="Đã chi" data-done-toast="success|Đã chi tiền|Phiếu chi PC-Q7-2610-00043, chờ đối soát." disabled>Chi tiền</button></div></div></div>
+
+<div class="overlay" id="dlg-rev" role="alertdialog" aria-modal="true" aria-labelledby="rv-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="PC-Q7-2610-00043">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="rv-t">Đảo phiếu chi PC-Q7-2610-00043?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Phiếu chi không bị xóa; tạo bút toán đảo +6.800.000 ₫ liên kết phiếu gốc.</li><li>Cần Quản lý vùng duyệt; chưa duyệt thì phiếu gốc vẫn hiệu lực.</li></ul><div class="field"><label class="field__label" for="rv-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="rv-r" class="textarea" data-confirm-reason></textarea></div><div class="field"><label class="field__label" for="rv-c">Gõ <strong>PC-Q7-2610-00043</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="rv-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ phiếu</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu đảo|Chờ duyệt." disabled>Gửi yêu cầu đảo</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-05', title: 'Đề xuất chi và phiếu chi', desc: 'Đề xuất, duyệt theo hạn mức, chi tiền, đối soát; mỗi bước có người và thời điểm.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'TN', 'QL', 'CH', 'QV'], updated: '09:15', time: 'hôm nay 30/10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var idx = { draft: 0, wait: 1, ok: 2, paid: 3 };
+  document.addEventListener('g4f:var', function (e) {
+    if (e.detail.group !== 's') return; var v = e.detail.v, i = idx[v];
+    G4F.$$('#flow .stepper__step').forEach(function (li, k) { li.classList.toggle('is-done', k < i); li.classList.toggle('is-current', k === i); if (k === i) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+    var lock = v !== 'draft'; G4F.$$('#fs-form input, #fs-form select, #fs-form textarea').forEach(function (x) { x.disabled = lock; }); G4F.$('#fs-form').classList.toggle('g4f-readonly', lock);
+    G4F.refresh();
+  });
+  G4F.applyVar('s', 'draft');
+})();
+</script>
+</body>
+</html>

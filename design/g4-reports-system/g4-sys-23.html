@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-23 – Chính sách lưu trữ và ẩn danh dữ liệu · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-23" data-menu="set" data-crumbs="Cài đặt|Chính sách lưu trữ" data-allow="AD CH KT"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Chính sách lưu trữ và ẩn danh dữ liệu',
+  desc: 'Thời hạn lưu theo từng loại dữ liệu, lịch chạy chính sách và phạm vi đã xử lý. Không bao giờ động tới dữ liệu bắt buộc lưu theo luật (chứng từ kế toán, hóa đơn).',
+  prio: 'P2',
+  cfgScope: 'Toàn hệ thống',
+  asof: 'Chính sách hiện hành từ 01/07/2026 · chạy gần nhất: chưa chạy lần nào',
+  actions: '<button class="btn btn--primary" data-edit-roles="AD" data-toast="success|Đã lưu chính sách|Chủ garage duyệt trước khi áp dụng." title="Chỉ Quản trị hệ thống lưu"><svg class="icon" aria-hidden="true"><use href="#check"/></svg>Lưu chính sách</button>',
+  empty: { title: 'Chưa có chính sách lưu trữ', text: 'Đặt thời hạn lưu theo từng loại dữ liệu sau khi kế toán và luật sư xác nhận.' }
+});
+</script>
+
+<div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><div class="alert__title">Thời hạn lưu chưa được xác nhận</div>Số năm lưu do kế toán và luật sư xác nhận <b>[Cần xác nhận]</b>. Hệ thống không có giá trị mặc định; ô để trống cho tới khi có người nhập và Chủ garage duyệt.</div></div>
+
+<section class="table-wrap" aria-label="Chính sách theo loại dữ liệu">
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Thời hạn lưu theo loại dữ liệu</caption>
+    <thead><tr><th>Loại dữ liệu</th><th>Thời hạn lưu</th><th>Sau thời hạn</th><th>Căn cứ</th><th>Phạm vi đã xử lý</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Chứng từ kế toán, hóa đơn</strong></td><td><span class="tag tag--neutral"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Theo pháp luật, không đổi</span></td><td>Không xóa, không ẩn danh</td><td>Thông tư 99/2025, Nghị định 254/2026</td><td>–</td></tr>
+      <tr><td><strong>Hồ sơ khách và xe</strong><span class="g4r-formula">SĐT, địa chỉ, email</span></td><td><label class="sr-only" for="r1">Số năm lưu hồ sơ khách</label><div class="input-group input-group--suffix" style="max-width:180px"><input class="input input--num" id="r1" placeholder="Chưa nhập" data-edit-roles="AD" inputmode="numeric"><span class="input-group__suffix">năm</span></div></td><td><label class="sr-only" for="a1">Hành động với hồ sơ khách</label><select class="select" id="a1" data-edit-roles="AD"><option>Ẩn danh dữ liệu cá nhân</option><option>Lưu trữ lạnh</option></select></td><td>Luật bảo vệ dữ liệu cá nhân 2025, FR-CRM-011</td><td class="num">Chưa chạy</td></tr>
+      <tr><td><strong>Dữ liệu nhân viên đã nghỉ</strong></td><td><label class="sr-only" for="r2">Số năm lưu dữ liệu nhân viên đã nghỉ</label><div class="input-group input-group--suffix" style="max-width:180px"><input class="input input--num" id="r2" placeholder="Chưa nhập" data-edit-roles="AD" inputmode="numeric"><span class="input-group__suffix">năm</span></div></td><td><label class="sr-only" for="a2">Hành động với dữ liệu nhân viên đã nghỉ</label><select class="select" id="a2" data-edit-roles="AD"><option>Ẩn danh</option><option>Lưu trữ lạnh</option></select></td><td>FR-HRM-012</td><td class="num">Chưa chạy</td></tr>
+      <tr><td><strong>Nhật ký truy cập dữ liệu cá nhân</strong></td><td><label class="sr-only" for="r3">Số tháng lưu nhật ký truy cập</label><div class="input-group input-group--suffix" style="max-width:180px"><input class="input input--num" id="r3" placeholder="Chưa nhập" data-edit-roles="AD" inputmode="numeric"><span class="input-group__suffix">tháng</span></div></td><td>Lưu trữ lạnh, không xóa trong thời hạn</td><td>NFR-PRI-01</td><td class="num">Chưa chạy</td></tr>
+      <tr><td><strong>Thông báo trong hệ thống</strong></td><td><div class="input-group input-group--suffix" style="max-width:180px"><input class="input input--num" value="12" aria-label="Số tháng lưu thông báo" data-edit-roles="AD"><span class="input-group__suffix">tháng</span></div></td><td>Xóa (không phải chứng từ)</td><td>Đề xuất BA (ba-decisions câu 15)</td><td class="num">Chưa chạy</td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)"><div class="record"><div class="record__top"><div><div class="record__title">Hồ sơ khách và xe</div>Thời hạn chưa nhập [Cần xác nhận]</div><span class="tag tag--warning">Chưa chạy</span></div></div></div>
+  <div class="table-footer"><span class="table-meta">Mọi thay đổi thời hạn cần Chủ garage duyệt và ghi nhật ký.</span></div>
+</section>
+
+<section class="card" aria-labelledby="run-h"><div class="card__header"><div><h2 class="card__title" id="run-h">Chạy chính sách ẩn danh / xóa</h2><div class="card__subtitle">Luôn xem trước số bản ghi bị ảnh hưởng; Chủ garage duyệt; không động tới dữ liệu bắt buộc theo luật.</div></div></div>
+  <div class="card__body row"><button class="btn btn--secondary" data-edit-roles="AD" data-open="dlg-run" title="Chỉ Quản trị chạy; Chủ garage duyệt"><svg class="icon" aria-hidden="true"><use href="#eye"/></svg>Xem trước và chạy</button><span class="t-body-sm text-secondary">Lịch chạy tự động: tắt (chưa có thời hạn được xác nhận).</span></div></section>
+
+<section class="card" aria-labelledby="dep-h"><div class="card__header"><h2 class="card__title" id="dep-h">Người dùng đã nghỉ việc chờ xử lý dữ liệu</h2></div>
+  <div class="card__body stack-2"><p style="margin:0">3 tài khoản đã khóa trên 12 tháng. Khóa tài khoản giữ nhật ký; ẩn danh thông tin cá nhân chỉ chạy theo chính sách trên.</p><div class="row"><a class="btn btn--secondary btn--sm" href="g4-sys-01.html">Mở danh sách người dùng</a></div></div></section>
+
+<script>
+g4rEnd('', '<div class="overlay" id="dlg-run" role="alertdialog" aria-modal="true" aria-labelledby="rn-t"><div class="dialog" data-confirm-guard data-confirm-word="AN DANH"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rn-t">Xem trước: ẩn danh hồ sơ khách quá hạn</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Ví dụ minh họa: thời hạn chưa được xác nhận nên số liệu dưới đây là mô phỏng.</div></div><ul class="impact-list"><li>412 hồ sơ khách sẽ bị ẩn danh: SĐT, địa chỉ, email được thay bằng ký tự che; không khôi phục được.</li><li>Giữ nguyên: chứng từ kế toán, hóa đơn, lệnh sửa chữa (chỉ đổi tên khách thành “Khách đã ẩn danh”).</li><li>Cần Chủ garage duyệt; ghi nhật ký.</li></ul><div class="field"><label class="field__label" for="rn-r">Lý do<span class="field__req">*</span></label><textarea class="textarea" id="rn-r" data-confirm-reason style="min-height:56px"></textarea></div><div class="field"><label class="field__label" for="rn-w">Gõ AN DANH để xác nhận</label><input class="input" id="rn-w" data-confirm-input autocomplete="off"></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi Chủ garage duyệt|Chưa có dữ liệu nào bị ẩn danh.">Gửi duyệt chạy</button></div></div></div>');
+</script>
+</body>
+</html>

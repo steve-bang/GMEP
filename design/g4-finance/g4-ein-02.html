@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-EIN-02 · Phát hành hóa đơn từ lệnh · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-ein-05.html">Về danh sách lệnh chưa có hóa đơn</a></div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="ready" data-vg="v" aria-pressed="true">Đủ điều kiện</button><button class="segmented__item" data-g4f-var="missing" data-vg="v" aria-pressed="false">Thiếu điều kiện</button><button class="segmented__item" data-g4f-var="sending" data-vg="v" aria-pressed="false">Đang gửi</button><button class="segmented__item" data-g4f-var="timeout" data-vg="v" aria-pressed="false">Timeout</button><button class="segmented__item" data-g4f-var="dup" data-vg="v" aria-pressed="false">Đã có hóa đơn</button><button class="segmented__item" data-g4f-var="inactive" data-vg="v" aria-pressed="false">Chưa kích hoạt</button></div></div>
+
+  <div class="alert alert--danger" data-vg="v" data-v="missing" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi hóa đơn đi được: còn 2 mục cần sửa</span><span>Hệ thống không gửi khi thiếu điều kiện (FR-EIN-011). Sửa trong khung “Người mua” bên dưới rồi kiểm tra lại.</span></div></div>
+  <div class="alert alert--info" data-vg="v" data-v="sending" hidden role="status"><svg class="icon spin"><use href="#loader"/></svg><div class="alert__body"><span class="alert__title">Đang gửi nhà cung cấp…</span><span>Nút phát hành đã khóa để không tạo hóa đơn thứ hai. Có thể rời trang; kết quả hiện ở danh sách hóa đơn.</span></div></div>
+  <div class="alert alert--warning" data-vg="v" data-v="timeout" hidden role="alert"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Nhà cung cấp chưa trả lời kịp (timeout)</span><span>Chưa biết hóa đơn đã được tạo hay chưa. Hệ thống <strong>không gửi lại</strong>; đang truy vấn trạng thái theo mã chống trùng. Kết quả tự cập nhật; không cần bấm phát hành lần nữa (FR-EIN-013).</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-toast="info|Đang truy vấn trạng thái|Chưa có kết quả; thử lại sau 30 giây."><svg class="icon icon--sm"><use href="#refresh"/></svg>Truy vấn trạng thái ngay</button></div></div></div>
+  <div class="alert alert--success" data-vg="v" data-v="dup" hidden><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Lệnh này đã có hóa đơn hợp lệ C26TAA-0000412</span><span>Không phát hành thêm. Nếu cần sửa, dùng điều chỉnh hoặc thay thế (cần Kế toán trưởng duyệt).</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g4-ein-03.html">Mở hóa đơn</a><a class="btn btn--ghost btn--sm" href="g4-ein-04.html">Điều chỉnh, thay thế</a></div></div></div>
+  <div class="alert alert--neutral" data-vg="v" data-v="inactive" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Hóa đơn điện tử chưa kích hoạt</span><span>Chưa chọn nhà cung cấp nên chưa phát hành được. Lệnh vẫn thu tiền và giao xe; hóa đơn phát hành bù sau. <a href="g4-ein-07.html">Xem tình trạng kết nối</a></span></div></div>
+
+  <div class="g4f-two">
+    <div class="stack">
+      <section class="card" aria-labelledby="h-b">
+        <div class="card__header"><div><h2 class="card__title" id="h-b">Người mua</h2><div class="card__subtitle">Tự điền từ lệnh RO-Q7-2610-00131 · sửa được trước khi phát hành</div></div></div>
+        <div class="card__body stack">
+          <div role="radiogroup" aria-label="Loại người mua" class="row">
+            <label class="radio"><input type="radio" name="bt" value="le" data-bt checked><span class="radio__box"></span><span>Khách lẻ (không MST)</span></label>
+            <label class="radio"><input type="radio" name="bt" value="dn" data-bt><span class="radio__box"></span><span>Khách có mã số thuế</span></label>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label class="field__label" for="b-n">Tên người mua<span class="field__req" aria-hidden="true">*</span></label><input id="b-n" class="input" value="Nguyễn Văn An"></div>
+            <div class="field" id="mst-f"><label class="field__label" for="b-m">Mã số thuế<span class="field__req" aria-hidden="true" id="mst-req" hidden>*</span></label><input id="b-m" class="input" inputmode="numeric" placeholder="10 hoặc 13 chữ số" disabled><span class="field__error" id="mst-err" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Khách doanh nghiệp cần mã số thuế và tên pháp nhân đúng giấy phép.</span></div>
+            <div class="field" style="grid-column:1/-1"><label class="field__label" for="b-a">Địa chỉ người mua<span class="field__req" aria-hidden="true">*</span></label><input id="b-a" class="input" value="12 Nguyễn Văn Linh, P. Tân Phong, Quận 7, TP.HCM"></div>
+            <div class="field"><label class="field__label" for="b-e">Email nhận hóa đơn</label><input id="b-e" class="input" type="email" placeholder="Không bắt buộc"></div>
+            <div class="field"><span class="field__label">Gửi cho khách qua</span><div class="row"><span class="tag tag--neutral">Email</span><span class="tag tag--neutral" title="Chưa chọn nhà cung cấp Zalo/SMS">Zalo: Chưa kích hoạt</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-l">
+        <div class="card__header"><div><h2 class="card__title" id="h-l">Hàng hóa, dịch vụ</h2><div class="card__subtitle">Lấy từ lệnh, không nhập lại (FR-EIN-001)</div></div></div>
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Nội dung hóa đơn</caption>
+          <thead><tr><th>Tên hàng hóa, dịch vụ</th><th class="col-num">SL</th><th class="col-num">Thuế suất</th><th class="col-num">Thành tiền</th></tr></thead>
+          <tbody>
+            <tr><td>Công thay má phanh trước và cân chỉnh góc đặt bánh xe</td><td class="col-num">1</td><td class="col-num">8%</td><td class="col-num">2.300.000 ₫</td></tr>
+            <tr><td>Má phanh trước Toyota Vios (bộ)</td><td class="col-num">1</td><td class="col-num">8%</td><td class="col-num">3.600.000 ₫</td></tr>
+            <tr><td>Dầu phanh DOT4 (chai)</td><td class="col-num">2</td><td class="col-num">8%</td><td class="col-num">2.100.000 ₫</td></tr>
+            <tr><td>Giảm giá khách quen</td><td class="col-num">1</td><td class="col-num">8%</td><td class="col-num g4f-bad">−350.000 ₫</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3">Tổng thanh toán (đã gồm thuế)</td><td class="col-num">7.650.000 ₫</td></tr></tfoot></table></div>
+        <div class="card__body"><p class="g4f-why" style="margin:0">Thuế suất 8% là giá trị mẫu; thực tế lấy từ cấu hình thuế có ngày hiệu lực theo nhóm hàng (FR-ACC-009). Tiền cọc 2.000.000 ₫: thời điểm lập hóa đơn và cách ghi cọc theo cấu hình <span class="g4f-sample">[Cần xác nhận] FR-EIN-012</span>.</p></div>
+      </section>
+    </div>
+
+    <aside class="g4f-aside">
+      <section class="card" aria-labelledby="h-c">
+        <div class="card__header"><div><h2 class="card__title" id="h-c">Kiểm tra điều kiện</h2><div class="card__subtitle">Phải đủ mới phát hành được</div></div></div>
+        <div class="card__body"><ul class="g4f-checks">
+          <li class="is-pass"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Thuế suất đã cấu hình</div><div class="g4f-checks__sub">Hiệu lực từ 01/07/2026</div></div><span></span></li>
+          <li class="is-pass" data-vg="v" data-v="ready sending timeout dup inactive"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Thông tin người mua đầy đủ</div></div><span></span></li>
+          <li class="is-fail" data-vg="v" data-v="missing" hidden><span class="g4f-checks__ic"><svg class="icon"><use href="#x"/></svg></span><div><div class="g4f-checks__title">Thiếu mã số thuế người mua</div><div class="g4f-checks__sub">Chọn “Khách có mã số thuế” nhưng chưa nhập MST.</div></div><a class="btn btn--ghost btn--sm" href="#b-m">Sửa</a></li>
+          <li class="is-fail" data-vg="v" data-v="missing" hidden><span class="g4f-checks__ic"><svg class="icon"><use href="#x"/></svg></span><div><div class="g4f-checks__title">Thiếu phường/xã trong địa chỉ</div><div class="g4f-checks__sub">Bổ sung địa chỉ đầy đủ theo giấy phép.</div></div><a class="btn btn--ghost btn--sm" href="#b-a">Sửa</a></li>
+          <li class="is-pass"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Đơn vị phát hành của chi nhánh</div><div class="g4f-checks__sub">Công ty TNHH Garage A · ký hiệu C26TAA</div></div><span></span></li>
+          <li class="is-pass"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Lệnh đủ điều kiện xuất hóa đơn</div><div class="g4f-checks__sub">Lệnh “Sẵn sàng bàn giao”</div></div><span></span></li>
+          <li class="is-pass" data-vg="v" data-v="ready missing sending timeout dup"><span class="g4f-checks__ic"><svg class="icon"><use href="#check"/></svg></span><div><div class="g4f-checks__title">Kết nối nhà cung cấp</div><div class="g4f-checks__sub">Môi trường thử · đồng bộ lúc 09:12</div></div><span></span></li>
+          <li class="is-fail" data-vg="v" data-v="inactive" hidden><span class="g4f-checks__ic"><svg class="icon"><use href="#lock"/></svg></span><div><div class="g4f-checks__title">Chưa kích hoạt nhà cung cấp</div><div class="g4f-checks__sub">Chưa chọn nhà cung cấp hóa đơn điện tử.</div></div><span></span></li>
+        </ul></div>
+      </section>
+      <section class="card card__body stack">
+        <dl class="g4f-sum"><div><dt>Lệnh</dt><dd class="code">RO-Q7-2610-00131</dd></div><div><dt>Tổng hóa đơn</dt><dd>7.650.000 ₫</dd></div><div><dt>Mã chống trùng</dt><dd class="code" style="font-size:12px">IDEM-Q7-2610-00131-01</dd></div></dl>
+        <button class="btn btn--primary btn--lg btn--block" id="btn-issue" data-open="dlg-issue" data-g4f-need="TN KT" data-g4f-why="Chỉ Thu ngân và Kế toán phát hành hóa đơn." data-g4f-online data-vg="v" data-v-off="missing sending timeout dup inactive"><svg class="icon"><use href="#receipt"/></svg><span id="issue-l">Phát hành hóa đơn</span></button>
+        <p class="g4f-why" id="issue-why" style="margin:0" hidden></p>
+        <p class="g4f-why" style="margin:0">Nút khóa ngay khi bấm; bấm hai lần hoặc timeout chỉ ra một hóa đơn.</p>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-issue" role="alertdialog" aria-modal="true" aria-labelledby="is-t"><div class="dialog dialog--md" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#receipt"/></svg></div><div><h2 class="dialog__title" id="is-t">Phát hành hóa đơn điện tử?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <dl class="g4f-sum"><div><dt>Người mua</dt><dd id="is-buyer">Nguyễn Văn An (khách lẻ)</dd></div><div><dt>Lệnh</dt><dd class="code">RO-Q7-2610-00131</dd></div><div class="is-total"><dt>Tổng thanh toán</dt><dd>7.650.000 ₫</dd></div></dl>
+    <ul class="impact-list"><li>Hóa đơn gửi cơ quan thuế qua nhà cung cấp; <strong>không sửa trực tiếp</strong>. Sai thì điều chỉnh, thay thế hoặc hủy, cần Kế toán trưởng duyệt.</li><li>Mỗi yêu cầu chỉ tạo một hóa đơn, kể cả khi bấm lại hoặc mạng chập chờn.</li></ul>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã kiểm tra tên, mã số thuế, địa chỉ và số tiền người mua.</span></label>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại sửa</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-issue" data-busy="Đang gửi nhà cung cấp…" data-done-label="Đã gửi, chờ xác nhận" data-done-toast="success|Đã gửi yêu cầu phát hành|Số hóa đơn sẽ hiện khi nhà cung cấp xác nhận." disabled>Phát hành</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-EIN-02', title: 'Phát hành hóa đơn từ lệnh', desc: 'Kiểm tra điều kiện và phát hành một hóa đơn điện tử cho lệnh sửa chữa, không trùng.',
+  menu: 'einv', role: 'TN', allow: ['TN', 'KT', 'CH', 'QV', 'QL'], updated: '09:15', time: 'hôm nay 30/10/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$, $$ = G4F.$$;
+  $$('[data-bt]').forEach(function (r) { r.addEventListener('change', function () {
+    var dn = r.value === 'dn' && r.checked; if (!r.checked) return;
+    $('#b-m').disabled = !dn; $('#mst-req').hidden = !dn;
+    $('#b-n').value = dn ? 'Công ty TNHH Vận tải Hòa Phát' : 'Nguyễn Văn An'; $('#is-buyer').textContent = dn ? 'Công ty TNHH Vận tải Hòa Phát (có MST)' : 'Nguyễn Văn An (khách lẻ)';
+  }); });
+  document.addEventListener('input', function (e) { if (e.target.id !== 'b-m') return; var bad = e.target.value && !/^\d{10}(\d{3})?$/.test(e.target.value.replace(/[\s-]/g, '')); $('#mst-err').hidden = !bad; e.target.classList.toggle('is-error', !!bad); });
+  document.addEventListener('g4f:var', function (e) {
+    var v = e.detail.v, w = $('#issue-why'), l = $('#issue-l');
+    var T = { missing: 'còn 2 điều kiện chưa đạt (xem khung bên trên).', sending: 'đang gửi nhà cung cấp, không gửi lại.', timeout: 'đang truy vấn trạng thái, không gửi lại.', dup: 'lệnh đã có hóa đơn hợp lệ.', inactive: 'chưa chọn nhà cung cấp hóa đơn điện tử (Chưa kích hoạt).' };
+    w.hidden = !T[v]; w.textContent = T[v] ? 'Lý do nút bị khóa: ' + T[v] : '';
+    l.textContent = v === 'sending' ? 'Đang gửi nhà cung cấp…' : 'Phát hành hóa đơn';
+    if (v === 'ready') G4F.refresh();
+  });
+  G4F.applyVar('v', 'ready');
+})();
+</script>
+</body>
+</html>

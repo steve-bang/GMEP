@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-01 – Danh sách khách hàng · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="cust" data-g2w-deny="TK AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Khách hàng và xe</span></nav>
+
+  <div class="page-header">
+    <div class="page-header__text"><h1>Khách hàng</h1><p class="page-header__desc">Hồ sơ khách dùng chung giữa các chi nhánh trong phạm vi quyền của bạn.</p></div>
+    <div class="page-header__actions">
+      <div class="segmented" role="group" aria-label="Chuyển danh sách"><a class="segmented__item" aria-pressed="true" href="g2-crm-01.html" style="text-decoration:none"><svg class="icon icon--sm"><use href="#users"/></svg>Khách hàng</a><a class="segmented__item" aria-pressed="false" href="g2-crm-04.html" style="text-decoration:none"><svg class="icon icon--sm"><use href="#car-front"/></svg>Xe</a></div>
+      <a class="btn btn--secondary" href="g2-crm-08.html" data-g2w-lock-link="QL"><svg class="icon"><use href="#users"/></svg>Hợp nhất trùng</a>
+      <a class="btn btn--secondary" href="g2-crm-12.html" data-g2w-lock-link="CH QL KT" title="Cần quyền xuất dữ liệu"><svg class="icon"><use href="#download"/></svg>Xuất danh sách…</a>
+      <a class="btn btn--primary" href="g2-crm-02.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#plus"/></svg>Thêm khách</a>
+    </div>
+  </div>
+
+  <div data-g2w-scope data-time="Toàn bộ hồ sơ đang hoạt động"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Trống lần đầu|filtered:Trống do lọc|error:Lỗi|denied:Không có quyền"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info" data-g2w-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Vai trò Thợ chỉ thấy tên khách và biển số của việc mình đang làm. Số điện thoại và địa chỉ bị ẩn.</span></div></div>
+    <div class="alert alert--neutral" data-g2w-roles="CH QV KT" role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Số điện thoại đã che theo vai trò. Mở hồ sơ khách để bấm “Hiện” (được ghi nhật ký<span data-g2w-roles="KT">, bắt buộc chọn lý do</span>). Danh sách xuất ra cũng bị che.</span></div></div>
+
+    <div class="filter-bar">
+      <div class="field filter-bar__search"><label class="field__label" for="c-q">Tìm kiếm</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="c-q" class="input" placeholder="Tên, số điện thoại, biển số (có hoặc không dấu)"></div></div>
+      <div class="field"><label class="field__label" for="c-t">Loại khách</label><select id="c-t" class="select"><option>Tất cả</option><option>Cá nhân</option><option>Doanh nghiệp</option></select></div>
+      <div class="field"><label class="field__label" for="c-l">Nhãn</label><select id="c-l" class="select"><option>Tất cả nhãn</option><option>VIP</option><option>Hợp đồng</option><option>Không nhận quảng cáo</option><option>Nợ quá hạn</option></select></div>
+      <div class="field"><label class="field__label" for="c-b">Chi nhánh</label><select id="c-b" class="select"><option>Phạm vi hiện tại</option><option>Chi nhánh Quận 7</option><option>Chi nhánh Thủ Đức</option></select></div>
+      <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+    </div>
+    <div class="chip-row" aria-label="Bộ lọc đang áp dụng"><span class="t-body-sm text-secondary">Đang lọc:</span><span class="chip">Phạm vi hiện tại<button class="chip__x" aria-label="Bỏ lọc chi nhánh"><svg class="icon"><use href="#x"/></svg></button></span><button class="btn btn--ghost btn--sm">Xóa tất cả</button></div>
+
+    <div class="table-wrap table-wrap--responsive">
+      <div class="table-toolbar"><span class="table-meta">1.286 khách · sắp xếp theo lần sửa gần nhất</span>
+        <button class="btn btn--secondary btn--sm" style="margin-left:auto"><svg class="icon icon--sm"><use href="#columns"/></svg>Cột hiển thị</button></div>
+      <div class="table-scroll" style="--table-max-height:560px">
+        <table class="table">
+          <caption class="sr-only">Danh sách khách hàng</caption>
+          <thead><tr><th aria-sort="none"><button class="th-sort">Khách hàng<svg class="icon"><use href="#chevrons-up-down"/></svg></button></th><th>Loại</th><th>Điện thoại</th><th class="col-num">Số xe</th><th aria-sort="descending"><button class="th-sort">Sửa gần nhất<svg class="icon"><use href="#arrow-down"/></svg></button></th><th>Nhãn</th><th class="col-num" data-g2w-hide-for="QD TH">Công nợ</th><th>Chi nhánh</th><th class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <tbody>
+            <tr><td class="cell-primary"><a href="g2-crm-03.html">Nguyễn Văn An</a></td><td>Cá nhân</td><td><span class="g2w-pii" data-id="c1"></span></td><td class="col-num">2</td><td class="col-nowrap num">30/10/2026</td><td><span class="tag">VIP</span></td><td class="col-num" data-g2w-hide-for="QD TH"><span data-g2w-money>0 ₫</span></td><td>Quận 7</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html" aria-label="Xem khách Nguyễn Văn An"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+            <tr data-g2w-hide-for="TH"><td class="cell-primary"><a href="g2-crm-03.html">Trần Thị Bích Ngọc</a></td><td>Cá nhân</td><td><span class="g2w-pii" data-id="c2"></span></td><td class="col-num">1</td><td class="col-nowrap num">29/10/2026</td><td></td><td class="col-num" data-g2w-hide-for="QD TH">0 ₫</td><td>Quận 7</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html" aria-label="Xem khách Trần Thị Bích Ngọc"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+            <tr><td class="cell-primary"><a href="g2-crm-03.html?v=biz">Công ty TNHH Vận tải Hòa Phát và Đối tác Logistics Miền Nam</a><span class="cell-sub">MST 0312345678</span></td><td>Doanh nghiệp</td><td><span class="g2w-pii" data-id="c3"></span></td><td class="col-num">6</td><td class="col-nowrap num">30/10/2026</td><td><span class="tag">Hợp đồng</span> <span class="tag tag--danger">Vượt hạn mức nợ</span></td><td class="col-num" data-g2w-hide-for="QD TH"><span data-g2w-money>48.500.000 ₫</span></td><td>Quận 7</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html?v=biz" aria-label="Xem khách Công ty TNHH Vận tải Hòa Phát"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+            <tr data-g2w-hide-for="TH"><td class="cell-primary"><a href="g2-crm-03.html">Lê Quốc Huy</a></td><td>Cá nhân</td><td><span class="g2w-pii" data-id="c4"></span></td><td class="col-num">1</td><td class="col-nowrap num">30/10/2026</td><td></td><td class="col-num" data-g2w-hide-for="QD TH">0 ₫</td><td>Quận 7</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html" aria-label="Xem khách Lê Quốc Huy"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+            <tr data-g2w-hide-for="TH"><td class="cell-primary"><a href="g2-crm-03.html">Võ Thanh Sơn</a></td><td>Cá nhân</td><td><span class="g2w-pii" data-id="c5"></span></td><td class="col-num">3</td><td class="col-nowrap num">02/10/2026</td><td></td><td class="col-num" data-g2w-hide-for="QD TH">0 ₫</td><td>Thủ Đức</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html" aria-label="Xem khách Võ Thanh Sơn"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+            <tr data-g2w-hide-for="TH"><td class="cell-primary"><a href="g2-crm-03.html">Phạm Thị Hoa</a></td><td>Cá nhân</td><td><span class="g2w-pii" data-id="c6"></span></td><td class="col-num">2</td><td class="col-nowrap num">28/10/2026</td><td><span class="tag tag--danger">Nợ quá hạn</span></td><td class="col-num" data-g2w-hide-for="QD TH"><span data-g2w-money>2.480.000 ₫</span></td><td>Quận 7</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html" aria-label="Xem khách Phạm Thị Hoa"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+            <tr data-g2w-hide-for="TH"><td class="cell-primary"><a href="g2-crm-03.html">Đặng Thị Lan</a></td><td>Cá nhân</td><td><span class="g2w-pii" data-id="c7"></span></td><td class="col-num">1</td><td class="col-nowrap num">27/10/2026</td><td></td><td class="col-num" data-g2w-hide-for="QD TH">0 ₫</td><td>Quận 7</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html" aria-label="Xem khách Đặng Thị Lan"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+            <tr data-g2w-hide-for="TH"><td class="cell-primary"><a href="g2-crm-03.html">Hồ Minh Châu</a></td><td>Cá nhân</td><td><span class="g2w-pii" data-id="c8"></span></td><td class="col-num">1</td><td class="col-nowrap num">24/10/2026</td><td><span class="tag">Không nhận quảng cáo</span></td><td class="col-num" data-g2w-hide-for="QD TH">0 ₫</td><td>Thủ Đức</td><td class="col-actions"><a class="btn-icon" href="g2-crm-03.html" aria-label="Xem khách Hồ Minh Châu"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span class="table-meta">Hiển thị 1–8 trong 1.286 khách</span>
+        <nav class="pagination" aria-label="Phân trang"><button class="pagination__item" aria-label="Trang trước" disabled><svg class="icon icon--sm"><use href="#chevron-left"/></svg></button><a class="pagination__item" href="#" aria-current="page">1</a><a class="pagination__item" href="#">2</a><a class="pagination__item" href="#">3</a><span class="pagination__item" aria-hidden="true">…</span><a class="pagination__item" href="#">161</a><a class="pagination__item" href="#" aria-label="Trang sau"><svg class="icon icon--sm"><use href="#chevron-right"/></svg></a></nav>
+        <label class="row" style="gap:8px"><span class="table-meta">Số dòng</span><select class="select" style="width:84px" aria-label="Số dòng mỗi trang"><option>25</option><option>50</option></select></label></div>
+    </div>
+
+    <div class="record-list record-list--responsive">
+      <div class="scope-line"><svg class="icon icon--sm"><use href="#map-pin"/></svg>Phạm vi hiện tại · 1.286 khách</div>
+      <a class="record" href="g2-crm-03.html" style="color:inherit;text-decoration:none"><div class="record__top"><div><div class="record__title">Nguyễn Văn An</div><span class="g2w-pii" data-id="c1"></span></div><span class="tag">VIP</span></div><div class="record__meta"><span>Cá nhân · 2 xe</span><span>Sửa 30/10/2026</span></div></a>
+      <a class="record" href="g2-crm-03.html?v=biz" style="color:inherit;text-decoration:none" data-g2w-hide-for="TH"><div class="record__top"><div><div class="record__title">Công ty TNHH Vận tải Hòa Phát…</div><span class="g2w-pii" data-id="c3"></span></div><span class="tag tag--danger">Vượt hạn mức nợ</span></div><div class="record__meta"><span>Doanh nghiệp · 6 xe</span><span>Sửa 30/10/2026</span></div></a>
+      <a class="record" href="g2-crm-03.html" style="color:inherit;text-decoration:none" data-g2w-hide-for="TH"><div class="record__top"><div><div class="record__title">Phạm Thị Hoa</div><span class="g2w-pii" data-id="c6"></span></div><span class="tag tag--danger">Nợ quá hạn</span></div><div class="record__meta"><span>Cá nhân · 2 xe</span><span>Sửa 28/10/2026</span></div></a>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden data-g2w-tpl="loading" data-rows="6" data-cols="7"></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="users" data-title="Chưa có khách hàng nào" data-text="Thêm khách để bắt đầu quản lý xe và lịch sử sửa chữa. Hoặc nhập từ Excel ở mục khởi tạo dữ liệu." data-cta="Thêm khách" data-href="g2-crm-02.html"></div>
+  <div data-state="filtered" hidden data-g2w-tpl="filtered" data-title="Không tìm thấy khách phù hợp" data-text="Không có khách nào khớp với “nguyen van z”. Thử gõ số điện thoại hoặc biển số, hoặc kiểm tra xem khách ở chi nhánh ngoài phạm vi của bạn."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được danh sách khách" data-ref="ERR-CRM-5001"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem khách hàng" data-text="Vai trò Thủ kho và Quản trị hệ thống không truy cập hồ sơ khách (ma trận M1)."></div>
+</div>
+</div></main>
+</div>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

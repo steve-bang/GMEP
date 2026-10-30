@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-04 · Sổ quỹ tiền mặt · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <a class="btn btn--secondary" href="g4-acc-08.html" data-g4f-roles="TN QL">Chốt ca</a>
+    <button class="btn btn--primary" data-open="dlg-expense" data-g4f-need="TN" data-g4f-why="Chỉ Thu ngân lập phiếu chi; Quản lý chi nhánh duyệt." data-g4f-online data-vg="d" data-v-off="d29"><svg class="icon"><use href="#plus"/></svg>Phiếu chi</button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="field"><label class="field__label" for="day">Ngày</label><div class="input-group date-field"><input id="day" class="input" value="30/10/2026" inputmode="numeric"><svg class="icon"><use href="#calendar"/></svg></div></div>
+    <div class="field"><label class="field__label" for="ca">Ca</label><select id="ca" class="select"><option>Cả ngày</option><option>Ca sáng</option><option>Ca chiều</option></select></div>
+    <div class="field"><label class="field__label" for="lc">Loại chi phí</label><select id="lc" class="select"><option>Tất cả</option><option>Vật tư văn phòng</option><option>Điện nước</option><option>Sửa chữa thiết bị</option></select></div>
+    <div class="filter-bar__actions"><span class="t-body-sm text-secondary">Xem thử ngày:</span>
+      <div class="segmented" role="group" aria-label="Chọn ngày xem thử"><button class="segmented__item" data-g4f-var="d30" data-vg="d" aria-pressed="true">30/10 (đang mở)</button><button class="segmented__item" data-g4f-var="d29" data-vg="d" aria-pressed="false">29/10 (đã khóa)</button></div></div>
+  </div>
+
+  <div class="alert alert--neutral" data-vg="d" data-v="d29" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ngày 29/10/2026 đã khóa sổ: chỉ xem</span><span>Mọi điều chỉnh làm bằng bút toán mới ở ngày đang mở, có lý do. Dòng bút toán đảo hiện rõ bên dưới.</span></div></div>
+
+  <section aria-label="Số dư quỹ"><div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label">Số dư đầu ngày</span><span class="kpi__value"><span data-vg="d" data-v="d30">4.800.000</span><span data-vg="d" data-v="d29" hidden>5.100.000</span><span class="kpi__unit">₫</span></span><span class="kpi__meta" data-vg="d" data-v="d30">= số dư cuối ngày 29/10</span><span class="kpi__meta" data-vg="d" data-v="d29" hidden>= số dư cuối ngày 28/10</span></div>
+    <div class="card kpi"><span class="kpi__label">Tổng thu tiền mặt</span><span class="kpi__value"><span data-vg="d" data-v="d30">1.250.000</span><span data-vg="d" data-v="d29" hidden>0</span><span class="kpi__unit">₫</span></span><span class="kpi__meta" data-vg="d" data-v="d30">1 phiếu thu</span><span class="kpi__meta" data-vg="d" data-v="d29" hidden>Thu 1.250.000 trừ đảo 1.250.000</span></div>
+    <div class="card kpi"><span class="kpi__label">Tổng chi</span><span class="kpi__value"><span data-vg="d" data-v="d30">180.000</span><span data-vg="d" data-v="d29" hidden>300.000</span><span class="kpi__unit">₫</span></span><span class="kpi__meta">1 phiếu chi</span></div>
+    <div class="card kpi"><span class="kpi__label">Số dư cuối (sổ sách)</span><span class="kpi__value"><span data-vg="d" data-v="d30">5.870.000</span><span data-vg="d" data-v="d29" hidden>4.800.000</span><span class="kpi__unit">₫</span></span><span class="kpi__meta">Đầu ngày + thu − chi · khớp tổng dòng</span></div>
+  </div></section>
+
+  <div class="table-wrap">
+    <div class="table-toolbar"><strong>Sổ quỹ tiền mặt · Chi nhánh Quận 7</strong><span class="table-meta" style="margin-left:auto">Thứ tự thời gian · số dư chạy sau từng dòng</span></div>
+    <div class="table-scroll" data-vg="d" data-v="d30"><table class="table table--compact">
+      <caption class="sr-only">Sổ quỹ tiền mặt ngày 30/10/2026</caption>
+      <thead><tr><th>Giờ</th><th>Chứng từ</th><th>Diễn giải</th><th>Loại</th><th class="col-num">Thu</th><th class="col-num">Chi</th><th class="col-num">Số dư sau</th></tr></thead>
+      <tbody>
+        <tr><td class="num">08:05</td><td>Mở ca sáng</td><td>Phạm Thị Lan nhận quỹ đầu ca</td><td><span class="tag tag--neutral">Số dư</span></td><td class="col-num"></td><td class="col-num"></td><td class="col-num">4.800.000 ₫</td></tr>
+        <tr><td class="num">09:02</td><td class="code"><a href="g4-acc-03.html">PT-Q7-2610-00930</a></td><td>Thu tiền lệnh RO-Q7-2610-00126 · Lê Quốc Huy</td><td><span class="tag tag--success">Thu</span></td><td class="col-num">1.250.000 ₫</td><td class="col-num"></td><td class="col-num">6.050.000 ₫</td></tr>
+        <tr><td class="num">09:10</td><td class="code">PC-Q7-2610-00041</td><td>Mua giấy in và mực (Vật tư văn phòng) · chứng từ HĐ bán lẻ</td><td><span class="tag tag--warning">Chi</span></td><td class="col-num"></td><td class="col-num">180.000 ₫</td><td class="col-num">5.870.000 ₫</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="4">Tổng ngày 30/10/2026</td><td class="col-num">1.250.000 ₫</td><td class="col-num">180.000 ₫</td><td class="col-num">5.870.000 ₫</td></tr></tfoot>
+    </table></div>
+    <div class="table-scroll" data-vg="d" data-v="d29" hidden><table class="table table--compact">
+      <caption class="sr-only">Sổ quỹ tiền mặt ngày 29/10/2026</caption>
+      <thead><tr><th>Giờ</th><th>Chứng từ</th><th>Diễn giải</th><th>Loại</th><th class="col-num">Thu</th><th class="col-num">Chi</th><th class="col-num">Số dư sau</th></tr></thead>
+      <tbody>
+        <tr><td class="num">08:00</td><td>Mở ca sáng</td><td>Số dư đầu ngày</td><td><span class="tag tag--neutral">Số dư</span></td><td class="col-num"></td><td class="col-num"></td><td class="col-num">5.100.000 ₫</td></tr>
+        <tr class="g4f-reversed"><td class="num">10:12</td><td class="code">PT-Q7-2610-00912</td><td>Thu tiền lệnh RO-Q7-2610-00126 (đã bị đảo)</td><td><span class="tag tag--neutral">Thu · đã đảo</span></td><td class="col-num">1.250.000 ₫</td><td class="col-num"></td><td class="col-num">6.350.000 ₫</td></tr>
+        <tr class="g4f-entry-rev"><td class="num">10:30</td><td class="code">PT-Q7-2610-00913</td><td>Bút toán đảo PT-…912 · lý do: nhập sai hình thức · duyệt Võ Minh Quân</td><td><span class="tag tag--warning">Bút toán đảo</span></td><td class="col-num">−1.250.000 ₫</td><td class="col-num"></td><td class="col-num">5.100.000 ₫</td></tr>
+        <tr><td class="num">14:00</td><td class="code">PC-Q7-2610-00040</td><td>Thanh toán tiền nước uống khách (Tiếp khách)</td><td><span class="tag tag--warning">Chi</span></td><td class="col-num"></td><td class="col-num">300.000 ₫</td><td class="col-num">4.800.000 ₫</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="4">Tổng ngày 29/10/2026 (thu đã trừ bút toán đảo)</td><td class="col-num">0 ₫</td><td class="col-num">300.000 ₫</td><td class="col-num">4.800.000 ₫</td></tr></tfoot>
+    </table></div>
+  </div>
+  <p class="t-body-sm text-secondary" style="margin:0">Không có nút xóa trên dòng sổ quỹ. Sai thì đảo bút toán; ngày đã khóa chỉ điều chỉnh bằng chứng từ mới (RULE-010).</p>
+</div>
+
+<div class="overlay" id="dlg-expense" role="dialog" aria-modal="true" aria-labelledby="ex-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="ex-t">Lập phiếu chi tiền mặt</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <div class="form-grid">
+      <div class="field"><label class="field__label" for="ex-l">Loại chi phí<span class="field__req" aria-hidden="true">*</span></label><select id="ex-l" class="select"><option>Vật tư văn phòng</option><option>Điện nước</option><option>Sửa chữa thiết bị</option><option>Tiếp khách</option><option>Chi phí khác</option></select></div>
+      <div class="field"><label class="field__label" for="ex-a">Số tiền<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="ex-a" class="input input--num" data-money inputmode="numeric" style="padding-left:12px" autocomplete="off"><span class="input-group__suffix">₫</span></div><span class="field__error" id="ex-err" hidden><svg class="icon"><use href="#alert-triangle"/></svg><span id="ex-err-t"></span></span></div>
+    </div>
+    <div class="field"><label class="field__label" for="ex-n">Người nhận tiền<span class="field__req" aria-hidden="true">*</span></label><input id="ex-n" class="input" placeholder="Họ tên hoặc tên cửa hàng"></div>
+    <div class="field"><label class="field__label" for="ex-d">Diễn giải<span class="field__req" aria-hidden="true">*</span></label><textarea id="ex-d" class="textarea" style="min-height:64px" placeholder="Chi cho việc gì"></textarea></div>
+    <div class="field"><label class="field__label" for="ex-c">Chứng từ gốc (số hóa đơn hoặc ảnh)</label><input id="ex-c" class="input" placeholder="Phiếu chi cần có chứng từ gốc (RULE-007)"><span class="field__hint">Chọn ảnh hóa đơn ở bước đính kèm nếu có; thiếu chứng từ vẫn lưu được nhưng bị liệt kê ở bước chốt ngày.</span></div>
+    <div class="alert alert--warning" id="ex-over" hidden role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Vượt hạn mức chi: cần duyệt trước khi chi</span><span>Số này so với hạn mức của cấp Thu ngân: <strong class="num">1.200.000 ₫</strong> / <strong class="num">500.000 ₫</strong> <span class="g4f-sample">Giá trị minh họa, lấy từ cấu hình G4-APR-03</span>. Phiếu sẽ ở trạng thái “Chờ duyệt”, chưa trừ quỹ.</span></div></div>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="ex-ok" data-g4f-submit data-lock="#ex-ok-lock" data-done-toast="success|Đã chi tiền|Phiếu chi PC-Q7-2610-00042 đã trừ quỹ.">Chi tiền</button></div></div></div>
+<button id="ex-ok-lock" hidden aria-hidden="true" tabindex="-1"></button>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-04', title: 'Sổ quỹ tiền mặt', desc: 'Thu, chi và số dư quỹ của chi nhánh theo ngày và ca.',
+  menu: 'fin', role: 'TN', allow: ['TN', 'QL', 'KT', 'CH', 'QV'], updated: '09:15', time: 'ngày 30/10/2026',
+  states: ['data', 'loading', 'empty', 'error', 'denied'],
+  empty: { icon: 'wallet', title: 'Chưa có giao dịch tiền mặt trong ngày', text: 'Số dư đầu ngày vẫn hiện ở trên. Giao dịch xuất hiện khi thu tiền mặt theo lệnh hoặc lập phiếu chi.', cta: 'Lập phiếu chi', href: '#' }
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var $ = G4F.$;
+  var BAL = 5870000, LIM = 500000;
+  document.addEventListener('input', function (e) {
+    if (e.target.id !== 'ex-a') return;
+    var v = G4F.num(e.target.value), err = $('#ex-err'), t = $('#ex-err-t'), over = $('#ex-over'), ok = $('#ex-ok');
+    err.hidden = true; over.hidden = true; e.target.classList.remove('is-error'); e.target.removeAttribute('aria-invalid');
+    if (v > BAL) { err.hidden = false; t.textContent = 'Số dư quỹ chỉ còn ' + G4F.fmt(BAL) + ', không chi vượt được. Giảm số tiền hoặc chi bằng chuyển khoản.'; e.target.classList.add('is-error'); e.target.setAttribute('aria-invalid', 'true'); ok.disabled = true; }
+    else { ok.disabled = v === 0; if (v > LIM) { over.hidden = false; ok.textContent = 'Gửi duyệt'; ok.setAttribute('data-done-toast', 'warning|Đã gửi duyệt|Chờ Quản lý chi nhánh duyệt, chưa trừ quỹ.'); } else { ok.textContent = 'Chi tiền'; ok.setAttribute('data-done-toast', 'success|Đã chi tiền|Phiếu chi PC-Q7-2610-00042 đã trừ quỹ.'); } }
+  });
+  $('#ex-ok').disabled = true;
+  G4F.applyVar('d', 'd30');
+})();
+</script>
+</body>
+</html>

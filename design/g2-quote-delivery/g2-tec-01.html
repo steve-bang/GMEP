@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-TEC-01 · Việc được giao (tablet thợ) – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('TH', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Việc của tôi']], title: 'Việc của tôi hôm nay', desc: 'Thứ Sáu, 30/10/2026 · chỉ hiện việc được giao cho bạn. Bắt đầu hoặc kết thúc việc tối đa 2 chạm.' });
+g2q.scope('hôm nay 30/10/2026', '10:05');
+</script>
+
+<div class="g2q-tec" data-variants="list">
+  <script>g2q.proto([['list','Có việc'],['loading','Đang tải'],['empty','Chưa có việc'],['error','Lỗi tải'],['offline','Mất mạng (dữ liệu đã tải)']], 'list');</script>
+
+  <section class="g2q-workerbar" aria-label="Thợ đang đăng nhập">
+    <div class="g2q-workerbar__who"><span class="avatar avatar--lg" aria-hidden="true">LT</span><div><strong style="font-size:var(--font-size-xl)">Lê Minh Tuấn</strong><div class="g2q-note">Thợ chính · Chi nhánh Quận 7 · Thiết bị xưởng XT-02</div></div></div>
+    <div class="g2q-lockbar"><svg class="icon icon--sm"><use href="#lock"/></svg>Tự khóa sau 3 phút không dùng, bản nháp được giữ</div>
+    <button class="btn btn--secondary" data-toast="info|Đã khóa màn hình|Prototype: quay về lưới chọn thợ và nhập PIN (G1-AUT-10).">Khóa màn hình</button>
+  </section>
+
+  <div class="alert alert--warning" role="alert" data-v="offline"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối — đang xem dữ liệu đã tải lúc 10:02</span><span>Bạn vẫn bắt đầu, tạm dừng, kết thúc được: mốc giờ được ghi trên máy và đồng bộ sau (đánh dấu “nhập bù”). Yêu cầu phụ tùng và báo phát sinh chỉ gửi khi có mạng.</span></div></div>
+
+  <div data-v="list offline" class="g2q-tec">
+    <div class="g2q-sumtiles" aria-label="Tóm tắt việc hôm nay">
+      <div class="g2q-tile"><span class="g2q-tile__v">1</span><span class="g2q-tile__l">Đang làm</span></div>
+      <div class="g2q-tile"><span class="g2q-tile__v">2</span><span class="g2q-tile__l">Chưa làm (1 đang bị khóa)</span></div>
+      <div class="g2q-tile"><span class="g2q-tile__v">1</span><span class="g2q-tile__l">Tạm dừng</span></div>
+      <div class="g2q-tile"><span class="g2q-tile__v" style="color:var(--color-danger-text)">1</span><span class="g2q-tile__l">Bị trả lại sau QC</span></div>
+    </div>
+
+    <div class="row" role="group" aria-label="Lọc việc theo trạng thái">
+      <button class="chip-filter" aria-pressed="true" data-f="all">Tất cả <span class="count-pill">5</span></button>
+      <button class="chip-filter" aria-pressed="false" data-f="running">Đang làm <span class="count-pill">1</span></button>
+      <button class="chip-filter" aria-pressed="false" data-f="todo">Chưa làm <span class="count-pill">2</span></button>
+      <button class="chip-filter" aria-pressed="false" data-f="paused">Tạm dừng <span class="count-pill">1</span></button>
+      <button class="chip-filter" aria-pressed="false" data-f="returned">Trả lại <span class="count-pill count-pill--danger">1</span></button>
+    </div>
+
+    <div class="g2q-cards" id="jobs">
+      <!-- Trả lại sau QC: nổi bật, đứng đầu -->
+      <article class="card g2q-job g2q-job--returned" data-st="returned" aria-labelledby="j1">
+        <div class="g2q-job__top"><span class="g2q-job__plate">51G-765.43</span><span class="badge badge--danger badge--lg">Trả lại</span></div>
+        <div><div class="g2q-job__name" id="j1">Xiết lại và kiểm tra lực xiết bánh sau</div><div class="g2q-job__meta"><span class="code">RO-Q7-2610-00122</span><span>Toyota Fortuner 2017</span><span>Giờ chuẩn 0,3 giờ</span></div></div>
+        <div class="g2q-job__reason"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#alert-triangle"/></svg> QC không đạt (Phạm Quốc Bảo, 08:40): lực xiết 2 ốc bánh sau chưa đủ. Xiết lại và kiểm tra bằng cờ lê lực.</div>
+        <div class="g2q-job__actions"><button class="btn btn--primary btn--xl" data-toast="success|Đã bắt đầu làm lại 10:05|Bấm nhầm? Mở chi tiết để hoàn tác trong 10 giây.">Làm lại</button><a class="btn btn--secondary btn--xl" href="g2-tec-02.html?v=returned">Xem chi tiết</a></div>
+      </article>
+
+      <!-- Đang làm -->
+      <article class="card g2q-job g2q-job--running" data-st="running" aria-labelledby="j2">
+        <div class="g2q-job__top"><span class="g2q-job__plate">51H-123.45</span><span class="badge badge--info badge--lg">Đang làm</span></div>
+        <div><div class="g2q-job__name" id="j2"><a href="g2-tec-02.html?v=running" style="color:inherit">Thay má phanh trước</a></div><div class="g2q-job__meta"><span class="code">RO-Q7-2610-00128</span><span>Toyota Vios 1.5G</span><span>Giờ chuẩn 1,5 giờ</span><span>Hẹn giao 16:00</span></div></div>
+        <div class="row" style="justify-content:space-between"><span class="g2q-timer g2q-timer--run" role="timer" aria-label="Thời gian làm 0 giờ 40 phút">00:40:12</span><span class="g2q-note">Bắt đầu 09:25 · còn 0,8 giờ chuẩn</span></div>
+        <div class="progress progress--info"><div class="progress__head"><span>Giờ thực / giờ chuẩn</span><span>0,7 / 1,5 giờ</span></div><div class="progress__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="47" aria-label="Giờ thực bằng 47% giờ chuẩn"><div class="progress__bar" style="width:47%"></div></div></div>
+        <div class="g2q-job__actions"><button class="btn btn--secondary btn--xl" data-open="dlg-pause"><svg class="icon"><use href="#clock"/></svg>Tạm dừng</button><button class="btn btn--primary btn--xl" data-open="dlg-finish"><svg class="icon"><use href="#check"/></svg>Kết thúc</button></div>
+      </article>
+
+      <!-- Chưa làm: bắt đầu 1 chạm -->
+      <article class="card g2q-job" data-st="todo" aria-labelledby="j3">
+        <div class="g2q-job__top"><span class="g2q-job__plate">59A-111.22</span><span class="badge badge--neutral badge--lg">Chưa làm</span></div>
+        <div><div class="g2q-job__name" id="j3"><a href="g2-tec-02.html?v=todo" style="color:inherit">Thay bugi (4 cái)</a></div><div class="g2q-job__meta"><span class="code">RO-Q7-2610-00126</span><span>Honda City 2018</span><span>Giờ chuẩn 0,8 giờ</span><span>Hẹn giao 14:00</span></div></div>
+        <div class="row"><span class="tag tag--success"><svg class="icon"><use href="#check"/></svg>Phụ tùng đã cấp 4/4</span></div>
+        <div class="g2q-job__actions"><button class="btn btn--primary btn--xl" data-toast="success|Đã bắt đầu 10:05|Thay bugi (4 cái). Đồng hồ giờ làm đang chạy."><svg class="icon"><use href="#clock"/></svg>Bắt đầu</button><a class="btn btn--secondary btn--xl" href="g2-tec-02.html?v=todo">Xem chi tiết</a></div>
+      </article>
+
+      <!-- Chưa làm: bị khóa vì phát sinh chưa duyệt -->
+      <article class="card g2q-job g2q-job--locked" data-st="todo" aria-labelledby="j4">
+        <div class="g2q-job__top"><span class="g2q-job__plate">51H-123.45</span><span class="badge badge--neutral badge--lg">Chưa làm</span></div>
+        <div><div class="g2q-job__name" id="j4">Thay lọc gió điều hòa <span class="tag tag--info">Phát sinh</span></div><div class="g2q-job__meta"><span class="code">RO-Q7-2610-00128</span><span>Giờ chuẩn 0,3 giờ</span><span>Bạn đề xuất lúc 09:05</span></div></div>
+        <div class="alert alert--warning"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chờ khách duyệt (phát sinh)</span><span>Chưa bắt đầu được cho tới khi khách đồng ý. Cố vấn đã gửi báo giá bổ sung lúc 09:05.</span></div></div>
+        <div class="g2q-job__actions"><button class="btn btn--primary btn--xl" aria-disabled="true" aria-describedby="j4"><svg class="icon"><use href="#lock"/></svg>Bắt đầu</button><a class="btn btn--secondary btn--xl" href="g2-tec-02.html?v=blocked-extra">Xem chi tiết</a></div>
+      </article>
+
+      <!-- Tạm dừng: chờ phụ tùng -->
+      <article class="card g2q-job g2q-job--paused" data-st="paused" aria-labelledby="j5">
+        <div class="g2q-job__top"><span class="g2q-job__plate">51K-987.65</span><span><span class="badge badge--warning badge--lg">Tạm dừng</span> <span class="tag tag--reason tag--warning">Chờ phụ tùng</span></span></div>
+        <div><div class="g2q-job__name" id="j5">Thay má phanh sau</div><div class="g2q-job__meta"><span class="code">RO-Q7-2610-00121</span><span>Mazda CX-5 2020</span><span>Đã làm 0,4 / 1,2 giờ</span></div></div>
+        <div class="alert alert--warning"><svg class="icon"><use href="#package"/></svg><div class="alert__body"><span>Má phanh sau chưa về. Thủ kho đã nhận yêu cầu lúc 09:40 (đang về, dự kiến 31/10/2026).</span></div></div>
+        <div class="g2q-job__actions"><button class="btn btn--primary btn--xl" aria-disabled="true"><svg class="icon"><use href="#lock"/></svg>Tiếp tục</button><a class="btn btn--secondary btn--xl" href="g2-tec-02.html?v=blocked-parts">Xem chi tiết</a></div>
+      </article>
+    </div>
+
+    <details class="card" style="padding:0"><summary style="min-height:56px;padding:0 20px;display:flex;align-items:center;font-weight:600;cursor:pointer">Đã xong hôm nay (1 hạng mục)</summary>
+      <div class="g2q-links"><a class="g2q-links__item" href="g2-tec-02.html?v=finished"><span><span class="g2q-links__type">RO-Q7-2610-00128 · 51H-123.45</span>Thay dầu động cơ và lọc dầu · 08:52–09:22 · 0,5/0,5 giờ</span><span class="badge badge--success">Hoàn thành</span></a></div>
+      <p class="g2q-note" style="padding:12px 20px">Công chỉ được ghi sau khi QC đạt (xem “Công của tôi”).</p></details>
+  </div>
+
+  <div class="g2q-tec" data-v="loading" aria-busy="true"><div class="g2q-cards"><script>g2q.skelCards(4)</script></div></div>
+  <div class="card" data-v="empty"><script>g2q.state({kind:'empty', title:'Chưa có việc được giao', text:'Quản đốc chưa giao hạng mục nào cho bạn hôm nay. Khi có việc mới, danh sách tự cập nhật và có thông báo. Cần việc gấp, báo quản đốc.', actions:'<button class="btn btn--secondary btn--xl" data-demo-loading>Tải lại</button>'})</script></div>
+  <div class="card" data-v="error"><script>g2q.state({kind:'error', title:'Không tải được việc của bạn', text:'Thử lại sau vài giây. Nếu vẫn lỗi, báo quản đốc. Các thao tác bạn đã làm không bị mất.', actions:'<button class="btn btn--primary btn--xl" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-TEC-30B2A9'})</script></div>
+</div>
+<script>g2q.end();</script>
+<script>g2q.techDialogs();</script>
+
+<script src="../assets/app.js"></script>
+<script>
+document.addEventListener('click', function (e) {
+  var f = e.target.closest('[data-f]'); if (!f) return;
+  var v = f.getAttribute('data-f');
+  document.querySelectorAll('[data-f]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === f)); });
+  document.querySelectorAll('#jobs [data-st]').forEach(function (c) { c.hidden = !(v === 'all' || c.getAttribute('data-st') === v); });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-QUO-04 · Gửi báo giá cho khách – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa', 'g2-quo-01.html'], ['Báo giá', 'g2-quo-01.html'], ['Gửi báo giá']], title: 'Gửi báo giá cho khách', desc: 'Hộp thoại mở từ “Gửi cho khách” ở G2-QUO-02 hoặc G2-QUO-03. Trang nền hiển thị báo giá đang gửi.',
+  actions: '<button class="btn btn--primary" data-open="dlg-send">' + g2q.ic('send') + 'Mở hộp thoại gửi</button>' });
+g2q.scope('báo giá tạo 30/10/2026 08:10');
+</script>
+
+<section class="card" aria-label="Báo giá đang gửi">
+  <div class="card__header"><div><h2 class="card__title"><span class="code">BG-Q7-2610-00231-v2</span> <span class="badge badge--neutral">Nháp</span></h2><div class="card__subtitle">51H-123.45 · Toyota Vios 1.5G 2019 · Nguyễn Văn An · 4 hạng mục · Cố vấn Nguyễn Hoàng Yến</div></div><a class="btn btn--secondary btn--sm" href="g2-quo-02.html">Quay lại soạn</a></div>
+  <div class="card__body"><div class="g2q-totals" style="padding:0"><div class="g2q-totals__row"><span>Cộng trước thuế</span><span>3.605.000 ₫</span></div><div class="g2q-totals__row"><span>Thuế GTGT 8% (số mẫu)</span><span>288.400 ₫</span></div><div class="g2q-totals__row g2q-totals__row--final"><span>Tổng báo giá</span><span>3.893.400 ₫</span></div></div></div>
+</section>
+<script>g2q.end();</script>
+
+<div class="overlay" id="dlg-send" role="dialog" aria-modal="true" aria-labelledby="ds-t" data-variants="form" data-autoopen>
+  <div class="dialog g2q-dlg-lg">
+    <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div>
+      <div><h2 class="dialog__title" id="ds-t">Gửi báo giá cho khách</h2><div class="g2q-note"><span class="code">BG-Q7-2610-00231-v2</span> · Nguyễn Văn An · 51H-123.45 · 3.893.400 ₫</div></div>
+      <button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+
+    <div class="dialog__body">
+      <script>g2q.proto([['form','Chọn kênh'],['sending','Đang gửi'],['sent','Đã gửi'],['error','Gửi lỗi'],['nochannel','Chưa cấu hình Zalo/SMS']], 'form', 'Xem thử (chỉ prototype)', 'dlg-send');</script>
+
+      <div class="alert alert--warning" role="alert" data-v="nochannel"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa có kênh nhắn tin được kích hoạt</span><span>Chưa cấu hình nhà cung cấp Zalo/SMS (quản trị hệ thống thiết lập ở G4-SYS-17). Bạn vẫn gửi được bằng liên kết, email hoặc in giấy.</span></div></div>
+      <div class="alert alert--danger" role="alert" data-v="error"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được qua Zalo</span><span>Nhà cung cấp không phản hồi (quá thời gian chờ). Liên kết duyệt đã được tạo nên bạn có thể thử lại, sao chép gửi tay hoặc chọn kênh khác. Thử lại không tạo báo giá hay tin nhắn trùng.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-set="sending" data-for="dlg-send">Thử lại</button><button class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép liên kết|Liên kết riêng của phiên bản v2.">Sao chép liên kết</button></div></div></div>
+      <div class="alert alert--success" role="status" data-v="sent"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã gửi báo giá cho khách</span><span>Báo giá v2 chuyển sang <span class="badge badge--warning">Chờ khách duyệt</span>. Phiên bản v1 bị thay thế và không duyệt được nữa.</span></div></div>
+
+      <div data-v="form error nochannel">
+        <fieldset class="field" style="border:0;padding:0;margin:0"><legend class="field__label" style="margin-bottom:8px">Gửi bằng kênh nào? <span class="field__req">*</span></legend>
+          <div class="g2q-choices">
+            <label class="g2q-choice"><input type="radio" name="ch" checked><span class="radio__box"></span><span><span class="g2q-choice__title">Zalo <span class="tag tag--success" data-vx="nochannel">Đã kích hoạt</span></span><span class="g2q-choice__text">Gửi liên kết duyệt tới số điện thoại khách đã đồng ý nhận tin. Khách mở trên điện thoại, không cần tài khoản.</span></span></label>
+            <label class="g2q-choice"><input type="radio" name="ch"><span class="radio__box"></span><span><span class="g2q-choice__title">Email</span><span class="g2q-choice__text">Gửi liên kết và bản PDF báo giá tới email của khách.</span></span></label>
+            <label class="g2q-choice"><input type="radio" name="ch"><span class="radio__box"></span><span><span class="g2q-choice__title">Sao chép liên kết</span><span class="g2q-choice__text">Tạo liên kết riêng cho phiên bản v2, hiệu lực 7 ngày (đến 06/11/2026). Tự gửi qua kênh bạn muốn.</span></span></label>
+            <label class="g2q-choice"><input type="radio" name="ch"><span class="radio__box"></span><span><span class="g2q-choice__title">In giấy (A4) để khách xem và ký tại quầy</span><span class="g2q-choice__text">Mở bản in xem trước. Khách duyệt tại quầy ghi nhận ở G2-QUO-05.</span></span></label>
+            <label class="g2q-choice"><input type="radio" name="ch" disabled aria-describedby="sms-why"><span class="radio__box"></span><span><span class="g2q-choice__title">SMS <span class="tag tag--neutral">Chưa kích hoạt</span></span><span class="g2q-choice__text" id="sms-why">Chưa cấu hình nhà cung cấp SMS. Liên hệ quản trị hệ thống để bật kênh này.</span></span></label>
+            <label class="g2q-choice" data-v="nochannel"><input type="radio" name="ch" disabled><span class="radio__box"></span><span><span class="g2q-choice__title">Zalo <span class="tag tag--neutral">Chưa kích hoạt</span></span><span class="g2q-choice__text">Chưa cấu hình nhà cung cấp Zalo.</span></span></label>
+          </div></fieldset>
+        <div class="g2q-kv" style="margin-top:16px;grid-template-columns:120px minmax(0,1fr)"><dt>Điện thoại khách</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd><dt>Email khách</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="email"></span></dd><dt>Đồng ý nhận tin</dt><dd>Có, cho thông tin dịch vụ (cập nhật 02/07/2026)</dd></div>
+        <label class="check" style="margin-top:8px"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Gửi kèm kết quả kiểm tra xe số (2 mục vàng/đỏ, 3 ảnh)</span></label>
+        <div class="alert alert--info" style="margin-top:8px"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Xác thực OTP khi khách duyệt: <strong>Tắt</strong> (cấu hình hệ thống). Khi bật, mã gửi tới số điện thoại khách trước khi duyệt.</span></div></div>
+      </div>
+
+      <section class="card card__body--compact" style="padding:16px" data-v="form error nochannel sending" aria-label="Xem trước nội dung tin nhắn">
+        <div class="row row--between"><strong>Nội dung khách nhận</strong><a class="btn btn--ghost btn--sm" href="g2-quo-06.html?preview=1" target="_blank" rel="noopener">Xem trước trang khách<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+        <p class="t-body-sm" style="margin-top:8px;color:var(--color-text-secondary)">“Garage Chi nhánh Quận 7 gửi anh Nguyễn Văn An báo giá sửa chữa xe 51H-123.45: 3.893.400 ₫. Anh chọn các hạng mục đồng ý tại: garage.example.vn/b/Xk7p-93aQ. Báo giá có hiệu lực đến 06/11/2026. Cần hỗ trợ, gọi 028 7300 1234.”</p>
+      </section>
+
+      <div data-v="sending" role="status" aria-live="polite"><div class="progress progress--indeterminate"><div class="progress__head"><span>Đang gửi qua Zalo…</span></div><div class="progress__track"><div class="progress__bar"></div></div></div><p class="g2q-note" style="margin-top:8px">Hệ thống chống gửi trùng: bấm nhiều lần chỉ gửi một tin.</p></div>
+
+      <div data-v="sent" class="stack-2"><div class="g2q-kv" style="grid-template-columns:140px minmax(0,1fr)"><dt>Zalo</dt><dd><span class="badge badge--success">Đã gửi</span> 08:35</dd><dt>Liên kết</dt><dd class="code">garage.example.vn/b/Xk7p-93aQ <button class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép liên kết|Liên kết riêng của phiên bản v2.">Sao chép</button></dd><dt>Hết hiệu lực</dt><dd>06/11/2026</dd></div></div>
+    </div>
+
+    <div class="dialog__footer" data-v="form error nochannel sending"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-set="sending" data-for="dlg-send" data-v="form error nochannel">Gửi báo giá</button><button class="btn btn--primary is-loading" disabled aria-busy="true" data-v="sending"><span class="btn__spinner"><svg class="icon spin"><use href="#loader"/></svg></span>Đang gửi</button></div>
+    <div class="dialog__footer" data-v="sent"><button class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" href="g2-quo-03.html?v=sent">Xem chi tiết báo giá</a></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-DLV-03 · Chuẩn bị bàn giao xe – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Lệnh RO-Q7-2610-00123'], ['Chuẩn bị bàn giao']], title: 'Chuẩn bị bàn giao xe', desc: 'Xe chỉ giao khi đủ điều kiện. Điều kiện chưa đạt hiện lý do và nút xử lý ngay tại dòng đó.',
+  actions: '<a class="btn btn--secondary" href="g2-prt-01.html?doc=handover">' + g2q.ic('printer') + 'In phiếu giao nhận</a>' });
+g2q.scope('hôm nay 30/10/2026', '10:50');
+</script>
+
+<div class="stack-6" id="hd" data-variants="pending">
+  <script>g2q.proto([['pending','Chưa đủ điều kiện'],['ready','Đủ điều kiện'],['debt-ok','Khách DN: nợ trong hạn mức'],['debt-over','Khách DN: vượt hạn mức'],['approval','Chờ duyệt giao xe nợ'],['readonly','Đã bàn giao'],['loading','Đang tải'],['notfound','Không tìm thấy']], 'pending');</script>
+
+  <div data-v="loading" aria-busy="true" class="card" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--block"></span></div>
+  <div data-v="notfound" class="card"><script>g2q.state({kind:'notfound', title:'Không tìm thấy lệnh sửa chữa', text:'Lệnh không tồn tại hoặc không thuộc phạm vi bạn được xem.', actions:'<a class="btn btn--secondary" href="g2-quo-01.html">Về danh sách</a>'})</script></div>
+
+  <div class="stack-6" data-v="pending ready debt-ok debt-over approval readonly">
+    <section class="card g2q-head" aria-label="Lệnh cần bàn giao">
+      <div class="stack-2" style="min-width:0">
+        <div class="row"><h2 class="g2q-head__code" style="font-size:var(--font-size-2xl)">RO-Q7-2610-00123</h2><span class="plate-tag">29A-345.67</span><span class="tag tag--info" data-v="debt-ok debt-over approval">Ví dụ khách doanh nghiệp</span></div>
+        <div class="g2q-head__sub"><span>Hyundai i10 2020</span><span>·</span><span>Đinh Thị Hạnh</span><span>·</span><span>Hẹn giao 11:30</span></div>
+        <div class="g2q-note">Cố vấn Nguyễn Hoàng Yến · 3 hạng mục · Tổng lệnh 2.916.000 ₫ (đã gồm thuế 8% số mẫu)</div>
+      </div>
+      <div class="g2q-badges">
+        <div class="g2q-badges__item">Lệnh <span class="badge badge--success" data-vx="readonly">Sẵn sàng bàn giao</span><span class="badge badge--success" data-v="readonly">Hoàn tất</span></div>
+        <div class="g2q-badges__item">Thanh toán <span class="badge badge--info" data-v="pending debt-over approval">Thanh toán một phần</span><span class="badge badge--warning" data-v="debt-ok">Chưa thanh toán</span><span class="badge badge--success" data-v="ready readonly">Đã thanh toán</span></div>
+        <div class="g2q-badges__item">Hóa đơn <span class="badge badge--neutral" data-v="pending debt-over approval">Chưa xuất</span><span class="badge badge--success" data-v="ready debt-ok readonly">Đã xuất</span></div>
+      </div>
+    </section>
+
+    <div class="alert alert--danger" role="alert" data-v="debt-over"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Giao xe sẽ làm vượt hạn mức công nợ</span><span>Công nợ sau khi ghi sẽ là <strong class="num">48.500.000 ₫</strong>, vượt hạn mức khách <strong class="num">40.000.000 ₫</strong> (giá trị mẫu, lấy từ cấu hình khách G2-CRM-02). Cần Quản lý chi nhánh duyệt (G4-APR-02) trước khi giao.</span></div></div>
+    <div class="alert alert--warning" role="status" data-v="approval"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đã gửi đề nghị duyệt giao xe còn nợ lúc 10:48</span><span>Chờ Nguyễn Thị Thu Hà (Quản lý chi nhánh). Bạn được thông báo khi có kết quả; không giao xe trước khi được duyệt.</span></div></div>
+    <div class="alert alert--success" role="status" data-v="readonly"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã bàn giao lúc 11:06</span><span>Biên bản giao xe có chữ ký khách đã lưu. Lệnh Hoàn tất, chỉ đọc. <a href="g2-dlv-04.html?v=done">Xem biên bản</a> · <a href="g2-dlv-05.html">Bảo hành của xe</a></span></div></div>
+
+    <div class="g2q-split">
+      <div class="g2q-split__main">
+        <section class="card" aria-labelledby="h-cond">
+          <div class="card__header"><div><h2 class="card__title" id="h-cond">Điều kiện bàn giao</h2><div class="card__subtitle"><span data-v="pending debt-over">Còn 2 điều kiện chưa đạt</span><span data-v="approval">Còn 1 điều kiện: chờ duyệt</span><span data-v="ready debt-ok readonly">Đủ điều kiện</span></div></div></div>
+
+          <div class="g2q-cond"><span class="g2q-cond__ico g2q-cond__ico--ok" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span><div><div class="g2q-cond__title">Kiểm tra chất lượng đã đạt</div><div class="g2q-note">Đạt 11/11 mục · Phạm Quốc Bảo · 10:42 30/10/2026</div></div><span class="g2q-cond__state g2q-cond__state--ok">Đạt</span></div>
+
+          <div class="g2q-cond">
+            <span class="g2q-cond__ico g2q-cond__ico--no" data-v="pending debt-over" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--todo" data-v="approval" aria-hidden="true"><svg class="icon icon--sm"><use href="#clock"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--ok" data-v="ready debt-ok readonly" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span>
+            <div><div class="g2q-cond__title">Đã thu đủ tiền (hoặc ghi công nợ hợp lệ)</div>
+              <div class="g2q-note" data-v="pending">Còn phải thu <strong class="num">2.416.000 ₫</strong> (tổng 2.916.000 ₫, đã đặt cọc 500.000 ₫ - PT-Q7-2610-00302).</div>
+              <div class="g2q-note" data-v="ready readonly">Đã thu đủ 2.916.000 ₫ · PT-Q7-2610-00331 (tiền mặt 2.416.000 ₫ + cọc 500.000 ₫) · Mai Thu Thảo 10:52.</div>
+              <div class="g2q-note" data-v="debt-ok">Ghi công nợ 2.416.000 ₫: công nợ sau ghi 31.200.000 ₫ so với hạn mức 40.000.000 ₫ (giá trị mẫu, lấy từ cấu hình khách). Trong hạn mức, không cần duyệt.</div>
+              <div class="g2q-note" data-v="debt-over approval">Ghi công nợ 2.416.000 ₫: vượt hạn mức khách, cần duyệt.</div></div>
+            <div><span class="g2q-cond__state g2q-cond__state--no" data-v="pending debt-over">Chưa đạt</span><span class="g2q-cond__state g2q-cond__state--todo" data-v="approval">Chờ duyệt</span><span class="g2q-cond__state g2q-cond__state--ok" data-v="ready debt-ok readonly">Đạt</span>
+              <div class="row" style="margin-top:8px" data-v="pending"><a class="btn btn--primary btn--sm" data-show-roles="CV QL TN" href="../g4-finance/g4-acc-01.html">Thu tiền</a><span class="g2q-note" data-show-roles="CH QV QD TK KT">Chỉ Thu ngân thu tiền</span></div>
+              <div class="row" style="margin-top:8px" data-v="debt-over"><button class="btn btn--danger-outline btn--sm" data-open="dlg-debt" data-show-roles="CV QL">Đề nghị duyệt giao xe còn nợ</button></div></div>
+          </div>
+
+          <div class="g2q-cond">
+            <span class="g2q-cond__ico g2q-cond__ico--no" data-v="pending debt-over approval" aria-hidden="true"><svg class="icon icon--sm"><use href="#x"/></svg></span><span class="g2q-cond__ico g2q-cond__ico--ok" data-v="ready debt-ok readonly" aria-hidden="true"><svg class="icon icon--sm"><use href="#check"/></svg></span>
+            <div><div class="g2q-cond__title">Có hóa đơn hợp lệ</div>
+              <div class="g2q-note" data-v="pending debt-over approval">Chưa xuất hóa đơn. Hệ thống chống xuất trùng; trạng thái hóa đơn do nhà cung cấp trả về.</div>
+              <div class="g2q-note" data-v="ready debt-ok readonly">Hóa đơn C26TAA-0001302 phát hành 10:55 · Người mua theo thông tin khách đã khai. <span class="sync"><svg class="icon icon--sm"><use href="#circle-check"/></svg>Đã đồng bộ nhà cung cấp</span></div>
+              <div class="g2q-note" style="margin-top:4px">Khách không lấy hóa đơn: <span class="tag tag--neutral">[Cần xác nhận]</span> chưa có quy định, chưa mở lựa chọn này.</div></div>
+            <div><span class="g2q-cond__state g2q-cond__state--no" data-v="pending debt-over approval">Chưa đạt</span><span class="g2q-cond__state g2q-cond__state--ok" data-v="ready debt-ok readonly">Đạt</span>
+              <div class="row" style="margin-top:8px" data-v="pending debt-over approval"><a class="btn btn--primary btn--sm" data-show-roles="TN KT" href="#">Phát hành hóa đơn</a><span class="g2q-note" data-show-roles="CV QL CH QV QD TK">Thu ngân/Kế toán xuất hóa đơn</span></div></div>
+          </div>
+
+          <div class="g2q-cond"><span class="g2q-cond__ico g2q-cond__ico--todo" aria-hidden="true"><svg class="icon icon--sm"><use href="#package"/></svg></span>
+            <div><div class="g2q-cond__title">Phụ tùng cũ và đồ đạc trong xe</div>
+              <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Đã trả phụ tùng cũ khách yêu cầu giữ (má phanh sau cũ)</span></label>
+              <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Đã trả đồ đạc ghi lúc tiếp nhận: áo mưa, thẻ gửi xe, 1 USB</span></label></div><span></span></div>
+
+          <div class="g2q-cond"><span class="g2q-cond__ico g2q-cond__ico--todo" aria-hidden="true"><svg class="icon icon--sm"><use href="#history"/></svg></span>
+            <div><div class="g2q-cond__title">Hạng mục khách từ chối, nhắc lần sau</div>
+              <div class="g2q-note">“Thay lốp trước” (từ chối 28/10/2026). <a href="g2-quo-08.html">Xem danh sách lưu nhắc</a></div>
+              <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Giữ nhắc khi xe vào lại</span></label></div><span></span></div>
+
+          <div class="g2q-cond"><span class="g2q-cond__ico g2q-cond__ico--todo" aria-hidden="true"><svg class="icon icon--sm"><use href="#calendar"/></svg></span>
+            <div><div class="g2q-cond__title">Lịch nhắc kế tiếp</div>
+              <div class="form-grid" style="margin-top:8px"><div class="field"><label class="field__label" for="nh1">Nhắc bảo dưỡng sau</label><select id="nh1" class="select"><option>5.000 km hoặc 6 tháng (theo cấu hình)</option><option>10.000 km</option></select></div><div class="field"><label class="field__label" for="nh2">Dự kiến ngày nhắc</label><input id="nh2" class="input" value="30/04/2027" readonly><span class="field__hint">Tính từ ngày giao; chỉ gửi qua kênh khách đã đồng ý.</span></div></div></div><span></span></div>
+        </section>
+
+        <div class="g2q-sticky-foot" role="region" aria-label="Bàn giao xe" data-vx="readonly">
+          <span class="g2q-note" data-v="pending debt-over"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#lock"/></svg> Chưa bàn giao được: <span data-v="pending">chưa thu đủ tiền và chưa có hóa đơn.</span><span data-v="debt-over">chưa có hóa đơn và công nợ vượt hạn mức chưa được duyệt.</span></span>
+          <span class="g2q-note" data-v="approval"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#lock"/></svg> Chưa bàn giao được: chờ duyệt giao xe còn nợ và chưa có hóa đơn.</span>
+          <span class="g2q-note text-success" data-v="ready debt-ok"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#circle-check"/></svg> Đủ điều kiện bàn giao.</span>
+          <div class="row">
+            <span data-show-roles="CV QL" class="row"><a class="btn btn--primary btn--xl" href="g2-dlv-04.html" data-v="ready debt-ok">Bàn giao xe<svg class="icon"><use href="#arrow-right"/></svg></a>
+              <span class="tooltip-host" data-v="pending debt-over approval"><button class="btn btn--primary btn--xl" aria-disabled="true" aria-describedby="why-hand"><svg class="icon"><use href="#lock"/></svg>Bàn giao xe</button><span class="tooltip" role="tooltip" id="why-hand">Chưa đủ điều kiện bàn giao. Xem các dòng có dấu X hoặc chờ duyệt ở trên.</span></span></span>
+            <span data-show-roles="CH QV QD TN KT TK" class="tooltip-host"><button class="btn btn--primary btn--xl" aria-disabled="true" aria-describedby="why-role"><svg class="icon"><use href="#lock"/></svg>Bàn giao xe</button><span class="tooltip" role="tooltip" id="why-role">Chỉ Cố vấn dịch vụ và Quản lý chi nhánh bàn giao xe; vai trò của bạn chỉ xem.</span></span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="g2q-split__side">
+        <section class="card"><div class="card__header"><h2 class="card__title">Tiền của lệnh</h2></div><div class="g2q-totals">
+          <div class="g2q-totals__row"><span>Cộng trước thuế</span><span>2.700.000 ₫</span></div><div class="g2q-totals__row"><span>Thuế GTGT 8% (số mẫu)</span><span>216.000 ₫</span></div><div class="g2q-totals__row g2q-totals__row--final"><span>Tổng lệnh</span><span>2.916.000 ₫</span></div>
+          <div class="g2q-totals__row g2q-totals__row--sub"><span>Đã thu (cọc)</span><span>500.000 ₫</span></div>
+          <div class="g2q-totals__row g2q-totals__row--ok" data-v="pending debt-over approval"><span>Còn phải thu</span><span>2.416.000 ₫</span></div><div class="g2q-totals__row g2q-totals__row--ok" data-v="ready readonly"><span>Còn phải thu</span><span>0 ₫</span></div><div class="g2q-totals__row g2q-totals__row--ok" data-v="debt-ok"><span>Ghi công nợ</span><span>2.416.000 ₫</span></div></div></section>
+        <section class="card"><div class="card__header"><h2 class="card__title">Bảo hành sẽ in trên biên bản</h2></div><div class="g2q-links"><div class="g2q-links__item"><span>Thay dầu và lọc dầu<span class="g2q-links__type">Theo cấu hình hạng mục</span></span><span class="tag">5.000 km / 6 tháng</span></div><div class="g2q-links__item"><span>Thay má phanh sau<span class="g2q-links__type">Theo cấu hình hạng mục</span></span><span class="tag">6 tháng</span></div><div class="g2q-links__item"><span>Cân chỉnh góc đặt bánh<span class="g2q-links__type">Theo cấu hình hạng mục</span></span><span class="tag">30 ngày</span></div></div></section>
+      </aside>
+    </div>
+  </div>
+</div>
+<script>g2q.end();</script>
+
+<div class="overlay" id="dlg-debt" role="alertdialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dd-t">Đề nghị duyệt giao xe còn nợ?</h2></div></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Công nợ sau khi ghi: 48.500.000 ₫, vượt hạn mức khách 40.000.000 ₫ (số mẫu, theo cấu hình).</li><li>Đề nghị gửi Quản lý chi nhánh duyệt ở G4-APR-02; chưa giao xe trước khi được duyệt.</li><li>Hành động ghi vào nhật ký.</li></ul>
+    <div class="field"><label class="field__label" for="dd-r">Lý do đề nghị <span class="field__req">*</span></label><textarea id="dd-r" class="textarea" data-confirm-reason placeholder="Ví dụ: khách thanh toán cuối tháng theo hợp đồng"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-set="approval" data-for="hd" data-toast="info|Đã gửi đề nghị duyệt|Chờ Quản lý chi nhánh duyệt. Chưa giao xe.">Gửi đề nghị</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

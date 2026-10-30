@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-14 · Nhận hàng chuyển kho và biên bản chênh lệch – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-14')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Nhận hàng chuyển kho <span class="code">CK-TD-2610-00014</span></h1><p class="page-header__desc">Thủ Đức → Quận 7 · gửi 29/10/2026 bởi Nguyễn Hữu Tài · dự kiến đến 31/10/2026</p></div>
+  <div class="page-header__actions"><span class="badge badge--info badge--lg">Đang vận chuyển</span><a class="btn btn--secondary" href="g3-inv-12.html">Về danh sách</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span> (bên nhận)</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="phiếu chuyển kho" data-g3-states="data:Đang nhận;received:Đã nhận đủ;loading;notfound;error;denied" data-skel="detail" data-back="g3-inv-12.html">
+<div data-g3-state="data" class="stack">
+  <div class="g3-ro-flag alert alert--info" data-for="f-rcv" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Thủ kho bên nhận xác nhận số lượng; Quản lý chi nhánh duyệt cách xử lý chênh lệch.</span></div></div>
+  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chênh lệch 1 đơn vị: nhận 9 so với gửi 10 (Má phanh trước Accent)</span><span>Không thể “Xác nhận nhận đủ”. Ghi biên bản chênh lệch để Quản lý chi nhánh duyệt cách xử lý. Phần chênh lệch treo trên hàng đang vận chuyển, chưa vào Khả dụng.</span></div></div>
+  <form id="f-rcv" class="g3-split" data-g3-edit="TK" onsubmit="return false">
+    <div class="stack-6">
+      <section class="card" aria-labelledby="h1"><div class="card__header"><h2 class="card__title" id="h1">Số gửi so với số nhận</h2><span class="table-meta">Quét mã hoặc nhập số đếm</span></div>
+        <div class="table-scroll" data-g3-scan-target><table class="table"><caption class="sr-only">So sánh số lượng gửi và nhận từng dòng</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Số gửi</th><th class="col-num">Số nhận</th><th class="col-num">Chênh lệch</th><th>Tình trạng</th></tr></thead><tbody>
+          <tr class="g3-row--flag" data-barcode="8935001230029"><td><span class="code">PT-0002</span> <span data-name>Má phanh trước Hyundai Accent</span></td><td class="col-num">10</td><td class="col-num"><div class="qty" role="group" aria-label="Số nhận PT-0002"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="9" min="0" max="10" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num"><span class="g3-var g3-var--over">−1 (thiếu)</span></td><td><select class="select" aria-label="Tình trạng PT-0002" style="min-width:140px"><option>Nguyên vẹn</option><option>Hỏng khi vận chuyển</option></select></td></tr>
+          <tr data-barcode="8935001230081"><td><span class="code">PT-0008</span> <span data-name>Dây curoa tổng Kia Morning</span></td><td class="col-num">6</td><td class="col-num"><div class="qty" role="group" aria-label="Số nhận PT-0008"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="6" min="0" max="6" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num"><span class="g3-var g3-var--ok">0</span></td><td><select class="select" aria-label="Tình trạng PT-0008" style="min-width:140px"><option>Nguyên vẹn</option><option>Hỏng khi vận chuyển</option></select></td></tr></tbody></table></div></section>
+
+      <section class="form-section" aria-labelledby="h2"><h2 class="card__title" id="h2" style="margin-bottom:16px">Biên bản chênh lệch</h2>
+        <div class="field"><label class="field__label" for="b-note">Ghi chú<span class="field__req" aria-hidden="true">*</span></label><textarea id="b-note" class="textarea">Thùng bị móp, thiếu 1 bộ má phanh so với phiếu gửi.</textarea><span class="field__hint">Bắt buộc khi có chênh lệch, tối thiểu 5 ký tự.</span></div>
+        <div data-upload style="margin-top:16px"><div class="upload"><svg class="icon icon--xl" aria-hidden="true"><use href="#camera"/></svg><div class="t-heading-sm">Ảnh thùng hàng và hàng thiếu/hỏng</div><p class="text-secondary">Chụp bằng camera hoặc chọn từ máy.</p><div class="upload__actions"><button type="button" class="btn btn--primary" data-upload-pick="camera"><svg class="icon"><use href="#camera"/></svg>Chụp ảnh</button><button type="button" class="btn btn--secondary" data-upload-pick="file"><svg class="icon"><use href="#upload"/></svg>Chọn ảnh</button></div><input type="file" accept="image/*" multiple hidden><input type="file" accept="image/*" capture="environment" hidden></div><div class="upload__thumbs" aria-live="polite"></div></div></section>
+    </div>
+    <aside class="g3-side">
+      <section class="card"><div class="card__header"><h2 class="card__title">Quét mã vạch bằng camera</h2></div><div class="card__body" data-g3-keep><div data-g3-scan></div></div></section>
+      <section class="card"><div class="card__body stack">
+        <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-diff" data-g3-need="TK" data-g3-why="Chỉ Thủ kho bên nhận ghi nhận hàng.">Ghi nhận chênh lệch và gửi duyệt</button>
+        <div><button class="btn btn--secondary btn--lg btn--block" type="button" disabled aria-disabled="true" aria-describedby="why-ok">Xác nhận nhận đủ</button><span class="g3-why" id="why-ok">Chưa dùng được: còn chênh lệch −1 ở PT-0002. Chỉ đóng phiếu khi bên nhận xác nhận.</span></div></div></section>
+      <section class="card"><div class="card__header"><h2 class="card__title">Tiến trình</h2></div><div class="card__body"><div class="timeline">
+        <div class="timeline__item timeline__item--info"><div class="timeline__dot"><svg class="icon"><use href="#truck"/></svg></div><div><div class="timeline__title">Đang vận chuyển</div><div class="timeline__meta">Nguyễn Hữu Tài (Thủ Đức) · 29/10/2026 15:30</div></div></div>
+        <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Duyệt gửi hàng</div><div class="timeline__meta">Chủ garage · 29/10/2026 14:50</div></div></div></div></div></section>
+    </aside>
+  </form>
+</div>
+
+<div data-g3-state="received" class="stack" hidden>
+  <div class="alert alert--success" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã nhận đủ lúc 09:42 · phiếu đã đóng</span><span>16 đơn vị đã vào Khả dụng của Kho Quận 7. Thẻ kho ghi cả hai chi nhánh. Phiếu chỉ đọc.</span></div></div>
+  <div class="card"><div class="card__body"><dl class="g3-kv"><div><dt>Trạng thái</dt><dd><span class="badge badge--success">Đã nhận</span> <span class="tag tag--neutral">Đã đóng</span></dd></div><div><dt>Người nhận</dt><dd>Trần Thị Mai Anh</dd></div><div><dt>Số gửi / nhận</dt><dd class="num">16 / 16</dd></div></dl></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-diff" role="alertdialog" aria-modal="true" aria-labelledby="df-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="df-t">Ghi nhận nhận thiếu 1 Má phanh?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Nhận 15 đơn vị vào Khả dụng Kho Quận 7; 1 đơn vị chênh lệch treo trên hàng đang vận chuyển.</li><li>Quản lý chi nhánh duyệt cách xử lý (chờ hàng bù, ghi nhận mất/hỏng, điều chỉnh với bên gửi).</li><li>Biên bản và ảnh được lưu, không xóa được.</li></ul>
+    <div class="field"><label class="field__label" for="df-r">Tóm tắt gửi Quản lý<span class="field__req" aria-hidden="true">*</span></label><textarea id="df-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="warning|Đã gửi biên bản|Chờ Đặng Hữu Phúc xử lý chênh lệch CK-TD-2610-00014." disabled>Gửi biên bản</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

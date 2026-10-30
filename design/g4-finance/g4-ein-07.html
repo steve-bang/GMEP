@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-EIN-07 · Tình trạng kết nối nhà cung cấp hóa đơn · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--secondary" data-open="drw-log"><svg class="icon"><use href="#history"/></svg>Nhật ký gọi</button>
+    <button class="btn btn--primary" id="btn-test" data-toast="success|Kiểm tra kết nối xong|Nhà cung cấp phản hồi trong 0,8 giây." data-g4f-need="AD KT" data-g4f-why="Quản trị hệ thống và Kế toán kiểm tra kết nối."><svg class="icon"><use href="#refresh"/></svg>Kiểm tra kết nối</button>
+  </div>
+
+  <!-- Trạng thái mặc định: chưa chọn nhà cung cấp -->
+  <div data-state="inactive" data-label="Chưa kích hoạt (chưa chọn NCC)">
+    <div class="g4f-two">
+      <section class="card" aria-labelledby="h-in">
+        <div class="card__body stack">
+          <div class="row"><span class="tag tag--neutral" style="font-size:14px">Chưa kích hoạt</span></div>
+          <h2 class="card__title" id="h-in">Chưa chọn nhà cung cấp hóa đơn điện tử</h2>
+          <p style="margin:0">Hệ thống dùng lớp tích hợp thay được nhà cung cấp (FR-EIN-004) và <strong>chưa gắn với nhà cung cấp nào</strong>. Khi chưa kích hoạt:</p>
+          <ul class="impact-list"><li><strong>Không làm được:</strong> phát hành, điều chỉnh, thay thế, hủy hóa đơn; đồng bộ trạng thái; gửi hóa đơn cho khách.</li><li><strong>Vẫn làm bình thường:</strong> tiếp nhận, báo giá, lệnh, thu tiền, giao xe, chốt ca. Lệnh hoàn tất vẫn vào danh sách “chưa có hóa đơn” để phát hành bù sau.</li></ul>
+          <h3 class="g4f-section-title" style="font-size:16px;margin:0">Các bước kích hoạt</h3>
+          <ul class="g4f-checks">
+            <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">1. Chủ garage chọn nhà cung cấp</div><div class="g4f-checks__sub">Quyết định kinh doanh, ngoài hệ thống</div></div><span class="tag tag--neutral">Chưa làm</span></li>
+            <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">2. Quản trị hệ thống nhập thông tin kết nối (môi trường thử)</div></div><span class="tag tag--neutral">Chưa làm</span></li>
+            <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">3. Kiểm tra kết nối và phát hành thử</div></div><span class="tag tag--neutral">Chưa làm</span></li>
+            <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">4. Cấu hình đơn vị phát hành, ký hiệu</div><div class="g4f-checks__sub"><a href="g4-ein-08.html">G4-EIN-08</a></div></div><span class="tag tag--neutral">Chưa làm</span></li>
+            <li class="is-wait"><span class="g4f-checks__ic"><svg class="icon"><use href="#clock"/></svg></span><div><div class="g4f-checks__title">5. Chuyển sang môi trường thật (có xác nhận)</div></div><span class="tag tag--neutral">Chưa làm</span></li>
+          </ul>
+        </div>
+      </section>
+      <aside class="g4f-aside"><section class="card"><div class="card__header"><h2 class="card__title">Ảnh hưởng hiện tại</h2></div><div class="card__body"><dl class="g4f-sum"><div><dt>Lệnh hoàn tất chưa có hóa đơn</dt><dd><a href="g4-ein-05.html">3 lệnh</a></dd></div><div><dt>Yêu cầu phát hành đang chờ</dt><dd>0</dd></div><div><dt>Môi trường</dt><dd>—</dd></div><div><dt>Lần đồng bộ cuối</dt><dd>—</dd></div></dl></div></section></aside>
+    </div>
+  </div>
+
+  <!-- Đã kết nối -->
+  <section aria-label="Tình trạng kết nối"><div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#check"/></svg>Kết nối</span><span class="kpi__value" style="font-size:24px">Bình thường</span><span class="kpi__meta">Phản hồi 0,8 giây · kiểm tra 09:12</span></div>
+    <div class="card kpi"><span class="kpi__label">Môi trường</span><span class="kpi__value" style="font-size:24px">Thử nghiệm</span><span class="kpi__meta">Hóa đơn thử không có giá trị pháp lý</span></div>
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#refresh"/></svg>Đồng bộ trạng thái cuối</span><span class="kpi__value" style="font-size:24px">09:12</span><span class="kpi__meta">30/10/2026 · mỗi 5 phút (cấu hình)</span></div>
+    <a class="card kpi kpi--danger" href="g4-ein-06.html"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Hóa đơn lỗi</span><span class="kpi__value">02</span><span class="kpi__meta">Xem hàng chờ lỗi</span></a>
+  </div></section>
+  <div class="g4f-two g4f-two--even">
+    <section class="card"><div class="card__header"><h2 class="card__title">Môi trường</h2></div><div class="card__body stack">
+      <div class="segmented" role="group" aria-label="Môi trường hiện tại"><button class="segmented__item" aria-pressed="true">Thử</button><button class="segmented__item" aria-pressed="false" disabled>Thật</button></div>
+      <p class="t-body-sm text-secondary" style="margin:0">Môi trường thử và thật tách biệt hoàn toàn (khóa kết nối, hóa đơn, số). Chuyển sang môi trường thật do Quản trị hệ thống làm và cần Chủ garage duyệt.</p>
+      <button class="btn btn--danger-outline" data-open="dlg-env" data-g4f-need="AD" data-g4f-why="Chỉ Quản trị hệ thống đổi môi trường; Kế toán chỉ xem."><svg class="icon"><use href="#alert-triangle"/></svg>Chuyển sang môi trường thật</button></div></section>
+    <section class="card"><div class="card__header"><h2 class="card__title">Chứng thư và khóa kết nối</h2></div><div class="card__body"><dl class="g4f-sum"><div><dt>Hạn chứng thư số</dt><dd>còn 214 ngày</dd></div><div><dt>Khóa API</dt><dd>Hiệu lực</dd></div><div><dt>Cảnh báo trước hạn</dt><dd>30 ngày <span class="g4f-sample">cấu hình</span></dd></div></dl></div></section>
+  </div>
+
+  <div data-state="degraded" data-label="Mất kết nối nhà cung cấp" hidden>
+    <div class="alert alert--danger" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Không kết nối được nhà cung cấp từ 08:40</span><span>Hệ thống vẫn nhận yêu cầu phát hành và giữ trong hàng chờ; không mất yêu cầu nào. Hiện có 3 yêu cầu đang chờ. Kế toán đã nhận thông báo “Cần xử lý”. Khi kết nối lại, hệ thống truy vấn trạng thái trước rồi mới gửi.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g4-ein-06.html">Mở hàng chờ</a></div></div></div>
+  </div>
+</div>
+
+<div class="overlay overlay--drawer" id="drw-log" role="dialog" aria-modal="true" aria-labelledby="lg-t"><aside class="drawer" style="max-width:560px">
+  <div class="card__header"><div><h2 class="card__title" id="lg-t">Nhật ký gọi nhà cung cấp</h2><div class="card__subtitle">Không hiện khóa bí mật; lưu theo thời gian</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Giờ</th><th>Yêu cầu</th><th>Kết quả</th></tr></thead><tbody>
+    <tr><td class="num">09:12</td><td>Đồng bộ trạng thái</td><td><span class="tag tag--success">200 · 0,8 s</span></td></tr>
+    <tr><td class="num">09:02</td><td class="code">Phát hành YC-EIN-00230</td><td><span class="tag tag--success">Thành công</span></td></tr>
+    <tr><td class="num">08:58</td><td class="code">Phát hành YC-EIN-00229</td><td><span class="tag tag--success">Thành công</span></td></tr>
+    <tr><td class="num">08:55</td><td class="code">Phát hành YC-EIN-00233</td><td><span class="tag tag--warning">Timeout 30 s</span></td></tr></tbody></table></div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button></div></aside></div>
+
+<div class="overlay" id="dlg-env" role="alertdialog" aria-modal="true" aria-labelledby="ev-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="MÔI TRƯỜNG THẬT">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="ev-t">Chuyển sang môi trường thật?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Từ lúc chuyển, mọi hóa đơn phát hành có giá trị pháp lý và gửi cơ quan thuế.</li><li>Không quay lại môi trường thử cho cùng ký hiệu; hóa đơn sai phải điều chỉnh/thay thế/hủy có duyệt.</li><li>Cần Chủ garage đã duyệt và đã kiểm tra đơn vị phát hành ở G4-EIN-08.</li></ul>
+    <div class="field"><label class="field__label" for="ev-r">Lý do, người duyệt<span class="field__req" aria-hidden="true">*</span></label><textarea id="ev-r" class="textarea" data-confirm-reason></textarea></div>
+    <div class="field"><label class="field__label" for="ev-c">Gõ <strong>MÔI TRƯỜNG THẬT</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="ev-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ môi trường thử</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi yêu cầu chuyển môi trường|Chờ Chủ garage duyệt." disabled>Gửi yêu cầu chuyển</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-EIN-07', title: 'Tình trạng kết nối nhà cung cấp hóa đơn', desc: 'Môi trường, trạng thái kết nối, đồng bộ cuối và hóa đơn lỗi; không gắn tên nhà cung cấp cố định.',
+  menu: 'einv', role: 'AD', allow: ['AD', 'KT', 'CH', 'QV'], updated: '09:15', time: 'hiện tại',
+  states: ['inactive', 'data', 'degraded', 'loading', 'error', 'denied'], dataLabel: 'Đã kết nối (môi trường thử)'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

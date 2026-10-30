@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-19 · Bảng giá phụ tùng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-19')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Bảng giá phụ tùng</h1><p class="page-header__desc">Giá niêm yết chuẩn toàn hệ thống, có ngày hiệu lực và phiên bản. Giá vốn, giá niêm yết và giá bán thực tế là ba giá riêng.</p></div>
+  <div class="page-header__actions">
+    <button class="btn btn--secondary" data-open="dlg-bulk" data-g3-need="TK" data-g3-why="Chỉ Thủ kho soạn đổi giá hàng loạt; Chủ garage duyệt."><svg class="icon"><use href="#upload"/></svg>Đổi giá hàng loạt…</button>
+    <button class="btn btn--primary" data-open="drw-price" data-g3-need="TK" data-g3-why="Chỉ Thủ kho lưu phiên bản giá mới; Chủ garage duyệt."><svg class="icon"><use href="#plus"/></svg>Phiên bản giá mới</button>
+  </div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> bảng giá <strong>toàn chuỗi</strong> (áp dụng cho mọi chi nhánh)</span><span>· Hiệu lực tính đến 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="bảng giá phụ tùng" data-cols="8" data-empty-icon="receipt" data-empty-text="Chưa có giá niêm yết. Nhập bảng giá từ Excel hoặc tạo phiên bản giá đầu tiên cho từng phụ tùng." data-empty-cta="Phiên bản giá mới">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--info" role="note"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Đổi giá chỉ áp dụng cho báo giá lập sau ngày hiệu lực. <strong>Báo giá đã gửi giữ nguyên phiên bản giá cũ</strong> (BR-INV-13). Giá thực tế mỗi báo giá nằm trong hạn mức giảm của chi nhánh.</span></div></div>
+  <div class="table-wrap">
+    <div class="table-toolbar"><div class="input-group" style="flex:1 1 260px;max-width:360px"><svg class="icon"><use href="#search"/></svg><input class="input" placeholder="Tìm mã, tên phụ tùng…" aria-label="Tìm trong bảng giá"></div><span class="table-meta" style="margin-left:auto">8 phụ tùng · 2 giá sắp hiệu lực</span></div>
+    <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> phụ tùng</span><button class="btn btn--secondary btn--sm" data-open="dlg-bulk">Đổi giá hàng loạt…</button><button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
+    <div class="table-scroll"><table class="table" data-g3-cards>
+      <caption class="sr-only">Giá niêm yết hiện hành và giá sắp hiệu lực</caption>
+      <thead><tr><th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th><th data-card="title">Mã</th><th data-card="sub">Phụ tùng</th><th class="col-num">Giá vốn</th><th class="col-num" data-card="foot">Niêm yết hiện hành</th><th data-card="meta">Hiệu lực từ</th><th data-card="meta">Phiên bản</th><th data-card="badge">Giá kế tiếp</th><th class="col-actions"><span class="sr-only">Lịch sử</span></th></tr></thead>
+      <tbody>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0001"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0001</td><td>Lọc dầu động cơ Toyota Vios</td><td class="col-num"><span data-g3-cost="118.000 ₫"></span></td><td class="col-num">185.000 ₫</td><td class="num">01/10/2026</td><td>v3</td><td><span class="text-secondary">Không có</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-hist" aria-label="Lịch sử giá PT-0001"><svg class="icon"><use href="#history"/></svg></button></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0002"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0002</td><td>Má phanh trước Hyundai Accent</td><td class="col-num"><span data-g3-cost="410.000 ₫"></span></td><td class="col-num">620.000 ₫</td><td class="num">01/10/2026</td><td>v3</td><td><span class="badge badge--info">640.000 ₫ từ 01/11/2026</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-hist" aria-label="Lịch sử giá PT-0002"><svg class="icon"><use href="#history"/></svg></button></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0003"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0003</td><td>Dầu nhớt Castrol 5W-30 (can 4 lít)</td><td class="col-num"><span data-g3-cost="890.000 ₫"></span></td><td class="col-num">1.250.000 ₫</td><td class="num">15/09/2026</td><td>v2</td><td><span class="badge badge--warning">1.290.000 ₫ từ 05/11/2026 · Chờ Chủ garage duyệt</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-hist" aria-label="Lịch sử giá PT-0003"><svg class="icon"><use href="#history"/></svg></button></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0005"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0005</td><td>Lốp Michelin Primacy 4 205/55R16</td><td class="col-num"><span data-g3-cost="1.780.000 ₫"></span></td><td class="col-num">2.350.000 ₫</td><td class="num">01/08/2026</td><td>v4</td><td><span class="text-secondary">Không có</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-hist" aria-label="Lịch sử giá PT-0005"><svg class="icon"><use href="#history"/></svg></button></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0006"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code">PT-0006</td><td>Nước làm mát Prestone 1 lít</td><td class="col-num"><span data-g3-cost="62.000 ₫"></span></td><td class="col-num">98.000 ₫</td><td class="num">01/07/2026</td><td>v1</td><td><span class="text-secondary">Không có</span></td><td class="col-actions"><button class="btn-icon" data-open="drw-hist" aria-label="Lịch sử giá PT-0006"><svg class="icon"><use href="#history"/></svg></button></td></tr>
+      </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 5 phụ tùng đại diện</span></div>
+  </div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay overlay--drawer" id="drw-price" role="dialog" aria-modal="true" aria-labelledby="dp-t"><aside class="drawer">
+  <div class="card__header"><div><h2 class="card__title" id="dp-t">Phiên bản giá mới</h2><div class="card__subtitle">PT-0002 Má phanh trước Hyundai Accent</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body stack">
+    <div class="field"><label class="field__label" for="dp-p">Giá niêm yết mới<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="dp-p" class="input input--num" value="640.000" inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div><span class="field__hint">Hiện hành 620.000 ₫ (v3). Tăng 3,2%.</span></div>
+    <div class="field"><label class="field__label" for="dp-d">Ngày hiệu lực<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="dp-d" class="input" value="01/11/2026"><svg class="icon"><use href="#calendar"/></svg></div><span class="field__hint">Chỉ chọn ngày sau hôm nay; giá mới không tác động báo giá đã gửi.</span></div>
+    <div class="alert alert--danger" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Xung đột ngày hiệu lực (ví dụ)</span><span>Đã có phiên bản v4 hiệu lực 01/11/2026 đang chờ duyệt. Chọn ngày khác hoặc thay thế phiên bản chờ duyệt.</span></div></div>
+    <div class="field"><label class="field__label" for="dp-r">Lý do thay đổi<span class="field__req" aria-hidden="true">*</span></label><textarea id="dp-r" class="textarea" placeholder="Ví dụ: nhà cung cấp tăng giá nhập 2%"></textarea></div></div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi Chủ garage duyệt|Phiên bản v4 PT-0002 hiệu lực 01/11/2026 chờ duyệt.">Lưu và gửi duyệt</button></div></aside></div>
+
+<div class="overlay overlay--drawer" id="drw-hist" role="dialog" aria-modal="true" aria-labelledby="dh-t"><aside class="drawer">
+  <div class="card__header"><div><h2 class="card__title" id="dh-t">Lịch sử giá</h2><div class="card__subtitle">PT-0003 Dầu nhớt Castrol 5W-30 (can 4 lít)</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__body"><div class="timeline">
+    <div class="timeline__item timeline__item--warning"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">v3 · 1.290.000 ₫ · hiệu lực 05/11/2026</div><div class="timeline__meta">Trần Thị Mai Anh · 29/10/2026 16:40 · Chờ Chủ garage duyệt</div><div class="timeline__note">Lý do: giá nhập từ Đại Phát tăng.</div></div></div>
+    <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">v2 · 1.250.000 ₫ · hiệu lực 15/09/2026 (hiện hành)</div><div class="timeline__meta">Trần Hoàng Anh duyệt · 12/09/2026</div></div></div>
+    <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#history"/></svg></div><div><div class="timeline__title">v1 · 1.190.000 ₫ · 01/07/2026 – 14/09/2026</div><div class="timeline__meta">Nhập dữ liệu ban đầu</div></div></div></div></div>
+  <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" data-close data-toast="success|Đã duyệt giá|v3 hiệu lực 05/11/2026." data-g3-need="CH" data-g3-why="Chỉ Chủ garage duyệt phiên bản giá.">Duyệt phiên bản v3</button></div></aside></div>
+
+<div class="overlay" id="dlg-bulk" role="alertdialog" aria-modal="true" aria-labelledby="db-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="db-t">Đổi giá niêm yết hàng loạt</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="form-grid"><div class="field"><label class="field__label" for="db-p">Tăng/giảm theo %<span class="field__req" aria-hidden="true">*</span></label><input id="db-p" class="input input--num" value="3" inputmode="decimal"></div><div class="field"><label class="field__label" for="db-d">Ngày hiệu lực<span class="field__req" aria-hidden="true">*</span></label><div class="input-group date-field"><input id="db-d" class="input" value="01/11/2026"><svg class="icon"><use href="#calendar"/></svg></div></div></div>
+    <div class="table-wrap"><table class="table table--compact"><caption class="sr-only">Xem trước giá sau khi đổi</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Hiện hành</th><th class="col-num">Mới (+3%)</th></tr></thead><tbody><tr><td>PT-0001 Lọc dầu Vios</td><td class="col-num">185.000 ₫</td><td class="col-num">190.550 ₫</td></tr><tr><td>PT-0006 Nước làm mát</td><td class="col-num">98.000 ₫</td><td class="col-num">100.940 ₫</td></tr></tbody></table></div>
+    <ul class="impact-list"><li>Chỉ ảnh hưởng báo giá lập từ ngày hiệu lực; báo giá đã gửi giữ giá cũ.</li><li>Cần Chủ garage duyệt trước khi có hiệu lực. Thay đổi được ghi nhật ký.</li></ul>
+    <div class="field"><label class="field__label" for="db-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="db-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="info|Đã gửi duyệt|Đổi giá 3% cho 2 phụ tùng chờ Chủ garage duyệt." disabled>Gửi Chủ garage duyệt</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

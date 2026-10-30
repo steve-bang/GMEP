@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-SHL-01 · Khung ứng dụng theo vai trò – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-role="QL" data-g1-menu="dash" data-crumb="Khung ứng dụng (mẫu)" data-period="today" data-multirole="QL,CV">
+<div id="g1-content" hidden>
+  <div class="alert alert--warning alert--banner" id="bn-lock" role="status" hidden style="border-radius:var(--radius-md);border-width:1px"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span><strong>Chi nhánh Thủ Đức đang khóa sổ cuối kỳ.</strong> Bạn chỉ xem được. Nút tạo, sửa, duyệt bị tắt và có ghi lý do.</span></div></div>
+  <div class="alert alert--info alert--banner" id="bn-session" role="status" hidden style="border-radius:var(--radius-md);border-width:1px"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span><strong>Phiên sắp hết.</strong> Màn hình sẽ khóa sau <strong class="num">01:00</strong> nếu bạn không thao tác. Nháp luôn được giữ. <a href="g1-aut-09.html">Xem màn hình khóa</a></span></div></div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Khung ứng dụng theo vai trò</h1>
+      <p class="page-header__desc">Màn hình mẫu của Application Shell (template A). Mọi màn hình nghiệp vụ dùng khung này. Đổi vai trò ở menu tài khoản để thấy menu thay đổi.</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--primary" id="demo-create" aria-describedby="demo-why"><svg class="icon"><use href="#plus"/></svg>Tạo phiếu sửa chữa</button>
+    </div>
+  </div>
+  <p class="g1-note" id="demo-why" hidden><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg> Không tạo được: chi nhánh Thủ Đức đang khóa sổ (FR-SYS-011). Chọn chi nhánh khác hoặc nhờ quản trị mở khóa.</p>
+
+  <section class="card" aria-labelledby="h-try">
+    <div class="card__header"><div><h2 class="card__title" id="h-try">Thử các trạng thái của khung</h2><div class="card__subtitle">Chỉ dùng để xem thiết kế</div></div></div>
+    <div class="card__body row">
+      <button class="btn btn--secondary" data-toggle-offline><svg class="icon"><use href="#wifi-off"/></svg>Mất kết nối</button>
+      <button class="btn btn--secondary" id="t-lock" aria-pressed="false"><svg class="icon"><use href="#lock"/></svg>Chi nhánh bị khóa</button>
+      <button class="btn btn--secondary" id="t-session" aria-pressed="false"><svg class="icon"><use href="#clock"/></svg>Phiên sắp hết</button>
+      <button class="btn btn--secondary" data-toggle-draft aria-pressed="false"><svg class="icon"><use href="#pencil"/></svg><span>Thử: đang soạn phiếu</span></button>
+      <button class="btn btn--secondary" data-legal-toggle role="switch" aria-checked="false"><svg class="icon"><use href="#settings"/></svg>Nhiều pháp nhân</button>
+    </div>
+    <div class="card__footer"><span class="g1-note">“Đang soạn phiếu” rồi đổi chi nhánh hoặc chọn Đăng xuất để thấy hộp thoại giữ nháp. “Nhiều pháp nhân” hiện bộ lọc Pháp nhân (ẩn khi chỉ có một).</span></div>
+  </section>
+
+  <div class="g1-shl-demo">
+    <section class="card" aria-labelledby="h-z"><div class="card__header"><h2 class="card__title" id="h-z">Các vùng của khung</h2></div>
+      <div class="card__body"><dl class="g1-kv">
+        <dt>Thanh bên</dt><dd>248px, thu gọn 72px (ghi nhớ). Chỉ hiện mục có quyền; mục “Chỉ xem / Của tôi / Hệ thống” có nhãn nhỏ.</dd>
+        <dt>Thanh trên</dt><dd>64px: Phạm vi dữ liệu (3 cấp), tìm kiếm Ctrl K, thông báo, tài khoản.</dd>
+        <dt>Đường dẫn và tiêu đề</dt><dd>Breadcrumb, tiêu đề trang, hành động chính.</dd>
+        <dt>Dải phạm vi</dt><dd>Luôn hiện chi nhánh, kỳ và thời điểm cập nhật (RULE-015).</dd>
+      </dl></div></section>
+    <section class="card" aria-labelledby="h-r"><div class="card__header"><h2 class="card__title" id="h-r">Đáp ứng thiết bị</h2></div>
+      <div class="card__body"><dl class="g1-kv">
+        <dt>1024 trở lên</dt><dd>Sidebar đầy đủ hoặc thu gọn.</dd>
+        <dt>640–1023 (tablet)</dt><dd>Sidebar tự thu gọn 72px; mọi control ≥ 44px.</dd>
+        <dt>Dưới 640 (điện thoại)</dt><dd>Sidebar thành ngăn kéo; thanh điều hướng dưới (mục theo quyền) và nút Thêm; ô tìm kiếm thu thành biểu tượng.</dd>
+        <dt>Người nhiều vai trò</dt><dd>Vào bằng vai trò cao nhất; đổi “Góc nhìn vai trò” ở menu tài khoản, không cộng dồn thẻ.</dd>
+      </dl></div></section>
+  </div>
+</div>
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+<script>
+(function () {
+  var cr = document.getElementById('demo-create'), why = document.getElementById('demo-why');
+  function sync() {
+    var locked = document.getElementById('t-lock').getAttribute('aria-pressed') === 'true';
+    document.getElementById('bn-lock').hidden = !locked; why.hidden = !locked; cr.disabled = locked;
+  }
+  document.getElementById('t-lock').addEventListener('click', function () { this.setAttribute('aria-pressed', String(this.getAttribute('aria-pressed') !== 'true')); sync(); });
+  document.getElementById('t-session').addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', String(on)); document.getElementById('bn-session').hidden = !on; });
+})();
+</script>
+</body>
+</html>

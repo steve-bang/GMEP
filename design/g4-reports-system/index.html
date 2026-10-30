@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gói 6 – Báo cáo và Hệ thống (G4-RPT, G4-SYS) · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  body { background: var(--color-page); }
+  .g4r-idx { max-width: 1280px; margin: 0 auto; padding: var(--space-8) var(--space-6); display: flex; flex-direction: column; gap: var(--space-6); }
+  .g4r-idx td, .g4r-idx th { white-space: normal; }
+</style>
+</head>
+<body data-role="CH">
+<main class="g4r-idx" id="main">
+  <header class="stack-2">
+    <h1>Gói 6 – Báo cáo và Hệ thống</h1>
+    <p class="text-secondary">35 màn hình prototype HTML/CSS thuần: 11 báo cáo (G4-RPT) và 24 màn hình cài đặt, quản trị (G4-SYS). Tài liệu mô tả: <code>docs/ui-ux/06-reports-system.md</code>. Mở bằng trình duyệt (file://); dùng chung <code>../assets/*</code> với các gói khác.</p>
+    <div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><strong>Cách xem thử.</strong> Đổi vai trò ở menu tài khoản (góc phải) để thấy quyền thay đổi: menu, nút bị khóa kèm lý do, trạng thái “Không có quyền”. Thanh “Xem thử trạng thái” trên mỗi trang chuyển giữa có dữ liệu, đang tải, trống, lỗi, không quyền. Có thể gắn vào địa chỉ: <code>?role=KT</code>, <code>?state=empty</code>, <code>?open=dlg-export</code>.</div></div>
+  </header>
+
+  <section class="table-wrap" aria-labelledby="h-rpt">
+    <div class="table-toolbar"><h2 class="t-heading-md" id="h-rpt" style="margin:0">Báo cáo (G4-RPT) · 11 màn hình</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Danh sách màn hình báo cáo</caption>
+      <thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Vai trò</th><th>Ưu tiên</th></tr></thead>
+      <tbody>
+        <tr><td class="code"><a href="g4-rpt-01.html">G4-RPT-01</a></td><td>Trung tâm báo cáo</td><td>C (thẻ)</td><td>CH QV QL KT · CV QĐ TH TK TN (Xn)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-rpt-02.html">G4-RPT-02</a></td><td>So sánh chi nhánh</td><td>B/C</td><td>CH QV KT</td><td>P3</td></tr>
+        <tr><td class="code"><a href="g4-rpt-03.html">G4-RPT-03</a></td><td>Báo cáo chi nhánh theo ngày và tháng</td><td>C</td><td>QL KT CH QV</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-rpt-04.html">G4-RPT-04</a></td><td>Báo cáo lệnh sửa chữa</td><td>C + biểu đồ</td><td>QL QĐ CV CH QV</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-rpt-05.html">G4-RPT-05</a></td><td>Đối chiếu lệnh – xuất kho – hóa đơn – thu tiền</td><td>C</td><td>KT QL CH QV</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-rpt-06.html">G4-RPT-06</a></td><td>Báo cáo kho</td><td>C + biểu đồ</td><td>TK KT QL CH QV</td><td>P2</td></tr>
+        <tr><td class="code"><a href="g4-rpt-07.html">G4-RPT-07</a></td><td>Báo cáo khách hàng</td><td>C</td><td>CH QV QL KT</td><td>P2+</td></tr>
+        <tr><td class="code"><a href="g4-rpt-08.html">G4-RPT-08</a></td><td>Chỉ số bổ sung</td><td>B</td><td>CH QV QL KT</td><td>P2+</td></tr>
+        <tr><td class="code"><a href="g4-rpt-09.html">G4-RPT-09</a></td><td>Cảnh báo ngoại lệ</td><td>C</td><td>CH QV QL</td><td>P2</td></tr>
+        <tr><td class="code"><a href="g4-rpt-10.html">G4-RPT-10</a></td><td>Danh sách chứng từ gốc (đi sâu từ chỉ số)</td><td>C</td><td>Theo quyền chứng từ</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-rpt-11.html">G4-RPT-11</a></td><td>Xuất báo cáo (Excel/PDF)</td><td>Dlg</td><td>Người có quyền xuất</td><td>P2 (Could)</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section class="table-wrap" aria-labelledby="h-sys">
+    <div class="table-toolbar"><h2 class="t-heading-md" id="h-sys" style="margin:0">Cài đặt và quản trị (G4-SYS) · 24 màn hình</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Danh sách màn hình cài đặt và quản trị</caption>
+      <thead><tr><th>Mã</th><th>Tên màn hình</th><th>Template</th><th>Vai trò</th><th>Ưu tiên</th></tr></thead>
+      <tbody>
+        <tr><td class="code"><a href="g4-sys-01.html">G4-SYS-01</a></td><td>Danh sách người dùng</td><td>C</td><td>AD, QL (chi nhánh mình), CH (duyệt)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-02.html">G4-SYS-02</a></td><td>Mời / sửa người dùng, gửi lời mời</td><td>E</td><td>AD CH QL</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-03.html">G4-SYS-03</a></td><td>Chi tiết người dùng và phiên đăng nhập</td><td>D</td><td>AD CH QL</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-04.html">G4-SYS-04</a></td><td>Vai trò và quyền theo hành động</td><td>S</td><td>AD (sửa), CH (duyệt)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-05.html">G4-SYS-05</a></td><td>Cơ cấu tổ chức: Company – Branch – Warehouse</td><td>S (cây)</td><td>AD CH</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-06.html">G4-SYS-06</a></td><td>Cấu hình chi nhánh</td><td>E</td><td>AD QL (giới hạn) CH</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-07.html">G4-SYS-07</a></td><td>Dịch vụ, giờ chuẩn và đơn giá giờ công</td><td>S</td><td>AD QL (sửa) CH (duyệt) KT CV (xem)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-08.html">G4-SYS-08</a></td><td>Gói dịch vụ bảo dưỡng định kỳ</td><td>S</td><td>AD QL CH</td><td>P2 (Should)</td></tr>
+        <tr><td class="code"><a href="g4-sys-09.html">G4-SYS-09</a></td><td>Hạn mức giảm giá và chương trình giảm</td><td>S</td><td>CH (duyệt) QV QL</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-10.html">G4-SYS-10</a></td><td>Thuế suất theo ngày hiệu lực</td><td>S</td><td>KT (sửa) CH (duyệt)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-11.html">G4-SYS-11</a></td><td>Chu kỳ nhắc đăng kiểm, bảo dưỡng, bảo hiểm</td><td>S</td><td>AD QL CH</td><td>P2</td></tr>
+        <tr><td class="code"><a href="g4-sys-12.html">G4-SYS-12</a></td><td>Mẫu chứng từ, mẫu in và mẫu tin nhắn</td><td>S</td><td>AD (sửa) KT (duyệt mẫu kế toán)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-13.html">G4-SYS-13</a></td><td>Quy trình theo loại dịch vụ</td><td>S</td><td>AD (sửa) QL (duyệt)</td><td>P1 / P2+ (đồng sơn)</td></tr>
+        <tr><td class="code"><a href="g4-sys-14.html">G4-SYS-14</a></td><td>Mẫu checklist kiểm tra chất lượng</td><td>S</td><td>AD QĐ (sửa) QL (duyệt)</td><td>P1 (Should)</td></tr>
+        <tr><td class="code"><a href="g4-sys-15.html">G4-SYS-15</a></td><td>Danh mục dùng chung và phát hành cho chi nhánh</td><td>S</td><td>AD CH</td><td>P2</td></tr>
+        <tr><td class="code"><a href="g4-sys-16.html">G4-SYS-16</a></td><td>Trung tâm tích hợp – hóa đơn điện tử</td><td>S</td><td>AD (sửa) KT (xem) CH (duyệt)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-17.html">G4-SYS-17</a></td><td>Tích hợp tin nhắn: SMS, Zalo, email</td><td>S</td><td>AD (sửa) QL (xem)</td><td>P1 email / P2 Zalo, SMS</td></tr>
+        <tr><td class="code"><a href="g4-sys-18.html">G4-SYS-18</a></td><td>API và khóa tích hợp</td><td>C + E</td><td>AD</td><td>P2 (Should)</td></tr>
+        <tr><td class="code"><a href="g4-sys-19.html">G4-SYS-19</a></td><td>Nhật ký thao tác (audit log)</td><td>C</td><td>AD CH QL KT (chỉ xem)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-20.html">G4-SYS-20</a></td><td>Nhập dữ liệu từ Excel (wizard 6 bước)</td><td>W</td><td>AD QL; KT/TK theo loại dữ liệu</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-21.html">G4-SYS-21</a></td><td>Lịch sử lô nhập và hoàn tác</td><td>C</td><td>AD (đề xuất) CH (duyệt)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-22.html">G4-SYS-22</a></td><td>Sao lưu và khôi phục</td><td>C</td><td>AD CH (xem, duyệt)</td><td>P1</td></tr>
+        <tr><td class="code"><a href="g4-sys-23.html">G4-SYS-23</a></td><td>Chính sách lưu trữ và ẩn danh dữ liệu</td><td>S</td><td>AD CH KT (xem)</td><td>P2</td></tr>
+        <tr><td class="code"><a href="g4-sys-24.html">G4-SYS-24</a></td><td>Bảo mật và phiên làm việc</td><td>S</td><td>AD (sửa) CH (duyệt)</td><td>P1</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <p class="t-body-sm text-secondary">Lưu ý kỹ thuật prototype: các trang ghép Application Shell bằng <code>pack.js</code> (document.write) để mỗi file chỉ giữ nội dung nghiệp vụ; cần bật JavaScript. Biểu đồ được vẽ bằng SVG/CSS thuần từ dữ liệu mẫu trong từng trang.</p>
+</main>
+<script src="../assets/app.js"></script>
+</body>
+</html>

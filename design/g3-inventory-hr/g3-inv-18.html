@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-18 · Bán lẻ phụ tùng tại quầy – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="CV">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-18')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Bán lẻ phụ tùng <span class="code">BL-Q7-2610-00014</span></h1><p class="page-header__desc">Bán phụ tùng không kèm lệnh sửa chữa. Phiếu bán lẻ là chứng từ gốc cho xuất kho, thu tiền và hóa đơn (RULE-007).</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Kho Quận 7</span><span>· 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="phiếu bán lẻ" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--info" role="note"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Tính năng bán lẻ chờ khách xác nhận (BRD câu 10)</span><span>Có thể bật/tắt theo cấu hình chi nhánh và phân quyền: Cố vấn, Thủ kho, Thu ngân được lập phiếu theo cấu hình.</span></div></div>
+  <div class="g3-ro-flag alert alert--info" data-for="f-rt" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Vai trò của bạn không được lập phiếu bán lẻ.</span></div></div>
+  <form id="f-rt" class="g3-split" data-g3-edit="CH QL TK CV TN" onsubmit="return false">
+    <div class="stack-6">
+      <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Thêm phụ tùng</h2>
+        <div class="field"><label class="field__label" for="r-part">Tìm phụ tùng (tên, mã, mã vạch)</label><div class="combobox" id="cbr" data-combobox="part"><div class="input-group"><svg class="icon"><use href="#package"/></svg><input id="r-part" class="input" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="cbr-list" autocomplete="off" placeholder="Gõ lọc dầu, má phanh…"></div><div class="combobox__list" id="cbr-list"></div></div></div></section>
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Hàng bán</h2><span class="table-meta">2 dòng</span></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Dòng hàng bán lẻ</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Khả dụng</th><th class="col-num">SL</th><th class="col-num">Giá niêm yết</th><th class="col-num">Giá bán thực tế</th><th class="col-num">Thành tiền</th></tr></thead><tbody>
+          <tr><td><span class="code">PT-0006</span> Nước làm mát Prestone 1 lít</td><td class="col-num">12</td><td class="col-num"><div class="qty" role="group" aria-label="SL PT-0006"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="2" min="1" max="12" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num">98.000 ₫</td><td class="col-num"><input class="input input--num g3-num" value="98.000" aria-label="Giá thực tế PT-0006"></td><td class="col-num">196.000 ₫</td></tr>
+          <tr class="g3-row--flag"><td><span class="code">PT-0001</span> Lọc dầu động cơ Toyota Vios<span class="cell-sub"><span class="badge badge--warning">Giảm 8,1% vượt hạn mức</span></span></td><td class="col-num">24</td><td class="col-num"><div class="qty" role="group" aria-label="SL PT-0001"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="1" min="1" max="24" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num">185.000 ₫</td><td class="col-num"><input class="input input--num g3-num is-error" value="170.000" aria-label="Giá thực tế PT-0001" aria-invalid="true"></td><td class="col-num">170.000 ₫</td></tr></tbody>
+          <tfoot><tr><td colspan="5">Tổng cộng</td><td class="col-num">366.000 ₫</td></tr></tfoot></table></div></section>
+      <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Giảm giá vượt hạn mức của chi nhánh: cần Quản lý chi nhánh duyệt</span><span>Giảm 8,1% so với hạn mức giảm của Cố vấn <span class="g3-sample">5% · giá trị mẫu, G4-APR-03</span>. Bán dưới giá vốn cũng cần duyệt, mức giá vốn chỉ hiện với vai trò được xem.</span></div></div>
+      <section class="form-section" aria-labelledby="h3"><h2 class="card__title" id="h3" style="margin-bottom:16px">Khách và thanh toán</h2>
+        <div class="form-grid"><div class="field"><label class="field__label" for="r-cus">Khách (tùy chọn)</label><input id="r-cus" class="input" placeholder="Khách vãng lai nếu để trống"><span class="field__hint">Chỉ nhập khi khách cần hóa đơn hoặc tích điểm.</span></div>
+          <div class="field"><label class="field__label" for="r-pay">Hình thức thanh toán<span class="field__req" aria-hidden="true">*</span></label><select id="r-pay" class="select"><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ</option></select></div>
+          <div class="field span-2"><label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Khách lấy hóa đơn điện tử (nhập mã số thuế ở bước thanh toán)</span></label></div></div></section>
+    </div>
+    <aside class="g3-side"><div class="g3-total"><div class="g3-line"><span>Tạm tính</span><span>381.000 ₫</span></div><div class="g3-line"><span>Giảm giá</span><span>−15.000 ₫</span></div><div class="g3-line g3-line--total g3-line--big"><span>Phải thu</span><span>366.000 ₫</span></div></div>
+      <section class="card"><div class="card__body stack">
+        <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-rt" data-g3-need="CH QL TK CV TN" data-g3-why="Vai trò của bạn không được bán lẻ.">Gửi duyệt giảm giá</button>
+        <button class="btn btn--secondary btn--block" type="button">Lưu nháp</button>
+        <p class="t-body-sm text-secondary">Sau khi duyệt, nút đổi thành “Thanh toán và xuất kho”. Xuất kho, thu tiền và hóa đơn đều gắn phiếu BL này.</p></div></section></aside>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-rt" role="dialog" aria-modal="true" aria-labelledby="rt-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="rt-t">Gửi Quản lý chi nhánh duyệt giảm giá?</h2></div></div>
+  <div class="dialog__body"><p>Phiếu BL-Q7-2610-00014 (366.000 ₫) chờ duyệt vì giảm giá vượt hạn mức. Kho chưa trừ và chưa thu tiền cho đến khi được duyệt.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã gửi duyệt|Chờ Đặng Hữu Phúc duyệt giảm giá.">Gửi duyệt</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

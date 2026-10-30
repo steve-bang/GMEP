@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-DLV-01 · Hàng chờ kiểm tra chất lượng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('QD', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Kiểm tra chất lượng']], title: 'Hàng chờ kiểm tra chất lượng (QC)', desc: 'Lệnh có tất cả hạng mục đã Hoàn thành thì vào hàng chờ này. Lệnh chưa đạt QC không sang được bước thu tiền và bàn giao.' });
+g2q.scope('hôm nay 30/10/2026', '10:05');
+</script>
+
+<div class="stack-6" data-variants="default">
+  <script>g2q.proto([['default','Có xe chờ'],['loading','Đang tải'],['empty','Không có xe chờ'],['error','Lỗi tải'],['noperm','Không có quyền']], 'default');</script>
+
+  <div data-v="default" class="stack-6">
+    <div class="grid grid--4" aria-label="Tóm tắt hàng chờ QC">
+      <div class="card kpi kpi--danger"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ hẹn giao</span><span class="kpi__value">01</span><span class="kpi__meta">RO-Q7-2610-00118 trễ 5 phút</span></div>
+      <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Chờ QC</span><span class="kpi__value">06</span><span class="kpi__meta">Cùng số với “Chờ kiểm tra QC” trên tổng quan</span></div>
+      <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ lâu nhất</span><span class="kpi__value">2<span class="kpi__unit">giờ 10 phút</span></span><span class="kpi__meta">RO-Q7-2610-00118</span></div>
+      <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm"><use href="#undo"/></svg>Đã trả thợ làm lại</span><span class="kpi__value">02</span><span class="kpi__meta">Chờ thợ làm xong</span></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="field filter-bar__search"><label class="field__label" for="q">Tìm lệnh</label><div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input id="q" class="input" type="search" placeholder="Mã lệnh, biển số (không cần gõ dấu)"></div></div>
+      <div class="field"><label class="field__label" for="th">Thợ</label><select id="th" class="select"><option>Tất cả thợ</option><option>Lê Minh Tuấn</option><option>Trần Văn Hậu</option><option>Nguyễn Văn Dũng</option></select></div>
+      <div class="field"><label class="field__label" for="dv">Loại dịch vụ</label><select id="dv" class="select"><option>Tất cả</option><option>Bảo dưỡng</option><option>Sửa chữa chung</option><option>Lốp &amp; mâm</option></select></div>
+      <div class="filter-bar__actions"><button class="btn btn--secondary">Đặt lại</button></div>
+    </div>
+
+    <section class="card" aria-label="Danh sách chờ QC">
+      <div class="tabs" role="tablist" aria-label="Hàng chờ QC" style="padding:0 var(--space-6)">
+        <button class="tab" role="tab" id="tb-q" aria-selected="true" aria-controls="tp-q">Chờ QC <span class="count-pill count-pill--warning">6</span></button>
+        <button class="tab" role="tab" id="tb-r" aria-selected="false" tabindex="-1" aria-controls="tp-r">Đã trả thợ làm lại <span class="count-pill count-pill--danger">2</span></button>
+      </div>
+      <div class="tab-panel" id="tp-q" role="tabpanel" aria-labelledby="tb-q" style="padding:0">
+        <div class="table-wrap" style="border:0;border-radius:0">
+          <div class="table-scroll"><table class="table table--lg" data-cardify>
+            <thead><tr><th aria-sort="ascending"><button class="th-sort">Hẹn giao<svg class="icon"><use href="#arrow-up"/></svg></button></th><th>Lệnh sửa chữa</th><th>Xe</th><th>Khách</th><th>Hạng mục</th><th>Thợ</th><th>Chờ QC</th><th class="col-actions" style="width:auto"><span class="sr-only">Thao tác</span></th></tr></thead>
+            <tbody data-card-status='<span class="badge badge--purple">Chờ QC</span>'>
+              <tr><td class="col-nowrap" data-label="Hẹn giao"><span class="num">10:00</span> <span class="tag tag--danger">Trễ 5 phút</span></td><td class="code" data-card="title"><a href="g2-dlv-02.html">RO-Q7-2610-00118</a></td><td data-label="Xe"><span class="plate">61C-789.12</span> <span class="cell-sub">Ford Ranger 2019</span></td><td data-label="Khách">Cty TNHH Xây dựng Phú Gia</td><td data-label="Hạng mục">4/4 Hoàn thành</td><td data-label="Thợ">Nguyễn Văn Dũng</td><td class="num" data-label="Chờ">2 giờ 10 phút</td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="QD QL" href="g2-dlv-02.html">Bắt đầu QC</a></td></tr>
+              <tr><td class="col-nowrap" data-label="Hẹn giao"><span class="num">11:30</span></td><td class="code" data-card="title"><a href="g2-dlv-02.html">RO-Q7-2610-00123</a></td><td data-label="Xe"><span class="plate">29A-345.67</span> <span class="cell-sub">Hyundai i10 2020</span></td><td data-label="Khách">Đinh Thị Hạnh</td><td data-label="Hạng mục">3/3 Hoàn thành</td><td data-label="Thợ">Trần Văn Hậu</td><td class="num" data-label="Chờ">1 giờ 20 phút</td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="QD QL" href="g2-dlv-02.html">Bắt đầu QC</a></td></tr>
+              <tr><td class="col-nowrap" data-label="Hẹn giao"><span class="num">12:00</span></td><td class="code" data-card="title"><a href="g2-dlv-02.html">RO-Q7-2610-00120</a></td><td data-label="Xe"><span class="plate">51F-222.33</span> <span class="cell-sub">Kia Morning 2018</span></td><td data-label="Khách">Hoàng Gia Bảo</td><td data-label="Hạng mục">2/2 Hoàn thành</td><td data-label="Thợ">Lê Minh Tuấn</td><td class="num" data-label="Chờ">40 phút</td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="QD QL" href="g2-dlv-02.html">Bắt đầu QC</a></td></tr>
+              <tr><td class="col-nowrap" data-label="Hẹn giao"><span class="num">13:00</span></td><td class="code" data-card="title"><a href="g2-dlv-02.html">RO-Q7-2610-00117</a></td><td data-label="Xe"><span class="plate">51L-456.89</span> <span class="cell-sub">Mitsubishi Xpander 2021</span></td><td data-label="Khách">Phan Thị Lệ</td><td data-label="Hạng mục">2/2 Hoàn thành</td><td data-label="Thợ">Trần Văn Hậu</td><td class="num" data-label="Chờ">25 phút</td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="QD QL" href="g2-dlv-02.html">Bắt đầu QC</a></td></tr>
+              <tr><td class="col-nowrap" data-label="Hẹn giao"><span class="num">14:30</span></td><td class="code" data-card="title"><a href="g2-dlv-02.html">RO-Q7-2610-00116</a></td><td data-label="Xe"><span class="plate">50H-118.04</span> <span class="cell-sub">Mazda 3 2019</span></td><td data-label="Khách">Ngô Thị Phượng</td><td data-label="Hạng mục">3/3 Hoàn thành</td><td data-label="Thợ">Nguyễn Văn Dũng</td><td class="num" data-label="Chờ">15 phút</td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="QD QL" href="g2-dlv-02.html">Bắt đầu QC</a></td></tr>
+              <tr><td class="col-nowrap" data-label="Hẹn giao"><span class="num">16:00</span></td><td class="code" data-card="title"><a href="g2-dlv-02.html">RO-Q7-2610-00115</a></td><td data-label="Xe"><span class="plate">30G-456.78</span> <span class="cell-sub">Hyundai Accent 2021</span></td><td data-label="Khách">Trần Thị Bích Ngọc</td><td data-label="Hạng mục">1/1 Hoàn thành</td><td data-label="Thợ">Lê Minh Tuấn</td><td class="num" data-label="Chờ">8 phút</td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="QD QL" href="g2-dlv-02.html">Bắt đầu QC</a></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card__body" style="padding-top:12px"><p class="g2q-note" data-show-roles="CV CH QV TN KT TK"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#lock"/></svg> Vai trò của bạn chỉ xem hàng chờ. Nút “Bắt đầu QC” chỉ dành cho Quản đốc/nhân viên QC và Quản lý chi nhánh; việc kiểm tra không thể thay thế.</p></div>
+      </div>
+      <div class="tab-panel" id="tp-r" role="tabpanel" aria-labelledby="tb-r" hidden style="padding:0">
+        <div class="table-scroll"><table class="table table--lg">
+          <thead><tr><th>Lệnh sửa chữa</th><th>Xe</th><th>Hạng mục bị trả</th><th>Lý do QC không đạt</th><th>Thợ làm lại</th><th>Trạng thái hạng mục</th></tr></thead>
+          <tbody>
+            <tr><td class="code"><a href="../g2-workshop/g2-rec-04.html">RO-Q7-2610-00122</a></td><td><span class="plate">51G-765.43</span></td><td>Xiết lại lực xiết bánh sau</td><td>Lực xiết 2 ốc bánh sau chưa đủ · Phạm Quốc Bảo 08:40</td><td>Lê Minh Tuấn</td><td><span class="badge badge--danger">Trả lại</span></td></tr>
+            <tr><td class="code"><a href="../g2-workshop/g2-rec-04.html">RO-Q7-2610-00119</a></td><td><span class="plate">59A-111.22</span></td><td>Cân chỉnh góc đặt bánh xe</td><td>Độ chụm bánh sau chưa đạt · Phạm Quốc Bảo 09:30</td><td>Trần Văn Hậu</td><td><span class="badge badge--info">Đang làm</span> <span class="tag tag--danger">Làm lại</span></td></tr>
+          </tbody></table></div>
+        <div class="card__body"><p class="g2q-note">Hạng mục bị trả quay lại thợ ở “Việc của tôi” (G2-TEC-01). Khi thợ kết thúc, lệnh vào lại hàng chờ QC.</p></div>
+      </div>
+    </div>
+    </section>
+  </div>
+
+  <div data-v="loading" aria-busy="true" class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Hẹn giao</th><th>Lệnh</th><th>Xe</th><th>Khách</th><th>Thợ</th><th>Chờ</th></tr></thead><tbody><script>g2q.skelRows(5, 6)</script></tbody></table></div></div>
+  <div data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Không có xe chờ QC', text:'Khi thợ kết thúc hạng mục cuối cùng của một lệnh, xe tự vào hàng chờ này. Bạn có thể xem các xe đang sửa ở bảng điều phối.', actions:'<a class="btn btn--secondary" href="../g2-workshop/g2-rec-03.html">Mở bảng điều phối</a>'})</script></div>
+  <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được hàng chờ QC', text:'Thử lại sau vài giây. Danh sách bạn thấy lần trước có thể đã cũ.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-DLV-6D10C2'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem hàng chờ QC', text:'Mục này dành cho quản đốc, nhân viên QC và quản lý chi nhánh. Cố vấn dịch vụ chỉ xem trạng thái lệnh.', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
+</div>
+<script>g2q.end();</script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

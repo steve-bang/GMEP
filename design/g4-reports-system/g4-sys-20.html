@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-20 – Nhập dữ liệu từ Excel · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-20" data-menu="set" data-crumbs="Cài đặt|Nhập dữ liệu từ Excel" data-allow="AD QL KT TK"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Nhập dữ liệu từ Excel',
+  desc: 'Chuyển dữ liệu từ các tệp Excel đang dùng sang hệ thống theo mẫu chuẩn. Kiểm tra toàn tệp và báo lỗi theo từng dòng; tệp có lỗi thì không ghi một phần (FR-SYS-007).',
+  prio: 'P1',
+  cfgScope: 'Chi nhánh được chọn ở bước 1 (Quản lý chi nhánh: chi nhánh mình)',
+  asof: 'Cập nhật lúc 09:15 30/10/2026',
+  actions: '<a class="btn btn--secondary" href="g4-sys-21.html"><svg class="icon" aria-hidden="true"><use href="#history"/></svg>Lịch sử lô nhập</a>',
+  states: ['data', 'loading', 'error', 'denied'],
+  extraStates: [['badfile', 'Tệp sai định dạng'], ['big', 'Tệp lớn, xử lý nền'], ['done', 'Đã ghi lô']]
+});
+</script>
+
+<div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Số năm lịch sử sửa chữa cần chuyển là tham số cấu hình <b>[Cần xác nhận]</b>; định dạng tệp nguồn thực tế cần khảo sát khi nhận tệp của khách (FRD §12). Nhập thử ở môi trường thử trước khi nhập thật.</div></div>
+
+<section class="card" data-g4r-wizard aria-label="Các bước nhập dữ liệu">
+  <div class="card__body">
+    <ol class="stepper" aria-label="Các bước nhập dữ liệu">
+      <li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Loại dữ liệu</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Tải mẫu</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Tải tệp, ánh xạ cột</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Kiểm tra lỗi</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">5</span><span class="stepper__text">Xem trước</span></div></li>
+      <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">6</span><span class="stepper__text">Xác nhận ghi</span></div></li>
+    </ol>
+
+    <!-- BƯỚC 1 -->
+    <div class="g4r-wiz__panel stack" data-g4r-step="1" style="margin-top:24px">
+      <h2 class="t-heading-md" style="margin:0">1. Chọn loại dữ liệu cần nhập</h2>
+      <fieldset class="stack-2" style="border:0;padding:0;margin:0"><legend class="sr-only">Loại dữ liệu</legend>
+        <label class="radio"><input type="radio" name="dt" checked data-edit-roles="AD QL TK"><span class="radio__box"></span><span><strong>Danh mục phụ tùng</strong> <span class="t-body-sm text-secondary">mã, tên, nhóm, đơn vị, giá bán, định mức tối thiểu</span></span></label>
+        <label class="radio"><input type="radio" name="dt" data-edit-roles="AD QL"><span class="radio__box"></span><span><strong>Khách hàng và xe</strong> <span class="t-body-sm text-secondary">dữ liệu cá nhân: chỉ Quản trị / Quản lý chi nhánh</span></span></label>
+        <label class="radio"><input type="radio" name="dt" data-edit-roles="AD KT TK"><span class="radio__box"></span><span><strong>Tồn kho đầu kỳ</strong> <span class="t-body-sm text-secondary">chỉ sau kiểm kê khởi tạo (Kho Quận 7: đã kiểm kê 22/10/2026)</span></span></label>
+        <label class="radio"><input type="radio" name="dt" data-edit-roles="AD KT"><span class="radio__box"></span><span><strong>Công nợ đầu kỳ</strong> <span class="t-body-sm text-secondary">phải thu, phải trả</span></span></label>
+        <label class="radio"><input type="radio" name="dt" data-edit-roles="AD QL"><span class="radio__box"></span><span><strong>Nhân sự</strong></span></label>
+        <label class="radio"><input type="radio" name="dt" data-edit-roles="AD QL"><span class="radio__box"></span><span><strong>Dịch vụ, giờ chuẩn, bảng giá</strong></span></label>
+        <label class="radio"><input type="radio" name="dt" data-edit-roles="AD QL"><span class="radio__box"></span><span><strong>Lịch sử sửa chữa</strong> <span class="t-body-sm text-secondary">số năm chuyển theo cấu hình</span></span></label>
+      </fieldset>
+      <p class="t-body-sm text-secondary" data-why-roles="AD" style="margin:0">Các loại bị khóa là loại vai trò của bạn không được nhập; hover vào mục để xem lý do, hoặc đổi vai trò.</p>
+      <div class="form-grid"><div class="field"><label class="field__label" for="w-b">Chi nhánh nhận dữ liệu<span class="field__req">*</span></label><select class="select" id="w-b" data-edit-roles="AD"><option>Chi nhánh Quận 7</option><option>Chi nhánh Quận 1</option><option>Chi nhánh Thủ Đức</option></select></div><div class="field"><label class="field__label" for="w-e">Môi trường</label><select class="select" id="w-e"><option>Thử nghiệm (không ghi vào dữ liệu thật)</option><option>Thật</option></select></div></div>
+      <div class="row"><span style="flex:1"></span><button class="btn btn--primary" data-g4r-go="2">Tiếp tục<svg class="icon" aria-hidden="true"><use href="#arrow-right"/></svg></button></div>
+    </div>
+
+    <!-- BƯỚC 2 -->
+    <div class="g4r-wiz__panel stack" data-g4r-step="2" hidden style="margin-top:24px">
+      <h2 class="t-heading-md" style="margin:0">2. Tải mẫu chuẩn</h2>
+      <div class="alert alert--neutral" role="note"><svg class="icon" aria-hidden="true"><use href="#file-text"/></svg><div class="alert__body">Dùng đúng mẫu để hệ thống đọc được. Mẫu <strong>Danh mục phụ tùng v3</strong> (cập nhật 30/10/2026): 9 cột, 3 cột bắt buộc (Mã phụ tùng, Tên, Đơn vị).</div></div>
+      <div class="row"><button class="btn btn--secondary" data-toast="info|Đang tải mẫu|mau-danh-muc-phu-tung-v3.xlsx"><svg class="icon" aria-hidden="true"><use href="#download"/></svg>Tải mẫu Excel</button><span class="t-body-sm text-secondary">Có sheet “Hướng dẫn” và 2 dòng ví dụ.</span></div>
+      <div class="row"><button class="btn btn--ghost" data-g4r-go="1"><svg class="icon" aria-hidden="true"><use href="#chevron-left"/></svg>Quay lại</button><span style="flex:1"></span><button class="btn btn--primary" data-g4r-go="3">Tôi đã điền xong, tải tệp<svg class="icon" aria-hidden="true"><use href="#arrow-right"/></svg></button></div>
+    </div>
+
+    <!-- BƯỚC 3 -->
+    <div class="g4r-wiz__panel stack" data-g4r-step="3" hidden style="margin-top:24px">
+      <h2 class="t-heading-md" style="margin:0">3. Tải tệp và ánh xạ cột</h2>
+      <div class="g4r-drop"><svg class="icon icon--xl" aria-hidden="true"><use href="#upload"/></svg><p style="margin:8px 0"><strong>Kéo thả tệp Excel vào đây</strong> hoặc chọn từ máy</p><button class="btn btn--secondary">Chọn tệp .xlsx</button><p class="t-body-sm text-secondary" style="margin:8px 0 0">Tối đa 20 MB · tệp lớn xử lý ở nền</p></div>
+      <div class="alert alert--success" role="status"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><strong>phu-tung-q7.xlsx</strong> · 184 KB · sheet “Danh mục” · 1.245 dòng dữ liệu · đọc xong lúc 09:12</div></div>
+      <div class="table-wrap"><div class="table-toolbar"><strong>Ánh xạ cột trong tệp sang trường hệ thống</strong><span class="table-meta" style="margin-left:auto">8/9 cột đã tự khớp</span></div>
+        <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Ánh xạ cột tệp</caption>
+          <thead><tr><th>Cột trong tệp</th><th>Mẫu giá trị</th><th>Trường hệ thống</th><th>Bắt buộc</th></tr></thead>
+          <tbody>
+            <tr><td>Mã PT</td><td class="code">PT-MP-0012</td><td><label class="sr-only" for="m1">Trường cho cột Mã PT</label><select class="select" id="m1"><option>Mã phụ tùng</option></select></td><td><span class="tag tag--danger">Bắt buộc</span></td></tr>
+            <tr><td>Tên hàng</td><td>Má phanh trước Hyundai Accent</td><td><label class="sr-only" for="m2">Trường cho cột Tên hàng</label><select class="select" id="m2"><option>Tên phụ tùng</option></select></td><td><span class="tag tag--danger">Bắt buộc</span></td></tr>
+            <tr><td>ĐVT</td><td>Bộ</td><td><label class="sr-only" for="m3">Trường cho cột ĐVT</label><select class="select" id="m3"><option>Đơn vị</option></select></td><td><span class="tag tag--danger">Bắt buộc</span></td></tr>
+            <tr><td>Giá bán lẻ</td><td class="num">620.000</td><td><label class="sr-only" for="m4">Trường cho cột Giá bán lẻ</label><select class="select" id="m4"><option>Giá bán niêm yết</option></select></td><td><span class="tag tag--neutral">Tùy chọn</span></td></tr>
+            <tr><td>Ghi chú NCC</td><td>Hàng chính hãng</td><td><label class="sr-only" for="m5">Trường cho cột Ghi chú NCC</label><select class="select" id="m5"><option>— Không nhập cột này —</option><option>Ghi chú</option></select><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Chưa khớp, cần chọn hoặc bỏ qua</span></td><td><span class="tag tag--neutral">Tùy chọn</span></td></tr>
+          </tbody></table></div></div>
+      <div class="row"><button class="btn btn--ghost" data-g4r-go="2"><svg class="icon" aria-hidden="true"><use href="#chevron-left"/></svg>Quay lại</button><span style="flex:1"></span><button class="btn btn--primary" data-g4r-go="4">Kiểm tra tệp<svg class="icon" aria-hidden="true"><use href="#arrow-right"/></svg></button></div>
+    </div>
+
+    <!-- BƯỚC 4 -->
+    <div class="g4r-wiz__panel stack" data-g4r-step="4" hidden style="margin-top:24px">
+      <h2 class="t-heading-md" style="margin:0">4. Kết quả kiểm tra</h2>
+      <div id="chk-bad" class="stack">
+        <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><div class="alert__title">Tệp có 14 dòng lỗi trên 1.245 dòng. Chưa ghi gì vào hệ thống.</div>Tệp lỗi không được ghi một phần. Tải danh sách lỗi, sửa trong Excel rồi tải lại tệp.<div class="alert__actions"><button class="btn btn--secondary btn--sm" data-toast="info|Đang tải tệp lỗi|loi-phu-tung-q7.xlsx: gồm cột “Lỗi” cạnh từng dòng."><svg class="icon icon--sm" aria-hidden="true"><use href="#download"/></svg>Tải tệp lỗi để sửa</button><button class="btn btn--primary btn--sm" id="fixed">Mô phỏng: tải lại tệp đã sửa</button></div></div></div>
+        <div class="grid grid--3"><div class="card kpi"><span class="kpi__label">Tổng dòng</span><span class="kpi__value">1.245</span></div><div class="card kpi"><span class="kpi__label">Hợp lệ</span><span class="kpi__value">1.231</span></div><div class="card kpi kpi--danger"><span class="kpi__label">Lỗi</span><span class="kpi__value">14</span></div></div>
+        <div class="table-wrap"><div class="table-toolbar"><strong>Lỗi theo dòng</strong><span class="table-meta" style="margin-left:auto">5 trong 14 dòng · lọc theo loại lỗi</span></div>
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Lỗi theo dòng của tệp nhập</caption>
+            <thead><tr><th class="col-num">Dòng</th><th>Cột</th><th>Giá trị trong tệp</th><th>Lỗi</th><th>Cách sửa</th></tr></thead>
+            <tbody>
+              <tr class="g4r-rowerr"><td class="col-num num">38</td><td>Mã PT</td><td class="code">(trống)</td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Thiếu mã phụ tùng</span></td><td>Điền mã duy nhất, ví dụ PT-LK-0102</td></tr>
+              <tr class="g4r-rowerr"><td class="col-num num">127</td><td>Mã PT</td><td class="code">PT-MP-0012</td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Trùng mã với dòng 12</span></td><td>Xóa dòng trùng hoặc đổi mã</td></tr>
+              <tr class="g4r-rowerr"><td class="col-num num">203</td><td>Giá bán lẻ</td><td class="code">sáu trăm nghìn</td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Không phải số</span></td><td>Nhập 600000 (không dấu chấm, không chữ)</td></tr>
+              <tr class="g4r-rowerr"><td class="col-num num">411</td><td>ĐVT</td><td class="code">Cái/Bộ</td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Đơn vị không có trong danh mục</span></td><td>Chọn một trong: Cái, Bộ, Lít, Chiếc</td></tr>
+              <tr class="g4r-rowerr"><td class="col-num num">988</td><td>Định mức</td><td class="code">-5</td><td><span class="g4r-miss"><svg class="icon"><use href="#alert-triangle"/></svg>Phải ≥ 0</span></td><td>Nhập số không âm</td></tr>
+            </tbody></table></div>
+          <div class="table-footer"><span class="table-meta">Hiển thị 5 trong 14 lỗi</span><div class="pagination" aria-label="Phân trang lỗi"><button class="pagination__item" aria-current="page">1</button><button class="pagination__item">2</button><button class="pagination__item">3</button></div></div></div>
+      </div>
+      <div id="chk-ok" class="alert alert--success" role="status" hidden><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><div class="alert__title">Tệp hợp lệ: 1.245 / 1.245 dòng</div>Không có lỗi. Có 3 cảnh báo không chặn: 3 phụ tùng chưa đặt định mức tối thiểu (hiện “Chưa đặt định mức”).</div></div>
+      <div class="row"><button class="btn btn--ghost" data-g4r-go="3"><svg class="icon" aria-hidden="true"><use href="#chevron-left"/></svg>Quay lại</button><span style="flex:1"></span><span class="tooltip-host"><button class="btn btn--primary" id="to5" data-g4r-go="5" disabled aria-describedby="to5-why">Xem trước<svg class="icon" aria-hidden="true"><use href="#arrow-right"/></svg></button><span class="tooltip" id="to5-why" role="tooltip">Cần sửa hết dòng lỗi trước khi xem trước.</span></span></div>
+    </div>
+
+    <!-- BƯỚC 5 -->
+    <div class="g4r-wiz__panel stack" data-g4r-step="5" hidden style="margin-top:24px">
+      <h2 class="t-heading-md" style="margin:0">5. Xem trước dữ liệu sẽ được tạo</h2>
+      <div class="grid grid--3"><div class="card kpi"><span class="kpi__label">Sẽ tạo mới</span><span class="kpi__value">1.245</span><span class="kpi__meta">phụ tùng</span></div><div class="card kpi"><span class="kpi__label">Sẽ cập nhật</span><span class="kpi__value">0</span><span class="kpi__meta">mã đã có trong hệ thống</span></div><div class="card kpi kpi--warning"><span class="kpi__label">Cảnh báo</span><span class="kpi__value">3</span><span class="kpi__meta">chưa đặt định mức</span></div></div>
+      <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Xem trước 5 dòng đầu</caption>
+        <thead><tr><th>Mã phụ tùng</th><th>Tên</th><th>Đơn vị</th><th class="col-num">Giá niêm yết</th><th>Định mức</th></tr></thead>
+        <tbody>
+          <tr><td class="code">PT-MP-0012</td><td>Má phanh trước Hyundai Accent</td><td>Bộ</td><td class="col-num">620.000 ₫</td><td class="num">8</td></tr>
+          <tr><td class="code">PT-DN-0003</td><td>Dầu động cơ 5W-30 (can 4 lít)</td><td>Can</td><td class="col-num">890.000 ₫</td><td class="num">20</td></tr>
+          <tr><td class="code">PT-LK-0101</td><td>Lọc gió Toyota Vios</td><td>Cái</td><td class="col-num">185.000 ₫</td><td class="num">6</td></tr>
+          <tr><td class="code">PT-PK-0300</td><td>Gạt mưa Bosch 24 inch</td><td>Cặp</td><td class="col-num">240.000 ₫</td><td><span class="badge badge--neutral">Chưa đặt định mức</span></td></tr>
+        </tbody></table></div><div class="table-footer"><span class="table-meta">Xem trước 4 trong 1.245 dòng</span></div></div>
+      <div class="row"><button class="btn btn--ghost" data-g4r-go="4"><svg class="icon" aria-hidden="true"><use href="#chevron-left"/></svg>Quay lại</button><span style="flex:1"></span><button class="btn btn--primary" data-g4r-go="6">Tiếp tục<svg class="icon" aria-hidden="true"><use href="#arrow-right"/></svg></button></div>
+    </div>
+
+    <!-- BƯỚC 6 -->
+    <div class="g4r-wiz__panel stack" data-g4r-step="6" hidden style="margin-top:24px">
+      <h2 class="t-heading-md" style="margin:0">6. Xác nhận ghi cả lô</h2>
+      <div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><div class="alert__title">Ghi 1.245 phụ tùng vào Chi nhánh Quận 7 (môi trường thử)</div>Cả lô được ghi hoặc không ghi gì. Sau khi ghi, có thể hoàn tác nguyên lô ở “Lịch sử lô nhập” nếu dữ liệu chưa phát sinh giao dịch.</div></div>
+      <label class="check"><input type="checkbox" id="ok6"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đối chiếu số dòng (1.245) và chi nhánh nhận với tệp nguồn.</span></label>
+      <div class="row"><button class="btn btn--ghost" data-g4r-go="5"><svg class="icon" aria-hidden="true"><use href="#chevron-left"/></svg>Quay lại</button><span style="flex:1"></span><button class="btn btn--primary" id="commit" data-open="dlg-commit" disabled aria-describedby="commit-why">Ghi cả lô</button></div>
+      <span class="field__hint" id="commit-why">Nút Ghi cả lô mở khi bạn đã tick xác nhận đối chiếu.</span>
+    </div>
+  </div>
+</section>
+
+<script>
+document.getElementById('fixed').addEventListener('click', function () {
+  document.getElementById('chk-bad').hidden = true; document.getElementById('chk-ok').hidden = false;
+  var b = document.getElementById('to5'); b.disabled = false; document.getElementById('to5-why').hidden = true;
+});
+document.getElementById('ok6').addEventListener('change', function (e) { document.getElementById('commit').disabled = !e.target.checked; });
+</script>
+
+<script>
+g4rEnd('<div data-state="badfile" hidden><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><div class="alert__body"><div class="alert__title">Không đọc được tệp “ton-kho.pdf”</div>Chỉ nhận tệp Excel (.xlsx) theo mẫu chuẩn. Hãy mở tệp bằng Excel, lưu lại dạng .xlsx rồi tải lên. Tệp mật khẩu hoặc có macro không được nhận.<div class="alert__actions"><button class="btn btn--secondary btn--sm" data-state-switch="data">Chọn tệp khác</button></div></div></div></div><div data-state="big" hidden><div class="table-wrap"><div class="card__body stack"><div class="state" style="padding:var(--space-6)"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#loader"/></svg></div><div class="state__title">Đang kiểm tra tệp lớn ở nền</div><p class="state__text">Tệp 18.400 dòng cần vài phút. Bạn có thể rời trang; chúng tôi báo khi xong. Chưa ghi gì vào hệ thống.</p></div><div class="progress progress--info"><div class="progress__head"><span>Đã kiểm tra 11.200 / 18.400 dòng</span><span class="num">61%</span></div><div class="progress__track" role="progressbar" aria-valuenow="61" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ kiểm tra tệp"><span class="progress__bar" style="width:61%"></span></div></div></div></div></div><div data-state="done" hidden><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div><div class="state__title">Đã ghi lô L-0012: 1.245 phụ tùng</div><p class="state__text">Ghi vào Chi nhánh Quận 7 (môi trường thử) lúc 09:21 30/10/2026. Có thể hoàn tác nguyên lô khi chưa phát sinh giao dịch.</p><div class="state__actions"><a class="btn btn--primary" href="g4-sys-21.html">Mở lịch sử lô nhập</a><a class="btn btn--secondary" href="g4-sys-20.html">Nhập loại dữ liệu khác</a></div></div></div>',
+'<div class="overlay" id="dlg-commit" role="alertdialog" aria-modal="true" aria-labelledby="cm-t"><div class="dialog" data-confirm-guard data-confirm-word="GHI LO"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="cm-t">Ghi lô 1.245 phụ tùng?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Tạo 1.245 phụ tùng ở Chi nhánh Quận 7 (môi trường thử).</li><li>Cả lô cùng thành công hoặc cùng không ghi.</li><li>Hoàn tác được nguyên lô nếu chưa có giao dịch.</li></ul><div class="field"><label class="field__label" for="cm-w">Gõ GHI LO để xác nhận</label><input class="input" id="cm-w" data-confirm-input autocomplete="off"></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Chưa ghi</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đang ghi lô L-0012|Xong sẽ báo ở đây, lô xuất hiện trong Lịch sử lô nhập.">Ghi cả lô</button></div></div></div>');
+</script>
+</body>
+</html>

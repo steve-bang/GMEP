@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-PUR-08 · Phiếu trả hàng cho nhà cung cấp – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('pur')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('PUR-08')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Trả hàng nhà cung cấp <span class="code">TR-Q7-2610-00002</span></h1><p class="page-header__desc">Trả hàng lỗi hoặc giao sai theo phiếu nhập gốc. Xác nhận trả làm giảm tồn và giảm công nợ phải trả.</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><a class="btn btn--secondary" href="g3-inv-08.html">Xem chứng từ kho</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Trả từ Kho Quận 7</span><span>· 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="phiếu trả hàng" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-08.html">
+<div data-g3-state="data" class="stack">
+  <div class="g3-ro-flag alert alert--info" data-for="f-rtv" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Thủ kho lập phiếu trả; Quản lý chi nhánh duyệt.</span></div></div>
+  <div class="g3-statebar" data-g3-keep><span class="g3-statebar__label">Mô phỏng:</span><button class="btn btn--secondary btn--sm" aria-pressed="false" data-g3-toggle="e-sold">Trả hàng đã xuất cho lệnh</button></div>
+  <div class="alert alert--danger" id="e-sold" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Không trả được 3 đơn vị Lọc gió Mazda CX-5: đã xuất cho lệnh sửa chữa</span><span>Hàng đã bán hoặc đã xuất (RO-Q7-2610-00109, RO-Q7-2610-00117) không được trả nhà cung cấp. Chỉ trả phần còn trong kho. Muốn xử lý hàng đã lắp, báo Quản lý để theo dõi bảo hành.</span></div></div>
+  <form id="f-rtv" class="g3-split" data-g3-edit="TK" onsubmit="return false">
+    <div class="stack-6">
+      <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Chứng từ gốc</h2>
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="t-pn">Phiếu nhập gốc<span class="field__req" aria-hidden="true">*</span></label><input id="t-pn" class="input" value="PN-Q7-2610-00029 · 06/10/2026"></div>
+          <div class="field"><label class="field__label" for="t-ncc">Nhà cung cấp</label><input id="t-ncc" class="input" value="Công ty TNHH Phụ tùng Hoàng Long" readonly></div>
+          <div class="field"><label class="field__label" for="t-why">Lý do<span class="field__req" aria-hidden="true">*</span></label><select id="t-why" class="select"><option>Giao sai chủng loại / model</option><option>Hàng lỗi, hỏng</option><option>Giao thừa</option><option>Khác (ghi chú bắt buộc)</option></select></div>
+          <div class="field"><label class="field__label" for="t-note">Ghi chú</label><input id="t-note" class="input" value="Giao Mazda CX-5 2014, đặt đời 2017–2023"></div>
+        </div></section>
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Hàng trả</h2></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Hàng trả và số còn có thể trả</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Đã nhập</th><th class="col-num">Đã trả trước</th><th class="col-num">Đã xuất</th><th class="col-num">Còn trong kho</th><th class="col-num">SL trả</th><th class="col-num">Giá nhập</th><th class="col-num">Giảm công nợ</th></tr></thead><tbody>
+          <tr><td><span class="code">PT-0007</span> Lọc gió động cơ Mazda CX-5</td><td class="col-num">10</td><td class="col-num">4</td><td class="col-num">0</td><td class="col-num">6</td><td class="col-num"><div class="qty" role="group" aria-label="SL trả PT-0007"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="2" min="1" max="6" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num">210.000 ₫</td><td class="col-num">420.000 ₫</td></tr></tbody>
+          <tfoot><tr><td colspan="7">Tổng giảm công nợ phải trả (chưa thuế)</td><td class="col-num">420.000 ₫</td></tr></tfoot></table></div></section>
+    </div>
+    <aside class="g3-side"><section class="card"><div class="card__body stack">
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-rtv" data-g3-need="TK" data-g3-why="Chỉ Thủ kho gửi duyệt phiếu trả.">Gửi duyệt trả hàng</button><button class="btn btn--secondary btn--block" type="button">Lưu nháp</button>
+      <p class="t-body-sm text-secondary">Trả hàng không sửa hoặc xóa phiếu nhập gốc; hai chứng từ liên kết nhau. Hạn thanh toán và công nợ của nhà cung cấp tự điều chỉnh sau khi ghi sổ.</p></div></section></aside>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-rtv" role="alertdialog" aria-modal="true" aria-labelledby="rv-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rv-t">Gửi duyệt trả 2 Lọc gió cho Hoàng Long?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Tồn Thực tế PT-0007 giảm 2, công nợ phải trả giảm 420.000 ₫ (chưa thuế) sau khi ghi sổ.</li><li>Phiếu cần Quản lý chi nhánh duyệt; sau khi ghi sổ không sửa hoặc xóa.</li></ul></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã gửi duyệt|Chờ Đặng Hữu Phúc duyệt phiếu trả hàng.">Gửi duyệt</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

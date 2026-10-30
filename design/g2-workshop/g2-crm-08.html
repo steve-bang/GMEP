@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-08 – Phát hiện trùng và hợp nhất hồ sơ · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QL" data-nav="cust" data-g2w-deny="CH QV CV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-01.html">Khách hàng</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Hợp nhất hồ sơ trùng</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Hợp nhất hồ sơ trùng</h1><p class="page-header__desc">Chọn thông tin giữ lại cho từng trường. Mọi lịch sử của hai hồ sơ đều được giữ. Ưu tiên Should, chưa vào giai đoạn 1.</p></div></div>
+  <div data-g2w-scope data-time="Hồ sơ trùng theo số điện thoại"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có cặp trùng|loading:Đang tải|empty:Không có cặp trùng|error:Lỗi|denied:Không có quyền"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Phát hiện 2 hồ sơ có cùng số điện thoại</span><span>Hệ thống chỉ gợi ý, người dùng quyết định. Hợp nhất không hoàn tác thủ công, nên kiểm tra kỹ hai hồ sơ có phải cùng một người không.</span></div></div>
+
+    <section class="card" aria-labelledby="mg">
+      <div class="card__header"><div><h2 class="card__title" id="mg">So sánh từng trường</h2><div class="card__subtitle">Bấm chọn bản giữ lại. Hồ sơ A là hồ sơ chính (cũ hơn, nhiều lịch sử hơn).</div></div></div>
+      <div class="card__body">
+        <div class="g2w-diff" role="table" aria-label="So sánh hai hồ sơ khách">
+          <div class="g2w-diff__h" role="columnheader">Trường</div><div class="g2w-diff__h" role="columnheader">Hồ sơ A · tạo 05/01/2023 · Quận 7</div><div class="g2w-diff__h" role="columnheader">Hồ sơ B · tạo 14/09/2025 · Thủ Đức</div><div class="g2w-diff__h" role="columnheader">Kết quả sau hợp nhất</div>
+          <div>Họ tên</div><div class="is-keep"><label class="radio"><input type="radio" name="f1" checked><span class="radio__box"></span><span>Nguyễn Văn An</span></label></div><div><label class="radio"><input type="radio" name="f1"><span class="radio__box"></span><span>Nguyen Van An</span></label></div><div><strong>Nguyễn Văn An</strong></div>
+          <div>Điện thoại</div><div class="is-keep"><label class="radio"><input type="radio" name="f2" checked><span class="radio__box"></span><span class="g2w-pii" data-id="c1"></span></label></div><div><label class="radio"><input type="radio" name="f2"><span class="radio__box"></span><span class="g2w-pii" data-id="c1"></span></label></div><div><span class="g2w-pii" data-id="c1"></span> <span class="g2w-muted">(trùng nhau)</span></div>
+          <div>Email</div><div class="is-keep"><label class="radio"><input type="radio" name="f3" checked><span class="radio__box"></span><span>có email</span></label></div><div><label class="radio"><input type="radio" name="f3"><span class="radio__box"></span><span class="text-disabled">để trống</span></label></div><div>Giữ email của A</div>
+          <div>Địa chỉ</div><div class="is-keep"><label class="radio"><input type="radio" name="f4" checked><span class="radio__box"></span><span>Quận 7, TP.HCM</span></label></div><div><label class="radio"><input type="radio" name="f4"><span class="radio__box"></span><span>TP. Thủ Đức</span></label></div><div>Quận 7, TP.HCM <span class="g2w-muted">(chi tiết hiện theo quyền)</span></div>
+          <div>Nhãn</div><div class="is-keep">VIP</div><div>—</div><div>VIP (gộp nhãn của cả hai)</div>
+        </div>
+        <h3 class="g2w-sec-title" style="margin:var(--space-6) 0 var(--space-2)">Dữ liệu được gộp</h3>
+        <div class="g2w-three">
+          <div class="card kpi"><span class="kpi__label">Xe</span><span class="kpi__value">3</span><span class="kpi__meta">2 của A + 1 của B</span></div>
+          <div class="card kpi"><span class="kpi__label">Lệnh sửa chữa</span><span class="kpi__value">4</span><span class="kpi__meta">3 của A + 1 của B</span></div>
+          <div class="card kpi"><span class="kpi__label">Bản ghi đồng ý dữ liệu</span><span class="kpi__value">5</span><span class="kpi__meta">Giữ lịch sử đủ cả hai; cách gộp xem câu hỏi cho BA</span></div>
+        </div>
+      </div>
+      <div class="card__footer"><a class="btn btn--secondary" href="g2-crm-01.html">Không phải một người</a><button class="btn btn--danger-outline" data-open="dlg-merge" data-g2w-lock="QL" data-g2w-why="Chỉ Quản lý chi nhánh hợp nhất hồ sơ."><svg class="icon"><use href="#users"/></svg>Hợp nhất…</button></div>
+    </section>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--block" style="height:260px"></span></div></div><p class="g2w-muted" role="status">Đang tìm hồ sơ trùng…</p></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="users" data-title="Không có cặp hồ sơ nào nghi trùng" data-text="Khi hai hồ sơ có cùng số điện thoại hoặc biển số, hệ thống gợi ý ở đây."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được danh sách trùng" data-ref="ERR-CRM-5008"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền hợp nhất hồ sơ" data-text="Chỉ Quản lý chi nhánh hợp nhất hồ sơ khách."></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-merge" role="alertdialog" aria-modal="true" aria-labelledby="mrg-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="HỢP NHẤT">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="mrg-t">Hợp nhất hồ sơ B vào hồ sơ A?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list"><li>Hồ sơ B không còn xuất hiện trong danh sách; mã B được chuyển hướng sang A.</li><li>Giữ toàn bộ lịch sử xe, lệnh, báo giá, thanh toán và đồng ý dữ liệu.</li><li>Không hoàn tác thủ công. Ghi nhật ký: ai, khi nào, trường nào được chọn.</li></ul>
+    <div class="field"><label class="field__label" for="mrg-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="mrg-r" class="textarea" data-confirm-reason placeholder="Ví dụ: Khách xác nhận đây là cùng một người, đổi chi nhánh sửa"></textarea></div>
+    <div class="field"><label class="field__label" for="mrg-c">Gõ <strong>HỢP NHẤT</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="mrg-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã hợp nhất hồ sơ|Chuyển hướng mã B sang A. Nhật ký đã ghi." disabled>Hợp nhất</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-DLV-05 · Danh sách bảo hành – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Bảo hành']], title: 'Bảo hành', desc: 'Hạng mục còn hạn bảo hành theo thời gian và số km. Có thể tra theo biển số hoặc mã lệnh gốc, kể cả lệnh ở chi nhánh khác trong phạm vi được phép.',
+  actions: '<a class="btn btn--primary" data-show-roles="CV QL" href="g2-dlv-06.html">' + g2q.ic('plus') + 'Tạo lệnh bảo hành</a>' });
+g2q.scope('hạn bảo hành tới 30/10/2026', '09:15');
+</script>
+
+<div class="stack-6" data-variants="default">
+  <script>g2q.proto([['default','Có dữ liệu'],['loading','Đang tải'],['empty','Trống lần đầu'],['filter','Trống do lọc'],['error','Lỗi tải'],['noperm','Không có quyền']], 'default');</script>
+
+  <div class="alert alert--info" data-v="default"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Bảo hành chéo chi nhánh</span><span>Tra được lệnh gốc ở chi nhánh khác nhưng chỉ thấy phần được phép (hạng mục, hạn bảo hành). Chi nhánh chịu chi phí và điều kiện áp dụng là cấu hình <span class="tag tag--neutral">[Cần xác nhận]</span>.</span></div></div>
+
+  <section data-v="default loading filter" aria-label="Bộ lọc">
+    <div class="filter-bar">
+      <div class="field filter-bar__search"><label class="field__label" for="q">Tìm bảo hành</label><div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input id="q" class="input" type="search" placeholder="Biển số, mã lệnh gốc, hạng mục (không cần gõ dấu)"></div></div>
+      <div class="field"><label class="field__label" for="cn">Chi nhánh gốc</label><select id="cn" class="select"><option>Tất cả chi nhánh trong phạm vi</option><option>Chi nhánh Quận 7</option><option>Chi nhánh Thủ Đức</option></select></div>
+      <div class="field"><label class="field__label" for="th">Thợ gốc</label><select id="th" class="select"><option>Tất cả thợ</option><option>Lê Minh Tuấn</option><option>Trần Văn Hậu</option></select></div>
+      <div class="filter-bar__actions"><button class="btn btn--secondary">Đặt lại</button></div>
+    </div>
+    <div class="chip-row" aria-label="Bộ lọc đang áp dụng"><span class="t-body-sm text-secondary">Đang lọc:</span><span class="chip" data-v="filter">Biển số “99Z”<button class="chip__x" aria-label="Bỏ lọc biển số"><svg class="icon"><use href="#x"/></svg></button></span><button class="btn btn--ghost btn--sm" data-v="filter">Xóa tất cả bộ lọc</button></div>
+  </section>
+
+  <section data-v="default" aria-label="Danh sách bảo hành">
+    <div class="row" style="margin-bottom:12px" role="group" aria-label="Lọc nhanh theo tình trạng bảo hành">
+      <button class="chip-filter" aria-pressed="true">Tất cả <span class="count-pill">6</span></button>
+      <button class="chip-filter" aria-pressed="false">Còn hạn <span class="count-pill">4</span></button>
+      <button class="chip-filter" aria-pressed="false">Sắp hết hạn <span class="count-pill count-pill--warning">1</span></button>
+      <button class="chip-filter" aria-pressed="false">Hết hạn <span class="count-pill">1</span></button>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar"><span class="table-meta">6 hạng mục · bấm tiêu đề cột để sắp xếp</span></div>
+      <div class="table-scroll"><table class="table" data-cardify>
+        <thead><tr><th>Hạng mục</th><th>Xe</th><th>Lệnh gốc</th><th>Chi nhánh gốc</th><th>Thợ gốc</th><th>Ngày giao</th><th aria-sort="none"><button class="th-sort">Hạn bảo hành<svg class="icon"><use href="#chevrons-up-down"/></svg></button></th><th>Tình trạng</th><th class="col-actions" style="width:auto"><span class="sr-only">Thao tác</span></th></tr></thead>
+        <tbody>
+          <tr><td class="cell-primary" data-card="title">Thay ắc quy 12V</td><td data-label="Xe"><span class="plate">59A-111.22</span><span class="cell-sub">Lê Quốc Huy</span></td><td data-label="Lệnh gốc" class="code">RO-TD-2605-00288</td><td data-label="Chi nhánh">Thủ Đức</td><td data-label="Thợ gốc">Võ Minh Phát</td><td data-label="Giao" class="col-nowrap">11/05/2026</td><td data-label="Hạn" class="col-nowrap">11/11/2026 <span class="cell-sub">hoặc 20.000 km</span></td><td data-card="status"><span class="tag tag--warning">Sắp hết hạn · còn 12 ngày</span></td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="CV QL" href="g2-dlv-06.html">Tạo lệnh bảo hành</a></td></tr>
+          <tr><td class="cell-primary" data-card="title">Cân chỉnh góc đặt bánh xe</td><td data-label="Xe"><span class="plate">50H-118.04</span><span class="cell-sub">Ngô Thị Phượng</span></td><td data-label="Lệnh gốc" class="code">RO-Q7-2609-00771</td><td data-label="Chi nhánh">Quận 7</td><td data-label="Thợ gốc">Trần Văn Hậu</td><td data-label="Giao" class="col-nowrap">20/09/2026</td><td data-label="Hạn" class="col-nowrap">20/10/2026 <span class="cell-sub">30 ngày</span></td><td data-card="status"><span class="tag tag--neutral">Hết hạn 10 ngày</span></td><td class="col-actions" style="width:auto"><a class="btn btn--secondary btn--sm" data-show-roles="CV QL" href="g2-dlv-06.html?v=out">Tạo (ngoài hạn, cần duyệt)</a></td></tr>
+          <tr><td class="cell-primary" data-card="title">Cân chỉnh góc đặt bánh xe</td><td data-label="Xe"><span class="plate">29A-345.67</span><span class="cell-sub">Đinh Thị Hạnh</span></td><td data-label="Lệnh gốc" class="code">RO-Q7-2610-00123</td><td data-label="Chi nhánh">Quận 7</td><td data-label="Thợ gốc">Trần Văn Hậu</td><td data-label="Giao" class="col-nowrap">30/10/2026</td><td data-label="Hạn" class="col-nowrap">29/11/2026 <span class="cell-sub">30 ngày</span></td><td data-card="status"><span class="tag tag--success">Còn hạn · 30 ngày</span></td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="CV QL" href="g2-dlv-06.html">Tạo lệnh bảo hành</a></td></tr>
+          <tr><td class="cell-primary" data-card="title">Sửa hệ thống phanh</td><td data-label="Xe"><span class="plate">61C-789.12</span><span class="cell-sub">Cty TNHH Xây dựng Phú Gia</span></td><td data-label="Lệnh gốc" class="code">RO-Q7-2610-00108</td><td data-label="Chi nhánh">Quận 7</td><td data-label="Thợ gốc">Nguyễn Văn Dũng</td><td data-label="Giao" class="col-nowrap">28/10/2026</td><td data-label="Hạn" class="col-nowrap">28/01/2027 <span class="cell-sub">hoặc 10.000 km</span></td><td data-card="status"><span class="tag tag--success">Còn hạn · 3 tháng</span></td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="CV QL" href="g2-dlv-06.html">Tạo lệnh bảo hành</a></td></tr>
+          <tr><td class="cell-primary" data-card="title">Thay lốp (4 cái), cân bằng động</td><td data-label="Xe"><span class="plate">51L-456.89</span><span class="cell-sub">Phan Thị Lệ</span></td><td data-label="Lệnh gốc" class="code">RO-Q7-2610-00113</td><td data-label="Chi nhánh">Quận 7</td><td data-label="Thợ gốc">Lê Minh Tuấn</td><td data-label="Giao" class="col-nowrap">29/10/2026</td><td data-label="Hạn" class="col-nowrap">29/04/2027 <span class="cell-sub">hoặc 20.000 km</span></td><td data-card="status"><span class="tag tag--success">Còn hạn · 6 tháng</span></td><td class="col-actions" style="width:auto"><a class="btn btn--primary btn--sm" data-show-roles="CV QL" href="g2-dlv-06.html">Tạo lệnh bảo hành</a></td></tr>
+          <tr><td class="cell-primary" data-card="title"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg> Thay má phanh trước (chi tiết giới hạn)</td><td data-label="Xe"><span class="plate">51F-222.33</span><span class="cell-sub">Hoàng Gia Bảo</span></td><td data-label="Lệnh gốc" class="code">RO-Q1-2608-00092</td><td data-label="Chi nhánh">Quận 1</td><td data-label="Thợ gốc" class="text-tertiary">Không hiển thị</td><td data-label="Giao" class="col-nowrap">12/08/2026</td><td data-label="Hạn" class="col-nowrap">12/02/2027 <span class="cell-sub">6 tháng</span></td><td data-card="status"><span class="tag tag--success">Còn hạn · 3 tháng</span></td><td class="col-actions" style="width:auto"><a class="btn btn--secondary btn--sm" data-show-roles="CV QL" href="g2-dlv-06.html?v=cross">Tạo lệnh bảo hành chéo CN</a></td></tr>
+        </tbody>
+      </table></div>
+      <div class="table-footer"><span class="table-meta">Chi nhánh Quận 1: bạn chỉ thấy hạng mục và hạn bảo hành, không thấy thợ, giá, hay chi tiết khách.</span></div>
+    </div>
+    <p class="g2q-note" style="margin-top:12px">Nhãn “Còn hạn / Sắp hết hạn / Hết hạn” là gợi ý hiển thị, ngưỡng “sắp hết” lấy từ cấu hình; chưa có bộ trạng thái bảo hành chính thức (xem câu hỏi cho BA).</p>
+  </section>
+
+  <div data-v="loading" aria-busy="true" class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Hạng mục</th><th>Xe</th><th>Lệnh gốc</th><th>Chi nhánh</th><th>Hạn</th><th>Tình trạng</th></tr></thead><tbody><script>g2q.skelRows(5, 6)</script></tbody></table></div></div>
+  <div data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Chưa có hạng mục nào đang bảo hành', text:'Hạng mục được tính bảo hành từ ngày giao xe (biên bản giao xe). Sau khi giao xe đầu tiên, danh sách này sẽ có dữ liệu.', actions:'<a class="btn btn--secondary" href="g2-dlv-03.html">Mở chuẩn bị bàn giao</a>'})</script></div>
+  <div data-v="filter" class="card"><script>g2q.state({kind:'filter', title:'Không có bảo hành phù hợp bộ lọc', text:'Không thấy hạng mục nào khớp biển số “99Z”. Thử gõ ít ký tự hơn hoặc tra theo mã lệnh gốc.', actions:'<button class="btn btn--secondary">Xóa tất cả bộ lọc</button>'})</script></div>
+  <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được danh sách bảo hành', text:'Thử lại sau vài giây.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-DLV-90B3D1'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem bảo hành', text:'Mục này dành cho Cố vấn dịch vụ, Quản lý chi nhánh (tạo lệnh) và Chủ garage, Quản lý vùng (chỉ xem).', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
+</div>
+<script>g2q.end();</script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-13 – Quy trình theo loại dịch vụ · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-13" data-menu="set" data-crumbs="Cài đặt|Quy trình theo loại dịch vụ" data-allow="AD QL CH"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Quy trình theo loại dịch vụ',
+  desc: 'Mỗi loại dịch vụ có bộ bước riêng và người phụ trách mặc định. Đổi bộ bước chỉ áp dụng cho lệnh mới; lệnh đang chạy giữ bộ bước cũ.',
+  prio: 'P1 (sửa chung, bảo dưỡng, lốp) · P2+ (đồng sơn)',
+  cfgScope: 'Mặc định toàn công ty; chi nhánh bật loại dịch vụ ở “Cấu hình chi nhánh”',
+  actions: '<button class="btn btn--primary" data-edit-roles="AD" data-open="dlg-flow" title="Chỉ Quản trị hệ thống lưu bộ bước; Quản lý chi nhánh duyệt"><svg class="icon" aria-hidden="true"><use href="#check"/></svg>Lưu bộ bước</button>',
+  empty: { title: 'Chưa có loại dịch vụ nào được bật', text: 'Bật ít nhất một loại dịch vụ ở Cấu hình chi nhánh để cấu hình bộ bước.' }
+});
+</script>
+
+<div class="tabs" role="tablist" aria-label="Loại dịch vụ">
+  <button class="tab" role="tab" id="f1" aria-selected="true" aria-controls="fp1">Sửa chữa chung</button>
+  <button class="tab" role="tab" id="f2" aria-selected="false" tabindex="-1" aria-controls="fp2">Bảo dưỡng</button>
+  <button class="tab" role="tab" id="f3" aria-selected="false" tabindex="-1" aria-controls="fp3">Lốp và mâm</button>
+  <button class="tab" role="tab" id="f4" aria-selected="false" tabindex="-1" aria-controls="fp4">Đồng sơn <span class="tag tag--warning">Chưa khảo sát</span></button>
+</div>
+
+<div id="flows" class="stack"></div>
+
+<div class="tab-panel" id="fp4" role="tabpanel" aria-labelledby="f4" hidden>
+  <div class="table-wrap"><div class="state"><div class="state__icon state__icon--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#wrench"/></svg></div><div class="state__title">Quy trình đồng sơn chưa được khảo sát</div><p class="state__text">Công đoạn đồng sơn (số bước, người phụ trách, thời gian chờ sấy…) cần khảo sát xưởng <b>[Cần khảo sát xưởng]</b>. Màn hình này cho phép tự thêm các bước khi đã có quy trình; hiện chưa bật cho chi nhánh nào.</p><div class="state__actions"><button class="btn btn--secondary" disabled aria-describedby="ds-why">Thêm bước đầu tiên</button></div><span class="state__ref" id="ds-why">Đang khóa: chưa có yêu cầu nghiệp vụ được xác nhận</span></div></div>
+</div>
+
+<script>
+(function () {
+  var F = {
+    f1: [['Tiếp nhận và kiểm tra ban đầu', 'Cố vấn dịch vụ', 1, 1, 0], ['Lập báo giá và khách duyệt', 'Cố vấn dịch vụ', 1, 0, 0], ['Thực hiện sửa chữa', 'Thợ', 1, 1, 0], ['Kiểm tra chất lượng', 'Quản đốc / nhân viên QC', 1, 1, 1], ['Thu tiền, hóa đơn và bàn giao', 'Thu ngân', 1, 0, 0]],
+    f2: [['Tiếp nhận, ghi số km', 'Cố vấn dịch vụ', 1, 0, 0], ['Báo giá theo gói hoặc hạng mục', 'Cố vấn dịch vụ', 1, 0, 0], ['Thay dầu, lọc và kiểm tra theo gói', 'Thợ', 1, 1, 0], ['Kiểm tra chất lượng', 'Quản đốc / nhân viên QC', 1, 0, 1], ['Đặt lịch bảo dưỡng kế tiếp và bàn giao', 'Cố vấn dịch vụ', 0, 0, 0]],
+    f3: [['Tiếp nhận, chọn loại lốp', 'Cố vấn dịch vụ', 1, 0, 0], ['Tháo lắp lốp', 'Thợ', 1, 0, 0], ['Cân bằng động, cân chỉnh góc đặt bánh', 'Thợ', 1, 1, 0], ['Kiểm tra chất lượng và bàn giao', 'Quản đốc / nhân viên QC', 1, 0, 1]]
+  };
+  var h = '';
+  Object.keys(F).forEach(function (k, ki) {
+    h += '<div class="tab-panel" id="fp' + (ki + 1) + '" role="tabpanel" aria-labelledby="f' + (ki + 1) + '"' + (ki ? ' hidden' : '') + '><div class="table-wrap"><div class="table-toolbar"><strong>Các bước của loại dịch vụ</strong><span class="table-meta" style="margin-left:auto">12 lệnh đang chạy giữ bộ bước cũ khi đổi</span></div><div class="table-scroll"><table class="table"><caption class="sr-only">Các bước theo loại dịch vụ</caption><thead><tr><th>Thứ tự</th><th>Tên bước</th><th>Người phụ trách mặc định</th><th>Bắt buộc</th><th>Yêu cầu ảnh</th><th>Qua cổng QC</th><th>Sắp xếp</th></tr></thead><tbody>';
+    F[k].forEach(function (s, i) {
+      h += '<tr><td class="num">' + (i + 1) + '</td><td>' + s[0] + '</td><td><label class="sr-only" for="o' + ki + i + '">Người phụ trách bước ' + s[0] + '</label><select class="select" id="o' + ki + i + '" data-edit-roles="AD"><option>' + s[1] + '</option><option>Thợ</option><option>Quản đốc / nhân viên QC</option><option>Cố vấn dịch vụ</option><option>Thu ngân</option></select></td>' +
+        '<td><label class="switch"><input type="checkbox" role="switch" data-edit-roles="AD"' + (s[2] ? ' checked' : '') + ' aria-label="Bước ' + s[0] + ' bắt buộc"><span class="switch__track"></span></label></td>' +
+        '<td><label class="check" style="min-height:44px"><input type="checkbox" data-edit-roles="AD"' + (s[3] ? ' checked' : '') + ' aria-label="Yêu cầu ảnh ở bước ' + s[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>' +
+        '<td><label class="check" style="min-height:44px"><input type="checkbox" data-edit-roles="AD"' + (s[4] ? ' checked' : '') + ' aria-label="Qua cổng QC ở bước ' + s[0] + '"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td>' +
+        '<td><div class="btn-group"><button class="btn-icon" data-edit-roles="AD" aria-label="Chuyển bước ' + s[0] + ' lên"' + (i === 0 ? ' disabled' : '') + '><svg class="icon"><use href="#arrow-up"/></svg></button><button class="btn-icon" data-edit-roles="AD" aria-label="Chuyển bước ' + s[0] + ' xuống"' + (i === F[k].length - 1 ? ' disabled' : '') + '><svg class="icon"><use href="#arrow-down"/></svg></button></div></td></tr>';
+    });
+    h += '</tbody></table></div><div class="table-footer"><span class="table-meta">Trạng thái hạng mục cố định theo nghiệp vụ: Chưa làm, Đang làm, Tạm dừng, Hoàn thành, Trả lại. Cấu hình chỉ quyết định bước và người phụ trách.</span><button class="btn btn--secondary btn--sm" data-edit-roles="AD"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm bước</button></div></div></div>';
+  });
+  document.getElementById('flows').innerHTML = h;
+})();
+</script>
+
+<script>
+g4rEnd('', '<div class="overlay" id="dlg-flow" role="alertdialog" aria-modal="true" aria-labelledby="fl-t"><div class="dialog" data-confirm-guard><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="fl-t">Lưu bộ bước cho loại “Sửa chữa chung”?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="dialog__body"><ul class="impact-list"><li>Chỉ áp dụng cho lệnh tạo sau khi lưu; 12 lệnh đang chạy giữ bộ bước cũ.</li><li>Quản lý chi nhánh sẽ nhận yêu cầu duyệt bộ bước mới.</li><li>Lưu phiên bản, ghi nhật ký.</li></ul><div class="field"><label class="field__label" for="fl-r">Lý do thay đổi<span class="field__req">*</span></label><textarea class="textarea" id="fl-r" data-confirm-reason style="min-height:56px"></textarea></div></div><div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã gửi duyệt|Bộ bước mới áp dụng cho lệnh mới sau khi được duyệt.">Lưu và gửi duyệt</button></div></div></div>');
+</script>
+</body>
+</html>

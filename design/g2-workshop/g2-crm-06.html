@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-06 – Hồ sơ xe và lịch sử sửa chữa · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="cust" data-g2w-deny="TK AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-04.html">Xe</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">51H-123.45</span></nav>
+  <div data-g2w-scope data-time="Lịch sử mọi chi nhánh trong phạm vi quyền"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|notfound:Không tìm thấy|denied:Không có quyền|error:Lỗi"></div>
+  <div data-g2w-variants="full:Đủ lịch sử|partial:Có lịch sử chi nhánh khác (chỉ phần được phép)|empty:Xe mới, chưa có lịch sử" data-g2w-vlabel="Dữ liệu lịch sử:"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info" data-g2w-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Vai trò Thợ chỉ thấy thông tin xe và các hạng mục của việc được giao. Giá, chủ xe và liên hệ bị ẩn.</span></div></div>
+
+    <header class="g2w-ro-head">
+      <div class="g2w-ro-head__top">
+        <div class="stack-2" style="min-width:0">
+          <div class="g2w-ro-head__id"><h1 class="g2w-ro-head__code">Toyota Vios 1.5G 2019</h1><span class="plate-tag g2w-ro-head__plate">51H-123.45</span><span class="badge badge--info">Đang sửa chữa</span></div>
+          <div class="g2w-ro-head__sub">Số khung RL4B…F2891 · Chủ hiện tại <a href="g2-crm-03.html" data-g2w-hide-for="TH">Nguyễn Văn An</a> từ 05/01/2023 · 48.200 km (30/10/2026)</div>
+        </div>
+        <div class="g2w-actions" role="group" aria-label="Hành động trên xe">
+          <a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#plus"/></svg>Tiếp nhận xe</a>
+          <a class="btn btn--secondary" href="g2-crm-05.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#pencil"/></svg>Sửa xe</a>
+          <button class="btn btn--secondary" data-toast="info|Mở lệnh bảo hành|Chọn lệnh gốc còn hạn bảo hành (G2-DLV-05)." data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh tạo bảo hành."><svg class="icon"><use href="#clipboard-check"/></svg>Tạo bảo hành</button>
+          <a class="btn btn--danger-outline" href="g2-crm-07.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#arrow-left-right"/></svg>Chuyển chủ / đổi biển…</a>
+        </div>
+      </div>
+      <div class="g2w-objects" role="group" aria-label="Tình trạng giấy tờ và bảo hành">
+        <div class="g2w-obj"><span class="g2w-obj__label">Đăng kiểm đến</span><span class="num">12/03/2027</span></div>
+        <div class="g2w-obj"><span class="g2w-obj__label">Bảo hiểm đến</span><span class="num">15/01/2027</span></div>
+        <div class="g2w-obj"><span class="g2w-obj__label">Bảo dưỡng kế tiếp</span><span class="tag tag--warning">50.000 km · còn 1.800 km</span></div>
+        <div class="g2w-obj"><span class="g2w-obj__label">Bảo hành còn hạn</span><span class="tag tag--success">2 hạng mục</span></div>
+      </div>
+    </header>
+
+    <div class="g2w-split">
+      <section class="card">
+        <div class="tabs" role="tablist" aria-label="Hồ sơ xe" style="padding:0 var(--space-6);overflow-x:auto">
+          <button class="tab" role="tab" id="x1" aria-selected="true" aria-controls="xp1">Lịch sử sửa chữa</button>
+          <button class="tab" role="tab" id="x2" aria-selected="false" tabindex="-1" aria-controls="xp2">Hạng mục từng bị từ chối <span class="count-pill count-pill--warning">2</span></button>
+          <button class="tab" role="tab" id="x3" aria-selected="false" tabindex="-1" aria-controls="xp3">Kiểm tra xe số</button>
+          <button class="tab" role="tab" id="x4" aria-selected="false" tabindex="-1" aria-controls="xp4">Bảo hành</button>
+          <button class="tab" role="tab" id="x5" aria-selected="false" tabindex="-1" aria-controls="xp5" data-g2w-hide-for="TH">Sở hữu</button>
+        </div>
+
+        <div class="tab-panel" id="xp1" role="tabpanel" aria-labelledby="x1" style="padding:0">
+          <div data-g2w-vshow="full partial" class="g2w-hist">
+            <div class="g2w-hist__item"><span class="num">30/10/2026</span><div><div><a href="g2-rec-04.html">RO-Q7-2610-00128</a> · Bảo dưỡng 50.000 km, thay má phanh trước <span class="badge badge--info">Đang sửa chữa</span></div><div class="g2w-muted">Chi nhánh Quận 7 · 48.200 km · Thợ Lê Minh Tuấn</div></div><span class="num" data-g2w-money data-g2w-hide-for="TH">3.191.400 ₫</span></div>
+            <div class="g2w-hist__item"><span class="num">12/07/2026</span><div><div><a href="g2-rec-04.html?variant=done">RO-Q7-2607-00093</a> · Bảo dưỡng 40.000 km: thay dầu, lọc dầu, kiểm tra phanh <span class="badge badge--success">Hoàn tất</span></div><div class="g2w-muted">Chi nhánh Quận 7 · 43.900 km · Phụ tùng: dầu nhớt 5W-30, lọc dầu PT-0001</div></div><span class="num" data-g2w-money data-g2w-hide-for="TH">2.150.000 ₫</span></div>
+            <div class="g2w-hist__item" data-g2w-vshow="partial"><span class="num">03/03/2026</span><div><div><span class="tag"><svg class="icon"><use href="#lock"/></svg>Chi nhánh Thủ Đức</span> Lốp &amp; mâm, cân chỉnh góc đặt bánh <span class="badge badge--success">Hoàn tất</span></div><div class="g2w-muted">Chỉ hiện phần được phép xem: hạng mục và km. Giá và thợ của chi nhánh khác không hiện (FR-CRM-004).</div></div><span class="g2w-muted">39.200 km</span></div>
+            <div class="g2w-hist__item" data-g2w-vshow="full"><span class="num">03/03/2026</span><div><div><a href="g2-rec-04.html?variant=done">RO-TD-2603-00041</a> · Thay lốp trước, cân chỉnh góc đặt bánh <span class="badge badge--success">Hoàn tất</span></div><div class="g2w-muted">Chi nhánh Thủ Đức · 39.200 km</div></div><span class="num" data-g2w-money data-g2w-hide-for="TH">4.800.000 ₫</span></div>
+          </div>
+          <div data-g2w-vshow="empty" hidden><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#clipboard-list"/></svg></div><div class="state__title">Xe chưa có lịch sử sửa chữa</div><p class="state__text">Lịch sử xuất hiện sau lần tiếp nhận đầu tiên. Lịch sử tại chi nhánh khác cũng hiện ở đây nếu nằm trong quyền của bạn.</p><div class="state__actions"><a class="btn btn--primary" href="g2-rec-01.html"><svg class="icon"><use href="#plus"/></svg>Tiếp nhận xe</a></div></div></div>
+        </div>
+
+        <div class="tab-panel" id="xp2" role="tabpanel" aria-labelledby="x2" hidden style="padding:0">
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Hạng mục từng bị khách từ chối hoặc chưa làm</caption><thead><tr><th>Hạng mục</th><th>Lần</th><th>Lý do</th><th>Nhắc lần sau</th></tr></thead>
+            <tbody><tr><td>Thay lọc gió điều hòa</td><td class="num col-nowrap">12/07/2026</td><td>Khách từ chối</td><td><span class="tag tag--warning">Sẽ nhắc khi tiếp nhận</span></td></tr>
+              <tr><td>Cân chỉnh góc đặt bánh xe</td><td class="num col-nowrap">12/07/2026</td><td>Chưa làm, khách hẹn lần sau</td><td><span class="tag tag--warning">Sẽ nhắc khi tiếp nhận</span></td></tr>
+              <tr><td>Vệ sinh buồng đốt</td><td class="num col-nowrap">30/10/2026</td><td>Khách từ chối ở báo giá v2</td><td><span class="tag tag--warning">Sẽ nhắc khi tiếp nhận</span></td></tr></tbody></table></div>
+        </div>
+
+        <div class="tab-panel" id="xp3" role="tabpanel" aria-labelledby="x3" hidden style="padding:var(--space-4) var(--space-6)">
+          <div class="stack-2"><div class="row row--between"><span><strong>12/07/2026</strong> · Mẫu Bảo dưỡng v3 · Thợ Lê Minh Tuấn</span><a href="g2-ins-02.html">Xem kết quả</a></div><div class="g2w-seg-row"><span class="badge badge--danger">1 Hỏng</span><span class="badge badge--warning">2 Theo dõi</span><span class="badge badge--success">11 Tốt</span></div><p class="g2w-muted">Các lần kiểm tra trước giúp so sánh hao mòn theo thời gian (FR-INS-008).</p></div>
+        </div>
+
+        <div class="tab-panel" id="xp4" role="tabpanel" aria-labelledby="x4" hidden style="padding:0">
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Bảo hành còn hạn</caption><thead><tr><th>Hạng mục</th><th>Lệnh gốc</th><th>Còn hạn đến</th></tr></thead>
+            <tbody><tr><td>Thay lốp trước (bảo hành xưởng)</td><td class="code">RO-TD-2603-00041</td><td class="num">03/09/2026 <span class="tag tag--danger">Đã hết hạn</span></td></tr><tr><td>Thay dầu và lọc dầu</td><td class="code">RO-Q7-2607-00093</td><td class="num">12/01/2027 <span class="tag tag--success">Còn hạn</span></td></tr><tr><td>Kiểm tra phanh</td><td class="code">RO-Q7-2607-00093</td><td class="num">12/01/2027 <span class="tag tag--success">Còn hạn</span></td></tr></tbody></table></div>
+        </div>
+
+        <div class="tab-panel" id="xp5" role="tabpanel" aria-labelledby="x5" hidden style="padding:var(--space-4) var(--space-6)">
+          <div class="timeline"><div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#user"/></svg></div><div><div class="timeline__title">Nguyễn Văn An (chủ hiện tại)</div><div class="timeline__meta">Từ 05/01/2023 đến nay · tạo bởi Trần Thị Mai</div></div></div>
+            <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#user"/></svg></div><div><div class="timeline__title">Phan Quốc Đạt</div><div class="timeline__meta">20/06/2019 – 04/01/2023 · lịch sử sở hữu trước đây chỉ hiện cho quản lý</div></div></div></div>
+          <p class="g2w-muted">Chủ cũ không còn thấy dữ liệu của chủ mới; lịch sử xe giữ nguyên (RULE-003).</p>
+        </div>
+      </section>
+
+      <aside class="g2w-stack g2w-stack--tight">
+        <section class="card"><div class="card__header"><h2 class="card__title">Lịch nhắc</h2></div><div class="card__body stack-2">
+          <div class="alert alert--warning"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Bảo dưỡng 50.000 km</span><span>Còn khoảng 1.800 km, dự kiến 12/2026.</span></div></div>
+          <div class="alert alert--neutral"><svg class="icon"><use href="#calendar"/></svg><div class="alert__body"><span class="alert__title">Đăng kiểm 12/03/2027</span><span>Chưa đến hạn nhắc. Chu kỳ lấy từ cấu hình (G4-SYS-11).</span></div></div>
+          <a class="btn btn--secondary btn--sm" href="g2-crm-09.html" data-g2w-hide-for="TH">Mở danh sách nhắc</a></div></section>
+        <section class="card"><div class="card__header"><h2 class="card__title">Ảnh xe</h2></div><div class="card__body"><div class="upload__thumbs"><div class="thumb"><div class="thumb__img"><svg class="icon icon--lg" aria-hidden="true"><use href="#car-front"/></svg></div><div class="thumb__meta">Phía trước</div></div><div class="thumb"><div class="thumb__img"><svg class="icon icon--lg" aria-hidden="true"><use href="#car-front"/></svg></div><div class="thumb__meta">Đồng hồ km</div></div></div></div></section>
+      </aside>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--text" style="width:50%;height:28px"></span><span class="skeleton skeleton--block" style="height:220px"></span></div></div><p class="g2w-muted" role="status">Đang tải hồ sơ xe…</p></div>
+  <div data-state="notfound" hidden data-g2w-tpl="empty" data-icon="search" data-title="Không tìm thấy xe" data-text="Biển số này chưa có hồ sơ hoặc nằm ngoài phạm vi bạn được xem." data-cta="Thêm xe" data-href="g2-crm-05.html"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem xe này" data-text="Thợ chỉ xem xe có việc được giao cho mình."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được hồ sơ xe" data-ref="ERR-CRM-5005"></div>
+</div>
+</div></main>
+</div>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

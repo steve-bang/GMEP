@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-01 · Danh sách nhân sự – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-01')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Nhân sự</h1><p class="page-header__desc">Hồ sơ phục vụ phân thợ, ghi giờ công và hoa hồng. Hệ thống không tính lương, bảo hiểm hay thuế.</p></div>
+  <div class="page-header__actions"><button class="btn btn--secondary" data-g3-need="CH QL KT" data-g3-why="Xuất danh sách cần quyền xuất (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất Excel</button>
+    <a class="btn btn--primary" href="g3-hrm-02.html" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh (hoặc bộ phận nhân sự) thêm nhân sự."><svg class="icon"><use href="#plus"/></svg>Thêm nhân sự</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Tình trạng tại 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="nhân sự" data-cols="7" data-empty-icon="users" data-empty-text="Chưa có nhân sự nào ở chi nhánh này. Thêm nhân sự để phân thợ và ghi giờ công." data-empty-cta="Thêm nhân sự">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar" role="search">
+    <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm theo tên, chức danh</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: minh tuan hoặc tho dien"></div></div>
+    <div class="field"><label class="field__label" for="f-t">Chức danh</label><select id="f-t" class="select"><option>Tất cả</option><option>Thợ máy</option><option>Thợ đồng</option><option>Thợ điện</option><option>Cố vấn dịch vụ</option><option>Thủ kho</option><option>Quản đốc</option></select></div>
+    <div class="field"><label class="field__label" for="f-s">Trạng thái</label><select id="f-s" class="select"><option>Đang làm</option><option>Nghỉ phép</option><option>Đã nghỉ</option><option>Tất cả</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Danh sách nhân sự Chi nhánh Quận 7</caption>
+    <thead><tr><th aria-sort="ascending" data-card="title"><button class="th-sort">Họ tên<svg class="icon"><use href="#arrow-up"/></svg></button></th><th data-card="sub">Chức danh</th><th data-card="badge">Trạng thái</th><th>Chi nhánh</th><th data-card="meta">Vào làm</th><th>Chứng chỉ nghề</th><th>Điện thoại</th><th data-card="meta">Tài khoản</th></tr></thead>
+    <tbody>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Lê Minh Tuấn</a></td><td>Thợ máy bậc 4</td><td><span class="badge badge--success">Đang làm</span></td><td>Quận 7</td><td class="num">12/06/2021</td><td>Sửa chữa động cơ bậc 4 · đến 06/2027</td><td><span data-g3-pii="s1" data-kind="phone"></span></td><td><span class="tag tag--success">Đã liên kết</span></td></tr>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Phạm Quốc Bảo</a></td><td>Thợ đồng</td><td><span class="badge badge--success">Đang làm</span></td><td>Quận 7</td><td class="num">20/09/2020</td><td>Đồng sơn bậc 3 · đến 09/2026 <span class="tag tag--warning">Hết hạn</span></td><td><span data-g3-pii="s2" data-kind="phone"></span></td><td><span class="tag tag--success">Đã liên kết</span></td></tr>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Nguyễn Văn Hậu</a></td><td>Thợ điện</td><td><span class="badge badge--warning">Nghỉ phép</span></td><td>Quận 7</td><td class="num">10/01/2023</td><td>Điện ô tô bậc 3 · đến 01/2028</td><td><span data-g3-pii="s3" data-kind="phone"></span></td><td><span class="tag tag--success">Đã liên kết</span></td></tr>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Huỳnh Gia Bảo</a></td><td>Thợ học việc</td><td><span class="badge badge--success">Đang làm</span></td><td>Quận 7</td><td class="num">01/08/2026</td><td class="text-secondary">Chưa có</td><td><span data-g3-pii="s3" data-kind="phone"></span></td><td><span class="tag tag--warning">Chưa liên kết</span></td></tr>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Nguyễn Hoàng Yến</a></td><td>Cố vấn dịch vụ</td><td><span class="badge badge--success">Đang làm</span></td><td>Quận 7</td><td class="num">03/02/2022</td><td class="text-secondary">–</td><td><span data-g3-pii="s2" data-kind="phone"></span></td><td><span class="tag tag--success">Đã liên kết</span></td></tr>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Võ Thanh Sơn</a></td><td>Quản đốc</td><td><span class="badge badge--success">Đang làm</span></td><td>Quận 7</td><td class="num">15/05/2019</td><td>Kiểm tra chất lượng · đến 12/2027</td><td><span data-g3-pii="s1" data-kind="phone"></span></td><td><span class="tag tag--success">Đã liên kết</span></td></tr>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Trần Thị Mai Anh</a></td><td>Thủ kho</td><td><span class="badge badge--success">Đang làm</span></td><td>Quận 7</td><td class="num">05/03/2022</td><td class="text-secondary">–</td><td><span data-g3-pii="s2" data-kind="phone"></span></td><td><span class="tag tag--success">Đã liên kết</span></td></tr>
+      <tr data-href="g3-hrm-02.html"><td class="cell-primary"><a href="g3-hrm-02.html">Đỗ Văn Khải</a></td><td>Thợ máy bậc 3</td><td><span class="badge badge--neutral">Đã nghỉ</span></td><td>Quận 7</td><td class="num">02/04/2021</td><td class="text-secondary">Nghỉ từ 30/09/2026</td><td><span data-g3-pii="s3" data-kind="phone"></span></td><td><span class="tag tag--neutral">Đã khóa</span></td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–8 trong 8 nhân sự</span></div></div>
+  <p class="t-body-sm text-secondary">Số điện thoại, căn cước và địa chỉ được che theo vai trò (Quản lý chi nhánh xem đầy đủ trong chi nhánh mình; Chủ garage và Quản lý vùng bấm “Hiện” có ghi nhật ký; Kế toán chỉ thấy số điện thoại đã che). Nhân sự có thể có nhiều chi nhánh và chức danh (hồ sơ).</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-01 · Danh mục phụ tùng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-01')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Danh mục phụ tùng</h1><p class="page-header__desc">Mã phụ tùng duy nhất toàn chuỗi. Số lượng là tồn tại kho đang chọn; tồn chỉ đổi qua chứng từ kho.</p></div>
+  <div class="page-header__actions">
+    <button class="btn btn--secondary" data-open="dlg-scan"><svg class="icon"><use href="#camera"/></svg>Quét mã vạch</button>
+    <button class="btn btn--secondary" data-g3-need="CH QL TK KT" data-g3-why="Xuất danh sách cần quyền xuất (FR-SYS-013)."><svg class="icon"><use href="#download"/></svg>Xuất Excel</button>
+    <a class="btn btn--primary" href="g3-inv-02.html" data-g3-need="TK" data-g3-why="Chỉ Thủ kho được tạo và sửa danh mục phụ tùng (FRD §2, M4)."><svg class="icon"><use href="#plus"/></svg>Thêm phụ tùng</a>
+  </div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Kho:</strong> Kho Quận 7</span><span>· Tồn tính đến 09:15 30/10/2026</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button></div>
+
+<div id="g3-body" data-noun="phụ tùng" data-cols="9" data-empty-icon="package" data-empty-text="Thêm phụ tùng đầu tiên, hoặc nhập danh mục từ tệp Excel ở Cài đặt › Nhập dữ liệu (G4-SYS-20)." data-empty-cta="Thêm phụ tùng">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar" role="search">
+    <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm theo mã, tên, mã vạch, dòng xe</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: loc dau vios hoặc 8935001230012"></div></div>
+    <div class="field"><label class="field__label" for="f-g">Nhóm hàng</label><select id="f-g" class="select"><option>Tất cả nhóm</option><option>Lọc</option><option>Phanh</option><option>Dầu nhớt</option><option>Lốp</option><option>Điện</option></select></div>
+    <div class="field"><label class="field__label" for="f-s">Trạng thái tồn</label><select id="f-s" class="select"><option>Tất cả</option><option>Đủ hàng</option><option>Sắp hết</option><option>Hết hàng</option><option>Chưa đặt định mức</option></select></div>
+    <div class="field"><label class="field__label" for="f-w">Kho</label><select id="f-w" class="select"><option>Kho Quận 7</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+  <div class="chip-row" aria-label="Bộ lọc đang áp dụng"><span class="t-body-sm text-secondary">Đang lọc:</span><span class="chip">Kho Quận 7<button class="chip__x" aria-label="Bỏ lọc kho"><svg class="icon"><use href="#x"/></svg></button></span><span class="chip">Trạng thái: Sắp hết, Hết hàng<button class="chip__x" aria-label="Bỏ lọc trạng thái"><svg class="icon"><use href="#x"/></svg></button></span><button class="btn btn--ghost btn--sm">Xóa tất cả</button></div>
+
+  <div class="table-wrap">
+    <div class="table-toolbar"><button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#columns"/></svg>Cột hiển thị</button><span class="table-meta" style="margin-left:auto">8 phụ tùng · 5 cần chú ý</span></div>
+    <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> phụ tùng</span><a class="btn btn--secondary btn--sm" href="g3-pur-02.html">Tạo yêu cầu mua</a><a class="btn btn--secondary btn--sm" href="g3-inv-13.html">Tạo phiếu chuyển</a><button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
+    <div class="table-scroll" style="--table-max-height:520px">
+    <table class="table" data-g3-cards>
+      <caption class="sr-only">Danh mục phụ tùng và tồn kho tại Chi nhánh Quận 7. Cột Khả dụng bằng Thực tế trừ Giữ chỗ; hàng đang vận chuyển chưa tính.</caption>
+      <thead><tr>
+        <th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th>
+        <th aria-sort="ascending" data-card="title"><button class="th-sort">Mã<svg class="icon"><use href="#arrow-up"/></svg></button></th>
+        <th data-card="sub">Phụ tùng</th><th data-card="meta">Nhóm</th><th>Dòng xe tương thích</th><th>ĐVT</th>
+        <th class="col-num">Thực tế</th><th class="col-num">Giữ chỗ</th><th class="col-num">Đang vận chuyển</th><th class="col-num" data-card="meta">Khả dụng</th><th data-card="badge">Trạng thái tồn</th>
+        <th class="col-num">Giá vốn</th><th class="col-num" data-card="foot">Giá niêm yết</th></tr></thead>
+      <tbody>
+        <tr data-s="26,2,0" data-min="10" data-barcode="8935001230012" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0001"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0001</td><td><a href="g3-inv-03.html" data-name>Lọc dầu động cơ Toyota Vios</a><span class="cell-sub">Toyota · mã vạch 8935001230012</span></td><td>Lọc</td><td>Toyota Vios 2014–2022</td><td>cái</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="118.000 ₫"></span></td><td class="col-num">185.000 ₫</td></tr>
+        <tr data-s="5,2,10" data-min="6" data-barcode="8935001230029" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0002"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0002</td><td><a href="g3-inv-03.html" data-name>Má phanh trước Hyundai Accent</a><span class="cell-sub">Mobis · mã vạch 8935001230029</span></td><td>Phanh</td><td>Hyundai Accent 2018–2023</td><td>bộ</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="410.000 ₫"></span></td><td class="col-num">620.000 ₫</td></tr>
+        <tr data-s="2,2,0" data-min="6" data-barcode="8935001230036" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0003"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0003</td><td><a href="g3-inv-03.html" data-name>Dầu nhớt Castrol 5W-30 (can 4 lít)</a><span class="cell-sub">Castrol · mã vạch 8935001230036</span></td><td>Dầu nhớt</td><td>Đa dòng xe</td><td>can</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="890.000 ₫"></span></td><td class="col-num">1.250.000 ₫</td></tr>
+        <tr data-s="14,0,0" data-min="8" data-barcode="8935001230043" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0004"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0004</td><td><a href="g3-inv-03.html" data-name>Bugi Denso Iridium Honda City (bộ 4)</a><span class="cell-sub">Denso · mã vạch 8935001230043</span></td><td>Điện</td><td>Honda City 2014–2020</td><td>bộ</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="520.000 ₫"></span></td><td class="col-num">760.000 ₫</td></tr>
+        <tr data-s="8,4,0" data-min="4" data-barcode="8935001230050" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0005"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0005</td><td><a href="g3-inv-03.html" data-name>Lốp Michelin Primacy 4 205/55R16</a><span class="cell-sub">Michelin · mã vạch 8935001230050</span></td><td>Lốp</td><td>Đa dòng xe</td><td>cái</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="1.780.000 ₫"></span></td><td class="col-num">2.350.000 ₫</td></tr>
+        <tr data-s="12,0,0" data-min="" data-barcode="8935001230067" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0006"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0006</td><td><a href="g3-inv-03.html" data-name>Nước làm mát Prestone 1 lít</a><span class="cell-sub">Prestone · mã vạch 8935001230067</span></td><td>Hóa chất</td><td>–</td><td>chai</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="62.000 ₫"></span></td><td class="col-num">98.000 ₫</td></tr>
+        <tr data-s="9,1,0" data-min="4" data-barcode="8935001230074" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0007"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0007</td><td><a href="g3-inv-03.html" data-name>Lọc gió động cơ Mazda CX-5</a><span class="cell-sub">Mazda · mã vạch 8935001230074</span></td><td>Lọc</td><td>Mazda CX-5 2017–2023</td><td>cái</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="210.000 ₫"></span></td><td class="col-num">320.000 ₫</td></tr>
+        <tr data-s="0,0,6" data-min="3" data-barcode="8935001230081" data-href="g3-inv-03.html"><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn PT-0008"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="code cell-primary">PT-0008</td><td><a href="g3-inv-03.html" data-name>Dây curoa tổng Kia Morning</a><span class="cell-sub">Gates · mã vạch 8935001230081</span></td><td>Dây curoa</td><td>Kia Morning 2012–2020</td><td>sợi</td><td data-g3-s4></td><td class="col-num"><span data-g3-cost="165.000 ₫"></span></td><td class="col-num">450.000 ₫</td></tr>
+      </tbody>
+    </table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–8 trong 8 phụ tùng</span>
+      <nav class="pagination" aria-label="Phân trang"><button class="pagination__item" aria-label="Trang trước" disabled aria-disabled="true"><svg class="icon icon--sm"><use href="#chevron-left"/></svg></button><a class="pagination__item" href="#" aria-current="page">1</a><button class="pagination__item" aria-label="Trang sau" disabled aria-disabled="true"><svg class="icon icon--sm"><use href="#chevron-right"/></svg></button></nav>
+      <label class="row" style="gap:8px"><span class="table-meta">Số dòng</span><select class="select" style="width:84px" aria-label="Số dòng mỗi trang"><option>25</option><option>50</option><option>100</option></select></label></div>
+  </div>
+  <p class="t-body-sm text-secondary">Khả dụng = Thực tế − Giữ chỗ. “Đang vận chuyển” là hàng đã gửi/đã đặt nhưng chưa nhận, không cộng vào Khả dụng (RULE-008). Trạng thái so với định mức tối thiểu của từng mặt hàng tại chi nhánh. Giá vốn chỉ hiện với Chủ garage, Quản lý vùng, Quản lý chi nhánh, Kế toán (đổi vai trò ở menu tài khoản để xem).</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-scan" role="dialog" aria-modal="true" aria-labelledby="sc-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#camera"/></svg></div><div><h2 class="dialog__title" id="sc-t">Quét mã vạch để tìm phụ tùng</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div data-g3-scan-target hidden><table><tbody>
+    <tr data-barcode="8935001230012"><td data-name>Lọc dầu động cơ Toyota Vios</td></tr><tr data-barcode="8935001230029"><td data-name>Má phanh trước Hyundai Accent</td></tr><tr data-barcode="8935001230036"><td data-name>Dầu nhớt Castrol 5W-30 (can 4 lít)</td></tr></tbody></table></div>
+    <div data-g3-scan></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" href="g3-inv-03.html">Mở chi tiết phụ tùng</a></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

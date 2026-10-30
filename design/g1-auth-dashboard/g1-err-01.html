@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-ERR-01 · 403 Không có quyền – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Không có quyền|branch:Có quyền ở chi nhánh khác|requested:Đã gửi yêu cầu cấp quyền|offline:Mất mạng"></div>
+
+  <main class="g1-auth-card g1-err" id="main" aria-labelledby="t">
+    <div class="g1-err__code" aria-hidden="true">403</div>
+    <div><h1 id="t">Bạn chưa được cấp quyền xem mục này</h1>
+      <p class="g1-lead" data-hide="requested">Tài khoản của bạn chưa có quyền vào trang này. Việc này không ảnh hưởng đến dữ liệu hay công việc đang làm của bạn.</p>
+      <p class="g1-lead" data-show="requested" hidden>Yêu cầu đã được gửi tới quản lý chi nhánh và quản trị hệ thống. Bạn sẽ nhận thông báo khi có phản hồi.</p></div>
+
+    <div class="alert alert--info" role="status" data-show="branch" hidden style="text-align:left"><svg class="icon"><use href="#map-pin"/></svg><div class="alert__body"><span class="alert__title">Bạn có thể có quyền ở chi nhánh khác</span><span>Mục này không mở được ở Chi nhánh Quận 7. Thử đổi sang chi nhánh khác của bạn ở thanh “Phạm vi dữ liệu” trên cùng.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden style="text-align:left"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span>Mất kết nối nên chưa gửi được yêu cầu cấp quyền. Kiểm tra mạng rồi thử lại.</span></div></div>
+
+    <dl class="g1-err__facts">
+      <dt>Vai trò hiện tại</dt><dd>Cố vấn dịch vụ</dd>
+      <dt>Chi nhánh hiện tại</dt><dd>Chi nhánh Quận 7</dd>
+      <dt>Thời điểm</dt><dd class="num">09:15 30/10/2026</dd>
+    </dl>
+
+    <div class="g1-err__actions">
+      <a class="btn btn--primary btn--lg" href="g1-dsh-04.html"><svg class="icon"><use href="#layout-dashboard"/></svg>Về trang tổng quan</a>
+      <button type="button" class="btn btn--secondary btn--lg" data-hide="requested" data-disable-in="offline" data-g1-goto="requested"><svg class="icon"><use href="#send"/></svg>Yêu cầu cấp quyền</button>
+      <button type="button" class="btn btn--ghost btn--lg" data-show="branch" hidden data-toast="info|Đổi chi nhánh|Chọn chi nhánh khác ở thanh Phạm vi dữ liệu trên cùng của màn hình làm việc."><svg class="icon"><use href="#map-pin"/></svg>Đổi chi nhánh</button>
+    </div>
+    <p class="t-body-sm text-secondary" style="margin:0">Trang này không cho biết mục bạn mở có tồn tại hay không. Cần xem mục nào, hãy nói với quản lý chi nhánh.</p>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+</body>
+</html>

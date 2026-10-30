@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-19 – Nhật ký thao tác · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  .g4r-qlonly { display: none; }
+  body[data-role="QL"] .g4r-qlonly { display: flex; }
+  body[data-role="QL"] .g4r-notq7 { display: none; }
+</style>
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-19" data-menu="set" data-crumbs="Cài đặt|Nhật ký thao tác" data-allow="AD CH QL KT"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Nhật ký thao tác',
+  desc: 'Ai, khi nào, làm gì, giá trị trước và sau. Chỉ đọc: không sửa, không xóa (FR-SYS-003, RULE-013). Gồm nhật ký truy cập dữ liệu cá nhân của khách.',
+  prio: 'P1',
+  cfgScope: 'Quản trị, Chủ garage: toàn hệ thống · Quản lý chi nhánh: chi nhánh mình · Kế toán: phần liên quan tiền và hóa đơn',
+  period: '28/10 – 30/10/2026',
+  asof: 'Cập nhật lúc 09:15 30/10/2026 (độ trễ tối đa 1 phút)',
+  actions: g4rExportBtn(),
+  empty: { title: 'Chưa có thao tác nào được ghi', text: 'Mọi thay đổi về khách, xe, lệnh, kho, tiền, hóa đơn và phân quyền sẽ xuất hiện ở đây.' },
+  filteredText: 'Không có thao tác nào khớp bộ lọc trong khoảng thời gian này. Mở rộng khoảng thời gian hoặc bỏ lọc đối tượng.'
+});
+</script>
+
+<div class="alert alert--info g4r-qlonly" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Bạn chỉ xem nhật ký của <strong>Chi nhánh Quận 7</strong>.</div></div>
+<div class="alert alert--neutral" role="note"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Quản trị hệ thống thấy giá trị nhạy cảm của khách (SĐT, địa chỉ) ở dạng <strong>đã che</strong>. Nhật ký không có nút Sửa hay Xóa.</div></div>
+
+<div class="filter-bar" role="search">
+  <div class="field"><label class="field__label" for="a-t">Khoảng thời gian</label><select class="select" id="a-t"><option>3 ngày gần nhất (28–30/10/2026)</option><option>Hôm nay</option><option>7 ngày</option><option>Tùy chọn…</option></select></div>
+  <div class="field"><label class="field__label" for="a-u">Người thực hiện</label><select class="select" id="a-u"><option>Tất cả</option><option>Lê Minh Quân</option><option>Phạm Thu Hà</option><option>Đỗ Thanh Tâm</option><option>Hệ thống</option></select></div>
+  <div class="field"><label class="field__label" for="a-o">Đối tượng</label><select class="select" id="a-o"><option>Tất cả</option><option>Khách và xe</option><option>Lệnh sửa chữa</option><option>Kho</option><option>Tiền</option><option>Hóa đơn</option><option>Phân quyền</option><option>Cấu hình</option></select></div>
+  <div class="field filter-bar__search"><label class="field__label" for="a-s">Tìm mã chứng từ hoặc nội dung</label><input class="input" id="a-s" type="search" data-g4r-filter="tb-audit" placeholder="Ví dụ: RO-Q7-2610-00241"></div>
+  <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Loại nhật ký">
+  <button class="tab" role="tab" id="l1" aria-selected="true" aria-controls="lp1">Thao tác nghiệp vụ</button>
+  <button class="tab" role="tab" id="l2" aria-selected="false" tabindex="-1" aria-controls="lp2">Truy cập dữ liệu cá nhân <span class="count-pill">3</span></button>
+</div>
+
+<div class="tab-panel" id="lp1" role="tabpanel" aria-labelledby="l1">
+  <div class="table-wrap">
+    <div class="table-toolbar"><span class="table-meta">7 thao tác · mới nhất trước</span><span class="table-meta" style="margin-left:auto">Bấm “Chi tiết” để xem giá trị trước và sau</span></div>
+    <div class="table-wrap--responsive"><div class="table-scroll"><table class="table" id="tb-audit"><caption class="sr-only">Nhật ký thao tác</caption>
+      <thead><tr><th aria-sort="descending"><button class="th-sort">Thời điểm<svg class="icon"><use href="#arrow-down"/></svg></button></th><th>Người thực hiện</th><th>Hành động</th><th>Đối tượng</th><th>Chi nhánh</th><th><span class="sr-only">Chi tiết</span></th></tr></thead>
+      <tbody>
+        <tr><td class="num">30/10/2026 09:02</td><td>Lê Minh Quân</td><td>Duyệt giảm giá vượt hạn mức</td><td class="code">RO-Q7-2610-00241</td><td>Quận 7</td><td><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></td></tr>
+        <tr class="g4r-notq7"><td class="num">29/10/2026 17:05</td><td>Phạm Thu Hà</td><td>Phát hành hóa đơn (nhà cung cấp trả về thành công)</td><td class="code">RO-Q1-2610-00402</td><td>Quận 1</td><td><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></td></tr>
+        <tr><td class="num">29/10/2026 16:40</td><td>Lê Minh Quân</td><td>Tạo phiên bản giờ chuẩn DV-006</td><td>Cấu hình</td><td>Toàn hệ thống</td><td><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></td></tr>
+        <tr class="g4r-notq7"><td class="num">29/10/2026 15:12</td><td>Đỗ Thanh Tâm</td><td>Đề xuất đổi quyền vai trò Thủ kho</td><td>Phân quyền</td><td>Toàn hệ thống</td><td><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></td></tr>
+        <tr><td class="num">29/10/2026 11:30</td><td>Hệ thống</td><td>Phát hành hóa đơn quá thời gian chờ, xếp hàng truy vấn lại</td><td class="code">RO-Q7-2610-00233</td><td>Quận 7</td><td><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></td></tr>
+        <tr><td class="num">28/10/2026 10:12</td><td>Hoàng Thị Yến</td><td>Tạo phiếu thu</td><td class="code">PT-Q7-2610-00251</td><td>Quận 7</td><td><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></td></tr>
+        <tr class="g4r-notq7"><td class="num">28/10/2026 09:48</td><td>Phạm Văn Đạt</td><td>Tạo phiếu xuất kho bất thường (chờ duyệt)</td><td class="code">PX-Q1-2610-00366</td><td>Quận 1</td><td><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></td></tr>
+      </tbody></table></div></div>
+    <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+      <div class="record"><div class="record__top"><div><div class="record__title">Duyệt giảm giá vượt hạn mức</div><span class="code">RO-Q7-2610-00241</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></div><div class="record__meta"><span>Lê Minh Quân</span><span>30/10/2026 09:02</span></div></div>
+      <div class="record"><div class="record__top"><div><div class="record__title">Tạo phiếu thu</div><span class="code">PT-Q7-2610-00251</span></div><button class="btn btn--secondary btn--sm" data-open="dlg-aud">Chi tiết</button></div><div class="record__meta"><span>Hoàng Thị Yến</span><span>28/10/2026 10:12</span></div></div>
+    </div>
+    <div class="table-footer"><span class="table-meta">Nhật ký giữ theo chính sách lưu trữ (G4-SYS-23). Không có hành động sửa hoặc xóa.</span></div>
+  </div>
+</div>
+
+<div class="tab-panel" id="lp2" role="tabpanel" aria-labelledby="l2" hidden>
+  <div class="table-wrap"><div class="table-scroll"><table class="table"><caption class="sr-only">Nhật ký truy cập dữ liệu cá nhân của khách</caption>
+    <thead><tr><th>Thời điểm</th><th>Người xem</th><th>Vai trò</th><th>Bản ghi</th><th>Dữ liệu đã hiện</th><th>Lý do</th></tr></thead>
+    <tbody>
+      <tr><td class="num">30/10/2026 08:55</td><td>Trần Hoàng Anh</td><td>Chủ garage</td><td>Khách N••• A••</td><td>Số điện thoại</td><td><span class="text-secondary">Không bắt buộc</span></td></tr>
+      <tr><td class="num">30/10/2026 08:41</td><td>Phạm Thu Hà</td><td>Kế toán</td><td>Khách T••• N••</td><td>Số điện thoại</td><td>Đối chiếu hóa đơn</td></tr>
+      <tr><td class="num">29/10/2026 16:20</td><td>Phạm Thu Hà</td><td>Kế toán</td><td>Xuất báo cáo khách hàng (234 dòng)</td><td>SĐT, địa chỉ (đầy đủ)</td><td>Gửi bảng kê công nợ</td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Mỗi lần bấm “Hiện” hoặc xuất dữ liệu cá nhân đều có dòng ở đây (Luật bảo vệ dữ liệu cá nhân 2025).</span></div></div>
+</div>
+
+<script>
+g4rEnd('', '<div class="overlay overlay--drawer" id="dlg-aud" role="dialog" aria-modal="true" aria-labelledby="au-t"><aside class="drawer"><div class="card__header"><div><h2 class="card__title" id="au-t">Duyệt giảm giá vượt hạn mức</h2><div class="card__subtitle">RO-Q7-2610-00241 · 30/10/2026 09:02</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div><div class="card__body stack" style="overflow:auto"><dl class="g4r-kv"><dt>Người thực hiện</dt><dd>Lê Minh Quân (Quản lý chi nhánh)</dd><dt>Chi nhánh</dt><dd>Quận 7</dd><dt>Thiết bị</dt><dd>Chrome / Windows · 113.161.•••.••</dd><dt>Mã nhật ký</dt><dd class="g4r-mono">AUD-20261030-0091743</dd></dl><div class="g4r-diffbox"><strong>Giá trị trước và sau</strong><dl class="g4r-kv" style="margin-top:8px"><dt>Giảm giá công</dt><dd class="g4r-diff"><del class="g4r-before">5% (hạn mức)</del> → <ins class="g4r-after">8%</ins></dd><dt>Tổng tiền lệnh</dt><dd class="g4r-diff"><del class="g4r-before">4.295.000 ₫</del> → <ins class="g4r-after">4.250.000 ₫</ins></dd><dt>Trạng thái phê duyệt</dt><dd class="g4r-diff"><del class="g4r-before">Chờ duyệt</del> → <ins class="g4r-after">Đã duyệt</ins></dd></dl></div><p class="t-body-sm text-secondary" style="margin:0">Bản ghi nhật ký chỉ đọc. Muốn đính chính, tạo thao tác mới có lý do; bản ghi này không bị thay đổi.</p></div><div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" href="g4-rpt-10.html">Mở chứng từ gốc</a></div></aside></div>');
+</script>
+</body>
+</html>

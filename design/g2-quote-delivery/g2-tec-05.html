@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-TEC-05 · Công của tôi – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('TH', 'hr');
+g2q.header({ crumbs: [['Nhân sự &amp; Công thợ'], ['Công của tôi']], title: 'Công của tôi', desc: 'Chỉ xem, không sửa. Công chỉ được ghi sau khi hạng mục qua QC. Số liệu là giờ; cách tính tiền công và hoa hồng do chi nhánh cấu hình (G3-HRM-06).' });
+g2q.scope('tuần 26/10–01/11/2026', '10:05');
+</script>
+
+<div class="stack-6 g2q-tec" data-variants="default">
+  <script>g2q.proto([['default','Có dữ liệu'],['locked','Kỳ đã khóa'],['loading','Đang tải'],['empty','Chưa có công'],['error','Lỗi tải'],['noperm','Không có quyền']], 'default');</script>
+
+  <section data-v="default locked loading empty" aria-label="Bộ lọc">
+    <div class="filter-bar">
+      <div class="field"><label class="field__label" for="kp">Kỳ</label><select id="kp" class="select"><option>Tuần này (26/10–01/11/2026)</option><option>Tuần trước (19–25/10/2026)</option><option>Tháng 10/2026</option></select></div>
+      <div class="field" data-show-roles="QL KT"><label class="field__label" for="tho">Thợ</label><select id="tho" class="select"><option>Lê Minh Tuấn</option><option>Trần Văn Hậu</option><option>Nguyễn Văn Dũng</option></select></div>
+      <div class="field filter-bar__search"><label class="field__label" for="q">Tìm lệnh hoặc biển số</label><div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input id="q" class="input" type="search" placeholder="Mã lệnh, biển số"></div></div>
+      <div class="filter-bar__actions"><button class="btn btn--secondary">Đặt lại</button></div>
+    </div>
+  </section>
+
+  <div class="alert alert--neutral" data-v="locked"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Dòng ngày 28/10/2026 thuộc kỳ công đã khóa</span><span>Công của kỳ đã khóa không thay đổi. Sai sót phải điều chỉnh bằng bút toán mới có lý do ở kỳ đang mở (Quản lý chi nhánh thực hiện).</span></div></div>
+
+  <div data-v="default locked" class="stack-6">
+    <div class="g2q-sumtiles" aria-label="Tóm tắt công">
+      <div class="g2q-tile"><span class="g2q-tile__v num">6,3</span><span class="g2q-tile__l">Giờ chuẩn đã giao</span></div>
+      <div class="g2q-tile"><span class="g2q-tile__v num">5,5</span><span class="g2q-tile__l">Giờ thực đã làm</span></div>
+      <div class="g2q-tile"><span class="g2q-tile__v num" style="color:var(--color-success-text)">3,5</span><span class="g2q-tile__l">Giờ công đã ghi (qua QC)</span></div>
+      <div class="g2q-tile"><span class="g2q-tile__v num" style="color:var(--color-purple-text)">1,0</span><span class="g2q-tile__l">Giờ chuẩn chờ QC, chưa ghi</span></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar"><span class="table-meta">Lê Minh Tuấn · 7 dòng · cập nhật 10:05</span><span class="g2q-note" style="margin-left:auto">“Giờ công đã ghi” quy đổi theo công thức cấu hình của chi nhánh, chưa hiện tiền.</span></div>
+      <div class="table-scroll"><table class="table" data-cardify>
+        <caption class="sr-only">Công theo hạng mục</caption>
+        <thead><tr><th>Ngày</th><th>Lệnh / biển số</th><th>Hạng mục</th><th class="col-num">Giờ chuẩn</th><th class="col-num">Giờ thực</th><th class="col-num">Giờ công ghi</th><th>Trạng thái công</th></tr></thead>
+        <tbody>
+          <tr><td class="col-nowrap" data-label="Ngày">30/10/2026</td><td data-card="title"><span class="code">RO-Q7-2610-00128</span><span class="cell-sub"><span class="plate">51H-123.45</span></span></td><td data-label="Hạng mục">Thay dầu động cơ và lọc dầu</td><td class="col-num" data-label="Chuẩn">0,5</td><td class="col-num" data-label="Thực">0,5</td><td class="col-num text-tertiary">—</td><td data-card="status"><span class="tag tag--purple">Chưa ghi · chờ QC</span></td></tr>
+          <tr><td class="col-nowrap" data-label="Ngày">30/10/2026</td><td data-card="title"><span class="code">RO-Q7-2610-00128</span><span class="cell-sub"><span class="plate">51H-123.45</span></span></td><td data-label="Hạng mục">Thay má phanh trước</td><td class="col-num" data-label="Chuẩn">1,5</td><td class="col-num" data-label="Thực">0,7 (đang tính)</td><td class="col-num text-tertiary">—</td><td data-card="status"><span class="tag tag--info">Đang làm</span></td></tr>
+          <tr><td class="col-nowrap" data-label="Ngày">30/10/2026</td><td data-card="title"><span class="code">RO-Q7-2610-00122</span><span class="cell-sub"><span class="plate">51G-765.43</span></span></td><td data-label="Hạng mục">Xiết lại lực xiết bánh sau</td><td class="col-num" data-label="Chuẩn">0,3</td><td class="col-num" data-label="Thực">0,2</td><td class="col-num text-tertiary">—</td><td data-card="status"><span class="tag tag--danger">Chưa ghi · QC trả lại</span></td></tr>
+          <tr><td class="col-nowrap" data-label="Ngày">30/10/2026</td><td data-card="title"><span class="code">RO-Q7-2610-00120</span><span class="cell-sub"><span class="plate">51F-222.33</span></span></td><td data-label="Hạng mục">Thay dầu và lọc dầu</td><td class="col-num" data-label="Chuẩn">0,5</td><td class="col-num" data-label="Thực">0,4</td><td class="col-num text-tertiary">—</td><td data-card="status"><span class="tag tag--purple">Chưa ghi · chờ QC</span></td></tr>
+          <tr><td class="col-nowrap" data-label="Ngày">29/10/2026</td><td data-card="title"><span class="code">RO-Q7-2610-00113</span><span class="cell-sub"><span class="plate">51L-456.89</span></span></td><td data-label="Hạng mục">Thay lốp (4 cái), cân bằng động</td><td class="col-num" data-label="Chuẩn">1,0</td><td class="col-num" data-label="Thực">1,1</td><td class="col-num" data-label="Công ghi">1,0</td><td data-card="status"><span class="tag tag--success"><svg class="icon"><use href="#check"/></svg>Đã ghi công</span></td></tr>
+          <tr><td class="col-nowrap" data-label="Ngày">29/10/2026</td><td data-card="title"><span class="code">RO-Q7-2610-00112</span><span class="cell-sub"><span class="plate">50H-118.04</span></span></td><td data-label="Hạng mục">Thay dầu động cơ</td><td class="col-num" data-label="Chuẩn">0,5</td><td class="col-num" data-label="Thực">0,4</td><td class="col-num" data-label="Công ghi">0,5</td><td data-card="status"><span class="tag tag--success"><svg class="icon"><use href="#check"/></svg>Đã ghi công</span></td></tr>
+          <tr><td class="col-nowrap" data-label="Ngày">28/10/2026</td><td data-card="title"><span class="code">RO-Q7-2610-00108</span><span class="cell-sub"><span class="plate">61C-789.12</span></span></td><td data-label="Hạng mục">Sửa hệ thống phanh</td><td class="col-num" data-label="Chuẩn">2,0</td><td class="col-num" data-label="Thực">2,2</td><td class="col-num" data-label="Công ghi">2,0</td><td data-card="status"><span class="tag tag--success"><svg class="icon"><use href="#check"/></svg>Đã ghi công</span> <span class="tag tag--neutral" data-v="locked"><svg class="icon"><use href="#lock"/></svg>Kỳ đã khóa</span></td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">Tổng</td><td class="col-num">6,3</td><td class="col-num">5,5</td><td class="col-num">3,5</td><td></td></tr></tfoot>
+      </table></div>
+    </div>
+    <p class="g2q-note">Công làm lại sau QC không tính thêm. Đổi thợ giữa chừng thì công chia theo giờ thực (FR-HRM-008). Cố vấn và Kế toán chỉ thấy phần được phân quyền.</p>
+  </div>
+
+  <div data-v="loading" aria-busy="true" class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Ngày</th><th>Lệnh</th><th>Hạng mục</th><th>Chuẩn</th><th>Thực</th><th>Trạng thái</th></tr></thead><tbody><script>g2q.skelRows(5, 6)</script></tbody></table></div></div>
+  <div data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Chưa có công trong kỳ này', text:'Công xuất hiện sau khi hạng mục của bạn qua QC. Chọn kỳ khác hoặc xem “Việc của tôi” để biết việc đang làm.', actions:'<a class="btn btn--secondary" href="g2-tec-01.html">Về việc của tôi</a>'})</script></div>
+  <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được công', text:'Thử lại sau vài giây.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-HRM-5C21B7'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem công', text:'Thợ chỉ xem công của chính mình; Quản lý chi nhánh và Kế toán xem theo phân quyền.', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
+</div>
+<script>g2q.end();</script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

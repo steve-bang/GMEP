@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-10 · Công nợ phải thu (tuổi nợ) · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions>
+    <button class="btn btn--secondary" data-open="dlg-export"><svg class="icon"><use href="#download"/></svg>Xuất báo cáo tuổi nợ</button>
+    <a class="btn btn--secondary" href="g4-acc-12.html">Công nợ phải trả</a>
+  </div>
+
+  <section aria-label="Chỉ số công nợ phải thu"><div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#wallet"/></svg>Tổng dư nợ phải thu</span><span class="kpi__value">49,1<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Chính xác: 49.125.000 ₫ · 4 khách</span><span class="kpi__scope">Quận 7 · tính đến 30/10/2026 09:15</span></div>
+    <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Trong hạn</span><span class="kpi__value">22,1<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">44,9% tổng dư nợ</span></div>
+    <div class="card kpi kpi--danger"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Quá hạn</span><span class="kpi__value">27,1<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">55,1% · 3 khách có nợ quá hạn</span></div>
+    <div class="card kpi kpi--danger"><span class="kpi__label">Quá hạn trên 60 ngày</span><span class="kpi__value">9,7<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">1 khách · cần xử lý</span></div>
+  </div></section>
+
+  <section class="card" aria-labelledby="h-ag">
+    <div class="card__header"><div><h2 class="card__title" id="h-ag">Cơ cấu dư nợ theo tuổi nợ</h2><div class="card__subtitle">Đơn vị: ₫ · tuổi nợ tính từ hạn thanh toán · các mốc ngày là cấu hình</div></div></div>
+    <div class="card__body">
+      <div class="g4f-aging" role="img" aria-label="Tuổi nợ: trong hạn 22.075.000 đồng, quá hạn 1 đến 30 ngày 5.850.000 đồng, 31 đến 60 ngày 11.500.000 đồng, trên 60 ngày 9.700.000 đồng. Bảng bên dưới có số liệu đầy đủ.">
+        <span class="g4f-seg-1" style="width:44.9%"></span><span class="g4f-seg-2" style="width:11.9%"></span><span class="g4f-seg-3" style="width:23.4%"></span><span class="g4f-seg-4" style="width:19.8%"></span></div>
+      <ul class="g4f-legend">
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-1"></span>Trong hạn</span><strong>22.075.000 ₫</strong><span class="g4f-muted">44,9%</span></li>
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-2"></span>Quá hạn 1–30 ngày</span><strong>5.850.000 ₫</strong><span class="g4f-muted">11,9%</span></li>
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-3"></span>Quá hạn 31–60 ngày</span><strong>11.500.000 ₫</strong><span class="g4f-muted">23,4%</span></li>
+        <li><span class="g4f-legend__key"><span class="g4f-legend__sw g4f-seg-4"></span>Quá hạn trên 60 ngày</span><strong>9.700.000 ₫</strong><span class="g4f-muted">19,7%</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="filter-bar">
+    <div class="field filter-bar__search"><label class="field__label" for="fs">Tìm khách hoặc lệnh</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="fs" class="input" placeholder="Tên khách, MST, mã lệnh (có/không dấu)"></div></div>
+    <div class="field"><label class="field__label" for="f1">Nhóm tuổi nợ</label><select id="f1" class="select"><option>Tất cả</option><option>Trong hạn</option><option>Quá hạn 1–30 ngày</option><option>Quá hạn 31–60 ngày</option><option>Trên 60 ngày</option></select></div>
+    <div class="field"><label class="field__label" for="f2">Loại khách</label><select id="f2" class="select"><option>Tất cả</option><option>Doanh nghiệp</option><option>Cá nhân</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div>
+  </div>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-toolbar"><span class="table-meta">4 khách có dư nợ · tổng các nhóm tuổi bằng tổng dư nợ</span></div>
+    <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count">Đã chọn <span data-bulk-count>0</span> khách</span><button class="btn btn--primary btn--sm" data-open="dlg-remind" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán gửi nhắc nợ."><svg class="icon icon--sm"><use href="#send"/></svg>Gửi nhắc nợ</button><button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
+    <div class="table-scroll" style="--table-max-height:520px"><table class="table">
+      <caption class="sr-only">Công nợ phải thu theo khách và tuổi nợ</caption>
+      <thead><tr><th class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th><th>Khách hàng</th><th class="col-num">Hạn mức</th><th class="col-num">Trong hạn</th><th class="col-num">1–30 ngày</th><th class="col-num">31–60 ngày</th><th class="col-num">Trên 60 ngày</th><th class="col-num" aria-sort="descending"><button class="th-sort">Tổng dư nợ<svg class="icon"><use href="#arrow-down"/></svg></button></th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn Công ty TNHH Xây dựng Đại Phát"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="cell-primary">Công ty TNHH Xây dựng Đại Phát<span class="cell-sub"><span class="tag tag--danger">Quá hạn</span> <span class="tag tag--danger">Vượt hạn mức</span></span></td><td class="col-num">15.000.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">0 ₫</td><td class="col-num">6.100.000 ₫</td><td class="col-num g4f-bad">9.700.000 ₫</td><td class="col-num">15.800.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-11.html" aria-label="Mở công nợ Công ty TNHH Xây dựng Đại Phát"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn Công ty TNHH Vận tải Hòa Phát"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="cell-primary">Công ty TNHH Vận tải Hòa Phát<span class="cell-sub"><span class="tag tag--danger">Quá hạn</span></span></td><td class="col-num">50.000.000 ₫</td><td class="col-num">19.275.000 ₫</td><td class="col-num">4.600.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">0 ₫</td><td class="col-num">23.875.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-11.html" aria-label="Mở công nợ Công ty TNHH Vận tải Hòa Phát"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn Công ty CP Du lịch Sao Mai"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="cell-primary">Công ty CP Du lịch Sao Mai<span class="cell-sub"><span class="tag tag--danger">Quá hạn</span></span></td><td class="col-num">20.000.000 ₫</td><td class="col-num">2.800.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">5.400.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">8.200.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-11.html" aria-label="Mở công nợ Công ty CP Du lịch Sao Mai"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+        <tr><td class="col-check"><label class="check" style="min-height:44px"><input type="checkbox" data-row-check aria-label="Chọn Nguyễn Văn Bình"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td class="cell-primary">Nguyễn Văn Bình<span class="cell-sub">Cá nhân · <span class="tag tag--danger">Quá hạn</span></span></td><td class="col-num g4f-muted">Không đặt</td><td class="col-num">0 ₫</td><td class="col-num">1.250.000 ₫</td><td class="col-num">0 ₫</td><td class="col-num">0 ₫</td><td class="col-num">1.250.000 ₫</td><td class="col-actions"><a class="btn-icon" href="g4-acc-11.html" aria-label="Mở công nợ Nguyễn Văn Bình"><svg class="icon"><use href="#eye"/></svg></a></td></tr>
+      </tbody>
+      <tfoot><tr><td></td><td colspan="2">Tổng cộng</td><td class="col-num">22.075.000 ₫</td><td class="col-num">5.850.000 ₫</td><td class="col-num">11.500.000 ₫</td><td class="col-num">9.700.000 ₫</td><td class="col-num">49.125.000 ₫</td><td></td></tr></tfoot>
+    </table></div>
+  </div>
+  <div class="record-list record-list--responsive">
+    <a class="record" href="g4-acc-11.html" style="color:inherit;text-decoration:none"><div class="record__top"><div class="record__title">Công ty TNHH Xây dựng Đại Phát</div><span class="tag tag--danger">Quá hạn</span></div><div class="record__meta"><span>Trên 60 ngày: <strong class="g4f-bad num">9.700.000 ₫</strong></span><span class="tag tag--danger">Vượt hạn mức</span></div><div class="record__foot"><span class="t-body-sm text-secondary">Tổng dư nợ</span><strong class="num">15.800.000 ₫</strong></div></a>
+    <a class="record" href="g4-acc-11.html" style="color:inherit;text-decoration:none"><div class="record__top"><div class="record__title">Công ty TNHH Vận tải Hòa Phát</div><span class="tag tag--danger">Quá hạn</span></div><div class="record__meta"><span>Quá hạn 1–30 ngày: <strong class="num">4.600.000 ₫</strong></span></div><div class="record__foot"><span class="t-body-sm text-secondary">Tổng dư nợ</span><strong class="num">23.875.000 ₫</strong></div></a>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-remind" role="dialog" aria-modal="true" aria-labelledby="rm-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="rm-t">Gửi nhắc nợ cho các khách đã chọn</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="field__label">Kênh gửi</legend>
+      <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Email (kế toán khách)</span></label>
+      <label class="check"><input type="checkbox" disabled aria-describedby="zl"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Zalo/SMS <span class="tag tag--neutral">Chưa kích hoạt</span></span></label><span class="g4f-why" id="zl">Chọn nhà cung cấp tin nhắn trước (D-13); hiện chỉ gửi email.</span></fieldset>
+    <div class="field"><label class="field__label" for="rm-m">Nội dung (xem trước)</label><textarea id="rm-m" class="textarea">Kính gửi Quý khách, Garage xin nhắc các khoản còn nợ đến hạn thanh toán kèm bảng kê chi tiết. Xin vui lòng thanh toán trước ngày ...</textarea></div>
+    <p class="t-body-sm text-secondary" style="margin:0">Việc gửi được ghi vào lịch sử nhắc của từng khách (ai gửi, khi nào, kênh).</p>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã gửi nhắc nợ|Ghi lịch sử nhắc cho từng khách.">Gửi nhắc</button></div></div></div>
+
+<div class="overlay" id="dlg-export" role="dialog" aria-modal="true" aria-labelledby="ex-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#download"/></svg></div><div><h2 class="dialog__title" id="ex-t">Xuất báo cáo tuổi nợ</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="scope-banner scope-banner--branch"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi file:</strong> Chi nhánh Quận 7 · tính đến 30/10/2026 · dữ liệu lúc 09:15</span></div><p class="t-body-sm text-secondary" style="margin:0">SĐT và địa chỉ khách không có trong file. Việc xuất được ghi nhật ký.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã tạo file|CongNoPhaiThu_Q7_30-10-2026.xlsx">Xuất Excel</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-10', title: 'Công nợ phải thu (tuổi nợ)', desc: 'Dư nợ khách hàng theo nhóm tuổi nợ, nhắc nợ và đi tới chi tiết từng khách.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV', 'QL'], updated: '09:15', time: 'đến 30/10/2026',
+  states: ['data', 'loading', 'empty', 'filtered', 'error', 'denied'],
+  empty: { icon: 'wallet', title: 'Chưa có công nợ phải thu', text: 'Khi lệnh hoàn tất mà khách chưa thanh toán đủ, khoản nợ hiện ở đây theo tuổi nợ.' },
+  filteredText: 'Không có khách nào khớp nhóm “Trên 60 ngày” và loại “Cá nhân”.'
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-DSH-07 · Việc của tôi (Thợ, tablet) – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  .g1-job__actions .btn { min-height: 52px; min-width: 140px; font-size: var(--font-size-lg); }
+  .g1-job__why { display: flex; gap: var(--space-2); align-items: flex-start; font-size: var(--font-size-md); color: var(--color-text-secondary); }
+  .g1-reasons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .g1-reasons .btn { min-height: 64px; white-space: normal; }
+  .g1-sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+  .g1-sum strong { display: block; font-size: var(--font-size-2xl); font-variant-numeric: tabular-nums; }
+  @media (max-width: 639px) { .g1-reasons, .g1-sum { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-g1-shell data-role="TH" data-g1-menu="dash" data-crumb="Việc của tôi" data-period="today">
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Việc của tôi hôm nay</h1>
+      <p class="page-header__desc">Thứ Sáu, 30/10/2026 · Thợ Đỗ Văn Tùng · Chỉ hiện việc được giao cho bạn</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--secondary btn--lg" href="#" data-target="G2-TEC-03"><svg class="icon"><use href="#package"/></svg>Yêu cầu phụ tùng</a>
+      <a class="btn btn--secondary btn--lg" href="#" data-target="G2-TEC-04"><svg class="icon"><use href="#plus"/></svg>Báo phát sinh</a>
+    </div>
+  </div>
+
+  <div data-g1-proto></div>
+
+  <section class="card" data-g1-card data-g1-title="Công hôm nay" data-g1-err aria-labelledby="h-sum">
+    <div class="card__header"><div><h2 class="card__title" id="h-sum">Công hôm nay (tóm tắt)</h2><div class="card__subtitle">Chi nhánh Quận 7 · hôm nay 30/10/2026 · cập nhật 09:15. Hoa hồng không hiện ở đây.</div></div></div>
+    <div class="card__body g1-sum">
+      <div><span class="g1-note">Giờ chuẩn đã hoàn thành</span><strong>1,8 giờ</strong></div>
+      <div><span class="g1-note">Giờ làm thực tế</span><strong>2,3 giờ</strong></div>
+      <div><span class="g1-note">Hạng mục hoàn thành</span><strong>2 / 6</strong></div>
+    </div>
+  </section>
+
+  <div class="row" role="group" aria-label="Lọc việc theo trạng thái hạng mục">
+    <div class="segmented"><button class="segmented__item" aria-pressed="true" data-g1-jobfilter="all">Tất cả (5)</button><button class="segmented__item" aria-pressed="false" data-g1-jobfilter="doing">Đang làm (1)</button><button class="segmented__item" aria-pressed="false" data-g1-jobfilter="todo">Chưa làm (2)</button><button class="segmented__item" aria-pressed="false" data-g1-jobfilter="paused">Tạm dừng (1)</button></div>
+  </div>
+
+  <div class="stack" id="jobs" data-g1-card data-g1-title="Danh sách việc" data-g1-empty="Chưa có việc được giao|Quản đốc sẽ phân việc cho bạn. Khi có việc mới, danh sách tự cập nhật." data-g1-err>
+    <article class="g1-job g1-job--active" data-job="doing" aria-labelledby="j1-t">
+      <div class="g1-job__top"><div><div class="g1-job__plate">51K-987.65 <span class="t-body-md text-secondary" style="font-weight:400">Mazda CX-5</span></div><div class="g1-job__title" id="j1-t">Thay má phanh trước</div></div><div class="stack-2" style="align-items:flex-end"><span class="badge badge--info badge--lg" data-badge>Đang làm</span><span class="g1-job__timer" role="timer" data-timer="2538">00:42:18</span></div></div>
+      <div class="g1-job__meta"><span class="code">RO-Q7-2610-00124</span><span>Giờ chuẩn 1,5 giờ</span><span>Hẹn giao 16:00</span></div>
+      <div class="g1-job__actions"><button class="btn btn--secondary" data-open="dlg-pause" data-job-act="pause">Tạm dừng</button><button class="btn btn--primary" data-job-act="done">Hoàn thành</button></div>
+      <div class="g1-job__undo" hidden><span class="badge badge--success badge--lg">Hoàn thành</span> <span class="g1-note">Đã gửi quản đốc kiểm tra chất lượng.</span> <button class="btn btn--ghost" data-job-act="undo">Hoàn tác</button></div>
+    </article>
+
+    <article class="g1-job" data-job="todo" aria-labelledby="j2-t">
+      <div class="g1-job__top"><div><div class="g1-job__plate">51H-123.45 <span class="t-body-md text-secondary" style="font-weight:400">Toyota Vios</span></div><div class="g1-job__title" id="j2-t">Thay lọc dầu và dầu nhớt 5W-30</div></div><span class="badge badge--neutral badge--lg">Chưa làm</span></div>
+      <div class="g1-job__meta"><span class="code">RO-Q7-2610-00128</span><span>Giờ chuẩn 0,8 giờ</span><span>Hẹn giao 15:00</span></div>
+      <div class="g1-job__actions"><button class="btn btn--primary" data-job-act="start">Bắt đầu</button></div>
+    </article>
+
+    <article class="g1-job g1-job--blocked" data-job="todo" aria-labelledby="j3-t">
+      <div class="g1-job__top"><div><div class="g1-job__plate">30G-456.78 <span class="t-body-md text-secondary" style="font-weight:400">Hyundai Accent</span></div><div class="g1-job__title" id="j3-t">Thay dây curoa (hạng mục phát sinh)</div></div><div class="stack-2" style="align-items:flex-end"><span class="badge badge--neutral badge--lg">Chưa làm</span><span class="tag tag--warning">Chờ khách duyệt (phát sinh)</span></div></div>
+      <div class="g1-job__meta"><span class="code">RO-Q7-2610-00127</span><span>Giờ chuẩn 1,0 giờ</span></div>
+      <div class="g1-job__actions"><button class="btn btn--secondary" disabled aria-describedby="w3">Bắt đầu</button></div>
+      <p class="g1-job__why" id="w3"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chưa bắt đầu được: khách chưa duyệt hạng mục phát sinh này. Cố vấn Phạm Quốc Bảo đang liên hệ khách. Bạn sẽ nhận thông báo khi được duyệt.</p>
+    </article>
+
+    <article class="g1-job" data-job="paused" aria-labelledby="j4-t">
+      <div class="g1-job__top"><div><div class="g1-job__plate">60A-135.79 <span class="t-body-md text-secondary" style="font-weight:400">Ford Ranger</span></div><div class="g1-job__title" id="j4-t">Thay giảm xóc sau</div></div><div class="stack-2" style="align-items:flex-end"><span class="badge badge--warning badge--lg">Tạm dừng</span><span class="tag tag--reason tag--warning">Chờ phụ tùng</span></div></div>
+      <div class="g1-job__meta"><span class="code">RO-Q7-2610-00112</span><span>Đã làm 0,5 giờ</span><span class="text-danger">Trễ hẹn giao 17:00 hôm qua</span></div>
+      <div class="g1-job__actions"><button class="btn btn--secondary" disabled aria-describedby="w4">Tiếp tục</button></div>
+      <p class="g1-job__why" id="w4"><svg class="icon icon--sm" aria-hidden="true"><use href="#package"/></svg>Chưa tiếp tục được: thủ kho chưa xuất giảm xóc sau (yêu cầu gửi lúc 08:20). Hàng đang về từ Chi nhánh Thủ Đức.</p>
+    </article>
+
+    <article class="g1-job" data-job="todo" aria-labelledby="j5-t">
+      <div class="g1-job__top"><div><div class="g1-job__plate">51D-112.33 <span class="t-body-md text-secondary" style="font-weight:400">Mitsubishi Xpander</span></div><div class="g1-job__title" id="j5-t">Siết lại bu lông bánh trước</div></div><span class="badge badge--danger badge--lg">Trả lại</span></div>
+      <div class="g1-job__meta"><span class="code">RO-Q7-2610-00109</span><span>QC không đạt lúc 08:50</span></div>
+      <div class="alert alert--danger"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Ghi chú của QC</span><span>Bu lông bánh trước phải chưa đủ lực siết. Làm lại và kiểm tra bằng cờ lê lực.</span></div></div>
+      <div class="g1-job__actions"><button class="btn btn--primary" data-job-act="start">Làm lại</button></div>
+    </article>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-pause" role="dialog" aria-modal="true" aria-labelledby="dp-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="dp-t">Vì sao tạm dừng?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p>Chạm một lý do để tạm dừng. Giờ công chỉ tính thời gian đang làm.</p>
+    <div class="g1-reasons"><button class="btn btn--secondary" data-pause-reason="Chờ phụ tùng">Chờ phụ tùng</button><button class="btn btn--secondary" data-pause-reason="Chờ khách duyệt phát sinh">Chờ khách duyệt phát sinh</button><button class="btn btn--secondary" data-pause-reason="Nghỉ">Nghỉ</button><button class="btn btn--secondary" data-pause-reason="Khác">Khác</button></div></div>
+  <div class="dialog__footer"><button class="btn btn--ghost btn--lg" data-close>Quay lại, tiếp tục làm</button></div></div></div>
+
+<script src="g1-shell.js"></script>
+<script src="../assets/app.js"></script>
+<script src="g1-charts.js"></script>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var cur = null;
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  setInterval(function () {
+    $$('[data-timer]').forEach(function (t) { if (t.hasAttribute('data-stopped')) return; var s = +t.getAttribute('data-timer') + 1; t.setAttribute('data-timer', s); t.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60); });
+  }, 1000);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-job-act]'); if (b) {
+      var art = b.closest('.g1-job'), act = b.getAttribute('data-job-act');
+      if (act === 'pause') cur = art;
+      if (act === 'start') { var bd = $('.badge', art); bd.className = 'badge badge--info badge--lg'; bd.textContent = 'Đang làm'; $('.g1-job__actions', art).innerHTML = '<button class="btn btn--secondary" data-open="dlg-pause" data-job-act="pause">Tạm dừng</button><button class="btn btn--primary" data-job-act="done">Hoàn thành</button>'; art.classList.add('g1-job--active'); art.setAttribute('data-job', 'doing'); if (!$('[data-timer]', art)) { $('.stack-2', art) && $('.stack-2', art).insertAdjacentHTML('beforeend', '<span class="g1-job__timer" role="timer" data-timer="0">00:00:00</span>'); } else { $('[data-timer]', art).removeAttribute('data-stopped'); } window.gmepToast('success', 'Đã bắt đầu', 'Hệ thống ghi giờ bắt đầu cho ' + $('.g1-job__plate', art).firstChild.textContent.trim() + '.'); }
+      if (act === 'done') { $('.g1-job__actions', art).hidden = true; $('.g1-job__undo', art).hidden = false; var t = $('[data-timer]', art); if (t) t.setAttribute('data-stopped', ''); art.classList.remove('g1-job--active'); window.gmepToast('success', 'Đã hoàn thành hạng mục', 'Có thể hoàn tác ngay trên thẻ việc.'); }
+      if (act === 'undo') { $('.g1-job__actions', art).hidden = false; $('.g1-job__undo', art).hidden = true; var t2 = $('[data-timer]', art); if (t2) t2.removeAttribute('data-stopped'); art.classList.add('g1-job--active'); }
+    }
+    var r = e.target.closest('[data-pause-reason]');
+    if (r && cur) {
+      var why = r.getAttribute('data-pause-reason'), bd2 = $('.badge', cur);
+      bd2.className = 'badge badge--warning badge--lg'; bd2.textContent = 'Tạm dừng';
+      var tm = $('[data-timer]', cur); if (tm) { tm.setAttribute('data-stopped', ''); }
+      $('.g1-job__actions', cur).innerHTML = '<button class="btn btn--primary" data-job-act="start">Tiếp tục</button>';
+      cur.classList.remove('g1-job--active'); cur.setAttribute('data-job', 'paused');
+      window.gmepClose($('#dlg-pause'));
+      window.gmepToast('info', 'Đã tạm dừng: ' + why, why === 'Chờ phụ tùng' ? 'Yêu cầu phụ tùng đã gửi thủ kho. Giờ công tạm ngừng tính.' : 'Giờ công tạm ngừng tính.'); cur = null;
+    }
+    var f = e.target.closest('[data-g1-jobfilter]');
+    if (f) { var k = f.getAttribute('data-g1-jobfilter'); $$('[data-g1-jobfilter]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === f)); }); $$('.g1-job').forEach(function (a) { a.hidden = !(k === 'all' || a.getAttribute('data-job') === k); }); }
+  });
+  /* Mất kết nối: khóa ghi giờ để không sai giờ công, vẫn xem được việc đã tải */
+  var nb = $('.net-banner');
+  if (nb) new MutationObserver(function () {
+    var off = nb.classList.contains('is-visible');
+    $$('[data-job-act]').forEach(function (b) { if (off) { b.setAttribute('data-was', b.disabled ? '1' : '0'); b.disabled = true; b.title = 'Cần có kết nối để ghi giờ công chính xác'; } else if (b.getAttribute('data-was') === '0') { b.disabled = false; b.removeAttribute('title'); } });
+  }).observe(nb, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+</body>
+</html>

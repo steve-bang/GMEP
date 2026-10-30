@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-SYS-12 – Mẫu chứng từ, mẫu in và mẫu tin nhắn · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+  .g4r-pv { display: flex; gap: var(--space-6); flex-wrap: wrap; align-items: flex-start; }
+  .g4r-pv h4 { margin: 0 0 var(--space-2); font-size: var(--font-size-md); }
+  .g4r-print table { width: 100%; border-collapse: collapse; margin: var(--space-2) 0; }
+  .g4r-print th, .g4r-print td { border-bottom: 1px dashed var(--color-border-strong); padding: 2px 0; text-align: left; font-size: var(--font-size-xs); }
+  .g4r-print .r { text-align: right; font-variant-numeric: tabular-nums; }
+  .g4r-print__sig { display: flex; justify-content: space-between; margin-top: var(--space-6); font-size: var(--font-size-xs); }
+  .g4r-vars { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+</style>
+</head>
+<body data-role="AD">
+<script src="pack.js" data-code="G4-SYS-12" data-menu="set" data-crumbs="Cài đặt|Mẫu chứng từ, mẫu in" data-allow="AD KT"></script>
+<script>
+g4rPage({
+  sub: 'sys',
+  title: 'Mẫu chứng từ, mẫu in và mẫu tin nhắn',
+  desc: 'Mẫu có phiên bản và ngày hiệu lực. Chứng từ đã in/gửi giữ đúng phiên bản mẫu tại thời điểm tạo. Mẫu kế toán (phiếu thu, phiếu chi, kho) cần Kế toán duyệt trường bắt buộc.',
+  prio: 'P1',
+  cfgScope: 'Toàn hệ thống; mẫu có thể ghi đè theo chi nhánh',
+  actions: '<button class="btn btn--primary" data-edit-roles="AD" data-open="dlg-tpl" title="Chỉ Quản trị hệ thống lưu phiên bản mẫu"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Phiên bản mẫu mới</button>',
+  empty: { title: 'Chưa có mẫu nào', text: 'Tạo mẫu báo giá, lệnh sửa chữa và phiếu thu để in đúng khổ giấy.', cta: '<button class="btn btn--primary" data-open="dlg-tpl">Tạo mẫu</button>' }
+});
+</script>
+
+<div class="alert alert--warning" role="note"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body">Loại máy in và mẫu kế toán chưa chốt <b>[Cần xác nhận]</b>. Mẫu được thiết kế theo <strong>khổ giấy</strong> (A4, A5, nhiệt 80 mm; 58 mm cấu hình), không theo hãng máy in.</div></div>
+
+<div class="tabs" role="tablist" aria-label="Loại mẫu">
+  <button class="tab" role="tab" id="t1" aria-selected="true" aria-controls="tp1">Mẫu in chứng từ</button>
+  <button class="tab" role="tab" id="t2" aria-selected="false" tabindex="-1" aria-controls="tp2">Mẫu tin nhắn</button>
+</div>
+
+<div class="tab-panel stack" id="tp1" role="tabpanel" aria-labelledby="t1">
+  <div class="table-wrap"><div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Mẫu in chứng từ</caption>
+    <thead><tr><th>Mẫu</th><th>Khổ giấy</th><th>Phiên bản đang dùng</th><th>Hiệu lực từ</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Báo giá</td><td>A4, A5</td><td class="num">v3</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
+      <tr><td>Lệnh sửa chữa</td><td>A4, A5</td><td class="num">v4</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
+      <tr><td>Biên bản bàn giao xe</td><td>A5</td><td class="num">v2</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
+      <tr><td>Phiếu thu <span class="tag tag--info">Mẫu kế toán</span></td><td>A5, nhiệt 80 mm</td><td class="num">v2 → <strong>v3</strong></td><td class="num">01/12/2026</td><td><span class="tag tag--warning">Chờ Kế toán duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="KT" data-toast="success|Đã duyệt mẫu|Phiếu thu v3 áp dụng từ 01/12/2026.">Duyệt</button><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
+      <tr><td>Phiếu chi <span class="tag tag--info">Mẫu kế toán</span></td><td>A5</td><td class="num">v1</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
+      <tr><td>Phiếu nhập / xuất kho <span class="tag tag--info">Mẫu kế toán</span></td><td>A4, A5</td><td class="num">v1</td><td class="num">01/07/2026</td><td><span class="tag tag--neutral">Nháp phiên bản mới</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-tpl">Sửa</button></td></tr>
+    </tbody></table></div></div>
+    <div class="record-list record-list--responsive" style="padding:var(--space-4)"><div class="record"><div class="record__top"><div><div class="record__title">Phiếu thu</div>A5, nhiệt 80 mm · v2 → v3</div><span class="tag tag--warning">Chờ Kế toán duyệt</span></div></div></div>
+  </div>
+
+  <section class="card" aria-labelledby="pv-h"><div class="card__header"><div><h2 class="card__title" id="pv-h">Xem trước phiếu thu v3 (dữ liệu mẫu)</h2><div class="card__subtitle">Chọn khổ giấy. Nút “In thử” mở hộp thoại in của trình duyệt với đúng khổ.</div></div><button class="btn btn--secondary btn--sm" data-toast="info|Mở hộp thoại in|Chọn đúng khổ giấy trong hộp thoại in.">In thử</button></div>
+    <div class="card__body stack">
+      <div class="tabs" role="tablist" aria-label="Khổ giấy xem trước">
+        <button class="tab" role="tab" id="pf1" aria-selected="true" aria-controls="pfp1">A5</button>
+        <button class="tab" role="tab" id="pf2" aria-selected="false" tabindex="-1" aria-controls="pfp2">Nhiệt 80 mm</button>
+        <button class="tab" role="tab" id="pf3" aria-selected="false" tabindex="-1" aria-controls="pfp3">A4</button>
+      </div>
+      <div class="tab-panel" id="pfp1" role="tabpanel" aria-labelledby="pf1"><div class="g4r-print g4r-print--a5" aria-label="Xem trước khổ A5">
+        <strong>CÔNG TY TNHH GARAGE ABC</strong><div>Chi nhánh Quận 7 · 215 Nguyễn Văn Linh, Q.7, TP.HCM</div>
+        <h4 style="text-align:center;margin:12px 0 4px;font-size:16px">PHIẾU THU</h4><div style="text-align:center">Số PT-Q7-2610-00277 · Ngày 30/10/2026</div>
+        <p style="margin:8px 0 0">Người nộp: Nguyễn Văn An · Biển số 51H-123.45<br>Lý do: Thanh toán lệnh RO-Q7-2610-00241<br>Hình thức: Chuyển khoản</p>
+        <table><tr><td>Số tiền</td><td class="r"><strong>4.250.000 ₫</strong></td></tr><tr><td colspan="2">Bằng chữ: Bốn triệu hai trăm năm mươi nghìn đồng</td></tr></table>
+        <div class="g4r-print__sig"><span>Người nộp</span><span>Thu ngân</span></div></div></div>
+      <div class="tab-panel" id="pfp2" role="tabpanel" aria-labelledby="pf2" hidden><div class="g4r-print g4r-print--th" aria-label="Xem trước nhiệt 80 mm">
+        <div style="text-align:center"><strong>GARAGE ABC · Q7</strong><br>215 Nguyễn Văn Linh, Q.7</div>
+        <h4 style="text-align:center;margin:8px 0">PHIẾU THU</h4>
+        <div>PT-Q7-2610-00277<br>30/10/2026 09:12</div>
+        <table><tr><td>Lệnh</td><td class="r">RO-Q7-2610-00241</td></tr><tr><td>Biển số</td><td class="r">51H-123.45</td></tr><tr><td>Chuyển khoản</td><td class="r"><strong>4.250.000 ₫</strong></td></tr></table>
+        <div style="text-align:center">Cảm ơn quý khách</div></div></div>
+      <div class="tab-panel" id="pfp3" role="tabpanel" aria-labelledby="pf3" hidden><div class="g4r-print g4r-print--a4" aria-label="Xem trước khổ A4">
+        <strong>CÔNG TY TNHH GARAGE ABC</strong><div>Chi nhánh Quận 7 · 215 Nguyễn Văn Linh, Q.7, TP.HCM</div>
+        <h4 style="text-align:center;margin:16px 0 4px;font-size:18px">PHIẾU THU</h4><div style="text-align:center">Số PT-Q7-2610-00277 · Ngày 30/10/2026</div>
+        <p style="margin:12px 0 0">Người nộp: Nguyễn Văn An · Biển số 51H-123.45<br>Lý do: Thanh toán lệnh RO-Q7-2610-00241<br>Hình thức: Chuyển khoản</p>
+        <table><tr><td>Số tiền</td><td class="r"><strong>4.250.000 ₫</strong></td></tr><tr><td colspan="2">Bằng chữ: Bốn triệu hai trăm năm mươi nghìn đồng</td></tr></table>
+        <div class="g4r-print__sig"><span>Người nộp</span><span>Thu ngân</span><span>Kế toán</span></div></div></div>
+      <p class="t-body-sm text-secondary">Trường có khóa là “bắt buộc theo mẫu kế toán”: số chứng từ, ngày, người nộp, lý do, số tiền, bằng chữ, chữ ký. Quản trị không bỏ được các trường này; chỉ Kế toán duyệt thay đổi.</p>
+    </div></section>
+</div>
+
+<div class="tab-panel stack" id="tp2" role="tabpanel" aria-labelledby="t2" hidden>
+  <div class="table-wrap"><div class="table-scroll"><table class="table"><caption class="sr-only">Mẫu tin nhắn</caption>
+    <thead><tr><th>Mẫu tin</th><th>Kênh</th><th>Đối tượng nhận</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+    <tbody>
+      <tr><td>Gửi báo giá cho khách</td><td>Email <span class="tag tag--success">Hoạt động</span> · Zalo <span class="tag tag--neutral">Chưa kích hoạt</span> · SMS <span class="tag tag--neutral">Chưa kích hoạt</span></td><td>Khách</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-msg">Sửa</button></td></tr>
+      <tr><td>Nhắc đăng kiểm / bảo dưỡng</td><td>Email · Zalo (chưa kích hoạt)</td><td>Khách đã đồng ý nhận</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-msg">Sửa</button></td></tr>
+      <tr><td>Gửi hóa đơn điện tử</td><td>Email</td><td>Khách</td><td><span class="tag tag--success">Đang dùng</span></td><td><button class="btn btn--secondary btn--sm" data-open="dlg-msg">Sửa</button></td></tr>
+    </tbody></table></div></div>
+</div>
+
+<script>
+g4rEnd('', g4rDrawer({ id: 'dlg-tpl', title: 'Phiên bản mới của mẫu Phiếu thu', sub: 'v2 đang dùng · v3 nháp', guard: true, effDate: '01/12/2026', cta: 'Lưu và gửi Kế toán duyệt', toast: 'Đã gửi Kế toán duyệt', impact: ['Chứng từ in từ ngày hiệu lực dùng v3; chứng từ đã in vẫn thuộc v2.', 'Thay mẫu đang dùng là thao tác rủi ro: ghi nhật ký, cần Kế toán duyệt với mẫu kế toán.'],
+  fields: ['<div class="field"><label class="field__label" for="tp-k">Khổ giấy hỗ trợ</label><div class="row"><label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>A5</span></label><label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Nhiệt 80 mm</span></label><label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Nhiệt 58 mm</span></label></div></div>', '<div class="field"><label class="field__label" for="tp-f">Thông tin chân trang</label><textarea class="textarea" id="tp-f" style="min-height:56px">Cảm ơn quý khách đã sử dụng dịch vụ.</textarea></div>', '<label class="check"><input type="checkbox" checked disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Số chứng từ, ngày, số tiền, bằng chữ, chữ ký (bắt buộc theo mẫu kế toán, đang khóa)</span></label>'] })
+ + g4rDrawer({ id: 'dlg-msg', title: 'Sửa mẫu tin “Gửi báo giá cho khách”', sub: 'Biến trong ngoặc kép nhọn được thay bằng dữ liệu thật', noeff: true, cta: 'Lưu mẫu tin', toast: 'Đã lưu mẫu tin',
+  fields: ['<div class="field"><label class="field__label" for="ms-t">Nội dung<span class="field__req">*</span></label><textarea class="textarea" id="ms-t" style="min-height:96px">Chào {{ten_khach}}, Garage ABC gửi báo giá {{ma_bao_gia}} cho xe {{bien_so}}, tổng {{tong_tien}}. Xem và duyệt tại: {{lien_ket}}</textarea><span class="field__hint">Dài 142 ký tự. SMS tính theo số tin; Zalo/Email không giới hạn.</span></div>', '<div class="field"><span class="field__label">Biến có thể chèn</span><div class="g4r-vars"><span class="tag tag--neutral">{{ten_khach}}</span><span class="tag tag--neutral">{{ma_bao_gia}}</span><span class="tag tag--neutral">{{bien_so}}</span><span class="tag tag--neutral">{{tong_tien}}</span><span class="tag tag--neutral">{{lien_ket}}</span></div></div>', '<div class="alert alert--neutral" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Zalo và SMS đang “Chưa kích hoạt”: mẫu lưu được nhưng nút gửi cho khách bị khóa cho tới khi chọn nhà cung cấp (G4-SYS-17).</div></div>'] }));
+</script>
+</body>
+</html>

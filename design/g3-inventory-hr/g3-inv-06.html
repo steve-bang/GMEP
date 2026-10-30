@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-06 · Yêu cầu cấp phụ tùng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-06')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Yêu cầu cấp phụ tùng</h1><p class="page-header__desc">Hàng chờ xuất theo lệnh sửa chữa. Mỗi lần xuất phải theo một lệnh (RULE-007); không có xuất kho không chứng từ.</p></div>
+  <div class="page-header__actions"><div class="segmented" role="group" aria-label="Lọc yêu cầu"><button class="segmented__item" aria-pressed="true">Chờ xuất <span class="count-pill">3</span></button><button class="segmented__item" aria-pressed="false">Đã xuất hôm nay</button><button class="segmented__item" aria-pressed="false">Đã hủy</button></div></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Hôm nay 30/10/2026</span><span>· Cập nhật lúc 09:15</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Hàng chờ cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button></div>
+
+<div id="g3-body" data-noun="yêu cầu cấp phụ tùng" data-skel="detail" data-empty-icon="inbox" data-empty-text="Chưa có thợ nào yêu cầu phụ tùng. Khi thợ chọn “Yêu cầu phụ tùng” trên tablet, yêu cầu hiện ở đây." >
+<div data-g3-state="data" class="g3-tablet-xl">
+  <div class="grid grid--3">
+    <article class="card" aria-labelledby="y1"><div class="card__header"><div><h2 class="card__title code" id="y1">RO-Q7-2610-00131</h2><div class="card__subtitle"><span class="plate">30A-222.33</span> · Toyota Vios</div></div><span class="badge badge--info">Đang sửa chữa</span></div>
+      <div class="card__body stack"><div><div style="font-weight:600">Lọc dầu động cơ Toyota Vios <span class="text-secondary code">PT-0001</span></div><div class="t-body-sm text-secondary">Yêu cầu 1 cái · Lê Minh Tuấn · 08:52 (chờ 23 phút)</div></div>
+        <div data-g3-stock4="26,2,0" data-min="10"></div>
+        <div class="row"><span class="badge badge--success">Đủ hàng</span><span class="t-body-sm">Đã giữ chỗ 1 cho lệnh này</span></div></div>
+      <div class="card__footer"><a class="btn btn--primary btn--lg" href="g3-inv-07.html" data-g3-need="TK" data-g3-why="Chỉ Thủ kho xuất kho."><svg class="icon"><use href="#package"/></svg>Xuất kho</a></div></article>
+
+    <article class="card card--attention" aria-labelledby="y2"><div class="card__header"><div><h2 class="card__title code" id="y2">RO-Q7-2610-00126</h2><div class="card__subtitle"><span class="plate">51K-987.65</span> · Mazda CX-5</div></div><span class="badge badge--warning">Tạm dừng</span></div>
+      <div class="card__body stack"><div><div style="font-weight:600">Dầu nhớt Castrol 5W-30 (can 4 lít) <span class="text-secondary code">PT-0003</span></div><div class="t-body-sm text-secondary">Yêu cầu 1 can · Phạm Quốc Bảo · 08:10 (chờ 1 giờ 5 phút)</div></div>
+        <div data-g3-stock4="2,2,0" data-min="6"></div>
+        <div class="alert alert--danger"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Thiếu hàng: Khả dụng 0</span><span>Không xuất được vì sẽ làm tồn âm (FR-INV-019). Lệnh nên tạm dừng với lý do <span class="tag tag--reason tag--warning">Chờ phụ tùng</span></span></div></div></div>
+      <div class="card__footer"><button class="btn btn--secondary btn--lg" data-open="dlg-short" data-g3-need="TK" data-g3-why="Chỉ Thủ kho báo thiếu hàng.">Báo thiếu hàng…</button><button class="btn btn--primary btn--lg" disabled aria-disabled="true" aria-describedby="why-x">Xuất kho</button></div>
+      <p class="g3-why" id="why-x" style="padding:0 16px 12px">Không xuất được: Khả dụng 0 nhỏ hơn số yêu cầu 1.</p></article>
+
+    <article class="card" aria-labelledby="y3"><div class="card__header"><div><h2 class="card__title code" id="y3">RO-Q7-2610-00127</h2><div class="card__subtitle"><span class="plate">30G-456.78</span> · Hyundai Accent</div></div><span class="badge badge--info">Đang sửa chữa</span></div>
+      <div class="card__body stack"><div><div style="font-weight:600">Má phanh trước Hyundai Accent <span class="text-secondary code">PT-0002</span></div><div class="t-body-sm text-secondary">Yêu cầu 2 bộ · Nguyễn Văn Hậu · 09:02 (chờ 13 phút)</div></div>
+        <div data-g3-stock4="5,2,10" data-min="6"></div>
+        <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>Sau khi xuất, Khả dụng còn 1, thấp hơn mức tối thiểu 6. Nên tạo yêu cầu mua hoặc chuyển kho.</span></div></div></div>
+      <div class="card__footer"><a class="btn btn--secondary btn--lg" href="g3-inv-05.html">Xem gợi ý đặt hàng</a><a class="btn btn--primary btn--lg" href="g3-inv-07.html" data-g3-need="TK" data-g3-why="Chỉ Thủ kho xuất kho.">Xuất kho</a></div></article>
+  </div>
+  <div class="alert alert--neutral" style="margin-top:16px"><svg class="icon"><use href="#history"/></svg><div class="alert__body"><span class="alert__title">1 yêu cầu đã hủy vì lệnh bị hủy</span><span>RO-Q7-2610-00119 (51F-333.44) · Kính chiếu hậu ×1 · phần giữ chỗ đã được nhả về Khả dụng lúc 08:30.</span></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-short" role="dialog" aria-modal="true" aria-labelledby="sh-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="sh-t">Báo thiếu hàng cho RO-Q7-2610-00126</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list"><li>Lệnh chuyển sang Tạm dừng, lý do “Chờ phụ tùng”; thợ và cố vấn nhận thông báo “Cần xử lý”.</li><li>Giờ công của hạng mục chỉ tính thời gian đang làm, không tính thời gian chờ.</li></ul>
+    <fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="field__label">Bước tiếp theo</legend>
+      <label class="radio"><input type="radio" name="nx" checked><span class="radio__box"></span><span>Lấy từ chi nhánh đang dư (tạo phiếu chuyển)</span></label>
+      <label class="radio"><input type="radio" name="nx"><span class="radio__box"></span><span>Đặt nhà cung cấp (tạo yêu cầu mua)</span></label>
+      <label class="radio"><input type="radio" name="nx"><span class="radio__box"></span><span>Chỉ báo thiếu, xử lý sau</span></label></fieldset></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã báo thiếu hàng|Lệnh RO-Q7-2610-00126 ở trạng thái Tạm dừng · Chờ phụ tùng.">Báo thiếu và tạm dừng lệnh</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

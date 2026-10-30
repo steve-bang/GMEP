@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-02 – Tạo / sửa khách hàng · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CV" data-nav="cust" data-g2w-deny="CH QV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack">
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-01.html">Khách hàng</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Thêm khách</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Thêm khách hàng</h1><p class="page-header__desc">Điền thông tin cơ bản. Số điện thoại và biển số xe giúp hệ thống phát hiện hồ sơ trùng.</p></div></div>
+
+  <div data-g2w-scope data-time="Biểu mẫu mới" data-asof="09:16"></div>
+  <div data-g2w-proto="offline draft"></div>
+  <div data-g2w-variants="default:Mặc định|dup:Cảnh báo trùng|error:Lỗi theo trường|biz:Khách doanh nghiệp|saving:Đang lưu|conflict:Xung đột phiên bản|readonly:Chỉ đọc (khóa chi nhánh)"></div>
+
+  <div class="g2w-split">
+    <form class="g2w-stack g2w-stack--tight" id="cust-form" novalidate onsubmit="return false" data-g2w-vro="readonly">
+
+      <div class="alert alert--warning" data-g2w-vshow="dup" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Có thể đã có hồ sơ khách này</span><span>Số điện thoại trùng với khách <strong>Nguyễn Văn An</strong> (2 xe, sửa gần nhất 30/10/2026 tại Quận 7). Nên dùng hồ sơ có sẵn thay vì tạo mới (FR-CRM-003).</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="g2-crm-03.html" data-g2w-keep>Dùng hồ sơ có sẵn</a><button class="btn btn--secondary btn--sm" type="button" data-g2w-keep>Vẫn tạo mới (khác người)</button></div></div></div>
+      <div class="alert alert--danger" data-g2w-vshow="conflict" role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Hồ sơ đã được người khác sửa</span><span>Quản lý Trần Thị Mai vừa lưu thay đổi lúc 09:15. Lưu bây giờ sẽ ghi đè. Xem thay đổi của họ rồi quyết định.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" type="button" data-g2w-keep>Tải lại bản mới</button><button class="btn btn--ghost btn--sm" type="button" data-g2w-keep>Giữ bản của tôi, ghi đè</button></div></div></div>
+      <div class="alert alert--neutral" data-g2w-vshow="readonly" role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chi nhánh này đang bị khóa (FR-SYS-011) hoặc bạn không có quyền sửa hồ sơ khách. Nút Lưu bị tắt.</span></div></div>
+      <div class="alert alert--warning" data-g2w-vshow="error" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Còn 3 ô cần sửa trước khi lưu</span><span>Họ tên, số điện thoại và mã số thuế. Kiểm tra các ô viền đỏ.</span></div></div>
+
+      <section class="card" aria-labelledby="g-1">
+        <div class="card__header"><div><h2 class="card__title" id="g-1">Thông tin chung</h2></div></div>
+        <div class="card__body stack">
+          <div class="field"><span class="field__label" id="lt">Loại khách<span class="field__req" aria-hidden="true">*</span></span><div class="segmented" role="group" aria-labelledby="lt"><button type="button" class="segmented__item" aria-pressed="true">Cá nhân</button><button type="button" class="segmented__item" aria-pressed="false">Doanh nghiệp</button></div><span class="field__hint">Khách doanh nghiệp có thêm mục pháp nhân, hạn mức công nợ.</span></div>
+          <div class="form-grid">
+            <div class="field"><label class="field__label" for="f-name">Họ và tên<span class="field__req" aria-hidden="true">*</span></label><input id="f-name" class="input" data-g2w-verr="error" placeholder="Ví dụ: Nguyễn Văn An" aria-describedby="f-name-e"><span class="field__error" id="f-name-e" data-g2w-vshow="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Nhập họ tên khách để tiếp tục.</span></div>
+            <div class="field"><label class="field__label" for="f-phone">Số điện thoại<span class="field__req" aria-hidden="true">*</span></label><input id="f-phone" class="input input--num" data-g2w-verr="error" inputmode="tel" placeholder="09xx xxx xxx" value="" aria-describedby="f-phone-e"><span class="field__error" id="f-phone-e" data-g2w-vshow="error" hidden><svg class="icon"><use href="#alert-triangle"/></svg>Số điện thoại cần 10 chữ số, bắt đầu bằng 0. Ví dụ 0903 456 321.</span></div>
+            <div class="field"><label class="field__label" for="f-mail">Email</label><input id="f-mail" class="input" type="email" placeholder="ten@example.vn"></div>
+            <div class="field"><label class="field__label" for="f-pc">Tỉnh / Thành phố</label><select id="f-pc" class="select"><option>TP. Hồ Chí Minh</option><option>Đồng Nai</option><option>Bình Dương</option></select></div>
+            <div class="field"><label class="field__label" for="f-dist">Quận / Huyện</label><select id="f-dist" class="select"><option>Quận 7</option><option>Quận 1</option><option>TP. Thủ Đức</option></select></div>
+            <div class="field"><label class="field__label" for="f-addr">Số nhà, đường, phường</label><input id="f-addr" class="input" placeholder="12 Nguyễn Văn Linh, P. Tân Phong"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="g-2" data-g2w-vshow="biz">
+        <div class="card__header"><div><h2 class="card__title" id="g-2">Pháp nhân và công nợ (khách doanh nghiệp)</h2><div class="card__subtitle">Cần để xuất hóa đơn đứng tên công ty và theo dõi công nợ.</div></div></div>
+        <div class="card__body stack"><div class="form-grid">
+          <div class="field"><label class="field__label" for="b-name">Tên pháp nhân<span class="field__req" aria-hidden="true">*</span></label><input id="b-name" class="input" placeholder="Công ty TNHH …"></div>
+          <div class="field"><label class="field__label" for="b-mst">Mã số thuế<span class="field__req" aria-hidden="true">*</span></label><input id="b-mst" class="input input--num" inputmode="numeric" placeholder="10 hoặc 13 chữ số" aria-describedby="b-mst-h"><span class="field__hint" id="b-mst-h">Bắt buộc khi cần hóa đơn đứng tên công ty. Thiếu MST thì hóa đơn chỉ xuất được theo khách lẻ.</span></div>
+          <div class="field"><label class="field__label" for="b-ct">Người liên hệ</label><input id="b-ct" class="input" placeholder="Họ tên và chức vụ"></div>
+          <div class="field"><label class="field__label" for="b-lim">Hạn mức công nợ</label><div class="input-group input-group--suffix"><input id="b-lim" class="input input--num" inputmode="numeric" placeholder="0"><span class="input-group__suffix">₫</span></div><span class="field__hint">Vượt hạn mức sẽ cảnh báo khi thu tiền và giao xe (FR-ACC-020).</span></div>
+          <div class="field"><label class="field__label" for="b-term">Kỳ thanh toán</label><select id="b-term" class="select"><option>Thanh toán ngay</option><option>15 ngày</option><option>30 ngày</option><option>45 ngày</option></select><span class="field__hint">Danh sách kỳ là cấu hình.</span></div>
+        </div></div>
+      </section>
+
+      <section class="card" aria-labelledby="g-3">
+        <div class="card__header"><div><h2 class="card__title" id="g-3">Đồng ý xử lý dữ liệu cá nhân</h2><div class="card__subtitle">Ghi mục đích và kênh khách đồng ý (FR-CRM-010, Luật Bảo vệ dữ liệu cá nhân 2025).</div></div></div>
+        <div class="card__body stack-2">
+          <label class="check"><input type="checkbox" checked disabled><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span><strong>Xử lý dữ liệu để cung cấp dịch vụ sửa chữa</strong><br><span class="g2w-muted">Bắt buộc để lập lệnh. Căn cứ: thực hiện hợp đồng dịch vụ.</span></span></label>
+          <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span><strong>Nhắc bảo dưỡng, đăng kiểm, bảo hiểm</strong><br><span class="g2w-muted">Qua SMS hoặc Zalo khi nhà cung cấp được kích hoạt.</span></span></label>
+          <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span><strong>Nhận thông tin khuyến mãi, quảng cáo</strong><br><span class="g2w-muted">Không tích thì không nằm trong chiến dịch (G2-CRM-10).</span></span></label>
+          <div class="field"><label class="field__label" for="c-how">Cách ghi nhận đồng ý</label><select id="c-how" class="select"><option>Khách xác nhận tại quầy</option><option>Phiếu giấy có chữ ký</option><option>Liên kết xác nhận qua tin nhắn</option></select></div>
+        </div>
+      </section>
+
+      <div class="g2w-wizard-foot" role="group" aria-label="Lưu biểu mẫu">
+        <span class="g2w-wizard-foot__draft"><span class="badge badge--success badge--nodot" data-g2w-vshow="default dup error biz conflict readonly"><svg class="icon"><use href="#check"/></svg>Đã lưu nháp lúc 09:16</span><span class="g2w-muted" data-g2w-vshow="saving" role="status">Đang lưu hồ sơ…</span></span>
+        <a class="btn btn--ghost" href="g2-crm-01.html" data-g2w-keep>Hủy</a>
+        <button class="btn btn--secondary" type="button" data-g2w-vload="saving" data-toast="success|Đã lưu khách|Chuyển sang thêm xe cho khách này.">Lưu và thêm xe</button>
+        <button class="btn btn--primary" type="button" data-g2w-vload="saving" data-toast="success|Đã lưu khách|Hồ sơ khách tạo lúc 09:16 bởi Nguyễn Hoàng Yến.">Lưu</button>
+      </div>
+    </form>
+
+    <aside class="g2w-stack g2w-stack--tight" aria-label="Gợi ý">
+      <section class="card"><div class="card__header"><h2 class="card__title">Kiểm tra trùng</h2></div><div class="card__body stack-2"><p class="g2w-muted">Hệ thống so khớp theo số điện thoại và biển số xe (chuẩn hóa, không phân biệt dấu chấm, gạch). Chưa thấy hồ sơ trùng.</p><p class="g2w-muted">Thêm khách mới ở chi nhánh khác vẫn tìm thấy hồ sơ nếu nằm trong phạm vi quyền của bạn.</p></div></section>
+      <section class="card"><div class="card__header"><h2 class="card__title">Quyền của bạn</h2></div><div class="card__body"><p class="g2w-muted">Cố vấn và Quản lý chi nhánh tạo, sửa khách (M1: S). Các vai trò khác chỉ xem. Số điện thoại và địa chỉ đã nhập hiển thị che ở vai trò không đủ quyền.</p></div></section>
+    </aside>
+  </div>
+</div>
+</div></main>
+</div>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

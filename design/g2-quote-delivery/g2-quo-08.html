@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-QUO-08 · Hạng mục khách từ chối / chưa làm – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<script src="pack.js"></script>
+<script>
+g2q.begin('CV', 'ro');
+g2q.header({ crumbs: [['Phiếu sửa chữa', 'g2-quo-01.html'], ['Hạng mục lưu nhắc']], title: 'Hạng mục khách từ chối / chưa làm', desc: 'Hạng mục khách chưa đồng ý được lưu để nhắc cố vấn khi xe vào lại. Giá hiển thị so với giá cũ; đưa vào báo giá mới thì lấy giá hiện hành.' });
+g2q.scope('01/07–30/10/2026');
+</script>
+
+<div class="stack-6" data-variants="default">
+  <script>g2q.proto([['default','Có dữ liệu'],['loading','Đang tải'],['empty','Trống lần đầu'],['filter','Trống do lọc'],['error','Lỗi tải'],['noperm','Không có quyền']], 'default');</script>
+
+  <div class="alert alert--info" data-v="default"><svg class="icon"><use href="#history"/></svg><div class="alert__body"><span class="alert__title">Xe 30G-456.78 vừa được tiếp nhận: có 2 hạng mục từng bị từ chối</span><span>“Thay lốp trước (cặp)” và “Thay nước làm mát”. Nhắc khách trước khi lập báo giá mới. Nhắc này cũng hiện ở bước 3 của tiếp nhận xe (G2-REC-01).</span></div></div>
+
+  <section data-v="default loading filter" aria-label="Bộ lọc">
+    <div class="filter-bar">
+      <div class="field filter-bar__search"><label class="field__label" for="q">Tìm xe hoặc khách</label><div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input id="q" class="input" type="search" placeholder="Biển số, tên khách, hạng mục (không cần gõ dấu)"></div></div>
+      <div class="field"><label class="field__label" for="f-n">Trạng thái nhắc</label><select id="f-n" class="select"><option>Tất cả</option><option>Đang nhắc</option><option>Đã bỏ nhắc</option></select></div>
+      <div class="field"><label class="field__label" for="f-t">Từ chối trong</label><select id="f-t" class="select"><option>4 tháng qua</option><option>30 ngày qua</option><option>12 tháng qua</option></select></div>
+      <div class="filter-bar__actions"><button class="btn btn--secondary">Đặt lại</button></div>
+    </div>
+    <div class="chip-row" aria-label="Bộ lọc đang áp dụng"><span class="t-body-sm text-secondary">Đang lọc:</span><span class="chip">4 tháng qua<button class="chip__x" aria-label="Bỏ lọc 4 tháng qua"><svg class="icon"><use href="#x"/></svg></button></span><span class="chip" data-v="filter">Từ khóa “bơm xăng”<button class="chip__x" aria-label="Bỏ lọc từ khóa"><svg class="icon"><use href="#x"/></svg></button></span><button class="btn btn--ghost btn--sm">Xóa tất cả bộ lọc</button></div>
+  </section>
+
+  <section data-v="default" aria-label="Danh sách hạng mục lưu nhắc">
+    <div class="table-wrap">
+      <div class="table-toolbar"><span class="table-meta">6 hạng mục trên 5 xe · tổng giá cũ 9.740.000 ₫</span><span class="t-body-sm text-secondary" style="margin-left:auto">Chọn hạng mục của cùng một xe để đưa vào báo giá mới.</span></div>
+      <div class="bulk-bar" role="region" aria-label="Thao tác hàng loạt"><span class="bulk-bar__count"><span data-bulk-count>0</span> hạng mục được chọn</span>
+        <span id="bulk-mixed" class="tag tag--warning" hidden>Chọn hạng mục của cùng một xe</span>
+        <button class="btn btn--primary btn--sm" id="bulk-quote" data-show-roles="CV QL" onclick="location.href='g2-quo-02.html'">Đưa vào báo giá mới</button>
+        <button class="btn btn--secondary btn--sm" data-show-roles="CV QL" data-open="dlg-drop">Bỏ nhắc</button>
+        <span class="g2q-note" data-show-roles="CH QV QD TN KT TK">Vai trò của bạn chỉ xem danh sách.</span>
+        <button class="btn btn--ghost btn--sm" data-bulk-clear style="margin-left:auto">Bỏ chọn</button></div>
+      <div class="table-scroll"><table class="table" data-cardify>
+        <thead><tr><th class="col-check"><label class="check"><input type="checkbox" data-select-all aria-label="Chọn tất cả"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></th><th>Xe</th><th>Hạng mục</th><th>Từ chối ngày</th><th>Lý do khách nêu</th><th class="col-num">Giá cũ</th><th class="col-num">Giá hiện tại</th><th>Nhắc</th><th class="col-actions" style="width:auto"><span class="sr-only">Thao tác</span></th></tr></thead>
+        <tbody>
+          <tr data-plate="30G-456.78"><td class="col-check"><label class="check"><input type="checkbox" data-row-check aria-label="Chọn Thay lốp trước (cặp)"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td data-card="title"><span class="plate">30G-456.78</span><span class="cell-sub">Trần Thị Bích Ngọc</span></td><td class="cell-primary" data-label="Hạng mục">Thay lốp trước (cặp)</td><td data-label="Từ chối">28/10/2026</td><td data-label="Lý do">Giá cao hơn dự kiến</td><td class="col-num" data-label="Giá cũ">3.200.000 ₫</td><td class="col-num" data-label="Giá hiện tại">3.350.000 ₫ <span class="tag tag--warning"><svg class="icon"><use href="#arrow-up"/></svg>Tăng 150.000</span></td><td data-card="status"><span class="tag tag--info">Đang nhắc</span></td><td class="col-actions" style="width:auto"><a class="btn btn--secondary btn--sm" data-show-roles="CV QL" href="g2-quo-02.html">Đưa vào báo giá</a></td></tr>
+          <tr data-plate="30G-456.78"><td class="col-check"><label class="check"><input type="checkbox" data-row-check aria-label="Chọn Thay nước làm mát"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td data-card="title"><span class="plate">30G-456.78</span><span class="cell-sub">Trần Thị Bích Ngọc</span></td><td class="cell-primary" data-label="Hạng mục">Thay nước làm mát</td><td data-label="Từ chối">28/10/2026</td><td data-label="Lý do">Để lần sau</td><td class="col-num" data-label="Giá cũ">480.000 ₫</td><td class="col-num" data-label="Giá hiện tại">480.000 ₫</td><td data-card="status"><span class="tag tag--info">Đang nhắc</span></td><td class="col-actions" style="width:auto"><a class="btn btn--secondary btn--sm" data-show-roles="CV QL" href="g2-quo-02.html">Đưa vào báo giá</a></td></tr>
+          <tr data-plate="51H-123.45"><td class="col-check"><label class="check"><input type="checkbox" data-row-check aria-label="Chọn Vệ sinh buồng đốt"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td data-card="title"><span class="plate">51H-123.45</span><span class="cell-sub">Nguyễn Văn An</span></td><td class="cell-primary" data-label="Hạng mục">Vệ sinh buồng đốt</td><td data-label="Từ chối">30/10/2026</td><td data-label="Lý do">Để lần sau</td><td class="col-num" data-label="Giá cũ">650.000 ₫</td><td class="col-num" data-label="Giá hiện tại">650.000 ₫</td><td data-card="status"><span class="tag tag--info">Đang nhắc</span></td><td class="col-actions" style="width:auto"><span class="g2q-note">Lệnh đang mở</span></td></tr>
+          <tr data-plate="29A-345.67"><td class="col-check"><label class="check"><input type="checkbox" data-row-check aria-label="Chọn Thay lốp trước"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td data-card="title"><span class="plate">29A-345.67</span><span class="cell-sub">Đinh Thị Hạnh</span></td><td class="cell-primary" data-label="Hạng mục">Thay lốp trước (cặp)</td><td data-label="Từ chối">30/10/2026</td><td data-label="Lý do">Để lần sau</td><td class="col-num" data-label="Giá cũ">2.640.000 ₫</td><td class="col-num" data-label="Giá hiện tại">2.640.000 ₫</td><td data-card="status"><span class="tag tag--info">Đang nhắc</span></td><td class="col-actions" style="width:auto"><a class="btn btn--secondary btn--sm" data-show-roles="CV QL" href="g2-quo-02.html">Đưa vào báo giá</a></td></tr>
+          <tr data-plate="51K-987.65"><td class="col-check"><label class="check"><input type="checkbox" data-row-check aria-label="Chọn Thay bugi Iridium"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td data-card="title"><span class="plate">51K-987.65</span><span class="cell-sub">Cty TNHH Vận tải Hòa Phát</span></td><td class="cell-primary" data-label="Hạng mục">Thay bugi Iridium (4 cái)</td><td data-label="Từ chối">02/10/2026</td><td data-label="Lý do">Để lần sau</td><td class="col-num" data-label="Giá cũ">1.520.000 ₫</td><td class="col-num" data-label="Giá hiện tại">1.480.000 ₫ <span class="tag tag--success"><svg class="icon"><use href="#arrow-down"/></svg>Giảm 40.000</span></td><td data-card="status"><span class="tag tag--info">Đang nhắc</span></td><td class="col-actions" style="width:auto"><span class="g2q-note">Xe có lệnh đang mở RO-Q7-2610-00121</span></td></tr>
+          <tr data-plate="59A-111.22"><td class="col-check"><label class="check"><input type="checkbox" data-row-check aria-label="Chọn Thay dây curoa"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td><td data-card="title"><span class="plate">59A-111.22</span><span class="cell-sub">Lê Quốc Huy</span></td><td class="cell-primary" data-label="Hạng mục">Thay dây curoa</td><td data-label="Từ chối">15/10/2026</td><td data-label="Lý do">Đã sửa ở nơi khác</td><td class="col-num" data-label="Giá cũ">1.250.000 ₫</td><td class="col-num" data-label="Giá hiện tại">1.250.000 ₫</td><td data-card="status"><span class="tag tag--neutral">Đã bỏ nhắc</span></td><td class="col-actions" style="width:auto"><span class="g2q-note">Đã bỏ nhắc 20/10/2026</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="table-footer"><span class="table-meta">Hiển thị 6/6 · cập nhật 09:15</span></div>
+    </div>
+  </section>
+
+  <div data-v="loading" aria-busy="true" class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Xe</th><th>Hạng mục</th><th>Từ chối</th><th>Lý do</th><th>Giá cũ</th><th>Nhắc</th></tr></thead><tbody><script>g2q.skelRows(5, 6)</script></tbody></table></div></div>
+  <div data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Chưa có hạng mục nào được lưu nhắc', text:'Khi khách duyệt một phần hoặc từ chối, các hạng mục không được duyệt xuất hiện ở đây để nhắc cố vấn lần sau.', actions:'<a class="btn btn--secondary" href="g2-quo-01.html">Về danh sách báo giá</a>'})</script></div>
+  <div data-v="filter" class="card"><script>g2q.state({kind:'filter', title:'Không có hạng mục phù hợp bộ lọc', text:'Không thấy hạng mục nào khớp “bơm xăng”. Thử bỏ bớt bộ lọc hoặc gõ biển số.', actions:'<button class="btn btn--secondary">Xóa tất cả bộ lọc</button>'})</script></div>
+  <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được danh sách', text:'Thử lại sau vài giây.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-QUO-1A9E44'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem danh sách này', text:'Danh sách dành cho Cố vấn dịch vụ và Quản lý chi nhánh.', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
+</div>
+<script>g2q.end();</script>
+
+<div class="overlay" id="dlg-drop" role="dialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#history"/></svg></div><div><h2 class="dialog__title" id="dd-t">Bỏ nhắc các hạng mục đã chọn?</h2></div></div>
+  <div class="dialog__body"><p>Cố vấn sẽ không còn thấy nhắc khi xe vào lại. Hạng mục vẫn nằm trong lịch sử xe (G2-CRM-06) và có thể bật nhắc lại.</p><div class="field"><label class="field__label" for="dd-r">Lý do (không bắt buộc)</label><input id="dd-r" class="input" placeholder="Ví dụ: khách đã sửa nơi khác"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nhắc</button><button class="btn btn--primary" data-close data-toast="success|Đã bỏ nhắc|Ghi vào lịch sử xe và nhật ký.">Bỏ nhắc</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>
+window.g2qReady = function () {
+  var btn = document.getElementById('bulk-quote'), mixed = document.getElementById('bulk-mixed');
+  document.addEventListener('change', function (e) {
+    if (!e.target.matches('[data-row-check],[data-select-all]')) return;
+    setTimeout(function () {
+      var plates = {}; document.querySelectorAll('tbody input[data-row-check]:checked').forEach(function (c) { plates[c.closest('tr').getAttribute('data-plate')] = 1; });
+      var multi = Object.keys(plates).length > 1; mixed.hidden = !multi; btn.disabled = multi; btn.setAttribute('aria-disabled', String(multi));
+    }, 0);
+  });
+};
+</script>
+</body>
+</html>

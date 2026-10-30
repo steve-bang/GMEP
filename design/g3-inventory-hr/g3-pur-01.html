@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-PUR-01 · Danh sách yêu cầu mua hàng – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('pur')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('PUR-01')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Yêu cầu mua hàng</h1><p class="page-header__desc">Luồng: yêu cầu → phê duyệt → đơn mua → nhận hàng → hóa đơn nhà cung cấp. Bước yêu cầu và duyệt có thể tắt theo chi nhánh (cấu hình).</p></div>
+  <div class="page-header__actions"><a class="btn btn--primary" href="g3-pur-02.html" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho / người mua hàng và Quản lý chi nhánh tạo yêu cầu."><svg class="icon"><use href="#plus"/></svg>Tạo yêu cầu mua</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· 01/10/2026 – 30/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="yêu cầu mua hàng" data-cols="7" data-empty-icon="shopping-cart" data-empty-text="Chưa có yêu cầu mua. Tạo yêu cầu từ danh sách hàng dưới định mức, hoặc nhập tay khi cần mua gấp." data-empty-cta="Tạo yêu cầu mua">
+<div data-g3-state="data" class="stack">
+  <div class="filter-bar" role="search">
+    <div class="field filter-bar__search"><label class="field__label" for="f-q">Tìm mã yêu cầu, người đề xuất, mặt hàng</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="f-q" class="input" placeholder="Ví dụ: dau nhot hoặc YM-Q7-2610-00004"></div></div>
+    <div class="field"><label class="field__label" for="f-s">Trạng thái</label><select id="f-s" class="select"><option>Tất cả</option><option>Nháp</option><option>Chờ duyệt</option><option>Đã duyệt</option><option>Từ chối</option><option>Đã lập đơn</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Danh sách yêu cầu mua hàng của Chi nhánh Quận 7</caption>
+    <thead><tr><th data-card="title">Mã yêu cầu</th><th data-card="sub">Mặt hàng</th><th data-card="badge">Trạng thái</th><th data-card="meta">Người đề xuất</th><th data-card="meta">Ngày</th><th>Lý do</th><th class="col-num" data-card="foot">Giá trị ước tính</th></tr></thead>
+    <tbody>
+      <tr data-href="g3-pur-03.html" class="g3-row--flag"><td class="code"><a href="g3-pur-03.html">YM-Q7-2610-00004</a></td><td>Dầu nhớt Castrol 5W-30 ×24</td><td><span class="badge badge--warning">Chờ duyệt</span></td><td>Trần Thị Mai Anh</td><td class="num">30/10/2026</td><td>Hết hàng, dưới định mức</td><td class="col-num">21.360.000 ₫</td></tr>
+      <tr data-href="g3-pur-03.html"><td class="code"><a href="g3-pur-03.html">YM-Q7-2610-00003</a></td><td>Lốp Michelin Primacy 4 ×8</td><td><span class="badge badge--success">Đã duyệt</span></td><td>Trần Thị Mai Anh</td><td class="num">28/10/2026</td><td>Sắp hết, không có chi nhánh dư</td><td class="col-num">14.240.000 ₫</td></tr>
+      <tr data-href="g3-pur-03.html"><td class="code"><a href="g3-pur-03.html">YM-Q7-2610-00002</a></td><td>Má phanh Accent ×20, Bugi Denso ×8</td><td><span class="badge badge--info">Đã lập đơn</span> <span class="tag tag--neutral">DM-Q7-2610-00014</span></td><td>Trần Thị Mai Anh</td><td class="num">20/10/2026</td><td>Bổ sung theo định mức</td><td class="col-num">12.360.000 ₫</td></tr>
+      <tr data-href="g3-pur-03.html"><td class="code"><a href="g3-pur-03.html">YM-Q7-2610-00001</a></td><td>Dung dịch rửa phanh ×12</td><td><span class="badge badge--danger">Từ chối</span></td><td>Võ Thanh Sơn</td><td class="num">15/10/2026</td><td>Dùng tồn nội bộ trước</td><td class="col-num">936.000 ₫</td></tr>
+      <tr data-href="g3-pur-02.html"><td class="code"><a href="g3-pur-02.html">YM-Q7-2610-00005</a></td><td>Dây curoa tổng Kia Morning ×6</td><td><span class="badge badge--neutral">Nháp</span></td><td>Trần Thị Mai Anh</td><td class="num">30/10/2026</td><td>–</td><td class="col-num">990.000 ₫</td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 1–5 trong 5 yêu cầu</span></div></div>
+  <p class="t-body-sm text-secondary">Trạng thái yêu cầu mua theo FR-PUR: nháp, chờ duyệt, đã duyệt, từ chối, đã lập đơn. Tiền tố mã “YM” là đề xuất tạm, chờ BA chốt.</p>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

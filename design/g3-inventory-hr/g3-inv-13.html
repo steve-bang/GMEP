@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-13 · Tạo / gửi phiếu chuyển kho – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-13')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Phiếu chuyển kho <span class="code">CK-Q7-2610-00009</span></h1><p class="page-header__desc">Chuyển hàng từ Kho Quận 7 sang Chi nhánh Quận 1. Hàng chỉ rời Khả dụng của kho đi khi gửi, và chỉ vào Khả dụng của kho đến khi bên nhận xác nhận.</p></div>
+  <div class="page-header__actions"><span class="badge badge--neutral badge--lg">Nháp</span><a class="btn btn--secondary" href="g3-inv-12.html">Về danh sách</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span> (kho đi)</span><span>· Ngày lập 30/10/2026</span></div>
+
+<div id="g3-body" data-noun="phiếu chuyển kho" data-g3-states="data:Soạn phiếu;loading;error;denied" data-skel="detail" data-back="g3-inv-12.html">
+<div data-g3-state="data" class="stack">
+  <div class="g3-ro-flag alert alert--info" data-for="f-sto" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho và Quản lý chi nhánh lập phiếu chuyển; Chủ garage/Quản lý vùng duyệt phiếu giá trị lớn.</span></div></div>
+  <form id="f-sto" class="g3-split" data-g3-edit="TK QL" onsubmit="return false">
+    <div class="stack-6">
+      <section class="form-section" aria-labelledby="h1"><h2 class="card__title" id="h1" style="margin-bottom:16px">Kho đi và kho đến</h2>
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="s-from">Kho đi</label><input id="s-from" class="input" value="Chi nhánh Quận 7 – Kho Quận 7" readonly></div>
+          <div class="field"><label class="field__label" for="s-to">Kho đến<span class="field__req" aria-hidden="true">*</span></label><select id="s-to" class="select"><option>Chi nhánh Quận 1 – Kho Quận 1</option><option>Chi nhánh Thủ Đức – Kho Thủ Đức</option><option>Kho tổng Thủ Đức</option></select></div>
+          <div class="field span-2"><label class="field__label" for="s-ro">Lệnh sửa chữa đang thiếu hàng (tùy chọn)</label><input id="s-ro" class="input" value="RO-Q1-2610-00077" placeholder="Mã lệnh ở chi nhánh nhận"><span class="field__hint">Nếu nhập, hàng đến sẽ được giữ chỗ cho lệnh này và thợ nhận thông báo.</span></div>
+        </div>
+        <span class="g3-why">Nếu kho đi không phải chi nhánh của bạn, phiếu trở thành “Yêu cầu chuyển” gửi bên kho đi xác nhận (quy trình chưa được khách chốt).</span></section>
+
+      <section class="card" aria-labelledby="h2"><div class="card__header"><h2 class="card__title" id="h2">Phụ tùng chuyển</h2><span class="table-meta">2 dòng · 6 đơn vị</span></div>
+        <div class="table-scroll"><table class="table"><caption class="sr-only">Dòng phụ tùng chuyển kho với Khả dụng tại kho đi</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Khả dụng kho đi</th><th class="col-num">SL chuyển</th><th class="col-num">Còn lại sau chuyển</th><th class="col-num">Giá trị</th></tr></thead><tbody>
+          <tr><td><span class="code">PT-0005</span> Lốp Michelin Primacy 4 205/55R16</td><td class="col-num">4</td><td class="col-num"><div class="qty" role="group" aria-label="SL chuyển PT-0005"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="4" min="1" max="4" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num"><strong class="g3-var g3-var--over">0</strong> <span class="badge badge--danger">Hết hàng</span></td><td class="col-num"><span data-g3-cost="7.120.000 ₫"></span></td></tr>
+          <tr><td><span class="code">PT-0004</span> Bugi Denso Iridium Honda City (bộ 4)</td><td class="col-num">14</td><td class="col-num"><div class="qty" role="group" aria-label="SL chuyển PT-0004"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="2" min="1" max="14" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td class="col-num"><strong class="g3-var">12</strong> <span class="badge badge--success">Đủ hàng</span></td><td class="col-num"><span data-g3-cost="1.040.000 ₫"></span></td></tr></tbody>
+          <tfoot><tr><td colspan="4">Tổng giá trị chuyển</td><td class="col-num"><span data-g3-cost="8.160.000 ₫"></span></td></tr></tfoot></table></div>
+        <div class="card__footer"><button class="btn btn--secondary" type="button" data-toast="info|Mở chọn phụ tùng|Prototype: thêm dòng bằng tìm tên, mã hoặc quét mã vạch."><svg class="icon"><use href="#plus"/></svg>Thêm phụ tùng</button><span class="t-body-sm text-secondary">Không chuyển quá Khả dụng kho đi (không để tồn âm).</span></div></section>
+      <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Sau chuyển, Lốp Michelin tại Quận 7 còn Khả dụng 0, thấp hơn mức tối thiểu 4</span><span>Bạn vẫn gửi được; hệ thống sẽ cảnh báo đặt hàng bổ sung cho Quận 7.</span></div></div>
+      <div class="alert alert--info" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Phiếu cần duyệt trước khi gửi hàng</span><span>Giá trị <span data-g3-cost="8.160.000 ₫"></span> so với hạn mức cấp Quản lý chi nhánh <span class="g3-sample">5.000.000 ₫ · giá trị mẫu từ G4-APR-03</span>. Người duyệt: Chủ garage hoặc Quản lý vùng được giao.</span></div></div>
+    </div>
+    <aside class="g3-side"><section class="card"><div class="card__body stack">
+      <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-sto" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh gửi phiếu.">Gửi duyệt</button><button class="btn btn--secondary btn--block" type="button">Lưu nháp</button>
+      <p class="t-body-sm text-secondary">Khi đã được duyệt, nút đổi thành “Gửi hàng”. Sau khi gửi, hàng ở trạng thái Đang vận chuyển và không sửa được; sai sót xử lý ở bước nhận.</p></div></section></aside>
+  </form>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-sto" role="dialog" aria-modal="true" aria-labelledby="st-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="st-t">Gửi phiếu CK-Q7-2610-00009 để duyệt?</h2></div></div>
+  <div class="dialog__body"><p>Chuyển 6 đơn vị (2 mã) sang Chi nhánh Quận 1. Chủ garage hoặc Quản lý vùng sẽ nhận thông báo “Cần xử lý”. Tồn chưa thay đổi cho đến khi hàng được gửi.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã gửi duyệt|Phiếu CK-Q7-2610-00009 chờ duyệt (Chờ duyệt, giá trị lớn).">Gửi duyệt</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-RPT-03 – Báo cáo chi nhánh theo ngày và tháng · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QL">
+<script src="pack.js" data-code="G4-RPT-03" data-menu="rpt" data-crumbs="Báo cáo|Báo cáo chi nhánh theo ngày và tháng" data-allow="QL KT CH QV"></script>
+<script>
+g4rPage({
+  title: 'Báo cáo chi nhánh theo ngày và tháng',
+  desc: 'Doanh thu ngày khớp tổng phiếu thu và công nợ phát sinh. Ngày chưa chốt là số tạm; sau khi khóa ngày (G4-ACC-09) số tạm thành chính thức.',
+  prio: 'P1',
+  cfgScope: 'Chi nhánh Quận 7 (báo cáo xem từng chi nhánh một; đổi chi nhánh ở bộ chọn Phạm vi dữ liệu)',
+  period: 'Ngày 30/10/2026 và Tháng 10/2026',
+  asof: 'Cập nhật lúc 09:15 30/10/2026',
+  actions: g4rExportBtn(),
+  empty: { title: 'Chưa có doanh thu nào trong kỳ này', text: 'Chi nhánh chưa có lệnh nào phát sinh trong ngày được chọn. Chọn ngày khác hoặc tạo phiếu sửa chữa mới.' }
+});
+g4rFilters({ fields: ['period', 'service'], sel: { period: 0 }, chips: ['Hôm nay 30/10/2026'], branchNote: false });
+</script>
+
+<div class="alert alert--info" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body">Khi Phạm vi dữ liệu ở thanh trên đang là hợp nhất (Tất cả chi nhánh / Nhóm), màn hình này hiện bảng “mỗi chi nhánh một dòng” ở cuối trang thay vì cộng gộp chi tiết; muốn xem chi tiết hãy chọn một chi nhánh.</div></div>
+
+<section class="grid grid--4" aria-label="Chỉ số trong ngày">
+  <div class="card kpi"><span class="kpi__label">Doanh thu ngày 30/10 <span class="tag tag--warning">Số tạm</span></span><span class="kpi__value">24.850.000<span class="kpi__unit">₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>6,0%</span>so với 29/10/2026 (23.450.000 ₫)</span><span class="kpi__scope">Quận 7 · 30/10/2026 · 09:15</span></div>
+  <div class="card kpi"><span class="kpi__label">Đã thu trong ngày</span><span class="kpi__value">19.350.000<span class="kpi__unit">₫</span></span><span class="kpi__meta">Tổng phiếu thu 5 phiếu</span><span class="kpi__scope">Quận 7 · 30/10/2026 · 09:15</span></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label">Công nợ phát sinh</span><span class="kpi__value">5.500.000<span class="kpi__unit">₫</span></span><span class="kpi__meta">1 lệnh hoàn tất chưa thu</span><span class="kpi__scope">Quận 7 · 30/10/2026 · 09:15</span></div>
+  <div class="card kpi"><span class="kpi__label">Doanh thu tháng 10</span><span class="kpi__value">612,4<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>7,2%</span>so với tháng 09/2026 (571,2 tr ₫)</span><span class="kpi__scope">Quận 7 · 01–30/10/2026 · gồm số tạm</span></div>
+</section>
+
+<div class="alert alert--success" role="status"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><strong>Khớp số liệu:</strong> đã thu 19.350.000 ₫ + công nợ phát sinh 5.500.000 ₫ = doanh thu ngày 24.850.000 ₫. <a href="g4-rpt-10.html">Xem 6 lệnh cấu thành</a></div></div>
+
+<div class="g4r-split">
+  <section class="card g4r-chartcard" aria-label="Doanh thu theo ngày"><script>
+    g4rChart({ type: 'line', title: 'Doanh thu theo ngày, Chi nhánh Quận 7', unit: 'Đơn vị: triệu ₫ · 17–30/10/2026', short: 'triệu ₫',
+      labels: ['17/10', '18/10', '19/10', '20/10', '21/10', '22/10', '23/10', '24/10', '25/10', '26/10', '27/10', '28/10', '29/10', '30/10'],
+      series: [{ name: 'Doanh thu ngày (triệu ₫)', values: [22.3, 14.8, 19.65, 23.1, 20.48, 25.9, 21.75, 26.4, 15.2, 20.9, 22.65, 24.1, 23.45, 24.85] }],
+      fmt: function (v) { return g4r.dec(v, 2) + ' tr ₫'; }, axisFmt: function (v) { return g4r.dec(v, 0); }, markLast: 'số tạm, ngày chưa chốt',
+      note: 'Trục dọc bắt đầu từ 0. Điểm viền nét đứt là số tạm.' });
+  </script></section>
+  <section class="table-wrap" aria-label="Thu theo hình thức">
+    <div class="table-toolbar"><strong>Phiếu thu trong ngày theo hình thức</strong></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Tiền thu ngày 30/10/2026 theo hình thức thanh toán</caption>
+      <thead><tr><th>Hình thức</th><th class="col-num">Số phiếu</th><th class="col-num">Số tiền</th></tr></thead>
+      <tbody>
+        <tr><td>Tiền mặt</td><td class="col-num">3</td><td class="col-num">6.200.000 ₫</td></tr>
+        <tr><td>Chuyển khoản</td><td class="col-num">2</td><td class="col-num">11.150.000 ₫</td></tr>
+        <tr><td>Thẻ</td><td class="col-num">1</td><td class="col-num">2.000.000 ₫</td></tr>
+        <tr class="g4r-total-row"><td>Tổng đã thu</td><td class="col-num">5 lệnh</td><td class="col-num">19.350.000 ₫</td></tr>
+      </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Một lệnh có thể trả bằng nhiều hình thức nên số phiếu có thể lớn hơn số lệnh.</span></div>
+  </section>
+</div>
+
+<section class="table-wrap" aria-label="So sánh tháng">
+  <div class="table-toolbar"><strong>So sánh tháng 10 với tháng 09 (cùng 30 ngày)</strong><span class="tag tag--warning">Tháng 10 gồm số tạm ngày 30/10</span></div>
+  <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">So sánh tháng 10/2026 với tháng 09/2026, Chi nhánh Quận 7</caption>
+    <thead><tr><th>Chỉ số</th><th class="col-num">Tháng 10/2026</th><th class="col-num">Tháng 09/2026</th><th class="col-num">Chênh lệch</th></tr></thead>
+    <tbody>
+      <tr><td>Doanh thu <span class="g4r-formula">Tổng thành tiền lệnh phát sinh trong kỳ</span></td><td class="col-num">612.400.000 ₫</td><td class="col-num">571.200.000 ₫</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>41.200.000 ₫ (7,2%)</span></td></tr>
+      <tr><td>Số lệnh <span class="g4r-formula">Lệnh mở trong kỳ, không gồm đã hủy</span></td><td class="col-num">214</td><td class="col-num">205</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>9 lệnh</span></td></tr>
+      <tr><td>Đã thu <span class="g4r-formula">Tổng phiếu thu trong kỳ</span></td><td class="col-num">574.900.000 ₫</td><td class="col-num">566.100.000 ₫</td><td class="col-num"><span class="kpi__delta kpi__delta--up"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>8.800.000 ₫</span></td></tr>
+      <tr><td>Công nợ phát sinh <span class="g4r-formula">Doanh thu chưa thu cuối kỳ</span></td><td class="col-num">37.500.000 ₫</td><td class="col-num">5.100.000 ₫</td><td class="col-num"><span class="kpi__delta kpi__delta--down"><svg class="icon icon--sm"><use href="#arrow-up"/></svg>32.400.000 ₫ tăng, cần theo dõi</span></td></tr>
+    </tbody></table></div>
+</section>
+
+<section class="table-wrap" aria-label="Hợp nhất theo chi nhánh">
+  <div class="table-toolbar"><strong>Khi xem hợp nhất: doanh thu ngày 30/10 mỗi chi nhánh một dòng</strong><span class="tag tag--warning">Số tạm</span></div>
+  <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Doanh thu ngày 30/10/2026 theo chi nhánh</caption>
+    <thead><tr><th>Chi nhánh</th><th>Trạng thái ngày</th><th class="col-num">Doanh thu ngày</th></tr></thead>
+    <tbody>
+      <tr><td>Chi nhánh Quận 1</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">31.200.000 ₫</td></tr>
+      <tr><td>Chi nhánh Quận 7</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">24.850.000 ₫</td></tr>
+      <tr><td>Chi nhánh Thủ Đức</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">26.400.000 ₫</td></tr>
+      <tr><td>Chi nhánh Biên Hòa</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">18.700.000 ₫</td></tr>
+      <tr><td>Chi nhánh Đà Nẵng</td><td><span class="tag tag--warning">Số tạm</span></td><td class="col-num">27.350.000 ₫</td></tr>
+      <tr class="g4r-total-row"><td>Toàn chuỗi</td><td></td><td class="col-num">128.500.000 ₫</td></tr>
+    </tbody></table></div>
+</section>
+
+<script>g4rEnd()</script>
+</body>
+</html>

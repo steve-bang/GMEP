@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-EIN-06 · Hàng chờ lỗi và thử lại phát hành · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-ein-07.html">Tình trạng kết nối</a></div>
+
+  <div class="alert alert--info"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu phát hành không bao giờ bị mất</span><span>Lỗi mạng hay lỗi nhà cung cấp chỉ chuyển yêu cầu vào hàng chờ này (FR-EIN-010). <strong>Thử lại</strong> luôn hỏi trạng thái ở nhà cung cấp trước; chỉ gửi mới khi chắc chắn chưa có hóa đơn, nên không thể tạo hóa đơn trùng (FR-EIN-013).</span></div></div>
+
+  <div class="table-wrap table-wrap--responsive">
+    <div class="table-toolbar"><span class="table-meta">3 yêu cầu cần xử lý · Chi nhánh Quận 7 · tự thử lại tối đa 5 lần (cấu hình)</span></div>
+    <div class="table-scroll"><table class="table">
+      <caption class="sr-only">Yêu cầu phát hành lỗi hoặc timeout</caption>
+      <thead><tr><th>Yêu cầu · lệnh</th><th>Loại sự cố</th><th>Lý do</th><th>Lần thử</th><th>Lần thử kế tiếp</th><th class="col-num">Giá trị</th><th class="col-actions" style="width:260px">Thao tác</th></tr></thead>
+      <tbody>
+        <tr><td><span class="code cell-primary">YC-EIN-00231</span><span class="cell-sub code">RO-Q7-2610-00118</span></td><td><span class="tag tag--danger">Lỗi dữ liệu</span></td><td>Địa chỉ người mua thiếu phường/xã<span class="cell-sub">Cần sửa thông tin trước khi thử lại</span></td><td class="num">1/5</td><td class="g4f-muted">Không tự thử</td><td class="col-num">6.300.000 ₫</td>
+          <td class="col-actions"><div class="row" style="justify-content:flex-end"><a class="btn btn--secondary btn--sm" href="g4-ein-02.html">Sửa người mua</a><span class="tooltip-host"><button class="btn btn--primary btn--sm" disabled aria-describedby="tt1">Thử lại</button><span class="tooltip" id="tt1" role="tooltip">Sửa dữ liệu người mua trước, hệ thống mới gửi lại được.</span></span></div></td></tr>
+        <tr><td><span class="code cell-primary">YC-EIN-00232</span><span class="cell-sub code">RO-Q7-2610-00112</span></td><td><span class="tag tag--danger">Từ chối của nhà cung cấp</span></td><td>Ký hiệu hóa đơn chưa được cấu hình cho chi nhánh<span class="cell-sub">Nhờ Kế toán/Quản trị sửa ở <a href="g4-ein-08.html">G4-EIN-08</a></span></td><td class="num">1/5</td><td class="g4f-muted">Không tự thử</td><td class="col-num">1.730.000 ₫</td>
+          <td class="col-actions"><div class="row" style="justify-content:flex-end"><a class="btn btn--secondary btn--sm" href="g4-ein-08.html" data-g4f-roles="KT AD">Mở cấu hình</a><button class="btn btn--primary btn--sm" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán thử lại hoặc hủy yêu cầu phát hành." data-g4f-online data-toast="info|Đang truy vấn trạng thái|Chưa có hóa đơn ở nhà cung cấp; gửi lại với cùng mã chống trùng.">Thử lại</button></div></td></tr>
+        <tr><td><span class="code cell-primary">YC-EIN-00233</span><span class="cell-sub code">RO-Q7-2610-00114</span></td><td><span class="tag tag--warning">Timeout</span></td><td>Nhà cung cấp không trả lời trong 30 giây<span class="cell-sub"><span class="sync sync--wait"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ truy vấn lại</span></span></td><td class="num">2/5</td><td class="num col-nowrap">09:20 hôm nay</td><td class="col-num">890.000 ₫</td>
+          <td class="col-actions"><div class="row" style="justify-content:flex-end"><button class="btn btn--primary btn--sm" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán thử lại hoặc hủy yêu cầu phát hành." data-g4f-online data-toast="info|Đang truy vấn trạng thái|Hệ thống hỏi nhà cung cấp theo mã chống trùng trước khi gửi.">Truy vấn trạng thái</button><button class="btn btn--danger-outline btn--sm" data-open="dlg-cancel" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán thử lại hoặc hủy yêu cầu phát hành.">Hủy yêu cầu</button></div></td></tr>
+      </tbody>
+    </table></div>
+    <div class="table-footer"><span class="table-meta">Người xem Quản trị hệ thống: chỉ xem. Kế toán nhận thông báo “Cần xử lý” mỗi khi có yêu cầu vào hàng chờ.</span></div>
+  </div>
+
+  <div class="record-list record-list--responsive">
+    <div class="record"><div class="record__top"><div><div class="record__title code">YC-EIN-00231</div><span class="code">RO-Q7-2610-00118</span></div><span class="tag tag--danger">Lỗi dữ liệu</span></div><div class="record__meta"><span>Địa chỉ người mua thiếu phường/xã</span><span>Lần thử 1/5</span></div><div class="record__foot"><strong class="num">6.300.000 ₫</strong><a class="btn btn--secondary btn--sm" href="g4-ein-02.html">Sửa người mua</a></div></div>
+    <div class="record"><div class="record__top"><div><div class="record__title code">YC-EIN-00233</div><span class="code">RO-Q7-2610-00114</span></div><span class="tag tag--warning">Timeout</span></div><div class="record__meta"><span>Thử kế tiếp 09:20</span><span>Lần thử 2/5</span></div><div class="record__foot"><strong class="num">890.000 ₫</strong><button class="btn btn--primary btn--sm" data-toast="info|Đang truy vấn trạng thái|Hệ thống hỏi nhà cung cấp trước khi gửi.">Truy vấn</button></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-cancel" role="alertdialog" aria-modal="true" aria-labelledby="cn-t"><div class="dialog" data-confirm-guard data-confirm-word="YC-EIN-00233">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="cn-t">Hủy yêu cầu phát hành YC-EIN-00233?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <ul class="impact-list"><li>Yêu cầu dừng, lệnh RO-Q7-2610-00114 quay lại danh sách “chưa có hóa đơn”.</li><li><strong>Hệ thống sẽ truy vấn nhà cung cấp lần cuối</strong>: nếu hóa đơn đã được tạo, yêu cầu không hủy được và hóa đơn hiện ở danh sách.</li><li>Lý do và người hủy được ghi nhật ký.</li></ul>
+    <div class="field"><label class="field__label" for="cn-r">Lý do hủy yêu cầu<span class="field__req" aria-hidden="true">*</span></label><textarea id="cn-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
+    <div class="field"><label class="field__label" for="cn-c">Gõ <strong>YC-EIN-00233</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="cn-c" class="input" data-confirm-input autocomplete="off"></div>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ yêu cầu</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã hủy yêu cầu phát hành|Lệnh quay lại danh sách chưa có hóa đơn." disabled>Hủy yêu cầu</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-EIN-06', title: 'Hàng chờ lỗi và thử lại phát hành', desc: 'Yêu cầu phát hành bị lỗi hoặc timeout: xem lý do, thử lại an toàn, không mất yêu cầu.',
+  menu: 'einv', role: 'KT', allow: ['KT', 'AD', 'CH', 'QV', 'QL'], updated: '09:15', time: 'đang chờ',
+  states: ['data', 'loading', 'empty', 'error', 'denied'],
+  empty: { icon: 'circle-check', title: 'Không có yêu cầu nào đang lỗi', text: 'Mọi yêu cầu phát hành đã thành công hoặc đang xử lý bình thường. Yêu cầu lỗi sẽ hiện ở đây kèm lý do.' }
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

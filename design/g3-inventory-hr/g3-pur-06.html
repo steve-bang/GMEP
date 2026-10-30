@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-PUR-06 · Chi tiết đơn mua – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('pur')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('PUR-06')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Đơn mua <span class="code">DM-Q7-2610-00014</span> <span class="tag tag--neutral">v2</span></h1><p class="page-header__desc">Công ty TNHH Phụ tùng Hoàng Long · từ yêu cầu <a class="code" href="g3-pur-03.html">YM-Q7-2610-00002</a> · giao về Kho Quận 7</p></div>
+  <div class="page-header__actions"><span class="badge badge--warning badge--lg">Nhận một phần</span>
+    <a class="btn btn--primary" href="g3-inv-09.html" data-g3-need="TK" data-g3-why="Chỉ Thủ kho nhận hàng."><svg class="icon"><use href="#package"/></svg>Nhận hàng</a>
+    <div class="dropdown"><button class="btn btn--secondary" aria-haspopup="menu" aria-expanded="false" aria-label="Thao tác khác"><svg class="icon"><use href="#ellipsis"/></svg></button><div class="dropdown__menu dropdown__menu--right" role="menu"><button class="menu-item" role="menuitem" data-toast="success|Đã ghi nhận|Nhà cung cấp xác nhận đơn v2 lúc 09:25.">Ghi nhận NCC xác nhận</button><a class="menu-item" role="menuitem" href="g3-pur-05.html">Tạo phiên bản mới…</a><div class="menu-sep"></div><button class="menu-item menu-item--danger" role="menuitem" data-open="dlg-close"><svg class="icon"><use href="#x"/></svg>Đóng đơn khi chưa nhận đủ…</button></div></div></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="đơn mua" data-g3-states="data:Có dữ liệu;loading;notfound;error;denied" data-skel="detail" data-back="g3-pur-04.html">
+<div data-g3-state="data" class="stack">
+  <ol class="stepper" aria-label="Tiến trình đơn mua">
+    <li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm" style="width:14px;height:14px"><use href="#check"/></svg></span><span class="stepper__text">Đã gửi</span></div></li>
+    <li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm" style="width:14px;height:14px"><use href="#check"/></svg></span><span class="stepper__text">NCC xác nhận</span></div></li>
+    <li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Nhận hàng (10/28)</span></div></li>
+    <li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Hóa đơn NCC</span></div></li></ol>
+  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Nhà cung cấp giao thiếu: còn 18 đơn vị chưa nhận, quá hạn giao 1 ngày</span><span>Đơn vẫn mở. Liên hệ nhà cung cấp hoặc đóng đơn kèm lý do nếu không nhận nữa.</span></div></div>
+
+  <div class="g3-split">
+    <section class="card"><div class="tabs" role="tablist" aria-label="Chi tiết đơn mua">
+      <button class="tab" role="tab" id="t1" aria-selected="true" aria-controls="p1">Dòng hàng</button>
+      <button class="tab" role="tab" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1">Các lần nhận hàng <span class="count-pill">2</span></button>
+      <button class="tab" role="tab" id="t3" aria-selected="false" aria-controls="p3" tabindex="-1">Phiên bản</button></div>
+      <div class="tab-panel" role="tabpanel" id="p1" aria-labelledby="t1"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Dòng hàng và số còn lại</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Đặt</th><th class="col-num">Đã nhận</th><th class="col-num">Còn lại</th><th class="col-num">Giá đặt</th><th class="col-num">Thành tiền</th></tr></thead><tbody>
+        <tr><td><span class="code">PT-0002</span> Má phanh trước Hyundai Accent</td><td class="col-num">20</td><td class="col-num">10</td><td class="col-num"><span class="g3-var g3-var--short">10</span></td><td class="col-num">410.000 ₫</td><td class="col-num">8.200.000 ₫</td></tr>
+        <tr><td><span class="code">PT-0004</span> Bugi Denso Iridium Honda City (bộ 4)</td><td class="col-num">8</td><td class="col-num">0</td><td class="col-num"><span class="g3-var g3-var--short">8</span></td><td class="col-num">520.000 ₫</td><td class="col-num">4.160.000 ₫</td></tr></tbody>
+        <tfoot><tr><td>Tổng</td><td class="col-num">28</td><td class="col-num">10</td><td class="col-num">18</td><td></td><td class="col-num">12.360.000 ₫</td></tr></tfoot></table></div></div>
+      <div class="tab-panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Các lần nhận hàng, mỗi lần một phiếu nhập</caption><thead><tr><th>Lần</th><th>Phiếu nhập</th><th>Ngày</th><th class="col-num">SL nhận</th><th>Trạng thái</th></tr></thead><tbody>
+        <tr><td>1</td><td class="code"><a href="g3-inv-09.html">PN-Q7-2610-00031</a></td><td class="num">24/10/2026</td><td class="col-num">10</td><td><span class="badge badge--success">Đã ghi sổ</span></td></tr>
+        <tr><td>2</td><td class="code"><a href="g3-inv-09.html">PN-Q7-2610-00034</a></td><td class="num">29/10/2026</td><td class="col-num">14</td><td><span class="badge badge--warning">Chờ duyệt</span> <span class="tag tag--warning">Lệch giá</span></td></tr></tbody></table></div></div>
+      <div class="tab-panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden><div class="card__body"><div class="timeline">
+        <div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#pencil"/></svg></div><div><div class="timeline__title">v2 (hiện hành) · dời ngày giao 27/10 sang 29/10</div><div class="timeline__meta">Trần Thị Mai Anh · 22/10/2026 · NCC đã xác nhận</div></div></div>
+        <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">v1 · gửi nhà cung cấp</div><div class="timeline__meta">Trần Thị Mai Anh · 20/10/2026</div></div></div></div></div></div>
+    </section>
+    <aside class="g3-side">
+      <section class="card"><div class="card__header"><h2 class="card__title">Tóm tắt</h2></div><div class="card__body"><dl class="g3-kv g3-kv--1"><div><dt>Điều khoản thanh toán</dt><dd>Công nợ 30 ngày kể từ ngày nhận</dd></div><div><dt>Giá trị đơn</dt><dd class="num">12.360.000 ₫</dd></div><div><dt>Đã nhận (giá trị)</dt><dd class="num">4.100.000 ₫</dd></div><div><dt>Giao dự kiến</dt><dd class="num">29/10/2026 · <span class="text-danger">trễ 1 ngày</span></dd></div></dl></div></section>
+      <section class="card"><div class="card__body stack"><p class="t-body-sm text-secondary">Hóa đơn nhà cung cấp và đối chiếu ba bên (đơn – phiếu nhập – hóa đơn) ở màn hình riêng.</p><a class="btn btn--secondary btn--block" href="g3-pur-07.html">Mở đối chiếu ba bên</a></div></section>
+    </aside>
+  </div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-close" role="alertdialog" aria-modal="true" aria-labelledby="cl-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="DM-Q7-2610-00014">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="cl-t">Đóng đơn DM-Q7-2610-00014 khi chưa nhận đủ?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>18 đơn vị còn lại không được nhận nữa; “Đang vận chuyển” liên quan được nhả.</li><li>Phiếu nhập đã ghi (10 đơn vị) giữ nguyên; công nợ chỉ tính phần đã nhận.</li><li>Lý do và người đóng đơn được lưu, không hoàn tác được; muốn đặt lại phải lập đơn mới.</li></ul>
+    <div class="field"><label class="field__label" for="cl-r">Lý do đóng đơn<span class="field__req" aria-hidden="true">*</span></label><textarea id="cl-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
+    <div class="field"><label class="field__label" for="cl-c">Gõ <strong>DM-Q7-2610-00014</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="cl-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ đơn mở</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã đóng đơn|DM-Q7-2610-00014 đóng với 10/28 đã nhận." disabled>Đóng đơn</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

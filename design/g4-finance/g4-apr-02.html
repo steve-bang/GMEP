@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-APR-02 · Chi tiết yêu cầu phê duyệt · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-apr-01.html"><svg class="icon"><use href="#chevron-left"/></svg>Về hàng chờ</a></div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ LOẠI</span>
+    <div class="segmented" role="group" aria-label="Loại yêu cầu"><button class="segmented__item" data-g4f-var="disc" data-vg="t" aria-pressed="true">Giảm giá</button><button class="segmented__item" data-g4f-var="refund" data-vg="t" aria-pressed="false">Hoàn tiền</button><button class="segmented__item" data-g4f-var="spend" data-vg="t" aria-pressed="false">Chi vượt hạn mức</button><button class="segmented__item" data-g4f-var="inv" data-vg="t" aria-pressed="false">Hóa đơn thay thế</button></div>
+    <span class="g4f-demo__label">TÌNH TRẠNG</span>
+    <div class="segmented" role="group" aria-label="Tình trạng"><button class="segmented__item" data-g4f-var="pending" data-vg="s" aria-pressed="true">Đang chờ tôi</button><button class="segmented__item" data-g4f-var="done" data-vg="s" aria-pressed="false">Người khác đã duyệt</button><button class="segmented__item" data-g4f-var="stale" data-vg="s" aria-pressed="false">Bản ghi gốc đã đổi</button></div></div>
+
+  <div class="alert alert--info" data-vg="s" data-v="done" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu này đã được Võ Minh Quân duyệt lúc 09:03</span><span>Bạn không cần xử lý. Các nút quyết định bị khóa để tránh duyệt hai lần.</span></div></div>
+  <div class="alert alert--warning" data-vg="s" data-v="stale" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Hết hiệu lực: bản ghi gốc đã thay đổi sau khi đề xuất</span><span>Giá trị hiện tại khác giá trị lúc đề xuất. Yêu cầu bị đóng; người đề xuất cần gửi lại. Bạn chỉ xem được.</span></div></div>
+
+  <div class="g4f-two">
+    <section class="card" aria-labelledby="h-ap">
+      <div class="card__header"><div><h2 class="card__title" id="h-ap">
+        <span data-vg="t" data-v="disc">Giảm giá vượt hạn mức</span><span data-vg="t" data-v="refund" hidden>Hoàn tiền cho khách</span><span data-vg="t" data-v="spend" hidden>Chi vượt hạn mức</span><span data-vg="t" data-v="inv" hidden>Hóa đơn thay thế</span></h2>
+        <div class="card__subtitle">Yêu cầu YC-Q7-2610-00064 · gửi lúc 07:15 30/10/2026</div></div>
+        <span class="tag tag--warning" data-vg="s" data-v="pending">Chờ duyệt · Cấp: Quản lý chi nhánh</span><span class="tag tag--success" data-vg="s" data-v="done" hidden>Đã duyệt</span><span class="tag tag--neutral" data-vg="s" data-v="stale" hidden>Hết hiệu lực</span></div>
+      <div class="card__body stack">
+        <dl class="g4f-kv g4f-kv--wide">
+          <div><dt>Người đề xuất</dt><dd><span data-vg="t" data-v="disc inv">Nguyễn Hoàng Yến (Cố vấn)</span><span data-vg="t" data-v="refund" hidden>Phạm Thị Lan (Thu ngân)</span><span data-vg="t" data-v="spend" hidden>Võ Minh Quân (Quản lý chi nhánh)</span></dd></div>
+          <div><dt>Chi nhánh</dt><dd>Chi nhánh Quận 7</dd></div>
+          <div><dt>Đối tượng</dt><dd><a href="#" class="code"><span data-vg="t" data-v="disc">RO-Q7-2610-00129</span><span data-vg="t" data-v="refund" hidden>PT-Q7-2610-00930</span><span data-vg="t" data-v="spend" hidden>Đề xuất chi DX-Q7-2610-00007</span><span data-vg="t" data-v="inv" hidden>C26TAA-0000398</span></a></dd></div>
+          <div><dt>Giá trị</dt><dd class="num" style="font-weight:700;font-size:18px"><span data-vg="t" data-v="disc">1.560.000 ₫</span><span data-vg="t" data-v="refund" hidden>1.250.000 ₫</span><span data-vg="t" data-v="spend" hidden>6.800.000 ₫</span><span data-vg="t" data-v="inv" hidden>3.200.000 ₫</span></dd></div>
+        </dl>
+        <div class="field"><span class="field__label">Lý do của người đề xuất</span>
+          <p style="margin:0" data-vg="t" data-v="disc">Khách quen 4 năm, đã sửa 3 xe trong nhà; khách đồng ý nếu giảm 12% sẽ làm thêm hạng mục cân chỉnh.</p>
+          <p style="margin:0" data-vg="t" data-v="refund" hidden>Khách hủy hạng mục thay lọc gió sau khi đã trả đủ. Hóa đơn chưa xuất nên không cần hóa đơn điều chỉnh.</p>
+          <p style="margin:0" data-vg="t" data-v="spend" hidden>Máy nén khí xưởng hỏng van, 2 khoang không dùng được. Báo giá 2 nhà cung cấp đính kèm.</p>
+          <p style="margin:0" data-vg="t" data-v="inv" hidden>Sai mã số thuế người mua (đã đối chiếu giấy phép kinh doanh). Thay thế hóa đơn, không hủy.</p></div>
+
+        <div>
+          <div class="row row--between t-body-sm"><strong>So với hạn mức</strong><span class="g4f-sample">Giá trị minh họa, lấy từ cấu hình G4-APR-03</span></div>
+          <div data-vg="t" data-v="disc"><div class="g4f-limit" role="img" aria-label="12% so với hạn mức 5% của cấp Cố vấn, vượt"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:41%"></span></div><div class="g4f-limit__cap"><span>Đề xuất 12%</span><span>Hạn mức Cố vấn 5% · hạn mức Quản lý 15%</span></div></div>
+          <div data-vg="t" data-v="refund" hidden><div class="g4f-limit" role="img" aria-label="1.250.000 so với hạn mức Thu ngân 500.000, vượt"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:40%"></span></div><div class="g4f-limit__cap"><span>Đề xuất 1.250.000 ₫</span><span>Hạn mức Thu ngân 500.000 ₫</span></div></div>
+          <div data-vg="t" data-v="spend" hidden><div class="g4f-limit" role="img" aria-label="6.800.000 so với hạn mức Quản lý chi nhánh 5.000.000, vượt, cần cấp trên"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:74%"></span></div><div class="g4f-limit__cap"><span>Đề xuất 6.800.000 ₫</span><span>Hạn mức Quản lý 5.000.000 ₫ · cần Quản lý vùng/Chủ garage</span></div></div>
+          <div data-vg="t" data-v="inv" hidden><p class="t-body-sm" style="margin:8px 0 0">Không tính theo số tiền: hóa đơn thay thế bắt buộc Kế toán trưởng duyệt trước khi gửi nhà cung cấp (FR-EIN-007).</p></div>
+        </div>
+
+        <div class="alert alert--neutral" data-vg="t" data-v="refund inv" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span data-vg="t" data-v="refund" hidden>Hoàn tiền tạo phiếu chi hoàn liên kết phiếu thu gốc; phiếu thu gốc không bị xóa hay sửa. Công nợ sau hoàn: 0 ₫.</span><span data-vg="t" data-v="inv" hidden>Hóa đơn gốc C26TAA-0000398 chuyển “Thay thế” sau khi nhà cung cấp xác nhận hóa đơn mới; hai bản vẫn xem được cùng nhau.</span></div></div>
+
+        <div>
+          <h3 class="g4f-section-title" style="font-size:16px">Lịch sử xử lý</h3>
+          <div class="timeline">
+            <div class="timeline__item timeline__item--warning"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Chờ Quản lý chi nhánh duyệt</div><div class="timeline__meta">Thời hạn xử lý theo cấu hình; chưa duyệt sẽ chuyển cấp</div></div></div>
+            <div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi yêu cầu duyệt</div><div class="timeline__meta">07:15 30/10/2026</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card__footer" style="flex-wrap:wrap">
+        <button class="btn btn--danger-outline" data-open="dlg-reject" data-vg="s" data-v-off="done stale" data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền mới duyệt hoặc từ chối.">Từ chối</button>
+        <button class="btn btn--secondary" data-open="dlg-escalate" data-vg="s" data-v-off="done stale" data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền mới chuyển cấp.">Chuyển cấp</button>
+        <button class="btn btn--primary btn--lg" id="btn-appr" data-open="dlg-approve" data-vg="s" data-v-off="done stale" data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền mới duyệt." data-g4f-online>Duyệt</button>
+      </div>
+    </section>
+
+    <aside class="g4f-aside">
+      <section class="card">
+        <div class="card__header"><div><h2 class="card__title">Bản ghi gốc</h2><div class="card__subtitle">Số liệu hiện tại, mở màn nguồn để kiểm tra</div></div></div>
+        <div class="card__body"><dl class="g4f-sum">
+          <div><dt>Lệnh</dt><dd class="code">RO-Q7-2610-00129</dd></div>
+          <div><dt>Xe</dt><dd><span class="plate">51F-333.44</span></dd></div>
+          <div><dt>Tổng trước giảm</dt><dd>13.000.000 ₫</dd></div>
+          <div><dt>Giá vốn ước tính</dt><dd>9.100.000 ₫</dd></div>
+          <div class="is-total"><dt>Lãi gộp sau giảm</dt><dd>2.340.000 ₫</dd></div></dl>
+          <p class="g4f-why">Giá bán không được thấp hơn giá vốn khi chưa có người có quyền duyệt (FR-INV).</p>
+          <a class="btn btn--secondary btn--sm" href="#" style="margin-top:12px">Mở lệnh gốc<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-approve" role="alertdialog" aria-modal="true" aria-labelledby="ap-t"><div class="dialog" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="ap-t">Duyệt yêu cầu này?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><p>Bạn duyệt với tên <strong>Võ Minh Quân</strong>. Hệ thống thực hiện ngay hành động đã đề xuất và ghi nhật ký (người duyệt, thời điểm, giá trị).</p>
+    <div class="field"><label class="field__label" for="ap-n">Ghi chú (không bắt buộc)</label><input id="ap-n" class="input"></div>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem giá trị, lý do và so với hạn mức.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" data-g4f-gate-btn data-g4f-submit data-lock="#btn-appr" data-busy="Đang duyệt…" data-done-label="Đã duyệt" data-done-toast="success|Đã duyệt yêu cầu|Người đề xuất được thông báo." disabled>Duyệt</button></div></div></div>
+
+<div class="overlay" id="dlg-reject" role="alertdialog" aria-modal="true" aria-labelledby="rj-t"><div class="dialog" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#circle-x"/></svg></div><div><h2 class="dialog__title" id="rj-t">Từ chối yêu cầu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p class="t-body-sm text-secondary">Người đề xuất sẽ nhận lý do này. Hành động đề xuất không được thực hiện.</p><div class="field"><label class="field__label" for="rj-r">Lý do từ chối<span class="field__req" aria-hidden="true">*</span></label><textarea id="rj-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã từ chối yêu cầu|Lý do được gửi cho người đề xuất." disabled>Từ chối</button></div></div></div>
+
+<div class="overlay" id="dlg-escalate" role="dialog" aria-modal="true" aria-labelledby="es-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="es-t">Chuyển lên cấp trên</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="field"><label class="field__label" for="es-p">Chuyển tới<span class="field__req" aria-hidden="true">*</span></label><select id="es-p" class="select"><option>Quản lý vùng Miền Nam</option><option>Chủ garage</option></select><span class="field__hint">Danh sách lấy từ ma trận phê duyệt (G4-APR-03).</span></div><div class="field"><label class="field__label" for="es-r">Lý do chuyển cấp</label><textarea id="es-r" class="textarea" style="min-height:64px"></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="info|Đã chuyển cấp|Người nhận được thông báo.">Chuyển cấp</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-APR-02', title: 'Chi tiết yêu cầu phê duyệt', desc: 'Xem giá trị, hạn mức, bản ghi gốc và lịch sử, rồi duyệt, từ chối hoặc chuyển cấp.',
+  menu: 'fin', role: 'QL', allow: ['CH', 'QV', 'QL', 'KT', 'TN', 'CV', 'TK'], updated: '09:15', time: 'yêu cầu mở lúc 07:15',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>G4F.applyVar('t', 'disc'); G4F.applyVar('s', 'pending');
+document.addEventListener('g4f:var', function (e) { if (e.detail.group === 's') G4F.refresh(); });</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-CRM-11 – Yêu cầu của chủ dữ liệu · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QL" data-nav="cust" data-g2w-deny="QV CV QD TH TK TN KT AD">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-crm-01.html">Khách hàng</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Yêu cầu của chủ dữ liệu</span></nav>
+  <div class="page-header"><div class="page-header__text"><h1>Yêu cầu của chủ dữ liệu</h1><p class="page-header__desc">Khách yêu cầu xem, sửa hoặc xóa dữ liệu cá nhân. Quản lý chi nhánh xử lý; Chủ garage duyệt việc xóa hoặc ẩn danh (FR-CRM-011).</p></div></div>
+  <div data-g2w-scope data-time="Yêu cầu mở và 90 ngày gần nhất"></div>
+  <div data-g2w-proto="offline"></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Trống lần đầu|filtered:Trống do lọc|error:Lỗi|denied:Không có quyền"></div>
+
+  <div data-state="data" class="g2w-split g2w-split--wide">
+    <section class="card">
+      <div class="table-toolbar"><span class="table-meta">5 yêu cầu · 1 quá hạn xử lý</span><div class="g2w-seg-row" style="margin-left:auto"><button class="chip-filter" aria-pressed="true">Đang mở <span class="count-pill">4</span></button><button class="chip-filter" aria-pressed="false">Quá hạn <span class="count-pill count-pill--danger">1</span></button><button class="chip-filter" aria-pressed="false">Hoàn tất</button></div></div>
+      <div class="table-scroll"><table class="table">
+        <caption class="sr-only">Danh sách yêu cầu của chủ dữ liệu</caption>
+        <thead><tr><th>Mã</th><th>Loại yêu cầu</th><th>Người yêu cầu</th><th>Hạn xử lý</th><th>Xử lý</th></tr></thead>
+        <tbody>
+          <tr class="is-selected"><td class="code">DS-Q7-2610-00003</td><td><span class="tag tag--danger">Xóa</span></td><td>Nguyễn Văn An</td><td class="col-nowrap num">12/11/2026</td><td><span class="tag tag--info">Đang xử lý</span></td></tr>
+          <tr><td class="code">DS-Q7-2610-00002</td><td><span class="tag">Xem</span></td><td>Phạm Thị Hoa</td><td class="col-nowrap num"><span class="text-danger" style="font-weight:600">26/10/2026 · Quá hạn</span></td><td><span class="tag tag--warning">Mới</span></td></tr>
+          <tr><td class="code">DS-Q7-2610-00001</td><td><span class="tag tag--info">Sửa</span></td><td>Võ Thanh Sơn</td><td class="col-nowrap num">08/11/2026</td><td><span class="tag tag--success">Hoàn tất</span></td></tr>
+        </tbody></table></div>
+    </section>
+
+    <aside class="card" aria-labelledby="ds-h">
+      <div class="card__header"><div><h2 class="card__title" id="ds-h">DS-Q7-2610-00003 · Yêu cầu xóa</h2><div class="card__subtitle">Nguyễn Văn An · nhận 29/10/2026 · hạn 12/11/2026</div></div><span class="tag tag--info">Đang xử lý</span></div>
+      <div class="card__body stack">
+        <dl class="g2w-kv"><dt>Người xử lý</dt><dd>Trần Thị Mai (Quản lý Quận 7)</dd><dt>Kênh nhận</dt><dd>Khách đến quầy, ký đơn</dd><dt>Xác minh danh tính</dt><dd>Đối chiếu CCCD tại quầy</dd></dl>
+        <div><div class="field__label">Phạm vi dữ liệu</div>
+          <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Phạm vi dữ liệu theo yêu cầu</caption><thead><tr><th>Nhóm dữ liệu</th><th>Xử lý đề xuất</th></tr></thead><tbody>
+            <tr><td>Số điện thoại, email, địa chỉ</td><td><span class="tag tag--danger">Xóa / ẩn danh</span></td></tr>
+            <tr><td>Hóa đơn và chứng từ kế toán</td><td><span class="tag">Giữ theo luật</span> <span class="g2w-muted">[Cần xác nhận thời hạn]</span></td></tr>
+            <tr><td>Lịch sử sửa chữa của xe</td><td><span class="tag">Giữ, bỏ liên kết cá nhân</span></td></tr>
+            <tr><td>Đồng ý dữ liệu và nhật ký truy cập</td><td><span class="tag">Giữ theo luật</span></td></tr></tbody></table></div></div>
+        <div class="alert alert--warning"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>Phần dữ liệu bắt buộc giữ theo luật (hóa đơn, kế toán) không được xóa. Hệ thống chỉ ẩn danh phần còn lại và ghi phạm vi đã xử lý. Thời hạn lưu là cấu hình, đang chờ khách chốt.</span></div></div>
+        <div class="field"><label class="field__label" for="ds-n">Ghi chú xử lý</label><textarea id="ds-n" class="textarea" style="min-height:64px"></textarea></div>
+        <div class="alert alert--neutral" data-g2w-why-box="CH"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span>Việc xóa hoặc ẩn danh cần Chủ garage duyệt. Bạn xử lý và gửi duyệt.</span></div></div>
+      </div>
+      <div class="card__footer"><button class="btn btn--secondary" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh xử lý yêu cầu." data-toast="success|Đã cập nhật xử lý|Ghi chú lưu cùng người xử lý.">Lưu xử lý</button><button class="btn btn--danger-outline" data-open="dlg-erase" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh đề xuất, Chủ garage duyệt."><svg class="icon"><use href="#trash"/></svg>Xóa / ẩn danh dữ liệu…</button></div>
+    </aside>
+  </div>
+
+  <div data-state="loading" hidden data-g2w-tpl="loading" data-rows="4" data-cols="5"></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="inbox" data-title="Chưa có yêu cầu nào của chủ dữ liệu" data-text="Khi khách yêu cầu xem, sửa hoặc xóa dữ liệu, ghi nhận từ hồ sơ khách và xử lý ở đây."></div>
+  <div data-state="filtered" hidden data-g2w-tpl="filtered" data-title="Không có yêu cầu phù hợp" data-text="Không có yêu cầu quá hạn trong phạm vi hiện tại."></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được yêu cầu" data-ref="ERR-CRM-5011"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem yêu cầu của chủ dữ liệu" data-text="Chỉ Quản lý chi nhánh xử lý và Chủ garage duyệt."></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-erase" role="alertdialog" aria-modal="true" aria-labelledby="er-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="DS-Q7-2610-00003">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="er-t">Xóa / ẩn danh dữ liệu của Nguyễn Văn An?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><ul class="impact-list"><li>Số điện thoại, email, địa chỉ được xóa hoặc ẩn danh, không khôi phục được.</li><li>Hóa đơn, chứng từ kế toán, nhật ký truy cập vẫn được giữ theo luật.</li><li>Cần Chủ garage duyệt. Ghi lại phạm vi đã xử lý.</li></ul>
+    <div class="field"><label class="field__label" for="er-r">Lý do<span class="field__req" aria-hidden="true">*</span></label><textarea id="er-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
+    <div class="field"><label class="field__label" for="er-c">Gõ <strong>DS-Q7-2610-00003</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="er-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã gửi Chủ garage duyệt|Chờ duyệt xóa / ẩn danh." disabled>Gửi duyệt</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

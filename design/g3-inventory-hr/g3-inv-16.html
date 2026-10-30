@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-16 · Thực hiện kiểm kê (quét mã vạch) – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="TK">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-16')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Đếm kiểm kê <span class="code">KK-Q7-2610-00004</span></h1><p class="page-header__desc">Nhóm Lốp · 5 mã · bắt đầu 30/10/2026 08:30 · Quét mã vạch bằng camera hoặc nhập số đếm.</p></div>
+  <div class="page-header__actions"><span class="badge badge--info badge--lg">Đang đếm</span><a class="btn btn--secondary" href="g3-inv-15.html">Về danh sách</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span> · Kho Quận 7</span><span>· Số sổ sách chụp lúc 08:30 và ẩn khi đếm để tránh đếm theo số cũ</span></div>
+
+<div id="g3-body" data-noun="đợt kiểm kê" data-g3-states="data:Đang đếm;submitted:Đã nộp số đếm;loading;error;denied" data-skel="detail" data-back="g3-inv-15.html">
+<div data-g3-state="data" class="stack g3-tablet-xl">
+  <div class="g3-ro-flag alert alert--info" data-for="f-cnt" hidden role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ đọc</span><span>Chỉ Thủ kho và Quản lý chi nhánh thực hiện đếm.</span></div></div>
+  <div class="card"><div class="card__body"><div class="progress"><div class="progress__head"><span><strong>Tiến độ đếm</strong></span><span>3/5 mã · 60%</span></div><div class="progress__track" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ đếm 3 trên 5 mã"><div class="progress__bar" style="width:60%"></div></div></div>
+    <div class="row" style="margin-top:12px"><span class="sync"><svg class="icon icon--sm" aria-hidden="true"><use href="#history"/></svg>Bản nháp số đếm lưu lúc 09:21 trên thiết bị</span></div></div></div>
+
+  <form id="f-cnt" class="g3-split" data-g3-edit="TK QL" onsubmit="return false">
+    <section class="card" aria-labelledby="h1"><div class="card__header"><h2 class="card__title" id="h1">Danh sách đếm</h2><span class="table-meta">Quét một lần = +1</span></div>
+      <div class="table-scroll" data-g3-scan-target><table class="table"><caption class="sr-only">Số đếm theo từng mã vạch</caption>
+        <thead><tr><th>Phụ tùng</th><th>Mã vạch</th><th class="col-num">Số đếm</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr data-barcode="8935001230050"><td><span class="code">PT-0005</span> <span data-name>Lốp Michelin Primacy 4 205/55R16</span><span class="cell-sub"><span class="badge badge--success">Đã đếm</span></span></td><td class="num">8935001230050</td><td class="col-num"><div class="qty" role="group" aria-label="Số đếm PT-0005"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="8" min="0" max="999" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td><input class="input" aria-label="Ghi chú PT-0005" placeholder="Ghi chú dòng"></td></tr>
+          <tr data-barcode="8935001230410"><td><span class="code">PT-0041</span> <span data-name>Lốp Bridgestone Ecopia 185/65R15</span><span class="cell-sub"><span class="badge badge--success">Đã đếm</span></span></td><td class="num">8935001230410</td><td class="col-num"><div class="qty" role="group" aria-label="Số đếm PT-0041"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="6" min="0" max="999" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td><input class="input" aria-label="Ghi chú PT-0041"></td></tr>
+          <tr data-barcode="8935001230427"><td><span class="code">PT-0042</span> <span data-name>Lốp Dunlop Enasave 195/60R16</span><span class="cell-sub"><span class="badge badge--success">Đã đếm</span></span></td><td class="num">8935001230427</td><td class="col-num"><div class="qty" role="group" aria-label="Số đếm PT-0042"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="4" min="0" max="999" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td><input class="input" aria-label="Ghi chú PT-0042" value="Một lốp trầy hông"></td></tr>
+          <tr data-barcode="8935001230434"><td><span class="code">PT-0043</span> <span data-name>Lốp Kumho Solus 215/55R17</span><span class="cell-sub"><span class="badge badge--neutral">Chưa đếm</span></span></td><td class="num">8935001230434</td><td class="col-num"><div class="qty" role="group" aria-label="Số đếm PT-0043"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="0" min="0" max="999" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td><input class="input" aria-label="Ghi chú PT-0043"></td></tr>
+          <tr data-barcode="8935001230441"><td><span class="code">PT-0044</span> <span data-name>Lốp Hankook Kinergy 205/65R15</span><span class="cell-sub"><span class="badge badge--neutral">Chưa đếm</span></span></td><td class="num">8935001230441</td><td class="col-num"><div class="qty" role="group" aria-label="Số đếm PT-0044"><button type="button" class="qty__btn" data-qty="dec" aria-label="Giảm"><svg class="icon"><use href="#minus"/></svg></button><input class="input qty__input" type="text" inputmode="numeric" value="0" min="0" max="999" aria-label="Số lượng"><button type="button" class="qty__btn" data-qty="inc" aria-label="Tăng"><svg class="icon"><use href="#plus"/></svg></button></div></td><td><input class="input" aria-label="Ghi chú PT-0044"></td></tr>
+        </tbody></table></div></section>
+    <aside class="g3-side">
+      <section class="card"><div class="card__header"><h2 class="card__title">Quét mã vạch bằng camera</h2></div><div class="card__body" data-g3-keep><div data-g3-scan></div></div></section>
+      <section class="card"><div class="card__body stack">
+        <button class="btn btn--primary btn--lg btn--block" type="button" data-open="dlg-submit" data-g3-need="TK QL" data-g3-why="Chỉ Thủ kho và Quản lý chi nhánh chốt đếm.">Chốt số đếm</button>
+        <button class="btn btn--secondary btn--block" type="button" data-toast="success|Đã lưu nháp|Số đếm lưu lúc 09:22.">Lưu nháp</button>
+        <p class="t-body-sm text-secondary">Còn 2 mã chưa đếm. Chốt sớm được, mã chưa đếm bị bỏ khỏi đợt và ghi rõ trong biên bản.</p></div></section>
+    </aside>
+  </form>
+</div>
+
+<div data-g3-state="submitted" class="stack" hidden>
+  <div class="alert alert--success" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã nộp số đếm lúc 10:05 · chỉ đọc</span><span>Số đếm không sửa lại được sau khi nộp. Quản lý chi nhánh duyệt chênh lệch ở bước tiếp theo.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="g3-inv-17.html">Mở duyệt chênh lệch</a></div></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-submit" role="alertdialog" aria-modal="true" aria-labelledby="sb-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="KK-Q7-2610-00004">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="sb-t">Chốt số đếm KK-Q7-2610-00004?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Số đếm của 3 mã được nộp và <strong>không sửa lại được</strong>; 2 mã chưa đếm bị bỏ khỏi đợt.</li><li>Tồn chưa thay đổi. Chỉ đổi sau khi Quản lý chi nhánh duyệt phiếu điều chỉnh.</li></ul>
+    <div class="field"><label class="field__label" for="sb-c">Gõ <strong>KK-Q7-2610-00004</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="sb-c" class="input" data-confirm-input autocomplete="off"></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đếm tiếp</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã nộp số đếm|Chờ Quản lý chi nhánh duyệt chênh lệch." disabled>Chốt số đếm</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

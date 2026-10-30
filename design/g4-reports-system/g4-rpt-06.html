@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-RPT-06 – Báo cáo kho · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="TK">
+<script src="pack.js" data-code="G4-RPT-06" data-menu="rpt" data-crumbs="Báo cáo|Báo cáo kho" data-allow="TK KT QL CH QV" data-own="TK"></script>
+<script>
+g4rPage({
+  title: 'Báo cáo kho',
+  desc: 'Tồn kho theo bốn số (thực tế, đang giữ, đang về, khả dụng), hàng dưới định mức, hàng chậm luân chuyển và chênh lệch kiểm kê. Cảnh báo so với tồn khả dụng, không so với tồn thực tế (RULE-008).',
+  prio: 'P2',
+  period: 'Tồn tại 09:15 30/10/2026 · kiểm kê gần nhất 22/10/2026',
+  actions: g4rExportBtn(),
+  empty: { title: 'Kho chưa có mặt hàng nào', text: 'Nhập danh mục phụ tùng từ Excel (Cài đặt, Nhập dữ liệu) hoặc tạo phiếu nhập đầu tiên.', cta: '<a class="btn btn--primary" href="g4-sys-20.html">Nhập từ Excel</a>' }
+});
+g4rFilters({ fields: ['period'], sel: { period: 2 }, search: 'Tìm mã hoặc tên phụ tùng', searchTarget: 'tb-stock', chips: ['Tháng này (01–30/10/2026)'] });
+</script>
+
+<section class="grid grid--4" aria-label="Chỉ số kho">
+  <div class="card kpi"><span class="kpi__label">Giá trị tồn kho</span><span class="kpi__value">329,9<span class="kpi__unit">tr ₫</span></span><span class="kpi__meta">Theo phương pháp giá vốn đang cấu hình</span><span class="kpi__scope">Kho Quận 7 · tại 09:15 30/10/2026</span></div>
+  <a class="card kpi kpi--warning" href="#low"><span class="kpi__label">Dưới định mức tối thiểu</span><span class="kpi__value">05</span><span class="kpi__meta">So với tồn khả dụng</span><span class="kpi__scope">Kho Quận 7 · 09:15</span></a>
+  <div class="card kpi"><span class="kpi__label">Độ chính xác tồn<span class="g4r-formula">Mặt hàng không lệch ÷ mặt hàng kiểm kê</span></span><span class="kpi__value">96,2<span class="kpi__unit">%</span></span><span class="kpi__meta">Kiểm kê 22/10/2026: 4 mặt hàng lệch / 105</span><span class="kpi__scope">Kho Quận 7</span></div>
+  <div class="card kpi"><span class="kpi__label">Vòng quay tồn<span class="g4r-formula">Giá vốn xuất ÷ tồn bình quân</span></span><span class="kpi__value">0,9<span class="kpi__unit">lần/tháng</span></span><span class="kpi__meta">Hao hụt kỳ này: 1.240.000 ₫</span><span class="kpi__scope">01–30/10/2026</span></div>
+</section>
+
+<section class="card g4r-chartcard" aria-label="Tồn theo nhóm"><script>
+  g4rChart({ type: 'bar', title: 'Giá trị tồn kho theo nhóm hàng', unit: 'Đơn vị: triệu ₫ · Kho Quận 7 · tại 09:15 30/10/2026', short: 'triệu ₫',
+    labels: ['Lốp', 'Dầu nhớt', 'Điện', 'Phanh', 'Lọc', 'Phụ kiện'], values: [148.9, 61.5, 41.3, 38.2, 22.4, 17.6],
+    fmt: function (v) { return g4r.dec(v, 1); }, axisFmt: function (v) { return g4r.dec(v, 0); },
+    note: 'Giá trị = tồn thực tế × giá vốn theo phương pháp đang cấu hình (chưa chốt với kế toán). Trục dọc bắt đầu từ 0.' });
+</script></section>
+
+<section class="table-wrap" id="low" aria-label="Tồn kho theo bốn số">
+  <div class="table-toolbar"><strong>Tồn kho và cảnh báo định mức</strong><span class="table-meta" style="margin-left:auto">6 trong 112 mặt hàng · cảnh báo trước</span></div>
+  <div class="table-wrap--responsive"><div class="table-scroll"><table class="table" id="tb-stock">
+    <caption class="sr-only">Tồn kho theo bốn số của từng mặt hàng</caption>
+    <thead><tr><th>Mã</th><th>Phụ tùng</th><th>Nhóm</th><th class="col-num">Thực tế</th><th class="col-num">Đang giữ</th><th class="col-num">Đang về</th><th class="col-num">Khả dụng</th><th class="col-num">Định mức tối thiểu</th><th>Trạng thái tồn</th></tr></thead>
+    <tbody>
+      <tr><td class="code">PT-LK-0101</td><td>Lọc gió Toyota Vios</td><td>Lọc</td><td class="col-num">0</td><td class="col-num">0</td><td class="col-num">12</td><td class="col-num"><strong>0</strong></td><td class="col-num">6</td><td><span class="badge badge--danger">Hết hàng</span> <span class="tag tag--info">Đang về 12</span></td></tr>
+      <tr><td class="code">PT-MP-0012</td><td>Má phanh trước Hyundai Accent</td><td>Phanh</td><td class="col-num">5</td><td class="col-num">2</td><td class="col-num">10</td><td class="col-num"><strong>3</strong></td><td class="col-num">8</td><td><span class="badge badge--warning">Sắp hết</span> <span class="tag tag--info">Đang về 10</span></td></tr>
+      <tr><td class="code">PT-DN-0003</td><td>Dầu động cơ 5W-30 (can 4 lít)</td><td>Dầu nhớt</td><td class="col-num">42</td><td class="col-num">6</td><td class="col-num">0</td><td class="col-num"><strong>36</strong></td><td class="col-num">20</td><td><span class="badge badge--success">Đủ hàng</span></td></tr>
+      <tr><td class="code">PT-LP-0210</td><td>Lốp Michelin 205/55R16</td><td>Lốp</td><td class="col-num">16</td><td class="col-num">4</td><td class="col-num">0</td><td class="col-num"><strong>12</strong></td><td class="col-num">8</td><td><span class="badge badge--success">Đủ hàng</span></td></tr>
+      <tr><td class="code">PT-AQ-0044</td><td>Ắc quy GS 12V-45Ah</td><td>Điện</td><td class="col-num">7</td><td class="col-num">1</td><td class="col-num">0</td><td class="col-num"><strong>6</strong></td><td class="col-num">4</td><td><span class="badge badge--success">Đủ hàng</span></td></tr>
+      <tr><td class="code">PT-PK-0300</td><td>Gạt mưa Bosch 24 inch</td><td>Phụ kiện</td><td class="col-num">9</td><td class="col-num">0</td><td class="col-num">0</td><td class="col-num"><strong>9</strong></td><td class="col-num">–</td><td><span class="badge badge--neutral">Chưa đặt định mức</span></td></tr>
+    </tbody></table></div></div>
+  <div class="record-list record-list--responsive" style="padding:var(--space-4)">
+    <div class="record"><div class="record__top"><div><div class="record__title">Lọc gió Toyota Vios</div><span class="code">PT-LK-0101</span></div><span class="badge badge--danger">Hết hàng</span></div><div class="stock4"><div class="stock4__cell"><span class="stock4__label">Thực tế</span><span class="stock4__value">0</span></div><div class="stock4__cell"><span class="stock4__label">Giữ</span><span class="stock4__value">0</span></div><div class="stock4__cell"><span class="stock4__label">Đang về</span><span class="stock4__value">12</span></div><div class="stock4__cell stock4__cell--out"><span class="stock4__label">Khả dụng</span><span class="stock4__value">0</span></div></div></div>
+    <div class="record"><div class="record__top"><div><div class="record__title">Má phanh trước Hyundai Accent</div><span class="code">PT-MP-0012</span></div><span class="badge badge--warning">Sắp hết</span></div><div class="stock4"><div class="stock4__cell"><span class="stock4__label">Thực tế</span><span class="stock4__value">5</span></div><div class="stock4__cell"><span class="stock4__label">Giữ</span><span class="stock4__value">2</span></div><div class="stock4__cell"><span class="stock4__label">Đang về</span><span class="stock4__value">10</span></div><div class="stock4__cell stock4__cell--low"><span class="stock4__label">Khả dụng</span><span class="stock4__value">3</span></div></div></div>
+  </div>
+  <div class="table-footer"><span class="table-meta">Khả dụng = Thực tế − Đang giữ; hàng đang về không cộng vào khả dụng. Bấm một dòng để mở lịch sử phiếu nhập/xuất (G4-RPT-10).</span></div>
+</section>
+
+<div class="g4r-split">
+  <section class="table-wrap" aria-label="Hàng chậm luân chuyển">
+    <div class="table-toolbar"><strong>Hàng chậm luân chuyển</strong><span class="table-meta" style="margin-left:auto">Không xuất quá 90 ngày (ngưỡng cấu hình)</span></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Hàng chậm luân chuyển</caption>
+      <thead><tr><th>Phụ tùng</th><th class="col-num">Tồn</th><th class="col-num">Lần xuất cuối</th><th class="col-num">Giá trị</th></tr></thead>
+      <tbody>
+        <tr><td>Bố thắng sau Kia Morning</td><td class="col-num">6</td><td class="col-num">02/06/2026</td><td class="col-num">2.340.000 ₫</td></tr>
+        <tr><td>Bugi NGK Iridium</td><td class="col-num">24</td><td class="col-num">18/07/2026</td><td class="col-num">4.920.000 ₫</td></tr>
+        <tr><td>Nước làm mát (can 4 lít)</td><td class="col-num">11</td><td class="col-num">29/07/2026</td><td class="col-num">1.650.000 ₫</td></tr>
+      </tbody></table></div>
+  </section>
+  <section class="table-wrap" aria-label="Chênh lệch kiểm kê">
+    <div class="table-toolbar"><strong>Chênh lệch kiểm kê 22/10/2026</strong><span class="table-meta" style="margin-left:auto">4 mặt hàng lệch</span></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Chênh lệch kiểm kê</caption>
+      <thead><tr><th>Phụ tùng</th><th class="col-num">Sổ</th><th class="col-num">Thực đếm</th><th class="col-num">Lệch</th></tr></thead>
+      <tbody>
+        <tr><td>Dầu hộp số ATF (lít)</td><td class="col-num">28</td><td class="col-num">26</td><td class="col-num"><span class="g4r-miss">−2 lít</span></td></tr>
+        <tr><td>Lọc dầu Hyundai i10</td><td class="col-num">10</td><td class="col-num">9</td><td class="col-num"><span class="g4r-miss">−1</span></td></tr>
+        <tr><td>Cầu chì 15A (hộp)</td><td class="col-num">5</td><td class="col-num">6</td><td class="col-num">+1</td></tr>
+        <tr><td>Gioăng nắp máy Vios</td><td class="col-num">3</td><td class="col-num">2</td><td class="col-num"><span class="g4r-miss">−1</span></td></tr>
+      </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Điều chỉnh tồn qua phiếu điều chỉnh có duyệt, không sửa số trực tiếp.</span></div>
+  </section>
+</div>
+
+<script>g4rEnd()</script>
+</body>
+</html>

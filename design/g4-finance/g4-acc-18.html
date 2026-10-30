@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-ACC-18 · Kết xuất dữ liệu sang phần mềm kế toán · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><button class="btn btn--primary btn--lg" id="btn-exp" data-open="dlg-exp" data-g4f-need="KT" data-g4f-why="Chỉ Kế toán kết xuất dữ liệu." data-g4f-online data-vg="x" data-v-off="nofmt"><svg class="icon"><use href="#download"/></svg>Kết xuất kỳ này</button></div>
+
+  <div class="alert alert--warning"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Định dạng phần mềm kế toán đích chưa chốt <span class="g4f-sample">[Cần xác nhận] FR-ACC-012</span></span><span>Hệ thống chỉ cung cấp dữ liệu cuối kỳ để kế toán nhập vào phần mềm hiện có, không nhập đôi giao dịch. Khung dưới đây chọn được định dạng theo cấu hình khi khách chốt.</span></div></div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span><div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="nofmt" data-vg="x" aria-pressed="true">Chưa chọn định dạng</button><button class="segmented__item" data-g4f-var="fresh" data-vg="x" aria-pressed="false">Kỳ chưa kết xuất</button><button class="segmented__item" data-g4f-var="dup" data-vg="x" aria-pressed="false">Kỳ đã kết xuất</button></div></div>
+  <div class="alert alert--warning" data-vg="x" data-v="dup" hidden role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Kỳ này đã kết xuất lúc 09:30 02/10/2026 (lần 1)</span><span>Kết xuất lại có thể làm trùng dữ liệu trong phần mềm kế toán. Chỉ làm khi đã xóa lần trước ở phần mềm đích; cần lý do.</span></div></div>
+
+  <div class="filter-bar">
+    <div class="field"><label class="field__label" for="per">Kỳ<span class="field__req" aria-hidden="true">*</span></label><select id="per" class="select"><option>Tháng 9/2026 (đã khóa)</option><option disabled>Tháng 10/2026 (chưa khóa kỳ)</option></select><span class="field__hint">Chỉ kết xuất kỳ đã khóa.</span></div>
+    <div class="field"><label class="field__label" for="fmt">Định dạng<span class="field__req" aria-hidden="true">*</span></label><select id="fmt" class="select"><option>Chưa chốt (chờ khách)</option><option>CSV cấu trúc mẫu (thử nghiệm)</option></select></div>
+    <div class="field"><label class="field__label" for="sc">Phạm vi</label><select id="sc" class="select"><option>Chi nhánh Quận 7</option><option>Tất cả chi nhánh được gán</option></select></div>
+  </div>
+
+  <section class="card" aria-labelledby="h-pv">
+    <div class="card__header"><div><h2 class="card__title" id="h-pv">Xem trước bút toán (năm dòng đầu)</h2><div class="card__subtitle">Tài khoản nợ/có theo sơ đồ cấu hình (G4-ACC-20) · phạm vi Chi nhánh Quận 7 · tháng 9/2026</div></div><span class="tag tag--success">Nợ = Có</span></div>
+    <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Xem trước dữ liệu kết xuất</caption><thead><tr><th>Ngày</th><th>Chứng từ</th><th>Diễn giải</th><th>TK nợ</th><th>TK có</th><th class="col-num">Số tiền</th></tr></thead><tbody>
+      <tr><td class="num">03/09/2026</td><td class="code">PT-Q7-2609-00311</td><td>Thu tiền sửa chữa RO-Q7-2609-00201</td><td class="code">1111</td><td class="code">5113</td><td class="col-num">3.450.000 ₫</td></tr>
+      <tr><td class="num">03/09/2026</td><td class="code">PT-Q7-2609-00312</td><td>Thu tiền phụ tùng RO-Q7-2609-00202</td><td class="code">1121</td><td class="code">5111</td><td class="col-num">6.300.000 ₫</td></tr>
+      <tr><td class="num">04/09/2026</td><td class="code">PC-Q7-2609-00021</td><td>Chi tiền điện tháng 8</td><td class="code">6427</td><td class="code">1111</td><td class="col-num">4.150.000 ₫</td></tr>
+      <tr><td class="num">05/09/2026</td><td class="code">PN-Q7-2609-00058</td><td>Nhập phụ tùng NCC Minh Long</td><td class="code">1561</td><td class="code">331</td><td class="col-num">11.200.000 ₫</td></tr>
+      <tr><td class="num">05/09/2026</td><td class="code">PT-Q7-2609-00318</td><td>Bút toán đảo PT-…00311</td><td class="code">5113</td><td class="code">1111</td><td class="col-num">−450.000 ₫</td></tr></tbody></table></div>
+    <div class="card__body"><p class="g4f-why" style="margin:0">Mã tài khoản là ví dụ; thực tế do Kế toán trưởng chọn theo Thông tư 99/2025. Bút toán đảo xuất thành dòng riêng.</p></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-hs"><div class="card__header"><h2 class="card__title" id="h-hs">Lịch sử kết xuất</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th>Kỳ</th><th>Phạm vi</th><th>Định dạng</th><th>Người kết xuất</th><th>Thời điểm</th><th class="col-num">Số dòng</th></tr></thead><tbody>
+      <tr><td>Tháng 8/2026</td><td>Chi nhánh Quận 7</td><td>CSV cấu trúc mẫu (thử nghiệm)</td><td>Đặng Thu Hà</td><td class="num">02/09/2026 10:05</td><td class="col-num">412</td></tr>
+      <tr data-vg="x" data-v="dup" hidden><td>Tháng 9/2026</td><td>Chi nhánh Quận 7</td><td>CSV cấu trúc mẫu (thử nghiệm)</td><td>Đặng Thu Hà</td><td class="num">02/10/2026 09:30</td><td class="col-num">436</td></tr></tbody></table></div></section>
+  <p class="g4f-why" id="why-exp" style="text-align:right" data-vg="x" data-v="nofmt">Lý do nút “Kết xuất” bị khóa: chưa chọn định dạng (chờ khách chốt).</p>
+</div>
+
+<div class="overlay" id="dlg-exp" role="alertdialog" aria-modal="true" aria-labelledby="ep-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#download"/></svg></div><div><h2 class="dialog__title" id="ep-t">Kết xuất dữ liệu tháng 9/2026?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><div class="scope-banner scope-banner--branch"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi file:</strong> Chi nhánh Quận 7 · T9/2026 · 436 dòng · dữ liệu lúc 09:15</span></div>
+    <ul class="impact-list" style="margin-top:12px"><li>Tạo file để nhập vào phần mềm kế toán; không gửi tự động.</li><li data-vg="x" data-v="dup" hidden><strong>Đã kết xuất trước đó</strong>: cần lý do kết xuất lại.</li></ul>
+    <div class="field"><label class="field__label" for="ep-r">Lý do (bắt buộc khi kết xuất lại)</label><textarea id="ep-r" class="textarea" data-confirm-reason style="min-height:64px">Kết xuất lần đầu kỳ T9/2026.</textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-g4f-submit data-lock="#btn-exp" data-busy="Đang tạo file…" data-done-label="Đã kết xuất" data-done-toast="success|Đã tạo file kết xuất|KetXuat_Q7_T9-2026.csv, ghi lịch sử." disabled>Kết xuất</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-ACC-18', title: 'Kết xuất dữ liệu sang phần mềm kế toán', desc: 'Chọn kỳ đã khóa, xem trước và kết xuất dữ liệu cuối kỳ cho phần mềm kế toán đang dùng.',
+  menu: 'fin', role: 'KT', allow: ['KT', 'CH', 'QV'], updated: '09:15', time: 'tháng 9/2026',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+document.addEventListener('g4f:var', function (e) { var b = document.getElementById('btn-exp'); if (e.detail.v !== 'nofmt') { b.disabled = false; b.removeAttribute('aria-disabled'); G4F.refresh(); } });
+G4F.applyVar('x', 'nofmt');
+</script>
+</body>
+</html>

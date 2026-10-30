@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-INV-17 · Duyệt chênh lệch kiểm kê (ADJ) – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('inv')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('INV-17')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Duyệt chênh lệch <span class="code">KK-Q7-2610-00003</span></h1><p class="page-header__desc">Nhóm Lọc, Phanh · 12 mã · đếm bởi Trần Thị Mai Anh ngày 29/10/2026. Tồn chỉ đổi sau khi duyệt.</p></div>
+  <div class="page-header__actions"><span class="badge badge--warning badge--lg">Chờ duyệt</span><a class="btn btn--secondary" href="g3-inv-15.html">Về danh sách</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span> · Kho Quận 7</span><span>· Tồn sổ sách chụp 29/10/2026 08:30</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="đợt kiểm kê" data-g3-states="data:Chờ duyệt;approved:Đã duyệt;loading;notfound;error;denied" data-skel="detail" data-back="g3-inv-15.html">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--warning" role="alert"><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Quá hạn duyệt 1 ngày</span><span>Hệ thống đã nhắc Quản lý chi nhánh; sau thêm 2 ngày chuyển lên Quản lý vùng <span class="g3-sample">số ngày là cấu hình</span>.</span></div></div>
+  <div class="grid grid--4">
+    <div class="card kpi"><span class="kpi__label">Mã có chênh lệch</span><span class="kpi__value">1</span><span class="kpi__meta">trong 12 mã đã đếm</span><span class="kpi__scope">Quận 7 · KK-Q7-2610-00003</span></div>
+    <div class="card kpi kpi--warning"><span class="kpi__label">Chênh lệch số lượng</span><span class="kpi__value">−1</span><span class="kpi__meta">thiếu so với sổ sách</span><span class="kpi__scope">Quận 7 · KK-Q7-2610-00003</span></div>
+    <div class="card kpi kpi--warning"><span class="kpi__label">Giá trị chênh lệch</span><span class="kpi__value"><span data-g3-cost="−410.000"></span><span class="kpi__unit">₫</span></span><span class="kpi__meta">theo giá vốn bình quân</span><span class="kpi__scope">Quận 7 · KK-Q7-2610-00003</span></div>
+    <div class="card kpi"><span class="kpi__label">Lệch lặp lại</span><span class="kpi__value">1</span><span class="kpi__meta">mã lệch ≥ 2 lần/60 ngày</span><span class="kpi__scope">Quận 7 · KK-Q7-2610-00003</span></div></div>
+
+  <div class="g3-split">
+    <section class="card" aria-labelledby="h1"><div class="card__header"><h2 class="card__title" id="h1">Chênh lệch theo mã</h2><span class="table-meta">8 mã còn lại khớp sổ sách</span></div>
+      <div class="table-scroll"><table class="table"><caption class="sr-only">Số sổ sách, số đếm và chênh lệch</caption>
+        <thead><tr><th>Phụ tùng</th><th class="col-num">Sổ sách</th><th class="col-num">Đếm</th><th class="col-num">Chênh lệch</th><th class="col-num">Giá trị</th><th>Giải trình</th></tr></thead>
+        <tbody>
+          <tr class="g3-row--flag"><td><span class="code">PT-0002</span> Má phanh trước Hyundai Accent<span class="cell-sub"><span class="tag tag--warning">Lệch lần 2 trong 60 ngày</span></span></td><td class="col-num">5</td><td class="col-num">4</td><td class="col-num"><span class="g3-var g3-var--over">−1</span></td><td class="col-num"><span data-g3-cost="−410.000 ₫"></span></td><td>Một bộ xuất cho xe khách ngày 25/10 chưa lập phiếu; đã nhắc thợ.<span class="cell-sub">Trần Thị Mai Anh · 29/10 17:15</span></td></tr>
+          <tr><td><span class="code">PT-0001</span> Lọc dầu động cơ Toyota Vios</td><td class="col-num">29</td><td class="col-num">29</td><td class="col-num"><span class="g3-var g3-var--ok">0</span></td><td class="col-num">0 ₫</td><td class="text-secondary">–</td></tr>
+          <tr><td><span class="code">PT-0007</span> Lọc gió động cơ Mazda CX-5</td><td class="col-num">9</td><td class="col-num">9</td><td class="col-num"><span class="g3-var g3-var--ok">0</span></td><td class="col-num">0 ₫</td><td class="text-secondary">–</td></tr>
+          <tr><td><span class="code">PT-0004</span> Bugi Denso Iridium Honda City (bộ 4)</td><td class="col-num">14</td><td class="col-num">14</td><td class="col-num"><span class="g3-var g3-var--ok">0</span></td><td class="col-num">0 ₫</td><td class="text-secondary">–</td></tr></tbody></table></div></section>
+    <aside class="g3-side">
+      <section class="card"><div class="card__header"><h2 class="card__title">Cấp duyệt</h2></div><div class="card__body stack">
+        <div class="approval__line"><div><div class="approval__name">Quản lý chi nhánh · Đặng Hữu Phúc</div><div class="approval__sub">Giá trị <span data-g3-cost="410.000 ₫"></span> so với hạn mức cấp này <span class="g3-sample">2.000.000 ₫ · giá trị mẫu, G4-APR-03</span></div></div><span class="badge badge--success">Trong hạn mức</span></div>
+        <p class="t-body-sm text-secondary">Nếu giá trị vượt hạn mức, nút chuyển thành “Chuyển cấp trên” (Chủ garage/Quản lý vùng duyệt).</p></div></section>
+      <section class="card"><div class="card__body stack">
+        <button class="btn btn--primary btn--lg btn--block" data-open="dlg-appr" data-g3-need="QL CH QV" data-g3-why="Chỉ Quản lý chi nhánh (hoặc cấp trên khi vượt hạn mức) duyệt điều chỉnh tồn.">Duyệt điều chỉnh tồn…</button>
+        <button class="btn btn--danger-outline btn--block" data-open="dlg-rej" data-g3-need="QL CH QV" data-g3-why="Chỉ người có thẩm quyền duyệt mới từ chối.">Từ chối…</button>
+        <p class="t-body-sm text-secondary">Thủ kho chỉ thêm giải trình, không tự điều chỉnh tồn.</p></div></section>
+    </aside>
+  </div>
+</div>
+
+<div data-g3-state="approved" class="stack" hidden>
+  <div class="alert alert--success" role="status"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã duyệt lúc 09:30 bởi Đặng Hữu Phúc · phiếu điều chỉnh DC-Q7-2610-00003</span><span>Tồn Thực tế PT-0002 giảm 1 (từ 5 còn 4). Có ghi người duyệt và lý do; phiếu không sửa hoặc xóa được. Muốn đảo, lập phiếu điều chỉnh mới.</span></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<div class="overlay" id="dlg-appr" role="alertdialog" aria-modal="true" aria-labelledby="ap-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="ap-t">Duyệt điều chỉnh tồn PT-0002 từ 5 xuống 4?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Tạo phiếu điều chỉnh DC-Q7-2610-00003, giảm Thực tế 1 và giá vốn tồn 410.000 ₫.</li><li>Người duyệt và lý do được ghi vào thẻ kho, không xóa được.</li><li>Mã lệch lặp lại sẽ được gắn cờ trong báo cáo.</li></ul>
+    <div class="field"><label class="field__label" for="ap-r">Lý do duyệt<span class="field__req" aria-hidden="true">*</span></label><textarea id="ap-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-confirm-btn data-close data-toast="success|Đã duyệt điều chỉnh|Phiếu DC-Q7-2610-00003 đã ghi sổ." disabled>Duyệt điều chỉnh</button></div></div></div>
+<div class="overlay" id="dlg-rej" role="alertdialog" aria-modal="true" aria-labelledby="rj-t"><div class="dialog dialog--md" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rj-t">Từ chối điều chỉnh tồn?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Tồn giữ nguyên số sổ sách; Thủ kho phải đếm lại hoặc bổ sung giải trình.</li></ul>
+    <div class="field"><label class="field__label" for="rj-r">Lý do từ chối<span class="field__req" aria-hidden="true">*</span></label><textarea id="rj-r" class="textarea" data-confirm-reason></textarea></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã từ chối|Thủ kho nhận yêu cầu đếm lại." disabled>Từ chối điều chỉnh</button></div></div></div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

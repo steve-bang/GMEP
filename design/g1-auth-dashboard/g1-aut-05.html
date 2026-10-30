@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1-AUT-05 · Đặt lại mật khẩu – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Nhập mật khẩu mới|reused:Trùng mật khẩu cũ|success:Thành công|offline:Mất mạng|loading:Đang lưu" data-hint="Thử: mật khẩu “trungmatkhau” báo trùng 5 mật khẩu gần nhất. Liên kết hết hạn: xem G1-ERR-05."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div data-hide="success"><h1 id="t">Đặt mật khẩu mới</h1><p class="g1-lead">Liên kết này chỉ dùng một lần và hết hạn sau 30 phút. Sau khi đặt, mọi phiên đăng nhập cũ sẽ bị đăng xuất.</p></div>
+
+    <div class="alert alert--danger" role="alert" data-show="reused" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mật khẩu này đã dùng gần đây</span><span>Không dùng lại 5 mật khẩu gần nhất. Hãy chọn một cụm từ khác với các mật khẩu trước đây.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa lưu được mật khẩu. Kiểm tra mạng rồi bấm lại. Liên kết vẫn còn hiệu lực.</span></div></div>
+
+    <form class="g1-form" data-g1-form novalidate data-route-field="g1-new" data-routes="trungmatkhau=view:reused;*=view:success" data-hide="success">
+      <fieldset class="g1-fs">
+        <legend class="sr-only">Mật khẩu mới</legend>
+        <div class="field">
+          <label class="field__label" for="g1-new">Mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="g1-pw"><input id="g1-new" class="input" type="password" autocomplete="new-password" aria-required="true" aria-describedby="g1-rules" data-pw-policy data-first-focus data-rule="required|minlen:10|notcommon" data-msg-required="Nhập mật khẩu mới." data-msg-minlen="Mật khẩu cần ít nhất 10 ký tự. Gợi ý: dùng một cụm từ dễ nhớ, ví dụ garage-quan7-mua-thu." data-msg-notcommon="Mật khẩu này quá phổ biến nên dễ bị đoán. Chọn một cụm từ khác, dài hơn."><button type="button" class="btn-icon g1-pw__toggle" data-pw-toggle="g1-new" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__hint" data-caps hidden>Caps Lock đang bật.</span>
+          <div class="g1-strength" data-level="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          <span class="field__hint">Độ mạnh: <strong data-strength-text>Chưa nhập</strong></span>
+          <ul class="g1-rules" id="g1-rules" aria-label="Yêu cầu mật khẩu">
+            <li data-r="len"><svg class="icon"><use href="#circle-x"/></svg><span><span class="sr-only">Chưa đạt: </span>Ít nhất 10 ký tự</span></li>
+            <li data-r="common"><svg class="icon"><use href="#circle-x"/></svg><span><span class="sr-only">Chưa đạt: </span>Không phải mật khẩu thông dụng (như 1234567890)</span></li>
+            <li><svg class="icon"><use href="#info"/></svg><span>Khác 5 mật khẩu gần nhất (kiểm tra khi lưu)</span></li>
+          </ul>
+          <span class="field__error" id="g1-new-err" hidden></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="g1-new2">Nhập lại mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="g1-new2" class="input" type="password" autocomplete="new-password" aria-required="true" data-rule="required|match:#g1-new" data-msg-required="Nhập lại mật khẩu mới để xác nhận." data-msg-match="Hai mật khẩu chưa giống nhau. Nhập lại đúng mật khẩu ở ô trên.">
+          <span class="field__error" id="g1-new2-err" hidden></span>
+        </div>
+      </fieldset>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="offline" data-loading-in="loading"><span>Đặt mật khẩu</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <p class="t-body-sm text-secondary" style="margin:0"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+    </form>
+
+    <div data-show="success" hidden>
+      <div class="state" style="padding:0"><div class="state__icon state__icon--brand"><svg class="icon icon--lg"><use href="#circle-check"/></svg></div>
+        <h2 class="state__title">Đã đặt mật khẩu mới</h2>
+        <p class="state__text">Mọi thiết bị đang đăng nhập bằng mật khẩu cũ đã bị đăng xuất. Đăng nhập lại bằng mật khẩu mới.</p>
+        <div class="state__actions"><a class="btn btn--primary btn--lg" href="g1-aut-01.html">Về trang đăng nhập</a></div></div>
+    </div>
+  </main>
+  <footer class="g1-auth-foot"><span>Liên kết hết hạn hoặc đã dùng? <a href="g1-err-05.html">Xem hướng dẫn lấy liên kết mới</a>.</span></footer>
+</div>
+<script src="../assets/app.js"></script>
+<script src="g1-auth.js"></script>
+</body>
+</html>
