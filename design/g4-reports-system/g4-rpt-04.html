@@ -32,7 +32,7 @@ g4rFilters({ fields: ['period', 'service', 'status', 'staff'], sel: { period: 2 
 </section>
 
 <section class="card g4r-chartcard g4r-only-merged" aria-label="Trạng thái lệnh theo chi nhánh"><script>
-  g4rChart({ type: 'stack', title: 'Lệnh đang xử lý theo trạng thái lệnh và chi nhánh', unit: 'Đơn vị: lệnh · tại 09:15 30/10/2026 · tổng 42 lệnh',
+  g4rChart({ type: 'stack', title: 'Lệnh đang xử lý theo trạng thái lệnh và chi nhánh', unit: 'Đơn vị: lệnh · tại 09:15 30/10/2026 · tổng <span class="g4r-v-ch">42</span><span class="g4r-v-qv">35 (nhóm được giao)</span> lệnh',
     note: 'Hoàn tất và Đã hủy không tính vào xe đang sửa. Mỗi trạng thái luôn dùng cùng một màu ở mọi biểu đồ (thứ tự theo quy trình); màu chỉ phân biệt phần tử, trạng thái nghiệp vụ luôn ghi bằng chữ ở bảng.',
     series: ['Đã duyệt', 'Đang sửa chữa', 'Tạm dừng', 'Chờ QC', 'Sẵn sàng bàn giao'],
     rows: [{ label: 'Chi nhánh Quận 7', parts: [2, 5, 2, 2, 1] }, { label: 'Chi nhánh Quận 1', parts: [2, 5, 1, 1, 1] }, { label: 'Chi nhánh Thủ Đức', parts: [1, 4, 1, 1, 1] }, { label: 'Chi nhánh Đà Nẵng', parts: [1, 3, 1, 1, 1], cls: 'g4r-notqv' }, { label: 'Chi nhánh Biên Hòa', parts: [1, 2, 1, 1, 0] }] });

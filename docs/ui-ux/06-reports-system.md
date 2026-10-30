@@ -315,7 +315,7 @@ Nguồn: `docs/ui-ux/review-06-reports-system-ba.md`. Cột “Mức”: M = Maj
 | F6-34 RPT-02 | m | Chỉ chi nhánh trong phạm vi (KT: 2, QV: 4), dòng tổng 3 biến thể, “Tổng các chi nhánh trong phạm vi”, so sánh cùng 30 ngày | RPT-02 |
 | F6-35 tài liệu | m | Sửa §6, §8, §5, §9, §10, cập nhật bảng vai trò | tài liệu |
 
-Không có finding nào còn bỏ ngỏ; các điểm xử lý một phần được ghi ở mục 14.
+Không có finding nào còn bỏ ngỏ; các điểm xử lý một phần được ghi ở mục 15.
 
 ## 12. Handoff về cách ghép khung bằng `document.write`
 
@@ -337,7 +337,7 @@ Không có finding nào còn bỏ ngỏ; các điểm xử lý một phần đư
 10. **Dữ liệu mẫu giá và thuế**: mọi số trong SYS-07…10 là minh họa; cần số thật từ khách trước khi nghiệm thu.
 11. **Palette biểu đồ chỉ có 5 màu**: giữ nguyên theo BA-06 câu 14; đề nghị chủ dự án ghi vào phụ lục `design-system.md` thứ tự màu cố định theo quy trình (không phải câu hỏi nghiệp vụ).
 
-## 15. Finding vòng 2 (review-06-round2-ba.md) → đã xử lý ở đâu
+## 14. Finding vòng 2 và vòng 3 (review-06-round2-ba.md, review-06-round3-ba.md) → đã xử lý ở đâu
 
 | Finding | Mức | Xử lý | Ở đâu |
 | --- | --- | --- | --- |
@@ -351,9 +351,10 @@ Không có finding nào còn bỏ ngỏ; các điểm xử lý một phần đư
 | F6R2-07 | m | Hạng tính động bằng CSS counter trên các hàng đang hiện; tag “Ngừng nhận lệnh mới” cho Đà Nẵng | RPT-02, `pack.css` |
 | F6R2-08 | m | DSO không tô màu cảnh báo khi chưa có ngưỡng; SYS-05 dùng 7 lệnh đang mở (khớp RPT-04) + 5 lệnh Hoàn tất còn công nợ | RPT-08, SYS-05 |
 | F6R2-09 | m | SYS-04 tách “Xuất báo cáo (đã che)” và “Xuất cột cá nhân đầy đủ” (chỉ ở Hồ sơ khách và xe; mặc định CH, KT; AD không có; cần có quyền Xem; cấp cho QL cần Chủ garage duyệt; QV chỉ trong nhóm được giao) | SYS-04 |
+| Vòng 3: F6R3-01…04 | m | (01) Ô “Xuất cột cá nhân đầy đủ” bị khóa với vai trò có mức che Không hiển thị / Che không có Hiện (Thợ, Thủ kho, Quản trị) kèm lý do; (02) hộp thoại khóa hoàn toàn ghi 5 mục treo khớp danh sách, nút bước 1 đổi thành “Gửi Chủ garage duyệt” khi là Quản trị; (03) chú thích biểu đồ RPT-04 có hai biến thể 42 / 35 theo phạm vi; (04) đánh số lại mục 14, 15 | SYS-04, SYS-05, RPT-04, tài liệu |
 | Quyết định mới BA | — | Khóa chi nhánh hai bước kèm danh sách mục chặn mở rộng và tồn kho phải chọn cách xử lý; Bước 1 do CH (AD chỉ đề xuất); doanh thu chưa thuế Σ theo dòng và quy tắc làm tròn; mức thuế chỉ gợi ý ở Nháp | SYS-05, RPT-03, SYS-10 |
 
-## 14. Điểm yếu còn lại
+## 15. Điểm yếu còn lại
 
 - Vẫn chưa mở trình duyệt: bố cục, tràn chữ tiếng Việt dài và tương phản chữ trắng trên 5 màu biểu đồ chưa kiểm trực quan hay bằng công cụ (BA-06 giao lại cho designer, chưa làm được).
 - Dữ liệu mẫu tĩnh theo chi nhánh Quận 7 (một số trang ghi “Dữ liệu mẫu minh họa”); đổi chi nhánh ở bộ chọn chỉ đổi nhãn phạm vi và các khối hợp nhất / từng chi nhánh, không đổi số.
