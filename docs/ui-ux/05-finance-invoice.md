@@ -1,6 +1,6 @@
 # UI/UX Gói 5: Tài chính và hóa đơn (G4-ACC, G4-APR, G4-EIN)
 
-Phiên bản 0.2 · 30/10/2026 · Designer · Trạng thái: đã dựng đủ 32/32 màn hình (31 màn hình ban đầu + G4-ACC-21 mới) và đã xử lý 22 finding của BA (`review-05-finance-invoice-ba.md`) theo 17 quyết định (`ba-answers-05.md`, BA đề xuất, chờ chủ dự án xác nhận). Xem bảng “Finding → đã xử lý ở đâu” ở §10. Prototype: `design/g4-finance/` (mở `index.html` bằng trình duyệt, `file://`). Class riêng có tiền tố `g4f-`. Nguồn: `design-system.md`, `00-foundation.md`, `ba-decisions.md`, `screen-inventory.md` §8.1 đến §8.3, FRD (ACC, EIN, SYS-004), Journey (WF-05, WF-06, WF-09).
+Phiên bản 0.3 (đã sửa theo review vòng 2: xem §10b, §10c) · 30/10/2026 · Designer · Trạng thái: đã dựng đủ 32/32 màn hình (31 màn hình ban đầu + G4-ACC-21 mới) và đã xử lý 22 finding của BA (`review-05-finance-invoice-ba.md`) theo 17 quyết định (`ba-answers-05.md`, BA đề xuất, chờ chủ dự án xác nhận). Xem bảng “Finding → đã xử lý ở đâu” ở §10. Prototype: `design/g4-finance/` (mở `index.html` bằng trình duyệt, `file://`). Class riêng có tiền tố `g4f-`. Nguồn: `design-system.md`, `00-foundation.md`, `ba-decisions.md`, `screen-inventory.md` §8.1 đến §8.3, FRD (ACC, EIN, SYS-004), Journey (WF-05, WF-06, WF-09).
 
 ## 1. Phạm vi và kế hoạch đã thực hiện
 

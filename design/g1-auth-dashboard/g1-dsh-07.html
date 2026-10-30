@@ -24,7 +24,7 @@
 
   <div data-g1-proto></div>
 
-  <div class="alert alert--warning" id="off-note" role="alert" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối: chưa ghi được Bắt đầu, Tạm dừng, Hoàn thành</span><span>Đồng hồ giờ công của hệ thống vẫn chạy cho việc đang làm. Ghi giờ thật lên phiếu giấy dự phòng và báo quản đốc nhập bù khi có mạng. Bạn vẫn xem được các việc đã tải.</span><div class="alert__actions"><button type="button" class="btn btn--primary" data-toast="success|Đã báo quản đốc|Quản đốc nhận thông báo để ghi giờ hộ khi có mạng. Nếu chưa gửi được, nói trực tiếp.">Báo quản đốc ghi hộ</button><a class="btn btn--secondary" href="g1-err-04.html">Mở phiếu giấy dự phòng</a></div></div></div>
+  <div class="alert alert--warning" id="off-note" role="alert" hidden><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối: chưa ghi được Bắt đầu, Tạm dừng, Hoàn thành</span><span>Đồng hồ giờ công của hệ thống vẫn chạy cho việc đang làm. <strong>Nói trực tiếp với quản đốc</strong> và ghi giờ thật lên phiếu giấy dự phòng để quản đốc nhập bù khi có mạng. Bạn vẫn xem được các việc đã tải.</span><div class="alert__actions"><button type="button" class="btn btn--primary" id="queue-btn" data-toast="info|Chờ gửi|Chưa gửi được vì mất kết nối. Yêu cầu nằm trong hàng chờ trên máy và tự gửi khi có mạng; trong lúc này hãy nói trực tiếp với quản đốc.">Gửi khi có mạng</button><span class="tag tag--neutral" id="queue-tag" hidden>Chờ gửi</span><a class="btn btn--secondary" href="g1-err-04.html">Mở phiếu giấy dự phòng</a></div></div></div>
 
   <section class="card" data-g1-card data-g1-title="Công hôm nay" data-g1-err aria-labelledby="h-sum">
     <div class="card__header"><div><h2 class="card__title" id="h-sum">Công hôm nay (tóm tắt)</h2><div class="card__subtitle">Chi nhánh Quận 7 · hôm nay 30/10/2026 · cập nhật 09:15. Hoa hồng không hiện ở đây.</div></div></div>
@@ -95,6 +95,7 @@
     $$('[data-timer]').forEach(function (t) { if (t.hasAttribute('data-stopped')) return; var s = +t.getAttribute('data-timer') + 1; t.setAttribute('data-timer', s); t.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60); });
   }, 1000);
   document.addEventListener('click', function (e) {
+    if (e.target.closest('#queue-btn')) { document.getElementById('queue-tag').hidden = false; e.target.closest('#queue-btn').textContent = 'Đã đưa vào hàng chờ'; e.target.closest('#queue-btn').disabled = true; }
     var b = e.target.closest('[data-job-act]'); if (b) {
       var art = b.closest('.g1-job'), act = b.getAttribute('data-job-act');
       if (act === 'pause') cur = art;
