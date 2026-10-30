@@ -248,3 +248,70 @@ Chưa kiểm hoặc còn yếu: chưa thử trình đọc màn hình thật; ch�
 - Dữ liệu mẫu cố gắng nhất quán giữa trang nhưng vẫn có thể lệch số nhỏ giữa các dashboard (ví dụ trạng thái từng lệnh).
 - Liên kết sang màn hình của gói G2/G3/G4 chưa dẫn đi đâu (ghi bằng `data-target`).
 - Phông Be Vietnam Pro chưa có file WOFF2 (xem `design/assets/fonts/README.md`), đang dùng font hệ thống thay thế.
+
+## 10. Bàn giao: rủi ro khi shell và biểu đồ dựng bằng JavaScript
+
+Prototype dựng khung ứng dụng và biểu đồ bằng JS để gọn và nhất quán. **Không mang cách làm này vào sản phẩm.** Khi chọn stack:
+
+1. **Phân quyền và phạm vi chi nhánh chỉ do máy chủ quyết định** (NFR-ISO-01, FR-SYS-002). `data-role`, bảng `ROLE_MENU`, ma trận kết quả tìm kiếm, menu “xem thử vai trò”, các chip “Cách tính”… chỉ là minh họa. Menu, dashboard, kết quả tìm và dữ liệu cá nhân phải được máy chủ lọc trước khi gửi xuống; giá trị đầy đủ của SĐT không được có trong trang trước khi “Hiện”.
+2. **Khung điều hướng phải dựng phía máy chủ (SSR hoặc HTML sẵn)** để tắt JS hay lỗi script không làm trắng trang; màn thợ cần điều hướng tối thiểu hoạt động khi biểu đồ lỗi. Prototype đã thêm `<noscript>` ở mọi trang chỉ để nói rõ yêu cầu JS và đường lui (đăng nhập lại, phiếu giấy).
+3. **Chống XSS**: `esc()` trong prototype đã thoát `& < > " '`, nhưng khi dùng dữ liệu thật (tên chi nhánh, tên khách, tên thợ) phải dựng bằng DOM API (`textContent`, `setAttribute`) hoặc thư viện tự thoát; không ghép chuỗi vào `innerHTML`/thuộc tính. Cần kiểm thử bảo mật theo NFR-SEC-02.
+4. **Giờ phiên, đếm lùi 60 giây, khóa màn hình, khóa PIN do máy chủ cấp và kiểm tra**; JS chỉ hiển thị. Tab nền bị trình duyệt làm chậm, người dùng sửa được đồng hồ máy.
+5. **Hiệu năng và bố cục**: biểu đồ vẽ theo bề rộng thật (thẻ ẩn đo bằng 0 nên có giá trị dự phòng); giữ skeleton cùng kích thước để không nhảy bố cục; đo NFR-PERF (thao tác thường < 2 giây trên 4G, dashboard toàn chuỗi < 5 giây).
+6. **Dữ liệu và định dạng**: nhãn, số, tổng của biểu đồ và bảng thay thế sinh từ cùng một nguồn; định dạng `vi-VN` có test đơn vị (NFR-MNT-01). Công thức tổng, tuổi nợ, lợi nhuận phải có ví dụ kế toán duyệt.
+7. **Bàn phím/trình đọc**: biểu đồ có một điểm dừng Tab (← → để xem từng mốc, vùng đọc chỉ cập nhật khi dùng bàn phím); lưới thẻ chi nhánh/thợ dùng Tab (nên chuyển sang roving tabindex). Bảng số liệu là đường chính cho trình đọc màn hình.
+8. **Thuộc tính prototype**: `data-g1-state/views/chartview` và các nút “Xem thử…” không thuộc sản phẩm. Thuộc tính điều khiển xem thử chart (`data-g1-chartview`) đã tách khỏi trạng thái trang (`data-g1-view`) để tránh xung đột.
+9. KPI là thẻ liên kết; khi cần chứa nút (Thử lại, Cách tính) thì dùng `article` + một liên kết phủ hoặc đổi thành `div` ở trạng thái lỗi; không lồng `<button>` trong `<a>`.
+
+## 11. Finding → đã xử lý ở đâu (review BA 29 finding)
+
+“Xong” = đã sửa trong prototype và tài liệu; “Một phần” = còn hạn chế ghi ở cột cuối.
+
+| Finding | Mức | Xử lý | Ở đâu | Tình trạng |
+| --- | --- | --- | --- | --- |
+| F1-01 DSH-01 thiếu 3/10 câu | Blocker | Thêm “Xe trễ hẹn giao” (đi tới danh sách), “Thợ quá tải”, “Phụ tùng thiếu hoặc tồn lâu” vào Cảnh báo ngoại lệ; bảng ánh xạ 10 câu BRD §3 | `g1-dsh-01.html`; §4.4 | Xong. Định nghĩa “thợ quá tải” và “chậm luân chuyển” hỏi BA (§12) |
+| F1-02 Nhãn số tạm/chính thức sai | Blocker | `data-figure="Số tạm"` + `data-figure-tip` nêu chi nhánh/ngày chưa chốt (Quận 7, Thủ Đức chưa chốt 29/10, lệch quỹ Thủ Đức); KPI tại thời điểm ghi “tại hh:mm”; DSH-01/02/03/06/08 thống nhất | `g1-shell.js`; các `g1-dsh-*`; §4.4 | Xong |
+| F1-03 Lợi nhuận gộp thiếu nhân công | Major | Nhãn “(chưa gồm nhân công)” và nút “Cách tính” (công thức, phạm vi, giá vốn, thành phần chưa gồm); cả “Giá trị tồn kho” | `g1-dsh-01/02/03.html`; `g1-charts.js` | Xong |
+| F1-04 Quyền xem lợi nhuận | Major | QL có KPI lợi nhuận chi nhánh mình ở DSH-03; KT không KPI; quyền cấu hình G4-SYS-04 | `g1-dsh-03.html`; §4.4 | Xong |
+| F1-05 Khóa chỉ theo thiết bị + tên | Major | Ba bộ đếm A/B/C, mở khóa sớm, email và lý do ở G4-SYS-03 | §4.2; `g1-aut-01.html`, `g1-dsh-10.html` | Xong |
+| F1-06 MFA email, tin cậy, ghi nhớ | Major | Bỏ email dự phòng cho nhóm bắt buộc, bỏ tin cậy cho KT/AD, bỏ “Ghi nhớ thiết bị”, thêm lối đặt lại có xác minh | `g1-aut-01.html`, `g1-aut-02.html` | Xong |
+| F1-07 Email sửa trực tiếp | Major | Email chỉ đọc + “Đổi email”; PRF-02 có quy trình (mật khẩu, liên kết tới email mới, báo email cũ, trạng thái chờ xác nhận) | `g1-prf-01.html`, `g1-prf-02.html` | Xong |
+| F1-08 Thợ mất mạng | Major | Phase 1 chặn kèm giải thích, “đồng hồ hệ thống vẫn chạy”, phiếu giấy, nút “Báo quản đốc ghi hộ”; ERR-04 ghi QĐ nhập bù (Phase 1) và hàng đợi (Phase 2+) | `g1-dsh-07.html`, `g1-err-04.html` | Xong |
+| F1-09 Luồng PIN | Major | Trạng thái Đặt PIN mới, Mã ghép đăng ký, Thiết bị bị thu hồi, khóa đến khi QĐ/QL mở | `g1-aut-10.html`, `g1-auth.js` | Xong. Màn G4-SYS-03 ngoài gói |
+| F1-10 Số xe trễ hẹn | Major | Một tên và một định nghĩa; Quận 7 = 3, Đà Nẵng = 1 trên DSH-01/02/03/09 | các `g1-dsh-*` | Xong |
+| F1-11 Công nợ phải trả lệch | Major | KPI quá hạn 43,6 tr ₫ khớp biểu đồ | `g1-dsh-06.html` | Xong |
+| F1-12 Button trong a | Major | KPI lỗi/trống/tải đổi `<a>` thành `<div>` và khôi phục; KPI có nút dùng `<article>` | `g1-charts.js` (`retag`), `g1-dsh-01/02/03` | Xong |
+| F1-13 Trạng thái từng thẻ | Major | Cũ/mất mạng gắn chip “Cập nhật 07:58”/“Số lúc 09:14” và làm mờ số trên từng thẻ; nút xem thử chỉ hiện khi có thẻ minh họa (hết “0 khối đã ẩn”); thêm thẻ thiếu quyền ở DSH-01/02/03 | `g1-charts.js`, `g1-dsh-*` | Xong |
+| F1-14 Tìm kiếm theo vai trò | Major | Ma trận kết quả theo vai trò (`?role=`), ẩn chip loại không có, SĐT chỉ khớp số đầy đủ với CH/QV/KT, AD và TH ô tìm riêng, tối thiểu 3 ký tự | `g1-shl-02.html`, `g1-shell.js` | Một phần: TH không có hàng “khách” (chỉ xe/lệnh của mình), chưa dựng đủ mọi phép thử |
+| F1-15 “Xe của tôi” | Minor | Đổi tên “Xe của tôi trong xưởng”, mỗi dòng có badge | `g1-dsh-04.html` | Xong |
+| F1-16 Thu ròng | Minor | “Thu ròng (sổ quỹ)” kèm thu − chi | `g1-dsh-06.html` | Xong |
+| F1-17 RULE-007, tiền cọc | Minor | Bỏ viện dẫn RULE-007; ghi cọc gắn báo giá | `g1-dsh-08.html` | Xong. Hỏi BA xác nhận (§12) |
+| F1-18 Ảnh đại diện | Minor | JPG/PNG, tối đa 2 MB | `g1-prf-01.html` | Xong |
+| F1-19 “Chỉ xem” ở cột vai trò | Minor | Vai trò thật + cờ “Chi nhánh đang khóa, chỉ xem” | `g1-prf-01.html` | Xong |
+| F1-20 AUT-04 `h1` | Minor | `h1` + `role=status` + focus vào tiêu đề kết quả | `g1-aut-04.html`, `g1-auth.js` | Xong |
+| F1-21 Focus ô đầu | Minor | Focus ô đầu khi tải trang biểu mẫu (không áp cho trang có khung) | `g1-auth.js` | Xong |
+| F1-22 aria-describedby | Minor | Khôi phục mô tả gốc khi hết lỗi; gợi ý Caps Lock có id và được tham chiếu | `g1-auth.js`, `g1-aut-01.html` | Xong |
+| F1-23 Kỷ luật token | Minor | Chuyển 3 khối `<style>` vào `pack.css`, đặt token pack `--g1-font-size-code`, thêm lớp tiện ích | `pack.css` | Một phần: còn một số thuộc tính `style=` rải rác (chủ yếu khoảng cách) ở trang xác thực, DSH-04, PRF; cần dọn khi dựng thật |
+| F1-24 Điểm số tạm | Minor | Điểm cuối nét chấm, điểm rỗng, tooltip “số tạm”, chú giải; dữ liệu mẫu ngày 30/10 là nửa buổi; cột số tạm hoa văn | `g1-charts.js`, `g1-dsh-01/02/06` | Xong |
+| F1-25 Vùng đọc biểu đồ | Minor | Vùng `aria-live` chỉ cập nhật khi dùng bàn phím; bỏ `role=tooltip` | `g1-charts.js` | Xong |
+| F1-26 KPI đăng nhập bất thường | Minor | Đổi thành “Lượt khóa tạm” và “tên đăng nhập bị dò”; thêm hàng đợi tích hợp, thiết bị xưởng, email che | `g1-dsh-10.html` | Xong |
+| F1-27 Cộng lẫn đơn vị | Minor | Biểu đồ tồn theo % so với định mức, số lượng thật ghi ở chú thích | `g1-dsh-05.html` | Xong |
+| F1-28 Bộ lọc | Minor | Kiểm tra không ngày tương lai, tối đa 366 ngày, Đến ≥ Từ; ghi rõ hạn chế | `g1-charts.js` | Một phần: kỳ và chi nhánh vẫn chưa điều khiển mọi biểu đồ/KPI (số mẫu cố định) |
+| F1-29 Số điện thoại giả | Minor | Placeholder “[Số tổng đài – lấy từ cấu hình]”, trạng thái chưa cấu hình số, nút “Gọi chi nhánh” chỉ khi nhận ra chi nhánh | `g1-err-05.html` | Xong |
+| Rủi ro R1–R8 | – | `<noscript>` ở mọi trang; mục §10 bàn giao; `esc()` đủ; đổi tên thuộc tính xung đột (R7) | tất cả trang; §10 | R1/R2/R4/R5/R6/R8 chỉ ghi nhận và chuyển cho dev (không giải quyết được trong prototype) |
+
+Ngoài finding, đã áp dụng thêm từ `ba-answers-01.md`: quy định sử dụng ghi “Nội dung mẫu” và phiên bản (AUT-06, PRF-01); ma trận thông báo và email mặc định (NTF-02, mục bảo mật luôn bật; tóm tắt 06:00–10:00); mặc định bộ lọc theo vai trò; “hôm nay so cùng giờ thứ tuần trước” (DSH-03).
+
+## 12. Câu hỏi còn lại cho BA
+
+1. (BA §E1) KT, QĐ có thuộc nhóm bắt buộc MFA không (prototype theo đề xuất: KT bắt buộc, QĐ không).
+2. (BA §E2) Mốc ghi nhận doanh thu và thành phần nhân công trong lợi nhuận gộp theo kế toán của khách; “Cách tính” đang ghi theo FR-RPT-013.
+3. (BA §E3) Số tổng đài và giờ làm việc hiển thị cho khách (ERR-05 đang để placeholder).
+4. (BA §E4) Văn bản quy định sử dụng/bảo mật, thời hạn lưu bằng chứng đồng ý (AUT-06 đang “Nội dung mẫu”).
+5. (BA §E5) Khách có chấp nhận chặn ghi giờ khi mất mạng ở Phase 1 và dùng phiếu giấy không.
+6. (BA §E6) Quản đốc nhập bù giờ công hộ thợ được không, ngưỡng chênh lệch cần xác nhận (đề xuất 15 phút ở Phase 2+).
+7. Định nghĩa “Thợ quá tải” (prototype: giờ chuẩn đã giao lớn hơn giờ khả dụng trong ngày) và “Phụ tùng chậm luân chuyển” (ngưỡng ngày, FR-RPT-005) cho DSH-01.
+8. Tiền cọc gắn báo giá rồi chuyển sang lệnh khi khách duyệt có được chốt không (F1-17, liên quan G-01) và RULE-007 có mở rộng cho thu tiền, hóa đơn không.
+9. Hạn đăng ký lại thiết bị xưởng (đề xuất 90 ngày) và quy tắc khóa theo thiết bị khi dò nhiều tên thợ (BA nêu “giới hạn tổng”, chưa có số).
+10. Kết quả tìm kiếm của TH: ngoài xe/lệnh được giao, “tên + biển số của việc mình” hiển thị ở dạng nào (prototype chưa có hàng khách cho TH).
+11. QL xem lợi nhuận gộp theo ngày khi ngày chưa chốt có cần nhãn cảnh báo riêng không (prototype dùng nhãn “số tạm”).

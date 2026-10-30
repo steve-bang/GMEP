@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="AD">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-08" data-menu="set" data-crumbs="Cài đặt|Gói bảo dưỡng định kỳ" data-allow="AD QL CH"></script>
 <script>
 g4rPage({
@@ -23,13 +24,14 @@ g4rPage({
 });
 </script>
 
+<div class="alert alert--neutral" role="note" data-why-roles="AD QL"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Chủ garage <strong>duyệt</strong> gói (Duyệt hoặc Từ chối kèm lý do), không sửa trực tiếp. Nút sửa chỉ dành cho Quản trị và Quản lý chi nhánh.</div></div>
 <div class="table-wrap">
   <div class="table-wrap--responsive"><div class="table-scroll"><table class="table"><caption class="sr-only">Gói bảo dưỡng định kỳ</caption>
     <thead><tr><th>Gói</th><th>Hạng mục trong gói</th><th class="col-num">Giá gói</th><th>Dòng xe</th><th>Chi nhánh áp dụng</th><th>Hiệu lực</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
     <tbody>
       <tr><td><strong>Bảo dưỡng 10.000 km</strong><span class="g4r-formula">GB-10K</span></td><td>Thay dầu động cơ, thay lọc dầu, kiểm tra phanh, vệ sinh lọc gió <span class="tag tag--neutral">4 hạng mục</span></td><td class="col-num">1.250.000 ₫</td><td>Toyota Vios, Hyundai Accent, Kia Morning</td><td>Tất cả chi nhánh</td><td><span class="tag tag--success">Từ 01/07/2026</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-pkg">Sửa</button></td></tr>
       <tr><td><strong>Bảo dưỡng 20.000 km</strong><span class="g4r-formula">GB-20K</span></td><td>Gói 10.000 km, thay lọc gió, thay dầu phanh, kiểm tra hệ thống treo <span class="tag tag--neutral">7 hạng mục</span></td><td class="col-num">2.480.000 ₫</td><td>Toyota Vios, Hyundai Accent</td><td>Quận 7, Quận 1, Thủ Đức</td><td><span class="tag tag--success">Từ 01/07/2026</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-pkg">Sửa</button></td></tr>
-      <tr><td><strong>Vệ sinh điều hòa</strong><span class="g4r-formula">GB-DH</span></td><td>Vệ sinh dàn lạnh, thay lọc gió điều hòa <span class="tag tag--neutral">2 hạng mục</span></td><td class="col-num">690.000 ₫</td><td>Mọi dòng xe</td><td>Tất cả chi nhánh</td><td><span class="tag tag--info">Từ 01/12/2026</span> <span class="tag tag--warning">Chờ Chủ garage duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="CH" data-toast="success|Đã duyệt gói|Gói áp dụng từ 01/12/2026.">Duyệt</button><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-pkg">Sửa</button></td></tr>
+      <tr><td><strong>Vệ sinh điều hòa</strong><span class="g4r-formula">GB-DH</span></td><td>Vệ sinh dàn lạnh, thay lọc gió điều hòa <span class="tag tag--neutral">2 hạng mục</span></td><td class="col-num">690.000 ₫</td><td>Mọi dòng xe</td><td>Tất cả chi nhánh</td><td><span class="tag tag--info">Từ 01/12/2026</span> <span class="tag tag--warning">Chờ Chủ garage duyệt</span></td><td><button class="btn btn--primary btn--sm" data-show-roles="CH" data-g4r-approve="Gói Vệ sinh điều hòa (GB-DH)|Lê Minh Quân (Quản lý chi nhánh)|Tạo mới 690.000 ₫, 2 hạng mục, áp dụng từ 01/12/2026">Xem và duyệt</button><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-pkg">Sửa</button></td></tr>
     </tbody></table></div></div>
   <div class="record-list record-list--responsive" style="padding:var(--space-4)">
     <div class="record"><div class="record__top"><div><div class="record__title">Bảo dưỡng 10.000 km</div>4 hạng mục · Tất cả chi nhánh</div><strong class="num">1.250.000 ₫</strong></div></div>

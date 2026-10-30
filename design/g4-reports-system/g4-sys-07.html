@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body data-role="QL">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
 <script src="pack.js" data-code="G4-SYS-07" data-menu="set" data-crumbs="Cài đặt|Dịch vụ, giờ chuẩn, đơn giá" data-allow="AD QL CH KT CV"></script>
 <script>
 g4rPage({
@@ -41,7 +42,7 @@ g4rPage({
     <div class="table-wrap--responsive"><div class="table-scroll"><table class="table" id="tb-svc"><caption class="sr-only">Hạng mục dịch vụ và giờ chuẩn</caption>
       <thead><tr><th>Mã</th><th>Hạng mục</th><th>Nhóm dịch vụ</th><th class="col-num">Giờ chuẩn</th><th>Hiệu lực từ</th><th>Phiên bản</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
       <tbody>
-        <tr><td class="code">DV-001</td><td>Thay dầu động cơ và lọc dầu</td><td>Bảo dưỡng</td><td class="col-num">0,5 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
+        <tr><td class="code">DV-001</td><td>Thay dầu động cơ và lọc dầu</td><td>Bảo dưỡng</td><td class="col-num">0,5 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button> <button class="btn btn--ghost btn--sm" data-edit-roles="AD QL" data-open="dlg-stopsvc" title="Chỉ Quản trị hoặc Quản lý chi nhánh đề xuất">Ngưng áp dụng…</button></td></tr>
         <tr><td class="code">DV-002</td><td>Thay má phanh trước (1 trục)</td><td>Sửa chữa chung</td><td class="col-num">1,0 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
         <tr><td class="code">DV-003</td><td>Cân chỉnh góc đặt bánh xe</td><td>Lốp và mâm</td><td class="col-num">1,2 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
         <tr><td class="code">DV-004</td><td>Vệ sinh kim phun, buồng đốt</td><td>Sửa chữa chung</td><td class="col-num">1,5 giờ</td><td class="num">01/07/2026</td><td><span class="tag tag--success">Hiện hành</span></td><td><button class="btn btn--secondary btn--sm" data-edit-roles="AD QL" data-open="dlg-svc" title="Chỉ Quản trị hoặc Quản lý chi nhánh được sửa">Sửa</button></td></tr>
@@ -52,7 +53,7 @@ g4rPage({
       <div class="record"><div class="record__top"><div><div class="record__title">Thay má phanh trước (1 trục)</div><span class="code">DV-002</span> · Sửa chữa chung</div><span class="tag tag--success">Hiện hành</span></div><div class="record__meta"><span>Giờ chuẩn 1,0 giờ</span><span>Từ 01/07/2026</span></div></div>
       <div class="record"><div class="record__top"><div><div class="record__title">Bảo dưỡng 10.000 km (gói cơ bản)</div><span class="code">DV-006</span> · Bảo dưỡng</div><span class="tag tag--info">Sắp hiệu lực</span></div><div class="record__meta"><span>2,0 → 2,2 giờ từ 01/12/2026</span></div></div>
     </div>
-    <div class="table-footer"><span class="table-meta">Hiển thị 6 trong 6 hạng mục. Không có nút “Xóa”: hạng mục ngừng dùng được “Ngưng áp dụng” từ một ngày.</span></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 6 trong 6 hạng mục. Không có nút “Xóa”: hạng mục ngừng dùng được “Ngưng áp dụng” từ một ngày hiệu lực (ví dụ ở dòng DV-001). Người đề xuất không tự duyệt; Chủ garage có đủ Duyệt và Từ chối.</span></div>
   </div>
 </div>
 
@@ -82,6 +83,7 @@ g4rPage({
 <script>
 g4rEnd('', g4rDrawer({ id: 'dlg-svc', title: 'Sửa hạng mục DV-002', sub: 'Thay má phanh trước (1 trục)', guard: true, cta: 'Lưu phiên bản mới', toast: 'Đã lưu phiên bản mới', impact: ['Báo giá và lệnh tạo từ ngày hiệu lực dùng giờ chuẩn mới.', 'Lệnh đã tạo và báo giá đã gửi giữ nguyên giờ chuẩn cũ (báo giá lưu phiên bản giá).', 'Phiên bản mới cần Chủ garage duyệt.'],
   fields: ['<div class="field"><label class="field__label" for="sv-n">Tên hạng mục</label><input class="input" id="sv-n" value="Thay má phanh trước (1 trục)"></div>', '<div class="form-grid"><div class="field"><label class="field__label" for="sv-h">Giờ chuẩn mới<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="sv-h" value="1,2"><span class="input-group__suffix">giờ</span></div><span class="field__hint">Hiện hành: 1,0 giờ</span></div><div class="field"><label class="field__label" for="sv-g">Nhóm dịch vụ</label><select class="select" id="sv-g"><option>Sửa chữa chung</option><option>Bảo dưỡng</option><option>Lốp và mâm</option></select></div></div>'] })
+ + g4rDrawer({ id: 'dlg-stopsvc', title: 'Ngưng áp dụng hạng mục DV-001', sub: 'Thay dầu động cơ và lọc dầu', guard: true, effDate: '01/12/2026', cta: 'Gửi duyệt ngưng áp dụng', toast: 'Đã gửi duyệt', impact: ['Từ ngày hiệu lực không chọn được hạng mục này trong báo giá mới.', 'Báo giá và lệnh đã tạo giữ nguyên; hạng mục vẫn tra cứu được trong lịch sử.'], fields: [] })
  + g4rDrawer({ id: 'dlg-rate', title: 'Sửa đơn giá giờ công Chi nhánh Quận 7', sub: 'Hiện hành 180.000 ₫/giờ từ 01/07/2026', guard: true, cta: 'Lưu phiên bản mới', toast: 'Đã lưu đơn giá mới', impact: ['Tính công cho lệnh tạo từ ngày hiệu lực.', 'Hoa hồng và công thợ lấy giờ chuẩn × đơn giá của phiên bản hiệu lực lúc tạo lệnh.'],
   fields: ['<div class="field"><label class="field__label" for="rt-v">Đơn giá giờ công mới<span class="field__req">*</span></label><div class="input-group input-group--suffix"><input class="input input--num" id="rt-v" value="190.000"><span class="input-group__suffix">₫/giờ</span></div></div>'] }));
 </script>

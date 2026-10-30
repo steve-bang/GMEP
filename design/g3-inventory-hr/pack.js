@@ -422,7 +422,8 @@
   }, true);
 
   /* ---------- Khởi tạo ---------- */
-  function apply() { applyExtraRole(); renderSubnav(); applyRoleBits(); renderPII(); applyState(); }
+  /* applyExtraRole() chỉ là dự phòng: app.js đã vá MH/NS; chỉ gọi khi app.js chưa có vai trò (nhãn vai trò chưa khớp) */
+  function apply() { if (EXTRA_MENU[role()] && !document.querySelector('[data-role-label]') ) applyExtraRole(); renderSubnav(); applyRoleBits(); renderPII(); applyState(); }
   function init() {
     expandStock(); buildScan(); initStates(); cards();
     var rq = (location.search.match(/[?&]role=([A-Z]{2})/) || [])[1];
