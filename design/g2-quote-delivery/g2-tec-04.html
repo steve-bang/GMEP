@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('TH', 'ro');
@@ -24,13 +25,14 @@ g2q.scope('hôm nay 30/10/2026', '09:05');
   <div class="dialog g2q-dlg-lg">
     <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dex-t">Báo hư hỏng phát sinh</h2><div class="g2q-note"><span class="code">RO-Q7-2610-00128</span> · 51H-123.45 · Toyota Vios</div></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
     <div class="dialog__body">
-      <script>g2q.proto([['form','Soạn'],['invalid','Thiếu thông tin'],['sending','Đang gửi'],['sent','Đã gửi'],['error','Lỗi gửi'],['offline','Mất mạng']], 'form', 'Xem thử (chỉ prototype)', 'dlg-extra');</script>
+      <script>g2q.proto([['form','Soạn'],['invalid','Thiếu thông tin'],['sending','Đang gửi'],['sent','Đã gửi'],['error','Lỗi gửi'],['offline','Mất mạng'],['draftlocal','Mất mạng: đã lưu nháp trên máy']], 'form', 'Xem thử (chỉ prototype)', 'dlg-extra');</script>
 
       <div class="alert alert--danger" role="alert" data-v="invalid"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Cần mô tả hư hỏng</span><span>Nhập vài chữ cho cố vấn hiểu (ví dụ: “lọc gió điều hòa bẩn nhiều, có mùi”). Nên chụp thêm ảnh để khách dễ đồng ý.</span></div></div>
       <div class="alert alert--danger" role="alert" data-v="error"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được</span><span>Nội dung và ảnh vẫn được giữ. Thử lại sẽ không tạo báo cáo trùng.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-set="sending" data-for="dlg-extra">Thử lại</button></div></div></div>
-      <div class="alert alert--warning" role="alert" data-v="offline"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối — đã lưu nháp trên máy</span><span>Bản nháp (lưu lúc 09:04) sẽ tự gửi khi có mạng, hoặc báo cố vấn trực tiếp. Hạng mục chưa vào báo giá cho tới khi gửi được.</span></div></div>
+      <div class="alert alert--warning" role="alert" data-v="offline"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối — chưa gửi được</span><span>Giai đoạn 1 chỉ lưu nháp trên máy, không tự gửi. Hạng mục chưa tới cố vấn và chưa vào báo giá. Bạn báo trực tiếp cố vấn hoặc dùng phiếu giấy dự phòng; có mạng thì bấm Gửi.</span></div></div>
+  <div class="alert alert--warning" role="status" data-v="draftlocal"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Đã lưu nháp trên máy lúc 09:04 — CHƯA gửi tới cố vấn</span><span><span class="sync sync--wait"><svg class="icon icon--sm"><use href="#refresh"/></svg>Chưa gửi</span> Có mạng thì bấm “Gửi ngay”. Trong lúc chờ, báo trực tiếp cố vấn Nguyễn Hoàng Yến.</span></div></div>
 
-      <div data-v="form invalid error offline sending" class="stack">
+      <div data-v="form invalid error offline draftlocal sending" class="stack">
         <div class="field"><label class="field__label" for="hm">Liên quan hạng mục nào?</label><select id="hm" class="select"><option>2. Thay má phanh trước (đang làm)</option><option>1. Thay dầu động cơ và lọc dầu (hoàn thành)</option><option>Không thuộc hạng mục nào</option></select></div>
         <div class="field"><label class="field__label" for="mt">Mô tả hư hỏng phát sinh <span class="field__req">*</span></label><textarea id="mt" class="textarea" aria-describedby="mt-h" placeholder="Ví dụ: Lọc gió điều hòa bẩn nhiều, có mùi, nên thay."></textarea>
           <span class="field__hint" id="mt-h" data-vx="invalid">Nói ngắn gọn, đủ để cố vấn báo cho khách.</span><span class="field__error" data-v="invalid"><svg class="icon"><use href="#alert-triangle"/></svg>Nhập mô tả hư hỏng (ít nhất vài chữ).</span></div>
@@ -47,7 +49,8 @@ g2q.scope('hôm nay 30/10/2026', '09:05');
         <ol class="stepper" aria-label="Các bước xử lý phát sinh"><li class="stepper__step is-done"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm"><use href="#check"/></svg></span><span class="stepper__text">Thợ báo</span></div></li><li class="stepper__step is-current" aria-current="step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Cố vấn báo giá</span></div></li><li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Khách duyệt</span></div></li><li class="stepper__step"><div class="stepper__bar"></div><div class="stepper__label"><span class="stepper__num">4</span><span class="stepper__text">Bắt đầu làm</span></div></li></ol>
       </div>
     </div>
-    <div class="dialog__footer" data-v="form invalid error offline"><button class="btn btn--secondary btn--xl" data-close>Hủy</button><button class="btn btn--primary btn--xl" data-set="sending" data-for="dlg-extra" data-v="form invalid error"><svg class="icon"><use href="#send"/></svg>Gửi cho cố vấn</button><button class="btn btn--primary btn--xl" data-set="sent" data-for="dlg-extra" data-v="offline">Lưu nháp, tự gửi khi có mạng</button></div>
+    <div class="dialog__footer" data-v="form invalid error offline"><button class="btn btn--secondary btn--xl" data-close>Hủy</button><button class="btn btn--primary btn--xl" data-set="sending" data-for="dlg-extra" data-v="form invalid error"><svg class="icon"><use href="#send"/></svg>Gửi cho cố vấn</button><button class="btn btn--secondary btn--xl" data-set="draftlocal" data-for="dlg-extra" data-v="offline">Lưu nháp trên máy</button><button class="btn btn--primary btn--xl" aria-disabled="true" data-v="offline"><svg class="icon"><use href="#lock"/></svg>Gửi (cần mạng)</button></div>
+    <div class="dialog__footer" data-v="draftlocal"><button class="btn btn--secondary btn--xl" data-close>Đóng</button><button class="btn btn--primary btn--xl" data-set="sending" data-for="dlg-extra"><svg class="icon"><use href="#send"/></svg>Gửi ngay (đã có mạng)</button></div>
     <div class="dialog__footer" data-v="sending"><button class="btn btn--primary btn--xl is-loading" disabled aria-busy="true"><span class="btn__spinner"><svg class="icon spin"><use href="#loader"/></svg></span>Đang gửi</button></div>
     <div class="dialog__footer" data-v="sent"><a class="btn btn--primary btn--xl" href="g2-tec-01.html">Về danh sách việc</a></div>
   </div>

@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Checklist QC được dựng bằng script; sản phẩm thật dùng component. </p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('QD', 'ro');
@@ -19,14 +20,17 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
 </script>
 
 <div class="stack-6 g2q-qc" data-variants="default">
-  <script>g2q.proto([['default','Đang kiểm'],['offline','Mất mạng'],['readonly','Đã QC đạt (chỉ đọc)'],['loading','Đang tải'],['noperm','Không có quyền']], 'default');</script>
+  <script>g2q.proto([['default','Đang kiểm'],['extra','Còn phát sinh chờ quyết định'],['offline','Mất mạng'],['readonly','Đã QC đạt (chỉ đọc)'],['loading','Đang tải'],['empty','Lệnh không ở Chờ QC'],['error','Lỗi tải'],['noperm','Không có quyền']], 'default');</script>
+  <div class="alert alert--warning" role="alert" data-v="extra"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Còn 1 hạng mục phát sinh chưa có quyết định cuối</span><span>“Thay lọc gió điều hòa” (BG-Q7-2610-00236) đang Chờ khách duyệt. Bạn vẫn kiểm các mục khác, nhưng chưa chuyển được “Sẵn sàng bàn giao” cho tới khi phát sinh ở trạng thái Đã duyệt và Hoàn thành, Từ chối hoặc Hết hạn. <a href="g2-quo-07.html">Mở phát sinh</a></span></div></div>
+  <div data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Lệnh này không ở trạng thái Chờ QC', text:'Chỉ lệnh đã được chuyển sang Chờ QC mới kiểm tra được. Mở hàng chờ QC để chọn lệnh khác.', actions:'<a class="btn btn--secondary" href="g2-dlv-01.html">Về hàng chờ QC</a>'})</script></div>
+  <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được checklist QC', text:'Kết quả bạn đã tick được lưu nháp, thử tải lại sau vài giây.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-DLV-2F81C3'})</script></div>
 
   <div class="alert alert--warning" role="alert" data-v="offline"><svg class="icon"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối — kết quả kiểm tra đang lưu trên máy (lúc 10:04)</span><span>Bạn vẫn chọn Đạt/Không đạt được. Chưa chốt được “Đạt” hoặc “Không đạt – trả thợ” khi chưa có mạng vì cần ghi nhận công thợ và thông báo.</span></div></div>
   <div class="alert alert--success" role="status" data-v="readonly"><svg class="icon"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã QC đạt lúc 10:42 bởi Phạm Quốc Bảo</span><span>11/11 mục đạt. Lệnh chuyển <span class="badge badge--success">Sẵn sàng bàn giao</span>; công thợ phát sinh cho 3 hạng mục. Không sửa kết quả; sai sót thì mở lại bằng quy trình điều chỉnh có lý do.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="g2-dlv-03.html">Chuẩn bị bàn giao</a></div></div></div>
   <div data-v="loading" aria-busy="true" class="card" style="padding:24px"><span class="skeleton skeleton--title"></span><br><br><span class="skeleton skeleton--block"></span></div>
-  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền thực hiện QC', text:'Chỉ Quản đốc, nhân viên QC (và Quản lý chi nhánh) kiểm tra chất lượng. Cố vấn dịch vụ chỉ xem kết quả.', actions:'<a class="btn btn--secondary" href="g2-dlv-01.html">Về hàng chờ QC</a>'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền thực hiện QC', text:'Chỉ Quản đốc (và Quản lý chi nhánh) kiểm tra chất lượng. Cố vấn dịch vụ chỉ xem kết quả.', actions:'<a class="btn btn--secondary" href="g2-dlv-01.html">Về hàng chờ QC</a>'})</script></div>
 
-  <div class="g2q-split" data-v="default offline readonly">
+  <div class="g2q-split" data-v="default extra offline readonly">
     <div class="g2q-split__main">
       <section class="card" aria-label="Tiến độ kiểm tra">
         <div class="card__body"><div class="progress progress--info"><div class="progress__head"><span><strong id="p-txt">Đã kiểm 8/11 mục</strong> · <span id="p-cnt">Đạt 8 · Không đạt 0 · Chưa kiểm 3</span></span><span class="g2q-note" id="p-save"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#circle-check"/></svg> Tự lưu nháp 10:04</span></div><div class="progress__track" role="progressbar" aria-valuemin="0" aria-valuemax="11" aria-valuenow="8" aria-label="Số mục đã kiểm" id="p-bar-wrap"><div class="progress__bar" id="p-bar" style="width:73%"></div></div></div></div>
@@ -61,7 +65,7 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
         </div>
       </section>
 
-      <div class="g2q-sticky-foot" role="region" aria-label="Chốt kết quả QC" data-v="default offline">
+      <div class="g2q-sticky-foot" role="region" aria-label="Chốt kết quả QC" data-v="default extra offline">
         <span class="g2q-note" id="foot-msg">Còn 3 mục chưa kiểm. Cần Đạt đủ 11 mục mới chuyển “Sẵn sàng bàn giao”.</span>
         <div class="row">
           <button class="btn btn--danger-outline btn--xl" id="btn-fail" data-open="dlg-fail" aria-disabled="true" disabled>Không đạt, trả thợ</button>
@@ -82,7 +86,7 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
 
 <div class="overlay" id="dlg-pass" role="alertdialog" aria-modal="true" aria-labelledby="dpass-t"><div class="dialog g2q-dlg-sheet">
   <div class="dialog__header"><div class="dialog__icon" style="background:var(--color-success-bg);color:var(--color-success-text)"><svg class="icon"><use href="#circle-check"/></svg></div><div><h2 class="dialog__title" id="dpass-t">Xác nhận QC đạt?</h2></div></div>
-  <div class="dialog__body"><p>Lệnh <span class="code">RO-Q7-2610-00123</span> đạt 11/11 mục.</p><ul class="impact-list"><li>Lệnh chuyển sang <strong>Sẵn sàng bàn giao</strong>; cố vấn và thu ngân được thông báo.</li><li>Công thợ phát sinh cho 3 hạng mục (theo cấu hình công thức của chi nhánh).</li><li>Kết quả ghi theo tên bạn và không sửa trực tiếp.</li></ul></div>
+  <div class="dialog__body"><p>Lệnh <span class="code">RO-Q7-2610-00123</span> đạt 11/11 mục.</p><ul class="impact-list"><li>Lệnh chuyển sang <strong>Sẵn sàng bàn giao</strong> (chỉ khi mọi phát sinh đã có quyết định cuối); cố vấn và thu ngân được thông báo.</li><li>Người QC (Phạm Quốc Bảo) khác người làm (Trần Văn Hậu): đạt kiểm soát tách nhiệm (cấu hình).</li><li>Công thợ phát sinh cho 3 hạng mục (theo cấu hình công thức của chi nhánh).</li><li>Kết quả ghi theo tên bạn và không sửa trực tiếp.</li></ul></div>
   <div class="dialog__footer"><button class="btn btn--secondary btn--xl" data-close>Kiểm lại</button><a class="btn btn--primary btn--xl" href="g2-dlv-03.html" data-toast="success|QC đạt|Lệnh RO-Q7-2610-00123 sẵn sàng bàn giao.">Xác nhận đạt</a></div></div></div>
 
 <div class="overlay" id="dlg-fail" role="alertdialog" aria-modal="true" aria-labelledby="dfail-t"><div class="dialog g2q-dlg-sheet" data-confirm-guard>
@@ -102,15 +106,18 @@ window.g2qReady = function () {
       if (o) ok++; if (b) bad++;
       it.querySelector('.g2q-qc-item__fail').hidden = !b;
     });
-    var done = ok + bad, left = TOTAL - done, offline = document.querySelector('[data-variants]').getAttribute('data-cur') === 'offline';
+    var curV = document.querySelector('[data-variants]').getAttribute('data-cur');
+    if (curV === 'readonly') { list.querySelectorAll('.rating__opt').forEach(function (b) { b.disabled = true; if (b.classList.contains('rating__opt--ok')) b.setAttribute('aria-pressed', 'true'); else b.setAttribute('aria-pressed', 'false'); }); ok = TOTAL; bad = 0; }
+    else list.querySelectorAll('.rating__opt').forEach(function (b) { b.disabled = false; });
+    var done = ok + bad, left = TOTAL - done, offline = curV === 'offline', extra = curV === 'extra';
     document.getElementById('p-txt').textContent = 'Đã kiểm ' + done + '/' + TOTAL + ' mục';
     document.getElementById('p-cnt').textContent = 'Đạt ' + ok + ' · Không đạt ' + bad + ' · Chưa kiểm ' + left;
     document.getElementById('p-bar').style.width = Math.round(done / TOTAL * 100) + '%';
     document.getElementById('p-bar-wrap').setAttribute('aria-valuenow', done);
     var pass = document.getElementById('btn-pass'), fail = document.getElementById('btn-fail');
-    pass.disabled = !(ok === TOTAL) || offline; fail.disabled = !(bad > 0) || offline;
+    pass.disabled = !(ok === TOTAL) || offline || extra; fail.disabled = !(bad > 0) || offline;
     pass.setAttribute('aria-disabled', String(pass.disabled)); fail.setAttribute('aria-disabled', String(fail.disabled));
-    document.getElementById('foot-msg').textContent = offline ? 'Mất kết nối: chưa chốt được kết quả. Kết quả từng mục vẫn lưu trên máy.' : bad > 0 ? 'Có ' + bad + ' mục Không đạt: trả thợ làm lại (cần ghi chú cho từng mục).' : left > 0 ? 'Còn ' + left + ' mục chưa kiểm. Cần Đạt đủ ' + TOTAL + ' mục mới chuyển “Sẵn sàng bàn giao”.' : 'Đã Đạt đủ ' + TOTAL + ' mục. Có thể chuyển sang Sẵn sàng bàn giao.';
+    document.getElementById('foot-msg').textContent = extra && ok === TOTAL ? 'Đạt đủ nhưng còn phát sinh chờ quyết định: chưa chuyển Sẵn sàng bàn giao được.' : offline ? 'Mất kết nối: chưa chốt được kết quả. Kết quả từng mục vẫn lưu trên máy.' : bad > 0 ? 'Có ' + bad + ' mục Không đạt: trả thợ làm lại (cần ghi chú cho từng mục).' : left > 0 ? 'Còn ' + left + ' mục chưa kiểm. Cần Đạt đủ ' + TOTAL + ' mục mới chuyển “Sẵn sàng bàn giao”.' : 'Đã Đạt đủ ' + TOTAL + ' mục. Có thể chuyển sang Sẵn sàng bàn giao.';
   }
   list.addEventListener('click', function () { setTimeout(state, 0); });
   document.querySelector('[data-variants]').addEventListener('g2q:variant', state);

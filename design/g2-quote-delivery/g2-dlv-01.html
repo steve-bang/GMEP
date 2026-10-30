@@ -10,10 +10,11 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<noscript><p style="padding:16px">Prototype này cần bật JavaScript để dựng khung ứng dụng và các trạng thái xem thử. Sản phẩm thật không phụ thuộc cách dựng này.</p></noscript>
 <script src="pack.js"></script>
 <script>
 g2q.begin('QD', 'ro');
-g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Kiểm tra chất lượng']], title: 'Hàng chờ kiểm tra chất lượng (QC)', desc: 'Lệnh có tất cả hạng mục đã Hoàn thành thì vào hàng chờ này. Lệnh chưa đạt QC không sang được bước thu tiền và bàn giao.' });
+g2q.header({ crumbs: [['Phiếu sửa chữa'], ['Kiểm tra chất lượng']], title: 'Hàng chờ kiểm tra chất lượng (QC)', desc: 'Lệnh vào hàng chờ này khi Quản đốc, Cố vấn hoặc Quản lý chuyển sang Chờ QC (hệ thống chỉ nhắc khi hạng mục cuối cùng xong). Lệnh chưa đạt QC không sang được bước thu tiền và bàn giao.' });
 g2q.scope('hôm nay 30/10/2026', '10:05');
 </script>
 
@@ -23,7 +24,7 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
   <div data-v="default" class="stack-6">
     <div class="grid grid--4" aria-label="Tóm tắt hàng chờ QC">
       <div class="card kpi kpi--danger"><span class="kpi__label"><svg class="icon icon--sm"><use href="#alert-triangle"/></svg>Trễ hẹn giao</span><span class="kpi__value">01</span><span class="kpi__meta">RO-Q7-2610-00118 trễ 5 phút</span></div>
-      <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Chờ QC</span><span class="kpi__value">06</span><span class="kpi__meta">Cùng số với “Chờ kiểm tra QC” trên tổng quan</span></div>
+      <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clipboard-check"/></svg>Chờ QC</span><span class="kpi__value">06</span><span class="kpi__meta">Lệnh đang ở trạng thái Chờ QC</span></div>
       <div class="card kpi"><span class="kpi__label"><svg class="icon icon--sm"><use href="#clock"/></svg>Chờ lâu nhất</span><span class="kpi__value">2<span class="kpi__unit">giờ 10 phút</span></span><span class="kpi__meta">RO-Q7-2610-00118</span></div>
       <div class="card kpi kpi--warning"><span class="kpi__label"><svg class="icon icon--sm"><use href="#undo"/></svg>Đã trả thợ làm lại</span><span class="kpi__value">02</span><span class="kpi__meta">Chờ thợ làm xong</span></div>
     </div>
@@ -35,6 +36,7 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
       <div class="filter-bar__actions"><button class="btn btn--secondary">Đặt lại</button></div>
     </div>
 
+    <section class="alert alert--info" aria-label="Nhắc chuyển Chờ QC"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">2 lệnh đã xong hạng mục cuối, chờ bạn chuyển sang Chờ QC</span><span>RO-Q7-2610-00126 (59A-111.22) và RO-Q7-2610-00112 (50H-118.04). Lệnh không tự chuyển vì có thể còn việc thêm.</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-show-roles="QD QL CV" data-toast="success|Đã chuyển sang Chờ QC|2 lệnh vào hàng chờ QC, ghi người chuyển và giờ.">Chuyển sang Chờ QC</button></div></div></section>
     <section class="card" aria-label="Danh sách chờ QC">
       <div class="tabs" role="tablist" aria-label="Hàng chờ QC" style="padding:0 var(--space-6)">
         <button class="tab" role="tab" id="tb-q" aria-selected="true" aria-controls="tp-q">Chờ QC <span class="count-pill count-pill--warning">6</span></button>
@@ -54,7 +56,7 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
             </tbody>
           </table></div>
         </div>
-        <div class="card__body" style="padding-top:12px"><p class="g2q-note" data-show-roles="CV CH QV TN KT TK"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#lock"/></svg> Vai trò của bạn chỉ xem hàng chờ. Nút “Bắt đầu QC” chỉ dành cho Quản đốc/nhân viên QC và Quản lý chi nhánh; việc kiểm tra không thể thay thế.</p></div>
+        <div class="card__body" style="padding-top:12px"><p class="g2q-note" data-show-roles="CV CH QV TN KT TK"><svg class="icon icon--sm" style="vertical-align:-3px"><use href="#lock"/></svg> Vai trò của bạn chỉ xem hàng chờ. Nút “Bắt đầu QC” chỉ dành cho Quản đốc và Quản lý chi nhánh; người QC nên khác người làm (cấu hình cảnh báo khi trùng).</p></div>
       </div>
       <div class="tab-panel" id="tp-r" role="tabpanel" aria-labelledby="tb-r" hidden style="padding:0">
         <div class="table-scroll"><table class="table table--lg">
@@ -72,7 +74,7 @@ g2q.scope('hôm nay 30/10/2026', '10:05');
   <div data-v="loading" aria-busy="true" class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Hẹn giao</th><th>Lệnh</th><th>Xe</th><th>Khách</th><th>Thợ</th><th>Chờ</th></tr></thead><tbody><script>g2q.skelRows(5, 6)</script></tbody></table></div></div>
   <div data-v="empty" class="card"><script>g2q.state({kind:'empty', title:'Không có xe chờ QC', text:'Khi thợ kết thúc hạng mục cuối cùng của một lệnh, xe tự vào hàng chờ này. Bạn có thể xem các xe đang sửa ở bảng điều phối.', actions:'<a class="btn btn--secondary" href="../g2-workshop/g2-rec-03.html">Mở bảng điều phối</a>'})</script></div>
   <div data-v="error" class="card"><script>g2q.state({kind:'error', title:'Không tải được hàng chờ QC', text:'Thử lại sau vài giây. Danh sách bạn thấy lần trước có thể đã cũ.', actions:'<button class="btn btn--primary" data-demo-loading>Thử lại</button>', ref:'Mã tham chiếu lỗi: ERR-DLV-6D10C2'})</script></div>
-  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem hàng chờ QC', text:'Mục này dành cho quản đốc, nhân viên QC và quản lý chi nhánh. Cố vấn dịch vụ chỉ xem trạng thái lệnh.', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
+  <div data-v="noperm" class="card"><script>g2q.state({kind:'noperm', title:'Bạn chưa được cấp quyền xem hàng chờ QC', text:'Mục này dành cho quản đốc và quản lý chi nhánh. Cố vấn dịch vụ chỉ xem trạng thái lệnh.', actions:'<a class="btn btn--secondary" href="#">Về trang tổng quan</a>'})</script></div>
 </div>
 <script>g2q.end();</script>
 <script src="../assets/app.js"></script>
