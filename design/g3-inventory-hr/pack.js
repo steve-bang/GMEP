@@ -268,7 +268,7 @@
   function parseS(v, minAttr, ordAttr) { var p = v.split(',').map(Number); var m = minAttr === null || minAttr === '' || minAttr === undefined || minAttr === '-' ? null : +minAttr; return { real: p[0], res: p[1], tr: p[2], avail: p[0] - p[1], min: m, ord: +ordAttr || 0 }; }
   function stock4HTML(s) {
     var k = s.avail <= 0 ? ' stock4__cell--out' : (s.min !== null && s.avail <= s.min ? ' stock4__cell--low' : ' stock4__cell--available');
-    return '<div class="stock4" role="group" aria-label="Tồn kho: thực tế ' + s.real + ', giữ chỗ ' + s.res + ', đang vận chuyển ' + s.tr + ', khả dụng ' + s.avail + '"><div class="stock4__cell"><div class="stock4__label">Thực tế</div><div class="stock4__value">' + s.real + '</div></div><div class="stock4__cell"><div class="stock4__label">Giữ chỗ</div><div class="stock4__value">' + s.res + '</div></div><div class="stock4__cell"><div class="stock4__label">Đang vận chuyển</div><div class="stock4__value">' + s.tr + '</div></div><div class="stock4__cell' + k + '"><div class="stock4__label">Khả dụng</div><div class="stock4__value">' + s.avail + '</div></div></div>';
+    return '<div class="stock4" role="group" aria-label="Tồn kho: thực tế ' + s.real + ', giữ chỗ ' + s.res + ', đang vận chuyển ' + s.tr + ', khả dụng ' + s.avail + '"><div class="stock4__cell" data-g3-hide="CV MH"><div class="stock4__label">Thực tế</div><div class="stock4__value">' + s.real + '</div></div><div class="stock4__cell" data-g3-hide="CV MH"><div class="stock4__label">Giữ chỗ</div><div class="stock4__value">' + s.res + '</div></div><div class="stock4__cell"><div class="stock4__label">Đang vận chuyển</div><div class="stock4__value">' + s.tr + '</div></div><div class="stock4__cell' + k + '"><div class="stock4__label">Khả dụng</div><div class="stock4__value">' + s.avail + '</div></div></div>';
   }
   function expandStock() {
     $$('td[data-g3-s4]').forEach(function (td) {
@@ -302,7 +302,7 @@
           else if (c === 'badge') badge = '<div class="g3-chip-badges">' + inner(td) + '</div>';
           else if (c === 'meta') meta += '<span' + gate(td) + '>' + (label ? label + ': ' : '') + inner(td) + '</span>';
           else if (c === 'foot') foot += '<span class="num"' + gate(td) + '>' + inner(td) + '</span>';
-          else if (c === 'stock4' && tr.hasAttribute('data-s')) s4 = '<div' + (ths[i].hasAttribute('data-g3-hide') ? ' data-g3-hide="' + ths[i].getAttribute('data-g3-hide') + '"' : '') + '>' + stock4HTML(parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered'))) + '</div>';   /* đủ bốn số tồn trên thẻ (F4-02) */
+          else if (c === 'stock4' && tr.hasAttribute('data-s')) s4 = stock4HTML(parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered')));   /* ô Thực tế, Giữ chỗ tự ẩn theo vai trò (MH chỉ còn Đang vận chuyển và Khả dụng) */   /* đủ bốn số tồn trên thẻ (F4-02) */
         });
         var el = document.createElement(href ? 'a' : 'div');
         el.className = 'record'; if (href) { el.href = href; el.style.color = 'inherit'; el.style.textDecoration = 'none'; }

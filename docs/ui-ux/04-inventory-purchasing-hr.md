@@ -75,6 +75,12 @@ Cột “Trạng thái xem thử” là các nút trong thanh “Xem thử trạ
 
 Số màn hình đã thiết kế: 39/39.
 
+**Cập nhật bản 0.2 cho bảng trên (thắng nếu mâu thuẫn):**
+- Vai trò: nhân viên mua hàng (MH) mở và thao tác PUR-01…10 (lập yêu cầu, lập đơn, cập nhật bảng giá NCC; không nhận hàng), xem INV-01, 04, 05, 19 (INV-04/05 chỉ Khả dụng và Đang vận chuyển, không Thực tế/Giữ chỗ/giá vốn); nhân sự (NS) mở HRM-01…10 (sửa: 01, 02, 03, 04, chuẩn bị 08; xem: 05, 06, 07, 09, 10). Cố vấn (CV) xem INV-01 và INV-19 ở chế độ chỉ đọc (chỉ Khả dụng, giá niêm yết), không mở INV-04; CV không còn trong HRM-07 (xem hoa hồng ở HRM-09).
+- Trạng thái xem thử: thêm “Không tìm thấy” (404) cho INV-07, 09, 10, 11, 13, 16, 18, PUR-02, 05, 08; PUR-03 có Chờ duyệt vượt hạn mức QL / trong hạn mức / cấp Chủ garage-QV / Đã duyệt; HRM-08 và HRM-04 có kỳ đã khóa hiện bảng chỉ đọc.
+- Khối mới: INV-03 tab “Chi nhánh khác” chỉ Khả dụng và Số có thể cho; INV-09 chứng từ gốc chọn đơn mua hoặc yêu cầu Mua gấp (YM); INV-18 xem trước phiếu nhiệt 80 mm; PUR-07 chọn tập phiếu nhập; PUR-10 đơn vị đặt và SL tối thiểu NCC; HRM-06 đơn giá giờ công, hoa hồng cố vấn có phiên bản.
+- `design/assets/app.js` đã được designer foundation vá thêm MH/NS (không do gói này sửa); `pack.js` vẫn giữ tên vai trò và quyền theo màn.
+
 ## 4. Bộ badge cho các đối tượng mới của gói (đã thay bằng Phụ lục A của `ba-answers-04.md`)
 
 Bảng dưới là đề xuất bản 0.1; prototype đã áp dụng Phụ lục A (khác biệt chính: loại biến động trong thẻ kho là tag Neutral chứ không phải badge; “Đã nhận” của phiếu chuyển không kèm tag “Đã đóng”; “Nhận một phần” luôn Warning; “Đã đếm” của kiểm kê là Info; giá và ngày nằm ngoài badge; “Chờ duyệt” luôn Warning; “Đã đặt N” là tag Neutral ngoài bốn số). Trước đó bảng A.2 của `ba-decisions.md` chưa có các đối tượng này. Mỗi đối tượng có bộ trạng thái riêng, không dùng chung. Màu theo quy tắc: xanh lá chỉ cho thành công; vàng cho cần chú ý; đỏ cho lỗi; xanh dương cho đang xử lý/đang vận chuyển; tím chỉ “Chờ QC”.
@@ -339,7 +345,27 @@ Chưa chạy trên trình duyệt thật (không có trình duyệt); rà bằng
 | F4-30 tài liệu | Minor | Cập nhật tài liệu này (mục 12–15) | tài liệu này |
 | F4-31 phân tách nhiệm vụ | Minor | Ghi chú người đếm ≠ người duyệt, không tự sửa giờ mình, không tự duyệt yêu cầu mình lập | INV-16/17, HRM-04, PUR-03 |
 
-## 14. Câu hỏi còn lại cho BA và việc chưa làm hết
+### 13b. Vòng 2 (`review-04-round2-ba.md`)
+
+| Finding | Mức | Xử lý | Ở đâu |
+| --- | --- | --- | --- |
+| F4R2-01 MH không lập được đơn mua | Major | Thêm MH vào “+ Lập đơn mua” và “Lập đơn mua từ yêu cầu” | `g3-pur-04.html`, `g3-pur-03.html` |
+| F4R2-02 Mua gấp không khép kín | Major | INV-09 “Chứng từ gốc” chọn DM, YM Mua gấp (hiện hạn hậu duyệt, bắt buộc ảnh hóa đơn) hoặc không có đơn mua (hiếm); bỏ ví dụ mua gấp ở nhánh ngoại lệ | `g3-inv-09.html` |
+| F4R2-03 đề xuất đặt thừa | Major | Quy tắc R2-D1: chỉ đề xuất khi Khả dụng + Đang vận chuyển + Đã đặt ≤ Tối thiểu; PT-0002 và PT-0008 đề xuất 0 kèm dòng theo dõi; chân bảng cập nhật | `g3-inv-05.html` |
+| F4R2-04 một việc hai phương pháp | Minor | RO-Q7-2610-00126 là “sửa chữa chung” theo giờ chuẩn (HRM-07/08); hoa hồng 18% chuyển sang việc khác (RO-Q7-2610-00122, sơn cản, đồng sơn) | `g3-hrm-07.html`, `g3-hrm-09.html` |
+| F4R2-05 đơn giá giờ công | Minor | Mục “Đơn giá giờ công theo chức danh × chi nhánh” có phiên bản d1, ghi đè hiệu lực riêng, snapshot khi ghi công | `g3-hrm-06.html` |
+| F4R2-06 quy cách đóng gói NCC | Minor | PUR-10 thêm “Đơn vị đặt (bội số)” mặc định 1 và “SL tối thiểu NCC” (chỉ cảnh báo); INV-05 nêu làm tròn lên | `g3-pur-10.html`, `g3-inv-05.html` |
+| F4R2-07 badge | Minor | “Trễ 1 ngày” đổi sang Danger; badge “Chờ gửi” của INV-11 đổi “Nháp” | `g3-pur-04.html`, `g3-inv-11.html` |
+| F4R2-08 thẻ mobile INV-04 của MH | Minor | `stock4HTML` ẩn riêng ô Thực tế, Giữ chỗ theo vai trò; MH còn Đang vận chuyển và Khả dụng | `pack.js` |
+| F4-08 (còn lại) | Minor | Cảnh báo “mã đang trong đợt kiểm kê” ở INV-07 và INV-09 (không chặn); đóng băng nhóm hàng là cấu hình G4-SYS, ghi chú chuyển cho G4 | `g3-inv-07.html`, `g3-inv-09.html` |
+| F4-16 (còn lại) | Minor | Hoa hồng cố vấn có phiên bản h1, h2 chờ duyệt; so sánh nháp với bản hiện hành đưa vào backlog Phase 2 theo BA | `g3-hrm-06.html` |
+| F4-30 (còn lại) | Minor | Mục 3 có đoạn “Cập nhật bản 0.2” và ghi chú app.js đã vá | tài liệu này |
+
+## 14. Câu hỏi còn lại cho BA và việc chưa làm hết (đã cập nhật sau vòng 2)
+
+Các mục dưới đây được BA trả lời ở `review-04-round2-ba.md` §4: đơn giá giờ công (4.1, đã làm ở HRM-06), hạn hậu duyệt Mua gấp 24 giờ (4.2), quy cách NCC (4.3, đã làm ở PUR-10), mã `PT-xxxx` không đổi (4.4), F4-16 và F4-08 (4.5, 4.6, đã làm hoặc chuyển), thợ xem hồ sơ qua G1-PRF (4.7). Còn lại chỉ là kiểm tra bằng trình duyệt (mục 7 bên dưới) và việc cho dev.
+
+Danh sách bản 0.2 (giữ để tra cứu):
 
 1. **F4-25:** có đổi mã phụ tùng mẫu (ví dụ `LD-0001`) trên toàn gói không? Prototype mới ghi chú vì đổi 39 file dễ lệch dữ liệu; nên chốt quy ước mã phụ tùng của khách trước.
 2. **F4-16 (một phần):** chỉ có nháp phiên bản mới ở HRM-06, chưa có so sánh nháp với bản hiện hành và chưa có phiên bản riêng cho bảng “Hoa hồng cố vấn”.
