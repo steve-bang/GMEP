@@ -114,7 +114,7 @@
 <script>
 (function () {
   var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  var seq = 98, variant = 'default';
+  var seq = 97, variant = 'default';
   function resolved() { return $$('[data-row]').filter(function (r) { return r.getAttribute('data-ok') === '1'; }).length; }
   function check() {
     var n = resolved(), note = $('#r-note').value.trim().length >= 5, b = $('#submit-cancel'), why = [];
@@ -131,7 +131,7 @@
     var s = e.target.closest('[data-mode]'); if (!s) return;
     var row = s.closest('[data-row]'), res = $('[data-res]', row), v = s.value; row.setAttribute('data-ok', '0');
     if (v === 'ret') res.innerHTML = '<button type="button" class="btn btn--secondary btn--sm" data-mk>Tạo phiếu hoàn kho</button>';
-    else if (v === 'used') res.innerHTML = '<label class="field__label" style="margin:0" for="f' + seq + '">Xử lý phần đã dùng</label><select class="select" id="f' + seq + '" data-fee><option value="">Chọn</option><option value="free">Miễn phí (chi phí xưởng, đảo công)</option><option value="fee">Tính phí khách theo báo giá đã duyệt</option></select>';
+    else if (v === 'used') res.innerHTML = '<label class="field__label" style="margin:0" for="f' + seq + '">Xử lý phần đã dùng</label><select class="select" id="f' + seq + '" data-fee><option value="">Chọn</option><option value="free">Miễn phí (chi phí xưởng, đảo công)</option><option value="fee" disabled>Tính phí khách theo báo giá đã duyệt (chờ xác nhận nghiệp vụ, đang tắt)</option></select>';
     else res.innerHTML = '<span class="g2w-muted">Chưa xử lý</span>';
     check();
   });

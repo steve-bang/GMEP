@@ -140,9 +140,10 @@
 <div class="overlay" id="dlg-pause" role="dialog" aria-modal="true" aria-labelledby="pz-t"><div class="dialog dialog--md" data-g2w-pause>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="pz-t">Tạm dừng lệnh: chọn lý do</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body stack"><fieldset style="border:0;padding:0;margin:0" class="reason-list"><legend class="field__label">Lý do tạm dừng<span class="field__req" aria-hidden="true">*</span></legend>
-      <label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Chờ phụ tùng</span></label><label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Chờ khách duyệt phát sinh</span></label><label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Nghỉ</span></label><label class="radio"><input type="radio" name="pz"><span class="radio__box"></span><span>Khác (bắt buộc ghi chú)</span></label></fieldset>
-    <div class="field"><label class="field__label" for="pz-n">Ghi chú</label><textarea id="pz-n" class="textarea" style="min-height:56px"></textarea></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="warning|Đã tạm dừng lệnh|Thẻ chuyển sang cột Tạm dừng khi máy chủ xác nhận.">Tạm dừng</button></div></div></div>
+      <label class="radio"><input type="radio" name="pz" value="parts"><span class="radio__box"></span><span>Chờ phụ tùng</span></label><label class="radio"><input type="radio" name="pz" value="extra"><span class="radio__box"></span><span>Chờ khách duyệt phát sinh</span></label><label class="radio"><input type="radio" name="pz" value="rest"><span class="radio__box"></span><span>Nghỉ</span></label><label class="radio"><input type="radio" name="pz" value="other"><span class="radio__box"></span><span>Khác (bắt buộc ghi chú)</span></label></fieldset>
+    <div class="field"><label class="field__label" for="pz-n">Ghi chú</label><textarea id="pz-n" class="textarea" style="min-height:56px"></textarea></div>
+    <p class="g2w-why" role="status"><svg class="icon icon--sm"><use href="#lock"/></svg><span data-pause-why></span></p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-pause-ok disabled>Tạm dừng</button></div></div></div>
 
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>

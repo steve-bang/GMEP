@@ -34,9 +34,9 @@
         <div class="g2w-diff" role="table" aria-label="So sánh hai hồ sơ khách">
           <div class="g2w-diff__h" role="columnheader">Trường</div><div class="g2w-diff__h" role="columnheader">Hồ sơ A · tạo 05/01/2023 · Quận 7</div><div class="g2w-diff__h" role="columnheader">Hồ sơ B · tạo 14/09/2025 · Thủ Đức</div><div class="g2w-diff__h" role="columnheader">Kết quả sau hợp nhất</div>
           <div>Loại khách</div><div>Cá nhân</div><div><span data-g2w-vshow="same cross">Cá nhân</span><span data-g2w-vshow="type" hidden class="tag tag--danger">Doanh nghiệp</span></div><div>Cá nhân</div>
-          <div>Họ tên</div><div class="is-keep"><label class="radio"><input type="radio" name="f1" checked><span class="radio__box"></span><span>Nguyễn Văn An</span></label></div><div><label class="radio"><input type="radio" name="f1"><span class="radio__box"></span><span>Nguyen Van An</span></label></div><div><strong>Nguyễn Văn An</strong></div>
-          <div>Điện thoại</div><div class="is-keep"><label class="radio"><input type="radio" name="f2" checked><span class="radio__box"></span><span class="g2w-pii" data-id="c1"></span></label></div><div><label class="radio"><input type="radio" name="f2"><span class="radio__box"></span><span class="g2w-pii" data-id="c1"></span></label></div><div><span class="g2w-pii" data-id="c1"></span> <span class="g2w-muted">(trùng nhau)</span></div>
-          <div>Email</div><div class="is-keep"><label class="radio"><input type="radio" name="f3" checked><span class="radio__box"></span><span>có email</span></label></div><div><label class="radio"><input type="radio" name="f3"><span class="radio__box"></span><span class="text-disabled">để trống</span></label></div><div>Giữ email của A</div>
+          <div>Họ tên</div><div class="is-keep"><label class="radio"><input type="radio" name="f1" checked><span class="radio__box"></span><span>Nguyễn Văn An</span></label></div><div><label class="radio"><input type="radio" name="f1"><span class="radio__box"></span><span><span data-b-full>Nguyen Van An</span><span data-b-min hidden>N. V. An (tên viết tắt)</span></span></label></div><div><strong>Nguyễn Văn An</strong></div>
+          <div>Điện thoại</div><div class="is-keep"><label class="radio"><input type="radio" name="f2" checked><span class="radio__box"></span><span class="g2w-pii" data-id="c1"></span></label></div><div><label class="radio"><input type="radio" name="f2"><span class="radio__box"></span><span><span data-b-full><span class="g2w-pii" data-id="c1"></span></span><span data-b-min hidden><span class="g2w-pii" data-id="c1" data-mask="1"></span></span></span></label></div><div><span class="g2w-pii" data-id="c1"></span> <span class="g2w-muted">(trùng nhau)</span></div>
+          <div>Email</div><div class="is-keep"><label class="radio"><input type="radio" name="f3" checked><span class="radio__box"></span><span>có email</span></label></div><div><label class="radio"><input type="radio" name="f3"><span class="radio__box"></span><span><span data-b-full class="text-disabled">để trống</span><span data-b-min hidden class="text-disabled">không hiện (ngoài phạm vi)</span></span></label></div><div>Giữ email của A</div>
           <div>Địa chỉ</div><div class="is-keep"><label class="radio"><input type="radio" name="f4" checked><span class="radio__box"></span><span>Quận 7, TP.HCM</span></label></div><div><label class="radio"><input type="radio" name="f4"><span class="radio__box"></span><span>TP. Thủ Đức</span></label></div><div>Quận 7, TP.HCM <span class="g2w-muted">(chi tiết hiện theo quyền)</span></div>
           <div>Hạn mức nợ, kỳ thanh toán</div><div class="is-keep"><label class="radio"><input type="radio" name="f5" checked><span class="radio__box"></span><span>Không đặt (cá nhân)</span></label></div><div><label class="radio"><input type="radio" name="f5"><span class="radio__box"></span><span>Không đặt (cá nhân)</span></label></div><div>Không đặt. Khách DN: người hợp nhất phải chọn và xác nhận</div>
           <div>Nhãn</div><div class="is-keep">VIP</div><div>—</div><div>VIP (gộp nhãn của cả hai)</div>
@@ -49,6 +49,8 @@
           <div class="card kpi"><span class="kpi__label">Công nợ</span><span class="kpi__value"><span class="text-disabled">—</span></span><span class="kpi__meta">Không cộng thành một số mới: mỗi khoản giữ liên kết lệnh gốc; hóa đơn đã xuất giữ thông tin người mua lúc phát hành</span></div>
         </div>
 
+        <div class="alert alert--neutral" data-b-min hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Hồ sơ B ngoài phạm vi chi nhánh của bạn</span><span>Chỉ hiện mức tối thiểu để so khớp: loại khách, tên viết tắt, SĐT đã che, quận/huyện, ngày tạo, số lệnh. Email, địa chỉ chi tiết, bảng đồng ý và lịch sử không hiện. Bấm “Đề nghị hợp nhất”; Quản lý vùng xem đủ trong nhóm được giao khi duyệt.</span></div></div>
+        <div data-b-full class="stack">
         <h3 class="g2w-sec-title">Đồng ý dữ liệu sau hợp nhất (xem trước)</h3>
         <div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Hiệu lực đồng ý dữ liệu sau hợp nhất</caption>
           <thead><tr><th>Mục đích</th><th>Kênh</th><th>Hồ sơ A</th><th>Hồ sơ B</th><th>Kết quả sau hợp nhất</th></tr></thead>
@@ -58,6 +60,7 @@
             <tr><td>Khuyến mãi, quảng cáo</td><td>SMS</td><td><span class="badge badge--neutral">Đã rút</span></td><td><span class="badge badge--success">Đồng ý</span></td><td><span class="badge badge--neutral">Chưa đồng ý</span></td></tr>
           </tbody></table></div>
         <p class="g2w-muted">Nguyên tắc thận trọng: nếu bất kỳ hồ sơ nào chưa đồng ý hoặc đã rút thì kết quả là chưa đồng ý. Không “nâng” đồng ý của hồ sơ này sang số điện thoại hoặc email của hồ sơ kia. Toàn bộ bản ghi đồng ý của cả hai hồ sơ được giữ làm lịch sử.</p>
+        </div>
       </div>
       <div class="card__footer" style="flex-wrap:wrap"><a class="btn btn--secondary" href="g2-crm-01.html">Không phải một người</a>
         <button class="btn btn--secondary" id="btn-propose" data-toast="success|Đã gửi đề nghị hợp nhất|Chuyển Quản lý vùng Miền Nam xem xét." data-g2w-lock="QL" data-g2w-why="Chỉ Quản lý chi nhánh đề nghị; Quản lý vùng, Chủ garage hợp nhất.">Đề nghị hợp nhất lên Quản lý vùng</button>
@@ -86,8 +89,15 @@
 <script>
 /* Quyền hợp nhất theo tình huống: cùng chi nhánh = QL/QV/CH; liên chi nhánh = QV/CH (QL chỉ đề nghị); khác loại = chặn */
 (function () {
-  var b = document.getElementById('btn-merge'), p = document.getElementById('btn-propose');
+  var b = document.getElementById('btn-merge'), p = document.getElementById('btn-propose'), cur = 'same';
+  function minView() {
+    var r = document.body.getAttribute('data-role'), on = cur === 'cross' && r === 'QL';   /* QV/CH: đủ trong nhóm được giao; QL: tối thiểu */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-b-full]'), function (x) { x.hidden = on; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-b-min]'), function (x) { x.hidden = !on; });
+  }
+  new MutationObserver(minView).observe(document.body, { attributes: true, attributeFilter: ['data-role'] });
   function set(k) {
+    cur = k; minView();
     b.setAttribute('data-g2w-lock', k === 'same' ? 'QL QV CH' : 'QV CH');
     p.hidden = k !== 'cross';
     if (k === 'type') { b.setAttribute('data-g2w-force-disabled', ''); b.setAttribute('data-g2w-force-why', 'Không hợp nhất khách cá nhân với doanh nghiệp.'); } else b.removeAttribute('data-g2w-force-disabled');
