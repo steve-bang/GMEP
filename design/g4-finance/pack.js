@@ -12,15 +12,16 @@
 
   var ROLES = [['CH', 'Chủ garage'], ['QV', 'Quản lý vùng'], ['QL', 'Quản lý chi nhánh'], ['CV', 'Cố vấn dịch vụ'], ['QD', 'Quản đốc'], ['TH', 'Thợ'], ['TK', 'Thủ kho'], ['TN', 'Thu ngân'], ['KT', 'Kế toán'], ['AD', 'Quản trị hệ thống']];
   var ROLE_NAME = {}; ROLES.forEach(function (r) { ROLE_NAME[r[0]] = r[1]; });
+  var USER = { CH: 'Trần Hoàng Anh', QV: 'Lê Thanh Sơn', QL: 'Võ Minh Quân', CV: 'Nguyễn Hoàng Yến', QD: 'Phạm Văn Cường', TH: 'Lê Minh Tuấn', TK: 'Hoàng Thị Mai', TN: 'Phạm Thị Lan', KT: 'Đặng Thu Hà', AD: 'Ngô Quốc Bảo' };
   var saved = null; try { saved = sessionStorage.getItem('g4f-role'); } catch (e) {}
   var role = saved || P.role || 'KT';
   body.setAttribute('data-role', role);
 
   /* ---------- Điều hướng con (module Tài chính / Phê duyệt / Hóa đơn) ---------- */
   var SUB = [
-    { k: 'acc', label: 'Thu tiền', href: 'g4-acc-02.html', roles: 'CH QV QL CV KT TN', ids: ['acc-01', 'acc-02', 'acc-03', 'acc-07'] },
+    { k: 'acc', label: 'Thu tiền', href: 'g4-acc-02.html', roles: 'CH QV QL CV KT TN', ids: ['acc-01', 'acc-02', 'acc-03', 'acc-07', 'acc-21'] },
     { k: 'cash', label: 'Sổ quỹ và chi', href: 'g4-acc-04.html', roles: 'CH QV QL KT TN', ids: ['acc-04', 'acc-05', 'acc-06'] },
-    { k: 'debt', label: 'Công nợ', href: 'g4-acc-10.html', roles: 'CH QV QL CV KT', ids: ['acc-10', 'acc-11', 'acc-12', 'acc-13'] },
+    { k: 'debt', label: 'Công nợ', href: 'g4-acc-10.html', roles: 'CH QV QL KT', ids: ['acc-10', 'acc-11', 'acc-12', 'acc-13'] },
     { k: 'close', label: 'Chốt ca, ngày, kỳ', href: 'g4-acc-08.html', roles: 'CH QV QL KT TN', ids: ['acc-08', 'acc-09', 'acc-17'] },
     { k: 'profit', label: 'Giá vốn và lãi lỗ', href: 'g4-acc-14.html', roles: 'CH QV QL KT', ids: ['acc-14', 'acc-15', 'acc-19', 'acc-20'] },
     { k: 'bank', label: 'Ngân hàng và kết xuất', href: 'g4-acc-16.html', roles: 'KT CH QV', ids: ['acc-16', 'acc-18'] },
@@ -83,6 +84,7 @@
     '<button class="menu-item" role="menuitem">' + ic('user') + 'Hồ sơ cá nhân</button><button class="menu-item" role="menuitem">' + ic('history') + 'Nhật ký truy cập của tôi</button><button class="menu-item" role="menuitem">' + ic('log-out') + 'Đăng xuất</button>' +
     '<div class="menu-sep"></div><div class="menu-label">Giả lập (chỉ prototype)</div>' +
     '<button class="menu-item" role="menuitemcheckbox" data-keep-open data-legal-toggle aria-checked="false">' + ic('settings') + 'Nhiều pháp nhân (hiện bộ lọc Pháp nhân)</button>' +
+    '<button class="menu-item" role="menuitemcheckbox" data-keep-open data-g4f-ktt aria-checked="false">' + ic('settings') + 'Kế toán có cờ Kế toán trưởng</button>' +
     '<div class="menu-label">Xem thử theo vai trò</div>' + roleItems + '</div></div></header>' +
     '<main class="main" id="main"><div class="main__inner" id="g4f-main"></div></main>' +
     '<nav class="bottom-nav" aria-label="Điều hướng nhanh"><a class="bottom-nav__item" href="../foundation/shell.html" data-menu="dash">' + ic('layout-dashboard') + 'Tổng quan</a>' +
@@ -268,6 +270,7 @@
     var op = e.target.closest('[data-open]'); if (!op) return; var d = document.getElementById(op.getAttribute('data-open')); if (!d) return;
     $$('[data-g4f-gate]', d).forEach(function (g) { $$('[data-g4f-gate-check]', g).forEach(function (c) { c.checked = false; }); $$('[data-g4f-gate-btn]', g).forEach(function (b) { b._gate = false; refreshBtn(b); }); });
   });
+  $$('[data-g4f-need],[data-g4f-online]').forEach(function (el) { if (el.disabled) el._ok = false; });
   $$('[data-g4f-gate-btn]').forEach(function (b) { b._gate = false; refreshBtn(b); });
 
   /* ---------- Tiện ích dùng chung ---------- */
@@ -307,7 +310,7 @@
     $$('[data-vg="' + group + '"]').forEach(function (el) {
       if (el.hasAttribute('data-v')) el.hidden = el.getAttribute('data-v').split(' ').indexOf(v) < 0;
       if (el.hasAttribute('data-v-not')) el.hidden = el.getAttribute('data-v-not').split(' ').indexOf(v) >= 0;
-      if (el.hasAttribute('data-v-off')) { var off = el.getAttribute('data-v-off').split(' ').indexOf(v) >= 0; el.disabled = off; if (off) el.setAttribute('aria-disabled', 'true'); else el.removeAttribute('aria-disabled'); }
+      if (el.hasAttribute('data-v-off')) { var off = el.getAttribute('data-v-off').split(' ').indexOf(v) >= 0; el._ov = !off; refreshBtn(el); }
     });
     $$('[data-g4f-var][data-vg="' + group + '"]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-g4f-var') === v)); });
     document.dispatchEvent(new CustomEvent('g4f:var', { detail: { group: group, v: v } }));
@@ -316,6 +319,13 @@
   document.addEventListener('click', function (e) { var b = e.target.closest('button[data-g4f-var]'); if (b) applyVar(b.getAttribute('data-vg'), b.getAttribute('data-g4f-var')); });
   document.addEventListener('DOMContentLoaded', function () { $$('[data-g4f-var-init]').forEach(function (g) { applyVar(g.getAttribute('data-g4f-var-init'), g.getAttribute('data-g4f-var-default')); }); });
 
-  window.G4F = { fmt: fmt, num: num, wizard: wizard, applyVar: applyVar, refresh: applyAccess, $: $, $$: $$ };
+  /* Giả lập cờ Kế toán trưởng (menu tài khoản) */
+  document.addEventListener('click', function (e) {
+    var k = e.target.closest('[data-g4f-ktt]'); if (!k) return;
+    var on = k.getAttribute('aria-checked') !== 'true'; k.setAttribute('aria-checked', String(on)); G4F.ktt = on;
+    if (window.gmepToast) window.gmepToast('info', on ? 'Giả lập: Kế toán có cờ Kế toán trưởng' : 'Giả lập: Kế toán không có cờ Kế toán trưởng', 'Người lập vẫn không tự duyệt yêu cầu của mình.');
+    document.dispatchEvent(new CustomEvent('g4f:ktt')); applyAccess();
+  });
+  window.G4F = { fmt: fmt, num: num, wizard: wizard, applyVar: applyVar, refresh: applyAccess, setEnabled: setEnabled, refreshBtn: refreshBtn, canApprove: canApprove, user: function () { return USER[curRole()]; }, ktt: false, $: $, $$: $$ };
   applyAccess();
 })();

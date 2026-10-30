@@ -1,4 +1,7 @@
-/* Gói G2 – Vận hành xưởng (phần 1): JS prototype dùng chung. Nạp TRƯỚC ../assets/app.js.
+/* LƯU Ý HANDOFF (F2-25, F2-26): đây là mã minh họa. Khi làm thật: (1) shell render ở máy chủ/framework, có khung tĩnh trước khi hydrate;
+   (2) ẩn/khóa theo vai trò và theo chi nhánh do DỮ LIỆU MÁY CHỦ quyết định: API chỉ trả phần được phép (giá, SĐT, thanh toán không được gửi xuống thiết bị thợ);
+   (3) tham số ?role= và bảng PHONES chỉ có ở bản demo. Dùng ủy quyền sự kiện gom một chỗ thay cho nhiều document.addEventListener rải rác.
+   Gói G2 (phần 1): JS prototype dùng chung. Nạp TRƯỚC ../assets/app.js.
    Việc làm: (1) dựng Application Shell (sidebar, topbar, bottom nav) để mọi trang dùng đúng một khung;
    (2) thanh phạm vi RULE-015; (3) bộ chuyển trạng thái demo + mẫu loading/empty/lỗi/không quyền;
    (4) khóa/ẩn theo vai trò; (5) wizard tiếp nhận; (6) kéo thả kanban có kiểm tra điều kiện; (7) lối tắt ?state= ?role=.
@@ -250,14 +253,23 @@
 
   /* ---------- 6. Kanban kéo thả có kiểm tra điều kiện (G2-REC-03) ---------- */
   var COLNAME = { approved: 'Đã duyệt', working: 'Đang sửa chữa', paused: 'Tạm dừng', qc: 'Chờ QC', ready: 'Sẵn sàng bàn giao', done: 'Hoàn tất' };
-  var ALLOWED = { approved: ['working'], working: ['paused', 'qc'], paused: ['working'], qc: ['ready', 'working'], ready: ['done'], done: [] };
+  /* Chỉ 3 bước được chuyển thủ công trên bảng (ba-answers-02 A.1). Các bước còn lại có màn riêng hoặc tự động. */
+  var ALLOWED = { approved: [], working: ['paused', 'qc'], paused: ['working'], qc: [], ready: [], done: [] };
+  var WHY = {
+    'approved>working': 'Tự động: lệnh sang “Đang sửa chữa” khi thợ bắt đầu hạng mục đầu tiên trên tablet. Không chuyển thủ công.',
+    'qc>ready': 'Chấm checklist QC ở màn QC (G2-DLV-02). Không chuyển ở bảng này.',
+    'qc>working': 'Trả lại thợ cần chọn hạng mục và ghi lỗi QC ở màn QC (G2-DLV-02).',
+    'ready>done': 'Hoàn tất ở màn giao xe (G2-DLV-03/04): cần biên bản giao xe, thanh toán hoặc công nợ hợp lệ, hóa đơn.'
+  };
+  var ROLES_MOVE = ['CV', 'QD', 'QL'];
   function toastMsg(k, t, x) { if (window.gmepToast) window.gmepToast(k, t, x); }
   function tryMove(card, to) {
     var from = card.closest('[data-col]').getAttribute('data-col');
     if (from === to) return false;
-    if (ALLOWED[from].indexOf(to) < 0) { toastMsg('danger', 'Không chuyển được', 'Không thể chuyển từ “' + COLNAME[from] + '” sang “' + COLNAME[to] + '”. Lệnh phải đi đúng trình tự (FR-REC-015).'); return false; }
+    if (ROLES_MOVE.indexOf(body.getAttribute('data-role') || 'CV') < 0) { toastMsg('danger', 'Không có quyền', 'Chỉ Cố vấn, Quản đốc và Quản lý chi nhánh chuyển trạng thái lệnh.'); return false; }
+    if (ALLOWED[from].indexOf(to) < 0) { toastMsg('danger', 'Không chuyển được ở bảng này', WHY[from + '>' + to] || 'Từ “' + COLNAME[from] + '” không chuyển trực tiếp sang “' + COLNAME[to] + '”. Lệnh đi đúng trình tự (FR-REC-015).'); return false; }
     var why = card.getAttribute('data-block-' + to) || card.getAttribute('data-block'); if (why) { toastMsg('danger', 'Chưa đủ điều kiện', why); return false; }
-    if (to === 'paused') { toastMsg('warning', 'Cần chọn lý do', 'Tạm dừng phải chọn lý do (Chờ phụ tùng, Chờ khách duyệt phát sinh, Nghỉ, Khác). Mở lệnh để chọn.'); return false; }
+    if (to === 'paused') { if (window.gmepOpen && document.getElementById('dlg-pause')) { window.__pauseCard = card; window.gmepOpen('dlg-pause'); } else toastMsg('warning', 'Cần chọn lý do', 'Tạm dừng phải chọn lý do.'); return false; }
     var col = $('[data-col="' + to + '"] .kanban__cards'); if (!col) return false;
     var emp = $('.kanban__empty', col); if (emp) emp.remove();
     col.appendChild(card);
@@ -273,7 +285,7 @@
   document.addEventListener('click', function (e) {
     var mv = e.target.closest('[data-g2w-move]');
     if (mv) { pendingCard = mv.closest('.kanban__card'); var from = pendingCard.closest('[data-col]').getAttribute('data-col'); var lab = $('[data-g2w-move-title]'); if (lab) lab.textContent = pendingCard.getAttribute('data-code') + ' · đang ở “' + COLNAME[from] + '”';
-      $$('#dlg-move [data-to]').forEach(function (b) { var ok = ALLOWED[from].indexOf(b.getAttribute('data-to')) >= 0; b.disabled = !ok; b.setAttribute('aria-disabled', String(!ok)); }); window.gmepOpen('dlg-move'); }
+      $$('#dlg-move [data-to]').forEach(function (b) { var t = b.getAttribute('data-to'), ok = ALLOWED[from].indexOf(t) >= 0, w = $('.g2w-why', b.parentElement.querySelector('[data-why-for="' + t + '"]') || b); b.disabled = !ok; b.setAttribute('aria-disabled', String(!ok)); var r = $('[data-why-for="' + t + '"]'); if (r) { r.textContent = ok ? '' : (WHY[from + '>' + t] || 'Không chuyển trực tiếp từ bước hiện tại.'); r.hidden = ok; } }); window.gmepOpen('dlg-move'); }
     var to = e.target.closest('#dlg-move [data-to]');
     if (to && pendingCard && !to.disabled) { var ok = tryMove(pendingCard, to.getAttribute('data-to')); if (ok || true) window.gmepClose($('#dlg-move')); pendingCard = null; }
   });

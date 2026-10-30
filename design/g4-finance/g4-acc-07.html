@@ -40,7 +40,9 @@
     <aside class="g4f-aside">
       <section class="card"><div class="card__header"><h2 class="card__title">Sau khi hoàn</h2></div><div class="card__body"><dl class="g4f-sum">
         <div><dt>Đã thu</dt><dd>1.250.000 ₫</dd></div><div class="is-neg"><dt>Hoàn lần này</dt><dd id="s-ref">−1.250.000 ₫</dd></div><div class="is-total"><dt>Còn lại sau hoàn</dt><dd id="s-left">0 ₫</dd></div></dl>
-        <p class="t-body-sm text-secondary" style="margin:12px 0 0">Thanh toán của lệnh sẽ hiện <span class="badge badge--neutral">Hoàn tiền</span> khi hoàn toàn bộ.</p></div></section>
+        <label class="check" style="margin-top:12px"><input type="checkbox" id="reduce" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tổng phải thu của lệnh giảm tương ứng (khách hủy hạng mục)</span></label>
+        <div class="row" style="margin-top:12px"><span class="t-body-sm text-secondary">Dự kiến sau khi duyệt</span><span class="badge badge--neutral" id="exp-badge">Hoàn tiền</span><span class="tag tag--neutral" id="exp-tag" hidden>Đã hoàn một phần 0 ₫</span></div>
+        <p class="t-body-sm text-secondary" id="exp-note" style="margin:8px 0 0">Hoàn toàn bộ số đã thu: thu ròng 0 nên hiện “Hoàn tiền”. Phiếu thu gốc không bị sửa.</p></div></section>
       <section class="card"><div class="card__header"><h2 class="card__title">Duyệt</h2></div><div class="card__body stack">
         <div class="alert alert--warning" id="over" role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span>Số hoàn <strong class="num">1.250.000 ₫</strong> vượt hạn mức của Thu ngân <strong class="num">500.000 ₫</strong> <span class="g4f-sample">minh họa, từ G4-APR-03</span>. Cần <strong>Quản lý chi nhánh</strong> duyệt; chưa duyệt thì chưa chi.</span></div></div>
         <button class="btn btn--primary btn--lg btn--block" id="btn-ref" data-open="dlg-ref" data-g4f-need="TN KT" data-g4f-why="Chỉ Thu ngân và Kế toán lập đề xuất hoàn tiền; Quản lý duyệt." data-g4f-online>Gửi duyệt hoàn tiền</button>
@@ -73,8 +75,16 @@ window.G4F_PAGE = {
     var bad = v === 0 || v > MAX; err.hidden = !(v > MAX || v === 0); e.target.classList.toggle('is-error', bad); if (bad) e.target.setAttribute('aria-invalid', 'true'); else e.target.removeAttribute('aria-invalid');
     $('#a-et').textContent = v > MAX ? 'Không hoàn quá số đã thu (1.250.000 ₫). Giảm số tiền.' : 'Nhập số tiền hoàn lớn hơn 0.';
     $('#s-ref').textContent = '−' + G4F.fmt(v); $('#s-left').textContent = G4F.fmt(Math.max(MAX - v, 0)); $('#rf-a').textContent = G4F.fmt(v);
-    b.disabled = bad || b.hasAttribute('data-g4f-keep'); b.setAttribute('aria-disabled', String(b.disabled));
+    G4F.setEnabled(b, !bad); expect(v);
   });
+  /* Trạng thái Thanh toán dự kiến theo thu ròng và tổng phải thu (không thêm trạng thái mới) */
+  function expect(v) {
+    var bd = $('#exp-badge'), tg = $('#exp-tag'), n = $('#exp-note'), red = $('#reduce').checked;
+    if (v >= MAX) { bd.className = 'badge badge--neutral'; bd.textContent = 'Hoàn tiền'; tg.hidden = true; n.textContent = 'Hoàn toàn bộ số đã thu: thu ròng 0 nên hiện “Hoàn tiền”. Phiếu thu gốc không bị sửa.'; }
+    else if (v > 0 && red) { bd.className = 'badge badge--success'; bd.textContent = 'Đã thanh toán'; tg.hidden = false; tg.textContent = 'Đã hoàn một phần ' + G4F.fmt(v); n.textContent = 'Tổng phải thu giảm tương ứng nên thu ròng vẫn đủ: hiện “Đã thanh toán” kèm tag hoàn một phần.'; }
+    else if (v > 0) { bd.className = 'badge badge--info'; bd.textContent = 'Thanh toán một phần'; tg.hidden = false; tg.textContent = 'Đã hoàn một phần ' + G4F.fmt(v); n.textContent = 'Tổng phải thu không đổi nên thu ròng thấp hơn: hiện “Thanh toán một phần” kèm tag.'; }
+  }
+  document.addEventListener('change', function (e) { if (e.target.id === 'reduce') expect(G4F.num($('#a').value)); });
   G4F.applyVar('h', 'noinv');
 })();
 </script>

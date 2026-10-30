@@ -28,7 +28,7 @@
 .g2w-ro-head { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-5) var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
 .g2w-ro-head__top { display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; align-items: flex-start; }
 .g2w-ro-head__id { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); min-width: 0; }
-.g2w-ro-head__code { font-size: var(--font-size-2xl, 1.5rem); line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; margin: 0; }
+.g2w-ro-head__code { font-size: var(--font-size-2xl); line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; margin: 0; }
 .g2w-ro-head__plate { font-size: var(--font-size-lg); }
 .g2w-ro-head__sub { color: var(--color-text-secondary); font-size: var(--font-size-md); }
 .g2w-objects { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
@@ -46,7 +46,10 @@
 .g2w-danger-zone { margin-left: auto; }
 @media (max-width: 639px) { .g2w-danger-zone { margin-left: 0; width: 100%; } }
 
-/* Tiến trình lệnh: stepper theo 7 trạng thái chính (không gồm Tạm dừng/Đã hủy) */
+/* Tiến trình lệnh: stepper 5 bước (Tạm dừng và Đã hủy là nhánh, không nằm trên đường tiến trình) */
+.g2w-check { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.g2w-check li { display: flex; align-items: flex-start; gap: var(--space-2); }
+.g2w-check .badge { flex: none; }
 .g2w-flow { padding: var(--space-4) var(--space-6); }
 .g2w-flow .stepper__text { font-size: var(--font-size-sm); }
 
@@ -143,7 +146,8 @@ a.g2w-link:hover { background: var(--color-surface-hover); text-decoration: none
 .g2w-wizard-panel[hidden] { display: none; }
 .g2w-wizard-foot { position: sticky; bottom: 0; z-index: var(--z-sticky); display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; padding: var(--space-3) var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
 .g2w-wizard-foot__draft { margin-right: auto; display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
-@media (max-width: 1023px) { .g2w-wizard-foot { bottom: 72px; padding: var(--space-3) var(--space-4); } }
+@media (max-width: 1023px) { .g2w-wizard-foot { padding: var(--space-3) var(--space-4); } }
+@media (max-width: 639px) { .g2w-wizard-foot { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); } }
 .g2w-vehicle-found { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }
 @media (max-width: 1023px) { .g2w-vehicle-found { grid-template-columns: 1fr; } }
 .g2w-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }

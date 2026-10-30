@@ -17,7 +17,7 @@
 
   <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a><svg class="icon"><use href="#chevron-right"/></svg><a href="g2-rec-02.html">Phiếu sửa chữa</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">RO-Q7-2610-00128</span></nav>
 
-  <div data-g2w-scope data-time="Lệnh mở 30/10/2026 08:52"></div>
+  <div data-g2w-scope data-time="Lệnh mở 30/10/2026 08:52" data-asof="09:30"></div>
 
   <!-- Công cụ prototype: trạng thái màn hình + biến thể lệnh -->
   <div class="g2w-proto" data-g2w-proto="offline"></div>
@@ -27,6 +27,8 @@
     <div class="segmented" role="group" aria-label="Chọn biến thể lệnh">
       <button class="segmented__item" data-variant="working" aria-pressed="true">Đang sửa chữa</button>
       <button class="segmented__item" data-variant="paused" aria-pressed="false">Tạm dừng – chờ phụ tùng</button>
+      <button class="segmented__item" data-variant="qc" aria-pressed="false">Chờ QC</button>
+      <button class="segmented__item" data-variant="ready" aria-pressed="false">Sẵn sàng bàn giao</button>
       <button class="segmented__item" data-variant="done" aria-pressed="false">Hoàn tất (chỉ đọc)</button>
       <button class="segmented__item" data-variant="locked" aria-pressed="false">Ngày đã chốt sổ</button>
       <button class="segmented__item" data-variant="debt" aria-pressed="false">Khách DN vượt hạn mức nợ</button>
@@ -56,18 +58,18 @@
 
       <!-- Năm đối tượng, năm bộ trạng thái riêng, hiện song song (FR-REC-028) -->
       <div class="g2w-objects" role="group" aria-label="Trạng thái của năm đối tượng">
-        <div class="g2w-obj"><span class="g2w-obj__label">Báo giá</span><div class="g2w-obj__row"><span class="badge badge--warning">Duyệt một phần</span><span class="tag">v2</span></div><span class="g2w-obj__note">BG-Q7-2610-00231-v2 · duyệt 3/4 hạng mục</span></div>
+        <div class="g2w-obj" data-g2w-hide-for="TH"><span class="g2w-obj__label">Báo giá</span><div class="g2w-obj__row"><span class="badge badge--warning">Duyệt một phần</span><span class="tag">v2</span></div><span class="g2w-obj__note">BG-Q7-2610-00231-v2 · duyệt 3/4 hạng mục</span></div>
         <div class="g2w-obj"><span class="g2w-obj__label">Lệnh sửa chữa</span><div class="g2w-obj__row"><span class="badge badge--info" id="ro-badge">Đang sửa chữa</span><span class="tag tag--reason tag--warning" id="ro-tag" hidden>Chờ phụ tùng</span></div><span class="g2w-obj__note" id="ro-note">Bắt đầu 08:52 bởi Lê Minh Tuấn</span></div>
         <div class="g2w-obj"><span class="g2w-obj__label">Hạng mục</span><div class="g2w-obj__row"><span class="badge badge--success">1 Hoàn thành</span><span class="badge badge--info" id="sum-working">1 Đang làm</span><span class="badge badge--neutral" id="sum-todo">1 Chưa làm</span></div><span class="g2w-obj__note">+ 1 phát sinh chờ khách duyệt</span></div>
-        <div class="g2w-obj"><span class="g2w-obj__label">Thanh toán</span><div class="g2w-obj__row"><span class="badge badge--info" id="pay-badge">Thanh toán một phần</span><span class="tag tag--danger" id="pay-flag" hidden>Quá hạn</span></div><span class="g2w-obj__note" id="pay-note"><span data-g2w-money>Đã thu 1.000.000 ₫ / 3.191.400 ₫</span></span></div>
-        <div class="g2w-obj"><span class="g2w-obj__label">Hóa đơn</span><div class="g2w-obj__row"><span class="badge badge--neutral" id="inv-badge">Chưa xuất</span></div><span class="g2w-obj__note" id="inv-note">Chưa có hóa đơn cho lệnh này</span></div>
+        <div class="g2w-obj" data-g2w-hide-for="TH QD"><span class="g2w-obj__label">Thanh toán</span><div class="g2w-obj__row"><span class="badge badge--info" id="pay-badge">Thanh toán một phần</span><span class="tag tag--danger" id="pay-flag" hidden>Quá hạn</span></div><span class="g2w-obj__note" id="pay-note"><span data-g2w-money>Đã thu 1.000.000 ₫ / 3.191.400 ₫</span></span></div>
+        <div class="g2w-obj" data-g2w-hide-for="TH QD"><span class="g2w-obj__label">Hóa đơn</span><div class="g2w-obj__row"><span class="badge badge--neutral" id="inv-badge">Chưa xuất</span></div><span class="g2w-obj__note" id="inv-note">Chưa có hóa đơn cho lệnh này</span></div>
       </div>
 
       <!-- 2. NHÓM HÀNH ĐỘNG: chính / phụ / tertiary / nguy hiểm (design-system §13.C) -->
       <div>
         <div class="g2w-actions" role="group" aria-label="Hành động trên lệnh">
           <div class="g2w-actions__group">
-            <button class="btn btn--primary" id="primary-btn" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn dịch vụ và Quản lý chi nhánh chuyển bước lệnh." data-g2w-force-disabled data-g2w-force-why="Còn 2 hạng mục chưa hoàn thành nên chưa chuyển sang Chờ QC được." disabled aria-describedby="primary-why"><svg class="icon"><use href="#arrow-right"/></svg><span id="primary-text">Chuyển sang Chờ QC</span></button>
+            <button class="btn btn--primary" id="primary-btn" data-g2w-lock="CV QD QL" data-g2w-why="Chỉ Cố vấn, Quản đốc và Quản lý chi nhánh chuyển bước lệnh." data-g2w-force-disabled data-g2w-force-why="Còn 2 hạng mục chưa hoàn thành nên chưa chuyển sang Chờ QC được." disabled aria-describedby="primary-why"><svg class="icon"><use href="#arrow-right"/></svg><span id="primary-text">Chuyển sang Chờ QC</span></button>
           </div>
           <span class="g2w-actions__sep" aria-hidden="true"></span>
           <div class="g2w-actions__group">
@@ -78,8 +80,10 @@
                 <button class="menu-item" role="menuitem" data-toast="info|Đang tạo bản in|Phiếu tiếp nhận xe khổ A5 (kèm đồ đạc trong xe)."><svg class="icon"><use href="#printer"/></svg>Phiếu tiếp nhận xe<span class="menu-item__hint">A5</span></button>
                 <button class="menu-item" role="menuitem" aria-disabled="true" id="mi-handover"><svg class="icon"><use href="#lock"/></svg>Biên bản giao xe<span class="menu-item__hint">Chưa đạt QC</span></button>
               </div></div>
-            <a class="btn btn--secondary" href="g2-rec-05.html" data-g2w-lock-link="QD QL"><svg class="icon"><use href="#users"/></svg>Phân thợ</a>
-            <button class="btn btn--secondary" data-open="dlg-parts" data-g2w-lock="CV QL QD TH" data-g2w-why="Vai trò hiện tại không được yêu cầu phụ tùng cho lệnh."><svg class="icon"><use href="#package"/></svg>Yêu cầu phụ tùng</button>
+            <a class="btn btn--secondary" href="g2-rec-05.html" data-v-edit data-g2w-lock-link="QD QL"><svg class="icon"><use href="#users"/></svg>Phân thợ</a>
+            <button class="btn btn--secondary" id="pause-btn" data-open="dlg-pause" data-g2w-lock="CV QD QL" data-g2w-why="Chỉ Cố vấn, Quản đốc, Quản lý chi nhánh tạm dừng lệnh (thợ tạm dừng trên tablet)."><svg class="icon"><use href="#clock"/></svg>Tạm dừng…</button>
+            <button class="btn btn--secondary" data-open="dlg-parts" data-v-edit data-g2w-lock="CV QL QD TH" data-g2w-why="Vai trò hiện tại không được yêu cầu phụ tùng cho lệnh."><svg class="icon"><use href="#package"/></svg>Yêu cầu phụ tùng</button>
+            <button class="btn btn--secondary" id="warranty-btn" hidden data-toast="info|Tạo lệnh bảo hành|Chọn hạng mục còn hạn bảo hành, lệnh mới liên kết lệnh gốc (G2-DLV-05)." data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh tạo lệnh bảo hành."><svg class="icon"><use href="#clipboard-check"/></svg>Tạo lệnh bảo hành</button>
             <button class="btn btn--secondary" data-open="dlg-extra" data-v-edit data-g2w-lock="CV QL QD TH" data-g2w-why="Vai trò hiện tại không được báo hạng mục phát sinh."><svg class="icon"><use href="#plus"/></svg>Báo phát sinh</button>
           </div>
           <span class="g2w-actions__sep" aria-hidden="true"></span>
@@ -117,7 +121,7 @@
         <div class="g2w-banners" aria-live="polite">
           <div class="alert alert--warning" id="bn-extra"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">1 hạng mục phát sinh đang chờ khách duyệt</span><span>“Thay lọc gió điều hòa” gửi khách qua Zalo lúc 09:05 (báo giá bổ sung BG-Q7-2610-00236). Thợ không được bắt đầu hạng mục này khi chưa có bằng chứng duyệt (RULE-005, RULE-006).</span><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-toast="info|Đã nhắc khách|Gửi lại liên kết duyệt qua Zalo lúc 09:16." data-v-edit data-g2w-lock="CV QL">Gửi nhắc khách</button><a class="btn btn--secondary btn--sm" href="#" data-v-edit>Ghi nhận khách duyệt tại quầy</a></div></div></div>
           <div class="alert alert--warning" id="bn-parts" hidden><svg class="icon"><use href="#package"/></svg><div class="alert__body"><span class="alert__title">Lệnh tạm dừng vì thiếu phụ tùng</span><span>“Má phanh trước Toyota Vios” (PT-0012): khả dụng 0, đang về 10 (đơn DM-Q7-2610-00044, dự kiến 31/10/2026). Chi nhánh Thủ Đức còn khả dụng 4.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#">Tạo yêu cầu chuyển kho từ Thủ Đức</a><a class="btn btn--secondary btn--sm" href="#">Tạo đề nghị mua hàng</a></div></div></div>
-          <div class="alert alert--danger" id="bn-debt" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Khách doanh nghiệp vượt hạn mức công nợ</span><span>Công nợ hiện tại 48.500.000 ₫ so với hạn mức 40.000.000 ₫ (giá trị mẫu, lấy từ cấu hình khách). Thu tiền hoặc giao xe cần người có thẩm quyền duyệt vượt hạn mức (G4-APR-02).</span></div></div>
+          <div data-g2w-hide-for="TH QD"><div class="alert alert--danger" id="bn-debt" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Khách doanh nghiệp vượt hạn mức công nợ</span><span>Công nợ hiện tại <span data-g2w-money>48.500.000 ₫</span> so với hạn mức <span data-g2w-money>40.000.000 ₫</span> (giá trị mẫu, lấy từ cấu hình khách). Giao xe hoặc mở thêm lệnh cho khách này cần người có thẩm quyền duyệt vượt hạn mức (G4-APR-02); thu tiền làm giảm nợ nên không bị chặn.</span></div></div></div>
           <div class="alert alert--neutral" id="bn-locked" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Ngày 30/10/2026 đã chốt sổ</span><span>Không sửa chứng từ của ngày đã chốt. Mọi điều chỉnh tiền hoặc kho phải tạo chứng từ mới (đảo/điều chỉnh, RULE-010) và được duyệt.</span></div></div>
           <div class="alert alert--neutral" id="bn-readonly" hidden><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span class="alert__title" id="bn-readonly-title">Lệnh đã hoàn tất, chỉ xem</span><span id="bn-readonly-text">Vẫn tra cứu, in lại và tạo lệnh bảo hành được (RULE-014). Không sửa hạng mục hay số liệu của lệnh đã hoàn tất.</span></div></div>
         </div>
@@ -127,8 +131,8 @@
           <div class="tabs" role="tablist" aria-label="Chi tiết lệnh sửa chữa" style="padding:0 var(--space-6)">
             <button class="tab" role="tab" id="tb-items" aria-selected="true" aria-controls="tp-items">Hạng mục &amp; phụ tùng <span class="count-pill">3</span></button>
             <button class="tab" role="tab" id="tb-labor" aria-selected="false" tabindex="-1" aria-controls="tp-labor">Công thợ</button>
-            <button class="tab" role="tab" id="tb-pay" aria-selected="false" tabindex="-1" aria-controls="tp-pay" data-g2w-hide-for="TH">Thanh toán</button>
-            <button class="tab" role="tab" id="tb-inv" aria-selected="false" tabindex="-1" aria-controls="tp-inv" data-g2w-hide-for="TH">Hóa đơn</button>
+            <button class="tab" role="tab" id="tb-pay" aria-selected="false" tabindex="-1" aria-controls="tp-pay" data-g2w-hide-for="TH QD">Thanh toán</button>
+            <button class="tab" role="tab" id="tb-inv" aria-selected="false" tabindex="-1" aria-controls="tp-inv" data-g2w-hide-for="TH QD CV">Hóa đơn</button>
           </div>
 
           <!-- Tab hạng mục -->
@@ -138,7 +142,7 @@
             <div class="g2w-item" id="it1">
               <div class="g2w-item__main">
                 <div><div class="g2w-item__name">1. Thay dầu động cơ và lọc dầu</div><div class="g2w-item__sub">Bảo dưỡng · Công 150.000 ₫</div></div>
-                <div class="g2w-cell-stack"><span class="badge badge--success" id="it1-badge">Hoàn thành</span><span class="g2w-item__sub">08:52 – 09:22</span></div>
+                <div class="g2w-cell-stack"><span class="badge badge--success" id="it1-badge">Hoàn thành</span><span class="g2w-item__sub">08:52 – 09:22</span><span class="tag" id="it1-tag" hidden>Công đã đảo</span></div>
                 <div><div class="g2w-item__sub">Thợ chính</div><div>Lê Minh Tuấn</div></div>
                 <div class="g2w-hours"><span><strong>0,5</strong> / 0,5 giờ</span><div class="g2w-hours__bar" role="img" aria-label="Giờ thực bằng 100% giờ chuẩn"><span style="width:100%"></span></div></div>
                 <div class="g2w-item__end"><span data-g2w-money>1.585.000 ₫</span></div>
@@ -152,7 +156,7 @@
             <div class="g2w-item" id="it2">
               <div class="g2w-item__main">
                 <div><div class="g2w-item__name">2. Thay má phanh trước</div><div class="g2w-item__sub">Sửa chữa chung · Công 450.000 ₫</div></div>
-                <div class="g2w-cell-stack"><span class="badge badge--info" id="it2-badge">Đang làm</span><span class="g2w-item__sub" id="it2-time">Bắt đầu 09:15</span></div>
+                <div class="g2w-cell-stack"><span class="badge badge--info" id="it2-badge">Đang làm</span><span class="g2w-item__sub" id="it2-time">Bắt đầu 09:25</span></div>
                 <div><div class="g2w-item__sub">Thợ chính</div><div>Lê Minh Tuấn</div></div>
                 <div class="g2w-hours"><span><strong id="it2-h">0,7</strong> / 1,5 giờ</span><div class="g2w-hours__bar" role="img" aria-label="Giờ thực bằng khoảng 47% giờ chuẩn"><span id="it2-bar" style="width:47%"></span></div></div>
                 <div class="g2w-item__end"><span data-g2w-money>1.070.000 ₫</span><button class="btn-icon" data-open="drw-item" aria-label="Xem chi tiết hạng mục Thay má phanh trước"><svg class="icon"><use href="#eye"/></svg></button></div>
@@ -220,15 +224,17 @@
               </tbody>
               <tfoot><tr><td colspan="4">Còn phải thu</td><td class="col-num" id="pay-left" data-g2w-money>2.191.400 ₫</td><td></td></tr></tfoot>
             </table></div>
-            <div class="card__footer"><button class="btn btn--primary" data-g2w-lock="TN QL" data-g2w-why="Cố vấn không thu tiền; chuyển khách tới quầy Thu ngân." id="collect-btn"><svg class="icon"><use href="#wallet"/></svg>Thu tiền</button><span class="g2w-muted">Phiếu thu không xóa được; sai thì đảo bút toán (RULE-010).</span></div>
+            <p class="g2w-why" id="pay-lock-note" hidden style="padding:var(--space-3) var(--space-6) 0;margin:0"><svg class="icon icon--sm"><use href="#lock"/></svg><span>Ngày 30/10/2026 đã chốt sổ: đảo phiếu thu tạo bút toán đảo ở ngày mở và cần Quản lý duyệt, không sửa phiếu gốc.</span></p>
+            <div class="card__footer"><button class="btn btn--primary" data-g2w-lock="TN QL" data-g2w-why="Cố vấn không thu tiền; chuyển khách tới quầy Thu ngân." id="collect-btn" data-v-edit><svg class="icon"><use href="#wallet"/></svg>Thu tiền</button><span class="g2w-muted">Phiếu thu không xóa được; sai thì đảo bút toán (RULE-010).</span></div>
           </div>
 
           <!-- Tab hóa đơn -->
           <div class="tab-panel" id="tp-inv" role="tabpanel" aria-labelledby="tb-inv" hidden>
             <div class="stack" id="inv-body">
               <div class="row"><span class="badge badge--neutral" id="inv-badge2">Chưa xuất</span><span class="g2w-muted">Trạng thái do nhà cung cấp hóa đơn trả về, cập nhật lúc 09:15.</span></div>
-              <div class="alert alert--neutral" id="inv-alert"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Chưa đủ điều kiện xuất hóa đơn</span><span>Điều kiện xuất lấy từ cấu hình (G4-EIN-02). Lệnh hiện ở trạng thái “Đang sửa chữa”. Hệ thống chống trùng: bấm nhiều lần chỉ tạo một hóa đơn.</span></div></div>
-              <div id="inv-done" hidden class="stack-2"><dl class="g2w-kv"><dt>Số hóa đơn</dt><dd class="code">C26TAA-0001284</dd><dt>Ngày phát hành</dt><dd>30/10/2026 15:45</dd><dt>Người mua</dt><dd>Nguyễn Văn An</dd><dt>Tệp lưu</dt><dd>XML và PDF đã lưu cục bộ</dd></dl><div class="g2w-inline-actions"><button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#download"/></svg>Tải PDF</button><button class="btn btn--secondary btn--sm">Điều chỉnh hóa đơn…</button><button class="btn btn--danger-outline btn--sm">Hủy / thay thế hóa đơn…</button></div><span class="g2w-muted">Sai thông tin thì điều chỉnh hoặc thay thế, không sửa hay xóa hóa đơn đã xuất (G4-EIN-04, cần Kế toán trưởng duyệt).</span></div>
+              <div class="alert alert--neutral" id="inv-alert"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title" id="inv-alert-t">Chưa đủ điều kiện xuất hóa đơn</span><span>Điều kiện lấy từ cấu hình có ngày hiệu lực (G4-EIN-02). Thanh toán một phần vẫn xuất được, trừ khi chi nhánh bật “thu đủ trước khi xuất”. Hệ thống chống trùng: bấm nhiều lần chỉ tạo một hóa đơn.</span>
+                <ul class="g2w-check" id="inv-checklist" style="margin-top:8px"></ul></div></div>
+              <div id="inv-done" hidden class="stack-2"><dl class="g2w-kv"><dt>Số hóa đơn</dt><dd class="code">C26TAA-0001284</dd><dt>Ngày phát hành</dt><dd>30/10/2026 15:45</dd><dt>Người mua</dt><dd>Nguyễn Văn An</dd><dt>Tệp lưu</dt><dd>XML và PDF đã lưu cục bộ</dd></dl><div class="g2w-inline-actions"><button class="btn btn--secondary btn--sm"><svg class="icon icon--sm"><use href="#download"/></svg>Tải PDF</button><button class="btn btn--secondary btn--sm" data-g2w-lock="KT" data-g2w-why="Điều chỉnh hóa đơn do Kế toán thực hiện và cần Kế toán trưởng duyệt (G4-EIN-04).">Điều chỉnh hóa đơn…</button><button class="btn btn--danger-outline btn--sm" data-g2w-lock="KT" data-g2w-why="Hủy/thay thế hóa đơn do Kế toán thực hiện và cần Kế toán trưởng duyệt (G4-EIN-04).">Hủy / thay thế hóa đơn…</button></div><span class="g2w-muted">Sai thông tin thì điều chỉnh hoặc thay thế, không sửa hay xóa hóa đơn đã xuất (G4-EIN-04, cần Kế toán trưởng duyệt).</span></div>
               <div><button class="btn btn--primary" id="inv-btn" disabled data-g2w-force-disabled data-g2w-force-why="Lệnh chưa Sẵn sàng bàn giao nên chưa xuất hóa đơn được." data-g2w-lock="TN KT" data-g2w-why="Chỉ Thu ngân và Kế toán phát hành hóa đơn." aria-describedby="inv-why"><svg class="icon"><use href="#receipt"/></svg>Xuất hóa đơn</button><p class="g2w-why" id="inv-why"><svg class="icon icon--sm"><use href="#info"/></svg><span>Nút bị khóa vì lệnh chưa Sẵn sàng bàn giao.</span></p></div>
             </div>
           </div>
@@ -242,8 +248,8 @@
             <div class="timeline__item timeline__item--warning"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Phát sinh “Thay lọc gió điều hòa” gửi khách duyệt</div><div class="timeline__meta">Nguyễn Hoàng Yến (Cố vấn) · 09:05 30/10/2026</div><div class="timeline__note">Lý do: thợ phát hiện lọc gió bẩn khi tháo nắp (2 ảnh đính kèm). Gửi qua Zalo, hạn duyệt 02/11/2026.</div></div></div>
             <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Hạng mục “Thay dầu động cơ và lọc dầu”: Đang làm → Hoàn thành</div><div class="timeline__meta">Lê Minh Tuấn (Thợ) · 09:22 30/10/2026</div></div></div>
             <div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#wrench"/></svg></div><div><div class="timeline__title">Lệnh: Đã duyệt → Đang sửa chữa</div><div class="timeline__meta">Hệ thống (khi thợ bắt đầu hạng mục đầu tiên) · 08:52 30/10/2026</div></div></div>
-            <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Khách duyệt báo giá v2 một phần (3/4 hạng mục); mở lệnh</div><div class="timeline__meta">Nguyễn Hoàng Yến (Cố vấn ghi nhận) · 08:51 30/10/2026</div><div class="timeline__note">Bằng chứng: liên kết Zalo 08:50. Hạng mục “Vệ sinh buồng đốt” bị từ chối, lưu để nhắc lần sau.</div></div></div>
-            <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#wallet"/></svg></div><div><div class="timeline__title">Thu đặt cọc 1.000.000 ₫ (PT-Q7-2610-00312)</div><div class="timeline__meta">Mai Thu Thảo (Thu ngân) · 08:40 30/10/2026</div></div></div>
+            <div class="timeline__item timeline__item--success" data-g2w-hide-for="TH"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Khách duyệt báo giá v2 một phần (3/4 hạng mục); mở lệnh</div><div class="timeline__meta">Nguyễn Hoàng Yến (Cố vấn ghi nhận) · 08:51 30/10/2026</div><div class="timeline__note">Bằng chứng: liên kết Zalo 08:50. Hạng mục “Vệ sinh buồng đốt” bị từ chối, lưu để nhắc lần sau.</div></div></div>
+            <div class="timeline__item" data-g2w-hide-for="TH QD"><div class="timeline__dot"><svg class="icon"><use href="#wallet"/></svg></div><div><div class="timeline__title">Thu đặt cọc 1.000.000 ₫ (PT-Q7-2610-00312)</div><div class="timeline__meta">Mai Thu Thảo (Thu ngân) · 08:40 30/10/2026</div></div></div>
             <div class="timeline__item"><div class="timeline__dot"><svg class="icon"><use href="#car-front"/></svg></div><div><div class="timeline__title">Tiếp nhận xe 51H-123.45, 48.200 km</div><div class="timeline__meta">Nguyễn Hoàng Yến (Cố vấn) · 08:00 30/10/2026</div></div></div>
           </div></div>
         </section>
@@ -274,8 +280,8 @@
           <a class="g2w-link" href="#"><span class="g2w-link__kind">Báo giá</span><span class="g2w-link__row"><span class="g2w-link__code">BG-Q7-2610-00231-v2</span><span class="badge badge--warning">Duyệt một phần</span></span><span class="g2w-muted">3/4 hạng mục · bằng chứng: liên kết Zalo 08:50, người ghi nhận Nguyễn Hoàng Yến</span></a>
           <a class="g2w-link" href="#"><span class="g2w-link__kind">Báo giá bổ sung (phát sinh)</span><span class="g2w-link__row"><span class="g2w-link__code">BG-Q7-2610-00236</span><span class="badge badge--warning">Chờ khách duyệt</span></span><span class="g2w-muted">Gửi 09:05 · hạn duyệt 02/11/2026</span></a>
           <a class="g2w-link" href="#"><span class="g2w-link__kind">Phiếu xuất kho</span><span class="g2w-link__row"><span class="g2w-link__code">PX-Q7-2610-00417</span><span class="tag tag--success">3 dòng đã xuất</span></span><span class="g2w-muted">Kho Quận 7 · Thủ kho Đỗ Văn Khoa · 09:10</span></a>
-          <a class="g2w-link" href="#"><span class="g2w-link__kind">Thanh toán</span><span class="g2w-link__row"><span class="g2w-link__code">PT-Q7-2610-00312</span><span class="badge badge--info" id="side-pay">Thanh toán một phần</span></span><span class="g2w-muted" data-g2w-money>Đã thu 1.000.000 ₫ (đặt cọc)</span></a>
-          <div class="g2w-link"><span class="g2w-link__kind">Hóa đơn</span><span class="g2w-link__row"><span class="g2w-muted" id="side-inv">Chưa có hóa đơn</span><span class="badge badge--neutral" id="side-inv-badge">Chưa xuất</span></span></div>
+          <a class="g2w-link" href="#" data-g2w-hide-for="QD"><span class="g2w-link__kind">Thanh toán</span><span class="g2w-link__row"><span class="g2w-link__code">PT-Q7-2610-00312</span><span class="badge badge--info" id="side-pay">Thanh toán một phần</span></span><span class="g2w-muted" data-g2w-money>Đã thu 1.000.000 ₫ (đặt cọc)</span></a>
+          <div class="g2w-link" data-g2w-hide-for="QD"><span class="g2w-link__kind">Hóa đơn</span><span class="g2w-link__row"><span class="g2w-muted" id="side-inv">Chưa có hóa đơn</span><span class="badge badge--neutral" id="side-inv-badge">Chưa xuất</span></span></div>
         </section>
 
         <section class="card" aria-labelledby="h-note" data-g2w-hide-for="TH">
@@ -352,7 +358,7 @@
       <li><label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Vệ sinh và bôi trơn ngàm phanh</span></label></li>
       <li><label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Lắp má phanh mới, kiểm tra lực xiết</span></label></li></ul></div>
     <div><div class="field__label">Bình luận nội bộ</div><div class="t-body-sm"><strong>Phạm Quốc Bảo</strong> · 09:08 — Kiểm tra lại đĩa phanh có vết xước.</div><div class="t-body-sm"><strong>Lê Minh Tuấn</strong> · 09:12 — Đĩa còn trong giới hạn, giữ nguyên.</div></div>
-    <div class="field"><label class="field__label" for="di-th">Chuyển người phụ trách</label><select id="di-th" class="select" data-g2w-lock="QD QL" data-g2w-why="Chỉ Quản đốc và Quản lý chi nhánh đổi thợ."><option>Lê Minh Tuấn</option><option>Trần Văn Hậu</option></select><span class="field__hint">Đổi thợ khi đang làm: công chia theo giờ thực, bắt buộc ghi lý do (FR-HRM-008).</span></div>
+    <div class="field"><label class="field__label" for="di-th">Chuyển người phụ trách</label><select id="di-th" class="select" data-v-edit data-g2w-lock="QD QL" data-g2w-why="Chỉ Quản đốc và Quản lý chi nhánh đổi thợ."><option>Lê Minh Tuấn</option><option>Trần Văn Hậu</option></select><span class="field__hint">Đổi thợ khi đang làm: công chia theo giờ thực, bắt buộc ghi lý do (FR-HRM-008).</span></div>
   </div>
   <div class="card__footer" style="margin-top:auto"><button class="btn btn--secondary" data-close>Đóng</button></div></aside></div>
 

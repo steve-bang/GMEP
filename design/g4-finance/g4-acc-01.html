@@ -13,7 +13,7 @@
 <div id="g4f-body">
   <div data-g4f-actions>
     <a class="btn btn--secondary" href="g4-acc-02.html">Danh sách phiếu thu</a>
-    <button class="btn btn--secondary" data-open="dlg-deposit" data-g4f-need="TN" data-g4f-why="Chỉ Thu ngân ghi nhận tiền cọc." data-g4f-online>Ghi nhận tiền cọc</button>
+    <button class="btn btn--secondary" id="btn-dep" data-open="dlg-deposit" data-g4f-need="TN" data-g4f-why="Chỉ Thu ngân ghi nhận tiền cọc." data-g4f-online>Ghi nhận tiền cọc</button>
   </div>
 
   <!-- Biến thể chỉ để xem thử -->
@@ -56,6 +56,7 @@
             <div class="row">
               <span class="row" style="gap:6px"><span class="t-body-sm text-secondary">Lệnh</span><span class="badge badge--success" data-vg="g" data-v="ok locked">Sẵn sàng bàn giao</span><span class="badge badge--purple" data-vg="g" data-v="qc" hidden>Chờ QC</span></span>
               <span class="row" style="gap:6px"><span class="t-body-sm text-secondary">Thanh toán</span><span class="badge badge--info" id="pay-badge">Thanh toán một phần</span></span>
+              <span class="tag tag--info" title="Khoản nhận trước của khách, bù vào lệnh sau hoặc hoàn lại có duyệt">Khách có khoản nhận trước 300.000 ₫ · <a href="g4-acc-21.html">xem</a></span>
               <span class="row" style="gap:6px"><span class="t-body-sm text-secondary">Hóa đơn</span><span class="badge badge--neutral">Chưa xuất</span></span>
             </div>
           </div>
@@ -96,6 +97,7 @@
             </div>
           </div>
           <button class="btn btn--secondary btn--sm" id="add-line" data-vg="g" data-v-off="qc locked"><svg class="icon icon--sm"><use href="#plus"/></svg>Thêm hình thức</button>
+          <div class="form-grid" style="margin-top:16px"><div class="field"><label class="field__label" for="given">Khách đưa tiền mặt (tùy chọn)</label><div class="input-group input-group--suffix"><input id="given" class="input input--num" data-money inputmode="numeric" style="padding-left:12px" autocomplete="off"><span class="input-group__suffix">₫</span></div><span class="field__hint" id="change">Chỉ phần ghi nhận thật mới vào phiếu thu; tiền thối không phải thu vượt.</span></div></div>
           <div id="over-ack" class="alert alert--warning" style="margin-top:16px" hidden role="status">
             <svg class="icon"><use href="#alert-triangle"/></svg>
             <div class="alert__body"><span class="alert__title">Số thu lớn hơn số còn phải thu</span><span id="over-text"></span>
@@ -120,6 +122,7 @@
             <div><dt>Đã thu cọc (PT-Q7-2610-00902)</dt><dd>2.000.000 ₫</dd></div>
             <div><dt>Đã thu các lần trước</dt><dd>0 ₫</dd></div>
             <div class="is-total"><dt>Còn phải thu</dt><dd id="due">5.650.000 ₫</dd></div>
+            <div><dt>Trạng thái sau khi ghi</dt><dd><span class="tag tag--success" id="after-status">Dự kiến: Đã thanh toán</span></dd></div>
             <div><dt>Lần này ghi nhận</dt><dd id="sum-now">5.650.000 ₫</dd></div>
             <div id="row-after"><dt id="after-l">Còn nợ sau khi thu</dt><dd id="after-v">0 ₫</dd></div>
           </dl>
@@ -160,14 +163,16 @@
     <button class="btn btn--primary" id="dp-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-pay" data-busy="Đang ghi nhận…" data-done-label="Đã ghi nhận" data-done-toast="success|Đã ghi nhận thanh toán|Phiếu thu PT-Q7-2610-00931 · 5.650.000 ₫." data-done-show="#done" disabled>Ghi nhận</button></div></div></div>
 
 <!-- Tiền cọc -->
-<div class="overlay" id="dlg-deposit" role="dialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog">
-  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="dd-t">Ghi nhận tiền cọc</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+<div class="overlay" id="dlg-deposit" role="alertdialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#wallet"/></svg></div><div><h2 class="dialog__title" id="dd-t">Ghi nhận tiền cọc</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="dialog__body stack">
     <p class="t-body-sm text-secondary">Tiền cọc được trừ vào thanh toán cuối và hiện trên lệnh (FR-ACC-002). Cọc hoàn lại phải có phiếu chi.</p>
     <div class="field"><label class="field__label" for="dep-a">Số tiền cọc<span class="field__req" aria-hidden="true">*</span></label><div class="input-group input-group--suffix"><input id="dep-a" class="input input--num" data-money inputmode="numeric" style="padding-left:12px"><span class="input-group__suffix">₫</span></div></div>
     <div class="field"><label class="field__label" for="dep-m">Hình thức<span class="field__req" aria-hidden="true">*</span></label><select id="dep-m" class="select"><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ (POS)</option></select></div>
+    <dl class="g4f-sum"><div class="is-total"><dt>Cọc ghi nhận cho RO-Q7-2610-00131</dt><dd id="dep-tot">0 ₫</dd></div></dl>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã nhận đúng số tiền cọc theo hình thức đã chọn.</span></label>
   </div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã ghi nhận tiền cọc|Cọc hiển thị trên lệnh RO-Q7-2610-00131.">Ghi nhận cọc</button></div></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="dep-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-dep" data-busy="Đang ghi nhận cọc…" data-done-label="Đã ghi nhận cọc" data-done-toast="success|Đã ghi nhận tiền cọc|Phiếu thu cọc PT-Q7-2610-00932 hiển thị trên lệnh." disabled>Ghi nhận cọc</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -183,20 +188,26 @@ window.G4F_PAGE = {
   var $ = G4F.$, $$ = G4F.$$, DUE = 5650000, fmt = G4F.fmt, num = G4F.num;
   function total() { return $$('#pay-lines [data-amount]').reduce(function (s, i) { return s + num(i.value); }, 0); }
   function recalc() {
-    var t = total(), diff = DUE - t, badge = $('#pay-badge'), btn = $('#btn-pay');
+    var t = total(), diff = DUE - t, tag = $('#after-status'), btn = $('#btn-pay');
     $('#sum-now').textContent = fmt(t);
     var l = $('#after-l'), v = $('#after-v'), note = $('#after-note'), over = $('#over-ack');
     over.hidden = true;
-    if (t === 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = fmt(DUE); note.textContent = 'Chưa nhập số tiền.'; badge.className = 'badge badge--info'; badge.textContent = 'Thanh toán một phần'; }
-    else if (diff > 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = fmt(diff); note.textContent = 'Thu một phần: lệnh giữ trạng thái “Thanh toán một phần”, còn nợ ' + fmt(diff) + '.'; badge.className = 'badge badge--info'; badge.textContent = 'Thanh toán một phần'; }
-    else if (diff === 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = '0 ₫'; note.textContent = 'Thu đủ: lệnh chuyển sang “Đã thanh toán”.'; badge.className = 'badge badge--success'; badge.textContent = 'Đã thanh toán'; }
-    else { l.textContent = 'Phần dư (khoản nhận trước)'; v.textContent = fmt(-diff); note.textContent = 'Thu vượt: cần xác nhận phần dư.'; over.hidden = false; $('#over-text').textContent = 'Dư ' + fmt(-diff) + ' so với số còn phải thu. Phần dư không bị mất: nó thành khoản nhận trước để trừ vào lệnh sau.'; badge.className = 'badge badge--success'; badge.textContent = 'Đã thanh toán'; }
+    /* Badge hiện tại của lệnh không đổi trước khi ghi; trạng thái dự kiến chỉ là chữ/tag ở khối tóm tắt (F5-12) */
+    if (t === 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = fmt(DUE); note.textContent = 'Chưa nhập số tiền.'; tag.textContent = 'Dự kiến: Thanh toán một phần'; tag.className = 'tag tag--info'; }
+    else if (diff > 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = fmt(diff); note.textContent = 'Thu một phần: lệnh giữ trạng thái “Thanh toán một phần”, còn nợ ' + fmt(diff) + '.'; tag.textContent = 'Dự kiến: Thanh toán một phần'; tag.className = 'tag tag--info'; }
+    else if (diff === 0) { l.textContent = 'Còn nợ sau khi thu'; v.textContent = '0 ₫'; note.textContent = 'Thu đủ: lệnh chuyển sang “Đã thanh toán”.'; tag.textContent = 'Dự kiến: Đã thanh toán'; tag.className = 'tag tag--success'; }
+    else { l.textContent = 'Phần dư (khoản nhận trước)'; v.textContent = fmt(-diff); note.textContent = 'Thu vượt: cần xác nhận phần dư.'; over.hidden = false; $('#over-text').textContent = 'Dư ' + fmt(-diff) + ' so với số còn phải thu. Phần dư không bị mất: ghi thành khoản nhận trước của khách (xem G4-ACC-21), sau đó bù vào lệnh sau của cùng khách hoặc hoàn lại có duyệt.'; tag.textContent = 'Dự kiến: Đã thanh toán + khoản nhận trước'; tag.className = 'tag tag--success'; }
     btn.textContent = t ? 'Ghi nhận thanh toán ' + fmt(t) : 'Ghi nhận thanh toán';
     var bad = t === 0 || (diff < 0 && !$('#over-chk').checked);
     btn.setAttribute('data-bad', bad ? '1' : '0');
-    if (!btn.hasAttribute('data-g4f-keep-lock')) { btn.disabled = bad || btn.hasAttribute('data-g4f-keep'); btn.setAttribute('aria-disabled', String(btn.disabled)); }
+    if (!btn.hasAttribute('data-g4f-keep-lock')) G4F.setEnabled(btn, !bad);
+    var cash = $$('#pay-lines [data-line]').filter(function (r) { return $('[data-method]', r).value === 'Tiền mặt'; }).reduce(function (s, r) { return s + num($('[data-amount]', r).value); }, 0), given = num($('#given').value);
+    $('#change').textContent = given ? (given >= cash ? 'Tiền thối trả khách: ' + fmt(given - cash) : 'Khách đưa chưa đủ tiền mặt ghi nhận (thiếu ' + fmt(cash - given) + ').') : 'Chỉ phần ghi nhận thật mới vào phiếu thu; tiền thối không phải thu vượt.';
   }
-  document.addEventListener('input', function (e) { if (e.target.closest('#pay-lines')) recalc(); });
+  document.addEventListener('input', function (e) { if (e.target.closest('#pay-lines') || e.target.id === 'given') recalc(); });
+  document.addEventListener('change', function (e) { if (e.target.closest('#pay-lines')) recalc(); });
+  /* Tiền cọc: xác nhận mức 2, kiểm tra số tiền > 0 */
+  document.addEventListener('input', function (e) { if (e.target.id !== 'dep-a') return; var v = num(e.target.value); $('#dep-ok').textContent = v ? 'Ghi nhận cọc ' + fmt(v) : 'Ghi nhận cọc'; $('#dep-tot').textContent = fmt(v); G4F.setEnabled($('#dep-ok'), v > 0); });
   document.addEventListener('change', function (e) { if (e.target.id === 'over-chk') recalc(); });
   document.addEventListener('click', function (e) {
     var rm = e.target.closest('[data-remove-line]'); if (rm && $$('#pay-lines [data-line]').length > 1) { rm.closest('[data-line]').remove(); recalc(); }
@@ -209,18 +220,16 @@ window.G4F_PAGE = {
       var ul = $('#dp-lines'); ul.innerHTML = '';
       $$('#pay-lines [data-line]').forEach(function (r) { var a = num($('[data-amount]', r).value); if (a) { var li = document.createElement('li'); li.innerHTML = '<strong>' + $('[data-method]', r).value + '</strong>: <span class="num">' + fmt(a) + '</span>'; ul.appendChild(li); } });
       $('#dp-total').textContent = fmt(total()); $('#dp-after').textContent = total() >= DUE ? '0 ₫' : fmt(DUE - total());
-      var ok = $('#dp-ok'); ok.disabled = true; $('[data-g4f-gate-check]').checked = false;
     }
   });
   document.addEventListener('g4f:var', function (e) {
     var v = e.detail.v, t = $('#lock-why-t');
     t.textContent = v === 'qc' ? 'lệnh đang “Chờ QC”, cần Quản đốc duyệt QC trước.' : v === 'locked' ? 'ngày đã khóa sổ, chỉ điều chỉnh bằng chứng từ mới.' : '';
-    var b = $('#btn-pay'); b.disabled = v !== 'ok' || b.getAttribute('data-bad') === '1'; b.setAttribute('aria-disabled', String(b.disabled));
-    var ab = $('#add-line'); ab.disabled = v !== 'ok';
     $$('#pay-lines input, #pay-lines select, #pay-lines button').forEach(function (x) { x.disabled = v !== 'ok'; });
     $('#pay-lines').classList.toggle('g4f-readonly', v !== 'ok');
     if (v === 'ok') G4F.refresh();
   });
+  G4F.setEnabled($('#dep-ok'), false);
   G4F.applyVar('g', 'ok'); recalc();
 })();
 </script>

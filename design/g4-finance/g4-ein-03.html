@@ -15,13 +15,15 @@
     <button class="btn btn--secondary" data-toast="info|Đang tạo PDF|Tải bản thể hiện từ kho lưu cục bộ."><svg class="icon"><use href="#download"/></svg>PDF</button>
     <button class="btn btn--secondary" data-toast="info|Đang tạo XML|Tải bản XML đã lưu cục bộ."><svg class="icon"><use href="#download"/></svg>XML</button>
     <button class="btn btn--secondary" data-g4f-print><svg class="icon"><use href="#printer"/></svg>In A4</button>
+    <button class="btn btn--secondary" data-open="dlg-report" data-g4f-roles="TN"><svg class="icon"><use href="#alert-triangle"/></svg>Báo kế toán hóa đơn này có sai</button>
     <a class="btn btn--danger-outline" href="g4-ein-04.html" data-vg="v" data-v="issued sendfail" data-g4f-need="KT" data-g4f-why="Điều chỉnh, thay thế, hủy do Kế toán lập và Kế toán trưởng duyệt."><svg class="icon"><use href="#pencil"/></svg>Điều chỉnh, thay thế, hủy</a>
   </div>
 
   <div class="g4f-demo" role="group" aria-label="Xem thử tình huống (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ TÌNH HUỐNG</span>
-    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="issued" data-vg="v" aria-pressed="true">Đã xuất</button><button class="segmented__item" data-g4f-var="pending" data-vg="v" aria-pressed="false">Chờ duyệt thay thế</button><button class="segmented__item" data-g4f-var="sendfail" data-vg="v" aria-pressed="false">Gửi khách lỗi</button><button class="segmented__item" data-g4f-var="void" data-vg="v" aria-pressed="false">Đã hủy (chỉ đọc)</button></div></div>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="issued" data-vg="v" aria-pressed="true">Đã xuất</button><button class="segmented__item" data-g4f-var="pending" data-vg="v" aria-pressed="false">Chờ duyệt thay thế</button><button class="segmented__item" data-g4f-var="sendfail" data-vg="v" aria-pressed="false">Gửi khách lỗi</button><button class="segmented__item" data-g4f-var="replaced" data-vg="v" aria-pressed="false">Đã bị thay thế</button><button class="segmented__item" data-g4f-var="void" data-vg="v" aria-pressed="false">Đã hủy (chỉ đọc)</button></div></div>
 
   <div class="alert alert--warning" data-vg="v" data-v="pending" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang chờ Kế toán trưởng duyệt thay thế</span><span>Yêu cầu YC-Q7-2610-00066 · gửi 09:00. Chưa gửi nhà cung cấp; hóa đơn gốc vẫn hiệu lực cho tới khi nhà cung cấp xác nhận hóa đơn thay thế. <a href="g4-apr-01.html">Xem trong hàng chờ</a></span></div></div>
+  <div class="alert alert--info" data-vg="v" data-v="replaced" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Hóa đơn này bị thay thế bởi C26TAA-0000413 (hết hiệu lực)</span><span>Hóa đơn gốc giữ trạng thái “Đã xuất” (không chuyển “Hủy”), hiển thị gạch ngang và không dùng để sửa nữa. Xem hóa đơn thay thế để biết nội dung đúng. <span class="g4f-sample">Cách hiển thị từng trường hợp theo Thông tư 91/2026 [Cần kế toán xác nhận]</span></span></div></div>
   <div class="alert alert--danger" data-vg="v" data-v="sendfail" hidden role="alert"><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Gửi hóa đơn cho khách bị lỗi</span><span>Email về kế toán công ty bị trả lại (hộp thư đầy). Hóa đơn vẫn hợp lệ; chỉ việc gửi cho khách chưa tới nơi.</span></div></div>
   <div class="alert alert--neutral" data-vg="v" data-v="void" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Hóa đơn đã hủy ngày 13/10/2026: chỉ đọc</span><span>Lý do: lập trùng. Duyệt bởi Đặng Thu Hà (Kế toán trưởng). Không có thao tác sửa nào ở trạng thái này.</span></div></div>
 
@@ -29,8 +31,9 @@
     <div class="card__body stack">
       <div class="row row--between">
         <div class="row" style="gap:12px"><h2 class="card__title code" id="h-inv" style="font-size:20px">C26TAA-0000412</h2>
-          <span class="badge badge--success" data-vg="v" data-v="issued pending sendfail">Đã xuất</span><span class="badge badge--danger" data-vg="v" data-v="void" hidden>Hủy</span>
-          <span class="sync" data-vg="v" data-v="issued pending sendfail"><svg class="icon icon--sm"><use href="#check"/></svg>Đồng bộ nhà cung cấp lúc 09:02</span></div>
+          <span class="badge badge--success" data-vg="v" data-v="issued pending sendfail replaced">Đã xuất</span><span class="badge badge--danger" data-vg="v" data-v="void" hidden>Hủy</span>
+          <span class="tag tag--warning" data-vg="v" data-v="pending" hidden>Chờ duyệt thay thế</span><span class="tag tag--neutral" data-vg="v" data-v="replaced" hidden>Bị thay thế bởi 0000413</span>
+          <span class="sync" data-vg="v" data-v="issued pending sendfail replaced"><svg class="icon icon--sm"><use href="#check"/></svg>Đồng bộ nhà cung cấp lúc 09:02</span></div>
         <span class="t-body-sm text-secondary">Ngày lập 30/10/2026 · mã cơ quan thuế <span class="code">00A1B2C3…E9F0</span></span>
       </div>
       <div>
@@ -40,7 +43,7 @@
           <li><span class="g4f-flow__kind">Lệnh sửa chữa</span><a class="g4f-flow__code" href="#">RO-Q7-2610-00124</a><span class="badge badge--success">Hoàn tất</span></li>
           <li><span class="g4f-flow__kind">Thanh toán</span><span class="g4f-flow__code">Của lệnh 00124</span><span class="badge badge--success">Đã thanh toán</span></li>
           <li><span class="g4f-flow__kind">Phiếu thu</span><a class="g4f-flow__code" href="g4-acc-03.html">PT-Q7-2610-00929</a><span class="tag tag--success">Đã phân bổ</span></li>
-          <li class="is-current" aria-current="true"><span class="g4f-flow__kind">Hóa đơn (đang xem)</span><span class="g4f-flow__code">C26TAA-0000412</span><span class="badge badge--success" data-vg="v" data-v="issued pending sendfail">Đã xuất</span><span class="badge badge--danger" data-vg="v" data-v="void" hidden>Hủy</span></li>
+          <li class="is-current" aria-current="true"><span class="g4f-flow__kind">Hóa đơn (đang xem)</span><span class="g4f-flow__code">C26TAA-0000412</span><span class="badge badge--success" data-vg="v" data-v="issued pending sendfail replaced">Đã xuất</span><span class="badge badge--danger" data-vg="v" data-v="void" hidden>Hủy</span></li>
         </ol>
       </div>
     </div>
@@ -61,7 +64,7 @@
         <div class="card__header"><div><h2 class="card__title" id="h-ver">Các phiên bản hóa đơn của lệnh</h2><div class="card__subtitle">Hóa đơn gốc, điều chỉnh, thay thế theo thứ tự (FR-EIN-007)</div></div></div>
         <div class="card__body"><div class="timeline">
           <div class="timeline__item timeline__item--warning" data-vg="v" data-v="pending" hidden><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Hóa đơn thay thế (chờ Kế toán trưởng duyệt)</div><div class="timeline__meta">Yêu cầu gửi 09:00 · Đặng Thu Hà</div></div></div>
-          <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#receipt"/></svg></div><div><div class="timeline__title">Hóa đơn gốc C26TAA-0000412 · <span data-vg="v" data-v="void" hidden>Hủy</span><span data-vg="v" data-v="issued pending sendfail">Đã xuất</span></div><div class="timeline__meta">Phát hành 30/10/2026 08:58 · Phạm Thị Lan</div></div></div>
+          <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#receipt"/></svg></div><div><div class="timeline__title">Hóa đơn gốc C26TAA-0000412 · <span data-vg="v" data-v="void" hidden>Hủy</span><span data-vg="v" data-v="issued pending sendfail replaced">Đã xuất</span></div><div class="timeline__meta">Phát hành 30/10/2026 08:58 · Phạm Thị Lan</div></div></div>
         </div></div>
       </section>
     </div>
@@ -73,7 +76,7 @@
           <dl class="g4f-kv"><div><dt>Người liên hệ</dt><dd>Nguyễn Văn An</dd></div><div><dt>Số điện thoại</dt><dd><span class="pii" data-pii-id="c1" data-pii-kind="phone"></span></dd></div></dl>
           <div class="row"><span class="tag tag--success" data-vg="v" data-v="issued pending void">Email: đã gửi 09:03</span><span class="tag tag--danger" data-vg="v" data-v="sendfail" hidden>Email: lỗi (trả lại)</span><span class="tag tag--neutral">Zalo: Chưa kích hoạt</span><span class="tag tag--neutral">SMS: Chưa kích hoạt</span></div>
           <div class="field"><label class="field__label" for="mail">Email nhận</label><input id="mail" class="input" type="email" value="ketoan@hoaphat-vt.example.vn"></div>
-          <button class="btn btn--primary" data-g4f-submit data-lock="#btn-send" id="btn-send" data-busy="Đang gửi email…" data-done-label="Đã gửi lại" data-done-toast="success|Đã gửi hóa đơn|Email gửi tới ketoan@hoaphat-vt.example.vn." data-vg="v" data-v-off="void" data-g4f-need="TN KT" data-g4f-why="Thu ngân và Kế toán gửi hóa đơn cho khách."><svg class="icon"><use href="#send"/></svg>Gửi lại cho khách</button>
+          <button class="btn btn--primary" data-g4f-submit data-lock="#btn-send" id="btn-send" data-busy="Đang gửi email…" data-done-label="Đã gửi lại" data-done-toast="success|Đã gửi hóa đơn|Email gửi tới ketoan@hoaphat-vt.example.vn." data-vg="v" data-v-off="void replaced" data-g4f-need="TN KT" data-g4f-why="Thu ngân và Kế toán gửi hóa đơn cho khách."><svg class="icon"><use href="#send"/></svg>Gửi lại cho khách</button>
           <p class="g4f-why" style="margin:0">Kênh Zalo/SMS hiện “Chưa kích hoạt” cho tới khi chọn nhà cung cấp tin nhắn (D-13).</p>
         </div>
       </section>
@@ -81,12 +84,17 @@
         <div class="card__header"><h2 class="card__title">Lịch sử trạng thái nhà cung cấp</h2></div>
         <div class="card__body"><div class="timeline">
           <div class="timeline__item timeline__item--success"><div class="timeline__dot"><svg class="icon"><use href="#check"/></svg></div><div><div class="timeline__title">Cơ quan thuế cấp mã</div><div class="timeline__meta">08:59 30/10/2026</div></div></div>
-          <div class="timeline__item timeline__item--info"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Nhà cung cấp nhận yêu cầu</div><div class="timeline__meta">08:58 · mã chống trùng IDEM-Q7-2610-00124-01</div></div></div>
+          <div class="timeline__item timeline__item--info"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Nhà cung cấp nhận yêu cầu</div><div class="timeline__meta">08:58 · yêu cầu YH-Q7-2610-00228 <span data-g4f-roles="KT AD">· mã chống trùng IDEM-Q7-2610-00124-01</span></div></div></div>
         </div></div>
       </section>
     </aside>
   </div>
 </div>
+
+<div class="overlay" id="dlg-report" role="dialog" aria-modal="true" aria-labelledby="rp-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="rp-t">Báo kế toán hóa đơn này có sai</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><p class="t-body-sm text-secondary" style="margin:0">Thu ngân không tự điều chỉnh hóa đơn. Báo này gửi thông báo “Cần xử lý” cho Kế toán; Kế toán lập yêu cầu điều chỉnh, thay thế hoặc hủy và Kế toán trưởng duyệt.</p><div class="field"><label class="field__label" for="rp-n">Sai ở đâu?<span class="field__req" aria-hidden="true">*</span></label><textarea id="rp-n" class="textarea" placeholder="Ví dụ: khách báo sai mã số thuế"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" data-close data-toast="success|Đã báo kế toán|Kế toán nhận thông báo Cần xử lý kèm ghi chú.">Gửi báo</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
@@ -98,7 +106,7 @@ window.G4F_PAGE = {
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
 <script>
-document.addEventListener('g4f:var', function (e) { document.getElementById('inv-doc').classList.toggle('is-void', e.detail.v === 'void'); if (e.detail.v !== 'void') G4F.refresh(); });
+document.addEventListener('g4f:var', function (e) { document.getElementById('inv-doc').classList.toggle('is-void', e.detail.v === 'void' || e.detail.v === 'replaced'); if (e.detail.v !== 'void') G4F.refresh(); });
 G4F.applyVar('v', 'issued');
 </script>
 </body>
