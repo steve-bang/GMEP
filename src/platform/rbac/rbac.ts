@@ -50,6 +50,20 @@ export function resolveScope(actor: Actor, permission: Permission): Scope {
   return branchesScope(actor.companyId, [...branchIds]); // throws forbidden() when empty
 }
 
+/**
+ * Union of every branch the actor is assigned to, whatever the permission (for the shell's
+ * visible scope indicator only; data access always goes through resolveScope(actor, permission)).
+ */
+export function assignedScope(actor: Actor): Scope | null {
+  if (actor.assignments.length === 0) return null;
+  if (actor.assignments.some((a) => a.branchId === ALL_BRANCHES))
+    return allBranchesScope(actor.companyId);
+  return branchesScope(
+    actor.companyId,
+    actor.assignments.map((a) => a.branchId),
+  );
+}
+
 export function hasPermission(actor: Actor, permission: Permission): boolean {
   try {
     resolveScope(actor, permission);

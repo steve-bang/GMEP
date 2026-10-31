@@ -2,6 +2,8 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { AppError } from '@/platform/errors/errors';
 import { getShellInfo, listWarehouses } from '@/modules/sys';
+import { resolveScope } from '@/platform/rbac/rbac';
+import { scopeAllows } from '@/platform/scope/scope';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { DataTable } from '@/ui/components/DataTable';
@@ -72,7 +74,12 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
     }
     throw err;
   }
-  const branchNames = new Map(info.branches.map((b) => [b.id, b.name]));
+  // label the scope by the branches this PERMISSION covers (not every assignment of the user)
+  const viewScope = resolveScope(session.actor, 'warehouse:view');
+  const visibleBranches = info.branches.filter((b) =>
+    scopeAllows(viewScope, session.actor.companyId, b.id),
+  );
+  const branchNames = new Map(visibleBranches.map((b) => [b.id, b.name]));
 
   return (
     <>
@@ -81,7 +88,10 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
         <Icon name="map-pin" size="sm" />
         <span>
           {t('warehouses.scopeLine', {
-            scope: info.scope.kind === 'all' ? t('shell.scopeAll') : info.scope.names.join(', '),
+            scope:
+              viewScope.kind === 'all'
+                ? t('shell.scopeAll')
+                : visibleBranches.map((b) => b.name).join(', '),
           })}
         </span>
       </div>

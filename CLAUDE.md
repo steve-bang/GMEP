@@ -10,9 +10,19 @@ Documents are written in Vietnamese; UI text, VND currency and Vietnamese invoic
 
 ## Status
 
-The repository contains only documentation. No code or build/lint/test commands exist yet; update this file once the project is scaffolded.
+Slices 0.3 (scaffold) and 0.4 (walking skeleton) are built; the emulator-runnable part of the spike is done (`docs/dev/spike-report-emulator.md`). No GCP/Firebase project exists yet, so everything runs on the Firebase Emulator Suite; S2, S3, S4, S6, S7 and the real-Firestore repeat of S1/S8 are still open. Business modules beyond SYS (warehouses, login, audit, idempotency) are empty skeletons. Next: slice 1.1 then 1.2 (see `docs/dev/implementation-plan.md` §7). Open requirement questions from dev: `docs/dev/open-questions-for-ba.md`.
 
-Tech stack (ADR `docs/adr/0001-tech-stack.md`, Accepted 2026-10-31; plan in `docs/dev/implementation-plan.md`, review in `docs/dev/review-docs-and-design.md`): Next.js fullstack (Route Handlers are the backend), TypeScript, Firebase (Firestore, Auth, Storage) in `asia-southeast1` (Singapore, data residency accepted by the owner). **Rule: the browser never calls Firebase** — no Firebase client SDK in the bundle, security rules deny all client access, Admin SDK only on the server. Sole exception: media **reads** use short-lived signed URLs issued by the API after permission/branch checks; media **uploads** go through the API. TOTP/PIN are provided later by the owner (`StrongAuthPort` placeholder). Data access goes through repository/`UnitOfWork` interfaces so the DB can be swapped (PostgreSQL fallback if the Phase 0 spike fails). The GCP/Firebase project is still pending from the owner.
+## Tech stack (ADR 0001, accepted 31/10/2026; read `docs/adr/0001-tech-stack.md` §2.1 before touching auth, storage or Firebase)
+
+Next.js App Router (TypeScript strict, pnpm, Node 22) is the only backend and frontend; Firestore, Firebase Auth and Cloud Storage are used from the server with the Admin SDK only. The browser NEVER calls Firebase: no firebase/@firebase packages in the browser bundle (CI scans the build), Security Rules deny all client access. Only exception: media reads through short-lived signed URLs issued by the API after Scope checks (not built yet); uploads go through the API. TOTP/PIN are supplied later by the owner: only the `StrongAuthPort` hook exists; login is password + `__Host-` session cookie. Region `asia-southeast1`. UI: design tokens/classes ported unchanged from `design/assets`, wrapped as React in `src/ui`; next-intl (vi only). Tests: Vitest, Playwright. Layout: `src/modules/<code>/{domain,application,ports,api,index.ts}`, `src/platform`, `src/infrastructure`, `src/composition`, `src/ui`; boundaries enforced by dependency-cruiser. Full command list and architecture: `README.md`.
+
+Commands (all verified; integration/e2e need Java for the emulators):
+
+- `pnpm install` · `pnpm dev` · `pnpm build` · `pnpm emulators` · `pnpm seed`
+- `pnpm lint` · `pnpm format:check` · `pnpm typecheck` · `pnpm check:boundaries` · `pnpm check:indexes` · `pnpm check:bundle` (after build)
+- `pnpm test:unit` · `pnpm test:integration` (starts emulators; also `test:integration:memory`) · `pnpm e2e` (after build) · `pnpm ci` (everything)
+
+Conventions to keep: every repository read takes a `Scope` (from `resolveScope`); writes stage audit entries in the same transaction (`AuditLog.record(tx, ...)`); risky writes need `Idempotency-Key`; errors are RFC 9457; money is integer VND; domain/application never import firebase-admin; modules import each other only via `index.ts`; commits are Conventional Commits.
 
 The docs are drafts (BRD v0.3), not yet confirmed by the client. Items marked `[Cần xác nhận]` are open decisions; do not hard-code assumptions for them.
 

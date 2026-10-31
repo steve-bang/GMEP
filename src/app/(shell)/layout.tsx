@@ -53,9 +53,11 @@ export default async function ShellLayout({ children }: { children: React.ReactN
   const scopeLabel =
     info.scope.kind === 'all'
       ? t('shell.scopeAll')
-      : info.scope.kind === 'single'
-        ? (info.scope.names[0] ?? t('shell.scopeOwn'))
-        : t('shell.scopeMany', { count: info.scope.count });
+      : info.scope.kind === 'none'
+        ? t('shell.scopeNone')
+        : info.scope.kind === 'single'
+          ? (info.scope.names[0] ?? t('shell.scopeOwn'))
+          : t('shell.scopeMany', { count: info.scope.count });
 
   return (
     <AppShell

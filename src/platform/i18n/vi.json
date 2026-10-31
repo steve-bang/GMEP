@@ -84,6 +84,7 @@
     "scopeCaption": "Phạm vi dữ liệu",
     "scopeAll": "Tất cả chi nhánh",
     "scopeOwn": "Chi nhánh của bạn",
+    "scopeNone": "Chưa được gán chi nhánh",
     "scopeMany": "{count} chi nhánh được giao",
     "userMenu": "Menu tài khoản",
     "logout": "Đăng xuất",
