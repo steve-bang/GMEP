@@ -1,0 +1,10 @@
+rules_version = '2';
+// ADR 0001 §2 / R-12: the browser never talks to Firestore. Only the Admin SDK
+// (server side, bypasses rules) may read or write. Deny everything to clients.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

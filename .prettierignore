@@ -1,0 +1,13 @@
+.next
+node_modules
+src/app/styles/tokens.css
+src/app/styles/components.css
+src/app/styles/base.css
+src/app/styles/auth.css
+public/icons.svg
+design
+docs
+pnpm-lock.yaml
+test-results
+playwright-report
+tests/fixtures

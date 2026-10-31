@@ -1,0 +1,66 @@
+{
+  "name": "gmep",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GMEP - Garage Management ERP",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "dependencies": {
+    "@fontsource/be-vietnam-pro": "^5.3.0",
+    "decimal.js": "^10.6.0",
+    "firebase-admin": "^14.5.0",
+    "next": "^16.4.3",
+    "next-intl": "^4.14.9",
+    "pino": "^10.4.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitest/coverage-v8": "^5.0.5",
+    "dependency-cruiser": "^18.7.0",
+    "eslint": "^10.14.0",
+    "eslint-config-next": "^16.4.3",
+    "eslint-config-prettier": "^10.1.8",
+    "firebase-tools": "^15.34.2",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  },
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "check:boundaries": "depcruise src --config .dependency-cruiser.cjs",
+    "check:indexes": "tsx --tsconfig tsconfig.json scripts/check-indexes.ts",
+    "check:bundle": "tsx --tsconfig tsconfig.json scripts/check-bundle.ts",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "firebase emulators:exec --only firestore,auth --project demo-gmep \"vitest run --project integration\"",
+    "test:integration:memory": "vitest run --project integration",
+    "test": "pnpm test:unit && pnpm test:integration",
+    "emulators": "firebase emulators:start --only firestore,auth,storage --project demo-gmep",
+    "seed": "tsx --tsconfig tsconfig.json scripts/seed-emulator.ts",
+    "e2e": "firebase emulators:exec --only firestore,auth --project demo-gmep \"tsx --tsconfig tsconfig.json scripts/seed-emulator.ts && playwright test\"",
+    "spike:s1": "firebase emulators:exec --only firestore --project demo-gmep \"tsx --tsconfig tsconfig.json spikes/s1-stock-concurrency.ts\"",
+    "ci": "pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm check:indexes && pnpm test:unit && pnpm test:integration && pnpm build && pnpm check:bundle && pnpm e2e"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@swc/core",
+      "unrs-resolver",
+      "protobufjs"
+    ]
+  }
+}

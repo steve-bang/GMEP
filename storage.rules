@@ -1,0 +1,10 @@
+rules_version = '2';
+// ADR 0001 §7.3: uploads go through the API; reads use short-lived signed URLs
+// issued by the API (which bypass rules). Clients get no rule-based access.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
