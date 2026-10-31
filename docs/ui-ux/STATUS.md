@@ -36,7 +36,7 @@ Cập nhật: 2026-10-30. Thiết kế toàn bộ web dashboard Garage ERP (gồ
 3. **Thiết kế còn thiếu/ghi nhận**: font Be Vietnam Pro (cần 4 file WOFF2 trong `design/assets/fonts/`); icon Lucide chính thức thay bản vẽ lại; mẫu in nhiều trang (số trang, lặp tiêu đề) và in nhiệt thật; tên/màu badge của yêu cầu nhập bù giờ công cần BA đóng bảng A.2b; badge dư thừa/lệch nhỏ như chữ "Chỉ Chi nhánh…" ở dải phạm vi và nhãn "Thu gọn" lệch trục của sidebar.
 4. **Dọn showcase**: 3 trang showcase/mục lục còn tràn ở 390px (không chặn).
 5. **Trước khi giao dev**: thử trên thiết bị thật (tablet xưởng, điện thoại, máy in); phần che dữ liệu/phân quyền/lọc trong prototype chỉ mô phỏng — máy chủ phải làm thật (xem `ui-ux-flow.md` mục handoff).
-6. Chọn tech stack, rồi chuyển prototype sang component thật (giữ tên class/token).
+6. Chọn tech stack, rồi chuyển prototype sang component thật (giữ tên class/token). Đề xuất tech stack và kế hoạch triển khai của dev (chờ chủ dự án duyệt): [ADR 0001](../adr/0001-tech-stack.md), [review tài liệu và thiết kế](../dev/review-docs-and-design.md) (mục 4 là việc gửi lại designer), [kế hoạch triển khai](../dev/implementation-plan.md).
 
 ## Cách tiếp tục
 
