@@ -1,5 +1,7 @@
 # Câu hỏi cho ba (từ lần dựng khung dự án, 31/10/2026)
 
+> **Trạng thái 31/10/2026**: BA đã trả lời Q1 đến Q12 và hai mục BA-12, BA-13 trong [ba-answers-for-dev.md](ba-answers-for-dev.md) (mục Q1: §2, Q2: §3, Q3: §4, Q4: §5, Q5 và Q6 và Q7: §1, Q8: §7, Q9: §8, Q10: §9, Q11: §10, Q12: §11; BA-13: §6). Các câu trả lời là **đề xuất BA chờ xác nhận**, dùng được làm giá trị mặc định cấu hình; các điểm thuộc Chủ dự án, Khách, Kế toán khách, Luật sư khách nằm ở §12 của tệp đó.
+
 Dev không tự quyết các quy tắc dưới đây; khung dự án dùng giá trị tạm đánh dấu rõ trong mã. Mỗi mục: câu hỏi, giá trị tạm đang dùng, nơi cần sửa.
 
 | # | Câu hỏi | Giá trị tạm trong mã | Liên quan |
