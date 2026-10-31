@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, symlinkSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -8,6 +9,12 @@ import { describe, expect, it } from 'vitest';
  */
 describe('architecture boundaries (ADR 0001 §5/§6.2)', () => {
   const root = resolve(__dirname, '../..');
+  // the fixture tree resolves firebase-admin through a symlink to the real package (git-ignored)
+  const link = resolve(root, 'tests/fixtures/boundaries/node_modules/firebase-admin');
+  if (!existsSync(link)) {
+    mkdirSync(resolve(link, '..'), { recursive: true });
+    symlinkSync(resolve(root, 'node_modules/firebase-admin'), link, 'dir');
+  }
   const result = spawnSync(
     resolve(root, 'node_modules/.bin/depcruise'),
     ['src', '--config', resolve(root, '.dependency-cruiser.cjs'), '--output-type', 'json'],

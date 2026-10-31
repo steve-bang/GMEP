@@ -30,14 +30,18 @@ export function warehouseListSpec(
   };
 }
 
-export function auditListSpec(shape: ScopeShape): QuerySpec {
+/** Audit read side (tests and the future FR-SYS-019 screen): any subset of the entity filters. */
+export function auditListSpec(
+  shape: ScopeShape,
+  filters: { entityType: boolean; entityId: boolean },
+): QuerySpec {
   return {
-    name: `auditLogs.list.${shape}`,
+    name: `auditLogs.list.${shape}.${filters.entityType ? 'type' : ''}${filters.entityId ? 'Id' : ''}`,
     collection: 'auditLogs',
     equality: [
       'companyId',
-      'entityType',
-      'entityId',
+      ...(filters.entityType ? ['entityType'] : []),
+      ...(filters.entityId ? ['entityId'] : []),
       ...(shape === 'branches' ? ['branchId'] : []),
     ],
     orderBy: [{ field: 'at', dir: 'desc' }],
@@ -50,7 +54,10 @@ export function allQuerySpecs(): QuerySpec[] {
   for (const shape of ['all', 'branches'] as const)
     for (const field of ['code', 'nameNorm'] as const)
       for (const dir of ['asc', 'desc'] as const) specs.push(warehouseListSpec(shape, field, dir));
-  specs.push(auditListSpec('all'), auditListSpec('branches'));
+  for (const shape of ['all', 'branches'] as const)
+    for (const entityType of [true, false])
+      for (const entityId of [true, false])
+        specs.push(auditListSpec(shape, { entityType, entityId }));
   return specs;
 }
 
