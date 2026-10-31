@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G5-AUT-01 · Quên mật khẩu – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Nhập thông tin|sent:Đã gửi (trung tính)|rate:Gửi quá nhiều (429)|offline:Mất mạng|loading:Đang gửi|error:Lỗi hệ thống (5xx)" data-hint="Thông báo sau khi gửi luôn giống nhau, dù tài khoản có tồn tại hay không. Thử: gõ “loi” rồi gửi để xem lỗi hệ thống."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div data-hide="sent"><h1 id="t">Quên mật khẩu</h1><p class="g1-lead">Nhập email hoặc mã nhân viên. Nếu khớp một tài khoản, chúng tôi gửi liên kết đặt mật khẩu mới vào email của tài khoản đó.</p></div>
+
+    <div class="alert alert--warning" role="alert" data-show="rate" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Bạn đã yêu cầu quá nhiều lần</span><span>Vì an toàn, hãy thử lại sau <strong class="num" data-countdown="900" data-countdown-view="default">15:00</strong>. Thời gian chờ do hệ thống trả về. Cần vào gấp: nhờ quản lý chi nhánh cấp mã tạm.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon" aria-hidden="true"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa gửi được. Kiểm tra Wi-Fi hoặc 4G rồi bấm lại. Thông tin bạn nhập vẫn được giữ.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được yêu cầu</span><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Thử lại sau ít phút. Nếu vẫn lỗi, báo quản lý chi nhánh kèm mã tham chiếu <span class="code">REQ-7F3A92</span>.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-g1-goto="default">Thử lại</button></div></div></div>
+
+    <form class="g1-form" data-g1-form novalidate data-route-field="g5-id" data-routes="loi=view:error;*=view:sent" data-hide="sent">
+      <fieldset class="g1-fs" data-disable-in="rate">
+        <legend class="sr-only">Tài khoản cần đặt lại mật khẩu</legend>
+        <div class="field">
+          <label class="field__label" for="g5-id">Email hoặc mã nhân viên<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="g5-id" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" aria-describedby="g5-id-h" data-first-focus data-rule="required" data-msg-required="Nhập email hoặc mã nhân viên. Ví dụ: ha.nguyen@garage.vn hoặc NV0123.">
+          <span class="field__hint" id="g5-id-h">Nhân viên chưa có email (ví dụ thợ): nhờ quản lý chi nhánh cấp mã tạm thay vì dùng trang này.</span>
+          <span class="field__error" id="g5-id-err" hidden></span>
+        </div>
+      </fieldset>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="rate" data-loading-in="loading"><span>Gửi liên kết đặt lại</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <div class="g1-auth-links"><a href="g5-aut-04.html">Quay lại đăng nhập</a><span class="t-body-sm text-secondary"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</span></div>
+    </form>
+
+    <div data-show="sent" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#mail"/></svg></div>
+        <h1 class="state__title" tabindex="-1" data-focus-in="sent">Kiểm tra email của bạn</h1>
+        <p class="state__text">Nếu thông tin vừa nhập khớp một tài khoản, hướng dẫn đặt lại mật khẩu đã được gửi. Liên kết có hiệu lực trong thời gian ghi trong email và chỉ dùng một lần.</p>
+        <p class="state__text">Chưa thấy email? Xem mục thư rác. Có thể gửi lại sau <strong class="num" data-countdown="60" data-countdown-enable="#again">01:00</strong>.</p>
+        <div class="state__actions"><button type="button" class="btn btn--secondary" id="again" disabled data-toast="success|Đã gửi lại|Nếu tài khoản tồn tại, liên kết mới đã được gửi.">Gửi lại</button><a class="btn btn--ghost" href="g5-aut-04.html">Quay lại đăng nhập</a></div>
+        <p class="t-body-sm text-secondary" style="margin:0">Prototype: <a href="g5-aut-02.html">mở liên kết trong email (giả lập)</a>.</p>
+      </div>
+    </div>
+  </main>
+  <footer class="g1-auth-foot"><span>GARAGE OS · Cần hỗ trợ? Liên hệ quản lý chi nhánh của bạn.</span></footer>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../assets/app.js"></script>
+<script src="../g1-auth-dashboard/g1-auth.js"></script>
+</body>
+</html>

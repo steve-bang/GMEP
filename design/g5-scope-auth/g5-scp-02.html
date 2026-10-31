@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G5-SCP-02 · Bộ chọn phạm vi: đủ trạng thái (tĩnh) – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Bỏ qua, tới các trạng thái</a>
+<main class="g5-page" id="main">
+  <header class="stack-2">
+    <h1>G5-SCP-02 · Bộ chọn phạm vi: thư viện trạng thái</h1>
+    <p class="g5-lead">Ảnh tĩnh của từng trạng thái để dev đối chiếu. Bản tương tác ở <a href="g5-scp-01.html">G5-SCP-01</a>. Thanh phạm vi (ScopeBar) luôn hiện dưới tiêu đề trang; bộ chọn chỉ đổi phạm vi, không thay thế thanh này (RULE-015).</p>
+  </header>
+
+  <div class="g5-spec">
+
+    <section class="g5-spec__card" aria-labelledby="s1">
+      <h2 id="s1">1. Chỉ một chi nhánh: không có bộ chọn</h2>
+      <p class="g5-spec__note">Hiện chip tĩnh, không phải nút. Không có mũi tên, không vào Tab. Đọc cho trình đọc màn hình: “Chi nhánh của bạn: Chi nhánh Quận 7”.</p>
+      <div class="g5-spec__stage">
+        <span class="branch-static"><svg class="icon" aria-hidden="true"><use href="#map-pin"/></svg><span class="branch-static__text"><span class="branch-btn__caption">Chi nhánh của bạn</span><span class="branch-btn__name">Chi nhánh Quận 7</span></span></span>
+        <div class="scope-banner scope-banner--branch"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Chỉ Chi nhánh Quận 7 – không gồm chi nhánh khác</span><span>· <strong>Thời gian:</strong> hôm nay 31/10/2026</span><span>· Cập nhật lúc 09:15</span></div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s2">
+      <h2 id="s2">2. Nhiều chi nhánh: đang đóng</h2>
+      <p class="g5-spec__note">Nút cao tối thiểu 44px, tên chi nhánh cắt bằng dấu “…” khi hẹp, vẫn đủ trong thanh phạm vi bên dưới.</p>
+      <div class="g5-spec__stage">
+        <button type="button" class="branch-btn" aria-haspopup="dialog" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#map-pin"/></svg><span class="branch-btn__text"><span class="branch-btn__caption">Phạm vi dữ liệu</span><span class="branch-btn__name">Chi nhánh Quận 7</span></span><svg class="icon icon--sm" aria-hidden="true"><use href="#chevron-down"/></svg></button>
+        <div class="scope-banner scope-banner--branch"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Chỉ Chi nhánh Quận 7 – không gồm chi nhánh khác</span></div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s3">
+      <h2 id="s3">3. Nhiều chi nhánh: đang mở, kiểu “Một chi nhánh”</h2>
+      <p class="g5-spec__note">Nút Áp dụng chỉ bật khi có thay đổi; lý do tắt hiện thành chữ ở chân bảng.</p>
+      <div class="g5-spec__stage">
+        <div class="g5-panel" role="group" aria-label="Ví dụ bảng đã mở">
+          <div class="g5-panel__head"><p class="g5-panel__title">Phạm vi dữ liệu</p><p class="t-body-sm text-secondary" style="margin:0">Bạn được gán 3 chi nhánh. Chi nhánh khác không hiện trong danh sách.</p></div>
+          <div class="g5-panel__body">
+            <div class="segmented g5-mode" role="radiogroup" aria-label="Kiểu xem"><button type="button" class="segmented__item" role="radio" aria-checked="true">Một chi nhánh</button><button type="button" class="segmented__item" role="radio" aria-checked="false" aria-disabled="true" tabindex="-1">Hợp nhất</button></div>
+            <p class="g5-why"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Xem hợp nhất chưa dùng được với vai trò của bạn. Số liệu hợp nhất dành cho Chủ garage và Quản lý vùng.</span></p>
+            <div class="g5-list" role="radiogroup" aria-label="Chọn một chi nhánh">
+              <button type="button" class="g5-opt" role="radio" aria-checked="false" tabindex="-1"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Chi nhánh Quận 7</span><span class="g5-opt__sub">Vai trò của bạn: Quản lý chi nhánh</span></span><span class="tag tag--info">Đang dùng</span></button>
+              <button type="button" class="g5-opt" role="radio" aria-checked="true"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Chi nhánh Thủ Đức</span><span class="g5-opt__sub">Vai trò của bạn: Quản lý chi nhánh</span></span></button>
+              <button type="button" class="g5-opt" role="radio" aria-checked="false" tabindex="-1"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Chi nhánh Biên Hòa</span><span class="g5-opt__sub">Vai trò của bạn: Quản lý chi nhánh</span></span></button>
+            </div>
+          </div>
+          <div class="g5-panel__foot"><p class="g5-panel__sum">Sẽ xem: Chi nhánh Thủ Đức.</p><button type="button" class="btn btn--ghost">Hủy</button><button type="button" class="btn btn--primary">Áp dụng phạm vi</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s4">
+      <h2 id="s4">4. Hợp nhất được phép (Chủ garage, Quản lý vùng)</h2>
+      <p class="g5-spec__note">Nút phạm vi đổi nền tím nhạt (<code>branch-btn.is-all</code>) và thanh phạm vi đổi nền tím nhạt. Chữ luôn nói rõ “hợp nhất”, không chỉ dựa vào màu.</p>
+      <div class="g5-spec__stage">
+        <button type="button" class="branch-btn is-all" aria-haspopup="dialog" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#map-pin"/></svg><span class="branch-btn__text"><span class="branch-btn__caption">Phạm vi dữ liệu</span><span class="branch-btn__name">Tất cả chi nhánh (8)</span></span><svg class="icon icon--sm" aria-hidden="true"><use href="#chevron-down"/></svg></button>
+        <div class="g5-panel" role="group" aria-label="Ví dụ bảng kiểu hợp nhất">
+          <div class="g5-panel__body">
+            <div class="segmented g5-mode" role="radiogroup" aria-label="Kiểu xem"><button type="button" class="segmented__item" role="radio" aria-checked="false" tabindex="-1">Một chi nhánh</button><button type="button" class="segmented__item" role="radio" aria-checked="true">Hợp nhất</button></div>
+            <div class="g5-list" role="radiogroup" aria-label="Chọn phạm vi hợp nhất">
+              <button type="button" class="g5-opt" role="radio" aria-checked="true"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Tất cả chi nhánh (8)</span><span class="g5-opt__sub">Cộng gộp mọi chi nhánh bạn được xem · không tạo được chứng từ mới ở phạm vi này</span></span><span class="tag tag--info">Đang dùng</span></button>
+              <button type="button" class="g5-opt" role="radio" aria-checked="false" tabindex="-1"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Nhóm Miền Nam</span><span class="g5-opt__sub">6 chi nhánh trong nhóm · số liệu hợp nhất</span></span></button>
+            </div>
+          </div>
+        </div>
+        <div class="scope-banner"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Tất cả chi nhánh, 8 chi nhánh – số liệu cộng gộp</span><span>· <strong>Thời gian:</strong> hôm nay 31/10/2026</span></div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s5">
+      <h2 id="s5">5. Chi nhánh đã khóa hoặc ngừng nhận lệnh mới</h2>
+      <p class="g5-spec__note">Hai trạng thái BA đề xuất (<code>docs/dev/ba-answers-for-dev.md</code> mục 5, chờ xác nhận): “Ngừng nhận lệnh mới” vẫn xử lý lệnh đang mở; “Khóa” chỉ xem. Cả hai vẫn chọn được để tra cứu (FR-SYS-011). Nhãn có chữ và biểu tượng; nút tạo chứng từ tắt kèm lý do.</p>
+      <div class="g5-spec__stage">
+        <div class="g5-list" role="radiogroup" aria-label="Chọn một chi nhánh">
+          <button type="button" class="g5-opt" role="radio" aria-checked="true"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Chi nhánh Thủ Đức</span><span class="g5-opt__sub">Vai trò của bạn: Quản lý chi nhánh · Khóa sổ cuối kỳ</span></span><span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chỉ xem</span></button>
+          <button type="button" class="g5-opt" role="radio" aria-checked="false" tabindex="-1"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Chi nhánh Biên Hòa</span><span class="g5-opt__sub">Vai trò của bạn: Quản lý chi nhánh · Ngừng nhận lệnh mới</span></span><span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#clock"/></svg>Ngừng nhận lệnh mới</span></button>
+        </div>
+        <div class="scope-banner scope-banner--branch"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Chỉ Chi nhánh Thủ Đức – không gồm chi nhánh khác</span><span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chi nhánh khóa: chỉ xem</span></div>
+        <div class="g5-actions"><button type="button" class="btn btn--primary" aria-disabled="true">Tạo báo giá</button><span class="g5-reason"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chi nhánh đã khóa: chỉ xem lịch sử, không tạo hay sửa chứng từ.</span></div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s6">
+      <h2 id="s6">6. Chưa gán chi nhánh</h2>
+      <p class="g5-spec__note">Không có bộ chọn, không có dữ liệu. Chỉ một đường ra: nhờ người có quyền gán.</p>
+      <div class="g5-spec__stage">
+        <div class="state" style="padding:var(--space-4)"><div class="state__icon state__icon--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#map-pin"/></svg></div><h3 class="state__title">Tài khoản chưa được gán chi nhánh nào</h3><p class="state__text">Nhờ quản lý chi nhánh hoặc quản trị hệ thống gán giúp, rồi tải lại trang.</p></div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s7">
+      <h2 id="s7">7. Có nháp chưa lưu khi đổi phạm vi</h2>
+      <p class="g5-spec__note">Hộp thoại <code>alertdialog</code>. Nút an toàn “Ở lại” nhận focus đầu tiên. Nháp luôn thuộc chi nhánh cũ.</p>
+      <div class="g5-spec__stage">
+        <div class="dialog" role="group" aria-label="Ví dụ hộp thoại">
+          <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#pencil"/></svg></div><div><p class="dialog__title" style="margin:0">Lưu nháp trước khi đổi phạm vi?</p></div></div>
+          <div class="dialog__body"><p>Bạn đang soạn một báo giá chưa gửi. Đổi phạm vi từ <strong>Chi nhánh Quận 7</strong> sang <strong>Chi nhánh Thủ Đức</strong> làm số liệu và danh mục khác đi.</p></div>
+          <div class="dialog__footer"><button type="button" class="btn btn--secondary">Ở lại, tiếp tục soạn</button><button type="button" class="btn btn--primary">Lưu nháp và đổi phạm vi</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s8">
+      <h2 id="s8">8. Mất kết nối khi muốn đổi phạm vi</h2>
+      <p class="g5-spec__note">Không đổi phạm vi khi không tải được số liệu: nút Áp dụng tắt, lý do viết ngay chân bảng. Nháp vẫn nằm trên thiết bị.</p>
+      <div class="g5-spec__stage">
+        <div class="alert alert--warning"><svg class="icon" aria-hidden="true"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Bản nháp được giữ trên thiết bị (lúc 09:14). Phạm vi hiện tại được giữ nguyên.</span></div></div>
+        <div class="g5-panel__foot" style="border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface)"><p class="g5-panel__sum">Đang mất kết nối: chưa đổi được phạm vi vì số liệu không tải được.</p><button type="button" class="btn btn--primary" aria-disabled="true">Áp dụng phạm vi</button></div>
+      </div>
+    </section>
+
+    <section class="g5-spec__card" aria-labelledby="s9">
+      <h2 id="s9">9. Tìm không dấu, danh sách dài (từ 6 chi nhánh)</h2>
+      <p class="g5-spec__note">Ô tìm hiện khi có từ 6 chi nhánh trở lên (giả định thiết kế, xem catalog). Gõ “da nang” ra “Chi nhánh Đà Nẵng”. Không có kết quả: chỉ nói “trong các chi nhánh bạn được gán”, không tiết lộ chi nhánh khác.</p>
+      <div class="g5-spec__stage">
+        <div class="field"><label class="field__label" for="s9q">Tìm chi nhánh</label><input id="s9q" class="input" value="da nang" readonly></div>
+        <div class="g5-list" role="radiogroup" aria-label="Chọn một chi nhánh"><button type="button" class="g5-opt" role="radio" aria-checked="false"><span class="g5-opt__dot" aria-hidden="true"></span><span class="g5-opt__main"><span class="g5-opt__name">Chi nhánh Đà Nẵng</span><span class="g5-opt__sub">Vai trò của bạn: Chủ garage</span></span></button></div>
+        <div class="g5-empty">Không có chi nhánh nào khớp “hue” trong các chi nhánh bạn được gán.</div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="h-bar">
+    <div class="card__header"><h2 class="card__title" id="h-bar">Thanh phạm vi (ScopeBar): nội dung bắt buộc</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Thành phần</th><th scope="col">Quy tắc</th></tr></thead><tbody>
+      <tr><td>Phạm vi</td><td>“Chỉ <em>tên chi nhánh</em> – không gồm chi nhánh khác” hoặc “<em>tên</em>, N chi nhánh – số liệu cộng gộp”. Không viết tắt.</td></tr>
+      <tr><td>Thời gian</td><td>Khoảng thời gian dd/MM/yyyy của số liệu; ẩn nếu màn không theo kỳ.</td></tr>
+      <tr><td>Cập nhật lúc</td><td>Giờ máy chủ lấy số liệu; kèm nút Làm mới khi màn có số liệu sống.</td></tr>
+      <tr><td>Nhãn đặc biệt</td><td>“Chi nhánh khóa sổ: chỉ xem”; “Số tạm” hoặc “Số chính thức” với báo cáo.</td></tr>
+      <tr><td>Tệp xuất, bản in</td><td>Ghi cùng dòng phạm vi và thời gian ở đầu tệp hoặc đầu trang in (RULE-015).</td></tr>
+    </tbody></table></div>
+  </section>
+</main>
+<script src="../assets/app.js"></script>
+</body>
+</html>

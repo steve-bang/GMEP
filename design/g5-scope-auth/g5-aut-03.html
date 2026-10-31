@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G5-AUT-03 · Kích hoạt tài khoản theo lời mời – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu kích hoạt</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Điền thông tin|expired:Lời mời hết hạn|used:Lời mời đã dùng|revoked:Không còn quyền|offline:Mất mạng|loading:Đang kích hoạt|rate:Quá nhiều lần (429)|error:Lỗi hệ thống (5xx)|done-strong:Xong, cần xác thực hai lớp|done:Xong, vào hệ thống" data-hint="Không có tự đăng ký. Lời mời do quản lý tạo ở SYS-02. Thử: mật khẩu “loihethong123” báo lỗi hệ thống; giá trị khác từ 10 ký tự thành công."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div data-hide="expired used revoked done done-strong"><h1 id="t">Kích hoạt tài khoản GARAGE OS</h1><p class="g1-lead">Bạn được mời tham gia hệ thống. Kiểm tra thông tin, đặt mật khẩu và đồng ý quy định để bắt đầu làm việc.</p></div>
+
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon" aria-hidden="true"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa kích hoạt được. Kiểm tra mạng rồi bấm lại. Lời mời vẫn còn hiệu lực; thông tin bạn nhập vẫn được giữ (trừ mật khẩu, không lưu trên thiết bị).</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="rate" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Bạn thử quá nhiều lần</span><span>Hãy thử lại sau <strong class="num" data-countdown="300" data-countdown-view="default">05:00</strong>. Thời gian chờ do hệ thống trả về.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa kích hoạt được</span><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Lời mời vẫn còn hiệu lực: thử lại sau ít phút. Mã tham chiếu <span class="code">REQ-91C0E7</span>.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-g1-goto="default">Thử lại</button></div></div></div>
+
+    <form class="g1-form" data-g1-form novalidate data-route-field="g5-pw" data-routes="loihethong123=view:error;*=view:done-strong" data-hide="expired used revoked done done-strong">
+      <fieldset class="g1-fs" data-disable-in="rate">
+        <legend class="sr-only">Thông tin kích hoạt</legend>
+        <dl class="g1-kv" style="margin:0">
+          <dt>Họ và tên</dt><dd>Lê Thanh Tùng</dd>
+          <dt>Email công việc</dt><dd>tung.le@garage.vn</dd>
+          <dt>Chi nhánh được gán</dt><dd>Chi nhánh Thủ Đức</dd>
+          <dt>Vai trò</dt><dd>Quản lý chi nhánh</dd>
+        </dl>
+        <p class="t-body-sm text-secondary" style="margin:0">Thông tin do quản lý gán, bạn không tự sửa. Sai tên hoặc chi nhánh? Dừng lại và báo quản lý trước khi kích hoạt. <span class="code">[Cần xác nhận]</span> người được mời có quyền sửa họ tên hay không; mặc định là chỉ đọc.</p>
+        <div class="field">
+          <label class="field__label" for="g5-pw">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="g1-pw"><input id="g5-pw" class="input" type="password" autocomplete="new-password" aria-required="true" aria-describedby="g5-rules" data-pw-policy data-first-focus data-rule="required|minlen:10" data-msg-required="Nhập mật khẩu." data-msg-minlen="Mật khẩu cần ít nhất 10 ký tự. Gợi ý: dùng một cụm từ dễ nhớ, ví dụ garage-thuduc-mua-thu."><button type="button" class="btn-icon g1-pw__toggle" data-pw-toggle="g5-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__hint" data-caps hidden>Caps Lock đang bật.</span>
+          <ul class="g1-rules" id="g5-rules" aria-label="Yêu cầu mật khẩu">
+            <li data-r="len"><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><span><span class="sr-only">Chưa đạt: </span>Ít nhất 10 ký tự</span></li>
+          </ul>
+          <span class="field__error" id="g5-pw-err" hidden></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="g5-pw2">Nhập lại mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="g5-pw2" class="input" type="password" autocomplete="new-password" aria-required="true" data-rule="required|match:#g5-pw" data-msg-required="Nhập lại mật khẩu để xác nhận." data-msg-match="Hai mật khẩu chưa giống nhau. Nhập lại đúng mật khẩu ở ô trên.">
+          <span class="field__error" id="g5-pw2-err" hidden></span>
+        </div>
+        <label class="check"><input type="checkbox" id="g5-agree" aria-describedby="g5-agree-h"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đọc và đồng ý với quy định sử dụng và bảo mật dữ liệu</span></label>
+        <p class="t-body-sm text-secondary" id="g5-agree-h" style="margin:0"><a href="#" data-toast="info|Quy định đầy đủ|Văn bản quy định do doanh nghiệp ban hành, mở ở tab mới.">Đọc quy định đầy đủ</a> · Nội dung và mã phiên bản <span class="code">[do doanh nghiệp cung cấp]</span>. Cần đồng ý để bật nút Kích hoạt.</p>
+        <button class="btn btn--primary btn--lg btn--block" type="submit" data-requires="g5-agree" data-loading-in="loading"><span>Kích hoạt tài khoản</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </fieldset>
+      <p class="t-body-sm text-secondary" style="margin:0"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+    </form>
+
+    <div data-show="expired" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#clock"/></svg></div><h1 class="state__title" tabindex="-1" data-focus-in="expired">Lời mời đã hết hạn</h1><p class="state__text">Lời mời chỉ có hiệu lực trong thời gian giới hạn. Nhờ quản lý chi nhánh gửi lại lời mời mới, rồi mở liên kết trong email mới.</p><div class="state__actions"><a class="btn btn--ghost" href="g5-aut-04.html">Về trang đăng nhập</a></div></div>
+    </div>
+    <div data-show="used" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon"><svg class="icon icon--lg" aria-hidden="true"><use href="#circle-check"/></svg></div><h1 class="state__title" tabindex="-1" data-focus-in="used">Lời mời này đã được dùng</h1><p class="state__text">Tài khoản có thể đã được kích hoạt. Hãy đăng nhập. Quên mật khẩu thì dùng “Quên mật khẩu” ở trang đăng nhập.</p><div class="state__actions"><a class="btn btn--primary" href="g5-aut-04.html">Đăng nhập</a><a class="btn btn--ghost" href="g5-aut-01.html">Quên mật khẩu</a></div></div>
+    </div>
+    <div data-show="revoked" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--danger"><svg class="icon icon--lg" aria-hidden="true"><use href="#lock"/></svg></div><h1 class="state__title" tabindex="-1" data-focus-in="revoked">Lời mời không còn hiệu lực</h1><p class="state__text">Lời mời này đã bị thu hồi trước khi bạn kích hoạt. Liên hệ quản lý chi nhánh để được xác nhận lại.</p><div class="state__actions"><a class="btn btn--ghost" href="g5-aut-04.html">Về trang đăng nhập</a></div></div>
+    </div>
+
+    <div data-show="done-strong" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#circle-check"/></svg></div><h1 class="state__title" tabindex="-1" data-focus-in="done-strong">Tài khoản đã được kích hoạt</h1><p class="state__text">Vai trò của bạn cần xác thực hai lớp. Bước tiếp theo: hoàn tất xác thực để vào hệ thống.</p><div class="state__actions"><a class="btn btn--primary btn--lg" href="g5-aut-05.html">Tiếp tục</a></div></div>
+    </div>
+    <div data-show="done" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#circle-check"/></svg></div><h1 class="state__title" tabindex="-1" data-focus-in="done">Tài khoản đã được kích hoạt</h1><p class="state__text">Bạn có thể đăng nhập bằng email và mật khẩu vừa đặt.</p><div class="state__actions"><a class="btn btn--primary btn--lg" href="g5-aut-04.html">Đăng nhập</a></div></div>
+    </div>
+  </main>
+  <footer class="g1-auth-foot"><span>GARAGE OS · Cần hỗ trợ? Liên hệ quản lý chi nhánh đã mời bạn.</span></footer>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi mở lại liên kết lời mời.</div></noscript>
+<script src="../assets/app.js"></script>
+<script src="../g1-auth-dashboard/g1-auth.js"></script>
+</body>
+</html>

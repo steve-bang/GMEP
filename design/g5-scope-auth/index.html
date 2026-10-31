@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gói G5 – Bộ chọn phạm vi chi nhánh và luồng xác thực bổ sung – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Bỏ qua, tới danh sách</a>
+<main class="g5-page g5-idx" id="main">
+  <header class="stack-2">
+    <h1>Gói G5 – Bộ chọn phạm vi chi nhánh và luồng xác thực bổ sung</h1>
+    <p class="g5-lead">7 màn hình prototype HTML/CSS cho slice 1.1 và 1.2. Tài liệu đi kèm: <code>docs/ui-ux/component-catalog.md</code> (danh mục component hợp nhất, ScopePicker) và <code>docs/ui-ux/state-copy.md</code> (câu chữ trạng thái hệ thống). Chỉ thêm class tiền tố <code>g5-</code> trong <code>pack.css</code>; không sửa token hay components.css. Các trang xác thực mượn <code>g1-auth-*</code> từ gói G1 (đã ánh xạ trong catalog).</p>
+    <div class="alert alert--info"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span>Mỗi trang xác thực có thanh “Xem thử trạng thái” hoặc tham số <code>?state=...</code>. Phần máy chủ TOTP và PIN do chủ dự án cung cấp sau: G5-AUT-05 chỉ là khe giữ chỗ.</span></div></div>
+  </header>
+
+  <section class="card" aria-labelledby="h1">
+    <div class="card__header"><h2 class="card__title" id="h1">Phạm vi chi nhánh (SCP)</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Mã</th><th scope="col">Màn hình</th><th scope="col">FR / quy tắc</th><th scope="col">Thiết bị</th></tr></thead><tbody>
+      <tr><td class="code"><a href="g5-scp-01.html">G5-SCP-01</a></td><td>Bộ chọn phạm vi, tương tác (6 kiểu người dùng, nháp chưa lưu, mất mạng)</td><td>FR-SYS-002, 011, 012; RULE-015; NFR-ISO-01</td><td>Mọi vai trò nhiều chi nhánh; điện thoại, tablet, desktop</td></tr>
+      <tr><td class="code"><a href="g5-scp-02.html">G5-SCP-02</a></td><td>Thư viện trạng thái tĩnh của bộ chọn và thanh phạm vi</td><td>như trên</td><td>Dev đối chiếu</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h2">
+    <div class="card__header"><h2 class="card__title" id="h2">Xác thực bổ sung (AUT, không dùng khung ứng dụng)</h2></div>
+    <div class="table-scroll"><table class="table table--compact"><thead><tr><th scope="col">Mã</th><th scope="col">Màn hình</th><th scope="col">Thay cho (G1)</th><th scope="col">Trạng thái có</th></tr></thead><tbody>
+      <tr><td class="code"><a href="g5-aut-01.html">G5-AUT-01</a></td><td>Quên mật khẩu</td><td>G1-AUT-04</td><td>mặc định, đã gửi (trung tính), 429, mất mạng, đang gửi, 5xx</td></tr>
+      <tr><td class="code"><a href="g5-aut-02.html">G5-AUT-02</a></td><td>Đặt mật khẩu mới qua liên kết</td><td>G1-AUT-05, G1-ERR-05</td><td>mặc định, trùng mật khẩu cũ (422), thành công, hết hạn, đã dùng, mất mạng, đang lưu, 429, 5xx</td></tr>
+      <tr><td class="code"><a href="g5-aut-03.html">G5-AUT-03</a></td><td>Kích hoạt tài khoản theo lời mời (một trang)</td><td>G1-AUT-06</td><td>mặc định, hết hạn, đã dùng, không còn quyền, mất mạng, đang kích hoạt, 429, 5xx, xong (có/không cần xác thực hai lớp)</td></tr>
+      <tr><td class="code"><a href="g5-aut-04.html">G5-AUT-04</a></td><td>Đăng nhập: sai thông tin, khóa tạm, hết phiên</td><td>G1-AUT-01 (chỉ phần thông báo)</td><td>mặc định, 401 sai, khóa tạm, 429, phiên hết hạn, mất mạng, đang xử lý, 5xx</td></tr>
+      <tr><td class="code"><a href="g5-aut-05.html">G5-AUT-05</a></td><td>Khe xác thực mạnh: TOTP hoặc PIN thiết bị (giữ chỗ)</td><td>G1-AUT-02 (tham chiếu)</td><td>TOTP, PIN, sai, khóa, chưa sẵn sàng, mất mạng, đang xác nhận</td></tr>
+    </tbody></table></div>
+  </section>
+  <p class="g5-spec__note">Trang gốc G1-AUT-01…10 vẫn giữ làm tham chiếu (MFA đầy đủ, thiết lập lần đầu, thiết bị xưởng). Dev dùng trang G5 cho bốn luồng trên; chi tiết ở catalog mục “Trùng lặp”.</p>
+</main>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G5-AUT-05 · Khe xác thực mạnh (TOTP hoặc PIN thiết bị) – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="pack.css">
+<style>
+/* Chỉ prototype: che ký tự PIN. Bản thật dùng type="password" cho từng ô. */
+body[data-view="pin"] .otp__cell { -webkit-text-security: disc; text-security: disc; }
+</style>
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu xác thực</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:TOTP (ứng dụng xác thực)|pin:PIN thiết bị|error:Mã hoặc PIN sai|locked:Quá số lần thử|unavailable:Chưa sẵn sàng|offline:Mất mạng|loading:Đang xác nhận" data-hint="KHE GIỮ CHỖ: phần máy chủ TOTP và PIN do chủ dự án cung cấp sau (ADR 0001 mục 2.1, A2). Thử: nhập 000000 báo sai, 222222 báo khóa, giá trị khác đi tiếp."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div>
+      <h1 id="t">Xác thực hai lớp</h1>
+      <p class="g1-lead" data-hide="pin">Mở ứng dụng xác thực trên điện thoại và nhập mã 6 số đang hiển thị cho GARAGE OS.</p>
+      <p class="g1-lead" data-show="pin" hidden>Nhập PIN 6 số của bạn trên thiết bị xưởng này.</p>
+    </div>
+
+    <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mã hoặc PIN chưa đúng</span><span>Mã trong ứng dụng đổi mỗi 30 giây: đợi mã mới rồi nhập lại. Với PIN: nhập lại đúng 6 số. Số lần thử còn lại do hệ thống trả về: <strong>Bạn còn 3 lần thử</strong>.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="locked" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Đã nhập sai quá số lần cho phép</span><span>Để bảo vệ tài khoản, hãy thử lại sau <strong class="num" data-countdown="300" data-countdown-view="default">05:00</strong>. Hết thời gian chờ vẫn không được: nhờ người có thẩm quyền đặt lại xác thực hai lớp. Họ sẽ xác minh danh tính và việc này được ghi nhật ký.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon" aria-hidden="true"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa xác nhận được. Kiểm tra mạng rồi bấm lại. Mã đã nhập không bị tính là một lần thử sai.</span></div></div>
+
+    <div data-show="unavailable" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#lock"/></svg></div>
+        <h2 class="state__title" tabindex="-1" data-focus-in="unavailable">Chưa thể xác thực hai lớp</h2>
+        <p class="state__text">Bước xác thực này chưa sẵn sàng trên hệ thống nên chưa thể đăng nhập. Đây không phải lỗi của bạn. Báo quản trị hệ thống kèm mã tham chiếu <span class="code">REQ-0AA1C3</span>.</p>
+        <div class="state__actions"><a class="btn btn--secondary" href="g5-aut-04.html">Về trang đăng nhập</a></div></div>
+    </div>
+
+    <div class="g5-slot" data-hide="unavailable">
+      <span class="tag tag--warning g5-slot__tag">Khe giữ chỗ · sẽ được thay khi có phần máy chủ</span>
+      <form class="g1-form g5-slot__preview" data-g1-form novalidate data-route-field="otp" data-routes="000000=view:error;222222=view:locked;*=go:../g1-auth-dashboard/g1-aut-08.html">
+        <fieldset class="g1-fs" data-disable-in="locked">
+          <legend class="sr-only">Mã xác thực 6 số</legend>
+          <div class="field">
+            <span class="field__label" id="otp-l"><span data-hide="pin">Mã 6 số</span><span data-show="pin" hidden>PIN 6 số</span><span class="field__req" aria-hidden="true">*</span></span>
+            <div class="otp" role="group" aria-labelledby="otp-l">
+              <input class="otp__cell" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Số thứ 1" data-first-focus><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 2"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 3"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 4"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 5"><input class="otp__cell" inputmode="numeric" maxlength="1" aria-label="Số thứ 6">
+            </div>
+            <span class="field__error" id="otp-err" hidden></span>
+            <span class="field__hint" data-hide="pin">Có thể dán cả mã 6 số vào ô đầu tiên.</span>
+          </div>
+        </fieldset>
+        <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="locked" data-loading-in="loading"><span>Xác nhận</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </form>
+    </div>
+    <div class="g1-auth-links"><a href="g5-aut-04.html">Quay lại đăng nhập</a></div>
+  </main>
+
+  <section class="g1-auth-card g1-auth-card--wide" aria-labelledby="ct">
+    <h2 id="ct" style="font-size:var(--font-size-lg);margin:0">Ghi chú cho dev: hợp đồng của khe này</h2>
+    <p class="t-body-sm text-secondary" style="margin:0">Chỉ có trong prototype. Phase 0 và 1 chạy bằng mật khẩu và cookie phiên; bước này chỉ hiện khi cổng <code>StrongAuthPort</code> được cấu hình và vai trò yêu cầu (danh sách vai trò: <span class="code">[Cần xác nhận]</span>, đề xuất CH, QV, QL, KT, AD).</p>
+    <ul class="g5-contract">
+      <li>Vào bước: sau khi mật khẩu đúng, máy chủ trả <code>nextStep: "strong-auth"</code> kèm <code>method: "totp" | "pin"</code>. Chưa qua bước thì chưa có cookie phiên đầy đủ.</li>
+      <li>Gửi: một ô 6 số tới API của ta (trình duyệt không gọi Firebase hay dịch vụ ngoài). Kết quả: <code>ok</code>, <code>invalid</code> (kèm <code>attemptsLeft</code> nếu có), <code>locked</code> (kèm <code>retryAfterSec</code>), <code>expired</code>, <code>unavailable</code>.</li>
+      <li>UI không tự đặt số lần thử hay thời gian khóa; chỉ hiển thị giá trị máy chủ trả về. Số trong prototype (3 lần, 05:00) chỉ để minh họa.</li>
+      <li><code>unavailable</code> khi vai trò yêu cầu nhưng cổng chưa sẵn sàng: đề xuất chặn đăng nhập (fail-closed) và báo quản trị. <span class="code">[Cần xác nhận]</span> với chủ dự án: chặn hay cho qua trong môi trường thử.</li>
+      <li>Mã khôi phục, thiết lập lần đầu (QR), tin cậy thiết bị: dùng lại <a href="../g1-auth-dashboard/g1-aut-02.html">G1-AUT-02</a> và <a href="../g1-auth-dashboard/g1-aut-03.html">G1-AUT-03</a> làm tham chiếu, không đổi khi nhận phần của chủ dự án.</li>
+      <li>Cờ cưỡng chế MFA theo môi trường (tắt, cảnh báo, bắt buộc) là đề xuất BA (<code>docs/dev/ba-answers-for-dev.md</code> mục 1.1): ở chế độ “cảnh báo” màn này không chặn mà hiện alert trên đầu khung ứng dụng, câu chữ do BA chốt; chưa thiết kế riêng.</li>
+      <li>Khóa PIN theo tên thợ và theo thiết bị, tự khóa phiên PIN sau thời gian rảnh ngắn: là tham số máy chủ (BA mục 1.2, C1 đến C7); màn này chỉ hiển thị kết quả <code>locked</code> và <code>retryAfterSec</code>. Khóa theo tên thợ đến khi quản đốc hoặc quản lý mở: đổi đếm lùi thành câu “Nhờ quản đốc hoặc quản lý mở khóa” (chưa tách thành trạng thái riêng, ghi nhận).</li>
+      <li>PIN thiết bị xưởng: cùng khe này sau khi chọn thợ ở <a href="../g1-auth-dashboard/g1-aut-10.html">G1-AUT-10</a>.</li>
+    </ul>
+  </section>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../assets/app.js"></script>
+<script src="../g1-auth-dashboard/g1-auth.js"></script>
+</body>
+</html>

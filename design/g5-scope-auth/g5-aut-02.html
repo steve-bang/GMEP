@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G5-AUT-02 · Đặt mật khẩu mới – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Nhập mật khẩu mới|reused:Trùng mật khẩu cũ (422)|success:Thành công|expired:Liên kết hết hạn|used:Liên kết đã dùng|offline:Mất mạng|loading:Đang lưu|rate:Quá nhiều lần (429)|error:Lỗi hệ thống (5xx)" data-hint="Thử: mật khẩu “trungmatkhau” báo trùng 5 mật khẩu gần nhất, “loihethong123” báo lỗi hệ thống, “quatainhieulan” báo quá nhiều lần; giá trị khác (từ 10 ký tự) thành công."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div data-hide="success expired used"><h1 id="t">Đặt mật khẩu mới</h1><p class="g1-lead">Liên kết này chỉ dùng một lần. Sau khi đặt, mọi phiên đăng nhập cũ của tài khoản sẽ bị đăng xuất.</p></div>
+
+    <div class="alert alert--danger" role="alert" data-show="reused" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Mật khẩu này đã dùng gần đây</span><span>Không dùng lại 5 mật khẩu gần nhất. Hãy chọn một cụm từ khác với các mật khẩu trước đây.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon" aria-hidden="true"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa lưu được mật khẩu. Kiểm tra mạng rồi bấm lại. Liên kết vẫn còn hiệu lực và mật khẩu bạn gõ vẫn được giữ trên màn hình.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="rate" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Bạn thử quá nhiều lần</span><span>Vì an toàn, hãy thử lại sau <strong class="num" data-countdown="300" data-countdown-view="default">05:00</strong>. Thời gian chờ do hệ thống trả về.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa lưu được mật khẩu</span><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Liên kết vẫn còn hiệu lực: thử lại sau ít phút. Mã tham chiếu <span class="code">REQ-2B91D4</span>.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-g1-goto="default">Thử lại</button></div></div></div>
+
+    <form class="g1-form" data-g1-form novalidate data-route-field="g5-new" data-routes="trungmatkhau=view:reused;loihethong123=view:error;quatainhieulan=view:rate;*=view:success" data-hide="success expired used">
+      <fieldset class="g1-fs" data-disable-in="rate">
+        <legend class="sr-only">Mật khẩu mới</legend>
+        <div class="field">
+          <label class="field__label" for="g5-new">Mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="g1-pw"><input id="g5-new" class="input" type="password" autocomplete="new-password" aria-required="true" aria-describedby="g5-rules" data-pw-policy data-first-focus data-rule="required|minlen:10" data-msg-required="Nhập mật khẩu mới." data-msg-minlen="Mật khẩu cần ít nhất 10 ký tự. Gợi ý: dùng một cụm từ dễ nhớ, ví dụ garage-quan7-mua-thu."><button type="button" class="btn-icon g1-pw__toggle" data-pw-toggle="g5-new" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__hint" data-caps hidden>Caps Lock đang bật.</span>
+          <ul class="g1-rules" id="g5-rules" aria-label="Yêu cầu mật khẩu">
+            <li data-r="len"><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><span><span class="sr-only">Chưa đạt: </span>Ít nhất 10 ký tự</span></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Khác 5 mật khẩu gần nhất (hệ thống kiểm tra khi bạn bấm Đặt mật khẩu)</span></li>
+          </ul>
+          <span class="field__error" id="g5-new-err" hidden></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="g5-new2">Nhập lại mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="g5-new2" class="input" type="password" autocomplete="new-password" aria-required="true" data-rule="required|match:#g5-new" data-msg-required="Nhập lại mật khẩu mới để xác nhận." data-msg-match="Hai mật khẩu chưa giống nhau. Nhập lại đúng mật khẩu ở ô trên.">
+          <span class="field__error" id="g5-new2-err" hidden></span>
+        </div>
+      </fieldset>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-disable-in="rate" data-loading-in="loading"><span>Đặt mật khẩu</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <p class="t-body-sm text-secondary" style="margin:0"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập. Chỉ hai yêu cầu trên theo tài liệu hiện hành; mọi quy tắc thêm (chữ hoa, ký tự đặc biệt, danh sách mật khẩu thông dụng) <span class="code">[Cần xác nhận]</span> và không được thêm khi chưa có quyết định.</p>
+    </form>
+
+    <div data-show="success" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#circle-check"/></svg></div>
+        <h1 class="state__title" tabindex="-1" data-focus-in="success">Đã đặt mật khẩu mới</h1>
+        <p class="state__text">Mọi thiết bị đang đăng nhập bằng mật khẩu cũ đã bị đăng xuất. Đăng nhập lại bằng mật khẩu mới.</p>
+        <div class="state__actions"><a class="btn btn--primary btn--lg" href="g5-aut-04.html">Về trang đăng nhập</a></div></div>
+    </div>
+
+    <div data-show="expired" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon state__icon--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#clock"/></svg></div>
+        <h1 class="state__title" tabindex="-1" data-focus-in="expired">Liên kết đã hết hạn</h1>
+        <p class="state__text">Liên kết đặt lại mật khẩu chỉ có hiệu lực trong thời gian ngắn. Hãy yêu cầu một liên kết mới; liên kết cũ không dùng được nữa.</p>
+        <div class="state__actions"><a class="btn btn--primary" href="g5-aut-01.html">Yêu cầu liên kết mới</a><a class="btn btn--ghost" href="g5-aut-04.html">Về trang đăng nhập</a></div></div>
+    </div>
+
+    <div data-show="used" hidden role="status">
+      <div class="state" style="padding:0"><div class="state__icon"><svg class="icon icon--lg" aria-hidden="true"><use href="#circle-check"/></svg></div>
+        <h1 class="state__title" tabindex="-1" data-focus-in="used">Liên kết này đã được dùng</h1>
+        <p class="state__text">Mỗi liên kết chỉ dùng một lần. Nếu bạn đã đặt mật khẩu mới, hãy đăng nhập. Nếu không phải bạn đã dùng, yêu cầu liên kết mới và báo quản lý chi nhánh.</p>
+        <div class="state__actions"><a class="btn btn--primary" href="g5-aut-04.html">Đăng nhập</a><a class="btn btn--ghost" href="g5-aut-01.html">Yêu cầu liên kết mới</a></div></div>
+    </div>
+  </main>
+  <footer class="g1-auth-foot"><span>GARAGE OS · Cần hỗ trợ? Liên hệ quản lý chi nhánh của bạn.</span></footer>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi mở lại liên kết đặt lại mật khẩu.</div></noscript>
+<script src="../assets/app.js"></script>
+<script src="../g1-auth-dashboard/g1-auth.js"></script>
+</body>
+</html>

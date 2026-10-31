@@ -107,6 +107,7 @@ Tổng: 31 + 26 + 21 + 39 + 32 + 35 = **184** màn hình. Prototype mở bằng 
 | 4 Kho, mua hàng, nhân sự | `g3-inventory-hr/` | `04-inventory-purchasing-hr.md` | 39 |
 | 5 Tài chính, phê duyệt, hóa đơn | `g4-finance/` | `05-finance-invoice.md` | 32 |
 | 6 Báo cáo và Hệ thống | `g4-reports-system/` | `06-reports-system.md` | 35 |
+| 7 Bộ chọn phạm vi và xác thực bổ sung (31/10/2026, cho slice 1.1/1.2) | `g5-scope-auth/` | `component-catalog.md`, `state-copy.md`, `STATUS.md` | 7 (không tính vào 184) |
 
 ### 2.1 Gói 1 – Xác thực và Dashboard (`design/g1-auth-dashboard/`)
 

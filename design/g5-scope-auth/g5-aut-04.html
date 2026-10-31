@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G5-AUT-04 · Đăng nhập: lỗi, khóa tạm, hết phiên – GARAGE OS</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body class="g1-auth-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu đăng nhập</a>
+<div class="g1-auth-brand"><span class="g1-auth-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</div>
+
+<div class="g1-wrap">
+  <div data-g1-views="default:Mặc định|error:Sai thông tin (401)|locked:Khóa tạm sau nhiều lần sai|rate:Quá nhiều yêu cầu (429)|session:Phiên hết hạn (401)|offline:Mất mạng|loading:Đang xử lý|error5:Lỗi hệ thống (5xx)" data-hint="Thử: mật khẩu “sai” báo sai thông tin, “khoa” khóa tạm, “quatai” quá nhiều yêu cầu, “loi” lỗi hệ thống; giá trị khác sang bước xác thực hai lớp."></div>
+
+  <main class="g1-auth-card" id="main" aria-labelledby="t">
+    <div><h1 id="t">Đăng nhập</h1><p class="g1-lead">Dùng tài khoản do quản lý chi nhánh cấp. Chưa có tài khoản? Nhờ quản lý chi nhánh gửi lời mời kích hoạt.</p></div>
+
+    <div class="alert alert--info" role="status" data-show="session" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Phiên làm việc đã hết hạn</span><span>Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị và hiện lại sau khi bạn đăng nhập bằng cùng tài khoản.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="error" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không đăng nhập được</span><span>Email, mã nhân viên hoặc mật khẩu chưa đúng. Kiểm tra phím Caps Lock rồi nhập lại, hoặc chọn “Quên mật khẩu”. Nếu vẫn không vào được, liên hệ quản lý chi nhánh.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="locked" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tạm dừng đăng nhập trên thiết bị này</span><span>Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau <strong class="num" data-countdown="900" data-countdown-view="default">15:00</strong> hoặc dùng “Quên mật khẩu” để đặt mật khẩu mới. Quản lý chi nhánh cũng có thể mở khóa giúp bạn. Thông báo này hiện giống nhau cho mọi thông tin đăng nhập, nên không cho biết tài khoản có tồn tại hay không.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="rate" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Quá nhiều yêu cầu từ thiết bị này</span><span>Hệ thống tạm giới hạn để bảo vệ tài khoản. Thử lại sau <strong class="num" data-countdown="60" data-countdown-view="default">01:00</strong>.</span></div></div>
+    <div class="alert alert--danger" role="alert" data-show="error5" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa đăng nhập được</span><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Thử lại sau ít phút. Mã tham chiếu <span class="code">REQ-5D20A8</span>.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-g1-goto="default">Thử lại</button></div></div></div>
+    <div class="alert alert--warning" role="alert" data-show="offline" hidden><svg class="icon" aria-hidden="true"><use href="#wifi-off"/></svg><div class="alert__body"><span class="alert__title">Mất kết nối mạng</span><span>Chưa đăng nhập được. Kiểm tra Wi-Fi hoặc 4G rồi bấm “Thử kết nối lại”. Tên đăng nhập bạn đã nhập vẫn được giữ.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-g1-goto="default">Thử kết nối lại</button></div></div></div>
+
+    <form class="g1-form" data-g1-form novalidate data-route-field="g5-pw" data-routes="sai=view:error;khoa=view:locked;quatai=view:rate;loi=view:error5;*=go:g5-aut-05.html">
+      <fieldset class="g1-fs" data-disable-in="locked rate">
+        <legend class="sr-only">Thông tin đăng nhập</legend>
+        <div class="field">
+          <label class="field__label" for="g5-id">Email hoặc mã nhân viên<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="g5-id" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" data-first-focus data-rule="required" data-msg-required="Nhập email hoặc mã nhân viên. Ví dụ: ha.nguyen@garage.vn hoặc NV0123.">
+          <span class="field__error" id="g5-id-err" hidden></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="g5-pw">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="g1-pw"><input id="g5-pw" class="input" name="password" type="password" autocomplete="current-password" aria-required="true" aria-describedby="g5-caps" data-rule="required" data-msg-required="Nhập mật khẩu của bạn."><button type="button" class="btn-icon g1-pw__toggle" data-pw-toggle="g5-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__hint" id="g5-caps" data-caps hidden>Caps Lock đang bật. Mật khẩu phân biệt chữ hoa, chữ thường.</span>
+          <span class="field__error" id="g5-pw-err" hidden></span>
+        </div>
+        <button class="btn btn--primary btn--lg btn--block" type="submit" data-loading-in="loading"><span>Đăng nhập</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </fieldset>
+      <div class="g1-auth-links"><a href="g5-aut-01.html">Quên mật khẩu?</a><span class="t-body-sm text-secondary"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</span></div>
+    </form>
+  </main>
+  <footer class="g1-auth-foot"><span>GARAGE OS · Cần hỗ trợ? Liên hệ quản lý chi nhánh của bạn.</span></footer>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../assets/app.js"></script>
+<script src="../g1-auth-dashboard/g1-auth.js"></script>
+</body>
+</html>
