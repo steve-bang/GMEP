@@ -1,0 +1,129 @@
+{
+  "app": { "name": "GARAGE OS", "version": "Phiên bản 0.0 (khung dự án)" },
+  "errors": {
+    "unauthenticated": {
+      "title": "Chưa đăng nhập",
+      "detail": "Phiên làm việc không còn hiệu lực. Đăng nhập lại để tiếp tục."
+    },
+    "invalid_credentials": {
+      "title": "Không đăng nhập được",
+      "detail": "Email, mã nhân viên hoặc mật khẩu chưa đúng. Kiểm tra phím Caps Lock rồi nhập lại, hoặc liên hệ quản lý chi nhánh."
+    },
+    "strong_auth_required": {
+      "title": "Cần xác thực hai lớp",
+      "detail": "Tài khoản này cần bước xác thực thứ hai. Tính năng này chưa được bật trên hệ thống."
+    },
+    "forbidden": {
+      "title": "Không có quyền",
+      "detail": "Tài khoản của bạn không có quyền thực hiện thao tác này."
+    },
+    "not_found": {
+      "title": "Không tìm thấy",
+      "detail": "Không tìm thấy dữ liệu yêu cầu hoặc bạn không có quyền xem."
+    },
+    "validation_failed": {
+      "title": "Dữ liệu chưa hợp lệ",
+      "detail": "Kiểm tra các trường được đánh dấu rồi gửi lại."
+    },
+    "idempotency_key_required": {
+      "title": "Thiếu khóa chống trùng",
+      "detail": "Thao tác này cần tiêu đề Idempotency-Key."
+    },
+    "idempotency_key_invalid": {
+      "title": "Khóa chống trùng không hợp lệ",
+      "detail": "Idempotency-Key gồm 8 đến 128 ký tự chữ, số, gạch ngang hoặc gạch dưới."
+    },
+    "idempotency_key_reuse": {
+      "title": "Khóa chống trùng đã dùng cho nội dung khác",
+      "detail": "Dùng khóa mới cho yêu cầu khác nội dung."
+    },
+    "bad_origin": { "title": "Yêu cầu bị từ chối", "detail": "Nguồn gửi yêu cầu không được phép." },
+    "unsupported_media_type": {
+      "title": "Định dạng không hỗ trợ",
+      "detail": "Chỉ chấp nhận application/json."
+    },
+    "warehouse_code_exists": {
+      "title": "Mã kho đã tồn tại",
+      "detail": "Chi nhánh này đã có kho dùng mã đó."
+    },
+    "branch_locked": {
+      "title": "Chi nhánh đang bị khóa",
+      "detail": "Chi nhánh bị khóa không tạo được chứng từ mới nhưng vẫn tra cứu được lịch sử."
+    },
+    "invalid_cursor": {
+      "title": "Con trỏ phân trang không hợp lệ",
+      "detail": "Tải lại danh sách từ đầu."
+    },
+    "scope_too_wide": {
+      "title": "Phạm vi quá rộng",
+      "detail": "Phạm vi chi nhánh vượt giới hạn truy vấn hiện tại."
+    },
+    "rate_limited": { "title": "Quá nhiều yêu cầu", "detail": "Thử lại sau ít phút." },
+    "internal": {
+      "title": "Có lỗi hệ thống",
+      "detail": "Thao tác chưa hoàn tất. Thử lại, nếu vẫn lỗi hãy báo mã truy vết cho bộ phận hỗ trợ."
+    },
+    "unavailable": { "title": "Dịch vụ tạm thời không sẵn sàng", "detail": "Thử lại sau ít phút." }
+  },
+  "login": {
+    "title": "Đăng nhập",
+    "lead": "Dùng tài khoản do quản lý chi nhánh cấp.",
+    "identifier": "Email hoặc mã nhân viên",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập",
+    "required": "Bắt buộc nhập",
+    "identifierRequired": "Nhập email hoặc mã nhân viên.",
+    "passwordRequired": "Nhập mật khẩu của bạn.",
+    "offline": "Mất kết nối mạng. Thông tin bạn đã nhập vẫn được giữ, thử lại khi có mạng."
+  },
+  "shell": {
+    "skip": "Bỏ qua điều hướng, tới nội dung chính",
+    "navLabel": "Điều hướng chính",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
+    "scopeCaption": "Phạm vi dữ liệu",
+    "scopeAll": "Tất cả chi nhánh",
+    "scopeOwn": "Chi nhánh của bạn",
+    "scopeMany": "{count} chi nhánh được giao",
+    "userMenu": "Menu tài khoản",
+    "logout": "Đăng xuất",
+    "nav": {
+      "dashboard": "Tổng quan",
+      "warehouses": "Kho (cấu hình)",
+      "groupWorkspace": "Workspace",
+      "groupSystem": "Hệ thống"
+    }
+  },
+  "dashboard": {
+    "title": "Tổng quan",
+    "emptyTitle": "Chưa có số liệu",
+    "emptyText": "Các biểu đồ và chỉ số sẽ xuất hiện khi các phân hệ nghiệp vụ được bật."
+  },
+  "warehouses": {
+    "title": "Kho",
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tên kho (có hoặc không dấu)",
+    "apply": "Áp dụng",
+    "reset": "Đặt lại",
+    "colCode": "Mã kho",
+    "colName": "Tên kho",
+    "colBranch": "Chi nhánh",
+    "colStatus": "Trạng thái",
+    "active": "Đang hoạt động",
+    "inactive": "Ngừng hoạt động",
+    "emptyTitle": "Chưa có kho nào",
+    "emptyText": "Chưa có kho trong phạm vi chi nhánh của bạn.",
+    "next": "Trang sau",
+    "prev": "Về đầu danh sách",
+    "scopeLine": "Phạm vi: {scope}"
+  },
+  "states": {
+    "loading": "Đang tải dữ liệu",
+    "errorTitle": "Không tải được dữ liệu",
+    "errorText": "Có lỗi khi tải. Thử lại, nếu vẫn lỗi hãy báo mã truy vết.",
+    "retry": "Thử lại",
+    "noPermissionTitle": "Bạn chưa có quyền xem mục này",
+    "noPermissionText": "Liên hệ quản lý chi nhánh để được cấp quyền.",
+    "traceRef": "Mã truy vết: {id}"
+  }
+}

@@ -46,7 +46,7 @@
     "check:indexes": "tsx --tsconfig tsconfig.json scripts/check-indexes.ts",
     "check:bundle": "tsx --tsconfig tsconfig.json scripts/check-bundle.ts",
     "test:unit": "vitest run --project unit",
-    "test:integration": "firebase emulators:exec --only firestore,auth --project demo-gmep \"vitest run --project integration\"",
+    "test:integration": "firebase emulators:exec --only firestore,auth,storage --project demo-gmep \"vitest run --project integration\"",
     "test:integration:memory": "vitest run --project integration",
     "test": "pnpm test:unit && pnpm test:integration",
     "emulators": "firebase emulators:start --only firestore,auth,storage --project demo-gmep",
