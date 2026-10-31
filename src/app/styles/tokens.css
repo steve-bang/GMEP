@@ -1,0 +1,402 @@
+/* ==========================================================================
+   GMEP – Design Tokens (Calm Enterprise · Purple Accent)
+   Nguồn chuẩn: docs/design-system.md. KHÔNG đổi giá trị/tên token của §12.
+   Tổ chức 3 lớp:
+     LỚP 1  Primitive  – giá trị gốc (thang màu, kích thước thô)
+     LỚP 2  Semantic   – ý nghĩa (text, surface, border, status, chart, interaction)
+     LỚP 3  Component  – token riêng từng component (button, input, table, sidebar…)
+   Dark mode: chỉ ghi đè LỚP 2 (và vài token LỚP 3) dưới [data-theme="dark"].
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. design-system.md §12 — NGUYÊN VĂN (gồm primitive brand + semantic cốt lõi)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Brand */
+  --color-brand-50: #F5F4FF;
+  --color-brand-100: #EBE9FF;
+  --color-brand-200: #D7D3FF;
+  --color-brand-300: #B7B0FF;
+  --color-brand-400: #958BFF;
+  --color-brand-500: #635BFF;
+  --color-brand-600: #5148E5;
+  --color-brand-700: #4038C7;
+  --color-brand-800: #302B9F;
+  --color-brand-900: #211E70;
+  /* Semantic */
+  --color-primary: var(--color-brand-500);
+  --color-primary-hover: var(--color-brand-600);
+  --color-primary-active: var(--color-brand-700);
+  --color-primary-subtle: var(--color-brand-50);
+  --color-text-primary: #111827;
+  --color-text-secondary: #4B5563;
+  --color-text-tertiary: #6B7280;
+  --color-text-disabled: #9CA3AF;
+  --color-page: #F8F9FC;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F1F2F6;
+  --color-border: #E5E7EB;
+  --color-border-strong: #D1D5DB;
+  --color-success: #16A34A;
+  --color-success-bg: #DCFCE7;
+  --color-warning: #D97706;
+  --color-warning-bg: #FEF3C7;
+  --color-danger: #DC2626;
+  --color-danger-bg: #FEE2E2;
+  --color-info: #2563EB;
+  --color-info-bg: #DBEAFE;
+  /* Typography */
+  --font-sans: "Be Vietnam Pro", sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-md: 0.875rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 999px;
+  /* Layout */
+  --sidebar-width: 248px;
+  --sidebar-collapsed-width: 72px;
+  --topbar-height: 64px;
+  --content-max-width: 1600px;
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(16,24,40,.05);
+  --shadow-md: 0 4px 12px rgba(16,24,40,.08);
+  --shadow-lg: 0 12px 32px rgba(16,24,40,.12);
+  --shadow-focus: 0 0 0 3px rgba(99,91,255,.18);
+}
+
+/* --------------------------------------------------------------------------
+   LỚP 1 – PRIMITIVE bổ sung (tên --palette-*, chỉ dùng để dựng lớp semantic)
+   Ghi chú: thang neutral/status dưới đây là đề xuất bổ sung của designer để
+   badge đạt AA; giá trị chính của design-system (§2) vẫn giữ nguyên ở trên.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Neutral (gray – Tailwind-like, khớp text/border của design-system) */
+  --palette-gray-0: #FFFFFF;
+  --palette-gray-50: #F8F9FC;
+  --palette-gray-100: #F1F2F6;
+  --palette-gray-200: #E5E7EB;
+  --palette-gray-300: #D1D5DB;
+  --palette-gray-400: #9CA3AF;
+  --palette-gray-500: #6B7280;
+  --palette-gray-150: #E9EAF0;
+  --palette-gray-450: #868D9A;   /* viền control nhập liệu: ≈ 3,34:1 trên #FFFFFF (đo, đạt ≥ 3:1 – WCAG 1.4.11) */
+  --palette-gray-600: #4B5563;
+  --palette-gray-900: #111827;
+  --palette-gray-950: #0B0F1A;
+
+  /* Slate – cho trạng thái Neutral (#64748B theo design-system §2) */
+  --palette-slate-100: #F1F5F9;
+  --palette-slate-200: #E2E8F0;
+  --palette-slate-500: #64748B;
+  --palette-slate-700: #334155;
+
+  /* Chữ đậm cho badge (nền nhạt + chữ đậm, đạt ≥ 4.5:1 – xem foundation/index.html) */
+  --palette-green-800: #166534;
+  --palette-amber-800: #92400E;
+  --palette-red-700: #B91C1C;
+  --palette-red-800: #991B1B;
+  --palette-blue-800: #1E40AF;
+  --palette-green-300: #86EFAC;
+  --palette-amber-300: #FCD34D;
+  --palette-red-300: #FCA5A5;
+  --palette-blue-300: #93C5FD;
+  --palette-red-focus: rgba(220,38,38,.18);   /* vầng focus lỗi (cùng alpha với shadow.focus) */
+
+  /* Dark-mode primitives (chỉ mức cấu trúc, chưa qua kiểm thử đầy đủ) */
+  --palette-dark-page: #0F1220;
+  --palette-dark-surface: #171A2B;
+  --palette-dark-subtle: #1F2337;
+
+  /* Chart palette (đề xuất; ≤ 5 màu, không dùng đỏ/xanh lá trang trí – §9) */
+  --palette-chart-1: #635BFF;
+  --palette-chart-2: #0F766E;
+  --palette-chart-3: #B45309;
+  --palette-chart-4: #64748B;
+  --palette-chart-5: #BE185D;
+
+  /* Kích thước thô */
+  --palette-px-44: 44px;
+}
+
+/* --------------------------------------------------------------------------
+   LỚP 2 – SEMANTIC bổ sung
+   (Text / Surface / Border / Brand / Status / Chart / Interaction)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Text */
+  --color-text-on-primary: var(--palette-gray-0);
+  --color-text-link: var(--color-brand-600);      /* #5148E5: ≥ 4,5:1 cả trên nền trang (brand-500 chỉ ~4,4:1) */
+  --color-text-inverse: var(--palette-gray-0);
+  --color-knob: var(--palette-gray-0);            /* núm switch */
+  --shadow-focus-error: 0 0 0 3px var(--palette-red-focus);
+
+  /* Surface */
+  --color-surface-overlay: rgba(17,24,39,.48);   /* nền mờ dialog */
+  --color-surface-sunken: var(--color-surface-subtle);
+  --color-surface-hover: var(--palette-gray-50); /* hover hàng bảng / menu */
+  --color-surface-selected: var(--color-primary-subtle);
+
+  /* Border */
+  --color-border-focus: var(--color-primary);
+  --color-border-error: var(--color-danger);
+  --color-border-selected: var(--color-brand-300);
+
+  /* Status – màu nhấn (icon, viền, chấm) */
+  --color-neutral: var(--palette-slate-500);
+  --color-neutral-bg: var(--palette-slate-100);
+  --color-purple: var(--color-brand-600);
+  --color-purple-bg: var(--color-brand-100);
+
+  /* Status – chữ đậm trên nền nhạt (badge, alert) */
+  --color-success-text: var(--palette-green-800);
+  --color-warning-text: var(--palette-amber-800);
+  --color-danger-text: var(--palette-red-800);
+  --color-info-text: var(--palette-blue-800);
+  --color-neutral-text: var(--palette-slate-700);
+  --color-purple-text: var(--color-brand-800);   /* "Chờ QC": tím theo thang brand */
+
+  /* Status – viền nhẹ cho alert/badge outline */
+  --color-success-border: var(--palette-green-300);
+  --color-warning-border: var(--palette-amber-300);
+  --color-danger-border: var(--palette-red-300);
+  --color-info-border: var(--palette-blue-300);
+  --color-neutral-border: var(--palette-slate-200);
+  --color-purple-border: var(--color-brand-200);
+
+  /* Chart */
+  --chart-series-1: var(--palette-chart-1);
+  --chart-series-2: var(--palette-chart-2);
+  --chart-series-3: var(--palette-chart-3);
+  --chart-series-4: var(--palette-chart-4);
+  --chart-series-5: var(--palette-chart-5);
+  --chart-grid: var(--color-border);
+  --chart-axis: var(--color-text-tertiary);
+  --chart-target: var(--color-text-secondary);
+
+  /* Interaction */
+  --focus-ring: var(--shadow-focus);              /* dùng cùng outline đặc, xem base.css */
+  --focus-outline: 2px solid var(--color-primary);
+  --focus-outline-offset: 2px;
+  --opacity-disabled: 1;                          /* disabled đổi màu chữ/nền, không giảm opacity */
+  --skeleton-base: var(--color-surface-subtle);
+  --skeleton-shine: var(--palette-gray-150);
+
+  /* Motion (design-system §10) */
+  --dur-hover: 120ms;
+  --dur-press: 100ms;
+  --dur-dropdown: 150ms;
+  --dur-modal: 180ms;
+  --dur-page: 200ms;
+  --dur-toast: 200ms;
+  --ease-standard: cubic-bezier(.2,0,0,1);
+  --ease-out: cubic-bezier(0,0,.2,1);
+
+  /* Z-index */
+  --z-base: 0;
+  --z-sticky: 20;        /* sticky header bảng, bulk bar */
+  --z-sidebar: 40;
+  --z-topbar: 50;
+  --z-dropdown: 60;
+  --z-drawer: 70;
+  --z-modal: 80;
+  --z-toast: 90;
+  --z-tooltip: 100;
+
+  /* Typography – line-height & weight (design-system §3) */
+  --lh-display: 40px;
+  --lh-xl: 32px;
+  --lh-lg: 28px;
+  --lh-md: 26px;
+  --lh-sm: 24px;
+  --lh-body-lg: 24px;
+  --lh-body-md: 20px;
+  --lh-body-sm: 18px;
+  --lh-caption: 16px;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+/* --------------------------------------------------------------------------
+   LỚP 3 – COMPONENT tokens
+   -------------------------------------------------------------------------- */
+:root {
+  /* Button */
+  --btn-height-sm: 32px;           /* chỉ dùng trong bảng/toolbar dày trên desktop chuột */
+  --btn-height-md: 40px;
+  --btn-height-lg: 44px;
+  --btn-height-xl: 52px;           /* tablet xưởng: bắt đầu/hoàn thành việc */
+  --btn-radius: var(--radius-md);
+  --btn-px: var(--space-4);
+  --btn-primary-bg: var(--color-primary);
+  --btn-primary-bg-hover: var(--color-primary-hover);
+  --btn-primary-bg-active: var(--color-primary-active);
+  --btn-primary-fg: var(--color-text-on-primary);
+  --btn-secondary-bg: var(--color-surface);
+  --btn-secondary-border: var(--color-border-strong);
+  --btn-secondary-fg: var(--color-text-primary);
+  --btn-ghost-fg: var(--color-text-secondary);
+  --btn-danger-bg: var(--color-danger);
+  --btn-danger-bg-hover: var(--palette-red-700);
+  --btn-danger-bg-active: var(--palette-red-800);
+  --btn-disabled-bg: var(--color-surface-subtle);
+  --btn-disabled-fg: var(--color-text-disabled);
+
+  /* Input */
+  --input-height: 40px;
+  --input-height-touch: 44px;
+  --input-radius: var(--radius-md);        /* design-system §16: Input radius 8px */
+  --input-bg: var(--color-surface);
+  /* Bổ sung của BA (ba-decisions C-iv), chờ chủ dự án duyệt: viền control nhập liệu ≥ 3:1 (WCAG 1.4.11).
+     border.default/border.strong giữ nguyên cho card, bảng, divider. Đo: #868D9A trên #FFF ≈ 3,34:1 (đạt, không cần dùng #6B7280). */
+  --input-border: var(--palette-gray-450);
+  --input-border-hover: var(--color-text-tertiary);
+  --input-border-focus: var(--color-primary);
+  --input-border-error: var(--color-danger);
+  --control-border: var(--input-border);          /* checkbox, radio, switch (tắt), chip lọc */
+  --radius-control: var(--radius-sm);             /* control nhỏ 6px: checkbox, segmented, menu item */
+  --input-px: var(--space-3);
+  --input-placeholder: var(--color-text-tertiary);
+  --input-disabled-bg: var(--color-surface-subtle);
+
+  /* Badge */
+  --badge-radius: var(--radius-xs);
+  --badge-height: 24px;
+  --badge-px: var(--space-2);
+
+  /* Card */
+  --card-radius: var(--radius-lg);
+  --card-padding: var(--space-6);
+  --card-padding-compact: var(--space-4);
+  --card-border: var(--color-border);
+  --card-shadow: var(--shadow-sm);
+
+  /* Table */
+  --table-row-height: 52px;
+  --table-row-height-lg: 56px;
+  --table-row-height-compact: 44px;
+  --table-font-size: var(--font-size-md);   /* 14px */
+  --table-head-bg: var(--color-surface-subtle);
+  --table-row-hover: var(--color-surface-hover);
+  --table-row-selected: var(--color-surface-selected);
+
+  /* Sidebar / Topbar */
+  --sidebar-bg: var(--color-surface);
+  --sidebar-border: var(--color-border);
+  --sidebar-item-height: 44px;
+  --sidebar-item-hover: var(--color-surface-subtle);
+  --sidebar-item-active-bg: var(--color-primary-subtle);
+  --sidebar-item-active-fg: var(--color-brand-700);
+  --topbar-bg: var(--color-surface);
+  --page-padding-x: var(--space-8);
+  --page-padding-y: var(--space-6);
+
+  /* Dialog / Dropdown / Toast */
+  --dialog-radius: var(--radius-xl);
+  --dialog-shadow: var(--shadow-lg);
+  --dialog-width-sm: 440px;
+  --dialog-width-md: 560px;
+  --dropdown-radius: var(--radius-md);
+  --dropdown-shadow: var(--shadow-md);
+  --toast-width: 380px;
+
+  /* Tap target tối thiểu */
+  --touch-target: 44px;
+}
+
+/* --------------------------------------------------------------------------
+   DARK THEME – cấu trúc sẵn sàng (chưa là bản cuối; cần kiểm thử tương phản)
+   Chỉ ghi đè token semantic; component không phải sửa.
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-primary: var(--color-brand-400);
+  --color-primary-hover: var(--color-brand-300);
+  --color-primary-active: var(--color-brand-200);
+  --color-primary-subtle: rgba(99,91,255,.16);
+  --color-text-on-primary: #0B0F1A;
+  --color-text-link: var(--color-brand-300);
+
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #C4C8D4;
+  --color-text-tertiary: #9AA1B2;
+  --color-text-disabled: #5F6579;
+
+  --color-page: var(--palette-dark-page);
+  --color-surface: var(--palette-dark-surface);
+  --color-surface-subtle: var(--palette-dark-subtle);
+  --color-surface-hover: #1B1F33;
+  --color-surface-overlay: rgba(0,0,0,.64);
+  --color-border: #2A2F45;
+  --color-border-strong: #3A405A;
+
+  --color-success: #4ADE80;
+  --color-success-bg: rgba(74,222,128,.14);
+  --color-warning: #FBBF24;
+  --color-warning-bg: rgba(251,191,36,.14);
+  --color-danger: #F87171;
+  --color-danger-bg: rgba(248,113,113,.14);
+  --color-info: #60A5FA;
+  --color-info-bg: rgba(96,165,250,.14);
+  --color-neutral: #94A3B8;
+  --color-neutral-bg: rgba(148,163,184,.14);
+  --color-purple: var(--color-brand-300);
+  --color-purple-bg: rgba(149,139,255,.16);
+
+  --color-success-text: #86EFAC;
+  --color-warning-text: #FCD34D;
+  --color-danger-text: #FCA5A5;
+  --color-info-text: #93C5FD;
+  --color-neutral-text: #CBD5E1;
+  --color-purple-text: var(--color-brand-200);
+
+  --color-success-border: rgba(74,222,128,.4);
+  --color-warning-border: rgba(251,191,36,.4);
+  --color-danger-border: rgba(248,113,113,.4);
+  --color-info-border: rgba(96,165,250,.4);
+  --color-neutral-border: #3A405A;
+  --color-purple-border: rgba(149,139,255,.4);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.5);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.6);
+  --shadow-focus: 0 0 0 3px rgba(149,139,255,.35);
+
+  --skeleton-shine: #2A2F45;
+  --input-border: #7C8399;
+  --input-border-hover: #A3A9BA;
+  --shadow-focus-error: 0 0 0 3px rgba(248,113,113,.35);
+  --chart-series-1: #958BFF;
+  --chart-series-2: #2DD4BF;
+  --chart-series-3: #FBBF24;
+  --chart-series-4: #94A3B8;
+  --chart-series-5: #F472B6;
+  --btn-danger-bg: #DC2626;
+  --btn-danger-bg-hover: #EF4444;
+  --btn-danger-bg-active: #B91C1C;
+  --sidebar-item-active-fg: var(--color-brand-300);
+}

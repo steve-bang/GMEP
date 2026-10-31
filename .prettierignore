@@ -11,3 +11,7 @@ pnpm-lock.yaml
 test-results
 playwright-report
 tests/fixtures
+.claude
+CHANGELOG.md
+scripts/screenshot-all.js
+screenshots

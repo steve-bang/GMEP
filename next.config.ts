@@ -4,7 +4,8 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const config: NextConfig = {
-  output: 'standalone',
+  // Docker image build sets NEXT_OUTPUT=standalone (Cloud Run); plain `next start` is used locally and in e2e.
+  output: process.env.NEXT_OUTPUT === 'standalone' ? 'standalone' : undefined,
   poweredByHeader: false,
   reactStrictMode: true,
   // ADR 0001 §2: firebase-admin is server-only; never bundled for the browser.
