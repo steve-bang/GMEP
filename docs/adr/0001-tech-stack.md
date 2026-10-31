@@ -1,6 +1,6 @@
 # ADR 0001: Tech stack của GMEP
 
-- **Trạng thái:** Proposed (chờ chủ dự án xác nhận)
+- **Trạng thái:** Accepted (chủ dự án duyệt ngày 31/10/2026, kèm các điều chỉnh ở §2.1; các mục còn lại ở §12 vẫn là đề xuất mặc định)
 - **Ngày:** 31/10/2026
 - **Người đề xuất:** dev (senior full-stack)
 - **Liên quan:** [Review tài liệu và thiết kế](../dev/review-docs-and-design.md) · [Kế hoạch triển khai](../dev/implementation-plan.md) · `CLAUDE.md` (mục Open decisions)
@@ -27,6 +27,17 @@ Yếu tố quyết định kỹ thuật (từ BRD, FRD, `CLAUDE.md`; số lượ
 2. **Firebase:** Firestore làm cơ sở dữ liệu, Firebase Authentication làm xác thực, Cloud Storage làm lưu tệp.
 3. **Quy tắc cứng:** không có gì ở client được gọi Firebase trực tiếp. Trình duyệt chỉ nói chuyện với API của chúng ta. Firebase client SDK không được đưa xuống trình duyệt; Firestore Security Rules và Storage Rules **từ chối mọi truy cập client** (`allow read, write: if false`); chỉ dùng Admin SDK ở server. Phiên làm việc dùng cookie phiên phía máy chủ (Firebase Admin session cookie); RBAC và cách ly chi nhánh do server thi hành (NFR-ISO-01).
 
+### 2.1 Điều chỉnh khi duyệt (chủ dự án, 31/10/2026)
+
+Các điều chỉnh dưới đây **thắng** mọi chỗ khác trong ADR nếu có mâu thuẫn.
+
+| # | Quyết định | Hệ quả |
+| --- | --- | --- |
+| A1 | **Tải lên media qua API; đọc media bằng liên kết trực tiếp tới Firebase/Cloud Storage.** Đây là **ngoại lệ duy nhất, chỉ cho thao tác ĐỌC media** của quy tắc "client không gọi Firebase". Mọi thứ khác (Firestore, Auth, ghi Storage) vẫn chỉ qua API | Phương án A của §7.3 áp dụng cho tải lên; phương án B áp dụng cho tải xuống. Điều kiện bắt buộc ở §7.3. Diễn giải "liên kết gốc" là **URL ký ngắn hạn do API cấp sau khi kiểm quyền và `Scope`**, không phải URL công khai hay URL có token vĩnh viễn (xem §7.3). `[Cần xác nhận]` chủ dự án đồng ý diễn giải này |
+| A2 | **TOTP và PIN thiết bị: chủ dự án tự cài; phần máy chủ cho các chức năng này chủ dự án sẽ cung cấp sau.** | `dev` không tự viết TOTP, PIN, khóa tài khoản MFA. Chỉ để lại cổng `StrongAuthPort` (giao diện) và điểm móc trong luồng đăng nhập; Phase 0 và 1 chạy bằng mật khẩu + cookie phiên, MFA bật khi nhận được phần của chủ dự án. Bỏ R-03 khỏi phạm vi `dev`; bản của chủ dự án vẫn cần xem xét bảo mật độc lập trước go-live. Kịch bản S5 của spike chỉ kiểm mật khẩu, cookie phiên, thu hồi, bundle sạch |
+| A3 | **Firebase đặt tại Singapore (`asia-southeast1`); chấp nhận dữ liệu lưu ngoài Việt Nam.** | Vùng được chốt, không đổi sau khi tạo database. R-02 chuyển thành **rủi ro đã được chủ dự án chấp nhận**; khuyến nghị vẫn giữ hồ sơ pháp lý theo Luật Bảo vệ dữ liệu cá nhân 2025 (đánh giá tác động, thông báo/đồng ý khi cần) do khách tự xác nhận, không chặn kỹ thuật |
+| A4 | ADR được duyệt, gồm **spike 2 tuần** (§9) và đường lui PostgreSQL | Phase 0 có thể bắt đầu sau khi có dự án GCP/Firebase (quyết định #2, §12) |
+
 ADR này (a) **đề xuất** các lựa chọn bổ sung, (b) nêu thẳng rủi ro của lựa chọn Firebase kèm biện pháp, (c) nêu những quyết định cần chủ dự án xác nhận.
 
 ## 3. Tóm tắt đề xuất
@@ -37,12 +48,12 @@ ADR này (a) **đề xuất** các lựa chọn bổ sung, (b) nêu thẳng rủ
 | Ứng dụng | Next.js App Router, **modular monolith** theo mã phân hệ, kiến trúc phân lớp (transport, application, domain, persistence) |
 | API | Route Handlers `/api/v1`, `zod` kiểm dữ liệu, sinh OpenAPI từ schema `zod`, lỗi theo RFC 9457, phân trang bằng con trỏ, `Idempotency-Key` cho ghi rủi ro |
 | Lớp truy cập dữ liệu | Giao diện repository và `UnitOfWork` đặt trong từng module, bộ chuyển Firestore ở `infrastructure`; **mọi truy vấn bắt buộc có `Scope` (công ty, tập chi nhánh)** |
-| Xác thực | Firebase Auth làm kho danh tính và phát token; **kiểm mật khẩu, PIN, TOTP, khóa tài khoản làm ở server**; cookie phiên `__Host-`, `HttpOnly`, `Secure`, `SameSite=Lax` |
+| Xác thực | Firebase Auth làm kho danh tính và phát token; **kiểm mật khẩu và khóa tài khoản làm ở server; TOTP và PIN do chủ dự án cung cấp sau (A2), `dev` chỉ để cổng `StrongAuthPort`**; cookie phiên `__Host-`, `HttpOnly`, `Secure`, `SameSite=Lax` |
 | UI | Không dùng bộ UI có style sẵn; **port `design/assets/tokens.css` và `components.css`** (giữ tên class BEM), bọc thành component React; primitive không giao diện (Radix UI hoặc React Aria) cho hành vi truy cập; `lucide-react`; phông Be Vietnam Pro tự host |
 | Dữ liệu phía client | Server Components cho lần vẽ đầu; TanStack Query cho thao tác, làm mới định kỳ; TanStack Table cho bảng; biểu đồ SVG tự dựng từ mẫu của prototype |
 | i18n, định dạng | `next-intl` (một ngôn ngữ `vi`, vẫn qua tài nguyên chuỗi), `Intl` với `vi-VN`, `date-fns` múi giờ `Asia/Ho_Chi_Minh` |
 | Tiền và số | VND là số nguyên; số lượng và giờ là số thập phân lưu dạng số nguyên có tỉ lệ cố định (`decimal.js` ở tầng domain); không dùng số thực |
-| Tệp | Cloud Storage qua API trung gian; ảnh nén ở trình duyệt, xử lý bằng `sharp`; **không dùng signed URL phía client trừ khi chủ dự án chấp nhận ngoại lệ** (§7.3) |
+| Tệp | Cloud Storage; **tải lên qua API**, ảnh nén ở trình duyệt, xử lý bằng `sharp`; **đọc bằng URL ký ngắn hạn do API cấp (ngoại lệ đã được duyệt, A1)** (§7.3) |
 | Tác vụ nền | Cloud Tasks + Cloud Scheduler gọi endpoint nội bộ có xác thực OIDC; Cloud Run Jobs cho tác vụ dài |
 | In và PDF | In trình duyệt từ HTML in-first (A4, A5, nhiệt 80 mm); PDF máy chủ bằng Chromium (Playwright) trong dịch vụ riêng, dùng cùng mẫu HTML |
 | Quét mã vạch | `BarcodeDetector` khi có, dự phòng `zxing-wasm`; máy quét USB hoạt động như bàn phím |
@@ -171,7 +182,16 @@ Các điểm cần chủ dự án biết: (1) tự cài TOTP và khóa tài kho�
 | Dữ liệu client | TanStack Query: thao tác ghi, làm mới định kỳ (15 đến 30 giây ở kanban và hàng chờ), trạng thái tải, lỗi, xung đột | |
 | Nháp | IndexedDB (`idb`) cho nháp wizard; cảnh báo khi mất mạng (`navigator.onLine` kèm thăm dò nhẹ) | Đúng phạm vi "chỉ cảnh báo và lưu nháp" |
 
-### 7.3 Tệp và media (cần chủ dự án xác nhận)
+### 7.3 Tệp và media
+
+**Quyết định đã duyệt (A1): tải lên theo phương án A (qua API), tải xuống/đọc theo phương án B (liên kết trực tiếp tới Cloud Storage), chỉ cho thao tác đọc.** Điều kiện bắt buộc để ngoại lệ không phá cách ly chi nhánh và bảo vệ dữ liệu cá nhân:
+
+1. Liên kết là **URL ký V4 hạn ngắn** (mặc định 5 đến 15 phút, `[Cần xác nhận]`), một đối tượng, chỉ phương thức `GET`, do API tạo **sau khi** kiểm quyền và `Scope` của người gọi (bản ghi ngoài phạm vi trả 404, không cấp URL). Ghi nhật ký truy cập với tệp có dữ liệu cá nhân.
+2. **Không dùng** URL công khai, `makePublic`, hay URL có token vĩnh viễn (`firebasestorage` download token): các loại này không thu hồi được và bỏ qua kiểm quyền. Bucket giữ ở chế độ không công khai, Storage Rules vẫn `allow read, write: if false`.
+3. Đường dẫn đối tượng khó đoán (id ngẫu nhiên), không chứa dữ liệu cá nhân; đặt `Content-Disposition` và `Content-Type` đúng; ảnh/video chứa người hoặc biển số xe là dữ liệu cá nhân nên URL cấp theo từng lần xem, không lưu URL vào bản ghi.
+4. API cấp URL ký bằng tài khoản dịch vụ của Cloud Run (quyền ký `signBlob` tối thiểu); CSP cho phép `media-src`/`img-src` tới `storage.googleapis.com`. Trình duyệt vẫn **không có Firebase SDK**, kiểm bundle ở CI giữ nguyên.
+5. Không cấp URL ký cho XML/PDF hóa đơn nếu muốn kiểm quyền chặt hơn: bucket hóa đơn vẫn truyền qua API (`[Cần xác nhận]`).
+6. Tài liệu tham chiếu ban đầu của hai phương án giữ lại dưới đây để người đọc sau hiểu lý do.
 
 Quy tắc "client không gọi Firebase trực tiếp" có hệ quả thẳng: URL ký (signed URL) của Cloud Storage là một kết nối **trực tiếp** từ trình duyệt tới Storage. Có hai phương án:
 
@@ -287,15 +307,15 @@ Xếp theo mức độ nghiêm trọng đối với dự án. L = khả năng x�
 | ID | Rủi ro | L | I | Giảm thiểu | Phát hiện sớm |
 | --- | --- | --- | --- | --- | --- |
 | R-01 | Firestore không đáp ứng sổ kho, sổ quỹ, báo cáo hợp nhất ở độ phức tạp thật; phải làm lại giữa chừng | V | C | Spike hai tuần có tiêu chí (§9); lớp repository và `UnitOfWork`; thiết kế sổ chỉ ghi thêm và rollup | Kết quả spike; đo trong slice kho đầu tiên |
-| R-02 | Dữ liệu cá nhân nằm ngoài Việt Nam, vi phạm hoặc phải làm hồ sơ pháp lý, có thể buộc chuyển vùng | V | C | Hỏi luật sư trước khi tạo database prod (BA-11); phương án CSDL đặt trong nước qua đường lui (§6.2) | Trả lời luật sư |
-| R-03 | Tự cài TOTP, khóa tài khoản, phiên: lỗi bảo mật | V | C | Dùng thư viện đã kiểm chứng; bí mật mã hóa bằng KMS; kiểm thử và xem xét bảo mật độc lập trước go-live; hoặc dùng Identity Platform nếu spike xác nhận REST đủ | Code review bảo mật, kiểm thử thâm nhập |
+| R-02 | **[Đã được chủ dự án chấp nhận, A3]** Dữ liệu cá nhân nằm ở Singapore, có thể phải làm hồ sơ pháp lý, có thể buộc chuyển vùng | V | C | Hỏi luật sư trước khi tạo database prod (BA-11); phương án CSDL đặt trong nước qua đường lui (§6.2) | Trả lời luật sư |
+| R-03 | **[Chủ dự án tự cài TOTP và PIN, A2]** Lỗi bảo mật ở phần MFA/PIN/khóa tài khoản và phiên; `dev` chỉ chịu trách nhiệm cổng và cookie phiên | V | C | Dùng thư viện đã kiểm chứng; bí mật mã hóa bằng KMS; kiểm thử và xem xét bảo mật độc lập trước go-live; hoặc dùng Identity Platform nếu spike xác nhận REST đủ | Code review bảo mật, kiểm thử thâm nhập |
 | R-04 | Tranh chấp ghi và sai lệch tồn (oversell, giữ chỗ lệch) | V | C | Giao dịch cho mọi thay đổi tồn; số dư theo (kho, phụ tùng); test đồng thời; `fast-check` bất biến; đối soát số dư với sổ hằng đêm | Test đồng thời trong CI; cảnh báo lệch |
 | R-05 | Phát hành hóa đơn trùng hoặc mất yêu cầu | V | C | Khóa chống trùng, máy trạng thái yêu cầu, outbox, truy vấn trước khi gửi lại, `FakeProvider` chèn lỗi | UAT-23, giám sát hàng chờ lỗi |
 | R-06 | Nhật ký "bất biến" thực ra sửa được bằng Admin SDK | V | V | Không có API sửa hoặc xóa; xuất hằng đêm sang bucket khóa lưu giữ; quyền IAM tối thiểu cho người; đối chiếu băm theo lô | So khớp bản xuất định kỳ |
 | R-07 | Chi phí đọc vượt dự kiến, hoặc độ trễ cao | V | V | Phân trang nhỏ; bộ nhớ đệm server; tài liệu phiên bản chi nhánh cho làm mới; ngân sách đọc theo màn hình trong CI; theo dõi chi phí | Báo cáo chi phí hằng tuần ở staging |
 | R-08 | Emulator không phát hiện thiếu chỉ mục hoặc tranh chấp; lỗi chỉ lộ ở prod | C | V | Nightly trên staging thật; script kiểm chỉ mục; danh sách trắng bộ lọc | Lỗi nightly |
 | R-09 | Báo cáo tùy biến mới luôn cần rollup hoặc chỉ mục: backlog báo cáo phình | V | V | Thống nhất danh sách báo cáo cố định trong pilot; BigQuery ở Phase 4 cho phân tích mở | Số yêu cầu báo cáo mới |
-| R-10 | Video qua API làm quá tải server hoặc chậm | V | V | Giới hạn kích thước và thời lượng; tải theo mảnh; phương án B có chấp thuận (§7.3) | Đo ở spike và ở INS |
+| R-10 | Video tải LÊN qua API làm quá tải server hoặc chậm (tải xuống đã chuyển sang URL ký, A1; rủi ro mới: URL ký bị chia sẻ trong hạn, xem điều kiện §7.3) | V | V | Giới hạn kích thước và thời lượng; tải theo mảnh; phương án B có chấp thuận (§7.3) | Đo ở spike và ở INS |
 | R-11 | RTO 4 giờ không đạt vì khôi phục tạo database mới và tăng theo kích thước | V | V | Diễn tập khôi phục sớm; runbook chuyển database; sao lưu theo mốc | Diễn tập |
 | R-12 | Vô tình đưa Firebase client SDK hoặc khóa vào bundle trình duyệt | T | C | Không thêm gói `firebase`, `@firebase/*` vào `dependencies` giao diện; bước CI quét bundle; Security Rules từ chối tất cả (`firestore.rules`, `storage.rules`) có test; khóa API chỉ có ở biến môi trường server | CI |
 | R-13 | Thiếu nhân lực có kinh nghiệm Firestore ở Việt Nam, đội học trên dự án thật | V | V | Spike làm tài liệu mẫu và hướng dẫn thiết kế dữ liệu; review kiến trúc theo từng module; kiểm tra thiết kế bởi người có kinh nghiệm | Tốc độ ở slice đầu |
@@ -338,6 +358,8 @@ Chủ dự án đã chọn Firebase; bảng này để lại lý do cho người
 **Tiêu cực và chi phí chấp nhận:** báo cáo và đối chiếu tốn công thiết kế rollup; tự cài các phần xác thực mà Firebase không hỗ trợ ở luồng chỉ-server; không có công cụ SQL cho kế toán và vận hành (cần BigQuery); dữ liệu ở nước ngoài (cần luật sư); tệp media qua API tốn tài nguyên server; đội phải học các mẫu thiết kế Firestore; test phải chạy cả trên staging thật vì emulator không đủ.
 
 ## 12. Quyết định cần chủ dự án xác nhận
+
+**Kết quả duyệt 31/10/2026:** #1 duyệt; #3 media: tải lên qua API, đọc bằng URL ký trực tiếp (A1); #4 TOTP/PIN chủ dự án tự cài và cung cấp sau (A2); #5 chấp nhận dữ liệu tại Singapore (A3). #2 (cấp dự án GCP/Firebase thuộc tổ chức của khách) **chưa trả lời, đang chờ**. #6 đến #11 giữ đề xuất mặc định cho đến hết Phase 0.
 
 | # | Quyết định | Đề xuất | Cần trước |
 | --- | --- | --- | --- |

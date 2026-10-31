@@ -10,7 +10,9 @@ Documents are written in Vietnamese; UI text, VND currency and Vietnamese invoic
 
 ## Status
 
-The repository contains only documentation. No tech stack, build/lint/test commands, or code exist yet. Update this file once the project is scaffolded.
+The repository contains only documentation. No code or build/lint/test commands exist yet; update this file once the project is scaffolded.
+
+Tech stack (ADR `docs/adr/0001-tech-stack.md`, Accepted 2026-10-31; plan in `docs/dev/implementation-plan.md`, review in `docs/dev/review-docs-and-design.md`): Next.js fullstack (Route Handlers are the backend), TypeScript, Firebase (Firestore, Auth, Storage) in `asia-southeast1` (Singapore, data residency accepted by the owner). **Rule: the browser never calls Firebase** — no Firebase client SDK in the bundle, security rules deny all client access, Admin SDK only on the server. Sole exception: media **reads** use short-lived signed URLs issued by the API after permission/branch checks; media **uploads** go through the API. TOTP/PIN are provided later by the owner (`StrongAuthPort` placeholder). Data access goes through repository/`UnitOfWork` interfaces so the DB can be swapped (PostgreSQL fallback if the Phase 0 spike fails). The GCP/Firebase project is still pending from the owner.
 
 The docs are drafts (BRD v0.3), not yet confirmed by the client. Items marked `[Cần xác nhận]` are open decisions; do not hard-code assumptions for them.
 
