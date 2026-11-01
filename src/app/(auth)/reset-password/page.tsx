@@ -25,7 +25,7 @@ export default async function ResetPasswordPage({
     () => true,
   );
   const peek = limited ? { state: 'invalid' as const } : await peekToken(deps, 'reset', token);
-  const footer = `${t('app.name')} · ${t('app.version')}`;
+  const footer = `${t('app.name')} · ${t('app.support')}`;
   if (peek.state !== 'valid') {
     const key = limited
       ? 'rateLimited'

@@ -112,7 +112,7 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
       .reverse()
       .join('/'); // dd/MM/yyyy as typed by the user
     await page.getByLabel('Hiệu lực từ').fill(date);
-    await page.getByLabel('Tên', { exact: true }).fill('Dữ liệu mẫu e2e');
+    await page.getByLabel(/^Tên\*?$/).fill('Dữ liệu mẫu e2e');
     await page.getByLabel(/Thuế suất \(%\)/).fill('8');
     await page.getByLabel('Lý do').fill('kiểm thử e2e');
     await page.getByRole('button', { name: 'Gửi đề xuất' }).click();

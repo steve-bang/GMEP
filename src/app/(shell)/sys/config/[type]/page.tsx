@@ -183,9 +183,7 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
       )}
       {canPropose ? (
         <section aria-labelledby="prop-h" className="card" style={{ padding: 'var(--space-6)' }}>
-          <h2 id="prop-h" className="t-h3">
-            {t('config.propose')}
-          </h2>
+          <h2 id="prop-h">{t('config.propose')}</h2>
           <p className="text-secondary">{t('config.proposeLead')}</p>
           <ProposeConfigForm
             type={type}

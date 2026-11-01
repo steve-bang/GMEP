@@ -39,3 +39,22 @@ Chủ dự án quyết định **MFA làm sau**: không dựng TOTP/PIN, không 
 | N12 | Xuất nhật ký: AD và CH, tối đa 5.000 dòng, có lý do; không bắt nhập lại mật khẩu vì không xuất cột cá nhân | Không step-up | `exportAuditCsv` |
 | N13 | Nội dung "quy định sử dụng và bảo mật dữ liệu" khi kích hoạt tài khoản do doanh nghiệp cung cấp; hiện chỉ lưu thời điểm đồng ý và chuỗi phiên bản giữ chỗ | `consentPolicyVersion` | `sysConfigFromEnv` |
 | N14 | Đổi email, mật khẩu tạm cho nhân viên không email (thợ), đăng nhập bất thường (bộ đếm B báo AD và gửi email chủ tài khoản), lịch sử đăng nhập FR-SYS-014: chưa làm trong lần này | Chưa làm | slice sau |
+
+## Câu hỏi từ đợt căn chỉnh UI theo design (01/11/2026, dev)
+
+Gửi `ba` (B) hoặc `designer` (D). Các giá trị tạm đã chạy trong ứng dụng, chờ xác nhận.
+
+| # | Gửi | Câu hỏi | Giá trị tạm trong mã | Nơi sửa |
+| --- | --- | --- | --- | --- |
+| U1 | B | G4-SYS-01 có cột và đếm "bị khóa" (khóa do nhập sai mật khẩu). Hiện khóa đăng nhập chỉ là bộ đếm tạm (hết hạn tự động), không phải trạng thái tài khoản; trạng thái lưu chỉ có Đang hoạt động / Đã mời / Đã khóa (vô hiệu hóa). "Bị khóa" trên danh sách có nghĩa là vô hiệu hóa thủ công, hay cần hiển thị cả khóa tạm do nhập sai? | Đếm tài khoản vô hiệu hóa, nhãn "Đã khóa" | `searchUsers`, `users.status` |
+| U2 | B/D | G4-SYS-01 có cột "Xác thực hai lớp". MFA làm sau theo chủ dự án nên cột bị bỏ. Cần giữ chỗ cột hay bỏ hẳn tới khi có MFA? | Bỏ cột | `users/page.tsx` |
+| U3 | D | G4-SYS-10 có trạng thái "Nháp". Miền dữ liệu hiện chỉ có Chờ duyệt / Đã duyệt / Đã từ chối; "Hiện hành", "Sắp hiệu lực", "Hết hiệu lực" được suy ra từ ngày hiệu lực. Có cần lưu nháp (chưa gửi duyệt) không? | Không có Nháp | `config/configView.ts` |
+| U4 | B | G4-SYS-10 có bảng "Ví dụ kiểm thử công thức thuế" kế toán ký xác nhận và quy tắc làm tròn (theo dòng hay theo hóa đơn). Chưa có mô-đun tính thuế để chạy ví dụ; cần kế toán cho ví dụ có số và quy tắc làm tròn trước khi làm. | Chưa làm | ACC/EIN |
+| U5 | B/D | G4-SYS-07 gộp danh mục dịch vụ, giờ chuẩn và đơn giá giờ theo chi nhánh trong một màn có 3 tab; dữ liệu hiện tách thành danh mục dịch vụ (catalog) và hai loại cấu hình (giờ chuẩn, đơn giá giờ). Giờ chuẩn hiển thị theo từng dịch vụ ngay trên bảng dịch vụ có được không? | Hai màn riêng trong menu Cài đặt | `services/page.tsx`, `config/[type]` |
+| U6 | D | G4-SYS-09 hạn mức giảm giá theo vai trò và chi nhánh: prototype có mẫu bảng vai trò x hạn mức. Cấu hình hiện là một dòng phiên bản mỗi (vai trò, phạm vi). Cần màn hình dạng ma trận gộp các vai trò của một phiên bản? | Một phiên bản = một vai trò | `discount-limit` payload |
+| U7 | D | Danh sách người dùng trên điện thoại: prototype dùng `record-list` (thẻ), app đang cuộn ngang trong bảng. Cần cho `DataTable` một chế độ thẻ dưới 640px? | Bảng cuộn ngang | `DataTable.tsx` |
+| U8 | D | Prototype G4-SYS-* cho hiện mã màn hình (G4-SYS-01) và độ ưu tiên (P1) ở đầu trang. Mã màn là thông tin nội bộ; trong ứng dụng đang hiện mã màn, bỏ P1. Giữ hay bỏ ở bản chạy thật? | Hiện mã, không P1 | `SettingsFrame.tsx` |
+| U9 | B/D | G4-SYS-19 có tab "Truy cập dữ liệu cá nhân" (nhật ký bấm Hiện) và bộ lọc theo nhóm đối tượng (Khách và xe, Lệnh, Kho, Tiền, Hóa đơn, Phân quyền, Cấu hình). Nhật ký truy cập đã được ghi nhưng chưa có màn xem; nhóm đối tượng chờ các mô-đun nghiệp vụ. | Lọc theo từng loại bản ghi; chưa có tab | `audit/page.tsx` |
+| U10 | D | Chưa có prototype cho form mời người dùng khi vào từ danh sách (G4-SYS-02 có form sửa/mời trong khung). App dùng form một cột trong khung cài đặt. Cần xác nhận bố cục hai cột, nhóm "Vai trò và chi nhánh" lặp được nhiều dòng. | Form một cột, một phép gán | `InviteUserForm.tsx` |
+| U11 | D | G5-AUT-01 có gợi ý "nhân viên chưa có email (ví dụ thợ): nhờ quản lý chi nhánh cấp mã tạm". Hiện trang Quên mật khẩu chưa hiện gợi ý này (phụ thuộc quyết định N14 về đăng nhập thợ bằng PIN). | Chưa hiện | `ForgotForm.tsx` |
+| U12 | B | Thanh tìm kiếm toàn cục (Ctrl K) trong prototype cần phạm vi tìm (phiếu, biển số, khách, phụ tùng). Các mô-đun đó chưa có, nên chưa dựng khung rỗng. | Chưa làm | `AppShell.tsx` |

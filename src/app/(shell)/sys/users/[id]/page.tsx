@@ -64,7 +64,11 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
           {t(`users.status.${u.status}`)}
         </StatusBadge>
       </p>
-      <section aria-labelledby="contact-h">
+      <section
+        aria-labelledby="contact-h"
+        className="card stack-2"
+        style={{ padding: 'var(--space-6)' }}
+      >
         <h2 id="contact-h">{t('users.contact')}</h2>
         {u.phone ? (
           <RevealPhone
@@ -87,7 +91,11 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
           <p className="text-secondary">{t('users.noPhone')}</p>
         )}
       </section>
-      <section aria-labelledby="roles-h" className="stack">
+      <section
+        aria-labelledby="roles-h"
+        className="card stack"
+        style={{ padding: 'var(--space-6)' }}
+      >
         <h2 id="roles-h">{t('users.assignments')}</h2>
         {u.assignments?.length ? (
           <ul className="stack" data-testid="assignments">
@@ -122,7 +130,11 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
           />
         ) : null}
       </section>
-      <section aria-labelledby="acct-h" className="stack">
+      <section
+        aria-labelledby="acct-h"
+        className="card stack"
+        style={{ padding: 'var(--space-6)' }}
+      >
         <h2 id="acct-h">{t('users.account')}</h2>
         <div className="g5-actions">
           {canArchive ? (

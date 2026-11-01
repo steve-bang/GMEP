@@ -28,12 +28,14 @@ export default async function ShellLayout({ children }: { children: React.ReactN
     label: string,
     icon: string,
     match: 'exact' | 'prefix' = 'prefix',
+    readOnly = false,
   ) => ({
     key,
     href,
     label,
     icon,
     match,
+    ...(readOnly ? { readOnly } : {}),
   });
   const nav: NavGroup[] = [
     {
@@ -43,17 +45,68 @@ export default async function ShellLayout({ children }: { children: React.ReactN
     {
       label: t('shell.nav.groupSystem'),
       items: [
-        ...(can.branches ? [item('br', '/sys/branches', t('shell.nav.branches'), 'map-pin')] : []),
-        ...(can.warehouses
-          ? [item('wh', '/sys/warehouses', t('shell.nav.warehouses'), 'warehouse')]
+        ...(can.branches
+          ? [
+              item(
+                'br',
+                '/sys/branches',
+                t('shell.nav.branches'),
+                'map-pin',
+                'prefix',
+                info.readOnly.branches,
+              ),
+            ]
           : []),
-        ...(can.users ? [item('us', '/sys/users', t('shell.nav.users'), 'users')] : []),
-        ...(can.services ? [item('sv', '/sys/services', t('shell.nav.services'), 'wrench')] : []),
+        ...(can.warehouses
+          ? [
+              item(
+                'wh',
+                '/sys/warehouses',
+                t('shell.nav.warehouses'),
+                'warehouse',
+                'prefix',
+                info.readOnly.warehouses,
+              ),
+            ]
+          : []),
+        ...(can.users
+          ? [item('us', '/sys/users', t('shell.nav.users'), 'users', 'prefix', info.readOnly.users)]
+          : []),
+        ...(can.services
+          ? [
+              item(
+                'sv',
+                '/sys/services',
+                t('shell.nav.services'),
+                'wrench',
+                'prefix',
+                info.readOnly.services,
+              ),
+            ]
+          : []),
         ...(can.priceLists
-          ? [item('pl', '/sys/price-lists', t('shell.nav.priceLists'), 'receipt')]
+          ? [
+              item(
+                'pl',
+                '/sys/price-lists',
+                t('shell.nav.priceLists'),
+                'receipt',
+                'prefix',
+                info.readOnly.priceLists,
+              ),
+            ]
           : []),
         ...(can.config || can.templates || can.priceLists || can.services
-          ? [item('cfg', '/sys/config', t('shell.nav.config'), 'settings')]
+          ? [
+              item(
+                'cfg',
+                '/sys/config',
+                t('shell.nav.config'),
+                'settings',
+                'prefix',
+                info.readOnly.config,
+              ),
+            ]
           : []),
         ...(can.audit ? [item('au', '/sys/audit', t('shell.nav.audit'), 'history')] : []),
       ],
@@ -74,6 +127,9 @@ export default async function ShellLayout({ children }: { children: React.ReactN
         scopeCaption: t('shell.scopeCaption'),
         userMenu: t('shell.userMenu'),
         logout: t('shell.logout'),
+        readOnly: t('shell.readOnly'),
+        collapse: t('shell.collapse'),
+        expand: t('shell.expand'),
       }}
       scopeSlot={<ScopePicker scope={info.scope} roleNames={roleNames} />}
       bell={{

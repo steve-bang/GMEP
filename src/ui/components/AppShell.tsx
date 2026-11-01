@@ -2,8 +2,24 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Icon } from './Icon';
+
+const subscribeSidebar = (cb: () => void) => {
+  window.addEventListener('gmep-sidebar', cb);
+  window.addEventListener('storage', cb);
+  return () => {
+    window.removeEventListener('gmep-sidebar', cb);
+    window.removeEventListener('storage', cb);
+  };
+};
+const readSidebar = () => {
+  try {
+    return localStorage.getItem('gmep-sidebar') === 'collapsed';
+  } catch {
+    return false;
+  }
+};
 
 export interface NavItem {
   key: string;
@@ -11,6 +27,8 @@ export interface NavItem {
   label: string;
   icon: string;
   match: 'exact' | 'prefix';
+  /** the user may open the screen but not change it */
+  readOnly?: boolean;
 }
 export interface NavGroup {
   label: string;
@@ -28,6 +46,9 @@ export interface AppShellProps {
     scopeCaption: string;
     userMenu: string;
     logout: string;
+    readOnly: string;
+    collapse: string;
+    expand: string;
   };
   /** scope picker / static chip (a client component rendered by the layout) */
   scopeSlot: ReactNode;
@@ -56,6 +77,17 @@ export function AppShell({
   const [navOpen, setNavOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // sidebar state is remembered per device (same key as the design prototype)
+  const collapsed = useSyncExternalStore(subscribeSidebar, readSidebar, () => false);
+  function toggleCollapsed() {
+    try {
+      localStorage.setItem('gmep-sidebar', collapsed ? 'expanded' : 'collapsed');
+    } catch {
+      /* storage blocked: the toggle does nothing */
+    }
+    window.dispatchEvent(new Event('gmep-sidebar'));
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -90,7 +122,10 @@ export function AppShell({
   }
 
   return (
-    <div className={`app${navOpen ? ' is-nav-open' : ''}`} id="app">
+    <div
+      className={`app${navOpen ? ' is-nav-open' : ''}${collapsed ? ' is-collapsed' : ''}`}
+      id="app"
+    >
       <a className="skip-link" href="#main">
         {labels.skip}
       </a>
@@ -129,11 +164,30 @@ export function AppShell({
                 >
                   <Icon name={i.icon} />
                   <span className="nav-item__label">{i.label}</span>
+                  {i.readOnly ? (
+                    <span className="nav-item__lock" title={labels.readOnly}>
+                      <Icon name="lock" size="sm" label={labels.readOnly} />
+                    </span>
+                  ) : null}
                 </Link>
               ))}
             </div>
           ))}
         </nav>
+        <div className="sidebar__footer">
+          <button
+            type="button"
+            className="nav-item collapse-btn"
+            style={{ width: '100%' }}
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? labels.expand : labels.collapse}
+            title={collapsed ? labels.expand : labels.collapse}
+            onClick={toggleCollapsed}
+          >
+            <Icon name="panel-left" />
+            <span className="nav-item__label">{labels.collapse}</span>
+          </button>
+        </div>
       </aside>
       <div className="drawer-nav-backdrop" onClick={() => setNavOpen(false)} />
 

@@ -13,7 +13,7 @@ export default async function ForgotPasswordPage() {
       skip={t('shell.skip')}
       title={t('forgot.title')}
       lead={t('forgot.lead')}
-      footer={`${t('app.name')} · ${t('app.version')}`}
+      footer={`${t('app.name')} · ${t('app.support')}`}
     >
       <ForgotForm
         labels={{

@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "GARAGE OS",
-    "version": "Phiên bản 0.0 (khung dự án)"
+    "version": "Phiên bản 0.0 (khung dự án)",
+    "support": "Cần hỗ trợ? Liên hệ quản lý chi nhánh của bạn."
   },
   "errors": {
     "unauthenticated": {
@@ -234,7 +235,10 @@
       "config": "Cấu hình hiệu lực",
       "audit": "Nhật ký thao tác"
     },
-    "notifications": "Thông báo"
+    "notifications": "Thông báo",
+    "readOnly": "Chỉ xem",
+    "collapse": "Thu gọn",
+    "expand": "Mở rộng thanh bên"
   },
   "dashboard": {
     "title": "Tổng quan",

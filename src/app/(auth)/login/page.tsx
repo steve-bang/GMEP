@@ -31,7 +31,7 @@ export default async function LoginPage({
       skip={t('shell.skip')}
       title={t('login.title')}
       lead={t('login.lead')}
-      footer={`${t('app.name')} · ${t('app.version')}`}
+      footer={`${t('app.name')} · ${t('app.support')}`}
     >
       {sp.expired ? (
         <div className="alert alert--info" role="status">

@@ -24,7 +24,7 @@ export default async function ActivatePage({
     () => true,
   );
   const peek = limited ? { state: 'invalid' as const } : await peekToken(deps, 'invite', token);
-  const footer = `${t('app.name')} · ${t('app.version')}`;
+  const footer = `${t('app.name')} · ${t('app.support')}`;
   if (peek.state !== 'valid' || !('invitee' in peek) || !peek.invitee) {
     const key = limited
       ? 'rateLimited'
