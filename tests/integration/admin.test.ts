@@ -119,6 +119,7 @@ describe.each(backends)(
         const q7 = await listAll(h, 'u_ql_q7', {}, 25, '/api/v1/sys/users');
         const codes = q7.items.map((u) => u.employeeCode);
         expect(codes).toContain('NV0103');
+        expect(codes).toContain('NV801'); // invited through the API: assignments carry the sort key too
         expect(codes).not.toContain('NV0201'); // manager of another branch
         expect(codes).not.toContain('NV0001'); // owner has no assignment inside the branch scope
         expect((await h.call('GET', '/api/v1/sys/users/u_ql_td', { as: 'u_ql_q7' })).status).toBe(

@@ -97,6 +97,9 @@ function buildSys(
 ): SysDeps {
   const config = sysConfigFromEnv(env);
   const now = () => clock.now();
+  if (env.GMEP_ENV === 'prod')
+    // the only EmailGateway adapter is the dev outbox, which stores live single-use links in plain text
+    throw new Error('GMEP_ENV=prod needs a real EmailGateway adapter (none is chosen yet).');
   const state = new DocAtomicStateStore(store, uow);
   const deps: SysDeps = {
     uow,

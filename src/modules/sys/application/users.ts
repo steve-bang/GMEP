@@ -231,6 +231,7 @@ export async function inviteUser(
           companyId: actor.companyId,
           roleCode: a.roleCode,
           branchId: a.branchId,
+          employeeCode: data.employeeCode,
           createdAt: now,
           createdBy: actor.userId,
         }));
@@ -456,6 +457,7 @@ export async function addAssignment(
         companyId: actor.companyId,
         roleCode: a.roleCode,
         branchId: a.branchId,
+        employeeCode: target.employeeCode,
         createdAt: now,
         createdBy: actor.userId,
       });

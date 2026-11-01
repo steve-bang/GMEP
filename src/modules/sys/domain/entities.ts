@@ -65,6 +65,8 @@ export interface RoleAssignmentRecord {
   roleCode: string;
   /** branch id or '*' */
   branchId: string;
+  /** denormalised immutable employee code: the sort key of branch-scoped user lists (Firestore skips documents without the order field) */
+  employeeCode: string;
   createdAt: Date;
   createdBy: string;
 }

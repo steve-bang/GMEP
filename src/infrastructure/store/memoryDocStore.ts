@@ -98,6 +98,8 @@ export class MemoryDocStore implements DocStore {
     const dir = shape.order.dir === 'asc' ? 1 : -1;
     const iso = (x: string | Date) => (x instanceof Date ? x.toISOString() : x);
     let rows = [...this.db.col(shape.collection).entries()].filter(([, d]) => {
+      // like Firestore: a document without the order field is not part of the result
+      if (d[f] === undefined || d[f] === null) return false;
       for (const k of shape.eq) if (d[k] !== p.eq![k]) return false;
       if (shape.scopeField && !p.scopeBranches!.includes(d[shape.scopeField])) return false;
       if (p.range?.gte !== undefined && !(val(d) >= iso(p.range.gte))) return false;

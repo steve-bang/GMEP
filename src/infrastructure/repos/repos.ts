@@ -292,6 +292,7 @@ const assignmentFromDoc = ({ id, data: x }: StoredDoc): RoleAssignmentRecord => 
   companyId: x.companyId,
   roleCode: x.roleCode,
   branchId: x.branchId,
+  employeeCode: x.employeeCode ?? '',
   createdAt: x.createdAt ?? new Date(0),
   createdBy: x.createdBy ?? 'seed',
 });
