@@ -1,57 +1,57 @@
 /**
- * S8: verifies that every query the Firestore adapters can issue (src/infrastructure/firestore/queries.ts)
- * is covered by a composite index in firestore.indexes.json. The Emulator does not enforce indexes,
- * so this is the guard that keeps "passes locally, fails in prod" out. Exit code 1 on any gap.
+ * S8 / H3: verifies that every query the repositories can issue is covered by a composite index in
+ * firestore.indexes.json. The query catalogue is NOT hand-written here: it is the registry that
+ * infrastructure/repos/queries.ts fills (the store refuses unregistered shapes), so adding a
+ * repository query without registering it fails at runtime and in tests/unit/indexes.test.ts.
+ * The Emulator does not enforce indexes, so this static check guards "passes locally, fails in prod".
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { registeredQueries } from '@/platform/store/docStore';
 import {
-  allQuerySpecs,
   indexSatisfies,
   requiredIndex,
+  requiredIndexDefs,
   type IndexDef,
-} from '@/infrastructure/firestore/queries';
+} from '@/platform/store/indexes';
+import '@/infrastructure/repos/queries';
 
 if (process.argv.includes('--write')) {
-  // Regenerate firestore.indexes.json from the query catalogue (deduplicated, stable order).
-  const seen = new Map<string, IndexDef>();
-  for (const spec of allQuerySpecs()) {
-    const need = requiredIndex(spec);
-    if (!need) continue;
-    const def: IndexDef = {
-      collectionGroup: need.collectionGroup,
-      queryScope: 'COLLECTION',
-      fields: [
-        ...need.equalityFields.map((f) => ({ fieldPath: f, order: 'ASCENDING' as const })),
-        ...need.orderFields,
-      ],
-    };
-    seen.set(JSON.stringify(def), def);
-  }
-  const indexes = [...seen.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, d]) => d);
+  const indexes = requiredIndexDefs();
+  // Firestore TTL policies (H2): documents are deleted after `expiresAt`; see infra/firestore-ttl.md
+  const ttl = ['idempotencyKeys', 'rateLimits', 'notifications', 'emailOutbox'].map((c) => ({
+    collectionGroup: c,
+    fieldPath: 'expiresAt',
+    ttl: true,
+    indexes: [] as unknown[],
+  }));
   writeFileSync(
     'firestore.indexes.json',
-    JSON.stringify({ indexes, fieldOverrides: [] }, null, 2) + '\n',
+    JSON.stringify({ indexes, fieldOverrides: ttl }, null, 2) + '\n',
   );
-  console.log(`Wrote ${indexes.length} composite indexes to firestore.indexes.json`);
+  console.log(
+    `Wrote ${indexes.length} composite indexes and ${ttl.length} TTL policies to firestore.indexes.json`,
+  );
   process.exit(0);
 }
 
 const file = JSON.parse(readFileSync('firestore.indexes.json', 'utf8')) as { indexes: IndexDef[] };
 let missing = 0;
-for (const spec of allQuerySpecs()) {
-  const need = requiredIndex(spec);
+for (const shape of registeredQueries()) {
+  const need = requiredIndex(shape);
   if (!need) {
-    console.log(`ok   ${spec.name} (single-field, automatic)`);
+    console.log(`ok   ${shape.name} (single-field, automatic)`);
     continue;
   }
-  if (file.indexes.some((d) => indexSatisfies(d, need))) console.log(`ok   ${spec.name}`);
+  if (file.indexes.some((d) => indexSatisfies(d, need))) console.log(`ok   ${shape.name}`);
   else {
     missing++;
-    console.error(`MISSING index for ${spec.name}: ${JSON.stringify(need)}`);
+    console.error(`MISSING index for ${shape.name}: ${JSON.stringify(need)}`);
   }
 }
 if (missing) {
-  console.error(`${missing} query variant(s) have no composite index in firestore.indexes.json`);
+  console.error(
+    `${missing} query shape(s) have no composite index in firestore.indexes.json (run pnpm indexes:generate)`,
+  );
   process.exit(1);
 }
-console.log('All query variants are covered by firestore.indexes.json');
+console.log(`All ${registeredQueries().length} query shapes are covered by firestore.indexes.json`);

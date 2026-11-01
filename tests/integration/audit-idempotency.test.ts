@@ -2,6 +2,16 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { allBranchesScope, branchesScope } from '@/platform/scope/scope';
 import { backends, createHarness, type Harness } from './harness';
 
+/** audit read helper: items of the first page */
+async function auditList(
+  audit: import('@/platform/audit/audit').AuditLog,
+  scope: import('@/platform/scope/scope').Scope,
+  filter: import('@/platform/audit/audit').AuditFilter,
+  limit: number,
+) {
+  return (await audit.list(scope, filter, { limit })).items;
+}
+
 const body = (code: string, branchId = 'br_q7') => ({ branchId, code, name: `Kho ${code}` });
 
 describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backend) => {
@@ -11,7 +21,8 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
   });
 
   const auditFor = (entityId: string, companyId = 'cmp_demo') =>
-    h.container.sys.audit.list(
+    auditList(
+      h.container.sys.audit,
       allBranchesScope(companyId),
       { entityType: 'warehouse', entityId },
       50,
@@ -19,7 +30,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
 
   it('FR-SYS-003: a create writes its audit entry in the same transaction, with actor, branch, request id and after-state', async () => {
     const res = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: 'audit-create-0001',
       body: body('AUD-001'),
     });
@@ -28,25 +39,25 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
     expect(entries).toHaveLength(1);
     expect(entries[0]).toMatchObject({
       action: 'warehouse.create',
-      actorId: 'u_ql_q7',
+      actorId: 'u_ad',
       branchId: 'br_q7',
       before: null,
       entityType: 'warehouse',
     });
     expect(entries[0]!.after).toMatchObject({ code: 'AUD-001', branchId: 'br_q7' });
     expect(entries[0]!.requestId).toBe(res.headers.get('x-request-id'));
-    expect(entries[0]!.actorRoles).toContain('QL');
+    expect(entries[0]!.actorRoles).toContain('AD');
   });
 
   it('FR-SYS-003: nothing is audited (and nothing is written) when the business change fails', async () => {
     const first = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: 'audit-dup-0000001',
       body: body('AUD-DUP'),
     });
     expect(first.status).toBe(201);
     const dup = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: 'audit-dup-0000002',
       body: body('AUD-DUP'),
     });
@@ -55,7 +66,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
     expect(await auditFor(first.json.id)).toHaveLength(1);
     // the failed attempt left no idempotency record either, so the key can be reused after fixing the input
     const retry = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: 'audit-dup-0000002',
       body: body('AUD-DUP2'),
     });
@@ -85,7 +96,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
       }),
     ).rejects.toThrow('boom');
     expect(
-      await audit.list(allBranchesScope('cmp_demo'), { entityType: 'probe' }, 10),
+      await auditList(audit, allBranchesScope('cmp_demo'), { entityType: 'probe' }, 10),
     ).toHaveLength(0);
   });
 
@@ -95,18 +106,20 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
       names.every((n) => audit[n] === undefined),
     );
     const res = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_td',
+      as: 'u_ad',
       key: 'audit-scope-00001',
       body: body('AUD-TD', 'br_td'),
     });
     expect(res.status).toBe(201);
-    const q7View = await h.container.sys.audit.list(
+    const q7View = await auditList(
+      h.container.sys.audit,
       branchesScope('cmp_demo', ['br_q7']),
       { entityId: res.json.id },
       10,
     );
     expect(q7View).toHaveLength(0);
-    const tdView = await h.container.sys.audit.list(
+    const tdView = await auditList(
+      h.container.sys.audit,
       branchesScope('cmp_demo', ['br_td']),
       { entityId: res.json.id },
       10,
@@ -115,7 +128,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
   });
 
   it('plan 2.8: replaying the same Idempotency-Key returns the original result with one record and one audit entry', async () => {
-    const opts = { as: 'u_ql_q7', key: 'idem-replay-00001', body: body('IDM-001') };
+    const opts = { as: 'u_ad', key: 'idem-replay-00001', body: body('IDM-001') };
     const a = await h.call('POST', '/api/v1/sys/warehouses', opts);
     const b = await h.call('POST', '/api/v1/sys/warehouses', opts);
     expect(a.status).toBe(201);
@@ -128,12 +141,12 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
 
   it('the same key with a different body is rejected (422 idempotency_key_reuse)', async () => {
     await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: 'idem-reuse-00001',
       body: body('IDM-002'),
     });
     const r = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: 'idem-reuse-00001',
       body: body('IDM-003'),
     });
@@ -144,7 +157,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
   it('keys are scoped per user: another user reusing the key does not replay', async () => {
     const k = 'idem-peruser-0001';
     const a = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: k,
       body: body('IDM-004'),
     });
@@ -160,13 +173,13 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
 
   it('missing or malformed key on a risky write -> 400', async () => {
     expect(
-      (await h.call('POST', '/api/v1/sys/warehouses', { as: 'u_ql_q7', body: body('IDM-006') }))
-        .json.code,
+      (await h.call('POST', '/api/v1/sys/warehouses', { as: 'u_ad', body: body('IDM-006') })).json
+        .code,
     ).toBe('idempotency_key_required');
     expect(
       (
         await h.call('POST', '/api/v1/sys/warehouses', {
-          as: 'u_ql_q7',
+          as: 'u_ad',
           key: 'short',
           body: body('IDM-006'),
         })
@@ -178,7 +191,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
     const results = await Promise.all(
       Array.from({ length: 20 }, () =>
         h.call('POST', '/api/v1/sys/warehouses', {
-          as: 'u_ql_q7',
+          as: 'u_ad',
           key: 'idem-parallel-0001',
           body: body('IDM-PAR'),
         }),
@@ -194,7 +207,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
     const results = await Promise.all(
       Array.from({ length: 10 }, (_, i) =>
         h.call('POST', '/api/v1/sys/warehouses', {
-          as: 'u_ql_q7',
+          as: 'u_ad',
           key: `idem-biz-key-${String(i).padStart(4, '0')}`,
           body: body('IDM-BIZ'),
         }),
@@ -228,7 +241,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
 
   it('validation errors are RFC 9457 problems with per-field errors', async () => {
     const r = await h.call('POST', '/api/v1/sys/warehouses', {
-      as: 'u_ql_q7',
+      as: 'u_ad',
       key: 'validation-00001',
       body: { branchId: 'br_q7', code: 'bad code!', name: 'x' },
     });
@@ -245,7 +258,8 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
 
   it('export is audited', async () => {
     await h.call('GET', '/api/v1/sys/warehouses/export', { as: 'u_owner' });
-    const entries = await h.container.sys.audit.list(
+    const entries = await auditList(
+      h.container.sys.audit,
       allBranchesScope('cmp_demo'),
       { entityType: 'warehouse', entityId: '*' },
       10,

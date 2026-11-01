@@ -24,8 +24,11 @@ export interface IdempotencyRecord {
 
 export interface IdempotencyStore {
   find(tx: Tx, id: string): Promise<IdempotencyRecord | null>;
-  /** Must fail (not overwrite) if the id exists. */
-  create(tx: Tx, record: IdempotencyRecord): void;
+  /**
+   * Must fail (not overwrite) if the id exists, unless `overwrite` is set: a record past its
+   * `expiresAt` is dead even when the Firestore TTL deletion (up to ~24 h late) has not run yet.
+   */
+  create(tx: Tx, record: IdempotencyRecord, opts?: { overwrite?: boolean }): void;
 }
 
 const KEY_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
@@ -74,7 +77,11 @@ export async function runIdempotent(
   const id = idempotencyDocId(req.userId, req.route, req.key);
   return deps.uow.run(async (tx) => {
     // reads first (Firestore rule), then business writes, then the key document
-    const existing = await deps.store.find(tx, id);
+    const found = await deps.store.find(tx, id);
+    // H2: HTTP idempotency is a response cache with a TTL. Business uniqueness (deterministic
+    // document ids, FR-EIN-013 style keys) is separate and never expires with this record.
+    const stale = !!found && found.expiresAt <= deps.now();
+    const existing = stale ? null : found;
     if (existing) {
       if (existing.fingerprint !== req.fingerprint)
         throw new AppError('idempotency_key_reuse', 422);
@@ -82,15 +89,19 @@ export async function runIdempotent(
     }
     const response = await work(tx);
     const now = deps.now();
-    deps.store.create(tx, {
-      id,
-      userId: req.userId,
-      route: req.route,
-      fingerprint: req.fingerprint,
-      response,
-      createdAt: now,
-      expiresAt: new Date(now.getTime() + deps.ttlMs),
-    });
+    deps.store.create(
+      tx,
+      {
+        id,
+        userId: req.userId,
+        route: req.route,
+        fingerprint: req.fingerprint,
+        response,
+        createdAt: now,
+        expiresAt: new Date(now.getTime() + deps.ttlMs),
+      },
+      { overwrite: stale },
+    );
     return { response, replayed: false };
   });
 }

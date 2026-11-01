@@ -1,16 +1,17 @@
-import { apiRoute, json } from '@/platform/http/route';
-import { getWarehouse, toWarehouseDto } from '@/modules/sys';
-import { allowedOrigins, authenticate } from '@/composition/auth';
-import { getContainer } from '@/composition/container';
+import { json, readJson } from '@/platform/http/route';
+import { authed } from '@/composition/api';
+import { getWarehouse, toWarehouseDto, updateWarehouse } from '@/modules/sys';
 
 export const runtime = 'nodejs';
 
 /** Out-of-scope id -> 404, identical to a missing one (NFR-ISO-01). */
-export const GET = apiRoute(
-  async ({ req, params }) => {
-    const { actor } = await authenticate(req);
-    const w = await getWarehouse(getContainer().sys, actor, params.id ?? '');
-    return json(toWarehouseDto(w));
-  },
-  { allowedOrigins },
+export const GET = authed(async ({ sys, session, params }) =>
+  json(toWarehouseDto(await getWarehouse(sys, session.actor, params.id ?? ''))),
+);
+
+/** Name/note edit with optimistic locking (`version`). */
+export const PATCH = authed(async ({ req, sys, session, params, requestId }) =>
+  json(
+    await updateWarehouse(sys, session.actor, params.id ?? '', await readJson(req), { requestId }),
+  ),
 );

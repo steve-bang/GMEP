@@ -29,17 +29,29 @@ export interface AppShellProps {
     userMenu: string;
     logout: string;
   };
-  scope: { label: string; detail?: string; icon: string };
+  /** scope picker / static chip (a client component rendered by the layout) */
+  scopeSlot: ReactNode;
+  bell: { href: string; label: string; count: number };
+  banner?: ReactNode;
   user: { name: string; initials: string };
   children: ReactNode;
 }
 
 /**
  * Sidebar + topbar from design/foundation/shell.html (same DOM and classes).
- * Branch scope is always visible in the top bar (design: "Phạm vi dữ liệu"); switching the
- * scope is a later slice, so here it is a read-only indicator (.branch-static).
+ * Branch scope is always visible in the top bar (design: "Phạm vi dữ liệu"): the layout passes
+ * either the static chip (one branch) or the ScopePicker.
  */
-export function AppShell({ nav, brand, labels, scope, user, children }: AppShellProps) {
+export function AppShell({
+  nav,
+  brand,
+  labels,
+  scopeSlot,
+  bell,
+  banner,
+  user,
+  children,
+}: AppShellProps) {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -134,16 +146,16 @@ export function AppShell({ nav, brand, labels, scope, user, children }: AppShell
         >
           <Icon name="menu" />
         </button>
-        <div className="branch-static" data-testid="branch-scope">
-          <Icon name={scope.icon} />
-          <span className="branch-static__text">
-            <span className="branch-btn__caption">{labels.scopeCaption}</span>
-            <span className="branch-btn__name" title={scope.detail}>
-              {scope.label}
-            </span>
-          </span>
-        </div>
+        {scopeSlot}
         <div className="topbar__spacer" />
+        <Link className="btn-icon bell" href={bell.href} aria-label={bell.label} data-testid="bell">
+          <Icon name="bell" />
+          {bell.count > 0 ? (
+            <span className="bell__count" aria-hidden="true">
+              {bell.count > 99 ? '99+' : bell.count}
+            </span>
+          ) : null}
+        </Link>
         <div className={`dropdown${menuOpen ? ' is-open' : ''}`} ref={menuRef}>
           <button
             type="button"
@@ -183,6 +195,7 @@ export function AppShell({ nav, brand, labels, scope, user, children }: AppShell
       </header>
 
       <main className="main" id="main">
+        {banner}
         <div className="main__inner">{children}</div>
       </main>
     </div>

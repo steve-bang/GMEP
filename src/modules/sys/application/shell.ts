@@ -1,38 +1,44 @@
-import { describeScope } from '@/platform/scope/scope';
-import { assignedScope, hasPermission, type Actor } from '@/platform/rbac/rbac';
+import { hasPermission, type Actor } from '@/platform/rbac/rbac';
 import type { SysDeps } from '../ports/deps';
+import { getScopeInfo, type ScopeInfo } from './scope';
 
 export interface ShellInfo {
   displayName: string;
-  /** Visible branch scope for the top bar (design: "Phạm vi dữ liệu"). */
-  scope: { kind: 'all' | 'single' | 'many' | 'none'; count: number; names: string[] };
-  /** branches visible to the user (id + name), for labels in lists */
-  branches: { id: string; name: string }[];
-  canViewWarehouses: boolean;
+  scope: ScopeInfo;
+  /** nav visibility, derived from the permission set (the server still checks every action) */
+  can: {
+    warehouses: boolean;
+    branches: boolean;
+    users: boolean;
+    audit: boolean;
+    services: boolean;
+    priceLists: boolean;
+    config: boolean;
+    templates: boolean;
+  };
+  unreadNotifications: number;
 }
 
 /** Data for the application shell: what the user may see and which branches that covers. */
 export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellInfo> {
-  const canViewWarehouses = hasPermission(actor, 'warehouse:view');
-  const scope = assignedScope(actor);
-  if (!scope) {
-    return {
-      displayName: actor.displayName,
-      scope: { kind: 'none', count: 0, names: [] },
-      branches: [],
-      canViewWarehouses,
-    };
-  }
-  const branches = await deps.branches.list(scope);
-  const d = describeScope(scope);
+  const can = (p: `${string}:view`) => hasPermission(actor, p);
+  const [scope, unread] = await Promise.all([
+    getScopeInfo(deps, actor),
+    deps.notifications.unreadCount(actor.userId, 100),
+  ]);
   return {
     displayName: actor.displayName,
-    scope: {
-      kind: d.kind,
-      count: scope.kind === 'all' ? branches.length : d.count,
-      names: branches.map((b) => b.name),
+    scope,
+    can: {
+      warehouses: can('warehouse:view'),
+      branches: can('org:view'),
+      users: can('user:view'),
+      audit: can('audit-log:view'),
+      services: can('service-catalog:view'),
+      priceLists: can('price-list:view'),
+      config: can('tax-rate:view') || can('discount-limit:view'),
+      templates: can('doc-template:view'),
     },
-    branches: branches.map((b) => ({ id: b.id, name: b.name })),
-    canViewWarehouses,
+    unreadNotifications: unread,
   };
 }

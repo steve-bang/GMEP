@@ -7,6 +7,8 @@ const actor = (assignments: Actor['assignments']): Actor => ({
   userId: 'u1',
   companyId: 'c1',
   displayName: 'Test',
+  canConsolidate: false,
+  workingBranchId: null,
   assignments,
   rolePermissions: {
     CH: ['warehouse:view', 'warehouse:create'],

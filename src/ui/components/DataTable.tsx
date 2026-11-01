@@ -20,7 +20,8 @@ export interface DataTableProps<T> {
 export function DataTable<T>({ caption, columns, rows, rowKey, busy }: DataTableProps<T>) {
   return (
     <div className="table-wrap" aria-busy={busy || undefined}>
-      <div className="table-scroll">
+      {/* keyboard-focusable scroll region (WCAG 2.1.1): the table scrolls sideways on narrow screens */}
+      <div className="table-scroll" tabIndex={0} role="region" aria-label={caption}>
         <table className="table">
           <caption className="sr-only">{caption}</caption>
           <thead>

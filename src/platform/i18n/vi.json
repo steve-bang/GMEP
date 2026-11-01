@@ -1,5 +1,8 @@
 {
-  "app": { "name": "GARAGE OS", "version": "Phiên bản 0.0 (khung dự án)" },
+  "app": {
+    "name": "GARAGE OS",
+    "version": "Phiên bản 0.0 (khung dự án)"
+  },
   "errors": {
     "unauthenticated": {
       "title": "Chưa đăng nhập",
@@ -37,7 +40,10 @@
       "title": "Khóa chống trùng đã dùng cho nội dung khác",
       "detail": "Dùng khóa mới cho yêu cầu khác nội dung."
     },
-    "bad_origin": { "title": "Yêu cầu bị từ chối", "detail": "Nguồn gửi yêu cầu không được phép." },
+    "bad_origin": {
+      "title": "Yêu cầu bị từ chối",
+      "detail": "Nguồn gửi yêu cầu không được phép."
+    },
     "unsupported_media_type": {
       "title": "Định dạng không hỗ trợ",
       "detail": "Chỉ chấp nhận application/json."
@@ -58,12 +64,134 @@
       "title": "Phạm vi quá rộng",
       "detail": "Phạm vi chi nhánh vượt giới hạn truy vấn hiện tại."
     },
-    "rate_limited": { "title": "Quá nhiều yêu cầu", "detail": "Thử lại sau ít phút." },
+    "rate_limited": {
+      "title": "Bạn thao tác hơi nhanh",
+      "detail": "Hệ thống tạm giới hạn số lần thử để bảo vệ tài khoản và dữ liệu. Thử lại sau ít phút. Nội dung bạn đã nhập vẫn được giữ."
+    },
     "internal": {
       "title": "Có lỗi hệ thống",
       "detail": "Thao tác chưa hoàn tất. Thử lại, nếu vẫn lỗi hãy báo mã truy vết cho bộ phận hỗ trợ."
     },
-    "unavailable": { "title": "Dịch vụ tạm thời không sẵn sàng", "detail": "Thử lại sau ít phút." }
+    "unavailable": {
+      "title": "Dịch vụ tạm thời không sẵn sàng",
+      "detail": "Thử lại sau ít phút."
+    },
+    "scope_required": {
+      "title": "Chọn một chi nhánh",
+      "detail": "Bạn được gán nhiều chi nhánh. Chọn một chi nhánh làm việc ở thanh trên rồi thử lại."
+    },
+    "scope_merged": {
+      "title": "Chọn đúng một chi nhánh",
+      "detail": "Mỗi chứng từ gắn với đúng một chi nhánh. Chọn một chi nhánh thay vì xem hợp nhất."
+    },
+    "scope_merged_not_allowed": {
+      "title": "Chưa dùng được xem hợp nhất",
+      "detail": "Xem hợp nhất chỉ dành cho Chủ garage và Quản lý vùng."
+    },
+    "branch_closing": {
+      "title": "Chi nhánh đang ngừng nhận lệnh mới",
+      "detail": "Chi nhánh không tạo được bản ghi mới ở trạng thái này; các lệnh đang mở vẫn xử lý được."
+    },
+    "version_conflict": {
+      "title": "Bản ghi vừa được cập nhật bởi người khác",
+      "detail": "Thay đổi của bạn chưa được lưu để tránh ghi đè. Tải lại để xem bản mới nhất rồi áp dụng lại."
+    },
+    "state_invalid": {
+      "title": "Trạng thái hiện tại không cho phép thao tác này",
+      "detail": "Tải lại trang để xem tình trạng mới nhất."
+    },
+    "warehouse_not_empty": {
+      "title": "Chưa ngừng dùng được kho",
+      "detail": "Kho còn tồn, hàng giữ chỗ, hàng đang vận chuyển hoặc chứng từ mở. Xử lý hết rồi thử lại."
+    },
+    "branch_has_blockers": {
+      "title": "Chưa khóa được chi nhánh",
+      "detail": "Chi nhánh còn lệnh mở, phiếu thu chưa chốt ca, hàng đang đi đường hoặc hóa đơn lỗi."
+    },
+    "user_exists": {
+      "title": "Email hoặc mã nhân viên đã được dùng",
+      "detail": "Chọn email hoặc mã nhân viên khác. Mã nhân viên không đổi và không dùng lại."
+    },
+    "approval_required": {
+      "title": "Cần Chủ garage thực hiện",
+      "detail": "Vai trò quản lý, kế toán và quản trị chỉ do Chủ garage cấp hoặc thay đổi."
+    },
+    "self_change": {
+      "title": "Không tự thay đổi chính mình",
+      "detail": "Nhờ người có thẩm quyền khác thực hiện thao tác này cho tài khoản của bạn."
+    },
+    "assignment_exists": {
+      "title": "Đã có phép gán này",
+      "detail": "Người dùng đã giữ vai trò này tại chi nhánh đó."
+    },
+    "branch_code_exists": {
+      "title": "Mã chi nhánh đã tồn tại",
+      "detail": "Chọn mã chi nhánh khác (2-4 ký tự)."
+    },
+    "code_exists": {
+      "title": "Mã đã tồn tại",
+      "detail": "Chọn mã khác."
+    },
+    "config_effective_in_past": {
+      "title": "Ngày hiệu lực không hợp lệ",
+      "detail": "Ngày hiệu lực không được ở quá khứ. Chọn từ hôm nay trở đi."
+    },
+    "config_slot_taken": {
+      "title": "Đã có phiên bản cho ngày hiệu lực này",
+      "detail": "Chọn ngày hiệu lực khác hoặc xử lý phiên bản đang chờ duyệt."
+    },
+    "self_approval": {
+      "title": "Người đề xuất không tự duyệt",
+      "detail": "Nhờ người có quyền duyệt khác. Chủ garage duyệt đề xuất của mình phải nhập lại mật khẩu."
+    },
+    "reauth_required": {
+      "title": "Cần nhập lại mật khẩu",
+      "detail": "Nhập đúng mật khẩu của bạn để duyệt đề xuất của chính mình."
+    },
+    "token_expired": {
+      "title": "Liên kết đã hết hạn",
+      "detail": "Hãy yêu cầu một liên kết mới; liên kết cũ không dùng được nữa."
+    },
+    "token_used": {
+      "title": "Liên kết này đã được dùng",
+      "detail": "Mỗi liên kết chỉ dùng một lần."
+    },
+    "token_revoked": {
+      "title": "Liên kết không còn hiệu lực",
+      "detail": "Liên kết đã bị thay thế hoặc thu hồi."
+    },
+    "token_invalid": {
+      "title": "Liên kết không hợp lệ",
+      "detail": "Kiểm tra lại liên kết hoặc yêu cầu liên kết mới."
+    },
+    "pii_reveal_denied": {
+      "title": "Không thể hiện thông tin này",
+      "detail": "Vai trò của bạn không được xem đầy đủ dữ liệu này. Yêu cầu bị từ chối đã được ghi nhận."
+    },
+    "export_too_large": {
+      "title": "Quá nhiều dòng để xuất",
+      "detail": "Thu hẹp bộ lọc (khoảng ngày, loại) rồi xuất lại."
+    },
+    "audit_type_required": {
+      "title": "Chọn loại bản ghi",
+      "detail": "Vai trò của bạn chỉ xem nhật ký của các loại bản ghi liên quan đến tiền và cấu hình. Chọn một loại."
+    },
+    "grant_exceeds_own": {
+      "title": "Không cấp được quyền bạn không có",
+      "detail": "Bạn chỉ cấp được những quyền chính bạn đang giữ."
+    },
+    "numbering_unknown_type": {
+      "title": "Loại chứng từ chưa có dãy số",
+      "detail": "Khai báo dãy số cho loại chứng từ này trước."
+    },
+    "login_locked": {
+      "title": "Tạm dừng đăng nhập trên thiết bị này",
+      "detail": "Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau ít phút hoặc dùng “Quên mật khẩu”. Quản lý chi nhánh cũng có thể mở khóa giúp bạn."
+    },
+    "session_expired": {
+      "title": "Phiên làm việc đã hết hạn",
+      "detail": "Vì an toàn, bạn cần đăng nhập lại."
+    }
   },
   "login": {
     "title": "Đăng nhập",
@@ -74,7 +202,13 @@
     "required": "Bắt buộc nhập",
     "identifierRequired": "Nhập email hoặc mã nhân viên.",
     "passwordRequired": "Nhập mật khẩu của bạn.",
-    "offline": "Mất kết nối mạng. Thông tin bạn đã nhập vẫn được giữ, thử lại khi có mạng."
+    "offline": "Mất kết nối mạng. Thông tin bạn đã nhập vẫn được giữ, thử lại khi có mạng.",
+    "forgot": "Quên mật khẩu?",
+    "capsLock": "Caps Lock đang bật. Mật khẩu phân biệt chữ hoa, chữ thường.",
+    "showPassword": "Hiện hoặc ẩn mật khẩu",
+    "wait": "Thử lại sau {time}.",
+    "expiredTitle": "Phiên làm việc đã hết hạn",
+    "expiredText": "Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị."
   },
   "shell": {
     "skip": "Bỏ qua điều hướng, tới nội dung chính",
@@ -90,10 +224,17 @@
     "logout": "Đăng xuất",
     "nav": {
       "dashboard": "Tổng quan",
-      "warehouses": "Kho (cấu hình)",
+      "warehouses": "Kho",
       "groupWorkspace": "Workspace",
-      "groupSystem": "Hệ thống"
-    }
+      "groupSystem": "Hệ thống",
+      "branches": "Chi nhánh",
+      "users": "Người dùng",
+      "services": "Danh mục dịch vụ",
+      "priceLists": "Bảng giá",
+      "config": "Cấu hình hiệu lực",
+      "audit": "Nhật ký thao tác"
+    },
+    "notifications": "Thông báo"
   },
   "dashboard": {
     "title": "Tổng quan",
@@ -116,7 +257,15 @@
     "emptyText": "Chưa có kho trong phạm vi chi nhánh của bạn.",
     "next": "Trang sau",
     "prev": "Về đầu danh sách",
-    "scopeLine": "Phạm vi: {scope}"
+    "scopeLine": "Phạm vi: {scope}",
+    "create": "Thêm kho",
+    "save": "Lưu kho",
+    "codeHint": "2-20 ký tự A-Z, 0-9, gạch ngang. Không đổi được sau khi kho có phát sinh.",
+    "note": "Ghi chú",
+    "detailLead": "Mã kho không đổi. Chỉ sửa tên và ghi chú.",
+    "deactivate": "Ngừng sử dụng",
+    "reactivate": "Mở lại kho",
+    "deactivateConfirm": "Ngừng sử dụng kho này? Chỉ làm được khi tồn, giữ chỗ và hàng đang chuyển đều bằng 0 và không còn chứng từ mở."
   },
   "states": {
     "loading": "Đang tải dữ liệu",
@@ -125,6 +274,320 @@
     "retry": "Thử lại",
     "noPermissionTitle": "Bạn chưa có quyền xem mục này",
     "noPermissionText": "Liên hệ quản lý chi nhánh để được cấp quyền.",
-    "traceRef": "Mã truy vết: {id}"
+    "traceRef": "Mã truy vết: {id}",
+    "notFoundTitle": "Không tìm thấy nội dung này",
+    "notFoundText": "Liên kết có thể đã cũ, nội dung đã được lưu trữ, hoặc bạn không có quyền xem. Kiểm tra lại hoặc quay về trang chủ.",
+    "home": "Về trang chủ",
+    "scopeRequiredTitle": "Chọn một chi nhánh để tiếp tục",
+    "scopeRequiredText": "Bạn được gán nhiều chi nhánh. Chọn một chi nhánh ở thanh trên rồi tải lại trang."
+  },
+  "offline": {
+    "title": "Mất kết nối.",
+    "text": "Bản nháp được giữ trên thiết bị. Chưa thể lưu, thu tiền hay xuất hóa đơn. Đang thử kết nối lại.",
+    "restored": "Đã kết nối lại."
+  },
+  "scope": {
+    "caption": "Phạm vi dữ liệu",
+    "own": "Chi nhánh của bạn",
+    "none": "Chưa được gán chi nhánh",
+    "choose": "Chọn chi nhánh",
+    "all": "Tất cả chi nhánh ({count})",
+    "title": "Phạm vi dữ liệu",
+    "hint": "Bạn được gán {count} chi nhánh. Chi nhánh khác không hiện trong danh sách.",
+    "mustChoose": "Chọn một chi nhánh để bắt đầu làm việc. Mỗi chứng từ gắn với đúng một chi nhánh.",
+    "mode": "Kiểu xem",
+    "modeOne": "Một chi nhánh",
+    "modeMerged": "Hợp nhất",
+    "mergedNotAllowed": "Xem hợp nhất chưa dùng được với vai trò của bạn. Số liệu hợp nhất dành cho Chủ garage và Quản lý vùng.",
+    "mergedNote": "Cộng gộp mọi chi nhánh bạn được xem. Không tạo được chứng từ mới ở phạm vi này.",
+    "listLabel": "Chọn một chi nhánh",
+    "roles": "Vai trò của bạn: {roles}",
+    "inUse": "Đang dùng",
+    "status": {
+      "closing": "Ngừng nhận lệnh mới",
+      "locked": "Đã khóa",
+      "active": "Đang hoạt động"
+    },
+    "willView": "Sẽ xem: {name}.",
+    "unchanged": "Chưa thay đổi so với phạm vi hiện tại.",
+    "cancel": "Hủy",
+    "apply": "Áp dụng phạm vi",
+    "failed": "Chưa đổi được phạm vi. Phạm vi hiện tại được giữ nguyên, thử lại sau.",
+    "offline": "Đang mất kết nối: chưa đổi được phạm vi vì số liệu không tải được. Phạm vi hiện tại được giữ nguyên.",
+    "draftTitle": "Bạn đang soạn dở",
+    "draftText": "Đổi phạm vi sẽ tải lại trang và bản soạn chưa lưu sẽ mất. Lưu nháp trước khi đổi?",
+    "draftStay": "Ở lại và lưu nháp",
+    "draftLeave": "Bỏ bản soạn và đổi"
+  },
+  "common": {
+    "cancel": "Hủy",
+    "back": "Quay lại",
+    "save": "Lưu thay đổi",
+    "pagination": "Phân trang",
+    "offlineAction": "Đang mất kết nối: thao tác này cần mạng. Thông tin bạn nhập vẫn được giữ.",
+    "errorSummary": "Có {count} mục cần sửa trước khi lưu.",
+    "rateLimited": "Bạn thao tác hơi nhanh. Thử lại sau {time}.",
+    "versionConflict": "Bản ghi vừa được người khác cập nhật. Tải lại trang để xem bản mới nhất rồi áp dụng lại thay đổi.",
+    "unexpected": "Chưa thực hiện được. Thử lại, nếu vẫn lỗi hãy báo mã truy vết cho bộ phận hỗ trợ."
+  },
+  "policy": {
+    "password": {
+      "min_length": "Mật khẩu cần ít nhất {min} ký tự.",
+      "reused": "Mật khẩu này đã dùng gần đây. Không dùng lại các mật khẩu gần nhất."
+    }
+  },
+  "forgot": {
+    "title": "Quên mật khẩu",
+    "lead": "Nhập email hoặc mã nhân viên. Nếu khớp một tài khoản, hướng dẫn đặt lại sẽ được gửi tới email của tài khoản.",
+    "submit": "Gửi hướng dẫn",
+    "back": "Về trang đăng nhập",
+    "sentTitle": "Kiểm tra email của bạn",
+    "sentText": "Nếu thông tin vừa nhập khớp một tài khoản, hướng dẫn đặt lại mật khẩu đã được gửi. Liên kết chỉ dùng một lần và có hiệu lực trong thời gian ngắn.",
+    "wait": "Thử lại sau {time}."
+  },
+  "reset": {
+    "title": "Đặt mật khẩu mới",
+    "lead": "Liên kết này chỉ dùng một lần. Sau khi đặt, mọi phiên đăng nhập cũ của tài khoản sẽ bị đăng xuất.",
+    "password": "Mật khẩu mới",
+    "confirm": "Nhập lại mật khẩu mới",
+    "submit": "Đặt mật khẩu",
+    "ruleLength": "Ít nhất {min} ký tự",
+    "ruleHistory": "Khác {n} mật khẩu gần nhất (hệ thống kiểm tra khi bạn bấm Đặt mật khẩu)",
+    "mismatch": "Hai mật khẩu chưa giống nhau. Nhập lại đúng mật khẩu ở ô trên.",
+    "doneTitle": "Đã đặt mật khẩu mới",
+    "doneText": "Mọi thiết bị đang đăng nhập bằng mật khẩu cũ đã bị đăng xuất. Đăng nhập lại bằng mật khẩu mới.",
+    "requestNew": "Yêu cầu liên kết mới",
+    "expired": {
+      "title": "Liên kết đã hết hạn",
+      "text": "Liên kết đặt lại mật khẩu chỉ có hiệu lực trong thời gian ngắn. Hãy yêu cầu một liên kết mới; liên kết cũ không dùng được nữa."
+    },
+    "used": {
+      "title": "Liên kết này đã được dùng",
+      "text": "Mỗi liên kết chỉ dùng một lần. Nếu bạn đã đặt mật khẩu mới, hãy đăng nhập. Nếu không phải bạn đã dùng, yêu cầu liên kết mới và báo quản lý chi nhánh."
+    },
+    "rateLimited": {
+      "title": "Bạn thử quá nhiều lần",
+      "text": "Vì an toàn, hãy thử lại sau ít phút."
+    }
+  },
+  "activate": {
+    "title": "Kích hoạt tài khoản",
+    "lead": "Bạn được mời tham gia hệ thống. Kiểm tra thông tin, đặt mật khẩu và đồng ý quy định để bắt đầu làm việc.",
+    "readonlyNote": "Thông tin do quản lý gán, bạn không tự sửa. Sai tên hoặc chi nhánh? Dừng lại và báo quản lý trước khi kích hoạt.",
+    "submit": "Kích hoạt tài khoản",
+    "consent": "Tôi đã đọc và đồng ý với quy định sử dụng và bảo mật dữ liệu (phiên bản: {version}).",
+    "consentLink": "Đọc quy định đầy đủ",
+    "doneTitle": "Tài khoản đã được kích hoạt",
+    "doneText": "Bạn có thể đăng nhập bằng email và mật khẩu vừa đặt.",
+    "toLogin": "Đăng nhập",
+    "expired": {
+      "title": "Lời mời đã hết hạn",
+      "text": "Lời mời chỉ có hiệu lực trong thời gian giới hạn. Nhờ quản lý chi nhánh gửi lại lời mời mới, rồi mở liên kết trong email mới."
+    },
+    "used": {
+      "title": "Lời mời này đã được dùng",
+      "text": "Tài khoản có thể đã được kích hoạt. Hãy đăng nhập. Quên mật khẩu thì dùng “Quên mật khẩu” ở trang đăng nhập."
+    },
+    "revoked": {
+      "title": "Lời mời không còn hiệu lực",
+      "text": "Lời mời này đã bị thu hồi hoặc thay bằng lời mời mới. Liên hệ quản lý chi nhánh để được xác nhận lại."
+    },
+    "rateLimited": {
+      "title": "Bạn thử quá nhiều lần",
+      "text": "Vì an toàn, hãy thử lại sau ít phút."
+    }
+  },
+  "branches": {
+    "title": "Chi nhánh",
+    "create": "Thêm chi nhánh",
+    "save": "Lưu chi nhánh",
+    "colCode": "Mã chi nhánh",
+    "colName": "Tên chi nhánh",
+    "colStatus": "Trạng thái",
+    "codeHint": "2-4 ký tự A-Z, 0-9. Dùng trong số chứng từ, không đổi được sau khi đã phát hành chứng từ.",
+    "hours": "Giờ làm việc",
+    "contact": "Liên hệ",
+    "emptyTitle": "Chưa có chi nhánh nào",
+    "emptyText": "Chưa có chi nhánh trong phạm vi của bạn.",
+    "detailLead": "Giờ làm việc và liên hệ do quản lý chi nhánh sửa; tên và trạng thái do quản trị.",
+    "stateTitle": "Trạng thái chi nhánh",
+    "stateLead": "Ngừng nhận lệnh mới vẫn xử lý được lệnh đang mở. Khóa chỉ cho xem lịch sử.",
+    "stateReason": "Đổi trạng thái từ màn hình chi nhánh",
+    "stateConfirm": "Chuyển chi nhánh sang trạng thái “{state}”?",
+    "to": {
+      "active": "Mở lại hoạt động",
+      "closing": "Ngừng nhận lệnh mới",
+      "locked": "Khóa chi nhánh"
+    }
+  },
+  "users": {
+    "title": "Người dùng",
+    "invite": "Mời người dùng",
+    "sendInvite": "Gửi lời mời",
+    "inviteLead": "Người được mời nhận email kích hoạt có hiệu lực 72 giờ và tự đặt mật khẩu.",
+    "colCode": "Mã nhân viên",
+    "colName": "Họ và tên",
+    "colEmail": "Email",
+    "colPhone": "Số điện thoại",
+    "colStatus": "Trạng thái",
+    "codeHint": "Không đổi được và không dùng lại.",
+    "role": "Vai trò",
+    "branch": "Chi nhánh",
+    "emptyTitle": "Chưa có người dùng",
+    "emptyText": "Chưa có người dùng trong phạm vi của bạn.",
+    "contact": "Liên hệ",
+    "noPhone": "Chưa có số điện thoại.",
+    "assignments": "Vai trò và chi nhánh",
+    "noAssignments": "Chưa gán vai trò nào.",
+    "removeAssignment": "Gỡ",
+    "addAssignment": "Thêm phép gán",
+    "account": "Tài khoản",
+    "disable": "Khóa tài khoản",
+    "enable": "Mở khóa tài khoản",
+    "disableConfirm": "Khóa tài khoản này? Mọi phiên đăng nhập sẽ bị đăng xuất ngay.",
+    "resendInvite": "Gửi lại lời mời",
+    "unlock": "Mở khóa đăng nhập",
+    "revokeSessions": "Đăng xuất mọi phiên",
+    "revokeConfirm": "Đăng xuất mọi thiết bị của người dùng này?",
+    "status": {
+      "active": "Đang hoạt động",
+      "invited": "Đã mời",
+      "disabled": "Đã khóa"
+    }
+  },
+  "pii": {
+    "show": "Hiện",
+    "hide": "Ẩn",
+    "reasonLabel": "Lý do",
+    "noteLabel": "Ghi chú (ít nhất 5 ký tự)",
+    "reasons": {
+      "invoice_check": "Đối chiếu hóa đơn",
+      "debt_collection": "Thu nợ",
+      "other": "Khác"
+    },
+    "failed": "Không hiện được thông tin này."
+  },
+  "services": {
+    "title": "Danh mục dịch vụ",
+    "lead": "Danh mục dùng chung của công ty. Giờ chuẩn và đơn giá giờ công là cấu hình có ngày hiệu lực.",
+    "colGroup": "Nhóm",
+    "create": "Thêm dịch vụ",
+    "searchPlaceholder": "Tên dịch vụ (có hoặc không dấu)",
+    "emptyTitle": "Chưa có dịch vụ nào",
+    "emptyText": "Thêm dịch vụ đầu tiên để dùng khi lập báo giá."
+  },
+  "priceLists": {
+    "title": "Bảng giá",
+    "lead": "Giá vốn, giá niêm yết và giá thực tế tách riêng. Giá từng mặt hàng là cấu hình có ngày hiệu lực và cần duyệt.",
+    "create": "Thêm bảng giá",
+    "emptyTitle": "Chưa có bảng giá nào",
+    "emptyText": "Thêm bảng giá đầu tiên."
+  },
+  "config": {
+    "title": "Cấu hình có hiệu lực",
+    "lead": "Thuế suất, đơn giá giờ công, giờ chuẩn, hạn mức giảm giá, giá, mẫu chứng từ và dãy số đổi theo ngày hiệu lực và cần được duyệt.",
+    "sampleWarning": "Giá trị trong môi trường thử nghiệm chỉ là dữ liệu mẫu, chưa được kế toán xác nhận.",
+    "emptyTitle": "Chưa có phiên bản nào",
+    "emptyText": "Đề xuất phiên bản đầu tiên bên dưới.",
+    "colScope": "Khóa phạm vi",
+    "colFrom": "Hiệu lực từ",
+    "colValue": "Giá trị",
+    "colStatus": "Trạng thái",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "reauthPassword": "Nhập lại mật khẩu (duyệt đề xuất của chính bạn)",
+    "propose": "Đề xuất phiên bản mới",
+    "submit": "Gửi đề xuất",
+    "reason": "Lý do",
+    "status": {
+      "pending": "Chờ duyệt",
+      "approved": "Đã duyệt",
+      "rejected": "Đã từ chối"
+    },
+    "fields": {
+      "name": "Tên",
+      "rateBp": "Thuế suất (điểm cơ bản, 800 = 8%)",
+      "hourlyRateVnd": "Đơn giá giờ (VND)",
+      "standardMinutes": "Giờ chuẩn (phút)",
+      "role": "Mã vai trò",
+      "maxBp": "Giảm tối đa (điểm cơ bản)",
+      "costVnd": "Giá vốn (VND)",
+      "listPriceVnd": "Giá niêm yết (VND)",
+      "kind": "Loại",
+      "paper": "Khổ giấy",
+      "prefix": "Tiền tố",
+      "group": "Nhóm (A cấp số khi tạo, B khi ghi sổ)",
+      "gapPolicy": "Chính sách lỗ số",
+      "scope": "Phạm vi dãy",
+      "period": "Kỳ đặt lại",
+      "seqWidth": "Độ rộng STT"
+    },
+    "types": {
+      "tax-rate": {
+        "title": "Thuế suất",
+        "lead": "Theo mã thuế và ngày hiệu lực",
+        "scopeHint": "Mã thuế, ví dụ VAT-STD"
+      },
+      "labor-rate": {
+        "title": "Đơn giá giờ công",
+        "lead": "Công ty hoặc ghi đè theo chi nhánh",
+        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+      },
+      "standard-hours": {
+        "title": "Giờ chuẩn",
+        "lead": "Theo dịch vụ",
+        "scopeHint": "service:<mã dịch vụ>"
+      },
+      "discount-limit": {
+        "title": "Hạn mức giảm giá",
+        "lead": "Công ty hoặc theo chi nhánh",
+        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+      },
+      "price-item": {
+        "title": "Giá theo mặt hàng",
+        "lead": "Giá vốn và giá niêm yết theo bảng giá",
+        "scopeHint": "<mã bảng giá>:<mã mặt hàng>"
+      },
+      "doc-template": {
+        "title": "Mẫu chứng từ",
+        "lead": "Chỉ siêu dữ liệu mẫu in",
+        "scopeHint": "tpl:<mã mẫu>"
+      },
+      "numbering-series": {
+        "title": "Dãy số chứng từ",
+        "lead": "Ghi đè bảng mặc định theo ngày hiệu lực",
+        "scopeHint": "Loại chứng từ, ví dụ repair-order"
+      }
+    }
+  },
+  "audit": {
+    "title": "Nhật ký thao tác",
+    "lead": "Chỉ đọc. Không ai sửa hoặc xóa được. Dữ liệu cá nhân chỉ ghi dấu đã đổi.",
+    "entityType": "Loại bản ghi",
+    "from": "Từ ngày",
+    "to": "Đến ngày",
+    "pageSize": "Số dòng mỗi trang",
+    "colAt": "Thời điểm",
+    "colActor": "Người thực hiện",
+    "colAction": "Hành động",
+    "colEntity": "Bản ghi",
+    "colReason": "Lý do",
+    "emptyTitle": "Không có bản ghi",
+    "emptyText": "Không có thao tác nào khớp bộ lọc trong phạm vi của bạn.",
+    "exportTitle": "Xuất nhật ký",
+    "exportReason": "Lý do xuất (ít nhất 5 ký tự)",
+    "exportSubmit": "Xuất CSV",
+    "exportHint": "Tối đa 5.000 dòng mỗi lần, theo bộ lọc hiện tại. Mỗi lần xuất được ghi vào nhật ký."
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "emptyTitle": "Chưa có thông báo",
+    "emptyText": "Thông báo gần đây của bạn sẽ hiện ở đây.",
+    "unread": "Chưa đọc",
+    "markRead": "Đánh dấu đã đọc",
+    "open": "Mở",
+    "configPending": "Có đề xuất cấu hình “{type}” đang chờ bạn duyệt.",
+    "configApproved": "Đề xuất cấu hình “{type}” của bạn đã được duyệt.",
+    "configRejected": "Đề xuất cấu hình “{type}” của bạn đã bị từ chối."
   }
 }

@@ -4,6 +4,16 @@ import { allBranchesScope } from '@/platform/scope/scope';
 import { backends, createHarness, parseSetCookie, type Harness } from './harness';
 import { DEMO_PASSWORD } from '@/infrastructure/seed/demo';
 
+/** audit read helper: items of the first page */
+async function auditList(
+  audit: import('@/platform/audit/audit').AuditLog,
+  scope: import('@/platform/scope/scope').Scope,
+  filter: import('@/platform/audit/audit').AuditFilter,
+  limit: number,
+) {
+  return (await audit.list(scope, filter, { limit })).items;
+}
+
 describe.each(backends)('FR-SYS-001 password login and server session [%s]', (backend) => {
   let h: Harness;
   beforeAll(async () => {
@@ -35,7 +45,7 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
     const disabled = await login('disabled@demo.gmep.test', DEMO_PASSWORD);
     for (const r of [wrong, unknown, disabled]) {
       expect(r.status).toBe(401);
-      expect(r.headers.get('set-cookie')).toBeNull();
+      expect(r.headers.getSetCookie().some((c) => c.startsWith('__Host-gmep_session'))).toBe(false);
     }
     const strip = (j: Record<string, unknown>) => ({ ...j, traceId: '' });
     expect(strip(wrong.json)).toEqual(strip(unknown.json));
@@ -48,8 +58,8 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
     expect(me.status).toBe(200);
     expect(me.json).toMatchObject({
       userId: 'u_multi',
-      scope: { kind: 'many', count: 2 },
-      canViewWarehouses: true,
+      scope: { mode: 'picker', mustChoose: true, current: null },
+      can: { warehouses: true },
     });
   });
 
@@ -114,14 +124,17 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
       const res = await login('NV0101', DEMO_PASSWORD);
       expect(res.status).toBe(401);
       expect(res.json.code).toBe('strong_auth_required');
-      expect(res.headers.get('set-cookie')).toBeNull();
+      expect(res.headers.getSetCookie().some((c) => c.startsWith('__Host-gmep_session'))).toBe(
+        false,
+      );
     } finally {
       h.container.sys.strongAuth = original;
     }
   });
 
   it('FR-SYS-003: login and logout are audited without secrets', async () => {
-    const entries = await h.container.sys.audit.list(
+    const entries = await auditList(
+      h.container.sys.audit,
       allBranchesScope('cmp_demo'),
       { entityType: 'session' },
       100,

@@ -46,6 +46,7 @@
     "check:boundaries": "depcruise src --config .dependency-cruiser.cjs",
     "check:indexes": "tsx --tsconfig tsconfig.json scripts/check-indexes.ts",
     "indexes:generate": "tsx --tsconfig tsconfig.json scripts/check-indexes.ts --write",
+    "audit:prod": "pnpm audit --prod --audit-level high",
     "check:bundle": "tsx --tsconfig tsconfig.json scripts/check-bundle.ts",
     "test:unit": "vitest run --project unit",
     "test:integration": "firebase emulators:exec --only firestore,auth,storage --project demo-gmep \"vitest run --project integration\"",
@@ -55,7 +56,7 @@
     "seed": "tsx --tsconfig tsconfig.json scripts/seed-emulator.ts",
     "e2e": "firebase emulators:exec --only firestore,auth --project demo-gmep \"tsx --tsconfig tsconfig.json scripts/seed-emulator.ts && playwright test\"",
     "spike:s1": "firebase emulators:exec --only firestore --project demo-gmep \"tsx --tsconfig tsconfig.json spikes/s1-stock-concurrency.ts\"",
-    "ci": "pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm check:indexes && pnpm test:unit && pnpm test:integration && pnpm build && pnpm check:bundle && pnpm e2e"
+    "ci": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm check:boundaries && pnpm check:indexes && pnpm test:unit && pnpm test:integration && pnpm build && pnpm check:bundle && pnpm e2e"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

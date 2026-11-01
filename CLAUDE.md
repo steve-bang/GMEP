@@ -10,7 +10,7 @@ Documents are written in Vietnamese; UI text, VND currency and Vietnamese invoic
 
 ## Status
 
-Slices 0.3 (scaffold) and 0.4 (walking skeleton) are built; the emulator-runnable part of the spike is done (`docs/dev/spike-report-emulator.md`). No GCP/Firebase project exists yet, so everything runs on the Firebase Emulator Suite; S2, S3, S4, S6, S7 and the real-Firestore repeat of S1/S8 are still open. Business modules beyond SYS (warehouses, login, audit, idempotency) are empty skeletons. Next: slice 1.1 then 1.2 (see `docs/dev/implementation-plan.md` §7). Open requirement questions from dev: `docs/dev/open-questions-for-ba.md`.
+Slices 0.3, 0.4, 1.1 (foundation) and 1.2 (master data) are built and run end to end on the Firebase Emulator Suite (no GCP project yet). SYS has: password login + server session, lockout and rate limits, forgot/reset/invite/activate (dev email outbox), the 10-role BA permission matrix (data), working-branch scope picker, PII masking + "Hiện" + access log, document numbering service, effective-dated config with approval, notifications, audit viewer/export, branches/warehouses/users/roles/service catalog/price-list headers. **MFA is out of scope by owner decision ("làm sau")**: `StrongAuthPort` is a no-op hook. Business modules beyond SYS are empty skeletons. Next: slices 1.3 (CRM) and 1.4 (INV ledger), see `docs/dev/implementation-plan.md` §7. Open requirement questions: `docs/dev/open-questions-for-ba.md`.
 
 ## Tech stack (ADR 0001, accepted 31/10/2026; read `docs/adr/0001-tech-stack.md` §2.1 before touching auth, storage or Firebase)
 
@@ -20,9 +20,9 @@ Commands (all verified; integration/e2e need Java for the emulators):
 
 - `pnpm install` · `pnpm dev` · `pnpm build` · `pnpm emulators` · `pnpm seed`
 - `pnpm lint` · `pnpm format:check` · `pnpm typecheck` · `pnpm check:boundaries` · `pnpm check:indexes` · `pnpm check:bundle` (after build)
-- `pnpm test:unit` · `pnpm test:integration` (starts emulators; also `test:integration:memory`) · `pnpm e2e` (after build) · `pnpm ci` (everything)
+- `pnpm test:unit` · `pnpm test:integration` (starts emulators; also `test:integration:memory`) · `pnpm e2e` (after build; set `PLAYWRIGHT_CHROMIUM_PATH` if Chromium is preinstalled elsewhere) · `pnpm indexes:generate` · `pnpm audit:prod` · `pnpm run ci` (everything except audit)
 
-Conventions to keep: every repository read takes a `Scope` (from `resolveScope`); writes stage audit entries in the same transaction (`AuditLog.record(tx, ...)`); risky writes need `Idempotency-Key`; errors are RFC 9457; money is integer VND; domain/application never import firebase-admin; modules import each other only via `index.ts`; commits are Conventional Commits.
+Conventions to keep: repositories live in `src/infrastructure/repos` over the `DocStore` port and every query shape is registered in `repos/queries.ts` (index check derives from it); write routes are created with `api`/`authed` (`src/composition/api.ts`) so the Origin check cannot be skipped; every repository read takes a `Scope` (from `resolveScope`); writes stage audit entries in the same transaction (`AuditLog.record(tx, ...)`); risky writes need `Idempotency-Key`; errors are RFC 9457; money is integer VND; domain/application never import firebase-admin; modules import each other only via `index.ts`; commits are Conventional Commits.
 
 The docs are drafts (BRD v0.3), not yet confirmed by the client. Items marked `[Cần xác nhận]` are open decisions; do not hard-code assumptions for them.
 

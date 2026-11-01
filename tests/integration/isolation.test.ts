@@ -16,7 +16,7 @@ describe.each(backends)('FR-SYS-002 branch isolation matrix [%s]', (backend) => 
     // enough rows in both branches to force several pages
     for (let i = 1; i <= EXTRA_Q7; i++) {
       const r = await h.call('POST', '/api/v1/sys/warehouses', {
-        as: 'u_ql_q7',
+        as: 'u_ad',
         key: `seed-q7-${String(i).padStart(4, '0')}-xxxxxxxx`,
         body: {
           branchId: 'br_q7',
@@ -28,7 +28,7 @@ describe.each(backends)('FR-SYS-002 branch isolation matrix [%s]', (backend) => 
     }
     for (let i = 1; i <= EXTRA_TD; i++) {
       const r = await h.call('POST', '/api/v1/sys/warehouses', {
-        as: 'u_ql_td',
+        as: 'u_ad',
         key: `seed-td-${String(i).padStart(4, '0')}-xxxxxxxx`,
         body: {
           branchId: 'br_td',
@@ -48,7 +48,6 @@ describe.each(backends)('FR-SYS-002 branch isolation matrix [%s]', (backend) => 
     u_ql_q7: ['br_q7'],
     u_ql_td: ['br_td'],
     u_tk_q7: ['br_q7'],
-    u_multi: ['br_q7', 'br_td'],
   };
 
   describe.each(Object.entries(visible))('user %s', (user, branches) => {
@@ -95,6 +94,38 @@ describe.each(backends)('FR-SYS-002 branch isolation matrix [%s]', (backend) => 
     });
   });
 
+  describe('multi-branch user (BA §4, D-06): one working branch at a time, no merged view', () => {
+    it('without a choice the list answers 409 scope_required; with a choice only that branch is visible', async () => {
+      await h.login('u_multi');
+      const before = await h.call('GET', '/api/v1/sys/warehouses', { as: 'u_multi' });
+      expect(before.status).toBe(409);
+      expect(before.json.code).toBe('scope_required');
+      for (const [branch, expected] of [
+        ['br_q7', total.br_q7],
+        ['br_td', total.br_td],
+      ] as const) {
+        await h.loginAt('u_multi', branch);
+        const { items } = await listAll(h, 'u_multi', {}, 25);
+        expect(items.length).toBe(expected);
+        expect(items.every((i) => i.branchId === branch)).toBe(true);
+      }
+    });
+    it('a branch outside the assignments cannot be chosen, and nobody but CH/QV may choose "all"', async () => {
+      const cookie = await h.login('u_multi');
+      expect(
+        (await h.call('PUT', '/api/v1/sys/scope', { cookie, body: { branchId: 'br_lk' } })).status,
+      ).toBe(403);
+      expect(
+        (await h.call('PUT', '/api/v1/sys/scope', { cookie, body: { branchId: 'all' } })).status,
+      ).toBe(403);
+      const owner = await h.login('u_owner');
+      expect(
+        (await h.call('PUT', '/api/v1/sys/scope', { cookie: owner, body: { branchId: 'all' } }))
+          .status,
+      ).toBe(200);
+    });
+  });
+
   it('export (NFR-EXP-01): only holders of warehouse:export, only their scope; storekeeper is refused', async () => {
     const q7 = await h.call('GET', '/api/v1/sys/warehouses/export', { as: 'u_ql_q7' });
     expect(q7.status).toBe(200);
@@ -112,6 +143,7 @@ describe.each(backends)('FR-SYS-002 branch isolation matrix [%s]', (backend) => 
     const tk = await h.call('GET', '/api/v1/sys/warehouses/export', { as: 'u_tk_q7' });
     expect(tk.status).toBe(403);
     // the multi-role user can export only where QL applies... and view elsewhere; export scope = Q7 only
+    await h.loginAt('u_multi', 'br_q7');
     const multi = await h.call('GET', '/api/v1/sys/warehouses/export', { as: 'u_multi' });
     expect(multi.status).toBe(200);
     expect(multi.text).not.toContain('br_td');
@@ -119,11 +151,13 @@ describe.each(backends)('FR-SYS-002 branch isolation matrix [%s]', (backend) => 
 
   it('creating outside the permitted scope is refused (FR-SYS-012: permissions are per branch)', async () => {
     const body = (branchId: string, code: string) => ({ branchId, code, name: 'Kho thử nghiệm' });
+    // BA §2.3: only AD and CH create warehouses; a branch manager (QL) does not
     const cases: [string, string, number][] = [
+      ['u_ql_q7', 'br_q7', 403],
       ['u_ql_q7', 'br_td', 403],
       ['u_tk_q7', 'br_q7', 403],
-      ['u_multi', 'br_td', 403], // storekeeper at TD cannot create there
-      ['u_multi', 'br_q7', 201], // manager at Q7 can
+      ['u_multi', 'br_q7', 403],
+      ['u_ad', 'br_td', 201],
       ['u_owner', 'br_td', 201],
     ];
     let n = 0;

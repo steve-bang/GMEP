@@ -1,22 +1,25 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
-import { AppError } from '@/platform/errors/errors';
-import { getShellInfo, listWarehouses } from '@/modules/sys';
-import { resolveScope } from '@/platform/rbac/rbac';
-import { scopeAllows } from '@/platform/scope/scope';
+import { hasPermission, resolveWorkingScope } from '@/platform/rbac/rbac';
+import { listWarehouses } from '@/modules/sys';
+import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { DataTable } from '@/ui/components/DataTable';
 import { FilterBar, SearchField } from '@/ui/components/FilterBar';
 import { Button } from '@/ui/components/Button';
-import { Icon } from '@/ui/components/Icon';
 import { StatusBadge } from '@/ui/components/StatusBadge';
-import { EmptyState, ErrorState, NoPermissionState } from '@/ui/components/States';
+import { EmptyState } from '@/ui/components/States';
+import {
+  ErrorFor,
+  first,
+  PageHeader,
+  Pager,
+  ScopeLine,
+  type SearchParams,
+} from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
-
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 /** FR-SYS-005 list, rendered on the server through the application layer (same Scope enforcement as the API). */
 export default async function WarehousesPage({ searchParams }: { searchParams: SearchParams }) {
@@ -25,76 +28,51 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
   const q = first(sp.q);
   const cursor = first(sp.cursor);
   const deps = getContainer().sys;
-  const session = await requireSession();
-  const info = await getShellInfo(deps, session.actor);
+  const { actor } = await requireSession();
 
+  const canCreate = hasPermission(actor, 'warehouse:create');
   const header = (
-    <div className="page-header">
-      <div className="page-header__text">
-        <h1>{t('warehouses.title')}</h1>
-      </div>
-    </div>
+    <PageHeader
+      title={t('warehouses.title')}
+      actions={
+        canCreate ? (
+          <Link className="btn btn--primary" href="/sys/warehouses/new">
+            {t('warehouses.create')}
+          </Link>
+        ) : undefined
+      }
+    />
   );
 
-  if (!info.canViewWarehouses) {
-    return (
-      <>
-        {header}
-        <NoPermissionState
-          title={t('states.noPermissionTitle')}
-          text={t('states.noPermissionText')}
-        />
-      </>
-    );
-  }
-
-  let page;
-  try {
-    page = await listWarehouses(deps, session.actor, {
+  const res = await load(async () => {
+    const scope = resolveWorkingScope(actor, 'warehouse:view');
+    const page = await listWarehouses(deps, actor, {
       ...(q ? { q } : {}),
       ...(cursor ? { cursor } : {}),
       limit: 25,
     });
-  } catch (err) {
-    if (err instanceof AppError && err.status === 400) {
-      return (
-        <>
-          {header}
-          <ErrorState
-            title={err.title}
-            text={err.detail}
-            actions={
-              <Link className="btn btn--secondary" href="/sys/warehouses">
-                {t('states.retry')}
-              </Link>
-            }
-          />
-        </>
-      );
-    }
-    throw err;
-  }
-  // label the scope by the branches this PERMISSION covers (not every assignment of the user)
-  const viewScope = resolveScope(session.actor, 'warehouse:view');
-  const visibleBranches = info.branches.filter((b) =>
-    scopeAllows(viewScope, session.actor.companyId, b.id),
-  );
-  const branchNames = new Map(visibleBranches.map((b) => [b.id, b.name]));
+    const branches = await deps.branches.list(scope);
+    return { page, branches, scope };
+  });
+  if (res.error)
+    return (
+      <>
+        {header}
+        <ErrorFor error={res.error} t={t} />
+      </>
+    );
+  const { page, branches, scope } = res.data;
+  const branchNames = new Map(branches.map((b) => [b.id, b.name]));
 
   return (
     <>
       {header}
-      <div className="scope-line">
-        <Icon name="map-pin" size="sm" />
-        <span>
-          {t('warehouses.scopeLine', {
-            scope:
-              viewScope.kind === 'all'
-                ? t('shell.scopeAll')
-                : visibleBranches.map((b) => b.name).join(', '),
-          })}
-        </span>
-      </div>
+      <ScopeLine
+        text={t('warehouses.scopeLine', {
+          scope:
+            scope.kind === 'all' ? t('shell.scopeAll') : branches.map((b) => b.name).join(', '),
+        })}
+      />
       <FilterBar
         action="/sys/warehouses"
         actions={
@@ -127,7 +105,11 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
             {
               key: 'code',
               header: t('warehouses.colCode'),
-              render: (w) => <span data-testid="wh-code">{w.code}</span>,
+              render: (w) => (
+                <Link href={`/sys/warehouses/${encodeURIComponent(w.id)}`} data-testid="wh-code">
+                  {w.code}
+                </Link>
+              ),
             },
             { key: 'name', header: t('warehouses.colName'), render: (w) => w.name },
             {
@@ -147,30 +129,17 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
           ]}
         />
       )}
-      {cursor || page.nextCursor ? (
-        <nav className="pagination" aria-label="Phân trang">
-          {cursor ? (
-            <Link
-              className="pagination__item"
-              href={{ pathname: '/sys/warehouses', query: q ? { q } : {} }}
-            >
-              {t('warehouses.prev')}
-            </Link>
-          ) : null}
-          {page.nextCursor ? (
-            <Link
-              className="pagination__item"
-              rel="next"
-              href={{
-                pathname: '/sys/warehouses',
-                query: { ...(q ? { q } : {}), cursor: page.nextCursor },
-              }}
-            >
-              {t('warehouses.next')}
-            </Link>
-          ) : null}
-        </nav>
-      ) : null}
+      <Pager
+        base="/sys/warehouses"
+        query={q ? { q } : {}}
+        {...(cursor ? { cursor } : {})}
+        next={page.nextCursor}
+        labels={{
+          prev: t('warehouses.prev'),
+          next: t('warehouses.next'),
+          aria: t('common.pagination'),
+        }}
+      />
     </>
   );
 }

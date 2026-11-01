@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.github
+test-results
+playwright-report
+docs
+design
+spikes
+e2e
+tests
+*.log
+.env*
+!.env.example
+firestore-debug.log
+tsconfig.tsbuildinfo

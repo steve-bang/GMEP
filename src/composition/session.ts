@@ -16,7 +16,8 @@ export const requireSession = cache(async (): Promise<Session> => {
   try {
     return await resolveSession(getContainer().sys, cookie);
   } catch (err) {
-    if (err instanceof AppError && err.status === 401) redirect('/login');
+    // a cookie that no longer works = expired/revoked session (state-copy §2.1); no cookie = plain login
+    if (err instanceof AppError && err.status === 401) redirect(cookie ? '/login?expired=1' : '/login');
     throw err;
   }
 });

@@ -1,6 +1,11 @@
 import { ZodError } from 'zod';
 import { AppError, type FieldError } from '../errors/errors';
 
+const retryAfterOf = (err: unknown): number | null => {
+  const c = (err as { cause?: { retryAfterSeconds?: number } } | null)?.cause;
+  return typeof c?.retryAfterSeconds === 'number' ? c.retryAfterSeconds : null;
+};
+
 /** RFC 9457 problem details with a stable `code`, Vietnamese `title`/`detail` and `traceId`. */
 export interface ProblemBody {
   type: string;
@@ -10,6 +15,8 @@ export interface ProblemBody {
   code: string;
   traceId: string;
   errors?: FieldError[];
+  /** 429 only: seconds until the client may retry (also sent as Retry-After) */
+  retryAfterSeconds?: number;
 }
 
 export const PROBLEM_CONTENT_TYPE = 'application/problem+json';
@@ -24,6 +31,7 @@ export function problemFromError(err: unknown, traceId: string): ProblemBody {
       code: err.code,
       traceId,
       ...(err.errors.length ? { errors: err.errors } : {}),
+      ...(retryAfterOf(err) ? { retryAfterSeconds: retryAfterOf(err)! } : {}),
     };
   }
   if (err instanceof ZodError) {
@@ -47,6 +55,7 @@ export function problemResponse(err: unknown, traceId: string): Response {
       'content-type': PROBLEM_CONTENT_TYPE,
       'x-request-id': traceId,
       'cache-control': 'no-store',
+      ...(body.retryAfterSeconds ? { 'retry-after': String(body.retryAfterSeconds) } : {}),
     },
   });
 }

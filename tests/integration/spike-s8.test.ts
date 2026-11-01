@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getDb } from '@/infrastructure/firestore/client';
 import { loadEnv } from '@/platform/config/env';
-import { indexSatisfies, requiredIndex, type IndexDef } from '@/infrastructure/firestore/queries';
+import { indexSatisfies, requiredIndex, type IndexDef } from '@/platform/store/indexes';
 import { hasEmulator } from './harness';
 
 /**
@@ -32,8 +32,8 @@ describe.runIf(hasEmulator)('S8 emulator vs composite indexes', () => {
     const need = requiredIndex({
       name: 's8',
       collection: 's8_probe',
-      equality: ['companyId', 'status'],
-      orderBy: [{ field: 'createdAt', dir: 'desc' }],
+      eq: ['companyId', 'status'],
+      order: { field: 'createdAt', dir: 'desc', type: 'date' },
     })!;
     const declared: IndexDef[] = [];
     expect(declared.some((d) => indexSatisfies(d, need))).toBe(false);

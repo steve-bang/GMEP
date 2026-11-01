@@ -22,6 +22,13 @@ const schema = z.object({
     .default(12),
   SESSION_IDLE_MINUTES: z.coerce.number().int().min(1).default(30),
   IDEMPOTENCY_TTL_HOURS: z.coerce.number().int().min(1).default(24),
+  /** H1: seconds a verified session/actor is served from memory (= max staleness of a revocation on other instances) */
+  AUTH_CACHE_TTL_SECONDS: z.coerce.number().int().min(0).max(300).default(30),
+  CONFIG_CACHE_TTL_SECONDS: z.coerce.number().int().min(0).max(600).default(60),
+  /** number of trusted reverse proxies in front of the app (Cloud Run = 1) for X-Forwarded-For */
+  TRUSTED_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
+  /** brand-new links in emails (invitation, reset) are built from this; falls back to APP_ORIGIN */
+  APP_BASE_URL: z.string().url().optional(),
   LOG_LEVEL: z.string().optional(),
 });
 

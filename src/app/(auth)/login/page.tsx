@@ -1,16 +1,22 @@
 import { getTranslations } from 'next-intl/server';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { SESSION_COOKIE } from '@/platform/http/cookies';
 import { resolveSession } from '@/modules/sys';
 import { getContainer } from '@/composition/container';
-import { Icon } from '@/ui/components/Icon';
+import { AuthLayout } from '@/ui/components/AuthLayout';
 import { LoginForm } from './LoginForm';
 
 export const dynamic = 'force-dynamic';
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const t = await getTranslations();
+  const sp = await searchParams;
   const cookie = (await cookies()).get(SESSION_COOKIE)?.value;
   if (cookie) {
     const ok = await resolveSession(getContainer().sys, cookie).then(
@@ -20,30 +26,25 @@ export default async function LoginPage() {
     if (ok) redirect('/');
   }
   return (
-    <div className="g1-auth-body">
-      <a className="skip-link" href="#main">
-        {t('shell.skip')}
-      </a>
-      <div className="g1-auth-brand">
-        <span className="g1-auth-brand__logo" aria-hidden="true">
-          <Icon name="wrench" />
-        </span>
-        {t('app.name')}
-      </div>
-      <div className="g1-wrap">
-        <main className="g1-auth-card" id="main" aria-labelledby="t">
-          <div>
-            <h1 id="t">{t('login.title')}</h1>
-            <p className="g1-lead">{t('login.lead')}</p>
+    <AuthLayout
+      brand={t('app.name')}
+      skip={t('shell.skip')}
+      title={t('login.title')}
+      lead={t('login.lead')}
+      footer={`${t('app.name')} · ${t('app.version')}`}
+    >
+      {sp.expired ? (
+        <div className="alert alert--info" role="status">
+          <div className="alert__body">
+            <span className="alert__title">{t('login.expiredTitle')}</span>
+            <span>{t('login.expiredText')}</span>
           </div>
-          <LoginForm />
-        </main>
-        <footer className="g1-auth-foot">
-          <span>
-            {t('app.name')} · {t('app.version')}
-          </span>
-        </footer>
+        </div>
+      ) : null}
+      <LoginForm />
+      <div className="g1-auth-links">
+        <Link href="/forgot-password">{t('login.forgot')}</Link>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

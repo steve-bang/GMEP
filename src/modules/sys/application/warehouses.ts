@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AppError, forbidden, notFound, validationFailed } from '@/platform/errors/errors';
+import { AppError, forbidden, notFound } from '@/platform/errors/errors';
 import {
   decodeCursor,
   DEFAULT_LIMIT,
@@ -11,12 +11,14 @@ import {
   runIdempotent,
   type StoredResponse,
 } from '@/platform/idempotency/idempotency';
-import { requirePermission, resolveScope, type Actor } from '@/platform/rbac/rbac';
+import { resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
 import { narrowScope, scopeAllows } from '@/platform/scope/scope';
 import { normalizeSearch } from '@/platform/text/normalize';
+import { assertBranchWritable } from '../domain/branchState';
 import { WAREHOUSE_CODE_PATTERN, warehouseId, type Warehouse } from '../domain/entities';
 import type { SysDeps } from '../ports/deps';
 import { AlreadyExistsError, type WarehouseListQuery } from '../ports/ports';
+import { auditEntry, parseInput, roleCodesOf, type RequestCtx } from './support';
 
 export const warehouseListInputSchema = z.object({
   limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
@@ -28,13 +30,13 @@ export const warehouseListInputSchema = z.object({
 });
 export type WarehouseListInput = z.input<typeof warehouseListInputSchema>;
 
-/** FR-SYS-005, FR-SYS-002, NFR-ISO-01: the list is always evaluated inside resolveScope(actor, 'warehouse:view'). */
+/** FR-SYS-005, FR-SYS-002, NFR-ISO-01: the list is always evaluated inside the working scope of `warehouse:view`. */
 export async function listWarehouses(
   deps: SysDeps,
   actor: Actor,
   rawInput: WarehouseListInput,
 ): Promise<Page<Warehouse>> {
-  const baseScope = resolveScope(actor, 'warehouse:view');
+  const baseScope = resolveWorkingScope(actor, 'warehouse:view');
   const input = warehouseListInputSchema.parse(rawInput);
   const scope = narrowScope(baseScope, input.branchId);
   if (!scope) return { items: [], nextCursor: null }; // requested a branch outside the scope: nothing visible
@@ -46,7 +48,7 @@ export async function listWarehouses(
     direction: input.direction,
     limit: input.limit,
     ...(namePrefix ? { namePrefix } : {}),
-    ...(input.cursor ? { cursor: decodeCursor(input.cursor) } : {}),
+    ...(input.cursor ? { cursor: decodeCursor(input.cursor)! } : {}),
   };
   return deps.warehouses.list(scope, query);
 }
@@ -67,6 +69,7 @@ export const createWarehouseSchema = z.object({
     .toUpperCase()
     .regex(WAREHOUSE_CODE_PATTERN, 'Mã kho gồm 2-20 ký tự A-Z, 0-9, gạch ngang.'),
   name: z.string().trim().min(2).max(120),
+  note: z.string().trim().max(300).optional(),
 });
 export type CreateWarehouseInput = z.infer<typeof createWarehouseSchema>;
 
@@ -76,6 +79,7 @@ export interface WarehouseDto {
   code: string;
   name: string;
   status: string;
+  note: string | null;
   createdAt: string;
   version: number;
 }
@@ -87,39 +91,37 @@ export function toWarehouseDto(w: Warehouse): WarehouseDto {
     code: w.code,
     name: w.name,
     status: w.status,
+    note: w.note ?? null,
     createdAt: w.createdAt.toISOString(),
     version: w.version,
   };
 }
 
+const idem = (deps: SysDeps) => ({
+  uow: deps.uow,
+  store: deps.idempotency,
+  now: () => deps.clock.now(),
+  ttlMs: deps.config.idempotencyTtlMs,
+});
+
 /**
- * FR-SYS-005 create, FR-SYS-011 (locked branch -> no new records), FR-SYS-003 (audit in the
- * same transaction), idempotent via Idempotency-Key (plan §2.8).
+ * FR-SYS-005 create, FR-SYS-011 (branch state table), FR-SYS-003 (audit in the same transaction),
+ * idempotent via Idempotency-Key (plan §2.8). Business uniqueness (branch + code) is the
+ * deterministic document id, independent of the HTTP key's TTL (H2).
  */
 export async function createWarehouse(
   deps: SysDeps,
   actor: Actor,
   input: unknown,
-  ctx: { idempotencyKey: string; requestId: string },
+  ctx: RequestCtx & { idempotencyKey: string },
 ): Promise<{ response: StoredResponse; replayed: boolean }> {
-  const parsed = createWarehouseSchema.safeParse(input);
-  if (!parsed.success) {
-    throw validationFailed(
-      parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
-    );
-  }
-  const data = parsed.data;
+  const data = parseInput(createWarehouseSchema, input);
   const scope = resolveScope(actor, 'warehouse:create');
   if (!scopeAllows(scope, actor.companyId, data.branchId)) throw forbidden();
 
   try {
     return await runIdempotent(
-      {
-        uow: deps.uow,
-        store: deps.idempotency,
-        now: () => deps.clock.now(),
-        ttlMs: deps.config.idempotencyTtlMs,
-      },
+      idem(deps),
       {
         userId: actor.userId,
         route: 'POST /api/v1/sys/warehouses',
@@ -129,7 +131,12 @@ export async function createWarehouse(
       async (tx) => {
         const branch = await deps.branches.getInTx(tx, scope, data.branchId);
         if (!branch) throw notFound();
-        if (branch.status === 'locked') throw new AppError('branch_locked', 409); // FR-SYS-011
+        assertBranchWritable(
+          branch.status,
+          'new_master',
+          roleCodesOf(actor),
+          deps.config.branchStateRules,
+        );
 
         const now = deps.clock.now();
         const warehouse: Warehouse = {
@@ -140,6 +147,8 @@ export async function createWarehouse(
           name: data.name,
           nameNorm: normalizeSearch(data.name),
           status: 'active',
+          ...(data.note ? { note: data.note } : {}),
+          isDefault: false,
           createdAt: now,
           createdBy: actor.userId,
           updatedAt: now,
@@ -148,49 +157,182 @@ export async function createWarehouse(
         };
         deps.warehouses.create(tx, scope, warehouse);
         const dto = toWarehouseDto(warehouse);
-        deps.audit.record(tx, {
-          id: deps.newId(),
-          at: now,
-          companyId: actor.companyId,
-          branchId: warehouse.branchId,
-          actorId: actor.userId,
-          actorRoles: actor.assignments.map((a) => a.roleCode),
-          entityType: 'warehouse',
-          entityId: warehouse.id,
-          action: 'warehouse.create',
-          before: null,
-          after: dto as unknown as Record<string, unknown>,
-          requestId: ctx.requestId,
-        });
+        deps.audit.record(
+          tx,
+          auditEntry(deps, actor, ctx, {
+            branchId: warehouse.branchId,
+            entityType: 'warehouse',
+            entityId: warehouse.id,
+            action: 'warehouse.create',
+            after: dto as unknown as Record<string, unknown>,
+          }),
+        );
         return { status: 201, body: dto };
       },
     );
   } catch (e) {
-    // The deterministic document id (branch + code) makes a duplicate fail atomically at commit,
-    // in every adapter. (The idempotency-key document is read in the same transaction, so a
-    // concurrent same-key request is retried and replayed instead of reaching this branch.)
     if (e instanceof AlreadyExistsError) throw new AppError('warehouse_code_exists', 409);
     throw e;
   }
 }
 
+export const updateWarehouseSchema = z.object({
+  name: z.string().trim().min(2).max(120).optional(),
+  note: z.string().trim().max(300).nullable().optional(),
+  /** optimistic locking (plan §2.3 If-Match) */
+  version: z.number().int().min(1),
+});
+
+/**
+ * Name and note only (BA §3: the code is immutable once stock movements exist; until INV exists no
+ * code edit is offered at all). Optimistic locking via `version` (409 `version_conflict`).
+ */
+export async function updateWarehouse(
+  deps: SysDeps,
+  actor: Actor,
+  id: string,
+  input: unknown,
+  ctx: RequestCtx,
+): Promise<WarehouseDto> {
+  const data = parseInput(updateWarehouseSchema, input);
+  const scope = resolveScope(actor, 'warehouse:update');
+  return deps.uow.run(async (tx) => {
+    const w = await deps.warehouses.getInTx(tx, scope, id);
+    if (!w) throw notFound();
+    if (w.version !== data.version) throw new AppError('version_conflict', 409);
+    const branch = await deps.branches.getInTx(tx, scope, w.branchId);
+    if (!branch) throw notFound();
+    assertBranchWritable(
+      branch.status,
+      'edit_master',
+      roleCodesOf(actor),
+      deps.config.branchStateRules,
+    );
+    const now = deps.clock.now();
+    const name = data.name ?? w.name;
+    const note = data.note === undefined ? w.note : (data.note ?? undefined);
+    deps.warehouses.update(tx, scope, id, {
+      name,
+      nameNorm: normalizeSearch(name),
+      note: note ?? '',
+      updatedAt: now,
+      updatedBy: actor.userId,
+      version: w.version + 1,
+    });
+    const next: Warehouse = {
+      ...w,
+      name,
+      nameNorm: normalizeSearch(name),
+      ...(note ? { note } : {}),
+      version: w.version + 1,
+    };
+    deps.audit.record(
+      tx,
+      auditEntry(deps, actor, ctx, {
+        branchId: w.branchId,
+        entityType: 'warehouse',
+        entityId: id,
+        action: 'warehouse.update',
+        before: { name: w.name, note: w.note ?? null },
+        after: { name, note: note ?? null },
+      }),
+    );
+    return toWarehouseDto(next);
+  });
+}
+
+export const warehouseStatusSchema = z.object({
+  status: z.enum(['active', 'inactive']),
+  version: z.number().int().min(1),
+});
+
+/**
+ * Warehouse lifecycle (BA §3, FR-SYS-005): deactivate only when every stock number is 0 and no open
+ * document refers to it; reactivation is the reverse. Both need `warehouse:archive`.
+ * The blocker check goes through WarehouseActivityPort (stub until INV exists).
+ */
+export async function setWarehouseStatus(
+  deps: SysDeps,
+  actor: Actor,
+  id: string,
+  input: unknown,
+  ctx: RequestCtx & { idempotencyKey: string },
+): Promise<{ response: StoredResponse; replayed: boolean }> {
+  const data = parseInput(warehouseStatusSchema, input);
+  const scope = resolveScope(actor, 'warehouse:archive');
+  return runIdempotent(
+    idem(deps),
+    {
+      userId: actor.userId,
+      route: `POST /api/v1/sys/warehouses/${id}:status`,
+      key: ctx.idempotencyKey,
+      fingerprint: fingerprintOf(data),
+    },
+    async (tx) => {
+      const w = await deps.warehouses.getInTx(tx, scope, id);
+      if (!w) throw notFound();
+      if (w.version !== data.version) throw new AppError('version_conflict', 409);
+      if (w.status === data.status) throw new AppError('state_invalid', 409);
+      const branch = await deps.branches.getInTx(tx, scope, w.branchId);
+      if (!branch) throw notFound();
+      assertBranchWritable(
+        branch.status,
+        'edit_master',
+        roleCodesOf(actor),
+        deps.config.branchStateRules,
+      );
+      if (data.status === 'inactive') {
+        const blockers = await deps.warehouseActivity.blockers(w);
+        if (blockers.length)
+          throw new AppError(
+            'warehouse_not_empty',
+            409,
+            blockers.map((b) => ({ field: 'status', message: b })),
+          );
+      }
+      const now = deps.clock.now();
+      deps.warehouses.update(tx, scope, id, {
+        status: data.status,
+        updatedAt: now,
+        updatedBy: actor.userId,
+        version: w.version + 1,
+      });
+      deps.audit.record(
+        tx,
+        auditEntry(deps, actor, ctx, {
+          branchId: w.branchId,
+          entityType: 'warehouse',
+          entityId: id,
+          action: data.status === 'inactive' ? 'warehouse.deactivate' : 'warehouse.reactivate',
+          before: { status: w.status },
+          after: { status: data.status },
+        }),
+      );
+      return {
+        status: 200,
+        body: toWarehouseDto({ ...w, status: data.status, version: w.version + 1 }),
+      };
+    },
+  );
+}
+
 const CSV_PAGE = 100;
-const CSV_MAX_ROWS = 5000;
 
 function csvCell(v: string): string {
-  // neutralise spreadsheet formula injection, then quote
+  // neutralise spreadsheet formula injection, then quote (NFR-SEC-02)
   const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
   return `"${safe.replace(/"/g, '""')}"`;
 }
+export { csvCell };
 
-/** NFR-EXP-01 / FR-SYS-013 `export` action: only with warehouse:export, only inside that scope; the export itself is audited. */
+/** NFR-EXP-01 / FR-SYS-013 `export` action: only inside that scope; limited rows (BA §9); the export itself is audited. */
 export async function exportWarehousesCsv(
   deps: SysDeps,
   actor: Actor,
   requestId: string,
 ): Promise<string> {
-  requirePermission(actor, 'warehouse:export');
-  const scope = resolveScope(actor, 'warehouse:export');
+  const scope = resolveWorkingScope(actor, 'warehouse:export');
+  const max = deps.config.exportMaxRows;
   const rows: Warehouse[] = [];
   let cursor: string | undefined;
   do {
@@ -198,28 +340,29 @@ export async function exportWarehousesCsv(
       sort: 'code',
       direction: 'asc',
       limit: CSV_PAGE,
-      ...(cursor ? { cursor: decodeCursor(cursor) } : {}),
+      ...(cursor ? { cursor: decodeCursor(cursor)! } : {}),
     });
     rows.push(...page.items);
     cursor = page.nextCursor ?? undefined;
-  } while (cursor && rows.length < CSV_MAX_ROWS);
+    if (rows.length > max) throw new AppError('export_too_large', 422);
+  } while (cursor);
 
-  const now = deps.clock.now();
   await deps.uow.run(async (tx) => {
-    deps.audit.record(tx, {
-      id: deps.newId(),
-      at: now,
-      companyId: actor.companyId,
-      branchId: null,
-      actorId: actor.userId,
-      actorRoles: actor.assignments.map((a) => a.roleCode),
-      entityType: 'warehouse',
-      entityId: '*',
-      action: 'warehouse.export',
-      before: null,
-      after: { rows: rows.length, scope: scope.kind },
-      requestId,
-    });
+    deps.audit.record(
+      tx,
+      auditEntry(
+        deps,
+        actor,
+        { requestId },
+        {
+          branchId: null,
+          entityType: 'warehouse',
+          entityId: '*',
+          action: 'warehouse.export',
+          after: { rows: rows.length, scope: scope.kind },
+        },
+      ),
+    );
   });
   const header = ['id', 'branchId', 'code', 'name', 'status'].join(',');
   const lines = rows.map((w) =>

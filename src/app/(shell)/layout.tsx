@@ -1,8 +1,10 @@
 import { getTranslations } from 'next-intl/server';
-import { getShellInfo } from '@/modules/sys';
+import { getShellInfo, ROLE_NAMES } from '@/modules/sys';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { AppShell, type NavGroup } from '@/ui/components/AppShell';
+import { OfflineBanner } from '@/ui/components/OfflineBanner';
+import { ScopePicker } from '@/ui/components/ScopePicker';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,46 +20,47 @@ export default async function ShellLayout({ children }: { children: React.ReactN
   const deps = getContainer().sys;
   const session = await requireSession();
   const info = await getShellInfo(deps, session.actor);
+  const can = info.can;
 
+  const item = (
+    key: string,
+    href: string,
+    label: string,
+    icon: string,
+    match: 'exact' | 'prefix' = 'prefix',
+  ) => ({
+    key,
+    href,
+    label,
+    icon,
+    match,
+  });
   const nav: NavGroup[] = [
     {
       label: t('shell.nav.groupWorkspace'),
+      items: [item('dash', '/', t('shell.nav.dashboard'), 'layout-dashboard', 'exact')],
+    },
+    {
+      label: t('shell.nav.groupSystem'),
       items: [
-        {
-          key: 'dash',
-          href: '/',
-          label: t('shell.nav.dashboard'),
-          icon: 'layout-dashboard',
-          match: 'exact' as const,
-        },
+        ...(can.branches ? [item('br', '/sys/branches', t('shell.nav.branches'), 'map-pin')] : []),
+        ...(can.warehouses
+          ? [item('wh', '/sys/warehouses', t('shell.nav.warehouses'), 'warehouse')]
+          : []),
+        ...(can.users ? [item('us', '/sys/users', t('shell.nav.users'), 'users')] : []),
+        ...(can.services ? [item('sv', '/sys/services', t('shell.nav.services'), 'wrench')] : []),
+        ...(can.priceLists
+          ? [item('pl', '/sys/price-lists', t('shell.nav.priceLists'), 'receipt')]
+          : []),
+        ...(can.config || can.templates || can.priceLists || can.services
+          ? [item('cfg', '/sys/config', t('shell.nav.config'), 'settings')]
+          : []),
+        ...(can.audit ? [item('au', '/sys/audit', t('shell.nav.audit'), 'history')] : []),
       ],
     },
-    ...(info.canViewWarehouses
-      ? [
-          {
-            label: t('shell.nav.groupSystem'),
-            items: [
-              {
-                key: 'wh',
-                href: '/sys/warehouses',
-                label: t('shell.nav.warehouses'),
-                icon: 'warehouse',
-                match: 'prefix' as const,
-              },
-            ],
-          },
-        ]
-      : []),
-  ];
+  ].filter((g) => g.items.length > 0);
 
-  const scopeLabel =
-    info.scope.kind === 'all'
-      ? t('shell.scopeAll')
-      : info.scope.kind === 'none'
-        ? t('shell.scopeNone')
-        : info.scope.kind === 'single'
-          ? (info.scope.names[0] ?? t('shell.scopeOwn'))
-          : t('shell.scopeMany', { count: info.scope.count });
+  const roleNames: Record<string, string> = ROLE_NAMES;
 
   return (
     <AppShell
@@ -68,11 +71,23 @@ export default async function ShellLayout({ children }: { children: React.ReactN
         navLabel: t('shell.navLabel'),
         openMenu: t('shell.openMenu'),
         closeMenu: t('shell.closeMenu'),
-        scopeCaption: info.scope.kind === 'single' ? t('shell.scopeOwn') : t('shell.scopeCaption'),
+        scopeCaption: t('shell.scopeCaption'),
         userMenu: t('shell.userMenu'),
         logout: t('shell.logout'),
       }}
-      scope={{ label: scopeLabel, detail: info.scope.names.join(', '), icon: 'map-pin' }}
+      scopeSlot={<ScopePicker scope={info.scope} roleNames={roleNames} />}
+      bell={{
+        href: '/notifications',
+        label: t('shell.notifications'),
+        count: info.unreadNotifications,
+      }}
+      banner={
+        <OfflineBanner
+          title={t('offline.title')}
+          text={t('offline.text')}
+          restored={t('offline.restored')}
+        />
+      }
       user={{ name: info.displayName, initials: initials(info.displayName) }}
     >
       {children}

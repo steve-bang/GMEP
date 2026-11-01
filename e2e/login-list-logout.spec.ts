@@ -1,20 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-const PASSWORD = 'Demo!Pass-2026';
-
-async function login(page: Page, identifier: string, password = PASSWORD) {
-  await page.goto('/login');
-  await page.getByLabel('Email hoặc mã nhân viên').fill(identifier);
-  await page.getByLabel('Mật khẩu').fill(password);
-  await page.getByRole('button', { name: 'Đăng nhập' }).click();
-}
-
-/** Login that must succeed: waits for the post-login navigation so later steps do not race it. */
-async function loginOk(page: Page, identifier: string) {
-  await login(page, identifier);
-  await page.waitForURL((u) => u.pathname === '/');
-}
+import { login, loginOk } from './helpers';
 
 test.describe('walking skeleton: login -> list -> logout (FR-SYS-001, FR-SYS-005, NFR-ISO-01)', () => {
   test('manager logs in, sees a branch-isolated list and the visible scope, then logs out', async ({
@@ -31,7 +18,7 @@ test.describe('walking skeleton: login -> list -> logout (FR-SYS-001, FR-SYS-005
     // visible branch scope in the top bar
     await expect(page.getByTestId('branch-scope')).toContainText('Chi nhánh Quận 7');
 
-    await page.getByRole('link', { name: 'Kho (cấu hình)' }).click();
+    await page.getByRole('link', { name: 'Kho', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Kho', exact: true })).toBeVisible();
     const codes = page.getByTestId('wh-code');
     await expect(codes).toHaveCount(3);

@@ -1,0 +1,266 @@
+/* Scope picker styles copied unchanged from design/g5-scope-auth/pack.css (G5-SCP-01/02). */
+/* ---------- Bộ chọn phạm vi ---------- */
+.g5-scope {
+  position: relative;
+  min-width: 0;
+}
+.g5-scope .branch-btn {
+  max-width: 100%;
+}
+.g5-scope .branch-btn__text {
+  min-width: 0;
+}
+.g5-scope .branch-btn__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 100%;
+}
+.g5-scope .branch-btn__caption {
+  display: block;
+}
+.g5-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-dropdown) - 1);
+  background: transparent;
+}
+.g5-panel {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: var(--z-dropdown);
+  width: min(440px, calc(100vw - 32px));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: min(640px, calc(100vh - 120px));
+}
+.g5-panel[hidden],
+.g5-backdrop[hidden] {
+  display: none;
+}
+.g5-panel__head {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.g5-panel__title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  margin: 0;
+}
+.g5-panel__body {
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: auto;
+  min-height: 0;
+}
+.g5-panel__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+.g5-panel__sum {
+  flex: 1 1 160px;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.g5-panel__grab {
+  display: none;
+}
+/* chế độ: dùng .segmented, thêm trạng thái radio */
+.g5-mode {
+  display: flex;
+  width: 100%;
+}
+.g5-mode .segmented__item {
+  flex: 1 1 0;
+  justify-content: center;
+  min-width: 0;
+}
+.g5-mode .segmented__item[aria-checked='true'] {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+.g5-mode .segmented__item[aria-disabled='true'] {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.g5-why {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.g5-why .icon {
+  flex: none;
+  margin-top: 2px;
+}
+.g5-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 280px;
+  overflow: auto;
+  padding: 2px;
+}
+.g5-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: inherit;
+  cursor: pointer;
+}
+.g5-opt:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+}
+.g5-opt[aria-checked='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+.g5-opt__dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--input-border);
+  flex: none;
+}
+.g5-opt[aria-checked='true'] .g5-opt__dot {
+  border-color: var(--color-primary);
+  background: radial-gradient(circle, var(--color-primary) 40%, transparent 45%);
+}
+.g5-opt__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.g5-opt__name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.g5-opt__sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+.g5-opt .tag {
+  flex: none;
+}
+.g5-empty {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.g5-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Điện thoại: bảng trượt từ dưới lên, che nền */
+@media (max-width: 639px) {
+  .g5-backdrop {
+    background: var(--color-surface-overlay);
+  }
+  .g5-scope {
+    position: static;
+  }
+  .g5-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-height: 88vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-width: 1px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .g5-panel__grab {
+    display: block;
+    width: 40px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--color-border-strong);
+    margin: var(--space-2) auto 0;
+  }
+  .g5-panel__foot .btn {
+    flex: 1 1 auto;
+  }
+  .g5-opt {
+    min-height: 64px;
+  }
+  .g5-topbar {
+    flex-wrap: wrap;
+  }
+  .g5-topbar .g5-scope {
+    flex: 1 1 0;
+  }
+  .g5-topbar__spacer {
+    display: none;
+  }
+  .g5-topbar .branch-static {
+    flex: 1 1 0;
+    max-width: none;
+    min-width: 0;
+  }
+  .g5-topbar__user .t-body-sm {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .g5-panel:not([hidden]) {
+    animation: gm-pop var(--dur-modal) var(--ease-out);
+  }
+}
+
+/* Notification bell in the top bar (FR-SYS-009). Tokens only. */
+.bell {
+  position: relative;
+}
+.bell__count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-danger);
+  color: var(--color-text-on-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}

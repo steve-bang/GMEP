@@ -29,26 +29,26 @@ cp .env.example .env.local     # emulator hosts are pre-filled
 
 ## Commands
 
-| Command                                        | What it does                                                                                                   |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `pnpm emulators`                               | start Firestore, Auth and Storage emulators (ports 8080, 9099, 9199)                                           |
-| `pnpm seed`                                    | load FAKE demo data into the running emulators (refuses to run without emulator hosts)                         |
-| `pnpm dev`                                     | Next.js dev server on :3000 (needs `pnpm emulators` + `pnpm seed`, env from `.env.local`)                      |
-| `pnpm lint` / `pnpm format:check`              | ESLint (warnings fail) / Prettier                                                                              |
-| `pnpm typecheck`                               | `tsc --noEmit`                                                                                                 |
-| `pnpm check:boundaries`                        | dependency-cruiser: layer and module rules (`.dependency-cruiser.cjs`)                                         |
-| `pnpm check:indexes` / `pnpm indexes:generate` | verify / regenerate `firestore.indexes.json` from the query catalogue (S8)                                     |
-| `pnpm test:unit`                               | Vitest unit tests (no emulator)                                                                                |
-| `pnpm test:integration`                        | starts the emulators, runs integration tests on the in-memory adapters AND on Firestore/Auth/Storage emulators |
-| `pnpm test:integration:memory`                 | same suites on the in-memory adapters only (no Java needed)                                                    |
-| `pnpm build` then `pnpm check:bundle`          | production build, then fail if the browser output mentions Firebase                                            |
-| `pnpm e2e`                                     | emulators + seed + Playwright against `next start` (run `pnpm build` first)                                    |
-| `pnpm spike:s1`                                | S1 stock contention spike on the emulator (see `docs/dev/spike-report-emulator.md`)                            |
-| `pnpm ci`                                      | the whole pipeline in order (also `.github/workflows/ci.yml`)                                                  |
+| Command                                        | What it does                                                                                                     |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pnpm emulators`                               | start Firestore, Auth and Storage emulators (ports 8080, 9099, 9199)                                             |
+| `pnpm seed`                                    | load FAKE demo data into the running emulators (refuses to run without emulator hosts)                           |
+| `pnpm dev`                                     | Next.js dev server on :3000 (needs `pnpm emulators` + `pnpm seed`, env from `.env.local`)                        |
+| `pnpm lint` / `pnpm format:check`              | ESLint (warnings fail) / Prettier                                                                                |
+| `pnpm typecheck`                               | `tsc --noEmit`                                                                                                   |
+| `pnpm check:boundaries`                        | dependency-cruiser: layer and module rules (`.dependency-cruiser.cjs`)                                           |
+| `pnpm check:indexes` / `pnpm indexes:generate` | verify / regenerate `firestore.indexes.json` from the query catalogue (S8)                                       |
+| `pnpm test:unit`                               | Vitest unit tests (no emulator)                                                                                  |
+| `pnpm test:integration`                        | starts the emulators, runs integration tests on the in-memory adapters AND on Firestore/Auth/Storage emulators   |
+| `pnpm test:integration:memory`                 | same suites on the in-memory adapters only (no Java needed)                                                      |
+| `pnpm build` then `pnpm check:bundle`          | production build, then fail if the browser output mentions Firebase                                              |
+| `pnpm e2e`                                     | emulators + seed + Playwright against `next start` (run `pnpm build` first)                                      |
+| `pnpm spike:s1`                                | S1 stock contention spike on the emulator (see `docs/dev/spike-report-emulator.md`)                              |
+| `pnpm audit:prod`                              | dependency audit of production dependencies (high and above); CI runs it, `pnpm run ci` does not (needs network) |
+| `pnpm run ci`                                  | the whole pipeline in order (also `.github/workflows/ci.yml`)                                                    |
 
-Demo users (emulator only, password `Demo!Pass-2026`): `chu@demo.gmep.test` (owner, all branches), `ql.q7@demo.gmep.test`
-(manager Quận 7), `ql.td@demo.gmep.test` (manager Thủ Đức), `tk.q7@demo.gmep.test` (storekeeper, view only),
-`multi@demo.gmep.test` (manager at Q7, storekeeper at Thủ Đức), `norole@demo.gmep.test`. Employee codes (`NV0001`...) work too.
+Demo users (emulator only, password `Demo!Pass-2026`, all FAKE): `chu@` (CH), `qv@`, `ql.q7@`, `ql.td@`, `cv.q7@`, `qd.q7@`, `th.q7@`, `tk.q7@`, `tn.q7@`, `kt@`, `ad@`
+(all `@demo.gmep.test`), `multi@` (QL at Q7 + TK at Thủ Đức: must pick a branch), `norole@`. Employee codes (`NV0001`...) work too.
 
 ## Environment variables
 
@@ -81,7 +81,27 @@ Key mechanics already in place:
 - **Session:** `__Host-gmep_session` cookie (HttpOnly, Secure, SameSite=Lax) = `<sid>.<Firebase session cookie>` plus a server-side `sessions/{sid}` record (logout, revoke, idle timeout). Origin check on all writes.
 - **Money:** integer VND only (`platform/format/vnd.ts` rejects non-integers). No floats.
 
+## Slice 1.1 and 1.2 (foundation and master data)
+
+- **Auth**: password + `__Host-` session cookie only. **MFA/TOTP/PIN is out of scope by owner decision ("làm sau")**;
+  `StrongAuthPort` (`src/modules/sys/ports/ports.ts`, `noStrongAuth`) is a no-op hook so the owner's code can be wired later.
+  Password policy (min 10, not the last 5) is configuration; lockout has three counters (device+name, name, address);
+  forgot password, invitation and activation use single-use hashed tokens (30 min / 72 h) and an `EmailGateway` whose only
+  adapter writes to the `emailOutbox` collection (nothing is sent; read the link there in dev).
+- **RBAC**: the 10 FRD roles and their permission matrix are seed data (`src/modules/sys/domain/permissions.ts`, from
+  `docs/dev/ba-answers-for-dev.md` §2); roles live in the `roles` collection and are editable through the API.
+  `resolveScope(actor, permission)` is the data scope; `resolveWorkingScope` adds the scope picker choice (server-side session state).
+- **Persistence**: repositories are written once over the `DocStore` port (`src/platform/store`), run on Firestore and in memory.
+  Every query shape is registered in `src/infrastructure/repos/queries.ts`; `pnpm check:indexes` derives the composite indexes
+  from that registry and `pnpm indexes:generate` rewrites `firestore.indexes.json`. Scopes wider than 30 branches are chunked.
+- **Effective-dated configuration** (tax, labour rate, standard hours, discount limit, price items, templates, numbering series):
+  propose -> approve (`/sys/config/<type>`), `resolveConfigAt(...)`, snapshots for documents.
+- **Docker**: `docker build -t gmep:local .` (multi-stage, standalone output, non-root, `/api/health` health check). TTL policies: `infra/firestore-ttl.md`.
+- **Env (new)**: `AUTH_CACHE_TTL_SECONDS` (30; max staleness of a revocation on other instances), `CONFIG_CACHE_TTL_SECONDS`,
+  `TRUSTED_PROXY_HOPS` (1 on Cloud Run), `APP_BASE_URL` (links in emails).
+
 ## Not built yet (see the plan)
 
-Mask-by-role and the PII access log are only ports/stubs for now. Password policy, lockout and rate limiting, MFA (owner-supplied),
-Docker image, Terraform, deploy to dev/staging, and all business modules beyond SYS skeleton are later slices.
+TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS (CRM, REC, INV, ACC, EIN, RPT are skeletons).
+Open requirement questions: `docs/dev/open-questions-for-ba.md`.
