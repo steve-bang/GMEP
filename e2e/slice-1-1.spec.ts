@@ -72,10 +72,10 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
 
     await page.goto('/sys/audit');
     await expect(
-      page.getByTestId('audit-action').filter({ hasText: 'warehouse.create' }).first(),
+      page.getByTestId('audit-action').filter({ hasText: 'Tạo kho' }).first(),
     ).toBeVisible();
     await expect(
-      page.getByTestId('audit-action').filter({ hasText: 'branch.create' }).first(),
+      page.getByTestId('audit-action').filter({ hasText: 'Tạo chi nhánh' }).first(),
     ).toBeVisible();
     expect(serious(await axe(page))).toEqual([]);
 

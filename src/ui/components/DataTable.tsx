@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Icon } from './Icon';
 
 export interface Column<T> {
@@ -18,6 +18,8 @@ export interface DataTableProps<T> {
   rows: T[];
   rowKey: (row: T) => string;
   busy?: boolean;
+  /** optional full-width line under a row (e.g. an expandable detail); return null for none */
+  detail?: (row: T) => ReactNode;
   /** content of `.table-toolbar` above the table (counts, sort note) */
   toolbar?: ReactNode;
   /** content of `.table-footer` below the table */
@@ -33,6 +35,7 @@ export function DataTable<T>({
   busy,
   toolbar,
   footer,
+  detail,
 }: DataTableProps<T>) {
   return (
     <div className="table-wrap" aria-busy={busy || undefined}>
@@ -69,15 +72,27 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={rowKey(row)}>
-                {columns.map((c) => (
-                  <td key={c.key} className={c.numeric ? 'col-num' : undefined}>
-                    {c.render(row)}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const extra = detail?.(row);
+              return (
+                <Fragment key={rowKey(row)}>
+                  <tr>
+                    {columns.map((c) => (
+                      <td key={c.key} className={c.numeric ? 'col-num' : undefined}>
+                        {c.render(row)}
+                      </td>
+                    ))}
+                  </tr>
+                  {extra ? (
+                    <tr>
+                      <td colSpan={columns.length} style={{ paddingTop: 0 }}>
+                        {extra}
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
