@@ -105,7 +105,12 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
     await loginOk(page, 'kt@demo.gmep.test');
     await page.goto('/sys/config/tax-rate');
     await page.getByLabel('Khóa phạm vi').fill('VAT-E2E');
-    const date = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10);
+    const date = new Date(Date.now() + 5 * 86_400_000)
+      .toISOString()
+      .slice(0, 10)
+      .split('-')
+      .reverse()
+      .join('/'); // dd/MM/yyyy as typed by the user
     await page.getByLabel('Hiệu lực từ').fill(date);
     await page.getByLabel('Tên', { exact: true }).fill('Dữ liệu mẫu e2e');
     await page.getByLabel(/Thuế suất \(điểm cơ bản/).fill('800');

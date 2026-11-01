@@ -30,6 +30,7 @@ export interface AuditFilter {
   entityType?: string;
   entityId?: string;
   actorId?: string;
+  action?: string;
   /** inclusive lower / exclusive upper bound on `at` */
   from?: Date;
   to?: Date;

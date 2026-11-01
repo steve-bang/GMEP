@@ -1,7 +1,16 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { hasPermission } from '@/platform/rbac/rbac';
-import { AUDIT_PAGE_SIZES, listAudit } from '@/modules/sys';
+import {
+  AUDIT_PAGE_SIZES,
+  AUDIT_RESTRICTED_TYPES,
+  CONFIG_TYPES,
+  isFullAuditViewer,
+  listAudit,
+} from '@/modules/sys';
+import { auditActionLabel, auditEntityLabel } from '@/composition/labels';
+import { isoToVi, viToIso } from '@/platform/format/date';
+import { DateInput } from '@/ui/components/DateInput';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -14,6 +23,20 @@ import { AuditExport } from './AuditExport';
 
 export const dynamic = 'force-dynamic';
 
+/** Entity types offered in the filter: every type the module writes (restricted viewers only see their own subset). */
+const entityTypes = [
+  'user',
+  'roleAssignment',
+  'role',
+  'session',
+  'branch',
+  'warehouse',
+  'service',
+  'priceList',
+  ...Object.keys(CONFIG_TYPES).map((c) => `config.${c}`),
+  'audit',
+];
+
 const fmt = new Intl.DateTimeFormat('vi-VN', {
   timeZone: 'Asia/Ho_Chi_Minh',
   dateStyle: 'short',
@@ -24,13 +47,21 @@ const fmt = new Intl.DateTimeFormat('vi-VN', {
 export default async function AuditPage({ searchParams }: { searchParams: SearchParams }) {
   const t = await getTranslations();
   const sp = await searchParams;
-  const q = Object.fromEntries(
-    (['entityType', 'entityId', 'from', 'to', 'limit'] as const).flatMap((k) =>
+  const q: Record<string, string> = Object.fromEntries(
+    (['entityType', 'entityId', 'limit'] as const).flatMap((k) =>
       first(sp[k]) ? [[k, first(sp[k])!]] : [],
     ),
   );
+  // dates are typed as dd/MM/yyyy; the application layer takes yyyy-MM-dd; an invalid one is ignored
+  for (const k of ['from', 'to'] as const) {
+    const iso = viToIso(first(sp[k]));
+    if (iso) q[k] = iso;
+  }
   const cursor = first(sp.cursor);
   const { actor } = await requireSession();
+  const full = isFullAuditViewer(actor);
+  // restricted viewers (KT) always filter by one of their entity types (FR-SYS-003 / BA)
+  if (!full && !q.entityType) q.entityType = AUDIT_RESTRICTED_TYPES[0]!;
   const res = await load(() =>
     listAudit(getContainer().sys, actor, { ...q, ...(cursor ? { cursor } : {}) }),
   );
@@ -64,25 +95,26 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
           <label className="field__label" htmlFor="entityType">
             {t('audit.entityType')}
           </label>
-          <input
-            className="input"
-            id="entityType"
-            name="entityType"
-            defaultValue={q.entityType}
-            placeholder="warehouse"
-          />
+          <select className="select" id="entityType" name="entityType" defaultValue={q.entityType}>
+            {full ? <option value="">{t('common.all')}</option> : null}
+            {(full ? entityTypes : AUDIT_RESTRICTED_TYPES).map((e) => (
+              <option key={e} value={e}>
+                {auditEntityLabel(t, e)}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="field">
           <label className="field__label" htmlFor="from">
             {t('audit.from')}
           </label>
-          <input className="input" id="from" name="from" type="date" defaultValue={q.from} />
+          <DateInput id="from" name="from" defaultValue={isoToVi(q.from)} />
         </div>
         <div className="field">
           <label className="field__label" htmlFor="to">
             {t('audit.to')}
           </label>
-          <input className="input" id="to" name="to" type="date" defaultValue={q.to} />
+          <DateInput id="to" name="to" defaultValue={isoToVi(q.to)} />
         </div>
         <div className="field">
           <label className="field__label" htmlFor="limit">
@@ -110,12 +142,20 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
             {
               key: 'action',
               header: t('audit.colAction'),
-              render: (e) => <span data-testid="audit-action">{e.action}</span>,
+              render: (e) => (
+                <span data-testid="audit-action" title={e.action}>
+                  {auditActionLabel(t, e.action)}
+                </span>
+              ),
             },
             {
               key: 'entity',
               header: t('audit.colEntity'),
-              render: (e) => `${e.entityType} · ${e.entityId}`,
+              render: (e) => (
+                <span title={`${e.entityType} · ${e.entityId}`}>
+                  {auditEntityLabel(t, e.entityType)} · {e.entityId}
+                </span>
+              ),
             },
             { key: 'reason', header: t('audit.colReason'), render: (e) => e.reason ?? '' },
           ]}

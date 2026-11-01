@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { businessDate, formatDate, formatDateTime } from './date';
+import { businessDate, formatDate, formatDateTime, isoToVi, viToIso } from './date';
+import { maskViDate } from '@/ui/dateMask';
 import { formatVnd, parseVndInput } from './vnd';
 
 describe('VND formatting (integer money only)', () => {
@@ -33,5 +34,25 @@ describe('date formatting (dd/MM/yyyy, Asia/Ho_Chi_Minh)', () => {
   });
   it('uses 24 hour time', () => {
     expect(formatDateTime(new Date('2026-01-02T09:05:00Z'))).toBe('02/01/2026 16:05');
+  });
+});
+
+describe('dd/MM/yyyy input helpers (date fields never depend on the browser locale)', () => {
+  it('converts both ways and rejects non-dates', () => {
+    expect(isoToVi('2027-01-01')).toBe('01/01/2027');
+    expect(isoToVi('')).toBe('');
+    expect(viToIso('01/01/2027')).toBe('2027-01-01');
+    expect(viToIso('1/2/2027')).toBe('2027-02-01');
+    expect(viToIso('2027-01-01')).toBe('2027-01-01');
+    expect(viToIso('31/02/2027')).toBeNull();
+    expect(viToIso('12/31/2027')).toBeNull();
+    expect(viToIso('')).toBeNull();
+  });
+  it('masks digits as dd/MM/yyyy while typing', () => {
+    expect(maskViDate('3')).toBe('3');
+    expect(maskViDate('3110')).toBe('31/10');
+    expect(maskViDate('31102026')).toBe('31/10/2026');
+    expect(maskViDate('31/10/2026999')).toBe('31/10/2026');
+    expect(maskViDate('2026-10-31')).toBe('31/10/2026');
   });
 });

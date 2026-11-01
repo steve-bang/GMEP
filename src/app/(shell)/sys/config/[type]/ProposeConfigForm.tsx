@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
+import { viToIso } from '@/platform/format/date';
 import { Button } from '@/ui/components/Button';
+import { DateInput } from '@/ui/components/DateInput';
 import { newKey, postJson, type FormLabels } from '@/ui/components/ResourceForm';
 
 interface F {
@@ -20,6 +22,8 @@ export function ProposeConfigForm(props: {
   text: {
     scopeKey: string;
     effectiveFrom: string;
+    dateHint: string;
+    dateInvalid: string;
     reason: string;
     scopeHint: string;
     fields: Record<string, string>;
@@ -45,10 +49,16 @@ export function ProposeConfigForm(props: {
     setBusy(true);
     setError(null);
     setFe({});
+    const effectiveFrom = viToIso(v('effectiveFrom'));
+    if (!effectiveFrom) {
+      setBusy(false);
+      setFe({ effectiveFrom: props.text.dateInvalid });
+      return;
+    }
     const r = await postJson(
       `/api/v1/sys/config/${props.type}`,
       'POST',
-      { scopeKey: v('scopeKey'), effectiveFrom: v('effectiveFrom'), reason: v('reason'), payload },
+      { scopeKey: v('scopeKey'), effectiveFrom, reason: v('reason'), payload },
       key,
     );
     setBusy(false);
@@ -64,7 +74,11 @@ export function ProposeConfigForm(props: {
         {label}
       </label>
       {el}
-      {hint && !fe[name] ? <span className="field__hint">{hint}</span> : null}
+      {hint && !fe[name] ? (
+        <span className="field__hint" id={`${uid}-${name}-hint`}>
+          {hint}
+        </span>
+      ) : null}
       {fe[name] ? <span className="field__error">{fe[name]}</span> : null}
     </div>
   );
@@ -91,14 +105,13 @@ export function ProposeConfigForm(props: {
         {field(
           'effectiveFrom',
           props.text.effectiveFrom,
-          <input
-            className="input"
+          <DateInput
             id={`${uid}-effectiveFrom`}
             name="effectiveFrom"
-            type="date"
-            min={props.today}
             aria-required="true"
+            aria-describedby={`${uid}-effectiveFrom-hint`}
           />,
+          props.text.dateHint,
         )}
         {props.fields.map((x) =>
           field(

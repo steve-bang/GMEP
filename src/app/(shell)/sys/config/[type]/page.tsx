@@ -183,6 +183,8 @@ export default async function ConfigTypePage({
             text={{
               scopeKey: t('config.colScope'),
               effectiveFrom: t('config.colFrom'),
+              dateHint: t('common.dateFormat'),
+              dateInvalid: t('common.dateInvalid'),
               reason: t('config.reason'),
               scopeHint: t(`config.types.${type}.scopeHint`),
               fields: Object.fromEntries(

@@ -101,6 +101,12 @@ export {
 } from './application/notifications';
 export type { NotificationDto } from './application/notifications';
 export { revealPii, userPiiSource } from './application/pii';
-export { listAudit, exportAuditCsv, AUDIT_PAGE_SIZES } from './application/audit';
+export {
+  listAudit,
+  exportAuditCsv,
+  isFullAuditViewer,
+  AUDIT_PAGE_SIZES,
+  AUDIT_RESTRICTED_TYPES,
+} from './application/audit';
 export type { AuditRowDto } from './application/audit';
 export { assertBranchWritable } from './domain/branchState';

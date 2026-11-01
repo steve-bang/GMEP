@@ -30,3 +30,22 @@ export function businessDate(date: Date, timeZone: string = DEFAULT_TIME_ZONE): 
   const p = parts(date, timeZone, false);
   return `${p.year}-${p.month}-${p.day}`;
 }
+
+/** yyyy-MM-dd -> dd/MM/yyyy; anything that is not a business date yields ''. */
+export function isoToVi(iso: string | undefined | null): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? '');
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
+}
+
+/**
+ * dd/MM/yyyy -> yyyy-MM-dd, or null when it is not a real calendar date (31/02/2026 is rejected).
+ * Also accepts an already ISO value so server pages can take either form from the query string.
+ */
+export function viToIso(vi: string | undefined | null): string | null {
+  const s = (vi ?? '').trim();
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  const iso = m ? `${m[3]}-${m[2]!.padStart(2, '0')}-${m[1]!.padStart(2, '0')}` : s;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+  const d = new Date(`${iso}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === iso ? iso : null;
+}

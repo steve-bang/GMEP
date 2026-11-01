@@ -82,7 +82,7 @@ export class DocAuditLog implements AuditLog {
     f: AuditFilter,
     page: { limit: number; cursor?: Cur },
   ): Promise<Page<AuditEntry>> {
-    const optional = (['entityType', 'entityId', 'actorId'] as const).filter((k) => f[k]);
+    const optional = (['entityType', 'entityId', 'actorId', 'action'] as const).filter((k) => f[k]);
     const shape = Q.audit.pick(optional, scope.kind === 'branches');
     const rows = await this.store.query(shape, {
       eq: { companyId: scope.companyId, ...Object.fromEntries(optional.map((k) => [k, f[k]!])) },

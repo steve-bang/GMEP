@@ -29,6 +29,7 @@ export const auditQuerySchema = z.object({
   entityType: z.string().trim().max(60).optional(),
   entityId: z.string().trim().max(128).optional(),
   actorId: z.string().trim().max(128).optional(),
+  action: z.string().trim().max(60).optional(),
   from: z.string().regex(dateRe).optional(),
   to: z.string().regex(dateRe).optional(),
   limit: z.coerce
@@ -42,8 +43,12 @@ export const auditQuerySchema = z.object({
 /** business date -> instant at 00:00 Asia/Ho_Chi_Minh (UTC+7, no DST) */
 const startOfBusinessDay = (d: string) => new Date(`${d}T00:00:00+07:00`);
 
+/** Full viewers see every entity type; restricted ones (KT) must pick one of AUDIT_RESTRICTED_TYPES. */
+export const isFullAuditViewer = (actor: Actor): boolean =>
+  roleCodesOf(actor).some((r) => FULL_AUDIT_ROLES.includes(r));
+
 function filterOf(actor: Actor, q: z.infer<typeof auditQuerySchema>): AuditFilter {
-  const full = roleCodesOf(actor).some((r) => FULL_AUDIT_ROLES.includes(r));
+  const full = isFullAuditViewer(actor);
   if (!full && (!q.entityType || !AUDIT_RESTRICTED_TYPES.includes(q.entityType)))
     throw new AppError('audit_type_required', 422);
   const toDay = q.to ? new Date(startOfBusinessDay(q.to).getTime() + 86_400_000) : undefined;
@@ -51,6 +56,7 @@ function filterOf(actor: Actor, q: z.infer<typeof auditQuerySchema>): AuditFilte
     ...(q.entityType ? { entityType: q.entityType } : {}),
     ...(q.entityId ? { entityId: q.entityId } : {}),
     ...(q.actorId ? { actorId: q.actorId } : {}),
+    ...(q.action ? { action: q.action } : {}),
     ...(q.from ? { from: startOfBusinessDay(q.from) } : {}),
     ...(toDay ? { to: toDay } : {}),
   };

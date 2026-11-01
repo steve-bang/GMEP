@@ -14,3 +14,18 @@ export function formLabels(t: T, submitKey: string, cancel = true): FormLabels {
     unexpected: t('common.unexpected'),
   };
 }
+
+type Tx = T & { has: (key: string) => boolean };
+const dotless = (code: string) => code.replace(/\./g, '_');
+
+/** Vietnamese label of an audit action code such as `auth.login`; the raw code only if unmapped. */
+export function auditActionLabel(t: Tx, code: string): string {
+  const key = `audit.actions.${dotless(code)}`;
+  return t.has(key) ? t(key) : code;
+}
+
+/** Vietnamese label of an audit entity type such as `config.tax-rate` or `warehouse`. */
+export function auditEntityLabel(t: Tx, code: string): string {
+  const key = `audit.entityTypes.${dotless(code)}`;
+  return t.has(key) ? t(key) : code;
+}

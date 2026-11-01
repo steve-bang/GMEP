@@ -72,7 +72,7 @@ export const Q = {
     name: 'auditLogs.list',
     collection: COL.auditLogs,
     eq: ['companyId'],
-    optionalEq: ['entityType', 'entityId', 'actorId'],
+    optionalEq: ['entityType', 'entityId', 'actorId', 'action'],
     scopeField: 'branchId',
     range: true,
     order: { field: 'at', dir: 'desc', type: 'date' },
