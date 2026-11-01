@@ -3,29 +3,36 @@
 import { useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
 import { viToIso } from '@/platform/format/date';
+import { parsePercentToBp } from '@/platform/format/percent';
+import { parseVndInput } from '@/platform/format/vnd';
 import { Button } from '@/ui/components/Button';
 import { DateInput } from '@/ui/components/DateInput';
 import { newKey, postJson, type FormLabels } from '@/ui/components/ResourceForm';
 
-interface F {
+export interface F {
   name: string;
-  kind: 'text' | 'int' | 'select';
-  options?: string[];
+  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select';
+  options?: { value: string; label: string }[];
 }
 
 /** FR-SYS-004: proposes a PENDING version. Payload shape per type is validated by the server schema. */
 export function ProposeConfigForm(props: {
   type: string;
-  today: string;
   fields: F[];
+  /** when set the scope key is picked from a list (company / branch / service) instead of typed */
+  scopeOptions?: { value: string; label: string }[];
   labels: FormLabels;
   text: {
     scopeKey: string;
     effectiveFrom: string;
-    dateHint: string;
-    dateInvalid: string;
     reason: string;
     scopeHint: string;
+    dateHint: string;
+    dateInvalid: string;
+    percentInvalid: string;
+    numberInvalid: string;
+    percentHint: string;
+    pick: string;
     fields: Record<string, string>;
   };
 }) {
@@ -40,21 +47,33 @@ export function ProposeConfigForm(props: {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const v = (n: string) => String(f.get(n) ?? '').trim();
+    const errs: Record<string, string> = {};
+    const effectiveFrom = viToIso(v('effectiveFrom'));
+    if (!effectiveFrom) errs.effectiveFrom = props.text.dateInvalid;
     let payload: Record<string, unknown> = {};
-    for (const x of props.fields)
-      payload[x.name] = x.kind === 'int' ? Number(v(x.name)) : v(x.name);
+    for (const x of props.fields) {
+      const raw = v(x.name);
+      if (x.kind === 'percent') {
+        const bp = parsePercentToBp(raw);
+        if (bp === null) errs[x.name] = props.text.percentInvalid;
+        payload[x.name] = bp;
+      } else if (x.kind === 'vnd' || x.kind === 'int') {
+        const n =
+          x.kind === 'vnd' ? parseVndInput(raw) : /^\d{1,9}$/.test(raw) ? Number(raw) : null;
+        if (n === null || n < 0) errs[x.name] = props.text.numberInvalid;
+        payload[x.name] = n;
+      } else payload[x.name] = raw;
+    }
+    if (Object.keys(errs).length) {
+      setFe(errs);
+      return;
+    }
     if (props.type === 'discount-limit')
       payload = { maxDiscountBpByRole: { [String(payload.role)]: payload.maxBp } };
     if (props.type === 'numbering-series') payload = { ...payload, reversalSameSeries: true };
     setBusy(true);
     setError(null);
     setFe({});
-    const effectiveFrom = viToIso(v('effectiveFrom'));
-    if (!effectiveFrom) {
-      setBusy(false);
-      setFe({ effectiveFrom: props.text.dateInvalid });
-      return;
-    }
     const r = await postJson(
       `/api/v1/sys/config/${props.type}`,
       'POST',
@@ -72,6 +91,9 @@ export function ProposeConfigForm(props: {
     <div className="field" key={name}>
       <label className="field__label" htmlFor={`${uid}-${name}`}>
         {label}
+        <span className="field__req" aria-hidden="true">
+          *
+        </span>
       </label>
       {el}
       {hint && !fe[name] ? (
@@ -79,9 +101,14 @@ export function ProposeConfigForm(props: {
           {hint}
         </span>
       ) : null}
-      {fe[name] ? <span className="field__error">{fe[name]}</span> : null}
+      {fe[name] ? (
+        <span className="field__error" id={`${uid}-${name}-err`}>
+          {fe[name]}
+        </span>
+      ) : null}
     </div>
   );
+  const describedBy = (n: string) => (fe[n] ? `${uid}-${n}-err` : `${uid}-${n}-hint`);
   return (
     <form className="g1-form" onSubmit={onSubmit} noValidate data-testid="config-form">
       {error ? (
@@ -93,13 +120,24 @@ export function ProposeConfigForm(props: {
         {field(
           'scopeKey',
           props.text.scopeKey,
-          <input
-            className="input"
-            id={`${uid}-scopeKey`}
-            name="scopeKey"
-            autoComplete="off"
-            aria-required="true"
-          />,
+          props.scopeOptions ? (
+            <select className="select" id={`${uid}-scopeKey`} name="scopeKey" aria-required="true">
+              {props.scopeOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              className="input"
+              id={`${uid}-scopeKey`}
+              name="scopeKey"
+              autoComplete="off"
+              aria-required="true"
+              aria-describedby={describedBy('scopeKey')}
+            />
+          ),
           props.text.scopeHint,
         )}
         {field(
@@ -109,7 +147,8 @@ export function ProposeConfigForm(props: {
             id={`${uid}-effectiveFrom`}
             name="effectiveFrom"
             aria-required="true"
-            aria-describedby={`${uid}-effectiveFrom-hint`}
+            aria-invalid={fe.effectiveFrom ? true : undefined}
+            aria-describedby={describedBy('effectiveFrom')}
           />,
           props.text.dateHint,
         )}
@@ -120,8 +159,8 @@ export function ProposeConfigForm(props: {
             x.kind === 'select' ? (
               <select className="select" id={`${uid}-${x.name}`} name={x.name}>
                 {x.options?.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
+                  <option key={o.value} value={o.value}>
+                    {o.label}
                   </option>
                 ))}
               </select>
@@ -130,11 +169,16 @@ export function ProposeConfigForm(props: {
                 className="input"
                 id={`${uid}-${x.name}`}
                 name={x.name}
-                inputMode={x.kind === 'int' ? 'numeric' : undefined}
+                inputMode={
+                  x.kind === 'text' ? undefined : x.kind === 'percent' ? 'decimal' : 'numeric'
+                }
                 autoComplete="off"
                 aria-required="true"
+                aria-invalid={fe[x.name] ? true : undefined}
+                aria-describedby={describedBy(x.name)}
               />
             ),
+            x.kind === 'percent' ? props.text.percentHint : undefined,
           ),
         )}
         {field(

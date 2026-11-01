@@ -542,11 +542,11 @@
     },
     "fields": {
       "name": "Tên",
-      "rateBp": "Thuế suất (điểm cơ bản, 800 = 8%)",
+      "rateBp": "Thuế suất (%)",
       "hourlyRateVnd": "Đơn giá giờ (VND)",
       "standardMinutes": "Giờ chuẩn (phút)",
       "role": "Mã vai trò",
-      "maxBp": "Giảm tối đa (điểm cơ bản)",
+      "maxBp": "Giảm tối đa (% giá niêm yết)",
       "costVnd": "Giá vốn (VND)",
       "listPriceVnd": "Giá niêm yết (VND)",
       "kind": "Loại",
@@ -556,44 +556,112 @@
       "gapPolicy": "Chính sách lỗ số",
       "scope": "Phạm vi dãy",
       "period": "Kỳ đặt lại",
-      "seqWidth": "Độ rộng STT"
+      "seqWidth": "Số chữ số của STT"
     },
     "types": {
       "tax-rate": {
         "title": "Thuế suất",
         "lead": "Theo mã thuế và ngày hiệu lực",
-        "scopeHint": "Mã thuế, ví dụ VAT-STD"
+        "scopeHint": "Mã nhóm thuế do kế toán đặt, ví dụ VAT-DV"
       },
       "labor-rate": {
         "title": "Đơn giá giờ công",
         "lead": "Công ty hoặc ghi đè theo chi nhánh",
-        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
       },
       "standard-hours": {
         "title": "Giờ chuẩn",
         "lead": "Theo dịch vụ",
-        "scopeHint": "service:<mã dịch vụ>"
+        "scopeHint": "Chọn dịch vụ"
       },
       "discount-limit": {
         "title": "Hạn mức giảm giá",
         "lead": "Công ty hoặc theo chi nhánh",
-        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
       },
       "price-item": {
         "title": "Giá theo mặt hàng",
         "lead": "Giá vốn và giá niêm yết theo bảng giá",
-        "scopeHint": "<mã bảng giá>:<mã mặt hàng>"
+        "scopeHint": "Mã bảng giá và mã mặt hàng, dạng BG01:MH001"
       },
       "doc-template": {
         "title": "Mẫu chứng từ",
         "lead": "Chỉ siêu dữ liệu mẫu in",
-        "scopeHint": "tpl:<mã mẫu>"
+        "scopeHint": "Mã mẫu, dạng tpl:RO-A5"
       },
       "numbering-series": {
         "title": "Dãy số chứng từ",
         "lead": "Ghi đè bảng mặc định theo ngày hiệu lực",
-        "scopeHint": "Loại chứng từ, ví dụ repair-order"
+        "scopeHint": "Mã loại chứng từ viết thường, ví dụ repair-order"
       }
+    },
+    "perHour": "{amount} / giờ",
+    "cost": "Giá vốn {amount}",
+    "listPrice": "Niêm yết {amount}",
+    "prefixValue": "Tiền tố {prefix}",
+    "widthValue": "STT {width} chữ số",
+    "enums": {
+      "kind": {
+        "quote": "Báo giá",
+        "repair-order": "Lệnh sửa chữa",
+        "receipt": "Phiếu thu",
+        "stock-doc": "Chứng từ kho",
+        "handover": "Biên bản bàn giao",
+        "notification": "Tin nhắn thông báo",
+        "other": "Khác"
+      },
+      "paper": {
+        "A4": "A4",
+        "A5": "A5",
+        "thermal80": "Nhiệt 80 mm",
+        "thermal58": "Nhiệt 58 mm"
+      },
+      "group": {
+        "A": "Nhóm A (cấp số khi tạo)",
+        "B": "Nhóm B (cấp số khi ghi sổ)"
+      },
+      "gapPolicy": {
+        "strict": "Không cho lỗ số",
+        "relaxed": "Cho phép lỗ số"
+      },
+      "scope": {
+        "branch": "Theo chi nhánh",
+        "legalEntity": "Theo pháp nhân"
+      },
+      "period": {
+        "month": "Đặt lại hằng tháng",
+        "year": "Đặt lại hằng năm",
+        "none": "Không đặt lại"
+      }
+    },
+    "viewStatus": {
+      "pending": "Chờ duyệt",
+      "rejected": "Đã từ chối",
+      "current": "Hiện hành",
+      "upcoming": "Sắp hiệu lực",
+      "superseded": "Hết hiệu lực"
+    },
+    "sampleTitle": "Giá trị dưới đây là số minh họa",
+    "sampleText": "Chưa được kế toán xác nhận. Mức thực tế và ngày áp dụng do kế toán và Chủ garage quyết định; hệ thống không có giá trị nào cài sẵn trong mã nguồn.",
+    "scopeCompany": "Toàn công ty",
+    "scopeBranch": "Chi nhánh {name}",
+    "scopeService": "Dịch vụ {name}",
+    "colReason": "Lý do đề xuất",
+    "tableTitle": "Các phiên bản theo ngày hiệu lực",
+    "tableMeta": "Mọi phiên bản được giữ; không sửa, không xóa. Thay đổi không làm đổi chứng từ đã lập.",
+    "versions": "{count} phiên bản",
+    "proposeLead": "Phiên bản mới chờ người có quyền duyệt và chỉ áp dụng từ ngày hiệu lực; chứng từ đã lập không đổi.",
+    "pickScope": "Chọn phạm vi",
+    "pickRole": "Chọn vai trò",
+    "percentHint": "Nhập theo %, ví dụ 8 hoặc 8,5",
+    "percentInvalid": "Nhập phần trăm từ 0 đến 100, tối đa 2 số lẻ.",
+    "numberInvalid": "Nhập một số nguyên không âm.",
+    "codes": {
+      "tax-rate": "G4-SYS-10",
+      "labor-rate": "G4-SYS-07",
+      "standard-hours": "G4-SYS-07",
+      "discount-limit": "G4-SYS-09",
+      "doc-template": "G4-SYS-12"
     }
   },
   "audit": {

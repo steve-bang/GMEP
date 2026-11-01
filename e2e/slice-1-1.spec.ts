@@ -113,7 +113,7 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
       .join('/'); // dd/MM/yyyy as typed by the user
     await page.getByLabel('Hiệu lực từ').fill(date);
     await page.getByLabel('Tên', { exact: true }).fill('Dữ liệu mẫu e2e');
-    await page.getByLabel(/Thuế suất \(điểm cơ bản/).fill('800');
+    await page.getByLabel(/Thuế suất \(%\)/).fill('8');
     await page.getByLabel('Lý do').fill('kiểm thử e2e');
     await page.getByRole('button', { name: 'Gửi đề xuất' }).click();
     await expect(page.getByTestId('cfg-scope').filter({ hasText: 'VAT-E2E' })).toBeVisible();
@@ -125,7 +125,7 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
     await expect(page.getByText(/đang chờ bạn duyệt/).first()).toBeVisible();
     await page.goto('/sys/config/tax-rate');
     await page.getByTestId('cfg-approve').first().click();
-    await expect(page.getByText('Đã duyệt').first()).toBeVisible();
+    await expect(page.getByText('Sắp hiệu lực').first()).toBeVisible(); // approved, effective in 5 days
   });
 
   test('forgot password is neutral, the reset link is single use, old sessions die, logout works', async ({
