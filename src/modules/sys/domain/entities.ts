@@ -13,6 +13,8 @@ export interface User {
   /** Staff contact phone: personal data, masked by PiiPolicy in every serializer (NFR-SEC-03). */
   phone?: string;
   status: UserStatus;
+  /** last successful sign-in (G4-SYS-01 column); absent until the first login */
+  lastLoginAt?: Date;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;

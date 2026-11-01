@@ -8,7 +8,8 @@ import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { ActionButton, ResourceForm } from '@/ui/components/ResourceForm';
 import { StatusBadge } from '@/ui/components/StatusBadge';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,25 +20,29 @@ export default async function WarehouseDetailPage({ params }: { params: Promise<
   const res = await load(() => getWarehouse(getContainer().sys, actor, decodeURIComponent(id)));
   if (res.error)
     return (
-      <>
-        <PageHeader title={t('warehouses.title')} />
+      <SettingsPage
+        current="warehouses"
+        parent={{ label: t('warehouses.title'), href: '/sys/warehouses' }}
+        title={t('warehouses.title')}
+      >
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const w = res.data;
   const canEdit = hasPermission(actor, 'warehouse:update');
   const canArchive = hasPermission(actor, 'warehouse:archive');
   return (
-    <>
-      <PageHeader
-        title={`${w.code} · ${w.name}`}
-        lead={t('warehouses.detailLead')}
-        actions={
-          <Link className="btn btn--ghost" href="/sys/warehouses">
-            {t('common.back')}
-          </Link>
-        }
-      />
+    <SettingsPage
+      current="warehouses"
+      parent={{ label: t('warehouses.title'), href: '/sys/warehouses' }}
+      title={`${w.code} · ${w.name}`}
+      desc={t('warehouses.detailLead')}
+      actions={
+        <Link className="btn btn--ghost" href="/sys/warehouses">
+          {t('common.back')}
+        </Link>
+      }
+    >
       <p>
         <StatusBadge tone={w.status === 'active' ? 'success' : 'neutral'}>
           {t(`warehouses.${w.status}`)}
@@ -81,6 +86,6 @@ export default async function WarehouseDetailPage({ params }: { params: Promise<
           errorFallback={t('common.unexpected')}
         />
       ) : null}
-    </>
+    </SettingsPage>
   );
 }

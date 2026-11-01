@@ -6,7 +6,8 @@ import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { InviteUserForm } from './InviteUserForm';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,16 +21,23 @@ export default async function InviteUserPage() {
   });
   if (res.error)
     return (
-      <>
-        <PageHeader title={t('users.invite')} />
+      <SettingsPage
+        current="users"
+        parent={{ label: t('users.title'), href: '/sys/users' }}
+        title={t('users.invite')}
+      >
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const isOwner = hasPermission(actor, 'user:approve');
   const roles = ROLE_CODES.filter((r) => isOwner || !OWNER_APPROVED_ROLES.includes(r));
   return (
-    <>
-      <PageHeader title={t('users.invite')} lead={t('users.inviteLead')} />
+    <SettingsPage
+      current="users"
+      parent={{ label: t('users.title'), href: '/sys/users' }}
+      title={t('users.invite')}
+      desc={t('users.inviteLead')}
+    >
       <div className="g1-auth-card g1-auth-card--wide">
         <InviteUserForm
           branches={res.data.map((b) => ({ value: b.id, label: b.name }))}
@@ -46,6 +54,6 @@ export default async function InviteUserPage() {
           }}
         />
       </div>
-    </>
+    </SettingsPage>
   );
 }

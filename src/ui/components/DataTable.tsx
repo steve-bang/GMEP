@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { Icon } from './Icon';
 
 export interface Column<T> {
   key: string;
@@ -6,6 +8,8 @@ export interface Column<T> {
   render: (row: T) => ReactNode;
   /** right-aligned tabular numbers (money, quantities) */
   numeric?: boolean;
+  /** sortable header: current direction (null = not sorted by this column) and the link that toggles it */
+  sort?: { dir: 'asc' | 'desc' | null; href: string; label: string };
 }
 
 export interface DataTableProps<T> {
@@ -14,12 +18,25 @@ export interface DataTableProps<T> {
   rows: T[];
   rowKey: (row: T) => string;
   busy?: boolean;
+  /** content of `.table-toolbar` above the table (counts, sort note) */
+  toolbar?: ReactNode;
+  /** content of `.table-footer` below the table */
+  footer?: ReactNode;
 }
 
 /** `.table-wrap > .table-scroll > .table`; horizontal scroll instead of overflow on narrow screens. */
-export function DataTable<T>({ caption, columns, rows, rowKey, busy }: DataTableProps<T>) {
+export function DataTable<T>({
+  caption,
+  columns,
+  rows,
+  rowKey,
+  busy,
+  toolbar,
+  footer,
+}: DataTableProps<T>) {
   return (
     <div className="table-wrap" aria-busy={busy || undefined}>
+      {toolbar ? <div className="table-toolbar">{toolbar}</div> : null}
       {/* keyboard-focusable scroll region (WCAG 2.1.1): the table scrolls sideways on narrow screens */}
       <div className="table-scroll" tabIndex={0} role="region" aria-label={caption}>
         <table className="table">
@@ -27,8 +44,26 @@ export function DataTable<T>({ caption, columns, rows, rowKey, busy }: DataTable
           <thead>
             <tr>
               {columns.map((c) => (
-                <th key={c.key} scope="col" className={c.numeric ? 'col-num' : undefined}>
-                  {c.header}
+                <th
+                  key={c.key}
+                  scope="col"
+                  className={c.numeric ? 'col-num' : undefined}
+                  aria-sort={
+                    c.sort?.dir === 'asc'
+                      ? 'ascending'
+                      : c.sort?.dir === 'desc'
+                        ? 'descending'
+                        : undefined
+                  }
+                >
+                  {c.sort ? (
+                    <Link className="th-sort" href={c.sort.href} aria-label={c.sort.label}>
+                      {c.header}
+                      <Icon name={c.sort.dir === 'asc' ? 'arrow-up' : 'arrow-down'} />
+                    </Link>
+                  ) : (
+                    c.header
+                  )}
                 </th>
               ))}
             </tr>
@@ -46,6 +81,7 @@ export function DataTable<T>({ caption, columns, rows, rowKey, busy }: DataTable
           </tbody>
         </table>
       </div>
+      {footer ? <div className="table-footer">{footer}</div> : null}
     </div>
   );
 }

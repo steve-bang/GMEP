@@ -42,6 +42,8 @@ export interface UserRepository {
    * of the company for 'all' scopes).
    */
   list(scope: Scope, q: ListQuery<'employeeCode' | 'name'>): Promise<Page<User>>;
+  /** Records the last successful sign-in outside any business transaction (not audited, not versioned). */
+  recordLogin(userId: string, at: Date): Promise<void>;
   /** Stages the create plus the unique keys (email, employee code per company); AlreadyExistsError on duplicates. */
   create(tx: Tx, user: User): void;
   update(
@@ -77,6 +79,8 @@ export interface RoleAssignmentRepository {
   listForUserInTx(tx: Tx, userId: string): Promise<RoleAssignmentRecord[]>;
   /** assignments whose branch is inside the scope, used for user administration screens */
   listInScope(scope: Scope, userId: string): Promise<RoleAssignmentRecord[]>;
+  /** every assignment whose branch is inside the scope (one paged query), for user list filters */
+  listAllInScope(scope: Scope): Promise<RoleAssignmentRecord[]>;
   /** users holding a role (any branch), e.g. to address approvers; capped */
   listByRole(companyId: string, roleCode: string, limit: number): Promise<RoleAssignmentRecord[]>;
   add(tx: Tx, a: RoleAssignmentRecord): void;

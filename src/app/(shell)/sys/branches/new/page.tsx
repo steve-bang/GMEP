@@ -4,7 +4,8 @@ import { formLabels } from '@/composition/labels';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { ResourceForm } from '@/ui/components/ResourceForm';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,14 +16,20 @@ export default async function NewBranchPage() {
   const res = await load(async () => resolveScope(actor, 'org:create'));
   if (res.error)
     return (
-      <>
-        <PageHeader title={t('branches.create')} />
+      <SettingsPage
+        current="branches"
+        parent={{ label: t('branches.title'), href: '/sys/branches' }}
+        title={t('branches.create')}
+      >
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   return (
-    <>
-      <PageHeader title={t('branches.create')} />
+    <SettingsPage
+      current="branches"
+      parent={{ label: t('branches.title'), href: '/sys/branches' }}
+      title={t('branches.create')}
+    >
       <div className="g1-auth-card g1-auth-card--wide">
         <ResourceForm
           testId="branch-form"
@@ -44,6 +51,6 @@ export default async function NewBranchPage() {
           ]}
         />
       </div>
-    </>
+    </SettingsPage>
   );
 }

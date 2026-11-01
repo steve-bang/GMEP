@@ -76,7 +76,18 @@ export const demoUsers: User[] = [
   u('u_tn_q7', 'NV0106', 'tn.q7@demo.gmep.test', 'Thu ngân Quận 7'),
   u('u_kt', 'NV0501', 'kt@demo.gmep.test', 'Kế toán'),
   u('u_ad', 'NV0601', 'ad@demo.gmep.test', 'Quản trị hệ thống'),
+  u('u_invited', 'NV0701', 'moi.q7@demo.gmep.test', 'Nhân viên mới Quận 7', 'invited'),
 ];
+
+/** Fake "last login" instants so the user list (G4-SYS-01) has something to sort by. */
+const LAST_LOGIN: Record<string, string> = {
+  u_owner: '2026-10-30T01:55:00Z',
+  u_ql_q7: '2026-10-30T01:30:00Z',
+  u_cv_q7: '2026-10-29T00:50:00Z',
+  u_kt: '2026-10-29T10:40:00Z',
+  u_disabled: '2026-10-26T09:02:00Z',
+};
+for (const x of demoUsers) if (LAST_LOGIN[x.id]) x.lastLoginAt = new Date(LAST_LOGIN[x.id]!);
 
 const a = (userId: string, roleCode: string, branchId: string) => ({
   id: roleAssignmentId(userId, roleCode, branchId),
@@ -103,6 +114,7 @@ export const demoAssignments = [
   a('u_tn_q7', 'TN', 'br_q7'),
   a('u_kt', 'KT', '*'),
   a('u_ad', 'AD', '*'),
+  a('u_invited', 'CV', 'br_q7'),
 ];
 
 const codeOf = new Map(demoUsers.map((x) => [x.id, x.employeeCode]));

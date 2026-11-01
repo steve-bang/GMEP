@@ -59,6 +59,8 @@ export {
 export type { BranchDto } from './application/branches';
 export {
   listUsers,
+  searchUsers,
+  USER_PAGE_SIZE,
   getUser,
   inviteUser,
   resendInvite,

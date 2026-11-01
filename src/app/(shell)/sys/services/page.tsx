@@ -12,7 +12,8 @@ import { Button } from '@/ui/components/Button';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { ResourceForm } from '@/ui/components/ResourceForm';
 import { EmptyState } from '@/ui/components/States';
-import { ErrorFor, first, PageHeader, Pager, type SearchParams } from '@/ui/components/PageParts';
+import { SettingsPage } from '../SettingsPage';
+import { ErrorFor, first, Pager, type SearchParams } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,20 +31,24 @@ export default async function ServicesPage({ searchParams }: { searchParams: Sea
       ...(cursor ? { cursor } : {}),
     }),
   );
-  const header = <PageHeader title={t('services.title')} lead={t('services.lead')} />;
+  const head = {
+    current: 'services',
+    code: 'G4-SYS-07',
+    title: t('services.title'),
+    desc: t('services.lead'),
+    scopeText: t('settings.scopeCompany'),
+  };
   if (res.error)
     return (
-      <>
-        {header}
+      <SettingsPage {...head}>
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const canCreate =
     hasPermission(actor, 'service-catalog:create') &&
     resolveScope(actor, 'service-catalog:create').kind === 'all';
   return (
-    <>
-      {header}
+    <SettingsPage {...head}>
       <FilterBar
         action="/sys/services"
         actions={
@@ -118,6 +123,6 @@ export default async function ServicesPage({ searchParams }: { searchParams: Sea
           />
         </section>
       ) : null}
-    </>
+    </SettingsPage>
   );
 }

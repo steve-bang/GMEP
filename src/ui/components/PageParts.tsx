@@ -102,3 +102,38 @@ export function Pager({
 
 export type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+
+/** Numbered pagination (prev / "Trang x / y" / next) for lists that are filtered in memory. */
+export function PageNav({
+  base,
+  query,
+  page,
+  pageCount,
+  labels,
+}: {
+  base: string;
+  query: Record<string, string>;
+  page: number;
+  pageCount: number;
+  labels: { prev: string; next: string; aria: string; of: string };
+}) {
+  if (pageCount <= 1) return null;
+  const to = (n: number) => ({ pathname: base, query: { ...query, page: String(n) } });
+  return (
+    <nav className="pagination" aria-label={labels.aria}>
+      {page > 1 ? (
+        <Link className="pagination__item" rel="prev" href={to(page - 1)}>
+          {labels.prev}
+        </Link>
+      ) : null}
+      <span className="pagination__item" aria-current="page">
+        {labels.of}
+      </span>
+      {page < pageCount ? (
+        <Link className="pagination__item" rel="next" href={to(page + 1)}>
+          {labels.next}
+        </Link>
+      ) : null}
+    </nav>
+  );
+}

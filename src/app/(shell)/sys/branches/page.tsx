@@ -8,7 +8,8 @@ import { getContainer } from '@/composition/container';
 import { DataTable } from '@/ui/components/DataTable';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { EmptyState } from '@/ui/components/States';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,28 +20,25 @@ export default async function BranchesPage() {
   const t = await getTranslations();
   const { actor } = await requireSession();
   const res = await load(() => listBranches(getContainer().sys, actor));
-  const header = (
-    <PageHeader
-      title={t('branches.title')}
-      actions={
-        hasPermission(actor, 'org:create') ? (
-          <Link className="btn btn--primary" href="/sys/branches/new">
-            {t('branches.create')}
-          </Link>
-        ) : undefined
-      }
-    />
-  );
+  const head = {
+    current: 'branches',
+    code: 'G4-SYS-05',
+    title: t('branches.title'),
+    desc: t('branches.lead'),
+    actions: hasPermission(actor, 'org:create') ? (
+      <Link className="btn btn--primary" href="/sys/branches/new">
+        {t('branches.create')}
+      </Link>
+    ) : undefined,
+  };
   if (res.error)
     return (
-      <>
-        {header}
+      <SettingsPage {...head}>
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   return (
-    <>
-      {header}
+    <SettingsPage {...head}>
       {res.data.length === 0 ? (
         <EmptyState title={t('branches.emptyTitle')} text={t('branches.emptyText')} />
       ) : (
@@ -67,6 +65,6 @@ export default async function BranchesPage() {
           ]}
         />
       )}
-    </>
+    </SettingsPage>
   );
 }

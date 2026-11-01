@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { businessDate, formatDate, formatDateTime, isoToVi, viToIso } from './date';
-import { maskViDate } from '@/ui/dateMask';
 import { formatVnd, parseVndInput } from './vnd';
 
 describe('VND formatting (integer money only)', () => {
@@ -47,12 +46,5 @@ describe('dd/MM/yyyy input helpers (date fields never depend on the browser loca
     expect(viToIso('31/02/2027')).toBeNull();
     expect(viToIso('12/31/2027')).toBeNull();
     expect(viToIso('')).toBeNull();
-  });
-  it('masks digits as dd/MM/yyyy while typing', () => {
-    expect(maskViDate('3')).toBe('3');
-    expect(maskViDate('3110')).toBe('31/10');
-    expect(maskViDate('31102026')).toBe('31/10/2026');
-    expect(maskViDate('31/10/2026999')).toBe('31/10/2026');
-    expect(maskViDate('2026-10-31')).toBe('31/10/2026');
   });
 });

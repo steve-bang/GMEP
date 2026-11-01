@@ -18,7 +18,8 @@ import { DataTable } from '@/ui/components/DataTable';
 import { FilterBar } from '@/ui/components/FilterBar';
 import { Button } from '@/ui/components/Button';
 import { EmptyState } from '@/ui/components/States';
-import { ErrorFor, first, PageHeader, Pager, type SearchParams } from '@/ui/components/PageParts';
+import { SettingsPage } from '../SettingsPage';
+import { ErrorFor, first, Pager, type SearchParams } from '@/ui/components/PageParts';
 import { AuditExport } from './AuditExport';
 
 export const dynamic = 'force-dynamic';
@@ -65,19 +66,22 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
   const res = await load(() =>
     listAudit(getContainer().sys, actor, { ...q, ...(cursor ? { cursor } : {}) }),
   );
-  const header = <PageHeader title={t('audit.title')} lead={t('audit.lead')} />;
+  const head = {
+    current: 'audit',
+    code: 'G4-SYS-19',
+    title: t('audit.title'),
+    desc: t('audit.lead'),
+  };
   if (res.error)
     return (
-      <>
-        {header}
+      <SettingsPage {...head}>
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const page = res.data;
   const canExport = hasPermission(actor, 'audit-log:export');
   return (
-    <>
-      {header}
+    <SettingsPage {...head}>
       <FilterBar
         action="/sys/audit"
         actions={
@@ -184,6 +188,6 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
           }}
         />
       ) : null}
-    </>
+    </SettingsPage>
   );
 }

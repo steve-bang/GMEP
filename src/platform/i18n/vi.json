@@ -265,7 +265,8 @@
     "detailLead": "Mã kho không đổi. Chỉ sửa tên và ghi chú.",
     "deactivate": "Ngừng sử dụng",
     "reactivate": "Mở lại kho",
-    "deactivateConfirm": "Ngừng sử dụng kho này? Chỉ làm được khi tồn, giữ chỗ và hàng đang chuyển đều bằng 0 và không còn chứng từ mở."
+    "deactivateConfirm": "Ngừng sử dụng kho này? Chỉ làm được khi tồn, giữ chỗ và hàng đang chuyển đều bằng 0 và không còn chứng từ mở.",
+    "lead": "Mỗi kho thuộc một chi nhánh. Danh sách theo phạm vi dữ liệu đang chọn."
   },
   "states": {
     "loading": "Đang tải dữ liệu",
@@ -421,7 +422,8 @@
       "active": "Mở lại hoạt động",
       "closing": "Ngừng nhận lệnh mới",
       "locked": "Khóa chi nhánh"
-    }
+    },
+    "lead": "Cơ cấu chi nhánh của công ty. Trạng thái chi nhánh quyết định việc nhận lệnh mới và ghi sổ."
   },
   "users": {
     "title": "Người dùng",
@@ -436,8 +438,8 @@
     "codeHint": "Không đổi được và không dùng lại.",
     "role": "Vai trò",
     "branch": "Chi nhánh",
-    "emptyTitle": "Chưa có người dùng",
-    "emptyText": "Chưa có người dùng trong phạm vi của bạn.",
+    "emptyTitle": "Chưa có người dùng nào ngoài bạn",
+    "emptyText": "Mời nhân viên đầu tiên bằng email. Họ nhận liên kết kích hoạt hiệu lực 72 giờ để đặt mật khẩu.",
     "contact": "Liên hệ",
     "noPhone": "Chưa có số điện thoại.",
     "assignments": "Vai trò và chi nhánh",
@@ -456,6 +458,37 @@
       "active": "Đang hoạt động",
       "invited": "Đã mời",
       "disabled": "Đã khóa"
+    },
+    "lead": "Mỗi người một tài khoản cá nhân, không dùng chung. Tài khoản do Quản trị, Chủ garage hoặc Quản lý chi nhánh tạo và mời qua email; không có tự đăng ký.",
+    "searchLabel": "Tìm tên hoặc email",
+    "searchPlaceholder": "Gõ có dấu hoặc không dấu, ví dụ “quan”",
+    "allRoles": "Tất cả vai trò",
+    "allBranchesViewable": "Tất cả chi nhánh được xem",
+    "allBranches": "Toàn chuỗi",
+    "colRoles": "Vai trò theo chi nhánh",
+    "colLastLogin": "Đăng nhập cuối",
+    "neverLoggedIn": "Chưa đăng nhập",
+    "summary": "{total} người dùng · {invited} chờ kích hoạt · {disabled} bị khóa",
+    "showing": "Hiển thị {from}–{to} trong {total} người dùng.",
+    "sortNote": "Sắp xếp: {column}, {direction}",
+    "sortBy": "Sắp xếp theo {column}",
+    "sortNames": {
+      "name": "họ tên",
+      "code": "mã nhân viên",
+      "lastLogin": "lần đăng nhập cuối"
+    },
+    "dir": {
+      "asc": "tăng dần",
+      "desc": "giảm dần"
+    },
+    "pageOf": "Trang {page} / {count}",
+    "open": "Mở",
+    "openUser": "Mở hồ sơ {name}",
+    "emptyFilteredTitle": "Không có người dùng khớp",
+    "emptyFilteredText": "Không có người dùng khớp bộ lọc. Thử bỏ lọc vai trò hoặc trạng thái.",
+    "dirLast": {
+      "asc": "cũ nhất trước",
+      "desc": "mới nhất trước"
     }
   },
   "pii": {
@@ -643,5 +676,23 @@
     "configPending": "Có đề xuất cấu hình “{type}” đang chờ bạn duyệt.",
     "configApproved": "Đề xuất cấu hình “{type}” của bạn đã được duyệt.",
     "configRejected": "Đề xuất cấu hình “{type}” của bạn đã bị từ chối."
+  },
+  "settings": {
+    "crumb": "Cài đặt",
+    "breadcrumb": "Đường dẫn",
+    "navLabel": "Mục cài đặt",
+    "pick": "Mục cài đặt",
+    "scopeCaption": "Phạm vi cấu hình",
+    "scopeFollowsPicker": "Theo phạm vi dữ liệu đang chọn ở thanh trên",
+    "scopeCompany": "Toàn công ty",
+    "asOf": "Cập nhật lúc {time}",
+    "refresh": "Làm mới",
+    "groups": {
+      "people": "Người dùng và phân quyền",
+      "org": "Tổ chức",
+      "catalog": "Danh mục, giá và thuế",
+      "docs": "Mẫu và quy trình",
+      "data": "Dữ liệu và an toàn"
+    }
   }
 }

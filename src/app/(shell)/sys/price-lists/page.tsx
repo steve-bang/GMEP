@@ -9,7 +9,8 @@ import { DataTable } from '@/ui/components/DataTable';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { ResourceForm } from '@/ui/components/ResourceForm';
 import { EmptyState } from '@/ui/components/States';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,20 +22,23 @@ export default async function PriceListsPage() {
   const t = await getTranslations();
   const { actor } = await requireSession();
   const res = await load(() => listPriceLists(getContainer().sys, actor, { limit: 100 }));
-  const header = <PageHeader title={t('priceLists.title')} lead={t('priceLists.lead')} />;
+  const head = {
+    current: 'priceLists',
+    title: t('priceLists.title'),
+    desc: t('priceLists.lead'),
+    scopeText: t('settings.scopeCompany'),
+  };
   if (res.error)
     return (
-      <>
-        {header}
+      <SettingsPage {...head}>
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const canCreate =
     hasPermission(actor, 'price-list:create') &&
     resolveScope(actor, 'price-list:create').kind === 'all';
   return (
-    <>
-      {header}
+    <SettingsPage {...head}>
       {res.data.items.length === 0 ? (
         <EmptyState title={t('priceLists.emptyTitle')} text={t('priceLists.emptyText')} />
       ) : (
@@ -71,6 +75,6 @@ export default async function PriceListsPage() {
           />
         </section>
       ) : null}
-    </>
+    </SettingsPage>
   );
 }

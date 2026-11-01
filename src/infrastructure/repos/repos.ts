@@ -146,6 +146,7 @@ const userFromDoc = ({ id, data: x }: StoredDoc): User => ({
   displayName: x.displayName,
   ...(x.phone ? { phone: x.phone } : {}),
   status: x.status,
+  ...(x.lastLoginAt ? { lastLoginAt: x.lastLoginAt } : {}),
   createdAt: x.createdAt,
   createdBy: x.createdBy,
   updatedAt: x.updatedAt,
@@ -230,6 +231,9 @@ export class DocUserRepository implements UserRepository {
   update(tx: Tx, id: string, patch: Parameters<UserRepository['update']>[2]): void {
     const extra = patch.displayName ? { nameNorm: patch.displayName.toLowerCase() } : {};
     this.store.update(tx, COL.users, id, { ...patch, ...extra });
+  }
+  async recordLogin(userId: string, at: Date) {
+    await this.store.updateNow(COL.users, userId, { lastLoginAt: at });
   }
   async setLastWorkingBranch(userId: string, branchId: string | null) {
     await this.store.updateNow(COL.users, userId, { lastWorkingBranchId: branchId });
@@ -328,6 +332,25 @@ export class DocRoleAssignmentRepository implements RoleAssignmentRepository {
       .filter((a) =>
         a.branchId === '*' ? scope.kind === 'all' : scopeAllows(scope, a.companyId, a.branchId),
       );
+  }
+  async listAllInScope(scope: Scope) {
+    const out: RoleAssignmentRecord[] = [];
+    let cursor: Cur;
+    for (;;) {
+      const rows = await this.store.query(
+        Q.assignmentsByBranch.pick([], scope.kind === 'branches'),
+        {
+          eq: { companyId: scope.companyId },
+          ...scopeParams(scope),
+          ...(cursor ? { cursor } : {}),
+          limit: 500,
+        },
+      );
+      out.push(...rows.map(assignmentFromDoc));
+      const tail = rows.at(-1);
+      if (rows.length < 500 || !tail) return out;
+      cursor = { v: tail.data.employeeCode, id: tail.id };
+    }
   }
   async listByRole(companyId: string, roleCode: string, limit: number) {
     const rows = await this.store.query(Q.assignmentsByRole.pick([], false), {

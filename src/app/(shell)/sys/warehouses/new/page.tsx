@@ -5,7 +5,8 @@ import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { ResourceForm } from '@/ui/components/ResourceForm';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,14 +20,20 @@ export default async function NewWarehousePage() {
   });
   if (res.error)
     return (
-      <>
-        <PageHeader title={t('warehouses.create')} />
+      <SettingsPage
+        current="warehouses"
+        parent={{ label: t('warehouses.title'), href: '/sys/warehouses' }}
+        title={t('warehouses.create')}
+      >
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   return (
-    <>
-      <PageHeader title={t('warehouses.create')} />
+    <SettingsPage
+      current="warehouses"
+      parent={{ label: t('warehouses.title'), href: '/sys/warehouses' }}
+      title={t('warehouses.create')}
+    >
       <div className="g1-auth-card g1-auth-card--wide">
         <ResourceForm
           testId="warehouse-form"
@@ -57,6 +64,6 @@ export default async function NewWarehousePage() {
           ]}
         />
       </div>
-    </>
+    </SettingsPage>
   );
 }

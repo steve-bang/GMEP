@@ -144,6 +144,8 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
     workingBranchId: working,
     device: (input.userAgent ?? '').replace(/[^\x20-\x7e]/g, '').slice(0, 80),
   });
+  // a failed write of the display-only "last login" must never block a valid sign-in
+  await deps.users.recordLogin(byLogin.id, now).catch(() => undefined);
   await deps.uow.run(async (tx) => {
     deps.audit.record(tx, {
       id: deps.newId(),

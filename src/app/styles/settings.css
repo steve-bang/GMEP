@@ -1,0 +1,75 @@
+/* Settings layout ported unchanged from design/g4-reports-system/pack.css (.g4r-settings, .g4r-subnav, .g4r-code). Tokens only. */
+.g4r-code {
+  font-size: var(--font-size-xs);
+  line-height: 16px;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.g4r-settings {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+.g4r-settings > div:first-child {
+  align-self: stretch;
+}
+.g4r-subnav {
+  position: sticky;
+  top: calc(var(--topbar-height) + var(--space-4));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+  max-height: calc(100vh - var(--topbar-height) - var(--space-8));
+  overflow: auto;
+}
+.g4r-subnav__group {
+  font-size: var(--font-size-xs);
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: var(--space-3) var(--space-3) var(--space-1);
+}
+.g4r-subnav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  text-decoration: none;
+}
+.g4r-subnav a:hover {
+  background: var(--color-surface-hover);
+  text-decoration: none;
+}
+.g4r-subnav a[aria-current='page'] {
+  background: var(--color-primary-subtle);
+  color: var(--color-text-link);
+  font-weight: 600;
+}
+.g4r-subnav__pick {
+  display: none;
+}
+.g4r-settings__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+@media (max-width: 1023px) {
+  .g4r-settings {
+    grid-template-columns: 1fr;
+  }
+  .g4r-subnav {
+    display: none;
+  }
+  .g4r-subnav__pick {
+    display: block;
+  }
+}

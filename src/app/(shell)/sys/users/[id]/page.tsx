@@ -8,7 +8,8 @@ import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { ActionButton } from '@/ui/components/ResourceForm';
 import { StatusBadge } from '@/ui/components/StatusBadge';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 import { AssignmentForm } from './AssignmentForm';
 import { RevealPhone } from './RevealPhone';
 
@@ -29,10 +30,13 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   });
   if (res.error)
     return (
-      <>
-        <PageHeader title={t('users.title')} />
+      <SettingsPage
+        current="users"
+        parent={{ label: t('users.title'), href: '/sys/users' }}
+        title={t('users.title')}
+      >
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const { user: u, branches } = res.data;
   const branchName = (b: string) =>
@@ -44,16 +48,17 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   const isOwner = hasPermission(actor, 'user:approve');
   const roles = ROLE_CODES.filter((r) => isOwner || !OWNER_APPROVED_ROLES.includes(r));
   return (
-    <>
-      <PageHeader
-        title={`${u.employeeCode} · ${u.displayName}`}
-        lead={u.email}
-        actions={
-          <Link className="btn btn--ghost" href="/sys/users">
-            {t('common.back')}
-          </Link>
-        }
-      />
+    <SettingsPage
+      current="users"
+      parent={{ label: t('users.title'), href: '/sys/users' }}
+      title={`${u.employeeCode} · ${u.displayName}`}
+      desc={u.email}
+      actions={
+        <Link className="btn btn--ghost" href="/sys/users">
+          {t('common.back')}
+        </Link>
+      }
+    >
       <p>
         <StatusBadge tone={TONE[u.status as keyof typeof TONE]}>
           {t(`users.status.${u.status}`)}
@@ -158,6 +163,6 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
           ) : null}
         </div>
       </section>
-    </>
+    </SettingsPage>
   );
 }

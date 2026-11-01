@@ -8,7 +8,8 @@ import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { ActionButton, ResourceForm } from '@/ui/components/ResourceForm';
 import { StatusBadge } from '@/ui/components/StatusBadge';
-import { ErrorFor, PageHeader } from '@/ui/components/PageParts';
+import { SettingsPage } from '../../SettingsPage';
+import { ErrorFor } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,26 +22,30 @@ export default async function BranchDetailPage({ params }: { params: Promise<{ i
   const res = await load(() => getBranch(getContainer().sys, actor, id));
   if (res.error)
     return (
-      <>
-        <PageHeader title={t('branches.title')} />
+      <SettingsPage
+        current="branches"
+        parent={{ label: t('branches.title'), href: '/sys/branches' }}
+        title={t('branches.title')}
+      >
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const b = res.data;
   const canEdit = hasPermission(actor, 'branch-config:update');
   const canState = hasPermission(actor, 'org:archive');
   const targets = BRANCH_TRANSITIONS[b.status as keyof typeof BRANCH_TRANSITIONS];
   return (
-    <>
-      <PageHeader
-        title={`${b.code} · ${b.name}`}
-        lead={t('branches.detailLead')}
-        actions={
-          <Link className="btn btn--ghost" href="/sys/branches">
-            {t('common.back')}
-          </Link>
-        }
-      />
+    <SettingsPage
+      current="branches"
+      parent={{ label: t('branches.title'), href: '/sys/branches' }}
+      title={`${b.code} · ${b.name}`}
+      desc={t('branches.detailLead')}
+      actions={
+        <Link className="btn btn--ghost" href="/sys/branches">
+          {t('common.back')}
+        </Link>
+      }
+    >
       <p>
         <StatusBadge tone={TONE[b.status as keyof typeof TONE]}>
           {t(`scope.status.${b.status}`)}
@@ -102,6 +107,6 @@ export default async function BranchDetailPage({ params }: { params: Promise<{ i
           </div>
         </section>
       ) : null}
-    </>
+    </SettingsPage>
   );
 }

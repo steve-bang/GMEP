@@ -14,7 +14,8 @@ import {
 import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
 import { scopeAllows, type Scope } from '@/platform/scope/scope';
 import { assertBranchWritable } from '../domain/branchState';
-import { OWNER_APPROVED_ROLES } from '../domain/permissions';
+import { normalizeSearch } from '@/platform/text/normalize';
+import { OWNER_APPROVED_ROLES, ROLE_CODES } from '../domain/permissions';
 import { newOpaqueToken } from '../domain/passwordPolicy';
 import {
   normalizeEmployeeCode,
@@ -55,6 +56,8 @@ export interface UserDto {
   phone?: string;
   phoneReveal: 'none' | 'plain' | 'reason';
   status: string;
+  /** ISO instant of the last successful sign-in, null before the first one */
+  lastLoginAt: string | null;
   version: number;
   assignments?: AssignmentDto[];
 }
@@ -74,6 +77,7 @@ function toUserDto(
     ...(phone.value !== undefined ? { phone: phone.value } : {}),
     phoneReveal: phone.reveal,
     status: u.status,
+    lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString() : null,
     version: u.version,
     ...(assignments
       ? {
@@ -107,6 +111,93 @@ export async function listUsers(deps: SysDeps, actor: Actor, raw: unknown): Prom
     ),
   );
   return { items, nextCursor: page.nextCursor };
+}
+
+export const USER_PAGE_SIZE = 25;
+const USER_SCAN_CAP = 2000; // 80-300 users planned; a hard stop instead of an unbounded scan
+
+export const userSearchSchema = z.object({
+  q: z.string().trim().max(80).optional(),
+  roleCode: z.enum(ROLE_CODES).optional(),
+  branchId: z.string().trim().min(1).max(64).optional(),
+  status: z.enum(['active', 'invited', 'disabled']).optional(),
+  sort: z.enum(['name', 'code', 'lastLogin']).default('lastLogin'),
+  dir: z.enum(['asc', 'desc']).default('desc'),
+  page: z.coerce.number().int().min(1).max(1000).default(1),
+});
+
+export interface UserSearchResult {
+  items: UserDto[];
+  total: number;
+  /** counts over the filtered set, shown in the list summary (G4-SYS-01) */
+  invited: number;
+  disabled: number;
+  page: number;
+  pageCount: number;
+}
+
+/**
+ * G4-SYS-01 list: filter by name/email (diacritics-insensitive), role, branch and status, sort by
+ * name, code or last login, numbered pages. Scope is applied by the repositories (NFR-ISO-01); the
+ * filters then run over the in-scope set, which is small (one company, up to a few hundred users).
+ */
+export async function searchUsers(
+  deps: SysDeps,
+  actor: Actor,
+  raw: unknown,
+): Promise<UserSearchResult> {
+  const scope = resolveWorkingScope(actor, 'user:view');
+  const q = parseInput(userSearchSchema, raw);
+  const users: User[] = [];
+  let cursor: string | undefined;
+  do {
+    const page = await deps.users.list(scope, {
+      sort: 'employeeCode',
+      direction: 'asc',
+      limit: MAX_LIMIT,
+      ...(cursor ? { cursor: decodeCursor(cursor)! } : {}),
+    });
+    users.push(...page.items);
+    cursor = page.nextCursor ?? undefined;
+  } while (cursor && users.length < USER_SCAN_CAP);
+
+  const byUser = new Map<string, RoleAssignmentRecord[]>();
+  for (const a of await deps.assignments.listAllInScope(scope))
+    byUser.set(a.userId, [...(byUser.get(a.userId) ?? []), a]);
+
+  const needle = q.q ? normalizeSearch(q.q) : '';
+  const matches = users.filter((u) => {
+    const mine = byUser.get(u.id) ?? [];
+    return (
+      (!q.status || u.status === q.status) &&
+      (!q.roleCode || mine.some((a) => a.roleCode === q.roleCode)) &&
+      (!q.branchId || mine.some((a) => a.branchId === q.branchId)) &&
+      (!needle || normalizeSearch(`${u.displayName} ${u.email}`).includes(needle))
+    );
+  });
+  const sign = q.dir === 'asc' ? 1 : -1;
+  const key = (u: User): string | number =>
+    q.sort === 'name'
+      ? normalizeSearch(u.displayName)
+      : q.sort === 'code'
+        ? u.employeeCode
+        : (u.lastLoginAt?.getTime() ?? 0);
+  matches.sort((a, b) => {
+    const ka = key(a);
+    const kb = key(b);
+    return (ka < kb ? -1 : ka > kb ? 1 : a.employeeCode.localeCompare(b.employeeCode)) * sign;
+  });
+  const pageCount = Math.max(1, Math.ceil(matches.length / USER_PAGE_SIZE));
+  const page = Math.min(q.page, pageCount);
+  const slice = matches.slice((page - 1) * USER_PAGE_SIZE, page * USER_PAGE_SIZE);
+  return {
+    items: slice.map((u) => toUserDto(deps, actor, u, byUser.get(u.id))),
+    total: matches.length,
+    invited: matches.filter((u) => u.status === 'invited').length,
+    disabled: matches.filter((u) => u.status === 'disabled').length,
+    page,
+    pageCount,
+  };
 }
 
 async function visibleUser(deps: SysDeps, scope: Scope, id: string): Promise<User> {

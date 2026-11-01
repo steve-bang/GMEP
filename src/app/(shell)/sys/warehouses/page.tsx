@@ -10,14 +10,8 @@ import { FilterBar, SearchField } from '@/ui/components/FilterBar';
 import { Button } from '@/ui/components/Button';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { EmptyState } from '@/ui/components/States';
-import {
-  ErrorFor,
-  first,
-  PageHeader,
-  Pager,
-  ScopeLine,
-  type SearchParams,
-} from '@/ui/components/PageParts';
+import { SettingsPage } from '../SettingsPage';
+import { ErrorFor, first, Pager, ScopeLine, type SearchParams } from '@/ui/components/PageParts';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,18 +25,16 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
   const { actor } = await requireSession();
 
   const canCreate = hasPermission(actor, 'warehouse:create');
-  const header = (
-    <PageHeader
-      title={t('warehouses.title')}
-      actions={
-        canCreate ? (
-          <Link className="btn btn--primary" href="/sys/warehouses/new">
-            {t('warehouses.create')}
-          </Link>
-        ) : undefined
-      }
-    />
-  );
+  const head = {
+    current: 'warehouses',
+    title: t('warehouses.title'),
+    desc: t('warehouses.lead'),
+    actions: canCreate ? (
+      <Link className="btn btn--primary" href="/sys/warehouses/new">
+        {t('warehouses.create')}
+      </Link>
+    ) : undefined,
+  };
 
   const res = await load(async () => {
     const scope = resolveWorkingScope(actor, 'warehouse:view');
@@ -56,17 +48,15 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
   });
   if (res.error)
     return (
-      <>
-        {header}
+      <SettingsPage {...head}>
         <ErrorFor error={res.error} t={t} />
-      </>
+      </SettingsPage>
     );
   const { page, branches, scope } = res.data;
   const branchNames = new Map(branches.map((b) => [b.id, b.name]));
 
   return (
-    <>
-      {header}
+    <SettingsPage {...head}>
       <ScopeLine
         text={t('warehouses.scopeLine', {
           scope:
@@ -140,6 +130,6 @@ export default async function WarehousesPage({ searchParams }: { searchParams: S
           aria: t('common.pagination'),
         }}
       />
-    </>
+    </SettingsPage>
   );
 }
