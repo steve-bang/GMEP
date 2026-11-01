@@ -9,7 +9,7 @@ export interface Column<T> {
   /** right-aligned tabular numbers (money, quantities) */
   numeric?: boolean;
   /** sortable header: current direction (null = not sorted by this column) and the link that toggles it */
-  sort?: { dir: 'asc' | 'desc' | null; href: string; label: string };
+  sort?: { dir: 'asc' | 'desc' | null; href: string; label?: string };
 }
 
 export interface DataTableProps<T> {
@@ -60,7 +60,7 @@ export function DataTable<T>({
                   }
                 >
                   {c.sort ? (
-                    <Link className="th-sort" href={c.sort.href} aria-label={c.sort.label}>
+                    <Link className="th-sort" href={c.sort.href}>
                       {c.header}
                       <Icon name={c.sort.dir === 'asc' ? 'arrow-up' : 'arrow-down'} />
                     </Link>
