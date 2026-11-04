@@ -9,7 +9,12 @@ import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
 import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
 import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
-import { DEFAULT_REC_CONFIG, recCustomerRetention, type RecDeps } from '@/modules/rec';
+import {
+  DEFAULT_REC_CONFIG,
+  recCustomerRetention,
+  recOrderAdvisors,
+  type RecDeps,
+} from '@/modules/rec';
 import {
   BRANCH_STATE_RULES,
   DEFAULT_PASSWORD_POLICY,
@@ -63,9 +68,12 @@ import {
 } from '@/infrastructure/repos/invRepos';
 import {
   DocIntakeRepository,
+  DocPartRequestRepository,
   DocQuoteLinkRepository,
   DocQuoteRepository,
   DocQuoteVersionRepository,
+  DocRepairItemRepository,
+  DocRepairOrderRepository,
 } from '@/infrastructure/repos/recRepos';
 import {
   combineRetention,
@@ -203,7 +211,7 @@ function buildInv(sys: SysDeps, store: DocStore, env: Env): InvDeps {
     returns: new DocIssueReturnRepository(store),
     // a copy per container: tests flip flags without touching the shared default
     inv: { ...DEFAULT_INV_CONFIG, allowTransferOrderSource: env.GMEP_ENV === 'local' },
-    // I15: repair orders (the advisor's records) arrive in slice 1.6; nobody is returned until then
+    // I15: replaced by REC's order lookup in `buildRec`; nobody is returned until REC is wired
     advisors: noOrderAdvisors,
   };
 }
@@ -218,9 +226,13 @@ function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): Re
     quotes: new DocQuoteRepository(store),
     versions: new DocQuoteVersionRepository(store),
     links: new DocQuoteLinkRepository(store),
+    orders: new DocRepairOrderRepository(store),
+    items: new DocRepairItemRepository(store),
+    partRequests: new DocPartRequestRepository(store),
     rec: { ...DEFAULT_REC_CONFIG, approval: { ...DEFAULT_REC_CONFIG.approval } },
   };
   // C17: REC joins the data-retention gate of CRM; the stub still stands for modules not built yet
+  inv.advisors = recOrderAdvisors(() => rec);
   crm.retention = combineRetention(
     recCustomerRetention(() => rec),
     stubCustomerRetention,

@@ -1,6 +1,8 @@
 import type { Page } from '@/platform/pagination/pagination';
 import type { Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
+import type { PartRequest, PartRequestStatus, RepairItem, RepairOrder } from '../domain/order';
+import type { OrderStatus } from '../domain/orderState';
 import type {
   Intake,
   IntakeStatus,
@@ -80,4 +82,45 @@ export interface QuoteLinkRepository {
   findInTx(tx: Tx, hash: string): Promise<QuoteLink | null>;
   create(tx: Tx, l: QuoteLink): void;
   update(tx: Tx, hash: string, patch: Record<string, unknown>): void;
+}
+
+// ---- slice 1.6: repair orders, items and part requests --------------------------------------------
+
+export interface RepairOrderRepository {
+  list(
+    scope: Scope,
+    q: PageQuery & { status?: OrderStatus; platePrefix?: string; numberPrefix?: string },
+  ): Promise<Page<RepairOrder>>;
+  /** open orders (not completed, not cancelled) of the scope, oldest first: the dispatch board and the shortage view */
+  listOpen(scope: Scope, limit: number): Promise<RepairOrder[]>;
+  get(scope: Scope, id: string): Promise<RepairOrder | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<RepairOrder | null>;
+  /** by ids, inside the company (advisor lookup for INV notices); missing ids are absent */
+  getMany(companyId: string, ids: readonly string[]): Promise<RepairOrder[]>;
+  /** C17: company-wide retention gate, only counts */
+  listOpenByCustomer(companyId: string, customerId: string, limit: number): Promise<RepairOrder[]>;
+  create(tx: Tx, o: RepairOrder): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+export interface RepairItemRepository {
+  get(scope: Scope, id: string): Promise<RepairItem | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<RepairItem | null>;
+  listByOrder(scope: Scope, orderId: string, limit: number): Promise<RepairItem[]>;
+  listByOrderInTx(tx: Tx, scope: Scope, orderId: string, limit: number): Promise<RepairItem[]>;
+  /** the technician's active items inside the scope */
+  listActiveByTechnician(scope: Scope, technicianId: string, limit: number): Promise<RepairItem[]>;
+  create(tx: Tx, i: RepairItem): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+export interface PartRequestRepository {
+  get(scope: Scope, id: string): Promise<PartRequest | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<PartRequest | null>;
+  listByOrder(scope: Scope, orderId: string, limit: number): Promise<PartRequest[]>;
+  listByOrderInTx(tx: Tx, scope: Scope, orderId: string, limit: number): Promise<PartRequest[]>;
+  /** requests waiting for the storekeeper, oldest first */
+  listByStatus(scope: Scope, status: PartRequestStatus, limit: number): Promise<PartRequest[]>;
+  create(tx: Tx, r: PartRequest): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }

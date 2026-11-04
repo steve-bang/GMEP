@@ -219,10 +219,10 @@ describe('approved lines for the repair order (RULE-005/007, I20)', () => {
   it('only approved items flow on, each line with an immutable key, price version and tax key', () => {
     const lines = approvedLinesOf('qt_1', 2, [items[0]!, items[2]!]);
     expect(lines.map((l) => l.lineKey)).toEqual([
-      'qt_1__v2#1.1',
-      'qt_1__v2#1.2',
-      'qt_1__v2#1.3',
-      'qt_1__v2#3.1',
+      'qt_1__v2_1_1',
+      'qt_1__v2_1_2',
+      'qt_1__v2_1_3',
+      'qt_1__v2_3_1',
     ]);
     expect(lineKeyOf('qt_1', 2, 1, 1)).toBe(lines[0]!.lineKey);
     expect(lines[0]).toMatchObject({

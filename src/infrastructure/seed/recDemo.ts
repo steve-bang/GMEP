@@ -84,11 +84,21 @@ export function recDemoDocs(): SeedDoc[] {
       status: 'active',
       ...(noteRequired ? { noteRequired } : {}),
     });
-  // FR-REC-032: two service types, two different step sets (SAMPLE steps; the real ones are the client's to define)
+  // FR-REC-032 / R36: step sets per service type (SAMPLE steps from BA §18.2 R36; the client confirms them).
+  // Steps are tracking milestones, not order states, and do not count toward the technician's labor
+  // (`countsTowardLabor` false) because the pay rules are still open. Body & paint is a MINIMAL SAMPLE that
+  // waits for the workshop survey (BR-REC-14): `expectedDays` are placeholders, not a confirmed process.
   cfg('service-workflow', 'maintenance', {
     steps: [
       { code: 'inspect', name: 'Kiểm tra' },
       { code: 'service', name: 'Thực hiện bảo dưỡng', responsibleRole: 'TH' },
+      { code: 'qc', name: 'Kiểm tra chất lượng', responsibleRole: 'QD' },
+    ],
+  });
+  cfg('service-workflow', 'general_repair', {
+    steps: [
+      { code: 'diagnose', name: 'Chẩn đoán', responsibleRole: 'TH' },
+      { code: 'repair', name: 'Sửa chữa', responsibleRole: 'TH' },
       { code: 'qc', name: 'Kiểm tra chất lượng', responsibleRole: 'QD' },
     ],
   });
@@ -98,6 +108,42 @@ export function recDemoDocs(): SeedDoc[] {
       { code: 'balance', name: 'Cân bằng và lắp', responsibleRole: 'TH' },
       { code: 'qc', name: 'Kiểm tra chất lượng', responsibleRole: 'QD' },
     ],
+  });
+  cfg('service-workflow', 'body_paint', {
+    steps: [
+      {
+        code: 'assess',
+        name: 'Giám định hư hỏng và chụp ảnh',
+        responsibleRole: 'CV',
+        expectedDays: 1,
+      },
+      { code: 'bodywork', name: 'Gò, nắn, bả', responsibleRole: 'TH', expectedDays: 2 },
+      { code: 'prime', name: 'Sơn lót, chà', responsibleRole: 'TH', expectedDays: 1 },
+      { code: 'paint', name: 'Sơn màu và sơn bóng', responsibleRole: 'TH', expectedDays: 2 },
+      { code: 'cure', name: 'Sấy, chờ khô', responsibleRole: 'TH', expectedDays: 1 },
+      { code: 'polish', name: 'Đánh bóng, lắp ráp', responsibleRole: 'TH', expectedDays: 1 },
+      {
+        code: 'qc',
+        name: 'Kiểm tra chất lượng và duyệt màu',
+        responsibleRole: 'QD',
+        expectedDays: 1,
+      },
+    ].map((x) => ({ ...x, countsTowardLabor: false })),
+  });
+  // FR-REC-016: SAMPLE quality checklist (company default); the client defines the real lists per service type
+  cfg('qc-checklist', 'default', {
+    checks: [
+      { code: 'work_done', name: 'Công việc đã làm đúng nội dung báo giá' },
+      { code: 'test_drive', name: 'Chạy thử, không có tiếng ồn hay cảnh báo bất thường' },
+      { code: 'leaks', name: 'Không rò rỉ dầu, nước' },
+      { code: 'clean', name: 'Xe sạch, đồ đạc của khách còn nguyên' },
+    ],
+  });
+  // FR-REC-013/017 sample execution policy: 2 minutes to undo; payment check arrives with slice 1.7
+  cfg('order-policy', 'company', {
+    undoWindowSeconds: 120,
+    handoverRequiresPayment: false,
+    handoverRequiresReceiver: true,
   });
   cfg('discount-limit', 'company', { maxDiscountBpByRole: { CV: 500, QL: 1500, CH: 3000 } });
   return docs;

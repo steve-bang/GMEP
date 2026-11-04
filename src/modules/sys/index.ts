@@ -73,8 +73,8 @@ export {
   revokeUserSessions,
 } from './application/users';
 export type { UserDto, AssignmentDto, SessionDto } from './application/users';
-export { listRoles, updateRole } from './application/roles';
-export type { RoleDto } from './application/roles';
+export { listRoles, updateRole, applyPermissionTopUps } from './application/roles';
+export type { RoleDto, TopUpResult } from './application/roles';
 export {
   listServices,
   getService,

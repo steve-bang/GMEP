@@ -50,6 +50,9 @@ export const COL = {
   quotes: 'quotes',
   quoteVersions: 'quoteVersions',
   quoteLinks: 'quoteLinks',
+  repairOrders: 'repairOrders',
+  repairItems: 'repairItems',
+  partRequests: 'partRequests',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -425,5 +428,73 @@ export const Q = {
     scopeField: 'branchId',
     range: true,
     order: { field: 'number', dir: 'asc', type: 'string' },
+  }),
+  // ---- REC slice 1.6: repair orders, items, part requests ----
+  repairOrders: defineQuery({
+    name: 'repairOrders.list',
+    collection: COL.repairOrders,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  repairOrdersByNumber: defineQuery({
+    name: 'repairOrders.byNumber',
+    collection: COL.repairOrders,
+    eq: ['companyId'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'number', dir: 'asc', type: 'string' },
+  }),
+  repairOrdersByPlate: defineQuery({
+    name: 'repairOrders.byPlate',
+    collection: COL.repairOrders,
+    eq: ['companyId'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'plateNorm', dir: 'asc', type: 'string' },
+  }),
+  /** dispatch board: open orders of the scope */
+  repairOrdersOpen: defineQuery({
+    name: 'repairOrders.open',
+    collection: COL.repairOrders,
+    eq: ['companyId', 'open'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  /** C17 retention gate: open orders of one customer, company-wide */
+  repairOrdersByCustomer: defineQuery({
+    name: 'repairOrders.byCustomer',
+    collection: COL.repairOrders,
+    eq: ['companyId', 'customerId', 'open'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  repairItemsByOrder: defineQuery({
+    name: 'repairItems.byOrder',
+    collection: COL.repairItems,
+    eq: ['companyId', 'orderId'],
+    scopeField: 'branchId',
+    order: { field: 'seqKey', dir: 'asc', type: 'string' },
+  }),
+  repairItemsByTechnician: defineQuery({
+    name: 'repairItems.byTechnician',
+    collection: COL.repairItems,
+    eq: ['companyId', 'technicianId', 'active'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  partRequestsByOrder: defineQuery({
+    name: 'partRequests.byOrder',
+    collection: COL.partRequests,
+    eq: ['companyId', 'orderId'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  partRequestsByStatus: defineQuery({
+    name: 'partRequests.byStatus',
+    collection: COL.partRequests,
+    eq: ['companyId', 'status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
 };

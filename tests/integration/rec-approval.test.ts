@@ -384,16 +384,26 @@ describe.each(backends)('REC quote approval [%s]', (backend) => {
       expect(r.json.code).toBe('quote_superseded');
     });
 
-    it('R10 / FR-REC-011: an expired quote cannot be approved by link or at the counter; the customer can still refuse', async () => {
+    it('R10 / R38 / FR-REC-011: an expired quote cannot be approved by link or at the counter; the expired link is read-only (no approve, no refuse)', async () => {
       const { q, token } = await sentQuote(cv, VEH_AN, 80000);
       const real = h.clock.now().toISOString();
       try {
         h.clock.set(new Date(h.clock.now().getTime() + 9 * 86_400_000).toISOString());
         const v = await viewPublicQuote(h.container.rec, token, { address: '203.0.113.5' });
         expect(v.state).toBe('expired');
+        // R38: a decision through an expired link looks exactly like an unknown link (404, same body)
         const r = await pub('/api/v1/rec/public/quote/approve', { token, selectedItemNos: [1] });
-        expect(r.status).toBe(409);
-        expect(r.json.code).toBe('quote_expired');
+        expect(r.status).toBe(404);
+        const unknown = await pub('/api/v1/rec/public/quote/approve', {
+          token: 'u'.repeat(43),
+          selectedItemNos: [1],
+        });
+        expect(unknown.status).toBe(404);
+        expect({ code: r.json.code, title: r.json.title, detail: r.json.detail }).toEqual({
+          code: unknown.json.code,
+          title: unknown.json.title,
+          detail: unknown.json.detail,
+        });
         // sessions are time bound too: sign in again on the advanced clock
         const cv2 = await h.loginAt('u_cv_q7', 'br_q7');
         const head = (await call(cv2, 'GET', `/api/v1/rec/quotes/${q.id}`)).json;
@@ -407,10 +417,14 @@ describe.each(backends)('REC quote approval [%s]', (backend) => {
         });
         expect(c.status).toBe(409);
         expect(c.json.code).toBe('quote_expired');
-        // the customer can still say no to an expired quote
+        // R38: the customer cannot refuse through the expired link either; staff record the refusal for them
         const no = await pub('/api/v1/rec/public/quote/reject', { token });
-        expect(no.status, no.text).toBe(200);
-        expect(no.json.state).toBe('rejected');
+        expect(no.status, no.text).toBe(404);
+        const staff = await call(cv2, 'POST', `/api/v1/rec/quotes/${q.id}/reject`, {
+          version: head.version,
+          reason: 'Khách báo không làm nữa',
+        });
+        expect(staff.status, staff.text).toBe(200);
       } finally {
         h.clock.set(real);
       }
@@ -579,7 +593,7 @@ describe.each(backends)('REC quote approval [%s]', (backend) => {
       expect(ap.json.lines).toHaveLength(3); // labor + part of item 1, labor of item 2
       expect(ap.json.lines.map((l: Row) => l.itemNo).sort()).toEqual([1, 1, 2]);
       for (const l of ap.json.lines) {
-        expect(l.lineKey).toBe(`${q.id}__v1#${l.itemNo}.${l.lineNo}`);
+        expect(l.lineKey).toBe(`${q.id}__v1_${l.itemNo}_${l.lineNo}`);
         expect(l.taxKey).toBe('vat');
         expect(l.taxVersionId).toBeTruthy();
         expect(l.priceVersionId).toBeTruthy();
@@ -665,8 +679,24 @@ describe.each(backends)('REC quote approval [%s]', (backend) => {
       expect(by.maintenance).toEqual(['inspect', 'service', 'qc']);
       expect(by.tire_wheel).toEqual(['remove', 'balance', 'qc']);
       expect(by.maintenance).not.toEqual(by.tire_wheel);
-      const w = await getServiceWorkflow(h.container.rec, await actorOf(cv), 'body_paint');
-      expect(w).toBeNull(); // nothing is assumed for a type without a workflow
+      // R36: general repair and the MINIMAL body & paint sample (waiting for the workshop survey)
+      expect(by.general_repair).toEqual(['diagnose', 'repair', 'qc']);
+      expect(by.body_paint).toEqual([
+        'assess',
+        'bodywork',
+        'prime',
+        'paint',
+        'cure',
+        'polish',
+        'qc',
+      ]);
+      const bp = await getServiceWorkflow(h.container.rec, await actorOf(cv), 'body_paint');
+      expect(bp!.steps.every((s) => s.countsTowardLabor === false)).toBe(true);
+      expect(bp!.steps.find((s) => s.code === 'paint')!.expectedDays).toBe(2);
+      // nothing is assumed for a type without a workflow
+      expect(
+        await getServiceWorkflow(h.container.rec, await actorOf(cv), 'unknown_type'),
+      ).toBeNull();
       expect((await h.call('GET', '/api/v1/rec/service-workflows', { as: 'u_th_q7' })).status).toBe(
         403,
       );

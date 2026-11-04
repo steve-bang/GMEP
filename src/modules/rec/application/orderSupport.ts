@@ -41,6 +41,9 @@ export interface WorkflowStep {
   code: string;
   name: string;
   responsibleRole?: string;
+  /** R36 */
+  expectedDays?: number;
+  countsTowardLabor?: boolean;
 }
 export interface ServiceWorkflowDto {
   serviceType: string;

@@ -100,8 +100,13 @@ export class RateLimiter {
   ) {}
 
   /** Counts one hit; throws 429 with `retryAfterSeconds` when the fixed window is exhausted. */
-  async hit(name: RateLimitName | string, subject: string): Promise<void> {
-    const policy = this.policies[name];
+  async hit(
+    name: RateLimitName | string,
+    subject: string,
+    override?: RateLimitPolicy,
+  ): Promise<void> {
+    // R34: an effective-dated configuration may replace the built-in numbers without a release
+    const policy = override ?? this.policies[name];
     if (!policy) throw new Error(`unknown rate limit policy ${name}`);
     const now = this.now();
     const t = now.getTime();

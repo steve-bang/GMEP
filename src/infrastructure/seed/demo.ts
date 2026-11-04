@@ -163,6 +163,7 @@ export function demoDocs(): SeedDoc[] {
       name: r.name,
       permissions: r.permissions,
       canConsolidate: r.canConsolidate,
+      appliedTopUps: r.appliedTopUps,
     });
   for (const br of demoBranches) {
     const { id, ...rest } = br;

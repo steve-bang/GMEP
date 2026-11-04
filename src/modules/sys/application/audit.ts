@@ -70,6 +70,8 @@ export interface AuditRowDto {
   actorId: string;
   actorName: string | null;
   actorRoles: string[];
+  /** R30: user, customer-link or system */
+  actorType: 'user' | 'customer-link' | 'system';
   entityType: string;
   entityId: string;
   action: string;
@@ -103,8 +105,10 @@ export async function listAudit(
       actorId: e.actorId,
       actorName:
         names.get(e.actorId) ??
-        (e.actorId.startsWith('customer-link:') ? 'Khách (liên kết báo giá)' : null),
+        (e.actorId.startsWith('customer-link:') ? 'Khách (liên kết báo giá)' : null) ??
+        (e.actorId.startsWith('system:') ? 'Hệ thống' : null),
       actorRoles: e.actorRoles,
+      actorType: e.actorType ?? (e.actorId.startsWith('customer-link:') ? 'customer-link' : 'user'),
       entityType: e.entityType,
       entityId: e.entityId,
       action: e.action,

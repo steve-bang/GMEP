@@ -88,7 +88,7 @@ export function decideApproval(
 
 /** The immutable key of a line of an approved version: what the order, the stock hold and the issue carry (I20). */
 export const lineKeyOf = (quoteId: string, n: number, itemNo: number, lineNo: number): string =>
-  `${quoteId}__v${n}#${itemNo}.${lineNo}`;
+  `${quoteId}__v${n}_${itemNo}_${lineNo}`;
 
 /** Flattens approved items into the lines the repair order is created from (slice 1.6). */
 export function approvedLinesOf(

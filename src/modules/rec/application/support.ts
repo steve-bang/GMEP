@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { AppError, forbidden, notFound, validationFailed } from '@/platform/errors/errors';
 import { type StoredResponse } from '@/platform/idempotency/idempotency';
-import { requireWorkingBranch, type Actor } from '@/platform/rbac/rbac';
+import { requireWorkingBranch, type Actor, type Permission } from '@/platform/rbac/rbac';
 import { scopeAllows, type Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import {
@@ -61,3 +61,15 @@ export function addDays(isoDate: string, days: number): string {
 }
 
 export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+/** R29: the role (among those granting `permission` at the branch) the actor acts in; managers before advisors. */
+export function roleAtBranch(actor: Actor, permission: Permission, branchId: string): string {
+  const roles = actor.assignments
+    .filter(
+      (a) =>
+        (a.branchId === branchId || a.branchId === '*') &&
+        actor.rolePermissions[a.roleCode]?.includes(permission),
+    )
+    .map((a) => a.roleCode);
+  return ['QL', 'CH', 'CV'].find((r) => roles.includes(r)) ?? roles[0] ?? 'unknown';
+}

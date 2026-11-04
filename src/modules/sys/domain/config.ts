@@ -143,6 +143,67 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         verbalApproval: z.boolean(),
         /** OTP is not available until an SMS provider is active; only `off` is accepted today */
         otpMode: z.enum(['off']),
+        /**
+         * R29: a verbal approval above this total (tax included, integer VND) must be recorded by a manager.
+         * Not set = no limit. The number is the client's to give [Cần xác nhận: Khách].
+         */
+        verbalApprovalMaxVnd: vnd.optional(),
+      })
+      .strict(),
+  },
+  // R34: rate limits of the customer link page, effective-dated so a change needs no release. Not set = built-in defaults.
+  'public-rate-limit': {
+    type: 'public-rate-limit',
+    resource: 'branch-config',
+    scopeKey: z.literal('company'),
+    branchOverride: false,
+    payload: z
+      .object({
+        /** page views per window, per address and per link */
+        viewLimit: z.number().int().min(5).max(1000),
+        viewWindowSeconds: z.number().int().min(10).max(3600),
+        /** approve/reject attempts per window, per link */
+        decideLimit: z.number().int().min(1).max(100),
+        decideWindowMinutes: z.number().int().min(1).max(240),
+      })
+      .strict(),
+  },
+  // FR-REC-016: quality-check list of a service type (company default key `default`), effective-dated.
+  'qc-checklist': {
+    type: 'qc-checklist',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        checks: z
+          .array(
+            z
+              .object({
+                code: z.string().regex(/^[a-z][a-z0-9_-]{0,29}$/),
+                name: z.string().trim().min(1).max(120),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(30),
+      })
+      .strict(),
+  },
+  // FR-REC-013/017: execution policy of the workshop (undo window, handover rules), company or per branch.
+  'order-policy': {
+    type: 'order-policy',
+    resource: 'branch-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** seconds a technician may undo a start/pause/finish */
+        undoWindowSeconds: z.number().int().min(0).max(3600),
+        /** the vehicle may be handed over only after the order is fully paid (slice 1.7 enforces it) */
+        handoverRequiresPayment: z.boolean(),
+        /** the customer's name is required on the handover record */
+        handoverRequiresReceiver: z.boolean(),
       })
       .strict(),
   },
@@ -163,6 +224,10 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
                 name: z.string().trim().min(1).max(80),
                 /** role that normally does the step (a role code); optional */
                 responsibleRole: z.string().min(1).max(8).optional(),
+                /** R36: expected duration of the step in days (body & paint) */
+                expectedDays: z.number().int().min(0).max(365).optional(),
+                /** R36: the step counts toward the technician's labor; default false (labor comes from the labor lines) */
+                countsTowardLabor: z.boolean().optional(),
               })
               .strict(),
           )

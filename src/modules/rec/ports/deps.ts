@@ -3,9 +3,12 @@ import type { InvDeps } from '@/modules/inv';
 import type { SysDeps } from '@/modules/sys';
 import type {
   IntakeRepository,
+  PartRequestRepository,
   QuoteLinkRepository,
   QuoteRepository,
   QuoteVersionRepository,
+  RepairItemRepository,
+  RepairOrderRepository,
 } from './ports';
 
 /** REC configuration: documented defaults, none hard-coded in a use case. */
@@ -38,6 +41,17 @@ export interface RecConfig {
   maxVersions: number;
   /** rows a picker returns */
   pickerMax: number;
+  /** slice 1.6 limits that keep one order inside a bounded transaction */
+  maxItemsPerOrder: number;
+  maxPartRequestsPerOrder: number;
+  maxProposalsPerOrder: number;
+  maxEventsPerItem: number;
+  /** FR-REC-013: "hoàn tác" window after a start/pause/finish [Đề xuất dev - chờ xác nhận: Khách] */
+  undoWindowMs: number;
+  /** dispatch board rows */
+  boardMax: number;
+  /** a handover may only happen after the QC passed (FR-REC-016); payment is checked in slice 1.7 */
+  requireHandoverReceiverName: boolean;
 }
 
 export const DEFAULT_REC_CONFIG: RecConfig = {
@@ -51,6 +65,13 @@ export const DEFAULT_REC_CONFIG: RecConfig = {
   maxLinesPerItem: 30,
   maxVersions: 50,
   pickerMax: 20,
+  maxItemsPerOrder: 60,
+  maxPartRequestsPerOrder: 200,
+  maxProposalsPerOrder: 50,
+  maxEventsPerItem: 200,
+  undoWindowMs: 120_000,
+  boardMax: 300,
+  requireHandoverReceiverName: true,
 };
 
 export interface RecDeps {
@@ -61,6 +82,9 @@ export interface RecDeps {
   quotes: QuoteRepository;
   versions: QuoteVersionRepository;
   links: QuoteLinkRepository;
+  orders: RepairOrderRepository;
+  items: RepairItemRepository;
+  partRequests: PartRequestRepository;
   rec: RecConfig;
 }
 // FR-REC-003 / R9: the odometer threshold is CRM's single `abnormalKmDrop` (deps.crm.crm), not a REC copy.

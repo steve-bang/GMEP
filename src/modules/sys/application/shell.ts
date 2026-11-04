@@ -23,6 +23,11 @@ export interface ShellInfo {
     stockDocs: boolean;
     intakes: boolean;
     quotes: boolean;
+    /** slice 1.6 */
+    orders: boolean;
+    /** the technician's own tablet list (repair-item view without managing the floor) */
+    myWork: boolean;
+    partRequests: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -74,6 +79,9 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       stockDocs: can('stock-doc:view'),
       intakes: can('intake:view'),
       quotes: can('quote:view'),
+      orders: can('repair-order:view'),
+      myWork: can('repair-item:view'),
+      partRequests: can('part-request:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),

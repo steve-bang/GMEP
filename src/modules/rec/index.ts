@@ -35,6 +35,8 @@ export {
 } from './domain/pricing';
 export { decideApproval, splitGross, approvedLinesOf, lineKeyOf } from './domain/approval';
 export type { ApprovalDecision, DeclineInput, GrossSplit, ItemGross } from './domain/approval';
+export * from './domain/order';
+export * from './domain/orderState';
 export { checkKm } from './domain/intake';
 export * from './ports/ports';
 export { DEFAULT_REC_CONFIG } from './ports/deps';
@@ -96,3 +98,56 @@ export type { ServiceWorkflowDto, WorkflowStep } from './application/orderSuppor
 export { pickServices, pickParts } from './application/catalog';
 export { recCustomerRetention } from './application/retention';
 export type { ServicePick, PartPick } from './application/catalog';
+
+// ---- slice 1.6: repair order, items, execution, QC, handover --------------------------------------------
+export {
+  openOrderForQuote,
+  afterQuoteApproved,
+  createOrderForQuote,
+  listOrders,
+  getOrder,
+  getBoard,
+  pauseOrder,
+  resumeOrder,
+  submitForQc,
+  recheckParts,
+  cancelOrder,
+  cancelOrderSchema,
+  toOrderDto,
+} from './application/orders';
+export type {
+  OrderDto,
+  OrderDetailDto,
+  ItemDto,
+  PartRequestDto,
+  BoardDto,
+  BoardCard,
+  OpenedOrder,
+} from './application/orders';
+export {
+  listTechnicians,
+  assignTechnician,
+  listMyWork,
+  itemAction,
+  undoItemAction,
+  createPartRequest,
+  listPartRequests,
+  decidePartRequest,
+} from './application/workItems';
+export type { TechnicianOption, WorkItemDto } from './application/workItems';
+export {
+  createProposal,
+  dismissProposal,
+  createSupplementaryQuote,
+  appendSupplement,
+} from './application/supplement';
+export {
+  getQcChecklist,
+  runQc,
+  handoverVehicle,
+  getHandoverPrint,
+  logHandoverPrint,
+} from './application/quality';
+export type { QcChecklistDto, HandoverPrintDto } from './application/quality';
+export { systemActor } from './application/orderHelpers';
+export { recOrderAdvisors } from './application/orderAdvisors';

@@ -17,6 +17,8 @@ export interface AuditEntry {
   branchId: string | null;
   actorId: string;
   actorRoles: string[];
+  /** R30: who acted: an account (default), the customer through a quote link, or the system itself */
+  actorType?: 'user' | 'customer-link' | 'system';
   entityType: string;
   entityId: string;
   action: string;

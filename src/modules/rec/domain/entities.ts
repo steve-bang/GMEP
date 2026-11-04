@@ -235,6 +235,8 @@ export interface QuoteApproval {
   decidedAt: Date;
   /** the staff member who recorded it; null = the customer through the tokenised link */
   recordedBy: string | null;
+  /** R29: CV or QL, the role the person acted in at the working branch */
+  recordedByRole?: string;
   /** link id (token hash prefix) for `link` */
   linkId?: string;
   approvedItemNos: number[];
@@ -328,6 +330,10 @@ export interface Quote {
   vehicleLabel: string;
   customerName: string;
   advisorId: string;
+  /** slice 1.6: a supplementary quote extends this repair order when approved (RULE-005/006) */
+  supplementOfOrderId?: string;
+  /** the repair order opened from this quote's approval (R37); absent = approved but no order yet */
+  orderId?: string;
   /** latest version number; the quote's status is the status of this version */
   currentN: number;
   status: QuoteStatus;

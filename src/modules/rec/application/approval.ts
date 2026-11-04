@@ -2,7 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import type { AuditEntry } from '@/platform/audit/audit';
-import { resolveScope, type Actor } from '@/platform/rbac/rbac';
+import { hasPermission, resolveScope, type Actor } from '@/platform/rbac/rbac';
 import { branchesScope, type Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import { notifyUsers, resolveCatalogAt, resolveConfigAt, usersWithRole } from '@/modules/sys';
@@ -18,6 +18,7 @@ import {
 } from '../domain/entities';
 import { approvedLinesOf, decideApproval, type DeclineInput } from '../domain/approval';
 import { isQuoteExpired, transitionQuote } from '../domain/quoteState';
+import { afterQuoteApproved } from './orders';
 import type { RecDeps } from '../ports/deps';
 import {
   assertWritable,
@@ -27,6 +28,7 @@ import {
   notFound,
   parseInput,
   requireWorkingBranch,
+  roleAtBranch,
   validationFailed,
   versionConflict,
   z,
@@ -59,6 +61,8 @@ export interface ApprovalPolicy {
   allowDeclineRequired: boolean;
   verbalApproval: boolean;
   otpMode: 'off';
+  /** R29: above this approved total a verbal approval must be recorded by a manager; unset = no limit */
+  verbalApprovalMaxVnd?: number;
   reasons: DeclineReasonOption[];
 }
 
@@ -83,6 +87,9 @@ export async function approvalPolicyOf(
     allowDeclineRequired: cfg?.allowDeclineRequired ?? deps.rec.approval.allowDeclineRequired,
     verbalApproval: cfg?.verbalApproval ?? deps.rec.approval.verbalApproval,
     otpMode: 'off',
+    ...(cfg?.verbalApprovalMaxVnd !== undefined
+      ? { verbalApprovalMaxVnd: cfg.verbalApprovalMaxVnd }
+      : {}),
     reasons: rows
       .filter((r) => r.payload.status !== 'inactive')
       .map((r) => ({
@@ -146,6 +153,8 @@ interface CoreInput {
   liveLink: { id: string } | null;
   method: ApprovalMethod;
   recordedBy: string | null;
+  /** R29: the role the person acted in at the working branch (CV or QL) */
+  recordedByRole?: string;
   decision: Extract<ReturnType<typeof decideApproval>, { ok: true }>;
   extra: Partial<Pick<QuoteApproval, 'signerName' | 'evidenceRef' | 'note' | 'readBack'>> & {
     exception: boolean;
@@ -164,6 +173,7 @@ function evidence(q: Quote, cur: QuoteVersion, a: Omit<QuoteApproval, 'hash'>): 
     mode: a.mode,
     at: a.decidedAt.toISOString(),
     by: a.recordedBy,
+    role: a.recordedByRole ?? null,
     link: a.linkId ?? null,
     approved: a.approvedItemNos,
     declined: a.declined.map((d) => [d.itemNo, d.reasonCode ?? null, d.safety]),
@@ -199,6 +209,7 @@ function applyApproval(deps: RecDeps, tx: Tx, c: CoreInput) {
     mode: c.decision.mode,
     decidedAt: now,
     recordedBy: c.recordedBy,
+    ...(c.recordedByRole ? { recordedByRole: c.recordedByRole } : {}),
     ...(c.link ? { linkId: c.link.id.slice(0, 16) } : {}),
     approvedItemNos: c.decision.approved.map((i) => i.no),
     declined: c.decision.declined,
@@ -288,6 +299,7 @@ function decisionAudit(
     branchId: c.q.branchId,
     actorId: `customer-link:${c.link!.id.slice(0, 16)}`,
     actorRoles: ['customer-link'],
+    actorType: 'customer-link',
     entityType: base.entityType,
     entityId: base.entityId,
     action: base.action,
@@ -353,7 +365,7 @@ export async function approveQuote(
   }
   if (errors.length > 0) throw validationFailed(errors);
   const recipients = await recipientsOf(deps, head, actor.userId);
-  return runIdempotent(
+  const done = await runIdempotent(
     idemOf(deps),
     {
       userId: actor.userId,
@@ -372,6 +384,14 @@ export async function approveQuote(
       const live = cur.linkHash ? await deps.links.findInTx(tx, cur.linkHash) : null;
       assertApprovable(cur, businessDate(deps.sys.clock.now()));
       const decision = decisionOrThrow(cur.items, data, policy);
+      // R29: above the optional threshold only a manager may record a verbal approval
+      if (
+        data.method === 'counter_verbal' &&
+        policy.verbalApprovalMaxVnd !== undefined &&
+        decision.split.totalVnd > policy.verbalApprovalMaxVnd &&
+        !hasPermission(actor, 'quote:reject')
+      )
+        throw new AppError('verbal_needs_manager', 409);
       const now = deps.sys.clock.now();
       const r = applyApproval(deps, tx, {
         q,
@@ -380,6 +400,7 @@ export async function approveQuote(
         liveLink: live && !live.revokedAt ? live : null,
         method: data.method,
         recordedBy: actor.userId,
+        recordedByRole: roleAtBranch(actor, 'quote:approve', q.branchId),
         decision,
         extra: {
           ...(data.signerName ? { signerName: data.signerName } : {}),
@@ -407,6 +428,22 @@ export async function approveQuote(
       };
     },
   );
+  // R37: the approval has committed; now the order and the stock hold (a failure here never undoes the approval)
+  const order = await afterQuoteApproved(deps, head, actor, ctx);
+  return order
+    ? {
+        ...done,
+        response: {
+          ...done.response,
+          body: {
+            ...(done.response.body as Record<string, unknown>),
+            orderId: order.orderId,
+            orderNumber: order.number,
+            unmetLines: order.unmetLines,
+          },
+        },
+      }
+    : done;
 }
 
 // ---- staff: customer link (FR-REC-008) -----------------------------------------------------------
@@ -532,11 +569,46 @@ interface Resolved {
   state: PublicState;
 }
 
-async function throttle(deps: RecDeps, address: string, hash: string, decide: boolean) {
+/** R34: the limits come from the `public-rate-limit` config when one is in force, else the built-in defaults. */
+async function publicLimits(deps: RecDeps, companyId: string) {
+  const c = (
+    await resolveConfigAt(deps.sys, {
+      companyId,
+      type: 'public-rate-limit',
+      scopeKey: 'company',
+      date: businessDate(deps.sys.clock.now()),
+    })
+  )?.payload as
+    | {
+        viewLimit: number;
+        viewWindowSeconds: number;
+        decideLimit: number;
+        decideWindowMinutes: number;
+      }
+    | undefined;
+  return c
+    ? {
+        view: { limit: c.viewLimit, windowMs: c.viewWindowSeconds * 1000 },
+        decide: { limit: c.decideLimit, windowMs: c.decideWindowMinutes * 60_000 },
+      }
+    : { view: undefined, decide: undefined };
+}
+
+async function throttle(
+  deps: RecDeps,
+  address: string,
+  hash: string,
+  decide: boolean,
+  companyId: string | null,
+) {
   // per address (generous: a counter's Wi-Fi shares one address) and per token; a decision is also tight per token
-  await deps.sys.limiter.hit('customer-link', `ip:${address}`);
-  await deps.sys.limiter.hit('customer-link', `tok:${hash.slice(0, 24)}`);
-  if (decide) await deps.sys.limiter.hit('customer-link-decide', `tok:${hash.slice(0, 24)}`);
+  const lim = companyId
+    ? await publicLimits(deps, companyId)
+    : { view: undefined, decide: undefined };
+  await deps.sys.limiter.hit('customer-link', `ip:${address}`, lim.view);
+  await deps.sys.limiter.hit('customer-link', `tok:${hash.slice(0, 24)}`, lim.view);
+  if (decide)
+    await deps.sys.limiter.hit('customer-link-decide', `tok:${hash.slice(0, 24)}`, lim.decide);
 }
 
 /** Unknown, revoked and malformed tokens look identical (404) so a token cannot be probed. */
@@ -547,16 +619,20 @@ async function resolveLink(
   decide = false,
 ): Promise<Resolved> {
   const hash = tokenHashOf(token);
-  await throttle(deps, address, hash, decide);
-  if (!TOKEN_PATTERN.test(token)) throw notFound();
-  const link = await deps.links.find(hash);
+  const wellFormed = TOKEN_PATTERN.test(token);
+  const link = wellFormed ? await deps.links.find(hash) : null;
+  // the same throttle applies to unknown and known tokens so a token cannot be probed (R34: numbers from config)
+  await throttle(deps, address, hash, decide, link?.companyId ?? null);
   if (!link || link.revokedAt) throw notFound();
   const scope = branchesScope(link.companyId, [link.branchId]);
   const q = await deps.quotes.get(scope, link.quoteId);
   if (!q) throw notFound();
   const cur = await deps.versions.get(scope, versionId(q.id, link.n));
   if (!cur) throw notFound();
-  return { link, scope, q, cur, state: publicStateOf(q, cur, businessDate(deps.sys.clock.now())) };
+  const state = publicStateOf(q, cur, businessDate(deps.sys.clock.now()));
+  // R38: an expired link is read-only; a decision looks exactly like an unknown link
+  if (decide && state === 'expired') throw notFound();
+  return { link, scope, q, cur, state };
 }
 
 function publicStateOf(q: Quote, cur: QuoteVersion, today: string): PublicState {
@@ -645,7 +721,7 @@ export async function approveViaLink(
     businessDate(deps.sys.clock.now()),
   );
   const recipients = await recipientsOf(deps, r0.q, null);
-  return runIdempotent(
+  const done = await runIdempotent(
     idemOf(deps),
     {
       userId: `link:${r0.link.id.slice(0, 16)}`,
@@ -690,6 +766,9 @@ export async function approveViaLink(
       return { status: 200, body: approvedBody(q, cur, res.approval, false) };
     },
   );
+  // R37: no staff member is present, so the order is opened by the system on the customer's approval
+  await afterQuoteApproved(deps, r0.q, null, ctx);
+  return done;
 }
 
 const sameSet = (a: readonly number[], b: readonly number[]): boolean => {
@@ -743,7 +822,6 @@ export async function rejectViaLink(
       if (q.currentN !== cur.n || cur.replacedByN !== undefined)
         throw new AppError('quote_superseded', 409);
       const now = deps.sys.clock.now();
-      // R10: the customer can always say no, even to an expired quote (the transition allows `reject`)
       const t = transitionQuote(cur.status, 'reject');
       if (!t.ok) throw new AppError(cur.approval ? 'quote_already_decided' : t.reason, 409);
       const reason = data.reason ?? 'Khách từ chối qua liên kết';
@@ -770,6 +848,7 @@ export async function rejectViaLink(
         branchId: q.branchId,
         actorId: `customer-link:${link.id.slice(0, 16)}`,
         actorRoles: ['customer-link'],
+        actorType: 'customer-link',
         entityType: 'quote',
         entityId: q.id,
         action: 'quote.reject_link',
@@ -867,6 +946,7 @@ export function toApprovalDto(a: QuoteApproval, recordedByName: string | null) {
     mode: a.mode,
     decidedAt: a.decidedAt.toISOString(),
     recordedBy: a.recordedBy,
+    recordedByRole: a.recordedByRole ?? null,
     recordedByName,
     approvedItemNos: a.approvedItemNos,
     declined: a.declined,

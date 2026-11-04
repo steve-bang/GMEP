@@ -77,6 +77,62 @@ const REC_S = flatten([
 const REC_VIEW_QUOTE = flatten([g('quote', 'view')]);
 const REC_VIEW_ALL = flatten([g('intake', 'view'), g('quote', 'view')]);
 
+/**
+ * REC slice 1.6 (repair order and execution) default grants [Đề xuất dev - chờ xác nhận: BA/Khách], from FRD §2
+ * "Báo giá và lệnh sửa chữa" and the G2-REC / G2-TEC / G2-DLV role columns.
+ *  - `repair-order`: view; create = "Tạo lệnh" fallback (R37); update = pause/resume, assign via items, send to QC, handover prep;
+ *    archive = cancel an order (FR-REC-021); approve = cancel an order whose parts were issued (manager).
+ *  - `repair-item`: view; update = start/pause/finish/undo (a role without `manage` only touches items assigned to it, FR-REC-013);
+ *    manage = assign and change the technician (FR-REC-012), see every item.
+ *  - `part-request`: create = ask for parts on an approved line; update = issue or refuse (storekeeper, manager).
+ *  - `work-proposal`: create = technician's proposal for work outside the quote (FR-REC-014); update = turn into a supplementary quote or dismiss.
+ *  - `qc-record`: create = run the quality check (FR-REC-016). `vehicle-handover`: create = hand the vehicle over (FR-REC-017).
+ * TH sees only their own work (Xn).
+ */
+const ORD_VIEW = flatten([
+  g('repair-order', 'view'),
+  g('repair-item', 'view'),
+  g('part-request', 'view'),
+  g('work-proposal', 'view'),
+  g('qc-record', 'view'),
+  g('vehicle-handover', 'view'),
+]);
+const ORD_QL = flatten([
+  g('repair-order', 'view', 'create', 'update', 'archive', 'approve'),
+  g('repair-item', 'view', 'update', 'manage'),
+  g('part-request', 'view', 'create', 'update'),
+  g('work-proposal', 'view', 'create', 'update'),
+  g('qc-record', 'view', 'create'),
+  g('vehicle-handover', 'view', 'create'),
+]);
+const ORD_CV = flatten([
+  g('repair-order', 'view', 'create', 'update', 'archive'),
+  g('repair-item', 'view', 'manage'),
+  g('part-request', 'view', 'create'),
+  g('work-proposal', 'view', 'create', 'update'),
+  g('qc-record', 'view'),
+  g('vehicle-handover', 'view', 'create'),
+]);
+const ORD_QD = flatten([
+  g('repair-order', 'view', 'update'),
+  g('repair-item', 'view', 'update', 'manage'),
+  g('part-request', 'view', 'create'),
+  g('work-proposal', 'view', 'create', 'update'),
+  g('qc-record', 'view', 'create'),
+  g('vehicle-handover', 'view'),
+]);
+const ORD_TH = flatten([
+  g('repair-item', 'view', 'update'),
+  g('part-request', 'view', 'create'),
+  g('work-proposal', 'view', 'create'),
+]);
+const ORD_TK = flatten([
+  g('repair-order', 'view'),
+  g('repair-item', 'view'),
+  g('part-request', 'view', 'update'),
+]);
+const ORD_TN = flatten([g('repair-order', 'view'), g('vehicle-handover', 'view')]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -108,6 +164,7 @@ const CH = [
   ...CRM_CH,
   ...INV_VIEW,
   ...REC_VIEW_ALL,
+  ...ORD_VIEW,
 ];
 
 const matrix: Grant = {
@@ -134,7 +191,8 @@ const matrix: Grant = {
     g('inventory-policy', 'view'),
   ])
     .concat(INV_VIEW)
-    .concat(REC_VIEW_ALL),
+    .concat(REC_VIEW_ALL)
+    .concat(ORD_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -166,7 +224,8 @@ const matrix: Grant = {
   ])
     .concat(INV_VIEW)
     .concat(REC_S)
-    .concat(flatten([g('quote', 'approve', 'reject')])),
+    .concat(flatten([g('quote', 'approve', 'reject')]))
+    .concat(ORD_QL),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -185,7 +244,9 @@ const matrix: Grant = {
     g('part', 'view'),
     g('stock-availability', 'view'),
     g('stock-reservation', 'create', 'update'),
-  ]).concat(REC_S),
+  ])
+    .concat(REC_S)
+    .concat(ORD_CV),
   QD: flatten([
     g('device', 'view'),
     g('worker-pin', 'manage'),
@@ -195,8 +256,10 @@ const matrix: Grant = {
     g('vehicle-history', 'view'),
     g('vehicle-history-cross', 'view'),
     g('customer-lookup', 'view'),
-  ]).concat(REC_VIEW_ALL),
-  TH: [],
+  ])
+    .concat(REC_VIEW_ALL)
+    .concat(ORD_QD),
+  TH: ORD_TH,
   TK: flatten([
     g('warehouse', 'view'),
     g('price-list', 'view'),
@@ -207,14 +270,17 @@ const matrix: Grant = {
     g('stock-reservation', 'view', 'create', 'update'),
   ])
     .concat(INV_VIEW)
-    .concat(REC_VIEW_QUOTE),
+    .concat(REC_VIEW_QUOTE)
+    .concat(ORD_TK),
   TN: flatten([
     g('doc-template', 'view'),
     g('customer', 'view'),
     g('vehicle', 'view'),
     g('customer-lookup', 'view'),
     g('customer-lookup-customer', 'view'),
-  ]).concat(REC_VIEW_ALL),
+  ])
+    .concat(REC_VIEW_ALL)
+    .concat(ORD_TN),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -235,7 +301,8 @@ const matrix: Grant = {
     g('inventory-policy', 'view'),
   ])
     .concat(INV_VIEW)
-    .concat(REC_VIEW_QUOTE),
+    .concat(REC_VIEW_QUOTE)
+    .concat(flatten([g('repair-order', 'view')])),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -278,7 +345,49 @@ export interface RoleSeed {
   name: string;
   permissions: string[];
   canConsolidate: boolean;
+  /** a fresh seed already contains every top-up, so none is re-applied to it */
+  appliedTopUps: string[];
 }
+
+/**
+ * R30 / R21: permissions added to the default matrix AFTER roles may already exist in a real database.
+ * A role document remembers which top-ups it received (`appliedTopUps`), so applying is idempotent and a
+ * permission an administrator later removed on purpose is not put back. Only ADD here; applied through
+ * `applyPermissionTopUps` (owner, audited, one audit line per role).
+ */
+export interface PermissionTopUp {
+  id: string;
+  note: string;
+  grants: Partial<Record<RoleCode, readonly string[]>>;
+}
+
+export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
+  {
+    id: '2026-11-rec-1.5-approval',
+    note: 'R30/C20: quote:approve for CV and QL; vehicle-history-cross:view for CH, CV, QL, QD',
+    grants: {
+      CV: ['quote:approve', 'vehicle-history-cross:view'],
+      QL: ['quote:approve', 'quote:reject', 'vehicle-history-cross:view'],
+      CH: ['vehicle-history-cross:view'],
+      QD: ['vehicle-history-cross:view'],
+    },
+  },
+  {
+    id: '2026-11-rec-1.6-orders',
+    note: 'Slice 1.6: repair orders, items, part requests, proposals, QC and handover',
+    grants: {
+      CH: ORD_VIEW,
+      QV: ORD_VIEW,
+      QL: ORD_QL,
+      CV: ORD_CV,
+      QD: ORD_QD,
+      TH: ORD_TH,
+      TK: ORD_TK,
+      TN: ORD_TN,
+      KT: flatten([g('repair-order', 'view')]),
+    },
+  },
+];
 
 export function defaultRoleSeeds(): RoleSeed[] {
   return ROLE_CODES.map((code) => ({
@@ -286,6 +395,7 @@ export function defaultRoleSeeds(): RoleSeed[] {
     name: ROLE_NAMES[code],
     permissions: [...(matrix[code] ?? [])].sort(),
     canConsolidate: CONSOLIDATING.includes(code),
+    appliedTopUps: PERMISSION_TOPUPS.map((t) => t.id),
   }));
 }
 

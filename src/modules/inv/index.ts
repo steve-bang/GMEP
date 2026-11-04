@@ -69,17 +69,20 @@ export {
   postDocument,
   reverseDocument,
   issueForOrder,
+  issueForOrderInTx,
   getDocument,
   listDocuments,
 } from './application/documents';
-export type { DocumentDto, DocLineDto } from './application/documents';
+export type { DocumentDto, DocLineDto, IssueForOrderInput } from './application/documents';
 export {
   holdStock,
   holdStockInTx,
   holdForApproval,
+  prepareHoldForApproval,
   holdForApprovalStandalone,
   holdForApprovalSchema,
   releaseStock,
+  prepareRelease,
   listOpenReservations,
   listReservationsByPart,
   listReservationsBySource,
@@ -92,4 +95,6 @@ export type {
   OpenReservationDto,
 } from './application/reservations';
 export { resolveCostMethod } from './application/config';
+export { orderIssueBalance } from './application/orderIssues';
+export type { OrderIssueBalance } from './application/orderIssues';
 export { invWarehouseActivity } from './application/warehouseActivity';

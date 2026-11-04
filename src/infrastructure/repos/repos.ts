@@ -104,6 +104,7 @@ const auditFromDoc = ({ id, data: x }: StoredDoc): AuditEntry => ({
   branchId: x.branchId ?? null,
   actorId: x.actorId,
   actorRoles: x.actorRoles ?? [],
+  ...(x.actorType ? { actorType: x.actorType as 'user' | 'customer-link' | 'system' } : {}),
   entityType: x.entityType,
   entityId: x.entityId,
   action: x.action,
@@ -271,6 +272,7 @@ export class DocRoleRepository implements RoleRepository {
     name: x.name,
     permissions: x.permissions ?? [],
     canConsolidate: x.canConsolidate === true,
+    appliedTopUps: x.appliedTopUps ?? [],
   });
   async getMany(codes: readonly string[]) {
     return (await this.store.getMany(COL.roles, codes)).map(this.from);
@@ -284,6 +286,7 @@ export class DocRoleRepository implements RoleRepository {
       name: role.name,
       permissions: [...role.permissions],
       canConsolidate: role.canConsolidate,
+      appliedTopUps: [...(role.appliedTopUps ?? [])],
       updatedAt: meta.at,
       updatedBy: meta.by,
     });

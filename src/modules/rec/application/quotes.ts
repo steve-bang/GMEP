@@ -66,6 +66,10 @@ export interface QuoteDto {
   totalVnd: number;
   /** FR-REC-009: tax-inclusive total of the approved items; null until approved */
   approvedTotalVnd: number | null;
+  /** R37: the repair order opened by the approval; null on an approved quote = "đã duyệt, chưa có lệnh" */
+  orderId: string | null;
+  /** set on a supplementary quote: the order it extends */
+  supplementOfOrderId: string | null;
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -174,6 +178,8 @@ const toQuoteDto = (q: Quote, today: string): QuoteDto => ({
   validUntil: q.validUntil ?? null,
   totalVnd: q.totalVnd,
   approvedTotalVnd: q.approvedTotalVnd ?? null,
+  orderId: q.orderId ?? null,
+  supplementOfOrderId: q.supplementOfOrderId ?? null,
   createdAt: q.createdAt.toISOString(),
   updatedAt: q.updatedAt.toISOString(),
   version: q.version,
@@ -360,9 +366,17 @@ export async function getQuote(
       replacedByN: v.replacedByN ?? null,
     })),
     shown: await toVersionDto(deps, actor, shown, q.currentN),
-    allowed: allowedQuoteActions(q.status, isQuoteExpired(q.status, q.validUntil, today)).filter(
-      (a) => (a === 'approve' ? mayApprove : mayEdit),
-    ),
+    allowed: [
+      ...allowedQuoteActions(q.status, isQuoteExpired(q.status, q.validUntil, today)).filter((a) =>
+        a === 'approve' ? mayApprove : mayEdit,
+      ),
+      // R37 fallback: approved but no order yet (a technical failure after the approval)
+      ...((q.status === 'approved_full' || q.status === 'approved_partial') &&
+      !q.orderId &&
+      hasPermission(actor, 'repair-order:create')
+        ? ['create_order']
+        : []),
+    ],
   };
 }
 
