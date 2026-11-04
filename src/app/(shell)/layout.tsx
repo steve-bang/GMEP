@@ -75,6 +75,41 @@ export default async function ShellLayout({ children }: { children: React.ReactN
       ],
     },
     {
+      label: t('shell.nav.groupInv'),
+      items: [
+        ...(can.parts
+          ? [
+              item(
+                'pa',
+                '/inv/parts',
+                t('shell.nav.parts'),
+                'package',
+                'prefix',
+                info.readOnly.parts,
+              ),
+            ]
+          : []),
+        ...(can.stock
+          ? [
+              item('st', '/inv/stock', t('shell.nav.stock'), 'warehouse', 'prefix'),
+              item('ro', '/inv/reorder', t('shell.nav.reorder'), 'alert-triangle', 'prefix'),
+            ]
+          : []),
+        ...(can.stockDocs
+          ? [
+              item(
+                'sd',
+                '/inv/documents',
+                t('shell.nav.stockDocs'),
+                'clipboard-list',
+                'prefix',
+                info.readOnly.stockDocs,
+              ),
+            ]
+          : []),
+      ],
+    },
+    {
       label: t('shell.nav.groupSystem'),
       items: [
         ...(can.branches

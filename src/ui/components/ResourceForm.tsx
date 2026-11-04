@@ -16,6 +16,10 @@ export interface FieldDef {
   defaultValue?: string;
   placeholder?: string;
   maxLength?: number;
+  /** textarea of "Hãng Dòng xe" lines sent as [{make, model}] (serialisable, so server components can pass it) */
+  parse?: 'pairs';
+  /** an empty value is sent as null (clears the field) instead of being left out */
+  emptyAs?: 'null';
 }
 
 interface Problem {
@@ -131,8 +135,16 @@ export function ResourceForm(props: {
       const raw =
         f.type === 'checkbox' ? form.get(f.name) === 'on' : String(form.get(f.name) ?? '').trim();
       if (f.type === 'checkbox') body[f.name] = raw;
-      else if (raw === '') continue;
-      else body[f.name] = f.type === 'number' ? Number(raw) : raw;
+      else if (f.parse === 'pairs')
+        body[f.name] = String(raw)
+          .split('\n')
+          .map((l) => l.trim().split(/\s+/))
+          .filter((w) => w[0])
+          .map((w) => ({ make: w[0]!, model: w.slice(1).join(' ') || w[0]! }));
+      else if (raw === '') {
+        if (f.emptyAs === 'null') body[f.name] = null;
+        continue;
+      } else body[f.name] = f.type === 'number' ? Number(raw) : raw;
     }
     setBusy(true);
     setBanner(null);
