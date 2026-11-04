@@ -15,7 +15,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # A change that only touches documentation or agent instructions cannot break the build: skip the heavy jobs
+  # (a skipped job counts as passing for required checks). Anything else, or any doubt, runs everything.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          code=true
+          if [ -n "$BASE" ] && ! echo "$BASE" | grep -qE '^0+$' && git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            if ! git diff --name-only "$BASE" HEAD | grep -qvE '^(docs/|\.claude/|README\.md$|CHANGELOG\.md$|CLAUDE\.md$)'; then
+              code=false
+            fi
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "heavy jobs: $code"
+
   verify:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -72,6 +98,8 @@ jobs:
 
   # H4: the production image must build (no push, no registry, no cloud credentials here).
   docker:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
