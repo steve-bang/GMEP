@@ -2172,3 +2172,188 @@ Gợi ý phân bổ ngân sách 9 chỉ mục: EIN tối đa 4 (danh sách hóa 
 | 9 | R68: áp dụng sáu quy tắc cho 1.8, 1.9; ngưỡng cảnh báo 190, lỗi 195 trong `check:indexes` | `queries.ts`, kịch bản kiểm tra chỉ mục | Bắt buộc cho 1.8, 1.9 |
 
 Không có câu trả lời nào mâu thuẫn với R44 (§19) đã chốt; R57 và R64 làm chặt thêm R44 mục 4 (ghi nợ do QL duyệt) theo cùng nguyên tắc người lập khác người duyệt.
+
+---
+
+## 21. Slice 1.8: hóa đơn điện tử cơ bản (R69–R80)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định ngay). Trả lời mục "Slice 1.8: hóa đơn cơ bản" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-EIN-001..013 (đặc biệt 003, 004, 007, 009, 010, 012, 013), FR-INV-022, FR-SYS-003; BR-EIN-01..05; RULE-007, 010; WF hóa đơn; §19 R44, §20 R68; ghi chú pháp lý FRD mục EIN (Nghị định 254/2026/NĐ-CP, Thông tư 91/2026; BA chưa đối chiếu nguyên văn điều khoản, mọi viện dẫn điều luật cụ thể là `[Cần xác nhận: Kế toán/Luật sư khách]`). Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01). Không sửa FRD/BRD/Journey; việc cần sửa ở §21.3.
+
+### 21.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R69 | Chỉ `fake` ở môi trường thử; chưa khai đơn vị phát hành thì không phát hành; `fake` bị cấm ở `live`; cần hồ sơ API nhà cung cấp trước khi chọn | OK | Khách, Kế toán khách |
+| R70 | Pilot: chỉ Chủ garage có `invoice:approve`; người lập không tự duyệt kể cả Chủ | OK (kiểm tra Chủ lập thì sao) | Chủ dự án |
+| R71 | Lập theo thuế suất, làm tròn một lần mỗi thuế suất mỗi lần duyệt, chặn khi lệch tổng lệnh | OK; chờ kế toán ký bảng ví dụ | Kế toán khách |
+| R72 | Dùng thuế suất lúc phát hành khi khác thuế suất đã khóa: **chặn** cho tới khi kế toán quyết (đổi từ `warn`) | **Must change** (nhỏ) | Kế toán khách |
+| R73 | `issueAfter: qc`; cọc không tách ở pilot; FR-EIN-012 chưa làm | OK | Kế toán khách |
+| R74 | Ba trường hợp (điều chỉnh, thay thế, hủy) là đủ cho pilot; còn lại hướng dẫn làm tay ngoài hệ thống | OK | Kế toán khách, Luật sư khách |
+| R75 | Lệnh có hóa đơn hợp lệ thì chặn hủy lệnh và hoàn kho/hoàn tiền cho tới khi hủy hoặc điều chỉnh hóa đơn | **Must change** | Kế toán khách |
+| R76 | 5 lần; 5/15/60/240/720 phút; 30 giây; chạy qua `run-due`; hạ tầng lập lịch để khi lên môi trường thật | OK | Dev, Chủ dự án |
+| R77 | Không ẩn danh dữ liệu trên hóa đơn; giữ tối thiểu 10 năm; tải tệp cần `invoice:view` trong phạm vi và có nhật ký | OK (thêm nhật ký tải) | Luật sư khách, Kế toán khách |
+| R78 | Chấp nhận 191/200; chừa ít nhất 4 cho 1.9 | OK | Dev |
+| R79 | Giữ khóa FR-EIN-009 "khách không lấy hóa đơn" ở pilot | OK | Kế toán khách |
+| R80 | Chưa gửi hóa đơn cho khách; chỉ tải/in; giữ trần quét 500 kèm cảnh báo "còn nữa" | OK | Khách |
+
+### 21.2 Trả lời từng câu
+
+##### R69. Nhà cung cấp, môi trường, đơn vị phát hành
+
+**Khuyến nghị**: giữ mặc định của dev. `[Cần xác nhận: Khách, Kế toán khách – nhà cung cấp, mẫu số, ký hiệu, loại hóa đơn, pháp nhân bên bán]`
+
+- Đúng với FR-EIN-003 và 004: mỗi chi nhánh có đơn vị phát hành (pháp nhân bên bán gồm tên, MST, địa chỉ, mẫu số, ký hiệu, loại hóa đơn), hai môi trường thử/thật tách biệt. Pháp nhân đơn hay nhiều vẫn là câu hỏi mở của Khách (CLAUDE.md "Open decisions"): dữ liệu phải gắn **đơn vị phát hành**, không gắn cứng công ty; nhiều chi nhánh có thể dùng chung một đơn vị phát hành.
+- Chưa khai đơn vị phát hành hoặc thiếu trường bắt buộc: trạng thái "chưa kích hoạt", nút phát hành khóa, nêu rõ trường thiếu (FR-EIN-011). Cấm `fake` ở `live` là đúng và phải có test.
+- Mẫu số/ký hiệu là **dữ liệu của Khách**, không nhập mặc định trong mã; seed chỉ cho dữ liệu mẫu môi trường thử.
+- Việc chọn nhà cung cấp thật không chặn pilot nội bộ; chặn việc chuyển `live`. Danh sách cần Khách cung cấp: tên nhà cung cấp, tài liệu API, tài khoản thử, chứng thư/ký số do ai giữ, đã thông báo phát hành với cơ quan thuế hay chưa. `[Cần xác nhận: Khách]`
+
+**Dev default OK.**
+
+##### R70. Ai giữ quyền duyệt hóa đơn (kế toán trưởng)
+
+**Khuyến nghị**: pilot chỉ Chủ garage. `[Cần xác nhận: Chủ dự án – có chỉ định một kế toán cụ thể không]`
+
+- FRD mục EIN: kế toán trưởng là cấu hình quyền của vai trò Kế toán, không phải vai trò mới. Với ma trận 10 vai trò hiện có, mặc định bảo thủ là quyền ở Chủ garage; Kế toán lập yêu cầu, Chủ duyệt. Khi Khách chỉ định, gán `invoice:approve` cho người đó qua quản lý vai trò, không sửa mã.
+- Theo **người**, không theo vai trò (như R59): người lập không duyệt chính yêu cầu của mình. Chủ garage lập thì được tự duyệt nhưng mang cờ `selfApproved` hiện ở nhật ký (cùng R59). Hủy hóa đơn nhập lại mật khẩu (đã có).
+- Chưa có chuyển cấp tự động quá hạn ở pilot (cùng R58): đánh dấu quá hạn và nhắc.
+
+**Dev default OK.** Kiểm tra: Chủ lập thì có cờ `selfApproved`; Kế toán không có quyền duyệt khi chưa được gán.
+
+##### R71. Cách lập dòng và làm tròn thuế
+
+**Khuyến nghị**: giữ `per-rate`. `[Cần xác nhận: Kế toán khách – ký bảng ví dụ số]`
+
+- Mỗi thuế suất một dòng tổng; thuế tính và làm tròn **một lần cho mỗi thuế suất của mỗi lần duyệt** (báo giá gốc và từng báo giá bổ sung) rồi cộng. Lý do: khớp từng đồng với tổng lệnh (RULE-010 sau này không phải sửa) và khớp cách REC đã tính.
+- Điều kiện chặn `invoice_total_mismatch` là đúng; thông báo nêu số lệnh, số hóa đơn, chênh lệch. Không có cơ chế "làm tròn bù" tự động.
+- Chế độ theo dòng hạng mục (`per-item`) chỉ bật khi Kế toán yêu cầu; khi bật cần bảng ví dụ mới (cùng NFR-MNT-01). Bảng ví dụ trong `tests/unit/ein-domain.test.ts` ghi nhãn "chưa được kế toán ký" cho tới khi có chữ ký.
+- Giảm giá cấp lệnh phân bổ vào dòng theo thuế suất theo cùng quy tắc REC (C6); BA không đổi.
+
+**Dev default OK.**
+
+##### R72. Thuế suất đổi giữa báo giá và hóa đơn
+
+**Khuyến nghị**: đổi mặc định sang chặn khi lệch. `[Cần xác nhận: Kế toán khách, Luật sư khách – thuế suất áp dụng theo thời điểm nào]`
+
+- BA không khẳng định điều luật; cách hiểu thông thường là thuế suất của dịch vụ/hàng hóa xác định theo thời điểm phát sinh nghĩa vụ thuế (thường gắn với lập hóa đơn hoặc hoàn thành dịch vụ), không theo thời điểm báo giá. Vì sai thuế suất trên hóa đơn đã phát hành khó sửa (R74), mặc định bảo thủ là **không phát hành im lặng** khi thuế suất đang hiệu lực khác thuế suất đã khóa trên dòng.
+- Đặt `taxChangePolicy: block` làm giá trị mặc định ở môi trường thật; `warn` giữ cho môi trường thử. Khi bị chặn, màn phát hành hiện hai số (thuế suất đã khóa, thuế suất hiện hành) và danh sách lệnh bị ảnh hưởng để kế toán quyết; chưa có lối "ép phát hành" ở pilot.
+- Không ảnh hưởng trước mốc 1/1/2027; cần ví dụ số của kế toán trước mốc đó (thêm vào danh sách kiểm tra trước vận hành).
+
+**Dev must change** (nhỏ): mặc định cấu hình `block` cho `live`; test hai nhánh `warn` và `block`.
+
+##### R73. Thời điểm lập hóa đơn, tiền đặt cọc
+
+**Khuyến nghị**: giữ `issueAfter: qc`. `[Cần xác nhận: Kế toán khách – FR-EIN-012]`
+
+- Cho phép lập hóa đơn từ khi lệnh qua QC (Sẵn sàng giao) hoặc Hoàn tất; không lập cho lệnh còn sửa. Hóa đơn **không** là điều kiện giao xe (R44).
+- Cọc không tách trên hóa đơn ở pilot: hóa đơn lập theo tổng giá trị lệnh, cọc là khoản đã thu trừ vào phải thu. FR-EIN-012 (Should) chưa làm; ghi rõ trên màn để kế toán không hiểu nhầm. Nếu pháp luật/kế toán yêu cầu hóa đơn khi nhận cọc, đó là thay đổi lớn, cần ví dụ mẫu (FR-EIN-012 nói "chốt bằng ví dụ").
+- Báo cáo ngoại lệ ở R79 tính từ mốc `issueAfter`.
+
+**Dev default OK.**
+
+##### R74. Hóa đơn lập sai
+
+**Khuyến nghị**: ba trường hợp là đủ cho pilot. `[Cần xác nhận: Kế toán khách, Luật sư khách – từng trong 13 trường hợp theo Thông tư 91/2026]`
+
+- FR-EIN-007 tự ghi "cần kế toán xác nhận từng trường hợp". Bản 1.8 hỗ trợ: điều chỉnh số tiền (chênh có dấu theo từng thuế suất, không tạo hóa đơn âm toàn phần), thay thế (sai thông tin người mua, giữ dòng và tiền), hủy (nhập lại mật khẩu, lý do, người duyệt khác người lập).
+- Trường hợp còn lại không làm ở hệ thống; màn hình hướng dẫn "xử lý ngoài hệ thống, ghi nhận bằng ghi chú có nhật ký". Không có đường nào xóa hóa đơn đã gửi (RULE-010).
+- Hóa đơn điều chỉnh không điều chỉnh tiếp (chỉ điều chỉnh hóa đơn gốc, mỗi lần dựa vào tổng lũy kế) là quyết định đơn giản hóa an toàn; kế toán phải xác nhận.
+- Hóa đơn gốc bị thay thế giữ "Đã xuất" cho tới khi nhà cung cấp xác nhận: đúng, vì trạng thái hóa đơn đến từ nhà cung cấp (CLAUDE.md, FR-EIN-005).
+- Mọi phiên bản hóa đơn của lệnh xem được theo thứ tự (FR-EIN-007 tiêu chí).
+
+**Dev default OK.**
+
+##### R75. Lệnh đã có hóa đơn hợp lệ
+
+**Khuyến nghị**: chặn. `[Cần xác nhận: Khách, Kế toán khách]`
+
+- Hủy lệnh, hoàn kho (FR-INV-022) hoặc hoàn tiền cho lệnh có hóa đơn hợp lệ làm lệch ba thứ: lệnh, kho, hóa đơn. Mặc định bảo thủ: **chặn** cho tới khi hóa đơn được hủy hoặc điều chỉnh (R74), thông báo nêu hóa đơn và đường xử lý. Đúng thứ tự gợi ý ở R66: hóa đơn, hoàn kho, hoàn cọc/đảo phiếu thu, hủy lệnh.
+- Lệnh có hóa đơn "lỗi/đã hủy/bị thay thế bằng bản đã xác nhận" thì xem là không còn hóa đơn hợp lệ theo `hasValidInvoice`; định nghĩa "hợp lệ" ghi trong EIN (đã xuất và chưa hủy, chưa bị thay thế bằng bản đã xác nhận).
+- Cầu nối qua cổng (port) của EIN, REC/INV gọi qua `index.ts`, không import nội bộ. Lỗi EIN (không đọc được) thì chặn hủy lệnh và hỏi quản lý, không im lặng cho qua (giống R66 mục ACC lỗi chỉ quản lý chi nhánh có ngoại lệ).
+- Hoàn kho đơn lẻ không do hủy lệnh (trả phụ tùng một dòng) cũng chặn khi hóa đơn đã phát hành; cách xử lý là hóa đơn điều chỉnh.
+
+**Dev must change**: nối `hasValidInvoice(orderId)` vào hủy lệnh (REC), hoàn kho theo lệnh (INV, FR-INV-022) và phiếu hoàn tiền (ACC); lỗi chuẩn RFC 9457 có mã `order_has_valid_invoice`; test cho ba điểm nối và trường hợp hóa đơn đã hủy thì cho qua.
+
+##### R76. Hàng chờ lỗi, thử lại
+
+**Khuyến nghị**: giữ số của dev. `[Cần xác nhận: Kế toán khách – thông báo lỗi; Dev, Chủ dự án – hạ tầng lập lịch]`
+
+- 5 lần; 5, 15, 60, 240, 720 phút; 30 giây chờ nhà cung cấp là hợp lý, là cấu hình `einvoice-policy`. Hết số lần: trạng thái "cần xử lý tay", thông báo kế toán (FR-EIN-010), không tự bỏ.
+- Quy tắc chống trùng (FR-EIN-013) giữ nguyên: timeout thì **truy vấn trạng thái trước khi gửi lại**; lỗi xác thực/dữ liệu (4xx nghiệp vụ) không thử lại tự động mà chờ sửa.
+- Bộ lập lịch: ở pilot `run-due` do nút ở màn hàng chờ và (khi có) Cloud Scheduler gọi; API chỉ chấp nhận danh tính dịch vụ hoặc người có quyền, từng chi nhánh một lượt gọi, có giới hạn lượng mỗi lần. Không có lịch tự động thì pilot vẫn đúng nhưng "tự thử lại" chỉ chạy khi có người bấm; ghi rõ trên màn. Quyết định hạ tầng (tài khoản dịch vụ) `[Cần xác nhận: Chủ dự án]`.
+- Hàng chờ theo quy tắc 2 của R68 (tập nhỏ, giới hạn cứng, cảnh báo "còn nữa").
+
+**Dev default OK.**
+
+##### R77. Dữ liệu người mua, lưu trữ, tải tệp
+
+**Khuyến nghị**: không ẩn danh, giữ ít nhất 10 năm. `[Cần xác nhận: Luật sư khách, Kế toán khách – thời hạn và căn cứ]`
+
+- Hóa đơn là chứng từ kế toán/thuế: dữ liệu người mua trên hóa đơn đã phát hành không xóa hay ẩn danh khi khách yêu cầu xóa (nhất quán BA §15 C10 và `CustomerRetentionPort`). Yêu cầu của chủ thể dữ liệu được từ chối kèm lý do pháp lý, ghi vào hồ sơ yêu cầu (FR-CRM data-subject request).
+- Thời hạn lưu: khởi điểm 10 năm kể từ ngày lập, là cấu hình `retention`; BA không khẳng định điều luật cụ thể, kế toán/luật sư xác nhận (nối R8 §8.1 khung thời hạn lưu).
+- Địa chỉ/email tách ở `invoicePii`, che theo vai trò, "Hiện" có nhật ký (đúng §7). Tải XML/PDF cần `invoice:view` trong phạm vi chi nhánh và **ghi nhật ký truy cập** mỗi lần tải; liên kết tải ngắn hạn, không công khai. Tệp là dữ liệu cá nhân nên không gửi qua kênh ngoài (R80) khi chưa có đồng ý nhận.
+
+**Dev default OK** (thêm nhật ký khi tải tệp nếu chưa có).
+
+##### R78. Ngân sách chỉ mục
+
+**Khuyến nghị**: chấp nhận. `[Đề xuất BA; quyết định kỹ thuật thuộc dev]`
+
+- Thêm một chỉ mục `invoices.byBranch` (191/200) phù hợp R68 quy tắc 1 và 4; không cần phương án hạ tầng. Chừa ít nhất 4 chỉ mục cho 1.9; nếu 1.9 cần hơn, dùng bản chiếu theo khóa (R68 quy tắc 3) trước, rồi mới hỏi Chủ dự án.
+- Giữ ngưỡng 190 cảnh báo, 195 lỗi. PR của slice nộp bảng "hình truy vấn mới → chỉ mục".
+
+**Dev default OK.**
+
+##### R79. "Khách không lấy hóa đơn"
+
+**Khuyến nghị**: giữ khóa. `[Cần xác nhận: Kế toán khách – FR-EIN-009 ghi `[Cần xác nhận]`]`
+
+- Khi nào được xem là khách không lấy hóa đơn, và có cần bản kê bán lẻ thay thế hay không là câu hỏi thuế, BA không tự quyết. Pilot: mọi lệnh hoàn tất đều vào danh sách "chưa có hóa đơn" đến khi có hóa đơn hợp lệ; ghi chú trên màn: "chưa hỗ trợ đánh dấu khách không lấy hóa đơn".
+- Khi Kế toán xác nhận: thêm trạng thái miễn có lý do, người duyệt, nhật ký, không xóa lệnh khỏi báo cáo (hiện riêng nhóm "miễn có duyệt"). Không có ngoại lệ ngầm.
+
+**Dev default OK.**
+
+##### R80. Gửi hóa đơn, danh sách lệnh chưa hóa đơn
+
+**Khuyến nghị**: chưa làm gửi. `[Cần xác nhận: Khách – kênh gửi và nhà cung cấp Zalo/SMS (câu hỏi mở)]`
+
+- FR-EIN-008 là Should, chưa xếp giai đoạn; kênh email/Zalo/SMS phụ thuộc nhà cung cấp chưa chọn. Pilot: tải/in tại quầy. Email người mua lưu sẵn là đủ; không giả vờ "đã gửi" (nguyên tắc giống `sentVia` ở §17).
+- Danh sách lệnh chưa hóa đơn quét tối đa 500 lệnh hoàn tất mới nhất là chấp nhận được **với điều kiện** hiện rõ "còn nữa" (R68 quy tắc 2) và có bộ lọc theo ngày/chi nhánh để rút gọn; nếu một chi nhánh vượt 500 chưa hóa đơn thì đó là tín hiệu nghiệp vụ cần xử lý, không phải lỗi hệ thống. Ghi nhận cho FR-EIN-009 tiêu chí "liệt kê đủ" (§21.3).
+
+**Dev default OK.**
+
+### 21.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-EIN-007 | Ghi: kế toán trưởng pilot = Chủ garage; người lập khác người duyệt (theo người); phạm vi ba trường hợp ở phase 1, các trường hợp còn lại chờ kế toán | R70, R74 |
+| FRD FR-EIN-009 | Làm rõ "liệt kê đủ" khi nhiều hơn trần quét; trạng thái miễn chờ xác nhận | R79, R80 |
+| FRD §13 phase 1 | EIN phase 1 đang chỉ 001..006, 011 (+013); dev đã làm thêm 007, 009, 010: cập nhật phạm vi hoặc ghi "làm sớm" | R74, R76 |
+| FRD FR-EIN-003 | Gắn đơn vị phát hành, không gắn cứng công ty (chờ pháp nhân đơn/nhiều) | R69 |
+| FR-INV-022, FR-REC (hủy lệnh), FR-ACC-016 | Thêm điều kiện: lệnh có hóa đơn hợp lệ thì chặn cho tới khi hủy/điều chỉnh hóa đơn | R75 |
+| BRD RULE-010 / BR-EIN-02 | Nêu hóa đơn đã phát hành không xóa; sửa bằng điều chỉnh/thay thế/hủy | R74 |
+| BRD/§8.1 lưu trữ | Thêm hóa đơn và tệp XML/PDF với thời hạn khởi điểm 10 năm, chờ xác nhận | R77 |
+| Journey (ma trận phê duyệt) | Thêm hàng: phát hành/điều chỉnh/thay thế/hủy hóa đơn, người duyệt Chủ garage (pilot) | R70 |
+| UAT-08, UAT-23 | Mở rộng UAT-08: người lập không tự duyệt, Chủ tự duyệt có cờ; UAT-23 giữ. UAT mới tạm: tổng hóa đơn lệch tổng lệnh bị chặn; thuế suất đổi bị chặn (`block`); lệnh có hóa đơn hợp lệ không hủy được; hóa đơn đã hủy thì hủy lệnh được; `fake` bị từ chối ở `live`; timeout thì truy vấn trạng thái không phát hành lần hai; tải tệp có nhật ký | R69–R77 |
+
+### 21.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4, §18.4, §19.4, §20.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 41 | Khách, Kế toán khách | Nhà cung cấp hóa đơn, mẫu số, ký hiệu, loại hóa đơn, pháp nhân bên bán; ai giữ chứng thư ký số | Cung cấp tài liệu API và tài khoản thử trước khi chuyển `live` | Chưa chọn thì pilot chỉ chạy `fake`, không phát hành thật |
+| 42 | Kế toán khách, Luật sư khách | Thuế suất theo thời điểm nào khi đổi (1/1/2027); cách lập hóa đơn theo thuế suất hay theo dòng; ví dụ số đã ký | Thuế suất lúc phát hành, chặn khi lệch; theo thuế suất | Đổi cấu hình; theo dòng cần bảng ví dụ mới |
+| 43 | Kế toán khách, Luật sư khách | Các trường hợp hóa đơn sai ngoài ba loại; thời hạn lưu hóa đơn; "khách không lấy hóa đơn" | Ba loại; 10 năm; chưa bật | Thêm trường hợp: mở rộng FR-EIN-007 |
+| 44 | Chủ dự án | Ai là "kế toán trưởng" duyệt hóa đơn; tài khoản dịch vụ và Cloud Scheduler cho thử lại tự động | Chủ garage; làm khi lên môi trường thật | Thêm người: gán quyền qua vai trò |
+| 45 | Khách | Chặn hủy lệnh/hoàn kho/hoàn tiền khi lệnh có hóa đơn hợp lệ; gửi hóa đơn cho khách qua kênh nào | Chặn; chưa gửi, chỉ tải/in | Cho qua: hóa đơn lệch lệnh, kế toán sửa tay |
+
+### 21.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R72: mặc định `taxChangePolicy` = `block` ở môi trường thật (`warn` chỉ ở thử); test hai nhánh | cấu hình `einvoice-policy`, `domain/build.ts` | Nhỏ, có test |
+| 2 | R75: nối `hasValidInvoice(orderId)` vào hủy lệnh (REC), hoàn kho theo lệnh (INV, FR-INV-022) và hoàn tiền (ACC); lỗi `order_has_valid_invoice`; lỗi đọc EIN thì chặn; qua cổng, không import nội bộ | `modules/rec`, `modules/inv`, `modules/acc`, `modules/ein/index.ts`, `dependency-cruiser` | Bắt buộc, có test |
+| 3 | R70: Chủ lập thì `selfApproved` hiện ở nhật ký; kiểm tra Kế toán không duyệt khi chưa được gán | `permissions.ts`, `application/corrections.ts` | Kiểm tra |
+| 4 | R77: ghi nhật ký truy cập mỗi lần tải XML/PDF; thời hạn lưu là cấu hình | `application/read.ts` | Kiểm tra, sửa nếu thiếu |
+| 5 | R69: test `fake` bị từ chối ở `live`; seed mẫu số/ký hiệu chỉ cho môi trường thử | `infrastructure/einvoice`, `recDemo.ts` | Kiểm tra |
+| 6 | R80: danh sách chưa hóa đơn hiện "còn nữa" khi vượt 500 | `application/read.ts` | Kiểm tra |
+
+Không có câu trả lời nào mâu thuẫn với R44 (§19) hay R54–R68 (§20) đã chốt; R75 là điểm nối mới giữa EIN với REC/INV/ACC, cần hai bên cùng sửa trong một PR hoặc hai PR theo thứ tự EIN trước.

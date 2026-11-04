@@ -318,3 +318,20 @@ Dev đã dựng FR-EIN-001..006, 009, 010, 011, 013 và mức tối thiểu củ
 | R79 | KT | "Khách không lấy hóa đơn" (FR-EIN-009 `[Cần xác nhận]`): chưa bật; lệnh vẫn nằm trong danh sách chưa có hóa đơn. | Khóa, có ghi chú trên màn | `ein/warnings` |
 | R80 | K | Gửi hóa đơn cho khách qua email/Zalo/SMS (FR-EIN-008, Should) chưa làm; email người mua được lưu sẵn. Danh sách lệnh chưa hóa đơn chỉ quét các lệnh hoàn tất mới nhất (tối đa 500), nói rõ khi còn nữa. | Chưa làm | `application/read.ts` |
 
+Trạng thái trả lời của BA (`ba-answers-for-dev.md` §21, 04/11/2026):
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R69 | Đã trả lời: chỉ `fake` ở thử, cấm ở `live`, mẫu số/ký hiệu là dữ liệu của Khách; chờ Khách, Kế toán khách | Dev default OK |
+| R70 | Đã trả lời: pilot chỉ Chủ garage có `invoice:approve`, theo người; chờ Chủ dự án | Dev default OK (kiểm tra `selfApproved`) |
+| R71 | Đã trả lời: giữ `per-rate`, chặn khi lệch tổng lệnh; chờ Kế toán ký bảng ví dụ | Dev default OK |
+| R72 | Đã trả lời: đổi mặc định sang chặn khi thuế suất lệch; chờ Kế toán khách, Luật sư khách | Dev must change |
+| R73 | Đã trả lời: `issueAfter: qc`, cọc không tách, FR-EIN-012 chưa làm; chờ Kế toán khách | Dev default OK |
+| R74 | Đã trả lời: ba trường hợp đủ cho pilot, còn lại xử lý ngoài hệ thống; chờ Kế toán, Luật sư khách | Dev default OK |
+| R75 | Đã trả lời: chặn hủy lệnh, hoàn kho, hoàn tiền khi có hóa đơn hợp lệ, nối `hasValidInvoice` qua cổng; chờ Khách, Kế toán khách | Dev must change |
+| R76 | Đã trả lời: giữ 5 lần/5-15-60-240-720 phút/30 giây; lập lịch khi lên môi trường thật; chờ Chủ dự án | Dev default OK |
+| R77 | Đã trả lời: không ẩn danh, lưu tối thiểu 10 năm (chờ xác nhận), tải tệp có nhật ký; chờ Luật sư, Kế toán khách | Dev default OK (kiểm tra nhật ký tải) |
+| R78 | Đã trả lời: chấp nhận 191/200, chừa ít nhất 4 cho 1.9 | Dev default OK |
+| R79 | Đã trả lời: giữ khóa, không có ngoại lệ ngầm; chờ Kế toán khách | Dev default OK |
+| R80 | Đã trả lời: chưa gửi, chỉ tải/in; trần quét 500 kèm "còn nữa"; chờ Khách | Dev default OK |
+
