@@ -1,5 +1,5 @@
 import { expect, type APIRequestContext, type Browser, type Page } from '@playwright/test';
-import { loginOk } from './helpers';
+import { login, loginOk, PASSWORD } from './helpers';
 
 export const ORIGIN = 'http://localhost:3100';
 let n = 0;
@@ -117,4 +117,22 @@ export async function readyOrder(browser: Browser, cv: Page): Promise<Row> {
 export async function ensureShift(req: APIRequestContext) {
   const r = await req.post('/api/v1/acc/shifts', { data: {}, headers: hdr() });
   expect([201, 409]).toContain(r.status());
+}
+
+/**
+ * The cashier. The slice 1.1 spec resets this user's password during a full run, so the demo password is tried first and the
+ * reset one second; a failed attempt counts once towards the lockout (limit 5), never more.
+ */
+export async function asCashier(browser: Browser) {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  for (const pw of [PASSWORD, 'mat-khau-moi-an-toan-1']) {
+    await login(page, 'tn.q7@demo.gmep.test', pw);
+    const ok = await page
+      .waitForURL((u) => u.pathname === '/', { timeout: 8000 })
+      .then(() => true)
+      .catch(() => false);
+    if (ok) return { ctx, page };
+  }
+  throw new Error('the cashier could not sign in with either known password');
 }

@@ -1,6 +1,15 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { as, ensureShift, getJson, hdr, post, readyOrder, type Row } from './acc-helpers';
+import {
+  as,
+  asCashier,
+  ensureShift,
+  getJson,
+  hdr,
+  post,
+  readyOrder,
+  type Row,
+} from './acc-helpers';
 import { noHorizontalOverflow } from './helpers';
 
 const axe = (page: Page) =>
@@ -17,7 +26,7 @@ test.describe('slice 1.7 ACC: money', () => {
     browser,
   }) => {
     const cv = await as(browser, 'cv.q7');
-    const tn = await as(browser, 'tn.q7');
+    const tn = await asCashier(browser);
     const o = await readyOrder(browser, cv.page);
     const orderUrl = `/acc/orders/${o.id}`;
 
@@ -73,7 +82,11 @@ test.describe('slice 1.7 ACC: money', () => {
 
     // the payments list shows the three documents; the cash book carries only the cash parts
     await tn.page.goto('/acc/payments');
-    await expect(tn.page.getByTestId('pay-no')).toHaveCount(2);
+    await expect(tn.page.getByTestId('pay-no').first()).toBeVisible();
+    const mine = (await getJson(tn.page.request, '/api/v1/acc/payments')).items.filter(
+      (x: Row) => x.orderId === o.id,
+    );
+    expect(mine).toHaveLength(2); // the deposit and the final receipt
     expect(serious(await axe(tn.page))).toEqual([]);
     await tn.page.goto('/acc/cashbook');
     const cb = await getJson(tn.page.request, '/api/v1/acc/cashbook');
@@ -94,7 +107,7 @@ test.describe('slice 1.7 ACC: money', () => {
     browser,
   }) => {
     const cv = await as(browser, 'cv.q7');
-    const tn = await as(browser, 'tn.q7');
+    const tn = await asCashier(browser);
     const ql = await as(browser, 'ql.q7', { width: 390, height: 844 });
     const o = await readyOrder(browser, cv.page);
     await ensureShift(tn.page.request);
@@ -182,7 +195,7 @@ test.describe('slice 1.7 ACC: money', () => {
   test('shift close with a count difference needs a cause; the manager approves it; only then the day closes and takes no more money (UAT-07)', async ({
     browser,
   }) => {
-    const tn = await as(browser, 'tn.q7');
+    const tn = await asCashier(browser);
     const ql = await as(browser, 'ql.q7');
     await ensureShift(tn.page.request);
     const cb = await getJson(tn.page.request, '/api/v1/acc/cashbook');

@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+import { asCashier } from './acc-helpers';
 import { loginOk, noHorizontalOverflow } from './helpers';
 
 const axe = (page: Page) =>
@@ -154,9 +155,7 @@ test.describe('slice 1.6 REC: executing the order', () => {
     await expect(qd.locator('.badge', { hasText: 'Sẵn sàng giao' }).first()).toBeVisible();
 
     // R44 (slice 1.7): the cashier takes the money first, then the advisor can hand the vehicle over
-    const ctxTn = await browser.newContext();
-    const tn = await ctxTn.newPage();
-    await loginOk(tn, 'tn.q7@demo.gmep.test');
+    const { ctx: ctxTn, page: tn } = await asCashier(browser);
     const shift = await tn.request.post('/api/v1/acc/shifts', { data: {}, headers: headers() });
     expect([201, 409]).toContain(shift.status()); // 409: a shift is already open
     const bal = await (await tn.request.get(`/api/v1/acc/orders/${quote.orderId}`)).json();
