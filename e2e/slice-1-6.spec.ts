@@ -211,7 +211,7 @@ test.describe('slice 1.6 REC: executing the order', () => {
     await noHorizontalOverflow(page);
     await page.goto(`/rec/orders/${quote.orderId}`);
     await page.getByTestId('order-cancel').click();
-    await page.getByLabel('Lý do').fill('Khách không làm nữa');
+    await page.locator('#order-reason').fill('Khách không làm nữa');
     await page.getByTestId('order-reason-confirm').click();
     await expect(page.locator('.badge', { hasText: 'Đã hủy' }).first()).toBeVisible();
     await ctx.close();

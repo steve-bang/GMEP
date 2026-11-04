@@ -10,7 +10,7 @@ import {
   readyOrder,
   type Row,
 } from './acc-helpers';
-import { noHorizontalOverflow } from './helpers';
+import { noHorizontalOverflow, PASSWORD } from './helpers';
 
 const axe = (page: Page) =>
   new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
@@ -235,6 +235,22 @@ test.describe('slice 1.7 ACC: money', () => {
     const r = await tn.page.request.post('/api/v1/acc/shifts', { data: {}, headers: hdr() });
     expect(r.status()).toBe(409);
     expect((await r.json()).code).toBe('day_closed');
+    // The demo database is shared by every spec in the run: leave today open again through the real path (FR-ACC-005:
+    // the manager asks, the owner approves with his password, the manager reopens) so later specs can take money.
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const ask = await post(ql.page.request, '/api/v1/acc/day-close/reopen-request', {
+      date: today,
+      reason: 'Mở lại ngày để các kịch bản sau còn thu tiền',
+    });
+    const owner = await as(browser, 'chu');
+    const pending = await getJson(owner.page.request, `/api/v1/sys/approvals/${ask.approvalId}`);
+    await post(owner.page.request, `/api/v1/sys/approvals/${ask.approvalId}/decide`, {
+      version: pending.version,
+      decision: 'approve',
+      reauthPassword: PASSWORD,
+    });
+    await post(ql.page.request, '/api/v1/acc/day-close/reopen', { approvalId: ask.approvalId });
+    await owner.ctx.close();
     await tn.ctx.close();
     await ql.ctx.close();
   });
