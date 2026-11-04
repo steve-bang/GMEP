@@ -1,3 +1,4 @@
+import type { Scope } from '@/platform/scope/scope';
 import type { SysDeps } from '@/modules/sys';
 import type {
   IssueReturnRepository,
@@ -48,6 +49,14 @@ export interface OrderAdvisorPort {
   ): Promise<Map<string, string>>;
 }
 
+/**
+ * R75: "does the order have an effective invoice?" asked of EIN. Implemented by the composition root over EIN's
+ * `hasValidInvoice`; this module never imports EIN. Throws when EIN cannot answer: callers then BLOCK (fail closed).
+ */
+export interface OrderInvoiceGate {
+  hasValidInvoice(scope: Scope, orderId: string): Promise<boolean>;
+}
+
 export interface InvDeps {
   sys: SysDeps;
   parts: PartRepository;
@@ -58,4 +67,6 @@ export interface InvDeps {
   returns: IssueReturnRepository;
   inv: InvConfig;
   advisors: OrderAdvisorPort;
+  /** R75: stock coming back for an order is blocked while the order has a valid invoice */
+  invoices: OrderInvoiceGate;
 }

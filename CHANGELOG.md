@@ -1,5 +1,9 @@
 # Changelog
 
+## [Chưa phát hành] — 2026-11-04 (BA §21: R72, R75, R77)
+
+- EIN: `taxChangePolicy` mặc định `block` với đơn vị phát hành thật (R72). Lệnh có hóa đơn hợp lệ thì chặn hủy lệnh (REC), hoàn kho theo lệnh (INV), đảo phiếu thu và hoàn cọc (ACC) bằng lỗi `order_has_valid_invoice`, lỗi đọc EIN thì chặn (R75). Mỗi lần tải XML/PDF ghi nhật ký truy cập (R77). Sửa e2e slice 1.9 (chờ job chạy xong) và độ tương phản liên kết ở báo cáo ngày.
+
 ## [Chưa phát hành] — 2026-11-04 (slice 1.9)
 
 - Báo cáo một chi nhánh, phần lõi (FR-RPT-001, 003, 004 mức tối thiểu, 011, 012, 013, 014): bản tổng hợp theo ngày đọc theo khóa (không thêm chỉ mục, vẫn 191/200), dashboard theo vai trò (cắt theo quyền ở server), báo cáo ngày có công thức và đối chiếu, đi sâu chứng từ, cảnh báo ngoại lệ, job làm mới/dựng lại chạy lại được, xuất CSV có nhật ký. Chưa làm: báo cáo tháng, đối chiếu bốn chiều, biểu đồ nâng cao, bộ lập lịch, PDF/Excel.

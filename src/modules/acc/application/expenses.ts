@@ -29,6 +29,7 @@ import type { AccDeps } from '../ports/deps';
 import {
   accPolicyOf,
   AppError,
+  assertOrderNotInvoiced,
   assertWritable,
   auditEntry,
   idemOf,
@@ -196,6 +197,7 @@ async function checkDepositRefund(
   if (!isRefundCategory) throw new AppError('deposit_category_required', 422);
   const order = await deps.orders.getInTx(tx, scope, e.orderId!);
   if (!order || order.branchId !== branchId) throw notFound();
+  await assertOrderNotInvoiced(deps, scope, order.id);
   const account = await deps.accounts.getInTx(tx, scope, order.id);
   const dep = account?.deposits.find((d) => d.id === e.depositId);
   if (!dep) throw notFound();
@@ -233,6 +235,7 @@ async function postExpense(
   }
   if (cat.depositRefund && !(e.depositId && account)) throw new AppError('deposit_required', 422);
   if (e.depositId) {
+    await assertOrderNotInvoiced(deps, scope, e.orderId!);
     if (!cat.depositRefund) throw new AppError('deposit_category_required', 422);
     const dep = account!.deposits.find((d) => d.id === e.depositId);
     if (!dep) throw notFound();

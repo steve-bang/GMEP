@@ -237,6 +237,11 @@ describe.each(backends)('EIN invoices [%s]', (backend) => {
       const pdf = await h.call('GET', `/api/v1/ein/invoices/${inv.id}/files/pdf`, { cookie: tn });
       expect(pdf.status).toBe(200);
       expect(pdf.text.startsWith('%PDF-')).toBe(true);
+      // R77: every download is access-logged (who, which file), never the content
+      const dl = (await rows('accessLogs')).filter(
+        (x) => x.entityType === 'invoice' && x.entityId === inv.id && x.purpose === 'export',
+      );
+      expect(dl.map((x) => x.columns?.[0]).sort()).toEqual(['file:pdf', 'file:xml']);
       expect(
         (await h.call('GET', `/api/v1/ein/invoices/${inv.id}/files/exe`, { cookie: kt })).status,
       ).toBe(404);
@@ -799,6 +804,89 @@ describe.each(backends)('EIN invoices [%s]', (backend) => {
       expect(
         (await rows('invoiceRequests')).filter((x) => x.targetInvoiceId === inv.id),
       ).toHaveLength(0);
+    });
+  });
+
+  describe('an order with a valid invoice is frozen (R75, FR-REC-021, FR-INV-022, FR-ACC-002)', () => {
+    it('R75: cancelling the order, returning stock and reversing the receipt are refused with order_has_valid_invoice; a cancelled invoice lets them through', async () => {
+      const o0 = await openedOrder();
+      const it1 = o0.items[0];
+      const line = it1.lines.find((l: Row) => l.kind === 'part');
+      expect(
+        (
+          await post(qd, `/api/v1/rec/items/${it1.id}/assign`, {
+            version: it1.version,
+            technicianId: 'u_th_q7',
+          })
+        ).status,
+      ).toBe(200);
+      const req = await post(th, `/api/v1/rec/orders/${o0.id}/part-requests`, {
+        itemId: it1.id,
+        lineKey: line.lineKey,
+        qty: 2,
+      });
+      expect(req.status, req.text).toBe(201);
+      const iss = await post(tk, `/api/v1/rec/part-requests/${req.json.id}/decide`, {
+        decision: 'issue',
+        version: 1,
+      });
+      expect(iss.status, iss.text).toBe(200);
+      const o = await order(o0.id);
+      await finishAll(o);
+      await passQc(o);
+      const pay = await payFull(o.id);
+      const inv = await issued(o);
+      const cur = await order(o.id);
+
+      // REC: cancel
+      const c = await post(ql, `/api/v1/rec/orders/${o.id}/cancel`, {
+        version: cur.version,
+        reason: 'Khách hủy lệnh',
+      });
+      expect(c.status).toBe(409);
+      expect(c.json.code).toBe('order_has_valid_invoice');
+      expect(c.json.detail).toContain('hóa đơn');
+      // INV: return of stock tied to the order
+      const rtnBody = {
+        warehouseId: Q7,
+        type: 'RTN',
+        source: { type: 'repair-order', id: o.id },
+        originalDocumentId: iss.json.issueDocumentId,
+        lines: [{ partId: P_FILTER, qty: 2, originalLineNo: 1 }],
+      };
+      const rtn = await post(tk, '/api/v1/inv/documents', rtnBody);
+      expect(rtn.status).toBe(409);
+      expect(rtn.json.code).toBe('order_has_valid_invoice');
+      // ACC: reversal of the receipt
+      const rv = await post(tn, `/api/v1/acc/payments/${pay.id}/reversal-request`, {
+        reason: 'Khách đòi hoàn tiền',
+      });
+      expect(rv.status).toBe(409);
+      expect(rv.json.code).toBe('order_has_valid_invoice');
+
+      // cancel the invoice (approval + password): the order is free again
+      const rq = await post(kt, `/api/v1/ein/invoices/${inv.id}/corrections`, {
+        purpose: 'cancel',
+        reasonCode: 'duplicate',
+        reason: 'Lập trùng hóa đơn',
+      });
+      expect(rq.status, rq.text).toBe(202);
+      const a = await get(ch, `/api/v1/sys/approvals/${rq.json.approvalId}`);
+      await post(ch, `/api/v1/sys/approvals/${rq.json.approvalId}/decide`, {
+        version: a.json.version ?? 1,
+        decision: 'approve',
+      });
+      const done = await post(kt, '/api/v1/ein/corrections/execute', {
+        approvalId: rq.json.approvalId,
+        password: 'Demo!Pass-2026',
+      });
+      expect(done.status, done.text).toBe(201);
+      const rtn2 = await post(tk, '/api/v1/inv/documents', rtnBody);
+      expect(rtn2.status, rtn2.text).toBe(201);
+      const rv2 = await post(tn, `/api/v1/acc/payments/${pay.id}/reversal-request`, {
+        reason: 'Khách đòi hoàn tiền',
+      });
+      expect(rv2.status, rv2.text).toBe(202);
     });
   });
 

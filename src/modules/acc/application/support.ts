@@ -44,6 +44,24 @@ export const idemOf = (deps: AccDeps) => ({
   ttlMs: deps.sys.config.idempotencyTtlMs,
 });
 
+/**
+ * R75: money going back for an order (payment reversal, deposit refund) is blocked while the order has a valid
+ * invoice; the way out is to cancel or adjust the invoice first. A failure to read EIN blocks too (fail closed).
+ */
+export async function assertOrderNotInvoiced(
+  deps: AccDeps,
+  scope: Scope,
+  orderId: string,
+): Promise<void> {
+  let has: boolean;
+  try {
+    has = await deps.invoices.hasValidInvoice(scope, orderId);
+  } catch {
+    throw new AppError('invoice_check_unavailable', 409);
+  }
+  if (has) throw new AppError('order_has_valid_invoice', 409);
+}
+
 export const versionConflict = (): AppError => new AppError('version_conflict', 409);
 
 /** The branch the money screens work in: the session's working branch, which the scope must cover (NFR-ISO-01). */

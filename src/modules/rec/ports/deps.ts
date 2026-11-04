@@ -3,6 +3,7 @@ import type { InvDeps } from '@/modules/inv';
 import type { SysDeps } from '@/modules/sys';
 import type {
   IntakeRepository,
+  OrderInvoiceGate,
   PartRequestRepository,
   PaymentGate,
   QuoteLinkRepository,
@@ -88,6 +89,8 @@ export interface RecDeps {
   partRequests: PartRequestRepository;
   /** ACC's balance of an order (R44); the composition root wires it, tests may replace it */
   payments: PaymentGate;
+  /** R75: EIN's answer for an order, wired by the composition root */
+  invoices: OrderInvoiceGate;
   rec: RecConfig;
 }
 // FR-REC-003 / R9: the odometer threshold is CRM's single `abnormalKmDrop` (deps.crm.crm), not a REC copy.

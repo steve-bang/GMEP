@@ -235,6 +235,17 @@ interface Built {
   reasons: string[];
 }
 
+/** R75: an order with a valid invoice blocks stock returns until the invoice is cancelled or adjusted. Fail closed. */
+async function assertNoValidInvoice(deps: InvDeps, scope: Scope, orderId: string): Promise<void> {
+  let has: boolean;
+  try {
+    has = await deps.invoices.hasValidInvoice(scope, orderId);
+  } catch {
+    throw new AppError('invoice_check_unavailable', 409);
+  }
+  if (has) throw new AppError('order_has_valid_invoice', 409);
+}
+
 /**
  * Validates and normalises the editable part of a document (create and update share it).
  * All reads of the transaction happen here.
@@ -322,6 +333,9 @@ async function build(
       throw new AppError('part_inactive', 409);
   }
   let original: StockDocument | undefined;
+  // R75 (FR-INV-022): stock cannot come back for an order that has a valid invoice
+  if (type === 'RTN' && source.type === 'repair-order' && source.id)
+    await assertNoValidInvoice(deps, scope, source.id);
   if (type === 'RTN') {
     if (!data.originalDocumentId)
       throw validationFailed([
@@ -1229,6 +1243,9 @@ export async function reverseDocument(
       if (o.version !== data.version) throw versionConflict();
       if (o.status !== 'posted' || o.reversalOf || o.reversedBy)
         throw new AppError('state_invalid', 409);
+      // R75: reversing an issue made for an order puts the parts back; blocked while the order has a valid invoice
+      if (o.type === 'GIN' && o.source.type === 'repair-order' && o.source.id)
+        await assertNoValidInvoice(deps, scope, o.source.id);
       const branch = await assertWritable(
         deps,
         tx,

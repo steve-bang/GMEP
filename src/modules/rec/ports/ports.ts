@@ -144,3 +144,11 @@ export interface OrderPaymentSnapshot {
 export interface PaymentGate {
   balanceInTx(tx: Tx, scope: Scope, orderId: string): Promise<OrderPaymentSnapshot>;
 }
+
+/**
+ * R75: "does the order have an effective invoice?" asked of EIN. Implemented by the composition root over EIN's
+ * `hasValidInvoice`; this module never imports EIN. Throws when EIN cannot answer: callers then BLOCK (fail closed).
+ */
+export interface OrderInvoiceGate {
+  hasValidInvoice(scope: Scope, orderId: string): Promise<boolean>;
+}

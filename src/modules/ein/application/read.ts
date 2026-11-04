@@ -346,6 +346,7 @@ export async function readInvoiceFile(
   actor: Actor,
   id: string,
   kind: 'xml' | 'pdf',
+  ctx: { requestId: string },
 ): Promise<{ bytes: Uint8Array; contentType: string; filename: string }> {
   const scope = resolveScope(actor, 'invoice:view');
   const inv = await deps.invoices.get(scope, id);
@@ -354,6 +355,18 @@ export async function readInvoiceFile(
   if (!art) throw new AppError('files_not_ready', 404);
   const f = await deps.files.get(kind === 'xml' ? art.xmlPath : art.pdfPath);
   if (!f) throw new AppError('files_not_ready', 404);
+  // R77 / PDPL: the file carries the buyer's data in full, so every download is access-logged (never the content)
+  await deps.sys.piiLog.record(
+    accessEntry(deps, actor, ctx.requestId, {
+      entityType: 'invoice',
+      entityId: id,
+      purpose: 'export',
+      fields: ['address', 'email'],
+      columns: [`file:${kind}`],
+      rowCount: 1,
+      branchId: inv.branchId,
+    }),
+  );
   const base = `${inv.issuer.symbol}-${inv.number ?? inv.id}`.replace(/[^A-Za-z0-9._-]/g, '_');
   return { ...f, filename: `${base}.${kind}` };
 }

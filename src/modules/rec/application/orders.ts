@@ -1063,6 +1063,8 @@ export async function cancelOrder(
   );
   const o0 = await deps.orders.get(scopeAny, id);
   if (!o0) throw notFound();
+  // R75 (FR-REC-021): the invoice comes first in the unwinding order (invoice, stock, deposit, order)
+  await assertNoValidInvoice(deps, scopeAny, o0.id);
   // what has been issued and what came back, per line (INV is the source of truth)
   const issued = await issuedNet(deps, actor, o0);
   const mayApprove = hasPermission(actor, 'repair-order:approve');
@@ -1171,6 +1173,17 @@ export async function cancelOrder(
       return { status: 200, body: { id: o.id, status: t.state } };
     },
   );
+}
+
+/** R75: an order with a valid invoice cannot be cancelled until the invoice is cancelled or adjusted. Fail closed. */
+async function assertNoValidInvoice(deps: RecDeps, scope: Scope, orderId: string): Promise<void> {
+  let has: boolean;
+  try {
+    has = await deps.invoices.hasValidInvoice(scope, orderId);
+  } catch {
+    throw new AppError('invoice_check_unavailable', 409);
+  }
+  if (has) throw new AppError('order_has_valid_invoice', 409);
 }
 
 /** Issued minus returned, from INV: the issue documents REC made for the order plus the order's own holds. */

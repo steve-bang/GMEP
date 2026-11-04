@@ -4,6 +4,7 @@ import {
   buildInvoiceContent,
   checkEligibility,
   DEFAULT_ELIGIBILITY_POLICY,
+  defaultTaxChangePolicy,
   INVOICE_STATUSES,
   INVOICE_TRANSITIONS,
   isValidTaxCode,
@@ -292,6 +293,12 @@ describe('eligibility (FR-EIN-011, FR-EIN-002): every blocking issue is listed, 
     expect(
       codes({ ...i, policy: { ...DEFAULT_ELIGIBILITY_POLICY, taxChangePolicy: 'block' } }),
     ).toContain('tax_rate_changed');
+  });
+  it('R72: the default tax-change policy is block for a live (non-fake) issuer, warn for the test environment', () => {
+    expect(defaultTaxChangePolicy({ environment: 'live', providerCode: 'misa' })).toBe('block');
+    expect(defaultTaxChangePolicy({ environment: 'test', providerCode: 'misa' })).toBe('block');
+    expect(defaultTaxChangePolicy({ environment: 'test', providerCode: 'fake' })).toBe('warn');
+    expect(defaultTaxChangePolicy(null)).toBe('warn');
   });
   it('FR-EIN-013: an existing valid invoice or an open request blocks a second one', () => {
     expect(codes({ ...ok(), existing: 'valid_invoice' })).toContain('already_invoiced');

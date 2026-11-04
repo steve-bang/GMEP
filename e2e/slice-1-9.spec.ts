@@ -50,8 +50,14 @@ test.describe('slice 1.9 RPT: single-branch reports', () => {
     await expect(ql.page.getByTestId('lens')).toContainText('quản lý chi nhánh');
     // first visit of the day: no rollup yet (or an older one): the job button builds it from the source documents
     const run = ql.page.getByTestId('run-due');
-    if (await run.isVisible().catch(() => false)) await run.click();
-    else {
+    if (await run.isVisible().catch(() => false)) {
+      // wait for the job's answer: navigating away at once would cancel the request
+      const [res] = await Promise.all([
+        ql.page.waitForResponse((r) => r.url().includes('/api/v1/rpt/jobs/')),
+        run.click(),
+      ]);
+      expect(res.ok(), await res.text()).toBe(true);
+    } else {
       const r = await ql.page.request.post('/api/v1/rpt/jobs/run-due', {
         data: {},
         headers: hdr(),

@@ -38,9 +38,24 @@ export async function einPolicyOf(
     date,
     branchId,
   });
-  return snap
-    ? { ...DEFAULT_EIN_POLICY, ...(snap.payload as Partial<EinPolicy>) }
-    : DEFAULT_EIN_POLICY;
+  const payload = (snap?.payload ?? {}) as Partial<EinPolicy>;
+  // R72: an explicit configured value always wins; the DEFAULT depends on the issuer: `block` for a live (non-fake)
+  // issuer so a changed tax rate is never issued silently, `warn` for the test environment.
+  let taxChangePolicy = payload.taxChangePolicy;
+  if (!taxChangePolicy) {
+    const issuer = await issuerOf(deps, companyId, branchId, date);
+    taxChangePolicy = defaultTaxChangePolicy(issuer?.snapshot);
+  }
+  return { ...DEFAULT_EIN_POLICY, ...payload, taxChangePolicy };
+}
+
+/** R72 / FR-EIN-002: pure default of `taxChangePolicy` by issuer environment. Configuration overrides it. */
+export function defaultTaxChangePolicy(
+  issuer: Pick<IssuerSnapshot, 'environment' | 'providerCode'> | null | undefined,
+): 'warn' | 'block' {
+  return issuer && (issuer.environment === 'live' || issuer.providerCode !== 'fake')
+    ? 'block'
+    : 'warn';
 }
 
 export interface IssuerConfig {

@@ -232,7 +232,10 @@ export default async function DailyReportPage({ searchParams }: { searchParams: 
                   <tr>
                     <td>{l.invIssued}</td>
                     <td className="col-num">
-                      <Link href={drillHref(d.date, 'invoicesIssued', d.branchId)}>
+                      <Link
+                        href={drillHref(d.date, 'invoicesIssued', d.branchId)}
+                        style={{ textDecoration: 'underline' }}
+                      >
                         {r.invoices.issuedCount}
                       </Link>{' '}
                       · {money(r.invoices.issuedVnd)}
@@ -241,7 +244,10 @@ export default async function DailyReportPage({ searchParams }: { searchParams: 
                   <tr>
                     <td>{l.invMissing}</td>
                     <td className="col-num">
-                      <Link href={drillHref(d.date, 'notInvoiced', d.branchId)}>
+                      <Link
+                        href={drillHref(d.date, 'notInvoiced', d.branchId)}
+                        style={{ textDecoration: 'underline' }}
+                      >
                         {r.invoices.closedWithoutInvoiceCount}
                       </Link>{' '}
                       · {money(r.invoices.closedWithoutInvoiceVnd)}
@@ -250,7 +256,10 @@ export default async function DailyReportPage({ searchParams }: { searchParams: 
                   <tr>
                     <td>{l.debtOpen}</td>
                     <td className="col-num">
-                      <Link href={drillHref(d.date, 'openDebts', d.branchId)}>
+                      <Link
+                        href={drillHref(d.date, 'openDebts', d.branchId)}
+                        style={{ textDecoration: 'underline' }}
+                      >
                         {r.receivables.openDebtCount}
                       </Link>{' '}
                       · {money(r.receivables.openDebtVnd)}
@@ -259,7 +268,10 @@ export default async function DailyReportPage({ searchParams }: { searchParams: 
                   <tr>
                     <td>{l.stockNoSource}</td>
                     <td className="col-num" data-testid="d-stock">
-                      <Link href={drillHref(d.date, 'stockWithoutSource', d.branchId)}>
+                      <Link
+                        href={drillHref(d.date, 'stockWithoutSource', d.branchId)}
+                        style={{ textDecoration: 'underline' }}
+                      >
                         {r.stock.issuesWithoutSource}
                       </Link>{' '}
                       / {r.stock.issueDocuments}

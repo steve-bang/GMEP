@@ -29,7 +29,7 @@ import {
   type SysDeps,
 } from '@/modules/sys';
 import { accPaymentGate, buildAcc } from './accWiring';
-import { buildEin } from './einWiring';
+import { buildEin, einInvoiceGate } from './einWiring';
 import { buildRpt } from './rptWiring';
 import type { RptDeps } from '@/modules/rpt';
 import { FakeProvider } from '@/infrastructure/einvoice/fakeProvider';
@@ -218,7 +218,7 @@ function buildCrm(sys: SysDeps, store: DocStore): CrmDeps {
 }
 
 /** INV use cases share the SYS transaction, audit, numbering and config services (slice 1.4). */
-function buildInv(sys: SysDeps, store: DocStore, env: Env): InvDeps {
+function buildInv(sys: SysDeps, store: DocStore, env: Env, invoices: InvDeps['invoices']): InvDeps {
   return {
     sys,
     parts: new DocPartRepository(store),
@@ -231,6 +231,7 @@ function buildInv(sys: SysDeps, store: DocStore, env: Env): InvDeps {
     inv: { ...DEFAULT_INV_CONFIG, allowTransferOrderSource: env.GMEP_ENV === 'local' },
     // I15: replaced by REC's order lookup in `buildRec`; nobody is returned until REC is wired
     advisors: noOrderAdvisors,
+    invoices,
   };
 }
 
@@ -241,6 +242,7 @@ function buildRec(
   inv: InvDeps,
   store: DocStore,
   getAcc: () => AccDeps,
+  invoices: RecDeps['invoices'],
 ): RecDeps {
   const rec: RecDeps = {
     sys,
@@ -254,6 +256,7 @@ function buildRec(
     items: new DocRepairItemRepository(store),
     partRequests: new DocPartRequestRepository(store),
     payments: accPaymentGate(getAcc),
+    invoices,
     rec: { ...DEFAULT_REC_CONFIG, approval: { ...DEFAULT_REC_CONFIG.approval } },
   };
   // C17: REC joins the data-retention gate of CRM; the stub still stands for modules not built yet
@@ -299,10 +302,12 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     fakeProvider: FakeProvider;
   } => {
     const sys = buildSys(env, clock, store, uow, identity, { get: () => late.inv! });
-    const inv = (late.inv = buildInv(sys, store, env));
+    // R75: EIN is built last; the gate reads it lazily
+    const invoiceGate = einInvoiceGate(() => late.ein!);
+    const inv = (late.inv = buildInv(sys, store, env, invoiceGate));
     const crm = (late.crm = buildCrm(sys, store));
-    const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!));
-    const acc = (late.acc = buildAcc(sys, store, () => late.rec!));
+    const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!, invoiceGate));
+    const acc = (late.acc = buildAcc(sys, store, () => late.rec!, invoiceGate));
     // FR-SYS-004: the module that owns an approval kind registers what a decision does (same transaction)
     for (const [kind, h] of Object.entries(accApprovalHandlers(() => late.acc!)))
       sys.approvalHandlers.set(kind, h);

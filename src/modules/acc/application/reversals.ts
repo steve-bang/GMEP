@@ -21,6 +21,7 @@ import type { AccDeps } from '../ports/deps';
 import {
   AppError,
   assertDayOpen,
+  assertOrderNotInvoiced,
   assertWritable,
   auditEntry,
   idemOf,
@@ -79,6 +80,7 @@ export async function requestReversal(
       ]);
       const ok = canReverse(p, account, reversedBy !== null);
       if (!ok.ok) throw new AppError(ok.reason, 409);
+      if (p.orderId) await assertOrderNotInvoiced(deps, scope, p.orderId);
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       // `level` is >= 1 for a reversal (alwaysNeeded)
       const req = await openApprovalInTx(deps.sys, tx, actor, ctx, {
@@ -138,6 +140,7 @@ export async function executeReversal(
       ]);
       const ok = canReverse(p, account, reversedBy !== null);
       if (!ok.ok) throw new AppError(ok.reason, 409);
+      if (p.orderId) await assertOrderNotInvoiced(deps, scope, p.orderId);
       assertDayOpen(m.dayClose);
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       const cash = cashOf(p.lines);

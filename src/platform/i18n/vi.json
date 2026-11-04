@@ -677,6 +677,14 @@
       "title": "Lệnh còn nợ",
       "detail": "Thu đủ tiền hoặc xin quản lý duyệt ghi nợ rồi mới giao xe."
     },
+    "order_has_valid_invoice": {
+      "title": "Lệnh đã có hóa đơn hợp lệ",
+      "detail": "Hủy hoặc điều chỉnh hóa đơn của lệnh trước (thứ tự: hóa đơn, hoàn kho, hoàn cọc hoặc đảo phiếu thu, hủy lệnh)."
+    },
+    "invoice_check_unavailable": {
+      "title": "Chưa kiểm tra được hóa đơn",
+      "detail": "Không đọc được hóa đơn của lệnh nên chưa thực hiện được. Thử lại hoặc báo quản lý chi nhánh."
+    },
     "order_has_payments": {
       "title": "Lệnh đã có tiền thu",
       "detail": "Đảo phiếu thu hoặc hoàn cọc trước khi hủy lệnh."

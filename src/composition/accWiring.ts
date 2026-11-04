@@ -56,7 +56,12 @@ export function recOrderSource(getRec: () => RecDeps): OrderSource {
   };
 }
 
-export function buildAcc(sys: SysDeps, store: DocStore, getRec: () => RecDeps): AccDeps {
+export function buildAcc(
+  sys: SysDeps,
+  store: DocStore,
+  getRec: () => RecDeps,
+  invoices: AccDeps['invoices'],
+): AccDeps {
   return {
     sys,
     orders: recOrderSource(getRec),
@@ -64,6 +69,7 @@ export function buildAcc(sys: SysDeps, store: DocStore, getRec: () => RecDeps): 
     accounts: new DocOrderAccountRepository(store),
     cash: new DocCashRepository(store),
     debts: new DocDebtRepository(store),
+    invoices,
     acc: { ...DEFAULT_ACC_CONFIG, agingCuts: [...DEFAULT_ACC_CONFIG.agingCuts] },
   };
 }

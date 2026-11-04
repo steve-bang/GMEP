@@ -1,3 +1,4 @@
+import type { Scope } from '@/platform/scope/scope';
 import type { SysDeps } from '@/modules/sys';
 import type {
   CashRepository,
@@ -32,6 +33,14 @@ export const DEFAULT_ACC_CONFIG: AccConfig = {
   agingCuts: [30, 60],
 };
 
+/**
+ * R75: "does the order have an effective invoice?" asked of EIN. Implemented by the composition root over EIN's
+ * `hasValidInvoice`; this module never imports EIN. Throws when EIN cannot answer: callers then BLOCK (fail closed).
+ */
+export interface OrderInvoiceGate {
+  hasValidInvoice(scope: Scope, orderId: string): Promise<boolean>;
+}
+
 export interface AccDeps {
   sys: SysDeps;
   orders: OrderSource;
@@ -39,5 +48,7 @@ export interface AccDeps {
   accounts: OrderAccountRepository;
   cash: CashRepository;
   debts: DebtRepository;
+  /** R75: payment reversal / deposit refund for an order is blocked while it has a valid invoice */
+  invoices: OrderInvoiceGate;
   acc: AccConfig;
 }

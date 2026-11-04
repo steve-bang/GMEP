@@ -12,7 +12,7 @@ export * from './domain/payment';
 export * from './domain/cash';
 export * from './ports/ports';
 export { DEFAULT_ACC_CONFIG } from './ports/deps';
-export type { AccConfig, AccDeps } from './ports/deps';
+export type { AccConfig, AccDeps, OrderInvoiceGate } from './ports/deps';
 
 export {
   collectPayment,

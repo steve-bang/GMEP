@@ -3,6 +3,7 @@ import type { Scope } from '@/platform/scope/scope';
 import type { CrmDeps } from '@/modules/crm';
 import {
   DEFAULT_EIN_CONFIG,
+  hasValidInvoice,
   type BuyerSource,
   type EinDeps,
   type InvoiceableOrder,
@@ -140,4 +141,15 @@ export function buildEin(
     files,
     ein: { ...DEFAULT_EIN_CONFIG },
   };
+}
+
+/**
+ * R75: the one bridge from REC / INV / ACC to EIN's "does the order have an effective invoice?". Each of those modules
+ * declares its own `OrderInvoiceGate` port (structurally identical); none of them imports EIN. A failure to read EIN
+ * propagates, and the callers turn it into a block (fail closed), never into a silent pass.
+ */
+export function einInvoiceGate(getEin: () => EinDeps): {
+  hasValidInvoice(scope: Scope, orderId: string): Promise<boolean>;
+} {
+  return { hasValidInvoice: (scope, orderId) => hasValidInvoice(getEin(), scope, orderId) };
 }

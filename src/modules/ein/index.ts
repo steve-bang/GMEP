@@ -23,7 +23,7 @@ export * from './ports/provider';
 export { DEFAULT_EIN_CONFIG } from './ports/deps';
 export type { EinConfig, EinDeps } from './ports/deps';
 
-export { DEFAULT_EIN_POLICY } from './application/config';
+export { DEFAULT_EIN_POLICY, defaultTaxChangePolicy } from './application/config';
 export type { EinPolicy } from './application/config';
 export { previewIssue, issueInvoice, issueSchema } from './application/issue';
 export type { IssueCheckDto, IssueOutcome } from './application/issue';
