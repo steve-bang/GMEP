@@ -425,3 +425,24 @@ Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §23.5):
 1. `inv/application/importer.ts`: chặn nhập tồn đầu kỳ lần hai theo (kho, phụ tùng) khi đã có phiếu đầu kỳ chưa đảo; lỗi theo dòng; test (R95).
 2. `sys/application/dataImport.ts`: lưu mã băm và siêu dữ liệu tệp; hạn xóa lô bỏ dở (7 ngày, cấu hình); test xóa dữ liệu dòng (R99).
 3. Kiểm tra: nhật ký xóa không chứa dữ liệu cá nhân (R96), cảnh báo trùng số điện thoại trong phạm vi (R97), chặn lô mới khi có lô dừng giữa chừng cùng loại (R100).
+
+### R101 đến R107: trạng thái trả lời
+
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §24; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA). Dev tiếp tục theo giá trị tạm trừ các dòng "Dev must change".
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R101 | Đã trả lời: chấp nhận; thủ kho xem, chưa xuất CSV; CSV có nhật ký và chống chèn công thức; chờ Chủ dự án | Dev default OK (kiểm tra) |
+| R102 | Đã trả lời: giữ giới hạn; vượt thì ghi "mức tối thiểu" ở màn hình và CSV | Dev default OK (kiểm tra) |
+| R103 | Đã trả lời: giữ cho giai đoạn 1; nhãn "tại thời điểm"; đối chiếu số lượng để phase 2; chờ Kế toán | Dev default OK |
+| R104 | Đã trả lời: chấp nhận (a) đến (c); thêm gỡ EXIF, kiểm tra loại tệp theo nội dung, ẩn ảnh có lý do; chờ Luật sư | Dev must change (nhỏ) |
+| R105 | Đã trả lời: chấp nhận; hoàn tối đa là phần thu vượt, trần chung với hoàn cọc; tình huống hợp lệ cần REC hủy hạng mục/điều chỉnh giá (chưa có, câu 56); hạn mức 10.000.000 tạm; chờ Kế toán, Chủ dự án | Dev default OK + test |
+| R106 | Đã trả lời: chấp nhận ngày hiện tại, Chủ duyệt một lần; thêm hỏi lại mật khẩu, hạn dùng duyệt, báo ngoại lệ; khóa kỳ tháng chưa làm; chờ Chủ dự án, Kế toán | Dev must change (nhỏ) |
+| R107 | Đã trả lời: không có câu hỏi mới; ảnh gắn đề xuất theo R104 | Dev default OK |
+
+Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §24.5):
+
+1. REC ảnh (R104): gỡ EXIF khi nhận ảnh; kiểm tra loại tệp theo nội dung; trạng thái "ẩn" kèm lý do và nhật ký; test.
+2. `acc/application/refunds.ts` (R105): trần chung hoàn cọc và hoàn tiền; hoàn tiền mặt cần ca mở; hoàn về phương thức khác cần Chủ; hoàn tối đa bằng 0 khi tổng không giảm; chưa dựng màn hình.
+3. ACC mở lại ngày (R106): hỏi lại mật khẩu khi Chủ duyệt; hạn dùng lượt duyệt; báo ngoại lệ và thông báo trong ứng dụng; chặn khi ngày sau đã chốt; test.
+4. RPT (R101, R102): kiểm tra nhật ký xuất CSV, thoát ký tự công thức, nhãn "mức tối thiểu" và "tại thời điểm".
