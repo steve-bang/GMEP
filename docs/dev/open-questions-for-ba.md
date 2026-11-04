@@ -278,3 +278,23 @@ Dev đã dựng FR-ACC-001, 002, 003, 004, FR-ACC-006 (mức tối thiểu: ghi 
 | R68 | D | Ngân sách chỉ mục Firestore (200 mỗi cơ sở dữ liệu): sau slice 1.7 dùng 191. Slice 1.8 và 1.9 phải gom truy vấn hoặc xin tăng hạn mức. | Bảy hình truy vấn mới, chọn chi nhánh bằng điều kiện bằng chứ không `in` | `repos/queries.ts` |
 
 Các mục BA §19 đã áp dụng ở slice 1.7: R39 (thông báo quản lý khi thiếu kho: `notifications.orderWarehouseMissing`), R41 (mã tạm dừng thứ 5 `awaiting_supplement_approval`, lý do "khác" bắt buộc ghi chú), R42 (giao xe chỉ cố vấn và quản lý; cố vấn chỉ hủy lệnh còn "Đã duyệt" chưa bắt đầu), R44 (giao xe đọc ACC trong cùng giao dịch, cờ `handoverRequiresPayment` mặc định bật, ảnh chụp số liệu trên biên bản, ngoại lệ của quản lý khi ACC lỗi), R47 (chặn duyệt báo giá bổ sung khi lệnh đã đóng, tự đóng báo giá bổ sung còn mở khi lệnh hoàn tất hoặc hủy, `reopen` làm kết quả QC cũ hết hiệu lực), R48 (quyền riêng `quote-verbal-over-limit:approve`, bổ sung cho vai trò đã tạo qua top-up `2026-11-acc-1.7-money`).
+
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §20; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA). Mọi giá trị tạm đều đổi được bằng cấu hình hoặc một dòng mã, không cần đổi dữ liệu.
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R54 | Đã trả lời: 4 hình thức, mã bắt buộc với phi tiền mặt, chặn trùng mã, chỉ tiền mặt vào két; đối soát Phase 4, chờ Kế toán khách | Dev default OK (kiểm tra 3 điểm) |
+| R55 | Đã trả lời: cọc là hình thức duy nhất trước QC, trần theo phần chưa thu; thu cuối sau QC; chờ Khách | Dev default OK (kiểm tra công thức) |
+| R56 | Đã trả lời: từ chối thu vượt; khoản nhận trước thuộc FR-ACC-015 phase 2; chờ Kế toán khách | Dev default OK (cảnh báo cọc dư) |
+| R57 | Đã trả lời: hoàn cọc luôn do quản lý duyệt; hoàn ngoài cọc không làm | Dev must change (nhỏ) |
+| R58 | Đã trả lời: 500.000 (trần 2.000.000 mỗi ca) / 5.000.000 / Chủ garage; chờ Chủ dự án và Khách, lệch ví dụ Journey | Dev must change (nhỏ: trần theo ca) |
+| R59 | Đã trả lời: chấp nhận; một quản lý thì tự chuyển Chủ; Chủ tự duyệt có cờ | Dev default OK (kiểm tra) |
+| R60 | Đã trả lời: ngưỡng 0, dòng chênh lệch không xóa; ngưỡng thật chờ Kế toán khách | Dev default OK |
+| R61 | Đã trả lời: một ca mỗi chi nhánh; ca đầu cần số dư đầu kỳ do Chủ duyệt; số quầy chờ Khách | Dev default OK |
+| R62 | Đã trả lời: chưa mở lại ngày; đảo ngày đã khóa ghi vào ngày đang mở; designer đổi G4-ACC-03 | Dev default OK (kiểm tra chặn/cảnh báo) |
+| R63 | Đã trả lời: giữ; hạn 60 ngày chờ Khách; doanh nghiệp theo hạn mức CRM phase 2 | Dev default OK |
+| R64 | Đã trả lời: lưu có cờ cho chi thường, chặn cứng loại gắn chứng từ, cờ cần lý do và quản lý duyệt; RULE-007 trong BRD chỉ nói phụ tùng, cần làm rõ; chờ Kế toán khách, Luật sư khách | Dev must change |
+| R65 | Đã trả lời: danh mục cấu hình thêm `sourceRequirement`; danh sách thật chờ Kế toán khách | Dev default OK (thêm thuộc tính) |
+| R66 | Đã trả lời: đúng ý | Dev default OK |
+| R67 | Đã trả lời: K1–K8 mặc định, đảo cùng dãy; chờ Kế toán khách | Dev default OK |
+| R68 | Đã trả lời: 9 chỉ mục còn lại là ngân sách cứng của 1.8 và 1.9, sáu quy tắc (tái dùng hình, lọc bộ nhớ tập nhỏ, bản chiếu tổng hợp theo khóa, phi chuẩn hóa, chọn chi nhánh bằng điều kiện bằng, phương án hạ tầng chỉ khi thiếu) | Dev must change (quy tắc cho 1.8, 1.9) |
