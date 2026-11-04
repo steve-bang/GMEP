@@ -347,6 +347,54 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect((await rows('payments')).filter((p) => p.orderId === o.id)).toHaveLength(1);
     });
 
+    it('FR-ACC-001: 6 parallel partial receipts (different keys) never overpay: only as many as fit the balance are posted', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      const part = Math.floor((o.totalVnd as number) / 3);
+      const res = await Promise.all(
+        Array.from({ length: 6 }, (_, i) =>
+          collect(o.id, { kind: 'receipt', lines: [cashLine(part)] }, tn, key(`par${i}`)),
+        ),
+      );
+      const ok = res.filter((r) => r.status === 201);
+      expect(ok, res.map((r) => `${r.status} ${r.json?.code}`).join(',')).toHaveLength(3);
+      expect(
+        res.filter((r) => r.status !== 201).every((r) => r.status === 422 || r.status === 409),
+      ).toBe(true);
+      const m = await money(o.id);
+      expect(m.balance.receivedVnd).toBe(part * 3);
+      expect(m.balance.overpaidVnd).toBe(0);
+      expect(
+        (await rows('payments')).filter((p) => p.orderId === o.id && p.kind === 'receipt'),
+      ).toHaveLength(3);
+    });
+
+    it('RULE-010: the same approved reversal executed 5 times in parallel (different keys) is posted once', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      const pay = await payFull(o.id);
+      const rq = await post(tn, `/api/v1/acc/payments/${pay.id}/reversal-request`, {
+        reason: 'Nhập sai hình thức',
+      });
+      expect(rq.status, rq.text).toBe(202);
+      expect((await decide(ql, rq.json.approvalId, 'approve')).status).toBe(200);
+      const res = await Promise.all(
+        Array.from({ length: 5 }, () =>
+          post(tn, `/api/v1/acc/payments/${pay.id}/reverse`, { approvalId: rq.json.approvalId }),
+        ),
+      );
+      expect(
+        res.filter((r) => r.status === 201),
+        res.map((r) => `${r.status} ${r.json?.code}`).join(','),
+      ).toHaveLength(1);
+      expect(
+        res.filter((r) => r.status !== 201).every((r) => r.status === 409 || r.status === 422),
+      ).toBe(true);
+      // the original receipt plus exactly one reversal entry (RULE-010: never updated, never deleted)
+      expect((await rows('payments')).filter((p) => p.orderId === o.id)).toHaveLength(2);
+      expect((await money(o.id)).balance.receivedVnd).toBe(0);
+    });
+
     it('permissions: an advisor sees the balance but cannot collect; the accountant only views', async () => {
       await ensureShift();
       const o = await readyOrder();
