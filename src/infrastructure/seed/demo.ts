@@ -11,9 +11,13 @@ import {
   type Warehouse,
 } from '@/modules/sys';
 import { normalizeSearch } from '@/platform/text/normalize';
-import type { DocData } from '@/platform/store/docStore';
 import { userToDoc, warehouseToDoc } from '../repos/repos';
 import { COL } from '../repos/queries';
+import { crmDemoDocs } from './crmDemo';
+import { invDemoDocs } from './invDemo';
+import { recDemoDocs } from './recDemo';
+import type { SeedDoc } from './types';
+import type { DocData } from '@/platform/store/docStore';
 
 export const DEMO_PASSWORD = 'Demo!Pass-2026';
 export const DEMO_COMPANY = 'cmp_demo';
@@ -146,11 +150,7 @@ export function demoWarehouses(): Warehouse[] {
   }));
 }
 
-export interface SeedDoc {
-  collection: string;
-  id: string;
-  data: DocData;
-}
+export type { SeedDoc };
 
 /** Every demo document, backend independent (memory and Firestore are seeded from the same list). */
 export function demoDocs(): SeedDoc[] {
@@ -184,5 +184,8 @@ export function demoDocs(): SeedDoc[] {
     });
   }
   for (const w of demoWarehouses()) put(COL.warehouses, w.id, warehouseToDoc(w));
+  docs.push(...crmDemoDocs());
+  docs.push(...invDemoDocs());
+  docs.push(...recDemoDocs());
   return docs;
 }

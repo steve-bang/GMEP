@@ -41,6 +41,11 @@ export interface ConfigTypeDef {
   /** branch-specific keys ('branch:<id>') override the company key */
   branchOverride: boolean;
   payload: z.ZodType<Record<string, unknown>>;
+  /**
+   * A company-wide key normally needs a company-wide scope to propose. Catalogues that a branch role
+   * maintains (I14: the storekeeper proposes, the owner approves) set this: the approval is the gate.
+   */
+  proposeFromBranch?: boolean;
 }
 
 const companyOrBranchKey = z.union([
@@ -57,6 +62,56 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
     scopeKey: keyed(code),
     branchOverride: false,
     payload: z.object({ name: z.string().trim().min(1).max(80), rateBp: bp }).strict(),
+  },
+  // R2 (BA §17): which tax-rate key each kind of quote line uses. The accountant has not said whether
+  // labor and parts share a rate, so the mapping is data; without a version every kind uses `vat`.
+  // `partGroups` overrides the key for parts of a catalogue group (FR-ACC-009 tax by goods group).
+  'tax-mapping': {
+    type: 'tax-mapping',
+    resource: 'tax-rate',
+    scopeKey: z.literal('company'),
+    branchOverride: false,
+    payload: z
+      .object({
+        labor: z.string().regex(code),
+        part: z.string().regex(code),
+        partGroups: z
+          .record(z.string().regex(/^[a-z][a-z0-9-]{0,29}$/), z.string().regex(code))
+          .optional(),
+      })
+      .strict(),
+  },
+  // R7 (BA §17): service types are a company catalogue (BR-REC-13, FR-REC-032), not four labels in code.
+  // Documents store the CODE. The workflow behind a type (body and paint needs its own) is a later slice.
+  'service-type': {
+    type: 'service-type',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({ name: z.string().trim().min(1).max(60), status: z.enum(['active', 'inactive']) })
+      .strict(),
+  },
+  // C23 (BA §17): kinds of consent evidence the counter can pick from; the lawyer and the client decide the list.
+  'evidence-kind': {
+    type: 'evidence-kind',
+    resource: 'consent-evidence',
+    scopeKey: keyed(/^[a-z][a-z0-9-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        /** the kind carries a reference number (paper slip no., message id) */
+        referenceLabel: z.string().trim().min(1).max(40).optional(),
+        /** the reference is mandatory for this kind */
+        referenceRequired: z.boolean().optional(),
+        /** a note is mandatory (the catch-all "khác") */
+        noteRequired: z.boolean().optional(),
+      })
+      .strict(),
   },
   'labor-rate': {
     type: 'labor-rate',
@@ -93,10 +148,52 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'price-item': {
     type: 'price-item',
     resource: 'price-list',
-    scopeKey: keyed(/^[A-Za-z0-9_-]{1,64}:[A-Za-z0-9._-]{1,40}$/),
+    scopeKey: keyed(/^[A-Za-z0-9_-]{1,64}:[A-Za-z0-9._/-]{1,40}$/),
     branchOverride: false,
     payload: z
       .object({ name: z.string().trim().min(1).max(120), costVnd: vnd, listPriceVnd: vnd })
+      .strict(),
+  },
+  // FR-INV-009 / FR-INV-027: the stock cost method is data, effective-dated (one choice per period).
+  // Only 'weighted-average' has an implementation; the list grows when the accountant decides
+  // (e.g. 'fifo') and a CostMethod strategy is registered in the INV domain [Cần xác nhận: Kế toán khách].
+  'cost-method': {
+    type: 'cost-method',
+    resource: 'cost-method',
+    scopeKey: z.literal('company'),
+    branchOverride: false,
+    payload: z.object({ method: z.enum(['weighted-average']) }).strict(),
+  },
+  // FR-INV-005: GRN variance thresholds above which the manager must approve the receipt
+  // (basis points of the expected price / quantity). Values are [Đề xuất dev - chờ xác nhận: Khách].
+  'inventory-policy': {
+    type: 'inventory-policy',
+    resource: 'inventory-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z.object({ grnPriceVarianceBp: bp, grnQtyVarianceBp: bp }).strict(),
+  },
+  // I14 (BA §16): part groups and units of measure are company-level catalogues. One scope key per
+  // entry (the code), effective-dated and approved like any other config; entries are deactivated,
+  // never deleted. TK proposes, CH approves (FRD §2 "Danh mục phụ tùng") [Đề xuất BA - chờ xác nhận: Khách].
+  'part-group': {
+    type: 'part-group',
+    resource: 'part-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({ name: z.string().trim().min(1).max(60), status: z.enum(['active', 'inactive']) })
+      .strict(),
+  },
+  'part-unit': {
+    type: 'part-unit',
+    resource: 'part-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({ name: z.string().trim().min(1).max(40), status: z.enum(['active', 'inactive']) })
       .strict(),
   },
   // FR-SYS-006: metadata only (the template body is a later slice).

@@ -43,6 +43,102 @@ export default async function ShellLayout({ children }: { children: React.ReactN
       items: [item('dash', '/', t('shell.nav.dashboard'), 'layout-dashboard', 'exact')],
     },
     {
+      label: t('shell.nav.groupCrm'),
+      items: [
+        ...(can.customers
+          ? [
+              item(
+                'cu',
+                '/crm/customers',
+                t('shell.nav.customers'),
+                'users',
+                'prefix',
+                info.readOnly.customers,
+              ),
+            ]
+          : []),
+        ...(can.vehicles
+          ? [
+              item(
+                've',
+                '/crm/vehicles',
+                t('shell.nav.vehicles'),
+                'car-front',
+                'prefix',
+                info.readOnly.vehicles,
+              ),
+            ]
+          : []),
+        ...(can.dataRequests
+          ? [item('dr', '/crm/data-requests', t('shell.nav.dataRequests'), 'id-card')]
+          : []),
+      ],
+    },
+    {
+      label: t('shell.nav.groupRec'),
+      items: [
+        ...(can.intakes
+          ? [
+              item(
+                'ik',
+                '/rec/intakes',
+                t('shell.nav.intakes'),
+                'clipboard-list',
+                'prefix',
+                info.readOnly.intakes,
+              ),
+            ]
+          : []),
+        ...(can.quotes
+          ? [
+              item(
+                'qt',
+                '/rec/quotes',
+                t('shell.nav.quotes'),
+                'receipt',
+                'prefix',
+                info.readOnly.quotes,
+              ),
+            ]
+          : []),
+      ],
+    },
+    {
+      label: t('shell.nav.groupInv'),
+      items: [
+        ...(can.parts
+          ? [
+              item(
+                'pa',
+                '/inv/parts',
+                t('shell.nav.parts'),
+                'package',
+                'prefix',
+                info.readOnly.parts,
+              ),
+            ]
+          : []),
+        ...(can.stock
+          ? [
+              item('st', '/inv/stock', t('shell.nav.stock'), 'warehouse', 'prefix'),
+              item('ro', '/inv/reorder', t('shell.nav.reorder'), 'alert-triangle', 'prefix'),
+            ]
+          : []),
+        ...(can.stockDocs
+          ? [
+              item(
+                'sd',
+                '/inv/documents',
+                t('shell.nav.stockDocs'),
+                'clipboard-list',
+                'prefix',
+                info.readOnly.stockDocs,
+              ),
+            ]
+          : []),
+      ],
+    },
+    {
       label: t('shell.nav.groupSystem'),
       items: [
         ...(can.branches

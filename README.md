@@ -61,7 +61,7 @@ without the emulator hosts so a local run can never reach real Google services.
 src/
   app/              Next.js pages (Server Components) and thin Route Handlers under /api/v1 and /api/health
   modules/<code>/   domain/ (pure) application/ (use cases) ports/ (interfaces) api/ (zod schemas) index.ts (public surface)
-                    codes: sys (built), crm, rec, ins, inv, pur, hrm, acc, ein, rpt (empty skeletons)
+                    codes: sys, crm, inv (built), rec, ins, pur, hrm, acc, ein, rpt (empty skeletons)
   platform/         vendor-neutral kit: scope + rbac, audit, idempotency, errors (RFC 9457), http, logging, i18n, format
   infrastructure/   adapters: firestore, identity (Firebase Auth), memory (tests only), seed (fake data)
   composition/      the only place that wires ports to adapters (container, session helper)
@@ -100,8 +100,60 @@ Key mechanics already in place:
 - **Env (new)**: `AUTH_CACHE_TTL_SECONDS` (30; max staleness of a revocation on other instances), `CONFIG_CACHE_TTL_SECONDS`,
   `TRUSTED_PROXY_HOPS` (1 on Cloud Run), `APP_BASE_URL` (links in emails).
 
+## Slice 1.3 (CRM core)
+
+- **Data model** (`src/modules/crm`): `customers` + `customerPii` (contact data apart, so it can be anonymised), `vehicles` + `vehiclePlates`
+  (unique plate registry, created in the same transaction), `vehicleOwnerships` (effective-dated `from`/`to`, open record = current owner),
+  `consents`, `dataSubjectRequests`, `vehicleHistory` (projection read model, white-listed fields). Customers and vehicles are company-level;
+  a branch scope reaches them through `branchIds` and the `customerLinks`/`vehicleLinks` relation rows (BA §10.1.5).
+- **Cross-branch**: only `lookupExact` (full plate or full phone, BA §10 P1/P2) and the history projection cross branches; source records of
+  another branch answer 404. `relateToWorkingBranch` is what REC calls when an appointment/quote is created.
+- **Config** (`DEFAULT_CRM_CONFIG`): export caps (5,000 / 1,000 with full personal columns), request deadline (72 h), history price on/off, lookup size.
+- **Routes**: `/api/v1/crm/{customers,vehicles,consents,data-requests,lookup,marketing/audience}`; UI under `/crm/*` (menu "Khách và xe").
+- Tests: `tests/unit/crm-domain.test.ts`, `tests/integration/crm.test.ts` (both backends), `e2e/slice-1-3.spec.ts`.
+
+## Slice 1.4 (INV stock ledger)
+
+- **Data model** (`src/modules/inv`): `parts` (company level; uniqueness slots `partCodes`/`partBarcodes` created in the same transaction,
+  `partCompat` links for the vehicle-line search), `stockBalances` (warehouse x part: on-hand, reserved, in-transit, value; **available is
+  derived**), `stockMovements` (append-only ledger, one row per change, ordered by the balance's own `seq`), `stockDocuments`
+  (GRN/GIN/RTN/ADJ, draft -> posted | cancelled), `stockReservations` (id derived from source + line + warehouse), `issueReturns`
+  (how much of an issued line came back).
+- **One transaction per operation** (`application/engine.ts`): reads first, then number, then balances + ledger + reservation + document + audit.
+  Concurrent postings serialise on the balance document; the loser re-checks availability (S1 design, `tests/integration/inv.test.ts`).
+  The memory adapter serialises transactions; the contention tests are meaningful on the emulator (`pnpm test:integration`).
+- **Rules**: negative stock and issuing beyond available are blocked (an order may take its own hold plus available, never more than on-hand);
+  every issue needs a source document and a receiver; abnormal documents (adjustment, receipt without PO, price/quantity variance) need
+  `stock-doc:approve` from someone other than the creator; posted documents are reversed, never edited (`POST .../reverse`).
+- **Cost** (`domain/cost.ts`): `CostMethod` strategy chosen by the effective-dated `cost-method` config (`/sys/config/cost-method`);
+  weighted average, integer VND, BigInt arithmetic, round half up. FIFO is not implemented (accountant to decide).
+  `inventory-policy` config holds the GRN variance thresholds. Standard list prices come from the `price-item` config of each price list.
+- **For REC** (`src/modules/inv/index.ts`): `holdStock` / `holdStockInTx` (target quantity, idempotent), `releaseStock`, `issueForOrder`,
+  `getAvailability` (available only, for advisors), `createDocument` (RTN against an issued document), `reverseDocument`.
+- **Routes**: `/api/v1/inv/{parts,stock,availability,documents,reservations,issues}`; UI under `/inv/*` (menu "Kho và phụ tùng").
+- **Indexes**: 136 composite indexes after this slice (Firestore allows 200 per database): keep new query shapes few (`pnpm check:indexes`).
+- Tests: `tests/unit/inv-domain.test.ts`, `tests/integration/inv.test.ts` (both backends), `e2e/slice-1-4.spec.ts`.
+
+## Slice 1.5 first part (REC intake and quote)
+
+- **Data model** (`src/modules/rec`): `intakes` (draft -> completed | cancelled; no phone or address is copied, only name/plate snapshots),
+  `quotes` (header: number, status of the current version, total) and `quoteVersions` (`<quote>__v<n>`: items with labor/part lines, totals,
+  tax snapshot, `pricedOn`, sent/replaced/rejected marks). Quote, repair order, item, payment and invoice have separate state sets; the quote
+  table lives in `domain/quoteState.ts` and is tested for every state x event pair.
+- **Pricing is data** (`application/quoteBuild.ts`, `domain/pricing.ts`): labor = minutes x hourly rate / 60 (`standard-hours` per service,
+  `labor-rate` company or branch); part price = `price-item` of the price list in `RecConfig.priceListCode`; tax = `tax-rate` key
+  `RecConfig.taxRateKey`; discount limit = `discount-limit` per role (no entry = no discount). A missing config version is an error
+  (`tax_rate_missing`, 422 with the line), never a default. Config version ids are kept on every line (price snapshot). Rounding: line amounts
+  half up; tax once per rate on the sum of net amounts [Cần xác nhận: Kế toán khách]; all integer VND.
+- **Versions**: draft = edited in place; sent/rejected/expired = the edit becomes the next version (the previous one is marked replaced when
+  the new one is sent); approved = locked. A draft priced on an earlier day must be saved again before sending (`prices_outdated`).
+- **No stock hold at quote time** (BA §16.2.1 row 1); the picker and the lines show the AVAILABLE quantity only.
+- **Routes**: `/api/v1/rec/{intakes,quotes,pickers/services,pickers/parts}`; UI `/rec/intakes`, `/rec/intakes/new`, `/rec/intakes/[id]`
+  (wizard), `/rec/quotes`, `/rec/quotes/[id]` (menu "Tiếp nhận và báo giá").
+- Tests: `tests/unit/rec-domain.test.ts`, `tests/integration/rec.test.ts` (both backends), `e2e/slice-1-5.spec.ts`.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS (CRM, REC, INV, ACC, EIN, RPT are skeletons).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger and REC intake/quote (ACC, EIN, RPT are skeletons; REC approval, customer link, A4 print, repair orders and items are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.

@@ -1,5 +1,8 @@
 import { apiRoute, json, type RouteContext } from '@/platform/http/route';
 import { parseIdempotencyKey } from '@/platform/idempotency/idempotency';
+import type { CrmDeps } from '@/modules/crm';
+import type { InvDeps } from '@/modules/inv';
+import type { RecDeps } from '@/modules/rec';
 import type { Session, SysDeps } from '@/modules/sys';
 import { allowedOrigins, authenticate } from './auth';
 import { getContainer } from './container';
@@ -11,6 +14,9 @@ import { getContainer } from './container';
  */
 export interface ApiCtx extends RouteContext {
   sys: SysDeps;
+  crm: CrmDeps;
+  inv: InvDeps;
+  rec: RecDeps;
 }
 export interface AuthedCtx extends ApiCtx {
   session: Session;
@@ -20,7 +26,19 @@ export interface AuthedCtx extends ApiCtx {
 }
 
 export function api(handler: (c: ApiCtx) => Promise<Response>) {
-  return apiRoute((c) => handler({ ...c, sys: getContainer().sys }), { allowedOrigins });
+  return apiRoute(
+    (c) =>
+      handler({
+        ...c,
+        sys: getContainer().sys,
+        crm: getContainer().crm,
+        inv: getContainer().inv,
+        rec: getContainer().rec,
+      }),
+    {
+      allowedOrigins,
+    },
+  );
 }
 
 export function authed(handler: (c: AuthedCtx) => Promise<Response>) {
@@ -30,6 +48,9 @@ export function authed(handler: (c: AuthedCtx) => Promise<Response>) {
       return handler({
         ...c,
         sys: getContainer().sys,
+        crm: getContainer().crm,
+        inv: getContainer().inv,
+        rec: getContainer().rec,
         session,
         idempotencyKey: () => parseIdempotencyKey(c.req.headers.get('idempotency-key'), true)!,
         query: () => Object.fromEntries(new URL(c.req.url).searchParams),

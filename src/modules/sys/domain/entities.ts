@@ -148,6 +148,9 @@ export type NotificationKind =
   | 'config.rejected'
   | 'user.invited'
   | 'security.anomaly'
+  | 'stock.reservation_shortened'
+  | 'crm.odometer_abnormal'
+  | 'crm.lookup_limit'
   | 'system';
 
 /** FR-SYS-009: in-system notification. Never carries personal data (names, phones, addresses). */

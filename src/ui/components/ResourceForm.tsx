@@ -4,58 +4,39 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useOnline } from '../useOnline';
 import { Button } from './Button';
+import { newKey, postJson, type Problem } from './postJson';
+import { CustomerPicker, type CustomerPickerLabels } from './CustomerPicker';
 import { Icon } from './Icon';
 
 export interface FieldDef {
   name: string;
   label: string;
-  type?: 'text' | 'email' | 'number' | 'date' | 'password' | 'select' | 'textarea' | 'checkbox';
+  type?:
+    | 'text'
+    | 'email'
+    | 'number'
+    | 'date'
+    | 'password'
+    | 'select'
+    | 'textarea'
+    | 'checkbox'
+    | 'customer';
   required?: boolean;
   options?: { value: string; label: string }[];
   hint?: string;
   defaultValue?: string;
   placeholder?: string;
   maxLength?: number;
+  /** textarea of "Hãng Dòng xe" lines sent as [{make, model}] (serialisable, so server components can pass it) */
+  parse?: 'pairs';
+  /** an empty value is sent as null (clears the field) instead of being left out */
+  emptyAs?: 'null';
+  /** `customer` fields: a search box instead of a list (C13); the hidden input carries the id */
+  picker?: { labels: CustomerPickerLabels; excludeId?: string; canLookup?: boolean };
 }
 
-interface Problem {
-  title?: string;
-  detail?: string;
-  code?: string;
-  traceId?: string;
-  errors?: { field: string; message: string }[];
-  retryAfterSeconds?: number;
-}
-
-/** Shared by forms and action buttons: posts JSON with an Idempotency-Key and understands RFC 9457 problems. */
-export async function postJson(
-  url: string,
-  method: string,
-  body: unknown,
-  key: string,
-): Promise<{ ok: boolean; status: number; data: unknown; problem: Problem | null }> {
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: { 'content-type': 'application/json', 'idempotency-key': key },
-      body: JSON.stringify(body ?? {}),
-    });
-    const data = await res.json().catch(() => null);
-    return {
-      ok: res.ok,
-      status: res.status,
-      data,
-      problem: res.ok ? null : (data as Problem | null),
-    };
-  } catch {
-    return { ok: false, status: 0, data: null, problem: null };
-  }
-}
-
-export const newKey = () =>
-  typeof crypto !== 'undefined' && 'randomUUID' in crypto
-    ? crypto.randomUUID()
-    : String(Date.now()) + Math.random();
+export { newKey, postJson };
+export type { Problem };
 
 /** Countdown for 429 (state-copy §2.6): server-provided seconds, nothing hard-coded. */
 export interface RetryAfter {
@@ -131,8 +112,16 @@ export function ResourceForm(props: {
       const raw =
         f.type === 'checkbox' ? form.get(f.name) === 'on' : String(form.get(f.name) ?? '').trim();
       if (f.type === 'checkbox') body[f.name] = raw;
-      else if (raw === '') continue;
-      else body[f.name] = f.type === 'number' ? Number(raw) : raw;
+      else if (f.parse === 'pairs')
+        body[f.name] = String(raw)
+          .split('\n')
+          .map((l) => l.trim().split(/\s+/))
+          .filter((w) => w[0])
+          .map((w) => ({ make: w[0]!, model: w.slice(1).join(' ') || w[0]! }));
+      else if (raw === '') {
+        if (f.emptyAs === 'null') body[f.name] = null;
+        continue;
+      } else body[f.name] = f.type === 'number' ? Number(raw) : raw;
     }
     setBusy(true);
     setBanner(null);
@@ -209,7 +198,20 @@ export function ResourceForm(props: {
                       </span>
                     ) : null}
                   </label>
-                  {f.type === 'select' ? (
+                  {f.type === 'customer' && f.picker ? (
+                    <CustomerPicker
+                      name={f.name}
+                      inputId={id}
+                      labels={f.picker.labels}
+                      required={f.required}
+                      invalid={!!err}
+                      {...(f.picker.excludeId ? { excludeId: f.picker.excludeId } : {})}
+                      {...(f.picker.canLookup ? { canLookup: true } : {})}
+                      {...(common['aria-describedby']
+                        ? { describedBy: common['aria-describedby'] }
+                        : {})}
+                    />
+                  ) : f.type === 'select' ? (
                     <select className="select" {...common} defaultValue={f.defaultValue ?? ''}>
                       {!f.required || !f.defaultValue ? <option value="">—</option> : null}
                       {f.options?.map((o) => (

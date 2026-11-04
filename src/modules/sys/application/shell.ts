@@ -15,10 +15,29 @@ export interface ShellInfo {
     priceLists: boolean;
     config: boolean;
     templates: boolean;
+    customers: boolean;
+    vehicles: boolean;
+    dataRequests: boolean;
+    parts: boolean;
+    stock: boolean;
+    stockDocs: boolean;
+    intakes: boolean;
+    quotes: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
-    'warehouses' | 'branches' | 'users' | 'services' | 'priceLists' | 'config',
+    | 'warehouses'
+    | 'branches'
+    | 'users'
+    | 'services'
+    | 'priceLists'
+    | 'config'
+    | 'customers'
+    | 'vehicles'
+    | 'parts'
+    | 'stockDocs'
+    | 'quotes'
+    | 'intakes',
     boolean
   >;
   unreadNotifications: number;
@@ -47,8 +66,22 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       priceLists: can('price-list:view'),
       config: can('tax-rate:view') || can('discount-limit:view'),
       templates: can('doc-template:view'),
+      customers: can('customer:view'),
+      vehicles: can('vehicle:view'),
+      dataRequests: can('data-request:view'),
+      parts: can('part:view'),
+      stock: can('stock:view'),
+      stockDocs: can('stock-doc:view'),
+      intakes: can('intake:view'),
+      quotes: can('quote:view'),
     },
     readOnly: {
+      customers: !mayChange('customer'),
+      vehicles: !mayChange('vehicle'),
+      parts: !mayChange('part'),
+      stockDocs: !mayChange('stock-doc'),
+      intakes: !mayChange('intake'),
+      quotes: !mayChange('quote'),
       warehouses: !mayChange('warehouse'),
       branches: !mayChange('org'),
       users: !mayChange('user'),

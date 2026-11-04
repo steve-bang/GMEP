@@ -93,6 +93,20 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
         enumLabel('period', str('period')),
         t('config.widthValue', { width: num('seqWidth') ?? 0 }),
       ].join(' · ');
+    case 'tax-mapping':
+      return `${t('config.fields.labor')}: ${str('labor')} · ${t('config.fields.part')}: ${str('part')}`;
+    case 'evidence-kind':
+    case 'service-type':
+    case 'part-group':
+    case 'part-unit':
+      return `${str('name')} · ${enumLabel('status', str('status'))}`;
+    case 'cost-method':
+      return enumLabel('costMethod', str('method'));
+    case 'inventory-policy':
+      return t('config.grnVariance', {
+        price: num('grnPriceVarianceBp') !== null ? formatBp(num('grnPriceVarianceBp')!) : '',
+        qty: num('grnQtyVarianceBp') !== null ? formatBp(num('grnQtyVarianceBp')!) : '',
+      });
     default:
       return '';
   }
@@ -138,6 +152,31 @@ export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
       ],
     },
     { name: 'paper', kind: 'select', options: ['A4', 'A5', 'thermal80', 'thermal58'] },
+  ],
+  'part-group': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'part-unit': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'tax-mapping': [
+    { name: 'labor', kind: 'text' },
+    { name: 'part', kind: 'text' },
+  ],
+  'service-type': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'evidence-kind': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'cost-method': [{ name: 'method', kind: 'select', options: ['weighted-average'] }],
+  'inventory-policy': [
+    { name: 'grnPriceVarianceBp', kind: 'percent' },
+    { name: 'grnQtyVarianceBp', kind: 'percent' },
   ],
   'numbering-series': [
     { name: 'prefix', kind: 'text' },

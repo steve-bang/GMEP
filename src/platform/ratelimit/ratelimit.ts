@@ -77,6 +77,11 @@ export const DEFAULT_RATE_LIMITS = {
   search: { limit: 120, windowMs: 60_000 },
   'customer-link': { limit: 60, windowMs: 60_000 },
   reveal: { limit: 30, windowMs: 60_000 },
+  export: { limit: 10, windowMs: 60_000 },
+  /** C9: cross-branch exact lookups per person per hour [Cần xác nhận: Khách] */
+  'customer-lookup': { limit: 30, windowMs: 3_600_000 },
+  /** C19: at most one "lookup limit exceeded" notice per person per day, so the owners are not spammed */
+  'customer-lookup-notice': { limit: 1, windowMs: 86_400_000 },
 } as const satisfies Record<string, RateLimitPolicy>;
 export type RateLimitName = keyof typeof DEFAULT_RATE_LIMITS;
 

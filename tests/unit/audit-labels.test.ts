@@ -4,10 +4,13 @@ import { describe, expect, it } from 'vitest';
 import { messages } from '@/platform/i18n/messages';
 
 /** FR-SYS-003: audit codes are technical; the UI shows Vietnamese labels, so every code written by the SYS module needs one. */
-const dir = join(process.cwd(), 'src/modules/sys/application');
-const source = readdirSync(dir)
-  .filter((f) => f.endsWith('.ts'))
-  .map((f) => readFileSync(join(dir, f), 'utf8'))
+const dirs = ['sys', 'crm', 'inv'].map((m) => join(process.cwd(), `src/modules/${m}/application`));
+const source = dirs
+  .flatMap((dir) =>
+    readdirSync(dir)
+      .filter((f) => f.endsWith('.ts'))
+      .map((f) => readFileSync(join(dir, f), 'utf8')),
+  )
   .join('\n');
 
 const literals = (field: string) =>

@@ -1,0 +1,49 @@
+/* INV screens (G3-INV-01..11): layout helpers only; colours, spacing and type come from tokens.css. */
+.inv-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4) var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  margin: 0;
+}
+.inv-facts dt {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.inv-facts dd {
+  margin: var(--space-1) 0 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.inv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.inv-reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: min(100%, 360px);
+}
+.inv-form {
+  max-width: 1040px;
+}
+.inv-lines .input {
+  min-width: 96px;
+}
+.inv-lines td:first-child .input {
+  min-width: 180px;
+}
+.inv-lines .input--num {
+  text-align: right;
+  min-width: 88px;
+}
+.row--between {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}

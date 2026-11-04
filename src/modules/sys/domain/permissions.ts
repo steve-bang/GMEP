@@ -22,28 +22,92 @@ const g = (resource: string, ...actions: Action[]): [string, Action[]] => [resou
 const flatten = (entries: [string, Action[]][]): string[] =>
   entries.flatMap(([r, as]) => as.map((a) => `${r}:${a}`));
 
-const CH = flatten([
-  g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
-  g('role', 'view', 'create', 'update', 'approve', 'reject'),
-  g('security-policy', 'view', 'update', 'approve', 'reject'),
-  g('device', 'view', 'create', 'archive'),
-  g('worker-pin', 'manage'),
-  g('org', 'view', 'create', 'update', 'archive', 'approve', 'reject'),
-  g('branch-config', 'view', 'update', 'approve', 'reject'),
-  g('warehouse', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'export'),
-  g('service-catalog', 'view', 'create', 'update', 'approve', 'reject'),
-  g('price-list', 'view', 'create', 'update', 'approve', 'reject'),
-  g('discount-limit', 'view', 'update', 'approve', 'reject'),
-  g('discount-program', 'view', 'create', 'update'),
-  g('tax-rate', 'view', 'create', 'update', 'approve', 'reject'),
-  g('doc-template', 'view', 'create', 'update', 'approve', 'reject'),
-  g('numbering-series', 'view', 'update', 'approve', 'reject'),
-  g('pii-policy', 'view', 'update', 'approve', 'reject'),
-  g('retention-policy', 'view', 'update', 'approve', 'reject'),
-  g('audit-log', 'view', 'export'),
-  g('access-log', 'view', 'export'),
-  g('login-history', 'view', 'export'),
+/**
+ * CRM (slice 1.3, FR-CRM-001..017) default grants [Đề xuất BA - chờ xác nhận: Khách]. AD has no
+ * customer data (BA §2.4); TH and TK get none until REC/INV define their narrower views.
+ * `customer-lookup` = exact cross-branch lookup by plate, vehicle fields only (P2; QĐ has only this);
+ * `customer-lookup-customer` = phone lookup and the customer projection (P1; CH, QL, CV, TN; not QV (C21) and not QĐ (C9));
+ * `vehicle-history-cross` = reading the vehicle history of a vehicle OUTSIDE the actor's scope (P3; CH, CV, QL, QĐ only, C20),
+ * separate from `vehicle-history:view` (history inside the actor's scope: also QV, KT); `customer-pii:export` = full personal
+ * columns in an export (CH, KT only, with reason and password, BA §9).
+ */
+const CRM_CH = flatten([
+  g('customer', 'view', 'create', 'update', 'export'),
+  g('customer-pii', 'export'),
+  g('vehicle', 'view', 'create', 'update'),
+  g('vehicle-history', 'view'),
+  g('vehicle-history-cross', 'view'),
+  g('consent', 'view', 'create', 'update'),
+  g('consent-evidence', 'view', 'update', 'approve', 'reject'),
+  g('data-request', 'view', 'create', 'update', 'approve'),
+  g('customer-lookup', 'view'),
+  g('customer-lookup-customer', 'view'),
 ]);
+
+/**
+ * INV (slice 1.4, FR-INV-001..027) default grants [Đề xuất BA - chờ xác nhận: Khách], from FRD §2:
+ * "Danh mục phụ tùng và bảng giá" (TK = S, CH = D, others X) and "Nhập, xuất, kiểm kê kho"
+ * (TK = S, QL = D, CH/QV/KT = X, CV/TN/TH/QD/AD = -). CV reads availability only (BA-04 Câu 6):
+ * `stock-availability` returns the available quantity, never on-hand, reserved or cost.
+ * `stock-cost:view` follows COST_VISIBLE_ROLES. `stock-doc:approve` = post an abnormal document
+ * (adjustment, receipt without purchase order, large variance) and reverse a posted one; the poster
+ * must be a different person from the creator.
+ */
+const INV_VIEW: string[] = flatten([
+  g('part', 'view'),
+  g('stock', 'view'),
+  g('stock-doc', 'view'),
+  g('stock-availability', 'view'),
+  g('part-catalog', 'view'),
+]);
+
+/**
+ * REC (slice 1.5, FR-REC-001..007) default grants [Đề xuất BA - chờ xác nhận: Khách], from FRD §2
+ * "Báo giá và lệnh sửa chữa" (QL = D, CV = S, others X) and the G2-QUO-01 role column: CV and QL
+ * write (the design shows "Lập báo giá" for both), CH, QV, QĐ, TK, TN and KT read quotes. `intake`
+ * (hồ sơ tiếp nhận) follows the same pattern for CV and QL; CH, QV, QĐ and TN read. `quote:approve`
+ * is the manager's decision right for the approval part (next slice). TH sees only their own work
+ * (Xn) so gets neither resource here.
+ */
+const REC_S = flatten([
+  g('intake', 'view', 'create', 'update'),
+  g('quote', 'view', 'create', 'update'),
+]);
+const REC_VIEW_QUOTE = flatten([g('quote', 'view')]);
+const REC_VIEW_ALL = flatten([g('intake', 'view'), g('quote', 'view')]);
+
+const CH = [
+  ...flatten([
+    g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
+    g('role', 'view', 'create', 'update', 'approve', 'reject'),
+    g('security-policy', 'view', 'update', 'approve', 'reject'),
+    g('device', 'view', 'create', 'archive'),
+    g('worker-pin', 'manage'),
+    g('org', 'view', 'create', 'update', 'archive', 'approve', 'reject'),
+    g('branch-config', 'view', 'update', 'approve', 'reject'),
+    g('warehouse', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'export'),
+    g('service-catalog', 'view', 'create', 'update', 'approve', 'reject'),
+    g('price-list', 'view', 'create', 'update', 'approve', 'reject'),
+    g('discount-limit', 'view', 'update', 'approve', 'reject'),
+    g('discount-program', 'view', 'create', 'update'),
+    g('tax-rate', 'view', 'create', 'update', 'approve', 'reject'),
+    g('doc-template', 'view', 'create', 'update', 'approve', 'reject'),
+    g('numbering-series', 'view', 'update', 'approve', 'reject'),
+    g('pii-policy', 'view', 'update', 'approve', 'reject'),
+    g('retention-policy', 'view', 'update', 'approve', 'reject'),
+    g('audit-log', 'view', 'export'),
+    g('access-log', 'view', 'export'),
+    g('login-history', 'view', 'export'),
+    g('cost-method', 'view', 'update', 'approve', 'reject'),
+    g('inventory-policy', 'view', 'update', 'approve', 'reject'),
+    g('stock-cost', 'view'),
+    g('stock-reservation', 'view'),
+    g('part-catalog', 'update', 'approve', 'reject'),
+  ]),
+  ...CRM_CH,
+  ...INV_VIEW,
+  ...REC_VIEW_ALL,
+];
 
 const matrix: Grant = {
   CH,
@@ -57,7 +121,19 @@ const matrix: Grant = {
     g('discount-program', 'view', 'create', 'update'),
     g('tax-rate', 'view'),
     g('doc-template', 'view'),
-  ]),
+    // CRM: aggregated review of the customer base, no editing (BA §9 export rights)
+    g('customer', 'view', 'export'),
+    g('vehicle', 'view'),
+    g('vehicle-history', 'view'),
+    g('consent', 'view'),
+    g('data-request', 'view'),
+    g('customer-lookup', 'view'),
+    g('stock-cost', 'view'),
+    g('stock-reservation', 'view'),
+    g('inventory-policy', 'view'),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_VIEW_ALL),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -73,18 +149,71 @@ const matrix: Grant = {
     g('doc-template', 'view'),
     g('audit-log', 'view'),
     g('login-history', 'view'),
-  ]),
+    g('customer', 'view', 'create', 'update', 'export'),
+    g('vehicle', 'view', 'create', 'update'),
+    g('vehicle-history', 'view'),
+    g('vehicle-history-cross', 'view'),
+    g('consent', 'view', 'create', 'update'),
+    g('data-request', 'view', 'create', 'update'),
+    g('customer-lookup', 'view'),
+    g('customer-lookup-customer', 'view'),
+    g('stock-cost', 'view'),
+    g('stock-level', 'update'),
+    g('stock-reservation', 'view', 'create', 'update'),
+    g('stock-doc', 'approve'),
+    g('inventory-policy', 'view'),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_S)
+    .concat(flatten([g('quote', 'approve', 'reject')])),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
     g('discount-limit', 'view'),
     g('tax-rate', 'view'),
     g('doc-template', 'view'),
-  ]),
-  QD: flatten([g('device', 'view'), g('worker-pin', 'manage'), g('service-catalog', 'view')]),
+    g('customer', 'view', 'create', 'update'),
+    g('vehicle', 'view', 'create', 'update'),
+    g('vehicle-history', 'view'),
+    g('vehicle-history-cross', 'view'),
+    g('consent', 'view', 'create', 'update'),
+    g('data-request', 'view', 'create'),
+    g('customer-lookup', 'view'),
+    g('customer-lookup-customer', 'view'),
+    // read-only catalogue + availability; reservations are made by REC on the advisor's behalf
+    g('part', 'view'),
+    g('stock-availability', 'view'),
+    g('stock-reservation', 'create', 'update'),
+  ]).concat(REC_S),
+  QD: flatten([
+    g('device', 'view'),
+    g('worker-pin', 'manage'),
+    g('service-catalog', 'view'),
+    g('customer', 'view'),
+    g('vehicle', 'view'),
+    g('vehicle-history', 'view'),
+    g('vehicle-history-cross', 'view'),
+    g('customer-lookup', 'view'),
+  ]).concat(REC_VIEW_ALL),
   TH: [],
-  TK: flatten([g('warehouse', 'view'), g('price-list', 'view')]),
-  TN: flatten([g('doc-template', 'view')]),
+  TK: flatten([
+    g('warehouse', 'view'),
+    g('price-list', 'view'),
+    g('part', 'create', 'update', 'archive'),
+    g('part-catalog', 'update'),
+    g('stock-level', 'update'),
+    g('stock-doc', 'create', 'update'),
+    g('stock-reservation', 'view', 'create', 'update'),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_VIEW_QUOTE),
+  TN: flatten([
+    g('doc-template', 'view'),
+    g('customer', 'view'),
+    g('vehicle', 'view'),
+    g('customer-lookup', 'view'),
+    g('customer-lookup-customer', 'view'),
+  ]).concat(REC_VIEW_ALL),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -95,7 +224,17 @@ const matrix: Grant = {
     g('numbering-series', 'view'),
     g('retention-policy', 'view'),
     g('audit-log', 'view'),
-  ]),
+    g('customer', 'view', 'export'),
+    g('customer-pii', 'export'),
+    g('vehicle', 'view'),
+    g('vehicle-history', 'view'),
+    g('consent', 'view'),
+    g('stock-cost', 'view'),
+    g('cost-method', 'view', 'update'),
+    g('inventory-policy', 'view'),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_VIEW_QUOTE),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),

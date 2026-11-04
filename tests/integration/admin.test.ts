@@ -439,9 +439,7 @@ describe.each(backends)(
           'warehouse.deactivate',
         );
       });
-      it.todo(
-        'INV slice: deactivation is refused while on-hand, reserved or in-transit quantities are non-zero or a stock document is open (WarehouseActivityPort stub returns no blockers today)',
-      );
+      // INV slice 1.4: covered by tests/integration/inv.test.ts ("FR-SYS-029 warehouse deactivation guard")
       it.todo(
         'REC/ACC/EIN slices: locking a branch is refused while open orders, unclosed receipts, goods in transit or failed invoices exist (BranchActivityPort stub)',
       );
@@ -496,9 +494,10 @@ describe.each(backends)(
             })
           ).status,
         ).toBe(201);
+        // the demo seed already holds the standard list (STD, slice 1.4) next to the one just created
         expect(
           (await h.call('GET', '/api/v1/sys/price-lists', { as: 'u_tk_q7' })).json.items,
-        ).toHaveLength(1);
+        ).toHaveLength(2);
       });
     });
 

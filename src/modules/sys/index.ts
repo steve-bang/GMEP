@@ -91,6 +91,8 @@ export {
   proposeConfig,
   decideConfig,
   resolveConfigAt,
+  resolveCatalogAt,
+  approvedChangesBetween,
   snapshotOf,
   canViewConfig,
 } from './application/config';
@@ -98,6 +100,7 @@ export type { ConfigVersionDto } from './application/config';
 export { allocateDocumentNumber, resolveNumberingSeries } from './application/numbering';
 export {
   notifyUsers,
+  usersWithRole,
   listMyNotifications,
   markNotificationRead,
 } from './application/notifications';
@@ -112,3 +115,6 @@ export {
 } from './application/audit';
 export type { AuditRowDto } from './application/audit';
 export { assertBranchWritable } from './domain/branchState';
+export { auditEntry, parseInput, roleCodesOf } from './application/support';
+export type { RequestCtx } from './application/support';
+export { reauthenticate } from './application/config';

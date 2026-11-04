@@ -6,6 +6,12 @@ const retryAfterOf = (err: unknown): number | null => {
   return typeof c?.retryAfterSeconds === 'number' ? c.retryAfterSeconds : null;
 };
 
+/** RFC 9457 extension members an error may carry (`cause.extensions`): small, non-personal, JSON-safe. */
+const extensionsOf = (err: unknown): Record<string, unknown> => {
+  const c = (err as { cause?: { extensions?: Record<string, unknown> } } | null)?.cause;
+  return c?.extensions ?? {};
+};
+
 /** RFC 9457 problem details with a stable `code`, Vietnamese `title`/`detail` and `traceId`. */
 export interface ProblemBody {
   type: string;
@@ -17,6 +23,7 @@ export interface ProblemBody {
   errors?: FieldError[];
   /** 429 only: seconds until the client may retry (also sent as Retry-After) */
   retryAfterSeconds?: number;
+  [extension: string]: unknown;
 }
 
 export const PROBLEM_CONTENT_TYPE = 'application/problem+json';
@@ -24,6 +31,7 @@ export const PROBLEM_CONTENT_TYPE = 'application/problem+json';
 export function problemFromError(err: unknown, traceId: string): ProblemBody {
   if (err instanceof AppError) {
     return {
+      ...extensionsOf(err),
       type: `urn:gmep:problem:${err.code}`,
       title: err.title,
       status: err.status,

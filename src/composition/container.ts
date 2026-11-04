@@ -7,6 +7,9 @@ import { DocAtomicStateStore, LoginThrottle, RateLimiter } from '@/platform/rate
 import type { DocStore, StoreStats } from '@/platform/store/docStore';
 import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
+import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
+import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
+import { DEFAULT_REC_CONFIG, recCustomerRetention, type RecDeps } from '@/modules/rec';
 import {
   BRANCH_STATE_RULES,
   DEFAULT_PASSWORD_POLICY,
@@ -42,12 +45,41 @@ import {
   DocUserRepository,
   DocWarehouseRepository,
 } from '@/infrastructure/repos/repos';
-import { stubBranchActivity, stubWarehouseActivity } from '@/infrastructure/stubs';
+import {
+  DocConsentRepository,
+  DocCustomerRepository,
+  DocDataRequestRepository,
+  DocOwnershipRepository,
+  DocVehicleHistoryRepository,
+  DocVehicleRepository,
+} from '@/infrastructure/repos/crmRepos';
+import {
+  DocIssueReturnRepository,
+  DocMovementRepository,
+  DocPartRepository,
+  DocReservationRepository,
+  DocStockBalanceRepository,
+  DocStockDocumentRepository,
+} from '@/infrastructure/repos/invRepos';
+import {
+  DocIntakeRepository,
+  DocQuoteRepository,
+  DocQuoteVersionRepository,
+} from '@/infrastructure/repos/recRepos';
+import {
+  combineRetention,
+  noOrderAdvisors,
+  stubBranchActivity,
+  stubCustomerRetention,
+} from '@/infrastructure/stubs';
 
 export interface Container {
   env: Env;
   backend: 'firestore' | 'memory';
   sys: SysDeps;
+  crm: CrmDeps;
+  inv: InvDeps;
+  rec: RecDeps;
   store: DocStore & { stats: StoreStats };
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
@@ -94,6 +126,7 @@ function buildSys(
   store: DocStore,
   uow: UnitOfWork,
   identity: IdentityProvider,
+  inv: { get: () => InvDeps },
 ): SysDeps {
   const config = sysConfigFromEnv(env);
   const now = () => clock.now();
@@ -114,7 +147,8 @@ function buildSys(
     companies: new DocCompanyRepository(store),
     branches: new DocBranchRepository(store),
     warehouses: new DocWarehouseRepository(store),
-    warehouseActivity: stubWarehouseActivity,
+    // INV owns the facts a warehouse is deactivated on (late-bound: SYS is built first)
+    warehouseActivity: invWarehouseActivity(() => inv.get()),
     branchActivity: stubBranchActivity,
     sessions: new DocSessionRepository(store),
     tokens: new DocAuthTokenRepository(store),
@@ -139,6 +173,59 @@ function buildSys(
   return deps;
 }
 
+/** CRM use cases share the SYS transaction, audit, numbering and PII services (slice 1.3). */
+function buildCrm(sys: SysDeps, store: DocStore): CrmDeps {
+  const crm: CrmDeps = {
+    sys,
+    customers: new DocCustomerRepository(store),
+    vehicles: new DocVehicleRepository(store),
+    ownerships: new DocOwnershipRepository(store),
+    consents: new DocConsentRepository(store),
+    requests: new DocDataRequestRepository(store),
+    history: new DocVehicleHistoryRepository(store),
+    retention: stubCustomerRetention,
+    crm: { ...DEFAULT_CRM_CONFIG, consentPolicyVersion: sys.config.consentPolicyVersion },
+  };
+  sys.piiSources.customer = customerPiiSource(() => crm);
+  return crm;
+}
+
+/** INV use cases share the SYS transaction, audit, numbering and config services (slice 1.4). */
+function buildInv(sys: SysDeps, store: DocStore, env: Env): InvDeps {
+  return {
+    sys,
+    parts: new DocPartRepository(store),
+    balances: new DocStockBalanceRepository(store),
+    movements: new DocMovementRepository(store),
+    documents: new DocStockDocumentRepository(store),
+    reservations: new DocReservationRepository(store),
+    returns: new DocIssueReturnRepository(store),
+    // a copy per container: tests flip flags without touching the shared default
+    inv: { ...DEFAULT_INV_CONFIG, allowTransferOrderSource: env.GMEP_ENV === 'local' },
+    // I15: repair orders (the advisor's records) arrive in slice 1.6; nobody is returned until then
+    advisors: noOrderAdvisors,
+  };
+}
+
+/** REC use cases read CRM and INV through their public surfaces only (slice 1.5). */
+function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): RecDeps {
+  const rec: RecDeps = {
+    sys,
+    crm,
+    inv,
+    intakes: new DocIntakeRepository(store),
+    quotes: new DocQuoteRepository(store),
+    versions: new DocQuoteVersionRepository(store),
+    rec: DEFAULT_REC_CONFIG,
+  };
+  // C17: REC joins the data-retention gate of CRM; the stub still stands for modules not built yet
+  crm.retention = combineRetention(
+    recCustomerRetention(() => rec),
+    stubCustomerRetention,
+  );
+  return rec;
+}
+
 export interface ContainerOptions {
   env?: Env;
   clock?: Clock;
@@ -153,25 +240,43 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const db = new MemoryDb();
     const identity = new MemoryIdentityProvider();
     const store = new MemoryDocStore(db);
+    const late: { inv?: InvDeps } = {};
+    const sys = buildSys(env, clock, store, new MemoryUnitOfWork(db), identity, {
+      get: () => late.inv!,
+    });
+    const inv = (late.inv = buildInv(sys, store, env));
+    const crm = buildCrm(sys, store);
     return {
       env,
       backend: 'memory',
       memory: { db, identity },
       store,
       identity,
-      sys: buildSys(env, clock, store, new MemoryUnitOfWork(db), identity),
+      sys,
+      crm,
+      inv,
+      rec: buildRec(sys, crm, inv, store),
     };
   }
 
   const db = getDb(env);
   const store = new FirestoreDocStore(db);
   const identity = new FirebaseIdentityProvider(env);
+  const late: { inv?: InvDeps } = {};
+  const sys = buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity, {
+    get: () => late.inv!,
+  });
+  const inv = (late.inv = buildInv(sys, store, env));
+  const crm = buildCrm(sys, store);
   return {
     env,
     backend: 'firestore',
     store,
     identity,
-    sys: buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity),
+    sys,
+    crm,
+    inv,
+    rec: buildRec(sys, crm, inv, store),
   };
 }
 
