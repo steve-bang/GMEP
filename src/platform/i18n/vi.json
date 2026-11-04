@@ -3596,7 +3596,8 @@
       "failed": "Không thực hiện được. Thử lại sau.",
       "ranChanged": "Đã cập nhật {n} ngày.",
       "ranNone": "Không có thay đổi: số liệu đã khớp với chứng từ gốc.",
-      "export": "Tải CSV"
+      "export": "Tải CSV",
+      "exportXlsx": "Tải Excel (.xlsx)"
     },
     "dashboard": {
       "title": "Tổng quan báo cáo",
@@ -3754,7 +3755,9 @@
       "print": "In báo cáo",
       "export": "Tải CSV",
       "exportXlsx": "Tải Excel (.xlsx)",
-      "filteredNote": "Đang lọc theo loại dịch vụ: chỉ hiện số liệu gắn với lệnh sửa chữa (lệnh hoàn thành, doanh thu, thu/công nợ của lệnh, lệnh chưa có hóa đơn). Thu theo phương thức, quỹ và kho không chia theo loại dịch vụ.",
+      "filteredNote": "Đang lọc theo loại dịch vụ: hiện số liệu gắn với lệnh sửa chữa (lệnh hoàn thành, doanh thu, thu theo phương thức, hóa đơn đã xuất, phiếu xuất kho, công nợ/hóa đơn còn thiếu của lệnh). Chứng từ không gắn với lệnh nằm ở dòng riêng bên dưới; quỹ ca và công nợ tồn không chia theo loại dịch vụ.",
+      "unlinkedTitle": "Không gắn lệnh (không chia theo loại dịch vụ)",
+      "unlinkedText": "Thu {inflow} · chi {expense} · hóa đơn đã xuất {invCount} ({invVnd}) · phiếu xuất kho {stock}",
       "breakdownMissing": "{n} ngày chưa có số liệu theo loại dịch vụ (bản ghi cũ, cần dựng lại) và không được tính.",
       "exportFailed": "Không tải được tệp. Thử lại sau.",
       "branch": "Chi nhánh",
@@ -3857,6 +3860,11 @@
       "empty": "Không có dữ liệu trong kỳ này."
     },
     "xcsv": {
+      "unlinked.inflowVnd": "Không gắn lệnh: thu (VND)",
+      "unlinked.expenseVnd": "Không gắn lệnh: chi (VND)",
+      "unlinked.invoicesIssuedCount": "Không gắn lệnh: hóa đơn đã xuất",
+      "unlinked.invoicesIssuedVnd": "Không gắn lệnh: giá trị hóa đơn (VND)",
+      "unlinked.stockIssueDocuments": "Không gắn lệnh: phiếu xuất kho",
       "colCode": "Mã chỉ tiêu",
       "colLabel": "Chỉ tiêu",
       "colValue": "Giá trị",
@@ -3926,6 +3934,7 @@
       "sheet_technicians": "Kỹ thuật viên"
     },
     "csv": {
+      "sheet": "Báo cáo ngày",
       "official": "Chính thức",
       "provisional": "Số tạm",
       "colCode": "Mã chỉ tiêu",

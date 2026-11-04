@@ -513,6 +513,38 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect((await post(ql, '/api/v1/rpt/daily/export', { date: today })).status).toBe(200);
       expect((await post(ch, '/api/v1/rpt/daily/export', { date: today })).status).toBe(409);
     });
+
+    it('FR-RPT-009: the daily report as .xlsx has the same permission, scope and audit as the CSV', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      expect(
+        (
+          await post(cv, '/api/v1/rpt/daily/export', {
+            date: today,
+            branchId: 'br_q7',
+            format: 'xlsx',
+          })
+        ).status,
+      ).toBe(403);
+      expect(
+        (await post(ql, '/api/v1/rpt/daily/export', { date: today, format: 'ods' })).status,
+      ).toBe(422);
+      expect(
+        (await post(ch, '/api/v1/rpt/daily/export', { date: today, format: 'xlsx' })).status,
+      ).toBe(409);
+      const before = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export').length;
+      const ok = await post(kt, '/api/v1/rpt/daily/export', {
+        date: today,
+        branchId: 'br_q7',
+        format: 'xlsx',
+      });
+      expect(ok.status, ok.text).toBe(200);
+      expect(ok.headers.get('content-type')).toContain('spreadsheetml.sheet');
+      expect(ok.headers.get('content-disposition')).toContain(`bao-cao-ngay-Q7-${today}.xlsx`);
+      expect(ok.text.startsWith('PK')).toBe(true);
+      const after = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
+      expect(after.length).toBe(before + 1);
+      expect(JSON.stringify(after.at(-1)!.after)).toContain('xlsx');
+    });
   });
 
   describe('monthly, reconciliation, warehouse, technician reports (FR-RPT-002, 004, 005, 006, 014)', () => {
@@ -646,6 +678,10 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       );
       expect(r.status, r.text).toBe(200);
       expect(r.json.visible.cash).toBe(false);
+      // FR-RPT-014: the "không gắn lệnh" line is present in the filtered views only
+      expect(r.json.unlinked).toMatchObject({ inflowVnd: expect.any(Number) });
+      expect(m.json.unlinked).not.toBeNull();
+      expect(all.json.unlinked).toBeNull();
     });
   });
 

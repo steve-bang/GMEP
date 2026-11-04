@@ -2,6 +2,7 @@ import { hasPermission, type Actor } from '@/platform/rbac/rbac';
 import {
   computeMonthly,
   forServiceType,
+  sumUnlinked,
   computeReconcile,
   computeTechnicians,
   computeWarehouse,
@@ -13,7 +14,7 @@ import {
   type TechnicianReport,
   type WarehouseReport,
 } from '../domain/reports';
-import { addDays, dayWindow } from '../domain/rollup';
+import { addDays, dayWindow, type UnlinkedRollup } from '../domain/rollup';
 import type { RptDeps } from '../ports/deps';
 import { canOf, redact, toDto, visibleOf, type Visible } from './read';
 import {
@@ -56,6 +57,8 @@ export interface MonthlyDto {
   serviceType: string | null;
   /** days whose rollup predates the service-type breakdown (rebuild them); empty without a filter */
   breakdownUnavailableDates: string[];
+  /** FR-RPT-014: documents with no order, only with a service-type filter (null otherwise) */
+  unlinked: UnlinkedRollup | null;
   report: MonthlyReport;
   visible: Visible;
   mayExport: boolean;
@@ -74,10 +77,11 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
     branchName: branch.name,
     serviceType: q.serviceType ?? null,
     breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
+    unlinked: narrowed ? sumUnlinked(narrowed.included) : null,
     report: computeMonthly(q.month, narrowed ? narrowed.rolls : all),
     // FR-RPT-014: narrowed to a service type, money by method, receivables and stock are not attributable and not shown
     visible: q.serviceType
-      ? { ...visibleOf(actor), money: false, receivables: false, stock: false, cash: false }
+      ? { ...visibleOf(actor), receivables: false, cash: false }
       : visibleOf(actor),
     mayExport: hasPermission(actor, 'report-daily:export'),
     // FR-RPT-013: the formulas are printed with the figures
@@ -120,6 +124,7 @@ export interface ReconcileDto {
   branchName: string;
   serviceType: string | null;
   breakdownUnavailableDates: string[];
+  unlinked: UnlinkedRollup | null;
   report: ReconcileReport;
   visible: ReconcileVisible;
   mayExport: boolean;
@@ -156,6 +161,7 @@ export async function getReconcile(
     branchName: branch.name,
     serviceType: q.serviceType ?? null,
     breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
+    unlinked: narrowed ? sumUnlinked(narrowed.included) : null,
     report: computeReconcile(q.from, q.to, narrowed ? narrowed.rolls : all, visible),
     visible,
     mayExport: hasPermission(actor, 'report-daily:export'),

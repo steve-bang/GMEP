@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { messages } from '@/platform/i18n/messages';
 import { isoToVi } from '@/platform/format/date';
-import type { DocRef } from '@/modules/rpt';
+import type { DocRef, UnlinkedRollup } from '@/modules/rpt';
 import { RecPage } from '../rec/RecPage';
 import { money } from '../rec/format';
 
@@ -28,6 +28,24 @@ export function Note(props: {
     <div className={`alert alert--${props.tone ?? 'info'}`} role="note" data-testid={props.testId}>
       <div className="alert__body">{props.children}</div>
     </div>
+  );
+}
+
+/** FR-RPT-014: the documents of a filtered view that carry no order, kept in their own line. */
+export function UnlinkedNote({ u, labels }: { u: UnlinkedRollup; labels: Dict }) {
+  return (
+    <Note tone="info" testId="rpt-unlinked">
+      <strong>{labels.unlinkedTitle}</strong>
+      <span className="text-secondary" style={{ display: 'block' }}>
+        {fill(labels.unlinkedText!, {
+          inflow: money(u.inflowVnd),
+          expense: money(u.expenseVnd),
+          invCount: u.invoicesIssuedCount,
+          invVnd: money(u.invoicesIssuedVnd),
+          stock: u.stockIssueDocuments,
+        })}
+      </span>
+    </Note>
   );
 }
 

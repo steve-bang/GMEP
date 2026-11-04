@@ -78,14 +78,14 @@ export function ExportButton(props: {
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  async function go() {
+  async function go(format: 'csv' | 'xlsx') {
     setBusy(true);
     setError(null);
     try {
       const res = await fetch('/api/v1/rpt/daily/export', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ date: props.date, branchId: props.branchId }),
+        body: JSON.stringify({ date: props.date, branchId: props.branchId, format }),
       });
       if (!res.ok) {
         const p = (await res.json().catch(() => null)) as { detail?: string } | null;
@@ -94,7 +94,7 @@ export function ExportButton(props: {
       }
       const name =
         /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ??
-        'bao-cao.csv';
+        `bao-cao.${format}`;
       const url = URL.createObjectURL(await res.blob());
       const a = document.createElement('a');
       a.href = url;
@@ -113,10 +113,19 @@ export function ExportButton(props: {
         type="button"
         variant="secondary"
         loading={busy}
-        onClick={go}
+        onClick={() => void go('csv')}
         data-testid="export-csv"
       >
         {props.labels.export}
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        loading={busy}
+        onClick={() => void go('xlsx')}
+        data-testid="export-xlsx-daily"
+      >
+        {props.labels.exportXlsx}
       </Button>
       {error ? (
         <div className="alert alert--danger" role="alert">

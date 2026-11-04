@@ -4,7 +4,13 @@
  * already limited to the actor's scope and permissions; warehouse and technician reports fold bounded fact lists.
  * Money is integer VND; hours are integer minutes (no floats in stored or summed values). No payroll (BR scope).
  */
-import { addDays, type DailyRollup, type ServiceTypeRollup } from './rollup';
+import {
+  addDays,
+  emptyServiceRollup,
+  emptyUnlinked,
+  type DailyRollup,
+  type UnlinkedRollup,
+} from './rollup';
 
 export const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 
@@ -88,38 +94,45 @@ type Rolled = Pick<
   | 'stock'
   | 'cash'
 > &
-  Partial<Pick<DailyRollup, 'byServiceType'>>;
+  Partial<Pick<DailyRollup, 'byServiceType' | 'schemaVersion' | 'unlinked'>>;
+
+/** FR-RPT-014: sum of the "không gắn lệnh" lines over the present days. */
+export function sumUnlinked(rolls: readonly Rolled[]): UnlinkedRollup {
+  const t = emptyUnlinked();
+  for (const r of rolls) {
+    const u = r.unlinked;
+    if (!u) continue;
+    for (const [k, v] of Object.entries(u.byMethod)) t.byMethod[k] = (t.byMethod[k] ?? 0) + v;
+    t.inflowVnd += u.inflowVnd;
+    t.expenseVnd += u.expenseVnd;
+    t.invoicesIssuedCount += u.invoicesIssuedCount;
+    t.invoicesIssuedVnd += u.invoicesIssuedVnd;
+    t.stockIssueDocuments += u.stockIssueDocuments;
+  }
+  return t;
+}
 
 /**
  * FR-RPT-014: narrows daily rollups to ONE service type. Only the order-bound figures are attributable (orders closed,
- * revenue, money received/debt/gap for those orders, orders completed without an invoice); opened/handed over/cancelled,
- * money by method, issued invoices, stock and cash are not tied to a service type and read zero (the screen hides
- * them). A rollup of schema version 1 has no breakdown: its date is listed in `unavailableDates`, not counted as zero.
+ * revenue, money received/debt/gap for those orders, orders completed without an invoice) plus the documents that carry
+ * an order (receipts by method, invoices issued, goods issues, schema 3). Opened/handed over/cancelled, receivables and
+ * cash are not tied to a service type and read zero; documents without an order are in `sumUnlinked`. A rollup before schema version 3 lacks the payment, invoice and stock split: its date is listed in `unavailableDates`, not counted as zero.
  */
 export function forServiceType(
   rolls: readonly Rolled[],
   serviceType: string,
-): { rolls: Rolled[]; unavailableDates: string[] } {
+): { rolls: Rolled[]; included: Rolled[]; unavailableDates: string[] } {
   const out: Rolled[] = [];
+  const included: Rolled[] = [];
   const unavailableDates: string[] = [];
   for (const r of rolls) {
-    if (!r.byServiceType) {
+    if (!r.byServiceType || (r.schemaVersion ?? 1) < 3) {
       unavailableDates.push(r.date);
       continue;
     }
-    const e: ServiceTypeRollup = r.byServiceType.find((x) => x.serviceType === serviceType) ?? {
-      serviceType,
-      closed: 0,
-      orderTotalVnd: 0,
-      laborVnd: 0,
-      partsVnd: 0,
-      receivedVnd: 0,
-      debtVnd: 0,
-      gapVnd: 0,
-      gapOrders: 0,
-      notInvoicedCount: 0,
-      notInvoicedVnd: 0,
-    };
+    const e =
+      r.byServiceType.find((x) => x.serviceType === serviceType) ?? emptyServiceRollup(serviceType);
+    included.push(r);
     out.push({
       date: r.date,
       official: r.official,
@@ -133,9 +146,9 @@ export function forServiceType(
         avgPerOrderVnd: e.closed > 0 ? Math.round((e.laborVnd + e.partsVnd) / e.closed) : 0,
       },
       money: {
-        byMethod: {},
+        byMethod: e.byMethod,
         receiptCount: 0,
-        inflowVnd: 0,
+        inflowVnd: e.inflowVnd,
         depositVnd: 0,
         expenseVnd: 0,
         receivedForClosedVnd: e.receivedVnd,
@@ -145,16 +158,16 @@ export function forServiceType(
       },
       receivables: { openDebtVnd: 0, openDebtCount: 0, overdueDebtVnd: 0, overdueDebtCount: 0 },
       invoices: {
-        issuedCount: 0,
-        issuedVnd: 0,
+        issuedCount: e.invoicesIssuedCount,
+        issuedVnd: e.invoicesIssuedVnd,
         closedWithoutInvoiceCount: e.notInvoicedCount,
         closedWithoutInvoiceVnd: e.notInvoicedVnd,
       },
-      stock: { issueDocuments: 0, issuesWithoutSource: 0 },
+      stock: { issueDocuments: e.stockIssueDocuments, issuesWithoutSource: 0 },
       cash: { shiftsClosed: 0, shiftsWithVariance: 0, varianceVnd: 0 },
     });
   }
-  return { rolls: out, unavailableDates };
+  return { rolls: out, included, unavailableDates };
 }
 
 /** Flows are summed over the days; end-of-period figures come from the last present day. Missing days are reported. */

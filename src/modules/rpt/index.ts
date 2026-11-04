@@ -37,5 +37,5 @@ export type {
 } from './application/read';
 export { getMonthly, getReconcile, getWarehouse, getTechnicians } from './application/reports';
 export type { MonthlyDto, ReconcileDto, WarehouseDto, TechniciansDto } from './application/reports';
-export { exportDailyCsv, exportReport, exportReportCsv } from './application/export';
+export { exportDaily, exportDailyCsv, exportReport, exportReportCsv } from './application/export';
 export { rptPolicyOf } from './application/support';

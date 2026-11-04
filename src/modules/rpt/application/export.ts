@@ -2,7 +2,7 @@ import { messages } from '@/platform/i18n/messages';
 import { businessDate } from '@/platform/format/date';
 import { buildXlsx } from '@/platform/files/xlsxWriter';
 import { hasPermission, type Actor } from '@/platform/rbac/rbac';
-import { ALERT_KINDS } from '../domain/rollup';
+import { ALERT_KINDS, type UnlinkedRollup } from '../domain/rollup';
 import type { RptDeps } from '../ports/deps';
 import { ALERT_PERMISSION } from './read';
 import { getMonthly, getReconcile, getTechnicians, getWarehouse } from './reports';
@@ -24,6 +24,8 @@ const exportSchema = z
     date: dateSchema,
     branchId: z.string().trim().max(64).optional(),
     reason: z.string().trim().max(200).optional(),
+    /** FR-RPT-009: csv (default) or .xlsx; same permission, scope, redaction and audit */
+    format: z.enum(['csv', 'xlsx']).default('csv'),
   })
   .strict();
 
@@ -41,6 +43,17 @@ export async function exportDailyCsv(
   raw: unknown,
   ctx: RequestCtx,
 ): Promise<{ csv: string; filename: string }> {
+  const r = await exportDaily(deps, actor, { ...(raw as object), format: 'csv' }, ctx);
+  return { csv: r.csv!, filename: r.filename };
+}
+
+/** Daily report as CSV or .xlsx (`format`): the same rows, permission, scope, redaction, audit and "minimum" label. */
+export async function exportDaily(
+  deps: RptDeps,
+  actor: Actor,
+  raw: unknown,
+  ctx: RequestCtx,
+): Promise<{ format: 'csv' | 'xlsx'; csv?: string; xlsx?: Buffer; filename: string }> {
   const input = parseInput(exportSchema, raw);
   const { scope, branches } = await branchesOf(deps, actor, 'report-daily:export', input.branchId);
   const branch = branches.length === 1 ? branches[0] : undefined;
@@ -94,11 +107,25 @@ export async function exportDailyCsv(
         entityType: 'rollup',
         entityId: r.id,
         action: 'rollup.export',
-        after: { date: r.date, rows: rows.length, official: r.official, format: 'csv' },
+        after: { date: r.date, rows: rows.length, official: r.official, format: input.format },
         ...(input.reason ? { reason: input.reason } : {}),
       }),
     );
   });
+  if (input.format === 'xlsx') {
+    // inline strings, formula markers neutralised by the writer; integers are real numbers
+    const sheet: (string | number)[][] = [
+      [L.branch!, `${branch.code} ${branch.name}`],
+      [L.date!, r.date],
+      [L.colCode!, L.colLabel!, L.colValue!],
+      ...rows.map((x) => [x[0], x[1], /^-?\d+$/.test(x[2]) ? Number(x[2]) : x[2]]),
+    ];
+    return {
+      format: 'xlsx',
+      xlsx: buildXlsx(L.sheet ?? 'bao-cao-ngay', sheet, 2),
+      filename: `bao-cao-ngay-${branch.code}-${r.date}.xlsx`,
+    };
+  }
   const head = [L.colCode!, L.colLabel!, L.colValue!].map(csvCell).join(',');
   // integers are written as numbers (a leading minus is not a formula); everything else is neutralised
   const num = (v: string) => (/^-?\d+$/.test(v) ? v : csvCell(v));
@@ -108,6 +135,7 @@ export async function exportDailyCsv(
     [L.date!, r.date],
   ].map((x) => x.map(csvCell).join(','));
   return {
+    format: 'csv',
     csv: `﻿${[...meta, head, ...body].join('\r\n')}\r\n`,
     filename: `bao-cao-ngay-${branch.code}-${r.date}.csv`,
   };
@@ -134,6 +162,21 @@ const reportExportSchema = z
   .strict();
 
 type Cell = string | number | null;
+
+/** FR-RPT-014: "không gắn lệnh" figures as flat code -> value pairs. */
+function unlinkedFlat(u: UnlinkedRollup): Record<string, number> {
+  return {
+    'unlinked.inflowVnd': u.inflowVnd,
+    'unlinked.expenseVnd': u.expenseVnd,
+    'unlinked.invoicesIssuedCount': u.invoicesIssuedCount,
+    'unlinked.invoicesIssuedVnd': u.invoicesIssuedVnd,
+    'unlinked.stockIssueDocuments': u.stockIssueDocuments,
+  };
+}
+const unlinkedRows = (
+  u: UnlinkedRollup | null,
+  row: (code: string, v: Cell) => Cell[],
+): Cell[][] => (u ? Object.entries(unlinkedFlat(u)).map(([k, v]) => row(k, v)) : []);
 const lbl = (k: string): string => X[k] ?? k;
 // integers are written as numbers (a leading minus is not a formula); everything else is neutralised
 const cell = (v: Cell): string =>
@@ -217,11 +260,12 @@ export async function exportReport(
           : []),
         ...(d.visible.invoices
           ? [
-              ...(d.serviceType ? [] : [row('invoices.issuedCount', r.invoices.issuedCount)]),
+              row('invoices.issuedCount', r.invoices.issuedCount),
               row('invoices.closedWithoutInvoiceCount', r.endOfPeriod.closedWithoutInvoiceCount),
             ]
           : []),
         ...(d.visible.stock ? [row('stock.issuesWithoutSource', r.stock.issuesWithoutSource)] : []),
+        ...unlinkedRows(d.unlinked, row),
       ];
       break;
     }
@@ -233,6 +277,9 @@ export async function exportReport(
       if (d.serviceType) meta.push([lbl('serviceType'), d.serviceType]);
       if (d.breakdownUnavailableDates.length > 0)
         meta.push([lbl('breakdownMissing'), d.breakdownUnavailableDates.length]);
+      // FR-RPT-014: the documents with no order stay in their own lines (label + value), not spread over types
+      if (d.unlinked)
+        for (const [k, v] of Object.entries(unlinkedFlat(d.unlinked))) meta.push([lbl(k), v]);
       branch = { id: d.branchId, name: d.branchName, code: d.branchId };
       period = `${d.report.from}_${d.report.to}`;
       head = [

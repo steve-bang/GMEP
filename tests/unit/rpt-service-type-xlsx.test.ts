@@ -10,6 +10,8 @@ import {
   forServiceType,
   type DayFacts,
   type OrderFact,
+  type PaymentFact,
+  sumUnlinked,
 } from '@/modules/rpt';
 
 const key = { companyId: 'cmp', branchId: 'br_q7', date: '2026-11-03' };
@@ -26,6 +28,24 @@ const order = (id: string, serviceType: string | null, total: number): OrderFact
   completedAt: at('15:00'),
   totalVnd: total,
   serviceType,
+});
+const pay = (
+  id: string,
+  kind: PaymentFact['kind'],
+  direction: 'in' | 'out',
+  orderId: string | null,
+  lines: [string, number][],
+  reversesKind?: PaymentFact['kind'],
+): PaymentFact => ({
+  id,
+  number: id,
+  kind,
+  direction,
+  ...(reversesKind ? { reversesKind } : {}),
+  orderId,
+  businessDate: '2026-11-03',
+  lines: lines.map(([method, amountVnd]) => ({ method, amountVnd })),
+  totalVnd: lines.reduce((a, [, v]) => a + v, 0),
 });
 const facts: DayFacts = {
   orders: [
@@ -50,12 +70,32 @@ const facts: DayFacts = {
     ['1', { valid: true, requestOpen: false }],
     ['3', { valid: true, requestOpen: false }],
   ]),
-  payments: [],
+  payments: [
+    pay('p1', 'receipt', 'in', '1', [
+      ['cash', 700_000],
+      ['transfer', 380_000],
+    ]),
+    pay('p3', 'receipt', 'in', '3', [['card', 216_000]]),
+    pay('p9', 'receipt', 'in', null, [['cash', 50_000]]),
+    pay('p10', 'receipt', 'in', 'old-order', [['qr', 20_000]]),
+    pay('p11', 'reversal', 'out', '1', [['cash', 80_000]], 'receipt'),
+    pay('p12', 'expense', 'out', null, [['cash', 30_000]]),
+  ],
   openDebts: [],
   shifts: [],
   dayClosedAt: null,
-  invoicesIssued: [],
-  stockIssues: [],
+  invoicesIssued: [
+    { id: 'i1', orderId: '1', orderNumber: 'RO-1', valid: true, totalVnd: 1_080_000 },
+    { id: 'i3', orderId: '3', orderNumber: 'RO-3', valid: true, totalVnd: 216_000 },
+    { id: 'i9', orderId: 'old-order', orderNumber: 'RO-9', valid: true, totalVnd: 99_000 },
+    { id: 'ix', orderId: '1', orderNumber: 'RO-1', valid: false, totalVnd: 5 },
+  ],
+  stockIssues: [
+    { id: 's1', label: 'GIN-1', sourceType: 'repair_order', sourceId: '1' },
+    { id: 's2', label: 'GIN-2', sourceType: 'repair_order', sourceId: '1' },
+    { id: 's3', label: 'GIN-3', sourceType: 'repair_order', sourceId: 'old-order' },
+    { id: 's4', label: 'GIN-4', sourceType: 'none', sourceId: null },
+  ],
   truncated: [],
 };
 const roll = () => computeDaily(key, facts, DEFAULT_RPT_POLICY, limits, NOW, fingerprintOf);
@@ -63,7 +103,7 @@ const roll = () => computeDaily(key, facts, DEFAULT_RPT_POLICY, limits, NOW, fin
 describe('FR-RPT-014: byServiceType in the daily rollup', () => {
   it('splits the order-bound figures by type and adds up to the day totals', () => {
     const r = roll();
-    expect(r.schemaVersion).toBe(2);
+    expect(r.schemaVersion).toBe(3);
     const by = new Map(r.byServiceType!.map((x) => [x.serviceType, x]));
     expect(by.get('maintenance')).toMatchObject({
       closed: 2,
@@ -86,6 +126,49 @@ describe('FR-RPT-014: byServiceType in the daily rollup', () => {
     expect(sum((x) => x.laborVnd)).toBe(r.revenue.laborVnd);
     expect(sum((x) => x.gapVnd)).toBe(r.money.gapVnd);
     expect(sum((x) => x.notInvoicedCount)).toBe(r.invoices.closedWithoutInvoiceCount);
+  });
+
+  it('FR-RPT-014: splits money by method, issued invoices and goods issues by type; the rest is unlinked', () => {
+    const r = roll();
+    const by = new Map(r.byServiceType!.map((x) => [x.serviceType, x]));
+    expect(by.get('maintenance')).toMatchObject({
+      byMethod: { cash: 620_000, transfer: 380_000 },
+      inflowVnd: 1_000_000,
+      invoicesIssuedCount: 1,
+      invoicesIssuedVnd: 1_080_000,
+      stockIssueDocuments: 2,
+    });
+    expect(by.get('tires')).toMatchObject({ byMethod: { card: 216_000 }, invoicesIssuedCount: 1 });
+    expect(r.unlinked).toEqual({
+      byMethod: { cash: 50_000, qr: 20_000 },
+      inflowVnd: 70_000,
+      expenseVnd: 30_000,
+      invoicesIssuedCount: 1,
+      invoicesIssuedVnd: 99_000,
+      stockIssueDocuments: 2,
+    });
+    // attributed + unlinked add up to the day totals (nothing is lost or counted twice)
+    const sum = (f: (x: NonNullable<typeof r.byServiceType>[number]) => number) =>
+      r.byServiceType!.reduce((s, x) => s + f(x), 0);
+    expect(sum((x) => x.inflowVnd) + r.unlinked!.inflowVnd).toBe(r.money.inflowVnd);
+    expect(sum((x) => x.invoicesIssuedCount) + r.unlinked!.invoicesIssuedCount).toBe(
+      r.invoices.issuedCount,
+    );
+    expect(sum((x) => x.stockIssueDocuments) + r.unlinked!.stockIssueDocuments).toBe(
+      r.stock.issueDocuments,
+    );
+    // the filtered view carries them (the reconcile "issued" column is no longer 0)
+    const n = forServiceType([r], 'maintenance');
+    expect(n.rolls[0]!.invoices.issuedCount).toBe(1);
+    expect(n.rolls[0]!.money.byMethod).toEqual({ cash: 620_000, transfer: 380_000 });
+    expect(n.rolls[0]!.stock.issueDocuments).toBe(2);
+    expect(sumUnlinked(n.included).inflowVnd).toBe(70_000);
+  });
+
+  it('a schema 2 document (no payment/invoice/stock split) is listed as unavailable, not zero', () => {
+    const r = roll();
+    const v2 = { ...r, schemaVersion: 2 as const };
+    expect(forServiceType([v2], 'maintenance').unavailableDates).toEqual([r.date]);
   });
 
   it('is rebuild-safe: same facts give the same hash; an old (v1) document differs and is replaced once', () => {

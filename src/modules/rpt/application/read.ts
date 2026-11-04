@@ -102,9 +102,23 @@ export function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto
       ...e,
       ...(can('repair-order:view') ? {} : { closed: 0 }),
       ...(can('report-daily:view') ? {} : { orderTotalVnd: 0, laborVnd: 0, partsVnd: 0 }),
-      ...(zeroMoney ? { receivedVnd: 0, debtVnd: 0, gapVnd: 0, gapOrders: 0 } : {}),
-      ...(can('invoice:view') ? {} : { notInvoicedCount: 0, notInvoicedVnd: 0 }),
+      ...(zeroMoney
+        ? { receivedVnd: 0, debtVnd: 0, gapVnd: 0, gapOrders: 0, byMethod: {}, inflowVnd: 0 }
+        : {}),
+      ...(can('invoice:view')
+        ? {}
+        : { notInvoicedCount: 0, notInvoicedVnd: 0, invoicesIssuedCount: 0, invoicesIssuedVnd: 0 }),
+      ...(can('stock:view') ? {} : { stockIssueDocuments: 0 }),
     }));
+  if (r.unlinked)
+    out.unlinked = {
+      byMethod: zeroMoney ? {} : r.unlinked.byMethod,
+      inflowVnd: zeroMoney ? 0 : r.unlinked.inflowVnd,
+      expenseVnd: zeroMoney ? 0 : r.unlinked.expenseVnd,
+      invoicesIssuedCount: can('invoice:view') ? r.unlinked.invoicesIssuedCount : 0,
+      invoicesIssuedVnd: can('invoice:view') ? r.unlinked.invoicesIssuedVnd : 0,
+      stockIssueDocuments: can('stock:view') ? r.unlinked.stockIssueDocuments : 0,
+    };
   out.alertCounts = Object.fromEntries(
     ALERT_KINDS.map((k) => [k, can(ALERT_PERMISSION[k]) ? r.alertCounts[k] : 0]),
   );

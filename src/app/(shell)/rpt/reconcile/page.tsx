@@ -7,7 +7,18 @@ import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { ErrorFor, first, type SearchParams } from '@/ui/components/PageParts';
 import { ReportTools } from '../RptActions';
-import { dmy, drillHref, Field, FilterForm, fill, money, Note, RptPage, rptLabels } from '../rptUi';
+import {
+  dmy,
+  drillHref,
+  Field,
+  FilterForm,
+  fill,
+  money,
+  Note,
+  RptPage,
+  rptLabels,
+  UnlinkedNote,
+} from '../rptUi';
 
 export const dynamic = 'force-dynamic';
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -92,6 +103,7 @@ export default async function ReconcilePage({ searchParams }: { searchParams: Se
           ) : null}
         </Note>
       ) : null}
+      {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
       <Note tone={r.reconciled ? 'success' : 'warning'} testId="reconcile-state">
         <strong>{r.reconciled ? l.reconcileOk : fill(l.reconcileBad!, { n: r.failedDays })}</strong>
         {r.missingDates.length ? (

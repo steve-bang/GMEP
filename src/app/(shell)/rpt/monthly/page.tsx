@@ -9,7 +9,19 @@ import { getContainer } from '@/composition/container';
 import { DataTable } from '@/ui/components/DataTable';
 import { ErrorFor, first, type SearchParams } from '@/ui/components/PageParts';
 import { ReportTools } from '../RptActions';
-import { dmy, Field, FilterForm, fill, Kpi, Kpis, money, Note, RptPage, rptLabels } from '../rptUi';
+import {
+  dmy,
+  Field,
+  FilterForm,
+  fill,
+  Kpi,
+  Kpis,
+  money,
+  Note,
+  RptPage,
+  rptLabels,
+  UnlinkedNote,
+} from '../rptUi';
 
 export const dynamic = 'force-dynamic';
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
@@ -90,6 +102,7 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
           ) : null}
         </Note>
       ) : null}
+      {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
@@ -130,7 +143,7 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                   <td>{l.taxOther}</td>
                   <td className="col-num">{money(r.revenue.taxAndOtherVnd)}</td>
                 </tr>
-                {d.visible.invoices && !d.serviceType ? (
+                {d.visible.invoices ? (
                   <tr>
                     <td>{l.invIssued}</td>
                     <td className="col-num">

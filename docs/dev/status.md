@@ -49,8 +49,14 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 ## Cập nhật 04/11/2026 (4): ẩn ảnh, báo mở lại ngày lặp lại, loại dịch vụ, xuất .xlsx (dev)
 
 - R104: nút "Ẩn ảnh" (hộp thoại bắt buộc lý do) trên `PhotoPanel` cho người có `rec-photo:update`; ảnh đã ẩn hiện trong danh sách của họ kèm nhãn "Đã ẩn" và lý do, người khác không thấy (API trả 404).
-- R106: mở lại ngày quá `maxReopensPerMonth` (mặc định 3, cấu hình `approval-limit`/`day_reopen`) lần trong tháng thì gửi thêm thông báo ngoại lệ lặp lại cho CH và KT. Đếm bằng `reopenCount` trên bản ghi chốt ngày (đọc theo mã, không thêm chỉ mục). Test chỉ kiểm tra "một lần chưa báo"; nhánh vượt ngưỡng chưa có test tích hợp (khó dựng nhiều ngày).
+- R106: mở lại ngày quá `maxReopensPerMonth` (mặc định 3, cấu hình `approval-limit`/`day_reopen`) lần trong tháng thì gửi thêm thông báo ngoại lệ lặp lại cho CH và KT. Đếm bằng `reopenCount` trên bản ghi chốt ngày (đọc theo mã, không thêm chỉ mục). Test chỉ kiểm tra "một lần chưa báo"; nhánh vượt ngưỡng nay đã có test tích hợp (đặt `reopenCount` 3 trên bản ghi chốt ngày).
 - FR-RPT-014: rollup ngày `schemaVersion` 2 có `byServiceType` (số lệnh, doanh thu, thu/nợ/chênh lệch, lệnh chưa hóa đơn theo loại). Bản cũ (v1) được dựng lại một lần khi làm mới (mã băm khác), sau đó ổn định; ngày v1 chưa dựng lại bị loại khỏi báo cáo lọc và được liệt kê. Bộ lọc loại dịch vụ ở báo cáo tháng và đối chiếu (màn hình, API, xuất).
 - Xuất `.xlsx` (FR-RPT-009) cho 4 báo cáo giai đoạn 1 (`format: 'xlsx'` ở `/api/v1/rpt/export`) và mẫu nhập `.xlsx` (`?format=xlsx`). Trình ghi tối giản tự viết (`src/platform/files/xlsxWriter.ts`, OOXML + zip bằng `node:zlib`, không thêm thư viện); chuỗi là inline string, thoát `= + - @`.
 - Chưa dựng: xuất `.xlsx` cho báo cáo ngày (vẫn CSV); chia thu theo phương thức, quỹ, kho theo loại dịch vụ (không gắn với lệnh). Ở màn đối chiếu lọc, cột "đã xuất hóa đơn" vẫn hiện 0.
 - Test: `tests/unit/rpt-service-type-xlsx.test.ts` (đọc lại file bằng read-excel-file), `tests/integration/{rpt,import,rec-orders,acc}.test.ts`.
+
+## Cập nhật 04/11/2026 (5): hoàn tất R108 (dev)
+
+- Báo cáo ngày có thêm `.xlsx` (`format: 'xlsx'` ở `/api/v1/rpt/daily/export`, cùng quyền, phạm vi, nhật ký, thoát công thức, nhãn "mức tối thiểu" như CSV) và nút "Tải Excel (.xlsx)" ở màn hình ngày.
+- Rollup ngày `schemaVersion` 3: mỗi loại dịch vụ có thêm thu theo phương thức, hóa đơn đã xuất, phiếu xuất kho gắn với lệnh; phần không gắn lệnh (hoặc lệnh ngoài vùng quét) nằm ở `unlinked` và hiện thành dòng riêng "Không gắn lệnh" ở báo cáo tháng/đối chiếu khi lọc (và trong tệp xuất). Cột "đã xuất hóa đơn" khi lọc không còn 0. Bản v1/v2 được dựng lại một lần khi làm mới (mã băm khác); ngày chưa dựng lại bị loại khỏi báo cáo lọc và được liệt kê. Không thêm chỉ mục. Còn không chia theo loại dịch vụ: quỹ ca, công nợ tồn, chi (chi nằm ở dòng không gắn lệnh); đối chiếu kho khi lọc vẫn ẩn.
+- Test: `tests/unit/rpt-service-type-xlsx.test.ts`, `tests/integration/{rpt,acc}.test.ts`.

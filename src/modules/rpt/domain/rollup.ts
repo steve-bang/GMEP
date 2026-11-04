@@ -208,9 +208,37 @@ export interface ServiceTypeRollup {
   gapOrders: number;
   notInvoicedCount: number;
   notInvoicedVnd: number;
+  /** schema 3: documents bound to an order of this type (payment lines net of reversals, valid invoices issued on the date, goods issues) */
+  byMethod: Record<string, number>;
+  inflowVnd: number;
+  invoicesIssuedCount: number;
+  invoicesIssuedVnd: number;
+  stockIssueDocuments: number;
 }
 
-const emptyService = (serviceType: string | null): ServiceTypeRollup => ({
+/**
+ * FR-RPT-014 (schema 3): what cannot be attributed to an order of the scan (no order on the document, or an order outside
+ * the scan window). It is shown as its own "không gắn lệnh" line, never spread over service types.
+ */
+export interface UnlinkedRollup {
+  byMethod: Record<string, number>;
+  inflowVnd: number;
+  expenseVnd: number;
+  invoicesIssuedCount: number;
+  invoicesIssuedVnd: number;
+  stockIssueDocuments: number;
+}
+
+export const emptyUnlinked = (): UnlinkedRollup => ({
+  byMethod: {},
+  inflowVnd: 0,
+  expenseVnd: 0,
+  invoicesIssuedCount: 0,
+  invoicesIssuedVnd: 0,
+  stockIssueDocuments: 0,
+});
+
+export const emptyServiceRollup = (serviceType: string | null): ServiceTypeRollup => ({
   serviceType,
   closed: 0,
   orderTotalVnd: 0,
@@ -222,6 +250,11 @@ const emptyService = (serviceType: string | null): ServiceTypeRollup => ({
   gapOrders: 0,
   notInvoicedCount: 0,
   notInvoicedVnd: 0,
+  byMethod: {},
+  inflowVnd: 0,
+  invoicesIssuedCount: 0,
+  invoicesIssuedVnd: 0,
+  stockIssueDocuments: 0,
 });
 
 export const PAYMENT_METHOD_KEYS = ['cash', 'transfer', 'card', 'qr'] as const;
@@ -233,8 +266,11 @@ export interface DailyRollup {
   date: string;
   /** FR-RPT-010: the day is closed in ACC, so the numbers are official; otherwise provisional */
   official: boolean;
-  /** 1 = before the service-type breakdown; 2 = with `byServiceType` (FR-RPT-014). A rebuild upgrades a document. */
-  schemaVersion: 1 | 2;
+  /**
+   * 1 = before the service-type breakdown; 2 = with `byServiceType` (orders only); 3 = also money by method, issued invoices
+   * and goods issues per type plus `unlinked` (FR-RPT-014). A rebuild upgrades a document.
+   */
+  schemaVersion: 1 | 2 | 3;
   computedAt: Date;
   /** hash of everything below except `computedAt` and `sourceHash` (a rebuild that changes nothing writes nothing) */
   sourceHash: string;
@@ -286,6 +322,8 @@ export interface DailyRollup {
   cash: { shiftsClosed: number; shiftsWithVariance: number; varianceVnd: number };
   /** FR-RPT-014, sorted by type; absent on schema version 1 documents */
   byServiceType?: ServiceTypeRollup[];
+  /** FR-RPT-014: documents not bound to an order of the scan; absent before schema 3 */
+  unlinked?: UnlinkedRollup;
   alertCounts: Record<AlertKind, number>;
   alerts: AlertItem[];
   alertsTruncated: boolean;
@@ -369,10 +407,12 @@ export function computeDaily(
   let closedWithoutInvoice = 0;
   let closedWithoutInvoiceVnd = 0;
   const svc = new Map<string, ServiceTypeRollup>();
+  const orderById = new Map(orders.map((o) => [o.id, o]));
+  const unlinked = emptyUnlinked();
   const svcOf = (o: OrderFact): ServiceTypeRollup => {
     const k = o.serviceType ?? '';
     let s = svc.get(k);
-    if (!s) svc.set(k, (s = emptyService(o.serviceType ?? null)));
+    if (!s) svc.set(k, (s = emptyServiceRollup(o.serviceType ?? null)));
     return s;
   };
 
@@ -476,12 +516,18 @@ export function computeDaily(
     if (moneyIn) {
       for (const l of p.lines) byMethod[l.method] = (byMethod[l.method] ?? 0) + sign * l.amountVnd;
       inflow += sign * p.totalVnd;
+      const po = p.orderId ? orderById.get(p.orderId) : undefined;
+      const bucket = po ? svcOf(po) : unlinked;
+      for (const l of p.lines)
+        bucket.byMethod[l.method] = (bucket.byMethod[l.method] ?? 0) + sign * l.amountVnd;
+      bucket.inflowVnd += sign * p.totalVnd;
       if (p.kind === 'receipt') receiptCount++;
       if (p.kind === 'deposit') deposit += p.totalVnd;
       if (p.reversesKind === 'deposit') deposit -= p.totalVnd;
     } else {
       // expense out, or the reversal of an expense (in)
       expense += -sign * p.totalVnd;
+      unlinked.expenseVnd += -sign * p.totalVnd;
     }
   }
 
@@ -521,6 +567,10 @@ export function computeDaily(
   for (const i of facts.invoicesIssued) {
     if (!i.valid) continue;
     issuedVnd += i.totalVnd;
+    const io = orderById.get(i.orderId);
+    const ib = io ? svcOf(io) : unlinked;
+    ib.invoicesIssuedCount++;
+    ib.invoicesIssuedVnd += i.totalVnd;
     addRef('invoicesIssued', {
       kind: 'invoice',
       id: i.id,
@@ -533,6 +583,9 @@ export function computeDaily(
   // RULE-007: a goods issue always carries a source document; the expected number is 0
   let withoutSource = 0;
   for (const s of facts.stockIssues) {
+    const so = s.sourceId ? orderById.get(s.sourceId) : undefined;
+    if (so) svcOf(so).stockIssueDocuments++;
+    else unlinked.stockIssueDocuments++;
     if (s.sourceId) continue;
     withoutSource++;
     const ref: DocRef = { kind: 'stock-doc', id: s.id, label: s.label, note: s.sourceType };
@@ -561,7 +614,7 @@ export function computeDaily(
     branchId: key.branchId,
     date: key.date,
     official: facts.dayClosedAt !== null,
-    schemaVersion: 2 as const,
+    schemaVersion: 3 as const,
     orders: { opened, closed, handedOver, cancelled, openAtEnd },
     revenue: {
       orderTotalVnd: orderTotal,
@@ -599,6 +652,7 @@ export function computeDaily(
     byServiceType: [...svc.values()].sort((a, b) =>
       (a.serviceType ?? '').localeCompare(b.serviceType ?? ''),
     ),
+    unlinked,
     alertCounts,
     alerts: alerts.sort(
       (a, b) =>

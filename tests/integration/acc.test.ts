@@ -1616,6 +1616,44 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       ).toBe(200);
     });
 
+    it('R106: the 4th reopening in a month (maxReopensPerMonth 3) also sends the repeated-exception notice to the owner and the accountant', async () => {
+      const tn3 = await h.loginAt('u_tn_q7', 'br_q7');
+      const ql3 = await h.loginAt('u_ql_q7', 'br_q7');
+      const ch3 = await h.loginAt('u_owner', 'br_q7');
+      await ensureShift(tn3);
+      await closeShiftClean(tn3);
+      const date = (await get(ql3, '/api/v1/acc/day-close')).json.date as string;
+      expect((await post(ql3, '/api/v1/acc/day-close', { date })).status).toBe(201);
+      // the month already holds three reopenings (recorded on the close record, which the rule counts by id)
+      const closeRow = (await rows('dayCloses')).find((r) => r.businessDate === date)!;
+      const patch = { reopenCount: 3 };
+      if (backend === 'memory')
+        h.container.memory!.db.col('dayCloses').set(String(closeRow.id), { ...closeRow, ...patch });
+      else
+        await getDb(h.container.env).collection('dayCloses').doc(String(closeRow.id)).update(patch);
+      const before = (await rows('notifications')).filter(
+        (n) => n.titleKey === 'notifications.dayReopenedRepeated',
+      ).length;
+      const rq = await post(ql3, '/api/v1/acc/day-close/reopen-request', {
+        date,
+        reason: 'Lần mở lại thứ tư trong tháng',
+      });
+      expect(rq.status, rq.text).toBe(202);
+      expect((await decide(ch3, rq.json.approvalId, 'approve')).status).toBe(200);
+      const re = await post(ql3, '/api/v1/acc/day-close/reopen', {
+        approvalId: rq.json.approvalId,
+      });
+      expect(re.status, re.text).toBe(200);
+      const repeated = (await rows('notifications')).filter(
+        (n) => n.titleKey === 'notifications.dayReopenedRepeated',
+      );
+      expect(repeated.length).toBeGreaterThan(before);
+      expect(repeated.some((n) => n.userId === 'u_owner')).toBe(true);
+      expect(JSON.stringify(repeated.at(-1)!.params)).toContain('4');
+      // leave the shift state as found for the next test
+      void tn3;
+    });
+
     it('a count difference needs a cause and an explanation; over the tolerance it needs a manager; the DAY cannot close until then; after the close nothing is posted that day', async () => {
       // use the other branch, which has no money history yet, so the day can really be closed
       const tn2 = await h.loginAt('u_tn_q7', 'br_q7');
