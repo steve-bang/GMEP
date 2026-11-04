@@ -48,6 +48,7 @@
     "indexes:generate": "tsx --tsconfig tsconfig.json scripts/check-indexes.ts --write",
     "audit:prod": "pnpm audit --prod --audit-level high",
     "check:bundle": "tsx --tsconfig tsconfig.json scripts/check-bundle.ts",
+    "check:fast": "tsx --tsconfig tsconfig.json scripts/check-fast.ts",
     "test:unit": "vitest run --project unit",
     "test:integration": "firebase emulators:exec --only firestore,auth,storage --project demo-gmep \"vitest run --project integration\"",
     "test:integration:memory": "vitest run --project integration",
