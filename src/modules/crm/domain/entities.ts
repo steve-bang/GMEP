@@ -12,7 +12,7 @@ export interface Customer {
   companyId: string;
   /** branch where the record was created (every business record carries its branch) */
   branchId: string;
-  /** KH-xxxxx per company, never reused */
+  /** KH-<branch>-<seq>, never reused */
   code: string;
   type: CustomerType;
   /** individual: full name; business: legal entity name (needed on invoices) */
@@ -54,8 +54,20 @@ export const vehicleLinkId = (vehicleId: string, branchId: string): string =>
   `${vehicleId}~${branchId}`;
 export const plateKey = (companyId: string, plateNorm: string): string =>
   `${companyId}__${plateNorm}`;
+/** C11: VIN registry slot, unique per company */
+export const vinKey = (companyId: string, vin: string): string => `${companyId}__${vin}`;
 
-/** Which branches may see a customer in lists (relation = created at, or appointment/quote/order there). */
+/** How a branch came to have a relation with a customer (C2): kept for later access reviews. */
+export const RELATION_SOURCES = [
+  'created',
+  'lookup_adopt',
+  'appointment',
+  'quote',
+  'repair_order',
+] as const;
+export type RelationSource = (typeof RELATION_SOURCES)[number];
+
+/** Which branches may see a customer in lists (relation = created at, or appointment/quote/order there). It never expires. */
 export interface CustomerLink {
   id: string;
   companyId: string;
@@ -64,6 +76,9 @@ export interface CustomerLink {
   nameNorm: string;
   type: CustomerType;
   code: string;
+  /** C2: why and by whom the relation exists */
+  source: RelationSource;
+  createdBy: string;
   createdAt: Date;
 }
 
@@ -85,6 +100,8 @@ export interface Vehicle {
   isCommercial: boolean;
   lastKm?: number;
   lastKmAt?: string;
+  /** C5: set when a lower odometer reading was recorded because the odometer was replaced (reports must not treat it as abnormal) */
+  odometerReplacedAt?: string;
   currentOwnerId: string | null;
   /** branches with a relation to this vehicle */
   branchIds: string[];
@@ -123,7 +140,11 @@ export interface VehicleHistoryEntry {
   km?: number;
   items: string[];
   parts: { name: string; qty: number }[];
-  /** integer VND; shown only when config `historyShowPrice` (BA P3 [Cần xác nhận: Chủ dự án]) */
+  /**
+   * integer VND; C6: the sum of the order's item prices BEFORE order-level discount and BEFORE tax,
+   * never the amount the customer pays (that would reveal another branch's discount policy).
+   * Shown only when config `historyShowPrice` (BA P3 [Cần xác nhận: Chủ dự án])
+   */
   totalVnd?: number;
   /** projection rebuild marker */
   projectedAt: Date;

@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { formatDate } from '@/platform/format/date';
 import { hasPermission, resolveWorkingScope } from '@/platform/rbac/rbac';
-import { getCustomer, listCustomers, listDataRequests } from '@/modules/crm';
+import { getCustomer, listDataRequests } from '@/modules/crm';
 import { formLabels } from '@/composition/labels';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -13,6 +13,7 @@ import { ResourceForm } from '@/ui/components/ResourceForm';
 import { EmptyState } from '@/ui/components/States';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { CrmPage } from '../CrmPage';
+import { pickerLabels } from '../pickerLabels';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,13 +44,10 @@ export default async function DataRequestsPage({ searchParams }: { searchParams:
       ...(cursor ? { cursor } : {}),
     });
     const branches = await crm.sys.branches.list(scope);
-    const customers = canCreate
-      ? customerId
+    const customers =
+      canCreate && customerId
         ? [await getCustomer(crm, actor, customerId, { requestId: 'page', sessionId })]
-        : (await listCustomers(crm, actor, { limit: 100 })).items.filter(
-            (c) => c.status === 'active',
-          )
-      : [];
+        : [];
     return { page, branches, scope, customers };
   });
   if (res.error)
@@ -131,7 +129,7 @@ export default async function DataRequestsPage({ searchParams }: { searchParams:
               header: t('crm.requests.colDue'),
               render: (r) => (
                 <span>
-                  {formatDate(new Date(r.dueAt))}
+                  {formatDate(new Date(r.internalDueAt))}
                   {r.overdue ? (
                     <StatusBadge tone="danger">{t('crm.requests.overdue')}</StatusBadge>
                   ) : null}
@@ -167,14 +165,25 @@ export default async function DataRequestsPage({ searchParams }: { searchParams:
             endpoint="/api/v1/crm/data-requests"
             labels={formLabels(t, 'crm.requests.save', false)}
             fields={[
-              {
-                name: 'customerId',
-                label: t('crm.requests.colCustomer'),
-                type: 'select',
-                required: true,
-                ...(customerId ? { defaultValue: customerId } : {}),
-                options: customers.map((c) => ({ value: c.id, label: `${c.name} · ${c.code}` })),
-              },
+              customerId
+                ? {
+                    name: 'customerId',
+                    label: t('crm.requests.colCustomer'),
+                    type: 'select',
+                    required: true,
+                    defaultValue: customerId,
+                    options: customers.map((c) => ({
+                      value: c.id,
+                      label: `${c.name} · ${c.code}`,
+                    })),
+                  }
+                : {
+                    name: 'customerId',
+                    label: t('crm.requests.colCustomer'),
+                    type: 'customer',
+                    required: true,
+                    picker: { labels: pickerLabels(t) },
+                  },
               {
                 name: 'type',
                 label: t('crm.requests.colType'),

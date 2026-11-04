@@ -7,6 +7,7 @@ import type {
   Customer,
   CustomerPii,
   CustomerType,
+  RelationSource,
   Vehicle,
   VehicleHistoryEntry,
 } from '../domain/entities';
@@ -44,6 +45,7 @@ export interface CustomerRepository {
     c: Pick<Customer, 'id' | 'companyId' | 'nameNorm' | 'type' | 'code'>,
     branchId: string,
     at: Date,
+    relation: { source: RelationSource; by: string },
   ): void;
   /** keeps denormalised link columns in sync when name/type change */
   relink(
@@ -74,7 +76,16 @@ export interface VehicleRepository {
   getCompanyWideInTx(tx: Tx, companyId: string, id: string): Promise<Vehicle | null>;
   /** vehicleId that holds a plate in the company (uniqueness registry) or null */
   vehicleIdByPlate(companyId: string, plateNorm: string): Promise<string | null>;
-  /** fails the transaction with AlreadyExistsError when the plate is taken */
+  /** C11: vehicleId holding the VIN in the company, or null */
+  vehicleIdByVin(companyId: string, vin: string): Promise<string | null>;
+  /** moves the VIN registry slot (create new, free old); fails with AlreadyExistsError when taken */
+  setVin(
+    tx: Tx,
+    v: Pick<Vehicle, 'id' | 'companyId'>,
+    oldVin: string | null,
+    newVin: string | null,
+  ): void;
+  /** fails the transaction with AlreadyExistsError when the plate (or VIN) is taken */
   create(tx: Tx, v: Vehicle): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** moves the plate registry slot and the link columns */

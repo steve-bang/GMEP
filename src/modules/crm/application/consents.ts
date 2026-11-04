@@ -7,6 +7,7 @@ import {
   CONTACT_CHANNELS,
   CONSENT_PURPOSES,
   filterMarketingAudience,
+  looksLikePersonalContact,
   marketingChannelsOf,
   type AudienceDecision,
   type Consent,
@@ -96,6 +97,20 @@ export async function recordConsent(
     throw validationFailed([
       { field: 'basis', message: 'Quảng cáo chỉ được gửi khi khách đồng ý (căn cứ: đồng ý).' },
     ]);
+  // C10: legitimate interest is not usable until the lawyer confirms it (config), for any purpose
+  if (!deps.crm.consentBasesEnabled.includes(data.basis))
+    throw validationFailed([
+      { field: 'basis', message: 'Căn cứ này chưa được dùng. Chọn căn cứ khác.' },
+    ]);
+  // C4: evidence stays after anonymisation, so no phone or email in it
+  if (data.evidence && looksLikePersonalContact(data.evidence))
+    throw validationFailed([
+      {
+        field: 'evidence',
+        message:
+          'Không ghi số điện thoại, email hoặc tên khách vào bằng chứng; chỉ ghi số phiếu hoặc cách thu nhận.',
+      },
+    ]);
   return runIdempotent(
     idemOf(deps),
     {
@@ -177,6 +192,10 @@ export async function withdrawConsent(
   const scope = resolveScope(actor, 'consent:update');
   const cscope = resolveScope(actor, 'customer:view');
   const data = parseInput(withdrawConsentSchema, input);
+  if (data.reason && looksLikePersonalContact(data.reason))
+    throw validationFailed([
+      { field: 'reason', message: 'Không ghi số điện thoại hoặc email vào lý do rút.' },
+    ]);
   return deps.sys.uow.run(async (tx) => {
     const c = await deps.consents.getInTx(tx, actor.companyId, consentId);
     if (!c) throw notFound();

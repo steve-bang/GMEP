@@ -25,7 +25,8 @@ const flatten = (entries: [string, Action[]][]): string[] =>
 /**
  * CRM (slice 1.3, FR-CRM-001..017) default grants [Đề xuất BA - chờ xác nhận: Khách]. AD has no
  * customer data (BA §2.4); TH and TK get none until REC/INV define their narrower views.
- * `customer-lookup` = exact cross-branch lookup (P1/P2); `customer-pii:export` = full personal
+ * `customer-lookup` = exact cross-branch lookup by plate, vehicle fields only (P2; QĐ has only this);
+ * `customer-lookup-customer` = phone lookup and the customer projection (P1; CH, QV, QL, CV, TN, not QĐ, C9); `customer-pii:export` = full personal
  * columns in an export (CH, KT only, with reason and password, BA §9).
  */
 const CRM_CH = flatten([
@@ -36,6 +37,7 @@ const CRM_CH = flatten([
   g('consent', 'view', 'create', 'update'),
   g('data-request', 'view', 'create', 'update', 'approve'),
   g('customer-lookup', 'view'),
+  g('customer-lookup-customer', 'view'),
 ]);
 
 /**
@@ -104,6 +106,7 @@ const matrix: Grant = {
     g('consent', 'view'),
     g('data-request', 'view'),
     g('customer-lookup', 'view'),
+    g('customer-lookup-customer', 'view'),
     g('stock-cost', 'view'),
     g('stock-reservation', 'view'),
     g('inventory-policy', 'view'),
@@ -129,6 +132,7 @@ const matrix: Grant = {
     g('consent', 'view', 'create', 'update'),
     g('data-request', 'view', 'create', 'update'),
     g('customer-lookup', 'view'),
+    g('customer-lookup-customer', 'view'),
     g('stock-cost', 'view'),
     g('stock-level', 'update'),
     g('stock-reservation', 'view', 'create', 'update'),
@@ -147,6 +151,7 @@ const matrix: Grant = {
     g('consent', 'view', 'create', 'update'),
     g('data-request', 'view', 'create'),
     g('customer-lookup', 'view'),
+    g('customer-lookup-customer', 'view'),
     // read-only catalogue + availability; reservations are made by REC on the advisor's behalf
     g('part', 'view'),
     g('stock-availability', 'view'),
@@ -175,6 +180,7 @@ const matrix: Grant = {
     g('customer', 'view'),
     g('vehicle', 'view'),
     g('customer-lookup', 'view'),
+    g('customer-lookup-customer', 'view'),
   ]),
   KT: flatten([
     g('warehouse', 'view'),

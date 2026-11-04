@@ -834,7 +834,8 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       expect(request.json.status).toBe('received');
       expect(request.json.assigneeId).toBeNull();
       expect(
-        new Date(request.json.dueAt).getTime() - new Date(request.json.receivedAt).getTime(),
+        new Date(request.json.internalDueAt).getTime() -
+          new Date(request.json.receivedAt).getTime(),
       ).toBe(72 * 3_600_000);
     });
 
@@ -885,7 +886,11 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       // retention blockers (open order, debt, warranty) hold the deletion back
       const real = h.container.crm.retention;
       h.container.crm.retention = {
-        check: async () => ({ blockers: ['Còn lệnh sửa chữa đang mở'], retained: [] }),
+        check: async () => ({
+          verified: true,
+          blockers: ['Còn lệnh sửa chữa đang mở'],
+          retained: [],
+        }),
       };
       try {
         const blocked = await h.call('POST', `${REQ}/${id}/close`, { cookie: owner, body });
@@ -894,11 +899,25 @@ describe.each(backends)('CRM core [%s]', (backend) => {
         expect(
           (await h.call('GET', `${CUSTOMERS}/${customer.id}`, { cookie: owner })).json.status,
         ).toBe('active');
+        // C4 (fail closed): the temporary port cannot verify anything, so the deletion must not run
+        h.container.crm.retention = real;
+        const unverified = await h.call('POST', `${REQ}/${id}/close`, { cookie: owner, body });
+        expect(unverified.status).toBe(409);
+        expect(unverified.json.code).toBe('retention_unverified');
+        expect(
+          (await h.call('GET', `${CUSTOMERS}/${customer.id}`, { cookie: owner })).json.status,
+        ).toBe('active');
+        expect((await h.call('GET', `${REQ}/${id}`, { cookie: owner })).json.status).toBe(
+          'in_progress',
+        );
       } finally {
         h.container.crm.retention = real;
       }
       expect(NO_RETENTION.blockers).toEqual([]);
+      // a gate that verified "nothing blocks" lets the deletion complete
+      h.container.crm.retention = { check: async () => NO_RETENTION };
       const done = await h.call('POST', `${REQ}/${id}/close`, { cookie: owner, body });
+      h.container.crm.retention = real;
       expect(done.status).toBe(200);
       expect(done.json).toMatchObject({ status: 'completed', anonymizedAt: expect.any(String) });
       // customer anonymised: contact data gone, business record and ownership kept
@@ -958,13 +977,14 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       const c = await mk(cv, { type: 'individual', name: 'Yêu Cầu Xem' });
       // the deadline is configuration: a zero-hour deadline makes the request due at once
       const cfg = h.container.crm.crm;
-      cfg.requestDeadlineHours = 0;
+      const was = cfg.requestInternalTargetHours;
+      cfg.requestInternalTargetHours = { view: 0, correct: 0, delete: 0 };
       const r = await h.call('POST', REQ, {
         cookie: cv,
         key: key('dsr'),
         body: { customerId: c.json.id, type: 'view', receivedVia: 'phone' },
       });
-      cfg.requestDeadlineHours = 72;
+      cfg.requestInternalTargetHours = was;
       const id = r.json.id;
       await h.call('POST', `${REQ}/${id}/assign`, {
         cookie: qlQ7,
@@ -1093,6 +1113,293 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       }
       expect(crm.exportMaxRows).toBe(5000);
       expect(crm.exportMaxRowsWithPii).toBe(1000);
+    });
+  });
+  describe('BA answers C1-C15 (ba-answers-for-dev §15)', () => {
+    const VEH = '/api/v1/crm/vehicles';
+    const REQ = '/api/v1/crm/data-requests';
+    let plateSeq = 0;
+    const plate = () => `30A${String(10000 + ++plateSeq)}`;
+    async function docs(collection: string): Promise<Row[]> {
+      return (
+        backend === 'memory'
+          ? [...h.container.memory!.db.col(collection).values()]
+          : (await getDb(h.container.env).collection(collection).get()).docs.map((d) => ({
+              ...d.data(),
+              id: d.id,
+            }))
+      ) as Row[];
+    }
+    const newVehicle = async (customerId: string, extra: Record<string, unknown> = {}) =>
+      h.call('POST', VEH, {
+        cookie: cv,
+        key: key('veh'),
+        body: { customerId, plate: plate(), make: 'Kia', model: 'Morning', year: 2020, ...extra },
+      });
+
+    it('C3 internal target and legal deadline are separate parameters; the legal one stays blank until set (FR-CRM-011)', async () => {
+      const c = await mk(cv, { type: 'individual', name: 'Hạn Pháp Lý' });
+      const mkReq = (type: string) =>
+        h.call('POST', REQ, {
+          cookie: cv,
+          key: key('dsr'),
+          body: { customerId: c.json.id, type, receivedVia: 'phone' },
+        });
+      const blank = await mkReq('view');
+      expect(blank.json.legalDueAt).toBeNull();
+      expect(blank.json.legallyOverdue).toBe(false);
+      const cfg = h.container.crm.crm;
+      const saved = { i: cfg.requestInternalTargetHours, l: cfg.requestLegalDeadlineHours };
+      cfg.requestInternalTargetHours = { view: 72, correct: 24, delete: 72 };
+      cfg.requestLegalDeadlineHours = { delete: 720 };
+      try {
+        const correct = await mkReq('correct');
+        const del = await mkReq('delete');
+        const ms = (r: Row, f: string) =>
+          new Date(r.json[f]).getTime() - new Date(r.json.receivedAt).getTime();
+        expect(ms(correct, 'internalDueAt')).toBe(24 * 3_600_000);
+        expect(correct.json.legalDueAt).toBeNull(); // no legal value for this type: no conclusion
+        expect(ms(del, 'legalDueAt')).toBe(720 * 3_600_000);
+        expect(ms(del, 'internalDueAt')).toBe(72 * 3_600_000);
+      } finally {
+        cfg.requestInternalTargetHours = saved.i;
+        cfg.requestLegalDeadlineHours = saved.l;
+      }
+    });
+
+    it('C4 consent records keep no phone or email, and reasons/evidence are screened', async () => {
+      const c = await mk(cv, { type: 'individual', name: 'Bằng Chứng Sạch', phone: '0911222333' });
+      const post = (body: Record<string, unknown>) =>
+        h.call('POST', `${CUSTOMERS}/${c.json.id}/consents`, { cookie: cv, key: key('con'), body });
+      for (const evidence of [
+        'gọi 0912 345 678 xác nhận',
+        'khach@example.com đồng ý',
+        '+84 912-345-678',
+      ]) {
+        const r = await post({
+          purpose: 'service',
+          channel: 'in_person',
+          basis: 'contract',
+          evidence,
+        });
+        expect(r.status, evidence).toBe(422);
+        expect(r.json.errors[0].field).toBe('evidence');
+      }
+      const ok = await post({
+        purpose: 'service',
+        channel: 'in_person',
+        basis: 'contract',
+        evidence: 'Phiếu giấy số 123 tại quầy',
+      });
+      expect(ok.status).toBe(201);
+      const w = await h.call('POST', `/api/v1/crm/consents/${ok.json.id}/withdraw`, {
+        cookie: cv,
+        body: { reason: 'liên hệ 0912345678', version: ok.json.version },
+      });
+      expect(w.status).toBe(422);
+      const stored = (await docs('consents')).filter((d) => d.customerId === c.json.id);
+      expect(JSON.stringify(stored)).not.toMatch(/0911222333|0912|@example/);
+    });
+
+    it('C10 legitimate interest is not usable (any purpose) until the lawyer confirms; advertising needs consent', async () => {
+      const c = await mk(cv, { type: 'individual', name: 'Căn Cứ Thử' });
+      for (const purpose of ['service', 'marketing']) {
+        const r = await h.call('POST', `${CUSTOMERS}/${c.json.id}/consents`, {
+          cookie: cv,
+          key: key('con'),
+          body: { purpose, channel: 'sms', basis: 'legitimate_interest' },
+        });
+        expect(r.status, purpose).toBe(422);
+        expect(r.json.errors[0].field).toBe('basis');
+      }
+      expect(h.container.crm.crm.consentBasesEnabled).not.toContain('legitimate_interest');
+    });
+
+    it('C5 a lower odometer reading needs a reason and is audited; nothing is hard-blocked', async () => {
+      const c = await mk(cv, { type: 'individual', name: 'Số Km Thử' });
+      const v = await newVehicle(c.json.id, { lastKm: 50000 });
+      expect(v.status).toBe(201);
+      const patch = (body: Record<string, unknown>, version = 1) =>
+        h.call('PATCH', `${VEH}/${v.json.id}`, { cookie: cv, body: { version, ...body } });
+      expect((await patch({ lastKm: 40000 })).status).toBe(422); // no reason
+      const other = await patch({ lastKm: 40000, lastKmReason: 'other', lastKmNote: 'ngắn' });
+      expect(other.status).toBe(422);
+      expect(other.json.errors[0].field).toBe('lastKmNote');
+      const typo = await patch({ lastKm: 49000, lastKmReason: 'typo' });
+      expect(typo.status).toBe(200);
+      expect(typo.json.lastKm).toBe(49000);
+      const up = await patch({ lastKm: 52000 }, 2); // raising never needs a reason
+      expect(up.status).toBe(200);
+      const swapped = await patch({ lastKm: 10, lastKmReason: 'odometer_replaced' }, 3);
+      expect(swapped.status).toBe(200);
+      const audit = await h.call(
+        'GET',
+        `/api/v1/sys/audit?entityType=vehicle&entityId=${v.json.id}`,
+        {
+          cookie: owner,
+        },
+      );
+      const reasons = audit.json.items.map((r: { reason?: string }) => r.reason ?? '');
+      expect(reasons.some((r: string) => r.includes('50000 -> 49000') && r.includes('typo'))).toBe(
+        true,
+      );
+      expect(reasons.some((r: string) => r.includes('odometer_replaced'))).toBe(true);
+    });
+
+    it('C11 the plate is normalised and the VIN is unique company-wide without naming a branch', async () => {
+      const c = await mk(cv, { type: 'individual', name: 'Số Khung Thử' });
+      const VIN = '1HGCM82633A004352';
+      const a = await newVehicle(c.json.id, { vin: VIN.toLowerCase() });
+      expect(a.status).toBe(201);
+      expect(a.json.vin).toBe(VIN);
+      const dup = await newVehicle(c.json.id, { vin: VIN });
+      expect(dup.status).toBe(409);
+      expect(dup.json.code).toBe('vin_exists');
+      expect(dup.text).not.toMatch(/Quận 7|Thủ Đức|br_/);
+      const b = await newVehicle(c.json.id);
+      expect(b.status).toBe(201);
+      const clash = await h.call('PATCH', `${VEH}/${b.json.id}`, {
+        cookie: cv,
+        body: { vin: VIN, version: 1 },
+      });
+      expect(clash.status).toBe(409);
+      expect(clash.json.code).toBe('vin_exists');
+      // moving the VIN frees the old slot
+      const move = await h.call('PATCH', `${VEH}/${a.json.id}`, {
+        cookie: cv,
+        body: { vin: '2HGCM82633A004353', version: 1 },
+      });
+      expect(move.status).toBe(200);
+      expect(
+        (
+          await h.call('PATCH', `${VEH}/${b.json.id}`, {
+            cookie: cv,
+            body: { vin: VIN, version: 1 },
+          })
+        ).status,
+      ).toBe(200);
+      // plate spelling variants collapse to one normalised plate
+      const p = String(b.json.plate).replace(/[^0-9A-Z]/g, '');
+      const spaced = `${p.slice(0, 3)}-${p.slice(3, 6)}.${p.slice(6)}`.toLowerCase();
+      expect((await newVehicle(c.json.id, { plate: spaced })).json.code).toBe('plate_exists');
+    });
+
+    it('C9 QD looks up by plate only and sees vehicle fields; TN sees customers but no history; 30 lookups per hour', async () => {
+      const qd = await h.login('u_qd_q7');
+      const tn = await h.login('u_tn_q7');
+      const lookup = (as: string, body: Record<string, unknown>) =>
+        h.call('POST', '/api/v1/crm/lookup', { cookie: as, body });
+      const denied = (await accessLogs()).filter((l) => l.result === 'denied').length;
+      const byPhone = await lookup(qd, { phone: '0900000222' });
+      expect(byPhone.status).toBe(403);
+      expect((await accessLogs()).filter((l) => l.result === 'denied').length).toBe(denied + 1);
+      const byPlate = await lookup(qd, { plate: '29A-678.90' });
+      expect(byPlate.status).toBe(200);
+      expect(byPlate.json.vehicles[0]).toMatchObject({
+        plate: '29A-678.90',
+        make: 'Mazda',
+        owner: null,
+      });
+      expect(byPlate.text).not.toContain('Trần Thị Bình');
+      // TN: customer + vehicles, but the repair history and prices are not theirs (P3)
+      const tnPlate = await lookup(tn, { plate: '29A-678.90' });
+      expect(tnPlate.json.vehicles[0].owner).toMatchObject({ name: 'Trần Thị Bình' });
+      expect((await lookup(tn, { phone: '0900000222' })).json.customers).toHaveLength(1);
+      expect((await h.call('GET', `${VEH}/veh_binh/history`, { cookie: tn })).status).toBe(403);
+      // rate limit: 30 per person per hour, then refused and logged as denied
+      let last = 0;
+      for (let i = 0; i < 30; i++) last = (await lookup(tn, { plate: '29A-678.90' })).status;
+      expect(last).toBe(429);
+      expect(
+        (await accessLogs()).filter((l) => l.result === 'denied').length,
+      ).toBeGreaterThanOrEqual(denied + 2);
+    });
+
+    it('C2 adoption is for CV/QL only, records its source and who, and is access-logged; the business-event flag blocks it', async () => {
+      const c = await mk(cv, { type: 'individual', name: 'Dùng Hồ Sơ A' });
+      const d = await mk(cv, { type: 'individual', name: 'Dùng Hồ Sơ B' });
+      const relate = (as: string, id: string) =>
+        h.call('POST', `${CUSTOMERS}/${id}/relate`, { cookie: as, key: key('rel'), body: {} });
+      const tn = await h.login('u_tn_q7');
+      const qd = await h.login('u_qd_q7');
+      expect((await relate(tn, c.json.id)).status).toBe(403);
+      expect((await relate(qd, c.json.id)).status).toBe(403);
+      const cfg = h.container.crm.crm;
+      cfg.adoptRequiresBusinessEvent = true;
+      try {
+        const blocked = await relate(qlTd, c.json.id);
+        expect(blocked.status).toBe(409);
+        expect(blocked.json.code).toBe('relation_needs_business_event');
+        expect((await h.call('GET', `${CUSTOMERS}/${c.json.id}`, { cookie: qlTd })).status).toBe(
+          404,
+        );
+      } finally {
+        cfg.adoptRequiresBusinessEvent = false;
+      }
+      const before = (await accessLogs()).filter((l) => l.purpose === 'open_record').length;
+      expect((await relate(qlTd, c.json.id)).json.changed).toBe(true);
+      const link = (await docs('customerLinks')).find(
+        (l) => l.customerId === c.json.id && l.branchId === 'br_td',
+      );
+      expect(link).toMatchObject({ source: 'lookup_adopt', createdBy: 'u_ql_td' });
+      const own = (await docs('customerLinks')).find(
+        (l) => l.customerId === c.json.id && l.branchId === 'br_q7',
+      );
+      expect(own).toMatchObject({ source: 'created' });
+      const logs = (await accessLogs()).filter((l) => l.purpose === 'open_record');
+      expect(logs.length).toBeGreaterThan(before);
+      expect(JSON.stringify(logs)).not.toContain('Dùng Hồ Sơ');
+      // a different record was not related by that call
+      expect((await h.call('GET', `${CUSTOMERS}/${d.json.id}`, { cookie: qlTd })).status).toBe(404);
+    });
+
+    it('C12 phone search starts at 4 digits and tells when the 50 bound cut the list', async () => {
+      for (let i = 1; i <= 51; i++)
+        await mk(qlQ7, {
+          type: 'individual',
+          name: `Hàng Loạt ${i}`,
+          phone: `09330${String(i).padStart(5, '0')}`,
+        });
+      const get = (q: string) =>
+        h.call('GET', `${CUSTOMERS}?q=${encodeURIComponent(q)}&limit=100`, { cookie: qlQ7 });
+      const wide = await get('0933');
+      expect(wide.json.items).toHaveLength(50);
+      expect(wide.json.capped).toBe(true);
+      const narrow = await get('093300001');
+      expect(narrow.json.capped).toBe(false);
+      expect(narrow.json.items.length).toBeGreaterThan(0);
+      const short = await get('093'); // 3 digits: not a phone search, nothing is browsed
+      expect(short.json.items).toEqual([]);
+      expect((await get('0900000211')).json.capped).toBe(false);
+      // an export built on a cut search is refused instead of silently truncated
+      const exp = await h.call('POST', `${CUSTOMERS}/export`, {
+        cookie: qlQ7,
+        body: { q: '0933' },
+      });
+      expect(exp.status).toBe(422);
+      expect(exp.json.code).toBe('export_too_large');
+    });
+
+    it('C7/C14 only CH and KT may export full personal columns; QL and QV are refused even with reason and password', async () => {
+      const qv = await h.login('u_qv');
+      for (const as of [qlQ7, qv]) {
+        const r = await h.call('POST', `${CUSTOMERS}/export`, {
+          cookie: as,
+          body: {
+            includePii: true,
+            reason: 'Gửi báo cáo cho kế toán',
+            reauthPassword: DEMO_PASSWORD,
+          },
+        });
+        expect(r.status).toBe(403);
+        expect(r.text).not.toContain('0900000211');
+      }
+      const kt = await h.login('u_kt');
+      const ok = await h.call('POST', `${CUSTOMERS}/export`, {
+        cookie: kt,
+        body: { includePii: true, reason: 'Đối chiếu hóa đơn', reauthPassword: DEMO_PASSWORD },
+      });
+      expect(ok.status).toBe(200);
     });
   });
 });

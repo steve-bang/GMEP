@@ -1,14 +1,16 @@
 import { getTranslations } from 'next-intl/server';
-import { resolveScope } from '@/platform/rbac/rbac';
+import { hasPermission, resolveScope } from '@/platform/rbac/rbac';
 import { getCustomer } from '@/modules/crm';
 import { formLabels } from '@/composition/labels';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { ErrorFor, first, type SearchParams } from '@/ui/components/PageParts';
-import { EmptyState } from '@/ui/components/States';
 import { ResourceForm } from '@/ui/components/ResourceForm';
+import { CustomerPicker } from '@/ui/components/CustomerPicker';
+import { Button } from '@/ui/components/Button';
 import { CrmPage } from '../../CrmPage';
+import { pickerLabels } from '../../pickerLabels';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +25,32 @@ export default async function NewVehiclePage({ searchParams }: { searchParams: S
   if (!customerId)
     return (
       <CrmPage title={title} crumbs={crumbs}>
-        <EmptyState
-          title={t('crm.vehicles.needCustomerTitle')}
-          text={t('crm.vehicles.needCustomerText')}
-        />
+        <p className="text-secondary">{t('crm.vehicles.needCustomerText')}</p>
+        <form
+          method="get"
+          action="/crm/vehicles/new"
+          className="stack"
+          data-testid="vehicle-owner-form"
+        >
+          <div className="field">
+            <label className="field__label" htmlFor="owner-q">
+              {t('crm.vehicles.ownerSearch')}
+            </label>
+            <CustomerPicker
+              name="customerId"
+              inputId="owner-q"
+              labels={pickerLabels(t)}
+              required
+              canLookup={
+                hasPermission(actor, 'customer-lookup-customer:view') &&
+                hasPermission(actor, 'customer:update')
+              }
+            />
+          </div>
+          <Button type="submit" variant="primary">
+            {t('crm.vehicles.continue')}
+          </Button>
+        </form>
       </CrmPage>
     );
   const res = await load(async () => {

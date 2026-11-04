@@ -11,7 +11,7 @@ export const POST = authed(async ({ req, crm, session, params, requestId, idempo
     session.actor,
     params.id ?? '',
     await readJson(req).catch(() => ({})),
-    { idempotencyKey: idempotencyKey(), requestId },
+    { idempotencyKey: idempotencyKey(), requestId, sessionId: session.sessionId },
   );
   return json(r.response.body, { status: r.response.status });
 });

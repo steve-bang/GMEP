@@ -188,6 +188,26 @@ export const createVehicleSchema = z.object({
   ownedFrom: z.string().regex(dateRe).optional(),
 });
 
+const vinExists = () =>
+  new AppError('vin_exists', 409, [{ field: 'vin', message: 'Số khung đã gắn với một xe khác.' }]);
+
+/**
+ * Registry slots (plate, VIN) are created, never set: a taken slot fails the transaction. The store
+ * does not say which slot, so the plate is re-checked to tell the two conflicts apart.
+ */
+async function mapRegistryConflict(
+  deps: CrmDeps,
+  companyId: string,
+  plateNorm: string | undefined,
+  e: unknown,
+): Promise<unknown> {
+  if (!(e instanceof AlreadyExistsError)) return e;
+  if (plateNorm === undefined) return vinExists();
+  return (await deps.vehicles.vehicleIdByPlate(companyId, plateNorm))
+    ? new AppError('plate_exists', 409)
+    : vinExists();
+}
+
 function checkVehicleFields(
   deps: CrmDeps,
   d: { plate?: string; vin?: string; year?: number },
@@ -239,6 +259,9 @@ export async function createVehicle(
         // friendly early answer; the registry slot created below is the race-proof guard
         if (await deps.vehicles.vehicleIdByPlate(actor.companyId, checked.plateNorm!))
           throw new AppError('plate_exists', 409);
+        // C11: a VIN identifies one vehicle company-wide; the answer never names a branch
+        if (checked.vin && (await deps.vehicles.vehicleIdByVin(actor.companyId, checked.vin)))
+          throw vinExists();
         const now = deps.sys.clock.now();
         const today = businessDate(now);
         const id = `veh_${deps.sys.newId()}`;
@@ -307,8 +330,7 @@ export async function createVehicle(
       },
     );
   } catch (e) {
-    if (e instanceof AlreadyExistsError) throw new AppError('plate_exists', 409);
-    throw e;
+    throw await mapRegistryConflict(deps, actor.companyId, checked.plateNorm, e);
   }
 }
 
@@ -322,6 +344,9 @@ export const updateVehicleSchema = z.object({
   year: vehicleFields.year.optional(),
   isCommercial: z.boolean().optional(),
   lastKm: vehicleFields.lastKm,
+  /** C5: required when the odometer value goes down */
+  lastKmReason: z.enum(['typo', 'odometer_replaced', 'other']).optional(),
+  lastKmNote: z.string().trim().max(200).optional(),
   version: z.number().int().min(1),
 });
 
@@ -338,16 +363,51 @@ export async function updateVehicle(
     ...(data.vin ? { vin: data.vin } : {}),
     ...(data.year !== undefined ? { year: data.year } : {}),
   });
+  try {
+    return await updateVehicleTx(deps, actor, scope, id, data, checked, ctx);
+  } catch (e) {
+    if (e instanceof AlreadyExistsError) throw vinExists(); // lost a race for the VIN slot (C11)
+    throw e;
+  }
+}
+
+async function updateVehicleTx(
+  deps: CrmDeps,
+  actor: Actor,
+  scope: ReturnType<typeof resolveScope>,
+  id: string,
+  data: z.infer<typeof updateVehicleSchema>,
+  checked: { plateNorm?: string; vin?: string },
+  ctx: RequestCtx,
+): Promise<VehicleDto> {
   return deps.sys.uow.run(async (tx) => {
     const v = await deps.vehicles.getInTx(tx, scope, id);
     if (!v) throw notFound();
     if (v.version !== data.version) throw versionConflict();
     await writableWorkingBranch(deps, tx, actor, scope, 'edit_master');
-    // odometer never goes down [Đề xuất dev - chờ xác nhận: BA], see open-questions C5
-    if (data.lastKm !== undefined && v.lastKm !== undefined && data.lastKm < v.lastKm)
-      throw validationFailed([
-        { field: 'lastKm', message: `Số km không được nhỏ hơn số km đã ghi (${v.lastKm}).` },
-      ]);
+    // C5 [Đề xuất BA - chờ xác nhận: Khách]: a lower reading is allowed with a mandatory reason,
+    // audited; it is a warning, not a hard block (FR-CRM-002, FR-REC-003)
+    const lowering = data.lastKm !== undefined && v.lastKm !== undefined && data.lastKm < v.lastKm;
+    if (lowering) {
+      if (!data.lastKmReason)
+        throw validationFailed([
+          {
+            field: 'lastKmReason',
+            message: `Số km nhỏ hơn số km đã ghi (${v.lastKm}). Chọn lý do: nhập nhầm, thay đồng hồ hoặc khác.`,
+          },
+        ]);
+      if (data.lastKmReason === 'other' && (data.lastKmNote ?? '').length < 5)
+        throw validationFailed([
+          { field: 'lastKmNote', message: 'Ghi chú lý do ít nhất 5 ký tự.' },
+        ]);
+    }
+    // VIN uniqueness (C11): the slot moves with the value
+    const newVin = data.vin === undefined ? (v.vin ?? null) : (checked.vin ?? null);
+    if (newVin !== (v.vin ?? null)) {
+      if (newVin && (await deps.vehicles.vehicleIdByVin(actor.companyId, newVin)))
+        throw vinExists();
+      deps.vehicles.setVin(tx, v, v.vin ?? null, newVin);
+    }
     const now = deps.sys.clock.now();
     const next = {
       make: data.make ?? v.make,
@@ -358,6 +418,10 @@ export async function updateVehicle(
       engineNo: data.engineNo === undefined ? (v.engineNo ?? null) : data.engineNo || null,
       lastKm: data.lastKm ?? v.lastKm ?? null,
       lastKmAt: data.lastKm !== undefined ? businessDate(now) : (v.lastKmAt ?? null),
+      odometerReplacedAt:
+        lowering && data.lastKmReason === 'odometer_replaced'
+          ? businessDate(now)
+          : (v.odometerReplacedAt ?? null),
     };
     deps.vehicles.update(tx, id, {
       ...next,
@@ -382,6 +446,11 @@ export async function updateVehicle(
           lastKm: v.lastKm ?? null,
         },
         after: { ...next, lastKmAt: undefined },
+        ...(lowering
+          ? {
+              reason: `lastKm ${v.lastKm} -> ${data.lastKm}: ${data.lastKmReason}${data.lastKmNote ? ` (${data.lastKmNote})` : ''}`,
+            }
+          : {}),
       }),
     );
     const merged: Vehicle = {
@@ -394,6 +463,7 @@ export async function updateVehicle(
       ...(next.engineNo ? { engineNo: next.engineNo } : {}),
       ...(next.lastKm !== null ? { lastKm: next.lastKm } : {}),
       ...(next.lastKmAt ? { lastKmAt: next.lastKmAt } : {}),
+      ...(next.odometerReplacedAt ? { odometerReplacedAt: next.odometerReplacedAt } : {}),
       version: v.version + 1,
     };
     return (await withOwners(deps, resolveScope(actor, 'customer:view'), [merged]))[0]!;

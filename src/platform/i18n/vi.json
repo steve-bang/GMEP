@@ -229,6 +229,18 @@
       "title": "Chưa thể xóa dữ liệu khách",
       "detail": "Khách còn lệnh mở, công nợ hoặc bảo hành. Xử lý xong rồi hoàn tất yêu cầu."
     },
+    "retention_unverified": {
+      "title": "Chưa kiểm tra được điều kiện chặn xóa",
+      "detail": "Hệ thống chưa kiểm tra được lệnh mở, công nợ, bảo hành và hóa đơn của khách này nên không ẩn danh. Yêu cầu vẫn được ghi nhận và theo dõi hạn; hoàn tất sau khi các phân hệ liên quan kết nối."
+    },
+    "vin_exists": {
+      "title": "Số khung đã có trong hệ thống",
+      "detail": "Số khung này đã gắn với một xe khác. Kiểm tra lại số khung hoặc tra cứu biển số toàn chuỗi."
+    },
+    "relation_needs_business_event": {
+      "title": "Chưa thể dùng hồ sơ khách này",
+      "detail": "Cấu hình yêu cầu có lịch hẹn hoặc báo giá trước khi chi nhánh mở hồ sơ đầy đủ của khách từ chi nhánh khác."
+    },
     "stock_insufficient": {
       "title": "Không đủ tồn khả dụng",
       "detail": "Số lượng yêu cầu vượt tồn khả dụng (tồn thực tế trừ hàng đang giữ chỗ). Giảm số lượng, chuyển kho hoặc đặt hàng thêm."
@@ -1046,7 +1058,9 @@
       "save": "Lưu xe",
       "createFor": "Chủ xe: {name} ({code})",
       "needCustomerTitle": "Chọn khách trước",
-      "needCustomerText": "Mở hồ sơ khách rồi chọn Thêm xe để gắn xe với chủ xe.",
+      "needCustomerText": "Tìm khách là chủ xe bằng tên, mã khách hoặc số điện thoại, rồi tiếp tục để nhập thông tin xe.",
+      "continue": "Tiếp tục",
+      "ownerSearch": "Chủ xe",
       "search": "Tìm biển số",
       "searchPlaceholder": "Biển số (bỏ qua dấu chấm, gạch ngang, chữ hoa/thường)",
       "plate": "Biển số",
@@ -1108,7 +1122,7 @@
       "channel": "Kênh",
       "basis": "Căn cứ",
       "evidence": "Bằng chứng",
-      "evidenceHint": "Ví dụ: phiếu giấy số 123 tại quầy. Không ghi dữ liệu cá nhân.",
+      "evidenceHint": "Ví dụ: phiếu giấy số 123 tại quầy. Không ghi tên, số điện thoại hoặc email của khách.",
       "granted": "Thời điểm",
       "statusCol": "Trạng thái",
       "withdraw": "Rút đồng ý",
@@ -1153,7 +1167,10 @@
       "colCustomer": "Khách",
       "colType": "Loại yêu cầu",
       "colStatus": "Trạng thái",
-      "colDue": "Hạn xử lý",
+      "colDue": "Hạn nội bộ",
+      "colLegalDue": "Hạn pháp lý",
+      "legalDueBlank": "Chưa đặt (chờ luật sư xác nhận)",
+      "legallyOverdue": "Quá hạn pháp lý",
       "colAssignee": "Người xử lý",
       "overdue": "Quá hạn",
       "detail": "Chi tiết yêu cầu",
@@ -1186,6 +1203,19 @@
         "web": "Trang web"
       }
     },
+    "picker": {
+      "placeholder": "Tìm khách theo tên, mã khách hoặc số điện thoại",
+      "hint": "Gõ ít nhất 2 chữ, hoặc 4 số của số điện thoại. Nhập đủ số điện thoại để tìm cả khách ở chi nhánh khác.",
+      "searching": "Đang tìm…",
+      "none": "Không có khách phù hợp.",
+      "capped": "{count}+ kết quả, hãy nhập thêm để thu hẹp.",
+      "clear": "Chọn lại",
+      "selected": "Đã chọn",
+      "otherBranch": "Khách của chi nhánh",
+      "adopt": "Dùng hồ sơ này",
+      "failed": "Không tìm được khách. Thử lại."
+    },
+    "searchCapped": "{count}+ kết quả, hãy nhập thêm để thu hẹp.",
     "lookup": {
       "title": "Tra cứu toàn chuỗi",
       "lead": "Tìm khách hoặc xe ở chi nhánh khác bằng biển số hoặc số điện thoại đầy đủ. Chỉ hiện thông tin tối thiểu để nhận diện.",

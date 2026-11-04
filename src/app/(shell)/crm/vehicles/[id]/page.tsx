@@ -3,12 +3,7 @@ import Link from 'next/link';
 import { formatDate, isoToVi } from '@/platform/format/date';
 import { formatVnd } from '@/platform/format/vnd';
 import { hasPermission } from '@/platform/rbac/rbac';
-import {
-  getVehicle,
-  listCustomers,
-  listVehicleHistory,
-  listVehicleOwnerships,
-} from '@/modules/crm';
+import { getVehicle, listVehicleHistory, listVehicleOwnerships } from '@/modules/crm';
 import { formLabels } from '@/composition/labels';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -18,6 +13,7 @@ import { ErrorFor } from '@/ui/components/PageParts';
 import { ResourceForm } from '@/ui/components/ResourceForm';
 import { EmptyState } from '@/ui/components/States';
 import { CrmPage } from '../../CrmPage';
+import { pickerLabels } from '../../pickerLabels';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,12 +34,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
     const history = hasPermission(actor, 'vehicle-history:view')
       ? await listVehicleHistory(crm, actor, id, { limit: 50 })
       : null;
-    const customers = canEdit
-      ? (await listCustomers(crm, actor, { limit: 100 }).catch(() => ({ items: [] }))).items.filter(
-          (c) => c.status === 'active',
-        )
-      : [];
-    return { vehicle, owners, history, customers };
+    return { vehicle, owners, history };
   });
   if (res.error)
     return (
@@ -51,7 +42,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         <ErrorFor error={res.error} t={t} />
       </CrmPage>
     );
-  const { vehicle: v, owners, history, customers } = res.data;
+  const { vehicle: v, owners, history } = res.data;
   const today = new Date().toISOString().slice(0, 10);
   return (
     <CrmPage
@@ -179,11 +170,15 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
               {
                 name: 'newCustomerId',
                 label: t('crm.ownership.newOwner'),
-                type: 'select',
+                type: 'customer',
                 required: true,
-                options: customers
-                  .filter((c) => c.id !== v.owner?.id)
-                  .map((c) => ({ value: c.id, label: `${c.name} · ${c.code}` })),
+                picker: {
+                  labels: pickerLabels(t),
+                  ...(v.owner ? { excludeId: v.owner.id } : {}),
+                  canLookup:
+                    hasPermission(actor, 'customer-lookup-customer:view') &&
+                    hasPermission(actor, 'customer:update'),
+                },
               },
               {
                 name: 'effectiveDate',

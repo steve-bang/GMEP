@@ -164,6 +164,11 @@ export default async function CustomersPage({ searchParams }: { searchParams: Se
           ]}
         />
       )}
+      {page.capped ? (
+        <p className="text-secondary" data-testid="search-capped">
+          {t('crm.searchCapped', { count: page.items.length })}
+        </p>
+      ) : null}
       <Pager
         base="/crm/customers"
         query={query}

@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { resolveScope } from '@/platform/rbac/rbac';
+import { hasPermission, resolveScope } from '@/platform/rbac/rbac';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { ErrorFor } from '@/ui/components/PageParts';
@@ -41,17 +41,9 @@ export default async function LookupPage() {
           history: tt('crm.lookup.history'),
           hint: tt('crm.lookup.hint'),
         }}
-        canRelate={resolveScopeSafe(actor)}
+        canRelate={hasPermission(actor, 'customer:update') && !!actor.workingBranchId}
+        canPhone={hasPermission(actor, 'customer-lookup-customer:view')}
       />
     </CrmPage>
   );
-}
-
-function resolveScopeSafe(actor: Parameters<typeof resolveScope>[0]): boolean {
-  try {
-    resolveScope(actor, 'customer-lookup:view');
-    return !!actor.workingBranchId;
-  } catch {
-    return false;
-  }
 }

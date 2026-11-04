@@ -1,8 +1,8 @@
-import { validationFailed } from '@/platform/errors/errors';
-import { resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
+import { AppError, forbidden, validationFailed } from '@/platform/errors/errors';
+import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
 import { allBranchesScope } from '@/platform/scope/scope';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
-import type { Customer, Vehicle } from '../domain/entities';
+import type { Customer, RelationSource, Vehicle } from '../domain/entities';
 import {
   isPlausiblePhone,
   isPlausiblePlate,
@@ -17,6 +17,7 @@ import {
   idemOf,
   notFound,
   parseInput,
+  PII_FIELDS,
   writableWorkingBranch,
   z,
   type RequestCtx,
@@ -24,7 +25,7 @@ import {
 
 /**
  * Cross-branch exact lookup (FR-CRM-002 unique plate, FR-CRM-004; BA §10.1.4, projections P1 and P2).
- * Exact plate or full phone only, at most `lookupMaxResults` customers, no browsing, no export.
+ * Exact plate or full phone only (QĐ: plate only, vehicle fields only; C9), at most `lookupMaxResults` customers, no browsing, no export.
  * The result is a server-built projection with a white list of fields; contact data, notes, labels,
  * debts and the other branches' records are not part of it. Phone lookups are access-logged.
  */
@@ -77,7 +78,31 @@ export async function lookupExact(
 ): Promise<LookupResult> {
   resolveScope(actor, 'customer-lookup:view');
   const data = parseInput(lookupSchema, raw);
+  // C9: QĐ looks up by plate only and sees vehicle fields (P2); phone and the customer projection
+  // need `customer-lookup-customer:view` (P1). A refused or rate-limited phone search is logged too.
+  const mayViewCustomer = hasPermission(actor, 'customer-lookup-customer:view');
+  const denied = (purpose: 'denied') =>
+    deps.sys.piiLog.record(
+      accessEntry(deps, actor, ctx.sessionId, ctx.requestId, {
+        entityType: 'customer',
+        entityId: '*',
+        purpose,
+        fields: ['phone'],
+        result: 'denied',
+        reasonCode: 'lookup',
+      }),
+    );
+  if (data.phone && !mayViewCustomer) {
+    await denied('denied');
+    throw forbidden();
+  }
   await deps.sys.limiter.hit('search', actor.userId);
+  try {
+    await deps.sys.limiter.hit('customer-lookup', actor.userId); // C9: 30 per hour, configurable
+  } catch (e) {
+    if (e instanceof AppError && e.status === 429) await denied('denied');
+    throw e;
+  }
   const companyId = actor.companyId;
   const mine = (() => {
     try {
@@ -141,7 +166,8 @@ export async function lookupExact(
       vinMasked: v.vin ? maskIdentifier(v.vin) : null,
       engineNoMasked: v.engineNo ? maskIdentifier(v.engineNo) : null,
       lastKm: v.lastKm ?? null,
-      owner: owner && owner.status === 'active' ? await projectCustomer(owner) : null,
+      owner:
+        mayViewCustomer && owner && owner.status === 'active' ? await projectCustomer(owner) : null,
       related: relatedTo(v.branchIds),
     };
     return { vehicles: [vp], customers: [] };
@@ -176,19 +202,30 @@ export async function lookupExact(
 
 /**
  * Creates the relation between a customer (and the vehicles it owns) and the working branch, after
- * an exact lookup found the record at another branch (BA §10.1.5). REC calls this when an
- * appointment, quote or order is created. After it the branch sees the full record per its PII rights.
+ * an exact lookup found the record at another branch (BA §10.1.5, C2). REC calls this when an
+ * appointment, quote or order is created, passing the source from server code (never from the
+ * request body). The relation never expires; it records its source, who created it and when, and
+ * opening the full record this way is access-logged (`open_record`). Only holders of
+ * `customer:update` (CV, QL) can adopt a record. With `adoptRequiresBusinessEvent` an adoption
+ * straight from a lookup is refused until an appointment or quote exists.
  */
 export async function relateToWorkingBranch(
   deps: CrmDeps,
   actor: Actor,
   customerId: string,
   input: unknown,
-  ctx: RequestCtx & { idempotencyKey: string },
+  ctx: RequestCtx & {
+    idempotencyKey: string;
+    sessionId?: string;
+    source?: Exclude<RelationSource, 'created'>;
+  },
 ) {
   void input;
-  const scope = resolveScope(actor, 'customer-lookup:view');
-  return runIdempotent(
+  const source = ctx.source ?? 'lookup_adopt';
+  const scope = resolveScope(actor, 'customer:update');
+  if (source === 'lookup_adopt' && deps.crm.adoptRequiresBusinessEvent)
+    throw new AppError('relation_needs_business_event', 409);
+  const result = await runIdempotent(
     idemOf(deps),
     {
       userId: actor.userId,
@@ -213,7 +250,7 @@ export async function relateToWorkingBranch(
         )
       ).flatMap((v) => (v && !v.branchIds.includes(branch.id) ? [v] : []));
       deps.customers.update(tx, c.id, { branchIds: [...c.branchIds, branch.id] });
-      deps.customers.link(tx, c, branch.id, now);
+      deps.customers.link(tx, c, branch.id, now, { source, by: actor.userId });
       for (const v of vehicles) {
         deps.vehicles.update(tx, v.id, { branchIds: [...v.branchIds, branch.id] });
         deps.vehicles.link(tx, v, branch.id, now);
@@ -225,10 +262,26 @@ export async function relateToWorkingBranch(
           entityType: 'customer',
           entityId: c.id,
           action: 'customer.relate',
-          after: { branchId: branch.id, vehicles: owned.length },
+          after: { branchId: branch.id, source, vehicles: owned.length },
         }),
       );
       return { status: 200, body: { id: c.id, related: true, changed: true } };
     },
   );
+  const body = result.response.body as { changed?: boolean };
+  if (body.changed && !result.replayed) {
+    // C2/§7.3: whoever opens the full record through a relation leaves a trace (fields, never values)
+    const fields = PII_FIELDS.filter((f) => deps.sys.pii.level(actor, f) === 'full');
+    if (fields.length)
+      await deps.sys.piiLog.record(
+        accessEntry(deps, actor, ctx.sessionId, ctx.requestId, {
+          entityType: 'customer',
+          entityId: customerId,
+          purpose: 'open_record',
+          fields: [...fields],
+          reasonCode: source,
+        }),
+      );
+  }
+  return result;
 }

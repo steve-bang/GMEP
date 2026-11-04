@@ -87,3 +87,14 @@ export function filterMarketingAudience(
   }
   return { eligible, excluded };
 }
+
+/**
+ * C4: consent records are kept as evidence after a customer is anonymised, so they must not hold a
+ * phone number or email (they carry only the customer id, purpose, channel, basis, policy version,
+ * time and recorder). Free text (evidence, withdrawal reason) is checked for these two patterns; a
+ * name cannot be detected, so the UI says so.
+ */
+export function looksLikePersonalContact(text: string): boolean {
+  if (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(text)) return true;
+  return /(?:\+?84|0)(?:[\s.-]?\d){8,10}/.test(text);
+}

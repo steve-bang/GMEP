@@ -35,6 +35,8 @@ export async function exportCustomersCsv(
   await deps.sys.limiter.hit('export', actor.userId);
   const full = data.includePii === true;
   if (full) {
+    // C7/C14: only CH and KT hold `customer-pii:export`; QL and QV export masked columns at most,
+    // even though they may see full values on screen
     if (!hasPermission(actor, 'customer-pii:export')) throw new AppError('forbidden', 403);
     if ((data.reason ?? '').length < 5)
       throw validationFailed([
@@ -54,6 +56,8 @@ export async function exportCustomersCsv(
       ...(cursor ? { cursor } : {}),
     });
     rows.push(...page.items);
+    // C12/C14: a phone or plate search cut at its bound would silently export a partial list
+    if (page.capped) throw new AppError('export_too_large', 422);
     if (rows.length > max) throw new AppError('export_too_large', 422);
     cursor = page.nextCursor ?? undefined;
   } while (cursor);

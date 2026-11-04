@@ -7,7 +7,11 @@ import {
   currentOwnership,
   dueAtFor,
   filterMarketingAudience,
+  isLegallyOverdue,
   isOverdue,
+  legalDueAtFor,
+  looksLikePersonalContact,
+  RETENTION_UNVERIFIED,
   isPlausiblePhone,
   isPlausiblePlate,
   isValidTaxCode,
@@ -172,8 +176,8 @@ describe('FR-CRM-011 data-subject request state machine', () => {
     const at = new Date('2026-11-01T00:00:00Z');
     expect(dueAtFor(at, 72).toISOString()).toBe('2026-11-04T00:00:00.000Z');
     const later = new Date('2026-11-05T00:00:00Z');
-    expect(isOverdue({ status: 'in_progress', dueAt: dueAtFor(at, 72) }, later)).toBe(true);
-    expect(isOverdue({ status: 'completed', dueAt: dueAtFor(at, 72) }, later)).toBe(false);
+    expect(isOverdue({ status: 'in_progress', internalDueAt: dueAtFor(at, 72) }, later)).toBe(true);
+    expect(isOverdue({ status: 'completed', internalDueAt: dueAtFor(at, 72) }, later)).toBe(false);
   });
   it('anonymisation erases the name unless legal identity must stay', () => {
     const c = { name: 'Công ty A', nameNorm: 'cong ty a', taxCode: '0312345678' };
@@ -235,5 +239,63 @@ describe('default CRM permission matrix (FR-CRM-017, NFR-SEC-03, BA §2.4/§9)',
       .filter((r) => r.permissions.includes('data-request:approve'))
       .map((r) => r.code);
     expect(approvers).toEqual(['CH']);
+  });
+});
+
+describe('BA answers C3, C4, C9, C12 (ba-answers-for-dev §15)', () => {
+  it('C3 a blank legal deadline never produces a "late by law" conclusion', () => {
+    const at = new Date('2026-11-01T00:00:00Z');
+    const later = new Date('2027-01-01T00:00:00Z');
+    expect(legalDueAtFor(at, {}, 'delete')).toBeNull();
+    expect(legalDueAtFor(at, { delete: 720 }, 'view')).toBeNull();
+    expect(legalDueAtFor(at, { delete: 720 }, 'delete')?.toISOString()).toBe(
+      '2026-12-01T00:00:00.000Z',
+    );
+    expect(isLegallyOverdue({ status: 'received', legalDueAt: null }, later)).toBe(false);
+    expect(
+      isLegallyOverdue(
+        { status: 'received', legalDueAt: legalDueAtFor(at, { view: 24 }, 'view') },
+        later,
+      ),
+    ).toBe(true);
+    expect(
+      isLegallyOverdue(
+        { status: 'completed', legalDueAt: legalDueAtFor(at, { view: 24 }, 'view') },
+        later,
+      ),
+    ).toBe(false);
+  });
+  it('C4 the temporary retention port is unverified (fails closed)', () => {
+    expect(RETENTION_UNVERIFIED.verified).toBe(false);
+  });
+  it('C4 free text on consent records is screened for phone numbers and emails', () => {
+    for (const t of [
+      '0912345678',
+      '0912 345 678',
+      '+84 912-345-678',
+      'a@b.vn',
+      'gọi 84912345678 nhé',
+    ])
+      expect(looksLikePersonalContact(t), t).toBe(true);
+    for (const t of ['Phiếu giấy số 123 tại quầy', 'Tick trên web ngày 2026-11-04', 'Mẫu 12/2026'])
+      expect(looksLikePersonalContact(t), t).toBe(false);
+  });
+  it('C12 a numeric search is a phone search only from 4 digits', () => {
+    expect(searchMode('093')).toBe('name');
+    expect(searchMode('0933')).toBe('phone');
+    expect(searchMode('0933 000')).toBe('phone');
+    expect(searchMode('51H-123')).toBe('plate');
+  });
+  it('C9 the lookup customer projection right is not granted to QD', () => {
+    const seeds = defaultRoleSeeds();
+    const has = (code: string, perm: string) =>
+      (seeds.find((r) => r.code === code)?.permissions ?? []).includes(perm);
+    expect(has('QD', 'customer-lookup:view')).toBe(true);
+    expect(has('QD', 'customer-lookup-customer:view')).toBe(false);
+    for (const code of ['CH', 'QV', 'QL', 'CV', 'TN'])
+      expect(has(code, 'customer-lookup-customer:view'), code).toBe(true);
+    for (const code of ['QL', 'QV', 'CV', 'QD', 'TN', 'TK', 'TH', 'AD'])
+      expect(has(code, 'customer-pii:export'), code).toBe(false);
+    for (const code of ['CH', 'KT']) expect(has(code, 'customer-pii:export'), code).toBe(true);
   });
 });

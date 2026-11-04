@@ -138,6 +138,8 @@ export function crmDemoDocs(): SeedDoc[] {
         nameNorm: normalizeSearch(c.name),
         type: c.type,
         code: c.code,
+        source: b === c.branch ? 'created' : 'lookup_adopt',
+        createdBy: 'seed',
         createdAt: AT,
       });
     if (c.marketing?.length)

@@ -13,7 +13,9 @@ import { anonymizedPatch } from '../domain/anonymize';
 import {
   canTransition,
   dueAtFor,
+  isLegallyOverdue,
   isOverdue,
+  legalDueAtFor,
   REQUEST_STATUSES,
   REQUEST_TYPES,
   type DataRequest,
@@ -39,8 +41,12 @@ export interface DataRequestDto {
   status: string;
   receivedVia: string;
   receivedAt: string;
-  dueAt: string;
+  /** C3: internal target (reminders, red mark) */
+  internalDueAt: string;
+  /** C3: null until the lawyer sets the legal deadline; then no "late by law" statement is made */
+  legalDueAt: string | null;
   overdue: boolean;
+  legallyOverdue: boolean;
   assigneeId: string | null;
   assigneeName: string | null;
   note: string | null;
@@ -77,8 +83,10 @@ async function toDto(deps: CrmDeps, actor: Actor, rows: DataRequest[]): Promise<
     status: r.status,
     receivedVia: r.receivedVia,
     receivedAt: r.receivedAt.toISOString(),
-    dueAt: r.dueAt.toISOString(),
+    internalDueAt: r.internalDueAt.toISOString(),
+    legalDueAt: r.legalDueAt?.toISOString() ?? null,
     overdue: isOverdue(r, now),
+    legallyOverdue: isLegallyOverdue(r, now),
     assigneeId: r.assigneeId,
     assigneeName: r.assigneeId ? (assignees.get(r.assigneeId) ?? null) : null,
     note: r.note ?? null,
@@ -174,7 +182,8 @@ export async function createDataRequest(
         status: 'received',
         receivedVia: data.receivedVia,
         receivedAt: now,
-        dueAt: dueAtFor(now, deps.crm.requestDeadlineHours),
+        internalDueAt: dueAtFor(now, deps.crm.requestInternalTargetHours[data.type]),
+        legalDueAt: legalDueAtFor(now, deps.crm.requestLegalDeadlineHours, data.type),
         assigneeId: null,
         ...(data.note ? { note: data.note } : {}),
         createdBy: actor.userId,
@@ -190,7 +199,13 @@ export async function createDataRequest(
           entityType: 'dataRequest',
           entityId: id,
           action: 'dataRequest.create',
-          after: { code: r.code, customerId: r.customerId, type: r.type, dueAt: r.dueAt },
+          after: {
+            code: r.code,
+            customerId: r.customerId,
+            type: r.type,
+            internalDueAt: r.internalDueAt,
+            legalDueAt: r.legalDueAt,
+          },
         }),
       );
       return { status: 201, body: (await toDto(deps, actor, [r]))[0]! };
@@ -261,7 +276,8 @@ export const closeSchema = z.object({
 
 /**
  * Closes a request with a result. Completing a `delete` request anonymises the customer, but only
- * after the retention check says nothing blocks it (open orders, debt, warranty) and only for a
+ * after the retention check VERIFIED that nothing blocks it (open orders, debt, warranty; C4 fails
+ * closed with `retention_unverified` while REC/ACC cannot report) and only for a
  * holder of `data-request:approve`; data kept for legal reasons is listed in the audit entry
  * [Cần xác nhận: Luật sư khách].
  */
@@ -286,6 +302,9 @@ export async function closeDataRequest(
     if (r.type === 'delete' && data.outcome === 'completed') {
       resolveScope(actor, 'data-request:approve'); // 403 for anyone else
       const check = await deps.retention.check(actor.companyId, r.customerId);
+      // C4 fail closed: an irreversible step never runs on a gate that cannot verify its conditions
+      if (!check.verified && !deps.crm.allowUnverifiedRetention)
+        throw new AppError('retention_unverified', 409);
       if (check.blockers.length)
         throw new AppError(
           'request_blocked',

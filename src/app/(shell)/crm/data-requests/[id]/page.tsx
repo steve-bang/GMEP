@@ -82,7 +82,18 @@ export default async function DataRequestPage({ params }: { params: Promise<{ id
           </div>
           <div>
             <dt className="text-secondary">{t('crm.requests.colDue')}</dt>
-            <dd>{formatDateTime(new Date(r.dueAt))}</dd>
+            <dd>{formatDateTime(new Date(r.internalDueAt))}</dd>
+          </div>
+          <div>
+            <dt className="text-secondary">{t('crm.requests.colLegalDue')}</dt>
+            <dd>
+              {r.legalDueAt
+                ? formatDateTime(new Date(r.legalDueAt))
+                : t('crm.requests.legalDueBlank')}
+              {r.legallyOverdue ? (
+                <StatusBadge tone="danger">{t('crm.requests.legallyOverdue')}</StatusBadge>
+              ) : null}
+            </dd>
           </div>
           <div>
             <dt className="text-secondary">{t('crm.requests.colAssignee')}</dt>

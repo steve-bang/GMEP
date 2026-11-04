@@ -32,6 +32,8 @@ interface Result {
 /** Exact lookup (POST so the phone never appears in a URL or a server access log). */
 export function LookupForm(props: {
   canRelate: boolean;
+  /** C9: QĐ looks up by plate only */
+  canPhone: boolean;
   labels: Record<
     | 'plate'
     | 'phone'
@@ -133,19 +135,21 @@ export function LookupForm(props: {
           </label>
           <input className="input" id="lk-plate" name="plate" autoComplete="off" maxLength={20} />
         </div>
-        <div className="field">
-          <label className="field__label" htmlFor="lk-phone">
-            {l.phone}
-          </label>
-          <input
-            className="input"
-            id="lk-phone"
-            name="phone"
-            autoComplete="off"
-            maxLength={20}
-            inputMode="tel"
-          />
-        </div>
+        {props.canPhone ? (
+          <div className="field">
+            <label className="field__label" htmlFor="lk-phone">
+              {l.phone}
+            </label>
+            <input
+              className="input"
+              id="lk-phone"
+              name="phone"
+              autoComplete="off"
+              maxLength={20}
+              inputMode="tel"
+            />
+          </div>
+        ) : null}
         <div className="filter-bar__actions">
           <Button type="submit" variant="primary" loading={busy}>
             {l.search}

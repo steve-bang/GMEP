@@ -32,7 +32,10 @@ export interface DataRequest {
   /** how the request arrived: counter, phone, email, web */
   receivedVia: 'in_person' | 'phone' | 'email' | 'web';
   receivedAt: Date;
-  dueAt: Date;
+  /** internal target (C3): drives reminders and the red "overdue" mark; NOT a legal conclusion */
+  internalDueAt: Date;
+  /** legal deadline: null until the client's lawyer enters it per request type [Cần xác nhận: Luật sư khách] */
+  legalDueAt: Date | null;
   assigneeId: string | null;
   /** what the customer asked; staff must not paste personal data here */
   note?: string;
@@ -48,24 +51,58 @@ export interface DataRequest {
 }
 
 /**
- * Response deadline. [Cần xác nhận: Luật sư khách] the PDPL 2025 / NĐ 356/2025 period; the default
- * is the strictest known value (72 hours, as in NĐ 13/2023 for access and correction) and is configuration.
+ * C3 (ba-answers-for-dev §15): two separate parameters per request type. The internal target is
+ * 72 hours as a starting value; the legal deadline stays blank until the lawyer sets it, and a blank
+ * legal deadline never yields a "late by law" conclusion. Both are configuration (NFR-MNT-01).
  */
-export const DEFAULT_REQUEST_DEADLINE_HOURS = 72;
+export type RequestTypeHours = Record<RequestType, number>;
+export const DEFAULT_INTERNAL_TARGET_HOURS: RequestTypeHours = {
+  view: 72,
+  correct: 72,
+  delete: 72,
+};
 
 export function dueAtFor(receivedAt: Date, deadlineHours: number): Date {
   return new Date(receivedAt.getTime() + deadlineHours * 3_600_000);
 }
 
-export const isOverdue = (r: Pick<DataRequest, 'status' | 'dueAt'>, now: Date): boolean =>
-  !isClosed(r.status) && r.dueAt.getTime() < now.getTime();
+/** null when the lawyer has not set a legal deadline for the type. */
+export function legalDueAtFor(
+  receivedAt: Date,
+  legalHours: Partial<Record<RequestType, number | null>>,
+  type: RequestType,
+): Date | null {
+  const h = legalHours[type];
+  return typeof h === 'number' ? dueAtFor(receivedAt, h) : null;
+}
+
+export const isOverdue = (r: Pick<DataRequest, 'status' | 'internalDueAt'>, now: Date): boolean =>
+  !isClosed(r.status) && r.internalDueAt.getTime() < now.getTime();
+
+/** Only when a legal deadline exists can a request be reported as late by law. */
+export const isLegallyOverdue = (
+  r: Pick<DataRequest, 'status' | 'legalDueAt'>,
+  now: Date,
+): boolean => !isClosed(r.status) && !!r.legalDueAt && r.legalDueAt.getTime() < now.getTime();
 
 /** What a customer-delete request must keep or may not touch (FR-CRM-011 [Cần xác nhận: Luật sư khách]). */
 export interface RetentionCheck {
+  /**
+   * C4 fail closed: false while the owning modules (REC/ACC/EIN) cannot report open orders, debt,
+   * warranty and invoice retention. An unverifiable check never lets a deletion complete.
+   */
+  verified: boolean;
   /** open repair orders, outstanding debt, valid warranty: the deletion must wait */
   blockers: string[];
   /** records kept for legal reasons (issued invoices, accounting vouchers); listed in the result */
   retained: string[];
 }
 
-export const NO_RETENTION: RetentionCheck = { blockers: [], retained: [] };
+/** Nothing blocks and everything was verified (real ports, tests of the happy path). */
+export const NO_RETENTION: RetentionCheck = { verified: true, blockers: [], retained: [] };
+/** What the temporary port returns until REC/ACC exist: nothing is known, so nothing may be deleted. */
+export const RETENTION_UNVERIFIED: RetentionCheck = {
+  verified: false,
+  blockers: [],
+  retained: [],
+};

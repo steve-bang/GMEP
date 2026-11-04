@@ -99,9 +99,18 @@ const listSchema = z.object({
   direction: z.enum(['asc', 'desc']).default('asc'),
 });
 
+export const MIN_PHONE_SEARCH_DIGITS = 4;
+/** Phone and plate searches look at most this many matches (BA §11: first 50). */
+const SEARCH_BOUND = 50;
+
+/** `capped` = more matches exist than shown: the UI must say "N+ kết quả, hãy nhập thêm" (C12). */
+export type SearchPage<T> = Page<T> & { capped: boolean };
+
 /** Search mode from the shape of the text (FR-CRM-001 search by name, phone or plate). */
 export function searchMode(q: string): 'phone' | 'plate' | 'name' {
-  if (/^[\d\s.+-]+$/.test(q) && q.replace(/\D/g, '').length >= 3) return 'phone';
+  // C12: a phone search needs at least 4 digits so the list cannot be browsed by "0"
+  if (/^[\d\s.+-]+$/.test(q) && q.replace(/\D/g, '').length >= MIN_PHONE_SEARCH_DIGITS)
+    return 'phone';
   if (/^\d{2}\s?[A-Za-z]{1,2}[\s.-]?\d/.test(q)) return 'plate';
   return 'name';
 }
@@ -114,49 +123,59 @@ export async function listCustomers(
   deps: CrmDeps,
   actor: Actor,
   raw: unknown,
-): Promise<Page<Customer>> {
+): Promise<SearchPage<Customer>> {
   const scope = resolveWorkingScope(actor, 'customer:view');
   const q = parseInput(listSchema, raw);
   const text = q.q ?? '';
   const mode = text ? searchMode(text) : 'name';
   if (mode === 'name')
-    return deps.customers.list(scope, {
-      direction: q.direction,
-      limit: q.limit,
-      ...(q.type ? { type: q.type } : {}),
-      ...(text ? { namePrefix: normalizeSearch(text) } : {}),
-      ...(q.cursor ? { cursor: decodeCursor(q.cursor)! } : {}),
-    });
-  const BOUND = 50;
+    return {
+      ...(await deps.customers.list(scope, {
+        direction: q.direction,
+        limit: q.limit,
+        ...(q.type ? { type: q.type } : {}),
+        ...(text ? { namePrefix: normalizeSearch(text) } : {}),
+        ...(q.cursor ? { cursor: decodeCursor(q.cursor)! } : {}),
+      })),
+      capped: false,
+    };
   let ids: string[];
+  let capped = false;
   if (mode === 'phone') {
+    // one extra row tells whether the bound cut the list
     ids = await deps.customers.customerIdsByPhone(
       actor.companyId,
       normalizePhone(text),
       'prefix',
-      BOUND,
+      SEARCH_BOUND + 1,
     );
+    capped = ids.length > SEARCH_BOUND;
+    ids = ids.slice(0, SEARCH_BOUND);
   } else {
     const vs = await deps.vehicles.list(scope, {
       platePrefix: normalizePlate(text),
       direction: 'asc',
-      limit: BOUND,
+      limit: SEARCH_BOUND,
     });
+    capped = vs.nextCursor !== null;
     ids = vs.items.flatMap((v) => (v.currentOwnerId ? [v.currentOwnerId] : []));
   }
   const found = await deps.customers.getMany(scope, [...new Set(ids)]);
-  const items = found
+  const matches = found
     .filter((c) => !q.type || c.type === q.type)
-    .sort((a, b) => (a.nameNorm < b.nameNorm ? -1 : a.nameNorm > b.nameNorm ? 1 : 0))
-    .slice(0, q.limit);
-  return { items, nextCursor: null };
+    .sort((a, b) => (a.nameNorm < b.nameNorm ? -1 : a.nameNorm > b.nameNorm ? 1 : 0));
+  return {
+    items: matches.slice(0, q.limit),
+    nextCursor: null,
+    capped: capped || matches.length > q.limit,
+  };
 }
 
 export async function listCustomerDtos(
   deps: CrmDeps,
   actor: Actor,
   raw: unknown,
-): Promise<Page<CustomerDto>> {
+): Promise<SearchPage<CustomerDto>> {
   const page = await listCustomers(deps, actor, raw);
   const piis = await Promise.all(
     page.items.map((c) => deps.customers.getPii(actor.companyId, c.id)),
@@ -164,6 +183,7 @@ export async function listCustomerDtos(
   return {
     items: page.items.map((c, i) => toCustomerDto(deps, actor, c, piis[i] ?? null)),
     nextCursor: page.nextCursor,
+    capped: page.capped,
   };
 }
 
@@ -307,7 +327,7 @@ export async function createCustomer(
         createdAt: now,
       };
       deps.customers.create(tx, customer, pii);
-      deps.customers.link(tx, customer, branch.id, now);
+      deps.customers.link(tx, customer, branch.id, now, { source: 'created', by: actor.userId });
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {

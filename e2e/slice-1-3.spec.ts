@@ -74,9 +74,10 @@ test.describe('slice 1.3 CRM: customers, vehicles, ownership, consent, requests,
     // owner change keeps both ownership rows (UAT-18); the seeded pickup truck was owned since 2024-01-01
     await page.goto('/crm/vehicles/veh_biz');
     await expect(page.getByTestId('vehicle-profile')).toBeVisible();
-    await page
-      .locator('select[name="newCustomerId"]')
-      .selectOption({ label: 'Nguyễn Văn An · KH-Q7-00001' });
+    // C13: the new owner is found with a search box, not a list of the first 100 customers
+    await page.getByLabel('Chủ mới').fill('nguyen van');
+    await page.getByTestId('customer-picker-option').filter({ hasText: 'KH-Q7-00001' }).click();
+    await expect(page.getByTestId('customer-picked')).toContainText('Nguyễn Văn An');
     await page.getByLabel('Ngày chuyển chủ').fill('2026-10-01');
     await page.getByRole('button', { name: 'Chuyển chủ' }).click();
     const owners = page.locator('table').filter({ hasText: 'Hiện tại' });
@@ -84,6 +85,30 @@ test.describe('slice 1.3 CRM: customers, vehicles, ownership, consent, requests,
     await expect(owners.locator('tbody tr').first()).toContainText('Nguyễn Văn An');
     await expect(owners.locator('tbody tr').nth(1)).toContainText('30/09/2026');
     expect(serious(await axe(page))).toEqual([]);
+  });
+
+  test('C13: vehicle owner is found with a search box (name, phone from 4 digits, full phone across branches)', async ({
+    page,
+  }) => {
+    await loginOk(page, 'cv.q7@demo.gmep.test');
+    await page.goto('/crm/vehicles/new');
+    expect(serious(await axe(page))).toEqual([]);
+    const box = page.getByTestId('customer-picker-input');
+    await box.fill('0900'); // 4 digits: phone search inside the branch scope
+    await expect(page.getByTestId('customer-picker-option').first()).toBeVisible();
+    await expect(
+      page.getByTestId('customer-picker-option').filter({ hasText: 'Trần Thị Bình' }),
+    ).toHaveCount(0);
+    // the full number of a Thu Duc customer offers the cross-branch record, adoption is explicit
+    await box.fill('0900000222');
+    await expect(page.getByTestId('customer-picker-other')).toContainText('Trần Thị Bình');
+    await expect(page.getByTestId('customer-picker-adopt')).toBeVisible();
+    await expect(page.locator('body')).not.toContainText('0900000222 ·');
+    await box.fill('nguyen van');
+    await page.getByTestId('customer-picker-option').filter({ hasText: 'KH-Q7-00001' }).click();
+    await page.getByRole('button', { name: 'Tiếp tục' }).click();
+    await expect(page).toHaveURL(/\/crm\/vehicles\/new\?customerId=cus_an/);
+    await expect(page.getByLabel('Biển số')).toBeVisible();
   });
 
   test('cross-branch repair history of the sedan lists Quận 7 and Thủ Đức visits', async ({

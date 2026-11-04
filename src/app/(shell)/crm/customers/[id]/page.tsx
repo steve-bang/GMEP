@@ -220,9 +220,10 @@ export default async function CustomerPage({
                 value: p,
                 label: t(`crm.consent.channels.${p}`),
               }))}
-              bases={['consent', 'contract', 'legal_obligation', 'legitimate_interest'].map(
-                (p) => ({ value: p, label: t(`crm.consent.bases.${p}`) }),
-              )}
+              bases={crm.crm.consentBasesEnabled.map((p) => ({
+                value: p,
+                label: t(`crm.consent.bases.${p}`),
+              }))}
               labels={{
                 title: t('crm.consent.title'),
                 empty: t('crm.consent.empty'),
@@ -295,7 +296,7 @@ export default async function CustomerPage({
                     {
                       key: 'due',
                       header: t('crm.requests.colDue'),
-                      render: (r) => formatDate(new Date(r.dueAt)),
+                      render: (r) => formatDate(new Date(r.internalDueAt)),
                     },
                   ]}
                 />

@@ -31,6 +31,8 @@ export const COL = {
   vehicles: 'vehicles',
   vehicleLinks: 'vehicleLinks',
   vehiclePlates: 'vehiclePlates',
+  /** C11: company-wide VIN uniqueness registry, same pattern as vehiclePlates */
+  vehicleVins: 'vehicleVins',
   vehicleOwnerships: 'vehicleOwnerships',
   consents: 'consents',
   dataSubjectRequests: 'dataSubjectRequests',

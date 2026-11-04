@@ -1,4 +1,4 @@
-import { NO_RETENTION, type CustomerRetentionPort } from '@/modules/crm';
+import { RETENTION_UNVERIFIED, type CustomerRetentionPort } from '@/modules/crm';
 import type { BranchActivityPort } from '@/modules/sys';
 
 /**
@@ -7,5 +7,7 @@ import type { BranchActivityPort } from '@/modules/sys';
  * TODO(slice 1.7/1.8): replace; tests/integration/admin.test.ts holds the pending (todo) tests.
  */
 export const stubBranchActivity: BranchActivityPort = { blockers: async () => [] };
-/** TODO(slice 1.7/1.9): REC reports open orders and warranty, ACC outstanding debt, EIN issued invoices (FR-CRM-011). */
-export const stubCustomerRetention: CustomerRetentionPort = { check: async () => NO_RETENTION };
+/** C4: fails closed (verified=false) so a delete request cannot complete until the real gate exists. TODO(slice 1.7/1.9): REC reports open orders and warranty, ACC outstanding debt, EIN issued invoices (FR-CRM-011). */
+export const stubCustomerRetention: CustomerRetentionPort = {
+  check: async () => RETENTION_UNVERIFIED,
+};

@@ -5,6 +5,7 @@ import type { Tx } from '@/platform/tx/unitOfWork';
 import {
   customerLinkId,
   plateKey,
+  vinKey,
   vehicleLinkId,
   type Consent,
   type ConsentRepository,
@@ -15,6 +16,7 @@ import {
   type DataRequestRepository,
   type Ownership,
   type OwnershipRepository,
+  type RelationSource,
   type Vehicle,
   type VehicleHistoryEntry,
   type VehicleHistoryRepository,
@@ -224,8 +226,11 @@ export class DocCustomerRepository implements CustomerRepository {
     c: Pick<Customer, 'id' | 'companyId' | 'nameNorm' | 'type' | 'code'>,
     branchId: string,
     at: Date,
+    relation: { source: RelationSource; by: string },
   ) {
     this.store.set(tx, COL.customerLinks, customerLinkId(c.id, branchId), {
+      source: relation.source,
+      createdBy: relation.by,
       companyId: c.companyId,
       customerId: c.id,
       branchId,
@@ -301,6 +306,7 @@ const vehicleFromDoc = ({ id, data: x }: StoredDoc): Vehicle => ({
   isCommercial: !!x.isCommercial,
   ...(x.lastKm !== undefined && x.lastKm !== null ? { lastKm: x.lastKm } : {}),
   ...(x.lastKmAt ? { lastKmAt: x.lastKmAt } : {}),
+  ...(x.odometerReplacedAt ? { odometerReplacedAt: x.odometerReplacedAt } : {}),
   currentOwnerId: x.currentOwnerId ?? null,
   branchIds: x.branchIds ?? [],
   createdAt: x.createdAt,
@@ -369,12 +375,30 @@ export class DocVehicleRepository implements VehicleRepository {
     const d = await this.store.get(COL.vehiclePlates, plateKey(companyId, plateNorm));
     return d ? (d.data.vehicleId as string) : null;
   }
+  async vehicleIdByVin(companyId: string, vin: string) {
+    const d = await this.store.get(COL.vehicleVins, vinKey(companyId, vin));
+    return d ? (d.data.vehicleId as string) : null;
+  }
+  setVin(
+    tx: Tx,
+    v: Pick<Vehicle, 'id' | 'companyId'>,
+    oldVin: string | null,
+    newVin: string | null,
+  ) {
+    if (newVin)
+      this.store.create(tx, COL.vehicleVins, vinKey(v.companyId, newVin), {
+        companyId: v.companyId,
+        vehicleId: v.id,
+      });
+    if (oldVin) this.store.delete(tx, COL.vehicleVins, vinKey(v.companyId, oldVin));
+  }
   create(tx: Tx, v: Vehicle) {
     // the registry slot is created, not set: a taken plate fails the whole transaction (FR-CRM-002)
     this.store.create(tx, COL.vehiclePlates, plateKey(v.companyId, v.plateNorm), {
       companyId: v.companyId,
       vehicleId: v.id,
     });
+    if (v.vin) this.setVin(tx, v, null, v.vin);
     this.store.create(tx, COL.vehicles, v.id, without(v, 'id'));
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
@@ -513,7 +537,8 @@ const requestFromDoc = ({ id, data: x }: StoredDoc): DataRequest => ({
   status: x.status,
   receivedVia: x.receivedVia,
   receivedAt: x.receivedAt,
-  dueAt: x.dueAt,
+  internalDueAt: x.internalDueAt ?? x.dueAt,
+  legalDueAt: x.legalDueAt ?? null,
   assigneeId: x.assigneeId ?? null,
   ...(x.note ? { note: x.note } : {}),
   ...(x.resultNote ? { resultNote: x.resultNote } : {}),
