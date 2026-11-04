@@ -265,6 +265,16 @@ export async function exportReport(
             ]
           : []),
         ...(d.visible.stock ? [row('stock.issuesWithoutSource', r.stock.issuesWithoutSource)] : []),
+        ...(r.comparison
+          ? [
+              row('compare.month', r.comparison.month),
+              row('compare.days', r.comparison.days),
+              row('compare.closed', r.comparison.orders.closed),
+              row('compare.closed.deltaBp', r.comparison.deltaBp.closed),
+              row('compare.exTaxVnd', r.comparison.revenue.exTaxVnd),
+              row('compare.exTaxVnd.deltaBp', r.comparison.deltaBp.exTaxVnd),
+            ]
+          : []),
         ...unlinkedRows(d.unlinked, row),
       ];
       break;

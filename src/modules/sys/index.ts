@@ -143,9 +143,10 @@ export {
   importTemplateXlsx,
   listImports,
   getImport,
+  getImportIssues,
   previewImport,
   commitImport,
   undoImport,
   discardAbandonedImports,
 } from './application/dataImport';
-export type { ImportDto } from './application/dataImport';
+export type { ImportDto, ImportIssuePage } from './application/dataImport';

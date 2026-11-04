@@ -79,16 +79,29 @@ export function authed(
 
 /**
  * Internal machine-to-machine route (Cloud Scheduler). No session and no Origin: the shared secret in `x-cron-secret`
- * (env CRON_SECRET, compared in constant time) is checked before anything else. Unset secret = the route does not exist.
+ * (env CRON_SECRET, compared in constant time) or a Cloud Scheduler OIDC bearer token (env CRON_OIDC_AUDIENCE and
+ * CRON_OIDC_SERVICE_ACCOUNT, verified through the CronAuthVerifier port) is checked before anything else.
+ * Neither configured = the route does not exist (404).
  */
 export function cron(handler: (c: ApiCtx) => Promise<Response>) {
   return apiRoute(
     async (c) => {
-      const secret = getContainer().env.CRON_SECRET;
-      if (!secret) throw notFound();
-      const given = Buffer.from(c.req.headers.get('x-cron-secret') ?? '');
-      const want = Buffer.from(secret);
-      if (given.length !== want.length || !timingSafeEqual(given, want)) throw unauthenticated();
+      const { env, cronAuth } = getContainer();
+      const secret = env.CRON_SECRET;
+      const oidc = Boolean(env.CRON_OIDC_AUDIENCE && env.CRON_OIDC_SERVICE_ACCOUNT);
+      if (!secret && !oidc) throw notFound();
+      // either credential is enough: the shared secret (kept for compatibility) or a Cloud Scheduler OIDC token
+      let ok = false;
+      if (secret) {
+        const given = Buffer.from(c.req.headers.get('x-cron-secret') ?? '');
+        const want = Buffer.from(secret);
+        ok = given.length === want.length && timingSafeEqual(given, want);
+      }
+      if (!ok && oidc) {
+        const m = /^Bearer\s+(\S+)$/i.exec(c.req.headers.get('authorization') ?? '');
+        ok = m ? await cronAuth.verify(m[1]!) : false;
+      }
+      if (!ok) throw unauthenticated();
       return handler({
         ...c,
         sys: getContainer().sys,

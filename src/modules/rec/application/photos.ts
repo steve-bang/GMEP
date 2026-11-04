@@ -293,6 +293,28 @@ export async function readPhoto(
   return file;
 }
 
+/**
+ * FR-REC-014: photos of a record, optionally only those attached to one work proposal (đề xuất phát sinh).
+ * Same Scope check and 404 as `readPhoto`; hidden photos (R104) are listed, marked, only for `rec-photo:update`.
+ * `proposalId: 'none'` lists the photos that belong to no proposal.
+ */
+export async function listPhotos(
+  deps: RecDeps,
+  actor: Actor,
+  parent: PhotoParent,
+  id: string,
+  filter: { proposalId?: string } = {},
+): Promise<PhotoDto[]> {
+  const scope = scopeFor(actor, READ[parent]);
+  const p = await load(deps, parent, scope, id);
+  const wanted = filter.proposalId?.trim();
+  if (wanted && wanted !== 'none' && parent === 'order' && !p.proposalIds.includes(wanted))
+    throw notFound();
+  return toPhotoDtos(p.photos, hasPermission(actor, 'rec-photo:update')).filter((x) =>
+    !wanted ? true : wanted === 'none' ? x.proposalId === null : x.proposalId === wanted,
+  );
+}
+
 export interface PhotoDto {
   id: string;
   contentType: string;

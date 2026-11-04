@@ -61,6 +61,21 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
     );
   const d = res.data;
   const r = d.report;
+  // FR-RPT-002: change against the same day range of the month before (basis points -> one-decimal percent)
+  const cmp = r.comparison;
+  const change = (bp: number | null | undefined): string | undefined => {
+    if (!cmp) return l.vsPrevNa;
+    if (bp === null || bp === undefined) return l.vsPrevZero;
+    const abs = Math.abs(bp);
+    const pct = `${bp > 0 ? '+' : bp < 0 ? '-' : ''}${Math.trunc(abs / 100)},${String(abs % 100)
+      .padStart(2, '0')
+      .slice(0, 1)}%`;
+    return fill(l.vsPrev!, {
+      month: cmp.month.slice(5) + '/' + cmp.month.slice(0, 4),
+      days: cmp.days,
+      change: pct,
+    });
+  };
   return (
     <RptPage {...head}>
       <FilterForm
@@ -102,15 +117,26 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
           ) : null}
         </Note>
       ) : null}
+      {cmp && cmp.missingDates.length > 0 ? (
+        <Note tone="warning" testId="monthly-prev-missing">
+          {fill(l.vsPrevMissing!, { n: cmp.missingDates.length })}
+        </Note>
+      ) : null}
       {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
           value={money(r.revenue.exTaxVnd)}
           formula={l.fRevenue!}
+          meta={<span data-testid="m-revenue-delta">{change(cmp?.deltaBp.exTaxVnd)}</span>}
           testId="m-revenue"
         />
-        <Kpi label={l.kOrders!} value={String(r.orders.closed)} testId="m-closed" />
+        <Kpi
+          label={l.kOrders!}
+          value={String(r.orders.closed)}
+          meta={<span data-testid="m-closed-delta">{change(cmp?.deltaBp.closed)}</span>}
+          testId="m-closed"
+        />
         <Kpi
           label={l.kAvg!}
           value={money(r.revenue.avgPerOrderVnd)}
