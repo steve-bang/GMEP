@@ -10,9 +10,9 @@ Documents are written in Vietnamese; UI text, VND currency and Vietnamese invoic
 
 ## Status
 
-Slices 0.3, 0.4 and 1.1 to 1.9 are built and run end to end on the Firebase Emulator Suite (no GCP project yet): SYS (login/session, 10-role permission matrix, scope picker, PII masking, numbering, effective-dated config, approvals, audit), CRM core, INV stock ledger, REC (intake, quote, approval, repair order, QC, handover), ACC money (receipts, cash book, shifts, day close, reversals), EIN basic invoice (fake provider only), RPT single-branch reports. Slices 1.10 to 1.12 and phase 2+ are not started. **MFA is out of scope by owner decision** (`StrongAuthPort` is a no-op hook).
+Slices 0.3, 0.4 and 1.1 to 1.9 are built and run end to end on the Firebase Emulator Suite (no GCP project yet): SYS (login/session, 10-role permission matrix, scope picker, PII masking, numbering, effective-dated config, approvals, audit), CRM core, INV stock ledger, REC (intake, quote, approval, repair order, QC, handover), ACC money (receipts, cash book, shifts, day close, reversals), EIN basic invoice (fake provider only), RPT single-branch reports. Slice 1.11 (Excel import, SYS-007) is built; slices 1.10, 1.12 and phase 2+ are not started. **MFA is out of scope by owner decision** (`StrongAuthPort` is a no-op hook).
 
-Per-slice scope, what is NOT built, applied BA answers and index budget (191 of 200 composite indexes; `pnpm check:indexes` fails above 195): **read `docs/dev/status.md` only for the module you touch.** Open requirement questions: `docs/dev/open-questions-for-ba.md`; BA answers: `docs/dev/ba-answers-for-dev.md`; plan: `docs/dev/implementation-plan.md` §7.
+Per-slice scope, what is NOT built, applied BA answers and index budget (192 of 200 composite indexes; `pnpm check:indexes` fails above 195): **read `docs/dev/status.md` only for the module you touch.** Open requirement questions: `docs/dev/open-questions-for-ba.md`; BA answers: `docs/dev/ba-answers-for-dev.md`; plan: `docs/dev/implementation-plan.md` §7.
 
 ## Tech stack (ADR 0001, accepted 31/10/2026; read `docs/adr/0001-tech-stack.md` §2.1 before touching auth, storage or Firebase)
 

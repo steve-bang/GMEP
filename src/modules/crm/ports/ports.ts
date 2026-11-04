@@ -38,6 +38,8 @@ export interface CustomerRepository {
   /** same, inside the transaction (counters of a previous owner outside the actor's scope) */
   getCompanyWideInTx(tx: Tx, companyId: string, id: string): Promise<Customer | null>;
   create(tx: Tx, c: Customer, pii: CustomerPii): void;
+  /** FR-SYS-007 undo of an import ONLY: removes the customer, its contact document and its branch links */
+  remove(tx: Tx, c: Pick<Customer, 'id' | 'branchIds'>): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** adds the link row for (customer, branch); idempotent */
   link(
@@ -87,6 +89,8 @@ export interface VehicleRepository {
   ): void;
   /** fails the transaction with AlreadyExistsError when the plate (or VIN) is taken */
   create(tx: Tx, v: Vehicle): void;
+  /** FR-SYS-007 undo of an import ONLY: removes the vehicle, its plate and VIN slots and its branch links */
+  remove(tx: Tx, v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm' | 'vin' | 'branchIds'>): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** moves the plate registry slot and the link columns */
   changePlate(
@@ -109,6 +113,8 @@ export interface OwnershipRepository {
   listByVehicleInTx(tx: Tx, companyId: string, vehicleId: string): Promise<Ownership[]>;
   listByCustomer(companyId: string, customerId: string, limit: number): Promise<Ownership[]>;
   create(tx: Tx, o: Ownership): void;
+  /** FR-SYS-007 undo of an import ONLY */
+  remove(tx: Tx, id: string): void;
   close(tx: Tx, id: string, to: string): void;
 }
 

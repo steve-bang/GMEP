@@ -382,3 +382,18 @@ Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §22.5):
 4. Dấu "có điều chỉnh sau chốt" kèm chênh lệch; số chính thức không tự đổi (R88).
 5. Xuất CSV: chống chèn công thức, UTF-8 BOM, giới hạn mềm 20 lần/người/ngày (R89).
 6. Kiểm tra: ma trận vai trò và liên kết đi sâu (R84), nhãn "tổng của N chi nhánh" (R85), nhãn giờ cập nhật (R86).
+
+## Slice 1.11 (SYS-007 nhập dữ liệu từ Excel): câu hỏi mới
+
+Dev đã dựng công cụ nhập cho ba loại (khách và xe, danh mục phụ tùng, tồn đầu kỳ). Dev tiếp tục theo giá trị tạm dưới đây, không chờ trả lời.
+
+| # | Gửi | Câu hỏi | Giá trị tạm trong mã | Nơi sửa |
+| --- | --- | --- | --- | --- |
+| R93 | Khách/BA | Mẫu Excel thật của khách (BA-20) chưa có. Mẫu tạm do dev định (cột tiếng Việt, tải được ở màn hình nhập); hệ thống tự khớp cột theo tên và cho chọn lại cột. Cần mẫu thật của từng chi nhánh để chốt tên cột và bí danh. | Mẫu tạm 3 loại | `crm/application/importer.ts`, `inv/application/importer.ts` |
+| R94 | Khách | Giới hạn tệp: 5 MB và 2.000 dòng mỗi lô, ghi đồng bộ theo bước nhỏ (thiết kế G4-SYS-20 nêu 20 MB và 50.000 dòng, xử lý nền). Cần lô lớn hơn cho pilot không (cần hàng đợi nền, cùng R76/R86). | 5 MB, 2.000 dòng | `SysConfig.importMaxBytes/importMaxRows` |
+| R95 | KT/QL | Tồn đầu kỳ: dev dùng phiếu điều chỉnh đầu kỳ (ADJ, nguồn "tồn đầu kỳ") đã có của slice 1.4, KHÔNG phải phiếu nhập GRN. Phiếu được tạo ở trạng thái nháp, người nhập không tự ghi sổ được (cần quản lý khác duyệt, giữ nguyên tách nhiệm). Mỗi 100 dòng là một phiếu. Hoàn tác: hủy nháp, hoặc đảo phiếu đã ghi sổ bằng phiếu đảo (RULE-010). Phụ tùng tính số lẻ (quantityScale khác 1) chưa nhập được bằng tệp. Đơn giá vốn là VND nguyên mỗi đơn vị. Có chấp nhận quy trình này không. | Như mô tả | `inv/application/importer.ts` |
+| R96 | Chủ/QL | Hoàn tác khách và xe: xóa hẳn (không ẩn danh) chỉ khi bản ghi còn nguyên như lúc nhập (phiên bản 1, một chủ sở hữu, không phát sinh lệnh/khoản phải thu); bản ghi đã dùng hoặc sửa thì chặn cả lần hoàn tác và không xóa gì. Mã khách đã cấp số không được tái dùng (có khoảng trống). Hoàn tác danh mục phụ tùng bị chặn khi phụ tùng đã có lịch sử kho. | Như mô tả | `crm/application/importer.ts` |
+| R97 | Khách | Trùng khách: một dòng một khách; các dòng cùng "Mã khách cũ" gộp thành một khách nhiều xe. Không có mã cũ thì không gộp theo số điện thoại (chỉ cảnh báo số điện thoại đã có ở khách khác, vẫn tạo mới). Biển số và số khung trùng với dữ liệu có sẵn là lỗi chặn. Cần quy tắc gộp khách trùng khi chuyển dữ liệu thật không. | Cảnh báo, không gộp | `crm/application/importer.ts` |
+| R98 | Chủ | Quyền: `data-import` (xem, chạy/ghi, hoàn tác) cho CH, QL (chi nhánh mình), TK; mỗi loại còn cần quyền tạo của phân hệ (khách+xe, phụ tùng, phiếu kho). QĐ, KT, AD không có. Thiết kế G4-SYS-20 cho phép AD, KT nhập nhiều loại hơn; công nợ đầu kỳ, nhân sự, dịch vụ/bảng giá, lịch sử sửa chữa chưa làm. | Như mô tả | `sys/domain/permissions.ts` |
+| R99 | Chủ/Luật sư | Báo cáo lỗi theo dòng không chứa giá trị ô (để không lộ dữ liệu cá nhân); dữ liệu dòng chờ ghi được lưu tạm và xóa sau khi ghi hoặc hoàn tác. Cần lưu tệp gốc để đối chiếu sau này không, và lưu bao lâu (liên quan thời hạn lưu). | Không lưu tệp gốc | `sys/application/dataImport.ts` |
+| R100 | D | Ghi lô chạy theo bước nhỏ, mỗi bước là các giao dịch của phân hệ chủ; không có giao dịch xuyên suốt cả lô. Kiểm tra toàn tệp xảy ra trước khi ghi nên tệp lỗi không ghi gì; nếu giữa chừng xảy ra xung đột (người khác vừa tạo cùng biển số) lô dừng ở trạng thái "dừng giữa chừng", ghi tiếp được (khóa chống trùng theo lô) hoặc hoàn tác cả lô. Chỉ mục: +1 (lịch sử lô theo chi nhánh), tổng 192/200. | Như mô tả | `sys/application/dataImport.ts` |

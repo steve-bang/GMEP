@@ -26,6 +26,8 @@ import type {
   RoleAssignmentRepository,
   RoleRepository,
   ApprovalHandler,
+  ImportBatchRepository,
+  ImportKindHandler,
   ApprovalRepository,
   ServiceRepository,
   SessionRepository,
@@ -54,6 +56,9 @@ export interface SysConfig {
   branchStateRules: typeof BRANCH_STATE_RULES;
   /** BA §9: synchronous export limits [Đề xuất BA - chờ xác nhận: Chủ dự án] */
   exportMaxRows: number;
+  /** FR-SYS-007 import limits [Cần xác nhận: Khách]: file size and data rows per file */
+  importMaxBytes: number;
+  importMaxRows: number;
   /** notifications: hidden in the bell after / deleted after (BA §8.1) */
   notificationBellDays: number;
   notificationRetentionDays: number;
@@ -99,6 +104,9 @@ export interface SysDeps {
   approvals: ApprovalRepository;
   /** FR-SYS-004: effects of a decision, per approval kind (filled by the composition root) */
   approvalHandlers: Map<string, ApprovalHandler>;
+  /** FR-SYS-007: batches and, per kind, what CRM/INV do on commit and undo (filled by the composition root) */
+  imports: ImportBatchRepository;
+  importHandlers: Map<string, ImportKindHandler>;
   services: ServiceRepository;
   priceLists: PriceListRepository;
   identity: IdentityProvider;

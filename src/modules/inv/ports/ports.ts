@@ -44,6 +44,11 @@ export interface PartRepository {
   listByCompat(scope: Scope, compatKey: string, limit: number): Promise<Part[]>;
   /** stages the part and its uniqueness slots; AlreadyExistsError when the code key or barcode is taken */
   create(tx: Tx, p: Part): void;
+  /** FR-SYS-007 undo of an import ONLY (a part with no stock history): removes the part, its code and barcode slots and compat links */
+  remove(
+    tx: Tx,
+    p: Pick<Part, 'id' | 'companyId' | 'code' | 'codeKey' | 'barcode' | 'compatKeys'>,
+  ): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** moves the barcode slot; AlreadyExistsError when the new barcode is taken */
   rebarcode(

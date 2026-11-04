@@ -98,3 +98,9 @@ export { resolveCostMethod } from './application/config';
 export { orderIssueBalance } from './application/orderIssues';
 export type { OrderIssueBalance } from './application/orderIssues';
 export { invWarehouseActivity } from './application/warehouseActivity';
+export {
+  buildPartImport,
+  buildOpeningStockImport,
+  PART_IMPORT_COLUMNS,
+  OPENING_STOCK_COLUMNS,
+} from './application/importer';

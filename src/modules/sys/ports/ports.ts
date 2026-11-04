@@ -19,6 +19,14 @@ import type {
 import type { ConfigVersion } from '../domain/config';
 import type { ApprovalRequest, ApprovalStatus } from '../domain/approval';
 import type { Actor } from '@/platform/rbac/rbac';
+import type {
+  ColumnMapping,
+  ImportColumn,
+  ImportKind,
+  ImportStatus,
+  RawRow,
+  RowIssue,
+} from '../domain/dataImport';
 
 export { AlreadyExistsError } from '@/platform/store/docStore';
 
@@ -361,4 +369,119 @@ export interface ApprovalHandler {
     actor: Actor;
     ctx: { requestId: string; idempotencyKey?: string };
   }): Promise<void>;
+}
+
+// ---- data import (FR-SYS-007) -----------------------------------------------------------------
+
+/** One unit the handler writes (a customer with its vehicles, a part, a stock line). Data is JSON-safe. */
+export interface ImportUnit {
+  /** first spreadsheet row of the unit (also the idempotency anchor) */
+  row: number;
+  rows: number[];
+  data: Record<string, unknown>;
+}
+
+/** What a committed batch created, so undo removes exactly that and nothing else. */
+export interface ImportEntityRef {
+  type: string;
+  id: string;
+  row: number;
+}
+
+export interface ImportBatch {
+  id: string;
+  companyId: string;
+  branchId: string;
+  kind: ImportKind;
+  fileName: string;
+  fileHash: string;
+  warehouseId: string | null;
+  headers: string[];
+  mapping: ColumnMapping;
+  status: ImportStatus;
+  rowCount: number;
+  unitCount: number;
+  /** units already written (commit resumes after this) */
+  committedUnits: number;
+  /** capped list of row problems; never carries cell values (personal data) */
+  issues: RowIssue[];
+  issueCount: number;
+  warnings: RowIssue[];
+  refs: ImportEntityRef[];
+  failure: string | null;
+  undoReason: string | null;
+  createdAt: Date;
+  createdBy: string;
+  updatedAt: Date;
+  updatedBy: string;
+  version: number;
+}
+
+export const IMPORT_CHUNK_ROWS = 100;
+
+export interface ImportBatchRepository {
+  get(scope: Scope, id: string): Promise<ImportBatch | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<ImportBatch | null>;
+  /** newest first, one branch */
+  listByBranch(scope: Scope, branchId: string, limit: number): Promise<ImportBatch[]>;
+  create(tx: Tx, b: ImportBatch): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+  /** file slot: the batch that currently owns these exact bytes for (branch, kind) */
+  getFileSlotInTx(tx: Tx, slotId: string): Promise<string | null>;
+  setFileSlot(tx: Tx, slotId: string, batchId: string): void;
+  /** staged units live in chunks read by key; personal data, removed after commit or discard */
+  putUnits(tx: Tx, batchId: string, companyId: string, units: readonly ImportUnit[]): void;
+  getUnits(batchId: string, chunkCount: number): Promise<ImportUnit[]>;
+  deleteUnits(tx: Tx, batchId: string, chunkCount: number): void;
+}
+
+export interface ImportHandlerCtx {
+  batchId: string;
+  requestId: string;
+  warehouseId: string | null;
+}
+
+/**
+ * What one importable kind needs from its owning module (CRM, INV); registered by the composition root like
+ * approval handlers. Every write goes through the module's own use case as the actor, so permissions, branch
+ * scope, numbering, audit and idempotency are the module's own.
+ */
+export interface ImportKindHandler {
+  kind: ImportKind;
+  columns: readonly ImportColumn[];
+  /** Vietnamese label of the kind (UI, audit) */
+  label: string;
+  needsWarehouse: boolean;
+  /** units per commit step (one bounded transaction group) */
+  chunkSize: number;
+  /** permission strings the actor must hold besides data-import:create (checked with the actor's own scope) */
+  requires: readonly string[];
+  /** all rows of the file: format, cross-row duplicates and clashes with existing data; nothing is written */
+  validate(
+    actor: Actor,
+    rows: readonly RawRow[],
+    ctx: { warehouseId: string | null },
+  ): Promise<{ units: ImportUnit[]; issues: RowIssue[]; warnings: RowIssue[] }>;
+  commit(
+    actor: Actor,
+    units: readonly ImportUnit[],
+    ctx: ImportHandlerCtx,
+  ): Promise<ImportEntityRef[]>;
+  /** removes or reverses exactly these refs; refuses the whole undo (nothing changed) when any cannot be undone */
+  undo(
+    actor: Actor,
+    refs: readonly ImportEntityRef[],
+    ctx: ImportHandlerCtx & { reason: string },
+  ): Promise<void>;
+}
+
+/** A commit step that failed after writing some records: carries what was written so undo still removes it. */
+export class ImportStepError extends Error {
+  constructor(
+    readonly partial: ImportEntityRef[],
+    readonly original: unknown,
+  ) {
+    super('import step failed');
+    this.name = 'ImportStepError';
+  }
 }

@@ -90,6 +90,9 @@ export async function SettingsPage(props: {
         ...(can('audit-log:view')
           ? [{ key: 'audit', href: '/sys/audit', label: t('shell.nav.audit') }]
           : []),
+        ...(can('data-import:view')
+          ? [{ key: 'imports', href: '/sys/imports', label: t('shell.nav.imports') }]
+          : []),
         ...['evidence-kind'].flatMap(cfg),
       ],
     },

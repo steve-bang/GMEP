@@ -269,6 +269,13 @@ const RPT_KT = flatten([
   g('report-daily', 'view', 'export'),
 ]);
 
+/**
+ * SYS slice 1.11 (FR-SYS-007 Excel import) [Đề xuất dev - chờ xác nhận: Khách]: `data-import` view (history, templates), create
+ * (upload, dry run, write) and archive (undo a batch). A kind also needs the owning module's own rights (customer + vehicle
+ * create, part create, stock-doc create), so a role never imports what it could not enter by hand. CH, QL (own branch), TK.
+ */
+const IMP_FULL = flatten([g('data-import', 'view', 'create', 'archive')]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -304,6 +311,7 @@ const CH = [
   ...ACC_CH,
   ...EIN_CH,
   ...RPT_CH,
+  ...IMP_FULL,
 ];
 
 const matrix: Grant = {
@@ -370,7 +378,8 @@ const matrix: Grant = {
     .concat(ORD_QL)
     .concat(ACC_QL)
     .concat(EIN_VIEW)
-    .concat(RPT_QL),
+    .concat(RPT_QL)
+    .concat(IMP_FULL),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -420,7 +429,8 @@ const matrix: Grant = {
     .concat(INV_VIEW)
     .concat(REC_VIEW_QUOTE)
     .concat(ORD_TK)
-    .concat(RPT_BASIC),
+    .concat(RPT_BASIC)
+    .concat(IMP_FULL),
   TN: flatten([
     g('doc-template', 'view'),
     g('customer', 'view'),
@@ -579,6 +589,11 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
       TN: RPT_BASIC,
       KT: RPT_KT,
     },
+  },
+  {
+    id: '2026-11-sys-1.11-import',
+    note: 'Slice 1.11: Excel data import, dry run, commit and undo (FR-SYS-007)',
+    grants: { CH: IMP_FULL, QL: IMP_FULL, TK: IMP_FULL },
   },
 ];
 

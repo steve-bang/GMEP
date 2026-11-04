@@ -169,6 +169,22 @@
       "title": "Không thể hiện thông tin này",
       "detail": "Vai trò của bạn không được xem đầy đủ dữ liệu này. Yêu cầu bị từ chối đã được ghi nhận."
     },
+    "import_file_invalid": {
+      "title": "Không đọc được tệp nhập",
+      "detail": "Chỉ nhận tệp .xlsx hoặc .csv có dòng tiêu đề, không quá giới hạn dung lượng và số dòng."
+    },
+    "import_duplicate_file": {
+      "title": "Tệp này đã được nhập",
+      "detail": "Một lô nhập có cùng nội dung tệp đang chờ hoặc đã ghi. Hoàn tác lô đó trước khi nhập lại."
+    },
+    "import_state_invalid": {
+      "title": "Lô nhập không ở trạng thái phù hợp",
+      "detail": "Thao tác này không áp dụng cho trạng thái hiện tại của lô nhập."
+    },
+    "import_undo_blocked": {
+      "title": "Không thể hoàn tác lô nhập",
+      "detail": "Một số dữ liệu của lô đã được dùng hoặc sửa sau khi nhập. Chưa có gì bị xóa."
+    },
     "export_too_large": {
       "title": "Quá nhiều dòng để xuất",
       "detail": "Thu hẹp bộ lọc (khoảng ngày, loại) rồi xuất lại."
@@ -772,7 +788,8 @@
       "groupRpt": "Báo cáo",
       "reports": "Tổng quan báo cáo",
       "dailyReport": "Báo cáo ngày",
-      "alerts": "Cảnh báo ngoại lệ"
+      "alerts": "Cảnh báo ngoại lệ",
+      "imports": "Nhập dữ liệu từ Excel"
     },
     "notifications": "Thông báo",
     "readOnly": "Chỉ xem",
@@ -1393,7 +1410,8 @@
       "config_report-policy": "Cấu hình: Ngưỡng cảnh báo báo cáo",
       "rollup": "Tổng hợp báo cáo ngày",
       "config_approval-limit": "Cấu hình: Hạn mức phê duyệt",
-      "config_expense-category": "Cấu hình: Loại chi phí"
+      "config_expense-category": "Cấu hình: Loại chi phí",
+      "dataImport": "Lô nhập dữ liệu"
     },
     "actions": {
       "assignment_add": "Gán vai trò",
@@ -1527,7 +1545,18 @@
       "cash_variance_resubmit": "Giải trình lại chênh lệch quỹ",
       "cash_day_close": "Chốt ngày",
       "debt_approve": "Duyệt ghi nợ",
-      "quote_close": "Đóng báo giá bổ sung (lệnh đã đóng)"
+      "quote_close": "Đóng báo giá bổ sung (lệnh đã đóng)",
+      "dataImport_validate": "Chạy thử lô nhập",
+      "dataImport_reject": "Tệp nhập có lỗi",
+      "dataImport_discard": "Thay lô chạy thử",
+      "dataImport_commit_start": "Bắt đầu ghi lô nhập",
+      "dataImport_commit": "Ghi lô nhập",
+      "dataImport_commit_failed": "Ghi lô nhập lỗi giữa chừng",
+      "dataImport_resume": "Ghi tiếp lô nhập",
+      "dataImport_undo": "Hoàn tác lô nhập",
+      "customer_import_undo": "Gỡ khách do hoàn tác lô nhập",
+      "vehicle_import_undo": "Gỡ xe do hoàn tác lô nhập",
+      "part_import_undo": "Gỡ phụ tùng do hoàn tác lô nhập"
     },
     "colBranch": "Chi nhánh",
     "allSystem": "Toàn hệ thống",
@@ -3669,5 +3698,112 @@
       "alerts.stock_without_source": "Cảnh báo: Xuất kho không chứng từ",
       "alerts.reconcile_gap": "Cảnh báo: Thu vượt tổng lệnh"
     }
+  },
+  "import": {
+    "title": "Nhập dữ liệu từ Excel",
+    "lead": "Tải tệp theo mẫu (.xlsx hoặc .csv), kiểm tra toàn tệp, xem lỗi theo từng dòng rồi mới ghi. Tệp có lỗi thì không ghi gì. Mỗi lô có thể hoàn tác.",
+    "scope": "Chi nhánh đang làm việc",
+    "noBranch": "Chọn một chi nhánh làm việc ở thanh trên trước khi nhập dữ liệu.",
+    "noKinds": "Vai trò của bạn chưa được nhập loại dữ liệu nào.",
+    "step1": "1. Chọn loại dữ liệu",
+    "warehouse": "Kho nhận tồn đầu kỳ",
+    "warehousePick": "Chọn kho",
+    "template": "Tải mẫu (CSV)",
+    "stockNote": "Tồn đầu kỳ được tạo thành phiếu điều chỉnh đầu kỳ ở trạng thái nháp. Quản lý chi nhánh duyệt ghi sổ ở màn hình Phiếu kho; chưa duyệt thì tồn kho chưa đổi.",
+    "partsFirst": "Nhập danh mục phụ tùng trước khi nhập tồn đầu kỳ.",
+    "step2": "2. Tải tệp và chạy thử",
+    "file": "Tệp Excel hoặc CSV",
+    "fileHint": "Dòng đầu là tiêu đề cột. Tối đa {mb} MB và {rows} dòng.",
+    "dryRun": "Chạy thử",
+    "dryRunAgain": "Chạy thử lại với ánh xạ này",
+    "dryRunNote": "Chạy thử chỉ kiểm tra, chưa ghi dữ liệu nào.",
+    "mapping": "Ánh xạ cột",
+    "mappingHelp": "Chọn cột trong tệp cho từng trường. Hệ thống đã tự khớp theo tên cột.",
+    "colField": "Trường hệ thống",
+    "colFile": "Cột trong tệp",
+    "required": "Bắt buộc",
+    "optional": "Tùy chọn",
+    "notMapped": "— Không nhập —",
+    "step3": "3. Kết quả kiểm tra",
+    "rows": "Số dòng",
+    "units": "Sẽ tạo",
+    "errors": "Dòng lỗi",
+    "warnings": "Cảnh báo",
+    "rejected": "Tệp có {count} lỗi nên không ghi gì. Sửa tệp rồi chạy thử lại.",
+    "validated": "Tệp hợp lệ. Chưa có dữ liệu nào được ghi; xác nhận ở bước 4 để ghi.",
+    "issuesTitle": "Lỗi theo dòng",
+    "warningsTitle": "Cảnh báo (không chặn)",
+    "colRow": "Dòng",
+    "colColumn": "Cột",
+    "colMessage": "Nội dung",
+    "wholeFile": "Cả tệp",
+    "issuesShown": "Hiển thị {shown} trong {total} lỗi.",
+    "step4": "4. Xác nhận ghi cả lô",
+    "confirm": "Tôi đã kiểm tra số dòng, chi nhánh nhận và loại dữ liệu.",
+    "commit": "Ghi vào hệ thống",
+    "resume": "Ghi tiếp",
+    "committed": "Đã ghi lô nhập. Đã tạo: {summary}.",
+    "failed": "Ghi lô bị dừng giữa chừng (mã {code}). Dữ liệu đã ghi vẫn còn: ghi tiếp hoặc hoàn tác cả lô.",
+    "undone": "Lô đã được hoàn tác: dữ liệu của lô đã gỡ, phiếu kho đã hủy hoặc đảo.",
+    "undoTitle": "Hoàn tác lô",
+    "undoHelp": "Chỉ gỡ đúng dữ liệu của lô này. Dữ liệu đã được dùng hoặc sửa sau khi nhập sẽ chặn việc hoàn tác và không có gì bị xóa. Phiếu kho đã ghi sổ được đảo bằng phiếu đảo.",
+    "undoReason": "Lý do hoàn tác",
+    "undo": "Hoàn tác lô",
+    "history": "Lịch sử lô nhập",
+    "historyEmpty": "Chưa có lô nhập nào ở chi nhánh này.",
+    "colAt": "Thời điểm",
+    "colKind": "Loại",
+    "colFile2": "Tệp",
+    "colStatus": "Trạng thái",
+    "colRows": "Dòng",
+    "open": "Xem",
+    "kinds": {
+      "customers-vehicles": "Khách hàng và xe",
+      "parts": "Danh mục phụ tùng",
+      "opening-stock": "Tồn kho đầu kỳ"
+    },
+    "created": {
+      "customer": "khách",
+      "vehicle": "xe",
+      "part": "phụ tùng",
+      "stockDocument": "phiếu tồn đầu kỳ (nháp hoặc đã ghi)"
+    },
+    "status": {
+      "validated": "Đã kiểm tra",
+      "rejected": "Có lỗi",
+      "discarded": "Đã thay",
+      "committing": "Đang ghi",
+      "committed": "Đã ghi",
+      "failed": "Dừng giữa chừng",
+      "undone": "Đã hoàn tác"
+    },
+    "fields": {
+      "externalCode": "Mã khách cũ",
+      "type": "Loại khách",
+      "name": "Tên",
+      "phone": "Số điện thoại",
+      "email": "Email",
+      "address": "Địa chỉ",
+      "taxCode": "Mã số thuế",
+      "contactName": "Người liên hệ",
+      "plate": "Biển số xe",
+      "make": "Hãng xe",
+      "model": "Dòng xe",
+      "year": "Năm sản xuất",
+      "vin": "Số khung",
+      "engineNo": "Số máy",
+      "isCommercial": "Xe kinh doanh",
+      "lastKm": "Số km",
+      "code": "Mã phụ tùng",
+      "brand": "Thương hiệu",
+      "unit": "Đơn vị tính",
+      "group": "Nhóm hàng",
+      "barcode": "Mã vạch",
+      "qty": "Số lượng",
+      "unitCost": "Đơn giá vốn",
+      "note": "Ghi chú",
+      "warehouseId": "Kho"
+    },
+    "unexpected": "Không thực hiện được. Thử lại hoặc báo quản trị."
   }
 }

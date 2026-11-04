@@ -9,8 +9,19 @@ import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
 import { accApprovalHandlers, type AccDeps } from '@/modules/acc';
 import type { EinDeps } from '@/modules/ein';
-import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
-import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
+import {
+  buildCustomerImport,
+  customerPiiSource,
+  DEFAULT_CRM_CONFIG,
+  type CrmDeps,
+} from '@/modules/crm';
+import {
+  buildOpeningStockImport,
+  buildPartImport,
+  DEFAULT_INV_CONFIG,
+  invWarehouseActivity,
+  type InvDeps,
+} from '@/modules/inv';
 import {
   DEFAULT_REC_CONFIG,
   recCustomerRetention,
@@ -77,6 +88,7 @@ import {
   DocStockDocumentRepository,
 } from '@/infrastructure/repos/invRepos';
 import { DocApprovalRepository } from '@/infrastructure/repos/approvalRepos';
+import { DocImportBatchRepository } from '@/infrastructure/repos/importRepos';
 import {
   DocIntakeRepository,
   DocPartRequestRepository,
@@ -138,6 +150,8 @@ export function sysConfigFromEnv(env: Env): SysConfig {
     appBaseUrl: (env.APP_BASE_URL ?? env.APP_ORIGIN ?? 'http://localhost:3000').replace(/\/$/, ''),
     branchStateRules: BRANCH_STATE_RULES,
     exportMaxRows: 5000,
+    importMaxBytes: 5 * 1024 * 1024,
+    importMaxRows: 2000,
     notificationBellDays: 30,
     notificationRetentionDays: 365,
     consentPolicyVersion: 'chưa có [do doanh nghiệp cung cấp]',
@@ -181,6 +195,8 @@ function buildSys(
     notifications: new DocNotificationRepository(store),
     approvals: new DocApprovalRepository(store),
     approvalHandlers: new Map(),
+    imports: new DocImportBatchRepository(store),
+    importHandlers: new Map(),
     services: new DocServiceRepository(store),
     priceLists: new DocPriceListRepository(store),
     identity,
@@ -308,6 +324,13 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const crm = (late.crm = buildCrm(sys, store));
     const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!, invoiceGate));
     const acc = (late.acc = buildAcc(sys, store, () => late.rec!, invoiceGate));
+    // FR-SYS-007: the module that owns a kind of imported data registers what commit and undo do
+    for (const h of [
+      buildCustomerImport(() => late.crm!),
+      buildPartImport(() => late.inv!),
+      buildOpeningStockImport(() => late.inv!),
+    ])
+      sys.importHandlers.set(h.kind, h);
     // FR-SYS-004: the module that owns an approval kind registers what a decision does (same transaction)
     for (const [kind, h] of Object.entries(accApprovalHandlers(() => late.acc!)))
       sys.approvalHandlers.set(kind, h);

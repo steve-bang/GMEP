@@ -50,7 +50,10 @@ export function api(handler: (c: ApiCtx) => Promise<Response>) {
   );
 }
 
-export function authed(handler: (c: AuthedCtx) => Promise<Response>) {
+export function authed(
+  handler: (c: AuthedCtx) => Promise<Response>,
+  options: { multipart?: boolean } = {},
+) {
   return apiRoute(
     async (c) => {
       const session = await authenticate(c.req);
@@ -68,7 +71,7 @@ export function authed(handler: (c: AuthedCtx) => Promise<Response>) {
         query: () => Object.fromEntries(new URL(c.req.url).searchParams),
       });
     },
-    { allowedOrigins },
+    { allowedOrigins, ...(options.multipart ? { multipart: true } : {}) },
   );
 }
 
