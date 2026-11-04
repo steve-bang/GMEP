@@ -239,8 +239,42 @@ Key mechanics already in place:
 - Tests: `tests/unit/acc-domain.test.ts`, `tests/integration/acc.test.ts` (both backends: replay, concurrency, isolation, approvals, handover), `e2e/slice-1-7.spec.ts`.
   Open questions R54..R68 in `docs/dev/open-questions-for-ba.md`.
 
+## Slice 1.8 (EIN basic e-invoice)
+
+- **Port and fake** (`src/modules/ein/ports/provider.ts`, `src/infrastructure/einvoice/fakeProvider.ts`): `EInvoiceProvider` is idempotent by a stable `clientRequestId`, has typed
+  errors (timeout, data, rejected, unavailable) and a provider-neutral status set (issued / processing / cancelled); each adapter maps its own. `FakeProvider` is the ONLY
+  adapter (no real provider is chosen): deterministic numbers and tax-authority codes, XML and PDF, and a script for trouble (`timeout_before`, `timeout_after` = created but the
+  answer is lost, `data_error`, `rejected`, `unavailable`, `processing`). It serves the **test** environment only: an issuer set to `live` on `fake` is "not activated".
+  Scripting it at runtime is `POST /api/v1/ein/dev/fake` (404 outside `GMEP_ENV=local`).
+- **Objects** (`domain/`): the INVOICE (`not_issued | issued | cancelled | abandoned`, with adjustment / replacement as document TYPES and a separate `sync` indicator) and the issue
+  REQUEST (`pending | sending | awaiting_provider | unknown | failed_data | failed_provider | succeeded | cancelled`) are two pure state machines, tested over every state x event. The
+  order never carries an invoice status. The invoice number is the provider's; the internal number is the request's `YH-`.
+- **No duplicate (FR-EIN-013)**: the request id is deterministic (`<orderId>__issue__<round>`) and created in the same transaction as the order index (`einOrders/<orderId>`), so a second
+  click, a second user or a replay after the 24 h HTTP key window finds the same request. The call to the provider is NEVER inside a transaction: claim (lease) -> call -> record. After
+  a timeout, an earlier attempt or an async answer the provider is ASKED by the key first and the request is sent again only when it holds nothing.
+- **Eligibility (FR-EIN-011)**: a pure checklist returns every blocking issue with the form field to fix; lines, tax key / version / rate come from the approved lines of the repair items
+  (R2), tax is computed once per rate per approval and summed, and the invoice total must equal the order total (RULE-005). A tax-rate change since the quote is a warning by default.
+- **Queue and retry (FR-EIN-010)**: ONE bounded document per branch (`invoiceQueues/<branchId>`), read by key. "Thử lại" is `POST /ein/queue/{id}/retry`; data errors need `fix-buyer`;
+  `cancel` asks the provider one last time. There is no scheduler yet: `POST /api/v1/ein/jobs/run-due` handles what is due (backoff and attempts are the `einvoice-policy` config);
+  call it from Cloud Scheduler with a service account per branch (not set up).
+- **Files**: `FileStore` port (`src/platform/files`), Cloud Storage adapter (Admin SDK, Emulator in tests) and a memory one; XML and PDF are stored under `invoices/<company>/<branch>/`
+  and served by `GET /api/v1/ein/invoices/{id}/files/{xml|pdf}` after a Scope check. `GMEP_FILES_BUCKET` selects the bucket; the e2e script now starts the storage emulator too.
+- **Corrections (FR-EIN-007 minimal)**: adjust (signed amounts per rate), replace (corrected buyer) and cancel go through the SYS approval workflow with kinds `invoice_adjust|replace|cancel`
+  decided by `invoice:approve` (the "chief accountant" right; by default only the owner holds it); the proposer runs the approved request once; a cancel asks for the password again.
+- **PII**: address and e-mail of the buyer live in `invoicePii/<id>`, are presented by the PII policy per role and access is logged; buyer name and tax code are on the invoice.
+- **Config** (effective-dated): `einvoice-issuer` (provider code, environment, seller, symbol, invoice type; no config = "not activated"), `einvoice-policy` (line mode, when issuing is allowed,
+  retries, timeout), approval limits for the three new kinds. Permissions top-up `2026-11-ein-1.8-invoice`.
+- **Routes**: `/api/v1/ein/{invoices,invoices/[id],invoices/[id]/files/[kind],invoices/[id]/sync,invoices/[id]/corrections,invoices/[id]/report-error,corrections/execute,orders/[id]/invoice-check,orders/[id]/invoices,queue,queue/[id]/{retry,fix-buyer,cancel},warnings,jobs/run-due,connection,dev/fake}`;
+  UI `/ein`, `/ein/orders/[id]/issue`, `/ein/invoices/[id]`, `/ein/invoices/[id]/correct`, `/ein/warnings`, `/ein/queue`, `/ein/connection` (menu "Hóa đơn").
+- **Indexes (R68)**: ONE new composite index for the whole slice (`invoices.byBranch`), 191 declared of 200; `pnpm check:indexes` warns from 190 and fails above 195. Everything else is read by key
+  (orders index, queue document, requests, artifacts), the warning list reuses `repairOrders.list[status]`, and status / text filters run in memory over a bounded window (`truncated` says when
+  the window ended before the data did). Slice 1.9 keeps at least four.
+- Tests: `tests/unit/ein-domain.test.ts` (state machines, eligibility, amount table marked as NOT signed by the accountant), `tests/unit/ein-fake-provider.test.ts`,
+  `tests/integration/ein.test.ts` (both backends: issue, files, duplicate and parallel clicks, timeouts before and after creation, queue, async answer, corrections, PII, isolation), `e2e/slice-1-8.spec.ts`.
+  Open questions R69..R80 in `docs/dev/open-questions-for-ba.md`.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger, REC and the minimal ACC money slice (EIN and RPT are skeletons; ACC is missing refunds to customers, advance credit, reopening a day, period lock, payables, the accounting export and bank reconciliation; REC photos, Zalo/SMS/email sending, OTP, warranty orders (REC-018), the reminder screen of declined items (REC-024), the technician's "Công của tôi" and body-paint step tracking screens are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger, REC and the minimal ACC money slice (RPT is a skeleton; EIN has the basic invoice (no real provider, no sending to the customer, no FR-EIN-012 timing/deposit rule); ACC is missing refunds to customers, advance credit, reopening a day, period lock, payables, the accounting export and bank reconciliation; REC photos, Zalo/SMS/email sending, OTP, warranty orders (REC-018), the reminder screen of declined items (REC-024), the technician's "Công của tôi" and body-paint step tracking screens are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.

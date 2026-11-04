@@ -1,5 +1,10 @@
 # Changelog
 
+## [Chưa phát hành] — 2026-11-04 (slice 1.8)
+
+- Hóa đơn điện tử cơ bản (FR-EIN-001..006, 009..011, 013; 007 mức tối thiểu): cổng `EInvoiceProvider` + `FakeProvider`, phát hành từ lệnh có khóa chống trùng, hàng chờ lỗi, lưu XML/PDF, điều chỉnh/thay thế/hủy có duyệt; chỉ mục thêm 1 (191/200), `check:indexes` cảnh báo từ 190 và lỗi trên 195.
+- ACC: loại chi có `sourceRequirement`, phiếu thiếu chứng từ cần lý do và quản lý duyệt, trần tự quyết theo ca, hoàn cọc là loại duyệt riêng (R64, R58, R57).
+
 ## [Chưa phát hành] — 2026-10-30
 
 Thiết kế UI/UX web dashboard Garage ERP: hoàn thành ở mức prototype. Xem `docs/ui-ux/STATUS.md` (tiến độ, việc còn lại) và `docs/ui-ux/ui-ux-flow.md` (mô tả UI/UX flow).

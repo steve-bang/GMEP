@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Browser, type Page } from '@playwright/test';
-import { as, asCashier, hdr, readyOrder, type Row } from './acc-helpers';
+import { as, asCashier, hdr, readyOrder, startKmAt, type Row } from './acc-helpers';
 import { noHorizontalOverflow } from './helpers';
 
 const axe = (page: Page) =>
@@ -31,6 +31,8 @@ async function script(page: Page, body: Row) {
  * a timeout whose answer was lost and the queue that finds the invoice without a second one, the files, print and a11y.
  */
 test.describe('slice 1.8 EIN: e-invoice', () => {
+  test.beforeAll(() => startKmAt(2_300_000));
+
   test('the cashier sees why a business buyer cannot be invoiced, fixes it, confirms once, and the invoice is issued with its files', async ({
     browser,
   }) => {
@@ -45,12 +47,18 @@ test.describe('slice 1.8 EIN: e-invoice', () => {
     await expect(tn.page).toHaveURL(new RegExp(`/ein/orders/${o.id}/issue`));
     await tn.page.waitForLoadState('networkidle');
 
-    // FR-EIN-011: a business customer without an address is listed and the button is locked
-    await expect(tn.page.getByTestId('issue-buyer_address_missing')).toBeVisible();
+    // FR-EIN-011: a business buyer without a tax code is listed with the field to fix and the button is locked
+    // (earlier specs may have changed who owns the demo vehicle, so the buyer is set explicitly here)
+    await tn.page.locator('#iss-kind').selectOption('business');
+    await tn.page.locator('#iss-name').fill('Công ty TNHH Vận tải Demo');
+    await tn.page.locator('#iss-tax').fill('');
+    await tn.page.getByTestId('issue-recheck').click();
+    await expect(tn.page.getByTestId('issue-buyer_tax_code_missing')).toBeVisible();
     await expect(tn.page.getByTestId('issue-open')).toBeDisabled();
     expect(serious(await axe(tn.page))).toEqual([]);
     await noHorizontalOverflow(tn.page);
 
+    await tn.page.locator('#iss-tax').fill('0312345678');
     await tn.page.locator('#iss-addr').fill('45 Lê Lợi, Bến Nghé, Quận 1, TP.HCM');
     await tn.page.getByTestId('issue-recheck').click();
     await expect(tn.page.getByTestId('issue-checks')).toContainText('Đủ điều kiện phát hành');

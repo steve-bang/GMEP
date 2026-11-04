@@ -37,6 +37,10 @@ export async function as(
 }
 
 let km = 1_900_000;
+/** Specs that run in one worker against one database must not reuse each other's odometer range. */
+export const startKmAt = (n: number) => {
+  km = n;
+};
 /** An approved quote with two items -> its order (counter approval by the advisor). Returns the quote header with `orderId`. */
 export async function approvedOrder(req: APIRequestContext, vehicleId = 'veh_biz'): Promise<Row> {
   const intake = await post(req, '/api/v1/rec/intakes', { vehicleId });
