@@ -53,6 +53,17 @@ export const COL = {
   repairOrders: 'repairOrders',
   repairItems: 'repairItems',
   partRequests: 'partRequests',
+  // SYS approvals (FR-SYS-004) and ACC (slice 1.7)
+  approvals: 'approvals',
+  approvalSlots: 'approvalSlots',
+  payments: 'payments',
+  paymentReversals: 'paymentReversals',
+  orderAccounts: 'orderAccounts',
+  cashDrawers: 'cashDrawers',
+  cashEntries: 'cashEntries',
+  cashShifts: 'cashShifts',
+  dayCloses: 'dayCloses',
+  debts: 'debts',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -496,5 +507,52 @@ export const Q = {
     eq: ['companyId', 'status'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  // ---- SYS approvals and ACC slice 1.7: few shapes on purpose (the composite-index budget is 200 per database).
+  // The branch is an EQUALITY field here (money screens work in one working branch); the repository checks
+  // the Scope against it before querying.
+  approvalsByBranchStatus: defineQuery({
+    name: 'approvals.byBranchStatus',
+    collection: COL.approvals,
+    eq: ['companyId', 'branchId', 'status'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  approvalsByRequester: defineQuery({
+    name: 'approvals.byRequester',
+    collection: COL.approvals,
+    eq: ['companyId', 'requestedBy'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  paymentsByOrder: defineQuery({
+    name: 'payments.byOrder',
+    collection: COL.payments,
+    eq: ['companyId', 'orderId'],
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  paymentsByBranch: defineQuery({
+    name: 'payments.byBranch',
+    collection: COL.payments,
+    eq: ['companyId', 'branchId'],
+    range: true,
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  cashEntriesByDay: defineQuery({
+    name: 'cashEntries.byDay',
+    collection: COL.cashEntries,
+    eq: ['companyId', 'branchId', 'businessDate'],
+    order: { field: 'seqKey', dir: 'asc', type: 'string' },
+  }),
+  cashShiftsByBranch: defineQuery({
+    name: 'cashShifts.byBranch',
+    collection: COL.cashShifts,
+    eq: ['companyId', 'branchId'],
+    range: true,
+    order: { field: 'openedAt', dir: 'desc', type: 'date' },
+  }),
+  debtsByBranchStatus: defineQuery({
+    name: 'debts.byBranchStatus',
+    collection: COL.debts,
+    eq: ['companyId', 'branchId', 'status'],
+    order: { field: 'dueDate', dir: 'asc', type: 'string' },
   }),
 };

@@ -124,3 +124,23 @@ export interface PartRequestRepository {
   create(tx: Tx, r: PartRequest): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
+
+// ---- slice 1.7: payments (ACC) as REC sees them --------------------------------------------------------------
+
+/** What the handover needs to know about the money of an order (R44). REC never computes it: ACC owns it. */
+export interface OrderPaymentSnapshot {
+  receivableVnd: number;
+  receivedVnd: number;
+  outstandingVnd: number;
+  depositHeldVnd: number;
+  /** an approved, still open debt of the order (amount, due date) */
+  debt: { id: string; amountVnd: number; dueDate: string; approvalId: string } | null;
+}
+
+/**
+ * Port to ACC, implemented by the composition root. `balanceInTx` runs INSIDE the handover transaction (the
+ * figures are read again at the moment of writing, never trusted from the browser) and throws when ACC cannot answer.
+ */
+export interface PaymentGate {
+  balanceInTx(tx: Tx, scope: Scope, orderId: string): Promise<OrderPaymentSnapshot>;
+}

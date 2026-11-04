@@ -207,6 +207,64 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // FR-ACC-001/003/004 (slice 1.7): money-handling policy of a branch, company default with branch override.
+  // Every value is a default [Đề xuất dev - chờ xác nhận: Kế toán khách / Khách]; none is a legal rule.
+  'acc-policy': {
+    type: 'acc-policy',
+    resource: 'acc-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** payment methods the counter may record (QR / e-wallet are recorded by hand; no gateway) */
+        methods: z
+          .array(z.enum(['cash', 'transfer', 'card', 'qr']))
+          .min(1)
+          .max(4),
+        /** a non-cash line must carry the bank / POS / QR transaction reference */
+        nonCashReferenceRequired: z.boolean(),
+        /** a final receipt is accepted only after the quality check passed (G4-ACC-01 "chặn thu"); deposits are not */
+        receiptRequiresQc: z.boolean(),
+        /** a cash count within +/- this many VND needs an explanation but no manager approval (FR-ACC-004) */
+        varianceToleranceVnd: vnd,
+      })
+      .strict(),
+  },
+  // FR-SYS-004 / RULE-011: approval limits per kind of request, company-wide, effective-dated (G4-APR-03).
+  // The scope key is the approval kind. The numbers are the client's to give [Cần xác nhận: D-11].
+  'approval-limit': {
+    type: 'approval-limit',
+    resource: 'approval-limit',
+    scopeKey: z.enum(['payment_reversal', 'expense', 'debt_handover', 'cash_variance']),
+    branchOverride: false,
+    payload: z
+      .object({
+        selfMaxVnd: vnd,
+        level1MaxVnd: vnd,
+        dueHours: z
+          .number()
+          .int()
+          .min(1)
+          .max(24 * 30),
+      })
+      .strict()
+      .refine((p) => p.level1MaxVnd >= p.selfMaxVnd, 'level1MaxVnd must not be below selfMaxVnd'),
+  },
+  // expense categories of the cash voucher (G4-ACC-04), a company catalogue; the accountant owns the list
+  'expense-category': {
+    type: 'expense-category',
+    resource: 'acc-policy',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        /** the category refunds a customer deposit (needs the deposit it refunds) */
+        depositRefund: z.boolean().optional(),
+      })
+      .strict(),
+  },
   // FR-REC-032 / BR-REC-13: the steps of a service type (a repair order gets the set of its type).
   // The item states and the responsible person are applied when the repair item exists (slice 1.6).
   'service-workflow': {

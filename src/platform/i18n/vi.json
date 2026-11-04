@@ -431,11 +431,11 @@
     },
     "qc_required": {
       "title": "Chưa qua kiểm tra chất lượng",
-      "detail": "Lệnh phải đạt kiểm tra chất lượng trước khi giao xe."
+      "detail": "Lệnh phải đạt kiểm tra chất lượng trước khi thu tiền cuối cùng hoặc giao xe."
     },
     "payment_check_unavailable": {
       "title": "Chưa kiểm tra được thanh toán",
-      "detail": "Chính sách yêu cầu thu đủ tiền trước khi giao xe, nhưng phân hệ thu tiền chưa bật."
+      "detail": "Không đọc được số liệu thu tiền của lệnh nên chưa giao xe. Thử lại; trường hợp khẩn chỉ quản lý chi nhánh giao xe được, kèm lý do."
     },
     "order_too_large": {
       "title": "Lệnh quá lớn",
@@ -460,6 +460,146 @@
     "order_number_unavailable": {
       "title": "Chưa cấp được mã lệnh",
       "detail": "Dãy số lệnh sửa chữa chưa được cấu hình."
+    },
+    "day_closed": {
+      "title": "Ngày đã khóa sổ",
+      "detail": "Ngày này đã chốt: không thêm phiếu thu, phiếu chi hay ca mới. Điều chỉnh bằng bút toán đảo trong ngày đang mở."
+    },
+    "no_open_shift": {
+      "title": "Chưa mở ca thu ngân",
+      "detail": "Mở ca (nhận quỹ đầu ca) trước khi thu hoặc chi tiền."
+    },
+    "shift_already_open": {
+      "title": "Đã có ca đang mở",
+      "detail": "Mỗi chi nhánh chỉ có một ca mở tại một thời điểm. Chốt ca hiện tại trước."
+    },
+    "shift_not_open": {
+      "title": "Ca không còn mở",
+      "detail": "Ca này đã chốt hoặc không phải ca đang mở của chi nhánh."
+    },
+    "shift_open": {
+      "title": "Còn ca chưa chốt",
+      "detail": "Chốt mọi ca trong ngày trước khi chốt ngày."
+    },
+    "cash_insufficient": {
+      "title": "Quỹ tiền mặt không đủ",
+      "detail": "Số chi vượt số dư sổ quỹ. Chi bằng chuyển khoản hoặc nạp quỹ."
+    },
+    "order_cancelled": {
+      "title": "Lệnh đã hủy",
+      "detail": "Không thu tiền cho lệnh đã hủy."
+    },
+    "order_closed": {
+      "title": "Lệnh đã đóng",
+      "detail": "Lệnh đã hoàn tất hoặc đã hủy. Liên hệ chi nhánh nếu cần làm thêm: lập báo giá và lệnh mới."
+    },
+    "nothing_to_collect": {
+      "title": "Không có gì để thu",
+      "detail": "Lệnh đã thu đủ hoặc phiếu không có số tiền."
+    },
+    "overpayment": {
+      "title": "Số thu vượt số còn nợ",
+      "detail": "Số thu (kể cả cọc trừ vào) lớn hơn số còn phải thu của lệnh. Tiền khách đưa dư là tiền thối, không ghi vào phiếu."
+    },
+    "deposit_exceeds": {
+      "title": "Tiền cọc vượt giá trị lệnh",
+      "detail": "Cọc không được vượt phần giá trị lệnh chưa thu."
+    },
+    "too_many_deposits": {
+      "title": "Quá nhiều khoản cọc",
+      "detail": "Lệnh đã có số khoản cọc tối đa."
+    },
+    "payment_already_reversed": {
+      "title": "Phiếu đã được đảo",
+      "detail": "Phiếu này đã có bút toán đảo."
+    },
+    "reversal_of_reversal": {
+      "title": "Không đảo bút toán đảo",
+      "detail": "Muốn thu lại, lập phiếu thu mới."
+    },
+    "deposit_in_use": {
+      "title": "Cọc đã được dùng",
+      "detail": "Cọc đã trừ vào lệnh hoặc đã hoàn một phần. Đảo các phiếu đó trước."
+    },
+    "approval_pending": {
+      "title": "Yêu cầu đang chờ duyệt",
+      "detail": "Chờ quản lý duyệt rồi mới thực hiện."
+    },
+    "approval_not_pending": {
+      "title": "Yêu cầu đã được xử lý",
+      "detail": "Yêu cầu này đã được duyệt, từ chối hoặc rút lại."
+    },
+    "approval_self_decision": {
+      "title": "Không tự duyệt yêu cầu của mình",
+      "detail": "Cần một người khác có quyền duyệt."
+    },
+    "approval_not_approved": {
+      "title": "Yêu cầu chưa được duyệt",
+      "detail": "Chỉ thực hiện được khi yêu cầu đã được duyệt."
+    },
+    "approval_already_used": {
+      "title": "Yêu cầu đã được dùng",
+      "detail": "Mỗi yêu cầu đã duyệt chỉ thực hiện một lần."
+    },
+    "approval_already_pending": {
+      "title": "Đã có yêu cầu đang chờ duyệt",
+      "detail": "Chờ xử lý hoặc rút yêu cầu cũ trước khi gửi yêu cầu mới."
+    },
+    "approval_stale": {
+      "title": "Yêu cầu không còn đúng",
+      "detail": "Số liệu đã đổi sau khi đề xuất (ví dụ số còn nợ tăng). Từ chối hoặc rút yêu cầu và gửi lại."
+    },
+    "approval_payload_invalid": {
+      "title": "Yêu cầu hỏng",
+      "detail": "Nội dung yêu cầu không đọc được. Rút yêu cầu và gửi lại."
+    },
+    "approval_kind_unknown": {
+      "title": "Loại yêu cầu không có",
+      "detail": "Loại phê duyệt này chưa được hỗ trợ."
+    },
+    "expense_category_unknown": {
+      "title": "Loại chi phí không có",
+      "detail": "Chọn loại chi phí đang dùng trong danh mục."
+    },
+    "deposit_required": {
+      "title": "Cần chọn khoản cọc",
+      "detail": "Loại chi phí hoàn cọc phải gắn với lệnh và khoản cọc cần hoàn."
+    },
+    "deposit_category_required": {
+      "title": "Sai loại chi phí",
+      "detail": "Hoàn cọc dùng loại chi phí hoàn cọc."
+    },
+    "refund_exceeds_deposit": {
+      "title": "Hoàn quá số cọc đang giữ",
+      "detail": "Số hoàn lớn hơn phần cọc còn giữ."
+    },
+    "variance_not_rejected": {
+      "title": "Chênh lệch chưa bị từ chối",
+      "detail": "Chỉ giải trình lại khi quản lý đã từ chối."
+    },
+    "day_already_closed": {
+      "title": "Ngày đã được chốt",
+      "detail": "Ngày này đã khóa."
+    },
+    "day_close_blocked": {
+      "title": "Chưa chốt được ngày",
+      "detail": "Còn ca chưa chốt hoặc chênh lệch quỹ chưa giải trình, chưa được duyệt."
+    },
+    "debt_amount_mismatch": {
+      "title": "Số ghi nợ phải bằng số còn nợ",
+      "detail": "Ghi nợ phải bao phủ toàn bộ số còn phải thu của lệnh."
+    },
+    "nothing_outstanding": {
+      "title": "Lệnh không còn nợ",
+      "detail": "Không cần ghi nợ."
+    },
+    "payment_outstanding": {
+      "title": "Lệnh còn nợ",
+      "detail": "Thu đủ tiền hoặc xin quản lý duyệt ghi nợ rồi mới giao xe."
+    },
+    "order_has_payments": {
+      "title": "Lệnh đã có tiền thu",
+      "detail": "Đảo phiếu thu hoặc hoàn cọc trước khi hủy lệnh."
     }
   },
   "login": {
@@ -1094,7 +1234,15 @@
       "partRequest": "Yêu cầu phụ tùng",
       "config_public-rate-limit": "Cấu hình: Giới hạn trang khách",
       "config_qc-checklist": "Cấu hình: Danh sách kiểm tra chất lượng",
-      "config_order-policy": "Cấu hình: Chính sách thực hiện lệnh"
+      "config_order-policy": "Cấu hình: Chính sách thực hiện lệnh",
+      "approval": "Yêu cầu phê duyệt",
+      "payment": "Phiếu thu chi",
+      "cashShift": "Ca thu ngân",
+      "dayClose": "Chốt ngày",
+      "debt": "Công nợ",
+      "config_acc-policy": "Cấu hình: Chính sách thu chi",
+      "config_approval-limit": "Cấu hình: Hạn mức phê duyệt",
+      "config_expense-category": "Cấu hình: Loại chi phí"
     },
     "actions": {
       "assignment_add": "Gán vai trò",
@@ -1195,7 +1343,22 @@
       "partRequest_create": "Yêu cầu phụ tùng",
       "partRequest_issue": "Xuất phụ tùng theo yêu cầu",
       "partRequest_reject": "Từ chối yêu cầu phụ tùng",
-      "quote_create_supplement": "Lập báo giá bổ sung"
+      "quote_create_supplement": "Lập báo giá bổ sung",
+      "approval_request": "Gửi yêu cầu phê duyệt",
+      "approval_approve": "Duyệt yêu cầu",
+      "approval_reject": "Từ chối yêu cầu",
+      "approval_withdraw": "Rút yêu cầu",
+      "approval_consume": "Thực hiện yêu cầu đã duyệt",
+      "payment_receipt": "Thu tiền",
+      "payment_deposit": "Thu tiền cọc",
+      "payment_expense": "Chi tiền",
+      "payment_reverse": "Đảo bút toán",
+      "cash_shift_open": "Mở ca thu ngân",
+      "cash_shift_close": "Chốt ca thu ngân",
+      "cash_variance_resubmit": "Giải trình lại chênh lệch quỹ",
+      "cash_day_close": "Chốt ngày",
+      "debt_approve": "Duyệt ghi nợ",
+      "quote_close": "Đóng báo giá bổ sung (lệnh đã đóng)"
     },
     "colBranch": "Chi nhánh",
     "allSystem": "Toàn hệ thống",
@@ -1275,7 +1438,11 @@
     "partIssued": "Phụ tùng {part} của lệnh {number} đã được xuất.",
     "partRejected": "Yêu cầu phụ tùng {part} của lệnh {number} bị từ chối.",
     "qcFailed": "Lệnh {number} không đạt kiểm tra chất lượng, có hạng mục được trả lại.",
-    "qcPassed": "Lệnh {number} đã đạt kiểm tra chất lượng, sẵn sàng giao xe."
+    "qcPassed": "Lệnh {number} đã đạt kiểm tra chất lượng, sẵn sàng giao xe.",
+    "approvalRequested": "Có yêu cầu phê duyệt {number} ({kind}) đang chờ bạn.",
+    "approvalApproved": "Yêu cầu {number} đã được duyệt.",
+    "approvalRejected": "Yêu cầu {number} bị từ chối.",
+    "orderWarehouseMissing": "Chi nhánh chưa có kho hoạt động: báo giá {number} đã duyệt nhưng chưa mở được lệnh có phụ tùng."
   },
   "settings": {
     "crumb": "Cài đặt",

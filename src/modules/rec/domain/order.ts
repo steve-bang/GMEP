@@ -68,6 +68,9 @@ export interface QcRun {
   note?: string;
   /** checklist config version the run used (FR-REC-016) */
   checklistVersionId?: string;
+  /** R47: extra approved work reopened the order after this run, so its result no longer counts; QC must run again */
+  invalidatedAt?: Date;
+  invalidatedReason?: string;
 }
 
 /** FR-REC-017: the record of giving the vehicle back; the customer's confirmation is a name and a time (print signature otherwise). */
@@ -87,6 +90,24 @@ export interface Handover {
   oldPartsReturned: boolean;
   printCount: number;
   lastPrintedAt?: Date;
+  /** R44: the payment figures read from ACC in the handover transaction, kept for disputes */
+  payment?: HandoverPayment;
+}
+
+/** R44 item 5: snapshot of the money of the order at the moment the vehicle left. */
+export interface HandoverPayment {
+  /** false = ACC could not answer and a manager handed the vehicle over on an exception (`exceptionReason`) */
+  verified: boolean;
+  receivableVnd: number | null;
+  receivedVnd: number | null;
+  outstandingVnd: number | null;
+  /** approved debt that covered the outstanding amount (id and terms) */
+  debtId?: string;
+  debtAmountVnd?: number;
+  debtDueDate?: string;
+  exceptionReason?: string;
+  /** policy flag `handoverRequiresPayment` was off: no check was made */
+  skipped?: boolean;
 }
 
 export interface RepairOrder {
@@ -123,6 +144,8 @@ export interface RepairOrder {
   /** base + approved supplements, tax included */
   totalVnd: number;
   supplements: SupplementRef[];
+  /** R47: every supplementary quote made for this order; the open ones are closed when the order closes */
+  supplementQuoteIds?: string[];
   /** warehouse the holds are taken from */
   warehouseId: string | null;
   /** number of approved part lines whose hold is short; > 0 = waiting for parts */
@@ -157,6 +180,8 @@ export interface TimeEvent {
   reason?: string;
   /** set when a later `undo` cancelled this event; kept for the record, ignored for hours */
   undone?: boolean;
+  /** R41: free text, mandatory when the pause reason is `other` */
+  note?: string;
 }
 
 export interface AssignmentEntry {

@@ -27,6 +27,7 @@ import {
   transitionQuote,
 } from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
+import { assertSupplementOrderOpen } from './supplement';
 import { approvalPolicyOf, toApprovalDto, type ApprovalPolicy } from './approval';
 import { buildItems, itemInput } from './quoteBuild';
 import {
@@ -613,6 +614,8 @@ export async function sendQuote(
       if (!q) throw notFound();
       if (q.version !== data.version) throw versionConflict();
       await assertWritable(deps, tx, actor, scope, q.branchId, 'edit_open_order');
+      // R47: a supplement of a closed order is not sent
+      await assertSupplementOrderOpen(deps, tx, scope, q);
       const cur = await deps.versions.getInTx(tx, scope, versionId(id, q.currentN));
       if (!cur) throw notFound();
       const lines = cur.items.reduce((s, i) => s + i.lines.length, 0);

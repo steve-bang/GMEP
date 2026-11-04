@@ -133,6 +133,77 @@ const ORD_TK = flatten([
 ]);
 const ORD_TN = flatten([g('repair-order', 'view'), g('vehicle-handover', 'view')]);
 
+/**
+ * ACC slice 1.7 (receipts, deposits, cashbook, shifts, day close, debt) and SYS-004 approvals, default grants
+ * [Đề xuất dev - chờ xác nhận: BA/Khách] from FRD §2 "Thu tiền và sổ quỹ" (TN = S, QL = D, CH/QV/CV/KT = X).
+ *  - `payment`: view; create = collect a receipt or a deposit; archive = ask to reverse a posted payment (RULE-010); export.
+ *  - `cash-expense`: view; create = a cash payment voucher or the request for one over the limit (RULE-011).
+ *  - `cash-shift`: view; create = open; update = close (count the drawer). `cash-day`: view; update = close the day.
+ *  - `cashbook`: view the cash book. `order-balance`: view what an order owes (advisors need it at handover).
+ *  - `debt`: view; create = ask for an approved debt at handover (FR-ACC-006, R44).
+ *  - `approval`: view the queue; `approval-l1` / `approval-l2`: decide a request of that level (not one's own).
+ *  - `acc-policy`, `approval-limit`: effective-dated configuration. `quote-verbal-over-limit:approve`: R48.
+ */
+const ACC_VIEW_ALL = flatten([
+  g('payment', 'view'),
+  g('cash-expense', 'view'),
+  g('cash-shift', 'view'),
+  g('cash-day', 'view'),
+  g('cashbook', 'view'),
+  g('order-balance', 'view'),
+  g('debt', 'view'),
+  g('approval', 'view'),
+]);
+const ACC_TN = flatten([
+  g('payment', 'view', 'create', 'archive'),
+  g('cash-expense', 'view', 'create'),
+  g('cash-shift', 'view', 'create', 'update'),
+  g('cash-day', 'view'),
+  g('cashbook', 'view'),
+  g('order-balance', 'view'),
+  g('debt', 'view'),
+  g('approval', 'view'),
+]);
+const ACC_QL = flatten([
+  g('payment', 'view', 'create', 'archive'),
+  g('cash-expense', 'view', 'create'),
+  g('cash-shift', 'view', 'create', 'update'),
+  g('cash-day', 'view', 'update'),
+  g('cashbook', 'view'),
+  g('order-balance', 'view'),
+  g('debt', 'view', 'create'),
+  g('approval', 'view'),
+  g('approval-l1', 'approve', 'reject'),
+  g('acc-policy', 'view'),
+  g('approval-limit', 'view'),
+  g('quote-verbal-over-limit', 'approve'),
+]);
+const ACC_CV = flatten([
+  g('payment', 'view'),
+  g('order-balance', 'view'),
+  g('debt', 'view', 'create'),
+  g('approval', 'view'),
+]);
+const ACC_CH = [
+  ...ACC_VIEW_ALL,
+  ...flatten([
+    g('cash-day', 'update'),
+    g('approval-l1', 'approve', 'reject'),
+    g('approval-l2', 'approve', 'reject'),
+    g('acc-policy', 'view', 'update', 'approve', 'reject'),
+    g('approval-limit', 'view', 'update', 'approve', 'reject'),
+    g('quote-verbal-over-limit', 'approve'),
+  ]),
+];
+const ACC_KT = [
+  ...ACC_VIEW_ALL,
+  ...flatten([
+    g('payment', 'export'),
+    g('acc-policy', 'view', 'update'),
+    g('approval-limit', 'view'),
+  ]),
+];
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -165,6 +236,7 @@ const CH = [
   ...INV_VIEW,
   ...REC_VIEW_ALL,
   ...ORD_VIEW,
+  ...ACC_CH,
 ];
 
 const matrix: Grant = {
@@ -192,7 +264,8 @@ const matrix: Grant = {
   ])
     .concat(INV_VIEW)
     .concat(REC_VIEW_ALL)
-    .concat(ORD_VIEW),
+    .concat(ORD_VIEW)
+    .concat(ACC_VIEW_ALL),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -225,7 +298,8 @@ const matrix: Grant = {
     .concat(INV_VIEW)
     .concat(REC_S)
     .concat(flatten([g('quote', 'approve', 'reject')]))
-    .concat(ORD_QL),
+    .concat(ORD_QL)
+    .concat(ACC_QL),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -246,7 +320,8 @@ const matrix: Grant = {
     g('stock-reservation', 'create', 'update'),
   ])
     .concat(REC_S)
-    .concat(ORD_CV),
+    .concat(ORD_CV)
+    .concat(ACC_CV),
   QD: flatten([
     g('device', 'view'),
     g('worker-pin', 'manage'),
@@ -280,7 +355,8 @@ const matrix: Grant = {
     g('customer-lookup-customer', 'view'),
   ])
     .concat(REC_VIEW_ALL)
-    .concat(ORD_TN),
+    .concat(ORD_TN)
+    .concat(ACC_TN),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -302,7 +378,8 @@ const matrix: Grant = {
   ])
     .concat(INV_VIEW)
     .concat(REC_VIEW_QUOTE)
-    .concat(flatten([g('repair-order', 'view')])),
+    .concat(flatten([g('repair-order', 'view')]))
+    .concat(ACC_KT),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -385,6 +462,18 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
       TK: ORD_TK,
       TN: ORD_TN,
       KT: flatten([g('repair-order', 'view')]),
+    },
+  },
+  {
+    id: '2026-11-acc-1.7-money',
+    note: 'Slice 1.7: receipts, deposits, cashbook, shifts, day close, debt, approvals (FR-ACC-001..004, 006, SYS-004); R48 quote-verbal-over-limit:approve',
+    grants: {
+      CH: ACC_CH,
+      QV: ACC_VIEW_ALL,
+      QL: ACC_QL,
+      CV: ACC_CV,
+      TN: ACC_TN,
+      KT: ACC_KT,
     },
   },
 ];

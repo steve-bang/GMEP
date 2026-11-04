@@ -19,6 +19,7 @@ import {
 import { approvedLinesOf, decideApproval, type DeclineInput } from '../domain/approval';
 import { isQuoteExpired, transitionQuote } from '../domain/quoteState';
 import { afterQuoteApproved } from './orders';
+import { assertSupplementOrderOpen } from './supplement';
 import type { RecDeps } from '../ports/deps';
 import {
   assertWritable,
@@ -379,6 +380,8 @@ export async function approveQuote(
       if (q.version !== data.version) throw versionConflict();
       await assertWritable(deps, tx, actor, scope, q.branchId, 'edit_open_order');
       if (q.branchId !== requireWorkingBranch(actor)) throw notFound();
+      // R47: no approval for a supplement whose order has closed (same transaction as the approval itself)
+      await assertSupplementOrderOpen(deps, tx, scope, q);
       const cur = await deps.versions.getInTx(tx, scope, versionId(id, q.currentN));
       if (!cur) throw notFound();
       const live = cur.linkHash ? await deps.links.findInTx(tx, cur.linkHash) : null;
@@ -389,7 +392,7 @@ export async function approveQuote(
         data.method === 'counter_verbal' &&
         policy.verbalApprovalMaxVnd !== undefined &&
         decision.split.totalVnd > policy.verbalApprovalMaxVnd &&
-        !hasPermission(actor, 'quote:reject')
+        !hasPermission(actor, 'quote-verbal-over-limit:approve')
       )
         throw new AppError('verbal_needs_manager', 409);
       const now = deps.sys.clock.now();
@@ -736,6 +739,7 @@ export async function approveViaLink(
       const cur = q ? await deps.versions.getInTx(tx, r0.scope, versionId(q.id, link.n)) : null;
       if (!q || !cur) throw notFound();
       const now = deps.sys.clock.now();
+      if (!cur.approval) await assertSupplementOrderOpen(deps, tx, r0.scope, q);
       if (cur.approval) {
         // already decided: the same selection is a repeat, anything else a conflict
         const same =

@@ -117,7 +117,18 @@ export const ITEM_EVENTS: readonly ItemEvent[] = [
   'parts_ready',
 ];
 
-export const PAUSE_REASONS = ['waiting_parts', 'waiting_customer', 'break', 'other'] as const;
+/**
+ * R41: stable codes. `awaiting_supplement_approval` ("chờ khách duyệt thêm") is the fifth, tied to the supplementary
+ * quote (RULE-006) and to the waiting-time report; `awaiting_parts` is the only code that puts the vehicle in the
+ * "waiting for parts" column (FR-REC-022). `other` needs a note. Labels come from the UI strings.
+ */
+export const PAUSE_REASONS = [
+  'waiting_parts',
+  'waiting_customer',
+  'awaiting_supplement_approval',
+  'break',
+  'other',
+] as const;
 export type PauseReason = (typeof PAUSE_REASONS)[number];
 
 export interface ItemCtx {

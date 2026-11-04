@@ -305,6 +305,11 @@ export async function itemAction(
     throw new AppError('validation_failed', 422, [
       { field: 'reason', message: 'Chọn lý do tạm dừng.' },
     ]);
+  // R41: "khác" needs a note so the waiting-time report can be read
+  if (event === 'pause' && data.reason === 'other' && (data.note ?? '').length < 3)
+    throw new AppError('validation_failed', 422, [
+      { field: 'note', message: 'Ghi chú lý do tạm dừng.' },
+    ]);
   const it0 = await deps.items.get(scope, itemIdValue);
   if (!it0 || (onlyMine(actor) && it0.technicianId !== actor.userId)) throw notFound();
   return runIdempotent(
@@ -334,6 +339,7 @@ export async function itemAction(
         at: now,
         by: actor.userId,
         ...(data.reason ? { reason: data.reason } : {}),
+        ...(event === 'pause' && data.note ? { note: data.note } : {}),
       };
       const events = [...it.events, e];
       const finished = t.state === 'done';

@@ -31,6 +31,7 @@ import {
   itemSeedsOf,
   orderIdOfQuote,
   seqKeyOf,
+  type HandoverPayment,
   type RepairItem,
   type RepairOrder,
   type WorkflowStepSnapshot,
@@ -43,7 +44,7 @@ import {
 } from '../domain/orderState';
 import type { RecDeps } from '../ports/deps';
 import { orderPatch, systemActor } from './orderHelpers';
-import { appendSupplement } from './supplement';
+import { appendSupplement, prepareCloseSupplements } from './supplement';
 import { allocateRepairOrderNumber } from './orderSupport';
 import {
   AppError,
@@ -305,7 +306,10 @@ export async function afterQuoteApproved(
             companyId: quote.companyId,
             userIds: managers,
             kind: 'rec.order',
-            titleKey: 'notifications.orderMissing',
+            titleKey:
+              (e as { code?: string })?.code === 'warehouse_missing'
+                ? 'notifications.orderWarehouseMissing'
+                : 'notifications.orderMissing',
             params: { number: quote.number },
             link: `/rec/quotes/${quote.id}`,
             branchId: quote.branchId,
@@ -606,6 +610,8 @@ export interface OrderDetailDto extends OrderDto {
     checks: { code: string; name: string; ok: boolean; note: string | null }[];
     returnedItemIds: string[];
     note: string | null;
+    /** R47: later approved work voided this result */
+    invalidatedAt: string | null;
   }[];
   handover: null | {
     at: string;
@@ -617,6 +623,8 @@ export interface OrderDetailDto extends OrderDto {
     belongingsReturned: boolean;
     oldPartsReturned: boolean;
     printCount: number;
+    /** R44: the money of the order as ACC reported it when the vehicle left */
+    payment: HandoverPayment | null;
   };
   history: {
     from: string | null;
@@ -764,6 +772,7 @@ export async function getOrder(deps: RecDeps, actor: Actor, id: string): Promise
       checks: r.checks.map((c) => ({ code: c.code, name: c.name, ok: c.ok, note: c.note ?? null })),
       returnedItemIds: r.returnedItemIds,
       note: r.note ?? null,
+      invalidatedAt: r.invalidatedAt?.toISOString() ?? null,
     })),
     handover: o.handover
       ? {
@@ -776,6 +785,7 @@ export async function getOrder(deps: RecDeps, actor: Actor, id: string): Promise
           belongingsReturned: o.handover.belongingsReturned,
           oldPartsReturned: o.handover.oldPartsReturned,
           printCount: o.handover.printCount,
+          payment: o.handover.payment ?? null,
         }
       : null,
     history: o.history.map((h) => ({
@@ -798,10 +808,14 @@ export async function getOrder(deps: RecDeps, actor: Actor, id: string): Promise
       runQc: o.status === 'awaiting_qc' && hasPermission(actor, 'qc-record:create'),
       handover:
         o.status === 'ready_for_delivery' && hasPermission(actor, 'vehicle-handover:create'),
+      // R42: the manager cancels any open order; the advisor only one still approved with no work started
       cancel:
         events.includes('cancel') &&
-        (hasPermission(actor, 'repair-order:archive') ||
-          hasPermission(actor, 'repair-order:approve')),
+        (hasPermission(actor, 'repair-order:approve') ||
+          (hasPermission(actor, 'repair-order:archive') &&
+            o.status === 'approved' &&
+            !o.startedAt &&
+            items.every((i) => i.events.length === 0))),
       recheckParts:
         isOrderOpen(o.status) && o.unmetLines > 0 && hasPermission(actor, 'repair-order:update'),
       supplement: isOrderOpen(o.status) && hasPermission(actor, 'quote:create'),
@@ -1053,6 +1067,12 @@ export async function cancelOrder(
   const issued = await issuedNet(deps, actor, o0);
   const mayApprove = hasPermission(actor, 'repair-order:approve');
   if (issued.everIssued && !mayApprove) throw new AppError('cancel_needs_manager', 409);
+  // R42: an advisor cancels only an order still "approved" with no work started; anything else is the manager's
+  if (!mayApprove) {
+    const items0 = await deps.items.listByOrder(scopeAny, id, deps.rec.maxItemsPerOrder);
+    if (o0.status !== 'approved' || o0.startedAt || items0.some((i) => i.events.length > 0))
+      throw new AppError('cancel_needs_manager', 409);
+  }
   if (issued.netIssuedQty > 0) throw new AppError('returns_pending', 409);
   return runIdempotent(
     idemOf(deps),
@@ -1074,6 +1094,15 @@ export async function cancelOrder(
         );
       await assertWritable(deps, tx, actor, scopeAny, o.branchId, 'edit_open_order');
       if (o.branchId !== requireWorkingBranch(actor)) throw notFound();
+      // money taken for the order must be refunded or reversed first, or it would be left on a dead order (RULE-007)
+      let paid: Awaited<ReturnType<RecDeps['payments']['balanceInTx']>>;
+      try {
+        paid = await deps.payments.balanceInTx(tx, scopeAny, o.id);
+      } catch {
+        throw new AppError('payment_check_unavailable', 409);
+      }
+      if (paid.receivedVnd > 0 || paid.depositHeldVnd > 0)
+        throw new AppError('order_has_payments', 409);
       const release = o.warehouseId
         ? await prepareRelease(
             deps.inv,
@@ -1085,6 +1114,7 @@ export async function cancelOrder(
           )
         : null;
       const now = deps.sys.clock.now();
+      const supplements = await prepareCloseSupplements(deps, tx, scopeAny, o);
       const items = await deps.items.listByOrderInTx(tx, scopeAny, o.id, deps.rec.maxItemsPerOrder);
       const requests = await deps.partRequests.listByOrderInTx(
         tx,
@@ -1093,6 +1123,7 @@ export async function cancelOrder(
         deps.rec.maxPartRequestsPerOrder,
       );
       release?.commit();
+      supplements.commit(actor, ctx, now);
       for (const it of items)
         deps.items.update(tx, it.id, {
           active: false,

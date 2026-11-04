@@ -1,9 +1,16 @@
 import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
-import { resolveScope, requireWorkingBranch, type Actor } from '@/platform/rbac/rbac';
+import {
+  hasPermission,
+  resolveScope,
+  requireWorkingBranch,
+  type Actor,
+} from '@/platform/rbac/rbac';
 import { recordOdometer } from '@/modules/crm';
 import { notifyUsers, resolveConfigAt } from '@/modules/sys';
-import type { Handover, QcCheckResult, QcRun, TimeEvent } from '../domain/order';
+import type { Handover, HandoverPayment, QcCheckResult, QcRun, TimeEvent } from '../domain/order';
+import type { OrderPaymentSnapshot } from '../ports/ports';
+import { prepareCloseSupplements } from './supplement';
 import { transitionOrder } from '../domain/orderState';
 import type { RecDeps } from '../ports/deps';
 import { orderPatch } from './orderHelpers';
@@ -226,6 +233,8 @@ export const handoverSchema = z.object({
   belongingsReturned: z.boolean(),
   oldPartsReturned: z.boolean(),
   note: z.string().trim().max(500).optional(),
+  /** R44 item 8: ACC could not answer; a manager may hand the vehicle over on an exception, with a reason */
+  paymentExceptionReason: z.string().trim().min(5).max(300).optional(),
 });
 
 interface OrderPolicy {
@@ -249,8 +258,65 @@ async function orderPolicyOf(
     })
   )?.payload as Partial<OrderPolicy> | undefined;
   return {
-    handoverRequiresPayment: c?.handoverRequiresPayment ?? false,
+    // R44: the money is checked unless the owner switched the check off by an approved, effective-dated config
+    handoverRequiresPayment: c?.handoverRequiresPayment ?? true,
     handoverRequiresReceiver: c?.handoverRequiresReceiver ?? deps.rec.requireHandoverReceiverName,
+  };
+}
+
+/**
+ * R44: the money check of the handover, inside the handover transaction. ACC supplies the figures; the vehicle may leave
+ * when nothing is outstanding or an approved debt covers it. If ACC cannot answer, the handover is BLOCKED; only a manager
+ * can hand over on an exception, with a reason that is kept on the record and in the audit (item 8).
+ */
+async function paymentCheck(
+  deps: RecDeps,
+  tx: Parameters<RecDeps['payments']['balanceInTx']>[0],
+  actor: Actor,
+  scope: Parameters<RecDeps['payments']['balanceInTx']>[1],
+  orderId: string,
+  policy: OrderPolicy,
+  exceptionReason: string | undefined,
+): Promise<HandoverPayment> {
+  if (!policy.handoverRequiresPayment)
+    return {
+      verified: false,
+      skipped: true,
+      receivableVnd: null,
+      receivedVnd: null,
+      outstandingVnd: null,
+    };
+  let snap: OrderPaymentSnapshot | null = null;
+  try {
+    snap = await deps.payments.balanceInTx(tx, scope, orderId);
+  } catch {
+    snap = null;
+  }
+  if (!snap) {
+    if (!(hasPermission(actor, 'repair-order:approve') && exceptionReason))
+      throw new AppError('payment_check_unavailable', 409);
+    return {
+      verified: false,
+      receivableVnd: null,
+      receivedVnd: null,
+      outstandingVnd: null,
+      exceptionReason,
+    };
+  }
+  const covered =
+    snap.outstandingVnd === 0 || (snap.debt !== null && snap.debt.amountVnd >= snap.outstandingVnd);
+  if (!covered)
+    throw new AppError('payment_outstanding', 409, [
+      { field: 'outstandingVnd', message: String(snap.outstandingVnd) },
+    ]);
+  return {
+    verified: true,
+    receivableVnd: snap.receivableVnd,
+    receivedVnd: snap.receivedVnd,
+    outstandingVnd: snap.outstandingVnd,
+    ...(snap.outstandingVnd > 0 && snap.debt
+      ? { debtId: snap.debt.id, debtAmountVnd: snap.debt.amountVnd, debtDueDate: snap.debt.dueDate }
+      : {}),
   };
 }
 
@@ -275,8 +341,6 @@ export async function handoverVehicle(
     throw validationFailed([{ field: 'receiverName', message: 'Nhập họ tên người nhận xe.' }]);
   if (data.confirmation === 'paper' && !data.paperRef && policy.handoverRequiresReceiver)
     throw validationFailed([{ field: 'paperRef', message: 'Ghi mã biên bản giấy đã ký.' }]);
-  // FR-REC-016 / slice 1.7: the payment object arrives with ACC; until then a policy that requires it cannot be met
-  if (policy.handoverRequiresPayment) throw new AppError('payment_check_unavailable', 409);
   const items0 = await deps.items.listByOrder(scope, orderId, deps.rec.maxItemsPerOrder);
   return runIdempotent(
     idemOf(deps),
@@ -294,6 +358,18 @@ export async function handoverVehicle(
       if (!t.ok)
         throw new AppError(t.reason === 'order_state_invalid' ? 'qc_required' : t.reason, 409);
       const branch = await assertWritable(deps, tx, actor, scope, o.branchId, 'edit_open_order');
+      // R44: the money is read AGAIN here, in this transaction, from ACC (never from the browser)
+      const payment = await paymentCheck(
+        deps,
+        tx,
+        actor,
+        scope,
+        o.id,
+        policy,
+        data.paymentExceptionReason,
+      );
+      // R47: read the open supplementary quotes now; they are closed below, after every read of the transaction
+      const supplements = await prepareCloseSupplements(deps, tx, scope, o);
       // CRM reads the vehicle then writes: it goes before this transaction's own writes
       if (data.km !== undefined)
         await recordOdometer(
@@ -322,12 +398,15 @@ export async function handoverVehicle(
         belongingsReturned: data.belongingsReturned,
         oldPartsReturned: data.oldPartsReturned,
         printCount: 0,
+        payment,
       };
       deps.orders.update(tx, o.id, {
         ...orderPatch(o, 'deliver', t.state, actor.userId, now),
         handover: h,
         completedAt: now,
       });
+      // R47: supplementary quotes still open are closed with the order
+      const closedSupplements = supplements.commit(actor, ctx, now);
       // the cross-branch history row (white-listed fields only, C6: prices before tax and order discount)
       const done = items0.filter((i) => i.status === 'done');
       deps.crm.history.upsert(tx, {
@@ -362,7 +441,12 @@ export async function handoverVehicle(
             km: h.km ?? null,
             belongingsReturned: h.belongingsReturned,
             oldPartsReturned: h.oldPartsReturned,
+            outstandingVnd: payment.outstandingVnd,
+            debtId: payment.debtId ?? null,
+            paymentVerified: payment.verified,
+            closedSupplements,
           },
+          ...(payment.exceptionReason ? { reason: payment.exceptionReason } : {}),
         }),
       );
       if (o.advisorId !== actor.userId)

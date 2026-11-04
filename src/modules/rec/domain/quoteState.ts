@@ -5,13 +5,15 @@ import type { IntakeStatus, QuoteStatus } from './entities';
  * The tables are the single source of `actions.allowed`. Quote and intake are separate objects: the
  * repair order (slice 1.6) has its own table and never shares these states.
  */
-export type QuoteEvent = 'send' | 'approve_full' | 'approve_partial' | 'reject' | 'expire';
+export type QuoteEvent =
+  'send' | 'approve_full' | 'approve_partial' | 'reject' | 'expire' | 'close';
 export const QUOTE_EVENTS: readonly QuoteEvent[] = [
   'send',
   'approve_full',
   'approve_partial',
   'reject',
   'expire',
+  'close',
 ];
 
 export type Transition<S> = { ok: true; state: S } | { ok: false; reason: string };
@@ -19,12 +21,14 @@ export type Transition<S> = { ok: true; state: S } | { ok: false; reason: string
 export const QUOTE_TRANSITIONS: Readonly<
   Record<QuoteStatus, Partial<Record<QuoteEvent, QuoteStatus>>>
 > = {
-  draft: { send: 'sent' },
+  // `close` (R47): a supplementary quote is closed, with a reason, when its repair order completes or is cancelled
+  draft: { send: 'sent', close: 'expired' },
   sent: {
     approve_full: 'approved_full',
     approve_partial: 'approved_partial',
     reject: 'rejected',
     expire: 'expired',
+    close: 'expired',
   },
   approved_full: {},
   approved_partial: {},

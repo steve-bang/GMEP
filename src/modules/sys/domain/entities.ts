@@ -155,6 +155,8 @@ export type NotificationKind =
   | 'crm.lookup_limit'
   | 'rec.quote_decided'
   | 'rec.order'
+  | 'approval'
+  | 'acc.cash'
   | 'system';
 
 /** FR-SYS-009: in-system notification. Never carries personal data (names, phones, addresses). */

@@ -140,6 +140,8 @@ export {
   dismissProposal,
   createSupplementaryQuote,
   appendSupplement,
+  prepareCloseSupplements,
+  assertSupplementOrderOpen,
 } from './application/supplement';
 export {
   getQcChecklist,

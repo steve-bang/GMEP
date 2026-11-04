@@ -156,12 +156,13 @@ describe('quote totals (FR-REC-004, FR-REC-007, BA C6)', () => {
 
 describe('quote state machine (separate from order/item/payment/invoice)', () => {
   const expected: Record<QuoteStatus, Partial<Record<QuoteEvent, QuoteStatus>>> = {
-    draft: { send: 'sent' },
+    draft: { send: 'sent', close: 'expired' },
     sent: {
       approve_full: 'approved_full',
       approve_partial: 'approved_partial',
       reject: 'rejected',
       expire: 'expired',
+      close: 'expired',
     },
     approved_full: {},
     approved_partial: {},

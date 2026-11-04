@@ -6,10 +6,17 @@ import {
   requireWorkingBranch,
   type Actor,
 } from '@/platform/rbac/rbac';
-import { branchesScope } from '@/platform/scope/scope';
+import { branchesScope, type Scope } from '@/platform/scope/scope';
+import type { Tx } from '@/platform/tx/unitOfWork';
 import { prepareHoldForApproval } from '@/modules/inv';
 import { allocateDocumentNumber, notifyUsers, usersWithRole } from '@/modules/sys';
-import { versionId, type Quote, type QuoteVersion } from '../domain/entities';
+import {
+  versionId,
+  type Quote,
+  type QuoteLink,
+  type QuoteStatus,
+  type QuoteVersion,
+} from '../domain/entities';
 import {
   itemId,
   itemSeedsOf,
@@ -19,8 +26,10 @@ import {
   type WorkProposal,
 } from '../domain/order';
 import { isOrderOpen, transitionOrder } from '../domain/orderState';
+import { transitionQuote } from '../domain/quoteState';
 import { computeTotals } from '../domain/pricing';
 import type { RecDeps } from '../ports/deps';
+import type { RepairOrder } from '../domain/order';
 import { pushHistory, systemActor } from './orderHelpers';
 import {
   AppError,
@@ -268,6 +277,7 @@ export async function createSupplementaryQuote(
       }
       deps.orders.update(tx, o.id, {
         proposals,
+        supplementQuoteIds: [...(o.supplementQuoteIds ?? []), id],
         updatedAt: now,
         updatedBy: actor.userId,
         version: o.version + 1,
@@ -392,7 +402,16 @@ export async function appendSupplement(
       itemNos: items.map((i) => i.no),
     };
     const reopen = transitionOrder(o.status, 'reopen');
+    // R47: extra approved work after a check was passed (or while it was awaited): the old result no longer counts
+    const qcRuns = reopen.ok
+      ? o.qcRuns.map((r, i) =>
+          i === o.qcRuns.length - 1 && !r.invalidatedAt
+            ? { ...r, invalidatedAt: now, invalidatedReason: `supplement:${q.number}` }
+            : r,
+        )
+      : o.qcRuns;
     deps.orders.update(tx, o.id, {
+      qcRuns,
       itemCount: o.itemCount + items.length,
       totalVnd: o.totalVnd + approval.approvedTotalVnd,
       supplements: [...o.supplements, ref],
@@ -445,4 +464,82 @@ export async function appendSupplement(
       });
     return { orderId, number: o.number, created: true, unmetLines: unmet.size };
   });
+}
+
+// ---- R47: supplements and a closed order ----------------------------------------------------------------
+
+/**
+ * R47: a supplementary quote cannot be approved (or sent) once its order is completed or cancelled. Called INSIDE the
+ * approval transaction, so the race "the customer taps approve" against "the order completes" has one winner: the loser
+ * gets 409 `order_closed` and no approval evidence is written (RULE-007: no approval for work without a source document).
+ */
+export async function assertSupplementOrderOpen(
+  deps: RecDeps,
+  tx: Tx,
+  scope: Scope,
+  q: Pick<Quote, 'supplementOfOrderId'>,
+): Promise<void> {
+  if (!q.supplementOfOrderId) return;
+  const o = await deps.orders.getInTx(tx, scope, q.supplementOfOrderId);
+  if (!o || !isOrderOpen(o.status)) throw new AppError('order_closed', 409);
+}
+
+/**
+ * R47: when the order closes (handover or cancellation) every supplementary quote still draft or sent is closed with the
+ * reason "order closed", its customer link stops working (read-only like R38) and the change is audited. Runs inside the
+ * closing transaction in two phases because a Firestore transaction finishes its reads before its first write: `prepare`
+ * READS (call it with the other reads), `commit` only STAGES the writes.
+ */
+export async function prepareCloseSupplements(
+  deps: RecDeps,
+  tx: Tx,
+  scope: Scope,
+  o: Pick<RepairOrder, 'branchId' | 'supplementQuoteIds' | 'number'>,
+): Promise<{ commit(actor: Actor, ctx: RequestCtx, now: Date): number }> {
+  const open: { q: Quote; v: QuoteVersion; link: QuoteLink | null; next: QuoteStatus }[] = [];
+  for (const qid of o.supplementQuoteIds ?? []) {
+    const q = await deps.quotes.getInTx(tx, scope, qid);
+    if (!q) continue;
+    const v = await deps.versions.getInTx(tx, scope, versionId(qid, q.currentN));
+    if (!v) continue;
+    const t = transitionQuote(v.status, 'close');
+    if (!t.ok) continue;
+    const link = v.linkHash ? await deps.links.findInTx(tx, v.linkHash) : null;
+    open.push({ q, v, link, next: t.state });
+  }
+  return {
+    commit(actor, ctx, now) {
+      for (const { q, v, link, next } of open) {
+        deps.versions.update(tx, v.id, {
+          status: next,
+          closedAt: now,
+          closedReason: 'order_closed',
+          updatedAt: now,
+          updatedBy: actor.userId,
+          version: v.version + 1,
+        });
+        deps.quotes.update(tx, q.id, {
+          status: next,
+          updatedAt: now,
+          updatedBy: actor.userId,
+          version: q.version + 1,
+        });
+        if (link && !link.revokedAt)
+          deps.links.update(tx, link.id, { revokedAt: now, revokedReason: 'order_closed' });
+        deps.sys.audit.record(
+          tx,
+          auditEntry(deps.sys, actor, ctx, {
+            branchId: o.branchId,
+            entityType: 'quote',
+            entityId: q.id,
+            action: 'quote.close',
+            before: { n: v.n, status: v.status },
+            after: { n: v.n, status: next, order: o.number },
+            reason: 'order_closed',
+          }),
+        );
+      }
+      return open.length;
+    },
+  };
 }

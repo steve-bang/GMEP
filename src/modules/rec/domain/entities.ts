@@ -287,6 +287,9 @@ export interface QuoteVersion {
   rejectReason?: string;
   /** who refused: the staff member, or null for the customer link */
   rejectedBy?: string | null;
+  /** R47: a supplementary quote closed because its order closed (completed or cancelled) */
+  closedAt?: Date;
+  closedReason?: string;
   /** FR-REC-009: set once when the version is approved (fully or partly); locks the content */
   approval?: QuoteApproval;
   /** hash of the live customer link (a rotated link replaces it); the raw token is never stored */

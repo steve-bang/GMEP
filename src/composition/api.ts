@@ -1,5 +1,6 @@
 import { apiRoute, json, type RouteContext } from '@/platform/http/route';
 import { parseIdempotencyKey } from '@/platform/idempotency/idempotency';
+import type { AccDeps } from '@/modules/acc';
 import type { CrmDeps } from '@/modules/crm';
 import type { InvDeps } from '@/modules/inv';
 import type { RecDeps } from '@/modules/rec';
@@ -17,6 +18,7 @@ export interface ApiCtx extends RouteContext {
   crm: CrmDeps;
   inv: InvDeps;
   rec: RecDeps;
+  acc: AccDeps;
 }
 export interface AuthedCtx extends ApiCtx {
   session: Session;
@@ -34,6 +36,7 @@ export function api(handler: (c: ApiCtx) => Promise<Response>) {
         crm: getContainer().crm,
         inv: getContainer().inv,
         rec: getContainer().rec,
+        acc: getContainer().acc,
       }),
     {
       allowedOrigins,
@@ -51,6 +54,7 @@ export function authed(handler: (c: AuthedCtx) => Promise<Response>) {
         crm: getContainer().crm,
         inv: getContainer().inv,
         rec: getContainer().rec,
+        acc: getContainer().acc,
         session,
         idempotencyKey: () => parseIdempotencyKey(c.req.headers.get('idempotency-key'), true)!,
         query: () => Object.fromEntries(new URL(c.req.url).searchParams),

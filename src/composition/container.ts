@@ -7,6 +7,7 @@ import { DocAtomicStateStore, LoginThrottle, RateLimiter } from '@/platform/rate
 import type { DocStore, StoreStats } from '@/platform/store/docStore';
 import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
+import { accApprovalHandlers, type AccDeps } from '@/modules/acc';
 import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
 import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
 import {
@@ -26,6 +27,7 @@ import {
   type SysConfig,
   type SysDeps,
 } from '@/modules/sys';
+import { accPaymentGate, buildAcc } from './accWiring';
 import { noStrongAuth } from '@/infrastructure/auth/noStrongAuth';
 import { OutboxEmailGateway } from '@/infrastructure/email/outboxEmailGateway';
 import { getDb } from '@/infrastructure/firestore/client';
@@ -66,6 +68,7 @@ import {
   DocStockBalanceRepository,
   DocStockDocumentRepository,
 } from '@/infrastructure/repos/invRepos';
+import { DocApprovalRepository } from '@/infrastructure/repos/approvalRepos';
 import {
   DocIntakeRepository,
   DocPartRequestRepository,
@@ -89,6 +92,7 @@ export interface Container {
   crm: CrmDeps;
   inv: InvDeps;
   rec: RecDeps;
+  acc: AccDeps;
   store: DocStore & { stats: StoreStats };
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
@@ -163,6 +167,8 @@ function buildSys(
     tokens: new DocAuthTokenRepository(store),
     configs: new DocConfigRepository(store),
     notifications: new DocNotificationRepository(store),
+    approvals: new DocApprovalRepository(store),
+    approvalHandlers: new Map(),
     services: new DocServiceRepository(store),
     priceLists: new DocPriceListRepository(store),
     identity,
@@ -217,7 +223,13 @@ function buildInv(sys: SysDeps, store: DocStore, env: Env): InvDeps {
 }
 
 /** REC use cases read CRM and INV through their public surfaces only (slice 1.5). */
-function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): RecDeps {
+function buildRec(
+  sys: SysDeps,
+  crm: CrmDeps,
+  inv: InvDeps,
+  store: DocStore,
+  getAcc: () => AccDeps,
+): RecDeps {
   const rec: RecDeps = {
     sys,
     crm,
@@ -229,6 +241,7 @@ function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): Re
     orders: new DocRepairOrderRepository(store),
     items: new DocRepairItemRepository(store),
     partRequests: new DocPartRequestRepository(store),
+    payments: accPaymentGate(getAcc),
     rec: { ...DEFAULT_REC_CONFIG, approval: { ...DEFAULT_REC_CONFIG.approval } },
   };
   // C17: REC joins the data-retention gate of CRM; the stub still stands for modules not built yet
@@ -249,48 +262,47 @@ export interface ContainerOptions {
 export function createContainer(opts: ContainerOptions = {}): Container {
   const env = opts.env ?? loadEnv();
   const clock = opts.clock ?? systemClock;
+  const late: { inv?: InvDeps; acc?: AccDeps; rec?: RecDeps } = {};
+
+  const assemble = (
+    store: DocStore,
+    uow: UnitOfWork,
+    identity: IdentityProvider,
+  ): { sys: SysDeps; crm: CrmDeps; inv: InvDeps; rec: RecDeps; acc: AccDeps } => {
+    const sys = buildSys(env, clock, store, uow, identity, { get: () => late.inv! });
+    const inv = (late.inv = buildInv(sys, store, env));
+    const crm = buildCrm(sys, store);
+    const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!));
+    const acc = (late.acc = buildAcc(sys, store, () => late.rec!));
+    // FR-SYS-004: the module that owns an approval kind registers what a decision does (same transaction)
+    for (const [kind, h] of Object.entries(accApprovalHandlers(() => late.acc!)))
+      sys.approvalHandlers.set(kind, h);
+    return { sys, crm, inv, rec, acc };
+  };
 
   if (env.GMEP_DATA_BACKEND === 'memory') {
     const db = new MemoryDb();
     const identity = new MemoryIdentityProvider();
     const store = new MemoryDocStore(db);
-    const late: { inv?: InvDeps } = {};
-    const sys = buildSys(env, clock, store, new MemoryUnitOfWork(db), identity, {
-      get: () => late.inv!,
-    });
-    const inv = (late.inv = buildInv(sys, store, env));
-    const crm = buildCrm(sys, store);
     return {
       env,
       backend: 'memory',
       memory: { db, identity },
       store,
       identity,
-      sys,
-      crm,
-      inv,
-      rec: buildRec(sys, crm, inv, store),
+      ...assemble(store, new MemoryUnitOfWork(db), identity),
     };
   }
 
   const db = getDb(env);
   const store = new FirestoreDocStore(db);
   const identity = new FirebaseIdentityProvider(env);
-  const late: { inv?: InvDeps } = {};
-  const sys = buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity, {
-    get: () => late.inv!,
-  });
-  const inv = (late.inv = buildInv(sys, store, env));
-  const crm = buildCrm(sys, store);
   return {
     env,
     backend: 'firestore',
     store,
     identity,
-    sys,
-    crm,
-    inv,
-    rec: buildRec(sys, crm, inv, store),
+    ...assemble(store, new FirestoreUnitOfWork(db), identity),
   };
 }
 

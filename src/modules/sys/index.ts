@@ -11,6 +11,7 @@ export * from './domain/branchState';
 export * from './domain/sessionPolicy';
 export * from './domain/passwordPolicy';
 export * from './domain/config';
+export * from './domain/approval';
 export * from './ports/ports';
 export type { SysDeps, SysConfig, SysCaches, CachedSession } from './ports/deps';
 
@@ -118,3 +119,19 @@ export { assertBranchWritable } from './domain/branchState';
 export { auditEntry, parseInput, roleCodesOf } from './application/support';
 export type { RequestCtx } from './application/support';
 export { reauthenticate } from './application/config';
+
+export {
+  openApprovalInTx,
+  decideApproval,
+  withdrawApproval,
+  consumeApprovalInTx,
+  loadApprovalForUse,
+  approvalLevelFor,
+  approvalLimitsOf,
+  listApprovals,
+  getApproval,
+  findActiveApprovalFor,
+  decideSchema,
+  withdrawSchema,
+} from './application/approvals';
+export type { ApprovalDto, ApprovalTab, OpenApprovalInput } from './application/approvals';

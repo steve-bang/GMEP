@@ -139,12 +139,42 @@ export function recDemoDocs(): SeedDoc[] {
       { code: 'clean', name: 'Xe sạch, đồ đạc của khách còn nguyên' },
     ],
   });
-  // FR-REC-013/017 sample execution policy: 2 minutes to undo; payment check arrives with slice 1.7
+  // FR-REC-013/017 sample execution policy: 2 minutes to undo; R44: the handover checks the payment (ACC, slice 1.7)
   cfg('order-policy', 'company', {
     undoWindowSeconds: 120,
-    handoverRequiresPayment: false,
+    handoverRequiresPayment: true,
     handoverRequiresReceiver: true,
   });
+  // ---- slice 1.7 (ACC) SAMPLE policy and limits: the client and the accountant give the real numbers [Cần xác nhận]
+  cfg('acc-policy', 'company', {
+    methods: ['cash', 'transfer', 'card', 'qr'],
+    nonCashReferenceRequired: true,
+    receiptRequiresQc: true,
+    varianceToleranceVnd: 0,
+    debtMaxDays: 60,
+  });
+  // G4-APR-03 illustrative limits (the design says "giá trị minh họa"): an expense up to 500.000 needs no approval
+  cfg('approval-limit', 'expense', { selfMaxVnd: 500_000, level1MaxVnd: 5_000_000, dueHours: 24 });
+  cfg('approval-limit', 'payment_reversal', {
+    selfMaxVnd: 0,
+    level1MaxVnd: 50_000_000,
+    dueHours: 24,
+  });
+  cfg('approval-limit', 'debt_handover', { selfMaxVnd: 0, level1MaxVnd: 10_000_000, dueHours: 8 });
+  cfg('approval-limit', 'cash_variance', { selfMaxVnd: 0, level1MaxVnd: 500_000, dueHours: 24 });
+  for (const [code, name, depositRefund] of [
+    ['office', 'Vật tư văn phòng', false],
+    ['utilities', 'Điện nước', false],
+    ['equipment_repair', 'Sửa chữa thiết bị', false],
+    ['hospitality', 'Tiếp khách', false],
+    ['other', 'Chi phí khác', false],
+    ['deposit_refund', 'Hoàn tiền cọc cho khách', true],
+  ] as const)
+    cfg('expense-category', code, {
+      name,
+      status: 'active',
+      ...(depositRefund ? { depositRefund } : {}),
+    });
   cfg('discount-limit', 'company', { maxDiscountBpByRole: { CV: 500, QL: 1500, CH: 3000 } });
   return docs;
 }

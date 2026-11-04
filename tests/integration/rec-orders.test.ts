@@ -30,6 +30,7 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
   let th: string;
   let tk: string;
   let kt: string;
+  let tn: string;
   let qlTd: string;
   let ip = 0;
   let t0 = '';
@@ -152,6 +153,18 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
     }
   }
 
+  /** R44: the handover checks the money, so the cashier takes the payment first (slice 1.7) */
+  async function payInFull(orderId: string) {
+    const sh = await call(tn, 'POST', '/api/v1/acc/shifts', {});
+    expect([201, 409], sh.text).toContain(sh.status); // 409 = a shift is already open
+    const bal = (await call(tn, 'GET', `/api/v1/acc/orders/${orderId}`)).json.balance as Row;
+    const r = await call(tn, 'POST', `/api/v1/acc/orders/${orderId}/payments`, {
+      kind: 'receipt',
+      lines: [{ method: 'cash', amountVnd: bal.outstandingVnd }],
+    });
+    expect(r.status, r.text).toBe(201);
+  }
+
   beforeAll(async () => {
     h = await createHarness(backend);
     t0 = h.clock.now().toISOString();
@@ -161,6 +174,7 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
     th = await h.loginAt('u_th_q7', 'br_q7');
     tk = await h.loginAt('u_tk_q7', 'br_q7');
     kt = await h.login('u_kt');
+    tn = await h.loginAt('u_tn_q7', 'br_q7');
     qlTd = await h.loginAt('u_ql_td', 'br_td');
     // plenty of the filter so that holds of earlier tests never starve the later ones (the scarce part stays scarce)
     const grn = await call(tk, 'POST', '/api/v1/inv/documents', {
@@ -766,6 +780,7 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
         oldPartsReturned: true,
       });
       expect(noName.status).toBe(422);
+      await payInFull(o.id);
       const km =
         ((await rows('vehicles')).find((v) => v.id === o.vehicleId)!.lastKm as number) + 40;
       const hv = await act(cv, `/api/v1/rec/orders/${o.id}/handover`, {
