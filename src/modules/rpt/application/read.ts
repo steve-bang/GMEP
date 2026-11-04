@@ -45,7 +45,7 @@ export interface RollupDto extends Omit<DailyRollup, 'computedAt' | 'refs' | 'al
   alerts: AlertItem[];
 }
 
-const toDto = (r: DailyRollup, can: (p: Permission) => boolean): RollupDto => {
+export const toDto = (r: DailyRollup, can: (p: Permission) => boolean): RollupDto => {
   const { refs: _refs, computedAt, alerts, ...rest } = r;
   void _refs;
   return {
@@ -56,7 +56,7 @@ const toDto = (r: DailyRollup, can: (p: Permission) => boolean): RollupDto => {
 };
 
 /** A section the actor may not see is removed from the document, not hidden in the browser. */
-function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto {
+export function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto {
   const out: Record<string, unknown> = { ...r };
   const zeroMoney = !can('payment:view');
   if (!can('repair-order:view')) {
@@ -96,6 +96,29 @@ function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto {
     };
   if (!can('stock:view')) out.stock = { issueDocuments: 0, issuesWithoutSource: 0 };
   if (!can('cashbook:view')) out.cash = { shiftsClosed: 0, shiftsWithVariance: 0, varianceVnd: 0 };
+  // FR-RPT-014: the per-service-type figures follow the same section permissions as the totals they break down
+  if (r.byServiceType)
+    out.byServiceType = r.byServiceType.map((e) => ({
+      ...e,
+      ...(can('repair-order:view') ? {} : { closed: 0 }),
+      ...(can('report-daily:view') ? {} : { orderTotalVnd: 0, laborVnd: 0, partsVnd: 0 }),
+      ...(zeroMoney
+        ? { receivedVnd: 0, debtVnd: 0, gapVnd: 0, gapOrders: 0, byMethod: {}, inflowVnd: 0 }
+        : {}),
+      ...(can('invoice:view')
+        ? {}
+        : { notInvoicedCount: 0, notInvoicedVnd: 0, invoicesIssuedCount: 0, invoicesIssuedVnd: 0 }),
+      ...(can('stock:view') ? {} : { stockIssueDocuments: 0 }),
+    }));
+  if (r.unlinked)
+    out.unlinked = {
+      byMethod: zeroMoney ? {} : r.unlinked.byMethod,
+      inflowVnd: zeroMoney ? 0 : r.unlinked.inflowVnd,
+      expenseVnd: zeroMoney ? 0 : r.unlinked.expenseVnd,
+      invoicesIssuedCount: can('invoice:view') ? r.unlinked.invoicesIssuedCount : 0,
+      invoicesIssuedVnd: can('invoice:view') ? r.unlinked.invoicesIssuedVnd : 0,
+      stockIssueDocuments: can('stock:view') ? r.unlinked.stockIssueDocuments : 0,
+    };
   out.alertCounts = Object.fromEntries(
     ALERT_KINDS.map((k) => [k, can(ALERT_PERMISSION[k]) ? r.alertCounts[k] : 0]),
   );
@@ -112,9 +135,9 @@ export interface Visible {
   cash: boolean;
 }
 
-const canOf = (actor: Actor) => (p: Permission) => hasPermission(actor, p);
+export const canOf = (actor: Actor) => (p: Permission) => hasPermission(actor, p);
 
-function visibleOf(actor: Actor): Visible {
+export function visibleOf(actor: Actor): Visible {
   const can = canOf(actor);
   return {
     orders: can('repair-order:view'),

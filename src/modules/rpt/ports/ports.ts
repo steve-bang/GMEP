@@ -12,6 +12,7 @@ import type {
   ShiftFact,
   StockIssueFact,
 } from '../domain/rollup';
+import type { BalanceFact, WorkItemFact } from '../domain/reports';
 
 /** Read side of the projection: documents read BY KEY, never queried (R68 rule 3, no composite index). */
 export interface RollupRepository {
@@ -62,6 +63,18 @@ export interface RptSources {
     window: { from: Date; to: Date },
     limit: number,
   ): Promise<Capped<InvoiceFact>>;
+  /** stock balances of the branch (the existing scope+code query, newest page first); FR-RPT-005 */
+  stockBalances(scope: Scope, branchId: string, limit: number): Promise<Capped<BalanceFact>>;
+  /**
+   * Repair items of the orders COMPLETED in [from, to) (FR-RPT-006); reads orders by the existing created-at list and
+   * the items of each order by key-range, at most `maxOrders` orders. `serviceType` filters orders (FR-RPT-014).
+   */
+  workItems(
+    scope: Scope,
+    branchId: string,
+    window: { from: Date; to: Date },
+    opts: { lookbackDays: number; maxOrders: number; serviceType?: string },
+  ): Promise<Capped<WorkItemFact>>;
   /** posted goods issues (GIN) of the business date */
   stockIssues(
     scope: Scope,

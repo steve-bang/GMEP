@@ -1,4 +1,5 @@
 import { businessDate } from '@/platform/format/date';
+import { toPhotoDtos, type PhotoDto } from './photos';
 import { rootLogger } from '@/platform/logging/logger';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import {
@@ -593,6 +594,7 @@ export interface OrderDetailDto extends OrderDto {
   steps: WorkflowStepSnapshot[];
   items: ItemDto[];
   supplements: { quoteId: string; number: string; totalVnd: number; approvedAt: string }[];
+  photos: PhotoDto[];
   proposals: {
     id: string;
     title: string;
@@ -749,6 +751,7 @@ export async function getOrder(deps: RecDeps, actor: Actor, id: string): Promise
     warehouseId: o.warehouseId,
     steps: o.steps,
     items: items.map((i) => toItemDto(i, now)),
+    photos: toPhotoDtos(o.photos, hasPermission(actor, 'rec-photo:update')),
     supplements: o.supplements.map((s) => ({
       quoteId: s.quoteId,
       number: s.number,

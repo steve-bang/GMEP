@@ -81,7 +81,15 @@ export interface CashRepository {
   updateShift(tx: Tx, id: string, patch: Record<string, unknown>): void;
   getDayClose(scope: Scope, branchId: string, date: string): Promise<DayClose | null>;
   getDayCloseInTx(tx: Tx, scope: Scope, branchId: string, date: string): Promise<DayClose | null>;
+  getDayCloseAny(scope: Scope, branchId: string, date: string): Promise<DayClose | null>;
+  getDayCloseAnyInTx(
+    tx: Tx,
+    scope: Scope,
+    branchId: string,
+    date: string,
+  ): Promise<DayClose | null>;
   createDayClose(tx: Tx, d: DayClose): void;
+  updateDayClose(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
 
 export interface DebtRepository {

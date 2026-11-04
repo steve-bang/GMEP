@@ -8,8 +8,10 @@ import type { InvDeps } from '@/modules/inv';
 import type { RecDeps, RepairOrder } from '@/modules/rec';
 import {
   DEFAULT_RPT_CONFIG,
+  type BalanceFact,
   type Capped,
   type OrderFact,
+  type WorkItemFact,
   type RptDeps,
   type RptSources,
 } from '@/modules/rpt';
@@ -37,6 +39,7 @@ const orderFact = (o: RepairOrder): OrderFact => ({
   ...(o.cancelledAt ? { cancelledAt: o.cancelledAt } : {}),
   ...(o.handover?.at ? { handedOverAt: o.handover.at } : {}),
   totalVnd: o.totalVnd,
+  serviceType: o.serviceType ?? null,
   ...(o.promisedDate ? { promisedDate: o.promisedDate } : {}),
 });
 
@@ -212,6 +215,83 @@ export function buildRptSources(
         })),
         truncated: !!rows.nextCursor,
       };
+    },
+    async stockBalances(scope, branchId, limit) {
+      const s = oneBranch(scope, branchId);
+      if (!s) return empty();
+      const inv = getInv();
+      const items: BalanceFact[] = [];
+      let cursor: { v: string; id: string } | undefined;
+      let truncated = false;
+      for (;;) {
+        const page = await inv.balances.list(s, { limit: 100, ...(cursor ? { cursor } : {}) });
+        for (const b of page.items) {
+          if (items.length >= limit) {
+            truncated = true;
+            break;
+          }
+          if (b.branchId !== branchId) continue;
+          items.push({
+            warehouseId: b.warehouseId,
+            partId: b.partId,
+            partCode: b.partCode,
+            partName: b.partName,
+            onHand: b.onHand,
+            reserved: b.reserved,
+            inTransit: b.inTransit,
+            valueVnd: b.valueVnd,
+            minQty: b.minQty,
+            maxQty: b.maxQty,
+          });
+        }
+        if (truncated || !page.nextCursor) break;
+        cursor = decodeCursor(page.nextCursor);
+      }
+      return { items, truncated };
+    },
+    async workItems(scope, branchId, window, opts) {
+      const s = oneBranch(scope, branchId);
+      if (!s) return empty();
+      const rec = getRec();
+      const since = window.from.getTime() - opts.lookbackDays * DAY_MS;
+      const done: RepairOrder[] = [];
+      let cursor: { v: string; id: string } | undefined = { v: window.to.toISOString(), id: '0' };
+      let truncated = false;
+      for (;;) {
+        const page = await rec.orders.list(s, { limit: 100, ...(cursor ? { cursor } : {}) });
+        let reachedSince = false;
+        for (const o of page.items) {
+          if (o.createdAt.getTime() < since) {
+            reachedSince = true;
+            break;
+          }
+          const c = o.completedAt?.getTime();
+          if (c === undefined || c < window.from.getTime() || c >= window.to.getTime()) continue;
+          if (opts.serviceType && o.serviceType !== opts.serviceType) continue;
+          if (done.length >= opts.maxOrders) {
+            truncated = true;
+            break;
+          }
+          done.push(o);
+        }
+        if (truncated || reachedSince || !page.nextCursor) break;
+        cursor = decodeCursor(page.nextCursor);
+      }
+      const items: WorkItemFact[] = [];
+      for (const o of done) {
+        for (const it of await rec.items.listByOrder(s, o.id, rec.rec.maxItemsPerOrder))
+          items.push({
+            orderId: o.id,
+            orderNumber: o.number,
+            serviceType: o.serviceType ?? null,
+            technicianId: it.technicianId,
+            technicianName: it.technicianName,
+            status: it.status,
+            workedMs: it.workedMs,
+            approvedMinutes: it.approvedMinutes,
+          });
+      }
+      return { items, truncated };
     },
     async stockIssues(scope, branchId, date, limit) {
       const s = oneBranch(scope, branchId);

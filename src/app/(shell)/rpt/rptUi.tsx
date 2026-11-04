@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { messages } from '@/platform/i18n/messages';
 import { isoToVi } from '@/platform/format/date';
-import type { DocRef } from '@/modules/rpt';
+import type { DocRef, UnlinkedRollup } from '@/modules/rpt';
 import { RecPage } from '../rec/RecPage';
 import { money } from '../rec/format';
 
@@ -28,6 +28,24 @@ export function Note(props: {
     <div className={`alert alert--${props.tone ?? 'info'}`} role="note" data-testid={props.testId}>
       <div className="alert__body">{props.children}</div>
     </div>
+  );
+}
+
+/** FR-RPT-014: the documents of a filtered view that carry no order, kept in their own line. */
+export function UnlinkedNote({ u, labels }: { u: UnlinkedRollup; labels: Dict }) {
+  return (
+    <Note tone="info" testId="rpt-unlinked">
+      <strong>{labels.unlinkedTitle}</strong>
+      <span className="text-secondary" style={{ display: 'block' }}>
+        {fill(labels.unlinkedText!, {
+          inflow: money(u.inflowVnd),
+          expense: money(u.expenseVnd),
+          invCount: u.invoicesIssuedCount,
+          invVnd: money(u.invoicesIssuedVnd),
+          stock: u.stockIssueDocuments,
+        })}
+      </span>
+    </Note>
   );
 }
 
@@ -98,3 +116,48 @@ export function hrefOf(r: DocRef): string {
 
 export const drillHref = (date: string, metric: string, branchId: string) =>
   `/rpt/daily/drill?date=${date}&metric=${metric}&branchId=${encodeURIComponent(branchId)}`;
+
+/** Server-rendered GET filter form (no JavaScript needed): fields are native inputs, the branch is kept. */
+export function FilterForm(props: {
+  action: string;
+  branchId: string;
+  applyLabel: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="card no-print">
+      <div className="card__body">
+        <form
+          method="get"
+          action={props.action}
+          className="row"
+          style={{ gap: 'var(--space-4)', flexWrap: 'wrap', alignItems: 'end' }}
+        >
+          <input type="hidden" name="branchId" value={props.branchId} />
+          {props.children}
+          <button type="submit" className="btn btn--secondary">
+            {props.applyLabel}
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+export function Field(props: { id: string; label: string; children: ReactNode }) {
+  return (
+    <div className="field">
+      <label className="field__label" htmlFor={props.id}>
+        {props.label}
+      </label>
+      {props.children}
+    </div>
+  );
+}
+
+/** minutes -> "h giờ mm phút" in Vietnamese, integer maths only */
+export const hoursOf = (min: number): string =>
+  `${Math.floor(min / 60)} giờ ${String(min % 60).padStart(2, '0')} phút`;
+/** basis points -> "85,5%" */
+export const pctOf = (bp: number | null): string =>
+  bp === null ? '—' : `${(bp / 100).toFixed(1).replace('.', ',')}%`;

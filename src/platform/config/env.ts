@@ -31,6 +31,10 @@ const schema = z.object({
   TRUSTED_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
   /** brand-new links in emails (invitation, reset) are built from this; falls back to APP_ORIGIN */
   APP_BASE_URL: z.string().url().optional(),
+  /** shared secret of the internal cron endpoint (header x-cron-secret); unset = endpoint disabled (404). Secret Manager in real envs */
+  CRON_SECRET: z.string().min(32).optional(),
+  /** company whose branches the cron endpoint processes (single legal entity today [Cần xác nhận]) */
+  CRON_COMPANY_ID: z.string().min(1).optional(),
   LOG_LEVEL: z.string().optional(),
 });
 

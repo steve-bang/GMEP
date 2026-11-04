@@ -1,3 +1,4 @@
+import type { FileStore } from '@/platform/files/fileStore';
 import type { CrmDeps } from '@/modules/crm';
 import type { InvDeps } from '@/modules/inv';
 import type { SysDeps } from '@/modules/sys';
@@ -50,6 +51,9 @@ export interface RecConfig {
   maxEventsPerItem: number;
   /** FR-REC-013: "hoàn tác" window after a start/pause/finish [Đề xuất dev - chờ xác nhận: Khách] */
   undoWindowMs: number;
+  /** photos on an intake or an order (uploads go through the API; ADR 0001 §7.3) [Đề xuất dev - chờ xác nhận: Khách] */
+  photoMaxBytes: number;
+  maxPhotosPerRecord: number;
   /** dispatch board rows */
   boardMax: number;
   /** a handover may only happen after the QC passed (FR-REC-016); payment is checked in slice 1.7 */
@@ -72,6 +76,8 @@ export const DEFAULT_REC_CONFIG: RecConfig = {
   maxProposalsPerOrder: 50,
   maxEventsPerItem: 200,
   undoWindowMs: 120_000,
+  photoMaxBytes: 5 * 1024 * 1024,
+  maxPhotosPerRecord: 30,
   boardMax: 300,
   requireHandoverReceiverName: true,
 };
@@ -92,5 +98,7 @@ export interface RecDeps {
   /** R75: EIN's answer for an order, wired by the composition root */
   invoices: OrderInvoiceGate;
   rec: RecConfig;
+  /** binary storage for photos; paths are server-chosen and Scope-prefixed */
+  files: FileStore;
 }
 // FR-REC-003 / R9: the odometer threshold is CRM's single `abnormalKmDrop` (deps.crm.crm), not a REC copy.

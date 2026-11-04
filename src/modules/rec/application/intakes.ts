@@ -1,3 +1,4 @@
+import { toPhotoDtos, type PhotoDto } from './photos';
 import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import {
@@ -6,7 +7,7 @@ import {
   MAX_LIMIT,
   type Page,
 } from '@/platform/pagination/pagination';
-import { resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
+import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
 import { normalizePlate, getVehicle, recordOdometer, relateToWorkingBranch } from '@/modules/crm';
 import { allocateDocumentNumber, resolveCatalogAt } from '@/modules/sys';
 import {
@@ -60,6 +61,7 @@ export interface IntakeDto {
   condition: string | null;
   belongings: string[];
   belongingsOther: string | null;
+  photos: PhotoDto[];
   serviceType: string | null;
   advisorId: string;
   promisedDate: string | null;
@@ -75,7 +77,7 @@ export interface IntakeDto {
   allowed: string[];
 }
 
-export function toIntakeDto(i: Intake): IntakeDto {
+export function toIntakeDto(i: Intake, includeHiddenPhotos = false): IntakeDto {
   return {
     id: i.id,
     number: i.number,
@@ -95,6 +97,7 @@ export function toIntakeDto(i: Intake): IntakeDto {
     customerRequest: i.customerRequest ?? null,
     condition: i.condition ?? null,
     belongings: i.belongings,
+    photos: toPhotoDtos(i.photos, includeHiddenPhotos),
     belongingsOther: i.belongingsOther ?? null,
     serviceType: i.serviceType ?? null,
     advisorId: i.advisorId,
@@ -174,14 +177,14 @@ export async function listIntakes(
     ...(text && !byNumber ? { platePrefix: normalizePlate(text) } : {}),
     ...(q.cursor ? { cursor: decodeCursor(q.cursor)! } : {}),
   });
-  return { items: page.items.map(toIntakeDto), nextCursor: page.nextCursor };
+  return { items: page.items.map((i) => toIntakeDto(i)), nextCursor: page.nextCursor };
 }
 
 export async function getIntake(deps: RecDeps, actor: Actor, id: string): Promise<IntakeDto> {
   const scope = resolveScope(actor, 'intake:view');
   const i = await deps.intakes.get(scope, id);
   if (!i) throw notFound();
-  return toIntakeDto(i);
+  return toIntakeDto(i, hasPermission(actor, 'rec-photo:update'));
 }
 
 // ---- create (step 1) -------------------------------------------------------------------------

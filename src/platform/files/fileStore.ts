@@ -13,6 +13,8 @@ export interface FileStore {
   put(path: string, file: StoredFile): Promise<void>;
   /** null when missing */
   get(path: string): Promise<StoredFile | null>;
+  /** removes the file; no error when it is missing (cleanup of a write whose transaction failed) */
+  delete(path: string): Promise<void>;
 }
 
 /** Server-chosen, scope-prefixed object path: `<area>/<companyId>/<branchId>/<name>` with no traversal possible. */

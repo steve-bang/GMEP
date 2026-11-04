@@ -151,6 +151,15 @@ export class DocPartRepository implements PartRepository {
       });
     this.store.create(tx, COL.parts, p.id, without(p, 'id'));
   }
+  remove(
+    tx: Tx,
+    p: Pick<Part, 'id' | 'companyId' | 'code' | 'codeKey' | 'barcode' | 'compatKeys'>,
+  ) {
+    this.relinkCompat(tx, p, p.compatKeys, []);
+    if (p.barcode) this.store.delete(tx, COL.partBarcodes, codeSlot(p.companyId, p.barcode));
+    this.store.delete(tx, COL.partCodes, codeSlot(p.companyId, p.codeKey));
+    this.store.delete(tx, COL.parts, p.id);
+  }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.parts, id, patch);
   }
@@ -402,6 +411,18 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.stockDocuments, id, patch);
+  }
+  async listByWarehouseStatus(
+    companyId: string,
+    warehouseId: string,
+    status: StockDocument['status'],
+    limit: number,
+  ) {
+    const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
+      eq: { companyId, warehouseId, status },
+      limit,
+    });
+    return rows.map(documentFromDoc);
   }
   async hasOpen(companyId: string, warehouseId: string) {
     const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {

@@ -71,6 +71,10 @@ export const COL = {
   invoiceRequests: 'invoiceRequests',
   invoiceQueues: 'invoiceQueues',
   einOrders: 'einOrders',
+  // SYS data import (FR-SYS-007): batches, file slots and staged units are read BY KEY; only the batch history list is queried
+  importBatches: 'importBatches',
+  importFileSlots: 'importFileSlots',
+  importUnits: 'importUnits',
   // RPT slice 1.9 (R68 rule 3): daily rollups, read BY KEY (`<branchId>_<yyyyMMdd>`), no query shape, no index
   rollups: 'rollups',
 } as const;
@@ -573,6 +577,20 @@ export const Q = {
     collection: COL.invoices,
     eq: ['companyId', 'branchId'],
     range: true,
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  /** FR-SYS-007: batch history of ONE branch, newest first (one index); everything else is read by key */
+  importBatchesByBranch: defineQuery({
+    name: 'importBatches.byBranch',
+    collection: COL.importBatches,
+    eq: ['companyId', 'branchId'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  /** FR-SYS-007 R99: batches of ONE branch in one status (the abandoned-dry-run purge), newest first */
+  importBatchesByBranchStatus: defineQuery({
+    name: 'importBatches.byBranchStatus',
+    collection: COL.importBatches,
+    eq: ['companyId', 'branchId', 'status'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
 };

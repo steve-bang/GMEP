@@ -33,7 +33,11 @@ export function json(
  * CSRF defence (ADR §6.3): SameSite=Lax cookie + Origin check on every state-changing request +
  * JSON-only bodies. `allowedOrigins` always includes the request's own origin.
  */
-export function assertSafeOrigin(req: Request, allowedOrigins: string[]): void {
+export function assertSafeOrigin(
+  req: Request,
+  allowedOrigins: string[],
+  opts: { multipart?: boolean } = {},
+): void {
   if (!UNSAFE.has(req.method)) return;
   const origin = req.headers.get('origin');
   const own = new URL(req.url).origin;
@@ -41,12 +45,21 @@ export function assertSafeOrigin(req: Request, allowedOrigins: string[]): void {
     throw new AppError('bad_origin', 403);
   const ct = req.headers.get('content-type') ?? '';
   const hasBody = req.headers.get('content-length') !== '0' && req.headers.has('content-type');
-  if (hasBody && !ct.toLowerCase().startsWith('application/json'))
-    throw new AppError('unsupported_media_type', 415);
+  const okType =
+    ct.toLowerCase().startsWith('application/json') ||
+    (opts.multipart === true && ct.toLowerCase().startsWith('multipart/form-data'));
+  if (hasBody && !okType) throw new AppError('unsupported_media_type', 415);
 }
 
 export interface RouteOptions {
   allowedOrigins?: () => string[];
+  /** file upload routes (FR-SYS-007): also accept multipart/form-data; the Origin check still applies */
+  multipart?: boolean;
+  /**
+   * Machine-to-machine route (Cloud Scheduler sends no Origin). ONLY for `cron()` in composition/api.ts, which replaces the
+   * Origin check by a shared-secret check before any work.
+   */
+  skipOriginCheck?: boolean;
 }
 
 /**
@@ -62,7 +75,10 @@ export function apiRoute(
     const log = requestLogger(requestId, { method: req.method, path: new URL(req.url).pathname });
     const started = Date.now();
     try {
-      assertSafeOrigin(req, options.allowedOrigins?.() ?? []);
+      if (!options.skipOriginCheck)
+        assertSafeOrigin(req, options.allowedOrigins?.() ?? [], {
+          multipart: options.multipart === true,
+        });
       const params = nextCtx?.params ? await nextCtx.params : {};
       const res = await handler({ req, requestId, log, params });
       res.headers.set('x-request-id', requestId);

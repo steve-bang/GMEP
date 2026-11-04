@@ -382,3 +382,68 @@ Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §22.5):
 4. Dấu "có điều chỉnh sau chốt" kèm chênh lệch; số chính thức không tự đổi (R88).
 5. Xuất CSV: chống chèn công thức, UTF-8 BOM, giới hạn mềm 20 lần/người/ngày (R89).
 6. Kiểm tra: ma trận vai trò và liên kết đi sâu (R84), nhãn "tổng của N chi nhánh" (R85), nhãn giờ cập nhật (R86).
+
+## Slice 1.11 (SYS-007 nhập dữ liệu từ Excel): câu hỏi mới
+
+Dev đã dựng công cụ nhập cho ba loại (khách và xe, danh mục phụ tùng, tồn đầu kỳ). Dev tiếp tục theo giá trị tạm dưới đây, không chờ trả lời.
+
+| # | Gửi | Câu hỏi | Giá trị tạm trong mã | Nơi sửa |
+| --- | --- | --- | --- | --- |
+| R93 | Khách/BA | Mẫu Excel thật của khách (BA-20) chưa có. Mẫu tạm do dev định (cột tiếng Việt, tải được ở màn hình nhập); hệ thống tự khớp cột theo tên và cho chọn lại cột. Cần mẫu thật của từng chi nhánh để chốt tên cột và bí danh. | Mẫu tạm 3 loại | `crm/application/importer.ts`, `inv/application/importer.ts` |
+| R94 | Khách | Giới hạn tệp: 5 MB và 2.000 dòng mỗi lô, ghi đồng bộ theo bước nhỏ (thiết kế G4-SYS-20 nêu 20 MB và 50.000 dòng, xử lý nền). Cần lô lớn hơn cho pilot không (cần hàng đợi nền, cùng R76/R86). | 5 MB, 2.000 dòng | `SysConfig.importMaxBytes/importMaxRows` |
+| R95 | KT/QL | Tồn đầu kỳ: dev dùng phiếu điều chỉnh đầu kỳ (ADJ, nguồn "tồn đầu kỳ") đã có của slice 1.4, KHÔNG phải phiếu nhập GRN. Phiếu được tạo ở trạng thái nháp, người nhập không tự ghi sổ được (cần quản lý khác duyệt, giữ nguyên tách nhiệm). Mỗi 100 dòng là một phiếu. Hoàn tác: hủy nháp, hoặc đảo phiếu đã ghi sổ bằng phiếu đảo (RULE-010). Phụ tùng tính số lẻ (quantityScale khác 1) chưa nhập được bằng tệp. Đơn giá vốn là VND nguyên mỗi đơn vị. Có chấp nhận quy trình này không. | Như mô tả | `inv/application/importer.ts` |
+| R96 | Chủ/QL | Hoàn tác khách và xe: xóa hẳn (không ẩn danh) chỉ khi bản ghi còn nguyên như lúc nhập (phiên bản 1, một chủ sở hữu, không phát sinh lệnh/khoản phải thu); bản ghi đã dùng hoặc sửa thì chặn cả lần hoàn tác và không xóa gì. Mã khách đã cấp số không được tái dùng (có khoảng trống). Hoàn tác danh mục phụ tùng bị chặn khi phụ tùng đã có lịch sử kho. | Như mô tả | `crm/application/importer.ts` |
+| R97 | Khách | Trùng khách: một dòng một khách; các dòng cùng "Mã khách cũ" gộp thành một khách nhiều xe. Không có mã cũ thì không gộp theo số điện thoại (chỉ cảnh báo số điện thoại đã có ở khách khác, vẫn tạo mới). Biển số và số khung trùng với dữ liệu có sẵn là lỗi chặn. Cần quy tắc gộp khách trùng khi chuyển dữ liệu thật không. | Cảnh báo, không gộp | `crm/application/importer.ts` |
+| R98 | Chủ | Quyền: `data-import` (xem, chạy/ghi, hoàn tác) cho CH, QL (chi nhánh mình), TK; mỗi loại còn cần quyền tạo của phân hệ (khách+xe, phụ tùng, phiếu kho). QĐ, KT, AD không có. Thiết kế G4-SYS-20 cho phép AD, KT nhập nhiều loại hơn; công nợ đầu kỳ, nhân sự, dịch vụ/bảng giá, lịch sử sửa chữa chưa làm. | Như mô tả | `sys/domain/permissions.ts` |
+| R99 | Chủ/Luật sư | Báo cáo lỗi theo dòng không chứa giá trị ô (để không lộ dữ liệu cá nhân); dữ liệu dòng chờ ghi được lưu tạm và xóa sau khi ghi hoặc hoàn tác. Cần lưu tệp gốc để đối chiếu sau này không, và lưu bao lâu (liên quan thời hạn lưu). | Không lưu tệp gốc | `sys/application/dataImport.ts` |
+| R100 | D | Ghi lô chạy theo bước nhỏ, mỗi bước là các giao dịch của phân hệ chủ; không có giao dịch xuyên suốt cả lô. Kiểm tra toàn tệp xảy ra trước khi ghi nên tệp lỗi không ghi gì; nếu giữa chừng xảy ra xung đột (người khác vừa tạo cùng biển số) lô dừng ở trạng thái "dừng giữa chừng", ghi tiếp được (khóa chống trùng theo lô) hoặc hoàn tác cả lô. Chỉ mục: +1 (lịch sử lô theo chi nhánh), tổng 192/200. | Như mô tả | `sys/application/dataImport.ts` |
+
+### Slice 1.11: trạng thái trả lời
+
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §23; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA). Dev tiếp tục theo giá trị tạm trừ các dòng "Dev must change".
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R93 | Đã trả lời: giữ mẫu tạm, bí danh là cấu hình; chờ mẫu thật của Khách (BA-20) | Dev default OK |
+| R94 | Đã trả lời: giữ 5 MB, 2.000 dòng; lô lớn chia tệp; hàng đợi nền để sau (R76/R86); chờ Khách | Dev default OK |
+| R95 | Đã trả lời: chấp nhận ADR nháp, người khác duyệt; thêm chặn nhập tồn đầu kỳ hai lần; chờ Kế toán | Dev must change (nhỏ) |
+| R96 | Đã trả lời: chấp nhận; nhật ký xóa không chứa dữ liệu cá nhân; chờ Chủ, Quản lý | Dev default OK (kiểm tra) |
+| R97 | Đã trả lời: không gộp theo số điện thoại; cảnh báo không lộ khách ngoài phạm vi; chờ Khách | Dev default OK (kiểm tra) |
+| R98 | Đã trả lời: giữ CH, QL, TK; AD, KT không nhập; sửa thiết kế G4-SYS-20/21; chờ Chủ dự án | Dev default OK |
+| R99 | Đã trả lời: không lưu tệp gốc; lưu mã băm và siêu dữ liệu; lô bỏ dở xóa sau 7 ngày; chờ Luật sư | Dev must change (nhỏ) |
+| R100 | Đã trả lời: chấp nhận; chặn lô mới cùng loại khi có lô dừng giữa chừng; chỉ mục 192/200 | Dev default OK (kiểm tra) |
+| R101 | RPT báo cáo tháng/đối chiếu/kho/kỹ thuật viên (FR-RPT-002, 004, 005, 006): (a) thủ kho có được xem và xuất CSV báo cáo kho không? (b) giờ thực làm của kỹ thuật viên lấy từ thời gian hạng mục đã đóng, hiệu suất = giờ chuẩn chia giờ thực làm, có đúng ý? (c) bộ lọc loại dịch vụ cần cho báo cáo tháng và đối chiếu không? [Đề xuất dev - chờ xác nhận: (a) báo cáo kho mở cho ai có quyền xem kho, nhưng CSV cần quyền xuất báo cáo (quản lý, kế toán, chủ), thủ kho chưa có; (b) đúng như mô tả, không tính lương hay hoa hồng; (c) chỉ lọc ở báo cáo kỹ thuật viên, thêm vào tổng hợp ngày ở giai đoạn sau] |
+| R102 | RPT: ngưỡng hiển thị và giới hạn (khoảng đối chiếu tối đa 93 ngày; báo cáo kỹ thuật viên đọc tối đa 300 lệnh hoàn tất, nhìn lui 30 ngày; kho đọc tối đa 3.000 dòng tồn); số lượng phụ tùng hiển thị theo đơn vị lưu của INV. [Đề xuất dev - chờ xác nhận: giữ các giới hạn này (cấu hình kỹ thuật), vượt thì báo "mức tối thiểu"; hiển thị theo đơn vị lưu cho đến khi BA chốt cách hiển thị số lượng chia lẻ] |
+| R103 | RPT: lệnh đã giao có hóa đơn nhưng ngày chốt chưa có (mục "lệnh chưa hóa đơn" trong đối chiếu là số cuối kỳ, không cộng dồn các ngày); đối chiếu bốn bên không có mục "kho với lệnh" theo số lượng, chỉ kiểm tra phiếu xuất có chứng từ gốc (RULE-007). [Đề xuất dev - chờ xác nhận: giữ cách hiểu này cho giai đoạn 1; đối chiếu số lượng phụ tùng xuất so với dòng phụ tùng đã duyệt bổ sung ở giai đoạn 2] |
+| R104 | REC: ảnh trên hồ sơ tiếp nhận và lệnh (FR-REC-003, 014): (a) giới hạn 5 MB mỗi ảnh, 30 ảnh mỗi hồ sơ hoặc lệnh, chỉ JPEG, PNG, WebP; (b) ảnh không xóa được, đi theo thời hạn lưu của hồ sơ; (c) đọc ảnh cần quyền xem lệnh/hồ sơ, thợ chỉ gửi ảnh lên lệnh có hạng mục giao cho mình và chưa đọc lại được; (d) ảnh có thể chứa biển số hoặc người, chưa làm mờ, chưa gỡ EXIF. [Đề xuất dev - chờ xác nhận: Khách, luật sư: giữ như (a) đến (c); hạn lưu và gỡ EXIF/làm mờ chờ quyết định] |
+| R105 | ACC: hoàn tiền cho khách (FR-ACC-016, Should): (a) chỉ hoàn phần tiền thu vượt công nợ của lệnh còn hiệu lực, hoặc toàn bộ tiền thu ròng của lệnh đã hủy; không hoàn từ cọc (đã có hoàn cọc); (b) luôn cần quản lý duyệt, trên 10.000.000 VND cần chủ garage, người đề xuất không tự duyệt; (c) lệnh đã có hóa đơn thì chặn, phải điều chỉnh hóa đơn trước; (d) phiếu chi hoàn đảo được như phiếu chi khác; (e) hiện chưa có luồng nào làm tổng lệnh nhỏ đi sau khi thu nên phần thu vượt hiếm gặp; (f) chưa có màn hình, chưa có hạn mức hoàn của thu ngân. [Đề xuất dev - chờ xác nhận: Kế toán khách, Chủ dự án: hạn mức 10.000.000 là giá trị tạm] |
+| R106 | ACC: mở lại ngày đã chốt (FR-ACC-005, R62): (a) chỉ mở lại ngày làm việc hiện tại, ngày cũ sửa bằng phiếu đảo; (b) cần chủ garage duyệt (cấp 2) kèm lý do, duyệt dùng một lần; (c) bản ghi chốt giữ lại với trạng thái "đã mở lại", chốt lại thì thay thế, số liệu lần chốt đầu còn trong nhật ký; (d) chưa hỏi lại mật khẩu (step-up) và chưa thông báo cho chủ ngoài yêu cầu duyệt; (e) khóa kỳ kế toán tháng chưa làm. [Đề xuất dev - chờ xác nhận: Chủ dự án, Kế toán khách] |
+| R107 | REC: báo giá bổ sung (RULE-005/006) đã có đủ ở slice 1.6 (đề xuất của thợ, báo giá bổ sung, duyệt, hạng mục vào cùng lệnh, ACC tính vào phải thu, R47); lần này chỉ bổ sung ảnh gắn vào đề xuất. Không có câu hỏi mới ngoài R104. | |
+
+Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §23.5):
+
+1. `inv/application/importer.ts`: chặn nhập tồn đầu kỳ lần hai theo (kho, phụ tùng) khi đã có phiếu đầu kỳ chưa đảo; lỗi theo dòng; test (R95).
+2. `sys/application/dataImport.ts`: lưu mã băm và siêu dữ liệu tệp; hạn xóa lô bỏ dở (7 ngày, cấu hình); test xóa dữ liệu dòng (R99).
+3. Kiểm tra: nhật ký xóa không chứa dữ liệu cá nhân (R96), cảnh báo trùng số điện thoại trong phạm vi (R97), chặn lô mới khi có lô dừng giữa chừng cùng loại (R100).
+
+### R101 đến R107: trạng thái trả lời
+
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §24; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA). Dev tiếp tục theo giá trị tạm trừ các dòng "Dev must change".
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R101 | Đã trả lời: chấp nhận; thủ kho xem, chưa xuất CSV; CSV có nhật ký và chống chèn công thức; chờ Chủ dự án | Dev default OK (kiểm tra) |
+| R102 | Đã trả lời: giữ giới hạn; vượt thì ghi "mức tối thiểu" ở màn hình và CSV | Dev default OK (kiểm tra) |
+| R103 | Đã trả lời: giữ cho giai đoạn 1; nhãn "tại thời điểm"; đối chiếu số lượng để phase 2; chờ Kế toán | Dev default OK |
+| R104 | Đã trả lời: chấp nhận (a) đến (c); thêm gỡ EXIF, kiểm tra loại tệp theo nội dung, ẩn ảnh có lý do; chờ Luật sư | Dev must change (nhỏ) |
+| R105 | Đã trả lời: chấp nhận; hoàn tối đa là phần thu vượt, trần chung với hoàn cọc; tình huống hợp lệ cần REC hủy hạng mục/điều chỉnh giá (chưa có, câu 56); hạn mức 10.000.000 tạm; chờ Kế toán, Chủ dự án | Dev default OK + test |
+| R106 | Đã trả lời: chấp nhận ngày hiện tại, Chủ duyệt một lần; thêm hỏi lại mật khẩu, hạn dùng duyệt, báo ngoại lệ; khóa kỳ tháng chưa làm; chờ Chủ dự án, Kế toán | Dev must change (nhỏ) |
+| R107 | Đã trả lời: không có câu hỏi mới; ảnh gắn đề xuất theo R104 | Dev default OK |
+| R108 | ACC/RPT/SYS (04/11/2026, dev): (a) ngưỡng báo mở lại ngày lặp lại: quá 3 lần/tháng/chi nhánh thì gửi thông báo ngoại lệ cho Chủ và Kế toán (`maxReopensPerMonth` trong cấu hình `approval-limit` của `day_reopen`, mặc định 3); (b) báo cáo tháng/đối chiếu lọc theo loại dịch vụ chỉ hiện số liệu gắn với lệnh (lệnh hoàn thành, doanh thu, thu/công nợ của lệnh, lệnh chưa hóa đơn); thu theo phương thức, quỹ, kho không chia theo loại; ngày có rollup cũ (chưa có phân tách) không tính, ghi rõ cần dựng lại; (c) xuất Excel (.xlsx) cùng quyền, phạm vi, nhật ký và thoát công thức như CSV. Chờ Chủ dự án, Kế toán | Dev default OK |
+
+Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §24.5):
+
+1. REC ảnh (R104): gỡ EXIF khi nhận ảnh; kiểm tra loại tệp theo nội dung; trạng thái "ẩn" kèm lý do và nhật ký; test.
+2. `acc/application/refunds.ts` (R105): trần chung hoàn cọc và hoàn tiền; hoàn tiền mặt cần ca mở; hoàn về phương thức khác cần Chủ; hoàn tối đa bằng 0 khi tổng không giảm; chưa dựng màn hình.
+3. ACC mở lại ngày (R106): hỏi lại mật khẩu khi Chủ duyệt; hạn dùng lượt duyệt; báo ngoại lệ và thông báo trong ứng dụng; chặn khi ngày sau đã chốt; test.
+4. RPT (R101, R102): kiểm tra nhật ký xuất CSV, thoát ký tự công thức, nhãn "mức tối thiểu" và "tại thời điểm".

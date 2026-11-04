@@ -78,14 +78,14 @@ export function ExportButton(props: {
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  async function go() {
+  async function go(format: 'csv' | 'xlsx') {
     setBusy(true);
     setError(null);
     try {
       const res = await fetch('/api/v1/rpt/daily/export', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ date: props.date, branchId: props.branchId }),
+        body: JSON.stringify({ date: props.date, branchId: props.branchId, format }),
       });
       if (!res.ok) {
         const p = (await res.json().catch(() => null)) as { detail?: string } | null;
@@ -94,7 +94,7 @@ export function ExportButton(props: {
       }
       const name =
         /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ??
-        'bao-cao.csv';
+        `bao-cao.${format}`;
       const url = URL.createObjectURL(await res.blob());
       const a = document.createElement('a');
       a.href = url;
@@ -113,11 +113,101 @@ export function ExportButton(props: {
         type="button"
         variant="secondary"
         loading={busy}
-        onClick={go}
+        onClick={() => void go('csv')}
         data-testid="export-csv"
       >
         {props.labels.export}
       </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        loading={busy}
+        onClick={() => void go('xlsx')}
+        data-testid="export-xlsx-daily"
+      >
+        {props.labels.exportXlsx}
+      </Button>
+      {error ? (
+        <div className="alert alert--danger" role="alert">
+          <div className="alert__body">{error}</div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** CSV (audited on the server, same scope and redaction as the screen) and print of a phase 1 report. */
+export function ReportTools(props: {
+  body: Record<string, string>;
+  labels: Record<string, string>;
+  mayExport: boolean;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function go(format: 'csv' | 'xlsx') {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/v1/rpt/export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...props.body, format }),
+      });
+      if (!res.ok) {
+        const p = (await res.json().catch(() => null)) as { detail?: string } | null;
+        setError(p?.detail ?? props.labels.exportFailed!);
+        return;
+      }
+      const name =
+        /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ??
+        `bao-cao.${format}`;
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError(props.labels.exportFailed!);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="stack no-print">
+      <div className="row" style={{ gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+        {props.mayExport ? (
+          <Button
+            type="button"
+            variant="secondary"
+            loading={busy}
+            onClick={() => void go('csv')}
+            data-testid="export-csv"
+          >
+            {props.labels.export}
+          </Button>
+        ) : null}
+        {props.mayExport ? (
+          <Button
+            type="button"
+            variant="secondary"
+            loading={busy}
+            onClick={() => void go('xlsx')}
+            data-testid="export-xlsx"
+          >
+            {props.labels.exportXlsx}
+          </Button>
+        ) : null}
+        <Button
+          type="button"
+          variant="secondary"
+          icon="printer"
+          onClick={() => window.print()}
+          data-testid="print-report"
+        >
+          {props.labels.print}
+        </Button>
+      </div>
       {error ? (
         <div className="alert alert--danger" role="alert">
           <div className="alert__body">{error}</div>

@@ -93,6 +93,8 @@ export interface CallOpts {
   as?: string; // demo user key, e.g. 'u_ql_q7'
   cookie?: string;
   body?: unknown;
+  /** multipart upload (the Request sets its own content-type with the boundary) */
+  form?: FormData;
   headers?: Record<string, string>;
   key?: string; // Idempotency-Key
   origin?: string | null;
@@ -209,7 +211,7 @@ export async function createHarness(
       if (opts.key) headers['idempotency-key'] = opts.key;
       if (unsafe) {
         if (opts.origin !== null) headers.origin = opts.origin ?? ORIGIN;
-        headers['content-type'] ??= 'application/json';
+        if (!opts.form) headers['content-type'] ??= 'application/json';
       }
       const { handler, params } = route(method, path);
       const send = async () =>
@@ -217,7 +219,11 @@ export async function createHarness(
           new Request(new URL(path, ORIGIN), {
             method,
             headers,
-            ...(opts.body !== undefined ? { body: JSON.stringify(opts.body) } : {}),
+            ...(opts.form
+              ? { body: opts.form }
+              : opts.body !== undefined
+                ? { body: JSON.stringify(opts.body) }
+                : {}),
           }),
           { params: Promise.resolve(params) },
         );

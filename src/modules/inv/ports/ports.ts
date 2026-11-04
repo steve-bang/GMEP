@@ -44,6 +44,11 @@ export interface PartRepository {
   listByCompat(scope: Scope, compatKey: string, limit: number): Promise<Part[]>;
   /** stages the part and its uniqueness slots; AlreadyExistsError when the code key or barcode is taken */
   create(tx: Tx, p: Part): void;
+  /** FR-SYS-007 undo of an import ONLY (a part with no stock history): removes the part, its code and barcode slots and compat links */
+  remove(
+    tx: Tx,
+    p: Pick<Part, 'id' | 'companyId' | 'code' | 'codeKey' | 'barcode' | 'compatKeys'>,
+  ): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** moves the barcode slot; AlreadyExistsError when the new barcode is taken */
   rebarcode(
@@ -99,6 +104,13 @@ export interface StockDocumentRepository {
   getInTx(tx: Tx, scope: Scope, id: string): Promise<StockDocument | null>;
   create(tx: Tx, d: StockDocument): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+  /** oldest first, one warehouse and status, no branch Scope: server-side guards only (R95 opening-stock check) */
+  listByWarehouseStatus(
+    companyId: string,
+    warehouseId: string,
+    status: StockDocStatus,
+    limit: number,
+  ): Promise<StockDocument[]>;
   /** true when a draft document refers to the warehouse (guards deactivation) */
   hasOpen(companyId: string, warehouseId: string): Promise<boolean>;
 }

@@ -22,6 +22,10 @@ export const APPROVAL_KINDS = [
   'payment_reversal',
   'expense',
   'deposit_refund',
+  // FR-ACC-016: money received for an order goes back to the customer; always decided by a manager (RULE-011)
+  'customer_refund',
+  // FR-ACC-005: reopening a closed day is decided by the owner only (R62)
+  'day_reopen',
   'debt_handover',
   'cash_variance',
   // slice 1.8 (FR-EIN-007): correcting an issued invoice is always decided by someone other than the requester
@@ -45,6 +49,16 @@ export interface ApprovalLimits {
    * the voucher that would pass it needs an approval. Absent = no running cap. Only meaningful for `expense`.
    */
   shiftCapVnd?: number;
+  /**
+   * R106: hours an APPROVED request stays usable; later it must be asked for again. Absent = no expiry. Only used by
+   * `day_reopen` today (2 hours), configurable.
+   */
+  validHours?: number;
+  /**
+   * R106: a branch that reopens its day more than this many times in a calendar month raises an exception notice to
+   * the owner and the accountant (default 3 [Đề xuất dev - chờ xác nhận]). Only `day_reopen`.
+   */
+  maxReopensPerMonth?: number;
 }
 
 export interface ApprovalKindDef {
@@ -67,6 +81,15 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
   deposit_refund: {
     alwaysNeeded: true,
     defaults: { selfMaxVnd: 0, level1MaxVnd: 50_000_000, dueHours: 24 },
+  },
+  customer_refund: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 10_000_000, dueHours: 24, validHours: 24 },
+  },
+  // no value: the request is raised at level 2 (owner) whatever the numbers
+  day_reopen: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 0, dueHours: 24, validHours: 2 },
   },
   debt_handover: {
     alwaysNeeded: true,
@@ -91,6 +114,17 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
     defaults: { selfMaxVnd: 0, level1MaxVnd: 500_000, dueHours: 24 },
   },
 };
+
+/** R106: the owner types the password again when approving these (not MFA: MFA is out of scope) */
+export const REAUTH_ON_APPROVE: readonly ApprovalKind[] = ['day_reopen'];
+
+/** R106: an approved request older than `validHours` can no longer be used */
+export const isApprovalExpired = (
+  decidedAt: Date,
+  now: Date,
+  validHours: number | undefined,
+): boolean =>
+  validHours !== undefined && now.getTime() > decidedAt.getTime() + validHours * 3_600_000;
 
 /** 0 = no approval needed; 1 or 2 = the level that must decide. */
 export function requiredLevel(

@@ -10,6 +10,7 @@ import { getContainer } from '@/composition/container';
 import { ErrorFor } from '@/ui/components/PageParts';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { formatKm } from '../../format';
+import { PhotoPanel } from '../../PhotoPanel';
 import { RecPage } from '../../RecPage';
 import { IntakeWizard } from './IntakeWizard';
 import { StartQuote } from './StartQuote';
@@ -105,6 +106,37 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
     );
   const { intake, lastKm, serviceTypes } = res.data;
   const canEdit = hasPermission(actor, 'intake:update');
+  const photoLabels = Object.fromEntries(
+    [
+      'title',
+      'empty',
+      'alt',
+      'file',
+      'hint',
+      'caption',
+      'upload',
+      'invalid',
+      'unexpected',
+      'offline',
+      'hide',
+      'hideTitle',
+      'hideReason',
+      'hideConfirm',
+      'hideCancel',
+      'hiddenBadge',
+      'hideFailed',
+    ].map((k) => [k, t(`rec.photos.${k}`)]),
+  );
+  const photos = (
+    <PhotoPanel
+      parent="intakes"
+      parentId={intake.id}
+      photos={intake.photos}
+      canHide={hasPermission(actor, 'rec-photo:update')}
+      canAdd={canEdit && intake.status !== 'cancelled'}
+      labels={photoLabels}
+    />
+  );
   const tone = { draft: 'neutral', completed: 'success', cancelled: 'danger' } as const;
   const head = {
     title: `${t('rec.intakes.record')} ${intake.number}`,
@@ -134,6 +166,7 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
           serviceTypes={serviceTypes.filter((x) => x.active || x.code === intake.serviceType)}
           advisorName={actor.displayName}
         />
+        {photos}
       </RecPage>
     );
   }
@@ -206,6 +239,7 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
           />
         ) : null}
       </div>
+      {photos}
     </RecPage>
   );
 }

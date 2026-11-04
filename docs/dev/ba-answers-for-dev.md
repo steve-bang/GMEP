@@ -2538,3 +2538,274 @@ Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đ�
 | 7 | R84, R85, R86: test ma trận vai trò và liên kết đi sâu; nhãn "tổng của N chi nhánh"; nhãn giờ cập nhật | `permissions.ts`, `application/read.ts` | Kiểm tra |
 
 Không có câu trả lời nào mâu thuẫn với R62 (§20), R68, R73, R75, R78 đã chốt. Mâu thuẫn tài liệu đã nêu: tiêu chí FR-RPT-003 (R81) và các FR-RPT Must chưa làm so với phạm vi phase 1 (R90); chỉ sửa khi áp dụng §22.3.
+
+## 23. Slice 1.11: nhập dữ liệu từ Excel (R93–R100)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định ngay). Trả lời mục "Slice 1.11 (SYS-007 nhập dữ liệu từ Excel)" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-SYS-007, BR-SYS-05, UAT-12, FR-CRM-002/003, RULE-007, RULE-009, RULE-010, NFR-ISO-01, NFR-SEC-03, ADR 0001 (nhập theo giai đoạn); §7, §8.1, §16.2.10 (I10), §20 R59, R68. Không sửa FRD/BRD/Journey; việc cần sửa ở §23.3.
+
+### 23.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R93 | Giữ mẫu tạm; chốt tên cột và bí danh khi có mẫu thật; mẫu thật không chặn pilot kỹ thuật | OK | Khách (BA-20) |
+| R94 | Giữ 5 MB, 2.000 dòng cho pilot một chi nhánh; lô lớn chia nhiều tệp; hàng đợi nền để sau (cùng R76/R86) | OK | Khách |
+| R95 | Chấp nhận ADR nháp, người khác duyệt, 100 dòng mỗi phiếu, hoàn tác bằng phiếu đảo; thêm chặn nhập tồn đầu kỳ hai lần | **Must change** (nhỏ) | Kế toán, Quản lý |
+| R96 | Chấp nhận quy tắc hoàn tác (xóa hẳn chỉ khi còn nguyên); nhật ký xóa không chứa giá trị cá nhân | OK (kiểm tra) | Chủ, Quản lý |
+| R97 | Giữ: gộp theo "Mã khách cũ", không gộp theo số điện thoại; cảnh báo trùng không lộ khách ngoài phạm vi | OK (kiểm tra) | Khách |
+| R98 | Giữ CH, QL, TK; QĐ, KT, AD không có; thiết kế G4-SYS-20/21 phải sửa theo | OK (sửa thiết kế) | Chủ dự án |
+| R99 | Không lưu tệp gốc; chỉ lưu tên tệp, kích thước, mã băm; dữ liệu dòng chờ ghi có hạn xóa | **Must change** (nhỏ) | Luật sư khách |
+| R100 | Chấp nhận ghi theo bước, "dừng giữa chừng", ghi tiếp hoặc hoàn tác; chỉ mục 192/200 | OK | Dev |
+
+### 23.2 Trả lời từng câu
+
+##### R93. Mẫu Excel thật của khách
+
+**Khuyến nghị**: giữ mẫu tạm của dev, chốt khi có mẫu thật. `[Cần xác nhận: Khách – mẫu ẩn danh từng chi nhánh, BA-20]`
+
+- Tên cột và bí danh nằm trong cấu hình có phiên bản, không nằm trong mã logic kiểm tra; thêm bí danh không cần phát hành lại.
+- Mẫu thật chỉ đổi bảng ánh xạ cột (FRD §13 bước 2). Khách gửi mẫu đã ẩn danh (không gửi dữ liệu cá nhân thật cho BA hay dev).
+
+**Dev default OK.**
+
+##### R94. Giới hạn tệp và dòng
+
+**Khuyến nghị**: giữ 5 MB và 2.000 dòng mỗi lô cho pilot. `[Cần xác nhận: Khách – số khách, xe, phụ tùng cần chuyển]`
+
+- Lô lớn hơn chia thành nhiều tệp; mỗi lô vẫn kiểm tra toàn tệp trước khi ghi. Con số 20 MB và 50.000 dòng của G4-SYS-20 là mục tiêu về sau, cần hàng đợi nền và tài khoản dịch vụ (cùng R76, R86); chưa làm ở pilot.
+- Hai giới hạn giữ là cấu hình (`importMaxBytes`, `importMaxRows`); màn hình báo rõ khi vượt, nêu số dòng đã nhận, không cắt âm thầm.
+
+**Dev default OK.**
+
+##### R95. Tồn đầu kỳ qua phiếu điều chỉnh
+
+**Khuyến nghị**: chấp nhận quy trình của dev. `[Cần xác nhận: Kế toán khách – phương pháp giá vốn (I5); Quản lý chi nhánh]`
+
+- Phiếu ADR nguồn "tồn đầu kỳ" ở trạng thái nháp, người khác duyệt mới ghi sổ (giữ tách nhiệm R59, I10); mỗi 100 dòng một phiếu; hoàn tác = hủy nháp hoặc phiếu đảo (RULE-009, RULE-010). Giữ.
+- Đơn giá vốn tạm là giá trị khởi tạo; phương pháp giá vốn còn mở, mọi giá trị nhập phải sửa được bằng chứng từ điều chỉnh có dấu vết, không ghi đè.
+- Số lẻ (`quantityScale` khác 1): chưa làm, chấp nhận cho pilot; tệp có phụ tùng loại này bị báo lỗi dòng rõ ràng (không làm tròn).
+- Thêm: chặn nhập tồn đầu kỳ lần hai cho cùng phụ tùng và cùng kho khi đã có phiếu đầu kỳ chưa đảo (tránh cộng đôi tồn kho); muốn nhập lại phải đảo phiếu cũ trước.
+
+**Dev must change** (nhỏ): kiểm tra trùng tồn đầu kỳ theo (kho, phụ tùng) ở bước kiểm tra toàn tệp, báo lỗi theo dòng; có test.
+
+##### R96. Hoàn tác khách, xe, danh mục phụ tùng
+
+**Khuyến nghị**: chấp nhận. `[Cần xác nhận: Chủ, Quản lý]`
+
+- Xóa hẳn chỉ áp dụng cho bản ghi do chính lô tạo và còn nguyên (phiên bản 1, một chủ sở hữu, chưa phát sinh lệnh hoặc công nợ); đây không phải chứng từ tài chính đã ghi sổ nên không vi phạm RULE-010. Có một bản ghi đã dùng thì chặn cả lô, không xóa một phần (FR-SYS-007).
+- Mã khách đã cấp số không tái dùng (khoảng trống là chấp nhận được).
+- Nhật ký hoàn tác ghi lô, người làm, số bản ghi, mã nội bộ; không ghi họ tên, số điện thoại, địa chỉ của bản ghi bị xóa (ranh giới với §8.3: nhật ký bất biến không được giữ dữ liệu cá nhân).
+
+**Dev default OK.** Kiểm tra: nội dung nhật ký xóa; hoàn tác danh mục phụ tùng chặn khi đã có lịch sử kho (RULE-009).
+
+##### R97. Trùng khách khi chuyển dữ liệu
+
+**Khuyến nghị**: giữ, không tự gộp theo số điện thoại. `[Cần xác nhận: Khách – quy tắc gộp khách trùng cho dữ liệu thật]`
+
+- Một số điện thoại có thể là nhiều khách (cùng gia đình, công ty); gộp tự động dễ trộn nhầm công nợ và lịch sử. Gộp thủ công dùng chức năng gộp khách của CRM (FR-CRM), không nằm trong công cụ nhập.
+- Biển số, số khung trùng là lỗi chặn theo dòng (C11, C22).
+- Cảnh báo trùng số điện thoại chỉ so trong phạm vi chi nhánh người nhập; không nêu tên hay chi nhánh của khách ngoài phạm vi (NFR-ISO-01, C9). Nếu cần so toàn chuỗi, dùng tra cứu khớp chính xác đã có (C9), không mở rộng ở công cụ nhập.
+
+**Dev default OK.** Kiểm tra: cảnh báo không lộ khách ngoài phạm vi; có test đa chi nhánh.
+
+##### R98. Quyền nhập
+
+**Khuyến nghị**: giữ CH, QL (chi nhánh mình), TK. `[Cần xác nhận: Chủ dự án]`
+
+- Mỗi lô thuộc đúng một chi nhánh; QL chỉ nhập vào chi nhánh mình, CH chọn chi nhánh trong phạm vi. Quyền nhập chỉ có hiệu lực khi người nhập còn quyền tạo của phân hệ đích (R98 của dev), để công cụ nhập không thành đường vòng quyền.
+- AD (quản trị hệ thống) không nhập: AD không nên chạm dữ liệu khách; KT chưa có loại nhập nào thuộc mình (công nợ đầu kỳ chưa làm). Khi có công nợ đầu kỳ, KT được thêm cho loại đó, cần Kế toán xác nhận và duyệt người khác.
+- Công nợ đầu kỳ, nhân sự, dịch vụ/bảng giá, lịch sử sửa chữa: chưa làm; giữ danh sách chờ theo FRD §13 (số năm lịch sử cần chuyển là câu hỏi mở của Khách, không giả định).
+
+**Dev default OK.** Cần sửa thiết kế G4-SYS-20/21 (AD đang là người xem, CH là người hoàn tác) cho khớp quyền thực tế (§23.3).
+
+##### R99. Báo cáo lỗi, tệp gốc, dữ liệu chờ ghi
+
+**Khuyến nghị**: không lưu tệp gốc. `[Cần xác nhận: Luật sư khách – thời hạn lưu]`
+
+- Báo cáo lỗi theo dòng không chứa giá trị ô: giữ (PDPL, NFR-SEC-03).
+- Không lưu tệp gốc ở pilot (tệp chứa dữ liệu cá nhân hàng loạt; lưu thêm là tăng rủi ro). Đối chiếu sau này dựa trên: tên tệp, kích thước, mã băm, số dòng, người nhập, thời điểm, chi nhánh. Nếu Luật sư/Kế toán yêu cầu lưu, thêm thành dòng cấu hình ở §8.1 (loại "tệp nhập gốc", thời hạn do Luật sư nhập); khi chưa có giá trị thì vẫn không lưu.
+- Dữ liệu dòng chờ ghi: xóa ngay sau khi ghi xong, hoàn tác hoặc hủy; lô bỏ dở bị xóa tự động sau thời hạn cấu hình (đề xuất 7 ngày) và ghi nhật ký. Không đặt số năm cho dữ liệu chịu ràng buộc luật (§8.1).
+
+**Dev must change** (nhỏ): lưu mã băm và siêu dữ liệu tệp trong lịch sử lô; hạn xóa lô bỏ dở thành cấu hình; test dữ liệu dòng bị xóa sau ghi, hoàn tác, bỏ dở.
+
+##### R100. Ghi theo bước, dừng giữa chừng, chỉ mục
+
+**Khuyến nghị**: chấp nhận (khớp ADR 0001, nhập theo giai đoạn). `[Đề xuất BA; quyết định kỹ thuật thuộc dev]`
+
+- Kiểm tra toàn tệp trước khi ghi; tệp lỗi không ghi gì (FR-SYS-007). Xung đột giữa chừng thì lô sang "dừng giữa chừng", không được báo "hoàn tất". Ghi tiếp kiểm tra lại các dòng còn lại tại thời điểm ghi và không tạo bản sao nhờ khóa chống trùng theo lô.
+- Trạng thái "dừng giữa chừng" hiện nổi bật ở lịch sử lô và báo quản lý; một chi nhánh có lô dừng giữa chừng cùng loại thì chặn lô mới cùng loại cho tới khi ghi tiếp hoặc hoàn tác (tránh hai lô chồng nhau).
+- Mỗi bước ghi nhật ký cùng giao dịch của phân hệ chủ (đúng quy ước repo). Chỉ mục +1 (lịch sử lô theo chi nhánh), tổng 192/200: chấp nhận, vẫn dưới ngưỡng 195 của R68/R92.
+
+**Dev default OK.** Kiểm tra: chặn lô mới khi có lô dừng giữa chừng cùng loại cùng chi nhánh (thêm nếu chưa có).
+
+### 23.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-SYS-007 | Tiêu chí: nêu ba loại pilot; "không ghi một phần" nghĩa là kiểm tra toàn tệp trước ghi và lô dừng giữa chừng phải ghi tiếp/hoàn tác được; hoàn tác chặn khi dữ liệu đã dùng | R95, R96, R100 |
+| FRD §13 và §12 (di chuyển dữ liệu) | Giới hạn pilot 5 MB, 2.000 dòng; không lưu tệp gốc; số năm lịch sử chưa chốt | R94, R99 |
+| screen-inventory G4-SYS-20, G4-SYS-21 và `ui-ux/06-reports-system.md` §3.4 | Quyền: CH, QL, TK (không AD, KT); lô thuộc một chi nhánh; trạng thái "dừng giữa chừng"; giới hạn 5 MB/2.000 dòng; báo lỗi không hiện giá trị ô | R94, R98, R99, R100 |
+| BRD BR-SYS-05 | Ghi nhận: tồn đầu kỳ đi qua phiếu điều chỉnh cần người khác duyệt | R95 |
+| UAT-12 | Mở rộng: tệp lỗi không ghi gì; trùng biển số; trùng tồn đầu kỳ bị chặn; dừng giữa chừng rồi ghi tiếp không nhân đôi; hoàn tác bị chặn khi dữ liệu đã dùng; người ngoài chi nhánh không thấy lô; báo lỗi không chứa giá trị ô | R95–R100 |
+
+### 23.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4 đến §22.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 49 | Khách | Mẫu Excel thật (ẩn danh) từng chi nhánh; số khách, xe, phụ tùng cần chuyển; số năm lịch sử sửa chữa | Chia lô 2.000 dòng; lịch sử để sau | Lô lớn: cần hàng đợi nền (R76/R86) |
+| 50 | Kế toán khách | Chấp nhận tồn đầu kỳ qua phiếu điều chỉnh nháp có người duyệt; đơn giá vốn khởi tạo | Như R95 | Dùng phiếu nhập: đổi nguồn chứng từ và đối chiếu mua hàng |
+| 51 | Luật sư khách | Có cần lưu tệp nhập gốc không, bao lâu; hạn xóa lô bỏ dở | Không lưu; 7 ngày | Lưu tệp: thêm lưu trữ, thời hạn, quyền tải, nhật ký truy cập |
+| 52 | Chủ dự án | Quyền nhập CH, QL, TK; AD và KT không nhập | Như R98 | Cho AD nhập: AD thấy dữ liệu cá nhân hàng loạt, cần che và nhật ký |
+
+### 23.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R95: chặn nhập tồn đầu kỳ lần hai theo (kho, phụ tùng) khi đã có phiếu đầu kỳ chưa đảo; lỗi theo dòng; test | `inv/application/importer.ts` | Bắt buộc, có test |
+| 2 | R99: lưu mã băm và siêu dữ liệu tệp; hạn xóa lô bỏ dở (7 ngày, cấu hình); test xóa dữ liệu dòng | `sys/application/dataImport.ts` | Nhỏ, có test |
+| 3 | R96, R97, R100: kiểm tra nhật ký xóa không chứa dữ liệu cá nhân; cảnh báo trùng số điện thoại không lộ khách ngoài phạm vi; chặn lô mới khi có lô dừng giữa chừng cùng loại | `crm/application/importer.ts`, `dataImport.ts` | Kiểm tra, sửa nếu thiếu |
+
+Không có câu trả lời nào mâu thuẫn với I5, I10 (§16), R59, R62 (§20), R68, R92 đã chốt. Mâu thuẫn tài liệu: G4-SYS-20/21 cho AD, KT nhập nhiều loại so với quyền thực tế R98; chỉ sửa khi áp dụng §23.3.
+
+## 24. Hoàn thiện RPT, ảnh REC, hoàn tiền khách và mở lại ngày ACC (R101–R107)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định ngay). Trả lời các dòng R101 đến R107 của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-RPT-002, 004, 005, 006; FR-REC-002, 014, 034; FR-ACC-002, 005, 016, 018; BR-ACC-05, BR-ACC-11; RULE-007, RULE-009, RULE-010, RULE-011; NFR-ISO-01, NFR-SEC-03; PDPL; §8.1, §9, §20 (R57, R58, R59, R62, R66), §22 (R81–R92), ba-answers-05 câu 4. Không sửa FRD/BRD/Journey; việc cần sửa ở §24.3.
+
+### 24.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R101 | Chấp nhận (a) (b) (c); CSV có nhật ký và chống chèn công thức | OK (kiểm tra) | Chủ dự án |
+| R102 | Chấp nhận giới hạn; vượt thì báo "mức tối thiểu" rõ ràng, không cắt âm thầm | OK (kiểm tra) | Dev |
+| R103 | Chấp nhận cho giai đoạn 1; ghi rõ nhãn "số cuối kỳ"; FR-RPT-004 chỉ đạt mức chứng từ | OK | Kế toán khách |
+| R104 | Chấp nhận (a) đến (c); thêm gỡ EXIF vị trí, kiểm tra loại tệp theo nội dung, đường ẩn ảnh có lý do | **Must change** (nhỏ) | Luật sư khách |
+| R105 | Chấp nhận (a) đến (f); chỉ hoàn phần thu vượt; hạn mức 10.000.000 tạm; xác định tình huống hợp lệ và việc REC còn thiếu | OK + **Must change** (test) | Kế toán khách, Chủ dự án |
+| R106 | Chấp nhận (a) (b) (c) (e); thêm hỏi lại mật khẩu của Chủ khi duyệt, hạn dùng của duyệt, báo ngoại lệ | **Must change** (nhỏ) | Chủ dự án, Kế toán khách |
+| R107 | Xác nhận không có câu hỏi mới; ghi nhận ảnh gắn đề xuất theo R104 | OK | Không |
+
+### 24.2 Trả lời từng câu
+
+##### R101. Báo cáo tháng, đối chiếu, kho, kỹ thuật viên
+
+**Khuyến nghị**: chấp nhận đề xuất dev. `[Cần xác nhận: Chủ dự án – (a); Khách – (b)]`
+
+- (a) Báo cáo kho xem được bởi ai có quyền xem kho trong phạm vi chi nhánh (NFR-ISO-01). CSV cần quyền xuất báo cáo (quản lý, kế toán, chủ), thủ kho chưa có ở pilot, đúng nguyên tắc xuất danh sách ở §9. Cột giá vốn theo quyền xem giá vốn đã có của INV, không mở thêm cho thủ kho qua báo cáo. Mở CSV cho thủ kho là việc cấu hình quyền sau khi Chủ dự án đồng ý, không đổi mã logic.
+- (b) Đúng: giờ thực làm lấy từ thời gian hạng mục đã đóng (R49/R53 hai thợ cộng theo từng người); hiệu suất = giờ chuẩn chia giờ thực làm. Chỉ là số liệu giờ, không tính lương hay hoa hồng (CLAUDE.md, Labor pay). FR-RPT-006 có tiêu chí "khớp với bảng công của kỳ": bảng công thuộc HRM (phase 2), nên ở pilot chưa kiểm được tiêu chí này; ghi vào §24.3, không coi là lỗi.
+- (c) Bộ lọc loại dịch vụ chỉ ở báo cáo kỹ thuật viên; thêm vào tổng hợp ngày ở giai đoạn sau. Không đổi số liệu đã đóng.
+- Mỗi lần xuất CSV có nhật ký truy cập (ai, báo cáo nào, bộ lọc, số dòng); ô văn bản bắt đầu bằng `=`, `+`, `-`, `@` được thoát để không thành công thức khi mở bằng Excel.
+
+**Dev default OK.** Kiểm tra: quyền xem/xuất theo vai trò; nhật ký xuất; thoát ký tự công thức; không lộ chi nhánh ngoài phạm vi.
+
+##### R102. Ngưỡng hiển thị và giới hạn
+
+**Khuyến nghị**: giữ các giới hạn, là cấu hình kỹ thuật. `[Đề xuất BA – dev quyết định kỹ thuật]`
+
+- 93 ngày cho đối chiếu, 300 lệnh nhìn lui 30 ngày cho kỹ thuật viên, 3.000 dòng tồn cho kho: giữ. Khi vượt, màn hình và CSV đều ghi "mức tối thiểu, dữ liệu bị giới hạn" kèm giới hạn (cùng nguyên tắc R94, không cắt âm thầm). Tổng và xếp hạng có dữ liệu bị giới hạn phải mang nhãn này, vì kế toán có thể chép nhầm thành số đầy đủ.
+- Số lượng phụ tùng hiển thị theo đơn vị lưu của INV; số lẻ (`quantityScale` khác 1) hiển thị theo thang chia của INV, không làm tròn. Cách trình bày chia lẻ cuối cùng chờ designer (G4-RPT), không chặn pilot.
+
+**Dev default OK.** Kiểm tra: nhãn "mức tối thiểu" có ở cả màn hình và CSV.
+
+##### R103. Lệnh chưa hóa đơn, đối chiếu bốn bên
+
+**Khuyến nghị**: giữ cho giai đoạn 1. `[Cần xác nhận: Kế toán khách]`
+
+- "Lệnh chưa hóa đơn" là số cuối kỳ tại thời điểm chạy, không cộng dồn qua các ngày; nhãn phải nói rõ "tại thời điểm" để không cộng trùng.
+- Đối chiếu pilot chỉ kiểm có/không ở mức chứng từ (lệnh, phiếu xuất có chứng từ gốc theo RULE-007, hóa đơn, thu tiền), đủ cho tiêu chí FR-RPT-004 "liệt kê lệnh thiếu một trong bốn thành phần". Đối chiếu số lượng phụ tùng xuất so với dòng đã duyệt (kể cả báo giá bổ sung) làm ở phase 2.
+
+**Dev default OK.**
+
+##### R104. Ảnh trên hồ sơ tiếp nhận và lệnh
+
+**Khuyến nghị**: chấp nhận (a) đến (c), bổ sung bảo vệ dữ liệu cá nhân. `[Cần xác nhận: Luật sư khách – thời hạn lưu, làm mờ; Khách]`
+
+- Trích dẫn: ảnh ở hồ sơ tiếp nhận thuộc FR-REC-002 (FR-REC-003 là cảnh báo số km) và ở đề xuất phát sinh là FR-REC-014; sửa trích dẫn khi áp dụng §24.3.
+- (a) 5 MB, 30 ảnh, JPEG/PNG/WebP: giữ, là cấu hình. Loại tệp xác định theo nội dung tệp, không tin đuôi tệp hay tiêu đề do trình duyệt gửi.
+- (b) Người dùng không xóa ảnh (chứng cứ tình trạng xe, tranh chấp). Ảnh tải nhầm (nhầm xe, chụp người không liên quan) phải có đường xử lý không phá chứng cứ: quản lý chi nhánh hoặc Chủ **ẩn** ảnh kèm lý do bắt buộc và nhật ký; ảnh ẩn không hiện ở màn hình thường, không gửi khách; tệp vẫn nằm trong kho lưu đến hạn lưu. Xóa hẳn chỉ qua thời hạn lưu hoặc yêu cầu của chủ thể dữ liệu theo PDPL, do Chủ garage làm và có nhật ký; quy trình này chờ Luật sư (§8.1), chưa làm ở pilot.
+- (c) Đọc ảnh cần quyền xem lệnh/hồ sơ trong phạm vi chi nhánh (NFR-ISO-01); thợ chỉ gửi ảnh lên lệnh có hạng mục giao cho mình, chưa đọc lại: giữ cho pilot. Khi làm đường đọc bằng liên kết ký ngắn hạn: kiểm quyền và phạm vi ở API trước khi cấp, liên kết hết hạn nhanh (khởi điểm 5 phút, cấu hình), mỗi lần đọc có nhật ký truy cập. Liên kết cho khách duyệt báo giá (FR-REC-034, kèm ảnh) là bài toán riêng: khách không có tài khoản, cần mã dùng một lần và hạn ngắn; chưa làm.
+- (d) Ảnh điện thoại thường kèm tọa độ GPS (nhà khách, nơi đỗ xe): không có nhu cầu nghiệp vụ, trái nguyên tắc tối thiểu dữ liệu của PDPL. Mặc định **gỡ metadata EXIF (đặc biệt vị trí) khi nhận ảnh**. Giữ hướng ảnh đúng (xoay trước khi gỡ). Làm mờ biển số hoặc khuôn mặt: chưa làm, biển số là dữ liệu nghiệp vụ cần thấy; chờ Luật sư. `[Cần xác nhận: Luật sư khách]`
+
+**Dev must change** (nhỏ): (1) gỡ EXIF khi nhận ảnh, có test ảnh mẫu có GPS; (2) kiểm tra loại tệp theo nội dung, từ chối tệp đổi đuôi; (3) trạng thái "ẩn" kèm lý do và nhật ký cho ảnh (không xóa tệp); làm cùng lúc với đường đọc ảnh nếu chưa có.
+
+##### R105. Hoàn tiền cho khách (FR-ACC-016)
+
+**Khuyến nghị**: chấp nhận (a) đến (f). `[Cần xác nhận: Kế toán khách – chính sách hoàn, hạn mức; Chủ dự án]`
+
+Phát hiện khi đối chiếu mã và luồng hiện có: ở pilot tiền thu trước khi giao chỉ là cọc (FR-ACC-002), và lệnh chỉ hủy được ở trạng thái đã duyệt, đang làm, tạm dừng (trước QC). Do đó với lệnh bị hủy, khoản có thể hoàn thực tế chỉ là cọc, đã có hoàn cọc (R57, R66). Nhánh "hoàn toàn bộ thu ròng của lệnh đã hủy" của dev gần như trùng hoàn cọc. Hệ quả: hoàn tiền khách chỉ có ý nghĩa khi tổng phải thu của lệnh giảm sau khi đã thu.
+
+Tình huống hợp lệ làm phát sinh thu vượt (mỗi tình huống phải do chứng từ ở REC/ACC làm tổng giảm, không do người hoàn tự nhập):
+
+| # | Tình huống | Nguồn làm tổng giảm | Trạng thái ở GMEP |
+| --- | --- | --- | --- |
+| 1 | Hạng mục đã duyệt bị bỏ (khách rút, hạng mục không còn cần) khi lệnh còn mở hoặc chưa giao, sau khi đã thu cọc hoặc thu một phần | REC: hủy/bỏ hạng mục đã duyệt, có lý do, người duyệt, hoàn kho nếu có (RULE-005, FR-HRM-008 đảo công) | **Chưa có** ở REC (lệnh chỉ hủy cả lệnh). Cần yêu cầu mới |
+| 2 | Giảm giá hoặc điều chỉnh giá sau khi đã thu, trong hạn mức giảm giá cấu hình | REC/ACC: chứng từ điều chỉnh giá có duyệt, giữ phiên bản giá | **Chưa có** |
+| 3 | Lệnh hủy sau khi đã thu cọc | REC: hủy lệnh | Có; đi bằng **hoàn cọc** (R57), không bằng hoàn tiền khách |
+| 4 | Thu nhầm, thu dư do nhập sai số tiền | ACC | **Không phải hoàn tiền**: đảo phiếu thu (R62), thu lại |
+| 5 | Lệnh đã giao và đã có hóa đơn rồi giảm tổng (bảo hành, thiện chí) | EIN: hóa đơn điều chỉnh/thay thế (FR-EIN-012) | Chặn ở pilot (c); mở khi có luồng điều chỉnh hóa đơn (phase 3) |
+
+Quy tắc chốt:
+
+- Số hoàn tối đa = thu ròng (thu trừ hoàn trừ hoàn cọc đã chi) trừ tổng phải thu hiện hành của lệnh còn hiệu lực, không âm. **Hoàn cọc và hoàn tiền dùng chung một trần**, để hai đường không cùng hoàn một khoản (RULE-010).
+- Hoàn chỉ cho lệnh có tổng đã giảm bởi chứng từ ở bảng trên; trước khi REC có tình huống 1 hoặc 2, API tồn tại nhưng tính ra số hoàn tối đa bằng 0 với lệnh còn hiệu lực, nên không hoàn được (đúng ý dev ở (e)). Không thêm màn hình hoàn tiền cho tới khi tình huống 1 có (G4-ACC-07 giữ trong thiết kế). `[Đề xuất BA – chờ xác nhận: Chủ dự án]`
+- (b) Giữ: luôn cần quản lý chi nhánh duyệt, người đề xuất không tự duyệt (R59; chi nhánh chỉ một quản lý thì tự chuyển Chủ, Chủ tự duyệt thì gắn `selfApproved`). Hạn mức: loại `customer_refund` là cấu hình có ngày hiệu lực, khởi điểm 10.000.000 quản lý duyệt đến, trên đó Chủ garage. Giá trị này chặt hơn hoàn cọc 50.000.000 ở R58 và chặt hơn FRD (chỉ yêu cầu duyệt khi vượt hạn mức): chấp nhận vì hoàn tiền là rủi ro gian lận cao, ghi vào bảng R58 cho đủ. `[Cần xác nhận: Chủ dự án, Kế toán khách]`
+- Hoàn tiền mặt cần ca đang mở (tiền ra khỏi két); hoàn chuyển khoản cần mã tham chiếu và hoàn về cùng phương thức đã thu; hoàn về tài khoản khác cần lý do và Chủ garage duyệt (chống rút tiền qua đường hoàn).
+- (d) Phiếu chi hoàn đảo được như phiếu chi khác (R62, RULE-010); (f) hạn mức hoàn riêng của thu ngân: không có, đúng R57.
+- Tính lại trạng thái thanh toán theo ba-answers-05 câu 4 (không thêm trạng thái; tag "Đã hoàn một phần").
+
+**Dev default OK.** **Dev must change** (test, nhỏ): kiểm tra trần chung với hoàn cọc (không hoàn kép; lệnh hủy hoàn cọc rồi không hoàn thêm); hoàn tiền mặt chặn khi không có ca mở; hoàn về phương thức khác cần Chủ duyệt; số hoàn tối đa bằng 0 khi tổng không giảm. Việc REC (tình huống 1, 2) là yêu cầu mới, xem §24.3 và §24.4.
+
+##### R106. Mở lại ngày đã chốt (FR-ACC-005)
+
+**Khuyến nghị**: chấp nhận (a) (b) (c) (e), bổ sung (d). `[Cần xác nhận: Chủ dự án, Kế toán khách]`
+
+- (a) Chỉ mở lại ngày làm việc hiện tại: giữ, khớp R62 (ngày cũ sửa bằng phiếu đảo ghi vào ngày đang mở). Đây là mở lại **ngày**, chưa phải mở lại **kỳ kế toán**: FR-ACC-005 viết về khóa kỳ; khóa kỳ tháng chưa làm (e), ghi rõ ở §24.3. Không được mở lại khi ngày sau đã chốt hoặc dữ liệu ngày đã xuất cho kế toán (khi có xuất kỳ).
+- (b) Chủ garage duyệt, lý do bắt buộc, duyệt dùng một lần: giữ. Thêm hạn dùng cho lượt duyệt (khởi điểm 2 giờ, cấu hình); hết hạn thì phải xin lại. Chủ tự đề xuất tự duyệt được nhưng gắn `selfApproved` (R59).
+- (c) Giữ bản ghi chốt với trạng thái "đã mở lại"; chốt lại thì tạo bản ghi mới thay thế, số liệu lần chốt đầu còn nguyên trong bản ghi cũ hoặc nhật ký bất biến. Mở lại không cho sửa hay xóa chứng từ đã ghi sổ (RULE-010): chỉ cho ghi thêm chứng từ mới và đảo trong ngày. Nói rõ trên màn hình để tránh hiểu nhầm.
+- (d) R62 đã khuyến nghị cho lần làm sau: mật khẩu, lý do, nhật ký, thông báo. Dev chưa làm hai mục. Chốt: Chủ nhập lại **mật khẩu** khi duyệt (không phải MFA, MFA vẫn ngoài phạm vi theo quyết định chủ; `StrongAuthPort` giữ nguyên); mỗi lần mở lại hiện trong báo ngoại lệ cho Chủ và Kế toán (số lần, người, lý do), và gửi thông báo trong ứng dụng cho quản lý chi nhánh. Không dùng kênh ngoài (Zalo/SMS) vì chưa chọn nhà cung cấp.
+- Số lần mở lại trong tháng là chỉ số kiểm soát: báo cho Chủ khi vượt ngưỡng cấu hình (khởi điểm 3 lần/tháng/chi nhánh).
+
+**Dev must change** (nhỏ): hỏi lại mật khẩu khi Chủ duyệt; hạn dùng của lượt duyệt; báo ngoại lệ và thông báo trong ứng dụng; chặn khi ngày sau đã chốt; test các chặn này.
+
+##### R107. Báo giá bổ sung
+
+**Khuyến nghị**: xác nhận không có câu hỏi mới. 
+
+- Luồng bổ sung (RULE-005/006) đã khớp R47 (không duyệt khi lệnh đã đóng) và không thêm trạng thái. Ảnh gắn đề xuất của thợ thực hiện FR-REC-014 và theo toàn bộ quy tắc R104 (giới hạn, gỡ EXIF, quyền đọc). Ảnh trong liên kết duyệt gửi khách (FR-REC-034) chưa làm, xem R104.
+
+**Dev default OK.**
+
+### 24.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-REC-002, FR-REC-014 | Tiêu chí: giới hạn ảnh, loại tệp, gỡ vị trí, ảnh ẩn có lý do; sửa trích dẫn FR-REC-003 thành FR-REC-002 trong ghi chú dev | R104, R107 |
+| FRD FR-REC (mới, thêm cuối module) | Hủy/bỏ hạng mục đã duyệt và điều chỉnh giá sau duyệt, có lý do, duyệt, đảo công, hoàn kho; làm tổng phải thu giảm. BR-REC-04, RULE-005; chưa đánh số, đánh số khi áp dụng | R105 |
+| FRD FR-ACC-016 | Tiêu chí: hoàn tối đa bằng phần thu vượt; trần chung với hoàn cọc; luôn qua duyệt, vượt hạn mức lên Chủ; chặn khi đã có hóa đơn cho tới khi có điều chỉnh hóa đơn (FR-EIN-012); số dư công nợ đúng sau hoàn | R105 |
+| FRD FR-ACC-005 | Tách "mở lại ngày" (có ở pilot, chỉ ngày hiện tại) khỏi "khóa kỳ kế toán" (chưa làm); bổ sung hỏi lại mật khẩu, hạn duyệt, báo ngoại lệ | R106 |
+| FRD FR-RPT-006 | Ghi: tiêu chí "khớp bảng công" chỉ kiểm được khi HRM có (phase 2) | R101 |
+| Bảng hạn mức R58 (§20) | Thêm dòng `customer_refund`: tự quyết không có, quản lý đến 10.000.000, trên đó Chủ | R105 |
+| Journey §8 và WF hoàn tiền | Nêu tình huống hoàn hợp lệ (bảng R105) và đường hoàn cọc khác hoàn tiền | R105 |
+| BRD BR-ACC-05, BR-ACC-11 | Ghi nhận phạm vi pilot như trên | R105, R106 |
+| screen-inventory G4-ACC-07 | Giữ màn hình, hoãn dựng tới khi REC có hủy hạng mục; thêm ràng buộc hoàn về cùng phương thức | R105 |
+| UAT | Mới: hoàn tiền vượt thu bị chặn, trần chung với hoàn cọc, người đề xuất không tự duyệt, hoàn trên hạn mức lên Chủ; mở lại ngày cần Chủ nhập mật khẩu, duyệt dùng một lần và hết hạn, không mở được ngày cũ, chốt lại giữ số liệu lần đầu; ảnh có GPS bị gỡ vị trí, tệp đổi đuôi bị từ chối, thợ không đọc lại; CSV chống công thức và có nhật ký | R101, R104–R106 |
+
+### 24.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4 đến §23.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 53 | Chủ dự án | Thủ kho có được xuất CSV báo cáo kho không | Chưa, chỉ xem | Cho phép: chỉ đổi quyền, thêm nhật ký xuất |
+| 54 | Luật sư khách | Thời hạn lưu ảnh xe; gỡ vị trí EXIF; có cần làm mờ biển số/khuôn mặt; quy trình xóa theo yêu cầu chủ thể dữ liệu | Theo hồ sơ (§8.1); gỡ EXIF; chưa làm mờ; xóa do Chủ làm | Làm mờ: cần xử lý ảnh và giữ bản gốc hay không |
+| 55 | Kế toán khách, Chủ dự án | Hạn mức hoàn tiền khách (10.000.000 khởi điểm); hoàn về phương thức khác; chính sách hoàn khi hủy hạng mục đã thu | Như R105 | Hạn mức cao hơn: tăng rủi ro gian lận; chỉ đổi cấu hình |
+| 56 | Chủ dự án | Có cho hủy/bỏ hạng mục đã duyệt và điều chỉnh giá sau thu ở giai đoạn 1 không (điều kiện để hoàn tiền dùng được) | Có, đưa vào slice REC kế tiếp | Không: hoàn tiền khách chưa dùng được ở pilot; thu nhầm xử lý bằng đảo phiếu |
+| 57 | Chủ dự án, Kế toán khách | Mở lại ngày: hạn dùng của duyệt (2 giờ), ngưỡng cảnh báo số lần (3 lần/tháng), có cần mở lại kỳ tháng không | Như R106 | Mở lại kỳ: cần khóa kỳ tháng, xuất kỳ và ràng buộc với phần mềm kế toán của khách |
+
+### 24.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R104: gỡ EXIF khi nhận ảnh; kiểm tra loại tệp theo nội dung; trạng thái "ẩn" kèm lý do và nhật ký; test | REC (ảnh hồ sơ và đề xuất), phần nhận ảnh | Nhỏ, có test |
+| 2 | R105: trần chung giữa hoàn cọc và hoàn tiền; hoàn tiền mặt cần ca mở; hoàn về phương thức khác cần Chủ; hoàn tối đa bằng 0 khi tổng không giảm; giữ API, chưa dựng màn hình | `acc/application/refunds.ts`, `acc/domain/payment.ts` | Test, sửa nếu thiếu |
+| 3 | R106: hỏi lại mật khẩu khi Chủ duyệt mở lại ngày; hạn dùng lượt duyệt; báo ngoại lệ và thông báo trong ứng dụng; chặn khi ngày sau đã chốt | `acc` (mở lại ngày), `sys` (duyệt, thông báo) | Nhỏ, có test |
+| 4 | R101, R102: kiểm tra nhật ký xuất CSV, thoát ký tự công thức, nhãn "mức tối thiểu" ở màn hình và CSV, nhãn "tại thời điểm" của số lệnh chưa hóa đơn | `rpt` | Kiểm tra, sửa nếu thiếu |
+
+Việc cần làm ở REC (hủy hạng mục đã duyệt, điều chỉnh giá sau duyệt) là yêu cầu mới chờ quyết định của Chủ dự án (câu 56), chưa đưa vào danh sách bắt buộc.
+
+Không có câu trả lời nào mâu thuẫn với R57, R58, R59, R62, R66 (§20), R81–R92 (§22) đã chốt; R105 và R106 làm chặt thêm R62 và R57. Mâu thuẫn tài liệu: R104 trích FR-REC-003 trong khi ảnh thuộc FR-REC-002/014; FR-ACC-016 chỉ đòi duyệt khi vượt hạn mức, còn dev (và BA) yêu cầu luôn duyệt; FR-ACC-005 viết về khóa kỳ trong khi dev làm mở lại ngày.

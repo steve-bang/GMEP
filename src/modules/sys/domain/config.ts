@@ -243,6 +243,8 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       'payment_reversal',
       'expense',
       'deposit_refund',
+      'customer_refund',
+      'day_reopen',
       'debt_handover',
       'cash_variance',
       'invoice_adjust',
@@ -256,6 +258,10 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         level1MaxVnd: vnd,
         /** R58: running cap of the values decided by the requester alone within one cash shift (expense only) */
         shiftCapVnd: vnd.optional(),
+        /** R106: hours an approved request stays usable (day_reopen: 2) */
+        validHours: z.number().int().min(1).max(168).optional(),
+        /** R106: reopenings per branch per month above which the owner/accountant get an exception notice */
+        maxReopensPerMonth: z.number().int().min(1).max(31).optional(),
         dueHours: z
           .number()
           .int()

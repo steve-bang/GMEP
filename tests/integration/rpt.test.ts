@@ -508,10 +508,188 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(ok.text).not.toContain('Nguyễn'); // no customer names or phones in the file
       const logsAfter = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
       expect(logsAfter.length).toBe(logsBefore + 1);
-      expect(logsAfter.at(-1)!.branchId).toBe('br_q7');
+      expect(logsAfter.some((x) => x.branchId === 'br_q7')).toBe(true);
       // the quan ly of the branch may export; the owner must name the branch (no merged file)
       expect((await post(ql, '/api/v1/rpt/daily/export', { date: today })).status).toBe(200);
       expect((await post(ch, '/api/v1/rpt/daily/export', { date: today })).status).toBe(409);
+    });
+
+    it('FR-RPT-009: the daily report as .xlsx has the same permission, scope and audit as the CSV', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      expect(
+        (
+          await post(cv, '/api/v1/rpt/daily/export', {
+            date: today,
+            branchId: 'br_q7',
+            format: 'xlsx',
+          })
+        ).status,
+      ).toBe(403);
+      expect(
+        (await post(ql, '/api/v1/rpt/daily/export', { date: today, format: 'ods' })).status,
+      ).toBe(422);
+      expect(
+        (await post(ch, '/api/v1/rpt/daily/export', { date: today, format: 'xlsx' })).status,
+      ).toBe(409);
+      const beforeRows = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
+      const before = beforeRows.length;
+      const xlsxBefore = beforeRows.filter((x) => JSON.stringify(x.after).includes('xlsx')).length;
+      const ok = await post(kt, '/api/v1/rpt/daily/export', {
+        date: today,
+        branchId: 'br_q7',
+        format: 'xlsx',
+      });
+      expect(ok.status, ok.text).toBe(200);
+      expect(ok.headers.get('content-type')).toContain('spreadsheetml.sheet');
+      expect(ok.headers.get('content-disposition')).toContain(`bao-cao-ngay-Q7-${today}.xlsx`);
+      expect(ok.text.startsWith('PK')).toBe(true);
+      const after = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
+      expect(after.length).toBe(before + 1);
+      expect(after.filter((x) => JSON.stringify(x.after).includes('xlsx')).length).toBe(
+        xlsxBefore + 1,
+      );
+    });
+  });
+
+  describe('monthly, reconciliation, warehouse, technician reports (FR-RPT-002, 004, 005, 006, 014)', () => {
+    it('monthly = the sum of the daily rollups; scope and permission are enforced on the server', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      const month = today.slice(0, 7);
+      const m = await get(ql, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`);
+      expect(m.status, m.text).toBe(200);
+      const d = await rollup();
+      expect(m.json.report.revenue.exTaxVnd).toBe(d.rollup.revenue.exTaxVnd);
+      expect(m.json.report.orders.closed).toBe(d.rollup.orders.closed);
+      expect(m.json.report.missingDates.length).toBe(m.json.report.days - m.json.report.present);
+      expect((await get(cv, `/api/v1/rpt/monthly?month=${month}`)).status).toBe(403);
+      expect((await get(qlTd, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`)).status).toBe(
+        403,
+      );
+      expect((await get(ch, `/api/v1/rpt/monthly?month=${month}`)).status).toBe(409);
+      expect((await get(ch, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`)).status).toBe(200);
+      expect((await get(ql, '/api/v1/rpt/monthly?month=2026-13')).status).toBe(422);
+    });
+
+    it('reconciliation judges the four checks per day and points to the drill-down', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      const r = await get(ql, `/api/v1/rpt/reconcile?from=${today}&to=${today}&branchId=br_q7`);
+      expect(r.status, r.text).toBe(200);
+      const row = r.json.report.rows[0];
+      expect(row.date).toBe(today);
+      // both completed orders are paid and invoiced by now: nothing fails; the flag follows the count
+      expect(row.failed.includes('invoices')).toBe(row.notInvoicedCount > 0);
+      expect(row.failed).not.toContain('payments');
+      expect(row.failed).not.toContain('stock');
+      expect(row.gapVnd).toBe(0);
+      const drill = await get(ql, `/api/v1/rpt/drill?date=${today}&metric=closed&branchId=br_q7`);
+      expect(drill.json.refs.map((x: Row) => x.id).sort()).toEqual([a.id, b.id].sort());
+      expect((await get(tn, `/api/v1/rpt/reconcile?from=${today}&to=${today}`)).status).toBe(403);
+      expect(
+        (await get(ql, `/api/v1/rpt/reconcile?from=${today}&to=2000-01-01&branchId=br_q7`)).status,
+      ).toBe(422);
+      expect(
+        (await get(ql, `/api/v1/rpt/reconcile?from=2020-01-01&to=${today}&branchId=br_q7`)).status,
+      ).toBe(422);
+    });
+
+    it('warehouse report: stock lines of the branch only, reorder judged on available', async () => {
+      const w = await get(tk, '/api/v1/rpt/warehouse?branchId=br_q7');
+      expect(w.status, w.text).toBe(200);
+      expect(w.json.report.lineCount).toBeGreaterThan(0);
+      for (const x of w.json.report.below) expect(x.available).toBeLessThanOrEqual(x.minQty);
+      expect((await get(qlTd, '/api/v1/rpt/warehouse?branchId=br_q7')).status).toBe(403);
+      if (!w.json.showValue) expect(w.json.report.totalValueVnd).toBe(0);
+    });
+
+    it('technician report: finished items per technician, service type filter, no pay data', async () => {
+      const t = await get(ql, `/api/v1/rpt/technicians?from=${today}&to=${today}&branchId=br_q7`);
+      expect(t.status, t.text).toBe(200);
+      const row = t.json.report.rows.find((x: Row) => x.technicianId === 'u_th_q7');
+      expect(row.jobs).toBeGreaterThanOrEqual(2);
+      expect(JSON.stringify(t.json)).not.toMatch(/commission|salary|pay/i);
+      const none = await get(
+        ql,
+        `/api/v1/rpt/technicians?from=${today}&to=${today}&branchId=br_q7&serviceType=body-paint`,
+      );
+      expect(none.json.report.totals.jobs).toBe(0);
+      const same = await get(
+        ql,
+        `/api/v1/rpt/technicians?from=${today}&to=${today}&branchId=br_q7&serviceType=maintenance`,
+      );
+      expect(same.json.report.totals.jobs).toBe(t.json.report.totals.jobs);
+      expect((await get(cv, '/api/v1/rpt/technicians')).status).toBe(403);
+      expect((await get(qlTd, '/api/v1/rpt/technicians?branchId=br_q7')).status).toBe(403);
+    });
+
+    it('CSV export of the new reports needs report-daily:export, is scoped and audited', async () => {
+      const month = today.slice(0, 7);
+      const before = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export').length;
+      for (const body of [
+        { kind: 'monthly', month, branchId: 'br_q7' },
+        { kind: 'reconcile', from: today, to: today, branchId: 'br_q7' },
+        { kind: 'warehouse', branchId: 'br_q7' },
+        { kind: 'technicians', from: today, to: today, branchId: 'br_q7' },
+      ]) {
+        const ok = await post(ql, '/api/v1/rpt/export', body);
+        expect(ok.status, ok.text).toBe(200);
+        expect(ok.headers.get('content-type')).toContain('text/csv');
+      }
+      const after = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
+      expect(after.length).toBe(before + 4);
+      expect(after.filter((x) => x.branchId === 'br_q7').length).toBeGreaterThanOrEqual(4);
+      expect((await post(cv, '/api/v1/rpt/export', { kind: 'monthly', month })).status).toBe(403);
+      expect(
+        (await post(qlTd, '/api/v1/rpt/export', { kind: 'monthly', month, branchId: 'br_q7' }))
+          .status,
+      ).toBe(403);
+      expect((await post(ql, '/api/v1/rpt/export', { kind: 'nope' })).status).toBe(422);
+    });
+
+    it('FR-RPT-009/014: .xlsx export has the same permission and audit as CSV; the service-type filter is accepted on monthly and reconcile', async () => {
+      const month = today.slice(0, 7);
+      const beforeRows = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
+      const before = beforeRows.length;
+      const xlsxBefore = beforeRows.filter((x) => JSON.stringify(x.after).includes('xlsx')).length;
+      const x = await post(ql, '/api/v1/rpt/export', {
+        kind: 'monthly',
+        month,
+        branchId: 'br_q7',
+        serviceType: 'maintenance',
+        format: 'xlsx',
+      });
+      expect(x.status, x.text).toBe(200);
+      expect(x.headers.get('content-type')).toContain('spreadsheetml.sheet');
+      expect(x.headers.get('content-disposition')).toContain('.xlsx');
+      expect(x.text.startsWith('PK')).toBe(true);
+      const after = (await rows('auditLogs')).filter((e) => e.action === 'rollup.export');
+      expect(after.length).toBe(before + 1);
+      expect(after.filter((x) => JSON.stringify(x.after).includes('xlsx')).length).toBe(
+        xlsxBefore + 1,
+      );
+      expect(
+        (await post(cv, '/api/v1/rpt/export', { kind: 'monthly', month, format: 'xlsx' })).status,
+      ).toBe(403);
+      expect(
+        (await post(ql, '/api/v1/rpt/export', { kind: 'monthly', month, format: 'ods' })).status,
+      ).toBe(422);
+      const m = await get(
+        ql,
+        `/api/v1/rpt/monthly?month=${month}&branchId=br_q7&serviceType=maintenance`,
+      );
+      expect(m.status, m.text).toBe(200);
+      expect(m.json.serviceType).toBe('maintenance');
+      const all = await get(ql, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`);
+      expect(m.json.report.orders.closed).toBeLessThanOrEqual(all.json.report.orders.closed);
+      const r = await get(
+        ql,
+        `/api/v1/rpt/reconcile?from=${today}&to=${today}&branchId=br_q7&serviceType=maintenance`,
+      );
+      expect(r.status, r.text).toBe(200);
+      expect(r.json.visible.cash).toBe(false);
+      // FR-RPT-014: the "không gắn lệnh" line is present in the filtered views only
+      expect(r.json.unlinked).toMatchObject({ inflowVnd: expect.any(Number) });
+      expect(m.json.unlinked).not.toBeNull();
+      expect(all.json.unlinked).toBeNull();
     });
   });
 

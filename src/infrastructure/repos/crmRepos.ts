@@ -218,6 +218,11 @@ export class DocCustomerRepository implements CustomerRepository {
     this.store.create(tx, COL.customers, c.id, without(c, 'id'));
     this.store.create(tx, COL.customerPii, c.id, without(pii, 'customerId'));
   }
+  remove(tx: Tx, c: Pick<Customer, 'id' | 'branchIds'>) {
+    for (const b of c.branchIds) this.store.delete(tx, COL.customerLinks, customerLinkId(c.id, b));
+    this.store.delete(tx, COL.customerPii, c.id);
+    this.store.delete(tx, COL.customers, c.id);
+  }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.customers, id, patch);
   }
@@ -401,6 +406,12 @@ export class DocVehicleRepository implements VehicleRepository {
     if (v.vin) this.setVin(tx, v, null, v.vin);
     this.store.create(tx, COL.vehicles, v.id, without(v, 'id'));
   }
+  remove(tx: Tx, v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm' | 'vin' | 'branchIds'>) {
+    for (const b of v.branchIds) this.store.delete(tx, COL.vehicleLinks, vehicleLinkId(v.id, b));
+    this.store.delete(tx, COL.vehiclePlates, plateKey(v.companyId, v.plateNorm));
+    if (v.vin) this.store.delete(tx, COL.vehicleVins, vinKey(v.companyId, v.vin));
+    this.store.delete(tx, COL.vehicles, v.id);
+  }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.vehicles, id, patch);
   }
@@ -473,6 +484,9 @@ export class DocOwnershipRepository implements OwnershipRepository {
   }
   create(tx: Tx, o: Ownership) {
     this.store.create(tx, COL.vehicleOwnerships, o.id, without(o, 'id'));
+  }
+  remove(tx: Tx, id: string) {
+    this.store.delete(tx, COL.vehicleOwnerships, id);
   }
   close(tx: Tx, id: string, to: string) {
     this.store.update(tx, COL.vehicleOwnerships, id, { to });

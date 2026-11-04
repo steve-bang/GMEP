@@ -125,7 +125,13 @@ export interface DayClose {
   companyId: string;
   branchId: string;
   businessDate: string;
-  status: 'closed';
+  /** `reopened` = the owner reopened it (FR-ACC-005); it reads as an open day until it is closed again */
+  status: 'closed' | 'reopened';
+  /** R106: how many times this day was reopened (the monthly count above the limit is an exception) */
+  reopenCount?: number;
+  reopenedAt?: Date;
+  reopenedBy?: string;
+  reopenApprovalId?: string;
   closedBy: string;
   closedByName: string;
   closedAt: Date;

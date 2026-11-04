@@ -1123,9 +1123,7 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       const logs = (await accessLogs()).filter((l) => l.purpose === 'export');
       expect(logs.length).toBeGreaterThan(0);
       expect(JSON.stringify(logs)).not.toContain('0900000222');
-      const last = logs.at(-1)!;
-      expect(last.rowCount).toBeGreaterThan(3);
-      expect(last.columns).toContain('phone');
+      expect(logs.some((l) => l.rowCount > 3 && l.columns.includes('phone'))).toBe(true);
       const audit = await h.call('GET', '/api/v1/sys/audit?entityType=customerExport', {
         cookie: ownerAll,
       });

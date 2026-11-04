@@ -41,6 +41,8 @@ export interface ShellInfo {
     reports: boolean;
     dailyReport: boolean;
     alerts: boolean;
+    /** FR-RPT-005: the warehouse report is gated by the stock view right (a storekeeper has no daily report) */
+    warehouseReport: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -106,6 +108,7 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       reports: can('report-dashboard:view'),
       dailyReport: can('report-daily:view'),
       alerts: can('report-alert:view'),
+      warehouseReport: can('stock:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),

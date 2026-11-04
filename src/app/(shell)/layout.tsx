@@ -178,7 +178,7 @@ export default async function ShellLayout({ children }: { children: React.ReactN
           },
         ]
       : []),
-    ...(can.reports || can.alerts
+    ...(can.reports || can.alerts || can.warehouseReport
       ? [
           {
             label: t('shell.nav.groupRpt'),
@@ -188,6 +188,34 @@ export default async function ShellLayout({ children }: { children: React.ReactN
                 : []),
               ...(can.dailyReport
                 ? [item('rd', '/rpt/daily', t('shell.nav.dailyReport'), 'file-text', 'prefix')]
+                : []),
+              ...(can.dailyReport
+                ? [
+                    item('rm', '/rpt/monthly', t('shell.nav.monthlyReport'), 'file-text', 'prefix'),
+                    item('rr', '/rpt/reconcile', t('shell.nav.reconcile'), 'file-text', 'prefix'),
+                  ]
+                : []),
+              ...(can.warehouseReport
+                ? [
+                    item(
+                      'rw',
+                      '/rpt/warehouse',
+                      t('shell.nav.warehouseReport'),
+                      'package',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+              ...(can.dailyReport && can.orders
+                ? [
+                    item(
+                      'rt',
+                      '/rpt/technicians',
+                      t('shell.nav.technicianReport'),
+                      'wrench',
+                      'prefix',
+                    ),
+                  ]
                 : []),
               ...(can.alerts
                 ? [item('ra', '/rpt/alerts', t('shell.nav.alerts'), 'alert-triangle', 'prefix')]

@@ -289,6 +289,16 @@ Key mechanics already in place:
   no new index), `e2e/slice-1-9.spec.ts`. Open questions R81..R92 in `docs/dev/open-questions-for-ba.md`.
 - Not built: monthly report and same-period comparison, four-way reconciliation list (FR-RPT-004 full), branch comparison (RPT-002), advanced charts, gross profit, filters by service type / employee, scheduler, PDF/Excel export.
 
+## Scheduler (cron endpoint)
+
+No scheduler infrastructure is deployed yet. `POST /api/v1/internal/cron/run-due` runs, per branch of `CRON_COMPANY_ID`, the RPT due job
+(`runDueRollups`, FR-RPT-003) and the EIN retry job (`runDueRequests`, FR-EIN-010). Both are idempotent, so overlapping or repeated
+calls are safe; one failing branch does not stop the others (response lists each branch). Auth is the shared secret in header
+`x-cron-secret` (env `CRON_SECRET`, at least 32 characters, compared in constant time); there is no session and no Origin check on this
+route only. With `CRON_SECRET` unset the route answers 404. Cloud Scheduler: HTTP POST every 10 to 15 minutes, header
+`x-cron-secret` from Secret Manager (OIDC can replace it later); the jobs run as the service actor `system:cron`, which holds only
+`report-job:manage` and `invoice-queue:update`. The per-branch endpoints (`/rpt/jobs/run-due`, `/ein/jobs/run-due`) stay for the screens.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,

@@ -20,6 +20,9 @@ export class FirebaseFileStore implements FileStore {
       .file(path)
       .save(Buffer.from(file.bytes), { contentType: file.contentType, resumable: false });
   }
+  async delete(path: string): Promise<void> {
+    await this.bucket().file(path).delete({ ignoreNotFound: true });
+  }
   async get(path: string): Promise<StoredFile | null> {
     const f = this.bucket().file(path);
     const [exists] = await f.exists();

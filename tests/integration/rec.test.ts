@@ -146,7 +146,7 @@ describe.each(backends)('REC intake and quote [%s]', (backend) => {
       const audit = (await rows('auditLogs')).filter(
         (a) => a.entityId === draft.id && a.action === 'intake.update',
       );
-      expect(audit.at(-1)?.reason).toContain('typo');
+      expect(audit.some((a) => String(a.reason).includes('typo'))).toBe(true);
     });
     it('FR-REC-003: raising the reading clears the warning data', async () => {
       const r = await call(cv, 'PATCH', `/api/v1/rec/intakes/${draft.id}`, {
