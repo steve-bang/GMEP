@@ -15,6 +15,7 @@ import { userToDoc, warehouseToDoc } from '../repos/repos';
 import { COL } from '../repos/queries';
 import { crmDemoDocs } from './crmDemo';
 import { invDemoDocs } from './invDemo';
+import { recDemoDocs } from './recDemo';
 import type { SeedDoc } from './types';
 import type { DocData } from '@/platform/store/docStore';
 
@@ -185,5 +186,6 @@ export function demoDocs(): SeedDoc[] {
   for (const w of demoWarehouses()) put(COL.warehouses, w.id, warehouseToDoc(w));
   docs.push(...crmDemoDocs());
   docs.push(...invDemoDocs());
+  docs.push(...recDemoDocs());
   return docs;
 }

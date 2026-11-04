@@ -57,6 +57,21 @@ const INV_VIEW: string[] = flatten([
   g('part-catalog', 'view'),
 ]);
 
+/**
+ * REC (slice 1.5, FR-REC-001..007) default grants [Đề xuất BA - chờ xác nhận: Khách], from FRD §2
+ * "Báo giá và lệnh sửa chữa" (QL = D, CV = S, others X) and the G2-QUO-01 role column: CV and QL
+ * write (the design shows "Lập báo giá" for both), CH, QV, QĐ, TK, TN and KT read quotes. `intake`
+ * (hồ sơ tiếp nhận) follows the same pattern for CV and QL; CH, QV, QĐ and TN read. `quote:approve`
+ * is the manager's decision right for the approval part (next slice). TH sees only their own work
+ * (Xn) so gets neither resource here.
+ */
+const REC_S = flatten([
+  g('intake', 'view', 'create', 'update'),
+  g('quote', 'view', 'create', 'update'),
+]);
+const REC_VIEW_QUOTE = flatten([g('quote', 'view')]);
+const REC_VIEW_ALL = flatten([g('intake', 'view'), g('quote', 'view')]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -87,6 +102,7 @@ const CH = [
   ]),
   ...CRM_CH,
   ...INV_VIEW,
+  ...REC_VIEW_ALL,
 ];
 
 const matrix: Grant = {
@@ -112,7 +128,9 @@ const matrix: Grant = {
     g('stock-cost', 'view'),
     g('stock-reservation', 'view'),
     g('inventory-policy', 'view'),
-  ]).concat(INV_VIEW),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_VIEW_ALL),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -140,7 +158,10 @@ const matrix: Grant = {
     g('stock-reservation', 'view', 'create', 'update'),
     g('stock-doc', 'approve'),
     g('inventory-policy', 'view'),
-  ]).concat(INV_VIEW),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_S)
+    .concat(flatten([g('quote', 'approve', 'reject')])),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -158,7 +179,7 @@ const matrix: Grant = {
     g('part', 'view'),
     g('stock-availability', 'view'),
     g('stock-reservation', 'create', 'update'),
-  ]),
+  ]).concat(REC_S),
   QD: flatten([
     g('device', 'view'),
     g('worker-pin', 'manage'),
@@ -167,7 +188,7 @@ const matrix: Grant = {
     g('vehicle', 'view'),
     g('vehicle-history', 'view'),
     g('customer-lookup', 'view'),
-  ]),
+  ]).concat(REC_VIEW_ALL),
   TH: [],
   TK: flatten([
     g('warehouse', 'view'),
@@ -177,14 +198,16 @@ const matrix: Grant = {
     g('stock-level', 'update'),
     g('stock-doc', 'create', 'update'),
     g('stock-reservation', 'view', 'create', 'update'),
-  ]).concat(INV_VIEW),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_VIEW_QUOTE),
   TN: flatten([
     g('doc-template', 'view'),
     g('customer', 'view'),
     g('vehicle', 'view'),
     g('customer-lookup', 'view'),
     g('customer-lookup-customer', 'view'),
-  ]),
+  ]).concat(REC_VIEW_ALL),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -203,7 +226,9 @@ const matrix: Grant = {
     g('stock-cost', 'view'),
     g('cost-method', 'view', 'update'),
     g('inventory-policy', 'view'),
-  ]).concat(INV_VIEW),
+  ])
+    .concat(INV_VIEW)
+    .concat(REC_VIEW_QUOTE),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),

@@ -46,6 +46,9 @@ export const COL = {
   stockDocuments: 'stockDocuments',
   stockReservations: 'stockReservations',
   issueReturns: 'issueReturns',
+  intakes: 'intakes',
+  quotes: 'quotes',
+  quoteVersions: 'quoteVersions',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -355,5 +358,58 @@ export const Q = {
     optionalEq: ['status'],
     scopeField: 'branchId',
     order: { field: 'updatedAt', dir: 'desc', type: 'date' },
+  }),
+  /** REC (slice 1.5): intakes and quotes, newest first, by plate prefix or by number prefix */
+  intakes: defineQuery({
+    name: 'intakes.list',
+    collection: COL.intakes,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  intakesByPlate: defineQuery({
+    name: 'intakes.byPlate',
+    collection: COL.intakes,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'plateNorm', dir: 'asc', type: 'string' },
+  }),
+  intakesByNumber: defineQuery({
+    name: 'intakes.byNumber',
+    collection: COL.intakes,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'number', dir: 'asc', type: 'string' },
+  }),
+  quotes: defineQuery({
+    name: 'quotes.list',
+    collection: COL.quotes,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  quotesByPlate: defineQuery({
+    name: 'quotes.byPlate',
+    collection: COL.quotes,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'plateNorm', dir: 'asc', type: 'string' },
+  }),
+  quotesByNumber: defineQuery({
+    name: 'quotes.byNumber',
+    collection: COL.quotes,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'number', dir: 'asc', type: 'string' },
   }),
 };

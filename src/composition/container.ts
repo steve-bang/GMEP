@@ -9,6 +9,7 @@ import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
 import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
 import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
+import { DEFAULT_REC_CONFIG, type RecDeps } from '@/modules/rec';
 import {
   BRANCH_STATE_RULES,
   DEFAULT_PASSWORD_POLICY,
@@ -60,6 +61,11 @@ import {
   DocStockBalanceRepository,
   DocStockDocumentRepository,
 } from '@/infrastructure/repos/invRepos';
+import {
+  DocIntakeRepository,
+  DocQuoteRepository,
+  DocQuoteVersionRepository,
+} from '@/infrastructure/repos/recRepos';
 import { stubBranchActivity, stubCustomerRetention } from '@/infrastructure/stubs';
 
 export interface Container {
@@ -68,6 +74,7 @@ export interface Container {
   sys: SysDeps;
   crm: CrmDeps;
   inv: InvDeps;
+  rec: RecDeps;
   store: DocStore & { stats: StoreStats };
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
@@ -192,6 +199,19 @@ function buildInv(sys: SysDeps, store: DocStore): InvDeps {
   };
 }
 
+/** REC use cases read CRM and INV through their public surfaces only (slice 1.5). */
+function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): RecDeps {
+  return {
+    sys,
+    crm,
+    inv,
+    intakes: new DocIntakeRepository(store),
+    quotes: new DocQuoteRepository(store),
+    versions: new DocQuoteVersionRepository(store),
+    rec: DEFAULT_REC_CONFIG,
+  };
+}
+
 export interface ContainerOptions {
   env?: Env;
   clock?: Clock;
@@ -211,6 +231,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       get: () => late.inv!,
     });
     const inv = (late.inv = buildInv(sys, store));
+    const crm = buildCrm(sys, store);
     return {
       env,
       backend: 'memory',
@@ -218,8 +239,9 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       store,
       identity,
       sys,
-      crm: buildCrm(sys, store),
+      crm,
       inv,
+      rec: buildRec(sys, crm, inv, store),
     };
   }
 
@@ -231,7 +253,17 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     get: () => late.inv!,
   });
   const inv = (late.inv = buildInv(sys, store));
-  return { env, backend: 'firestore', store, identity, sys, crm: buildCrm(sys, store), inv };
+  const crm = buildCrm(sys, store);
+  return {
+    env,
+    backend: 'firestore',
+    store,
+    identity,
+    sys,
+    crm,
+    inv,
+    rec: buildRec(sys, crm, inv, store),
+  };
 }
 
 const g = globalThis as unknown as { __gmepContainer?: Container };
