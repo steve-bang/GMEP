@@ -348,8 +348,9 @@ export async function discardAbandonedImports(
 ): Promise<number> {
   const scope = resolveScope(actor, 'data-import:create');
   const limit = deps.clock.now().getTime() - deps.config.importAbandonedDays * 86_400_000;
-  const stale = (await deps.imports.listByBranch(scope, branchId, 50)).filter(
-    (b) => b.status === 'validated' && b.updatedAt.getTime() <= limit,
+  // by status (not "the 50 latest"): an old abandoned batch must not hide behind newer ones
+  const stale = (await deps.imports.listByBranchStatus(scope, branchId, 'validated', 200)).filter(
+    (b) => b.updatedAt.getTime() <= limit,
   );
   let n = 0;
   for (const s of stale)
@@ -407,6 +408,9 @@ export async function commitImport(
   const claimed = await deps.uow.run(async (tx) => {
     const b = await deps.imports.getInTx(tx, scope, id);
     if (!b) throw notFound();
+    // the batch is written as, and in, the working branch only (NFR-ISO-01)
+    if (b.branchId !== requireWorkingBranch(actor))
+      throw new AppError('import_branch_mismatch', 409);
     if (b.status === 'committed') return { batch: b, run: false };
     // R99: an abandoned dry run expires even before the purge has run
     if (
@@ -542,6 +546,7 @@ export async function undoImport(
   const data = parseInput(undoSchema, input);
   const b = await deps.imports.get(scope, id);
   if (!b) throw notFound();
+  if (b.branchId !== requireWorkingBranch(actor)) throw new AppError('import_branch_mismatch', 409);
   if (b.status === 'undone') return toDto(deps, b);
   if (!canTransition(b.status, 'undone')) throw new AppError('import_state_invalid', 409);
   const handler = handlerOf(deps, b.kind);

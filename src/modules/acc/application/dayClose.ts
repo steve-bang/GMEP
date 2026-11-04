@@ -168,11 +168,11 @@ export async function closeDay(
       const now = deps.sys.clock.now();
       // the drawer and the close record are read in the transaction: a payment landing at the same moment
       // touches the same documents, so one of the two retries and sees the other
-      const [existing, drawer] = await Promise.all([
-        deps.cash.getDayCloseInTx(tx, scope, branchId, data.date),
+      const [previous, drawer] = await Promise.all([
+        deps.cash.getDayCloseAnyInTx(tx, scope, branchId, data.date),
         deps.cash.getDrawerInTx(tx, scope, branchId),
       ]);
-      if (existing) throw new AppError('day_already_closed', 409);
+      if (previous?.status === 'closed') throw new AppError('day_already_closed', 409);
       await assertWritable(deps, tx, actor, scope, branchId);
       const win = dayWindow(data.date);
       const [shifts, entries] = await Promise.all([
@@ -207,6 +207,15 @@ export async function closeDay(
           .filter((e) => e.direction === 'out')
           .reduce((s, e) => s + e.amountVnd, 0),
         shiftIds: shifts.map((s) => s.id),
+        // R106: closing again keeps the reopen history (the monthly count must not reset)
+        ...(previous?.reopenCount || previous?.reopenedAt
+          ? {
+              reopenCount: previous.reopenCount ?? 1,
+              ...(previous.reopenedAt ? { reopenedAt: previous.reopenedAt } : {}),
+              ...(previous.reopenedBy ? { reopenedBy: previous.reopenedBy } : {}),
+              ...(previous.reopenApprovalId ? { reopenApprovalId: previous.reopenApprovalId } : {}),
+            }
+          : {}),
         ...(data.note ? { note: data.note } : {}),
         warnings: {
           openOrders: open.filter((o) => o.branchId === branchId).length,
@@ -332,7 +341,7 @@ export async function reopenDay(
     (_, i) => `${businessDate(deps.sys.clock.now()).slice(0, 8)}${String(i + 1).padStart(2, '0')}`,
   );
   const monthCloses = await Promise.all(
-    monthDates.map((d) => deps.cash.getDayClose(scope, branchId, d)),
+    monthDates.map((d) => deps.cash.getDayCloseAny(scope, branchId, d)),
   );
   const monthReopens = monthCloses.reduce(
     (s, c) => s + (c?.reopenCount ?? (c?.reopenedAt ? 1 : 0)),

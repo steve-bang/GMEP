@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "tsBuildInfoFile": "./tsconfig.screenshots.tsbuildinfo", "plugins": [] },
+  "include": ["next-env.d.ts", "scripts/screenshots/**/*.ts", "e2e/**/*.ts"],
+  "exclude": ["node_modules"]
+}

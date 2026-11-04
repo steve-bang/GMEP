@@ -146,5 +146,6 @@ export {
   previewImport,
   commitImport,
   undoImport,
+  discardAbandonedImports,
 } from './application/dataImport';
 export type { ImportDto } from './application/dataImport';

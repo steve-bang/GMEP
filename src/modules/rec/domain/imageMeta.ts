@@ -96,6 +96,18 @@ function concat(parts: Uint8Array[]): Uint8Array {
   return out;
 }
 
+/** index just after the EOI that ends the entropy-coded data starting at `from`; anything after EOI is dropped */
+function scanEnd(b: Uint8Array, from: number): number {
+  for (let j = from + 2; j + 1 < b.length; j++) {
+    if (b[j] !== 0xff) continue;
+    const n = b[j + 1]!;
+    if (n === 0xd9) return j + 2;
+    if (n === 0x00 || n === 0xff || (n >= 0xd0 && n <= 0xd7)) continue;
+    j++; // another marker of a multi-scan image: its bytes stay
+  }
+  return b.length;
+}
+
 function stripJpeg(b: Uint8Array): Uint8Array | null {
   if (b.length < 4 || b[0] !== 0xff || b[1] !== 0xd8) return null;
   const head: Uint8Array[] = []; // APP0 (JFIF)
@@ -111,7 +123,7 @@ function stripJpeg(b: Uint8Array): Uint8Array | null {
     if (m === 0xda) {
       // start of scan: everything after is entropy-coded data up to EOI, copied as it is
       if (i + 4 > b.length) return null;
-      rest.push(b.subarray(i));
+      rest.push(b.subarray(i, scanEnd(b, i)));
       sawScan = true;
       break;
     }
@@ -127,6 +139,8 @@ function stripJpeg(b: Uint8Array): Uint8Array | null {
     if (m === 0xe0) head.push(seg);
     else if (m === 0xe1 && orientation === 1) orientation = exifOrientation(seg.subarray(4));
     else if (m === 0xe2 && ascii(seg, 4, 11) === 'ICC_PROFILE') rest.push(seg);
+    else if (m === 0xee && ascii(seg, 4, 5) === 'Adobe')
+      rest.push(seg); // APP14: colour transform, needed to decode
     else if ((m >= 0xe1 && m <= 0xef) || m === 0xfe) {
       // APP1..APP15 (EXIF, XMP, IPTC, ...) and comments are left out
     } else rest.push(seg);

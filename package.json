@@ -44,7 +44,7 @@
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.screenshots.json",
     "check:boundaries": "depcruise src --config .dependency-cruiser.cjs",
     "check:indexes": "tsx --tsconfig tsconfig.json scripts/check-indexes.ts",
     "indexes:generate": "tsx --tsconfig tsconfig.json scripts/check-indexes.ts --write",

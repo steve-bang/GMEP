@@ -586,4 +586,11 @@ export const Q = {
     eq: ['companyId', 'branchId'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
+  /** FR-SYS-007 R99: batches of ONE branch in one status (the abandoned-dry-run purge), newest first */
+  importBatchesByBranchStatus: defineQuery({
+    name: 'importBatches.byBranchStatus',
+    collection: COL.importBatches,
+    eq: ['companyId', 'branchId', 'status'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
 };

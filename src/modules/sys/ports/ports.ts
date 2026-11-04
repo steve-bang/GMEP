@@ -426,6 +426,12 @@ export interface ImportBatchRepository {
   getInTx(tx: Tx, scope: Scope, id: string): Promise<ImportBatch | null>;
   /** newest first, one branch */
   listByBranch(scope: Scope, branchId: string, limit: number): Promise<ImportBatch[]>;
+  listByBranchStatus(
+    scope: Scope,
+    branchId: string,
+    status: ImportBatch['status'],
+    limit: number,
+  ): Promise<ImportBatch[]>;
   create(tx: Tx, b: ImportBatch): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** file slot: the batch that currently owns these exact bytes for (branch, kind) */

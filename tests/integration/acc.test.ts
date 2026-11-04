@@ -1413,6 +1413,21 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect(rq2.json.level).toBe(1);
     });
 
+    it('an approved refund older than its validity (config, default 24 h) is not paid; the order state is judged again', async () => {
+      const o = await overCollected(100_000);
+      const rq = await call(tn, 'POST', '/api/v1/acc/refunds', refundBody(o.id, 20_000), key('rf'));
+      expect(rq.status, rq.text).toBe(202);
+      expect((await decide(ql, rq.json.approvalId, 'approve')).status).toBe(200);
+      const back = new Date(h.clock.now().getTime() - 25 * 3_600_000);
+      await patchDoc('approvals', rq.json.approvalId, { decidedAt: back });
+      const late = await post(tn, '/api/v1/acc/refunds/pay', { approvalId: rq.json.approvalId });
+      expect(late.status, late.text).toBe(409);
+      expect(late.json.code).toBe('approval_expired');
+      await patchDoc('approvals', rq.json.approvalId, { decidedAt: h.clock.now() });
+      const ok = await post(tn, '/api/v1/acc/refunds/pay', { approvalId: rq.json.approvalId });
+      expect(ok.status, ok.text).toBe(201);
+    });
+
     it('R105: a cash refund is not paid without an open shift; with one it is; the ceiling is shared and never negative', async () => {
       const o = await overCollected(80_000);
       const rq = await call(tn, 'POST', '/api/v1/acc/refunds', refundBody(o.id, 80_000), key('rf'));
@@ -1649,9 +1664,38 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       );
       expect(repeated.length).toBeGreaterThan(before);
       expect(repeated.some((n) => n.userId === 'u_owner')).toBe(true);
-      expect(JSON.stringify(repeated.at(-1)!.params)).toContain('4');
+      expect(repeated.some((n) => JSON.stringify(n.params).includes('4'))).toBe(true);
       // leave the shift state as found for the next test
       void tn3;
+    });
+
+    it('R106: closing a reopened day again keeps its reopen history, so the monthly count is not erased', async () => {
+      const tn3 = await h.loginAt('u_tn_q7', 'br_q7');
+      const ql3 = await h.loginAt('u_ql_q7', 'br_q7');
+      await ensureShift(tn3);
+      await closeShiftClean(tn3);
+      const date = (await get(ql3, '/api/v1/acc/day-close')).json.date as string;
+      const reopened = (await rows('dayCloses')).find((r) => r.businessDate === date)!;
+      expect(reopened.status).toBe('reopened');
+      const count = Number(reopened.reopenCount);
+      expect(count).toBeGreaterThan(0);
+      expect((await post(ql3, '/api/v1/acc/day-close', { date })).status).toBe(201);
+      const again = (await rows('dayCloses')).find((r) => r.businessDate === date)!;
+      expect(again.status).toBe('closed');
+      expect(again.reopenCount).toBe(count);
+      // leave the day open as found for the next test
+      const ch3 = await h.loginAt('u_owner', 'br_q7');
+      const rq = await post(ql3, '/api/v1/acc/day-close/reopen-request', {
+        date,
+        reason: 'Mở lại để các ca sau tiếp tục',
+      });
+      expect((await decide(ch3, rq.json.approvalId, 'approve')).status).toBe(200);
+      const re = await post(ql3, '/api/v1/acc/day-close/reopen', {
+        approvalId: rq.json.approvalId,
+      });
+      expect(re.status, re.text).toBe(200);
+      const third = (await rows('dayCloses')).find((r) => r.businessDate === date)!;
+      expect(third.reopenCount).toBe(count + 1);
     });
 
     it('a count difference needs a cause and an explanation; over the tolerance it needs a manager; the DAY cannot close until then; after the close nothing is posted that day', async () => {

@@ -122,6 +122,12 @@ export async function addPhoto(
       : {}),
   });
   const p0 = await load(deps, parent, scope, id);
+  // cheap checks first: nothing is written to the FileStore for a request that is certain to fail (the same checks run
+  // again inside the transaction, where they are authoritative)
+  if (!p0.open)
+    throw new AppError(parent === 'intake' ? 'state_invalid' : 'order_state_invalid', 409);
+  if (data.proposalId && !p0.proposalIds.includes(data.proposalId))
+    throw new AppError('photo_invalid', 422);
   // a technician (no right to edit the order) photographs only an order where an item is assigned to them
   if (parent === 'order' && !hasPermission(actor, 'repair-order:update')) {
     const mine = (await deps.items.listByOrder(scope, id, deps.rec.maxItemsPerOrder)).some(
@@ -145,53 +151,65 @@ export async function addPhoto(
     p0.branchId,
     `${id}_${photoId}.${EXT[contentType]}`,
   );
+  const known = p0.photos.some((x) => x.id === photoId);
+  if (!known && p0.photos.length >= deps.rec.maxPhotosPerRecord)
+    throw new AppError('photo_limit', 422);
   // bytes first (same bytes -> same path, so a retry rewrites the same object); the reference is added atomically below
   await deps.files.put(path, { bytes, contentType });
-  return runIdempotent(
-    idemOf(deps),
-    {
-      userId: actor.userId,
-      route: `POST /api/v1/rec/${parent === 'intake' ? 'intakes' : 'orders'}/${id}/photos`,
-      key: ctx.idempotencyKey,
-      fingerprint: fingerprintOf({ id, sha256, ...data }),
-    },
-    async (tx) => {
-      const p = await load(deps, parent, scope, id, tx);
-      if (!p.open)
-        throw new AppError(parent === 'intake' ? 'state_invalid' : 'order_state_invalid', 409);
-      if (data.proposalId && !p.proposalIds.includes(data.proposalId))
-        throw new AppError('photo_invalid', 422);
-      await assertWritable(deps, tx, actor, scope, p.branchId, 'edit_open_order');
-      if (p.photos.some((x) => x.id === photoId)) return { status: 200, body: { id: photoId } };
-      if (p.photos.length >= deps.rec.maxPhotosPerRecord) throw new AppError('photo_limit', 422);
-      const now = deps.sys.clock.now();
-      const ref: PhotoRef = {
-        id: photoId,
-        contentType,
-        size: bytes.length,
-        sha256,
-        ...(data.caption ? { caption: data.caption } : {}),
-        ...(data.proposalId ? { proposalId: data.proposalId } : {}),
-        takenBy: actor.userId,
-        takenAt: now,
-      };
-      // a separate field: adding evidence does not bump the record's version (no edit conflict for the screen)
-      const patch = { photos: [...p.photos, ref], updatedAt: now, updatedBy: actor.userId };
-      if (parent === 'intake') deps.intakes.update(tx, id, patch);
-      else deps.orders.update(tx, id, patch);
-      deps.sys.audit.record(
-        tx,
-        auditEntry(deps.sys, actor, ctx, {
-          branchId: p.branchId,
-          entityType: parent === 'intake' ? 'intake' : 'repairOrder',
-          entityId: id,
-          action: `${parent === 'intake' ? 'intake' : 'repairOrder'}.photo-add`,
-          after: { photoId, size: ref.size, contentType },
-        }),
-      );
-      return { status: 201, body: { id: photoId } };
-    },
-  );
+  const addPhotoTx = () =>
+    runIdempotent(
+      idemOf(deps),
+      {
+        userId: actor.userId,
+        route: `POST /api/v1/rec/${parent === 'intake' ? 'intakes' : 'orders'}/${id}/photos`,
+        key: ctx.idempotencyKey,
+        fingerprint: fingerprintOf({ id, sha256, ...data }),
+      },
+      async (tx) => {
+        const p = await load(deps, parent, scope, id, tx);
+        if (!p.open)
+          throw new AppError(parent === 'intake' ? 'state_invalid' : 'order_state_invalid', 409);
+        if (data.proposalId && !p.proposalIds.includes(data.proposalId))
+          throw new AppError('photo_invalid', 422);
+        await assertWritable(deps, tx, actor, scope, p.branchId, 'edit_open_order');
+        if (p.photos.some((x) => x.id === photoId)) return { status: 200, body: { id: photoId } };
+        if (p.photos.length >= deps.rec.maxPhotosPerRecord) throw new AppError('photo_limit', 422);
+        const now = deps.sys.clock.now();
+        const ref: PhotoRef = {
+          id: photoId,
+          contentType,
+          size: bytes.length,
+          sha256,
+          ...(data.caption ? { caption: data.caption } : {}),
+          ...(data.proposalId ? { proposalId: data.proposalId } : {}),
+          takenBy: actor.userId,
+          takenAt: now,
+        };
+        // a separate field: adding evidence does not bump the record's version (no edit conflict for the screen)
+        const patch = { photos: [...p.photos, ref], updatedAt: now, updatedBy: actor.userId };
+        if (parent === 'intake') deps.intakes.update(tx, id, patch);
+        else deps.orders.update(tx, id, patch);
+        deps.sys.audit.record(
+          tx,
+          auditEntry(deps.sys, actor, ctx, {
+            branchId: p.branchId,
+            entityType: parent === 'intake' ? 'intake' : 'repairOrder',
+            entityId: id,
+            action: `${parent === 'intake' ? 'intake' : 'repairOrder'}.photo-add`,
+            after: { photoId, size: ref.size, contentType },
+          }),
+        );
+        return { status: 201, body: { id: photoId } };
+      },
+    );
+
+  try {
+    return await addPhotoTx();
+  } catch (e) {
+    // the transaction failed: do not leave an orphan file (unless the same photo was already referenced)
+    if (!known) await deps.files.delete(path).catch(() => undefined);
+    throw e;
+  }
 }
 
 const hideSchema = z.object({ reason: z.string().trim().min(5).max(300) });

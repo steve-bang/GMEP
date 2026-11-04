@@ -816,6 +816,31 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
       return h.call('POST', path, { cookie, form, key: key('ph') });
     };
 
+    it('R104: a photo over the per-record limit is refused before anything is written to the file store', async () => {
+      const c = await call(cv, 'POST', '/api/v1/rec/intakes', { vehicleId: VEH_BIZ });
+      const path = `/api/v1/rec/intakes/${c.json.id}/photos`;
+      const rec = h.container.rec;
+      const cap = rec.rec.maxPhotosPerRecord;
+      const puts: string[] = [];
+      const put = rec.files.put.bind(rec.files);
+      rec.files.put = async (p, f) => {
+        puts.push(p);
+        return put(p, f);
+      };
+      try {
+        rec.rec.maxPhotosPerRecord = 1;
+        expect((await send(cv, path, JPEG_GPS)).status).toBe(201);
+        const other = Buffer.concat([JPEG_GPS.subarray(0, -2), Buffer.from([0x56, 0xff, 0xd9])]);
+        const before = puts.length;
+        const r = await send(cv, path, other);
+        expect(r.status, r.text).toBe(422);
+        expect(puts.length).toBe(before);
+      } finally {
+        rec.rec.maxPhotosPerRecord = cap;
+        rec.files.put = put;
+      }
+    });
+
     it('GPS is removed before the file is stored; a renamed non-image is refused; a manager hides a wrong photo with a reason, it is never deleted', async () => {
       const c = await call(cv, 'POST', '/api/v1/rec/intakes', { vehicleId: VEH_BIZ });
       const path = `/api/v1/rec/intakes/${c.json.id}/photos`;

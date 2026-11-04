@@ -1,4 +1,5 @@
 import { AppError } from '@/platform/errors/errors';
+import { readFormLimited } from '@/platform/http/body';
 import { authed, created } from '@/composition/api';
 import { addPhoto } from '@/modules/rec';
 
@@ -10,9 +11,7 @@ export const runtime = 'nodejs';
  */
 export const POST = authed(
   async ({ req, rec, session, params, requestId, idempotencyKey }) => {
-    const declared = Number(req.headers.get('content-length') ?? 0);
-    if (declared > rec.rec.photoMaxBytes + 64 * 1024) throw new AppError('photo_invalid', 422);
-    const form = await req.formData().catch(() => null);
+    const form = await readFormLimited(req, rec.rec.photoMaxBytes + 64 * 1024);
     const file = form?.get('file');
     if (!form || !(file instanceof File)) throw new AppError('photo_invalid', 422);
     const r = await addPhoto(

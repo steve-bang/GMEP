@@ -53,6 +53,17 @@ describe('R104: metadata is removed when a photo is accepted', () => {
     expect(out.length).toBeLessThan(jpeg(6).length);
   });
 
+  it('JPEG: bytes after EOI are dropped and the Adobe APP14 marker is kept', () => {
+    const base = [...jpeg(1)];
+    const adobe = seg(0xee, text('Adobe\0\x64\0\0\0\0\x01'));
+    const withAdobe = [...base.slice(0, 2), ...adobe, ...base.slice(2)];
+    const trailing = Uint8Array.from([...withAdobe, ...text('TRAILING-SECRET-DATA')]);
+    const out = stripImageMetadata(trailing, 'image/jpeg')!;
+    expect(has(out, 'TRAILING')).toBe(false);
+    expect(has(out, 'Adobe')).toBe(true);
+    expect([...out.slice(-2)]).toEqual([0xff, 0xd9]);
+  });
+
   it('JPEG with no rotation gets no EXIF block at all; a broken file is refused', () => {
     expect(has(stripImageMetadata(jpeg(1), 'image/jpeg')!, 'Exif')).toBe(false);
     expect(

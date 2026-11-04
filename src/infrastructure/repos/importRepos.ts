@@ -67,6 +67,19 @@ export class DocImportBatchRepository implements ImportBatchRepository {
     });
     return rows.map(fromDoc);
   }
+  async listByBranchStatus(
+    scope: Scope,
+    branchId: string,
+    status: ImportBatch['status'],
+    limit: number,
+  ) {
+    if (!scopeAllows(scope, scope.companyId, branchId)) return [];
+    const rows = await this.store.query(Q.importBatchesByBranchStatus.pick([], false), {
+      eq: { companyId: scope.companyId, branchId, status },
+      limit,
+    });
+    return rows.map(fromDoc);
+  }
   create(tx: Tx, b: ImportBatch) {
     this.store.create(tx, COL.importBatches, b.id, without(b, 'id'));
   }

@@ -4,7 +4,9 @@ import { resolveScope, type Actor } from '@/platform/rbac/rbac';
 import {
   allocateDocumentNumber,
   approvalLevelFor,
+  approvalLimitsOf,
   consumeApprovalInTx,
+  isApprovalExpired,
   loadApprovalForUse,
   openApprovalInTx,
 } from '@/modules/sys';
@@ -141,6 +143,9 @@ export async function requestRefund(
   );
 }
 
+/** hours an approved customer refund stays payable when the approval-limit config has no `validHours` */
+const DEFAULT_REFUND_VALID_HOURS = 24;
+
 export const payRefundSchema = z.object({ approvalId: z.string().trim().min(1).max(128) });
 
 export async function payApprovedRefund(
@@ -152,6 +157,13 @@ export async function payApprovedRefund(
   const scope = resolveScope(actor, 'cash-expense:create');
   const branchId = moneyBranch(actor, scope);
   const data = parseInput(payRefundSchema, input);
+  // R106 pattern: an approved refund is only good for `validHours` (config, default 24 h); after that it is asked for again
+  const limits = await approvalLimitsOf(
+    deps.sys,
+    actor.companyId,
+    'customer_refund',
+    businessDate(deps.sys.clock.now()),
+  );
   return runIdempotent(
     idemOf(deps),
     {
@@ -166,6 +178,14 @@ export async function payApprovedRefund(
         kind: 'customer_refund',
         branchId,
       });
+      if (
+        isApprovalExpired(
+          req.decidedAt ?? req.requestedAt,
+          deps.sys.clock.now(),
+          limits.validHours ?? DEFAULT_REFUND_VALID_HOURS,
+        )
+      )
+        throw new AppError('approval_expired', 409);
       const parsed = refundSchema.safeParse(req.payload);
       if (!parsed.success) throw new AppError('approval_payload_invalid', 409);
       const e = parsed.data;

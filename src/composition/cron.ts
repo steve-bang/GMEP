@@ -2,6 +2,7 @@ import type { Actor } from '@/platform/rbac/rbac';
 import { allBranchesScope } from '@/platform/scope/scope';
 import { runDueRollups } from '@/modules/rpt';
 import { runDueRequests } from '@/modules/ein';
+import { discardAbandonedImports } from '@/modules/sys';
 import type { ApiCtx } from './api';
 import { getContainer } from './container';
 
@@ -12,7 +13,9 @@ function cronActor(companyId: string, branchId: string): Actor {
     companyId,
     displayName: 'Hệ thống (cron)',
     assignments: [{ roleCode: 'SYSTEM_CRON', branchId }],
-    rolePermissions: { SYSTEM_CRON: ['report-job:manage', 'invoice-queue:update'] },
+    rolePermissions: {
+      SYSTEM_CRON: ['report-job:manage', 'invoice-queue:update', 'data-import:create'],
+    },
     canConsolidate: false,
     workingBranchId: branchId,
   };
@@ -46,6 +49,12 @@ export async function runScheduledJobs(c: ApiCtx) {
       row.ein = await runDueRequests(c.ein, actor, ctx);
     } catch (err) {
       c.log.error({ err, branchId: b.id }, 'cron ein failed');
+    }
+    try {
+      // R99: staged import rows hold personal data; abandoned dry runs are purged even when nobody uploads again
+      await discardAbandonedImports(c.sys, actor, b.id, ctx);
+    } catch (err) {
+      c.log.error({ err, branchId: b.id }, 'cron import purge failed');
     }
     out.push(row);
   }

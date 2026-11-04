@@ -84,7 +84,7 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
   },
   customer_refund: {
     alwaysNeeded: true,
-    defaults: { selfMaxVnd: 0, level1MaxVnd: 10_000_000, dueHours: 24 },
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 10_000_000, dueHours: 24, validHours: 24 },
   },
   // no value: the request is raised at level 2 (owner) whatever the numbers
   day_reopen: {

@@ -189,6 +189,14 @@
       "title": "Còn lô nhập dừng giữa chừng",
       "detail": "Chi nhánh có lô nhập cùng loại đang dừng giữa chừng. Ghi tiếp hoặc hoàn tác lô đó trước khi tạo lô mới."
     },
+    "payload_too_large": {
+      "title": "Tệp quá lớn",
+      "detail": "Dung lượng gửi lên vượt giới hạn cho phép."
+    },
+    "import_branch_mismatch": {
+      "title": "Lô nhập thuộc chi nhánh khác",
+      "detail": "Lô nhập này của chi nhánh khác với chi nhánh đang làm việc. Chuyển sang đúng chi nhánh rồi thử lại."
+    },
     "import_undo_blocked": {
       "title": "Không thể hoàn tác lô nhập",
       "detail": "Một số dữ liệu của lô đã được dùng hoặc sửa sau khi nhập. Chưa có gì bị xóa."

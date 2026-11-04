@@ -6,6 +6,9 @@ export class MemoryFileStore implements FileStore {
   async put(path: string, file: StoredFile): Promise<void> {
     this.files.set(path, { bytes: new Uint8Array(file.bytes), contentType: file.contentType });
   }
+  async delete(path: string): Promise<void> {
+    this.files.delete(path);
+  }
   async get(path: string): Promise<StoredFile | null> {
     const f = this.files.get(path);
     return f ? { bytes: new Uint8Array(f.bytes), contentType: f.contentType } : null;

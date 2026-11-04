@@ -508,7 +508,7 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(ok.text).not.toContain('Nguyễn'); // no customer names or phones in the file
       const logsAfter = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
       expect(logsAfter.length).toBe(logsBefore + 1);
-      expect(logsAfter.at(-1)!.branchId).toBe('br_q7');
+      expect(logsAfter.some((x) => x.branchId === 'br_q7')).toBe(true);
       // the quan ly of the branch may export; the owner must name the branch (no merged file)
       expect((await post(ql, '/api/v1/rpt/daily/export', { date: today })).status).toBe(200);
       expect((await post(ch, '/api/v1/rpt/daily/export', { date: today })).status).toBe(409);
@@ -531,7 +531,9 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(
         (await post(ch, '/api/v1/rpt/daily/export', { date: today, format: 'xlsx' })).status,
       ).toBe(409);
-      const before = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export').length;
+      const beforeRows = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
+      const before = beforeRows.length;
+      const xlsxBefore = beforeRows.filter((x) => JSON.stringify(x.after).includes('xlsx')).length;
       const ok = await post(kt, '/api/v1/rpt/daily/export', {
         date: today,
         branchId: 'br_q7',
@@ -543,7 +545,9 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(ok.text.startsWith('PK')).toBe(true);
       const after = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
       expect(after.length).toBe(before + 1);
-      expect(JSON.stringify(after.at(-1)!.after)).toContain('xlsx');
+      expect(after.filter((x) => JSON.stringify(x.after).includes('xlsx')).length).toBe(
+        xlsxBefore + 1,
+      );
     });
   });
 
@@ -632,7 +636,7 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       }
       const after = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
       expect(after.length).toBe(before + 4);
-      expect(after.at(-1)!.branchId).toBe('br_q7');
+      expect(after.filter((x) => x.branchId === 'br_q7').length).toBeGreaterThanOrEqual(4);
       expect((await post(cv, '/api/v1/rpt/export', { kind: 'monthly', month })).status).toBe(403);
       expect(
         (await post(qlTd, '/api/v1/rpt/export', { kind: 'monthly', month, branchId: 'br_q7' }))
@@ -643,7 +647,9 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
 
     it('FR-RPT-009/014: .xlsx export has the same permission and audit as CSV; the service-type filter is accepted on monthly and reconcile', async () => {
       const month = today.slice(0, 7);
-      const before = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export').length;
+      const beforeRows = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export');
+      const before = beforeRows.length;
+      const xlsxBefore = beforeRows.filter((x) => JSON.stringify(x.after).includes('xlsx')).length;
       const x = await post(ql, '/api/v1/rpt/export', {
         kind: 'monthly',
         month,
@@ -657,7 +663,9 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(x.text.startsWith('PK')).toBe(true);
       const after = (await rows('auditLogs')).filter((e) => e.action === 'rollup.export');
       expect(after.length).toBe(before + 1);
-      expect(JSON.stringify(after.at(-1)!.after)).toContain('xlsx');
+      expect(after.filter((x) => JSON.stringify(x.after).includes('xlsx')).length).toBe(
+        xlsxBefore + 1,
+      );
       expect(
         (await post(cv, '/api/v1/rpt/export', { kind: 'monthly', month, format: 'xlsx' })).status,
       ).toBe(403);

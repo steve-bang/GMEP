@@ -173,6 +173,17 @@ export class DocCashRepository implements CashRepository {
     const x = d ? asEntity<DayClose>(d) : null;
     return x && x.status === 'closed' && inScope(scope, x) ? x : null;
   }
+  /** the record whatever its status (a reopened day keeps its reopen history, R106) */
+  async getDayCloseAny(scope: Scope, branchId: string, date: string) {
+    const d = await this.store.get(COL.dayCloses, dayCloseId(branchId, date));
+    const x = d ? asEntity<DayClose>(d) : null;
+    return x && inScope(scope, x) ? x : null;
+  }
+  async getDayCloseAnyInTx(tx: Tx, scope: Scope, branchId: string, date: string) {
+    const d = await this.store.getInTx(tx, COL.dayCloses, dayCloseId(branchId, date));
+    const x = d ? asEntity<DayClose>(d) : null;
+    return x && inScope(scope, x) ? x : null;
+  }
   /** a day closed again after a reopening replaces the reopened record (the history is in the audit log) */
   createDayClose(tx: Tx, d: DayClose) {
     this.store.set(tx, COL.dayCloses, d.id, without(d, 'id'));

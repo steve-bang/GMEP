@@ -398,6 +398,23 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     });
   });
 
+  it('NFR-ISO-01: a batch cannot be committed or undone from another working branch', async () => {
+    const v = await upload(
+      tk,
+      'parts',
+      csv(
+        'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng',
+        'ISO-B1,Hàng thử chi nhánh,piece,other',
+      ),
+    );
+    expect(v.json.status).toBe('validated');
+    const other = await h.loginAt('u_owner', 'br_td');
+    const c = await commit(other, v.json.id);
+    expect(c.status, c.text).toBe(409);
+    expect((await undo(other, v.json.id)).status).toBe(409);
+    expect((await commit(tk, v.json.id)).json.status).toBe('committed');
+  });
+
   it('template is a CSV with the Vietnamese header and BOM', async () => {
     const t = await h.call('GET', `${IMPORTS}/template?kind=parts`, { cookie: tk });
     expect(t.status).toBe(200);
@@ -410,5 +427,38 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     expect(t.status).toBe(200);
     expect(t.headers.get('content-type')).toContain('spreadsheetml.sheet');
     expect(t.text.startsWith('PK')).toBe(true);
+  });
+
+  it('R99: the internal cron purges abandoned dry runs of the branch even when nobody uploads again', async () => {
+    const secret = 'cron-secret-0123456789-abcdefghijklmnop';
+    const on = await createHarness(backend, {
+      env: { CRON_SECRET: secret, CRON_COMPANY_ID: 'cmp_demo' },
+    });
+    const as = await on.loginAt('u_tk_q7', 'br_q7');
+    const form = new FormData();
+    form.set('kind', 'parts');
+    form.set(
+      'file',
+      new File(
+        [
+          csv(
+            'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng',
+            'ISO-CRON,Hàng thử cron,piece,other',
+          ),
+        ],
+        'f.csv',
+      ),
+    );
+    const v = await on.call('POST', IMPORTS, { cookie: as, form, key: key('imp') });
+    expect(v.json.status).toBe('validated');
+    on.container.sys.config.importAbandonedDays = -1;
+    const run = await on.call('POST', '/api/v1/internal/cron/run-due', {
+      origin: null,
+      headers: { 'x-cron-secret': secret },
+    });
+    expect(run.status).toBe(200);
+    on.container.sys.config.importAbandonedDays = 7;
+    const after = await on.call('GET', `${IMPORTS}/${v.json.id}`, { cookie: as });
+    expect(after.json.status).toBe('discarded');
   });
 });
