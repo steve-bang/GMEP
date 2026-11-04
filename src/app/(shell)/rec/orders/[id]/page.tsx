@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { formatDateTime, isoToVi } from '@/platform/format/date';
 import { hasPermission } from '@/platform/rbac/rbac';
 import { getOrderMoney } from '@/modules/acc';
+import { listOrderInvoices } from '@/modules/ein';
 import { getOrder, listTechnicians, type TechnicianOption } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -69,6 +70,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const pay = hasPermission(actor, 'order-balance:view')
     ? await getOrderMoney(getContainer().acc, actor, id).catch(() => null)
     : null;
+  // the invoice is its own object with its own state (FR-REC-028): shown here, never merged into the order status
+  const inv = hasPermission(actor, 'invoice:view')
+    ? await listOrderInvoices(getContainer().ein, actor, id).catch(() => null)
+    : null;
+  const mayIssue = hasPermission(actor, 'invoice:create');
   const mayPropose = hasPermission(actor, 'work-proposal:update');
   const issuedParts = o.partRequests.some((r) => r.status === 'issued');
   const nameOf = (userId: string | null) => userId ?? '—';
@@ -167,6 +173,59 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 total: money(pay.balance.receivableVnd),
               })}
             </span>
+          </div>
+        </section>
+      ) : null}
+
+      {inv ? (
+        <section className="card" aria-labelledby="oi-h" data-testid="order-invoice">
+          <div className="card__header">
+            <h2 className="card__title" id="oi-h">
+              {t('rec.orders.invoiceTitle')}
+            </h2>
+            {!inv.validInvoiceId &&
+            !inv.openRequest &&
+            mayIssue &&
+            (o.status === 'ready_for_delivery' || o.status === 'completed') ? (
+              <Link
+                className="btn btn--primary"
+                href={`/ein/orders/${encodeURIComponent(o.id)}/issue`}
+                data-testid="order-invoice-issue"
+              >
+                {t('rec.orders.invoiceIssue')}
+              </Link>
+            ) : null}
+          </div>
+          <div className="card__body stack-2">
+            {inv.items.length === 0 && !inv.openRequest ? (
+              <span className="text-secondary">{t('rec.orders.invoiceNone')}</span>
+            ) : null}
+            {inv.items.map((i) => (
+              <div key={i.id}>
+                <Link
+                  href={`/ein/invoices/${encodeURIComponent(i.id)}`}
+                  data-testid="order-invoice-link"
+                >
+                  {i.number ? `${i.symbol}-${i.number}` : i.requestNumber}
+                </Link>{' '}
+                <StatusBadge
+                  tone={
+                    i.status === 'issued'
+                      ? 'success'
+                      : i.status === 'cancelled'
+                        ? 'danger'
+                        : 'warning'
+                  }
+                >
+                  {t(`ein.common.status_${i.displayStatus}`)}
+                </StatusBadge>
+              </div>
+            ))}
+            {inv.openRequest ? (
+              <span className="text-secondary" data-testid="order-invoice-pending">
+                {t('rec.orders.invoicePending')} ({inv.openRequest.number})
+              </span>
+            ) : null}
           </div>
         </section>
       ) : null}

@@ -48,6 +48,7 @@ export {
   listQueue,
   getConnection,
   hasValidInvoice,
+  listOrderInvoices,
   displayStatusOf,
   toInvoiceDto,
 } from './application/read';
@@ -61,5 +62,6 @@ export type {
   WarningRow,
   WarningsDto,
   ConnectionDto,
+  OrderInvoicesDto,
   RequestDto,
 } from './application/read';

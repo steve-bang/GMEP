@@ -243,6 +243,8 @@ export interface QueueItem {
   nextAttemptAt?: Date;
   valueVnd: number;
   createdAt: Date;
+  /** version of the request when the item was written (the guard of fix / cancel) */
+  version: number;
 }
 export interface InvoiceQueue {
   /** = branch id */

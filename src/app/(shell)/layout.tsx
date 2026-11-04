@@ -135,6 +135,49 @@ export default async function ShellLayout({ children }: { children: React.ReactN
           : []),
       ],
     },
+    ...(can.invoices || can.einConnection
+      ? [
+          {
+            label: t('shell.nav.groupEin'),
+            items: [
+              ...(can.invoices
+                ? [
+                    item('ei', '/ein', t('shell.nav.invoices'), 'file-text', 'exact'),
+                    item(
+                      'ew',
+                      '/ein/warnings',
+                      t('shell.nav.invoiceWarnings'),
+                      'alert-triangle',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+              ...(can.invoiceQueue
+                ? [
+                    item(
+                      'eq',
+                      '/ein/queue',
+                      t('shell.nav.invoiceQueue'),
+                      'clipboard-list',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+              ...(can.einConnection
+                ? [
+                    item(
+                      'ec',
+                      '/ein/connection',
+                      t('shell.nav.invoiceConnection'),
+                      'info',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+            ],
+          },
+        ]
+      : []),
     {
       label: t('shell.nav.groupInv'),
       items: [

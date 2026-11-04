@@ -446,6 +446,7 @@ export interface QueueRowDto {
   nextAttemptAt: string | null;
   valueVnd: number;
   createdAt: string;
+  version: number;
   actions: Record<'retry' | 'fixBuyer' | 'cancel', { allowed: boolean; reasonCode?: string }>;
 }
 
@@ -480,6 +481,7 @@ export async function listQueue(
         nextAttemptAt: i.nextAttemptAt?.toISOString() ?? null,
         valueVnd: i.valueVnd,
         createdAt: i.createdAt.toISOString(),
+        version: i.version,
         actions: {
           retry: !may
             ? no('no_permission')
@@ -516,7 +518,10 @@ export interface ConnectionDto {
 }
 
 export async function getConnection(deps: EinDeps, actor: Actor): Promise<ConnectionDto> {
-  const scope = resolveScope(actor, 'einvoice-config:view');
+  // anyone who works with invoices needs to know whether the provider is activated; the config readers (AD) too
+  const scope = hasPermission(actor, 'invoice:view')
+    ? resolveScope(actor, 'invoice:view')
+    : resolveScope(actor, 'einvoice-config:view');
   const branchId = einBranch(actor, scope);
   const issuer = await issuerOf(
     deps,
@@ -544,4 +549,32 @@ export async function hasValidInvoice(
   orderId: string,
 ): Promise<boolean> {
   return !!(await deps.index.get(scope, orderId))?.validInvoiceId;
+}
+
+export interface OrderInvoicesDto {
+  /** the effective invoice (or null) and every document of the order, oldest first */
+  validInvoiceId: string | null;
+  items: InvoiceDto[];
+  /** an issue request is still open: the order must not be issued again */
+  openRequest: { id: string; number: string; status: RequestStatus } | null;
+}
+
+/** The invoice side of ONE order (its own status set, never merged into the order status). Read by key. */
+export async function listOrderInvoices(
+  deps: EinDeps,
+  actor: Actor,
+  orderId: string,
+): Promise<OrderInvoicesDto> {
+  const scope = resolveScope(actor, 'invoice:view');
+  const idx = await deps.index.get(scope, orderId);
+  if (!idx) return { validInvoiceId: null, items: [], openRequest: null };
+  const byId = new Map((await deps.invoices.getMany(scope, idx.invoiceIds)).map((x) => [x.id, x]));
+  const items = idx.invoiceIds.flatMap((id) => (byId.get(id) ? [toInvoiceDto(byId.get(id)!)] : []));
+  const r = idx.issueRequestId ? await deps.requests.get(scope, idx.issueRequestId) : null;
+  return {
+    validInvoiceId: idx.validInvoiceId,
+    items,
+    openRequest:
+      r && isOpenRequest(r.status) ? { id: r.id, number: r.number, status: r.status } : null,
+  };
 }

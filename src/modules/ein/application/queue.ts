@@ -29,6 +29,7 @@ export const toQueueItem = (r: InvoiceRequest): QueueItem => ({
   ...(r.nextAttemptAt ? { nextAttemptAt: r.nextAttemptAt } : {}),
   valueVnd: r.valueVnd,
   createdAt: r.createdAt,
+  version: r.version,
 });
 
 export async function readQueue(
