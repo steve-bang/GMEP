@@ -67,6 +67,38 @@ export function recDemoDocs(): SeedDoc[] {
     ['body_paint', 'Đồng sơn'],
   ] as const)
     cfg('service-type', code, { name, status: 'active' });
+  // Câu 2 / FR-REC-026: approval policy (a customer may refuse a required item; no OTP until SMS exists)
+  cfg('quote-approval', 'company', {
+    allowDeclineRequired: true,
+    verbalApproval: true,
+    otpMode: 'off',
+  });
+  for (const [code, name, noteRequired] of [
+    ['later', 'Để lần sau', false],
+    ['price_high', 'Giá cao hơn dự kiến', false],
+    ['fixed_elsewhere', 'Đã sửa ở nơi khác', false],
+    ['other', 'Lý do khác', true],
+  ] as const)
+    cfg('decline-reason', code, {
+      name,
+      status: 'active',
+      ...(noteRequired ? { noteRequired } : {}),
+    });
+  // FR-REC-032: two service types, two different step sets (SAMPLE steps; the real ones are the client's to define)
+  cfg('service-workflow', 'maintenance', {
+    steps: [
+      { code: 'inspect', name: 'Kiểm tra' },
+      { code: 'service', name: 'Thực hiện bảo dưỡng', responsibleRole: 'TH' },
+      { code: 'qc', name: 'Kiểm tra chất lượng', responsibleRole: 'QD' },
+    ],
+  });
+  cfg('service-workflow', 'tire_wheel', {
+    steps: [
+      { code: 'remove', name: 'Tháo bánh' },
+      { code: 'balance', name: 'Cân bằng và lắp', responsibleRole: 'TH' },
+      { code: 'qc', name: 'Kiểm tra chất lượng', responsibleRole: 'QD' },
+    ],
+  });
   cfg('discount-limit', 'company', { maxDiscountBpByRole: { CV: 500, QL: 1500, CH: 3000 } });
   return docs;
 }

@@ -63,6 +63,7 @@ import {
 } from '@/infrastructure/repos/invRepos';
 import {
   DocIntakeRepository,
+  DocQuoteLinkRepository,
   DocQuoteRepository,
   DocQuoteVersionRepository,
 } from '@/infrastructure/repos/recRepos';
@@ -216,7 +217,8 @@ function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): Re
     intakes: new DocIntakeRepository(store),
     quotes: new DocQuoteRepository(store),
     versions: new DocQuoteVersionRepository(store),
-    rec: DEFAULT_REC_CONFIG,
+    links: new DocQuoteLinkRepository(store),
+    rec: { ...DEFAULT_REC_CONFIG, approval: { ...DEFAULT_REC_CONFIG.approval } },
   };
   // C17: REC joins the data-retention gate of CRM; the stub still stands for modules not built yet
   crm.retention = combineRetention(

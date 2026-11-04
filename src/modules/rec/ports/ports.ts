@@ -1,7 +1,14 @@
 import type { Page } from '@/platform/pagination/pagination';
 import type { Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
-import type { Intake, IntakeStatus, Quote, QuoteStatus, QuoteVersion } from '../domain/entities';
+import type {
+  Intake,
+  IntakeStatus,
+  Quote,
+  QuoteLink,
+  QuoteStatus,
+  QuoteVersion,
+} from '../domain/entities';
 
 type Cursor = { v: string; id: string };
 export interface PageQuery {
@@ -60,4 +67,17 @@ export interface QuoteVersionRepository {
   listByQuote(scope: Scope, quoteId: string, count: number): Promise<QuoteVersion[]>;
   create(tx: Tx, v: QuoteVersion): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+/**
+ * FR-REC-008: customer links, keyed by the SHA-256 of the token. `find*` take no Scope on purpose: the
+ * token IS the capability and the record names the one branch it grants (the caller then reads the quote
+ * with a Scope narrowed to that branch). Staff-side writes (`create`, `update`) happen inside the
+ * transaction of a Scope-checked use case.
+ */
+export interface QuoteLinkRepository {
+  find(hash: string): Promise<QuoteLink | null>;
+  findInTx(tx: Tx, hash: string): Promise<QuoteLink | null>;
+  create(tx: Tx, l: QuoteLink): void;
+  update(tx: Tx, hash: string, patch: Record<string, unknown>): void;
 }

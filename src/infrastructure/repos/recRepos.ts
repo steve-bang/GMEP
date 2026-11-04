@@ -9,6 +9,8 @@ import type {
   Quote,
   QuoteStatus,
   QuoteRepository,
+  QuoteLink,
+  QuoteLinkRepository,
   QuoteVersion,
   QuoteVersionRepository,
 } from '@/modules/rec';
@@ -193,6 +195,7 @@ const quoteFromDoc = ({ id, data: x }: StoredDoc): Quote => ({
   status: x.status,
   ...put('validUntil', opt<string>(x.validUntil)),
   totalVnd: x.totalVnd ?? 0,
+  ...put('approvedTotalVnd', opt<number>(x.approvedTotalVnd)),
   createdAt: x.createdAt,
   createdBy: x.createdBy,
   updatedAt: x.updatedAt,
@@ -258,6 +261,9 @@ const versionFromDoc = ({ id, data: x }: StoredDoc): QuoteVersion => ({
   ...put('replacedByN', opt<number>(x.replacedByN)),
   ...put('rejectedAt', opt<Date>(x.rejectedAt)),
   ...put('rejectReason', opt<string>(x.rejectReason)),
+  ...(x.rejectedBy === undefined ? {} : { rejectedBy: x.rejectedBy as string | null }),
+  ...put('approval', opt<QuoteVersion['approval']>(x.approval)),
+  ...put('linkHash', opt<string>(x.linkHash)),
   createdAt: x.createdAt,
   createdBy: x.createdBy,
   updatedAt: x.updatedAt,
@@ -290,5 +296,38 @@ export class DocQuoteVersionRepository implements QuoteVersionRepository {
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.quoteVersions, id, patch);
+  }
+}
+
+// ---- quote links ----------------------------------------------------------------------------------
+
+const linkFromDoc = ({ id, data: x }: StoredDoc): QuoteLink => ({
+  id,
+  companyId: x.companyId,
+  branchId: x.branchId,
+  quoteId: x.quoteId,
+  n: x.n,
+  createdAt: x.createdAt,
+  createdBy: x.createdBy,
+  ...put('revokedAt', opt<Date>(x.revokedAt)),
+  ...put('revokedReason', opt<string>(x.revokedReason)),
+  ...put('usedAt', opt<Date>(x.usedAt)),
+});
+
+export class DocQuoteLinkRepository implements QuoteLinkRepository {
+  constructor(private readonly store: DocStore) {}
+  async find(hash: string) {
+    const d = await this.store.get(COL.quoteLinks, hash);
+    return d ? linkFromDoc(d) : null;
+  }
+  async findInTx(tx: Tx, hash: string) {
+    const d = await this.store.getInTx(tx, COL.quoteLinks, hash);
+    return d ? linkFromDoc(d) : null;
+  }
+  create(tx: Tx, l: QuoteLink) {
+    this.store.create(tx, COL.quoteLinks, l.id, without(l, 'id'));
+  }
+  update(tx: Tx, hash: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.quoteLinks, hash, patch);
   }
 }

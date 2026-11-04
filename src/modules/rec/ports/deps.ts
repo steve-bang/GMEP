@@ -1,7 +1,12 @@
 import type { CrmDeps } from '@/modules/crm';
 import type { InvDeps } from '@/modules/inv';
 import type { SysDeps } from '@/modules/sys';
-import type { IntakeRepository, QuoteRepository, QuoteVersionRepository } from './ports';
+import type {
+  IntakeRepository,
+  QuoteLinkRepository,
+  QuoteRepository,
+  QuoteVersionRepository,
+} from './ports';
 
 /** REC configuration: documented defaults, none hard-coded in a use case. */
 export interface RecConfig {
@@ -14,6 +19,19 @@ export interface RecConfig {
    * (labor vs parts, per goods group) is effective-dated config [Cần xác nhận: Kế toán khách].
    */
   defaultTaxRateKey: string;
+  /**
+   * Approval policy used when no `quote-approval` config version is in force (Câu 2: a customer may
+   * refuse a required item by default; OTP stays off until an SMS channel is active).
+   */
+  approval: {
+    allowDeclineRequired: boolean;
+    verbalApproval: boolean;
+    otpMode: 'off';
+  };
+  /** QUO-05: a verbal approval needs a note of at least this many characters */
+  verbalNoteMinLength: number;
+  /** random bytes in a customer link token (>= 16 = 128 bit, QUO-04) */
+  linkTokenBytes: number;
   /** limits that keep one quote inside a bounded transaction */
   maxItems: number;
   maxLinesPerItem: number;
@@ -26,6 +44,9 @@ export const DEFAULT_REC_CONFIG: RecConfig = {
   quoteValidityDays: 7,
   priceListCode: 'STD',
   defaultTaxRateKey: 'vat',
+  approval: { allowDeclineRequired: true, verbalApproval: true, otpMode: 'off' },
+  verbalNoteMinLength: 10,
+  linkTokenBytes: 32,
   maxItems: 30,
   maxLinesPerItem: 30,
   maxVersions: 50,
@@ -39,6 +60,7 @@ export interface RecDeps {
   intakes: IntakeRepository;
   quotes: QuoteRepository;
   versions: QuoteVersionRepository;
+  links: QuoteLinkRepository;
   rec: RecConfig;
 }
 // FR-REC-003 / R9: the odometer threshold is CRM's single `abnormalKmDrop` (deps.crm.crm), not a REC copy.

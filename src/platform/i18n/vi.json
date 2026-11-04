@@ -1076,7 +1076,11 @@
     "configRejected": "Đề xuất cấu hình “{type}” của bạn đã bị từ chối.",
     "reservationShortened": "Kiểm kê làm giảm giữ chỗ của lệnh {orderId}: phụ tùng {partCode} thiếu thêm {qty}.",
     "odometerAbnormal": "Số km xe {plate} giảm bất thường ({from} xuống {to}). Cần xem lại.",
-    "lookupLimit": "Người dùng {user} đã tra cứu khách hoặc xe vượt giới hạn cho phép. Xem nhật ký truy cập."
+    "lookupLimit": "Người dùng {user} đã tra cứu khách hoặc xe vượt giới hạn cho phép. Xem nhật ký truy cập.",
+    "quoteApprovedFull": "Khách đã duyệt toàn phần báo giá {number} (bản {n}). Mở báo giá để xem.",
+    "quoteApprovedPartial": "Khách đã duyệt một phần báo giá {number} (bản {n}). Mở báo giá để xem hạng mục.",
+    "quoteApprovedVerbal": "Báo giá {number} (bản {n}) được duyệt bằng lời tại quầy. Ngoại lệ cần rà soát.",
+    "quoteRejected": "Khách từ chối toàn bộ báo giá {number} (bản {n})."
   },
   "settings": {
     "crumb": "Cài đặt",

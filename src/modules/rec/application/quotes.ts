@@ -27,6 +27,7 @@ import {
   transitionQuote,
 } from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
+import { toApprovalDto } from './approval';
 import { buildItems, itemInput } from './quoteBuild';
 import {
   addDays,
@@ -63,6 +64,8 @@ export interface QuoteDto {
   validUntil: string | null;
   /** total of the current version including tax */
   totalVnd: number;
+  /** FR-REC-009: tax-inclusive total of the approved items; null until approved */
+  approvedTotalVnd: number | null;
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -139,6 +142,10 @@ export interface VersionDto {
   rejectReason: string | null;
   /** read-only when replaced or not the latest */
   current: boolean;
+  /** FR-REC-009: the approval evidence once approved (no link or token) */
+  approval: ReturnType<typeof toApprovalDto> | null;
+  /** a customer link exists for this version (the token itself is never readable) */
+  hasLink: boolean;
 }
 
 export interface QuoteDetailDto extends QuoteDto {
@@ -162,6 +169,7 @@ const toQuoteDto = (q: Quote, today: string): QuoteDto => ({
   status: effectiveQuoteStatus(q.status, q.validUntil, today),
   validUntil: q.validUntil ?? null,
   totalVnd: q.totalVnd,
+  approvedTotalVnd: q.approvedTotalVnd ?? null,
   createdAt: q.createdAt.toISOString(),
   updatedAt: q.updatedAt.toISOString(),
   version: q.version,
@@ -272,6 +280,8 @@ async function toVersionDto(
     replacedByN: v.replacedByN ?? null,
     rejectReason: v.rejectReason ?? null,
     current: v.n === currentN && v.replacedByN === undefined,
+    approval: v.approval ? toApprovalDto(v.approval, () => null) : null,
+    hasLink: !!v.linkHash,
   };
 }
 
@@ -320,6 +330,7 @@ export async function getQuote(
   const shown = versions.find((v) => v.n === (n ?? q.currentN));
   if (!shown) throw notFound();
   const mayEdit = hasPermission(actor, 'quote:update');
+  const mayApprove = hasPermission(actor, 'quote:approve');
   const today = businessDate(deps.sys.clock.now());
   return {
     ...toQuoteDto(q, today),
@@ -331,9 +342,9 @@ export async function getQuote(
       replacedByN: v.replacedByN ?? null,
     })),
     shown: await toVersionDto(deps, actor, shown, q.currentN),
-    allowed: mayEdit
-      ? allowedQuoteActions(q.status, isQuoteExpired(q.status, q.validUntil, today))
-      : [],
+    allowed: allowedQuoteActions(q.status, isQuoteExpired(q.status, q.validUntil, today)).filter(
+      (a) => (a === 'approve' ? mayApprove : mayEdit),
+    ),
   };
 }
 
@@ -658,6 +669,7 @@ export async function rejectQuote(
         status: t.state,
         rejectedAt: now,
         rejectReason: data.reason,
+        rejectedBy: actor.userId,
         updatedAt: now,
         updatedBy: actor.userId,
         version: cur.version + 1,

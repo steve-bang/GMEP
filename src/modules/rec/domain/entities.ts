@@ -178,6 +178,83 @@ export interface TaxSnapshot {
   effectiveFrom: string;
 }
 
+/** FR-REC-009 / FR-REC-026: how the approval was given. OTP is not offered until an SMS channel is active (QUO-04/05). */
+export type ApprovalMethod = 'link' | 'counter_signature' | 'counter_verbal';
+export const APPROVAL_METHODS: readonly ApprovalMethod[] = [
+  'link',
+  'counter_signature',
+  'counter_verbal',
+];
+
+/** An item the customer did NOT approve; a refused required item keeps the safety flag for the reminder list (BR-REC-11). */
+export interface DeclinedItem {
+  itemNo: number;
+  name: string;
+  necessity: Necessity;
+  /** `decline-reason` catalogue code; mandatory for a refused required item */
+  reasonCode?: string;
+  reasonNote?: string;
+  /** "Từ chối hạng mục bắt buộc" in the evidence */
+  safety: boolean;
+  subtotalVnd: number;
+}
+
+/**
+ * The part of an approved version that the repair order (slice 1.6) is built from. `lineKey` is immutable
+ * (quote id, version, item, line) and is the key the stock hold and the goods issue carry (I20, BA §17).
+ */
+export interface ApprovedLine {
+  lineKey: string;
+  itemNo: number;
+  itemName: string;
+  lineNo: number;
+  kind: 'labor' | 'part';
+  code: string;
+  name: string;
+  serviceId?: string;
+  partId?: string;
+  /** labor minutes or part quantity (stored scale, see qtyScale) */
+  minutes?: number;
+  qty?: number;
+  qtyScale?: number;
+  unitVnd: number;
+  amountVnd: number;
+  taxKey: string;
+  taxVersionId: string;
+  taxRateBp: number;
+  /** the price version the line was priced with: `price-item` version (parts) or labor-rate version (labor) */
+  priceVersionId: string;
+  /** labor lines: the standard-hours version too */
+  hoursVersionId?: string;
+}
+
+/** FR-REC-009: evidence of the approval, written once with the status change and never edited. */
+export interface QuoteApproval {
+  method: ApprovalMethod;
+  mode: 'full' | 'partial';
+  decidedAt: Date;
+  /** the staff member who recorded it; null = the customer through the tokenised link */
+  recordedBy: string | null;
+  /** link id (token hash prefix) for `link` */
+  linkId?: string;
+  approvedItemNos: number[];
+  declined: DeclinedItem[];
+  /** totals of the approved items only, tax recomputed on that set (UAT-17), never prorated */
+  approvedSubtotalVnd: number;
+  approvedTaxVnd: number;
+  approvedTotalVnd: number;
+  lines: ApprovedLine[];
+  /** counter signature: who signed and the paper/screen reference */
+  signerName?: string;
+  evidenceRef?: string;
+  /** verbal approval: note, "đã đọc lại" tick; such an approval is an exception for the manager's review */
+  note?: string;
+  readBack?: boolean;
+  exception: boolean;
+  /** SHA-256 over the canonical evidence: business evidence, NOT a digital signature */
+  hash: string;
+}
+
 export interface QuoteVersion {
   id: string;
   quoteId: string;
@@ -206,11 +283,34 @@ export interface QuoteVersion {
   replacedByN?: number;
   rejectedAt?: Date;
   rejectReason?: string;
+  /** who refused: the staff member, or null for the customer link */
+  rejectedBy?: string | null;
+  /** FR-REC-009: set once when the version is approved (fully or partly); locks the content */
+  approval?: QuoteApproval;
+  /** hash of the live customer link (a rotated link replaces it); the raw token is never stored */
+  linkHash?: string;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
   version: number;
+}
+
+/** FR-REC-008: a tokenised, expiring, login-free link to ONE version of a quote. The token is never stored, only its SHA-256. */
+export interface QuoteLink {
+  /** SHA-256 hex of the token */
+  id: string;
+  companyId: string;
+  branchId: string;
+  quoteId: string;
+  n: number;
+  createdAt: Date;
+  createdBy: string;
+  /** replaced by a newer link or the version was decided/superseded */
+  revokedAt?: Date;
+  revokedReason?: string;
+  /** set on the first successful decision made through it */
+  usedAt?: Date;
 }
 
 export interface Quote {
@@ -234,6 +334,8 @@ export interface Quote {
   /** R10: end of validity of the current version once sent; lets lists derive "Hết hạn" without loading versions */
   validUntil?: string;
   totalVnd: number;
+  /** total of the approved items once approved (tax included); the order is worth this, not `totalVnd` */
+  approvedTotalVnd?: number;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;

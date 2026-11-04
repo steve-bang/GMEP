@@ -66,12 +66,13 @@ const INV_VIEW: string[] = flatten([
  * "Báo giá và lệnh sửa chữa" (QL = D, CV = S, others X) and the G2-QUO-01 role column: CV and QL
  * write (the design shows "Lập báo giá" for both), CH, QV, QĐ, TK, TN and KT read quotes. `intake`
  * (hồ sơ tiếp nhận) follows the same pattern for CV and QL; CH, QV, QĐ and TN read. `quote:approve`
- * is the manager's decision right for the approval part (next slice). TH sees only their own work
+ * records the customer's approval at the counter (CV and QL; slice 1.5 approval, QUO-05). TH sees only their own work
  * (Xn) so gets neither resource here.
  */
 const REC_S = flatten([
   g('intake', 'view', 'create', 'update'),
-  g('quote', 'view', 'create', 'update'),
+  // `quote:approve` = record the customer's approval at the counter (FR-REC-009, 026; QUO-05 lists CV)
+  g('quote', 'view', 'create', 'update', 'approve'),
 ]);
 const REC_VIEW_QUOTE = flatten([g('quote', 'view')]);
 const REC_VIEW_ALL = flatten([g('intake', 'view'), g('quote', 'view')]);

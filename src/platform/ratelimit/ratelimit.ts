@@ -76,6 +76,8 @@ export const DEFAULT_RATE_LIMITS = {
   token: { limit: 20, windowMs: 15 * 60_000 },
   search: { limit: 120, windowMs: 60_000 },
   'customer-link': { limit: 60, windowMs: 60_000 },
+  /** FR-REC-009: approving or refusing through ONE customer link; a handful per quarter hour is plenty for one person */
+  'customer-link-decide': { limit: 10, windowMs: 15 * 60_000 },
   reveal: { limit: 30, windowMs: 60_000 },
   export: { limit: 10, windowMs: 60_000 },
   /** C9: cross-branch exact lookups per person per hour [Cần xác nhận: Khách] */

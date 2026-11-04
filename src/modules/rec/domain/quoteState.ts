@@ -86,12 +86,15 @@ export function editMode(state: QuoteStatus): EditMode {
   return 'locked';
 }
 
-export type QuoteAction = 'edit' | 'send' | 'reject' | 'revise';
-/** `expired` = the derived expiry (R10): a quote past its validity offers a new version, not a reject. */
+export type QuoteAction = 'edit' | 'send' | 'approve' | 'link' | 'reject' | 'revise';
+/**
+ * `expired` = the derived expiry (R10): a quote past its validity offers a new version, not an approval.
+ * `approve` = the counter approval recorded by staff (FR-REC-009, 026); `link` = issue the customer link (FR-REC-008).
+ */
 export function allowedQuoteActions(state: QuoteStatus, expired = false): QuoteAction[] {
   const out: QuoteAction[] = [];
   if (state === 'draft') out.push('edit', 'send');
-  if (state === 'sent' && !expired) out.push('reject');
+  if (state === 'sent' && !expired) out.push('approve', 'link', 'reject');
   if (editMode(state) === 'new_version') out.push('revise');
   return out;
 }

@@ -314,7 +314,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       expect(sent.status).toBe(200);
       const live = await call(cv, 'GET', `/api/v1/rec/quotes/${q.id}`);
       expect(live.json.status).toBe('sent');
-      expect(live.json.allowed).toEqual(['reject', 'revise']);
+      expect(live.json.allowed).toEqual(['approve', 'link', 'reject', 'revise']);
       // delivery: only frozen, not delivered
       expect(live.json.shown.sentVia).toBe('none');
       const yesterday = addDays(today(), -1);

@@ -113,6 +113,64 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // ba-answers-03 Câu 2 / FR-REC-009: reasons a customer gives for not approving an item (catalogue).
+  'decline-reason': {
+    type: 'decline-reason',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        /** the catch-all "khác": the free-text note is mandatory */
+        noteRequired: z.boolean().optional(),
+      })
+      .strict(),
+  },
+  // ba-answers-03 Câu 2, QUO-04/05: quote approval policy, company default or per branch. Booleans are set through the API.
+  'quote-approval': {
+    type: 'quote-approval',
+    resource: 'branch-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** "Cho phép khách bỏ hạng mục bắt buộc" (default yes) */
+        allowDeclineRequired: z.boolean(),
+        /** FR-REC-026: verbal approval by staff is allowed (it becomes an exception for review) */
+        verbalApproval: z.boolean(),
+        /** OTP is not available until an SMS provider is active; only `off` is accepted today */
+        otpMode: z.enum(['off']),
+      })
+      .strict(),
+  },
+  // FR-REC-032 / BR-REC-13: the steps of a service type (a repair order gets the set of its type).
+  // The item states and the responsible person are applied when the repair item exists (slice 1.6).
+  'service-workflow': {
+    type: 'service-workflow',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        steps: z
+          .array(
+            z
+              .object({
+                code: z.string().regex(/^[a-z][a-z0-9_-]{0,29}$/),
+                name: z.string().trim().min(1).max(80),
+                /** role that normally does the step (a role code); optional */
+                responsibleRole: z.string().min(1).max(8).optional(),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(20),
+      })
+      .strict(),
+  },
   'labor-rate': {
     type: 'labor-rate',
     resource: 'service-catalog',

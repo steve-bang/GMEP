@@ -209,7 +209,7 @@ describe('quote state machine (separate from order/item/payment/invoice)', () =>
   });
   it('actions allowed follow the state', () => {
     expect(allowedQuoteActions('draft')).toEqual(['edit', 'send']);
-    expect(allowedQuoteActions('sent')).toEqual(['reject', 'revise']);
+    expect(allowedQuoteActions('sent')).toEqual(['approve', 'link', 'reject', 'revise']);
     expect(allowedQuoteActions('approved_full')).toEqual([]);
   });
 });

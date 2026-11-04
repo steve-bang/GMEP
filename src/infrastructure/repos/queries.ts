@@ -49,6 +49,7 @@ export const COL = {
   intakes: 'intakes',
   quotes: 'quotes',
   quoteVersions: 'quoteVersions',
+  quoteLinks: 'quoteLinks',
 } as const;
 
 type Dir = 'asc' | 'desc';
