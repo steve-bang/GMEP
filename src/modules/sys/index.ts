@@ -112,3 +112,6 @@ export {
 } from './application/audit';
 export type { AuditRowDto } from './application/audit';
 export { assertBranchWritable } from './domain/branchState';
+export { auditEntry, parseInput, roleCodesOf } from './application/support';
+export type { RequestCtx } from './application/support';
+export { reauthenticate } from './application/config';

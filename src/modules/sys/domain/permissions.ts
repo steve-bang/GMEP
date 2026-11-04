@@ -22,28 +22,47 @@ const g = (resource: string, ...actions: Action[]): [string, Action[]] => [resou
 const flatten = (entries: [string, Action[]][]): string[] =>
   entries.flatMap(([r, as]) => as.map((a) => `${r}:${a}`));
 
-const CH = flatten([
-  g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
-  g('role', 'view', 'create', 'update', 'approve', 'reject'),
-  g('security-policy', 'view', 'update', 'approve', 'reject'),
-  g('device', 'view', 'create', 'archive'),
-  g('worker-pin', 'manage'),
-  g('org', 'view', 'create', 'update', 'archive', 'approve', 'reject'),
-  g('branch-config', 'view', 'update', 'approve', 'reject'),
-  g('warehouse', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'export'),
-  g('service-catalog', 'view', 'create', 'update', 'approve', 'reject'),
-  g('price-list', 'view', 'create', 'update', 'approve', 'reject'),
-  g('discount-limit', 'view', 'update', 'approve', 'reject'),
-  g('discount-program', 'view', 'create', 'update'),
-  g('tax-rate', 'view', 'create', 'update', 'approve', 'reject'),
-  g('doc-template', 'view', 'create', 'update', 'approve', 'reject'),
-  g('numbering-series', 'view', 'update', 'approve', 'reject'),
-  g('pii-policy', 'view', 'update', 'approve', 'reject'),
-  g('retention-policy', 'view', 'update', 'approve', 'reject'),
-  g('audit-log', 'view', 'export'),
-  g('access-log', 'view', 'export'),
-  g('login-history', 'view', 'export'),
+/**
+ * CRM (slice 1.3, FR-CRM-001..017) default grants [Đề xuất BA - chờ xác nhận: Khách]. AD has no
+ * customer data (BA §2.4); TH and TK get none until REC/INV define their narrower views.
+ * `customer-lookup` = exact cross-branch lookup (P1/P2); `customer-pii:export` = full personal
+ * columns in an export (CH, KT only, with reason and password, BA §9).
+ */
+const CRM_CH = flatten([
+  g('customer', 'view', 'create', 'update', 'export'),
+  g('customer-pii', 'export'),
+  g('vehicle', 'view', 'create', 'update'),
+  g('vehicle-history', 'view'),
+  g('consent', 'view', 'create', 'update'),
+  g('data-request', 'view', 'create', 'update', 'approve'),
+  g('customer-lookup', 'view'),
 ]);
+
+const CH = [
+  ...flatten([
+    g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
+    g('role', 'view', 'create', 'update', 'approve', 'reject'),
+    g('security-policy', 'view', 'update', 'approve', 'reject'),
+    g('device', 'view', 'create', 'archive'),
+    g('worker-pin', 'manage'),
+    g('org', 'view', 'create', 'update', 'archive', 'approve', 'reject'),
+    g('branch-config', 'view', 'update', 'approve', 'reject'),
+    g('warehouse', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'export'),
+    g('service-catalog', 'view', 'create', 'update', 'approve', 'reject'),
+    g('price-list', 'view', 'create', 'update', 'approve', 'reject'),
+    g('discount-limit', 'view', 'update', 'approve', 'reject'),
+    g('discount-program', 'view', 'create', 'update'),
+    g('tax-rate', 'view', 'create', 'update', 'approve', 'reject'),
+    g('doc-template', 'view', 'create', 'update', 'approve', 'reject'),
+    g('numbering-series', 'view', 'update', 'approve', 'reject'),
+    g('pii-policy', 'view', 'update', 'approve', 'reject'),
+    g('retention-policy', 'view', 'update', 'approve', 'reject'),
+    g('audit-log', 'view', 'export'),
+    g('access-log', 'view', 'export'),
+    g('login-history', 'view', 'export'),
+  ]),
+  ...CRM_CH,
+];
 
 const matrix: Grant = {
   CH,
@@ -57,6 +76,13 @@ const matrix: Grant = {
     g('discount-program', 'view', 'create', 'update'),
     g('tax-rate', 'view'),
     g('doc-template', 'view'),
+    // CRM: aggregated review of the customer base, no editing (BA §9 export rights)
+    g('customer', 'view', 'export'),
+    g('vehicle', 'view'),
+    g('vehicle-history', 'view'),
+    g('consent', 'view'),
+    g('data-request', 'view'),
+    g('customer-lookup', 'view'),
   ]),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -73,6 +99,12 @@ const matrix: Grant = {
     g('doc-template', 'view'),
     g('audit-log', 'view'),
     g('login-history', 'view'),
+    g('customer', 'view', 'create', 'update', 'export'),
+    g('vehicle', 'view', 'create', 'update'),
+    g('vehicle-history', 'view'),
+    g('consent', 'view', 'create', 'update'),
+    g('data-request', 'view', 'create', 'update'),
+    g('customer-lookup', 'view'),
   ]),
   CV: flatten([
     g('service-catalog', 'view'),
@@ -80,11 +112,30 @@ const matrix: Grant = {
     g('discount-limit', 'view'),
     g('tax-rate', 'view'),
     g('doc-template', 'view'),
+    g('customer', 'view', 'create', 'update'),
+    g('vehicle', 'view', 'create', 'update'),
+    g('vehicle-history', 'view'),
+    g('consent', 'view', 'create', 'update'),
+    g('data-request', 'view', 'create'),
+    g('customer-lookup', 'view'),
   ]),
-  QD: flatten([g('device', 'view'), g('worker-pin', 'manage'), g('service-catalog', 'view')]),
+  QD: flatten([
+    g('device', 'view'),
+    g('worker-pin', 'manage'),
+    g('service-catalog', 'view'),
+    g('customer', 'view'),
+    g('vehicle', 'view'),
+    g('vehicle-history', 'view'),
+    g('customer-lookup', 'view'),
+  ]),
   TH: [],
   TK: flatten([g('warehouse', 'view'), g('price-list', 'view')]),
-  TN: flatten([g('doc-template', 'view')]),
+  TN: flatten([
+    g('doc-template', 'view'),
+    g('customer', 'view'),
+    g('vehicle', 'view'),
+    g('customer-lookup', 'view'),
+  ]),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -95,6 +146,11 @@ const matrix: Grant = {
     g('numbering-series', 'view'),
     g('retention-policy', 'view'),
     g('audit-log', 'view'),
+    g('customer', 'view', 'export'),
+    g('customer-pii', 'export'),
+    g('vehicle', 'view'),
+    g('vehicle-history', 'view'),
+    g('consent', 'view'),
   ]),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([

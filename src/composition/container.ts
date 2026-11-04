@@ -7,6 +7,7 @@ import { DocAtomicStateStore, LoginThrottle, RateLimiter } from '@/platform/rate
 import type { DocStore, StoreStats } from '@/platform/store/docStore';
 import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
+import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
 import {
   BRANCH_STATE_RULES,
   DEFAULT_PASSWORD_POLICY,
@@ -42,12 +43,25 @@ import {
   DocUserRepository,
   DocWarehouseRepository,
 } from '@/infrastructure/repos/repos';
-import { stubBranchActivity, stubWarehouseActivity } from '@/infrastructure/stubs';
+import {
+  DocConsentRepository,
+  DocCustomerRepository,
+  DocDataRequestRepository,
+  DocOwnershipRepository,
+  DocVehicleHistoryRepository,
+  DocVehicleRepository,
+} from '@/infrastructure/repos/crmRepos';
+import {
+  stubBranchActivity,
+  stubCustomerRetention,
+  stubWarehouseActivity,
+} from '@/infrastructure/stubs';
 
 export interface Container {
   env: Env;
   backend: 'firestore' | 'memory';
   sys: SysDeps;
+  crm: CrmDeps;
   store: DocStore & { stats: StoreStats };
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
@@ -139,6 +153,23 @@ function buildSys(
   return deps;
 }
 
+/** CRM use cases share the SYS transaction, audit, numbering and PII services (slice 1.3). */
+function buildCrm(sys: SysDeps, store: DocStore): CrmDeps {
+  const crm: CrmDeps = {
+    sys,
+    customers: new DocCustomerRepository(store),
+    vehicles: new DocVehicleRepository(store),
+    ownerships: new DocOwnershipRepository(store),
+    consents: new DocConsentRepository(store),
+    requests: new DocDataRequestRepository(store),
+    history: new DocVehicleHistoryRepository(store),
+    retention: stubCustomerRetention,
+    crm: { ...DEFAULT_CRM_CONFIG, consentPolicyVersion: sys.config.consentPolicyVersion },
+  };
+  sys.piiSources.customer = customerPiiSource(() => crm);
+  return crm;
+}
+
 export interface ContainerOptions {
   env?: Env;
   clock?: Clock;
@@ -153,26 +184,23 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const db = new MemoryDb();
     const identity = new MemoryIdentityProvider();
     const store = new MemoryDocStore(db);
+    const sys = buildSys(env, clock, store, new MemoryUnitOfWork(db), identity);
     return {
       env,
       backend: 'memory',
       memory: { db, identity },
       store,
       identity,
-      sys: buildSys(env, clock, store, new MemoryUnitOfWork(db), identity),
+      sys,
+      crm: buildCrm(sys, store),
     };
   }
 
   const db = getDb(env);
   const store = new FirestoreDocStore(db);
   const identity = new FirebaseIdentityProvider(env);
-  return {
-    env,
-    backend: 'firestore',
-    store,
-    identity,
-    sys: buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity),
-  };
+  const sys = buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity);
+  return { env, backend: 'firestore', store, identity, sys, crm: buildCrm(sys, store) };
 }
 
 const g = globalThis as unknown as { __gmepContainer?: Container };

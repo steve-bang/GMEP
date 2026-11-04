@@ -381,7 +381,7 @@ export async function decideConfig(
 }
 
 /** Password re-entry for the self-approval exception; failures look like any other 403. */
-async function reauthenticate(
+export async function reauthenticate(
   deps: SysDeps,
   actor: Actor,
   password: string | undefined,

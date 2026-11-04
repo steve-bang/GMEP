@@ -1,3 +1,4 @@
+import { NO_RETENTION, type CustomerRetentionPort } from '@/modules/crm';
 import type { BranchActivityPort, WarehouseActivityPort } from '@/modules/sys';
 
 /**
@@ -8,3 +9,5 @@ import type { BranchActivityPort, WarehouseActivityPort } from '@/modules/sys';
  */
 export const stubWarehouseActivity: WarehouseActivityPort = { blockers: async () => [] };
 export const stubBranchActivity: BranchActivityPort = { blockers: async () => [] };
+/** TODO(slice 1.7/1.9): REC reports open orders and warranty, ACC outstanding debt, EIN issued invoices (FR-CRM-011). */
+export const stubCustomerRetention: CustomerRetentionPort = { check: async () => NO_RETENTION };

@@ -25,6 +25,16 @@ export const COL = {
   idempotencyKeys: 'idempotencyKeys',
   emailOutbox: 'emailOutbox',
   counters: 'counters',
+  customers: 'customers',
+  customerPii: 'customerPii',
+  customerLinks: 'customerLinks',
+  vehicles: 'vehicles',
+  vehicleLinks: 'vehicleLinks',
+  vehiclePlates: 'vehiclePlates',
+  vehicleOwnerships: 'vehicleOwnerships',
+  consents: 'consents',
+  dataSubjectRequests: 'dataSubjectRequests',
+  vehicleHistory: 'vehicleHistory',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -51,6 +61,28 @@ const listFamilies = (
       });
   return out;
 };
+
+/** asc/desc list families over one string field (CRM lists), optionally branch scoped */
+function dirFamilies(
+  name: string,
+  collection: string,
+  field: string,
+  optionalEq: string[],
+  scopeField?: string,
+) {
+  const out: Record<Dir, QueryFamily> = {} as Record<Dir, QueryFamily>;
+  for (const dir of ['asc', 'desc'] as Dir[])
+    out[dir] = defineQuery({
+      name: `${name}.${dir}`,
+      collection,
+      eq: ['companyId'],
+      optionalEq,
+      ...(scopeField ? { scopeField } : {}),
+      range: true,
+      order: { field, dir, type: 'string' },
+    });
+  return out;
+}
 
 export const Q = {
   warehouses: listFamilies(COL.warehouses, 'warehouses.list', [], 'branchId'),
@@ -152,5 +184,70 @@ export const Q = {
     collection: COL.counters,
     eq: ['companyId', 'branchId'],
     order: { field: 'updatedAt', dir: 'desc', type: 'date' },
+  }),
+  // ---- CRM (slice 1.3) ----
+  /** company-wide customer list (scope 'all'), prefix search on nameNorm */
+  customersByName: dirFamilies('customers.list.name', COL.customers, 'nameNorm', ['type']),
+  /** branch-scoped customer list through relation links (BA §10.1.5) */
+  customerLinksByName: dirFamilies(
+    'customerLinks.list.name',
+    COL.customerLinks,
+    'nameNorm',
+    ['type'],
+    'branchId',
+  ),
+  /** contact data is searched by normalised phone prefix; scope is applied by the caller through links */
+  customerPiiByPhone: defineQuery({
+    name: 'customerPii.byPhone',
+    collection: COL.customerPii,
+    eq: ['companyId'],
+    range: true,
+    order: { field: 'phoneNorm', dir: 'asc', type: 'string' },
+  }),
+  vehiclesByPlate: dirFamilies('vehicles.list.plate', COL.vehicles, 'plateNorm', []),
+  vehicleLinksByPlate: dirFamilies(
+    'vehicleLinks.list.plate',
+    COL.vehicleLinks,
+    'plateNorm',
+    [],
+    'branchId',
+  ),
+  vehiclesByOwner: defineQuery({
+    name: 'vehicles.byOwner',
+    collection: COL.vehicles,
+    eq: ['companyId', 'currentOwnerId'],
+    order: { field: 'plateNorm', dir: 'asc', type: 'string' },
+  }),
+  ownershipsByVehicle: defineQuery({
+    name: 'vehicleOwnerships.byVehicle',
+    collection: COL.vehicleOwnerships,
+    eq: ['companyId', 'vehicleId'],
+    order: { field: 'from', dir: 'desc', type: 'string' },
+  }),
+  ownershipsByCustomer: defineQuery({
+    name: 'vehicleOwnerships.byCustomer',
+    collection: COL.vehicleOwnerships,
+    eq: ['companyId', 'customerId'],
+    order: { field: 'from', dir: 'desc', type: 'string' },
+  }),
+  consentsByCustomer: defineQuery({
+    name: 'consents.byCustomer',
+    collection: COL.consents,
+    eq: ['companyId', 'customerId'],
+    order: { field: 'grantedAt', dir: 'desc', type: 'date' },
+  }),
+  dataRequests: defineQuery({
+    name: 'dataSubjectRequests.list',
+    collection: COL.dataSubjectRequests,
+    eq: ['companyId'],
+    optionalEq: ['status', 'customerId'],
+    scopeField: 'branchId',
+    order: { field: 'receivedAt', dir: 'desc', type: 'date' },
+  }),
+  vehicleHistory: defineQuery({
+    name: 'vehicleHistory.byVehicle',
+    collection: COL.vehicleHistory,
+    eq: ['companyId', 'vehicleId'],
+    order: { field: 'date', dir: 'desc', type: 'string' },
   }),
 };
