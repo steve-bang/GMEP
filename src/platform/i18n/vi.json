@@ -147,7 +147,7 @@
     },
     "reauth_required": {
       "title": "Cần nhập lại mật khẩu",
-      "detail": "Nhập đúng mật khẩu của bạn để duyệt đề xuất của chính mình."
+      "detail": "Nhập đúng mật khẩu của bạn để thực hiện thao tác này (duyệt đề xuất của chính mình, duyệt mở lại ngày đã chốt, xuất dữ liệu cá nhân)."
     },
     "token_expired": {
       "title": "Liên kết đã hết hạn",
@@ -680,6 +680,14 @@
     "deposit_category_required": {
       "title": "Sai loại chi phí",
       "detail": "Hoàn cọc dùng loại chi phí hoàn cọc."
+    },
+    "approval_expired": {
+      "title": "Lượt duyệt đã hết hạn",
+      "detail": "Lượt duyệt chỉ dùng được trong thời hạn cấu hình (khởi điểm 2 giờ). Gửi lại yêu cầu để được duyệt lại."
+    },
+    "later_day_closed": {
+      "title": "Không mở lại được ngày này",
+      "detail": "Có ngày sau đã chốt. Sửa sai bằng phiếu đảo ghi vào ngày đang mở."
     },
     "day_not_closed": {
       "title": "Ngày chưa được chốt",
@@ -1672,6 +1680,8 @@
     "approvalRequested": "Có yêu cầu phê duyệt {number} ({kind}) đang chờ bạn.",
     "approvalApproved": "Yêu cầu {number} đã được duyệt.",
     "approvalRejected": "Yêu cầu {number} bị từ chối.",
+    "dayReopened": "Ngày {date} của chi nhánh đã được mở lại sau khi chốt. Chứng từ đã ghi sổ không được sửa, chỉ ghi thêm hoặc đảo.",
+    "dayReopenedException": "Ngoại lệ: ngày {date} đã chốt được mở lại với duyệt của Chủ. Xem lý do trong nhật ký.",
     "expenseSourceMissing": "Có {count} phiếu chi thiếu chứng từ gốc đã quá {days} ngày chưa bổ sung. Mở sổ quỹ để xem.",
     "einvoiceCorrection": "Yêu cầu {number} đã được duyệt và đang gửi nhà cung cấp hóa đơn.",
     "einvoiceReported": "Hóa đơn {number} của lệnh {order} được báo có sai. Mở hóa đơn để xử lý.",
@@ -3602,7 +3612,7 @@
       "kDebt": "Công nợ phải thu đang mở",
       "kOverdue": "Công nợ quá hạn",
       "kInvoices": "Hóa đơn đã phát hành",
-      "kUninvoiced": "Lệnh hoàn tất chưa hóa đơn",
+      "kUninvoiced": "Lệnh hoàn tất chưa hóa đơn (tại thời điểm chạy)",
       "kStock": "Xuất kho không chứng từ",
       "fStock": "Kỳ vọng bằng 0",
       "stockOk": "Mọi phiếu xuất đều có chứng từ gốc",
@@ -3664,7 +3674,7 @@
       "flow_cancelled": "Lệnh đã hủy",
       "flow_openAtEnd": "Lệnh còn mở cuối ngày",
       "invIssued": "Hóa đơn phát hành trong ngày",
-      "invMissing": "Lệnh hoàn tất chưa có hóa đơn",
+      "invMissing": "Lệnh hoàn tất chưa có hóa đơn (tại thời điểm chạy)",
       "debtOpen": "Công nợ đang mở",
       "stockNoSource": "Phiếu xuất kho không chứng từ / tổng phiếu xuất",
       "shiftVariance": "Ca lệch quỹ / ca đã đóng · tổng chênh",
@@ -3692,7 +3702,7 @@
       "metric_cancelled": "Lệnh đã hủy",
       "metric_openAtEnd": "Lệnh còn mở cuối ngày",
       "metric_unpaid": "Lệnh chưa thu đủ",
-      "metric_notInvoiced": "Lệnh chưa hóa đơn",
+      "metric_notInvoiced": "Lệnh chưa hóa đơn (tại thời điểm chạy)",
       "metric_payments": "Phiếu thu chi",
       "metric_invoicesIssued": "Hóa đơn phát hành",
       "metric_openDebts": "Công nợ đang mở",
@@ -3761,7 +3771,7 @@
       "openAtEnd": "Lệnh còn mở",
       "openDebt": "Công nợ đang mở",
       "overdueDebt": "Công nợ quá hạn",
-      "notInvoiced": "Lệnh hoàn tất chưa hóa đơn",
+      "notInvoiced": "Lệnh hoàn tất chưa hóa đơn (tại thời điểm)",
       "labor": "Tiền công",
       "parts": "Phụ tùng",
       "exTax": "Doanh thu chưa thuế",
@@ -3789,7 +3799,7 @@
       "colDebt": "Công nợ",
       "colGap": "Chênh lệch",
       "colIssued": "Hóa đơn",
-      "colNotInvoiced": "Chưa hóa đơn",
+      "colNotInvoiced": "Chưa hóa đơn (tại thời điểm)",
       "colShiftVar": "Ca lệch quỹ",
       "colGin": "Phiếu xuất",
       "colNoSource": "Không chứng từ",
@@ -3832,7 +3842,7 @@
       "fEfficiency": "Giờ chuẩn chia giờ thực làm của các hạng mục đã hoàn thành",
       "fHours": "Thời gian đã đóng của hạng mục hoàn thành, làm tròn phút",
       "bySvc": "Theo loại dịch vụ",
-      "techTruncated": "Số lệnh quá lớn nên báo cáo chỉ gồm các lệnh mới nhất trong kỳ.",
+      "techTruncated": "Số lệnh quá lớn nên báo cáo chỉ gồm các lệnh mới nhất trong kỳ; số liệu là mức tối thiểu.",
       "empty": "Không có dữ liệu trong kỳ này."
     },
     "xcsv": {
@@ -3863,7 +3873,7 @@
       "receivables.openDebtVnd": "Công nợ đang mở cuối kỳ (VND)",
       "receivables.overdueDebtVnd": "Công nợ quá hạn cuối kỳ (VND)",
       "invoices.issuedCount": "Hóa đơn phát hành",
-      "invoices.closedWithoutInvoiceCount": "Lệnh hoàn tất chưa hóa đơn (cuối kỳ)",
+      "invoices.closedWithoutInvoiceCount": "Lệnh hoàn tất chưa hóa đơn (tại thời điểm chạy, cuối kỳ)",
       "stock.issuesWithoutSource": "Xuất kho không chứng từ",
       "closed": "Lệnh hoàn tất",
       "orderTotalVnd": "Tổng lệnh gồm thuế (VND)",
@@ -3871,7 +3881,7 @@
       "debtVnd": "Công nợ (VND)",
       "gapVnd": "Chênh lệch (VND)",
       "issuedCount": "Hóa đơn phát hành",
-      "notInvoicedCount": "Lệnh chưa hóa đơn",
+      "notInvoicedCount": "Lệnh chưa hóa đơn (tại thời điểm chạy)",
       "shiftsWithVariance": "Ca lệch quỹ",
       "varianceVnd": "Lệch quỹ (VND)",
       "issueDocuments": "Phiếu xuất kho",
@@ -3895,7 +3905,9 @@
       "workedMinutes": "Phút thực làm",
       "standardMinutes": "Phút chuẩn",
       "efficiencyBp": "Hiệu suất (điểm cơ bản, chuẩn / thực làm)",
-      "serviceType": "Loại dịch vụ"
+      "serviceType": "Loại dịch vụ",
+      "minimumNote": "Lưu ý",
+      "minimumText": "Dữ liệu bị giới hạn: số liệu trong tệp là mức tối thiểu, không phải tổng đủ"
     },
     "csv": {
       "official": "Chính thức",
@@ -3906,6 +3918,7 @@
       "branch": "Chi nhánh",
       "date": "Ngày",
       "status": "Trạng thái số liệu",
+      "truncated": "Nguồn bị giới hạn: số liệu là mức tối thiểu, không phải tổng đủ",
       "orders.opened": "Lệnh mở trong ngày",
       "orders.closed": "Lệnh hoàn tất",
       "orders.handedOver": "Xe đã giao",
@@ -3926,7 +3939,7 @@
       "receivables.openDebtVnd": "Công nợ đang mở (VND)",
       "receivables.overdueDebtVnd": "Công nợ quá hạn (VND)",
       "invoices.issuedCount": "Hóa đơn phát hành",
-      "invoices.closedWithoutInvoiceCount": "Lệnh hoàn tất chưa hóa đơn",
+      "invoices.closedWithoutInvoiceCount": "Lệnh hoàn tất chưa hóa đơn (tại thời điểm chạy)",
       "stock.issuesWithoutSource": "Xuất kho không chứng từ",
       "alerts.order_open_too_long": "Cảnh báo: Lệnh mở quá lâu",
       "alerts.handover_unpaid": "Cảnh báo: Giao xe chưa thu đủ",

@@ -17,6 +17,7 @@ import {
   INVOICE_APPROVER_PERMISSION,
   checkDecision,
   isApprovalKind,
+  REAUTH_ON_APPROVE,
   isOverdue,
   requiredLevel,
   type ApprovalKind,
@@ -26,7 +27,7 @@ import {
 } from '../domain/approval';
 import type { Branch } from '../domain/entities';
 import type { SysDeps } from '../ports/deps';
-import { resolveConfigAt } from './config';
+import { reauthenticate, resolveConfigAt } from './config';
 import { allocateDocumentNumber } from './numbering';
 import { notifyUsers, usersWithRole } from './notifications';
 import { auditEntry, parseInput, roleCodesOf, type RequestCtx } from './support';
@@ -192,6 +193,8 @@ export const decideSchema = z.object({
   version: z.number().int().min(1),
   decision: z.enum(['approve', 'reject']),
   note: z.string().trim().max(300).optional(),
+  /** R106: password of the decider, required to approve a `day_reopen` request; never stored or put in the idempotency fingerprint */
+  reauthPassword: z.string().max(256).optional(),
 });
 
 /**
@@ -214,13 +217,18 @@ export async function decideApproval(
   if (!r0) throw notFound();
   const decideScope = resolveScope(actor, approverPermissionFor(r0.kind, r0.level));
   if (!scopeAllows(decideScope, actor.companyId, r0.branchId)) throw forbidden();
+  // R106: approving the reopening of a closed day needs the password again (a left-open session cannot do it)
+  if (data.decision === 'approve' && REAUTH_ON_APPROVE.includes(r0.kind))
+    await reauthenticate(deps, actor, data.reauthPassword);
+  const { reauthPassword: _pw, ...decision } = data;
+  void _pw;
   return runIdempotent(
     idem(deps),
     {
       userId: actor.userId,
       route: `POST /api/v1/sys/approvals/${id}/decide`,
       key: ctx.idempotencyKey,
-      fingerprint: fingerprintOf({ id, ...data }),
+      fingerprint: fingerprintOf({ id, ...decision }),
     },
     async (tx) => {
       const r = await deps.approvals.getInTx(tx, decideScope, id);

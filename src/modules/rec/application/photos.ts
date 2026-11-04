@@ -6,6 +6,7 @@ import { hasPermission, resolveScope, type Actor, type Permission } from '@/plat
 import type { Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import type { PhotoRef } from '../domain/entities';
+import { stripImageMetadata } from '../domain/imageMeta';
 import { isOrderOpen } from '../domain/orderState';
 import type { RecDeps } from '../ports/deps';
 import {
@@ -132,7 +133,11 @@ export async function addPhoto(
     throw new AppError('photo_invalid', 422);
   const contentType = sniffImage(input.bytes);
   if (!contentType) throw new AppError('photo_invalid', 422);
-  const sha256 = createHash('sha256').update(input.bytes).digest('hex');
+  // R104 / PDPL: GPS and other metadata are removed before anything is stored (the hash and size are of what is kept)
+  const clean = stripImageMetadata(input.bytes, contentType);
+  if (!clean) throw new AppError('photo_invalid', 422);
+  const bytes = Buffer.from(clean);
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
   const photoId = `ph_${sha256.slice(0, 20)}`;
   const path = filePath(
     `rec-photos-${parent}`,
@@ -141,7 +146,7 @@ export async function addPhoto(
     `${id}_${photoId}.${EXT[contentType]}`,
   );
   // bytes first (same bytes -> same path, so a retry rewrites the same object); the reference is added atomically below
-  await deps.files.put(path, { bytes: input.bytes, contentType });
+  await deps.files.put(path, { bytes, contentType });
   return runIdempotent(
     idemOf(deps),
     {
@@ -163,7 +168,7 @@ export async function addPhoto(
       const ref: PhotoRef = {
         id: photoId,
         contentType,
-        size: input.bytes.length,
+        size: bytes.length,
         sha256,
         ...(data.caption ? { caption: data.caption } : {}),
         ...(data.proposalId ? { proposalId: data.proposalId } : {}),
@@ -189,6 +194,65 @@ export async function addPhoto(
   );
 }
 
+const hideSchema = z.object({ reason: z.string().trim().min(5).max(300) });
+
+/**
+ * R104: hides a wrongly uploaded photo (wrong vehicle, a person who should not be in it). Not a delete: the file and the
+ * reference stay (evidence, retention), the photo just leaves the screens and the readers without `rec-photo:update`
+ * (branch manager, owner). Reason required; audited in the same transaction. Hiding twice is a no-op.
+ */
+export async function hidePhoto(
+  deps: RecDeps,
+  actor: Actor,
+  parent: PhotoParent,
+  id: string,
+  photoId: string,
+  input: unknown,
+  ctx: RequestCtx & { idempotencyKey: string },
+) {
+  const scope = resolveScope(actor, 'rec-photo:update');
+  const data = parseInput(hideSchema, input);
+  await load(deps, parent, scope, id); // 404 outside the scope before anything else
+  return runIdempotent(
+    idemOf(deps),
+    {
+      userId: actor.userId,
+      route: `POST /api/v1/rec/${parent === 'intake' ? 'intakes' : 'orders'}/${id}/photos/${photoId}/hide`,
+      key: ctx.idempotencyKey,
+      fingerprint: fingerprintOf({ id, photoId, ...data }),
+    },
+    async (tx) => {
+      const p = await load(deps, parent, scope, id, tx);
+      const ref = p.photos.find((x) => x.id === photoId);
+      if (!ref) throw notFound();
+      if (ref.hidden) return { status: 200, body: { id: photoId, hidden: true } };
+      await assertWritable(deps, tx, actor, scope, p.branchId, 'edit_open_order');
+      const now = deps.sys.clock.now();
+      const hidden = { at: now, by: actor.userId, reason: data.reason };
+      const patch = {
+        photos: p.photos.map((x) => (x.id === photoId ? { ...x, hidden } : x)),
+        updatedAt: now,
+        updatedBy: actor.userId,
+      };
+      if (parent === 'intake') deps.intakes.update(tx, id, patch);
+      else deps.orders.update(tx, id, patch);
+      deps.sys.audit.record(
+        tx,
+        auditEntry(deps.sys, actor, ctx, {
+          branchId: p.branchId,
+          entityType: parent === 'intake' ? 'intake' : 'repairOrder',
+          entityId: id,
+          action: `${parent === 'intake' ? 'intake' : 'repairOrder'}.photo-hide`,
+          before: { photoId, hidden: false },
+          after: { photoId, hidden: true },
+          reason: data.reason,
+        }),
+      );
+      return { status: 200, body: { id: photoId, hidden: true } };
+    },
+  );
+}
+
 /** Scope-checked read of one photo (the API serves the bytes; there is no public or signed URL in this slice). */
 export async function readPhoto(
   deps: RecDeps,
@@ -201,6 +265,8 @@ export async function readPhoto(
   const p = await load(deps, parent, scope, id);
   const ref = p.photos.find((x) => x.id === photoId);
   if (!ref) throw notFound();
+  // R104: a hidden photo is served only to someone who may hide photos
+  if (ref.hidden && !hasPermission(actor, 'rec-photo:update')) throw notFound();
   const ext = EXT[ref.contentType];
   const file = await deps.files.get(
     filePath(`rec-photos-${parent}`, p.companyId, p.branchId, `${id}_${photoId}.${ext}`),
@@ -219,13 +285,16 @@ export interface PhotoDto {
   takenAt: string;
 }
 
+/** hidden photos (R104) are not listed on the normal screens */
 export const toPhotoDtos = (photos: readonly PhotoRef[] | undefined): PhotoDto[] =>
-  (photos ?? []).map((p) => ({
-    id: p.id,
-    contentType: p.contentType,
-    size: p.size,
-    caption: p.caption ?? null,
-    proposalId: p.proposalId ?? null,
-    takenBy: p.takenBy,
-    takenAt: p.takenAt.toISOString(),
-  }));
+  (photos ?? [])
+    .filter((p) => !p.hidden)
+    .map((p) => ({
+      id: p.id,
+      contentType: p.contentType,
+      size: p.size,
+      caption: p.caption ?? null,
+      proposalId: p.proposalId ?? null,
+      takenBy: p.takenBy,
+      takenAt: p.takenAt.toISOString(),
+    }));

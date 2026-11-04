@@ -52,6 +52,8 @@ export async function exportDailyCsv(
   const add = (code: string, value: number | string) =>
     rows.push([code, L[code] ?? code, String(value)]);
   add('status', r.official ? L.official! : L.provisional!);
+  // R102: a cut source is never silent in the file either; a total built on it is a minimum (copied by mistake as complete otherwise)
+  if (r.truncated.length > 0) add('truncated', r.truncated.join(' '));
   if (can('repair-order:view')) {
     add('orders.opened', r.orders.opened);
     add('orders.closed', r.orders.closed);
@@ -274,6 +276,7 @@ export async function exportReportCsv(
         ...(d.showValue ? [b.valueVnd] : []),
       ]);
       meta.push([lbl('totalValueVnd'), d.showValue ? d.report.totalValueVnd : null]);
+      if (d.truncated) meta.push([lbl('minimumNote'), lbl('minimumText')]);
       break;
     }
     case 'technicians': {
@@ -300,6 +303,7 @@ export async function exportReportCsv(
         r.efficiencyBp,
       ]);
       if (d.serviceType) meta.push([lbl('serviceType'), d.serviceType]);
+      if (d.truncated) meta.push([lbl('minimumNote'), lbl('minimumText')]);
       break;
     }
   }

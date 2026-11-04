@@ -197,6 +197,19 @@ export function recDemoDocs(): SeedDoc[] {
     level1MaxVnd: 50_000_000,
     dueHours: 24,
   });
+  // R105 (R58 table): a customer refund is never decided alone; a manager up to 10.000.000, the owner above
+  cfg('approval-limit', 'customer_refund', {
+    selfMaxVnd: 0,
+    level1MaxVnd: 10_000_000,
+    dueHours: 24,
+  });
+  // R106: reopening a closed day is the owner's; an approval is usable for 2 hours
+  cfg('approval-limit', 'day_reopen', {
+    selfMaxVnd: 0,
+    level1MaxVnd: 0,
+    dueHours: 24,
+    validHours: 2,
+  });
   for (const kind of ['invoice_adjust', 'invoice_replace', 'invoice_cancel'])
     cfg('approval-limit', kind, { selfMaxVnd: 0, level1MaxVnd: 1_000_000_000_000, dueHours: 24 });
   cfg('approval-limit', 'payment_reversal', {

@@ -790,6 +790,74 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
     });
   });
 
+  describe('photo privacy and hiding (R104, PDPL)', () => {
+    const seg = (m: number, body: Buffer) =>
+      Buffer.concat([
+        Buffer.from([0xff, m, (body.length + 2) >> 8, (body.length + 2) & 0xff]),
+        body,
+      ]);
+    // a JPEG whose EXIF carries a GPS block
+    const JPEG_GPS = Buffer.concat([
+      Buffer.from([0xff, 0xd8]),
+      seg(
+        0xe1,
+        Buffer.from(
+          'Exif\0\0MM\0*\0\0\0\b\0\0\0\0\0\0GPSLatitude=10.77 GPSLongitude=106.70',
+          'latin1',
+        ),
+      ),
+      seg(0xdb, Buffer.from([0, 1, 2, 3])),
+      seg(0xda, Buffer.from([1, 1, 0, 0, 63, 0])),
+      Buffer.from([0x12, 0x34, 0xff, 0xd9]),
+    ]);
+    const send = (cookie: string, path: string, bytes: Buffer, name = 'x.jpg') => {
+      const form = new FormData();
+      form.set('file', new File([new Uint8Array(bytes)], name, { type: 'image/jpeg' }));
+      return h.call('POST', path, { cookie, form, key: key('ph') });
+    };
+
+    it('GPS is removed before the file is stored; a renamed non-image is refused; a manager hides a wrong photo with a reason, it is never deleted', async () => {
+      const c = await call(cv, 'POST', '/api/v1/rec/intakes', { vehicleId: VEH_BIZ });
+      const path = `/api/v1/rec/intakes/${c.json.id}/photos`;
+      const r = await send(cv, path, JPEG_GPS);
+      expect(r.status, r.text).toBe(201);
+      const got = await h.call('GET', `${path}/${r.json.id}`, { cookie: cv });
+      expect(got.status).toBe(200);
+      expect(got.text.includes('GPSLatitude')).toBe(false);
+      const kept = (await call(cv, 'GET', `/api/v1/rec/intakes/${c.json.id}`)).json.photos[0];
+      expect(kept.size).toBeLessThan(JPEG_GPS.length);
+      // a script renamed to .jpg is not an image
+      expect((await send(cv, path, Buffer.from('<svg onload=alert(1)/>'), 'a.jpg')).status).toBe(
+        422,
+      );
+      // hiding: needs the right, a reason, and is audited
+      expect(
+        (await call(cv, 'POST', `${path}/${r.json.id}/hide`, { reason: 'Nhầm xe khác' })).status,
+      ).toBe(403);
+      expect((await call(ql, 'POST', `${path}/${r.json.id}/hide`, { reason: 'x' })).status).toBe(
+        422,
+      );
+      expect(
+        (await call(qlTd, 'POST', `${path}/${r.json.id}/hide`, { reason: 'Nhầm xe khác' })).status,
+      ).toBe(404);
+      const hid = await call(ql, 'POST', `${path}/${r.json.id}/hide`, { reason: 'Nhầm xe khác' });
+      expect(hid.status, hid.text).toBe(200);
+      expect((await call(cv, 'GET', `/api/v1/rec/intakes/${c.json.id}`)).json.photos).toHaveLength(
+        0,
+      );
+      expect((await h.call('GET', `${path}/${r.json.id}`, { cookie: cv })).status).toBe(404);
+      // not deleted: a manager can still read it
+      expect((await h.call('GET', `${path}/${r.json.id}`, { cookie: ql })).status).toBe(200);
+      const audit = await call(
+        ql,
+        'GET',
+        `/api/v1/sys/audit?entityType=intake&entityId=${c.json.id}`,
+      );
+      const hideRow = (audit.json.items as Row[]).find((e) => e.action === 'intake.photo-hide');
+      expect(hideRow).toBeTruthy();
+    });
+  });
+
   describe('quality check, handover and history (FR-REC-016, 017, 028)', () => {
     it('QC fail returns the item to its technician, QC pass allows the handover, which completes the order, updates the odometer and writes the history row', async () => {
       const o = await assignAll(await openedOrder());

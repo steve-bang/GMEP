@@ -62,6 +62,11 @@ export interface PhotoRef {
   proposalId?: string;
   takenBy: string;
   takenAt: Date;
+  /**
+   * R104: a wrongly uploaded photo is hidden, never deleted (evidence): reason required, audited. A hidden photo is not
+   * listed and is served only to someone who may hide photos; the file stays until the retention period.
+   */
+  hidden?: { at: Date; by: string; reason: string };
 }
 
 export interface Intake {

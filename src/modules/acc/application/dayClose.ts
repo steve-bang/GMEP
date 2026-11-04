@@ -4,8 +4,11 @@ import { hasPermission, resolveScope, type Actor } from '@/platform/rbac/rbac';
 import {
   approvalLimitsOf,
   consumeApprovalInTx,
+  isApprovalExpired,
   loadApprovalForUse,
+  notifyUsers,
   openApprovalInTx,
+  usersWithRole,
 } from '@/modules/sys';
 import {
   dayCloseBlockers,
@@ -301,6 +304,13 @@ export async function requestDayReopen(
 
 export const reopenSchema = z.object({ approvalId: z.string().trim().min(1).max(128) });
 
+/** the business date after `d` (YYYY-MM-DD, calendar arithmetic in UTC: no time zone is involved) */
+const nextDate = (d: string): string => {
+  const t = new Date(`${d}T00:00:00Z`);
+  t.setUTCDate(t.getUTCDate() + 1);
+  return t.toISOString().slice(0, 10);
+};
+
 export async function reopenDay(
   deps: AccDeps,
   actor: Actor,
@@ -310,6 +320,17 @@ export async function reopenDay(
   const scope = resolveScope(actor, 'cash-day:update');
   const branchId = moneyBranch(actor, scope);
   const data = parseInput(reopenSchema, input);
+  const limits = await approvalLimitsOf(
+    deps.sys,
+    actor.companyId,
+    'day_reopen',
+    businessDate(deps.sys.clock.now()),
+  );
+  // recipients are read before the first write of the transaction (Firestore)
+  const [managers, exceptionTo] = await Promise.all([
+    usersWithRole(deps.sys, actor.companyId, ['QL'], branchId),
+    usersWithRole(deps.sys, actor.companyId, ['CH', 'KT'], branchId),
+  ]);
   return runIdempotent(
     idemOf(deps),
     {
@@ -326,8 +347,22 @@ export async function reopenDay(
         branchId,
         subjectId: dayCloseId(branchId, today),
       });
-      const close = await deps.cash.getDayCloseInTx(tx, scope, branchId, today);
+      // R106: an approval is only good for a short time (config, 2 h at the start); after that it must be asked for again
+      if (
+        isApprovalExpired(
+          approval.decidedAt ?? approval.requestedAt,
+          deps.sys.clock.now(),
+          limits.validHours,
+        )
+      )
+        throw new AppError('approval_expired', 409);
+      const [close, later] = await Promise.all([
+        deps.cash.getDayCloseInTx(tx, scope, branchId, today),
+        // R106: a day cannot be reopened when a later day is already closed (the later close counted this day's book)
+        deps.cash.getDayCloseInTx(tx, scope, branchId, nextDate(today)),
+      ]);
       if (!close) throw new AppError('day_not_closed', 409);
+      if (later && later.status === 'closed') throw new AppError('later_day_closed', 409);
       await assertWritable(deps, tx, actor, scope, branchId);
       const now = deps.sys.clock.now();
       consumeApprovalInTx(deps.sys, tx, actor, ctx, approval, close.id);
@@ -349,6 +384,21 @@ export async function reopenDay(
           reason: approval.reason,
         }),
       );
+      // R106: every reopening is an exception for the owner and the accountant, and a notice for the branch managers
+      // (in-app only: no Zalo/SMS provider yet). No names or amounts: the reason is in the audit log.
+      for (const [userIds, titleKey] of [
+        [exceptionTo, 'notifications.dayReopenedException'],
+        [managers.filter((u) => !exceptionTo.includes(u)), 'notifications.dayReopened'],
+      ] as const)
+        notifyUsers(deps.sys, tx, {
+          companyId: actor.companyId,
+          userIds,
+          kind: 'acc.cash',
+          titleKey,
+          params: { date: today },
+          link: '/acc/day-close',
+          branchId,
+        });
       return { status: 200, body: { id: close.id, date: today, status: 'reopened' } };
     },
   );

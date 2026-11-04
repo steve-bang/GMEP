@@ -11,6 +11,7 @@ import {
 import {
   applyCustomerRefund,
   emptyAccount,
+  receiptMethodsOf,
   refundableVnd,
   validateLines,
   type Payment,
@@ -109,10 +110,15 @@ export async function requestRefund(
     async (tx) => {
       const j = await judge(deps, tx, actor, scope, branchId, data);
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
+      // R105: money goes back the way it came; any other method is decided by the owner (level 2)
+      const posted = await deps.payments.listByOrder(scope, j.order.id, deps.acc.listMax);
+      const reversed = new Set((await deps.payments.reversalsOf(posted.map((p) => p.id))).keys());
+      const original = receiptMethodsOf(posted, reversed);
+      const otherMethod = original.size > 0 && !original.has(data.method);
       // one open refund request per order; `level` is >= 1 (always needed)
       const req = await openApprovalInTx(deps.sys, tx, actor, ctx, {
         kind: 'customer_refund',
-        level: level === 0 ? 1 : level,
+        level: otherMethod ? 2 : level === 0 ? 1 : level,
         limits,
         branch,
         subjectType: 'order',
@@ -120,7 +126,7 @@ export async function requestRefund(
         subjectLabel: j.order.number,
         valueVnd: data.amountVnd,
         reason: data.reason,
-        payload: { ...data },
+        payload: { ...data, ...(otherMethod ? { otherMethod: true } : {}) },
       });
       return {
         status: 202,

@@ -143,7 +143,7 @@ export {
   prepareCloseSupplements,
   assertSupplementOrderOpen,
 } from './application/supplement';
-export { addPhoto, readPhoto, type PhotoParent } from './application/photos';
+export { addPhoto, hidePhoto, readPhoto, type PhotoParent } from './application/photos';
 export {
   getQcChecklist,
   runQc,

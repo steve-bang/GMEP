@@ -89,6 +89,8 @@ const REC_VIEW_ALL = flatten([g('intake', 'view'), g('quote', 'view')]);
  *  - `qc-record`: create = run the quality check (FR-REC-016). `vehicle-handover`: create = hand the vehicle over (FR-REC-017).
  * TH sees only their own work (Xn).
  */
+/** R104: hiding a wrongly uploaded intake/order photo (with a reason, audited; the file is kept): branch manager and owner only */
+const PHOTO_HIDE = flatten([g('rec-photo', 'update')]);
 const ORD_VIEW = flatten([
   g('repair-order', 'view'),
   g('repair-item', 'view'),
@@ -98,6 +100,7 @@ const ORD_VIEW = flatten([
   g('vehicle-handover', 'view'),
 ]);
 const ORD_QL = flatten([
+  g('rec-photo', 'update'),
   g('repair-order', 'view', 'create', 'update', 'archive', 'approve'),
   g('repair-item', 'view', 'update', 'manage'),
   g('part-request', 'view', 'create', 'update'),
@@ -308,6 +311,7 @@ const CH = [
   ...INV_VIEW,
   ...REC_VIEW_ALL,
   ...ORD_VIEW,
+  ...PHOTO_HIDE,
   ...ACC_CH,
   ...EIN_CH,
   ...RPT_CH,
@@ -589,6 +593,11 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
       TN: RPT_BASIC,
       KT: RPT_KT,
     },
+  },
+  {
+    id: '2026-11-rec-photo-hide',
+    note: 'R104: rec-photo:update (hide a wrongly uploaded photo with a reason) for QL and CH',
+    grants: { CH: PHOTO_HIDE, QL: PHOTO_HIDE },
   },
   {
     id: '2026-11-sys-1.11-import',

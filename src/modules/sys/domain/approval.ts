@@ -49,6 +49,11 @@ export interface ApprovalLimits {
    * the voucher that would pass it needs an approval. Absent = no running cap. Only meaningful for `expense`.
    */
   shiftCapVnd?: number;
+  /**
+   * R106: hours an APPROVED request stays usable; later it must be asked for again. Absent = no expiry. Only used by
+   * `day_reopen` today (2 hours), configurable.
+   */
+  validHours?: number;
 }
 
 export interface ApprovalKindDef {
@@ -79,7 +84,7 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
   // no value: the request is raised at level 2 (owner) whatever the numbers
   day_reopen: {
     alwaysNeeded: true,
-    defaults: { selfMaxVnd: 0, level1MaxVnd: 0, dueHours: 24 },
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 0, dueHours: 24, validHours: 2 },
   },
   debt_handover: {
     alwaysNeeded: true,
@@ -104,6 +109,17 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
     defaults: { selfMaxVnd: 0, level1MaxVnd: 500_000, dueHours: 24 },
   },
 };
+
+/** R106: the owner types the password again when approving these (not MFA: MFA is out of scope) */
+export const REAUTH_ON_APPROVE: readonly ApprovalKind[] = ['day_reopen'];
+
+/** R106: an approved request older than `validHours` can no longer be used */
+export const isApprovalExpired = (
+  decidedAt: Date,
+  now: Date,
+  validHours: number | undefined,
+): boolean =>
+  validHours !== undefined && now.getTime() > decidedAt.getTime() + validHours * 3_600_000;
 
 /** 0 = no approval needed; 1 or 2 = the level that must decide. */
 export function requiredLevel(

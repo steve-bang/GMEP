@@ -409,10 +409,27 @@ export function applyCustomerRefund(a: OrderAccount, amountVnd: number, at: Date
 }
 
 /**
+ * R105: the methods the order's money actually came in by (net receipts; reversed receipts and reversals do not count).
+ * A refund by any other method is a way to move money out through the refund route and needs the owner.
+ */
+export function receiptMethodsOf(
+  payments: readonly Payment[],
+  reversedIds: ReadonlySet<string>,
+): Set<PaymentMethod> {
+  const out = new Set<PaymentMethod>();
+  for (const p of payments)
+    if (p.kind === 'receipt' && !reversedIds.has(p.id)) for (const l of p.lines) out.add(l.method);
+  return out;
+}
+
+/**
  * How much of an order's money may go back to the customer (FR-ACC-016, BR-ACC-11) [Đề xuất dev - chờ xác nhận:
  * Kế toán khách]. Only money received by receipts can be refunded (held deposits have their own refund). A live order
  * can refund what exceeds the receivable (a removed supplement, an over-collection); a cancelled order can refund all
  * net receipts. Never negative.
+ * R105 one ceiling for both refunds: this counts receipts only, net of customer refunds already paid (`receivedVnd`
+ * falls with each); a deposit refund moves the deposit out of `depositHeldVnd` and is not in this pool, so the two
+ * routes can never give back the same money twice. A cancelled order whose deposit was refunded has nothing else to refund.
  */
 export function refundableVnd(receivableVnd: number, a: OrderAccount, cancelled: boolean): number {
   if (cancelled) return Math.max(0, a.receivedVnd);
