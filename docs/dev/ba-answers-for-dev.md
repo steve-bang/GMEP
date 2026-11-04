@@ -2538,3 +2538,130 @@ Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đ�
 | 7 | R84, R85, R86: test ma trận vai trò và liên kết đi sâu; nhãn "tổng của N chi nhánh"; nhãn giờ cập nhật | `permissions.ts`, `application/read.ts` | Kiểm tra |
 
 Không có câu trả lời nào mâu thuẫn với R62 (§20), R68, R73, R75, R78 đã chốt. Mâu thuẫn tài liệu đã nêu: tiêu chí FR-RPT-003 (R81) và các FR-RPT Must chưa làm so với phạm vi phase 1 (R90); chỉ sửa khi áp dụng §22.3.
+
+## 23. Slice 1.11: nhập dữ liệu từ Excel (R93–R100)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định ngay). Trả lời mục "Slice 1.11 (SYS-007 nhập dữ liệu từ Excel)" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-SYS-007, BR-SYS-05, UAT-12, FR-CRM-002/003, RULE-007, RULE-009, RULE-010, NFR-ISO-01, NFR-SEC-03, ADR 0001 (nhập theo giai đoạn); §7, §8.1, §16.2.10 (I10), §20 R59, R68. Không sửa FRD/BRD/Journey; việc cần sửa ở §23.3.
+
+### 23.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R93 | Giữ mẫu tạm; chốt tên cột và bí danh khi có mẫu thật; mẫu thật không chặn pilot kỹ thuật | OK | Khách (BA-20) |
+| R94 | Giữ 5 MB, 2.000 dòng cho pilot một chi nhánh; lô lớn chia nhiều tệp; hàng đợi nền để sau (cùng R76/R86) | OK | Khách |
+| R95 | Chấp nhận ADR nháp, người khác duyệt, 100 dòng mỗi phiếu, hoàn tác bằng phiếu đảo; thêm chặn nhập tồn đầu kỳ hai lần | **Must change** (nhỏ) | Kế toán, Quản lý |
+| R96 | Chấp nhận quy tắc hoàn tác (xóa hẳn chỉ khi còn nguyên); nhật ký xóa không chứa giá trị cá nhân | OK (kiểm tra) | Chủ, Quản lý |
+| R97 | Giữ: gộp theo "Mã khách cũ", không gộp theo số điện thoại; cảnh báo trùng không lộ khách ngoài phạm vi | OK (kiểm tra) | Khách |
+| R98 | Giữ CH, QL, TK; QĐ, KT, AD không có; thiết kế G4-SYS-20/21 phải sửa theo | OK (sửa thiết kế) | Chủ dự án |
+| R99 | Không lưu tệp gốc; chỉ lưu tên tệp, kích thước, mã băm; dữ liệu dòng chờ ghi có hạn xóa | **Must change** (nhỏ) | Luật sư khách |
+| R100 | Chấp nhận ghi theo bước, "dừng giữa chừng", ghi tiếp hoặc hoàn tác; chỉ mục 192/200 | OK | Dev |
+
+### 23.2 Trả lời từng câu
+
+##### R93. Mẫu Excel thật của khách
+
+**Khuyến nghị**: giữ mẫu tạm của dev, chốt khi có mẫu thật. `[Cần xác nhận: Khách – mẫu ẩn danh từng chi nhánh, BA-20]`
+
+- Tên cột và bí danh nằm trong cấu hình có phiên bản, không nằm trong mã logic kiểm tra; thêm bí danh không cần phát hành lại.
+- Mẫu thật chỉ đổi bảng ánh xạ cột (FRD §13 bước 2). Khách gửi mẫu đã ẩn danh (không gửi dữ liệu cá nhân thật cho BA hay dev).
+
+**Dev default OK.**
+
+##### R94. Giới hạn tệp và dòng
+
+**Khuyến nghị**: giữ 5 MB và 2.000 dòng mỗi lô cho pilot. `[Cần xác nhận: Khách – số khách, xe, phụ tùng cần chuyển]`
+
+- Lô lớn hơn chia thành nhiều tệp; mỗi lô vẫn kiểm tra toàn tệp trước khi ghi. Con số 20 MB và 50.000 dòng của G4-SYS-20 là mục tiêu về sau, cần hàng đợi nền và tài khoản dịch vụ (cùng R76, R86); chưa làm ở pilot.
+- Hai giới hạn giữ là cấu hình (`importMaxBytes`, `importMaxRows`); màn hình báo rõ khi vượt, nêu số dòng đã nhận, không cắt âm thầm.
+
+**Dev default OK.**
+
+##### R95. Tồn đầu kỳ qua phiếu điều chỉnh
+
+**Khuyến nghị**: chấp nhận quy trình của dev. `[Cần xác nhận: Kế toán khách – phương pháp giá vốn (I5); Quản lý chi nhánh]`
+
+- Phiếu ADR nguồn "tồn đầu kỳ" ở trạng thái nháp, người khác duyệt mới ghi sổ (giữ tách nhiệm R59, I10); mỗi 100 dòng một phiếu; hoàn tác = hủy nháp hoặc phiếu đảo (RULE-009, RULE-010). Giữ.
+- Đơn giá vốn tạm là giá trị khởi tạo; phương pháp giá vốn còn mở, mọi giá trị nhập phải sửa được bằng chứng từ điều chỉnh có dấu vết, không ghi đè.
+- Số lẻ (`quantityScale` khác 1): chưa làm, chấp nhận cho pilot; tệp có phụ tùng loại này bị báo lỗi dòng rõ ràng (không làm tròn).
+- Thêm: chặn nhập tồn đầu kỳ lần hai cho cùng phụ tùng và cùng kho khi đã có phiếu đầu kỳ chưa đảo (tránh cộng đôi tồn kho); muốn nhập lại phải đảo phiếu cũ trước.
+
+**Dev must change** (nhỏ): kiểm tra trùng tồn đầu kỳ theo (kho, phụ tùng) ở bước kiểm tra toàn tệp, báo lỗi theo dòng; có test.
+
+##### R96. Hoàn tác khách, xe, danh mục phụ tùng
+
+**Khuyến nghị**: chấp nhận. `[Cần xác nhận: Chủ, Quản lý]`
+
+- Xóa hẳn chỉ áp dụng cho bản ghi do chính lô tạo và còn nguyên (phiên bản 1, một chủ sở hữu, chưa phát sinh lệnh hoặc công nợ); đây không phải chứng từ tài chính đã ghi sổ nên không vi phạm RULE-010. Có một bản ghi đã dùng thì chặn cả lô, không xóa một phần (FR-SYS-007).
+- Mã khách đã cấp số không tái dùng (khoảng trống là chấp nhận được).
+- Nhật ký hoàn tác ghi lô, người làm, số bản ghi, mã nội bộ; không ghi họ tên, số điện thoại, địa chỉ của bản ghi bị xóa (ranh giới với §8.3: nhật ký bất biến không được giữ dữ liệu cá nhân).
+
+**Dev default OK.** Kiểm tra: nội dung nhật ký xóa; hoàn tác danh mục phụ tùng chặn khi đã có lịch sử kho (RULE-009).
+
+##### R97. Trùng khách khi chuyển dữ liệu
+
+**Khuyến nghị**: giữ, không tự gộp theo số điện thoại. `[Cần xác nhận: Khách – quy tắc gộp khách trùng cho dữ liệu thật]`
+
+- Một số điện thoại có thể là nhiều khách (cùng gia đình, công ty); gộp tự động dễ trộn nhầm công nợ và lịch sử. Gộp thủ công dùng chức năng gộp khách của CRM (FR-CRM), không nằm trong công cụ nhập.
+- Biển số, số khung trùng là lỗi chặn theo dòng (C11, C22).
+- Cảnh báo trùng số điện thoại chỉ so trong phạm vi chi nhánh người nhập; không nêu tên hay chi nhánh của khách ngoài phạm vi (NFR-ISO-01, C9). Nếu cần so toàn chuỗi, dùng tra cứu khớp chính xác đã có (C9), không mở rộng ở công cụ nhập.
+
+**Dev default OK.** Kiểm tra: cảnh báo không lộ khách ngoài phạm vi; có test đa chi nhánh.
+
+##### R98. Quyền nhập
+
+**Khuyến nghị**: giữ CH, QL (chi nhánh mình), TK. `[Cần xác nhận: Chủ dự án]`
+
+- Mỗi lô thuộc đúng một chi nhánh; QL chỉ nhập vào chi nhánh mình, CH chọn chi nhánh trong phạm vi. Quyền nhập chỉ có hiệu lực khi người nhập còn quyền tạo của phân hệ đích (R98 của dev), để công cụ nhập không thành đường vòng quyền.
+- AD (quản trị hệ thống) không nhập: AD không nên chạm dữ liệu khách; KT chưa có loại nhập nào thuộc mình (công nợ đầu kỳ chưa làm). Khi có công nợ đầu kỳ, KT được thêm cho loại đó, cần Kế toán xác nhận và duyệt người khác.
+- Công nợ đầu kỳ, nhân sự, dịch vụ/bảng giá, lịch sử sửa chữa: chưa làm; giữ danh sách chờ theo FRD §13 (số năm lịch sử cần chuyển là câu hỏi mở của Khách, không giả định).
+
+**Dev default OK.** Cần sửa thiết kế G4-SYS-20/21 (AD đang là người xem, CH là người hoàn tác) cho khớp quyền thực tế (§23.3).
+
+##### R99. Báo cáo lỗi, tệp gốc, dữ liệu chờ ghi
+
+**Khuyến nghị**: không lưu tệp gốc. `[Cần xác nhận: Luật sư khách – thời hạn lưu]`
+
+- Báo cáo lỗi theo dòng không chứa giá trị ô: giữ (PDPL, NFR-SEC-03).
+- Không lưu tệp gốc ở pilot (tệp chứa dữ liệu cá nhân hàng loạt; lưu thêm là tăng rủi ro). Đối chiếu sau này dựa trên: tên tệp, kích thước, mã băm, số dòng, người nhập, thời điểm, chi nhánh. Nếu Luật sư/Kế toán yêu cầu lưu, thêm thành dòng cấu hình ở §8.1 (loại "tệp nhập gốc", thời hạn do Luật sư nhập); khi chưa có giá trị thì vẫn không lưu.
+- Dữ liệu dòng chờ ghi: xóa ngay sau khi ghi xong, hoàn tác hoặc hủy; lô bỏ dở bị xóa tự động sau thời hạn cấu hình (đề xuất 7 ngày) và ghi nhật ký. Không đặt số năm cho dữ liệu chịu ràng buộc luật (§8.1).
+
+**Dev must change** (nhỏ): lưu mã băm và siêu dữ liệu tệp trong lịch sử lô; hạn xóa lô bỏ dở thành cấu hình; test dữ liệu dòng bị xóa sau ghi, hoàn tác, bỏ dở.
+
+##### R100. Ghi theo bước, dừng giữa chừng, chỉ mục
+
+**Khuyến nghị**: chấp nhận (khớp ADR 0001, nhập theo giai đoạn). `[Đề xuất BA; quyết định kỹ thuật thuộc dev]`
+
+- Kiểm tra toàn tệp trước khi ghi; tệp lỗi không ghi gì (FR-SYS-007). Xung đột giữa chừng thì lô sang "dừng giữa chừng", không được báo "hoàn tất". Ghi tiếp kiểm tra lại các dòng còn lại tại thời điểm ghi và không tạo bản sao nhờ khóa chống trùng theo lô.
+- Trạng thái "dừng giữa chừng" hiện nổi bật ở lịch sử lô và báo quản lý; một chi nhánh có lô dừng giữa chừng cùng loại thì chặn lô mới cùng loại cho tới khi ghi tiếp hoặc hoàn tác (tránh hai lô chồng nhau).
+- Mỗi bước ghi nhật ký cùng giao dịch của phân hệ chủ (đúng quy ước repo). Chỉ mục +1 (lịch sử lô theo chi nhánh), tổng 192/200: chấp nhận, vẫn dưới ngưỡng 195 của R68/R92.
+
+**Dev default OK.** Kiểm tra: chặn lô mới khi có lô dừng giữa chừng cùng loại cùng chi nhánh (thêm nếu chưa có).
+
+### 23.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-SYS-007 | Tiêu chí: nêu ba loại pilot; "không ghi một phần" nghĩa là kiểm tra toàn tệp trước ghi và lô dừng giữa chừng phải ghi tiếp/hoàn tác được; hoàn tác chặn khi dữ liệu đã dùng | R95, R96, R100 |
+| FRD §13 và §12 (di chuyển dữ liệu) | Giới hạn pilot 5 MB, 2.000 dòng; không lưu tệp gốc; số năm lịch sử chưa chốt | R94, R99 |
+| screen-inventory G4-SYS-20, G4-SYS-21 và `ui-ux/06-reports-system.md` §3.4 | Quyền: CH, QL, TK (không AD, KT); lô thuộc một chi nhánh; trạng thái "dừng giữa chừng"; giới hạn 5 MB/2.000 dòng; báo lỗi không hiện giá trị ô | R94, R98, R99, R100 |
+| BRD BR-SYS-05 | Ghi nhận: tồn đầu kỳ đi qua phiếu điều chỉnh cần người khác duyệt | R95 |
+| UAT-12 | Mở rộng: tệp lỗi không ghi gì; trùng biển số; trùng tồn đầu kỳ bị chặn; dừng giữa chừng rồi ghi tiếp không nhân đôi; hoàn tác bị chặn khi dữ liệu đã dùng; người ngoài chi nhánh không thấy lô; báo lỗi không chứa giá trị ô | R95–R100 |
+
+### 23.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4 đến §22.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 49 | Khách | Mẫu Excel thật (ẩn danh) từng chi nhánh; số khách, xe, phụ tùng cần chuyển; số năm lịch sử sửa chữa | Chia lô 2.000 dòng; lịch sử để sau | Lô lớn: cần hàng đợi nền (R76/R86) |
+| 50 | Kế toán khách | Chấp nhận tồn đầu kỳ qua phiếu điều chỉnh nháp có người duyệt; đơn giá vốn khởi tạo | Như R95 | Dùng phiếu nhập: đổi nguồn chứng từ và đối chiếu mua hàng |
+| 51 | Luật sư khách | Có cần lưu tệp nhập gốc không, bao lâu; hạn xóa lô bỏ dở | Không lưu; 7 ngày | Lưu tệp: thêm lưu trữ, thời hạn, quyền tải, nhật ký truy cập |
+| 52 | Chủ dự án | Quyền nhập CH, QL, TK; AD và KT không nhập | Như R98 | Cho AD nhập: AD thấy dữ liệu cá nhân hàng loạt, cần che và nhật ký |
+
+### 23.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R95: chặn nhập tồn đầu kỳ lần hai theo (kho, phụ tùng) khi đã có phiếu đầu kỳ chưa đảo; lỗi theo dòng; test | `inv/application/importer.ts` | Bắt buộc, có test |
+| 2 | R99: lưu mã băm và siêu dữ liệu tệp; hạn xóa lô bỏ dở (7 ngày, cấu hình); test xóa dữ liệu dòng | `sys/application/dataImport.ts` | Nhỏ, có test |
+| 3 | R96, R97, R100: kiểm tra nhật ký xóa không chứa dữ liệu cá nhân; cảnh báo trùng số điện thoại không lộ khách ngoài phạm vi; chặn lô mới khi có lô dừng giữa chừng cùng loại | `crm/application/importer.ts`, `dataImport.ts` | Kiểm tra, sửa nếu thiếu |
+
+Không có câu trả lời nào mâu thuẫn với I5, I10 (§16), R59, R62 (§20), R68, R92 đã chốt. Mâu thuẫn tài liệu: G4-SYS-20/21 cho AD, KT nhập nhiều loại so với quyền thực tế R98; chỉ sửa khi áp dụng §23.3.

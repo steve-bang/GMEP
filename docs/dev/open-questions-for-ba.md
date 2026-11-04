@@ -397,3 +397,24 @@ Dev đã dựng công cụ nhập cho ba loại (khách và xe, danh mục phụ
 | R98 | Chủ | Quyền: `data-import` (xem, chạy/ghi, hoàn tác) cho CH, QL (chi nhánh mình), TK; mỗi loại còn cần quyền tạo của phân hệ (khách+xe, phụ tùng, phiếu kho). QĐ, KT, AD không có. Thiết kế G4-SYS-20 cho phép AD, KT nhập nhiều loại hơn; công nợ đầu kỳ, nhân sự, dịch vụ/bảng giá, lịch sử sửa chữa chưa làm. | Như mô tả | `sys/domain/permissions.ts` |
 | R99 | Chủ/Luật sư | Báo cáo lỗi theo dòng không chứa giá trị ô (để không lộ dữ liệu cá nhân); dữ liệu dòng chờ ghi được lưu tạm và xóa sau khi ghi hoặc hoàn tác. Cần lưu tệp gốc để đối chiếu sau này không, và lưu bao lâu (liên quan thời hạn lưu). | Không lưu tệp gốc | `sys/application/dataImport.ts` |
 | R100 | D | Ghi lô chạy theo bước nhỏ, mỗi bước là các giao dịch của phân hệ chủ; không có giao dịch xuyên suốt cả lô. Kiểm tra toàn tệp xảy ra trước khi ghi nên tệp lỗi không ghi gì; nếu giữa chừng xảy ra xung đột (người khác vừa tạo cùng biển số) lô dừng ở trạng thái "dừng giữa chừng", ghi tiếp được (khóa chống trùng theo lô) hoặc hoàn tác cả lô. Chỉ mục: +1 (lịch sử lô theo chi nhánh), tổng 192/200. | Như mô tả | `sys/application/dataImport.ts` |
+
+### Slice 1.11: trạng thái trả lời
+
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §23; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA). Dev tiếp tục theo giá trị tạm trừ các dòng "Dev must change".
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R93 | Đã trả lời: giữ mẫu tạm, bí danh là cấu hình; chờ mẫu thật của Khách (BA-20) | Dev default OK |
+| R94 | Đã trả lời: giữ 5 MB, 2.000 dòng; lô lớn chia tệp; hàng đợi nền để sau (R76/R86); chờ Khách | Dev default OK |
+| R95 | Đã trả lời: chấp nhận ADR nháp, người khác duyệt; thêm chặn nhập tồn đầu kỳ hai lần; chờ Kế toán | Dev must change (nhỏ) |
+| R96 | Đã trả lời: chấp nhận; nhật ký xóa không chứa dữ liệu cá nhân; chờ Chủ, Quản lý | Dev default OK (kiểm tra) |
+| R97 | Đã trả lời: không gộp theo số điện thoại; cảnh báo không lộ khách ngoài phạm vi; chờ Khách | Dev default OK (kiểm tra) |
+| R98 | Đã trả lời: giữ CH, QL, TK; AD, KT không nhập; sửa thiết kế G4-SYS-20/21; chờ Chủ dự án | Dev default OK |
+| R99 | Đã trả lời: không lưu tệp gốc; lưu mã băm và siêu dữ liệu; lô bỏ dở xóa sau 7 ngày; chờ Luật sư | Dev must change (nhỏ) |
+| R100 | Đã trả lời: chấp nhận; chặn lô mới cùng loại khi có lô dừng giữa chừng; chỉ mục 192/200 | Dev default OK (kiểm tra) |
+
+Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §23.5):
+
+1. `inv/application/importer.ts`: chặn nhập tồn đầu kỳ lần hai theo (kho, phụ tùng) khi đã có phiếu đầu kỳ chưa đảo; lỗi theo dòng; test (R95).
+2. `sys/application/dataImport.ts`: lưu mã băm và siêu dữ liệu tệp; hạn xóa lô bỏ dở (7 ngày, cấu hình); test xóa dữ liệu dòng (R99).
+3. Kiểm tra: nhật ký xóa không chứa dữ liệu cá nhân (R96), cảnh báo trùng số điện thoại trong phạm vi (R97), chặn lô mới khi có lô dừng giữa chừng cùng loại (R100).
