@@ -71,6 +71,8 @@ export const COL = {
   invoiceRequests: 'invoiceRequests',
   invoiceQueues: 'invoiceQueues',
   einOrders: 'einOrders',
+  // RPT slice 1.9 (R68 rule 3): daily rollups, read BY KEY (`<branchId>_<yyyyMMdd>`), no query shape, no index
+  rollups: 'rollups',
 } as const;
 
 type Dir = 'asc' | 'desc';

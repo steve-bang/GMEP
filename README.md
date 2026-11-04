@@ -61,7 +61,7 @@ without the emulator hosts so a local run can never reach real Google services.
 src/
   app/              Next.js pages (Server Components) and thin Route Handlers under /api/v1 and /api/health
   modules/<code>/   domain/ (pure) application/ (use cases) ports/ (interfaces) api/ (zod schemas) index.ts (public surface)
-                    codes: sys, crm, inv, rec, acc (built), ins, pur, hrm, ein, rpt (empty skeletons)
+                    codes: sys, crm, inv, rec, acc, ein, rpt (built), ins, pur, hrm (empty skeletons)
   platform/         vendor-neutral kit: scope + rbac, audit, idempotency, errors (RFC 9457), http, logging, i18n, format
   infrastructure/   adapters: firestore, identity (Firebase Auth), memory (tests only), seed (fake data)
   composition/      the only place that wires ports to adapters (container, session helper)
@@ -273,8 +273,24 @@ Key mechanics already in place:
   `tests/integration/ein.test.ts` (both backends: issue, files, duplicate and parallel clicks, timeouts before and after creation, queue, async answer, corrections, PII, isolation), `e2e/slice-1-8.spec.ts`.
   Open questions R69..R80 in `docs/dev/open-questions-for-ba.md`.
 
+## Slice 1.9 (RPT single-branch reports, core)
+
+- **Rollup projection** (`src/modules/rpt`): one read-model document per branch and business day, `rollups/<branchId>_<yyyyMMdd>`, read BY KEY (no query, no composite index: still 191/200, R68 rule 3).
+  `computeDaily` is a pure function over facts (orders, approved lines, payments, debts, shifts, invoices, goods issues); the composition adapter `rptWiring.ts` reads REC, ACC, EIN and INV through their public
+  repositories inside one branch Scope. Content hash `sourceHash` makes the job idempotent: an unchanged day writes nothing; a changed day writes the document and its audit entry in one transaction.
+- **Job**: `POST /api/v1/rpt/jobs/run-due` (today, yesterday, missing days of the last 7; an official = closed day is not touched) and `POST /api/v1/rpt/jobs/rebuild {date}` (any day up to 93 days back, audited).
+  No scheduler yet: Cloud Scheduler or the button on the report screen calls it. A rebuild from nothing equals the incremental refresh (integration test compares the hashes).
+- **Reads**: `GET /api/v1/rpt/{dashboard,daily,drill,alerts}`; export `POST /api/v1/rpt/daily/export` (CSV, one branch, `report-daily:export`, audited as `rollup.export`).
+  UI `/rpt` (role dashboard; several branches = the owner's consolidated table summed from each branch's own document), `/rpt/daily` (formula printed, reconciliation, 7-day trend), `/rpt/daily/drill` (source documents), `/rpt/alerts`.
+- **Visibility**: the page permission is `report-dashboard:view`; every block and every alert is removed on the SERVER unless the user also holds the view permission of its source module (`repair-order`, `payment`, `debt`, `invoice`,
+  `stock`, `cashbook`); revenue and the labor/parts split need `report-daily:view`. Top-up `2026-11-rpt-1.9-reports`. Thresholds are the effective-dated config `report-policy` (alerts), technical caps are `RptConfig`.
+- **Limits** (said on screen as "mức tối thiểu"): the order scan reads at most 1,500 orders created in the 7 days before the rebuilt day; each list is capped and flagged `truncated`. Not an incremental in-transaction projection (R87).
+- Tests: `tests/unit/rpt-domain.test.ts` (rollup math, alerts, hash stability, consolidation), `tests/integration/rpt.test.ts` (both backends: job idempotency, rebuild equals incremental, drill, role cuts, branch isolation matrix, export audit,
+  no new index), `e2e/slice-1-9.spec.ts`. Open questions R81..R92 in `docs/dev/open-questions-for-ba.md`.
+- Not built: monthly report and same-period comparison, four-way reconciliation list (FR-RPT-004 full), branch comparison (RPT-002), advanced charts, gross profit, filters by service type / employee, scheduler, PDF/Excel export.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger, REC and the minimal ACC money slice (RPT is a skeleton; EIN has the basic invoice (no real provider, no sending to the customer, no FR-EIN-012 timing/deposit rule); ACC is missing refunds to customers, advance credit, reopening a day, period lock, payables, the accounting export and bank reconciliation; REC photos, Zalo/SMS/email sending, OTP, warranty orders (REC-018), the reminder screen of declined items (REC-024), the technician's "Công của tôi" and body-paint step tracking screens are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger, REC and the minimal ACC money slice (RPT has the single-branch daily core only (monthly, four-way reconciliation, comparison, PDF/Excel not built); EIN has the basic invoice (no real provider, no sending to the customer, no FR-EIN-012 timing/deposit rule); ACC is missing refunds to customers, advance credit, reopening a day, period lock, payables, the accounting export and bank reconciliation; REC photos, Zalo/SMS/email sending, OTP, warranty orders (REC-018), the reminder screen of declined items (REC-024), the technician's "Công của tôi" and body-paint step tracking screens are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.

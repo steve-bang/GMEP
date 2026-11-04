@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { messages } from '@/platform/i18n/messages';
 
 /** FR-SYS-003: audit codes are technical; the UI shows Vietnamese labels, so every code written by the SYS module needs one. */
-const dirs = ['sys', 'crm', 'inv', 'acc', 'ein'].map((m) =>
+const dirs = ['sys', 'crm', 'inv', 'acc', 'ein', 'rpt'].map((m) =>
   join(process.cwd(), `src/modules/${m}/application`),
 );
 const source = dirs

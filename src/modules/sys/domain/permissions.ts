@@ -234,6 +234,41 @@ const EIN_CH = [
 ];
 const EIN_AD = flatten([g('einvoice-config', 'view', 'update'), g('invoice-technical', 'view')]);
 
+/**
+ * RPT (slice 1.9, FR-RPT-001/003/004/011/012/013/014) default grants [Đề xuất dev - chờ xác nhận: BA/Khách]. The report
+ * never widens data access: `report-dashboard` opens the page, but every figure and every alert is removed on the
+ * server unless the actor also holds the view permission of the module it comes from (repair-order, payment, debt,
+ * invoice, stock, cashbook). That makes the role views (owner, manager, advisor, cashier, storekeeper) follow the role matrix.
+ *  - `report-daily`: the financial daily report (revenue, labor/parts split); `:export` = CSV of it (audited).
+ *  - `report-alert:view`: the exception list. `report-job:manage`: run the due job and rebuild a day (derived data only).
+ *  - `report-config`: effective-dated `report-policy` thresholds (owner).
+ */
+const RPT_BASIC = flatten([g('report-dashboard', 'view'), g('report-alert', 'view')]);
+const RPT_CH = flatten([
+  g('report-dashboard', 'view'),
+  g('report-alert', 'view'),
+  g('report-daily', 'view', 'export'),
+  g('report-job', 'manage'),
+  g('report-config', 'view', 'update', 'approve', 'reject'),
+]);
+const RPT_QV = flatten([
+  g('report-dashboard', 'view'),
+  g('report-alert', 'view'),
+  g('report-daily', 'view'),
+]);
+const RPT_QL = flatten([
+  g('report-dashboard', 'view'),
+  g('report-alert', 'view'),
+  g('report-daily', 'view', 'export'),
+  g('report-job', 'manage'),
+  g('report-config', 'view'),
+]);
+const RPT_KT = flatten([
+  g('report-dashboard', 'view'),
+  g('report-alert', 'view'),
+  g('report-daily', 'view', 'export'),
+]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -268,6 +303,7 @@ const CH = [
   ...ORD_VIEW,
   ...ACC_CH,
   ...EIN_CH,
+  ...RPT_CH,
 ];
 
 const matrix: Grant = {
@@ -297,7 +333,8 @@ const matrix: Grant = {
     .concat(REC_VIEW_ALL)
     .concat(ORD_VIEW)
     .concat(ACC_VIEW_ALL)
-    .concat(EIN_VIEW),
+    .concat(EIN_VIEW)
+    .concat(RPT_QV),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -332,7 +369,8 @@ const matrix: Grant = {
     .concat(flatten([g('quote', 'approve', 'reject')]))
     .concat(ORD_QL)
     .concat(ACC_QL)
-    .concat(EIN_VIEW),
+    .concat(EIN_VIEW)
+    .concat(RPT_QL),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -354,7 +392,8 @@ const matrix: Grant = {
   ])
     .concat(REC_S)
     .concat(ORD_CV)
-    .concat(ACC_CV),
+    .concat(ACC_CV)
+    .concat(RPT_BASIC),
   QD: flatten([
     g('device', 'view'),
     g('worker-pin', 'manage'),
@@ -366,7 +405,8 @@ const matrix: Grant = {
     g('customer-lookup', 'view'),
   ])
     .concat(REC_VIEW_ALL)
-    .concat(ORD_QD),
+    .concat(ORD_QD)
+    .concat(RPT_BASIC),
   TH: ORD_TH,
   TK: flatten([
     g('warehouse', 'view'),
@@ -379,7 +419,8 @@ const matrix: Grant = {
   ])
     .concat(INV_VIEW)
     .concat(REC_VIEW_QUOTE)
-    .concat(ORD_TK),
+    .concat(ORD_TK)
+    .concat(RPT_BASIC),
   TN: flatten([
     g('doc-template', 'view'),
     g('customer', 'view'),
@@ -390,7 +431,8 @@ const matrix: Grant = {
     .concat(REC_VIEW_ALL)
     .concat(ORD_TN)
     .concat(ACC_TN)
-    .concat(EIN_TN),
+    .concat(EIN_TN)
+    .concat(RPT_BASIC),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -414,7 +456,8 @@ const matrix: Grant = {
     .concat(REC_VIEW_QUOTE)
     .concat(flatten([g('repair-order', 'view')]))
     .concat(ACC_KT)
-    .concat(EIN_KT),
+    .concat(EIN_KT)
+    .concat(RPT_KT),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -521,6 +564,20 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
       TN: EIN_TN,
       KT: EIN_KT,
       AD: EIN_AD,
+    },
+  },
+  {
+    id: '2026-11-rpt-1.9-reports',
+    note: 'Slice 1.9: single-branch dashboard, daily report, alerts, rollup job, CSV export, report-policy config (FR-RPT-001, 003, 004, 011..014)',
+    grants: {
+      CH: RPT_CH,
+      QV: RPT_QV,
+      QL: RPT_QL,
+      CV: RPT_BASIC,
+      QD: RPT_BASIC,
+      TK: RPT_BASIC,
+      TN: RPT_BASIC,
+      KT: RPT_KT,
     },
   },
 ];

@@ -37,6 +37,10 @@ export interface ShellInfo {
     invoices: boolean;
     invoiceQueue: boolean;
     einConnection: boolean;
+    /** slice 1.9 */
+    reports: boolean;
+    dailyReport: boolean;
+    alerts: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -99,6 +103,9 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       invoices: can('invoice:view'),
       invoiceQueue: can('invoice-queue:view'),
       einConnection: can('einvoice-config:view'),
+      reports: can('report-dashboard:view'),
+      dailyReport: can('report-daily:view'),
+      alerts: can('report-alert:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),

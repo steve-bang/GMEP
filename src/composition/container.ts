@@ -30,6 +30,8 @@ import {
 } from '@/modules/sys';
 import { accPaymentGate, buildAcc } from './accWiring';
 import { buildEin } from './einWiring';
+import { buildRpt } from './rptWiring';
+import type { RptDeps } from '@/modules/rpt';
 import { FakeProvider } from '@/infrastructure/einvoice/fakeProvider';
 import { MemoryFileStore } from '@/infrastructure/files/memoryFileStore';
 import { FirebaseFileStore } from '@/infrastructure/files/firebaseFileStore';
@@ -100,6 +102,7 @@ export interface Container {
   rec: RecDeps;
   acc: AccDeps;
   ein: EinDeps;
+  rpt: RptDeps;
   /** the only e-invoice adapter built; tests and the local demo script its failures */
   fakeProvider: FakeProvider;
   store: DocStore & { stats: StoreStats };
@@ -271,7 +274,13 @@ export interface ContainerOptions {
 export function createContainer(opts: ContainerOptions = {}): Container {
   const env = opts.env ?? loadEnv();
   const clock = opts.clock ?? systemClock;
-  const late: { inv?: InvDeps; acc?: AccDeps; rec?: RecDeps; crm?: CrmDeps } = {};
+  const late: {
+    inv?: InvDeps;
+    acc?: AccDeps;
+    rec?: RecDeps;
+    crm?: CrmDeps;
+    ein?: EinDeps;
+  } = {};
   const fakeProvider = new FakeProvider(() => clock.now());
 
   const assemble = (
@@ -286,6 +295,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     rec: RecDeps;
     acc: AccDeps;
     ein: EinDeps;
+    rpt: RptDeps;
     fakeProvider: FakeProvider;
   } => {
     const sys = buildSys(env, clock, store, uow, identity, { get: () => late.inv! });
@@ -296,15 +306,23 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     // FR-SYS-004: the module that owns an approval kind registers what a decision does (same transaction)
     for (const [kind, h] of Object.entries(accApprovalHandlers(() => late.acc!)))
       sys.approvalHandlers.set(kind, h);
-    const ein = buildEin(
+    const ein = (late.ein = buildEin(
       sys,
       store,
       () => late.rec!,
       () => late.crm!,
       files,
       fakeProvider,
+    ));
+    const rpt = buildRpt(
+      sys,
+      store,
+      () => late.rec!,
+      () => late.acc!,
+      () => late.ein!,
+      () => late.inv!,
     );
-    return { sys, crm, inv, rec, acc, ein, fakeProvider };
+    return { sys, crm, inv, rec, acc, ein, rpt, fakeProvider };
   };
 
   if (env.GMEP_DATA_BACKEND === 'memory') {

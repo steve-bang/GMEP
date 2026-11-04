@@ -1,0 +1,22 @@
+/* RPT screens (G4-RPT-01, 03, 09, 10): layout helpers only; colours, spacing and type come from tokens.css. */
+.rpt-formula {
+  display: block;
+  font-size: var(--font-size-xs);
+  line-height: 16px;
+  color: var(--color-text-secondary);
+}
+.rpt-total-row td {
+  font-weight: 700;
+  background: var(--color-surface-subtle);
+}
+.rpt-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-4);
+}
+.rpt-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}

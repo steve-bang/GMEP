@@ -1,5 +1,9 @@
 # Changelog
 
+## [Chưa phát hành] — 2026-11-04 (slice 1.9)
+
+- Báo cáo một chi nhánh, phần lõi (FR-RPT-001, 003, 004 mức tối thiểu, 011, 012, 013, 014): bản tổng hợp theo ngày đọc theo khóa (không thêm chỉ mục, vẫn 191/200), dashboard theo vai trò (cắt theo quyền ở server), báo cáo ngày có công thức và đối chiếu, đi sâu chứng từ, cảnh báo ngoại lệ, job làm mới/dựng lại chạy lại được, xuất CSV có nhật ký. Chưa làm: báo cáo tháng, đối chiếu bốn chiều, biểu đồ nâng cao, bộ lập lịch, PDF/Excel.
+
 ## [Chưa phát hành] — 2026-11-04 (slice 1.8)
 
 - Hóa đơn điện tử cơ bản (FR-EIN-001..006, 009..011, 013; 007 mức tối thiểu): cổng `EInvoiceProvider` + `FakeProvider`, phát hành từ lệnh có khóa chống trùng, hàng chờ lỗi, lưu XML/PDF, điều chỉnh/thay thế/hủy có duyệt; chỉ mục thêm 1 (191/200), `check:indexes` cảnh báo từ 190 và lỗi trên 195.

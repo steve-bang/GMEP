@@ -19,6 +19,7 @@ import './styles/crm.css';
 import './styles/inv.css';
 import './styles/rec.css';
 import './styles/acc.css';
+import './styles/rpt.css';
 import './styles/ein.css';
 
 export const metadata: Metadata = { title: 'GARAGE OS', robots: { index: false, follow: false } };

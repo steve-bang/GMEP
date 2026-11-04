@@ -178,6 +178,24 @@ export default async function ShellLayout({ children }: { children: React.ReactN
           },
         ]
       : []),
+    ...(can.reports || can.alerts
+      ? [
+          {
+            label: t('shell.nav.groupRpt'),
+            items: [
+              ...(can.reports
+                ? [item('rp', '/rpt', t('shell.nav.reports'), 'chart-no-axes-combined', 'exact')]
+                : []),
+              ...(can.dailyReport
+                ? [item('rd', '/rpt/daily', t('shell.nav.dailyReport'), 'file-text', 'prefix')]
+                : []),
+              ...(can.alerts
+                ? [item('ra', '/rpt/alerts', t('shell.nav.alerts'), 'alert-triangle', 'prefix')]
+                : []),
+            ],
+          },
+        ]
+      : []),
     {
       label: t('shell.nav.groupInv'),
       items: [

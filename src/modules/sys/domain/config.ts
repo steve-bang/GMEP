@@ -334,6 +334,26 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // FR-RPT-003/008 (slice 1.9): the thresholds of the exception alerts. Every value is a default
+  // [Đề xuất dev - chờ xác nhận: Chủ garage/Quản lý]; none is a legal rule.
+  'report-policy': {
+    type: 'report-policy',
+    resource: 'report-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** an order open longer than this many days is listed as "mở quá lâu" */
+        openOrderMaxDays: z.number().int().min(1).max(90),
+        /** a completed order without a valid invoice for this many days or more is listed */
+        uninvoicedAfterDays: z.number().int().min(0).max(30),
+        /** a handed-over order with an unpaid balance and no approved debt, older than this, is listed */
+        unpaidHandoverGraceDays: z.number().int().min(0).max(30),
+        /** a closed shift whose cash variance is above this (absolute VND) is listed */
+        cashVarianceAlertVnd: vnd,
+      })
+      .strict(),
+  },
   // FR-REC-032 / BR-REC-13: the steps of a service type (a repair order gets the set of its type).
   // The item states and the responsible person are applied when the repair item exists (slice 1.6).
   'service-workflow': {

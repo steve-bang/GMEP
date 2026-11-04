@@ -169,6 +169,13 @@ export function recDemoDocs(): SeedDoc[] {
     retryBackoffMinutes: [5, 15, 60, 240, 720],
     providerTimeoutMs: 30000,
   });
+  // ---- slice 1.9 (RPT) SAMPLE alert thresholds: the owner decides the real ones [Cần xác nhận]
+  cfg('report-policy', 'company', {
+    openOrderMaxDays: 5,
+    uninvoicedAfterDays: 1,
+    unpaidHandoverGraceDays: 0,
+    cashVarianceAlertVnd: 0,
+  });
   // ---- slice 1.7 (ACC) SAMPLE policy and limits: the client and the accountant give the real numbers [Cần xác nhận]
   cfg('acc-policy', 'company', {
     methods: ['cash', 'transfer', 'card', 'qr'],
