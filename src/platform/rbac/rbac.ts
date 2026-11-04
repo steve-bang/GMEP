@@ -61,7 +61,10 @@ export function resolveScope(actor: Actor, permission: Permission): Scope {
 }
 
 /**
- * Permission scope narrowed by the working branch (BA §4, D-06):
+ * Permission scope narrowed by the working branch (BA §4, D-06). The working branch is a FILTER for lists, search,
+ * reports, exports and the default branch of new documents; it is NOT a read boundary: reading one record by id (links,
+ * drill-down from consolidated reports) stays allowed anywhere inside the permission scope (`resolveScope`), see BA §25 F-1.
+ * Writes must still target the working branch (`requireWorkingBranch`).
  *  - a working branch is chosen  -> only that branch (403 when the permission is not held there);
  *  - none chosen, consolidating role (CH, QV) -> the whole permitted scope (view only);
  *  - none chosen, company-wide assignment ('*') or exactly one branch -> that scope;

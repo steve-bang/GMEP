@@ -268,6 +268,14 @@ export async function exportReport(
         ...(r.comparison
           ? [
               row('compare.month', r.comparison.month),
+              row(
+                'compare.currentRange',
+                `${r.comparison.currentRange.from} .. ${r.comparison.currentRange.to}`,
+              ),
+              row(
+                'compare.previousRange',
+                `${r.comparison.previousRange.from} .. ${r.comparison.previousRange.to}`,
+              ),
               row('compare.days', r.comparison.days),
               row('compare.closed', r.comparison.orders.closed),
               row('compare.closed.deltaBp', r.comparison.deltaBp.closed),

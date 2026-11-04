@@ -464,3 +464,5 @@ Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-d
 | Ảnh đề xuất (API liệt kê) | Đã trả lời: giữ; báo designer hiện ảnh ở màn duyệt phát sinh | Giữ |
 
 Dev must change (chi tiết `ba-answers-for-dev.md` §25.5): (1) nhãn khoảng ngày và test RPT tháng; (2) F-1 chú thích + test + kiểm tra ghi chéo; (3) F-2 404 đồng nhất cho vai trò không có quyền chéo (nếu đang 200 rỗng); (4) Q-D kiểm tra gửi lại lô không trùng, lô lỗi không dở; (5) Q-B điểm kiểm tra ngày chốt duy nhất.
+
+- F-1 ghi chéo (dev, 04/11/2026): CH đang chọn chi nhánh Q7 gọi PATCH xe của Thu Duc nhận 200 (BA §25 F-1(3) muốn chặn và bắt chuyển chi nhánh). Chờ quyết định có chặn không, và phạm vi (mọi route ghi hay chỉ một số).

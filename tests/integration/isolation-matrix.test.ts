@@ -451,16 +451,18 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
             expect(containsAny(mine.text, hiddenFor(branch)), `${label} own leaks`).toEqual([]);
             const missing = await h.call('GET', spec.detail!('nope_NOPE_0000'), { cookie });
             const cross = await h.call('GET', spec.detail!(other[spec.idKey!]!), { cookie });
-            if (!spec.emptyForUnknown)
+            // C20 / F-2: only holders of vehicle-history-cross:view (CH, CV, QL, QĐ) may get 200 for a vehicle of
+            // another branch; every other role answers exactly like a missing id
+            const mayReadAcross = spec.emptyForUnknown && /^(ql|cv)/.test(name);
+            if (!mayReadAcross)
               expect(cross.status, `${label} cross ${cross.text.slice(0, 200)}`).not.toBe(200);
             expect(containsAny(cross.text, hiddenFor(branch)), `${label} cross leaks`).toEqual([]);
             if (mine.status === 200) {
               readableOwn++;
               // out of scope answers exactly like a missing id: no existence oracle (NFR-ISO-01)
-              if (spec.emptyForUnknown) {
-                // cross-branch history is a designed projection that answers empty (stream-a-findings F-2: a missing
-                // id answers 404, so the two differ): the out-of-scope answer must at least hold no rows
-                expect(cross.json.items, `${label} cross rows`).toEqual([]);
+              if (mayReadAcross) {
+                // the projection holds only white-listed fields of the other branch: no marker of it may leak
+                expect(Array.isArray(cross.json.items), `${label} cross shape`).toBe(true);
               } else {
                 expect(cross.status, `${label} cross ${cross.text.slice(0, 200)}`).toBe(404);
                 expect(strip(cross.json)).toEqual(strip(missing.json));
@@ -504,6 +506,51 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
           if (td[spec.has]) expect(all.text).toContain(td[spec.has]!);
         }
       }
+    });
+  });
+
+  describe('F-1 / BA §25: working branch is a filter, not a read boundary (CH, KT)', () => {
+    it('owner and accountant with a working branch read a record of the other branch by id (200, with its branch) while lists stay narrowed', async () => {
+      const kt = await h.loginAt('u_kt', 'br_q7');
+      for (const [name, cookie] of [
+        ['ownerQ7', viewers.ownerQ7!],
+        ['kt@Q7', kt],
+      ] as const) {
+        const order = await h.call('GET', `/api/v1/rec/orders/${td.orderId}`, { cookie });
+        if (name === 'kt@Q7' && order.status === 403) continue; // the accountant may lack repair-order:view
+        expect(order.status, `${name} ${order.text.slice(0, 200)}`).toBe(200);
+        // the order DTO carries no branch label yet (reported to designer/BA): assert it only when present
+        if (order.json.branchId !== undefined) expect(order.json.branchId).toBe('br_td');
+        const list = await h.call('GET', '/api/v1/rec/orders?limit=100', { cookie });
+        if (list.status === 200) expect(list.text).not.toContain(td.orderId!);
+      }
+    });
+
+    it('GAP CHECK: a write on a record of another branch while the working branch is Q7 (reported, not changed)', async () => {
+      const png = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAHnOcQAAAAABJRU5ErkJggg==',
+        'base64',
+      );
+      const form = new FormData();
+      form.set('file', new File([new Uint8Array(png)], 'x.png', { type: 'image/png' }));
+      const r = await h.call('POST', `/api/v1/rec/orders/${td.orderId}/photos`, {
+        cookie: viewers.ownerQ7,
+        form,
+        key: 'xwrite-photo-000001',
+      });
+      expect([201, 200, 403, 404, 409]).toContain(r.status);
+      // a write the owner certainly holds (vehicle:update) on a vehicle of Thu Duc while working at Q7
+      const v = await h.call('GET', `/api/v1/crm/vehicles/${td.vehicleId}`, {
+        cookie: viewers.ownerQ7,
+      });
+      const w = await h.call('PATCH', `/api/v1/crm/vehicles/${td.vehicleId}`, {
+        cookie: viewers.ownerQ7,
+        key: 'xwrite-veh-0000001',
+        body: { version: v.json.version, color: 'Đen' },
+      });
+      // OBSERVED (04/11/2026): w.status is 200 - the owner changed a Thu Duc vehicle while working at Q7. BA §25 F-1(3) wants
+      // this refused with 'switch working branch'; reported to BA, behaviour NOT changed. The photo write answers 403 (no right).
+      expect([200, 403, 404, 409]).toContain(w.status);
     });
   });
 

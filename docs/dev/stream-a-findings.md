@@ -12,7 +12,7 @@ Ghi chú gốc của luồng A: luồng A không sửa `src/`. Mỗi mục dư�
 | F-5 | Thấp | `src/app/(shell)/sys/imports/page.tsx:30-31` | Dùng khóa `common.noPermissionTitle/Text`, khóa thật là `states.noPermissionTitle/Text` | `e2e/sys-import-ui.spec.ts` (nhật ký máy chủ `MISSING_MESSAGE` khi nhân viên tư vấn mở `/sys/imports`) |
 | F-7 | Thấp | `src/app/(shell)/acc/cashbook` (màn Sổ quỹ) | Tràn ngang 2 px ở 375 px | `e2e/a11y-phase1.spec.ts` ("cash book: horizontal overflow 2px", đỏ) |
 | F-1 | Thấp, cần BA | `src/platform/rbac/rbac.ts` (`resolveScope` dùng cho đọc theo id) | Người có quyền toàn công ty (CH, KT) đã chọn chi nhánh làm việc vẫn đọc được bản ghi chi nhánh khác theo id (danh sách thì đã bị thu hẹp theo chi nhánh). Người chỉ có một chi nhánh thì đúng (404) | `tests/integration/isolation-matrix.test.ts` (không khẳng định phần này cho chủ; ghi chú trong tệp) |
-| F-2 | Thấp | `GET /api/v1/crm/vehicles/[id]/history` | Xe ngoài phạm vi trả 200 với danh sách rỗng, còn id không tồn tại trả 404: lộ việc id có thật. Id ngẫu nhiên nên rủi ro thấp | `tests/integration/isolation-matrix.test.ts` (`emptyForUnknown`) |
+| F-2 | Thấp | `GET /api/v1/crm/vehicles/[id]/history` | ĐÃ XÁC MINH (04/11/2026): chỉ vai trò có quyền chéo (CH, CV, QL, QĐ; C20) nhận 200; vai trò không có quyền đó đã nhận 404 giống id không tồn tại. Không phải lỗi, test ma trận đã phân biệt hai nhóm | `tests/integration/isolation-matrix.test.ts` (`emptyForUnknown`) |
 | F-4 | Thấp, theo dõi | nhập Excel, chạy thử | Thời gian chạy thử của lô nhập tăng theo lượng dữ liệu có sẵn (Emulator: 2.000 dòng 9 s, rồi 24 s, 1.000 dòng 28 s khi đã có 4.000 khách). Ghi nhận cho quyết định R94 | `tests/integration/perf-nfr.test.ts` (in số đo bằng `PERF_REPORT=<tệp>`) |
 
 ## Chi tiết và cách tái hiện

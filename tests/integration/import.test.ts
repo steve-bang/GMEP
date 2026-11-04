@@ -448,6 +448,43 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     );
   });
 
+  it('Q-D / R94: re-sending the upload with the same Idempotency-Key returns the same batch; a file over the row limit is refused before anything is staged', async () => {
+    const text = csv(
+      'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng',
+      'QD-1,Hàng thử gửi lại,piece,other',
+    );
+    const k = key('qd');
+    const a = await upload(tk, 'parts', text, {}, 'file.csv', k);
+    const b = await upload(tk, 'parts', text, {}, 'file.csv', k);
+    expect(a.status).toBe(201);
+    expect(b.json.id).toBe(a.json.id);
+    const listed = await h.call('GET', IMPORTS, { cookie: tk });
+    expect((listed.json.items ?? listed.json).filter((x: Row) => x.id === a.json.id)).toHaveLength(
+      1,
+    );
+    const cfg = h.container.sys.config;
+    const before = cfg.importMaxRows;
+    cfg.importMaxRows = 2;
+    try {
+      const over = await upload(
+        tk,
+        'parts',
+        csv(
+          'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng',
+          'QD-2,A,piece,other',
+          'QD-3,B,piece,other',
+          'QD-4,C,piece,other',
+        ),
+      );
+      expect(over.status).toBe(422);
+      expect(over.json.code).toBe('import_file_invalid');
+    } finally {
+      cfg.importMaxRows = before;
+    }
+    // a batch that stops half-way is a visible state with a code, never a silent partial (covered by the R100 test above)
+    expect((await commit(tk, a.json.id)).json.status).toBe('committed');
+  });
+
   it('template is a CSV with the Vietnamese header and BOM', async () => {
     const t = await h.call('GET', `${IMPORTS}/template?kind=parts`, { cookie: tk });
     expect(t.status).toBe(200);

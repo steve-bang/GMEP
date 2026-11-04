@@ -90,6 +90,11 @@ export type DeltaBp = number | null;
 export interface MonthComparison {
   /** the earlier month compared (`yyyy-MM`) */
   month: string;
+  /** the two concrete date ranges compared (inclusive, yyyy-MM-dd); both are shown on screen and in the export */
+  currentRange: { from: string; to: string };
+  previousRange: { from: string; to: string };
+  /** days of the current month inside `currentRange` (can differ from `days` when the months have different length) */
+  currentDays: number;
   /** days compared: 1..days of that month, equal to the day range the current month covers (capped by its length) */
   days: number;
   present: number;
@@ -249,8 +254,12 @@ function compare(
   const dates = monthDates(prev.month).slice(0, prev.throughDay);
   const p = sumMonth(prev.month, prev.rows, dates);
   if (p.present === 0) return null;
+  const curDates = monthDates(c.month).slice(0, prev.throughDay);
   return {
     month: prev.month,
+    currentRange: { from: curDates[0] ?? '', to: curDates.at(-1) ?? '' },
+    previousRange: { from: dates[0]!, to: dates.at(-1)! },
+    currentDays: curDates.length,
     days: dates.length,
     present: p.present,
     missingDates: p.missingDates,

@@ -463,6 +463,9 @@ export function ImportWorkbench(props: {
             <h2 className="t-heading-md" id="imp-s4" style={{ margin: 0 }}>
               {t('step4')}
             </h2>
+            <p className="text-secondary" data-testid="import-slow-note">
+              {t('slowNote', { rows: batch.rowCount })}
+            </p>
             <label className="check">
               <input
                 type="checkbox"

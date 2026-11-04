@@ -116,6 +116,16 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
           ) : null}
         </Note>
       ) : null}
+      <Note tone="info" testId="monthly-compare-ranges">
+        {cmp
+          ? fill(l.vsPrevRanges!, {
+              cur: `${dmy(cmp.currentRange.from)} - ${dmy(cmp.currentRange.to)}`,
+              curDays: cmp.currentDays,
+              prev: `${dmy(cmp.previousRange.from)} - ${dmy(cmp.previousRange.to)}`,
+              prevDays: cmp.days,
+            })
+          : l.vsPrevNa}
+      </Note>
       {cmp && cmp.missingDates.length > 0 ? (
         <Note tone="warning" testId="monthly-prev-missing">
           {fill(l.vsPrevMissing!, { n: cmp.missingDates.length })}

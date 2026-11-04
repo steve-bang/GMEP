@@ -215,6 +215,40 @@ describe('monthly comparison with the previous month (FR-RPT-002)', () => {
     expect(zero.comparison!.deltaBp.closed).toBeNull();
   });
 
+  it('Q-A: both concrete date ranges are labelled; running month day 15 compares days 1..15; March (31) against February (28) takes all of February', () => {
+    const run = computeMonthly('2026-11', cur, {
+      month: '2026-10',
+      rows: prevDays(),
+      throughDay: 15,
+    });
+    expect(run.comparison).toMatchObject({
+      currentRange: { from: '2026-11-01', to: '2026-11-15' },
+      previousRange: { from: '2026-10-01', to: '2026-10-15' },
+      currentDays: 15,
+      days: 15,
+    });
+    const mar = computeMonthly(
+      '2026-03',
+      cur.map((d) => ({ ...d, date: d.date.replace('2026-11', '2026-03') })),
+      {
+        month: '2026-02',
+        rows: [day('2026-02-10', { closed: 1, labor: 100_000 })],
+        throughDay: 31,
+      },
+    );
+    expect(mar.comparison).toMatchObject({
+      currentRange: { from: '2026-03-01', to: '2026-03-31' },
+      previousRange: { from: '2026-02-01', to: '2026-02-28' },
+      currentDays: 31,
+      days: 28,
+    });
+  });
+
+  it('Q-A: a new branch without a previous month has no comparison (no division by zero, no infinite percent)', () => {
+    const m = computeMonthly('2026-11', cur, { month: '2026-10', rows: [], throughDay: 30 });
+    expect(m.comparison).toBeNull();
+  });
+
   it('throughDay beyond the length of the earlier month is capped (31 days vs February)', () => {
     const m = computeMonthly(
       '2026-03',
