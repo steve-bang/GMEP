@@ -81,6 +81,10 @@
       "title": "Chọn một chi nhánh",
       "detail": "Bạn được gán nhiều chi nhánh. Chọn một chi nhánh làm việc ở thanh trên rồi thử lại."
     },
+    "switch_branch_required": {
+      "title": "Hãy chuyển chi nhánh làm việc",
+      "detail": "Không tìm thấy bản ghi trong chi nhánh đang làm việc. Nếu bản ghi thuộc chi nhánh khác, hãy chuyển chi nhánh trước."
+    },
     "scope_merged": {
       "title": "Chọn đúng một chi nhánh",
       "detail": "Mỗi chứng từ gắn với đúng một chi nhánh. Chọn một chi nhánh thay vì xem hợp nhất."
@@ -2826,7 +2830,12 @@
       "hideConfirm": "Ẩn ảnh",
       "hideCancel": "Không ẩn",
       "hiddenBadge": "Đã ẩn",
-      "hideFailed": "Không ẩn được ảnh. Kiểm tra lý do và thử lại."
+      "hideFailed": "Không ẩn được ảnh. Kiểm tra lý do và thử lại.",
+      "filter": "Xem ảnh theo đề xuất",
+      "filterAll": "Tất cả ảnh",
+      "noProposal": "Ảnh chung (không thuộc đề xuất)",
+      "emptyFiltered": "Không có ảnh nào thuộc lựa chọn này.",
+      "forProposal": "Gắn với đề xuất phát sinh"
     }
   },
   "pub": {
@@ -3262,9 +3271,11 @@
     "note": "Lý do từ chối (tối thiểu 5 ký tự)",
     "noteApprove": "Ghi chú (tùy chọn)",
     "sendReject": "Gửi từ chối",
+    "password": "Nhập lại mật khẩu (khi yêu cầu cần xác nhận)",
     "reason": "Lý do của người đề xuất",
     "decidedBy": "Người xử lý",
     "self": "Yêu cầu của chính bạn: cần người khác duyệt.",
+    "switchBranch": "Yêu cầu của chi nhánh khác: hãy chuyển chi nhánh làm việc trước khi duyệt.",
     "emptyTitle": "Không có yêu cầu",
     "emptyText": "Chưa có yêu cầu nào trong mục này.",
     "toSource": "Mở chứng từ",
@@ -3781,6 +3792,11 @@
       "monthlyLead": "Cộng từ bản tổng hợp theo ngày của một chi nhánh. Ngày chưa có tổng hợp được nêu rõ và không tính là 0.",
       "monthlyDays": "{present}/{days} ngày có tổng hợp, {official} ngày đã chốt",
       "monthlyMissing": "Thiếu tổng hợp {n} ngày: chạy tổng hợp ở báo cáo ngày để bổ sung.",
+      "vsPrev": "So với tháng {month} ({days} ngày đầu): {change}",
+      "vsPrevNa": "Chưa có dữ liệu so sánh",
+      "vsPrevRanges": "So sánh {cur} ({curDays} ngày) với {prev} ({prevDays} ngày) của tháng liền trước.",
+      "vsPrevZero": "Kỳ trước bằng 0, không tính được tỷ lệ",
+      "vsPrevMissing": "Tháng trước thiếu {n} ngày tổng hợp, mức thay đổi có thể bị đánh giá cao.",
       "kRevenue": "Doanh thu (chưa thuế)",
       "fRevenue": "Tổng công + phụ tùng đã duyệt của lệnh hoàn tất từng ngày",
       "kOrders": "Lệnh hoàn tất",
@@ -3891,6 +3907,14 @@
       "revenue.exTaxVnd": "Doanh thu chưa thuế (VND)",
       "revenue.orderTotalVnd": "Tổng giá trị lệnh hoàn tất gồm thuế (VND)",
       "revenue.avgPerOrderVnd": "Doanh thu bình quân mỗi lệnh (VND)",
+      "compare.month": "Tháng so sánh (cùng khoảng ngày)",
+      "compare.currentRange": "Khoảng ngày của tháng đang xem",
+      "compare.previousRange": "Khoảng ngày của tháng trước",
+      "compare.days": "Số ngày so sánh",
+      "compare.closed": "Tháng trước: lệnh hoàn tất",
+      "compare.closed.deltaBp": "Thay đổi lệnh hoàn tất (điểm cơ bản, 100 = 1%)",
+      "compare.exTaxVnd": "Tháng trước: doanh thu chưa thuế (VND)",
+      "compare.exTaxVnd.deltaBp": "Thay đổi doanh thu chưa thuế (điểm cơ bản, 100 = 1%)",
       "money.method.cash": "Thu tiền mặt (VND)",
       "money.method.transfer": "Thu chuyển khoản (VND)",
       "money.method.card": "Thu thẻ (VND)",
@@ -4022,7 +4046,12 @@
     "colColumn": "Cột",
     "colMessage": "Nội dung",
     "wholeFile": "Cả tệp",
+    "slowNote": "Lô này có {rows} dòng. Việc ghi có thể mất đến khoảng một phút, vui lòng không đóng trang; kết quả và số dòng đã nhận hiện khi xong.",
     "issuesShown": "Hiển thị {shown} trong {total} lỗi.",
+    "issuesShownAtLeast": "Hiển thị {shown} lỗi; tệp có ít nhất {total} lỗi, hệ thống chỉ lưu 500 lỗi đầu tiên.",
+    "issuesPager": "Phân trang lỗi",
+    "issuesPrev": "Trước",
+    "issuesNext": "Sau",
     "step4": "4. Xác nhận ghi cả lô",
     "confirm": "Tôi đã kiểm tra số dòng, chi nhánh nhận và loại dữ liệu.",
     "commit": "Ghi vào hệ thống",

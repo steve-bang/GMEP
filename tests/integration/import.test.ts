@@ -415,6 +415,76 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     expect((await commit(tk, v.json.id)).json.status).toBe('committed');
   });
 
+  it('FR-SYS-007: row errors are paged through /issues (300 bad rows), other branch and no right get 404/403', async () => {
+    const head = 'Mã khách cũ,Tên khách hàng,Số điện thoại,Biển số xe,Hãng xe,Dòng xe,Năm sản xuất';
+    const lines = [head];
+    for (let i = 0; i < 300; i++) lines.push(`P${i},,0911${String(i).padStart(6, '0')},,,,`);
+    const r = await upload(ql, 'customers-vehicles', csv(...lines));
+    expect(r.json.status).toBe('rejected');
+    expect(r.json.issueCount).toBe(300);
+    expect(r.json.issues).toHaveLength(200);
+
+    const p1 = await h.call('GET', `${IMPORTS}/${r.json.id}/issues?limit=200`, { cookie: ql });
+    expect(p1.status).toBe(200);
+    expect(p1.json.items).toHaveLength(200);
+    expect(p1.json.total).toBe(300);
+    expect(p1.json.nextCursor).toBe('200');
+    expect(p1.json.prevCursor).toBeNull();
+    const p2 = await h.call('GET', `${IMPORTS}/${r.json.id}/issues?limit=200&cursor=200`, {
+      cookie: ql,
+    });
+    expect(p2.json.items).toHaveLength(100);
+    expect(p2.json.nextCursor).toBeNull();
+    expect(p2.json.prevCursor).toBe('0');
+    expect(p2.json.items[0].row).toBe(p1.json.items[199].row + 1);
+    // no cell values in the pages (personal data)
+    expect(p2.text).not.toContain('0911');
+
+    expect((await h.call('GET', `${IMPORTS}/${r.json.id}/issues`, { cookie: qlTd })).status).toBe(
+      404,
+    );
+    expect((await h.call('GET', `${IMPORTS}/${r.json.id}/issues`, { cookie: cv })).status).toBe(
+      403,
+    );
+  });
+
+  it('Q-D / R94: re-sending the upload with the same Idempotency-Key returns the same batch; a file over the row limit is refused before anything is staged', async () => {
+    const text = csv(
+      'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng',
+      'QD-1,Hàng thử gửi lại,piece,other',
+    );
+    const k = key('qd');
+    const a = await upload(tk, 'parts', text, {}, 'file.csv', k);
+    const b = await upload(tk, 'parts', text, {}, 'file.csv', k);
+    expect(a.status).toBe(201);
+    expect(b.json.id).toBe(a.json.id);
+    const listed = await h.call('GET', IMPORTS, { cookie: tk });
+    expect((listed.json.items ?? listed.json).filter((x: Row) => x.id === a.json.id)).toHaveLength(
+      1,
+    );
+    const cfg = h.container.sys.config;
+    const before = cfg.importMaxRows;
+    cfg.importMaxRows = 2;
+    try {
+      const over = await upload(
+        tk,
+        'parts',
+        csv(
+          'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng',
+          'QD-2,A,piece,other',
+          'QD-3,B,piece,other',
+          'QD-4,C,piece,other',
+        ),
+      );
+      expect(over.status).toBe(422);
+      expect(over.json.code).toBe('import_file_invalid');
+    } finally {
+      cfg.importMaxRows = before;
+    }
+    // a batch that stops half-way is a visible state with a code, never a silent partial (covered by the R100 test above)
+    expect((await commit(tk, a.json.id)).json.status).toBe('committed');
+  });
+
   it('template is a CSV with the Vietnamese header and BOM', async () => {
     const t = await h.call('GET', `${IMPORTS}/template?kind=parts`, { cookie: tk });
     expect(t.status).toBe(200);

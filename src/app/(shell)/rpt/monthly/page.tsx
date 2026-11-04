@@ -61,6 +61,20 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
     );
   const d = res.data;
   const r = d.report;
+  // FR-RPT-002: change against the same day range of the month before (basis points -> one-decimal percent)
+  const cmp = r.comparison;
+  const change = (bp: number | null | undefined): string | undefined => {
+    if (!cmp) return l.vsPrevNa;
+    if (bp === null || bp === undefined) return l.vsPrevZero;
+    // basis points -> percent with one decimal, rounded (not cut); a zero change has no sign
+    const tenths = Math.round(Math.abs(bp) / 10);
+    const pct = `${bp > 0 && tenths > 0 ? '+' : bp < 0 && tenths > 0 ? '-' : ''}${Math.trunc(tenths / 10)},${tenths % 10}%`;
+    return fill(l.vsPrev!, {
+      month: cmp.month.slice(5) + '/' + cmp.month.slice(0, 4),
+      days: cmp.days,
+      change: pct,
+    });
+  };
   return (
     <RptPage {...head}>
       <FilterForm
@@ -102,15 +116,36 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
           ) : null}
         </Note>
       ) : null}
+      <Note tone="info" testId="monthly-compare-ranges">
+        {cmp
+          ? fill(l.vsPrevRanges!, {
+              cur: `${dmy(cmp.currentRange.from)} - ${dmy(cmp.currentRange.to)}`,
+              curDays: cmp.currentDays,
+              prev: `${dmy(cmp.previousRange.from)} - ${dmy(cmp.previousRange.to)}`,
+              prevDays: cmp.days,
+            })
+          : l.vsPrevNa}
+      </Note>
+      {cmp && cmp.missingDates.length > 0 ? (
+        <Note tone="warning" testId="monthly-prev-missing">
+          {fill(l.vsPrevMissing!, { n: cmp.missingDates.length })}
+        </Note>
+      ) : null}
       {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
           value={money(r.revenue.exTaxVnd)}
           formula={l.fRevenue!}
+          meta={<span data-testid="m-revenue-delta">{change(cmp?.deltaBp.exTaxVnd)}</span>}
           testId="m-revenue"
         />
-        <Kpi label={l.kOrders!} value={String(r.orders.closed)} testId="m-closed" />
+        <Kpi
+          label={l.kOrders!}
+          value={String(r.orders.closed)}
+          meta={<span data-testid="m-closed-delta">{change(cmp?.deltaBp.closed)}</span>}
+          testId="m-closed"
+        />
         <Kpi
           label={l.kAvg!}
           value={money(r.revenue.avgPerOrderVnd)}

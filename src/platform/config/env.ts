@@ -33,6 +33,9 @@ const schema = z.object({
   APP_BASE_URL: z.string().url().optional(),
   /** shared secret of the internal cron endpoint (header x-cron-secret); unset = endpoint disabled (404). Secret Manager in real envs */
   CRON_SECRET: z.string().min(32).optional(),
+  /** Cloud Scheduler OIDC: expected `aud` and the scheduler service-account email; both set = Bearer tokens accepted */
+  CRON_OIDC_AUDIENCE: z.string().min(1).optional(),
+  CRON_OIDC_SERVICE_ACCOUNT: z.string().email().optional(),
   /** company whose branches the cron endpoint processes (single legal entity today [Cần xác nhận]) */
   CRON_COMPANY_ID: z.string().min(1).optional(),
   LOG_LEVEL: z.string().optional(),
@@ -42,6 +45,9 @@ export type Env = z.infer<typeof schema>;
 
 export function loadEnv(source: Record<string, string | undefined> = process.env): Env {
   const env = schema.parse(source);
+  if (!env.CRON_OIDC_AUDIENCE !== !env.CRON_OIDC_SERVICE_ACCOUNT) {
+    throw new Error('CRON_OIDC_AUDIENCE and CRON_OIDC_SERVICE_ACCOUNT must be set together.');
+  }
   if (env.GMEP_ENV === 'local' && env.GMEP_DATA_BACKEND === 'firestore') {
     // Safety: local runs must never reach real Google services.
     if (!env.FIRESTORE_EMULATOR_HOST || !env.FIREBASE_AUTH_EMULATOR_HOST) {

@@ -767,6 +767,52 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
       expect((audit.json.items as Row[]).map((e) => e.action)).toContain('repairOrder.photo-add');
     });
 
+    it('FR-REC-014: photos are listed by proposal (?proposalId), "none" gives the general ones, other branch and unknown proposal are 404', async () => {
+      const o = await assignAll(await openedOrder());
+      const p1 = await act(th, `/api/v1/rec/orders/${o.id}/proposals`, {
+        version: o.version,
+        title: 'Rò dầu hộp số',
+      });
+      const o2 = await order(o.id);
+      const p2 = await act(th, `/api/v1/rec/orders/${o.id}/proposals`, {
+        version: o2.version,
+        title: 'Mòn má phanh',
+      });
+      const path = `/api/v1/rec/orders/${o.id}/photos`;
+      // the server strips metadata and trailing bytes, so each photo needs different scan data
+      const seg = (m: number, body: Buffer) =>
+        Buffer.concat([
+          Buffer.from([0xff, m, (body.length + 2) >> 8, (body.length + 2) & 0xff]),
+          body,
+        ]);
+      const jpeg = (n: number) =>
+        Buffer.concat([
+          Buffer.from([0xff, 0xd8]),
+          seg(0xdb, Buffer.from([0, 1, 2, 3])),
+          seg(0xda, Buffer.from([1, 1, 0, 0, 63, 0])),
+          Buffer.from([0x12, n, 0xff, 0xd9]),
+        ]);
+      const png2 = jpeg(1);
+      const png3 = jpeg(2);
+      const a = await upload(th, path, PNG, { proposalId: p1.json.id });
+      const b = await upload(th, path, png2, { proposalId: p2.json.id });
+      const c = await upload(cv, path, png3);
+      expect([a.status, b.status, c.status], `${a.text}${b.text}${c.text}`).toEqual([
+        201, 201, 201,
+      ]);
+      const list = (q: string, as = cv) => h.call('GET', `${path}${q}`, { cookie: as });
+      expect((await list('')).json.items).toHaveLength(3);
+      const only1 = await list(`?proposalId=${p1.json.id}`);
+      expect(only1.json.items.map((x: Row) => x.id)).toEqual([a.json.id]);
+      expect(only1.json.items[0].proposalId).toBe(p1.json.id);
+      expect((await list('?proposalId=none')).json.items.map((x: Row) => x.id)).toEqual([
+        c.json.id,
+      ]);
+      expect((await list('?proposalId=wp_unknown')).status).toBe(404);
+      expect((await list('', qlTd)).status).toBe(404);
+      expect((await h.call('GET', path)).status).toBe(401);
+    });
+
     it('only real JPEG/PNG/WebP within the size limit is accepted; a proposal of another order is refused', async () => {
       const o = await assignAll(await openedOrder());
       const path = `/api/v1/rec/orders/${o.id}/photos`;

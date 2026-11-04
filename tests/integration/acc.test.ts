@@ -347,6 +347,54 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect((await rows('payments')).filter((p) => p.orderId === o.id)).toHaveLength(1);
     });
 
+    it('FR-ACC-001: 6 parallel partial receipts (different keys) never overpay: only as many as fit the balance are posted', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      const part = Math.floor((o.totalVnd as number) / 3);
+      const res = await Promise.all(
+        Array.from({ length: 6 }, (_, i) =>
+          collect(o.id, { kind: 'receipt', lines: [cashLine(part)] }, tn, key(`par${i}`)),
+        ),
+      );
+      const ok = res.filter((r) => r.status === 201);
+      expect(ok, res.map((r) => `${r.status} ${r.json?.code}`).join(',')).toHaveLength(3);
+      expect(
+        res.filter((r) => r.status !== 201).every((r) => r.status === 422 || r.status === 409),
+      ).toBe(true);
+      const m = await money(o.id);
+      expect(m.balance.receivedVnd).toBe(part * 3);
+      expect(m.balance.overpaidVnd).toBe(0);
+      expect(
+        (await rows('payments')).filter((p) => p.orderId === o.id && p.kind === 'receipt'),
+      ).toHaveLength(3);
+    });
+
+    it('RULE-010: the same approved reversal executed 5 times in parallel (different keys) is posted once', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      const pay = await payFull(o.id);
+      const rq = await post(tn, `/api/v1/acc/payments/${pay.id}/reversal-request`, {
+        reason: 'Nhập sai hình thức',
+      });
+      expect(rq.status, rq.text).toBe(202);
+      expect((await decide(ql, rq.json.approvalId, 'approve')).status).toBe(200);
+      const res = await Promise.all(
+        Array.from({ length: 5 }, () =>
+          post(tn, `/api/v1/acc/payments/${pay.id}/reverse`, { approvalId: rq.json.approvalId }),
+        ),
+      );
+      expect(
+        res.filter((r) => r.status === 201),
+        res.map((r) => `${r.status} ${r.json?.code}`).join(','),
+      ).toHaveLength(1);
+      expect(
+        res.filter((r) => r.status !== 201).every((r) => r.status === 409 || r.status === 422),
+      ).toBe(true);
+      // the original receipt plus exactly one reversal entry (RULE-010: never updated, never deleted)
+      expect((await rows('payments')).filter((p) => p.orderId === o.id)).toHaveLength(2);
+      expect((await money(o.id)).balance.receivedVnd).toBe(0);
+    });
+
     it('permissions: an advisor sees the balance but cannot collect; the accountant only views', async () => {
       await ensureShift();
       const o = await readyOrder();
@@ -658,6 +706,34 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect((await decide(ch, huge.json.approvalId, 'approve')).status).toBe(200);
       const p2 = await post(tn, '/api/v1/acc/expenses/pay', { approvalId: huge.json.approvalId });
       expect(p2.status, p2.text).toBe(201);
+    });
+
+    it('BA §25 F-1(3): the owner working at another branch sees decide.allowed=false (switch_branch_required) and a decision is refused with 409, not a bare 403', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      await collect(o.id, { kind: 'receipt', lines: [cashLine(o.totalVnd)] });
+      const big = await post(tn, '/api/v1/acc/expenses', {
+        categoryCode: 'equipment_repair',
+        amountVnd: 1_300_000,
+        method: 'cash',
+        payee: 'Thợ điện C',
+        description: 'Sửa quạt xưởng',
+        sourceRef: 'HD-77',
+      });
+      expect(big.status, big.text).toBe(202);
+      const ownerTd = await h.loginAt('u_owner', 'br_td');
+      const seen = await get(ownerTd, `/api/v1/sys/approvals/${big.json.approvalId}`);
+      expect(seen.status, seen.text.slice(0, 200)).toBe(200);
+      expect(seen.json.actions.decide).toMatchObject({
+        allowed: false,
+        reasonCode: 'switch_branch_required',
+      });
+      const refused = await decide(ownerTd, big.json.approvalId, 'approve');
+      expect(refused.status).toBe(409);
+      expect(refused.json.code).toBe('switch_branch_required');
+      // at the request's branch the same person decides
+      const ownerQ7 = await h.loginAt('u_owner', 'br_q7');
+      expect((await decide(ownerQ7, big.json.approvalId, 'approve')).status).toBe(200);
     });
 
     it('R64 (RULE-007): a category tied to a source document is refused without it; a flagged voucher needs its reason and a manager, whatever its value', async () => {

@@ -12,6 +12,8 @@ export interface PhotoItem {
   id: string;
   caption: string | null;
   takenAt: string;
+  /** FR-REC-014: the work proposal (đề xuất phát sinh) the photo belongs to */
+  proposalId?: string | null;
   hidden?: { at: string; by: string; reason: string } | null;
 }
 
@@ -27,6 +29,8 @@ export function PhotoPanel(props: {
   canAdd: boolean;
   /** R104: holders of `rec-photo:update` may hide a photo and see hidden ones marked */
   canHide?: boolean;
+  /** FR-REC-014: orders only; photos are grouped by proposal and a new photo can be tied to one */
+  proposals?: { id: string; title: string }[];
   labels: Labels; // rec.photos
 }) {
   const l = props.labels;
@@ -34,6 +38,8 @@ export function PhotoPanel(props: {
   const input = useRef<HTMLInputElement>(null);
   const keyRef = useRef<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [proposalId, setProposalId] = useState('');
+  const [filter, setFilter] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hiding, setHiding] = useState<string | null>(null);
@@ -50,6 +56,7 @@ export function PhotoPanel(props: {
     const form = new FormData();
     form.set('file', file);
     if (caption.trim()) form.set('caption', caption.trim());
+    if (proposalId) form.set('proposalId', proposalId);
     try {
       const res = await fetch(base, {
         method: 'POST',
@@ -59,6 +66,7 @@ export function PhotoPanel(props: {
       if (res.ok) {
         keyRef.current = null;
         setCaption('');
+        setProposalId('');
         if (input.current) input.current.value = '';
         router.refresh();
       } else {
@@ -98,6 +106,21 @@ export function PhotoPanel(props: {
     setBusy(false);
   }
 
+  // FR-REC-014: without `proposals` (intakes) one flat group; with them, one group per proposal plus "no proposal"
+  const titleOf = new Map((props.proposals ?? []).map((x) => [x.id, x.title]));
+  const groups: { id: string; title: string; items: PhotoItem[] }[] = [];
+  for (const p of props.photos) {
+    const id = p.proposalId && titleOf.has(p.proposalId) ? p.proposalId : '';
+    if (filter && (filter === 'none' ? id !== '' : id !== filter)) continue;
+    let g = groups.find((x) => x.id === id);
+    if (!g) {
+      g = { id, title: id ? titleOf.get(id)! : l.noProposal!, items: [] };
+      groups.push(g);
+    }
+    g.items.push(p);
+  }
+  groups.sort((a, b) => (a.id === '' ? -1 : b.id === '' ? 1 : 0)); // general photos first, proposals in order after
+
   return (
     <section className="card" aria-labelledby={`photos-${props.parent}-h`} data-testid="photos">
       <div className="card__header">
@@ -106,42 +129,86 @@ export function PhotoPanel(props: {
         </h2>
       </div>
       <div className="card__body stack">
+        {props.proposals && props.proposals.length > 0 && props.photos.length > 0 ? (
+          <div className="field">
+            <label className="field__label" htmlFor={`photo-filter-${props.parent}`}>
+              {l.filter}
+            </label>
+            <select
+              id={`photo-filter-${props.parent}`}
+              className="select"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              data-testid="photo-filter"
+            >
+              <option value="">{l.filterAll}</option>
+              <option value="none">{l.noProposal}</option>
+              {props.proposals.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
         {props.photos.length === 0 ? (
           <p className="text-secondary" data-testid="photos-empty">
             {l.empty}
           </p>
+        ) : groups.length === 0 ? (
+          <p className="text-secondary" data-testid="photos-filter-empty">
+            {l.emptyFiltered}
+          </p>
         ) : (
-          <ul className="photo-grid" data-testid="photo-list">
-            {props.photos.map((p) => (
-              <li key={p.id}>
-                <a href={`${base}/${encodeURIComponent(p.id)}`} target="_blank" rel="noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- served by the Scope-checked API, not optimisable */}
-                  <img
-                    src={`${base}/${encodeURIComponent(p.id)}`}
-                    alt={p.caption ?? l.alt!}
-                    loading="lazy"
-                  />
-                </a>
-                {p.caption ? <span className="text-secondary">{p.caption}</span> : null}
-                {p.hidden ? (
-                  <span className="badge badge--neutral" data-testid="photo-hidden">
-                    {l.hiddenBadge}: {p.hidden.reason}
-                  </span>
-                ) : props.canHide ? (
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setHiding(p.id);
-                      setReason('');
-                    }}
-                    data-testid="photo-hide"
-                  >
-                    {l.hide}
-                  </Button>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          groups.map((g) => (
+            <div
+              key={g.id || 'none'}
+              className="stack"
+              data-testid="photo-group"
+              data-proposal={g.id}
+            >
+              {props.proposals ? (
+                <h3 className="text-secondary" data-testid="photo-group-title">
+                  {g.title} ({g.items.length})
+                </h3>
+              ) : null}
+              <ul className="photo-grid" data-testid="photo-list">
+                {g.items.map((p) => (
+                  <li key={p.id}>
+                    <a
+                      href={`${base}/${encodeURIComponent(p.id)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- served by the Scope-checked API, not optimisable */}
+                      <img
+                        src={`${base}/${encodeURIComponent(p.id)}`}
+                        alt={p.caption ?? l.alt!}
+                        loading="lazy"
+                      />
+                    </a>
+                    {p.caption ? <span className="text-secondary">{p.caption}</span> : null}
+                    {p.hidden ? (
+                      <span className="badge badge--neutral" data-testid="photo-hidden">
+                        {l.hiddenBadge}: {p.hidden.reason}
+                      </span>
+                    ) : props.canHide ? (
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setHiding(p.id);
+                          setReason('');
+                        }}
+                        data-testid="photo-hide"
+                      >
+                        {l.hide}
+                      </Button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
         )}
         {props.canAdd ? (
           <div className="stack">
@@ -159,6 +226,27 @@ export function PhotoPanel(props: {
               />
               <span className="field__hint">{l.hint}</span>
             </div>
+            {props.proposals && props.proposals.length > 0 ? (
+              <div className="field">
+                <label className="field__label" htmlFor={`photo-prop-${props.parent}`}>
+                  {l.forProposal}
+                </label>
+                <select
+                  id={`photo-prop-${props.parent}`}
+                  className="select"
+                  value={proposalId}
+                  onChange={(e) => setProposalId(e.target.value)}
+                  data-testid="photo-proposal"
+                >
+                  <option value="">{l.noProposal}</option>
+                  {props.proposals.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
             <div className="field">
               <label className="field__label" htmlFor={`photo-cap-${props.parent}`}>
                 {l.caption}

@@ -49,6 +49,66 @@ export interface Actor {
  * Throws 403 when the actor has the permission nowhere.
  */
 export function resolveScope(actor: Actor, permission: Permission): Scope {
+  const base = resolvePermissionScope(actor, permission);
+  // BA §25 F-1(3): WRITES (create/update/archive/approve/reject/manage) are fenced to the working branch, so a
+  // company-wide actor cannot change a record of another branch by accident; they switch the working branch first.
+  // Reads and exports keep the full permission scope (links and drill-down stay open). No working branch = unchanged.
+  if (actor.workingBranchId && isWriteAction(permission) && !isCompanyLevel(permission)) {
+    const narrowed = narrowScope(base, actor.workingBranchId);
+    if (!narrowed) throw forbidden(); // the right is not held at the working branch (same as resolveWorkingScope)
+    return narrowed;
+  }
+  return base;
+}
+
+const WRITE_ACTIONS: ReadonlySet<string> = new Set([
+  'create',
+  'update',
+  'archive',
+  'approve',
+  'reject',
+  'manage',
+]);
+/**
+ * Company-level records (organisation, roles, users, effective-dated company configuration and catalogues) belong to no
+ * single branch: they are written under the full permission scope, whatever the working branch. [Cần xác nhận BA]
+ * (users: the record is company-level but its role assignments are per branch).
+ */
+const COMPANY_LEVEL_RESOURCES: ReadonlySet<string> = new Set([
+  'org',
+  'role',
+  'user',
+  'acc-policy',
+  'approval-limit',
+  'cost-method',
+  'discount-limit',
+  'consent-evidence',
+  'doc-template',
+  'einvoice-config',
+  'inventory-policy',
+  'numbering-series',
+  'part-catalog',
+  'price-list',
+  'report-config',
+  'service-catalog',
+  'tax-rate',
+]);
+const isCompanyLevel = (permission: Permission): boolean =>
+  COMPANY_LEVEL_RESOURCES.has(permission.slice(0, permission.lastIndexOf(':')));
+const isWriteAction = (permission: Permission): boolean =>
+  WRITE_ACTIONS.has(permission.slice(permission.lastIndexOf(':') + 1));
+
+/**
+ * True when the actor's permission scope is wider than the working branch, so a "not found" on a write may really be
+ * a record of another branch (the API then answers `switch_branch_required` instead of a bare 404).
+ */
+export function mayBeOtherBranch(actor: Actor): boolean {
+  if (!actor.workingBranchId) return false;
+  const branches = new Set(actor.assignments.map((a) => a.branchId));
+  return branches.has(ALL_BRANCHES) || branches.size > 1;
+}
+
+function resolvePermissionScope(actor: Actor, permission: Permission): Scope {
   const branchIds = new Set<string>();
   let all = false;
   for (const a of actor.assignments) {
@@ -61,7 +121,10 @@ export function resolveScope(actor: Actor, permission: Permission): Scope {
 }
 
 /**
- * Permission scope narrowed by the working branch (BA §4, D-06):
+ * Permission scope narrowed by the working branch (BA §4, D-06). The working branch is a FILTER for lists, search,
+ * reports, exports and the default branch of new documents; it is NOT a read boundary: reading one record by id (links,
+ * drill-down from consolidated reports) stays allowed anywhere inside the permission scope (`resolveScope`), see BA §25 F-1.
+ * Writes ARE fenced to the working branch: `resolveScope` narrows write permissions to it (BA §25 F-1(3)).
  *  - a working branch is chosen  -> only that branch (403 when the permission is not held there);
  *  - none chosen, consolidating role (CH, QV) -> the whole permitted scope (view only);
  *  - none chosen, company-wide assignment ('*') or exactly one branch -> that scope;
@@ -69,7 +132,7 @@ export function resolveScope(actor: Actor, permission: Permission): Scope {
  * The working branch is server-side session state; a value sent by the browser is never trusted.
  */
 export function resolveWorkingScope(actor: Actor, permission: Permission): Scope {
-  const base = resolveScope(actor, permission);
+  const base = resolvePermissionScope(actor, permission);
   if (actor.workingBranchId) {
     const narrowed = narrowScope(base, actor.workingBranchId);
     if (!narrowed) throw forbidden();

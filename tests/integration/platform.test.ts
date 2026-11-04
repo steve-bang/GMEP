@@ -1,6 +1,9 @@
+import { generateKeyPairSync, sign } from 'node:crypto';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { loadEnv } from '@/platform/config/env';
+import { createContainer } from '@/composition/container';
 import { allBranchesScope } from '@/platform/scope/scope';
 import { allocateDocumentNumber, revealPii } from '@/modules/sys';
 import { chunkBranches } from '@/platform/store/docStore';
@@ -374,6 +377,89 @@ describe.each(backends)(
       expect(ok.json.configured).toBe(true);
       expect(ok.json.branches.length).toBeGreaterThan(0);
       expect(ok.json.branches.every((b: { rpt: string }) => b.rpt === 'ok')).toBe(true);
+    });
+    it('FR-RPT-003: the internal cron route accepts a Cloud Scheduler OIDC token (fake issuer key), checks aud, email, expiry and signature, and still honours the secret', async () => {
+      const audience = 'https://gmep.example.test';
+      const sa = 'scheduler@demo-gmep.iam.gserviceaccount.com';
+      const secret = 'cron-secret-0123456789-abcdefghijklmnop';
+      const good = generateKeyPairSync('rsa', { modulusLength: 2048 });
+      const evil = generateKeyPairSync('rsa', { modulusLength: 2048 });
+      const keys = {
+        getKey: async (kid: string) =>
+          kid === 'k1' ? (good.publicKey.export({ format: 'jwk' }) as JsonWebKey) : null,
+      };
+      // OIDC only: no secret configured
+      const h = await createHarness(backend, {
+        env: {
+          CRON_OIDC_AUDIENCE: audience,
+          CRON_OIDC_SERVICE_ACCOUNT: sa,
+          CRON_COMPANY_ID: 'cmp_demo',
+        },
+      });
+      const withKeys = createContainer({ env: h.container.env, clock: h.clock, cronKeys: keys });
+      h.container.cronAuth = withKeys.cronAuth;
+      const nowS = Math.floor(h.clock.now().getTime() / 1000);
+      const jwt = (
+        claims: Record<string, unknown> = {},
+        priv = good.privateKey,
+        kid = 'k1',
+        alg = 'RS256',
+      ) => {
+        const b = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
+        const head = `${b({ alg, kid, typ: 'JWT' })}.${b({
+          iss: 'https://accounts.google.com',
+          aud: audience,
+          email: sa,
+          email_verified: true,
+          iat: nowS,
+          exp: nowS + 3600,
+          ...claims,
+        })}`;
+        return `${head}.${sign('RSA-SHA256', Buffer.from(head), priv).toString('base64url')}`;
+      };
+      const call = (h2: typeof h, authorization?: string, headers: Record<string, string> = {}) =>
+        h2.call('POST', '/api/v1/internal/cron/run-due', {
+          origin: null,
+          headers: { ...(authorization ? { authorization } : {}), ...headers },
+        });
+      const ok = await call(h, `Bearer ${jwt()}`);
+      expect(ok.status, ok.text).toBe(200);
+      expect(ok.json.configured).toBe(true);
+      expect((await call(h)).status).toBe(401);
+      expect((await call(h, `Bearer ${jwt({ aud: 'https://other.test' })}`)).status).toBe(401);
+      expect(
+        (await call(h, `Bearer ${jwt({ email: 'other@x.iam.gserviceaccount.com' })}`)).status,
+      ).toBe(401);
+      expect((await call(h, `Bearer ${jwt({ exp: nowS - 3600 })}`)).status).toBe(401);
+      expect((await call(h, `Bearer ${jwt({ iss: 'https://evil.test' })}`)).status).toBe(401);
+      expect((await call(h, `Bearer ${jwt({}, evil.privateKey)}`)).status).toBe(401);
+      expect((await call(h, `Bearer ${jwt({}, good.privateKey, 'unknown')}`)).status).toBe(401);
+      expect((await call(h, 'Bearer not.a.jwt')).status).toBe(401);
+      // no secret configured here, so the secret header alone is not a credential
+      expect((await call(h, undefined, { 'x-cron-secret': secret })).status).toBe(401);
+
+      // both configured: either one works
+      const both = await createHarness(backend, {
+        env: {
+          CRON_SECRET: secret,
+          CRON_OIDC_AUDIENCE: audience,
+          CRON_OIDC_SERVICE_ACCOUNT: sa,
+          CRON_COMPANY_ID: 'cmp_demo',
+        },
+      });
+      both.container.cronAuth = createContainer({
+        env: both.container.env,
+        clock: both.clock,
+        cronKeys: keys,
+      }).cronAuth;
+      expect((await call(both, undefined, { 'x-cron-secret': secret })).status).toBe(200);
+      expect((await call(both, `Bearer ${jwt()}`)).status).toBe(200);
+      expect((await call(both, `Bearer ${jwt({ aud: 'x' })}`)).status).toBe(401);
+
+      // only one of the two OIDC settings is a configuration error
+      expect(() => loadEnv({ ...process.env, CRON_OIDC_AUDIENCE: audience } as never)).toThrow(
+        /set together/,
+      );
     });
     it('every API route file is wrapped by apiRoute (static check of the source)', () => {
       const files: string[] = [];

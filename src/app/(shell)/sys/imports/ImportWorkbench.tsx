@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { ImportDto } from '@/modules/sys';
+import type { ImportDto, ImportIssuePage } from '@/modules/sys';
 import { Button } from '@/ui/components/Button';
 import { DataTable } from '@/ui/components/DataTable';
 import { StatusBadge, type BadgeTone } from '@/ui/components/StatusBadge';
@@ -28,6 +28,9 @@ const TONE: Record<string, BadgeTone> = {
   undone: 'neutral',
 };
 
+// a fetched page of errors is valid only for this exact state of the batch (commit, undo, a new dry run, a refresh)
+const stampOf = (b: ImportDto) => `${b.id}:${b.status}:${b.issueCount}:${b.version}`;
+
 /**
  * FR-SYS-007 screen (G4-SYS-20/21): choose kind, upload, map columns, dry run with row errors, confirm, write, undo.
  * The server is authoritative for every rule; this component only shows what the API answered.
@@ -50,6 +53,8 @@ export function ImportWorkbench(props: {
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // FR-SYS-007: the batch carries the first page of errors; later pages come from /issues (cursor = offset)
+  const [issuePage, setIssuePage] = useState<{ stamp: string; page: ImportIssuePage } | null>(null);
   const uploadKey = useRef<string | null>(null);
   const action = useAction(t('unexpected'));
 
@@ -90,6 +95,25 @@ export function ImportWorkbench(props: {
     }
   }
 
+  async function loadIssues(cursor: string | null) {
+    if (!batch) return;
+    setBusy('issues');
+    try {
+      const res = await fetch(
+        `/api/v1/sys/imports/${batch.id}/issues?limit=${Math.max(batch.issues.length, 1)}${cursor ? `&cursor=${cursor}` : ''}`,
+      );
+      if (!res.ok) {
+        setError(t('unexpected'));
+        return;
+      }
+      setIssuePage({ stamp: stampOf(batch), page: (await res.json()) as ImportIssuePage });
+    } catch {
+      setError(t('unexpected'));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function commit() {
     if (!batch) return;
     const r = await action.run<ImportDto>('commit', `/api/v1/sys/imports/${batch.id}/commit`, {});
@@ -118,6 +142,16 @@ export function ImportWorkbench(props: {
         .map(([k, n]) => `${n} ${t.has(`created.${k}`) ? t(`created.${k}`) : k}`)
         .join(', ')
     : '';
+  const pageHere = batch && issuePage?.stamp === stampOf(batch) ? issuePage.page : null;
+  const shownIssues = pageHere?.items ?? batch?.issues ?? [];
+  const nextCursor = pageHere
+    ? pageHere.nextCursor
+    : batch && batch.issueCount > batch.issues.length && batch.issues.length > 0
+      ? String(batch.issues.length)
+      : null;
+  const prevCursor = pageHere?.prevCursor ?? null;
+  // the server says when the file had more errors than the batch keeps; then the count is a lower bound label
+  const truncated = pageHere ? pageHere.truncated : (batch?.issuesTruncated ?? false);
   const needWh = info?.needsWarehouse && !warehouseId;
 
   return (
@@ -359,12 +393,35 @@ export function ImportWorkbench(props: {
             {batch.issues.length > 0 ? (
               <DataTable
                 caption={t('issuesTitle')}
-                rows={batch.issues}
+                rows={shownIssues}
                 rowKey={(i) => `${i.row}-${i.field ?? ''}-${i.message}`}
                 toolbar={
                   <span className="table-meta">
-                    {t('issuesShown', { shown: batch.issues.length, total: batch.issueCount })}
+                    {t(truncated ? 'issuesShownAtLeast' : 'issuesShown', {
+                      shown: shownIssues.length,
+                      total: batch.issueCount,
+                    })}
                   </span>
+                }
+                footer={
+                  prevCursor !== null || nextCursor !== null ? (
+                    <div className="row" role="navigation" aria-label={t('issuesPager')}>
+                      <Button
+                        variant="secondary"
+                        disabled={prevCursor === null || busy === 'issues'}
+                        onClick={() => void loadIssues(prevCursor)}
+                      >
+                        {t('issuesPrev')}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        disabled={nextCursor === null || busy === 'issues'}
+                        onClick={() => void loadIssues(nextCursor)}
+                      >
+                        {t('issuesNext')}
+                      </Button>
+                    </div>
+                  ) : undefined
                 }
                 columns={[
                   {
@@ -407,6 +464,9 @@ export function ImportWorkbench(props: {
             <h2 className="t-heading-md" id="imp-s4" style={{ margin: 0 }}>
               {t('step4')}
             </h2>
+            <p className="text-secondary" data-testid="import-slow-note">
+              {t('slowNote', { rows: batch.rowCount })}
+            </p>
             <label className="check">
               <input
                 type="checkbox"

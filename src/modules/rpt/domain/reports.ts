@@ -80,6 +80,71 @@ export interface MonthlyReport {
     closedWithoutInvoiceVnd: number;
   };
   series: MonthDayRow[];
+  /** FR-RPT-002: against the month before, same day range; null = "n/a" (no rollup of the previous month in that range) */
+  comparison: MonthComparison | null;
+}
+
+/** Percent change in basis points (1 bp = 0.01%), integer; null when the base is 0 (cannot divide) */
+export type DeltaBp = number | null;
+
+export interface MonthComparison {
+  /** the earlier month compared (`yyyy-MM`) */
+  month: string;
+  /** the two concrete date ranges compared (inclusive, yyyy-MM-dd); both are shown on screen and in the export */
+  currentRange: { from: string; to: string };
+  previousRange: { from: string; to: string };
+  /** days of the current month inside `currentRange` (can differ from `days` when the months have different length) */
+  currentDays: number;
+  /** days compared: 1..days of that month, equal to the day range the current month covers (capped by its length) */
+  days: number;
+  present: number;
+  /** days of the range with no rollup: NOT counted as zero, so the change may be understated */
+  missingDates: string[];
+  orders: { closed: number };
+  revenue: { orderTotalVnd: number; exTaxVnd: number; avgPerOrderVnd: number };
+  money: { inflowVnd: number };
+  invoices: { issuedVnd: number };
+  deltaBp: {
+    closed: DeltaBp;
+    orderTotalVnd: DeltaBp;
+    exTaxVnd: DeltaBp;
+    avgPerOrderVnd: DeltaBp;
+    inflowVnd: DeltaBp;
+    invoicesIssuedVnd: DeltaBp;
+  };
+}
+
+/** The `yyyy-MM` month before `month`. */
+export function previousMonth(month: string): string {
+  const y = Number(month.slice(0, 4));
+  const m = Number(month.slice(5, 7));
+  return m === 1
+    ? `${y - 1}-12`
+    : `${String(y).padStart(4, '0')}-${String(m - 1).padStart(2, '0')}`;
+}
+
+/**
+ * FR-RPT-002: how many days from the 1st of the earlier month are compared: the days elapsed in the running month,
+ * the whole length of `month` once it is over (not 31: April is 30 days), nothing for a future month.
+ */
+export function comparisonDays(month: string, today: string): number {
+  const cur = today.slice(0, 7);
+  if (month > cur) return 0;
+  return month === cur ? Number(today.slice(8, 10)) : monthDates(month).length;
+}
+
+/** (current - previous) / previous in basis points, rounded half away from zero; null when previous is 0 (FR-RPT-002). */
+export function deltaBp(current: number, previous: number): DeltaBp {
+  if (previous === 0) return null;
+  const x = ((current - previous) * 10_000) / Math.abs(previous);
+  return Math.sign(x) * Math.round(Math.abs(x));
+}
+
+/** The earlier period handed to `computeMonthly`: its rollups and how many days from the 1st are compared. */
+export interface PreviousPeriod {
+  month: string;
+  rows: readonly Rolled[];
+  throughDay: number;
 }
 
 type Rolled = Pick<
@@ -171,8 +236,57 @@ export function forServiceType(
 }
 
 /** Flows are summed over the days; end-of-period figures come from the last present day. Missing days are reported. */
-export function computeMonthly(month: string, rows: readonly Rolled[]): MonthlyReport {
-  const dates = monthDates(month);
+export function computeMonthly(
+  month: string,
+  rows: readonly Rolled[],
+  previous?: PreviousPeriod,
+): MonthlyReport {
+  const cur = sumMonth(month, rows, monthDates(month));
+  return { ...cur, comparison: compare(cur, previous) };
+}
+
+/** FR-RPT-002: figures of the same day range of the earlier month; compared with the full current figures. */
+function compare(
+  c: Omit<MonthlyReport, 'comparison'>,
+  prev: PreviousPeriod | undefined,
+): MonthComparison | null {
+  if (!prev || prev.throughDay < 1) return null;
+  const dates = monthDates(prev.month).slice(0, prev.throughDay);
+  const p = sumMonth(prev.month, prev.rows, dates);
+  if (p.present === 0) return null;
+  const curDates = monthDates(c.month).slice(0, prev.throughDay);
+  return {
+    month: prev.month,
+    currentRange: { from: curDates[0] ?? '', to: curDates.at(-1) ?? '' },
+    previousRange: { from: dates[0]!, to: dates.at(-1)! },
+    currentDays: curDates.length,
+    days: dates.length,
+    present: p.present,
+    missingDates: p.missingDates,
+    orders: { closed: p.orders.closed },
+    revenue: {
+      orderTotalVnd: p.revenue.orderTotalVnd,
+      exTaxVnd: p.revenue.exTaxVnd,
+      avgPerOrderVnd: p.revenue.avgPerOrderVnd,
+    },
+    money: { inflowVnd: p.money.inflowVnd },
+    invoices: { issuedVnd: p.invoices.issuedVnd },
+    deltaBp: {
+      closed: deltaBp(c.orders.closed, p.orders.closed),
+      orderTotalVnd: deltaBp(c.revenue.orderTotalVnd, p.revenue.orderTotalVnd),
+      exTaxVnd: deltaBp(c.revenue.exTaxVnd, p.revenue.exTaxVnd),
+      avgPerOrderVnd: deltaBp(c.revenue.avgPerOrderVnd, p.revenue.avgPerOrderVnd),
+      inflowVnd: deltaBp(c.money.inflowVnd, p.money.inflowVnd),
+      invoicesIssuedVnd: deltaBp(c.invoices.issuedVnd, p.invoices.issuedVnd),
+    },
+  };
+}
+
+function sumMonth(
+  month: string,
+  rows: readonly Rolled[],
+  dates: readonly string[],
+): Omit<MonthlyReport, 'comparison'> {
   const byDate = new Map(rows.map((r) => [r.date, r]));
   const present = dates.flatMap((d) => (byDate.has(d) ? [byDate.get(d)!] : []));
   const byMethod: Record<string, number> = {};

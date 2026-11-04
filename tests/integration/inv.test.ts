@@ -1497,6 +1497,88 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
       await assertLedgerMatchesBalances();
     });
 
+    const freshPart = async (code: string) =>
+      (
+        await call(tk, 'POST', '/api/v1/inv/parts', {
+          code,
+          name: `Phụ tùng thử ${code}`,
+          unit: 'piece',
+          group: 'other',
+        })
+      ).json as Row;
+
+    it('RULE-008/009: releasing the hold of an order while its own issue posts never breaks the four numbers', async () => {
+      const part = await freshPart('CONC-REL');
+      await postOk(tk, grnPo(part.id, 5, 40_000));
+      expect((await demand('ro-rr1', part.id, 5)).status).toBe(200);
+      const d = (await draft(tk, gin('ro-rr1', part.id, 5))).json;
+      const res = await Promise.all([
+        post(tk, d.id, d.version),
+        release('ro-rr1', { reason: 'order-closed' }),
+      ]);
+      expect(
+        res.every((r) => [200, 201, 409].includes(r.status)),
+        res.map((r) => `${r.status} ${r.text.slice(0, 120)}`).join(' | '),
+      ).toBe(true);
+      const b = await balance(tk, part.id);
+      expect(b.onHand).toBeGreaterThanOrEqual(0);
+      expect(b.reserved).toBeGreaterThanOrEqual(0);
+      expect(b.reserved).toBeLessThanOrEqual(b.onHand);
+      expect(b.available).toBe(b.onHand - b.reserved);
+      // either the issue went through (stock gone, nothing held) or it was refused (stock intact): never half
+      const issued = res[0]!.status === 200;
+      expect(b.onHand).toBe(issued ? 0 : 5);
+      await assertLedgerMatchesBalances();
+    });
+
+    it('FR-INV-020: 8 parallel holds of the SAME order and part (different keys) converge on the target quantity, not 8 times it', async () => {
+      const part = await freshPart('CONC-TARGET');
+      await postOk(tk, grnPo(part.id, 20, 40_000));
+      const res = await Promise.all(
+        Array.from({ length: 8 }, () =>
+          call(cv, 'POST', '/api/v1/inv/reservations', {
+            sourceType: 'repair-order',
+            sourceId: 'ro-target-1',
+            warehouseId: Q7,
+            partId: part.id,
+            qty: 3,
+          }),
+        ),
+      );
+      expect(
+        res.every((r) => r.status === 200),
+        res.map((r) => r.status).join(','),
+      ).toBe(true);
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 20, reserved: 3, available: 17 });
+      expect(
+        (await rows('stockReservations')).filter(
+          (r) => r.sourceId === 'ro-target-1' && r.partId === part.id,
+        ),
+      ).toHaveLength(1);
+      await assertLedgerMatchesBalances();
+    });
+
+    it('RULE-010: 6 parallel reversals of one posted receipt produce exactly one reversal document', async () => {
+      const part = await freshPart('CONC-REV');
+      const g = await postOk(tk, grnPo(part.id, 3, 90_000));
+      const res = await Promise.all(
+        Array.from({ length: 6 }, (_, i) =>
+          call(ql, 'POST', `/api/v1/inv/documents/${g.id}/reverse`, {
+            reason: `Đảo song song ${i}`,
+            version: 2,
+          }),
+        ),
+      );
+      expect(
+        res.filter((r) => r.status === 201),
+        res.map((r) => `${r.status} ${r.json?.code}`).join(','),
+      ).toHaveLength(1);
+      expect(res.filter((r) => r.status !== 201).every((r) => r.status === 409)).toBe(true);
+      expect((await rows('stockDocuments')).filter((x) => x.reversalOf === g.id)).toHaveLength(1);
+      expect((await balance(tk, part.id)).onHand).toBe(0);
+      await assertLedgerMatchesBalances();
+    });
+
     it('8 parallel requests with the SAME Idempotency-Key apply the posting once', async () => {
       const part = (
         await call(tk, 'POST', '/api/v1/inv/parts', {

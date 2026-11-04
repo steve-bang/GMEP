@@ -5,9 +5,11 @@ import {
   sumUnlinked,
   computeReconcile,
   computeTechnicians,
+  comparisonDays,
   computeWarehouse,
   MONTH_RE,
   monthDates,
+  previousMonth,
   type MonthlyReport,
   type ReconcileReport,
   type ReconcileVisible,
@@ -70,15 +72,32 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
   const q = parseInput(monthSchema, raw);
   const { scope, branches } = await branchesOf(deps, actor, 'report-daily:view', q.branchId);
   const branch = singleBranch(actor, branches, q.branchId);
-  const all = await redactedRollups(deps, actor, scope, branch.id, monthDates(q.month));
+  // FR-RPT-002: the earlier month over the same day range (1..today's day for the running month, the whole current
+  // month length once it is over; nothing for a future month). Read by key like the month itself: no new index.
+  // [Cần xác nhận] vs same month last year.
+  const dates = monthDates(q.month);
+  const throughDay = comparisonDays(q.month, todayOf(deps));
+  const prevMonth = previousMonth(q.month);
+  const prevDates = monthDates(prevMonth).slice(0, throughDay);
+  const [all, prevAll] = await Promise.all([
+    redactedRollups(deps, actor, scope, branch.id, dates),
+    prevDates.length
+      ? redactedRollups(deps, actor, scope, branch.id, prevDates)
+      : Promise.resolve([]),
+  ]);
   const narrowed = q.serviceType ? forServiceType(all, q.serviceType) : null;
+  const prevRolls = q.serviceType ? forServiceType(prevAll, q.serviceType).rolls : prevAll;
   return {
     branchId: branch.id,
     branchName: branch.name,
     serviceType: q.serviceType ?? null,
     breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
     unlinked: narrowed ? sumUnlinked(narrowed.included) : null,
-    report: computeMonthly(q.month, narrowed ? narrowed.rolls : all),
+    report: computeMonthly(q.month, narrowed ? narrowed.rolls : all, {
+      month: prevMonth,
+      rows: prevRolls,
+      throughDay,
+    }),
     // FR-RPT-014: narrowed to a service type, money by method, receivables and stock are not attributable and not shown
     visible: q.serviceType
       ? { ...visibleOf(actor), receivables: false, cash: false }

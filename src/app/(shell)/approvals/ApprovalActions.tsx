@@ -11,17 +11,35 @@ export function ApprovalActions(props: {
   id: string;
   version: number;
   canDecide: boolean;
+  /** R106: this kind needs the decider's password again (REAUTH_ON_APPROVE) */
+  reauth?: boolean;
   canWithdraw: boolean;
   selfNote: boolean;
+  /** BA §25 F-1(3): the request belongs to another branch than the working one */
+  switchNote?: boolean;
   labels: Labels;
 }) {
   const l = props.labels;
   const { run, busy, error } = useAction(l.unexpected!);
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState('');
+  // R106: kinds in REAUTH_ON_APPROVE (reopen day) need the decider's password again; cleared after every attempt
+  const [password, setPassword] = useState('');
   const base = `/api/v1/sys/approvals/${props.id}`;
   return (
     <div className="stack-2" data-testid={`apr-${props.id}`}>
+      {props.canDecide && props.reauth ? (
+        <input
+          className="input"
+          type="password"
+          aria-label={l.password}
+          placeholder={l.password}
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          data-testid="apr-password"
+        />
+      ) : null}
       {props.canDecide ? (
         <div className="rec-actions">
           <Button
@@ -29,7 +47,11 @@ export function ApprovalActions(props: {
             size="sm"
             loading={busy === 'approve'}
             onClick={() =>
-              void run('approve', `${base}/decide`, { version: props.version, decision: 'approve' })
+              void run('approve', `${base}/decide`, {
+                version: props.version,
+                decision: 'approve',
+                ...(props.reauth && password ? { reauthPassword: password } : {}),
+              }).finally(() => setPassword(''))
             }
             data-testid="apr-approve"
           >
@@ -44,6 +66,10 @@ export function ApprovalActions(props: {
             {l.reject}
           </Button>
         </div>
+      ) : props.switchNote ? (
+        <span className="text-secondary" data-testid="apr-switch-note">
+          {l.switchBranch}
+        </span>
       ) : props.selfNote ? (
         <span className="text-secondary">{l.self}</span>
       ) : null}

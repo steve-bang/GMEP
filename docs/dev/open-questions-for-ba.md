@@ -447,3 +447,23 @@ Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §24.5):
 2. `acc/application/refunds.ts` (R105): trần chung hoàn cọc và hoàn tiền; hoàn tiền mặt cần ca mở; hoàn về phương thức khác cần Chủ; hoàn tối đa bằng 0 khi tổng không giảm; chưa dựng màn hình.
 3. ACC mở lại ngày (R106): hỏi lại mật khẩu khi Chủ duyệt; hạn dùng lượt duyệt; báo ngoại lệ và thông báo trong ứng dụng; chặn khi ngày sau đã chốt; test.
 4. RPT (R101, R102): kiểm tra nhật ký xuất CSV, thoát ký tự công thức, nhãn "mức tối thiểu" và "tại thời điểm".
+
+## Câu hỏi mở thêm (dev, 04/11/2026)
+
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §25; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA; câu hỏi chuyển bên quyết định 58 đến 63).
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| Q-A (RPT-002) | Đã trả lời: tháng liền trước, cùng số ngày; cùng kỳ năm trước hoãn; chấp nhận dòng "Không gắn lệnh" (tổng phải khớp); FR-RPT-002 trong FRD là xếp hạng chi nhánh, đề xuất tách. Chờ Chủ dự án, Kế toán | Default OK + nhãn khoảng ngày, test tháng ngắn/chưa có tháng trước |
+| Q-B (FR-ACC-005) | Đã trả lời: hoãn khóa kỳ sang Phase 2/3 cùng xuất kỳ; có bảng quy tắc đề xuất; pilot giữ chốt ngày và mở lại ngày. Chờ Kế toán, Chủ dự án | Hoãn; giữ một điểm kiểm tra ngày chốt, `businessDate` |
+| F-1 (NFR-ISO-01) | Đã trả lời: chủ ý, chi nhánh làm việc là bộ lọc; đọc theo id trong phạm vi quyền (có nhãn chi nhánh); ghi chéo phải chuyển chi nhánh; người một chi nhánh vẫn 404. Chờ Chủ dự án | Default OK; sửa chú thích + test; kiểm tra ghi chéo và báo lại |
+| F-2 (C20) | Đã trả lời: chấp nhận cho người có quyền chéo; người không có quyền chéo phải 404 đồng nhất. Hai mô tả F-2 khác nhau, dev xác nhận nhóm đang nhận 200 rỗng. Chờ Chủ dự án | Kiểm tra; có thể must change |
+| Q-C (R97) | Đã trả lời: hoãn Phase 2 (FR-CRM-003 là Should); có quy tắc khóa, bản giữ, đồng ý, yêu cầu chủ dữ liệu, hoàn tác 30 ngày. Chờ Chủ dự án, Luật sư | Hoãn |
+| Q-D (R94) | Đã trả lời: không cần xử lý nền ở giai đoạn 1; giữ 2.000 dòng; điều kiện xem lại và hai điều kiện an toàn. Chờ Khách (khối lượng thật) | Default OK + kiểm tra gửi lại không trùng |
+| Q-E (NFR-PERF) | Đã trả lời: chấp nhận làm chỉ số hồi quy; NFR-PERF ghi "chưa kiểm chứng" đến khi đo staging. Chờ Chủ dự án | Default OK |
+| Ảnh đề xuất (API liệt kê) | Đã trả lời: giữ; báo designer hiện ảnh ở màn duyệt phát sinh | Giữ |
+
+Dev must change (chi tiết `ba-answers-for-dev.md` §25.5): (1) nhãn khoảng ngày và test RPT tháng; (2) F-1 chú thích + test + kiểm tra ghi chéo; (3) F-2 404 đồng nhất cho vai trò không có quyền chéo (nếu đang 200 rỗng); (4) Q-D kiểm tra gửi lại lô không trùng, lô lỗi không dở; (5) Q-B điểm kiểm tra ngày chốt duy nhất.
+
+- F-1 ghi chéo (dev, 04/11/2026): CH đang chọn chi nhánh Q7 gọi PATCH xe của Thu Duc nhận 200 (BA §25 F-1(3) muốn chặn và bắt chuyển chi nhánh). Chờ quyết định có chặn không, và phạm vi (mọi route ghi hay chỉ một số).
+- F-1(3) ĐÃ LÀM (04/11/2026): ghi chéo chi nhánh bị chặn (409 `switch_branch_required`). Hỏi BA: (a) danh sách bản ghi cấp công ty không bị chặn (tổ chức, vai trò, người dùng, cấu hình, danh mục) đã đúng chưa; người dùng có vai trò theo chi nhánh nên có cần chặn không; (b) khách/xe liên kết nhiều chi nhánh: ghi được từ mọi chi nhánh có liên kết, đúng không; (c) 404 thật của người phạm vi rộng khi ghi hiện thành 409, chấp nhận không.
