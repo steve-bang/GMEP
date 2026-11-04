@@ -75,6 +75,35 @@ export default async function ShellLayout({ children }: { children: React.ReactN
       ],
     },
     {
+      label: t('shell.nav.groupRec'),
+      items: [
+        ...(can.intakes
+          ? [
+              item(
+                'ik',
+                '/rec/intakes',
+                t('shell.nav.intakes'),
+                'clipboard-list',
+                'prefix',
+                info.readOnly.intakes,
+              ),
+            ]
+          : []),
+        ...(can.quotes
+          ? [
+              item(
+                'qt',
+                '/rec/quotes',
+                t('shell.nav.quotes'),
+                'receipt',
+                'prefix',
+                info.readOnly.quotes,
+              ),
+            ]
+          : []),
+      ],
+    },
+    {
       label: t('shell.nav.groupInv'),
       items: [
         ...(can.parts
