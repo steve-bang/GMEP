@@ -8,6 +8,7 @@ import type { DocStore, StoreStats } from '@/platform/store/docStore';
 import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
 import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
+import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
 import {
   BRANCH_STATE_RULES,
   DEFAULT_PASSWORD_POLICY,
@@ -52,16 +53,21 @@ import {
   DocVehicleRepository,
 } from '@/infrastructure/repos/crmRepos';
 import {
-  stubBranchActivity,
-  stubCustomerRetention,
-  stubWarehouseActivity,
-} from '@/infrastructure/stubs';
+  DocIssueReturnRepository,
+  DocMovementRepository,
+  DocPartRepository,
+  DocReservationRepository,
+  DocStockBalanceRepository,
+  DocStockDocumentRepository,
+} from '@/infrastructure/repos/invRepos';
+import { stubBranchActivity, stubCustomerRetention } from '@/infrastructure/stubs';
 
 export interface Container {
   env: Env;
   backend: 'firestore' | 'memory';
   sys: SysDeps;
   crm: CrmDeps;
+  inv: InvDeps;
   store: DocStore & { stats: StoreStats };
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
@@ -108,6 +114,7 @@ function buildSys(
   store: DocStore,
   uow: UnitOfWork,
   identity: IdentityProvider,
+  inv: { get: () => InvDeps },
 ): SysDeps {
   const config = sysConfigFromEnv(env);
   const now = () => clock.now();
@@ -128,7 +135,8 @@ function buildSys(
     companies: new DocCompanyRepository(store),
     branches: new DocBranchRepository(store),
     warehouses: new DocWarehouseRepository(store),
-    warehouseActivity: stubWarehouseActivity,
+    // INV owns the facts a warehouse is deactivated on (late-bound: SYS is built first)
+    warehouseActivity: invWarehouseActivity(() => inv.get()),
     branchActivity: stubBranchActivity,
     sessions: new DocSessionRepository(store),
     tokens: new DocAuthTokenRepository(store),
@@ -170,6 +178,20 @@ function buildCrm(sys: SysDeps, store: DocStore): CrmDeps {
   return crm;
 }
 
+/** INV use cases share the SYS transaction, audit, numbering and config services (slice 1.4). */
+function buildInv(sys: SysDeps, store: DocStore): InvDeps {
+  return {
+    sys,
+    parts: new DocPartRepository(store),
+    balances: new DocStockBalanceRepository(store),
+    movements: new DocMovementRepository(store),
+    documents: new DocStockDocumentRepository(store),
+    reservations: new DocReservationRepository(store),
+    returns: new DocIssueReturnRepository(store),
+    inv: DEFAULT_INV_CONFIG,
+  };
+}
+
 export interface ContainerOptions {
   env?: Env;
   clock?: Clock;
@@ -184,7 +206,11 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const db = new MemoryDb();
     const identity = new MemoryIdentityProvider();
     const store = new MemoryDocStore(db);
-    const sys = buildSys(env, clock, store, new MemoryUnitOfWork(db), identity);
+    const late: { inv?: InvDeps } = {};
+    const sys = buildSys(env, clock, store, new MemoryUnitOfWork(db), identity, {
+      get: () => late.inv!,
+    });
+    const inv = (late.inv = buildInv(sys, store));
     return {
       env,
       backend: 'memory',
@@ -193,14 +219,19 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       identity,
       sys,
       crm: buildCrm(sys, store),
+      inv,
     };
   }
 
   const db = getDb(env);
   const store = new FirestoreDocStore(db);
   const identity = new FirebaseIdentityProvider(env);
-  const sys = buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity);
-  return { env, backend: 'firestore', store, identity, sys, crm: buildCrm(sys, store) };
+  const late: { inv?: InvDeps } = {};
+  const sys = buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity, {
+    get: () => late.inv!,
+  });
+  const inv = (late.inv = buildInv(sys, store));
+  return { env, backend: 'firestore', store, identity, sys, crm: buildCrm(sys, store), inv };
 }
 
 const g = globalThis as unknown as { __gmepContainer?: Container };

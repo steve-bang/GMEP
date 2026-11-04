@@ -99,6 +99,25 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       .object({ name: z.string().trim().min(1).max(120), costVnd: vnd, listPriceVnd: vnd })
       .strict(),
   },
+  // FR-INV-009 / FR-INV-027: the stock cost method is data, effective-dated (one choice per period).
+  // Only 'weighted-average' has an implementation; the list grows when the accountant decides
+  // (e.g. 'fifo') and a CostMethod strategy is registered in the INV domain [Cần xác nhận: Kế toán khách].
+  'cost-method': {
+    type: 'cost-method',
+    resource: 'cost-method',
+    scopeKey: z.literal('company'),
+    branchOverride: false,
+    payload: z.object({ method: z.enum(['weighted-average']) }).strict(),
+  },
+  // FR-INV-005: GRN variance thresholds above which the manager must approve the receipt
+  // (basis points of the expected price / quantity). Values are [Đề xuất dev - chờ xác nhận: Khách].
+  'inventory-policy': {
+    type: 'inventory-policy',
+    resource: 'inventory-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z.object({ grnPriceVarianceBp: bp, grnQtyVarianceBp: bp }).strict(),
+  },
   // FR-SYS-006: metadata only (the template body is a later slice).
   'doc-template': {
     type: 'doc-template',

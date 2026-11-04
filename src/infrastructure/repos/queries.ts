@@ -35,6 +35,15 @@ export const COL = {
   consents: 'consents',
   dataSubjectRequests: 'dataSubjectRequests',
   vehicleHistory: 'vehicleHistory',
+  parts: 'parts',
+  partCodes: 'partCodes',
+  partBarcodes: 'partBarcodes',
+  partCompat: 'partCompat',
+  stockBalances: 'stockBalances',
+  stockMovements: 'stockMovements',
+  stockDocuments: 'stockDocuments',
+  stockReservations: 'stockReservations',
+  issueReturns: 'issueReturns',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -249,5 +258,93 @@ export const Q = {
     collection: COL.vehicleHistory,
     eq: ['companyId', 'vehicleId'],
     order: { field: 'date', dir: 'desc', type: 'string' },
+  }),
+  // ---- INV (slice 1.4) ----
+  /** part catalogue, company level: prefix search by normalised code or name */
+  partsByCode: defineQuery({
+    name: 'parts.list.code',
+    collection: COL.parts,
+    eq: ['companyId'],
+    optionalEq: ['group', 'status'],
+    range: true,
+    order: { field: 'code', dir: 'asc', type: 'string' },
+  }),
+  partsByName: defineQuery({
+    name: 'parts.list.name',
+    collection: COL.parts,
+    eq: ['companyId'],
+    optionalEq: ['group', 'status'],
+    range: true,
+    order: { field: 'nameNorm', dir: 'asc', type: 'string' },
+  }),
+  /** parts compatible with a vehicle line (link documents), ordered by code */
+  partCompatByModel: defineQuery({
+    name: 'partCompat.byModel',
+    collection: COL.partCompat,
+    eq: ['companyId', 'compatKey'],
+    order: { field: 'code', dir: 'asc', type: 'string' },
+  }),
+  /** stock list and reorder list: balances of the scope ordered by part code */
+  stockByPart: defineQuery({
+    name: 'stockBalances.list.code',
+    collection: COL.stockBalances,
+    eq: ['companyId'],
+    optionalEq: ['warehouseId', 'lowStock'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'partCodeNorm', dir: 'asc', type: 'string' },
+  }),
+  /** all warehouses of one part inside the scope */
+  stockOfPart: defineQuery({
+    name: 'stockBalances.byPart',
+    collection: COL.stockBalances,
+    eq: ['companyId', 'partId'],
+    scopeField: 'branchId',
+    order: { field: 'warehouseId', dir: 'asc', type: 'string' },
+  }),
+  /** FR-SYS-029 guard: any non-zero balance in a warehouse */
+  stockNonZero: defineQuery({
+    name: 'stockBalances.nonZero',
+    collection: COL.stockBalances,
+    eq: ['companyId', 'warehouseId', 'nonZero'],
+    order: { field: 'partCodeNorm', dir: 'asc', type: 'string' },
+  }),
+  /** the stock card of one warehouse x part, newest first */
+  movementsByBalance: defineQuery({
+    name: 'stockMovements.byBalance',
+    collection: COL.stockMovements,
+    eq: ['companyId', 'warehouseId', 'partId'],
+    scopeField: 'branchId',
+    order: { field: 'seqKey', dir: 'desc', type: 'string' },
+  }),
+  stockDocuments: defineQuery({
+    name: 'stockDocuments.list',
+    collection: COL.stockDocuments,
+    eq: ['companyId'],
+    optionalEq: ['type', 'status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  /** open (draft) documents of a warehouse */
+  stockDocumentsOpen: defineQuery({
+    name: 'stockDocuments.openByWarehouse',
+    collection: COL.stockDocuments,
+    eq: ['companyId', 'warehouseId', 'status'],
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  reservationsBySource: defineQuery({
+    name: 'stockReservations.bySource',
+    collection: COL.stockReservations,
+    eq: ['companyId', 'sourceType', 'sourceId'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  reservationsByPart: defineQuery({
+    name: 'stockReservations.byPart',
+    collection: COL.stockReservations,
+    eq: ['companyId', 'partId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    order: { field: 'updatedAt', dir: 'desc', type: 'date' },
   }),
 };

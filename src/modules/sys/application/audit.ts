@@ -19,6 +19,7 @@ const FULL_AUDIT_ROLES = ['CH', 'AD', 'QL'];
 export const AUDIT_RESTRICTED_TYPES: readonly string[] = [
   'config.tax-rate',
   'config.price-item',
+  'config.cost-method',
   'config.numbering-series',
   'config.doc-template',
   'priceList',

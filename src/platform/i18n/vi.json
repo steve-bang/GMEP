@@ -228,6 +228,70 @@
     "request_blocked": {
       "title": "Chưa thể xóa dữ liệu khách",
       "detail": "Khách còn lệnh mở, công nợ hoặc bảo hành. Xử lý xong rồi hoàn tất yêu cầu."
+    },
+    "stock_insufficient": {
+      "title": "Không đủ tồn khả dụng",
+      "detail": "Số lượng yêu cầu vượt tồn khả dụng (tồn thực tế trừ hàng đang giữ chỗ). Giảm số lượng, chuyển kho hoặc đặt hàng thêm."
+    },
+    "stock_negative": {
+      "title": "Tồn kho không được âm",
+      "detail": "Thao tác này làm tồn thực tế xuống dưới 0 nên bị chặn."
+    },
+    "reservation_underflow": {
+      "title": "Giữ chỗ không hợp lệ",
+      "detail": "Số lượng giữ chỗ không thể âm."
+    },
+    "stock_in_transit_negative": {
+      "title": "Số hàng đang vận chuyển không hợp lệ",
+      "detail": "Số hàng đang vận chuyển không thể âm."
+    },
+    "stock_cost_negative": {
+      "title": "Giá trị tồn không hợp lệ",
+      "detail": "Thao tác làm giá trị tồn xuống dưới 0. Kiểm tra giá vốn của chứng từ gốc."
+    },
+    "stock_cost_residue": {
+      "title": "Giá trị tồn không khớp số lượng",
+      "detail": "Thao tác để lại giá trị khi tồn bằng 0. Kiểm tra giá vốn của chứng từ gốc."
+    },
+    "stock_quantity_invalid": {
+      "title": "Số lượng không hợp lệ",
+      "detail": "Số lượng hoặc giá trị vượt giới hạn cho phép."
+    },
+    "reservation_below_issued": {
+      "title": "Số lượng thấp hơn đã xuất",
+      "detail": "Không thể đặt số lượng cần thấp hơn số đã xuất cho nguồn này."
+    },
+    "part_code_exists": {
+      "title": "Mã phụ tùng đã có",
+      "detail": "Mã này đã dùng cho một phụ tùng khác trong toàn chuỗi. Dùng mã đã có hoặc đặt mã khác."
+    },
+    "part_barcode_exists": {
+      "title": "Mã vạch đã có",
+      "detail": "Mã vạch này đã gắn với một phụ tùng khác."
+    },
+    "part_inactive": {
+      "title": "Phụ tùng đã ngừng dùng",
+      "detail": "Phụ tùng này không nhận phát sinh mới. Dùng lại phụ tùng trước hoặc chọn phụ tùng khác."
+    },
+    "warehouse_inactive": {
+      "title": "Kho đã ngừng dùng",
+      "detail": "Kho này không nhận phát sinh mới. Chọn kho khác đang hoạt động."
+    },
+    "original_invalid": {
+      "title": "Phiếu xuất gốc không hợp lệ",
+      "detail": "Phiếu hoàn kho phải dựa trên một phiếu xuất đã ghi sổ, cùng kho và cùng lệnh sửa chữa, chưa bị đảo."
+    },
+    "return_exceeds_issued": {
+      "title": "Hoàn nhiều hơn đã xuất",
+      "detail": "Số lượng hoàn cộng với số đã hoàn trước đó vượt số lượng của phiếu xuất gốc."
+    },
+    "approver_must_differ": {
+      "title": "Cần người duyệt khác người lập",
+      "detail": "Chứng từ bất thường phải do một quản lý khác người lập ghi sổ."
+    },
+    "stock_approval_required": {
+      "title": "Cần quản lý duyệt chứng từ",
+      "detail": "Chứng từ này (điều chỉnh, nhập không có đơn mua hoặc lệch giá, số lượng) chỉ quản lý có quyền duyệt kho mới ghi sổ được."
     }
   },
   "login": {
@@ -593,6 +657,9 @@
       "maxBp": "Giảm tối đa (% giá niêm yết)",
       "costVnd": "Giá vốn (VND)",
       "listPriceVnd": "Giá niêm yết (VND)",
+      "method": "Phương pháp",
+      "grnPriceVarianceBp": "Lệch giá nhập tối đa không cần duyệt (%)",
+      "grnQtyVarianceBp": "Lệch số lượng nhập tối đa không cần duyệt (%)",
       "kind": "Loại",
       "paper": "Khổ giấy",
       "prefix": "Tiền tố",
@@ -633,6 +700,16 @@
         "lead": "Chỉ siêu dữ liệu mẫu in",
         "scopeHint": "Mã mẫu, dạng tpl:RO-A5"
       },
+      "cost-method": {
+        "title": "Phương pháp giá vốn",
+        "lead": "Một phương pháp cho mỗi kỳ, theo ngày hiệu lực",
+        "scopeHint": "Toàn công ty (company)"
+      },
+      "inventory-policy": {
+        "title": "Chính sách kho",
+        "lead": "Ngưỡng lệch giá và số lượng khi nhập kho phải có quản lý duyệt",
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
+      },
       "numbering-series": {
         "title": "Dãy số chứng từ",
         "lead": "Ghi đè bảng mặc định theo ngày hiệu lực",
@@ -644,7 +721,11 @@
     "listPrice": "Niêm yết {amount}",
     "prefixValue": "Tiền tố {prefix}",
     "widthValue": "STT {width} chữ số",
+    "grnVariance": "Lệch giá tối đa {price} · lệch số lượng tối đa {qty}",
     "enums": {
+      "costMethod": {
+        "weighted-average": "Bình quân gia quyền"
+      },
       "kind": {
         "quote": "Báo giá",
         "repair-order": "Lệnh sửa chữa",
@@ -741,13 +822,19 @@
       "config_standard-hours": "Cấu hình: Giờ chuẩn",
       "config_discount-limit": "Cấu hình: Hạn mức giảm giá",
       "config_price-item": "Cấu hình: Giá theo mặt hàng",
+      "config_cost-method": "Cấu hình: Phương pháp giá vốn",
+      "config_inventory-policy": "Cấu hình: Chính sách kho",
       "config_doc-template": "Cấu hình: Mẫu chứng từ",
       "config_numbering-series": "Cấu hình: Dãy số chứng từ",
       "customer": "Khách hàng",
       "vehicle": "Xe",
       "consent": "Đồng ý dữ liệu",
       "dataRequest": "Yêu cầu chủ dữ liệu",
-      "customerExport": "Xuất danh sách khách"
+      "customerExport": "Xuất danh sách khách",
+      "part": "Phụ tùng",
+      "stockDocument": "Chứng từ kho",
+      "stockReservation": "Giữ chỗ phụ tùng",
+      "stockBalance": "Tồn kho"
     },
     "actions": {
       "assignment_add": "Gán vai trò",
@@ -795,7 +882,19 @@
       "dataRequest_create": "Tạo yêu cầu chủ dữ liệu",
       "dataRequest_assign": "Phân công yêu cầu chủ dữ liệu",
       "dataRequest_complete": "Hoàn tất yêu cầu chủ dữ liệu",
-      "dataRequest_reject": "Từ chối yêu cầu chủ dữ liệu"
+      "dataRequest_reject": "Từ chối yêu cầu chủ dữ liệu",
+      "part_create": "Tạo phụ tùng",
+      "part_update": "Sửa phụ tùng",
+      "part_deactivate": "Ngừng dùng phụ tùng",
+      "part_reactivate": "Dùng lại phụ tùng",
+      "stockDocument_create": "Lập chứng từ kho (nháp)",
+      "stockDocument_update": "Sửa chứng từ kho nháp",
+      "stockDocument_cancel": "Hủy chứng từ kho nháp",
+      "stockDocument_post": "Ghi sổ chứng từ kho",
+      "stockDocument_reverse": "Đảo chứng từ kho",
+      "stockReservation_hold": "Giữ chỗ phụ tùng",
+      "stockReservation_release": "Nhả giữ chỗ phụ tùng",
+      "stockLevel_update": "Đổi định mức tồn"
     },
     "colBranch": "Chi nhánh",
     "allSystem": "Toàn hệ thống",
@@ -870,6 +969,7 @@
       "people": "Người dùng và phân quyền",
       "org": "Tổ chức",
       "catalog": "Danh mục, giá và thuế",
+      "inventory": "Kho và giá vốn",
       "docs": "Mẫu và quy trình",
       "data": "Dữ liệu và an toàn"
     }

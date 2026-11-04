@@ -93,6 +93,13 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
         enumLabel('period', str('period')),
         t('config.widthValue', { width: num('seqWidth') ?? 0 }),
       ].join(' · ');
+    case 'cost-method':
+      return enumLabel('costMethod', str('method'));
+    case 'inventory-policy':
+      return t('config.grnVariance', {
+        price: num('grnPriceVarianceBp') !== null ? formatBp(num('grnPriceVarianceBp')!) : '',
+        qty: num('grnQtyVarianceBp') !== null ? formatBp(num('grnQtyVarianceBp')!) : '',
+      });
     default:
       return '';
   }
@@ -138,6 +145,11 @@ export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
       ],
     },
     { name: 'paper', kind: 'select', options: ['A4', 'A5', 'thermal80', 'thermal58'] },
+  ],
+  'cost-method': [{ name: 'method', kind: 'select', options: ['weighted-average'] }],
+  'inventory-policy': [
+    { name: 'grnPriceVarianceBp', kind: 'percent' },
+    { name: 'grnQtyVarianceBp', kind: 'percent' },
   ],
   'numbering-series': [
     { name: 'prefix', kind: 'text' },

@@ -38,6 +38,22 @@ const CRM_CH = flatten([
   g('customer-lookup', 'view'),
 ]);
 
+/**
+ * INV (slice 1.4, FR-INV-001..027) default grants [Đề xuất BA - chờ xác nhận: Khách], from FRD §2:
+ * "Danh mục phụ tùng và bảng giá" (TK = S, CH = D, others X) and "Nhập, xuất, kiểm kê kho"
+ * (TK = S, QL = D, CH/QV/KT = X, CV/TN/TH/QD/AD = -). CV reads availability only (BA-04 Câu 6):
+ * `stock-availability` returns the available quantity, never on-hand, reserved or cost.
+ * `stock-cost:view` follows COST_VISIBLE_ROLES. `stock-doc:approve` = post an abnormal document
+ * (adjustment, receipt without purchase order, large variance) and reverse a posted one; the poster
+ * must be a different person from the creator.
+ */
+const INV_VIEW: string[] = flatten([
+  g('part', 'view'),
+  g('stock', 'view'),
+  g('stock-doc', 'view'),
+  g('stock-availability', 'view'),
+]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -60,8 +76,13 @@ const CH = [
     g('audit-log', 'view', 'export'),
     g('access-log', 'view', 'export'),
     g('login-history', 'view', 'export'),
+    g('cost-method', 'view', 'update', 'approve', 'reject'),
+    g('inventory-policy', 'view', 'update', 'approve', 'reject'),
+    g('stock-cost', 'view'),
+    g('stock-reservation', 'view'),
   ]),
   ...CRM_CH,
+  ...INV_VIEW,
 ];
 
 const matrix: Grant = {
@@ -83,7 +104,10 @@ const matrix: Grant = {
     g('consent', 'view'),
     g('data-request', 'view'),
     g('customer-lookup', 'view'),
-  ]),
+    g('stock-cost', 'view'),
+    g('stock-reservation', 'view'),
+    g('inventory-policy', 'view'),
+  ]).concat(INV_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -105,7 +129,12 @@ const matrix: Grant = {
     g('consent', 'view', 'create', 'update'),
     g('data-request', 'view', 'create', 'update'),
     g('customer-lookup', 'view'),
-  ]),
+    g('stock-cost', 'view'),
+    g('stock-level', 'update'),
+    g('stock-reservation', 'view', 'create', 'update'),
+    g('stock-doc', 'approve'),
+    g('inventory-policy', 'view'),
+  ]).concat(INV_VIEW),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -118,6 +147,10 @@ const matrix: Grant = {
     g('consent', 'view', 'create', 'update'),
     g('data-request', 'view', 'create'),
     g('customer-lookup', 'view'),
+    // read-only catalogue + availability; reservations are made by REC on the advisor's behalf
+    g('part', 'view'),
+    g('stock-availability', 'view'),
+    g('stock-reservation', 'create', 'update'),
   ]),
   QD: flatten([
     g('device', 'view'),
@@ -129,7 +162,14 @@ const matrix: Grant = {
     g('customer-lookup', 'view'),
   ]),
   TH: [],
-  TK: flatten([g('warehouse', 'view'), g('price-list', 'view')]),
+  TK: flatten([
+    g('warehouse', 'view'),
+    g('price-list', 'view'),
+    g('part', 'create', 'update', 'archive'),
+    g('stock-level', 'update'),
+    g('stock-doc', 'create', 'update'),
+    g('stock-reservation', 'view', 'create', 'update'),
+  ]).concat(INV_VIEW),
   TN: flatten([
     g('doc-template', 'view'),
     g('customer', 'view'),
@@ -151,7 +191,10 @@ const matrix: Grant = {
     g('vehicle', 'view'),
     g('vehicle-history', 'view'),
     g('consent', 'view'),
-  ]),
+    g('stock-cost', 'view'),
+    g('cost-method', 'view', 'update'),
+    g('inventory-policy', 'view'),
+  ]).concat(INV_VIEW),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),

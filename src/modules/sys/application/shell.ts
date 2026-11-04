@@ -18,6 +18,9 @@ export interface ShellInfo {
     customers: boolean;
     vehicles: boolean;
     dataRequests: boolean;
+    parts: boolean;
+    stock: boolean;
+    stockDocs: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -28,7 +31,9 @@ export interface ShellInfo {
     | 'priceLists'
     | 'config'
     | 'customers'
-    | 'vehicles',
+    | 'vehicles'
+    | 'parts'
+    | 'stockDocs',
     boolean
   >;
   unreadNotifications: number;
@@ -60,10 +65,15 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       customers: can('customer:view'),
       vehicles: can('vehicle:view'),
       dataRequests: can('data-request:view'),
+      parts: can('part:view'),
+      stock: can('stock:view'),
+      stockDocs: can('stock-doc:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),
       vehicles: !mayChange('vehicle'),
+      parts: !mayChange('part'),
+      stockDocs: !mayChange('stock-doc'),
       warehouses: !mayChange('warehouse'),
       branches: !mayChange('org'),
       users: !mayChange('user'),
