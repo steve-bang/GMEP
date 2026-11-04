@@ -136,6 +136,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Se
                     reauth={REAUTH_ON_APPROVE.includes(a.kind)}
                     canWithdraw={a.actions.withdraw.allowed}
                     selfNote={a.actions.decide.reasonCode === 'approval_self_decision'}
+                    switchNote={a.actions.decide.reasonCode === 'switch_branch_required'}
                     labels={l}
                   />
                 ) : a.status === 'approved' && !a.consumed ? (

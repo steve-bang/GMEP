@@ -215,6 +215,13 @@ export async function decideApproval(
   const viewScope = resolveScope(actor, 'approval:view');
   const r0 = await deps.approvals.get(viewScope, id);
   if (!r0) throw notFound();
+  // BA §25 F-1(3): deciding is a write, fenced to the working branch; say so instead of a bare 403
+  if (
+    actor.workingBranchId &&
+    r0.branchId !== actor.workingBranchId &&
+    hasPermission(actor, approverPermissionFor(r0.kind, r0.level))
+  )
+    throw new AppError('switch_branch_required', 409);
   const decideScope = resolveScope(actor, approverPermissionFor(r0.kind, r0.level));
   if (!scopeAllows(decideScope, actor.companyId, r0.branchId)) throw forbidden();
   // R106: approving the reopening of a closed day needs the password again (a left-open session cannot do it)
@@ -430,15 +437,18 @@ export interface ApprovalDto {
 
 function toDto(deps: SysDeps, actor: Actor, r: ApprovalRequest): ApprovalDto {
   const may = hasPermission(actor, approverPermissionFor(r.kind, r.level));
+  const otherBranch = !!actor.workingBranchId && r.branchId !== actor.workingBranchId;
   const decide = !may
     ? { allowed: false, reasonCode: 'no_permission' }
-    : checkDecision(r, actor.userId).ok
-      ? { allowed: true }
-      : {
-          allowed: false,
-          reasonCode:
-            r.requestedBy === actor.userId ? 'approval_self_decision' : 'approval_not_pending',
-        };
+    : otherBranch && r.status === 'pending'
+      ? { allowed: false, reasonCode: 'switch_branch_required' }
+      : checkDecision(r, actor.userId).ok
+        ? { allowed: true }
+        : {
+            allowed: false,
+            reasonCode:
+              r.requestedBy === actor.userId ? 'approval_self_decision' : 'approval_not_pending',
+          };
   return {
     id: r.id,
     number: r.number,

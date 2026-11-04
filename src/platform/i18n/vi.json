@@ -83,7 +83,7 @@
     },
     "switch_branch_required": {
       "title": "Hãy chuyển chi nhánh làm việc",
-      "detail": "Hãy chuyển sang chi nhánh của bản ghi này trước khi sửa. Bạn đang làm việc ở chi nhánh khác."
+      "detail": "Không tìm thấy bản ghi trong chi nhánh đang làm việc. Nếu bản ghi thuộc chi nhánh khác, hãy chuyển chi nhánh trước."
     },
     "scope_merged": {
       "title": "Chọn đúng một chi nhánh",
@@ -3275,6 +3275,7 @@
     "reason": "Lý do của người đề xuất",
     "decidedBy": "Người xử lý",
     "self": "Yêu cầu của chính bạn: cần người khác duyệt.",
+    "switchBranch": "Yêu cầu của chi nhánh khác: hãy chuyển chi nhánh làm việc trước khi duyệt.",
     "emptyTitle": "Không có yêu cầu",
     "emptyText": "Chưa có yêu cầu nào trong mục này.",
     "toSource": "Mở chứng từ",

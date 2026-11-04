@@ -15,6 +15,8 @@ export function ApprovalActions(props: {
   reauth?: boolean;
   canWithdraw: boolean;
   selfNote: boolean;
+  /** BA §25 F-1(3): the request belongs to another branch than the working one */
+  switchNote?: boolean;
   labels: Labels;
 }) {
   const l = props.labels;
@@ -64,6 +66,10 @@ export function ApprovalActions(props: {
             {l.reject}
           </Button>
         </div>
+      ) : props.switchNote ? (
+        <span className="text-secondary" data-testid="apr-switch-note">
+          {l.switchBranch}
+        </span>
       ) : props.selfNote ? (
         <span className="text-secondary">{l.self}</span>
       ) : null}

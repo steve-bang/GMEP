@@ -708,6 +708,34 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect(p2.status, p2.text).toBe(201);
     });
 
+    it('BA §25 F-1(3): the owner working at another branch sees decide.allowed=false (switch_branch_required) and a decision is refused with 409, not a bare 403', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      await collect(o.id, { kind: 'receipt', lines: [cashLine(o.totalVnd)] });
+      const big = await post(tn, '/api/v1/acc/expenses', {
+        categoryCode: 'equipment_repair',
+        amountVnd: 1_300_000,
+        method: 'cash',
+        payee: 'Thợ điện C',
+        description: 'Sửa quạt xưởng',
+        sourceRef: 'HD-77',
+      });
+      expect(big.status, big.text).toBe(202);
+      const ownerTd = await h.loginAt('u_owner', 'br_td');
+      const seen = await get(ownerTd, `/api/v1/sys/approvals/${big.json.approvalId}`);
+      expect(seen.status, seen.text.slice(0, 200)).toBe(200);
+      expect(seen.json.actions.decide).toMatchObject({
+        allowed: false,
+        reasonCode: 'switch_branch_required',
+      });
+      const refused = await decide(ownerTd, big.json.approvalId, 'approve');
+      expect(refused.status).toBe(409);
+      expect(refused.json.code).toBe('switch_branch_required');
+      // at the request's branch the same person decides
+      const ownerQ7 = await h.loginAt('u_owner', 'br_q7');
+      expect((await decide(ownerQ7, big.json.approvalId, 'approve')).status).toBe(200);
+    });
+
     it('R64 (RULE-007): a category tied to a source document is refused without it; a flagged voucher needs its reason and a manager, whatever its value', async () => {
       await ensureShift();
       const o = await readyOrder();

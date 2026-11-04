@@ -28,6 +28,9 @@ const TONE: Record<string, BadgeTone> = {
   undone: 'neutral',
 };
 
+// a fetched page of errors is valid only for this exact state of the batch (commit, undo, a new dry run, a refresh)
+const stampOf = (b: ImportDto) => `${b.id}:${b.status}:${b.issueCount}:${b.version}`;
+
 /**
  * FR-SYS-007 screen (G4-SYS-20/21): choose kind, upload, map columns, dry run with row errors, confirm, write, undo.
  * The server is authoritative for every rule; this component only shows what the API answered.
@@ -51,9 +54,7 @@ export function ImportWorkbench(props: {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   // FR-SYS-007: the batch carries the first page of errors; later pages come from /issues (cursor = offset)
-  const [issuePage, setIssuePage] = useState<{ batchId: string; page: ImportIssuePage } | null>(
-    null,
-  );
+  const [issuePage, setIssuePage] = useState<{ stamp: string; page: ImportIssuePage } | null>(null);
   const uploadKey = useRef<string | null>(null);
   const action = useAction(t('unexpected'));
 
@@ -105,7 +106,7 @@ export function ImportWorkbench(props: {
         setError(t('unexpected'));
         return;
       }
-      setIssuePage({ batchId: batch.id, page: (await res.json()) as ImportIssuePage });
+      setIssuePage({ stamp: stampOf(batch), page: (await res.json()) as ImportIssuePage });
     } catch {
       setError(t('unexpected'));
     } finally {
@@ -141,7 +142,7 @@ export function ImportWorkbench(props: {
         .map(([k, n]) => `${n} ${t.has(`created.${k}`) ? t(`created.${k}`) : k}`)
         .join(', ')
     : '';
-  const pageHere = batch && issuePage?.batchId === batch.id ? issuePage.page : null;
+  const pageHere = batch && issuePage?.stamp === stampOf(batch) ? issuePage.page : null;
   const shownIssues = pageHere?.items ?? batch?.issues ?? [];
   const nextCursor = pageHere
     ? pageHere.nextCursor

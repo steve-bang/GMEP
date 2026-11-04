@@ -47,7 +47,7 @@ export default async function NotificationsPage({ searchParams }: { searchParams
                 <span className="text-secondary">· {fmt.format(new Date(n.createdAt))}</span>
               </span>
               {n.link ? (
-                <Link href={n.link} style={{ textDecoration: 'underline' }}>
+                <Link href={n.link} className="link-inline">
                   {t('notifications.open')}
                 </Link>
               ) : null}
