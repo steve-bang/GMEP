@@ -27,7 +27,7 @@ import {
   transitionQuote,
 } from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
-import { toApprovalDto } from './approval';
+import { approvalPolicyOf, toApprovalDto, type ApprovalPolicy } from './approval';
 import { buildItems, itemInput } from './quoteBuild';
 import {
   addDays,
@@ -149,6 +149,10 @@ export interface VersionDto {
 }
 
 export interface QuoteDetailDto extends QuoteDto {
+  /** for the printout header (FR-REC-008: print copy) */
+  branchName: string;
+  /** policy for the counter approval panel; null unless the actor may approve a live sent version */
+  approvalPolicy: ApprovalPolicy | null;
   versions: VersionSummaryDto[];
   shown: VersionDto;
   allowed: string[];
@@ -280,7 +284,15 @@ async function toVersionDto(
     replacedByN: v.replacedByN ?? null,
     rejectReason: v.rejectReason ?? null,
     current: v.n === currentN && v.replacedByN === undefined,
-    approval: v.approval ? toApprovalDto(v.approval, () => null) : null,
+    approval: v.approval
+      ? toApprovalDto(
+          v.approval,
+          // staff display name only (no contact data) for "who recorded it"
+          v.approval.recordedBy
+            ? ((await deps.sys.users.getById(v.approval.recordedBy))?.displayName ?? null)
+            : null,
+        )
+      : null,
     hasLink: !!v.linkHash,
   };
 }
@@ -332,8 +344,14 @@ export async function getQuote(
   const mayEdit = hasPermission(actor, 'quote:update');
   const mayApprove = hasPermission(actor, 'quote:approve');
   const today = businessDate(deps.sys.clock.now());
+  const branch = await deps.sys.branches.get(scope, q.branchId);
   return {
     ...toQuoteDto(q, today),
+    branchName: branch?.name ?? '',
+    approvalPolicy:
+      mayApprove && shown.n === q.currentN && q.status === 'sent'
+        ? await approvalPolicyOf(deps, q.companyId, q.branchId, today)
+        : null,
     versions: versions.map((v) => ({
       n: v.n,
       status: v.status,

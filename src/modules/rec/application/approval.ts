@@ -861,13 +861,13 @@ export async function getApprovedQuote(
 }
 
 /** Approval evidence for the staff detail screen (QUO-03): who/when/how, never the link or token. */
-export function toApprovalDto(a: QuoteApproval, actorName: (id: string) => string | null) {
+export function toApprovalDto(a: QuoteApproval, recordedByName: string | null) {
   return {
     method: a.method,
     mode: a.mode,
     decidedAt: a.decidedAt.toISOString(),
     recordedBy: a.recordedBy,
-    recordedByName: a.recordedBy ? actorName(a.recordedBy) : null,
+    recordedByName,
     approvedItemNos: a.approvedItemNos,
     declined: a.declined,
     approvedSubtotalVnd: a.approvedSubtotalVnd,
