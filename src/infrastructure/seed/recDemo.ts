@@ -154,7 +154,20 @@ export function recDemoDocs(): SeedDoc[] {
     debtMaxDays: 60,
   });
   // G4-APR-03 illustrative limits (the design says "giá trị minh họa"): an expense up to 500.000 needs no approval
-  cfg('approval-limit', 'expense', { selfMaxVnd: 500_000, level1MaxVnd: 5_000_000, dueHours: 24 });
+  // R58: sample data, NOT a code fallback (the fallback is "every voucher needs approval"): 500.000 per voucher, 2.000.000 per shift
+  cfg('approval-limit', 'expense', {
+    selfMaxVnd: 500_000,
+    level1MaxVnd: 5_000_000,
+    dueHours: 24,
+    shiftCapVnd: 2_000_000,
+  });
+  cfg('approval-limit', 'deposit_refund', {
+    selfMaxVnd: 0,
+    level1MaxVnd: 50_000_000,
+    dueHours: 24,
+  });
+  for (const kind of ['invoice_adjust', 'invoice_replace', 'invoice_cancel'])
+    cfg('approval-limit', kind, { selfMaxVnd: 0, level1MaxVnd: 1_000_000_000_000, dueHours: 24 });
   cfg('approval-limit', 'payment_reversal', {
     selfMaxVnd: 0,
     level1MaxVnd: 50_000_000,
@@ -162,17 +175,20 @@ export function recDemoDocs(): SeedDoc[] {
   });
   cfg('approval-limit', 'debt_handover', { selfMaxVnd: 0, level1MaxVnd: 10_000_000, dueHours: 8 });
   cfg('approval-limit', 'cash_variance', { selfMaxVnd: 0, level1MaxVnd: 500_000, dueHours: 24 });
-  for (const [code, name, depositRefund] of [
-    ['office', 'Vật tư văn phòng', false],
-    ['utilities', 'Điện nước', false],
-    ['equipment_repair', 'Sửa chữa thiết bị', false],
-    ['hospitality', 'Tiếp khách', false],
-    ['other', 'Chi phí khác', false],
-    ['deposit_refund', 'Hoàn tiền cọc cho khách', true],
+  for (const [code, name, depositRefund, sourceRequirement] of [
+    ['office', 'Vật tư văn phòng', false, 'optional'],
+    ['utilities', 'Điện nước', false, 'optional'],
+    ['equipment_repair', 'Sửa chữa thiết bị', false, 'optional'],
+    ['hospitality', 'Tiếp khách', false, 'optional'],
+    ['other', 'Chi phí khác', false, 'optional'],
+    // R64: a category tied to a source document cannot be saved without it
+    ['order_cost', 'Chi phí theo lệnh sửa chữa', false, 'required'],
+    ['deposit_refund', 'Hoàn tiền cọc cho khách', true, 'required'],
   ] as const)
     cfg('expense-category', code, {
       name,
       status: 'active',
+      sourceRequirement,
       ...(depositRefund ? { depositRefund } : {}),
     });
   cfg('discount-limit', 'company', { maxDiscountBpByRole: { CV: 500, QL: 1500, CH: 3000 } });

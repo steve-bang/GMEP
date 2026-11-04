@@ -561,6 +561,10 @@
       "title": "Loại chi phí không có",
       "detail": "Chọn loại chi phí đang dùng trong danh mục."
     },
+    "expense_source_required": {
+      "title": "Loại chi phí này cần chứng từ gốc",
+      "detail": "Nhập số hóa đơn, mã đề xuất hoặc chọn lệnh liên quan. Loại chi phí này không lưu được khi thiếu chứng từ."
+    },
     "deposit_required": {
       "title": "Cần chọn khoản cọc",
       "detail": "Loại chi phí hoàn cọc phải gắn với lệnh và khoản cọc cần hoàn."
@@ -1463,6 +1467,8 @@
     "approvalRequested": "Có yêu cầu phê duyệt {number} ({kind}) đang chờ bạn.",
     "approvalApproved": "Yêu cầu {number} đã được duyệt.",
     "approvalRejected": "Yêu cầu {number} bị từ chối.",
+    "expenseSourceMissing": "Có {count} phiếu chi thiếu chứng từ gốc đã quá {days} ngày chưa bổ sung. Mở sổ quỹ để xem.",
+    "einvoiceQueued": "Có yêu cầu phát hành hóa đơn lỗi cần xử lý ({count}). Mở hàng chờ lỗi.",
     "orderWarehouseMissing": "Chi nhánh chưa có kho hoạt động: báo giá {number} đã duyệt nhưng chưa mở được lệnh có phụ tùng."
   },
   "settings": {
@@ -2836,7 +2842,10 @@
       "payee": "Người nhận tiền *",
       "desc": "Diễn giải *",
       "source": "Chứng từ gốc (số hóa đơn, mã đề xuất)",
-      "sourceHint": "Thiếu chứng từ gốc vẫn lưu được nhưng bị liệt kê ở bước chốt ngày.",
+      "sourceHint": "Thiếu chứng từ gốc vẫn lưu được nhưng phải ghi lý do, luôn cần quản lý duyệt và bị liệt kê ở bước chốt ngày.",
+      "sourceRequiredHint": "Loại chi phí này bắt buộc có chứng từ gốc (số hóa đơn, mã đề xuất).",
+      "missingReason": "Lý do thiếu chứng từ gốc",
+      "missingReasonHint": "Tối thiểu 5 ký tự. Phiếu này sẽ chờ quản lý chi nhánh duyệt và được nhắc lại nếu quá hạn bổ sung.",
       "orderRef": "Lệnh liên quan (mã lệnh, khi hoàn cọc)",
       "depositRef": "Mã phiếu cọc cần hoàn",
       "pay": "Chi tiền",
@@ -2954,6 +2963,10 @@
     "kind_expense": "Chi vượt hạn mức",
     "kind_debt_handover": "Ghi nợ khi giao xe",
     "kind_cash_variance": "Chênh lệch quỹ",
+    "kind_deposit_refund": "Hoàn cọc",
+    "kind_invoice_adjust": "Điều chỉnh hóa đơn",
+    "kind_invoice_replace": "Thay thế hóa đơn",
+    "kind_invoice_cancel": "Hủy hóa đơn",
     "level1": "Quản lý chi nhánh",
     "level2": "Chủ garage",
     "status_pending": "Chờ duyệt",

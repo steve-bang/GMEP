@@ -37,6 +37,8 @@ interface Category {
   code: string;
   name: string;
   depositRefund: boolean;
+  /** R64: `required` = the voucher cannot be saved without a source document */
+  sourceRequirement: 'required' | 'optional';
 }
 
 /**
@@ -60,9 +62,14 @@ export function ExpensePanel(props: {
   const [payee, setPayee] = useState('');
   const [desc, setDesc] = useState('');
   const [source, setSource] = useState('');
+  const [missingReason, setMissingReason] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const n = parseVndInput(amount);
+  const picked = props.categories.find((x) => x.code === cat);
+  // R64: no reference and no order -> the voucher is flagged "thiếu chứng từ" and needs its reason (a manager decides it)
+  const noSource = source.trim() === '';
+  const needsReason = noSource && picked?.sourceRequirement !== 'required';
   const ready =
     props.enabled &&
     cat !== '' &&
@@ -70,7 +77,9 @@ export function ExpensePanel(props: {
     n > 0 &&
     payee.trim().length >= 2 &&
     desc.trim().length >= 5 &&
-    (method === 'cash' || reference.trim() !== '');
+    (method === 'cash' || reference.trim() !== '') &&
+    !(noSource && picked?.sourceRequirement === 'required') &&
+    (!needsReason || missingReason.trim().length >= 5);
   async function submit() {
     const r = await run<{ status: string; number: string; level?: number }>(
       'expense',
@@ -83,6 +92,7 @@ export function ExpensePanel(props: {
         payee: payee.trim(),
         description: desc.trim(),
         ...(source.trim() ? { sourceRef: source.trim() } : {}),
+        ...(needsReason ? { sourceMissingReason: missingReason.trim() } : {}),
       },
     );
     setConfirming(false);
@@ -96,6 +106,7 @@ export function ExpensePanel(props: {
       setPayee('');
       setDesc('');
       setSource('');
+      setMissingReason('');
     }
   }
   return (
@@ -245,8 +256,26 @@ export function ExpensePanel(props: {
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
               />
-              <span className="field__hint">{l.sourceHint}</span>
+              <span className="field__hint">
+                {picked?.sourceRequirement === 'required' ? l.sourceRequiredHint : l.sourceHint}
+              </span>
             </div>
+            {needsReason ? (
+              <div className="field">
+                <label className="field__label" htmlFor="exp-missing">
+                  {l.missingReason} *
+                </label>
+                <input
+                  id="exp-missing"
+                  className="input"
+                  maxLength={300}
+                  value={missingReason}
+                  onChange={(e) => setMissingReason(e.target.value)}
+                  data-testid="exp-missing-reason"
+                />
+                <span className="field__hint">{l.missingReasonHint}</span>
+              </div>
+            ) : null}
           </div>
           <div>
             <Button

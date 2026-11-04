@@ -58,6 +58,8 @@ export interface Payment {
   /** reference of the source document of an expense (invoice number, request); absent = listed at day close */
   sourceRef?: string;
   sourceMissing?: boolean;
+  /** R64: why a flagged voucher has no source document */
+  sourceMissingReason?: string;
   /** an expense that refunds a customer deposit */
   depositId?: string;
   // reversal
@@ -169,6 +171,8 @@ export interface AccPolicy {
   varianceToleranceVnd: number;
   /** longest term of an approved debt, in days */
   debtMaxDays: number;
+  /** R64: a "thiếu chứng từ" flag still open after this many days is reported to the branch manager and the owner */
+  sourceFlagNoticeDays: number;
 }
 
 /** Fallback when no `acc-policy` version is in force [Đề xuất dev - chờ xác nhận: Kế toán khách]. */
@@ -178,6 +182,7 @@ export const DEFAULT_ACC_POLICY: AccPolicy = {
   receiptRequiresQc: true,
   varianceToleranceVnd: 0,
   debtMaxDays: 60,
+  sourceFlagNoticeDays: 3,
 };
 
 export const MAX_LINES = 6;

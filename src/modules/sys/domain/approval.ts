@@ -21,8 +21,13 @@ export type ApprovalLevel = 1 | 2;
 export const APPROVAL_KINDS = [
   'payment_reversal',
   'expense',
+  'deposit_refund',
   'debt_handover',
   'cash_variance',
+  // slice 1.8 (FR-EIN-007): correcting an issued invoice is always decided by someone other than the requester
+  'invoice_adjust',
+  'invoice_replace',
+  'invoice_cancel',
 ] as const;
 export type ApprovalKind = (typeof APPROVAL_KINDS)[number];
 export const isApprovalKind = (k: string): k is ApprovalKind =>
@@ -35,6 +40,11 @@ export interface ApprovalLimits {
   level1MaxVnd: number;
   /** hours before an undecided request is shown as overdue / escalated (FR-SYS-004 "hết hạn thì nhắc") */
   dueHours: number;
+  /**
+   * R58: the requester's own approvals (values <= selfMaxVnd) of one cash shift may not add up to more than this;
+   * the voucher that would pass it needs an approval. Absent = no running cap. Only meaningful for `expense`.
+   */
+  shiftCapVnd?: number;
 }
 
 export interface ApprovalKindDef {
@@ -53,9 +63,28 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
     alwaysNeeded: false,
     defaults: { selfMaxVnd: 0, level1MaxVnd: 5_000_000, dueHours: 24 },
   },
+  // R57: a deposit refund is always decided by a manager (no self-decision tier), above 50.000.000 by the owner
+  deposit_refund: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 50_000_000, dueHours: 24 },
+  },
   debt_handover: {
     alwaysNeeded: true,
     defaults: { selfMaxVnd: 0, level1MaxVnd: 10_000_000, dueHours: 8 },
+  },
+  // FR-EIN-007: an issued invoice is never edited; the accountant proposes, the chief accountant (invoice:approve) decides.
+  // Level 1 = KT with the chief-accountant right or the owner; there is no value tier, so the level-1 ceiling is unbounded.
+  invoice_adjust: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 1_000_000_000_000, dueHours: 24 },
+  },
+  invoice_replace: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 1_000_000_000_000, dueHours: 24 },
+  },
+  invoice_cancel: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 1_000_000_000_000, dueHours: 24 },
   },
   cash_variance: {
     alwaysNeeded: true,
@@ -78,6 +107,23 @@ export function requiredLevel(
 /** The permission that lets someone decide a request of this level (level 2 holders are also level 1). */
 export const approverPermission = (level: ApprovalLevel): `${string}:approve` =>
   level === 1 ? 'approval-l1:approve' : 'approval-l2:approve';
+
+/** Invoice corrections are decided by the "chief accountant" right (`invoice:approve`, FR-EIN-007), a role setting of KT. */
+export const INVOICE_APPROVAL_KINDS: readonly ApprovalKind[] = [
+  'invoice_adjust',
+  'invoice_replace',
+  'invoice_cancel',
+];
+export const INVOICE_APPROVER_PERMISSION = 'invoice:approve' as const;
+
+/** The permission that decides a request of this kind and level (level 2 is always the owner). */
+export const approverPermissionFor = (
+  kind: ApprovalKind,
+  level: ApprovalLevel,
+): `${string}:approve` =>
+  level === 1 && INVOICE_APPROVAL_KINDS.includes(kind)
+    ? INVOICE_APPROVER_PERMISSION
+    : approverPermission(level);
 
 export interface ApprovalRequest {
   id: string;

@@ -11,6 +11,7 @@ import {
 import { indexSatisfies, requiredIndex, type IndexDef } from '@/platform/store/indexes';
 import { MemoryDb, MemoryDocStore } from '@/infrastructure/store/memoryDocStore';
 import { Q } from '@/infrastructure/repos/queries';
+import { indexBudget, INDEX_FAIL_ABOVE } from '@/platform/store/indexBudget';
 
 /** S8 / H3: the index check derives from the repository layer's query catalogue. */
 const declared = (
@@ -93,5 +94,17 @@ describe('Firestore index coverage derived from the repository layer (ADR 0001 Â
       order: { field: 'a', dir: 'asc', type: 'string' },
     });
     expect(requiredIndex(f.pick([], false))).toBeNull();
+  });
+});
+
+describe('R68: composite-index budget (200 per database, 5 kept in reserve)', () => {
+  it('ok below 190, warn from 190, fail above 195', () => {
+    expect(indexBudget(189)).toBe('ok');
+    expect(indexBudget(190)).toBe('warn');
+    expect(indexBudget(195)).toBe('warn');
+    expect(indexBudget(196)).toBe('fail');
+  });
+  it('the declared file is within the budget', () => {
+    expect(declared.length).toBeLessThanOrEqual(INDEX_FAIL_ABOVE);
   });
 });

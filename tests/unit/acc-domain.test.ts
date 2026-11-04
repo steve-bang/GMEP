@@ -13,6 +13,8 @@ import {
   debtCovers,
   depositHeld,
   emptyAccount,
+  expenseApprovalNeed,
+  hasExpenseSource,
   planDepositApplication,
   recomputeAccount,
   sumLines,
@@ -333,5 +335,53 @@ describe('FR-ACC-006 debt age', () => {
     expect(agingKey('2026-10-30', '2026-11-04', [7, 14])).toBe('d1_30');
     expect(agingKey('2026-10-25', '2026-11-04', [7, 14])).toBe('d31_60');
     expect(agingKey('2026-10-10', '2026-11-04', [7, 14])).toBe('over60');
+  });
+});
+
+describe('expense approval need (RULE-011, R57, R58, R64)', () => {
+  const limits = {
+    selfMaxVnd: 500_000,
+    level1MaxVnd: 5_000_000,
+    dueHours: 24,
+    shiftCapVnd: 2_000_000,
+  };
+  const base = {
+    depositRefund: false,
+    sourceMissing: false,
+    amountVnd: 100_000,
+    limits,
+    selfApprovedInShiftVnd: 0,
+  };
+  it('R58: within the own tier and under the shift cap needs nothing', () => {
+    expect(expenseApprovalNeed(base)).toMatchObject({ kind: 'expense', level: 0 });
+  });
+  it('R58: the voucher that passes the running shift cap goes to a manager; the cap itself is allowed', () => {
+    expect(expenseApprovalNeed({ ...base, selfApprovedInShiftVnd: 1_900_000 }).level).toBe(0);
+    const over = expenseApprovalNeed({ ...base, selfApprovedInShiftVnd: 1_900_001 });
+    expect(over).toMatchObject({ level: 1, cappedByShift: true });
+  });
+  it('RULE-011: above the own tier a manager decides, above the manager tier the owner', () => {
+    expect(expenseApprovalNeed({ ...base, amountVnd: 500_001 }).level).toBe(1);
+    expect(expenseApprovalNeed({ ...base, amountVnd: 5_000_001 }).level).toBe(2);
+  });
+  it('R64: a voucher without a source document is always decided by a manager, whatever its value', () => {
+    expect(expenseApprovalNeed({ ...base, sourceMissing: true, amountVnd: 1 }).level).toBe(1);
+    expect(expenseApprovalNeed({ ...base, sourceMissing: true, amountVnd: 6_000_000 }).level).toBe(
+      2,
+    );
+  });
+  it('R57: a deposit refund is its own kind, never self-decided, owner above 50.000.000', () => {
+    const refundLimits = { selfMaxVnd: 0, level1MaxVnd: 50_000_000, dueHours: 24 };
+    const r = (amountVnd: number) =>
+      expenseApprovalNeed({ ...base, depositRefund: true, amountVnd, limits: refundLimits });
+    expect(r(1)).toMatchObject({ kind: 'deposit_refund', level: 1 });
+    expect(r(50_000_000).level).toBe(1);
+    expect(r(50_000_001).level).toBe(2);
+  });
+  it('R64: an order, a deposit or a reference each count as a source document', () => {
+    expect(hasExpenseSource({})).toBe(false);
+    expect(hasExpenseSource({ orderId: 'o' })).toBe(true);
+    expect(hasExpenseSource({ depositId: 'd' })).toBe(true);
+    expect(hasExpenseSource({ sourceRef: 'HD-1' })).toBe(true);
   });
 });

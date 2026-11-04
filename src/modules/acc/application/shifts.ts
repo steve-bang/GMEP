@@ -1,7 +1,9 @@
 import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import { hasPermission, resolveScope, type Actor } from '@/platform/rbac/rbac';
-import { approvalLevelFor, openApprovalInTx } from '@/modules/sys';
+import type { Scope } from '@/platform/scope/scope';
+import type { Tx } from '@/platform/tx/unitOfWork';
+import { approvalLevelFor, notifyUsers, openApprovalInTx, usersWithRole } from '@/modules/sys';
 import {
   checkVariance,
   dayCloseBlockers,
@@ -86,7 +88,21 @@ export async function openShift(
         version: 1,
       };
       deps.cash.createShift(tx, s);
-      deps.cash.saveDrawer(tx, { ...m.drawer, openShiftId: id, updatedAt: now });
+      const noticeDate = await noticeStaleSourceFlags(
+        deps,
+        tx,
+        scope,
+        actor,
+        branchId,
+        m.drawer,
+        date,
+      );
+      deps.cash.saveDrawer(tx, {
+        ...m.drawer,
+        openShiftId: id,
+        ...(noticeDate ? { sourceFlagNoticeDate: noticeDate } : {}),
+        updatedAt: now,
+      });
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {
@@ -100,6 +116,45 @@ export async function openShift(
       return { status: 201, body: { id, openingVnd: s.openingVnd, businessDate: date } };
     },
   );
+}
+
+/**
+ * R64 item 4: a voucher saved without its source document is flagged; when a flag is still open after
+ * `sourceFlagNoticeDays` the branch manager and the owner are told (once per business day, at the next shift opening;
+ * no background job exists yet). Returns the date to remember on the drawer, or null when nobody was told.
+ */
+async function noticeStaleSourceFlags(
+  deps: AccDeps,
+  tx: Tx,
+  scope: Scope,
+  actor: Actor,
+  branchId: string,
+  drawer: CashDrawer,
+  date: string,
+): Promise<string | null> {
+  if (drawer.sourceFlagNoticeDate === date) return null;
+  const policy = await accPolicyOf(deps, actor.companyId, branchId, date);
+  const now = deps.sys.clock.now();
+  const cutoff = new Date(now.getTime() - policy.sourceFlagNoticeDays * 86_400_000);
+  const rows = await deps.payments.listByBranch(
+    scope,
+    branchId,
+    { from: new Date(now.getTime() - 60 * 86_400_000), to: cutoff },
+    deps.acc.listMax,
+  );
+  const stale = rows.filter((p) => p.kind === 'expense' && p.sourceMissing === true).length;
+  if (stale === 0) return null;
+  const to = await usersWithRole(deps.sys, actor.companyId, ['QL', 'CH'], branchId);
+  notifyUsers(deps.sys, tx, {
+    companyId: actor.companyId,
+    userIds: to,
+    kind: 'acc.cash',
+    titleKey: 'notifications.expenseSourceMissing',
+    params: { count: String(stale), days: String(policy.sourceFlagNoticeDays) },
+    link: '/acc/cashbook',
+    branchId,
+  });
+  return date;
 }
 
 export const closeShiftSchema = z.object({

@@ -227,6 +227,10 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         receiptRequiresQc: z.boolean(),
         /** a cash count within +/- this many VND needs an explanation but no manager approval (FR-ACC-004) */
         varianceToleranceVnd: vnd,
+        /** BA R63: longest term of an approved debt at handover, in days (default 60) */
+        debtMaxDays: z.number().int().min(1).max(365).optional(),
+        /** R64: days a "thiếu chứng từ" flag may stay open before the manager is told (default 3) */
+        sourceFlagNoticeDays: z.number().int().min(1).max(90).optional(),
       })
       .strict(),
   },
@@ -235,12 +239,23 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'approval-limit': {
     type: 'approval-limit',
     resource: 'approval-limit',
-    scopeKey: z.enum(['payment_reversal', 'expense', 'debt_handover', 'cash_variance']),
+    scopeKey: z.enum([
+      'payment_reversal',
+      'expense',
+      'deposit_refund',
+      'debt_handover',
+      'cash_variance',
+      'invoice_adjust',
+      'invoice_replace',
+      'invoice_cancel',
+    ]),
     branchOverride: false,
     payload: z
       .object({
         selfMaxVnd: vnd,
         level1MaxVnd: vnd,
+        /** R58: running cap of the values decided by the requester alone within one cash shift (expense only) */
+        shiftCapVnd: vnd.optional(),
         dueHours: z
           .number()
           .int()
@@ -262,6 +277,14 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         status: z.enum(['active', 'inactive']),
         /** the category refunds a customer deposit (needs the deposit it refunds) */
         depositRefund: z.boolean().optional(),
+        /**
+         * R64/R65: `required` = a voucher of this category cannot be saved without its source document (an order, a
+         * deposit, a supplier receipt); `optional` (default) = it can be saved flagged "thiếu chứng từ" with a reason,
+         * and then always needs a manager's approval.
+         */
+        sourceRequirement: z.enum(['required', 'optional']).optional(),
+        /** R65: optional accounting account code for the later export (FR-ACC-010, not used yet) */
+        accountCode: z.string().trim().max(20).optional(),
       })
       .strict(),
   },

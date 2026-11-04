@@ -31,7 +31,13 @@ export type {
   PaymentListQuery,
 } from './application/payments';
 export { requestReversal, executeReversal } from './application/reversals';
-export { createExpense, payApprovedExpense, expenseCategories } from './application/expenses';
+export {
+  createExpense,
+  payApprovedExpense,
+  expenseCategories,
+  expenseApprovalNeed,
+  hasExpenseSource,
+} from './application/expenses';
 export {
   openShift,
   closeShift,

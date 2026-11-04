@@ -384,7 +384,13 @@ describe.each(backends)('ACC money [%s]', (backend) => {
         orderId: o.id,
         depositId: d.json.id,
       });
-      expect(refund.status, refund.text).toBe(201);
+      // R57: a deposit refund is never decided by the cashier alone
+      expect(refund.status, refund.text).toBe(202);
+      expect((await decide(ql, refund.json.approvalId, 'approve')).status).toBe(200);
+      const refundPaid = await post(tn, '/api/v1/acc/expenses/pay', {
+        approvalId: refund.json.approvalId,
+      });
+      expect(refundPaid.status, refundPaid.text).toBe(201);
       m = await money(o.id);
       expect(m.balance.depositHeldVnd).toBe(250_000);
       const tooMuch = await post(tn, '/api/v1/acc/expenses', {
@@ -614,6 +620,7 @@ describe.each(backends)('ACC money [%s]', (backend) => {
         method: 'cash',
         payee: 'Thợ điện B',
         description: 'Sửa máy nén khí',
+        sourceMissingReason: 'Thợ điện chưa xuất hóa đơn, bổ sung sau',
       });
       expect(big.status, big.text).toBe(202);
       expect(big.json.status).toBe('pending_approval');
@@ -650,6 +657,200 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect(p2.status, p2.text).toBe(201);
     });
 
+    it('R64 (RULE-007): a category tied to a source document is refused without it; a flagged voucher needs its reason and a manager, whatever its value', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      await collect(o.id, { kind: 'receipt', lines: [cashLine(o.totalVnd)] });
+      const base = {
+        amountVnd: 50_000,
+        method: 'cash',
+        payee: 'Cửa hàng C',
+        description: 'Mua dụng cụ',
+      };
+      // `order_cost` is `sourceRequirement: required`: no order, no reference -> refused (hard block)
+      const blocked = await post(tn, '/api/v1/acc/expenses', {
+        ...base,
+        categoryCode: 'order_cost',
+      });
+      expect(blocked.status).toBe(422);
+      expect(blocked.json.code).toBe('expense_source_required');
+      // the same category with the order it belongs to is a valid source document
+      const okOrder = await post(tn, '/api/v1/acc/expenses', {
+        ...base,
+        categoryCode: 'order_cost',
+        orderId: o.id,
+      });
+      expect(okOrder.status, okOrder.text).toBe(201);
+      expect(okOrder.json.sourceMissing).toBe(false);
+      // an optional category without a document needs the reason (validation error on that field)
+      const noReason = await post(tn, '/api/v1/acc/expenses', { ...base, categoryCode: 'office' });
+      expect(noReason.status).toBe(422);
+      expect(JSON.stringify(noReason.json)).toContain('sourceMissingReason');
+      // with the reason: saved flagged, but 50.000 is far below the cashier's own tier and still waits for a manager
+      const flagged = await post(tn, '/api/v1/acc/expenses', {
+        ...base,
+        categoryCode: 'office',
+        sourceMissingReason: 'Mua ở chợ, không có hóa đơn',
+      });
+      expect(flagged.status, flagged.text).toBe(202);
+      expect(flagged.json.sourceMissing).toBe(true);
+      expect(flagged.json.level).toBe(1);
+      expect((await decide(tn, flagged.json.approvalId, 'approve')).status).toBe(403);
+      expect((await decide(ql, flagged.json.approvalId, 'approve')).status).toBe(200);
+      const paid = await post(tn, '/api/v1/acc/expenses/pay', {
+        approvalId: flagged.json.approvalId,
+      });
+      expect(paid.status, paid.text).toBe(201);
+      expect(paid.json.sourceMissing).toBe(true);
+      const pay = (await rows('payments')).find((x) => x.id === paid.json.id)!;
+      expect(pay.sourceMissingReason).toBe('Mua ở chợ, không có hóa đơn');
+      // the flag is audited with its reason
+      const audit = (await rows('auditLogs')).find(
+        (a) => a.entityId === paid.json.id && a.action === 'payment.expense',
+      )!;
+      expect(audit.reason).toBe('Mua ở chợ, không có hóa đơn');
+    });
+
+    it('R58: what the cashier decides alone adds up per shift; the voucher that passes the cap (2.000.000 in the sample data) needs a manager', async () => {
+      await closeShiftClean();
+      await ensureShift();
+      const o = await readyOrder();
+      await collect(o.id, { kind: 'receipt', lines: [cashLine(o.totalVnd)] });
+      const v = (n: number) => ({
+        categoryCode: 'office',
+        amountVnd: n,
+        method: 'cash',
+        payee: 'Nhà sách',
+        description: `Chi vặt ${n}`,
+        sourceRef: `HD-${n}-${seq}`,
+      });
+      for (let i = 0; i < 4; i++) {
+        const r = await post(tn, '/api/v1/acc/expenses', v(500_000));
+        expect(r.status, `voucher ${i + 1}: ${r.text}`).toBe(201);
+      }
+      // 4 x 500.000 = the cap exactly; one more VND passes it
+      const fifth = await post(tn, '/api/v1/acc/expenses', v(100_000));
+      expect(fifth.status, fifth.text).toBe(202);
+      expect(fifth.json.cappedByShift).toBe(true);
+      expect(fifth.json.level).toBe(1);
+      // a manager-approved voucher does not count toward the cashier's own tier
+      expect((await decide(ql, fifth.json.approvalId, 'approve')).status).toBe(200);
+      expect(
+        (await post(tn, '/api/v1/acc/expenses/pay', { approvalId: fifth.json.approvalId })).status,
+      ).toBe(201);
+      // a new shift starts again from zero
+      await closeShiftClean();
+      await ensureShift();
+      const again = await post(tn, '/api/v1/acc/expenses', v(300_000));
+      expect(again.status, again.text).toBe(201);
+    });
+
+    it('R58: the cap is enforced under concurrency (two vouchers in parallel cannot both pass it)', async () => {
+      await closeShiftClean();
+      await ensureShift();
+      const o = await readyOrder();
+      await collect(o.id, { kind: 'receipt', lines: [cashLine(o.totalVnd)] });
+      const v = (n: number) => ({
+        categoryCode: 'office',
+        amountVnd: n,
+        method: 'cash',
+        payee: 'Nhà sách',
+        description: `Song song ${n}`,
+        sourceRef: `HD-P-${n}-${seq}`,
+      });
+      const first = await post(tn, '/api/v1/acc/expenses', v(500_000));
+      expect(first.status).toBe(201);
+      await post(tn, '/api/v1/acc/expenses', v(500_000));
+      await post(tn, '/api/v1/acc/expenses', v(400_000));
+      // 1.400.000 used; two vouchers of 400.000 in parallel: only one fits under 2.000.000
+      const both = await Promise.all([
+        post(tn, '/api/v1/acc/expenses', v(400_000)),
+        post(tn, '/api/v1/acc/expenses', v(400_000)),
+      ]);
+      const done = both.filter((r) => r.status === 201).length;
+      const waiting = both.filter((r) => r.status === 202).length;
+      const failed = both.filter((r) => r.status === 409).length;
+      expect(done, both.map((r) => r.text).join('|')).toBeLessThanOrEqual(1);
+      expect(done + waiting + failed).toBe(2);
+      const shift = (await get(tn, '/api/v1/acc/cashbook')).json.shifts.find(
+        (s: Row) => s.status === 'open',
+      );
+      expect(
+        (await rows('cashShifts')).find((x) => x.id === shift.id)!.selfApprovedExpenseVnd,
+      ).toBeLessThanOrEqual(2_000_000);
+    });
+
+    it('R57: a deposit refund is its own kind and is always decided by a manager (even a tiny one), the owner above 50.000.000', async () => {
+      await ensureShift();
+      const o = await openedOrder();
+      const dep = await collect(o.id, { kind: 'deposit', lines: [cashLine(300_000)] });
+      expect(dep.status, dep.text).toBe(201);
+      const depositId =
+        (await money(o.id)).deposits?.[0]?.id ??
+        (await rows('orderAccounts')).find((a) => a.id === o.id)!.deposits[0].id;
+      const refund = await post(tn, '/api/v1/acc/expenses', {
+        categoryCode: 'deposit_refund',
+        amountVnd: 10_000,
+        method: 'cash',
+        payee: 'Khách hàng',
+        description: 'Hoàn cọc do khách đổi ý',
+        orderId: o.id,
+        depositId,
+      });
+      expect(refund.status, refund.text).toBe(202);
+      expect(refund.json.level).toBe(1);
+      const ap = (await get(tn, `/api/v1/sys/approvals/${refund.json.approvalId}`)).json;
+      expect(ap.kind).toBe('deposit_refund');
+      expect((await decide(tn, refund.json.approvalId, 'approve')).status).toBe(403);
+      expect((await decide(ql, refund.json.approvalId, 'approve')).status).toBe(200);
+      const paid = await post(tn, '/api/v1/acc/expenses/pay', {
+        approvalId: refund.json.approvalId,
+      });
+      expect(paid.status, paid.text).toBe(201);
+      // the approval is consumed once
+      expect(
+        (await post(tn, '/api/v1/acc/expenses/pay', { approvalId: refund.json.approvalId })).status,
+      ).toBe(409);
+    });
+
+    it('R64 item 4: a flag open longer than the configured days is reported to the manager once per day, when the next shift opens', async () => {
+      await closeShiftClean();
+      await ensureShift();
+      const o = await readyOrder();
+      await collect(o.id, { kind: 'receipt', lines: [cashLine(o.totalVnd)] });
+      const rq = await post(tn, '/api/v1/acc/expenses', {
+        categoryCode: 'office',
+        amountVnd: 20_000,
+        method: 'cash',
+        payee: 'Chợ',
+        description: 'Mua lẻ',
+        sourceMissingReason: 'Không có hóa đơn',
+      });
+      await decide(ql, rq.json.approvalId, 'approve');
+      const paid = await post(tn, '/api/v1/acc/expenses/pay', { approvalId: rq.json.approvalId });
+      expect(paid.status, paid.text).toBe(201);
+      await closeShiftClean();
+      const notices = async () =>
+        (await rows('notifications')).filter(
+          (n) => n.titleKey === 'notifications.expenseSourceMissing',
+        );
+      const before = (await notices()).length;
+      // 4 days later (> 3 by default) the next shift opening tells the manager
+      h.clock.set(new Date(h.clock.now().getTime() + 4 * 86_400_000).toISOString());
+      // sessions are time bound: sign in again at the new time
+      const tnLater = await h.loginAt('u_tn_q7', 'br_q7');
+      await ensureShift(tnLater);
+      const after = await notices();
+      expect(after.length).toBeGreaterThan(before);
+      expect(after.some((n) => n.userId === 'u_ql_q7')).toBe(true);
+      // not again the same day
+      await closeShiftClean(tnLater);
+      await ensureShift(tnLater);
+      expect((await notices()).length).toBe(after.length);
+      // leave no shift of a future date open for the tests that follow
+      await closeShiftClean(tnLater);
+    });
+
     it('FR-ACC-003: cash cannot go below zero; an unknown category is refused; an advisor cannot create vouchers', async () => {
       await ensureShift();
       const cb = (await get(tn, '/api/v1/acc/cashbook')).json;
@@ -659,6 +860,7 @@ describe.each(backends)('ACC money [%s]', (backend) => {
         method: 'cash',
         payee: 'Ai đó',
         description: 'Chi vượt quỹ',
+        sourceRef: 'HD-QUY',
       });
       if (cb.drawer.balanceVnd < 400_000) expect(bad.json.code).toBe('cash_insufficient');
       const cat = await post(tn, '/api/v1/acc/expenses', {

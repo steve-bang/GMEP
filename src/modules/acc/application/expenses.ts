@@ -6,11 +6,17 @@ import type { Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import {
   allocateDocumentNumber,
-  approvalLevelFor,
+  approvalLimitsOf,
   consumeApprovalInTx,
   loadApprovalForUse,
   openApprovalInTx,
   resolveCatalogAt,
+} from '@/modules/sys';
+import {
+  requiredLevel,
+  type ApprovalKind,
+  type ApprovalLevel,
+  type ApprovalLimits,
 } from '@/modules/sys';
 import {
   applyRefund,
@@ -54,6 +60,8 @@ export const expenseSchema = z.object({
   description: z.string().trim().min(5).max(300),
   /** invoice number, request code or any reference to the source document */
   sourceRef: z.string().trim().max(80).optional(),
+  /** R64: why there is no source document; mandatory when the voucher has none (an order or a deposit counts as one) */
+  sourceMissingReason: z.string().trim().min(5).max(300).optional(),
   orderId: z.string().trim().min(1).max(128).optional(),
   depositId: z.string().trim().min(1).max(128).optional(),
 });
@@ -63,7 +71,14 @@ export async function expenseCategories(
   deps: AccDeps,
   companyId: string,
   date: string,
-): Promise<{ code: string; name: string; depositRefund: boolean }[]> {
+): Promise<
+  {
+    code: string;
+    name: string;
+    depositRefund: boolean;
+    sourceRequirement: 'required' | 'optional';
+  }[]
+> {
   const rows = await resolveCatalogAt(deps.sys, { companyId, type: 'expense-category', date });
   return rows
     .filter((r) => r.payload.status === 'active')
@@ -71,26 +86,73 @@ export async function expenseCategories(
       code: r.code,
       name: String(r.payload.name),
       depositRefund: r.payload.depositRefund === true,
+      sourceRequirement: r.payload.sourceRequirement === 'required' ? 'required' : 'optional',
     }));
 }
 
-/** Posts the voucher inside the caller's transaction. Reads first, then the writes. */
-async function postExpense(
+/**
+ * Which approval an expense needs (RULE-011, R57, R58, R64). Pure.
+ *  - a deposit refund is its own kind: always decided by a manager (no self-decision tier);
+ *  - a voucher without a source document (`sourceMissing`) is always decided by a manager, whatever its value;
+ *  - the requester's own tier (values within `selfMaxVnd`) also has a running cap per cash shift (`shiftCapVnd`):
+ *    the voucher that would pass the cap needs an approval.
+ */
+export function expenseApprovalNeed(i: {
+  depositRefund: boolean;
+  sourceMissing: boolean;
+  amountVnd: number;
+  limits: ApprovalLimits;
+  selfApprovedInShiftVnd: number;
+}): { kind: ApprovalKind; level: 0 | ApprovalLevel; cappedByShift: boolean } {
+  const kind: ApprovalKind = i.depositRefund ? 'deposit_refund' : 'expense';
+  let level = requiredLevel(kind, i.amountVnd, i.limits);
+  let cappedByShift = false;
+  if (
+    level === 0 &&
+    kind === 'expense' &&
+    i.limits.shiftCapVnd !== undefined &&
+    i.selfApprovedInShiftVnd + i.amountVnd > i.limits.shiftCapVnd
+  ) {
+    level = i.amountVnd <= i.limits.level1MaxVnd ? 1 : 2;
+    cappedByShift = true;
+  }
+  if (i.sourceMissing && level === 0) level = i.amountVnd <= i.limits.level1MaxVnd ? 1 : 2;
+  return { kind, level, cappedByShift };
+}
+
+/** R64: a voucher has a source document when it names a reference, an order or a deposit. */
+export const hasExpenseSource = (e: {
+  sourceRef?: string | undefined;
+  orderId?: string | undefined;
+  depositId?: string | undefined;
+}): boolean => !!(e.sourceRef || e.orderId || e.depositId);
+
+/** Everything a voucher is judged on, read inside the transaction before any write. */
+async function judgeExpense(
   deps: AccDeps,
   tx: Tx,
   actor: Actor,
   scope: Scope,
   branchId: string,
-  ctx: RequestCtx & { idempotencyKey: string },
   e: ExpenseInput,
-  approval: ApprovalRequest | null,
-  paymentId: string,
 ) {
   const now = deps.sys.clock.now();
   const date = businessDate(now);
   const cats = await expenseCategories(deps, actor.companyId, date);
   const cat = cats.find((c) => c.code === e.categoryCode);
   if (!cat) throw new AppError('expense_category_unknown', 422);
+  const sourceMissing = !hasExpenseSource(e);
+  // R64: a category tied to a source document cannot be saved without it (RULE-007)
+  if (sourceMissing && cat.sourceRequirement === 'required')
+    throw new AppError('expense_source_required', 422);
+  // R64: a flagged voucher says why there is no document
+  if (sourceMissing && !e.sourceMissingReason)
+    throw validationFailed([
+      {
+        field: 'sourceMissingReason',
+        message: 'Ghi lý do thiếu chứng từ gốc (tối thiểu 5 ký tự).',
+      },
+    ]);
   const policy = await accPolicyOf(deps, actor.companyId, branchId, date);
   const errors = validateLines(
     [
@@ -105,6 +167,55 @@ async function postExpense(
   if (errors.length) throw validationFailed(errors);
   const m = await loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, date);
   const shiftId = requireOpenShift(m);
+  const shift = await deps.cash.getShiftInTx(tx, scope, shiftId);
+  const kind: ApprovalKind = cat.depositRefund ? 'deposit_refund' : 'expense';
+  const limits = await approvalLimitsOf(deps.sys, actor.companyId, kind, date);
+  const need = expenseApprovalNeed({
+    depositRefund: cat.depositRefund,
+    sourceMissing,
+    amountVnd: e.amountVnd,
+    limits,
+    selfApprovedInShiftVnd: shift?.selfApprovedExpenseVnd ?? 0,
+  });
+  return { now, date, cat, sourceMissing, m, shiftId, shift, limits, need };
+}
+
+type Judged = Awaited<ReturnType<typeof judgeExpense>>;
+
+/** A refund names the deposit it returns and cannot exceed what is still held (FR-ACC-002). Reads only. */
+async function checkDepositRefund(
+  deps: AccDeps,
+  tx: Tx,
+  scope: Scope,
+  branchId: string,
+  e: ExpenseInput,
+  isRefundCategory: boolean,
+): Promise<void> {
+  if (!isRefundCategory && !e.depositId) return;
+  if (isRefundCategory && !(e.depositId && e.orderId)) throw new AppError('deposit_required', 422);
+  if (!isRefundCategory) throw new AppError('deposit_category_required', 422);
+  const order = await deps.orders.getInTx(tx, scope, e.orderId!);
+  if (!order || order.branchId !== branchId) throw notFound();
+  const account = await deps.accounts.getInTx(tx, scope, order.id);
+  const dep = account?.deposits.find((d) => d.id === e.depositId);
+  if (!dep) throw notFound();
+  if (e.amountVnd > depositHeld(dep)) throw new AppError('refund_exceeds_deposit', 422);
+}
+
+/** Posts the voucher inside the caller's transaction. Reads first, then the writes. */
+async function postExpense(
+  deps: AccDeps,
+  tx: Tx,
+  actor: Actor,
+  scope: Scope,
+  branchId: string,
+  ctx: RequestCtx & { idempotencyKey: string },
+  e: ExpenseInput,
+  approval: ApprovalRequest | null,
+  paymentId: string,
+  j: Judged,
+) {
+  const { now, date, cat, m, shiftId, sourceMissing } = j;
   const branch = await assertWritable(deps, tx, actor, scope, branchId);
   let orderNumber: string | null = null;
   let customerId: string | null = null;
@@ -160,7 +271,10 @@ async function postExpense(
     payee: e.payee,
     description: e.description,
     ...(e.sourceRef ? { sourceRef: e.sourceRef } : {}),
-    sourceMissing: !e.sourceRef && !e.depositId,
+    sourceMissing,
+    ...(sourceMissing && e.sourceMissingReason
+      ? { sourceMissingReason: e.sourceMissingReason }
+      : {}),
     ...(e.depositId ? { depositId: e.depositId } : {}),
     ...(approval ? { approvalId: approval.id } : {}),
     shiftId,
@@ -170,6 +284,11 @@ async function postExpense(
     createdByName: actor.displayName,
   };
   if (approval) consumeApprovalInTx(deps.sys, tx, actor, ctx, approval, paymentId);
+  else if (j.shift && j.limits.shiftCapVnd !== undefined)
+    // R58: what the requester decided alone counts toward the shift cap (same transaction as the voucher)
+    deps.cash.updateShift(tx, j.shift.id, {
+      selfApprovedExpenseVnd: (j.shift.selfApprovedExpenseVnd ?? 0) + e.amountVnd,
+    });
   deps.payments.post(tx, p);
   if (e.depositId && account)
     deps.accounts.save(tx, applyRefund(account, e.depositId, e.amountVnd, now));
@@ -204,6 +323,7 @@ async function postExpense(
         approval: approval?.number ?? null,
         sourceMissing: p.sourceMissing,
       },
+      ...(sourceMissing && e.sourceMissingReason ? { reason: e.sourceMissingReason } : {}),
     }),
   );
   return {
@@ -218,8 +338,9 @@ async function postExpense(
 }
 
 /**
- * Creates the voucher. Within the limit it is paid at once; over the limit (or any amount if the limit is zero) it
- * becomes an approval request and answers 202 with the request, nothing moves yet.
+ * Creates the voucher. Within the limit it is paid at once; over the limit (or any amount if the limit is zero), a
+ * deposit refund (R57), a voucher without a source document (R64) or one that passes the shift cap of the requester's
+ * own tier (R58) becomes an approval request and answers 202 with the request, nothing moves yet.
  */
 export async function createExpense(
   deps: AccDeps,
@@ -230,12 +351,6 @@ export async function createExpense(
   const scope = resolveScope(actor, 'cash-expense:create');
   const branchId = moneyBranch(actor, scope);
   const data = parseInput(expenseSchema, input);
-  const { level, limits } = await approvalLevelFor(
-    deps.sys,
-    actor.companyId,
-    'expense',
-    data.amountVnd,
-  );
   const key = ctx.idempotencyKey;
   return runIdempotent(
     idemOf(deps),
@@ -246,7 +361,8 @@ export async function createExpense(
       fingerprint: fingerprintOf(data),
     },
     async (tx) => {
-      if (level === 0)
+      const j = await judgeExpense(deps, tx, actor, scope, branchId, data);
+      if (j.need.level === 0)
         return postExpense(
           deps,
           tx,
@@ -257,23 +373,21 @@ export async function createExpense(
           data,
           null,
           `pay_${deps.sys.newId()}`,
+          j,
         );
       // validate what can be validated now so the approver is not asked about an impossible voucher
-      const date = businessDate(deps.sys.clock.now());
-      const cats = await expenseCategories(deps, actor.companyId, date);
-      if (!cats.some((c) => c.code === data.categoryCode))
-        throw new AppError('expense_category_unknown', 422);
+      await checkDepositRefund(deps, tx, scope, branchId, data, j.cat.depositRefund);
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       const req = await openApprovalInTx(deps.sys, tx, actor, ctx, {
-        kind: 'expense',
-        level,
-        limits,
+        kind: j.need.kind,
+        level: j.need.level,
+        limits: j.limits,
         branch,
         subjectType: 'expense',
         subjectId: `exp_${key}`,
         subjectLabel: `${data.payee}`.slice(0, 60),
         valueVnd: data.amountVnd,
-        reason: data.description,
+        reason: j.sourceMissing ? data.sourceMissingReason! : data.description,
         payload: { ...data },
       });
       return {
@@ -283,6 +397,8 @@ export async function createExpense(
           approvalId: req.id,
           number: req.number,
           level: req.level,
+          sourceMissing: j.sourceMissing,
+          cappedByShift: j.need.cappedByShift,
         },
       };
     },
@@ -311,14 +427,18 @@ export async function payApprovedExpense(
     },
     async (tx) => {
       const paymentId = `pay_${deps.sys.newId()}`;
+      // the request is of kind `expense` or `deposit_refund` (R57); read it to learn which before loading it for use
+      const peek = await deps.sys.approvals.getInTx(tx, scope, data.approvalId);
+      const kind: ApprovalKind = peek?.kind === 'deposit_refund' ? 'deposit_refund' : 'expense';
       const req = await loadApprovalForUse(deps.sys, tx, scope, {
         id: data.approvalId,
-        kind: 'expense',
+        kind,
         branchId,
       });
       const parsed = expenseSchema.safeParse(req.payload);
       if (!parsed.success) throw new AppError('approval_payload_invalid', 409);
-      return postExpense(deps, tx, actor, scope, branchId, ctx, parsed.data, req, paymentId);
+      const j = await judgeExpense(deps, tx, actor, scope, branchId, parsed.data);
+      return postExpense(deps, tx, actor, scope, branchId, ctx, parsed.data, req, paymentId, j);
     },
   );
 }

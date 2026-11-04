@@ -13,7 +13,8 @@ import type { Tx } from '@/platform/tx/unitOfWork';
 import {
   APPROVAL_KIND_DEFS,
   approvalSlotId,
-  approverPermission,
+  approverPermissionFor,
+  INVOICE_APPROVER_PERMISSION,
   checkDecision,
   isApprovalKind,
   isOverdue,
@@ -101,7 +102,7 @@ export async function openApprovalInTx(
   const slotId = approvalSlotId(i.kind, i.subjectId);
   const slot = await deps.approvals.getSlotInTx(tx, slotId);
   if (slot?.open) throw new AppError('approval_already_pending', 409);
-  const approvers = await approversOf(deps, actor.companyId, i.branch.id, i.level);
+  const approvers = await approversOf(deps, actor.companyId, i.branch.id, i.level, i.kind);
   const now = deps.clock.now();
   const id = `ap_${deps.newId()}`;
   const num = await allocateDocumentNumber(deps, tx, {
@@ -174,9 +175,10 @@ async function approversOf(
   companyId: string,
   branchId: string,
   level: ApprovalLevel,
+  kind: ApprovalKind,
 ): Promise<string[]> {
   const roles = (await deps.roles.list()).filter((r) =>
-    r.permissions.includes(approverPermission(level)),
+    r.permissions.includes(approverPermissionFor(kind, level)),
   );
   return usersWithRole(
     deps,
@@ -210,7 +212,7 @@ export async function decideApproval(
   const viewScope = resolveScope(actor, 'approval:view');
   const r0 = await deps.approvals.get(viewScope, id);
   if (!r0) throw notFound();
-  const decideScope = resolveScope(actor, approverPermission(r0.level));
+  const decideScope = resolveScope(actor, approverPermissionFor(r0.kind, r0.level));
   if (!scopeAllows(decideScope, actor.companyId, r0.branchId)) throw forbidden();
   return runIdempotent(
     idem(deps),
@@ -419,7 +421,7 @@ export interface ApprovalDto {
 }
 
 function toDto(deps: SysDeps, actor: Actor, r: ApprovalRequest): ApprovalDto {
-  const may = hasPermission(actor, approverPermission(r.level));
+  const may = hasPermission(actor, approverPermissionFor(r.kind, r.level));
   const decide = !may
     ? { allowed: false, reasonCode: 'no_permission' }
     : checkDecision(r, actor.userId).ok
@@ -475,11 +477,15 @@ export async function listApprovals(
   const scope = resolveScope(actor, 'approval:view');
   const branchId = requireWorkingBranch(actor);
   if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
-  const canDecide = hasPermission(actor, 'approval-l1:approve');
+  const canDecide =
+    hasPermission(actor, 'approval-l1:approve') ||
+    hasPermission(actor, INVOICE_APPROVER_PERMISSION);
   const pending = canDecide
     ? await deps.approvals.listByBranchStatus(scope, branchId, 'pending', LIST_MAX)
     : [];
-  const decidable = pending.filter((r) => hasPermission(actor, approverPermission(r.level)));
+  const decidable = pending.filter((r) =>
+    hasPermission(actor, approverPermissionFor(r.kind, r.level)),
+  );
   const mine = await deps.approvals.listByRequester(scope, actor.userId, LIST_MAX);
   let rows: ApprovalRequest[];
   if (q.tab === 'toDecide') rows = decidable;
@@ -507,7 +513,10 @@ export async function getApproval(deps: SysDeps, actor: Actor, id: string): Prom
   const r = await deps.approvals.get(scope, id);
   if (!r) throw notFound();
   // a requester sees their own; a decider sees the branch's; nobody else
-  if (r.requestedBy !== actor.userId && !hasPermission(actor, approverPermission(r.level)))
+  if (
+    r.requestedBy !== actor.userId &&
+    !hasPermission(actor, approverPermissionFor(r.kind, r.level))
+  )
     throw notFound();
   return toDto(deps, actor, r);
 }

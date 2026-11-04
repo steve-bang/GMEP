@@ -34,6 +34,8 @@ export interface CashDrawer {
   balanceVnd: number;
   seq: number;
   openShiftId: string | null;
+  /** R64: business date on which the manager was last told about stale "thiếu chứng từ" flags (one notice per day) */
+  sourceFlagNoticeDate?: string;
   updatedAt: Date;
 }
 
@@ -87,6 +89,8 @@ export interface CashShift {
   varianceApprovalId?: string;
   cashInVnd?: number;
   cashOutVnd?: number;
+  /** R58: sum of the expense vouchers the requester decided alone in this shift (running cap of the self tier) */
+  selfApprovedExpenseVnd?: number;
   /** orders still open when the shift closed, handed to the next shift */
   openOrders?: number;
   createdAt: Date;

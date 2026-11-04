@@ -157,6 +157,7 @@ export type NotificationKind =
   | 'rec.order'
   | 'approval'
   | 'acc.cash'
+  | 'ein.issue'
   | 'system';
 
 /** FR-SYS-009: in-system notification. Never carries personal data (names, phones, addresses). */

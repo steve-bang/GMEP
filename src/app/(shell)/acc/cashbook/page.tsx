@@ -38,7 +38,12 @@ export default async function CashbookPage({ searchParams }: { searchParams: Sea
       ? await listApprovals(getContainer().sys, actor, { tab: 'mine' }).catch(() => null)
       : null;
     const approved = (mine?.items ?? [])
-      .filter((a) => a.kind === 'expense' && a.status === 'approved' && !a.consumed)
+      .filter(
+        (a) =>
+          (a.kind === 'expense' || a.kind === 'deposit_refund') &&
+          a.status === 'approved' &&
+          !a.consumed,
+      )
       .map((a) => ({
         id: a.id,
         number: a.number,
