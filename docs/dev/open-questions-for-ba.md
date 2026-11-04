@@ -235,4 +235,22 @@ Dev đã dựng FR-REC-010, 012, 013, 014, 015, 016, 017, 021, 022, 028 và áp 
 | R52 | B | FR-REC-022 "xe chờ phụ tùng": dựa trên phần thiếu khi giữ chỗ (`unmetQty`) và nút "Kiểm tra lại phụ tùng" chạy lại giữ chỗ idempotent. Hệ thống KHÔNG tự giữ khi hàng về (hàng về qua phiếu nhập không tự kích hoạt). Cần tự động theo sự kiện nhập kho không? | Thủ công bằng nút, và cố vấn được báo khi lệnh mở | `recheckParts` |
 | R53 | B | Giờ thực của thợ (FR-REC-013) tính từ các mốc bắt đầu/tạm dừng/kết thúc đã ghi, hiển thị bên cạnh giờ khách duyệt; chưa có quy tắc công/hoa hồng (HRM, 2). Hạng mục đổi thợ giữa chừng: giờ gắn với hạng mục, người thao tác ghi ở từng mốc. Đủ cho 1.6? | Như bên trái | `workedMsOf` |
 
-Trạng thái: chờ BA trả lời R39..R53; mọi giá trị tạm đều đổi được bằng cấu hình hoặc một dòng mã, không cần đổi dữ liệu.
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §19; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA). Mọi giá trị tạm đều đổi được bằng cấu hình hoặc một dòng mã, không cần đổi dữ liệu.
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R39 | Đã trả lời: kho mặc định, không chọn kho theo dòng; thiếu kho thì báo QL | Dev default OK (thêm thông báo QL) |
+| R40 | Đã trả lời: 120 giây, người bấm; quản đốc sửa bằng mốc bù có lý do | Dev default OK (mốc bù QĐ làm sau) |
+| R41 | Đã trả lời, danh mục lý do chờ Khách | Dev must change (nhỏ: thêm mã thứ 5) |
+| R42 | Đã trả lời: giao xe là CV và QL, không TN; CV hủy chỉ khi chưa làm, chưa xuất | Dev must change (nhỏ) |
+| R43 | Đã trả lời, mục thật chờ Khách | Dev default OK |
+| R44 | Đã trả lời: nội dung kiểm tra giao xe khi có thu tiền, ngoại lệ ghi nợ do QL duyệt; cờ bật mặc định khi 1.7 xong | Dev must change (hợp đồng với 1.7) |
+| R45 | Đã trả lời, xử lý phụ tùng đã lắp chờ Khách và Kế toán | Dev default OK |
+| R46 | Đã trả lời: không hủy sau khi chờ kiểm tra; khách bỏ xe đi theo công nợ, chính sách lưu xe chờ Khách | Dev default OK |
+| R47 | Đã trả lời: chặn duyệt bổ sung khi lệnh đã đóng, tự đóng báo giá bổ sung còn mở | Dev must change |
+| R48 | Đã trả lời: chấp nhận cách gần đúng ở pilot | Dev default OK (quyền riêng nên có) |
+| R49 | Đã trả lời | Dev default OK |
+| R50 | Đã trả lời: một loại cho cả lệnh ở pilot, ghi nhận lệch FR-REC-032 | Dev default OK |
+| R51 | Đã trả lời phần chức năng, duyệt màn hình thuộc designer | Dev default OK |
+| R52 | Đã trả lời: thủ công ở pilot | Dev default OK |
+| R53 | Đã trả lời: đủ cho 1.6, kèm 3 điều kiện kiểm tra | Dev default OK (kiểm tra) |

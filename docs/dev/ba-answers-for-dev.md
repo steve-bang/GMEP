@@ -1684,3 +1684,245 @@ Giai đoạn chuyển tiếp: lệnh thuộc slice 1.6. Đến khi 1.6 xong, gi�
 | 7 | R33, R28: `supportPhone` của chi nhánh; ghi nhận "đã in" | SYS-05, `approval.ts` | Sau, không chặn |
 
 Không có câu trả lời nào mâu thuẫn với R35 (đúng với `repair-order` hiện có), R25, R26, R27, R31, R32.
+
+---
+
+## 19. Slice 1.6: thực hiện lệnh (R39–R53)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` vẫn là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định bên dưới ngay). Trả lời mục "Slice 1.6: thực hiện lệnh" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-REC-010, 013, 015, 016, 017, 021, 022, 028, 032; RULE-005, 006, 007, 010; WF-01, WF-04; Journey mục 3 (bước 13 Giao xe), bảng phê duyệt (hủy lệnh sau xuất phụ tùng), bảng ngoại lệ (khách không nhận xe). Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01). Không sửa FRD/BRD/Journey; việc cần sửa ở §19.3.
+
+### 19.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R39 | Giữ kho mặc định của chi nhánh, không chọn kho theo dòng; thiếu kho thì lệnh vẫn chờ nút Tạo lệnh và QL được báo | OK (thêm thông báo) | Khách |
+| R40 | 120 giây, chỉ người bấm; undo là mốc bù, không xóa mốc; quản đốc sửa bằng mốc bù có lý do (làm sau) | OK | Khách |
+| R41 | Danh mục lý do tạm dừng, thêm mã "chờ khách duyệt thêm" | **Must change** (nhỏ) | Khách |
+| R42 | Ma trận đúng, trừ hai điểm: giao xe là CV và QL (không TN); CV chỉ hủy lệnh chưa làm, chưa xuất | **Must change** (nhỏ) | Khách |
+| R43 | Giữ cấu hình theo loại dịch vụ; ảnh sau sửa không bắt buộc; mục thật do Khách | OK | Khách |
+| R44 | Khi có thu tiền: giao xe phải còn nợ bằng 0 hoặc có ghi nợ do QL duyệt; không cần chữ ký vẽ tay/ảnh; hóa đơn không là điều kiện giao xe | **Must change** (hợp đồng với 1.7) | Khách, Kế toán khách, Luật sư khách |
+| R45 | Giữ chặn; phụ tùng đã lắp không phải là "hủy lệnh" | OK | Khách, Kế toán khách |
+| R46 | Giữ; khách bỏ xe đi theo công nợ, không hủy | OK | Khách |
+| R47 | Chặn duyệt báo giá bổ sung khi lệnh đã đóng; "reopen" từ chờ kiểm tra/sẵn sàng giao là đúng | **Must change** | Khách |
+| R48 | Chấp nhận cách gần đúng ở pilot; nên có quyền riêng | OK | Khách |
+| R49 | Chỉ chữ ở pilot; ảnh làm cùng đợt R8, R26 | OK | Khách, Luật sư khách |
+| R50 | Một loại dịch vụ cho cả lệnh ở pilot; ghi nhận lệch tiêu chí FR-REC-032 | OK | Khách |
+| R51 | Không phản đối về chức năng; duyệt sai khác màn hình thuộc designer | OK | Designer |
+| R52 | Thủ công bằng nút ở pilot; tự động theo phiếu nhập làm sau | OK | Khách |
+| R53 | Đủ cho 1.6 kèm 3 điều kiện kiểm tra | OK (kiểm tra) | Khách (HRM sau) |
+
+### 19.2 Trả lời từng câu
+
+##### R39. Kho giữ chỗ khi tạo lệnh
+
+**Khuyến nghị**: giữ cách của dev. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Kho mặc định của chi nhánh (đã đánh dấu), nếu không có thì kho hoạt động đầu tiên theo mã. Không cho chọn kho theo từng dòng ở pilot: giữ chỗ chỉ là cam kết mềm theo kho; kho thực xuất do thủ kho chọn lúc lập phiếu xuất (FR-INV). Nếu phiếu xuất ở kho khác kho giữ chỗ thì INV nhả giữ chỗ ở kho cũ (idempotent theo `lineKey`), không để hai kho cùng giữ.
+- Chi nhánh không có kho hoạt động là lỗi cấu hình, không phải luồng thường: `warehouse_missing` chặn mở lệnh có phụ tùng là chấp nhận được **với điều kiện** bằng chứng duyệt vẫn ghi (R37 nguyên tắc 2), QL được báo qua `notifyUsers`, và nút Tạo lệnh chạy được ngay khi kho được cấu hình. Thêm vào danh sách kiểm tra trước vận hành chi nhánh: có ít nhất một kho hoạt động và một kho mặc định.
+
+**Dev default OK** (thêm thông báo QL nếu chưa có).
+
+##### R40. Hoàn tác thao tác của thợ
+
+**Khuyến nghị**: 120 giây, chỉ người bấm. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Hoàn tác là **mốc bù** (sự kiện mới tham chiếu mốc bị hoàn tác), không xóa hay sửa mốc cũ: giữ lịch sử đầy đủ cho giờ thực (FR-REC-013) và nhật ký (FR-SYS-003). Giờ thực bỏ qua cặp mốc đã bù.
+- Sau 120 giây hoặc người khác: chỉ quản đốc (QĐ) và QL sửa, bằng "mốc điều chỉnh" bắt buộc lý do, hiện trong nhật ký, giờ thực tính lại. Màn hình riêng cho việc này **làm sau**, không chặn 1.6; trong lúc chờ QĐ đổi trạng thái hạng mục bằng thao tác có sẵn kèm lý do.
+- `order-policy.undoWindowSeconds` là nguồn duy nhất; `RecConfig.undoWindowMs` chỉ là giá trị mặc định khi cấu hình thiếu.
+
+**Dev default OK.** Kiểm tra: hoàn tác không xóa bản ghi mốc.
+
+##### R41. Lý do tạm dừng hạng mục
+
+**Khuyến nghị**: danh mục có mã ổn định, thêm một mã. `[Cần xác nhận: Khách – danh sách]`
+
+- Bốn mã hiện có (chờ phụ tùng, chờ khách, nghỉ, khác) giữ. Thêm mã thứ 5 `awaiting_supplement_approval` ("chờ khách duyệt thêm") để phân biệt với "chờ khách" chung, vì lý do này gắn với báo giá bổ sung (RULE-006) và cần cho báo cáo thời gian chờ.
+- Mã cố định trong mã nguồn là chấp nhận được ở pilot nếu **mã** không đổi nghĩa; nhãn hiển thị đi qua chuỗi giao diện. Mã `awaiting_parts` là mã duy nhất làm xe hiện vào cột "xe chờ phụ tùng" (FR-REC-022). Chuyển thành danh mục cấu hình `pause-reason` (như `decline-reason`) khi Khách yêu cầu thêm mã.
+- Lý do "khác" bắt buộc ghi chú.
+
+**Dev must change** (nhỏ): thêm mã thứ 5 và nhãn; "khác" bắt buộc ghi chú nếu chưa.
+
+##### R42. Ma trận quyền 1.6
+
+**Khuyến nghị**: đúng như đề xuất dev, trừ hai điểm. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Đúng: TH chỉ thấy và thao tác hạng mục được giao; QĐ phân thợ, thay thợ, chạy QC; TK xuất phụ tùng theo yêu cầu; TN, KT chỉ xem; QL làm tất cả.
+- **Giao xe là CV và QL, không TN.** Journey bước 13: người giao xe là Cố vấn; TN thu tiền ở phân hệ ACC (1.7), không bàn giao. Giữ tách việc: người thu tiền và người giao xe có thể khác nhau.
+- **Hủy lệnh**: Journey (bảng phê duyệt) ghi Cố vấn đề nghị, Quản lý duyệt khi đã xuất phụ tùng. Đề xuất: CV tự hủy chỉ khi lệnh còn "Đã duyệt", chưa hạng mục nào bắt đầu và chưa có phiếu xuất; mọi trường hợp khác (đang sửa, tạm dừng đã có việc, đã xuất phụ tùng) chỉ QL hủy. Lý do hủy luôn bắt buộc và lưu trong nhật ký (FR-REC-021).
+- Thay thợ khi hạng mục đang chạy: QĐ hoặc QL, theo R53.
+- Cơ chế bổ sung quyền cho vai trò đã tạo (`POST /api/v1/sys/roles/top-up`) giữ theo R30/R21.
+
+**Dev must change** (nhỏ): quyền giao xe chỉ CV, QL; quyền hủy của CV có điều kiện nêu trên (máy trạng thái hoặc kiểm tra tại `cancelOrder`); test cho cả hai.
+
+##### R43. Danh sách kiểm tra chất lượng
+
+**Khuyến nghị**: giữ. `[Cần xác nhận: Khách – nội dung thật]`
+
+- Cấu hình `qc-checklist` theo mã loại dịch vụ, rơi về `default`. 4 mục hiện có là dữ liệu mẫu, đánh dấu như vậy trên màn cấu hình.
+- Không có danh sách thì màn QC báo chưa cấu hình và chặn là đúng (WF-04: không giao xe khi chưa qua kiểm tra chất lượng). Thêm vào danh sách kiểm tra trước vận hành: đã có danh sách `default` thật.
+- Ảnh sau sửa **không bắt buộc** ở pilot (chưa có lưu tệp; R8, R49). Khi có, bật theo mục kiểm tra bằng cờ `photoRequired` (mặc định `false`).
+- Không đạt: trả thợ, ghi lỗi gắn với thợ và hạng mục (FR-REC-016); lệnh về "Đang sửa". Mỗi lần chạy QC là một bản ghi, không ghi đè.
+
+**Dev default OK.**
+
+##### R44. Biên bản giao xe và kiểm tra thanh toán
+
+**Khuyến nghị**: biên bản không cần chữ ký vẽ tay; giao xe kiểm tra công nợ khi phân hệ thu tiền có. `[Cần xác nhận: Khách (chính sách ghi nợ), Kế toán khách (hóa đơn), Luật sư khách (biên bản)]`
+
+*A. Biên bản (FR-REC-017, Should)*
+
+- Xác nhận trên màn hình là đủ: họ tên người nhận, quan hệ với chủ xe (`owner`, `driver`, `authorized`), thời điểm, người giao (nhân viên), số km khi giao (tùy chọn). Không lưu ảnh và chữ ký vẽ tay ở pilot (cùng lý do R26: dữ liệu cá nhân mới cần mục đích đồng ý, thời hạn lưu, lưu tệp qua API). Bản in có mã biên bản để khách ký tay trên giấy nếu chi nhánh muốn; giấy lưu ngoài hệ thống.
+- Người nhận khác chủ xe: bắt buộc chọn quan hệ; không thu giấy tờ định danh trong hệ thống ở pilot (`[Cần xác nhận: Luật sư khách]`).
+- In lại cần lý do và hiện nhãn "BẢN IN LẠI" (đã làm). Biên bản không sửa sau khi lưu; sai thì tạo biên bản điều chỉnh tham chiếu bản cũ (RULE-010).
+
+*B. Giao xe phải kiểm tra gì khi đã có thu tiền (slice 1.7)*
+
+Giao xe chỉ thực hiện từ trạng thái "Sẵn sàng giao" (đã qua QC, WF-04). Khi `order-policy.handoverRequiresPayment` bật, trong **cùng giao dịch** ghi biên bản, REC gọi API công khai của ACC (ví dụ `getOrderBalance(orderId)`; tên do dev đặt) và kiểm tra:
+
+1. **Số phải thu của lệnh** = tổng các dòng đã duyệt (gồm báo giá bổ sung đã duyệt, thuế đã tính, trừ giảm giá hợp lệ) = `approvedTotalVnd` cộng phần bổ sung; REC cung cấp số này, ACC không tự tính lại.
+2. **Số đã thu** = tổng phiếu thu **đã ghi sổ** của lệnh, cộng cọc đã trừ vào lệnh (FR-ACC-001, 002), trừ phiếu thu đã đảo. Phiếu nháp, chuyển khoản chưa xác nhận không được tính.
+3. **Còn nợ = (1) − (2)**. Điều kiện để giao: còn nợ bằng 0, **hoặc** có một **ghi nợ được duyệt** của lệnh đó (mục 4).
+4. **Ghi nợ được duyệt** (Journey, bảng ngoại lệ "Khách không nhận xe hoặc chưa trả tiền"; BR-ACC-02): QL duyệt, kèm lý do, số tiền và hạn trả; ACC tạo khoản phải thu gắn lệnh (FR-ACC-006). Khách doanh nghiệp có điều khoản trả chậm trong CRM là một dạng ghi nợ được cấu hình sẵn (QL không phải duyệt từng lệnh nếu hạn mức còn đủ; `[Cần xác nhận: Khách]`). CV không tự duyệt ghi nợ cho lệnh mình giao; hạn mức ghi nợ theo RULE-011 và ma trận phê duyệt.
+5. Kiểm tra **lại** ở thời điểm ghi (không tin số hiển thị trên màn hình), idempotent theo khóa yêu cầu; sau khi giao, biên bản lưu **ảnh chụp số liệu** (phải thu, đã thu, còn nợ, mã ghi nợ nếu có) để tranh chấp sau này.
+6. **Hóa đơn không là điều kiện giao xe** ở pilot: hóa đơn là đối tượng riêng với trạng thái riêng từ nhà cung cấp (FR-REC-028); khách chưa cung cấp thông tin hóa đơn hoặc nhà cung cấp lỗi không được giữ xe. Ngược lại, hóa đơn chỉ phát hành sau khi lệnh qua QC. `[Cần xác nhận: Kế toán khách]` có muốn bắt buộc phát hành hóa đơn trước khi giao xe không.
+7. Lệnh vào "Hoàn tất" sau khi giao xe, kể cả khi còn nợ được duyệt: trạng thái thanh toán (đối tượng riêng) vẫn "Còn nợ" và khoản phải thu theo dõi riêng; không đợi thu đủ mới hoàn tất lệnh.
+8. Mất kết nối hoặc lỗi gọi ACC: chặn giao xe với lỗi RFC 9457 rõ ràng, **không** cho qua mặc định. Chỉ QL mới giao khi ACC lỗi, bằng ngoại lệ có lý do và nhật ký (`[Đề xuất BA]`, tránh xe kẹt ở cửa).
+
+*C. Cờ và trình tự triển khai*
+
+- Trước khi 1.7 xong: giữ `handoverRequiresPayment = false` mặc định, bật thì chặn bằng `payment_check_unavailable` (đúng như dev đã làm); màn giao xe ghi rõ "chưa kiểm tra thanh toán".
+- **Khi 1.7 hoàn tất, mặc định chuyển thành `true`** cho mọi chi nhánh (đây là điều Journey bước 6 và 13 mô tả: thu tiền rồi giao xe). Chi nhánh muốn tắt phải do Chủ dự án duyệt qua cấu hình có ngày hiệu lực. Cờ boolean là đủ; cấu hình bổ sung `debtApproverPermission` không cần, dùng quyền trong ma trận.
+
+**Dev must change**: (1) chốt hợp đồng với 1.7: ACC xuất `getOrderBalance`, dữ liệu ghi nợ được duyệt, và REC lưu ảnh chụp số liệu trong biên bản; (2) đổi mặc định cờ sang `true` khi 1.7 hợp nhất; (3) giao xe có kiểm tra gọi lại trong giao dịch, không tin giá trị từ trình duyệt; (4) test: còn nợ thì bị chặn; có ghi nợ duyệt thì qua; phiếu thu bị đảo làm chặn lại; ACC lỗi thì chặn.
+
+##### R45. Hủy lệnh đã xuất phụ tùng
+
+**Khuyến nghị**: giữ chặn. `[Cần xác nhận: Khách, Kế toán khách – phụ tùng đã lắp]`
+
+- Đúng FR-REC-021 và Journey (hủy cần phiếu hoàn kho và QL duyệt): hủy chỉ khi mọi phụ tùng đã xuất đã hoàn kho bằng phiếu RTN đã ghi sổ; phiếu xuất ngoài REC cũng chặn (chưa giải trình) là đúng vì RULE-007, RULE-009.
+- Phụ tùng **đã lắp vào xe** không hoàn được, nên đó không phải "hủy lệnh": công đã làm và phụ tùng đã dùng thuộc về doanh thu của lệnh. Khách bỏ dở giữa chừng đi theo R46 (đóng lệnh theo phần đã làm) thay vì hủy. Nếu Khách vẫn muốn "hủy mà phụ tùng đã lắp" thì cần quyết định nghiệp vụ và kế toán riêng (chuyển thành chi phí, bảo hành, hoặc bán phần đã lắp): **không làm ở pilot**.
+- Đảo công đã ghi (Journey bảng phê duyệt: "hệ thống tạo phiếu hoàn kho và đảo công") áp dụng khi HRM/công thợ có (phase 2); ở 1.6 chỉ cần chặn đúng và ghi lý do.
+
+**Dev default OK.**
+
+##### R46. Hủy lệnh khi đã chờ kiểm tra hoặc sẵn sàng giao
+
+**Khuyến nghị**: giữ không cho hủy; "tạm dừng" được hủy theo trạng thái trước đó. `[Cần xác nhận: Khách – chính sách lưu xe]`
+
+- Từ "chờ kiểm tra", "sẵn sàng giao", "hoàn tất": không hủy. Việc đã làm xong thì không còn là hủy. Hủy lệnh từ "tạm dừng" cho phép theo R42 (tức là chưa hạng mục nào bắt đầu và chưa có phiếu xuất nếu người hủy là CV; còn lại QL).
+- Khách bỏ xe sau khi sửa xong, hoặc từ chối thanh toán: lệnh ở "Sẵn sàng giao" với chỉ báo số ngày chờ giao trên bảng điều phối; công nợ ghi theo Journey (bảng ngoại lệ: ghi phải thu, nhắc theo hạn); thu tiền, hoàn tiền (phiếu chi) và phí lưu xe thuộc ACC (1.7+) và **chính sách lưu xe do Khách chốt** (Journey đã ghi `[Cần xác nhận]`). Không tạo cơ chế phí lưu xe ở 1.6.
+- Khách đổi ý trước khi sửa xong (đang sửa): QL hủy lệnh hoặc đóng theo phần đã làm; phần đã làm tính tiền theo báo giá. Ghi vào câu hỏi cho Khách (§19.4).
+
+**Dev default OK.**
+
+##### R47. Báo giá bổ sung được duyệt khi lệnh đã đóng
+
+**Khuyến nghị**: ngăn việc xảy ra, không ghi duyệt "mồ côi". `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Duyệt không có lệnh nhận là bằng chứng khách đồng ý trả tiền cho việc không có chứng từ gốc (RULE-007). Do đó:
+  1. Không cho tạo hoặc gửi báo giá bổ sung khi lệnh đã "Hoàn tất" hoặc "Đã hủy".
+  2. Khi lệnh vào "Hoàn tất" hoặc "Đã hủy", mọi báo giá bổ sung còn `draft` hoặc `sent` được **tự đóng** (hết hạn/hủy, kèm lý do "lệnh đã đóng", ghi nhật ký); liên kết của chúng chỉ đọc như R38.
+  3. Kiểm tra trạng thái lệnh **trong cùng giao dịch** với duyệt để cuộc đua giữa "khách bấm duyệt" và "lệnh hoàn tất" chỉ có một bên thắng. Bên thua nhận lỗi RFC 9457 rõ ("lệnh đã đóng, liên hệ chi nhánh"), không ghi duyệt.
+  4. Khách vẫn muốn làm thêm sau khi lệnh đã đóng: mở báo giá mới và lệnh mới cho xe (có thể chọn lại khách và xe từ CRM), không mở lại lệnh đã hoàn tất.
+- Lệnh đang "Chờ kiểm tra" hoặc "Sẵn sàng giao" nhận hạng mục bổ sung đã duyệt rồi quay lại "Đang sửa" (`reopen`): **đúng**. Kèm: kết quả QC trước đó thành không còn hiệu lực (phải chạy QC lại), biên bản giao xe chưa có vì chưa giao; nếu có bản in "sẵn sàng giao" thì in lại có nhãn. Không `reopen` từ "Hoàn tất" hoặc sau khi đã có biên bản giao xe.
+- Lệnh "Tạm dừng" nhận bổ sung: dòng mới vào ở trạng thái chờ; lệnh giữ "Tạm dừng" cho đến khi cố vấn tiếp tục.
+
+**Dev must change**: chặn duyệt khi lệnh đóng (thay vì ghi duyệt rồi báo QL); tự đóng báo giá bổ sung còn mở khi lệnh đóng; `reopen` làm mất hiệu lực kết quả QC cũ; test cuộc đua duyệt/hoàn tất.
+
+##### R48. Ngưỡng xác nhận bằng lời
+
+**Khuyến nghị**: chấp nhận cách gần đúng ở pilot. `[Cần xác nhận: Khách – ngưỡng, và có cần hai người không]`
+
+- Mặc định không đặt ngưỡng nên cách gần đúng không đổi hành vi hiện tại. Khi Khách đặt `verbalApprovalMaxVnd`: báo giá vượt ngưỡng chỉ QL (không phải CV) được ghi nhận bằng lời, bằng chứng lưu `recordedByRole` và cờ `exception`, thông báo QL khác nếu có. Chấp nhận vì người có thẩm quyền duyệt chính là người ghi, nên kiểm soát vẫn đủ ở mức pilot; điểm yếu duy nhất là không có người thứ hai xác nhận độc lập.
+- **Trạng thái "chờ xác nhận" không làm ở pilot.** Nếu Khách muốn nguyên tắc hai người (CV ghi, QL khác xác nhận), thêm sau với cấu hình `verbalApprovalRequiresSecondPerson`; đó là thay đổi trạng thái báo giá nên cần cập nhật máy trạng thái, FRD và UAT.
+- Điều kiện kỹ thuật: dùng `quote:reject` làm "chỉ QL" là ánh xạ gián tiếp, dễ sai khi vai trò khác (CH, QĐ) cũng có quyền này. **Nên** thêm quyền riêng `quote:approve-verbal-over-limit` (mặc định QL, CH) bổ sung qua cơ chế top-up; không chặn pilot.
+
+**Dev default OK.**
+
+##### R49. Ảnh khi thợ đề xuất việc phát sinh
+
+**Khuyến nghị**: chỉ chữ ở pilot. `[Cần xác nhận: Luật sư khách – cùng gói R8, R26]`
+
+- Ảnh là dữ liệu mới cần mục đích đồng ý, thời hạn lưu và lưu tệp qua API (ADR 0001, URL ký ngắn hạn). Làm cùng đợt ảnh hiện trạng (R8). Trong lúc chờ, màn có ghi chú "Chưa đính kèm được ảnh; mô tả rõ vị trí và hiện tượng" là đủ, và đề xuất vẫn chuyển cho cố vấn tạo báo giá bổ sung (RULE-006).
+- Thợ không tự thêm hạng mục vào lệnh; chỉ đề xuất, cố vấn lập báo giá bổ sung.
+
+**Dev default OK.**
+
+##### R50. Loại dịch vụ theo từng hạng mục
+
+**Khuyến nghị**: một loại cho cả lệnh ở pilot; ghi nhận lệch. `[Cần xác nhận: Khách]`
+
+- Tiêu chí FR-REC-032 ("hai hạng mục khác loại trên một lệnh dùng hai bộ bước khác nhau") **chưa thỏa** khi lệnh chỉ có một loại. Chấp nhận ở pilot vì bước chỉ là mốc theo dõi (R36), không chặn nghiệp vụ, và bộ bước đồng sơn còn chờ khảo sát xưởng. Ghi vào §19.3 như lệch đã biết; không đánh dấu FR-REC-032 là xong hoàn toàn.
+- Cách làm khi cần: trường tùy chọn `serviceTypeCode` trên dòng công của báo giá, mặc định theo hồ sơ tiếp nhận; lệnh chép bộ bước cho từng loại khác nhau. Đưa vào backlog trước khi đồng sơn vào pilot.
+- Màn theo dõi bước (kể cả `expectedDays` đồng sơn) là điều kiện của BR-REC-14 và UAT-21 trước khi bật đồng sơn; không cần cho pilot bảo dưỡng, sửa chung, lốp mâm.
+- Trước mắt: hồ sơ có việc thuộc hai loại thì chọn loại chính; bước của loại phụ được ghi chú.
+
+**Dev default OK.**
+
+##### R51. Màn hình 1.6 so với thiết kế
+
+**Khuyến nghị**: không có phản đối về yêu cầu chức năng; quyết định hình thức thuộc designer.
+
+- Hủy bằng hộp thoại trên lệnh được, miễn: lý do bắt buộc; liệt kê phụ tùng đã xuất chưa hoàn kho kèm liên kết đến RTN; chỉ hiện nút khi người dùng có quyền (R42); kết quả hủy có mã lệnh và lý do trong nhật ký.
+- "Công của tôi" (G2-TEC-05) gắn với tính công thợ (HRM, phase 2): hoãn. "Hàng chờ kiểm tra" riêng: cột bảng điều phối đủ nếu QĐ có bộ lọc "chờ kiểm tra" và thông báo khi lệnh vào trạng thái đó.
+- Ghi sai khác vào `docs/ui-ux/STATUS.md` khi designer duyệt.
+
+**Dev default OK.**
+
+##### R52. Xe chờ phụ tùng
+
+**Khuyến nghị**: thủ công ở pilot. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Nút "Kiểm tra lại phụ tùng" chạy lại giữ chỗ idempotent theo `lineKey` là đúng. Quy tắc cần giữ: khi giữ lại, chỉ lấy từ phần **khả dụng**, không bao giờ lấy phần đã giữ cho lệnh khác (RULE-008). Có nhiều lệnh cùng thiếu một phụ tùng thì thứ tự ưu tiên là thời điểm duyệt sớm hơn; nêu ở màn kiểm tra lại.
+- Tự động theo phiếu nhập: không làm ở pilot vì giữ chỗ tự động theo sự kiện kho có nguy cơ giữ chỗ ngoài ý muốn và cần thiết kế thứ tự ưu tiên. Thay thế rẻ: khi GRN ghi sổ, thông báo QĐ/CV rằng "có hàng về cho phụ tùng X, lệnh đang chờ: ..." (không tự giữ). Làm sau, không chặn.
+- Bảng điều phối tính "xe chờ phụ tùng" từ `unmetQty > 0` hoặc hạng mục tạm dừng mã `awaiting_parts` (R41).
+
+**Dev default OK.**
+
+##### R53. Giờ thực của thợ
+
+**Khuyến nghị**: đủ cho 1.6. `[Cần xác nhận: Khách – công, hoa hồng thuộc HRM phase 2, BR-HRM-03]`
+
+- Đáp ứng FR-REC-013 ("mỗi lần bấm ghi thời điểm; giờ thực tính từ các mốc"). Giờ thực = tổng các khoảng bắt đầu đến tạm dừng/kết thúc, không tính lúc tạm dừng, hiển thị cạnh giờ khách duyệt và giờ chuẩn; ghi nhãn "tham khảo, chưa phải công tính lương" (quy tắc lương khoán còn mở, CLAUDE.md "Labor pay").
+- Ba điều kiện kiểm tra: (1) khoảng giờ được lưu **theo người thao tác**: hai thợ cùng làm một hạng mục thì giờ cộng theo từng người, không theo giờ treo tường; (2) đổi thợ khi hạng mục đang chạy: hệ thống đóng khoảng hiện tại bằng mốc `reassigned` ghi người thao tác và mở lại cho thợ mới khi họ bấm; không để một khoảng chạy qua hai người; (3) khoảng chưa kết thúc cuối ngày không được tự đóng âm thầm: hiện "chưa kết thúc" và cảnh báo QĐ, QĐ sửa bằng mốc điều chỉnh kèm lý do (R40).
+- Cờ "khác giờ chuẩn" (§17) tính từ giờ thực so với giờ chuẩn của dòng công, hiển thị cho QĐ; không tự đổi tiền công của khách.
+
+**Dev default OK** (kiểm tra ba điều kiện).
+
+### 19.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FR-REC-017 | Thêm: người nhận, quan hệ với chủ xe; không bắt buộc chữ ký vẽ tay/ảnh ở pilot; biên bản lưu ảnh chụp số liệu thanh toán khi có ACC; giao xe chỉ CV, QL | R44, R42 |
+| FR-REC-015 | Giao xe từ "Sẵn sàng giao"; "Hoàn tất" sau giao xe, kể cả còn nợ được duyệt; `reopen` làm QC cũ mất hiệu lực | R44, R47 |
+| FR-REC-021 | Làm rõ: CV chỉ hủy lệnh chưa làm và chưa xuất; phụ tùng đã lắp không phải hủy lệnh; không hủy sau "chờ kiểm tra" | R42, R45, R46 |
+| FR-REC-013 | Hoàn tác là mốc bù; giờ thực tính theo người thao tác; khoảng chưa kết thúc được cảnh báo | R40, R53 |
+| FR-REC-032 | Ghi lệch: pilot một loại dịch vụ cho cả lệnh; `serviceTypeCode` theo dòng công là backlog | R50 |
+| FR-REC-022 | "Xe chờ phụ tùng" từ `unmetQty > 0` hoặc lý do tạm dừng `awaiting_parts`; kiểm tra lại thủ công | R41, R52 |
+| FR-REC-016 | `photoRequired` tùy chọn theo mục; lần QC là bản ghi riêng | R43 |
+| FR-ACC (1.7) | Thêm yêu cầu `getOrderBalance` và ghi nợ được duyệt khi giao xe; liên hệ FR-ACC-001, 002, 006 | R44 |
+| Journey bước 13 | Ghi điều kiện giao xe: còn nợ bằng 0 hoặc ghi nợ được QL duyệt; hóa đơn không là điều kiện | R44 |
+| UAT mới (tạm) | Giao xe bị chặn khi còn nợ và khi chưa qua QC; qua khi có ghi nợ duyệt; phiếu thu bị đảo chặn lại; CV hủy lệnh đã bắt đầu bị từ chối; hủy khi còn phụ tùng chưa hoàn kho bị chặn; duyệt báo giá bổ sung sau khi lệnh hoàn tất bị từ chối; `reopen` buộc QC lại; hoàn tác không xóa mốc; hai thợ cùng hạng mục cộng giờ theo từng người | R42, R44, R45, R47, R40, R53 |
+
+### 19.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4, §18.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 31 | Khách | Giao xe có bắt buộc thu đủ tiền không; khi nào cho ghi nợ và ai duyệt; khách doanh nghiệp trả chậm có được giao không cần duyệt từng lệnh | Bắt buộc; QL duyệt ghi nợ; doanh nghiệp theo hạn mức CRM | Cờ `handoverRequiresPayment` tắt, hoặc thêm cấp duyệt; ảnh hưởng báo cáo công nợ |
+| 32 | Kế toán khách | Hóa đơn có phải điều kiện giao xe không; phụ tùng đã lắp mà khách bỏ dở xử lý thế nào | Không là điều kiện; đóng lệnh theo phần đã làm | Thêm bước kiểm tra EIN trước giao xe; cần quy tắc ghi nhận chi phí/doanh thu |
+| 33 | Khách | Chính sách lưu xe và phí lưu xe khi khách bỏ xe; có cho hủy lệnh đang sửa không | Chưa có phí lưu xe ở pilot; QL đóng lệnh theo phần đã làm | Cần phí lưu xe trong ACC và thông báo cho khách |
+| 34 | Khách | Danh sách lý do tạm dừng, mục QC thật theo loại dịch vụ, ai được giao xe | 5 mã; CV, QL giao xe | Chỉ đổi dữ liệu cấu hình và ma trận quyền |
+| 35 | Luật sư khách | Biên bản giao xe không chữ ký vẽ tay/ảnh, người nhận khác chủ xe không thu giấy tờ định danh | Đủ ở pilot | Cần lưu tệp, mục đích đồng ý và thời hạn lưu |
+
+### 19.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R44: hợp đồng kiểm tra giao xe với 1.7 (`getOrderBalance`, ghi nợ được duyệt, ảnh chụp số liệu trong biên bản); đổi mặc định `handoverRequiresPayment` sang `true` khi 1.7 hợp nhất; kiểm tra lại trong giao dịch; ACC lỗi thì chặn | `order-policy`, giao xe, 1.7 | Bắt buộc ở 1.7 |
+| 2 | R47: chặn duyệt báo giá bổ sung khi lệnh đã đóng (hiện đang ghi duyệt rồi báo QL); tự đóng báo giá bổ sung còn mở khi lệnh đóng; `reopen` làm QC cũ mất hiệu lực | `appendSupplement`, `approval.ts` | Bắt buộc |
+| 3 | R42: giao xe chỉ CV, QL (bỏ TN nếu đang có); CV chỉ hủy lệnh còn "Đã duyệt", chưa bắt đầu, chưa xuất | `permissions.ts`, `cancelOrder` | Nhỏ, có test |
+| 4 | R41: thêm mã tạm dừng `awaiting_supplement_approval`; "khác" bắt buộc ghi chú | `domain/orderState.ts` | Nhỏ |
+| 5 | R39: thông báo QL khi `warehouse_missing`; R53: kiểm tra giờ theo người thao tác, `reassigned` đóng khoảng, cảnh báo khoảng chưa kết thúc; R40: hoàn tác là mốc bù | `orders.ts`, `workedMsOf` | Kiểm tra, sửa nếu lệch |
+| 6 | R48: quyền riêng `quote:approve-verbal-over-limit` thay `quote:reject` làm đại diện | `permissions.ts`, `approveQuote` | Nên làm, không chặn |
+
+Không có câu trả lời nào mâu thuẫn với R35, R36, R37 đã chốt ở §18; R47 làm chặt thêm R37 nguyên tắc 5 (báo giá bổ sung chỉ thêm vào lệnh đang mở).
