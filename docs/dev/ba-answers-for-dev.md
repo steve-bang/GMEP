@@ -2809,3 +2809,167 @@ Quy tắc chốt:
 Việc cần làm ở REC (hủy hạng mục đã duyệt, điều chỉnh giá sau duyệt) là yêu cầu mới chờ quyết định của Chủ dự án (câu 56), chưa đưa vào danh sách bắt buộc.
 
 Không có câu trả lời nào mâu thuẫn với R57, R58, R59, R62, R66 (§20), R81–R92 (§22) đã chốt; R105 và R106 làm chặt thêm R62 và R57. Mâu thuẫn tài liệu: R104 trích FR-REC-003 trong khi ảnh thuộc FR-REC-002/014; FR-ACC-016 chỉ đòi duyệt khi vượt hạn mức, còn dev (và BA) yêu cầu luôn duyệt; FR-ACC-005 viết về khóa kỳ trong khi dev làm mở lại ngày.
+
+## 25. So sánh báo cáo tháng, khóa kỳ, phạm vi đọc theo id, gộp khách, lô nhập lớn, đo hiệu năng (Q-A đến Q-E, F-1, F-2)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (nguyên tắc "theo đề xuất BA" đã được Chủ dự án duyệt trước; mục `[Cần xác nhận]` là việc của bên nêu tên, dev làm theo mặc định ngay). Trả lời mục "Câu hỏi mở thêm (dev, 04/11/2026)" của [open-questions-for-ba.md](open-questions-for-ba.md), [plan-next-work.md](plan-next-work.md) dòng 99 đến 103 và [stream-a-findings.md](stream-a-findings.md) (F-1, F-2, F-4). Căn cứ: FR-RPT-001, 002; FR-ACC-004, 005, 012; FR-CRM-003, 004, 010, 011, 014; FR-SYS-007; BR-ACC-05; RULE-010; NFR-ISO-01, NFR-PERF-01, 02; R94, R97, R101 đến R108; C20, C24; §24. Không sửa FRD/BRD/Journey; đề xuất sửa ở §25.3.
+
+### 25.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| Q-A | So với tháng liền trước, cùng số ngày; cùng kỳ năm trước hoãn; chấp nhận dòng "Không gắn lệnh" | Default OK (thêm nhãn khoảng ngày) | Chủ dự án, Kế toán khách |
+| Q-B | Khóa kỳ tháng hoãn sang Phase 2/3; pilot chỉ có chốt ngày và mở lại ngày | Không làm; giữ chỗ dữ liệu | Kế toán khách, Chủ dự án |
+| F-1 | Chủ ý: chi nhánh làm việc là bộ lọc hiển thị, không phải ranh giới bảo mật; đọc theo id trong quyền được phép, ghi bị ràng buộc | Default OK + sửa chú thích + test | Chủ dự án |
+| F-2 | Chấp nhận C20 cho người có `vehicle-history-cross:view`; người không có quyền đó phải nhận 404 giống id không tồn tại | Kiểm tra, sửa nếu đang trả 200 rỗng | Chủ dự án |
+| Q-C | Gộp khách hoãn sang Phase 2 (FR-CRM-003 là Should, ngoài danh sách Phase 1); đã có quy tắc để thiết kế sau | Hoãn | Chủ dự án, Luật sư khách |
+| Q-D | Không cần xử lý nền ở Giai đoạn 1; giữ 2.000 dòng đồng bộ | Default OK + 2 điều kiện an toàn | Khách (số lượng dữ liệu thật) |
+| Q-E | Chấp nhận làm bằng chứng hồi quy, chưa phải bằng chứng đạt NFR-PERF; đạt chính thức khi đo trên staging | Default OK | Chủ dự án |
+| Ảnh đề xuất | Giữ API; yêu cầu màn hình duyệt phát sinh hiện ảnh | Giữ; báo designer | Chủ dự án |
+
+### 25.2 Trả lời từng câu
+
+##### Q-A. So sánh báo cáo tháng (FR-RPT-002)
+
+**Khuyến nghị**: so với tháng liền trước trên cùng số ngày; chấp nhận không chia quỹ, công nợ tồn, chi theo loại dịch vụ. `[Cần xác nhận: Chủ dự án – kỳ so sánh; Kế toán khách – cách đọc dòng "Không gắn lệnh"]`
+
+- Phát hiện về tài liệu: FR-RPT-002 trong FRD là "so sánh chi nhánh theo chỉ số được chọn" (bảng xếp hạng chi nhánh), không phải so sánh theo thời gian. So sánh tháng với tháng trước là yêu cầu bổ sung hợp lý cho pilot một chi nhánh; xếp hạng nhiều chi nhánh thuộc Phase 2 (nhiều chi nhánh mới có ý nghĩa). Ghi ở §25.3, không coi là lỗi của dev.
+- Kỳ so sánh: (1) tháng đang chạy: ngày 1 đến ngày N so với ngày 1 đến ngày N của tháng trước (nếu tháng trước ít ngày hơn N thì lấy hết tháng trước và ghi nhãn); (2) tháng đã kết thúc: cả tháng so với cả tháng trước. Nhãn trên màn hình và CSV luôn ghi hai khoảng ngày cụ thể. Lý do: mùa vụ (Tết, cuối năm) làm so với tháng trước vẫn có ý nghĩa vận hành; cùng khoảng ngày tránh so tháng dở với tháng đủ (RPT-002: "tính trên cùng kỳ").
+- Cùng kỳ năm trước: hoãn. Pilot chưa có dữ liệu năm trước nếu chưa chuyển lịch sử (số năm lịch sử là câu hỏi mở của Khách, không giả định). Khi có dữ liệu thì thêm lựa chọn so sánh, không đổi cách tính hiện có.
+- Chia theo loại dịch vụ: chấp nhận R108(b). Số gắn lệnh (doanh thu, lệnh hoàn thành, thu/công nợ của lệnh, lệnh chưa hóa đơn) chia theo loại; quỹ, công nợ tồn, chi, kho không chia và nằm ở dòng "Không gắn lệnh". Yêu cầu: tổng các loại cộng "Không gắn lệnh" phải bằng tổng không lọc (không mất tiền, không đếm hai lần); ngày rollup cũ chưa phân tách thì ghi "cần dựng lại", không tính im lặng.
+- Tiêu chí kiểm thử: (a) tháng đang chạy ngày 15 so đúng ngày 1 đến 15 của tháng trước; (b) tháng 3 (ngày 31) so tháng 2 lấy hết tháng 2 và có nhãn; (c) tổng theo loại + "Không gắn lệnh" = tổng chung; (d) chi nhánh mới không có tháng trước hiển thị "chưa có dữ liệu so sánh", không chia cho 0, không hiện +∞%; (e) CSV có đủ hai khoảng ngày.
+
+**Dev default OK** (tháng liền trước). Thêm: nhãn khoảng ngày, trường hợp (b) và (d), kiểm tra tổng (c).
+
+##### Q-B. Khóa kỳ tháng (FR-ACC-005)
+
+**Khuyến nghị**: hoãn khóa kỳ tháng sang Phase 2/3 cùng xuất dữ liệu cho phần mềm kế toán (FR-ACC-012, Should). Pilot giữ chốt ngày (FR-ACC-004) và mở lại ngày (R62, R106). Lý do: FRD §13 không đưa ACC vào danh sách Phase 1; khóa kỳ chỉ có nghĩa khi có người kế toán đối chiếu và có xuất kỳ; định nghĩa kỳ và thời điểm khóa phụ thuộc quy trình của Kế toán khách (chưa trả lời). `[Cần xác nhận: Kế toán khách – định nghĩa kỳ, ngày khóa; Chủ dự án – quyền mở lại]`
+
+Đề xuất mức tối thiểu khi làm (Phase 2/3), để dev giữ chỗ mà không xây:
+
+| Nội dung | Đề xuất BA |
+| --- | --- |
+| Định nghĩa kỳ | Tháng dương lịch theo từng chi nhánh (kỳ là dữ liệu cấu hình có ngày hiệu lực, để sau này đổi sang kỳ khác không sửa mã). Không dùng kỳ 4-4-5 hay kỳ tùy ý ở bản đầu |
+| Ai khóa | Kế toán (KT) khóa kỳ của chi nhánh đã có đủ ngày chốt; Chủ garage khóa được mọi chi nhánh. Quản lý chi nhánh không khóa kỳ |
+| Điều kiện khóa | Mọi ngày trong kỳ đã chốt (FR-ACC-004); không còn chênh lệch quỹ chưa giải trình; không còn duyệt chi hoặc hoàn tiền đang chờ; không còn phiếu kho nháp ghi vào kỳ; cảnh báo (không chặn) lệnh đã giao chưa có hóa đơn. Kỳ sau không bị khóa trước kỳ trước |
+| Phạm vi bị khóa | Phiếu thu, phiếu chi, hoàn cọc, hoàn tiền, sổ quỹ, chốt ca và ngày, điều chỉnh kho ghi sổ, phiếu đảo. Hóa đơn điện tử đã phát hành vốn không sửa (xử lý bằng hóa đơn điều chỉnh/thay thế theo FR-EIN-012). Ngày nghiệp vụ (`businessDate`) của chứng từ quyết định kỳ, không phải ngày nhập |
+| Sửa sau khóa | Không sửa, không xóa (RULE-010). Sai sót kỳ đã khóa: phiếu đảo và phiếu mới ghi vào kỳ đang mở, có liên kết đến chứng từ gốc và nhãn "điều chỉnh kỳ trước", hiện trong báo cáo ngoại lệ |
+| Quan hệ với xuất kỳ | Chỉ xuất cho phần mềm kế toán những kỳ đã khóa; mỗi lần xuất có phiên bản và ảnh chụp tổng. Mở lại kỳ đã xuất cần thêm xác nhận của KT và đánh dấu lần xuất cũ "lỗi thời", lần xuất lại có số phiên bản mới (tránh nhập hai lần ở phần mềm đích) |
+| Mở lại | Chủ garage duyệt, nhập lại mật khẩu, lý do bắt buộc, duyệt dùng một lần có hạn dùng, nhật ký bất biến, báo ngoại lệ cho Chủ và KT; không mở kỳ khi kỳ sau đã khóa (mở theo thứ tự ngược); cùng mẫu R106. Mở lại kỳ không cho sửa chứng từ đã ghi sổ, chỉ cho ghi thêm hoặc đảo |
+
+- Ngoài ra thống nhất với R106 (đã nêu): mở lại ngày không đồng nghĩa mở lại kỳ.
+- Tiêu chí kiểm thử khi làm: khóa bị chặn khi còn ngày chưa chốt (kèm danh sách ngày); chứng từ có `businessDate` trong kỳ khóa không tạo, không đảo trực tiếp được; đảo ghi vào kỳ mở và liên kết gốc; mở lại không có mật khẩu, không có lý do hoặc hết hạn thì bị từ chối; xuất kỳ chưa khóa bị chặn.
+
+**Dev hiện nay: hoãn.** Việc duy nhất cần bảo đảm: mọi chứng từ tài chính mang `businessDate` và chi nhánh (đã theo FR-SYS-003), và kiểm tra "ngày đã chốt" đi qua một điểm duy nhất (để sau thêm kiểm tra kỳ không phải sửa nhiều nơi). Không dựng màn hình hay API khóa kỳ.
+
+##### F-1. Đọc theo id khi người có quyền toàn công ty đã chọn chi nhánh làm việc (NFR-ISO-01)
+
+**Khuyến nghị**: coi là chủ ý, không đổi sang 404; ghi rõ quy tắc. `[Cần xác nhận: Chủ dự án]`
+
+- NFR-ISO-01 và FR-SYS phân tách dữ liệu theo **phạm vi quyền**, không theo chi nhánh đang chọn. Chi nhánh làm việc là bộ lọc để danh sách, tìm kiếm, báo cáo gọn và để mặc định chi nhánh khi tạo mới. Chủ garage và KT được phép thấy cả chuỗi (BR-RPT-01, khoan sâu từ báo cáo hợp nhất), nên liên kết, khoan sâu và đọc theo id sang chi nhánh khác phải mở được; trả 404 sẽ làm hỏng khoan sâu từ báo cáo hợp nhất.
+- Quy tắc cho CH/KT khi đã chọn chi nhánh: (1) danh sách, tìm kiếm, tổng hợp và xuất dữ liệu thu hẹp theo chi nhánh làm việc (đang đúng); (2) đọc một bản ghi theo id (liên kết, khoan sâu) được phép trong phạm vi quyền, màn hình hiện nhãn "thuộc chi nhánh X, khác chi nhánh đang làm việc"; (3) **thao tác ghi** (tạo, sửa, duyệt, đảo, chốt) lên bản ghi của chi nhánh khác chi nhánh làm việc không cho thực hiện ngầm: bắt chuyển chi nhánh làm việc trước (tránh sửa nhầm chi nhánh); nếu hiện đã cho thì ghi nhận là khoảng trống cần đánh giá, không sửa vội; (4) người chỉ có một hoặc vài chi nhánh: đọc ngoài phạm vi quyền luôn 404 giống id không tồn tại (đang đúng); (5) mỗi lần CH/KT đọc dữ liệu cá nhân của chi nhánh khác chi nhánh làm việc vẫn theo che dữ liệu và nhật ký truy cập hiện hành (NFR-SEC-03, PDPL).
+- Rủi ro chấp nhận: một nhân viên cấp công ty bị chiếm tài khoản thấy được cả chuỗi dù đang chọn một chi nhánh; việc chọn chi nhánh không giảm rủi ro này, giảm bằng quyền, nhật ký và đăng nhập mạnh (MFA ngoài phạm vi theo quyết định chủ).
+- Tiêu chí kiểm thử: CH chọn chi nhánh A, đọc theo id bản ghi chi nhánh B trả 200 và có nhãn chi nhánh; danh sách và xuất chỉ có A; ghi lên bản ghi B khi đang chọn A bị từ chối với lỗi nêu cần chuyển chi nhánh (hoặc ghi nhận hiện trạng); người một chi nhánh đọc bản ghi B nhận 404 giống id ngẫu nhiên.
+
+**Dev default OK, không đổi hành vi đọc.** Việc: sửa chú thích `resolveWorkingScope` cho đúng ý "bộ lọc", thêm khẳng định vào `isolation-matrix.test.ts` cho CH/KT (đọc theo id 200 có nhãn chi nhánh), và kiểm tra ghi chéo (ý 3); báo lại kết quả kiểm tra ghi chéo nếu hiện chưa chặn, không tự đổi.
+
+##### F-2. Lịch sử xe ngoài phạm vi (C20)
+
+**Khuyến nghị**: tách hai nhóm. `[Cần xác nhận: Chủ dự án]`
+
+- Người có `vehicle-history-cross:view` (CH, CV, QL, QĐ): chấp nhận 200 với danh sách rỗng hoặc đầy đủ theo C20. Họ vốn tra được xe theo biển số (C9), nên việc biết xe tồn tại không lộ thêm. FR-CRM-004 yêu cầu xem lịch sử xe ở mọi chi nhánh trong phạm vi quyền, nên lịch sử của họ nên đầy đủ nếu quyền cho phép; "rỗng" chỉ chấp nhận khi xe chưa có lệnh nào hoặc chưa có liên kết trong phạm vi (xem điều kiện nhận xe ở C24). Nếu hiện trả rỗng dù xe có lịch sử ở chi nhánh khác và người đó có quyền chéo, đó là lỗi chức năng so với FR-CRM-004, cần báo lại.
+- Người không có quyền chéo (QV, KT, TK, thợ và các vai trò khác): xe ngoài phạm vi phải trả 404 **giống hệt** id không tồn tại (cùng nội dung lỗi, cùng mã), không trả 200 rỗng. Xe trong phạm vi nhưng chưa có lệnh vẫn trả 200 rỗng.
+- Tiêu chí kiểm thử: với vai trò không có quyền chéo, so sánh phản hồi xe ngoài phạm vi và id ngẫu nhiên: cùng mã trạng thái, cùng thân lỗi (RFC 9457 không chứa id thật); với vai trò có quyền chéo: xe có lịch sử ở chi nhánh khác trả đủ các lệnh trong phạm vi quyền.
+
+**Dev**: xác nhận lại nhóm nào đang nhận 200 rỗng (mô tả ở stream-a-findings F-2 và ở open-questions không giống nhau); nếu nhóm không có quyền chéo đang nhận 200 rỗng thì **must change** sang 404 và cập nhật `emptyForUnknown` trong test ma trận.
+
+##### Q-C. Gộp khách trùng (R97, FR-CRM-003)
+
+**Khuyến nghị**: hoãn sang Phase 2; không làm trong công cụ nhập. FR-CRM-003 là Should và không nằm trong danh sách Phase 1 của FRD (§13); R97 đã quyết không tự gộp khi nhập. `[Cần xác nhận: Chủ dự án – hoãn; Luật sư khách – xử lý đồng ý và yêu cầu chủ dữ liệu]`
+
+Quy tắc đề xuất cho khi làm:
+
+| Nội dung | Đề xuất BA |
+| --- | --- |
+| Khóa nhận diện (gợi ý trùng) | Gợi ý theo số điện thoại chuẩn hóa hoặc biển số/số khung (FR-CRM-003). Không bao giờ tự gộp; số điện thoại một mình không đủ vì cùng gia đình hoặc công ty dùng chung (R97). Khách doanh nghiệp (FR-CRM-018) không nằm trong gợi ý tự động |
+| Bản ghi giữ lại | Người gộp chọn; mặc định là bản ghi tạo sớm hơn (mã khách ổn định). Bản bị gộp thành bản ghi "đã gộp vào" trỏ về bản giữ, không xóa, mã không tái dùng |
+| Chuyển sang bản giữ | Xe và quan hệ sở hữu theo thời gian (FR-CRM-014), lệnh, báo giá, công nợ, thu tiền, ghi chú, nhãn, ảnh. Chứng từ tài chính đã ghi sổ giữ nguyên số liệu, chỉ đổi liên kết khách (RULE-010); hóa đơn đã phát hành giữ nguyên thông tin người mua tại thời điểm phát hành |
+| Đồng ý (FR-CRM-010) | Lịch sử đồng ý của cả hai được giữ; trạng thái sau gộp theo từng mục đích: nếu một bên đã rút đồng ý thì coi là đã rút (an toàn hơn); không suy ra đồng ý mới từ việc gộp |
+| Yêu cầu chủ dữ liệu (FR-CRM-011) | Yêu cầu đang mở và đã đóng của cả hai chuyển sang bản giữ, giữ nguyên hạn xử lý; yêu cầu xóa đang mở chặn việc gộp cho đến khi xử lý xong |
+| Chủ xe | Gộp không làm đổi người sở hữu xe theo thời gian trái ý; nếu hai bản ghi cùng sở hữu một xe ở hai khoảng thời gian khác nhau thì giữ cả hai khoảng, chỉ đổi khách tham chiếu |
+| Quyền | Cần phạm vi gồm cả hai bản ghi; gộp khách khác chi nhánh chỉ Chủ hoặc vai trò cấp công ty được cấp quyền, và cần người khác duyệt (R59); nhật ký ghi mã nội bộ, không ghi họ tên, điện thoại (R96, §8.3) |
+| Hoàn tác | Cho hoàn tác trong thời hạn cấu hình (khởi điểm 30 ngày) nếu sau gộp chưa có chứng từ tài chính mới ghi sổ vào các liên kết đã chuyển; quá hạn hoặc đã phát sinh thì không tự hoàn tác, xử lý bằng tách thủ công có duyệt. Bản đồ chuyển (chứng từ nào đã đổi liên kết) phải được lưu để hoàn tác và tách được |
+
+- Tiêu chí kiểm thử khi làm: gộp giữ đủ lịch sử hai hồ sơ và có nhật ký (đúng FR-CRM-003); đồng ý rút bên nào thì sau gộp vẫn rút; công nợ tổng bằng tổng hai bên; không lộ tên khách ngoài phạm vi người gộp; hoàn tác trong hạn khôi phục đúng liên kết.
+
+**Dev: hoãn**, không làm gì ngay.
+
+##### Q-D. Xử lý nền cho lô nhập lớn (R94)
+
+**Khuyến nghị**: không cần ở Giai đoạn 1; giữ 2.000 dòng/lô, xử lý đồng bộ. `[Cần xác nhận: Khách – số khách, xe, phụ tùng cần chuyển; chờ mẫu Excel R93]`
+
+- Số đo 42 đến 43 giây cho 2.000 dòng trên emulator (F-4) dưới ngưỡng 60 giây nhưng sát, và không đại diện cho GCP. Với pilot một chi nhánh, khối lượng khách, xe, phụ tùng thường hàng nghìn đến vài nghìn: chia thành vài lô là chấp nhận được (R94 đã quyết). Xử lý nền chỉ đáng làm khi khối lượng thật lớn hơn nhiều (mục tiêu 50.000 dòng của G4-SYS-20 là về sau, R94).
+- Điều kiện xem lại: Khách báo một loại dữ liệu vượt khoảng 10 lô (20.000 dòng) cho một chi nhánh, hoặc đo trên staging cho thấy lô 2.000 dòng vượt 60 giây ở p95. Khi đó mở hàng đợi nền (cùng R76, R86).
+- Hai điều kiện an toàn cho đồng bộ: (1) thử lại sau hết thời gian chờ không tạo trùng bản ghi (khóa `Idempotency-Key` hoặc kiểm trùng theo dòng; kết quả lô cũ trả lại); (2) màn hình nhập báo trước "có thể mất đến khoảng một phút, không đóng trang" và hiện kết quả khi xong, nêu số dòng đã nhận (R94: không cắt âm thầm). Nếu lỗi giữa chừng thì lô không ghi dở: hoặc ghi trọn hoặc không ghi, hoặc có trạng thái rõ "đã ghi n/N dòng" để tiếp tục an toàn.
+- Tiêu chí kiểm thử: lô 2.000 dòng đúng ngưỡng chạy xong và không trùng khi gửi lại cùng khóa; lô 2.001 dòng bị từ chối trước khi ghi với thông báo nêu giới hạn; hết thời gian giữa chừng không để lại trạng thái dở không giải thích được.
+
+**Dev default OK**, kiểm tra hai điều kiện an toàn; hoãn xử lý nền.
+
+##### Q-E. Cách kiểm hiệu năng (NFR-PERF-01, 02)
+
+**Khuyến nghị**: chấp nhận, với điều kiện ghi rõ vai trò của từng phép đo. `[Cần xác nhận: Chủ dự án]`
+
+- Số lần đọc tài liệu trên emulator trong CI là **chỉ số hồi quy** (phát hiện thao tác đột nhiên đọc nhiều hơn), không chứng minh "dưới 2 giây ở 4G". k6 trên staging (khi có GCP) đo thời gian phản hồi phía máy chủ với dữ liệu thật cỡ; chưa có số đo mạng 4G của thiết bị.
+- NFR-PERF-01 và NFR-PERF-02 chỉ được ghi "đạt" sau phép đo trên staging với lượng dữ liệu đại diện (một năm dữ liệu cho dashboard hợp nhất; 120 đến 200 xe/ngày, tăng dần, theo mục tiêu thiết kế chưa xác nhận). Trước đó trạng thái là "chưa kiểm chứng", không phải "đạt". Hồ sơ nghiệm thu pilot cần nói rõ như vậy.
+- Đề xuất bổ sung (nhỏ): ngân sách số lần đọc cho mỗi thao tác chính (tiếp nhận, báo giá, tìm phụ tùng, dashboard) là tài liệu hóa và CI fail khi vượt; kế hoạch staging dùng ngân sách thời gian máy chủ (khởi điểm p95 dưới 1 giây phía máy chủ cho thao tác thường ngày để chừa chỗ cho mạng 4G, dashboard hợp nhất dưới 3 giây phía máy chủ; đây là giả định BA, dev có thể chỉnh) và một lượt đo giả lập mạng 4G bằng trình duyệt (Playwright hoặc Lighthouse) trên một vài màn chính.
+- Tiêu chí kiểm thử: CI fail khi số đọc của thao tác chính vượt ngân sách; báo cáo staging ghi p50/p95, khối lượng dữ liệu, cấu hình mạng; NFR-PERF chỉ đóng khi báo cáo này có.
+
+**Dev default OK.**
+
+##### Ảnh đề xuất: API liệt kê `GET orders/{id}/photos?proposalId`
+
+**Khuyến nghị**: giữ API; ghi nhận khoảng trống màn hình. `[Cần xác nhận: Chủ dự án]`
+
+- Ảnh gắn đề xuất phát sinh của thợ (FR-REC-014, R107) chỉ có ích nếu người duyệt (quản lý, cố vấn) thấy ảnh khi quyết định thêm hạng mục ngoài báo giá (RULE-005/006). Do đó nhu cầu có thật; chỉ là giao diện chưa dùng. API nhỏ, đọc, không đổi dữ liệu: giữ, với điều kiện đã qua kiểm phạm vi chi nhánh, quyền xem lệnh và nhật ký truy cập (R104(c)) và có trong ma trận cách ly.
+- Báo designer: màn duyệt đề xuất phát sinh cần hiện ảnh đính kèm (đọc qua liên kết ký ngắn hạn khi có đường đọc ảnh). Liên kết cho khách duyệt (FR-REC-034) vẫn là bài toán riêng, chưa làm.
+- Tiêu chí kiểm thử: người ngoài phạm vi nhận 404; thợ không được đọc lại (R104(c)); mỗi lần đọc có nhật ký; ảnh ẩn không hiện ở kết quả thường.
+
+**Dev default OK**, không xóa API.
+
+### 25.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-RPT-002 | Tách: xếp hạng chi nhánh (Phase 2) và so sánh theo thời gian (tháng liền trước cùng số ngày, cùng kỳ năm trước hoãn); thêm tiêu chí trường hợp tháng ngắn hơn, chưa có tháng trước, tổng theo loại + "Không gắn lệnh" bằng tổng | Q-A, R108 |
+| FRD FR-ACC-005 | Bổ sung định nghĩa kỳ, người khóa, điều kiện, phạm vi, sửa sau khóa, quan hệ xuất kỳ, mở lại (bảng Q-B); xếp Phase 2/3 cùng FR-ACC-012 | Q-B, R106 |
+| FRD NFR-ISO-01 | Làm rõ: phạm vi theo quyền; chi nhánh làm việc là bộ lọc; đọc theo id trong phạm vi quyền được phép; ghi khác chi nhánh làm việc cần chuyển chi nhánh | F-1 |
+| FRD FR-CRM-004 | Làm rõ: người không có quyền xem chéo nhận phản hồi như id không tồn tại | F-2, C20 |
+| FRD FR-CRM-003 | Thêm quy tắc gộp (bảng Q-C), xếp Phase 2; hoàn tác trong hạn | Q-C |
+| FRD NFR-PERF-01, 02 | Ghi cách đo (ngân sách đọc trong CI, đo p95 trên staging, giả lập 4G) và trạng thái "chưa kiểm chứng" đến khi có số đo | Q-E |
+| Journey / G4-ACC | Khóa kỳ tháng: chưa có màn hình; hoãn cùng FR-ACC-005 | Q-B |
+| Designer | Màn duyệt đề xuất phát sinh hiện ảnh; nhãn "thuộc chi nhánh X" khi mở liên kết chéo | Ảnh, F-1 |
+| UAT | Mới: so sánh tháng (ngày 15, tháng ngắn, chưa có tháng trước); CH đọc chéo theo id có nhãn, ghi chéo bị chặn; 404 đồng nhất cho xe ngoài phạm vi với vai trò không có quyền chéo; lô nhập thử lại không trùng | Q-A, F-1, F-2, Q-D |
+
+### 25.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4 đến §24.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 58 | Chủ dự án, Kế toán khách | Báo cáo tháng so với tháng liền trước cùng số ngày; có cần cùng kỳ năm trước không | Tháng liền trước; năm trước khi có dữ liệu | Thêm năm trước: cần lịch sử được chuyển (số năm là câu hỏi mở) |
+| 59 | Kế toán khách, Chủ dự án | Khóa kỳ: tháng dương lịch theo chi nhánh; ai khóa; ngày khóa sau cuối tháng; mở lại và xuất kỳ như bảng Q-B; làm ở Phase 2 hay 3 | Như Q-B; làm cùng xuất kỳ | Kỳ khác tháng: cần cấu hình kỳ phức tạp hơn |
+| 60 | Chủ dự án | Chủ garage/KT đã chọn chi nhánh vẫn đọc được bản ghi chi nhánh khác theo liên kết; ghi thì phải chuyển chi nhánh | Có | Chặn đọc: hỏng khoan sâu từ báo cáo hợp nhất |
+| 61 | Chủ dự án, Luật sư khách | Gộp khách trùng: hoãn Phase 2; quy tắc đồng ý, yêu cầu chủ dữ liệu, hoàn tác 30 ngày | Như Q-C | Làm sớm: cần thiết kế đồng ý và nhật ký trước pilot |
+| 62 | Khách | Khối lượng dữ liệu thật cần chuyển (khách, xe, phụ tùng) cho mỗi chi nhánh | Chờ mẫu Excel R93 | Trên 20.000 dòng/loại: mở xử lý nền |
+| 63 | Chủ dự án | Chấp nhận NFR-PERF ghi "chưa kiểm chứng" đến khi đo staging | Có | Đòi số đo 4G thật: cần thiết bị và lượt đo ngoài CI |
+
+### 25.5 Dev must change (tóm tắt)
+
+| # | Việc | Mức |
+| --- | --- | --- |
+| 1 | Q-A: thêm nhãn hai khoảng ngày; xử lý tháng ngắn hơn và chưa có tháng trước; test tổng theo loại + "Không gắn lệnh" bằng tổng chung | Nhỏ, có test (mặc định đang làm tiếp) |
+| 2 | F-1: không đổi hành vi đọc; sửa chú thích `resolveWorkingScope`, thêm khẳng định cho CH/KT trong test ma trận, kiểm tra ghi chéo chi nhánh và báo kết quả | Nhỏ, kiểm tra |
+| 3 | F-2: xác nhận nhóm đang trả 200 rỗng; vai trò không có `vehicle-history-cross:view` phải 404 đồng nhất, vai trò có quyền chéo trả đủ lịch sử trong phạm vi | Có thể must change, có test |
+| 4 | Q-D: kiểm tra gửi lại lô không tạo trùng, lô lỗi giữa chừng không ở trạng thái dở, màn hình báo thời gian xử lý | Kiểm tra, sửa nếu thiếu |
+| 5 | Q-B: một điểm kiểm tra "ngày đã chốt" duy nhất, `businessDate` trên chứng từ tài chính; không dựng khóa kỳ | Kiểm tra |
+| 6 | Hoãn: Q-B (khóa kỳ), Q-C (gộp khách), cùng kỳ năm trước, xếp hạng chi nhánh, xử lý nền | Không làm |
+
+Không có câu trả lời nào mâu thuẫn với R94, R97, R101 đến R108 (§24), C20, C24 đã chốt. Mâu thuẫn tài liệu: FR-RPT-002 trong FRD là xếp hạng chi nhánh, không phải so sánh theo thời gian; FR-ACC-005 (khóa kỳ) chưa nằm trong danh sách Phase 1 của FRD nhưng khóa ngày/mở lại ngày đã có ở pilot (chốt ngày FR-ACC-004); mô tả F-2 ở stream-a-findings (vai trò không có quyền chéo) khác mô tả ở open-questions (vai trò có quyền chéo).

@@ -450,6 +450,17 @@ Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §24.5):
 
 ## Câu hỏi mở thêm (dev, 04/11/2026)
 
-- Q-A (RPT-002): so sánh báo cáo tháng với tháng liền trước (đang làm, cùng khoảng ngày) hay cùng kỳ năm trước; chấp nhận quỹ, công nợ tồn và chi không chia theo loại dịch vụ. Mặc định dev: tháng liền trước. [Cần xác nhận]
-- F-1 (NFR-ISO-01): người có quyền toàn công ty (CH, KT) đã chọn chi nhánh làm việc vẫn đọc được bản ghi chi nhánh khác theo id (danh sách đã thu hẹp theo chi nhánh, đọc theo id dùng `resolveScope`). Là chủ ý (liên kết chéo, khoan sâu) hay phải 404 giống id không tồn tại? Chờ BA, chưa sửa.
-- F-2 (C20): `GET /crm/vehicles/{id}/history` cho CH, CV, QL, QĐ (có `customer-lookup:view` + `vehicle-history-cross:view`) trả 200 với danh sách rỗng cho xe ngoài phạm vi, còn id không tồn tại trả 404. Đây là hệ quả của quyền xem chéo chi nhánh theo C20 (tra cứu theo biển số vốn đã cho thấy xe tồn tại). Dev không đổi; BA xác nhận có cần 404 đồng nhất không.
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §25; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA; câu hỏi chuyển bên quyết định 58 đến 63).
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| Q-A (RPT-002) | Đã trả lời: tháng liền trước, cùng số ngày; cùng kỳ năm trước hoãn; chấp nhận dòng "Không gắn lệnh" (tổng phải khớp); FR-RPT-002 trong FRD là xếp hạng chi nhánh, đề xuất tách. Chờ Chủ dự án, Kế toán | Default OK + nhãn khoảng ngày, test tháng ngắn/chưa có tháng trước |
+| Q-B (FR-ACC-005) | Đã trả lời: hoãn khóa kỳ sang Phase 2/3 cùng xuất kỳ; có bảng quy tắc đề xuất; pilot giữ chốt ngày và mở lại ngày. Chờ Kế toán, Chủ dự án | Hoãn; giữ một điểm kiểm tra ngày chốt, `businessDate` |
+| F-1 (NFR-ISO-01) | Đã trả lời: chủ ý, chi nhánh làm việc là bộ lọc; đọc theo id trong phạm vi quyền (có nhãn chi nhánh); ghi chéo phải chuyển chi nhánh; người một chi nhánh vẫn 404. Chờ Chủ dự án | Default OK; sửa chú thích + test; kiểm tra ghi chéo và báo lại |
+| F-2 (C20) | Đã trả lời: chấp nhận cho người có quyền chéo; người không có quyền chéo phải 404 đồng nhất. Hai mô tả F-2 khác nhau, dev xác nhận nhóm đang nhận 200 rỗng. Chờ Chủ dự án | Kiểm tra; có thể must change |
+| Q-C (R97) | Đã trả lời: hoãn Phase 2 (FR-CRM-003 là Should); có quy tắc khóa, bản giữ, đồng ý, yêu cầu chủ dữ liệu, hoàn tác 30 ngày. Chờ Chủ dự án, Luật sư | Hoãn |
+| Q-D (R94) | Đã trả lời: không cần xử lý nền ở giai đoạn 1; giữ 2.000 dòng; điều kiện xem lại và hai điều kiện an toàn. Chờ Khách (khối lượng thật) | Default OK + kiểm tra gửi lại không trùng |
+| Q-E (NFR-PERF) | Đã trả lời: chấp nhận làm chỉ số hồi quy; NFR-PERF ghi "chưa kiểm chứng" đến khi đo staging. Chờ Chủ dự án | Default OK |
+| Ảnh đề xuất (API liệt kê) | Đã trả lời: giữ; báo designer hiện ảnh ở màn duyệt phát sinh | Giữ |
+
+Dev must change (chi tiết `ba-answers-for-dev.md` §25.5): (1) nhãn khoảng ngày và test RPT tháng; (2) F-1 chú thích + test + kiểm tra ghi chéo; (3) F-2 404 đồng nhất cho vai trò không có quyền chéo (nếu đang 200 rỗng); (4) Q-D kiểm tra gửi lại lô không trùng, lô lỗi không dở; (5) Q-B điểm kiểm tra ngày chốt duy nhất.
