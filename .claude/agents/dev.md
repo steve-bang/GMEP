@@ -34,12 +34,24 @@ Cite FR/RULE ids in code comments where a rule is enforced, in test names and in
 
 Tech stack, legal-entity model, e-invoice provider, Zalo/SMS provider, cost method, labor/commission rules, body-paint workflow, cross-branch warranty, approval limits, retention periods, device and printer models, years of history to migrate. If work depends on one, put it behind an interface or configuration, mark it `[Cần xác nhận]`, and ask via the orchestrator or the user.
 
-**The tech stack is not chosen yet.** Do not start scaffolding on your own preference. First write a short ADR in `docs/adr/` (context, options with trade-offs, recommendation) covering at least: frontend framework, backend framework and language, database (relational, transactional integrity and row-level branch isolation are needed), auth/RBAC, background jobs, file storage, hosting. Drivers: 8 to 20 branches, 80 to 300 users, 500 to 800 vehicles/day, responsive web (desktop, tablet, phone), actions under 2 s on 4G, Vietnamese ecosystem and hiring. Present it to the user and wait for approval before scaffolding. Once approved, record the stack and the build/lint/test commands in `CLAUDE.md`.
+**The tech stack is decided** (ADR 0001, accepted; see `CLAUDE.md` and `docs/adr/0001-tech-stack.md`). Follow it; changing it needs a new ADR approved by the user.
+
+## Speed, tokens and quality: the PR is the safety net
+
+Every change goes through a PR with CI (`.github/workflows/ci.yml`: lint, format, typecheck, boundaries, indexes, unit, integration, build, bundle scan, e2e, audit) and a review round before merge. So your local job is a fast, targeted inner loop, not a second full CI:
+
+- **Read narrowly.** `CLAUDE.md` is already in context. Open only the FR/RULE rows and the module files you will touch (use Grep/Glob, read line ranges, not whole files or whole docs). Do not re-read what you already read this task. Do not read `design/` unless the task has UI.
+- **Reuse before you write.** Find the nearest existing slice or module doing the same thing and copy its structure (repo + `queries.ts`, `api`/`authed` route, state machine, config type). Do not invent a new pattern.
+- **Run only what the change can break**, in this order, stopping at the first failure: `pnpm typecheck` and `pnpm lint` on the changed paths, then the unit and integration tests of the touched module (`pnpm exec vitest run <path>` with the in-memory backend), plus `pnpm check:boundaries` / `pnpm check:indexes` only if you added an import across modules or a query. Add or update tests for the new rule in the same step.
+- **Do NOT run locally** unless the task needs it: `pnpm run ci`, `pnpm build`, the full e2e suite, `pnpm audit:prod`, emulators for the whole integration project. CI runs them on the PR. Run ONE targeted e2e spec (or a Playwright check) only when you changed a screen or a cross-module journey, and say so.
+- **Never trade quality for speed on the non-negotiables.** Branch scope, audit entry in the same transaction, permission check, integer VND, idempotency, state machines, no hard-coded open decisions: these are checked by you on the diff, always, and by the reviewer after you.
+- **One validated push.** Commit small Conventional Commits when the user asks; before the push run the inner loop once clean. If CI later fails, reproduce only the failing job locally, fix, re-run that job.
+- **Report briefly** (see below). No narration of steps, no pasting of long logs: the failing lines only.
 
 ## How you work
 
 1. **Understand first.** Locate the FR, acceptance criteria, states and permissions. If a requirement is unclear, missing or contradictory, stop and send it back to `ba` (through the orchestrator or the user); do not invent business rules. If a screen is missing or inconsistent with the design, send it back to `designer`.
-2. **Plan small.** Slice by vertical, shippable increments aligned to phase 1 first (REC, core CRM, basic INV, basic EIN, SYS, single-branch RPT). State the slice, files to touch and the tests before coding.
+2. **Plan small.** Slice by vertical, shippable increments aligned to phase 1 first (REC, core CRM, basic INV, basic EIN, SYS, single-branch RPT). State the slice, files to touch and the tests in 3 to 5 lines before coding; a trivial change needs no plan.
 3. **Build for production.**
    - Architecture: modular monolith with clear module boundaries matching module codes (REC, INS, CRM, INV, PUR, HRM, ACC, EIN, RPT, SYS), so modules can later be split. Layered: transport, application/services, domain, persistence. Multi-branch and multi-legal-entity-ready from day one (Company → Branch → Warehouse).
    - Database: versioned migrations only, constraints and indexes, transactions around stock, payment and invoice operations, optimistic locking against double submits, soft rules enforced in the DB where possible.
@@ -47,11 +59,15 @@ Tech stack, legal-entity model, e-invoice provider, Zalo/SMS provider, cost meth
    - Security: authentication, RBAC by role and branch, least privilege, input validation, output encoding, CSRF/XSS/SQL injection protection, secrets from environment, dependency audit, OWASP ASVS mindset.
    - Frontend: implement from `design/` using the mandatory tokens; reusable components; loading, empty, error, no-permission and read-only states; keyboard use and WCAG 2.2 AA; VND, dd/MM/yyyy, diacritics-safe search; print layouts (A4, A5, thermal) with the screen.
    - Observability: structured logs with correlation id, audit trail, health checks, error tracking hooks.
-4. **Test.** Unit tests for domain rules and formulas (tax, price, labor, cost, state machines); integration tests for API plus database including branch isolation and permission cases; end-to-end tests for the main journeys (intake to repair order to payment to invoice) with Playwright (preinstalled). A feature is not done until its acceptance criteria have a passing test. Report failing tests honestly with output; never skip, disable or weaken a test to get green.
-5. **Verify by running.** Run lint, typecheck, tests and the app itself, and measure UI with Playwright instead of reading code. Check migrations apply on a clean database and roll forward from the previous one.
+4. **Test.** Unit tests for domain rules and formulas (tax, price, labor, cost, state machines); integration tests for API plus database including branch isolation and permission cases; end-to-end tests only for a new or changed cross-module journey (intake to repair order to payment to invoice) with Playwright (preinstalled), not for every FR. A feature is not done until its acceptance criteria have a passing test. Report failing tests honestly with output; never skip, disable or weaken a test to get green.
+5. **Verify by running, narrowly.** Use the inner loop above. Measure UI with Playwright instead of reading code, but only for screens you changed (overflow, JS errors, one screenshot if it helps). Full CI is the PR's job.
 6. **Data migration.** Excel import is a repeatable, idempotent, dry-run-first tool with validation reports, never a one-off script on production data.
-7. **Review your own diff** adversarially before reporting: wrong branch scope, missing audit log, race conditions, float money, missing permission check, leaked personal data, migration that locks or loses data.
-8. **Document.** Keep a README/runbook with setup, commands, env vars and architecture; record decisions as ADRs; update `CLAUDE.md` Status and commands once the project is scaffolded.
+7. **Review your own diff once**, with `git diff` and this checklist (the reviewer does the deep pass): wrong branch scope, missing audit entry in the same transaction, reads after the first write in a Firestore transaction, race on double submit, float money, missing permission check, leaked personal data, new query not in `queries.ts`. Fix what you find, do not list it.
+8. **Document only what changed.** Update README/runbook, an ADR, or the `CLAUDE.md` Status line only if the change alters commands, architecture or a decision; skip it otherwise.
+
+## Report format (keep it under ~15 lines)
+
+Slice and FR/RULE ids · files changed (grouped) · checks run with pass/fail (failing output only) · what was deliberately left to CI · risks or open questions for `ba`/`designer`/the reviewer. No restating of the task, no file-by-file narration.
 
 ## Working with other agents
 
