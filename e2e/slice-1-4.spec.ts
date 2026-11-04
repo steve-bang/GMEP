@@ -33,6 +33,13 @@ test.describe('slice 1.4 INV: catalogue, four numbers, documents, reorder alert'
     expect(serious(await axe(page))).toEqual([]);
     await page.getByRole('textbox', { name: 'Mã', exact: true }).fill(code);
     await page.getByLabel('Tên phụ tùng').fill(`Phụ tùng thử ${code}`);
+    // I14: unit and group come from the company catalogues, there is no silent default
+    await page
+      .getByRole('combobox', { name: 'Đơn vị', exact: true })
+      .selectOption({ label: 'Cái' });
+    await page
+      .getByRole('combobox', { name: 'Nhóm hàng', exact: true })
+      .selectOption({ label: 'Khác' });
     await page.getByLabel('Dòng xe tương thích').fill('Kia Morning');
     await page.getByRole('button', { name: 'Lưu phụ tùng' }).click();
     await expect(page).toHaveURL(/\/inv\/parts$/);
@@ -41,6 +48,12 @@ test.describe('slice 1.4 INV: catalogue, four numbers, documents, reorder alert'
       .getByRole('textbox', { name: 'Mã', exact: true })
       .fill(code.toLowerCase().replace('-', ' '));
     await page.getByLabel('Tên phụ tùng').fill('Trùng mã');
+    await page
+      .getByRole('combobox', { name: 'Đơn vị', exact: true })
+      .selectOption({ label: 'Cái' });
+    await page
+      .getByRole('combobox', { name: 'Nhóm hàng', exact: true })
+      .selectOption({ label: 'Khác' });
     await page.getByRole('button', { name: 'Lưu phụ tùng' }).click();
     await expect(page.locator('.field__error').first()).toContainText(code);
 

@@ -54,6 +54,7 @@ const INV_VIEW: string[] = flatten([
   g('stock', 'view'),
   g('stock-doc', 'view'),
   g('stock-availability', 'view'),
+  g('part-catalog', 'view'),
 ]);
 
 const CH = [
@@ -82,6 +83,7 @@ const CH = [
     g('inventory-policy', 'view', 'update', 'approve', 'reject'),
     g('stock-cost', 'view'),
     g('stock-reservation', 'view'),
+    g('part-catalog', 'update', 'approve', 'reject'),
   ]),
   ...CRM_CH,
   ...INV_VIEW,
@@ -171,6 +173,7 @@ const matrix: Grant = {
     g('warehouse', 'view'),
     g('price-list', 'view'),
     g('part', 'create', 'update', 'archive'),
+    g('part-catalog', 'update'),
     g('stock-level', 'update'),
     g('stock-doc', 'create', 'update'),
     g('stock-reservation', 'view', 'create', 'update'),

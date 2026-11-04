@@ -17,6 +17,10 @@ export interface InvConfig {
   defaultGrnQtyVarianceBp: number;
   /** reorder list rows per page */
   lowStockMax: number;
+  /** I2: a hold older than this many days appears in the long-held report [Cần xác nhận: Khách] */
+  longHeldDays: number;
+  /** rows scanned for the shortage and long-held reports */
+  openReservationsMax: number;
 }
 
 export const DEFAULT_INV_CONFIG: InvConfig = {
@@ -24,6 +28,8 @@ export const DEFAULT_INV_CONFIG: InvConfig = {
   defaultGrnPriceVarianceBp: 500,
   defaultGrnQtyVarianceBp: 0,
   lowStockMax: 200,
+  longHeldDays: 14,
+  openReservationsMax: 500,
 };
 
 export interface InvDeps {

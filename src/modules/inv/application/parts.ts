@@ -18,10 +18,11 @@ import {
   normalizePartCode,
   partCodeKey,
   PART_CODE_PATTERN,
-  PART_GROUPS,
-  PART_UNITS,
+  QUANTITY_SCALES,
 } from '../domain/normalize';
 import type { InvDeps } from '../ports/deps';
+import { allBranchesScope } from '@/platform/scope/scope';
+import { resolveCatalog, type CatalogKind } from './catalog';
 import { today } from './config';
 import {
   auditEntry,
@@ -40,6 +41,8 @@ export interface PartDto {
   brand: string;
   unit: string;
   group: string;
+  /** I4: stored quantity / quantityScale = displayed quantity */
+  quantityScale: number;
   barcode: string | null;
   compat: string[];
   status: PartStatus;
@@ -55,6 +58,7 @@ export function toPartDto(p: Part): PartDto {
     brand: p.brand,
     unit: p.unit,
     group: p.group,
+    quantityScale: p.quantityScale,
     barcode: p.barcode ?? null,
     compat: p.compat,
     status: p.status,
@@ -77,7 +81,7 @@ const listSchema = z.object({
   cursor: z.string().max(512).optional(),
   q: z.string().trim().max(60).optional(),
   by: z.enum(['auto', 'code', 'name', 'barcode', 'model']).default('auto'),
-  group: z.enum(PART_GROUPS).optional(),
+  group: z.string().trim().max(30).optional(),
   status: z.enum(['active', 'inactive']).optional(),
 });
 
@@ -147,8 +151,13 @@ const compatItem = z.object({
 const partFields = {
   name: z.string().trim().min(1).max(120),
   brand: z.string().trim().max(60).default(''),
-  unit: z.enum(PART_UNITS),
-  group: z.enum(PART_GROUPS),
+  unit: z.string().trim().min(1).max(30),
+  group: z.string().trim().min(1).max(30),
+  quantityScale: z.coerce
+    .number()
+    .int()
+    .refine((n) => (QUANTITY_SCALES as readonly number[]).includes(n), 'scale')
+    .default(1),
   barcode: z.string().trim().max(40).optional(),
   compat: z.array(compatItem).max(30).default([]),
 };
@@ -190,11 +199,14 @@ export async function createPart(
     throw validationFailed([
       {
         field: 'code',
-        message: 'Mã gồm 2-40 ký tự: chữ không dấu, số, dấu chấm, gạch ngang hoặc gạch dưới.',
+        message:
+          'Mã gồm 2-40 ký tự: chữ không dấu, số, dấu chấm, gạch ngang, gạch dưới hoặc dấu gạch chéo, không có khoảng trắng.',
       },
     ]);
   const barcode = checkBarcode(data.barcode);
   const compat = compatOf(data.compat);
+  await assertInCatalog(deps, actor.companyId, 'unit', data.unit, undefined);
+  await assertInCatalog(deps, actor.companyId, 'group', data.group, undefined);
   try {
     return await runIdempotent(
       idemOf(deps),
@@ -221,6 +233,7 @@ export async function createPart(
           brand: data.brand,
           unit: data.unit,
           group: data.group,
+          quantityScale: data.quantityScale,
           ...(barcode ? { barcode } : {}),
           compat: compat.display,
           compatKeys: compat.keys,
@@ -256,6 +269,33 @@ export async function createPart(
   }
 }
 
+/**
+ * I14: a new or changed unit/group must be an ACTIVE entry of the company catalogue. Keeping the value
+ * a part already has is allowed even when the entry was deactivated since.
+ */
+async function assertInCatalog(
+  deps: InvDeps,
+  companyId: string,
+  kind: CatalogKind,
+  value: string,
+  current: string | undefined,
+): Promise<void> {
+  if (value === current) return;
+  const entry = (await resolveCatalog(deps, companyId, kind, today(deps))).find(
+    (e) => e.code === value,
+  );
+  if (!entry || !entry.active)
+    throw validationFailed([
+      {
+        field: kind,
+        message:
+          kind === 'unit'
+            ? 'Đơn vị tính chưa có trong danh mục.'
+            : 'Nhóm hàng chưa có trong danh mục.',
+      },
+    ]);
+}
+
 async function codeExists(
   deps: InvDeps,
   scope: Parameters<InvDeps['parts']['get']>[0],
@@ -274,6 +314,7 @@ export const updatePartSchema = z.object({
   brand: z.string().trim().max(60).optional(),
   unit: partFields.unit.optional(),
   group: partFields.group.optional(),
+  quantityScale: partFields.quantityScale.optional(),
   barcode: z.string().trim().max(40).nullable().optional(),
   compat: partFields.compat.optional(),
   version: z.number().int().min(1),
@@ -297,6 +338,13 @@ export async function updatePart(
       if (p.version !== data.version) throw versionConflict();
       if (barcode && barcode !== p.barcode && (await deps.parts.idByBarcode(scope, barcode)))
         throw new AppError('part_barcode_exists', 409);
+      if (data.unit) await assertInCatalog(deps, actor.companyId, 'unit', data.unit, p.unit);
+      if (data.group) await assertInCatalog(deps, actor.companyId, 'group', data.group, p.group);
+      // I4: the scale is fixed once the part has any stock record (every integer in the ledger depends on it)
+      if (data.quantityScale !== undefined && data.quantityScale !== p.quantityScale) {
+        const any = await deps.balances.listByPart(allBranchesScope(actor.companyId), id, 1);
+        if (any.length > 0) throw new AppError('scale_locked', 409);
+      }
       const now = deps.sys.clock.now();
       const compat = data.compat
         ? compatOf(data.compat)
@@ -308,6 +356,7 @@ export async function updatePart(
         brand: data.brand ?? p.brand,
         unit: data.unit ?? p.unit,
         group: data.group ?? p.group,
+        quantityScale: data.quantityScale ?? p.quantityScale,
         barcode: nextBarcode ?? null,
         compat: compat.display,
         compatKeys: compat.keys,
@@ -335,6 +384,7 @@ export async function updatePart(
         brand: patch.brand,
         unit: patch.unit,
         group: patch.group,
+        quantityScale: patch.quantityScale,
         compat: patch.compat,
         ...(nextBarcode ? { barcode: nextBarcode } : {}),
         version: patch.version,

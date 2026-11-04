@@ -48,9 +48,13 @@ import {
   InvRuleError,
   issue as ledgerIssue,
   receive,
+  receiveValue,
+  remainingDemand,
+  surplusValue,
   type Quantities,
 } from '../domain/ledger';
-import type { CostMethod } from '../domain/cost';
+import { proportion, type CostMethod } from '../domain/cost';
+import { reservationPatch } from './holds';
 import type { InvDeps } from '../ports/deps';
 import { resolveCostMethod, resolveGrnThresholds, today } from './config';
 import { BalanceSet, quantitiesOf } from './engine';
@@ -545,6 +549,8 @@ function applyLines(
   returned: Map<number, number>,
   now: Date,
   actorId: string,
+  /** ADJ with a negative line: holds of the warehouse x part, to shorten when the count falls below reserved (row 23) */
+  cuttable: Map<string, Reservation[]> = new Map(),
 ): Applied {
   const out: StockDocLine[] = [];
   const touched = new Map<string, Reservation>();
@@ -570,6 +576,11 @@ function applyLines(
           doc.warehouseId,
         );
         const h = touched.get(rid) ?? holds.get(rid);
+        if (doc.source.type === 'repair-order') {
+          // I8 / RULE-007 / FR-INV-007: only parts the order demands, and never more than the demand still open (I3 cap)
+          if (!h || h.closed) throw new InvRuleError('order_line_missing');
+          if (l.qty > remainingDemand(h)) throw new InvRuleError('issue_exceeds_demand');
+        }
         const fromHeld = h ? Math.min(l.qty, h.heldQty) : 0;
         const x = ledgerIssue(b, method, l.qty, fromHeld);
         if (h) {
@@ -584,6 +595,8 @@ function applyLines(
             updatedBy: actorId,
             version: h.version + 1,
           };
+          // the part of the demand served from available stock is no longer unmet
+          upd.unmetQty = Math.max(0, upd.qty - issuedQty - heldQty);
           upd.status = holdStatus(upd);
           touched.set(rid, upd);
         }
@@ -600,8 +613,12 @@ function applyLines(
         const already = returned.get(l.originalLineNo!) ?? 0;
         if (already + l.qty > ol.qty) throw new InvRuleError('return_exceeds_issued');
         returned.set(l.originalLineNo!, already + l.qty);
-        // returned parts re-enter at the cost they left with (the order's cost goes down by the same value)
-        const x = receive(b, method, l.qty, ol.unitCostVnd ?? 0);
+        // I5: returned parts re-enter at the VALUE they left with, pro rata to the quantity (cumulative, so the
+        // last return of a line takes exactly the remainder and no dong is left over or created)
+        const lineValue = Math.abs(ol.valueVnd ?? 0);
+        const value =
+          proportion(lineValue, already + l.qty, ol.qty) - proportion(lineValue, already, ol.qty);
+        const x = receiveValue(b, l.qty, value);
         return {
           next: x.next,
           value: x.valueVnd,
@@ -611,7 +628,14 @@ function applyLines(
         };
       }
       if (l.qty > 0) {
-        const x = receive(b, method, l.qty, l.unitCostVnd!);
+        let x;
+        if (l.unitCostVnd !== undefined) x = receive(b, method, l.qty, l.unitCostVnd);
+        else {
+          // I5: surplus defaults to the average cost; only an empty balance has no average to use
+          if (b.onHand <= 0)
+            throw new InvRuleError('line_invalid', { line: l.lineNo, why: 'cost' });
+          x = receiveValue(b, l.qty, surplusValue(method, b, l.qty));
+        }
         return {
           next: x.next,
           value: x.valueVnd,
@@ -620,7 +644,34 @@ function applyLines(
           reservationId: null,
         };
       }
-      const x = ledgerIssue(b, method, -l.qty, 0);
+      // row 23: the count is a fact. When it falls below what is reserved, the holds given LAST are
+      // shortened first; the lost part becomes their unmet quantity
+      const outQty = -l.qty;
+      const shortage = Math.max(0, outQty - (b.onHand - b.reserved));
+      let cut = 0;
+      if (shortage > 0) {
+        const mine = [...(cuttable.get(l.partId) ?? [])].sort(
+          (a, c) => c.createdAt.getTime() - a.createdAt.getTime() || c.id.localeCompare(a.id),
+        );
+        for (const h of mine) {
+          if (cut >= shortage) break;
+          const cur = touched.get(h.id) ?? h;
+          const take = Math.min(cur.heldQty, shortage - cut);
+          if (take <= 0) continue;
+          const upd: Reservation = {
+            ...cur,
+            heldQty: cur.heldQty - take,
+            unmetQty: cur.unmetQty + take,
+            updatedAt: now,
+            updatedBy: actorId,
+            version: cur.version + 1,
+          };
+          upd.status = holdStatus(upd);
+          touched.set(h.id, upd);
+          cut += take;
+        }
+      }
+      const x = ledgerIssue(b, method, outQty, cut);
       return {
         next: x.next,
         value: -x.valueVnd,
@@ -754,6 +805,25 @@ async function postDocumentInTx(
     for (const r of await Promise.all(rids.map((rid) => deps.reservations.getInTx(tx, scope, rid))))
       if (r) holds.set(r.id, r);
   }
+  // row 23: holds that a negative count may have to shorten (read now, before any write)
+  const cuttable = new Map<string, Reservation[]>();
+  if (d.type === 'ADJ')
+    for (const l of d.lines.filter((x) => x.qty < 0)) {
+      const page = await deps.reservations.listByPart(scope, {
+        partId: l.partId,
+        status: 'holding',
+        limit: 100,
+      });
+      const fresh = await Promise.all(
+        page.items
+          .filter((r) => r.warehouseId === w.id && r.heldQty > 0)
+          .map((r) => deps.reservations.getInTx(tx, scope, r.id)),
+      );
+      cuttable.set(
+        l.partId,
+        fresh.flatMap((r) => (r && r.heldQty > 0 ? [r] : [])),
+      );
+    }
   const returned = new Map<number, number>();
   if (d.type === 'RTN' && built.original) {
     const nos = [...new Set(d.lines.map((l) => l.originalLineNo!))];
@@ -783,19 +853,22 @@ async function postDocumentInTx(
     returned,
     now,
     actor.userId,
+    cuttable,
   );
   // ---- writes ----
   set.flush(tx);
   for (const r of applied.reservations) {
-    deps.reservations.update(tx, r.id, {
-      qty: r.qty,
-      heldQty: r.heldQty,
-      issuedQty: r.issuedQty,
-      status: r.status,
-      updatedAt: r.updatedAt,
-      updatedBy: r.updatedBy,
-      version: r.version,
-    });
+    deps.reservations.update(tx, r.id, reservationPatch(r));
+    deps.sys.audit.record(
+      tx,
+      auditEntry(deps.sys, actor, ctx, {
+        branchId: r.branchId,
+        entityType: 'stockReservation',
+        entityId: r.id,
+        action: d.type === 'ADJ' ? 'stockReservation.shorten' : 'stockReservation.consume',
+        after: { heldQty: r.heldQty, issuedQty: r.issuedQty, unmetQty: r.unmetQty },
+      }),
+    );
   }
   for (const t of applied.tallies)
     deps.returns.save(tx, t.id, {
@@ -979,16 +1052,19 @@ async function postPreparedGin(
     actor.userId,
   );
   set.flush(tx);
-  for (const r of applied.reservations)
-    deps.reservations.update(tx, r.id, {
-      qty: r.qty,
-      heldQty: r.heldQty,
-      issuedQty: r.issuedQty,
-      status: r.status,
-      updatedAt: r.updatedAt,
-      updatedBy: r.updatedBy,
-      version: r.version,
-    });
+  for (const r of applied.reservations) {
+    deps.reservations.update(tx, r.id, reservationPatch(r));
+    deps.sys.audit.record(
+      tx,
+      auditEntry(deps.sys, actor, ctx, {
+        branchId: r.branchId,
+        entityType: 'stockReservation',
+        entityId: r.id,
+        action: 'stockReservation.consume',
+        after: { heldQty: r.heldQty, issuedQty: r.issuedQty, unmetQty: r.unmetQty },
+      }),
+    );
+  }
   const posted: StockDocument = {
     ...d,
     status: 'posted',
@@ -1093,6 +1169,21 @@ export async function reverseDocument(
         );
         nos.forEach((n, i) => tallies.set(n, rows[i]?.returnedQty ?? 0));
       }
+      // row 13: a reversed issue puts the demand back on the order line (if the line is still open)
+      const lineHolds = new Map<string, Reservation>();
+      if (o.type === 'GIN' && o.source.type === 'repair-order' && o.source.id) {
+        const rids = [
+          ...new Set(
+            o.lines.map((l) =>
+              reservationId('repair-order', o.source.id!, l.reservationKey ?? l.partId, w.id),
+            ),
+          ),
+        ];
+        for (const r of await Promise.all(
+          rids.map((rid) => deps.reservations.getInTx(tx, scope, rid)),
+        ))
+          if (r) lineHolds.set(r.id, r);
+      }
       const alloc = await allocateDocumentNumber(deps.sys, tx, {
         branch,
         docType: DOC_SERIES[o.type],
@@ -1104,13 +1195,41 @@ export async function reverseDocument(
       const number = alloc.number!;
       const now = deps.sys.clock.now();
       const rid = reversalId(o.id);
+      const restored = new Map<string, Reservation>();
       for (const l of o.lines) {
         const b = quantitiesOf(set.get(l.partId));
         // undo exactly what the original did: same quantity, same value
         // original on-hand effect: GRN +qty, GIN -qty, RTN +qty, ADJ +qty (signed)
         const onHand = o.type === 'GIN' ? l.qty : -l.qty;
         const value = -(l.valueVnd ?? 0);
-        const next = guard(() => applyEffect(b, { onHand, valueVnd: value }));
+        let heldBack = 0;
+        if (o.type === 'GIN' && o.source.type === 'repair-order') {
+          const rid2 = reservationId(
+            'repair-order',
+            o.source.id ?? '',
+            l.reservationKey ?? l.partId,
+            w.id,
+          );
+          const h = restored.get(rid2) ?? lineHolds.get(rid2);
+          if (h && !h.closed && h.issuedQty >= l.qty) {
+            // hold what the restored stock can cover; the rest of the returned demand is unmet
+            heldBack = Math.min(l.qty, b.onHand + onHand - b.reserved);
+            const upd: Reservation = {
+              ...h,
+              issuedQty: h.issuedQty - l.qty,
+              heldQty: h.heldQty + heldBack,
+              unmetQty: h.unmetQty + (l.qty - heldBack),
+              updatedAt: now,
+              updatedBy: actor.userId,
+              version: h.version + 1,
+            };
+            upd.status = holdStatus(upd);
+            restored.set(rid2, upd);
+          }
+        }
+        const next = guard(() =>
+          applyEffect(b, { onHand, valueVnd: value, ...(heldBack ? { reserved: heldBack } : {}) }),
+        );
         set.move(
           l.partId,
           next,
@@ -1131,6 +1250,19 @@ export async function reverseDocument(
           tallies.set(l.originalLineNo!, (tallies.get(l.originalLineNo!) ?? 0) - l.qty);
       }
       set.flush(tx);
+      for (const r of restored.values()) {
+        deps.reservations.update(tx, r.id, reservationPatch(r));
+        deps.sys.audit.record(
+          tx,
+          auditEntry(deps.sys, actor, ctx, {
+            branchId: r.branchId,
+            entityType: 'stockReservation',
+            entityId: r.id,
+            action: 'stockReservation.restore',
+            after: { heldQty: r.heldQty, issuedQty: r.issuedQty, unmetQty: r.unmetQty },
+          }),
+        );
+      }
       if (o.type === 'RTN' && o.originalDocumentId)
         for (const [lineNo, qty] of tallies)
           deps.returns.save(tx, issueReturnId(o.originalDocumentId, lineNo), {

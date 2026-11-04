@@ -93,6 +93,9 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
         enumLabel('period', str('period')),
         t('config.widthValue', { width: num('seqWidth') ?? 0 }),
       ].join(' · ');
+    case 'part-group':
+    case 'part-unit':
+      return `${str('name')} · ${enumLabel('status', str('status'))}`;
     case 'cost-method':
       return enumLabel('costMethod', str('method'));
     case 'inventory-policy':
@@ -145,6 +148,14 @@ export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
       ],
     },
     { name: 'paper', kind: 'select', options: ['A4', 'A5', 'thermal80', 'thermal58'] },
+  ],
+  'part-group': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'part-unit': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
   ],
   'cost-method': [{ name: 'method', kind: 'select', options: ['weighted-average'] }],
   'inventory-policy': [

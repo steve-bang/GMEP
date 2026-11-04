@@ -55,6 +55,7 @@ const partFromDoc = ({ id, data: x }: StoredDoc): Part => ({
   brand: x.brand ?? '',
   unit: x.unit,
   group: x.group,
+  quantityScale: x.quantityScale ?? 1,
   ...(x.barcode ? { barcode: x.barcode } : {}),
   compat: x.compat ?? [],
   compatKeys: x.compatKeys ?? [],
@@ -426,6 +427,8 @@ const reservationFromDoc = ({ id, data: x }: StoredDoc): Reservation => ({
   qty: x.qty,
   heldQty: x.heldQty,
   issuedQty: x.issuedQty,
+  unmetQty: x.unmetQty ?? 0,
+  closed: x.closed ?? false,
   status: x.status,
   opCount: x.opCount ?? 0,
   createdAt: x.createdAt,
@@ -476,6 +479,14 @@ export class DocReservationRepository implements ReservationRepository {
       },
     );
     return pageOf(rows.map(reservationFromDoc), q.limit, (r) => isoOf(r.updatedAt));
+  }
+  async listOpen(scope: Scope, limit: number) {
+    const rows = await this.store.query(Q.reservationsOpen.pick([], scope.kind === 'branches'), {
+      eq: { companyId: scope.companyId, status: 'holding' },
+      ...scopeParams(scope),
+      limit,
+    });
+    return rows.map(reservationFromDoc);
   }
   create(tx: Tx, r: Reservation) {
     this.store.create(tx, COL.stockReservations, r.id, without(r, 'id'));

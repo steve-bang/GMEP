@@ -20,7 +20,8 @@ export const partCodeKey = (raw: string): string =>
   normalizePartCode(raw).replace(/[^A-Z0-9]/g, '');
 
 /** Allowed shape after normalisation; also the shape accepted in a `price-item` config scope key. */
-export const PART_CODE_PATTERN = /^[A-Z0-9][A-Z0-9._-]{1,39}$/;
+// I12 (BA §16): manufacturer codes often contain "/" ; spaces inside a code stay forbidden (barcode scanning).
+export const PART_CODE_PATTERN = /^[A-Z0-9][A-Z0-9._/-]{1,39}$/;
 
 /** Barcode (EAN-8/13, UPC, Code128 text): digits and letters only, 4-32 characters. */
 export const normalizeBarcode = (raw: string): string => raw.replace(/\s+/g, '').toUpperCase();
@@ -38,21 +39,36 @@ export function compatKey(make: string, model: string): string {
     .trim();
 }
 
-/** Part groups offered in the catalogue (G3-INV-01 filter). Catalogue data, not a legal rule. */
-export const PART_GROUPS = [
-  'oil',
-  'filter',
-  'brake',
-  'tire',
-  'electrical',
-  'suspension',
-  'engine',
-  'body',
-  'consumable',
-  'other',
-] as const;
-export type PartGroup = (typeof PART_GROUPS)[number];
+/**
+ * Initial data of the company-level catalogues of part groups and units of measure (I14, BA §16).
+ * These are SEED values only: the live lists are effective-dated `part-group` / `part-unit`
+ * configuration (code = scope key) that a stock keeper proposes and the branch owner approves.
+ * Nothing in the domain validates against this list.
+ */
+export const SEED_PART_GROUPS: readonly { code: string; name: string }[] = [
+  { code: 'oil', name: 'Dầu nhớt' },
+  { code: 'filter', name: 'Lọc' },
+  { code: 'brake', name: 'Phanh' },
+  { code: 'tire', name: 'Lốp' },
+  { code: 'electrical', name: 'Điện' },
+  { code: 'suspension', name: 'Treo' },
+  { code: 'engine', name: 'Động cơ' },
+  { code: 'body', name: 'Thân vỏ' },
+  { code: 'consumable', name: 'Vật tư' },
+  { code: 'other', name: 'Khác' },
+];
+export const SEED_PART_UNITS: readonly { code: string; name: string }[] = [
+  { code: 'piece', name: 'Cái' },
+  { code: 'set', name: 'Bộ' },
+  { code: 'pair', name: 'Cặp' },
+  { code: 'litre', name: 'Lít' },
+  { code: 'kg', name: 'Kg' },
+  { code: 'metre', name: 'Mét' },
+  { code: 'box', name: 'Hộp' },
+];
 
-/** Units of measure offered for parts. Quantities are whole numbers (see open-questions I2). */
-export const PART_UNITS = ['piece', 'set', 'pair', 'litre', 'kg', 'metre', 'box'] as const;
-export type PartUnit = (typeof PART_UNITS)[number];
+/** Catalogue codes are scope keys of the config: lower-case slug. */
+export const CATALOG_CODE_PATTERN = /^[a-z][a-z0-9-]{0,29}$/;
+
+/** I4: displayed quantity = stored integer / quantityScale (1 = whole units, 1000 = 3 decimals). */
+export const QUANTITY_SCALES = [1, 10, 100, 1000] as const;

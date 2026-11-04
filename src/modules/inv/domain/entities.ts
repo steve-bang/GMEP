@@ -3,8 +3,6 @@
  * documents and reservations are branch records (every one carries branchId, creator and time).
  * Quantities are whole numbers; money is integer VND (RULE-010: no floats).
  */
-import type { PartGroup, PartUnit } from './normalize';
-
 export type PartStatus = 'active' | 'inactive';
 
 export interface Part {
@@ -16,8 +14,15 @@ export interface Part {
   name: string;
   nameNorm: string;
   brand: string;
-  unit: PartUnit;
-  group: PartGroup;
+  /** code of an entry of the company `part-unit` catalogue (I14) */
+  unit: string;
+  /** code of an entry of the company `part-group` catalogue (I14) */
+  group: string;
+  /**
+   * I4: stored quantities are whole numbers of 1/quantityScale display units (default 1).
+   * Changeable only while the part has no stock movement.
+   */
+  quantityScale: number;
   barcode?: string;
   /** compatible vehicle lines, display text ("Toyota Vios") and their search keys */
   compat: string[];
@@ -208,11 +213,18 @@ export interface Reservation {
   sourceId: string;
   /** the line of the quote/order this hold belongs to */
   lineKey: string;
-  /** quantity the source needs in total (issued + still held) */
+  /** quantity the source needs in total (approved demand): issued + held + unmet while open */
   qty: number;
   /** currently held in the balance's reserved number */
   heldQty: number;
   issuedQty: number;
+  /**
+   * I1: remaining demand that could not be held (qty - issued - held). Persisted so the shortage list
+   * exists and so a GIN has a demand line to point at (I8). No backorder document is created.
+   */
+  unmetQty: number;
+  /** set when the hold was released on purpose (item completed/cancelled, order cancelled/closed): a reversal must not reopen it */
+  closed: boolean;
   status: ReservationStatus;
   /** number of movements written for this hold (movement ids are reservationId#n) */
   opCount: number;

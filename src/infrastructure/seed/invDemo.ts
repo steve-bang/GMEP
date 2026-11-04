@@ -7,6 +7,8 @@
  */
 import {
   balanceId,
+  SEED_PART_GROUPS,
+  SEED_PART_UNITS,
   compatKey,
   DOC_SERIES,
   normalizePartCode,
@@ -197,6 +199,7 @@ export function invDemoDocs(): SeedDoc[] {
       brand: p.brand,
       unit: p.unit,
       group: p.group,
+      quantityScale: 1,
       ...(p.barcode ? { barcode: p.barcode } : {}),
       compat: (p.compat ?? []).map(([mk, md]) => `${mk} ${md}`),
       compatKeys: keys,
@@ -256,6 +259,9 @@ export function invDemoDocs(): SeedDoc[] {
     const p = demoParts.find((x) => x.n === n)!;
     cfg('price-item', `STD:${p.code}`, { name: p.name, costVnd: cost, listPriceVnd: list });
   }
+  // I14: part groups and units are company catalogues (effective-dated config), seeded with the initial lists
+  for (const g of SEED_PART_GROUPS) cfg('part-group', g.code, { name: g.name, status: 'active' });
+  for (const u of SEED_PART_UNITS) cfg('part-unit', u.code, { name: u.name, status: 'active' });
   // FR-INV-009: the default method, as data (sample; the accountant decides)
   cfg('cost-method', 'company', { method: 'weighted-average' });
 
@@ -386,6 +392,8 @@ export function invDemoDocs(): SeedDoc[] {
           qty: reserved,
           heldQty: reserved,
           issuedQty: 0,
+          unmetQty: 0,
+          closed: false,
           status: 'holding',
           opCount: 1,
           createdAt: AT,

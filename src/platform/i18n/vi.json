@@ -269,6 +269,18 @@
       "title": "Số lượng không hợp lệ",
       "detail": "Số lượng hoặc giá trị vượt giới hạn cho phép."
     },
+    "order_line_missing": {
+      "title": "Phụ tùng chưa có trong lệnh",
+      "detail": "Lệnh sửa chữa này chưa có dòng nhu cầu cho phụ tùng này (hoặc dòng đã đóng). Khách cần duyệt hạng mục có phụ tùng trước khi xuất kho."
+    },
+    "issue_exceeds_demand": {
+      "title": "Xuất vượt nhu cầu của lệnh",
+      "detail": "Số lượng xuất lớn hơn phần nhu cầu còn lại của dòng lệnh. Giảm số lượng hoặc để cố vấn duyệt thêm hạng mục."
+    },
+    "scale_locked": {
+      "title": "Không đổi được tỉ lệ số lượng",
+      "detail": "Phụ tùng này đã có phát sinh kho nên tỉ lệ số lượng đã cố định."
+    },
     "reservation_below_issued": {
       "title": "Số lượng thấp hơn đã xuất",
       "detail": "Không thể đặt số lượng cần thấp hơn số đã xuất cho nguồn này."
@@ -676,7 +688,8 @@
       "listPriceVnd": "Giá niêm yết (VND)",
       "method": "Phương pháp",
       "grnPriceVarianceBp": "Lệch giá nhập tối đa không cần duyệt (%)",
-      "grnQtyVarianceBp": "Lệch số lượng nhập tối đa không cần duyệt (%)",
+      "grnQtyVarianceBp": "Nhận vượt đơn tối đa không cần duyệt (%)",
+      "status": "Trạng thái",
       "kind": "Loại",
       "paper": "Khổ giấy",
       "prefix": "Tiền tố",
@@ -722,6 +735,16 @@
         "lead": "Một phương pháp cho mỗi kỳ, theo ngày hiệu lực",
         "scopeHint": "Toàn công ty (company)"
       },
+      "part-group": {
+        "title": "Nhóm hàng",
+        "lead": "Danh mục nhóm hàng phụ tùng của công ty. Không xóa, chỉ ngừng dùng.",
+        "scopeHint": "Mã nhóm, chữ thường không dấu, ví dụ oil"
+      },
+      "part-unit": {
+        "title": "Đơn vị tính",
+        "lead": "Danh mục đơn vị tính phụ tùng của công ty. Không xóa, chỉ ngừng dùng.",
+        "scopeHint": "Mã đơn vị, chữ thường không dấu, ví dụ piece"
+      },
       "inventory-policy": {
         "title": "Chính sách kho",
         "lead": "Ngưỡng lệch giá và số lượng khi nhập kho phải có quản lý duyệt",
@@ -738,8 +761,12 @@
     "listPrice": "Niêm yết {amount}",
     "prefixValue": "Tiền tố {prefix}",
     "widthValue": "STT {width} chữ số",
-    "grnVariance": "Lệch giá tối đa {price} · lệch số lượng tối đa {qty}",
+    "grnVariance": "Lệch giá tối đa {price} · nhận vượt đơn tối đa {qty}",
     "enums": {
+      "status": {
+        "active": "Đang dùng",
+        "inactive": "Ngừng dùng"
+      },
       "costMethod": {
         "weighted-average": "Bình quân gia quyền"
       },
@@ -841,6 +868,8 @@
       "config_price-item": "Cấu hình: Giá theo mặt hàng",
       "config_cost-method": "Cấu hình: Phương pháp giá vốn",
       "config_inventory-policy": "Cấu hình: Chính sách kho",
+      "config_part-group": "Cấu hình: Nhóm hàng",
+      "config_part-unit": "Cấu hình: Đơn vị tính",
       "config_doc-template": "Cấu hình: Mẫu chứng từ",
       "config_numbering-series": "Cấu hình: Dãy số chứng từ",
       "customer": "Khách hàng",
@@ -911,6 +940,9 @@
       "stockDocument_reverse": "Đảo chứng từ kho",
       "stockReservation_hold": "Giữ chỗ phụ tùng",
       "stockReservation_release": "Nhả giữ chỗ phụ tùng",
+      "stockReservation_consume": "Xuất theo giữ chỗ",
+      "stockReservation_shorten": "Giảm giữ chỗ do kiểm kê",
+      "stockReservation_restore": "Khôi phục giữ chỗ do phiếu đảo",
       "stockLevel_update": "Đổi định mức tồn"
     },
     "colBranch": "Chi nhánh",
@@ -1313,7 +1345,16 @@
       "emptyText": "Thêm phụ tùng đầu tiên hoặc nhập danh mục từ Excel.",
       "filteredTitle": "Không tìm thấy phụ tùng",
       "filteredText": "Thử mã khác, bỏ dấu hoặc đổi cách tìm.",
-      "codeHint": "Chữ không dấu, số, dấu chấm, gạch ngang hoặc gạch dưới. Không đổi được sau khi lập vì giá và chứng từ tham chiếu mã này.",
+      "codeHint": "Chữ không dấu, số, dấu chấm, gạch ngang, gạch dưới hoặc dấu gạch chéo (/), không có khoảng trắng. Không đổi được sau khi lập vì giá và chứng từ tham chiếu mã này.",
+      "quantityScale": "Tỉ lệ số lượng",
+      "quantityScaleHint": "Chọn 1 nếu bán theo số nguyên. Chọn 1000 để bán lẻ đến 3 chữ số thập phân (lít, kg). Không đổi được sau khi kho có phát sinh.",
+      "quantityScaleLockedHint": "Không đổi được sau khi kho có phát sinh.",
+      "scale": {
+        "1": "1 (số nguyên)",
+        "10": "10 (1 chữ số thập phân)",
+        "100": "100 (2 chữ số thập phân)",
+        "1000": "1000 (3 chữ số thập phân)"
+      },
       "compatHint": "Mỗi dòng một xe: hãng rồi dòng xe, ví dụ Toyota Vios",
       "barcodeHint": "4-32 ký tự chữ và số",
       "createLead": "Thông tin danh mục. Không có trường số lượng tồn: nhập tồn bằng phiếu nhập hoặc phiếu điều chỉnh (tồn đầu kỳ).",

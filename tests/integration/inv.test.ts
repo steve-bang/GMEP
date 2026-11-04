@@ -65,6 +65,25 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
     receiverUserId: receiver,
     lines: [{ partId, qty }],
   });
+  /** The REC approval path (BA-07 rows 2, 3, 6): the order line's demand, held as far as stock allows. */
+  const demand = (order: string, partId: string, qty: number, cookie = tk, lineKey = partId) =>
+    call(cookie, 'POST', '/api/v1/inv/reservations/approval', {
+      orderId: order,
+      warehouseId: Q7,
+      lines: [{ lineKey, partId, qty }],
+    });
+  const release = (order: string, extra: Row = {}, cookie = cv) =>
+    call(cookie, 'POST', '/api/v1/inv/reservations/release', {
+      sourceType: 'repair-order',
+      sourceId: order,
+      ...extra,
+    });
+  /** I8: an issue for an order needs the order's demand line first. */
+  async function ginOk(order: string, partId: string, qty: number, cookie = tk) {
+    const d = await demand(order, partId, qty);
+    expect(d.status, d.text).toBe(200);
+    return postOk(cookie, gin(order, partId, qty));
+  }
   async function postOk(cookie: string, body: Record<string, unknown>, approver = cookie) {
     const d = await draft(cookie, body);
     expect(d.status, d.text).toBe(201);
@@ -332,7 +351,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
         unitCostVnd: 113_333,
       });
       // issuing one unit leaves the average unchanged to within rounding
-      const out = await postOk(tk, gin('ro-avg-1', part.id, 1));
+      const out = await ginOk('ro-avg-1', part.id, 1);
       expect(out.lines[0].unitCostVnd).toBeNull(); // storekeeper does not see cost
       const asQl = await h.call('GET', `/api/v1/inv/documents/${out.id}`, { cookie: ql });
       expect(asQl.json.lines[0]).toMatchObject({ unitCostVnd: 113_333, valueVnd: -113_333 });
@@ -349,7 +368,13 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
         tk,
         grnPo(P_COOL, 9, 90_000, { expectedQty: 10, expectedUnitCostVnd: 90_000 }),
       );
-      expect(q.json.approvalReasons).toEqual(['quantity_variance']);
+      // I7: receiving LESS than ordered is a partial receipt, no approval; receiving MORE needs one
+      expect(q.json.approvalReasons).toEqual([]);
+      const over = await draft(
+        tk,
+        grnPo(P_COOL, 11, 90_000, { expectedQty: 10, expectedUnitCostVnd: 90_000 }),
+      );
+      expect(over.json.approvalReasons).toEqual(['quantity_variance']);
       const ok = await draft(
         tk,
         grnPo(P_COOL, 10, 94_000, { expectedQty: 10, expectedUnitCostVnd: 90_000 }),
@@ -413,6 +438,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
     it('numbers are issued at posting only, consecutive, and a failed posting burns none', async () => {
       const before = (await rows('stockDocuments')).filter((d) => d.type === 'GRN' && d.number);
       const lastSeq = Math.max(0, ...before.map((d) => Number(String(d.number).split('-').at(-1))));
+      await demand('ro-fail', P_OUT, 1); // the demand is stored although nothing can be held
       const bad = await draft(tk, gin('ro-fail', P_OUT, 1)); // part 05 has no stock
       expect((await post(tk, bad.json.id)).json.code).toBe('stock_insufficient');
       const next = await postOk(tk, grnPo(P_COOL, 1, 90_000));
@@ -449,16 +475,21 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
     });
 
     it('stock 20, hold 2 -> available 18: another order cannot take 19, the holder can take its 2 on top (UAT-13)', async () => {
+      const d19 = await demand('ro-other', P_FILTER, 19);
+      expect(d19.json.items[0]).toMatchObject({ heldQty: 18, unmetQty: 1 }); // approval never refused
       const other = await draft(tk, gin('ro-other', P_FILTER, 19));
       const blocked = await post(tk, other.json.id);
       expect(blocked.status).toBe(409);
       expect(blocked.json.code).toBe('stock_insufficient');
-      expect(await balance(tk, P_FILTER)).toMatchObject({ onHand: 20, reserved: 2, available: 18 });
+      // ro-other holds the 18 that were available (its 19th unit is unmet); the seed order keeps its 2
+      expect(await balance(tk, P_FILTER)).toMatchObject({ onHand: 20, reserved: 20, available: 0 });
 
       const ok = await postOk(tk, gin('ro-other', P_FILTER, 18));
+      expect(await balance(tk, P_FILTER)).toMatchObject({ onHand: 2, reserved: 2 });
       expect(ok.number).toMatch(/^PX-Q7-\d{4}-\d{5}$/);
       expect(await balance(tk, P_FILTER)).toMatchObject({ onHand: 2, reserved: 2, available: 0 });
       // the protected hold cannot be taken by a third order
+      await demand('ro-third', P_FILTER, 1);
       const third = await draft(tk, gin('ro-third', P_FILTER, 1));
       expect((await post(tk, third.json.id)).json.code).toBe('stock_insufficient');
       // the holder's own 2 turn into an issue: reserved and on-hand drop together
@@ -481,7 +512,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
       });
       expect(card.status).toBe(200);
       const kinds = (card.json.items as Row[]).map((m) => m.kind);
-      expect(kinds).toEqual(['issue', 'issue', 'reserve', 'adjust']);
+      expect(kinds).toEqual(['issue', 'issue', 'reserve', 'reserve', 'adjust']);
       expect(card.json.items[0].documentNo).toMatch(/^PX-/);
       expect(card.json.items[0].onHandAfter).toBe(0);
       const asTk = await h.call('GET', `/api/v1/inv/parts/${P_FILTER}/ledger?warehouseId=${Q7}`, {
@@ -492,6 +523,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
 
     it('issueForOrder (REC entry point) creates and posts in one step, idempotently', async () => {
       const k = key('iss');
+      await demand('ro-rec-1', P_BATT, 5); // 4 on hand: 4 held, 1 unmet
       const body = {
         warehouseId: Q7,
         orderId: 'ro-rec-1',
@@ -510,13 +542,14 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
       });
       expect(over.json.code).toBe('stock_insufficient');
       expect((await balance(tk, P_BATT)).onHand).toBe(3);
+      await release('ro-rec-1', { reason: 'order-closed' });
     });
   });
 
   describe('FR-INV-008 returns and RULE-010 reversal', () => {
     let issued: Row;
     beforeAll(async () => {
-      issued = await postOk(tk, gin('ro-ret-1', P_OIL, 4));
+      issued = await ginOk('ro-ret-1', P_OIL, 4);
     });
 
     it('returns parts of an order at the cost they left with, never more than issued', async () => {
@@ -566,7 +599,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
 
     it('a receipt cannot be reversed when its stock is already gone (negative stock stays blocked)', async () => {
       const g = await postOk(tk, grnPo(P_BATT, 2, 1_300_000));
-      await postOk(tk, gin('ro-batt-2', P_BATT, 5)); // 3 + 2 on hand, take all 5
+      await ginOk('ro-batt-2', P_BATT, 5); // 3 + 2 on hand, take all 5
       const rev = await call(ql, 'POST', `/api/v1/inv/documents/${g.id}/reverse`, {
         reason: 'Đảo phiếu nhập',
         version: 2,
@@ -577,7 +610,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
 
     it('reversing an issue puts the parts back at the same value', async () => {
       const before = await balance(ql, P_COOL);
-      const g = await postOk(tk, gin('ro-cool-1', P_COOL, 4));
+      const g = await ginOk('ro-cool-1', P_COOL, 4);
       const mid = await balance(ql, P_COOL);
       expect(mid.onHand).toBe(before.onHand - 4);
       const rev = await call(ql, 'POST', `/api/v1/inv/documents/${g.id}/reverse`, {
@@ -611,11 +644,15 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
       expect(short.status).toBe(409);
       expect(short.json.code).toBe('stock_insufficient');
       const part = await hold(cv, 'ro-h2', P_BRAKE, 2, { allowPartial: true });
-      expect(part.json).toMatchObject({ heldQty: 1, qty: 1, shortBy: 1 });
+      expect(part.json).toMatchObject({ heldQty: 1, qty: 2, unmetQty: 1, shortBy: 1 });
       expect((await balance(tk, P_BRAKE)).available).toBe(0);
       const none = await hold(cv, 'ro-h3', P_BRAKE, 1, { allowPartial: true });
-      expect(none.json).toMatchObject({ heldQty: 0, shortBy: 1 });
-      expect((await rows('stockReservations')).some((r) => r.sourceId === 'ro-h3')).toBe(false);
+      // I1: the shortage is stored (shortage list), not dropped; still no backorder document
+      expect(none.json).toMatchObject({ heldQty: 0, unmetQty: 1, shortBy: 1, status: 'holding' });
+      expect((await rows('stockReservations')).find((r) => r.sourceId === 'ro-h3')).toMatchObject({
+        unmetQty: 1,
+        heldQty: 0,
+      });
       await assertLedgerMatchesBalances();
     });
 
@@ -641,7 +678,8 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
         k,
       );
       expect(rel.status, rel.text).toBe(200);
-      expect(rel.json.released[0]).toMatchObject({ heldQty: 0, status: 'released' });
+      expect(rel.json.released[0]).toMatchObject({ heldQty: 0, unmetQty: 0, status: 'released' });
+      await release('ro-h3');
       const rel2 = await call(cv, 'POST', '/api/v1/inv/reservations/release', {
         sourceType: 'repair-order',
         sourceId: 'ro-h2',
@@ -840,6 +878,395 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
     });
   });
 
+  describe('BA-07 reservation events, I1 I3 I8: demand lines, partial approval, release, restore, shortage', () => {
+    const newPart = async (code: string) =>
+      (
+        await call(tk, 'POST', '/api/v1/inv/parts', {
+          code,
+          name: `Phụ tùng thử ${code}`,
+          unit: 'piece',
+          group: 'other',
+        })
+      ).json as Row;
+    const resOf = async (order: string, partId: string) =>
+      (await rows('stockReservations')).find((r) => r.sourceId === order && r.partId === partId)!;
+
+    it('rows 2, 3, 6: the approval path never refuses; the shortfall is stored; one approval shares the balance read', async () => {
+      const part = await newPart('ROW-A2');
+      await postOk(tk, grnPo(part.id, 5, 1000));
+      const k = key('appr');
+      const body = {
+        orderId: 'ro-ap1',
+        warehouseId: Q7,
+        lines: [
+          { lineKey: 'l1', partId: part.id, qty: 3 },
+          { lineKey: 'l2', partId: part.id, qty: 3 },
+        ],
+      };
+      const a = await call(tk, 'POST', '/api/v1/inv/reservations/approval', body, k);
+      expect(a.status, a.text).toBe(200);
+      expect(a.json.items.map((x: Row) => [x.heldQty, x.unmetQty])).toEqual([
+        [3, 0],
+        [2, 1],
+      ]);
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 5, reserved: 5, available: 0 });
+      const again = await call(tk, 'POST', '/api/v1/inv/reservations/approval', body, k);
+      expect(again.headers.get('idempotent-replayed')).toBe('true');
+      // row 6: supplementary work approved -> call again with the new total; goods arrived -> same call holds the shortage (row 16)
+      await postOk(tk, grnPo(part.id, 4, 1000));
+      const more = await demand('ro-ap1', part.id, 4, tk, 'l2');
+      expect(more.json.items[0]).toMatchObject({ heldQty: 4, unmetQty: 0 });
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 9, reserved: 7, available: 2 });
+      // a technician cannot approve for a customer
+      expect((await demand('ro-ap2', part.id, 1, th)).status).toBe(403);
+      await release('ro-ap1', { reason: 'order-cancelled' });
+      expect(await balance(tk, part.id)).toMatchObject({ reserved: 0, available: 9 });
+      await assertLedgerMatchesBalances();
+    });
+
+    it('I8: an issue for an order needs the order demand line and cannot exceed the demand still open (I3 cap)', async () => {
+      const part = await newPart('ROW-I8');
+      await postOk(tk, grnPo(part.id, 10, 1000));
+      const none = await draft(tk, gin('ro-i8', part.id, 1));
+      const noLine = await post(tk, none.json.id);
+      expect(noLine.status).toBe(409);
+      expect(noLine.json.code).toBe('order_line_missing');
+      // another order's demand does not help
+      await demand('ro-i8-other', part.id, 2);
+      expect((await post(tk, none.json.id)).json.code).toBe('order_line_missing');
+      await demand('ro-i8', part.id, 3);
+      const big = await draft(tk, gin('ro-i8', part.id, 4)); // plenty of available stock, but only 3 demanded
+      expect((await post(tk, big.json.id)).json.code).toBe('issue_exceeds_demand');
+      await postOk(tk, gin('ro-i8', part.id, 2));
+      const rest = await draft(tk, gin('ro-i8', part.id, 2));
+      expect((await post(tk, rest.json.id)).json.code).toBe('issue_exceeds_demand'); // 1 left
+      await postOk(tk, gin('ro-i8', part.id, 1));
+      expect(await resOf('ro-i8', part.id)).toMatchObject({ status: 'fulfilled', issuedQty: 3 });
+    });
+
+    it('rows 10, 14, 18: partial issue consumes the hold; completing the item releases the surplus and closes the line', async () => {
+      const part = await newPart('ROW-B14');
+      await postOk(tk, grnPo(part.id, 10, 1000));
+      await demand('ro-14', part.id, 5);
+      await postOk(tk, gin('ro-14', part.id, 2));
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 8, reserved: 3, available: 5 });
+      const rel = await release('ro-14', { reason: 'item-completed' });
+      expect(rel.json.released[0]).toMatchObject({
+        heldQty: 0,
+        unmetQty: 0,
+        qty: 2,
+        status: 'fulfilled',
+      });
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 8, reserved: 0, available: 8 });
+      expect((await resOf('ro-14', part.id)).closed).toBe(true);
+      const late = await draft(tk, gin('ro-14', part.id, 1));
+      expect((await post(tk, late.json.id)).json.code).toBe('order_line_missing'); // closed line: no demand left
+      const audit = await h.call('GET', '/api/v1/sys/audit?entityType=stockReservation&limit=100', {
+        cookie: ql,
+      });
+      expect(
+        (audit.json.items as Row[]).some(
+          (e) => e.action === 'stockReservation.release' && e.reason === 'item-completed',
+        ),
+      ).toBe(true);
+      await assertLedgerMatchesBalances();
+    });
+
+    it('row 13: reversing an issue puts the demand back on the line (held if the stock covers it); a closed line stays closed', async () => {
+      const part = await newPart('ROW-C13');
+      await postOk(tk, grnPo(part.id, 10, 1000));
+      await demand('ro-13', part.id, 4);
+      const g = await postOk(tk, gin('ro-13', part.id, 4));
+      expect(await resOf('ro-13', part.id)).toMatchObject({ status: 'fulfilled', heldQty: 0 });
+      const rev = await call(ql, 'POST', `/api/v1/inv/documents/${g.id}/reverse`, {
+        reason: 'Xuất nhầm số lượng',
+        version: 2,
+      });
+      expect(rev.status, rev.text).toBe(201);
+      expect(await resOf('ro-13', part.id)).toMatchObject({
+        status: 'holding',
+        heldQty: 4,
+        issuedQty: 0,
+        unmetQty: 0,
+      });
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 10, reserved: 4 });
+      // the order line was completed and closed: a later reversal only returns the stock
+      await demand('ro-13b', part.id, 2);
+      const g2 = await postOk(tk, gin('ro-13b', part.id, 2));
+      await release('ro-13b', { reason: 'item-completed' });
+      await call(ql, 'POST', `/api/v1/inv/documents/${g2.id}/reverse`, {
+        reason: 'Xuất nhầm lệnh',
+        version: 2,
+      });
+      expect(await resOf('ro-13b', part.id)).toMatchObject({
+        heldQty: 0,
+        issuedQty: 2,
+        closed: true,
+      });
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 10, reserved: 4 });
+      await assertLedgerMatchesBalances();
+    });
+
+    it('row 23: a count below the reserved quantity is booked; the holds given last are shortened and become unmet', async () => {
+      const part = await newPart('ROW-C23');
+      await postOk(tk, grnPo(part.id, 10, 1000));
+      await demand('ro-23a', part.id, 4);
+      h.clock.set(new Date(h.clock.now().getTime() + 5_000).toISOString());
+      await demand('ro-23b', part.id, 4);
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 10, reserved: 8, available: 2 });
+      const d = await draft(tk, {
+        type: 'ADJ',
+        source: { type: 'manual-adjustment' },
+        reason: 'Kiểm kê thiếu 5',
+        lines: [{ partId: part.id, qty: -5 }],
+      });
+      const p = await post(ql, d.json.id);
+      expect(p.status, p.text).toBe(200);
+      expect(await balance(tk, part.id)).toMatchObject({ onHand: 5, reserved: 5, available: 0 });
+      expect(await resOf('ro-23a', part.id)).toMatchObject({ heldQty: 4, unmetQty: 0 });
+      expect(await resOf('ro-23b', part.id)).toMatchObject({ heldQty: 1, unmetQty: 3, qty: 4 });
+      // more than the shelf holds is still refused
+      const bad = await draft(tk, {
+        type: 'ADJ',
+        source: { type: 'manual-adjustment' },
+        reason: 'Kiểm kê thiếu nhiều',
+        lines: [{ partId: part.id, qty: -6 }],
+      });
+      expect((await post(ql, bad.json.id)).json.code).toBe('stock_insufficient');
+      await assertLedgerMatchesBalances();
+    });
+
+    it('I2: shortage list and long-held report (never released automatically)', async () => {
+      const part = await newPart('ROW-RPT');
+      await demand('ro-rpt', part.id, 3); // nothing on the shelf
+      const short = await h.call('GET', '/api/v1/inv/reservations/open?kind=short', { cookie: ql });
+      expect(short.status, short.text).toBe(200);
+      expect((short.json.items as Row[]).find((r) => r.sourceId === 'ro-rpt')).toMatchObject({
+        unmetQty: 3,
+        heldQty: 0,
+      });
+      await postOk(tk, grnPo(part.id, 2, 1000));
+      await demand('ro-rpt', part.id, 3);
+      const longDefault = await h.call('GET', '/api/v1/inv/reservations/open?kind=long-held', {
+        cookie: ql,
+      });
+      expect((longDefault.json.items as Row[]).some((r) => r.sourceId === 'ro-rpt')).toBe(false); // fresh
+      const longNow = await h.call('GET', '/api/v1/inv/reservations/open?kind=long-held&days=0', {
+        cookie: ql,
+      });
+      expect((longNow.json.items as Row[]).some((r) => r.sourceId === 'ro-rpt')).toBe(true);
+      expect(
+        (await h.call('GET', '/api/v1/inv/reservations/open?kind=short', { cookie: cv })).status,
+      ).toBe(403);
+      await release('ro-rpt', { reason: 'order-cancelled' });
+    });
+  });
+
+  describe('I5 cost in whole dong, I7 partial receipt, I4 quantity scale, I12 codes, I14 catalogues, I11', () => {
+    it('I5: a return takes the issue value pro rata and no dong is lost; a surplus defaults to the average cost', async () => {
+      const part = (
+        await call(tk, 'POST', '/api/v1/inv/parts', {
+          code: 'COST-I5',
+          name: 'Phụ tùng ví dụ I5',
+          unit: 'piece',
+          group: 'other',
+        })
+      ).json as Row;
+      await postOk(tk, grnPo(part.id, 10, 100_000));
+      await postOk(tk, grnPo(part.id, 20, 120_000));
+      const out = await ginOk('ro-i5', part.id, 5);
+      const asQl = await h.call('GET', `/api/v1/inv/documents/${out.id}`, { cookie: ql });
+      expect(asQl.json.lines[0].valueVnd).toBe(-566_667); // round(3.400.000 x 5 / 30), not 5 x 113.333
+      const rtn = (qty: number) => ({
+        type: 'RTN',
+        source: { type: 'repair-order', id: 'ro-i5' },
+        originalDocumentId: out.id,
+        lines: [{ partId: part.id, qty, originalLineNo: 1 }],
+      });
+      const r1 = await postOk(tk, rtn(2));
+      const r2 = await postOk(tk, rtn(3));
+      const v = async (id: string) =>
+        (await h.call('GET', `/api/v1/inv/documents/${id}`, { cookie: ql })).json.lines[0].valueVnd;
+      expect(await v(r1.id)).toBe(226_667);
+      expect(await v(r2.id)).toBe(340_000);
+      expect(await balance(ql, part.id)).toMatchObject({ onHand: 30, valueVnd: 3_400_000 });
+      // stocktake surplus without a price: average cost from the stored value
+      const adj = await draft(tk, {
+        type: 'ADJ',
+        source: { type: 'manual-adjustment' },
+        reason: 'Kiểm kê thừa 3',
+        lines: [{ partId: part.id, qty: 3 }],
+      });
+      expect(adj.status, adj.text).toBe(201);
+      expect((await post(ql, adj.json.id)).status).toBe(200);
+      expect(await balance(ql, part.id)).toMatchObject({ onHand: 33, valueVnd: 3_740_000 });
+      // an empty balance has no average: the price is required
+      const empty = (
+        await call(tk, 'POST', '/api/v1/inv/parts', {
+          code: 'COST-I5B',
+          name: 'Phụ tùng chưa có tồn',
+          unit: 'piece',
+          group: 'other',
+        })
+      ).json as Row;
+      const noAvg = await draft(tk, {
+        type: 'ADJ',
+        source: { type: 'manual-adjustment' },
+        reason: 'Kiểm kê thừa 1',
+        lines: [{ partId: empty.id, qty: 1 }],
+      });
+      expect((await post(ql, noAvg.json.id)).status).toBe(422);
+      await assertLedgerMatchesBalances();
+    });
+
+    it('I4: quantityScale defaults to 1, is accepted from the catalogue list, and locks once the part has stock', async () => {
+      const a = await call(tk, 'POST', '/api/v1/inv/parts', {
+        code: 'SCALE-1',
+        name: 'Dầu bán lẻ theo lít',
+        unit: 'litre',
+        group: 'oil',
+        quantityScale: 1000,
+      });
+      expect(a.status, a.text).toBe(201);
+      expect(a.json.quantityScale).toBe(1000);
+      const plain = await call(tk, 'POST', '/api/v1/inv/parts', {
+        code: 'SCALE-2',
+        name: 'Phụ tùng số nguyên',
+        unit: 'piece',
+        group: 'other',
+      });
+      expect(plain.json.quantityScale).toBe(1);
+      const bad = await call(tk, 'POST', '/api/v1/inv/parts', {
+        code: 'SCALE-3',
+        name: 'Tỉ lệ sai',
+        unit: 'piece',
+        group: 'other',
+        quantityScale: 7,
+      });
+      expect(bad.status).toBe(422);
+      const change = await h.call('PATCH', `/api/v1/inv/parts/${plain.json.id}`, {
+        cookie: tk,
+        body: { quantityScale: 100, version: 1 },
+      });
+      expect(change.json.quantityScale).toBe(100);
+      await postOk(tk, grnPo(plain.json.id, 1, 1000));
+      const locked = await h.call('PATCH', `/api/v1/inv/parts/${plain.json.id}`, {
+        cookie: tk,
+        body: { quantityScale: 1, version: 2 },
+      });
+      expect(locked.status).toBe(409);
+      expect(locked.json.code).toBe('scale_locked');
+    });
+
+    it('I12: a manufacturer code may contain "/" but not spaces', async () => {
+      const ok = await call(tk, 'POST', '/api/v1/inv/parts', {
+        code: ' 90915/yzze1 ',
+        name: 'Lọc dầu mã hãng',
+        unit: 'piece',
+        group: 'filter',
+      });
+      expect(ok.status, ok.text).toBe(201);
+      expect(ok.json.code).toBe('90915/YZZE1');
+      const dup = await call(tk, 'POST', '/api/v1/inv/parts', {
+        code: '90915-YZZE1',
+        name: 'Trùng mã khác dấu',
+        unit: 'piece',
+        group: 'filter',
+      });
+      expect(dup.json.code).toBe('part_code_exists');
+      const bad = await call(tk, 'POST', '/api/v1/inv/parts', {
+        code: '/90915',
+        name: 'Bắt đầu bằng gạch chéo',
+        unit: 'piece',
+        group: 'filter',
+      });
+      expect(bad.status).toBe(422);
+    });
+
+    it('I14: groups and units are company catalogues proposed by the storekeeper and approved by the owner', async () => {
+      const body = (group: string) => ({
+        code: `CAT-${group}`,
+        name: 'Phụ tùng nhóm cấu hình',
+        unit: 'piece',
+        group,
+      });
+      const unknown = await call(tk, 'POST', '/api/v1/inv/parts', body('xe-dien'));
+      expect(unknown.status).toBe(422);
+      expect(unknown.json.errors[0].field).toBe('group');
+      const today = new Date().toISOString().slice(0, 10);
+      const p = await h.call('POST', '/api/v1/sys/config/part-group', {
+        cookie: tk,
+        key: key('cfg'),
+        body: {
+          scopeKey: 'xe-dien',
+          effectiveFrom: today,
+          payload: { name: 'Xe điện', status: 'active' },
+          reason: 'Chuỗi bắt đầu sửa xe điện',
+        },
+      });
+      expect(p.status, p.text).toBe(201);
+      expect((await call(tk, 'POST', '/api/v1/inv/parts', body('xe-dien'))).status).toBe(422); // pending: not in force
+      const ok = await h.call(
+        'POST',
+        `/api/v1/sys/config/part-group/${encodeURIComponent(p.json.id)}/decide`,
+        { cookie: owner, key: key('dec'), body: { decision: 'approve' } },
+      );
+      expect(ok.status, ok.text).toBe(200);
+      const created = await call(tk, 'POST', '/api/v1/inv/parts', body('xe-dien'));
+      expect(created.status, created.text).toBe(201);
+      expect(created.json.group).toBe('xe-dien');
+      // the storekeeper cannot approve his own proposal
+      const self = await h.call('POST', '/api/v1/sys/config/part-unit', {
+        cookie: tk,
+        key: key('cfg'),
+        body: {
+          scopeKey: 'tuyp',
+          effectiveFrom: today,
+          payload: { name: 'Tuýp', status: 'active' },
+          reason: 'Thêm đơn vị tuýp',
+        },
+      });
+      expect(self.status, self.text).toBe(201);
+      const selfOk = await h.call(
+        'POST',
+        `/api/v1/sys/config/part-unit/${encodeURIComponent(self.json.id)}/decide`,
+        { cookie: tk, key: key('dec'), body: { decision: 'approve' } },
+      );
+      expect(selfOk.status).toBe(403);
+    });
+
+    it('I11: the reorder alert fires when available EQUALS the minimum (<=)', async () => {
+      const part = (
+        await call(tk, 'POST', '/api/v1/inv/parts', {
+          code: 'LOW-EQ',
+          name: 'Phụ tùng thử định mức',
+          unit: 'piece',
+          group: 'other',
+        })
+      ).json as Row;
+      await postOk(tk, grnPo(part.id, 5, 1000));
+      const codes = async () =>
+        (
+          (await h.call('GET', '/api/v1/inv/stock?lowStock=true&limit=100', { cookie: tk })).json
+            .items as Row[]
+        ).map((b) => b.partCode);
+      await call(tk, 'PUT', '/api/v1/inv/stock/levels', {
+        warehouseId: Q7,
+        partId: part.id,
+        minQty: 4,
+        maxQty: null,
+      });
+      expect(await codes()).not.toContain('LOW-EQ');
+      await call(tk, 'PUT', '/api/v1/inv/stock/levels', {
+        warehouseId: Q7,
+        partId: part.id,
+        minQty: 5,
+        maxQty: null,
+      });
+      expect(await codes()).toContain('LOW-EQ');
+    });
+  });
+
   describe('concurrency: no oversell, no negative stock, idempotent replays (S1 design)', () => {
     const N = 24;
 
@@ -852,6 +1279,9 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
           group: 'other',
         })
       ).json;
+      // the 24 orders demand the part while the shelf is empty (unmet, nothing held), then 10 arrive: the
+      // 24 issues race for AVAILABLE stock
+      for (let i = 0; i < N; i++) await demand(`ro-c${i}`, part.id, 1);
       await postOk(tk, grnPo(part.id, 10, 50_000));
       const drafts = [];
       for (let i = 0; i < N; i++) drafts.push((await draft(tk, gin(`ro-c${i}`, part.id, 1))).json);
@@ -912,6 +1342,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
           group: 'other',
         })
       ).json;
+      for (let i = 0; i < 8; i++) await demand(`ro-m${i}`, part.id, 1);
       await postOk(tk, grnPo(part.id, 6, 10_000));
       const drafts = [];
       for (let i = 0; i < 8; i++) drafts.push((await draft(tk, gin(`ro-m${i}`, part.id, 1))).json);
@@ -953,6 +1384,7 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
         })
       ).json;
       await postOk(tk, grnPo(part.id, 5, 10_000));
+      await demand('ro-key', part.id, 2);
       const d = (await draft(tk, gin('ro-key', part.id, 2))).json;
       const k = key('same');
       const res = await Promise.all(Array.from({ length: 8 }, () => post(tk, d.id, d.version, k)));

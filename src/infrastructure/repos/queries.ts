@@ -341,6 +341,13 @@ export const Q = {
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
+  reservationsOpen: defineQuery({
+    name: 'stockReservations.open',
+    collection: COL.stockReservations,
+    eq: ['companyId', 'status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
   reservationsByPart: defineQuery({
     name: 'stockReservations.byPart',
     collection: COL.stockReservations,

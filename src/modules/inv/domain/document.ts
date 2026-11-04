@@ -58,8 +58,8 @@ export function varianceBp(actual: number, expected: number): number {
  * Reasons a manager (stock-doc:approve, a person other than the creator) must post this document:
  *  - every adjustment (opening balance and corrections change stock without a physical flow),
  *  - a receipt without purchase order,
- *  - a receipt whose price or quantity differs from the purchase order beyond the configured
- *    thresholds (FR-INV-005).
+ *  - a receipt whose price differs from the purchase order (either direction) or whose quantity
+ *    EXCEEDS the order, beyond the configured thresholds (FR-INV-005, I7).
  */
 export function approvalReasons(f: ApprovalFacts): string[] {
   const reasons: string[] = [];
@@ -67,7 +67,12 @@ export function approvalReasons(f: ApprovalFacts): string[] {
   if (f.type === 'GRN') {
     if (f.source.type === 'no-po') reasons.push('no_purchase_order');
     for (const l of f.lines) {
-      if (l.expectedQty !== undefined && varianceBp(l.qty, l.expectedQty) > f.qtyVarianceBp) {
+      // I7: only an OVER-order receipt needs approval; a short receipt is a partial receipt (the order stays open)
+      if (
+        l.expectedQty !== undefined &&
+        l.qty > l.expectedQty &&
+        varianceBp(l.qty, l.expectedQty) > f.qtyVarianceBp
+      ) {
         reasons.push('quantity_variance');
         break;
       }
@@ -99,7 +104,9 @@ export function checkLines(
     if (!Number.isSafeInteger(l.qty) || l.qty === 0) throw bad('qty');
     if (type !== 'ADJ' && l.qty < 0) throw bad('qty');
     if (type === 'GRN' && (l.unitCostVnd === undefined || l.unitCostVnd < 0)) throw bad('cost');
-    if (type === 'ADJ' && l.qty > 0 && l.unitCostVnd === undefined) throw bad('cost');
+    // I5: a stocktake surplus defaults to the average cost at posting; the price is mandatory for an opening balance
+    if (type === 'ADJ' && l.qty > 0 && l.unitCostVnd === undefined && opts.opening)
+      throw bad('cost');
     if (type === 'RTN' && l.originalLineNo === undefined) throw bad('original');
     if (opts.opening && l.qty < 0) throw bad('opening_negative');
     const dupKey = `${l.partId}|${l.reservationKey ?? ''}|${l.originalLineNo ?? ''}`;

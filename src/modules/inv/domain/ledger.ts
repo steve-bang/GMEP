@@ -102,29 +102,60 @@ export function derive(
 // ---- reservations -----------------------------------------------------------------------
 
 /**
- * Reservation target semantics (FR-INV-020): `qty` is the total the source needs; the hold is
- * qty - issuedQty. Returns the change to the reserved number, or throws when the extra does not fit
- * in available stock. With `allowPartial` the hold grows only as far as available stock allows.
+ * Reservation target semantics (FR-INV-020): `qty` is the total the source needs (approved demand);
+ * the demand still open is qty - issuedQty, split into what is held and what is unmet.
+ * Returns the change to the reserved number plus the new unmet quantity. Without `allowPartial` the
+ * call throws when the extra does not fit in available stock; with it (the REC approval path, I1)
+ * the hold grows as far as available stock allows and the rest is stored as unmet (never refused:
+ * the customer's approval is a business event the warehouse cannot veto).
  */
 export function planHold(
   r: Pick<Reservation, 'qty' | 'issuedQty' | 'heldQty'> | null,
   b: Quantities,
   wantQty: number,
   allowPartial: boolean,
-): { heldDelta: number; qty: number; shortBy: number } {
+): { heldDelta: number; qty: number; shortBy: number; unmetQty: number } {
   const issued = r?.issuedQty ?? 0;
   if (wantQty < issued) throw new InvRuleError('reservation_below_issued');
   const wantHeld = wantQty - issued;
   const held = r?.heldQty ?? 0;
   const need = wantHeld - held;
-  if (need <= 0) return { heldDelta: need, qty: wantQty, shortBy: 0 };
+  if (need <= 0) return { heldDelta: need, qty: wantQty, shortBy: 0, unmetQty: 0 };
   const free = availableOf(b);
-  if (need <= free) return { heldDelta: need, qty: wantQty, shortBy: 0 };
+  if (need <= free) return { heldDelta: need, qty: wantQty, shortBy: 0, unmetQty: 0 };
   if (!allowPartial) throw new InvRuleError('stock_insufficient', { short: need - free });
-  return { heldDelta: free, qty: issued + held + free, shortBy: need - free };
+  return { heldDelta: free, qty: wantQty, shortBy: need - free, unmetQty: need - free };
 }
 
-/** holding while something is held; fulfilled once everything held was issued; released when nothing was ever issued. */
-export function holdStatus(r: Pick<Reservation, 'heldQty' | 'issuedQty'>): ReservationStatus {
-  return r.heldQty > 0 ? 'holding' : r.issuedQty > 0 ? 'fulfilled' : 'released';
+/** Remaining demand of a line: what the order still needs from stock (I3/I8 cap on issuing). */
+export const remainingDemand = (r: Pick<Reservation, 'qty' | 'issuedQty'>): number =>
+  r.qty - r.issuedQty;
+
+/** holding while something is held or still unmet; fulfilled once all demand was issued; released when nothing was ever issued. */
+export function holdStatus(
+  r: Pick<Reservation, 'heldQty' | 'issuedQty'> & { unmetQty?: number },
+): ReservationStatus {
+  return r.heldQty > 0 || (r.unmetQty ?? 0) > 0
+    ? 'holding'
+    : r.issuedQty > 0
+      ? 'fulfilled'
+      : 'released';
+}
+
+/** I5: value of `qty` units at the current average, from the stored value (no per-unit rounding drift). */
+export function surplusValue(method: CostMethod, b: Quantities, qty: number): number {
+  return method.valueAtAverage(costState(b), qty);
+}
+
+/** Receipt with an explicit total value (surplus at average cost, return at the issue value). */
+export function receiveValue(
+  b: Quantities,
+  qty: number,
+  valueVnd: number,
+): { next: Quantities; valueVnd: number; unitCostVnd: number } {
+  return {
+    next: applyEffect(b, { onHand: qty, valueVnd }),
+    valueVnd,
+    unitCostVnd: qty > 0 ? Math.round(valueVnd / qty) : 0,
+  };
 }

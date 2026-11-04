@@ -6,6 +6,7 @@ import { hasPermission } from '@/platform/rbac/rbac';
 import {
   getAvailability,
   getPart,
+  getPartCatalogs,
   getPartPrices,
   getPartStock,
   listReservationsByPart,
@@ -23,6 +24,7 @@ import { EmptyState } from '@/ui/components/States';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { InvPage } from '../../InvPage';
 import { num, StockStatusBadge } from '../../StockNumbers';
+import { catalogName } from '../../catalogLabels';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +45,7 @@ export default async function PartDetailPage({
   const can = (p: `${string}:${string}`) => hasPermission(actor, p as 'x:view');
   const res = await load(async () => {
     const part = await getPart(inv, actor, id);
+    const cats = await getPartCatalogs(inv, actor);
     const stock = can('stock:view') ? await getPartStock(inv, actor, id) : null;
     const avail =
       !stock && can('stock-availability:view')
@@ -65,7 +68,7 @@ export default async function PartDetailPage({
             ...(cursor ? { cursor } : {}),
           })
         : null;
-    return { part, stock, avail, prices, warehouses, holds, card, wh };
+    return { part, cats, stock, avail, prices, warehouses, holds, card, wh };
   });
   if (res.error)
     return (
@@ -73,7 +76,7 @@ export default async function PartDetailPage({
         <ErrorFor error={res.error} t={t} />
       </InvPage>
     );
-  const { part, stock, avail, prices, warehouses, holds, card, wh } = res.data;
+  const { part, cats, stock, avail, prices, warehouses, holds, card, wh } = res.data;
   const whName = (wid: string) => warehouses.find((w) => w.id === wid)?.name ?? wid;
   const showCost = can('stock-cost:view');
   return (
@@ -124,11 +127,11 @@ export default async function PartDetailPage({
           </div>
           <div>
             <dt>{t('inv.parts.group')}</dt>
-            <dd>{t(`inv.group.${part.group}`)}</dd>
+            <dd>{catalogName(cats.groups, part.group)}</dd>
           </div>
           <div>
             <dt>{t('inv.parts.unitCol')}</dt>
-            <dd>{t(`inv.unit.${part.unit}`)}</dd>
+            <dd>{catalogName(cats.units, part.unit)}</dd>
           </div>
           <div>
             <dt>{t('inv.parts.barcode')}</dt>

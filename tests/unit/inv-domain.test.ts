@@ -13,8 +13,14 @@ import {
   issueStock,
   normalizePartCode,
   partCodeKey,
+  PART_CODE_PATTERN,
   planHold,
+  proportion,
   receiveStock,
+  receiveValue,
+  remainingDemand,
+  RESERVATION_EVENTS,
+  surplusValue,
   varianceBp,
   weightedAverage,
   type StockDocLine,
@@ -87,7 +93,12 @@ describe('RULE-008 four numbers and negative-stock block (FR-INV-019, FR-INV-020
 describe('FR-INV-020 reservation planning (target quantity semantics)', () => {
   const b = { onHand: 20, reserved: 5, inTransit: 0, valueVnd: 0 };
   it('holds the difference to the new target; fails whole when it does not fit', () => {
-    expect(planHold(null, b, 10, false)).toEqual({ heldDelta: 10, qty: 10, shortBy: 0 });
+    expect(planHold(null, b, 10, false)).toEqual({
+      heldDelta: 10,
+      qty: 10,
+      shortBy: 0,
+      unmetQty: 0,
+    });
     expect(planHold(null, b, 15, false).heldDelta).toBe(15);
     expect(() => planHold(null, b, 16, false)).toThrow('stock_insufficient');
   });
@@ -101,18 +112,37 @@ describe('FR-INV-020 reservation planning (target quantity semantics)', () => {
     expect(planHold(r, b, 7, false).heldDelta).toBe(2); // 7 - 3 issued - 2 held
     expect(() => planHold(r, b, 2, false)).toThrow('reservation_below_issued');
   });
-  it('a partial hold takes what is available and reports the shortage (no backorder)', () => {
-    expect(planHold(null, b, 40, true)).toEqual({ heldDelta: 15, qty: 15, shortBy: 25 });
+  it('I1: a partial hold takes what is available and STORES the shortage as unmet (no backorder)', () => {
+    // the demand (qty) stays the approved total; held + unmet = remaining demand
+    expect(planHold(null, b, 40, true)).toEqual({
+      heldDelta: 15,
+      qty: 40,
+      shortBy: 25,
+      unmetQty: 25,
+    });
     expect(planHold(null, { ...b, reserved: 20 }, 3, true)).toEqual({
       heldDelta: 0,
-      qty: 0,
+      qty: 3,
       shortBy: 3,
+      unmetQty: 3,
     });
+  });
+  it('I1: asking again after goods arrived holds the shortage; lowering the total shrinks unmet first', () => {
+    const r = { qty: 40, issuedQty: 0, heldQty: 15 };
+    const plenty = { onHand: 60, reserved: 15, inTransit: 0, valueVnd: 0 };
+    expect(planHold(r, plenty, 40, true)).toMatchObject({ heldDelta: 25, unmetQty: 0 });
+    expect(planHold(r, b, 20, true)).toMatchObject({ heldDelta: 5, unmetQty: 0 });
+    expect(planHold(r, b, 10, true)).toMatchObject({ heldDelta: -5, unmetQty: 0 });
+  });
+  it('I3/I8: remaining demand = approved total minus issued', () => {
+    expect(remainingDemand({ qty: 10, issuedQty: 4 })).toBe(6);
   });
   it('status follows the held and issued quantities', () => {
     expect(holdStatus({ heldQty: 2, issuedQty: 0 })).toBe('holding');
     expect(holdStatus({ heldQty: 0, issuedQty: 2 })).toBe('fulfilled');
     expect(holdStatus({ heldQty: 0, issuedQty: 0 })).toBe('released');
+    // a line that only has unmet demand is still open
+    expect(holdStatus({ heldQty: 0, issuedQty: 0, unmetQty: 3 })).toBe('holding');
   });
 });
 
@@ -156,7 +186,12 @@ describe('FR-INV-021 / RULE-007 / RULE-010 document rules', () => {
     expect(() => checkLines('RTN', [line()], { opening: false })).toThrow('line_invalid');
     expect(() => checkLines('ADJ', [line({ qty: -3 })], { opening: false })).not.toThrow();
     expect(() => checkLines('ADJ', [line({ qty: -3 })], { opening: true })).toThrow('line_invalid');
-    expect(() => checkLines('ADJ', [line({ qty: 3 })], { opening: false })).toThrow('line_invalid');
+    // I5: a stocktake surplus may omit the price (average cost at posting); an opening balance may not
+    expect(() => checkLines('ADJ', [line({ qty: 3 })], { opening: false })).not.toThrow();
+    expect(() => checkLines('ADJ', [line({ qty: 3 })], { opening: true })).toThrow('line_invalid');
+    expect(() =>
+      checkLines('ADJ', [line({ qty: 3, unitCostVnd: 10 })], { opening: true }),
+    ).not.toThrow();
     expect(() => checkLines('GRN', [], { opening: false })).toThrow('lines_required');
   });
 
@@ -177,7 +212,10 @@ describe('FR-INV-021 / RULE-007 / RULE-010 document rules', () => {
     expect(approvalReasons(grn({}))).toEqual([]);
     expect(approvalReasons(grn({ unitCostVnd: 105 }))).toEqual([]); // exactly at the threshold
     expect(approvalReasons(grn({ unitCostVnd: 106 }))).toEqual(['price_variance']);
-    expect(approvalReasons(grn({ qty: 9 }))).toEqual(['quantity_variance']);
+    // I7: a SHORT receipt is a partial receipt (no approval); only receiving MORE than ordered needs one
+    expect(approvalReasons(grn({ qty: 9 }))).toEqual([]);
+    expect(approvalReasons(grn({ qty: 11 }))).toEqual(['quantity_variance']);
+    expect(approvalReasons({ ...grn({ qty: 11 }), qtyVarianceBp: 1000 })).toEqual([]); // exactly 10% over, inside a 10% threshold
     expect(
       approvalReasons({
         ...base,
@@ -200,5 +238,46 @@ describe('FR-INV-001/002 part identity', () => {
   it('vehicle line keys ignore diacritics and case', () => {
     expect(compatKey('Toyota', 'Vios')).toBe('toyota vios');
     expect(compatKey('', 'Đời Mới')).toBe('doi moi');
+  });
+});
+
+describe('I5 cost values in whole dong (examples for the accountant, not yet signed off)', () => {
+  const s = { onHand: 30, reserved: 0, inTransit: 0, valueVnd: 3_400_000 };
+  it('issue 5 of 30 takes round(3.400.000 x 5 / 30) = 566.667; issuing the rest leaves exactly 0', () => {
+    const a = issueStock(s, weightedAverage, 5);
+    expect(a.valueVnd).toBe(566_667);
+    expect(a.next.valueVnd).toBe(2_833_333);
+    const b = issueStock(a.next, weightedAverage, 25);
+    expect(b.valueVnd).toBe(2_833_333);
+    expect(b.next).toEqual(zero);
+  });
+  it('a stocktake surplus defaults to the average cost computed from the stored value', () => {
+    expect(surplusValue(weightedAverage, s, 3)).toBe(340_000);
+    const r = receiveValue(s, 3, surplusValue(weightedAverage, s, 3));
+    expect(r.next.valueVnd).toBe(3_740_000);
+    expect(() => surplusValue(weightedAverage, zero, 3)).toThrow();
+  });
+  it('a return takes the issue value pro rata; cumulative parts add up to exactly the line value', () => {
+    const line = 566_667; // issued 5
+    const first = proportion(line, 2, 5) - proportion(line, 0, 5);
+    const second = proportion(line, 5, 5) - proportion(line, 2, 5);
+    expect(first).toBe(226_667);
+    expect(first + second).toBe(line);
+  });
+});
+
+describe('I12 part codes and BA-07 event table', () => {
+  it('a manufacturer code may contain "/" but not spaces; 2-40 characters', () => {
+    expect(PART_CODE_PATTERN.test(normalizePartCode('90915/YZZE1'))).toBe(true);
+    expect(PART_CODE_PATTERN.test(normalizePartCode('A'))).toBe(false);
+    expect(PART_CODE_PATTERN.test('AB CD')).toBe(false);
+    expect(PART_CODE_PATTERN.test('/AB')).toBe(false);
+  });
+  it('the 23 rows are numbered and every INV-side row names the entry point that implements it', () => {
+    expect(RESERVATION_EVENTS.map((e) => e.no)).toEqual(
+      Array.from({ length: 23 }, (_, i) => i + 1),
+    );
+    for (const e of RESERVATION_EVENTS) if (e.side === 'inv') expect(e.by).toBeTruthy();
+    expect(RESERVATION_EVENTS.find((e) => e.no === 22)?.side).toBe('later');
   });
 });

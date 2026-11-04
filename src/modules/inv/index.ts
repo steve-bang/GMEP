@@ -13,6 +13,7 @@ export const MODULE_CODE = 'INV' as const;
 export * from './domain/entities';
 export * from './domain/normalize';
 export * from './domain/cost';
+export * from './domain/reservationEvents';
 export {
   InvRuleError,
   applyEffect,
@@ -21,6 +22,9 @@ export {
   receive as receiveStock,
   planHold,
   holdStatus,
+  remainingDemand,
+  surplusValue,
+  receiveValue,
 } from './domain/ledger';
 export {
   approvalReasons,
@@ -45,6 +49,8 @@ export {
   toPartDto,
 } from './application/parts';
 export type { PartDto, PartPriceDto } from './application/parts';
+export { getPartCatalogs, resolveCatalog } from './application/catalog';
+export type { CatalogEntry, CatalogKind } from './application/catalog';
 export {
   listStock,
   getPartStock,
@@ -70,11 +76,20 @@ export type { DocumentDto, DocLineDto } from './application/documents';
 export {
   holdStock,
   holdStockInTx,
+  holdForApproval,
+  holdForApprovalStandalone,
+  holdForApprovalSchema,
   releaseStock,
+  listOpenReservations,
   listReservationsByPart,
   listReservationsBySource,
   toReservationDto,
 } from './application/reservations';
-export type { ReservationDto, HoldInput } from './application/reservations';
+export type {
+  ReservationDto,
+  HoldInput,
+  HoldForApprovalInput,
+  OpenReservationDto,
+} from './application/reservations';
 export { resolveCostMethod } from './application/config';
 export { invWarehouseActivity } from './application/warehouseActivity';

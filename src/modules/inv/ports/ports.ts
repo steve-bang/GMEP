@@ -12,7 +12,6 @@ import type {
   StockDocument,
   StockMovement,
 } from '../domain/entities';
-import type { PartGroup } from '../domain/normalize';
 
 type Cursor = { v: string; id: string };
 export interface PageQuery {
@@ -31,7 +30,7 @@ export interface PartRepository {
     q: PageQuery & {
       sort: 'code' | 'name';
       prefix?: string;
-      group?: PartGroup;
+      group?: string;
       status?: PartStatus;
     },
   ): Promise<Page<Part>>;
@@ -117,6 +116,8 @@ export interface ReservationRepository {
     scope: Scope,
     q: PageQuery & { partId: string; status?: ReservationStatus },
   ): Promise<Page<Reservation>>;
+  /** open (holding) reservations of the scope, oldest first: shortage list and long-held report */
+  listOpen(scope: Scope, limit: number): Promise<Reservation[]>;
   create(tx: Tx, r: Reservation): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }

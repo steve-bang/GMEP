@@ -29,11 +29,22 @@ export interface CostMethod {
   issue(state: CostState, qty: number): IssueCost;
   /** current per-unit cost (0 when nothing is on hand) */
   unitCost(state: CostState): number;
+  /**
+   * value of qty units valued at the current average, computed from the stored value (stocktake
+   * surplus, I5). Requires something on hand; the caller asks for the entered price otherwise.
+   */
+  valueAtAverage(state: CostState, qty: number): number;
 }
 
 /** round-half-up of a / b for non-negative BigInts */
 function divRound(a: bigint, b: bigint): bigint {
   return (a * 2n + b) / (b * 2n);
+}
+
+/** exported for the proportional split of a returned line (I5: HK returns the issue value pro rata) */
+export function proportion(total: number, part: number, whole: number): number {
+  if (whole <= 0 || part < 0 || part > whole) throw new RangeError('proportion out of range');
+  return safe(divRound(BigInt(total) * BigInt(part), BigInt(whole)), 'proportion');
 }
 
 function safe(n: bigint, what: string): number {
@@ -57,6 +68,10 @@ export const weightedAverage: CostMethod = {
       valueVnd: safe(value, 'issue value'),
       unitCostVnd: safe(divRound(value, BigInt(qty)), 'unit cost'),
     };
+  },
+  valueAtAverage(state, qty) {
+    if (qty <= 0 || state.onHand <= 0) throw new RangeError('average cost unavailable');
+    return safe(divRound(BigInt(state.valueVnd) * BigInt(qty), BigInt(state.onHand)), 'value');
   },
   unitCost(state) {
     return state.onHand > 0

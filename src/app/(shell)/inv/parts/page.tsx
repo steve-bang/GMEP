@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { hasPermission } from '@/platform/rbac/rbac';
-import { getAvailability, listParts, PART_GROUPS } from '@/modules/inv';
+import { getAvailability, getPartCatalogs, listParts } from '@/modules/inv';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -13,6 +13,7 @@ import { EmptyState } from '@/ui/components/States';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { InvPage } from '../InvPage';
 import { num } from '../StockNumbers';
+import { catalogName } from '../catalogLabels';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,7 +49,7 @@ export default async function PartsPage({ searchParams }: { searchParams: Search
     if (hasPermission(actor, 'stock-availability:view') && page.items.length > 0)
       for (const a of await getAvailability(inv, actor, { partIds: page.items.map((p) => p.id) }))
         avail.set(a.partId, a.available);
-    return { page, avail };
+    return { page, avail, cats: await getPartCatalogs(inv, actor) };
   });
   if (res.error)
     return (
@@ -56,7 +57,7 @@ export default async function PartsPage({ searchParams }: { searchParams: Search
         <ErrorFor error={res.error} t={t} />
       </InvPage>
     );
-  const { page, avail } = res.data;
+  const { page, avail, cats } = res.data;
   const query = {
     ...(q ? { q } : {}),
     ...(by !== 'auto' ? { by } : {}),
@@ -102,9 +103,9 @@ export default async function PartsPage({ searchParams }: { searchParams: Search
           </label>
           <select id="group" name="group" className="select" defaultValue={group ?? ''}>
             <option value="">{t('inv.parts.allGroups')}</option>
-            {PART_GROUPS.map((g) => (
-              <option key={g} value={g}>
-                {t(`inv.group.${g}`)}
+            {cats.groups.map((g) => (
+              <option key={g.code} value={g.code}>
+                {g.name}
               </option>
             ))}
           </select>
@@ -154,9 +155,13 @@ export default async function PartsPage({ searchParams }: { searchParams: Search
             {
               key: 'group',
               header: t('inv.parts.group'),
-              render: (p) => t(`inv.group.${p.group}`),
+              render: (p) => catalogName(cats.groups, p.group),
             },
-            { key: 'unit', header: t('inv.parts.unitCol'), render: (p) => t(`inv.unit.${p.unit}`) },
+            {
+              key: 'unit',
+              header: t('inv.parts.unitCol'),
+              render: (p) => catalogName(cats.units, p.unit),
+            },
             ...(avail.size > 0 || hasPermission(actor, 'stock-availability:view')
               ? [
                   {

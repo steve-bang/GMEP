@@ -1,12 +1,14 @@
 import { getTranslations } from 'next-intl/server';
 import { resolveScope } from '@/platform/rbac/rbac';
-import { PART_GROUPS, PART_UNITS } from '@/modules/inv';
+import { getPartCatalogs } from '@/modules/inv';
+import { getContainer } from '@/composition/container';
 import { formLabels } from '@/composition/labels';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { ErrorFor } from '@/ui/components/PageParts';
 import { ResourceForm } from '@/ui/components/ResourceForm';
 import { InvPage } from '../../InvPage';
+import { catalogOptions } from '../../catalogLabels';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +17,10 @@ export default async function NewPartPage() {
   const t = await getTranslations();
   const { actor } = await requireSession();
   const crumbs = [{ label: t('inv.parts.title'), href: '/inv/parts' }];
-  const res = await load(async () => resolveScope(actor, 'part:create'));
+  const res = await load(async () => {
+    resolveScope(actor, 'part:create');
+    return getPartCatalogs(getContainer().inv, actor);
+  });
   if (res.error)
     return (
       <InvPage title={t('inv.parts.create')} crumbs={crumbs}>
@@ -46,16 +51,26 @@ export default async function NewPartPage() {
               label: t('inv.parts.unitCol'),
               type: 'select',
               required: true,
-              defaultValue: 'piece',
-              options: PART_UNITS.map((u) => ({ value: u, label: t(`inv.unit.${u}`) })),
+              options: catalogOptions(res.data.units),
             },
             {
               name: 'group',
               label: t('inv.parts.group'),
               type: 'select',
               required: true,
-              defaultValue: 'other',
-              options: PART_GROUPS.map((g) => ({ value: g, label: t(`inv.group.${g}`) })),
+              options: catalogOptions(res.data.groups),
+            },
+            {
+              name: 'quantityScale',
+              label: t('inv.parts.quantityScale'),
+              type: 'select',
+              required: true,
+              defaultValue: '1',
+              options: [1, 10, 100, 1000].map((n) => ({
+                value: String(n),
+                label: t(`inv.parts.scale.${n}`),
+              })),
+              hint: t('inv.parts.quantityScaleHint'),
             },
             {
               name: 'barcode',

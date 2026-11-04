@@ -41,6 +41,11 @@ export interface ConfigTypeDef {
   /** branch-specific keys ('branch:<id>') override the company key */
   branchOverride: boolean;
   payload: z.ZodType<Record<string, unknown>>;
+  /**
+   * A company-wide key normally needs a company-wide scope to propose. Catalogues that a branch role
+   * maintains (I14: the storekeeper proposes, the owner approves) set this: the approval is the gate.
+   */
+  proposeFromBranch?: boolean;
 }
 
 const companyOrBranchKey = z.union([
@@ -93,7 +98,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'price-item': {
     type: 'price-item',
     resource: 'price-list',
-    scopeKey: keyed(/^[A-Za-z0-9_-]{1,64}:[A-Za-z0-9._-]{1,40}$/),
+    scopeKey: keyed(/^[A-Za-z0-9_-]{1,64}:[A-Za-z0-9._/-]{1,40}$/),
     branchOverride: false,
     payload: z
       .object({ name: z.string().trim().min(1).max(120), costVnd: vnd, listPriceVnd: vnd })
@@ -117,6 +122,29 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
     scopeKey: companyOrBranchKey,
     branchOverride: true,
     payload: z.object({ grnPriceVarianceBp: bp, grnQtyVarianceBp: bp }).strict(),
+  },
+  // I14 (BA §16): part groups and units of measure are company-level catalogues. One scope key per
+  // entry (the code), effective-dated and approved like any other config; entries are deactivated,
+  // never deleted. TK proposes, CH approves (FRD §2 "Danh mục phụ tùng") [Đề xuất BA - chờ xác nhận: Khách].
+  'part-group': {
+    type: 'part-group',
+    resource: 'part-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({ name: z.string().trim().min(1).max(60), status: z.enum(['active', 'inactive']) })
+      .strict(),
+  },
+  'part-unit': {
+    type: 'part-unit',
+    resource: 'part-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({ name: z.string().trim().min(1).max(40), status: z.enum(['active', 'inactive']) })
+      .strict(),
   },
   // FR-SYS-006: metadata only (the template body is a later slice).
   'doc-template': {

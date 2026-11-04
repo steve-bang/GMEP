@@ -72,7 +72,7 @@ export async function SettingsPage(props: {
     },
     {
       label: t('settings.groups.inventory'),
-      items: ['cost-method', 'inventory-policy'].flatMap(cfg),
+      items: ['part-group', 'part-unit', 'cost-method', 'inventory-policy'].flatMap(cfg),
     },
     {
       label: t('settings.groups.docs'),

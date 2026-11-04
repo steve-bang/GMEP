@@ -209,7 +209,11 @@ export async function proposeConfig(
     ]);
   // branch overrides need the update right in that branch; company-wide keys need a company-wide scope
   const branch = /^branch:(.+)$/.exec(data.scopeKey);
-  if (branch ? !scopeAllows(scope, actor.companyId, branch[1]!) : scope.kind !== 'all')
+  if (
+    branch
+      ? !scopeAllows(scope, actor.companyId, branch[1]!)
+      : scope.kind !== 'all' && !def.proposeFromBranch
+  )
     throw forbidden();
   assertEffectiveFrom(data.effectiveFrom, businessDateOf(deps.clock.now()));
 
