@@ -447,3 +447,9 @@ Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §24.5):
 2. `acc/application/refunds.ts` (R105): trần chung hoàn cọc và hoàn tiền; hoàn tiền mặt cần ca mở; hoàn về phương thức khác cần Chủ; hoàn tối đa bằng 0 khi tổng không giảm; chưa dựng màn hình.
 3. ACC mở lại ngày (R106): hỏi lại mật khẩu khi Chủ duyệt; hạn dùng lượt duyệt; báo ngoại lệ và thông báo trong ứng dụng; chặn khi ngày sau đã chốt; test.
 4. RPT (R101, R102): kiểm tra nhật ký xuất CSV, thoát ký tự công thức, nhãn "mức tối thiểu" và "tại thời điểm".
+
+## Câu hỏi mở thêm (dev, 04/11/2026)
+
+- Q-A (RPT-002): so sánh báo cáo tháng với tháng liền trước (đang làm, cùng khoảng ngày) hay cùng kỳ năm trước; chấp nhận quỹ, công nợ tồn và chi không chia theo loại dịch vụ. Mặc định dev: tháng liền trước. [Cần xác nhận]
+- F-1 (NFR-ISO-01): người có quyền toàn công ty (CH, KT) đã chọn chi nhánh làm việc vẫn đọc được bản ghi chi nhánh khác theo id (danh sách đã thu hẹp theo chi nhánh, đọc theo id dùng `resolveScope`). Là chủ ý (liên kết chéo, khoan sâu) hay phải 404 giống id không tồn tại? Chờ BA, chưa sửa.
+- F-2 (C20): `GET /crm/vehicles/{id}/history` cho CH, CV, QL, QĐ (có `customer-lookup:view` + `vehicle-history-cross:view`) trả 200 với danh sách rỗng cho xe ngoài phạm vi, còn id không tồn tại trả 404. Đây là hệ quả của quyền xem chéo chi nhánh theo C20 (tra cứu theo biển số vốn đã cho thấy xe tồn tại). Dev không đổi; BA xác nhận có cần 404 đồng nhất không.

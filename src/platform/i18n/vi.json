@@ -3267,6 +3267,7 @@
     "note": "Lý do từ chối (tối thiểu 5 ký tự)",
     "noteApprove": "Ghi chú (tùy chọn)",
     "sendReject": "Gửi từ chối",
+    "password": "Nhập lại mật khẩu (khi yêu cầu cần xác nhận)",
     "reason": "Lý do của người đề xuất",
     "decidedBy": "Người xử lý",
     "self": "Yêu cầu của chính bạn: cần người khác duyệt.",

@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
 import { Icon } from './Icon';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -8,6 +8,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   icon?: string;
   children: ReactNode;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 /** `.btn` from components.css. While loading the button is disabled so double submits are blocked in the UI (the server stays authoritative). */
