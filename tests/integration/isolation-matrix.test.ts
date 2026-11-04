@@ -526,31 +526,82 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
       }
     });
 
-    it('GAP CHECK: a write on a record of another branch while the working branch is Q7 (reported, not changed)', async () => {
-      const png = Buffer.from(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAHnOcQAAAAABJRU5ErkJggg==',
-        'base64',
-      );
-      const form = new FormData();
-      form.set('file', new File([new Uint8Array(png)], 'x.png', { type: 'image/png' }));
-      const r = await h.call('POST', `/api/v1/rec/orders/${td.orderId}/photos`, {
-        cookie: viewers.ownerQ7,
-        form,
-        key: 'xwrite-photo-000001',
+    it('BA §25 F-1(3): a write on a record of another branch is refused until the working branch is switched (CRM, SYS; REC/INV/ACC writes are not held by CH/KT, see tests/unit/rbac-write-fence.test.ts)', async () => {
+      const owner = viewers.ownerQ7!; // working branch Q7, company-wide permissions
+      const switchTo = viewers.ownerTD!; // same person, working branch Thu Duc
+      const noBranch = viewers.ownerAll!; // consolidated view, no working branch: behaviour unchanged
+      const refused = (r: { status: number; json: Row; text: string }, what: string) => {
+        expect(r.status, `${what} ${r.text.slice(0, 200)}`).toBe(409);
+        expect(r.json.code, what).toBe('switch_branch_required');
+        expect(r.text, what).not.toContain('ZZTD');
+      };
+      const vehicle = (cookie: string, version: number, k: string) =>
+        h.call('PATCH', `/api/v1/crm/vehicles/${td.vehicleId}`, {
+          cookie,
+          key: k,
+          body: { version, color: 'Đen' },
+        });
+      const customer = (cookie: string, version: number, k: string) =>
+        h.call('PATCH', `/api/v1/crm/customers/${td.customerId}`, {
+          cookie,
+          key: k,
+          body: { version, labels: [] },
+        });
+      const warehouse = (cookie: string, version: number, k: string) =>
+        h.call('PATCH', `/api/v1/sys/warehouses/${td.warehouseId}`, {
+          cookie,
+          key: k,
+          body: { version, note: 'ghi chéo' },
+        });
+
+      // reads by id stay open (200)
+      const rv = await h.call('GET', `/api/v1/crm/vehicles/${td.vehicleId}`, { cookie: owner });
+      const rc = await h.call('GET', `/api/v1/crm/customers/${td.customerId}`, { cookie: owner });
+      const rw = await h.call('GET', `/api/v1/sys/warehouses/${td.warehouseId}`, { cookie: owner });
+      expect([rv.status, rc.status, rw.status]).toEqual([200, 200, 200]);
+
+      // writes while working at Q7 are refused with a clear code
+      refused(await vehicle(owner, rv.json.version, 'xw-veh-000001'), 'vehicle');
+      refused(await customer(owner, rc.json.version, 'xw-cus-000001'), 'customer');
+      refused(await warehouse(owner, rw.json.version, 'xw-wh-0000001'), 'warehouse');
+      // nothing changed
+      const after = await h.call('GET', `/api/v1/crm/vehicles/${td.vehicleId}`, { cookie: owner });
+      expect(after.json.version).toBe(rv.json.version);
+
+      // an id that does not exist at all is refused the same way for this actor (no existence oracle either way)
+      const ghost = await h.call('PATCH', '/api/v1/crm/vehicles/nope_NOPE_0000', {
+        cookie: owner,
+        key: 'xw-ghost-00001',
+        body: { version: 1, color: 'Đen' },
       });
-      expect([201, 200, 403, 404, 409]).toContain(r.status);
-      // a write the owner certainly holds (vehicle:update) on a vehicle of Thu Duc while working at Q7
-      const v = await h.call('GET', `/api/v1/crm/vehicles/${td.vehicleId}`, {
-        cookie: viewers.ownerQ7,
+      refused(ghost, 'unknown id');
+
+      // switching the working branch makes the same writes work
+      const ok = await vehicle(switchTo, rv.json.version, 'xw-veh-000002');
+      expect(ok.status, ok.text.slice(0, 200)).toBe(200);
+      const okc = await customer(switchTo, rc.json.version, 'xw-cus-000002');
+      expect(okc.status, okc.text.slice(0, 200)).toBe(200);
+      const okw = await warehouse(switchTo, rw.json.version, 'xw-wh-0000002');
+      expect(okw.status, okw.text.slice(0, 200)).toBe(200);
+
+      // no working branch chosen (consolidated owner): unchanged, the write is allowed by permission
+      const cur = await h.call('GET', `/api/v1/crm/vehicles/${td.vehicleId}`, { cookie: noBranch });
+      const un = await vehicle(noBranch, cur.json.version, 'xw-veh-000003');
+      // (unchanged: this write needs a working branch, so the consolidated view answers scope_merged as before)
+      expect(un.json.code, un.text.slice(0, 200)).toBe('scope_merged');
+      expect(un.json.code).not.toBe('switch_branch_required');
+
+      // a single-branch user still gets 404 for a record outside the permission scope
+      const qlq7 = readers.br_q7!.qlQ7!;
+      const other = await h.call('PATCH', `/api/v1/crm/vehicles/${td.vehicleId}`, {
+        cookie: qlq7,
+        key: 'xw-ql-0000001',
+        body: { version: 1, color: 'Đen' },
       });
-      const w = await h.call('PATCH', `/api/v1/crm/vehicles/${td.vehicleId}`, {
-        cookie: viewers.ownerQ7,
-        key: 'xwrite-veh-0000001',
-        body: { version: v.json.version, color: 'Đen' },
-      });
-      // OBSERVED (04/11/2026): w.status is 200 - the owner changed a Thu Duc vehicle while working at Q7. BA §25 F-1(3) wants
-      // this refused with 'switch working branch'; reported to BA, behaviour NOT changed. The photo write answers 403 (no right).
-      expect([200, 403, 404, 409]).toContain(w.status);
+      expect(other.status).toBe(404);
+      expect(other.json.code).toBe('not_found');
+
+      // company-level records are not fenced: a tax rate is proposed while working at Q7 (kt@Q7 in the UAT-09 test)
     });
   });
 

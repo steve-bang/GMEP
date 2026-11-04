@@ -81,6 +81,10 @@
       "title": "Chọn một chi nhánh",
       "detail": "Bạn được gán nhiều chi nhánh. Chọn một chi nhánh làm việc ở thanh trên rồi thử lại."
     },
+    "switch_branch_required": {
+      "title": "Hãy chuyển chi nhánh làm việc",
+      "detail": "Hãy chuyển sang chi nhánh của bản ghi này trước khi sửa. Bạn đang làm việc ở chi nhánh khác."
+    },
     "scope_merged": {
       "title": "Chọn đúng một chi nhánh",
       "detail": "Mỗi chứng từ gắn với đúng một chi nhánh. Chọn một chi nhánh thay vì xem hợp nhất."

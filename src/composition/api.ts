@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
-import { notFound, unauthenticated } from '@/platform/errors/errors';
+import { AppError, notFound, unauthenticated } from '@/platform/errors/errors';
+import { mayBeOtherBranch } from '@/platform/rbac/rbac';
 import { apiRoute, json, type RouteContext } from '@/platform/http/route';
 import { parseIdempotencyKey } from '@/platform/idempotency/idempotency';
 import type { AccDeps } from '@/modules/acc';
@@ -59,19 +60,32 @@ export function authed(
   return apiRoute(
     async (c) => {
       const session = await authenticate(c.req);
-      return handler({
-        ...c,
-        sys: getContainer().sys,
-        crm: getContainer().crm,
-        inv: getContainer().inv,
-        rec: getContainer().rec,
-        acc: getContainer().acc,
-        ein: getContainer().ein,
-        rpt: getContainer().rpt,
-        session,
-        idempotencyKey: () => parseIdempotencyKey(c.req.headers.get('idempotency-key'), true)!,
-        query: () => Object.fromEntries(new URL(c.req.url).searchParams),
-      });
+      try {
+        return await handler({
+          ...c,
+          sys: getContainer().sys,
+          crm: getContainer().crm,
+          inv: getContainer().inv,
+          rec: getContainer().rec,
+          acc: getContainer().acc,
+          ein: getContainer().ein,
+          rpt: getContainer().rpt,
+          session,
+          idempotencyKey: () => parseIdempotencyKey(c.req.headers.get('idempotency-key'), true)!,
+          query: () => Object.fromEntries(new URL(c.req.url).searchParams),
+        });
+      } catch (e) {
+        // BA §25 F-1(3): a write is fenced to the working branch (resolveScope), so a record of another branch is
+        // "not found" to it; tell the company-wide user why instead of a bare 404
+        if (
+          e instanceof AppError &&
+          e.code === 'not_found' &&
+          !['GET', 'HEAD'].includes(c.req.method) &&
+          mayBeOtherBranch(session.actor)
+        )
+          throw new AppError('switch_branch_required', 409);
+        throw e;
+      }
     },
     { allowedOrigins, ...(options.multipart ? { multipart: true } : {}) },
   );
