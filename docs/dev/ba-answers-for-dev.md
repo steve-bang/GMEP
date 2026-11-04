@@ -869,3 +869,237 @@ Cột "Khác giá trị tạm của dev" ghi **Có** khi dev phải đổi mã; 
 | 14 | Chủ dự án | Có cho tạo quan hệ chi nhánh bằng "Dùng hồ sơ này" mà chưa có lịch hẹn/báo giá; giá trong lịch sử xe | Cho phép ở pilot một chi nhánh; hiện giá | Bật `adoptRequiresBusinessEvent` hoặc tắt `historyShowPrice`: chỉ đổi cấu hình, tiếp nhận xe lạ chậm hơn |
 | 15 | Khách | Giảm số km có lý do; ngưỡng báo QL; giới hạn tra 30 lần/giờ; TN tạo khách nhanh; CH hay QV hoàn tất xóa | Như C5, C7, C8, C9 | Chỉ đổi tham số/quyền |
 | 16 | Kế toán khách | Điều kiện chặn xóa khách: công nợ, chứng từ nào còn thời hạn lưu | Như C4 | Cổng giữ dữ liệu của ACC phải trả đủ điều kiện |
+
+---
+
+## 16. Slice 1.4 INV (I1–I14)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận**. Trả lời mục "Slice 1.4 INV" của [open-questions-for-ba.md](open-questions-for-ba.md); đồng thời là bảng quy tắc giữ chỗ BA-07 ([review-docs-and-design.md](review-docs-and-design.md)). Thẻ trạng thái và bên quyết định theo §0. Không sửa FRD/BRD/Journey; việc cần sửa ở §16.3. Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01). Ghi chú: không tìm thấy "FRD mục 2.6" mà I4 viện dẫn trong `functional-requirements.md`; BA coi I4 là câu hỏi mở, không dựa vào mục đó.
+
+### 16.1 Tóm tắt
+
+Cột "Khác giá trị tạm của dev" ghi **Có** khi dev phải đổi mã hoặc dữ liệu mặc định; **Giữ** khi giá trị tạm đã đúng; **Bổ sung** khi giữ nhưng thêm điều kiện.
+
+| # | Khuyến nghị mặc định (một dòng) | Khác giá trị tạm của dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| I1 | Bảng 16.2.1: giữ chỗ chỉ phát sinh khi **khách duyệt** hạng mục, neo vào dòng lệnh; đường duyệt của REC luôn gọi `allowPartial`, phần thiếu **được lưu** thành danh sách thiếu hàng (không tạo backorder); nhả phần dư khi hạng mục hoàn thành | **Có** (3 điểm: `allowPartial` ở đường duyệt, lưu phần thiếu, nhả phần dư) | Chủ dự án (quy tắc), Khách (thiếu hàng, hoàn kho) |
+| I2 | Không hạn tự động vì chưa duyệt thì chưa giữ; thêm báo cáo "giữ chỗ lâu" và đối soát "giữ chỗ mồ côi" | Bổ sung (không đổi mã giữ chỗ) | Khách |
+| I3 | Chặn tuyệt đối, không làm ngoại lệ ở 1.4; công thức tối đa thêm cận "nhu cầu còn lại" | Giữ (công thức: Bổ sung) | Chủ dự án |
+| I4 | Thêm `quantityScale` cho phụ tùng ngay bây giờ (mặc định 1); hỏi Khách có bán dầu theo lít lẻ không | Có (thêm trường, ít tốn) | Khách |
+| I5 | Giữ bình quân di động theo kho x phụ tùng; **lưu giá trị tồn nguyên đồng**, giá xuất = giá trị tồn x SL / tồn; chuyển kho mang theo giá vốn bên gửi; kiểm kê thừa mặc định giá bình quân | Có (làm tròn theo giá trị; điều chỉnh dương mặc định) | Kế toán khách |
+| I6 | Chưa làm lớp lô; "lô" hiểu là dòng nhập (lớp nhập) lưu ở sổ; ghi rõ lệch chữ của FR-INV-003 | Giữ (kèm sửa FRD) | Kế toán khách, Chủ dự án |
+| I7 | Ngưỡng lệch giá 5% hai chiều; ngưỡng số lượng chỉ cho **nhận vượt** đơn; nhận thiếu là nhận một phần, không cần duyệt | Có (nhận thiếu không còn bị duyệt) | Kế toán khách, Khách |
+| I8 | PX cho lệnh phải có dòng nhu cầu của lệnh (giữ chỗ hoặc phần thiếu), nếu không thì chặn; HK như dev | Có (thu hẹp PX cho lệnh) | Chủ dự án |
+| I9 | Giữ ma trận và quy tắc "người ghi sổ khác người lập"; thêm duyệt cấp trên khi vượt hạn mức | Giữ (Bổ sung hạn mức) | Chủ dự án |
+| I10 | Giữ; thêm biên bản kiểm kê đính kèm, cửa sổ thời gian cho tồn đầu kỳ, Excel chỉ tạo nháp | Bổ sung | Kế toán khách, Chủ dự án |
+| I11 | Giữ lưu theo kho x phụ tùng; cảnh báo khi Khả dụng **nhỏ hơn hoặc bằng** tối thiểu; công thức gợi ý đặt có thêm "Đã đặt chờ giao" khi có PUR | Giữ (so sánh `<=`: kiểm tra) | Khách |
+| I12 | Giữ `price-item` có hiệu lực; mở rộng ký tự mã phụ tùng; hạn mức giảm giá (FR-INV-025) phải xong trước khi REC lập báo giá | Bổ sung | Chủ dự án, Khách |
+| I13 | Chấp nhận bố cục chung nếu mỗi loại phiếu hiện đủ trường riêng; ba mục bắt buộc trước pilot (in phiếu, xuất Excel, bộ chọn có Khả dụng cho báo giá) | Giữ (kèm điều kiện) | Khách (qua designer) |
+| I14 | Nhóm hàng và đơn vị tính là **danh mục cấu hình cấp công ty**, danh sách dev làm dữ liệu khởi tạo | Có (bỏ danh sách cứng trong mã) | Khách |
+
+### 16.2 Trả lời từng câu
+
+#### 16.2.1 I1. Quy tắc giữ chỗ theo sự kiện (BA-07)
+
+**Khuyến nghị**: dùng bảng dưới làm quy tắc mặc định. `[Đề xuất BA – chờ xác nhận: Chủ dự án, Khách]`
+
+Nguyên tắc nền (căn cứ FR-INV-020, RULE-007, RULE-008, Journey "Tồn thực tế, giữ chỗ và tồn khả dụng", `ba-answers-03` Câu 2 và 3):
+
+1. **Giữ chỗ chỉ phát sinh khi khách duyệt** (Journey bước 1). Báo giá đang soạn, đã gửi, phát sinh chờ duyệt: **không giữ**, chỉ hiện Khả dụng. Vì vậy báo giá hết hạn (7 ngày) hoặc phát sinh hết hạn (24 giờ) **không có gì để nhả**.
+2. **Chủ giữ chỗ là dòng của lệnh sửa chữa** (đơn vị duyệt là hạng mục, `ba-answers-03` Câu 2), không phải báo giá: lệnh bắt đầu từ lúc khách duyệt nên duyệt báo giá và mở lệnh là **một sự kiện**, không giữ hai lần. Hàm của dev nhận chủ là báo giá vẫn dùng được, nhưng REC không gọi theo hướng đó.
+3. **Mô hình "tổng nhu cầu" của dev giữ nguyên** (gọi lại cùng tổng thì không đổi; tăng thì giữ thêm; giảm thì nhả), vì idempotent và an toàn khi gọi lặp (hợp NFR về idempotency). Bổ sung khái niệm: `nhu cầu còn lại = tổng duyệt - đã xuất ròng (xuất trừ hoàn)`, và `đã giữ + chưa đáp ứng = nhu cầu còn lại`.
+4. **Duyệt không bao giờ bị chặn vì thiếu hàng**: khách duyệt là sự kiện nghiệp vụ, kho không có quyền từ chối. Đường duyệt của REC gọi giữ với `allowPartial`; phần thiếu được **lưu** (`unmetQty`) và hiện trong danh sách thiếu hàng; lệnh/hạng mục sang "Tạm dừng, chờ phụ tùng" theo Journey bước 5 và `ba-answers-02`/BS-2.
+5. **Tranh chấp**: hai lệnh cùng giành một hàng thì **giao dịch ghi trước thắng**; không ưu tiên theo xe nằm xưởng, không cướp giữ chỗ của lệnh khác. Bên thua nhận phần thiếu (nguyên tắc 4). Test đồng thời: hai giao dịch song song không làm Khả dụng âm.
+
+| # | Sự kiện (nguồn) | Giữ / nhả / tiêu thụ | Tác động bốn số (Thực tế, Giữ chỗ, Đang VC, Khả dụng) | Ghi chú |
+| --- | --- | --- | --- | --- |
+| 1 | Lập, gửi, khách xem báo giá (REC) | **Không giữ** | Không đổi | Hiện Khả dụng + ngày hàng về (`ba-answers-04` Câu 6) |
+| 2 | Khách duyệt toàn bộ báo giá, lệnh mở (REC) | **Giữ** mọi dòng phụ tùng của mọi hạng mục, chủ = dòng lệnh, `allowPartial` | Giữ chỗ tăng phần có sẵn; Khả dụng giảm cùng lượng; phần thiếu ghi `unmetQty` | Cùng giao dịch với mở lệnh; cùng `Idempotency-Key` thì không giữ hai lần |
+| 3 | Duyệt một phần (REC) | **Giữ** chỉ hạng mục được duyệt (cả công lẫn phụ tùng của hạng mục) | Như dòng 2 | Hạng mục khách bỏ (kể cả "Bắt buộc" bị bỏ) không giữ |
+| 4 | Khách từ chối cả báo giá; báo giá hết hạn; bản mới thay bản cũ | Không có gì để nhả (chưa giữ) | Không đổi | Báo giá đã duyệt không có bản thay thế (`ba-answers-03` Câu 1) |
+| 5 | Lập báo giá bổ sung (phát sinh) chờ duyệt | **Không giữ** | Không đổi | Cảnh báo thiếu hàng ngay lúc lập để cố vấn báo khách (RULE-005, RULE-006) |
+| 6 | Phát sinh được duyệt | **Giữ thêm** (gọi lại với tổng mới), `allowPartial` | Như dòng 2 | Nút Bắt đầu của hạng mục mới mở (REC), không phải INV |
+| 7 | Phát sinh bị từ chối hoặc hết hạn | Không làm gì | Không đổi | Dòng ở nhóm "Không thực hiện", không xóa (RULE-010) |
+| 8 | Hạng mục bị hủy hoặc bị loại khi lệnh còn mở | **Nhả** phần chưa xuất của hạng mục | Giữ chỗ giảm; Khả dụng tăng | Phần đã xuất giữ nguyên, hoàn bằng HK (dòng 12) |
+| 9 | Đổi số lượng sau duyệt | Giảm: **nhả phần chênh**. Tăng: xử lý như phát sinh (dòng 5, 6) | Theo hướng | Không tăng im lặng |
+| 10 | Xuất một phần (PX ghi sổ) | **Tiêu thụ** đúng số xuất; phần còn lại vẫn giữ | Thực tế giảm q; Giữ chỗ giảm q; Khả dụng không đổi (nếu xuất trong phần đã giữ) | Hợp Journey bước 3 |
+| 11 | Xuất đủ nhu cầu | Giữ chỗ của dòng về 0 | Như dòng 10 | |
+| 12 | Hoàn kho HK (hoàn theo lệnh) | **Không tự giữ lại.** Lý do hoàn "thừa/không dùng": kết thúc. Lý do "cấp nhầm/đổi hàng": REC gọi giữ lại bằng tổng nhu cầu mới | Thực tế tăng q; Khả dụng tăng q; Giữ chỗ không đổi | `[Cần xác nhận: Khách]`: có cần tự giữ lại không (FR-INV-008) |
+| 13 | Phiếu đảo của PX (sửa sai nhập liệu) | **Khôi phục** phần giữ đã tiêu thụ nếu dòng lệnh vẫn mở và đủ hàng; thiếu thì thành `unmetQty` | Thực tế tăng; Giữ chỗ tăng lại | Khác HK ở chỗ đây là sửa sổ, không phải nghiệp vụ hoàn hàng (RULE-010) |
+| 14 | Hạng mục Hoàn thành hoặc lệnh Sẵn sàng bàn giao | **Nhả phần giữ dư** còn lại của hạng mục/lệnh | Giữ chỗ về 0; Khả dụng tăng | Chặn giữ chỗ treo; số dư giữa SL duyệt và SL xuất ảnh hưởng tính tiền là việc của REC `[Cần xác nhận: Khách]` |
+| 15 | Hạng mục/lệnh Tạm dừng chờ phụ tùng | Giữ nguyên phần đã giữ; phần thiếu nằm ở danh sách thiếu | Không đổi | Journey bước 5 |
+| 16 | Hàng về (PN ghi sổ, nhận chuyển kho) | **Không tự giữ** cho phần thiếu; thông báo TK, CV | Thực tế tăng | Giữ lại thủ công bằng nút "Giữ chỗ phần thiếu". Tự giữ theo thứ tự duyệt cũ trước là cấu hình `autoFulfilShortage`, mặc định **tắt** |
+| 17 | Lệnh có cờ "Chờ duyệt hủy" | Giữ nguyên | Không đổi | `ba-answers-02` A.2 mục 2; REC khóa bắt đầu hạng mục mới |
+| 18 | Duyệt hủy lệnh (lệnh Đã hủy) | **Nhả hết** phần chưa xuất | Giữ chỗ về 0 | Phần đã xuất: HK hoặc "đã lắp, không hoàn" (A.2 mục 4). Từ chối hủy: không đổi |
+| 19 | Lệnh Hoàn tất / đóng | Nhả mọi phần dư (an toàn) | Giữ chỗ về 0 | |
+| 20 | Phụ tùng khách mang đến | **Không giữ** | Không đổi | FR-INV-016, `ba-answers-02` Câu 9 |
+| 21 | Bán lẻ (BL) | Không giữ, xuất ngay | Thực tế giảm | Phải vượt kiểm tra Khả dụng |
+| 22 | Gửi chuyển kho (CK) | Không giữ chỗ; **hàng đã giữ cho lệnh không được chuyển đi** | Thực tế giảm, Đang VC tăng; không bên nào tăng Khả dụng | FR-INV-010; `ba-answers-04` Câu 1 |
+| 23 | Điều chỉnh/kiểm kê làm Thực tế nhỏ hơn Giữ chỗ | Không từ chối sự thật đếm được: ghi sổ, rồi giảm giữ chỗ của các dòng **giữ sau cùng trước**, phần mất thành `unmetQty`, thông báo QL và CV | Thực tế giảm; Giữ chỗ giảm | `[Đề xuất BA]`; cần duyệt như điều chỉnh bình thường (I10) |
+
+**Khác giá trị tạm của dev**:
+
+- Dev: thiếu hàng thì từ chối cả dòng (409) hoặc `allowPartial`. Mặc định cho **đường duyệt của REC** phải là `allowPartial` (dòng 2, 3, 6). Giữ nguyên 409 cho lời gọi kiểm tra chặt khác.
+- Dev: phần thiếu "được báo về". Phải **lưu** (`unmetQty` trên dòng giữ chỗ hoặc bản ghi nhu cầu) để có danh sách thiếu hàng và để I8 dùng.
+- Dev: không nói nhả phần dư. Thêm dòng 14 và 19.
+- Dev: phiếu đảo PX và HK. Thêm dòng 12 và 13 (khôi phục chỉ với phiếu đảo).
+- Giữ nguyên: mô hình tổng nhu cầu, nhả hết khi hủy hoặc từ chối, phần đã xuất không nhả, phát sinh chờ duyệt không giữ, không tạo backorder.
+
+**Backorder**: không tạo chứng từ đơn chờ trong 1.4. Danh sách thiếu hàng là nguồn cho yêu cầu chuyển kho (YK) và yêu cầu mua (YM) khi có PUR (FR-PUR-001); BA-07 đã nêu câu "giữ một phần hay backorder", đây là lựa chọn "giữ một phần, không backorder". Phương án thay thế (chờ đủ mới giữ): làm lệnh dừng cả khi chỉ thiếu một ít, không khuyến nghị.
+
+**Câu hỏi cho Khách** (gộp §16.4): thiếu hàng thì hạng mục có bắt buộc dừng không hay thợ làm trước phần khác; hoàn kho "cấp nhầm" có tự giữ lại không; giữ chỗ phần thiếu khi hàng về có tự động theo thứ tự duyệt không.
+
+Căn cứ: FR-INV-016, 019, 020, 008, 010; RULE-007, 008, 009, 010; BR-INV-10; UAT-13 (thêm: duyệt một phần, phát sinh, hủy, xuất một phần, thiếu hàng).
+
+#### 16.2.2 I2. Giữ chỗ có hạn không
+
+**Khuyến nghị**: không có hạn tự động. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Con số 24 giờ là hạn duyệt của **báo giá bổ sung** (`ba-answers-03` Câu 3), còn báo giá thường hiệu lực 7 ngày; cả hai xảy ra **trước** khi giữ chỗ nên không cần `expiresAt`. Giữ chỗ sống đúng bằng đời hạng mục trong lệnh (bảng I1 dòng 14, 18, 19).
+- Rủi ro thật: REC quên gọi nhả, hoặc lệnh treo ở Tạm dừng. Thay hạn tự động (làm mất hàng đang chờ khách) bằng hai biện pháp: (1) báo cáo **"giữ chỗ lâu"**: giữ quá N ngày (mặc định 14, tham số theo loại dịch vụ, `[Cần xác nhận: Khách]`) hiện cho QL và nhắc, không tự nhả; (2) việc đối soát **"giữ chỗ mồ côi"**: dòng giữ chỗ mà lệnh chủ đã Hủy/Hoàn tất thì nhả và ghi nhật ký (làm khi có REC).
+- Lịch hẹn chưa giữ chỗ phụ tùng (FR-INV-020 chỉ giữ khi duyệt hoặc mở lệnh); đề nghị "đặt phụ tùng trước cho lịch hẹn" là yêu cầu mới, thuộc YM/YK.
+- Dev không đổi mã giữ chỗ; chỉ thêm báo cáo ở phần REC/RPT. Có thể thêm `expiresAt` rỗng sẵn nếu rẻ.
+
+#### 16.2.3 I3. Xuất vượt Khả dụng
+
+**Khuyến nghị**: giữ chặn tuyệt đối. `[Đã có trong tài liệu]` (`ba-answers-04` Câu 9: mặc định tắt) cho phần chặn; ngoại lệ `[Cần xác nhận: Chủ dự án]`.
+
+- FR-INV-019 (Must) chỉ yêu cầu "ngoại lệ phải cấu hình và có duyệt"; chưa cấu hình ngoại lệ thì thỏa. RULE-008 "trừ khi chính sách cho phép và có phê duyệt". Dev để ngoại lệ sang sau là hợp lệ.
+- Công thức của dev đúng với `ba-answers-04` Câu 9. **Bổ sung** cận thứ ba (xem I8): `tối đa = min(nhu cầu còn lại của chính dòng lệnh, phần giữ của dòng + Khả dụng, Thực tế)`. Không có cận nhu cầu thì ai có quyền xuất cũng lấy được phần Khả dụng cho một lệnh không cần.
+- Khi sau này bật ngoại lệ (CH bật theo chi nhánh, QL duyệt kèm lý do): chỉ mượn phần giữ của lệnh khác; lệnh bị mượn phải được đánh dấu thiếu (`unmetQty`) và nhận thông báo; Thực tế không bao giờ âm. Cờ cấu hình tên `cho_phép_xuất_vượt_khả_dụng`, mặc định tắt.
+
+#### 16.2.4 I4. Số lượng thập phân
+
+**Khuyến nghị**: thêm trường `quantityScale` (mặc định 1) vào `Part` ngay, sổ vẫn lưu số nguyên. `[Cần xác nhận: Khách]`
+
+- Chưa có tài liệu nói garage bán dầu theo lít lẻ. Thực tế dầu nhớt, hóa chất, sơn thường tính lít, kg (và FRD §13 mục di chuyển dữ liệu yêu cầu chuẩn hóa đơn vị). Hỏi Khách: dầu bán theo lít lẻ hay theo can; sơn theo gam hay lít.
+- Lý do làm ngay: đổi tỉ lệ sau khi đã có phát sinh buộc đổi mọi số nguyên trong sổ; thêm trường từ đầu rẻ hơn. Quy tắc: `quantityScale` chỉ sửa được khi phụ tùng chưa có biến động; mọi phép cộng trừ vẫn số nguyên; hiển thị theo tỉ lệ (1000 hiện 3 chữ số thập phân); giá đơn vị tính trên đơn vị hiển thị, làm tròn nguyên đồng khi thành tiền.
+- Nếu Khách xác nhận không cần, trường vẫn vô hại.
+
+#### 16.2.5 I5. Giá vốn
+
+**Khuyến nghị**: giữ loại và đơn vị tính của dev; đổi cách làm tròn; chốt quy tắc từng sự kiện. `[Cần xác nhận: Kế toán khách]` (FR-INV-009 và 027 để `[Cần xác nhận]`; BA-06)
+
+- **Loại**: bình quân gia quyền **di động** (tính lại mỗi lần nhập), vì ví dụ 113.333 của FR-INV-027/UAT-25 chỉ đúng cách này ở thời điểm nhập lần hai. **Đơn vị tính**: theo kho x phụ tùng, vì mỗi chi nhánh một kho (FR-INV-003) và kho tổng là kho của chi nhánh trụ sở (§3). Tổng hợp cấp chi nhánh/công ty là phép cộng giá trị, không tính lại bình quân.
+- **Làm tròn (khác dev)**: dev làm tròn đơn giá nửa lên 1 đồng rồi nhân số lượng. Cách này để lại **dư số đồng** trong giá trị tồn khi xuất hết. Khuyến nghị lưu **giá trị tồn nguyên đồng** làm số gốc; giá vốn xuất = `làm tròn(giá trị tồn x SL xuất / tồn thực tế)`; đơn giá bình quân chỉ để hiển thị. Ví dụ để Kế toán ký: nhập 10 x 100.000 và 20 x 120.000 cho giá trị 3.400.000, tồn 30, bình quân 113.333,33 (hiển thị 113.333). Xuất 5: cách của dev 5 x 113.333 = 566.665; cách giá trị `làm tròn(3.400.000 x 5 / 30)` = 566.667, còn lại 2.833.333. Sau đó xuất nốt 25: cách đơn giá để dư 10 đồng, cách giá trị về đúng 0. Xuất hết số lượng thì giá trị tồn **bằng 0**.
+- **Xuất**: tại giá bình quân thời điểm xuất; ghi giá vốn vào dòng xuất (không tính lại lịch sử, BA-06 hậu quả).
+- **Hoàn kho (HK)**: nhập lại **đúng giá lúc xuất** của dòng PX gốc, giá trị = `làm tròn(giá trị dòng xuất x SL hoàn / SL xuất)` (đồng ý dev, hợp FR-INV-008 "giảm giá vốn của lệnh"); tổng các lần hoàn một dòng không vượt giá trị dòng xuất.
+- **Phiếu đảo**: hoàn đúng giá trị dòng gốc (đồng ý dev, RULE-010).
+- **Điều chỉnh/kiểm kê**: thiếu tính theo bình quân (đồng ý dev). **Thừa: mặc định giá bình quân hiện tại** (khác dev "bắt buộc nhập giá"), cho sửa giá có lý do, cần duyệt; chỉ khi tồn đang 0 hoặc **tồn đầu kỳ** mới bắt buộc nhập giá. Lý do: ép nhập giá cho mỗi mã thừa khi kiểm kê hàng trăm mã là không thực tế và dễ nhập sai.
+- **Chuyển kho**: kho gửi xuất theo bình quân của mình; kho nhận nhập **đúng giá vốn bên gửi** (không phát sinh lãi lỗ nội bộ). Bên nhận có thấy giá vốn không: `[Cần xác nhận: Kế toán khách]` (K6, mặc định không). Hàng nhận thiếu/hỏng: phần chênh lệch treo giữ giá vốn đến khi xử lý.
+- **Trả hàng nhà cung cấp, hàng lỗi**: xuất theo bình quân (không tách lô, xem I6); phần chênh với giá nhập đã trả NCC do KT xử lý ngoài 1.4 `[Cần xác nhận: Kế toán khách]`.
+- **Đổi phương pháp** (FIFO sau này): hiệu lực chỉ từ đầu kỳ, không tính lại lịch sử, cần lớp lô (I6); `cost-method` chỉ nhận `weighted-average` là đúng ở 1.4.
+- Kế toán ký bộ ví dụ (NFR-MNT-01): nhập hai lần, xuất một phần, xuất hết, hoàn một phần hai lần, đảo, kiểm kê thừa thiếu, chuyển kho, làm tròn biên. Cho tới khi ký, test hiện tại là "chưa được ký" như dev ghi.
+- Quyền: KT có quyền sửa "Công nợ và giá vốn" (FRD §2) nghĩa là điều chỉnh định giá lại (revaluation); chưa có trong 1.4, ghi vào phạm vi để không bị coi thiếu.
+
+#### 16.2.6 I6. Lô
+
+**Khuyến nghị**: chưa làm lớp lô; sửa chữ của FR-INV-003. `[Cần xác nhận: Kế toán khách, Chủ dự án]`
+
+- FR-INV-003 (Must) "theo lô kèm giá nhập; tổng tồn bằng tổng các lô" mâu thuẫn với phương pháp bình quân, nơi số lượng còn lại theo từng lô không có ý nghĩa tính tiền (BA-06). Với bình quân, "lô" nên hiểu là **dòng nhập** (lớp nhập: ngày, NCC, số lượng, giá nhập, số chứng từ) lưu ở sổ và xem lại được (RULE-009); không cần số lượng còn lại theo lô.
+- Tiêu chí kiểm thử của FRD nên đổi thành "tổng tồn của phụ tùng bằng tổng tồn các kho; mỗi dòng nhập truy được về chứng từ" (§16.3). Tới lúc chọn FIFO hoặc cần số lô/serial (FR-INV-024, Could; bảo hành, thu hồi) thì thêm tầng lô; sổ biến động của dev đã có đủ giá nhập từng lần nên dữ liệu cũ dùng được.
+- Hỏi Khách: có mặt hàng nào phải truy theo số lô hoặc serial (ắc quy, lốp có DOT) để bảo hành không.
+
+#### 16.2.7 I7. Nhập kho khi chưa có PUR
+
+**Khuyến nghị**: giữ ba nguồn của dev, chỉnh ngưỡng. `[Đề xuất BA – chờ xác nhận: Kế toán khách, Khách]`
+
+- Ba nguồn khớp `ba-answers-04` Câu 8: đơn mua; **yêu cầu mua gấp** (YM có cờ "Mua gấp", đính kèm ảnh hóa đơn/biên lai, hậu duyệt trong hạn mức); "không có đơn mua" dành cho hàng tặng, hàng bù, nhập tồn và **luôn** cần QL duyệt. Dev chỉ kiểm tra có mã tham chiếu vì PUR chưa có: chấp nhận, kèm nhắc rằng kiểm tra tồn tại và đối chiếu số lượng với dòng đơn là việc khi PUR có.
+- Lý do cho "không có đơn mua": danh sách cấu hình {hàng NCC tặng, hàng bù/đổi, tồn đầu kỳ (dùng ADJ), khác (ghi chú)}. Tồn đầu kỳ **không** đi qua nhập "không có đơn mua" mà qua ADJ (I10).
+- **Ngưỡng lệch (khác dev ở số lượng)**: giá lệch so với dòng đơn > **5%** (hai chiều, tham số theo nhóm hàng, giá trị khởi điểm của dev giữ, `[Cần xác nhận: Kế toán khách]`) cần QL duyệt. Số lượng: **nhận vượt đơn** cần duyệt (ngưỡng 0%); **nhận thiếu là nhận một phần** (Journey: "một đơn có thể nhận nhiều lần"), không cần duyệt, đơn còn mở. Nếu dev đang xếp "lệch số lượng 0%" cả hai chiều vào chờ duyệt thì phải sửa.
+- Nhận một phần nhiều lần chưa theo dõi được (cần PUR): chấp nhận. Số hóa đơn nhà cung cấp là trường nhập tay (số của NCC, §6.3), không bắt buộc ở PN; bắt buộc trước khi KT đối chiếu ba bên (FR-ACC, Phase 2).
+- Số lượng nhận không âm; PN không sửa sau khi ghi sổ (RULE-010).
+
+#### 16.2.8 I8. Chứng từ gốc của PX và HK
+
+**Khuyến nghị**: giữ ba nguồn của dev; thu hẹp PX cho lệnh. `[Đề xuất BA – chờ xác nhận: Chủ dự án]`
+
+- Ba nguồn (lệnh, bán lẻ, chuyển kho) khớp FR-INV-006 và UAT-02 (không có xuất thủ công). Xuất dùng nội bộ là chứng từ riêng **XN** (FR-INV-023, Should; `ba-answers-04` Câu 4), không dùng PX; chưa làm ở 1.4 là hợp lệ.
+- **Khác dev**: FR-INV-007 yêu cầu "thợ chỉ yêu cầu được phụ tùng có trong lệnh" và RULE-007. REC chưa có nên mã lệnh chưa kiểm tra được; để mã tham chiếu tùy ý thì ai cũng xuất được hàng Khả dụng cho một "lệnh" tự đặt. Quy tắc: PX nguồn `repair-order` chỉ ghi sổ khi có **dòng nhu cầu của đúng lệnh và phụ tùng đó** (dòng giữ chỗ hoặc `unmetQty`, bảng I1) và số xuất không vượt nhu cầu còn lại. Không có dòng thì lỗi RFC 9457 "Phụ tùng chưa có trong lệnh". Trước khi có REC, môi trường thử tạo dòng nhu cầu qua lời gọi giữ chỗ.
+- Bắt buộc ghi **người nhận (thợ)** cho xuất theo lệnh (FR-INV-007); nên chọn từ danh sách nhân viên của chi nhánh, không gõ tự do.
+- **HK** như dev: chỉ từ PX đã ghi sổ, cùng kho, cùng lệnh, tổng hoàn không vượt tổng xuất từng dòng. Thêm: lý do hoàn {thừa/không dùng, cấp nhầm/đổi hàng, hàng lỗi, khác}; hàng lỗi không tăng Khả dụng (chuyển vào xử lý lỗi, FR-INV-027 "hàng lỗi", chưa làm ở 1.4, ghi vào phạm vi); lệnh đã có hóa đơn thì cần điều chỉnh hóa đơn (FR-INV-022, `ba-answers-02` A.2 mục 1). Kho chỉ tăng khi Thủ kho xác nhận nhận (`ba-answers-02` A.2 mục 7), nên HK ghi sổ bởi TK.
+- Hoàn tiền khách trả phụ tùng chưa lắp (FR-INV-022, Should): chưa làm.
+
+#### 16.2.9 I9. Phân quyền kho
+
+**Khuyến nghị**: giữ như dev. `[Đã có trong tài liệu]` (FRD §2 các hàng "Nhập, xuất, kiểm kê kho", "Danh mục phụ tùng và bảng giá"; `ba-answers-04` Câu 2, 6) với hai bổ sung `[Đề xuất BA – chờ xác nhận: Chủ dự án]`.
+
+- Đối chiếu FRD §2: hàng "Nhập, xuất, kiểm kê kho" là CH X, QV X, QL D, TK S, KT X, các vai trò khác không có quyền: **khớp** dev (TK lập, QL duyệt, CH/QV/KT xem). Hàng "Danh mục phụ tùng và bảng giá": TK S, CH D, QL X, CV X, KT X, QV X: danh mục do TK lập/sửa, CH duyệt thay đổi quan trọng (giá); dev cần kiểm tra việc QL không sửa danh mục.
+- Giá vốn xem: CH, QV, QL, KT; TK không (trừ giá nhập của phiếu PN đang nhận); CV/TN/QĐ/TH che (`ba-answers-04` Câu 2): **khớp** dev. CV chỉ thấy Khả dụng (Câu 6): khớp. Phiếu in không có giá vốn; xuất Excel theo cùng quyền.
+- Tách nhiệm vụ: ghi sổ phiếu bất thường (điều chỉnh, nhập không đơn mua, lệch ngưỡng, xuất bất thường, vượt hạn mức) phải do người **khác người lập**, xét theo người kể cả khi một người đủ hai vai trò (FR-SYS-012 cộng quyền, FR-SYS-013): **khớp** nguyên tắc "người đề xuất không tự duyệt" (`ba-answers-02` A.2 mục 3). Phiếu thường (nhập từ đơn đúng giá, xuất theo lệnh trong nhu cầu): TK tự ghi sổ.
+- **Bổ sung 1**: giá trị phiếu bất thường vượt hạn mức thì cần cấp trên của QL (QV/CH) theo G4-APR-03 (RULE-011 tinh thần; `ba-answers-04` Phụ lục E); QL là người lập thì người duyệt là cấp trên (`ba-answers-02` A.2 mục 3). Hạn mức là cấu hình, chưa có số.
+- **Bổ sung 2**: chuyển kho (FRD hàng "Chuyển kho liên chi nhánh": CH D, QV D, QL S, TK S) khác phiếu thường: QL tạo được. Thuộc slice sau, ghi để khỏi lệch ma trận.
+- MH, NS thêm vai trò (Phase 2), không ảnh hưởng 1.4.
+
+#### 16.2.10 I10. Tồn đầu kỳ và điều chỉnh
+
+**Khuyến nghị**: giữ, thêm bốn điều kiện. `[Đề xuất BA – chờ xác nhận: Kế toán khách, Chủ dự án]`
+
+- FRD §Di chuyển dữ liệu: tồn đầu kỳ lấy từ **kiểm kê thực tế cùng thời điểm chuyển đổi, không lấy số Excel làm số cuối**; giá trị tồn từng chi nhánh phải khớp biên bản kiểm kê. Vì thế: (1) phiếu ADJ nguồn `opening-balance` đính kèm **mã biên bản kiểm kê**; (2) tổng giá trị của phiếu phải khớp con số biên bản (hiển thị chênh lệch, không chặn, ghi sổ cần xác nhận); (3) chỉ dùng được trong **cửa sổ chuyển đổi** (mặc định từ ngày khởi tạo kho đến ngày go-live cộng 30 ngày, tham số); sau đó tồn đầu kỳ cần CH duyệt, tránh dùng làm lối tăng tồn; (4) chỉ cho phụ tùng x kho **chưa có biến động**, sai thì dùng ADJ thường hoặc phiếu đảo.
+- Lập: TK (hoặc người có quyền lập phiếu kho); ghi sổ: QL, khác người lập (đồng ý dev); dòng âm bị cấm với tồn đầu kỳ; giá nhập bắt buộc.
+- Điều chỉnh sai lệch kiểm kê (FR-INV-012): lý do bắt buộc, QL duyệt, chênh lệch vượt ngưỡng cần giải trình (Journey "Kiểm kê"), giá trị lớn lên cấp trên (I9). Điều chỉnh không gắn đợt kiểm kê (KK chưa làm ở 1.4): vẫn cần lý do từ danh sách cấu hình.
+- Excel (SYS-007, slice 1.11): công cụ chỉ **tạo phiếu nháp** đúng loại này; duyệt và ghi sổ vẫn qua QL; mỗi lần nhập có mã lô nhập và nhật ký (BA §9 kế hoạch di chuyển).
+
+#### 16.2.11 I11. Định mức tối thiểu, tối đa
+
+**Khuyến nghị**: giữ lưu theo kho x phụ tùng. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- FR-INV-013 và G3-INV-02 viết "theo chi nhánh", mà FR-INV-003 cho mỗi chi nhánh một kho; kho tổng cũng cần định mức riêng (Journey: kho tổng và kho chi nhánh xem bốn số). Lưu theo kho khớp cả hai; khi một chi nhánh có hơn một kho (kho lốp, kho sơn, §3) thì định mức vẫn theo từng kho, và "chi nhánh dư" (`ba-answers-04` Câu 7) tính trên kho mặc định/kho bán được; ghi lại thành điều cần hỏi khi có chi nhánh nhiều kho.
+- Điều kiện cảnh báo: **Khả dụng nhỏ hơn hoặc bằng Tối thiểu** (Câu 7, RULE-008); chưa đặt định mức (rỗng) thì không cảnh báo, định mức 0 cảnh báo khi hết hàng. Dev viết "dưới định mức": kiểm tra là `<=` hay `<`.
+- Gợi ý đặt = `max(0, Tối đa - (Khả dụng + Đang vận chuyển + Đã đặt chờ giao))`, làm tròn lên theo quy cách NCC; chưa có Tối đa để trống. "Đã đặt chờ giao" thêm khi có PUR; trước đó dev bỏ phần này là đúng. Gợi ý lấy từ chi nhánh dư: Phase 2; chi nhánh khác chỉ thấy Khả dụng và số có thể cho (P5).
+- Tối đa phải lớn hơn hoặc bằng Tối thiểu (kiểm tra khi lưu).
+
+#### 16.2.12 I12. Bảng giá chuẩn và mã phụ tùng
+
+**Khuyến nghị**: giữ `price-item` có hiệu lực; chỉnh bộ ký tự mã; đặt mốc cho hạn mức giảm giá. `[Cần xác nhận: Chủ dự án, Khách]`
+
+- Ai lập bảng giá: §12 câu 4 đề xuất KT và AD lập, CH duyệt, TK không sửa giá bán. Lưu ý FRD §2 hiện ghi TK = S cho hàng "Danh mục phụ tùng và bảng giá" và AD "-"; hai nguồn lệch nhau, ghi vào mâu thuẫn FRD v0.4 (§16.3). Quyết định thuộc Chủ dự án; do ma trận là dữ liệu cấu hình nên không phải sửa mã.
+- Dùng cấu hình hiệu lực theo ngày có duyệt cho giá niêm yết: **đúng** nguyên tắc "giá thay đổi là cấu hình có ngày hiệu lực". Giá vốn, giá niêm yết, giá bán thực tế là ba số tách riêng; báo giá giữ phiên bản giá (REC, `ba-answers` giá). Không để màn chi tiết phụ tùng sửa giá trực tiếp là đúng.
+- **Bộ ký tự mã phụ tùng**: mã phụ tùng do Khách quy ước (`ba-answers-04` Phụ lục B; `PT-0001` chỉ là mẫu) và Excel di chuyển sẽ mang mã thật của hãng, thường có dấu `/`. Đề xuất cho phép `A-Z 0-9 . _ - /`, tự chuyển chữ hoa, bỏ khoảng trắng đầu cuối, không cho khoảng trắng giữa (khó quét mã vạch); độ dài 2-40 giữ. Mã bất biến sau khi có phát sinh (RULE-009). Công cụ nhập Excel phải có bước báo cáo mã bị chuẩn hóa hoặc trùng (FRD kế hoạch di chuyển: gộp mã trùng).
+- **Hạn mức giảm giá theo chi nhánh/chương trình** (FR-INV-025, Must, G3-INV-19): chưa dựng ở 1.4 chấp nhận được **với điều kiện** hoàn tất trước khi REC cho lập báo giá thật (chặn giảm quá hạn mức là điều kiện của UAT liên quan). Hạn mức là cấu hình có hiệu lực, vượt thì QV/CH duyệt.
+
+#### 16.2.13 I13. Màn hình chưa dựng
+
+**Khuyến nghị**: chấp nhận danh sách trì hoãn; đặt ba điều kiện. `[Đề xuất BA]`, chuyển designer, `[Cần xác nhận: Khách]` cho thứ tự ưu tiên.
+
+- Chấp nhận trì hoãn: INV-06 (thuộc REC), INV-11 (XN, Should), quét camera và đợt kiểm kê (FR-INV-011 là Must nhưng là slice KK riêng), lô, đối chiếu ba bên (ACC/PUR), KPI "đang vận chuyển" (khi có CK).
+- **Điều kiện 1**: một bố cục chung cho PN, PX, HK, ADJ chấp nhận được **nếu** mỗi loại hiện trường riêng: PN (chứng từ gốc, so sánh với đơn, lệch ngưỡng); PX (lệnh, người nhận, "Giữ chỗ cho lệnh này" trên thẻ, `ba-answers-04` Câu 9 / F4-07); HK (phiếu xuất gốc, lý do hoàn, số có thể hoàn); ADJ (lý do, tồn trước/sau, người duyệt). Nhãn trạng thái dùng bộ của chứng từ kho (Phụ lục A): Nháp, Chờ duyệt, Đã ghi sổ, Từ chối, Đã hủy.
+- **Điều kiện 2** (trước pilot): in phiếu A4/A5 không có giá vốn (`ba-answers-04` Câu 2); xuất Excel tồn kho theo quy tắc §9 (giới hạn dòng, nhật ký, chống chèn công thức, theo quyền giá vốn); thay Excel là mục tiêu của dự án nên hai mục này không nên để sau.
+- **Điều kiện 3**: bộ chọn phụ tùng cho báo giá (CV) hiện Khả dụng và ngày hàng về, không hiện Thực tế, Giữ chỗ, giá vốn (`ba-answers-04` Câu 6); thuộc REC nhưng dùng dữ liệu INV, cần chuẩn bị API chỉ trả Khả dụng. Ô gõ mã có gợi ý ở 1.4 chấp nhận.
+- KPI giá trị tồn: hàng giữ chỗ vẫn nằm trong tồn thực tế; hàng đang đi đường không cộng (`ba-answers-01`); chỉ hiện cho vai trò xem giá vốn.
+
+#### 16.2.14 I14. Nhóm hàng và đơn vị tính
+
+**Khuyến nghị**: biến thành danh mục cấu hình cấp công ty. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Danh sách trong mã sẽ sai ngay khi nhập Excel thật: FR-INV-001 cần "nhóm", kế hoạch di chuyển yêu cầu "chuẩn hóa tên và đơn vị, gắn nhóm và dòng xe", và nhóm còn dùng cho thuế suất theo nhóm hàng (FR-ACC-009), đợt kiểm kê theo nhóm (FR-INV-011), ngưỡng hàng chậm luân chuyển (`ba-answers-06`, N ngày theo nhóm hàng), gói "hàng kèm dịch vụ".
+- Quy tắc: nhóm hàng và đơn vị tính là danh mục cấp công ty {mã, tên, hoạt động/ngừng}; không xóa khi đã dùng, chỉ ngừng; TK đề xuất, CH duyệt (hàng "Danh mục phụ tùng và bảng giá": TK S, CH D); đổi tên ghi nhật ký. Danh sách hiện có của dev (dầu, lọc, phanh, lốp, điện, treo, động cơ, thân vỏ, vật tư, khác; cái, bộ, cặp, lít, kg, mét, hộp) làm **dữ liệu khởi tạo** (seed), không phải danh sách cứng.
+- Nhóm một cấp ở pilot; cây nhóm và quy đổi đơn vị (thùng sang lọ) là yêu cầu sau, hỏi Khách. Nhóm dịch vụ khác nhóm phụ tùng.
+
+### 16.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FR-INV-020 | Thêm tiêu chí: giữ chỉ khi khách duyệt hạng mục; duyệt một phần; phát sinh chỉ giữ khi được duyệt; thiếu hàng giữ một phần và lưu phần thiếu; nhả khi hạng mục hủy, hoàn thành, lệnh hủy; không có hạn tự động | I1, I2; UAT-13 |
+| UAT-13 | Thêm ca: duyệt một phần, phát sinh được/không được duyệt, xuất một phần, thiếu hàng, hai giao dịch song song, hủy lệnh sau xuất | I1 |
+| Journey "Tồn thực tế, giữ chỗ..." | Bước 5 nêu rõ "giữ phần có, phần thiếu vào danh sách thiếu hàng"; thêm bước nhả phần dư | I1 |
+| FR-INV-019 | Ghi rõ mặc định chặn tuyệt đối, cờ `cho_phép_xuất_vượt_khả_dụng` | I3 |
+| FR-INV-003 | Đổi tiêu chí kiểm thử "tổng các lô" thành "tổng các kho; mỗi dòng nhập truy được về chứng từ" nếu dùng bình quân | I6 |
+| FR-INV-027 | Thêm quy tắc từng sự kiện (xuất, hoàn, đảo, điều chỉnh, chuyển kho), làm tròn theo giá trị tồn, bộ ví dụ Kế toán ký | I5; UAT-25 |
+| FR-INV-005 | Làm rõ ngưỡng lệch: giá hai chiều, số lượng chỉ nhận vượt; nhận thiếu là nhận một phần | I7 |
+| FR-INV-006/007 | Xuất cho lệnh phải có dòng nhu cầu; ghi người nhận | I8; UAT-02 |
+| FRD §2 | Ghi lệch giữa hàng "Danh mục phụ tùng và bảng giá" (TK S, AD -) với đề xuất KT/AD lập giá, CH duyệt; thêm hạn mức duyệt phiếu bất thường | I9, I12 |
+| FRD §5 mục tiêu tên chứng từ | Mã FRD (GRN, GIN, STO, ADJ, RTN) lệch bảng số chứng từ (PN, PX, CK, DC, HK, TR, XN); RTN của FRD gộp trả NCC và khách trả, bảng §6.3 tách TR và HK: thống nhất một bộ | I8; FR-INV-021 |
+| FRD kế hoạch di chuyển (tồn đầu kỳ) | Thêm cửa sổ chuyển đổi, mã biên bản kiểm kê | I10 |
+| FR-INV-013 | Làm rõ "theo chi nhánh" = theo kho x phụ tùng; điều kiện `<=` | I11 |
+| FR-INV-001 | Nhóm hàng/đơn vị là danh mục cấu hình; ký tự mã phụ tùng; `quantityScale` | I4, I12, I14 |
+
+### 16.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12 và §15.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 17 | Chủ dự án | Chốt bảng giữ chỗ 16.2.1; thiếu hàng giữ một phần không backorder; chặn tuyệt đối xuất vượt; ai lập bảng giá; hạn mức giảm giá xong trước khi lập báo giá | Như I1, I3, I12 | Chờ đủ mới giữ làm lệnh dừng; bật ngoại lệ xuất vượt phải có UI và mượn giữ chỗ |
+| 18 | Khách | Thiếu hàng có dừng cả hạng mục không; hoàn kho "cấp nhầm" có tự giữ lại; hàng về có tự giữ phần thiếu theo thứ tự duyệt; số ngày cảnh báo giữ chỗ lâu | Dừng hạng mục thiếu, không tự giữ lại, tự giữ **tắt**, 14 ngày | Chỉ đổi cấu hình và quy tắc REC |
+| 19 | Khách | Dầu, sơn, hóa chất bán theo lít/gam lẻ không; nhóm hàng và đơn vị tính thật của chuỗi; mã phụ tùng thật có ký tự gì; mặt hàng nào cần số lô/serial | Như I4, I6, I12, I14 | Đổi `quantityScale` hoặc thêm tầng lô |
+| 20 | Kế toán khách | Bình quân di động theo kho; làm tròn theo giá trị tồn; chuyển kho mang giá vốn bên gửi; kiểm kê thừa giá bình quân; ngưỡng lệch giá 5%; hoàn kho theo giá lúc xuất; bộ ví dụ ký | Như I5, I7 | FIFO cần tầng lô; làm tròn khác đổi test |
+| 21 | Kế toán khách, Chủ dự án | Cửa sổ tồn đầu kỳ và biên bản kiểm kê; hạn mức duyệt phiếu bất thường | Như I9, I10 | Chỉ đổi cấu hình |
