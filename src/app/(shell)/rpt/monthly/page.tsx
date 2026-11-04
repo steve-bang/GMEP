@@ -66,10 +66,9 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
   const change = (bp: number | null | undefined): string | undefined => {
     if (!cmp) return l.vsPrevNa;
     if (bp === null || bp === undefined) return l.vsPrevZero;
-    const abs = Math.abs(bp);
-    const pct = `${bp > 0 ? '+' : bp < 0 ? '-' : ''}${Math.trunc(abs / 100)},${String(abs % 100)
-      .padStart(2, '0')
-      .slice(0, 1)}%`;
+    // basis points -> percent with one decimal, rounded (not cut); a zero change has no sign
+    const tenths = Math.round(Math.abs(bp) / 10);
+    const pct = `${bp > 0 && tenths > 0 ? '+' : bp < 0 && tenths > 0 ? '-' : ''}${Math.trunc(tenths / 10)},${tenths % 10}%`;
     return fill(l.vsPrev!, {
       month: cmp.month.slice(5) + '/' + cmp.month.slice(0, 4),
       days: cmp.days,

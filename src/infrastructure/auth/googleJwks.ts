@@ -11,22 +11,36 @@ export function googleJwksSource(
   let keys = new Map<string, JsonWebKey>();
   let loadedAt = 0;
   let lastMissRefresh = 0;
-  const load = async () => {
+  let inflight: Promise<void> | null = null;
+  const fetchKeys = async () => {
     const res = await fetchImpl(url, { signal: AbortSignal.timeout(5000) });
     if (!res.ok) throw new Error(`jwks ${res.status}`);
     const body = (await res.json()) as { keys?: (JsonWebKey & { kid?: string })[] };
     keys = new Map((body.keys ?? []).flatMap((k) => (k.kid ? [[k.kid, k] as const] : [])));
     loadedAt = Date.now();
   };
+  // one fetch at a time: concurrent callers share it
+  const load = () => (inflight ??= fetchKeys().finally(() => (inflight = null)));
   return {
     async getKey(kid) {
-      if (Date.now() - loadedAt > ttlMs) await load();
+      if (Date.now() - loadedAt > ttlMs) {
+        // a failed refresh must not reject tokens signed by keys we already hold: keep serving the cached ones
+        try {
+          await load();
+        } catch (e) {
+          if (keys.size === 0) throw e;
+        }
+      }
       const hit = keys.get(kid);
       if (hit) return hit;
       // unknown kid: refresh at most once a minute so a forged kid cannot make us hammer Google
       if (Date.now() - lastMissRefresh > 60_000) {
         lastMissRefresh = Date.now();
-        await load();
+        try {
+          await load();
+        } catch (e) {
+          if (keys.size === 0) throw e;
+        }
       }
       return keys.get(kid) ?? null;
     },

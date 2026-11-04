@@ -7,6 +7,7 @@ import {
   deltaBp,
   monthDates,
   previousMonth,
+  comparisonDays,
   type WorkItemFact,
 } from '@/modules/rpt';
 
@@ -134,6 +135,14 @@ describe('monthly comparison with the previous month (FR-RPT-002)', () => {
     day('2026-10-20', { closed: 50, labor: 9_000_000, total: 9_720_000, cash: 9_000_000 }),
     ...extra,
   ];
+
+  it('comparisonDays: running month = days elapsed, finished month = its own length (April 30, not 31), future = 0', () => {
+    expect(comparisonDays('2026-11', '2026-11-04')).toBe(4);
+    expect(comparisonDays('2026-04', '2026-05-10')).toBe(30);
+    expect(comparisonDays('2026-03', '2026-05-10')).toBe(31);
+    expect(comparisonDays('2024-02', '2026-05-10')).toBe(29);
+    expect(comparisonDays('2027-01', '2026-11-04')).toBe(0);
+  });
 
   it('previousMonth rolls the year over', () => {
     expect(previousMonth('2026-11')).toBe('2026-10');

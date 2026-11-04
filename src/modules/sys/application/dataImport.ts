@@ -55,6 +55,8 @@ export interface ImportDto {
   unitCount: number;
   committedUnits: number;
   issueCount: number;
+  /** more errors in the file than the batch keeps (MAX_ISSUES): the screen says "at least" */
+  issuesTruncated: boolean;
   issues: RowIssue[];
   warnings: RowIssue[];
   headers: string[];
@@ -91,6 +93,7 @@ function toDto(deps: SysDeps, b: ImportBatch): ImportDto {
     unitCount: b.unitCount,
     committedUnits: b.committedUnits,
     issueCount: b.issueCount,
+    issuesTruncated: b.issueCount > b.issues.length,
     issues: b.issues.slice(0, SCREEN_ISSUES),
     warnings: b.warnings.slice(0, SCREEN_ISSUES),
     headers: b.headers,

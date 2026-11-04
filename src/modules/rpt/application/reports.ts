@@ -5,6 +5,7 @@ import {
   sumUnlinked,
   computeReconcile,
   computeTechnicians,
+  comparisonDays,
   computeWarehouse,
   MONTH_RE,
   monthDates,
@@ -71,18 +72,20 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
   const q = parseInput(monthSchema, raw);
   const { scope, branches } = await branchesOf(deps, actor, 'report-daily:view', q.branchId);
   const branch = singleBranch(actor, branches, q.branchId);
-  const all = await redactedRollups(deps, actor, scope, branch.id, monthDates(q.month));
-  const narrowed = q.serviceType ? forServiceType(all, q.serviceType) : null;
-  // FR-RPT-002: the earlier month over the same day range (1..today's day for the running month, the whole month once
-  // it is over; nothing for a future month). Read by key like the month itself: no new index. [Cần xác nhận] vs same month last year.
-  const today = todayOf(deps);
-  const cur = today.slice(0, 7);
-  const throughDay = q.month < cur ? 31 : q.month === cur ? Number(today.slice(8, 10)) : 0;
+  // FR-RPT-002: the earlier month over the same day range (1..today's day for the running month, the whole current
+  // month length once it is over; nothing for a future month). Read by key like the month itself: no new index.
+  // [Cần xác nhận] vs same month last year.
+  const dates = monthDates(q.month);
+  const throughDay = comparisonDays(q.month, todayOf(deps));
   const prevMonth = previousMonth(q.month);
   const prevDates = monthDates(prevMonth).slice(0, throughDay);
-  const prevAll = prevDates.length
-    ? await redactedRollups(deps, actor, scope, branch.id, prevDates)
-    : [];
+  const [all, prevAll] = await Promise.all([
+    redactedRollups(deps, actor, scope, branch.id, dates),
+    prevDates.length
+      ? redactedRollups(deps, actor, scope, branch.id, prevDates)
+      : Promise.resolve([]),
+  ]);
+  const narrowed = q.serviceType ? forServiceType(all, q.serviceType) : null;
   const prevRolls = q.serviceType ? forServiceType(prevAll, q.serviceType).rolls : prevAll;
   return {
     branchId: branch.id,

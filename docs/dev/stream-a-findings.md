@@ -1,6 +1,8 @@
 # Phát hiện của luồng A (kiểm thử), 04/11/2026
 
-Luồng A không sửa `src/`. Mỗi mục dưới đây có file, mô tả, cách tái hiện (test đang đỏ hoặc test dùng để kiểm lại). Mức độ do luồng A ước lượng.
+**Cập nhật PR #6:** F-3, F-5, F-6, F-7, F-8 đã sửa trong PR này (các test đỏ nay xanh). F-1 (cần BA), F-2 (hành vi theo thiết kế C20, chờ BA) và F-4 (theo dõi) còn mở; xem `open-questions-for-ba.md`.
+
+Ghi chú gốc của luồng A: luồng A không sửa `src/`. Mỗi mục dưới đây có file, mô tả, cách tái hiện (test đang đỏ hoặc test dùng để kiểm lại). Mức độ do luồng A ước lượng.
 
 | # | Mức | Nơi | Tóm tắt | Test chứng minh |
 | --- | --- | --- | --- | --- |

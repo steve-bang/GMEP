@@ -118,6 +118,16 @@ export function previousMonth(month: string): string {
     : `${String(y).padStart(4, '0')}-${String(m - 1).padStart(2, '0')}`;
 }
 
+/**
+ * FR-RPT-002: how many days from the 1st of the earlier month are compared: the days elapsed in the running month,
+ * the whole length of `month` once it is over (not 31: April is 30 days), nothing for a future month.
+ */
+export function comparisonDays(month: string, today: string): number {
+  const cur = today.slice(0, 7);
+  if (month > cur) return 0;
+  return month === cur ? Number(today.slice(8, 10)) : monthDates(month).length;
+}
+
 /** (current - previous) / previous in basis points, rounded half away from zero; null when previous is 0 (FR-RPT-002). */
 export function deltaBp(current: number, previous: number): DeltaBp {
   if (previous === 0) return null;

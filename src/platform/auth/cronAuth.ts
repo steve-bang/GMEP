@@ -70,7 +70,7 @@ export function createOidcCronVerifier(opts: {
         ISSUERS.has(iss) &&
         aud === opts.audience &&
         email === opts.serviceAccount &&
-        verified !== false &&
+        verified === true &&
         typeof exp === 'number' &&
         exp > now - SKEW_SECONDS &&
         (typeof iat !== 'number' || iat <= now + SKEW_SECONDS)

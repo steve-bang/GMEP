@@ -99,7 +99,7 @@ export function ImportWorkbench(props: {
     setBusy('issues');
     try {
       const res = await fetch(
-        `/api/v1/sys/imports/${batch.id}/issues?limit=100${cursor ? `&cursor=${cursor}` : ''}`,
+        `/api/v1/sys/imports/${batch.id}/issues?limit=${Math.max(batch.issues.length, 1)}${cursor ? `&cursor=${cursor}` : ''}`,
       );
       if (!res.ok) {
         setError(t('unexpected'));
@@ -149,8 +149,8 @@ export function ImportWorkbench(props: {
       ? String(batch.issues.length)
       : null;
   const prevCursor = pageHere?.prevCursor ?? null;
-  // the batch stores at most 500 errors (server MAX_ISSUES); beyond that the count is a lower bound label
-  const truncated = pageHere ? pageHere.truncated : (batch?.issueCount ?? 0) > 500;
+  // the server says when the file had more errors than the batch keeps; then the count is a lower bound label
+  const truncated = pageHere ? pageHere.truncated : (batch?.issuesTruncated ?? false);
   const needWh = info?.needsWarehouse && !warehouseId;
 
   return (

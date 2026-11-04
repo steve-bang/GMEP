@@ -11,6 +11,8 @@ export function ApprovalActions(props: {
   id: string;
   version: number;
   canDecide: boolean;
+  /** R106: this kind needs the decider's password again (REAUTH_ON_APPROVE) */
+  reauth?: boolean;
   canWithdraw: boolean;
   selfNote: boolean;
   labels: Labels;
@@ -19,12 +21,12 @@ export function ApprovalActions(props: {
   const { run, busy, error } = useAction(l.unexpected!);
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState('');
-  // R106: some kinds (reopen day) need the decider's password again; the server says which, so the field is optional here
+  // R106: kinds in REAUTH_ON_APPROVE (reopen day) need the decider's password again; cleared after every attempt
   const [password, setPassword] = useState('');
   const base = `/api/v1/sys/approvals/${props.id}`;
   return (
     <div className="stack-2" data-testid={`apr-${props.id}`}>
-      {props.canDecide ? (
+      {props.canDecide && props.reauth ? (
         <input
           className="input"
           type="password"
@@ -46,8 +48,8 @@ export function ApprovalActions(props: {
               void run('approve', `${base}/decide`, {
                 version: props.version,
                 decision: 'approve',
-                ...(password ? { reauthPassword: password } : {}),
-              })
+                ...(props.reauth && password ? { reauthPassword: password } : {}),
+              }).finally(() => setPassword(''))
             }
             data-testid="apr-approve"
           >

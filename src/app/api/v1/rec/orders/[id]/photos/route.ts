@@ -7,13 +7,14 @@ import { addPhoto, listPhotos } from '@/modules/rec';
 export const runtime = 'nodejs';
 
 /** FR-REC-014: photos of the order; `?proposalId=<id>` only those of one proposal, `none` those of no proposal. */
-export const GET = authed(async ({ rec, session, params, query }) =>
-  json({
+export const GET = authed(async ({ rec, session, params, query }) => {
+  const { proposalId } = query();
+  return json({
     items: await listPhotos(rec, session.actor, 'order', params.id ?? '', {
-      ...(query().proposalId ? { proposalId: query().proposalId! } : {}),
+      ...(proposalId ? { proposalId } : {}),
     }),
-  }),
-);
+  });
+});
 
 /**
  * FR-REC-003/014: add a photo (order). Multipart `file` (JPEG, PNG or WebP) [+ `caption`, `proposalId`]; bytes go to the
