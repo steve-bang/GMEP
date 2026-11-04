@@ -152,6 +152,7 @@ export function sysConfigFromEnv(env: Env): SysConfig {
     exportMaxRows: 5000,
     importMaxBytes: 5 * 1024 * 1024,
     importMaxRows: 2000,
+    importAbandonedDays: 7,
     notificationBellDays: 30,
     notificationRetentionDays: 365,
     consentPolicyVersion: 'chưa có [do doanh nghiệp cung cấp]',

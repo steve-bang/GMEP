@@ -181,6 +181,14 @@
       "title": "Lô nhập không ở trạng thái phù hợp",
       "detail": "Thao tác này không áp dụng cho trạng thái hiện tại của lô nhập."
     },
+    "import_opening_duplicate": {
+      "title": "Phụ tùng đã có phiếu tồn đầu kỳ",
+      "detail": "Một phụ tùng trong lô đã có phiếu tồn đầu kỳ chưa đảo ở kho này. Hoàn tác phiếu cũ trước khi nhập lại."
+    },
+    "import_batch_blocked": {
+      "title": "Còn lô nhập dừng giữa chừng",
+      "detail": "Chi nhánh có lô nhập cùng loại đang dừng giữa chừng. Ghi tiếp hoặc hoàn tác lô đó trước khi tạo lô mới."
+    },
     "import_undo_blocked": {
       "title": "Không thể hoàn tác lô nhập",
       "detail": "Một số dữ liệu của lô đã được dùng hoặc sửa sau khi nhập. Chưa có gì bị xóa."

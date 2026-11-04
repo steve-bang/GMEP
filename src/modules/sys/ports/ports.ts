@@ -395,6 +395,8 @@ export interface ImportBatch {
   kind: ImportKind;
   fileName: string;
   fileHash: string;
+  /** R99: the original file is NOT stored; only its name, size and hash are kept */
+  fileSize: number;
   warehouseId: string | null;
   headers: string[];
   mapping: ColumnMapping;

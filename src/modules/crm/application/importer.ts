@@ -260,12 +260,14 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
         if (await deps.vehicles.vehicleIdByVin(actor.companyId, vin))
           issues.push({ row, field: 'vin', message: 'Số khung đã gắn với một xe khác.' });
       }
+      const cScope = resolveScope(actor, 'customer:create');
       for (const u of units.values()) {
         const phone = u.data.customer.phone;
-        if (
-          phone &&
-          (await deps.customers.customerIdsByPhone(actor.companyId, phone, 'exact', 1)).length
-        )
+        // R97/NFR-ISO-01: warn only about customers the importer may see; a hit outside the scope stays silent
+        const hits = phone
+          ? await deps.customers.customerIdsByPhone(actor.companyId, phone, 'exact', 5)
+          : [];
+        if (hits.length && (await deps.customers.getMany(cScope, hits)).length)
           warnings.push({
             row: u.row,
             field: 'phone',
@@ -358,7 +360,8 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
                 entityType: 'vehicle',
                 entityId: id,
                 action: 'vehicle.import-undo',
-                before: { plate: v.plate },
+                // R96: the undo audit carries no personal or identifying value (no plate, name, phone)
+                before: { imported: true },
                 reason: ctx.reason,
               }),
             );

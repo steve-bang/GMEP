@@ -23,6 +23,7 @@ const fromDoc = ({ id, data: x }: StoredDoc): ImportBatch => ({
   kind: x.kind,
   fileName: x.fileName,
   fileHash: x.fileHash,
+  fileSize: x.fileSize ?? 0,
   warehouseId: x.warehouseId ?? null,
   headers: x.headers ?? [],
   mapping: x.mapping ?? {},

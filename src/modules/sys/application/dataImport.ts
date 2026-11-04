@@ -46,6 +46,7 @@ export interface ImportDto {
   kind: ImportKind;
   kindLabel: string;
   fileName: string;
+  fileSize: number;
   status: ImportStatus;
   branchId: string;
   warehouseId: string | null;
@@ -81,6 +82,7 @@ function toDto(deps: SysDeps, b: ImportBatch): ImportDto {
     kind: b.kind,
     kindLabel: h?.label ?? b.kind,
     fileName: b.fileName,
+    fileSize: b.fileSize,
     status: b.status,
     branchId: b.branchId,
     warehouseId: b.warehouseId,
@@ -194,6 +196,11 @@ export async function previewImport(
   });
   if (holder && ['committing', 'committed', 'failed'].includes(holder.status))
     throw new AppError('import_duplicate_file', 409);
+  // R100: a batch of the same kind stopped half-way blocks a new one in this branch until it is resumed or undone
+  const recent = await deps.imports.listByBranch(scope, branchId, 50);
+  if (recent.some((b) => b.kind === data.kind && b.status === 'failed'))
+    throw new AppError('import_batch_blocked', 409);
+  await discardAbandonedImports(deps, actor, branchId, ctx);
   const headers = grid[0]!;
   const mapping =
     data.mapping === undefined
@@ -273,6 +280,7 @@ export async function previewImport(
         kind: data.kind,
         fileName: input.fileName.slice(0, 120),
         fileHash,
+        fileSize: input.bytes.length,
         warehouseId,
         headers,
         mapping,
@@ -319,6 +327,51 @@ export async function previewImport(
   return { body: r.response.body as ImportDto, replayed: r.replayed };
 }
 
+/**
+ * R99: staged rows hold personal data, so a validated batch nobody committed is discarded after
+ * `importAbandonedDays` (default 7): status `discarded`, staged rows deleted, audit entry. Runs when a new dry run is
+ * made in the branch; returns how many batches it discarded.
+ */
+export async function discardAbandonedImports(
+  deps: SysDeps,
+  actor: Actor,
+  branchId: string,
+  ctx: RequestCtx,
+): Promise<number> {
+  const scope = resolveScope(actor, 'data-import:create');
+  const limit = deps.clock.now().getTime() - deps.config.importAbandonedDays * 86_400_000;
+  const stale = (await deps.imports.listByBranch(scope, branchId, 50)).filter(
+    (b) => b.status === 'validated' && b.updatedAt.getTime() <= limit,
+  );
+  let n = 0;
+  for (const s of stale)
+    await deps.uow.run(async (tx) => {
+      const cur = await deps.imports.getInTx(tx, scope, s.id);
+      if (!cur || cur.status !== 'validated') return;
+      deps.imports.update(tx, cur.id, {
+        status: 'discarded',
+        updatedAt: deps.clock.now(),
+        updatedBy: actor.userId,
+        version: cur.version + 1,
+      });
+      deps.imports.deleteUnits(tx, cur.id, Math.ceil(cur.unitCount / IMPORT_CHUNK_ROWS));
+      deps.audit.record(
+        tx,
+        auditEntry(deps, actor, ctx, {
+          branchId,
+          entityType: 'dataImport',
+          entityId: cur.id,
+          action: 'dataImport.discard',
+          before: { status: 'validated' },
+          after: { status: 'discarded' },
+          reason: 'abandoned',
+        }),
+      );
+      n++;
+    });
+  return n;
+}
+
 const mergeRefs = (a: ImportBatch['refs'], b: ImportBatch['refs']) => {
   const seen = new Set(a.map((r) => `${r.type}:${r.id}`));
   return [...a, ...b.filter((r) => !seen.has(`${r.type}:${r.id}`))];
@@ -347,6 +400,13 @@ export async function commitImport(
     const b = await deps.imports.getInTx(tx, scope, id);
     if (!b) throw notFound();
     if (b.status === 'committed') return { batch: b, run: false };
+    // R99: an abandoned dry run expires even before the purge has run
+    if (
+      b.status === 'validated' &&
+      b.updatedAt.getTime() <=
+        deps.clock.now().getTime() - deps.config.importAbandonedDays * 86_400_000
+    )
+      throw new AppError('import_state_invalid', 409);
     if (!canTransition(b.status, 'committing')) throw new AppError('import_state_invalid', 409);
     const h = handlerOf(deps, b.kind);
     if (!importableKinds(deps, actor).includes(h)) throw forbidden();

@@ -412,6 +412,18 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.stockDocuments, id, patch);
   }
+  async listByWarehouseStatus(
+    companyId: string,
+    warehouseId: string,
+    status: StockDocument['status'],
+    limit: number,
+  ) {
+    const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
+      eq: { companyId, warehouseId, status },
+      limit,
+    });
+    return rows.map(documentFromDoc);
+  }
   async hasOpen(companyId: string, warehouseId: string) {
     const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
       eq: { companyId, warehouseId, status: 'draft' },

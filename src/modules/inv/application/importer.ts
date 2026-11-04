@@ -215,6 +215,32 @@ export function buildPartImport(getDeps: () => InvDeps): ImportKindHandler {
   };
 }
 
+const OPENING_DOC_SCAN = 500;
+
+/** RULE-007/R95: part ids with a live opening-balance document (draft or posted, not reversed, not a reversal). */
+async function openedParts(
+  deps: InvDeps,
+  companyId: string,
+  warehouseId: string,
+  exceptBatchId?: string,
+) {
+  const set = new Set<string>();
+  for (const status of ['draft', 'posted'] as const) {
+    const docs = await deps.documents.listByWarehouseStatus(
+      companyId,
+      warehouseId,
+      status,
+      OPENING_DOC_SCAN,
+    );
+    for (const d of docs) {
+      if (d.source.type !== 'opening-balance' || d.reversedBy || d.reversalOf) continue;
+      if (exceptBatchId && d.reason?.includes(exceptBatchId)) continue;
+      for (const l of d.lines) set.add(l.partId);
+    }
+  }
+  return set;
+}
+
 export function buildOpeningStockImport(getDeps: () => InvDeps): ImportKindHandler {
   return {
     kind: 'opening-stock',
@@ -244,6 +270,8 @@ export function buildOpeningStockImport(getDeps: () => InvDeps): ImportKindHandl
       }
       const out: ImportUnit[] = [];
       const seen = new Map<string, number>();
+      // R95: parts already covered by a draft or posted, not reversed, opening document of this warehouse
+      const opened = await openedParts(deps, actor.companyId, warehouseId);
       for (const r of rows) {
         const c = r.cells;
         const bad = (field: string, message: string) => issues.push({ row: r.row, field, message });
@@ -257,6 +285,11 @@ export function buildOpeningStockImport(getDeps: () => InvDeps): ImportKindHandl
         else if (part.status !== 'active') bad('code', 'Phụ tùng đã ngừng sử dụng.');
         else if (part.quantityScale !== 1)
           bad('code', 'Phụ tùng tính số lẻ chưa nhập được bằng tệp; hãy nhập tồn đầu kỳ thủ công.');
+        else if (opened.has(part.id))
+          bad(
+            'code',
+            'Phụ tùng đã có phiếu tồn đầu kỳ chưa đảo ở kho này; hoàn tác phiếu cũ trước khi nhập lại.',
+          );
         const qty = Number(c.qty);
         if (!/^\d+$/.test(c.qty!) || !Number.isSafeInteger(qty) || qty < 1 || qty > 1_000_000)
           bad('qty', 'Số lượng là số nguyên từ 1 đến 1.000.000.');
@@ -282,6 +315,10 @@ export function buildOpeningStockImport(getDeps: () => InvDeps): ImportKindHandl
     async commit(actor, units, ctx) {
       const deps = getDeps();
       try {
+        // R95 again at write time: another batch may have been validated and written since this preview
+        const opened = await openedParts(deps, actor.companyId, ctx.warehouseId!, ctx.batchId);
+        if (units.some((u) => opened.has(u.data.partId as string)))
+          throw new AppError('import_opening_duplicate', 409);
         const r = await createDocument(
           deps,
           actor,

@@ -205,6 +205,43 @@ describe.each(backends)('Excel import [%s]', (backend) => {
       const acts = (await audits(b.json.id)).map((x) => x.action);
       expect(acts).toContain('dataImport.undo');
     });
+
+    it('R97/NFR-ISO-01: the duplicate-phone warning never reveals a customer outside the importer scope', async () => {
+      const mk = (name: string, plate: string) =>
+        csv(HEAD, `P1,${name},0911000040,${plate},Kia,Morning,2018`);
+      const first = await upload(ql, 'customers-vehicles', mk('Phạm Một Số', '51Z-400.01'));
+      expect(first.json.warnings).toHaveLength(0);
+      await commit(ql, first.json.id);
+      // same branch: the importer sees the customer, so the warning is given
+      const same = await upload(ql, 'customers-vehicles', mk('Phạm Hai Số', '51Z-400.02'));
+      expect(same.json.warnings).toHaveLength(1);
+      // another branch: the phone exists only outside its scope -> silent
+      const other = await upload(qlTd, 'customers-vehicles', mk('Phạm Ba Số', '51Z-400.03'));
+      expect(other.json.status).toBe('validated');
+      expect(other.json.warnings).toHaveLength(0);
+    });
+
+    it('R96: the undo audit carries no personal or vehicle-identifying value', async () => {
+      const a = await upload(
+        ql,
+        'customers-vehicles',
+        csv(HEAD, 'AU1,Lý Kiểm Nhật Ký,0911000050,51Z-500.01,Kia,Morning,2018'),
+      );
+      await commit(ql, a.json.id);
+      expect((await undo(ql, a.json.id)).json.status).toBe('undone');
+      for (const t of ['vehicle', 'customer']) {
+        const r = await h.call('GET', `/api/v1/sys/audit?entityType=${t}&limit=100`, {
+          cookie: ql,
+        });
+        const undone = ((r.json.items ?? []) as Row[]).filter(
+          (e) => e.action === `${t}.import-undo`,
+        );
+        expect(undone.length).toBeGreaterThan(0);
+        const text = JSON.stringify(undone);
+        for (const v of ['51Z-500.01', 'Lý Kiểm Nhật Ký', '0911000050'])
+          expect(text).not.toContain(v);
+      }
+    });
   });
 
   describe('parts and opening stock', () => {
@@ -313,6 +350,51 @@ describe.each(backends)('Excel import [%s]', (backend) => {
       expect(
         (await upload(tk, 'parts', csv(PHEAD, 'IMP-B1,Bugi thử,piece,other'))).json.status,
       ).toBe('validated');
+    });
+    it('R95/R100/R99: second opening import blocked; failed batch blocks the kind; abandoned batch expires', async () => {
+      const P = (c: string) => csv(PHEAD, `${c},Hàng đầu kỳ thử,piece,other`);
+      const p = await upload(tk, 'parts', P('IMP-C1'));
+      await commit(tk, p.json.id);
+      const op = (qty: number) => csv(SHEAD, `IMP-C1,${qty},1000`);
+      const a = await upload(tk, 'opening-stock', op(3), { warehouseId: WH });
+      // a second dry run of different bytes validates before the first is written ...
+      const b = await upload(tk, 'opening-stock', op(4), { warehouseId: WH });
+      expect([a.json.status, b.json.status, a.json.fileSize]).toEqual([
+        'validated',
+        'validated',
+        Buffer.byteLength(op(3)),
+      ]);
+      expect((await commit(tk, a.json.id)).json.status).toBe('committed');
+      // ... the write step re-checks (R95) and the batch stops half-way with nothing written
+      const failed = await commit(tk, b.json.id);
+      expect(failed.json).toMatchObject({ status: 'failed', failure: 'import_opening_duplicate' });
+      // R100: the stopped batch blocks a new batch of the same kind, not of another kind
+      const blocked = await upload(tk, 'opening-stock', op(5), { warehouseId: WH });
+      expect(blocked.status).toBe(409);
+      expect(blocked.json.code ?? blocked.json.type).toContain('import_batch_blocked');
+      expect((await upload(tk, 'parts', P('IMP-C2'))).json.status).toBe('validated');
+      expect((await undo(ql, b.json.id)).json.status).toBe('undone');
+      // R95 at preview: a live opening document makes the row an error
+      const dup = await upload(tk, 'opening-stock', op(6), { warehouseId: WH });
+      expect(dup.json.status).toBe('rejected');
+      expect(dup.json.issues[0]).toMatchObject({ row: 2, field: 'code' });
+      // undo of the first lifts the guard (draft cancelled by its importer)
+      expect((await undo(tk, a.json.id)).json.status).toBe('undone');
+      const again = await upload(tk, 'opening-stock', op(6), { warehouseId: WH });
+      expect(again.json.status).toBe('validated');
+
+      // R99: never committed -> discarded after the configured days, staged rows removed, cannot be committed
+      const cfg = h.container.sys.config;
+      cfg.importAbandonedDays = -1;
+      try {
+        expect((await commit(tk, again.json.id)).status).toBe(409);
+        await upload(tk, 'parts', P('IMP-C3'));
+      } finally {
+        cfg.importAbandonedDays = 7;
+      }
+      const after = await h.call('GET', `${IMPORTS}/${again.json.id}`, { cookie: tk });
+      expect(after.json.status).toBe('discarded');
+      expect((await audits(again.json.id)).map((e) => e.action)).toContain('dataImport.discard');
     });
   });
 

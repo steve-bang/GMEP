@@ -59,6 +59,8 @@ export interface SysConfig {
   /** FR-SYS-007 import limits [Cần xác nhận: Khách]: file size and data rows per file */
   importMaxBytes: number;
   importMaxRows: number;
+  /** R99: a validated batch never committed is discarded (staged rows deleted) after this many days; default 7 */
+  importAbandonedDays: number;
   /** notifications: hidden in the bell after / deleted after (BA §8.1) */
   notificationBellDays: number;
   notificationRetentionDays: number;

@@ -104,6 +104,13 @@ export interface StockDocumentRepository {
   getInTx(tx: Tx, scope: Scope, id: string): Promise<StockDocument | null>;
   create(tx: Tx, d: StockDocument): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+  /** oldest first, one warehouse and status, no branch Scope: server-side guards only (R95 opening-stock check) */
+  listByWarehouseStatus(
+    companyId: string,
+    warehouseId: string,
+    status: StockDocStatus,
+    limit: number,
+  ): Promise<StockDocument[]>;
   /** true when a draft document refers to the warehouse (guards deactivation) */
   hasOpen(companyId: string, warehouseId: string): Promise<boolean>;
 }
