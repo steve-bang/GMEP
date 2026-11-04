@@ -152,8 +152,31 @@ Key mechanics already in place:
   (wizard), `/rec/quotes`, `/rec/quotes/[id]` (menu "Tiếp nhận và báo giá").
 - Tests: `tests/unit/rec-domain.test.ts`, `tests/integration/rec.test.ts` (both backends), `e2e/slice-1-5.spec.ts`.
 
+## Slice 1.5 second part (REC quote approval)
+
+- **Approval** (`application/approval.ts`, `domain/approval.ts`): the unit is the ITEM. Three ways in, one core: the customer through a link,
+  staff recording a signature at the counter, staff recording a verbal approval (an exception for the manager). The core moves the quote
+  through its state machine (`approved_full` / `approved_partial`), writes the evidence once on the version (method, who, when, approved and
+  declined items with reasons, totals recomputed on the approved set, SHA-256 hash - business evidence, not a digital signature), locks the
+  content, audits and notifies the advisor and the branch manager (`notifyUsers`, no personal data). An expired quote cannot be approved
+  (R10); a refused REQUIRED item needs a reason from the `decline-reason` catalogue and carries the safety flag (policy `quote-approval`,
+  company or branch, default: allowed). Item prices on the customer page and the print add up to the exact total (largest remainder,
+  `platform/money/splitTax.ts`, also run in the browser).
+- **Customer link** (FR-REC-008): `POST /api/v1/rec/quotes/[id]/link` returns a random token (32 bytes) ONCE; only its SHA-256 is stored
+  (`quoteLinks`). Issuing again revokes the old link. Page `/b/[token]` (no shell, noindex, no-referrer) calls the application directly; the
+  decision routes `/api/v1/rec/public/quote/{approve,reject}` take the token in the BODY (a URL would be logged), need `Idempotency-Key`, the
+  Origin check, and are rate limited per address and per token (`customer-link`, `customer-link-decide`). Unknown, malformed, replaced and
+  superseded tokens look the same (404 page). A repeated tap with the same choice returns the stored result; another choice is 409.
+- **Counter**: `POST /api/v1/rec/quotes/[id]/approve` (`quote:approve`: CV, QL); screen "Ghi nhận khách duyệt tại quầy" (3 steps). OTP is locked
+  until an SMS provider is active.
+- **Print A4**: `/rec/quotes/[id]/print` (print-first HTML/CSS ported from `design/g2-quote-delivery`), no phone or address printed.
+- **For slice 1.6**: `getApprovedQuote(rec, actor, quoteId)` / `GET /api/v1/rec/quotes/[id]/approved` (approved lines only, each with the immutable
+  `lineKey` = `<quote>__v<n>#<item>.<line>`, price version id and tax key/version), `allocateRepairOrderNumber` (FR-REC-030, series `repair-order`),
+  `getServiceWorkflow` / `GET /api/v1/rec/service-workflows` (FR-REC-032, config `service-workflow`). No order and no stock hold exist yet.
+- Tests: `tests/unit/rec-approval.test.ts`, `tests/integration/rec-approval.test.ts` (both backends), `e2e/slice-1-5-approval.spec.ts`.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger and REC intake/quote (ACC, EIN, RPT are skeletons; REC approval, customer link, A4 print, repair orders and items are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger and REC intake/quote (ACC, EIN, RPT are skeletons; REC repair orders, items and supplementary quotes are not built, nor photos, Zalo/SMS/email sending or OTP; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.
