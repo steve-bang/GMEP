@@ -48,6 +48,8 @@ export const DEFAULT_NUMBERING: Readonly<Record<string, NumberingSeries>> = {
   intake: A('TX'),
   appointment: A('LH'),
   'data-subject-request': A('CD'),
+  // customer code KH-<MÃCN>-STT, never reset [Đề xuất dev - chờ xác nhận: BA/Khách], see open-questions C1
+  customer: { ...A('KH'), period: 'none' },
   'handover-record': A('BB'),
   'purchase-request': A('YM'),
   'purchase-order': A('DM'),

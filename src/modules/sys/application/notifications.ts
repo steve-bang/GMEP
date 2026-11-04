@@ -45,6 +45,28 @@ export function notifyUsers(
   }
 }
 
+/**
+ * Recipients for a notification by role (I15, C18, C19): holders of one of the roles at the branch,
+ * or company-wide ('*' assignments count for every branch), active accounts only. `branchId` null = every holder. Plain
+ * reads (not part of a transaction) so callers can do this before their first write.
+ */
+export async function usersWithRole(
+  deps: SysDeps,
+  companyId: string,
+  roleCodes: readonly string[],
+  branchId: string | null,
+): Promise<string[]> {
+  const ids = new Set<string>();
+  for (const code of roleCodes)
+    for (const a of await deps.assignments.listByRole(companyId, code, 100))
+      if (branchId === null || a.branchId === '*' || a.branchId === branchId) ids.add(a.userId);
+  // a disabled or not yet activated account has nobody behind it to read the notice
+  const users = await Promise.all([...ids].map((id) => deps.users.getById(id)));
+  return users.flatMap((u) =>
+    u && u.companyId === companyId && u.status === 'active' ? [u.id] : [],
+  );
+}
+
 export interface NotificationDto {
   id: string;
   kind: string;

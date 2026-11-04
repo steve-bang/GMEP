@@ -45,6 +45,7 @@ export function auditEntry(
     branchId: e.branchId,
     actorId: actor.userId,
     actorRoles: roleCodesOf(actor),
+    actorType: actor.userId.startsWith('system:') ? 'system' : 'user',
     entityType: e.entityType,
     entityId: e.entityId,
     action: e.action,

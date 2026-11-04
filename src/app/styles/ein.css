@@ -1,0 +1,11 @@
+/* EIN screens (G4-EIN-01..07): layout helpers only; colours, spacing and type come from tokens.css. */
+@media print {
+  /* G4-EIN-03: "In A4" prints the invoice document only, not the page chrome and not the work sections */
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  .ein-no-print {
+    display: none !important;
+  }
+}

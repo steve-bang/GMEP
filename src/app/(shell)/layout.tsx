@@ -43,6 +43,195 @@ export default async function ShellLayout({ children }: { children: React.ReactN
       items: [item('dash', '/', t('shell.nav.dashboard'), 'layout-dashboard', 'exact')],
     },
     {
+      label: t('shell.nav.groupCrm'),
+      items: [
+        ...(can.customers
+          ? [
+              item(
+                'cu',
+                '/crm/customers',
+                t('shell.nav.customers'),
+                'users',
+                'prefix',
+                info.readOnly.customers,
+              ),
+            ]
+          : []),
+        ...(can.vehicles
+          ? [
+              item(
+                've',
+                '/crm/vehicles',
+                t('shell.nav.vehicles'),
+                'car-front',
+                'prefix',
+                info.readOnly.vehicles,
+              ),
+            ]
+          : []),
+        ...(can.dataRequests
+          ? [item('dr', '/crm/data-requests', t('shell.nav.dataRequests'), 'id-card')]
+          : []),
+      ],
+    },
+    {
+      label: t('shell.nav.groupRec'),
+      items: [
+        ...(can.intakes
+          ? [
+              item(
+                'ik',
+                '/rec/intakes',
+                t('shell.nav.intakes'),
+                'clipboard-list',
+                'prefix',
+                info.readOnly.intakes,
+              ),
+            ]
+          : []),
+        ...(can.quotes
+          ? [
+              item(
+                'qt',
+                '/rec/quotes',
+                t('shell.nav.quotes'),
+                'receipt',
+                'prefix',
+                info.readOnly.quotes,
+              ),
+            ]
+          : []),
+        ...(can.orders
+          ? [
+              item('od', '/rec/orders', t('shell.nav.orders'), 'wrench', 'prefix'),
+              item('bd', '/rec/board', t('shell.nav.board'), 'layout-dashboard', 'prefix'),
+            ]
+          : []),
+        ...(can.myWork
+          ? [item('mw', '/rec/work', t('shell.nav.myWork'), 'clipboard-list', 'prefix')]
+          : []),
+        ...(can.partRequests
+          ? [item('pr', '/rec/part-requests', t('shell.nav.partRequests'), 'package', 'prefix')]
+          : []),
+      ],
+    },
+    {
+      label: t('shell.nav.groupAcc'),
+      items: [
+        ...(can.payments
+          ? [item('py', '/acc/payments', t('shell.nav.payments'), 'receipt', 'prefix')]
+          : []),
+        ...(can.cashbook
+          ? [item('cb', '/acc/cashbook', t('shell.nav.cashbook'), 'wallet', 'prefix')]
+          : []),
+        ...(can.dayClose
+          ? [item('dc', '/acc/day-close', t('shell.nav.dayClose'), 'lock', 'prefix')]
+          : []),
+        ...(can.debts
+          ? [item('db', '/acc/debts', t('shell.nav.debts'), 'file-text', 'prefix')]
+          : []),
+        ...(can.approvals
+          ? [item('ap', '/approvals', t('shell.nav.approvals'), 'clipboard-check', 'prefix')]
+          : []),
+      ],
+    },
+    ...(can.invoices || can.einConnection
+      ? [
+          {
+            label: t('shell.nav.groupEin'),
+            items: [
+              ...(can.invoices
+                ? [
+                    item('ei', '/ein', t('shell.nav.invoices'), 'file-text', 'exact'),
+                    item(
+                      'ew',
+                      '/ein/warnings',
+                      t('shell.nav.invoiceWarnings'),
+                      'alert-triangle',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+              ...(can.invoiceQueue
+                ? [
+                    item(
+                      'eq',
+                      '/ein/queue',
+                      t('shell.nav.invoiceQueue'),
+                      'clipboard-list',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+              ...(can.einConnection
+                ? [
+                    item(
+                      'ec',
+                      '/ein/connection',
+                      t('shell.nav.invoiceConnection'),
+                      'info',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+            ],
+          },
+        ]
+      : []),
+    ...(can.reports || can.alerts
+      ? [
+          {
+            label: t('shell.nav.groupRpt'),
+            items: [
+              ...(can.reports
+                ? [item('rp', '/rpt', t('shell.nav.reports'), 'chart-no-axes-combined', 'exact')]
+                : []),
+              ...(can.dailyReport
+                ? [item('rd', '/rpt/daily', t('shell.nav.dailyReport'), 'file-text', 'prefix')]
+                : []),
+              ...(can.alerts
+                ? [item('ra', '/rpt/alerts', t('shell.nav.alerts'), 'alert-triangle', 'prefix')]
+                : []),
+            ],
+          },
+        ]
+      : []),
+    {
+      label: t('shell.nav.groupInv'),
+      items: [
+        ...(can.parts
+          ? [
+              item(
+                'pa',
+                '/inv/parts',
+                t('shell.nav.parts'),
+                'package',
+                'prefix',
+                info.readOnly.parts,
+              ),
+            ]
+          : []),
+        ...(can.stock
+          ? [
+              item('st', '/inv/stock', t('shell.nav.stock'), 'warehouse', 'prefix'),
+              item('ro', '/inv/reorder', t('shell.nav.reorder'), 'alert-triangle', 'prefix'),
+            ]
+          : []),
+        ...(can.stockDocs
+          ? [
+              item(
+                'sd',
+                '/inv/documents',
+                t('shell.nav.stockDocs'),
+                'clipboard-list',
+                'prefix',
+                info.readOnly.stockDocs,
+              ),
+            ]
+          : []),
+      ],
+    },
+    {
       label: t('shell.nav.groupSystem'),
       items: [
         ...(can.branches

@@ -1,0 +1,6 @@
+/* CRM tab links (G2-CRM-03): server-rendered links, so the current tab uses aria-current (aria-selected is not valid on a link). Same look as .tab[aria-selected="true"]. */
+.tab[aria-current='page'] {
+  color: var(--color-brand-700);
+  border-bottom-color: var(--color-primary);
+  font-weight: 600;
+}

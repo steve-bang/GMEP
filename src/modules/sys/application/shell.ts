@@ -15,10 +15,47 @@ export interface ShellInfo {
     priceLists: boolean;
     config: boolean;
     templates: boolean;
+    customers: boolean;
+    vehicles: boolean;
+    dataRequests: boolean;
+    parts: boolean;
+    stock: boolean;
+    stockDocs: boolean;
+    intakes: boolean;
+    quotes: boolean;
+    /** slice 1.6 */
+    orders: boolean;
+    /** the technician's own tablet list (repair-item view without managing the floor) */
+    myWork: boolean;
+    partRequests: boolean;
+    /** slice 1.7 */
+    payments: boolean;
+    cashbook: boolean;
+    dayClose: boolean;
+    debts: boolean;
+    approvals: boolean;
+    invoices: boolean;
+    invoiceQueue: boolean;
+    einConnection: boolean;
+    /** slice 1.9 */
+    reports: boolean;
+    dailyReport: boolean;
+    alerts: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
-    'warehouses' | 'branches' | 'users' | 'services' | 'priceLists' | 'config',
+    | 'warehouses'
+    | 'branches'
+    | 'users'
+    | 'services'
+    | 'priceLists'
+    | 'config'
+    | 'customers'
+    | 'vehicles'
+    | 'parts'
+    | 'stockDocs'
+    | 'quotes'
+    | 'intakes',
     boolean
   >;
   unreadNotifications: number;
@@ -47,8 +84,36 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       priceLists: can('price-list:view'),
       config: can('tax-rate:view') || can('discount-limit:view'),
       templates: can('doc-template:view'),
+      customers: can('customer:view'),
+      vehicles: can('vehicle:view'),
+      dataRequests: can('data-request:view'),
+      parts: can('part:view'),
+      stock: can('stock:view'),
+      stockDocs: can('stock-doc:view'),
+      intakes: can('intake:view'),
+      quotes: can('quote:view'),
+      orders: can('repair-order:view'),
+      myWork: can('repair-item:view'),
+      partRequests: can('part-request:view'),
+      payments: can('payment:view'),
+      cashbook: can('cashbook:view'),
+      dayClose: can('cash-day:view'),
+      debts: can('debt:view'),
+      approvals: can('approval:view'),
+      invoices: can('invoice:view'),
+      invoiceQueue: can('invoice-queue:view'),
+      einConnection: can('einvoice-config:view'),
+      reports: can('report-dashboard:view'),
+      dailyReport: can('report-daily:view'),
+      alerts: can('report-alert:view'),
     },
     readOnly: {
+      customers: !mayChange('customer'),
+      vehicles: !mayChange('vehicle'),
+      parts: !mayChange('part'),
+      stockDocs: !mayChange('stock-doc'),
+      intakes: !mayChange('intake'),
+      quotes: !mayChange('quote'),
       warehouses: !mayChange('warehouse'),
       branches: !mayChange('org'),
       users: !mayChange('user'),

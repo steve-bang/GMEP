@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { AppError, notFound } from '@/platform/errors/errors';
 import { resolveScope, type Actor } from '@/platform/rbac/rbac';
-import { knownPermissions } from '../domain/permissions';
+import { knownPermissions, PERMISSION_TOPUPS } from '../domain/permissions';
 import type { Role } from '../domain/entities';
 import type { SysDeps } from '../ports/deps';
 import { invalidateRole } from './auth';
@@ -82,4 +82,71 @@ export async function updateRole(
   });
   invalidateRole(deps, code);
   return toDto(next);
+}
+
+export interface TopUpResult {
+  /** role code -> permissions added by this call */
+  added: Record<string, string[]>;
+  /** top-up ids applied to at least one role */
+  applied: string[];
+}
+
+/**
+ * R30 / R21: gives roles that already exist the permissions added to the default matrix after they were
+ * created (`PERMISSION_TOPUPS`). Idempotent: each role remembers the top-ups it received, so a second call
+ * changes nothing and a permission an administrator removed on purpose is not put back. Only ADDS
+ * (nothing is ever taken away). Owner only (`role:approve`); one audit line per changed role, in the same
+ * transaction as the change.
+ */
+export async function applyPermissionTopUps(
+  deps: SysDeps,
+  actor: Actor,
+  ctx: RequestCtx,
+): Promise<TopUpResult> {
+  resolveScope(actor, 'role:approve');
+  const roles = await deps.roles.list();
+  const result: TopUpResult = { added: {}, applied: [] };
+  const changed: string[] = [];
+  await deps.uow.run(async (tx) => {
+    for (const role of roles) {
+      const done = new Set(role.appliedTopUps ?? []);
+      const perms = new Set(role.permissions);
+      const addedHere: string[] = [];
+      const ids: string[] = [];
+      for (const t of PERMISSION_TOPUPS) {
+        if (done.has(t.id)) continue;
+        for (const p of (t.grants as Record<string, readonly string[] | undefined>)[role.code] ??
+          [])
+          if (!perms.has(p)) {
+            perms.add(p);
+            addedHere.push(p);
+          }
+        done.add(t.id);
+        ids.push(t.id);
+      }
+      if (ids.length === 0) continue;
+      const next: Role = {
+        ...role,
+        permissions: [...perms].sort(),
+        appliedTopUps: [...done].sort(),
+      };
+      deps.roles.upsert(tx, next, { at: deps.clock.now(), by: actor.userId });
+      deps.audit.record(
+        tx,
+        auditEntry(deps, actor, ctx, {
+          branchId: null,
+          entityType: 'role',
+          entityId: role.code,
+          action: 'role.topup',
+          before: { permissions: role.permissions },
+          after: { added: addedHere, topUps: ids },
+        }),
+      );
+      if (addedHere.length) result.added[role.code] = addedHere;
+      for (const id of ids) if (!result.applied.includes(id)) result.applied.push(id);
+      changed.push(role.code);
+    }
+  });
+  for (const code of changed) invalidateRole(deps, code);
+  return result;
 }

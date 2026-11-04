@@ -11,9 +11,13 @@ import {
   type Warehouse,
 } from '@/modules/sys';
 import { normalizeSearch } from '@/platform/text/normalize';
-import type { DocData } from '@/platform/store/docStore';
 import { userToDoc, warehouseToDoc } from '../repos/repos';
 import { COL } from '../repos/queries';
+import { crmDemoDocs } from './crmDemo';
+import { invDemoDocs } from './invDemo';
+import { recDemoDocs } from './recDemo';
+import type { SeedDoc } from './types';
+import type { DocData } from '@/platform/store/docStore';
 
 export const DEMO_PASSWORD = 'Demo!Pass-2026';
 export const DEMO_COMPANY = 'cmp_demo';
@@ -137,7 +141,8 @@ export function demoWarehouses(): Warehouse[] {
     name: w.name,
     nameNorm: normalizeSearch(w.name),
     status: 'active',
-    isDefault: false,
+    // R39: the branch's default warehouse is the one stock is held from; the main warehouse of each branch is marked
+    isDefault: w.code === 'WH-CHINH',
     createdAt: SEED_TIME,
     createdBy: 'seed',
     updatedAt: SEED_TIME,
@@ -146,11 +151,7 @@ export function demoWarehouses(): Warehouse[] {
   }));
 }
 
-export interface SeedDoc {
-  collection: string;
-  id: string;
-  data: DocData;
-}
+export type { SeedDoc };
 
 /** Every demo document, backend independent (memory and Firestore are seeded from the same list). */
 export function demoDocs(): SeedDoc[] {
@@ -163,6 +164,7 @@ export function demoDocs(): SeedDoc[] {
       name: r.name,
       permissions: r.permissions,
       canConsolidate: r.canConsolidate,
+      appliedTopUps: r.appliedTopUps,
     });
   for (const br of demoBranches) {
     const { id, ...rest } = br;
@@ -184,5 +186,8 @@ export function demoDocs(): SeedDoc[] {
     });
   }
   for (const w of demoWarehouses()) put(COL.warehouses, w.id, warehouseToDoc(w));
+  docs.push(...crmDemoDocs());
+  docs.push(...invDemoDocs());
+  docs.push(...recDemoDocs());
   return docs;
 }

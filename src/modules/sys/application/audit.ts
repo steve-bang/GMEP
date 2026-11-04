@@ -19,9 +19,15 @@ const FULL_AUDIT_ROLES = ['CH', 'AD', 'QL'];
 export const AUDIT_RESTRICTED_TYPES: readonly string[] = [
   'config.tax-rate',
   'config.price-item',
+  'config.cost-method',
   'config.numbering-series',
   'config.doc-template',
   'priceList',
+  // KT sees what touches money and invoices (BA §8.2)
+  'invoice',
+  'invoiceRequest',
+  'config.einvoice-issuer',
+  'config.einvoice-policy',
 ];
 
 const dateRe = /^\d{4}-\d{2}-\d{2}$/;
@@ -69,6 +75,8 @@ export interface AuditRowDto {
   actorId: string;
   actorName: string | null;
   actorRoles: string[];
+  /** R30: user, customer-link or system */
+  actorType: 'user' | 'customer-link' | 'system';
   entityType: string;
   entityId: string;
   action: string;
@@ -100,8 +108,12 @@ export async function listAudit(
       at: e.at.toISOString(),
       branchId: e.branchId,
       actorId: e.actorId,
-      actorName: names.get(e.actorId) ?? null,
+      actorName:
+        names.get(e.actorId) ??
+        (e.actorId.startsWith('customer-link:') ? 'Khách (liên kết báo giá)' : null) ??
+        (e.actorId.startsWith('system:') ? 'Hệ thống' : null),
       actorRoles: e.actorRoles,
+      actorType: e.actorType ?? (e.actorId.startsWith('customer-link:') ? 'customer-link' : 'user'),
       entityType: e.entityType,
       entityId: e.entityId,
       action: e.action,

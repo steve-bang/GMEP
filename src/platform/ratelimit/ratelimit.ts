@@ -76,7 +76,14 @@ export const DEFAULT_RATE_LIMITS = {
   token: { limit: 20, windowMs: 15 * 60_000 },
   search: { limit: 120, windowMs: 60_000 },
   'customer-link': { limit: 60, windowMs: 60_000 },
+  /** FR-REC-009: approving or refusing through ONE customer link; a handful per quarter hour is plenty for one person */
+  'customer-link-decide': { limit: 10, windowMs: 15 * 60_000 },
   reveal: { limit: 30, windowMs: 60_000 },
+  export: { limit: 10, windowMs: 60_000 },
+  /** C9: cross-branch exact lookups per person per hour [Cần xác nhận: Khách] */
+  'customer-lookup': { limit: 30, windowMs: 3_600_000 },
+  /** C19: at most one "lookup limit exceeded" notice per person per day, so the owners are not spammed */
+  'customer-lookup-notice': { limit: 1, windowMs: 86_400_000 },
 } as const satisfies Record<string, RateLimitPolicy>;
 export type RateLimitName = keyof typeof DEFAULT_RATE_LIMITS;
 
@@ -93,8 +100,13 @@ export class RateLimiter {
   ) {}
 
   /** Counts one hit; throws 429 with `retryAfterSeconds` when the fixed window is exhausted. */
-  async hit(name: RateLimitName | string, subject: string): Promise<void> {
-    const policy = this.policies[name];
+  async hit(
+    name: RateLimitName | string,
+    subject: string,
+    override?: RateLimitPolicy,
+  ): Promise<void> {
+    // R34: an effective-dated configuration may replace the built-in numbers without a release
+    const policy = override ?? this.policies[name];
     if (!policy) throw new Error(`unknown rate limit policy ${name}`);
     const now = this.now();
     const t = now.getTime();
