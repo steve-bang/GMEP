@@ -357,4 +357,28 @@ Dev đã dựng FR-RPT-001, 003, 004 (mức tối thiểu), 011, 012, 013, 014 �
 
 ### Slice 1.9: trạng thái trả lời
 
-Chưa có câu trả lời. BA điền cột này khi trả lời.
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §22; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA). Mọi giá trị tạm đổi được bằng cấu hình `report-policy`/`RptConfig` hoặc một dòng mã.
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R81 | Đã trả lời: giữ định nghĩa; tách dòng giảm giá cấp lệnh; thêm khối "thu trong ngày"; chờ Kế toán ký | Dev must change (nhỏ) |
+| R82 | Đã trả lời: giữ đối chiếu theo lệnh, thêm đối chiếu theo phiếu thu của ngày; chờ Kế toán | Dev must change (nhỏ) |
+| R83 | Đã trả lời: 5 ngày; 1 ngày; chưa thu đổi thành 1 ngày; chênh lệch quỹ 0 ₫, xem lại sau 2 tuần; chờ Chủ, Quản lý | Dev must change (cấu hình) |
+| R84 | Đã trả lời: giữ phân quyền; không quyền nguồn thì không liên kết đi sâu; chờ Chủ dự án | Dev default OK (kiểm tra) |
+| R85 | Đã trả lời: hợp nhất chỉ cộng bản tổng hợp; so sánh chi nhánh ngoài 1.9; hiện "tổng của N chi nhánh" | Dev default OK |
+| R86 | Đã trả lời: 15 phút giờ làm việc và một lần cuối đêm; ngày chốt không bị job đụng; chờ Chủ dự án (Cloud Scheduler) | Dev default OK (nhãn giờ cập nhật) |
+| R87 | Đã trả lời: đủ cho pilot một chi nhánh; trần quét thành cấu hình 3.000; chạm trần không được là số chính thức; cảnh báo 70% | Dev must change |
+| R88 | Đã trả lời: giữ quy tắc; thêm dấu "có điều chỉnh sau chốt"; chờ Kế toán (FR-RPT-010) | Dev must change (nhỏ) |
+| R89 | Đã trả lời: chỉ CSV ở pilot; giới hạn mềm 20 lần/người/ngày; chống chèn công thức, BOM | Dev must change (kiểm tra) |
+| R90 | Đã trả lời: thứ tự FR-RPT-012, 007, 014, 013, tháng/cùng kỳ, 009, biểu đồ; chờ Chủ | Dev default OK (chưa làm) |
+| R91 | Đã trả lời: mức tối thiểu cho pilot; thêm kiểm tra phụ tùng/phiếu xuất ở slice kế tiếp; chờ Kế toán | Dev default OK |
+| R92 | Đã trả lời: chấp nhận 0 chỉ mục, tổng 191/200 | Dev default OK |
+
+Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §22.5):
+
+1. `computeDaily`: tách giảm giá cấp lệnh khỏi "thuế và chênh lệch làm tròn"; thêm khối "thu trong ngày" và đối chiếu B theo phiếu thu; test tổng ba dòng bằng tổng lệnh (R81, R82).
+2. `report-policy`: mặc định chưa thu sau giao xe = 1 ngày; nhãn "Chênh lệch quỹ ca" (R83).
+3. `RptConfig`: trần quét thành cấu hình (3.000), cờ "không đầy đủ" chặn nhãn chính thức và "Chốt ngày", cảnh báo 70% (R87).
+4. Dấu "có điều chỉnh sau chốt" kèm chênh lệch; số chính thức không tự đổi (R88).
+5. Xuất CSV: chống chèn công thức, UTF-8 BOM, giới hạn mềm 20 lần/người/ngày (R89).
+6. Kiểm tra: ma trận vai trò và liên kết đi sâu (R84), nhãn "tổng của N chi nhánh" (R85), nhãn giờ cập nhật (R86).

@@ -2357,3 +2357,184 @@ Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đ�
 | 6 | R80: danh sách chưa hóa đơn hiện "còn nữa" khi vượt 500 | `application/read.ts` | Kiểm tra |
 
 Không có câu trả lời nào mâu thuẫn với R44 (§19) hay R54–R68 (§20) đã chốt; R75 là điểm nối mới giữa EIN với REC/INV/ACC, cần hai bên cùng sửa trong một PR hoặc hai PR theo thứ tự EIN trước.
+
+## 22. Slice 1.9: báo cáo một chi nhánh (R81–R92)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` là việc của Khách/Kế toán, dev làm theo mặc định ngay). Trả lời mục "Slice 1.9 (RPT báo cáo một chi nhánh)" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-RPT-001..004, 007, 008, 009, 010, 011, 012, 013, 014; BR-RPT-01..04; RULE-009, 010; NFR-MNT-01, NFR-ISO-01; §20 R62, R68; §21 R73, R78. Mọi ngưỡng và công thức là cấu hình có ngày hiệu lực (`report-policy`). Không sửa FRD/BRD/Journey; việc cần sửa ở §22.3.
+
+### 22.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R81 | Doanh thu ngày = công + phụ tùng đã duyệt, chưa thuế, theo ngày hoàn tất; giảm giá cấp lệnh tách thành dòng riêng; thêm khối "thu trong ngày" theo phiếu thu | **Must change** (nhỏ) | Kế toán khách |
+| R82 | Đối chiếu theo lệnh hoàn tất (như dev) và thêm đối chiếu theo phiếu thu của ngày | **Must change** (nhỏ) | Kế toán khách |
+| R83 | Giữ 5 ngày; 1 ngày; chưa thu đổi 0 thành 1 ngày; chênh lệch quỹ giữ 0 ₫ (xem lại sau 2 tuần) | **Must change** (cấu hình) | Chủ, Quản lý |
+| R84 | Giữ phân quyền của dev; số liệu cắt ở server; không có quyền nguồn thì không có liên kết đi sâu | OK (kiểm tra) | Chủ dự án |
+| R85 | Giữ: hợp nhất chỉ cộng bản tổng hợp; so sánh chi nhánh (FR-RPT-002) ngoài phạm vi 1.9 | OK | Chủ dự án |
+| R86 | Mỗi 15 phút trong giờ làm việc, một lần cuối đêm; ngày đã chốt không bị job đụng; hiện giờ cập nhật | OK (thêm nhãn giờ cập nhật) | Chủ dự án |
+| R87 | Đủ cho pilot một chi nhánh; chạm trần thì không được gắn nhãn chính thức; chuyển cập nhật tăng dần trước khi mở rộng | **Must change** | Chủ dự án |
+| R88 | Giữ; thêm dấu "có điều chỉnh sau chốt" kèm chênh lệch, không tự đổi số chính thức | **Must change** (nhỏ) | Kế toán khách |
+| R89 | Pilot chỉ CSV; không cần Excel/PDF; giới hạn mềm số lần xuất; chống chèn công thức | **Must change** (kiểm tra) | Quản lý, Chủ |
+| R90 | Thứ tự sau pilot: 012, 007, 014, 013, tháng/cùng kỳ, 009, biểu đồ | OK | Chủ |
+| R91 | Giữ mức tối thiểu cho pilot; thêm hai kiểm tra phụ tùng/phiếu xuất ở slice kế tiếp trước nghiệm thu phase 1 | OK | Kế toán khách |
+| R92 | Chấp nhận 0 chỉ mục, tổng 191/200 | OK | Dev |
+
+### 22.2 Trả lời từng câu
+
+##### R81. Định nghĩa "doanh thu ngày"
+
+**Khuyến nghị**: giữ định nghĩa của dev, tách thêm hai khối. `[Cần xác nhận: Kế toán khách – công thức và ví dụ số ký (NFR-MNT-01)]`
+
+- Doanh thu ngày (cơ sở phát sinh) = tổng dòng công và phụ tùng đã duyệt của lệnh hoàn tất trong ngày, chưa thuế, theo ngày hoàn tất lệnh; lệnh hủy không tính. Đây là số quản trị, không phải doanh thu ghi sổ thuế (kế toán chính thức nằm ở phần mềm kế toán của Khách).
+- Giảm giá cấp lệnh KHÔNG được gộp vào "thuế và chênh lệch làm tròn" vì làm sai nghĩa dòng đó. Hiện thành ba dòng: doanh thu dòng đã duyệt; giảm giá cấp lệnh; thuế và chênh lệch làm tròn. Tổng ba dòng phải bằng tổng lệnh gồm thuế (kiểm thử bắt buộc).
+- Có mâu thuẫn với FR-RPT-003: tiêu chí ghi "doanh thu ngày khớp tổng phiếu thu và công nợ phát sinh của ngày". Cách hiểu thống nhất: thêm khối riêng **"thu trong ngày"** (tổng phiếu thu ghi trong ngày, theo hình thức thanh toán) bên cạnh doanh thu phát sinh; hai khối được đối chiếu ở R82, không bắt hai số bằng nhau. Sửa lời tiêu chí FRD (§22.3).
+- Lệnh bảo hành: chưa có; khi có (FR bảo hành) doanh thu bằng 0 nhưng vẫn tính vào số lệnh. `[Cần xác nhận: Khách – chính sách bảo hành xuyên chi nhánh]`
+- Lệnh hoàn tất rồi bị hủy: R75 chặn khi có hóa đơn hợp lệ; khi vẫn xảy ra thì rời khỏi doanh thu ngày hoàn tất cũ ở lần dựng lại, và ngày đã chốt hiện dấu của R88.
+
+**Dev must change** (nhỏ): tách dòng giảm giá cấp lệnh; thêm khối "thu trong ngày"; test tổng ba dòng bằng tổng lệnh.
+
+##### R82. Đối chiếu ngày (FR-RPT-003)
+
+**Khuyến nghị**: giữ đối chiếu theo lệnh, thêm đối chiếu theo phiếu thu. `[Cần xác nhận: Kế toán khách]`
+
+- Đối chiếu A (theo lệnh hoàn tất trong ngày): đã thu của các lệnh đó + công nợ đang mở = tổng lệnh gồm thuế. Cọc đã áp dụng tính là đã thu; công nợ tất toán không tính là nợ; thu một phần ở ngày khác vẫn tính cho lệnh đó. Giữ như dev.
+- Đối chiếu B (theo phiếu thu của ngày, bổ sung): tổng phiếu thu ghi trong ngày = tiền mặt/chuyển khoản/thẻ cộng theo hình thức, trừ phiếu đảo; số này phải khớp sổ quỹ và đối soát của ACC, không cần khớp doanh thu.
+- Phần chưa thu mà chưa ghi công nợ giữ là "chênh lệch" và thành cảnh báo ngoại lệ (đúng RULE-007: tiền không tồn tại ngoài chứng từ gốc). Không tự tạo công nợ từ báo cáo.
+
+**Dev must change** (nhỏ): thêm đối chiếu B; hai đối chiếu hiện riêng, có test ví dụ cọc, thu một phần, thu ngày khác, phiếu đảo.
+
+##### R83. Ngưỡng cảnh báo ngoại lệ
+
+**Khuyến nghị**: giữ phần lớn, đổi một giá trị. `[Cần xác nhận: Chủ dự án, Quản lý chi nhánh]`
+
+- Lệnh mở quá **5 ngày**: giữ. Hoàn tất chưa hóa đơn từ **1 ngày** sau mốc `issueAfter` (R73): giữ. Chưa thu sau giao xe: đổi **0 sang 1 ngày** để tránh cảnh báo ồn khi khách đang thanh toán tại quầy. Chênh lệch quỹ: giữ **0 ₫** (mọi chênh lệch) cho pilot vì ACC đã có ngưỡng duyệt riêng; xem lại sau 2 tuần chạy thực tế.
+- "Chênh lệch bất thường" chỉ là ca đóng có chênh lệch quỹ lớn hơn ngưỡng: chấp nhận cho pilot, tên hiển thị phải ghi đúng ý ("Chênh lệch quỹ ca"), không gợi ý gian lận.
+- Cấu hình `report-policy` có ngày hiệu lực, ghi đè theo chi nhánh dưới mặc định công ty (như labor/discount); đổi ngưỡng có nhật ký và duyệt như cấu hình khác.
+
+**Dev must change** (cấu hình): mặc định chưa thu = 1 ngày; nhãn hiển thị.
+
+##### R84. Phân quyền báo cáo
+
+**Khuyến nghị**: giữ như dev. `[Cần xác nhận: Chủ dự án – từng vai trò]`
+
+- `report-dashboard:view` chỉ mở trang; từng khối bị cắt ở server theo quyền xem của phân hệ nguồn (NFR-ISO-01). Doanh thu và tách công/phụ tùng (`report-daily:view`): Chủ garage, Quan sát viên, Quản lý chi nhánh, Kế toán. Xuất CSV: Chủ, Quản lý, Kế toán. Chạy/dựng lại job: Chủ, Quản lý. Thợ và quản trị hệ thống không có báo cáo. Thủ kho và Quản đốc chỉ thấy số lệnh/kho theo quyền nguồn, không thấy doanh thu.
+- Quy tắc nhất quán: người không có quyền xem chứng từ nguồn thì thấy con số (nếu khối được phép) nhưng **không có liên kết đi sâu** (FR-RPT-011), tránh lộ dữ liệu qua đường đi sâu.
+- Báo cáo ngày và CSV không chứa tên khách, số điện thoại, biển số đầy đủ (che theo §7); đi sâu sang chứng từ mới áp dụng che theo vai trò của chứng từ.
+
+**Dev default OK.** Kiểm tra: test theo ma trận vai trò (thợ bị từ chối; thủ kho không thấy doanh thu; không có liên kết đi sâu khi thiếu quyền nguồn).
+
+##### R85. Góc nhìn hợp nhất của chủ
+
+**Khuyến nghị**: giữ. `[Cần xác nhận: Chủ dự án]`
+
+- Hợp nhất chỉ cộng bản tổng hợp từng chi nhánh trong phạm vi quyền, không dựng lại từ chứng từ; báo cáo ngày luôn của một chi nhánh.
+- FR-RPT-002 (so sánh chi nhánh, Must) **chưa làm** và nằm ngoài 1.9: pilot chỉ một chi nhánh nên chưa có giá trị; ghi nhận làm khi có chi nhánh thứ hai (cùng kỳ, cùng định nghĩa R81). Không phải mâu thuẫn, chỉ là chưa đến lượt.
+- Nhiều pháp nhân (câu hỏi mở của Khách): tổng "toàn chuỗi" chưa tách pháp nhân, ghi chú trên màn; dữ liệu đã có chi nhánh nên tách sau được bằng cấu hình đơn vị phát hành (R69), không đổi dữ liệu.
+- Chi nhánh bị khóa hoặc ngoài phạm vi người xem không vào tổng; màn ghi số chi nhánh đã cộng để tránh hiểu nhầm là toàn chuỗi.
+
+**Dev default OK.** Kiểm tra: hiện "tổng của N chi nhánh trong phạm vi của bạn".
+
+##### R86. Bộ lập lịch và tần suất làm mới
+
+**Khuyến nghị**: tần suất mặc định, hạ tầng khi lên môi trường thật. `[Cần xác nhận: Chủ dự án – tài khoản dịch vụ và Cloud Scheduler, cùng R76]`
+
+- Mong muốn: mỗi **15 phút trong giờ làm việc** (theo cấu hình giờ làm của chi nhánh), một lần **cuối đêm** để chốt số tạm của hôm qua. Độ trễ chấp nhận của số tạm: tối đa 15 phút; mọi số tạm hiện giờ cập nhật gần nhất.
+- Chưa có lịch tự động thì pilot vẫn đúng: nút "Làm mới" tại màn và `run-due` gọi tay; màn ghi rõ "tự làm mới chỉ chạy khi có người bấm" (như R76).
+- Ngày đã chốt (số chính thức) không bị job tự động đụng tới. Dựng lại thủ công (`rebuild`) cần lý do, chỉ Chủ/Quản lý, có nhật ký ghi số trước và số sau.
+- Không phát sinh tài liệu khi số liệu không đổi: giữ. `run-due` chỉ chạy bằng danh tính dịch vụ hoặc người có quyền, từng chi nhánh, có giới hạn lượng (cùng R76).
+
+**Dev default OK** (thêm nhãn giờ cập nhật nếu chưa có).
+
+##### R87. Cách dựng bản tổng hợp và quy mô
+
+**Khuyến nghị**: đủ cho pilot một chi nhánh; có điều kiện kỹ thuật. `[Cần xác nhận: Chủ dự án – quy mô pilot]`
+
+- Số liệu thiết kế trong CLAUDE.md (120–200 xe/ngày) là ước tính toàn chuỗi chưa xác nhận; chưa rõ theo chi nhánh hay toàn công ty. Giả định bảo thủ: một chi nhánh pilot dưới 200 xe/ngày, 7 ngày dưới 1.400 lệnh, còn nằm trong trần 1.500 nhưng biên mỏng. Nâng `ordersScanMax` lên 3.000 làm giá trị cấu hình cho pilot (không đổi cấu trúc).
+- Điều quan trọng hơn: **số liệu bị cắt vì chạm trần không bao giờ được là số chính thức**. Chạm trần thì bản tổng hợp gắn "mức tối thiểu/không đầy đủ", chặn nhãn chính thức và chặn "Chốt ngày" dựa trên bản đó cho tới khi dựng lại đủ; hiện cảnh báo rõ cho người dùng.
+- Điều kiện chuyển sang cập nhật tăng dần trong giao dịch (R68 quy tắc 3): trước khi mở chi nhánh thứ hai hoặc khi quét đạt 70% trần ở bất kỳ chi nhánh nào; đặt cảnh báo ở 70%.
+- Đã giữ trần mọi danh sách và thông báo "còn nữa" (nhất quán R68 quy tắc 2).
+
+**Dev must change**: trần quét đưa vào cấu hình (nâng 3.000); cờ "không đầy đủ" chặn nhãn chính thức; cảnh báo 70%; test chạm trần.
+
+##### R88. Số tạm và số chính thức
+
+**Khuyến nghị**: giữ quy tắc, thêm dấu sau chốt. `[Cần xác nhận: Kế toán khách – FR-RPT-010]`
+
+- Ngày đã "Chốt ngày" ở ACC là số chính thức; còn lại "Số tạm". Số chính thức không tự đổi (RULE-010 tinh thần: sửa bằng điều chỉnh có dấu vết, không ghi đè).
+- Phiếu đảo ghi vào ngày đang mở của ngày đã khóa (R62) không đổi số ngày đã chốt. Thêm dấu "có điều chỉnh sau chốt" kèm chênh lệch so với số chính thức, để người đọc thấy mà không phải dựng lại; dựng lại thủ công đổi số và ghi nhật ký (R86).
+- Nhãn hiển thị ("Số tạm", "Chính thức") do Kế toán duyệt lời; FR-RPT-010 vẫn `[Cần xác nhận]` trong FRD cho tới khi có chữ ký.
+
+**Dev must change** (nhỏ): dấu "có điều chỉnh sau chốt" và chênh lệch; test.
+
+##### R89. Xuất báo cáo
+
+**Khuyến nghị**: pilot chỉ CSV. `[Cần xác nhận: Quản lý, Chủ dự án]`
+
+- Không cần Excel/PDF trước pilot (FR-RPT-009 là Could). Ghi nhận làm sau, khớp số trên màn hình (tiêu chí FRD).
+- Mỗi lần xuất ghi `rollup.export` (người, chi nhánh, ngày, giờ). Giới hạn mềm mặc định **20 lần xuất/người/ngày** là cấu hình; vượt thì cần lý do và báo quản lý (không chặn cứng vì dữ liệu không có thông tin cá nhân).
+- Kỹ thuật bảo vệ: chống chèn công thức (ô bắt đầu bằng `=`, `+`, `-`, `@` thêm tiền tố), UTF-8 có BOM để Excel đọc tiếng Việt đúng. Tệp chỉ tính theo phạm vi của người xuất.
+
+**Dev must change** (kiểm tra): chống chèn công thức, BOM, giới hạn mềm; sửa nếu thiếu.
+
+##### R90. Thứ tự việc sau pilot
+
+**Khuyến nghị**: theo mức Must trước. `[Cần xác nhận: Chủ]`
+
+- Thứ tự: (1) FR-RPT-012 báo cáo lệnh (xe trễ hẹn khớp bảng điều phối, thời gian hoàn thành trung bình, tỷ lệ đúng hạn); (2) FR-RPT-007 tuổi nợ phải thu; (3) FR-RPT-014 bộ lọc loại dịch vụ, nhân viên, nhóm doanh thu; (4) FR-RPT-013 lợi nhuận gộp; (5) báo cáo tháng và so sánh cùng kỳ; (6) FR-RPT-009 Excel/PDF; (7) biểu đồ nâng cao.
+- FR-RPT-013 phụ thuộc phương pháp giá vốn (câu hỏi mở: bình quân gia quyền cho Kế toán) và nhân công trực tiếp cần HRM (phase 2): bản đầu chỉ "lợi nhuận gộp phụ tùng" có nhãn công thức và phạm vi, không gọi là lợi nhuận.
+- Ghi nhận: FR-RPT-007, 012, 013, 014 là **Must** trong FRD nhưng chưa làm; danh sách pilot cần xác nhận lại phạm vi RPT của phase 1 (§22.3).
+
+**Dev default OK** (chưa làm).
+
+##### R91. Đối chiếu bốn chiều
+
+**Khuyến nghị**: mức tối thiểu cho pilot, bổ sung ngay sau. `[Cần xác nhận: Kế toán khách]`
+
+- Mức tối thiểu hiện có là đủ để bắt đầu pilot. Tiêu chí FR-RPT-004 ("liệt kê được lệnh thiếu một trong bốn thành phần") chưa đạt đầy đủ; màn hiện nhãn "mức tối thiểu".
+- Bổ sung ở slice kế tiếp, trước nghiệm thu phase 1: (a) lệnh có phụ tùng đã duyệt nhưng không có phiếu xuất kho; (b) phiếu xuất lớn hơn số lượng đã duyệt (theo `lineKey`, §17); (c) lệnh hoàn tất thiếu hóa đơn hoặc tiền (đã có). Phiếu xuất không có chứng từ gốc giữ kỳ vọng bằng 0 (RULE-007).
+- Lệnh bảo hành, lệnh nội bộ không có hóa đơn: danh mục loại trừ do Kế toán khách xác nhận trước khi tính.
+
+**Dev default OK.**
+
+##### R92. Ngân sách chỉ mục
+
+**Khuyến nghị**: chấp nhận. `[Đề xuất BA; quyết định kỹ thuật thuộc dev]`
+
+- 0 chỉ mục mới, tổng 191/200 (R78), tái dùng hình truy vấn có sẵn là đúng R68 quy tắc 1 và 3. Còn 9 chỗ; mọi báo cáo sau (R90) phải đọc từ bản tổng hợp hoặc nộp bảng "hình truy vấn mới → chỉ mục" trong PR, và hỏi Chủ dự án trước khi vượt 195.
+
+**Dev default OK.**
+
+### 22.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-RPT-003 | Tiêu chí: doanh thu phát sinh (chưa thuế, theo ngày hoàn tất) và "thu trong ngày" là hai khối đối chiếu được, không bắt bằng nhau; thêm báo cáo tháng ở slice sau | R81, R82 |
+| FRD FR-RPT-010 | Giữ `[Cần xác nhận]`; thêm dấu "có điều chỉnh sau chốt" | R88 |
+| FRD FR-RPT-002, 007, 012, 013, 014 | Ghi trạng thái chưa làm và thứ tự đề xuất; cập nhật §13 phạm vi RPT phase 1 (hiện dev làm 001, 003, 004 mức tối thiểu, 011, 012 một phần, 013, 014 một phần) | R85, R90 |
+| FRD FR-RPT-004 | Nêu hai mức: tối thiểu (pilot) và đầy đủ bốn chiều; danh mục loại trừ | R91 |
+| FRD FR-RPT-009 | Pilot chỉ CSV, giới hạn mềm xuất | R89 |
+| BRD BR-RPT-01/02 | Định nghĩa "doanh thu quản trị" khác doanh thu ghi sổ thuế | R81 |
+| Journey (dashboard theo vai trò) | Nêu số tạm/chính thức, giờ cập nhật, "tổng của N chi nhánh" | R85, R86, R88 |
+| UAT-01 (RPT) | Mở rộng: tổng ba dòng bằng tổng lệnh; đối chiếu A và B (cọc, thu một phần, ngày khác, phiếu đảo); thợ không vào báo cáo; thủ kho không thấy doanh thu; chạm trần thì không gắn chính thức; sau chốt có dấu điều chỉnh; CSV không chứa dữ liệu cá nhân và chống chèn công thức | R81–R89 |
+
+### 22.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4, §18.4, §19.4, §20.4, §21.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 46 | Kế toán khách | Công thức doanh thu quản trị (chưa thuế, theo ngày hoàn tất), hai đối chiếu A/B, nhãn "Số tạm/Chính thức"; ví dụ số ký | Như §22.2 R81, R82, R88 | Đổi theo ngày thu hoặc ngày hóa đơn: đổi `computeDaily`, kiểm thử lại |
+| 47 | Chủ dự án | Phân quyền báo cáo từng vai trò; quy mô pilot (xe/ngày một chi nhánh); tài khoản dịch vụ cho lịch làm mới | Như R84, R87, R86 | Quy mô lớn hơn: cập nhật tăng dần sớm hơn |
+| 48 | Chủ, Quản lý | Ngưỡng cảnh báo ngoại lệ (5/1/1/0 ₫); cần Excel/PDF trước pilot không | Pilot chỉ CSV; xem lại ngưỡng sau 2 tuần | Thêm Excel/PDF: mở FR-RPT-009 |
+
+### 22.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R81: tách dòng giảm giá cấp lệnh khỏi "thuế và chênh lệch làm tròn"; thêm khối "thu trong ngày"; test tổng ba dòng bằng tổng lệnh | `rpt/domain/rollup.ts` `computeDaily` | Bắt buộc, có test |
+| 2 | R82: thêm đối chiếu B theo phiếu thu của ngày; test cọc, thu một phần, thu ngày khác, phiếu đảo | `computeDaily` | Bắt buộc, có test |
+| 3 | R83: mặc định chưa thu sau giao xe = 1 ngày; nhãn "Chênh lệch quỹ ca" | `report-policy`, `recDemo.ts` | Nhỏ |
+| 4 | R87: trần quét thành cấu hình (3.000), cờ "không đầy đủ" chặn nhãn chính thức và "Chốt ngày", cảnh báo 70% | `RptConfig`, `rptWiring.ts`, `refreshDays` | Bắt buộc, có test |
+| 5 | R88: dấu "có điều chỉnh sau chốt" kèm chênh lệch; số chính thức không tự đổi | `computeDaily`, `refreshDays` | Nhỏ, có test |
+| 6 | R89: chống chèn công thức CSV, BOM, giới hạn mềm 20 lần/người/ngày | `rpt/application/export.ts` | Kiểm tra |
+| 7 | R84, R85, R86: test ma trận vai trò và liên kết đi sâu; nhãn "tổng của N chi nhánh"; nhãn giờ cập nhật | `permissions.ts`, `application/read.ts` | Kiểm tra |
+
+Không có câu trả lời nào mâu thuẫn với R62 (§20), R68, R73, R75, R78 đã chốt. Mâu thuẫn tài liệu đã nêu: tiêu chí FR-RPT-003 (R81) và các FR-RPT Must chưa làm so với phạm vi phase 1 (R90); chỉ sửa khi áp dụng §22.3.
