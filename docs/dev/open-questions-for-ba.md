@@ -193,3 +193,22 @@ Dev đã dựng duyệt báo giá: FR-REC-008, 009, 023, 026, 030, 031, 032 (xem
 | R37 | B | Duyệt một phần: tiền của lệnh là tổng đã duyệt (thuế tính lại trên tập được duyệt), `approvedTotalVnd` nằm trên báo giá; hạng mục không duyệt không vào lệnh. Giữ chỗ phụ tùng làm khi tạo lệnh ở 1.6 từ `getApprovedQuote` (mỗi dòng mang `lineKey`); duyệt xong chưa có lệnh nên chưa giữ chỗ. Chấp nhận khoảng trống giữa "đã duyệt" và "đã có lệnh" (cố vấn phải bấm tạo lệnh, hay hệ thống tự tạo lệnh khi duyệt)? | Chưa tạo lệnh tự động | `approval.ts`, slice 1.6 |
 | R38 | B | Liên kết của báo giá hết hạn vẫn cho khách TỪ CHỐI (tạm: được) nhưng không cho duyệt; khách không tự xin liên kết mới. Cố vấn tạo phiên bản mới rồi tạo liên kết mới. Chấp nhận? | Như bên trái | `approval.ts` |
 
+Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-dev.md` §18; Chủ dự án đã duyệt trước nguyên tắc theo đề xuất BA):
+
+| # | Trạng thái | Dev |
+| --- | --- | --- |
+| R25 | Đã trả lời, chờ Kế toán khách ký ví dụ | Dev default OK |
+| R26 | Đã trả lời, chờ Luật sư khách | Dev default OK |
+| R27 | Đã trả lời, ngưỡng chờ Chủ dự án | Dev default OK |
+| R28 | Đã trả lời | Dev default OK (bổ sung ghi nhận in, sau) |
+| R29 | Đã trả lời, ngưỡng chờ Khách | Dev must change (nhỏ) |
+| R30 | Đã trả lời | Dev default OK (cơ chế bổ sung quyền trước pilot) |
+| R31 | Đã trả lời | Dev default OK |
+| R32 | Đã trả lời, danh sách lý do chờ Khách | Dev default OK |
+| R33 | Đã trả lời | Dev default OK (thêm `supportPhone` sau) |
+| R34 | Đã trả lời, chờ đo staging | Dev default OK (cấu hình hóa nếu đang cứng) |
+| R35 | Đã trả lời: `RO-<MÃCN>-<YYMM>-<STT 5>` | Dev default OK |
+| R36 | Đã trả lời, bước đồng sơn chờ khảo sát xưởng | Dev must change (seed + trường nhỏ) |
+| R37 | Đã trả lời: duyệt tự tạo lệnh và giữ chỗ | Dev must change (nối ở 1.6) |
+| R38 | Đã trả lời: liên kết hết hạn chỉ đọc | Dev must change |
+
