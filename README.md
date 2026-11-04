@@ -134,8 +134,26 @@ Key mechanics already in place:
 - **Indexes**: 136 composite indexes after this slice (Firestore allows 200 per database): keep new query shapes few (`pnpm check:indexes`).
 - Tests: `tests/unit/inv-domain.test.ts`, `tests/integration/inv.test.ts` (both backends), `e2e/slice-1-4.spec.ts`.
 
+## Slice 1.5 first part (REC intake and quote)
+
+- **Data model** (`src/modules/rec`): `intakes` (draft -> completed | cancelled; no phone or address is copied, only name/plate snapshots),
+  `quotes` (header: number, status of the current version, total) and `quoteVersions` (`<quote>__v<n>`: items with labor/part lines, totals,
+  tax snapshot, `pricedOn`, sent/replaced/rejected marks). Quote, repair order, item, payment and invoice have separate state sets; the quote
+  table lives in `domain/quoteState.ts` and is tested for every state x event pair.
+- **Pricing is data** (`application/quoteBuild.ts`, `domain/pricing.ts`): labor = minutes x hourly rate / 60 (`standard-hours` per service,
+  `labor-rate` company or branch); part price = `price-item` of the price list in `RecConfig.priceListCode`; tax = `tax-rate` key
+  `RecConfig.taxRateKey`; discount limit = `discount-limit` per role (no entry = no discount). A missing config version is an error
+  (`tax_rate_missing`, 422 with the line), never a default. Config version ids are kept on every line (price snapshot). Rounding: line amounts
+  half up; tax once per rate on the sum of net amounts [Cần xác nhận: Kế toán khách]; all integer VND.
+- **Versions**: draft = edited in place; sent/rejected/expired = the edit becomes the next version (the previous one is marked replaced when
+  the new one is sent); approved = locked. A draft priced on an earlier day must be saved again before sending (`prices_outdated`).
+- **No stock hold at quote time** (BA §16.2.1 row 1); the picker and the lines show the AVAILABLE quantity only.
+- **Routes**: `/api/v1/rec/{intakes,quotes,pickers/services,pickers/parts}`; UI `/rec/intakes`, `/rec/intakes/new`, `/rec/intakes/[id]`
+  (wizard), `/rec/quotes`, `/rec/quotes/[id]` (menu "Tiếp nhận và báo giá").
+- Tests: `tests/unit/rec-domain.test.ts`, `tests/integration/rec.test.ts` (both backends), `e2e/slice-1-5.spec.ts`.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core and the INV ledger (REC, ACC, EIN, RPT are skeletons; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger and REC intake/quote (ACC, EIN, RPT are skeletons; REC approval, customer link, A4 print, repair orders and items are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.
