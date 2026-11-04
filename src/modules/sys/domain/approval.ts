@@ -22,6 +22,10 @@ export const APPROVAL_KINDS = [
   'payment_reversal',
   'expense',
   'deposit_refund',
+  // FR-ACC-016: money received for an order goes back to the customer; always decided by a manager (RULE-011)
+  'customer_refund',
+  // FR-ACC-005: reopening a closed day is decided by the owner only (R62)
+  'day_reopen',
   'debt_handover',
   'cash_variance',
   // slice 1.8 (FR-EIN-007): correcting an issued invoice is always decided by someone other than the requester
@@ -67,6 +71,15 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
   deposit_refund: {
     alwaysNeeded: true,
     defaults: { selfMaxVnd: 0, level1MaxVnd: 50_000_000, dueHours: 24 },
+  },
+  customer_refund: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 10_000_000, dueHours: 24 },
+  },
+  // no value: the request is raised at level 2 (owner) whatever the numbers
+  day_reopen: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 0, dueHours: 24 },
   },
   debt_handover: {
     alwaysNeeded: true,

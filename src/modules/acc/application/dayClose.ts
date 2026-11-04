@@ -2,6 +2,12 @@ import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import { hasPermission, resolveScope, type Actor } from '@/platform/rbac/rbac';
 import {
+  approvalLimitsOf,
+  consumeApprovalInTx,
+  loadApprovalForUse,
+  openApprovalInTx,
+} from '@/modules/sys';
+import {
   dayCloseBlockers,
   dayCloseId,
   dayWindow,
@@ -27,7 +33,7 @@ import {
  * Day close (FR-ACC-004, UAT-07): lists the open orders and the orders not yet paid, the count differences, then
  * locks the business date of the branch. It cannot close while a shift is open or a count difference is
  * unexplained, pending or rejected; once closed, no payment, voucher, shift or cash entry can be dated that day.
- * A mistake found later is corrected by a reversal posted in the open day (RULE-010), never by reopening in this slice.
+ * A mistake found later is corrected by a reversal posted in the open day (RULE-010); reopening the current day needs the owner's approval (FR-ACC-005, below).
  */
 
 export interface DayStatusDto {
@@ -227,6 +233,123 @@ export async function closeDay(
         status: 201,
         body: { id: row.id, date: data.date, closingBalanceVnd: row.closingBalanceVnd },
       };
+    },
+  );
+}
+
+// ---- reopening a closed day (FR-ACC-005, R62) ----------------------------------------------------------------------------
+
+export const reopenRequestSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  reason: z.string().trim().min(5).max(300),
+});
+
+/**
+ * A closed day is reopened only with the owner's approval and a reason [Đề xuất dev - chờ xác nhận: Chủ dự án, Kế toán
+ * khách]. Only the CURRENT business day can be reopened (money is always posted in the open day, so an older closed day
+ * is never written to; corrections go in as reversal entries, RULE-010). The close record is kept (status `reopened`)
+ * and a new close replaces it; the first close stays readable in the audit log.
+ */
+export async function requestDayReopen(
+  deps: AccDeps,
+  actor: Actor,
+  input: unknown,
+  ctx: RequestCtx & { idempotencyKey: string },
+) {
+  const scope = resolveScope(actor, 'cash-day:update');
+  const branchId = moneyBranch(actor, scope);
+  const data = parseInput(reopenRequestSchema, input);
+  if (data.date !== businessDate(deps.sys.clock.now()))
+    throw validationFailed([{ field: 'date', message: 'Chỉ mở lại được ngày làm việc hiện tại.' }]);
+  const limits = await approvalLimitsOf(deps.sys, actor.companyId, 'day_reopen', data.date);
+  return runIdempotent(
+    idemOf(deps),
+    {
+      userId: actor.userId,
+      route: 'POST /api/v1/acc/day-close/reopen-request',
+      key: ctx.idempotencyKey,
+      fingerprint: fingerprintOf({ branchId, ...data }),
+    },
+    async (tx) => {
+      const close = await deps.cash.getDayCloseInTx(tx, scope, branchId, data.date);
+      if (!close) throw new AppError('day_not_closed', 409);
+      const branch = await assertWritable(deps, tx, actor, scope, branchId);
+      const req = await openApprovalInTx(deps.sys, tx, actor, ctx, {
+        kind: 'day_reopen',
+        level: 2,
+        limits,
+        branch,
+        subjectType: 'dayClose',
+        subjectId: close.id,
+        subjectLabel: data.date,
+        valueVnd: 0,
+        reason: data.reason,
+        payload: { date: data.date },
+      });
+      return {
+        status: 202,
+        body: {
+          status: 'pending_approval',
+          approvalId: req.id,
+          number: req.number,
+          level: req.level,
+        },
+      };
+    },
+  );
+}
+
+export const reopenSchema = z.object({ approvalId: z.string().trim().min(1).max(128) });
+
+export async function reopenDay(
+  deps: AccDeps,
+  actor: Actor,
+  input: unknown,
+  ctx: RequestCtx & { idempotencyKey: string },
+) {
+  const scope = resolveScope(actor, 'cash-day:update');
+  const branchId = moneyBranch(actor, scope);
+  const data = parseInput(reopenSchema, input);
+  return runIdempotent(
+    idemOf(deps),
+    {
+      userId: actor.userId,
+      route: 'POST /api/v1/acc/day-close/reopen',
+      key: ctx.idempotencyKey,
+      fingerprint: fingerprintOf({ branchId, ...data }),
+    },
+    async (tx) => {
+      const today = businessDate(deps.sys.clock.now());
+      const approval = await loadApprovalForUse(deps.sys, tx, scope, {
+        id: data.approvalId,
+        kind: 'day_reopen',
+        branchId,
+        subjectId: dayCloseId(branchId, today),
+      });
+      const close = await deps.cash.getDayCloseInTx(tx, scope, branchId, today);
+      if (!close) throw new AppError('day_not_closed', 409);
+      await assertWritable(deps, tx, actor, scope, branchId);
+      const now = deps.sys.clock.now();
+      consumeApprovalInTx(deps.sys, tx, actor, ctx, approval, close.id);
+      deps.cash.updateDayClose(tx, close.id, {
+        status: 'reopened',
+        reopenedAt: now,
+        reopenedBy: actor.userId,
+        reopenApprovalId: approval.id,
+      });
+      deps.sys.audit.record(
+        tx,
+        auditEntry(deps.sys, actor, ctx, {
+          branchId,
+          entityType: 'dayClose',
+          entityId: close.id,
+          action: 'cash.day_reopen',
+          before: { status: 'closed', closedAt: close.closedAt.toISOString() },
+          after: { status: 'reopened', approval: approval.number },
+          reason: approval.reason,
+        }),
+      );
+      return { status: 200, body: { id: close.id, date: today, status: 'reopened' } };
     },
   );
 }

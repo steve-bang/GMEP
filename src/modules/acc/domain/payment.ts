@@ -62,6 +62,8 @@ export interface Payment {
   sourceMissingReason?: string;
   /** an expense that refunds a customer deposit */
   depositId?: string;
+  /** an expense that gives back money received for an order (FR-ACC-016, RULE-010: a new entry, receipts untouched) */
+  customerRefund?: boolean;
   // reversal
   reversesId?: string;
   reversesNumber?: string;
@@ -330,7 +332,7 @@ export function canReverse(
 /** Account after the reversal of `p` (the reversal entry itself is a separate Payment). */
 export function applyReversal(
   a: OrderAccount,
-  p: Pick<Payment, 'kind' | 'id' | 'totalVnd' | 'applications' | 'depositId'>,
+  p: Pick<Payment, 'kind' | 'id' | 'totalVnd' | 'applications' | 'depositId' | 'customerRefund'>,
   at: Date,
 ): OrderAccount {
   if (p.kind === 'receipt') {
@@ -358,6 +360,8 @@ export function applyReversal(
       },
       at,
     );
+  if (p.kind === 'expense' && p.customerRefund)
+    return touch({ ...a, receivedVnd: a.receivedVnd + p.totalVnd }, at);
   if (p.kind === 'expense' && p.depositId)
     return touch(
       {
@@ -390,6 +394,7 @@ export function recomputeAccount(
       received += p.totalVnd;
       applied += p.applicationVnd;
     } else if (p.kind === 'deposit') held += p.totalVnd;
+    else if (p.kind === 'expense' && p.customerRefund) received -= p.totalVnd;
     else if (p.kind === 'expense' && p.depositId) held -= p.totalVnd;
   }
   return { receivedVnd: received, depositAppliedVnd: applied, depositHeldVnd: held - applied };
@@ -397,3 +402,20 @@ export function recomputeAccount(
 
 /** Reversal entry for `p`: same lines, opposite direction. */
 export const oppositeOf = (d: PaymentDirection): PaymentDirection => (d === 'in' ? 'out' : 'in');
+
+/** Account after a customer refund: the net money received goes down by the refunded amount (FR-ACC-016). */
+export function applyCustomerRefund(a: OrderAccount, amountVnd: number, at: Date): OrderAccount {
+  return touch({ ...a, receivedVnd: a.receivedVnd - amountVnd }, at);
+}
+
+/**
+ * How much of an order's money may go back to the customer (FR-ACC-016, BR-ACC-11) [Đề xuất dev - chờ xác nhận:
+ * Kế toán khách]. Only money received by receipts can be refunded (held deposits have their own refund). A live order
+ * can refund what exceeds the receivable (a removed supplement, an over-collection); a cancelled order can refund all
+ * net receipts. Never negative.
+ */
+export function refundableVnd(receivableVnd: number, a: OrderAccount, cancelled: boolean): number {
+  if (cancelled) return Math.max(0, a.receivedVnd);
+  const over = balanceOf(receivableVnd, a).overpaidVnd;
+  return Math.max(0, Math.min(a.receivedVnd, over));
+}

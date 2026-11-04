@@ -243,6 +243,8 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       'payment_reversal',
       'expense',
       'deposit_refund',
+      'customer_refund',
+      'day_reopen',
       'debt_handover',
       'cash_variance',
       'invoice_adjust',

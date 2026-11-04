@@ -681,6 +681,14 @@
       "title": "Sai loại chi phí",
       "detail": "Hoàn cọc dùng loại chi phí hoàn cọc."
     },
+    "day_not_closed": {
+      "title": "Ngày chưa được chốt",
+      "detail": "Chỉ mở lại được ngày làm việc hiện tại khi ngày đó đã chốt."
+    },
+    "refund_exceeds_received": {
+      "title": "Hoàn quá số tiền đã thu",
+      "detail": "Số hoàn vượt phần tiền đã thu mà lệnh này có thể trả lại cho khách (lệnh còn hiệu lực: chỉ phần thu vượt công nợ; lệnh đã hủy: toàn bộ tiền đã thu ròng)."
+    },
     "refund_exceeds_deposit": {
       "title": "Hoàn quá số cọc đang giữ",
       "detail": "Số hoàn lớn hơn phần cọc còn giữ."
@@ -1253,7 +1261,7 @@
       "approval-limit": {
         "title": "Hạn mức phê duyệt",
         "lead": "Số tiền cấp thu ngân tự quyết và hạn mức cấp quản lý chi nhánh cho từng loại yêu cầu; vượt hạn mức quản lý thì chủ garage duyệt. Số liệu minh họa cho tới khi khách ban hành. Đặt qua API.",
-        "scopeHint": "payment_reversal, expense, deposit_refund, debt_handover, cash_variance, invoice_adjust, invoice_replace hoặc invoice_cancel"
+        "scopeHint": "payment_reversal, expense, deposit_refund, customer_refund, day_reopen, debt_handover, cash_variance, invoice_adjust, invoice_replace hoặc invoice_cancel"
       },
       "expense-category": {
         "title": "Loại chi phí",
@@ -1564,6 +1572,10 @@
       "cash_shift_close": "Chốt ca thu ngân",
       "cash_variance_resubmit": "Giải trình lại chênh lệch quỹ",
       "cash_day_close": "Chốt ngày",
+      "cash_day_reopen": "Mở lại ngày đã chốt",
+      "payment_customer_refund": "Hoàn tiền cho khách",
+      "intake_photo_add": "Thêm ảnh vào hồ sơ tiếp nhận",
+      "repairOrder_photo_add": "Thêm ảnh vào lệnh sửa chữa",
       "debt_approve": "Duyệt ghi nợ",
       "quote_close": "Đóng báo giá bổ sung (lệnh đã đóng)",
       "dataImport_validate": "Chạy thử lô nhập",
@@ -3165,6 +3177,8 @@
     "kind_debt_handover": "Ghi nợ khi giao xe",
     "kind_cash_variance": "Chênh lệch quỹ",
     "kind_deposit_refund": "Hoàn cọc",
+    "kind_customer_refund": "Hoàn tiền khách",
+    "kind_day_reopen": "Mở lại ngày đã chốt",
     "kind_invoice_adjust": "Điều chỉnh hóa đơn",
     "kind_invoice_replace": "Thay thế hóa đơn",
     "kind_invoice_cancel": "Hủy hóa đơn",

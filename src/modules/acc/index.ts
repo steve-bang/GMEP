@@ -46,7 +46,8 @@ export {
   toShiftDto,
 } from './application/shifts';
 export type { ShiftDto, CashbookDto, CashEntryDto } from './application/shifts';
-export { getDayStatus, closeDay } from './application/dayClose';
+export { getDayStatus, closeDay, requestDayReopen, reopenDay } from './application/dayClose';
+export { requestRefund, payApprovedRefund } from './application/refunds';
 export type { DayStatusDto } from './application/dayClose';
 export { requestDebt, listDebts, accApprovalHandlers } from './application/debts';
 export type { DebtDto, DebtListDto } from './application/debts';

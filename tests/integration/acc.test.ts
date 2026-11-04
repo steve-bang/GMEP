@@ -1279,6 +1279,87 @@ describe.each(backends)('ACC money [%s]', (backend) => {
     });
   });
 
+  describe('refund to the customer (FR-ACC-016, RULE-010/011)', () => {
+    /** only a test can make an order hold more than it is worth (no flow shrinks an order yet): patch the aggregate */
+    async function overCollect(orderId: string, extraVnd: number) {
+      const { id: _id, ...cur } = (await rows('orderAccounts')).find((a) => a.id === orderId)!;
+      void _id;
+      const next = { receivedVnd: cur.receivedVnd + extraVnd };
+      if (backend === 'memory')
+        h.container.memory!.db.col('orderAccounts').set(orderId, { ...cur, ...next });
+      else await getDb(h.container.env).collection('orderAccounts').doc(orderId).update(next);
+    }
+
+    it('a refund above what the order can give back is refused; within it, an approval by someone else is needed, then it is paid once as its own voucher', async () => {
+      await ensureShift();
+      const o = await readyOrder();
+      await payFull(o.id);
+      const refund = (cookie: string, amountVnd: number, k = key('rf')) =>
+        call(
+          cookie,
+          'POST',
+          '/api/v1/acc/refunds',
+          {
+            orderId: o.id,
+            amountVnd,
+            method: 'cash',
+            reason: 'Thu dư do nhầm đơn giá',
+          },
+          k,
+        );
+      // fully paid, nothing over the receivable: nothing to give back
+      const none = await refund(tn, 100_000);
+      expect(none.status).toBe(422);
+      expect(none.json.code).toBe('refund_exceeds_received');
+      await overCollect(o.id, 200_000);
+      expect((await refund(tn, 300_000)).json.code).toBe('refund_exceeds_received');
+      expect((await refund(cv, 100_000)).status, 'an advisor has no cash-out right').toBe(403);
+      const rq = await refund(tn, 150_000);
+      expect(rq.status, rq.text).toBe(202);
+      expect(rq.json.level).toBe(1);
+      // nothing moved yet; the requester cannot decide or pay before approval
+      expect((await money(o.id)).balance.receivedVnd).toBe(o.totalVnd + 200_000);
+      expect(
+        (await post(tn, '/api/v1/acc/refunds/pay', { approvalId: rq.json.approvalId })).status,
+      ).toBe(409);
+      expect((await decide(tn, rq.json.approvalId, 'approve')).status).toBe(403);
+      // a second request while one is open for the same order is refused
+      expect((await refund(tn, 10_000)).status).toBe(409);
+      expect((await decide(ql, rq.json.approvalId, 'approve')).status).toBe(200);
+      const cashBefore = (await get(tn, '/api/v1/acc/cashbook')).json.drawer.balanceVnd;
+      const paid = await post(tn, '/api/v1/acc/refunds/pay', { approvalId: rq.json.approvalId });
+      expect(paid.status, paid.text).toBe(201);
+      expect(paid.json.number).toMatch(/^PC-/);
+      expect((await get(tn, '/api/v1/acc/cashbook')).json.drawer.balanceVnd).toBe(
+        cashBefore - 150_000,
+      );
+      // the receipt is untouched; the refund is a separate outgoing voucher on the same order, and the balance follows
+      const pays = (await rows('payments')).filter((x) => x.orderId === o.id);
+      expect(pays.find((x) => x.id === paid.json.id)).toMatchObject({
+        kind: 'expense',
+        direction: 'out',
+        customerRefund: true,
+        totalVnd: 150_000,
+      });
+      expect((await money(o.id)).balance.receivedVnd).toBe(o.totalVnd + 50_000);
+      // the approval is consumed once
+      expect(
+        (await post(tn, '/api/v1/acc/refunds/pay', { approvalId: rq.json.approvalId })).status,
+      ).toBe(409);
+      // what is left to give back is now 50.000
+      expect((await refund(tn, 60_000)).json.code).toBe('refund_exceeds_received');
+      // reconciliation: the aggregate equals what the payments say, refund included
+      const re = recomputeAccount(
+        { companyId: 'cmp_demo', branchId: 'br_q7', orderId: o.id, orderNumber: o.number },
+        pays as unknown as Payment[],
+        new Set(),
+      );
+      expect(re.receivedVnd).toBe(o.totalVnd - 150_000);
+      const audit = await get(ql, `/api/v1/sys/audit?entityType=payment&entityId=${paid.json.id}`);
+      expect((audit.json.items as Row[]).map((e) => e.action)).toContain('payment.customer-refund');
+    });
+  });
+
   describe('NFR-ISO-01 and permissions of the money screens', () => {
     it('another branch sees nothing of a Q7 payment, cannot collect, reverse or read the cash book of Q7, and its own lists are empty of it', async () => {
       await ensureShift();
@@ -1328,6 +1409,58 @@ describe.each(backends)('ACC money [%s]', (backend) => {
 
   // LAST: closing the day locks the business date of the shared test branch for every test after it
   describe('shift close, variance and day close (FR-ACC-004, UAT-07)', () => {
+    it('FR-ACC-005: a closed day is reopened only with the owner approving, once, for the current day; the shift can then open again', async () => {
+      const tn3 = await h.loginAt('u_tn_q7', 'br_q7');
+      const ql3 = await h.loginAt('u_ql_q7', 'br_q7');
+      const ch3 = await h.loginAt('u_owner', 'br_q7');
+      await closeShiftClean(tn3);
+      const date = (await get(ql3, '/api/v1/acc/day-close')).json.date as string;
+      const closedNow = await post(ql3, '/api/v1/acc/day-close', { date });
+      expect(closedNow.status, closedNow.text).toBe(201);
+      const rq = await post(ql3, '/api/v1/acc/day-close/reopen-request', {
+        date,
+        reason: 'Còn một khoản thu chưa vào sổ',
+      });
+      expect(rq.status, rq.text).toBe(202);
+      expect(rq.json.level).toBe(2);
+      // not before the owner decided; neither the requester nor the branch manager can decide a level-2 request
+      expect(
+        (await post(ql3, '/api/v1/acc/day-close/reopen', { approvalId: rq.json.approvalId }))
+          .status,
+      ).toBe(409);
+      expect((await decide(ql3, rq.json.approvalId, 'approve')).status).toBe(403);
+      expect(
+        (await post(tn3, '/api/v1/acc/day-close/reopen-request', { date, reason: 'Thử' })).status,
+      ).toBe(403);
+      expect((await decide(ch3, rq.json.approvalId, 'approve')).status).toBe(200);
+      // the day is still closed until it is reopened
+      expect((await post(tn3, '/api/v1/acc/shifts', {})).json.code).toBe('day_closed');
+      const re = await post(ql3, '/api/v1/acc/day-close/reopen', {
+        approvalId: rq.json.approvalId,
+      });
+      expect(re.status, re.text).toBe(200);
+      expect(
+        (await post(ql3, '/api/v1/acc/day-close/reopen', { approvalId: rq.json.approvalId }))
+          .status,
+      ).toBe(409);
+      expect((await get(ql3, '/api/v1/acc/day-close')).json.closed).toBe(false);
+      expect((await post(tn3, '/api/v1/acc/shifts', {})).status).toBe(201);
+      await closeShiftClean(tn3);
+      // another date than the current business day cannot be reopened
+      expect(
+        (
+          await post(ql3, '/api/v1/acc/day-close/reopen-request', {
+            date: '2020-01-01',
+            reason: 'Ngày cũ',
+          })
+        ).status,
+      ).toBe(422);
+      const acts = (
+        (await get(ql3, `/api/v1/sys/audit?entityType=dayClose&limit=100`)).json.items as Row[]
+      ).map((e) => e.action);
+      expect(acts).toEqual(expect.arrayContaining(['cash.day_close', 'cash.day_reopen']));
+    });
+
     it('a count difference needs a cause and an explanation; over the tolerance it needs a manager; the DAY cannot close until then; after the close nothing is posted that day', async () => {
       // use the other branch, which has no money history yet, so the day can really be closed
       const tn2 = await h.loginAt('u_tn_q7', 'br_q7');

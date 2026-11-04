@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   agingKey,
+  applyCustomerRefund,
   applyDeposit,
   applyReceipt,
   applyRefund,
@@ -17,6 +18,7 @@ import {
   hasExpenseSource,
   planDepositApplication,
   recomputeAccount,
+  refundableVnd,
   sumLines,
   validateLines,
   type CashShift,
@@ -383,5 +385,61 @@ describe('expense approval need (RULE-011, R57, R58, R64)', () => {
     expect(hasExpenseSource({ orderId: 'o' })).toBe(true);
     expect(hasExpenseSource({ depositId: 'd' })).toBe(true);
     expect(hasExpenseSource({ sourceRef: 'HD-1' })).toBe(true);
+  });
+});
+
+describe('customer refund (FR-ACC-016, RULE-010)', () => {
+  const base = (): OrderAccount => ({
+    ...emptyAccount({ companyId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' }),
+    receivedVnd: 1_200_000,
+  });
+
+  it('a live order can give back only what it was paid above the receivable; a cancelled one all net receipts', () => {
+    expect(refundableVnd(1_000_000, base(), false)).toBe(200_000);
+    expect(refundableVnd(1_200_000, base(), false)).toBe(0);
+    expect(refundableVnd(1_500_000, base(), false)).toBe(0);
+    expect(refundableVnd(1_000_000, base(), true)).toBe(1_200_000);
+    expect(refundableVnd(0, { ...base(), receivedVnd: 0 }, true)).toBe(0);
+  });
+
+  it('deposits are not refundable here (they have their own refund) and never push the amount above the receipts', () => {
+    const a = { ...base(), receivedVnd: 100_000, depositAppliedVnd: 1_000_000 };
+    expect(refundableVnd(1_000_000, a, false)).toBe(100_000);
+  });
+
+  it('the refund lowers net received; reversing the refund restores it; recompute agrees', () => {
+    const at = new Date('2026-11-04T03:00:00Z');
+    const after = applyCustomerRefund(base(), 150_000, at);
+    expect(after.receivedVnd).toBe(1_050_000);
+    const refund = {
+      id: 'p2',
+      kind: 'expense' as const,
+      customerRefund: true,
+      totalVnd: 150_000,
+      applications: [],
+      depositId: undefined,
+    };
+    expect(applyReversal(after, refund, at).receivedVnd).toBe(1_200_000);
+    const receipt = { id: 'p1', kind: 'receipt', totalVnd: 1_200_000, applicationVnd: 0 };
+    const re = recomputeAccount(
+      { companyId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' },
+      [receipt, { ...refund }] as unknown as Payment[],
+      new Set(),
+    );
+    expect(re.receivedVnd).toBe(1_050_000);
+    expect(
+      recomputeAccount(
+        { companyId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' },
+        [receipt, { ...refund }] as unknown as Payment[],
+        new Set(['p2']),
+      ).receivedVnd,
+    ).toBe(1_200_000);
+  });
+
+  it('RULE-011: refund and day reopen are always decided by someone else; a reopen is the owner (level 2)', () => {
+    expect(APPROVAL_KIND_DEFS.customer_refund.alwaysNeeded).toBe(true);
+    expect(requiredLevel('customer_refund', 1)).toBe(1);
+    expect(requiredLevel('customer_refund', 10_000_001)).toBe(2);
+    expect(APPROVAL_KIND_DEFS.day_reopen.alwaysNeeded).toBe(true);
   });
 });

@@ -15,3 +15,14 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 - Kiểm thử: `tests/unit/sys-import.test.ts` (ánh xạ, máy trạng thái, đọc csv/xlsx, giới hạn), `tests/integration/import.test.ts` (UAT-12: lỗi theo dòng không ghi gì, ghi lô, chạy lại không trùng, chặn tệp trùng, cô lập chi nhánh, quyền, hoàn tác bị chặn rồi thành công, phiếu đảo, nhật ký) trên memory và Firestore emulator; fixture giả `tests/fixtures/import/customers.xlsx`.
 
 **Chưa dựng.** Công nợ đầu kỳ, nhân sự, dịch vụ/giờ chuẩn/bảng giá, lịch sử sửa chữa, giới hạn theo số năm lịch sử; lô lớn xử lý nền (R94); gộp khách trùng (R97); cột xe tương thích của phụ tùng; phụ tùng tính số lẻ cho tồn đầu kỳ; lưu tệp gốc (R99); tải mẫu `.xlsx` (hiện CSV); phân trang lỗi trên màn (hiện 200 dòng lỗi đầu, lưu tối đa 500); diễn tập di chuyển trên mẫu thật của khách (R93); kiểm thử e2e giao diện.
+
+## Cập nhật 04/11/2026: siết nhập Excel (R95–R100), ảnh REC, hoàn tiền khách, mở lại ngày (dev)
+
+**Đã dựng.**
+- Nhập Excel: chặn nhập tồn đầu kỳ lần hai theo (kho, phụ tùng) khi còn phiếu đầu kỳ nháp/đã ghi chưa đảo, kiểm ở chạy thử (lỗi theo dòng) và lúc ghi (R95); chỉ lưu tên, kích thước (`fileSize`), mã băm của tệp, lô chạy thử bỏ dở quá `importAbandonedDays` (7, cấu hình) bị `discarded` và xóa dòng chờ ghi (R99); lô `failed` chặn lô mới cùng loại của chi nhánh (`import_batch_blocked`, R100); cảnh báo trùng số điện thoại chỉ tính khách trong phạm vi người nhập (R97); nhật ký hoàn tác xe không còn biển số (R96). Không thêm chỉ mục.
+- REC báo giá bổ sung (FR-REC-014): đã đủ từ slice 1.6; lần này thêm ảnh. Ảnh trên hồ sơ tiếp nhận và lệnh: `POST /api/v1/rec/{intakes|orders}/{id}/photos` (multipart, `Idempotency-Key`) và `GET .../photos/{pid}` do API phát lại sau kiểm Scope; byte qua `FileStore`, kiểu theo magic bytes (JPEG/PNG/WebP), 5 MB, 30 ảnh, cùng nội dung là một ảnh, ghi nhật ký cùng giao dịch, không tăng `version` của lệnh. Ảnh gắn được vào đề xuất (`proposalId`).
+- ACC hoàn tiền khách (FR-ACC-016): `POST /api/v1/acc/refunds` (mở yêu cầu duyệt `customer_refund`, 202) rồi `POST /api/v1/acc/refunds/pay` (dùng một lần). Phiếu chi mới `customerRefund`, không sửa phiếu thu; `refundableVnd` giới hạn; đảo được như phiếu chi khác; chặn khi lệnh đã có hóa đơn.
+- ACC mở lại ngày (FR-ACC-005): `POST /api/v1/acc/day-close/reopen-request` (cấp 2, chủ garage) rồi `/reopen`; chỉ ngày làm việc hiện tại; bản ghi chốt chuyển `reopened`, chốt lại thì thay thế.
+- Kiểm thử: `tests/integration/import.test.ts`, `rec-orders.test.ts` (ảnh), `acc.test.ts` (hoàn tiền, mở lại ngày), `tests/unit/acc-domain.test.ts`.
+
+**Chưa dựng.** Màn hình cho ảnh, hoàn tiền và mở lại ngày; xóa ảnh, làm mờ, gỡ EXIF, hạn lưu; URL ký ngắn hạn (hiện API phát lại byte); hỏi lại mật khẩu khi mở lại ngày; khóa kỳ tháng; hạn mức hoàn của thu ngân; hoàn tiền kèm hóa đơn điều chỉnh. Câu hỏi mở: R104 đến R107.
