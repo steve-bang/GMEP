@@ -21,6 +21,15 @@ export interface RptConfig {
   maxBranchesPerRun: number;
   /** rows a CSV export may hold */
   exportMaxRows: number;
+  /** longest date range of a reconciliation (days) */
+  reconcileMaxDays: number;
+  /** stock balances read by the warehouse report; more sets `truncated` */
+  balancesScanMax: number;
+  /** below-reorder rows listed by the warehouse report */
+  belowReorderMax: number;
+  /** orders read by the technician report and how far before the period they may have been created */
+  technicianOrdersMax: number;
+  technicianLookbackDays: number;
 }
 
 export const DEFAULT_RPT_CONFIG: RptConfig = {
@@ -34,6 +43,11 @@ export const DEFAULT_RPT_CONFIG: RptConfig = {
   rebuildMaxDays: 93,
   maxBranchesPerRun: 25,
   exportMaxRows: 2000,
+  reconcileMaxDays: 93,
+  balancesScanMax: 3000,
+  belowReorderMax: 200,
+  technicianOrdersMax: 300,
+  technicianLookbackDays: 30,
 };
 
 export interface RptDeps {

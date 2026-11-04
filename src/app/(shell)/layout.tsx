@@ -189,6 +189,26 @@ export default async function ShellLayout({ children }: { children: React.ReactN
               ...(can.dailyReport
                 ? [item('rd', '/rpt/daily', t('shell.nav.dailyReport'), 'file-text', 'prefix')]
                 : []),
+              ...(can.dailyReport
+                ? [
+                    item('rm', '/rpt/monthly', t('shell.nav.monthlyReport'), 'file-text', 'prefix'),
+                    item('rr', '/rpt/reconcile', t('shell.nav.reconcile'), 'file-text', 'prefix'),
+                    item(
+                      'rw',
+                      '/rpt/warehouse',
+                      t('shell.nav.warehouseReport'),
+                      'package',
+                      'prefix',
+                    ),
+                    item(
+                      'rt',
+                      '/rpt/technicians',
+                      t('shell.nav.technicianReport'),
+                      'wrench',
+                      'prefix',
+                    ),
+                  ]
+                : []),
               ...(can.alerts
                 ? [item('ra', '/rpt/alerts', t('shell.nav.alerts'), 'alert-triangle', 'prefix')]
                 : []),

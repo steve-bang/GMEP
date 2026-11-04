@@ -56,6 +56,23 @@ export async function branchesOf(
   return { scope, branches };
 }
 
+/** One branch per report: the requested one, else the working branch, else the only branch in scope; otherwise 409. */
+export function singleBranch(
+  actor: Actor,
+  branches: { id: string; name: string; code: string }[],
+  requested?: string,
+): { id: string; name: string; code: string } {
+  const b = requested
+    ? branches[0]
+    : actor.workingBranchId
+      ? branches.find((x) => x.id === actor.workingBranchId)
+      : branches.length === 1
+        ? branches[0]
+        : undefined;
+  if (!b) throw new AppError('scope_required', 409);
+  return b;
+}
+
 export function assertBranchInScope(scope: Scope, actor: Actor, branchId: string): void {
   if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
 }

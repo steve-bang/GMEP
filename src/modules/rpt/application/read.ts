@@ -45,7 +45,7 @@ export interface RollupDto extends Omit<DailyRollup, 'computedAt' | 'refs' | 'al
   alerts: AlertItem[];
 }
 
-const toDto = (r: DailyRollup, can: (p: Permission) => boolean): RollupDto => {
+export const toDto = (r: DailyRollup, can: (p: Permission) => boolean): RollupDto => {
   const { refs: _refs, computedAt, alerts, ...rest } = r;
   void _refs;
   return {
@@ -56,7 +56,7 @@ const toDto = (r: DailyRollup, can: (p: Permission) => boolean): RollupDto => {
 };
 
 /** A section the actor may not see is removed from the document, not hidden in the browser. */
-function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto {
+export function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto {
   const out: Record<string, unknown> = { ...r };
   const zeroMoney = !can('payment:view');
   if (!can('repair-order:view')) {
@@ -112,9 +112,9 @@ export interface Visible {
   cash: boolean;
 }
 
-const canOf = (actor: Actor) => (p: Permission) => hasPermission(actor, p);
+export const canOf = (actor: Actor) => (p: Permission) => hasPermission(actor, p);
 
-function visibleOf(actor: Actor): Visible {
+export function visibleOf(actor: Actor): Visible {
   const can = canOf(actor);
   return {
     orders: can('repair-order:view'),

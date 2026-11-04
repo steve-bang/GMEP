@@ -412,6 +412,9 @@ Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-d
 | R98 | Đã trả lời: giữ CH, QL, TK; AD, KT không nhập; sửa thiết kế G4-SYS-20/21; chờ Chủ dự án | Dev default OK |
 | R99 | Đã trả lời: không lưu tệp gốc; lưu mã băm và siêu dữ liệu; lô bỏ dở xóa sau 7 ngày; chờ Luật sư | Dev must change (nhỏ) |
 | R100 | Đã trả lời: chấp nhận; chặn lô mới cùng loại khi có lô dừng giữa chừng; chỉ mục 192/200 | Dev default OK (kiểm tra) |
+| R101 | RPT báo cáo tháng/đối chiếu/kho/kỹ thuật viên (FR-RPT-002, 004, 005, 006): (a) thủ kho có được xem và xuất CSV báo cáo kho không? (b) giờ thực làm của kỹ thuật viên lấy từ thời gian hạng mục đã đóng, hiệu suất = giờ chuẩn chia giờ thực làm, có đúng ý? (c) bộ lọc loại dịch vụ cần cho báo cáo tháng và đối chiếu không? [Đề xuất dev - chờ xác nhận: (a) báo cáo kho mở cho ai có quyền xem kho, nhưng CSV cần quyền xuất báo cáo (quản lý, kế toán, chủ), thủ kho chưa có; (b) đúng như mô tả, không tính lương hay hoa hồng; (c) chỉ lọc ở báo cáo kỹ thuật viên, thêm vào tổng hợp ngày ở giai đoạn sau] |
+| R102 | RPT: ngưỡng hiển thị và giới hạn (khoảng đối chiếu tối đa 93 ngày; báo cáo kỹ thuật viên đọc tối đa 300 lệnh hoàn tất, nhìn lui 30 ngày; kho đọc tối đa 3.000 dòng tồn); số lượng phụ tùng hiển thị theo đơn vị lưu của INV. [Đề xuất dev - chờ xác nhận: giữ các giới hạn này (cấu hình kỹ thuật), vượt thì báo "mức tối thiểu"; hiển thị theo đơn vị lưu cho đến khi BA chốt cách hiển thị số lượng chia lẻ] |
+| R103 | RPT: lệnh đã giao có hóa đơn nhưng ngày chốt chưa có (mục "lệnh chưa hóa đơn" trong đối chiếu là số cuối kỳ, không cộng dồn các ngày); đối chiếu bốn bên không có mục "kho với lệnh" theo số lượng, chỉ kiểm tra phiếu xuất có chứng từ gốc (RULE-007). [Đề xuất dev - chờ xác nhận: giữ cách hiểu này cho giai đoạn 1; đối chiếu số lượng phụ tùng xuất so với dòng phụ tùng đã duyệt bổ sung ở giai đoạn 2] |
 
 Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §23.5):
 
