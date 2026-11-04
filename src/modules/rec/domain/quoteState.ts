@@ -5,13 +5,15 @@ import type { IntakeStatus, QuoteStatus } from './entities';
  * The tables are the single source of `actions.allowed`. Quote and intake are separate objects: the
  * repair order (slice 1.6) has its own table and never shares these states.
  */
-export type QuoteEvent = 'send' | 'approve_full' | 'approve_partial' | 'reject' | 'expire';
+export type QuoteEvent =
+  'send' | 'approve_full' | 'approve_partial' | 'reject' | 'expire' | 'close';
 export const QUOTE_EVENTS: readonly QuoteEvent[] = [
   'send',
   'approve_full',
   'approve_partial',
   'reject',
   'expire',
+  'close',
 ];
 
 export type Transition<S> = { ok: true; state: S } | { ok: false; reason: string };
@@ -19,12 +21,14 @@ export type Transition<S> = { ok: true; state: S } | { ok: false; reason: string
 export const QUOTE_TRANSITIONS: Readonly<
   Record<QuoteStatus, Partial<Record<QuoteEvent, QuoteStatus>>>
 > = {
-  draft: { send: 'sent' },
+  // `close` (R47): a supplementary quote is closed, with a reason, when its repair order completes or is cancelled
+  draft: { send: 'sent', close: 'expired' },
   sent: {
     approve_full: 'approved_full',
     approve_partial: 'approved_partial',
     reject: 'rejected',
     expire: 'expired',
+    close: 'expired',
   },
   approved_full: {},
   approved_partial: {},
@@ -86,12 +90,15 @@ export function editMode(state: QuoteStatus): EditMode {
   return 'locked';
 }
 
-export type QuoteAction = 'edit' | 'send' | 'reject' | 'revise';
-/** `expired` = the derived expiry (R10): a quote past its validity offers a new version, not a reject. */
+export type QuoteAction = 'edit' | 'send' | 'approve' | 'link' | 'reject' | 'revise';
+/**
+ * `expired` = the derived expiry (R10): a quote past its validity offers a new version, not an approval.
+ * `approve` = the counter approval recorded by staff (FR-REC-009, 026); `link` = issue the customer link (FR-REC-008).
+ */
 export function allowedQuoteActions(state: QuoteStatus, expired = false): QuoteAction[] {
   const out: QuoteAction[] = [];
   if (state === 'draft') out.push('edit', 'send');
-  if (state === 'sent' && !expired) out.push('reject');
+  if (state === 'sent' && !expired) out.push('approve', 'link', 'reject');
   if (editMode(state) === 'new_version') out.push('revise');
   return out;
 }

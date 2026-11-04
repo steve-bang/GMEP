@@ -58,7 +58,15 @@ describe('FR-SYS-013 / ba-answers §2 role matrix seed', () => {
       expect.arrayContaining(['tax-rate:create', 'tax-rate:update']),
     );
     expect(roles.QL!.permissions).not.toContain('audit-log:export');
-    expect(roles.TH!.permissions).toEqual([]);
+    // TH (Xn): only their own work on the floor (FR-REC-013), nothing about customers, stock or money
+    expect(roles.TH!.permissions).toEqual([
+      'part-request:create',
+      'part-request:view',
+      'repair-item:update',
+      'repair-item:view',
+      'work-proposal:create',
+      'work-proposal:view',
+    ]);
   });
   it('only CH and QV may consolidate; every permission is a known resource:action', () => {
     expect(
@@ -336,5 +344,21 @@ describe('BA §4 working scope resolution', () => {
   it('consolidating roles see the whole permitted scope without choosing', () => {
     const a = base({ canConsolidate: true, assignments: [{ roleCode: 'CH', branchId: '*' }] });
     expect(resolveWorkingScope(a, 'warehouse:view')).toMatchObject({ kind: 'all' });
+  });
+});
+
+describe('R30 / R21 permission top-ups', () => {
+  it('every top-up grant is a known permission, applied top-ups are all listed on a fresh seed, and fresh roles already hold them', async () => {
+    const { PERMISSION_TOPUPS, defaultRoleSeeds, knownPermissions } = await import('@/modules/sys');
+    const known = knownPermissions();
+    const seeds = Object.fromEntries(defaultRoleSeeds().map((r) => [r.code, r]));
+    for (const t of PERMISSION_TOPUPS)
+      for (const [role, perms] of Object.entries(t.grants)) {
+        for (const p of perms ?? []) {
+          expect(known.has(p), `${t.id} ${role} ${p}`).toBe(true);
+          expect(seeds[role]!.permissions, `${t.id} ${role}`).toContain(p);
+        }
+        expect(seeds[role]!.appliedTopUps).toContain(t.id);
+      }
   });
 });

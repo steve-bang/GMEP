@@ -25,6 +25,8 @@ import type {
   PriceListRepository,
   RoleAssignmentRepository,
   RoleRepository,
+  ApprovalHandler,
+  ApprovalRepository,
   ServiceRepository,
   SessionRepository,
   StrongAuthPort,
@@ -94,6 +96,9 @@ export interface SysDeps {
   tokens: AuthTokenRepository;
   configs: ConfigRepository;
   notifications: NotificationRepository;
+  approvals: ApprovalRepository;
+  /** FR-SYS-004: effects of a decision, per approval kind (filled by the composition root) */
+  approvalHandlers: Map<string, ApprovalHandler>;
   services: ServiceRepository;
   priceLists: PriceListRepository;
   identity: IdentityProvider;

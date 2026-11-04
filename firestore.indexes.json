@@ -1,6 +1,46 @@
 {
   "indexes": [
     {
+      "collectionGroup": "approvals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "approvals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "requestedBy",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "auditLogs",
       "queryScope": "COLLECTION",
       "fields": [
@@ -801,6 +841,46 @@
       ]
     },
     {
+      "collectionGroup": "cashEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "businessDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "seqKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cashShifts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "openedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "configVersions",
       "queryScope": "COLLECTION",
       "fields": [
@@ -1281,6 +1361,28 @@
       ]
     },
     {
+      "collectionGroup": "debts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dueDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "intakes",
       "queryScope": "COLLECTION",
       "fields": [
@@ -1515,6 +1617,24 @@
         {
           "fieldPath": "plateNorm",
           "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
         }
       ]
     },
@@ -1551,6 +1671,86 @@
       ]
     },
     {
+      "collectionGroup": "partRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "orderId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "orderId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "parts",
       "queryScope": "COLLECTION",
       "fields": [
@@ -1690,6 +1890,42 @@
         },
         {
           "fieldPath": "nameNorm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "payments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "payments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "orderId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
       ]
@@ -1985,6 +2221,292 @@
         {
           "fieldPath": "plateNorm",
           "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "technicianId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "technicianId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "orderId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "seqKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "orderId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "seqKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "number",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "open",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "plateNorm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "open",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "number",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "open",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "plateNorm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
         }
       ]
     },

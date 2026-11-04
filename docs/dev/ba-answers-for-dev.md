@@ -1462,3 +1462,1079 @@ Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đ�
 | 24 | Khách | Ngưỡng số km bất thường (1.000 km); hạn báo giá 7 ngày; thiếu hàng giữ lâu 14 ngày | Như R9, R10, I19 | Chỉ đổi tham số |
 | 25 | Chủ dự án | Chấp nhận chặn khi vượt hạn mức giảm giá ở pilot; mốc xong luồng duyệt giảm giá; QV có tra khách theo SĐT; bật `adoptRequiresBusinessEvent` khi nhiều chi nhánh và nguồn `intake` | Chấp nhận; trước chi nhánh thứ hai; không; khi mở rộng | Cần phân hệ duyệt sớm hơn; đổi tập quyền |
 | 26 | Luật sư khách | Hình thức bằng chứng đồng ý tại quầy; quy trình thủ công hai người cho xóa dữ liệu; ảnh hiện trạng có là mục đích đồng ý riêng | Như C17, C23, R8 | Đổi danh mục `evidenceKind` và biên bản |
+
+---
+
+## 18. Slice 1.5 phần hai: duyệt báo giá (R25–R38)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; các mục `[Cần xác nhận]` vẫn là việc của Khách/Kế toán/Luật sư nhưng dev làm theo mặc định bên dưới ngay). Trả lời mục "Slice 1.5 second part: quote approval" của [open-questions-for-ba.md](open-questions-for-ba.md). Quy ước thẻ và dòng kết như §17. Không sửa FRD/BRD/Journey; việc cần sửa ở §18.3. Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01).
+
+### 18.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R25 | Giữ cách chia phần dư lớn nhất; hóa đơn theo thuế suất (mặc định); số UAT-17 trong FRD là ví dụ minh họa, viết lại bằng ví dụ đã ký | OK | Kế toán khách |
+| R26 | Không cần ảnh chữ ký ở pilot; phiếu giấy lưu ngoài hệ thống, hệ thống giữ mã phiếu và mã băm | OK | Luật sư khách |
+| R27 | Ba mức `off` / `threshold` / `always`; mặc định `off`; ngưỡng chưa seed; Chủ dự án đổi qua cấu hình có duyệt | OK | Chủ dự án |
+| R28 | Giữ liên kết hiện một lần; thêm ghi nhận "đã in" (không chặn pilot) | OK (bổ sung) | Khách |
+| R29 | Giữ cờ ngoại lệ; lưu vai trò người ghi; ngưỡng giá trị là tham số tùy chọn, chưa đặt số | **Must change** (nhỏ) | Khách |
+| R30 | `quote:approve` cho CV, QL là đúng (QUO-05, FRD §2); cơ chế bổ sung quyền làm trước pilot | OK | Chủ dự án |
+| R31 | Chỉ lưu ở 1.5; màn hình nhắc lúc tiếp nhận làm ngay sau 1.6 (FR-REC-024, Should) | OK | Khách |
+| R32 | Danh mục mẫu giữ; cờ theo chi nhánh, không theo loại hạng mục; hạng mục An toàn bị bỏ phải có lý do | OK | Khách, Luật sư khách |
+| R33 | Thêm trường điện thoại hỗ trợ chi nhánh (SYS-05); chưa hiện INS và ảnh trên trang khách | OK (bổ sung nhỏ) | Khách |
+| R34 | Giữ số; đưa vào cấu hình nếu đang là hằng số; đo ở staging | OK (kèm điều kiện) | Chủ dự án |
+| R35 | `RO-<MÃCN>-<YYMM>-<STT 5 chữ số>`, cấp lúc lệnh được tạo (= lúc khách duyệt) | OK | Kế toán khách (liền số) |
+| R36 | Cấu hình `service-workflow` với bộ bước cho 4 loại, kể cả bộ tối thiểu cho đồng sơn; bước không tự tính công thợ | **Must change** (seed + trường nhỏ) | Khách (khảo sát xưởng) |
+| R37 | Duyệt TỰ TẠO lệnh và giữ chỗ phụ tùng các dòng được duyệt trong một sự kiện | **Must change** | Chủ dự án, Khách |
+| R38 | Liên kết hết hạn chỉ đọc: không duyệt, không từ chối; nhân viên ghi nhận từ chối thay khách | **Must change** | Khách |
+
+### 18.2 Trả lời từng câu
+
+##### R25. Chia thuế cho trang khách và số UAT-17
+
+**Khuyến nghị**: giữ phương pháp của dev. `[Cần xác nhận: Kế toán khách]` (R1, `ba-answers-03` Câu 11, NFR-MNT-01)
+
+- Chia thuế theo phần dư lớn nhất, hạng mục thứ tự thấp thắng khi bằng nhau, là đúng điều R1 yêu cầu (tổng các hạng mục bằng đúng tổng phải trả). Đây là hàm tất định, có test; đặt tên chiến lược `largest-remainder` trong cấu hình làm tròn để kế toán đổi được.
+- Hóa đơn: mặc định lập **theo thuế suất** (mỗi thuế suất một dòng tổng) hoặc theo hạng mục tùy mẫu của nhà cung cấp; giá hạng mục trên trang khách chỉ là cách hiển thị, **không phải số liệu hóa đơn**. Tổng hóa đơn phải bằng `approvedTotalVnd` của báo giá; lệch thì chặn phát hành và báo lỗi (RULE-005). `[Cần xác nhận: Kế toán khách]` hóa đơn theo hạng mục hay theo thuế suất.
+- UAT-17 trong FRD (4.550.000 và 2.050.000): FRD không nói mức gồm hay chưa thuế. BA coi là **ví dụ minh họa chưa gồm thuế**, không ép khớp với ví dụ của dev (1.885.000 + 150.800 = 2.035.800 ở thuế suất 8%). Đề xuất viết lại UAT-17 bằng bộ số đã được kế toán ký (§18.3) thay vì sửa test cho khớp số cũ.
+
+**Dev default OK.** Không đổi mã; giữ ví dụ ghi "chưa được ký".
+
+##### R26. Chữ ký tại quầy
+
+**Khuyến nghị**: không lưu ảnh chữ ký ở pilot. `[Cần xác nhận: Luật sư khách]`
+
+- FR-REC-009 chỉ yêu cầu "lưu thời điểm và người duyệt"; BR-REC-03 yêu cầu "bằng chứng lưu lại". Họ tên người ký, mã phiếu giấy (tùy chọn), người ghi nhận, thời điểm và mã băm SHA-256 của nội dung báo giá đã duyệt đủ cho pilot; phiếu giấy ký tay giữ ở chi nhánh theo quy trình lưu hồ sơ.
+- Ảnh chữ ký/phiếu giấy là dữ liệu cá nhân mới: cần mục đích đồng ý và thời hạn lưu (C10, C23) và lưu tệp qua API (chưa có). Làm cùng đợt ảnh hiện trạng (R8).
+- Thêm tham số `counterPaperCodeRequired` (mặc định `false`); chi nhánh nào muốn bắt buộc mã phiếu giấy thì bật.
+
+**Dev default OK.**
+
+##### R27. OTP khi duyệt
+
+**Khuyến nghị**: ba mức, mặc định tắt. `[Đề xuất BA – chờ xác nhận: Chủ dự án]`
+
+- `otpMode` ∈ {`off`, `threshold`, `always`}; `threshold` đi kèm `otpThresholdVnd` (số nguyên VND, bắt buộc khi chọn `threshold`). **BA không đề xuất con số**: ngưỡng phụ thuộc mức rủi ro tranh chấp và chi phí SMS của Khách; chưa seed.
+- Người đổi: Chủ dự án/CH đề xuất, Chủ dự án duyệt theo cơ chế cấu hình có hiệu lực của SYS (đây là cấu hình ảnh hưởng bằng chứng pháp lý). Chỉ cho chọn `threshold`/`always` khi có nhà cung cấp SMS hoạt động; giữ `z.enum(['off'])` tới lúc đó.
+- Nút OTP khóa kèm lý do là đúng (không giả vờ gửi tin, theo tiền lệ R10).
+
+**Dev default OK.**
+
+##### R28. Kênh gửi, liên kết, in
+
+**Khuyến nghị**: giữ thiết kế bảo mật hiện tại; bổ sung ghi nhận in. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Chỉ lưu băm mã liên kết, hiện một lần, tạo lại thì liên kết cũ chết: **giữ**. Không lưu mã dạng đọc được/mã hóa để "xem lại" (tăng bề mặt rò rỉ; cố vấn mất liên kết thì tạo liên kết mới).
+- In giấy là sự kiện giao báo giá cho khách: thêm thao tác "Ghi nhận đã in" (hoặc ghi khi bấm In) đặt `sentVia = print` nếu chưa có, ghi nhật ký `quote.printed` kèm số lần; bản in từ lần thứ hai hiện nhãn "BẢN IN LẠI". Xem trang in không ghi dữ liệu là đúng (GET không có tác dụng phụ). Không chặn pilot: làm trước khi in A4 chính thức dùng với khách.
+
+**Dev default OK.** Việc "Ghi nhận đã in" xếp sau, nhỏ.
+
+##### R29. Xác nhận bằng lời
+
+**Khuyến nghị**: giữ cờ ngoại lệ; thêm vai trò người ghi; ngưỡng là tham số. `[Cần xác nhận: Khách]`
+
+- FR-REC-026 (Should): "duyệt bằng lời bắt buộc ghi chú". Ghi chú ≥ 10 ký tự, tick "đã đọc lại" và thông báo QL là mức tối thiểu đủ.
+- Thêm vào bằng chứng duyệt `recordedByRole` (CV hay QL, suy từ vai trò áp dụng tại chi nhánh đang làm việc) và `recordedBy`.
+- Ngưỡng giá trị: thêm tham số tùy chọn `verbalApprovalMaxVnd` trong `quote-approval`. **Mặc định không đặt** (không giới hạn, như hiện tại). Khi đặt: báo giá vượt ngưỡng do CV ghi nhận bằng lời phải có QL (người khác) xác nhận trước khi trạng thái chuyển Đã duyệt. Con số do Khách đặt.
+- Danh sách "Ngoại lệ cần rà soát" cuối ngày thuộc báo cáo ngoại lệ (RPT) cùng R9/R16; cờ `exception` đã lưu là đủ cho 1.5. Cho phép xác nhận bằng lời theo chi nhánh, mặc định bật: giữ.
+
+**Dev must change** (nhỏ): lưu `recordedByRole`; thêm `verbalApprovalMaxVnd` tùy chọn vào schema cấu hình (chưa cần logic nếu không đặt, nhưng nên làm cùng lúc vì rẻ).
+
+##### R30. Quyền `quote:approve`
+
+**Khuyến nghị**: giữ CV và QL. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- QUO-05 và FRD §2 (CV = S) cho CV ghi nhận duyệt tại quầy; **thay thế** điều R6 (QL-only để dành). Ghi vào §18.3.
+- Khách duyệt qua liên kết: người thực hiện `customer-link:<mã rút gọn>` đúng; thêm `actorType = customer-link` để trình xem nhật ký hiện "Khách (liên kết)" và không lẫn với tài khoản người dùng.
+- Cơ chế bổ sung quyền cho vai trò đã tạo (R21, C21) là **điều kiện trước pilot** vì nay có thêm `quote:approve`: idempotent, có nhật ký, chạy theo phiên bản ma trận quyền.
+
+**Dev default OK.**
+
+##### R31. Hạng mục khách không duyệt
+
+**Khuyến nghị**: chỉ lưu ở 1.5; màn hình nhắc làm ngay sau 1.6. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- FR-REC-024 là Should: khi xe vào lại, bước tiếp nhận hiện danh sách hạng mục từng bị từ chối của **xe đó** (tên hạng mục, ngày, mã lý do, cờ An toàn), đọc từ REC theo `vehicleId`; cần chỉ mục theo `vehicleId` (đăng ký trong `repos/queries.ts`).
+- Không sao chép lý do vào CRM (CRM không sở hữu dữ liệu báo giá). Phạm vi mặc định: chi nhánh đang làm việc; hiển thị xuyên chi nhánh chỉ qua bản chiếu có danh sách trắng (C6) và là `[Cần xác nhận: Chủ dự án]`.
+- Không làm tự động "gửi nhắc cho khách" (chưa có kênh, R28).
+
+**Dev default OK.**
+
+##### R32. Danh mục lý do và cờ cho bỏ hạng mục bắt buộc
+
+**Khuyến nghị**: giữ như dev. `[Cần xác nhận: Khách, Luật sư khách]`
+
+- Bốn lý do mẫu giữ, Khách chốt danh sách; cấu hình theo công ty, ghi đè theo chi nhánh, **không** theo loại hạng mục ở pilot (thêm khi có yêu cầu thực).
+- Khi hạng mục An toàn (bắt buộc) bị bỏ: bắt buộc chọn lý do, hiện cảnh báo cho khách, lưu bằng chứng khách đã thấy cảnh báo (chứng cứ trách nhiệm). Đây là ý định của Câu 2; xác nhận nội dung cảnh báo là việc của luật sư khách.
+- Ô nhập cho `quote-approval` và `decline-reason` trên màn hình cấu hình: việc của designer (cùng nhóm với R23, R36), không chặn.
+
+**Dev default OK.**
+
+##### R33. Trang khách
+
+**Khuyến nghị**: thêm số hỗ trợ chi nhánh; hoãn INS và ảnh. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Thông tin tối thiểu trên trang khách đúng nguyên tắc tối thiểu hóa dữ liệu (không SĐT khách, địa chỉ, giá vốn, tồn kho, tên nhân viên): giữ.
+- Thêm trường tùy chọn `supportPhone` (số điện thoại kinh doanh của chi nhánh, không phải dữ liệu cá nhân) vào FR-SYS-005; hiển thị trên trang khách và trang liên kết hết hạn (R38). Chưa có thì hiện "Vui lòng liên hệ chi nhánh".
+- Kết quả kiểm tra xe (INS) và ảnh: chưa hiện ở 1.5. Khi có: chỉ mục cố vấn đánh dấu "cho khách xem"; ảnh qua URL ký ngắn hạn sau kiểm tra phạm vi (ADR 0001), kèm mục đích đồng ý (R8).
+
+**Dev default OK.** Thêm trường điện thoại khi chạm tới SYS-05.
+
+##### R34. Giới hạn tốc độ
+
+**Khuyến nghị**: giữ con số. `[Cần xác nhận: Chủ dự án]` sau đo ở staging.
+
+- 60 lượt/phút/địa chỉ và /liên kết; 10 quyết định/15 phút/liên kết hợp lý cho pilot. Địa chỉ dùng chung ở quầy là lý do giữ ngưỡng theo địa chỉ rộng.
+- Nếu các số đang là hằng số trong mã thì đưa vào cấu hình (`public-rate-limit`, có ngày hiệu lực) để đổi không cần phát hành lại. Vượt giới hạn trả 429 RFC 9457 kèm `Retry-After`, không lộ liên kết có tồn tại hay không.
+
+**Dev default OK** với điều kiện cấu hình hóa nếu đang cứng.
+
+##### R35. Mã lệnh sửa chữa
+
+**Khuyến nghị**: `RO-<MÃCN>-<YYMM>-<STT>`, STT 5 chữ số. `[Cần xác nhận: Kế toán khách]` chỉ phần liền số (K1)
+
+- Khớp §6.3 (lệnh sửa chữa: tiền tố RO, nhóm A, dãy chi nhánh × tháng, `YYMM` theo `businessDate`) và FR-REC-030 ("duy nhất theo chi nhánh và thời gian"; tiêu chí "không hai lệnh trùng mã trên toàn hệ thống" thỏa vì `MÃCN` duy nhất và bất biến).
+- Cấp số **lúc lệnh được tạo**, tức lúc khách duyệt (R37). Lệnh không có bản nháp (WF-01) nên không phát sinh lỗ số do thiết kế; lệnh hủy giữ số, trạng thái "Đã hủy". Idempotent theo khóa yêu cầu (đề xuất: khóa = mã bằng chứng duyệt) để gọi lặp (liên kết bấm hai lần, thử lại sau lỗi) không tạo hai lệnh.
+- Không cần cấu trúc khác (ngày đầy đủ đã nằm trong `YYMM` và ngày tạo). Báo giá bổ sung dùng dãy BG, không dùng RO.
+
+**Dev default OK.** Xác nhận `MÃCN` có trong kết quả của `allocateRepairOrderNumber` (cùng định dạng với TX-, PX-...).
+
+##### R36. Quy trình theo loại dịch vụ
+
+**Khuyến nghị**: seed bộ bước cho cả 4 loại; bộ đồng sơn tối thiểu đánh dấu chờ khảo sát. `[Cần xác nhận: Khách – khảo sát xưởng, BR-REC-14, BRD "Quy trình đồng sơn cần khảo sát"]`
+
+Nguyên tắc: bước là **mốc theo dõi** (ai phụ trách, đến đâu, ngày dự kiến), không phải trạng thái lệnh (FR-REC-028); `responsibleRole` dùng mã vai trò trong ma trận 10 vai trò (TH, QD, ...). Bước **không tự tính vào công thợ**: công thợ lấy từ dòng công (giờ chuẩn, giờ thực, tỉ lệ theo loại việc) vì quy tắc lương khoán còn mở; thêm cờ `countsTowardLabor` mặc định `false` để sau này bật bằng dữ liệu.
+
+| Loại | Bước (mã: tên, vai trò) |
+| --- | --- |
+| `maintenance` | `inspect`: Kiểm tra; `service`: Thực hiện bảo dưỡng (TH); `qc`: Kiểm tra chất lượng (QD) |
+| `general_repair` | `diagnose`: Chẩn đoán (TH); `repair`: Sửa chữa (TH); `qc`: Kiểm tra chất lượng (QD) |
+| `tire_wheel` | `remove`: Tháo bánh; `balance`: Cân bằng và lắp (TH); `qc`: Kiểm tra chất lượng (QD) |
+| `body_paint` (tối thiểu, **chờ khảo sát**) | `assess`: Giám định hư hỏng và chụp ảnh (CV, QD); `bodywork`: Gò, nắn, bả (TH); `prime`: Sơn lót, chà (TH); `paint`: Sơn màu và sơn bóng (TH); `cure`: Sấy, chờ khô (TH); `polish`: Đánh bóng, lắp ráp (TH); `qc`: Kiểm tra chất lượng và duyệt màu (QD) |
+
+- Đồng sơn: mỗi bước có **ngày dự kiến hoàn thành** (BR-REC-14, UAT-21 "công đoạn, người phụ trách, ngày dự kiến"). Thêm trường tùy chọn `expectedDays` (số nguyên) vào bước; ngày dự kiến thực tế do cố vấn/QĐ đặt trên lệnh ở 1.6. Có thể cần bước lặp (sơn lại) và chờ duyệt bảo hiểm: để Khách cho biết khi khảo sát, chưa mô hình hóa.
+- Lệnh có hai hạng mục thuộc hai loại dùng hai bộ bước khác nhau trên cùng một lệnh (FR-REC-032 tiêu chí); bước cuối `qc` của mỗi hạng mục là điều kiện để hạng mục "Hoàn thành" (chi tiết trạng thái hạng mục ở 1.6).
+- Bộ bước đổi theo ngày hiệu lực; lệnh đã tạo **giữ bản sao bộ bước** tại thời điểm tạo, không đổi theo cấu hình mới.
+
+**Dev must change**: seed thêm `general_repair` và `body_paint` như bảng; thêm `expectedDays` và `countsTowardLabor` (tùy chọn) vào schema `service-workflow`; đánh dấu bộ `body_paint` là mẫu chờ khảo sát (không là quy trình chốt). Ô nhập mảng bước: designer.
+
+##### R37. Từ "đã duyệt" đến "đã có lệnh"
+
+**Khuyến nghị**: duyệt **tự tạo lệnh sửa chữa và giữ chỗ phụ tùng** các dòng được duyệt, một sự kiện nghiệp vụ. `[Đề xuất BA – chờ xác nhận: Chủ dự án, Khách]`
+
+Căn cứ: Journey bước 4 ("chỉ mở lệnh theo phần được duyệt"), §16.2.1 I1 (dòng 2, 3: duyệt báo giá và mở lệnh là **một sự kiện**, giữ chỗ cùng giao dịch mở lệnh), §6.3 (RO cấp lúc khách duyệt), FR-REC-010, WF-01. Khoảng trống "đã duyệt, chưa có lệnh" tạo rủi ro: phụ tùng chưa giữ nên bị lệnh khác lấy; bằng chứng duyệt không có chứng từ gốc (RULE-007); khách duyệt qua liên kết lúc không có cố vấn thì không ai tạo lệnh.
+
+Quy tắc:
+
+1. **Khi trạng thái báo giá chuyển `approved_full` hoặc `approved_partial`** (mọi cách: liên kết, quầy, bằng lời), hệ thống trong cùng một luồng: (a) cấp số RO (R35), (b) tạo lệnh trạng thái "Đã duyệt" chỉ gồm dòng được duyệt, mỗi dòng mang `lineKey` bất biến (I20), tiền = `approvedTotalVnd`, (c) gọi INV `holdStock` cho các dòng phụ tùng với `allowPartial` (I1 dòng 2, 3), phần thiếu lưu `unmetQty`, (d) đặt `advisorId` = người lập báo giá, (e) thông báo cố vấn và QL (`notifyUsers`). Khóa idempotent = mã bằng chứng duyệt.
+2. **Duyệt không bao giờ bị chặn vì thiếu hàng hay lỗi kho** (I1 nguyên tắc 4). Nếu tạo lệnh hoặc giữ chỗ lỗi kỹ thuật: bằng chứng duyệt vẫn ghi; báo giá hiện "Đã duyệt, chưa có lệnh" kèm nút **Tạo lệnh** (gọi lại cùng khóa, an toàn lặp) cho CV/QL, cộng thông báo QL. Trạng thái trung gian này là ngoại lệ, không phải luồng thường.
+3. **Tự tạo lệnh không tự bắt đầu việc**: lệnh ở "Đã duyệt"; hạng mục chỉ bắt đầu khi xe/thợ sẵn sàng (FR-REC-015). Thiếu phụ tùng: hạng mục liên quan "Tạm dừng, chờ phụ tùng" (Journey bước 5).
+4. Duyệt một phần: hạng mục không duyệt không vào lệnh và không giữ chỗ; thuế tính lại trên tập được duyệt (R25).
+5. Báo giá bổ sung được duyệt: **không tạo lệnh mới**, thêm dòng vào lệnh hiện có và giữ thêm (I1 dòng 6).
+6. Duyệt một phần mà khách không chọn dòng nào: coi là từ chối, không tạo lệnh.
+
+Giai đoạn chuyển tiếp: lệnh thuộc slice 1.6. Đến khi 1.6 xong, giữ hành vi hiện tại (chỉ ghi duyệt, `getApprovedQuote`) nhưng thiết kế điểm gọi `createOrderFromApprovedQuote` bên trong luồng duyệt (cổng/hook như `OrderAdvisorPort`) để 1.6 chỉ nối vào; danh sách "Đã duyệt, chưa có lệnh" có ở màn hình cố vấn.
+
+**Dev must change**: ở 1.6, luồng duyệt phải gọi tạo lệnh + giữ chỗ, không để cố vấn bấm thủ công trong luồng thường; chừa cổng ngay từ bây giờ. Sửa FR-REC-010 (§18.3).
+
+##### R38. Liên kết hết hạn
+
+**Khuyến nghị**: liên kết hết hạn **chỉ đọc**; không duyệt, không từ chối. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Hết hạn là trạng thái kết thúc (R10); cho khách từ chối sẽ ghi đè trạng thái "Hết hạn" qua một đường không xác thực, làm mờ lịch sử và mở thêm bề mặt ghi dữ liệu công khai. Trang hiện "Báo giá đã hết hạn, vui lòng liên hệ chi nhánh" kèm `supportPhone` (R33), không có nút hành động, không lộ nội dung giá.
+- Khách muốn từ chối sau hạn: nhân viên ghi nhận từ chối thay khách (thao tác `reject` đã có) kèm lý do từ danh mục `decline-reason`; hạng mục vẫn vào danh sách nhắc (R31).
+- Cố vấn tạo phiên bản mới rồi liên kết mới (FR-REC-023); liên kết cũ giữ nguyên chết. Khách không tự xin liên kết mới (tránh lạm dụng cổng công khai).
+
+**Dev must change**: bỏ cho phép từ chối ở liên kết hết hạn (hiện tạm cho); test: liên kết hết hạn không có hành động nào, mọi POST trả lỗi RFC 9457 thống nhất, không phân biệt "hết hạn" với "không tồn tại" ở nội dung quyết định.
+
+### 18.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FR-REC-010 | "Lệnh được hệ thống tạo tự động khi khách duyệt, chỉ gồm dòng được duyệt và đã giữ chỗ phụ tùng; lỗi kỹ thuật thì cố vấn thấy nút Tạo lệnh" | R37; I1 dòng 2, 3; WF-01 |
+| FR-REC-009, 026 | Ghi: bằng chứng gồm mã băm; chữ ký tại quầy không bắt buộc ảnh ở pilot; người thực hiện loại `customer-link`; vai trò người ghi bằng lời | R26, R29, R30 |
+| FR-REC-030 | Định dạng `RO-<MÃCN>-<YYMM>-<STT>`, cấp lúc tạo lệnh, idempotent | R35; §6.3 |
+| FR-REC-032 | Bộ bước mẫu 4 loại; đồng sơn chờ khảo sát; `expectedDays`, `countsTowardLabor` | R36; BR-REC-14; UAT-21 |
+| FR-REC-008 | Liên kết hết hạn chỉ đọc; ghi nhận in và "BẢN IN LẠI"; trường điện thoại hỗ trợ | R28, R33, R38 |
+| FR-SYS-005 | Thêm `supportPhone` tùy chọn của chi nhánh | R33 |
+| FR-REC-024 | Làm ngay sau 1.6; đọc theo `vehicleId`, phạm vi chi nhánh | R31 |
+| §17.2 R6 (đoạn QL approve/reject) | Thay: `quote:approve` gồm CV và QL | R30 |
+| UAT-17 | Viết lại bằng bộ số kế toán ký (chưa thuế, thuế, tổng; 2 trong 4 hạng mục); nêu rõ mức gồm hay chưa thuế | R25 |
+| UAT mới (tạm) | Duyệt tạo đúng một lệnh với số RO và giữ chỗ; bấm duyệt hai lần không tạo hai lệnh; duyệt khi thiếu hàng vẫn thành công có `unmetQty`; liên kết hết hạn không duyệt, không từ chối; lệnh lỗi tạo có thể tạo lại; duyệt bằng lời vượt ngưỡng cần QL | R35, R37, R38, R29 |
+
+### 18.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 27 | Kế toán khách | Hóa đơn lập theo hạng mục hay theo thuế suất; chia phần dư theo hạng mục lớn nhất; ký bộ ví dụ UAT-17 | Theo thuế suất; chia phần dư lớn nhất | Đổi chiến lược/mẫu hóa đơn; ví dụ ký phải làm lại |
+| 28 | Chủ dự án | Duyệt tự tạo lệnh và giữ chỗ ngay (R37); ngưỡng và mức OTP (R27) khi có SMS | Tự tạo; `off` tới khi có SMS | Tạo lệnh thủ công: khoảng trống không giữ chỗ, rủi ro mất hàng |
+| 29 | Khách | Các bước thật cho từng loại dịch vụ, đồng sơn (khảo sát xưởng); bước có tính vào công thợ không; ngưỡng bằng lời cần QL; danh sách lý do không duyệt | Như bảng R36; không tính công; không đặt ngưỡng | Chỉ đổi dữ liệu cấu hình (đồng sơn có thể cần bước lặp, bảo hiểm) |
+| 30 | Luật sư khách | Chữ ký quầy không ảnh ở pilot; nội dung cảnh báo khi bỏ hạng mục An toàn; thời hạn lưu mã băm và phiếu giấy | Không ảnh; cảnh báo chuẩn; theo khung §8.1 | Ảnh chữ ký cần mục đích đồng ý và lưu tệp |
+
+### 18.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R37: luồng duyệt phải tự tạo lệnh (RO) và giữ chỗ phụ tùng dòng được duyệt, idempotent theo mã bằng chứng duyệt, duyệt không bị chặn bởi kho; chừa cổng ngay từ 1.5, nối ở 1.6 | `approval.ts`, slice 1.6 | Bắt buộc ở 1.6 |
+| 2 | R38: liên kết hết hạn không cho từ chối (hiện tạm cho); chỉ đọc | `approval.ts`, trang khách | Bắt buộc |
+| 3 | R36: seed `general_repair`, `body_paint`; thêm `expectedDays`, `countsTowardLabor` | `recDemo.ts`, `domain/config.ts` | Bắt buộc (nhỏ) |
+| 4 | R29: lưu `recordedByRole`; thêm `verbalApprovalMaxVnd` tùy chọn | `quote-approval` | Nhỏ |
+| 5 | R30 / R21: cơ chế bổ sung quyền cho vai trò đã tạo (`quote:approve`, `vehicle-history-cross:view`) và `actorType = customer-link` | `permissions.ts`, audit | Trước pilot |
+| 6 | R34: đưa giới hạn tốc độ vào cấu hình nếu đang là hằng số | `ratelimit.ts` | Nhỏ, có điều kiện |
+| 7 | R33, R28: `supportPhone` của chi nhánh; ghi nhận "đã in" | SYS-05, `approval.ts` | Sau, không chặn |
+
+Không có câu trả lời nào mâu thuẫn với R35 (đúng với `repair-order` hiện có), R25, R26, R27, R31, R32.
+
+---
+
+## 19. Slice 1.6: thực hiện lệnh (R39–R53)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` vẫn là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định bên dưới ngay). Trả lời mục "Slice 1.6: thực hiện lệnh" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-REC-010, 013, 015, 016, 017, 021, 022, 028, 032; RULE-005, 006, 007, 010; WF-01, WF-04; Journey mục 3 (bước 13 Giao xe), bảng phê duyệt (hủy lệnh sau xuất phụ tùng), bảng ngoại lệ (khách không nhận xe). Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01). Không sửa FRD/BRD/Journey; việc cần sửa ở §19.3.
+
+### 19.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R39 | Giữ kho mặc định của chi nhánh, không chọn kho theo dòng; thiếu kho thì lệnh vẫn chờ nút Tạo lệnh và QL được báo | OK (thêm thông báo) | Khách |
+| R40 | 120 giây, chỉ người bấm; undo là mốc bù, không xóa mốc; quản đốc sửa bằng mốc bù có lý do (làm sau) | OK | Khách |
+| R41 | Danh mục lý do tạm dừng, thêm mã "chờ khách duyệt thêm" | **Must change** (nhỏ) | Khách |
+| R42 | Ma trận đúng, trừ hai điểm: giao xe là CV và QL (không TN); CV chỉ hủy lệnh chưa làm, chưa xuất | **Must change** (nhỏ) | Khách |
+| R43 | Giữ cấu hình theo loại dịch vụ; ảnh sau sửa không bắt buộc; mục thật do Khách | OK | Khách |
+| R44 | Khi có thu tiền: giao xe phải còn nợ bằng 0 hoặc có ghi nợ do QL duyệt; không cần chữ ký vẽ tay/ảnh; hóa đơn không là điều kiện giao xe | **Must change** (hợp đồng với 1.7) | Khách, Kế toán khách, Luật sư khách |
+| R45 | Giữ chặn; phụ tùng đã lắp không phải là "hủy lệnh" | OK | Khách, Kế toán khách |
+| R46 | Giữ; khách bỏ xe đi theo công nợ, không hủy | OK | Khách |
+| R47 | Chặn duyệt báo giá bổ sung khi lệnh đã đóng; "reopen" từ chờ kiểm tra/sẵn sàng giao là đúng | **Must change** | Khách |
+| R48 | Chấp nhận cách gần đúng ở pilot; nên có quyền riêng | OK | Khách |
+| R49 | Chỉ chữ ở pilot; ảnh làm cùng đợt R8, R26 | OK | Khách, Luật sư khách |
+| R50 | Một loại dịch vụ cho cả lệnh ở pilot; ghi nhận lệch tiêu chí FR-REC-032 | OK | Khách |
+| R51 | Không phản đối về chức năng; duyệt sai khác màn hình thuộc designer | OK | Designer |
+| R52 | Thủ công bằng nút ở pilot; tự động theo phiếu nhập làm sau | OK | Khách |
+| R53 | Đủ cho 1.6 kèm 3 điều kiện kiểm tra | OK (kiểm tra) | Khách (HRM sau) |
+
+### 19.2 Trả lời từng câu
+
+##### R39. Kho giữ chỗ khi tạo lệnh
+
+**Khuyến nghị**: giữ cách của dev. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Kho mặc định của chi nhánh (đã đánh dấu), nếu không có thì kho hoạt động đầu tiên theo mã. Không cho chọn kho theo từng dòng ở pilot: giữ chỗ chỉ là cam kết mềm theo kho; kho thực xuất do thủ kho chọn lúc lập phiếu xuất (FR-INV). Nếu phiếu xuất ở kho khác kho giữ chỗ thì INV nhả giữ chỗ ở kho cũ (idempotent theo `lineKey`), không để hai kho cùng giữ.
+- Chi nhánh không có kho hoạt động là lỗi cấu hình, không phải luồng thường: `warehouse_missing` chặn mở lệnh có phụ tùng là chấp nhận được **với điều kiện** bằng chứng duyệt vẫn ghi (R37 nguyên tắc 2), QL được báo qua `notifyUsers`, và nút Tạo lệnh chạy được ngay khi kho được cấu hình. Thêm vào danh sách kiểm tra trước vận hành chi nhánh: có ít nhất một kho hoạt động và một kho mặc định.
+
+**Dev default OK** (thêm thông báo QL nếu chưa có).
+
+##### R40. Hoàn tác thao tác của thợ
+
+**Khuyến nghị**: 120 giây, chỉ người bấm. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Hoàn tác là **mốc bù** (sự kiện mới tham chiếu mốc bị hoàn tác), không xóa hay sửa mốc cũ: giữ lịch sử đầy đủ cho giờ thực (FR-REC-013) và nhật ký (FR-SYS-003). Giờ thực bỏ qua cặp mốc đã bù.
+- Sau 120 giây hoặc người khác: chỉ quản đốc (QĐ) và QL sửa, bằng "mốc điều chỉnh" bắt buộc lý do, hiện trong nhật ký, giờ thực tính lại. Màn hình riêng cho việc này **làm sau**, không chặn 1.6; trong lúc chờ QĐ đổi trạng thái hạng mục bằng thao tác có sẵn kèm lý do.
+- `order-policy.undoWindowSeconds` là nguồn duy nhất; `RecConfig.undoWindowMs` chỉ là giá trị mặc định khi cấu hình thiếu.
+
+**Dev default OK.** Kiểm tra: hoàn tác không xóa bản ghi mốc.
+
+##### R41. Lý do tạm dừng hạng mục
+
+**Khuyến nghị**: danh mục có mã ổn định, thêm một mã. `[Cần xác nhận: Khách – danh sách]`
+
+- Bốn mã hiện có (chờ phụ tùng, chờ khách, nghỉ, khác) giữ. Thêm mã thứ 5 `awaiting_supplement_approval` ("chờ khách duyệt thêm") để phân biệt với "chờ khách" chung, vì lý do này gắn với báo giá bổ sung (RULE-006) và cần cho báo cáo thời gian chờ.
+- Mã cố định trong mã nguồn là chấp nhận được ở pilot nếu **mã** không đổi nghĩa; nhãn hiển thị đi qua chuỗi giao diện. Mã `awaiting_parts` là mã duy nhất làm xe hiện vào cột "xe chờ phụ tùng" (FR-REC-022). Chuyển thành danh mục cấu hình `pause-reason` (như `decline-reason`) khi Khách yêu cầu thêm mã.
+- Lý do "khác" bắt buộc ghi chú.
+
+**Dev must change** (nhỏ): thêm mã thứ 5 và nhãn; "khác" bắt buộc ghi chú nếu chưa.
+
+##### R42. Ma trận quyền 1.6
+
+**Khuyến nghị**: đúng như đề xuất dev, trừ hai điểm. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Đúng: TH chỉ thấy và thao tác hạng mục được giao; QĐ phân thợ, thay thợ, chạy QC; TK xuất phụ tùng theo yêu cầu; TN, KT chỉ xem; QL làm tất cả.
+- **Giao xe là CV và QL, không TN.** Journey bước 13: người giao xe là Cố vấn; TN thu tiền ở phân hệ ACC (1.7), không bàn giao. Giữ tách việc: người thu tiền và người giao xe có thể khác nhau.
+- **Hủy lệnh**: Journey (bảng phê duyệt) ghi Cố vấn đề nghị, Quản lý duyệt khi đã xuất phụ tùng. Đề xuất: CV tự hủy chỉ khi lệnh còn "Đã duyệt", chưa hạng mục nào bắt đầu và chưa có phiếu xuất; mọi trường hợp khác (đang sửa, tạm dừng đã có việc, đã xuất phụ tùng) chỉ QL hủy. Lý do hủy luôn bắt buộc và lưu trong nhật ký (FR-REC-021).
+- Thay thợ khi hạng mục đang chạy: QĐ hoặc QL, theo R53.
+- Cơ chế bổ sung quyền cho vai trò đã tạo (`POST /api/v1/sys/roles/top-up`) giữ theo R30/R21.
+
+**Dev must change** (nhỏ): quyền giao xe chỉ CV, QL; quyền hủy của CV có điều kiện nêu trên (máy trạng thái hoặc kiểm tra tại `cancelOrder`); test cho cả hai.
+
+##### R43. Danh sách kiểm tra chất lượng
+
+**Khuyến nghị**: giữ. `[Cần xác nhận: Khách – nội dung thật]`
+
+- Cấu hình `qc-checklist` theo mã loại dịch vụ, rơi về `default`. 4 mục hiện có là dữ liệu mẫu, đánh dấu như vậy trên màn cấu hình.
+- Không có danh sách thì màn QC báo chưa cấu hình và chặn là đúng (WF-04: không giao xe khi chưa qua kiểm tra chất lượng). Thêm vào danh sách kiểm tra trước vận hành: đã có danh sách `default` thật.
+- Ảnh sau sửa **không bắt buộc** ở pilot (chưa có lưu tệp; R8, R49). Khi có, bật theo mục kiểm tra bằng cờ `photoRequired` (mặc định `false`).
+- Không đạt: trả thợ, ghi lỗi gắn với thợ và hạng mục (FR-REC-016); lệnh về "Đang sửa". Mỗi lần chạy QC là một bản ghi, không ghi đè.
+
+**Dev default OK.**
+
+##### R44. Biên bản giao xe và kiểm tra thanh toán
+
+**Khuyến nghị**: biên bản không cần chữ ký vẽ tay; giao xe kiểm tra công nợ khi phân hệ thu tiền có. `[Cần xác nhận: Khách (chính sách ghi nợ), Kế toán khách (hóa đơn), Luật sư khách (biên bản)]`
+
+*A. Biên bản (FR-REC-017, Should)*
+
+- Xác nhận trên màn hình là đủ: họ tên người nhận, quan hệ với chủ xe (`owner`, `driver`, `authorized`), thời điểm, người giao (nhân viên), số km khi giao (tùy chọn). Không lưu ảnh và chữ ký vẽ tay ở pilot (cùng lý do R26: dữ liệu cá nhân mới cần mục đích đồng ý, thời hạn lưu, lưu tệp qua API). Bản in có mã biên bản để khách ký tay trên giấy nếu chi nhánh muốn; giấy lưu ngoài hệ thống.
+- Người nhận khác chủ xe: bắt buộc chọn quan hệ; không thu giấy tờ định danh trong hệ thống ở pilot (`[Cần xác nhận: Luật sư khách]`).
+- In lại cần lý do và hiện nhãn "BẢN IN LẠI" (đã làm). Biên bản không sửa sau khi lưu; sai thì tạo biên bản điều chỉnh tham chiếu bản cũ (RULE-010).
+
+*B. Giao xe phải kiểm tra gì khi đã có thu tiền (slice 1.7)*
+
+Giao xe chỉ thực hiện từ trạng thái "Sẵn sàng giao" (đã qua QC, WF-04). Khi `order-policy.handoverRequiresPayment` bật, trong **cùng giao dịch** ghi biên bản, REC gọi API công khai của ACC (ví dụ `getOrderBalance(orderId)`; tên do dev đặt) và kiểm tra:
+
+1. **Số phải thu của lệnh** = tổng các dòng đã duyệt (gồm báo giá bổ sung đã duyệt, thuế đã tính, trừ giảm giá hợp lệ) = `approvedTotalVnd` cộng phần bổ sung; REC cung cấp số này, ACC không tự tính lại.
+2. **Số đã thu** = tổng phiếu thu **đã ghi sổ** của lệnh, cộng cọc đã trừ vào lệnh (FR-ACC-001, 002), trừ phiếu thu đã đảo. Phiếu nháp, chuyển khoản chưa xác nhận không được tính.
+3. **Còn nợ = (1) − (2)**. Điều kiện để giao: còn nợ bằng 0, **hoặc** có một **ghi nợ được duyệt** của lệnh đó (mục 4).
+4. **Ghi nợ được duyệt** (Journey, bảng ngoại lệ "Khách không nhận xe hoặc chưa trả tiền"; BR-ACC-02): QL duyệt, kèm lý do, số tiền và hạn trả; ACC tạo khoản phải thu gắn lệnh (FR-ACC-006). Khách doanh nghiệp có điều khoản trả chậm trong CRM là một dạng ghi nợ được cấu hình sẵn (QL không phải duyệt từng lệnh nếu hạn mức còn đủ; `[Cần xác nhận: Khách]`). CV không tự duyệt ghi nợ cho lệnh mình giao; hạn mức ghi nợ theo RULE-011 và ma trận phê duyệt.
+5. Kiểm tra **lại** ở thời điểm ghi (không tin số hiển thị trên màn hình), idempotent theo khóa yêu cầu; sau khi giao, biên bản lưu **ảnh chụp số liệu** (phải thu, đã thu, còn nợ, mã ghi nợ nếu có) để tranh chấp sau này.
+6. **Hóa đơn không là điều kiện giao xe** ở pilot: hóa đơn là đối tượng riêng với trạng thái riêng từ nhà cung cấp (FR-REC-028); khách chưa cung cấp thông tin hóa đơn hoặc nhà cung cấp lỗi không được giữ xe. Ngược lại, hóa đơn chỉ phát hành sau khi lệnh qua QC. `[Cần xác nhận: Kế toán khách]` có muốn bắt buộc phát hành hóa đơn trước khi giao xe không.
+7. Lệnh vào "Hoàn tất" sau khi giao xe, kể cả khi còn nợ được duyệt: trạng thái thanh toán (đối tượng riêng) vẫn "Còn nợ" và khoản phải thu theo dõi riêng; không đợi thu đủ mới hoàn tất lệnh.
+8. Mất kết nối hoặc lỗi gọi ACC: chặn giao xe với lỗi RFC 9457 rõ ràng, **không** cho qua mặc định. Chỉ QL mới giao khi ACC lỗi, bằng ngoại lệ có lý do và nhật ký (`[Đề xuất BA]`, tránh xe kẹt ở cửa).
+
+*C. Cờ và trình tự triển khai*
+
+- Trước khi 1.7 xong: giữ `handoverRequiresPayment = false` mặc định, bật thì chặn bằng `payment_check_unavailable` (đúng như dev đã làm); màn giao xe ghi rõ "chưa kiểm tra thanh toán".
+- **Khi 1.7 hoàn tất, mặc định chuyển thành `true`** cho mọi chi nhánh (đây là điều Journey bước 6 và 13 mô tả: thu tiền rồi giao xe). Chi nhánh muốn tắt phải do Chủ dự án duyệt qua cấu hình có ngày hiệu lực. Cờ boolean là đủ; cấu hình bổ sung `debtApproverPermission` không cần, dùng quyền trong ma trận.
+
+**Dev must change**: (1) chốt hợp đồng với 1.7: ACC xuất `getOrderBalance`, dữ liệu ghi nợ được duyệt, và REC lưu ảnh chụp số liệu trong biên bản; (2) đổi mặc định cờ sang `true` khi 1.7 hợp nhất; (3) giao xe có kiểm tra gọi lại trong giao dịch, không tin giá trị từ trình duyệt; (4) test: còn nợ thì bị chặn; có ghi nợ duyệt thì qua; phiếu thu bị đảo làm chặn lại; ACC lỗi thì chặn.
+
+##### R45. Hủy lệnh đã xuất phụ tùng
+
+**Khuyến nghị**: giữ chặn. `[Cần xác nhận: Khách, Kế toán khách – phụ tùng đã lắp]`
+
+- Đúng FR-REC-021 và Journey (hủy cần phiếu hoàn kho và QL duyệt): hủy chỉ khi mọi phụ tùng đã xuất đã hoàn kho bằng phiếu RTN đã ghi sổ; phiếu xuất ngoài REC cũng chặn (chưa giải trình) là đúng vì RULE-007, RULE-009.
+- Phụ tùng **đã lắp vào xe** không hoàn được, nên đó không phải "hủy lệnh": công đã làm và phụ tùng đã dùng thuộc về doanh thu của lệnh. Khách bỏ dở giữa chừng đi theo R46 (đóng lệnh theo phần đã làm) thay vì hủy. Nếu Khách vẫn muốn "hủy mà phụ tùng đã lắp" thì cần quyết định nghiệp vụ và kế toán riêng (chuyển thành chi phí, bảo hành, hoặc bán phần đã lắp): **không làm ở pilot**.
+- Đảo công đã ghi (Journey bảng phê duyệt: "hệ thống tạo phiếu hoàn kho và đảo công") áp dụng khi HRM/công thợ có (phase 2); ở 1.6 chỉ cần chặn đúng và ghi lý do.
+
+**Dev default OK.**
+
+##### R46. Hủy lệnh khi đã chờ kiểm tra hoặc sẵn sàng giao
+
+**Khuyến nghị**: giữ không cho hủy; "tạm dừng" được hủy theo trạng thái trước đó. `[Cần xác nhận: Khách – chính sách lưu xe]`
+
+- Từ "chờ kiểm tra", "sẵn sàng giao", "hoàn tất": không hủy. Việc đã làm xong thì không còn là hủy. Hủy lệnh từ "tạm dừng" cho phép theo R42 (tức là chưa hạng mục nào bắt đầu và chưa có phiếu xuất nếu người hủy là CV; còn lại QL).
+- Khách bỏ xe sau khi sửa xong, hoặc từ chối thanh toán: lệnh ở "Sẵn sàng giao" với chỉ báo số ngày chờ giao trên bảng điều phối; công nợ ghi theo Journey (bảng ngoại lệ: ghi phải thu, nhắc theo hạn); thu tiền, hoàn tiền (phiếu chi) và phí lưu xe thuộc ACC (1.7+) và **chính sách lưu xe do Khách chốt** (Journey đã ghi `[Cần xác nhận]`). Không tạo cơ chế phí lưu xe ở 1.6.
+- Khách đổi ý trước khi sửa xong (đang sửa): QL hủy lệnh hoặc đóng theo phần đã làm; phần đã làm tính tiền theo báo giá. Ghi vào câu hỏi cho Khách (§19.4).
+
+**Dev default OK.**
+
+##### R47. Báo giá bổ sung được duyệt khi lệnh đã đóng
+
+**Khuyến nghị**: ngăn việc xảy ra, không ghi duyệt "mồ côi". `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Duyệt không có lệnh nhận là bằng chứng khách đồng ý trả tiền cho việc không có chứng từ gốc (RULE-007). Do đó:
+  1. Không cho tạo hoặc gửi báo giá bổ sung khi lệnh đã "Hoàn tất" hoặc "Đã hủy".
+  2. Khi lệnh vào "Hoàn tất" hoặc "Đã hủy", mọi báo giá bổ sung còn `draft` hoặc `sent` được **tự đóng** (hết hạn/hủy, kèm lý do "lệnh đã đóng", ghi nhật ký); liên kết của chúng chỉ đọc như R38.
+  3. Kiểm tra trạng thái lệnh **trong cùng giao dịch** với duyệt để cuộc đua giữa "khách bấm duyệt" và "lệnh hoàn tất" chỉ có một bên thắng. Bên thua nhận lỗi RFC 9457 rõ ("lệnh đã đóng, liên hệ chi nhánh"), không ghi duyệt.
+  4. Khách vẫn muốn làm thêm sau khi lệnh đã đóng: mở báo giá mới và lệnh mới cho xe (có thể chọn lại khách và xe từ CRM), không mở lại lệnh đã hoàn tất.
+- Lệnh đang "Chờ kiểm tra" hoặc "Sẵn sàng giao" nhận hạng mục bổ sung đã duyệt rồi quay lại "Đang sửa" (`reopen`): **đúng**. Kèm: kết quả QC trước đó thành không còn hiệu lực (phải chạy QC lại), biên bản giao xe chưa có vì chưa giao; nếu có bản in "sẵn sàng giao" thì in lại có nhãn. Không `reopen` từ "Hoàn tất" hoặc sau khi đã có biên bản giao xe.
+- Lệnh "Tạm dừng" nhận bổ sung: dòng mới vào ở trạng thái chờ; lệnh giữ "Tạm dừng" cho đến khi cố vấn tiếp tục.
+
+**Dev must change**: chặn duyệt khi lệnh đóng (thay vì ghi duyệt rồi báo QL); tự đóng báo giá bổ sung còn mở khi lệnh đóng; `reopen` làm mất hiệu lực kết quả QC cũ; test cuộc đua duyệt/hoàn tất.
+
+##### R48. Ngưỡng xác nhận bằng lời
+
+**Khuyến nghị**: chấp nhận cách gần đúng ở pilot. `[Cần xác nhận: Khách – ngưỡng, và có cần hai người không]`
+
+- Mặc định không đặt ngưỡng nên cách gần đúng không đổi hành vi hiện tại. Khi Khách đặt `verbalApprovalMaxVnd`: báo giá vượt ngưỡng chỉ QL (không phải CV) được ghi nhận bằng lời, bằng chứng lưu `recordedByRole` và cờ `exception`, thông báo QL khác nếu có. Chấp nhận vì người có thẩm quyền duyệt chính là người ghi, nên kiểm soát vẫn đủ ở mức pilot; điểm yếu duy nhất là không có người thứ hai xác nhận độc lập.
+- **Trạng thái "chờ xác nhận" không làm ở pilot.** Nếu Khách muốn nguyên tắc hai người (CV ghi, QL khác xác nhận), thêm sau với cấu hình `verbalApprovalRequiresSecondPerson`; đó là thay đổi trạng thái báo giá nên cần cập nhật máy trạng thái, FRD và UAT.
+- Điều kiện kỹ thuật: dùng `quote:reject` làm "chỉ QL" là ánh xạ gián tiếp, dễ sai khi vai trò khác (CH, QĐ) cũng có quyền này. **Nên** thêm quyền riêng `quote:approve-verbal-over-limit` (mặc định QL, CH) bổ sung qua cơ chế top-up; không chặn pilot.
+
+**Dev default OK.**
+
+##### R49. Ảnh khi thợ đề xuất việc phát sinh
+
+**Khuyến nghị**: chỉ chữ ở pilot. `[Cần xác nhận: Luật sư khách – cùng gói R8, R26]`
+
+- Ảnh là dữ liệu mới cần mục đích đồng ý, thời hạn lưu và lưu tệp qua API (ADR 0001, URL ký ngắn hạn). Làm cùng đợt ảnh hiện trạng (R8). Trong lúc chờ, màn có ghi chú "Chưa đính kèm được ảnh; mô tả rõ vị trí và hiện tượng" là đủ, và đề xuất vẫn chuyển cho cố vấn tạo báo giá bổ sung (RULE-006).
+- Thợ không tự thêm hạng mục vào lệnh; chỉ đề xuất, cố vấn lập báo giá bổ sung.
+
+**Dev default OK.**
+
+##### R50. Loại dịch vụ theo từng hạng mục
+
+**Khuyến nghị**: một loại cho cả lệnh ở pilot; ghi nhận lệch. `[Cần xác nhận: Khách]`
+
+- Tiêu chí FR-REC-032 ("hai hạng mục khác loại trên một lệnh dùng hai bộ bước khác nhau") **chưa thỏa** khi lệnh chỉ có một loại. Chấp nhận ở pilot vì bước chỉ là mốc theo dõi (R36), không chặn nghiệp vụ, và bộ bước đồng sơn còn chờ khảo sát xưởng. Ghi vào §19.3 như lệch đã biết; không đánh dấu FR-REC-032 là xong hoàn toàn.
+- Cách làm khi cần: trường tùy chọn `serviceTypeCode` trên dòng công của báo giá, mặc định theo hồ sơ tiếp nhận; lệnh chép bộ bước cho từng loại khác nhau. Đưa vào backlog trước khi đồng sơn vào pilot.
+- Màn theo dõi bước (kể cả `expectedDays` đồng sơn) là điều kiện của BR-REC-14 và UAT-21 trước khi bật đồng sơn; không cần cho pilot bảo dưỡng, sửa chung, lốp mâm.
+- Trước mắt: hồ sơ có việc thuộc hai loại thì chọn loại chính; bước của loại phụ được ghi chú.
+
+**Dev default OK.**
+
+##### R51. Màn hình 1.6 so với thiết kế
+
+**Khuyến nghị**: không có phản đối về yêu cầu chức năng; quyết định hình thức thuộc designer.
+
+- Hủy bằng hộp thoại trên lệnh được, miễn: lý do bắt buộc; liệt kê phụ tùng đã xuất chưa hoàn kho kèm liên kết đến RTN; chỉ hiện nút khi người dùng có quyền (R42); kết quả hủy có mã lệnh và lý do trong nhật ký.
+- "Công của tôi" (G2-TEC-05) gắn với tính công thợ (HRM, phase 2): hoãn. "Hàng chờ kiểm tra" riêng: cột bảng điều phối đủ nếu QĐ có bộ lọc "chờ kiểm tra" và thông báo khi lệnh vào trạng thái đó.
+- Ghi sai khác vào `docs/ui-ux/STATUS.md` khi designer duyệt.
+
+**Dev default OK.**
+
+##### R52. Xe chờ phụ tùng
+
+**Khuyến nghị**: thủ công ở pilot. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Nút "Kiểm tra lại phụ tùng" chạy lại giữ chỗ idempotent theo `lineKey` là đúng. Quy tắc cần giữ: khi giữ lại, chỉ lấy từ phần **khả dụng**, không bao giờ lấy phần đã giữ cho lệnh khác (RULE-008). Có nhiều lệnh cùng thiếu một phụ tùng thì thứ tự ưu tiên là thời điểm duyệt sớm hơn; nêu ở màn kiểm tra lại.
+- Tự động theo phiếu nhập: không làm ở pilot vì giữ chỗ tự động theo sự kiện kho có nguy cơ giữ chỗ ngoài ý muốn và cần thiết kế thứ tự ưu tiên. Thay thế rẻ: khi GRN ghi sổ, thông báo QĐ/CV rằng "có hàng về cho phụ tùng X, lệnh đang chờ: ..." (không tự giữ). Làm sau, không chặn.
+- Bảng điều phối tính "xe chờ phụ tùng" từ `unmetQty > 0` hoặc hạng mục tạm dừng mã `awaiting_parts` (R41).
+
+**Dev default OK.**
+
+##### R53. Giờ thực của thợ
+
+**Khuyến nghị**: đủ cho 1.6. `[Cần xác nhận: Khách – công, hoa hồng thuộc HRM phase 2, BR-HRM-03]`
+
+- Đáp ứng FR-REC-013 ("mỗi lần bấm ghi thời điểm; giờ thực tính từ các mốc"). Giờ thực = tổng các khoảng bắt đầu đến tạm dừng/kết thúc, không tính lúc tạm dừng, hiển thị cạnh giờ khách duyệt và giờ chuẩn; ghi nhãn "tham khảo, chưa phải công tính lương" (quy tắc lương khoán còn mở, CLAUDE.md "Labor pay").
+- Ba điều kiện kiểm tra: (1) khoảng giờ được lưu **theo người thao tác**: hai thợ cùng làm một hạng mục thì giờ cộng theo từng người, không theo giờ treo tường; (2) đổi thợ khi hạng mục đang chạy: hệ thống đóng khoảng hiện tại bằng mốc `reassigned` ghi người thao tác và mở lại cho thợ mới khi họ bấm; không để một khoảng chạy qua hai người; (3) khoảng chưa kết thúc cuối ngày không được tự đóng âm thầm: hiện "chưa kết thúc" và cảnh báo QĐ, QĐ sửa bằng mốc điều chỉnh kèm lý do (R40).
+- Cờ "khác giờ chuẩn" (§17) tính từ giờ thực so với giờ chuẩn của dòng công, hiển thị cho QĐ; không tự đổi tiền công của khách.
+
+**Dev default OK** (kiểm tra ba điều kiện).
+
+### 19.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FR-REC-017 | Thêm: người nhận, quan hệ với chủ xe; không bắt buộc chữ ký vẽ tay/ảnh ở pilot; biên bản lưu ảnh chụp số liệu thanh toán khi có ACC; giao xe chỉ CV, QL | R44, R42 |
+| FR-REC-015 | Giao xe từ "Sẵn sàng giao"; "Hoàn tất" sau giao xe, kể cả còn nợ được duyệt; `reopen` làm QC cũ mất hiệu lực | R44, R47 |
+| FR-REC-021 | Làm rõ: CV chỉ hủy lệnh chưa làm và chưa xuất; phụ tùng đã lắp không phải hủy lệnh; không hủy sau "chờ kiểm tra" | R42, R45, R46 |
+| FR-REC-013 | Hoàn tác là mốc bù; giờ thực tính theo người thao tác; khoảng chưa kết thúc được cảnh báo | R40, R53 |
+| FR-REC-032 | Ghi lệch: pilot một loại dịch vụ cho cả lệnh; `serviceTypeCode` theo dòng công là backlog | R50 |
+| FR-REC-022 | "Xe chờ phụ tùng" từ `unmetQty > 0` hoặc lý do tạm dừng `awaiting_parts`; kiểm tra lại thủ công | R41, R52 |
+| FR-REC-016 | `photoRequired` tùy chọn theo mục; lần QC là bản ghi riêng | R43 |
+| FR-ACC (1.7) | Thêm yêu cầu `getOrderBalance` và ghi nợ được duyệt khi giao xe; liên hệ FR-ACC-001, 002, 006 | R44 |
+| Journey bước 13 | Ghi điều kiện giao xe: còn nợ bằng 0 hoặc ghi nợ được QL duyệt; hóa đơn không là điều kiện | R44 |
+| UAT mới (tạm) | Giao xe bị chặn khi còn nợ và khi chưa qua QC; qua khi có ghi nợ duyệt; phiếu thu bị đảo chặn lại; CV hủy lệnh đã bắt đầu bị từ chối; hủy khi còn phụ tùng chưa hoàn kho bị chặn; duyệt báo giá bổ sung sau khi lệnh hoàn tất bị từ chối; `reopen` buộc QC lại; hoàn tác không xóa mốc; hai thợ cùng hạng mục cộng giờ theo từng người | R42, R44, R45, R47, R40, R53 |
+
+### 19.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4, §18.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 31 | Khách | Giao xe có bắt buộc thu đủ tiền không; khi nào cho ghi nợ và ai duyệt; khách doanh nghiệp trả chậm có được giao không cần duyệt từng lệnh | Bắt buộc; QL duyệt ghi nợ; doanh nghiệp theo hạn mức CRM | Cờ `handoverRequiresPayment` tắt, hoặc thêm cấp duyệt; ảnh hưởng báo cáo công nợ |
+| 32 | Kế toán khách | Hóa đơn có phải điều kiện giao xe không; phụ tùng đã lắp mà khách bỏ dở xử lý thế nào | Không là điều kiện; đóng lệnh theo phần đã làm | Thêm bước kiểm tra EIN trước giao xe; cần quy tắc ghi nhận chi phí/doanh thu |
+| 33 | Khách | Chính sách lưu xe và phí lưu xe khi khách bỏ xe; có cho hủy lệnh đang sửa không | Chưa có phí lưu xe ở pilot; QL đóng lệnh theo phần đã làm | Cần phí lưu xe trong ACC và thông báo cho khách |
+| 34 | Khách | Danh sách lý do tạm dừng, mục QC thật theo loại dịch vụ, ai được giao xe | 5 mã; CV, QL giao xe | Chỉ đổi dữ liệu cấu hình và ma trận quyền |
+| 35 | Luật sư khách | Biên bản giao xe không chữ ký vẽ tay/ảnh, người nhận khác chủ xe không thu giấy tờ định danh | Đủ ở pilot | Cần lưu tệp, mục đích đồng ý và thời hạn lưu |
+
+### 19.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R44: hợp đồng kiểm tra giao xe với 1.7 (`getOrderBalance`, ghi nợ được duyệt, ảnh chụp số liệu trong biên bản); đổi mặc định `handoverRequiresPayment` sang `true` khi 1.7 hợp nhất; kiểm tra lại trong giao dịch; ACC lỗi thì chặn | `order-policy`, giao xe, 1.7 | Bắt buộc ở 1.7 |
+| 2 | R47: chặn duyệt báo giá bổ sung khi lệnh đã đóng (hiện đang ghi duyệt rồi báo QL); tự đóng báo giá bổ sung còn mở khi lệnh đóng; `reopen` làm QC cũ mất hiệu lực | `appendSupplement`, `approval.ts` | Bắt buộc |
+| 3 | R42: giao xe chỉ CV, QL (bỏ TN nếu đang có); CV chỉ hủy lệnh còn "Đã duyệt", chưa bắt đầu, chưa xuất | `permissions.ts`, `cancelOrder` | Nhỏ, có test |
+| 4 | R41: thêm mã tạm dừng `awaiting_supplement_approval`; "khác" bắt buộc ghi chú | `domain/orderState.ts` | Nhỏ |
+| 5 | R39: thông báo QL khi `warehouse_missing`; R53: kiểm tra giờ theo người thao tác, `reassigned` đóng khoảng, cảnh báo khoảng chưa kết thúc; R40: hoàn tác là mốc bù | `orders.ts`, `workedMsOf` | Kiểm tra, sửa nếu lệch |
+| 6 | R48: quyền riêng `quote:approve-verbal-over-limit` thay `quote:reject` làm đại diện | `permissions.ts`, `approveQuote` | Nên làm, không chặn |
+
+Không có câu trả lời nào mâu thuẫn với R35, R36, R37 đã chốt ở §18; R47 làm chặt thêm R37 nguyên tắc 5 (báo giá bổ sung chỉ thêm vào lệnh đang mở).
+
+---
+
+## 20. Slice 1.7: tiền tối thiểu (R54–R68)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` vẫn là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định bên dưới ngay). Trả lời mục "Slice 1.7: tiền tối thiểu" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-ACC-001, 002, 003, 004, 005, 006, 009, 015, 016, 017, 018; FR-SYS-004; BR-ACC-01, 02, 04, 05, 10, 11; RULE-007, 010, 011; WF-09; Journey (bảng ngoại lệ, ma trận phê duyệt, bước 13); §6.3–6.4 (số chứng từ, K1–K8), §19 R44. Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01). Không sửa FRD/BRD/Journey; việc cần sửa ở §20.3. Đã đối chiếu mã `src/modules/acc` (expenses.ts, payments.ts, shifts.ts, dayClose.ts) cho R64, R58, R60.
+
+### 20.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R54 | Giữ bốn hình thức; mã giao dịch bắt buộc với phi tiền mặt; chặn trùng mã; chỉ tiền mặt vào sổ quỹ; chừa cờ `reconciled` cho Phase 4 | OK (kiểm tra 3 điểm) | Kế toán khách |
+| R55 | Cọc khi lệnh mở, trần = phần chưa thu; thu cuối chỉ sau QC; giữa chừng dùng cọc, không có "thu từng phần" riêng | OK (kiểm tra công thức trần) | Khách |
+| R56 | Từ chối thu vượt; cọc gắn lệnh; khoản nhận trước theo khách để phase 2 (FR-ACC-015); cọc dư khi đóng lệnh phải hoàn | OK (thêm cảnh báo cọc dư) | Kế toán khách |
+| R57 | Hoàn cọc luôn do quản lý duyệt, cần ca đang mở; hoàn ngoài cọc không làm, dùng phiếu đảo | **Must change** (nhỏ) | Khách |
+| R58 | Bậc tự quyết thu ngân 500.000 (kèm trần cộng dồn theo ca), quản lý đến 5.000.000, trên đó Chủ garage; các số khác giữ mã dự phòng | **Must change** (nhỏ) | Chủ dự án, Khách |
+| R59 | Đúng: người lập khác người duyệt; chi nhánh một quản lý thì chuyển Chủ garage; Chủ tự duyệt được nhưng bị đánh dấu | OK (kiểm tra tự động chuyển cấp) | Chủ dự án |
+| R60 | Ngưỡng 0 ở pilot; chênh lệch (thừa và thiếu) đều cần giải trình và duyệt; bản ghi sổ quỹ của chênh lệch không bao giờ bị xóa | OK | Kế toán khách |
+| R61 | Một ca mỗi chi nhánh ở pilot; số dư đầu ca theo sổ; ca đầu tiên cần số dư đầu kỳ do Chủ duyệt | OK | Khách |
+| R62 | Chưa có "mở lại ngày" ở pilot; sửa ngày đã khóa bằng phiếu đảo ghi vào ngày đang mở; cảnh báo vs chặn như mô tả | OK; designer sửa G4-ACC-03 | Chủ dự án, Kế toán khách |
+| R63 | Ghi nợ = toàn bộ số còn nợ lúc giao, hạn tối đa 60 ngày, QL duyệt từng lệnh; doanh nghiệp theo hạn mức CRM để phase 2 | OK | Khách, Kế toán khách |
+| R64 | **Lưu có cờ, không chặn cứng** với chi thường; chặn cứng khi loại chi gắn chứng từ; cờ buộc có lý do và buộc quản lý duyệt | **Must change** | Kế toán khách, Luật sư khách |
+| R65 | Danh mục cấu hình, thêm thuộc tính `sourceRequirement`; danh sách thật do Kế toán | OK (thêm thuộc tính) | Kế toán khách |
+| R66 | Đúng ý: chặn hủy khi còn tiền thu hoặc cọc; giao xe khi ACC lỗi chỉ QL, ngoại lệ có lý do | OK | Khách |
+| R67 | Đúng với K1–K8 mặc định: PT/PC, ghi sổ mới cấp số, đảo cùng dãy | OK | Kế toán khách |
+| R68 | Không xin tăng hạn mức làm đường chính: ngân sách 9 chỉ mục còn lại cho 1.8 + 1.9 theo 6 quy tắc ở §20.2 | **Must change** (quy tắc cho 1.8, 1.9) | Dev, Chủ dự án (nếu cần hạ tầng) |
+
+### 20.2 Trả lời từng câu
+
+##### R54. Hình thức thanh toán và mã giao dịch
+
+**Khuyến nghị**: giữ bốn hình thức, mã giao dịch bắt buộc với phi tiền mặt. `[Đề xuất BA – chờ xác nhận: Kế toán khách]`
+
+- FR-ACC-001 chỉ nêu "tiền mặt, chuyển khoản, thẻ, ví"; "QR" là mã hình thức cùng nhóm ví. Không có cổng thanh toán nên mọi khoản phi tiền mặt là **ghi tay** dựa trên màn hình ngân hàng/POS do thu ngân nhìn; điều này ghi rõ trên phiếu ("ghi tay, chưa đối soát").
+- Mã giao dịch bắt buộc (không kiểm định dạng ở pilot vì mỗi ngân hàng một kiểu). **Chặn dùng lại cùng mã** (cùng hình thức, cùng chi nhánh) cho hai phiếu thu chưa bị đảo; phiếu đã đảo thì mã được dùng lại. Lý do: đây là kiểm soát duy nhất chống ghi một lần chuyển khoản cho hai lệnh trước khi có đối soát Phase 4 (FR-ACC-017).
+- **Chỉ tiền mặt đi vào sổ quỹ tiền mặt** và số dư két (FR-ACC-003); chuyển khoản, thẻ, QR vào phiếu thu nhưng không vào két. Tổng thu theo hình thức hiện riêng ở chốt ca và chốt ngày.
+- Chừa trường `reconciled` (mặc định `false`) trên dòng thanh toán phi tiền mặt; Phase 4 cập nhật bằng đối soát. Không tính "đã thu" theo `reconciled` ở pilot (R44 nói chuyển khoản chưa xác nhận không được tính: ở đây "xác nhận" nghĩa là thu ngân đã ghi kèm mã).
+- Phí thẻ/cổng: không làm ở 1.7 (doanh thu ghi theo giá trị khách trả; phí là chi phí riêng nhập tay bằng phiếu chi loại "khác" cho đến khi Kế toán định danh mục).
+
+**Dev default OK.** Kiểm tra: (1) phi tiền mặt không đổi số dư két; (2) trùng mã bị chặn (nếu chưa); (3) có trường `reconciled`.
+
+##### R55. Khi nào được thu tiền, cọc tối đa
+
+**Khuyến nghị**: giữ như dev. `[Cần xác nhận: Khách, Kế toán khách – có cho thu từng phần]`
+
+- **Cọc** (FR-ACC-002): nhận khi lệnh ở trạng thái mở (đã duyệt, đang sửa, tạm dừng), không nhận cho lệnh hoàn tất hoặc đã hủy. Trần = (phải thu của lệnh gồm báo giá bổ sung đã duyệt) − (đã thu) − (cọc đang giữ). Dev đã làm `deposit_exceeds`; kiểm tra công thức dùng cả bổ sung đã duyệt và cọc đang giữ.
+- **Thu cuối** chỉ khi lệnh "Sẵn sàng giao" hoặc "Hoàn tất" (đã qua QC, WF-04); thu sau khi giao xe (trả nợ) là luồng công nợ (R63).
+- **Thu từng phần giữa chừng**: không có loại phiếu riêng. Khách muốn trả trước một phần thì ghi nhận là **cọc** (cùng quy tắc, cùng khả năng hoàn). Như vậy mọi tiền trước khi QC đều là cọc có nhãn rõ, không có nhiều cách ghi cho cùng một việc. Thu nhiều lần ở bước cuối (nhiều hình thức, nhiều lần) vẫn được (FR-ACC-001: "nhiều lần thanh toán cho một lệnh").
+- Không đặt trần cọc theo tỷ lệ trên giá trị lệnh ở pilot (chỉ trần theo phần chưa thu). Khách muốn trần tỷ lệ: thêm `acc-policy.depositMaxPercent`, mặc định trống.
+
+**Dev default OK.**
+
+##### R56. Thu vượt, khoản nhận trước
+
+**Khuyến nghị**: từ chối thu vượt. `[Cần xác nhận: Kế toán khách]`
+
+- Đúng cho pilot: tiền thối là số liệu hiển thị ("khách đưa" trừ "phải thu"), không phải thu; phiếu ghi đúng số được áp vào lệnh.
+- Khoản nhận trước theo khách, một khoản trả cho nhiều lệnh/hóa đơn, bù cọc sang lệnh khác: thuộc FR-ACC-015 (Must, giai đoạn 2, FRD §13). Không làm ở 1.7.
+- Cọc gắn **một lệnh**. Khi lệnh đóng (hoàn tất hoặc hủy) mà cọc còn dư sau khi trừ vào phải thu: cọc dư **không** tự biến thành thu nhập; nó hiện trong danh sách cảnh báo của chốt ngày và chỉ xử lý được bằng hoàn cọc (R57). Lệnh hủy phải hoàn cọc trước (R66).
+
+**Dev default OK** (thêm cảnh báo "cọc dư" ở chốt ngày nếu chưa có).
+
+##### R57. Hoàn cọc và hoàn tiền
+
+**Khuyến nghị**: hoàn cọc luôn qua quản lý duyệt. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- FR-ACC-002: "cọc hoàn lại có phiếu chi". Dùng phiếu chi loại `deposit_refund` gắn khoản cọc, tối đa phần cọc còn giữ (`refund_exceeds_deposit`) là đúng.
+- Vì hoàn tiền là rủi ro gian lận cao hơn chi vặt, **mọi hoàn cọc cần quản lý chi nhánh duyệt** (không áp bậc tự quyết của thu ngân ở R58), và vượt hạn mức đảo (R58) thì Chủ garage. Hoàn bằng tiền mặt cần ca đang mở (tiền ra khỏi két).
+- Hoàn tiền cho khách ngoài cọc (FR-ACC-016, Should, G4-ACC-07) và hạn mức hoàn của thu ngân: **không làm ở 1.7**; thu sai thì đảo phiếu thu (R62) và thu lại.
+
+**Dev must change** (nhỏ): loại chi `deposit_refund` luôn tạo yêu cầu duyệt cấp quản lý, bất kể bậc tự quyết.
+
+##### R58. Hạn mức phê duyệt
+
+**Khuyến nghị**: dùng các số sau làm dữ liệu cấu hình `approval-limit` khởi điểm. `[Cần xác nhận: Chủ dự án, Khách – D-11; Journey ghi "ví dụ minh họa"]`
+
+| Loại | Tự quyết (không cần duyệt) | Quản lý chi nhánh duyệt đến | Trên đó |
+| --- | --- | --- | --- |
+| Phiếu chi | Thu ngân đến **500.000** mỗi phiếu và tổng **2.000.000** mỗi ca; quản lý chi nhánh tự chi đến 5.000.000 | 5.000.000 | Chủ garage |
+| Hoàn cọc | Không có (R57) | 50.000.000 | Chủ garage |
+| Đảo phiếu | Không có | 50.000.000 | Chủ garage |
+| Ghi nợ khi giao xe | Không có | 10.000.000 | Chủ garage |
+| Chênh lệch quỹ | Theo R60 | 500.000 | Chủ garage |
+
+- Con số 500.000/5.000.000/50.000.000/10.000.000 là mã dự phòng của dev, giữ nguyên làm giá trị khởi điểm. Lệch với ví dụ Journey (dưới 2 triệu QL chi nhánh, 2 đến 10 triệu "quản lý vận hành", trên 10 triệu Chủ): Journey có cấp "quản lý vận hành" mà ma trận 10 vai trò hiện không có cấp riêng, nên bỏ cấp giữa và dồn lên Chủ garage ở ngưỡng 5.000.000. `[Cần xác nhận: Chủ dự án]` có muốn cấp thứ ba (Kế toán trưởng hoặc quản lý vùng) hay không; chưa làm ở pilot (đã nêu trong R58).
+- **Trần cộng dồn theo ca** cho phần tự quyết của thu ngân (cấu hình `cashierSelfApproveShiftCapVnd`, khởi điểm 2.000.000): ngăn tách một khoản lớn thành nhiều phiếu nhỏ dưới 500.000. Vượt trần thì phiếu tiếp theo cần duyệt.
+- Không tự chuyển cấp khi quá hạn ở pilot: đánh dấu quá hạn và nhắc (FR-SYS-004 "hết hạn thì nhắc") là đủ; chuyển cấp tự động theo FR-SYS-015 làm sau. Hạn xử lý trước khi nhắc: 4 giờ làm việc (khởi điểm, cấu hình). Duyệt hàng loạt không làm ở pilot.
+- Hạn mức đúng là cấu hình có ngày hiệu lực, thay đổi cần phê duyệt cấu hình sẵn có.
+
+**Dev must change** (nhỏ): thêm trần cộng dồn theo ca; đảm bảo dữ liệu mẫu seed (thu ngân 500.000) không nằm trong mã dự phòng của môi trường thật (mã dự phòng giữ "mọi phiếu chi cần duyệt" như hiện nay).
+
+##### R59. Người lập khác người duyệt
+
+**Khuyến nghị**: chấp nhận. `[Đề xuất BA – chờ xác nhận: Chủ dự án]`
+
+- Theo người, không theo vai trò (FR-ACC-018: mỗi bước có người và thời điểm; WF-09). Áp dụng cho phiếu chi, hoàn cọc, đảo phiếu, ghi nợ, chênh lệch quỹ.
+- Chi nhánh chỉ có một quản lý, hoặc người đề nghị chính là quản lý duy nhất: yêu cầu **tự chuyển** cho Chủ garage (không cần quản lý bấm chuyển). Chủ garage là người đề nghị: được tự duyệt nhưng bản ghi mang cờ `selfApproved` và hiện ở nhật ký/báo cáo ngoại lệ (mã đã có `selfApproved` ở cấu hình, mở rộng cho ACC).
+- Người đếm két ở chốt ca không duyệt chính chênh lệch của ca đó (R60).
+- Ghi nhận ủy quyền khi quản lý nghỉ phép: không làm ở pilot; Chủ garage duyệt thay. `[Cần xác nhận: Khách]`
+
+**Dev default OK.** Kiểm tra: tự chuyển lên Chủ khi không còn quản lý khác; test người đếm két không duyệt chênh lệch của mình.
+
+##### R60. Chênh lệch quỹ khi chốt ca
+
+**Khuyến nghị**: ngưỡng 0. `[Cần xác nhận: Kế toán khách – ngưỡng và danh mục nguyên nhân]`
+
+- Journey: "chênh lệch vượt hạn mức phải có giải trình và quản lý duyệt"; FR-ACC-004: không chốt khi còn chênh lệch chưa giải trình. Hai khái niệm tách nhau: `varianceToleranceVnd` (dưới ngưỡng này chỉ cần giải trình, không cần duyệt) và hạn mức duyệt (R58, 500.000 trở lên cần thêm Chủ garage). Khởi điểm 0: mọi chênh lệch, thừa hay thiếu, cần giải trình và quản lý duyệt. Khi Kế toán chấp nhận ngưỡng thấp (ví dụ 10.000 làm tròn), chỉ đổi cấu hình.
+- Danh mục nguyên nhân 4 mã theo thiết kế; mã "khác" bắt buộc ghi chú (cùng nguyên tắc R41).
+- Chênh lệch ghi ngay thành một dòng sổ quỹ riêng nên sổ bằng số đếm: chấp nhận, vì RULE-010 (không xóa). Bị từ chối **không xóa** dòng đó; bản giải trình mới gắn vào cùng chênh lệch, và ngày bị chặn chốt cho tới khi được duyệt. Chênh lệch thiếu kéo dài quá hạn (khởi điểm 3 ngày) báo Chủ garage; xử lý nhân sự ngoài hệ thống.
+
+**Dev default OK.**
+
+##### R61. Ca thu ngân
+
+**Khuyến nghị**: một ca mở mỗi chi nhánh ở pilot. `[Cần xác nhận: Khách – số quầy thu mỗi chi nhánh]`
+
+- Pilot tại một chi nhánh nên một quầy là hợp lý; nếu nhiều quầy cùng lúc thì cần ca theo quầy hoặc theo người, kéo theo két riêng: đổi mô hình, không phải cấu hình. Hỏi Khách trước khi nhân rộng.
+- Số dư đầu ca theo sổ: chấp nhận **với điều kiện** ca trước đã chốt có đếm; chênh lệch khi giao ca thuộc ca vừa đóng. **Ca đầu tiên của chi nhánh** (chưa có sổ): cần "số dư đầu kỳ" nhập kèm giải trình, Chủ garage duyệt, ghi vào sổ như một dòng riêng (không sửa sau).
+- Đếm theo mệnh giá: không bắt buộc ở pilot; ghi tổng đếm.
+- Ca mở qua nửa đêm thuộc `businessDate` ngày mở ca (đồng bộ K7); chốt ngày chặn nếu còn ca mở; cảnh báo nếu ca mở quá 16 giờ (khởi điểm, cấu hình).
+
+**Dev default OK.**
+
+##### R62. Chốt ngày, mở lại, đảo phiếu ngày đã khóa
+
+**Khuyến nghị**: giữ như mô tả; sửa thiết kế. `[Cần xác nhận: Chủ dự án, Kế toán khách – mở lại ngày và khóa kỳ]`
+
+- **Mở lại ngày / khóa kỳ (FR-ACC-005)**: không làm ở 1.7. Trong lúc chờ, sửa lỗi ngày đã khóa bằng **bút toán đảo ghi vào ngày đang mở** (RULE-010). Khi làm sau: chỉ Chủ garage, mật khẩu, lý do, nhật ký, thông báo.
+- **Phiếu đảo của ngày đã khóa được phép**, ghi vào `businessDate` đang mở, giữ liên kết `reversalOf` và nhãn "Đảo phiếu ngày đã khóa". Đây khác thiết kế G4-ACC-03 (khóa nút đảo trong ngày đã khóa): thiết kế sai về nghiệp vụ vì không còn đường sửa nào nếu chưa có "mở lại ngày". Vẫn cần quản lý duyệt (R58) và lý do. **Designer đổi G4-ACC-03.**
+- **Chặn** chốt ngày: ca đang mở; chênh lệch chưa được duyệt; yêu cầu duyệt chi/đảo/hoàn đang chờ (vì đã đưa vào số liệu ngày chưa quyết, dev xác nhận hành vi hiện tại). **Cảnh báo (không chặn)**: lệnh còn mở, lệnh hoàn tất chưa thu đủ, phiếu chi thiếu chứng từ, cọc dư. Lý do cảnh báo mà không chặn: lệnh qua đêm là bình thường, không được giữ chốt ngày làm con tin của luồng sửa xe.
+- Phiếu thu/chi tạo cho ngày đã khóa: không được; chỉ phiếu đảo như trên.
+
+**Dev default OK** (xác nhận phiếu chờ duyệt có chặn chốt ngày hay không và ghi vào §20.3).
+
+##### R63. Ghi nợ khi giao xe
+
+**Khuyến nghị**: giữ. `[Cần xác nhận: Khách, Kế toán khách – hạn 60 ngày, khách doanh nghiệp]`
+
+- "Toàn bộ số còn nợ" nghĩa là số còn lại sau các lần thu; khách trả một phần rồi ghi nợ phần còn lại là hợp lệ. Không ghi nợ vượt số còn nợ; không ghi nợ thêm cho cùng lệnh sau khi đã ghi (dùng phiếu thu để trả).
+- Điều kiện khởi điểm (BR-ACC-02): hạn trả tối đa 60 ngày; QL duyệt từng lệnh; CV không duyệt ghi nợ cho lệnh mình giao (R44); khách có số điện thoại hợp lệ trong CRM (để nhắc nợ); lý do bắt buộc. Trên 10.000.000 cần Chủ garage (R58).
+- Khách doanh nghiệp trả chậm theo hạn mức CRM, không duyệt từng lệnh: **phase 2** (FR-ACC-006 đầy đủ + BR-ACC-13). Ở pilot, khách doanh nghiệp cũng qua duyệt từng lệnh.
+- Nhắc nợ và tuổi nợ theo khách (nhóm 0–30, 31–60, 61–90, trên 90): phase 2; pilot có danh sách theo lệnh kèm tuổi nợ. Số dư công nợ của khách = tổng nợ các lệnh (FR-ACC-006) là phép tính đọc, không lưu số tổng riêng.
+- Lệnh vẫn "Hoàn tất" khi còn nợ được duyệt (R44 mục 7). Nợ quá hạn không tự khóa khách khỏi tiếp nhận ở pilot; hiện cảnh báo ở hồ sơ khách. `[Cần xác nhận: Khách]` có chặn nhận xe mới của khách nợ quá hạn không.
+
+**Dev default OK.**
+
+##### R64. Phiếu chi thiếu chứng từ gốc (RULE-007)
+
+**Khuyến nghị**: lưu có cờ cho chi thường, chặn cứng khi loại chi gắn chứng từ, cờ phải có lý do và phải qua quản lý. `[Cần xác nhận: Kế toán khách, Luật sư khách – chứng từ hợp lệ để chi]`
+
+- **Đọc lại RULE-007 trong BRD**: câu chữ là "Phụ tùng xuất phải gắn với lệnh sửa chữa hoặc một lý do xuất kho hợp lệ" (FR-INV-006) và không nêu phiếu chi. Phần "không chi tiền khi không có chứng từ gốc" xuất phát từ CLAUDE.md và từ FR-ACC-018 / RULE-011 (khoản chi qua đề xuất, duyệt theo hạn mức). Do đó đây là **mâu thuẫn mềm giữa các tài liệu**: ghi vào §20.3, FRD/BRD cần nói rõ "chứng từ gốc" của phiếu chi là gì.
+- Chọn **cấp theo loại chi** (cấu hình `expense-category.sourceRequirement`):
+  - `required` (chặn cứng): hoàn cọc (gắn cọc), chi trả nhà cung cấp (gắn phiếu nhập, FR-ACC-007, phase 2), chi liên quan lệnh (gắn lệnh). Thiếu thì không lưu được.
+  - `optional` (lưu có cờ `sourceMissing`): chi vận hành thường (văn phòng, điện nước, tiếp khách, khác): chứng từ gốc là hóa đơn/biên nhận giấy, hệ thống chưa lưu tệp (ADR 0001, tệp qua API chưa dựng) nên không thể chứng minh bằng tệp. Chặn cứng sẽ đẩy chi tiêu ra ngoài hệ thống, tệ hơn việc ghi có cờ.
+- Phiếu mang cờ phải có: **lý do thiếu chứng từ** (văn bản bắt buộc, thay cho `description` chung), và **không dùng bậc tự quyết của thu ngân** (R58): luôn qua quản lý chi nhánh. Phiếu cờ nhập bởi chính quản lý thì Chủ garage duyệt khi trên 500.000 (khởi điểm). Cờ không bị xóa; bổ sung số biên nhận sau thì ghi thêm `sourceRef` bằng thao tác có nhật ký, cờ chuyển thành "đã bổ sung".
+- Cờ hiện ở chốt ngày (đã làm) và còn mở quá 3 ngày thì thông báo quản lý chi nhánh; báo cáo tổng (RPT sau) liệt kê theo chi nhánh.
+- Khi có lưu tệp (cùng gói R8, R49): chuyển `optional` sang bắt buộc đính kèm theo từng loại, cấu hình.
+
+**Dev must change**: (1) thuộc tính `sourceRequirement` trong `expense-category`, chặn `required` khi thiếu; (2) lý do thiếu chứng từ bắt buộc khi `sourceMissing`; (3) phiếu `sourceMissing` luôn tạo yêu cầu duyệt (hiện `expenses.ts` chỉ đặt cờ, không đổi đường duyệt); (4) thông báo quản lý khi cờ mở quá hạn; (5) test cho cả bốn.
+
+##### R65. Danh mục loại chi phí
+
+**Khuyến nghị**: giữ cấu hình và dữ liệu mẫu. `[Cần xác nhận: Kế toán khách – danh sách thật, ánh xạ tài khoản]`
+
+- Mã loại ổn định, nhãn đổi được; vô hiệu hóa loại chứ không xóa khi đã dùng (RULE-010). Thêm thuộc tính `sourceRequirement` (R64) và `depositRefund` (đã có) cho từng loại.
+- Ánh xạ sang tài khoản kế toán thuộc FR-ACC-010 (Should), không làm ở 1.7; chừa trường `accountCode` tùy chọn. Danh sách thật của Kế toán phải có trước khi pilot (thêm vào danh sách kiểm tra trước vận hành, cùng danh sách QC R43).
+
+**Dev default OK** (thêm thuộc tính).
+
+##### R66. Hủy lệnh có tiền, giao xe khi ACC lỗi
+
+**Khuyến nghị**: đúng ý. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Chặn hủy khi còn phiếu thu chưa đảo hoặc cọc đang giữ (`order_has_payments`) là đúng RULE-007 và RULE-010: tiền khách đã trả không được "mồ côi" khi lệnh biến mất. Thông báo lỗi nêu rõ phiếu cần đảo hoặc cọc cần hoàn, kèm liên kết.
+- Cùng R45: lệnh có phụ tùng đã xuất thì cũng phải hoàn kho trước; thứ tự gợi ý hiển thị: hoàn kho, hoàn cọc/đảo phiếu thu, rồi hủy.
+- Giao xe khi ACC lỗi: đúng §19 R44 mục 8; chỉ quản lý chi nhánh, ngoại lệ có lý do, biên bản ghi "không kiểm tra được thanh toán", và tạo việc đối chiếu cho thu ngân sau khi ACC lại bình thường.
+
+**Dev default OK.**
+
+##### R67. Số phiếu
+
+**Khuyến nghị**: dùng K1–K8 mặc định (§6.4). `[Cần xác nhận: Kế toán khách]`
+
+- PT cho phiếu thu và cọc; PC cho phiếu chi, hoàn cọc; phiếu đảo dùng dãy của loại gốc, có nhãn "Phiếu đảo" (K4); cấp số khi ghi sổ, liền số (K1 chọn a); dãy theo chi nhánh × tháng, kỳ theo `businessDate` (K2, K3, K7); tiền mặt và chuyển khoản chung dãy PT (K8). Phiếu chi qua chuyển khoản vẫn là PC, chưa dùng CQ (nạp/chuyển quỹ chưa làm).
+- Phiếu chờ duyệt dùng mã tạm (`draftRef`), không phải số chính thức, in ghi "Chờ duyệt" (§6.3 nhóm B). Ca và chốt ngày không phải chứng từ có số PT/PC; chúng dùng mã tham chiếu riêng, không chiếm dãy.
+- Khi chốt kiểm tra liền số hằng đêm (§6.2 mục 7) phải chạy cho PT/PC.
+
+**Dev default OK.**
+
+##### R68. Ngân sách chỉ mục Firestore (191/200)
+
+**Khuyến nghị**: coi 9 chỉ mục còn lại là ngân sách cứng của cả 1.8 (EIN) và 1.9 (RPT); thiết kế theo sáu quy tắc, đừng giả định xin được tăng. `[Đề xuất BA; quyết định kỹ thuật thuộc dev và Chủ dự án]`
+
+Lưu ý: BA không chọn ngăn xếp kỹ thuật; dưới đây là ràng buộc nghiệp vụ và lựa chọn kèm tác động, cách cài do dev.
+
+1. **Tái sử dụng hình truy vấn đã có**: trước khi thêm chỉ mục, tìm trong `repos/queries.ts` hình có tiền tố bằng nhau (điều kiện bằng trên `companyId`, `branchId`, `status` rồi sắp xếp theo thời điểm). Danh sách hóa đơn theo chi nhánh/trạng thái/ngày và danh sách phát hành lại có cùng dạng với danh sách phiếu thu và lệnh: dùng chung hình truy vấn "chi nhánh + trạng thái + ngày tạo" nếu tên trường thống nhất (`branchId`, `status`, `createdAt`).
+2. **Bộ lọc thứ cấp trong bộ nhớ cho tập nhỏ**: dòng chờ xử lý (hóa đơn lỗi, hàng đợi phát hành lại, phát hành chờ duyệt) là tập nhỏ có giới hạn theo chi nhánh; truy vấn một chỉ mục rộng (chi nhánh + trạng thái) rồi lọc và sắp xếp trong bộ nhớ, với **giới hạn cứng** (ví dụ 500 dòng) và cảnh báo "còn nữa" thay vì lặng lẽ cắt. Không dùng cách này cho danh sách tăng không giới hạn (toàn bộ hóa đơn lịch sử).
+3. **Báo cáo RPT từ bản chiếu tổng hợp, không quét chứng từ**: mỗi báo cáo ngày/tháng đọc từ tài liệu tổng hợp theo (chi nhánh × ngày) hoặc (chi nhánh × tháng) lấy bằng khóa tài liệu (đọc theo id, **không cần chỉ mục**) và được cập nhật trong cùng giao dịch ghi chứng từ. Cho báo cáo hợp nhất của Chủ: đọc N tài liệu theo khóa của N chi nhánh, không truy vấn `in`/chỉ mục. Điều này cũng đáp ứng NFR hợp nhất dưới 5 giây khi 20 chi nhánh. Đổi lại: số tổng hợp phải kiểm tra lại với chứng từ gốc bằng việc chạy lại đêm (cùng tinh thần kiểm tra liền số).
+4. **Phi chuẩn hóa trường lọc thay vì thêm chỉ mục**: đưa `branchId`, `businessDate`, `status` vào chính tài liệu cần lọc (đã là thực hành), và dùng trường ghép khóa (ví dụ `branchStatus = "<mã chi nhánh>#<trạng thái>"` hoặc `branchMonth`) khi hai điều kiện bằng thay thế được cho một chỉ mục tổ hợp; đánh đổi: phải giữ trường ghép nhất quán trong cùng giao dịch.
+5. **Chọn chi nhánh bằng điều kiện bằng** (như R68 mặc định đã ghi), không `in`/`or` nhiều nhánh: truy vấn hợp nhất chạy từng chi nhánh song song rồi gộp trong ứng dụng; tránh nhân chỉ mục theo số nhánh.
+6. **Phương án hạ tầng nếu vẫn thiếu** (không phải đường chính): (a) kiểm tra trang hạn mức Firestore xem giới hạn 200 chỉ mục tổ hợp có nâng được cho dự án/phiên bản (edition) đang dùng hay không; BA không xác minh được con số này từ tài liệu công khai trong lần rà này; (b) tách tài liệu chỉ-đọc của RPT sang cơ sở dữ liệu có tên riêng (mỗi cơ sở có ngân sách chỉ mục riêng) nhưng mất giao dịch xuyên cơ sở dữ liệu nên chỉ hợp với bản chiếu; (c) dọn chỉ mục thừa: rà `queries.ts` loại hình truy vấn không còn dùng hoặc gộp hai chỉ mục chỉ khác thứ tự sắp xếp. `[Cần xác nhận: Chủ dự án]` nếu chọn (b), vì thêm chi phí và vận hành.
+
+Gợi ý phân bổ ngân sách 9 chỉ mục: EIN tối đa 4 (danh sách hóa đơn theo chi nhánh/trạng thái/ngày; tra theo khóa chống trùng và lệnh dùng truy vấn một trường; hàng đợi lỗi dùng quy tắc 2); RPT tối đa 3 (phần còn lại từ bản chiếu theo khóa); 2 dự trữ cho sửa lỗi sau pilot. Mỗi slice nộp bảng "hình truy vấn mới → chỉ mục mới, lý do không tái dùng được" vào PR.
+
+**Dev must change**: đưa vào hợp đồng 1.8 và 1.9 các quy tắc trên; `pnpm check:indexes` đã có thì thêm ngưỡng cảnh báo ở 190/200 và lỗi khi vượt 195 để dành dự trữ.
+
+### 20.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| BRD RULE-007 | Câu chữ hiện chỉ nói phụ tùng xuất. Thêm: tiền thu/chi và hóa đơn gắn chứng từ nguồn (lệnh, cọc, phiếu nhập); chi vận hành thường được ghi có cờ thiếu chứng từ. Hoặc tách RULE mới | R64 |
+| FR-ACC-018 | Thêm: phiếu chi thiếu chứng từ gốc luôn cần quản lý duyệt, có lý do; loại chi gắn chứng từ thì chặn cứng | R64, R58 |
+| FR-ACC-001, 003 | Ghi rõ: chỉ tiền mặt vào sổ quỹ tiền mặt; phi tiền mặt có mã giao dịch bắt buộc, không dùng lại | R54 |
+| FR-ACC-002 | Cọc là hình thức duy nhất cho thu trước khi QC; hoàn cọc cần quản lý duyệt | R55, R57 |
+| FR-ACC-004 | Phân biệt chặn (ca mở, chênh lệch chưa duyệt, yêu cầu duyệt chờ) và cảnh báo (lệnh mở, chưa thu, thiếu chứng từ, cọc dư); đảo phiếu ngày đã khóa ghi vào ngày đang mở | R62 |
+| FR-ACC-005 | Ghi: "mở lại ngày" ngoài phạm vi 1.7; chưa có khóa kỳ | R62 |
+| FR-SYS-004 | Bậc tự quyết, trần cộng dồn theo ca, người lập khác người duyệt, tự chuyển Chủ khi chỉ có một quản lý | R58, R59 |
+| Journey, ma trận phê duyệt | Ví dụ minh họa (2/10 triệu, quản lý vận hành) lệch số khởi điểm (500.000/5.000.000/Chủ); bổ sung hàng: phiếu chi, hoàn cọc, đảo phiếu, ghi nợ | R58 |
+| `docs/ui-ux` G4-ACC-03 | Bỏ khóa nút đảo trong ngày đã khóa; thay bằng đảo ghi vào ngày đang mở có nhãn | R62 |
+| UAT mới (tạm) | Trùng mã chuyển khoản bị chặn; cọc vượt phần chưa thu bị chặn; thu vượt bị từ chối; hoàn cọc cần quản lý; thu ngân chi 2 phiếu 400.000 vượt trần ca thì phiếu thứ ba cần duyệt; người lập không tự duyệt; chi nhánh một quản lý chuyển Chủ; chênh lệch bị từ chối vẫn chặn chốt ngày và dòng sổ quỹ còn; phiếu chi thiếu chứng từ cần lý do và quản lý duyệt; loại chi gắn chứng từ bị chặn khi thiếu; đảo phiếu ngày đã khóa vào ngày đang mở; hủy lệnh còn cọc bị chặn | R54–R66 |
+
+### 20.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4, §18.4, §19.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 36 | Chủ dự án, Khách | Hạn mức duyệt: thu ngân tự chi bao nhiêu mỗi phiếu và mỗi ca; quản lý đến bao nhiêu; có cấp thứ ba (Kế toán trưởng, quản lý vùng) không | 500.000 / 2.000.000 mỗi ca / 5.000.000 / Chủ garage | Chỉ đổi cấu hình; thêm cấp thứ ba cần chức năng chuyển cấp (FR-SYS-015) |
+| 37 | Kế toán khách | Chứng từ gốc hợp lệ của phiếu chi vận hành là gì; chấp nhận ghi có cờ khi thiếu không | Có cờ, lý do, quản lý duyệt; loại gắn chứng từ thì chặn | Chặn cứng mọi chi: cần lưu tệp trước pilot |
+| 38 | Kế toán khách | Ngưỡng chênh lệch quỹ cần giải trình không duyệt; danh mục nguyên nhân; danh sách loại chi; PT/PC liền số, đảo cùng dãy | 0; 4 mã; mẫu; như K1–K8 | Đổi cấu hình dãy và ngưỡng |
+| 39 | Khách | Số quầy thu mỗi chi nhánh; nợ tối đa 60 ngày; có chặn nhận xe của khách nợ quá hạn không; hoàn tiền ngoài cọc | Một quầy; 60 ngày; chỉ cảnh báo; chưa làm | Nhiều quầy: đổi mô hình ca; chặn nhận xe: thêm điều kiện ở REC |
+| 40 | Chủ dự án | Chấp nhận chưa có "mở lại ngày" và khóa kỳ ở pilot; ngân sách chỉ mục có xin phương án hạ tầng không | Chấp nhận; không xin, theo 6 quy tắc | Làm sớm FR-ACC-005; chi phí hạ tầng |
+
+### 20.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R64: `sourceRequirement` trên loại chi (chặn cứng `required`); lý do thiếu chứng từ bắt buộc; phiếu `sourceMissing` luôn qua duyệt (hiện `expenses.ts` chỉ đặt cờ `sourceMissing: !sourceRef && !depositId`); thông báo cờ quá 3 ngày; test | `expenses.ts`, `expense-category`, `dayClose.ts` | Bắt buộc |
+| 2 | R58: trần cộng dồn tự quyết của thu ngân theo ca; seed 500.000 chỉ là dữ liệu mẫu | `approval-limit`, `expenses.ts`, `recDemo.ts` | Nhỏ, có test |
+| 3 | R57: `deposit_refund` luôn tạo yêu cầu duyệt cấp quản lý | `expenses.ts` | Nhỏ |
+| 4 | R59: tự chuyển Chủ khi không còn quản lý khác; người đếm két không duyệt chênh lệch của chính mình; `selfApproved` hiện ở nhật ký | `checkDecision`, `approvals.ts`, `shifts.ts` | Kiểm tra, sửa nếu lệch |
+| 5 | R54: chặn trùng mã giao dịch phi tiền mặt chưa đảo; trường `reconciled`; phi tiền mặt không vào két | `payment.ts`, `payments.ts` | Kiểm tra |
+| 6 | R55, R56: công thức trần cọc gồm bổ sung đã duyệt và cọc đang giữ; cảnh báo cọc dư ở chốt ngày | `payments.ts`, `dayClose.ts` | Kiểm tra |
+| 7 | R62: xác nhận phiếu đảo ngày đã khóa ghi vào ngày đang mở; yêu cầu duyệt chờ có chặn chốt ngày không (ghi lại hành vi hiện tại) | `dayClose.ts`, `payments.ts` | Kiểm tra |
+| 8 | R65: thêm thuộc tính `sourceRequirement`, `accountCode` (tùy chọn) vào cấu hình loại chi | `config.ts` (schema) | Nhỏ |
+| 9 | R68: áp dụng sáu quy tắc cho 1.8, 1.9; ngưỡng cảnh báo 190, lỗi 195 trong `check:indexes` | `queries.ts`, kịch bản kiểm tra chỉ mục | Bắt buộc cho 1.8, 1.9 |
+
+Không có câu trả lời nào mâu thuẫn với R44 (§19) đã chốt; R57 và R64 làm chặt thêm R44 mục 4 (ghi nợ do QL duyệt) theo cùng nguyên tắc người lập khác người duyệt.
+
+---
+
+## 21. Slice 1.8: hóa đơn điện tử cơ bản (R69–R80)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` là việc của Khách/Kế toán/Luật sư, dev làm theo mặc định ngay). Trả lời mục "Slice 1.8: hóa đơn cơ bản" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-EIN-001..013 (đặc biệt 003, 004, 007, 009, 010, 012, 013), FR-INV-022, FR-SYS-003; BR-EIN-01..05; RULE-007, 010; WF hóa đơn; §19 R44, §20 R68; ghi chú pháp lý FRD mục EIN (Nghị định 254/2026/NĐ-CP, Thông tư 91/2026; BA chưa đối chiếu nguyên văn điều khoản, mọi viện dẫn điều luật cụ thể là `[Cần xác nhận: Kế toán/Luật sư khách]`). Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01). Không sửa FRD/BRD/Journey; việc cần sửa ở §21.3.
+
+### 21.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R69 | Chỉ `fake` ở môi trường thử; chưa khai đơn vị phát hành thì không phát hành; `fake` bị cấm ở `live`; cần hồ sơ API nhà cung cấp trước khi chọn | OK | Khách, Kế toán khách |
+| R70 | Pilot: chỉ Chủ garage có `invoice:approve`; người lập không tự duyệt kể cả Chủ | OK (kiểm tra Chủ lập thì sao) | Chủ dự án |
+| R71 | Lập theo thuế suất, làm tròn một lần mỗi thuế suất mỗi lần duyệt, chặn khi lệch tổng lệnh | OK; chờ kế toán ký bảng ví dụ | Kế toán khách |
+| R72 | Dùng thuế suất lúc phát hành khi khác thuế suất đã khóa: **chặn** cho tới khi kế toán quyết (đổi từ `warn`) | **Must change** (nhỏ) | Kế toán khách |
+| R73 | `issueAfter: qc`; cọc không tách ở pilot; FR-EIN-012 chưa làm | OK | Kế toán khách |
+| R74 | Ba trường hợp (điều chỉnh, thay thế, hủy) là đủ cho pilot; còn lại hướng dẫn làm tay ngoài hệ thống | OK | Kế toán khách, Luật sư khách |
+| R75 | Lệnh có hóa đơn hợp lệ thì chặn hủy lệnh và hoàn kho/hoàn tiền cho tới khi hủy hoặc điều chỉnh hóa đơn | **Must change** | Kế toán khách |
+| R76 | 5 lần; 5/15/60/240/720 phút; 30 giây; chạy qua `run-due`; hạ tầng lập lịch để khi lên môi trường thật | OK | Dev, Chủ dự án |
+| R77 | Không ẩn danh dữ liệu trên hóa đơn; giữ tối thiểu 10 năm; tải tệp cần `invoice:view` trong phạm vi và có nhật ký | OK (thêm nhật ký tải) | Luật sư khách, Kế toán khách |
+| R78 | Chấp nhận 191/200; chừa ít nhất 4 cho 1.9 | OK | Dev |
+| R79 | Giữ khóa FR-EIN-009 "khách không lấy hóa đơn" ở pilot | OK | Kế toán khách |
+| R80 | Chưa gửi hóa đơn cho khách; chỉ tải/in; giữ trần quét 500 kèm cảnh báo "còn nữa" | OK | Khách |
+
+### 21.2 Trả lời từng câu
+
+##### R69. Nhà cung cấp, môi trường, đơn vị phát hành
+
+**Khuyến nghị**: giữ mặc định của dev. `[Cần xác nhận: Khách, Kế toán khách – nhà cung cấp, mẫu số, ký hiệu, loại hóa đơn, pháp nhân bên bán]`
+
+- Đúng với FR-EIN-003 và 004: mỗi chi nhánh có đơn vị phát hành (pháp nhân bên bán gồm tên, MST, địa chỉ, mẫu số, ký hiệu, loại hóa đơn), hai môi trường thử/thật tách biệt. Pháp nhân đơn hay nhiều vẫn là câu hỏi mở của Khách (CLAUDE.md "Open decisions"): dữ liệu phải gắn **đơn vị phát hành**, không gắn cứng công ty; nhiều chi nhánh có thể dùng chung một đơn vị phát hành.
+- Chưa khai đơn vị phát hành hoặc thiếu trường bắt buộc: trạng thái "chưa kích hoạt", nút phát hành khóa, nêu rõ trường thiếu (FR-EIN-011). Cấm `fake` ở `live` là đúng và phải có test.
+- Mẫu số/ký hiệu là **dữ liệu của Khách**, không nhập mặc định trong mã; seed chỉ cho dữ liệu mẫu môi trường thử.
+- Việc chọn nhà cung cấp thật không chặn pilot nội bộ; chặn việc chuyển `live`. Danh sách cần Khách cung cấp: tên nhà cung cấp, tài liệu API, tài khoản thử, chứng thư/ký số do ai giữ, đã thông báo phát hành với cơ quan thuế hay chưa. `[Cần xác nhận: Khách]`
+
+**Dev default OK.**
+
+##### R70. Ai giữ quyền duyệt hóa đơn (kế toán trưởng)
+
+**Khuyến nghị**: pilot chỉ Chủ garage. `[Cần xác nhận: Chủ dự án – có chỉ định một kế toán cụ thể không]`
+
+- FRD mục EIN: kế toán trưởng là cấu hình quyền của vai trò Kế toán, không phải vai trò mới. Với ma trận 10 vai trò hiện có, mặc định bảo thủ là quyền ở Chủ garage; Kế toán lập yêu cầu, Chủ duyệt. Khi Khách chỉ định, gán `invoice:approve` cho người đó qua quản lý vai trò, không sửa mã.
+- Theo **người**, không theo vai trò (như R59): người lập không duyệt chính yêu cầu của mình. Chủ garage lập thì được tự duyệt nhưng mang cờ `selfApproved` hiện ở nhật ký (cùng R59). Hủy hóa đơn nhập lại mật khẩu (đã có).
+- Chưa có chuyển cấp tự động quá hạn ở pilot (cùng R58): đánh dấu quá hạn và nhắc.
+
+**Dev default OK.** Kiểm tra: Chủ lập thì có cờ `selfApproved`; Kế toán không có quyền duyệt khi chưa được gán.
+
+##### R71. Cách lập dòng và làm tròn thuế
+
+**Khuyến nghị**: giữ `per-rate`. `[Cần xác nhận: Kế toán khách – ký bảng ví dụ số]`
+
+- Mỗi thuế suất một dòng tổng; thuế tính và làm tròn **một lần cho mỗi thuế suất của mỗi lần duyệt** (báo giá gốc và từng báo giá bổ sung) rồi cộng. Lý do: khớp từng đồng với tổng lệnh (RULE-010 sau này không phải sửa) và khớp cách REC đã tính.
+- Điều kiện chặn `invoice_total_mismatch` là đúng; thông báo nêu số lệnh, số hóa đơn, chênh lệch. Không có cơ chế "làm tròn bù" tự động.
+- Chế độ theo dòng hạng mục (`per-item`) chỉ bật khi Kế toán yêu cầu; khi bật cần bảng ví dụ mới (cùng NFR-MNT-01). Bảng ví dụ trong `tests/unit/ein-domain.test.ts` ghi nhãn "chưa được kế toán ký" cho tới khi có chữ ký.
+- Giảm giá cấp lệnh phân bổ vào dòng theo thuế suất theo cùng quy tắc REC (C6); BA không đổi.
+
+**Dev default OK.**
+
+##### R72. Thuế suất đổi giữa báo giá và hóa đơn
+
+**Khuyến nghị**: đổi mặc định sang chặn khi lệch. `[Cần xác nhận: Kế toán khách, Luật sư khách – thuế suất áp dụng theo thời điểm nào]`
+
+- BA không khẳng định điều luật; cách hiểu thông thường là thuế suất của dịch vụ/hàng hóa xác định theo thời điểm phát sinh nghĩa vụ thuế (thường gắn với lập hóa đơn hoặc hoàn thành dịch vụ), không theo thời điểm báo giá. Vì sai thuế suất trên hóa đơn đã phát hành khó sửa (R74), mặc định bảo thủ là **không phát hành im lặng** khi thuế suất đang hiệu lực khác thuế suất đã khóa trên dòng.
+- Đặt `taxChangePolicy: block` làm giá trị mặc định ở môi trường thật; `warn` giữ cho môi trường thử. Khi bị chặn, màn phát hành hiện hai số (thuế suất đã khóa, thuế suất hiện hành) và danh sách lệnh bị ảnh hưởng để kế toán quyết; chưa có lối "ép phát hành" ở pilot.
+- Không ảnh hưởng trước mốc 1/1/2027; cần ví dụ số của kế toán trước mốc đó (thêm vào danh sách kiểm tra trước vận hành).
+
+**Dev must change** (nhỏ): mặc định cấu hình `block` cho `live`; test hai nhánh `warn` và `block`.
+
+##### R73. Thời điểm lập hóa đơn, tiền đặt cọc
+
+**Khuyến nghị**: giữ `issueAfter: qc`. `[Cần xác nhận: Kế toán khách – FR-EIN-012]`
+
+- Cho phép lập hóa đơn từ khi lệnh qua QC (Sẵn sàng giao) hoặc Hoàn tất; không lập cho lệnh còn sửa. Hóa đơn **không** là điều kiện giao xe (R44).
+- Cọc không tách trên hóa đơn ở pilot: hóa đơn lập theo tổng giá trị lệnh, cọc là khoản đã thu trừ vào phải thu. FR-EIN-012 (Should) chưa làm; ghi rõ trên màn để kế toán không hiểu nhầm. Nếu pháp luật/kế toán yêu cầu hóa đơn khi nhận cọc, đó là thay đổi lớn, cần ví dụ mẫu (FR-EIN-012 nói "chốt bằng ví dụ").
+- Báo cáo ngoại lệ ở R79 tính từ mốc `issueAfter`.
+
+**Dev default OK.**
+
+##### R74. Hóa đơn lập sai
+
+**Khuyến nghị**: ba trường hợp là đủ cho pilot. `[Cần xác nhận: Kế toán khách, Luật sư khách – từng trong 13 trường hợp theo Thông tư 91/2026]`
+
+- FR-EIN-007 tự ghi "cần kế toán xác nhận từng trường hợp". Bản 1.8 hỗ trợ: điều chỉnh số tiền (chênh có dấu theo từng thuế suất, không tạo hóa đơn âm toàn phần), thay thế (sai thông tin người mua, giữ dòng và tiền), hủy (nhập lại mật khẩu, lý do, người duyệt khác người lập).
+- Trường hợp còn lại không làm ở hệ thống; màn hình hướng dẫn "xử lý ngoài hệ thống, ghi nhận bằng ghi chú có nhật ký". Không có đường nào xóa hóa đơn đã gửi (RULE-010).
+- Hóa đơn điều chỉnh không điều chỉnh tiếp (chỉ điều chỉnh hóa đơn gốc, mỗi lần dựa vào tổng lũy kế) là quyết định đơn giản hóa an toàn; kế toán phải xác nhận.
+- Hóa đơn gốc bị thay thế giữ "Đã xuất" cho tới khi nhà cung cấp xác nhận: đúng, vì trạng thái hóa đơn đến từ nhà cung cấp (CLAUDE.md, FR-EIN-005).
+- Mọi phiên bản hóa đơn của lệnh xem được theo thứ tự (FR-EIN-007 tiêu chí).
+
+**Dev default OK.**
+
+##### R75. Lệnh đã có hóa đơn hợp lệ
+
+**Khuyến nghị**: chặn. `[Cần xác nhận: Khách, Kế toán khách]`
+
+- Hủy lệnh, hoàn kho (FR-INV-022) hoặc hoàn tiền cho lệnh có hóa đơn hợp lệ làm lệch ba thứ: lệnh, kho, hóa đơn. Mặc định bảo thủ: **chặn** cho tới khi hóa đơn được hủy hoặc điều chỉnh (R74), thông báo nêu hóa đơn và đường xử lý. Đúng thứ tự gợi ý ở R66: hóa đơn, hoàn kho, hoàn cọc/đảo phiếu thu, hủy lệnh.
+- Lệnh có hóa đơn "lỗi/đã hủy/bị thay thế bằng bản đã xác nhận" thì xem là không còn hóa đơn hợp lệ theo `hasValidInvoice`; định nghĩa "hợp lệ" ghi trong EIN (đã xuất và chưa hủy, chưa bị thay thế bằng bản đã xác nhận).
+- Cầu nối qua cổng (port) của EIN, REC/INV gọi qua `index.ts`, không import nội bộ. Lỗi EIN (không đọc được) thì chặn hủy lệnh và hỏi quản lý, không im lặng cho qua (giống R66 mục ACC lỗi chỉ quản lý chi nhánh có ngoại lệ).
+- Hoàn kho đơn lẻ không do hủy lệnh (trả phụ tùng một dòng) cũng chặn khi hóa đơn đã phát hành; cách xử lý là hóa đơn điều chỉnh.
+
+**Dev must change**: nối `hasValidInvoice(orderId)` vào hủy lệnh (REC), hoàn kho theo lệnh (INV, FR-INV-022) và phiếu hoàn tiền (ACC); lỗi chuẩn RFC 9457 có mã `order_has_valid_invoice`; test cho ba điểm nối và trường hợp hóa đơn đã hủy thì cho qua.
+
+##### R76. Hàng chờ lỗi, thử lại
+
+**Khuyến nghị**: giữ số của dev. `[Cần xác nhận: Kế toán khách – thông báo lỗi; Dev, Chủ dự án – hạ tầng lập lịch]`
+
+- 5 lần; 5, 15, 60, 240, 720 phút; 30 giây chờ nhà cung cấp là hợp lý, là cấu hình `einvoice-policy`. Hết số lần: trạng thái "cần xử lý tay", thông báo kế toán (FR-EIN-010), không tự bỏ.
+- Quy tắc chống trùng (FR-EIN-013) giữ nguyên: timeout thì **truy vấn trạng thái trước khi gửi lại**; lỗi xác thực/dữ liệu (4xx nghiệp vụ) không thử lại tự động mà chờ sửa.
+- Bộ lập lịch: ở pilot `run-due` do nút ở màn hàng chờ và (khi có) Cloud Scheduler gọi; API chỉ chấp nhận danh tính dịch vụ hoặc người có quyền, từng chi nhánh một lượt gọi, có giới hạn lượng mỗi lần. Không có lịch tự động thì pilot vẫn đúng nhưng "tự thử lại" chỉ chạy khi có người bấm; ghi rõ trên màn. Quyết định hạ tầng (tài khoản dịch vụ) `[Cần xác nhận: Chủ dự án]`.
+- Hàng chờ theo quy tắc 2 của R68 (tập nhỏ, giới hạn cứng, cảnh báo "còn nữa").
+
+**Dev default OK.**
+
+##### R77. Dữ liệu người mua, lưu trữ, tải tệp
+
+**Khuyến nghị**: không ẩn danh, giữ ít nhất 10 năm. `[Cần xác nhận: Luật sư khách, Kế toán khách – thời hạn và căn cứ]`
+
+- Hóa đơn là chứng từ kế toán/thuế: dữ liệu người mua trên hóa đơn đã phát hành không xóa hay ẩn danh khi khách yêu cầu xóa (nhất quán BA §15 C10 và `CustomerRetentionPort`). Yêu cầu của chủ thể dữ liệu được từ chối kèm lý do pháp lý, ghi vào hồ sơ yêu cầu (FR-CRM data-subject request).
+- Thời hạn lưu: khởi điểm 10 năm kể từ ngày lập, là cấu hình `retention`; BA không khẳng định điều luật cụ thể, kế toán/luật sư xác nhận (nối R8 §8.1 khung thời hạn lưu).
+- Địa chỉ/email tách ở `invoicePii`, che theo vai trò, "Hiện" có nhật ký (đúng §7). Tải XML/PDF cần `invoice:view` trong phạm vi chi nhánh và **ghi nhật ký truy cập** mỗi lần tải; liên kết tải ngắn hạn, không công khai. Tệp là dữ liệu cá nhân nên không gửi qua kênh ngoài (R80) khi chưa có đồng ý nhận.
+
+**Dev default OK** (thêm nhật ký khi tải tệp nếu chưa có).
+
+##### R78. Ngân sách chỉ mục
+
+**Khuyến nghị**: chấp nhận. `[Đề xuất BA; quyết định kỹ thuật thuộc dev]`
+
+- Thêm một chỉ mục `invoices.byBranch` (191/200) phù hợp R68 quy tắc 1 và 4; không cần phương án hạ tầng. Chừa ít nhất 4 chỉ mục cho 1.9; nếu 1.9 cần hơn, dùng bản chiếu theo khóa (R68 quy tắc 3) trước, rồi mới hỏi Chủ dự án.
+- Giữ ngưỡng 190 cảnh báo, 195 lỗi. PR của slice nộp bảng "hình truy vấn mới → chỉ mục".
+
+**Dev default OK.**
+
+##### R79. "Khách không lấy hóa đơn"
+
+**Khuyến nghị**: giữ khóa. `[Cần xác nhận: Kế toán khách – FR-EIN-009 ghi `[Cần xác nhận]`]`
+
+- Khi nào được xem là khách không lấy hóa đơn, và có cần bản kê bán lẻ thay thế hay không là câu hỏi thuế, BA không tự quyết. Pilot: mọi lệnh hoàn tất đều vào danh sách "chưa có hóa đơn" đến khi có hóa đơn hợp lệ; ghi chú trên màn: "chưa hỗ trợ đánh dấu khách không lấy hóa đơn".
+- Khi Kế toán xác nhận: thêm trạng thái miễn có lý do, người duyệt, nhật ký, không xóa lệnh khỏi báo cáo (hiện riêng nhóm "miễn có duyệt"). Không có ngoại lệ ngầm.
+
+**Dev default OK.**
+
+##### R80. Gửi hóa đơn, danh sách lệnh chưa hóa đơn
+
+**Khuyến nghị**: chưa làm gửi. `[Cần xác nhận: Khách – kênh gửi và nhà cung cấp Zalo/SMS (câu hỏi mở)]`
+
+- FR-EIN-008 là Should, chưa xếp giai đoạn; kênh email/Zalo/SMS phụ thuộc nhà cung cấp chưa chọn. Pilot: tải/in tại quầy. Email người mua lưu sẵn là đủ; không giả vờ "đã gửi" (nguyên tắc giống `sentVia` ở §17).
+- Danh sách lệnh chưa hóa đơn quét tối đa 500 lệnh hoàn tất mới nhất là chấp nhận được **với điều kiện** hiện rõ "còn nữa" (R68 quy tắc 2) và có bộ lọc theo ngày/chi nhánh để rút gọn; nếu một chi nhánh vượt 500 chưa hóa đơn thì đó là tín hiệu nghiệp vụ cần xử lý, không phải lỗi hệ thống. Ghi nhận cho FR-EIN-009 tiêu chí "liệt kê đủ" (§21.3).
+
+**Dev default OK.**
+
+### 21.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-EIN-007 | Ghi: kế toán trưởng pilot = Chủ garage; người lập khác người duyệt (theo người); phạm vi ba trường hợp ở phase 1, các trường hợp còn lại chờ kế toán | R70, R74 |
+| FRD FR-EIN-009 | Làm rõ "liệt kê đủ" khi nhiều hơn trần quét; trạng thái miễn chờ xác nhận | R79, R80 |
+| FRD §13 phase 1 | EIN phase 1 đang chỉ 001..006, 011 (+013); dev đã làm thêm 007, 009, 010: cập nhật phạm vi hoặc ghi "làm sớm" | R74, R76 |
+| FRD FR-EIN-003 | Gắn đơn vị phát hành, không gắn cứng công ty (chờ pháp nhân đơn/nhiều) | R69 |
+| FR-INV-022, FR-REC (hủy lệnh), FR-ACC-016 | Thêm điều kiện: lệnh có hóa đơn hợp lệ thì chặn cho tới khi hủy/điều chỉnh hóa đơn | R75 |
+| BRD RULE-010 / BR-EIN-02 | Nêu hóa đơn đã phát hành không xóa; sửa bằng điều chỉnh/thay thế/hủy | R74 |
+| BRD/§8.1 lưu trữ | Thêm hóa đơn và tệp XML/PDF với thời hạn khởi điểm 10 năm, chờ xác nhận | R77 |
+| Journey (ma trận phê duyệt) | Thêm hàng: phát hành/điều chỉnh/thay thế/hủy hóa đơn, người duyệt Chủ garage (pilot) | R70 |
+| UAT-08, UAT-23 | Mở rộng UAT-08: người lập không tự duyệt, Chủ tự duyệt có cờ; UAT-23 giữ. UAT mới tạm: tổng hóa đơn lệch tổng lệnh bị chặn; thuế suất đổi bị chặn (`block`); lệnh có hóa đơn hợp lệ không hủy được; hóa đơn đã hủy thì hủy lệnh được; `fake` bị từ chối ở `live`; timeout thì truy vấn trạng thái không phát hành lần hai; tải tệp có nhật ký | R69–R77 |
+
+### 21.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4, §18.4, §19.4, §20.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 41 | Khách, Kế toán khách | Nhà cung cấp hóa đơn, mẫu số, ký hiệu, loại hóa đơn, pháp nhân bên bán; ai giữ chứng thư ký số | Cung cấp tài liệu API và tài khoản thử trước khi chuyển `live` | Chưa chọn thì pilot chỉ chạy `fake`, không phát hành thật |
+| 42 | Kế toán khách, Luật sư khách | Thuế suất theo thời điểm nào khi đổi (1/1/2027); cách lập hóa đơn theo thuế suất hay theo dòng; ví dụ số đã ký | Thuế suất lúc phát hành, chặn khi lệch; theo thuế suất | Đổi cấu hình; theo dòng cần bảng ví dụ mới |
+| 43 | Kế toán khách, Luật sư khách | Các trường hợp hóa đơn sai ngoài ba loại; thời hạn lưu hóa đơn; "khách không lấy hóa đơn" | Ba loại; 10 năm; chưa bật | Thêm trường hợp: mở rộng FR-EIN-007 |
+| 44 | Chủ dự án | Ai là "kế toán trưởng" duyệt hóa đơn; tài khoản dịch vụ và Cloud Scheduler cho thử lại tự động | Chủ garage; làm khi lên môi trường thật | Thêm người: gán quyền qua vai trò |
+| 45 | Khách | Chặn hủy lệnh/hoàn kho/hoàn tiền khi lệnh có hóa đơn hợp lệ; gửi hóa đơn cho khách qua kênh nào | Chặn; chưa gửi, chỉ tải/in | Cho qua: hóa đơn lệch lệnh, kế toán sửa tay |
+
+### 21.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R72: mặc định `taxChangePolicy` = `block` ở môi trường thật (`warn` chỉ ở thử); test hai nhánh | cấu hình `einvoice-policy`, `domain/build.ts` | Nhỏ, có test |
+| 2 | R75: nối `hasValidInvoice(orderId)` vào hủy lệnh (REC), hoàn kho theo lệnh (INV, FR-INV-022) và hoàn tiền (ACC); lỗi `order_has_valid_invoice`; lỗi đọc EIN thì chặn; qua cổng, không import nội bộ | `modules/rec`, `modules/inv`, `modules/acc`, `modules/ein/index.ts`, `dependency-cruiser` | Bắt buộc, có test |
+| 3 | R70: Chủ lập thì `selfApproved` hiện ở nhật ký; kiểm tra Kế toán không duyệt khi chưa được gán | `permissions.ts`, `application/corrections.ts` | Kiểm tra |
+| 4 | R77: ghi nhật ký truy cập mỗi lần tải XML/PDF; thời hạn lưu là cấu hình | `application/read.ts` | Kiểm tra, sửa nếu thiếu |
+| 5 | R69: test `fake` bị từ chối ở `live`; seed mẫu số/ký hiệu chỉ cho môi trường thử | `infrastructure/einvoice`, `recDemo.ts` | Kiểm tra |
+| 6 | R80: danh sách chưa hóa đơn hiện "còn nữa" khi vượt 500 | `application/read.ts` | Kiểm tra |
+
+Không có câu trả lời nào mâu thuẫn với R44 (§19) hay R54–R68 (§20) đã chốt; R75 là điểm nối mới giữa EIN với REC/INV/ACC, cần hai bên cùng sửa trong một PR hoặc hai PR theo thứ tự EIN trước.
+
+## 22. Slice 1.9: báo cáo một chi nhánh (R81–R92)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận** (Chủ dự án đã duyệt trước nguyên tắc "theo đề xuất BA, không hỏi lại"; mục `[Cần xác nhận]` là việc của Khách/Kế toán, dev làm theo mặc định ngay). Trả lời mục "Slice 1.9 (RPT báo cáo một chi nhánh)" của [open-questions-for-ba.md](open-questions-for-ba.md). Căn cứ: FR-RPT-001..004, 007, 008, 009, 010, 011, 012, 013, 014; BR-RPT-01..04; RULE-009, 010; NFR-MNT-01, NFR-ISO-01; §20 R62, R68; §21 R73, R78. Mọi ngưỡng và công thức là cấu hình có ngày hiệu lực (`report-policy`). Không sửa FRD/BRD/Journey; việc cần sửa ở §22.3.
+
+### 22.1 Tóm tắt
+
+| # | Khuyến nghị mặc định (một dòng) | Dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| R81 | Doanh thu ngày = công + phụ tùng đã duyệt, chưa thuế, theo ngày hoàn tất; giảm giá cấp lệnh tách thành dòng riêng; thêm khối "thu trong ngày" theo phiếu thu | **Must change** (nhỏ) | Kế toán khách |
+| R82 | Đối chiếu theo lệnh hoàn tất (như dev) và thêm đối chiếu theo phiếu thu của ngày | **Must change** (nhỏ) | Kế toán khách |
+| R83 | Giữ 5 ngày; 1 ngày; chưa thu đổi 0 thành 1 ngày; chênh lệch quỹ giữ 0 ₫ (xem lại sau 2 tuần) | **Must change** (cấu hình) | Chủ, Quản lý |
+| R84 | Giữ phân quyền của dev; số liệu cắt ở server; không có quyền nguồn thì không có liên kết đi sâu | OK (kiểm tra) | Chủ dự án |
+| R85 | Giữ: hợp nhất chỉ cộng bản tổng hợp; so sánh chi nhánh (FR-RPT-002) ngoài phạm vi 1.9 | OK | Chủ dự án |
+| R86 | Mỗi 15 phút trong giờ làm việc, một lần cuối đêm; ngày đã chốt không bị job đụng; hiện giờ cập nhật | OK (thêm nhãn giờ cập nhật) | Chủ dự án |
+| R87 | Đủ cho pilot một chi nhánh; chạm trần thì không được gắn nhãn chính thức; chuyển cập nhật tăng dần trước khi mở rộng | **Must change** | Chủ dự án |
+| R88 | Giữ; thêm dấu "có điều chỉnh sau chốt" kèm chênh lệch, không tự đổi số chính thức | **Must change** (nhỏ) | Kế toán khách |
+| R89 | Pilot chỉ CSV; không cần Excel/PDF; giới hạn mềm số lần xuất; chống chèn công thức | **Must change** (kiểm tra) | Quản lý, Chủ |
+| R90 | Thứ tự sau pilot: 012, 007, 014, 013, tháng/cùng kỳ, 009, biểu đồ | OK | Chủ |
+| R91 | Giữ mức tối thiểu cho pilot; thêm hai kiểm tra phụ tùng/phiếu xuất ở slice kế tiếp trước nghiệm thu phase 1 | OK | Kế toán khách |
+| R92 | Chấp nhận 0 chỉ mục, tổng 191/200 | OK | Dev |
+
+### 22.2 Trả lời từng câu
+
+##### R81. Định nghĩa "doanh thu ngày"
+
+**Khuyến nghị**: giữ định nghĩa của dev, tách thêm hai khối. `[Cần xác nhận: Kế toán khách – công thức và ví dụ số ký (NFR-MNT-01)]`
+
+- Doanh thu ngày (cơ sở phát sinh) = tổng dòng công và phụ tùng đã duyệt của lệnh hoàn tất trong ngày, chưa thuế, theo ngày hoàn tất lệnh; lệnh hủy không tính. Đây là số quản trị, không phải doanh thu ghi sổ thuế (kế toán chính thức nằm ở phần mềm kế toán của Khách).
+- Giảm giá cấp lệnh KHÔNG được gộp vào "thuế và chênh lệch làm tròn" vì làm sai nghĩa dòng đó. Hiện thành ba dòng: doanh thu dòng đã duyệt; giảm giá cấp lệnh; thuế và chênh lệch làm tròn. Tổng ba dòng phải bằng tổng lệnh gồm thuế (kiểm thử bắt buộc).
+- Có mâu thuẫn với FR-RPT-003: tiêu chí ghi "doanh thu ngày khớp tổng phiếu thu và công nợ phát sinh của ngày". Cách hiểu thống nhất: thêm khối riêng **"thu trong ngày"** (tổng phiếu thu ghi trong ngày, theo hình thức thanh toán) bên cạnh doanh thu phát sinh; hai khối được đối chiếu ở R82, không bắt hai số bằng nhau. Sửa lời tiêu chí FRD (§22.3).
+- Lệnh bảo hành: chưa có; khi có (FR bảo hành) doanh thu bằng 0 nhưng vẫn tính vào số lệnh. `[Cần xác nhận: Khách – chính sách bảo hành xuyên chi nhánh]`
+- Lệnh hoàn tất rồi bị hủy: R75 chặn khi có hóa đơn hợp lệ; khi vẫn xảy ra thì rời khỏi doanh thu ngày hoàn tất cũ ở lần dựng lại, và ngày đã chốt hiện dấu của R88.
+
+**Dev must change** (nhỏ): tách dòng giảm giá cấp lệnh; thêm khối "thu trong ngày"; test tổng ba dòng bằng tổng lệnh.
+
+##### R82. Đối chiếu ngày (FR-RPT-003)
+
+**Khuyến nghị**: giữ đối chiếu theo lệnh, thêm đối chiếu theo phiếu thu. `[Cần xác nhận: Kế toán khách]`
+
+- Đối chiếu A (theo lệnh hoàn tất trong ngày): đã thu của các lệnh đó + công nợ đang mở = tổng lệnh gồm thuế. Cọc đã áp dụng tính là đã thu; công nợ tất toán không tính là nợ; thu một phần ở ngày khác vẫn tính cho lệnh đó. Giữ như dev.
+- Đối chiếu B (theo phiếu thu của ngày, bổ sung): tổng phiếu thu ghi trong ngày = tiền mặt/chuyển khoản/thẻ cộng theo hình thức, trừ phiếu đảo; số này phải khớp sổ quỹ và đối soát của ACC, không cần khớp doanh thu.
+- Phần chưa thu mà chưa ghi công nợ giữ là "chênh lệch" và thành cảnh báo ngoại lệ (đúng RULE-007: tiền không tồn tại ngoài chứng từ gốc). Không tự tạo công nợ từ báo cáo.
+
+**Dev must change** (nhỏ): thêm đối chiếu B; hai đối chiếu hiện riêng, có test ví dụ cọc, thu một phần, thu ngày khác, phiếu đảo.
+
+##### R83. Ngưỡng cảnh báo ngoại lệ
+
+**Khuyến nghị**: giữ phần lớn, đổi một giá trị. `[Cần xác nhận: Chủ dự án, Quản lý chi nhánh]`
+
+- Lệnh mở quá **5 ngày**: giữ. Hoàn tất chưa hóa đơn từ **1 ngày** sau mốc `issueAfter` (R73): giữ. Chưa thu sau giao xe: đổi **0 sang 1 ngày** để tránh cảnh báo ồn khi khách đang thanh toán tại quầy. Chênh lệch quỹ: giữ **0 ₫** (mọi chênh lệch) cho pilot vì ACC đã có ngưỡng duyệt riêng; xem lại sau 2 tuần chạy thực tế.
+- "Chênh lệch bất thường" chỉ là ca đóng có chênh lệch quỹ lớn hơn ngưỡng: chấp nhận cho pilot, tên hiển thị phải ghi đúng ý ("Chênh lệch quỹ ca"), không gợi ý gian lận.
+- Cấu hình `report-policy` có ngày hiệu lực, ghi đè theo chi nhánh dưới mặc định công ty (như labor/discount); đổi ngưỡng có nhật ký và duyệt như cấu hình khác.
+
+**Dev must change** (cấu hình): mặc định chưa thu = 1 ngày; nhãn hiển thị.
+
+##### R84. Phân quyền báo cáo
+
+**Khuyến nghị**: giữ như dev. `[Cần xác nhận: Chủ dự án – từng vai trò]`
+
+- `report-dashboard:view` chỉ mở trang; từng khối bị cắt ở server theo quyền xem của phân hệ nguồn (NFR-ISO-01). Doanh thu và tách công/phụ tùng (`report-daily:view`): Chủ garage, Quan sát viên, Quản lý chi nhánh, Kế toán. Xuất CSV: Chủ, Quản lý, Kế toán. Chạy/dựng lại job: Chủ, Quản lý. Thợ và quản trị hệ thống không có báo cáo. Thủ kho và Quản đốc chỉ thấy số lệnh/kho theo quyền nguồn, không thấy doanh thu.
+- Quy tắc nhất quán: người không có quyền xem chứng từ nguồn thì thấy con số (nếu khối được phép) nhưng **không có liên kết đi sâu** (FR-RPT-011), tránh lộ dữ liệu qua đường đi sâu.
+- Báo cáo ngày và CSV không chứa tên khách, số điện thoại, biển số đầy đủ (che theo §7); đi sâu sang chứng từ mới áp dụng che theo vai trò của chứng từ.
+
+**Dev default OK.** Kiểm tra: test theo ma trận vai trò (thợ bị từ chối; thủ kho không thấy doanh thu; không có liên kết đi sâu khi thiếu quyền nguồn).
+
+##### R85. Góc nhìn hợp nhất của chủ
+
+**Khuyến nghị**: giữ. `[Cần xác nhận: Chủ dự án]`
+
+- Hợp nhất chỉ cộng bản tổng hợp từng chi nhánh trong phạm vi quyền, không dựng lại từ chứng từ; báo cáo ngày luôn của một chi nhánh.
+- FR-RPT-002 (so sánh chi nhánh, Must) **chưa làm** và nằm ngoài 1.9: pilot chỉ một chi nhánh nên chưa có giá trị; ghi nhận làm khi có chi nhánh thứ hai (cùng kỳ, cùng định nghĩa R81). Không phải mâu thuẫn, chỉ là chưa đến lượt.
+- Nhiều pháp nhân (câu hỏi mở của Khách): tổng "toàn chuỗi" chưa tách pháp nhân, ghi chú trên màn; dữ liệu đã có chi nhánh nên tách sau được bằng cấu hình đơn vị phát hành (R69), không đổi dữ liệu.
+- Chi nhánh bị khóa hoặc ngoài phạm vi người xem không vào tổng; màn ghi số chi nhánh đã cộng để tránh hiểu nhầm là toàn chuỗi.
+
+**Dev default OK.** Kiểm tra: hiện "tổng của N chi nhánh trong phạm vi của bạn".
+
+##### R86. Bộ lập lịch và tần suất làm mới
+
+**Khuyến nghị**: tần suất mặc định, hạ tầng khi lên môi trường thật. `[Cần xác nhận: Chủ dự án – tài khoản dịch vụ và Cloud Scheduler, cùng R76]`
+
+- Mong muốn: mỗi **15 phút trong giờ làm việc** (theo cấu hình giờ làm của chi nhánh), một lần **cuối đêm** để chốt số tạm của hôm qua. Độ trễ chấp nhận của số tạm: tối đa 15 phút; mọi số tạm hiện giờ cập nhật gần nhất.
+- Chưa có lịch tự động thì pilot vẫn đúng: nút "Làm mới" tại màn và `run-due` gọi tay; màn ghi rõ "tự làm mới chỉ chạy khi có người bấm" (như R76).
+- Ngày đã chốt (số chính thức) không bị job tự động đụng tới. Dựng lại thủ công (`rebuild`) cần lý do, chỉ Chủ/Quản lý, có nhật ký ghi số trước và số sau.
+- Không phát sinh tài liệu khi số liệu không đổi: giữ. `run-due` chỉ chạy bằng danh tính dịch vụ hoặc người có quyền, từng chi nhánh, có giới hạn lượng (cùng R76).
+
+**Dev default OK** (thêm nhãn giờ cập nhật nếu chưa có).
+
+##### R87. Cách dựng bản tổng hợp và quy mô
+
+**Khuyến nghị**: đủ cho pilot một chi nhánh; có điều kiện kỹ thuật. `[Cần xác nhận: Chủ dự án – quy mô pilot]`
+
+- Số liệu thiết kế trong CLAUDE.md (120–200 xe/ngày) là ước tính toàn chuỗi chưa xác nhận; chưa rõ theo chi nhánh hay toàn công ty. Giả định bảo thủ: một chi nhánh pilot dưới 200 xe/ngày, 7 ngày dưới 1.400 lệnh, còn nằm trong trần 1.500 nhưng biên mỏng. Nâng `ordersScanMax` lên 3.000 làm giá trị cấu hình cho pilot (không đổi cấu trúc).
+- Điều quan trọng hơn: **số liệu bị cắt vì chạm trần không bao giờ được là số chính thức**. Chạm trần thì bản tổng hợp gắn "mức tối thiểu/không đầy đủ", chặn nhãn chính thức và chặn "Chốt ngày" dựa trên bản đó cho tới khi dựng lại đủ; hiện cảnh báo rõ cho người dùng.
+- Điều kiện chuyển sang cập nhật tăng dần trong giao dịch (R68 quy tắc 3): trước khi mở chi nhánh thứ hai hoặc khi quét đạt 70% trần ở bất kỳ chi nhánh nào; đặt cảnh báo ở 70%.
+- Đã giữ trần mọi danh sách và thông báo "còn nữa" (nhất quán R68 quy tắc 2).
+
+**Dev must change**: trần quét đưa vào cấu hình (nâng 3.000); cờ "không đầy đủ" chặn nhãn chính thức; cảnh báo 70%; test chạm trần.
+
+##### R88. Số tạm và số chính thức
+
+**Khuyến nghị**: giữ quy tắc, thêm dấu sau chốt. `[Cần xác nhận: Kế toán khách – FR-RPT-010]`
+
+- Ngày đã "Chốt ngày" ở ACC là số chính thức; còn lại "Số tạm". Số chính thức không tự đổi (RULE-010 tinh thần: sửa bằng điều chỉnh có dấu vết, không ghi đè).
+- Phiếu đảo ghi vào ngày đang mở của ngày đã khóa (R62) không đổi số ngày đã chốt. Thêm dấu "có điều chỉnh sau chốt" kèm chênh lệch so với số chính thức, để người đọc thấy mà không phải dựng lại; dựng lại thủ công đổi số và ghi nhật ký (R86).
+- Nhãn hiển thị ("Số tạm", "Chính thức") do Kế toán duyệt lời; FR-RPT-010 vẫn `[Cần xác nhận]` trong FRD cho tới khi có chữ ký.
+
+**Dev must change** (nhỏ): dấu "có điều chỉnh sau chốt" và chênh lệch; test.
+
+##### R89. Xuất báo cáo
+
+**Khuyến nghị**: pilot chỉ CSV. `[Cần xác nhận: Quản lý, Chủ dự án]`
+
+- Không cần Excel/PDF trước pilot (FR-RPT-009 là Could). Ghi nhận làm sau, khớp số trên màn hình (tiêu chí FRD).
+- Mỗi lần xuất ghi `rollup.export` (người, chi nhánh, ngày, giờ). Giới hạn mềm mặc định **20 lần xuất/người/ngày** là cấu hình; vượt thì cần lý do và báo quản lý (không chặn cứng vì dữ liệu không có thông tin cá nhân).
+- Kỹ thuật bảo vệ: chống chèn công thức (ô bắt đầu bằng `=`, `+`, `-`, `@` thêm tiền tố), UTF-8 có BOM để Excel đọc tiếng Việt đúng. Tệp chỉ tính theo phạm vi của người xuất.
+
+**Dev must change** (kiểm tra): chống chèn công thức, BOM, giới hạn mềm; sửa nếu thiếu.
+
+##### R90. Thứ tự việc sau pilot
+
+**Khuyến nghị**: theo mức Must trước. `[Cần xác nhận: Chủ]`
+
+- Thứ tự: (1) FR-RPT-012 báo cáo lệnh (xe trễ hẹn khớp bảng điều phối, thời gian hoàn thành trung bình, tỷ lệ đúng hạn); (2) FR-RPT-007 tuổi nợ phải thu; (3) FR-RPT-014 bộ lọc loại dịch vụ, nhân viên, nhóm doanh thu; (4) FR-RPT-013 lợi nhuận gộp; (5) báo cáo tháng và so sánh cùng kỳ; (6) FR-RPT-009 Excel/PDF; (7) biểu đồ nâng cao.
+- FR-RPT-013 phụ thuộc phương pháp giá vốn (câu hỏi mở: bình quân gia quyền cho Kế toán) và nhân công trực tiếp cần HRM (phase 2): bản đầu chỉ "lợi nhuận gộp phụ tùng" có nhãn công thức và phạm vi, không gọi là lợi nhuận.
+- Ghi nhận: FR-RPT-007, 012, 013, 014 là **Must** trong FRD nhưng chưa làm; danh sách pilot cần xác nhận lại phạm vi RPT của phase 1 (§22.3).
+
+**Dev default OK** (chưa làm).
+
+##### R91. Đối chiếu bốn chiều
+
+**Khuyến nghị**: mức tối thiểu cho pilot, bổ sung ngay sau. `[Cần xác nhận: Kế toán khách]`
+
+- Mức tối thiểu hiện có là đủ để bắt đầu pilot. Tiêu chí FR-RPT-004 ("liệt kê được lệnh thiếu một trong bốn thành phần") chưa đạt đầy đủ; màn hiện nhãn "mức tối thiểu".
+- Bổ sung ở slice kế tiếp, trước nghiệm thu phase 1: (a) lệnh có phụ tùng đã duyệt nhưng không có phiếu xuất kho; (b) phiếu xuất lớn hơn số lượng đã duyệt (theo `lineKey`, §17); (c) lệnh hoàn tất thiếu hóa đơn hoặc tiền (đã có). Phiếu xuất không có chứng từ gốc giữ kỳ vọng bằng 0 (RULE-007).
+- Lệnh bảo hành, lệnh nội bộ không có hóa đơn: danh mục loại trừ do Kế toán khách xác nhận trước khi tính.
+
+**Dev default OK.**
+
+##### R92. Ngân sách chỉ mục
+
+**Khuyến nghị**: chấp nhận. `[Đề xuất BA; quyết định kỹ thuật thuộc dev]`
+
+- 0 chỉ mục mới, tổng 191/200 (R78), tái dùng hình truy vấn có sẵn là đúng R68 quy tắc 1 và 3. Còn 9 chỗ; mọi báo cáo sau (R90) phải đọc từ bản tổng hợp hoặc nộp bảng "hình truy vấn mới → chỉ mục" trong PR, và hỏi Chủ dự án trước khi vượt 195.
+
+**Dev default OK.**
+
+### 22.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| FRD FR-RPT-003 | Tiêu chí: doanh thu phát sinh (chưa thuế, theo ngày hoàn tất) và "thu trong ngày" là hai khối đối chiếu được, không bắt bằng nhau; thêm báo cáo tháng ở slice sau | R81, R82 |
+| FRD FR-RPT-010 | Giữ `[Cần xác nhận]`; thêm dấu "có điều chỉnh sau chốt" | R88 |
+| FRD FR-RPT-002, 007, 012, 013, 014 | Ghi trạng thái chưa làm và thứ tự đề xuất; cập nhật §13 phạm vi RPT phase 1 (hiện dev làm 001, 003, 004 mức tối thiểu, 011, 012 một phần, 013, 014 một phần) | R85, R90 |
+| FRD FR-RPT-004 | Nêu hai mức: tối thiểu (pilot) và đầy đủ bốn chiều; danh mục loại trừ | R91 |
+| FRD FR-RPT-009 | Pilot chỉ CSV, giới hạn mềm xuất | R89 |
+| BRD BR-RPT-01/02 | Định nghĩa "doanh thu quản trị" khác doanh thu ghi sổ thuế | R81 |
+| Journey (dashboard theo vai trò) | Nêu số tạm/chính thức, giờ cập nhật, "tổng của N chi nhánh" | R85, R86, R88 |
+| UAT-01 (RPT) | Mở rộng: tổng ba dòng bằng tổng lệnh; đối chiếu A và B (cọc, thu một phần, ngày khác, phiếu đảo); thợ không vào báo cáo; thủ kho không thấy doanh thu; chạm trần thì không gắn chính thức; sau chốt có dấu điều chỉnh; CSV không chứa dữ liệu cá nhân và chống chèn công thức | R81–R89 |
+
+### 22.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12, §15.4, §16.4, §17.4, §18.4, §19.4, §20.4, §21.4)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 46 | Kế toán khách | Công thức doanh thu quản trị (chưa thuế, theo ngày hoàn tất), hai đối chiếu A/B, nhãn "Số tạm/Chính thức"; ví dụ số ký | Như §22.2 R81, R82, R88 | Đổi theo ngày thu hoặc ngày hóa đơn: đổi `computeDaily`, kiểm thử lại |
+| 47 | Chủ dự án | Phân quyền báo cáo từng vai trò; quy mô pilot (xe/ngày một chi nhánh); tài khoản dịch vụ cho lịch làm mới | Như R84, R87, R86 | Quy mô lớn hơn: cập nhật tăng dần sớm hơn |
+| 48 | Chủ, Quản lý | Ngưỡng cảnh báo ngoại lệ (5/1/1/0 ₫); cần Excel/PDF trước pilot không | Pilot chỉ CSV; xem lại ngưỡng sau 2 tuần | Thêm Excel/PDF: mở FR-RPT-009 |
+
+### 22.5 Dev must change (tóm tắt)
+
+| # | Việc | Nơi sửa | Mức |
+| --- | --- | --- | --- |
+| 1 | R81: tách dòng giảm giá cấp lệnh khỏi "thuế và chênh lệch làm tròn"; thêm khối "thu trong ngày"; test tổng ba dòng bằng tổng lệnh | `rpt/domain/rollup.ts` `computeDaily` | Bắt buộc, có test |
+| 2 | R82: thêm đối chiếu B theo phiếu thu của ngày; test cọc, thu một phần, thu ngày khác, phiếu đảo | `computeDaily` | Bắt buộc, có test |
+| 3 | R83: mặc định chưa thu sau giao xe = 1 ngày; nhãn "Chênh lệch quỹ ca" | `report-policy`, `recDemo.ts` | Nhỏ |
+| 4 | R87: trần quét thành cấu hình (3.000), cờ "không đầy đủ" chặn nhãn chính thức và "Chốt ngày", cảnh báo 70% | `RptConfig`, `rptWiring.ts`, `refreshDays` | Bắt buộc, có test |
+| 5 | R88: dấu "có điều chỉnh sau chốt" kèm chênh lệch; số chính thức không tự đổi | `computeDaily`, `refreshDays` | Nhỏ, có test |
+| 6 | R89: chống chèn công thức CSV, BOM, giới hạn mềm 20 lần/người/ngày | `rpt/application/export.ts` | Kiểm tra |
+| 7 | R84, R85, R86: test ma trận vai trò và liên kết đi sâu; nhãn "tổng của N chi nhánh"; nhãn giờ cập nhật | `permissions.ts`, `application/read.ts` | Kiểm tra |
+
+Không có câu trả lời nào mâu thuẫn với R62 (§20), R68, R73, R75, R78 đã chốt. Mâu thuẫn tài liệu đã nêu: tiêu chí FR-RPT-003 (R81) và các FR-RPT Must chưa làm so với phạm vi phase 1 (R90); chỉ sửa khi áp dụng §22.3.

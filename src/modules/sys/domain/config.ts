@@ -113,6 +113,276 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // ba-answers-03 Câu 2 / FR-REC-009: reasons a customer gives for not approving an item (catalogue).
+  'decline-reason': {
+    type: 'decline-reason',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        /** the catch-all "khác": the free-text note is mandatory */
+        noteRequired: z.boolean().optional(),
+      })
+      .strict(),
+  },
+  // ba-answers-03 Câu 2, QUO-04/05: quote approval policy, company default or per branch. Booleans are set through the API.
+  'quote-approval': {
+    type: 'quote-approval',
+    resource: 'branch-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** "Cho phép khách bỏ hạng mục bắt buộc" (default yes) */
+        allowDeclineRequired: z.boolean(),
+        /** FR-REC-026: verbal approval by staff is allowed (it becomes an exception for review) */
+        verbalApproval: z.boolean(),
+        /** OTP is not available until an SMS provider is active; only `off` is accepted today */
+        otpMode: z.enum(['off']),
+        /**
+         * R29: a verbal approval above this total (tax included, integer VND) must be recorded by a manager.
+         * Not set = no limit. The number is the client's to give [Cần xác nhận: Khách].
+         */
+        verbalApprovalMaxVnd: vnd.optional(),
+      })
+      .strict(),
+  },
+  // R34: rate limits of the customer link page, effective-dated so a change needs no release. Not set = built-in defaults.
+  'public-rate-limit': {
+    type: 'public-rate-limit',
+    resource: 'branch-config',
+    scopeKey: z.literal('company'),
+    branchOverride: false,
+    payload: z
+      .object({
+        /** page views per window, per address and per link */
+        viewLimit: z.number().int().min(5).max(1000),
+        viewWindowSeconds: z.number().int().min(10).max(3600),
+        /** approve/reject attempts per window, per link */
+        decideLimit: z.number().int().min(1).max(100),
+        decideWindowMinutes: z.number().int().min(1).max(240),
+      })
+      .strict(),
+  },
+  // FR-REC-016: quality-check list of a service type (company default key `default`), effective-dated.
+  'qc-checklist': {
+    type: 'qc-checklist',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        checks: z
+          .array(
+            z
+              .object({
+                code: z.string().regex(/^[a-z][a-z0-9_-]{0,29}$/),
+                name: z.string().trim().min(1).max(120),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(30),
+      })
+      .strict(),
+  },
+  // FR-REC-013/017: execution policy of the workshop (undo window, handover rules), company or per branch.
+  'order-policy': {
+    type: 'order-policy',
+    resource: 'branch-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** seconds a technician may undo a start/pause/finish */
+        undoWindowSeconds: z.number().int().min(0).max(3600),
+        /** the vehicle may be handed over only after the order is fully paid (slice 1.7 enforces it) */
+        handoverRequiresPayment: z.boolean(),
+        /** the customer's name is required on the handover record */
+        handoverRequiresReceiver: z.boolean(),
+      })
+      .strict(),
+  },
+  // FR-ACC-001/003/004 (slice 1.7): money-handling policy of a branch, company default with branch override.
+  // Every value is a default [Đề xuất dev - chờ xác nhận: Kế toán khách / Khách]; none is a legal rule.
+  'acc-policy': {
+    type: 'acc-policy',
+    resource: 'acc-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** payment methods the counter may record (QR / e-wallet are recorded by hand; no gateway) */
+        methods: z
+          .array(z.enum(['cash', 'transfer', 'card', 'qr']))
+          .min(1)
+          .max(4),
+        /** a non-cash line must carry the bank / POS / QR transaction reference */
+        nonCashReferenceRequired: z.boolean(),
+        /** a final receipt is accepted only after the quality check passed (G4-ACC-01 "chặn thu"); deposits are not */
+        receiptRequiresQc: z.boolean(),
+        /** a cash count within +/- this many VND needs an explanation but no manager approval (FR-ACC-004) */
+        varianceToleranceVnd: vnd,
+        /** BA R63: longest term of an approved debt at handover, in days (default 60) */
+        debtMaxDays: z.number().int().min(1).max(365).optional(),
+        /** R64: days a "thiếu chứng từ" flag may stay open before the manager is told (default 3) */
+        sourceFlagNoticeDays: z.number().int().min(1).max(90).optional(),
+      })
+      .strict(),
+  },
+  // FR-SYS-004 / RULE-011: approval limits per kind of request, company-wide, effective-dated (G4-APR-03).
+  // The scope key is the approval kind. The numbers are the client's to give [Cần xác nhận: D-11].
+  'approval-limit': {
+    type: 'approval-limit',
+    resource: 'approval-limit',
+    scopeKey: z.enum([
+      'payment_reversal',
+      'expense',
+      'deposit_refund',
+      'debt_handover',
+      'cash_variance',
+      'invoice_adjust',
+      'invoice_replace',
+      'invoice_cancel',
+    ]),
+    branchOverride: false,
+    payload: z
+      .object({
+        selfMaxVnd: vnd,
+        level1MaxVnd: vnd,
+        /** R58: running cap of the values decided by the requester alone within one cash shift (expense only) */
+        shiftCapVnd: vnd.optional(),
+        dueHours: z
+          .number()
+          .int()
+          .min(1)
+          .max(24 * 30),
+      })
+      .strict()
+      .refine((p) => p.level1MaxVnd >= p.selfMaxVnd, 'level1MaxVnd must not be below selfMaxVnd'),
+  },
+  // expense categories of the cash voucher (G4-ACC-04), a company catalogue; the accountant owns the list
+  'expense-category': {
+    type: 'expense-category',
+    resource: 'acc-policy',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        /** the category refunds a customer deposit (needs the deposit it refunds) */
+        depositRefund: z.boolean().optional(),
+        /**
+         * R64/R65: `required` = a voucher of this category cannot be saved without its source document (an order, a
+         * deposit, a supplier receipt); `optional` (default) = it can be saved flagged "thiếu chứng từ" with a reason,
+         * and then always needs a manager's approval.
+         */
+        sourceRequirement: z.enum(['required', 'optional']).optional(),
+        /** R65: optional accounting account code for the later export (FR-ACC-010, not used yet) */
+        accountCode: z.string().trim().max(20).optional(),
+      })
+      .strict(),
+  },
+  // FR-EIN-003 (slice 1.8): the issuing unit of a branch and the provider behind it, company default with branch override.
+  // The provider is chosen by CODE here (data), never in code; `fake` is the only adapter built. The live environment is a
+  // separate value so test and live never mix (FR-EIN-004). Legal facts (symbol, invoice type) are [Cần kế toán xác nhận].
+  'einvoice-issuer': {
+    type: 'einvoice-issuer',
+    resource: 'einvoice-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        enabled: z.boolean(),
+        providerCode: z.string().regex(/^[a-z][a-z0-9-]{0,29}$/),
+        environment: z.enum(['test', 'live']),
+        sellerName: z.string().trim().min(2).max(200),
+        sellerTaxCode: z.string().regex(/^\d{10}(-\d{3})?$/),
+        sellerAddress: z.string().trim().max(300).optional(),
+        symbol: z.string().regex(/^[A-Z0-9]{3,8}$/),
+        invoiceType: z.enum(['vat', 'sales']),
+        templateCode: z.string().regex(/^[A-Z0-9]{1,11}$/),
+      })
+      .strict(),
+  },
+  // FR-EIN-001/009/010/011 (slice 1.8): how an invoice is built and retried. Every value is a default
+  // [Đề xuất dev - chờ xác nhận: Kế toán khách]; none is a legal rule.
+  'einvoice-policy': {
+    type: 'einvoice-policy',
+    resource: 'einvoice-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** per-rate = one line per tax rate (BA R25 default); per-line = one line per approved line */
+        lineMode: z.enum(['per-rate', 'per-line']),
+        perRateDescription: z.string().trim().min(2).max(120),
+        /** qc = from the quality check on; handover = only after the vehicle was handed over */
+        issueAfter: z.enum(['qc', 'handover']),
+        businessAddressRequired: z.boolean(),
+        retailNameRequired: z.boolean(),
+        /** a tax-rate change between the approved quote and the invoice date: list it (warn) or stop (block) */
+        taxChangePolicy: z.enum(['warn', 'block']),
+        maxAttempts: z.number().int().min(1).max(20),
+        retryBackoffMinutes: z.array(z.number().int().min(1).max(1440)).min(1).max(8),
+        providerTimeoutMs: z.number().int().min(1000).max(120_000),
+      })
+      .strict(),
+  },
+  // FR-RPT-003/008 (slice 1.9): the thresholds of the exception alerts. Every value is a default
+  // [Đề xuất dev - chờ xác nhận: Chủ garage/Quản lý]; none is a legal rule.
+  'report-policy': {
+    type: 'report-policy',
+    resource: 'report-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** an order open longer than this many days is listed as "mở quá lâu" */
+        openOrderMaxDays: z.number().int().min(1).max(90),
+        /** a completed order without a valid invoice for this many days or more is listed */
+        uninvoicedAfterDays: z.number().int().min(0).max(30),
+        /** a handed-over order with an unpaid balance and no approved debt, older than this, is listed */
+        unpaidHandoverGraceDays: z.number().int().min(0).max(30),
+        /** a closed shift whose cash variance is above this (absolute VND) is listed */
+        cashVarianceAlertVnd: vnd,
+      })
+      .strict(),
+  },
+  // FR-REC-032 / BR-REC-13: the steps of a service type (a repair order gets the set of its type).
+  // The item states and the responsible person are applied when the repair item exists (slice 1.6).
+  'service-workflow': {
+    type: 'service-workflow',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        steps: z
+          .array(
+            z
+              .object({
+                code: z.string().regex(/^[a-z][a-z0-9_-]{0,29}$/),
+                name: z.string().trim().min(1).max(80),
+                /** role that normally does the step (a role code); optional */
+                responsibleRole: z.string().min(1).max(8).optional(),
+                /** R36: expected duration of the step in days (body & paint) */
+                expectedDays: z.number().int().min(0).max(365).optional(),
+                /** R36: the step counts toward the technician's labor; default false (labor comes from the labor lines) */
+                countsTowardLabor: z.boolean().optional(),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(20),
+      })
+      .strict(),
+  },
   'labor-rate': {
     type: 'labor-rate',
     resource: 'service-catalog',

@@ -243,6 +243,22 @@ export async function holdForApproval(
   input: HoldForApprovalInput,
   ctx: RequestCtx,
 ): Promise<ReservationDto[]> {
+  return (await prepareHoldForApproval(deps, tx, actor, scope, input, ctx)).commit();
+}
+
+/**
+ * Two-phase form of `holdForApproval` for callers that must do other reads in the same transaction
+ * (Firestore allows no read after a write): `prepare` performs EVERY read and checks; `commit()` is
+ * synchronous and only stages the writes (reservations, ledger rows, balances, audit).
+ */
+export async function prepareHoldForApproval(
+  deps: InvDeps,
+  tx: Tx,
+  actor: Actor,
+  scope: Scope,
+  input: HoldForApprovalInput,
+  ctx: RequestCtx,
+): Promise<{ commit: () => ReservationDto[] }> {
   const data = parseInput(holdForApprovalSchema, input);
   const branchId = requireWorkingBranch(actor);
   const branch = await assertWritable(deps, tx, actor, scope, branchId, 'edit_open_order');
@@ -259,21 +275,35 @@ export async function holdForApproval(
     Promise.all(rids.map((rid) => deps.reservations.getInTx(tx, scope, rid))),
     BalanceSet.load(deps, tx, scope, w, [...byId.values()], actor.userId, today(deps)),
   ]);
-  const out: ReservationDto[] = [];
-  data.lines.forEach((l, i) => {
-    const out1 = applyHold(deps, tx, actor, ctx, w, byId.get(l.partId)!, existing[i] ?? null, set, {
-      sourceType: 'repair-order',
-      sourceId: data.orderId,
-      lineKey: l.lineKey,
-      warehouseId: w.id,
-      partId: l.partId,
-      qty: l.qty,
-      allowPartial: true,
-    });
-    out.push(out1.dto);
-  });
-  set.flush(tx);
-  return out;
+  return {
+    commit: () => {
+      const out: ReservationDto[] = [];
+      data.lines.forEach((l, i) => {
+        const out1 = applyHold(
+          deps,
+          tx,
+          actor,
+          ctx,
+          w,
+          byId.get(l.partId)!,
+          existing[i] ?? null,
+          set,
+          {
+            sourceType: 'repair-order',
+            sourceId: data.orderId,
+            lineKey: l.lineKey,
+            warehouseId: w.id,
+            partId: l.partId,
+            qty: l.qty,
+            allowPartial: true,
+          },
+        );
+        out.push(out1.dto);
+      });
+      set.flush(tx);
+      return out;
+    },
+  };
 }
 
 /** Standalone reserve with its own transaction (HTTP route, REC). Retries with the same key replay the stored result. */
@@ -357,37 +387,57 @@ export async function releaseStock(
       fingerprint: fingerprintOf(data),
     },
     async (tx) => {
-      const found = (
-        await deps.reservations.listBySource(scope, data.sourceType, data.sourceId, 200)
-      ).filter(
-        (r) =>
-          (!data.lineKey || r.lineKey === data.lineKey) &&
-          (!data.warehouseId || r.warehouseId === data.warehouseId) &&
-          (!data.partId || r.partId === data.partId),
-      );
-      // reads first: current state of each hold inside the transaction
-      const fresh = (
-        await Promise.all(found.map((r) => deps.reservations.getInTx(tx, scope, r.id)))
-      ).flatMap((r) => (r && !r.closed ? [r] : []));
-      const byWarehouse = new Map<string, Reservation[]>();
-      for (const r of fresh)
-        byWarehouse.set(r.warehouseId, [...(byWarehouse.get(r.warehouseId) ?? []), r]);
-      // phase 1: every read (branch state, balances) before any write is staged
-      const groups: { set: BalanceSet; rs: Reservation[] }[] = [];
-      for (const [warehouseId, rs] of byWarehouse) {
-        const first = rs[0]!;
-        await assertWritable(deps, tx, actor, scope, first.branchId, 'edit_open_order');
-        const set = await BalanceSet.load(
-          deps,
-          tx,
-          scope,
-          { id: warehouseId, branchId: first.branchId, companyId: first.companyId },
-          rs.map((r) => ({ id: r.partId, code: r.partCode, name: r.partCode })),
-          actor.userId,
-          today(deps),
-        );
-        groups.push({ set, rs });
-      }
+      const prepared = await prepareRelease(deps, tx, actor, scope, data, ctx);
+      return { status: 200, body: { released: prepared.commit() } };
+    },
+  );
+}
+
+/**
+ * Two-phase release for callers that must read more in the same transaction (REC cancelling an order):
+ * `prepareRelease` does every read; `commit()` only stages the writes. See `releaseStock` for the rules.
+ */
+export async function prepareRelease(
+  deps: InvDeps,
+  tx: Tx,
+  actor: Actor,
+  scope: Scope,
+  data: z.infer<typeof releaseSchema>,
+  ctx: RequestCtx,
+): Promise<{ commit: () => ReservationDto[] }> {
+  const found = (
+    await deps.reservations.listBySource(scope, data.sourceType, data.sourceId, 200)
+  ).filter(
+    (r) =>
+      (!data.lineKey || r.lineKey === data.lineKey) &&
+      (!data.warehouseId || r.warehouseId === data.warehouseId) &&
+      (!data.partId || r.partId === data.partId),
+  );
+  // reads first: current state of each hold inside the transaction
+  const fresh = (
+    await Promise.all(found.map((r) => deps.reservations.getInTx(tx, scope, r.id)))
+  ).flatMap((r) => (r && !r.closed ? [r] : []));
+  const byWarehouse = new Map<string, Reservation[]>();
+  for (const r of fresh)
+    byWarehouse.set(r.warehouseId, [...(byWarehouse.get(r.warehouseId) ?? []), r]);
+  // phase 1: every read (branch state, balances) before any write is staged
+  const groups: { set: BalanceSet; rs: Reservation[] }[] = [];
+  for (const [warehouseId, rs] of byWarehouse) {
+    const first = rs[0]!;
+    await assertWritable(deps, tx, actor, scope, first.branchId, 'edit_open_order');
+    const set = await BalanceSet.load(
+      deps,
+      tx,
+      scope,
+      { id: warehouseId, branchId: first.branchId, companyId: first.companyId },
+      rs.map((r) => ({ id: r.partId, code: r.partCode, name: r.partCode })),
+      actor.userId,
+      today(deps),
+    );
+    groups.push({ set, rs });
+  }
+  return {
+    commit: () => {
       // phase 2: compute and stage
       const released: ReservationDto[] = [];
       for (const { set, rs } of groups) {
@@ -439,9 +489,9 @@ export async function releaseStock(
         }
       }
       for (const { set } of groups) set.flush(tx);
-      return { status: 200, body: { released } };
+      return released;
     },
-  );
+  };
 }
 
 const listSchema = z.object({

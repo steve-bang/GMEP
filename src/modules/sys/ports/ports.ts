@@ -17,6 +17,8 @@ import type {
   Warehouse,
 } from '../domain/entities';
 import type { ConfigVersion } from '../domain/config';
+import type { ApprovalRequest, ApprovalStatus } from '../domain/approval';
+import type { Actor } from '@/platform/rbac/rbac';
 
 export { AlreadyExistsError } from '@/platform/store/docStore';
 
@@ -322,4 +324,41 @@ export type StrongAuthRequirement = 'none' | 'totp' | 'pin';
 export interface StrongAuthPort {
   requirementFor(user: User): Promise<StrongAuthRequirement>;
   verify(user: User, proof: string): Promise<boolean>;
+}
+
+// ---- approvals (FR-SYS-004) ---------------------------------------------------------------------------
+
+/** Every read takes a Scope (NFR-ISO-01): an approval belongs to one branch. */
+export interface ApprovalRepository {
+  get(scope: Scope, id: string): Promise<ApprovalRequest | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<ApprovalRequest | null>;
+  /** requests of one branch in a status, newest first (the branch must be inside the scope) */
+  listByBranchStatus(
+    scope: Scope,
+    branchId: string,
+    status: ApprovalStatus,
+    limit: number,
+  ): Promise<ApprovalRequest[]>;
+  /** the requester's own requests inside the scope, newest first */
+  listByRequester(scope: Scope, requesterId: string, limit: number): Promise<ApprovalRequest[]>;
+  /** one slot per (kind, subject): the id of the request that is pending for it, if any */
+  getSlotInTx(tx: Tx, slotId: string): Promise<{ requestId: string; open: boolean } | null>;
+  setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; companyId: string }): void;
+  create(tx: Tx, r: ApprovalRequest): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+/**
+ * What a module does when a request of its kind is decided, inside the SAME transaction as the decision
+ * (registered by the composition root; SYS never imports the module that owns the kind).
+ */
+export interface ApprovalHandler {
+  onDecided(c: {
+    tx: Tx;
+    request: ApprovalRequest;
+    decision: 'approved' | 'rejected';
+    note?: string;
+    actor: Actor;
+    ctx: { requestId: string; idempotencyKey?: string };
+  }): Promise<void>;
 }

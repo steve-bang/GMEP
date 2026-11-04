@@ -8,6 +8,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { registeredQueries } from '@/platform/store/docStore';
 import {
+  indexBudget,
+  INDEX_FAIL_ABOVE,
+  INDEX_LIMIT,
+  INDEX_WARN_AT,
+} from '@/platform/store/indexBudget';
+import {
   indexSatisfies,
   requiredIndex,
   requiredIndexDefs,
@@ -35,6 +41,20 @@ if (process.argv.includes('--write')) {
 }
 
 const file = JSON.parse(readFileSync('firestore.indexes.json', 'utf8')) as { indexes: IndexDef[] };
+
+// R68 (BA §20): see platform/store/indexBudget.ts
+const declared = file.indexes.length;
+const budget = indexBudget(declared);
+if (budget === 'fail') {
+  console.error(
+    `${declared} composite indexes declared: over the budget of ${INDEX_FAIL_ABOVE} (limit ${INDEX_LIMIT}, the rest is reserved). Reuse an existing query shape, filter in memory over a bounded set, or denormalise a key field (R68).`,
+  );
+  process.exit(1);
+}
+if (budget === 'warn')
+  console.warn(
+    `WARNING: ${declared}/${INDEX_LIMIT} composite indexes declared (warn at ${INDEX_WARN_AT}, fail above ${INDEX_FAIL_ABOVE}).`,
+  );
 let missing = 0;
 for (const shape of registeredQueries()) {
   const need = requiredIndex(shape);

@@ -466,7 +466,7 @@ describe.each(backends)('REC intake and quote [%s]', (backend) => {
       const d = await call(cv, 'GET', `/api/v1/rec/quotes/${q.id}`);
       expect(d.json.versions[0]).toMatchObject({ n: 1, status: 'sent', replacedByN: 2 });
       expect(d.json.shown).toMatchObject({ n: 2, status: 'sent', current: true });
-      expect(d.json.allowed).toEqual(['reject', 'revise']);
+      expect(d.json.allowed).toEqual(['approve', 'link', 'reject', 'revise']);
       const list = await call(cv, 'GET', `/api/v1/rec/quotes?limit=100`);
       expect(list.json.items.filter((x: Row) => x.id === q.id)).toHaveLength(1);
       q = { ...q, version: r.json.version };

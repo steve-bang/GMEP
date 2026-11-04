@@ -141,7 +141,8 @@ export function demoWarehouses(): Warehouse[] {
     name: w.name,
     nameNorm: normalizeSearch(w.name),
     status: 'active',
-    isDefault: false,
+    // R39: the branch's default warehouse is the one stock is held from; the main warehouse of each branch is marked
+    isDefault: w.code === 'WH-CHINH',
     createdAt: SEED_TIME,
     createdBy: 'seed',
     updatedAt: SEED_TIME,
@@ -163,6 +164,7 @@ export function demoDocs(): SeedDoc[] {
       name: r.name,
       permissions: r.permissions,
       canConsolidate: r.canConsolidate,
+      appliedTopUps: r.appliedTopUps,
     });
   for (const br of demoBranches) {
     const { id, ...rest } = br;

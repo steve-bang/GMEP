@@ -156,12 +156,13 @@ describe('quote totals (FR-REC-004, FR-REC-007, BA C6)', () => {
 
 describe('quote state machine (separate from order/item/payment/invoice)', () => {
   const expected: Record<QuoteStatus, Partial<Record<QuoteEvent, QuoteStatus>>> = {
-    draft: { send: 'sent' },
+    draft: { send: 'sent', close: 'expired' },
     sent: {
       approve_full: 'approved_full',
       approve_partial: 'approved_partial',
       reject: 'rejected',
       expire: 'expired',
+      close: 'expired',
     },
     approved_full: {},
     approved_partial: {},
@@ -209,7 +210,7 @@ describe('quote state machine (separate from order/item/payment/invoice)', () =>
   });
   it('actions allowed follow the state', () => {
     expect(allowedQuoteActions('draft')).toEqual(['edit', 'send']);
-    expect(allowedQuoteActions('sent')).toEqual(['reject', 'revise']);
+    expect(allowedQuoteActions('sent')).toEqual(['approve', 'link', 'reject', 'revise']);
     expect(allowedQuoteActions('approved_full')).toEqual([]);
   });
 });

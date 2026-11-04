@@ -27,6 +27,8 @@ import {
   transitionQuote,
 } from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
+import { assertSupplementOrderOpen } from './supplement';
+import { approvalPolicyOf, toApprovalDto, type ApprovalPolicy } from './approval';
 import { buildItems, itemInput } from './quoteBuild';
 import {
   addDays,
@@ -63,6 +65,12 @@ export interface QuoteDto {
   validUntil: string | null;
   /** total of the current version including tax */
   totalVnd: number;
+  /** FR-REC-009: tax-inclusive total of the approved items; null until approved */
+  approvedTotalVnd: number | null;
+  /** R37: the repair order opened by the approval; null on an approved quote = "đã duyệt, chưa có lệnh" */
+  orderId: string | null;
+  /** set on a supplementary quote: the order it extends */
+  supplementOfOrderId: string | null;
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -139,9 +147,17 @@ export interface VersionDto {
   rejectReason: string | null;
   /** read-only when replaced or not the latest */
   current: boolean;
+  /** FR-REC-009: the approval evidence once approved (no link or token) */
+  approval: ReturnType<typeof toApprovalDto> | null;
+  /** a customer link exists for this version (the token itself is never readable) */
+  hasLink: boolean;
 }
 
 export interface QuoteDetailDto extends QuoteDto {
+  /** for the printout header (FR-REC-008: print copy) */
+  branchName: string;
+  /** policy for the counter approval panel; null unless the actor may approve a live sent version */
+  approvalPolicy: ApprovalPolicy | null;
   versions: VersionSummaryDto[];
   shown: VersionDto;
   allowed: string[];
@@ -162,6 +178,9 @@ const toQuoteDto = (q: Quote, today: string): QuoteDto => ({
   status: effectiveQuoteStatus(q.status, q.validUntil, today),
   validUntil: q.validUntil ?? null,
   totalVnd: q.totalVnd,
+  approvedTotalVnd: q.approvedTotalVnd ?? null,
+  orderId: q.orderId ?? null,
+  supplementOfOrderId: q.supplementOfOrderId ?? null,
   createdAt: q.createdAt.toISOString(),
   updatedAt: q.updatedAt.toISOString(),
   version: q.version,
@@ -272,6 +291,16 @@ async function toVersionDto(
     replacedByN: v.replacedByN ?? null,
     rejectReason: v.rejectReason ?? null,
     current: v.n === currentN && v.replacedByN === undefined,
+    approval: v.approval
+      ? toApprovalDto(
+          v.approval,
+          // staff display name only (no contact data) for "who recorded it"
+          v.approval.recordedBy
+            ? ((await deps.sys.users.getById(v.approval.recordedBy))?.displayName ?? null)
+            : null,
+        )
+      : null,
+    hasLink: !!v.linkHash,
   };
 }
 
@@ -320,9 +349,16 @@ export async function getQuote(
   const shown = versions.find((v) => v.n === (n ?? q.currentN));
   if (!shown) throw notFound();
   const mayEdit = hasPermission(actor, 'quote:update');
+  const mayApprove = hasPermission(actor, 'quote:approve');
   const today = businessDate(deps.sys.clock.now());
+  const branch = await deps.sys.branches.get(scope, q.branchId);
   return {
     ...toQuoteDto(q, today),
+    branchName: branch?.name ?? '',
+    approvalPolicy:
+      mayApprove && shown.n === q.currentN && q.status === 'sent'
+        ? await approvalPolicyOf(deps, q.companyId, q.branchId, today)
+        : null,
     versions: versions.map((v) => ({
       n: v.n,
       status: v.status,
@@ -331,9 +367,17 @@ export async function getQuote(
       replacedByN: v.replacedByN ?? null,
     })),
     shown: await toVersionDto(deps, actor, shown, q.currentN),
-    allowed: mayEdit
-      ? allowedQuoteActions(q.status, isQuoteExpired(q.status, q.validUntil, today))
-      : [],
+    allowed: [
+      ...allowedQuoteActions(q.status, isQuoteExpired(q.status, q.validUntil, today)).filter((a) =>
+        a === 'approve' ? mayApprove : mayEdit,
+      ),
+      // R37 fallback: approved but no order yet (a technical failure after the approval)
+      ...((q.status === 'approved_full' || q.status === 'approved_partial') &&
+      !q.orderId &&
+      hasPermission(actor, 'repair-order:create')
+        ? ['create_order']
+        : []),
+    ],
   };
 }
 
@@ -570,6 +614,8 @@ export async function sendQuote(
       if (!q) throw notFound();
       if (q.version !== data.version) throw versionConflict();
       await assertWritable(deps, tx, actor, scope, q.branchId, 'edit_open_order');
+      // R47: a supplement of a closed order is not sent
+      await assertSupplementOrderOpen(deps, tx, scope, q);
       const cur = await deps.versions.getInTx(tx, scope, versionId(id, q.currentN));
       if (!cur) throw notFound();
       const lines = cur.items.reduce((s, i) => s + i.lines.length, 0);
@@ -658,6 +704,7 @@ export async function rejectQuote(
         status: t.state,
         rejectedAt: now,
         rejectReason: data.reason,
+        rejectedBy: actor.userId,
         updatedAt: now,
         updatedBy: actor.userId,
         version: cur.version + 1,

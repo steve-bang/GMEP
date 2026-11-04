@@ -12,8 +12,11 @@ import { StatusBadge } from '@/ui/components/StatusBadge';
 import { formatMinutes, money } from '../../format';
 import { RecPage } from '../../RecPage';
 import { QUOTE_TONE } from '../statusTone';
+import { CounterApproval } from './CounterApproval';
+import { CreateOrderButton } from './CreateOrderButton';
 import { QuoteActions } from './QuoteActions';
 import { QuoteEditor, type EditItem } from './QuoteEditor';
+import { QuoteShare } from './QuoteShare';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,6 +71,70 @@ const ACTION_KEYS = [
   'unexpected',
 ] as const;
 
+const APPROVAL_KEYS = [
+  'title',
+  'lead',
+  'step1',
+  'step2',
+  'step3',
+  'next',
+  'back',
+  'cancel',
+  'confirm',
+  'required',
+  'optional',
+  'customerRequested',
+  'lockedRequired',
+  'declineWarn',
+  'reason',
+  'reasonPick',
+  'reasonNote',
+  'selected',
+  'tax',
+  'total',
+  'nothing',
+  'method',
+  'signature',
+  'signatureHint',
+  'verbal',
+  'verbalHint',
+  'verbalOff',
+  'otp',
+  'otpOff',
+  'signerName',
+  'evidenceRef',
+  'note',
+  'noteHint',
+  'readBack',
+  'reviewApproved',
+  'reviewDeclined',
+  'conflict',
+  'expired',
+  'unexpected',
+  'offline',
+] as const;
+const SHARE_KEYS = [
+  'title',
+  'lead',
+  'link',
+  'linkHint',
+  'linkMake',
+  'linkRemake',
+  'linkLabel',
+  'copy',
+  'copied',
+  'print',
+  'printHint',
+  'printOpen',
+  'zalo',
+  'sms',
+  'email',
+  'notActive',
+  'notActiveHint',
+  'hasLink',
+  'unexpected',
+] as const;
+
 const toEdit = (items: QuoteItemDto[]): EditItem[] =>
   items.map((it) => ({
     uid: `i${it.no}`,
@@ -119,7 +186,10 @@ export default async function QuotePage({
   const canWrite = s.current && (q.allowed.includes('edit') || q.allowed.includes('revise'));
   const label = (keys: readonly string[], ns: string) =>
     Object.fromEntries(
-      keys.map((k) => [k, t(`rec.${ns}.${k}`, { n: '{n}', pct: '{pct}', delta: '{delta}' })]),
+      keys.map((k) => [
+        k,
+        t(`rec.${ns}.${k}`, { n: '{n}', pct: '{pct}', delta: '{delta}', min: '{min}' }),
+      ]),
     );
   return (
     <RecPage
@@ -224,6 +294,45 @@ export default async function QuotePage({
         </nav>
       ) : null}
 
+      {s.approval ? <ApprovalEvidence t={t} a={s.approval} items={s.items} /> : null}
+
+      {(q.status === 'approved_full' || q.status === 'approved_partial') &&
+      !q.supplementOfOrderId ? (
+        q.orderId ? (
+          <div className="alert alert--success" role="note" data-testid="quote-order-opened">
+            <div className="alert__body">
+              {t('rec.quotes.orderOpened')}:{' '}
+              <Link href={`/rec/orders/${encodeURIComponent(q.orderId)}`}>
+                {t('rec.quotes.openOrder')}
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="alert alert--warning" role="note" data-testid="quote-no-order">
+            <div className="alert__body stack">
+              <span>{t('rec.quotes.noOrderYet')}</span>
+              {q.allowed.includes('create_order') ? (
+                <CreateOrderButton
+                  quoteId={q.id}
+                  label={t('rec.quotes.createOrder')}
+                  failed={t('rec.quotes.createOrderFailed')}
+                />
+              ) : null}
+            </div>
+          </div>
+        )
+      ) : null}
+      {q.supplementOfOrderId ? (
+        <div className="alert alert--info" role="note">
+          <div className="alert__body">
+            {t('rec.quotes.supplementOf')}:{' '}
+            <Link href={`/rec/orders/${encodeURIComponent(q.supplementOfOrderId)}`}>
+              {t('rec.quotes.openOrder')}
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       {canWrite ? (
         <QuoteEditor
           key={q.version}
@@ -255,6 +364,17 @@ export default async function QuotePage({
                   </StatusBadge>
                   {it.customerRequested ? (
                     <span className="tag">{t('rec.editor.customerRequested')}</span>
+                  ) : null}
+                  {s.approval ? (
+                    <StatusBadge
+                      tone={s.approval.approvedItemNos.includes(it.no) ? 'success' : 'neutral'}
+                    >
+                      {t(
+                        s.approval.approvedItemNos.includes(it.no)
+                          ? 'rec.quotes.itemApproved'
+                          : 'rec.quotes.itemDeclined',
+                      )}
+                    </StatusBadge>
                   ) : null}
                   <span className="num rec-item__sum">{money(it.subtotalVnd)}</span>
                 </div>
@@ -334,15 +454,71 @@ export default async function QuotePage({
               {money(s.totals.totalVnd)}
             </dd>
           </div>
-          <div>
-            <dt>{t('rec.quotes.selectedTotal')}</dt>
-            <dd className="num" data-testid="total-selected">
-              {money(s.totals.selectedTotalVnd)}
-            </dd>
-          </div>
+          {s.approval ? (
+            <div>
+              <dt>{t('rec.quotes.approvedTotal')}</dt>
+              <dd className="num" data-testid="total-approved">
+                {money(s.approval.approvedTotalVnd)}
+              </dd>
+            </div>
+          ) : (
+            <div>
+              <dt>{t('rec.quotes.selectedTotal')}</dt>
+              <dd className="num" data-testid="total-selected">
+                {money(s.totals.selectedTotalVnd)}
+              </dd>
+            </div>
+          )}
         </dl>
         <p className="text-secondary rec-note">{t('rec.quotes.totalsNote')}</p>
       </section>
+
+      {s.current && q.allowed.includes('link') ? (
+        <QuoteShare
+          quoteId={q.id}
+          version={q.version}
+          hasLink={s.hasLink}
+          printHref={`/rec/quotes/${encodeURIComponent(q.id)}/print?v=${s.n}`}
+          labels={label(SHARE_KEYS, 'share')}
+        />
+      ) : null}
+
+      {s.current && q.allowed.includes('approve') && q.approvalPolicy ? (
+        <CounterApproval
+          quoteId={q.id}
+          version={q.version}
+          items={s.items.map((i) => ({
+            no: i.no,
+            name: i.name,
+            necessity: i.necessity,
+            customerRequested: i.customerRequested,
+            lines: i.lines.map((x) => ({ amountVnd: x.amountVnd, taxRateBp: x.taxRateBp })),
+          }))}
+          policy={q.approvalPolicy}
+          verbalNoteMin={getContainer().rec.rec.verbalNoteMinLength}
+          labels={{
+            ...label(APPROVAL_KEYS, 'approval'),
+            openButton: t('rec.actions.approveCounter'),
+          }}
+        />
+      ) : null}
+
+      {s.status === 'approved_full' || s.status === 'approved_partial' ? (
+        <p className="text-secondary rec-note">{t('rec.quotes.lockedNote')}</p>
+      ) : null}
+
+      {s.status !== 'draft' ? (
+        <div className="rec-actions">
+          <a
+            className="btn btn--secondary"
+            href={`/rec/quotes/${encodeURIComponent(q.id)}/print?v=${s.n}`}
+            data-testid="quote-print-open"
+          >
+            <Icon name="printer" />
+            <span>{t('rec.quotes.print')}</span>
+          </a>
+        </div>
+      ) : null}
 
       {s.current && q.allowed.some((a) => a === 'send' || a === 'reject') ? (
         <QuoteActions
@@ -354,5 +530,101 @@ export default async function QuotePage({
         />
       ) : null}
     </RecPage>
+  );
+}
+
+type Translate = Awaited<ReturnType<typeof getTranslations>>;
+
+/** QUO-03: who approved, when, how, which items, and the evidence hash. */
+function ApprovalEvidence({
+  t,
+  a,
+  items,
+}: {
+  t: Translate;
+  a: NonNullable<Awaited<ReturnType<typeof getQuote>>['shown']['approval']>;
+  items: QuoteItemDto[];
+}) {
+  return (
+    <section className="card" aria-labelledby="ev-h" data-testid="approval-evidence">
+      <div className="card__header">
+        <h2 className="card__title" id="ev-h">
+          {t('rec.quotes.approvalTitle')}
+        </h2>
+        {a.exception ? (
+          <StatusBadge tone="warning">{t('rec.quotes.approvalException')}</StatusBadge>
+        ) : null}
+      </div>
+      <dl className="inv-facts">
+        <div>
+          <dt>{t('rec.quotes.approvalMethod')}</dt>
+          <dd data-testid="approval-method">{t(`rec.quotes.method_${a.method}`)}</dd>
+        </div>
+        <div>
+          <dt>{t('rec.quotes.approvalAt')}</dt>
+          <dd>{formatDateTime(new Date(a.decidedAt))}</dd>
+        </div>
+        <div>
+          <dt>{t('rec.quotes.approvalBy')}</dt>
+          <dd>
+            {a.recordedBy ? (a.recordedByName ?? a.recordedBy) : t('rec.quotes.approvalByCustomer')}
+          </dd>
+        </div>
+        {a.signerName ? (
+          <div>
+            <dt>{t('rec.quotes.approvalSigner')}</dt>
+            <dd>{a.signerName}</dd>
+          </div>
+        ) : null}
+        {a.evidenceRef ? (
+          <div>
+            <dt>{t('rec.quotes.approvalRef')}</dt>
+            <dd>{a.evidenceRef}</dd>
+          </div>
+        ) : null}
+        {a.note ? (
+          <div>
+            <dt>{t('rec.quotes.approvalNote')}</dt>
+            <dd>{a.note}</dd>
+          </div>
+        ) : null}
+        <div>
+          <dt>{t('rec.quotes.approvedItems')}</dt>
+          <dd>
+            {items
+              .filter((i) => a.approvedItemNos.includes(i.no))
+              .map((i) => `${i.no}. ${i.name}`)
+              .join('; ')}
+          </dd>
+        </div>
+        {a.declined.length > 0 ? (
+          <div>
+            <dt>{t('rec.quotes.declinedItems')}</dt>
+            <dd>
+              {a.declined.map((d) => (
+                <span key={d.itemNo} className="stack-inline">
+                  {d.itemNo}. {d.name}
+                  {d.safety ? ` · ${t('rec.quotes.declinedSafety')}` : ''}
+                  {d.reasonCode ? ` · ${t('rec.quotes.declinedReason')}: ${d.reasonCode}` : ''}
+                  {d.reasonNote ? ` (${d.reasonNote})` : ''}
+                  <br />
+                </span>
+              ))}
+            </dd>
+          </div>
+        ) : null}
+        <div>
+          <dt>{t('rec.quotes.approvedTotal')}</dt>
+          <dd className="num">{money(a.approvedTotalVnd)}</dd>
+        </div>
+        <div>
+          <dt>{t('rec.quotes.approvalHash')}</dt>
+          <dd className="num rec-hash" data-testid="approval-hash">
+            {a.hash}
+          </dd>
+        </div>
+      </dl>
+      <p className="text-secondary rec-note">{t('rec.quotes.approvalHashNote')}</p>
+    </section>
   );
 }

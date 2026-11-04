@@ -3,12 +3,22 @@ import { scopeAllows, type Scope } from '@/platform/scope/scope';
 import type { DocData, DocStore, QueryFamily, StoredDoc } from '@/platform/store/docStore';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import type {
+  PartRequest,
+  PartRequestRepository,
+  PartRequestStatus,
+  RepairItem,
+  RepairItemRepository,
+  RepairOrder,
+  RepairOrderRepository,
+  OrderStatus,
   Intake,
   IntakeRepository,
   IntakeStatus,
   Quote,
   QuoteStatus,
   QuoteRepository,
+  QuoteLink,
+  QuoteLinkRepository,
   QuoteVersion,
   QuoteVersionRepository,
 } from '@/modules/rec';
@@ -189,10 +199,13 @@ const quoteFromDoc = ({ id, data: x }: StoredDoc): Quote => ({
   vehicleLabel: x.vehicleLabel,
   customerName: x.customerName,
   advisorId: x.advisorId,
+  ...put('supplementOfOrderId', opt<string>(x.supplementOfOrderId)),
+  ...put('orderId', opt<string>(x.orderId)),
   currentN: x.currentN,
   status: x.status,
   ...put('validUntil', opt<string>(x.validUntil)),
   totalVnd: x.totalVnd ?? 0,
+  ...put('approvedTotalVnd', opt<number>(x.approvedTotalVnd)),
   createdAt: x.createdAt,
   createdBy: x.createdBy,
   updatedAt: x.updatedAt,
@@ -256,8 +269,13 @@ const versionFromDoc = ({ id, data: x }: StoredDoc): QuoteVersion => ({
   ...put('sentVia', opt<QuoteVersion['sentVia']>(x.sentVia)),
   ...put('replacedAt', opt<Date>(x.replacedAt)),
   ...put('replacedByN', opt<number>(x.replacedByN)),
+  ...put('closedAt', opt<Date>(x.closedAt)),
+  ...put('closedReason', opt<string>(x.closedReason)),
   ...put('rejectedAt', opt<Date>(x.rejectedAt)),
   ...put('rejectReason', opt<string>(x.rejectReason)),
+  ...(x.rejectedBy === undefined ? {} : { rejectedBy: x.rejectedBy as string | null }),
+  ...put('approval', opt<QuoteVersion['approval']>(x.approval)),
+  ...put('linkHash', opt<string>(x.linkHash)),
   createdAt: x.createdAt,
   createdBy: x.createdBy,
   updatedAt: x.updatedAt,
@@ -290,5 +308,308 @@ export class DocQuoteVersionRepository implements QuoteVersionRepository {
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.quoteVersions, id, patch);
+  }
+}
+
+// ---- quote links ----------------------------------------------------------------------------------
+
+const linkFromDoc = ({ id, data: x }: StoredDoc): QuoteLink => ({
+  id,
+  companyId: x.companyId,
+  branchId: x.branchId,
+  quoteId: x.quoteId,
+  n: x.n,
+  createdAt: x.createdAt,
+  createdBy: x.createdBy,
+  ...put('revokedAt', opt<Date>(x.revokedAt)),
+  ...put('revokedReason', opt<string>(x.revokedReason)),
+  ...put('usedAt', opt<Date>(x.usedAt)),
+});
+
+export class DocQuoteLinkRepository implements QuoteLinkRepository {
+  constructor(private readonly store: DocStore) {}
+  async find(hash: string) {
+    const d = await this.store.get(COL.quoteLinks, hash);
+    return d ? linkFromDoc(d) : null;
+  }
+  async findInTx(tx: Tx, hash: string) {
+    const d = await this.store.getInTx(tx, COL.quoteLinks, hash);
+    return d ? linkFromDoc(d) : null;
+  }
+  create(tx: Tx, l: QuoteLink) {
+    this.store.create(tx, COL.quoteLinks, l.id, without(l, 'id'));
+  }
+  update(tx: Tx, hash: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.quoteLinks, hash, patch);
+  }
+}
+
+// ---- repair orders (slice 1.6) ---------------------------------------------------------------------
+
+const orderFromDoc = ({ id, data: x }: StoredDoc): RepairOrder => ({
+  id,
+  companyId: x.companyId,
+  branchId: x.branchId,
+  number: x.number,
+  status: x.status,
+  open: x.open === true,
+  quoteId: x.quoteId,
+  quoteNumber: x.quoteNumber,
+  quoteVersionN: x.quoteVersionN,
+  evidenceHash: x.evidenceHash,
+  intakeId: x.intakeId,
+  vehicleId: x.vehicleId,
+  customerId: x.customerId,
+  plate: x.plate,
+  plateNorm: x.plateNorm,
+  vehicleLabel: x.vehicleLabel,
+  customerName: x.customerName,
+  advisorId: x.advisorId,
+  ...put('serviceType', opt<string>(x.serviceType)),
+  ...put('workflowVersionId', opt<string>(x.workflowVersionId)),
+  steps: x.steps ?? [],
+  ...put('km', opt<number>(x.km)),
+  ...put('promisedDate', opt<string>(x.promisedDate)),
+  baseTotalVnd: x.baseTotalVnd ?? 0,
+  totalVnd: x.totalVnd ?? 0,
+  supplements: x.supplements ?? [],
+  supplementQuoteIds: x.supplementQuoteIds ?? [],
+  warehouseId: x.warehouseId ?? null,
+  unmetLines: x.unmetLines ?? 0,
+  itemCount: x.itemCount ?? 0,
+  doneCount: x.doneCount ?? 0,
+  ...put('pausedReason', opt<string>(x.pausedReason)),
+  proposals: x.proposals ?? [],
+  qcRuns: x.qcRuns ?? [],
+  ...put('handover', opt<RepairOrder['handover']>(x.handover)),
+  history: x.history ?? [],
+  ...put('startedAt', opt<Date>(x.startedAt)),
+  ...put('completedAt', opt<Date>(x.completedAt)),
+  ...put('cancelledAt', opt<Date>(x.cancelledAt)),
+  ...put('cancelReason', opt<string>(x.cancelReason)),
+  createdAt: x.createdAt,
+  createdBy: x.createdBy,
+  updatedAt: x.updatedAt,
+  updatedBy: x.updatedBy,
+  version: x.version,
+});
+
+export class DocRepairOrderRepository implements RepairOrderRepository {
+  constructor(private readonly store: DocStore) {}
+  async list(
+    scope: Scope,
+    q: {
+      limit: number;
+      cursor?: Cur;
+      status?: OrderStatus;
+      platePrefix?: string;
+      numberPrefix?: string;
+    },
+  ) {
+    const scoped = scope.kind === 'branches';
+    const text = q.numberPrefix
+      ? { shape: Q.repairOrdersByNumber.pick([], scoped), key: 'number', range: q.numberPrefix }
+      : q.platePrefix
+        ? { shape: Q.repairOrdersByPlate.pick([], scoped), key: 'plateNorm', range: q.platePrefix }
+        : null;
+    const shape = text ? text.shape : Q.repairOrders.pick(q.status ? ['status'] : [], scoped);
+    const rows = await this.store.query(shape, {
+      eq: { companyId: scope.companyId, ...(!text && q.status ? { status: q.status } : {}) },
+      ...scopeParams(scope),
+      ...(text ? { range: prefixRange(text.range) } : {}),
+      ...(q.cursor ? { cursor: q.cursor } : {}),
+      limit: q.limit + 1,
+    });
+    let items = rows.map(orderFromDoc);
+    // a text search cannot also filter by status in the index; the status is applied on the page
+    if (text && q.status) items = items.filter((o) => o.status === q.status);
+    return pageOf(items, q.limit, (o) =>
+      text ? String((o as unknown as Record<string, unknown>)[text.key]) : isoOf(o.createdAt),
+    );
+  }
+  async listOpen(scope: Scope, limit: number) {
+    const rows = await this.store.query(Q.repairOrdersOpen.pick([], scope.kind === 'branches'), {
+      eq: { companyId: scope.companyId, open: true },
+      ...scopeParams(scope),
+      limit,
+    });
+    return rows.map(orderFromDoc);
+  }
+  async get(scope: Scope, id: string) {
+    const d = await this.store.get(COL.repairOrders, id);
+    const x = d ? orderFromDoc(d) : null;
+    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+  }
+  async getInTx(tx: Tx, scope: Scope, id: string) {
+    const d = await this.store.getInTx(tx, COL.repairOrders, id);
+    const x = d ? orderFromDoc(d) : null;
+    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+  }
+  async getMany(companyId: string, ids: readonly string[]) {
+    return (await this.store.getMany(COL.repairOrders, ids))
+      .map(orderFromDoc)
+      .filter((o) => o.companyId === companyId);
+  }
+  async listOpenByCustomer(companyId: string, customerId: string, limit: number) {
+    const rows = await this.store.query(Q.repairOrdersByCustomer.pick([], false), {
+      eq: { companyId, customerId, open: true },
+      limit,
+    });
+    return rows.map(orderFromDoc);
+  }
+  create(tx: Tx, o: RepairOrder) {
+    this.store.create(tx, COL.repairOrders, o.id, without(o, 'id'));
+  }
+  update(tx: Tx, id: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.repairOrders, id, patch);
+  }
+}
+
+// ---- repair items ----------------------------------------------------------------------------------
+
+const itemDocFrom = ({ id, data: x }: StoredDoc): RepairItem => ({
+  id,
+  companyId: x.companyId,
+  branchId: x.branchId,
+  orderId: x.orderId,
+  no: x.no,
+  seqKey: x.seqKey,
+  origin: x.origin,
+  sourceQuoteId: x.sourceQuoteId,
+  sourceItemNo: x.sourceItemNo,
+  name: x.name,
+  necessity: x.necessity,
+  lines: x.lines ?? [],
+  subtotalVnd: x.subtotalVnd ?? 0,
+  status: x.status,
+  active: x.active === true,
+  ...put('pauseReason', opt<string>(x.pauseReason)),
+  waitingParts: x.waitingParts === true,
+  technicianId: x.technicianId ?? null,
+  technicianName: x.technicianName ?? null,
+  assignments: x.assignments ?? [],
+  events: x.events ?? [],
+  workedMs: x.workedMs ?? 0,
+  approvedMinutes: x.approvedMinutes ?? 0,
+  orderNumber: x.orderNumber,
+  plate: x.plate,
+  vehicleLabel: x.vehicleLabel,
+  createdAt: x.createdAt,
+  createdBy: x.createdBy,
+  updatedAt: x.updatedAt,
+  updatedBy: x.updatedBy,
+  version: x.version,
+});
+
+export class DocRepairItemRepository implements RepairItemRepository {
+  constructor(private readonly store: DocStore) {}
+  async get(scope: Scope, id: string) {
+    const d = await this.store.get(COL.repairItems, id);
+    const x = d ? itemDocFrom(d) : null;
+    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+  }
+  async getInTx(tx: Tx, scope: Scope, id: string) {
+    const d = await this.store.getInTx(tx, COL.repairItems, id);
+    const x = d ? itemDocFrom(d) : null;
+    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+  }
+  async listByOrder(scope: Scope, orderId: string, limit: number) {
+    const rows = await this.store.query(Q.repairItemsByOrder.pick([], scope.kind === 'branches'), {
+      eq: { companyId: scope.companyId, orderId },
+      ...scopeParams(scope),
+      limit,
+    });
+    return rows.map(itemDocFrom);
+  }
+  async listByOrderInTx(_tx: Tx, scope: Scope, orderId: string, limit: number) {
+    // queries are not transactional reads on this port; callers use it after taking the order lock
+    return this.listByOrder(scope, orderId, limit);
+  }
+  async listActiveByTechnician(scope: Scope, technicianId: string, limit: number) {
+    const rows = await this.store.query(
+      Q.repairItemsByTechnician.pick([], scope.kind === 'branches'),
+      {
+        eq: { companyId: scope.companyId, technicianId, active: true },
+        ...scopeParams(scope),
+        limit,
+      },
+    );
+    return rows.map(itemDocFrom);
+  }
+  create(tx: Tx, i: RepairItem) {
+    this.store.create(tx, COL.repairItems, i.id, without(i, 'id'));
+  }
+  update(tx: Tx, id: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.repairItems, id, patch);
+  }
+}
+
+// ---- part requests ---------------------------------------------------------------------------------
+
+const requestFromDoc = ({ id, data: x }: StoredDoc): PartRequest => ({
+  id,
+  companyId: x.companyId,
+  branchId: x.branchId,
+  orderId: x.orderId,
+  orderNumber: x.orderNumber,
+  itemId: x.itemId,
+  lineKey: x.lineKey,
+  partId: x.partId,
+  partCode: x.partCode,
+  partName: x.partName,
+  qty: x.qty,
+  qtyScale: x.qtyScale,
+  status: x.status,
+  requestedBy: x.requestedBy,
+  requestedAt: x.requestedAt,
+  receiverUserId: x.receiverUserId,
+  ...put('note', opt<string>(x.note)),
+  ...put('decidedBy', opt<string>(x.decidedBy)),
+  ...put('decidedAt', opt<Date>(x.decidedAt)),
+  ...put('rejectReason', opt<string>(x.rejectReason)),
+  ...put('issueDocumentId', opt<string>(x.issueDocumentId)),
+  ...put('issueDocumentNo', opt<string>(x.issueDocumentNo)),
+  createdAt: x.createdAt,
+  createdBy: x.createdBy,
+  updatedAt: x.updatedAt,
+  updatedBy: x.updatedBy,
+  version: x.version,
+});
+
+export class DocPartRequestRepository implements PartRequestRepository {
+  constructor(private readonly store: DocStore) {}
+  async get(scope: Scope, id: string) {
+    const d = await this.store.get(COL.partRequests, id);
+    const x = d ? requestFromDoc(d) : null;
+    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+  }
+  async getInTx(tx: Tx, scope: Scope, id: string) {
+    const d = await this.store.getInTx(tx, COL.partRequests, id);
+    const x = d ? requestFromDoc(d) : null;
+    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+  }
+  async listByOrder(scope: Scope, orderId: string, limit: number) {
+    const rows = await this.store.query(Q.partRequestsByOrder.pick([], scope.kind === 'branches'), {
+      eq: { companyId: scope.companyId, orderId },
+      ...scopeParams(scope),
+      limit,
+    });
+    return rows.map(requestFromDoc);
+  }
+  async listByOrderInTx(_tx: Tx, scope: Scope, orderId: string, limit: number) {
+    return this.listByOrder(scope, orderId, limit);
+  }
+  async listByStatus(scope: Scope, status: PartRequestStatus, limit: number) {
+    const rows = await this.store.query(
+      Q.partRequestsByStatus.pick([], scope.kind === 'branches'),
+      { eq: { companyId: scope.companyId, status }, ...scopeParams(scope), limit },
+    );
+    return rows.map(requestFromDoc);
+  }
+  create(tx: Tx, r: PartRequest) {
+    this.store.create(tx, COL.partRequests, r.id, without(r, 'id'));
+  }
+  update(tx: Tx, id: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.partRequests, id, patch);
   }
 }

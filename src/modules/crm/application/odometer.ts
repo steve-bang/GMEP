@@ -66,7 +66,7 @@ export async function recordOdometer(
     reason?: OdometerReason | undefined;
     note?: string | undefined;
     /** what produced the reading: audit only */
-    source: 'intake';
+    source: 'intake' | 'handover';
     sourceId: string;
   },
   ctx: RequestCtx,

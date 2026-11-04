@@ -235,6 +235,17 @@ interface Built {
   reasons: string[];
 }
 
+/** R75: an order with a valid invoice blocks stock returns until the invoice is cancelled or adjusted. Fail closed. */
+async function assertNoValidInvoice(deps: InvDeps, scope: Scope, orderId: string): Promise<void> {
+  let has: boolean;
+  try {
+    has = await deps.invoices.hasValidInvoice(scope, orderId);
+  } catch {
+    throw new AppError('invoice_check_unavailable', 409);
+  }
+  if (has) throw new AppError('order_has_valid_invoice', 409);
+}
+
 /**
  * Validates and normalises the editable part of a document (create and update share it).
  * All reads of the transaction happen here.
@@ -322,6 +333,9 @@ async function build(
       throw new AppError('part_inactive', 409);
   }
   let original: StockDocument | undefined;
+  // R75 (FR-INV-022): stock cannot come back for an order that has a valid invoice
+  if (type === 'RTN' && source.type === 'repair-order' && source.id)
+    await assertNoValidInvoice(deps, scope, source.id);
   if (type === 'RTN') {
     if (!data.originalDocumentId)
       throw validationFailed([
@@ -1006,28 +1020,30 @@ async function postDocumentInTx(
  * The source is the order (RULE-007); the technician who receives the parts is recorded;
  * the order's own reservation is consumed first (BA-04 Câu 9). Idempotent by Idempotency-Key.
  */
+const issueForOrderSchema = z.object({
+  warehouseId: z.string().trim().min(1).max(128),
+  orderId: idToken,
+  receiverUserId: z.string().trim().min(1).max(128),
+  lines: z
+    .array(
+      z.object({
+        partId: z.string().trim().min(1).max(128),
+        qty: z.number().int().min(1).max(1_000_000),
+        lineKey: idToken.optional(),
+      }),
+    )
+    .min(1)
+    .max(200),
+});
+export type IssueForOrderInput = z.infer<typeof issueForOrderSchema>;
+
 export async function issueForOrder(
   deps: InvDeps,
   actor: Actor,
   input: unknown,
   ctx: RequestCtx & { idempotencyKey: string },
 ) {
-  const schema = z.object({
-    warehouseId: z.string().trim().min(1).max(128),
-    orderId: idToken,
-    receiverUserId: z.string().trim().min(1).max(128),
-    lines: z
-      .array(
-        z.object({
-          partId: z.string().trim().min(1).max(128),
-          qty: z.number().int().min(1).max(1_000_000),
-          lineKey: idToken.optional(),
-        }),
-      )
-      .min(1)
-      .max(200),
-  });
-  const data = parseInput(schema, input);
+  const data = parseInput(issueForOrderSchema, input);
   const scope = resolveScope(actor, 'stock-doc:create');
   return runIdempotent(
     idemOf(deps),
@@ -1037,45 +1053,60 @@ export async function issueForOrder(
       key: ctx.idempotencyKey,
       fingerprint: fingerprintOf(data),
     },
-    async (tx) => {
-      const branchId = requireWorkingBranch(actor);
-      const source = { type: 'repair-order', id: data.orderId };
-      const branch = await assertWritable(deps, tx, actor, scope, branchId, 'edit_open_order');
-      const w = await activeWarehouse(deps, tx, scope, data.warehouseId, branch.id);
-      const built = await build(deps, tx, actor, scope, branch, w.id, 'GIN', {
-        source,
-        receiverUserId: data.receiverUserId,
-        lines: data.lines,
-      });
-      const id = `stk_${deps.sys.newId()}`;
-      const now = deps.sys.clock.now();
-      const doc: StockDocument = {
-        id,
-        companyId: actor.companyId,
-        branchId: branch.id,
-        warehouseId: w.id,
-        type: 'GIN',
-        status: 'draft',
-        number: null,
-        draftRef: draftReference(id),
-        businessDate: null,
-        source: built.source,
-        receiverUserId: data.receiverUserId,
-        lines: built.lines,
-        totalValueVnd: 0,
-        approvalReasons: [],
-        createdAt: now,
-        createdBy: actor.userId,
-        updatedAt: now,
-        updatedBy: actor.userId,
-        version: 1,
-      };
-      return {
-        status: 201,
-        body: await postPreparedGin(deps, tx, actor, scope, doc, branch, built, ctx),
-      };
-    },
+    async (tx) => ({
+      status: 201,
+      body: await issueForOrderInTx(deps, tx, actor, scope, data, ctx),
+    }),
   );
+}
+
+/**
+ * The issue itself, inside the caller's transaction (REC marks its part request issued in the same
+ * transaction). The caller must have done ALL its own reads before calling: this reads, then stages writes.
+ * RULE-007: the source is the repair order; the caller (REC) has checked that the order and the line exist.
+ */
+export async function issueForOrderInTx(
+  deps: InvDeps,
+  tx: Tx,
+  actor: Actor,
+  scope: Scope,
+  input: IssueForOrderInput,
+  ctx: RequestCtx,
+): Promise<DocumentDto> {
+  const data = parseInput(issueForOrderSchema, input);
+  const branchId = requireWorkingBranch(actor);
+  const source = { type: 'repair-order', id: data.orderId };
+  const branch = await assertWritable(deps, tx, actor, scope, branchId, 'edit_open_order');
+  const w = await activeWarehouse(deps, tx, scope, data.warehouseId, branch.id);
+  const built = await build(deps, tx, actor, scope, branch, w.id, 'GIN', {
+    source,
+    receiverUserId: data.receiverUserId,
+    lines: data.lines,
+  });
+  const id = `stk_${deps.sys.newId()}`;
+  const now = deps.sys.clock.now();
+  const doc: StockDocument = {
+    id,
+    companyId: actor.companyId,
+    branchId: branch.id,
+    warehouseId: w.id,
+    type: 'GIN',
+    status: 'draft',
+    number: null,
+    draftRef: draftReference(id),
+    businessDate: null,
+    source: built.source,
+    receiverUserId: data.receiverUserId,
+    lines: built.lines,
+    totalValueVnd: 0,
+    approvalReasons: [],
+    createdAt: now,
+    createdBy: actor.userId,
+    updatedAt: now,
+    updatedBy: actor.userId,
+    version: 1,
+  };
+  return postPreparedGin(deps, tx, actor, scope, doc, branch, built, ctx);
 }
 
 /** Posting path for a document created in the same transaction (its reads were already done by `build`). */
@@ -1212,6 +1243,9 @@ export async function reverseDocument(
       if (o.version !== data.version) throw versionConflict();
       if (o.status !== 'posted' || o.reversalOf || o.reversedBy)
         throw new AppError('state_invalid', 409);
+      // R75: reversing an issue made for an order puts the parts back; blocked while the order has a valid invoice
+      if (o.type === 'GIN' && o.source.type === 'repair-order' && o.source.id)
+        await assertNoValidInvoice(deps, scope, o.source.id);
       const branch = await assertWritable(
         deps,
         tx,

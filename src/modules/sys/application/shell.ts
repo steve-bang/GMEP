@@ -23,6 +23,24 @@ export interface ShellInfo {
     stockDocs: boolean;
     intakes: boolean;
     quotes: boolean;
+    /** slice 1.6 */
+    orders: boolean;
+    /** the technician's own tablet list (repair-item view without managing the floor) */
+    myWork: boolean;
+    partRequests: boolean;
+    /** slice 1.7 */
+    payments: boolean;
+    cashbook: boolean;
+    dayClose: boolean;
+    debts: boolean;
+    approvals: boolean;
+    invoices: boolean;
+    invoiceQueue: boolean;
+    einConnection: boolean;
+    /** slice 1.9 */
+    reports: boolean;
+    dailyReport: boolean;
+    alerts: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -74,6 +92,20 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       stockDocs: can('stock-doc:view'),
       intakes: can('intake:view'),
       quotes: can('quote:view'),
+      orders: can('repair-order:view'),
+      myWork: can('repair-item:view'),
+      partRequests: can('part-request:view'),
+      payments: can('payment:view'),
+      cashbook: can('cashbook:view'),
+      dayClose: can('cash-day:view'),
+      debts: can('debt:view'),
+      approvals: can('approval:view'),
+      invoices: can('invoice:view'),
+      invoiceQueue: can('invoice-queue:view'),
+      einConnection: can('einvoice-config:view'),
+      reports: can('report-dashboard:view'),
+      dailyReport: can('report-daily:view'),
+      alerts: can('report-alert:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),

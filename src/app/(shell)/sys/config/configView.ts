@@ -95,6 +95,20 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
       ].join(' · ');
     case 'tax-mapping':
       return `${t('config.fields.labor')}: ${str('labor')} · ${t('config.fields.part')}: ${str('part')}`;
+    case 'quote-approval':
+      return t('config.quoteApprovalValue', {
+        decline: t(p.allowDeclineRequired === false ? 'config.no' : 'config.yes'),
+        verbal: t(p.verbalApproval === false ? 'config.no' : 'config.yes'),
+        otp: t('config.otpOff'),
+      });
+    case 'service-workflow': {
+      const steps = Array.isArray(p.steps) ? (p.steps as { name?: string }[]) : [];
+      return t('config.stepsValue', {
+        n: steps.length,
+        names: steps.map((x) => x.name ?? '').join(', '),
+      });
+    }
+    case 'decline-reason':
     case 'evidence-kind':
     case 'service-type':
     case 'part-group':
@@ -166,6 +180,10 @@ export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
     { name: 'part', kind: 'text' },
   ],
   'service-type': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'decline-reason': [
     { name: 'name', kind: 'text' },
     { name: 'status', kind: 'select', options: ['active', 'inactive'] },
   ],

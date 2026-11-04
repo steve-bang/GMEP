@@ -58,6 +58,8 @@ export interface Role {
   permissions: readonly string[];
   /** May view consolidated (all permitted branches) data; others must pick one branch (BA §4). */
   canConsolidate: boolean;
+  /** ids of the permission top-ups already applied to this role (R30 / R21) */
+  appliedTopUps?: readonly string[];
 }
 
 export interface RoleAssignmentRecord {
@@ -151,6 +153,11 @@ export type NotificationKind =
   | 'stock.reservation_shortened'
   | 'crm.odometer_abnormal'
   | 'crm.lookup_limit'
+  | 'rec.quote_decided'
+  | 'rec.order'
+  | 'approval'
+  | 'acc.cash'
+  | 'ein.issue'
   | 'system';
 
 /** FR-SYS-009: in-system notification. Never carries personal data (names, phones, addresses). */

@@ -49,6 +49,30 @@ export const COL = {
   intakes: 'intakes',
   quotes: 'quotes',
   quoteVersions: 'quoteVersions',
+  quoteLinks: 'quoteLinks',
+  repairOrders: 'repairOrders',
+  repairItems: 'repairItems',
+  partRequests: 'partRequests',
+  // SYS approvals (FR-SYS-004) and ACC (slice 1.7)
+  approvals: 'approvals',
+  approvalSlots: 'approvalSlots',
+  payments: 'payments',
+  paymentReversals: 'paymentReversals',
+  orderAccounts: 'orderAccounts',
+  cashDrawers: 'cashDrawers',
+  cashEntries: 'cashEntries',
+  cashShifts: 'cashShifts',
+  dayCloses: 'dayCloses',
+  debts: 'debts',
+  // EIN slice 1.8
+  invoices: 'invoices',
+  invoicePii: 'invoicePii',
+  invoiceArtifacts: 'invoiceArtifacts',
+  invoiceRequests: 'invoiceRequests',
+  invoiceQueues: 'invoiceQueues',
+  einOrders: 'einOrders',
+  // RPT slice 1.9 (R68 rule 3): daily rollups, read BY KEY (`<branchId>_<yyyyMMdd>`), no query shape, no index
+  rollups: 'rollups',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -424,5 +448,131 @@ export const Q = {
     scopeField: 'branchId',
     range: true,
     order: { field: 'number', dir: 'asc', type: 'string' },
+  }),
+  // ---- REC slice 1.6: repair orders, items, part requests ----
+  repairOrders: defineQuery({
+    name: 'repairOrders.list',
+    collection: COL.repairOrders,
+    eq: ['companyId'],
+    optionalEq: ['status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  repairOrdersByNumber: defineQuery({
+    name: 'repairOrders.byNumber',
+    collection: COL.repairOrders,
+    eq: ['companyId'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'number', dir: 'asc', type: 'string' },
+  }),
+  repairOrdersByPlate: defineQuery({
+    name: 'repairOrders.byPlate',
+    collection: COL.repairOrders,
+    eq: ['companyId'],
+    scopeField: 'branchId',
+    range: true,
+    order: { field: 'plateNorm', dir: 'asc', type: 'string' },
+  }),
+  /** dispatch board: open orders of the scope */
+  repairOrdersOpen: defineQuery({
+    name: 'repairOrders.open',
+    collection: COL.repairOrders,
+    eq: ['companyId', 'open'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  /** C17 retention gate: open orders of one customer, company-wide */
+  repairOrdersByCustomer: defineQuery({
+    name: 'repairOrders.byCustomer',
+    collection: COL.repairOrders,
+    eq: ['companyId', 'customerId', 'open'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  repairItemsByOrder: defineQuery({
+    name: 'repairItems.byOrder',
+    collection: COL.repairItems,
+    eq: ['companyId', 'orderId'],
+    scopeField: 'branchId',
+    order: { field: 'seqKey', dir: 'asc', type: 'string' },
+  }),
+  repairItemsByTechnician: defineQuery({
+    name: 'repairItems.byTechnician',
+    collection: COL.repairItems,
+    eq: ['companyId', 'technicianId', 'active'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  partRequestsByOrder: defineQuery({
+    name: 'partRequests.byOrder',
+    collection: COL.partRequests,
+    eq: ['companyId', 'orderId'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  partRequestsByStatus: defineQuery({
+    name: 'partRequests.byStatus',
+    collection: COL.partRequests,
+    eq: ['companyId', 'status'],
+    scopeField: 'branchId',
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  // ---- SYS approvals and ACC slice 1.7: few shapes on purpose (the composite-index budget is 200 per database).
+  // The branch is an EQUALITY field here (money screens work in one working branch); the repository checks
+  // the Scope against it before querying.
+  approvalsByBranchStatus: defineQuery({
+    name: 'approvals.byBranchStatus',
+    collection: COL.approvals,
+    eq: ['companyId', 'branchId', 'status'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  approvalsByRequester: defineQuery({
+    name: 'approvals.byRequester',
+    collection: COL.approvals,
+    eq: ['companyId', 'requestedBy'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  paymentsByOrder: defineQuery({
+    name: 'payments.byOrder',
+    collection: COL.payments,
+    eq: ['companyId', 'orderId'],
+    order: { field: 'createdAt', dir: 'asc', type: 'date' },
+  }),
+  paymentsByBranch: defineQuery({
+    name: 'payments.byBranch',
+    collection: COL.payments,
+    eq: ['companyId', 'branchId'],
+    range: true,
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  cashEntriesByDay: defineQuery({
+    name: 'cashEntries.byDay',
+    collection: COL.cashEntries,
+    eq: ['companyId', 'branchId', 'businessDate'],
+    order: { field: 'seqKey', dir: 'asc', type: 'string' },
+  }),
+  cashShiftsByBranch: defineQuery({
+    name: 'cashShifts.byBranch',
+    collection: COL.cashShifts,
+    eq: ['companyId', 'branchId'],
+    range: true,
+    order: { field: 'openedAt', dir: 'desc', type: 'date' },
+  }),
+  debtsByBranchStatus: defineQuery({
+    name: 'debts.byBranchStatus',
+    collection: COL.debts,
+    eq: ['companyId', 'branchId', 'status'],
+    order: { field: 'dueDate', dir: 'asc', type: 'string' },
+  }),
+  // ---- EIN slice 1.8 (R68): ONE query shape and ONE index for the whole slice. Everything else is read by document id:
+  // the order -> invoice lookup (`einOrders/<orderId>`), the error queue (`invoiceQueues/<branchId>`), requests and
+  // artifacts (deterministic ids). The list is one branch (equality), newest first; status / text filters run in memory
+  // over a bounded window (rule 2), so no status / buyer index is needed.
+  invoicesByBranch: defineQuery({
+    name: 'invoices.byBranch',
+    collection: COL.invoices,
+    eq: ['companyId', 'branchId'],
+    range: true,
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
 };
