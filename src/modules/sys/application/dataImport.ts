@@ -150,6 +150,48 @@ export async function getImport(deps: SysDeps, actor: Actor, id: string): Promis
   return toDto(deps, b);
 }
 
+export interface ImportIssuePage {
+  items: RowIssue[];
+  /** stored (capped at MAX_ISSUES); `total` is the real count of the file so the screen can say "at least" */
+  stored: number;
+  total: number;
+  truncated: boolean;
+  nextCursor: string | null;
+  prevCursor: string | null;
+}
+
+/**
+ * FR-SYS-007: pages through the row errors (or warnings) kept on the batch. Same scope check and 404 as `getImport`;
+ * the cursor is an offset into the stored list (at most MAX_ISSUES entries, so slicing in memory is cheap).
+ */
+export async function getImportIssues(
+  deps: SysDeps,
+  actor: Actor,
+  id: string,
+  q: { cursor?: string; limit?: string; list?: string },
+): Promise<ImportIssuePage> {
+  const scope = resolveScope(actor, 'data-import:view');
+  const b = await deps.imports.get(scope, id);
+  if (!b) throw notFound();
+  const list = q.list === 'warnings' ? b.warnings : b.issues;
+  const total = q.list === 'warnings' ? list.length : b.issueCount;
+  const limit = Math.min(
+    Math.max(Number.parseInt(q.limit ?? '', 10) || SCREEN_ISSUES, 1),
+    SCREEN_ISSUES,
+  );
+  const parsed = Number.parseInt(q.cursor ?? '0', 10);
+  const offset = Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, list.length) : 0;
+  const end = Math.min(offset + limit, list.length);
+  return {
+    items: list.slice(offset, end),
+    stored: list.length,
+    total: Math.max(total, list.length),
+    truncated: total > list.length,
+    nextCursor: end < list.length ? String(end) : null,
+    prevCursor: offset > 0 ? String(Math.max(offset - limit, 0)) : null,
+  };
+}
+
 const previewSchema = z.object({
   kind: z.enum(IMPORT_KINDS),
   warehouseId: z.string().trim().min(1).max(128).optional(),

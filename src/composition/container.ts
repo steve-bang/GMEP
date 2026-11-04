@@ -1,6 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { TtlCache } from '@/platform/cache/ttlCache';
 import { loadEnv, type Env } from '@/platform/config/env';
+import {
+  createOidcCronVerifier,
+  disabledCronAuth,
+  type CronAuthVerifier,
+  type JwksSource,
+} from '@/platform/auth/cronAuth';
+import { googleJwksSource } from '@/infrastructure/auth/googleJwks';
 import { NumberingService } from '@/platform/numbering/numbering';
 import { PiiPolicy } from '@/platform/pii/pii';
 import { DocAtomicStateStore, LoginThrottle, RateLimiter } from '@/platform/ratelimit/ratelimit';
@@ -121,6 +128,8 @@ export interface Container {
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
   };
+  /** verifies Cloud Scheduler OIDC bearer tokens for the internal cron route; always false when OIDC is not configured */
+  cronAuth: CronAuthVerifier;
   /** present only for the in-memory backend (tests) */
   memory?: { db: MemoryDb; identity: MemoryIdentityProvider };
 }
@@ -290,6 +299,8 @@ function buildRec(
 export interface ContainerOptions {
   env?: Env;
   clock?: Clock;
+  /** tests: signing keys of the fake OIDC issuer (default: Google's published keys) */
+  cronKeys?: JwksSource;
 }
 
 /** Composition root: the only place that wires ports to adapters. */
@@ -303,6 +314,15 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     crm?: CrmDeps;
     ein?: EinDeps;
   } = {};
+  const cronAuth: CronAuthVerifier =
+    env.CRON_OIDC_AUDIENCE && env.CRON_OIDC_SERVICE_ACCOUNT
+      ? createOidcCronVerifier({
+          audience: env.CRON_OIDC_AUDIENCE,
+          serviceAccount: env.CRON_OIDC_SERVICE_ACCOUNT,
+          keys: opts.cronKeys ?? googleJwksSource(),
+          clock,
+        })
+      : disabledCronAuth;
   const fakeProvider = new FakeProvider(() => clock.now());
 
   const assemble = (
@@ -362,6 +382,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const store = new MemoryDocStore(db);
     return {
       env,
+      cronAuth,
       backend: 'memory',
       memory: { db, identity },
       store,
@@ -375,6 +396,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
   const identity = new FirebaseIdentityProvider(env);
   return {
     env,
+    cronAuth,
     backend: 'firestore',
     store,
     identity,

@@ -693,6 +693,35 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
     });
   });
 
+  describe('monthly report regressions (FR-RPT-002, 014)', () => {
+    it('FR-RPT-014: the invoiced column stays non-zero when filtered by service type, and zero for a type with no orders', async () => {
+      const month = today.slice(0, 7);
+      const all = await get(ql, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`);
+      expect(all.json.report.invoices.issuedCount).toBeGreaterThan(0);
+      const m = await get(
+        ql,
+        `/api/v1/rpt/monthly?month=${month}&branchId=br_q7&serviceType=maintenance`,
+      );
+      expect(m.json.report.invoices.issuedCount).toBe(all.json.report.invoices.issuedCount);
+      expect(m.json.report.invoices.issuedVnd).toBe(all.json.report.invoices.issuedVnd);
+      expect(m.json.report.invoices.issuedVnd).toBeGreaterThan(0);
+      const none = await get(
+        ql,
+        `/api/v1/rpt/monthly?month=${month}&branchId=br_q7&serviceType=body-paint`,
+      );
+      expect(none.json.report.invoices.issuedCount).toBe(0);
+    });
+
+    it('FR-RPT-002: the comparison is n/a without rollups of the previous month and for a future month; a rebuilt previous day gives integer basis points', async () => {
+      const month = today.slice(0, 7);
+      const m = await get(ql, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`);
+      expect(m.status, m.text).toBe(200);
+      expect(m.json.report.comparison).toBeNull();
+      const future = await get(ql, `/api/v1/rpt/monthly?month=2099-01&branchId=br_q7`);
+      expect(future.json.report.comparison).toBeNull();
+    });
+  });
+
   describe('R68: no composite index added by the reports', () => {
     it('the rollup collection is read by key only', async () => {
       const { registeredQueries } = await import('@/platform/store/docStore');

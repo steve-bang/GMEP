@@ -295,8 +295,12 @@ No scheduler infrastructure is deployed yet. `POST /api/v1/internal/cron/run-due
 (`runDueRollups`, FR-RPT-003) and the EIN retry job (`runDueRequests`, FR-EIN-010). Both are idempotent, so overlapping or repeated
 calls are safe; one failing branch does not stop the others (response lists each branch). Auth is the shared secret in header
 `x-cron-secret` (env `CRON_SECRET`, at least 32 characters, compared in constant time); there is no session and no Origin check on this
-route only. With `CRON_SECRET` unset the route answers 404. Cloud Scheduler: HTTP POST every 10 to 15 minutes, header
-`x-cron-secret` from Secret Manager (OIDC can replace it later); the jobs run as the service actor `system:cron`, which holds only
+route only. Alternatively Cloud Scheduler can send its OIDC token (`Authorization: Bearer ...`): set `CRON_OIDC_AUDIENCE` (the
+expected `aud`, normally the service URL) and `CRON_OIDC_SERVICE_ACCOUNT` (the scheduler service-account email) together; the token is
+checked (RS256 signature against Google's public keys, issuer, audience, email, expiry) behind the `CronAuthVerifier` port. Either
+credential is enough, so the secret keeps working during the switch. With neither configured the route answers 404; a missing or
+wrong credential answers 401. Cloud Scheduler: HTTP POST every 10 to 15 minutes, with the OIDC token (or header
+`x-cron-secret` from Secret Manager); the jobs run as the service actor `system:cron`, which holds only
 `report-job:manage` and `invoice-queue:update`. The per-branch endpoints (`/rpt/jobs/run-due`, `/ein/jobs/run-due`) stay for the screens.
 
 ## Not built yet (see the plan)

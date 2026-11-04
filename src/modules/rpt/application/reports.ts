@@ -8,6 +8,7 @@ import {
   computeWarehouse,
   MONTH_RE,
   monthDates,
+  previousMonth,
   type MonthlyReport,
   type ReconcileReport,
   type ReconcileVisible,
@@ -72,13 +73,28 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
   const branch = singleBranch(actor, branches, q.branchId);
   const all = await redactedRollups(deps, actor, scope, branch.id, monthDates(q.month));
   const narrowed = q.serviceType ? forServiceType(all, q.serviceType) : null;
+  // FR-RPT-002: the earlier month over the same day range (1..today's day for the running month, the whole month once
+  // it is over; nothing for a future month). Read by key like the month itself: no new index. [Cần xác nhận] vs same month last year.
+  const today = todayOf(deps);
+  const cur = today.slice(0, 7);
+  const throughDay = q.month < cur ? 31 : q.month === cur ? Number(today.slice(8, 10)) : 0;
+  const prevMonth = previousMonth(q.month);
+  const prevDates = monthDates(prevMonth).slice(0, throughDay);
+  const prevAll = prevDates.length
+    ? await redactedRollups(deps, actor, scope, branch.id, prevDates)
+    : [];
+  const prevRolls = q.serviceType ? forServiceType(prevAll, q.serviceType).rolls : prevAll;
   return {
     branchId: branch.id,
     branchName: branch.name,
     serviceType: q.serviceType ?? null,
     breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
     unlinked: narrowed ? sumUnlinked(narrowed.included) : null,
-    report: computeMonthly(q.month, narrowed ? narrowed.rolls : all),
+    report: computeMonthly(q.month, narrowed ? narrowed.rolls : all, {
+      month: prevMonth,
+      rows: prevRolls,
+      throughDay,
+    }),
     // FR-RPT-014: narrowed to a service type, money by method, receivables and stock are not attributable and not shown
     visible: q.serviceType
       ? { ...visibleOf(actor), receivables: false, cash: false }
