@@ -655,3 +655,217 @@ Slice 1.1–1.2 chưa có khách, xe, lệnh nên chưa cài phép chiếu; như
 | UAT-30 | Xuất vượt 5.000 dòng bị từ chối; cột cá nhân đầy đủ không lý do bị từ chối; mỗi lần xuất có nhật ký; AD không xuất được báo cáo nghiệp vụ |
 | UAT-31 | Ngừng dùng kho còn tồn bị chặn; không chuyển kho sang chi nhánh khác; mã kho bất biến sau khi có phát sinh |
 | UAT-32 | Chi nhánh `closing` chặn lệnh mới nhưng cho thu tiền lệnh đang mở; chi nhánh `locked` chỉ đọc |
+
+---
+
+## 15. Slice 1.3 CRM (C1–C15)
+
+Phiên bản 0.1 · 04/11/2026 · Người lập: BA · Trạng thái: **BA đề xuất, chờ xác nhận**. Trả lời mục "Slice 1.3 CRM" của [open-questions-for-ba.md](open-questions-for-ba.md). Thẻ trạng thái và bên quyết định theo §0. Không sửa FRD/BRD/Journey; việc cần sửa ở §15.3. Mọi con số là tham số cấu hình có ngày hiệu lực (NFR-MNT-01).
+
+### 15.1 Tóm tắt
+
+Cột "Khác giá trị tạm của dev" ghi **Có** khi dev phải đổi mã; **Giữ** khi giá trị tạm đã đúng; **Bổ sung** khi giữ giá trị tạm nhưng thêm điều kiện.
+
+| # | Khuyến nghị mặc định (một dòng) | Khác giá trị tạm của dev | Ai xác nhận cuối |
+| --- | --- | --- | --- |
+| C1 | `KH-<MÃCN>-<STT 5 số>`, đếm theo chi nhánh tạo, liên tục, không đặt lại theo kỳ; không thuộc dãy chứng từ | Giữ | Khách (định dạng); Kế toán không cần |
+| C2 | Quan hệ không hết hạn; hai nguồn hiện có hợp lệ; thêm ghi nguồn quan hệ và nhật ký truy cập | Bổ sung | Chủ dự án, Luật sư khách |
+| C3 | Tách "hạn nội bộ" (72 giờ, cấu hình theo loại yêu cầu) khỏi "hạn pháp lý" (để trống tới khi luật sư nhập) | Có (một giá trị thành hai tham số theo loại) | Luật sư khách |
+| C4 | Giữ danh sách ẩn danh của dev; giữ biển số; **đóng cửa an toàn** (chặn hoàn tất xóa) khi cổng giữ dữ liệu chưa có thật | Có (stub không chặn thành chặn) | Luật sư khách, Kế toán khách |
+| C5 | Cho giảm số km khi có lý do bắt buộc, có nhật ký; không chặn cứng | Có (dev: cấm giảm) | Khách |
+| C6 | Hiện giá, tắt được; "giá" là tổng hạng mục trước giảm giá toàn lệnh | Bổ sung | Chủ dự án |
+| C7 | Ma trận dev khớp FRD §2; bổ sung quy tắc cột xuất: chỉ CH, KT xuất cột cá nhân đầy đủ | Kiểm tra (xem C7, C14) | Khách |
+| C8 | Giữ phân quyền; chưa tạo vai trò DPO riêng, dùng quyền `data-request:*` gán được | Giữ | Luật sư khách, Chủ dự án |
+| C9 | Giữ, nhưng QĐ chỉ tra theo biển số và chỉ thấy trường xe (P2, P3); TN không thấy lịch sử; thêm giới hạn tần suất tra | Có (thu hẹp QĐ, TN) | Chủ dự án, Luật sư khách |
+| C10 | Giữ danh sách; "lợi ích hợp pháp" chưa dùng được cho tới khi luật sư xác nhận | Bổ sung | Luật sư khách |
+| C11 | Giữ định dạng rộng, chỉ cảnh báo mềm; thêm chuẩn hóa và số khung duy nhất khi có | Bổ sung | Khách |
+| C12 | Giữ; SĐT tìm từ 4 chữ số; hiện "50+" khi bị cắt; một SĐT nhiều khách là hợp lệ | Bổ sung | Khách |
+| C13 | Phần chưa dựng chấp nhận được, **trừ** ô tìm khách khi chuyển chủ/tạo xe (Must, FR-CRM-014) | Có (danh sách 100 khách đầu không đạt) | Khách (qua designer) |
+| C14 | Giữ POST, CSV UTF-8 BOM, 5.000/1.000 dòng; thêm chống chèn công thức, quy tắc cột cá nhân theo vai trò, phạm vi | Bổ sung | Khách |
+| C15 | Giữ: CH, QV, KT không sửa trường cá nhân | Giữ | Khách |
+
+### 15.2 Trả lời từng câu
+
+#### C1. Mã khách
+
+**Khuyến nghị**: giữ `KH-<MÃCN>-<STT 5 số>`. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Khách là danh mục cấp công ty (§10.1.2), không phải chứng từ nên **không** theo dãy `LOẠI-MÃCN-YYMM-STT` của §6.3 và không đặt lại theo kỳ. Lý do: mã khách phải không đổi trong suốt vòng đời và dùng để tìm kiếm, nói qua điện thoại; đặt lại theo tháng không có ích.
+- `MÃCN` là chi nhánh **tạo** hồ sơ, bất biến (§6.2 điều 4); khi khách được chi nhánh khác "dùng hồ sơ" (C2) mã không đổi. Mã duy nhất toàn công ty. STT dài thêm khi vượt 99.999, không cắt.
+- Bộ đếm cập nhật trong cùng giao dịch với việc tạo khách, cùng `Idempotency-Key` trả cùng mã; mã đã cấp không tái sử dụng kể cả khi khách bị ẩn danh (C4).
+- Mã khách hiện trong tra cứu xuyên chi nhánh (P1 cho phép "mã khách" và "chi nhánh quen") nên lộ chi nhánh tạo; chấp nhận được vì P1 đã cho thấy chi nhánh quen.
+- Xe không có mã riêng; nhận diện bằng biển số (FR-CRM-002).
+- Căn cứ: FR-CRM-001; BR-CRM-01; §6.2. Thêm một dòng "Khách, KH, dãy riêng cấp công ty, không kỳ" vào bảng §6.3 khi áp dụng FRD v0.4. Mã `CD` (yêu cầu chủ dữ liệu) đã có ở §6.3, dùng nguyên.
+- Khách cần xác nhận nếu muốn bỏ `MÃCN` khỏi mã khách (mã ngắn hơn, không lộ chi nhánh); chỉ đổi cấu hình.
+
+#### C2. "Quan hệ với chi nhánh"
+
+**Khuyến nghị**: giữ như dev mô tả, thêm ba điều kiện. `[Đề xuất BA – chờ xác nhận: Chủ dự án, Luật sư khách]` (đúng thẻ §10.1 điều 5)
+
+- Khớp §10.1 điều 5: "có (hoặc từng có) lịch hẹn, báo giá, lệnh, hoặc được tạo tại X". Quan hệ **không hết hạn** (không có "từng" thì không bao giờ mất). Xe đang sở hữu gắn cùng lúc là hợp lý vì FR-CRM-014 xem chủ hiện tại là bản ghi sở hữu còn hiệu lực.
+- Thêm (1): ghi **nguồn quan hệ** (`created`, `lookup_adopt`, `appointment`, `quote`, `repair_order`) và người, thời điểm tạo quan hệ. Mục đích: kiểm tra sau này ai mở hồ sơ đầy đủ mà không có nghiệp vụ.
+- Thêm (2): thao tác "Dùng hồ sơ này tại chi nhánh" ghi nhật ký truy cập (`open_record`, §7.3) và chỉ CV, QL (quyền tạo/sửa khách) thực hiện; TN, QĐ không.
+- Thêm (3): đây là lối mở đầy đủ SĐT/địa chỉ cho bất kỳ CV nào chỉ cần biết SĐT hoặc biển số. Rủi ro đã được §10.1 chấp nhận nhưng cần luật sư xác nhận. Phương án an toàn hơn, bật bằng cấu hình `adoptRequiresBusinessEvent`: chỉ cho tạo quan hệ khi đã có lịch hẹn hoặc báo giá (REC). Khuyến nghị pilot một chi nhánh: tắt cờ (tức là cho phép như dev), bật lại khi mở nhiều chi nhánh. Tác động nếu bật: tiếp nhận xe lạ phải lập lịch hẹn hoặc báo giá nháp trước khi thấy SĐT đầy đủ.
+- REC (slice 1.5) gọi cùng `relateToWorkingBranch` khi tạo lịch hẹn, báo giá, lệnh: đúng (FR-REC-001..).
+- Căn cứ: FR-CRM-004, NFR-ISO-01, §7.1, §10.1, P1.
+
+#### C3. Thời hạn trả lời yêu cầu chủ dữ liệu
+
+**Khuyến nghị**: không coi 72 giờ là hạn pháp lý. Hai tham số. `[Cần xác nhận: Luật sư khách]`
+
+- FRD không có con số: FR-CRM-011 chỉ yêu cầu "mỗi yêu cầu có người xử lý, thời hạn, kết quả" và NFR-PRI-01 để luật sư xác nhận nhóm miễn/ân hạn theo Luật BVDLCN 2025 và NĐ 356/2025. BA **không khẳng định** con số pháp lý ở đây vì chưa có văn bản trong repo; con số 72 giờ của dev cần luật sư đối chiếu với điều khoản thật.
+- `internalTargetHours` = **72** (mục tiêu nội bộ, giá trị khởi điểm), cấu hình **theo loại yêu cầu** {xem, chỉnh sửa, rút đồng ý, xóa}. Mốc tính: lúc tiếp nhận (thời điểm CV/QL ghi nhận, giờ máy chủ). Dùng để nhắc và tô đỏ quá hạn.
+- `legalDeadline` theo loại yêu cầu: **để trống** tới khi luật sư nhập; trống thì không hiện "hạn pháp lý" và không kết luận trễ luật.
+- Nhắc: tới 50% thời gian thông báo người xử lý; quá hạn thông báo QL và CH (kênh thông báo trong hệ thống, nội dung không chứa dữ liệu cá nhân, §7.1). Gia hạn được, bắt buộc lý do, lưu lịch sử.
+- Rút đồng ý (C10) có hiệu lực ngay trong hệ thống, không chờ hạn xử lý yêu cầu.
+- Căn cứ: FR-CRM-010, 011; BR-CRM-05; NFR-PRI-01. UAT-10 thêm kiểm tra quá hạn và gia hạn.
+
+#### C4. Xóa dữ liệu khách (ẩn danh)
+
+**Khuyến nghị**: giữ danh sách ẩn danh của dev, đổi hành vi khi cổng chặn chưa có thật, giữ biển số. `[Cần xác nhận: Luật sư khách, Kế toán khách]`
+
+- Danh sách xóa/giữ của dev khớp §8.1 (hồ sơ khách "ẩn danh dữ liệu cá nhân; loại trừ khách còn công nợ, bảo hành, lệnh mở") và §8.3 (nhật ký không chứa giá trị cá nhân). Giữ mã khách (C1), quan hệ sở hữu, lịch sử sửa chữa, bản ghi đồng ý, biển số.
+- Điều kiện dev phải đảm bảo: **bản ghi đồng ý không chứa giá trị SĐT/email/tên** (chỉ mã khách, mục đích, kênh, căn cứ, phiên bản chính sách, thời điểm, người ghi), nếu không thì "giữ làm bằng chứng" mâu thuẫn với ẩn danh. Nhật ký thao tác cũ chỉ có tên trường (§8.3).
+- **Khác dev**: `stubCustomerRetention` hiện không chặn. Với thao tác không đảo ngược, mặc định phải **đóng cửa an toàn**: khi cổng giữ dữ liệu là bản tạm (REC/ACC chưa nối), `closeDataRequest` loại "xóa" trả lỗi RFC 9457 "chưa kiểm tra được điều kiện chặn" và **không ẩn danh**; chỉ cho chạy ở môi trường thử qua cờ cấu hình. Tới khi REC/ACC có thật, yêu cầu xóa được ghi nhận và theo dõi hạn nhưng chưa hoàn tất tự động.
+- Điều kiện chặn tối thiểu (RULE-010 và §8.1): lệnh đang mở, công nợ chưa thanh toán, bảo hành còn hạn, hóa đơn/chứng từ kế toán còn thời hạn lưu. Khi chặn: trả lý do và đưa vào kết quả yêu cầu (FR-CRM-011), không tự từ chối ngầm.
+- Khách doanh nghiệp có chứng từ phải giữ: giữ tên pháp nhân và MST (đúng dev). Khách **cá nhân** có hóa đơn đã phát hành: dữ liệu người mua nằm trong hóa đơn/XML tại EIN và có thể buộc phải giữ; chỉ ẩn danh hồ sơ CRM, không sửa hóa đơn. Câu hỏi luật sư: có buộc giữ họ tên/địa chỉ người mua trên chứng từ không, thời hạn bao lâu.
+- Biển số: BA đề xuất **giữ** (cần cho bảo hành, lịch sử xe khi xe đổi chủ, FR-CRM-014 giữ lịch sử khi đổi chủ). Sau ẩn danh chủ, biển số không còn liên kết tới người xác định được trong hệ thống. Rủi ro còn lại: biển số kèm lịch sử có thể suy ra chủ xe với người đã biết xe. `[Cần xác nhận: Luật sư khách]`; nếu luật sư nói biển số là dữ liệu cá nhân thì chỉ cần thêm cờ ẩn biển số trong hồ sơ ẩn danh và giữ khóa nội bộ, không đổi mô hình. Ảnh/video lệnh chứa biển số và người: theo §8.1 hàng "Ảnh, tệp đính kèm" và ADR 0001 (URL cấp theo từng lần xem).
+- Ai hoàn tất: chỉ CH (`data-request:approve`) như dev; QV là phương án thay thế cần Khách quyết. Ẩn danh ghi nhật ký (ai, yêu cầu nào, trường nào), không ghi giá trị.
+- Không có tác vụ tự động xóa theo thời hạn (§8.1: chưa đặt số năm).
+- Căn cứ: FR-CRM-011; BR-CRM-05; NFR-PRI-01; RULE-010; §8.1, §8.3.
+
+#### C5. Số km gần nhất
+
+**Khuyến nghị**: cho phép giảm, **không chặn cứng**, bắt buộc lý do. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- **Khác dev** (dev cấm giảm). FRD đã chọn hướng "cảnh báo và cho tiếp tục khi nhập lý do" ở FR-REC-003 (số km thấp hơn lần sửa trước). Cấm cứng ở CRM sẽ mâu thuẫn và làm kẹt khi nhập nhầm hoặc thay đồng hồ.
+- Quy tắc: nhập số km thấp hơn số km đang lưu thì hiện cảnh báo; CV hoặc QL được lưu khi chọn lý do {nhập nhầm, thay đồng hồ, khác (ghi chú tối thiểu 5 ký tự)}. Ghi nhật ký (giá trị cũ và mới của km không phải dữ liệu cá nhân nên ghi được). Không sửa số km trong các lệnh đã ghi.
+- Với "thay đồng hồ" lưu cờ để báo cáo không coi là bất thường. Số km giảm quá một ngưỡng (đề xuất 10.000 km, tham số, `[Cần xác nhận: Khách]`) báo QL.
+- Chỗ nối với REC: slice 1.5 dùng cùng quy tắc; số km nhập khi tiếp nhận mới cập nhật `lastKm` theo quy tắc này.
+- Căn cứ: FR-CRM-002, FR-REC-003.
+
+#### C6. Lịch sử xe xuyên chi nhánh có hiện giá không
+
+**Khuyến nghị**: hiện, tắt được bằng `historyShowPrice`. `[Cần xác nhận: Chủ dự án]`
+
+- FR-CRM-004 (Must) liệt kê "giá" trong lịch sử xe, nên FRD đã thiên về hiện; thẻ [Cần xác nhận] ở P3 chỉ còn là mức chi tiết. Giữ mặc định bật.
+- **Bổ sung định nghĩa**: "tổng tiền" là tổng giá hạng mục của lệnh, **trước giảm giá toàn lệnh và trước thuế**, VND nguyên; không hiện giảm giá, thanh toán, công nợ, giá vốn (P3 cột "không thấy"). Dev cần kiểm tra tổng không phải số khách phải trả, vì số sau giảm giá làm lộ chính sách giảm giá chi nhánh khác.
+- Vai trò thấy: CV, QL, QĐ (P3); TH không; TN không (khác thấy khách ở P1).
+- Với pilot một chi nhánh, cờ không ảnh hưởng. Tác động nếu tắt: khó báo giá tham chiếu cho xe đã sửa ở chi nhánh khác; nếu mở rộng: lộ doanh thu chi nhánh (đã nêu ở §12 câu 6).
+- REC ghi bản chiếu khi **lệnh hoàn thành**: lệnh bị đảo/điều chỉnh sau đó phải cập nhật bản chiếu (RULE-010: bản chiếu không phải nguồn sự thật).
+
+#### C7. Ma trận quyền CRM
+
+**Khuyến nghị**: chấp nhận ma trận dev vì khớp FRD §2 hàng "Hồ sơ khách và xe" (CH X, QV X, QL S, CV S, QĐ X, TH Xn, TK -, TN X, KT X, AD -). `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Quyền xuất: theo §9, **cột cá nhân đầy đủ chỉ CH, KT** (lý do + nhập lại mật khẩu); CH, QV, QL, KT xuất được danh sách với cột cá nhân đã che; CV, QĐ, TK, TN, TH, AD không xuất. Dev ghi "QL còn xuất" và "QV xuất": cần kiểm tra rằng QL, QV **không** được chọn cột đầy đủ dù xem đầy đủ trên màn hình.
+- KT: xem cá nhân qua Hiện + lý do (§7.1), không sửa.
+- TN: xem khách và xe để thu tiền; không tạo khách. Bán lẻ không qua lệnh (BL) cần tên khách có thể nhập trên phiếu, không tạo hồ sơ CRM. `[Cần xác nhận: Khách]` nếu TN cần tạo nhanh khách.
+- TH: chỉ tên rút gọn và biển số của việc mình (Xn; làm ở slice REC). TK: tên khách trên chứng từ kho, chờ INV. Đúng theo C7 của dev.
+- AD không có quyền khách (khớp §7.1, §13 mục 10). MH, NS không có.
+- Nhắc: ma trận là dữ liệu cấu hình (G4-SYS-04), không viết cứng.
+
+#### C8. Quyền xử lý yêu cầu chủ dữ liệu
+
+**Khuyến nghị**: giữ như dev; chưa tạo vai trò DPO. `[Cần xác nhận: Luật sư khách, Chủ dự án]`
+
+- CV, QL ghi nhận; QL giao người xử lý và đóng (trừ yêu cầu xóa); chỉ CH hoàn tất yêu cầu xóa. Hợp với nguyên tắc người ghi nhận không tự duyệt xóa (RULE-011 tinh thần tách nhiệm vụ).
+- Vai trò DPO/pháp chế: FRD và BRD §5 chưa có; thêm vai trò là quyết định của Chủ dự án (§12 câu 5). Với pilot dùng quyền `data-request:*` có thể gán cho vai trò khác sau, không đổi mã. Câu hỏi luật sư: doanh nghiệp có phải chỉ định bộ phận/người phụ trách bảo vệ dữ liệu cá nhân không (liên quan NFR-PRI-01).
+- Bổ sung: QV xem yêu cầu theo phạm vi và giao việc; KT, TN, TH, TK, QĐ không thấy yêu cầu. Người xử lý yêu cầu "xem" cũng phải qua `PiiPolicy` (chỉ cung cấp dữ liệu cho chủ dữ liệu sau khi xác minh danh tính; ghi cách xác minh vào hồ sơ).
+- Yêu cầu thuộc chi nhánh nhận (mã `CD` theo chi nhánh), khách là cấp công ty nên yêu cầu "xóa/xem" phải quét mọi chi nhánh: CH hoàn tất ở cấp công ty.
+
+#### C9. Tra cứu khớp chính xác xuyên chi nhánh
+
+**Khuyến nghị**: giữ cơ chế; thu hẹp theo vai trò và thêm giới hạn tần suất. `[Đề xuất BA – chờ xác nhận: Chủ dự án, Luật sư khách]`
+
+- P1 cho CV, QL, TN thấy khách xuyên chi nhánh; P2 cho QĐ chỉ thấy **xe** khi chẩn đoán; P3 (lịch sử sửa chữa) cho CV, QL, QĐ, không TN. **Khác dev**: (a) QĐ chỉ tra theo **biển số** và chỉ thấy trường xe (P2) và lịch sử (P3), không thấy tên khách/danh sách xe của khách (P1) và không tra theo SĐT; (b) TN tra được khách và xe (P1, P2), không thấy lịch sử/giá (P3). CH được xem (quyền xem tất cả).
+- Ghi nhật ký truy cập **mọi** lần tra theo SĐT cho mọi vai trò: chặt hơn §7.3 (chỉ CH, QV, KT); BA đồng ý giữ chặt hơn. Một bản ghi mỗi lần tra, không ghi từng phím; ghi cả tra không có kết quả và bị từ chối; không ghi SĐT, chỉ ghi dạng tra (`search_by_phone`), kết quả có/không và số kết quả.
+- Khớp chính xác SĐT đầy đủ (đã chuẩn hóa) hoặc biển số đầy đủ (đã chuẩn hóa, C11); không tiền tố, không ký tự đại diện, không xuất, không duyệt (§10.1 điều 4).
+- Tối đa 5 khách mỗi lần tra: đồng ý. Thêm giới hạn tần suất theo người, đề xuất 30 lần/giờ (tham số, `[Cần xác nhận: Khách]`), vượt thì từ chối và báo CH. Mục đích: chống dò hàng loạt SĐT.
+- Đối chiếu UAT-29 (tạm): thêm kiểm tra danh sách trường trắng cho từng vai trò.
+
+#### C10. Mục đích, kênh, căn cứ của đồng ý
+
+**Khuyến nghị**: giữ ba danh sách của dev làm giá trị cấu hình; chốt cách dùng. `[Cần xác nhận: Luật sư khách]`
+
+- Mục đích {dịch vụ, nhắc, quảng cáo, chia sẻ bên thứ ba}: giữ. Gợi ý thêm mục đích thứ năm "ảnh/video phương tiện và hiện trạng xe" vì ảnh chứa biển số, người (ADR 0001) và FR-CRM-016; thêm hay không là việc của luật sư. Mỗi mục đích tách riêng, không gộp một ô "đồng ý tất cả".
+- Kênh {tại quầy, Zalo, SMS, email, điện thoại, web}: giữ. Nhắc bảo dưỡng (FR-CRM-006) gửi theo kênh khách đồng ý nên đồng ý tính theo **mục đích × kênh**.
+- Căn cứ {đồng ý, hợp đồng, nghĩa vụ pháp luật, lợi ích hợp pháp}: giữ bốn giá trị làm danh mục cấu hình, nhưng **"lợi ích hợp pháp" chưa dùng được** tới khi luật sư xác nhận có là căn cứ hợp lệ theo Luật BVDLCN 2025. "Hợp đồng" dùng cho mục đích "dịch vụ" (thực hiện lệnh sửa chữa).
+- Chỉ căn cứ "đồng ý" mới cho quảng cáo (FR-CRM-013); chiến dịch phải báo số khách bị loại.
+- Mỗi bản ghi đồng ý chỉ ghi thêm (không sửa), có: mục đích, kênh, căn cứ, kết quả (đồng ý/rút), thời điểm, người ghi, cách thu nhận (tại quầy, web, tin nhắn trả lời) và phiên bản thông báo quyền riêng tư. "Cách thu nhận tại quầy" cần hình thức bằng chứng do luật sư và khách chọn `[Cần xác nhận: Khách, Luật sư khách]`. Rút đồng ý có hiệu lực ngay (FR-CRM-010), lịch sử xem được (UAT-10).
+- Nội dung thông báo quyền riêng tư do doanh nghiệp cung cấp: ghi thành câu hỏi gửi Khách.
+
+#### C11. Biển số
+
+**Khuyến nghị**: giữ định dạng rộng, thêm chuẩn hóa và cảnh báo mềm. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- Chuẩn hóa trước khi kiểm trùng: chữ hoa, bỏ khoảng trắng, dấu chấm, gạch ngang (FRD kế hoạch di chuyển dữ liệu cũng yêu cầu chuẩn hóa biển số). Duy nhất theo chuỗi đã chuẩn hóa, trên toàn công ty (FR-CRM-002), khi trùng thì dẫn tới xe dùng chung (§10.3), không báo chi nhánh nào giữ.
+- Định dạng sai dạng thường gặp chỉ **cảnh báo mềm** ("kiểm tra lại biển số"), chỉ chặn ký tự không hợp lệ và độ dài ngoài 5-12; không siết theo loại xe ở pilot (xe máy, quân đội, biển tạm khác nhau).
+- Đổi biển số (G2-CRM-07): giữ biển cũ trong hồ sơ xe, ghi nhật ký, cần lý do. Tra theo biển cũ vẫn tìm ra xe và nhắc "biển đã đổi".
+- Biển đã bỏ đăng ký lại cho xe khác: cho phép nhưng phải cảnh báo "biển này từng gắn với xe khác" và lịch sử cũ không chuyển sang xe mới. Để phân biệt, **số khung** (nếu nhập) nên duy nhất toàn công ty; trùng số khung với xe khác thì chặn và dẫn tới xe cũ (số khung không cố định 17 ký tự với xe cũ, nên không ép độ dài). `[Đề xuất BA]`
+- Căn cứ: FR-CRM-002, FR-CRM-014 (lịch sử không đổi khi đổi chủ).
+
+#### C12. Trùng khách, tìm kiếm
+
+**Khuyến nghị**: giữ; thêm ba chi tiết. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- FR-CRM-003 là Should và không nằm trong danh sách CRM của pha 1 (FRD §13: FR-CRM-001, 002, 004, 010, 011, 013), nên chưa làm là hợp lệ.
+- Một SĐT thuộc nhiều khách (gia đình, doanh nghiệp): hợp lệ, không chặn. Cảnh báo trùng sau này chỉ khi cùng SĐT **và** cùng tên (chuẩn hóa).
+- Tìm SĐT theo tiền tố: yêu cầu tối thiểu **4 chữ số** (tránh duyệt cả danh sách). Quầy thường tìm theo bốn số cuối: cho phép tìm theo đuôi nếu designer và Khách xác nhận; kỹ thuật chỉ lập chỉ mục khi đã chốt.
+- Danh sách tối đa 50 khớp SĐT/biển số (không phân trang) khớp §11 (tìm kiếm 50 kết quả đầu): khi bị cắt, giao diện phải hiện "50+ kết quả, hãy nhập thêm" (không im lặng cắt). Danh sách theo tên dùng cỡ trang 25, tối đa 100 (§11).
+- Phạm vi: trong `Scope` (khách có quan hệ với chi nhánh làm việc); không dùng tiền tố cho tra xuyên chi nhánh (C9).
+
+#### C13. Phần giao diện chưa dựng
+
+**Khuyến nghị**: chấp nhận trì hoãn phần phụ thuộc mô-đun khác; **không chấp nhận** chọn khách trong 100 khách đầu. `[Đề xuất BA]`, chuyển designer.
+
+- Chấp nhận chưa dựng ở 1.3: cột "Lần sửa gần nhất", tab Báo giá, Thanh toán và công nợ (chờ REC/ACC); Ghi chú và tin nhắn; hợp nhất trùng (FR-CRM-003 Should); nhắc (FR-CRM-006 Should); chiến dịch; cột hiển thị; nhãn sửa tại chỗ (FR-CRM-015 Should). Nhớ: "CRM-08, 09, 10" là mã màn hình prototype, không phải mã FR.
+- **Phải sửa**: chuyển chủ (FR-CRM-014 Must, UAT-18) và tạo xe cho khách cần ô tìm khách (tên/SĐT/mã khách). Chủ mới có thể là khách của chi nhánh khác nên cần cả tìm theo khớp chính xác SĐT (C9) rồi `relateToWorkingBranch`; danh sách 100 khách đầu theo tên sẽ sai khi dữ liệu thật vài nghìn khách. Dev nên gửi designer (D) để dựng bộ chọn khách dùng chung.
+- Hồ sơ doanh nghiệp: người liên hệ, hạn mức nợ (FR-CRM-018 Should), hợp đồng (FR-CRM-012 Could) để pha sau, ghi vào nhật ký phạm vi để không bị coi thiếu.
+- Đồng ý nằm trong tab hồ sơ khách: chấp nhận (FR-CRM-010 Must đã có).
+- Xe dùng trang riêng `/crm/vehicles/new?customerId=…`: chấp nhận miễn có đường vào từ hồ sơ khách và từ tiếp nhận (REC).
+
+#### C14. Xuất danh sách khách
+
+**Khuyến nghị**: giữ, với các điều kiện sau. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- POST (mật khẩu không nằm trên URL), CSV UTF-8 có BOM (Excel mở đúng tiếng Việt), 5.000 dòng, 1.000 dòng khi có cột cá nhân đầy đủ, xuất bất đồng bộ để sau: khớp §9 và NFR-EXP-02 (đề xuất). Vượt giới hạn: từ chối kèm hướng dẫn thu hẹp bộ lọc, không tự cắt.
+- Bổ sung (1): chống chèn công thức (ô bắt đầu `=`, `+`, `-`, `@` được vô hiệu hóa), áp cho tên, nhãn, mọi cột văn bản (NFR-SEC-02, §9).
+- Bổ sung (2): quy tắc cột: xuất không cột cá nhân thì không cần lý do; chọn SĐT/email/địa chỉ **đầy đủ** thì chỉ CH, KT, bắt buộc lý do + nhập lại mật khẩu (D-02). QL, QV xuất với cột cá nhân đã che.
+- Bổ sung (3): phạm vi chỉ gồm khách trong `Scope` (có quan hệ với chi nhánh người xuất); **không** xuất kết quả tra cứu xuyên chi nhánh (§10.1 điều 4).
+- Bổ sung (4): nhật ký mỗi lần xuất theo §9: ai, vai trò, phạm vi, bộ lọc, số dòng, có/không cột cá nhân, cột nào, lý do, định dạng, mã yêu cầu; không ghi giá trị. Khách đã ẩn danh (C4) vẫn xuất với tên "Khách đã ẩn danh" và cột cá nhân trống.
+- Cột "số xe" là số xe đang sở hữu. Mã chi nhánh là chi nhánh tạo (C1).
+- Căn cứ: FR-CRM-017, UAT-20, UAT-30 (tạm).
+
+#### C15. Sửa hồ sơ khách theo quyền che
+
+**Khuyến nghị**: giữ: CH, QV, KT không sửa SĐT/email/địa chỉ; không cần cho CH sửa sau khi Hiện. `[Đề xuất BA – chờ xác nhận: Khách]`
+
+- FRD §2: CH, QV, KT chỉ có quyền xem hồ sơ khách (X). Hiện là hành động xem, không phải quyền sửa; không tạo quyền sửa gián tiếp.
+- Yêu cầu chỉnh sửa của chủ dữ liệu do CV hoặc QL xử lý (FR-CRM-011, C8) vì họ có mức xem đầy đủ.
+- Hệ quả cần ghi: CV/QL của chi nhánh **chưa có quan hệ** với khách chỉ thấy bản che nên chưa sửa được trường cá nhân tới khi có quan hệ (C2). Điều này đúng ý §10.1.
+- Mọi sửa trường cá nhân ghi nhật ký chỉ tên trường và dấu "đã đổi" (§8.3). Hồ sơ khách là cấp công ty: sửa ở chi nhánh A hiện ở mọi chi nhánh có quan hệ; chấp nhận.
+
+### 15.3 Việc cần sửa ở tài liệu (chưa áp dụng) và UAT
+
+| Vị trí | Thay đổi khuyến nghị | Liên quan |
+| --- | --- | --- |
+| §6.3 của tài liệu này / FRD v0.4 | Thêm dòng "Khách, KH, cấp công ty, không kỳ" | C1; FR-REC-030 |
+| FR-CRM-011 | Thêm tiêu chí: hạn nội bộ và hạn pháp lý theo loại yêu cầu, nhắc, gia hạn; xóa đóng cửa an toàn khi chưa kiểm được điều kiện chặn | C3, C4; UAT-10 |
+| FR-CRM-002 | Chuẩn hóa biển số; số khung duy nhất; biển đã đổi/bỏ | C11 |
+| FR-CRM-004, P3 (§10.2) | Định nghĩa "giá" = tổng hạng mục trước giảm giá toàn lệnh, trước thuế | C6 |
+| P1, P2 (§10.2) | QĐ chỉ P2 theo biển số; TN không P3; giới hạn tần suất tra | C9; UAT-29 (tạm) |
+| FR-CRM-014 | Bộ chọn khách có tìm kiếm khi chuyển chủ | C13; UAT-18 |
+| FR-REC-003 | Dẫn cùng quy tắc giảm số km có lý do cho hồ sơ xe | C5 |
+| FR-CRM-010 | Danh mục mục đích × kênh × căn cứ; "lợi ích hợp pháp" chưa dùng | C10; UAT-10 |
+| UAT-30 (tạm) | Thêm: QL, QV không chọn được cột cá nhân đầy đủ; chống chèn công thức | C7, C14 |
+| BRD §5, §10 | Quyết định vai trò DPO/pháp chế (§12 câu 5) | C8 |
+
+### 15.4 Câu hỏi chuyển bên quyết định (bổ sung cho §12)
+
+| # | Gửi | Câu hỏi | Khuyến nghị BA | Tác động nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| 13 | Luật sư khách | Hạn pháp lý trả lời từng loại yêu cầu chủ dữ liệu; ẩn danh có giữ biển số, tên/địa chỉ người mua trên hóa đơn không; "lợi ích hợp pháp" có dùng được; bằng chứng đồng ý tại quầy; cần chỉ định người/bộ phận phụ trách dữ liệu không | Như C3, C4, C8, C10 | Đổi tham số và danh mục cấu hình; ẩn biển số cần thêm cờ |
+| 14 | Chủ dự án | Có cho tạo quan hệ chi nhánh bằng "Dùng hồ sơ này" mà chưa có lịch hẹn/báo giá; giá trong lịch sử xe | Cho phép ở pilot một chi nhánh; hiện giá | Bật `adoptRequiresBusinessEvent` hoặc tắt `historyShowPrice`: chỉ đổi cấu hình, tiếp nhận xe lạ chậm hơn |
+| 15 | Khách | Giảm số km có lý do; ngưỡng báo QL; giới hạn tra 30 lần/giờ; TN tạo khách nhanh; CH hay QV hoàn tất xóa | Như C5, C7, C8, C9 | Chỉ đổi tham số/quyền |
+| 16 | Kế toán khách | Điều kiện chặn xóa khách: công nợ, chứng từ nào còn thời hạn lưu | Như C4 | Cổng giữ dữ liệu của ACC phải trả đủ điều kiện |
