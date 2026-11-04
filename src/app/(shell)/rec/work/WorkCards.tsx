@@ -36,7 +36,14 @@ export interface WorkCard {
   }[];
 }
 
-const PAUSE_REASONS = ['waiting_parts', 'waiting_customer', 'break', 'other'] as const;
+/** R41: five stable codes; `other` needs a note */
+const PAUSE_REASONS = [
+  'waiting_parts',
+  'waiting_customer',
+  'awaiting_supplement_approval',
+  'break',
+  'other',
+] as const;
 
 /** G2-TEC-01/02/03/04: big buttons for the technician. Start and finish are ONE tap (FR-REC-013: at most 2 taps); pause adds the reason tap. */
 export function WorkCards({ cards, labels: l }: { cards: WorkCard[]; labels: Labels }) {
@@ -58,6 +65,8 @@ export function WorkCards({ cards, labels: l }: { cards: WorkCard[]; labels: Lab
 function Card({ c, l, extraMs }: { c: WorkCard; l: Labels; extraMs: number }) {
   const { run, busy, error } = useAction(l.unexpected!, l.offline);
   const [picking, setPicking] = useState(false);
+  const [otherNote, setOtherNote] = useState(false);
+  const [noteText, setNoteText] = useState('');
   const [parts, setParts] = useState(false);
   const [propose, setPropose] = useState(false);
   const [sel, setSel] = useState(c.partLines[0]?.lineKey ?? '');
@@ -145,6 +154,10 @@ function Card({ c, l, extraMs }: { c: WorkCard; l: Labels; extraMs: number }) {
                 size="lg"
                 loading={busy === 'pause'}
                 onClick={async () => {
+                  if (r === 'other') {
+                    setOtherNote(true);
+                    return;
+                  }
                   if (await act('pause', { reason: r })) setPicking(false);
                 }}
                 data-testid={`pause-${r}`}
@@ -152,6 +165,39 @@ function Card({ c, l, extraMs }: { c: WorkCard; l: Labels; extraMs: number }) {
                 {l[`reason_${r}`]}
               </Button>
             ))}
+          </div>
+        ) : null}
+        {picking && otherNote ? (
+          <div className="stack" data-testid="pause-other-form">
+            <div className="field">
+              <label className="field__label" htmlFor={`on-${c.id}`}>
+                {l.otherNote} *
+              </label>
+              <input
+                id={`on-${c.id}`}
+                className="input"
+                maxLength={300}
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+              />
+              <span className="field__hint">{l.otherNoteHint}</span>
+            </div>
+            <Button
+              variant="primary"
+              size="lg"
+              loading={busy === 'pause'}
+              disabled={noteText.trim().length < 3}
+              onClick={async () => {
+                if (await act('pause', { reason: 'other', note: noteText.trim() })) {
+                  setPicking(false);
+                  setOtherNote(false);
+                  setNoteText('');
+                }
+              }}
+              data-testid="pause-other-go"
+            >
+              {l.pauseConfirm}
+            </Button>
           </div>
         ) : null}
         <div className="rec-actions">

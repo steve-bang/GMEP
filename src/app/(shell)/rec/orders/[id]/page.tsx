@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { formatDateTime, isoToVi } from '@/platform/format/date';
 import { hasPermission } from '@/platform/rbac/rbac';
+import { getOrderMoney } from '@/modules/acc';
 import { getOrder, listTechnicians, type TechnicianOption } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -64,6 +65,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const canAssign = o.allowed.assign;
   let techs: TechnicianOption[] = [];
   if (canAssign) techs = (await load(() => listTechnicians(getContainer().rec, actor))).data ?? [];
+  // slice 1.7: what the order owes (best effort; roles without the right simply do not see the card)
+  const pay = hasPermission(actor, 'order-balance:view')
+    ? await getOrderMoney(getContainer().acc, actor, id).catch(() => null)
+    : null;
   const mayPropose = hasPermission(actor, 'work-proposal:update');
   const issuedParts = o.partRequests.some((r) => r.status === 'issued');
   const nameOf = (userId: string | null) => userId ?? '—';
@@ -143,6 +148,27 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               : ''}
           </div>
         </div>
+      ) : null}
+
+      {pay ? (
+        <section className="card" aria-labelledby="op-h" data-testid="order-pay">
+          <div className="card__header">
+            <h2 className="card__title" id="op-h">
+              {t('rec.orders.payTitle')}
+            </h2>
+            <Link className="btn btn--secondary" href={`/acc/orders/${encodeURIComponent(o.id)}`}>
+              {t('rec.orders.payOpen')}
+            </Link>
+          </div>
+          <div className="card__body">
+            <span data-testid="order-pay-line">
+              {t('rec.orders.payReceived', {
+                amount: money(pay.balance.receivedVnd),
+                total: money(pay.balance.receivableVnd),
+              })}
+            </span>
+          </div>
+        </section>
       ) : null}
 
       <section className="card" aria-labelledby="oa-h">

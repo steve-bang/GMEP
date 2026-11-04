@@ -61,7 +61,7 @@ without the emulator hosts so a local run can never reach real Google services.
 src/
   app/              Next.js pages (Server Components) and thin Route Handlers under /api/v1 and /api/health
   modules/<code>/   domain/ (pure) application/ (use cases) ports/ (interfaces) api/ (zod schemas) index.ts (public surface)
-                    codes: sys, crm, inv (built), rec, ins, pur, hrm, acc, ein, rpt (empty skeletons)
+                    codes: sys, crm, inv, rec, acc (built), ins, pur, hrm, ein, rpt (empty skeletons)
   platform/         vendor-neutral kit: scope + rbac, audit, idempotency, errors (RFC 9457), http, logging, i18n, format
   infrastructure/   adapters: firestore, identity (Firebase Auth), memory (tests only), seed (fake data)
   composition/      the only place that wires ports to adapters (container, session helper)
@@ -208,8 +208,39 @@ Key mechanics already in place:
 - Tests: `tests/unit/rec-order-state.test.ts`, `tests/integration/rec-orders.test.ts` (both backends, includes concurrency), `e2e/slice-1-6.spec.ts`.
   Open questions R39..R53 in `docs/dev/open-questions-for-ba.md`.
 
+## Slice 1.7 (ACC money and SYS approvals)
+
+- **Payments** (`src/modules/acc`): `payments` holds receipts (several methods in one document: cash, transfer, card/POS, QR recorded by hand), deposits,
+  expense vouchers and their reversals. A posted payment has **no update method** (RULE-010): a mistake is a new `reversal` entry that points at it; the
+  one-per-payment slot `paymentReversals/<id>` is the uniqueness guard and how a list knows a payment was reversed. Money is integer VND.
+  `orderAccounts/<orderId>` is the derived aggregate (received, deposits held/applied, approved debt) written in the same transaction as the payment, so
+  concurrent receipts serialise on it; `recomputeAccount` rebuilds it from the payments for reconciliation.
+- **RULE-007 and R44**: every receipt and deposit hangs on a repair order. REC owns the receivable (`totalVnd`, supplements included); ACC supplies
+  `getOrderBalance` (`src/modules/acc/index.ts`). The two modules know each other only through ports wired in `src/composition/accWiring.ts`
+  (`OrderSource` for ACC, `PaymentGate` for REC). The handover calls the gate INSIDE its own transaction, requires nothing outstanding or an approved
+  debt that covers it, keeps the figures on the handover record, and blocks when ACC cannot answer (a branch manager may hand over on an exception with
+  a reason). `order-policy.handoverRequiresPayment` now defaults to true.
+- **Cash book, shifts, day close** (FR-ACC-003/004): `cashDrawers/<branch>` (book balance, sequence, open shift: the contention point), append-only
+  `cashEntries` with the running balance, `cashShifts`, `dayCloses`. One open shift per branch; counted minus book is the variance, posted as its own entry;
+  a difference needs a cause and an explanation and, above `acc-policy.varianceToleranceVnd`, a manager's approval; the day cannot close while a shift is open
+  or a difference is pending/rejected, and a closed day takes no more documents (corrections are reversals dated in the open day).
+- **Approvals** (`src/modules/sys/application/approvals.ts`, FR-SYS-004): kinds `payment_reversal`, `expense`, `debt_handover`, `cash_variance`; limits are the
+  effective-dated `approval-limit` config (conservative code fallback); the requester never decides their own request (by person); a decision runs the
+  kind's registered handler in the same transaction (debt, cash variance), otherwise the requester later EXECUTES the approved request exactly once
+  (reversal, expense payment: `loadApprovalForUse` reads, `consumeApprovalInTx` stages the writes).
+- **Firestore rule to remember**: a transaction must finish ALL reads before its first write. Helpers that read and then write are split in two phases
+  (`prepareCloseSupplements`, `loadApprovalForUse`/`consumeApprovalInTx`); the memory adapter does not catch violations, run `pnpm test:integration`.
+- **Config** (effective-dated): `acc-policy` (methods, reference rule, QC before the final receipt, variance tolerance, debt term), `approval-limit`, `expense-category`.
+  Tax rates stay as before (`tax-rate`, `tax-mapping`: FR-ACC-009).
+- **Routes**: `/api/v1/acc/{orders/[id],orders/[id]/payments,orders/[id]/debt-requests,payments,payments/[id],payments/[id]/reversal-request,payments/[id]/reverse,cashbook,shifts,shifts/[id]/close,shifts/[id]/explain,expenses,expenses/pay,expense-categories,day-close,debts}`
+  and `/api/v1/sys/approvals{,/[id],/[id]/decide,/[id]/withdraw}`; UI `/acc/orders/[id]`, `/acc/payments`, `/acc/cashbook`, `/acc/cashbook/close`, `/acc/day-close`,
+  `/acc/debts`, `/approvals` (menu "Thu chi"). Every money write needs an `Idempotency-Key`.
+- **Indexes**: 191 composite indexes (limit 200). Money screens work in one working branch, so branch is an equality field, not a scoped `in`.
+- Tests: `tests/unit/acc-domain.test.ts`, `tests/integration/acc.test.ts` (both backends: replay, concurrency, isolation, approvals, handover), `e2e/slice-1-7.spec.ts`.
+  Open questions R54..R68 in `docs/dev/open-questions-for-ba.md`.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger and REC intake/quote (ACC, EIN, RPT are skeletons; REC photos, Zalo/SMS/email sending, OTP, warranty orders (REC-018), the reminder screen of declined items (REC-024), the technician's "Công của tôi" and body-paint step tracking screens are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger, REC and the minimal ACC money slice (EIN and RPT are skeletons; ACC is missing refunds to customers, advance credit, reopening a day, period lock, payables, the accounting export and bank reconciliation; REC photos, Zalo/SMS/email sending, OTP, warranty orders (REC-018), the reminder screen of declined items (REC-024), the technician's "Công của tôi" and body-paint step tracking screens are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.

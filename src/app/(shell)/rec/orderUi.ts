@@ -54,7 +54,14 @@ export function pickLabels(
   return Object.fromEntries(
     keys.map((k) => [
       k,
-      t(`${ns}.${k}`, { n: '{n}', name: '{name}', number: '{number}', km: '{km}' }),
+      t(`${ns}.${k}`, {
+        n: '{n}',
+        name: '{name}',
+        number: '{number}',
+        km: '{km}',
+        amount: '{amount}',
+        due: '{due}',
+      }),
     ]),
   );
 }

@@ -1,0 +1,42 @@
+/* ACC screens (G4-ACC-01..10, G4-APR-01): layout helpers only; colours, spacing and type come from tokens.css. */
+.acc-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+.acc-line {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(120px, 1fr) minmax(0, 1.5fr) auto;
+  gap: var(--space-3);
+  align-items: end;
+}
+@media (max-width: 720px) {
+  .acc-line {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.acc-sum {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2) var(--space-6);
+  max-width: 420px;
+}
+.acc-sum dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.acc-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+.acc-row-reversed td {
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+}
+.acc-row-reversed td:last-child,
+.acc-row-reversed td:first-child {
+  text-decoration: none;
+}

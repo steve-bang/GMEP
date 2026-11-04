@@ -153,6 +153,19 @@ test.describe('slice 1.6 REC: executing the order', () => {
     await qd.waitForURL(orderUrl);
     await expect(qd.locator('.badge', { hasText: 'Sẵn sàng giao' }).first()).toBeVisible();
 
+    // R44 (slice 1.7): the cashier takes the money first, then the advisor can hand the vehicle over
+    const ctxTn = await browser.newContext();
+    const tn = await ctxTn.newPage();
+    await loginOk(tn, 'tn.q7@demo.gmep.test');
+    const shift = await tn.request.post('/api/v1/acc/shifts', { data: {}, headers: headers() });
+    expect([201, 409]).toContain(shift.status()); // 409: a shift is already open
+    const bal = await (await tn.request.get(`/api/v1/acc/orders/${quote.orderId}`)).json();
+    await post(tn.request, `/api/v1/acc/orders/${quote.orderId}/payments`, {
+      kind: 'receipt',
+      lines: [{ method: 'cash', amountVnd: bal.balance.outstandingVnd }],
+    });
+    await ctxTn.close();
+
     // handover by the advisor, then the printed record in A5 and in 80 mm
     await cv.goto(`${orderUrl}/handover`);
     await cv.getByLabel(/Người nhận xe/).fill('Trần Văn Bình');

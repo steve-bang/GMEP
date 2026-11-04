@@ -116,6 +116,26 @@ export default async function ShellLayout({ children }: { children: React.ReactN
       ],
     },
     {
+      label: t('shell.nav.groupAcc'),
+      items: [
+        ...(can.payments
+          ? [item('py', '/acc/payments', t('shell.nav.payments'), 'receipt', 'prefix')]
+          : []),
+        ...(can.cashbook
+          ? [item('cb', '/acc/cashbook', t('shell.nav.cashbook'), 'wallet', 'prefix')]
+          : []),
+        ...(can.dayClose
+          ? [item('dc', '/acc/day-close', t('shell.nav.dayClose'), 'lock', 'prefix')]
+          : []),
+        ...(can.debts
+          ? [item('db', '/acc/debts', t('shell.nav.debts'), 'file-text', 'prefix')]
+          : []),
+        ...(can.approvals
+          ? [item('ap', '/approvals', t('shell.nav.approvals'), 'clipboard-check', 'prefix')]
+          : []),
+      ],
+    },
+    {
       label: t('shell.nav.groupInv'),
       items: [
         ...(can.parts

@@ -347,6 +347,8 @@ export interface OrderMoneyDto {
   payments: PaymentDto[];
   /** pending or approved-not-used debt request of the order */
   debtApproval: ApprovalDto | null;
+  /** a cash shift is open on the counter of the order's branch (receipts need one) */
+  shiftOpen: boolean;
   actions: Record<'collect' | 'deposit' | 'requestDebt', { allowed: boolean; reasonCode?: string }>;
 }
 
@@ -372,6 +374,7 @@ export async function getOrderMoney(
     order.branchId,
     businessDate(deps.sys.clock.now()),
   );
+  const drawer = await deps.cash.getDrawer(scope, order.branchId);
   const mayCollect = hasPermission(actor, 'payment:create');
   const why = (ok: boolean, code: string) =>
     ok ? { allowed: true } : { allowed: false, reasonCode: code };
@@ -394,6 +397,7 @@ export async function getOrderMoney(
     },
     payments: rows.map((p) => toPaymentDto(p, reversed.get(p.id) ?? null, account)),
     debtApproval,
+    shiftOpen: !!drawer?.openShiftId,
     actions: {
       collect: !mayCollect
         ? { allowed: false, reasonCode: 'no_permission' }

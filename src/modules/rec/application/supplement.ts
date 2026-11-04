@@ -405,7 +405,7 @@ export async function appendSupplement(
     // R47: extra approved work after a check was passed (or while it was awaited): the old result no longer counts
     const qcRuns = reopen.ok
       ? o.qcRuns.map((r, i) =>
-          i === o.qcRuns.length - 1 && !r.invalidatedAt
+          i === o.qcRuns.length - 1 && r.result === 'pass' && !r.invalidatedAt
             ? { ...r, invalidatedAt: now, invalidatedReason: `supplement:${q.number}` }
             : r,
         )

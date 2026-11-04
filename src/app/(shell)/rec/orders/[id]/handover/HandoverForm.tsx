@@ -1,7 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { formatVnd } from '@/platform/format/vnd';
 import { Button } from '@/ui/components/Button';
 import { useAction } from '@/ui/components/useAction';
 
@@ -13,6 +15,16 @@ export function HandoverForm(props: {
   version: number;
   lastKm: number | null;
   requireReceiver: boolean;
+  /** R44: null = ACC could not be read */
+  pay: {
+    receivableVnd: number;
+    receivedVnd: number;
+    outstandingVnd: number;
+    debt: { amountVnd: number; dueDate: string } | null;
+    pendingNumber: string | null;
+    canRequestDebt: boolean;
+  } | null;
+  canException: boolean;
   labels: Labels;
 }) {
   const l = props.labels;
@@ -26,9 +38,15 @@ export function HandoverForm(props: {
   const [belongings, setBelongings] = useState(false);
   const [oldParts, setOldParts] = useState(false);
   const [note, setNote] = useState('');
+  const [exception, setException] = useState('');
   const kmNum = km.trim() === '' ? undefined : Number(km.replace(/\D/g, ''));
   const below = kmNum !== undefined && props.lastKm !== null && kmNum < props.lastKm;
+  const pay = props.pay;
+  const covered =
+    pay !== null && (pay.outstandingVnd === 0 || (pay.debt?.amountVnd ?? 0) >= pay.outstandingVnd);
+  const useException = pay === null && props.canException && exception.trim().length >= 5;
   const ready =
+    (covered || useException) &&
     (!props.requireReceiver || name.trim().length >= 2) &&
     (confirmation === 'screen' || !props.requireReceiver || paperRef.trim().length > 0) &&
     (!below || reason !== '');
@@ -46,6 +64,7 @@ export function HandoverForm(props: {
         belongingsReturned: belongings,
         oldPartsReturned: oldParts,
         ...(note.trim() ? { note: note.trim() } : {}),
+        ...(useException ? { paymentExceptionReason: exception.trim() } : {}),
       },
       { refresh: false },
     );
@@ -53,6 +72,76 @@ export function HandoverForm(props: {
   }
   return (
     <div className="stack" data-testid="handover-form">
+      <section className="stack-2" aria-labelledby="hv-pay-h" data-testid="hv-pay">
+        <h3 id="hv-pay-h">{l.payTitle}</h3>
+        {pay === null ? (
+          <>
+            <div className="alert alert--danger" role="alert">
+              <div className="alert__body">{l.payUnavailable}</div>
+            </div>
+            {props.canException ? (
+              <div className="field">
+                <label className="field__label" htmlFor="hv-exc">
+                  {l.exceptionReason}
+                </label>
+                <input
+                  id="hv-exc"
+                  className="input"
+                  maxLength={300}
+                  value={exception}
+                  onChange={(e) => setException(e.target.value)}
+                />
+                <span className="field__hint">{l.exceptionHint}</span>
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <dl className="acc-sum">
+              <dt>{l.payReceivable}</dt>
+              <dd>{formatVnd(pay.receivableVnd)}</dd>
+              <dt>{l.payReceived}</dt>
+              <dd>{formatVnd(pay.receivedVnd)}</dd>
+              <dt>{l.payOutstanding}</dt>
+              <dd data-testid="hv-outstanding">{formatVnd(pay.outstandingVnd)}</dd>
+            </dl>
+            {pay.outstandingVnd === 0 ? (
+              <div className="alert alert--success" role="note">
+                <div className="alert__body">{l.payOk}</div>
+              </div>
+            ) : covered && pay.debt ? (
+              <div className="alert alert--info" role="note" data-testid="hv-debt-ok">
+                <div className="alert__body">
+                  {(l.payDebtOk ?? '')
+                    .replace('{amount}', formatVnd(pay.debt.amountVnd))
+                    .replace('{due}', pay.debt.dueDate.split('-').reverse().join('/'))}
+                </div>
+              </div>
+            ) : (
+              <div className="alert alert--warning" role="alert" data-testid="hv-blocked">
+                <div className="alert__body">
+                  {(l.payBlocked ?? '').replace('{amount}', formatVnd(pay.outstandingVnd))}
+                  {pay.pendingNumber ? (
+                    <> {(l.payPendingDebt ?? '').replace('{number}', pay.pendingNumber)}</>
+                  ) : null}
+                </div>
+              </div>
+            )}
+            {pay.outstandingVnd > 0 ? (
+              <div className="rec-actions">
+                <Link className="btn btn--secondary" href={`/acc/orders/${props.orderId}`}>
+                  {l.payCollect}
+                </Link>
+                {pay.canRequestDebt ? (
+                  <Link className="btn btn--ghost" href={`/acc/orders/${props.orderId}`}>
+                    {l.payRequestDebt}
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
+          </>
+        )}
+      </section>
       <div className="field">
         <label className="field__label" htmlFor="hv-name">
           {l.receiver}

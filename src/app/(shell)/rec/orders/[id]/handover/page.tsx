@@ -2,6 +2,8 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { getOrder } from '@/modules/rec';
 import { getVehicle } from '@/modules/crm';
+import { getOrderMoney } from '@/modules/acc';
+import { hasPermission } from '@/platform/rbac/rbac';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -32,6 +34,19 @@ const KEYS = [
   'submit',
   'unexpected',
   'offline',
+  'payTitle',
+  'payReceivable',
+  'payReceived',
+  'payOutstanding',
+  'payOk',
+  'payDebtOk',
+  'payBlocked',
+  'payCollect',
+  'payRequestDebt',
+  'payPendingDebt',
+  'payUnavailable',
+  'exceptionReason',
+  'exceptionHint',
 ] as const;
 
 /** G2-DLV-03/04 / FR-REC-017: hand the vehicle over; this completes the order. */
@@ -46,7 +61,9 @@ export default async function HandoverPage({ params }: { params: Promise<{ id: s
   const res = await load(async () => {
     const o = await getOrder(getContainer().rec, actor, id);
     const v = await getVehicle(getContainer().crm, actor, o.vehicleId).catch(() => null);
-    return { o, lastKm: v?.lastKm ?? null };
+    // R44: what the order owes, read from ACC (the server re-reads it when it writes the handover)
+    const pay = await getOrderMoney(getContainer().acc, actor, id).catch(() => null);
+    return { o, lastKm: v?.lastKm ?? null, pay };
   });
   if (res.error)
     return (
@@ -54,7 +71,7 @@ export default async function HandoverPage({ params }: { params: Promise<{ id: s
         <ErrorFor error={res.error} t={t} />
       </RecPage>
     );
-  const { o, lastKm } = res.data;
+  const { o, lastKm, pay } = res.data;
   return (
     <RecPage
       title={`${t('rec.handover.title')} · ${o.number}`}
@@ -76,6 +93,25 @@ export default async function HandoverPage({ params }: { params: Promise<{ id: s
               version={o.version}
               lastKm={lastKm}
               requireReceiver
+              pay={
+                pay
+                  ? {
+                      receivableVnd: pay.balance.receivableVnd,
+                      receivedVnd: pay.balance.receivedVnd,
+                      outstandingVnd: pay.balance.outstandingVnd,
+                      debt: pay.balance.debt
+                        ? {
+                            amountVnd: pay.balance.debt.amountVnd,
+                            dueDate: pay.balance.debt.dueDate,
+                          }
+                        : null,
+                      pendingNumber:
+                        pay.debtApproval?.status === 'pending' ? pay.debtApproval.number : null,
+                      canRequestDebt: pay.actions.requestDebt.allowed,
+                    }
+                  : null
+              }
+              canException={hasPermission(actor, 'repair-order:approve')}
               labels={pickLabels(t, 'rec.handover', KEYS)}
             />
           </div>
