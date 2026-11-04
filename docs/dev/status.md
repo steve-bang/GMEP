@@ -26,3 +26,14 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 - Kiểm thử: `tests/integration/import.test.ts`, `rec-orders.test.ts` (ảnh), `acc.test.ts` (hoàn tiền, mở lại ngày), `tests/unit/acc-domain.test.ts`.
 
 **Chưa dựng.** Màn hình cho ảnh, hoàn tiền và mở lại ngày; xóa ảnh, làm mờ, gỡ EXIF, hạn lưu; URL ký ngắn hạn (hiện API phát lại byte); hỏi lại mật khẩu khi mở lại ngày; khóa kỳ tháng; hạn mức hoàn của thu ngân; hoàn tiền kèm hóa đơn điều chỉnh. Câu hỏi mở: R104 đến R107.
+
+## Cập nhật 04/11/2026 (2): màn hình còn thiếu, cron nội bộ (dev)
+
+**Đã dựng.**
+- Màn hoàn tiền khách (FR-ACC-016) trên `/acc/orders/[id]` và mở lại ngày (FR-ACC-005) trên `/acc/day-close`: một thành phần dùng chung `acc/ApprovedActionPanel` (gửi yêu cầu, hiện trạng thái duyệt, thực hiện một lần); hiện khi có quyền (`cash-expense:create`, `cash-day:update`) và đúng điều kiện (đã thu tiền; ngày hiện tại đã chốt). Mọi kiểm tra vẫn ở server.
+- Ảnh REC (FR-REC-003/014): `rec/PhotoPanel` trên hồ sơ tiếp nhận và lệnh (tải lên multipart có Idempotency-Key, ảnh nhỏ đọc lại qua API sau kiểm Scope).
+- Menu RPT: "Báo cáo kho" theo quyền `stock:view` (thủ kho thấy được), "Báo cáo kỹ thuật viên" theo `report-daily:view` + `repair-order:view` (`ShellInfo.can.warehouseReport`).
+- Cron: `POST /api/v1/internal/cron/run-due` (wrapper `cron()`, header `x-cron-secret` = env `CRON_SECRET`, `CRON_COMPANY_ID`; chưa đặt secret thì 404) chạy `runDueRollups` và `runDueRequests` cho từng chi nhánh bằng actor dịch vụ `system:cron`; xem README mục Scheduler. Không thêm hạ tầng lập lịch.
+- Kiểm thử: `tests/integration/platform.test.ts` (cron: tắt, sai secret, đúng secret), `e2e/phase1-hardening-ui.spec.ts` (hoàn tiền gửi yêu cầu, ảnh lên lệnh, thủ kho vào báo cáo kho, không tràn ngang ở 375px).
+
+**Chưa dựng.** Màn riêng cho danh sách ảnh theo đề xuất, xóa ảnh/làm mờ; mở lại ngày chưa có e2e đầy đủ (cần ngày đã chốt); OIDC cho Cloud Scheduler (đang dùng secret chung); `CRON_COMPANY_ID` giả định một pháp nhân [Cần xác nhận].

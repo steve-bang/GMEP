@@ -2312,7 +2312,7 @@
       "belongings": "Tài sản và đồ đạc để lại trong xe",
       "belongingsOther": "Đồ khác, vật có giá trị",
       "belongingsHint": "Dặn khách mang theo vật có giá trị nếu có thể.",
-      "photosNote": "Ảnh hiện trạng xe chưa có ở bản này; ghi rõ hiện trạng bằng chữ.",
+      "photosNote": "Thêm ảnh hiện trạng xe ở mục Ảnh bên dưới trang; ghi rõ hiện trạng bằng chữ.",
       "serviceType": "Loại dịch vụ",
       "advisor": "Cố vấn tiếp nhận",
       "promisedDate": "Ngày hẹn giao",
@@ -2789,6 +2789,18 @@
       "payUnavailable": "Chưa đọc được số liệu thu tiền. Chưa giao xe được.",
       "exceptionReason": "Lý do giao xe khi chưa kiểm tra được thanh toán (chỉ quản lý chi nhánh)",
       "exceptionHint": "Chỉ dùng khi hệ thống thu tiền lỗi. Lý do được lưu trên biên bản và nhật ký."
+    },
+    "photos": {
+      "title": "Ảnh",
+      "empty": "Chưa có ảnh.",
+      "alt": "Ảnh đính kèm",
+      "file": "Chọn ảnh (JPEG, PNG hoặc WebP)",
+      "hint": "Tối đa 5 MB mỗi ảnh. Ảnh không bị xóa vì là bằng chứng hiện trạng xe.",
+      "caption": "Ghi chú ảnh (nếu có)",
+      "upload": "Tải ảnh lên",
+      "invalid": "Ảnh không hợp lệ: chỉ nhận JPEG, PNG, WebP tối đa 5 MB và không quá số ảnh cho phép.",
+      "unexpected": "Không tải được ảnh. Thử lại sau.",
+      "offline": "Mất kết nối. Chọn lại ảnh và thử lại khi có mạng."
     }
   },
   "pub": {
@@ -3155,6 +3167,33 @@
       "overdueDays": "Quá {n} ngày",
       "emptyTitle": "Không có khoản nợ nào",
       "emptyText": "Chưa có lệnh nào giao xe với ghi nợ."
+    },
+    "refund": {
+      "title": "Hoàn tiền cho khách",
+      "lead": "Phiếu thu không bị sửa: hệ thống lập một phiếu chi hoàn tiền gắn với lệnh. Cần quản lý khác duyệt trước, và chỉ hoàn được tối đa số tiền đã thu của lệnh.",
+      "amountVnd": "Số tiền hoàn (VND)",
+      "method": "Hình thức",
+      "method_cash": "Tiền mặt",
+      "method_transfer": "Chuyển khoản",
+      "reference": "Mã tham chiếu (nếu có)",
+      "reason": "Lý do hoàn (tối thiểu 5 ký tự)",
+      "send": "Gửi yêu cầu hoàn tiền",
+      "sent": "Đã gửi yêu cầu {number}.",
+      "pending": "Đang chờ duyệt yêu cầu hoàn tiền {number}.",
+      "approvedExec": "Yêu cầu {number} đã được duyệt. Chi hoàn tiền (làm một lần, cần ca đang mở).",
+      "execute": "Chi hoàn tiền",
+      "done": "Đã lập phiếu chi hoàn tiền."
+    },
+    "reopen": {
+      "title": "Mở lại ngày đã chốt",
+      "lead": "Chỉ mở lại được ngày làm việc hiện tại và cần chủ garage duyệt. Bản ghi chốt cũ được giữ trong nhật ký; sau khi sửa phải chốt lại.",
+      "reason": "Lý do mở lại (tối thiểu 5 ký tự)",
+      "send": "Gửi yêu cầu mở lại ngày",
+      "sent": "Đã gửi yêu cầu {number}.",
+      "pending": "Đang chờ chủ garage duyệt yêu cầu {number}.",
+      "approvedExec": "Yêu cầu {number} đã được duyệt. Mở lại ngày (làm một lần).",
+      "execute": "Mở lại ngày",
+      "done": "Đã mở lại ngày. Chốt lại sau khi chỉnh xong."
     }
   },
   "approvals": {

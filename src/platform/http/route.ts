@@ -55,6 +55,11 @@ export interface RouteOptions {
   allowedOrigins?: () => string[];
   /** file upload routes (FR-SYS-007): also accept multipart/form-data; the Origin check still applies */
   multipart?: boolean;
+  /**
+   * Machine-to-machine route (Cloud Scheduler sends no Origin). ONLY for `cron()` in composition/api.ts, which replaces the
+   * Origin check by a shared-secret check before any work.
+   */
+  skipOriginCheck?: boolean;
 }
 
 /**
@@ -70,9 +75,10 @@ export function apiRoute(
     const log = requestLogger(requestId, { method: req.method, path: new URL(req.url).pathname });
     const started = Date.now();
     try {
-      assertSafeOrigin(req, options.allowedOrigins?.() ?? [], {
-        multipart: options.multipart === true,
-      });
+      if (!options.skipOriginCheck)
+        assertSafeOrigin(req, options.allowedOrigins?.() ?? [], {
+          multipart: options.multipart === true,
+        });
       const params = nextCtx?.params ? await nextCtx.params : {};
       const res = await handler({ req, requestId, log, params });
       res.headers.set('x-request-id', requestId);

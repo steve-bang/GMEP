@@ -19,6 +19,7 @@ import {
   qtyText,
   REQUEST_TONE,
 } from '../../orderUi';
+import { PhotoPanel } from '../../PhotoPanel';
 import { RecPage } from '../../RecPage';
 import { AssignSelect, OrderActions, ProposalRow } from './OrderPanels';
 
@@ -488,6 +489,30 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           </ol>
         </div>
       </section>
+      <PhotoPanel
+        parent="orders"
+        parentId={o.id}
+        photos={o.photos}
+        canAdd={
+          o.open &&
+          (hasPermission(actor, 'repair-order:update') ||
+            hasPermission(actor, 'work-proposal:create'))
+        }
+        labels={Object.fromEntries(
+          [
+            'title',
+            'empty',
+            'alt',
+            'file',
+            'hint',
+            'caption',
+            'upload',
+            'invalid',
+            'unexpected',
+            'offline',
+          ].map((k) => [k, t(`rec.photos.${k}`)]),
+        )}
+      />
     </RecPage>
   );
 }

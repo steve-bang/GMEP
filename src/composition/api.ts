@@ -1,3 +1,5 @@
+import { timingSafeEqual } from 'node:crypto';
+import { notFound, unauthenticated } from '@/platform/errors/errors';
 import { apiRoute, json, type RouteContext } from '@/platform/http/route';
 import { parseIdempotencyKey } from '@/platform/idempotency/idempotency';
 import type { AccDeps } from '@/modules/acc';
@@ -72,6 +74,33 @@ export function authed(
       });
     },
     { allowedOrigins, ...(options.multipart ? { multipart: true } : {}) },
+  );
+}
+
+/**
+ * Internal machine-to-machine route (Cloud Scheduler). No session and no Origin: the shared secret in `x-cron-secret`
+ * (env CRON_SECRET, compared in constant time) is checked before anything else. Unset secret = the route does not exist.
+ */
+export function cron(handler: (c: ApiCtx) => Promise<Response>) {
+  return apiRoute(
+    async (c) => {
+      const secret = getContainer().env.CRON_SECRET;
+      if (!secret) throw notFound();
+      const given = Buffer.from(c.req.headers.get('x-cron-secret') ?? '');
+      const want = Buffer.from(secret);
+      if (given.length !== want.length || !timingSafeEqual(given, want)) throw unauthenticated();
+      return handler({
+        ...c,
+        sys: getContainer().sys,
+        crm: getContainer().crm,
+        inv: getContainer().inv,
+        rec: getContainer().rec,
+        acc: getContainer().acc,
+        ein: getContainer().ein,
+        rpt: getContainer().rpt,
+      });
+    },
+    { skipOriginCheck: true },
   );
 }
 

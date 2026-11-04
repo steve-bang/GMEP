@@ -330,7 +330,8 @@ describe.each(backends)(
       const routes = allRouteFiles();
       expect(routes.length).toBeGreaterThan(30);
       let checked = 0;
-      for (const r of routes) {
+      // internal cron routes have no Origin by design: they are guarded by the shared secret (tested below)
+      for (const r of routes.filter((x) => !x.file.includes('/api/v1/internal/'))) {
         for (const method of r.methods.filter((m) => m !== 'GET')) {
           const path = r.file
             .replace('/src/app', '')
@@ -351,6 +352,29 @@ describe.each(backends)(
       }
       expect(checked).toBeGreaterThan(20);
     });
+    it('the internal cron route is disabled without a secret, refuses a wrong one and runs the due jobs with the right one', async () => {
+      const off = await createHarness(backend);
+      expect(
+        (await off.call('POST', '/api/v1/internal/cron/run-due', { origin: null })).status,
+      ).toBe(404);
+      const secret = 'cron-secret-0123456789-abcdefghijklmnop';
+      const on = await createHarness(backend, {
+        env: { CRON_SECRET: secret, CRON_COMPANY_ID: 'cmp_demo' },
+      });
+      const bad = await on.call('POST', '/api/v1/internal/cron/run-due', {
+        origin: null,
+        headers: { 'x-cron-secret': 'x'.repeat(secret.length) },
+      });
+      expect(bad.status).toBe(401);
+      const ok = await on.call('POST', '/api/v1/internal/cron/run-due', {
+        origin: null,
+        headers: { 'x-cron-secret': secret },
+      });
+      expect(ok.status).toBe(200);
+      expect(ok.json.configured).toBe(true);
+      expect(ok.json.branches.length).toBeGreaterThan(0);
+      expect(ok.json.branches.every((b: { rpt: string }) => b.rpt === 'ok')).toBe(true);
+    });
     it('every API route file is wrapped by apiRoute (static check of the source)', () => {
       const files: string[] = [];
       const walk = (d: string) => {
@@ -364,7 +388,7 @@ describe.each(backends)(
         const src = readFileSync(f, 'utf8');
         const exported = [...src.matchAll(/export const (GET|POST|PUT|PATCH|DELETE) = (\w+)\(/g)];
         for (const [, , wrapper] of exported)
-          expect(['apiRoute', 'api', 'authed'], f).toContain(wrapper);
+          expect(['apiRoute', 'api', 'authed', 'cron'], f).toContain(wrapper);
         expect(src, f).not.toMatch(/export (async )?function (GET|POST|PUT|PATCH|DELETE)\b/);
       }
     });

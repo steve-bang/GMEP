@@ -1,7 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { formatDateTime } from '@/platform/format/date';
+import { hasPermission } from '@/platform/rbac/rbac';
 import { getOrderMoney } from '@/modules/acc';
+import { findActiveApprovalFor } from '@/modules/sys';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -10,6 +12,7 @@ import { ErrorFor } from '@/ui/components/PageParts';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { EmptyState } from '@/ui/components/States';
 import { AccPage, accLabels, KIND_TONE, KpiRow, METHODS, money, Note } from '../../accUi';
+import { ApprovedActionPanel } from '../../ApprovedActionPanel';
 import { PayPanel } from './PayPanel';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +35,17 @@ export default async function AccOrderPage({ params }: { params: Promise<{ id: s
     );
   const m = res.data;
   const b = m.balance;
+  // FR-ACC-016: customer refund, only where money was received and the actor may spend cash
+  const canRefund = b.receivedVnd > 0 && hasPermission(actor, 'cash-expense:create');
+  const refundApproval =
+    canRefund && hasPermission(actor, 'approval:view')
+      ? await findActiveApprovalFor(getContainer().sys, actor, {
+          kind: 'customer_refund',
+          subjectId: m.order.id,
+          branchId: actor.workingBranchId ?? '',
+        }).catch(() => null)
+      : null;
+  const rf = accLabels('refund');
   const l = accLabels('order');
   const c = accLabels('common');
   const collectReason = m.actions.collect.allowed
@@ -101,6 +115,40 @@ export default async function AccOrderPage({ params }: { params: Promise<{ id: s
         labels={l}
         common={c}
       />
+      {canRefund ? (
+        <ApprovedActionPanel
+          testId="refund"
+          requestUrl="/api/v1/acc/refunds"
+          executeUrl="/api/v1/acc/refunds/pay"
+          fixed={{ orderId: m.order.id }}
+          fields={[
+            { name: 'amountVnd', label: rf.amountVnd!, kind: 'integer' },
+            {
+              name: 'method',
+              label: rf.method!,
+              kind: 'select',
+              options: [
+                { value: 'cash', label: rf.method_cash! },
+                { value: 'transfer', label: rf.method_transfer! },
+              ],
+            },
+            { name: 'reference', label: rf.reference!, kind: 'text', optional: true },
+            { name: 'reason', label: rf.reason!, kind: 'textarea' },
+          ]}
+          approval={
+            refundApproval
+              ? {
+                  id: refundApproval.id,
+                  number: refundApproval.number,
+                  status: refundApproval.status,
+                  consumed: refundApproval.consumed,
+                }
+              : null
+          }
+          labels={rf}
+          common={c}
+        />
+      ) : null}
       <section className="card" aria-labelledby="pays-h">
         <div className="card__header">
           <h2 className="card__title" id="pays-h">

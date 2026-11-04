@@ -52,3 +52,4 @@ export type { DayStatusDto } from './application/dayClose';
 export { requestDebt, listDebts, accApprovalHandlers } from './application/debts';
 export type { DebtDto, DebtListDto } from './application/debts';
 export { accPolicyOf } from './application/support';
+export { dayCloseId } from './domain/cash';

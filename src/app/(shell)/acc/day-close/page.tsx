@@ -1,7 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { businessDate, formatDateTime, isoToVi } from '@/platform/format/date';
-import { getDayStatus } from '@/modules/acc';
+import { hasPermission } from '@/platform/rbac/rbac';
+import { dayCloseId, getDayStatus } from '@/modules/acc';
+import { findActiveApprovalFor } from '@/modules/sys';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -10,6 +12,7 @@ import { DateFilter } from '@/ui/components/DateFilter';
 import { ErrorFor, first, type SearchParams } from '@/ui/components/PageParts';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { AccPage, accLabels, KpiRow, money, Note } from '../accUi';
+import { ApprovedActionPanel } from '../ApprovedActionPanel';
 import { DayCloseForm } from './DayCloseForm';
 
 export const dynamic = 'force-dynamic';
@@ -39,6 +42,19 @@ export default async function DayClosePage({ searchParams }: { searchParams: Sea
     w.unpaidOrders ? fill(l.unpaid!, { n: w.unpaidOrders }) : null,
     w.expensesWithoutSource ? fill(l.expSrc!, { n: w.expensesWithoutSource }) : null,
   ].filter((x): x is string => !!x);
+  // FR-ACC-005: only the current business day can be reopened, with the owner's approval
+  const canReopen =
+    d.closed && d.date === businessDate(new Date()) && hasPermission(actor, 'cash-day:update');
+  const branchId = actor.workingBranchId ?? '';
+  const reopenApproval =
+    canReopen && hasPermission(actor, 'approval:view')
+      ? await findActiveApprovalFor(getContainer().sys, actor, {
+          kind: 'day_reopen',
+          subjectId: dayCloseId(branchId, d.date),
+          branchId,
+        }).catch(() => null)
+      : null;
+  const ro = accLabels('reopen');
   return (
     <AccPage {...head}>
       <section className="card">
@@ -153,6 +169,27 @@ export default async function DayClosePage({ searchParams }: { searchParams: Sea
             { key: 's', header: l.colStatus!, render: (o) => t(`rec.orders.status_${o.status}`) },
             { key: 'o', header: l.colOwed!, numeric: true, render: (o) => money(o.outstandingVnd) },
           ]}
+        />
+      ) : null}
+      {canReopen ? (
+        <ApprovedActionPanel
+          testId="reopen"
+          requestUrl="/api/v1/acc/day-close/reopen-request"
+          executeUrl="/api/v1/acc/day-close/reopen"
+          fixed={{ date: d.date }}
+          fields={[{ name: 'reason', label: ro.reason!, kind: 'textarea' }]}
+          approval={
+            reopenApproval
+              ? {
+                  id: reopenApproval.id,
+                  number: reopenApproval.number,
+                  status: reopenApproval.status,
+                  consumed: reopenApproval.consumed,
+                }
+              : null
+          }
+          labels={ro}
+          common={c}
         />
       ) : null}
       {!d.closed ? (
