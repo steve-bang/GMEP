@@ -101,6 +101,18 @@ export default async function ShellLayout({ children }: { children: React.ReactN
               ),
             ]
           : []),
+        ...(can.orders
+          ? [
+              item('od', '/rec/orders', t('shell.nav.orders'), 'wrench', 'prefix'),
+              item('bd', '/rec/board', t('shell.nav.board'), 'layout-dashboard', 'prefix'),
+            ]
+          : []),
+        ...(can.myWork
+          ? [item('mw', '/rec/work', t('shell.nav.myWork'), 'clipboard-list', 'prefix')]
+          : []),
+        ...(can.partRequests
+          ? [item('pr', '/rec/part-requests', t('shell.nav.partRequests'), 'package', 'prefix')]
+          : []),
       ],
     },
     {

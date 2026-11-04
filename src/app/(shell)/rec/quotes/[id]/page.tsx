@@ -13,6 +13,7 @@ import { formatMinutes, money } from '../../format';
 import { RecPage } from '../../RecPage';
 import { QUOTE_TONE } from '../statusTone';
 import { CounterApproval } from './CounterApproval';
+import { CreateOrderButton } from './CreateOrderButton';
 import { QuoteActions } from './QuoteActions';
 import { QuoteEditor, type EditItem } from './QuoteEditor';
 import { QuoteShare } from './QuoteShare';
@@ -294,6 +295,43 @@ export default async function QuotePage({
       ) : null}
 
       {s.approval ? <ApprovalEvidence t={t} a={s.approval} items={s.items} /> : null}
+
+      {(q.status === 'approved_full' || q.status === 'approved_partial') &&
+      !q.supplementOfOrderId ? (
+        q.orderId ? (
+          <div className="alert alert--success" role="note" data-testid="quote-order-opened">
+            <div className="alert__body">
+              {t('rec.quotes.orderOpened')}:{' '}
+              <Link href={`/rec/orders/${encodeURIComponent(q.orderId)}`}>
+                {t('rec.quotes.openOrder')}
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="alert alert--warning" role="note" data-testid="quote-no-order">
+            <div className="alert__body stack">
+              <span>{t('rec.quotes.noOrderYet')}</span>
+              {q.allowed.includes('create_order') ? (
+                <CreateOrderButton
+                  quoteId={q.id}
+                  label={t('rec.quotes.createOrder')}
+                  failed={t('rec.quotes.createOrderFailed')}
+                />
+              ) : null}
+            </div>
+          </div>
+        )
+      ) : null}
+      {q.supplementOfOrderId ? (
+        <div className="alert alert--info" role="note">
+          <div className="alert__body">
+            {t('rec.quotes.supplementOf')}:{' '}
+            <Link href={`/rec/orders/${encodeURIComponent(q.supplementOfOrderId)}`}>
+              {t('rec.quotes.openOrder')}
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       {canWrite ? (
         <QuoteEditor

@@ -136,7 +136,9 @@ export function CustomerQuote({
     setBusy(null);
     if (r.ok) return router.refresh();
     setError(problemText(r.problem?.code, r.status));
+    // R38: a link that expired meanwhile answers like an unknown one (404): reload to show the read-only page
     if (
+      r.status === 404 ||
       r.problem?.code === 'quote_expired' ||
       r.problem?.code === 'quote_superseded' ||
       r.problem?.code === 'quote_already_decided'
@@ -154,7 +156,7 @@ export function CustomerQuote({
       keys.current.key + '-r',
     );
     setBusy(null);
-    if (r.ok) return router.refresh();
+    if (r.ok || r.status === 404) return router.refresh();
     setError(problemText(r.problem?.code, r.status));
   }
 
