@@ -557,6 +557,82 @@
       "title": "Loại yêu cầu không có",
       "detail": "Loại phê duyệt này chưa được hỗ trợ."
     },
+    "invoice_not_eligible": {
+      "title": "Chưa phát hành được hóa đơn",
+      "detail": "Còn mục cần sửa trước khi phát hành. Xem danh sách điều kiện và sửa từng mục."
+    },
+    "invoice_queue_full": {
+      "title": "Hàng chờ hóa đơn đã đầy",
+      "detail": "Có quá nhiều yêu cầu hóa đơn chưa xử lý. Xử lý hàng chờ lỗi rồi thử lại, không mất yêu cầu nào."
+    },
+    "fix_data_first": {
+      "title": "Cần sửa dữ liệu trước",
+      "detail": "Yêu cầu bị từ chối do dữ liệu. Sửa thông tin người mua rồi mới gửi lại được."
+    },
+    "request_in_flight": {
+      "title": "Yêu cầu đang được gửi",
+      "detail": "Yêu cầu đang trong lần gửi hiện tại. Đợi kết quả rồi xem lại."
+    },
+    "request_not_fixable": {
+      "title": "Không sửa được yêu cầu này",
+      "detail": "Chỉ sửa người mua cho yêu cầu đang lỗi dữ liệu."
+    },
+    "confirm_mismatch": {
+      "title": "Mã xác nhận chưa đúng",
+      "detail": "Gõ đúng mã yêu cầu để xác nhận."
+    },
+    "request_has_invoice": {
+      "title": "Nhà cung cấp đã có hóa đơn",
+      "detail": "Hóa đơn đã được tạo ở nhà cung cấp nên không hủy yêu cầu được. Kết quả đã được ghi nhận, xem ở danh sách hóa đơn."
+    },
+    "provider_unavailable": {
+      "title": "Chưa hỏi được nhà cung cấp",
+      "detail": "Không truy vấn được nhà cung cấp lúc này nên chưa kết luận được. Thử lại sau."
+    },
+    "invoice_not_issued": {
+      "title": "Hóa đơn chưa ở trạng thái đã xuất",
+      "detail": "Chỉ điều chỉnh, thay thế hoặc hủy hóa đơn đã xuất."
+    },
+    "adjustment_not_correctable": {
+      "title": "Không sửa tiếp hóa đơn điều chỉnh",
+      "detail": "Hóa đơn điều chỉnh không điều chỉnh tiếp. Sửa trên hóa đơn gốc."
+    },
+    "invoice_replaced": {
+      "title": "Hóa đơn đã bị thay thế",
+      "detail": "Hóa đơn này đã có hóa đơn thay thế, không thao tác tiếp."
+    },
+    "correction_in_progress": {
+      "title": "Đang có yêu cầu sửa hóa đơn",
+      "detail": "Hóa đơn này đã có một yêu cầu điều chỉnh, thay thế hoặc hủy chưa hoàn tất."
+    },
+    "adjustment_needs_amounts": {
+      "title": "Cần nhập phần chênh",
+      "detail": "Hóa đơn điều chỉnh phải có ít nhất một dòng chênh lệch khác 0."
+    },
+    "adjustment_rate_unknown": {
+      "title": "Thuế suất không có trên hóa đơn gốc",
+      "detail": "Chọn thuế suất đã có trên hóa đơn gốc."
+    },
+    "adjustment_below_zero": {
+      "title": "Điều chỉnh làm hóa đơn âm",
+      "detail": "Số điều chỉnh giảm vượt giá trị hóa đơn gốc. Dùng hủy hoặc thay thế."
+    },
+    "replacement_needs_changes": {
+      "title": "Cần nhập thông tin cần sửa",
+      "detail": "Hóa đơn thay thế phải sửa ít nhất một thông tin người mua."
+    },
+    "files_not_ready": {
+      "title": "Chưa có tệp hóa đơn",
+      "detail": "Tệp XML và PDF chưa được lưu. Bấm đồng bộ để lấy lại."
+    },
+    "invoice_transition_not_allowed": {
+      "title": "Trạng thái hóa đơn không cho phép",
+      "detail": "Hóa đơn không chuyển được sang trạng thái này."
+    },
+    "request_transition_not_allowed": {
+      "title": "Trạng thái yêu cầu không cho phép",
+      "detail": "Yêu cầu không chuyển được sang trạng thái này."
+    },
     "expense_category_unknown": {
       "title": "Loại chi phí không có",
       "detail": "Chọn loại chi phí đang dùng trong danh mục."
@@ -1111,12 +1187,22 @@
       "approval-limit": {
         "title": "Hạn mức phê duyệt",
         "lead": "Số tiền cấp thu ngân tự quyết và hạn mức cấp quản lý chi nhánh cho từng loại yêu cầu; vượt hạn mức quản lý thì chủ garage duyệt. Số liệu minh họa cho tới khi khách ban hành. Đặt qua API.",
-        "scopeHint": "payment_reversal, expense, debt_handover hoặc cash_variance"
+        "scopeHint": "payment_reversal, expense, deposit_refund, debt_handover, cash_variance, invoice_adjust, invoice_replace hoặc invoice_cancel"
       },
       "expense-category": {
         "title": "Loại chi phí",
-        "lead": "Danh mục loại chi phí của phiếu chi. Không xóa, chỉ ngừng dùng. Đặt qua API.",
+        "lead": "Danh mục loại chi phí của phiếu chi. Mỗi loại có thuộc tính bắt buộc chứng từ gốc hay không (bắt buộc thì chặn lưu khi thiếu). Không xóa, chỉ ngừng dùng. Đặt qua API.",
         "scopeHint": "Mã loại, chữ thường không dấu, ví dụ office"
+      },
+      "einvoice-issuer": {
+        "title": "Đơn vị phát hành hóa đơn",
+        "lead": "Nhà cung cấp hóa đơn điện tử (theo mã), môi trường thử hoặc thật, tên và mã số thuế bên bán, ký hiệu và loại hóa đơn của chi nhánh. Chưa khai thì hóa đơn điện tử chưa kích hoạt. Đặt qua API; theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+      },
+      "einvoice-policy": {
+        "title": "Chính sách hóa đơn điện tử",
+        "lead": "Cách lập dòng hóa đơn (theo thuế suất hoặc theo dòng), thời điểm cho phép phát hành, bắt buộc địa chỉ người mua doanh nghiệp, xử lý khi thuế suất đổi, số lần thử lại và thời gian chờ nhà cung cấp. Đặt qua API; theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "company hoặc branch:<mã chi nhánh>"
       }
     },
     "perHour": "{amount} / giờ",
@@ -1262,10 +1348,14 @@
       "config_order-policy": "Cấu hình: Chính sách thực hiện lệnh",
       "approval": "Yêu cầu phê duyệt",
       "payment": "Phiếu thu chi",
+      "invoice": "Hóa đơn điện tử",
+      "invoiceRequest": "Yêu cầu phát hành hóa đơn",
       "cashShift": "Ca thu ngân",
       "dayClose": "Chốt ngày",
       "debt": "Công nợ",
       "config_acc-policy": "Cấu hình: Chính sách thu chi",
+      "config_einvoice-issuer": "Cấu hình: Đơn vị phát hành hóa đơn",
+      "config_einvoice-policy": "Cấu hình: Chính sách hóa đơn điện tử",
       "config_approval-limit": "Cấu hình: Hạn mức phê duyệt",
       "config_expense-category": "Cấu hình: Loại chi phí"
     },
@@ -1374,6 +1464,21 @@
       "approval_reject": "Từ chối yêu cầu",
       "approval_withdraw": "Rút yêu cầu",
       "approval_consume": "Thực hiện yêu cầu đã duyệt",
+      "invoice_request": "Tạo yêu cầu phát hành hóa đơn",
+      "invoice_attempt": "Gửi nhà cung cấp hóa đơn",
+      "invoice_processing": "Nhà cung cấp đang xử lý hóa đơn",
+      "invoice_error": "Lỗi khi phát hành hóa đơn",
+      "invoice_issued": "Phát hành hóa đơn",
+      "invoice_cancelled": "Hủy hóa đơn",
+      "invoice_adjusted": "Phát hành hóa đơn điều chỉnh",
+      "invoice_replaced": "Phát hành hóa đơn thay thế",
+      "invoice_buyer_fixed": "Sửa thông tin người mua",
+      "invoice_request_cancelled": "Hủy yêu cầu phát hành",
+      "invoice_files_stored": "Lưu tệp XML và PDF hóa đơn",
+      "invoice_adjust_request": "Gửi yêu cầu điều chỉnh hóa đơn",
+      "invoice_replace_request": "Gửi yêu cầu thay thế hóa đơn",
+      "invoice_cancel_request": "Gửi yêu cầu hủy hóa đơn",
+      "invoice_error_reported": "Báo hóa đơn có sai",
       "payment_receipt": "Thu tiền",
       "payment_deposit": "Thu tiền cọc",
       "payment_expense": "Chi tiền",
@@ -1468,7 +1573,9 @@
     "approvalApproved": "Yêu cầu {number} đã được duyệt.",
     "approvalRejected": "Yêu cầu {number} bị từ chối.",
     "expenseSourceMissing": "Có {count} phiếu chi thiếu chứng từ gốc đã quá {days} ngày chưa bổ sung. Mở sổ quỹ để xem.",
-    "einvoiceQueued": "Có yêu cầu phát hành hóa đơn lỗi cần xử lý ({count}). Mở hàng chờ lỗi.",
+    "einvoiceCorrection": "Yêu cầu {number} đã được duyệt và đang gửi nhà cung cấp hóa đơn.",
+    "einvoiceReported": "Hóa đơn {number} của lệnh {order} được báo có sai. Mở hóa đơn để xử lý.",
+    "einvoiceQueued": "Yêu cầu hóa đơn {number} vào hàng chờ lỗi. Mở hàng chờ để xử lý.",
     "orderWarehouseMissing": "Chi nhánh chưa có kho hoạt động: báo giá {number} đã duyệt nhưng chưa mở được lệnh có phụ tùng."
   },
   "settings": {

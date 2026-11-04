@@ -13,6 +13,8 @@ const schema = z.object({
   FIRESTORE_EMULATOR_HOST: z.string().optional(),
   FIREBASE_AUTH_EMULATOR_HOST: z.string().optional(),
   FIREBASE_STORAGE_EMULATOR_HOST: z.string().optional(),
+  /** private bucket for business files (e-invoice XML/PDF); defaults to the project's default bucket */
+  GMEP_FILES_BUCKET: z.string().optional(),
   APP_ORIGIN: z.string().url().optional(),
   SESSION_TTL_HOURS: z.coerce
     .number()

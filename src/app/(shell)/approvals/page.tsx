@@ -26,6 +26,8 @@ function sourceOf(a: ApprovalDto): string {
   if (a.kind === 'payment_reversal') return `/acc/payments/${encodeURIComponent(a.subjectId)}`;
   if (a.kind === 'debt_handover') return `/acc/orders/${encodeURIComponent(a.subjectId)}`;
   if (a.kind === 'cash_variance') return '/acc/cashbook';
+  if (a.kind.startsWith('invoice_'))
+    return `/ein/invoices/${encodeURIComponent(a.subjectId.split(':')[0] ?? '')}`;
   return '/acc/cashbook';
 }
 

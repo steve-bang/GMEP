@@ -145,6 +145,30 @@ export function recDemoDocs(): SeedDoc[] {
     handoverRequiresPayment: true,
     handoverRequiresReceiver: true,
   });
+  // ---- slice 1.8 (EIN) SAMPLE issuing unit: the fake provider in the TEST environment. The real provider, seller data,
+  // symbol and invoice type are the client's and the accountant's [Cần xác nhận]; none of this is a legal value.
+  cfg('einvoice-issuer', 'company', {
+    enabled: true,
+    providerCode: 'fake',
+    environment: 'test',
+    sellerName: 'Công ty TNHH Garage Demo',
+    sellerTaxCode: '0312000111',
+    sellerAddress: '12 Nguyễn Văn Linh, Quận 7, TP.HCM',
+    symbol: 'C26TAA',
+    invoiceType: 'vat',
+    templateCode: '1',
+  });
+  cfg('einvoice-policy', 'company', {
+    lineMode: 'per-rate',
+    perRateDescription: 'Dịch vụ sửa chữa, bảo dưỡng và phụ tùng theo lệnh {order}',
+    issueAfter: 'qc',
+    businessAddressRequired: true,
+    retailNameRequired: true,
+    taxChangePolicy: 'warn',
+    maxAttempts: 5,
+    retryBackoffMinutes: [5, 15, 60, 240, 720],
+    providerTimeoutMs: 30000,
+  });
   // ---- slice 1.7 (ACC) SAMPLE policy and limits: the client and the accountant give the real numbers [Cần xác nhận]
   cfg('acc-policy', 'company', {
     methods: ['cash', 'transfer', 'card', 'qr'],

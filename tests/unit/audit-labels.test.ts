@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { messages } from '@/platform/i18n/messages';
 
 /** FR-SYS-003: audit codes are technical; the UI shows Vietnamese labels, so every code written by the SYS module needs one. */
-const dirs = ['sys', 'crm', 'inv', 'acc'].map((m) =>
+const dirs = ['sys', 'crm', 'inv', 'acc', 'ein'].map((m) =>
   join(process.cwd(), `src/modules/${m}/application`),
 );
 const source = dirs
@@ -32,6 +32,14 @@ describe('audit code labels (no technical codes shown to users)', () => {
       'user.enable',
       'warehouse.deactivate',
       'warehouse.reactivate',
+      // EIN builds these as templates: invoice.<purpose> / invoice.<purpose>_request
+      'invoice.issued',
+      'invoice.cancelled',
+      'invoice.adjusted',
+      'invoice.replaced',
+      'invoice.adjust_request',
+      'invoice.replace_request',
+      'invoice.cancel_request',
     ]);
     const missing = [...actions].filter((a) => !m.audit.actions[key(a)]);
     expect(missing).toEqual([]);

@@ -75,3 +75,16 @@ export function splitTaxByItems(items: readonly TaxableItem[]): GrossSplit {
   const taxVnd = out.reduce((s, i) => s + i.taxVnd, 0);
   return { items: out, netVnd, taxVnd, totalVnd: netVnd + taxVnd };
 }
+
+/** Tax of a set of items, per rate, computed ONCE per rate on the net sum (the rule of `splitTaxByItems`). */
+export function taxPerRate(
+  items: readonly TaxableItem[],
+): Map<number, { netVnd: number; taxVnd: number }> {
+  const net = new Map<number, number>();
+  for (const item of items)
+    for (const l of item.lines) net.set(l.taxRateBp, (net.get(l.taxRateBp) ?? 0) + l.amountVnd);
+  const out = new Map<number, { netVnd: number; taxVnd: number }>();
+  for (const [bp, n] of [...net.entries()].sort((a, b) => a[0] - b[0]))
+    out.set(bp, { netVnd: n, taxVnd: halfUpDiv(n * bp, 10_000) });
+  return out;
+}

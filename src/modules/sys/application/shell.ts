@@ -34,6 +34,9 @@ export interface ShellInfo {
     dayClose: boolean;
     debts: boolean;
     approvals: boolean;
+    invoices: boolean;
+    invoiceQueue: boolean;
+    einConnection: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -93,6 +96,9 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       dayClose: can('cash-day:view'),
       debts: can('debt:view'),
       approvals: can('approval:view'),
+      invoices: can('invoice:view'),
+      invoiceQueue: can('invoice-queue:view'),
+      einConnection: can('einvoice-config:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),

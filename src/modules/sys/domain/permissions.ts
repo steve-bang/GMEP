@@ -204,6 +204,36 @@ const ACC_KT = [
   ]),
 ];
 
+/**
+ * EIN slice 1.8 (e-invoice) default grants [Đề xuất dev - chờ xác nhận: BA/Khách], from the G4-EIN role columns
+ * (TN, KT = S; CH, QV, QL = X; AD only the technical connection) and FR-EIN-007 (the "chief accountant" is a right of KT,
+ * not a role: `invoice:approve`). By default only CH holds it; the owner gives it to the chief accountant through role
+ * administration (open question R70).
+ *  - `invoice`: view lists and details and files; create = issue from an order; approve = decide an adjust / replace / cancel.
+ *  - `invoice-queue`: view the error queue (not AD, who would see buyer data); update = retry, fix the buyer, cancel a request, sync.
+ *  - `invoice-correction:create`: propose adjust / replace / cancel and run the approved one. `invoice-report:create`: the cashier tells KT.
+ *  - `invoice-technical:view`: the idempotency key and attempts. `einvoice-config`: issuer and policy (effective-dated config).
+ */
+const EIN_VIEW = flatten([g('invoice', 'view'), g('invoice-queue', 'view')]);
+const EIN_TN = flatten([g('invoice', 'view', 'create'), g('invoice-report', 'create')]);
+const EIN_KT = flatten([
+  g('invoice', 'view', 'create'),
+  g('invoice-queue', 'view', 'update'),
+  g('invoice-correction', 'create'),
+  g('invoice-report', 'create'),
+  g('invoice-technical', 'view'),
+  g('einvoice-config', 'view', 'update'),
+]);
+const EIN_CH = [
+  ...EIN_VIEW,
+  ...flatten([
+    g('invoice', 'approve'),
+    g('invoice-technical', 'view'),
+    g('einvoice-config', 'view', 'update', 'approve', 'reject'),
+  ]),
+];
+const EIN_AD = flatten([g('einvoice-config', 'view', 'update'), g('invoice-technical', 'view')]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -237,6 +267,7 @@ const CH = [
   ...REC_VIEW_ALL,
   ...ORD_VIEW,
   ...ACC_CH,
+  ...EIN_CH,
 ];
 
 const matrix: Grant = {
@@ -265,7 +296,8 @@ const matrix: Grant = {
     .concat(INV_VIEW)
     .concat(REC_VIEW_ALL)
     .concat(ORD_VIEW)
-    .concat(ACC_VIEW_ALL),
+    .concat(ACC_VIEW_ALL)
+    .concat(EIN_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -299,7 +331,8 @@ const matrix: Grant = {
     .concat(REC_S)
     .concat(flatten([g('quote', 'approve', 'reject')]))
     .concat(ORD_QL)
-    .concat(ACC_QL),
+    .concat(ACC_QL)
+    .concat(EIN_VIEW),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -356,7 +389,8 @@ const matrix: Grant = {
   ])
     .concat(REC_VIEW_ALL)
     .concat(ORD_TN)
-    .concat(ACC_TN),
+    .concat(ACC_TN)
+    .concat(EIN_TN),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -379,7 +413,8 @@ const matrix: Grant = {
     .concat(INV_VIEW)
     .concat(REC_VIEW_QUOTE)
     .concat(flatten([g('repair-order', 'view')]))
-    .concat(ACC_KT),
+    .concat(ACC_KT)
+    .concat(EIN_KT),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -398,7 +433,7 @@ const matrix: Grant = {
     g('audit-log', 'view', 'export'),
     g('access-log', 'view'),
     g('login-history', 'view', 'export'),
-  ]),
+  ]).concat(EIN_AD),
 };
 
 export const ROLE_NAMES: Record<RoleCode, string> = {
@@ -474,6 +509,18 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
       CV: ACC_CV,
       TN: ACC_TN,
       KT: ACC_KT,
+    },
+  },
+  {
+    id: '2026-11-ein-1.8-invoice',
+    note: 'Slice 1.8: e-invoice issue, queue, correction with approval, issuer configuration (FR-EIN-001..013)',
+    grants: {
+      CH: EIN_CH,
+      QV: EIN_VIEW,
+      QL: EIN_VIEW,
+      TN: EIN_TN,
+      KT: EIN_KT,
+      AD: EIN_AD,
     },
   },
 ];

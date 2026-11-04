@@ -23,6 +23,11 @@ export const AUDIT_RESTRICTED_TYPES: readonly string[] = [
   'config.numbering-series',
   'config.doc-template',
   'priceList',
+  // KT sees what touches money and invoices (BA §8.2)
+  'invoice',
+  'invoiceRequest',
+  'config.einvoice-issuer',
+  'config.einvoice-policy',
 ];
 
 const dateRe = /^\d{4}-\d{2}-\d{2}$/;

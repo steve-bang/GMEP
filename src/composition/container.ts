@@ -8,6 +8,7 @@ import type { DocStore, StoreStats } from '@/platform/store/docStore';
 import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
 import { accApprovalHandlers, type AccDeps } from '@/modules/acc';
+import type { EinDeps } from '@/modules/ein';
 import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
 import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
 import {
@@ -28,6 +29,11 @@ import {
   type SysDeps,
 } from '@/modules/sys';
 import { accPaymentGate, buildAcc } from './accWiring';
+import { buildEin } from './einWiring';
+import { FakeProvider } from '@/infrastructure/einvoice/fakeProvider';
+import { MemoryFileStore } from '@/infrastructure/files/memoryFileStore';
+import { FirebaseFileStore } from '@/infrastructure/files/firebaseFileStore';
+import type { FileStore } from '@/platform/files/fileStore';
 import { noStrongAuth } from '@/infrastructure/auth/noStrongAuth';
 import { OutboxEmailGateway } from '@/infrastructure/email/outboxEmailGateway';
 import { getDb } from '@/infrastructure/firestore/client';
@@ -93,6 +99,9 @@ export interface Container {
   inv: InvDeps;
   rec: RecDeps;
   acc: AccDeps;
+  ein: EinDeps;
+  /** the only e-invoice adapter built; tests and the local demo script its failures */
+  fakeProvider: FakeProvider;
   store: DocStore & { stats: StoreStats };
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
@@ -262,22 +271,40 @@ export interface ContainerOptions {
 export function createContainer(opts: ContainerOptions = {}): Container {
   const env = opts.env ?? loadEnv();
   const clock = opts.clock ?? systemClock;
-  const late: { inv?: InvDeps; acc?: AccDeps; rec?: RecDeps } = {};
+  const late: { inv?: InvDeps; acc?: AccDeps; rec?: RecDeps; crm?: CrmDeps } = {};
+  const fakeProvider = new FakeProvider(() => clock.now());
 
   const assemble = (
     store: DocStore,
     uow: UnitOfWork,
     identity: IdentityProvider,
-  ): { sys: SysDeps; crm: CrmDeps; inv: InvDeps; rec: RecDeps; acc: AccDeps } => {
+    files: FileStore,
+  ): {
+    sys: SysDeps;
+    crm: CrmDeps;
+    inv: InvDeps;
+    rec: RecDeps;
+    acc: AccDeps;
+    ein: EinDeps;
+    fakeProvider: FakeProvider;
+  } => {
     const sys = buildSys(env, clock, store, uow, identity, { get: () => late.inv! });
     const inv = (late.inv = buildInv(sys, store, env));
-    const crm = buildCrm(sys, store);
+    const crm = (late.crm = buildCrm(sys, store));
     const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!));
     const acc = (late.acc = buildAcc(sys, store, () => late.rec!));
     // FR-SYS-004: the module that owns an approval kind registers what a decision does (same transaction)
     for (const [kind, h] of Object.entries(accApprovalHandlers(() => late.acc!)))
       sys.approvalHandlers.set(kind, h);
-    return { sys, crm, inv, rec, acc };
+    const ein = buildEin(
+      sys,
+      store,
+      () => late.rec!,
+      () => late.crm!,
+      files,
+      fakeProvider,
+    );
+    return { sys, crm, inv, rec, acc, ein, fakeProvider };
   };
 
   if (env.GMEP_DATA_BACKEND === 'memory') {
@@ -290,7 +317,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       memory: { db, identity },
       store,
       identity,
-      ...assemble(store, new MemoryUnitOfWork(db), identity),
+      ...assemble(store, new MemoryUnitOfWork(db), identity, new MemoryFileStore()),
     };
   }
 
@@ -302,7 +329,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     backend: 'firestore',
     store,
     identity,
-    ...assemble(store, new FirestoreUnitOfWork(db), identity),
+    ...assemble(store, new FirestoreUnitOfWork(db), identity, new FirebaseFileStore(env)),
   };
 }
 

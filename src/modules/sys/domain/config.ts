@@ -288,6 +288,52 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // FR-EIN-003 (slice 1.8): the issuing unit of a branch and the provider behind it, company default with branch override.
+  // The provider is chosen by CODE here (data), never in code; `fake` is the only adapter built. The live environment is a
+  // separate value so test and live never mix (FR-EIN-004). Legal facts (symbol, invoice type) are [Cần kế toán xác nhận].
+  'einvoice-issuer': {
+    type: 'einvoice-issuer',
+    resource: 'einvoice-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        enabled: z.boolean(),
+        providerCode: z.string().regex(/^[a-z][a-z0-9-]{0,29}$/),
+        environment: z.enum(['test', 'live']),
+        sellerName: z.string().trim().min(2).max(200),
+        sellerTaxCode: z.string().regex(/^\d{10}(-\d{3})?$/),
+        sellerAddress: z.string().trim().max(300).optional(),
+        symbol: z.string().regex(/^[A-Z0-9]{3,8}$/),
+        invoiceType: z.enum(['vat', 'sales']),
+        templateCode: z.string().regex(/^[A-Z0-9]{1,11}$/),
+      })
+      .strict(),
+  },
+  // FR-EIN-001/009/010/011 (slice 1.8): how an invoice is built and retried. Every value is a default
+  // [Đề xuất dev - chờ xác nhận: Kế toán khách]; none is a legal rule.
+  'einvoice-policy': {
+    type: 'einvoice-policy',
+    resource: 'einvoice-config',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        /** per-rate = one line per tax rate (BA R25 default); per-line = one line per approved line */
+        lineMode: z.enum(['per-rate', 'per-line']),
+        perRateDescription: z.string().trim().min(2).max(120),
+        /** qc = from the quality check on; handover = only after the vehicle was handed over */
+        issueAfter: z.enum(['qc', 'handover']),
+        businessAddressRequired: z.boolean(),
+        retailNameRequired: z.boolean(),
+        /** a tax-rate change between the approved quote and the invoice date: list it (warn) or stop (block) */
+        taxChangePolicy: z.enum(['warn', 'block']),
+        maxAttempts: z.number().int().min(1).max(20),
+        retryBackoffMinutes: z.array(z.number().int().min(1).max(1440)).min(1).max(8),
+        providerTimeoutMs: z.number().int().min(1000).max(120_000),
+      })
+      .strict(),
+  },
   // FR-REC-032 / BR-REC-13: the steps of a service type (a repair order gets the set of its type).
   // The item states and the responsible person are applied when the repair item exists (slice 1.6).
   'service-workflow': {

@@ -64,6 +64,13 @@ export const COL = {
   cashShifts: 'cashShifts',
   dayCloses: 'dayCloses',
   debts: 'debts',
+  // EIN slice 1.8
+  invoices: 'invoices',
+  invoicePii: 'invoicePii',
+  invoiceArtifacts: 'invoiceArtifacts',
+  invoiceRequests: 'invoiceRequests',
+  invoiceQueues: 'invoiceQueues',
+  einOrders: 'einOrders',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -554,5 +561,16 @@ export const Q = {
     collection: COL.debts,
     eq: ['companyId', 'branchId', 'status'],
     order: { field: 'dueDate', dir: 'asc', type: 'string' },
+  }),
+  // ---- EIN slice 1.8 (R68): ONE query shape and ONE index for the whole slice. Everything else is read by document id:
+  // the order -> invoice lookup (`einOrders/<orderId>`), the error queue (`invoiceQueues/<branchId>`), requests and
+  // artifacts (deterministic ids). The list is one branch (equality), newest first; status / text filters run in memory
+  // over a bounded window (rule 2), so no status / buyer index is needed.
+  invoicesByBranch: defineQuery({
+    name: 'invoices.byBranch',
+    collection: COL.invoices,
+    eq: ['companyId', 'branchId'],
+    range: true,
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
 };
