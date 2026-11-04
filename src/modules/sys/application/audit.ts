@@ -101,7 +101,9 @@ export async function listAudit(
       at: e.at.toISOString(),
       branchId: e.branchId,
       actorId: e.actorId,
-      actorName: names.get(e.actorId) ?? null,
+      actorName:
+        names.get(e.actorId) ??
+        (e.actorId.startsWith('customer-link:') ? 'Khách (liên kết báo giá)' : null),
       actorRoles: e.actorRoles,
       entityType: e.entityType,
       entityId: e.entityId,

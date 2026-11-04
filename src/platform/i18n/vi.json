@@ -810,6 +810,21 @@
         "title": "Dãy số chứng từ",
         "lead": "Ghi đè bảng mặc định theo ngày hiệu lực",
         "scopeHint": "Mã loại chứng từ viết thường, ví dụ repair-order"
+      },
+      "decline-reason": {
+        "title": "Lý do khách không duyệt",
+        "lead": "Danh mục lý do khi khách bỏ một hạng mục của báo giá. Không xóa, chỉ ngừng dùng.",
+        "scopeHint": "Mã lý do, chữ thường không dấu, ví dụ price_high"
+      },
+      "quote-approval": {
+        "title": "Chính sách duyệt báo giá",
+        "lead": "Cho phép khách bỏ hạng mục bắt buộc, cho phép xác nhận bằng lời, OTP. Đặt qua API; theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+      },
+      "service-workflow": {
+        "title": "Quy trình theo loại dịch vụ",
+        "lead": "Bộ bước của từng loại dịch vụ (mã bước, tên, vai trò phụ trách). Đặt qua API.",
+        "scopeHint": "Mã loại dịch vụ, ví dụ maintenance"
       }
     },
     "perHour": "{amount} / giờ",
@@ -887,7 +902,12 @@
       "standard-hours": "G4-SYS-07",
       "discount-limit": "G4-SYS-09",
       "doc-template": "G4-SYS-12"
-    }
+    },
+    "quoteApprovalValue": "Bỏ hạng mục bắt buộc: {decline} · Xác nhận bằng lời: {verbal} · OTP: {otp}",
+    "yes": "được",
+    "no": "không",
+    "otpOff": "tắt",
+    "stepsValue": "{n} bước: {names}"
   },
   "audit": {
     "title": "Nhật ký thao tác",
@@ -1014,7 +1034,12 @@
       "quote_update": "Sửa báo giá nháp",
       "quote_revise": "Tạo phiên bản báo giá mới",
       "quote_send": "Gửi báo giá cho khách",
-      "quote_reject": "Ghi nhận khách từ chối báo giá"
+      "quote_reject": "Ghi nhận khách từ chối báo giá",
+      "quote_link_issue": "Tạo liên kết báo giá cho khách",
+      "quote_approve_link": "Khách duyệt báo giá qua liên kết",
+      "quote_approve_counter_signature": "Ghi nhận khách ký duyệt báo giá tại quầy",
+      "quote_approve_counter_verbal": "Ghi nhận khách duyệt báo giá bằng lời",
+      "quote_reject_link": "Khách từ chối toàn bộ báo giá qua liên kết"
     },
     "colBranch": "Chi nhánh",
     "allSystem": "Toàn hệ thống",
