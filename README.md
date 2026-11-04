@@ -171,12 +171,45 @@ Key mechanics already in place:
   until an SMS provider is active.
 - **Print A4**: `/rec/quotes/[id]/print` (print-first HTML/CSS ported from `design/g2-quote-delivery`), no phone or address printed.
 - **For slice 1.6**: `getApprovedQuote(rec, actor, quoteId)` / `GET /api/v1/rec/quotes/[id]/approved` (approved lines only, each with the immutable
-  `lineKey` = `<quote>__v<n>#<item>.<line>`, price version id and tax key/version), `allocateRepairOrderNumber` (FR-REC-030, series `repair-order`),
+  `lineKey` = `<quote>__v<n>_<item>_<line>` (INV id-token safe), price version id and tax key/version), `allocateRepairOrderNumber` (FR-REC-030, series `repair-order`),
   `getServiceWorkflow` / `GET /api/v1/rec/service-workflows` (FR-REC-032, config `service-workflow`). No order and no stock hold exist yet.
 - Tests: `tests/unit/rec-approval.test.ts`, `tests/integration/rec-approval.test.ts` (both backends), `e2e/slice-1-5-approval.spec.ts`.
+
+## Slice 1.6 (REC repair order and execution)
+
+- **Approval opens the order (R37, FR-REC-010)**: after the approval evidence is committed (counter, verbal or customer link) `afterQuoteApproved`
+  runs the idempotent `openOrderForQuote`: in ONE transaction it allocates `RO-<BRANCH>-<YYMM>-<seq5>` (keyed by the approval hash, R35), creates
+  the order with ONLY the approved lines (one repair item per approved quote item, each line keeps its immutable `lineKey`), and holds stock for the
+  approved part lines through INV `prepareHoldForApproval` (partial: a shortage is stored as `unmetQty` and the item starts "paused, waiting for
+  parts", the approval is never blocked). A technical failure leaves the quote "approved, no order yet" with a **Tạo lệnh** button (same path, safe to
+  repeat) and a notice to the branch manager. A customer-link approval has no staff member, so the order is opened by the system actor
+  (`system:order`, audit `actorType` system). Supplementary quotes (FR-REC-014) are normal quotes with `supplementOfOrderId`; their approval appends
+  items and a hold to the SAME order (`appendSupplement`) and never opens a new order.
+- **Five objects, separate machines**: `domain/orderState.ts` holds the repair order machine (approved, in_progress, paused, awaiting_qc,
+  ready_for_delivery, completed, cancelled) and the repair item machine (not_started, in_progress, paused, done, returned) as pure tables tested for
+  every state x event pair (`tests/unit/rec-order-state.test.ts`). An item never moves the order except through explicit events (first start,
+  QC, supplement `reopen`). Hours come from append-only time events (`workedMsOf`), never typed; undo is a compensating event inside a configurable
+  window (`RecConfig.undoWindowMs`, `order-policy`).
+- **Data**: `repairOrders` (qcRuns, proposals, handover, history embedded and bounded), `repairItems` (events, assignments embedded), `partRequests`.
+  Every query is registered in `repos/queries.ts` (184 composite indexes now). Item/order actions read the order document in the same transaction, so
+  concurrent taps serialise on it (Firestore transactions).
+- **Execution**: assign technician (`repair-item:manage`, change needs a reason), technician tablet `/rec/work` (own items only; start/finish one tap,
+  pause = reason tap), part requests only against approved part lines (RULE-005); the storekeeper's **issue** runs INV `issueForOrderInTx` in the SAME
+  transaction as the request (RULE-007, carries the `lineKey`), dispatch board `/rec/board` (auto refresh), QC with an effective-dated
+  `qc-checklist` (a failure returns items to their technician), handover (receiver name, odometer through CRM `recordOdometer`, completes the order and
+  writes the CRM `vehicleHistory` projection row), A5 and 80 mm handover print `/rec/orders/[id]/handover/print` (logged; reprint needs a reason).
+- **Cancel (FR-REC-021)**: nothing issued -> CV/QL, hold released; parts issued -> only a manager, only after every issued part is returned by a posted RTN
+  (INV `orderIssueBalance`; issues made outside REC count as unaccounted and block).
+- **BA section 18 items**: R38 expired link is read-only (decisions look like an unknown link), R36 workflow seeds `general_repair` and `body_paint`
+  (sample, `expectedDays`, `countsTowardLabor`), R29 `recordedByRole` + optional `verbalApprovalMaxVnd`, R34 `public-rate-limit` config, R30/R21
+  `POST /api/v1/sys/roles/top-up` (`PERMISSION_TOPUPS`, idempotent, audited, owner only) and audit `actorType`.
+- **Routes**: `/api/v1/rec/{orders,board,work,technicians,part-requests,items/[id]/{assign,start,pause,finish,undo},quotes/[id]/create-order}`; UI
+  `/rec/orders`, `/rec/orders/[id]`, `/rec/orders/[id]/{qc,handover,handover/print}`, `/rec/board`, `/rec/work`, `/rec/part-requests`.
+- Tests: `tests/unit/rec-order-state.test.ts`, `tests/integration/rec-orders.test.ts` (both backends, includes concurrency), `e2e/slice-1-6.spec.ts`.
+  Open questions R39..R53 in `docs/dev/open-questions-for-ba.md`.
 
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger and REC intake/quote (ACC, EIN, RPT are skeletons; REC repair orders, items and supplementary quotes are not built, nor photos, Zalo/SMS/email sending or OTP; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core, the INV ledger and REC intake/quote (ACC, EIN, RPT are skeletons; REC photos, Zalo/SMS/email sending, OTP, warranty orders (REC-018), the reminder screen of declined items (REC-024), the technician's "Công của tôi" and body-paint step tracking screens are not built; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.

@@ -352,6 +352,114 @@
     "prices_outdated": {
       "title": "Giá trong báo giá đã cũ",
       "detail": "Bản nháp được tính giá từ ngày trước. Lưu lại báo giá để cập nhật giá rồi gửi."
+    },
+    "items_not_done": {
+      "title": "Còn hạng mục chưa hoàn thành",
+      "detail": "Chỉ gửi kiểm tra chất lượng khi mọi hạng mục của lệnh đã hoàn thành."
+    },
+    "order_state_invalid": {
+      "title": "Lệnh không ở trạng thái phù hợp",
+      "detail": "Thao tác này không dùng được với trạng thái hiện tại của lệnh. Tải lại trang để xem trạng thái mới."
+    },
+    "order_paused": {
+      "title": "Lệnh đang tạm dừng",
+      "detail": "Tiếp tục lệnh trước khi làm việc trên các hạng mục."
+    },
+    "order_not_active": {
+      "title": "Lệnh không còn nhận công việc",
+      "detail": "Lệnh đã chuyển sang bước kiểm tra, giao xe hoặc đã đóng."
+    },
+    "item_state_invalid": {
+      "title": "Hạng mục không ở trạng thái phù hợp",
+      "detail": "Thao tác này không dùng được với trạng thái hiện tại của hạng mục. Tải lại để xem trạng thái mới."
+    },
+    "technician_missing": {
+      "title": "Hạng mục chưa có thợ",
+      "detail": "Phân một thợ chịu trách nhiệm trước khi bắt đầu."
+    },
+    "waiting_parts": {
+      "title": "Hạng mục đang chờ phụ tùng",
+      "detail": "Phụ tùng chưa đủ để giữ chỗ. Kiểm tra lại phụ tùng khi hàng về."
+    },
+    "item_in_progress": {
+      "title": "Hạng mục đang được làm",
+      "detail": "Tạm dừng hạng mục trước khi đổi thợ."
+    },
+    "technician_invalid": {
+      "title": "Không chọn được người này",
+      "detail": "Chỉ chọn thợ hoặc quản đốc của chi nhánh này."
+    },
+    "reason_required": {
+      "title": "Cần ghi lý do",
+      "detail": "Ghi lý do để tiếp tục."
+    },
+    "undo_window_passed": {
+      "title": "Quá thời gian hoàn tác",
+      "detail": "Chỉ hoàn tác được ngay sau khi bấm. Nhờ quản đốc sửa nếu bấm nhầm."
+    },
+    "undo_not_yours": {
+      "title": "Không hoàn tác được thao tác của người khác",
+      "detail": "Chỉ người vừa bấm mới hoàn tác được."
+    },
+    "nothing_to_undo": {
+      "title": "Không có gì để hoàn tác",
+      "detail": "Hạng mục chưa có thao tác nào có thể hoàn tác."
+    },
+    "request_exceeds_approved": {
+      "title": "Vượt số lượng đã duyệt",
+      "detail": "Chỉ yêu cầu tối đa số lượng khách đã duyệt trong báo giá, trừ phần đã yêu cầu hoặc đã xuất."
+    },
+    "line_not_approved": {
+      "title": "Dòng phụ tùng chưa được duyệt",
+      "detail": "Chỉ yêu cầu phụ tùng của dòng đã được khách duyệt. Phụ tùng ngoài báo giá cần báo giá bổ sung."
+    },
+    "request_closed": {
+      "title": "Yêu cầu đã được xử lý",
+      "detail": "Yêu cầu phụ tùng này đã được xuất hoặc từ chối."
+    },
+    "cancel_needs_manager": {
+      "title": "Cần quản lý chi nhánh hủy lệnh",
+      "detail": "Lệnh đã xuất phụ tùng chỉ hủy được khi quản lý duyệt và phụ tùng đã hoàn kho."
+    },
+    "returns_pending": {
+      "title": "Phụ tùng chưa hoàn kho đủ",
+      "detail": "Lập và ghi sổ phiếu hoàn kho cho mọi phụ tùng đã xuất cho lệnh này rồi hủy lệnh."
+    },
+    "order_cancel_not_allowed": {
+      "title": "Không hủy được lệnh ở bước này",
+      "detail": "Lệnh đã chờ kiểm tra, sẵn sàng giao hoặc hoàn tất không hủy được."
+    },
+    "qc_required": {
+      "title": "Chưa qua kiểm tra chất lượng",
+      "detail": "Lệnh phải đạt kiểm tra chất lượng trước khi giao xe."
+    },
+    "payment_check_unavailable": {
+      "title": "Chưa kiểm tra được thanh toán",
+      "detail": "Chính sách yêu cầu thu đủ tiền trước khi giao xe, nhưng phân hệ thu tiền chưa bật."
+    },
+    "order_too_large": {
+      "title": "Lệnh quá lớn",
+      "detail": "Giảm số hạng mục, yêu cầu phụ tùng hoặc đề xuất của lệnh."
+    },
+    "warehouse_missing": {
+      "title": "Chi nhánh chưa có kho hoạt động",
+      "detail": "Cần một kho hoạt động để giữ chỗ phụ tùng cho lệnh."
+    },
+    "quote_not_approved": {
+      "title": "Báo giá chưa được duyệt",
+      "detail": "Chỉ mở lệnh từ báo giá đã được khách duyệt."
+    },
+    "proposal_closed": {
+      "title": "Đề xuất đã được xử lý",
+      "detail": "Đề xuất này đã lập báo giá bổ sung hoặc đã bị bỏ qua."
+    },
+    "verbal_needs_manager": {
+      "title": "Cần quản lý ghi nhận",
+      "detail": "Báo giá vượt ngưỡng duyệt bằng lời của cố vấn. Quản lý chi nhánh ghi nhận thay."
+    },
+    "order_number_unavailable": {
+      "title": "Chưa cấp được mã lệnh",
+      "detail": "Dãy số lệnh sửa chữa chưa được cấu hình."
     }
   },
   "login": {
@@ -405,7 +513,11 @@
       "stockDocs": "Chứng từ kho",
       "groupRec": "Tiếp nhận và báo giá",
       "intakes": "Tiếp nhận xe",
-      "quotes": "Báo giá"
+      "quotes": "Báo giá",
+      "orders": "Lệnh sửa chữa",
+      "board": "Bảng điều phối",
+      "myWork": "Việc của tôi",
+      "partRequests": "Yêu cầu phụ tùng"
     },
     "notifications": "Thông báo",
     "readOnly": "Chỉ xem",
@@ -825,6 +937,21 @@
         "title": "Quy trình theo loại dịch vụ",
         "lead": "Bộ bước của từng loại dịch vụ (mã bước, tên, vai trò phụ trách). Đặt qua API.",
         "scopeHint": "Mã loại dịch vụ, ví dụ maintenance"
+      },
+      "public-rate-limit": {
+        "title": "Giới hạn tốc độ trang khách",
+        "lead": "Số lượt xem và quyết định tối đa của trang báo giá cho khách, tính theo địa chỉ và theo liên kết. Đặt qua API; chưa khai thì dùng số mặc định.",
+        "scopeHint": "Toàn công ty (company)"
+      },
+      "qc-checklist": {
+        "title": "Danh sách kiểm tra chất lượng",
+        "lead": "Các mục kiểm tra của từng loại dịch vụ. Khóa default dùng cho loại chưa có danh sách riêng. Đặt qua API.",
+        "scopeHint": "Mã loại dịch vụ hoặc default"
+      },
+      "order-policy": {
+        "title": "Chính sách thực hiện lệnh",
+        "lead": "Thời gian hoàn tác thao tác của thợ và điều kiện giao xe. Đặt qua API; theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "company hoặc branch:<mã chi nhánh>"
       }
     },
     "perHour": "{amount} / giờ",
@@ -961,7 +1088,13 @@
       "stockReservation": "Giữ chỗ phụ tùng",
       "stockBalance": "Tồn kho",
       "intake": "Hồ sơ tiếp nhận",
-      "quote": "Báo giá"
+      "quote": "Báo giá",
+      "repairOrder": "Lệnh sửa chữa",
+      "repairItem": "Hạng mục sửa chữa",
+      "partRequest": "Yêu cầu phụ tùng",
+      "config_public-rate-limit": "Cấu hình: Giới hạn trang khách",
+      "config_qc-checklist": "Cấu hình: Danh sách kiểm tra chất lượng",
+      "config_order-policy": "Cấu hình: Chính sách thực hiện lệnh"
     },
     "actions": {
       "assignment_add": "Gán vai trò",
@@ -1039,7 +1172,30 @@
       "quote_approve_link": "Khách duyệt báo giá qua liên kết",
       "quote_approve_counter_signature": "Ghi nhận khách ký duyệt báo giá tại quầy",
       "quote_approve_counter_verbal": "Ghi nhận khách duyệt báo giá bằng lời",
-      "quote_reject_link": "Khách từ chối toàn bộ báo giá qua liên kết"
+      "quote_reject_link": "Khách từ chối toàn bộ báo giá qua liên kết",
+      "role_topup": "Bổ sung quyền mới cho vai trò",
+      "repairOrder_create": "Mở lệnh sửa chữa từ báo giá được duyệt",
+      "repairOrder_pause": "Tạm dừng lệnh",
+      "repairOrder_resume": "Tiếp tục lệnh",
+      "repairOrder_submit_qc": "Gửi lệnh đi kiểm tra chất lượng",
+      "repairOrder_cancel": "Hủy lệnh",
+      "repairOrder_recheck_parts": "Kiểm tra lại phụ tùng của lệnh",
+      "repairOrder_qc_pass": "Lệnh đạt kiểm tra chất lượng",
+      "repairOrder_qc_fail": "Lệnh không đạt kiểm tra chất lượng",
+      "repairOrder_deliver": "Giao xe cho khách",
+      "repairOrder_handover_print": "In biên bản giao xe",
+      "repairOrder_supplement": "Thêm hạng mục bổ sung đã duyệt vào lệnh",
+      "repairOrder_proposal": "Thợ đề xuất việc phát sinh",
+      "repairOrder_proposal_dismiss": "Bỏ qua đề xuất việc phát sinh",
+      "repairItem_assign": "Phân thợ cho hạng mục",
+      "repairItem_start": "Bắt đầu hạng mục",
+      "repairItem_pause": "Tạm dừng hạng mục",
+      "repairItem_finish": "Kết thúc hạng mục",
+      "repairItem_undo": "Hoàn tác thao tác hạng mục",
+      "partRequest_create": "Yêu cầu phụ tùng",
+      "partRequest_issue": "Xuất phụ tùng theo yêu cầu",
+      "partRequest_reject": "Từ chối yêu cầu phụ tùng",
+      "quote_create_supplement": "Lập báo giá bổ sung"
     },
     "colBranch": "Chi nhánh",
     "allSystem": "Toàn hệ thống",
@@ -1105,7 +1261,21 @@
     "quoteApprovedFull": "Khách đã duyệt toàn phần báo giá {number} (bản {n}). Mở báo giá để xem.",
     "quoteApprovedPartial": "Khách đã duyệt một phần báo giá {number} (bản {n}). Mở báo giá để xem hạng mục.",
     "quoteApprovedVerbal": "Báo giá {number} (bản {n}) được duyệt bằng lời tại quầy. Ngoại lệ cần rà soát.",
-    "quoteRejected": "Khách từ chối toàn bộ báo giá {number} (bản {n})."
+    "quoteRejected": "Khách từ chối toàn bộ báo giá {number} (bản {n}).",
+    "orderCreated": "Lệnh {number} đã được mở từ báo giá {quote} và phụ tùng đã được giữ chỗ.",
+    "orderCreatedShort": "Lệnh {number} đã được mở từ báo giá {quote}, nhưng còn phụ tùng thiếu. Xem lệnh để kiểm tra.",
+    "orderMissing": "Báo giá {number} đã được duyệt nhưng chưa mở được lệnh. Mở báo giá và bấm Tạo lệnh.",
+    "orderAwaitingQc": "Lệnh {number} đã xong việc, chờ kiểm tra chất lượng.",
+    "orderCancelled": "Lệnh {number} đã bị hủy.",
+    "orderDelivered": "Lệnh {number} đã giao xe cho khách.",
+    "proposalNew": "Thợ đề xuất việc phát sinh trên lệnh {number}. Lập báo giá bổ sung.",
+    "supplementApproved": "Báo giá bổ sung {quote} đã được duyệt và thêm vào lệnh {number}.",
+    "itemAssigned": "Bạn được giao hạng mục “{item}” của lệnh {number}.",
+    "partRequested": "Yêu cầu xuất phụ tùng {part} cho lệnh {number}.",
+    "partIssued": "Phụ tùng {part} của lệnh {number} đã được xuất.",
+    "partRejected": "Yêu cầu phụ tùng {part} của lệnh {number} bị từ chối.",
+    "qcFailed": "Lệnh {number} không đạt kiểm tra chất lượng, có hạng mục được trả lại.",
+    "qcPassed": "Lệnh {number} đã đạt kiểm tra chất lượng, sẵn sàng giao xe."
   },
   "settings": {
     "crumb": "Cài đặt",
@@ -1835,7 +2005,13 @@
       "itemDeclined": "Không duyệt",
       "lockedNote": "Nội dung đã được duyệt nên khóa. Việc phát sinh đi qua báo giá bổ sung (làm ở bước lệnh sửa chữa).",
       "print": "In báo giá A4",
-      "approvedTotalCol": "Đã duyệt"
+      "approvedTotalCol": "Đã duyệt",
+      "createOrder": "Tạo lệnh",
+      "noOrderYet": "Đã duyệt, chưa có lệnh. Lệnh sẽ được tạo khi bấm Tạo lệnh (an toàn khi bấm lại).",
+      "openOrder": "Mở lệnh",
+      "orderOpened": "Lệnh đã mở",
+      "supplementOf": "Báo giá bổ sung của lệnh",
+      "createOrderFailed": "Chưa tạo được lệnh. Thử lại."
     },
     "editor": {
       "lines": "Hạng mục, công và phụ tùng",
@@ -1981,6 +2157,211 @@
       "back": "Quay lại báo giá",
       "preview": "Xem trước bản in A4. Số điện thoại và địa chỉ khách không được in.",
       "status": "Trạng thái"
+    },
+    "orders": {
+      "title": "Lệnh sửa chữa",
+      "titleShort": "Lệnh",
+      "lead": "Lệnh được mở khi khách duyệt báo giá và chỉ gồm các hạng mục đã duyệt. Mã lệnh theo chi nhánh và tháng.",
+      "detailLead": "Chứng từ gốc của lần sửa xe: hạng mục, thợ, phụ tùng, kiểm tra chất lượng và giao xe.",
+      "toBoard": "Bảng điều phối",
+      "search": "Tìm lệnh",
+      "searchPlaceholder": "Mã lệnh RO hoặc biển số (không cần gõ dấu)",
+      "emptyTitle": "Chưa có lệnh sửa chữa",
+      "emptyText": "Lệnh tự mở khi khách duyệt báo giá. Mở danh sách báo giá để theo dõi.",
+      "no": "Mã lệnh",
+      "late": "Trễ hẹn",
+      "waitingParts": "Chờ phụ tùng",
+      "progress": "Hạng mục xong",
+      "promised": "Hẹn giao",
+      "total": "Giá trị lệnh",
+      "status_approved": "Đã duyệt",
+      "status_in_progress": "Đang sửa",
+      "status_paused": "Tạm dừng",
+      "status_awaiting_qc": "Chờ kiểm tra",
+      "status_ready_for_delivery": "Sẵn sàng giao",
+      "status_completed": "Hoàn tất",
+      "status_cancelled": "Đã hủy",
+      "item_not_started": "Chưa làm",
+      "item_in_progress": "Đang làm",
+      "item_paused": "Tạm dừng",
+      "item_done": "Hoàn thành",
+      "item_returned": "Trả lại thợ",
+      "fromQuote": "Từ báo giá",
+      "supplements": "Báo giá bổ sung",
+      "pausedBecause": "Lý do tạm dừng",
+      "shortageNote": "Có {n} dòng phụ tùng chưa đủ hàng để giữ chỗ. Hạng mục liên quan chờ phụ tùng cho đến khi hàng về và bạn bấm Kiểm tra lại phụ tùng.",
+      "actions": "Thao tác",
+      "items": "Hạng mục",
+      "workedOf": "Đã làm {worked} / duyệt {approved}",
+      "supplementTag": "Bổ sung",
+      "technician": "Thợ chịu trách nhiệm",
+      "unassigned": "Chưa phân thợ",
+      "partRequests": "Yêu cầu phụ tùng",
+      "proposals": "Việc phát sinh do thợ đề xuất",
+      "proposal_open": "Chờ xử lý",
+      "proposal_quoted": "Đã lập báo giá",
+      "proposal_dismissed": "Đã bỏ qua",
+      "openSupplement": "Mở báo giá bổ sung",
+      "qcHistory": "Kiểm tra chất lượng",
+      "qcRun": "Lần {n}",
+      "qc_pass": "Đạt",
+      "qc_fail": "Không đạt",
+      "handoverRecord": "Biên bản giao xe",
+      "openPrint": "Mở bản in",
+      "at": "Thời điểm",
+      "history": "Lịch sử trạng thái",
+      "event_create": "Mở lệnh",
+      "event_start": "Bắt đầu làm",
+      "event_pause": "Tạm dừng",
+      "event_resume": "Tiếp tục",
+      "event_submit_qc": "Gửi kiểm tra",
+      "event_qc_pass": "Đạt kiểm tra",
+      "event_qc_fail": "Không đạt kiểm tra",
+      "event_deliver": "Giao xe",
+      "event_cancel": "Hủy lệnh",
+      "event_reopen": "Quay lại sửa (việc bổ sung)",
+      "act": {
+        "submitQc": "Gửi kiểm tra chất lượng",
+        "runQc": "Kiểm tra chất lượng",
+        "handover": "Giao xe",
+        "resume": "Tiếp tục lệnh",
+        "pause": "Tạm dừng lệnh",
+        "recheck": "Kiểm tra lại phụ tùng",
+        "supplement": "Lập báo giá bổ sung",
+        "cancel": "Hủy lệnh",
+        "cancelIssued": "Lệnh đã xuất phụ tùng: chỉ quản lý chi nhánh hủy được, sau khi mọi phụ tùng đã hoàn kho bằng phiếu hoàn kho đã ghi sổ.",
+        "reason": "Lý do",
+        "confirm": "Xác nhận",
+        "keep": "Giữ lệnh",
+        "unexpected": "Chưa thực hiện được. Thử lại."
+      },
+      "assign": {
+        "technician": "Thợ",
+        "unassigned": "Chưa phân thợ",
+        "assign": "Lưu",
+        "reason": "Lý do đổi thợ",
+        "reasonPlaceholder": "Lý do đổi thợ (bắt buộc)",
+        "unexpected": "Chưa phân được thợ. Thử lại."
+      },
+      "proposalAct": {
+        "makeQuote": "Lập báo giá bổ sung",
+        "dismiss": "Bỏ qua",
+        "dismissReason": "Không cần xử lý",
+        "unexpected": "Chưa thực hiện được. Thử lại."
+      }
+    },
+    "board": {
+      "title": "Bảng điều phối",
+      "lead": "Xe đang trong xưởng theo trạng thái lệnh. Tự cập nhật; lọc theo thợ, xe trễ hẹn, xe chờ phụ tùng.",
+      "filters": "Bộ lọc bảng điều phối",
+      "onlyLate": "Xe trễ hẹn",
+      "onlyWaiting": "Xe chờ phụ tùng",
+      "loadOf": "{name}: {n} việc",
+      "emptyTitle": "Không có xe nào trong xưởng",
+      "emptyText": "Lệnh đang mở của chi nhánh sẽ hiện ở đây.",
+      "noneHere": "Không có lệnh",
+      "unassigned": "{n} chưa có thợ",
+      "partRequests": "{n} yêu cầu phụ tùng"
+    },
+    "work": {
+      "title": "Việc của tôi",
+      "lead": "Các hạng mục được giao cho bạn. Bấm một lần để bắt đầu hoặc kết thúc.",
+      "emptyTitle": "Chưa có việc được giao",
+      "emptyText": "Khi quản đốc phân việc cho bạn, hạng mục sẽ hiện ở đây.",
+      "start": "Bắt đầu",
+      "resume": "Tiếp tục",
+      "finish": "Kết thúc",
+      "pause": "Tạm dừng",
+      "undo": "Hoàn tác",
+      "pauseReason": "Lý do tạm dừng",
+      "reason_waiting_parts": "Chờ phụ tùng",
+      "reason_waiting_customer": "Chờ khách",
+      "reason_break": "Nghỉ",
+      "reason_other": "Lý do khác",
+      "status_not_started": "Chưa làm",
+      "status_in_progress": "Đang làm",
+      "status_paused": "Tạm dừng",
+      "status_returned": "Trả lại để sửa",
+      "status_done": "Hoàn thành",
+      "waitingParts": "Chờ phụ tùng",
+      "parts": "Yêu cầu phụ tùng",
+      "partLine": "Dòng phụ tùng đã duyệt",
+      "approved": "duyệt",
+      "requested": "đã yêu cầu",
+      "issued": "đã xuất",
+      "qty": "Số lượng",
+      "sendRequest": "Gửi yêu cầu cho thủ kho",
+      "propose": "Báo việc phát sinh",
+      "proposeTitle": "Hạng mục phát sinh",
+      "proposeNote": "Mô tả hư hỏng",
+      "noPhotos": "Chưa đính kèm được ảnh. Mô tả rõ để cố vấn lập báo giá bổ sung.",
+      "sendProposal": "Gửi cho cố vấn",
+      "unexpected": "Chưa thực hiện được. Thử lại.",
+      "offline": "Mất kết nối. Thao tác chưa được ghi, thử lại khi có mạng."
+    },
+    "requests": {
+      "title": "Yêu cầu phụ tùng",
+      "lead": "Yêu cầu của thợ cho các dòng phụ tùng đã được khách duyệt. Xuất kho tạo phiếu xuất theo lệnh.",
+      "status_requested": "Chờ xuất",
+      "status_issued": "Đã xuất",
+      "status_rejected": "Đã từ chối",
+      "status_cancelled": "Đã hủy",
+      "emptyTitle": "Không có yêu cầu",
+      "emptyText": "Yêu cầu phụ tùng của thợ sẽ hiện ở đây.",
+      "part": "Phụ tùng",
+      "qty": "Số lượng",
+      "at": "Gửi lúc",
+      "issue": "Xuất kho",
+      "reject": "Từ chối",
+      "rejectConfirm": "Xác nhận từ chối",
+      "reason": "Lý do từ chối",
+      "unexpected": "Chưa thực hiện được. Thử lại."
+    },
+    "qc": {
+      "title": "Kiểm tra chất lượng",
+      "lead": "Đánh giá từng mục. Mục không đạt phải ghi lỗi và trả hạng mục về cho thợ.",
+      "notAwaiting": "Lệnh này không ở bước chờ kiểm tra.",
+      "backToOrder": "Về lệnh",
+      "noChecklist": "Loại dịch vụ này chưa có danh sách kiểm tra. Khai danh sách trong cấu hình trước.",
+      "fault": "Ghi lỗi",
+      "returnItems": "Trả hạng mục về cho thợ",
+      "note": "Ghi chú",
+      "pass": "Đạt, sẵn sàng giao xe",
+      "fail": "Không đạt, trả lại thợ",
+      "unexpected": "Chưa ghi được kết quả. Thử lại.",
+      "offline": "Mất kết nối. Kết quả chưa được ghi."
+    },
+    "handover": {
+      "title": "Giao xe",
+      "lead": "Ghi người nhận xe và xác nhận của khách. Giao xe hoàn tất lệnh.",
+      "notReady": "Lệnh chưa sẵn sàng giao xe (cần đạt kiểm tra chất lượng).",
+      "receiver": "Người nhận xe",
+      "receiverHint": "Chỉ ghi họ tên, không ghi số điện thoại hay địa chỉ.",
+      "confirmation": "Xác nhận của khách",
+      "confirm_screen": "Xác nhận trên màn hình",
+      "confirm_paper": "Ký trên biên bản giấy",
+      "paperRef": "Mã biên bản giấy",
+      "km": "Số km khi giao xe",
+      "lastKm": "Số km gần nhất: {km}",
+      "kmReason": "Lý do số km nhỏ hơn lần trước",
+      "pick": "Chọn lý do",
+      "reason_typo": "Nhập nhầm lần trước",
+      "reason_odometer_replaced": "Đã thay đồng hồ",
+      "reason_other": "Lý do khác",
+      "belongings": "Đã trả đồ đạc của khách",
+      "oldParts": "Đã trả hoặc cho khách xem phụ tùng cũ",
+      "note": "Ghi chú",
+      "submit": "Giao xe",
+      "unexpected": "Chưa ghi được giao xe. Thử lại.",
+      "offline": "Mất kết nối. Giao xe chưa được ghi.",
+      "printTitle": "Biên bản giao xe",
+      "thermal": "Khổ nhiệt 80 mm",
+      "print": "In biên bản",
+      "reprintReason": "Lý do in lại",
+      "reprintMark": "BẢN IN LẠI",
+      "workDone": "Công việc đã làm",
+      "signHere": "(ký, ghi rõ họ tên)",
+      "staff": "Nhân viên giao xe"
     }
   },
   "pub": {
