@@ -350,6 +350,16 @@ export function QuoteEditor(props: {
                                 {l.standard}: {formatMinutes(ln.standardMinutes)}
                               </span>
                             ) : null}
+                            {ln.kind === 'labor' &&
+                            ln.standardMinutes &&
+                            ln.amount !== ln.standardMinutes ? (
+                              <span className="tag" data-testid="differs-standard">
+                                {l.differs!.replace(
+                                  '{delta}',
+                                  String(ln.amount - ln.standardMinutes),
+                                )}
+                              </span>
+                            ) : null}
                             {ln.kind === 'part' && ln.available !== null ? (
                               <span
                                 className={`cell-sub${ln.available < ln.amount ? ' rec-short' : ''}`}

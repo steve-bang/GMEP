@@ -10,6 +10,7 @@ import {
   laborAmount,
   maxDiscountBp,
   partAmount,
+  standardHoursDelta,
   sumLines,
 } from '../domain/pricing';
 import type { RecDeps } from '../ports/deps';
@@ -50,7 +51,59 @@ export type ItemInput = z.infer<typeof itemInput>;
 export interface BuiltQuote {
   items: QuoteItem[];
   totals: ReturnType<typeof computeTotals>;
-  tax: TaxSnapshot | null;
+  /** R2: distinct tax keys used by the lines, each with the version it was read from */
+  taxes: TaxSnapshot[];
+}
+
+/**
+ * R2: which `tax-rate` key a line uses. The `tax-mapping` config (company, effective-dated) maps the kind
+ * of line (labor, part, optionally the part's group) to a key; with no version in force every kind uses
+ * the default key (`vat`). The accountant's answer is only ever a data change.
+ */
+interface TaxResolver {
+  keyFor(kind: 'labor' | 'part', partGroup?: string): string;
+  snapshot(key: string): Promise<TaxSnapshot>;
+  all(): TaxSnapshot[];
+}
+
+async function taxResolver(deps: RecDeps, actor: Actor, date: string): Promise<TaxResolver> {
+  const m = (
+    await resolveConfigAt(deps.sys, {
+      companyId: actor.companyId,
+      type: 'tax-mapping',
+      scopeKey: 'company',
+      date,
+    })
+  )?.payload as { labor: string; part: string; partGroups?: Record<string, string> } | undefined;
+  const used = new Map<string, TaxSnapshot>();
+  return {
+    keyFor: (kind, group) =>
+      kind === 'labor'
+        ? (m?.labor ?? deps.rec.defaultTaxRateKey)
+        : ((group ? m?.partGroups?.[group] : undefined) ?? m?.part ?? deps.rec.defaultTaxRateKey),
+    async snapshot(key) {
+      const have = used.get(key);
+      if (have) return have;
+      const t = await resolveConfigAt(deps.sys, {
+        companyId: actor.companyId,
+        type: 'tax-rate',
+        scopeKey: key,
+        date,
+      });
+      if (!t) throw new AppError('tax_rate_missing', 409);
+      const p = t.payload as { name: string; rateBp: number };
+      const snap: TaxSnapshot = {
+        key,
+        versionId: t.versionId,
+        name: p.name,
+        rateBp: p.rateBp,
+        effectiveFrom: t.effectiveFrom,
+      };
+      used.set(key, snap);
+      return snap;
+    },
+    all: () => [...used.values()].sort((a, b) => a.key.localeCompare(b.key)),
+  };
 }
 
 export async function buildItems(
@@ -65,23 +118,11 @@ export async function buildItems(
   if (inputs.some((i) => i.lines.length > deps.rec.maxLinesPerItem) || lineCount > 200)
     throw new AppError('quote_too_large', 422);
 
-  let tax: TaxSnapshot | null = null;
-  if (lineCount > 0) {
-    const t = await resolveConfigAt(deps.sys, {
-      companyId: actor.companyId,
-      type: 'tax-rate',
-      scopeKey: deps.rec.taxRateKey,
-      date,
-    });
-    if (!t) throw new AppError('tax_rate_missing', 409);
-    const p = t.payload as { name: string; rateBp: number };
-    tax = {
-      versionId: t.versionId,
-      name: p.name,
-      rateBp: p.rateBp,
-      effectiveFrom: t.effectiveFrom,
-    };
-  }
+  const tax = await taxResolver(deps, actor, date);
+  // a missing tax rate is a configuration failure of the whole quote: report it before any line error
+  const kinds = new Set(inputs.flatMap((i) => i.lines.map((l) => l.kind)));
+  if (kinds.has('labor')) await tax.snapshot(tax.keyFor('labor'));
+  if (kinds.has('part')) await tax.snapshot(tax.keyFor('part'));
   const limits = (
     await resolveConfigAt(deps.sys, {
       companyId: actor.companyId,
@@ -109,8 +150,8 @@ export async function buildItems(
       const field = `items.${ii}.lines.${li}`;
       const built =
         l.kind === 'labor'
-          ? await laborLine(deps, actor, date, rate, tax!, l)
-          : await partLine(deps, actor, date, tax!, l);
+          ? await laborLine(deps, actor, date, rate, tax, l)
+          : await partLine(deps, actor, date, tax, l);
       if (!built.ok) {
         errors.push({ field, message: built.message });
         continue;
@@ -138,7 +179,7 @@ export async function buildItems(
     items.push(item);
   }
   if (errors.length) throw validationFailed(errors);
-  return { items, totals: computeTotals(items), tax };
+  return { items, totals: computeTotals(items), taxes: tax.all() };
 }
 
 type Built<L> =
@@ -149,7 +190,7 @@ async function laborLine(
   actor: Actor,
   date: string,
   rate: Awaited<ReturnType<typeof resolveConfigAt>>,
-  tax: TaxSnapshot,
+  taxes: TaxResolver,
   l: Extract<ItemInputLine, { kind: 'labor' }>,
 ): Promise<Built<LaborLine>> {
   const service = await getService(deps.sys, actor, l.serviceId).catch(() => null);
@@ -169,6 +210,8 @@ async function laborLine(
   const listUnitVnd = (rate.payload as { hourlyRateVnd: number }).hourlyRateVnd;
   const minutes = l.minutes ?? standardMinutes;
   const unitVnd = l.unitVnd ?? listUnitVnd;
+  const delta = standardHoursDelta(minutes, standardMinutes);
+  const tax = await taxes.snapshot(taxes.keyFor('labor'));
   return {
     ok: true,
     line: {
@@ -179,11 +222,16 @@ async function laborLine(
       serviceId: service.id,
       minutes,
       standardMinutes,
+      minutesDelta: delta.minutesDelta,
+      minutesDeltaBp: delta.minutesDeltaBp,
+      differsFromStandard: delta.differs,
       listUnitVnd,
       unitVnd,
       discountBp: discountBpOf(listUnitVnd, unitVnd),
       amountVnd: laborAmount(minutes, unitVnd),
       taxRateBp: tax.rateBp,
+      taxKey: tax.key,
+      taxVersionId: tax.versionId,
       rateVersionId: rate.versionId,
       hoursVersionId: hours.versionId,
     },
@@ -194,7 +242,7 @@ async function partLine(
   deps: RecDeps,
   actor: Actor,
   date: string,
-  tax: TaxSnapshot,
+  taxes: TaxResolver,
   l: Extract<ItemInputLine, { kind: 'part' }>,
 ): Promise<Built<PartLine>> {
   const part = await getPart(deps.inv, actor, l.partId).catch(() => null);
@@ -211,6 +259,7 @@ async function partLine(
     return { ok: false, message: `Phụ tùng ${part.code} chưa có giá bán trong bảng giá.` };
   const listUnitVnd = (price.payload as { listPriceVnd: number }).listPriceVnd;
   const unitVnd = l.unitVnd ?? listUnitVnd;
+  const tax = await taxes.snapshot(taxes.keyFor('part', part.group));
   return {
     ok: true,
     line: {
@@ -226,6 +275,8 @@ async function partLine(
       discountBp: discountBpOf(listUnitVnd, unitVnd),
       amountVnd: partAmount(l.qty, unitVnd, part.quantityScale),
       taxRateBp: tax.rateBp,
+      taxKey: tax.key,
+      taxVersionId: tax.versionId,
       priceListCode: deps.rec.priceListCode,
       priceVersionId: price.versionId,
     },

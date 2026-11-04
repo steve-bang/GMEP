@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { formatDateTime, isoToVi } from '@/platform/format/date';
 import { hasPermission } from '@/platform/rbac/rbac';
 import { getVehicle } from '@/modules/crm';
-import { BELONGINGS, getIntake } from '@/modules/rec';
+import { BELONGINGS, getIntake, listServiceTypes } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -62,10 +62,6 @@ const WIZARD_KEYS = [
   'belongingsHint',
   'photosNote',
   'serviceType',
-  'serviceType_maintenance',
-  'serviceType_general_repair',
-  'serviceType_tire_wheel',
-  'serviceType_body_paint',
   'advisor',
   'promisedDate',
   'promisedDateRequired',
@@ -98,7 +94,8 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
     const intake = await getIntake(container.rec, actor, id);
     // the odometer rule compares with the vehicle's last reading as it is now
     const vehicle = await getVehicle(container.crm, actor, intake.vehicleId).catch(() => null);
-    return { intake, lastKm: vehicle?.lastKm ?? intake.lastKmAtOpen };
+    const serviceTypes = await listServiceTypes(container.rec, actor);
+    return { intake, lastKm: vehicle?.lastKm ?? intake.lastKmAtOpen, serviceTypes };
   });
   if (res.error)
     return (
@@ -106,7 +103,7 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
         <ErrorFor error={res.error} t={t} />
       </RecPage>
     );
-  const { intake, lastKm } = res.data;
+  const { intake, lastKm, serviceTypes } = res.data;
   const canEdit = hasPermission(actor, 'intake:update');
   const tone = { draft: 'neutral', completed: 'success', cancelled: 'danger' } as const;
   const head = {
@@ -133,6 +130,8 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
           lastKm={lastKm}
           labels={labels}
           belongingLabels={belongingLabels}
+          // retired types stay visible when already chosen, but are not offered otherwise (R7)
+          serviceTypes={serviceTypes.filter((x) => x.active || x.code === intake.serviceType)}
           advisorName={actor.displayName}
         />
       </RecPage>
@@ -166,7 +165,11 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
           </div>
           <div>
             <dt>{t('rec.wizard.serviceType')}</dt>
-            <dd>{intake.serviceType ? t(`rec.wizard.serviceType_${intake.serviceType}`) : '—'}</dd>
+            <dd>
+              {serviceTypes.find((x) => x.code === intake.serviceType)?.name ??
+                intake.serviceType ??
+                '—'}
+            </dd>
           </div>
           <div>
             <dt>{t('rec.wizard.promisedDate')}</dt>

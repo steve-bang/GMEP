@@ -5,7 +5,9 @@ import type { Tx } from '@/platform/tx/unitOfWork';
 import type {
   Intake,
   IntakeRepository,
+  IntakeStatus,
   Quote,
+  QuoteStatus,
   QuoteRepository,
   QuoteVersion,
   QuoteVersionRepository,
@@ -157,6 +159,13 @@ export class DocIntakeRepository implements IntakeRepository {
     const x = d ? intakeFromDoc(d) : null;
     return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
   }
+  async listByCustomer(companyId: string, customerId: string, status: IntakeStatus, limit: number) {
+    const rows = await this.store.query(Q.intakesByCustomer.pick([], false), {
+      eq: { companyId, customerId, status },
+      limit,
+    });
+    return rows.map(intakeFromDoc);
+  }
   create(tx: Tx, i: Intake) {
     this.store.create(tx, COL.intakes, i.id, without(i, 'id'));
   }
@@ -182,6 +191,7 @@ const quoteFromDoc = ({ id, data: x }: StoredDoc): Quote => ({
   advisorId: x.advisorId,
   currentN: x.currentN,
   status: x.status,
+  ...put('validUntil', opt<string>(x.validUntil)),
   totalVnd: x.totalVnd ?? 0,
   createdAt: x.createdAt,
   createdBy: x.createdBy,
@@ -211,6 +221,13 @@ export class DocQuoteRepository implements QuoteRepository {
     const x = d ? quoteFromDoc(d) : null;
     return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
   }
+  async listByCustomer(companyId: string, customerId: string, status: QuoteStatus, limit: number) {
+    const rows = await this.store.query(Q.quotesByCustomer.pick([], false), {
+      eq: { companyId, customerId, status },
+      limit,
+    });
+    return rows.map(quoteFromDoc);
+  }
   create(tx: Tx, q: Quote) {
     this.store.create(tx, COL.quotes, q.id, without(q, 'id'));
   }
@@ -230,12 +247,13 @@ const versionFromDoc = ({ id, data: x }: StoredDoc): QuoteVersion => ({
   status: x.status,
   items: x.items ?? [],
   totals: x.totals,
-  tax: x.tax ?? null,
+  taxes: x.taxes ?? [],
   pricedOn: x.pricedOn,
   ...put('note', opt<string>(x.note)),
   ...put('sentAt', opt<Date>(x.sentAt)),
   ...put('sentBy', opt<string>(x.sentBy)),
   ...put('validUntil', opt<string>(x.validUntil)),
+  ...put('sentVia', opt<QuoteVersion['sentVia']>(x.sentVia)),
   ...put('replacedAt', opt<Date>(x.replacedAt)),
   ...put('replacedByN', opt<number>(x.replacedByN)),
   ...put('rejectedAt', opt<Date>(x.rejectedAt)),

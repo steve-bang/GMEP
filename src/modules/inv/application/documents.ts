@@ -27,7 +27,13 @@ import {
 import { branchesScope, scopeAllows, type Scope } from '@/platform/scope/scope';
 import { draftReference } from '@/platform/numbering/numbering';
 import type { Tx } from '@/platform/tx/unitOfWork';
-import { allocateDocumentNumber, type Branch, type WriteKind } from '@/modules/sys';
+import {
+  allocateDocumentNumber,
+  notifyUsers,
+  usersWithRole,
+  type Branch,
+  type WriteKind,
+} from '@/modules/sys';
 import {
   DOC_SERIES,
   DOC_TYPES,
@@ -184,7 +190,7 @@ const lineSchema = z.object({
   unitCostVnd: z.number().int().min(0).max(1_000_000_000).optional(),
   expectedQty: z.number().int().min(1).max(1_000_000).optional(),
   expectedUnitCostVnd: z.number().int().min(0).max(1_000_000_000).optional(),
-  reservationKey: idToken.optional(),
+  lineKey: idToken.optional(),
   originalLineNo: z.number().int().min(1).max(1000).optional(),
   note: z.string().trim().max(200).optional(),
 });
@@ -248,7 +254,11 @@ async function build(
       { field: 'lines', message: `Tối đa ${deps.inv.maxDocLines} dòng cho mỗi chứng từ.` },
     ]);
   const source = guard(() =>
-    checkSource(type, { type: data.source.type, id: data.source.id ?? null }),
+    checkSource(
+      type,
+      { type: data.source.type, id: data.source.id ?? null },
+      { allowTransferOrder: deps.inv.allowTransferOrderSource },
+    ),
   );
   const lines: StockDocLine[] = data.lines.map((l, i) => ({
     lineNo: i + 1,
@@ -259,10 +269,29 @@ async function build(
     ...(l.unitCostVnd !== undefined ? { unitCostVnd: l.unitCostVnd } : {}),
     ...(l.expectedQty !== undefined ? { expectedQty: l.expectedQty } : {}),
     ...(l.expectedUnitCostVnd !== undefined ? { expectedUnitCostVnd: l.expectedUnitCostVnd } : {}),
-    ...(l.reservationKey ? { reservationKey: l.reservationKey } : {}),
+    ...(l.lineKey ? { lineKey: l.lineKey } : {}),
     ...(l.originalLineNo !== undefined ? { originalLineNo: l.originalLineNo } : {}),
     ...(l.note ? { note: l.note } : {}),
   }));
+  // I20: a repair-order issue names the immutable order line it serves; without a key it is accepted only
+  // when the order has ONE open demand line for the part, never by guessing the part code
+  if (type === 'GIN' && source.type === 'repair-order' && source.id) {
+    const demand = (
+      await deps.reservations.listBySource(scope, 'repair-order', source.id, 200)
+    ).filter((r) => !r.closed && r.warehouseId === warehouseId);
+    const ambiguous: { field: string; message: string }[] = [];
+    lines.forEach((l, i) => {
+      if (l.lineKey) return;
+      const cands = demand.filter((r) => r.partId === l.partId);
+      if (cands.length === 1) l.lineKey = cands[0]!.lineKey;
+      else if (cands.length > 1)
+        ambiguous.push({
+          field: `lines.${i}.lineKey`,
+          message: 'Lệnh có nhiều dòng cùng phụ tùng này. Chọn dòng nhu cầu (lineKey) cần xuất.',
+        });
+    });
+    if (ambiguous.length) throw validationFailed(ambiguous);
+  }
   guard(() => checkLines(type, lines, { opening: source.type === 'opening-balance' }));
   if (type === 'ADJ' && source.type === 'manual-adjustment') requireReason(data.reason);
   if (type === 'GRN' && source.type === 'no-po') requireReason(data.reason);
@@ -518,6 +547,19 @@ export async function cancelDocument(
 
 export const postSchema = z.object({ version: z.number().int().min(1) });
 
+/** I15: per shortened hold, how many units a count cut from it (new unmet minus the unmet it had). */
+function shortenedHolds(
+  cuttable: Map<string, Reservation[]>,
+  after: readonly Reservation[],
+): { sourceId: string; partCode: string; qty: number }[] {
+  const before = new Map([...cuttable.values()].flat().map((r) => [r.id, r] as const));
+  return after.flatMap((r) => {
+    const b = before.get(r.id);
+    const qty = b ? r.unmetQty - b.unmetQty : 0;
+    return qty > 0 ? [{ sourceId: r.sourceId, partCode: r.partCode, qty }] : [];
+  });
+}
+
 interface Applied {
   lines: StockDocLine[];
   totalValueVnd: number;
@@ -572,7 +614,7 @@ function applyLines(
         const rid = reservationId(
           doc.source.type,
           doc.source.id ?? '',
-          l.reservationKey ?? l.partId,
+          l.lineKey ?? l.partId,
           doc.warehouseId,
         );
         const h = touched.get(rid) ?? holds.get(rid);
@@ -798,7 +840,7 @@ async function postDocumentInTx(
     const rids = [
       ...new Set(
         d.lines.map((l) =>
-          reservationId('repair-order', d.source.id!, l.reservationKey ?? l.partId, w.id),
+          reservationId('repair-order', d.source.id!, l.lineKey ?? l.partId, w.id),
         ),
       ),
     ];
@@ -855,8 +897,47 @@ async function postDocumentInTx(
     actor.userId,
     cuttable,
   );
+  // I15: who must hear about holds a count cut. Recipients are read BEFORE the first write; a failing
+  // lookup never blocks posting (the count is a fact, the notice is a courtesy)
+  const cuts = d.type === 'ADJ' ? shortenedHolds(cuttable, applied.reservations) : [];
+  let recipients: { managers: string[]; advisors: Map<string, string> } = {
+    managers: [],
+    advisors: new Map(),
+  };
+  if (cuts.length)
+    try {
+      recipients = {
+        managers: await usersWithRole(deps.sys, actor.companyId, ['QL'], d.branchId),
+        advisors: await deps.advisors.advisorsOf(
+          actor.companyId,
+          'repair-order',
+          cuts.map((c) => c.sourceId),
+        ),
+      };
+    } catch {
+      /* notice skipped */
+    }
   // ---- writes ----
   set.flush(tx);
+  for (const c of cuts) {
+    const advisor = recipients.advisors.get(c.sourceId);
+    const to = [...recipients.managers, ...(advisor ? [advisor] : [])];
+    if (to.length === 0) continue;
+    try {
+      notifyUsers(deps.sys, tx, {
+        companyId: actor.companyId,
+        userIds: to,
+        kind: 'stock.reservation_shortened',
+        titleKey: 'notifications.reservationShortened',
+        // part code, order and quantity only: no personal data (BA §7.1)
+        params: { partCode: c.partCode, orderId: c.sourceId, qty: String(c.qty) },
+        link: `/inv/documents/${d.id}`,
+        branchId: d.branchId,
+      });
+    } catch {
+      /* staging a notice never blocks the ledger */
+    }
+  }
   for (const r of applied.reservations) {
     deps.reservations.update(tx, r.id, reservationPatch(r));
     deps.sys.audit.record(
@@ -940,7 +1021,7 @@ export async function issueForOrder(
         z.object({
           partId: z.string().trim().min(1).max(128),
           qty: z.number().int().min(1).max(1_000_000),
-          reservationKey: idToken.optional(),
+          lineKey: idToken.optional(),
         }),
       )
       .min(1)
@@ -1023,7 +1104,7 @@ async function postPreparedGin(
   const rids = [
     ...new Set(
       d.lines.map((l) =>
-        reservationId('repair-order', d.source.id!, l.reservationKey ?? l.partId, d.warehouseId),
+        reservationId('repair-order', d.source.id!, l.lineKey ?? l.partId, d.warehouseId),
       ),
     ),
   ];
@@ -1175,7 +1256,7 @@ export async function reverseDocument(
         const rids = [
           ...new Set(
             o.lines.map((l) =>
-              reservationId('repair-order', o.source.id!, l.reservationKey ?? l.partId, w.id),
+              reservationId('repair-order', o.source.id!, l.lineKey ?? l.partId, w.id),
             ),
           ),
         ];
@@ -1207,7 +1288,7 @@ export async function reverseDocument(
           const rid2 = reservationId(
             'repair-order',
             o.source.id ?? '',
-            l.reservationKey ?? l.partId,
+            l.lineKey ?? l.partId,
             w.id,
           );
           const h = restored.get(rid2) ?? lineHolds.get(rid2);

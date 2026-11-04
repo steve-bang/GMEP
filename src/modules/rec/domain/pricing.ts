@@ -42,6 +42,26 @@ export function partAmount(qty: number, unitVnd: number, scale: number): number 
   return roundDiv(qty * unitVnd, scale);
 }
 
+/**
+ * R5: how far the minutes of a labor line are from the standard hours: signed minutes and signed basis
+ * points of the standard (rounded half away from zero). Pure integers; `differs` is stored on the line.
+ */
+export function standardHoursDelta(
+  minutes: number,
+  standardMinutes: number,
+): { minutesDelta: number; minutesDeltaBp: number; differs: boolean } {
+  assertInt(minutes, 'minutes');
+  if (!Number.isSafeInteger(standardMinutes) || standardMinutes <= 0)
+    throw new PricingError('amount_invalid', { what: 'standardMinutes' });
+  const minutesDelta = minutes - standardMinutes;
+  const abs = roundDiv(Math.abs(minutesDelta) * 10_000, standardMinutes);
+  return {
+    minutesDelta,
+    minutesDeltaBp: minutesDelta < 0 ? -abs : abs,
+    differs: minutesDelta !== 0,
+  };
+}
+
 /** FR-INV-025: discount against the list price in basis points, rounded UP so a limit is never exceeded by rounding */
 export function discountBpOf(listVnd: number, actualVnd: number): number {
   assertInt(listVnd, 'list');

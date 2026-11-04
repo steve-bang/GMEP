@@ -302,15 +302,16 @@ export async function closeDataRequest(
     if (r.type === 'delete' && data.outcome === 'completed') {
       resolveScope(actor, 'data-request:approve'); // 403 for anyone else
       const check = await deps.retention.check(actor.companyId, r.customerId);
-      // C4 fail closed: an irreversible step never runs on a gate that cannot verify its conditions
-      if (!check.verified && !deps.crm.allowUnverifiedRetention)
-        throw new AppError('retention_unverified', 409);
+      // a known blocker is reported first (C17): it tells the user what to finish
       if (check.blockers.length)
         throw new AppError(
           'request_blocked',
           409,
           check.blockers.map((b) => ({ field: 'blockers', message: b })),
         );
+      // C4 fail closed: an irreversible step never runs on a gate that cannot verify its conditions
+      if (!check.verified && !deps.crm.allowUnverifiedRetention)
+        throw new AppError('retention_unverified', 409);
       retained = check.retained;
       const c = await deps.customers.getCompanyWideInTx(tx, actor.companyId, r.customerId);
       if (!c) throw notFound();

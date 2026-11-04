@@ -1036,6 +1036,129 @@ describe.each(backends)('INV stock ledger [%s]', (backend) => {
       await assertLedgerMatchesBalances();
     });
 
+    it('I15: a count that cuts holds tells the branch manager and the advisor of each affected order, and never blocks posting', async () => {
+      const part = await newPart('ROW-I15');
+      await postOk(tk, grnPo(part.id, 10, 1000));
+      await demand('ro-15a', part.id, 4);
+      h.clock.set(new Date(h.clock.now().getTime() + 5_000).toISOString());
+      await demand('ro-15b', part.id, 4);
+      const real = h.container.inv.advisors;
+      const notices = async () =>
+        (await rows('notifications')).filter(
+          (n) =>
+            n.kind === 'stock.reservation_shortened' &&
+            JSON.stringify(n.params).includes(part.code ?? 'ROW-I15'),
+        );
+      h.container.inv.advisors = {
+        advisorsOf: async (_c, _t, ids) => new Map(ids.map((i) => [i, 'u_cv_q7'])),
+      };
+      try {
+        const d = await draft(tk, {
+          type: 'ADJ',
+          source: { type: 'manual-adjustment' },
+          reason: 'Kiểm kê thiếu 5',
+          lines: [{ partId: part.id, qty: -5 }],
+        });
+        expect((await post(ql, d.json.id)).status).toBe(200);
+      } finally {
+        h.container.inv.advisors = real;
+      }
+      const got = await notices();
+      // only the order whose hold was cut (ro-15b, 3 short); the active managers of Q7 + that order's advisor
+      expect(got.map((n) => n.userId).sort()).toEqual(['u_cv_q7', 'u_multi', 'u_ql_q7']); // the disabled manager is skipped
+      for (const n of got) expect(n.params).toMatchObject({ orderId: 'ro-15b', qty: '3' });
+      expect(JSON.stringify(got)).not.toMatch(/Nguyễn|09\d{8}/); // part code, order, quantity only
+      // a failing advisor lookup still books the count; the manager is told
+      const second = await newPart('ROW-I15B');
+      await postOk(tk, grnPo(second.id, 4, 1000));
+      await demand('ro-15c', second.id, 4);
+      h.container.inv.advisors = {
+        advisorsOf: async () => {
+          throw new Error('down');
+        },
+      };
+      try {
+        const d2 = await draft(tk, {
+          type: 'ADJ',
+          source: { type: 'manual-adjustment' },
+          reason: 'Kiểm kê thiếu 2',
+          lines: [{ partId: second.id, qty: -2 }],
+        });
+        expect((await post(ql, d2.json.id)).status).toBe(200);
+      } finally {
+        h.container.inv.advisors = real;
+      }
+      expect(await balance(tk, second.id)).toMatchObject({ onHand: 2, reserved: 2 });
+      await assertLedgerMatchesBalances();
+    });
+
+    it('I20: an issue names the immutable order line; without it, only when the order has ONE line for the part', async () => {
+      const part = await newPart('ROW-I20');
+      await postOk(tk, grnPo(part.id, 10, 1000));
+      const approval = await call(tk, 'POST', '/api/v1/inv/reservations/approval', {
+        orderId: 'ro-i20',
+        warehouseId: Q7,
+        lines: [
+          { lineKey: 'l1', partId: part.id, qty: 2 },
+          { lineKey: 'l2', partId: part.id, qty: 3 },
+        ],
+      });
+      expect(approval.status, approval.text).toBe(200);
+      // two demand lines for the same part: the part code is no key
+      const ambiguous = await draft(tk, gin('ro-i20', part.id, 1));
+      expect(ambiguous.status).toBe(422);
+      expect(ambiguous.json.errors[0].field).toBe('lines.0.lineKey');
+      const viaIssues = await call(tk, 'POST', '/api/v1/inv/issues', {
+        warehouseId: Q7,
+        orderId: 'ro-i20',
+        receiverUserId: 'u_th_q7',
+        lines: [{ partId: part.id, qty: 1 }],
+      });
+      expect(viaIssues.status).toBe(422);
+      // the key picks the line; the other line is untouched
+      const ok = await postOk(tk, {
+        ...gin('ro-i20', part.id, 2),
+        lines: [{ partId: part.id, qty: 2, lineKey: 'l1' }],
+      });
+      expect(ok.lines[0].lineKey).toBe('l1');
+      const res = (await rows('stockReservations')).filter((r) => r.sourceId === 'ro-i20');
+      expect(res.find((r) => r.lineKey === 'l1')).toMatchObject({ issuedQty: 2, heldQty: 0 });
+      expect(res.find((r) => r.lineKey === 'l2')).toMatchObject({ issuedQty: 0, heldQty: 3 });
+      // issuing more than line l1 still needs is refused even though l2 has stock held
+      const over = await draft(tk, {
+        ...gin('ro-i20', part.id, 1),
+        lines: [{ partId: part.id, qty: 1, lineKey: 'l1' }],
+      });
+      expect((await post(tk, over.json.id)).json.code).toBe('issue_exceeds_demand');
+      // a key that is no line of the order
+      const ghost = await draft(tk, {
+        ...gin('ro-i20', part.id, 1),
+        lines: [{ partId: part.id, qty: 1, lineKey: 'l9' }],
+      });
+      expect((await post(tk, ghost.json.id)).json.code).toBe('order_line_missing');
+    });
+
+    it('I16: the transfer-order source is refused wherever the flag is off (everything but local and test)', async () => {
+      const part = await newPart('ROW-I16');
+      await postOk(tk, grnPo(part.id, 3, 1000));
+      const body = {
+        type: 'GIN',
+        source: { type: 'transfer-order', id: 'ck-1' },
+        lines: [{ partId: part.id, qty: 1 }],
+      };
+      const cfg = h.container.inv.inv;
+      expect(cfg.allowTransferOrderSource).toBe(true); // GMEP_ENV=local in the tests
+      expect((await draft(tk, body)).status).toBe(201);
+      cfg.allowTransferOrderSource = false;
+      try {
+        const r = await draft(tk, body);
+        expect(r.status).toBe(422);
+        expect(r.json.errors[0].message).toBe('source_invalid');
+      } finally {
+        cfg.allowTransferOrderSource = true;
+      }
+    });
+
     it('I2: shortage list and long-held report (never released automatically)', async () => {
       const part = await newPart('ROW-RPT');
       await demand('ro-rpt', part.id, 3); // nothing on the shelf

@@ -590,6 +590,39 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       }
     });
 
+    it('C20 QV (and KT) read the history inside their scope only; CH, CV, QL and QD may also read a vehicle outside it', async () => {
+      const now = new Date();
+      const lk = {
+        id: 'veh_lk_c20',
+        companyId: 'cmp_demo',
+        branchId: 'br_lk',
+        plate: '77Z99999',
+        plateNorm: '77Z99999',
+        previousPlates: [],
+        make: 'Ford',
+        model: 'Ranger',
+        year: 2020,
+        isCommercial: false,
+        currentOwnerId: null,
+        branchIds: ['br_lk'],
+        createdAt: now,
+        createdBy: 'seed',
+        updatedAt: now,
+        updatedBy: 'seed',
+        version: 1,
+      };
+      await h.container.crm.sys.uow.run(async (tx) => {
+        h.container.crm.vehicles.create(tx, lk);
+        h.container.crm.vehicles.link(tx, lk, 'br_lk', now);
+      });
+      const qv = await h.loginAt('u_qv', 'br_q7');
+      const qd = await h.login('u_qd_q7');
+      // QV is assigned to Q7 and Thu Duc only: the vehicle of the locked branch is out of scope
+      expect((await hist(qv, 'veh_lk_c20')).status).toBe(404);
+      for (const who of [cv, qd, ownerAll])
+        expect((await hist(who, 'veh_lk_c20')).status).toBe(200);
+    });
+
     it('needs vehicle-history:view; roles without it (TH, TK, AD) are refused', async () => {
       for (const u of ['u_th_q7', 'u_tk_q7', 'u_ad'])
         expect(
@@ -699,7 +732,11 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       const made = await mk(cv, { type: 'individual', name: 'Đồng Ý Thử' });
       const id = made.json.id;
       const rec = (body: Record<string, unknown>, k = key('con')) =>
-        h.call('POST', `${CUSTOMERS}/${id}/consents`, { cookie: cv, key: k, body });
+        h.call('POST', `${CUSTOMERS}/${id}/consents`, {
+          cookie: cv,
+          key: k,
+          body: { evidenceKind: 'paper-slip', ...body },
+        });
       expect((await rec({ purpose: 'marketing', channel: 'zalo', basis: 'contract' })).status).toBe(
         422,
       ); // advertising needs consent
@@ -801,7 +838,12 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       await h.call('POST', `${CUSTOMERS}/${c.json.id}/consents`, {
         cookie: cv,
         key: key('con'),
-        body: { purpose: 'marketing', channel: 'sms', basis: 'consent' },
+        body: {
+          purpose: 'marketing',
+          channel: 'sms',
+          basis: 'consent',
+          evidenceKind: 'web-tick',
+        },
       });
       const v = await h.call('POST', '/api/v1/crm/vehicles', {
         cookie: cv,
@@ -1167,10 +1209,44 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       }
     });
 
+    it('C23 evidence is picked from the catalogue; a reference is screened; "other" needs a note', async () => {
+      const c = await mk(cv, { type: 'individual', name: 'Bằng Chứng Danh Mục' });
+      const post = (body: Record<string, unknown>) =>
+        h.call('POST', `${CUSTOMERS}/${c.json.id}/consents`, { cookie: cv, key: key('con'), body });
+      const base = { purpose: 'service', channel: 'in_person', basis: 'contract' };
+      const none = await post(base);
+      expect(none.status).toBe(422);
+      expect(none.json.errors[0].field).toBe('evidenceKind');
+      const unknown = await post({ ...base, evidenceKind: 'made-up' });
+      expect(unknown.status).toBe(422);
+      expect(unknown.json.errors[0].field).toBe('evidenceKind');
+      const noNote = await post({ ...base, evidenceKind: 'other' });
+      expect(noNote.status).toBe(422);
+      expect(noNote.json.errors[0].field).toBe('evidence');
+      const badRef = await post({ ...base, evidenceKind: 'paper-slip', evidenceRef: '0912345678' });
+      expect(badRef.status).toBe(422);
+      expect(badRef.json.errors[0].field).toBe('evidenceRef');
+      const ok = await post({
+        ...base,
+        evidenceKind: 'paper-slip',
+        evidenceRef: 'PG-0042',
+        evidence: 'Ký tại quầy',
+      });
+      expect(ok.status).toBe(201);
+      expect(ok.json).toMatchObject({ evidenceKind: 'paper-slip', evidenceRef: 'PG-0042' });
+      const stored = (await docs('consents')).filter((d) => d.customerId === c.json.id);
+      expect(stored).toHaveLength(1);
+      expect(stored[0]).toMatchObject({ evidenceKind: 'paper-slip', evidenceRef: 'PG-0042' });
+    });
+
     it('C4 consent records keep no phone or email, and reasons/evidence are screened', async () => {
       const c = await mk(cv, { type: 'individual', name: 'Bằng Chứng Sạch', phone: '0911222333' });
       const post = (body: Record<string, unknown>) =>
-        h.call('POST', `${CUSTOMERS}/${c.json.id}/consents`, { cookie: cv, key: key('con'), body });
+        h.call('POST', `${CUSTOMERS}/${c.json.id}/consents`, {
+          cookie: cv,
+          key: key('con'),
+          body: { evidenceKind: 'paper-slip', ...body },
+        });
       for (const evidence of [
         'gọi 0912 345 678 xác nhận',
         'khach@example.com đồng ý',
@@ -1244,6 +1320,21 @@ describe.each(backends)('CRM core [%s]', (backend) => {
         true,
       );
       expect(reasons.some((r: string) => r.includes('odometer_replaced'))).toBe(true);
+      // C18/R9: a drop above the ONE shared threshold (1.000 km) tells the branch manager; smaller drops
+      // and a replaced odometer did not
+      const notices = async () =>
+        (await docs('notifications')).filter(
+          (n) => n.kind === 'crm.odometer_abnormal' && n.userId === 'u_ql_q7',
+        );
+      expect(await notices()).toHaveLength(0);
+      expect((await patch({ lastKm: 30000 }, 4)).status).toBe(200);
+      const abnormal = await patch({ lastKm: 27000, lastKmReason: 'typo' }, 5);
+      expect(abnormal.status).toBe(200);
+      const got = await notices();
+      expect(got).toHaveLength(1);
+      expect(got[0]!.params).toEqual({ plate: v.json.plate, from: '30000', to: '27000' });
+      expect(JSON.stringify(got)).not.toMatch(/Số Km Thử|09\d{8}/); // no personal data
+      expect(h.container.crm.crm.abnormalKmDrop).toBe(1000);
     });
 
     it('C11 the plate is normalised and the VIN is unique company-wide without naming a branch', async () => {
@@ -1256,6 +1347,8 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       expect(dup.status).toBe(409);
       expect(dup.json.code).toBe('vin_exists');
       expect(dup.text).not.toMatch(/Quận 7|Thủ Đức|br_/);
+      // C22: inside the actor's scope the answer points at the vehicle that already has the VIN
+      expect(dup.json.existingVehicleId).toBe(a.json.id);
       const b = await newVehicle(c.json.id);
       expect(b.status).toBe(201);
       const clash = await h.call('PATCH', `${VEH}/${b.json.id}`, {
@@ -1264,6 +1357,33 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       });
       expect(clash.status).toBe(409);
       expect(clash.json.code).toBe('vin_exists');
+      expect(clash.json.existingVehicleId).toBe(a.json.id);
+      // C22: a VIN held by a vehicle OUTSIDE the scope never names it or its branch; a role with the
+      // lookup right gets only the P2 fields and continues through the exact plate lookup
+      const td = await mk(qlTd, { type: 'individual', name: 'Khách Thủ Đức Khung' });
+      const far = await h.call('POST', VEH, {
+        cookie: qlTd,
+        key: key('veh'),
+        body: {
+          customerId: td.json.id,
+          plate: plate(),
+          make: 'Honda',
+          model: 'City',
+          year: 2021,
+          vin: '3HGCM82633A004354',
+        },
+      });
+      expect(far.status).toBe(201);
+      const outside = await newVehicle(c.json.id, { vin: '3HGCM82633A004354' });
+      expect(outside.status).toBe(409);
+      expect(outside.json.code).toBe('vin_exists');
+      expect(outside.json.existingVehicleId).toBeUndefined();
+      expect(outside.json).toMatchObject({
+        outOfScope: true,
+        projection: { make: 'Honda', model: 'City', year: 2021 },
+      });
+      expect(outside.text).not.toContain(far.json.id);
+      expect(outside.text).not.toMatch(/Thủ Đức|br_td/);
       // moving the VIN frees the old slot
       const move = await h.call('PATCH', `${VEH}/${a.json.id}`, {
         cookie: cv,
@@ -1313,6 +1433,31 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       expect(
         (await accessLogs()).filter((l) => l.result === 'denied').length,
       ).toBeGreaterThanOrEqual(denied + 2);
+    });
+
+    it('C21 QV may look a vehicle up by plate (vehicle fields) but not find a customer by phone', async () => {
+      const qv = await h.login('u_qv');
+      const lookup = (body: Record<string, unknown>) =>
+        h.call('POST', '/api/v1/crm/lookup', { cookie: qv, body });
+      expect((await lookup({ phone: '0900000222' })).status).toBe(403);
+      const byPlate = await lookup({ plate: '29A-678.90' });
+      expect(byPlate.status).toBe(200);
+      expect(byPlate.json.vehicles[0].owner).toBeNull();
+    });
+
+    it('C19 the owners are told once a day when a person exceeds the lookup limit; the notice carries no customer data', async () => {
+      const person = await h.loginAt('u_multi', 'br_q7'); // a person no other test has used for lookups
+      const lookup = () =>
+        h.call('POST', '/api/v1/crm/lookup', { cookie: person, body: { plate: '29A-678.90' } });
+      const before = (await docs('notifications')).filter((n) => n.kind === 'crm.lookup_limit');
+      let status = 0;
+      for (let i = 0; i < 40 && status !== 429; i++) status = (await lookup()).status;
+      expect(status).toBe(429);
+      for (let i = 0; i < 3; i++) expect((await lookup()).status).toBe(429);
+      const notes = (await docs('notifications')).filter((n) => n.kind === 'crm.lookup_limit');
+      const mine = notes.slice(before.length);
+      expect(mine.map((n) => n.userId)).toEqual(['u_owner']); // every CH, one notice each, not one per refusal
+      expect(JSON.stringify(mine)).not.toMatch(/29A|67890|Bình|09\d{8}/);
     });
 
     it('C2 adoption is for CV/QL only, records its source and who, and is access-logged; the business-event flag blocks it', async () => {

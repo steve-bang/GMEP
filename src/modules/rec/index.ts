@@ -10,6 +10,8 @@ export * from './domain/entities';
 export {
   transitionQuote,
   transitionIntake,
+  isQuoteExpired,
+  effectiveQuoteStatus,
   editMode,
   allowedQuoteActions,
   allowedIntakeActions,
@@ -27,6 +29,7 @@ export {
   roundDiv,
   defaultSelected,
   taxOf,
+  standardHoursDelta,
   PricingError,
 } from './domain/pricing';
 export { checkKm } from './domain/intake';
@@ -42,8 +45,9 @@ export {
   completeIntake,
   cancelIntake,
   toIntakeDto,
+  listServiceTypes,
 } from './application/intakes';
-export type { IntakeDto } from './application/intakes';
+export type { IntakeDto, ServiceTypeOption } from './application/intakes';
 export {
   listQuotes,
   getQuote,
@@ -59,6 +63,8 @@ export type {
   VersionSummaryDto,
   QuoteItemDto,
   QuoteLineDto,
+  QuoteWarning,
 } from './application/quotes';
 export { pickServices, pickParts } from './application/catalog';
+export { recCustomerRetention } from './application/retention';
 export type { ServicePick, PartPick } from './application/catalog';

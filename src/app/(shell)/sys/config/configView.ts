@@ -93,6 +93,10 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
         enumLabel('period', str('period')),
         t('config.widthValue', { width: num('seqWidth') ?? 0 }),
       ].join(' · ');
+    case 'tax-mapping':
+      return `${t('config.fields.labor')}: ${str('labor')} · ${t('config.fields.part')}: ${str('part')}`;
+    case 'evidence-kind':
+    case 'service-type':
     case 'part-group':
     case 'part-unit':
       return `${str('name')} · ${enumLabel('status', str('status'))}`;
@@ -154,6 +158,18 @@ export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
     { name: 'status', kind: 'select', options: ['active', 'inactive'] },
   ],
   'part-unit': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'tax-mapping': [
+    { name: 'labor', kind: 'text' },
+    { name: 'part', kind: 'text' },
+  ],
+  'service-type': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'evidence-kind': [
     { name: 'name', kind: 'text' },
     { name: 'status', kind: 'select', options: ['active', 'inactive'] },
   ],

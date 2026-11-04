@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { resolveScope, type Actor } from '@/platform/rbac/rbac';
-import { SOURCES_BY_TYPE, type StockDocType } from '@/modules/inv';
+import { GATED_SOURCES, SOURCES_BY_TYPE, type StockDocType } from '@/modules/inv';
 import { listWarehouses } from '@/modules/sys';
 import { getContainer } from '@/composition/container';
 import type { DocFormLabels } from '../DocumentForm';
@@ -8,7 +8,7 @@ import type { DocFormLabels } from '../DocumentForm';
 /** Everything a document form needs from the server: warehouses, source types, receivers and plain-string labels. */
 export async function documentFormData(actor: Actor, type: StockDocType) {
   const t = await getTranslations();
-  const { sys } = getContainer();
+  const { sys, inv } = getContainer();
   const scope = resolveScope(actor, 'stock-doc:create');
   const warehouses = (await listWarehouses(sys, actor, { limit: 50 } as never)).items.filter(
     (w) => w.status === 'active',
@@ -47,7 +47,10 @@ export async function documentFormData(actor: Actor, type: StockDocType) {
     t,
     labels,
     warehouses: warehouses.map((w) => ({ value: w.id, label: w.name })),
-    sourceTypes: SOURCES_BY_TYPE[type].map((s) => ({ value: s, label: t(`inv.docs.source_${s}`) })),
+    // I16: the transfer-order source is hidden where the config flag is off (everything but local/test)
+    sourceTypes: SOURCES_BY_TYPE[type]
+      .filter((s) => inv.inv.allowTransferOrderSource || !GATED_SOURCES.includes(s))
+      .map((s) => ({ value: s, label: t(`inv.docs.source_${s}`) })),
     receivers: (users?.items ?? []).map((u) => ({ value: u.id, label: u.displayName })),
   };
 }

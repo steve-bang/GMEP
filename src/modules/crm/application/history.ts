@@ -43,8 +43,8 @@ const schema = z.object({
 /**
  * FR-CRM-004: repair history of a vehicle across ALL branches (a cross-branch projection read
  * model, BA §10 P3). Needs `vehicle-history:view` and either a relation between the vehicle and the
- * actor's scope, or the cross-branch exact lookup right (`customer-lookup:view`, intake of a vehicle
- * first seen at another branch). The projection contains only white-listed fields.
+ * actor's scope, or the cross-branch rights `customer-lookup:view` + `vehicle-history-cross:view` (C20: CH, CV, QL, QĐ;
+ * intake of a vehicle first seen at another branch). The projection contains only white-listed fields.
  */
 export async function listVehicleHistory(
   deps: CrmDeps,
@@ -56,7 +56,11 @@ export async function listVehicleHistory(
   const q = parseInput(schema, raw);
   const related = await deps.vehicles.get(scope, vehicleId);
   if (!related) {
-    const viaLookup = hasPermission(actor, 'customer-lookup:view');
+    // C20: reading the history of a vehicle OUTSIDE the scope is its own right (CH, CV, QL, QĐ);
+    // QV and KT only see the history of vehicles inside their scope
+    const viaLookup =
+      hasPermission(actor, 'customer-lookup:view') &&
+      hasPermission(actor, 'vehicle-history-cross:view');
     const v = viaLookup ? await deps.vehicles.getCompanyWide(actor.companyId, vehicleId) : null;
     if (!v) throw notFound();
   }

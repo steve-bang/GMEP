@@ -228,6 +228,29 @@ export function crmDemoDocs(): SeedDoc[] {
     totalVnd: 3400000,
     projectedAt: AT,
   });
+  // C23: kinds of consent evidence (the lawyer and the client decide the real list)
+  for (const [code, name, extra] of [
+    ['paper-slip', 'Phiếu giấy ký tại quầy', { referenceLabel: 'Số phiếu' }],
+    ['web-tick', 'Tick xác nhận trên web hoặc liên kết', {}],
+    ['reply-message', 'Tin nhắn trả lời của khách', { referenceLabel: 'Mã tin nhắn' }],
+    ['email', 'Email', { referenceLabel: 'Mã email' }],
+    ['other', 'Khác (ghi chú)', { noteRequired: true }],
+  ] as const)
+    put(COL.configVersions, `evidence-kind__${code}__2026-10-01`, {
+      companyId: CMP,
+      type: 'evidence-kind',
+      scopeKey: code,
+      effectiveFrom: '2026-10-01',
+      status: 'approved',
+      payload: { name, status: 'active', ...extra },
+      proposedBy: 'seed',
+      proposedAt: AT,
+      reason: 'Dữ liệu mẫu (chờ luật sư và khách xác nhận)',
+      decidedBy: 'seed',
+      decidedAt: AT,
+      decisionNote: null,
+      version: 1,
+    });
   // the seeded customer codes are already issued: the counters continue after them
   for (const [branch, last] of [
     ['br_q7', 2],

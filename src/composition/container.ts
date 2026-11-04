@@ -9,7 +9,7 @@ import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
 import { customerPiiSource, DEFAULT_CRM_CONFIG, type CrmDeps } from '@/modules/crm';
 import { DEFAULT_INV_CONFIG, invWarehouseActivity, type InvDeps } from '@/modules/inv';
-import { DEFAULT_REC_CONFIG, type RecDeps } from '@/modules/rec';
+import { DEFAULT_REC_CONFIG, recCustomerRetention, type RecDeps } from '@/modules/rec';
 import {
   BRANCH_STATE_RULES,
   DEFAULT_PASSWORD_POLICY,
@@ -66,7 +66,12 @@ import {
   DocQuoteRepository,
   DocQuoteVersionRepository,
 } from '@/infrastructure/repos/recRepos';
-import { stubBranchActivity, stubCustomerRetention } from '@/infrastructure/stubs';
+import {
+  combineRetention,
+  noOrderAdvisors,
+  stubBranchActivity,
+  stubCustomerRetention,
+} from '@/infrastructure/stubs';
 
 export interface Container {
   env: Env;
@@ -186,7 +191,7 @@ function buildCrm(sys: SysDeps, store: DocStore): CrmDeps {
 }
 
 /** INV use cases share the SYS transaction, audit, numbering and config services (slice 1.4). */
-function buildInv(sys: SysDeps, store: DocStore): InvDeps {
+function buildInv(sys: SysDeps, store: DocStore, env: Env): InvDeps {
   return {
     sys,
     parts: new DocPartRepository(store),
@@ -195,13 +200,16 @@ function buildInv(sys: SysDeps, store: DocStore): InvDeps {
     documents: new DocStockDocumentRepository(store),
     reservations: new DocReservationRepository(store),
     returns: new DocIssueReturnRepository(store),
-    inv: DEFAULT_INV_CONFIG,
+    // a copy per container: tests flip flags without touching the shared default
+    inv: { ...DEFAULT_INV_CONFIG, allowTransferOrderSource: env.GMEP_ENV === 'local' },
+    // I15: repair orders (the advisor's records) arrive in slice 1.6; nobody is returned until then
+    advisors: noOrderAdvisors,
   };
 }
 
 /** REC use cases read CRM and INV through their public surfaces only (slice 1.5). */
 function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): RecDeps {
-  return {
+  const rec: RecDeps = {
     sys,
     crm,
     inv,
@@ -210,6 +218,12 @@ function buildRec(sys: SysDeps, crm: CrmDeps, inv: InvDeps, store: DocStore): Re
     versions: new DocQuoteVersionRepository(store),
     rec: DEFAULT_REC_CONFIG,
   };
+  // C17: REC joins the data-retention gate of CRM; the stub still stands for modules not built yet
+  crm.retention = combineRetention(
+    recCustomerRetention(() => rec),
+    stubCustomerRetention,
+  );
+  return rec;
 }
 
 export interface ContainerOptions {
@@ -230,7 +244,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const sys = buildSys(env, clock, store, new MemoryUnitOfWork(db), identity, {
       get: () => late.inv!,
     });
-    const inv = (late.inv = buildInv(sys, store));
+    const inv = (late.inv = buildInv(sys, store, env));
     const crm = buildCrm(sys, store);
     return {
       env,
@@ -252,7 +266,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
   const sys = buildSys(env, clock, store, new FirestoreUnitOfWork(db), identity, {
     get: () => late.inv!,
   });
-  const inv = (late.inv = buildInv(sys, store));
+  const inv = (late.inv = buildInv(sys, store, env));
   const crm = buildCrm(sys, store);
   return {
     env,

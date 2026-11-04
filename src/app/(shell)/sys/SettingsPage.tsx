@@ -65,9 +65,15 @@ export async function SettingsPage(props: {
         ...(can('price-list:view')
           ? [{ key: 'priceLists', href: '/sys/price-lists', label: t('shell.nav.priceLists') }]
           : []),
-        ...['tax-rate', 'labor-rate', 'standard-hours', 'discount-limit', 'price-item'].flatMap(
-          cfg,
-        ),
+        ...[
+          'tax-rate',
+          'tax-mapping',
+          'labor-rate',
+          'standard-hours',
+          'discount-limit',
+          'price-item',
+          'service-type',
+        ].flatMap(cfg),
       ],
     },
     {
@@ -80,9 +86,12 @@ export async function SettingsPage(props: {
     },
     {
       label: t('settings.groups.data'),
-      items: can('audit-log:view')
-        ? [{ key: 'audit', href: '/sys/audit', label: t('shell.nav.audit') }]
-        : [],
+      items: [
+        ...(can('audit-log:view')
+          ? [{ key: 'audit', href: '/sys/audit', label: t('shell.nav.audit') }]
+          : []),
+        ...['evidence-kind'].flatMap(cfg),
+      ],
     },
   ].filter((g) => g.items.length > 0);
   const firstHref = groups[0]?.items[0]?.href ?? '/';

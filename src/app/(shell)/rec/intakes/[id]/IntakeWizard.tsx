@@ -35,7 +35,6 @@ interface IntakeData {
 }
 
 const FUELS = ['empty', 'quarter', 'half', 'three_quarters', 'full'] as const;
-const TYPES = ['maintenance', 'general_repair', 'tire_wheel', 'body_paint'] as const;
 const REASONS = ['typo', 'odometer_replaced', 'other'] as const;
 const clock = (iso: string) => iso.slice(11, 16);
 
@@ -49,6 +48,8 @@ export function IntakeWizard(props: {
   lastKm: number | null;
   labels: Record<string, string>;
   belongingLabels: Record<string, string>;
+  /** R7: the active entries of the company service-type catalogue (plus the stored one if it was retired) */
+  serviceTypes: { code: string; name: string }[];
   advisorName: string;
 }) {
   const l = props.labels;
@@ -444,9 +445,9 @@ export function IntakeWizard(props: {
                     aria-describedby="serviceType-e"
                   >
                     <option value="">—</option>
-                    {TYPES.map((x) => (
-                      <option key={x} value={x}>
-                        {l[`serviceType_${x}`]}
+                    {props.serviceTypes.map((x) => (
+                      <option key={x.code} value={x.code}>
+                        {x.name}
                       </option>
                     ))}
                   </select>
@@ -593,7 +594,10 @@ export function IntakeWizard(props: {
               </div>
               <div>
                 <dt>{l.serviceType}</dt>
-                <dd>{serviceType ? l[`serviceType_${serviceType}`] : '—'}</dd>
+                <dd>
+                  {props.serviceTypes.find((x) => x.code === serviceType)?.name ??
+                    (serviceType || '—')}
+                </dd>
               </div>
               <div>
                 <dt>{l.promisedDate}</dt>

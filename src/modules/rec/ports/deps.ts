@@ -7,12 +7,13 @@ import type { IntakeRepository, QuoteRepository, QuoteVersionRepository } from '
 export interface RecConfig {
   /** BA: a normal quote is valid 7 days once sent (ba-answers-03 Câu 3) */
   quoteValidityDays: number;
-  /** FR-REC-003: a drop larger than this flags the intake "Số km bất thường" [Đề xuất BA - chờ xác nhận: Khách] */
-  abnormalKmDrop: number;
   /** price list used for part prices until the branch-config "bảng giá áp dụng" exists [Đề xuất dev - chờ xác nhận: BA] */
   priceListCode: string;
-  /** tax-rate config key applied to every quote line until per-group rates (FR-ACC-009) are decided [Cần xác nhận: Kế toán khách] */
-  taxRateKey: string;
+  /**
+   * R2: tax-rate key used for a kind of line when no `tax-mapping` version is in force. The real mapping
+   * (labor vs parts, per goods group) is effective-dated config [Cần xác nhận: Kế toán khách].
+   */
+  defaultTaxRateKey: string;
   /** limits that keep one quote inside a bounded transaction */
   maxItems: number;
   maxLinesPerItem: number;
@@ -23,9 +24,8 @@ export interface RecConfig {
 
 export const DEFAULT_REC_CONFIG: RecConfig = {
   quoteValidityDays: 7,
-  abnormalKmDrop: 1000,
   priceListCode: 'STD',
-  taxRateKey: 'vat',
+  defaultTaxRateKey: 'vat',
   maxItems: 30,
   maxLinesPerItem: 30,
   maxVersions: 50,
@@ -41,3 +41,4 @@ export interface RecDeps {
   versions: QuoteVersionRepository;
   rec: RecConfig;
 }
+// FR-REC-003 / R9: the odometer threshold is CRM's single `abnormalKmDrop` (deps.crm.crm), not a REC copy.

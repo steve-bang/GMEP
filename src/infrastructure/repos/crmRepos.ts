@@ -491,6 +491,8 @@ const consentFromDoc = ({ id, data: x }: StoredDoc): Consent => ({
   basis: x.basis,
   status: x.status,
   grantedAt: x.grantedAt,
+  ...(x.evidenceKind ? { evidenceKind: x.evidenceKind } : {}),
+  ...(x.evidenceRef ? { evidenceRef: x.evidenceRef } : {}),
   ...(x.evidence ? { evidence: x.evidence } : {}),
   ...(x.policyVersion ? { policyVersion: x.policyVersion } : {}),
   ...(x.withdrawnAt ? { withdrawnAt: x.withdrawnAt } : {}),

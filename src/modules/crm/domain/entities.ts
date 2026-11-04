@@ -64,6 +64,8 @@ export const RELATION_SOURCES = [
   'appointment',
   'quote',
   'repair_order',
+  /** C24: the vehicle arrived and an intake file was opened for it (REC) */
+  'intake',
 ] as const;
 export type RelationSource = (typeof RELATION_SOURCES)[number];
 

@@ -718,6 +718,8 @@
     },
     "fields": {
       "name": "Tên",
+      "labor": "Mã thuế dòng công",
+      "part": "Mã thuế dòng phụ tùng",
       "rateBp": "Thuế suất (%)",
       "hourlyRateVnd": "Đơn giá giờ (VND)",
       "standardMinutes": "Giờ chuẩn (phút)",
@@ -778,6 +780,21 @@
         "title": "Nhóm hàng",
         "lead": "Danh mục nhóm hàng phụ tùng của công ty. Không xóa, chỉ ngừng dùng.",
         "scopeHint": "Mã nhóm, chữ thường không dấu, ví dụ oil"
+      },
+      "tax-mapping": {
+        "title": "Thuế suất theo loại dòng",
+        "lead": "Mã thuế suất cho dòng công và dòng phụ tùng của báo giá. Chưa khai thì dùng vat.",
+        "scopeHint": "Toàn công ty (company)"
+      },
+      "service-type": {
+        "title": "Loại dịch vụ",
+        "lead": "Danh mục loại dịch vụ của công ty. Không xóa, chỉ ngừng dùng.",
+        "scopeHint": "Mã loại, chữ thường không dấu, ví dụ maintenance"
+      },
+      "evidence-kind": {
+        "title": "Loại bằng chứng đồng ý",
+        "lead": "Hình thức bằng chứng chọn khi ghi nhận đồng ý. Không xóa, chỉ ngừng dùng.",
+        "scopeHint": "Mã loại, chữ thường không dấu, ví dụ paper-slip"
       },
       "part-unit": {
         "title": "Đơn vị tính",
@@ -909,6 +926,9 @@
       "config_inventory-policy": "Cấu hình: Chính sách kho",
       "config_part-group": "Cấu hình: Nhóm hàng",
       "config_part-unit": "Cấu hình: Đơn vị tính",
+      "config_tax-mapping": "Cấu hình: Thuế suất theo loại dòng",
+      "config_service-type": "Cấu hình: Loại dịch vụ",
+      "config_evidence-kind": "Cấu hình: Loại bằng chứng đồng ý",
       "config_doc-template": "Cấu hình: Mẫu chứng từ",
       "config_numbering-series": "Cấu hình: Dãy số chứng từ",
       "customer": "Khách hàng",
@@ -962,6 +982,7 @@
       "customer_anonymize": "Ẩn danh khách hàng",
       "vehicle_create": "Tạo xe",
       "vehicle_update": "Sửa xe",
+      "vehicle_odometer": "Ghi số km xe",
       "vehicle_plate_change": "Đổi biển số xe",
       "vehicle_owner_change": "Chuyển chủ xe",
       "consent_grant": "Ghi nhận đồng ý",
@@ -1052,7 +1073,10 @@
     "open": "Mở",
     "configPending": "Có đề xuất cấu hình “{type}” đang chờ bạn duyệt.",
     "configApproved": "Đề xuất cấu hình “{type}” của bạn đã được duyệt.",
-    "configRejected": "Đề xuất cấu hình “{type}” của bạn đã bị từ chối."
+    "configRejected": "Đề xuất cấu hình “{type}” của bạn đã bị từ chối.",
+    "reservationShortened": "Kiểm kê làm giảm giữ chỗ của lệnh {orderId}: phụ tùng {partCode} thiếu thêm {qty}.",
+    "odometerAbnormal": "Số km xe {plate} giảm bất thường ({from} xuống {to}). Cần xem lại.",
+    "lookupLimit": "Người dùng {user} đã tra cứu khách hoặc xe vượt giới hạn cho phép. Xem nhật ký truy cập."
   },
   "settings": {
     "crumb": "Cài đặt",
@@ -1203,7 +1227,9 @@
       "purpose": "Mục đích",
       "channel": "Kênh",
       "basis": "Căn cứ",
-      "evidence": "Bằng chứng",
+      "evidenceKind": "Loại bằng chứng",
+      "evidenceRef": "Mã tham chiếu (số phiếu, mã tin nhắn)",
+      "evidence": "Ghi chú bằng chứng",
       "evidenceHint": "Ví dụ: phiếu giấy số 123 tại quầy. Không ghi tên, số điện thoại hoặc email của khách.",
       "granted": "Thời điểm",
       "statusCol": "Trạng thái",
@@ -1688,10 +1714,6 @@
       "belongingsHint": "Dặn khách mang theo vật có giá trị nếu có thể.",
       "photosNote": "Ảnh hiện trạng xe chưa có ở bản này; ghi rõ hiện trạng bằng chữ.",
       "serviceType": "Loại dịch vụ",
-      "serviceType_maintenance": "Bảo dưỡng",
-      "serviceType_general_repair": "Sửa chữa chung",
-      "serviceType_tire_wheel": "Lốp và mâm",
-      "serviceType_body_paint": "Đồng sơn",
       "advisor": "Cố vấn tiếp nhận",
       "promisedDate": "Ngày hẹn giao",
       "promisedDateRequired": "Chọn ngày hẹn giao hợp lệ (dd/MM/yyyy).",
@@ -1743,8 +1765,14 @@
       "oldVersion": "Phiên bản cũ (chỉ đọc)",
       "intake": "Hồ sơ tiếp nhận",
       "openIntake": "Mở hồ sơ",
-      "sentAt": "Gửi lúc",
+      "sentAt": "Chốt lúc",
       "validUntil": "Hiệu lực đến",
+      "sentVia": "Cách chuyển cho khách",
+      "sentVia_none": "Chưa chuyển cho khách (hệ thống chưa có kênh gửi tin)",
+      "sentVia_print": "In giấy trao tay",
+      "sentVia_counter": "Cho khách xem tại quầy",
+      "sentVia_link": "Liên kết duyệt trực tuyến",
+      "taxChangeWarning": "Báo giá có hiệu lực đến {validUntil}, sau ngày thuế suất đổi ({effectiveFrom}). Hóa đơn lấy thuế suất theo ngày lập; hỏi kế toán áp thuế suất nào trước khi chốt.",
       "pricedOn": "Tính giá ngày",
       "rejectedBecause": "Khách từ chối vì",
       "versions": "Các phiên bản",
@@ -1774,6 +1802,7 @@
       "amount": "Thành tiền",
       "removeLine": "Bỏ dòng",
       "standard": "Giờ chuẩn",
+      "differs": "Khác giờ chuẩn ({delta} phút)",
       "minutes": "Số phút",
       "qty": "Số lượng",
       "short": "Khả dụng {n}: không đủ hàng",
@@ -1796,8 +1825,8 @@
       "unexpected": "Chưa lưu được. Thử lại."
     },
     "actions": {
-      "send": "Gửi cho khách",
-      "sendNeedsLines": "Thêm ít nhất một dòng trước khi gửi.",
+      "send": "Chốt báo giá, chờ khách duyệt",
+      "sendNeedsLines": "Thêm ít nhất một dòng trước khi chốt.",
       "reject": "Khách từ chối báo giá",
       "rejectReason": "Lý do khách từ chối",
       "rejectHint": "Từ chối nghĩa là từ chối toàn bộ báo giá.",

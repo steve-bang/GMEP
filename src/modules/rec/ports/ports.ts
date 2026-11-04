@@ -21,6 +21,13 @@ export interface IntakeRepository {
   ): Promise<Page<Intake>>;
   get(scope: Scope, id: string): Promise<Intake | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Intake | null>;
+  /** C17: company-wide (retention gate), no scope: only counts, never returned to a user */
+  listByCustomer(
+    companyId: string,
+    customerId: string,
+    status: IntakeStatus,
+    limit: number,
+  ): Promise<Intake[]>;
   create(tx: Tx, i: Intake): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
@@ -36,6 +43,12 @@ export interface QuoteRepository {
   ): Promise<Page<Quote>>;
   get(scope: Scope, id: string): Promise<Quote | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Quote | null>;
+  listByCustomer(
+    companyId: string,
+    customerId: string,
+    status: QuoteStatus,
+    limit: number,
+  ): Promise<Quote[]>;
   create(tx: Tx, q: Quote): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }

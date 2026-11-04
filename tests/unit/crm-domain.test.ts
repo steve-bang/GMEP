@@ -292,8 +292,23 @@ describe('BA answers C3, C4, C9, C12 (ba-answers-for-dev §15)', () => {
       (seeds.find((r) => r.code === code)?.permissions ?? []).includes(perm);
     expect(has('QD', 'customer-lookup:view')).toBe(true);
     expect(has('QD', 'customer-lookup-customer:view')).toBe(false);
-    for (const code of ['CH', 'QV', 'QL', 'CV', 'TN'])
+    for (const code of ['CH', 'QL', 'CV', 'TN'])
       expect(has(code, 'customer-lookup-customer:view'), code).toBe(true);
+    // C21 (BA §17): QV has no need to find a customer by phone outside the scope
+    expect(has('QV', 'customer-lookup-customer:view')).toBe(false);
+    expect(has('QV', 'customer-lookup:view')).toBe(true);
+  });
+  it('C20 only CH, CV, QL and QD may read the history of a vehicle outside their scope', () => {
+    const seeds = defaultRoleSeeds();
+    const has = (code: string, perm: string) =>
+      (seeds.find((r) => r.code === code)?.permissions ?? []).includes(perm);
+    for (const code of ['CH', 'CV', 'QL', 'QD'])
+      expect(has(code, 'vehicle-history-cross:view'), code).toBe(true);
+    for (const code of ['QV', 'KT', 'TK', 'TH', 'TN', 'AD'])
+      expect(has(code, 'vehicle-history-cross:view'), code).toBe(false);
+    // QV and KT keep the history inside their own scope
+    expect(has('QV', 'vehicle-history:view')).toBe(true);
+    expect(has('KT', 'vehicle-history:view')).toBe(true);
     for (const code of ['QL', 'QV', 'CV', 'QD', 'TN', 'TK', 'TH', 'AD'])
       expect(has(code, 'customer-pii:export'), code).toBe(false);
     for (const code of ['CH', 'KT']) expect(has(code, 'customer-pii:export'), code).toBe(true);

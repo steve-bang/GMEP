@@ -36,7 +36,11 @@ export interface Consent {
   basis: ConsentBasis;
   status: 'granted' | 'withdrawn';
   grantedAt: Date;
-  /** short proof description (paper form no., checkbox on web...); no personal data */
+  /** C23: code of an entry of the company `evidence-kind` catalogue (paper slip, web tick, reply message...) */
+  evidenceKind?: string;
+  /** C23: optional reference of the proof (paper slip no., message id); screened like `evidence`, no personal data */
+  evidenceRef?: string;
+  /** short free note on the proof; no personal data */
   evidence?: string;
   /** version of the notice shown to the customer */
   policyVersion?: string;

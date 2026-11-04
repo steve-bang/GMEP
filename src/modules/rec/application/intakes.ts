@@ -7,12 +7,11 @@ import {
   type Page,
 } from '@/platform/pagination/pagination';
 import { resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
-import { normalizePlate, getVehicle, relateToWorkingBranch } from '@/modules/crm';
-import { allocateDocumentNumber } from '@/modules/sys';
+import { normalizePlate, getVehicle, recordOdometer, relateToWorkingBranch } from '@/modules/crm';
+import { allocateDocumentNumber, resolveCatalogAt } from '@/modules/sys';
 import {
   BELONGINGS,
   FUEL_LEVELS,
-  SERVICE_TYPES,
   type Intake,
   type IntakeStatus,
   type KmReason,
@@ -112,6 +111,44 @@ export function toIntakeDto(i: Intake): IntakeDto {
   };
 }
 
+// ---- service types (R7) ---------------------------------------------------------------------------
+
+export interface ServiceTypeOption {
+  code: string;
+  name: string;
+  active: boolean;
+}
+
+/** R7: the company catalogue of service types (FR-REC-032, BR-REC-13) for the wizard and filters. */
+export async function listServiceTypes(deps: RecDeps, actor: Actor): Promise<ServiceTypeOption[]> {
+  resolveScope(actor, 'intake:view');
+  const rows = await resolveCatalogAt(deps.sys, {
+    companyId: actor.companyId,
+    type: 'service-type',
+    date: businessDate(deps.sys.clock.now()),
+  });
+  return rows
+    .map((r) => ({
+      code: r.code,
+      name: String(r.payload.name ?? r.code),
+      active: r.payload.status !== 'inactive',
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+}
+
+/** A type may be CHOSEN only while it is active; a stored inactive one stays readable (like groups, I21). */
+async function assertServiceTypeActive(deps: RecDeps, actor: Actor, code: string): Promise<void> {
+  const t = (await listServiceTypes(deps, actor)).find((x) => x.code === code);
+  if (!t)
+    throw validationFailed([
+      { field: 'serviceType', message: 'Loại dịch vụ không có trong danh mục.' },
+    ]);
+  if (!t.active)
+    throw validationFailed([
+      { field: 'serviceType', message: 'Loại dịch vụ đã ngừng dùng. Chọn loại khác.' },
+    ]);
+}
+
 // ---- list / get ---------------------------------------------------------------------------
 
 const listSchema = z.object({
@@ -170,7 +207,8 @@ export async function createIntake(
     vehicle.owner.id,
     {},
     {
-      source: 'repair_order',
+      // C24 (BA §17): a vehicle that arrived and got an intake file relates its customer by `intake`
+      source: 'intake',
       idempotencyKey: `rel-${ctx.idempotencyKey}`,
       requestId: ctx.requestId,
       ...(ctx.sessionId ? { sessionId: ctx.sessionId } : {}),
@@ -257,7 +295,12 @@ export const patchIntakeSchema = z.object({
   condition: text(1000).optional(),
   belongings: z.array(z.enum(BELONGINGS)).max(BELONGINGS.length).optional(),
   belongingsOther: text(200).optional(),
-  serviceType: z.enum(SERVICE_TYPES).nullable().optional(),
+  /** R7: the CODE of an active entry of the company `service-type` catalogue (checked on save) */
+  serviceType: z
+    .string()
+    .regex(/^[a-z][a-z0-9_-]{0,29}$/)
+    .nullable()
+    .optional(),
   promisedDate: isoDate.nullable().optional(),
   promisedTime: z
     .string()
@@ -318,7 +361,7 @@ async function applyKmRule(
     lastKm: v.lastKm,
     reason,
     note,
-    abnormalDrop: deps.rec.abnormalKmDrop,
+    abnormalDrop: deps.crm.crm.abnormalKmDrop,
   });
   if (!r.ok)
     throw validationFailed([
@@ -372,6 +415,7 @@ export async function updateIntake(
 ): Promise<IntakeDto> {
   const scope = resolveScope(actor, 'intake:update');
   const data = parseInput(patchIntakeSchema, input);
+  if (data.serviceType) await assertServiceTypeActive(deps, actor, data.serviceType);
   return deps.sys.uow.run(async (tx) => {
     const i = await deps.intakes.getInTx(tx, scope, id);
     if (!i) throw notFound();
@@ -452,12 +496,29 @@ export async function completeIntake(
         ...(!i.promisedDate ? [{ field: 'promisedDate', message: 'Chọn ngày hẹn giao.' }] : []),
       ];
       if (missing.length) throw validationFailed(missing);
+      await assertServiceTypeActive(deps, actor, i.serviceType!);
       const now = deps.sys.clock.now();
       if (i.promisedDate! < businessDate(now))
         throw validationFailed([
           { field: 'promisedDate', message: 'Ngày hẹn giao không được trước hôm nay.' },
         ]);
       const checked = await applyKmRule(deps, actor, i, {});
+      // R9: the reading becomes the vehicle's last known km in THIS transaction (CRM owns the rule and the
+      // manager notice for an abnormal drop), so km-based reminders are right before any quote is approved
+      await recordOdometer(
+        deps.crm,
+        tx,
+        actor,
+        {
+          vehicleId: i.vehicleId,
+          km: checked.km!,
+          reason: checked.kmReason,
+          note: checked.kmNote,
+          source: 'intake',
+          sourceId: i.id,
+        },
+        ctx,
+      );
       deps.intakes.update(tx, id, {
         ...patchOf(checked),
         status: t.state,

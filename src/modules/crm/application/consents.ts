@@ -1,5 +1,7 @@
 import { AppError, validationFailed } from '@/platform/errors/errors';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
+import { businessDate } from '@/platform/format/date';
+import { resolveCatalogAt } from '@/modules/sys';
 import { resolveScope, type Actor } from '@/platform/rbac/rbac';
 import {
   CONSENT_BASES,
@@ -33,6 +35,8 @@ export interface ConsentDto {
   status: string;
   grantedAt: string;
   evidence: string | null;
+  evidenceKind: string | null;
+  evidenceRef: string | null;
   policyVersion: string | null;
   withdrawnAt: string | null;
   withdrawnReason: string | null;
@@ -48,6 +52,8 @@ export const toConsentDto = (c: Consent): ConsentDto => ({
   status: c.status,
   grantedAt: c.grantedAt.toISOString(),
   evidence: c.evidence ?? null,
+  evidenceKind: c.evidenceKind ?? null,
+  evidenceRef: c.evidenceRef ?? null,
   policyVersion: c.policyVersion ?? null,
   withdrawnAt: c.withdrawnAt?.toISOString() ?? null,
   withdrawnReason: c.withdrawnReason ?? null,
@@ -69,8 +75,68 @@ export const recordConsentSchema = z.object({
   purpose: z.enum(CONSENT_PURPOSES),
   channel: z.enum(CONSENT_CHANNELS),
   basis: z.enum(CONSENT_BASES),
+  /** C23: picked from the company `evidence-kind` catalogue, not typed */
+  evidenceKind: z
+    .string()
+    .regex(/^[a-z][a-z0-9-]{0,29}$/)
+    .optional(),
+  evidenceRef: z.string().trim().max(40).optional(),
   evidence: z.string().trim().max(200).optional(),
 });
+
+export interface EvidenceKindOption {
+  code: string;
+  name: string;
+  referenceLabel: string | null;
+  referenceRequired: boolean;
+  noteRequired: boolean;
+}
+
+/** C23: the kinds of evidence the counter can pick today (active entries of the catalogue). */
+export async function listEvidenceKinds(
+  deps: CrmDeps,
+  actor: Actor,
+): Promise<EvidenceKindOption[]> {
+  resolveScope(actor, 'consent:view');
+  const rows = await resolveCatalogAt(deps.sys, {
+    companyId: actor.companyId,
+    type: 'evidence-kind',
+    date: businessDate(deps.sys.clock.now()),
+  });
+  return rows
+    .filter((r) => r.payload.status !== 'inactive')
+    .map((r) => ({
+      code: r.code,
+      name: String(r.payload.name ?? r.code),
+      referenceLabel:
+        typeof r.payload.referenceLabel === 'string' ? r.payload.referenceLabel : null,
+      referenceRequired: r.payload.referenceRequired === true,
+      noteRequired: r.payload.noteRequired === true,
+    }));
+}
+
+/** C23: the kind comes from the catalogue; once the catalogue has active entries one must be picked. */
+async function checkEvidence(
+  deps: CrmDeps,
+  actor: Actor,
+  data: z.infer<typeof recordConsentSchema>,
+): Promise<void> {
+  const kinds = await listEvidenceKinds(deps, actor);
+  if (kinds.length === 0 && !data.evidenceKind) return;
+  const kind = kinds.find((k) => k.code === data.evidenceKind);
+  if (!data.evidenceKind)
+    throw validationFailed([{ field: 'evidenceKind', message: 'Chọn loại bằng chứng.' }]);
+  if (!kind)
+    throw validationFailed([
+      { field: 'evidenceKind', message: 'Loại bằng chứng này không còn dùng. Chọn loại khác.' },
+    ]);
+  if (kind.referenceRequired && !data.evidenceRef)
+    throw validationFailed([
+      { field: 'evidenceRef', message: `Nhập ${kind.referenceLabel ?? 'mã tham chiếu'}.` },
+    ]);
+  if (kind.noteRequired && !data.evidence)
+    throw validationFailed([{ field: 'evidence', message: 'Ghi chú cách thu nhận.' }]);
+}
 
 /** Re-derives the advertising channels from all records of the customer (inside the customer's tx read). */
 async function marketingOf(deps: CrmDeps, companyId: string, customerId: string, extra?: Consent) {
@@ -103,14 +169,12 @@ export async function recordConsent(
       { field: 'basis', message: 'Căn cứ này chưa được dùng. Chọn căn cứ khác.' },
     ]);
   // C4: evidence stays after anonymisation, so no phone or email in it
+  const noContact =
+    'Không ghi số điện thoại, email hoặc tên khách vào bằng chứng; chỉ ghi số phiếu hoặc cách thu nhận.';
   if (data.evidence && looksLikePersonalContact(data.evidence))
-    throw validationFailed([
-      {
-        field: 'evidence',
-        message:
-          'Không ghi số điện thoại, email hoặc tên khách vào bằng chứng; chỉ ghi số phiếu hoặc cách thu nhận.',
-      },
-    ]);
+    throw validationFailed([{ field: 'evidence', message: noContact }]);
+  if (data.evidenceRef && looksLikePersonalContact(data.evidenceRef))
+    throw validationFailed([{ field: 'evidenceRef', message: noContact }]);
   return runIdempotent(
     idemOf(deps),
     {
@@ -123,6 +187,7 @@ export async function recordConsent(
       const customer = await deps.customers.getInTx(tx, cscope, customerId);
       if (!customer) throw notFound();
       if (customer.status === 'anonymized') throw new AppError('customer_anonymized', 409);
+      await checkEvidence(deps, actor, data);
       const branch = await writableWorkingBranch(deps, tx, actor, scope);
       const existing = await deps.consents.listByCustomer(actor.companyId, customerId);
       if (
@@ -146,6 +211,8 @@ export async function recordConsent(
         basis: data.basis,
         status: 'granted',
         grantedAt: now,
+        ...(data.evidenceKind ? { evidenceKind: data.evidenceKind } : {}),
+        ...(data.evidenceRef ? { evidenceRef: data.evidenceRef } : {}),
         ...(data.evidence ? { evidence: data.evidence } : {}),
         policyVersion: deps.crm.consentPolicyVersion,
         createdBy: actor.userId,
@@ -167,6 +234,7 @@ export async function recordConsent(
             purpose: c.purpose,
             channel: c.channel,
             basis: c.basis,
+            evidenceKind: c.evidenceKind ?? null,
             policyVersion: c.policyVersion,
           },
         }),

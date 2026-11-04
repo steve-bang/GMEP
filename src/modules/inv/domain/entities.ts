@@ -122,6 +122,12 @@ export const DOC_SERIES: Record<StockDocType, string> = {
 
 export const GRN_SOURCES = ['purchase-order', 'urgent-purchase', 'no-po'] as const;
 export const GIN_SOURCES = ['repair-order', 'retail-sale', 'transfer-order'] as const;
+/**
+ * I16: `transfer-order` lets a GIN take stock out on a bare reference with no in-transit quantity (it
+ * goes around the four stock numbers, FR-INV-010), so it is offered only where the config flag
+ * `allowTransferOrderSource` is on (tests and local), until the transfer document exists.
+ */
+export const GATED_SOURCES: readonly string[] = ['transfer-order'];
 export const RTN_SOURCES = ['repair-order'] as const;
 export const ADJ_SOURCES = ['opening-balance', 'manual-adjustment'] as const;
 
@@ -144,8 +150,11 @@ export interface StockDocLine {
   /** GRN against a purchase order: what the order says (variance check, FR-INV-005) */
   expectedQty?: number;
   expectedUnitCostVnd?: number;
-  /** GIN: reservation line key; defaults to the part id */
-  reservationKey?: string;
+  /**
+   * GIN for a repair order (I20): the immutable `lineKey` of the order line this issue serves, the same
+   * key as the reservation. Optional only when the order has exactly one demand line for the part.
+   */
+  lineKey?: string;
   /** RTN: line of the original GIN */
   originalLineNo?: number;
   /** value of the line after posting (signed like the stock change) */

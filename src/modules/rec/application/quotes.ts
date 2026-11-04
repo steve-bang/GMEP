@@ -8,17 +8,24 @@ import {
 } from '@/platform/pagination/pagination';
 import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
 import { getAvailability } from '@/modules/inv';
-import { normalizePlate } from '@/modules/crm';
-import { allocateDocumentNumber } from '@/modules/sys';
+import { normalizePlate, relateToWorkingBranch } from '@/modules/crm';
+import { allocateDocumentNumber, approvedChangesBetween } from '@/modules/sys';
 import {
   versionId,
   type Quote,
   type QuoteItem,
   type QuoteStatus,
   type QuoteVersion,
+  type SentVia,
 } from '../domain/entities';
 import { computeTotals } from '../domain/pricing';
-import { allowedQuoteActions, editMode, transitionQuote } from '../domain/quoteState';
+import {
+  allowedQuoteActions,
+  editMode,
+  effectiveQuoteStatus,
+  isQuoteExpired,
+  transitionQuote,
+} from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
 import { buildItems, itemInput } from './quoteBuild';
 import {
@@ -53,6 +60,7 @@ export interface QuoteDto {
   advisorId: string;
   currentN: number;
   status: QuoteStatus;
+  validUntil: string | null;
   /** total of the current version including tax */
   totalVnd: number;
   createdAt: string;
@@ -68,6 +76,10 @@ export interface QuoteLineDto {
   /** hours as minutes for labor, quantity for parts */
   minutes: number | null;
   standardMinutes: number | null;
+  /** R5: labor lines only; "khác giờ chuẩn" and the gap (minutes, basis points of the standard) */
+  differsFromStandard: boolean | null;
+  minutesDelta: number | null;
+  minutesDeltaBp: number | null;
   qty: number | null;
   qtyScale: number | null;
   serviceId: string | null;
@@ -77,6 +89,9 @@ export interface QuoteLineDto {
   discountBp: number;
   amountVnd: number;
   taxRateBp: number;
+  /** R2: the tax-rate key and version this line was priced with */
+  taxKey: string;
+  taxVersionId: string;
   /** FR-REC-006 (own branch only): the AVAILABLE quantity, never on-hand or reserved (BA-04 Câu 6) */
   available: number | null;
 }
@@ -93,12 +108,29 @@ export interface VersionSummaryDto {
   replacedByN: number | null;
 }
 
+/** R2: validity runs past a known change of a tax rate the quote used; shown to the advisor, never blocks. */
+export interface QuoteWarning {
+  code: 'tax_change_within_validity';
+  taxKey: string;
+  validUntil: string;
+  effectiveFrom: string;
+  newRateBp: number | null;
+}
+
 export interface VersionDto {
   n: number;
+  /** R10: derived: a sent version past its validity reads "expired" */
   status: QuoteStatus;
+  /** the stored status, for diagnostics */
+  storedStatus: QuoteStatus;
   items: QuoteItemDto[];
   totals: QuoteVersion['totals'];
-  tax: QuoteVersion['tax'];
+  taxes: QuoteVersion['taxes'];
+  /** the tax when there is exactly one rate in the quote (display convenience) */
+  tax: QuoteVersion['taxes'][number] | null;
+  warnings: QuoteWarning[];
+  /** R10: how the customer was told; null until the version is sent. `none` means NOT delivered. */
+  sentVia: SentVia | null;
   pricedOn: string;
   note: string | null;
   sentAt: string | null;
@@ -115,7 +147,7 @@ export interface QuoteDetailDto extends QuoteDto {
   allowed: string[];
 }
 
-const toQuoteDto = (q: Quote): QuoteDto => ({
+const toQuoteDto = (q: Quote, today: string): QuoteDto => ({
   id: q.id,
   number: q.number,
   intakeId: q.intakeId,
@@ -126,7 +158,9 @@ const toQuoteDto = (q: Quote): QuoteDto => ({
   customerName: q.customerName,
   advisorId: q.advisorId,
   currentN: q.currentN,
-  status: q.status,
+  // R10: derived at read time, never waiting for a job
+  status: effectiveQuoteStatus(q.status, q.validUntil, today),
+  validUntil: q.validUntil ?? null,
   totalVnd: q.totalVnd,
   createdAt: q.createdAt.toISOString(),
   updatedAt: q.updatedAt.toISOString(),
@@ -152,18 +186,58 @@ async function availabilityOf(
   return out;
 }
 
+/**
+ * R2: the quote must say so when its validity reaches a day on which an approved tax-rate version of
+ * one of the keys it used takes effect: price and tax are frozen at approval (RULE-005) but the invoice
+ * takes the rate of the invoice date, and which one applies is the accountant's decision, not the code's.
+ */
+async function taxChangeWarnings(
+  deps: RecDeps,
+  actor: Actor,
+  v: QuoteVersion,
+  today: string,
+): Promise<QuoteWarning[]> {
+  if (v.status !== 'draft' && v.status !== 'sent') return [];
+  const validUntil = v.validUntil ?? addDays(today, deps.rec.quoteValidityDays);
+  const out: QuoteWarning[] = [];
+  for (const t of v.taxes) {
+    const changes = await approvedChangesBetween(deps.sys, {
+      companyId: actor.companyId,
+      type: 'tax-rate',
+      scopeKey: t.key,
+      after: v.pricedOn,
+      upTo: validUntil,
+    });
+    for (const c of changes)
+      out.push({
+        code: 'tax_change_within_validity',
+        taxKey: t.key,
+        validUntil,
+        effectiveFrom: c.effectiveFrom,
+        newRateBp: (c.payload as { rateBp?: number }).rateBp ?? null,
+      });
+  }
+  return out;
+}
+
 async function toVersionDto(
   deps: RecDeps,
   actor: Actor,
   v: QuoteVersion,
   currentN: number,
 ): Promise<VersionDto> {
+  const today = businessDate(deps.sys.clock.now());
   // the available quantity is only useful while the quote can still change or be approved
   const live = v.n === currentN && (v.status === 'draft' || v.status === 'sent');
   const avail = live ? await availabilityOf(deps, actor, v.items) : new Map<string, number>();
   return {
     n: v.n,
-    status: v.status,
+    status: effectiveQuoteStatus(v.status, v.validUntil, today),
+    storedStatus: v.status,
+    taxes: v.taxes,
+    tax: v.taxes.length === 1 ? v.taxes[0]! : null,
+    warnings: await taxChangeWarnings(deps, actor, v, today),
+    sentVia: v.sentAt ? (v.sentVia ?? 'none') : null,
     items: v.items.map((i) => ({
       ...i,
       lines: i.lines.map((l) => ({
@@ -173,6 +247,9 @@ async function toVersionDto(
         name: l.name,
         minutes: l.kind === 'labor' ? l.minutes : null,
         standardMinutes: l.kind === 'labor' ? l.standardMinutes : null,
+        differsFromStandard: l.kind === 'labor' ? l.differsFromStandard : null,
+        minutesDelta: l.kind === 'labor' ? l.minutesDelta : null,
+        minutesDeltaBp: l.kind === 'labor' ? l.minutesDeltaBp : null,
         qty: l.kind === 'part' ? l.qty : null,
         qtyScale: l.kind === 'part' ? l.qtyScale : null,
         serviceId: l.kind === 'labor' ? l.serviceId : null,
@@ -182,11 +259,12 @@ async function toVersionDto(
         discountBp: l.discountBp,
         amountVnd: l.amountVnd,
         taxRateBp: l.taxRateBp,
+        taxKey: l.taxKey,
+        taxVersionId: l.taxVersionId,
         available: l.kind === 'part' ? (avail.get(l.partId) ?? null) : null,
       })),
     })),
     totals: v.totals,
-    tax: v.tax,
     pricedOn: v.pricedOn,
     note: v.note ?? null,
     sentAt: v.sentAt?.toISOString() ?? null,
@@ -225,7 +303,8 @@ export async function listQuotes(
     ...(text && !byNumber ? { platePrefix: normalizePlate(text) } : {}),
     ...(q.cursor ? { cursor: decodeCursor(q.cursor)! } : {}),
   });
-  return { items: page.items.map(toQuoteDto), nextCursor: page.nextCursor };
+  const today = businessDate(deps.sys.clock.now());
+  return { items: page.items.map((x) => toQuoteDto(x, today)), nextCursor: page.nextCursor };
 }
 
 export async function getQuote(
@@ -241,8 +320,9 @@ export async function getQuote(
   const shown = versions.find((v) => v.n === (n ?? q.currentN));
   if (!shown) throw notFound();
   const mayEdit = hasPermission(actor, 'quote:update');
+  const today = businessDate(deps.sys.clock.now());
   return {
-    ...toQuoteDto(q),
+    ...toQuoteDto(q, today),
     versions: versions.map((v) => ({
       n: v.n,
       status: v.status,
@@ -251,7 +331,9 @@ export async function getQuote(
       replacedByN: v.replacedByN ?? null,
     })),
     shown: await toVersionDto(deps, actor, shown, q.currentN),
-    allowed: mayEdit ? allowedQuoteActions(q.status) : [],
+    allowed: mayEdit
+      ? allowedQuoteActions(q.status, isQuoteExpired(q.status, q.validUntil, today))
+      : [],
   };
 }
 
@@ -269,6 +351,21 @@ export async function createQuote(
   const scope = resolveScope(actor, 'quote:create');
   const data = parseInput(createQuoteSchema, input);
   requireWorkingBranch(actor);
+  // C24 (BA §17): creating the quote is the business event that relates the customer to the working
+  // branch (source `quote`); idempotent, so a customer already related is a no-op
+  const pre = await deps.intakes.get(scope, data.intakeId);
+  if (pre && pre.branchId === requireWorkingBranch(actor))
+    await relateToWorkingBranch(
+      deps.crm,
+      actor,
+      pre.customerId,
+      {},
+      {
+        source: 'quote',
+        idempotencyKey: `rel-quote-${ctx.idempotencyKey}`,
+        requestId: ctx.requestId,
+      },
+    );
   return runIdempotent(
     idemOf(deps),
     {
@@ -324,7 +421,7 @@ export async function createQuote(
         status: 'draft',
         items: [],
         totals: computeTotals([]),
-        tax: null,
+        taxes: [],
         pricedOn: businessDate(now),
         createdAt: now,
         createdBy: actor.userId,
@@ -345,7 +442,7 @@ export async function createQuote(
           after: { number: q.number, intakeId: intake.id },
         }),
       );
-      return { status: 201, body: toQuoteDto(q) };
+      return { status: 201, body: toQuoteDto(q, businessDate(now)) };
     },
   );
 }
@@ -385,7 +482,7 @@ export async function updateQuote(
     const body = {
       items: built.items,
       totals: built.totals,
-      tax: built.tax,
+      taxes: built.taxes,
       pricedOn: today,
       ...(data.note ? { note: data.note } : {}),
       updatedAt: now,
@@ -417,6 +514,7 @@ export async function updateQuote(
     deps.quotes.update(tx, id, {
       currentN: n,
       status: 'draft',
+      validUntil: null,
       totalVnd: built.totals.totalVnd,
       updatedAt: now,
       updatedBy: actor.userId,
@@ -440,6 +538,10 @@ export async function updateQuote(
 // ---- send / reject -----------------------------------------------------------------------------------
 
 export const quoteActionSchema = z.object({ version: z.number().int().min(1) });
+/** R10: `print` (a paper copy is handed over) and `counter` (shown at the counter) exist today; `link` waits for the customer page. */
+export const sendQuoteSchema = quoteActionSchema.extend({
+  via: z.enum(['print', 'counter']).optional(),
+});
 export const rejectQuoteSchema = z.object({
   version: z.number().int().min(1),
   reason: z.string().trim().min(3).max(300),
@@ -454,7 +556,7 @@ export async function sendQuote(
   ctx: RequestCtx & { idempotencyKey: string },
 ) {
   const scope = resolveScope(actor, 'quote:update');
-  const data = parseInput(quoteActionSchema, input);
+  const data = parseInput(sendQuoteSchema, input);
   return runIdempotent(
     idemOf(deps),
     {
@@ -485,6 +587,8 @@ export async function sendQuote(
         sentAt: now,
         sentBy: actor.userId,
         validUntil,
+        // R10: no message channel exists yet, so the version is only frozen (`none`); print and counter set their own value
+        sentVia: data.via ?? 'none',
         updatedAt: now,
         updatedBy: actor.userId,
         version: cur.version + 1,
@@ -497,6 +601,7 @@ export async function sendQuote(
         });
       deps.quotes.update(tx, id, {
         status: t.state,
+        validUntil,
         updatedAt: now,
         updatedBy: actor.userId,
         version: q.version + 1,
@@ -512,7 +617,10 @@ export async function sendQuote(
           after: { n: cur.n, status: t.state, validUntil, totalVnd: cur.totals.totalVnd },
         }),
       );
-      return { status: 200, body: toQuoteDto({ ...q, status: t.state, version: q.version + 1 }) };
+      return {
+        status: 200,
+        body: toQuoteDto({ ...q, status: t.state, version: q.version + 1 }, today),
+      };
     },
   );
 }
@@ -545,6 +653,7 @@ export async function rejectQuote(
       const t = transitionQuote(cur.status, 'reject');
       if (!t.ok) throw new AppError(t.reason, 409);
       const now = deps.sys.clock.now();
+      const today = businessDate(now);
       deps.versions.update(tx, cur.id, {
         status: t.state,
         rejectedAt: now,
@@ -571,7 +680,10 @@ export async function rejectQuote(
           reason: data.reason,
         }),
       );
-      return { status: 200, body: toQuoteDto({ ...q, status: t.state, version: q.version + 1 }) };
+      return {
+        status: 200,
+        body: toQuoteDto({ ...q, status: t.state, version: q.version + 1 }, today),
+      };
     },
   );
 }

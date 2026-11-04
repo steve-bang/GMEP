@@ -3,6 +3,7 @@
  * RULE-007, RULE-010). Pure; the application layer supplies the facts.
  */
 import {
+  GATED_SOURCES,
   SOURCES_BY_TYPE,
   type StockDocLine,
   type StockDocSource,
@@ -27,8 +28,15 @@ export function assertTransition(from: StockDocStatus, to: StockDocStatus): void
 }
 
 /** RULE-007: no stock movement without a source document. Returns the normalised source. */
-export function checkSource(type: StockDocType, source: StockDocSource): StockDocSource {
+export function checkSource(
+  type: StockDocType,
+  source: StockDocSource,
+  opts: { allowTransferOrder?: boolean } = {},
+): StockDocSource {
   if (!SOURCES_BY_TYPE[type].includes(source.type)) throw new InvRuleError('source_invalid');
+  // I16: a gated source is refused where the flag is off, exactly like an unknown one
+  if (GATED_SOURCES.includes(source.type) && !opts.allowTransferOrder)
+    throw new InvRuleError('source_invalid');
   // a receipt "without purchase order", an opening balance and a manual adjustment are documents of
   // their own: approved by a manager with a stated reason instead of pointing at another document
   const refless =
@@ -109,7 +117,7 @@ export function checkLines(
       throw bad('cost');
     if (type === 'RTN' && l.originalLineNo === undefined) throw bad('original');
     if (opts.opening && l.qty < 0) throw bad('opening_negative');
-    const dupKey = `${l.partId}|${l.reservationKey ?? ''}|${l.originalLineNo ?? ''}`;
+    const dupKey = `${l.partId}|${l.lineKey ?? ''}|${l.originalLineNo ?? ''}`;
     if (type !== 'GIN' && seen.has(dupKey)) throw bad('duplicate');
     seen.add(dupKey);
   }

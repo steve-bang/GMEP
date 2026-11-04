@@ -41,8 +41,13 @@ export {
   recordConsent,
   withdrawConsent,
   selectMarketingAudience,
+  listEvidenceKinds,
 } from './application/consents';
-export type { ConsentDto, AudienceResult } from './application/consents';
+export type { ConsentDto, AudienceResult, EvidenceKindOption } from './application/consents';
+export { recordOdometer } from './application/odometer';
+export type { OdometerResult } from './application/odometer';
+export { checkOdometer } from './domain/odometer';
+export type { OdometerCheck, OdometerReason } from './domain/odometer';
 export { listVehicleHistory, toHistoryDto } from './application/history';
 export type { HistoryDto } from './application/history';
 export { lookupExact, relateToWorkingBranch } from './application/lookup';

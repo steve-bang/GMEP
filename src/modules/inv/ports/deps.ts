@@ -21,6 +21,8 @@ export interface InvConfig {
   longHeldDays: number;
   /** rows scanned for the shortage and long-held reports */
   openReservationsMax: number;
+  /** I16: offer the `transfer-order` source for a goods issue; false everywhere except local/test until the transfer document exists */
+  allowTransferOrderSource: boolean;
 }
 
 export const DEFAULT_INV_CONFIG: InvConfig = {
@@ -30,7 +32,21 @@ export const DEFAULT_INV_CONFIG: InvConfig = {
   lowStockMax: 200,
   longHeldDays: 14,
   openReservationsMax: 500,
+  allowTransferOrderSource: false,
 };
+
+/**
+ * I15: who owns an order line (the advisor), so INV can tell them when a stocktake cuts their hold.
+ * REC implements it when repair orders exist (slice 1.6); until then nobody is returned and only the
+ * branch manager is notified.
+ */
+export interface OrderAdvisorPort {
+  advisorsOf(
+    companyId: string,
+    sourceType: string,
+    sourceIds: readonly string[],
+  ): Promise<Map<string, string>>;
+}
 
 export interface InvDeps {
   sys: SysDeps;
@@ -41,4 +57,5 @@ export interface InvDeps {
   reservations: ReservationRepository;
   returns: IssueReturnRepository;
   inv: InvConfig;
+  advisors: OrderAdvisorPort;
 }

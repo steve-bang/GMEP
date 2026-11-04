@@ -26,7 +26,9 @@ const flatten = (entries: [string, Action[]][]): string[] =>
  * CRM (slice 1.3, FR-CRM-001..017) default grants [Đề xuất BA - chờ xác nhận: Khách]. AD has no
  * customer data (BA §2.4); TH and TK get none until REC/INV define their narrower views.
  * `customer-lookup` = exact cross-branch lookup by plate, vehicle fields only (P2; QĐ has only this);
- * `customer-lookup-customer` = phone lookup and the customer projection (P1; CH, QV, QL, CV, TN, not QĐ, C9); `customer-pii:export` = full personal
+ * `customer-lookup-customer` = phone lookup and the customer projection (P1; CH, QL, CV, TN; not QV (C21) and not QĐ (C9));
+ * `vehicle-history-cross` = reading the vehicle history of a vehicle OUTSIDE the actor's scope (P3; CH, CV, QL, QĐ only, C20),
+ * separate from `vehicle-history:view` (history inside the actor's scope: also QV, KT); `customer-pii:export` = full personal
  * columns in an export (CH, KT only, with reason and password, BA §9).
  */
 const CRM_CH = flatten([
@@ -34,7 +36,9 @@ const CRM_CH = flatten([
   g('customer-pii', 'export'),
   g('vehicle', 'view', 'create', 'update'),
   g('vehicle-history', 'view'),
+  g('vehicle-history-cross', 'view'),
   g('consent', 'view', 'create', 'update'),
+  g('consent-evidence', 'view', 'update', 'approve', 'reject'),
   g('data-request', 'view', 'create', 'update', 'approve'),
   g('customer-lookup', 'view'),
   g('customer-lookup-customer', 'view'),
@@ -124,7 +128,6 @@ const matrix: Grant = {
     g('consent', 'view'),
     g('data-request', 'view'),
     g('customer-lookup', 'view'),
-    g('customer-lookup-customer', 'view'),
     g('stock-cost', 'view'),
     g('stock-reservation', 'view'),
     g('inventory-policy', 'view'),
@@ -149,6 +152,7 @@ const matrix: Grant = {
     g('customer', 'view', 'create', 'update', 'export'),
     g('vehicle', 'view', 'create', 'update'),
     g('vehicle-history', 'view'),
+    g('vehicle-history-cross', 'view'),
     g('consent', 'view', 'create', 'update'),
     g('data-request', 'view', 'create', 'update'),
     g('customer-lookup', 'view'),
@@ -171,6 +175,7 @@ const matrix: Grant = {
     g('customer', 'view', 'create', 'update'),
     g('vehicle', 'view', 'create', 'update'),
     g('vehicle-history', 'view'),
+    g('vehicle-history-cross', 'view'),
     g('consent', 'view', 'create', 'update'),
     g('data-request', 'view', 'create'),
     g('customer-lookup', 'view'),
@@ -187,6 +192,7 @@ const matrix: Grant = {
     g('customer', 'view'),
     g('vehicle', 'view'),
     g('vehicle-history', 'view'),
+    g('vehicle-history-cross', 'view'),
     g('customer-lookup', 'view'),
   ]).concat(REC_VIEW_ALL),
   TH: [],

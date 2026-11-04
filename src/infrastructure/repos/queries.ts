@@ -386,6 +386,19 @@ export const Q = {
     range: true,
     order: { field: 'number', dir: 'asc', type: 'string' },
   }),
+  /** C17: the retention gate asks REC for open files of one customer, company-wide */
+  intakesByCustomer: defineQuery({
+    name: 'intakes.byCustomer',
+    collection: COL.intakes,
+    eq: ['companyId', 'customerId', 'status'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  quotesByCustomer: defineQuery({
+    name: 'quotes.byCustomer',
+    collection: COL.quotes,
+    eq: ['companyId', 'customerId', 'status'],
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
   quotes: defineQuery({
     name: 'quotes.list',
     collection: COL.quotes,

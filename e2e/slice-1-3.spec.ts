@@ -146,7 +146,9 @@ test.describe('slice 1.3 CRM: customers, vehicles, ownership, consent, requests,
     await page.locator('select[name="purpose"]').selectOption('marketing');
     await page.locator('select[name="channel"]').selectOption('sms');
     await page.locator('select[name="basis"]').selectOption('consent');
-    await page.getByLabel('Bằng chứng').fill('Phiếu giấy e2e');
+    await page.locator('select[name="evidenceKind"]').selectOption('paper-slip');
+    await page.locator('input[name="evidenceRef"]').fill('PG-E2E');
+    await page.getByLabel('Ghi chú bằng chứng').fill('Phiếu giấy e2e');
     await page.getByRole('button', { name: 'Ghi nhận đồng ý' }).click();
     const row = page.getByTestId('consent-table').locator('tbody tr').filter({ hasText: 'SMS' });
     await expect(row).toContainText('Đang đồng ý');

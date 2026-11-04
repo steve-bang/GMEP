@@ -57,6 +57,16 @@ export function recDemoDocs(): SeedDoc[] {
   cfg('labor-rate', 'company', { hourlyRateVnd: 300_000 });
   // sample rate in basis points; the real rate and the 1/1/2027 rule (BA-03) are the accountant's data
   cfg('tax-rate', 'vat', { name: 'Thuế GTGT (mẫu)', rateBp: 800 });
+  // R2: which tax key each kind of line uses; the accountant has not answered, so both use `vat`
+  cfg('tax-mapping', 'company', { labor: 'vat', part: 'vat' });
+  // R7: the four service types of the BRD as a company catalogue (body and paint workflow not surveyed)
+  for (const [code, name] of [
+    ['maintenance', 'Bảo dưỡng'],
+    ['general_repair', 'Sửa chữa chung'],
+    ['tire_wheel', 'Lốp và mâm'],
+    ['body_paint', 'Đồng sơn'],
+  ] as const)
+    cfg('service-type', code, { name, status: 'active' });
   cfg('discount-limit', 'company', { maxDiscountBpByRole: { CV: 500, QL: 1500, CH: 3000 } });
   return docs;
 }

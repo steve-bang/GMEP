@@ -35,6 +35,29 @@ export const QUOTE_TRANSITIONS: Readonly<
 export interface QuoteCtx {
   /** at least one line (FR-REC-004) */
   hasLines?: boolean;
+  /** R10: the sent version is past its `validUntil` (computed at the moment of the command, not by a job) */
+  expired?: boolean;
+}
+
+/**
+ * R10: "Hết hạn" is derived. A version in `sent` whose `validUntil` is before `today` is expired for
+ * every reader and for the approve command, whatever the stored status says; a background job may later
+ * store the status and send reminders but is never what makes the rule true.
+ */
+export function isQuoteExpired(
+  state: QuoteStatus,
+  validUntil: string | undefined,
+  today: string,
+): boolean {
+  return state === 'sent' && !!validUntil && today > validUntil;
+}
+
+export function effectiveQuoteStatus(
+  state: QuoteStatus,
+  validUntil: string | undefined,
+  today: string,
+): QuoteStatus {
+  return isQuoteExpired(state, validUntil, today) ? 'expired' : state;
 }
 
 export function transitionQuote(
@@ -45,6 +68,9 @@ export function transitionQuote(
   const next = QUOTE_TRANSITIONS[state][event];
   if (!next) return { ok: false, reason: 'state_invalid' };
   if (event === 'send' && !ctx.hasLines) return { ok: false, reason: 'quote_empty' };
+  // R10 (FR-REC-011): an expired quote cannot be approved; reject stays allowed (the customer said no)
+  if ((event === 'approve_full' || event === 'approve_partial') && ctx.expired)
+    return { ok: false, reason: 'quote_expired' };
   return { ok: true, state: next };
 }
 
@@ -61,10 +87,11 @@ export function editMode(state: QuoteStatus): EditMode {
 }
 
 export type QuoteAction = 'edit' | 'send' | 'reject' | 'revise';
-export function allowedQuoteActions(state: QuoteStatus): QuoteAction[] {
+/** `expired` = the derived expiry (R10): a quote past its validity offers a new version, not a reject. */
+export function allowedQuoteActions(state: QuoteStatus, expired = false): QuoteAction[] {
   const out: QuoteAction[] = [];
   if (state === 'draft') out.push('edit', 'send');
-  if (state === 'sent') out.push('reject');
+  if (state === 'sent' && !expired) out.push('reject');
   if (editMode(state) === 'new_version') out.push('revise');
   return out;
 }

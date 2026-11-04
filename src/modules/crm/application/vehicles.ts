@@ -6,11 +6,13 @@ import {
   type Page,
 } from '@/platform/pagination/pagination';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
-import { resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
+import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
 import { businessDate } from '@/platform/format/date';
 import type { Vehicle } from '../domain/entities';
 import { currentOwnership, planOwnerChange, type Ownership } from '../domain/ownership';
 import { isPlausiblePlate, isValidVin, normalizePlate, normalizeVin } from '../domain/normalize';
+import { checkOdometer } from '../domain/odometer';
+import { abnormalDropRecipients, stageAbnormalDropNotice } from './odometer';
 import { AlreadyExistsError } from '@/platform/store/docStore';
 import type { CrmDeps } from '../ports/deps';
 import {
@@ -188,8 +190,32 @@ export const createVehicleSchema = z.object({
   ownedFrom: z.string().regex(dateRe).optional(),
 });
 
-const vinExists = () =>
-  new AppError('vin_exists', 409, [{ field: 'vin', message: 'Số khung đã gắn với một xe khác.' }]);
+const vinExists = (extensions?: Record<string, unknown>) =>
+  new AppError(
+    'vin_exists',
+    409,
+    [{ field: 'vin', message: 'Số khung đã gắn với một xe khác.' }],
+    extensions ? { cause: { extensions } } : undefined,
+  );
+
+/**
+ * C22: a duplicate VIN points at the existing vehicle when it is inside the actor's scope; outside the
+ * scope the answer never names the vehicle or the branch (NFR-ISO-01) and, for the roles with
+ * `customer-lookup:view`, carries only the P2 vehicle fields (make, model, year) so the user can
+ * continue through the exact plate lookup (C2, C24). Everyone else gets the neutral answer.
+ */
+async function vinConflict(deps: CrmDeps, actor: Actor, vehicleId: string): Promise<AppError> {
+  const inScope = await deps.vehicles.get(resolveScope(actor, 'vehicle:view'), vehicleId);
+  if (inScope) return vinExists({ existingVehicleId: inScope.id });
+  if (!hasPermission(actor, 'customer-lookup:view')) return vinExists();
+  const v = await deps.vehicles.getCompanyWide(actor.companyId, vehicleId);
+  return v
+    ? vinExists({
+        outOfScope: true,
+        projection: { make: v.make, model: v.model, year: v.year, isCommercial: v.isCommercial },
+      })
+    : vinExists();
+}
 
 /**
  * Registry slots (plate, VIN) are created, never set: a taken slot fails the transaction. The store
@@ -260,8 +286,10 @@ export async function createVehicle(
         if (await deps.vehicles.vehicleIdByPlate(actor.companyId, checked.plateNorm!))
           throw new AppError('plate_exists', 409);
         // C11: a VIN identifies one vehicle company-wide; the answer never names a branch
-        if (checked.vin && (await deps.vehicles.vehicleIdByVin(actor.companyId, checked.vin)))
-          throw vinExists();
+        if (checked.vin) {
+          const taken = await deps.vehicles.vehicleIdByVin(actor.companyId, checked.vin);
+          if (taken) throw await vinConflict(deps, actor, taken);
+        }
         const now = deps.sys.clock.now();
         const today = businessDate(now);
         const id = `veh_${deps.sys.newId()}`;
@@ -401,11 +429,24 @@ async function updateVehicleTx(
           { field: 'lastKmNote', message: 'Ghi chú lý do ít nhất 5 ký tự.' },
         ]);
     }
+    // R9/C18: the same threshold as the intake decides whether the manager is told
+    const odo =
+      lowering && data.lastKmReason
+        ? checkOdometer({
+            km: data.lastKm!,
+            lastKm: v.lastKm ?? null,
+            reason: data.lastKmReason,
+            note: data.lastKmNote,
+            abnormalDrop: deps.crm.abnormalKmDrop,
+          })
+        : null;
+    const noticeTo =
+      odo?.ok && odo.abnormal ? await abnormalDropRecipients(deps, actor, v.branchId) : [];
     // VIN uniqueness (C11): the slot moves with the value
     const newVin = data.vin === undefined ? (v.vin ?? null) : (checked.vin ?? null);
     if (newVin !== (v.vin ?? null)) {
-      if (newVin && (await deps.vehicles.vehicleIdByVin(actor.companyId, newVin)))
-        throw vinExists();
+      const taken = newVin ? await deps.vehicles.vehicleIdByVin(actor.companyId, newVin) : null;
+      if (taken && taken !== v.id) throw await vinConflict(deps, actor, taken);
       deps.vehicles.setVin(tx, v, v.vin ?? null, newVin);
     }
     const now = deps.sys.clock.now();
@@ -453,6 +494,8 @@ async function updateVehicleTx(
           : {}),
       }),
     );
+    if (odo?.ok && odo.abnormal)
+      stageAbnormalDropNotice(deps, tx, actor, noticeTo, v, v.lastKm!, data.lastKm!, v.branchId);
     const merged: Vehicle = {
       ...v,
       make: next.make,

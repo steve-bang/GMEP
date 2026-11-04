@@ -7,6 +7,7 @@ import {
   listConsents,
   listCustomerVehicles,
   listDataRequests,
+  listEvidenceKinds,
   type CustomerDto,
 } from '@/modules/crm';
 import { load } from '@/composition/pageData';
@@ -46,15 +47,16 @@ export default async function CustomerPage({
   const res = await load(async () => {
     const customer = await getCustomer(crm, actor, id, { requestId: 'page', sessionId });
     const can = (p: `${string}:view`) => hasPermission(actor, p);
-    const [vehicles, consents, requests] = await Promise.all([
+    const [vehicles, consents, requests, evidenceKinds] = await Promise.all([
       can('vehicle:view') ? listCustomerVehicles(crm, actor, id) : Promise.resolve([]),
       can('consent:view') ? listConsents(crm, actor, id) : Promise.resolve([]),
       can('data-request:view')
         ? listDataRequests(crm, actor, { customerId: id, limit: 25 }).then((p) => p.items)
         : Promise.resolve([]),
+      can('consent:view') ? listEvidenceKinds(crm, actor) : Promise.resolve([]),
     ]);
     const branches = await crm.sys.branches.list(resolveScope(actor, 'customer:view'));
-    return { customer, vehicles, consents, requests, branches };
+    return { customer, vehicles, consents, requests, evidenceKinds, branches };
   });
   if (res.error)
     return (
@@ -62,7 +64,7 @@ export default async function CustomerPage({
         <ErrorFor error={res.error} t={t} />
       </CrmPage>
     );
-  const { customer: c, vehicles, consents, requests } = res.data;
+  const { customer: c, vehicles, consents, requests, evidenceKinds } = res.data;
   const anonymized = c.status === 'anonymized';
   const tabLink = (k: (typeof TABS)[number], label: string, count?: number) => (
     <Link
@@ -220,6 +222,11 @@ export default async function CustomerPage({
                 value: p,
                 label: t(`crm.consent.channels.${p}`),
               }))}
+              evidenceKinds={evidenceKinds.map((k) => ({
+                value: k.code,
+                label: k.name,
+                referenceLabel: k.referenceLabel,
+              }))}
               bases={crm.crm.consentBasesEnabled.map((p) => ({
                 value: p,
                 label: t(`crm.consent.bases.${p}`),
@@ -230,6 +237,8 @@ export default async function CustomerPage({
                 purpose: t('crm.consent.purpose'),
                 channel: t('crm.consent.channel'),
                 basis: t('crm.consent.basis'),
+                evidenceKind: t('crm.consent.evidenceKind'),
+                evidenceRef: t('crm.consent.evidenceRef'),
                 evidence: t('crm.consent.evidence'),
                 evidenceHint: t('crm.consent.evidenceHint'),
                 granted: t('crm.consent.granted'),

@@ -19,12 +19,18 @@ export const QUOTE_STATUSES: readonly QuoteStatus[] = [
   'expired',
 ];
 
+/** R10: delivery of the quote to the customer. Only `print` and `counter` exist until a message channel is built. */
+export type SentVia = 'none' | 'print' | 'link' | 'counter';
+export const SENT_VIA: readonly SentVia[] = ['none', 'print', 'link', 'counter'];
+
 export type KmReason = 'typo' | 'odometer_replaced' | 'other';
 export type Necessity = 'required' | 'optional';
 
-/** Service types are labels for the intake; the workflow behind each one is configuration (FR-REC-032, later). */
-export const SERVICE_TYPES = ['maintenance', 'general_repair', 'tire_wheel', 'body_paint'] as const;
-export type ServiceType = (typeof SERVICE_TYPES)[number];
+/**
+ * R7: a service type is the CODE of an entry of the company `service-type` catalogue (BR-REC-13,
+ * FR-REC-032), never a label fixed in code; the workflow behind each type is configuration (later).
+ */
+export type ServiceTypeCode = string;
 
 export const FUEL_LEVELS = ['empty', 'quarter', 'half', 'three_quarters', 'full'] as const;
 export type FuelLevel = (typeof FUEL_LEVELS)[number];
@@ -72,7 +78,7 @@ export interface Intake {
   condition?: string;
   belongings: string[];
   belongingsOther?: string;
-  serviceType?: ServiceType;
+  serviceType?: ServiceTypeCode;
   advisorId: string;
   /** dd/MM/yyyy as ISO date */
   promisedDate?: string;
@@ -105,6 +111,9 @@ interface LineBase {
   amountVnd: number;
   /** tax rate in force on the pricing date (basis points of an integer, no floats) */
   taxRateBp: number;
+  /** R2: the `tax-rate` key this line used (via the `tax-mapping` config) and the version id it was read from */
+  taxKey: string;
+  taxVersionId: string;
 }
 
 export interface LaborLine extends LineBase {
@@ -112,6 +121,12 @@ export interface LaborLine extends LineBase {
   serviceId: string;
   minutes: number;
   standardMinutes: number;
+  /** R5: minutes - standardMinutes (signed); the standard hours are also an input of the technician's pay, so the gap must be reportable */
+  minutesDelta: number;
+  /** R5: the gap in basis points of the standard hours (signed, 0 when equal) */
+  minutesDeltaBp: number;
+  /** R5: "khác giờ chuẩn", stored with the line */
+  differsFromStandard: boolean;
   /** config versions the price was read from (price snapshot, FR-REC-031) */
   rateVersionId: string;
   hoursVersionId: string;
@@ -155,6 +170,8 @@ export interface QuoteTotals {
 }
 
 export interface TaxSnapshot {
+  /** the `tax-rate` config key */
+  key: string;
   versionId: string;
   name: string;
   rateBp: number;
@@ -170,8 +187,8 @@ export interface QuoteVersion {
   status: QuoteStatus;
   items: QuoteItem[];
   totals: QuoteTotals;
-  /** null while the version has no lines (nothing to tax) */
-  tax: TaxSnapshot | null;
+  /** R2: one entry per distinct tax key used by the lines (empty while the version has no lines) */
+  taxes: TaxSnapshot[];
   /** business date the prices and the tax rate were read on */
   pricedOn: string;
   note?: string;
@@ -179,6 +196,11 @@ export interface QuoteVersion {
   sentBy?: string;
   /** end of validity once sent (config days) */
   validUntil?: string;
+  /**
+   * R10: how the customer was (or will be) told. `none` = frozen but nothing delivered yet; there is no
+   * real channel yet, so the UI must never say a message was sent for `none`.
+   */
+  sentVia?: SentVia;
   /** set when a later version was sent (a replaced version is read-only, ba-answers-03 Câu 1) */
   replacedAt?: Date;
   replacedByN?: number;
@@ -209,6 +231,8 @@ export interface Quote {
   /** latest version number; the quote's status is the status of this version */
   currentN: number;
   status: QuoteStatus;
+  /** R10: end of validity of the current version once sent; lets lists derive "Hết hạn" without loading versions */
+  validUntil?: string;
   totalVnd: number;
   createdAt: Date;
   createdBy: string;

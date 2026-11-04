@@ -25,12 +25,16 @@ export function ConsentPanel(props: {
   purposes: Opt[];
   channels: Opt[];
   bases: Opt[];
+  /** C23: the catalogue of evidence kinds; the reference label says what number to enter for the kind */
+  evidenceKinds: (Opt & { referenceLabel: string | null })[];
   labels: {
     title: string;
     empty: string;
     purpose: string;
     channel: string;
     basis: string;
+    evidenceKind: string;
+    evidenceRef: string;
     evidence: string;
     evidenceHint: string;
     granted: string;
@@ -133,6 +137,18 @@ export function ConsentPanel(props: {
                 options: props.bases,
                 defaultValue: 'consent',
               },
+              ...(props.evidenceKinds.length
+                ? [
+                    {
+                      name: 'evidenceKind',
+                      label: l.evidenceKind,
+                      type: 'select' as const,
+                      required: true,
+                      options: props.evidenceKinds,
+                    },
+                    { name: 'evidenceRef', label: l.evidenceRef, maxLength: 40 },
+                  ]
+                : []),
               { name: 'evidence', label: l.evidence, hint: l.evidenceHint, maxLength: 200 },
             ]}
           />

@@ -84,6 +84,58 @@ export async function resolveConfigAt(
   return null;
 }
 
+/**
+ * Approved versions of one key that become effective AFTER `after` and not later than `upTo` (inclusive).
+ * Used to warn when a document's validity crosses a rate change (R2: quote validity vs. tax-rate change).
+ */
+export async function approvedChangesBetween(
+  deps: SysDeps,
+  q: { companyId: string; type: string; scopeKey: string; after: string; upTo: string },
+): Promise<ConfigSnapshot[]> {
+  configTypeOrThrow(q.type);
+  return (await versionsOf(deps, q.companyId, q.type, q.scopeKey))
+    .filter(
+      (v) => v.status === 'approved' && v.effectiveFrom > q.after && v.effectiveFrom <= q.upTo,
+    )
+    .sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom))
+    .map(snapshotOf);
+}
+
+const CATALOG_PAGE = 100;
+const CATALOG_MAX_PAGES = 5;
+
+/**
+ * Catalogue-style config (one scope key per entry: part-group, service-type, evidence-kind): the entry
+ * versions in force on `date`, sorted by code. Entries are deactivated through `payload.status`, never
+ * deleted, so callers decide what to do with inactive ones (offer: only active; display: any).
+ */
+export async function resolveCatalogAt(
+  deps: SysDeps,
+  q: { companyId: string; type: string; date: string },
+): Promise<{ code: string; payload: Record<string, unknown> }[]> {
+  configTypeOrThrow(q.type);
+  const byKey = new Map<string, ConfigVersion[]>();
+  let cursor: { v: string; id: string } | undefined;
+  for (let i = 0; i < CATALOG_MAX_PAGES; i++) {
+    const page = await deps.configs.listByType(
+      q.companyId,
+      q.type,
+      'approved',
+      CATALOG_PAGE,
+      cursor,
+    );
+    for (const v of page.items) byKey.set(v.scopeKey, [...(byKey.get(v.scopeKey) ?? []), v]);
+    if (!page.nextCursor) break;
+    cursor = decodeCursor(page.nextCursor) ?? undefined;
+  }
+  const out: { code: string; payload: Record<string, unknown> }[] = [];
+  for (const [code, versions] of byKey) {
+    const v = pickEffective(versions, q.date);
+    if (v) out.push({ code, payload: v.payload });
+  }
+  return out.sort((a, b) => a.code.localeCompare(b.code));
+}
+
 export function snapshotOf(v: ConfigVersion): ConfigSnapshot {
   return {
     type: v.type,

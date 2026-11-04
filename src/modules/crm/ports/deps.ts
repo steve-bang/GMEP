@@ -42,6 +42,12 @@ export interface CrmConfig {
   marketingChannels: readonly ContactChannel[];
   /** max customers returned by an exact cross-branch lookup (BA §10.1.4: "vài kết quả") */
   lookupMaxResults: number;
+  /**
+   * R9/C18: ONE threshold (km) for the whole system. A reading that drops by more than this (and is not
+   * an odometer replacement) is flagged "Số km bất thường" and the branch manager is notified. REC and
+   * CRM both read it from here [Đề xuất BA - chờ xác nhận: Khách].
+   */
+  abnormalKmDrop: number;
 }
 
 export const DEFAULT_CRM_CONFIG: CrmConfig = {
@@ -56,6 +62,7 @@ export const DEFAULT_CRM_CONFIG: CrmConfig = {
   consentPolicyVersion: 'chưa có [do doanh nghiệp cung cấp]',
   marketingChannels: ['zalo', 'sms', 'email', 'phone'],
   lookupMaxResults: 5,
+  abnormalKmDrop: 1000,
 };
 
 /** Cross-cutting services (transaction, audit, numbering, PII policy, limiter, branches) are the SYS ones. */

@@ -2,6 +2,7 @@ import { AppError, forbidden, validationFailed } from '@/platform/errors/errors'
 import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
 import { allBranchesScope } from '@/platform/scope/scope';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
+import { notifyUsers, usersWithRole } from '@/modules/sys';
 import type { Customer, RelationSource, Vehicle } from '../domain/entities';
 import {
   isPlausiblePhone,
@@ -70,6 +71,33 @@ const lookupSchema = z
   })
   .refine((d) => !!d.plate !== !!d.phone, { message: 'Nhập biển số hoặc số điện thoại.' });
 
+/**
+ * C19: a person over the lookup limit is reported to every owner (CH); when no owner is active, to the
+ * QV. At most one notice per person per day (rate policy `customer-lookup-notice`), so the owners are
+ * not spammed. The text names the staff member and carries no phone, plate or customer data. A failing
+ * notice never changes the answer (the 429 is still returned).
+ */
+async function noticeLookupLimit(deps: CrmDeps, actor: Actor): Promise<void> {
+  try {
+    await deps.sys.limiter.hit('customer-lookup-notice', actor.userId);
+    let to = await usersWithRole(deps.sys, actor.companyId, ['CH'], null);
+    if (to.length === 0) to = await usersWithRole(deps.sys, actor.companyId, ['QV'], null);
+    if (to.length === 0) return;
+    await deps.sys.uow.run(async (tx) => {
+      notifyUsers(deps.sys, tx, {
+        companyId: actor.companyId,
+        userIds: to,
+        kind: 'crm.lookup_limit',
+        titleKey: 'notifications.lookupLimit',
+        params: { user: actor.displayName },
+        link: '/sys/audit',
+      });
+    });
+  } catch {
+    /* already noticed today, or the notice could not be staged: the refusal stands */
+  }
+}
+
 export async function lookupExact(
   deps: CrmDeps,
   actor: Actor,
@@ -100,7 +128,10 @@ export async function lookupExact(
   try {
     await deps.sys.limiter.hit('customer-lookup', actor.userId); // C9: 30 per hour, configurable
   } catch (e) {
-    if (e instanceof AppError && e.status === 429) await denied('denied');
+    if (e instanceof AppError && e.status === 429) {
+      await denied('denied');
+      await noticeLookupLimit(deps, actor);
+    }
     throw e;
   }
   const companyId = actor.companyId;

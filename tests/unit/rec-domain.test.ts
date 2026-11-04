@@ -8,6 +8,9 @@ import {
   computeTotals,
   discountBpOf,
   editMode,
+  effectiveQuoteStatus,
+  isQuoteExpired,
+  standardHoursDelta,
   laborAmount,
   maxDiscountBp,
   partAmount,
@@ -40,6 +43,8 @@ const line = (amountVnd: number, taxRateBp = 800): QuoteLine => ({
   discountBp: 0,
   amountVnd,
   taxRateBp,
+  taxKey: 'vat',
+  taxVersionId: 'tax__vat__2026-10-01',
 });
 const item = (no: number, amounts: number[], selected: boolean, taxRateBp = 800): QuoteItem => ({
   no,
@@ -72,6 +77,26 @@ describe('rounding and line amounts (FR-REC-004, FR-REC-005)', () => {
     expect(() => laborAmount(30.5, 300_000)).toThrow();
     expect(() => partAmount(-1, 100, 1)).toThrow();
     expect(() => roundDiv(10, 0)).toThrow();
+  });
+});
+
+describe('R5 labor minutes against the standard hours', () => {
+  it('stores the signed gap in minutes and basis points and the flag', () => {
+    expect(standardHoursDelta(30, 30)).toEqual({
+      minutesDelta: 0,
+      minutesDeltaBp: 0,
+      differs: false,
+    });
+    expect(standardHoursDelta(45, 30)).toEqual({
+      minutesDelta: 15,
+      minutesDeltaBp: 5000,
+      differs: true,
+    });
+    expect(standardHoursDelta(20, 30)).toEqual({
+      minutesDelta: -10,
+      minutesDeltaBp: -3333,
+      differs: true,
+    });
   });
 });
 
@@ -164,6 +189,23 @@ describe('quote state machine (separate from order/item/payment/invoice)', () =>
       expect(editMode(s)).toBe('new_version');
     for (const s of ['approved_full', 'approved_partial'] as const)
       expect(editMode(s)).toBe('locked');
+  });
+  it('R10: an expired quote cannot be approved, whatever the stored status says (FR-REC-011)', () => {
+    for (const e of ['approve_full', 'approve_partial'] as const)
+      expect(transitionQuote('sent', e, { expired: true })).toEqual({
+        ok: false,
+        reason: 'quote_expired',
+      });
+    expect(transitionQuote('sent', 'approve_full', { expired: false })).toMatchObject({ ok: true });
+    expect(transitionQuote('sent', 'reject', { expired: true })).toMatchObject({ ok: true });
+  });
+  it('R10: expiry is derived from validUntil at read time, no job needed', () => {
+    expect(isQuoteExpired('sent', '2026-11-10', '2026-11-10')).toBe(false); // the last day still counts
+    expect(isQuoteExpired('sent', '2026-11-10', '2026-11-11')).toBe(true);
+    expect(isQuoteExpired('draft', '2026-11-10', '2026-12-01')).toBe(false);
+    expect(effectiveQuoteStatus('sent', '2026-11-10', '2026-11-11')).toBe('expired');
+    expect(effectiveQuoteStatus('approved_full', '2026-11-10', '2026-11-11')).toBe('approved_full');
+    expect(allowedQuoteActions('sent', true)).toEqual(['revise']);
   });
   it('actions allowed follow the state', () => {
     expect(allowedQuoteActions('draft')).toEqual(['edit', 'send']);

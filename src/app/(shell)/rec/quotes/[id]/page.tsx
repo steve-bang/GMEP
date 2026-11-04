@@ -7,6 +7,7 @@ import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
 import { ErrorFor, first, type SearchParams } from '@/ui/components/PageParts';
+import { Icon } from '@/ui/components/Icon';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { formatMinutes, money } from '../../format';
 import { RecPage } from '../../RecPage';
@@ -34,6 +35,7 @@ const EDITOR_KEYS = [
   'amount',
   'removeLine',
   'standard',
+  'differs',
   'minutes',
   'qty',
   'short',
@@ -116,7 +118,9 @@ export default async function QuotePage({
   const s = q.shown;
   const canWrite = s.current && (q.allowed.includes('edit') || q.allowed.includes('revise'));
   const label = (keys: readonly string[], ns: string) =>
-    Object.fromEntries(keys.map((k) => [k, t(`rec.${ns}.${k}`, { n: '{n}', pct: '{pct}' })]));
+    Object.fromEntries(
+      keys.map((k) => [k, t(`rec.${ns}.${k}`, { n: '{n}', pct: '{pct}', delta: '{delta}' })]),
+    );
   return (
     <RecPage
       title={`${q.number}-v${s.n}`}
@@ -131,6 +135,22 @@ export default async function QuotePage({
         </>
       }
     >
+      {s.warnings.map((w) => (
+        <div
+          key={`${w.taxKey}-${w.effectiveFrom}`}
+          className="alert alert--warning"
+          role="note"
+          data-testid="quote-tax-warning"
+        >
+          <Icon name="alert-triangle" />
+          <div className="alert__body">
+            {t('rec.quotes.taxChangeWarning', {
+              validUntil: isoToVi(w.validUntil),
+              effectiveFrom: isoToVi(w.effectiveFrom),
+            })}
+          </div>
+        </div>
+      ))}
       <section className="card" aria-label={t('rec.vehicle')}>
         <dl className="inv-facts" data-testid="quote-facts">
           <div>
@@ -165,6 +185,13 @@ export default async function QuotePage({
             <div>
               <dt>{t('rec.quotes.validUntil')}</dt>
               <dd className="num">{isoToVi(s.validUntil)}</dd>
+            </div>
+          ) : null}
+          {s.sentVia ? (
+            <div>
+              <dt>{t('rec.quotes.sentVia')}</dt>
+              {/* R10: `none` says plainly that nothing was delivered; no message channel exists yet */}
+              <dd data-testid="quote-sent-via">{t(`rec.quotes.sentVia_${s.sentVia}`)}</dd>
             </div>
           ) : null}
           <div>
@@ -256,6 +283,11 @@ export default async function QuotePage({
                           <td>
                             <span className="cell-primary">{l.name}</span>
                             <span className="cell-sub num">{l.code}</span>
+                            {l.differsFromStandard ? (
+                              <span className="tag" data-testid="differs-standard">
+                                {t('rec.editor.differs', { delta: l.minutesDelta ?? 0 })}
+                              </span>
+                            ) : null}
                           </td>
                           <td className="col-num num">
                             {l.kind === 'labor' ? formatMinutes(l.minutes ?? 0) : l.qty}

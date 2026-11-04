@@ -36,7 +36,7 @@ export {
 } from './domain/document';
 export * from './ports/ports';
 export { DEFAULT_INV_CONFIG } from './ports/deps';
-export type { InvConfig, InvDeps } from './ports/deps';
+export type { InvConfig, InvDeps, OrderAdvisorPort } from './ports/deps';
 
 export {
   listParts,
