@@ -43,6 +43,38 @@ export default async function ShellLayout({ children }: { children: React.ReactN
       items: [item('dash', '/', t('shell.nav.dashboard'), 'layout-dashboard', 'exact')],
     },
     {
+      label: t('shell.nav.groupCrm'),
+      items: [
+        ...(can.customers
+          ? [
+              item(
+                'cu',
+                '/crm/customers',
+                t('shell.nav.customers'),
+                'users',
+                'prefix',
+                info.readOnly.customers,
+              ),
+            ]
+          : []),
+        ...(can.vehicles
+          ? [
+              item(
+                've',
+                '/crm/vehicles',
+                t('shell.nav.vehicles'),
+                'car-front',
+                'prefix',
+                info.readOnly.vehicles,
+              ),
+            ]
+          : []),
+        ...(can.dataRequests
+          ? [item('dr', '/crm/data-requests', t('shell.nav.dataRequests'), 'id-card')]
+          : []),
+      ],
+    },
+    {
       label: t('shell.nav.groupSystem'),
       items: [
         ...(can.branches

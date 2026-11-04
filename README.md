@@ -61,7 +61,7 @@ without the emulator hosts so a local run can never reach real Google services.
 src/
   app/              Next.js pages (Server Components) and thin Route Handlers under /api/v1 and /api/health
   modules/<code>/   domain/ (pure) application/ (use cases) ports/ (interfaces) api/ (zod schemas) index.ts (public surface)
-                    codes: sys (built), crm, rec, ins, inv, pur, hrm, acc, ein, rpt (empty skeletons)
+                    codes: sys, crm (built), rec, ins, inv, pur, hrm, acc, ein, rpt (empty skeletons)
   platform/         vendor-neutral kit: scope + rbac, audit, idempotency, errors (RFC 9457), http, logging, i18n, format
   infrastructure/   adapters: firestore, identity (Firebase Auth), memory (tests only), seed (fake data)
   composition/      the only place that wires ports to adapters (container, session helper)
@@ -100,8 +100,20 @@ Key mechanics already in place:
 - **Env (new)**: `AUTH_CACHE_TTL_SECONDS` (30; max staleness of a revocation on other instances), `CONFIG_CACHE_TTL_SECONDS`,
   `TRUSTED_PROXY_HOPS` (1 on Cloud Run), `APP_BASE_URL` (links in emails).
 
+## Slice 1.3 (CRM core)
+
+- **Data model** (`src/modules/crm`): `customers` + `customerPii` (contact data apart, so it can be anonymised), `vehicles` + `vehiclePlates`
+  (unique plate registry, created in the same transaction), `vehicleOwnerships` (effective-dated `from`/`to`, open record = current owner),
+  `consents`, `dataSubjectRequests`, `vehicleHistory` (projection read model, white-listed fields). Customers and vehicles are company-level;
+  a branch scope reaches them through `branchIds` and the `customerLinks`/`vehicleLinks` relation rows (BA §10.1.5).
+- **Cross-branch**: only `lookupExact` (full plate or full phone, BA §10 P1/P2) and the history projection cross branches; source records of
+  another branch answer 404. `relateToWorkingBranch` is what REC calls when an appointment/quote is created.
+- **Config** (`DEFAULT_CRM_CONFIG`): export caps (5,000 / 1,000 with full personal columns), request deadline (72 h), history price on/off, lookup size.
+- **Routes**: `/api/v1/crm/{customers,vehicles,consents,data-requests,lookup,marketing/audience}`; UI under `/crm/*` (menu "Khách và xe").
+- Tests: `tests/unit/crm-domain.test.ts`, `tests/integration/crm.test.ts` (both backends), `e2e/slice-1-3.spec.ts`.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS (CRM, REC, INV, ACC, EIN, RPT are skeletons).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS and CRM core (REC, INV, ACC, EIN, RPT are skeletons; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.

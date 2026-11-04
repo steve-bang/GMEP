@@ -15,6 +15,7 @@ import './styles/components.css';
 import './styles/auth.css';
 import './styles/scope.css';
 import './styles/settings.css';
+import './styles/crm.css';
 
 export const metadata: Metadata = { title: 'GARAGE OS', robots: { index: false, follow: false } };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
