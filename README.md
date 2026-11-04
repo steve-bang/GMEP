@@ -61,7 +61,7 @@ without the emulator hosts so a local run can never reach real Google services.
 src/
   app/              Next.js pages (Server Components) and thin Route Handlers under /api/v1 and /api/health
   modules/<code>/   domain/ (pure) application/ (use cases) ports/ (interfaces) api/ (zod schemas) index.ts (public surface)
-                    codes: sys, crm (built), rec, ins, inv, pur, hrm, acc, ein, rpt (empty skeletons)
+                    codes: sys, crm, inv (built), rec, ins, pur, hrm, acc, ein, rpt (empty skeletons)
   platform/         vendor-neutral kit: scope + rbac, audit, idempotency, errors (RFC 9457), http, logging, i18n, format
   infrastructure/   adapters: firestore, identity (Firebase Auth), memory (tests only), seed (fake data)
   composition/      the only place that wires ports to adapters (container, session helper)
@@ -112,8 +112,30 @@ Key mechanics already in place:
 - **Routes**: `/api/v1/crm/{customers,vehicles,consents,data-requests,lookup,marketing/audience}`; UI under `/crm/*` (menu "Khách và xe").
 - Tests: `tests/unit/crm-domain.test.ts`, `tests/integration/crm.test.ts` (both backends), `e2e/slice-1-3.spec.ts`.
 
+## Slice 1.4 (INV stock ledger)
+
+- **Data model** (`src/modules/inv`): `parts` (company level; uniqueness slots `partCodes`/`partBarcodes` created in the same transaction,
+  `partCompat` links for the vehicle-line search), `stockBalances` (warehouse x part: on-hand, reserved, in-transit, value; **available is
+  derived**), `stockMovements` (append-only ledger, one row per change, ordered by the balance's own `seq`), `stockDocuments`
+  (GRN/GIN/RTN/ADJ, draft -> posted | cancelled), `stockReservations` (id derived from source + line + warehouse), `issueReturns`
+  (how much of an issued line came back).
+- **One transaction per operation** (`application/engine.ts`): reads first, then number, then balances + ledger + reservation + document + audit.
+  Concurrent postings serialise on the balance document; the loser re-checks availability (S1 design, `tests/integration/inv.test.ts`).
+  The memory adapter serialises transactions; the contention tests are meaningful on the emulator (`pnpm test:integration`).
+- **Rules**: negative stock and issuing beyond available are blocked (an order may take its own hold plus available, never more than on-hand);
+  every issue needs a source document and a receiver; abnormal documents (adjustment, receipt without PO, price/quantity variance) need
+  `stock-doc:approve` from someone other than the creator; posted documents are reversed, never edited (`POST .../reverse`).
+- **Cost** (`domain/cost.ts`): `CostMethod` strategy chosen by the effective-dated `cost-method` config (`/sys/config/cost-method`);
+  weighted average, integer VND, BigInt arithmetic, round half up. FIFO is not implemented (accountant to decide).
+  `inventory-policy` config holds the GRN variance thresholds. Standard list prices come from the `price-item` config of each price list.
+- **For REC** (`src/modules/inv/index.ts`): `holdStock` / `holdStockInTx` (target quantity, idempotent), `releaseStock`, `issueForOrder`,
+  `getAvailability` (available only, for advisors), `createDocument` (RTN against an issued document), `reverseDocument`.
+- **Routes**: `/api/v1/inv/{parts,stock,availability,documents,reservations,issues}`; UI under `/inv/*` (menu "Kho và phụ tùng").
+- **Indexes**: 136 composite indexes after this slice (Firestore allows 200 per database): keep new query shapes few (`pnpm check:indexes`).
+- Tests: `tests/unit/inv-domain.test.ts`, `tests/integration/inv.test.ts` (both backends), `e2e/slice-1-4.spec.ts`.
+
 ## Not built yet (see the plan)
 
 TOTP/PIN (owner), device registration, change-email and temporary passwords, login history (FR-SYS-014), access-log viewer,
-real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS and CRM core (REC, INV, ACC, EIN, RPT are skeletons; CRM-003/005..009/012/015/016/018 not built).
+real e-mail/SMS/Zalo providers, Terraform and deploys, and every business module beyond SYS, CRM core and the INV ledger (REC, ACC, EIN, RPT are skeletons; INV transfers, stocktake, purchasing and lots are not built; CRM-003/005..009/012/015/016/018 not built).
 Open requirement questions: `docs/dev/open-questions-for-ba.md`.
