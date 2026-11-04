@@ -283,13 +283,21 @@ export interface PhotoDto {
   proposalId: string | null;
   takenBy: string;
   takenAt: string;
+  /** R104: set only for readers with `rec-photo:update`, who see hidden photos marked as hidden */
+  hidden: { at: string; by: string; reason: string } | null;
 }
 
-/** hidden photos (R104) are not listed on the normal screens */
-export const toPhotoDtos = (photos: readonly PhotoRef[] | undefined): PhotoDto[] =>
+/** hidden photos (R104) are listed only when `includeHidden` (managers), always marked */
+export const toPhotoDtos = (
+  photos: readonly PhotoRef[] | undefined,
+  includeHidden = false,
+): PhotoDto[] =>
   (photos ?? [])
-    .filter((p) => !p.hidden)
+    .filter((p) => includeHidden || !p.hidden)
     .map((p) => ({
+      hidden: p.hidden
+        ? { at: p.hidden.at.toISOString(), by: p.hidden.by, reason: p.hidden.reason }
+        : null,
       id: p.id,
       contentType: p.contentType,
       size: p.size,

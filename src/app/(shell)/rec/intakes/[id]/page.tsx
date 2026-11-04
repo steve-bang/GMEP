@@ -118,6 +118,13 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
       'invalid',
       'unexpected',
       'offline',
+      'hide',
+      'hideTitle',
+      'hideReason',
+      'hideConfirm',
+      'hideCancel',
+      'hiddenBadge',
+      'hideFailed',
     ].map((k) => [k, t(`rec.photos.${k}`)]),
   );
   const photos = (
@@ -125,6 +132,7 @@ export default async function IntakePage({ params }: { params: Promise<{ id: str
       parent="intakes"
       parentId={intake.id}
       photos={intake.photos}
+      canHide={hasPermission(actor, 'rec-photo:update')}
       canAdd={canEdit && intake.status !== 'cancelled'}
       labels={photoLabels}
     />

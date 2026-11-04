@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { AppError, forbidden, notFound } from '@/platform/errors/errors';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import { parseTabular, TabularError } from '@/platform/files/tabular';
+import { buildXlsx } from '@/platform/files/xlsxWriter';
 import {
   hasPermission,
   requireWorkingBranch,
@@ -126,6 +127,13 @@ export function listImportKinds(deps: SysDeps, actor: Actor) {
 export function importTemplate(deps: SysDeps, actor: Actor, kind: string): string {
   resolveScope(actor, 'data-import:view');
   return templateCsv(handlerOf(deps, kind).columns);
+}
+
+/** The same template as a real .xlsx workbook (header row in Vietnamese + one example row, as text). */
+export function importTemplateXlsx(deps: SysDeps, actor: Actor, kind: string): Buffer {
+  resolveScope(actor, 'data-import:view');
+  const cols = handlerOf(deps, kind).columns;
+  return buildXlsx('Mau nhap', [cols.map((c) => c.label), cols.map((c) => c.example)], 0);
 }
 
 export async function listImports(deps: SysDeps, actor: Actor): Promise<ImportDto[]> {

@@ -66,6 +66,8 @@ export interface OrderFact {
   /** tax-inclusive total, base plus approved supplements */
   totalVnd: number;
   promisedDate?: string;
+  /** FR-RPT-014: service type code of the order (null = not set) */
+  serviceType?: string | null;
 }
 export interface LinesFact {
   /** approved lines, before tax */
@@ -188,6 +190,40 @@ export interface AlertItem {
   valueVnd: number;
 }
 
+/**
+ * FR-RPT-014: the order-bound figures of one service type (orders completed on the date and, for the invoice figures,
+ * completed orders without a valid invoice). Cash, stock and money by method are not tied to a service type.
+ * Rollups written before schema version 2 do not have it (`byServiceType` absent): reports say "not available".
+ */
+export interface ServiceTypeRollup {
+  /** null = the order has no service type */
+  serviceType: string | null;
+  closed: number;
+  orderTotalVnd: number;
+  laborVnd: number;
+  partsVnd: number;
+  receivedVnd: number;
+  debtVnd: number;
+  gapVnd: number;
+  gapOrders: number;
+  notInvoicedCount: number;
+  notInvoicedVnd: number;
+}
+
+const emptyService = (serviceType: string | null): ServiceTypeRollup => ({
+  serviceType,
+  closed: 0,
+  orderTotalVnd: 0,
+  laborVnd: 0,
+  partsVnd: 0,
+  receivedVnd: 0,
+  debtVnd: 0,
+  gapVnd: 0,
+  gapOrders: 0,
+  notInvoicedCount: 0,
+  notInvoicedVnd: 0,
+});
+
 export const PAYMENT_METHOD_KEYS = ['cash', 'transfer', 'card', 'qr'] as const;
 
 export interface DailyRollup {
@@ -197,7 +233,8 @@ export interface DailyRollup {
   date: string;
   /** FR-RPT-010: the day is closed in ACC, so the numbers are official; otherwise provisional */
   official: boolean;
-  schemaVersion: 1;
+  /** 1 = before the service-type breakdown; 2 = with `byServiceType` (FR-RPT-014). A rebuild upgrades a document. */
+  schemaVersion: 1 | 2;
   computedAt: Date;
   /** hash of everything below except `computedAt` and `sourceHash` (a rebuild that changes nothing writes nothing) */
   sourceHash: string;
@@ -247,6 +284,8 @@ export interface DailyRollup {
   };
   stock: { issueDocuments: number; issuesWithoutSource: number };
   cash: { shiftsClosed: number; shiftsWithVariance: number; varianceVnd: number };
+  /** FR-RPT-014, sorted by type; absent on schema version 1 documents */
+  byServiceType?: ServiceTypeRollup[];
   alertCounts: Record<AlertKind, number>;
   alerts: AlertItem[];
   alertsTruncated: boolean;
@@ -329,6 +368,13 @@ export function computeDaily(
   let gapOrders = 0;
   let closedWithoutInvoice = 0;
   let closedWithoutInvoiceVnd = 0;
+  const svc = new Map<string, ServiceTypeRollup>();
+  const svcOf = (o: OrderFact): ServiceTypeRollup => {
+    const k = o.serviceType ?? '';
+    let s = svc.get(k);
+    if (!s) svc.set(k, (s = emptyService(o.serviceType ?? null)));
+    return s;
+  };
 
   for (const o of orders) {
     // opened: created inside the day (a cancelled order was still opened that day)
@@ -367,6 +413,15 @@ export function computeDaily(
       receivedClosed += m.receivedVnd;
       debtClosed += m.openDebtVnd;
       const gap = o.totalVnd - m.receivedVnd - m.openDebtVnd;
+      const s = svcOf(o);
+      s.closed++;
+      s.orderTotalVnd += o.totalVnd;
+      s.laborVnd += l?.laborVnd ?? 0;
+      s.partsVnd += l?.partsVnd ?? 0;
+      s.receivedVnd += m.receivedVnd;
+      s.debtVnd += m.openDebtVnd;
+      s.gapVnd += gap;
+      if (gap !== 0) s.gapOrders++;
       if (gap !== 0) {
         gapVnd += gap;
         gapOrders++;
@@ -388,6 +443,9 @@ export function computeDaily(
     const age = ageDaysOf(o.completedAt, asOf);
     closedWithoutInvoice++;
     closedWithoutInvoiceVnd += o.totalVnd;
+    const sv = svcOf(o);
+    sv.notInvoicedCount++;
+    sv.notInvoicedVnd += o.totalVnd;
     addRef('notInvoiced', orderRef(o));
     if (age >= policy.uninvoicedAfterDays) alert('not_invoiced', orderRef(o), age, o.totalVnd);
   }
@@ -503,7 +561,7 @@ export function computeDaily(
     branchId: key.branchId,
     date: key.date,
     official: facts.dayClosedAt !== null,
-    schemaVersion: 1 as const,
+    schemaVersion: 2 as const,
     orders: { opened, closed, handedOver, cancelled, openAtEnd },
     revenue: {
       orderTotalVnd: orderTotal,
@@ -538,6 +596,9 @@ export function computeDaily(
     },
     stock: { issueDocuments: facts.stockIssues.length, issuesWithoutSource: withoutSource },
     cash: { shiftsClosed, shiftsWithVariance, varianceVnd },
+    byServiceType: [...svc.values()].sort((a, b) =>
+      (a.serviceType ?? '').localeCompare(b.serviceType ?? ''),
+    ),
     alertCounts,
     alerts: alerts.sort(
       (a, b) =>

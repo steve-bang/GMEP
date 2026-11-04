@@ -1,5 +1,6 @@
 import { messages } from '@/platform/i18n/messages';
 import { businessDate } from '@/platform/format/date';
+import { buildXlsx } from '@/platform/files/xlsxWriter';
 import { hasPermission, type Actor } from '@/platform/rbac/rbac';
 import { ALERT_KINDS } from '../domain/rollup';
 import type { RptDeps } from '../ports/deps';
@@ -127,6 +128,8 @@ const reportExportSchema = z
     warehouseId: z.string().trim().max(128).optional(),
     serviceType: z.string().trim().max(64).optional(),
     reason: z.string().trim().max(200).optional(),
+    /** FR-RPT-009: csv (default) or a real .xlsx workbook; same permission, scope, redaction and audit */
+    format: z.enum(['csv', 'xlsx']).default('csv'),
   })
   .strict();
 
@@ -147,6 +150,17 @@ export async function exportReportCsv(
   raw: unknown,
   ctx: RequestCtx,
 ): Promise<{ csv: string; filename: string }> {
+  const r = await exportReport(deps, actor, { ...(raw as object), format: 'csv' }, ctx);
+  return { csv: r.csv!, filename: r.filename };
+}
+
+/** Same as the CSV export; `format: 'xlsx'` returns a workbook (bytes) instead of text. */
+export async function exportReport(
+  deps: RptDeps,
+  actor: Actor,
+  raw: unknown,
+  ctx: RequestCtx,
+): Promise<{ format: 'csv' | 'xlsx'; csv?: string; xlsx?: Buffer; filename: string }> {
   const input = parseInput(reportExportSchema, raw);
   if (!hasPermission(actor, 'report-daily:export')) throw forbidden();
   const q = {
@@ -165,7 +179,11 @@ export async function exportReportCsv(
       const d = await getMonthly(deps, actor, {
         month: input.month,
         ...(input.branchId ? { branchId: input.branchId } : {}),
+        ...(input.serviceType ? { serviceType: input.serviceType } : {}),
       });
+      if (d.serviceType) meta.push([lbl('serviceType'), d.serviceType]);
+      if (d.breakdownUnavailableDates.length > 0)
+        meta.push([lbl('breakdownMissing'), d.breakdownUnavailableDates.length]);
       branch = { id: d.branchId, name: d.branchName, code: d.branchId };
       period = input.month;
       const r = d.report;
@@ -199,7 +217,7 @@ export async function exportReportCsv(
           : []),
         ...(d.visible.invoices
           ? [
-              row('invoices.issuedCount', r.invoices.issuedCount),
+              ...(d.serviceType ? [] : [row('invoices.issuedCount', r.invoices.issuedCount)]),
               row('invoices.closedWithoutInvoiceCount', r.endOfPeriod.closedWithoutInvoiceCount),
             ]
           : []),
@@ -208,7 +226,13 @@ export async function exportReportCsv(
       break;
     }
     case 'reconcile': {
-      const d = await getReconcile(deps, actor, q);
+      const d = await getReconcile(deps, actor, {
+        ...q,
+        ...(input.serviceType ? { serviceType: input.serviceType } : {}),
+      });
+      if (d.serviceType) meta.push([lbl('serviceType'), d.serviceType]);
+      if (d.breakdownUnavailableDates.length > 0)
+        meta.push([lbl('breakdownMissing'), d.breakdownUnavailableDates.length]);
       branch = { id: d.branchId, name: d.branchName, code: d.branchId };
       period = `${d.report.from}_${d.report.to}`;
       head = [
@@ -320,16 +344,31 @@ export async function exportReportCsv(
         entityType: 'rollup',
         entityId: `report:${input.kind}:${period}`,
         action: 'rollup.export',
-        after: { report: input.kind, period, rows: body.length, format: 'csv' },
+        after: { report: input.kind, period, rows: body.length, format: input.format },
         ...(input.reason ? { reason: input.reason } : {}),
       }),
     );
   });
+  const top: Cell[][] = [
+    [lbl('branch'), `${code} ${branch.name}`],
+    [lbl('period'), period],
+    ...meta,
+  ];
+  if (input.format === 'xlsx') {
+    // the same cells as the CSV; text is inert in the workbook (inline strings, formula markers neutralised)
+    const sheet: Cell[][] = [...top, head, ...body];
+    return {
+      format: 'xlsx',
+      xlsx: buildXlsx(lbl(`sheet_${input.kind}`), sheet, top.length),
+      filename: `bao-cao-${input.kind}-${code}-${period}.xlsx`,
+    };
+  }
   const lines = [[lbl('branch'), `${code} ${branch.name}`], [lbl('period'), period], ...meta].map(
     (x) => x.map((c) => cell(c as Cell)).join(','),
   );
   const csv = [...lines, head.map(csvCell).join(','), ...body.map((r) => r.map(cell).join(','))];
   return {
+    format: 'csv',
     csv: `﻿${csv.join('\r\n')}\r\n`,
     filename: `bao-cao-${input.kind}-${code}-${period}.csv`,
   };

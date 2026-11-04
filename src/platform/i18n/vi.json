@@ -1681,6 +1681,7 @@
     "approvalApproved": "Yêu cầu {number} đã được duyệt.",
     "approvalRejected": "Yêu cầu {number} bị từ chối.",
     "dayReopened": "Ngày {date} của chi nhánh đã được mở lại sau khi chốt. Chứng từ đã ghi sổ không được sửa, chỉ ghi thêm hoặc đảo.",
+    "dayReopenedRepeated": "Ngoại lệ lặp lại: chi nhánh đã mở lại ngày chốt {count} lần trong tháng (ngưỡng {max}). Xem nhật ký để biết lý do.",
     "dayReopenedException": "Ngoại lệ: ngày {date} đã chốt được mở lại với duyệt của Chủ. Xem lý do trong nhật ký.",
     "expenseSourceMissing": "Có {count} phiếu chi thiếu chứng từ gốc đã quá {days} ngày chưa bổ sung. Mở sổ quỹ để xem.",
     "einvoiceCorrection": "Yêu cầu {number} đã được duyệt và đang gửi nhà cung cấp hóa đơn.",
@@ -2810,7 +2811,14 @@
       "upload": "Tải ảnh lên",
       "invalid": "Ảnh không hợp lệ: chỉ nhận JPEG, PNG, WebP tối đa 5 MB và không quá số ảnh cho phép.",
       "unexpected": "Không tải được ảnh. Thử lại sau.",
-      "offline": "Mất kết nối. Chọn lại ảnh và thử lại khi có mạng."
+      "offline": "Mất kết nối. Chọn lại ảnh và thử lại khi có mạng.",
+      "hide": "Ẩn ảnh",
+      "hideTitle": "Ẩn ảnh này?",
+      "hideReason": "Lý do ẩn (ít nhất 5 ký tự)",
+      "hideConfirm": "Ẩn ảnh",
+      "hideCancel": "Không ẩn",
+      "hiddenBadge": "Đã ẩn",
+      "hideFailed": "Không ẩn được ảnh. Kiểm tra lý do và thử lại."
     }
   },
   "pub": {
@@ -3745,6 +3753,9 @@
     "rep": {
       "print": "In báo cáo",
       "export": "Tải CSV",
+      "exportXlsx": "Tải Excel (.xlsx)",
+      "filteredNote": "Đang lọc theo loại dịch vụ: chỉ hiện số liệu gắn với lệnh sửa chữa (lệnh hoàn thành, doanh thu, thu/công nợ của lệnh, lệnh chưa có hóa đơn). Thu theo phương thức, quỹ và kho không chia theo loại dịch vụ.",
+      "breakdownMissing": "{n} ngày chưa có số liệu theo loại dịch vụ (bản ghi cũ, cần dựng lại) và không được tính.",
       "exportFailed": "Không tải được tệp. Thử lại sau.",
       "branch": "Chi nhánh",
       "from": "Từ ngày",
@@ -3907,7 +3918,12 @@
       "efficiencyBp": "Hiệu suất (điểm cơ bản, chuẩn / thực làm)",
       "serviceType": "Loại dịch vụ",
       "minimumNote": "Lưu ý",
-      "minimumText": "Dữ liệu bị giới hạn: số liệu trong tệp là mức tối thiểu, không phải tổng đủ"
+      "minimumText": "Dữ liệu bị giới hạn: số liệu trong tệp là mức tối thiểu, không phải tổng đủ",
+      "breakdownMissing": "Số ngày chưa có số liệu theo loại dịch vụ (cần dựng lại)",
+      "sheet_monthly": "Báo cáo tháng",
+      "sheet_reconcile": "Đối chiếu",
+      "sheet_warehouse": "Kho",
+      "sheet_technicians": "Kỹ thuật viên"
     },
     "csv": {
       "official": "Chính thức",
@@ -3960,6 +3976,7 @@
     "warehouse": "Kho nhận tồn đầu kỳ",
     "warehousePick": "Chọn kho",
     "template": "Tải mẫu (CSV)",
+    "templateXlsx": "Tải mẫu (Excel .xlsx)",
     "stockNote": "Tồn đầu kỳ được tạo thành phiếu điều chỉnh đầu kỳ ở trạng thái nháp. Quản lý chi nhánh duyệt ghi sổ ở màn hình Phiếu kho; chưa duyệt thì tồn kho chưa đổi.",
     "partsFirst": "Nhập danh mục phụ tùng trước khi nhập tồn đầu kỳ.",
     "step2": "2. Tải tệp và chạy thử",

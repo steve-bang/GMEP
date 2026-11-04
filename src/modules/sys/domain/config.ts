@@ -260,6 +260,8 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         shiftCapVnd: vnd.optional(),
         /** R106: hours an approved request stays usable (day_reopen: 2) */
         validHours: z.number().int().min(1).max(168).optional(),
+        /** R106: reopenings per branch per month above which the owner/accountant get an exception notice */
+        maxReopensPerMonth: z.number().int().min(1).max(31).optional(),
         dueHours: z
           .number()
           .int()

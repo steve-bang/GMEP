@@ -439,6 +439,7 @@ Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-d
 | R105 | Đã trả lời: chấp nhận; hoàn tối đa là phần thu vượt, trần chung với hoàn cọc; tình huống hợp lệ cần REC hủy hạng mục/điều chỉnh giá (chưa có, câu 56); hạn mức 10.000.000 tạm; chờ Kế toán, Chủ dự án | Dev default OK + test |
 | R106 | Đã trả lời: chấp nhận ngày hiện tại, Chủ duyệt một lần; thêm hỏi lại mật khẩu, hạn dùng duyệt, báo ngoại lệ; khóa kỳ tháng chưa làm; chờ Chủ dự án, Kế toán | Dev must change (nhỏ) |
 | R107 | Đã trả lời: không có câu hỏi mới; ảnh gắn đề xuất theo R104 | Dev default OK |
+| R108 | ACC/RPT/SYS (04/11/2026, dev): (a) ngưỡng báo mở lại ngày lặp lại: quá 3 lần/tháng/chi nhánh thì gửi thông báo ngoại lệ cho Chủ và Kế toán (`maxReopensPerMonth` trong cấu hình `approval-limit` của `day_reopen`, mặc định 3); (b) báo cáo tháng/đối chiếu lọc theo loại dịch vụ chỉ hiện số liệu gắn với lệnh (lệnh hoàn thành, doanh thu, thu/công nợ của lệnh, lệnh chưa hóa đơn); thu theo phương thức, quỹ, kho không chia theo loại; ngày có rollup cũ (chưa có phân tách) không tính, ghi rõ cần dựng lại; (c) xuất Excel (.xlsx) cùng quyền, phạm vi, nhật ký và thoát công thức như CSV. Chờ Chủ dự án, Kế toán | Dev default OK |
 
 Dev must change (tóm tắt, chi tiết ở `ba-answers-for-dev.md` §24.5):
 

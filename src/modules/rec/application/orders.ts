@@ -751,7 +751,7 @@ export async function getOrder(deps: RecDeps, actor: Actor, id: string): Promise
     warehouseId: o.warehouseId,
     steps: o.steps,
     items: items.map((i) => toItemDto(i, now)),
-    photos: toPhotoDtos(o.photos),
+    photos: toPhotoDtos(o.photos, hasPermission(actor, 'rec-photo:update')),
     supplements: o.supplements.map((s) => ({
       quoteId: s.quoteId,
       number: s.number,

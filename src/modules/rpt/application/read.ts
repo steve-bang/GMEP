@@ -96,6 +96,15 @@ export function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto
     };
   if (!can('stock:view')) out.stock = { issueDocuments: 0, issuesWithoutSource: 0 };
   if (!can('cashbook:view')) out.cash = { shiftsClosed: 0, shiftsWithVariance: 0, varianceVnd: 0 };
+  // FR-RPT-014: the per-service-type figures follow the same section permissions as the totals they break down
+  if (r.byServiceType)
+    out.byServiceType = r.byServiceType.map((e) => ({
+      ...e,
+      ...(can('repair-order:view') ? {} : { closed: 0 }),
+      ...(can('report-daily:view') ? {} : { orderTotalVnd: 0, laborVnd: 0, partsVnd: 0 }),
+      ...(zeroMoney ? { receivedVnd: 0, debtVnd: 0, gapVnd: 0, gapOrders: 0 } : {}),
+      ...(can('invoice:view') ? {} : { notInvoicedCount: 0, notInvoicedVnd: 0 }),
+    }));
   out.alertCounts = Object.fromEntries(
     ALERT_KINDS.map((k) => [k, can(ALERT_PERMISSION[k]) ? r.alertCounts[k] : 0]),
   );

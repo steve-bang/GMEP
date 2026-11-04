@@ -39,6 +39,7 @@ const orderFact = (o: RepairOrder): OrderFact => ({
   ...(o.cancelledAt ? { cancelledAt: o.cancelledAt } : {}),
   ...(o.handover?.at ? { handedOverAt: o.handover.at } : {}),
   totalVnd: o.totalVnd,
+  serviceType: o.serviceType ?? null,
   ...(o.promisedDate ? { promisedDate: o.promisedDate } : {}),
 });
 

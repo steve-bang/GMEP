@@ -1557,6 +1557,8 @@ describe.each(backends)('ACC money [%s]', (backend) => {
         expect.arrayContaining(['notifications.dayReopenedException']),
       );
       expect(reopened.some((n) => n.userId === 'u_owner')).toBe(true);
+      // R106: one reopening is below the monthly threshold (3), so no repeated-exception notice yet
+      expect(reopened.some((n) => n.titleKey === 'notifications.dayReopenedRepeated')).toBe(false);
     });
 
     it('R106: an approval older than its validity (config, 2 h) cannot reopen the day; a closed later day blocks it', async () => {

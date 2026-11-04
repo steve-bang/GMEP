@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { Button } from '@/ui/components/Button';
+import { ConfirmDialog } from '@/ui/components/ConfirmDialog';
 import { newKey } from '@/ui/components/postJson';
 
 type Labels = Record<string, string>;
@@ -11,6 +12,7 @@ export interface PhotoItem {
   id: string;
   caption: string | null;
   takenAt: string;
+  hidden?: { at: string; by: string; reason: string } | null;
 }
 
 /**
@@ -23,6 +25,8 @@ export function PhotoPanel(props: {
   parentId: string;
   photos: PhotoItem[];
   canAdd: boolean;
+  /** R104: holders of `rec-photo:update` may hide a photo and see hidden ones marked */
+  canHide?: boolean;
   labels: Labels; // rec.photos
 }) {
   const l = props.labels;
@@ -32,6 +36,9 @@ export function PhotoPanel(props: {
   const [caption, setCaption] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hiding, setHiding] = useState<string | null>(null);
+  const [reason, setReason] = useState('');
+  const hideKey = useRef<string | null>(null);
   const base = `/api/v1/rec/${props.parent}/${encodeURIComponent(props.parentId)}/photos`;
 
   async function upload() {
@@ -65,6 +72,32 @@ export function PhotoPanel(props: {
     setBusy(false);
   }
 
+  async function hide() {
+    if (!hiding) return;
+    setBusy(true);
+    setError(null);
+    hideKey.current ??= newKey();
+    try {
+      const res = await fetch(`${base}/${encodeURIComponent(hiding)}/hide`, {
+        method: 'POST',
+        headers: { 'idempotency-key': hideKey.current, 'content-type': 'application/json' },
+        body: JSON.stringify({ reason: reason.trim() }),
+      });
+      if (res.ok) {
+        hideKey.current = null;
+        setHiding(null);
+        setReason('');
+        router.refresh();
+      } else {
+        hideKey.current = null;
+        setError(l.hideFailed!);
+      }
+    } catch {
+      setError(l.offline!);
+    }
+    setBusy(false);
+  }
+
   return (
     <section className="card" aria-labelledby={`photos-${props.parent}-h`} data-testid="photos">
       <div className="card__header">
@@ -90,6 +123,22 @@ export function PhotoPanel(props: {
                   />
                 </a>
                 {p.caption ? <span className="text-secondary">{p.caption}</span> : null}
+                {p.hidden ? (
+                  <span className="badge badge--neutral" data-testid="photo-hidden">
+                    {l.hiddenBadge}: {p.hidden.reason}
+                  </span>
+                ) : props.canHide ? (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setHiding(p.id);
+                      setReason('');
+                    }}
+                    data-testid="photo-hide"
+                  >
+                    {l.hide}
+                  </Button>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -140,6 +189,32 @@ export function PhotoPanel(props: {
           </div>
         ) : null}
       </div>
+      <ConfirmDialog
+        open={hiding !== null}
+        title={l.hideTitle!}
+        confirmLabel={l.hideConfirm!}
+        cancelLabel={l.hideCancel!}
+        tone="danger"
+        busy={busy}
+        confirmDisabled={reason.trim().length < 5}
+        onConfirm={() => void hide()}
+        onCancel={() => setHiding(null)}
+        testId="photo-hide-dialog"
+      >
+        <div className="field">
+          <label className="field__label" htmlFor={`photo-hide-reason-${props.parent}`}>
+            {l.hideReason}
+          </label>
+          <input
+            id={`photo-hide-reason-${props.parent}`}
+            className="input"
+            maxLength={300}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            data-testid="photo-hide-reason"
+          />
+        </div>
+      </ConfirmDialog>
     </section>
   );
 }

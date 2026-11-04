@@ -54,6 +54,11 @@ export interface ApprovalLimits {
    * `day_reopen` today (2 hours), configurable.
    */
   validHours?: number;
+  /**
+   * R106: a branch that reopens its day more than this many times in a calendar month raises an exception notice to
+   * the owner and the accountant (default 3 [Đề xuất dev - chờ xác nhận]). Only `day_reopen`.
+   */
+  maxReopensPerMonth?: number;
 }
 
 export interface ApprovalKindDef {

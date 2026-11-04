@@ -1,6 +1,7 @@
 import { hasPermission, type Actor } from '@/platform/rbac/rbac';
 import {
   computeMonthly,
+  forServiceType,
   computeReconcile,
   computeTechnicians,
   computeWarehouse,
@@ -45,11 +46,16 @@ async function redactedRollups(
 const monthSchema = z.object({
   month: z.string().regex(MONTH_RE),
   branchId: z.string().trim().max(64).optional(),
+  serviceType: z.string().trim().min(1).max(64).optional(),
 });
 
 export interface MonthlyDto {
   branchId: string;
   branchName: string;
+  /** FR-RPT-014: set when the figures are narrowed to one service type (order-bound figures only) */
+  serviceType: string | null;
+  /** days whose rollup predates the service-type breakdown (rebuild them); empty without a filter */
+  breakdownUnavailableDates: string[];
   report: MonthlyReport;
   visible: Visible;
   mayExport: boolean;
@@ -61,12 +67,18 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
   const q = parseInput(monthSchema, raw);
   const { scope, branches } = await branchesOf(deps, actor, 'report-daily:view', q.branchId);
   const branch = singleBranch(actor, branches, q.branchId);
-  const rolls = await redactedRollups(deps, actor, scope, branch.id, monthDates(q.month));
+  const all = await redactedRollups(deps, actor, scope, branch.id, monthDates(q.month));
+  const narrowed = q.serviceType ? forServiceType(all, q.serviceType) : null;
   return {
     branchId: branch.id,
     branchName: branch.name,
-    report: computeMonthly(q.month, rolls),
-    visible: visibleOf(actor),
+    serviceType: q.serviceType ?? null,
+    breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
+    report: computeMonthly(q.month, narrowed ? narrowed.rolls : all),
+    // FR-RPT-014: narrowed to a service type, money by method, receivables and stock are not attributable and not shown
+    visible: q.serviceType
+      ? { ...visibleOf(actor), money: false, receivables: false, stock: false, cash: false }
+      : visibleOf(actor),
     mayExport: hasPermission(actor, 'report-daily:export'),
     // FR-RPT-013: the formulas are printed with the figures
     formula: {
@@ -106,6 +118,8 @@ function rangeOf(
 export interface ReconcileDto {
   branchId: string;
   branchName: string;
+  serviceType: string | null;
+  breakdownUnavailableDates: string[];
   report: ReconcileReport;
   visible: ReconcileVisible;
   mayExport: boolean;
@@ -126,19 +140,23 @@ export async function getReconcile(
   const { scope, branches } = await branchesOf(deps, actor, 'report-daily:view', q.branchId);
   const branch = singleBranch(actor, branches, q.branchId);
   const v = visibleOf(actor);
+  // FR-RPT-014: cash shifts and stock issues are not tied to a service type, so a filtered view neither shows nor judges them
   const visible: ReconcileVisible = {
     payments: v.money,
     invoices: v.invoices,
-    cash: v.cash,
-    stock: v.stock,
+    cash: v.cash && !q.serviceType,
+    stock: v.stock && !q.serviceType,
   };
   const dates: string[] = [];
   for (let d = q.from; d <= q.to; d = addDays(d, 1)) dates.push(d);
-  const rolls = await redactedRollups(deps, actor, scope, branch.id, dates);
+  const all = await redactedRollups(deps, actor, scope, branch.id, dates);
+  const narrowed = q.serviceType ? forServiceType(all, q.serviceType) : null;
   return {
     branchId: branch.id,
     branchName: branch.name,
-    report: computeReconcile(q.from, q.to, rolls, visible),
+    serviceType: q.serviceType ?? null,
+    breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
+    report: computeReconcile(q.from, q.to, narrowed ? narrowed.rolls : all, visible),
     visible,
     mayExport: hasPermission(actor, 'report-daily:export'),
     formula: {

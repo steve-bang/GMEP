@@ -326,6 +326,18 @@ export async function reopenDay(
     'day_reopen',
     businessDate(deps.sys.clock.now()),
   );
+  // R106: reopenings of this branch earlier this month (no query: the close records are read by id, at most 31)
+  const monthDates = Array.from(
+    { length: Number(businessDate(deps.sys.clock.now()).slice(8, 10)) },
+    (_, i) => `${businessDate(deps.sys.clock.now()).slice(0, 8)}${String(i + 1).padStart(2, '0')}`,
+  );
+  const monthCloses = await Promise.all(
+    monthDates.map((d) => deps.cash.getDayClose(scope, branchId, d)),
+  );
+  const monthReopens = monthCloses.reduce(
+    (s, c) => s + (c?.reopenCount ?? (c?.reopenedAt ? 1 : 0)),
+    0,
+  );
   // recipients are read before the first write of the transaction (Firestore)
   const [managers, exceptionTo] = await Promise.all([
     usersWithRole(deps.sys, actor.companyId, ['QL'], branchId),
@@ -368,6 +380,7 @@ export async function reopenDay(
       consumeApprovalInTx(deps.sys, tx, actor, ctx, approval, close.id);
       deps.cash.updateDayClose(tx, close.id, {
         status: 'reopened',
+        reopenCount: (close.reopenCount ?? (close.reopenedAt ? 1 : 0)) + 1,
         reopenedAt: now,
         reopenedBy: actor.userId,
         reopenApprovalId: approval.id,
@@ -396,6 +409,18 @@ export async function reopenDay(
           kind: 'acc.cash',
           titleKey,
           params: { date: today },
+          link: '/acc/day-close',
+          branchId,
+        });
+      // R106: more than the configured number of reopenings in one month = a repeated exception for the owner/accountant
+      const maxPerMonth = limits.maxReopensPerMonth ?? 3;
+      if (monthReopens + 1 > maxPerMonth)
+        notifyUsers(deps.sys, tx, {
+          companyId: actor.companyId,
+          userIds: exceptionTo,
+          kind: 'acc.cash',
+          titleKey: 'notifications.dayReopenedRepeated',
+          params: { count: String(monthReopens + 1), max: String(maxPerMonth) },
           link: '/acc/day-close',
           branchId,
         });

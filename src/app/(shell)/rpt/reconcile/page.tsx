@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { getReconcile } from '@/modules/rpt';
+import { listServiceTypes } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -22,14 +23,18 @@ export default async function ReconcilePage({ searchParams }: { searchParams: Se
   const from = first(sp.from);
   const to = first(sp.to);
   const branchId = first(sp.branchId);
+  const serviceType = first(sp.serviceType);
   const l = rptLabels('rep');
+  const container = getContainer();
   const res = await load(() =>
-    getReconcile(getContainer().rpt, actor, {
+    getReconcile(container.rpt, actor, {
       ...(from && ISO.test(from) ? { from } : {}),
       ...(to && ISO.test(to) ? { to } : {}),
       ...(branchId ? { branchId } : {}),
+      ...(serviceType ? { serviceType } : {}),
     }),
   );
+  const types = await listServiceTypes(container.rec, actor).catch(() => []);
   const head = {
     title: l.reconcileTitle!,
     desc: l.reconcileLead!,
@@ -62,8 +67,31 @@ export default async function ReconcilePage({ searchParams }: { searchParams: Se
         <Field id="rc-to" label={l.to!}>
           <input className="input" id="rc-to" name="to" type="date" defaultValue={r.to} />
         </Field>
+        <Field id="rc-svc" label={l.serviceType!}>
+          <select
+            className="select"
+            id="rc-svc"
+            name="serviceType"
+            defaultValue={d.serviceType ?? ''}
+          >
+            <option value="">{l.allServiceTypes}</option>
+            {types.map((x) => (
+              <option key={x.code} value={x.code}>
+                {x.name}
+              </option>
+            ))}
+          </select>
+        </Field>
         <span data-testid="reconcile-branch">{d.branchName}</span>
       </FilterForm>
+      {d.serviceType ? (
+        <Note tone="info" testId="reconcile-filtered">
+          {l.filteredNote}
+          {d.breakdownUnavailableDates.length ? (
+            <> {fill(l.breakdownMissing!, { n: d.breakdownUnavailableDates.length })}</>
+          ) : null}
+        </Note>
+      ) : null}
       <Note tone={r.reconciled ? 'success' : 'warning'} testId="reconcile-state">
         <strong>{r.reconciled ? l.reconcileOk : fill(l.reconcileBad!, { n: r.failedDays })}</strong>
         {r.missingDates.length ? (
@@ -183,7 +211,13 @@ export default async function ReconcilePage({ searchParams }: { searchParams: Se
         </div>
       </section>
       <ReportTools
-        body={{ kind: 'reconcile', from: r.from, to: r.to, branchId: d.branchId }}
+        body={{
+          kind: 'reconcile',
+          from: r.from,
+          to: r.to,
+          branchId: d.branchId,
+          ...(d.serviceType ? { serviceType: d.serviceType } : {}),
+        }}
         labels={l}
         mayExport={d.mayExport}
       />

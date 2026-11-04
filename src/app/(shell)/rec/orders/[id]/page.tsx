@@ -493,6 +493,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         parent="orders"
         parentId={o.id}
         photos={o.photos}
+        canHide={hasPermission(actor, 'rec-photo:update')}
         canAdd={
           o.open &&
           (hasPermission(actor, 'repair-order:update') ||
@@ -510,6 +511,13 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             'invalid',
             'unexpected',
             'offline',
+            'hide',
+            'hideTitle',
+            'hideReason',
+            'hideConfirm',
+            'hideCancel',
+            'hiddenBadge',
+            'hideFailed',
           ].map((k) => [k, t(`rec.photos.${k}`)]),
         )}
       />

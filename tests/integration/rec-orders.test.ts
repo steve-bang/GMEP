@@ -846,6 +846,10 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
         0,
       );
       expect((await h.call('GET', `${path}/${r.json.id}`, { cookie: cv })).status).toBe(404);
+      // R104: the manager's list still carries it, marked as hidden with the reason
+      const mgrPhotos = (await call(ql, 'GET', `/api/v1/rec/intakes/${c.json.id}`)).json.photos;
+      expect(mgrPhotos).toHaveLength(1);
+      expect(mgrPhotos[0].hidden.reason).toBe('Nhầm xe khác');
       // not deleted: a manager can still read it
       expect((await h.call('GET', `${path}/${r.json.id}`, { cookie: ql })).status).toBe(200);
       const audit = await call(

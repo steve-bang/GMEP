@@ -4,7 +4,7 @@
  * already limited to the actor's scope and permissions; warehouse and technician reports fold bounded fact lists.
  * Money is integer VND; hours are integer minutes (no floats in stored or summed values). No payroll (BR scope).
  */
-import { addDays, type DailyRollup } from './rollup';
+import { addDays, type DailyRollup, type ServiceTypeRollup } from './rollup';
 
 export const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 
@@ -87,7 +87,75 @@ type Rolled = Pick<
   | 'invoices'
   | 'stock'
   | 'cash'
->;
+> &
+  Partial<Pick<DailyRollup, 'byServiceType'>>;
+
+/**
+ * FR-RPT-014: narrows daily rollups to ONE service type. Only the order-bound figures are attributable (orders closed,
+ * revenue, money received/debt/gap for those orders, orders completed without an invoice); opened/handed over/cancelled,
+ * money by method, issued invoices, stock and cash are not tied to a service type and read zero (the screen hides
+ * them). A rollup of schema version 1 has no breakdown: its date is listed in `unavailableDates`, not counted as zero.
+ */
+export function forServiceType(
+  rolls: readonly Rolled[],
+  serviceType: string,
+): { rolls: Rolled[]; unavailableDates: string[] } {
+  const out: Rolled[] = [];
+  const unavailableDates: string[] = [];
+  for (const r of rolls) {
+    if (!r.byServiceType) {
+      unavailableDates.push(r.date);
+      continue;
+    }
+    const e: ServiceTypeRollup = r.byServiceType.find((x) => x.serviceType === serviceType) ?? {
+      serviceType,
+      closed: 0,
+      orderTotalVnd: 0,
+      laborVnd: 0,
+      partsVnd: 0,
+      receivedVnd: 0,
+      debtVnd: 0,
+      gapVnd: 0,
+      gapOrders: 0,
+      notInvoicedCount: 0,
+      notInvoicedVnd: 0,
+    };
+    out.push({
+      date: r.date,
+      official: r.official,
+      orders: { opened: 0, closed: e.closed, handedOver: 0, cancelled: 0, openAtEnd: 0 },
+      revenue: {
+        orderTotalVnd: e.orderTotalVnd,
+        laborVnd: e.laborVnd,
+        partsVnd: e.partsVnd,
+        exTaxVnd: e.laborVnd + e.partsVnd,
+        taxAndOtherVnd: e.orderTotalVnd - e.laborVnd - e.partsVnd,
+        avgPerOrderVnd: e.closed > 0 ? Math.round((e.laborVnd + e.partsVnd) / e.closed) : 0,
+      },
+      money: {
+        byMethod: {},
+        receiptCount: 0,
+        inflowVnd: 0,
+        depositVnd: 0,
+        expenseVnd: 0,
+        receivedForClosedVnd: e.receivedVnd,
+        debtForClosedVnd: e.debtVnd,
+        gapVnd: e.gapVnd,
+        gapOrders: e.gapOrders,
+      },
+      receivables: { openDebtVnd: 0, openDebtCount: 0, overdueDebtVnd: 0, overdueDebtCount: 0 },
+      invoices: {
+        issuedCount: 0,
+        issuedVnd: 0,
+        closedWithoutInvoiceCount: e.notInvoicedCount,
+        closedWithoutInvoiceVnd: e.notInvoicedVnd,
+      },
+      stock: { issueDocuments: 0, issuesWithoutSource: 0 },
+      cash: { shiftsClosed: 0, shiftsWithVariance: 0, varianceVnd: 0 },
+    });
+  }
+  return { rolls: out, unavailableDates };
+}
 
 /** Flows are summed over the days; end-of-period figures come from the last present day. Missing days are reported. */
 export function computeMonthly(month: string, rows: readonly Rolled[]): MonthlyReport {

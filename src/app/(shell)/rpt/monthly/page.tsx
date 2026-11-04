@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { businessDate } from '@/platform/format/date';
 import { getMonthly } from '@/modules/rpt';
+import { listServiceTypes } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -23,11 +24,18 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
   const sp = await searchParams;
   const rawMonth = first(sp.month);
   const branchId = first(sp.branchId);
+  const serviceType = first(sp.serviceType);
   const l = rptLabels('rep');
   const month = rawMonth && MONTH.test(rawMonth) ? rawMonth : businessDate(new Date()).slice(0, 7);
+  const container = getContainer();
   const res = await load(() =>
-    getMonthly(getContainer().rpt, actor, { month, ...(branchId ? { branchId } : {}) }),
+    getMonthly(container.rpt, actor, {
+      month,
+      ...(branchId ? { branchId } : {}),
+      ...(serviceType ? { serviceType } : {}),
+    }),
   );
+  const types = await listServiceTypes(container.rec, actor).catch(() => []);
   const head = {
     title: l.monthlyTitle!,
     desc: l.monthlyLead!,
@@ -51,6 +59,21 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
         <Field id="m-month" label={l.month!}>
           <input className="input" id="m-month" name="month" type="month" defaultValue={month} />
         </Field>
+        <Field id="m-svc" label={l.serviceType!}>
+          <select
+            className="select"
+            id="m-svc"
+            name="serviceType"
+            defaultValue={d.serviceType ?? ''}
+          >
+            <option value="">{l.allServiceTypes}</option>
+            {types.map((x) => (
+              <option key={x.code} value={x.code}>
+                {x.name}
+              </option>
+            ))}
+          </select>
+        </Field>
         <span data-testid="monthly-branch">{d.branchName}</span>
       </FilterForm>
       <Note tone={r.missingDates.length ? 'warning' : 'info'} testId="monthly-days">
@@ -59,6 +82,14 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
           <> · {fill(l.monthlyMissing!, { n: r.missingDates.length })}</>
         ) : null}
       </Note>
+      {d.serviceType ? (
+        <Note tone="info" testId="monthly-filtered">
+          {l.filteredNote}
+          {d.breakdownUnavailableDates.length ? (
+            <> {fill(l.breakdownMissing!, { n: d.breakdownUnavailableDates.length })}</>
+          ) : null}
+        </Note>
+      ) : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
@@ -99,7 +130,7 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                   <td>{l.taxOther}</td>
                   <td className="col-num">{money(r.revenue.taxAndOtherVnd)}</td>
                 </tr>
-                {d.visible.invoices ? (
+                {d.visible.invoices && !d.serviceType ? (
                   <tr>
                     <td>{l.invIssued}</td>
                     <td className="col-num">
@@ -179,7 +210,12 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
         ]}
       />
       <ReportTools
-        body={{ kind: 'monthly', month, branchId: d.branchId }}
+        body={{
+          kind: 'monthly',
+          month,
+          branchId: d.branchId,
+          ...(d.serviceType ? { serviceType: d.serviceType } : {}),
+        }}
         labels={l}
         mayExport={d.mayExport}
       />

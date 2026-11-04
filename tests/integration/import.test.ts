@@ -404,4 +404,11 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     expect(t.text).toContain('Mã phụ tùng,Tên phụ tùng');
     expect(t.headers.get('content-type')).toContain('text/csv');
   });
+
+  it('template is also offered as a real .xlsx (FR-SYS-007)', async () => {
+    const t = await h.call('GET', `${IMPORTS}/template?kind=parts&format=xlsx`, { cookie: tk });
+    expect(t.status).toBe(200);
+    expect(t.headers.get('content-type')).toContain('spreadsheetml.sheet');
+    expect(t.text.startsWith('PK')).toBe(true);
+  });
 });

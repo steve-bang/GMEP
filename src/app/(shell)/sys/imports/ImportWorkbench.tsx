@@ -190,6 +190,14 @@ export function ImportWorkbench(props: {
               download
             >
               {t('template')}
+            </a>{' '}
+            <a
+              className="btn btn--secondary"
+              href={`/api/v1/sys/imports/template?kind=${encodeURIComponent(kind)}&format=xlsx`}
+              download
+              data-testid="template-xlsx"
+            >
+              {t('templateXlsx')}
             </a>
           </div>
         </div>

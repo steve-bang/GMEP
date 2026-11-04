@@ -209,6 +209,7 @@ export function recDemoDocs(): SeedDoc[] {
     level1MaxVnd: 0,
     dueHours: 24,
     validHours: 2,
+    maxReopensPerMonth: 3,
   });
   for (const kind of ['invoice_adjust', 'invoice_replace', 'invoice_cancel'])
     cfg('approval-limit', kind, { selfMaxVnd: 0, level1MaxVnd: 1_000_000_000_000, dueHours: 24 });

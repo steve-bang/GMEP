@@ -608,6 +608,45 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       ).toBe(403);
       expect((await post(ql, '/api/v1/rpt/export', { kind: 'nope' })).status).toBe(422);
     });
+
+    it('FR-RPT-009/014: .xlsx export has the same permission and audit as CSV; the service-type filter is accepted on monthly and reconcile', async () => {
+      const month = today.slice(0, 7);
+      const before = (await rows('auditLogs')).filter((x) => x.action === 'rollup.export').length;
+      const x = await post(ql, '/api/v1/rpt/export', {
+        kind: 'monthly',
+        month,
+        branchId: 'br_q7',
+        serviceType: 'maintenance',
+        format: 'xlsx',
+      });
+      expect(x.status, x.text).toBe(200);
+      expect(x.headers.get('content-type')).toContain('spreadsheetml.sheet');
+      expect(x.headers.get('content-disposition')).toContain('.xlsx');
+      expect(x.text.startsWith('PK')).toBe(true);
+      const after = (await rows('auditLogs')).filter((e) => e.action === 'rollup.export');
+      expect(after.length).toBe(before + 1);
+      expect(JSON.stringify(after.at(-1)!.after)).toContain('xlsx');
+      expect(
+        (await post(cv, '/api/v1/rpt/export', { kind: 'monthly', month, format: 'xlsx' })).status,
+      ).toBe(403);
+      expect(
+        (await post(ql, '/api/v1/rpt/export', { kind: 'monthly', month, format: 'ods' })).status,
+      ).toBe(422);
+      const m = await get(
+        ql,
+        `/api/v1/rpt/monthly?month=${month}&branchId=br_q7&serviceType=maintenance`,
+      );
+      expect(m.status, m.text).toBe(200);
+      expect(m.json.serviceType).toBe('maintenance');
+      const all = await get(ql, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`);
+      expect(m.json.report.orders.closed).toBeLessThanOrEqual(all.json.report.orders.closed);
+      const r = await get(
+        ql,
+        `/api/v1/rpt/reconcile?from=${today}&to=${today}&branchId=br_q7&serviceType=maintenance`,
+      );
+      expect(r.status, r.text).toBe(200);
+      expect(r.json.visible.cash).toBe(false);
+    });
   });
 
   describe('R68: no composite index added by the reports', () => {

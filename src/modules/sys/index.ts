@@ -140,6 +140,7 @@ export * from './domain/dataImport';
 export {
   listImportKinds,
   importTemplate,
+  importTemplateXlsx,
   listImports,
   getImport,
   previewImport,
