@@ -709,6 +709,87 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
     });
   });
 
+  describe('photos on intake and order (FR-REC-003, 014; NFR-ISO-01)', () => {
+    // 1x1 PNG and a JPEG header: only the leading bytes matter, the type is read from them
+    const PNG = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAHnOcQAAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    const upload = (
+      cookie: string,
+      path: string,
+      bytes: Buffer,
+      extra: Record<string, string> = {},
+      k = key('ph'),
+    ) => {
+      const form = new FormData();
+      for (const [a, b] of Object.entries(extra)) form.set(a, b);
+      form.set('file', new File([new Uint8Array(bytes)], 'x.png', { type: 'image/png' }));
+      return h.call('POST', path, { cookie, form, key: k });
+    };
+
+    it('a technician with an assigned item attaches a photo to a proposal; it is served only inside the scope; same bytes are one photo', async () => {
+      const o = await assignAll(await openedOrder());
+      const p = await act(th, `/api/v1/rec/orders/${o.id}/proposals`, {
+        version: o.version,
+        title: 'Rò dầu hộp số',
+      });
+      const path = `/api/v1/rec/orders/${o.id}/photos`;
+      const k = key('ph');
+      const r = await upload(th, path, PNG, { proposalId: p.json.id, caption: 'Vết dầu' }, k);
+      expect(r.status, r.text).toBe(201);
+      expect(
+        (await upload(th, path, PNG, { proposalId: p.json.id, caption: 'Vết dầu' }, k)).json.id,
+      ).toBe(r.json.id);
+      // other bytes-equal upload with a new key: still one photo
+      expect((await upload(cv, path, PNG)).status).toBe(200);
+      const cur = await order(o.id);
+      expect(cur.photos).toHaveLength(1);
+      expect(cur.photos[0]).toMatchObject({
+        id: r.json.id,
+        proposalId: p.json.id,
+        contentType: 'image/png',
+      });
+      const got = await h.call('GET', `${path}/${r.json.id}`, { cookie: cv });
+      expect(got.status).toBe(200);
+      expect(got.headers.get('content-type')).toBe('image/png');
+      expect(got.headers.get('x-content-type-options')).toBe('nosniff');
+      // another branch, a role without the right, and an unknown id see nothing / are refused
+      expect((await h.call('GET', `${path}/${r.json.id}`, { cookie: qlTd })).status).toBe(404);
+      expect((await upload(qlTd, path, PNG)).status).toBe(404);
+      expect((await h.call('GET', `${path}/ph_unknown`, { cookie: cv })).status).toBe(404);
+      expect((await upload(tk, path, PNG)).status).toBe(403);
+      const audit = await h.call(
+        'GET',
+        `/api/v1/sys/audit?entityType=repairOrder&entityId=${o.id}`,
+        { cookie: ql },
+      );
+      expect((audit.json.items as Row[]).map((e) => e.action)).toContain('repairOrder.photo-add');
+    });
+
+    it('only real JPEG/PNG/WebP within the size limit is accepted; a proposal of another order is refused', async () => {
+      const o = await assignAll(await openedOrder());
+      const path = `/api/v1/rec/orders/${o.id}/photos`;
+      expect((await upload(cv, path, Buffer.from('<svg onload=alert(1)/>'))).status).toBe(422);
+      expect((await upload(cv, path, Buffer.alloc(0))).status).toBe(422);
+      const max = h.container.rec.rec.photoMaxBytes;
+      expect((await upload(cv, path, Buffer.concat([PNG, Buffer.alloc(max)]))).status).toBe(422);
+      expect((await upload(cv, path, PNG, { proposalId: 'wp_other' })).status).toBe(422);
+      expect((await order(o.id)).photos).toHaveLength(0);
+    });
+
+    it('intake photos: added to a draft intake, read back inside the branch scope only', async () => {
+      const c = await call(cv, 'POST', '/api/v1/rec/intakes', { vehicleId: VEH_BIZ });
+      const path = `/api/v1/rec/intakes/${c.json.id}/photos`;
+      const r = await upload(cv, path, PNG, { caption: 'Móp cản trước' });
+      expect(r.status, r.text).toBe(201);
+      const cur = (await call(cv, 'GET', `/api/v1/rec/intakes/${c.json.id}`)).json;
+      expect(cur.photos).toHaveLength(1);
+      expect((await h.call('GET', `${path}/${r.json.id}`, { cookie: cv })).status).toBe(200);
+      expect((await h.call('GET', `${path}/${r.json.id}`, { cookie: qlTd })).status).toBe(404);
+    });
+  });
+
   describe('quality check, handover and history (FR-REC-016, 017, 028)', () => {
     it('QC fail returns the item to its technician, QC pass allows the handover, which completes the order, updates the odometer and writes the history row', async () => {
       const o = await assignAll(await openedOrder());

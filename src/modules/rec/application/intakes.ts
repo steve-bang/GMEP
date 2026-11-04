@@ -1,3 +1,4 @@
+import { toPhotoDtos, type PhotoDto } from './photos';
 import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import {
@@ -60,6 +61,7 @@ export interface IntakeDto {
   condition: string | null;
   belongings: string[];
   belongingsOther: string | null;
+  photos: PhotoDto[];
   serviceType: string | null;
   advisorId: string;
   promisedDate: string | null;
@@ -95,6 +97,7 @@ export function toIntakeDto(i: Intake): IntakeDto {
     customerRequest: i.customerRequest ?? null,
     condition: i.condition ?? null,
     belongings: i.belongings,
+    photos: toPhotoDtos(i.photos),
     belongingsOther: i.belongingsOther ?? null,
     serviceType: i.serviceType ?? null,
     advisorId: i.advisorId,

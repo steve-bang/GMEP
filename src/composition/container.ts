@@ -260,6 +260,7 @@ function buildRec(
   store: DocStore,
   getAcc: () => AccDeps,
   invoices: RecDeps['invoices'],
+  files: FileStore,
 ): RecDeps {
   const rec: RecDeps = {
     sys,
@@ -274,6 +275,7 @@ function buildRec(
     partRequests: new DocPartRequestRepository(store),
     payments: accPaymentGate(getAcc),
     invoices,
+    files,
     rec: { ...DEFAULT_REC_CONFIG, approval: { ...DEFAULT_REC_CONFIG.approval } },
   };
   // C17: REC joins the data-retention gate of CRM; the stub still stands for modules not built yet
@@ -323,7 +325,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const invoiceGate = einInvoiceGate(() => late.ein!);
     const inv = (late.inv = buildInv(sys, store, env, invoiceGate));
     const crm = (late.crm = buildCrm(sys, store));
-    const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!, invoiceGate));
+    const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!, invoiceGate, files));
     const acc = (late.acc = buildAcc(sys, store, () => late.rec!, invoiceGate));
     // FR-SYS-007: the module that owns a kind of imported data registers what commit and undo do
     for (const h of [

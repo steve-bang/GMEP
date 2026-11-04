@@ -1,4 +1,4 @@
-import type { ApprovedLine, Necessity } from './entities';
+import type { ApprovedLine, Necessity, PhotoRef } from './entities';
 import type { ItemStatus, OrderStatus, PauseReason } from './orderState';
 
 /**
@@ -154,6 +154,7 @@ export interface RepairOrder {
   doneCount: number;
   pausedReason?: string;
   proposals: WorkProposal[];
+  photos?: PhotoRef[];
   qcRuns: QcRun[];
   handover?: Handover;
   history: OrderHistoryEntry[];

@@ -461,6 +461,14 @@
       "title": "Chưa kiểm tra được thanh toán",
       "detail": "Không đọc được số liệu thu tiền của lệnh nên chưa giao xe. Thử lại; trường hợp khẩn chỉ quản lý chi nhánh giao xe được, kèm lý do."
     },
+    "photo_invalid": {
+      "title": "Ảnh không hợp lệ",
+      "detail": "Chỉ nhận ảnh JPEG, PNG hoặc WebP trong giới hạn dung lượng, và đề xuất gắn kèm phải thuộc lệnh này."
+    },
+    "photo_limit": {
+      "title": "Đã đủ số ảnh",
+      "detail": "Hồ sơ hoặc lệnh đã có số ảnh tối đa. Liên hệ quản lý nếu cần thêm."
+    },
     "order_too_large": {
       "title": "Lệnh quá lớn",
       "detail": "Giảm số hạng mục, yêu cầu phụ tùng hoặc đề xuất của lệnh."

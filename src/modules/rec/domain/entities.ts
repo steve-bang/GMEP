@@ -50,6 +50,20 @@ export interface CustomerPart {
   condition: string;
 }
 
+/** A photo kept on an intake or an order: the bytes live in the FileStore, only this reference is stored. */
+export interface PhotoRef {
+  /** `ph_<first 20 hex of the content hash>`: the same bytes on the same record are one photo (idempotent) */
+  id: string;
+  contentType: 'image/jpeg' | 'image/png' | 'image/webp';
+  size: number;
+  sha256: string;
+  caption?: string;
+  /** the technician's proposal this photo documents (FR-REC-014) */
+  proposalId?: string;
+  takenBy: string;
+  takenAt: Date;
+}
+
 export interface Intake {
   id: string;
   companyId: string;
@@ -84,6 +98,7 @@ export interface Intake {
   promisedDate?: string;
   promisedTime?: string;
   customerParts: CustomerPart[];
+  photos?: PhotoRef[];
   internalNote?: string;
   quoteId?: string;
   cancelReason?: string;
