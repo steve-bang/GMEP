@@ -347,10 +347,22 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
       const vids = [...vehicleOwner.keys()];
       for (let i = 0; i < vids.length; i += 20)
         await deps.sys.uow.run(async (tx) => {
+          // Firestore: every read of the transaction comes before its first write
+          const found: {
+            id: string;
+            v: NonNullable<Awaited<ReturnType<typeof deps.vehicles.getInTx>>>;
+            own: Awaited<ReturnType<typeof deps.ownerships.listByVehicleInTx>>;
+          }[] = [];
           for (const id of vids.slice(i, i + 20)) {
             const v = await deps.vehicles.getInTx(tx, vScope, id);
             if (!v) continue;
-            const own = await deps.ownerships.listByVehicleInTx(tx, actor.companyId, id);
+            found.push({
+              id,
+              v,
+              own: await deps.ownerships.listByVehicleInTx(tx, actor.companyId, id),
+            });
+          }
+          for (const { id, v, own } of found) {
             deps.vehicles.remove(tx, v);
             for (const o of own) deps.ownerships.remove(tx, o.id);
             deps.sys.audit.record(
@@ -370,9 +382,15 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
       const cids = refs.filter((x) => x.type === 'customer').map((x) => x.id);
       for (let i = 0; i < cids.length; i += 20)
         await deps.sys.uow.run(async (tx) => {
+          const found: {
+            id: string;
+            c: NonNullable<Awaited<ReturnType<typeof deps.customers.getInTx>>>;
+          }[] = [];
           for (const id of cids.slice(i, i + 20)) {
             const c = await deps.customers.getInTx(tx, cScope, id);
-            if (!c) continue;
+            if (c) found.push({ id, c });
+          }
+          for (const { id, c } of found) {
             deps.customers.remove(tx, c);
             deps.sys.audit.record(
               tx,

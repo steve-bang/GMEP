@@ -27,8 +27,8 @@ export default async function ImportsPage() {
     return (
       <SettingsPage {...head}>
         <NoPermissionState
-          title={t('common.noPermissionTitle')}
-          text={t('common.noPermissionText')}
+          title={t('states.noPermissionTitle')}
+          text={t('states.noPermissionText')}
         />
       </SettingsPage>
     );

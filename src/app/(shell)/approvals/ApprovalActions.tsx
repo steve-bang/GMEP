@@ -19,9 +19,23 @@ export function ApprovalActions(props: {
   const { run, busy, error } = useAction(l.unexpected!);
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState('');
+  // R106: some kinds (reopen day) need the decider's password again; the server says which, so the field is optional here
+  const [password, setPassword] = useState('');
   const base = `/api/v1/sys/approvals/${props.id}`;
   return (
     <div className="stack-2" data-testid={`apr-${props.id}`}>
+      {props.canDecide ? (
+        <input
+          className="input"
+          type="password"
+          aria-label={l.password}
+          placeholder={l.password}
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          data-testid="apr-password"
+        />
+      ) : null}
       {props.canDecide ? (
         <div className="rec-actions">
           <Button
@@ -29,7 +43,11 @@ export function ApprovalActions(props: {
             size="sm"
             loading={busy === 'approve'}
             onClick={() =>
-              void run('approve', `${base}/decide`, { version: props.version, decision: 'approve' })
+              void run('approve', `${base}/decide`, {
+                version: props.version,
+                decision: 'approve',
+                ...(password ? { reauthPassword: password } : {}),
+              })
             }
             data-testid="apr-approve"
           >

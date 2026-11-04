@@ -46,7 +46,11 @@ export default async function NotificationsPage({ searchParams }: { searchParams
                 {t(n.titleKey, n.params)}{' '}
                 <span className="text-secondary">· {fmt.format(new Date(n.createdAt))}</span>
               </span>
-              {n.link ? <Link href={n.link}>{t('notifications.open')}</Link> : null}
+              {n.link ? (
+                <Link href={n.link} style={{ textDecoration: 'underline' }}>
+                  {t('notifications.open')}
+                </Link>
+              ) : null}
               {n.read ? null : <MarkRead id={n.id} label={t('notifications.markRead')} />}
             </li>
           ))}

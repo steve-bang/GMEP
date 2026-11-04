@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Button } from './Button';
 import { Icon } from './Icon';
 
@@ -19,16 +19,52 @@ export function ConfirmDialog(props: {
   testId?: string;
 }) {
   const id = useId();
-  const { open, onCancel } = props;
+  const { open } = props;
+  // inline callbacks change every render; the effect must not re-run (it would steal focus while typing)
+  const onCancelRef = useRef(props.onCancel);
+  useEffect(() => {
+    onCancelRef.current = props.onCancel;
+  });
+  const dialog = useRef<HTMLDivElement>(null);
+  const cancel = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel();
+    // WCAG 2.4.3 / 2.1.2: remember the opener, move focus inside, keep Tab inside, give focus back on close
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    cancel.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return onCancelRef.current();
+      if (e.key !== 'Tab' || !dialog.current) return;
+      const items = [
+        ...dialog.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]',
+        ),
+      ];
+      if (items.length === 0) return;
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      const active = document.activeElement;
+      if (!dialog.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, onCancel]);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      if (opener?.isConnected) opener.focus();
+    };
+  }, [open]);
   return (
     <div className={`overlay${open ? ' is-open' : ''}`} role="presentation" hidden={!open}>
       <div
+        ref={dialog}
         className="dialog"
         role="dialog"
         aria-modal="true"
@@ -45,7 +81,7 @@ export function ConfirmDialog(props: {
         </div>
         <div className="dialog__body">{props.children}</div>
         <div className="dialog__footer">
-          <Button variant="secondary" autoFocus={open} onClick={props.onCancel}>
+          <Button ref={cancel} variant="secondary" onClick={props.onCancel}>
             {props.cancelLabel}
           </Button>
           <Button

@@ -14,8 +14,7 @@ const serious = (r: Awaited<ReturnType<typeof axe>>) =>
  * with a confirmation dialog, and money can be taken again. The file name sorts before every slice spec, so it runs on the
  * untouched demo database and leaves today OPEN again (later specs take money).
  *
- * The owner's decision goes through the API on purpose: the approvals screen has no password field yet, so the UI cannot
- * approve a day reopening (docs/dev/stream-a-findings.md F-3).
+ * The owner approves on /approvals with the password field (stream-a-findings F-3, fixed).
  */
 test.describe('FR-ACC-005 reopen a closed day through the screens', () => {
   test('the manager closes the day, requests the reopening, the owner approves with the password, the manager reopens; the cashier can open a shift again', async ({
@@ -79,11 +78,13 @@ test.describe('FR-ACC-005 reopen a closed day through the screens', () => {
         headers: { origin: 'http://localhost:3100', 'idempotency-key': 'e2e-reopen-wrong-00001' },
       });
       expect(wrong.ok()).toBe(false);
-      await post(owner.page.request, `/api/v1/sys/approvals/${req!.id}/decide`, {
-        version: req!.version,
-        decision: 'approve',
-        reauthPassword: PASSWORD,
-      });
+      // F-3: the owner approves on the screen, typing the password again
+      await owner.page.goto('/approvals?tab=toDecide');
+      await owner.page.waitForLoadState('networkidle');
+      const row = owner.page.getByTestId(`apr-${req!.id}`);
+      await row.getByTestId('apr-password').fill(PASSWORD);
+      await row.getByTestId('apr-approve').click();
+      await expect(row).toBeHidden();
 
       // the manager sees the approved request and executes it once, with a confirmation
       await ql.page.goto('/acc/day-close');

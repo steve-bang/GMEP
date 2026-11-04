@@ -18,7 +18,7 @@ const serious = (r: Awaited<ReturnType<typeof axe>>) =>
  * (daily, monthly, reconciliation, warehouse, technicians, alerts), the import workbench, the order screens with their photo
  * and money panels, plus keyboard behaviour of the confirmation dialog (Esc, focus trap, focus returns to the trigger) and a
  * phone viewport. Read-only: nothing here changes money or stock, so later specs find the demo data as they expect.
- * The file name sorts first (before every slice spec). Findings of this spec go to docs/dev/stream-a-findings.md.
+ * The file name sorts first (before every slice spec); its order uses the demo vehicle `veh_an`, which no other spec uses (the helper raises the odometer to 1.9 million, which would break the older specs on `veh_biz`). Findings of this spec go to docs/dev/stream-a-findings.md.
  */
 test.describe('WCAG 2.2 AA of the phase-1 hardening screens', () => {
   test('report, import and order screens: no serious or critical axe violation, no JS error, no overflow at 375 px', async ({
@@ -31,7 +31,7 @@ test.describe('WCAG 2.2 AA of the phase-1 hardening screens', () => {
     ql.page.on('pageerror', (e) => errors.push(`pageerror ${e.message}`));
     try {
       await ql.page.emulateMedia({ reducedMotion: 'reduce' });
-      const head = await approvedOrder(cv.page.request);
+      const head = await approvedOrder(cv.page.request, 'veh_an');
       const month = new Date().toISOString().slice(0, 7);
       const today = new Date().toISOString().slice(0, 10);
       const screens: [string, string][] = [
@@ -62,7 +62,17 @@ test.describe('WCAG 2.2 AA of the phase-1 hardening screens', () => {
         const overflow = await ql.page.evaluate(
           () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
         );
-        if (overflow > 0) failures.push(`${name}: horizontal overflow ${overflow}px at 375 px`);
+        if (overflow > 0) {
+          const wide = await ql.page.evaluate(() =>
+            [...document.querySelectorAll('body *')]
+              .filter(
+                (el) => el.getBoundingClientRect().right > document.documentElement.clientWidth,
+              )
+              .slice(0, 5)
+              .map((el) => `${el.tagName}.${(el as HTMLElement).className}`),
+          );
+          failures.push(`${name}: horizontal overflow ${overflow}px at 375 px ${wide.join(' | ')}`);
+        }
         await ql.page.setViewportSize({ width: 1280, height: 800 });
       }
       expect(failures, failures.join('\n')).toEqual([]);
