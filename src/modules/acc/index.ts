@@ -30,6 +30,12 @@ export type {
   PaymentDto,
   PaymentListQuery,
 } from './application/payments';
+export {
+  buildReceiptPrintModel,
+  getReceiptPrintModel,
+  recordReceiptPrint,
+} from './application/receiptPrint';
+export type { ReceiptPrintContext } from './application/receiptPrint';
 export { requestReversal, executeReversal } from './application/reversals';
 export {
   createExpense,

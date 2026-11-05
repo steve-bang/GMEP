@@ -129,6 +129,12 @@ const ROUTES: Record<string, RouteRow> = {
     idKey: 'quoteId',
     detail: (id) => `/api/v1/rec/quotes/${id}/approved`,
   },
+  'v1/rec/quotes/[id]/pdf': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'quoteId',
+    detail: (id) => `/api/v1/rec/quotes/${id}/pdf`,
+  },
   'v1/rec/part-requests': { kind: 'list', path: () => '/api/v1/rec/part-requests' },
   'v1/rec/work': { kind: 'list', path: () => '/api/v1/rec/work' },
   'v1/rec/technicians': { kind: 'list', path: () => '/api/v1/rec/technicians' },
@@ -143,6 +149,12 @@ const ROUTES: Record<string, RouteRow> = {
     path: () => '',
     idKey: 'paymentId',
     detail: (id) => `/api/v1/acc/payments/${id}`,
+  },
+  'v1/acc/payments/[id]/pdf': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'paymentId',
+    detail: (id) => `/api/v1/acc/payments/${id}/pdf`,
   },
   'v1/acc/orders/[id]': {
     kind: 'detail',

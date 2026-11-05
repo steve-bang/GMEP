@@ -40,3 +40,150 @@
 .acc-row-reversed td:first-child {
   text-decoration: none;
 }
+
+/* ---- Print: cash receipt A5 (G4-ACC-03, FR-REC-008). Same model as the PDF; tokens only. ---- */
+.acc-paper-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--space-6);
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+}
+.acc-sheet {
+  page: acc-receipt;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+  width: 148mm;
+  min-height: 209mm;
+  padding: 10mm;
+  font-size: 10pt;
+  line-height: 1.4;
+  flex: none;
+}
+.acc-sheet__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4mm;
+  padding-bottom: 3mm;
+  border-bottom: 1.5px solid var(--color-text-primary);
+  font-weight: 700;
+  font-size: 1.3em;
+}
+.acc-sheet__reprint {
+  align-self: start;
+  border: 1px solid var(--color-text-primary);
+  padding: 0.5mm 3mm;
+  font-size: 0.7em;
+}
+.acc-sheet__title {
+  text-align: center;
+  margin: 4mm 0 3mm;
+}
+.acc-sheet__title h2 {
+  font-size: 1.6em;
+  line-height: 1.2;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.acc-sheet__title p {
+  font-size: 0.95em;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.acc-sheet__info {
+  display: grid;
+  grid-template-columns: 26mm 1fr;
+  gap: 1mm 3mm;
+  margin-bottom: 3mm;
+  font-size: 0.9em;
+}
+.acc-sheet__info dt {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.acc-sheet__info dd {
+  margin: 0;
+}
+.acc-sheet__lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.acc-sheet__lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  padding: 1.2mm 0;
+  border-bottom: 1px dotted var(--color-border-strong);
+}
+.acc-sheet__tot {
+  margin-left: auto;
+  width: 70mm;
+  margin-top: 2mm;
+  font-variant-numeric: tabular-nums;
+}
+.acc-sheet__tot div {
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  padding: 0.6mm 0;
+}
+.acc-sheet__tot .acc-sheet__final {
+  font-weight: 700;
+  font-size: 1.2em;
+  border-top: 1px solid var(--color-text-primary);
+  margin-top: 1mm;
+  padding-top: 1.5mm;
+}
+.acc-sheet__note {
+  font-size: 0.85em;
+  color: var(--color-text-secondary);
+  margin-top: 3mm;
+}
+.acc-sheet__sign {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4mm;
+  text-align: center;
+  margin-top: 8mm;
+  font-size: 0.95em;
+}
+.acc-sheet__sign i {
+  display: block;
+  margin-top: 14mm;
+}
+.acc-sheet__foot {
+  margin-top: 5mm;
+  padding-top: 2mm;
+  border-top: 1px solid var(--color-border-strong);
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  font-size: 0.8em;
+  color: var(--color-text-secondary);
+}
+@page acc-receipt {
+  size: A5;
+  margin: 0;
+}
+@media print {
+  .acc-paper-wrap {
+    padding: 0;
+    background: none;
+    overflow: visible;
+    display: block;
+  }
+  .acc-sheet {
+    box-shadow: none;
+    margin: 0;
+  }
+  .acc-sheet * {
+    color: var(--color-text-primary) !important;
+  }
+}

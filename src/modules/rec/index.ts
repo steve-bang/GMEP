@@ -61,6 +61,13 @@ export {
   sendQuote,
   rejectQuote,
 } from './application/quotes';
+export {
+  buildQuotePrintModel,
+  getQuotePrintModel,
+  recordQuotePrint,
+  isReprint,
+} from './application/quotePrint';
+export type { QuotePrintContext } from './application/quotePrint';
 export type {
   QuoteDto,
   QuoteDetailDto,
