@@ -6,6 +6,7 @@ import { getContainer } from '@/composition/container';
 import { AutoRefresh } from '@/ui/components/AutoRefresh';
 import { ErrorFor } from '@/ui/components/PageParts';
 import { EmptyState } from '@/ui/components/States';
+import { isoToVi } from '@/platform/format/date';
 import { pickLabels } from '../orderUi';
 import { RecPage } from '../RecPage';
 import { WorkCards } from './WorkCards';
@@ -47,13 +48,44 @@ const KEYS = [
   'sendProposal',
   'unexpected',
   'offline',
+  'filterLabel',
+  'filterAll',
+  'filterDoing',
+  'filterTodo',
+  'filterPaused',
+  'filterEmpty',
+  'customer',
+  'standardHours',
+  'promised',
+  'redo',
+  'doneNote',
+  'qcTitle',
+  'qcNoNote',
+  'qcFailed',
+  'why_waiting_parts',
+  'why_order_paused',
+  'why_order_not_active',
+  'lockedQuoted',
+  'lockedOpen',
+  'lockedWhyQuoted',
+  'lockedWhyOpen',
+  'offlineTitle',
+  'offlineText',
+  'offlineLock',
 ] as const;
 
-/** G2-TEC-01 / FR-REC-013: the technician's own work on a tablet; a technician never sees another's. */
+const hoursText = (min: number) => (Math.round(min / 6) / 10).toFixed(1).replace('.', ',');
+const weekdayOf = (d: Date) =>
+  new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(d);
+
+/**
+ * G1-DSH-07 / G2-TEC-01 / FR-REC-013: the technician's own work on a tablet, the real page behind "Việc của tôi" (the
+ * technician's `/` redirects here); a technician never sees another's work and never a customer's phone or address.
+ */
 export default async function WorkPage() {
   const t = await getTranslations();
-  const { actor } = await requireSession();
-  const head = { title: t('rec.work.title'), desc: t('rec.work.lead') };
+  const { actor, user } = await requireSession();
+  const head = { title: t('rec.work.titleToday'), desc: t('rec.work.lead') };
   const res = await load(() => listMyWork(getContainer().rec, actor, {}));
   if (res.error)
     return (
@@ -61,6 +93,16 @@ export default async function WorkPage() {
         <ErrorFor error={res.error} t={t} />
       </RecPage>
     );
+  const { summary, locked, day } = res.data;
+  const dayVi = isoToVi(day);
+  const full = {
+    title: head.title,
+    desc: t('rec.work.leadLong', {
+      weekday: weekdayOf(getContainer().rec.sys.clock.now()),
+      date: dayVi,
+      name: user.displayName,
+    }),
+  };
   const cards = res.data.items.map((i) => ({
     id: i.id,
     version: i.version,
@@ -79,15 +121,49 @@ export default async function WorkPage() {
     running: i.status === 'in_progress',
     allowedEvents: i.allowedEvents,
     canUndo: i.canUndo,
+    customerShort: i.customerShort,
+    promisedDate: i.promisedDate ? isoToVi(i.promisedDate) : null,
+    blockedReason: i.blockedReason,
+    qcReturn: i.qcReturn,
     partLines: i.partLines,
   }));
   return (
-    <RecPage {...head}>
+    <RecPage {...full}>
       <AutoRefresh seconds={30} />
-      {cards.length === 0 ? (
+      <section className="card" aria-labelledby="h-sum" data-testid="work-summary">
+        <div className="card__header">
+          <div>
+            <h2 className="card__title" id="h-sum">
+              {t('rec.work.summaryTitle')}
+            </h2>
+            <div className="card__subtitle">{t('rec.work.summarySub', { date: dayVi })}</div>
+          </div>
+        </div>
+        <div className="card__body g1-sum">
+          <div>
+            <span className="g1-note">{t('rec.work.summaryStandard')}</span>
+            <strong data-testid="sum-standard">
+              {t('rec.work.hours', { h: hoursText(summary.standardDoneMinutes) })}
+            </strong>
+          </div>
+          <div>
+            <span className="g1-note">{t('rec.work.summaryWorked')}</span>
+            <strong data-testid="sum-worked">
+              {t('rec.work.hours', { h: hoursText(summary.workedMinutes) })}
+            </strong>
+          </div>
+          <div>
+            <span className="g1-note">{t('rec.work.summaryDone')}</span>
+            <strong data-testid="sum-done">
+              {summary.doneCount} / {summary.totalCount}
+            </strong>
+          </div>
+        </div>
+      </section>
+      {cards.length === 0 && locked.length === 0 ? (
         <EmptyState title={t('rec.work.emptyTitle')} text={t('rec.work.emptyText')} />
       ) : (
-        <WorkCards cards={cards} labels={pickLabels(t, 'rec.work', KEYS)} />
+        <WorkCards cards={cards} locked={locked} labels={pickLabels(t, 'rec.work', KEYS)} />
       )}
     </RecPage>
   );

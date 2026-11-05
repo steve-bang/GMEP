@@ -135,6 +135,13 @@ export interface RepairItemRepository {
   listByOrderInTx(tx: Tx, scope: Scope, orderId: string, limit: number): Promise<RepairItem[]>;
   /** the technician's active items inside the scope */
   listActiveByTechnician(scope: Scope, technicianId: string, limit: number): Promise<RepairItem[]>;
+  /** items of the technician no longer active (done), created since `since`: the day summary and the undo window */
+  listFinishedByTechnicianSince(
+    scope: Scope,
+    technicianId: string,
+    since: Date,
+    limit: number,
+  ): Promise<RepairItem[]>;
   create(tx: Tx, i: RepairItem): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }

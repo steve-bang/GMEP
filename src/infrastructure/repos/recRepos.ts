@@ -613,6 +613,23 @@ export class DocRepairItemRepository implements RepairItemRepository {
     );
     return rows.map(itemDocFrom);
   }
+  async listFinishedByTechnicianSince(
+    scope: Scope,
+    technicianId: string,
+    since: Date,
+    limit: number,
+  ) {
+    const rows = await this.store.query(
+      Q.repairItemsByTechnician.pick([], scope.kind === 'branches'),
+      {
+        eq: { companyId: scope.companyId, technicianId, active: false },
+        ...scopeParams(scope),
+        range: { gte: since },
+        limit,
+      },
+    );
+    return rows.map(itemDocFrom);
+  }
   create(tx: Tx, i: RepairItem) {
     this.store.create(tx, COL.repairItems, i.id, without(i, 'id'));
   }

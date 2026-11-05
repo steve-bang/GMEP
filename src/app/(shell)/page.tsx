@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { hasPermission } from '@/platform/rbac/rbac';
 import { requireSession } from '@/composition/session';
 import { first, type SearchParams } from '@/ui/components/PageParts';
 import { DashboardHome, DashboardSkeleton } from './DashboardHome';
@@ -10,6 +12,12 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardPage({ searchParams }: { searchParams: SearchParams }) {
   const t = await getTranslations('dashboard');
   const session = await requireSession();
+  // G1-DSH-07: a role with no overview but with its own repair work (the technician) lands on "Việc của tôi"
+  if (
+    !hasPermission(session.actor, 'report-dashboard:view') &&
+    hasPermission(session.actor, 'repair-item:view')
+  )
+    redirect('/rec/work');
   const sp = await searchParams;
   const date = first(sp.date);
   const from = first(sp.from);

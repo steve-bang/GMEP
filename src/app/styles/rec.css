@@ -684,3 +684,113 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
 }
+
+/* Technician "Việc của tôi" (G1-DSH-07): classes ported unchanged from design/g1-auth-dashboard/pack.css */
+.g1-job {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+.g1-job--active {
+  border-color: var(--color-info);
+  box-shadow: 0 0 0 2px var(--color-info-border);
+}
+.g1-job--blocked {
+  background: var(--color-surface-subtle);
+}
+.g1-job__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.g1-job__plate {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.g1-job__title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin: 0;
+}
+.g1-job__meta {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+}
+.g1-job__actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.g1-job__timer {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-info-text);
+}
+.g1-job__actions .btn {
+  min-height: 52px;
+  min-width: 140px;
+  font-size: var(--font-size-lg);
+}
+.g1-job__why {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.g1-lockwhy {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+.g1-sum {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.g1-sum strong {
+  display: block;
+  font-size: var(--font-size-2xl);
+  font-variant-numeric: tabular-nums;
+}
+.g1-note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.rec-work__filter {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.rec-work__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-end;
+}
+@media (max-width: 639px) {
+  .g1-sum {
+    grid-template-columns: 1fr;
+  }
+  .g1-job__actions .btn {
+    min-width: 0;
+    flex: 1 1 140px;
+  }
+}
