@@ -415,7 +415,10 @@ export function createContainer(opts: ContainerOptions = {}): Container {
   if (env.GMEP_DATA_BACKEND === 'memory') {
     const db = new MemoryDb();
     const identity = new MemoryIdentityProvider();
-    const store = new MemoryDocStore(db);
+    // emergency switch for the Firestore read-before-write rule (on by default)
+    const store = new MemoryDocStore(db, {
+      enforceReadsBeforeWrites: process.env.GMEP_MEMORY_TX_ORDER_GUARD !== 'off',
+    });
     return {
       env,
       cronAuth,

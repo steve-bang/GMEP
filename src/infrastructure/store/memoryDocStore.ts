@@ -31,8 +31,11 @@ export class MemoryDb {
 
 class MemoryTx {
   readonly staged: { check: () => void; apply: () => void }[] = [];
+  /** Set by the first staged write; Firestore rejects any in-transaction read after that. */
+  wrote = false;
   constructor(readonly db: MemoryDb) {}
   stage(check: () => void, apply: () => void) {
+    this.wrote = true;
     this.staged.push({ check, apply });
   }
 }
@@ -68,7 +71,14 @@ const clone = <T>(v: T): T => structuredClone(v);
 
 export class MemoryDocStore implements DocStore {
   readonly stats: StoreStats = { reads: 0, queries: 0, writes: 0 };
-  constructor(private readonly db: MemoryDb) {}
+  /**
+   * `enforceReadsBeforeWrites` (default true) mirrors Firestore: an in-transaction read after the
+   * first write throws. Set false only as an emergency switch.
+   */
+  constructor(
+    private readonly db: MemoryDb,
+    private readonly opts: { enforceReadsBeforeWrites?: boolean } = {},
+  ) {}
 
   async get(collection: string, id: string) {
     this.stats.reads++;
@@ -76,8 +86,13 @@ export class MemoryDocStore implements DocStore {
     return d ? { id, data: clone(d) } : null;
   }
   async getInTx(tx: Tx, collection: string, id: string) {
+    const t = asTx(tx);
+    if (t.wrote && this.opts.enforceReadsBeforeWrites !== false)
+      throw new Error(
+        `reads must precede writes in a transaction (Firestore): read of ${collection}/${id} after a write`,
+      );
     this.stats.reads++;
-    const d = asTx(tx).db.col(collection).get(id);
+    const d = t.db.col(collection).get(id);
     return d ? { id, data: clone(d) } : null;
   }
   async getMany(collection: string, ids: readonly string[]) {
