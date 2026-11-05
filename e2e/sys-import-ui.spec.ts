@@ -111,6 +111,17 @@ test.describe('UAT-12 Excel import screen', () => {
         ).length,
       ).toBeGreaterThanOrEqual(1);
 
+      // 4b. result summary has the warnings count; history refreshed without a reload and each row has a named "open" button
+      await expect(page.getByText('Cảnh báo', { exact: true }).first()).toBeVisible();
+      const history = page.getByRole('table', { name: 'Lịch sử lô nhập' });
+      await expect(history).toContainText('khach.xlsx');
+      await expect(
+        history.getByRole('row').filter({ hasText: 'khach.xlsx' }).first(),
+      ).toContainText('Đã ghi');
+      await history.getByRole('button', { name: 'Xem lô khach.xlsx' }).first().click();
+      await expect(page.getByText(/Đã ghi lô nhập/)).toBeVisible();
+      await expect(page.getByRole('heading', { name: /3\. Kết quả kiểm tra/ })).toBeFocused();
+
       // 5. phone viewport: no horizontal overflow on the finished screen
       await page.setViewportSize({ width: 375, height: 800 });
       await noHorizontalOverflow(page);
