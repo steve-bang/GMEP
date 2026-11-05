@@ -38,6 +38,10 @@ const schema = z.object({
   CRON_OIDC_SERVICE_ACCOUNT: z.string().email().optional(),
   /** company whose branches the cron endpoint processes (single legal entity today [Cần xác nhận]) */
   CRON_COMPANY_ID: z.string().min(1).optional(),
+  /** SMTP url of the transactional email provider (secret). Unset outside prod = dev outbox collection */
+  EMAIL_SMTP_URL: z.string().min(1).optional(),
+  /** sender, e.g. "GMEP <no-reply@example.vn>" */
+  EMAIL_FROM: z.string().min(3).optional(),
   LOG_LEVEL: z.string().optional(),
 });
 
@@ -47,6 +51,14 @@ export function loadEnv(source: Record<string, string | undefined> = process.env
   const env = schema.parse(source);
   if (!env.CRON_OIDC_AUDIENCE !== !env.CRON_OIDC_SERVICE_ACCOUNT) {
     throw new Error('CRON_OIDC_AUDIENCE and CRON_OIDC_SERVICE_ACCOUNT must be set together.');
+  }
+  if (!env.EMAIL_SMTP_URL !== !env.EMAIL_FROM) {
+    throw new Error('EMAIL_SMTP_URL and EMAIL_FROM must be set together.');
+  }
+  if (env.GMEP_ENV === 'prod' && !env.EMAIL_SMTP_URL) {
+    throw new Error(
+      'GMEP_ENV=prod requires EMAIL_SMTP_URL and EMAIL_FROM (invitation and reset emails).',
+    );
   }
   if (env.GMEP_ENV === 'local' && env.GMEP_DATA_BACKEND === 'firestore') {
     // Safety: local runs must never reach real Google services.

@@ -19,4 +19,14 @@ describe('environment safety', () => {
   it('rejects the in-memory backend outside local', () => {
     expect(() => loadEnv({ GMEP_ENV: 'staging', GMEP_DATA_BACKEND: 'memory' })).toThrow(/memory/);
   });
+  it('requires SMTP settings in prod and only as a pair', () => {
+    expect(() => loadEnv({ GMEP_ENV: 'prod' })).toThrow(/EMAIL_SMTP_URL/);
+    expect(() => loadEnv({ GMEP_ENV: 'dev', EMAIL_FROM: 'GMEP <a@b.vn>' })).toThrow(/together/);
+    const env = loadEnv({
+      GMEP_ENV: 'prod',
+      EMAIL_SMTP_URL: 'smtps://u:p@smtp.example.vn:465',
+      EMAIL_FROM: 'GMEP <no-reply@example.vn>',
+    });
+    expect(env.EMAIL_FROM).toContain('no-reply');
+  });
 });

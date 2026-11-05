@@ -313,8 +313,8 @@ export interface EmailMessage {
 }
 
 /**
- * Outbound email port. The shipped adapter only writes to the `emailOutbox` collection
- * (no real sending until a provider is chosen). Delivery happens outside any transaction.
+ * Outbound email port. Adapters: SMTP (`EMAIL_SMTP_URL`, required in prod) and the dev outbox that
+ * only writes to the `emailOutbox` collection. Delivery happens outside any transaction.
  */
 export interface EmailGateway {
   send(message: EmailMessage): Promise<void>;
