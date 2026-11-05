@@ -69,15 +69,19 @@ export async function forgotPassword(
       requestId: ctx.requestId,
     });
   });
-  await deps.email.send({
-    id: `reset-${id.slice(0, 24)}`,
-    to: user.email,
-    template: 'password-reset',
-    vars: {
-      link: link(deps, '/reset-password', raw),
-      expiresMinutes: String(Math.round(deps.config.resetTokenTtlMs / 60_000)),
-    },
-  });
+  try {
+    await deps.email.send({
+      id: `reset-${id.slice(0, 24)}`,
+      to: user.email,
+      template: 'password-reset',
+      vars: {
+        link: link(deps, '/reset-password', raw),
+        expiresMinutes: String(Math.round(deps.config.resetTokenTtlMs / 60_000)),
+      },
+    });
+  } catch {
+    // neutral answer: a delivery failure must not reveal that the account exists (the adapter logs it)
+  }
 }
 
 export type TokenState = 'valid' | 'expired' | 'used' | 'revoked' | 'invalid';
