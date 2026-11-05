@@ -1,0 +1,49 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommitTypeAll(chore)", "group:monorepos"],
+  "timezone": "Asia/Ho_Chi_Minh",
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "automerge": false,
+  "platformAutomerge": false,
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "lockFileMaintenance": { "enabled": true, "automerge": false },
+  "vulnerabilityAlerts": { "labels": ["security"], "schedule": ["at any time"] },
+  "packageRules": [
+    { "matchManagers": ["github-actions"], "groupName": "github actions" },
+    {
+      "matchPackageNames": [
+        "next",
+        "eslint-config-next",
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "groupName": "next and react"
+    },
+    {
+      "matchPackageNames": ["firebase-admin", "firebase-tools", "@google-cloud/{/,}**"],
+      "groupName": "firebase and gcp"
+    },
+    {
+      "matchPackageNames": ["vitest", "@vitest/{/,}**", "@playwright/test", "playwright"],
+      "groupName": "test tooling"
+    },
+    {
+      "matchPackageNames": [
+        "eslint",
+        "@eslint/{/,}**",
+        "eslint-config-prettier",
+        "typescript-eslint",
+        "prettier",
+        "typescript"
+      ],
+      "groupName": "lint and typescript"
+    },
+    { "matchManagers": ["dockerfile"], "groupName": "docker base images" },
+    { "matchUpdateTypes": ["major"], "dependencyDashboardApproval": true }
+  ]
+}

@@ -1,0 +1,28 @@
+# Secret scanning (security checklist item 9). Scans the full history of the PR/push; findings fail the job.
+name: gitleaks
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitleaks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Only needed if the repository moves to a GitHub organisation (action licence key).
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
