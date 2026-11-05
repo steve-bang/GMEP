@@ -61,6 +61,7 @@
     "test": "pnpm test:unit && pnpm test:integration",
     "emulators": "firebase emulators:start --only firestore,auth,storage --project demo-gmep",
     "seed": "tsx --tsconfig tsconfig.json scripts/seed-emulator.ts",
+    "bootstrap:data": "tsx --tsconfig tsconfig.json scripts/bootstrap-data.ts",
     "e2e": "firebase emulators:exec --only firestore,auth,storage --project demo-gmep \"tsx --tsconfig tsconfig.json scripts/seed-emulator.ts && playwright test\"",
     "spike:s1": "firebase emulators:exec --only firestore --project demo-gmep \"tsx --tsconfig tsconfig.json spikes/s1-stock-concurrency.ts\"",
     "ci": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm check:boundaries && pnpm check:indexes && pnpm test:unit && pnpm test:integration && pnpm build && pnpm check:bundle && pnpm e2e"

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { TtlCache } from '@/platform/cache/ttlCache';
-import { loadEnv, type Env } from '@/platform/config/env';
+import { einFakeProviderEnabled, loadEnv, type Env } from '@/platform/config/env';
 import {
   createOidcCronVerifier,
   disabledCronAuth,
@@ -400,6 +400,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       () => late.crm!,
       files,
       fakeProvider,
+      einFakeProviderEnabled(env),
     ));
     const rpt = buildRpt(
       sys,
