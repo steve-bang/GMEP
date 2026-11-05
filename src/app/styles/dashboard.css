@@ -287,8 +287,26 @@ a.dsh-row:hover {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+/* a long range: thin bars, no value labels (the tooltip and the data table carry the numbers), every n-th axis label */
+.dsh-cols-chart--dense .dsh-cols-chart__bars {
+  gap: 2px;
+}
+.dsh-cols-chart--dense .dsh-cols-chart__bar {
+  width: min(100%, 14px);
+}
+.dsh-cols-chart--dense .dsh-cols-chart__val {
+  display: none;
+}
+.dsh-cols-chart__lbl.is-skip {
+  visibility: hidden;
+}
+/* the words "Chưa có" only fit a wide column: elsewhere a gap stays empty (tooltip, data table and the note say why) */
+.dsh-cols-chart:not(.dsh-cols-chart--short) .dsh-cols-chart__none {
+  display: none;
+}
 @media (max-width: 639px) {
-  .dsh-cols-chart__val {
+  .dsh-cols-chart__val,
+  .dsh-cols-chart__none {
     display: none;
   }
   .dsh-cols-chart {
@@ -298,7 +316,7 @@ a.dsh-row:hover {
     font-size: 11px;
   }
   /* 7 labels of 30 px do not fit in 343 px: show every other day (the data table has all of them) */
-  .dsh-cols-chart__bars li:nth-child(even) .dsh-cols-chart__lbl {
+  .dsh-cols-chart--short .dsh-cols-chart__bars li:nth-child(even) .dsh-cols-chart__lbl {
     visibility: hidden;
   }
 }
@@ -355,5 +373,62 @@ a.dsh-row:hover {
   .dsh-filter,
   .dsh-chart__details {
     display: none;
+  }
+}
+
+/* range filter (presets + custom from/to) */
+.range-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.range-filter__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.range-filter__custom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+.range-filter__field {
+  min-width: 0;
+}
+.range-filter__error {
+  flex: 1 1 100%;
+  margin: 0;
+}
+.dsh-filter__summary {
+  margin: 0;
+  font-weight: 600;
+}
+.dsh-filter__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.dsh-filter__meta .dsh-filter__asof {
+  margin-left: auto;
+}
+@media (max-width: 639px) {
+  .range-filter__presets {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .range-filter__custom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .range-filter__custom .btn {
+    width: 100%;
+  }
+  .dsh-filter__meta .dsh-filter__asof {
+    margin-left: 0;
   }
 }

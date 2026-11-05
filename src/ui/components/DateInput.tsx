@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type InputHTMLAttributes } from 'react';
+import { useState, type InputHTMLAttributes, type Ref } from 'react';
 import { maskViDate } from '../dateMask';
 
 /**
@@ -17,6 +17,7 @@ export function DateInput({
   defaultValue?: string;
   /** when given, the field is controlled by the parent (e.g. a calendar picker or a shortcut button sets it) */
   value?: string;
+  ref?: Ref<HTMLInputElement>;
 }) {
   const [inner, setV] = useState(defaultValue ?? '');
   const v = value ?? inner;

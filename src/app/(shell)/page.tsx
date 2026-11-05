@@ -12,6 +12,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
   const session = await requireSession();
   const sp = await searchParams;
   const date = first(sp.date);
+  const from = first(sp.from);
+  const to = first(sp.to);
   const branchId = first(sp.branchId);
   return (
     <div className="stack">
@@ -22,7 +24,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         </div>
       </div>
       <Suspense fallback={<DashboardSkeleton label={t('loading')} />}>
-        <DashboardHome session={session} date={date} branchId={branchId} />
+        <DashboardHome session={session} date={date} from={from} to={to} branchId={branchId} />
       </Suspense>
     </div>
   );

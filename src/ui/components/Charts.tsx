@@ -13,6 +13,10 @@ export interface ChartPoint {
   value: number | null;
   /** provisional (day not closed): hatched outline */
   provisional?: boolean;
+  /** full name of the point for the tooltip and the data table when `label` is short (e.g. a week "30/10–05/11") */
+  fullLabel?: string;
+  /** extra words for the tooltip and the table (e.g. "2 ngày chưa có số liệu") */
+  note?: string;
 }
 
 function ChartFrame(props: {
@@ -112,6 +116,10 @@ export function ColumnChart(props: {
   const top = max > 0 || !props.emptyTop ? niceScale(max).top : props.emptyTop;
   const axis = props.axisFormat ?? props.format;
   const hasProv = props.points.some((p) => p.provisional);
+  // many points: thin bars without value labels, and only every `step`-th axis label (the tooltip and the table keep all)
+  const n = props.points.length;
+  const dense = n > 14;
+  const step = n <= 7 ? 1 : n <= 14 ? 2 : Math.ceil(n / 6);
   const ticks = [0, 1, 2, 3, 4].map((i) => i * (top / 4));
   return (
     <ChartFrame
@@ -133,16 +141,19 @@ export function ColumnChart(props: {
           caption={props.title}
           head={[props.catName, props.valueName]}
           rows={props.points.map((p) => ({
-            label: p.label,
+            label: p.fullLabel ?? p.label,
             text:
-              p.value === null
+              (p.value === null
                 ? props.noDataLabel
-                : `${props.format(p.value)}${p.provisional && props.provisionalNote ? ` (${props.provisionalNote})` : ''}`,
+                : `${props.format(p.value)}${p.provisional && props.provisionalNote ? ` (${props.provisionalNote})` : ''}`) +
+              (p.note ? ` · ${p.note}` : ''),
           }))}
         />
       }
     >
-      <div className="dsh-cols-chart">
+      <div
+        className={`dsh-cols-chart${dense ? ' dsh-cols-chart--dense' : ''}${n <= 7 ? ' dsh-cols-chart--short' : ''}`}
+      >
         <div className="dsh-cols-chart__axis" aria-hidden="true">
           {[...ticks].reverse().map((t) => (
             <span key={t}>{axis(t)}</span>
@@ -155,14 +166,10 @@ export function ColumnChart(props: {
             ))}
           </div>
           <ul className="dsh-cols-chart__bars">
-            {props.points.map((p) => (
+            {props.points.map((p, i) => (
               <li
-                key={p.label}
-                title={
-                  p.value === null
-                    ? `${p.label}: ${props.noDataLabel}`
-                    : `${p.label}: ${props.format(p.value)}`
-                }
+                key={p.fullLabel ?? p.label}
+                title={`${p.fullLabel ?? p.label}: ${p.value === null ? props.noDataLabel : props.format(p.value)}${p.note ? ` · ${p.note}` : ''}`}
               >
                 <span className="dsh-cols-chart__col">
                   {p.value === null ? (
@@ -177,7 +184,9 @@ export function ColumnChart(props: {
                     </>
                   )}
                 </span>
-                <span className="dsh-cols-chart__lbl">{p.label}</span>
+                <span className={`dsh-cols-chart__lbl${i % step === 0 ? '' : ' is-skip'}`}>
+                  {p.label}
+                </span>
               </li>
             ))}
           </ul>

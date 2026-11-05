@@ -235,13 +235,15 @@ export function forServiceType(
   return { rolls: out, included, unavailableDates };
 }
 
+export type PeriodSum = Omit<MonthlyReport, 'comparison'>;
+
 /** Flows are summed over the days; end-of-period figures come from the last present day. Missing days are reported. */
 export function computeMonthly(
   month: string,
   rows: readonly Rolled[],
   previous?: PreviousPeriod,
 ): MonthlyReport {
-  const cur = sumMonth(month, rows, monthDates(month));
+  const cur = sumPeriod(month, rows, monthDates(month));
   return { ...cur, comparison: compare(cur, previous) };
 }
 
@@ -252,7 +254,7 @@ function compare(
 ): MonthComparison | null {
   if (!prev || prev.throughDay < 1) return null;
   const dates = monthDates(prev.month).slice(0, prev.throughDay);
-  const p = sumMonth(prev.month, prev.rows, dates);
+  const p = sumPeriod(prev.month, prev.rows, dates);
   if (p.present === 0) return null;
   const curDates = monthDates(c.month).slice(0, prev.throughDay);
   return {
@@ -282,11 +284,16 @@ function compare(
   };
 }
 
-function sumMonth(
-  month: string,
+/**
+ * Flows summed over the given dates, stock-like figures from the last date that has a rollup, missing dates listed and
+ * never counted as zero. `label` only names the period (a `yyyy-MM` month, or any text for a free range): the dates decide
+ * what is summed, so the monthly report and the dashboard date range share this one function.
+ */
+export function sumPeriod(
+  label: string,
   rows: readonly Rolled[],
   dates: readonly string[],
-): Omit<MonthlyReport, 'comparison'> {
+): PeriodSum {
   const byDate = new Map(rows.map((r) => [r.date, r]));
   const present = dates.flatMap((d) => (byDate.has(d) ? [byDate.get(d)!] : []));
   const byMethod: Record<string, number> = {};
@@ -298,7 +305,7 @@ function sumMonth(
   const orderTotal = sum(present.map((r) => r.revenue.orderTotalVnd));
   const last = present.at(-1);
   return {
-    month,
+    month: label,
     days: dates.length,
     present: present.length,
     official: present.filter((r) => r.official).length,

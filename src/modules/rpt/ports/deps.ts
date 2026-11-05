@@ -23,6 +23,8 @@ export interface RptConfig {
   exportMaxRows: number;
   /** longest date range of a reconciliation (days) */
   reconcileMaxDays: number;
+  /** longest date range of the dashboard (days); the previous period of the same length is read too */
+  dashboardMaxDays: number;
   /** stock balances read by the warehouse report; more sets `truncated` */
   balancesScanMax: number;
   /** below-reorder rows listed by the warehouse report */
@@ -44,6 +46,7 @@ export const DEFAULT_RPT_CONFIG: RptConfig = {
   maxBranchesPerRun: 25,
   exportMaxRows: 2000,
   reconcileMaxDays: 93,
+  dashboardMaxDays: 93,
   balancesScanMax: 3000,
   belowReorderMax: 200,
   technicianOrdersMax: 300,

@@ -31,6 +31,63 @@ export interface KpiModel {
   deltaBp?: number | null;
   /** sub line facts shown next to the value */
   overdueVnd?: number;
+  /** stock-like card of a range of several days: it is the state at the END of the range, not a sum (labelled on screen) */
+  asOf?: true;
+}
+
+/** Cards that are a state at the end of the period; every other card is summed over the days of the range. */
+const SNAPSHOT_KPIS: ReadonlySet<KpiId> = new Set(['openAtEnd', 'debt', 'uninvoiced']);
+
+export interface TrendPoint {
+  /** first day of the point (the day itself, or the start of a week bucket) */
+  date: string;
+  to: string;
+  /** days summed in the point (1, or up to 7 for a week bucket) */
+  days: number;
+  value: number | null;
+  provisional: boolean;
+  /** days of the point without a rollup: not counted as 0 */
+  missingDays: number;
+}
+
+/** Up to this many days the trend is one column per day; above it, one per week (a column must stay readable). */
+export const TREND_MAX_DAILY = 31;
+
+/**
+ * Trend points of a range: one per day up to `maxDaily` days, otherwise one per 7 consecutive days from the start (the last
+ * bucket can be shorter). A bucket sums only the days that have a rollup (never 0 for a missing day); it is a gap when none
+ * has one, and provisional when any day is not official or is missing.
+ */
+export function bucketTrend(
+  series: DashboardDto['series'],
+  maxDaily: number = TREND_MAX_DAILY,
+): { bucket: 'day' | 'week'; points: TrendPoint[] } {
+  if (series.length <= maxDaily)
+    return {
+      bucket: 'day',
+      points: series.map((s) => ({
+        date: s.date,
+        to: s.date,
+        days: 1,
+        value: s.exTaxVnd,
+        provisional: !s.official,
+        missingDays: s.exTaxVnd === null ? 1 : 0,
+      })),
+    };
+  const points: TrendPoint[] = [];
+  for (let i = 0; i < series.length; i += 7) {
+    const chunk = series.slice(i, i + 7);
+    const have = chunk.filter((x) => x.exTaxVnd !== null);
+    points.push({
+      date: chunk[0]!.date,
+      to: chunk.at(-1)!.date,
+      days: chunk.length,
+      value: have.length ? have.reduce((a, x) => a + (x.exTaxVnd ?? 0), 0) : null,
+      provisional: chunk.some((x) => !x.official),
+      missingDays: chunk.length - have.length,
+    });
+  }
+  return { bucket: 'week', points };
 }
 
 type Block = keyof DashboardDto['visible'];
@@ -59,7 +116,11 @@ export const LENS_KPIS: Record<Lens, KpiId[]> = {
 
 export interface HomeModel {
   kpis: KpiModel[];
-  trend: { date: string; value: number | null; provisional: boolean }[] | null;
+  trend: TrendPoint[] | null;
+  /** how the trend points are cut: one per day, or one per week for a long range */
+  trendBucket: 'day' | 'week';
+  /** a range of several days: sums, with stock-like cards labelled "as of the end" */
+  multi: boolean;
   orderBars:
     { key: 'opened' | 'closed' | 'handedOver' | 'cancelled' | 'openAtEnd'; value: number }[] | null;
   revenueSplit: { key: 'labor' | 'parts'; value: number }[] | null;
@@ -72,8 +133,12 @@ export interface HomeModel {
 export function buildHomeModel(d: DashboardDto): HomeModel {
   const t = d.totals;
   const single = d.rows.length === 1 ? d.rows[0]! : null;
-  const link = (metric: string) =>
-    single ? drillHref(d.date, metric, single.branchId) : undefined;
+  const multi = d.days > 1;
+  // a summed card of several days has no single-day document list; a state at the end of the range does (that day)
+  const link = (metric: string, snapshot = false) =>
+    single && (snapshot || !multi)
+      ? drillHref(snapshot ? (d.snapshotDate ?? d.to) : d.to, metric, single.branchId)
+      : undefined;
   const val = (id: KpiId): Omit<KpiModel, 'id'> => {
     switch (id) {
       case 'revenue':
@@ -90,7 +155,7 @@ export function buildHomeModel(d: DashboardDto): HomeModel {
       case 'handed':
         return { value: t.orders.handedOver, kind: 'count', ...opt(link('handedOver')) };
       case 'openAtEnd':
-        return { value: t.orders.openAtEnd, kind: 'count', ...opt(link('openAtEnd')) };
+        return { value: t.orders.openAtEnd, kind: 'count', ...opt(link('openAtEnd', true)) };
       case 'inflow':
         return { value: t.money.inflowVnd, kind: 'vnd', ...opt(link('payments')) };
       case 'gap':
@@ -106,7 +171,7 @@ export function buildHomeModel(d: DashboardDto): HomeModel {
           kind: 'vnd',
           overdueVnd: t.receivables.overdueDebtVnd,
           ...(t.receivables.overdueDebtCount > 0 ? { tone: 'danger' as const } : {}),
-          ...opt(link('openDebts')),
+          ...opt(link('openDebts', true)),
         };
       case 'invoices':
         return { value: t.invoices.issuedCount, kind: 'count', ...opt(link('invoicesIssued')) };
@@ -115,7 +180,7 @@ export function buildHomeModel(d: DashboardDto): HomeModel {
           value: t.invoices.closedWithoutInvoiceCount,
           kind: 'count',
           ...(t.invoices.closedWithoutInvoiceCount > 0 ? { tone: 'warning' as const } : {}),
-          ...opt(link('notInvoiced')),
+          ...opt(link('notInvoiced', true)),
         };
       case 'stock':
         return {
@@ -128,13 +193,15 @@ export function buildHomeModel(d: DashboardDto): HomeModel {
   };
   const kpis = LENS_KPIS[d.lens]
     .filter((id) => d.visible[KPI_BLOCK[id]])
-    .map((id) => ({ id, ...val(id) }));
+    .map((id) => ({
+      id,
+      ...val(id),
+      ...(multi && SNAPSHOT_KPIS.has(id) ? { asOf: true as const } : {}),
+    }));
 
   const anyData = d.rows.some((r) => !r.missing);
-  const trend =
-    d.visible.revenue && d.series.some((s) => s.exTaxVnd !== null)
-      ? d.series.map((s) => ({ date: s.date, value: s.exTaxVnd, provisional: !s.official }))
-      : null;
+  const hasTrend = d.visible.revenue && d.series.some((s) => s.exTaxVnd !== null);
+  const bucketed = hasTrend ? bucketTrend(d.series) : null;
   const orderBars =
     d.visible.orders && anyData
       ? (['opened', 'closed', 'handedOver', 'cancelled', 'openAtEnd'] as const).map((key) => ({
@@ -163,7 +230,9 @@ export function buildHomeModel(d: DashboardDto): HomeModel {
       : null;
   return {
     kpis,
-    trend,
+    trend: bucketed?.points ?? null,
+    trendBucket: bucketed?.bucket ?? 'day',
+    multi,
     orderBars,
     revenueSplit,
     methodBars,

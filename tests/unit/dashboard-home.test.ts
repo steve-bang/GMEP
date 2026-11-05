@@ -41,6 +41,21 @@ const zeroTotals = {
 
 const dto = (over: Partial<DashboardDto> = {}): DashboardDto => ({
   date: '2026-11-04',
+  from: '2026-11-04',
+  to: '2026-11-04',
+  days: 1,
+  today: '2026-11-04',
+  maxDays: 93,
+  snapshotDate: '2026-11-04',
+  missingDates: [],
+  comparison: {
+    from: '2026-11-03',
+    to: '2026-11-03',
+    previousDaysComplete: 1,
+    currentDaysComplete: 1,
+    previousComplete: true,
+    currentComplete: true,
+  },
   lens: 'manager',
   visible: {
     orders: true,

@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
-import { getDashboard, type DashboardDto } from '@/modules/rpt';
+import { getDashboard, resolveRange, type DashboardDto } from '@/modules/rpt';
 import { load } from '@/composition/pageData';
 import { getContainer } from '@/composition/container';
 import type { Session } from '@/modules/sys';
 import { BarList, ColumnChart } from '@/ui/components/Charts';
-import { DateFilter } from '@/ui/components/DateFilter';
+import { RangeFilter } from '@/ui/components/RangeFilter';
+import { businessDate, isoToVi } from '@/platform/format/date';
 import { Icon } from '@/ui/components/Icon';
 import { ErrorFor } from '@/ui/components/PageParts';
 import { EmptyState, NoPermissionState } from '@/ui/components/States';
@@ -27,15 +28,25 @@ const pctText = (bp: number) => `${(Math.abs(bp) / 100).toFixed(1).replace('.', 
  */
 export async function DashboardHome(props: {
   session: Session;
+  /** old single-day link: the range of that one day */
   date?: string | undefined;
+  from?: string | undefined;
+  to?: string | undefined;
   branchId?: string | undefined;
 }) {
   const t = await getTranslations('dashboard');
   const tAll = await getTranslations();
   const tr = await getTranslations('rpt.dashboard');
+  const rpt = getContainer().rpt;
+  const ok = (v: string | undefined) => (v && ISO.test(v) ? v : undefined);
+  const query = { date: ok(props.date), from: ok(props.from), to: ok(props.to) };
+  const keep = props.branchId ? { branchId: props.branchId } : undefined;
+  const today = businessDate(rpt.sys.clock.now());
   const res = await load(() =>
-    getDashboard(getContainer().rpt, props.session.actor, {
-      ...(props.date && ISO.test(props.date) ? { date: props.date } : {}),
+    getDashboard(rpt, props.session.actor, {
+      ...(query.date ? { date: query.date } : {}),
+      ...(query.from ? { from: query.from } : {}),
+      ...(query.to ? { to: query.to } : {}),
       ...(props.branchId ? { branchId: props.branchId } : {}),
     }),
   );
@@ -43,34 +54,60 @@ export async function DashboardHome(props: {
     // a role without the dashboard view (e.g. technician) gets the plain "no permission" state with a way on
     if (res.error.status === 403)
       return <NoPermissionState title={t('noViewTitle')} text={t('noViewText')} />;
-    return <ErrorFor error={res.error} t={tAll as never} />;
+    // a refused range (from after to, too long) still shows the filter, so it can be corrected on the spot
+    let shown: { from: string; to: string };
+    try {
+      shown = resolveRange(query, today, rpt.rpt.dashboardMaxDays);
+    } catch {
+      shown = {
+        from: query.from ?? query.to ?? query.date ?? today,
+        to: query.to ?? query.from ?? query.date ?? today,
+      };
+    }
+    return (
+      <div className="stack" data-testid="home-dashboard">
+        <FilterCard
+          t={t}
+          from={shown.from}
+          to={shown.to}
+          days={null}
+          today={today}
+          maxDays={rpt.rpt.dashboardMaxDays}
+          keep={keep}
+        />
+        <ErrorFor error={res.error} t={tAll as never} />
+      </div>
+    );
   }
   const d = res.data;
   const m = buildHomeModel(d);
-  const keep = props.branchId ? { branchId: props.branchId } : undefined;
   const missingBranches = d.rows.filter((r) => r.missing).length;
-  const label = (key: string) => t(key as never);
+  // cards and bars that say "in the day" read "in the period" over several days
+  const RANGE_WORDS = new Set(['k_revenue', 'k_opened', 'k_openAtEnd', 'k_inflow']);
+  const label = (key: string) => t((m.multi && RANGE_WORDS.has(key) ? `${key}_r` : key) as never);
+  const oLabel = (key: string) =>
+    t(`o_${key}${m.multi && (key === 'opened' || key === 'openAtEnd') ? '_r' : ''}` as never);
 
   return (
     <div className="stack" data-testid="home-dashboard">
-      <section className="card">
-        <div className="card__body">
-          <div className="dsh-filter">
-            <DateFilter
-              key={d.date}
-              base="/"
-              fields={[{ name: 'date', label: t('date'), iso: d.date }]}
-              {...(keep ? { keep } : {})}
-              applyLabel={t('apply')}
-              resetLabel={t('reset')}
-              pickerLabel={t('pickDate')}
-              yesterdayLabel={t('yesterday')}
-            />
-            <span className="text-secondary" data-testid="home-lens">
-              {t(`lens_${d.lens}` as never)}
-            </span>
+      <FilterCard
+        t={t}
+        from={d.from}
+        to={d.to}
+        days={d.days}
+        today={d.today}
+        maxDays={d.maxDays}
+        keep={keep}
+        meta={
+          <>
+            <span data-testid="home-lens">{t(`lens_${d.lens}` as never)}</span>
             {d.rows.length > 0 ? (
               <StateTag official={d.allOfficial} l={rptLabels('common')} />
+            ) : null}
+            {m.multi && d.snapshotDate ? (
+              <span data-testid="home-snapshot">
+                {t('snapshotNote', { date: isoToVi(d.snapshotDate) })}
+              </span>
             ) : null}
             {d.lastComputedAt ? (
               <span className="dsh-filter__asof">
@@ -81,9 +118,19 @@ export async function DashboardHome(props: {
                 })}
               </span>
             ) : null}
-          </div>
-        </div>
-      </section>
+          </>
+        }
+      />
+      {d.missingDates.length > 0 && d.rows.some((r) => !r.missing) ? (
+        <Note tone="warning" testId="missing-days">
+          {t('missingDays', {
+            n: d.missingDates.length,
+            list:
+              d.missingDates.slice(0, 5).map(shortDay).join(', ') +
+              (d.missingDates.length > 5 ? '…' : ''),
+          })}
+        </Note>
+      ) : null}
       {d.truncated.length > 0 ? (
         <Note tone="warning" testId="truncated">
           {t('truncated', { list: d.truncated.join(', ') })}
@@ -109,7 +156,7 @@ export async function DashboardHome(props: {
               data-testid="home-kpis"
             >
               {m.kpis.map((k) => (
-                <KpiCard key={k.id} k={k} label={label} fmt={{ t, tr }} />
+                <KpiCard key={k.id} k={k} label={label} fmt={{ t, tr }} d={d} />
               ))}
             </section>
           ) : null}
@@ -120,12 +167,22 @@ export async function DashboardHome(props: {
                   <ColumnChart
                     id="trend"
                     testId="chart-trend"
-                    title={t('trendTitle')}
-                    unit={t('trendUnit')}
+                    title={t(
+                      m.trendBucket === 'week'
+                        ? 'trendTitleWeek'
+                        : m.multi
+                          ? 'trendTitleRange'
+                          : 'trendTitle',
+                    )}
+                    unit={t(m.trendBucket === 'week' ? 'trendUnitWeek' : 'trendUnit')}
                     points={m.trend.map((p) => ({
                       label: shortDay(p.date),
+                      ...(p.days > 1 ? { fullLabel: `${shortDay(p.date)}–${shortDay(p.to)}` } : {}),
                       value: p.value,
                       provisional: p.provisional,
+                      ...(p.missingDays > 0 && p.value !== null
+                        ? { note: t('bucketMissing', { n: p.missingDays }) }
+                        : {}),
                     }))}
                     format={money}
                     axisFormat={compactVnd}
@@ -152,8 +209,8 @@ export async function DashboardHome(props: {
                     valueName={t('branchValue')}
                     foot={
                       missingBranches > 0
-                        ? `${t('branchFoot')} ${t('branchMissing', { n: missingBranches })}.`
-                        : t('branchFoot')
+                        ? `${t(m.multi ? 'branchFoot_r' : 'branchFoot')} ${t(m.multi ? 'branchMissing_r' : 'branchMissing', { n: missingBranches })}.`
+                        : t(m.multi ? 'branchFoot_r' : 'branchFoot')
                     }
                   />
                 ) : null}
@@ -168,10 +225,10 @@ export async function DashboardHome(props: {
               <BarList
                 id="orders"
                 testId="chart-orders"
-                title={t('ordersTitle')}
+                title={t(m.multi ? 'ordersTitleRange' : 'ordersTitle')}
                 unit={t('ordersUnit')}
                 items={m.orderBars.map((o) => ({
-                  label: t(`o_${o.key}` as never),
+                  label: oLabel(o.key),
                   value: o.value,
                 }))}
                 format={(v) => String(v)}
@@ -221,7 +278,7 @@ export async function DashboardHome(props: {
       {!m.hasBlocks ? (
         <NoPermissionState title={t('noViewTitle')} text={t('noViewText')} />
       ) : (
-        <Note tone="info">{t('footNote')}</Note>
+        <Note tone="info">{t(m.multi ? 'footNoteRange' : 'footNote')}</Note>
       )}
     </div>
   );
@@ -234,18 +291,32 @@ function KpiCard({
   k,
   label,
   fmt,
+  d,
 }: {
   k: KpiModel;
   label: (key: string) => string;
   fmt: { t: T; tr: T };
+  d: DashboardDto;
 }) {
   const { t } = fmt;
+  const c = d.comparison;
   let meta: ReactNode;
   if (k.id === 'revenue') {
     const bp = k.deltaBp;
     meta =
       bp === null || bp === undefined ? (
-        t('noCompare')
+        // never a percentage from a period that is only partly there: say how much of it is
+        !c.previousComplete ? (
+          <span data-testid="kpi-revenue-incomplete">
+            {t('prevIncomplete', { x: c.previousDaysComplete, y: d.days })}
+          </span>
+        ) : !c.currentComplete ? (
+          <span data-testid="kpi-revenue-incomplete">
+            {t('currIncomplete', { x: c.currentDaysComplete, y: d.days })}
+          </span>
+        ) : (
+          t('noCompare')
+        )
       ) : (
         <>
           <span
@@ -257,7 +328,7 @@ function KpiCard({
             {pctText(bp)}
             <span className="sr-only"> {t(bp > 0 ? 'up' : bp < 0 ? 'down' : 'flat')}</span>
           </span>
-          {t('vsYesterday')}
+          {d.days > 1 ? t('vsPrevPeriod', { n: d.days }) : t('vsYesterday')}
         </>
       );
   } else if (k.id === 'debt' && k.overdueVnd) {
@@ -269,6 +340,13 @@ function KpiCard({
   } else if (k.id === 'stock' && k.value === 0) {
     meta = t('stockOk');
   }
+  if (k.asOf && d.snapshotDate)
+    meta = (
+      <>
+        {meta}
+        <span className="kpi__scope">{t('asOfDate', { date: isoToVi(d.snapshotDate) })}</span>
+      </>
+    );
   return (
     <Kpi
       label={label(`k_${k.id}`)}
@@ -291,6 +369,11 @@ function AlertCard({ d, t, tr }: { d: DashboardDto; t: T; tr: T }) {
             {d.alertTotal > 0 ? ` (${d.alertTotal})` : ''}
           </h2>
           <div className="card__subtitle">{t('alertsSub')}</div>
+          {d.days > 1 && d.snapshotDate ? (
+            <div className="card__subtitle">
+              {t('alertsAsOf', { date: isoToVi(d.snapshotDate) })}
+            </div>
+          ) : null}
         </div>
       </div>
       {d.topAlerts.length === 0 && d.alertTotal === 0 ? (
@@ -352,5 +435,72 @@ export function DashboardSkeleton({ label }: { label: string }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** The filter card: range presets, the custom pair, the "viewing" line and (when the data is there) the lens, state and age of the numbers. */
+function FilterCard({
+  t,
+  from,
+  to,
+  days,
+  today,
+  maxDays,
+  keep,
+  meta,
+}: {
+  t: T;
+  from: string;
+  to: string;
+  /** null when the request was refused (no summary of what is shown) */
+  days: number | null;
+  today: string;
+  maxDays: number;
+  keep: Record<string, string> | undefined;
+  meta?: ReactNode;
+}) {
+  return (
+    <section className="card">
+      <div className="card__body dsh-filter">
+        <RangeFilter
+          key={`${from}|${to}`}
+          base="/"
+          from={from}
+          to={to}
+          today={today}
+          maxDays={maxDays}
+          {...(keep ? { keep } : {})}
+          labels={{
+            group: t('rangeLabel'),
+            presets: {
+              today: t('preset_today'),
+              yesterday: t('preset_yesterday'),
+              d7: t('preset_d7'),
+              d30: t('preset_d30'),
+            },
+            custom: t('preset_custom'),
+            from: t('from'),
+            to: t('toDate'),
+            apply: t('apply'),
+            pickFrom: t('pickFrom'),
+            pickTo: t('pickTo'),
+            errors: {
+              format: t('errFormat'),
+              future: t('errFuture'),
+              order: t('errOrder'),
+              tooLong: t('errTooLong', { max: maxDays, n: '{n}' }),
+            },
+          }}
+        />
+        {days !== null ? (
+          <p className="dsh-filter__summary" data-testid="range-summary" aria-live="polite">
+            {days === 1
+              ? t('viewingOne', { date: isoToVi(from) })
+              : t('viewing', { from: isoToVi(from), to: isoToVi(to), n: days })}
+          </p>
+        ) : null}
+        {meta ? <div className="dsh-filter__meta">{meta}</div> : null}
+      </div>
+    </section>
   );
 }

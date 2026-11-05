@@ -11,7 +11,9 @@ import {
   type RefMetric,
   type RollupTotals,
 } from '../domain/rollup';
+import { periodRollup, previousDates } from '../domain/range';
 import type { RptDeps } from '../ports/deps';
+import { resolveRange } from './range';
 import { branchesOf, dateSchema, parseInput, todayOf, z, AppError } from './support';
 
 /** Which permission lets a user see the documents behind a metric or an alert (NFR-ISO-01 + role views, FR-RPT-001). */
@@ -165,6 +167,11 @@ const dashboardQuery = z.object({
   date: dateSchema.optional(),
   branchId: z.string().max(64).optional(),
 });
+/** The dashboard also takes a range; `date` stays as the old single-day link (= from and to) */
+const dashboardRangeQuery = dashboardQuery.extend({
+  from: dateSchema.optional(),
+  to: dateSchema.optional(),
+});
 
 export interface BranchRow {
   branchId: string;
@@ -176,7 +183,33 @@ export interface BranchRow {
 }
 
 export interface DashboardDto {
+  /** the last day of the range (the old single `date`) */
   date: string;
+  from: string;
+  to: string;
+  /** days in the range */
+  days: number;
+  /** today in the business time zone, for the preset buttons of the filter */
+  today: string;
+  /** longest range the server answers (days) */
+  maxDays: number;
+  /** the day the stock-like figures and the alerts belong to: the latest day with a rollup in the range; null = none */
+  snapshotDate: string | null;
+  /** days of the range where at least one branch has no rollup: shown, never counted as 0 */
+  missingDates: string[];
+  /**
+   * Previous period of the same length ending the day before `from`. The revenue comparison is made ONLY when both periods
+   * have a rollup for every branch and every day (otherwise a smaller sum would pose as a drop).
+   */
+  comparison: {
+    from: string;
+    to: string;
+    /** days with a rollup of every branch, over the days of the period */
+    previousDaysComplete: number;
+    currentDaysComplete: number;
+    previousComplete: boolean;
+    currentComplete: boolean;
+  };
   lens: Lens;
   visible: Visible;
   /** more than one branch: the owner's consolidated view, summed from the per-branch documents */
@@ -185,10 +218,11 @@ export interface DashboardDto {
   totals: RollupTotals;
   /** all branches of the view are official (day closed) */
   allOfficial: boolean;
-  /** previous day's exTax revenue, for the comparison line; null when not available */
+  /** ex-tax revenue of the previous period, for the comparison line; null when it cannot be compared (see `comparison`) */
   previousExTaxVnd: number | null;
   /**
-   * The last seven business days (oldest first) of ex-tax revenue summed over the branches of the view, for the trend chart.
+   * Ex-tax revenue per business day (oldest first) summed over the branches of the view, for the trend chart: the range
+   * itself, or the seven days ending at `to` when the range is one day.
    * Empty without `report-daily:view`; a day without any rollup is `null`, never 0 (FR-RPT-001, 014).
    */
   series: { date: string; exTaxVnd: number | null; official: boolean }[];
@@ -205,34 +239,52 @@ export async function getDashboard(
   actor: Actor,
   raw: unknown,
 ): Promise<DashboardDto> {
-  const q = parseInput(dashboardQuery, raw ?? {});
-  const date = q.date ?? todayOf(deps);
+  const q = parseInput(dashboardRangeQuery, raw ?? {});
+  const today = todayOf(deps);
+  const range = resolveRange(q, today, deps.rpt.dashboardMaxDays);
+  const { from, to, days: nDays, dates } = range;
   const { scope, branches } = await branchesOf(deps, actor, 'report-dashboard:view', q.branchId);
   const can = canOf(actor);
-  const days = Array.from({ length: DASHBOARD_SERIES_DAYS }, (_, i) =>
-    addDays(date, i - (DASHBOARD_SERIES_DAYS - 1)),
-  );
-  // rollups are read by key (no query shape, no index): the day, the previous day and the trend window
-  const keys = branches.flatMap((b) => days.map((d) => ({ branchId: b.id, date: d })));
+  const prevDates = previousDates(from, nDays);
+  // a range of several days draws itself; one day draws the seven days ending there (as before)
+  const trendDates =
+    nDays > 1
+      ? dates
+      : Array.from({ length: DASHBOARD_SERIES_DAYS }, (_, i) =>
+          addDays(to, i - (DASHBOARD_SERIES_DAYS - 1)),
+        );
+  // rollups are read by key (no query shape, no index): the range, the previous period and the trend window
+  const wanted = [...new Set([...dates, ...prevDates, ...trendDates])];
+  const keys = branches.flatMap((b) => wanted.map((d) => ({ branchId: b.id, date: d })));
   const docs = await deps.rollups.getMany(scope, keys);
-  const at = (branchId: string, d: string) =>
-    docs.find((r) => r.branchId === branchId && r.date === d);
-  const rows: BranchRow[] = branches.map((b) => {
-    const r = at(b.id, date);
-    return {
-      branchId: b.id,
-      code: b.code,
-      name: b.name,
-      missing: !r,
-      rollup: r ? redact(toDto(r, can), can) : null,
-    };
-  });
+  const index = new Map(docs.map((r) => [`${r.branchId}|${r.date}`, r] as const));
+  const at = (branchId: string, d: string) => index.get(`${branchId}|${d}`);
+  const folded = branches.map((b) => ({
+    b,
+    p: periodRollup(
+      dates.flatMap((d) => {
+        const r = at(b.id, d);
+        return r ? [r] : [];
+      }),
+      dates,
+    ),
+  }));
+  const rows: BranchRow[] = folded.map(({ b, p }) => ({
+    branchId: b.id,
+    code: b.code,
+    name: b.name,
+    missing: !p.rollup,
+    rollup: p.rollup ? redact(toDto(p.rollup, can), can) : null,
+  }));
   const present = rows.flatMap((r) => (r.rollup ? [r.rollup] : []));
   const totals = totalsOf(present as unknown as DailyRollup[]);
-  const prev = branches.flatMap((b) => {
-    const r = at(b.id, addDays(date, -1));
-    return r ? [r] : [];
-  });
+  const complete = (list: readonly string[]) =>
+    list.filter((d) => branches.length > 0 && branches.every((b) => at(b.id, d))).length;
+  const currentDaysComplete = complete(dates);
+  const previousDaysComplete = complete(prevDates);
+  const currentComplete = currentDaysComplete === nDays;
+  const previousComplete = previousDaysComplete === nDays;
+  const canRevenue = can('report-daily:view');
   const topAlerts = rows
     .flatMap((r) => (r.rollup?.alerts ?? []).map((a) => ({ ...a, branchId: r.branchId })))
     .sort(
@@ -241,20 +293,42 @@ export async function getDashboard(
     .slice(0, 8);
   const computed = present.map((r) => r.computedAt).sort();
   return {
-    date,
+    date: to,
+    from,
+    to,
+    days: nDays,
+    today,
+    maxDays: deps.rpt.dashboardMaxDays,
+    snapshotDate:
+      folded
+        .map(({ p }) => p.rollup?.date ?? '')
+        .sort()
+        .at(-1) || null,
+    missingDates: dates.filter((d) => !branches.every((b) => at(b.id, d))),
+    comparison: {
+      from: prevDates[0] ?? from,
+      to: prevDates.at(-1) ?? from,
+      previousDaysComplete,
+      currentDaysComplete,
+      previousComplete,
+      currentComplete,
+    },
     lens: lensOf(actor),
     visible: visibleOf(actor),
     consolidated: branches.length > 1,
     rows,
     totals,
     allOfficial:
-      present.length > 0 && present.every((r) => r.official) && present.length === rows.length,
+      present.length > 0 && present.length === rows.length && folded.every(({ p }) => p.official),
     previousExTaxVnd:
-      can('report-daily:view') && prev.length > 0
-        ? prev.reduce((s, r) => s + r.revenue.exTaxVnd, 0)
+      canRevenue && previousComplete && currentComplete
+        ? prevDates.reduce(
+            (sum, d) => sum + branches.reduce((x, b) => x + at(b.id, d)!.revenue.exTaxVnd, 0),
+            0,
+          )
         : null,
-    series: can('report-daily:view')
-      ? days.map((d) => {
+    series: canRevenue
+      ? trendDates.map((d) => {
           const day = branches.flatMap((b) => {
             const r = at(b.id, d);
             return r ? [r] : [];

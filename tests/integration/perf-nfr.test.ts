@@ -8,6 +8,7 @@ import {
   type Sample,
 } from '../helpers/volume';
 import { journey, type Row, type Staff } from '../helpers/journey';
+import { businessDate } from '@/platform/format/date';
 import { backends, createHarness, type Harness } from './harness';
 
 /**
@@ -77,6 +78,16 @@ describe.each(backends)('NFR-PERF-01/02 performance regression [%s]', (backend) 
     );
     into.dashboardOwnerAll = await sampleOp(h, 4, () =>
       h.call('GET', '/api/v1/rpt/dashboard', { cookie: owner }),
+    );
+    // FR-RPT-001 date range: (days x 2 periods x branches) documents read by key, no query, no index
+    const to = businessDate(h.clock.now());
+    const from = (n: number) =>
+      businessDate(new Date(h.clock.now().getTime() - (n - 1) * 86_400_000));
+    into.dashboardRange30 = await sampleOp(h, 3, () =>
+      h.call('GET', `/api/v1/rpt/dashboard?from=${from(30)}&to=${to}`, { cookie: owner }),
+    );
+    into.dashboardRange93 = await sampleOp(h, 3, () =>
+      h.call('GET', `/api/v1/rpt/dashboard?from=${from(93)}&to=${to}`, { cookie: owner }),
     );
     into.monthly = await sampleOp(h, 4, () =>
       h.call('GET', `/api/v1/rpt/monthly?month=${new Date().toISOString().slice(0, 7)}`, {
@@ -151,6 +162,9 @@ describe.each(backends)('NFR-PERF-01/02 performance regression [%s]', (backend) 
     monthly: 80,
     // consolidated owner dashboard: branches x days read by key
     dashboardOwnerAll: 40,
+    // FR-RPT-001 date range: branches x days x 2 periods read by key (4 demo branches: 30 days = 240, 93 days = 744, + overhead)
+    dashboardRange30: 500,
+    dashboardRange93: 1500,
   };
 
   it.each(Object.keys(bound))(
@@ -159,7 +173,7 @@ describe.each(backends)('NFR-PERF-01/02 performance regression [%s]', (backend) 
       const s = large[name]!;
       expect(s, 'measured').toBeDefined();
       expect(p95(s, 'reads'), `${name} reads p95`).toBeLessThanOrEqual(bound[name]!);
-      const limit = name === 'dashboardOwnerAll' ? DASH_LIMIT_MS : LIMIT_MS;
+      const limit = name.startsWith('dashboard') ? DASH_LIMIT_MS : LIMIT_MS;
       expect(p95(s, 'ms'), `${name} time p95 (guard, not a 4G measurement)`).toBeLessThan(
         limit * factor,
       );

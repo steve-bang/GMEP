@@ -459,6 +459,110 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
     });
   });
 
+  describe('dashboard date range (FR-RPT-001, "lọc theo thời gian")', () => {
+    const ago = (n: number) => {
+      const d = new Date(`${today}T00:00:00Z`);
+      d.setUTCDate(d.getUTCDate() - n);
+      return d.toISOString().slice(0, 10);
+    };
+    const dash = async (cookie: string, qs: string) => get(cookie, `/api/v1/rpt/dashboard${qs}`);
+
+    it('no query = today; the old ?date= is a range of that one day; from and to equal date give the same figures', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      const def = (await dash(ql, '')).json;
+      expect(def).toMatchObject({ from: today, to: today, days: 1, date: today, today });
+      const old = (await dash(ql, `?date=${today}`)).json;
+      const rng = (await dash(ql, `?from=${today}&to=${today}`)).json;
+      expect(old.totals).toEqual(rng.totals);
+      expect(old.totals).toEqual(def.totals);
+      expect(old.series).toHaveLength(7); // one day still draws the seven days ending there
+      expect(def.maxDays).toBe(93);
+    });
+
+    it('a range folds the days: flows add up, the trend is the range itself, the end-of-period date is reported', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      for (const n of [1, 2])
+        expect((await post(ql, '/api/v1/rpt/jobs/rebuild', { date: ago(n) })).status).toBe(200);
+      const one = (await dash(ql, '')).json;
+      const r = (await dash(ql, `?from=${ago(2)}&to=${today}`)).json;
+      expect(r).toMatchObject({ from: ago(2), to: today, days: 3, snapshotDate: today });
+      expect(r.missingDates).toEqual([]);
+      expect(r.rows[0].missing).toBe(false);
+      // the two earlier days hold no orders of their own: the range total is today's total, summed not replaced
+      expect(r.totals.revenue.exTaxVnd).toBe(one.totals.revenue.exTaxVnd);
+      expect(r.totals.money.inflowVnd).toBeGreaterThanOrEqual(one.totals.money.inflowVnd);
+      expect(r.series.map((x: Row) => x.date)).toEqual([ago(2), ago(1), today]);
+      // the open orders at the end of the range are the state of the last day, not three times that
+      expect(r.totals.orders.openAtEnd).toBe(one.totals.orders.openAtEnd);
+    });
+
+    it('a day without a rollup is listed and is a gap in the trend, never 0; the previous period is compared only when complete', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      // the job catches up the last 8 days; older days have no rollup at all (the boundary is checked below)
+      for (const n of [1, 2, 3, 4, 5, 6, 7])
+        expect((await post(ql, '/api/v1/rpt/jobs/rebuild', { date: ago(n) })).status).toBe(200);
+      const holes = (await dash(ql, `?from=${ago(12)}&to=${ago(7)}`)).json;
+      expect(holes.days).toBe(6);
+      expect(holes.missingDates).toEqual([ago(12), ago(11), ago(10), ago(9)]);
+      const gap = holes.series.find((x: Row) => x.date === ago(9));
+      expect(gap.exTaxVnd).toBeNull(); // a gap in the trend, not 0
+      expect(holes.rows[0].missing).toBe(false); // two of the six days exist
+      expect(holes.comparison.currentComplete).toBe(false);
+      expect(holes.previousExTaxVnd).toBeNull(); // not even attempted: the current period is incomplete
+      // a complete current period against an incomplete previous one: no percentage, and how much of it is there
+      const part = (await dash(ql, `?from=${ago(7)}&to=${ago(5)}`)).json;
+      expect(part.comparison).toMatchObject({
+        from: ago(10),
+        to: ago(8),
+        currentComplete: true,
+        previousComplete: false,
+        previousDaysComplete: 1,
+      });
+      expect(part.previousExTaxVnd).toBeNull();
+      // complete on both sides: the previous period of the same length is summed
+      const full = (await dash(ql, `?from=${ago(2)}&to=${today}`)).json;
+      expect(full.comparison).toMatchObject({
+        from: ago(5),
+        to: ago(3),
+        previousComplete: true,
+        currentComplete: true,
+        previousDaysComplete: 3,
+      });
+      expect(full.previousExTaxVnd).toBe(0);
+    });
+
+    it('limits: 93 days are answered, 94 are range_too_long, from after to is invalid_range (422)', async () => {
+      const ok = await dash(ql, `?from=${ago(92)}&to=${today}`);
+      expect(ok.status, ok.text.slice(0, 200)).toBe(200);
+      expect(ok.json.days).toBe(93);
+      const long = await dash(ql, `?from=${ago(93)}&to=${today}`);
+      expect(long.status).toBe(422);
+      expect(long.json.code).toBe('range_too_long');
+      const bad = await dash(ql, `?from=${today}&to=${ago(1)}`);
+      expect(bad.status).toBe(422);
+      expect(bad.json.code).toBe('invalid_range');
+      expect((await dash(ql, '?from=2026-13-40')).status).toBe(422);
+    });
+
+    it('the cut by permission and by branch holds over a range (cashier: no revenue; Thu Duc cannot name Quan 7)', async () => {
+      await post(ql, '/api/v1/rpt/jobs/run-due', {});
+      const q = `?from=${ago(2)}&to=${today}`;
+      const cash = (await dash(tn, q)).json;
+      expect(cash.visible.revenue).toBe(false);
+      expect(cash.totals.revenue.exTaxVnd).toBe(0);
+      expect(cash.series).toEqual([]);
+      expect(cash.previousExTaxVnd).toBeNull();
+      expect((await dash(qlTd, `${q}&branchId=br_q7`)).status).toBe(403);
+      const own = (await dash(qlTd, q)).json;
+      expect(own.rows.map((x: Row) => x.branchId)).toEqual(['br_td']);
+      const all = (await dash(ch, q)).json;
+      expect(all.consolidated).toBe(true);
+      expect(all.rows.map((x: Row) => x.branchId)).toEqual(
+        expect.arrayContaining(['br_q7', 'br_td']),
+      );
+    });
+  });
+
   describe('exception alerts (G4-RPT-09)', () => {
     it('shows the open order and the uninvoiced one as they age; each alert opens its document', async () => {
       // two days later: C has been open "too long" with a lowered threshold? use time: 6 days later
