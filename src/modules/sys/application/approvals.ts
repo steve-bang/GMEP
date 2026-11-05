@@ -8,7 +8,7 @@ import {
   resolveScope,
   type Actor,
 } from '@/platform/rbac/rbac';
-import { scopeAllows, type Scope } from '@/platform/scope/scope';
+import { branchesScope, scopeAllows, type Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import {
   APPROVAL_KIND_DEFS,
@@ -16,6 +16,7 @@ import {
   approverPermissionFor,
   INVOICE_APPROVER_PERMISSION,
   checkDecision,
+  isApprovalExpired,
   isApprovalKind,
   REAUTH_ON_APPROVE,
   isOverdue,
@@ -102,7 +103,25 @@ export async function openApprovalInTx(
   if (!isApprovalKind(i.kind)) throw new AppError('approval_kind_unknown', 422);
   const slotId = approvalSlotId(i.kind, i.subjectId);
   const slot = await deps.approvals.getSlotInTx(tx, slotId);
-  if (slot?.open) throw new AppError('approval_already_pending', 409);
+  if (slot?.open) {
+    // an APPROVED request that outlived its `validHours` can never be used again (the use case answers
+    // approval_expired): it must not keep the slot closed to a new request
+    const old = await deps.approvals.getInTx(
+      tx,
+      branchesScope(actor.companyId, [i.branch.id]),
+      slot.requestId,
+    );
+    const dead =
+      !!old &&
+      old.status === 'approved' &&
+      !old.consumedAt &&
+      isApprovalExpired(
+        old.decidedAt ?? old.requestedAt,
+        deps.clock.now(),
+        i.limits.validHours ?? APPROVAL_KIND_DEFS[i.kind].defaults.validHours,
+      );
+    if (!dead) throw new AppError('approval_already_pending', 409);
+  }
   const approvers = await approversOf(deps, actor.companyId, i.branch.id, i.level, i.kind);
   const now = deps.clock.now();
   const id = `ap_${deps.newId()}`;
@@ -549,6 +568,12 @@ export async function findActiveApprovalFor(
   q: { kind: ApprovalKind; subjectId: string; branchId: string },
 ): Promise<ApprovalDto | null> {
   const scope = resolveScope(actor, 'approval:view');
+  const limits = await approvalLimitsOf(
+    deps,
+    actor.companyId,
+    q.kind,
+    businessDate(deps.clock.now()),
+  );
   const [pending, mine] = await Promise.all([
     deps.approvals.listByBranchStatus(scope, q.branchId, 'pending', LIST_MAX),
     deps.approvals.listByRequester(scope, actor.userId, LIST_MAX),
@@ -558,7 +583,15 @@ export async function findActiveApprovalFor(
       x.kind === q.kind &&
       x.subjectId === q.subjectId &&
       x.branchId === q.branchId &&
-      (x.status === 'pending' || (x.status === 'approved' && !x.consumedAt)),
+      (x.status === 'pending' ||
+        (x.status === 'approved' &&
+          !x.consumedAt &&
+          // an approval past its validity is dead: the screen offers a new request instead
+          !isApprovalExpired(
+            x.decidedAt ?? x.requestedAt,
+            deps.clock.now(),
+            limits.validHours ?? APPROVAL_KIND_DEFS[q.kind].defaults.validHours,
+          ))),
   );
   return r ? toDto(deps, actor, r) : null;
 }

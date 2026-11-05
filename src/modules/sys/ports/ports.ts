@@ -435,11 +435,20 @@ export interface ImportBatchRepository {
   create(tx: Tx, b: ImportBatch): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** file slot: the batch that currently owns these exact bytes for (branch, kind) */
-  getFileSlotInTx(tx: Tx, slotId: string): Promise<string | null>;
-  setFileSlot(tx: Tx, slotId: string, batchId: string): void;
+  getFileSlotInTx(tx: Tx, scope: Scope, slotId: string): Promise<string | null>;
+  setFileSlot(
+    tx: Tx,
+    slotId: string,
+    owner: { batchId: string; companyId: string; branchId: string },
+  ): void;
   /** staged units live in chunks read by key; personal data, removed after commit or discard */
-  putUnits(tx: Tx, batchId: string, companyId: string, units: readonly ImportUnit[]): void;
-  getUnits(batchId: string, chunkCount: number): Promise<ImportUnit[]>;
+  putUnits(
+    tx: Tx,
+    batchId: string,
+    owner: { companyId: string; branchId: string },
+    units: readonly ImportUnit[],
+  ): void;
+  getUnits(scope: Scope, batchId: string, chunkCount: number): Promise<ImportUnit[]>;
   deleteUnits(tx: Tx, batchId: string, chunkCount: number): void;
 }
 

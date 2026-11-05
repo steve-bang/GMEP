@@ -14,7 +14,7 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 - Quyền mới `data-import:view|create|archive` (CH, QL, TK; top-up `2026-11-sys-1.11-import`). `authed(..., { multipart: true })` cho đúng một route tải tệp (vẫn kiểm Origin). Giới hạn `SysConfig.importMaxBytes` 5 MB, `importMaxRows` 2.000. Chỉ mục: +1 (`importBatches.byBranch`); số thực tế hiện tại là 193/200 (đếm bằng `pnpm check:indexes`, ghi 192 ở đây là lệch); còn lại đọc theo khóa (lô theo id, ô tệp, các khối dòng `importUnits/<lô>_<n>`).
 - Kiểm thử: `tests/unit/sys-import.test.ts` (ánh xạ, máy trạng thái, đọc csv/xlsx, giới hạn), `tests/integration/import.test.ts` (UAT-12: lỗi theo dòng không ghi gì, ghi lô, chạy lại không trùng, chặn tệp trùng, cô lập chi nhánh, quyền, hoàn tác bị chặn rồi thành công, phiếu đảo, nhật ký) trên memory và Firestore emulator; fixture giả `tests/fixtures/import/customers.xlsx`.
 
-**Chưa dựng.** Công nợ đầu kỳ, nhân sự, dịch vụ/giờ chuẩn/bảng giá, lịch sử sửa chữa, giới hạn theo số năm lịch sử; lô lớn xử lý nền (R94); gộp khách trùng (R97); cột xe tương thích của phụ tùng; phụ tùng tính số lẻ cho tồn đầu kỳ; lưu tệp gốc (R99); (đã xong sau đó: mẫu `.xlsx`, phân trang lỗi, xem cập nhật 6); diễn tập di chuyển trên mẫu thật của khách (R93); kiểm thử e2e giao diện.
+**Chưa dựng.** Công nợ đầu kỳ, nhân sự, dịch vụ/giờ chuẩn/bảng giá, lịch sử sửa chữa, giới hạn theo số năm lịch sử; lô lớn xử lý nền (R94); gộp khách trùng (R97); cột xe tương thích của phụ tùng; phụ tùng tính số lẻ cho tồn đầu kỳ; lưu tệp gốc (R99); diễn tập di chuyển trên mẫu thật của khách (R93). (Đã xong: mẫu `.xlsx`, phân trang lỗi, e2e giao diện nhập.)
 
 ## Cập nhật 04/11/2026: siết nhập Excel (R95–R100), ảnh REC, hoàn tiền khách, mở lại ngày (dev)
 
@@ -25,7 +25,7 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 - ACC mở lại ngày (FR-ACC-005): `POST /api/v1/acc/day-close/reopen-request` (cấp 2, chủ garage) rồi `/reopen`; chỉ ngày làm việc hiện tại; bản ghi chốt chuyển `reopened`, chốt lại thì thay thế.
 - Kiểm thử: `tests/integration/import.test.ts`, `rec-orders.test.ts` (ảnh), `acc.test.ts` (hoàn tiền, mở lại ngày), `tests/unit/acc-domain.test.ts`.
 
-**Chưa dựng.** Màn hình cho ảnh, hoàn tiền và mở lại ngày; xóa ảnh, làm mờ, gỡ EXIF, hạn lưu; URL ký ngắn hạn (hiện API phát lại byte); hỏi lại mật khẩu khi mở lại ngày; khóa kỳ tháng; hạn mức hoàn của thu ngân; hoàn tiền kèm hóa đơn điều chỉnh. Câu hỏi mở: R104 đến R107.
+**Chưa dựng.** Màn hình cho ảnh, hoàn tiền và mở lại ngày; xóa ảnh, làm mờ, hạn lưu; URL ký ngắn hạn (hiện API phát lại byte); khóa kỳ tháng; hạn mức hoàn của thu ngân; hoàn tiền kèm hóa đơn điều chỉnh. Câu hỏi mở: R104 đến R107.
 
 ## Cập nhật 04/11/2026 (2): màn hình còn thiếu, cron nội bộ (dev)
 
@@ -52,7 +52,7 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 - R106: mở lại ngày quá `maxReopensPerMonth` (mặc định 3, cấu hình `approval-limit`/`day_reopen`) lần trong tháng thì gửi thêm thông báo ngoại lệ lặp lại cho CH và KT. Đếm bằng `reopenCount` trên bản ghi chốt ngày (đọc theo mã, không thêm chỉ mục). Test chỉ kiểm tra "một lần chưa báo"; nhánh vượt ngưỡng nay đã có test tích hợp (đặt `reopenCount` 3 trên bản ghi chốt ngày).
 - FR-RPT-014: rollup ngày `schemaVersion` 2 có `byServiceType` (số lệnh, doanh thu, thu/nợ/chênh lệch, lệnh chưa hóa đơn theo loại). Bản cũ (v1) được dựng lại một lần khi làm mới (mã băm khác), sau đó ổn định; ngày v1 chưa dựng lại bị loại khỏi báo cáo lọc và được liệt kê. Bộ lọc loại dịch vụ ở báo cáo tháng và đối chiếu (màn hình, API, xuất).
 - Xuất `.xlsx` (FR-RPT-009) cho 4 báo cáo giai đoạn 1 (`format: 'xlsx'` ở `/api/v1/rpt/export`) và mẫu nhập `.xlsx` (`?format=xlsx`). Trình ghi tối giản tự viết (`src/platform/files/xlsxWriter.ts`, OOXML + zip bằng `node:zlib`, không thêm thư viện); chuỗi là inline string, thoát `= + - @`.
-- Chưa dựng: xuất `.xlsx` cho báo cáo ngày (vẫn CSV); chia thu theo phương thức, quỹ, kho theo loại dịch vụ (không gắn với lệnh). (Cột "đã xuất hóa đơn" khi lọc từng hiện 0: đã sửa ở rollup v3, mục dưới.)
+- Chưa dựng: quỹ, công nợ tồn, kho theo loại dịch vụ (không gắn với lệnh). (Cột "đã xuất hóa đơn" khi lọc từng hiện 0: đã sửa ở rollup v3, mục dưới.)
 - Test: `tests/unit/rpt-service-type-xlsx.test.ts` (đọc lại file bằng read-excel-file), `tests/integration/{rpt,import,rec-orders,acc}.test.ts`.
 
 ## Cập nhật 04/11/2026 (5): hoàn tất R108 (dev)
@@ -85,3 +85,12 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 - Ngoại lệ (bản ghi cấp công ty, không thu hẹp) `[Cần xác nhận BA]`: tổ chức, vai trò, người dùng, cấu hình có hiệu lực theo ngày và danh mục công ty (thuế, bảng giá, dịch vụ, chính sách...). Khách và xe là cấp công ty nhưng có liên kết chi nhánh: ghi được khi có liên kết tới chi nhánh làm việc (hệ quả của phạm vi thu hẹp), chưa có quy tắc BA riêng.
 - Hệ quả: 404 thật (id không tồn tại) của người phạm vi rộng khi đang chọn chi nhánh và ghi sẽ hiện 409 `switch_branch_required` (chấp nhận, không có cách phân biệt rẻ).
 - Test: `tests/unit/rbac-write-fence.test.ts` (INV, ACC, REC, EIN, đọc, cấp công ty, chưa chọn chi nhánh), `isolation-matrix.test.ts` (CRM xe/khách, SYS kho: chặn, chuyển chi nhánh thì ghi được, chưa chọn chi nhánh như cũ, người một chi nhánh 404, đọc 200). CH/KT không giữ quyền ghi REC/INV/ACC nên không có ví dụ tích hợp cho các module này.
+
+## Cập nhật 05/11/2026 (9): sửa finding review vòng 3 (dev)
+
+- Duyệt hết hạn không còn giữ chỗ: `openApprovalInTx` và `findActiveApprovalFor` coi yêu cầu `approved` chưa dùng mà quá `validHours` (cấu hình, mặc định theo loại: hoàn tiền 24 h, mở lại ngày 2 h) là đã chết, yêu cầu mới tạo được (không còn `approval_already_pending` vĩnh viễn). Test: `acc.test.ts` (hoàn tiền và `day_reopen`).
+- Lô nhập treo ở `committing`: bước cuối nằm trong try/catch (lỗi thì `failed`); lô `committing` quá `importStaleCommitMinutes` (mặc định 15, theo đồng hồ) được chuyển `failed` (mã `import_commit_stale`, nhật ký `dataImport.commit.stale`) khi ghi tiếp hoặc hoàn tác; trước ngưỡng vẫn 409. Test bằng đồng hồ giả trong `import.test.ts`.
+- Đọc tệp nhập: trước khi mở `.xlsx` kiểm cấu trúc zip và giải nén thật từng phần với trần (20 MiB mỗi phần, 40 MiB tổng, 200 phần, không chấp nhận zip64/mã hóa; không tin kích thước ghi trong tiêu đề); csv dừng đọc ngay khi quá số dòng; tối đa 200 cột. Lỗi là 422 `import_file_invalid`. Test zip bomb nhỏ trong `sys-import.test.ts`.
+- Tồn đầu kỳ (R95): kiểm trùng đọc hết chứng từ của kho theo trang (truy vấn đã đăng ký, không thêm chỉ mục), trần 20.000 chứng từ mỗi trạng thái và báo `import_opening_scan_limit` khi chạm trần thay vì bỏ sót.
+- Kho lưu tệp nhập (`getUnits`, `getFileSlotInTx`) nhận `Scope`; ô tệp và khối dòng mang `companyId`, `branchId`.
+- RPT: hoàn tiền khách (phiếu chi mang lệnh) tính vào loại dịch vụ của lệnh (`byServiceType[].expenseVnd`), không vào "không gắn lệnh"; rollup `schemaVersion` 4 (ngày cũ hiện là "cần dựng lại" khi lọc theo loại dịch vụ). Đọc việc theo lệnh và tên kho chạy song song có giới hạn 10 (`mapPool`); xuất báo cáo nhận mã chi nhánh từ DTO, không đọc lại danh sách chi nhánh.

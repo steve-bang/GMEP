@@ -424,6 +424,31 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
     });
     return rows.map(documentFromDoc);
   }
+  async listAllByWarehouseStatus(
+    companyId: string,
+    warehouseId: string,
+    status: StockDocument['status'],
+    maxDocs: number,
+    PAGE = 500,
+  ) {
+    const out: StockDocument[] = [];
+    let cursor: { v: string; id: string } | undefined;
+    for (;;) {
+      const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
+        eq: { companyId, warehouseId, status },
+        ...(cursor ? { cursor } : {}),
+        limit: PAGE + 1,
+      });
+      const docs = rows.map(documentFromDoc);
+      for (const d of docs.slice(0, PAGE)) {
+        if (out.length >= maxDocs) return { docs: out, truncated: true };
+        out.push(d);
+      }
+      const last = docs[PAGE - 1];
+      if (docs.length <= PAGE || !last) return { docs: out, truncated: false };
+      cursor = { v: isoOf(last.createdAt), id: last.id };
+    }
+  }
   async hasOpen(companyId: string, warehouseId: string) {
     const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
       eq: { companyId, warehouseId, status: 'draft' },

@@ -181,7 +181,7 @@ export function sumUnlinked(rolls: readonly Rolled[]): UnlinkedRollup {
  * FR-RPT-014: narrows daily rollups to ONE service type. Only the order-bound figures are attributable (orders closed,
  * revenue, money received/debt/gap for those orders, orders completed without an invoice) plus the documents that carry
  * an order (receipts by method, invoices issued, goods issues, schema 3). Opened/handed over/cancelled, receivables and
- * cash are not tied to a service type and read zero; documents without an order are in `sumUnlinked`. A rollup before schema version 3 lacks the payment, invoice and stock split: its date is listed in `unavailableDates`, not counted as zero.
+ * cash are not tied to a service type and read zero; documents without an order are in `sumUnlinked`. A rollup before schema version 4 lacks the payment, invoice and stock split: its date is listed in `unavailableDates`, not counted as zero.
  */
 export function forServiceType(
   rolls: readonly Rolled[],
@@ -191,7 +191,7 @@ export function forServiceType(
   const included: Rolled[] = [];
   const unavailableDates: string[] = [];
   for (const r of rolls) {
-    if (!r.byServiceType || (r.schemaVersion ?? 1) < 3) {
+    if (!r.byServiceType || (r.schemaVersion ?? 1) < 4) {
       unavailableDates.push(r.date);
       continue;
     }
@@ -215,7 +215,7 @@ export function forServiceType(
         receiptCount: 0,
         inflowVnd: e.inflowVnd,
         depositVnd: 0,
-        expenseVnd: 0,
+        expenseVnd: e.expenseVnd,
         receivedForClosedVnd: e.receivedVnd,
         debtForClosedVnd: e.debtVnd,
         gapVnd: e.gapVnd,

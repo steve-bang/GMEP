@@ -162,6 +162,7 @@ export function sysConfigFromEnv(env: Env): SysConfig {
     importMaxBytes: 5 * 1024 * 1024,
     importMaxRows: 2000,
     importAbandonedDays: 7,
+    importStaleCommitMinutes: 15,
     notificationBellDays: 30,
     notificationRetentionDays: 365,
     consentPolicyVersion: 'chưa có [do doanh nghiệp cung cấp]',

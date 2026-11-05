@@ -61,6 +61,8 @@ export interface SysConfig {
   importMaxRows: number;
   /** R99: a validated batch never committed is discarded (staged rows deleted) after this many days; default 7 */
   importAbandonedDays: number;
+  /** a batch stuck in `committing` longer than this many minutes (instance stopped) may be resumed or undone; default 15 */
+  importStaleCommitMinutes: number;
   /** notifications: hidden in the bell after / deleted after (BA §8.1) */
   notificationBellDays: number;
   notificationRetentionDays: number;

@@ -80,6 +80,8 @@ const facts: DayFacts = {
     pay('p10', 'receipt', 'in', 'old-order', [['qr', 20_000]]),
     pay('p11', 'reversal', 'out', '1', [['cash', 80_000]], 'receipt'),
     pay('p12', 'expense', 'out', null, [['cash', 30_000]]),
+    // a customer refund carries its order: it belongs to that order's service type, not to the unlinked line
+    pay('p13', 'expense', 'out', '1', [['cash', 12_000]]),
   ],
   openDebts: [],
   shifts: [],
@@ -103,7 +105,7 @@ const roll = () => computeDaily(key, facts, DEFAULT_RPT_POLICY, limits, NOW, fin
 describe('FR-RPT-014: byServiceType in the daily rollup', () => {
   it('splits the order-bound figures by type and adds up to the day totals', () => {
     const r = roll();
-    expect(r.schemaVersion).toBe(3);
+    expect(r.schemaVersion).toBe(4);
     const by = new Map(r.byServiceType!.map((x) => [x.serviceType, x]));
     expect(by.get('maintenance')).toMatchObject({
       closed: 2,
@@ -139,6 +141,9 @@ describe('FR-RPT-014: byServiceType in the daily rollup', () => {
       stockIssueDocuments: 2,
     });
     expect(by.get('tires')).toMatchObject({ byMethod: { card: 216_000 }, invoicesIssuedCount: 1 });
+    expect(by.get('maintenance')!.expenseVnd).toBe(12_000);
+    // day total expense = refunds of orders + vouchers without an order (nothing lost or doubled)
+    expect(r.money.expenseVnd).toBe(42_000);
     expect(r.unlinked).toEqual({
       byMethod: { cash: 50_000, qr: 20_000 },
       inflowVnd: 70_000,

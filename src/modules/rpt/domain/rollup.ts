@@ -214,6 +214,8 @@ export interface ServiceTypeRollup {
   invoicesIssuedCount: number;
   invoicesIssuedVnd: number;
   stockIssueDocuments: number;
+  /** schema 4: customer refunds paid out against an order of this type (expense vouchers carrying the order, net of their reversals) */
+  expenseVnd: number;
 }
 
 /**
@@ -255,6 +257,7 @@ export const emptyServiceRollup = (serviceType: string | null): ServiceTypeRollu
   invoicesIssuedCount: 0,
   invoicesIssuedVnd: 0,
   stockIssueDocuments: 0,
+  expenseVnd: 0,
 });
 
 export const PAYMENT_METHOD_KEYS = ['cash', 'transfer', 'card', 'qr'] as const;
@@ -270,7 +273,7 @@ export interface DailyRollup {
    * 1 = before the service-type breakdown; 2 = with `byServiceType` (orders only); 3 = also money by method, issued invoices
    * and goods issues per type plus `unlinked` (FR-RPT-014). A rebuild upgrades a document.
    */
-  schemaVersion: 1 | 2 | 3;
+  schemaVersion: 1 | 2 | 3 | 4;
   computedAt: Date;
   /** hash of everything below except `computedAt` and `sourceHash` (a rebuild that changes nothing writes nothing) */
   sourceHash: string;
@@ -527,7 +530,10 @@ export function computeDaily(
     } else {
       // expense out, or the reversal of an expense (in)
       expense += -sign * p.totalVnd;
-      unlinked.expenseVnd += -sign * p.totalVnd;
+      // a customer refund carries its order: it belongs to that order's service type, not to "không gắn lệnh"
+      const eo = p.orderId ? orderById.get(p.orderId) : undefined;
+      if (eo) svcOf(eo).expenseVnd += -sign * p.totalVnd;
+      else unlinked.expenseVnd += -sign * p.totalVnd;
     }
   }
 
@@ -614,7 +620,7 @@ export function computeDaily(
     branchId: key.branchId,
     date: key.date,
     official: facts.dayClosedAt !== null,
-    schemaVersion: 3 as const,
+    schemaVersion: 4 as const,
     orders: { opened, closed, handedOver, cancelled, openAtEnd },
     revenue: {
       orderTotalVnd: orderTotal,

@@ -111,6 +111,14 @@ export interface StockDocumentRepository {
     status: StockDocStatus,
     limit: number,
   ): Promise<StockDocument[]>;
+  /** same query read page by page up to `maxDocs`; `truncated` = more documents exist than were read (never silent) */
+  listAllByWarehouseStatus(
+    companyId: string,
+    warehouseId: string,
+    status: StockDocStatus,
+    maxDocs: number,
+    pageSize?: number,
+  ): Promise<{ docs: StockDocument[]; truncated: boolean }>;
   /** true when a draft document refers to the warehouse (guards deactivation) */
   hasOpen(companyId: string, warehouseId: string): Promise<boolean>;
 }

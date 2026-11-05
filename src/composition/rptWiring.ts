@@ -1,3 +1,4 @@
+import { mapPool } from '@/platform/async/mapPool';
 import { decodeCursor } from '@/platform/pagination/pagination';
 import { branchesScope, scopeAllows, type Scope } from '@/platform/scope/scope';
 import { businessDate } from '@/platform/format/date';
@@ -277,20 +278,21 @@ export function buildRptSources(
         if (truncated || reachedSince || !page.nextCursor) break;
         cursor = decodeCursor(page.nextCursor);
       }
-      const items: WorkItemFact[] = [];
-      for (const o of done) {
-        for (const it of await rec.items.listByOrder(s, o.id, rec.rec.maxItemsPerOrder))
-          items.push({
-            orderId: o.id,
-            orderNumber: o.number,
-            serviceType: o.serviceType ?? null,
-            technicianId: it.technicianId,
-            technicianName: it.technicianName,
-            status: it.status,
-            workedMs: it.workedMs,
-            approvedMinutes: it.approvedMinutes,
-          });
-      }
+      // one by-key read per finished order, a few at a time (up to maxOrders of them); order of the result is kept
+      const perOrder = await mapPool(done, 10, async (o) => {
+        const list = await rec.items.listByOrder(s, o.id, rec.rec.maxItemsPerOrder);
+        return list.map((it): WorkItemFact => ({
+          orderId: o.id,
+          orderNumber: o.number,
+          serviceType: o.serviceType ?? null,
+          technicianId: it.technicianId,
+          technicianName: it.technicianName,
+          status: it.status,
+          workedMs: it.workedMs,
+          approvedMinutes: it.approvedMinutes,
+        }));
+      });
+      const items = perOrder.flat();
       return { items, truncated };
     },
     async stockIssues(scope, branchId, date, limit) {

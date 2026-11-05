@@ -86,21 +86,35 @@ export class DocImportBatchRepository implements ImportBatchRepository {
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.importBatches, id, patch);
   }
-  async getFileSlotInTx(tx: Tx, slotId: string) {
+  async getFileSlotInTx(tx: Tx, scope: Scope, slotId: string) {
     const d = await this.store.getInTx(tx, COL.importFileSlots, slotId);
-    return d ? (d.data.batchId as string) : null;
+    // a slot carries its owner; one without (or of another company/branch) is not visible to this scope
+    if (!d || !scopeAllows(scope, d.data.companyId as string, (d.data.branchId as string) ?? null))
+      return null;
+    return d.data.batchId as string;
   }
-  setFileSlot(tx: Tx, slotId: string, batchId: string) {
-    this.store.set(tx, COL.importFileSlots, slotId, { batchId });
+  setFileSlot(
+    tx: Tx,
+    slotId: string,
+    owner: { batchId: string; companyId: string; branchId: string },
+  ) {
+    this.store.set(tx, COL.importFileSlots, slotId, owner);
   }
-  putUnits(tx: Tx, batchId: string, companyId: string, units: readonly ImportUnit[]) {
+  putUnits(
+    tx: Tx,
+    batchId: string,
+    owner: { companyId: string; branchId: string },
+    units: readonly ImportUnit[],
+  ) {
     chunk(units, IMPORT_CHUNK_ROWS).forEach((c, n) =>
-      this.store.set(tx, COL.importUnits, chunkId(batchId, n), { companyId, units: c }),
+      this.store.set(tx, COL.importUnits, chunkId(batchId, n), { ...owner, units: c }),
     );
   }
-  async getUnits(batchId: string, chunkCount: number) {
+  async getUnits(scope: Scope, batchId: string, chunkCount: number) {
     const ids = Array.from({ length: chunkCount }, (_, n) => chunkId(batchId, n));
-    const docs = await this.store.getMany(COL.importUnits, ids);
+    const docs = (await this.store.getMany(COL.importUnits, ids)).filter((d) =>
+      scopeAllows(scope, d.data.companyId as string, (d.data.branchId as string) ?? null),
+    );
     const byId = new Map(docs.map((d) => [d.id, d.data.units as ImportUnit[]]));
     return ids.flatMap((id) => byId.get(id) ?? []);
   }
