@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { businessDate } from '@/platform/format/date';
 import { viewPublicQuote } from '@/modules/rec';
 import { backends, createHarness, type Harness } from './harness';
 
@@ -38,6 +39,34 @@ describe.each(backends)('REC public quote photos [%s]', (backend) => {
     h.call('GET', `/api/v1/rec/public/quote/photos/${pid}?t=${encodeURIComponent(token)}`, {
       headers: { 'x-forwarded-for': address },
     });
+
+  const photoViews = async (quoteId: string) => {
+    const audit = await call(ql, 'GET', `/api/v1/sys/audit?entityType=quote&entityId=${quoteId}`);
+    return (audit.json.items as Row[]).filter((e) => e.action === 'quote.photo-view');
+  };
+  const advance = (ms: number) => h.clock.set(new Date(h.clock.now().getTime() + ms).toISOString());
+
+  /** R34: an approved `public-rate-limit` in force from 3 days ahead; the caller moves the clock there */
+  async function configureLimits(payload: Row) {
+    const eff = businessDate(new Date(h.clock.now().getTime() + 3 * 86_400_000));
+    const prop = await h.call('POST', '/api/v1/sys/config/public-rate-limit', {
+      as: 'u_ad',
+      key: key('cfg'),
+      body: {
+        scopeKey: 'company',
+        effectiveFrom: eff,
+        reason: 'Đo giới hạn ảnh ở staging',
+        payload,
+      },
+    });
+    expect(prop.status, prop.text).toBe(201);
+    const ok = await h.call(
+      'POST',
+      `/api/v1/sys/config/public-rate-limit/${encodeURIComponent(prop.json.id)}/decide`,
+      { as: 'u_owner', key: key('cfg'), body: { decision: 'approve' } },
+    );
+    expect(ok.status, ok.text).toBe(200);
+  }
 
   /** a sent quote with a link; the intake gets photos while still a draft; `hide` marks some hidden (R104) */
   async function quoteWithPhotos(
@@ -120,10 +149,10 @@ describe.each(backends)('REC public quote photos [%s]', (backend) => {
     expect(r.headers.get('content-type')).toBe('image/jpeg');
     expect(r.headers.get('cache-control')).toBe('private, no-store');
     expect(r.headers.get('x-content-type-options')).toBe('nosniff');
-    // every read is in the audit log, actor = the link, no personal data; photos are information only
-    const audit = await call(ql, 'GET', `/api/v1/sys/audit?entityType=quote&entityId=${a.quoteId}`);
-    const reads = (audit.json.items as Row[]).filter((e) => e.action === 'quote.photo-view');
+    // reads are in the audit log (once per link per window), actor = the link, no personal data; photos are information only
+    const reads = await photoViews(a.quoteId);
     expect(reads).toHaveLength(1);
+    expect(reads[0]!.after).toMatchObject({ photoId: a.ids[0], kind: 'intake', windowMinutes: 10 });
     expect(reads[0]!.actorId).toMatch(/^customer-link:/);
     expect(JSON.stringify(reads[0])).not.toMatch(/0900000|Nguyễn/);
     const q = (await call(cv, 'GET', `/api/v1/rec/quotes/${a.quoteId}`)).json;
@@ -172,13 +201,75 @@ describe.each(backends)('REC public quote photos [%s]', (backend) => {
     }
   });
 
-  it('FR-REC-034: photo reads are rate limited per address and per token', async () => {
+  it('FR-REC-034 / R34: the photo bucket is separate from the page bucket', async () => {
     const a = await quoteWithPhotos('veh_an', 6);
-    const address = '198.51.100.250';
+    const real = h.clock.now().toISOString();
+    try {
+      await configureLimits({
+        viewLimit: 5,
+        viewWindowSeconds: 600,
+        decideLimit: 3,
+        decideWindowMinutes: 30,
+      });
+      advance(3 * 86_400_000);
+      const address = '198.51.100.240';
+      // 10 photos from one address and one link all load although the page allows only 5 views
+      for (let i = 0; i < 10; i++)
+        expect((await photoGet(a.token, a.ids[i % 2]!, address)).status).toBe(200);
+      const pages: (number | undefined)[] = [];
+      for (let i = 0; i < 6; i++)
+        pages.push(
+          await viewPublicQuote(h.container.rec, a.token, { address }).then(
+            () => 200,
+            (e: { status?: number }) => e.status,
+          ),
+        );
+      expect(pages).toEqual([200, 200, 200, 200, 200, 429]);
+      expect((await photoGet(a.token, a.ids[0]!, address)).status).toBe(200);
+    } finally {
+      h.clock.set(real);
+    }
+  });
+
+  it('FR-REC-034: photo reads are limited per token (120 per minute) even from many addresses', async () => {
+    const a = await quoteWithPhotos('veh_an', 7);
     const statuses: number[] = [];
-    for (let i = 0; i < 70; i++)
-      statuses.push((await photoGet(a.token, a.ids[0]!, address)).status);
-    expect(statuses).toContain(429);
-    expect(statuses[0]).toBe(200);
+    for (let i = 0; i < 121; i++) statuses.push((await photoGet(a.token, a.ids[0]!)).status);
+    expect(statuses.slice(0, 120).every((x) => x === 200)).toBe(true);
+    expect(statuses[120]).toBe(429);
+  });
+
+  it('FR-REC-034: photo reads are limited per address (600 per minute); an unknown token is 404 and consumes it', async () => {
+    const address = '198.51.100.251';
+    const first = await photoGet('x0', 'ph_nope', address);
+    expect(first.status).toBe(404);
+    for (let i = 1; i < 600; i++)
+      expect((await photoGet(`x${i}`, 'ph_nope', address)).status).toBe(404);
+    expect((await photoGet('x-last', 'ph_nope', address)).status).toBe(429);
+    // a valid link from the same address is throttled too, another address is not
+    const a = await quoteWithPhotos('veh_an', 8);
+    expect((await photoGet(a.token, a.ids[0]!, address)).status).toBe(429);
+    expect((await photoGet(a.token, a.ids[0]!)).status).toBe(200);
+  });
+
+  it('FR-REC-034: photo-view is audited once per link per 10 minutes', async () => {
+    const a = await quoteWithPhotos('veh_an', 9);
+    const real = h.clock.now().toISOString();
+    try {
+      for (let i = 0; i < 3; i++) expect((await photoGet(a.token, a.ids[i % 2]!)).status).toBe(200);
+      const rows = await photoViews(a.quoteId);
+      expect(rows).toHaveLength(1);
+      expect(rows[0]!.after.photoId).toBe(a.ids[0]);
+      advance(9 * 60_000);
+      await photoGet(a.token, a.ids[1]!);
+      expect(await photoViews(a.quoteId)).toHaveLength(1);
+      advance(2 * 60_000);
+      expect((await photoGet(a.token, a.ids[1]!)).status).toBe(200);
+      const after = await photoViews(a.quoteId);
+      expect(after).toHaveLength(2);
+      expect(JSON.stringify(after)).not.toMatch(/0900000|Nguyễn|198\.51/);
+    } finally {
+      h.clock.set(real);
+    }
   });
 });

@@ -176,6 +176,9 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         /** approve/reject attempts per window, per link */
         decideLimit: z.number().int().min(1).max(100),
         decideWindowMinutes: z.number().int().min(1).max(240),
+        /** FR-REC-034: photo reads per window, per link (per address: 5 times this); default 120 per 60 s */
+        photoViewLimit: z.number().int().min(10).max(2000).optional(),
+        photoViewWindowSeconds: z.number().int().min(10).max(3600).optional(),
       })
       .strict(),
   },

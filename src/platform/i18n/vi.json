@@ -2981,7 +2981,8 @@
       "photoVehicle": "Ảnh xe số {n}",
       "photoProposal": "Ảnh hư hỏng phát hiện số {n}",
       "photoOpen": "Phóng to ảnh",
-      "photoClose": "Đóng"
+      "photoClose": "Đóng",
+      "photoFailed": "Không tải được ảnh. Vui lòng thử lại sau ít phút."
     }
   },
   "acc": {

@@ -78,6 +78,7 @@ const KEYS = [
   'photoProposal',
   'photoOpen',
   'photoClose',
+  'photoFailed',
 ] as const;
 
 /**

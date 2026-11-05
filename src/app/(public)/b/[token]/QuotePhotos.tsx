@@ -24,6 +24,8 @@ export function QuotePhotos({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState<Photo | null>(null);
+  const [failed, setFailed] = useState<Set<string>>(new Set());
+  const markFailed = (id: string) => setFailed((f) => new Set(f).add(id));
   if (photos.length === 0) return null;
   const src = (p: Photo) =>
     `/api/v1/rec/public/quote/photos/${encodeURIComponent(p.id)}?t=${encodeURIComponent(token)}`;
@@ -50,8 +52,25 @@ export function QuotePhotos({
               }}
               data-testid="pub-photo"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- bytes come from our API, no Next image loader */}
-              <img src={src(p)} alt={alt(p, i)} loading="lazy" decoding="async" />
+              {failed.has(p.id) ? (
+                <span
+                  role="img"
+                  aria-label={l.photoFailed}
+                  className="text-secondary"
+                  data-testid="pub-photo-failed"
+                >
+                  {l.photoFailed}
+                </span>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element -- bytes come from our API, no Next image loader
+                <img
+                  src={src(p)}
+                  alt={alt(p, i)}
+                  loading="lazy"
+                  decoding="async"
+                  onError={() => markFailed(p.id)}
+                />
+              )}
             </button>
             {p.caption ? <span className="pub-photos__cap">{p.caption}</span> : null}
           </li>
@@ -69,7 +88,11 @@ export function QuotePhotos({
         {open ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
-            <img src={src(open)} alt={alt(open, photos.indexOf(open))} />
+            <img
+              src={src(open)}
+              alt={alt(open, photos.indexOf(open))}
+              onError={() => dialog.current?.close()}
+            />
             <button
               type="button"
               className="btn btn--secondary btn--block"

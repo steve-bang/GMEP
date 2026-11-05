@@ -2,6 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import type { AuditEntry } from '@/platform/audit/audit';
+import { DEFAULT_RATE_LIMITS } from '@/platform/ratelimit/ratelimit';
 import { hasPermission, resolveScope, type Actor } from '@/platform/rbac/rbac';
 import { branchesScope, type Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
@@ -626,14 +627,33 @@ async function publicLimits(deps: RecDeps, companyId: string) {
         viewWindowSeconds: number;
         decideLimit: number;
         decideWindowMinutes: number;
+        photoViewLimit?: number;
+        photoViewWindowSeconds?: number;
       }
     | undefined;
+  // FR-REC-034: the photo bucket has its own numbers; per address it is 5 times the per-link limit
+  const photoLimit = c?.photoViewLimit ?? DEFAULT_RATE_LIMITS['customer-link-photo'].limit;
+  const photoMs = (c?.photoViewWindowSeconds ?? 60) * 1000;
+  const photo =
+    c?.photoViewLimit !== undefined || c?.photoViewWindowSeconds !== undefined
+      ? {
+          token: { limit: photoLimit, windowMs: photoMs },
+          address: {
+            limit:
+              c.photoViewLimit !== undefined
+                ? c.photoViewLimit * 5
+                : DEFAULT_RATE_LIMITS['customer-link-photo-ip'].limit,
+            windowMs: photoMs,
+          },
+        }
+      : { token: undefined, address: undefined };
   return c
     ? {
         view: { limit: c.viewLimit, windowMs: c.viewWindowSeconds * 1000 },
         decide: { limit: c.decideLimit, windowMs: c.decideWindowMinutes * 60_000 },
+        photo,
       }
-    : { view: undefined, decide: undefined };
+    : { view: undefined, decide: undefined, photo };
 }
 
 async function throttle(
@@ -665,6 +685,34 @@ export async function resolveLink(
   const link = wellFormed ? await deps.links.find(hash) : null;
   // the same throttle applies to unknown and known tokens so a token cannot be probed (R34: numbers from config)
   await throttle(deps, address, hash, decide, link?.companyId ?? null);
+  return loadResolved(deps, link, decide);
+}
+
+/**
+ * FR-REC-034: same resolution as `resolveLink` (page behaviour untouched) but throttled on the separate photo
+ * buckets, so the 30 image requests of one page do not use up the page's allowance. An unknown or malformed token
+ * is a 404 and still consumes the per-address photo bucket.
+ */
+export async function resolvePhotoLink(
+  deps: RecDeps,
+  token: string,
+  address: string,
+): Promise<Resolved> {
+  const hash = tokenHashOf(token);
+  const link = TOKEN_PATTERN.test(token) ? await deps.links.find(hash) : null;
+  const lim = link
+    ? (await publicLimits(deps, link.companyId)).photo
+    : { token: undefined, address: undefined };
+  await deps.sys.limiter.hit('customer-link-photo-ip', `ip:${address}`, lim.address);
+  await deps.sys.limiter.hit('customer-link-photo', `tok:${hash.slice(0, 24)}`, lim.token);
+  return loadResolved(deps, link, false);
+}
+
+async function loadResolved(
+  deps: RecDeps,
+  link: Awaited<ReturnType<RecDeps['links']['find']>>,
+  decide: boolean,
+): Promise<Resolved> {
   if (!link || link.revokedAt) throw notFound();
   const scope = branchesScope(link.companyId, [link.branchId]);
   const q = await deps.quotes.get(scope, link.quoteId);
