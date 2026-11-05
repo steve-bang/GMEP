@@ -141,15 +141,26 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         allowDeclineRequired: z.boolean(),
         /** FR-REC-026: verbal approval by staff is allowed (it becomes an exception for review) */
         verbalApproval: z.boolean(),
-        /** OTP is not available until an SMS provider is active; only `off` is accepted today */
-        otpMode: z.enum(['off']),
+        /**
+         * QUO-04/05, R27: one-time code on the customer's online approval. `above_threshold` = approved total (tax
+         * included) strictly above `otpThresholdVnd`. Default `off`; changing it affects legal evidence, so the owner approves it.
+         */
+        otpMode: z.enum(['off', 'above_threshold', 'always']),
+        /** integer VND, required with `above_threshold`; the number is the client's to give [Cần xác nhận: Chủ dự án] */
+        otpThresholdVnd: vnd.optional(),
+        /** seconds the code stays valid (default 300) */
+        otpTtlSeconds: z.number().int().min(60).max(900).optional(),
         /**
          * R29: a verbal approval above this total (tax included, integer VND) must be recorded by a manager.
          * Not set = no limit. The number is the client's to give [Cần xác nhận: Khách].
          */
         verbalApprovalMaxVnd: vnd.optional(),
       })
-      .strict(),
+      .strict()
+      .refine((p) => p.otpMode !== 'above_threshold' || p.otpThresholdVnd !== undefined, {
+        message: 'otpThresholdVnd is required with otpMode above_threshold',
+        path: ['otpThresholdVnd'],
+      }),
   },
   // R34: rate limits of the customer link page, effective-dated so a change needs no release. Not set = built-in defaults.
   'public-rate-limit': {

@@ -97,6 +97,46 @@
       "title": "Chi nhánh đang ngừng nhận lệnh mới",
       "detail": "Chi nhánh không tạo được bản ghi mới ở trạng thái này; các lệnh đang mở vẫn xử lý được."
     },
+    "message_channel_unavailable": {
+      "title": "Kênh gửi chưa kích hoạt",
+      "detail": "Kênh này chưa dùng được. Chọn kênh khác hoặc sao chép liên kết để gửi cho khách."
+    },
+    "message_no_consent": {
+      "title": "Khách chưa đồng ý nhận tin qua kênh này",
+      "detail": "Ghi nhận đồng ý của khách cho kênh này ở hồ sơ khách hàng trước khi gửi, hoặc chọn kênh khác."
+    },
+    "message_no_contact": {
+      "title": "Chưa có thông tin liên hệ cho kênh này",
+      "detail": "Hồ sơ khách chưa có số điện thoại hoặc email phù hợp. Bổ sung ở hồ sơ khách hàng hoặc chọn kênh khác."
+    },
+    "otp_required": {
+      "title": "Cần mã xác nhận",
+      "detail": "Báo giá này cần mã xác nhận gửi tới khách trước khi duyệt. Hãy yêu cầu mã rồi nhập vào."
+    },
+    "otp_invalid": {
+      "title": "Mã xác nhận chưa đúng",
+      "detail": "Kiểm tra lại mã gồm 6 chữ số trong tin nhắn rồi nhập lại."
+    },
+    "otp_expired": {
+      "title": "Mã xác nhận đã hết hạn",
+      "detail": "Yêu cầu mã mới để tiếp tục."
+    },
+    "otp_locked": {
+      "title": "Mã xác nhận đã bị khóa",
+      "detail": "Nhập sai quá số lần cho phép. Vui lòng đến quầy để được hỗ trợ xác nhận."
+    },
+    "otp_cooldown": {
+      "title": "Vừa gửi mã xác nhận",
+      "detail": "Đợi một lát rồi yêu cầu mã mới."
+    },
+    "otp_unavailable": {
+      "title": "Chưa gửi được mã xác nhận",
+      "detail": "Garage chưa có cách gửi mã tới khách. Vui lòng đến quầy để được hỗ trợ xác nhận."
+    },
+    "otp_delivery_failed": {
+      "title": "Chưa gửi được mã xác nhận",
+      "detail": "Hệ thống chưa gửi được tin nhắn. Thử lại sau ít phút hoặc đến quầy để được hỗ trợ."
+    },
     "version_conflict": {
       "title": "Bản ghi vừa được cập nhật bởi người khác",
       "detail": "Thay đổi của bạn chưa được lưu để tránh ghi đè. Tải lại để xem bản mới nhất rồi áp dụng lại."
@@ -1392,6 +1432,8 @@
     "yes": "được",
     "no": "không",
     "otpOff": "tắt",
+    "otpAlways": "luôn bật",
+    "otpAbove": "khi tổng trên {amount}",
     "stepsValue": "{n} bước: {names}"
   },
   "audit": {
@@ -2407,6 +2449,9 @@
       "sentVia_print": "In giấy trao tay",
       "sentVia_counter": "Cho khách xem tại quầy",
       "sentVia_link": "Liên kết duyệt trực tuyến",
+      "sentVia_sms": "Tin nhắn SMS",
+      "sentVia_zalo": "Tin nhắn Zalo",
+      "sentVia_email": "Email",
       "taxChangeWarning": "Báo giá có hiệu lực đến {validUntil}, sau ngày thuế suất đổi ({effectiveFrom}). Hóa đơn lấy thuế suất theo ngày lập; hỏi kế toán áp thuế suất nào trước khi chốt.",
       "pricedOn": "Tính giá ngày",
       "rejectedBecause": "Khách từ chối vì",
@@ -2561,6 +2606,11 @@
       "email": "Email",
       "notActive": "Chưa kích hoạt",
       "notActiveHint": "Chưa cấu hình nhà cung cấp nên kênh này chưa dùng được.",
+      "sendVia": "Gửi qua {channel}",
+      "sendHint": "Tạo liên kết mới và gửi tới thông tin liên hệ của khách trong hồ sơ (cần khách đã đồng ý nhận tin qua kênh này). Liên kết cũ sẽ không dùng được nữa.",
+      "sendOk": "Đã gửi tới {to}.",
+      "sendQueued": "Chưa gửi được ngay, hệ thống sẽ tự thử lại. Tin gửi tới {to}.",
+      "sendDead": "Không gửi được tin. Chọn kênh khác hoặc sao chép liên kết.",
       "hasLink": "Đã có liên kết cho phiên bản này. Mã liên kết chỉ hiện một lần khi tạo; cần xem lại thì tạo liên kết mới.",
       "unexpected": "Chưa tạo được liên kết. Thử lại."
     },
@@ -2911,6 +2961,19 @@
       "errLocked": "Hạng mục bắt buộc không bỏ riêng được ở chi nhánh này.",
       "errLimited": "Thao tác hơi nhanh. Thử lại sau ít phút.",
       "errUnexpected": "Chưa gửi được lựa chọn. Thử lại.",
+      "otpTitle": "Nhập mã xác nhận",
+      "otpText": "Để xác nhận báo giá, anh/chị nhập mã 6 số vừa gửi tới {dest}.",
+      "otpLabel": "Mã xác nhận (6 số)",
+      "otpConfirm": "Xác nhận duyệt",
+      "otpResend": "Gửi lại mã",
+      "otpResendIn": "Gửi lại mã sau {s} giây",
+      "otpCancel": "Quay lại",
+      "otpSentAgain": "Đã gửi mã mới.",
+      "otpErrInvalid": "Mã chưa đúng. Kiểm tra lại tin nhắn rồi nhập lại.",
+      "otpErrExpired": "Mã đã hết hạn. Bấm “Gửi lại mã” để nhận mã mới.",
+      "otpErrLocked": "Nhập sai quá số lần cho phép. Anh/chị vui lòng đến quầy để được hỗ trợ.",
+      "otpErrUnavailable": "Garage chưa gửi được mã tới anh/chị. Vui lòng đến quầy để được hỗ trợ.",
+      "otpErrFailed": "Chưa gửi được mã. Thử lại sau ít phút hoặc đến quầy để được hỗ trợ.",
       "phoneNote": "Garage chỉ dùng thông tin này để liên hệ về xe của anh/chị.",
       "vehicle": "Xe",
       "photos": "Hình ảnh xe",

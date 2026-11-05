@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { formatVnd } from '@/platform/format/vnd';
 import { isoToVi } from '@/platform/format/date';
 import { splitTaxByItems } from '@/platform/money/splitTax';
@@ -71,8 +71,22 @@ export function CustomerQuote({
   const [draft, setDraft] = useState({ reasonCode: '', reasonNote: '' });
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
-  const [busy, setBusy] = useState<'approve' | 'reject' | null>(null);
+  const [busy, setBusy] = useState<'approve' | 'reject' | 'otp' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // QUO-04/05: the one-time code step, shown when the server asks for a code on this selection
+  const [otp, setOtp] = useState<{ destination: string; resendAfter: number } | null>(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [tick, setTick] = useState(() => Date.now());
+  const [notice, setNotice] = useState<string | null>(null);
+  const codeRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!otp) return;
+    const t = setInterval(() => setTick(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [otp]);
+  useEffect(() => {
+    if (otp) codeRef.current?.focus();
+  }, [otp]);
   // one Idempotency-Key per distinct choice: a retry or a double tap of the same choice replays, never repeats
   const keys = useRef<{ sig: string; key: string }>({ sig: '', key: newKey() });
 
@@ -116,14 +130,18 @@ export function CustomerQuote({
     if (code === 'quote_expired') return l.errExpired!;
     if (code === 'quote_superseded') return l.errSuperseded!;
     if (code === 'quote_already_decided') return l.errDecided!;
+    if (code === 'otp_invalid') return l.otpErrInvalid!;
+    if (code === 'otp_expired') return l.otpErrExpired!;
+    if (code === 'otp_locked') return l.otpErrLocked!;
+    if (code === 'otp_unavailable') return l.otpErrUnavailable!;
+    if (code === 'otp_delivery_failed') return l.otpErrFailed!;
     if (code === 'required_item_locked') return l.errLocked!;
     if (status === 429) return l.errLimited!;
     return l.errUnexpected!;
   }
 
-  async function approve() {
-    setBusy('approve');
-    setError(null);
+  /** the customer's current choice; one Idempotency-Key per distinct choice (and code), so a retry replays */
+  function selection() {
     const declines = dto.items
       .filter((i) => !sel.has(i.no))
       .map((i) => ({
@@ -131,13 +149,53 @@ export function CustomerQuote({
         ...(why[i.no]?.reasonCode ? { reasonCode: why[i.no]!.reasonCode } : {}),
         ...(why[i.no]?.reasonNote.trim() ? { reasonNote: why[i.no]!.reasonNote.trim() } : {}),
       }));
-    const body = { token, selectedItemNos: [...sel].sort((a, b) => a - b), declines };
+    return { selectedItemNos: [...sel].sort((a, b) => a - b), declines };
+  }
+
+  /** asks the server to send the one-time code to the contact on file (never a number typed here) */
+  async function requestCode(resend = false) {
+    setBusy('otp');
+    setError(null);
+    setNotice(null);
+    const r = await postJson(
+      '/api/v1/rec/public/quote/otp',
+      'POST',
+      { token, ...selection() },
+      newKey(),
+    );
+    setBusy(null);
+    if (!r.ok) {
+      setError(problemText(r.problem?.code, r.status));
+      if (r.problem?.code === 'otp_locked') setOtp(null);
+      return;
+    }
+    const d = r.data as { required: boolean; destination?: string; resendAfter?: string };
+    if (!d.required) return void approve();
+    setOtp({
+      destination: d.destination ?? '',
+      resendAfter: d.resendAfter ? Date.parse(d.resendAfter) : Date.now(),
+    });
+    setTick(Date.now());
+    if (resend) setNotice(l.otpSentAgain!);
+  }
+
+  async function approve(withCode?: string) {
+    setBusy('approve');
+    setError(null);
+    const body = {
+      token,
+      ...selection(),
+      ...(withCode ? { otp: withCode } : {}),
+    };
     const sig = JSON.stringify(body);
     if (keys.current.sig !== sig) keys.current = { sig, key: newKey() };
     const r = await postJson('/api/v1/rec/public/quote/approve', 'POST', body, keys.current.key);
     setBusy(null);
     if (r.ok) return router.refresh();
+    // QUO-04/05: this choice needs a code: ask for it, then show the code step
+    if (r.problem?.code === 'otp_required') return void requestCode();
     setError(problemText(r.problem?.code, r.status));
+    if (r.problem?.code === 'otp_locked') setOtp(null);
     // R38: a link that expired meanwhile answers like an unknown one (404): reload to show the read-only page
     if (
       r.status === 404 ||
@@ -337,6 +395,86 @@ export function CustomerQuote({
         </section>
       ) : null}
 
+      {otp ? (
+        <section className="pub-sheet" role="group" aria-labelledby="otp-h" data-testid="pub-otp">
+          <h2 id="otp-h">{l.otpTitle}</h2>
+          <p>{fill(l.otpText, { dest: otp.destination })}</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (/^\d{6}$/.test(otpCode)) void approve(otpCode);
+            }}
+          >
+            <div className="field">
+              <label className="field__label" htmlFor="otp-code">
+                {l.otpLabel}
+              </label>
+              <input
+                id="otp-code"
+                ref={codeRef}
+                className="input"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                aria-describedby={error ? 'otp-error' : undefined}
+                aria-invalid={error ? true : undefined}
+                data-testid="pub-otp-code"
+              />
+              {error ? (
+                <span className="field__error" role="alert" id="otp-error">
+                  {error}
+                </span>
+              ) : null}
+              {notice ? (
+                <span className="text-secondary" role="status">
+                  {notice}
+                </span>
+              ) : null}
+            </div>
+            <div className="rec-actions">
+              <Button
+                variant="primary"
+                type="submit"
+                loading={busy === 'approve'}
+                disabled={otpCode.length !== 6 || !online}
+                data-testid="pub-otp-confirm"
+              >
+                {l.otpConfirm}
+              </Button>
+              <Button
+                variant="secondary"
+                type="button"
+                loading={busy === 'otp'}
+                disabled={tick < otp.resendAfter || !online}
+                onClick={() => {
+                  setOtpCode('');
+                  void requestCode(true);
+                }}
+                data-testid="pub-otp-resend"
+              >
+                {tick < otp.resendAfter
+                  ? fill(l.otpResendIn, { s: Math.ceil((otp.resendAfter - tick) / 1000) })
+                  : l.otpResend}
+              </Button>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => {
+                  setOtp(null);
+                  setOtpCode('');
+                  setError(null);
+                }}
+              >
+                {l.otpCancel}
+              </Button>
+            </div>
+          </form>
+        </section>
+      ) : null}
+
       <section className="pub-total" aria-live="polite">
         <div>{fill(l.chosen, { n: chosen.length, total: dto.items.length })}</div>
         <div className="pub-total__sum">
@@ -348,7 +486,7 @@ export function CustomerQuote({
         <div className="text-secondary">
           {l.taxIn}: <span className="num">{formatVnd(split.taxVnd)}</span>. {l.totalNote}
         </div>
-        {error ? (
+        {error && !otp ? (
           <span className="field__error" role="alert">
             {error}
           </span>
@@ -359,7 +497,7 @@ export function CustomerQuote({
           size="lg"
           block
           loading={busy === 'approve'}
-          disabled={chosen.length === 0 || !online || ask !== null}
+          disabled={chosen.length === 0 || !online || ask !== null || otp !== null}
           onClick={() => void approve()}
           data-testid="pub-approve"
         >

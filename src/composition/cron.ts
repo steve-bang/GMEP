@@ -2,7 +2,7 @@ import type { Actor } from '@/platform/rbac/rbac';
 import { allBranchesScope } from '@/platform/scope/scope';
 import { runDueRollups } from '@/modules/rpt';
 import { runDueRequests } from '@/modules/ein';
-import { runQuoteExpiry } from '@/modules/rec';
+import { runMessageRetry, runQuoteExpiry } from '@/modules/rec';
 import { discardAbandonedImports } from '@/modules/sys';
 import type { ApiCtx } from './api';
 import { getContainer } from './container';
@@ -62,6 +62,8 @@ export const CRON_JOBS: readonly CronJob[] = [
   },
   // R10/R17 (FR-REC-011): persist "Hết hạn" on quotes past validity and remind the advisor before expiry
   { name: 'quoteExpiry', run: ({ c, actor, ctx }) => runQuoteExpiry(c.rec, actor, ctx) },
+  // A4: send again the quote links the message gateway refused (bounded attempts, backoff, per branch)
+  { name: 'messageRetry', run: ({ c, actor, ctx }) => runMessageRetry(c.rec, actor, ctx) },
 ];
 
 /**

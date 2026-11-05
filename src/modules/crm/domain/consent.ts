@@ -102,3 +102,18 @@ export function looksLikePersonalContact(text: string): boolean {
   if (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(text)) return true;
   return /(?:\+?84|0)(?:[\s.-]?\d){8,10}/.test(text);
 }
+
+/**
+ * A4: may the garage send a SERVICE message (a quote link) to the customer over this channel? Consent is by
+ * purpose x channel (ba-answers C10): an active `service` consent recorded for that channel is needed, a withdrawn
+ * one never counts (FR-CRM-010: withdrawal is immediate). The legal basis is not checked here: the contract
+ * basis is the expected one for `service` [Cần xác nhận: Luật sư khách].
+ */
+export function canSendServiceMessage(
+  consents: readonly Consent[],
+  channel: ConsentChannel,
+): boolean {
+  return consents.some(
+    (c) => c.purpose === 'service' && c.channel === channel && c.status === 'granted',
+  );
+}

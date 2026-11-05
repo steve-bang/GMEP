@@ -19,9 +19,17 @@ export const QUOTE_STATUSES: readonly QuoteStatus[] = [
   'expired',
 ];
 
-/** R10: delivery of the quote to the customer. Only `print` and `counter` exist until a message channel is built. */
-export type SentVia = 'none' | 'print' | 'link' | 'counter';
-export const SENT_VIA: readonly SentVia[] = ['none', 'print', 'link', 'counter'];
+/** R10: delivery of the quote to the customer. `sms`, `zalo` and `email` are set only after the gateway accepted the message (A4). */
+export type SentVia = 'none' | 'print' | 'link' | 'counter' | 'sms' | 'zalo' | 'email';
+export const SENT_VIA: readonly SentVia[] = [
+  'none',
+  'print',
+  'link',
+  'counter',
+  'sms',
+  'zalo',
+  'email',
+];
 
 export type KmReason = 'typo' | 'odometer_replaced' | 'other';
 export type Necessity = 'required' | 'optional';
@@ -273,6 +281,8 @@ export interface QuoteApproval {
   note?: string;
   readBack?: boolean;
   exception: boolean;
+  /** QUO-04/05: the one-time code sent to the customer's contact on file was verified before this approval (never the code itself) */
+  otp?: { verifiedAt: Date; channel: 'sms' | 'zalo' | 'email' };
   /** SHA-256 over the canonical evidence: business evidence, NOT a digital signature */
   hash: string;
 }

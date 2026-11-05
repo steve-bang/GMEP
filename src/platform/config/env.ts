@@ -42,6 +42,14 @@ const schema = z.object({
   EMAIL_SMTP_URL: z.string().min(1).optional(),
   /** sender, e.g. "GMEP <no-reply@example.vn>" */
   EMAIL_FROM: z.string().min(3).optional(),
+  /**
+   * A4: dev adapters for the short-message channels, comma list of `sms`, `zalo`. They only write to the `messageOutbox`
+   * collection and send nothing. Refused in prod (the outbox holds links and codes in clear text); a real provider is another adapter.
+   */
+  MESSAGE_DEV_CHANNELS: z
+    .string()
+    .regex(/^(sms|zalo)(,(sms|zalo))*$/)
+    .optional(),
   LOG_LEVEL: z.string().optional(),
 });
 
@@ -59,6 +67,9 @@ export function loadEnv(source: Record<string, string | undefined> = process.env
     throw new Error(
       'GMEP_ENV=prod requires EMAIL_SMTP_URL and EMAIL_FROM (invitation and reset emails).',
     );
+  }
+  if (env.GMEP_ENV === 'prod' && env.MESSAGE_DEV_CHANNELS) {
+    throw new Error('MESSAGE_DEV_CHANNELS is for local, test and staging only (never prod).');
   }
   if (env.GMEP_ENV === 'local' && env.GMEP_DATA_BACKEND === 'firestore') {
     // Safety: local runs must never reach real Google services.
