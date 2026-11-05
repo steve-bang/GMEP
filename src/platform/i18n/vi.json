@@ -361,6 +361,10 @@
       "title": "Báo giá đã được duyệt, không sửa được",
       "detail": "Nội dung đã duyệt bị khóa. Thay đổi đi qua báo giá bổ sung."
     },
+    "quote_not_sent": {
+      "title": "Báo giá chưa gửi",
+      "detail": "Chỉ ghi nhận in cho bản báo giá đã gửi khách. Gửi báo giá trước."
+    },
     "quote_exists": {
       "title": "Hồ sơ này đã có báo giá",
       "detail": "Mở báo giá đã lập từ danh sách báo giá."
@@ -1532,6 +1536,7 @@
       "quote_update": "Sửa báo giá nháp",
       "quote_revise": "Tạo phiên bản báo giá mới",
       "quote_send": "Gửi báo giá cho khách",
+      "quote_printed": "In báo giá giao khách",
       "quote_reject": "Ghi nhận khách từ chối báo giá",
       "quote_link_issue": "Tạo liên kết báo giá cho khách",
       "quote_approve_link": "Khách duyệt báo giá qua liên kết",
@@ -1585,6 +1590,7 @@
       "rollup_export": "Xuất báo cáo ngày",
       "invoice_error_reported": "Báo hóa đơn có sai",
       "payment_receipt": "Thu tiền",
+      "payment_printed": "In phiếu thu",
       "payment_deposit": "Thu tiền cọc",
       "payment_expense": "Chi tiền",
       "payment_reverse": "Đảo bút toán",
@@ -2581,7 +2587,10 @@
       "printButton": "In",
       "back": "Quay lại báo giá",
       "preview": "Xem trước bản in A4. Số điện thoại và địa chỉ khách không được in.",
-      "status": "Trạng thái"
+      "status": "Trạng thái",
+      "reprint": "BẢN IN LẠI",
+      "downloadPdf": "Tải PDF",
+      "logFailed": "Chưa ghi nhận được lần in. Kiểm tra kết nối rồi in lại."
     },
     "orders": {
       "title": "Lệnh sửa chữa",
@@ -3048,6 +3057,7 @@
       "heldDeposit": "Cọc còn giữ",
       "reversedBy": "Phiếu này đã được đảo bằng một bút toán đảo; phiếu gốc vẫn còn trong lịch sử.",
       "print": "In phiếu",
+      "downloadPdf": "Tải PDF",
       "closedDay": "Ngày của phiếu đã khóa sổ. Đảo bút toán được ghi vào ngày đang mở.",
       "reverseTitle": "Đảo bút toán",
       "reverseLead": "Phiếu không bị xóa hay sửa. Hệ thống tạo bút toán đảo liên kết với phiếu gốc; cần quản lý duyệt, và chưa duyệt thì phiếu gốc vẫn hiệu lực.",
@@ -3063,6 +3073,27 @@
       "reverses": "Đảo phiếu",
       "seeReversal": "Xem bút toán đảo",
       "date": "Ngày chứng từ"
+    },
+    "print": {
+      "title_receipt": "Phiếu thu",
+      "title_deposit": "Phiếu thu tiền cọc",
+      "title_expense": "Phiếu chi",
+      "title_reversal": "Bút toán đảo",
+      "number": "Số",
+      "date": "Ngày",
+      "payer": "Người nộp",
+      "reason": "Lý do",
+      "tendered": "Tiền khách đưa",
+      "change": "Tiền thừa trả khách",
+      "payerSign": "Người nộp tiền",
+      "payerSignHint": "(ký, ghi rõ họ tên)",
+      "cashier": "Thu ngân",
+      "note": "Mẫu phiếu tham khảo, chờ kế toán xác nhận. Phiếu không thay thế hóa đơn.",
+      "reprint": "BẢN IN LẠI",
+      "preview": "Xem trước bản in A5. Số điện thoại và địa chỉ khách không được in.",
+      "back": "Quay lại phiếu",
+      "printButton": "In",
+      "logFailed": "Chưa ghi nhận được lần in. Kiểm tra kết nối rồi in lại."
     },
     "cashbook": {
       "title": "Sổ quỹ tiền mặt",

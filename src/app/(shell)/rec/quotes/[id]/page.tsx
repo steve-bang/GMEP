@@ -517,6 +517,14 @@ export default async function QuotePage({
             <Icon name="printer" />
             <span>{t('rec.quotes.print')}</span>
           </a>
+          <a
+            className="btn btn--secondary"
+            href={`/api/v1/rec/quotes/${encodeURIComponent(q.id)}/pdf?v=${s.n}`}
+            data-testid="quote-pdf-open"
+          >
+            <Icon name="download" />
+            <span>{t('rec.print.downloadPdf')}</span>
+          </a>
         </div>
       ) : null}
 

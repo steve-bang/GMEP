@@ -150,6 +150,16 @@ test.describe('slice 1.5 REC: quote approval', () => {
       .evaluate((el) => el.getBoundingClientRect().width);
     expect(Math.round(w)).toBeGreaterThan(780); // 210 mm at 96 dpi = 794 px
     await page.emulateMedia({ media: 'screen' });
+
+    // FR-REC-008: "Tải PDF" returns the same quote as a real PDF (same print model as the sheet above)
+    const pdf = await page.request.get(`/api/v1/rec/quotes/${sent.id}/pdf`);
+    expect(pdf.status()).toBe(200);
+    expect(pdf.headers()['content-type']).toBe('application/pdf');
+    expect((await pdf.body()).subarray(0, 5).toString('latin1')).toBe('%PDF-');
+    await expect(page.getByTestId('quote-pdf')).toHaveAttribute(
+      'href',
+      new RegExp(`/api/v1/rec/quotes/${sent.id}/pdf`),
+    );
   });
 
   test('counter: the advisor records a signature in three steps with a reason for the refused required item', async ({
