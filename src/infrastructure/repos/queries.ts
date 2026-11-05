@@ -24,6 +24,11 @@ export const COL = {
   accessLogs: 'accessLogs',
   idempotencyKeys: 'idempotencyKeys',
   emailOutbox: 'emailOutbox',
+  // A4: dev outbox of sms/zalo, one-time approval codes, quote-link deliveries and their per-branch retry queue (all read BY KEY, no query shape)
+  messageOutbox: 'messageOutbox',
+  quoteOtps: 'quoteOtps',
+  messageDeliveries: 'messageDeliveries',
+  messageQueues: 'messageQueues',
   counters: 'counters',
   customers: 'customers',
   customerPii: 'customerPii',

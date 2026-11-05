@@ -19,6 +19,11 @@ import type {
   QuoteRepository,
   QuoteLink,
   QuoteLinkRepository,
+  QuoteOtpRepository,
+  QuoteDeliveryRepository,
+  QuoteOtpRecord,
+  QuoteDelivery,
+  MessageQueue,
   QuoteVersion,
   QuoteVersionRepository,
 } from '@/modules/rec';
@@ -326,6 +331,7 @@ const linkFromDoc = ({ id, data: x }: StoredDoc): QuoteLink => ({
   ...put('revokedAt', opt<Date>(x.revokedAt)),
   ...put('revokedReason', opt<string>(x.revokedReason)),
   ...put('usedAt', opt<Date>(x.usedAt)),
+  ...put('deliveryId', opt<string>(x.deliveryId)),
 });
 
 export class DocQuoteLinkRepository implements QuoteLinkRepository {
@@ -343,6 +349,74 @@ export class DocQuoteLinkRepository implements QuoteLinkRepository {
   }
   update(tx: Tx, hash: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.quoteLinks, hash, patch);
+  }
+}
+
+// ---- A4: approval codes, quote-link deliveries and their queue (by key only) --------------------------
+
+const clean = <T extends object>(x: T): T => {
+  const c = { ...x } as Record<string, unknown>;
+  for (const k of Object.keys(c)) if (c[k] === null) delete c[k];
+  return c as T;
+};
+const asRec = <T extends object>({ id, data }: StoredDoc): T => clean({ id, ...data }) as T;
+
+export class DocQuoteOtpRepository implements QuoteOtpRepository {
+  constructor(private readonly store: DocStore) {}
+  async get(linkId: string) {
+    const d = await this.store.get(COL.quoteOtps, linkId);
+    return d ? asRec<QuoteOtpRecord>(d) : null;
+  }
+  async getInTx(tx: Tx, linkId: string) {
+    const d = await this.store.getInTx(tx, COL.quoteOtps, linkId);
+    return d ? asRec<QuoteOtpRecord>(d) : null;
+  }
+  set(tx: Tx, r: QuoteOtpRecord) {
+    this.store.set(tx, COL.quoteOtps, r.id, without(r, 'id'));
+  }
+  update(tx: Tx, linkId: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.quoteOtps, linkId, patch);
+  }
+  delete(tx: Tx, linkId: string) {
+    this.store.delete(tx, COL.quoteOtps, linkId);
+  }
+}
+
+export class DocQuoteDeliveryRepository implements QuoteDeliveryRepository {
+  constructor(private readonly store: DocStore) {}
+  private readonly allowed = (scope: Scope, x: { companyId: string; branchId: string }) =>
+    scopeAllows(scope, x.companyId, x.branchId);
+  async get(scope: Scope, id: string) {
+    const d = await this.store.get(COL.messageDeliveries, id);
+    const x = d ? asRec<QuoteDelivery>(d) : null;
+    return x && this.allowed(scope, x) ? x : null;
+  }
+  async getInTx(tx: Tx, scope: Scope, id: string) {
+    const d = await this.store.getInTx(tx, COL.messageDeliveries, id);
+    const x = d ? asRec<QuoteDelivery>(d) : null;
+    return x && this.allowed(scope, x) ? x : null;
+  }
+  create(tx: Tx, d: QuoteDelivery) {
+    // create(): the deterministic id is the guard against a second delivery of the same request
+    this.store.create(tx, COL.messageDeliveries, d.id, without(d, 'id'));
+  }
+  update(tx: Tx, id: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.messageDeliveries, id, patch);
+  }
+  async getQueue(scope: Scope, branchId: string) {
+    if (!branchId) return null;
+    const d = await this.store.get(COL.messageQueues, branchId);
+    const x = d ? asRec<MessageQueue>(d) : null;
+    return x && this.allowed(scope, x) ? x : null;
+  }
+  async getQueueInTx(tx: Tx, scope: Scope, branchId: string) {
+    if (!branchId) return null;
+    const d = await this.store.getInTx(tx, COL.messageQueues, branchId);
+    const x = d ? asRec<MessageQueue>(d) : null;
+    return x && this.allowed(scope, x) ? x : null;
+  }
+  saveQueue(tx: Tx, q: MessageQueue) {
+    this.store.set(tx, COL.messageQueues, q.id, without(q, 'id'));
   }
 }
 

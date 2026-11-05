@@ -2,12 +2,15 @@ import type { FileStore } from '@/platform/files/fileStore';
 import type { CrmDeps } from '@/modules/crm';
 import type { InvDeps } from '@/modules/inv';
 import type { SysDeps } from '@/modules/sys';
+import type { OtpMode, OtpSettings } from '../domain/otp';
 import type {
   IntakeRepository,
   OrderInvoiceGate,
   PartRequestRepository,
   PaymentGate,
+  QuoteDeliveryRepository,
   QuoteLinkRepository,
+  QuoteOtpRepository,
   QuoteRepository,
   QuoteVersionRepository,
   RepairItemRepository,
@@ -29,12 +32,29 @@ export interface RecConfig {
   defaultTaxRateKey: string;
   /**
    * Approval policy used when no `quote-approval` config version is in force (Câu 2: a customer may
-   * refuse a required item by default; OTP stays off until an SMS channel is active).
+   * refuse a required item by default; OTP stays off until the owner turns it on).
    */
   approval: {
     allowDeclineRequired: boolean;
     verbalApproval: boolean;
-    otpMode: 'off';
+    otpMode: OtpMode;
+  };
+  /**
+   * A4 / QUO-04/05: one-time code defaults when the `quote-approval` config does not set them
+   * [Đề xuất dev - chờ xác nhận: Chủ dự án]: 5 minutes, 5 wrong tries, 60 s between codes, 5 codes per link per 15 minutes,
+   * soft lock 15 minutes, hard lock after 15 wrong tries over all codes (3 codes), counter kept 30 days.
+   */
+  otp: OtpSettings & { sendLimit: number; sendWindowMs: number; addressLimit: number };
+  /** A4: quote-link delivery retries: attempts, backoff base and cap, how many pending items one run handles */
+  delivery: {
+    maxAttempts: number;
+    backoffBaseMs: number;
+    backoffMaxMs: number;
+    runBatch: number;
+    /** lease taken on a delivery while one run works on it, so an overlapping run skips it */
+    leaseMs: number;
+    /** pending items kept in a branch queue document */
+    queueMax: number;
   };
   /** QUO-05: a verbal approval needs a note of at least this many characters */
   verbalNoteMinLength: number;
@@ -68,6 +88,25 @@ export const DEFAULT_REC_CONFIG: RecConfig = {
   priceListCode: 'STD',
   defaultTaxRateKey: 'vat',
   approval: { allowDeclineRequired: true, verbalApproval: true, otpMode: 'off' },
+  otp: {
+    ttlMs: 5 * 60_000,
+    maxAttempts: 5,
+    resendCooldownMs: 60_000,
+    lockMs: 15 * 60_000,
+    maxFailedTotal: 15,
+    failureMemoryMs: 30 * 24 * 3_600_000,
+    sendLimit: 5,
+    sendWindowMs: 15 * 60_000,
+    addressLimit: 20,
+  },
+  delivery: {
+    maxAttempts: 5,
+    backoffBaseMs: 2 * 60_000,
+    backoffMaxMs: 60 * 60_000,
+    runBatch: 20,
+    leaseMs: 3 * 60_000,
+    queueMax: 200,
+  },
   verbalNoteMinLength: 10,
   linkTokenBytes: 32,
   maxItems: 30,
@@ -93,6 +132,8 @@ export interface RecDeps {
   quotes: QuoteRepository;
   versions: QuoteVersionRepository;
   links: QuoteLinkRepository;
+  otps: QuoteOtpRepository;
+  deliveries: QuoteDeliveryRepository;
   orders: RepairOrderRepository;
   items: RepairItemRepository;
   partRequests: PartRequestRepository;

@@ -37,10 +37,42 @@ function layout(title: string, paragraphs: string[], link: string, button: strin
   return { subject: title, text, html };
 }
 
+function codeLayout(title: string, paragraphs: string[], code: string): RenderedEmail {
+  if (!/^\d{4,8}$/.test(code)) throw new Error('email template: code must be digits');
+  const text = [...paragraphs, '', `Mã xác nhận: ${code}`, '', 'GMEP - Quản lý garage'].join('\n');
+  const html =
+    `<div style="font-family:Arial,sans-serif;font-size:15px;color:#1f2937;max-width:560px">` +
+    `<h2 style="margin:0 0 16px">${esc(title)}</h2>` +
+    paragraphs.map((p) => `<p>${esc(p)}</p>`).join('') +
+    `<p style="font-size:28px;letter-spacing:6px;font-weight:bold">${esc(code)}</p>` +
+    `<p style="font-size:13px;color:#6b7280">GMEP - Quản lý garage</p></div>`;
+  return { subject: title, text, html };
+}
+
 export function renderEmail(message: Pick<EmailMessage, 'template' | 'vars'>): RenderedEmail {
   const { template, vars } = message;
+  // A4: the OTP mail carries a code, not a link
+  if (template === 'approval-otp')
+    return codeLayout(
+      'GMEP - Mã xác nhận duyệt báo giá',
+      [
+        `Mã xác nhận của bạn có hiệu lực trong ${vars.expiresMinutes ?? '5'} phút.`,
+        'Không chia sẻ mã này cho bất kỳ ai. Nếu bạn không yêu cầu, hãy bỏ qua email này.',
+      ],
+      vars.code ?? '',
+    );
   const link = safeLink(vars);
   switch (template) {
+    case 'quote-link':
+      return layout(
+        'GMEP - Báo giá sửa chữa xe của bạn',
+        [
+          'Garage gửi bạn báo giá sửa chữa để xem và xác nhận.',
+          'Đường dẫn dành riêng cho bạn, vui lòng không chuyển tiếp cho người khác.',
+        ],
+        link,
+        'Xem và duyệt báo giá',
+      );
     case 'password-reset':
       return layout(
         'GMEP - Đặt lại mật khẩu',

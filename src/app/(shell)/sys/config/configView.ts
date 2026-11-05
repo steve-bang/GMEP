@@ -99,7 +99,12 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
       return t('config.quoteApprovalValue', {
         decline: t(p.allowDeclineRequired === false ? 'config.no' : 'config.yes'),
         verbal: t(p.verbalApproval === false ? 'config.no' : 'config.yes'),
-        otp: t('config.otpOff'),
+        otp:
+          p.otpMode === 'always'
+            ? t('config.otpAlways')
+            : p.otpMode === 'above_threshold'
+              ? t('config.otpAbove', { amount: formatVnd(num('otpThresholdVnd') ?? 0) })
+              : t('config.otpOff'),
       });
     case 'service-workflow': {
       const steps = Array.isArray(p.steps) ? (p.steps as { name?: string }[]) : [];

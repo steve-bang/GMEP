@@ -85,6 +85,7 @@ export {
   issueQuoteLink,
   viewPublicQuote,
   approveViaLink,
+  requestQuoteOtp,
   rejectViaLink,
   getApprovedQuote,
   approvalPolicyOf,
@@ -99,6 +100,10 @@ export type {
   PublicLineDto,
   PublicState,
 } from './application/approval';
+export { sendQuoteLink, runMessageRetry, availableMessageChannels } from './application/messaging';
+export type { SendLinkResult, MessageRetryResult } from './application/messaging';
+export * from './domain/otp';
+export type * from './domain/messaging';
 export {
   allocateRepairOrderNumber,
   getServiceWorkflow,
@@ -153,6 +158,12 @@ export {
   prepareCloseSupplements,
   assertSupplementOrderOpen,
 } from './application/supplement';
+export { readPublicQuotePhoto } from './application/publicPhotoRead';
+export {
+  publicPhotoSources,
+  type PublicPhotoDto,
+  type PublicPhotoSource,
+} from './application/publicPhotos';
 export { addPhoto, hidePhoto, listPhotos, readPhoto, type PhotoParent } from './application/photos';
 export {
   getQcChecklist,

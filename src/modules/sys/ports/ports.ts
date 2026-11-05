@@ -305,7 +305,13 @@ export interface IdentityProvider {
 
 export interface EmailMessage {
   to: string;
-  template: 'password-reset' | 'invitation' | 'security-alert';
+  template:
+    | 'password-reset'
+    | 'invitation'
+    | 'security-alert'
+    // A4: REC messages through the MessageGateway (the email channel reuses the email adapters)
+    | 'quote-link'
+    | 'approval-otp';
   /** template variables; the link carries the single-use token */
   vars: Record<string, string>;
   /** idempotency for retries */
@@ -318,6 +324,51 @@ export interface EmailMessage {
  */
 export interface EmailGateway {
   send(message: EmailMessage): Promise<void>;
+}
+
+// ---- message gateway (A4: SMS, Zalo, email) -----------------------------------------------------
+
+export const MESSAGE_CHANNELS = ['sms', 'zalo', 'email'] as const;
+export type MessageChannel = (typeof MESSAGE_CHANNELS)[number];
+
+/** Template ids of the customer messages; wording lives in the adapters' template files, never in the callers. */
+export type MessageTemplate = 'quote-link' | 'approval-otp';
+
+export interface OutboundMessage {
+  /** idempotency key: a retry with the same id must never reach the customer twice */
+  id: string;
+  channel: MessageChannel;
+  /** phone number (sms, zalo) or e-mail address; never logged in clear text */
+  to: string;
+  template: MessageTemplate;
+  /** template variables (`link` for quote-link, `code` and `expiresMinutes` for approval-otp) */
+  vars: Record<string, string>;
+}
+
+/** A delivery failure that is worth retrying (provider down, timeout). Anything else is a programming error. */
+export class MessageDeliveryError extends Error {
+  constructor(
+    public readonly channel: MessageChannel,
+    cause?: unknown,
+  ) {
+    super(`message delivery failed on ${channel}`, { cause });
+    this.name = 'MessageDeliveryError';
+  }
+}
+
+/**
+ * Provider-agnostic customer messaging. Availability comes from configuration: a channel is listed only when an
+ * adapter is configured for it (a real provider is one more adapter, no caller changes). Delivery happens outside any
+ * transaction and throws `MessageDeliveryError` when the provider did not accept the message.
+ */
+export interface MessageGateway {
+  availableChannels(): readonly MessageChannel[];
+  /**
+   * The channel only writes to a dev outbox: an accepted message did NOT leave the system (staging with
+   * `MESSAGE_DEV_CHANNELS`, email without SMTP). Callers record it as simulated, never as a real delivery.
+   */
+  isSimulated(channel: MessageChannel): boolean;
+  send(message: OutboundMessage): Promise<void>;
 }
 
 // ---- strong authentication hook ---------------------------------------------

@@ -25,7 +25,15 @@ import '@/infrastructure/repos/queries';
 if (process.argv.includes('--write')) {
   const indexes = requiredIndexDefs();
   // Firestore TTL policies (H2): documents are deleted after `expiresAt`; see infra/firestore-ttl.md
-  const ttl = ['idempotencyKeys', 'rateLimits', 'notifications', 'emailOutbox'].map((c) => ({
+  const ttl = [
+    'idempotencyKeys',
+    'rateLimits',
+    'notifications',
+    'emailOutbox',
+    'messageOutbox',
+    'quoteOtps',
+    'messageDeliveries',
+  ].map((c) => ({
     collectionGroup: c,
     fieldPath: 'expiresAt',
     ttl: true,

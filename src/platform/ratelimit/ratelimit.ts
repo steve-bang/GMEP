@@ -78,6 +78,9 @@ export const DEFAULT_RATE_LIMITS = {
   'customer-link': { limit: 60, windowMs: 60_000 },
   /** FR-REC-009: approving or refusing through ONE customer link; a handful per quarter hour is plenty for one person */
   'customer-link-decide': { limit: 10, windowMs: 15 * 60_000 },
+  /** FR-REC-034: photo bytes of the customer link; a page with 30 photos must not use up the page bucket. Per token (the per-address bucket is 5x, a counter Wi-Fi shares one address) */
+  'customer-link-photo': { limit: 120, windowMs: 60_000 },
+  'customer-link-photo-ip': { limit: 600, windowMs: 60_000 },
   reveal: { limit: 30, windowMs: 60_000 },
   export: { limit: 10, windowMs: 60_000 },
   /** C9: cross-branch exact lookups per person per hour [Cần xác nhận: Khách] */
@@ -119,6 +122,23 @@ export class RateLimiter {
     });
     if (state && state.count > policy.limit)
       throw rateLimited(Math.max(1, Math.ceil((state.windowStart + policy.windowMs - t) / 1000)));
+  }
+
+  /**
+   * True only for the first call per subject in a fixed window of `windowMs` (used to write one audit row per
+   * link per window instead of one per request). Atomic through the same store as `hit`.
+   */
+  async tryOnce(name: string, subject: string, windowMs: number): Promise<boolean> {
+    const now = this.now();
+    const t = now.getTime();
+    let first = false;
+    await this.store.update<{ at: number }>(hashKey('once', name, subject), now, (cur) => {
+      first = !cur || cur.at + windowMs <= t;
+      return !cur || first
+        ? { next: { at: t }, ttlMs: windowMs }
+        : { next: cur, ttlMs: cur.at + windowMs - t };
+    });
+    return first;
   }
 }
 
