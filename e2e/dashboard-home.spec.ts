@@ -321,15 +321,15 @@ test.describe('home dashboard (/)', () => {
     }
   });
 
-  test('technician has no dashboard view: a no-permission state, not an error page', async ({
+  test('technician has no dashboard view: `/` lands on Việc của tôi (G1-DSH-07)', async ({
     browser,
   }) => {
     const th = await as(browser, 'th.q7');
     try {
-      const res = await th.page.goto('/');
-      expect(res?.status()).toBe(200);
+      await th.page.goto('/');
+      await expect(th.page).toHaveURL(/\/rec\/work$/);
       await expect(
-        th.page.getByText('Chưa có số liệu tổng quan cho vai trò của bạn'),
+        th.page.getByRole('heading', { level: 1, name: 'Việc của tôi hôm nay' }),
       ).toBeVisible();
     } finally {
       await th.ctx.close();
