@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TSU-57 · Đang chấm dứt, đã chấm dứt – GARAGE OS</title>
-<link rel="stylesheet" href="../../assets/tokens.css">
-<link rel="stylesheet" href="../../assets/base.css">
-<link rel="stylesheet" href="../../assets/components.css">
-<link rel="stylesheet" href="../onboarding/pack.css">
-<link rel="stylesheet" href="pack.css">
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
 </head>
-<body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../g5-scope-auth/g5-aut-04.html" data-top-icon="log-out">
+<body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../../g5-scope-auth/g5-aut-04.html" data-top-icon="log-out">
 <div id="tsu-content" hidden>
   <div data-tsu-bar="terminating:Đang chấm dứt (chủ garage)|cho-ch:Chờ chủ garage xác nhận qua email|terminating-nv:Đang chấm dứt (nhân viên)|terminating-khong-rut:Đang chấm dứt, đã nhận dữ liệu, không rút được|terminated:Đã chấm dứt (kết quả đăng nhập)|cong-luu-tru:Cổng tải lưu trữ (nếu có)"></div>
 
@@ -20,8 +20,8 @@
       <p class="state__text">Bạn chỉ xem và tải dữ liệu được đến <strong class="num">20/12/2026</strong>. Sau ngày này, công ty không còn đăng nhập được.</p></div>
     <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chặn tạo mới</span><span>Không thể tạo hoặc sửa chứng từ. Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến <span class="num">20/12/2026</span>. <code>TENANT_TERMINATING</code></span></div></div>
     <div class="tsu-actions" style="margin-top:var(--space-4)">
-      <a class="btn btn--primary btn--lg" href="../../g1-auth-dashboard/g1-dsh-01.html">Vào xem dữ liệu</a>
-      <a class="btn btn--secondary btn--lg" href="tsu-55.html" data-on="terminating terminating-khong-rut">Xuất dữ liệu</a>
+      <a class="btn btn--primary btn--lg" href="../../../g1-auth-dashboard/g1-dsh-01.html">Vào xem dữ liệu</a>
+      <a class="btn btn--secondary btn--lg" href="../../account/tsu-55.html" data-on="terminating terminating-khong-rut">Xuất dữ liệu</a>
       <button type="button" class="btn btn--secondary btn--lg" data-on="terminating" data-open="dlg-withdraw57">Rút yêu cầu chấm dứt</button>
       <button type="button" class="btn btn--secondary btn--lg" aria-disabled="true" data-on="terminating-nv" data-disable-in="terminating-nv">Xuất dữ liệu</button>
     </div>
@@ -34,9 +34,9 @@
       <h1 class="state__title" tabindex="-1" style="font-size:var(--font-size-2xl);line-height:32px">Yêu cầu chấm dứt đang chờ chủ garage xác nhận</h1>
       <p class="state__text">Biên bản yêu cầu đã gửi đến hoanganh@phuongnam.vn. Yêu cầu chỉ có hiệu lực khi bấm xác nhận trong email trước <strong class="num">12/11/2026</strong> (số minh họa); quá hạn thì yêu cầu tự hủy. Công ty vẫn hoạt động bình thường.</p></div>
     <div class="tsu-actions" style="margin-top:var(--space-4)">
-      <a class="btn btn--primary btn--lg" href="../../g1-auth-dashboard/g1-dsh-01.html">Về trang chủ</a>
+      <a class="btn btn--primary btn--lg" href="../../../g1-auth-dashboard/g1-dsh-01.html">Về trang chủ</a>
       <button type="button" class="btn btn--secondary btn--lg" data-open="dlg-withdraw57">Rút yêu cầu chấm dứt</button>
-      <a class="btn btn--ghost btn--lg" href="tsu-56.html">Xem yêu cầu</a>
+      <a class="btn btn--ghost btn--lg" href="../../account/tsu-56.html">Xem yêu cầu</a>
     </div>
     <p class="tsu-sub" style="margin-top:var(--space-3)">Bạn rút được yêu cầu cho đến khi xác nhận đã nhận dữ liệu.</p>
   </div>
@@ -66,7 +66,7 @@
   <p class="tsu-test">Truy vết: FR-TEN-006, 007, 008; RULE-020, 021; Q7.</p>
 </div>
 <noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
-<script src="../onboarding/tsu-app.js"></script>
-<script src="../../assets/app.js"></script>
+<script src="../../onboarding/tsu-app.js"></script>
+<script src="../../../assets/app.js"></script>
 </body>
 </html>

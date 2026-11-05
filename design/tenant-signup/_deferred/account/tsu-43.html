@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TSU-43 · Xác nhận hạ gói – GARAGE OS</title>
-<link rel="stylesheet" href="../../assets/tokens.css">
-<link rel="stylesheet" href="../../assets/base.css">
-<link rel="stylesheet" href="../../assets/components.css">
-<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
-<link rel="stylesheet" href="../onboarding/pack.css">
-<link rel="stylesheet" href="pack.css">
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
 </head>
 <body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Gói của tôi|Hạ gói" data-no-scope>
 <div id="g1-content" hidden>
@@ -43,7 +43,7 @@
         <label class="check" data-on="vuot-canh-bao"><input type="checkbox" id="t43-ack"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Tôi hiểu sau khi hạ gói chưa tạo mới được chi nhánh và người dùng vượt hạn mức.</span></label>
         <div class="tsu-actions">
           <button type="button" class="btn btn--primary" id="t43-go" data-open="dlg-down" data-disable-in="vuot-chan">Hạ gói</button>
-          <a class="btn btn--secondary" href="tsu-41.html">Giữ Gói Chuẩn</a>
+          <a class="btn btn--secondary" href="../../account/tsu-41.html">Giữ Gói Chuẩn</a>
         </div>
         <p class="tsu-reason" data-on="vuot-chan"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chưa thể hạ gói: đang dùng 4 chi nhánh, gói mới tối đa 3. Hãy ngừng sử dụng 1 chi nhánh trước. <code>QUOTA_LIMIT_REACHED</code></span></p>
       </div>
@@ -56,8 +56,8 @@
   <p class="tsu-test">Truy vết: FR-TEN-045; RULE-030, 023; J9; UAT-TEN-17. Mặc định chặn khi vượt; cấu hình cho phép chỉ cảnh báo.</p>
 </div>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
-<script src="../../g1-auth-dashboard/g1-shell.js"></script>
-<script src="../onboarding/tsu-app.js"></script>
+<script src="../../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../../onboarding/tsu-app.js"></script>
 <script>
 (function () {
   var U = { 'khong-vuot': [3, 12, 1.2], 'vuot-chan': [4, 22, 1.8], 'vuot-canh-bao': [4, 22, 1.8] };
@@ -84,6 +84,6 @@
   }, true);
 })();
 </script>
-<script src="../../assets/app.js"></script>
+<script src="../../../assets/app.js"></script>
 </body>
 </html>

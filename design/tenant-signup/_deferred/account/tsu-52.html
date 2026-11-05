@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TSU-52 · Hết dùng thử – GARAGE OS</title>
-<link rel="stylesheet" href="../../assets/tokens.css">
-<link rel="stylesheet" href="../../assets/base.css">
-<link rel="stylesheet" href="../../assets/components.css">
-<link rel="stylesheet" href="../onboarding/pack.css">
-<link rel="stylesheet" href="pack.css">
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
 </head>
-<body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../g1-auth-dashboard/g1-aut-01.html" data-top-icon="log-out">
+<body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../../g1-auth-dashboard/g1-aut-01.html" data-top-icon="log-out">
 <div id="tsu-content" hidden>
   <div data-tsu-bar="ch:Chủ garage|ad:Quản trị tenant|nv:Nhân viên|da-han-che:Đã ở chế độ hạn chế|da-chi-doc:Đã ở chế độ chỉ đọc"></div>
 
@@ -39,16 +39,16 @@
 
   <div class="tsu-actions">
     <a class="btn btn--primary btn--lg" href="tsu-42.html" data-on="ch da-han-che da-chi-doc">Chọn gói</a>
-    <a class="btn btn--secondary btn--lg" href="tsu-55.html" data-on="ch da-han-che da-chi-doc">Xuất dữ liệu</a>
+    <a class="btn btn--secondary btn--lg" href="../../account/tsu-55.html" data-on="ch da-han-che da-chi-doc">Xuất dữ liệu</a>
     <button type="button" class="btn btn--primary btn--lg" aria-disabled="true" data-on="ad" data-disable-in="ad">Chọn gói</button>
     <button type="button" class="btn btn--secondary btn--lg" aria-disabled="true" data-on="ad" data-disable-in="ad">Xuất dữ liệu</button>
-    <a class="btn btn--ghost btn--lg" href="../../g1-auth-dashboard/g1-dsh-01.html">Vào xem dữ liệu</a>
+    <a class="btn btn--ghost btn--lg" href="../../../g1-auth-dashboard/g1-dsh-01.html">Vào xem dữ liệu</a>
   </div>
   <p class="tsu-reason" data-on="ad"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage chọn được gói và xuất dữ liệu. Hãy báo cho Trần Hoàng Anh. <code>NO_PERMISSION</code> <code>TRIAL_EXPIRED</code></span></p>
   <p class="tsu-test">Truy vết: FR-TEN-044; RULE-021, 023, 030; J10; UAT-TEN-16. Hiện một lần mỗi phiên đăng nhập, đóng được để vào ứng dụng. Thời hạn giữ dữ liệu khi không chọn gói: chờ xác nhận (C-9).</p>
 </div>
 <noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
-<script src="../onboarding/tsu-app.js"></script>
-<script src="../../assets/app.js"></script>
+<script src="../../onboarding/tsu-app.js"></script>
+<script src="../../../assets/app.js"></script>
 </body>
 </html>
