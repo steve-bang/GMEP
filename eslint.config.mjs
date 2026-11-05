@@ -34,6 +34,8 @@ export default defineConfig([
     // ADR 0001 R-12: nothing in the browser may import Firebase.
     files: ['src/ui/**', 'src/app/**/*.tsx'],
     rules: {
+      // Security checklist 7: no raw HTML injection (XSS).
+      'react/no-danger': 'error',
       'no-restricted-imports': [
         'error',
         {
