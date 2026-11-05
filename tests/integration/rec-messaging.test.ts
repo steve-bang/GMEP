@@ -609,6 +609,7 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
         const real = sys.messages;
         const failing = (beforeFail?: () => Promise<void>): MessageGateway => ({
           availableChannels: () => real.availableChannels(),
+          isSimulated: (c) => real.isSimulated(c),
           async send(m: OutboundMessage) {
             if (m.template !== 'approval-otp') return real.send(m);
             await beforeFail?.();
