@@ -64,6 +64,7 @@ describe('QUO-04/05 one-time code', () => {
     n: 1,
     selectionHash: 'sel',
     code,
+    maxFailedTotal: 15,
     ...over,
   });
 
@@ -73,6 +74,8 @@ describe('QUO-04/05 one-time code', () => {
       kind: 'invalid',
       attempts: 1,
       lock: false,
+      failedTotal: 1,
+      hard: false,
     });
   });
   it('locks on the last allowed wrong try and stays locked even for the right code', () => {
@@ -80,6 +83,8 @@ describe('QUO-04/05 one-time code', () => {
       kind: 'invalid',
       attempts: 3,
       lock: true,
+      failedTotal: 1,
+      hard: false,
     });
     expect(checkOtp(state({ attempts: 3 }), now, input('123456')).kind).toBe('locked');
     expect(checkOtp(state({ lockedAt: now }), now, input('123456')).kind).toBe('locked');
@@ -98,7 +103,7 @@ describe('QUO-04/05 one-time code', () => {
   });
 });
 
-describe('FR-CRM-010 service message consent (purpose x channel)', () => {
+describe('FR-CRM-010 service message consent (any granted service consent, per-channel withdrawal)', () => {
   const c = (over: Partial<Consent>): Consent => ({
     id: 'c1',
     companyId: 'cmp',
@@ -108,21 +113,56 @@ describe('FR-CRM-010 service message consent (purpose x channel)', () => {
     channel: 'sms',
     basis: 'contract',
     status: 'granted',
-    grantedAt: new Date(),
+    grantedAt: new Date('2026-11-01T00:00:00Z'),
     createdBy: 'u',
     version: 1,
     ...over,
   });
-  it('needs an active service consent for exactly that channel', () => {
-    expect(canSendServiceMessage([c({})], 'sms')).toBe(true);
-    expect(canSendServiceMessage([c({})], 'zalo')).toBe(false);
+  it('a service consent collected in person allows sms, zalo and email', () => {
+    const inPerson = [c({ channel: 'in_person' })];
+    for (const ch of ['sms', 'zalo', 'email'] as const)
+      expect(canSendServiceMessage(inPerson, ch)).toBe(true);
     expect(canSendServiceMessage([], 'sms')).toBe(false);
   });
-  it('a withdrawn consent or another purpose does not count', () => {
+  it('a service consent for one channel also allows the others (channel is not a per-channel permission)', () => {
+    expect(canSendServiceMessage([c({})], 'sms')).toBe(true);
+    expect(canSendServiceMessage([c({})], 'zalo')).toBe(true);
+  });
+  it('marketing-only or reminder-only consent never allows service messages', () => {
+    for (const purpose of ['marketing', 'reminder', 'sharing'] as const)
+      expect(canSendServiceMessage([c({ purpose, basis: 'consent' })], 'sms')).toBe(false);
+  });
+  it('a withdrawn service consent never counts as a grant', () => {
     expect(canSendServiceMessage([c({ status: 'withdrawn' })], 'sms')).toBe(false);
-    expect(canSendServiceMessage([c({ purpose: 'marketing', basis: 'consent' })], 'sms')).toBe(
+    expect(canSendServiceMessage([c({ status: 'withdrawn', channel: 'in_person' })], 'zalo')).toBe(
       false,
     );
+  });
+  it('a withdrawal for the sending channel blocks it while another channel stays allowed', () => {
+    const list = [
+      c({ id: 'a', channel: 'in_person' }),
+      c({
+        id: 'b',
+        channel: 'zalo',
+        status: 'withdrawn',
+        withdrawnAt: new Date('2026-11-02T00:00:00Z'),
+      }),
+    ];
+    expect(canSendServiceMessage(list, 'zalo')).toBe(false);
+    expect(canSendServiceMessage(list, 'sms')).toBe(true);
+    expect(canSendServiceMessage(list, 'email')).toBe(true);
+  });
+  it('a later granted consent for that channel lifts the block; an earlier one does not', () => {
+    const withdrawn = c({
+      id: 'b',
+      channel: 'zalo',
+      status: 'withdrawn',
+      withdrawnAt: new Date('2026-11-02T00:00:00Z'),
+    });
+    const later = c({ id: 'g', channel: 'zalo', grantedAt: new Date('2026-11-03T00:00:00Z') });
+    const earlier = c({ id: 'e', channel: 'zalo', grantedAt: new Date('2026-11-01T12:00:00Z') });
+    expect(canSendServiceMessage([withdrawn, later], 'zalo')).toBe(true);
+    expect(canSendServiceMessage([withdrawn, earlier], 'zalo')).toBe(false);
   });
 });
 

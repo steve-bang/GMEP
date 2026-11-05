@@ -185,8 +185,8 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
       expect((await smsOutbox('quote-link')).length).toBe(before + 1);
     });
 
-    it('FR-CRM-010: without service consent for the channel the send is refused (409) and nothing is sent', async () => {
-      const q = await sentQuote(cv, 'veh_an');
+    it('FR-CRM-010: without any service consent the send is refused (409) and nothing is sent', async () => {
+      const q = await sentQuote(cv, 'veh_biz');
       const before = (await rows('messageOutbox')).length;
       const r = await sendLink(cv, q, 'zalo');
       expect(r.status).toBe(409);
@@ -194,10 +194,27 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
       expect(r.json.detail).toContain('đồng ý');
       expect((await rows('messageOutbox')).length).toBe(before);
       // a withdrawn consent counts as none (FR-CRM-010)
-      const g = await consent(cv, 'cus_an', 'zalo');
+      const g = await consent(cv, 'cus_biz', 'zalo');
       const w = await withdraw(cv, g.json);
       expect(w.status, w.text).toBe(200);
       expect((await sendLink(cv, q, 'zalo')).json.code).toBe('message_no_consent');
+      expect((await sendLink(cv, q, 'sms')).json.code).toBe('message_no_consent');
+    });
+
+    it('FR-CRM-010: a service consent given in person lets the link go by sms; a withdrawal for one channel stops only that channel', async () => {
+      // cus_biz has only the withdrawn zalo consent of the test above
+      expect((await consent(cv, 'cus_biz', 'in_person')).status).toBe(201);
+      const q = await sentQuote(cv, 'veh_biz');
+      const before = (await smsOutbox('quote-link')).length;
+      const ok = await sendLink(cv, q, 'sms');
+      expect(ok.status, ok.text).toBe(200);
+      expect(ok.json).toMatchObject({ channel: 'sms', status: 'sent' });
+      expect((await smsOutbox('quote-link')).length).toBe(before + 1);
+      // zalo was withdrawn explicitly and not granted again: refused, nothing sent
+      const zalo = await sendLink(cv, q, 'zalo');
+      expect(zalo.status).toBe(409);
+      expect(zalo.json.code).toBe('message_no_consent');
+      expect((await smsOutbox('quote-link')).length).toBe(before + 1);
     });
 
     it('PDPL: a customer without a usable contact for the channel is refused (409)', async () => {
@@ -382,10 +399,13 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
       );
       expect(d.status, d.text).toBe(200);
       h.container.rec.rec.otp.maxAttempts = 3;
+      // the hard lock is exercised by its own tests; the others must not reach it
+      h.container.rec.rec.otp.maxFailedTotal = 100;
     });
 
     /** a sent quote with a link that reached the customer by sms; returns the raw token */
     async function linkedQuote(): Promise<{ q: Row; token: string }> {
+      cv = await h.loginAt('u_cv_q7', 'br_q7'); // earlier tests may have moved the clock
       const q = await sentQuote(cv, 'veh_an');
       const before = (await smsOutbox('quote-link')).length;
       expect((await sendLink(cv, q, 'sms')).json.status).toBe('sent');
@@ -519,6 +539,177 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
       expect((await approve(token, all, code)).status).toBe(423);
       // a locked link cannot request fresh codes right away either
       expect((await ask(token, all)).status).toBe(423);
+    });
+
+    describe('race, soft lock and hard lock (A4 hardening)', () => {
+      const otpCfg = () => h.container.rec.rec.otp;
+      const adv = (ms: number) => h.clock.set(new Date(h.clock.now().getTime() + ms).toISOString());
+      const otpRow = async (quoteId: string) =>
+        (await rows('quoteOtps')).find((r) => r.quoteId === quoteId)!;
+      /** settings overridden for one test and restored */
+      async function withCfg(over: Partial<ReturnType<typeof otpCfg>>, fn: () => Promise<void>) {
+        const saved = { ...otpCfg() };
+        Object.assign(otpCfg(), over);
+        try {
+          await fn();
+        } finally {
+          Object.assign(otpCfg(), saved);
+        }
+      }
+      /** 4 wrong tries on each of 3 codes (limit 12 in total); returns the response of the last wrong try */
+      async function wrongOnThreeCodes(token: string) {
+        let last: Awaited<ReturnType<typeof approve>> | undefined;
+        for (let round = 0; round < 3; round++) {
+          if (round > 0) adv(16 * 60_000); // past the cooldown and the per-link decision limiter window
+          expect((await ask(token, all)).json.sent).toBe(true);
+          for (let i = 0; i < 4; i++) last = await approve(token, all, await wrong());
+          if (round < 2) expect(last!.json.code).toBe('otp_invalid');
+        }
+        return last!;
+      }
+
+      it('FR-REC-008: two concurrent requests for one link and selection send one message; its code approves', async () => {
+        const { q, token } = await linkedQuote();
+        const before = (await smsOutbox('approval-otp')).length;
+        // hold both requests before the transaction, so both pass the early check and race for the write
+        const sys = h.container.sys as unknown as {
+          limiter: { hit: (...a: unknown[]) => unknown };
+        };
+        const real = sys.limiter;
+        let arrived = 0;
+        let release!: () => void;
+        const gate = new Promise<void>((r) => (release = r));
+        sys.limiter = {
+          ...real,
+          hit: async (...a: unknown[]) => {
+            if (a[0] === 'quote-otp-send' && ++arrived === 2) release();
+            if (a[0] === 'quote-otp-send') await gate;
+            return real.hit(...a);
+          },
+        };
+        let res: Awaited<ReturnType<typeof ask>>[];
+        try {
+          res = await Promise.all([ask(token, all), ask(token, all)]);
+        } finally {
+          sys.limiter = real;
+        }
+        expect(res.map((r) => r.status)).toEqual([200, 200]);
+        expect(res.filter((r) => r.json.sent === true)).toHaveLength(1);
+        expect(res.filter((r) => r.json.sent === false)).toHaveLength(1);
+        const out = await smsOutbox('approval-otp');
+        expect(out.length).toBe(before + 1);
+        const ok = await approve(token, all, await lastCode());
+        expect(ok.status, ok.text).toBe(200);
+        expect((await otpRow(q.id)).attempts).toBe(0); // no wrong try was counted
+      });
+
+      it('a gateway failure drops the code only while the record is still the one this request wrote', async () => {
+        const { q, token } = await linkedQuote();
+        const sys = h.container.sys as unknown as { messages: MessageGateway };
+        const real = sys.messages;
+        const failing = (beforeFail?: () => Promise<void>): MessageGateway => ({
+          availableChannels: () => real.availableChannels(),
+          async send(m: OutboundMessage) {
+            if (m.template !== 'approval-otp') return real.send(m);
+            await beforeFail?.();
+            throw new MessageDeliveryError(m.channel);
+          },
+        });
+        try {
+          // a concurrent request replaced the code meanwhile: the record stays
+          sys.messages = failing(async () => {
+            await h.container.rec.sys.uow.run(async (tx) => {
+              h.container.rec.otps.update(tx, (await otpRow(q.id)).id, {
+                codeHash: 'f'.repeat(64),
+              });
+            });
+          });
+          const a = await ask(token, all);
+          expect(a.status).toBe(502);
+          expect((await otpRow(q.id)).codeHash).toBe('f'.repeat(64));
+          // a plain failure removes its own record: the next request is not held by the cooldown
+          await h.container.rec.sys.uow.run(async (tx) => {
+            h.container.rec.otps.delete(tx, (await otpRow(q.id)).id);
+          });
+          sys.messages = failing();
+          expect((await ask(token, all)).status).toBe(502);
+          expect((await rows('quoteOtps')).find((r) => r.quoteId === q.id)).toBeUndefined();
+        } finally {
+          sys.messages = real;
+        }
+        expect((await ask(token, all)).json.sent).toBe(true);
+      });
+
+      it('FR-REC-008: wrong tries survive a new code; the third code ends in a hard lock (423 otp_link_locked)', async () => {
+        const { q, token } = await linkedQuote();
+        await withCfg({ maxAttempts: 5, maxFailedTotal: 12 }, async () => {
+          const last = await wrongOnThreeCodes(token);
+          expect(last.status).toBe(423);
+          expect(last.json.code).toBe('otp_link_locked');
+          const row = await otpRow(q.id);
+          expect(row.failedTotal).toBe(12);
+          expect(row.hardLockedAt).toBeTruthy();
+          // the right code and a new code are refused too
+          const right = await approve(token, all, await lastCode());
+          expect(right.status).toBe(423);
+          expect(right.json.code).toBe('otp_link_locked');
+          adv(3_600_000);
+          const again = await ask(token, all);
+          expect(again.status).toBe(423);
+          expect(again.json.code).toBe('otp_link_locked');
+          const audit = (await rows('auditLogs')).filter(
+            (a) => a.entityId === q.id && a.action === 'quote.otp_locked',
+          );
+          expect(audit.at(-1)!.after).toMatchObject({ hard: true, failedTotal: 12 });
+        });
+      });
+
+      it('a new link from staff starts with a clean budget', async () => {
+        const { q, token } = await linkedQuote();
+        await withCfg({ maxAttempts: 5, maxFailedTotal: 12 }, async () => {
+          expect((await wrongOnThreeCodes(token)).json.code).toBe('otp_link_locked');
+          cv = await h.loginAt('u_cv_q7', 'br_q7'); // the session idled while the clock moved
+          expect((await sendLink(cv, q, 'sms')).json.status).toBe('sent');
+          const fresh = tokenOf((await smsOutbox('quote-link')).at(-1)!.vars.link);
+          expect(fresh).not.toBe(token);
+          expect((await ask(fresh, all)).json.sent).toBe(true);
+          const code = await lastCode();
+          expect((await approve(fresh, all, await wrong())).json.code).toBe('otp_invalid');
+          expect((await approve(fresh, all, code)).status).toBe(200);
+        });
+      });
+
+      it('the soft lock lasts lockMs, not the limiter window', async () => {
+        const { token } = await linkedQuote();
+        await withCfg({ sendWindowMs: 2 * 60_000, lockMs: 10 * 60_000 }, async () => {
+          await ask(token, all);
+          const w = await wrong();
+          for (let i = 0; i < 2; i++)
+            expect((await approve(token, all, w)).json.code).toBe('otp_invalid');
+          expect((await approve(token, all, w)).json.code).toBe('otp_locked');
+          adv(3 * 60_000); // past the window, inside the lock
+          const early = await ask(token, all);
+          expect(early.status).toBe(423);
+          expect(early.json.code).toBe('otp_locked');
+          adv(8 * 60_000); // 11 minutes after the lock
+          const later = await ask(token, all);
+          expect(later.status, later.text).toBe(200);
+          expect(later.json.sent).toBe(true);
+        });
+      });
+
+      it('the hard lock survives the code TTL: the record is kept for failureMemoryMs', async () => {
+        const { q, token } = await linkedQuote();
+        await withCfg({ maxAttempts: 5, maxFailedTotal: 12 }, async () => {
+          await wrongOnThreeCodes(token);
+          const row = await otpRow(q.id);
+          const thirtyDays = 30 * 24 * 3_600_000;
+          expect(+row.expiresAt).toBeGreaterThanOrEqual(h.clock.now().getTime() + thirtyDays);
+          // far past the code expiry + 1 day the lock still answers
+          adv(2 * 24 * 3_600_000);
+          expect((await approve(token, all, await lastCode())).json.code).toBe('otp_link_locked');
+        });
+      });
     });
 
     it('a malformed code is a validation error, and rejecting the quote never needs a code', async () => {

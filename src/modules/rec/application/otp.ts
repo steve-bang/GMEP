@@ -7,10 +7,13 @@ import { MessageDeliveryError } from '@/modules/sys';
 import type { QuoteOtpRecord } from '../domain/messaging';
 import {
   checkOtp,
+  decideOtpIssue,
   generateOtpCode,
   hashOtp,
   newOtpSalt,
   type OtpCheck,
+  otpRecordExpiry,
+  type OtpIssueDecision,
   type OtpSettings,
 } from '../domain/otp';
 import type { RecDeps } from '../ports/deps';
@@ -45,6 +48,9 @@ export function otpSettingsOf(deps: RecDeps, ttlSeconds?: number): OtpSettings {
     ttlMs: ttlSeconds ? ttlSeconds * 1000 : d.ttlMs,
     maxAttempts: d.maxAttempts,
     resendCooldownMs: d.resendCooldownMs,
+    lockMs: d.lockMs,
+    maxFailedTotal: d.maxFailedTotal,
+    failureMemoryMs: d.failureMemoryMs,
   };
 }
 
@@ -102,28 +108,32 @@ export async function issueOtp(
 ): Promise<OtpIssued> {
   const now = deps.sys.clock.now();
   const cfg = otpSettingsOf(deps, p.ttlSeconds);
-  const cur = await deps.otps.get(p.link.id);
-  const sameAttempt =
-    !!cur && cur.n === p.n && cur.selectionHash === p.selectionHash && !cur.consumedAt;
-  if (cur?.lockedAt && now.getTime() < cur.lockedAt.getTime() + deps.rec.otp.sendWindowMs)
-    throw new AppError('otp_locked', 423);
-  if (cur && sameAttempt && !cur.lockedAt && cur.codeExpiresAt > now && cur.resendAfter > now)
-    return {
-      sent: false,
-      channel: cur.channel,
-      destination: await maskedDestination(deps, p, cur.channel),
-      codeExpiresAt: cur.codeExpiresAt,
-      resendAfter: cur.resendAfter,
-    };
-  if (cur && cur.resendAfter > now)
-    throw rateLimited(
-      Math.ceil((cur.resendAfter.getTime() - now.getTime()) / 1000),
-      'otp_cooldown',
-    );
+  const decide = (cur: QuoteOtpRecord | null) =>
+    decideOtpIssue(cur, now, { n: p.n, selectionHash: p.selectionHash, lockMs: cfg.lockMs });
+  /** a decision other than `issue` ends the request: refuse, or answer "already sent" */
+  const settle = async (d: OtpIssueDecision, cur: QuoteOtpRecord | null): Promise<OtpIssued> => {
+    if (d.kind === 'locked') throw new AppError(d.hard ? 'otp_link_locked' : 'otp_locked', 423);
+    if (d.kind === 'cooldown') throw rateLimited(d.retryAfterSeconds, 'otp_cooldown');
+    if (d.kind === 'same' && cur)
+      return {
+        sent: false,
+        channel: cur.channel,
+        destination: await maskedDestination(deps, p, cur.channel),
+        codeExpiresAt: cur.codeExpiresAt,
+        resendAfter: cur.resendAfter,
+      };
+    throw new Error('unreachable otp decision');
+  };
+
+  // cheap early check outside the transaction; the same decision is repeated inside it (a concurrent request may win)
+  const early = await deps.otps.get(p.link.id);
+  const d0 = decide(early);
+  if (d0.kind !== 'issue') return settle(d0, early);
 
   const target = await otpTargetOf(deps, { companyId: p.link.companyId, customerId: p.customerId });
   if (!target) throw new AppError('otp_unavailable', 409);
 
+  // rate limiter hits stay outside the transaction: its callback can be retried and must not count twice
   const win = deps.rec.otp.sendWindowMs;
   await deps.sys.limiter.hit('quote-otp-send', `tok:${p.link.id.slice(0, 24)}`, {
     limit: deps.rec.otp.sendLimit,
@@ -137,25 +147,44 @@ export async function issueOtp(
   const code = generateOtpCode();
   const salt = newOtpSalt();
   const codeExpiresAt = new Date(now.getTime() + cfg.ttlMs);
-  const record: QuoteOtpRecord = {
-    id: p.link.id,
-    companyId: p.link.companyId,
-    branchId: p.link.branchId,
-    quoteId: p.link.quoteId,
-    n: p.n,
-    selectionHash: p.selectionHash,
-    salt,
-    codeHash: hashOtp(salt, p.link.id, code),
-    channel: target.channel,
-    sentAt: now,
-    codeExpiresAt,
-    resendAfter: new Date(now.getTime() + cfg.resendCooldownMs),
-    attempts: 0,
-    maxAttempts: cfg.maxAttempts,
-    createdAt: now,
-    expiresAt: new Date(codeExpiresAt.getTime() + 24 * 3_600_000),
-  };
+  const codeHash = hashOtp(salt, p.link.id, code);
+  let lost: { d: OtpIssueDecision; cur: QuoteOtpRecord | null } | null = null;
+  let record!: QuoteOtpRecord;
   await deps.sys.uow.run(async (tx) => {
+    lost = null; // the callback can run again
+    const cur = await deps.otps.getInTx(tx, p.link.id); // read before any write
+    const d = decide(cur);
+    if (d.kind !== 'issue') {
+      lost = { d, cur };
+      return;
+    }
+    // FR-SYS: the wrong-try counter and the hard lock survive a new code (a new link starts clean)
+    const failedTotal = cur?.failedTotal ?? 0;
+    record = {
+      id: p.link.id,
+      companyId: p.link.companyId,
+      branchId: p.link.branchId,
+      quoteId: p.link.quoteId,
+      n: p.n,
+      selectionHash: p.selectionHash,
+      salt,
+      codeHash,
+      channel: target.channel,
+      sentAt: now,
+      codeExpiresAt,
+      resendAfter: new Date(now.getTime() + cfg.resendCooldownMs),
+      attempts: 0,
+      maxAttempts: cfg.maxAttempts,
+      ...(failedTotal > 0 ? { failedTotal } : {}),
+      createdAt: now,
+      expiresAt: otpRecordExpiry({
+        codeExpiresAt,
+        now,
+        failedTotal,
+        ...(cur?.expiresAt ? { previous: cur.expiresAt } : {}),
+        failureMemoryMs: cfg.failureMemoryMs,
+      }),
+    };
     deps.otps.set(tx, record);
     deps.sys.audit.record(
       tx,
@@ -167,6 +196,8 @@ export async function issueOtp(
       }),
     );
   });
+  const loser = lost as { d: OtpIssueDecision; cur: QuoteOtpRecord | null } | null;
+  if (loser) return settle(loser.d, loser.cur);
   try {
     await deps.sys.messages.send({
       id: `otp-${p.link.id.slice(0, 16)}-${now.getTime()}`,
@@ -178,9 +209,15 @@ export async function issueOtp(
   } catch (e) {
     if (!(e instanceof MessageDeliveryError)) throw e;
     rootLogger.warn({ channel: target.channel, requestId: ctx.requestId }, 'otp delivery failed');
-    // the code never reached the customer: drop it so the cooldown does not block the next request
+    // the code never reached the customer: drop it so the cooldown does not block the next request, but only if the
+    // record is still the one this request wrote (a concurrent request may have replaced it)
     await deps.sys.uow.run(async (tx) => {
-      deps.otps.delete(tx, p.link.id);
+      const st = await deps.otps.getInTx(tx, p.link.id);
+      if (!st || st.codeHash !== codeHash) return;
+      if ((st.failedTotal ?? 0) > 0)
+        // keep the wrong-try counter: void the code instead of deleting the record
+        deps.otps.update(tx, p.link.id, { codeExpiresAt: now, resendAfter: now });
+      else deps.otps.delete(tx, p.link.id);
     });
     throw new AppError('otp_delivery_failed', 502);
   }
@@ -221,16 +258,32 @@ export async function verifyOtp(
       n: p.n,
       selectionHash: p.selectionHash,
       code: p.code,
+      maxFailedTotal: deps.rec.otp.maxFailedTotal,
     });
-    if (r.kind === 'invalid') {
+    if (r.kind === 'invalid' && st) {
       deps.otps.update(tx, p.link.id, {
         attempts: r.attempts,
+        failedTotal: r.failedTotal,
         ...(r.lock ? { lockedAt: now } : {}),
+        ...(r.hard ? { hardLockedAt: now } : {}),
+        // the counter must outlive the code: push the TTL out while wrong tries are remembered
+        expiresAt: otpRecordExpiry({
+          codeExpiresAt: st.codeExpiresAt,
+          now,
+          failedTotal: r.failedTotal,
+          previous: st.expiresAt,
+          failureMemoryMs: deps.rec.otp.failureMemoryMs,
+        }),
       });
       if (r.lock)
         deps.sys.audit.record(
           tx,
-          linkAudit(deps, p.link, ctx, 'quote.otp_locked', { n: p.n, attempts: r.attempts }),
+          linkAudit(deps, p.link, ctx, 'quote.otp_locked', {
+            n: p.n,
+            attempts: r.attempts,
+            failedTotal: r.failedTotal,
+            hard: r.hard,
+          }),
         );
     } else if (r.kind === 'ok' && st && !st.verifiedAt) {
       deps.otps.update(tx, p.link.id, { verifiedAt: now });
@@ -238,6 +291,8 @@ export async function verifyOtp(
     return r;
   });
   if (res.kind === 'ok') return;
+  if (res.kind === 'hard_locked' || (res.kind === 'invalid' && res.hard))
+    throw new AppError('otp_link_locked', 423);
   if (res.kind === 'invalid')
     throw new AppError(res.lock ? 'otp_locked' : 'otp_invalid', res.lock ? 423 : 422);
   if (res.kind === 'locked') throw new AppError('otp_locked', 423);
