@@ -254,6 +254,7 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
       let calls = 0;
       sys.messages = {
         availableChannels: () => real.availableChannels(),
+        isSimulated: (c) => real.isSimulated(c),
         async send(m: OutboundMessage) {
           calls++;
           if (m.template === 'quote-link' && left-- > 0) throw new MessageDeliveryError(m.channel);

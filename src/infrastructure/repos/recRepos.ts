@@ -331,6 +331,7 @@ const linkFromDoc = ({ id, data: x }: StoredDoc): QuoteLink => ({
   ...put('revokedAt', opt<Date>(x.revokedAt)),
   ...put('revokedReason', opt<string>(x.revokedReason)),
   ...put('usedAt', opt<Date>(x.usedAt)),
+  ...put('deliveryId', opt<string>(x.deliveryId)),
 });
 
 export class DocQuoteLinkRepository implements QuoteLinkRepository {
@@ -403,11 +404,13 @@ export class DocQuoteDeliveryRepository implements QuoteDeliveryRepository {
     this.store.update(tx, COL.messageDeliveries, id, patch);
   }
   async getQueue(scope: Scope, branchId: string) {
+    if (!branchId) return null;
     const d = await this.store.get(COL.messageQueues, branchId);
     const x = d ? asRec<MessageQueue>(d) : null;
     return x && this.allowed(scope, x) ? x : null;
   }
   async getQueueInTx(tx: Tx, scope: Scope, branchId: string) {
+    if (!branchId) return null;
     const d = await this.store.getInTx(tx, COL.messageQueues, branchId);
     const x = d ? asRec<MessageQueue>(d) : null;
     return x && this.allowed(scope, x) ? x : null;

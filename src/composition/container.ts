@@ -57,6 +57,7 @@ import { MemoryFileStore } from '@/infrastructure/files/memoryFileStore';
 import { FirebaseFileStore } from '@/infrastructure/files/firebaseFileStore';
 import type { FileStore } from '@/platform/files/fileStore';
 import { noStrongAuth } from '@/infrastructure/auth/noStrongAuth';
+import { rootLogger } from '@/platform/logging/logger';
 import { OutboxEmailGateway } from '@/infrastructure/email/outboxEmailGateway';
 import { SmtpEmailGateway } from '@/infrastructure/email/smtpEmailGateway';
 import {
@@ -199,9 +200,14 @@ function buildSys(
     env.EMAIL_SMTP_URL && env.EMAIL_FROM
       ? SmtpEmailGateway.fromConfig({ url: env.EMAIL_SMTP_URL, from: env.EMAIL_FROM })
       : new OutboxEmailGateway(store, now);
+  if (env.GMEP_ENV === 'staging' && env.MESSAGE_DEV_CHANNELS)
+    rootLogger.warn(
+      { channels: env.MESSAGE_DEV_CHANNELS },
+      'MESSAGE_DEV_CHANNELS is set on staging: sms/zalo messages are only written to the dev outbox and reach nobody',
+    );
   // A4: email always has an adapter; sms and zalo only when a (dev) adapter is configured, so the UI never offers a dead channel
   const messages = new ChannelMessageGateway({
-    email: new EmailChannelAdapter(email),
+    email: new EmailChannelAdapter(email, !(env.EMAIL_SMTP_URL && env.EMAIL_FROM)),
     ...Object.fromEntries(
       (env.MESSAGE_DEV_CHANNELS?.split(',') ?? []).map((c) => [
         c,

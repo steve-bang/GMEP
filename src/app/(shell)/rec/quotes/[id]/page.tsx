@@ -134,6 +134,7 @@ const SHARE_KEYS = [
   'sendVia',
   'sendHint',
   'sendOk',
+  'sendSimulated',
   'sendQueued',
   'sendDead',
   'hasLink',

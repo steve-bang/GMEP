@@ -64,10 +64,16 @@ export function QuoteShare(props: {
       setError(r.problem?.detail ?? l.unexpected!);
       return;
     }
-    const d = r.data as { status: 'sent' | 'pending' | 'dead'; recipient: string };
+    const d = r.data as {
+      status: 'sent' | 'pending' | 'dead';
+      recipient: string;
+      simulated?: boolean;
+    };
     setSentNote(
       (d.status === 'sent'
-        ? l.sendOk!
+        ? d.simulated
+          ? l.sendSimulated!
+          : l.sendOk!
         : d.status === 'pending'
           ? l.sendQueued!
           : l.sendDead!

@@ -163,6 +163,7 @@ export async function issueOtp(
         n: p.n,
         channel: target.channel,
         to: target.masked,
+        simulated: deps.sys.messages.isSimulated(target.channel),
       }),
     );
   });

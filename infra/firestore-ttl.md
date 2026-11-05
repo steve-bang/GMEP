@@ -15,6 +15,8 @@ The Emulator ignores TTL, so the code never relies on deletion having happened.
 | `quoteOtps`         | `expiresAt` | code expiry + 1 day                                                | hash of the approval code, attempts, lock; no clear code                                                                                                                                                                                                                                                                                                                              |
 | `messageDeliveries` | `expiresAt` | 30 days                                                            | quote-link delivery state (masked recipient only)                                                                                                                                                                                                                                                                                                                                     |
 
+`messageQueues` (per-branch retry queue of quote-link deliveries) has no TTL: each item carries the delivery's `expiresAt` and the `messageRetry` cron job prunes expired items and orphan entries (delivery missing), so they never count toward `queueMax`.
+
 Not under TTL (kept until the client decides, `[Cần xác nhận: Kế toán/Luật sư khách]`, BA §8.1):
 `auditLogs`, `accessLogs`, `authTokens` (small, single use; a cleanup job can delete expired rows later),
 `counters`/`numberAssignments` (numbers are never reused), all business data.

@@ -363,6 +363,11 @@ export class MessageDeliveryError extends Error {
  */
 export interface MessageGateway {
   availableChannels(): readonly MessageChannel[];
+  /**
+   * The channel only writes to a dev outbox: an accepted message did NOT leave the system (staging with
+   * `MESSAGE_DEV_CHANNELS`, email without SMTP). Callers record it as simulated, never as a real delivery.
+   */
+  isSimulated(channel: MessageChannel): boolean;
   send(message: OutboundMessage): Promise<void>;
 }
 
