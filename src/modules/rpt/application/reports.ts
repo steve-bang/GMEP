@@ -1,3 +1,4 @@
+import { mapPool } from '@/platform/async/mapPool';
 import { hasPermission, type Actor } from '@/platform/rbac/rbac';
 import {
   computeMonthly,
@@ -55,6 +56,7 @@ const monthSchema = z.object({
 export interface MonthlyDto {
   branchId: string;
   branchName: string;
+  branchCode: string;
   /** FR-RPT-014: set when the figures are narrowed to one service type (order-bound figures only) */
   serviceType: string | null;
   /** days whose rollup predates the service-type breakdown (rebuild them); empty without a filter */
@@ -90,6 +92,7 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
   return {
     branchId: branch.id,
     branchName: branch.name,
+    branchCode: branch.code,
     serviceType: q.serviceType ?? null,
     breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
     unlinked: narrowed ? sumUnlinked(narrowed.included) : null,
@@ -141,6 +144,7 @@ function rangeOf(
 export interface ReconcileDto {
   branchId: string;
   branchName: string;
+  branchCode: string;
   serviceType: string | null;
   breakdownUnavailableDates: string[];
   unlinked: UnlinkedRollup | null;
@@ -178,6 +182,7 @@ export async function getReconcile(
   return {
     branchId: branch.id,
     branchName: branch.name,
+    branchCode: branch.code,
     serviceType: q.serviceType ?? null,
     breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
     unlinked: narrowed ? sumUnlinked(narrowed.included) : null,
@@ -201,6 +206,7 @@ const warehouseSchema = z.object({
 export interface WarehouseDto {
   branchId: string;
   branchName: string;
+  branchCode: string;
   report: WarehouseReport;
   warehouses: Record<string, string>;
   /** stock value is shown only with stock-cost:view */
@@ -228,16 +234,19 @@ export async function getWarehouse(
     : cap.items;
   const report = computeWarehouse(facts, { showValue, belowMax: deps.rpt.belowReorderMax });
   const names: Record<string, string> = {};
-  for (const s of report.summary) {
-    const w = await deps.sys.warehouses.get(scope, s.warehouseId);
-    names[s.warehouseId] = w?.name ?? s.warehouseId;
-  }
+  const found = await mapPool(report.summary, 10, (s) =>
+    deps.sys.warehouses.get(scope, s.warehouseId),
+  );
+  report.summary.forEach((s, i) => {
+    names[s.warehouseId] = found[i]?.name ?? s.warehouseId;
+  });
   const today = todayOf(deps);
   const dates = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
   const rolls = await redactedRollups(deps, actor, scope, branch.id, dates);
   return {
     branchId: branch.id,
     branchName: branch.name,
+    branchCode: branch.code,
     report,
     warehouses: names,
     showValue,
@@ -256,6 +265,7 @@ export async function getWarehouse(
 export interface TechniciansDto {
   branchId: string;
   branchName: string;
+  branchCode: string;
   from: string;
   to: string;
   serviceType: string | null;
@@ -291,6 +301,7 @@ export async function getTechnicians(
   return {
     branchId: branch.id,
     branchName: branch.name,
+    branchCode: branch.code,
     from: q.from,
     to: q.to,
     serviceType: q.serviceType ?? null,

@@ -189,6 +189,10 @@
       "title": "Phụ tùng đã có phiếu tồn đầu kỳ",
       "detail": "Một phụ tùng trong lô đã có phiếu tồn đầu kỳ chưa đảo ở kho này. Hoàn tác phiếu cũ trước khi nhập lại."
     },
+    "import_opening_scan_limit": {
+      "title": "Kho có quá nhiều phiếu để kiểm tra tồn đầu kỳ",
+      "detail": "Không kiểm tra được trùng tồn đầu kỳ vì kho có quá nhiều chứng từ. Liên hệ bộ phận hỗ trợ, không nhập tồn đầu kỳ cho kho này cho đến khi xử lý."
+    },
     "import_batch_blocked": {
       "title": "Còn lô nhập dừng giữa chừng",
       "detail": "Chi nhánh có lô nhập cùng loại đang dừng giữa chừng. Ghi tiếp hoặc hoàn tác lô đó trước khi tạo lô mới."
@@ -1610,6 +1614,7 @@
       "dataImport_commit_start": "Bắt đầu ghi lô nhập",
       "dataImport_commit": "Ghi lô nhập",
       "dataImport_commit_failed": "Ghi lô nhập lỗi giữa chừng",
+      "dataImport_commit_stale": "Lô nhập treo ở trạng thái đang ghi, chuyển sang lỗi để ghi tiếp hoặc hoàn tác",
       "dataImport_resume": "Ghi tiếp lô nhập",
       "dataImport_undo": "Hoàn tác lô nhập",
       "customer_import_undo": "Gỡ khách do hoàn tác lô nhập",

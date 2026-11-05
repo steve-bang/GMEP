@@ -55,6 +55,11 @@ Demo users (emulator only, password `Demo!Pass-2026`, all FAKE): `chu@` (CH), `q
 See `.env.example`. All are server-side; there are no `NEXT_PUBLIC_*` variables by design. `GMEP_ENV=local` refuses to start
 without the emulator hosts so a local run can never reach real Google services.
 
+## Deploying to a real environment
+
+Step-by-step guide (Cloud Run, Firestore, Auth, Storage, secrets, SMTP email, Scheduler, domain): `docs/dev/deploy-guide.md`.
+Email uses `EMAIL_SMTP_URL` + `EMAIL_FROM` (required when `GMEP_ENV=prod`; unset elsewhere = dev outbox).
+
 ## Architecture in one page
 
 ```

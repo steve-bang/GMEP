@@ -58,6 +58,7 @@ import { FirebaseFileStore } from '@/infrastructure/files/firebaseFileStore';
 import type { FileStore } from '@/platform/files/fileStore';
 import { noStrongAuth } from '@/infrastructure/auth/noStrongAuth';
 import { OutboxEmailGateway } from '@/infrastructure/email/outboxEmailGateway';
+import { SmtpEmailGateway } from '@/infrastructure/email/smtpEmailGateway';
 import { getDb } from '@/infrastructure/firestore/client';
 import { FirebaseIdentityProvider } from '@/infrastructure/identity/firebaseIdentity';
 import { MemoryDb, MemoryDocStore, MemoryUnitOfWork } from '@/infrastructure/store/memoryDocStore';
@@ -166,6 +167,7 @@ export function sysConfigFromEnv(env: Env): SysConfig {
     importMaxBytes: 5 * 1024 * 1024,
     importMaxRows: 2000,
     importAbandonedDays: 7,
+    importStaleCommitMinutes: 15,
     notificationBellDays: 30,
     notificationRetentionDays: 365,
     consentPolicyVersion: 'chưa có [do doanh nghiệp cung cấp]',
@@ -183,9 +185,13 @@ function buildSys(
 ): SysDeps {
   const config = sysConfigFromEnv(env);
   const now = () => clock.now();
-  if (env.GMEP_ENV === 'prod')
-    // the only EmailGateway adapter is the dev outbox, which stores live single-use links in plain text
-    throw new Error('GMEP_ENV=prod needs a real EmailGateway adapter (none is chosen yet).');
+  // the dev outbox stores live single-use links in plain text: never in prod (loadEnv also demands SMTP there)
+  if (env.GMEP_ENV === 'prod' && !env.EMAIL_SMTP_URL)
+    throw new Error('GMEP_ENV=prod needs EMAIL_SMTP_URL and EMAIL_FROM.');
+  const email =
+    env.EMAIL_SMTP_URL && env.EMAIL_FROM
+      ? SmtpEmailGateway.fromConfig({ url: env.EMAIL_SMTP_URL, from: env.EMAIL_FROM })
+      : new OutboxEmailGateway(store, now);
   const state = new DocAtomicStateStore(store, uow);
   const deps: SysDeps = {
     uow,
@@ -215,7 +221,7 @@ function buildSys(
     priceLists: new DocPriceListRepository(store),
     identity,
     strongAuth: noStrongAuth,
-    email: new OutboxEmailGateway(store, now),
+    email,
     throttle: new LoginThrottle(state, now),
     limiter: new RateLimiter(state, now),
     pii: new PiiPolicy(),

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { branchesScope } from '@/platform/scope/scope';
 import { warehouseId } from '@/modules/sys';
 import { backends, createHarness, type Harness } from './harness';
 
@@ -483,6 +484,84 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     }
     // a batch that stops half-way is a visible state with a code, never a silent partial (covered by the R100 test above)
     expect((await commit(tk, a.json.id)).json.status).toBe('committed');
+  });
+
+  it('R95: the opening-balance duplicate check reads every document page by page and says so when it cannot (no silent partial scan)', async () => {
+    const PH = 'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng';
+    const SH = 'Mã phụ tùng,Số lượng tồn,Đơn giá vốn (VND)';
+    const before = (
+      await h.container.inv.documents.listAllByWarehouseStatus('cmp_demo', WH, 'draft', 1000)
+    ).docs.length;
+    for (const c of ['PG-1', 'PG-2', 'PG-3']) {
+      const p = await upload(tk, 'parts', csv(PH, `${c},Hàng phân trang,piece,other`));
+      await commit(tk, p.json.id);
+      const o = await upload(tk, 'opening-stock', csv(SH, `${c},2,1000`), { warehouseId: WH });
+      const cr = await commit(tk, o.json.id);
+      expect(cr.json.status, `${c} ${o.text.slice(0, 200)} ${cr.text.slice(0, 200)}`).toBe(
+        'committed',
+      );
+    }
+    const docs = h.container.inv.documents;
+    const all = await docs.listAllByWarehouseStatus('cmp_demo', WH, 'draft', 1000, 1); // one document per page
+    expect(all.truncated).toBe(false);
+    expect(all.docs.length).toBe(before + 3);
+    expect(new Set(all.docs.map((d) => d.id)).size).toBe(all.docs.length); // no page overlap or gap
+    const cut = await docs.listAllByWarehouseStatus('cmp_demo', WH, 'draft', before + 2, 2);
+    expect(cut).toMatchObject({ truncated: true });
+    expect(cut.docs).toHaveLength(before + 2);
+  });
+
+  it('NFR-ISO-01: staged units and the file slot are read through a Scope (another branch sees nothing)', async () => {
+    const head = 'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng';
+    const v = await upload(tk, 'parts', csv(head, 'SCOPE-1,Hàng thử phạm vi,piece,other'));
+    expect(v.json.status).toBe('validated');
+    const repo = h.container.sys.imports;
+    const q7 = branchesScope('cmp_demo', ['br_q7']);
+    const td = branchesScope('cmp_demo', ['br_td']);
+    expect(await repo.getUnits(q7, v.json.id, 1)).toHaveLength(1);
+    expect(await repo.getUnits(td, v.json.id, 1)).toEqual([]);
+    expect(await repo.getUnits(branchesScope('other_company', ['br_q7']), v.json.id, 1)).toEqual(
+      [],
+    );
+    // the file slot of the batch is visible to its own branch only
+    const slot = async (sc: typeof q7) =>
+      h.container.sys.uow.run(async (tx) => {
+        const hash = (await import('node:crypto'))
+          .createHash('sha256')
+          .update(csv(head, 'SCOPE-1,Hàng thử phạm vi,piece,other'))
+          .digest('hex');
+        return repo.getFileSlotInTx(tx, sc, `br_q7_parts_${hash}`);
+      });
+    expect(await slot(q7)).toBe(v.json.id);
+    expect(await slot(td)).toBeNull();
+  });
+
+  it('a batch stuck in committing is not stuck for ever: after the stale threshold it can be resumed or undone (audited), before it the answer is a clear 409', async () => {
+    const head = 'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng';
+    const stick = async (id: string) =>
+      h.container.sys.uow.run(async (tx) => {
+        h.container.sys.imports.update(tx, id, {
+          status: 'committing',
+          updatedAt: h.clock.now(),
+          version: 2,
+        });
+      });
+    const a = await upload(tk, 'parts', csv(head, 'STALE-1,Hàng treo 1,piece,other'));
+    await stick(a.json.id);
+    expect((await commit(tk, a.json.id)).status).toBe(409); // a live run is not taken over
+    h.clock.set(new Date(h.clock.now().getTime() + 16 * 60_000).toISOString());
+    const resumed = await commit(tk, a.json.id);
+    expect(resumed.status, resumed.text).toBe(200);
+    expect(resumed.json.status).toBe('committed');
+    expect((await audits(a.json.id)).map((e) => e.action)).toContain('dataImport.commit.stale');
+
+    const b = await upload(tk, 'parts', csv(head, 'STALE-2,Hàng treo 2,piece,other'));
+    await stick(b.json.id);
+    expect((await undo(tk, b.json.id)).status).toBe(409);
+    h.clock.set(new Date(h.clock.now().getTime() + 16 * 60_000).toISOString());
+    const u = await undo(tk, b.json.id);
+    expect(u.status, u.text).toBe(200);
+    expect(u.json.status).toBe('undone');
   });
 
   it('template is a CSV with the Vietnamese header and BOM', async () => {
