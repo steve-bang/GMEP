@@ -227,7 +227,7 @@ export async function exportReport(
       if (d.serviceType) meta.push([lbl('serviceType'), d.serviceType]);
       if (d.breakdownUnavailableDates.length > 0)
         meta.push([lbl('breakdownMissing'), d.breakdownUnavailableDates.length]);
-      branch = { id: d.branchId, name: d.branchName, code: d.branchId };
+      branch = { id: d.branchId, name: d.branchName, code: d.branchCode };
       period = input.month;
       const r = d.report;
       head = [lbl('colCode'), lbl('colLabel'), lbl('colValue')];
@@ -298,7 +298,7 @@ export async function exportReport(
       // FR-RPT-014: the documents with no order stay in their own lines (label + value), not spread over types
       if (d.unlinked)
         for (const [k, v] of Object.entries(unlinkedFlat(d.unlinked))) meta.push([lbl(k), v]);
-      branch = { id: d.branchId, name: d.branchName, code: d.branchId };
+      branch = { id: d.branchId, name: d.branchName, code: d.branchCode };
       period = `${d.report.from}_${d.report.to}`;
       head = [
         lbl('date'),
@@ -338,7 +338,7 @@ export async function exportReport(
         ...(input.branchId ? { branchId: input.branchId } : {}),
         ...(input.warehouseId ? { warehouseId: input.warehouseId } : {}),
       });
-      branch = { id: d.branchId, name: d.branchName, code: d.branchId };
+      branch = { id: d.branchId, name: d.branchName, code: d.branchCode };
       period = businessDate(deps.sys.clock.now());
       head = [
         lbl('warehouse'),
@@ -373,7 +373,7 @@ export async function exportReport(
         ...q,
         ...(input.serviceType ? { serviceType: input.serviceType } : {}),
       });
-      branch = { id: d.branchId, name: d.branchName, code: d.branchId };
+      branch = { id: d.branchId, name: d.branchName, code: d.branchCode };
       period = `${d.from}_${d.to}`;
       head = [
         lbl('technician'),
@@ -397,10 +397,8 @@ export async function exportReport(
     }
   }
   if (body.length > deps.rpt.exportMaxRows) throw new AppError('export_too_large', 422);
-  // the branch code is on the branch record; the list read above names it
-  const code =
-    (await branchesOf(deps, actor, 'report-daily:export', branch.id)).branches[0]?.code ??
-    branch.id;
+  // the branch code comes with the report DTO (no second read of the branch list)
+  const code = branch.code;
   await deps.sys.uow.run(async (tx) => {
     deps.sys.audit.record(
       tx,

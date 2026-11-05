@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { crc32, deflateRawSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { parseTabular, TabularError } from '@/platform/files/tabular';
 import {
@@ -109,6 +110,63 @@ describe('FR-SYS-007 file reading', () => {
       'too_many_rows',
     );
     expect(await code(Buffer.from('PK\u0003\u0004garbage'))).toBe('unreadable');
+  });
+  /** a one-part zip with a really deflated body; `claimed` lets a test lie in the header about the unpacked size */
+  const zipOf = (body: Buffer, claimed = body.length) => {
+    const data = deflateRawSync(body);
+    const name = Buffer.from('xl/worksheets/sheet1.xml');
+    const crc = crc32(body);
+    const local = Buffer.alloc(30);
+    local.writeUInt32LE(0x04034b50, 0);
+    local.writeUInt16LE(20, 4);
+    local.writeUInt16LE(8, 8);
+    local.writeUInt32LE(crc, 14);
+    local.writeUInt32LE(data.length, 18);
+    local.writeUInt32LE(claimed, 22);
+    local.writeUInt16LE(name.length, 26);
+    const central = Buffer.alloc(46);
+    central.writeUInt32LE(0x02014b50, 0);
+    central.writeUInt16LE(20, 4);
+    central.writeUInt16LE(20, 6);
+    central.writeUInt16LE(8, 10);
+    central.writeUInt32LE(crc, 16);
+    central.writeUInt32LE(data.length, 20);
+    central.writeUInt32LE(claimed, 24);
+    central.writeUInt16LE(name.length, 28);
+    const cdOffset = local.length + name.length + data.length;
+    const end = Buffer.alloc(22);
+    end.writeUInt32LE(0x06054b50, 0);
+    end.writeUInt16LE(1, 8);
+    end.writeUInt16LE(1, 10);
+    end.writeUInt32LE(central.length + name.length, 12);
+    end.writeUInt32LE(cdOffset, 16);
+    return Buffer.concat([local, name, data, central, name, end]);
+  };
+  it('refuses a small .xlsx that inflates to a huge sheet (zip bomb), by the real size and by the header', async () => {
+    const code = (b: Buffer) =>
+      parseTabular(b, { maxBytes: 1_000_000, maxRows: 100 }).catch(
+        (e: unknown) => (e as TabularError).code,
+      );
+    const huge = Buffer.alloc(60 * 1024 * 1024, 0x61); // 60 MB of "a" deflates to about 60 KB
+    const honest = zipOf(huge);
+    expect(honest.length).toBeLessThan(200_000);
+    expect(await code(honest)).toBe('too_large');
+    // the header lies (claims 1 KB): the real output is capped by the claim, so this is refused too
+    expect(await code(zipOf(huge, 1024))).toBe('too_large');
+    // a part within the cap is not refused by the guard (it fails later as an unreadable sheet, not as too_large)
+    expect(await code(zipOf(Buffer.from('<x/>')))).not.toBe('too_large');
+  });
+  it('stops reading a long csv at the row limit and refuses too many columns', async () => {
+    const lines = Array.from({ length: 200_000 }, (_, i) => `${i},x`).join('\n');
+    expect(
+      await parseTabular(Buffer.from(`a,b\n${lines}`), { maxBytes: 10_000_000, maxRows: 5 }).catch(
+        (e: unknown) => (e as TabularError).code,
+      ),
+    ).toBe('too_many_rows');
+    const wide = Array.from({ length: 300 }, (_, i) => `c${i}`).join(',');
+    expect(await parseTabular(Buffer.from(`${wide}\n1\n`), limits).catch((e) => e.code)).toBe(
+      'unreadable',
+    );
   });
   it('does not evaluate formulas: a leading = stays text', async () => {
     const g = await parseTabular(Buffer.from('a\r\n=1+1\r\n'), limits);

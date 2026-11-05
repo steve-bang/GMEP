@@ -215,7 +215,8 @@ export function buildPartImport(getDeps: () => InvDeps): ImportKindHandler {
   };
 }
 
-const OPENING_DOC_SCAN = 500;
+/** documents read per warehouse and status before the check refuses to answer (never a silent partial check) */
+const OPENING_DOC_SCAN = 20_000;
 
 /** RULE-007/R95: part ids with a live opening-balance document (draft or posted, not reversed, not a reversal). */
 async function openedParts(
@@ -226,12 +227,14 @@ async function openedParts(
 ) {
   const set = new Set<string>();
   for (const status of ['draft', 'posted'] as const) {
-    const docs = await deps.documents.listByWarehouseStatus(
+    const { docs, truncated } = await deps.documents.listAllByWarehouseStatus(
       companyId,
       warehouseId,
       status,
       OPENING_DOC_SCAN,
     );
+    // a large warehouse is read page by page; past the ceiling the check says so instead of missing documents (R95)
+    if (truncated) throw new AppError('import_opening_scan_limit', 409);
     for (const d of docs) {
       if (d.source.type !== 'opening-balance' || d.reversedBy || d.reversalOf) continue;
       if (exceptBatchId && d.reason?.includes(exceptBatchId)) continue;

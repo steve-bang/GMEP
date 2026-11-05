@@ -11,7 +11,7 @@ import {
   type Actor,
   type Permission,
 } from '@/platform/rbac/rbac';
-import { scopeAllows } from '@/platform/scope/scope';
+import { scopeAllows, type Scope } from '@/platform/scope/scope';
 import {
   ACTIVE_STATUSES,
   autoMap,
@@ -244,7 +244,7 @@ export async function previewImport(
   // the same bytes already written (or being written) for this branch: refuse before any work, whatever the rows say
   const slotId = `${branchId}_${data.kind}_${fileHash}`;
   const holder = await deps.uow.run(async (tx) => {
-    const holderId = await deps.imports.getFileSlotInTx(tx, slotId);
+    const holderId = await deps.imports.getFileSlotInTx(tx, scope, slotId);
     return holderId ? deps.imports.getInTx(tx, scope, holderId) : null;
   });
   if (holder && ['committing', 'committed', 'failed'].includes(holder.status))
@@ -299,7 +299,7 @@ export async function previewImport(
     },
     async (tx) => {
       if (!rejected) {
-        const holderId = await deps.imports.getFileSlotInTx(tx, slotId);
+        const holderId = await deps.imports.getFileSlotInTx(tx, scope, slotId);
         const holder = holderId ? await deps.imports.getInTx(tx, scope, holderId) : null;
         if (holder && ACTIVE_STATUSES.includes(holder.status)) {
           // a dry run that was only previewed is replaced by the new run (e.g. another mapping)
@@ -355,8 +355,8 @@ export async function previewImport(
       };
       deps.imports.create(tx, batch);
       if (!rejected) {
-        deps.imports.setFileSlot(tx, slotId, id);
-        deps.imports.putUnits(tx, id, actor.companyId, units);
+        deps.imports.setFileSlot(tx, slotId, { batchId: id, companyId: actor.companyId, branchId });
+        deps.imports.putUnits(tx, id, { companyId: actor.companyId, branchId }, units);
       }
       deps.audit.record(
         tx,
@@ -426,6 +426,50 @@ export async function discardAbandonedImports(
   return n;
 }
 
+/**
+ * A batch left in `committing` (the instance was stopped, or the last write failed) is not stuck for ever: after
+ * `importStaleCommitMinutes` it is moved to `failed` (audited), so it can be resumed or undone. A step of a runner
+ * that is in fact still alive then fails its version check, and every step is idempotent by key.
+ */
+async function reclaimStaleCommit(
+  deps: SysDeps,
+  actor: Actor,
+  scope: Scope,
+  b: ImportBatch,
+  ctx: RequestCtx,
+): Promise<ImportBatch> {
+  if (
+    b.status !== 'committing' ||
+    deps.clock.now().getTime() - b.updatedAt.getTime() <
+      deps.config.importStaleCommitMinutes * 60_000
+  )
+    return b;
+  return deps.uow.run(async (tx) => {
+    const cur = await deps.imports.getInTx(tx, scope, b.id);
+    if (!cur || cur.status !== 'committing') return cur ?? b;
+    const patch = {
+      status: 'failed' as const,
+      failure: 'import_commit_stale',
+      updatedAt: deps.clock.now(),
+      updatedBy: actor.userId,
+      version: cur.version + 1,
+    };
+    deps.imports.update(tx, cur.id, patch);
+    deps.audit.record(
+      tx,
+      auditEntry(deps, actor, ctx, {
+        branchId: cur.branchId,
+        entityType: 'dataImport',
+        entityId: cur.id,
+        action: 'dataImport.commit.stale',
+        before: { status: 'committing' },
+        after: { status: 'failed', failure: 'import_commit_stale', written: cur.committedUnits },
+      }),
+    );
+    return { ...cur, ...patch };
+  });
+}
+
 const mergeRefs = (a: ImportBatch['refs'], b: ImportBatch['refs']) => {
   const seen = new Set(a.map((r) => `${r.type}:${r.id}`));
   return [...a, ...b.filter((r) => !seen.has(`${r.type}:${r.id}`))];
@@ -450,6 +494,8 @@ export async function commitImport(
   ctx: RequestCtx,
 ): Promise<ImportDto> {
   const scope = resolveScope(actor, 'data-import:create');
+  const first = await deps.imports.get(scope, id);
+  if (first) await reclaimStaleCommit(deps, actor, scope, first, ctx);
   const claimed = await deps.uow.run(async (tx) => {
     const b = await deps.imports.getInTx(tx, scope, id);
     if (!b) throw notFound();
@@ -493,7 +539,11 @@ export async function commitImport(
   const handler = handlerOf(deps, batch.kind);
   const hctx = { batchId: id, requestId: ctx.requestId, warehouseId: batch.warehouseId };
   try {
-    const units = await deps.imports.getUnits(id, Math.ceil(batch.unitCount / IMPORT_CHUNK_ROWS));
+    const units = await deps.imports.getUnits(
+      scope,
+      id,
+      Math.ceil(batch.unitCount / IMPORT_CHUNK_ROWS),
+    );
     if (units.length !== batch.unitCount) throw new AppError('import_state_invalid', 409);
     const pending = units.slice(batch.committedUnits);
     for (const step of chunk(pending, handler.chunkSize)) {
@@ -513,6 +563,34 @@ export async function commitImport(
         return { ...cur, ...next };
       });
     }
+
+    const done = batch;
+    const finished = await deps.uow.run(async (tx) => {
+      const cur = await deps.imports.getInTx(tx, scope, id);
+      if (!cur) throw notFound();
+      const patch = {
+        status: 'committed' as const,
+        updatedAt: deps.clock.now(),
+        updatedBy: actor.userId,
+        version: cur.version + 1,
+      };
+      deps.imports.update(tx, id, patch);
+      // the rows are in the real records now; the staged copy (personal data) is not kept
+      deps.imports.deleteUnits(tx, id, Math.ceil(done.unitCount / IMPORT_CHUNK_ROWS));
+      deps.audit.record(
+        tx,
+        auditEntry(deps, actor, ctx, {
+          branchId: cur.branchId,
+          entityType: 'dataImport',
+          entityId: id,
+          action: 'dataImport.commit',
+          before: { status: 'committing' },
+          after: { status: 'committed', units: cur.unitCount, created: cur.refs.length },
+        }),
+      );
+      return { ...cur, ...patch };
+    });
+    return toDto(deps, finished);
   } catch (e) {
     const failed = batch;
     const partial = e instanceof ImportStepError ? e.partial : [];
@@ -545,33 +623,6 @@ export async function commitImport(
       failure: failureText(e),
     });
   }
-  const done = batch;
-  const finished = await deps.uow.run(async (tx) => {
-    const cur = await deps.imports.getInTx(tx, scope, id);
-    if (!cur) throw notFound();
-    const patch = {
-      status: 'committed' as const,
-      updatedAt: deps.clock.now(),
-      updatedBy: actor.userId,
-      version: cur.version + 1,
-    };
-    deps.imports.update(tx, id, patch);
-    // the rows are in the real records now; the staged copy (personal data) is not kept
-    deps.imports.deleteUnits(tx, id, Math.ceil(done.unitCount / IMPORT_CHUNK_ROWS));
-    deps.audit.record(
-      tx,
-      auditEntry(deps, actor, ctx, {
-        branchId: cur.branchId,
-        entityType: 'dataImport',
-        entityId: id,
-        action: 'dataImport.commit',
-        before: { status: 'committing' },
-        after: { status: 'committed', units: cur.unitCount, created: cur.refs.length },
-      }),
-    );
-    return { ...cur, ...patch };
-  });
-  return toDto(deps, finished);
 }
 
 const undoSchema = z.object({ reason: z.string().trim().min(5).max(300) });
@@ -589,8 +640,9 @@ export async function undoImport(
 ): Promise<ImportDto> {
   const scope = resolveScope(actor, 'data-import:archive');
   const data = parseInput(undoSchema, input);
-  const b = await deps.imports.get(scope, id);
-  if (!b) throw notFound();
+  const b0 = await deps.imports.get(scope, id);
+  if (!b0) throw notFound();
+  const b = await reclaimStaleCommit(deps, actor, scope, b0, ctx);
   if (b.branchId !== requireWorkingBranch(actor)) throw new AppError('import_branch_mismatch', 409);
   if (b.status === 'undone') return toDto(deps, b);
   if (!canTransition(b.status, 'undone')) throw new AppError('import_state_invalid', 409);

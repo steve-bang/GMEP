@@ -1504,6 +1504,37 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect(ok.status, ok.text).toBe(201);
     });
 
+    it('R106 follow-up: an expired approved refund no longer blocks a new request for the same order (slot is free)', async () => {
+      const o = await overCollected(100_000);
+      const rq = await call(tn, 'POST', '/api/v1/acc/refunds', refundBody(o.id, 20_000), key('rf'));
+      expect(rq.status, rq.text).toBe(202);
+      expect((await decide(ql, rq.json.approvalId, 'approve')).status).toBe(200);
+      // while the approval is still valid a second request is refused
+      const dup = await call(
+        tn,
+        'POST',
+        '/api/v1/acc/refunds',
+        refundBody(o.id, 20_000),
+        key('rf'),
+      );
+      expect(dup.status).toBe(409);
+      await patchDoc('approvals', rq.json.approvalId, {
+        decidedAt: new Date(h.clock.now().getTime() - 25 * 3_600_000),
+      });
+      expect(
+        (await post(tn, '/api/v1/acc/refunds/pay', { approvalId: rq.json.approvalId })).json.code,
+      ).toBe('approval_expired');
+      const again = await call(
+        tn,
+        'POST',
+        '/api/v1/acc/refunds',
+        refundBody(o.id, 20_000),
+        key('rf'),
+      );
+      expect(again.status, again.text).toBe(202);
+      expect(again.json.approvalId).not.toBe(rq.json.approvalId);
+    });
+
     it('R105: a cash refund is not paid without an open shift; with one it is; the ceiling is shared and never negative', async () => {
       const o = await overCollected(80_000);
       const rq = await call(tn, 'POST', '/api/v1/acc/refunds', refundBody(o.id, 80_000), key('rf'));
@@ -1650,6 +1681,51 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect(reopened.some((n) => n.userId === 'u_owner')).toBe(true);
       // R106: one reopening is below the monthly threshold (3), so no repeated-exception notice yet
       expect(reopened.some((n) => n.titleKey === 'notifications.dayReopenedRepeated')).toBe(false);
+    });
+
+    it('R106 follow-up: an expired day-reopen approval does not block a new request (the old one is dead)', async () => {
+      const tn3 = await h.loginAt('u_tn_q7', 'br_q7');
+      const ql3 = await h.loginAt('u_ql_q7', 'br_q7');
+      const ch3 = await h.loginAt('u_owner', 'br_q7');
+      await ensureShift(tn3);
+      await closeShiftClean(tn3);
+      const date = (await get(ql3, '/api/v1/acc/day-close')).json.date as string;
+      expect((await post(ql3, '/api/v1/acc/day-close', { date })).status).toBe(201);
+      const rq = await post(ql3, '/api/v1/acc/day-close/reopen-request', {
+        date,
+        reason: 'Khoản thu bị sót, cần mở lại',
+      });
+      expect(rq.status, rq.text).toBe(202);
+      expect((await decide(ch3, rq.json.approvalId, 'approve')).status).toBe(200);
+      expect(
+        (
+          await post(ql3, '/api/v1/acc/day-close/reopen-request', {
+            date,
+            reason: 'Gửi lại lần hai',
+          })
+        ).status,
+      ).toBe(409);
+      const ap = (await rows('approvals')).find((x) => x.id === rq.json.approvalId)!;
+      const col = (o: Record<string, unknown>) =>
+        backend === 'memory'
+          ? h.container.memory!.db.col('approvals').set(rq.json.approvalId, { ...ap, ...o })
+          : getDb(h.container.env).collection('approvals').doc(rq.json.approvalId).update(o);
+      await col({ decidedAt: new Date(h.clock.now().getTime() - 3 * 3_600_000) });
+      expect(
+        (await post(ql3, '/api/v1/acc/day-close/reopen', { approvalId: rq.json.approvalId })).json
+          .code,
+      ).toBe('approval_expired');
+      const again = await post(ql3, '/api/v1/acc/day-close/reopen-request', {
+        date,
+        reason: 'Duyệt cũ hết hạn, xin lại',
+      });
+      expect(again.status, again.text).toBe(202);
+      // leave the day open for the next tests
+      expect((await decide(ch3, again.json.approvalId, 'approve')).status).toBe(200);
+      expect(
+        (await post(ql3, '/api/v1/acc/day-close/reopen', { approvalId: again.json.approvalId }))
+          .status,
+      ).toBe(200);
     });
 
     it('R106: an approval older than its validity (config, 2 h) cannot reopen the day; a closed later day blocks it', async () => {
