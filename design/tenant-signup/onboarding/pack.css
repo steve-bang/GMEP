@@ -85,7 +85,7 @@
 .tsu-kv dt { color: var(--color-text-secondary); }
 .tsu-kv dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 479px) { .tsu-kv { grid-template-columns: minmax(0, 1fr); gap: 0; } .tsu-kv dd { margin-bottom: var(--space-2); } }
-.tsu-list { margin: 0; padding-left: var(--space-5); display: flex; flex-direction: column; gap: var(--space-1); }
+.tsu-list { list-style: disc; margin: 0; padding-left: var(--space-5); display: flex; flex-direction: column; gap: var(--space-1); }
 .tsu-opt { display: block; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); background: var(--color-surface); min-width: 0; }
 .tsu-opt:has(input:checked) { border-color: var(--color-primary); background: var(--color-primary-subtle); }
 .tsu-opt .radio { align-items: flex-start; }

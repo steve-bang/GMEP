@@ -226,3 +226,6 @@ ol.stepper { list-style: none; margin: 0; padding: 0; }
   .tsp-links { flex-direction: column; align-items: flex-start; }
 }
 @media print { .tsp-proto, .tsp-foot button { display: none; } }
+
+/* Vòng xoay chỉ hiện khi nút đang xử lý (components.css không ẩn khi nhàn rỗi nên nó trôi ra góc thẻ) */
+.btn:not(.is-loading) > .btn__spinner { display: none; }
