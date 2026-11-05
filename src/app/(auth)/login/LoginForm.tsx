@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   formatMmSs,
   retryAfter,
@@ -10,15 +10,21 @@ import {
 } from '@/ui/components/ResourceForm';
 import { Button } from '@/ui/components/Button';
 import { Icon } from '@/ui/components/Icon';
+import { PasswordInput } from '@/ui/components/PasswordInput';
 
 /** G1-AUT-01. Posts to our API only; the browser never contacts Firebase. */
-export function LoginForm() {
+export function LoginForm({ next = '/' }: { next?: string }) {
   const t = useTranslations('login');
   const [error, setError] = useState<{ title: string; detail: string } | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ identifier?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
   const [retry, setRetry] = useState<RetryAfter | null>(null);
   const left = useCountdown(retry);
+  const alertRef = useRef<HTMLDivElement>(null);
+  // server errors: move focus to the alert so screen reader and keyboard users land on it
+  useEffect(() => {
+    if (error) alertRef.current?.focus();
+  }, [error]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,7 +36,11 @@ export function LoginForm() {
       ...(password ? {} : { password: t('passwordRequired') }),
     };
     setFieldErrors(fe);
-    if (Object.keys(fe).length) return;
+    if (Object.keys(fe).length) {
+      // first invalid field gets focus
+      document.getElementById(fe.identifier ? 'login-identifier' : 'login-password')?.focus();
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -42,8 +52,7 @@ export function LoginForm() {
       });
       if (res.ok) {
         // Full navigation on purpose: the session cookie changed, so the server layout must re-render.
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.assign('/');
+        window.location.assign(next);
         return;
       }
       const problem = (await res.json().catch(() => null)) as {
@@ -64,7 +73,7 @@ export function LoginForm() {
   return (
     <form className="g1-form" onSubmit={onSubmit} noValidate>
       {error ? (
-        <div className="alert alert--danger" role="alert">
+        <div className="alert alert--danger" role="alert" tabIndex={-1} ref={alertRef}>
           <Icon name="alert-triangle" />
           <div className="alert__body">
             {error.title ? <span className="alert__title">{error.title}</span> : null}
@@ -108,12 +117,12 @@ export function LoginForm() {
               *
             </span>
           </label>
-          <input
+          <PasswordInput
             id="login-password"
             name="password"
-            type="password"
-            className="input"
             autoComplete="current-password"
+            showLabel={t('showPassword')}
+            capsLockText={t('capsLock')}
             aria-required="true"
             aria-invalid={fieldErrors.password ? true : undefined}
             aria-describedby={fieldErrors.password ? 'login-password-err' : undefined}

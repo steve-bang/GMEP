@@ -209,12 +209,12 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
     await page.goto('/login');
     for (let i = 0; i < 5; i++) {
       await page.getByLabel('Email hoặc mã nhân viên').fill('tk.q7@demo.gmep.test');
-      await page.getByLabel('Mật khẩu').fill('sai-mat-khau-1');
+      await page.getByLabel('Mật khẩu', { exact: true }).fill('sai-mat-khau-1');
       await page.getByRole('button', { name: 'Đăng nhập' }).click();
       await expect(page.locator('.alert--danger')).toBeVisible();
       await page.waitForTimeout(2200); // stay below the slow-down of the name/network counters
     }
-    await page.getByLabel('Mật khẩu').fill('sai-mat-khau-1');
+    await page.getByLabel('Mật khẩu', { exact: true }).fill('sai-mat-khau-1');
     await page.getByRole('button', { name: 'Đăng nhập' }).click();
     await expect(page.locator('.alert--danger')).toContainText('Tạm dừng đăng nhập');
     await expect(page.getByTestId('login-wait')).toContainText(/\d\d:\d\d/);
