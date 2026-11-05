@@ -2,11 +2,12 @@ import type { Actor } from '@/platform/rbac/rbac';
 import { allBranchesScope } from '@/platform/scope/scope';
 import { runDueRollups } from '@/modules/rpt';
 import { runDueRequests } from '@/modules/ein';
+import { runQuoteExpiry } from '@/modules/rec';
 import { discardAbandonedImports } from '@/modules/sys';
 import type { ApiCtx } from './api';
 import { getContainer } from './container';
 
-/** Service actor of one branch: only the two job permissions, no user behind it (audit shows actor `system:cron`). */
+/** Service actor of one branch: only the job permissions, no user behind it (audit shows actor `system:cron`). */
 function cronActor(companyId: string, branchId: string): Actor {
   return {
     userId: 'system:cron',
@@ -14,47 +15,80 @@ function cronActor(companyId: string, branchId: string): Actor {
     displayName: 'Hệ thống (cron)',
     assignments: [{ roleCode: 'SYSTEM_CRON', branchId }],
     rolePermissions: {
-      SYSTEM_CRON: ['report-job:manage', 'invoice-queue:update', 'data-import:create'],
+      SYSTEM_CRON: [
+        'report-job:manage',
+        'invoice-queue:update',
+        'data-import:create',
+        // R10/R17: expire quotes past their validity and remind the advisor (no real role holds this)
+        'quote:manage',
+      ],
     },
     canConsolidate: false,
     workingBranchId: branchId,
   };
 }
 
+interface CronJobInput {
+  c: ApiCtx;
+  actor: Actor;
+  branchId: string;
+  ctx: { requestId: string };
+}
+
 /**
- * Scheduler-ready entry (FR-RPT-003, FR-EIN-010): per branch of the configured company, refresh the due report days and
- * retry the due e-invoice requests. Both jobs are idempotent, so a repeat or an overlapping run is safe. One branch failing
- * never stops the others.
+ * One scheduled job: `run` is for ONE branch, must be idempotent (a repeat or an overlapping run is safe) and returns the
+ * value reported under `name` in the response. A throw is caught per branch and per job and reported as 'failed'.
  */
-export async function runScheduledJobs(c: ApiCtx) {
+export interface CronJob {
+  name: string;
+  run(i: CronJobInput): Promise<unknown>;
+}
+
+export const CRON_JOBS: readonly CronJob[] = [
+  {
+    // FR-RPT-003: refresh the due report days
+    name: 'rpt',
+    run: async ({ c, actor, branchId, ctx }) => {
+      await runDueRollups(c.rpt, actor, { branchId }, ctx);
+      return 'ok';
+    },
+  },
+  // FR-EIN-010: retry the due e-invoice requests
+  { name: 'ein', run: ({ c, actor, ctx }) => runDueRequests(c.ein, actor, ctx) },
+  {
+    // R99: staged import rows hold personal data; abandoned dry runs are purged even when nobody uploads again
+    name: 'importPurge',
+    run: ({ c, actor, branchId, ctx }) => discardAbandonedImports(c.sys, actor, branchId, ctx),
+  },
+  // R10/R17 (FR-REC-011): persist "Hết hạn" on quotes past validity and remind the advisor before expiry
+  { name: 'quoteExpiry', run: ({ c, actor, ctx }) => runQuoteExpiry(c.rec, actor, ctx) },
+];
+
+/**
+ * Scheduler-ready entry: per branch of the configured company, run every registered job. Jobs are idempotent, so a repeat or
+ * an overlapping run is safe. One job failing never stops the other jobs, and one branch failing never stops the others.
+ * Response: `{ configured, branches: [{ branchId, <job name>: result | 'failed' }] }`.
+ */
+export async function runScheduledJobs(c: ApiCtx, jobs: readonly CronJob[] = CRON_JOBS) {
   const companyId = getContainer().env.CRON_COMPANY_ID;
   if (!companyId) return { configured: false, branches: [] as unknown[] };
   const branches = await c.sys.branches.list(allBranchesScope(companyId));
-  const out: {
-    branchId: string;
-    rpt: 'ok' | 'failed';
-    ein: { due: number; handled: number } | 'failed';
-  }[] = [];
+  const out: ({ branchId: string } & Record<string, unknown>)[] = [];
   for (const b of branches) {
-    const actor = cronActor(companyId, b.id);
-    const ctx = { requestId: c.requestId };
-    const row: (typeof out)[number] = { branchId: b.id, rpt: 'ok', ein: 'failed' };
-    try {
-      await runDueRollups(c.rpt, actor, { branchId: b.id }, ctx);
-    } catch (err) {
-      row.rpt = 'failed';
-      c.log.error({ err, branchId: b.id }, 'cron rpt failed');
-    }
-    try {
-      row.ein = await runDueRequests(c.ein, actor, ctx);
-    } catch (err) {
-      c.log.error({ err, branchId: b.id }, 'cron ein failed');
-    }
-    try {
-      // R99: staged import rows hold personal data; abandoned dry runs are purged even when nobody uploads again
-      await discardAbandonedImports(c.sys, actor, b.id, ctx);
-    } catch (err) {
-      c.log.error({ err, branchId: b.id }, 'cron import purge failed');
+    const input: CronJobInput = {
+      c,
+      actor: cronActor(companyId, b.id),
+      branchId: b.id,
+      ctx: { requestId: c.requestId },
+    };
+    const row: { branchId: string } & Record<string, unknown> = { branchId: b.id };
+    for (const job of jobs) {
+      try {
+        row[job.name] = await job.run(input);
+      } catch (err) {
+        row[job.name] = 'failed';
+        c.log.error({ err, branchId: b.id, job: job.name }, 'cron job failed');
+      }
     }
     out.push(row);
   }

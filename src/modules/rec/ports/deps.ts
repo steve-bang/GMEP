@@ -18,6 +18,8 @@ import type {
 export interface RecConfig {
   /** BA: a normal quote is valid 7 days once sent (ba-answers-03 Câu 3) */
   quoteValidityDays: number;
+  /** R10/R17: days before `validUntil` on which the advisor gets the in-app reminder (0 = on the last day) [Đề xuất dev - chờ xác nhận: BA] */
+  quoteReminderLeadDays: number;
   /** price list used for part prices until the branch-config "bảng giá áp dụng" exists [Đề xuất dev - chờ xác nhận: BA] */
   priceListCode: string;
   /**
@@ -62,6 +64,7 @@ export interface RecConfig {
 
 export const DEFAULT_REC_CONFIG: RecConfig = {
   quoteValidityDays: 7,
+  quoteReminderLeadDays: 1,
   priceListCode: 'STD',
   defaultTaxRateKey: 'vat',
   approval: { allowDeclineRequired: true, verbalApproval: true, otpMode: 'off' },

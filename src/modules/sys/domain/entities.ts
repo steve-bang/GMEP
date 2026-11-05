@@ -154,6 +154,7 @@ export type NotificationKind =
   | 'crm.odometer_abnormal'
   | 'crm.lookup_limit'
   | 'rec.quote_decided'
+  | 'rec.quote_expiring'
   | 'rec.order'
   | 'approval'
   | 'acc.cash'
