@@ -123,3 +123,8 @@ Tổng số tổ hợp có vấn đề: 0
 ## Đo lại sau khi áp dụng rà chéo BA (05/11/2026)
 
 Phần A (`measure-overflow.js`): 0 tổ hợp có vấn đề. Phần B (`account/measure.js --states`): 615 lượt tải, 0 lượt có vấn đề. Lỗi tải font bỏ qua như trên. Hàm `avoids` chưa kiểm thử tự động (chỉ rà logic).
+
+
+## Đo lại bản tối giản (05/11/2026, Playwright)
+
+Phần công khai và platform admin (`measure-overflow.js`): 0 tổ hợp có vấn đề. Lỗi tải font bỏ qua (có sẵn của dự án). TSU-66 trên phone cao 1.435px (mục tiêu < 2.500px). Chưa chạy axe.
