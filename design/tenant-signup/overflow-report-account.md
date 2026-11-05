@@ -40,3 +40,8 @@ Tập lệnh dùng `require('playwright')` (đặt `PLAYWRIGHT_CHROMIUM_PATH` n�
 Đo bằng `node design/tenant-signup/account/measure.js --states`: mọi trạng thái xem thử ở 360/768/1280. Lỗi tải font (design/assets/fonts chỉ có README, lỗi có sẵn của toàn dự án) được bỏ qua. Chưa chạy axe.
 
 Kết quả: 600 lượt tải, 0 lượt có vấn đề (không tràn ngang, không lỗi JS, không trang trống).
+
+
+## Đo lại sau khi áp dụng rà chéo BA (05/11/2026)
+
+Phần A (`measure-overflow.js`): 0 tổ hợp có vấn đề. Phần B (`account/measure.js --states`): 615 lượt tải, 0 lượt có vấn đề. Lỗi tải font bỏ qua như trên. Hàm `avoids` chưa kiểm thử tự động (chỉ rà logic).
