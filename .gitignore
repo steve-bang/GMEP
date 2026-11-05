@@ -13,5 +13,7 @@ next-env.d.ts
 firebase-export-*/
 .firebase/
 .DS_Store
+# GCP script configs (only infra/gcp/staging.env.example, with placeholders, is committed)
+infra/gcp/*.env
 # fixtures resolve firebase-admin through a symlink created locally
 tests/fixtures/boundaries/node_modules
