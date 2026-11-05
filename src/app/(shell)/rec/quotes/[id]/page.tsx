@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { formatDateTime, isoToVi } from '@/platform/format/date';
 import { formatBp } from '@/platform/format/percent';
-import { getQuote, type QuoteItemDto } from '@/modules/rec';
+import { availableMessageChannels, getQuote, type QuoteItemDto } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -131,6 +131,11 @@ const SHARE_KEYS = [
   'email',
   'notActive',
   'notActiveHint',
+  'sendVia',
+  'sendHint',
+  'sendOk',
+  'sendQueued',
+  'sendDead',
   'hasLink',
   'unexpected',
 ] as const;
@@ -188,7 +193,14 @@ export default async function QuotePage({
     Object.fromEntries(
       keys.map((k) => [
         k,
-        t(`rec.${ns}.${k}`, { n: '{n}', pct: '{pct}', delta: '{delta}', min: '{min}' }),
+        t(`rec.${ns}.${k}`, {
+          n: '{n}',
+          pct: '{pct}',
+          delta: '{delta}',
+          min: '{min}',
+          channel: '{channel}',
+          to: '{to}',
+        }),
       ]),
     );
   return (
@@ -479,6 +491,7 @@ export default async function QuotePage({
           version={q.version}
           hasLink={s.hasLink}
           printHref={`/rec/quotes/${encodeURIComponent(q.id)}/print?v=${s.n}`}
+          channels={[...availableMessageChannels(getContainer().rec)]}
           labels={label(SHARE_KEYS, 'share')}
         />
       ) : null}

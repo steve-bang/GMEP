@@ -11,6 +11,7 @@ import type {
   QuoteStatus,
   QuoteVersion,
 } from '../domain/entities';
+import type { MessageQueue, QuoteDelivery, QuoteOtpRecord } from '../domain/messaging';
 
 type Cursor = { v: string; id: string };
 export interface PageQuery {
@@ -82,6 +83,30 @@ export interface QuoteLinkRepository {
   findInTx(tx: Tx, hash: string): Promise<QuoteLink | null>;
   create(tx: Tx, l: QuoteLink): void;
   update(tx: Tx, hash: string, patch: Record<string, unknown>): void;
+}
+
+/**
+ * A4: the one-time code of an approval attempt, keyed by the link hash. Like the link, the token is the capability,
+ * so reads take no Scope; writes happen in the transaction of a use case that already resolved the link.
+ */
+export interface QuoteOtpRepository {
+  get(linkId: string): Promise<QuoteOtpRecord | null>;
+  getInTx(tx: Tx, linkId: string): Promise<QuoteOtpRecord | null>;
+  /** upsert: a new code replaces the previous one of the link */
+  set(tx: Tx, r: QuoteOtpRecord): void;
+  update(tx: Tx, linkId: string, patch: Record<string, unknown>): void;
+  delete(tx: Tx, linkId: string): void;
+}
+
+/** A4: deliveries of the quote link and the per-branch queue the retry job reads (both by key, Scope-checked). */
+export interface QuoteDeliveryRepository {
+  get(scope: Scope, id: string): Promise<QuoteDelivery | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<QuoteDelivery | null>;
+  create(tx: Tx, d: QuoteDelivery): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+  getQueue(scope: Scope, branchId: string): Promise<MessageQueue | null>;
+  getQueueInTx(tx: Tx, scope: Scope, branchId: string): Promise<MessageQueue | null>;
+  saveQueue(tx: Tx, q: MessageQueue): void;
 }
 
 // ---- slice 1.6: repair orders, items and part requests --------------------------------------------

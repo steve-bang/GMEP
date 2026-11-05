@@ -18,7 +18,9 @@ import {
 } from '../domain/entities';
 import { approvedLinesOf, decideApproval, type DeclineInput } from '../domain/approval';
 import { isQuoteExpired, transitionQuote } from '../domain/quoteState';
+import { otpRequired, type OtpMode } from '../domain/otp';
 import { afterQuoteApproved } from './orders';
+import { consumeOtp, issueOtp, selectionHashOf, verifyOtp } from './otp';
 import { assertSupplementOrderOpen } from './supplement';
 import type { RecDeps } from '../ports/deps';
 import {
@@ -61,7 +63,12 @@ export interface DeclineReasonOption {
 export interface ApprovalPolicy {
   allowDeclineRequired: boolean;
   verbalApproval: boolean;
-  otpMode: 'off';
+  /** QUO-04/05: when the customer's online approval needs a one-time code */
+  otpMode: OtpMode;
+  /** `above_threshold`: approved total (tax included) strictly above this, integer VND [Cần xác nhận: Chủ dự án] */
+  otpThresholdVnd?: number;
+  /** seconds the code stays valid; unset = the REC default (5 minutes) */
+  otpTtlSeconds?: number;
   /** R29: above this approved total a verbal approval must be recorded by a manager; unset = no limit */
   verbalApprovalMaxVnd?: number;
   reasons: DeclineReasonOption[];
@@ -87,7 +94,9 @@ export async function approvalPolicyOf(
   return {
     allowDeclineRequired: cfg?.allowDeclineRequired ?? deps.rec.approval.allowDeclineRequired,
     verbalApproval: cfg?.verbalApproval ?? deps.rec.approval.verbalApproval,
-    otpMode: 'off',
+    otpMode: cfg?.otpMode ?? deps.rec.approval.otpMode,
+    ...(cfg?.otpThresholdVnd !== undefined ? { otpThresholdVnd: cfg.otpThresholdVnd } : {}),
+    ...(cfg?.otpTtlSeconds !== undefined ? { otpTtlSeconds: cfg.otpTtlSeconds } : {}),
     ...(cfg?.verbalApprovalMaxVnd !== undefined
       ? { verbalApprovalMaxVnd: cfg.verbalApprovalMaxVnd }
       : {}),
@@ -157,7 +166,9 @@ interface CoreInput {
   /** R29: the role the person acted in at the working branch (CV or QL) */
   recordedByRole?: string;
   decision: Extract<ReturnType<typeof decideApproval>, { ok: true }>;
-  extra: Partial<Pick<QuoteApproval, 'signerName' | 'evidenceRef' | 'note' | 'readBack'>> & {
+  extra: Partial<
+    Pick<QuoteApproval, 'signerName' | 'evidenceRef' | 'note' | 'readBack' | 'otp'>
+  > & {
     exception: boolean;
   };
   actor: Actor | null;
@@ -176,6 +187,8 @@ function evidence(q: Quote, cur: QuoteVersion, a: Omit<QuoteApproval, 'hash'>): 
     by: a.recordedBy,
     role: a.recordedByRole ?? null,
     link: a.linkId ?? null,
+    // QUO-04/05: a verified one-time code is part of the evidence (only for approvals that needed one: older hashes stay valid)
+    ...(a.otp ? { otp: [a.otp.channel, a.otp.verifiedAt.toISOString()] } : {}),
     approved: a.approvedItemNos,
     declined: a.declined.map((d) => [d.itemNo, d.reasonCode ?? null, d.safety]),
     totals: [a.approvedSubtotalVnd, a.approvedTaxVnd, a.approvedTotalVnd],
@@ -222,6 +235,7 @@ function applyApproval(deps: RecDeps, tx: Tx, c: CoreInput) {
     ...(c.extra.evidenceRef ? { evidenceRef: c.extra.evidenceRef } : {}),
     ...(c.extra.note ? { note: c.extra.note } : {}),
     ...(c.extra.readBack !== undefined ? { readBack: c.extra.readBack } : {}),
+    ...(c.extra.otp ? { otp: c.extra.otp } : {}),
     exception: c.extra.exception,
   });
   const by = c.recordedBy ?? 'customer-link';
@@ -288,6 +302,8 @@ function decisionAudit(
       approvedTotalVnd: approval.approvedTotalVnd,
       hash: approval.hash,
       exception: approval.exception,
+      // the code itself is never recorded; only that it was verified and over which channel
+      ...(approval.otp ? { otpVerified: true, otpChannel: approval.otp.channel } : {}),
     },
     ...(c.extra.note ? { reason: c.extra.note } : {}),
   };
@@ -451,6 +467,38 @@ export async function approveQuote(
 
 // ---- staff: customer link (FR-REC-008) -----------------------------------------------------------
 
+/**
+ * Revokes the previous link of the version and stores the new one (hash only). Reads the old link first (Firestore
+ * transaction rule), then writes. Shared by "create link" and "send link" (A4); the caller writes the audit entry.
+ */
+export async function replaceQuoteLink(
+  deps: RecDeps,
+  tx: Tx,
+  a: { q: Quote; cur: QuoteVersion; now: Date; by: string; hash: string },
+): Promise<{ replaced: boolean }> {
+  const { q, cur, now, by, hash } = a;
+  const old = cur.linkHash ? await deps.links.findInTx(tx, cur.linkHash) : null;
+  if (old && !old.revokedAt)
+    deps.links.update(tx, old.id, { revokedAt: now, revokedReason: 'replaced' });
+  deps.links.create(tx, {
+    id: hash,
+    companyId: q.companyId,
+    branchId: q.branchId,
+    quoteId: q.id,
+    n: cur.n,
+    createdAt: now,
+    createdBy: by,
+  });
+  deps.versions.update(tx, cur.id, {
+    linkHash: hash,
+    sentVia: cur.sentVia && cur.sentVia !== 'none' ? cur.sentVia : 'link',
+    version: cur.version + 1,
+    updatedAt: now,
+    updatedBy: by,
+  });
+  return { replaced: !!old };
+}
+
 export const issueLinkSchema = z.object({ version: z.number().int().min(1) });
 
 /**
@@ -481,24 +529,12 @@ export async function issueQuoteLink(
     const today = businessDate(now);
     if (cur.status !== 'sent') throw new AppError('state_invalid', 409);
     if (isQuoteExpired(cur.status, cur.validUntil, today)) throw new AppError('quote_expired', 409);
-    const old = cur.linkHash ? await deps.links.findInTx(tx, cur.linkHash) : null;
-    if (old && !old.revokedAt)
-      deps.links.update(tx, old.id, { revokedAt: now, revokedReason: 'replaced' });
-    deps.links.create(tx, {
-      id: hash,
-      companyId: q.companyId,
-      branchId: q.branchId,
-      quoteId: q.id,
-      n: cur.n,
-      createdAt: now,
-      createdBy: actor.userId,
-    });
-    deps.versions.update(tx, cur.id, {
-      linkHash: hash,
-      sentVia: cur.sentVia && cur.sentVia !== 'none' ? cur.sentVia : 'link',
-      version: cur.version + 1,
-      updatedAt: now,
-      updatedBy: actor.userId,
+    const { replaced } = await replaceQuoteLink(deps, tx, {
+      q,
+      cur,
+      now,
+      by: actor.userId,
+      hash,
     });
     deps.sys.audit.record(
       tx,
@@ -508,7 +544,7 @@ export async function issueQuoteLink(
         entityId: q.id,
         action: 'quote.link_issue',
         // the token is a secret: only a short fingerprint of its hash is logged
-        after: { n: cur.n, link: hash.slice(0, 8), replaced: !!old },
+        after: { n: cur.n, link: hash.slice(0, 8), replaced },
       }),
     );
     return { token, path: `/b/${token}`, n: cur.n, validUntil: cur.validUntil ?? null };
@@ -700,7 +736,15 @@ export async function viewPublicQuote(
   };
 }
 
-export const linkApproveSchema = z.object(selectionShape);
+export const linkApproveSchema = z.object({
+  ...selectionShape,
+  /** QUO-04/05: the 6-digit code, when the policy asks for one */
+  otp: z
+    .string()
+    .regex(/^\d{6}$/)
+    .optional(),
+});
+const otpRequestSchema = z.object(selectionShape);
 export const linkRejectSchema = z.object({ reason: z.string().trim().min(3).max(300).optional() });
 
 /**
@@ -715,7 +759,7 @@ export async function approveViaLink(
   input: unknown,
   ctx: RequestCtx & { idempotencyKey: string; address: string },
 ) {
-  const data = parseInput(linkApproveSchema, input);
+  const { otp, ...data } = parseInput(linkApproveSchema, input);
   const r0 = await resolveLink(deps, token, ctx.address, true);
   const policy = await approvalPolicyOf(
     deps,
@@ -724,12 +768,27 @@ export async function approveViaLink(
     businessDate(deps.sys.clock.now()),
   );
   const recipients = await recipientsOf(deps, r0.q, null);
+  // QUO-04/05: when the approved total needs a code it must be verified BEFORE the approval transaction (a wrong try
+  // is counted in its own transaction). An already approved version skips this: a repeat or replay needs no code.
+  const otpSelection = selectionHashOf(r0.cur.n, data.selectedItemNos);
+  if (r0.state === 'open' && !r0.cur.approval) {
+    const d0 = decisionOrThrow(r0.cur.items, data, policy);
+    if (otpRequired(policy.otpMode, policy.otpThresholdVnd, d0.split.totalVnd)) {
+      if (!otp) throw new AppError('otp_required', 428);
+      await verifyOtp(
+        deps,
+        { link: r0.link, n: r0.cur.n, selectionHash: otpSelection, code: otp },
+        ctx,
+      );
+    }
+  }
   const done = await runIdempotent(
     idemOf(deps),
     {
       userId: `link:${r0.link.id.slice(0, 16)}`,
       route: 'POST /api/v1/rec/public/quote/approve',
       key: ctx.idempotencyKey,
+      // the code is not part of the fingerprint: a retry with the same key replays whatever the code was
       fingerprint: fingerprintOf(data),
     },
     async (tx) => {
@@ -753,6 +812,19 @@ export async function approveViaLink(
         throw new AppError('quote_superseded', 409);
       assertApprovable(cur, businessDate(now));
       const decision = decisionOrThrow(cur.items, data, policy);
+      // the code verified above is consumed here (read before the first write); it must match this selection
+      const otpEvidence = otpRequired(
+        policy.otpMode,
+        policy.otpThresholdVnd,
+        decision.split.totalVnd,
+      )
+        ? await consumeOtp(deps, tx, {
+            linkId: link.id,
+            n: cur.n,
+            selectionHash: otpSelection,
+            now,
+          })
+        : null;
       const res = applyApproval(deps, tx, {
         q,
         cur,
@@ -761,7 +833,7 @@ export async function approveViaLink(
         method: 'link',
         recordedBy: null,
         decision,
-        extra: { exception: false },
+        extra: { exception: false, ...(otpEvidence ? { otp: otpEvidence } : {}) },
         actor: null,
         ctx,
         recipients,
@@ -773,6 +845,52 @@ export async function approveViaLink(
   // R37: no staff member is present, so the order is opened by the system on the customer's approval
   await afterQuoteApproved(deps, r0.q, null, ctx);
   return done;
+}
+
+/**
+ * The customer asks for the one-time code (QUO-04/05). The code goes to the contact on file, never to anything typed on
+ * this page. `required: false` when the approved total of this selection does not need one. Asking again for the same
+ * selection inside the cooldown sends nothing new (a double tap); limits per link and per address apply.
+ */
+export async function requestQuoteOtp(
+  deps: RecDeps,
+  token: string,
+  input: unknown,
+  ctx: RequestCtx & { address: string },
+) {
+  const data = parseInput(otpRequestSchema, input);
+  const r = await resolveLink(deps, token, ctx.address);
+  // only an open version can still be approved; anything else answers like an unknown link (R38)
+  if (r.state !== 'open') throw notFound();
+  const policy = await approvalPolicyOf(
+    deps,
+    r.q.companyId,
+    r.q.branchId,
+    businessDate(deps.sys.clock.now()),
+  );
+  const d = decisionOrThrow(r.cur.items, data, policy);
+  if (!otpRequired(policy.otpMode, policy.otpThresholdVnd, d.split.totalVnd))
+    return { required: false as const };
+  const out = await issueOtp(
+    deps,
+    {
+      link: r.link,
+      customerId: r.q.customerId,
+      n: r.cur.n,
+      selectionHash: selectionHashOf(r.cur.n, data.selectedItemNos),
+      address: ctx.address,
+      ...(policy.otpTtlSeconds ? { ttlSeconds: policy.otpTtlSeconds } : {}),
+    },
+    ctx,
+  );
+  return {
+    required: true as const,
+    sent: out.sent,
+    channel: out.channel,
+    destination: out.destination,
+    expiresAt: out.codeExpiresAt.toISOString(),
+    resendAfter: out.resendAfter.toISOString(),
+  };
 }
 
 const sameSet = (a: readonly number[], b: readonly number[]): boolean => {
@@ -962,6 +1080,8 @@ export function toApprovalDto(a: QuoteApproval, recordedByName: string | null) {
     note: a.note ?? null,
     readBack: a.readBack ?? null,
     exception: a.exception,
+    /** QUO-04/05: a one-time code was verified (never the code itself) */
+    otp: a.otp ? { channel: a.otp.channel, verifiedAt: a.otp.verifiedAt.toISOString() } : null,
     hash: a.hash,
   };
 }
