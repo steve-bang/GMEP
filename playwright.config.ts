@@ -21,5 +21,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}/api/health`,
     reuseExistingServer: false,
     timeout: 60_000,
+    // A4: the dev sms adapter writes to the `messageOutbox` emulator collection and sends nothing (refused when GMEP_ENV=prod)
+    env: { MESSAGE_DEV_CHANNELS: 'sms' },
   },
 });
