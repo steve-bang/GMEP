@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TSU-51 · Hộp thoại chặn tạo mới – GARAGE OS</title>
+<title>TSU-51 · Nút khóa và hộp thoại chặn tạo mới – GARAGE OS</title>
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/base.css">
 <link rel="stylesheet" href="../../assets/components.css">
@@ -14,28 +14,31 @@
 <body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="ro" data-crumb="Phiếu sửa chữa|Tạo mới bị chặn" data-no-scope>
 <div id="g1-content" hidden>
   <div data-tsu-banners>
-    <div data-tsu-banner="BAN-05" data-on="restricted" data-reason="Đang xem xét tuân thủ, cần bổ sung thông tin" data-list="lệnh sửa chữa, chi nhánh và người dùng"></div>
-    <div data-tsu-banner="BAN-05" data-on="nv-restricted" data-view="NV"></div>
-    <div data-tsu-banner="BAN-06" data-on="quota" data-x="10" data-y="10" data-p="100"></div>
-    <div data-tsu-banner="BAN-03" data-on="trial-expired" data-date="04/11/2026"></div>
-    <div data-tsu-banner="BAN-03" data-on="nv-trial-expired" data-view="NV"></div>
+    <div data-tsu-banner="BAN-B" data-on="restricted"></div>
+    <div data-tsu-banner="BAN-B" data-on="nv-restricted" data-view="NV"></div>
+    <div data-tsu-banner="BAN-A" data-variant="het" data-on="trial-expired"></div>
+    <div data-tsu-banner="BAN-A" data-variant="het" data-on="nv-trial-expired" data-view="NV"></div>
+    <div data-tsu-banner="BAN-B" data-variant="tam-ngung" data-on="suspended"></div>
+    <div data-tsu-banner="BAN-B" data-variant="cham-dut" data-on="terminating" data-date="20/12/2026"></div>
+    <div data-tsu-banner="BAN-C" data-on="xac-minh"></div>
   </div>
 
   <div class="page-header">
     <div class="page-header__text">
-      <h1>Phiếu sửa chữa</h1>
-      <p class="page-header__desc">Màn mô phỏng để xem hộp thoại chặn tạo mới. Chỉ tạo mới bị chặn; thu tiền, giao xe, hóa đơn của chứng từ đang mở vẫn dùng được</p>
+      <h1 id="t51-h">Phiếu sửa chữa</h1>
+      <p class="page-header__desc">Màn mô phỏng quy tắc khóa nút. Chỉ tạo mới bị chặn; thu tiền, giao xe, hóa đơn của chứng từ đang mở vẫn dùng được</p>
     </div>
     <div class="page-header__actions">
-      <button type="button" class="btn btn--primary" id="t51-new" aria-disabled="true" aria-describedby="t51-why"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Tạo lệnh sửa chữa</button>
+      <button type="button" class="btn btn--primary" id="t51-new" aria-disabled="true" aria-describedby="t51-why"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg><span id="t51-lbl">Tạo lệnh sửa chữa</span></button>
     </div>
   </div>
-  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Chi nhánh Quận 7</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Garage Ô tô Phương Nam</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
 
-  <div data-tsu-bar="restricted:Bị hạn chế (chủ garage)|nv-restricted:Bị hạn chế (nhân viên)|quota:Vượt hạn mức (chủ garage)|trial-expired:Hết dùng thử (chủ garage)|nv-quota:Vượt hạn mức (nhân viên)|nv-trial-expired:Hết dùng thử (nhân viên)"></div>
+  <div data-tsu-bar="restricted:Bị hạn chế (chủ garage)|nv-restricted:Bị hạn chế (nhân viên)|trial-expired:Hết dùng thử (chủ garage)|nv-trial-expired:Hết dùng thử (nhân viên)|suspended:Tạm ngưng|terminating:Đang chấm dứt|xac-minh:Chưa xác minh (phát hành hóa đơn thật)"></div>
 
   <div data-tsu-main class="tsu-stack">
-    <p class="tsu-reason" id="t51-why"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span id="t51-whytxt"></span></p>
+    <p class="tsu-reason" id="t51-why" tabindex="-1"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span id="t51-whytxt"></span></p>
+    <p class="tsu-sub" style="margin:0" id="t51-rule"></p>
     <section class="card" aria-labelledby="t51-d">
       <div class="card__header"><h2 class="card__title" id="t51-d">Bản nháp đang soạn</h2><span class="badge badge--neutral">Nháp, chưa lưu lên hệ thống</span></div>
       <div class="card__body tsu-stack">
@@ -45,39 +48,55 @@
     </section>
     <section class="card" aria-labelledby="t51-o">
       <div class="card__header"><h2 class="card__title" id="t51-o">Vẫn dùng được trong lúc bị chặn tạo mới</h2></div>
-      <div class="card__body"><ul class="tsu-list"><li>Thu tiền và chốt ca cho lệnh đang mở</li><li>Giao xe và hoàn tất 3 lệnh đang mở</li><li>Phát hành hóa đơn của chứng từ đang mở, tải hóa đơn</li><li>Xuất dữ liệu</li></ul></div>
+      <div class="card__body"><ul class="tsu-list"><li>Thu tiền và chốt ca cho lệnh đang mở</li><li>Giao xe và hoàn tất 3 lệnh đang mở</li><li>Tải hóa đơn đã có; xuất dữ liệu</li></ul></div>
     </section>
   </div>
 
   <div class="overlay" id="dlg-block" role="alertdialog" aria-modal="true" aria-labelledby="dlb-t" aria-describedby="dlb-b"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg></div><div><h2 class="dialog__title" id="dlb-t">Chưa thể tạo mới lúc này</h2></div></div>
     <div class="dialog__body" id="dlb-b"><p id="dlb-msg"></p><p>Bạn vẫn có thể: thu tiền, giao xe và hoàn tất <span class="num">3</span> lệnh đang mở. Bản nháp đang soạn được giữ.</p></div>
     <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" id="dlb-act" href="tsu-41.html">Xem gói</a></div></div></div>
-  <p class="tsu-test">Truy vết: FR-TEN-005, 025; RULE-021, 023; J3; UAT-TEN-03, 10. Nút tạo mới không ẩn: giữ aria-disabled, vẫn focus và bấm được để mở hộp thoại giải thích.</p>
+  <p class="tsu-test">Truy vết: FR-TEN-005, 025; RULE-021, 023; AC-S15, S18; UAT-TEN-03, 10. Một quy tắc: nút luôn aria-disabled, vẫn focus được. Lý do là trạng thái tenant thì bấm mở hộp thoại; lý do khác (<code>VERIFICATION_REQUIRED</code>) thì bấm chỉ đưa focus tới lý do. Không gọi máy chủ khi bấm nút khóa.</p>
 </div>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
 <script src="../../g1-auth-dashboard/g1-shell.js"></script>
 <script src="../onboarding/tsu-app.js"></script>
 <script>
 (function () {
+  var CH = ['Xem gói', 'tsu-41.html'], NV = ['Liên hệ chủ garage', '#'], XD = ['Xuất dữ liệu', 'tsu-55.html'];
+  /* dialog: true = lý do là trạng thái tenant (mở TSU-51); false = chỉ đưa focus tới lý do */
   var M = {
-    'restricted': { code: 'TENANT_RESTRICTED', why: 'Công ty đang bị hạn chế tạo mới: đang xem xét tuân thủ, cần bổ sung thông tin. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.', msg: 'Công ty đang bị hạn chế tạo mới: đang xem xét tuân thủ, cần bổ sung thông tin. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.', act: ['Xem gói', 'tsu-41.html'] },
-    'nv-restricted': { code: 'TENANT_RESTRICTED', why: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.', msg: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.', act: ['Liên hệ chủ garage', '#'] },
-    'quota': { code: 'QUOTA_LIMIT_REACHED', why: 'Gói hiện tại cho tối đa 10 chi nhánh. Xem gói hoặc ngừng sử dụng bớt chi nhánh đang dùng.', msg: 'Gói hiện tại cho tối đa 10 chi nhánh. Xem gói hoặc ngừng sử dụng bớt chi nhánh đang dùng.', act: ['Xem gói', 'tsu-41.html'] },
-    'nv-quota': { code: 'QUOTA_LIMIT_REACHED', why: 'Công ty đã dùng hết số chi nhánh của gói. Liên hệ chủ garage.', msg: 'Công ty đã dùng hết số chi nhánh của gói. Liên hệ chủ garage.', act: ['Liên hệ chủ garage', '#'] },
-    'trial-expired': { code: 'TRIAL_EXPIRED', why: 'Dùng thử đã hết. Chọn gói để tiếp tục tạo mới.', msg: 'Dùng thử đã hết. Chọn gói để tiếp tục tạo mới.', act: ['Xem gói', 'tsu-41.html'] },
-    'nv-trial-expired': { code: 'TRIAL_EXPIRED', why: 'Dùng thử của công ty đã hết. Liên hệ Trần Hoàng Anh để chọn gói.', msg: 'Dùng thử của công ty đã hết. Liên hệ Trần Hoàng Anh để chọn gói.', act: ['Liên hệ chủ garage', '#'] }
+    'restricted': { code: 'TENANT_RESTRICTED', dialog: true, why: 'Công ty đang bị hạn chế tạo mới: đang xem xét tuân thủ, cần bổ sung thông tin. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.', act: CH },
+    'nv-restricted': { code: 'TENANT_RESTRICTED', dialog: true, why: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.', act: NV },
+    'trial-expired': { code: 'TRIAL_EXPIRED', dialog: true, why: 'Dùng thử đã hết. Liên hệ để chọn gói và tiếp tục tạo mới.', act: CH },
+    'nv-trial-expired': { code: 'TRIAL_EXPIRED', dialog: true, why: 'Dùng thử của công ty đã hết. Liên hệ Trần Hoàng Anh để chọn gói.', act: NV },
+    'suspended': { code: 'TENANT_SUSPENDED_READONLY', dialog: true, why: 'Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.', act: XD },
+    'terminating': { code: 'TENANT_TERMINATING', dialog: true, why: 'Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến 20/12/2026.', act: XD },
+    'xac-minh': { code: 'VERIFICATION_REQUIRED', dialog: false, label: 'Phát hành hóa đơn thật', why: 'Doanh nghiệp chưa hoàn tất xác minh nên chưa phát hành hóa đơn thật.', link: ['Xem việc cần làm', '../onboarding/tsx-20.html#state=hoa-don'] }
   };
+  var cur = 'restricted';
   function render(name) {
     var m = M[name]; if (!m) return;
-    document.getElementById('t51-whytxt').innerHTML = m.why + ' <code>' + m.code + '</code>';
-    document.getElementById('dlb-msg').textContent = m.msg;
-    var a = document.getElementById('dlb-act'); a.textContent = m.act[0]; a.setAttribute('href', m.act[1]);
-    if (m.act[1] === '#') a.setAttribute('data-toast', 'info|Liên hệ chủ garage|Hãy báo cho chủ garage của công ty bạn.'); else a.removeAttribute('data-toast');
+    cur = name;
+    var why = document.getElementById('t51-whytxt');
+    why.innerHTML = '';
+    why.appendChild(document.createTextNode(m.why + ' '));
+    if (m.link) { var a = document.createElement('a'); a.href = m.link[1]; a.textContent = m.link[0]; why.appendChild(a); why.appendChild(document.createTextNode(' ')); }
+    var c = document.createElement('code'); c.textContent = m.code; why.appendChild(c);
+    document.getElementById('t51-lbl').textContent = m.label || 'Tạo lệnh sửa chữa';
+    document.getElementById('t51-rule').textContent = m.dialog ? 'Lý do là trạng thái công ty: bấm nút mở hộp thoại giải thích.' : 'Lý do không phải trạng thái công ty: bấm nút chỉ đưa focus tới lý do ở trên.';
+    if (m.dialog) {
+      document.getElementById('dlb-msg').textContent = m.why;
+      var b = document.getElementById('dlb-act'); b.textContent = m.act[0]; b.setAttribute('href', m.act[1]);
+      if (m.act[1] === '#') b.setAttribute('data-toast', 'info|Liên hệ chủ garage|Hãy báo cho chủ garage của công ty bạn.'); else b.removeAttribute('data-toast');
+    }
   }
   document.addEventListener('tsu:state', function (e) { render(e.detail); });
   render(document.body.getAttribute('data-tsu-state'));
   document.addEventListener('click', function (e) {
-    if (e.target.closest('#t51-new')) { e.preventDefault(); window.gmepOpen('dlg-block'); }
+    if (!e.target.closest('#t51-new')) return;
+    e.preventDefault();
+    if (M[cur] && M[cur].dialog) window.gmepOpen('dlg-block');
+    else document.getElementById('t51-why').focus();
   });
 })();
 </script>

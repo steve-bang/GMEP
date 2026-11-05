@@ -9,6 +9,7 @@
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
   function toast(k, t, x) { if (window.gmepToast) window.gmepToast(k, t, x); }
   function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase(); }
+  var sel30 = null;  /* hồ sơ đang chọn ở TSX-30 */
   var LATE_H = 24;   /* ngưỡng "quá thời gian duyệt tay tối đa" (giờ), tham số cấu hình ở TSU-66 */
   var REASONS = { dup: ['MST trùng tenant đang hoạt động', 'warning'], disp: ['Email dùng một lần', 'warning'], rate: ['Vượt tần suất', 'warning'], block: ['Nguồn trong danh sách chặn', 'danger'], mismatch: ['Đối chiếu MST không khớp', 'warning'], other: ['Khác', 'neutral'] };
   var PII = { 'SGN-4F7K2Q': '0912345678', 'SGN-8C2M5T': '0987654321', 'SGN-1D9P6W': '0903456321', 'SGN-6H3N8R': '0938127874', 'SGN-2J7Q4V': '0977123456', 'SGN-9B5T3K': '0965432109', 'SGN-3L8W1Z': '0911222333', 'SGN-5X2R7N': '0902333444', 'SGN-7Q4Y8M': '0933444555' };
@@ -75,10 +76,17 @@
         '<div class="field"><label class="field__label" for="dc-reason">Lý do từ chối<span class="field__req" aria-hidden="true">*</span></label><select class="select" id="dc-reason" aria-required="true">' + RJ.map(function (x) { return '<option value="' + x[0] + '">' + x[1] + '</option>'; }).join('') + '</select>' + fieldErr('dc-reason') + '</div>' +
         '<div class="field"><label class="field__label" for="dc-detail">Chi tiết hiển thị cho người đăng ký</label><textarea class="textarea" id="dc-detail" rows="2" maxlength="500" aria-describedby="dc-detail-h dc-detail-c"></textarea><span class="field__hint" id="dc-detail-h">Không ghi dữ liệu cá nhân hay chi tiết quy tắc chống lạm dụng.</span><span class="tsp-counter" id="dc-detail-c">0/500</span></div>' +
         '<div class="field"><label class="field__label" for="dc-int">Ghi chú nội bộ<span class="field__req" aria-hidden="true">*</span></label><textarea class="textarea" id="dc-int" rows="2" aria-required="true"></textarea>' + fieldErr('dc-int') + '</div>' +
-        '<div class="tsa-checks"><label class="check"><input type="checkbox" id="dc-appeal" checked><span class="check__box">' + ic('check') + '</span><span>Cho phép khiếu nại</span></label>' +
-        '<label class="check"><input type="checkbox" id="dc-reapply"><span class="check__box">' + ic('check') + '</span><span>Cho phép đăng ký lại</span></label></div>' +
-        '<div class="field"><label class="field__label" for="dc-code">Gõ mã theo dõi <strong class="tsa-mono">' + REC.id + '</strong> để mở nút</label><input class="input" id="dc-code" data-guard-input data-word="' + REC.id + '" autocomplete="off" aria-describedby="dc-code-err" aria-required="true">' + fieldErr('dc-code') + '</div></div>' +
-        '<div class="dialog__footer"><button type="button" class="btn btn--secondary" data-dc="cancel">Hủy</button><button type="button" class="btn btn--danger" data-dc="confirm" data-guard-btn disabled aria-disabled="true"><span>Từ chối đăng ký</span><span class="btn__spinner" aria-hidden="true"></span></button></div>';
+        '<div class="tsa-checks"><label class="check"><input type="checkbox" id="dc-reapply"><span class="check__box">' + ic('check') + '</span><span>Cho phép đăng ký lại</span></label></div>' +
+        '<p class="tsa-note">Khiếu nại đi qua hỗ trợ, không có biểu mẫu riêng. Khi cần xem xét lại, dùng “Chuyển lại xem xét”.</p>' +
+        '</div>' +
+        '<div class="dialog__footer"><button type="button" class="btn btn--secondary" data-dc="cancel">Hủy</button><button type="button" class="btn btn--danger" data-dc="confirm"><span>Từ chối đăng ký</span><span class="btn__spinner" aria-hidden="true"></span></button></div>';
+    } else if (kind === 'reopen') {
+      h = head('refresh', '', 'Chuyển lại xem xét') + '<div class="dialog__body">' +
+        '<p class="tsa-mono">' + REC.id + ' · ' + esc(REC.org) + '</p>' +
+        '<p class="tsa-note">Dùng khi người đăng ký khiếu nại qua hỗ trợ. Hồ sơ quay lại danh sách “Cần xử lý”.</p>' +
+        '<div class="field"><label class="field__label" for="dc-ro">Ghi chú nội bộ<span class="field__req" aria-hidden="true">*</span></label><textarea class="textarea" id="dc-ro" rows="3" aria-required="true"></textarea>' + fieldErr('dc-ro') + '</div>' +
+        '<ul class="impact-list"><li>Người đăng ký nhận email báo hồ sơ đang được xem xét lại.</li><li>Quyết định ghi nhật ký nền tảng và không thể sửa.</li></ul></div>' +
+        '<div class="dialog__footer"><button type="button" class="btn btn--secondary" data-dc="cancel">Hủy</button><button type="button" class="btn btn--primary" data-dc="confirm"><span>Chuyển lại hàng chờ</span><span class="btn__spinner" aria-hidden="true"></span></button></div>';
     } else {
       h = head('alert-triangle', 'warning', 'Hồ sơ đã được xử lý') + '<div class="dialog__body"><div class="alert alert--warning" role="alert">' + ic('alert-triangle') + '<div class="alert__body"><span class="alert__title">Hồ sơ vừa được Lê Thu Hà xử lý lúc 10:12</span><span>Bạn chưa thể quyết định thêm. Tải lại để xem kết quả mới nhất.</span></div></div></div>' +
         '<div class="dialog__footer"><button type="button" class="btn btn--secondary" data-dc="cancel">Đóng</button><button type="button" class="btn btn--primary" data-dc="reload">Tải lại</button></div>';
@@ -92,7 +100,8 @@
   }
   function openDecision(kind) {
     var ov = $('#dlg-decision'); if (!ov) return;
-    var dup = document.body.getAttribute('data-view') === 'dupmst', d = $('.dialog', ov);
+    if (page === '30' && sel30) { REC.id = sel30.id; REC.org = sel30.org; REC.mail = sel30.mail; }
+    var dup = document.body.getAttribute('data-view') === 'dupmst' || (page === '30' && !!sel30 && sel30.r.indexOf('dup') >= 0), d = $('.dialog', ov);
     d.setAttribute('data-dc-root', kind); d.setAttribute('data-dup', dup ? '1' : '0'); d.innerHTML = buildDecision(kind, dup);
     ov.setAttribute('aria-labelledby', 'dc-title'); window.gmepOpen('dlg-decision');
   }
@@ -102,7 +111,11 @@
     box.innerHTML = '<div class="dialog dialog--md" role="dialog" aria-labelledby="dc-title" data-dc-root="' + k + '" data-dup="' + (dup ? '1' : '0') + '" data-static="1">' + buildDecision(k, dup) + '</div>';
   }
   document.addEventListener('click', function (e) {
-    var o = e.target.closest('[data-dc-open]'); if (o) { openDecision(o.getAttribute('data-dc-open')); return; }
+    var o = e.target.closest('[data-dc-open]');
+    if (o) {   /* nút khóa dùng aria-disabled: bấm chỉ đưa focus tới lý do */
+      if (o.getAttribute('aria-disabled') === 'true') { var wy = document.getElementById(o.getAttribute('data-why') || ''); if (wy) wy.focus(); return; }
+      openDecision(o.getAttribute('data-dc-open')); return;
+    }
     var a = e.target.closest('[data-dc]'); if (!a) return;
     var root = a.closest('[data-dc-root]'), kind = root.getAttribute('data-dc-root'), act = a.getAttribute('data-dc'), isStatic = root.hasAttribute('data-static');
     if (act === 'cancel') { if (isStatic) toast('info', 'Mô phỏng', 'Hộp thoại đóng lại và về hồ sơ.'); else window.gmepClose(root.closest('.overlay')); return; }
@@ -116,18 +129,20 @@
       var due = $('#dc-due', root), okd = /^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(due.value.trim()); dcSet(root, 'dc-due', okd ? '' : 'Nhập hạn bổ sung theo dạng dd/MM/yyyy.'); if (!okd && !bad) bad = due;
       done = 'Đã gửi yêu cầu bổ sung|Người đăng ký nhận email kèm hạn bổ sung.';
     } else if (kind === 'reject') {
-      var rs = $('#dc-reason', root), it = $('#dc-int', root), cd = $('#dc-code', root);
+      var rs = $('#dc-reason', root), it = $('#dc-int', root);
       dcSet(root, 'dc-reason', rs.value ? '' : 'Chọn lý do từ chối.'); if (!rs.value) bad = rs;
       var okn = it.value.trim().length >= 5; dcSet(root, 'dc-int', okn ? '' : 'Ghi chú nội bộ cần ít nhất 5 ký tự.'); if (!okn && !bad) bad = it;
-      var okc = cd.value.trim().toLowerCase() === REC.id.toLowerCase(); dcSet(root, 'dc-code', okc ? '' : 'Mã theo dõi chưa khớp.'); if (!okc && !bad) bad = cd;
       done = 'Đã từ chối đăng ký|Người đăng ký nhận email kèm lý do.';
+    } else if (kind === 'reopen') {
+      var ro = $('#dc-ro', root), okr = ro.value.trim().length >= 5; dcSet(root, 'dc-ro', okr ? '' : 'Ghi chú nội bộ cần ít nhất 5 ký tự.'); if (!okr) bad = ro;
+      done = 'Đã chuyển lại hàng chờ|Hồ sơ quay lại danh sách Cần xử lý, người đăng ký nhận email.';
     }
     if (bad) { bad.focus(); return; }
     a.classList.add('is-loading'); a.setAttribute('aria-busy', 'true');
     setTimeout(function () {
       a.classList.remove('is-loading'); a.removeAttribute('aria-busy');
       var p = done.split('|'); toast('success', p[0], p[1]);
-      if (!isStatic) { window.gmepClose(root.closest('.overlay')); setTimeout(function () { location.href = 'tsu-61.html'; }, 900); }
+      if (!isStatic) { window.gmepClose(root.closest('.overlay')); setTimeout(function () { location.href = 'tsx-30.html'; }, 900); }
     }, 700);
   });
   document.addEventListener('change', function (e) {
@@ -301,7 +316,7 @@
   document.addEventListener('submit', function (e) {
     if (e.target.id !== 'cfg-form') return; e.preventDefault();
     if (document.body.getAttribute('data-view') === 'offline') { toast('warning', 'Chưa có kết nối', 'Chưa lưu được cấu hình. Thay đổi của bạn vẫn còn trên màn hình.'); return; }
-    if (window.TS.validateForm(e.target)) { toast('success', 'Đã lưu cấu hình', 'Giá trị mới có hiệu lực từ ngày hiệu lực đã chọn, giá trị cũ vẫn được giữ trong lịch sử.'); }
+    if (validateAll66()) { toast('success', 'Đã lưu cấu hình', 'Giá trị mới có hiệu lực từ ngày hiệu lực đã chọn, giá trị cũ vẫn được giữ trong lịch sử.'); }
   });
 
   /* ---------- TSU-67 Điều khoản ---------- */
@@ -361,17 +376,151 @@
     if (e.target.id === 'pl-start') { var d = $('#pl-dur'); var none = e.target.value === 'none'; d.disabled = none; if (none) { d.removeAttribute('aria-invalid'); } }
   });
 
+  /* ---------- TSX-30 Hàng đợi và hồ sơ (master-detail: danh sách bên trái, hồ sơ bên phải; dưới 1280 px chuyển qua lại giữa hai ngăn) ---------- */
+  REASONS.resub = ['Đã bổ sung, chờ xem lại', 'info'];
+  var Q30 = [
+    { id: 'SGN-4F7K2Q', org: 'Công ty TNHH Ô tô Minh Phát', mst: '03******12', mail: 'p***@minhphat.vn', r: ['dup'], sent: '05/11/2026 09:42', w: 3, own: '', tab: 'todo' },
+    { id: 'SGN-8C2M5T', org: 'Hộ kinh doanh Garage Hải Âu', mst: '0123*****789', mail: 'h***@mailinator.com', r: ['disp'], sent: '05/11/2026 08:05', w: 5, own: 'Phạm Quốc Bảo', tab: 'todo' },
+    { id: 'SGN-1D9P6W', org: 'Công ty CP Gara Đông Dương', mst: '03******45', mail: 'd***@dongduong.vn', r: ['mismatch'], sent: '04/11/2026 08:10', w: 26, own: 'Lê Thu Hà', tab: 'todo' },
+    { id: 'SGN-6H3N8R', org: 'Garage Tân Cảng', mst: '01******77', mail: 't***@tancang.vn', r: ['rate', 'block'], sent: '04/11/2026 16:30', w: 18, own: '', tab: 'todo' },
+    { id: 'SGN-9B5T3K', org: 'Công ty TNHH Bảo dưỡng An Khang', mst: '03******63', mail: 'a***@ankhang.vn', r: ['resub', 'mismatch'], sent: '02/11/2026 10:30', w: 2, own: 'Phạm Quốc Bảo', tab: 'todo' },
+    { id: 'SGN-7M2P9X', org: 'Công ty TNHH Cơ khí Đại Phát', mst: '03******31', mail: 'c***@daiphat.vn', r: [], sent: '05/11/2026 09:30', w: 0, own: '', tab: 'prov', step: 'Cấu hình mặc định', n: '5/5', st: ['Cần nhân sự', 'danger'], staff: true, data: false },
+    { id: 'SGN-4C8V1D', org: 'Garage Hoàng Gia', mst: '0912*****654', mail: 'h***@hoanggia.vn', r: [], sent: '05/11/2026 10:09', w: 0, own: '', tab: 'prov', step: 'Tạo tài khoản', n: '2/5', st: ['Đang tự thử lại', 'warning'], staff: false, data: false },
+    { id: 'SGN-9Z5K3F', org: 'Công ty TNHH Phụ tùng Hưng Thịnh', mst: '03******08', mail: 'p***@hungthinh.vn', r: [], sent: '05/11/2026 08:50', w: 0, own: '', tab: 'prov', step: 'Tạo không gian làm việc', n: '5/5', st: ['Cần nhân sự', 'danger'], staff: true, data: true },
+    { id: 'SGN-5X2R7N', org: 'Công ty TNHH Ô tô Việt Hưng', mst: '03******28', mail: 'v***@viethung.vn', r: ['other'], sent: '04/11/2026 13:00', w: 0, own: 'Lê Thu Hà', tab: 'done', dec: ['Đã duyệt', 'success', '04/11/2026 15:20'] },
+    { id: 'SGN-7Q4Y8M', org: 'Garage Sao Mai', mst: '0912*****456', mail: 's***@saomai.vn', r: ['dup'], sent: '03/11/2026 09:00', w: 0, own: 'Lê Thu Hà', tab: 'done', dec: ['Đã từ chối', 'danger', '03/11/2026 11:45'] },
+    { id: 'SGN-2J7Q4V', org: 'Công ty TNHH Lốp Việt', mst: '03******90', mail: 'l***@lopviet.vn', r: ['other'], sent: '03/11/2026 14:00', w: 0, own: 'Phạm Quốc Bảo', tab: 'done', dec: ['Đã yêu cầu bổ sung', 'warning', '03/11/2026 14:30'] }
+  ];
+  var T30 = [['todo', 'Cần xử lý'], ['prov', 'Lỗi cấp phát'], ['done', 'Đã xử lý 7 ngày']];
+  var c30 = { tab: 'todo', q: '', pane: 'list', view: 'cases' };
+  var DETAIL_VIEWS = { detail: 1, dupmst: 1, mismatch: 1, r409: 1, qtn: 1, htn: 1 };
+  var KEEP_VIEWS = { skel: 1, error: 1, offline: 1, r429: 1 };
+  function find30(id) { for (var i = 0; i < Q30.length; i++) if (Q30[i].id === id) return Q30[i]; return null; }
+  function badge30(r) {
+    if (r.tab === 'prov') return badge(r.st[0], r.st[1]);
+    if (r.tab === 'done') return badge(r.dec[0], r.dec[1]);
+    return r.w > LATE_H ? badge('Quá hạn xử lý', 'danger') : '';
+  }
+  function meta30(r) {
+    if (r.tab === 'prov') return 'Bước lỗi: ' + r.step + ' · Tự thử lại ' + r.n;
+    if (r.tab === 'done') return r.dec[2];
+    return 'Chờ ' + r.w + ' giờ · Gửi ' + r.sent;
+  }
+  function setOff(btn, off, why) {
+    if (!btn) return;
+    if (off) btn.setAttribute('aria-disabled', 'true'); else btn.removeAttribute('aria-disabled');
+    btn.setAttribute('data-why', why); btn.setAttribute('aria-describedby', why);
+  }
+  function renderDetail30() {
+    var r = sel30, v = document.body.getAttribute('data-view') || '';
+    $('#d30-empty').hidden = !!r; $('#d30-body').hidden = !r;
+    if (!r) return;
+    var prov = r.tab === 'prov', done = r.tab === 'done', dup = r.r.indexOf('dup') >= 0, mm = r.r.indexOf('mismatch') >= 0;
+    $('#d30-id').textContent = r.id; $('#d30-org').textContent = r.org;
+    $('#d30-badge').innerHTML = (v === 'r409' ? badge('Đã duyệt', 'success') : prov || done ? badge30(r) : badge('Chờ duyệt tay', 'warning'));
+    $('#d30-meta').textContent = 'Gửi ' + r.sent + (r.tab === 'todo' ? ' · Chờ ' + r.w + ' giờ' : '') + ' · Người phụ trách: ' + (r.own || 'Chưa gán');
+    $('#d30-flags').innerHTML = prov ? badge('Lỗi ở bước: ' + r.step, r.st[1]) : r.r.length ? reasonsHtml(r) : '<span class="tsa-note">Không có cờ</span>';
+    $('#d30-mst').textContent = r.mst; $('#d30-mail').textContent = r.mail; $('#d30-org2').textContent = r.org;
+    var pii = $('#d30-pii'); pii.setAttribute('data-pii', r.id); renderPII(pii);
+    $('#d30-dup').hidden = !dup || done || prov;
+    $('#d30-cmp-ok').hidden = mm; $('#d30-cmp-bad').hidden = !mm;
+    $('#d30-dup-ok').hidden = dup; $('#d30-dup-bad').hidden = !dup;
+    $$('[data-block="case"]').forEach(function (e) { e.hidden = prov; });
+    $$('[data-block="prov"]').forEach(function (e) { e.hidden = !prov; });
+    var rej = done && r.dec[0] === 'Đã từ chối', todo = r.tab === 'todo';
+    $('#a-approve').hidden = !todo; $('#a-supp').hidden = !todo; $('#a-reject').hidden = !todo; $('#a-reopen').hidden = !rej;
+    var roleOff = v === 'htn' || v === 'r409', cntOnly = roleOff || v === 'qtn';
+    setOff($('#a-approve'), cntOnly, 'why30'); setOff($('#a-reject'), cntOnly, 'why30'); setOff($('#a-reopen'), cntOnly, 'why30'); setOff($('#a-supp'), roleOff, 'why30');
+    setOff($('#a-retry'), v === 'htn' || !r.staff, 'why30p');
+    setOff($('#a-clean'), v === 'htn' || !r.staff || r.data, 'why30p');
+    var wp = $('#why30p');
+    wp.innerHTML = ic('lock') + '<span>' + (v === 'htn' ? 'Hỗ trợ nền tảng chỉ xem, hai nút đang khóa vì vai trò của bạn không có quyền này.' : !r.staff ? 'Hệ thống đang tự thử lại. Nút “Thử lại bước lỗi” và “Hủy và dọn” mở khi vượt số lần tự thử.' : r.data ? 'Đã có dữ liệu thật, không thể hủy và dọn. Chỉ thử lại được từng bước.' : 'Thử lại là thao tác idempotent, bấm lại không tạo trùng. “Hủy và dọn” chỉ khi chưa có dữ liệu thật.') + '</span>';
+    $('#a-reopen-note').hidden = !rej;
+  }
+  function render30() {
+    var tb = $('#list30'); if (!tb) return;
+    var v = document.body.getAttribute('data-view') || '', all = v === 'empty' ? [] : Q30;
+    $('#tabs30').innerHTML = T30.map(function (t) {
+      var n = all.filter(function (r) { return r.tab === t[0]; }).length;
+      return '<button type="button" class="tab" data-tab30="' + t[0] + '"' + (c30.tab === t[0] ? ' aria-current="true"' : '') + '>' + t[1] + ' <span class="count-pill">' + n + '</span></button>';
+    }).join('');
+    var q = norm(c30.q.trim()), rows = all.filter(function (r) { return r.tab === c30.tab && (!q || norm(r.id + ' ' + r.org + ' ' + r.mst.replace(/\*/g, '')).indexOf(q) >= 0); });
+    if (c30.tab === 'todo') rows.sort(function (a, b) { return b.w - a.w; });
+    tb.innerHTML = rows.map(function (r) {
+      var on = sel30 && sel30.id === r.id;
+      return '<li><button type="button" class="tsx-item" data-q30="' + r.id + '"' + (on ? ' aria-current="true"' : '') + '><span class="tsx-item__top"><span class="tsa-mono">' + r.id + '</span>' + badge30(r) + '</span><span class="cell-primary">' + esc(r.org) + '</span><span class="cell-sub">MST ' + r.mst + ' · ' + meta30(r) + '</span>' + (r.tab === 'todo' ? reasonsHtml(r) : '') + '</button></li>';
+    }).join('');
+    var none = !rows.length, empty = $('#empty30');
+    tb.hidden = none; empty.hidden = !none;
+    if (none) {
+      var f = !!c30.q.trim();
+      $('.state__title', empty).textContent = f ? 'Không có hồ sơ khớp bộ lọc' : c30.tab === 'todo' ? 'Không có ca nào cần xử lý' : c30.tab === 'prov' ? 'Không có lỗi cấp phát' : 'Chưa có hồ sơ nào được xử lý trong 7 ngày';
+      $('.state__text', empty).textContent = f ? 'Thử đổi từ khóa hoặc xóa bộ lọc để xem toàn bộ.' : 'Chỉ ca bị cờ mới vào đây. Ca đạt tiêu chí tự duyệt đi thẳng tới cấp phát.';
+      $('[data-clear30]', empty).hidden = !f;
+    }
+    $('#meta30').textContent = rows.length + ' trong ' + all.filter(function (r) { return r.tab === c30.tab; }).length + ' hồ sơ' + (c30.q.trim() ? ' · lọc theo “' + c30.q.trim() + '”' : '');
+    var chip = $('#chip30'); chip.hidden = !c30.q.trim(); $('[data-chip-text]', chip).textContent = 'Từ khóa: ' + c30.q.trim();
+    var todo = all.filter(function (r) { return r.tab === 'todo'; });
+    $('#k30-todo').textContent = todo.length; $('#k30-late').textContent = todo.filter(function (r) { return r.w > LATE_H; }).length;
+    $('#k30-today').textContent = v === 'cap' ? '50' : '41';
+    $('#md30').setAttribute('data-pane', c30.pane);
+    renderDetail30();
+  }
+  if (page === '30') {
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-tab30]'); if (t) { c30.tab = t.getAttribute('data-tab30'); render30(); var nt = $('[data-tab30="' + c30.tab + '"]'); if (nt) nt.focus(); return; }
+      var it = e.target.closest('[data-q30]');
+      if (it) { sel30 = find30(it.getAttribute('data-q30')); c30.pane = 'detail'; render30(); var h = $('#d30-h'); if (h) h.focus(); return; }
+      if (e.target.closest('#back30')) { c30.pane = 'list'; render30(); var cur30 = $('.tsx-item[aria-current="true"]') || $('#q30'); if (cur30) cur30.focus(); return; }
+      if (e.target.closest('[data-clear30]') || e.target.closest('#chip30 .chip__x')) { c30.q = ''; $('#q30').value = ''; render30(); $('#q30').focus(); return; }
+      var rt = e.target.closest('#a-retry');
+      if (rt) { if (rt.getAttribute('aria-disabled') === 'true') { $('#why30p').focus(); return; } toast('success', 'Đã yêu cầu thử lại bước', 'Thao tác idempotent: bấm lại không tạo trùng.'); return; }
+      var cl = e.target.closest('#a-clean');
+      if (cl) { if (cl.getAttribute('aria-disabled') === 'true') { $('#why30p').focus(); return; } window.gmepOpen('dlg-clean30'); return; }
+      if (e.target.closest('#clean30-ok')) { window.gmepClose($('#dlg-clean30')); toast('success', 'Đã hủy và dọn hồ sơ', 'Hồ sơ cấp phát đã được dọn, người đăng ký nhận email.'); }
+    });
+    document.addEventListener('input', function (e) { if (e.target.id === 'q30') { c30.q = e.target.value; render30(); } });
+  }
+
+  /* ---------- TSU-66: xem tất cả các thẻ khi kiểm tra giá trị, rồi hiện lại thẻ có lỗi đầu tiên ---------- */
+  function selectTab66(panelId) {
+    var tab = $('[role="tab"][aria-controls="' + panelId + '"]'); if (tab) tab.click();
+  }
+  function validateAll66() {
+    var form = $('#cfg-form'), panels = $$('[role="tabpanel"]', form), prev = panels.filter(function (p) { return !p.hidden; })[0];
+    panels.forEach(function (p) { p.hidden = false; });
+    var ok = window.TS.validateForm(form), bad = $('[aria-invalid="true"]', form);
+    panels.forEach(function (p) { p.hidden = true; });
+    var keep = bad ? bad.closest('[role="tabpanel"]') : prev;
+    if (keep) { selectTab66(keep.id); if (bad) bad.focus(); }
+    return ok;
+  }
+  document.addEventListener('click', function (e) {   /* liên kết trong tóm tắt lỗi: mở đúng thẻ trước khi chuyển focus */
+    var a = e.target.closest('[data-jump]'); if (!a || page !== '66') return;
+    var el = document.getElementById(a.getAttribute('data-jump')), p = el && el.closest('[role="tabpanel"]');
+    if (p && p.hidden) selectTab66(p.id);
+  }, true);
+
   /* ---------- Điểm vào theo trạng thái xem thử ---------- */
   window.tsOnView = function (v) {
+    if (page === '30') {
+      if (!KEEP_VIEWS[v]) {
+        if (v === 'filtered') c30.q = 'khong co ket qua'; else if (c30.view === 'filtered') c30.q = '';
+        c30.view = v; c30.tab = 'todo';
+        sel30 = v === 'dupmst' ? find30('SGN-4F7K2Q') : v === 'mismatch' ? find30('SGN-1D9P6W') : DETAIL_VIEWS[v] ? find30('SGN-8C2M5T') : null;
+        c30.pane = DETAIL_VIEWS[v] ? 'detail' : 'list'; $('#q30').value = c30.q;
+      }
+      render30();
+    }
     if (page === '61') { if (v === 'filtered') cur.q = 'khong co ket qua'; else if (cur.view === 'filtered') cur.q = ''; cur.view = v; var q = $('#q61'); if (q) q.value = cur.q; render61(); }
     if (page === '64') render64();
     if (page === '65') render65();
     if (page === '66') {
       $$('#cfg-form fieldset[data-cfg-fs]').forEach(function (f) { f.disabled = v === 'view'; });
       cfgDirty();
-      if (v === 'errval') window.TS.validateForm($('#cfg-form'));
+      if (v === 'errval') validateAll66();
       else { var sm = $('#cfg-form [data-summary]'); if (sm) sm.hidden = true; $$('#cfg-form [aria-invalid="true"]').forEach(function (x) { x.removeAttribute('aria-invalid'); }); $$('#cfg-form .field__error').forEach(function (x) { x.hidden = true; }); }
-      if (v === 'confirm') { var t = $('[data-reg-toggle]'); if (t && !$('#dlg-reg.is-open')) t.click(); }
+      if (v === 'confirm') { selectTab66('cp1'); var t = $('[data-reg-toggle]'); if (t && !$('#dlg-reg.is-open')) t.click(); }
     }
     if (page === '67') { render67(); if (v === 'confirm') { var tv = $('[data-tv-eff]'); if (tv && !$('.overlay.is-open')) tv.click(); } if (v === 'create' && !$('.overlay.is-open')) window.gmepOpen('dlg-tver'); }
     if (page === '68') { render68(); if (v === 'edit' && !$('.overlay.is-open')) window.gmepOpen('dlg-plan'); if (v === 'retire' && !$('.overlay.is-open')) { var rt = $('[data-pl-retire]'); if (rt) rt.click(); } }

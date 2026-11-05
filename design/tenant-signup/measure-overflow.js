@@ -19,7 +19,7 @@ const widths = [360, 768, 1280];
   const rows = [];
   let bad = 0;
   for (const d of dirs) {
-    const files = fs.readdirSync(path.join(root, d)).filter((f) => /^tsu-\d+\.html$/.test(f)).sort();
+    const files = fs.readdirSync(path.join(root, d)).filter((f) => /^ts[ux]-\d+\.html$/.test(f)).sort();
     for (const f of files) {
       for (const w of widths) {
         const ctx = await browser.newContext({ viewport: { width: w, height: 800 } });
@@ -36,6 +36,9 @@ const widths = [360, 768, 1280];
           if (m.sw > m.cw) over.push(label + ' (' + m.sw + ' > ' + m.cw + ')');
         };
         await measure('mặc định');
+        // Thanh "Xem thử" thu gọn mặc định ở điện thoại: mở ra để bấm được các trạng thái.
+        const tg = await page.$('[data-proto-toggle][aria-expanded="false"]');
+        if (tg) await tg.click();
         for (const s of states) {
           // Hộp thoại lớp phủ làm nền inert: đóng bằng Esc trước khi chọn trạng thái kế tiếp.
           await page.keyboard.press('Escape');

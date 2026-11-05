@@ -14,13 +14,9 @@
 <body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Gói của tôi" data-no-scope>
 <div id="g1-content" hidden>
   <div data-tsu-banners>
-    <div data-tsu-banner="BAN-01" data-on="onboarding"></div>
-    <div data-tsu-banner="BAN-02" data-on="trial-sap-het" data-n="3" data-date="08/11/2026"></div>
-    <div data-tsu-banner="BAN-03" data-on="expired" data-date="05/11/2026"></div>
-    <div data-tsu-banner="BAN-04" data-on="past-due" data-period="10/2026" data-date="31/10/2026" data-grace="14/11/2026"></div>
-    <div data-tsu-banner="BAN-05" data-on="grace-over" data-reason="Quá hạn thanh toán" data-list="lệnh sửa chữa, chi nhánh và người dùng"></div>
-    <div data-tsu-banner="BAN-06" data-on="sat-han-muc" data-x="8" data-y="10" data-p="80"></div>
-    <div data-tsu-banner="BAN-06" data-on="vuot-han-muc" data-x="11" data-y="10" data-p="110"></div>
+    <div data-tsu-banner="BAN-A" data-on="trial-sap-het" data-n="3" data-date="08/11/2026"></div>
+    <div data-tsu-banner="BAN-A" data-variant="het" data-on="expired"></div>
+    <div data-tsu-banner="BAN-A" data-variant="truy-cap-som" data-on="truy-cap-som-het"></div>
   </div>
 
   <div class="page-header">
@@ -29,19 +25,31 @@
       <p class="page-header__desc">Thuê bao, ngày hết hạn và mức dùng của Công ty TNHH Ô tô Phương Nam</p>
     </div>
     <div class="page-header__actions">
-      <a class="btn btn--secondary" href="tsu-44.html"><svg class="icon" aria-hidden="true"><use href="#history"/></svg>Lịch sử gói</a>
       <a class="btn btn--secondary" href="tsu-55.html"><svg class="icon" aria-hidden="true"><use href="#download"/></svg>Xuất dữ liệu</a>
     </div>
   </div>
   <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
 
-  <div data-tsu-bar="trial:Dùng thử|trial-sap-het:Dùng thử sắp hết|none:Truy cập sớm (none)|paid-active:Đang dùng (paid_active)|past-due:Quá hạn thanh toán (past_due)|grace-over:Hết ân hạn|cancel-scheduled:Sẽ ngừng cuối kỳ|expired:Hết hạn|sat-han-muc:Sát hạn mức|vuot-han-muc:Vượt hạn mức|cho-doi-goi:Chờ nền tảng xác nhận đổi gói|cho-cham-dut:Chờ chấm dứt|onboarding:Đang thiết lập|chua-co-goi:Chưa gán gói|ad-xem:Quản trị tenant xem"></div>
+  <div data-tsu-bar="trial:Dùng thử|trial-sap-het:Dùng thử sắp hết (còn 3 ngày)|none:Truy cập sớm|truy-cap-som-het:Truy cập sớm đã kết thúc|expired:Hết dùng thử|nhieu-chi-nhanh:Có từ 2 chi nhánh|cho-cham-dut:Chờ chấm dứt|chua-co-goi:Chưa gán gói|ad-xem:Quản trị tenant xem"></div>
 
   <div data-tsu-main class="tsu-stack">
     <div class="state" data-on="chua-co-goi"><div class="state__icon"><svg class="icon icon--lg" aria-hidden="true"><use href="#inbox"/></svg></div><h2 class="state__title">Chưa gán gói</h2><p class="state__text">Công ty chưa được gán gói nào. Liên hệ hỗ trợ để được gán gói.</p><div class="state__actions"><a class="btn btn--secondary" href="#" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ, số điện thoại và giờ làm việc là điểm chờ xác nhận.">Liên hệ hỗ trợ</a></div></div>
 
-    <div class="alert alert--neutral" role="status" data-on="cho-doi-goi"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu đổi gói đang chờ nền tảng xác nhận</span><span>Bạn gửi yêu cầu lúc <span class="num">09:02</span> ngày <span class="num">05/11/2026</span>. Gói hiện tại vẫn dùng bình thường cho đến khi nền tảng xác nhận.</span></div></div>
-    <div class="alert alert--warning" role="status" data-on="cho-cham-dut"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu chấm dứt đang chờ</span><span>Bạn gửi yêu cầu lúc <span class="num">08:40</span> ngày <span class="num">05/11/2026</span>. Nền tảng xử lý và báo lại qua email. Trong lúc chờ, công ty vẫn hoạt động bình thường.</span></div></div>
+    <div class="alert alert--warning" role="status" data-on="cho-cham-dut"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu chấm dứt đang chờ</span><span>Bạn gửi yêu cầu lúc <span class="num">08:40</span> ngày <span class="num">05/11/2026</span>. Trong lúc chờ, công ty vẫn hoạt động bình thường.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="tsu-56.html">Xem yêu cầu</a></div></div></div>
+
+    <section class="tsu-two" id="t41-exp" aria-labelledby="t41-eh" data-on="expired truy-cap-som-het">
+      <div class="tsu-notice"><span class="tsu-notice__ic tsu-notice__ic--warning" aria-hidden="true"><svg class="icon icon--lg"><use href="#clock"/></svg></span>
+        <div class="tsu-notice__body"><h2 id="t41-eh">Dùng thử đã hết</h2>
+          <p>Công ty chuyển sang chế độ chỉ đọc từ <span class="num">12/11/2026</span> (cấu hình). Đến lúc đó bạn vẫn xem dữ liệu, tải hóa đơn và hoàn tất các lệnh đang mở; chưa tạo mới được.</p>
+          <p class="tsu-sub">Dữ liệu của bạn không bị xóa. Chọn gói để mở lại ngay.</p>
+          <p class="tsu-tbc"><svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span><strong>[Cần xác nhận]</strong> C-23, C-25: mốc chuyển chỉ đọc và cách chọn gói ở giai đoạn đầu (thu phí ngoài hệ thống).</span></p>
+        </div></div>
+      <div class="card"><div class="card__header"><h2 class="card__title">Bạn làm được gì lúc này</h2></div>
+        <div class="card__body tsu-stack">
+          <ul class="tsu-list"><li>Xem dữ liệu và báo cáo.</li><li>Tải hóa đơn và chứng từ đã có.</li><li>Hoàn tất lệnh sửa chữa đang mở, thu tiền.</li></ul>
+          <div class="tsu-actions"><a class="btn btn--primary" href="#" data-toast="info|Liên hệ chọn gói|Kênh liên hệ chọn gói là điểm chờ xác nhận (thanh toán chưa mở trong hệ thống).">Liên hệ chọn gói</a><a class="btn btn--secondary" href="tsu-55.html">Xuất dữ liệu</a></div>
+        </div></div>
+    </section>
 
     <div class="tsu-grid2" data-off="chua-co-goi">
       <section class="card" aria-labelledby="t41-s">
@@ -53,43 +61,34 @@
         </div>
       </section>
       <section class="card" aria-labelledby="t41-u">
-        <div class="card__header"><div><h2 class="card__title" id="t41-u">Mức dùng</h2><div class="card__subtitle">Cập nhật lúc <span class="num">09:15</span> · ngưỡng cảnh báo <span class="num">80%</span> và <span class="num">100%</span> (cấu hình)</div></div><button type="button" class="btn btn--ghost btn--sm" data-toast="info|Đã làm mới|Mức dùng cập nhật lúc 09:16."><svg class="icon icon--sm" aria-hidden="true"><use href="#refresh"/></svg>Làm mới</button></div>
+        <div class="card__header"><div><h2 class="card__title" id="t41-u">Mức dùng</h2><div class="card__subtitle">Cập nhật lúc <span class="num">09:15</span> · cảnh báo ở <span class="num">80%</span> (cấu hình)</div></div></div>
         <div class="card__body tsu-stack" id="t41-usage"></div>
         <div class="card__footer"><details style="width:100%"><summary style="min-height:44px;display:flex;align-items:center;cursor:pointer">Xem mức dùng dạng bảng</summary><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Mức dùng so với hạn mức gói</caption><thead><tr><th scope="col">Hạng mục</th><th scope="col" class="col-num">Đang dùng</th><th scope="col" class="col-num">Hạn mức</th><th scope="col" class="col-num">Còn lại</th></tr></thead><tbody id="t41-tbl"></tbody></table></div></details></div>
       </section>
     </div>
 
     <section class="card" aria-labelledby="t41-p" data-off="chua-co-goi">
-      <div class="card__header"><h2 class="card__title" id="t41-p">Thanh toán và hóa đơn của nền tảng</h2><span class="badge badge--neutral badge--nodot">Chưa áp dụng</span></div>
-      <div class="card__body"><p style="margin:0">Chưa áp dụng trong giai đoạn này. Thu phí thủ công ngoài hệ thống nếu có; hệ thống chưa có nút thanh toán trực tuyến.</p></div>
+      <div class="card__header"><h2 class="card__title" id="t41-p">Thanh toán</h2><span class="badge badge--neutral badge--nodot">Chưa mở</span></div>
+      <div class="card__body"><p style="margin:0">Chưa mở trong giai đoạn này. Thu phí thủ công ngoài hệ thống nếu có; hệ thống chưa có nút thanh toán trực tuyến.</p></div>
     </section>
   </div>
-
-  <div class="overlay" id="dlg-cancel-plan" role="alertdialog" aria-modal="true" aria-labelledby="dcp-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg></div><div><h2 class="dialog__title" id="dcp-t">Gửi yêu cầu hủy gói?</h2></div></div>
-    <div class="dialog__body"><p>Yêu cầu chỉ ghi nhận, có hiệu lực cuối kỳ hiện tại (<span class="num">30/11/2026</span>, minh họa). Đến lúc đó bạn vẫn dùng bình thường. Dữ liệu không bị xóa.</p></div>
-    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Giữ gói</button><button type="button" class="btn btn--primary" data-close data-tsu-go="cancel-scheduled" data-toast="success|Đã gửi yêu cầu hủy gói|Gói sẽ ngừng vào cuối kỳ.">Gửi yêu cầu hủy</button></div></div></div>
-  <p class="tsu-test">Truy vết: FR-TEN-024, 025, 027, 044, 045; J9, J10; UAT-TEN-16, 17. Trạng thái thuê bao và trạng thái tenant là hai badge riêng. Chưa có nút thanh toán (FR-TEN-047, 048 thuộc giai đoạn sau).</p>
+  <p class="tsu-test">Truy vết: FR-TEN-024, 025, 044; AC-S19. Trạng thái thuê bao và trạng thái công ty là hai badge riêng. Dòng “Chi nhánh” chỉ hiện khi có từ 2 chi nhánh hoặc gói cho từ 2 chi nhánh. Đổi gói, hạ gói, lịch sử gói hoãn (B1).</p>
 </div>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
 <script src="../../g1-auth-dashboard/g1-shell.js"></script>
 <script src="../onboarding/tsu-app.js"></script>
 <script>
 (function () {
+  /* u: [chi nhánh dùng, hạn mức chi nhánh, người dùng, hạn mức người dùng, GB, hạn mức GB] */
   var D = {
-    'onboarding': { plan: 'Gói Khởi đầu (minh họa)', b: ['neutral', 'Chưa bắt đầu dùng thử'], start: 'Chưa bắt đầu tính ngày dùng thử', end: '30 ngày dùng thử bắt đầu khi bạn kích hoạt, hoặc tự bắt đầu vào 19/11/2026 nếu chưa kích hoạt (số minh họa)', next: 'Hoàn tất thiết lập và kích hoạt để bắt đầu dùng thử', u: [1, 10, 2, 50, 0.1, 5], tenant: ['info', 'Đang thiết lập'] },
-    'trial': { plan: 'Gói Khởi đầu (minh họa)', b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', next: 'Chọn gói trước ngày hết hạn để tiếp tục tạo mới', u: [3, 10, 14, 50, 1.2, 5] },
-    'trial-sap-het': { plan: 'Gói Khởi đầu (minh họa)', b: ['warning', 'Dùng thử'], start: '09/10/2026', end: '08/11/2026', next: 'Chọn gói trước ngày hết hạn', u: [3, 10, 14, 50, 1.2, 5], note: 'Còn 3 ngày dùng thử. Dữ liệu của bạn không bị xóa khi hết dùng thử.' },
-    'none': { plan: 'Gói truy cập sớm', b: ['purple', 'Truy cập sớm'], start: '01/11/2026', end: 'Chưa xác định (sẽ báo trước nếu có)', next: 'Chưa có kỳ thanh toán', u: [3, 10, 14, 50, 1.2, 5] },
-    'paid-active': { plan: 'Gói Chuẩn (minh họa)', b: ['success', 'Đang dùng'], start: '01/11/2026', end: '30/11/2026', next: 'Kỳ kế tiếp bắt đầu 01/12/2026', u: [4, 10, 22, 50, 2.0, 5] },
-    'past-due': { plan: 'Gói Chuẩn (minh họa)', b: ['warning', 'Quá hạn thanh toán'], start: '01/10/2026', end: '31/10/2026', next: 'Kỳ 10/2026 chưa thanh toán', u: [4, 10, 22, 50, 2.0, 5], note: 'Công ty được tiếp tục dùng đến 14/11/2026 (hạn ân hạn, cấu hình).' },
-    'grace-over': { plan: 'Gói Chuẩn (minh họa)', b: ['danger', 'Hết ân hạn'], start: '01/10/2026', end: '31/10/2026', next: 'Kỳ 10/2026 chưa thanh toán', u: [4, 10, 22, 50, 2.0, 5], note: 'Đã hết ân hạn: chưa tạo mới được lệnh sửa chữa, chi nhánh, người dùng. Việc đang mở vẫn hoàn tất được.', tenant: ['warning', 'Hạn chế tạo mới'] },
-    'cancel-scheduled': { plan: 'Gói Chuẩn (minh họa)', b: ['warning', 'Sẽ ngừng cuối kỳ'], start: '01/11/2026', end: '30/11/2026', next: 'Gói ngừng vào cuối kỳ, dữ liệu không bị xóa', u: [4, 10, 22, 50, 2.0, 5], note: 'Bạn đã gửi yêu cầu hủy gói. Đến hết 30/11/2026 bạn vẫn dùng bình thường.' },
-    'expired': { plan: 'Gói Khởi đầu (minh họa)', b: ['danger', 'Hết hạn'], start: '05/10/2026', end: '04/11/2026', next: 'Chọn gói để mở lại ngay, dữ liệu được giữ nguyên', u: [3, 10, 14, 50, 1.2, 5], note: 'Dùng thử đã hết: xem dữ liệu, tải hóa đơn và hoàn tất lệnh đang mở được; chưa tạo mới.', tenant: ['warning', 'Hạn chế tạo mới'] },
-    'sat-han-muc': { plan: 'Gói Chuẩn (minh họa)', b: ['success', 'Đang dùng'], start: '01/11/2026', end: '30/11/2026', next: 'Kỳ kế tiếp bắt đầu 01/12/2026', u: [8, 10, 40, 50, 3.9, 5] },
-    'vuot-han-muc': { plan: 'Gói Chuẩn (minh họa)', b: ['success', 'Đang dùng'], start: '01/11/2026', end: '30/11/2026', next: 'Kỳ kế tiếp bắt đầu 01/12/2026', u: [11, 10, 52, 50, 5.4, 5], note: 'Đang dùng vượt hạn mức: chưa tạo mới chi nhánh và người dùng. Dữ liệu hiện có không bị xóa.' },
-    'cho-doi-goi': { plan: 'Gói Chuẩn (minh họa)', b: ['success', 'Đang dùng'], start: '01/11/2026', end: '30/11/2026', next: 'Chờ nền tảng xác nhận đổi sang Gói Nâng cao', u: [4, 10, 22, 50, 2.0, 5], pending: true },
-    'cho-cham-dut': { plan: 'Gói Chuẩn (minh họa)', b: ['success', 'Đang dùng'], start: '01/11/2026', end: '30/11/2026', next: 'Chờ nền tảng xử lý yêu cầu chấm dứt', u: [4, 10, 22, 50, 2.0, 5] },
-    'ad-xem': { plan: 'Gói Chuẩn (minh họa)', b: ['success', 'Đang dùng'], start: '01/11/2026', end: '30/11/2026', next: 'Kỳ kế tiếp bắt đầu 01/12/2026', u: [4, 10, 22, 50, 2.0, 5], ad: true }
+    'trial': { plan: 'Gói Khởi đầu (minh họa)', b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', next: 'Liên hệ chọn gói trước ngày hết hạn để tiếp tục tạo mới', u: [1, 1, 3, 10, 1.2, 5] },
+    'trial-sap-het': { plan: 'Gói Khởi đầu (minh họa)', b: ['warning', 'Dùng thử'], start: '09/10/2026', end: '08/11/2026', next: 'Liên hệ chọn gói trước ngày hết hạn', u: [1, 1, 3, 10, 1.2, 5], note: 'Còn 3 ngày dùng thử. Dữ liệu của bạn không bị xóa khi hết dùng thử.' },
+    'none': { plan: 'Gói truy cập sớm', b: ['purple', 'Truy cập sớm'], start: '01/11/2026', end: 'Chưa xác định (sẽ báo trước nếu có)', next: 'Chưa có kỳ thanh toán', u: [1, 1, 3, 10, 1.2, 5] },
+    'truy-cap-som-het': { plan: 'Gói truy cập sớm', b: ['danger', 'Hết hạn'], start: '01/11/2026', end: '04/11/2026', next: 'Liên hệ chọn gói để mở lại, dữ liệu được giữ nguyên', u: [1, 1, 3, 10, 1.2, 5], tenant: ['warning', 'Hạn chế tạo mới'] },
+    'expired': { plan: 'Gói Khởi đầu (minh họa)', b: ['danger', 'Hết hạn'], start: '05/10/2026', end: '04/11/2026', next: 'Liên hệ chọn gói để mở lại, dữ liệu được giữ nguyên', u: [1, 1, 3, 10, 1.2, 5], tenant: ['warning', 'Hạn chế tạo mới'] },
+    'nhieu-chi-nhanh': { plan: 'Gói Khởi đầu (minh họa)', b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', next: 'Liên hệ chọn gói trước ngày hết hạn', u: [2, 3, 6, 10, 2.0, 5] },
+    'cho-cham-dut': { plan: 'Gói Khởi đầu (minh họa)', b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', next: 'Chờ nền tảng xử lý yêu cầu chấm dứt', u: [1, 1, 3, 10, 1.2, 5] },
+    'ad-xem': { plan: 'Gói Khởi đầu (minh họa)', b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', next: 'Liên hệ chọn gói trước ngày hết hạn', u: [1, 1, 3, 10, 1.2, 5], ad: true }
   };
   function num(v) { return String(v).replace('.', ','); }
   function meter(name, x, y, unit, hint) {
@@ -101,19 +100,21 @@
     var d = D[name]; if (!d) return;
     var tb = d.tenant || ['success', 'Đang hoạt động'];
     document.getElementById('t41-badge').innerHTML = '<span class="badge badge--' + d.b[0] + '"><span class="sr-only">Trạng thái thuê bao: </span>' + d.b[1] + '</span>';
-    document.getElementById('t41-kv').innerHTML = '<dt>Gói</dt><dd><strong>' + d.plan + '</strong></dd><dt>Trạng thái thuê bao</dt><dd>' + d.b[1] + '</dd><dt>Trạng thái công ty</dt><dd><span class="badge badge--' + tb[0] + '">' + tb[1] + '</span></dd><dt>Ngày bắt đầu</dt><dd class="num">' + d.start + '</dd><dt>Ngày hết hạn</dt><dd class="num">' + d.end + '</dd><dt>Kỳ kế tiếp</dt><dd>' + d.next + '</dd>';
+    document.getElementById('t41-kv').innerHTML = '<dt>Gói</dt><dd><strong>' + d.plan + '</strong></dd><dt>Trạng thái thuê bao</dt><dd>' + d.b[1] + '</dd><dt>Trạng thái công ty</dt><dd><span class="badge badge--' + tb[0] + '">' + tb[1] + '</span></dd><dt>Ngày bắt đầu</dt><dd class="num">' + d.start + '</dd><dt>Ngày hết hạn</dt><dd class="num">' + d.end + '</dd><dt>Tiếp theo</dt><dd>' + d.next + '</dd>';
     var nt = document.getElementById('t41-note');
     if (d.note) { nt.hidden = false; nt.innerHTML = '<svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span>' + d.note + '</span>'; } else nt.hidden = true;
-    var canChange = !d.ad;
-    var act = '';
-    act += canChange ? '<a class="btn btn--primary" href="tsu-42.html">Đổi gói</a>' : '<button type="button" class="btn btn--primary" aria-disabled="true" data-disable-in="ad-xem">Đổi gói</button><span class="tsu-reason"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Bạn chưa có quyền đổi gói. Liên hệ chủ garage. <code>NO_PERMISSION</code></span></span>';
-    if (canChange && name !== 'cancel-scheduled' && name !== 'cho-cham-dut' && name !== 'expired' && name !== 'none' && name !== 'onboarding' && name.indexOf('trial') < 0) act += '<button type="button" class="btn btn--secondary" data-open="dlg-cancel-plan">Yêu cầu hủy gói</button>';
-    act += '<button type="button" class="btn btn--ghost" data-toast="info|Tải bảng kê sử dụng|Bảng kê mức dùng theo kỳ (.xlsx), ghi rõ phạm vi và thời điểm.">Tải bảng kê sử dụng</button>';
+    var act = d.ad
+      ? '<button type="button" class="btn btn--primary" aria-disabled="true" aria-describedby="t41-why">Liên hệ chọn gói</button><span class="tsu-reason" id="t41-why"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage chọn gói. Hãy báo cho chủ garage. <code>NO_PERMISSION</code></span></span>'
+      : '<a class="btn btn--primary" href="#" data-toast="info|Liên hệ chọn gói|Kênh liên hệ chọn gói là điểm chờ xác nhận (thanh toán chưa mở trong hệ thống).">Liên hệ chọn gói</a>';
+    act += '<a class="btn btn--ghost" href="tsu-56.html">Yêu cầu chấm dứt</a>';
     document.getElementById('t41-act').innerHTML = act;
-    var u = d.u;
-    document.getElementById('t41-usage').innerHTML = meter('Chi nhánh', u[0], u[1], 'chi nhánh', 'Hạn mức theo gói, lấy từ cấu hình.') + meter('Người dùng', u[2], u[3], 'người', 'Đếm người dùng đang hoạt động; không tính tài khoản khóa và lời mời chưa kích hoạt.') + meter('Dung lượng tệp đính kèm', u[4], u[5], 'GB', 'Chỉ hiện nếu gói có hạn mức dung lượng.');
+    var u = d.u, usage = '';
+    /* Ẩn dòng chi nhánh khi chỉ có 1 chi nhánh và gói không cho từ 2 chi nhánh (FR-TEN-051) */
+    if (u[0] > 1 || u[1] > 1) usage += meter('Chi nhánh', u[0], u[1], 'chi nhánh', 'Hạn mức theo gói, lấy từ cấu hình.');
+    usage += meter('Người dùng', u[2], u[3], 'người', 'Đếm người dùng đang hoạt động; không tính tài khoản khóa và lời mời chưa kích hoạt.') + meter('Dung lượng tệp đính kèm', u[4], u[5], 'GB', 'Chỉ hiện nếu gói có hạn mức dung lượng.');
+    document.getElementById('t41-usage').innerHTML = usage;
     function row(n, x, y, un) { return '<tr><th scope="row">' + n + '</th><td class="col-num num">' + num(x) + ' ' + un + '</td><td class="col-num num">' + num(y) + ' ' + un + '</td><td class="col-num num">' + (x > y ? 'Vượt ' + num(Math.round((x - y) * 10) / 10) : num(Math.round((y - x) * 10) / 10)) + ' ' + un + '</td></tr>'; }
-    document.getElementById('t41-tbl').innerHTML = row('Chi nhánh', u[0], u[1], '') + row('Người dùng', u[2], u[3], '') + row('Dung lượng', u[4], u[5], 'GB');
+    document.getElementById('t41-tbl').innerHTML = ((u[0] > 1 || u[1] > 1) ? row('Chi nhánh', u[0], u[1], '') : '') + row('Người dùng', u[2], u[3], '') + row('Dung lượng', u[4], u[5], 'GB');
   }
   document.addEventListener('tsu:state', function (e) { if (D[e.detail]) render(e.detail); });
   render(document.body.getAttribute('data-tsu-state'));

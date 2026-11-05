@@ -229,3 +229,39 @@ ol.stepper { list-style: none; margin: 0; padding: 0; }
 
 /* Vòng xoay chỉ hiện khi nút đang xử lý (components.css không ẩn khi nhàn rỗi nên nó trôi ra góc thẻ) */
 .btn:not(.is-loading) > .btn__spinner { display: none; }
+
+/* ---------- Bản tối giản (TSX-xx) ---------- */
+/* Danh sách có dấu đầu dòng (base.css bỏ dấu của mọi ul) */
+.tsp-bullets { list-style: disc; padding-left: var(--space-5); margin: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.tsp-bullets li { padding-left: var(--space-1); }
+.tsp-bullets li::marker { color: var(--color-text-tertiary); }
+.tsp-summary ul { list-style: disc; }
+.tsp-summary ul li::marker { color: inherit; }
+
+/* Thanh xem thử thu gọn: nút "Xem thử" + trạng thái đang xem; bảng chọn mở ra khi cần (mặc định ẩn ở điện thoại) */
+.tsp-proto { flex-direction: column; align-items: stretch; gap: var(--space-2); }
+.tsp-proto__bar { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.tsp-proto__now { font-weight: 600; color: var(--color-text-primary); min-width: 0; overflow-wrap: anywhere; }
+.tsp-proto__panel { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.tsp-proto__panel[hidden] { display: none; }
+.tsp-proto__hint { flex: 1 1 100%; }
+
+/* Hộp mở rộng (details) */
+.tsp-details { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); min-width: 0; }
+.tsp-details > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4); font-weight: 600; list-style: none; border-radius: var(--radius-md); }
+.tsp-details > summary::-webkit-details-marker { display: none; }
+.tsp-details > summary::after { content: ""; margin-left: auto; width: 8px; height: 8px; flex: none; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .15s; }
+.tsp-details[open] > summary::after { transform: rotate(-135deg); }
+.tsp-details > summary:focus-visible { outline: var(--focus-outline); outline-offset: 2px; }
+.tsp-details[open] > summary { border-bottom: 1px solid var(--color-border); border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.tsp-details__body { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+@media (prefers-reduced-motion: reduce) { .tsp-details > summary::after { transition: none; } }
+
+/* Dòng điều kiện dùng thử, loại hình suy ra từ MST */
+.tsp-cond { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-weight: 600; margin: 0; }
+.tsp-inline-note { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0; display: flex; gap: var(--space-2); align-items: flex-start; }
+.tsp-inline-note .icon { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+.tsp-track--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 639px) { .tsp-track--3 { grid-template-columns: 1fr; } }
+.tsp-terms__item .check > span:last-child a { font-weight: 600; }
+.tsp-terms__item .btn { flex: none; }

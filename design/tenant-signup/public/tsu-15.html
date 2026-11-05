@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TSU-15 · Quên mật khẩu – GARAGE OS</title>
+<title>TSU-15 · Quên mật khẩu hoặc mã công ty – GARAGE OS</title>
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/base.css">
 <link rel="stylesheet" href="../../assets/components.css">
@@ -11,48 +11,88 @@
 </head>
 <body class="tsp-body">
 <a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu</a>
-<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsx-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
 
 <div class="tsp-wrap">
-  <div data-ts-views="default:Bình thường|sent:Đã gửi (phản hồi trung lập)|bot:Lỗi kiểm tra người thật|sending:Đang gửi" data-ts-common="r429 error offline" data-hint="TSU-15 · FR-TEN-016, FR-SYS-001 · phản hồi cố định cho mọi trường hợp."></div>
+  <div data-ts-views="pw:Quên mật khẩu|code:Quên mã công ty|sent:Đã gửi (phản hồi trung lập)|bot:Lỗi kiểm tra người thật|sending:Đang gửi" data-ts-common="r429 error offline" data-hint="TSU-15 (gộp TSU-17) · FR-TEN-016, 039, FR-SYS-001 · phản hồi cố định cho mọi trường hợp, không cho biết email hoặc mã công ty có tồn tại."></div>
 
   <main id="main" class="tsp-card">
-    <div><h1>Quên mật khẩu</h1><p class="tsp-lead" data-hide="sent">Nhập mã công ty và email hoặc mã nhân viên của bạn. Chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu.</p></div>
+    <div><h1>Quên mật khẩu hoặc mã công ty</h1><p class="tsp-lead" data-hide="sent">Chọn việc bạn cần. Chúng tôi sẽ gửi hướng dẫn qua email.</p></div>
     <div class="tsp-alerts" data-ts-alerts hidden></div>
-    <div class="alert alert--info" role="status" data-show="sent" hidden data-focus-result tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#mail"/></svg><div class="alert__body"><span class="alert__title">Hãy kiểm tra email</span><span>Nếu thông tin khớp một tài khoản, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu đến email của tài khoản đó. Liên kết có hiệu lực 60 phút (số lấy từ máy chủ, minh họa).</span></div></div>
+    <div class="alert alert--info" role="status" data-show="sent" hidden data-focus-result tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#mail"/></svg><div class="alert__body"><span class="alert__title">Hãy kiểm tra email</span><span>Nếu thông tin khớp một tài khoản, chúng tôi đã gửi email đến địa chỉ của tài khoản đó. Liên kết trong email có hiệu lực 60 phút (số lấy từ máy chủ, minh họa).</span></div></div>
 
-    <form class="tsp-form" data-ts-form novalidate data-hide="sent" data-success-view="sent">
-      <fieldset class="tsp-fs" data-disable-in="sending">
-        <legend class="sr-only">Thông tin tài khoản</legend>
-        <div class="field">
-          <label class="field__label" for="fp-code">Mã công ty<span class="field__req" aria-hidden="true">*</span></label>
-          <input id="fp-code" class="input" name="company_code" autocomplete="off" autocapitalize="none" spellcheck="false" aria-required="true" data-first-focus data-rule="code" data-label="mã công ty" data-prefill="code">
-        </div>
-        <div class="field">
-          <label class="field__label" for="fp-id">Email hoặc mã nhân viên<span class="field__req" aria-hidden="true">*</span></label>
-          <input id="fp-id" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" data-rule="required" data-label="email hoặc mã nhân viên">
-        </div>
-        <div class="field">
-          <span class="field__label" id="bot-l">Kiểm tra người thật<span class="field__req" aria-hidden="true">*</span></span>
-          <div class="tsp-bot" data-bot data-bot-required data-bot-state="idle" data-bot-ok-in="sending" data-bot-error-in="bot" role="group" aria-labelledby="bot-l">
-            <div class="tsp-bot__row">
-              <span class="tsp-bot__status" role="status"><span data-bot-icon></span><span data-bot-text>Chưa xác nhận bạn là người thật.</span></span>
-              <button type="button" class="btn btn--secondary" id="bot-btn" data-bot-btn>Tôi là người thật</button>
+    <div class="tsp-stack" data-hide="sent">
+      <div class="tabs" role="tablist" aria-label="Chọn việc cần làm">
+        <button type="button" class="tab" role="tab" id="fp-tab-pw" aria-selected="true" aria-controls="fp-panel-pw">Quên mật khẩu</button>
+        <button type="button" class="tab" role="tab" id="fp-tab-code" aria-selected="false" aria-controls="fp-panel-code" tabindex="-1">Quên mã công ty</button>
+      </div>
+
+      <section class="tab-panel" role="tabpanel" id="fp-panel-pw" aria-labelledby="fp-tab-pw">
+        <form class="tsp-form" data-ts-form novalidate data-success-view="sent" aria-label="Quên mật khẩu">
+          <fieldset class="tsp-fs" data-disable-in="sending">
+            <legend class="sr-only">Thông tin tài khoản</legend>
+            <div class="field">
+              <label class="field__label" for="fp-code">Mã công ty<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="fp-code" class="input" name="company_code" autocomplete="off" autocapitalize="none" spellcheck="false" aria-required="true" data-first-focus data-rule="code" data-label="mã công ty" data-prefill="code">
+              <span class="field__hint">Mã có trong email chào mừng. Quên mã? Chọn thẻ “Quên mã công ty”.</span>
             </div>
-            <button type="button" class="btn btn--ghost btn--sm" data-bot-alt-toggle aria-expanded="false" aria-controls="bot-alt">Tôi cần cách khác</button>
-            <div class="tsp-bot__alt" id="bot-alt" data-bot-alt hidden>
-              <p class="tsp-small">Chúng tôi gửi mã 6 số đến email của tài khoản nếu thông tin khớp.</p>
-              <div class="field"><label class="field__label" for="bot-code">Mã xác nhận 6 số</label><input class="input" id="bot-code" data-bot-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="bot-code-err"><span class="field__error" id="bot-code-err" data-bot-err hidden></span></div>
-              <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-bot-send>Gửi mã qua email</button><button type="button" class="btn btn--primary btn--sm" data-bot-confirm>Xác nhận mã</button></div>
+            <div class="field">
+              <label class="field__label" for="fp-id">Email hoặc mã nhân viên<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="fp-id" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" data-rule="required" data-label="email hoặc mã nhân viên">
             </div>
-            <input class="tsp-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-          </div>
-        </div>
-      </fieldset>
-      <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-loading-in="sending"><span>Gửi hướng dẫn</span><span class="btn__spinner" aria-hidden="true"></span></button>
+            <div class="field">
+              <span class="field__label" id="bot-l-a">Kiểm tra người thật<span class="field__req" aria-hidden="true">*</span></span>
+              <div class="tsp-bot" data-bot data-bot-required data-bot-state="idle" data-bot-ok-in="sending" data-bot-error-in="bot" role="group" aria-labelledby="bot-l-a">
+                <div class="tsp-bot__row">
+                  <span class="tsp-bot__status" role="status"><span data-bot-icon></span><span data-bot-text>Chưa xác nhận bạn là người thật.</span></span>
+                  <button type="button" class="btn btn--secondary" id="bot-btn-a" data-bot-btn>Tôi là người thật</button>
+                </div>
+                <button type="button" class="btn btn--ghost btn--sm" data-bot-alt-toggle aria-expanded="false" aria-controls="bot-alt-a" style="align-self:flex-start">Tôi cần cách khác</button>
+                <div class="tsp-bot__alt" id="bot-alt-a" data-bot-alt hidden>
+                  <p class="tsp-small">Chúng tôi gửi mã 6 số đến email của tài khoản nếu thông tin khớp.</p>
+                  <div class="field"><label class="field__label" for="bot-code-a">Mã xác nhận 6 số</label><input class="input" id="bot-code-a" data-bot-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="bot-code-err-a"><span class="field__error" id="bot-code-err-a" data-bot-err hidden></span></div>
+                  <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-bot-send>Gửi mã qua email</button><button type="button" class="btn btn--primary btn--sm" data-bot-confirm>Xác nhận mã</button></div>
+                </div>
+                <input class="tsp-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+              </div>
+            </div>
+          </fieldset>
+          <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-loading-in="sending"><span>Gửi hướng dẫn đặt lại mật khẩu</span><span class="btn__spinner" aria-hidden="true"></span></button>
+        </form>
+      </section>
+
+      <section class="tab-panel" role="tabpanel" id="fp-panel-code" aria-labelledby="fp-tab-code" hidden>
+        <form class="tsp-form" data-ts-form novalidate data-success-view="sent" aria-label="Quên mã công ty">
+          <fieldset class="tsp-fs" data-disable-in="sending">
+            <legend class="sr-only">Email tài khoản</legend>
+            <div class="field">
+              <label class="field__label" for="fc-email">Email tài khoản<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="fc-email" class="input" type="email" name="email" autocomplete="email" autocapitalize="none" spellcheck="false" aria-required="true" aria-describedby="fc-h" data-rule="email" data-label="email">
+              <span class="field__hint" id="fc-h">Chúng tôi gửi mã công ty đến email này. Nếu email có tài khoản ở nhiều công ty, email sẽ liệt kê tên và mã của từng công ty.</span>
+            </div>
+            <div class="field">
+              <span class="field__label" id="bot-l-b">Kiểm tra người thật<span class="field__req" aria-hidden="true">*</span></span>
+              <div class="tsp-bot" data-bot data-bot-required data-bot-state="idle" data-bot-ok-in="sending" data-bot-error-in="bot" role="group" aria-labelledby="bot-l-b">
+                <div class="tsp-bot__row">
+                  <span class="tsp-bot__status" role="status"><span data-bot-icon></span><span data-bot-text>Chưa xác nhận bạn là người thật.</span></span>
+                  <button type="button" class="btn btn--secondary" id="bot-btn-b" data-bot-btn>Tôi là người thật</button>
+                </div>
+                <button type="button" class="btn btn--ghost btn--sm" data-bot-alt-toggle aria-expanded="false" aria-controls="bot-alt-b" style="align-self:flex-start">Tôi cần cách khác</button>
+                <div class="tsp-bot__alt" id="bot-alt-b" data-bot-alt hidden>
+                  <p class="tsp-small">Chúng tôi gửi mã 6 số đến email trên nếu có tài khoản.</p>
+                  <div class="field"><label class="field__label" for="bot-code-b">Mã xác nhận 6 số</label><input class="input" id="bot-code-b" data-bot-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="bot-code-err-b"><span class="field__error" id="bot-code-err-b" data-bot-err hidden></span></div>
+                  <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-bot-send>Gửi mã qua email</button><button type="button" class="btn btn--primary btn--sm" data-bot-confirm>Xác nhận mã</button></div>
+                </div>
+                <input class="tsp-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+              </div>
+            </div>
+          </fieldset>
+          <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-loading-in="sending"><span>Gửi mã công ty</span><span class="btn__spinner" aria-hidden="true"></span></button>
+        </form>
+      </section>
       <p class="tsp-small"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
-    </form>
-    <div class="tsp-links"><a href="tsu-14.html">Quay lại đăng nhập</a><a href="tsu-17.html" data-hide="sent">Quên mã công ty?</a></div>
+    </div>
+    <div class="tsp-links"><a href="tsu-14.html">Quay lại đăng nhập</a></div>
   </main>
 
   <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
@@ -61,5 +101,12 @@
 <noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
 <script src="../../assets/app.js"></script>
 <script src="../ts-common.js"></script>
+<script>
+/* Xem thử "Quên mã công ty" chuyển sang thẻ thứ hai; các trạng thái còn lại dùng thẻ thứ nhất (nếu người dùng chưa chọn thẻ khác). */
+window.tsOnView = function (v) {
+  var tab = document.getElementById(v === 'code' ? 'fp-tab-code' : (v === 'pw' || v === 'bot' || v === 'sending') ? 'fp-tab-pw' : '');
+  if (tab && tab.getAttribute('aria-selected') !== 'true') tab.click();
+};
+</script>
 </body>
 </html>
