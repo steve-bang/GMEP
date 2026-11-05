@@ -107,3 +107,6 @@
   .drawer__head, .drawer__body, .drawer__foot { padding-left: var(--space-4); padding-right: var(--space-4); }
 }
 @media print { .tsp-proto { display: none; } }
+
+/* Vòng xoay chỉ hiện khi nút đang xử lý (components.css không ẩn khi nhàn rỗi nên nó trôi ra góc thẻ) */
+.btn:not(.is-loading) > .btn__spinner { display: none; }
