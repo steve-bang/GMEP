@@ -88,6 +88,10 @@ BA đã trả lời Q1 đến Q12 ở `docs/dev/ba-answers-for-dev.md` (đề xu
 - **Việc cho designer (chưa làm, BA không sửa `design/`):** danh sách sửa prototype nằm trong báo cáo bàn giao của BA ngày 05/11/2026 (khoảng 20 mục: vai trò TSU-24, "Xem lại từ bước 1" TSU-20/31, trạng thái dùng thử khi `onboarding` TSU-20/40/41, đổi mã lý do sang chữ HOA và sửa câu ở TSU-50, liên kết BAN-09/10 và TSU-14, khung TSU-18, chữ đếm người dùng TSU-41, trạng thái kết nối TSU-27/29, hint TSU-61, TSU-08 `trong ứng dụng`, TSU-09 quá hạn, TSU-01 giữ chỗ C-18, TSU-56 `chờ CH xác nhận`, V-PASS có dấu, README cập nhật).
 - **Còn mở ngoài lượt này:** `screen-inventory.md` §5 (D-01), `component-catalog.md` (BotCheckSlot, PlanCard, TenantStateBanner, hai kiểu khóa nút), CLAUDE.md và ADR 0002 còn ghi multi-tenant "không build" (L-09), FRD/BRD chưa có FR-TEN/RULE-016..032 (L-18), FRD §2 chưa có MH, NS (L-13).
 
+## Bổ sung 05/11/2026: bản tối giản đăng ký tenant (garage một chi nhánh, một kho)
+
+Đề xuất của BA ở `tenant-signup-simplified.md` (chưa được khách xác nhận) thu **52 màn TSU xuống 18** (11 giữ mã TSU, 7 mã TSX mới; 14 màn giai đoạn A, 4 màn giai đoạn B, 6 màn hoãn có điều kiện): đăng ký một trang (7 trường), tự duyệt khi MST hợp lệ và email xác thực, tự tạo 1 chi nhánh + 1 kho, onboarding 1 màn bắt buộc + 1 màn tùy chọn, phần còn lại thành checklist "Thiết lập dần" chỉ chặn phát hành hóa đơn thật (RULE-028). Đề xuất FR-TEN-051..053, RULE-033; thay thế/sửa QĐT-05, 09, 15, 21..24, 26, 27, 30, 35, 40; `[Cần xác nhận]` mới C-S01..C-S13. **Chưa sửa** `design/tenant-signup/` (designer cần dựng lại TSX-01, 02, 03, 10, 11, 20, 30 và chỉnh TSU-14, 15, 41, 50, 53, 56), `multi-tenant-analysis.md` và spec v0.2 (giữ làm nguồn cho màn hoãn).
+
 ## Cách tiếp tục
 
 Đọc `ui-ux-flow.md` trước, sau đó `STATUS.md` (file này), rồi tài liệu gói liên quan. Giới hạn: tối đa 2 agent chạy cùng lúc.
