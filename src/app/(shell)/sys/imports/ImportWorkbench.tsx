@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { ImportDto, ImportIssuePage } from '@/modules/sys';
 import { Button } from '@/ui/components/Button';
@@ -56,6 +56,14 @@ export function ImportWorkbench(props: {
   // FR-SYS-007: the batch carries the first page of errors; later pages come from /issues (cursor = offset)
   const [issuePage, setIssuePage] = useState<{ stamp: string; page: ImportIssuePage } | null>(null);
   const uploadKey = useRef<string | null>(null);
+  // keyboard and screen-reader users land on the result when a new batch (dry run or opened from history) appears
+  const resultHead = useRef<HTMLHeadingElement>(null);
+  const shownId = useRef<string | null>(null);
+  useEffect(() => {
+    const key = batch ? `${batch.id}:${batch.version}` : null;
+    if (key && key !== shownId.current) resultHead.current?.focus();
+    shownId.current = key;
+  }, [batch]);
   const action = useAction(t('unexpected'));
 
   const info = props.kinds.find((k) => k.kind === kind);
@@ -114,10 +122,34 @@ export function ImportWorkbench(props: {
     }
   }
 
+  // history row: open a batch of this branch; the server re-checks scope and permission
+  async function openBatch(id: string) {
+    setBusy(`open:${id}`);
+    setError(null);
+    try {
+      const r = await fetch(`/api/v1/sys/imports/${id}`);
+      if (!r.ok) {
+        setError(t('openError'));
+        return;
+      }
+      setBatch((await r.json()) as ImportDto);
+      setMapping(null);
+      setConfirmed(false);
+      setIssuePage(null);
+    } catch {
+      setError(t('openError'));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function commit() {
     if (!batch) return;
     const r = await action.run<ImportDto>('commit', `/api/v1/sys/imports/${batch.id}/commit`, {});
-    if (r) setBatch(r);
+    if (r) {
+      setBatch(r);
+      router.refresh(); // the history list shows the new status
+    }
   }
   async function undo() {
     if (!batch) return;
@@ -127,6 +159,7 @@ export function ImportWorkbench(props: {
     if (r) {
       setBatch(r);
       setReason('');
+      router.refresh();
     }
   }
 
@@ -345,7 +378,13 @@ export function ImportWorkbench(props: {
       {batch ? (
         <section className="card" aria-labelledby="imp-s3">
           <div className="card__body stack">
-            <h2 className="t-heading-md" id="imp-s3" style={{ margin: 0 }}>
+            <h2
+              className="t-heading-md"
+              id="imp-s3"
+              style={{ margin: 0 }}
+              tabIndex={-1}
+              ref={resultHead}
+            >
               {t('step3')}{' '}
               <StatusBadge tone={TONE[batch.status] ?? 'neutral'}>
                 {t(`status.${batch.status}`)}
@@ -363,6 +402,10 @@ export function ImportWorkbench(props: {
               <div className="card kpi">
                 <span className="kpi__label">{t('errors')}</span>
                 <span className="kpi__value">{batch.issueCount}</span>
+              </div>
+              <div className="card kpi">
+                <span className="kpi__label">{t('warnings')}</span>
+                <span className="kpi__value">{batch.warnings.length}</span>
               </div>
             </div>
             {batch.status === 'rejected' ? (
@@ -382,7 +425,20 @@ export function ImportWorkbench(props: {
             ) : null}
             {batch.status === 'failed' ? (
               <div className="alert alert--danger" role="alert">
-                <div className="alert__body">{t('failed', { code: batch.failure ?? '' })}</div>
+                <div className="alert__body">
+                  {t('failed', {
+                    code: batch.failure ?? '',
+                    done: batch.committedUnits,
+                    total: batch.unitCount,
+                  })}
+                </div>
+              </div>
+            ) : null}
+            {batch.status === 'committing' ? (
+              <div className="alert alert--warning" role="status">
+                <div className="alert__body">
+                  {t('committingNote', { done: batch.committedUnits, total: batch.unitCount })}
+                </div>
               </div>
             ) : null}
             {batch.status === 'undone' ? (
@@ -444,7 +500,11 @@ export function ImportWorkbench(props: {
                 rows={batch.warnings}
                 rowKey={(i) => `${i.row}-${i.field ?? ''}-${i.message}`}
                 columns={[
-                  { key: 'row', header: t('colRow'), render: (i) => i.row },
+                  {
+                    key: 'row',
+                    header: t('colRow'),
+                    render: (i) => (i.row === 0 ? t('wholeFile') : i.row),
+                  },
                   {
                     key: 'field',
                     header: t('colColumn'),
@@ -562,13 +622,9 @@ export function ImportWorkbench(props: {
                 render: (b) => (
                   <Button
                     variant="ghost"
-                    onClick={async () => {
-                      const r = await fetch(`/api/v1/sys/imports/${b.id}`);
-                      if (r.ok) {
-                        setBatch((await r.json()) as ImportDto);
-                        setMapping(null);
-                      }
-                    }}
+                    aria-label={t('openBatch', { file: b.fileName })}
+                    loading={busy === `open:${b.id}`}
+                    onClick={() => void openBatch(b.id)}
                   >
                     {t('open')}
                   </Button>
