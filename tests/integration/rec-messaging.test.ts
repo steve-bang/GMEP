@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { getDb } from '@/infrastructure/firestore/client';
 import { businessDate } from '@/platform/format/date';
 import { ChannelMessageGateway } from '@/infrastructure/messaging/messageGateway';
@@ -727,6 +727,102 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
     it('the code request of an unknown link is 404 like the page', async () => {
       const r = await ask('a'.repeat(43), all);
       expect(r.status).toBe(404);
+    });
+
+    /**
+     * otpMode 'always' (QUO-04/05): the code is required whatever the total. The config is branch-wide and shared,
+     * so 'always' is an effective-dated entry for tomorrow, the clock moves there, and a later entry restores
+     * 'above_threshold' for the day after; the clock ends past it so nothing after this block sees 'always'.
+     */
+    describe("otpMode 'always'", () => {
+      const DAY = 24 * 3_600_000;
+      const addDays = (n: number) => businessDate(new Date(h.clock.now().getTime() + n * DAY));
+      const publish = async (effectiveFrom: string, otpMode: string) => {
+        const p = await call(owner, 'POST', '/api/v1/sys/config/quote-approval', {
+          scopeKey: 'branch:br_q7',
+          effectiveFrom,
+          payload: {
+            allowDeclineRequired: true,
+            verbalApproval: true,
+            otpMode,
+            otpThresholdVnd: THRESHOLD,
+          },
+          reason: 'Thử OTP luôn bắt buộc',
+        });
+        expect(p.status, p.text).toBe(201);
+        const d = await call(
+          owner,
+          'POST',
+          `/api/v1/sys/config/quote-approval/${encodeURIComponent(p.json.id)}/decide`,
+          { decision: 'approve', reauthPassword: 'Demo!Pass-2026' },
+        );
+        expect(d.status, d.text).toBe(200);
+      };
+      const auditCount = async (quoteId: string) =>
+        (await rows('auditLogs')).filter(
+          (a) => a.entityId === quoteId && a.action === 'quote.approve_link',
+        ).length;
+
+      beforeAll(async () => {
+        owner = await h.login('u_owner');
+        await publish(addDays(1), 'always');
+        await publish(addDays(2), 'above_threshold');
+        h.clock.set(new Date(h.clock.now().getTime() + DAY).toISOString()); // 'always' is in force
+      });
+      afterAll(() => {
+        h.clock.set(new Date(h.clock.now().getTime() + DAY).toISOString()); // restored default in force
+      });
+
+      it('always: even a small total needs a code', async () => {
+        const { token } = await linkedQuote();
+        const before = (await smsOutbox('approval-otp')).length;
+        const no = await approve(token, [4]);
+        expect(no.status).toBe(428);
+        expect(no.json.code).toBe('otp_required');
+        const asked = await ask(token, [4]);
+        expect(asked.json).toMatchObject({ required: true, sent: true, channel: 'sms' });
+        expect((await smsOutbox('approval-otp')).length).toBe(before + 1);
+      });
+
+      it('always: the right code approves and the evidence records the channel', async () => {
+        const { q, token } = await linkedQuote();
+        expect((await ask(token, [4])).json.sent).toBe(true);
+        const code = await lastCode();
+        const ok = await approve(token, [4], code);
+        expect(ok.status, ok.text).toBe(200);
+        expect(ok.json.state).toBe('approved');
+        const v = (await rows('quoteVersions')).find((x) => x.quoteId === q.id)!;
+        expect(v.approval.otp).toMatchObject({ channel: 'sms' });
+        const audit = (await rows('auditLogs')).find(
+          (a) => a.entityId === q.id && a.action === 'quote.approve_link',
+        )!;
+        expect(audit.after).toMatchObject({ otpVerified: true, otpChannel: 'sms' });
+      });
+
+      it('always: a code asked for another selection does not approve this one', async () => {
+        const { q, token } = await linkedQuote();
+        await ask(token, [4]);
+        const code = await lastCode();
+        const r = await approve(token, [3], code);
+        expect(r.status).toBe(428);
+        expect(r.json.code).toBe('otp_required');
+        expect(await auditCount(q.id)).toBe(0);
+      });
+
+      it('always: approving twice with the same code never approves a second time', async () => {
+        const { q, token } = await linkedQuote();
+        await ask(token, [4]);
+        const code = await lastCode();
+        expect((await approve(token, [4], code)).status).toBe(200);
+        const again = await approve(token, [4], code);
+        // like any decided quote: a repeat answer or a refusal, never another approval
+        expect([200, 409, 422, 428]).toContain(again.status);
+        if (again.status === 200) expect(again.json.repeated).toBe(true);
+        expect(await auditCount(q.id)).toBe(1);
+        expect(
+          (await rows('quoteVersions')).filter((x) => x.quoteId === q.id && x.approval),
+        ).toHaveLength(1);
+      });
     });
   });
 });
