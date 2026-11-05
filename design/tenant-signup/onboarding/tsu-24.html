@@ -20,12 +20,14 @@
       <summary class="card__header" style="cursor:pointer;min-height:44px"><span class="card__title" id="t24-r">Mỗi vai trò làm được gì</span><svg class="icon" aria-hidden="true"><use href="#chevron-down"/></svg></summary>
       <div class="card__body tsu-stack">
         <div class="tsu-grid2" id="t24-roles"></div>
-        <p class="tsu-sub" style="margin:0">Quyền chi tiết xem ở ma trận quyền (G4-SYS-04). Vai trò “Quản lý vùng” chỉ hiện khi công ty bật nhóm chi nhánh (cấu hình).</p>
+        <p class="tsu-sub" style="margin:0">Vai trò hiển thị theo gói và cấu hình. Chủ garage là người đăng ký nên không nằm trong danh sách mời. Quyền chi tiết xem ở ma trận quyền (G4-SYS-04).</p>
       </div>
     </details>
   </section>
 
   <div class="alert alert--danger" role="alert" data-on="loi-gui"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được lời mời tới bao.pham@phuongnam.vn</span><span>Hệ thống chưa gửi được email, không phải do bạn nhập sai. Lời mời vẫn được giữ, hãy thử gửi lại sau ít phút. Mã tham chiếu <span class="code">REQ-91B27E</span>.</span></div></div>
+
+  <div class="alert alert--warning" role="status"><svg class="icon" aria-hidden="true"><use href="#users"/></svg><div class="alert__body"><span class="alert__title">Còn <span class="num">3</span> chỗ người dùng (số minh họa)</span><span>Gói tính người dùng đang hoạt động; lời mời chưa kích hoạt không tính. Bạn vẫn gửi được lời mời, nhưng kích hoạt tài khoản khi đã đủ chỗ sẽ bị chặn.</span></div></div>
 
   <section class="tsu-stack" aria-labelledby="t24-i">
     <div class="tsu-actions" style="justify-content:space-between"><h2 id="t24-i" style="margin:0">Danh sách mời</h2><button type="button" class="btn btn--secondary" data-toast="info|Thêm người|Prototype: thêm một dòng người được mời mới."><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Thêm người</button></div>
@@ -44,7 +46,7 @@
 (function () {
   var T = window.TSU;
   var ROLES = [
-    ['Chủ garage', 'Toàn quyền xem và duyệt trên toàn công ty.'],
+    ['Quản lý vùng', 'Theo dõi và duyệt cho một nhóm chi nhánh (chỉ hiện khi công ty bật nhóm chi nhánh).'],
     ['Quản lý chi nhánh', 'Điều hành một chi nhánh, duyệt trong hạn mức.'],
     ['Cố vấn dịch vụ', 'Tiếp nhận xe, lập báo giá, theo dõi lệnh sửa chữa.'],
     ['Quản đốc', 'Phân việc cho thợ, kiểm tra chất lượng.'],
@@ -52,14 +54,12 @@
     ['Thủ kho', 'Nhập, xuất, kiểm kê phụ tùng.'],
     ['Thu ngân', 'Thu tiền, chốt ca.'],
     ['Kế toán', 'Công nợ, sổ quỹ, hóa đơn, báo cáo.'],
-    ['Mua hàng', 'Đề nghị mua và đơn mua phụ tùng.'],
-    ['Nhân sự', 'Hồ sơ nhân viên, công thợ.'],
     ['Quản trị hệ thống', 'Người dùng, vai trò, cấu hình.']
   ];
   var el = document.getElementById('t24-roles');
   el.innerHTML = ROLES.map(function (r) { return '<div class="tsu-rec"><strong class="tsu-rec__title">' + r[0] + '</strong><span class="tsu-sub">' + r[1] + '</span></div>'; }).join('');
 
-  var CHECKS = ROLES.slice(1).map(function (r) { return r[0]; });
+  var CHECKS = ROLES.map(function (r) { return r[0]; });
   function badge(list) { return list.map(function (b) { return '<span class="badge badge--' + b[1] + '" data-on="' + b[0] + '">' + b[2] + '</span>'; }).join(''); }
   function row(i, nm, em, alt, sel, badges, dup) {
     var id = 'inv' + i;

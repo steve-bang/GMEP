@@ -8,10 +8,12 @@ Prototype HTML/CSS tĩnh (không dựng máy chủ thật). Nguồn yêu cầu: 
 | --- | --- | --- |
 | `public/` | Nhóm A (TSU-01..07), B (TSU-08..13), C (TSU-14..18): đăng ký công khai, theo dõi, đăng nhập có mã công ty | Có (18 màn) |
 | `platform-admin/` | Nhóm G (TSU-60..68): khung PlatformShell, duyệt đăng ký, cấu hình | Có (9 màn) |
-| `onboarding/` | Nhóm D (TSU-20..31): wizard onboarding | Chỗ giữ cho agent khác, chưa có ở bản này |
-| `account/` | Nhóm E (TSU-40..44) dashboard trial và gói; nhóm F (TSU-50..57) hạn chế, tạm ngưng, xuất dữ liệu, chấm dứt | Chỗ giữ cho agent khác, chưa có ở bản này |
+| `onboarding/` | Nhóm D (TSU-20..31): wizard onboarding | Có (12 màn) |
+| `account/` | Nhóm E (TSU-40..44) dashboard trial và gói; nhóm F (TSU-50..57) hạn chế, tạm ngưng, xuất dữ liệu, chấm dứt | Có (13 màn: 5 màn nhóm E, 8 màn nhóm F) |
 
-Tệp dùng chung: `ts-common.js` (thanh "Xem thử trạng thái", kiểm tra biểu mẫu theo bảng V-* của spec, khóa nút kèm lý do, đếm lùi, tệp đính kèm, nháp), `public/ts-public.css` (tiền tố `tsp-`), `platform-admin/ts-admin.css` và `ts-admin.js` (tiền tố `tsa-`), `measure-overflow.js` (đo tràn ngang và lỗi JS bằng Playwright), `overflow-report-public.md` (kết quả đo).
+Tổng: 52 màn (18 công khai, 12 onboarding, 13 account, 9 quản trị nền tảng). Prototype đã qua rà chéo BA (`docs/ui-ux/tenant-signup-spec.md` v0.2, mục 4.1: QĐT-21..40).
+
+Tệp dùng chung: `onboarding/tsu-app.js` (nhóm D, E, F), `ts-common.js` (thanh "Xem thử trạng thái", kiểm tra biểu mẫu theo bảng V-* của spec, khóa nút kèm lý do, đếm lùi, tệp đính kèm, nháp), `public/ts-public.css` (tiền tố `tsp-`), `platform-admin/ts-admin.css` và `ts-admin.js` (tiền tố `tsa-`), `measure-overflow.js` (đo tràn ngang và lỗi JS bằng Playwright), `overflow-report-public.md` (kết quả đo).
 
 ## Cách xem
 
@@ -38,7 +40,7 @@ Tệp dùng chung: `ts-common.js` (thanh "Xem thử trạng thái", kiểm tra b
 
 | Mã | Tệp | Màn hình | Trạng thái xem thử chính |
 | --- | --- | --- | --- |
-| TSU-08 | `tsu-08.html` | Theo dõi đăng ký | xác minh tự động, chờ duyệt, cần bổ sung, bị từ chối, đang cấp phát, liên kết không hợp lệ |
+| TSU-08 | `tsu-08.html` | Theo dõi đăng ký | xác minh tự động, chờ duyệt, cần bổ sung, bị từ chối, đang cấp phát, liên kết không hợp lệ, trong ứng dụng (`?state=inapp`, mở từ BAN-10, xác thực bằng phiên, không cần liên kết email, MST che, mã `SGN-xxxxxx`) |
 | TSU-09 | `tsu-09.html` | Cần bổ sung thông tin | thiếu tệp bắt buộc, đủ yêu cầu, đang tải tệp, lỗi tệp, quá hạn bổ sung |
 | TSU-10 | `tsu-10.html` | Bị từ chối | lý do MST, lý do chung, đã khiếu nại, hết lượt khiếu nại |
 | TSU-11 | `tsu-11.html` | Khiếu nại kết quả | trống, giải trình quá ngắn, đang gửi, thành công |
@@ -57,11 +59,47 @@ Tệp dùng chung: `ts-common.js` (thanh "Xem thử trạng thái", kiểm tra b
 
 ### Nhóm D: wizard onboarding (`onboarding/`)
 
-Chỗ giữ: TSU-20..31 do agent khác dựng tại `design/tenant-signup/onboarding/`. TSU-14 và TSU-13 trỏ tới thư mục này sau khi đăng nhập đúng.
+Dùng `onboarding/pack.css` và `onboarding/tsu-app.js` (thanh "Xem thử trạng thái" nhận trạng thái qua `#state=<mã>` trên URL, khác nhóm A..C và G dùng `?state=`). TSU-14 trỏ tới `onboarding/tsu-20.html` sau khi đăng nhập đúng.
 
-### Nhóm E và F: dashboard trial, gói, trạng thái hạn chế (`account/`)
+| Mã | Tệp | Màn hình |
+| --- | --- | --- |
+| TSU-20 | `tsu-20.html` | Chào mừng và lộ trình thiết lập (có nháp: "Xem lại từ bước 1", không xóa dữ liệu) |
+| TSU-21 | `tsu-21.html` | W1 Công ty |
+| TSU-22 | `tsu-22.html` | W2 Chi nhánh đầu tiên |
+| TSU-23 | `tsu-23.html` | W3 Kho |
+| TSU-24 | `tsu-24.html` | W4 Vai trò và mời người dùng |
+| TSU-25 | `tsu-25.html` | W5 Dịch vụ và bảng giá mẫu |
+| TSU-26 | `tsu-26.html` | W6 Thuế, đánh số, mẫu in |
+| TSU-27 | `tsu-27.html` | W7 Nhà cung cấp hóa đơn điện tử |
+| TSU-28 | `tsu-28.html` | W8 Nhập Excel |
+| TSU-29 | `tsu-29.html` | W9 Kiểm tra trước kích hoạt |
+| TSU-30 | `tsu-30.html` | Hoàn tất: đã kích hoạt |
+| TSU-31 | `tsu-31.html` | Hộp thoại bỏ qua, lưu nháp, tiếp tục |
 
-Chỗ giữ: TSU-40..44 và TSU-50..57 do agent khác dựng tại `design/tenant-signup/account/`. TSU-14 trỏ tới thư mục này cho trường hợp tạm ngưng và đang chấm dứt.
+### Nhóm E: dashboard giai đoạn đầu và gói (`account/`)
+
+| Mã | Tệp | Màn hình |
+| --- | --- | --- |
+| TSU-40 | `tsu-40.html` | Trang chủ giai đoạn đầu |
+| TSU-41 | `tsu-41.html` | Gói của tôi (có trạng thái "Đang thiết lập": chưa bắt đầu tính ngày dùng thử) |
+| TSU-42 | `tsu-42.html` | So sánh gói và yêu cầu đổi gói |
+| TSU-43 | `tsu-43.html` | Xác nhận hạ gói |
+| TSU-44 | `tsu-44.html` | Lịch sử gói và mốc thông báo |
+
+### Nhóm F: hạn chế, tạm ngưng, xuất dữ liệu, chấm dứt (`account/`)
+
+TSU-14 trỏ tới `account/tsu-53.html`, `tsu-54.html`, `tsu-57.html` cho trường hợp tạm ngưng, tạm khóa an toàn và đang chấm dứt. Bảy mã lý do khóa nút viết HOA theo `docs/ui-ux/state-copy.md` §3.1.
+
+| Mã | Tệp | Màn hình |
+| --- | --- | --- |
+| TSU-50 | `tsu-50.html` | Thư viện banner trạng thái tenant (BAN-01..10, biến thể BAN-07 hết hạn dùng thử) và bảy mã lý do khóa nút |
+| TSU-51 | `tsu-51.html` | Hộp thoại chặn tạo mới (biến thể chủ garage và nhân viên) |
+| TSU-52 | `tsu-52.html` | Hết dùng thử |
+| TSU-53 | `tsu-53.html` | Tạm ngưng, chỉ đọc và tải dữ liệu |
+| TSU-54 | `tsu-54.html` | Tạm khóa vì lý do an toàn |
+| TSU-55 | `tsu-55.html` | Trung tâm xuất dữ liệu |
+| TSU-56 | `tsu-56.html` | Yêu cầu chấm dứt dịch vụ (có trạng thái "chờ chủ garage xác nhận qua email") |
+| TSU-57 | `tsu-57.html` | Đang chấm dứt, đã chấm dứt (có trạng thái "chờ chủ garage xác nhận") |
 
 ### Nhóm G: quản trị nền tảng (`platform-admin/`)
 

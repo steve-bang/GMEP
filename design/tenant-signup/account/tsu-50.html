@@ -14,7 +14,7 @@
 <body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Thư viện banner trạng thái" data-no-scope>
 <div id="g1-content" hidden>
   <div data-tsu-banners>
-    <div data-tsu-banner="BAN-05" data-on="chong" data-reason="Quá hạn thanh toán" data-list="lệnh sửa chữa, chi nhánh"></div>
+    <div data-tsu-banner="BAN-05" data-on="chong" data-reason="Vượt hạn mức gói" data-list="chi nhánh"></div>
     <div data-tsu-banner="BAN-02" data-on="chong" data-n="3" data-date="08/11/2026"></div>
   </div>
 
@@ -34,7 +34,7 @@
         <ul class="tsu-list">
           <li>Đặt dưới thanh trên, trên đường dẫn và dải phạm vi; không che nội dung.</li>
           <li>Chỉ mức thông tin (BAN-01, BAN-10) có nút đóng. Cảnh báo và chặn không đóng được.</li>
-          <li>Tối đa hai banner chồng nhau; trạng thái công ty (tenant) ưu tiên cao hơn thuê bao.</li>
+          <li>Tối đa hai banner chồng nhau; trạng thái công ty (tenant) ưu tiên cao hơn thuê bao. BAN-03 (hết dùng thử, nấc N2) đã nêu việc hạn chế nên không chồng BAN-05.</li>
           <li>Mỗi banner nêu điều gì xảy ra, hậu quả với việc đang làm, cách khắc phục và liên kết.</li>
           <li>Số ngày, mốc, hạn ân hạn, lý do lấy từ dữ liệu, không viết cứng (RULE-030). Số trong prototype là minh họa. Lý do hạn chế chọn từ danh mục, không nêu chi tiết an ninh.</li>
           <li>Không chỉ dựa vào màu: mỗi banner có biểu tượng riêng theo mức và nhãn chữ “Thông tin”, “Cảnh báo”, “Hạn chế”, “Chặn”.</li>
@@ -58,7 +58,8 @@
         <div data-tsu-banner="BAN-04" data-period="10/2026" data-date="31/10/2026" data-grace="14/11/2026"></div></div></section>
       <section class="card" aria-labelledby="b05"><div class="card__header"><h2 class="card__title" id="b05">BAN-05 Bị hạn chế</h2></div><div class="card__body tsu-stack">
         <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">restricted</code></dd><dt>Ai thấy</dt><dd>Mọi người dùng</dd><dt>Mức và role</dt><dd>Cảnh báo, <code class="tsu-code">role="alert"</code></dd></dl>
-        <p class="tsu-sub" style="margin:0">Chủ garage</p><div data-tsu-banner="BAN-05" data-reason="Quá hạn thanh toán" data-list="lệnh sửa chữa, chi nhánh và người dùng"></div>
+        <p class="tsu-sub" style="margin:0">Chủ garage, lý do “Vượt hạn mức gói” (<code class="tsu-code">OVER_QUOTA</code>)</p><div data-tsu-banner="BAN-05" data-reason="Vượt hạn mức gói" data-list="chi nhánh và người dùng"></div>
+        <p class="tsu-sub" style="margin:0">Chủ garage, lý do “Hết thời gian dùng thử/gói” (<code class="tsu-code">SUBSCRIPTION_EXPIRED</code>): ở nấc này hệ thống dùng BAN-03, không chồng BAN-05</p><div data-tsu-banner="BAN-03" data-date="04/11/2026"></div>
         <p class="tsu-sub" style="margin:0">Nhân viên</p><div data-tsu-banner="BAN-05" data-view="NV"></div></div></section>
       <section class="card" aria-labelledby="b06"><div class="card__header"><h2 class="card__title" id="b06">BAN-06 Chạm ngưỡng hạn mức</h2></div><div class="card__body tsu-stack">
         <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Mức dùng chạm ngưỡng cảnh báo (cấu hình)</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant</dd><dt>Mức và role</dt><dd>Cảnh báo, <code class="tsu-code">role="status"</code></dd></dl>
@@ -66,7 +67,9 @@
       <section class="card" aria-labelledby="b07"><div class="card__header"><h2 class="card__title" id="b07">BAN-07 Tạm ngưng (chỉ đọc)</h2></div><div class="card__body tsu-stack">
         <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">suspended</code></dd><dt>Ai thấy</dt><dd>Mọi người dùng (nút xuất dữ liệu chỉ cho chủ garage)</dd><dt>Mức và role</dt><dd>Chặn, <code class="tsu-code">role="alert"</code>, không đóng được</dd></dl>
         <p class="tsu-sub" style="margin:0">Chủ garage</p><div data-tsu-banner="BAN-07"></div>
-        <p class="tsu-sub" style="margin:0">Nhân viên</p><div data-tsu-banner="BAN-07" data-view="NV"></div></div></section>
+        <p class="tsu-sub" style="margin:0">Nhân viên</p><div data-tsu-banner="BAN-07" data-view="NV"></div>
+        <p class="tsu-sub" style="margin:0">Biến thể “hết hạn dùng thử” (nấc N3 của thang dùng thử, lý do <code class="tsu-code">SUBSCRIPTION_EXPIRED_READONLY</code>), chủ garage</p><div data-tsu-banner="BAN-07" data-variant="trial"></div>
+        <p class="tsu-sub" style="margin:0">Biến thể “hết hạn dùng thử”, nhân viên</p><div data-tsu-banner="BAN-07" data-variant="trial" data-view="NV"></div></div></section>
       <section class="card" aria-labelledby="b08"><div class="card__header"><h2 class="card__title" id="b08">BAN-08 Đang chấm dứt</h2></div><div class="card__body tsu-stack">
         <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">terminating</code></dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant</dd><dt>Mức và role</dt><dd>Chặn, <code class="tsu-code">role="alert"</code>, không đóng được</dd></dl>
         <div data-tsu-banner="BAN-08" data-date="20/12/2026"></div></div></section>
@@ -79,15 +82,15 @@
     </div>
 
     <section class="card" aria-labelledby="t50-c">
-      <div class="card__header"><div><h2 class="card__title" id="t50-c">Mã lý do khóa nút mới (đề xuất bổ sung vào state-copy.md §3)</h2><div class="card__subtitle">Máy chủ trả mã, giao diện tra câu chữ. Hiện thành chữ cạnh nút, không chỉ tooltip</div></div></div>
+      <div class="card__header"><div><h2 class="card__title" id="t50-c">Mã lý do khóa nút mới (state-copy.md §3.1, quy ước chữ HOA)</h2><div class="card__subtitle">Máy chủ trả mã, giao diện tra câu chữ. Hiện thành chữ cạnh nút, không chỉ tooltip</div></div></div>
       <div class="card__body"><dl class="tsu-kv" id="t50-codes">
-        <dt><code class="tsu-code">tenant_restricted</code></dt><dd>Công ty đang bị hạn chế tạo mới: {lý do}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.</dd>
-        <dt><code class="tsu-code">tenant_suspended_readonly</code></dt><dd>Tài khoản đang tạm ngưng: chỉ xem và tải dữ liệu, không tạo hay sửa chứng từ.</dd>
-        <dt><code class="tsu-code">trial_expired</code></dt><dd>Dùng thử đã hết. Chọn gói để tiếp tục tạo mới. Nhân viên: Liên hệ chủ garage để chọn gói.</dd>
-        <dt><code class="tsu-code">quota_limit_reached</code></dt><dd>Gói hiện tại cho tối đa {y} {đối tượng}. Xem gói hoặc ngừng bớt {đối tượng} đang dùng.</dd>
-        <dt><code class="tsu-code">tenant_terminating</code></dt><dd>Dịch vụ đang chấm dứt: chỉ xem và tải dữ liệu đến {dd/MM/yyyy}.</dd>
-        <dt><code class="tsu-code">terms_not_accepted</code></dt><dd>Cần đồng ý Điều khoản dịch vụ phiên bản {v} trước khi {hành động}.</dd>
-        <dt><code class="tsu-code">verification_required</code></dt><dd>Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}, ví dụ phát hành hóa đơn thật.</dd>
+        <dt><code class="tsu-code">TENANT_RESTRICTED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị tenant:</span> Công ty đang bị hạn chế tạo mới: {lý do}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.<br><span class="tsu-sub">Nhân viên:</span> Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.</dd>
+        <dt><code class="tsu-code">TENANT_SUSPENDED_READONLY</code></dt><dd>Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.</dd>
+        <dt><code class="tsu-code">TRIAL_EXPIRED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị tenant:</span> Dùng thử đã hết. Chọn gói để tiếp tục tạo mới.<br><span class="tsu-sub">Nhân viên:</span> Dùng thử của công ty đã hết. Liên hệ {tên chủ garage} để chọn gói.<br><span class="tsu-sub">Truy cập sớm (<code class="tsu-code">none</code>):</span> Giai đoạn truy cập sớm đã kết thúc. Chọn gói để tiếp tục tạo mới.</dd>
+        <dt><code class="tsu-code">QUOTA_LIMIT_REACHED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị tenant:</span> Gói hiện tại cho tối đa {y} {đối tượng}. Xem gói hoặc ngừng sử dụng bớt {đối tượng} đang dùng.<br><span class="tsu-sub">Nhân viên:</span> Công ty đã dùng hết số {đối tượng} của gói. Liên hệ chủ garage.</dd>
+        <dt><code class="tsu-code">TENANT_TERMINATING</code></dt><dd>Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến {dd/MM/yyyy}. Chưa có ngày thì bỏ cụm “, đến {dd/MM/yyyy}”.</dd>
+        <dt><code class="tsu-code">TERMS_NOT_ACCEPTED</code></dt><dd><span class="tsu-sub">Chủ garage:</span> Cần đồng ý {tài liệu} phiên bản {v} trước khi {hành động}.<br><span class="tsu-sub">Nhân viên:</span> Chủ garage cần đồng ý {tài liệu} phiên bản {v}. Hãy báo cho {tên chủ garage}.</dd>
+        <dt><code class="tsu-code">VERIFICATION_REQUIRED</code></dt><dd>Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}.</dd>
       </dl></div>
     </section>
   </div>

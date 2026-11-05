@@ -114,7 +114,7 @@
       dlg('dlg-leave', 'warning', 'pencil', 'Có thay đổi chưa lưu', '<p>Bạn vừa sửa thông tin ở bước này. Lưu nháp trước khi rời đi?</p>',
         '<button type="button" class="btn btn--ghost" data-close>Ở lại</button><button type="button" class="btn btn--secondary" data-go="' + esc(home) + '">Rời không lưu</button><button type="button" class="btn btn--primary" data-go="' + esc(home) + '">Lưu nháp và rời</button>') +
       dlg('dlg-resume', '', 'history', 'Tiếp tục thiết lập?', '<p>Bạn đang dở bước ' + nStep + ' (' + name + '), lưu lúc <span class="num">09:42</span>.</p>',
-        '<button type="button" class="btn btn--secondary" data-close data-toast="info|Bắt đầu lại|Prototype: dữ liệu nháp sẽ được xóa sau khi bạn xác nhận ở bước thật.">Bắt đầu lại</button><button type="button" class="btn btn--primary" data-close>Tiếp tục</button>');
+        '<button type="button" class="btn btn--secondary" data-go="' + esc(P_ONB + 'tsu-21.html') + '">Xem lại từ bước 1</button><button type="button" class="btn btn--primary" data-close>Tiếp tục</button>');
     var wrap = D.createElement('div'); wrap.innerHTML = h;
     var ref = null;
     Array.prototype.some.call(B.children, function (c) { if (c.tagName === 'SCRIPT') { ref = c; return true; } return false; });
@@ -251,20 +251,23 @@
 
   /* ---------- Banner trạng thái tenant (TSU-50) ---------- */
   var BAN = {
-    'BAN-01': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Bạn đang trong giai đoạn thiết lập. Hóa đơn điện tử chạy thử và dữ liệu thử có thể xóa.', b: ['Tiếp tục thiết lập', P_ONB + 'tsu-20.html'], lab: 'Thông tin' },
+    'BAN-01': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Bạn đang trong giai đoạn thiết lập. Hóa đơn điện tử chạy thử và dữ liệu thử có thể xóa. Chưa bắt đầu tính ngày dùng thử: ngày dùng thử bắt đầu khi bạn kích hoạt.', b: ['Tiếp tục thiết lập', P_ONB + 'tsu-20.html'], lab: 'Thông tin' },
     'BAN-02': { lv: 'warning', role: 'status', icon: 'clock', t: 'Dùng thử còn {n} ngày (hết hạn {date}). Dữ liệu của bạn không bị xóa khi hết dùng thử.', b: ['Xem gói', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo' },
     'BAN-03': { lv: 'warning', role: 'alert', icon: 'alert-triangle', t: 'Dùng thử đã hết. Bạn vẫn xem được dữ liệu, tải hóa đơn và hoàn tất các lệnh đang mở. Chọn gói để tiếp tục tạo mới.', tNV: 'Dùng thử của công ty đã hết. Liên hệ chủ garage.', b: ['Chọn gói', P_ACC + 'tsu-42.html'], onlyCH: true, lab: 'Cảnh báo' },
     'BAN-04': { lv: 'warning', role: 'status', icon: 'alert-triangle', t: 'Khoản phí kỳ {period} quá hạn từ {date}. Công ty được tiếp tục dùng đến {grace}.', b: ['Xem chi tiết', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo (giữ chỗ B2)' },
     'BAN-05': { lv: 'warning', role: 'alert', icon: 'alert-triangle', t: 'Tài khoản đang bị hạn chế: {reason}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở; chưa thể tạo mới {list}.', tNV: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được.', b: ['Xem lý do', '#', 'info|Lý do hạn chế|Lý do chọn từ danh mục hiển thị cho tenant (TSU-66 mở rộng), không nêu chi tiết an ninh.'], bNV: ['Liên hệ chủ garage', '#', 'info|Liên hệ chủ garage|Hãy báo cho chủ garage của công ty bạn.'], lab: 'Hạn chế' },
     'BAN-06': { lv: 'warning', role: 'status', icon: 'alert-triangle', t: 'Bạn đã dùng {x}/{y} chi nhánh ({p}%).', b: ['Xem gói', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo' },
-    'BAN-07': { lv: 'danger', role: 'alert', icon: 'lock', t: 'Tài khoản đang tạm ngưng. Bạn chỉ xem và tải dữ liệu được.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], onlyBtnCH: true, lab: 'Chặn' },
+    'BAN-07': { lv: 'danger', role: 'alert', icon: 'lock', t: 'Tài khoản đang tạm ngưng. Bạn chỉ xem và tải dữ liệu được.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], onlyBtnCH: true, lab: 'Chặn',
+      v: { trial: { t: 'Dùng thử đã hết và công ty đang ở chế độ chỉ đọc. Bạn xem và tải dữ liệu được; chọn gói để mở lại ngay, dữ liệu được giữ nguyên.', tNV: 'Dùng thử của công ty đã hết, công ty đang ở chế độ chỉ đọc. Liên hệ chủ garage.', b: ['Chọn gói', P_ACC + 'tsu-42.html'] } } },
     'BAN-08': { lv: 'danger', role: 'alert', icon: 'lock', t: 'Dịch vụ đang trong giai đoạn chấm dứt. Hãy tải dữ liệu trước {date}.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], lab: 'Chặn' },
-    'BAN-09': { lv: 'warning', role: 'status', icon: 'file-text', t: 'Điều khoản dịch vụ phiên bản {v} có hiệu lực từ {date}. Hãy đọc và đồng ý.', b: ['Đọc và đồng ý', '#', 'info|Điều khoản mới|Mở màn TSU-18 (gói đăng ký, nhóm C) để chấp nhận phiên bản mới.'], lab: 'Cảnh báo' },
-    'BAN-10': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Hóa đơn thật chưa dùng được vì doanh nghiệp chưa hoàn tất xác minh.', b: ['Xem trạng thái', '#', 'info|Trạng thái xác minh|Mở màn theo dõi xác minh (TSU-08, gói đăng ký).'], lab: 'Thông tin' }
+    'BAN-09': { lv: 'warning', role: 'status', icon: 'file-text', t: 'Điều khoản dịch vụ phiên bản {v} có hiệu lực từ {date}. Hãy đọc và đồng ý.', b: ['Đọc và đồng ý', '../public/tsu-18.html'], lab: 'Cảnh báo' },
+    'BAN-10': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Hóa đơn thật chưa dùng được vì doanh nghiệp chưa hoàn tất xác minh.', b: ['Xem trạng thái', '../public/tsu-08.html?state=inapp'], lab: 'Thông tin' }
   };
-  var BDEF = { n: '9', date: '14/11/2026', period: '10/2026', grace: '21/11/2026', reason: 'Quá hạn thanh toán', list: 'lệnh sửa chữa, chi nhánh và người dùng', x: '8', y: '10', p: '80', v: '1.2' };
+  var BDEF = { n: '9', date: '14/11/2026', period: '10/2026', grace: '21/11/2026', reason: 'Vượt hạn mức gói', list: 'chi nhánh và người dùng', x: '8', y: '10', p: '80', v: '1.2' };
   function renderBanner(el) {
     var code = el.getAttribute('data-tsu-banner'), d = BAN[code]; if (!d) return;
+    var vk = el.getAttribute('data-variant');
+    if (vk && d.v && d.v[vk]) { var d2 = {}; Object.keys(d).forEach(function (k) { d2[k] = d[k]; }); Object.keys(d.v[vk]).forEach(function (k) { d2[k] = d.v[vk][k]; }); d = d2; }
     var nv = el.getAttribute('data-view') === 'NV';
     var vars = {}; Object.keys(BDEF).forEach(function (k) { vars[k] = el.getAttribute('data-' + k) || BDEF[k]; });
     var txt = (nv && d.tNV) ? d.tNV : d.t;

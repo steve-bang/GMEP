@@ -22,16 +22,17 @@
   </div>
   <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty · Công ty TNHH Ô tô Phương Nam</span></div>
 
-  <div data-tsu-bar="trong:Trống|loi:Thiếu thông tin|sai-ten:Tên công ty chưa khớp|da-gui:Đã gửi, chờ nền tảng|da-rut:Đã rút yêu cầu|khong-rut:Không được rút"></div>
+  <div data-tsu-bar="trong:Trống|loi:Thiếu thông tin|sai-ten:Tên công ty chưa khớp|cho-ch:Chờ chủ garage xác nhận qua email|da-gui:Đã xác nhận, chờ nền tảng|da-rut:Đã rút yêu cầu|khong-rut:Không được rút (đã nhận dữ liệu)"></div>
 
   <div data-tsu-main class="tsu-stack">
-    <div class="alert alert--warning" role="status" data-on="da-gui"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu chấm dứt đang chờ</span><span>Bạn gửi lúc <span class="num">08:40</span> ngày <span class="num">05/11/2026</span>. Chúng tôi gửi biên bản yêu cầu đến hoanganh@phuongnam.vn. Vui lòng mở email và xác nhận để hoàn tất. Trong lúc chờ, công ty vẫn hoạt động bình thường.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-withdraw">Rút yêu cầu chấm dứt</button><a class="btn btn--ghost btn--sm" href="tsu-41.html">Về Gói của tôi</a></div></div></div>
+    <div class="alert alert--warning" role="status" data-on="cho-ch"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Chờ chủ garage xác nhận qua email</span><span>Bạn gửi lúc <span class="num">08:40</span> ngày <span class="num">05/11/2026</span>. Chúng tôi đã gửi biên bản yêu cầu đến hoanganh@phuongnam.vn. Yêu cầu chỉ có hiệu lực khi bạn bấm xác nhận trong email trước <span class="num">12/11/2026</span> (hạn là tham số, số minh họa); quá hạn thì yêu cầu tự hủy. Trong lúc chờ, công ty vẫn hoạt động bình thường.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-withdraw">Rút yêu cầu chấm dứt</button><a class="btn btn--ghost btn--sm" href="tsu-41.html">Về Gói của tôi</a></div></div></div>
+    <div class="alert alert--warning" role="status" data-on="da-gui"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đã xác nhận, chờ nền tảng xử lý</span><span>Bạn xác nhận qua email lúc <span class="num">09:05</span> ngày <span class="num">05/11/2026</span>. Nền tảng xử lý và báo lại qua email. Bạn vẫn rút được yêu cầu cho đến khi xác nhận đã nhận dữ liệu. Trong lúc chờ, công ty vẫn hoạt động bình thường.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-withdraw">Rút yêu cầu chấm dứt</button><a class="btn btn--ghost btn--sm" href="tsu-41.html">Về Gói của tôi</a></div></div></div>
     <div class="alert alert--success" role="status" data-on="da-rut"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã rút yêu cầu chấm dứt</span><span>Công ty tiếp tục hoạt động như trước. Bạn có thể gửi yêu cầu mới bất kỳ lúc nào.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="tsu-41.html">Về Gói của tôi</a></div></div></div>
-    <div class="alert alert--neutral" role="status" data-on="khong-rut"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu chấm dứt đang chờ</span><span>Hợp đồng không cho rút yêu cầu sau khi đã gửi. Nếu cần, liên hệ hỗ trợ.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ là điểm chờ xác nhận.">Liên hệ hỗ trợ</a></div></div></div>
+    <div class="alert alert--neutral" role="status" data-on="khong-rut"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu chấm dứt đang chờ</span><span>Bạn đã xác nhận đã nhận dữ liệu nên không thể rút yêu cầu. Nếu cần, liên hệ hỗ trợ.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ là điểm chờ xác nhận.">Liên hệ hỗ trợ</a></div></div></div>
 
-    <div class="alert alert--danger" data-off="da-gui da-rut khong-rut"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Hậu quả của việc chấm dứt</span><ul class="tsu-list"><li>Bạn sẽ không tạo được chứng từ mới sau khi dịch vụ chuyển sang chấm dứt.</li><li>Bạn tải được dữ liệu trong thời gian trả dữ liệu.</li><li>Dữ liệu được giữ và xóa theo chính sách lưu trữ và quy định pháp luật; không xóa ngay.</li></ul></div></div>
+    <div class="alert alert--danger" data-off="cho-ch da-gui da-rut khong-rut"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Hậu quả của việc chấm dứt</span><ul class="tsu-list"><li>Bạn sẽ không tạo được chứng từ mới sau khi dịch vụ chuyển sang chấm dứt.</li><li>Bạn tải được dữ liệu trong thời gian trả dữ liệu.</li><li>Dữ liệu được giữ và xóa theo chính sách lưu trữ và quy định pháp luật; không xóa ngay.</li></ul></div></div>
 
-    <form class="tsu-stack" novalidate onsubmit="return false" aria-label="Yêu cầu chấm dứt dịch vụ" data-off="da-gui da-rut khong-rut" id="t56-form">
+    <form class="tsu-stack" novalidate onsubmit="return false" aria-label="Yêu cầu chấm dứt dịch vụ" data-off="cho-ch da-gui da-rut khong-rut" id="t56-form">
       <section class="card" aria-labelledby="t56-a">
         <div class="card__header"><h2 class="card__title" id="t56-a">Thông tin yêu cầu</h2></div>
         <div class="card__body"><div class="form-grid">
@@ -49,14 +50,14 @@
             <span class="field__hint">Xác nhận lại danh tính trước khi gửi yêu cầu có hậu quả lớn.</span></div>
         </div></div>
       </section>
-      <p class="tsu-note">Chúng tôi sẽ gửi biên bản yêu cầu đến hoanganh@phuongnam.vn. Vui lòng xác nhận qua email để hoàn tất (nếu hợp đồng yêu cầu bằng văn bản).</p>
+      <p class="tsu-note">Chúng tôi sẽ gửi biên bản yêu cầu đến hoanganh@phuongnam.vn. Yêu cầu chỉ có hiệu lực khi bạn bấm xác nhận trong email trước <span class="num">12/11/2026</span> (số minh họa).</p>
       <div class="tsu-actions"><button type="button" class="btn btn--danger" id="t56-send">Gửi yêu cầu chấm dứt</button><a class="btn btn--secondary" href="tsu-41.html">Không chấm dứt</a></div>
       <p class="tsu-test"><span class="tsu-req" aria-hidden="true">*</span> Bắt buộc nhập</p>
     </form>
   </div>
 
   <div class="overlay" id="dlg-withdraw" role="alertdialog" aria-modal="true" aria-labelledby="dw-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="dw-t">Rút yêu cầu chấm dứt?</h2></div></div>
-    <div class="dialog__body"><p>Công ty tiếp tục hoạt động như trước. Bạn rút được trong thời hạn theo hợp đồng.</p></div>
+    <div class="dialog__body"><p>Công ty tiếp tục hoạt động như trước. Bạn rút được cho đến khi xác nhận đã nhận dữ liệu.</p></div>
     <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Giữ yêu cầu</button><button type="button" class="btn btn--primary" data-close data-tsu-go="da-rut">Rút yêu cầu</button></div></div></div>
   <p class="tsu-test">Truy vết: FR-TEN-003, 006, 008; RULE-020, 027; J4; UAT-TEN-02, 04. Câu về giữ và xóa dữ liệu, rút yêu cầu và biên bản bằng văn bản: chờ luật sư xác nhận (Q7, Q20, C-10).</p>
 </div>
@@ -66,7 +67,7 @@
 <script>
 document.addEventListener('click', function (e) {
   var s = e.target.closest('#t56-send');
-  if (s && window.TSU.validate()) window.TSU.setState('da-gui');
+  if (s && window.TSU.validate()) window.TSU.setState('cho-ch');
   var eye = e.target.closest('[data-tsu-eye]');
   if (eye) {
     var i = document.getElementById('t56-pw'), show = i.type === 'password';

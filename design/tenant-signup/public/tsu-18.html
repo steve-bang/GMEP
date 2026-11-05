@@ -11,7 +11,11 @@
 </head>
 <body class="tsp-body">
 <a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
-<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-14.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+<header class="tsp-top"><span class="tsp-brand"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</span>
+  <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;justify-content:flex-end;min-width:0">
+    <span class="tsp-small" style="min-width:0;overflow-wrap:anywhere"><strong>Công ty TNHH Ô tô Minh Phát</strong> · <span data-hide="notowner">Nguyễn Văn Phát, Chủ garage</span><span data-show="notowner" hidden>Lê Minh Tuấn, Quản lý chi nhánh</span></span>
+    <a class="btn btn--ghost btn--sm" href="../../g5-scope-auth/g5-aut-04.html"><svg class="icon icon--sm" aria-hidden="true"><use href="#log-out"/></svg>Đăng xuất</a>
+  </div></header>
 
 <div class="tsp-wrap">
   <div data-ts-views="grace:Còn ân hạn|nograce:Hết ân hạn|notowner:Không phải chủ garage|saving:Đang lưu|already:Đã chấp nhận ở thiết bị khác" data-ts-common="error offline" data-hint="TSU-18 · FR-TEN-037, RULE-029 · chặn nhập dữ liệu thật và kích hoạt cho đến khi chấp nhận."></div>
@@ -19,7 +23,6 @@
   <main id="main" class="tsp-card tsp-card--wide" data-error-title="Chưa lưu được xác nhận của bạn" data-offline-text="Chưa lưu được xác nhận vì mất kết nối mạng. Kết nối lại rồi bấm Đồng ý và tiếp tục.">
     <div><h1>Điều khoản đã được cập nhật</h1>
       <p class="tsp-lead">Điều khoản dịch vụ và DPA đã cập nhật lên phiên bản <strong>v1.1</strong> (minh họa), hiệu lực từ <strong class="num">01/01/2027</strong> (minh họa).</p></div>
-    <p class="tsp-small">Công ty TNHH Ô tô Minh Phát · đăng nhập bởi Nguyễn Văn Phát</p>
     <div class="tsp-alerts" data-ts-alerts hidden></div>
 
     <div class="alert alert--warning" role="status" data-show="nograce" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đã hết thời gian ân hạn</span><span>Bạn cần chấp nhận để tiếp tục nhập dữ liệu thật và kích hoạt. Chưa thể chọn “Để sau”.</span></div></div>
