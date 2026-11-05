@@ -33,3 +33,10 @@ Tập lệnh dùng `require('playwright')` (đặt `PLAYWRIGHT_CHROMIUM_PATH` n�
 1. Chạy `measure.js` (cả hai chế độ) ở môi trường có Chromium, sửa tới khi 0 tràn ngang, 0 lỗi JS, 0 trang trống.
 2. Chạy axe cho từng trạng thái (chưa có kiểm tra tương phản, bàn phím, trình đọc màn hình tự động).
 3. Thử tay trên tablet xưởng và điện thoại thật: stepper thu gọn, chân trang dính, hộp thoại có focus trap.
+
+
+## Kết quả đo thật (05/11/2026, Playwright, Chromium)
+
+Đo bằng `node design/tenant-signup/account/measure.js --states`: mọi trạng thái xem thử ở 360/768/1280. Lỗi tải font (design/assets/fonts chỉ có README, lỗi có sẵn của toàn dự án) được bỏ qua. Chưa chạy axe.
+
+Kết quả: 600 lượt tải, 0 lượt có vấn đề (không tràn ngang, không lỗi JS, không trang trống).
