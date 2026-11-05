@@ -1,6 +1,6 @@
 # Trạng thái công việc thiết kế UI/UX
 
-Cập nhật: 2026-10-31 (xem mục "Bổ sung 31/10/2026" ở cuối cho gói G5 và bàn giao slice 1.1/1.2). Thiết kế toàn bộ web dashboard Garage ERP (gồm đăng nhập, quên mật khẩu, kích hoạt tài khoản theo lời mời) đã hoàn thành ở mức prototype HTML/CSS và qua các vòng review BA ↔ designer. Không có agent nào đang chạy.
+Cập nhật: 2026-11-05 (xem mục "Bổ sung 05/11/2026" ở cuối cho gói đăng ký tenant; mục 31/10/2026 cho gói G5 và bàn giao slice 1.1/1.2; câu "không tự đăng ký" trong tài liệu cũ nay chỉ còn đúng cho nhân viên). Thiết kế toàn bộ web dashboard Garage ERP (gồm đăng nhập, quên mật khẩu, kích hoạt tài khoản theo lời mời) đã hoàn thành ở mức prototype HTML/CSS và qua các vòng review BA ↔ designer. Không có agent nào đang chạy.
 
 ## Kết quả
 
@@ -77,6 +77,16 @@ BA đã trả lời Q1 đến Q12 ở `docs/dev/ba-answers-for-dev.md` (đề xu
 4. Người được mời có sửa được họ tên khi kích hoạt không (mặc định chỉ đọc, như G1-AUT-06).
 5. Fail-closed hay bỏ qua khi cổng xác thực mạnh chưa sẵn sàng.
 6. Nút "Gửi yêu cầu cấp quyền / gán chi nhánh" có quy trình người nhận không.
+
+## Bổ sung 05/11/2026: gói "Đăng ký tenant và onboarding" (multi-tenant), BA rà chéo lần 1
+
+**Quyết định mới thay D-01 một phần:** chủ garage **tự đăng ký** tenant ở trang công khai (D2, 05/11/2026); **nhân viên vẫn không tự đăng ký**, chỉ lời mời. Các mục "không tự đăng ký / không có nút Đăng ký" ở mục 31/10 phía trên, ở `01-auth-dashboard.md` và `ui-ux-flow.md` đã được ghi chú theo (xem `ba-decisions.md` mục F). Màn đăng nhập thêm ô **Mã công ty** (TSU-14, QĐT-01).
+
+- **Prototype:** `design/tenant-signup/` có `public/` (TSU-01..18), `onboarding/` (TSU-20..31), `account/` (TSU-40..44, 50..57), `platform-admin/` (TSU-60..68) = **52 màn** (không tính vào 184), cùng `README.md`, `measure-overflow.js`. Đo Playwright đã chạy: **tất cả trang sạch, 0 tràn ngang, 0 lỗi JS**. Chưa có kiểm tra axe, tương phản, bàn phím tự động cho gói này.
+- **Đặc tả:** `tenant-signup-spec.md` v0.2: QĐT-01..20 (v0.1) và **QĐT-21..40 (BA tự quyết 05/11/2026 theo ủy quyền của người dùng, chờ khách xác nhận)**: vai trò ở wizard, mốc bắt đầu đồng hồ dùng thử, "Xem lại từ bước 1" không xóa dữ liệu, hai kiểu khóa nút, thang bốn nấc hết trial, quyền gói xuất dữ liệu, chấm dứt có xác nhận email, đếm người dùng đang hoạt động, danh mục lý do hạn chế/tạm ngưng, liên kết giữa nhóm, lưu bí mật hóa đơn, tìm email, không thu email khi đóng đăng ký, token theo dõi, quá hạn bổ sung và khiếu nại, ngày hiệu lực theo nhóm, khung TSU-18, RULE-027, so khớp họ tên trong mật khẩu, 7 mã lý do khóa nút. `[Cần xác nhận]` mới: C-23..C-28.
+- **Đã cập nhật tài liệu:** `ui-ux-flow.md` (§1.4, §2 bảng gói 8 và §2.7, §3.a, §10 A.1), `state-copy.md` (§2.10, §3.1), `ba-decisions.md` (mục F), `01-auth-dashboard.md`.
+- **Việc cho designer (chưa làm, BA không sửa `design/`):** danh sách sửa prototype nằm trong báo cáo bàn giao của BA ngày 05/11/2026 (khoảng 20 mục: vai trò TSU-24, "Xem lại từ bước 1" TSU-20/31, trạng thái dùng thử khi `onboarding` TSU-20/40/41, đổi mã lý do sang chữ HOA và sửa câu ở TSU-50, liên kết BAN-09/10 và TSU-14, khung TSU-18, chữ đếm người dùng TSU-41, trạng thái kết nối TSU-27/29, hint TSU-61, TSU-08 `trong ứng dụng`, TSU-09 quá hạn, TSU-01 giữ chỗ C-18, TSU-56 `chờ CH xác nhận`, V-PASS có dấu, README cập nhật).
+- **Còn mở ngoài lượt này:** `screen-inventory.md` §5 (D-01), `component-catalog.md` (BotCheckSlot, PlanCard, TenantStateBanner, hai kiểu khóa nút), CLAUDE.md và ADR 0002 còn ghi multi-tenant "không build" (L-09), FRD/BRD chưa có FR-TEN/RULE-016..032 (L-18), FRD §2 chưa có MH, NS (L-13).
 
 ## Cách tiếp tục
 

@@ -80,7 +80,7 @@ flowchart TD
   Q -.->|liên kết hết hạn| X[G1-ERR-05]
 ```
 
-1. G1-AUT-01 nhập email/mã nhân viên và mật khẩu. Không có nút “Đăng ký” (D-01).
+1. G1-AUT-01 nhập email/mã nhân viên và mật khẩu. **Cập nhật 05/11/2026:** khi nền tảng bật nhiều tenant, màn đăng nhập có thêm ô **Mã công ty** (nhớ trên thiết bị; xem `design/tenant-signup/public/tsu-14.html`, TSU-14, QĐT-01) và liên kết “Đăng ký dùng thử” nằm **ngoài thẻ đăng nhập** dành cho chủ garage mới (xem `tenant-signup-spec.md`). Nhân viên vẫn **không tự đăng ký** (chỉ lời mời, D-01 còn hiệu lực cho nhân viên). Trang G1-AUT-01 gốc giữ làm tham chiếu cho tenant đơn.
 2. Tablet xưởng đã đăng ký: thay bước 1 bằng G1-AUT-10 (chọn tên thợ, nhập PIN 6 số), vào G1-DSH-07.
 3. Mật khẩu tạm hoặc bị đặt lại: G1-AUT-07, sau đó tiếp bước 4.
 4. Vai trò bắt buộc MFA: đã thiết lập thì G1-AUT-02, chưa thì G1-AUT-03 rồi G1-AUT-02 (dùng mã khôi phục hoặc mã email khi cần).
@@ -212,7 +212,7 @@ Chưa kiểm hoặc còn yếu: chưa thử trình đọc màn hình thật; ch�
 
 **Cập nhật sau review BA (ba-answers-01.md):** giả định 2 (khóa theo thiết bị + tên) thay bằng ba bộ đếm; giả định 4 (trễ hẹn) thay bằng định nghĩa chính thức; giả định 5 (lợi nhuận chỉ CH, QV) thay bằng thêm QL; giả định 8 (thợ mất mạng chặn) giờ là quyết định Phase 1 (chặn + phiếu giấy + quản đốc nhập bù); giả định 3 vẫn đúng. Các giả định còn lại giữ nguyên.
 
-1. Không có tự đăng ký; “đăng ký” = kích hoạt lời mời 72 giờ (D-01). Chính sách mật khẩu và khóa tạm theo D-03/D-05; các số (10 ký tự, 5 lần sai, 15 phút, 30 phút, 12 giờ, 3 phút xưởng) hiển thị nhưng là tham số cấu hình G4-SYS-24, không hard-code ý nghĩa nghiệp vụ.
+1. Không có tự đăng ký **cho nhân viên**; “đăng ký” của nhân viên = kích hoạt lời mời 72 giờ (D-01, bị thay thế một phần bởi quyết định 05/11/2026: chủ garage tự đăng ký tenant mới ở trang công khai, xem `ba-decisions.md` mục F). Chính sách mật khẩu và khóa tạm theo D-03/D-05; các số (10 ký tự, 5 lần sai, 15 phút, 30 phút, 12 giờ, 3 phút xưởng) hiển thị nhưng là tham số cấu hình G4-SYS-24, không hard-code ý nghĩa nghiệp vụ.
 2. Khóa tạm áp theo thiết bị + tên nhập và thông báo trung lập để không lộ tài khoản (xem câu hỏi 1).
 3. Ở AUT-06, thiết lập MFA (AUT-03) diễn ra sau khi bấm “Kích hoạt” chứ không nhúng trong cùng wizard (tránh mất trạng thái khi chuyển trang); bước 3 chỉ thông báo.
 4. “Xe trễ hẹn / công việc quá hạn” hiểu là lệnh quá giờ hẹn giao (không phải hạng mục vượt giờ chuẩn).

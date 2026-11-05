@@ -343,3 +343,16 @@ Nguồn: Phụ lục C của `ui-ux-flow.md` (các mâu thuẫn C-1…C-15). The
 | C-13 | FR-ACC-009: giá trị gợi ý chỉ ở trạng thái Nháp; FRD §2 tách hàng "Danh mục và cấu hình nghiệp vụ" (`ba-answers-06` Phụ lục B) | `proposed-doc-changes.md` |
 | C-15 | Bảng "Yêu cầu cấp phụ tùng" có **6 trạng thái** (A.2b hàng 3), ánh xạ cho INV-06 như ghi chú | A.2b |
 | C-10, C-11, C-14 | Giữ như Phụ lục C: C-10 và C-11 là đề xuất sửa design-system và FRD §13; C-14 chờ sơ đồ gốc | `proposed-doc-changes.md` |
+
+## F. Quyết định 05/11/2026 thay thế một phần D-01 (multi-tenant, tự đăng ký)
+
+D-01 (định nghĩa ở `screen-inventory.md` §5: "không tự đăng ký; đăng ký = kích hoạt lời mời 72 giờ", dùng ở `01-auth-dashboard.md`, `ui-ux-flow.md` §3.a, §10 A.1) **bị thay thế một phần** bởi quyết định D2 ngày 05/11/2026 của chủ dự án (`docs/multi-tenant-analysis.md`: chủ garage tự đăng ký tenant mới):
+
+| Nội dung | Trước (D-01) | Sau (05/11/2026) |
+| --- | --- | --- |
+| Chủ garage tạo tenant | Không có, tenant do nhân sự nền tảng/dev dựng | **Tự đăng ký** ở trang công khai (TSU-01..07), xác thực email, xác minh MST, cấp phát tự động, wizard onboarding (`tenant-signup-spec.md`) |
+| Nhân viên của tenant | Không tự đăng ký, chỉ lời mời 72 giờ | **Giữ nguyên**: không tự đăng ký, chỉ lời mời (QĐT-15) |
+| Màn đăng nhập G1-AUT-01 | Không có nút "Đăng ký" | Khi nhiều tenant: thêm ô **Mã công ty** (QĐT-01) và liên kết "Đăng ký dùng thử" **ngoài thẻ đăng nhập**, kèm câu hướng dẫn cho nhân viên (TSU-14) |
+| Tenant đơn (một công ty như hiện tại) | Đúng như D-01 | Không đổi; ô Mã công ty và liên kết đăng ký là cấu hình bật khi nhiều tenant |
+
+Trạng thái: **đề xuất BA, chờ xác nhận** như mọi quyết định ở file này (xem C-01 ở `tenant-signup-spec.md` về U1 và mã công ty). Còn phải sửa theo: `screen-inventory.md` §5 (định nghĩa D-01) và `component-catalog.md` (ngoài lượt này, ghi ở L-01, L-16 của spec).

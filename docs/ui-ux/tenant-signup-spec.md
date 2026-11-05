@@ -1,6 +1,6 @@
 # GMEP – Đặc tả yêu cầu cho Designer: Đăng ký tenant mới và onboarding (self-service)
 
-- **Phiên bản:** 0.1 (BA, 05/11/2026) · **Người lập:** BA · **Người nhận:** designer (dựng prototype HTML/CSS) · **Trạng thái:** đề xuất, chưa được khách hàng xác nhận.
+- **Phiên bản:** 0.2 (BA, 05/11/2026; v0.1 cùng ngày) · **Người lập:** BA · **Người nhận:** designer (dựng prototype HTML/CSS) · **Trạng thái:** đề xuất, chưa được khách hàng xác nhận. **v0.2:** rà chéo prototype `design/tenant-signup/` (52 màn đã dựng, đo Playwright sạch), thêm QĐT-21..QĐT-40 (mục 4), C-23..C-28 (mục 5), L-13..L-18 (mục 8); đồng bộ chữ ở TSU-14, 18, 20, 24, 27, 31, 41, 50, 51, 52, 55, 56, 61, 66.
 - **Nguồn:** `docs/multi-tenant-analysis.md` (mục 0, 4.1, 5, 8, 9.4, 10, 14.2 RULE-028..032, 14.3 FR-TEN-001..050, journey J7..J10, UAT-TEN-13..19, Phụ lục A, B); `CLAUDE.md`; `docs/ui-ux/ui-ux-flow.md`; `docs/ui-ux/STATUS.md`; `docs/ui-ux/state-copy.md`; `docs/design-system.md`. Các mã FR-TEN, RULE-016..032, UAT-TEN là mã **đề xuất**, chưa nhập vào FRD/BRD.
 - **Phạm vi:** luồng đăng ký tenant mới, xác thực email, xác minh, đăng nhập có xác định tenant, wizard onboarding, dashboard trial/gói, nâng/hạ gói (chỉ UI cho B0/B1), các trạng thái hạn chế/tạm ngưng/hết trial/chấm dứt, và màn quản trị nền tảng cho phần duyệt đăng ký. **Ngoài phạm vi:** thanh toán trong hệ thống, hóa đơn của nền tảng, dunning (FR-TEN-047..049, B2 trở đi) chỉ chừa chỗ giữ chỗ; quản trị vòng đời tenant phía nền tảng (ngưng, chấm dứt, xóa, phiên hỗ trợ) là gói thiết kế sau; không chọn công nghệ.
 - **Quyền tự quyết:** người dùng đã giao BA tự quyết các câu hỏi mở liên quan UI. Mục 4 ghi **quyết định tạm** kèm lý do; mục 5 ghi các điểm `[Cần xác nhận]` mà khách hàng, luật sư hoặc kế toán phải chốt. Mọi giá trị số (thời hạn, trần, ngưỡng) trong tài liệu này là **tham số cấu hình hoặc số minh họa**, không phải quyết định kinh doanh.
@@ -89,7 +89,7 @@ Route là **đề xuất** (dev chốt). Mã `TSU-nn` (Tenant SignUp và onboard
 
 | Mã | Màn hình | Route đề xuất | Actor | Ưu tiên |
 | --- | --- | --- | --- | --- |
-| TSU-08 | Theo dõi đăng ký: đang xác minh tự động / chờ duyệt | `/signup/status` | NDK | MT-1 |
+| TSU-08 | Theo dõi đăng ký: đang xác minh tự động / chờ duyệt (biến thể `trong ứng dụng` cho BAN-10: `/settings/verification`, QĐT-30) | `/signup/status` | NDK; CH, AD, KT (biến thể trong ứng dụng) | MT-1 |
 | TSU-09 | Cần bổ sung thông tin | `/signup/status/supplement` | NDK | MT-1 |
 | TSU-10 | Bị từ chối | `/signup/status` (biến thể) | NDK | MT-1 |
 | TSU-11 | Khiếu nại kết quả | `/signup/status/appeal` | NDK | MT-1 |
@@ -104,7 +104,7 @@ Route là **đề xuất** (dev chốt). Mã `TSU-nn` (Tenant SignUp và onboard
 | TSU-15 | Quên mật khẩu có mã công ty (mở rộng G5-AUT-01) | `/login/forgot` | mọi người dùng tenant | MT-1 |
 | TSU-16 | Đặt lại mật khẩu (dùng G5-AUT-02, thêm mã công ty) | `/login/reset?token=…` | mọi người dùng tenant | MT-1 |
 | TSU-17 | Quên mã công ty | `/login/company-code` | mọi người dùng tenant | MT-1 |
-| TSU-18 | Chấp nhận phiên bản điều khoản/DPA mới | `/terms/accept` | CH (hoặc người có quyền) | MT-1 |
+| TSU-18 | Chấp nhận phiên bản điều khoản/DPA mới (khung P đã đăng nhập, QĐT-37) | `/terms/accept` | CH (hoặc người có quyền) | MT-1 |
 
 ### 1.4 Nhóm D. Wizard onboarding (W, trong ứng dụng tenant ở trạng thái `onboarding`)
 
@@ -175,7 +175,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | V-EMAIL | Email | Cắt khoảng trắng, chuyển chữ thường, tối đa 254 ký tự, đúng định dạng; tên miền thuộc danh sách chặn email dùng một lần thì từ chối | Trống: "Nhập email để chúng tôi gửi liên kết xác thực." · Sai định dạng: "Email chưa đúng định dạng. Ví dụ: ten@congty.vn." · Dùng một lần: "Email này thuộc dịch vụ email tạm thời. Vui lòng dùng email công việc hoặc email thường dùng của bạn." |
 | V-PHONE | Số điện thoại | Số di động Việt Nam: 10 chữ số bắt đầu bằng 0, hoặc `+84` rồi 9 chữ số; cho phép dán có khoảng trắng, chấm, gạch; lưu bản chuẩn hóa. Mẫu là cấu hình (có cho phép số bàn không) | Trống: "Nhập số điện thoại để chúng tôi liên hệ khi cần." · Sai: "Số điện thoại chưa đúng. Nhập 10 số bắt đầu bằng 0, ví dụ 0912 345 678." |
 | V-MST | Mã số thuế | Chỉ chữ số (bỏ khoảng trắng và dấu gạch khi dán). **Mặc định nhận 10 số (doanh nghiệp) hoặc 12 số (hộ kinh doanh, cá nhân dùng số định danh cá nhân làm MST)**; 13 số (đơn vị phụ thuộc) bị từ chối ở bước này. Độ dài cho phép và kiểm tra chữ số kiểm tra là cấu hình, `[Cần xác nhận]` Kế toán/Luật sư (mục 5, C-12). Việc MST có thật hay không do máy chủ đối chiếu sau khi gửi, **không** báo ngay ở trường (tránh dò MST) | Trống: "Nhập mã số thuế của doanh nghiệp hoặc hộ kinh doanh." · Sai độ dài/ký tự: "Mã số thuế gồm 10 số (doanh nghiệp) hoặc 12 số (hộ kinh doanh). Chỉ nhập chữ số." · 13 số: "Đây là mã số thuế của đơn vị phụ thuộc. Hãy nhập mã số thuế 10 số của pháp nhân." |
-| V-PASS | Mật khẩu | Tối thiểu {min} ký tự (đề xuất 10, D-03), không nằm trong danh sách mật khẩu thông dụng, không chứa email hay họ tên; cho dán, có nút hiện/ẩn; thanh độ mạnh có chữ ("Yếu", "Trung bình", "Mạnh"), không chỉ màu | "Mật khẩu cần ít nhất {min} ký tự." · "Mật khẩu này quá phổ biến. Hãy chọn mật khẩu khác." · "Mật khẩu không nên chứa email hoặc họ tên của bạn." · Nhập lại: "Hai mật khẩu chưa giống nhau." |
+| V-PASS | Mật khẩu | Tối thiểu {min} ký tự (đề xuất 10, D-03), không nằm trong danh sách mật khẩu thông dụng, không chứa email hay họ tên (so khớp trên bản chuẩn hóa bỏ dấu, QĐT-39); cho dán, có nút hiện/ẩn; thanh độ mạnh có chữ ("Yếu", "Trung bình", "Mạnh"), không chỉ màu | "Mật khẩu cần ít nhất {min} ký tự." · "Mật khẩu này quá phổ biến. Hãy chọn mật khẩu khác." · "Mật khẩu không nên chứa email hoặc họ tên của bạn." · Nhập lại: "Hai mật khẩu chưa giống nhau." |
 | V-NAME | Họ tên người | 2 đến 100 ký tự, có chữ cái | "Nhập họ và tên đầy đủ của người sở hữu." |
 | V-ORG | Tên doanh nghiệp / hộ kinh doanh | 2 đến 200 ký tự | "Nhập tên doanh nghiệp hoặc hộ kinh doanh đúng như giấy đăng ký." |
 | V-CODE | Mã công ty (khi đăng nhập) | Chữ thường, số, dấu gạch ngang, 3 đến 40 ký tự, không phân biệt hoa thường khi nhập | "Nhập mã công ty. Mã có trong email chào mừng." |
@@ -196,7 +196,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 - **Gói:** lấy từ danh mục (TSU-68). Ở B0 chỉ có một thẻ: tên gói, "Dùng thử {N} ngày (minh họa 30)" hoặc "Truy cập sớm, chưa thu phí" (theo cấu hình `trial` / `none`, mục 4 QĐT-04), hạn mức chính (số chi nhánh, số người dùng; nếu chưa có thì nhãn "Hạn mức: sẽ công bố"), giá hiển thị "Chưa công bố giá" (`[Cần xác nhận]` giá, VAT). Từ B1 nhiều thẻ, mỗi thẻ có hạn mức và giá (đã gồm hay chưa gồm VAT theo cấu hình).
 - **Hành động:** "Bắt đầu dùng thử" (chính); "Đã có tài khoản? Đăng nhập" → TSU-14; "Đọc điều khoản dịch vụ" (mở xem, chưa chấp nhận).
 - **Ghi chú đối tượng:** dòng nhỏ "GMEP dành cho doanh nghiệp và hộ kinh doanh đã có mã số thuế tại Việt Nam" (QĐT-02, Q35).
-- **Trạng thái:** loading skeleton thẻ gói; error "Không tải được danh sách gói" + Thử lại (vẫn cho vào TSU-02 với gói mặc định); empty (chưa cấu hình gói nào, khi đăng ký bị đóng): "Hiện chưa mở đăng ký mới. Để lại email để nhận thông báo khi mở" (tùy chọn; không thu thêm dữ liệu nếu chưa có quyết định, `[Cần xác nhận]` C-18). T: `mở đăng ký`, `đóng đăng ký`, `trần ngày đã đạt` (xếp hàng chờ, xem TSU-05 biến thể "xếp hàng").
+- **Trạng thái:** loading skeleton thẻ gói; error "Không tải được danh sách gói" + Thử lại (vẫn cho vào TSU-02 với gói mặc định); empty (chưa cấu hình gói nào, khi đăng ký bị đóng): "Hiện chưa mở đăng ký mới. Vui lòng quay lại sau." **Không có ô để lại email** (QĐT-33, không thu thêm dữ liệu; C-18 chỉ đổi khi chủ dự án quyết). T: `mở đăng ký`, `đóng đăng ký`, `trần ngày đã đạt` (xếp hàng chờ, xem TSU-05 biến thể "xếp hàng").
 
 ### TSU-02 Đăng ký bước 1: doanh nghiệp và MST
 
@@ -323,7 +323,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Mục | Nội dung |
 | --- | --- |
 | Mục đích | Cho NDK thấy tiến độ xác minh khi chưa có tenant |
-| Actor | NDK (truy cập bằng liên kết riêng trong email, không cần mã công ty vì tenant chưa tồn tại) |
+| Actor | NDK (truy cập bằng liên kết theo dõi riêng trong email, không cần mã công ty vì tenant chưa tồn tại; token dùng nhiều lần, có hạn và thu hồi được, QĐT-34). Biến thể `trong ứng dụng`: CH, AD, KT đã đăng nhập xem trạng thái xác minh (BAN-10), route `/settings/verification`, không cần token (QĐT-30) |
 | Truy vết | FR-TEN-040, 041, 042; RULE-028, 032; J7 bước 3; UAT-TEN-13, 14 |
 | Vào | TSU-06 thành công, liên kết "Theo dõi đăng ký" trong email |
 | Ra | Đạt → TSU-12; cần bổ sung → TSU-09; từ chối → TSU-10 |
@@ -332,7 +332,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 - **Biến thể `tự động`:** "Chúng tôi đang đối chiếu mã số thuế và thông tin doanh nghiệp. Thường chỉ mất vài phút." Tự làm mới (live region `aria-live="polite"`, không đọc từng giây), nút "Làm mới".
 - **Biến thể `chờ duyệt`:** "Đăng ký của bạn cần được nhân viên kiểm tra thêm. Chúng tôi sẽ email cho bạn khi có kết quả." Không nêu lý do bị cờ (tránh giúp kẻ gian dò quy tắc). Hiển thị "Thời gian xử lý dự kiến: {n} giờ làm việc" **chỉ khi** có cam kết (`[Cần xác nhận]` NFR-TEN-07, thời gian duyệt tay tối đa).
 - **Thông tin hiển thị:** tên doanh nghiệp, MST đã che một phần (ví dụ 03******12), mã theo dõi `SGN-xxxxxx`, thời điểm gửi. Không hiển thị MST đầy đủ vì liên kết có thể bị chuyển tiếp.
-- **Trạng thái:** loading; error (không tải được trạng thái, Thử lại); liên kết theo dõi không hợp lệ (câu như 404 trung lập); đang cấp phát tự chuyển TSU-12. T: `tự động`, `chờ duyệt`, `lỗi tải`, `liên kết không hợp lệ`.
+- **Trạng thái:** loading; error (không tải được trạng thái, Thử lại); liên kết theo dõi không hợp lệ (câu như 404 trung lập); đang cấp phát tự chuyển TSU-12; liên kết hết hạn hoặc bị thu hồi dùng cùng một câu trung lập (QĐT-34). T: `tự động`, `chờ duyệt`, `cần bổ sung`, `bị từ chối`, `đang cấp phát`, `lỗi tải`, `liên kết không hợp lệ`, `trong ứng dụng`.
 
 ### TSU-09 Cần bổ sung thông tin
 
@@ -349,7 +349,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Danh sách yêu cầu | Danh sách chỉ đọc | – | – | Mỗi mục do nền tảng chọn từ mẫu (ví dụ "Giấy chứng nhận đăng ký kinh doanh", "Xác nhận người đại diện", "Giải thích MST đã có người đăng ký") |
 | Tệp đính kèm theo từng mục | `FileUpload` | Theo yêu cầu | V-FILE | Tải qua máy chủ, có xem tên tệp, xóa tệp trước khi gửi |
 | Ghi chú gửi nền tảng | Văn bản nhiều dòng | Không | tối đa 1000 ký tự | Bộ đếm ký tự |
-| Hạn bổ sung | Chỉ đọc | – | – | Tham số; quá hạn thì chuyển `rejected` theo mục 4 QĐT-14 `[Cần xác nhận]` |
+| Hạn bổ sung | Chỉ đọc | – | – | Tham số; **quá hạn thì tự chuyển `rejected` (`khong_bo_sung_dung_han`)**, được khiếu nại 1 lượt và đăng ký lại (QĐT-14, QĐT-35) |
 
 - **Hành động:** "Gửi bổ sung" (chính), "Lưu nháp". Nút khóa nếu mục bắt buộc chưa có tệp, kèm lý do hiện sẵn.
 - **Bảo vệ:** hồ sơ xác minh là dữ liệu cá nhân (FR-TEN-040): tệp tải lên không xem được bằng liên kết công khai; chữ nhắc "Chỉ nhân viên được phân công xem tệp này".
@@ -425,7 +425,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Actor | CH, AD, NV |
 | Truy vết | FR-TEN-016, 010, 009; RULE-026; QĐT-01; G1-AUT-01, G5-AUT-04 (kế thừa); UAT-TEN-07 |
 | Vào | `/login`, từ TSU-13, từ liên kết lời mời, từ TSU-01 |
-| Ra | `onboarding` → TSU-20; `active` → dashboard theo vai trò; `restricted` → dashboard + banner (TSU-50); `suspended` → TSU-53 / TSU-54; `terminating` → TSU-57; chưa chấp nhận điều khoản mới → TSU-18 |
+| Ra | `onboarding` → TSU-20; `active` → dashboard theo vai trò; `restricted` → dashboard + banner (TSU-50); `suspended` → TSU-53 / TSU-54; `terminating` → TSU-57; chưa chấp nhận điều khoản mới → TSU-18. Prototype: mỗi nhánh trỏ đúng file đích (`onboarding/tsu-20.html`, `account/tsu-53.html`, `tsu-54.html`, `tsu-57.html`, `public/tsu-18.html`), không trỏ thư mục (QĐT-30) |
 
 | Nhãn | Kiểu | Bắt buộc | Validate | Ghi chú |
 | --- | --- | --- | --- | --- |
@@ -476,6 +476,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Ra | Chấp nhận → nơi đang đi tới |
 
 - **Nội dung:** "Điều khoản dịch vụ (và/hoặc DPA) đã cập nhật lên phiên bản {v}, hiệu lực từ {ngày}." Tóm tắt thay đổi (do nền tảng nhập ở TSU-67), liên kết đọc toàn văn. `TermsAcceptance`. Nút "Đồng ý và tiếp tục", "Để sau" (chỉ hiện khi còn ở thời gian ân hạn do cấu hình; hết ân hạn thì không cho "Để sau"). Người dùng không phải CH thấy: "Chủ garage cần chấp nhận điều khoản mới. Hãy báo cho {tên CH}." kèm ReasonDisabled.
+- **Khung (QĐT-37):** khung P rút gọn **đã đăng nhập**: thanh trên có logo, tên công ty, tên người dùng và vai trò, "Đăng xuất"; không sidebar, không menu nghiệp vụ, không chọn chi nhánh. BAN-09 (còn ân hạn) dẫn tới màn này bằng liên kết thật.
 - **Trạng thái:** đang lưu, lỗi, đã chấp nhận ở thiết bị khác. T: `còn ân hạn`, `hết ân hạn`, `không phải CH`.
 
 ### TSU-20 Chào mừng và lộ trình thiết lập
@@ -488,7 +489,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Vào | Lần đăng nhập đầu khi tenant `onboarding`; menu "Thiết lập" |
 | Ra | "Bắt đầu" → TSU-21 (hoặc bước đang dở) |
 
-- **Nội dung:** "Chào {tên}, hãy thiết lập GMEP cho {tên công ty}." Danh sách 9 bước (`OnboardingChecklist`) với nhãn **Bắt buộc / Nên làm / Tùy chọn** và thời gian ước tính từng bước (minh họa). Khối thông tin cố định: "Bạn đang trong giai đoạn thiết lập: hóa đơn điện tử chạy thử và dữ liệu thử có thể xóa. Bạn có thể thoát và quay lại bất kỳ lúc nào, tiến độ được lưu." Nếu đã có nháp: nút "Tiếp tục từ bước {n}" (chính) và "Bắt đầu lại từ đầu" (phụ, xác nhận mức Thường).
+- **Nội dung:** "Chào {tên}, hãy thiết lập GMEP cho {tên công ty}." Danh sách 9 bước (`OnboardingChecklist`) với nhãn **Bắt buộc / Nên làm / Tùy chọn** và thời gian ước tính từng bước (minh họa). Khối thông tin cố định: "Bạn đang trong giai đoạn thiết lập: hóa đơn điện tử chạy thử và dữ liệu thử có thể xóa. Bạn có thể thoát và quay lại bất kỳ lúc nào, tiến độ được lưu." Nếu đã có nháp: nút "Tiếp tục từ bước {n}" (chính) và "Xem lại từ bước 1" (phụ). **Không xóa dữ liệu, không có hộp thoại xác nhận** (QĐT-23): dưới nút ghi "Thông tin bạn đã nhập vẫn được giữ". Thẻ dùng thử trong lúc `onboarding` theo QĐT-22: "Chưa bắt đầu tính ngày dùng thử" (không hiện "Còn {N} ngày").
 - **Hành động:** Bắt đầu / Tiếp tục; "Để sau, xem trang chủ" (→ TSU-40).
 - T: `lần đầu`, `có nháp`, `đã xong một phần`.
 
@@ -560,7 +561,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Truy vết | FR-TEN-043; FR-SYS-019 (lời mời, thời hạn 72 giờ, đề xuất); FR-SYS-012; J8 |
 | Bắt buộc | Nên làm (có thể bỏ qua) |
 
-- **Khối giải thích vai trò:** 10 vai trò (CH, QL, CV, QĐ, TH, TK, TN, KT, MH, NS, AD; QV nếu bật) mỗi vai trò một câu "làm được gì", xem chi tiết ở ma trận quyền (liên kết G4-SYS-04).
+- **Khối giải thích vai trò:** danh sách lấy từ danh mục vai trò của máy chủ, **không ghi số lượng vào chữ** (QĐT-21). Nền là 10 vai trò của ma trận FRD §2 (CH, QV, QL, CV, QĐ, TH, TK, TN, KT, AD); trong bước mời **bỏ CH**, **QV chỉ hiện khi bật nhóm chi nhánh**, **MH, NS chỉ hiện khi gói bật Mua hàng/Nhân sự** (Phase 2). Mỗi vai trò một câu "làm được gì", xem chi tiết ở ma trận quyền (liên kết G4-SYS-04). Cảnh báo "Còn {x} chỗ" theo hạn mức người dùng đang hoạt động (QĐT-28).
 - **Bảng mời** (card list trên điện thoại), thêm nhiều dòng:
 
 | Nhãn | Kiểu | Bắt buộc | Validate |
@@ -611,7 +612,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
   - B. "Chạy thử trước, khai sau": chạy `fake`, không phát hành hóa đơn thật.
 - **Khóa phát hành thật** khi chưa đạt xác minh: dòng cố định ReasonDisabled "Chưa thể chuyển sang phát hành thật: doanh nghiệp chưa hoàn tất xác minh" (RULE-028). Nút "Chuyển sang phát hành thật" không có trong wizard; thực hiện sau ở G4-EIN-08 (xác nhận mức Nguy hiểm).
 - **Ghi chú pháp lý (khung chữ nhỏ):** "Hóa đơn do chính doanh nghiệp của bạn phát hành qua nhà cung cấp bạn chọn. GMEP không phát hành hóa đơn thay bạn." (RULE-025).
-- **Trạng thái:** đang kiểm tra kết nối, lỗi kết nối, thiếu mẫu số/ký hiệu; không lưu bí mật nếu chưa kiểm tra? (`[Cần xác nhận]` Dev). T: `chạy thử`, `khai nhà cung cấp`, `kết nối lỗi`, `chưa xác minh`.
+- **Trạng thái:** đang kiểm tra kết nối, lỗi kết nối, thiếu mẫu số/ký hiệu. **Bí mật (QĐT-31, cho Dev):** lưu được khi chưa kiểm tra kết nối (mã hóa, chỉ ghi, không đọc lại); nhà cung cấp chưa dùng cho phát hành thật đến khi kiểm tra kết nối đạt và tenant đạt xác minh; "đã khai" cho FR-TEN-004 = đủ trường bắt buộc, trạng thái kết nối hiện riêng ("Chưa kiểm tra", "Đạt", "Lỗi"). T: `chạy thử`, `khai nhà cung cấp`, `kết nối lỗi`, `chưa xác minh`.
 
 ### TSU-28 W8 Nhập Excel
 
@@ -670,7 +671,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | `bước bắt buộc` | Không thể bỏ qua | "Bước này cần có để kích hoạt: {lý do}." | Quay lại bước |
 | `thoát và lưu nháp` | Lưu và thoát? | "Tiến độ đã lưu lúc HH:mm. Bạn có thể tiếp tục từ bước {n} khi đăng nhập lại." | **Lưu và thoát** · Ở lại |
 | `rời trang chưa lưu` | Có thay đổi chưa lưu | "Bạn vừa sửa thông tin ở bước này. Lưu nháp trước khi rời đi?" | **Lưu nháp và rời** · Rời không lưu · Ở lại |
-| `tiếp tục từ nháp` | Tiếp tục thiết lập? | "Bạn đang dở bước {n} ({tên bước}), lưu lúc HH:mm." | **Tiếp tục** · Bắt đầu lại |
+| `tiếp tục từ nháp` | Tiếp tục thiết lập? | "Bạn đang dở bước {n} ({tên bước}), lưu lúc HH:mm." | **Tiếp tục** · Xem lại từ bước 1 (không xóa dữ liệu, QĐT-23) |
 
 - Truy vết: FR-TEN-043 ("lưu tiến độ, tiếp tục sau, bỏ qua có kiểm soát"); `ui-ux-flow` §5.3, §5.4. Focus trap, Esc, trả focus.
 
@@ -685,7 +686,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Ra | Mỗi mục → bước wizard tương ứng; "Chọn gói" → TSU-42 |
 
 - **Khối 1 "Hoàn tất thiết lập" (`OnboardingChecklist` thu gọn):** x/9 bước, các mục chưa xong với nhãn Bắt buộc/Nên làm/Tùy chọn, nút "Tiếp tục thiết lập". Ẩn khi tất cả xong; có "Ẩn cho tôi" cho mục tùy chọn (không ẩn mục bắt buộc).
-- **Khối 2 "Dùng thử":** `trial`: "Còn {N} ngày dùng thử (hết hạn {dd/MM/yyyy})", thanh tiến trình có chữ, nút "Xem gói". `none` (early access): "Bạn đang trong giai đoạn truy cập sớm, chưa thu phí" kèm ngày kết thúc nếu có. Mốc cảnh báo (cấu hình) đổi màu banner theo TSU-50. `expired`: xem TSU-52.
+- **Khối 2 "Dùng thử":** `trial` (đồng hồ bắt đầu lúc kích hoạt hoặc sau {m} ngày thiết lập, QĐT-22): khi `onboarding` chưa bắt đầu hiện "Chưa bắt đầu tính ngày dùng thử. {N} ngày dùng thử bắt đầu khi bạn kích hoạt, hoặc tự bắt đầu vào {dd/MM/yyyy} nếu chưa kích hoạt"; khi đã bắt đầu: "Còn {N} ngày dùng thử (hết hạn {dd/MM/yyyy})", thanh tiến trình có chữ, nút "Xem gói". `none` (early access): "Bạn đang trong giai đoạn truy cập sớm, chưa thu phí" kèm ngày kết thúc nếu có. Mốc cảnh báo (cấu hình) đổi màu banner theo TSU-50. `expired`: xem TSU-52.
 - **Khối 3 (chỉ `onboarding`):** "Môi trường thử: hóa đơn chạy thử, dữ liệu thử có thể xóa".
 - **Trạng thái:** loading từng thẻ; empty (đã xong hết: khối biến mất, hiện "Bạn đã hoàn tất thiết lập"); error theo thẻ. T: `onboarding`, `đã kích hoạt, còn việc`, `đã xong`, `trial còn nhiều ngày`, `trial sắp hết`, `early access`.
 
@@ -700,7 +701,7 @@ Tất cả tham số (độ dài, mẫu, danh sách chặn) là **cấu hình** 
 | Ra | "Đổi gói" → TSU-42; "Lịch sử" → TSU-44; "Xuất dữ liệu" → TSU-55 |
 
 - **Thẻ thuê bao:** tên gói, **trạng thái thuê bao** bằng badge có chữ (`none`: "Truy cập sớm"; `trial`: "Dùng thử"; `paid_active`: "Đang dùng"; `past_due`: "Quá hạn thanh toán"; `grace_over`: "Hết ân hạn"; `cancel_scheduled`: "Sẽ ngừng cuối kỳ"; `expired`: "Hết hạn"), ngày bắt đầu, ngày hết hạn, kỳ kế tiếp. **Tách riêng với trạng thái tenant** (tenant hạn chế/tạm ngưng hiện ở banner, `multi-tenant-analysis` 5.5), hai badge riêng.
-- **Mức dùng** (`UsageMeter`): số chi nhánh, số người dùng (người được tạo hay đang hoạt động: theo Q13 `[Cần xác nhận]`), dung lượng nếu có; "Cập nhật lúc HH:mm"; ngưỡng cảnh báo (ví dụ 80%, 100%, tham số). Bảng thay thế bằng chữ.
+- **Mức dùng** (`UsageMeter`): số chi nhánh, số người dùng (**đếm người đang hoạt động**, không tính tài khoản khóa và lời mời chưa kích hoạt; cờ cấu hình đổi được, QĐT-28, Q13 còn mở về ngưỡng và giá), dung lượng nếu có; "Cập nhật lúc HH:mm"; ngưỡng cảnh báo (ví dụ 80%, 100%, tham số). Bảng thay thế bằng chữ.
 - **Hành động:** "Đổi gói" (CH), "Yêu cầu hủy gói" ở B1 chỉ ghi yêu cầu, hiệu lực cuối kỳ (J9), "Tải bảng kê sử dụng" (khi có B1).
 - **Giữ chỗ B2:** khối "Thanh toán và hóa đơn" hiển thị "Chưa áp dụng trong giai đoạn này" (không có nút thanh toán ở B0/B1; FR-TEN-047, 048 là MT-3).
 - **Trạng thái:** loading; empty (chưa có gói: "Chưa gán gói. Liên hệ hỗ trợ"); error. T: `none`, `trial`, `paid_active`, `past_due`, `expired`, `cancel_scheduled`, `sát hạn mức`, `vượt hạn mức`.
@@ -755,7 +756,8 @@ Banner đầu trang (dưới topbar, trên thanh phạm vi), không che nội du
 | BAN-10 | Chưa đạt xác minh nhưng đã `active` | CH, AD, KT | Thông tin | "Hóa đơn thật chưa dùng được vì doanh nghiệp chưa hoàn tất xác minh." | Xem trạng thái |
 
 - **Quy tắc câu chữ:** số ngày, mốc, hạn ân hạn, lý do hiển thị lấy từ dữ liệu; **không viết cứng** (RULE-030: thang cảnh báo, ân hạn, hạn chế, chỉ đọc có thời hạn cấu hình). Không nêu tên người vận hành nền tảng; lý do hạn chế chọn từ danh mục (TSU-66 mở rộng) để không tiết lộ chi tiết an ninh.
-- **Mã lý do khóa nút** thêm vào bảng mã của `state-copy.md` §3 (đề xuất, designer cập nhật khi dựng): `tenant_restricted`, `tenant_suspended_readonly`, `trial_expired`, `quota_limit_reached`, `tenant_terminating`, `terms_not_accepted`, `verification_required`.
+- **Mã lý do khóa nút** đã thêm vào bảng mã của `state-copy.md` §3 (quy ước chữ HOA, câu chữ chốt ở mục 4.1 "Rà câu chữ", QĐT-40): `TENANT_RESTRICTED`, `TENANT_SUSPENDED_READONLY`, `TRIAL_EXPIRED`, `QUOTA_LIMIT_REACHED`, `TENANT_TERMINATING`, `TERMS_NOT_ACCEPTED`, `VERIFICATION_REQUIRED`.
+- **Liên kết (QĐT-30):** BAN-09 → `public/tsu-18.html`; BAN-10 → TSU-08 biến thể `trong ứng dụng` (xem phiên, không cần liên kết email). BAN-03 ở nấc N2 của thang QĐT-25 (không chồng BAN-05); BAN-07 có biến thể "hết hạn dùng thử" cho nấc N3. Lý do hạn chế/tạm ngưng lấy từ danh mục QĐT-29; tạm ngưng an ninh không có lý do hiển thị.
 - Truy vết: FR-TEN-005, 025, 044, 049; RULE-021, 023, 030; J3, J10; UAT-TEN-03, 16. T: từng BAN-01..10, và hai banner chồng nhau.
 
 ### TSU-51 Hộp thoại chặn tạo mới (hạn chế, vượt hạn mức)
@@ -766,7 +768,7 @@ Banner đầu trang (dưới topbar, trên thanh phạm vi), không che nội du
 | Actor | Mọi người dùng tenant |
 | Truy vết | FR-TEN-005, 025; RULE-023; J3; UAT-TEN-03, 10 |
 
-- **Nguyên tắc (RULE-023):** chỉ chặn **tạo mới** (lệnh mới, chi nhánh mới, người dùng mới...). **Không** chặn thu tiền, giao xe, phát hành hóa đơn của chứng từ đang mở, tải hóa đơn, xuất dữ liệu (RULE-021). Nút tạo mới không ẩn mà khóa kèm lý do (§5.6).
+- **Nguyên tắc (RULE-023):** chỉ chặn **tạo mới** (lệnh mới, chi nhánh mới, người dùng mới...). **Không** chặn thu tiền, giao xe, phát hành hóa đơn của chứng từ đang mở, tải hóa đơn, xuất dữ liệu (RULE-021). Nút tạo mới không ẩn mà khóa kèm lý do (§5.6): kiểu khóa 2 của QĐT-24 (`aria-disabled`, vẫn focus và bấm được, bấm mở hộp thoại này, không gọi API tạo).
 - **Nội dung:** tiêu đề "Chưa thể tạo mới lúc này". Thông báo theo lý do: hạn chế ("Công ty đang bị hạn chế tạo mới: {lý do}."), hạn mức ("Gói hiện tại cho tối đa {y} chi nhánh."), hết trial. Dòng "Bạn vẫn có thể: thu tiền, giao xe và hoàn tất {n} lệnh đang mở." Nút: **Xem gói** hoặc **Liên hệ chủ garage** (tùy vai trò), **Đóng**. Bản nháp đang soạn được giữ.
 - T: `restricted`, `vượt hạn mức`, `hết trial`, `NV (không phải CH)`.
 
@@ -780,7 +782,7 @@ Banner đầu trang (dưới topbar, trên thanh phạm vi), không che nội du
 | Vào | Đăng nhập khi thuê bao `expired` (một lần mỗi phiên, có thể đóng để vào ứng dụng ở chế độ hạn chế/chỉ đọc) |
 | Ra | "Chọn gói" → TSU-42; "Xuất dữ liệu" → TSU-55; "Vào xem dữ liệu" → dashboard (BAN-03) |
 
-- **Nội dung:** "Thời gian dùng thử đã kết thúc ngày {dd/MM/yyyy}." Khối "Dữ liệu của bạn vẫn an toàn": ba gạch đầu dòng "Không bị xóa" / "Bạn xem và tải được hóa đơn, chứng từ" / "Các lệnh đang mở vẫn hoàn tất được". Khối "Tiếp theo": theo thang RULE-030 nêu **ngày** chuyển trạng thái kế tiếp (hạn chế → chỉ đọc), dữ liệu lấy từ cấu hình, kèm chữ "Chọn gói lúc nào cũng mở lại ngay và giữ nguyên dữ liệu."
+- **Nội dung:** "Thời gian dùng thử đã kết thúc ngày {dd/MM/yyyy}." Khối "Dữ liệu của bạn vẫn an toàn": ba gạch đầu dòng "Không bị xóa" / "Bạn xem và tải được hóa đơn, chứng từ" / "Các lệnh đang mở vẫn hoàn tất được". Khối "Tiếp theo": theo thang RULE-030 (QĐT-25: N2 hạn chế tạo mới → N3 chỉ đọc) nêu **ngày** chuyển sang N3 và việc cần làm trước đó (hoàn tất lệnh, thu tiền, giao xe), dữ liệu lấy từ cấu hình, kèm chữ "Chọn gói lúc nào cũng mở lại ngay và giữ nguyên dữ liệu."
 - **Khối cho NV:** "Dùng thử của công ty đã hết. Liên hệ {tên CH}." không có nút chọn gói.
 - Câu cuối `[Cần xác nhận]`: thời hạn giữ dữ liệu khi không chọn gói và tiến tới J4 (mục 5 C-9).
 - T: `CH`, `AD`, `NV`, `đã ở chế độ hạn chế`, `đã ở chế độ chỉ đọc`.
@@ -807,14 +809,14 @@ Banner đầu trang (dưới topbar, trên thanh phạm vi), không che nội du
 | Mục | Nội dung |
 | --- | --- |
 | Mục đích | CH yêu cầu và tải gói xuất dữ liệu; xác nhận đã nhận |
-| Actor | CH (AD không có, `[Cần xác nhận]`) |
+| Actor | CH tạo, tải, xác nhận nhận; AD chỉ xem danh sách gói (không tạo, không tải, `NO_PERMISSION`); NV không thấy màn (QĐT-26; ủy quyền khi CH vắng: C-28) |
 | Truy vết | FR-TEN-006; RULE-020, 021; J3, J4, J10; UAT-TEN-04 |
 | Vào | Banner BAN-03/07/08, TSU-41, 52, 53, 57; menu Cài đặt |
 | Ra | Tải xong; "Tôi đã nhận đủ dữ liệu" (nút mức Nguy hiểm khi đang `terminating`) |
 
 - **Khối "Tạo gói xuất":** mô tả nội dung gói ("Dữ liệu nghiệp vụ, XML/PDF hóa đơn, tệp đính kèm, nhật ký, kèm danh mục và mã kiểm tra toàn vẹn"), phạm vi (toàn công ty), định dạng (cấu hình). Nút "Tạo gói xuất" (khóa chống bấm đúp, có khóa chống trùng).
 - **Danh sách gói:** (card list trên điện thoại) Mã gói, Ngày tạo, Trạng thái (`Đang tạo`, `Sẵn sàng`, `Hết hạn tải`, `Lỗi`), Dung lượng, Số bản ghi theo loại, Mã kiểm tra toàn vẹn (sao chép được), Hạn tải. Nút "Tải xuống" tạo liên kết ký ngắn hạn qua máy chủ (không dùng đường dẫn cố định); "Tạo lại" khi hết hạn.
-- **Xác nhận đã nhận** (chỉ hiện khi `terminating`): mức Nguy hiểm: hậu quả "Sau khi xác nhận, công ty sẽ chuyển sang chấm dứt và không đăng nhập được" (J4), gõ "DA NHAN DU LIEU" `[Cần xác nhận]` có thật sự dùng chuỗi này; ghi ai nhận, khi nào (FR-TEN-006).
+- **Xác nhận đã nhận** (chỉ hiện khi `terminating`): mức Nguy hiểm: hậu quả "Sau khi xác nhận, công ty sẽ chuyển sang chấm dứt và không đăng nhập được" (J4), gõ "DA NHAN DU LIEU" (quy ước chuỗi xác nhận ở QĐT-26: in hoa không dấu, so khớp không phân biệt hoa thường và dấu); ghi ai nhận, khi nào (FR-TEN-006).
 - **Trạng thái:** đang tạo (tiến trình, "Chúng tôi sẽ email khi xong"), lỗi tạo gói + Thử lại, hết hạn tải, empty ("Chưa có gói xuất nào"). T: `trống`, `đang tạo`, `sẵn sàng`, `hết hạn`, `lỗi`, `terminating`.
 
 ### TSU-56 Yêu cầu chấm dứt dịch vụ
@@ -834,9 +836,9 @@ Banner đầu trang (dưới topbar, trên thanh phạm vi), không che nội du
 | Mật khẩu của bạn | Mật khẩu | Có | V-REQ |
 
 - **Hậu quả hiển thị trước nút (mức Nguy hiểm):** "Bạn sẽ không tạo được chứng từ mới sau khi dịch vụ chuyển sang chấm dứt. Bạn tải được dữ liệu trong thời gian trả dữ liệu. Dữ liệu được giữ và xóa theo chính sách lưu trữ và quy định pháp luật; không xóa ngay." (câu cuối `[Cần xác nhận]` Q7, Q20, Luật sư).
-- **Văn bản yêu cầu:** hợp đồng có thể đòi yêu cầu bằng văn bản (5.3): dòng "Chúng tôi sẽ gửi biên bản yêu cầu đến email {email}. Vui lòng xác nhận để hoàn tất" `[Cần xác nhận]` C-10.
-- **Rút yêu cầu:** nếu hợp đồng cho phép (FR-TEN-008), nút "Rút yêu cầu chấm dứt" trong thời hạn.
-- T: `trống`, `đã gửi, chờ nền tảng`, `đã rút`, `không được rút`.
+- **Văn bản yêu cầu (QĐT-27):** điện tử có xác nhận qua email: "Chúng tôi sẽ gửi biên bản yêu cầu đến email {email}. Yêu cầu chỉ có hiệu lực khi bạn bấm xác nhận trong email trước {dd/MM/yyyy}." Quá hạn thì yêu cầu tự hủy. Nếu hợp đồng đòi văn bản có chữ ký thì thêm bước tải biên bản (`[Cần xác nhận]` C-10).
+- **Rút yêu cầu:** được khi "Chờ CH xác nhận", "Chờ nền tảng" và `terminating` cho đến khi CH xác nhận "đã nhận dữ liệu" hoặc hết thời hạn trả dữ liệu (mức Thường, FR-TEN-008); sau đó `không được rút`.
+- T: `trống`, `chờ CH xác nhận`, `đã gửi, chờ nền tảng`, `đã rút`, `không được rút`.
 
 ### TSU-57 Đang chấm dứt / đã chấm dứt
 
@@ -865,7 +867,7 @@ Banner đầu trang (dưới topbar, trên thanh phạm vi), không che nội du
 | Vào | Menu "Hàng đợi đăng ký"; thông báo khi có ca mới |
 | Ra | Mở dòng → TSU-62 |
 
-- **Template C (danh sách).** Bộ lọc nhanh bằng tab: **Chờ duyệt tay** · **Cần bổ sung (chờ người đăng ký)** · **Đã bổ sung, chờ xem lại** · **Đang xếp hàng (vượt trần)** · **Đã quyết định gần đây**. Tìm theo tên doanh nghiệp, mã theo dõi, MST (chữ số cuối), email (che).
+- **Template C (danh sách).** Bộ lọc nhanh bằng tab: **Chờ duyệt tay** · **Cần bổ sung (chờ người đăng ký)** · **Đã bổ sung, chờ xem lại** · **Đang xếp hàng (vượt trần)** · **Đã quyết định gần đây**. Tìm theo tên doanh nghiệp, mã theo dõi, MST (chữ số cuối), **email chỉ khi nhập đủ toàn bộ địa chỉ** (khớp tuyệt đối, không tìm một phần, có ghi nhật ký tra cứu; kết quả vẫn hiển thị email che; QĐT-32). Không tìm theo SĐT.
 - **Cột:** Mã theo dõi, Tên doanh nghiệp, MST (che giữa), Lý do vào hàng chờ (badge, nhiều lý do: `MST trùng tenant đang hoạt động` (RULE-032), `email dùng một lần`, `vượt tần suất`, `nguồn trong danh sách chặn`, `đối chiếu MST không khớp`, `khác`), Thời điểm gửi, Thời gian chờ (có chữ "Chờ 3 giờ", cảnh báo khi quá thời gian duyệt tay tối đa theo cấu hình), Người phụ trách.
 - **Cột an toàn dữ liệu:** email và SĐT che một phần mặc định; nút "Hiện số" có ghi nhật ký (cùng mô hình G4-SYS-04). Không có dữ liệu nghiệp vụ garage nào.
 - **Khối đầu trang:** số ca đang chờ, ca quá hạn, số đăng ký hôm nay so với trần ngày (NFR-TEN-07; cảnh báo khi gần trần: "Đã dùng {x}/{y} lượt đăng ký mới hôm nay").
@@ -912,7 +914,7 @@ Banner đầu trang (dưới topbar, trên thanh phạm vi), không che nội du
 
 ### TSU-66 Cấu hình đăng ký
 
-Màn cấu hình (biến thể S) cho QTN; mọi giá trị có ngày hiệu lực, hiển thị "Giá trị đang áp dụng, hiệu lực từ {ngày}" (FR-TEN-018). **Tất cả mục sau là cấu hình, không hard-code.**
+Màn cấu hình (biến thể S) cho QTN; ngày hiệu lực **theo nhóm tham số** (mỗi nhóm một lịch sử phiên bản; ngoại lệ: "Mở/đóng đăng ký" có hiệu lực ngay, "Danh mục lý do" theo từng mã; QĐT-36), hiển thị "Giá trị đang áp dụng, hiệu lực từ {ngày}" (FR-TEN-018). Nhóm "Dùng thử" thêm `onboarding_max_days` (QĐT-22), thang N2/N3 (QĐT-25); nhóm "Xác thực email" thêm `tracking_token_days` (QĐT-34); nhóm "Xác minh" thêm `supplement_days`, `appeal_max` (QĐT-35); nhóm "Quy tắc validate" thêm `pw_name_token_min` (QĐT-39); "Danh mục lý do" thêm lý do hạn chế/tạm ngưng hiển thị cho tenant (QĐT-29). **Tất cả mục sau là cấu hình, không hard-code.**
 
 | Nhóm | Tham số |
 | --- | --- |
@@ -1023,7 +1025,9 @@ Thuê bao (đối tượng thứ bảy, `multi-tenant-analysis` 5.5) ánh xạ l
 | `cancel_scheduled` | Sẽ ngừng cuối kỳ | Thông tin ở TSU-41 | Đầy đủ đến hết kỳ |
 | `expired` | Hết hạn | BAN-03 | TSU-52; hạn chế rồi chỉ đọc theo cấu hình; không xóa |
 
-Thang `trial hết hạn → chỉ đọc` (RULE-030, mọi thời hạn cấu hình): `trial` → cảnh báo (mốc cấu hình) → `expired` + hạn chế tạo mới (BAN-03, TSU-51) → chỉ đọc (BAN-07 biến thể "hết hạn dùng thử") → theo J4 nếu không chọn gói trong thời hạn giữ. **Ở mọi nấc**: tải hóa đơn, xuất dữ liệu (TSU-55), hoàn tất lệnh đang mở (trừ nấc chỉ đọc theo FR-TEN-005 "chỉ đọc và tải dữ liệu") còn hoạt động. **Lưu ý:** FR-TEN-044 nói hết hạn "không tạo mới theo cấu hình nhưng lệnh đang mở vẫn hoàn tất" và FR-TEN-005 chế độ "chỉ đọc" không cho sửa chứng từ; hai chế độ là hai nấc khác nhau trên thang, thiết kế dùng hai biến thể banner (mục 8 L-06).
+**Cập nhật v0.2 (QĐT-22, QĐT-25):** đồng hồ `trial` bắt đầu lúc kích hoạt (hoặc sau {m} ngày thiết lập nếu chưa kích hoạt). Thang bốn nấc, `expired` và (B2) `grace_over` đều đi qua cùng thang: N1 cảnh báo (tenant `active`) → N2 hạn chế tạo mới (tenant `restricted`, lý do `SUBSCRIPTION_EXPIRED`/`PAYMENT_OVERDUE`; FR-TEN-044, lệnh đang mở vẫn hoàn tất) → N3 chỉ đọc và tải dữ liệu (tenant `suspended` readonly, lý do `SUBSCRIPTION_EXPIRED_READONLY`; FR-TEN-005, không hoàn tất lệnh) → N4 theo J4. Bảng 3.4 cột `restricted` áp cho N2, cột `suspended` (đọc) áp cho N3.
+
+Thang `trial hết hạn → chỉ đọc` (RULE-030, mọi thời hạn cấu hình): `trial` → cảnh báo (mốc cấu hình) → `expired` + hạn chế tạo mới (BAN-03, TSU-51) → chỉ đọc (BAN-07 biến thể "hết hạn dùng thử") → theo J4 nếu không chọn gói trong thời hạn giữ. **Ở mọi nấc**: tải hóa đơn, xuất dữ liệu (TSU-55), hoàn tất lệnh đang mở (trừ nấc chỉ đọc theo FR-TEN-005 "chỉ đọc và tải dữ liệu") còn hoạt động. **Lưu ý:** FR-TEN-044 nói hết hạn "không tạo mới theo cấu hình nhưng lệnh đang mở vẫn hoàn tất" và FR-TEN-005 chế độ "chỉ đọc" không cho sửa chứng từ; hai chế độ là hai nấc khác nhau trên thang, thiết kế dùng hai biến thể banner (mục 8 L-06; đã chốt ánh xạ ở QĐT-25).
 
 ### 3.4 Bảng hành động theo trạng thái (để UI nhận `can` + `reason` từ máy chủ)
 
@@ -1067,6 +1071,45 @@ Mỗi quyết định có thể đảo lại bằng cấu hình hoặc sửa nh�
 | QĐT-19 | Thu thập dữ liệu người đăng ký | Tối thiểu hóa: không thu căn cước, ngày sinh; đồng ý tiếp thị tách riêng, không tích sẵn; giấy tờ chỉ khi yêu cầu bổ sung | Luật bảo vệ dữ liệu cá nhân (NFR-PRI-01); FR-TEN-040 hồ sơ xác minh được bảo vệ | Không kiểm tra được người đại diện nếu thiếu giấy tờ; Q28 |
 | QĐT-20 | Khu vực tên miền / thương hiệu (Q6) | Chưa dùng tên miền con; mọi tenant dùng một địa chỉ đăng nhập; thương hiệu tenant chỉ ở mẫu in (FR-TEN-022) | FR-TEN-023 là Could | Đổi sau không phá luồng vì mã công ty vẫn là khóa |
 
+### 4.1 Quyết định tạm bổ sung (QĐT-21..QĐT-40, BA tự quyết ngày 05/11/2026 sau khi rà prototype)
+
+Phát sinh khi đối chiếu prototype `design/tenant-signup/` với spec v0.1: designer gửi lại các điểm lệch hoặc thiếu. Cùng nguyên tắc mục 4: đảo lại được bằng cấu hình hoặc sửa nhỏ; không chốt pháp lý, giá, VAT, điều khoản. Cột "Hệ quả" nêu việc designer/dev phải làm; danh sách sửa prototype gom ở báo cáo bàn giao của BA, không ghi vào `design/` ở lượt này.
+
+| Mã | Câu hỏi | Quyết định tạm | Lý do | Hệ quả |
+| --- | --- | --- | --- | --- |
+| QĐT-21 | TSU-24: 10 hay 11 vai trò, QV tùy chọn | Danh sách vai trò **lấy từ danh mục vai trò của máy chủ (G4-SYS-04), không viết số "10" hay "11" vào chữ giao diện**. Nền là **10 vai trò của ma trận FRD §2**: CH, QV, QL, CV, QĐ, TH, TK, TN, KT, AD. Trong bước mời: (a) **CH không có trong danh sách mời** (chủ garage đầu tiên là người đăng ký; thêm CH thứ hai là `[Cần xác nhận]` C-24); (b) **QV chỉ hiện khi công ty bật nhóm chi nhánh** (cấu hình), mặc định ẩn; (c) **MH, NS** (có trong `ROLE_MENU` và `ui-ux-flow` §10 A nhưng **chưa có cột trong FRD §2**, xem L-13) chỉ hiện khi gói bật module Mua hàng / Nhân sự (Phase 2); Phase 1 ẩn. Như vậy Phase 1 mặc định mời được 8 vai trò (QL, CV, QĐ, TH, TK, TN, KT, AD), tối đa 9 khi bật QV | FRD §2 là nguồn vai trò; prototype đang liệt kê 11 mục gồm CH, MH, NS và thiếu QV, lệch ma trận; spec v0.1 tự mâu thuẫn ("10 vai trò" nhưng liệt kê 12 ký hiệu) | Designer sửa `onboarding/tsu-24.html` (danh sách `ROLES`); khối giải thích vai trò có chú thích "Vai trò hiển thị theo gói và cấu hình"; FR-SYS-012, 019 là nguồn quyền |
+| QĐT-22 | Đồng hồ dùng thử bắt đầu từ lúc nào | **Từ lúc kích hoạt (`onboarding → active`), hoặc sau {m} ngày kể từ lúc cấp phát nếu chưa kích hoạt (tham số `onboarding_max_days`, đề xuất 14), cái nào đến trước.** Máy chủ lưu hai mốc rõ ràng `trial_started_at`, `trial_ends_at`. Trong lúc `onboarding` và chưa tự bắt đầu: thẻ dùng thử hiện "Chưa bắt đầu tính ngày dùng thử. {N} ngày dùng thử bắt đầu khi bạn kích hoạt, hoặc tự bắt đầu vào {dd/MM/yyyy} nếu chưa kích hoạt" (không hiện "Còn {N} ngày") | Thời gian thiết lập (hóa đơn chạy thử, dữ liệu thử) không phải thời gian dùng thật nên không nên bị tính; trần {m} ngày chặn tenant nằm ở `onboarding` vô hạn gây chi phí (R-TEN-07, FR-TEN-041); phương án "từ lúc cấp phát" phạt người làm chậm, "từ lúc gửi đăng ký" tính cả thời gian chờ duyệt tay | Sửa chữ TSU-20, 30, 40, 41, BAN-01/02, E-06, E-09; ToS phải nêu đúng mốc bắt đầu (C-25, C-02); số {m} cũng là tham số ở TSU-66 nhóm "Dùng thử"; hết `{m}` mà vẫn `onboarding` thì đồng hồ chạy bình thường và đến hết hạn đi theo thang QĐT-25 (wizard vẫn mở để kích hoạt) |
+| QĐT-23 | TSU-20 "Bắt đầu lại": giữ hay xóa dữ liệu | **Giữ toàn bộ dữ liệu đã nhập, không xóa gì.** Nút đổi tên thành **"Xem lại từ bước 1"**; chỉ đặt con trỏ về bước 1, gỡ nhãn "Bỏ qua" của các bước đã bỏ qua và giữ giá trị đã lưu trong từng bước. Vì không phá hủy nên **bỏ hộp thoại xác nhận** (thay bằng một dòng chú thích dưới nút: "Thông tin bạn đã nhập vẫn được giữ"). Xóa dữ liệu thử chỉ có ở TSU-29 (mức Nguy hiểm, gõ "XOA DU LIEU THU") | Tránh hiểu nhầm "bắt đầu lại" là xóa; FR-TEN-030 chỉ cho xóa dữ liệu thử có xác nhận ở bước kiểm tra; không có thao tác xóa ẩn | Designer sửa `onboarding/tsu-20.html` (bỏ `dlg-restart`, đổi chữ, câu giả định "chờ BA xác nhận" bị xóa), `onboarding/tsu-31.html` biến thể `tiếp tục từ nháp` đổi nút "Bắt đầu lại" thành "Xem lại từ bước 1" |
+| QĐT-24 | TSU-51: nút `aria-disabled` vẫn bấm được và mở hộp thoại | **Chấp nhận, thành quy tắc có hai kiểu khóa nút.** Kiểu 1 "khóa thuần" (thiếu dữ liệu, thiếu quyền, mất mạng): `aria-disabled="true"`, vẫn focus được, bấm chỉ đưa focus tới `ReasonDisabled` hiện sẵn, không gọi máy chủ. Kiểu 2 "khóa tạo mới theo trạng thái tenant" (`TENANT_RESTRICTED`, `TRIAL_EXPIRED`, `QUOTA_LIMIT_REACHED`...): `aria-disabled="true"`, focus được, **bấm mở hộp thoại TSU-51** giải thích và chỉ lối ra; không gửi yêu cầu tạo, không mất bản nháp. Cả hai kiểu **không dùng thuộc tính `disabled`**, nút luôn có `aria-describedby` trỏ tới lý do hiện sẵn | `ui-ux-flow` §5.6 (nút khóa kèm lý do, không ẩn); `aria-disabled` giữ nút trong thứ tự Tab để người dùng bàn phím và trình đọc màn hình nghe được lý do | AC-19 thêm "bấm nút kiểu 2 mở TSU-51 và không gọi API tạo"; test Playwright kiểm không có request tạo; ghi vào `component-catalog.md` khi cập nhật (ngoài lượt này) |
+| QĐT-25 | Ánh xạ thang RULE-030; FR-TEN-005 (chế độ) với FR-TEN-044 (hết trial); `grace_over`/`expired` với tenant `restricted` | **Thang bốn nấc, thời hạn mỗi nấc là cấu hình (TSU-66 nhóm "Dùng thử"; B2 thêm nhóm "Công nợ phí"), dữ liệu không xóa ở mọi nấc.** N1 **Cảnh báo** (`trial` còn ≤ mốc; `past_due`): tenant `active`, BAN-02/BAN-04. N2 **Hạn chế tạo mới** (thuê bao `expired`; B2: `grace_over`): tenant chuyển `restricted` với lý do hiển thị `SUBSCRIPTION_EXPIRED` (hoặc `PAYMENT_OVERDUE` ở B2) = chế độ "chặn tạo mới" của FR-TEN-005; **áp dụng FR-TEN-044 / RULE-023**: lệnh đang mở vẫn thu tiền, giao xe, phát hành hóa đơn, hoàn tất; banner **BAN-03** (không chồng thêm BAN-05 vì BAN-03 đã nêu hạn chế); TSU-51 và TSU-52. N3 **Chỉ đọc và tải dữ liệu** (sau {n} ngày ở N2): tenant `suspended` chế độ `readonly` lý do `SUBSCRIPTION_EXPIRED_READONLY` = chế độ "chỉ đọc và tải dữ liệu" của FR-TEN-005: **không hoàn tất lệnh, không thu tiền, không giao xe** (bảng 3.4), vẫn xem/tải hóa đơn và xuất dữ liệu (RULE-021); BAN-07 biến thể "hết hạn dùng thử". N4 theo J4 (chấm dứt, xuất, xóa theo chính sách) chỉ khi hết thời hạn giữ và có người duyệt (RULE-020). Chuyển N2 → N3 do hệ thống chạy theo lịch **đã được hai người phê duyệt khi đặt cấu hình thang** (RULE-027; TSU-66 xác nhận mức Nguy hiểm), không có thao tác tay từng tenant. Chọn gói trả phí mở lại ngay về `active` và giữ nguyên dữ liệu | Khớp `multi-tenant-analysis` 5.5 (`expired`, `grace_over` đều đi qua `restricted` rồi `suspended`) và L-06; tách rõ hai nấc để không mâu thuẫn "lệnh đang mở vẫn hoàn tất" với "chỉ đọc" | Sửa 3.3, 3.4 (cột "hạn chế do thuê bao" giống `restricted`), TSU-50 BAN-03/07, TSU-52 ("Tiếp theo" nêu ngày N3); **rủi ro**: xe đang nằm xưởng bị kẹt ở N3 nên BAN-03 và E-11 phải nêu rõ ngày chuyển N3 và việc cần làm trước đó (hoàn tất, thu tiền, giao xe); ngưỡng ngày `[Cần xác nhận]` C-23; FR-TEN-044 cần ghi "đồng hồ" (QĐT-22) và ánh xạ nấc (L-15) |
+| QĐT-26 | TSU-55: AD có tạo/tải gói xuất không; chuỗi gõ xác nhận | **Chỉ CH tạo, tải và xác nhận "đã nhận dữ liệu".** AD **xem được danh sách gói** (mã, ngày, trạng thái, dung lượng, mã kiểm tra toàn vẹn) nhưng nút Tạo và Tải khóa kèm `NO_PERMISSION` ("Chỉ chủ garage tạo và tải gói xuất dữ liệu"); NV không thấy màn. Mọi lần tạo/tải ghi nhật ký tenant (ai, khi nào). **Quy ước chuỗi gõ xác nhận** cho mọi thao tác Nguy hiểm dùng cụm từ: chữ **IN HOA không dấu**, so khớp **không phân biệt hoa thường, bỏ dấu, cắt khoảng trắng thừa** (dễ gõ trên điện thoại); giữ các chuỗi `DA NHAN DU LIEU` (TSU-55), `XOA DU LIEU THU` (TSU-29), `GHI LO` (TSU-28) | Gói xuất chứa toàn bộ dữ liệu cá nhân của khách tenant (NFR-PRI-01), nên quyền hẹp nhất; khớp RULE-020; `ui-ux-flow` §5.4 đã có "GHI LO", "HOÀN TIỀN" (có dấu) nên cần quy ước so khớp thống nhất | Nếu CH vắng mặt thì không ai tải được: đường qua hỗ trợ nền tảng (FR-TEN-012, chưa có màn, L-12) `[Cần xác nhận]` C-28; prototype đã đúng |
+| QĐT-27 | TSU-56: biên bản bằng văn bản; rút yêu cầu | **Điện tử, không bắt văn bản giấy mặc định (C-10).** Gửi yêu cầu xong, trạng thái "Chờ CH xác nhận qua email": email E-14 chứa **liên kết xác nhận có thời hạn (tham số, đề xuất 7 ngày)**; yêu cầu **chỉ có hiệu lực khi CH bấm xác nhận** trong email, quá hạn thì tự hủy yêu cầu. Sau khi xác nhận: "Chờ nền tảng" → CNT chuyển `terminating`. **Rút yêu cầu:** được ở bốn trạng thái "Chờ CH xác nhận", "Chờ nền tảng", `terminating` **cho đến khi CH bấm "đã nhận dữ liệu"** (TSU-55) hoặc hết thời hạn trả dữ liệu; mức Thường (nêu "Công ty tiếp tục hoạt động như trước"); sau khi đã xác nhận nhận dữ liệu hoặc `terminated` thì **không rút được**, chỉ qua hỗ trợ (FR-TEN-008 Should, thời hạn khôi phục theo hợp đồng) | FR-TEN-006, 008; J4; yêu cầu điện tử có xác nhận qua email là mức tối thiểu hợp lý nếu luật sư chưa đòi chữ ký | Sửa TSU-56 (trạng thái `chờ CH xác nhận` thêm vào T:), TSU-57; email E-14; đổi hợp đồng thành văn bản thì thêm bước tải biên bản có chữ ký (C-10) |
+| QĐT-28 | Q13: hạn mức người dùng đếm người được tạo hay đang hoạt động | Mặc định đếm **người dùng đang hoạt động** (tài khoản `active`; **không tính** tài khoản bị khóa/vô hiệu hóa và **lời mời chưa kích hoạt**); chế độ đếm là cờ cấu hình gói (`active` / `created`) để đổi theo Q13. Kích hoạt tài khoản (hoặc mở khóa) khi đã đủ hạn mức bị chặn bằng `QUOTA_LIMIT_REACHED`; gửi lời mời **không** bị chặn (nêu cảnh báo "Còn {x} chỗ") | Công bằng với nhân viên nghỉ việc; không tính lời mời bỏ quên; cờ cấu hình giữ nguyên lựa chọn thương mại cho chủ dự án | Sửa chữ ở TSU-41 ("Cách đếm... theo cấu hình" thành "Đếm người dùng đang hoạt động"), TSU-24 cảnh báo chỗ còn; Q13 vẫn mở ở mức giá và ngưỡng; chống lách bằng khóa/mở luân phiên: đếm số đồng thời, nhật ký FR-SYS-003 |
+| QĐT-29 | Danh mục lý do hạn chế/tạm ngưng hiển thị cho tenant | Danh mục do QTN cấu hình ở TSU-66 (nhóm "Danh mục lý do", thêm hai danh mục), mỗi mã có **câu hiển thị cho CH, AD** (NV chỉ thấy câu chung, không thấy lý do chi tiết). **Hạn chế (`restricted`):** `SUBSCRIPTION_EXPIRED` (Hết thời gian dùng thử/gói), `OVER_QUOTA` (Vượt hạn mức gói), `TERMS_PENDING` (Chưa đồng ý điều khoản mới sau ân hạn), `COMPLIANCE_REVIEW` (Đang xem xét tuân thủ, cần bổ sung thông tin), `PAYMENT_OVERDUE` (B2, giữ chỗ). **Tạm ngưng chỉ đọc (`suspended`/readonly):** `AT_OWNER_REQUEST` (Theo yêu cầu của chủ garage), `SUBSCRIPTION_EXPIRED_READONLY`, `PAYMENT_OVERDUE`, `TERMS_VIOLATION` (Chưa tuân thủ điều khoản), `COMPLIANCE_REVIEW`. **Tạm ngưng an ninh:** **không có lý do hiển thị**, chỉ câu cố định "vì lý do an toàn" + mã tham chiếu (TSU-54). Lý do luôn kèm "việc cần làm để mở lại" (một câu). Lý do nội bộ chi tiết (nhật ký nền tảng) tách khỏi lý do hiển thị | RULE-027 (lý do bắt buộc ghi nhật ký); không lộ chi tiết an ninh (spec TSU-50); thống nhất ngôn ngữ banner, email E-16, TSU-51/53 | Chữ trong ví dụ TSU-53 ("Vi phạm điều khoản", "Quá hạn thanh toán") thay bằng câu từ danh mục; prototype `tsu-50.html` dòng BAN-05 mẫu dùng "Quá hạn thanh toán" nhưng B0/B1 chưa có thu phí: đổi sang `SUBSCRIPTION_EXPIRED` hoặc `OVER_QUOTA`; danh sách mã là ban đầu, thêm mã là cấu hình |
+| QĐT-30 | Liên kết giữa các nhóm màn; BAN-09, BAN-10 | **Tên file thật ở prototype** (đối chiếu ngày 05/11/2026, tồn tại cả): `public/tsu-18.html`, `public/tsu-08.html`, `onboarding/tsu-20.html`, `account/tsu-41.html`, `tsu-53.html`, `tsu-54.html`, `tsu-57.html`. Quy tắc: nút/liên kết trong prototype **phải trỏ tới đúng màn đích (và `?state=` khi cần)**, không dùng toast "Mở màn TSU-xx" thay link. **BAN-09 → TSU-18** (có link). **BAN-10 → TSU-08 biến thể `trong ứng dụng`**: CH, AD, KT đã đăng nhập xem trạng thái xác minh doanh nghiệp (route đề xuất `/settings/verification`) **không cần liên kết theo dõi trong email** (xác thực bằng phiên); nội dung như TSU-08 (`StatusTracker`, MST che, mã `SGN-xxxxxx`), không có nút bổ sung nếu người xem không phải CH | BAN-09, BAN-10 hiện chỉ báo toast; TSU-08 gốc dành cho NDK chưa có tài khoản nên không dùng được cho CH đã vào ứng dụng | Không thêm màn (vẫn 52); TSU-08 thêm biến thể `trong ứng dụng` (T: `trong ứng dụng`, `cần bổ sung`); TSU-14 danh sách rẽ nhánh phải trỏ `../onboarding/tsu-20.html`, `../account/tsu-53.html`, `tsu-54.html`, `tsu-57.html` thay vì thư mục; mục 1.7 route thêm `/settings/verification` |
+| QĐT-31 | Lưu bí mật hóa đơn ở TSU-27 khi chưa kiểm tra kết nối (**cho Dev**) | **Cho lưu** cấu hình nhà cung cấp ở trạng thái `chưa kiểm tra kết nối`: bí mật (khóa API, mật khẩu, chứng thư) lưu **mã hóa, chỉ ghi, không đọc lại qua API hay giao diện** (giao diện chỉ hiện "Đã lưu" và 4 ký tự cuối nếu nhà cung cấp cho phép), ghi nhật ký tenant. Nhà cung cấp **không được dùng cho phát hành thật** cho đến khi "Kiểm tra kết nối" đạt **và** tenant đạt xác minh (RULE-028); môi trường mặc định `Thử nghiệm`. Với FR-TEN-004, "đã khai" = đủ trường bắt buộc (nhà cung cấp, MST đơn vị phát hành, mẫu số, ký hiệu), **không đòi kết nối đạt** (nhà cung cấp có thể tạm lỗi) nhưng checklist TSU-29 hiện trạng thái kết nối ("Chưa kiểm tra", "Đạt", "Lỗi") | Không chặn chủ garage vì sự cố bên thứ ba; bảo vệ bí mật; không phát hành thật khi chưa kiểm tra; không chọn công nghệ mã hóa | Dev quyết cơ chế lưu bí mật (ADR); prototype TSU-27 và TSU-29 thêm nhãn trạng thái kết nối; xóa dòng "không lưu bí mật nếu chưa kiểm tra? `[Cần xác nhận]` Dev"; AC-15 thêm "bí mật không hiển thị lại" (đã có) và "phát hành thật khóa khi kết nối chưa đạt" |
+| QĐT-32 | TSU-61: tìm theo email che | **Không tìm theo một phần email** (vì email hiển thị che). **Cho tìm theo toàn bộ email**: nhập đủ địa chỉ, máy chủ so khớp tuyệt đối (không lộ gợi ý, không tìm gần đúng) và **ghi nhật ký tra cứu nền tảng** (ai tìm, khi nào, không ghi nội dung email); kết quả vẫn hiển thị email che. Tìm theo SĐT: không hỗ trợ | Hỗ trợ khách gọi báo email vẫn tra được hồ sơ; không biến ô tìm thành công cụ dò email; khớp RULE-017, RULE-027 | Sửa mô tả ô tìm ở TSU-61 và hint prototype ("Tìm theo email cần nhập đủ địa chỉ; việc tra cứu được ghi nhật ký"); đã ghi vào mục 2 TSU-61 |
+| QĐT-33 | C-18: để lại email khi đóng đăng ký / đạt trần | **Không thu email**, **không có ô nhập** ở TSU-01 `đóng đăng ký`. Chỉ hiển thị "Hiện chưa mở đăng ký mới. Vui lòng quay lại sau." kèm kênh liên hệ hỗ trợ khi đã có (C-11). Trường hợp `trần ngày đã đạt` vẫn dùng TSU-05 `xếp hàng` (đã thu đủ thông tin theo form, không thu thêm) | Tối thiểu hóa dữ liệu (QĐT-19); chưa có chính sách đồng ý nhận tin (C-02, C-03) | Prototype TSU-01 đã đúng (khung giữ chỗ C-18 có thể đổi thành dòng chữ cố định); C-18 chuyển thành "không thu, đổi khi chủ dự án quyết" |
+| QĐT-34 | Token theo dõi đăng ký (hạn, thu hồi) | **Khác liên kết xác thực email:** token theo dõi **dùng nhiều lần**, ngẫu nhiên khó đoán, gắn đúng một yêu cầu. **Hiệu lực** đến {n} ngày sau khi yêu cầu đạt trạng thái cuối (`provisioning` xong, `rejected`, hết hạn), tham số `tracking_token_days` (đề xuất 30). **Thu hồi:** (a) khi yêu cầu cấp token mới (gửi lại liên kết, đổi email) thì token cũ vô hiệu ngay; (b) khi tenant sang `active`; (c) khi nền tảng thu hồi vì nghi lạm dụng. Token hết hạn hoặc bị thu hồi: trang TSU-08 dùng đúng **một câu trung lập** như `liên kết không hợp lệ` ("Liên kết theo dõi không còn dùng được. Nếu đã có tài khoản, hãy đăng nhập; nếu chưa, hãy gửi lại liên kết từ email đăng ký") không nêu lý do. Trang theo dõi chỉ hiển thị dữ liệu tối thiểu (tên doanh nghiệp, MST che, mã `SGN-xxxxxx`, thời điểm gửi, trạng thái) vì liên kết có thể bị chuyển tiếp | FR-TEN-039, 040 (không lộ tồn tại); NFR-PRI-01 | Sửa TSU-08 (mô tả "Vào", biến thể `liên kết không hợp lệ`), E-04..E-07; tham số mới ở TSU-66 nhóm "Xác thực email" |
+| QĐT-35 | TSU-09/10: quá hạn bổ sung, số lượt khiếu nại, ai xử lý | **Quá hạn bổ sung** (hạn do QTN/CNT đặt ở TSU-63, mặc định tham số `supplement_days`, đề xuất 7): hệ thống **tự chuyển `rejected` lý do `khong_bo_sung_dung_han`** (đúng QĐT-14), cho phép **khiếu nại** và **đăng ký lại**; không gia hạn tự động. NDK xin thêm thời gian bằng khiếu nại; CNT chọn "Chuyển lại xem xét" thì mở hạn mới. **Số lượt khiếu nại: 1 lượt cho mỗi yêu cầu** (tham số `appeal_max`, đề xuất 1; không tính lượt "chuyển lại xem xét" của nhân viên). **Ai xử lý:** chỉ **CNT** quyết định khiếu nại (TSU-64); QTN và HTN xem nhưng không bấm quyết định; thời hạn phản hồi khiếu nại là tham số (`[Cần xác nhận]` C-26) | QĐT-12, QĐT-14; Q28 yêu cầu đường khiếu nại; hạn chế spam | Prototype TSU-09 trạng thái `quá hạn` bỏ câu "yêu cầu *có thể* được chuyển sang từ chối" (nay chắc chắn) và bỏ khối giữ chỗ "chủ nền tảng chốt"; TSU-10 `hết lượt` đúng; E-04/E-05 nêu hạn |
+| QĐT-36 | TSU-66: ngày hiệu lực theo nhóm hay từng tham số | **Theo nhóm tham số** (mỗi nhóm một lịch sử phiên bản, ngày hiệu lực chung cho cả nhóm). Ngoại lệ: **"Mở hoặc đóng đăng ký" có hiệu lực ngay** (công tắc vận hành, không có ngày tương lai, mức Nguy hiểm); **"Danh mục lý do"** có phiên bản theo từng mã lý do. Thay đổi không sửa giá trị cũ, chỉ thêm phiên bản mới có ngày hiệu lực **không trước hôm nay** | Tham số trong cùng nhóm phụ thuộc nhau (ví dụ độ dài MST với kiểm tra chữ số kiểm tra; các nấc thang trial), đổi lệch ngày gây trạng thái không hợp lệ; FR-TEN-018, RULE-019 | Prototype đã làm theo nhóm (đúng); AC-28 đổi thành "mỗi nhóm" thay vì "mọi tham số"; nhóm "Mở/đóng" bỏ dòng "hiệu lực từ 01/10/2026" |
+| QĐT-37 | TSU-18: khung P hay shell | **Khung P rút gọn nhưng đã đăng nhập:** không có sidebar, không menu nghiệp vụ, không chọn chi nhánh; thanh trên gồm logo, **tên công ty**, **tên người dùng + vai trò**, **"Đăng xuất"**. Không có đường tắt vào dữ liệu (RULE-029: chặn nhập dữ liệu thật). Người không phải CH thấy cùng khung kèm ReasonDisabled `NO_PERMISSION` | Chặn nhập dữ liệu thật cho đến khi chấp nhận nên không dùng shell ứng dụng; vẫn phải thoát được (đăng xuất) và biết đang ở tenant nào | Sửa `public/tsu-18.html` (thanh trên hiện đang dùng `tsp-top--center` chỉ có logo, trỏ về TSU-14); mục 1.3 ghi "P đã đăng nhập" |
+| QĐT-38 | RULE-027 và duyệt đăng ký | **Xác nhận QĐT-12:** duyệt, từ chối, yêu cầu bổ sung đăng ký là **thao tác một người, ghi nhật ký nền tảng bất biến (FR-TEN-013)**, không thuộc danh sách "nhạy cảm cần hai người" của RULE-027 (ngưng, chấm dứt, xóa, truy cập khẩn cấp). **Ngoại lệ có kiểm soát:** duyệt ca MST trùng bắt buộc lý do ngoại lệ từ danh mục. Cấu hình thang trial (QĐT-25) và mở/đóng đăng ký là thao tác nhạy cảm cần xác nhận mức Nguy hiểm. Đề nghị chủ dự án cân nhắc hai người cho ca MST trùng (C-14) | Cân bằng tốc độ (0 bước thủ công cho ca thường, NFR-TEN-07) và kiểm soát; không mở rộng RULE-027 khi chưa có yêu cầu | L-07 đổi thành "ghi rõ trong RULE-027 rằng duyệt đăng ký nằm ngoài danh sách nhạy cảm" (sửa `multi-tenant-analysis`, ngoài lượt này) |
+| QĐT-39 | V-PASS: so khớp họ tên có dấu | Quy tắc "không chứa email hoặc họ tên" chạy trên **bản chuẩn hóa**: bỏ dấu tiếng Việt (kể cả `đ`→`d`), chữ thường, bỏ khoảng trắng/dấu chấm/gạch. Từ chối nếu mật khẩu chuẩn hóa **chứa**: (a) toàn bộ phần trước `@` của email, (b) họ tên ghép liền (ví dụ `nguyenvanan`), (c) bất kỳ **từ đơn của họ tên có từ 4 ký tự trở lên** (độ dài tối thiểu là tham số `pw_name_token_min`, đề xuất 4). Máy chủ là nơi quyết; trình duyệt chỉ gợi ý bằng cùng hàm. Câu lỗi giữ nguyên: "Mật khẩu không nên chứa email hoặc họ tên của bạn." | Người dùng Việt gõ họ tên không dấu trong mật khẩu; ngưỡng 4 ký tự tránh từ chối oan tên ngắn như "An", "Hà" | Sửa bảng V-PASS (mục 2.0); prototype `ts-common.js` hàm `avoids`: kiểm tra đã chuẩn hóa dấu; test với "Nguyễn Văn Ánh" / `nguyenvananh1` |
+| QĐT-40 | 7 mã lý do khóa nút mới ở `account/tsu-50.html` (rà câu chữ) | **Chấp nhận 7 mã, đổi sang quy ước chữ HOA gạch dưới** của `state-copy.md` §3 (`NO_PERMISSION`, `STATE_INVALID`): `TENANT_RESTRICTED`, `TENANT_SUSPENDED_READONLY`, `TRIAL_EXPIRED`, `QUOTA_LIMIT_REACHED`, `TENANT_TERMINATING`, `TERMS_NOT_ACCEPTED`, `VERIFICATION_REQUIRED`. Chữ chỉnh theo mục "Rà câu chữ" ngay dưới bảng này; đã đưa vào `state-copy.md` §3. Mã chỉ dùng khi máy chủ trả `can=false` | Cùng quy ước với 12 mã hiện có; một vài câu cần biến thể theo vai trò và bỏ chữ "ví dụ" nằm trong câu | Designer đổi mã chữ thường trong `tsu-50.html` (mục `t50-codes`) và mọi chỗ dùng; dev dùng làm khóa tra chuỗi |
+
+**Rà câu chữ 7 mã lý do khóa nút** (giọng `state-copy.md`: điều gì, vì sao, cách khắc phục; không chấm than):
+
+| Mã | Câu chữ chốt | Ghi chú rà |
+| --- | --- | --- |
+| `TENANT_RESTRICTED` | CH, AD: "Công ty đang bị hạn chế tạo mới: {lý do}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở." · NV: "Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage." | Thêm biến thể NV (không thấy lý do chi tiết, QĐT-29); `{lý do}` từ danh mục |
+| `TENANT_SUSPENDED_READONLY` | "Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ." | Giữ nghĩa, thêm "bạn"; dùng cho cả N3 của thang trial |
+| `TRIAL_EXPIRED` | CH, AD: "Dùng thử đã hết. Chọn gói để tiếp tục tạo mới." · NV: "Dùng thử của công ty đã hết. Liên hệ {tên CH} để chọn gói." · biến thể `none`: "Giai đoạn truy cập sớm đã kết thúc. Chọn gói để tiếp tục tạo mới." | **Sửa:** prototype nhét "Nhân viên: Liên hệ chủ garage" vào cùng một câu; tách theo vai trò. Chỉ dùng ở N2; ở N3 dùng `TENANT_SUSPENDED_READONLY` |
+| `QUOTA_LIMIT_REACHED` | CH, AD: "Gói hiện tại cho tối đa {y} {đối tượng}. Xem gói hoặc ngừng sử dụng bớt {đối tượng} đang dùng." · NV: "Công ty đã dùng hết số {đối tượng} của gói. Liên hệ chủ garage." | "ngừng bớt" mơ hồ, đổi "ngừng sử dụng bớt"; NV không có quyền nên đổi cách khắc phục; `{đối tượng}` lấy từ danh mục (chi nhánh, người dùng) |
+| `TENANT_TERMINATING` | "Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được{, đến {dd/MM/yyyy}}." | Ngày là tùy chọn (chưa có thì bỏ cụm), tránh "đến ." |
+| `TERMS_NOT_ACCEPTED` | CH: "Cần đồng ý {tài liệu} phiên bản {v} trước khi {hành động}." · NV: "Chủ garage cần đồng ý {tài liệu} phiên bản {v}. Hãy báo cho {tên CH}." | **Sửa:** "Điều khoản dịch vụ" cố định sai khi là DPA; dùng `{tài liệu}` ("Điều khoản dịch vụ", "Thỏa thuận xử lý dữ liệu (DPA)", hoặc cả hai); NV không tự đồng ý được |
+| `VERIFICATION_REQUIRED` | "Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}." | **Sửa:** bỏ ", ví dụ phát hành hóa đơn thật" khỏi câu (ví dụ không thuộc chuỗi hiển thị); `{hành động}` điền "phát hành hóa đơn thật" |
+
 ---
 
 ## 5. [Cần xác nhận]
@@ -1084,7 +1127,7 @@ Gom theo người phải chốt. Mỗi mục nêu lựa chọn, khuyến nghị 
 | C-07 | Chủ dự án, Luật sư | Mức xác minh: nguồn tra MST; có cần giấy đăng ký kinh doanh; xác thực người đại diện; ngoại lệ RULE-032 (nhượng quyền, nhiều thương hiệu cùng pháp nhân); đường khiếu nại; có nhận hộ kinh doanh/cá nhân (Q28, Q35) | Tự động MST + duyệt tay ca cờ | TSU-02, 09, 62; danh mục lý do TSU-66 |
 | C-08 | Chủ dự án | Chính sách chống lạm dụng: trần đăng ký, chi phí tối đa tenant chưa trả tiền, danh sách chặn, chỉ nhận từ Việt Nam, thời gian duyệt tay tối đa (Q29, NFR-TEN-07) | Trần thấp lúc đầu, tăng dần | Nội dung TSU-05 `xếp hàng`, TSU-08, TSU-61 |
 | C-09 | Chủ dự án, Luật sư | Thời hạn giữ dữ liệu và xử lý khi không chọn gói sau trial; chấm dứt và xóa; cổng tải lưu trữ sau `terminated` (Q7, Q20) | Giữ nguyên dữ liệu theo RULE-030/020; nêu thời hạn khi có | TSU-52, 56, 57 |
-| C-10 | Luật sư, Chủ dự án | Yêu cầu chấm dứt cần văn bản/chữ ký hay chỉ yêu cầu điện tử | Điện tử có xác nhận qua email | TSU-56 |
+| C-10 | Luật sư, Chủ dự án | Yêu cầu chấm dứt cần văn bản/chữ ký hay chỉ yêu cầu điện tử; thời hạn rút yêu cầu (QĐT-27) | Điện tử có xác nhận qua email; rút được đến khi CH xác nhận đã nhận dữ liệu | TSU-56, 57 |
 | C-11 | Chủ dự án | Kênh, giờ và SLA hỗ trợ cho tenant chưa trả tiền (Q9, Q23, Q33) | Công bố mức tối thiểu trước khi mở | Nội dung "Liên hệ hỗ trợ" ở TSU-10, 54; FR-TEN-050 chưa có màn trong gói này |
 | C-12 | Kế toán, Luật sư | Định dạng MST được nhận (10 số; 12 số cho hộ kinh doanh/cá nhân; có kiểm tra chữ số kiểm tra không); xử lý MST 13 số | Quy tắc là cấu hình (TSU-66); mặc định ở V-MST | Câu lỗi V-MST |
 | C-13 | Chủ dự án | Có xác thực SĐT bằng OTP không; chi phí SMS/Zalo (provider chưa chọn) | Không bật lúc đầu | Thêm bước ở TSU-03/05 |
@@ -1092,11 +1135,17 @@ Gom theo người phải chốt. Mỗi mục nêu lựa chọn, khuyến nghị 
 | C-15 | Dev, Chủ dự án | Cách phân biệt dữ liệu thử và thật khi nhập Excel trong `onboarding` (FR-TEN-030) | Nhập trong `onboarding` là thử, chỉ hóa thật khi kích hoạt hoặc khi CH chọn rõ sau chấp nhận điều khoản | TSU-28, 29 |
 | C-16 | Chủ dự án | Ma trận quyền nền tảng (FR-TEN-011): ai xem, ai duyệt, ai cấu hình đăng ký, ai xử lý khiếu nại | Như bảng actor mục 0.3 | Nút khóa/ẩn ở TSU-61..68 |
 | C-17 | Dev | Cơ chế chống bot, nguồn tra MST, cách cấp phát (Q26) ảnh hưởng thời gian TSU-12 (NFR-TEN-05) | Spike của dev | Hiển thị thời gian dự kiến |
-| C-18 | Chủ dự án | Khi đóng đăng ký/trần ngày đạt: cho để lại email nhận thông báo không (thêm thu dữ liệu) | Không thu nếu chưa có quyết định | TSU-01 `đóng đăng ký` |
+| C-18 | Chủ dự án | Khi đóng đăng ký/trần ngày đạt: cho để lại email nhận thông báo không (thêm thu dữ liệu). **Đã có quyết định tạm QĐT-33: không thu** | Không thu | TSU-01 `đóng đăng ký` |
 | C-19 | Chủ dự án | Chính sách giữ hồ sơ đăng ký bị từ chối và thời hạn (FR-TEN-040, trạng thái `rejected` giữ tối thiểu) | Giữ tối thiểu, theo chính sách | Câu trong TSU-10, email E-05 |
 | C-20 | Chủ dự án | Tenant được tự đổi mã công ty hay không, và khi đổi thì sao | Không đổi trong giai đoạn đầu | TSU-17, cài đặt tenant |
 | C-21 | Kế toán của tenant | Tháng bắt đầu kỳ kế toán mặc định, định dạng xuất kỳ cuối | Mặc định tháng 1 | TSU-21 |
 | C-22 | Chủ dự án | Mô hình hạ gói: chặn hay cảnh báo (FR-TEN-045) | Chặn | TSU-43 |
+| C-23 | Chủ dự án, Luật sư | Số ngày mỗi nấc thang hết trial (N2 hạn chế, N3 chỉ đọc) và xử lý khi còn xe nằm xưởng lúc sang N3 (QĐT-25) | Nấc N2 đủ dài để hoàn tất lệnh; thông báo trước ngày sang N3 | BAN-03, BAN-07, TSU-52, E-11 |
+| C-24 | Chủ dự án | Vai trò ở wizard: MH, NS có là vai trò hay quyền của module (FRD §2 chưa có cột); có cho CH thứ hai (đồng sở hữu) và QV mặc định ẩn không (QĐT-21) | Giữ như QĐT-21 đến khi FRD §2 cập nhật | TSU-24 danh sách vai trò |
+| C-25 | Chủ dự án, Luật sư | Mốc bắt đầu dùng thử (kích hoạt hay cấp phát) và giá trị `onboarding_max_days` (QĐT-22); ToS nêu đúng mốc | Kích hoạt, trần {m} ngày | BAN-01/02, TSU-20, 30, 40, 41, E-06, E-09 |
+| C-26 | Chủ dự án | Giá trị tham số: số lượt khiếu nại, hạn bổ sung, thời hạn phản hồi khiếu nại, `tracking_token_days` (QĐT-34, 35) | 1 lượt; 7 ngày; theo SLA hỗ trợ | TSU-09, 10, 11, 64, 66 |
+| C-27 | Luật sư | Chuỗi gõ xác nhận và hiệu lực pháp lý của xác nhận điện tử ở TSU-55, 56 (QĐT-26, 27) | Điện tử có xác nhận email | TSU-55, 56 |
+| C-28 | Chủ dự án, Luật sư | CH vắng mặt hoặc rời công ty: ai được tạo/tải gói xuất thay (qua hỗ trợ nền tảng, FR-TEN-012) | Chỉ qua hỗ trợ có xác minh danh tính, ghi nhật ký | TSU-55; gói thiết kế FR-TEN-012 |
 
 ---
 
@@ -1124,7 +1173,7 @@ Gom theo người phải chốt. Mỗi mục nêu lựa chọn, khuyến nghị 
 | AC-16 | TSU-29: checklist đúng các mục FR-TEN-004; thiếu mục thì nút kích hoạt khóa và **nêu đúng mục thiếu** kèm liên kết; đủ mục thì kích hoạt được; xóa dữ liệu thử có xác nhận mức Nguy hiểm; dữ liệu thật không bị xóa | FR-TEN-004, 030; UAT-TEN-01, 15 |
 | AC-17 | TSU-40/41: số ngày còn lại, ngày hết hạn, mức dùng lấy từ dữ liệu; badge thuê bao và badge/banner trạng thái tenant **tách riêng**; mọi `UsageMeter` có chữ số và %, không chỉ màu | FR-TEN-044, 027; UAT-TEN-16 |
 | AC-18 | Hạ gói (TSU-43): vượt hạn mức thì nút khóa với lý do cụ thể, nêu "không xóa dữ liệu"; không vượt thì nêu ngày hiệu lực kỳ kế tiếp; nâng nêu hiệu lực ngay | FR-TEN-045; UAT-TEN-17 |
-| AC-19 | Có đủ 10 biến thể banner; trial hết hạn nêu rõ "xem và tải dữ liệu, hoàn tất lệnh đang mở"; hạn chế và hộp thoại tạo mới (TSU-51) **không** chặn thu tiền, giao xe, hóa đơn của chứng từ đang mở; nút bị khóa có lý do và giữ nháp | FR-TEN-005, 025, 044; RULE-021, 023; UAT-TEN-03, 16 |
+| AC-19 | Có đủ 10 biến thể banner; trial hết hạn nêu rõ "xem và tải dữ liệu, hoàn tất lệnh đang mở"; hạn chế và hộp thoại tạo mới (TSU-51) **không** chặn thu tiền, giao xe, hóa đơn của chứng từ đang mở; nút bị khóa có lý do và giữ nháp; nút khóa kiểu 2 (QĐT-24) bấm được, mở TSU-51 và **không gọi API tạo**; ở nấc chỉ đọc (N3) mới chặn hoàn tất lệnh (QĐT-25) | FR-TEN-005, 025, 044; RULE-021, 023; UAT-TEN-03, 16 |
 | AC-20 | Tạm ngưng chỉ đọc cho xuất dữ liệu và tải hóa đơn; tạm ngưng an ninh không có chúng; phiên bị thu hồi về màn khóa phiên rồi TSU-53/54 | FR-TEN-005; RULE-021, 026; UAT-TEN-03 |
 | AC-21 | Trung tâm xuất dữ liệu: tạo gói có khóa chống trùng, danh sách gói có mã kiểm tra toàn vẹn, tải qua liên kết ngắn hạn, "đã nhận dữ liệu" là hành động mức Nguy hiểm khi `terminating` | FR-TEN-006; UAT-TEN-04 |
 | AC-22 | Hàng đợi nền tảng không hiển thị bất kỳ dữ liệu nghiệp vụ garage; email và SĐT che mặc định, "Hiện số" ghi nhật ký; PlatformShell khác khung tenant, không có chọn chi nhánh | FR-TEN-011, 033; RULE-017; UAT-TEN-06 |
@@ -1133,7 +1182,10 @@ Gom theo người phải chốt. Mỗi mục nêu lựa chọn, khuyến nghị 
 | AC-25 | Mọi màn đạt WCAG 2.2 AA như `ui-ux-flow` §8.1: tương phản, focus nhìn thấy, dialog có focus trap và trả focus, badge có chữ, đếm lùi không đọc từng giây | NFR-USA |
 | AC-26 | Mọi màn công khai và đăng nhập dùng được ở 390px, chạm ≥ 44px; mất mạng hiện banner nêu việc không làm được và giữ nháp | `ui-ux-flow` §5.5, §7 |
 | AC-27 | Mỗi thao tác tài chính/rủi ro dùng đúng mức xác nhận (Thường, Nguy hiểm theo §5.4); không có nút "Xóa" cho nhật ký hay phiên bản điều khoản đã được chấp nhận | RULE-010, 029 |
-| AC-28 | Mọi tham số ở TSU-66 có chỗ cấu hình và hiển thị "giá trị đang áp dụng, hiệu lực từ"; không có giá trị cấu hình nào viết cứng trong câu chữ giao diện | FR-TEN-018; RULE-019 |
+| AC-28 | Mọi tham số ở TSU-66 có chỗ cấu hình; mỗi **nhóm** tham số hiển thị "giá trị đang áp dụng, hiệu lực từ" (ngoại lệ "Mở/đóng đăng ký" hiệu lực ngay, QĐT-36); không có giá trị cấu hình nào viết cứng trong câu chữ giao diện | FR-TEN-018; RULE-019 |
+| AC-29 | Wizard (v0.2): "Xem lại từ bước 1" không xóa dữ liệu và không có hộp thoại xác nhận; thẻ dùng thử khi `onboarding` chưa nêu "Còn {N} ngày"; danh sách vai trò ở TSU-24 không ghi số lượng, không có CH, QV/MH/NS theo cấu hình | FR-TEN-043, 044; QĐT-21, 22, 23 |
+| AC-30 | Liên kết (v0.2): mọi nút/liên kết giữa các nhóm màn trỏ đúng file đích, không toast thay link; BAN-09 mở TSU-18, BAN-10 mở TSU-08 `trong ứng dụng`; TSU-18 có tên công ty, tên người dùng và "Đăng xuất" | QĐT-30, 37 |
+| AC-31 | Mã lý do khóa nút (v0.2): bảy mã mới đúng quy ước chữ HOA, có biến thể theo vai trò (CH/NV) ở `TRIAL_EXPIRED`, `TENANT_RESTRICTED`, `QUOTA_LIMIT_REACHED`, `TERMS_NOT_ACCEPTED`; không câu nào chứa "ví dụ" hay tên vai trò trong cùng một chuỗi | QĐT-40 |
 
 ---
 
@@ -1172,21 +1224,27 @@ Designer dựng mẫu email (bố cục đơn giản, một cột, nút lớn, c
 
 ## 8. Lệch tài liệu và việc cần cập nhật ở tài liệu khác
 
-Tài liệu này **không sửa** file nào ngoài chính nó. Danh sách sau để BA/designer cập nhật khi người dùng cho phép.
+Tài liệu này ở v0.1 **không sửa** file nào ngoài chính nó. Ở v0.2 (05/11/2026), theo yêu cầu của người dùng, BA đã cập nhật `ui-ux-flow.md`, `STATUS.md`, `state-copy.md`, `ba-decisions.md`, `01-auth-dashboard.md` (xem trạng thái ở L-01, L-08). Phần còn lại để BA/designer/dev cập nhật khi người dùng cho phép.
 
 | Mã | Lệch / khoảng trống | Cần cập nhật |
 | --- | --- | --- |
-| L-01 | `ui-ux-flow.md` dòng bản đồ G1-AUT-01 ("không có nút Đăng ký, D-01"), mục tài khoản/bảo mật ("Không tự đăng ký, chỉ lời mời 72 giờ", D-01), `01-auth-dashboard.md` mục 3.a, STATUS.md mục 31/10 vẫn nói không tự đăng ký; **mâu thuẫn với D2** (05/11/2026). Đề xuất: giữ "nhân viên không tự đăng ký, chỉ lời mời"; thêm "chủ garage tự đăng ký ở trang công khai" | `ui-ux-flow.md` §1.4, §2.1, §10 Phụ lục A, `01-auth-dashboard.md`, `ba-decisions.md` (D-01), `screen-inventory.md` |
+| L-01 | `ui-ux-flow.md` dòng bản đồ G1-AUT-01 ("không có nút Đăng ký, D-01"), mục tài khoản/bảo mật ("Không tự đăng ký, chỉ lời mời 72 giờ", D-01), `01-auth-dashboard.md` mục 3.a, STATUS.md mục 31/10 vẫn nói không tự đăng ký; **mâu thuẫn với D2** (05/11/2026). Đề xuất: giữ "nhân viên không tự đăng ký, chỉ lời mời"; thêm "chủ garage tự đăng ký ở trang công khai". **Trạng thái v0.2:** ĐÃ SỬA ở `ui-ux-flow.md` (§1.4, §2.1 mới 2.7, §3.a, §10 A.1), `01-auth-dashboard.md`, `ba-decisions.md` (mục F, D-01 bị thay thế một phần), `STATUS.md`. **Còn lại:** `screen-inventory.md` §5 (định nghĩa D-01) và `component-catalog.md` | `screen-inventory.md` §5, `component-catalog.md` |
 | L-02 | G1-AUT-01 và G5-AUT-04 chưa có ô **Mã công ty**; G5-AUT-01/02 chưa có mã công ty | `component-catalog.md`, `design/g5-scope-auth` (khi dựng TSU-14..16) |
 | L-03 | `multi-tenant-analysis` 5.3 đưa "hết hạn xác thực" vào `signup_pending → rejected`, còn FR-TEN-039 nói liên kết hết hạn và cấp lại được: UI đã tách hai mốc (liên kết hết hạn; yêu cầu hết hạn) ở QĐT-03 | FR-TEN-039, mục 5.3 |
 | L-04 | Vòng đời tenant không có trạng thái phụ cho `signup_pending` (đang xác minh tự động, chờ duyệt tay, cần bổ sung) và `rejected` (khiếu nại). UI cần các trạng thái phụ ở mục 3.3 | FR-TEN-040 (thêm "cần bổ sung" như kết quả + trạng thái phụ), mục 5.1 |
 | L-05 | FR-TEN-043 liệt kê "bảng giá và dịch vụ mẫu" và FR-TEN-032 "bộ câu hỏi khảo sát chuẩn", FR-TEN-004 không có hai mục này làm điều kiện; spec xếp "Nên làm" (không chặn kích hoạt) | FR-TEN-043 (ghi rõ bước bắt buộc, QĐT-09) |
 | L-06 | FR-TEN-005 "chỉ đọc" không cho sửa chứng từ, FR-TEN-044 hết trial "lệnh đang mở vẫn hoàn tất": hai chế độ khác nhau trên thang RULE-030, cần ghi rõ nấc nào gắn với `expired` | FR-TEN-044, RULE-030 |
 | L-07 | RULE-027 (hai người) không liệt kê duyệt/từ chối đăng ký; ma trận quyền nền tảng chưa có (FR-TEN-011); 4.1 chỉ nói Chủ nền tảng duyệt ca cờ | FR-TEN-011, RULE-027 |
-| L-08 | `state-copy.md` §3 (mã lý do khóa nút) cần thêm 7 mã ở TSU-50; §1 cần thêm câu cho trạng thái tenant | `state-copy.md` |
+| L-08 | `state-copy.md` §3 (mã lý do khóa nút) cần thêm 7 mã ở TSU-50; §1 cần thêm câu cho trạng thái tenant. **Trạng thái v0.2:** §3 ĐÃ THÊM 7 mã (chữ HOA, câu chốt ở mục 4.1) và §2.10 trỏ về TSU-50; §1 chưa thêm hàng riêng (câu trạng thái tenant nằm ở TSU-50 BAN-01..10) | `state-copy.md` §1 (nếu dev muốn tra theo mã HTTP) |
 | L-09 | CLAUDE.md và ADR 0002 còn ghi "multi-tenant không build, tự đăng ký/billing ngoài mục tiêu" (đã nêu ở `multi-tenant-analysis` M11, mục 20) | CLAUDE.md, ADR 0002 |
 | L-10 | `ba-decisions.md`/proposals: chưa có quyết định cho người dùng thuộc nhiều tenant (QĐT-01 hệ quả) | `multi-tenant-analysis` 10.2 |
 | L-11 | Phase/đợt: màn nhóm A, B, C, G thuộc MT-1 (không bắt buộc cho pilot); nhóm D, E, F phần lớn MT-1/MT-2. Designer có thể dựng theo thứ tự: TSU-14..16 (kế thừa G5) → TSU-01..07 → TSU-08..13 → TSU-20..31 → TSU-60..63 → TSU-40..44, 50..57 → TSU-64..68 | `multi-tenant-analysis` mục 17 |
+| L-13 | FRD §2 có 10 vai trò (CH, QV, QL, CV, QĐ, TH, TK, TN, KT, AD) nhưng `ui-ux-flow` §3.a, §10 A và `ROLE_MENU` có thêm **MH, NS** là vai trò riêng; wizard TSU-24 cần một danh sách thống nhất (QĐT-21, C-24) | FRD §2 (thêm hoặc bỏ MH, NS), `ui-ux-flow` §1.3 |
+| L-14 | `multi-tenant-analysis` 4.1 và RULE-027 chưa nêu rõ duyệt/từ chối/yêu cầu bổ sung đăng ký là thao tác một người ngoài danh sách nhạy cảm (QĐT-38); FR-TEN-040 chưa có kết quả "cần bổ sung" (L-04) | `multi-tenant-analysis` 4.1, RULE-027, FR-TEN-040 |
+| L-15 | FR-TEN-044 chưa ghi **mốc bắt đầu đồng hồ dùng thử** (QĐT-22) và ánh xạ nấc thang N1..N4 sang chế độ FR-TEN-005 (QĐT-25); FR-TEN-004 chưa định nghĩa "đã khai" (QĐT-31); FR-TEN-045 chưa nói cách đếm người dùng (QĐT-28) | FR-TEN-004, 005, 044, 045, RULE-030, mục 5.5 |
+| L-16 | `screen-inventory.md` §5 định nghĩa D-01 ("không tự đăng ký") và `component-catalog.md` chưa có `BotCheckSlot`, `PlanCard`, `TenantStateBanner`, quy tắc hai kiểu khóa nút (QĐT-24) | `screen-inventory.md` §5, `component-catalog.md` |
+| L-17 | `design/tenant-signup/README.md` còn ghi `onboarding/` và `account/` là "chỗ giữ, chưa có" và tổng 18 + 9 màn; thực tế đã dựng đủ 52 màn | README (việc designer, danh sách trong báo cáo bàn giao) |
+| L-18 | FRD/BRD chưa có FR-TEN, RULE-016..032, UAT-TEN (mã đề xuất trong `multi-tenant-analysis`); khi nhập, mang theo QĐT-21..40 làm tiêu chí chấp nhận | FRD, BRD, user-journey (J7..J10) |
 | L-12 | Các FR cần màn nhưng chưa có trong gói này: FR-TEN-012 (phiên hỗ trợ), FR-TEN-050 (hỗ trợ tự phục vụ), quản trị vòng đời tenant phía nền tảng (ngưng, chấm dứt, xóa), FR-TEN-035 (thông báo vận hành) | Gói thiết kế tiếp theo |
 
 ### 8.1 Truy vết tóm tắt (FR/RULE → màn)
