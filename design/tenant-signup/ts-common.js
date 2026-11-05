@@ -195,11 +195,22 @@
     }
     return '';
   }
+  /* QĐT-39: chuẩn hóa bỏ dấu (kể cả đ), chữ thường, bỏ khoảng trắng, dấu chấm, gạch; máy chủ mới là nơi quyết */
+  var PW_NAME_TOKEN_MIN = 4;   /* tham số pw_name_token_min (minh họa) */
+  function norm(s) {
+    s = String(s || '');
+    try { s = s.normalize('NFD'); } catch (x) {}
+    return s.replace(/[̀-ͯ]/g, '').toLowerCase().replace(/đ/g, 'd').replace(/[\s.\-_]/g, '');
+  }
   function avoids(i, low) {
+    var pw = norm(low);
     return (i.getAttribute('data-avoid') || '').split(' ').filter(Boolean).some(function (id) {
       var el = document.getElementById(id); if (!el) return false;
-      var t = el.value.trim().toLowerCase(); if (el.type === 'email') t = t.split('@')[0];
-      return t.length >= 4 && low.indexOf(t) >= 0;
+      var raw = String(el.value || '').trim(); if (!raw) return false;
+      if (el.type === 'email') { var lp = norm(raw.split('@')[0]); return lp.length >= PW_NAME_TOKEN_MIN && pw.indexOf(lp) >= 0; }
+      var joined = norm(raw);
+      if (joined.length >= PW_NAME_TOKEN_MIN && pw.indexOf(joined) >= 0) return true;
+      return raw.split(/\s+/).some(function (w) { var t = norm(w); return t.length >= PW_NAME_TOKEN_MIN && pw.indexOf(t) >= 0; });
     });
   }
   function setErr(i, m) {

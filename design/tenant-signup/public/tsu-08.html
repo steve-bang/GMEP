@@ -11,10 +11,10 @@
 </head>
 <body class="tsp-body">
 <a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
-<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" data-hide="inapp" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a><a class="tsp-brand" data-show="inapp" hidden href="../account/tsu-40.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
 
 <div class="tsp-wrap">
-  <div data-ts-views="auto:Đang xác minh tự động|review:Chờ nhân viên duyệt|supp:Cần bổ sung|rejected:Bị từ chối|prov:Đã đạt, đang cấp phát|badlink:Liên kết theo dõi không hợp lệ" data-ts-common="skel error offline" data-hint="TSU-08 · FR-TEN-040, 041, 042 · không hiển thị MST đầy đủ và không nêu lý do bị gắn cờ."></div>
+  <div data-ts-views="auto:Đang xác minh tự động|review:Chờ nhân viên duyệt|supp:Cần bổ sung|rejected:Bị từ chối|prov:Đã đạt, đang cấp phát|badlink:Liên kết theo dõi không hợp lệ|inapp:Trong ứng dụng (đã đăng nhập)" data-ts-common="skel error offline" data-hint="TSU-08 · FR-TEN-040, 041, 042 · không hiển thị MST đầy đủ và không nêu lý do bị gắn cờ. Biến thể “Trong ứng dụng” (QĐT-30): mở từ BAN-10, xác thực bằng phiên, không cần liên kết trong email."></div>
 
   <main id="main" class="tsp-card tsp-card--xl" data-error-title="Chưa tải được trạng thái đăng ký" data-error-text="Máy chủ gặp sự cố tạm thời. Đăng ký của bạn không bị ảnh hưởng. Hãy thử lại sau ít phút." data-offline-text="Chưa cập nhật được trạng thái vì mất kết nối mạng. Đăng ký của bạn vẫn được xử lý bình thường.">
     <h1 class="sr-only" data-show="skel error offline" hidden>Theo dõi đăng ký</h1>
@@ -22,7 +22,7 @@
 
     <div data-ts-body class="tsp-stack">
       <div class="tsp-stack" data-hide="badlink">
-        <div><h1>Theo dõi đăng ký</h1><p class="tsp-lead">Bạn có thể đóng trang này. Chúng tôi sẽ gửi email khi có kết quả.</p></div>
+        <div><h1 data-hide="inapp">Theo dõi đăng ký</h1><h1 data-show="inapp" hidden>Trạng thái xác minh doanh nghiệp</h1><p class="tsp-lead" data-hide="inapp">Bạn có thể đóng trang này. Chúng tôi sẽ gửi email khi có kết quả.</p><p class="tsp-lead" data-show="inapp" hidden>Bạn đang xem trong ứng dụng, không cần liên kết trong email. Các chức năng khác vẫn dùng bình thường; hóa đơn thật chưa dùng được cho đến khi xác minh xong.</p></div>
 
         <ol class="tsp-track" aria-label="Tiến trình đăng ký">
           <li class="is-done"><span class="tsp-track__name">Đã gửi</span><span class="tsp-track__state">Xong</span></li>
@@ -32,8 +32,8 @@
           <li class="is-bad" data-show="rejected" hidden><span class="tsp-track__name">Xác minh doanh nghiệp</span><span class="tsp-track__state">Chưa được chấp nhận</span></li>
           <li class="is-done" data-show="prov" hidden><span class="tsp-track__name">Xác minh doanh nghiệp</span><span class="tsp-track__state">Xong</span></li>
           <li class="is-current" data-show="prov" hidden><span class="tsp-track__name">Cấp phát</span><span class="tsp-track__state">Đang thực hiện</span></li>
-          <li data-hide="prov"><span class="tsp-track__name">Cấp phát</span><span class="tsp-track__state">Chưa tới</span></li>
-          <li><span class="tsp-track__name">Sẵn sàng</span><span class="tsp-track__state">Chưa tới</span></li>
+          <li data-hide="prov inapp"><span class="tsp-track__name">Cấp phát</span><span class="tsp-track__state">Chưa tới</span></li>
+          <li data-hide="inapp"><span class="tsp-track__name">Sẵn sàng</span><span class="tsp-track__state">Chưa tới</span></li>
         </ol>
 
         <div role="status" aria-live="polite" class="tsp-stack">
@@ -41,6 +41,7 @@
           <div class="alert alert--info" data-show="review" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang chờ nhân viên kiểm tra</span><span>Đăng ký của bạn cần được nhân viên kiểm tra thêm. Chúng tôi sẽ email cho bạn khi có kết quả.</span></div></div>
           <div class="alert alert--warning" data-show="supp" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chúng tôi cần thêm thông tin</span><span>Vui lòng bổ sung các mục được yêu cầu trước hạn để chúng tôi tiếp tục xử lý.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="tsu-09.html">Bổ sung thông tin</a></div></div></div>
           <div class="alert alert--danger" data-show="rejected" hidden><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Đăng ký chưa được chấp nhận</span><span>Xem lý do và các bước tiếp theo.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="tsu-10.html">Xem kết quả</a></div></div></div>
+          <div class="alert alert--info" data-show="inapp" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang xác minh doanh nghiệp</span><span>Chúng tôi đang kiểm tra thông tin doanh nghiệp. Khi xong, bạn bật được phát hành hóa đơn thật. Chúng tôi sẽ email cho chủ garage khi có kết quả.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="../account/tsu-40.html">Về trang chủ</a></div></div></div>
           <div class="alert alert--success" data-show="prov" hidden><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Doanh nghiệp đã được xác minh</span><span>Chúng tôi đang tạo không gian làm việc cho bạn.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="tsu-12.html">Xem tiến trình cấp phát</a></div></div></div>
         </div>
 

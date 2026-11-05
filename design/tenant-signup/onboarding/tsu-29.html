@@ -57,7 +57,7 @@
     <button type="button" class="btn btn--ghost" data-open="dlg-exit">Lưu nháp và thoát</button>
     <span class="tsu-foot__sp"></span>
     <button type="button" class="btn btn--primary tsu-foot__primary" id="t29-act" data-disable-in="thieu-muc dang-kich-hoat da-noi-khac khong-du-quyen offline loading"><span>Kích hoạt và bắt đầu dùng</span></button>
-    <p class="tsu-foot__reason" data-on="thieu-muc"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chưa thể kích hoạt: còn thiếu 3 mục bắt buộc, xem danh sách phía trên. <code class="tsu-code">verification_required</code></p>
+    <p class="tsu-foot__reason" data-on="thieu-muc"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chưa thể kích hoạt: còn thiếu 3 mục bắt buộc, xem danh sách phía trên. <code class="tsu-code">VERIFICATION_REQUIRED</code></p>
     <p class="tsu-foot__reason" data-on="khong-du-quyen"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Chỉ chủ garage mới kích hoạt được. Hãy báo cho Trần Hoàng Anh. <code class="tsu-code">NO_PERMISSION</code></p>
     <p class="tsu-foot__reason" data-on="dang-kich-hoat"><svg class="icon icon--sm" aria-hidden="true"><use href="#loader"/></svg>Đang kích hoạt, vui lòng không đóng trang. Bấm lại không tạo yêu cầu thứ hai.</p>
     <p class="tsu-foot__reason" data-on="offline"><svg class="icon icon--sm" aria-hidden="true"><use href="#wifi-off"/></svg>Đang mất kết nối: thao tác này cần mạng. <code class="tsu-code">OFFLINE</code></p>
@@ -73,7 +73,7 @@
     ['Có ít nhất một công ty', 'Bắt buộc', 'tsu-21.html'],
     ['Có ít nhất một chi nhánh', 'Bắt buộc', 'tsu-22.html'],
     ['Có ít nhất một kho', 'Bắt buộc', 'tsu-23.html'],
-    ['Đơn vị phát hành hóa đơn đã khai, hoặc xác nhận chạy thử', 'Bắt buộc', 'tsu-27.html'],
+    ['Đơn vị phát hành hóa đơn đã khai, hoặc xác nhận chạy thử', 'Bắt buộc', 'tsu-27.html', 'Trạng thái kết nối: Chưa kiểm tra. Không chặn kích hoạt.'],
     ['Chính sách lưu trữ dữ liệu đã xem', 'Bắt buộc', '#dlg-policy', null, 't29-policy'],
     ['Điều khoản và DPA phiên bản hiện hành đã chấp nhận', 'Bắt buộc', '#', null, 't29-terms'],
     ['Phát hành hóa đơn thật', 'Điều kiện để bật, không chặn kích hoạt', null, 'Chưa đạt xác minh: hóa đơn tiếp tục chạy thử đến khi xác minh xong.'],
@@ -94,7 +94,7 @@
       var act = '';
       if (it[2] && (bad || i === 5 || i === 6 || i === 8)) {
         if (it[2] === '#dlg-policy') act = '<button type="button" class="btn btn--secondary btn--sm" data-open="dlg-policy">Đọc chính sách lưu trữ</button>';
-        else if (it[2] === '#') act = '<a class="btn btn--secondary btn--sm" href="#" data-toast="info|Điều khoản và DPA|Mở màn TSU-18 (nhóm C) để chấp nhận phiên bản hiện hành.">Đọc và đồng ý</a>';
+        else if (it[2] === '#') act = '<a class="btn btn--secondary btn--sm" href="../public/tsu-18.html">Đọc và đồng ý</a>';
         else act = '<a class="btn btn--secondary btn--sm" href="' + it[2] + '">' + (bad ? 'Làm bước này' : 'Xem') + '</a>';
       }
       var note = bad ? 'Còn thiếu: ' + (it[3] || 'cần làm trước khi kích hoạt.') : (it[3] || '');

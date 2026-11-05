@@ -14,6 +14,7 @@
 <body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Gói của tôi" data-no-scope>
 <div id="g1-content" hidden>
   <div data-tsu-banners>
+    <div data-tsu-banner="BAN-01" data-on="onboarding"></div>
     <div data-tsu-banner="BAN-02" data-on="trial-sap-het" data-n="3" data-date="08/11/2026"></div>
     <div data-tsu-banner="BAN-03" data-on="expired" data-date="05/11/2026"></div>
     <div data-tsu-banner="BAN-04" data-on="past-due" data-period="10/2026" data-date="31/10/2026" data-grace="14/11/2026"></div>
@@ -34,7 +35,7 @@
   </div>
   <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
 
-  <div data-tsu-bar="trial:Dùng thử|trial-sap-het:Dùng thử sắp hết|none:Truy cập sớm (none)|paid-active:Đang dùng (paid_active)|past-due:Quá hạn thanh toán (past_due)|grace-over:Hết ân hạn|cancel-scheduled:Sẽ ngừng cuối kỳ|expired:Hết hạn|sat-han-muc:Sát hạn mức|vuot-han-muc:Vượt hạn mức|cho-doi-goi:Chờ nền tảng xác nhận đổi gói|cho-cham-dut:Chờ chấm dứt|chua-co-goi:Chưa gán gói|ad-xem:Quản trị tenant xem"></div>
+  <div data-tsu-bar="trial:Dùng thử|trial-sap-het:Dùng thử sắp hết|none:Truy cập sớm (none)|paid-active:Đang dùng (paid_active)|past-due:Quá hạn thanh toán (past_due)|grace-over:Hết ân hạn|cancel-scheduled:Sẽ ngừng cuối kỳ|expired:Hết hạn|sat-han-muc:Sát hạn mức|vuot-han-muc:Vượt hạn mức|cho-doi-goi:Chờ nền tảng xác nhận đổi gói|cho-cham-dut:Chờ chấm dứt|onboarding:Đang thiết lập|chua-co-goi:Chưa gán gói|ad-xem:Quản trị tenant xem"></div>
 
   <div data-tsu-main class="tsu-stack">
     <div class="state" data-on="chua-co-goi"><div class="state__icon"><svg class="icon icon--lg" aria-hidden="true"><use href="#inbox"/></svg></div><h2 class="state__title">Chưa gán gói</h2><p class="state__text">Công ty chưa được gán gói nào. Liên hệ hỗ trợ để được gán gói.</p><div class="state__actions"><a class="btn btn--secondary" href="#" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ, số điện thoại và giờ làm việc là điểm chờ xác nhận.">Liên hệ hỗ trợ</a></div></div>
@@ -75,6 +76,7 @@
 <script>
 (function () {
   var D = {
+    'onboarding': { plan: 'Gói Khởi đầu (minh họa)', b: ['neutral', 'Chưa bắt đầu dùng thử'], start: 'Chưa bắt đầu tính ngày dùng thử', end: '30 ngày dùng thử bắt đầu khi bạn kích hoạt, hoặc tự bắt đầu vào 19/11/2026 nếu chưa kích hoạt (số minh họa)', next: 'Hoàn tất thiết lập và kích hoạt để bắt đầu dùng thử', u: [1, 10, 2, 50, 0.1, 5], tenant: ['info', 'Đang thiết lập'] },
     'trial': { plan: 'Gói Khởi đầu (minh họa)', b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', next: 'Chọn gói trước ngày hết hạn để tiếp tục tạo mới', u: [3, 10, 14, 50, 1.2, 5] },
     'trial-sap-het': { plan: 'Gói Khởi đầu (minh họa)', b: ['warning', 'Dùng thử'], start: '09/10/2026', end: '08/11/2026', next: 'Chọn gói trước ngày hết hạn', u: [3, 10, 14, 50, 1.2, 5], note: 'Còn 3 ngày dùng thử. Dữ liệu của bạn không bị xóa khi hết dùng thử.' },
     'none': { plan: 'Gói truy cập sớm', b: ['purple', 'Truy cập sớm'], start: '01/11/2026', end: 'Chưa xác định (sẽ báo trước nếu có)', next: 'Chưa có kỳ thanh toán', u: [3, 10, 14, 50, 1.2, 5] },
@@ -105,11 +107,11 @@
     var canChange = !d.ad;
     var act = '';
     act += canChange ? '<a class="btn btn--primary" href="tsu-42.html">Đổi gói</a>' : '<button type="button" class="btn btn--primary" aria-disabled="true" data-disable-in="ad-xem">Đổi gói</button><span class="tsu-reason"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Bạn chưa có quyền đổi gói. Liên hệ chủ garage. <code>NO_PERMISSION</code></span></span>';
-    if (canChange && name !== 'cancel-scheduled' && name !== 'cho-cham-dut' && name !== 'expired' && name !== 'none' && name.indexOf('trial') < 0) act += '<button type="button" class="btn btn--secondary" data-open="dlg-cancel-plan">Yêu cầu hủy gói</button>';
+    if (canChange && name !== 'cancel-scheduled' && name !== 'cho-cham-dut' && name !== 'expired' && name !== 'none' && name !== 'onboarding' && name.indexOf('trial') < 0) act += '<button type="button" class="btn btn--secondary" data-open="dlg-cancel-plan">Yêu cầu hủy gói</button>';
     act += '<button type="button" class="btn btn--ghost" data-toast="info|Tải bảng kê sử dụng|Bảng kê mức dùng theo kỳ (.xlsx), ghi rõ phạm vi và thời điểm.">Tải bảng kê sử dụng</button>';
     document.getElementById('t41-act').innerHTML = act;
     var u = d.u;
-    document.getElementById('t41-usage').innerHTML = meter('Chi nhánh', u[0], u[1], 'chi nhánh', 'Hạn mức theo gói, lấy từ cấu hình.') + meter('Người dùng', u[2], u[3], 'người', 'Cách đếm (người được tạo hay đang hoạt động) theo cấu hình.') + meter('Dung lượng tệp đính kèm', u[4], u[5], 'GB', 'Chỉ hiện nếu gói có hạn mức dung lượng.');
+    document.getElementById('t41-usage').innerHTML = meter('Chi nhánh', u[0], u[1], 'chi nhánh', 'Hạn mức theo gói, lấy từ cấu hình.') + meter('Người dùng', u[2], u[3], 'người', 'Đếm người dùng đang hoạt động; không tính tài khoản khóa và lời mời chưa kích hoạt.') + meter('Dung lượng tệp đính kèm', u[4], u[5], 'GB', 'Chỉ hiện nếu gói có hạn mức dung lượng.');
     function row(n, x, y, un) { return '<tr><th scope="row">' + n + '</th><td class="col-num num">' + num(x) + ' ' + un + '</td><td class="col-num num">' + num(y) + ' ' + un + '</td><td class="col-num num">' + (x > y ? 'Vượt ' + num(Math.round((x - y) * 10) / 10) : num(Math.round((y - x) * 10) / 10)) + ' ' + un + '</td></tr>'; }
     document.getElementById('t41-tbl').innerHTML = row('Chi nhánh', u[0], u[1], '') + row('Người dùng', u[2], u[3], '') + row('Dung lượng', u[4], u[5], 'GB');
   }

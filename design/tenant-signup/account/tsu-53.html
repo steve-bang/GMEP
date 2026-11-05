@@ -12,14 +12,17 @@
 </head>
 <body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../g5-scope-auth/g5-aut-04.html" data-top-icon="log-out">
 <div id="tsu-content" hidden>
-  <div data-tsu-bar="ch-yeu-cau:Chủ garage, theo yêu cầu|ch-thuong-mai:Chủ garage, lý do thương mại|nv-vi-pham:Nhân viên, vi phạm điều khoản|phien-thu-hoi:Phiên bị thu hồi"></div>
+  <div data-tsu-bar="ch-yeu-cau:Chủ garage, theo yêu cầu|ch-thuong-mai:Chủ garage, hết thời gian dùng thử/gói|nv-vi-pham:Nhân viên (không thấy lý do chi tiết)|phien-thu-hoi:Phiên bị thu hồi"></div>
 
   <div class="alert alert--info" role="status" data-on="phien-thu-hoi"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Phiên làm việc đã kết thúc</span><span>Tài khoản công ty vừa bị tạm ngưng nên phiên của bạn bị thu hồi. Bản nháp đang soạn được giữ trên thiết bị. Đăng nhập lại để xem và tải dữ liệu.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="../../g5-scope-auth/g5-aut-04.html">Đăng nhập lại</a></div></div></div>
 
   <div class="state" style="padding-top:var(--space-4)"><div class="state__icon state__icon--danger"><svg class="icon icon--lg" aria-hidden="true"><use href="#lock"/></svg></div>
     <h1 class="state__title" id="tsu-h1" tabindex="-1" style="font-size:var(--font-size-2xl);line-height:32px">Tài khoản của Công ty TNHH Ô tô Phương Nam đang tạm ngưng</h1>
-    <p class="state__text">Lý do: <strong data-on="ch-yeu-cau phien-thu-hoi">Theo yêu cầu của chủ garage</strong><strong data-on="ch-thuong-mai">Quá hạn thanh toán</strong><strong data-on="nv-vi-pham">Vi phạm điều khoản</strong>.</p>
-    <p class="state__text">Bạn chỉ xem và tải dữ liệu được. Không thể tạo hoặc sửa chứng từ.</p></div>
+    <p class="state__text" data-off="nv-vi-pham">Lý do: <strong data-on="ch-yeu-cau phien-thu-hoi">Theo yêu cầu của chủ garage</strong><strong data-on="ch-thuong-mai">Hết thời gian dùng thử/gói</strong>.</p>
+    <p class="state__text" data-on="nv-vi-pham">Tài khoản công ty đang tạm ngưng. Liên hệ chủ garage.</p>
+    <p class="state__text">Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.</p>
+    <p class="state__text" data-on="ch-yeu-cau phien-thu-hoi">Để mở lại: liên hệ hỗ trợ.</p>
+    <p class="state__text" data-on="ch-thuong-mai">Để mở lại: chọn gói, dữ liệu được giữ nguyên.</p></div>
 
   <section class="card" aria-labelledby="t53-c">
     <div class="card__header"><h2 class="card__title" id="t53-c">Bạn làm được gì lúc này</h2></div>
@@ -32,10 +35,10 @@
         <button type="button" class="btn btn--secondary btn--lg" aria-disabled="true" data-on="nv-vi-pham" data-disable-in="nv-vi-pham">Xuất dữ liệu</button>
         <a class="btn btn--ghost btn--lg" href="#" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ, số điện thoại và giờ làm việc là điểm chờ xác nhận.">Liên hệ hỗ trợ</a>
       </div>
-      <p class="tsu-reason" data-on="nv-vi-pham"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage xuất được dữ liệu. Hãy báo cho Trần Hoàng Anh. <code>NO_PERMISSION</code> <code>tenant_suspended_readonly</code></span></p>
+      <p class="tsu-reason" data-on="nv-vi-pham"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage xuất được dữ liệu. Hãy báo cho Trần Hoàng Anh. <code>NO_PERMISSION</code> <code>TENANT_SUSPENDED_READONLY</code></span></p>
     </div>
   </section>
-  <p class="tsu-test">Truy vết: FR-TEN-005; RULE-020, 021, 026; UAT-TEN-03. Lý do chọn từ danh mục hiển thị cho tenant, không nêu chi tiết nhạy cảm.</p>
+  <p class="tsu-test">Truy vết: FR-TEN-005; RULE-020, 021, 026; UAT-TEN-03. Lý do chọn từ danh mục hiển thị cho tenant (QĐT-29: <code>AT_OWNER_REQUEST</code>, <code>SUBSCRIPTION_EXPIRED_READONLY</code>, <code>PAYMENT_OVERDUE</code>, <code>TERMS_VIOLATION</code>, <code>COMPLIANCE_REVIEW</code>); nhân viên chỉ thấy câu chung; tạm ngưng an ninh không có lý do hiển thị.</p>
 </div>
 <noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
 <script src="../onboarding/tsu-app.js"></script>

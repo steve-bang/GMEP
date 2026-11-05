@@ -296,7 +296,7 @@
       window.gmepOpen('dlg-reg');
     }
     var ok = e.target.closest('#reg-ok');
-    if (ok) { var on = ok.getAttribute('data-want') === '1'; $('#cfg-open').checked = on; $('#cfg-open-txt').textContent = on ? 'Đang mở' : 'Đang đóng'; window.gmepClose($('#dlg-reg')); cfgDirty(); toast('success', on ? 'Đã mở đăng ký công khai' : 'Đã đóng đăng ký công khai', 'Có hiệu lực từ ngày hiệu lực đã chọn và ghi nhật ký nền tảng.'); }
+    if (ok) { var on = ok.getAttribute('data-want') === '1'; $('#cfg-open').checked = on; $('#cfg-open-txt').textContent = on ? 'Đang mở' : 'Đang đóng'; window.gmepClose($('#dlg-reg')); cfgDirty(); toast('success', on ? 'Đã mở đăng ký công khai' : 'Đã đóng đăng ký công khai', 'Có hiệu lực ngay và được ghi nhật ký nền tảng.'); }
   });
   document.addEventListener('submit', function (e) {
     if (e.target.id !== 'cfg-form') return; e.preventDefault();
