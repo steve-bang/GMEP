@@ -187,11 +187,18 @@ export interface DashboardDto {
   allOfficial: boolean;
   /** previous day's exTax revenue, for the comparison line; null when not available */
   previousExTaxVnd: number | null;
+  /**
+   * The last seven business days (oldest first) of ex-tax revenue summed over the branches of the view, for the trend chart.
+   * Empty without `report-daily:view`; a day without any rollup is `null`, never 0 (FR-RPT-001, 014).
+   */
+  series: { date: string; exTaxVnd: number | null; official: boolean }[];
   lastComputedAt: string | null;
   truncated: string[];
   alertTotal: number;
   topAlerts: (AlertItem & { branchId: string })[];
 }
+
+export const DASHBOARD_SERIES_DAYS = 7;
 
 export async function getDashboard(
   deps: RptDeps,
@@ -202,10 +209,11 @@ export async function getDashboard(
   const date = q.date ?? todayOf(deps);
   const { scope, branches } = await branchesOf(deps, actor, 'report-dashboard:view', q.branchId);
   const can = canOf(actor);
-  const keys = branches.flatMap((b) => [
-    { branchId: b.id, date },
-    { branchId: b.id, date: addDays(date, -1) },
-  ]);
+  const days = Array.from({ length: DASHBOARD_SERIES_DAYS }, (_, i) =>
+    addDays(date, i - (DASHBOARD_SERIES_DAYS - 1)),
+  );
+  // rollups are read by key (no query shape, no index): the day, the previous day and the trend window
+  const keys = branches.flatMap((b) => days.map((d) => ({ branchId: b.id, date: d })));
   const docs = await deps.rollups.getMany(scope, keys);
   const at = (branchId: string, d: string) =>
     docs.find((r) => r.branchId === branchId && r.date === d);
@@ -245,6 +253,20 @@ export async function getDashboard(
       can('report-daily:view') && prev.length > 0
         ? prev.reduce((s, r) => s + r.revenue.exTaxVnd, 0)
         : null,
+    series: can('report-daily:view')
+      ? days.map((d) => {
+          const day = branches.flatMap((b) => {
+            const r = at(b.id, d);
+            return r ? [r] : [];
+          });
+          return {
+            date: d,
+            exTaxVnd: day.length ? day.reduce((x, r) => x + r.revenue.exTaxVnd, 0) : null,
+            official:
+              day.length > 0 && day.length === branches.length && day.every((r) => r.official),
+          };
+        })
+      : [],
     lastComputedAt: computed.at(-1) ?? null,
     truncated: [...new Set(present.flatMap((r) => r.truncated))].sort(),
     alertTotal: Object.values(totals.alertCounts).reduce((a, b) => a + b, 0),

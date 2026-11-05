@@ -369,6 +369,12 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(d.consolidated).toBe(false);
       expect(d.rows).toHaveLength(1);
       expect(d.totals.revenue.exTaxVnd).toBe(before.revenue);
+      // FR-RPT-001: seven-day trend, oldest first, today last; dates ascend; a day without a rollup is null (never 0)
+      expect(d.series).toHaveLength(7);
+      expect(d.series.at(-1)).toMatchObject({ date: today, exTaxVnd: before.revenue });
+      expect(d.series.map((x: { date: string }) => x.date)).toEqual(
+        [...d.series.map((x: { date: string }) => x.date)].sort(),
+      );
       expect(d.visible).toMatchObject({
         orders: true,
         revenue: true,
@@ -383,6 +389,7 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(adv.lens).toBe('advisor');
       expect(adv.visible.revenue).toBe(false);
       expect(adv.totals.revenue.exTaxVnd).toBe(0);
+      expect(adv.series).toEqual([]); // no report-daily:view: the trend is cut on the server
       expect(JSON.stringify(adv.rows[0].rollup.revenue)).not.toContain(String(before.revenue));
       const cash = (await get(tn, `/api/v1/rpt/dashboard?date=${today}`)).json;
       expect(cash.lens).toBe('cashier');
