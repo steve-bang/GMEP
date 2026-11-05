@@ -49,6 +49,7 @@
 .btn.is-loading { position: relative; pointer-events: none; cursor: progress; }
 .btn.is-loading > *:not(.btn__spinner) { visibility: hidden; }
 .btn__spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.btn:not(.is-loading) > .btn__spinner { display: none; } /* chỉ hiện khi nút đang xử lý */
 .btn.is-loading.btn--primary, .btn.is-loading.btn--danger { opacity: .92; }
 
 .btn-icon {
