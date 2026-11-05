@@ -19,7 +19,7 @@ export interface QuoteOtpRecord extends OtpState {
   /** the next code can be asked for after this */
   resendAfter: Date;
   createdAt: Date;
-  /** Firestore TTL: the record is purged a day after the code expired */
+  /** Firestore TTL: the record is purged a day after the code expired (30 days while wrong tries are remembered) */
   expiresAt: Date;
 }
 

@@ -467,3 +467,9 @@ Dev must change (chi tiết `ba-answers-for-dev.md` §25.5): (1) nhãn khoảng 
 
 - F-1 ghi chéo (dev, 04/11/2026): CH đang chọn chi nhánh Q7 gọi PATCH xe của Thu Duc nhận 200 (BA §25 F-1(3) muốn chặn và bắt chuyển chi nhánh). Chờ quyết định có chặn không, và phạm vi (mọi route ghi hay chỉ một số).
 - F-1(3) ĐÃ LÀM (04/11/2026): ghi chéo chi nhánh bị chặn (409 `switch_branch_required`). Hỏi BA: (a) danh sách bản ghi cấp công ty không bị chặn (tổ chức, vai trò, người dùng, cấu hình, danh mục) đã đúng chưa; người dùng có vai trò theo chi nhánh nên có cần chặn không; (b) khách/xe liên kết nhiều chi nhánh: ghi được từ mọi chi nhánh có liên kết, đúng không; (c) 404 thật của người phạm vi rộng khi ghi hiện thành 409, chấp nhận không.
+
+## Đồng ý nhận tin nhắn dịch vụ (dev, 05/11/2026)
+
+| # | Gửi | Câu hỏi | Giá trị tạm trong mã | Nơi sửa |
+| --- | --- | --- | --- | --- |
+| R109 | Luật sư khách | Khi khách đã đồng ý dịch vụ sửa chữa tại quầy, gara có được nhắn báo giá và mã xác nhận qua SMS, Zalo hoặc email tới số điện thoại và email khách đã cung cấp mà không cần khách đồng ý riêng cho từng kênh không? Nếu khách từ chối riêng một kênh thì có phải ngừng ngay trên kênh đó không? | Gửi báo giá được khi có ít nhất một đồng ý `service` đang hiệu lực (kênh nào cũng được) và không có đồng ý `service` bị rút riêng cho kênh gửi mà chưa được cấp lại sau đó. Gửi mã xác nhận (OTP) không kiểm tra đồng ý (tin giao dịch) | `crm/domain/consent.ts` (`canSendServiceMessage`), `rec/application/contact.ts` |

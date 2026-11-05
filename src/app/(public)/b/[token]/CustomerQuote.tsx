@@ -133,6 +133,7 @@ export function CustomerQuote({
     if (code === 'otp_invalid') return l.otpErrInvalid!;
     if (code === 'otp_expired') return l.otpErrExpired!;
     if (code === 'otp_locked') return l.otpErrLocked!;
+    if (code === 'otp_link_locked') return l.otpErrLinkLocked!;
     if (code === 'otp_unavailable') return l.otpErrUnavailable!;
     if (code === 'otp_delivery_failed') return l.otpErrFailed!;
     if (code === 'required_item_locked') return l.errLocked!;
@@ -166,7 +167,7 @@ export function CustomerQuote({
     setBusy(null);
     if (!r.ok) {
       setError(problemText(r.problem?.code, r.status));
-      if (r.problem?.code === 'otp_locked') setOtp(null);
+      if (r.problem?.code === 'otp_locked' || r.problem?.code === 'otp_link_locked') setOtp(null);
       return;
     }
     const d = r.data as { required: boolean; destination?: string; resendAfter?: string };
@@ -195,7 +196,7 @@ export function CustomerQuote({
     // QUO-04/05: this choice needs a code: ask for it, then show the code step
     if (r.problem?.code === 'otp_required') return void requestCode();
     setError(problemText(r.problem?.code, r.status));
-    if (r.problem?.code === 'otp_locked') setOtp(null);
+    if (r.problem?.code === 'otp_locked' || r.problem?.code === 'otp_link_locked') setOtp(null);
     // R38: a link that expired meanwhile answers like an unknown one (404): reload to show the read-only page
     if (
       r.status === 404 ||

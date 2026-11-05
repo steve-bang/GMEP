@@ -68,6 +68,7 @@ const KEYS = [
   'otpErrInvalid',
   'otpErrExpired',
   'otpErrLocked',
+  'otpErrLinkLocked',
   'otpErrUnavailable',
   'otpErrFailed',
   'phoneNote',

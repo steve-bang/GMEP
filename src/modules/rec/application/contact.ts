@@ -34,8 +34,10 @@ export async function contactOf(
 }
 
 /**
- * A4 / FR-CRM-010: a quote link is a SERVICE message and needs an active `service` consent for that channel (purpose
- * x channel, ba-answers C10). No consent: refused with `message_no_consent`; no usable contact: `message_no_contact`.
+ * A4 / FR-CRM-010: a quote link is a SERVICE message: it needs a granted `service` consent (any channel it was
+ * collected through) and none withdrawn for this channel (`canSendServiceMessage`; default pending the client's
+ * lawyer [Cần xác nhận: Luật sư khách]). No consent: `message_no_consent`; no usable contact: `message_no_contact`.
+ * The one-time code (`otpTargetOf`) is a transactional message and does not check consent; also to be confirmed.
  */
 export async function serviceTargetOf(
   deps: RecDeps,

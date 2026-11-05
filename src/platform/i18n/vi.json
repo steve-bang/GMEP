@@ -125,6 +125,10 @@
       "title": "Mã xác nhận đã bị khóa",
       "detail": "Nhập sai quá số lần cho phép. Vui lòng đến quầy để được hỗ trợ xác nhận."
     },
+    "otp_link_locked": {
+      "title": "Liên kết đã bị khóa",
+      "detail": "Liên kết đã bị khóa do nhập sai nhiều lần. Hãy gửi liên kết mới cho khách."
+    },
     "otp_cooldown": {
       "title": "Vừa gửi mã xác nhận",
       "detail": "Đợi một lát rồi yêu cầu mã mới."
@@ -2972,6 +2976,7 @@
       "otpErrInvalid": "Mã chưa đúng. Kiểm tra lại tin nhắn rồi nhập lại.",
       "otpErrExpired": "Mã đã hết hạn. Bấm “Gửi lại mã” để nhận mã mới.",
       "otpErrLocked": "Nhập sai quá số lần cho phép. Anh/chị vui lòng đến quầy để được hỗ trợ.",
+      "otpErrLinkLocked": "Liên kết đã bị khóa do nhập sai nhiều lần, vui lòng liên hệ gara để nhận liên kết mới.",
       "otpErrUnavailable": "Garage chưa gửi được mã tới anh/chị. Vui lòng đến quầy để được hỗ trợ.",
       "otpErrFailed": "Chưa gửi được mã. Thử lại sau ít phút hoặc đến quầy để được hỗ trợ.",
       "phoneNote": "Garage chỉ dùng thông tin này để liên hệ về xe của anh/chị.",

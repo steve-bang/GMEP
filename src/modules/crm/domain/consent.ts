@@ -31,7 +31,11 @@ export interface Consent {
   branchId: string;
   customerId: string;
   purpose: ConsentPurpose;
-  /** channel the consent covers (marketing/reminder) or was collected through */
+  /**
+   * channel the consent covers (marketing/reminder) or was collected through. For `service` it is NOT a
+   * per-channel permission: a granted one from any channel allows service messages, and a withdrawn one
+   * stops that channel only (see `canSendServiceMessage`) [Cần xác nhận: Luật sư khách]
+   */
   channel: ConsentChannel;
   basis: ConsentBasis;
   status: 'granted' | 'withdrawn';
@@ -104,16 +108,30 @@ export function looksLikePersonalContact(text: string): boolean {
 }
 
 /**
- * A4: may the garage send a SERVICE message (a quote link) to the customer over this channel? Consent is by
- * purpose x channel (ba-answers C10): an active `service` consent recorded for that channel is needed, a withdrawn
- * one never counts (FR-CRM-010: withdrawal is immediate). The legal basis is not checked here: the contract
- * basis is the expected one for `service` [Cần xác nhận: Luật sư khách].
+ * A4: may the garage send a SERVICE message (a quote link) to the customer over this channel? For the contract-based
+ * `service` purpose, `channel` is only where the consent was collected (usually `in_person` at the counter), not a
+ * per-channel permission (ba-answers C10 "purpose x channel" was written for reminders, FR-CRM-006). Default:
+ * allowed = at least one granted `service` consent (any channel) AND no `service` consent withdrawn specifically for
+ * the sending channel without a later granted one for that channel. Withdrawn consents never count as grants
+ * (FR-CRM-010: withdrawal is immediate). The legal basis is not checked here; contract is the expected one.
+ * [Cần xác nhận: Luật sư khách] (docs/dev/open-questions-for-ba.md).
  */
 export function canSendServiceMessage(
   consents: readonly Consent[],
   channel: ConsentChannel,
 ): boolean {
-  return consents.some(
-    (c) => c.purpose === 'service' && c.channel === channel && c.status === 'granted',
+  const service = consents.filter((c) => c.purpose === 'service');
+  if (!service.some((c) => c.status === 'granted')) return false;
+  const blocked = service.some(
+    (w) =>
+      w.status === 'withdrawn' &&
+      w.channel === channel &&
+      !service.some(
+        (g) =>
+          g.status === 'granted' &&
+          g.channel === channel &&
+          (!w.withdrawnAt || g.grantedAt.getTime() >= w.withdrawnAt.getTime()),
+      ),
   );
+  return !blocked;
 }
