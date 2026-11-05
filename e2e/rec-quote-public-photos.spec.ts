@@ -39,11 +39,11 @@ test.describe('REC public quote: photos', () => {
     await expect(dialog).toBeHidden();
     await expect(first).toBeFocused();
 
-    // a new link revokes the old one: the old page and its photo URL are a plain 404, no photo is shown
+    // a new link revokes the old one: the old page explains that the link is no longer valid, its photo URL is a plain 404, no photo is shown
     const fresh = await makeLink(page.request, sent.id);
     expect(fresh.path).not.toBe(link.path);
-    const gone = await cust.goto(link.path);
-    expect(gone?.status()).toBe(404);
+    await cust.goto(link.path);
+    await expect(cust.getByRole('heading', { name: 'Liên kết không còn hiệu lực' })).toBeVisible();
     await expect(cust.getByTestId('pub-photo')).toHaveCount(0);
     expect((await cust.request.get(photoUrl!)).status()).toBe(404);
     await noHorizontalOverflow(cust);

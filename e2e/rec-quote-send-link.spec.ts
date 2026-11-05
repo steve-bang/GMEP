@@ -17,7 +17,7 @@ test.describe('REC quote: send the link to the customer', () => {
     await page.goto(`/rec/quotes/${sent.id}`);
     await expect(page.getByTestId('quote-send-sms-box')).toBeVisible();
     await page.getByTestId('quote-send-sms').click();
-    await expect(page.getByRole('alert')).toContainText('đồng ý');
+    await expect(page.getByTestId('quote-share').getByRole('alert')).toContainText('đồng ý');
     await expect(page.getByTestId('quote-send-result')).toHaveCount(0);
     expect((await messageOutbox('quote-link', AN_PHONE)).length).toBe(before);
   });
@@ -35,7 +35,10 @@ test.describe('REC quote: send the link to the customer', () => {
     await expect(panel.getByTestId('quote-send-sms-box')).toBeVisible();
     await expect(panel.getByTestId('quote-send-zalo-box')).toHaveCount(0);
     await panel.getByTestId('quote-send-sms').click();
-    await expect(panel.getByTestId('quote-send-result')).toContainText('Đã gửi');
+    // the dev outbox adapter is a simulation: the panel says the text was only written to the test outbox
+    await expect(panel.getByTestId('quote-send-result')).toContainText(
+      'Đã ghi vào hộp thư thử nghiệm',
+    );
     // the text that reached the dev outbox carries the customer link
     await expect
       .poll(async () => (await messageOutbox('quote-link', AN_PHONE)).length)

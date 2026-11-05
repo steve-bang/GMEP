@@ -132,6 +132,7 @@ export function ImportWorkbench(props: {
         setError(t('openError'));
         return;
       }
+      shownId.current = null; // an explicit open moves focus to the result even when this batch is already on screen
       setBatch((await r.json()) as ImportDto);
       setMapping(null);
       setConfirmed(false);

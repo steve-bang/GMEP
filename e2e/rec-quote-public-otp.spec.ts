@@ -64,7 +64,7 @@ test.describe('REC public quote: one-time code above the threshold', () => {
     const wrong = real === '111111' ? '222222' : '111111';
     await code.fill(wrong);
     await cust.getByTestId('pub-otp-confirm').click();
-    const alert = cust.getByRole('alert');
+    const alert = cust.locator('#otp-error');
     await expect(alert).toBeVisible();
     await expect(alert).toContainText(/chưa đúng|Kiểm tra lại mã/);
     await expect(code).toHaveAttribute('aria-invalid', 'true');
