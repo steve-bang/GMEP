@@ -115,3 +115,19 @@ describe('rate limiter (search / forgot / customer links)', () => {
     await expect(b.hit('forgot-name', 'x')).rejects.toMatchObject({ status: 429 });
   });
 });
+
+describe('RateLimiter.tryOnce (FR-REC-034 one audit row per link per window)', () => {
+  it('is true only for the first call per subject per window', async () => {
+    const { clock, limiter } = setup();
+    const w = 10 * 60_000;
+    expect(await limiter.tryOnce('v', 'a', w)).toBe(true);
+    expect(await limiter.tryOnce('v', 'a', w)).toBe(false);
+    expect(await limiter.tryOnce('v', 'b', w)).toBe(true);
+    expect(await limiter.tryOnce('other', 'a', w)).toBe(true);
+    advance(clock, w - 1000);
+    expect(await limiter.tryOnce('v', 'a', w)).toBe(false);
+    advance(clock, 1000);
+    expect(await limiter.tryOnce('v', 'a', w)).toBe(true);
+    expect(await limiter.tryOnce('v', 'a', w)).toBe(false);
+  });
+});
