@@ -6,7 +6,12 @@ import type { IntakeStatus, QuoteStatus } from './entities';
  * repair order (slice 1.6) has its own table and never shares these states.
  */
 export type QuoteEvent =
-  'send' | 'approve_full' | 'approve_partial' | 'reject' | 'expire' | 'close';
+  | 'send'
+  | 'approve_full'
+  | 'approve_partial'
+  | 'reject'
+  | 'expire'
+  | 'close';
 export const QUOTE_EVENTS: readonly QuoteEvent[] = [
   'send',
   'approve_full',
@@ -62,6 +67,33 @@ export function effectiveQuoteStatus(
   today: string,
 ): QuoteStatus {
   return isQuoteExpired(state, validUntil, today) ? 'expired' : state;
+}
+
+/** Calendar-day shift of an ISO business date (UTC arithmetic on a date-only string, no time zone involved). */
+function shiftIsoDate(isoDate: string, days: number): string {
+  const d = new Date(`${isoDate}T00:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+export type QuoteDuePhase = 'expire' | 'remind';
+
+/**
+ * R10 / R17 background job, pure selection: what the job must do with a quote of the current version.
+ *  - `expire`: stored `sent` and past `validUntil` (same rule as `isQuoteExpired`) -> apply event `expire`;
+ *  - `remind`: still valid but `validUntil` is within `leadDays` days (0 = on the last day) and this `validUntil` has not
+ *    been reminded yet (`remindedFor` holds the `validUntil` already reminded, so a new version reminds again).
+ * Anything else (draft, decided, no validity, already reminded) is left alone, which makes a repeat run a no-op.
+ */
+export function quoteDuePhase(
+  q: { status: QuoteStatus; validUntil?: string | undefined; remindedFor?: string | undefined },
+  today: string,
+  leadDays: number,
+): QuoteDuePhase | null {
+  if (q.status !== 'sent' || !q.validUntil) return null;
+  if (isQuoteExpired(q.status, q.validUntil, today)) return 'expire';
+  if (q.remindedFor === q.validUntil) return null;
+  return today >= shiftIsoDate(q.validUntil, -Math.max(0, leadDays)) ? 'remind' : null;
 }
 
 export function transitionQuote(

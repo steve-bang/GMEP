@@ -9,7 +9,12 @@ export const INTAKE_STATUSES: readonly IntakeStatus[] = ['draft', 'completed', '
 
 /** Quote states (user-journey §7): "sent" is labelled "Chờ khách duyệt" in the UI. */
 export type QuoteStatus =
-  'draft' | 'sent' | 'approved_full' | 'approved_partial' | 'rejected' | 'expired';
+  | 'draft'
+  | 'sent'
+  | 'approved_full'
+  | 'approved_partial'
+  | 'rejected'
+  | 'expired';
 export const QUOTE_STATUSES: readonly QuoteStatus[] = [
   'draft',
   'sent',
@@ -362,6 +367,8 @@ export interface Quote {
   status: QuoteStatus;
   /** R10: end of validity of the current version once sent; lets lists derive "Hết hạn" without loading versions */
   validUntil?: string;
+  /** R10/R17: the `validUntil` the advisor was already reminded about (background job); makes the reminder once per version */
+  remindedFor?: string;
   totalVnd: number;
   /** total of the approved items once approved (tax included); the order is worth this, not `totalVnd` */
   approvedTotalVnd?: number;

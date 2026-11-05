@@ -12,6 +12,7 @@ export {
   transitionQuote,
   transitionIntake,
   isQuoteExpired,
+  quoteDuePhase,
   effectiveQuoteStatus,
   editMode,
   allowedQuoteActions,
@@ -20,7 +21,9 @@ export {
   INTAKE_TRANSITIONS,
   QUOTE_EVENTS,
 } from './domain/quoteState';
-export type { QuoteEvent, IntakeEvent, Transition } from './domain/quoteState';
+export type { QuoteEvent, IntakeEvent, Transition, QuoteDuePhase } from './domain/quoteState';
+export { runQuoteExpiry } from './application/quoteExpiry';
+export type { QuoteExpiryResult } from './application/quoteExpiry';
 export {
   computeTotals,
   laborAmount,
