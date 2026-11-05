@@ -18,10 +18,16 @@ common=(--project="$PROJECT_ID" --location="$REGION" --schedule="$SCHEDULE" --ti
   --oidc-service-account-email="$SCHEDULER_SA" --oidc-token-audience="$URL"
   --attempt-deadline=180s --min-backoff=10s --max-backoff=120s --max-retry-attempts=3)
 
-ensure "scheduler job $JOB" -- \
-  gcloud scheduler jobs describe "$JOB" --location="$REGION" --project="$PROJECT_ID" -- \
+# Update when the job exists (converges a changed schedule or URL), create otherwise.
+if [[ "$DRY_RUN" == "1" ]]; then
+  log "[dry-run] create or update scheduler job $JOB (existence check skipped)"
+  run gcloud scheduler jobs create http "$JOB" "${common[@]}"
+elif gcloud scheduler jobs describe "$JOB" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
+  log "updating: scheduler job $JOB"
+  gcloud scheduler jobs update http "$JOB" "${common[@]}"
+else
+  log "creating: scheduler job $JOB"
   gcloud scheduler jobs create http "$JOB" "${common[@]}"
-# Re-apply so a changed schedule or URL converges (no-op when equal).
-if [[ "$DRY_RUN" != "1" ]]; then gcloud scheduler jobs update http "$JOB" "${common[@]}"; fi
+fi
 
 log "Test once: gcloud scheduler jobs run $JOB --location=$REGION --project=$PROJECT_ID"

@@ -23,13 +23,13 @@ fi
 # The scheduler token audience is the run.app URL of this service; both CRON_OIDC_* must be set together (env.ts).
 CRON_AUDIENCE="${CRON_OIDC_AUDIENCE:-$(service_url)}"
 
-# '^@^' makes '@' the list delimiter so values may contain commas and spaces.
-env_vars="^@^GMEP_ENV=${ENV_NAME}@GMEP_DATA_BACKEND=firestore@GCLOUD_PROJECT=${PROJECT_ID}@GMEP_FILES_BUCKET=${FILES_BUCKET}"
-env_vars+="@TRUSTED_PROXY_HOPS=1@APP_BASE_URL=${APP_BASE_URL}@APP_ORIGIN=${APP_BASE_URL}@CRON_COMPANY_ID=${CRON_COMPANY_ID}"
-env_vars+="@CRON_OIDC_AUDIENCE=${CRON_AUDIENCE}@CRON_OIDC_SERVICE_ACCOUNT=${SCHEDULER_SA}"
+# '^|^' makes '|' the list delimiter so values may contain commas, spaces and '@' (service account e-mails, EMAIL_FROM).
+env_vars="^|^GMEP_ENV=${ENV_NAME}|GMEP_DATA_BACKEND=firestore|GCLOUD_PROJECT=${PROJECT_ID}|GMEP_FILES_BUCKET=${FILES_BUCKET}"
+env_vars+="|TRUSTED_PROXY_HOPS=1|APP_BASE_URL=${APP_BASE_URL}|APP_ORIGIN=${APP_BASE_URL}|CRON_COMPANY_ID=${CRON_COMPANY_ID}"
+env_vars+="|CRON_OIDC_AUDIENCE=${CRON_AUDIENCE}|CRON_OIDC_SERVICE_ACCOUNT=${SCHEDULER_SA}"
 secrets="FIREBASE_API_KEY=${SECRET_API_KEY}:latest"
 if [[ -n "${EMAIL_FROM:-}" ]]; then
-  env_vars+="@EMAIL_FROM=${EMAIL_FROM}"
+  env_vars+="|EMAIL_FROM=${EMAIL_FROM}"
   secrets+=",EMAIL_SMTP_URL=${SECRET_SMTP_URL}:latest"
 fi
 if [[ "${CRON_SHARED_SECRET:-false}" == "true" ]]; then secrets+=",CRON_SECRET=${SECRET_CRON}:latest"; fi

@@ -85,12 +85,6 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
-      - name: Build and push image
-        run: |
-          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
-          DOCKER_BUILDKIT=1 docker build -t "$IMAGE" .
-          docker push "$IMAGE"
-
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -98,12 +92,21 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
+      - name: Index budget gate
+        run: pnpm check:indexes
+
+      - name: Build and push image
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          DOCKER_BUILDKIT=1 docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      # Indexes and rules go first on purpose: the new revision may query with an index that must already exist.
       - name: Deploy Firestore rules and indexes
         if: ${{ inputs.deploy_firestore }}
         env:
           DEPLOY_STORAGE_RULES: ${{ inputs.deploy_storage_rules }}
         run: |
-          pnpm check:indexes
           only="firestore:rules,firestore:indexes"
           if [ "$DEPLOY_STORAGE_RULES" = "true" ]; then only="$only,storage"; fi
           pnpm exec firebase deploy --only "$only" --project "$PROJECT_ID" --non-interactive

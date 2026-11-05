@@ -11,7 +11,7 @@ banner "secrets"
 # FIREBASE_API_KEY: always. EMAIL_SMTP_URL: needed when the SMTP adapter is deployed (required in prod there).
 # CRON_SECRET: only if the shared-secret cron mode is wanted; OIDC (40-scheduler.sh) is the default and needs no secret.
 secrets=("$SECRET_API_KEY" "$SECRET_SMTP_URL")
-if [[ "${CREATE_CRON_SECRET:-false}" == "true" ]]; then secrets+=("$SECRET_CRON"); fi
+if [[ "${CRON_SHARED_SECRET:-false}" == "true" ]]; then secrets+=("$SECRET_CRON"); fi
 
 for s in "${secrets[@]}"; do
   ensure "secret $s" -- \
@@ -19,6 +19,9 @@ for s in "${secrets[@]}"; do
     gcloud secrets create "$s" --replication-policy=user-managed --locations="$REGION" --project="$PROJECT_ID"
   run gcloud secrets add-iam-policy-binding "$s" --project="$PROJECT_ID" \
     --member="serviceAccount:$RUN_SA" --role=roles/secretmanager.secretAccessor
+  # The deployer (CI) only lists versions in 30-deploy-service.sh's pre-check; viewer cannot read secret values.
+  run gcloud secrets add-iam-policy-binding "$s" --project="$PROJECT_ID" \
+    --member="serviceAccount:$DEPLOYER_SA" --role=roles/secretmanager.viewer
 done
 
 log "Created without a value. Add one version to each before 30-deploy-service.sh (runbook section 6)."
