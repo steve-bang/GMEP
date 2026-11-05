@@ -153,6 +153,12 @@ export {
   prepareCloseSupplements,
   assertSupplementOrderOpen,
 } from './application/supplement';
+export { readPublicQuotePhoto } from './application/publicPhotoRead';
+export {
+  publicPhotoSources,
+  type PublicPhotoDto,
+  type PublicPhotoSource,
+} from './application/publicPhotos';
 export { addPhoto, hidePhoto, listPhotos, readPhoto, type PhotoParent } from './application/photos';
 export {
   getQcChecklist,

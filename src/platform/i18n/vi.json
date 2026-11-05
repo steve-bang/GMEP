@@ -2912,7 +2912,13 @@
       "errLimited": "Thao tác hơi nhanh. Thử lại sau ít phút.",
       "errUnexpected": "Chưa gửi được lựa chọn. Thử lại.",
       "phoneNote": "Garage chỉ dùng thông tin này để liên hệ về xe của anh/chị.",
-      "vehicle": "Xe"
+      "vehicle": "Xe",
+      "photos": "Hình ảnh xe",
+      "photosLead": "Ảnh garage chụp để anh/chị tham khảo khi xem báo giá. Ảnh chỉ để xem, không ảnh hưởng đến lựa chọn của anh/chị.",
+      "photoVehicle": "Ảnh xe số {n}",
+      "photoProposal": "Ảnh hư hỏng phát hiện số {n}",
+      "photoOpen": "Phóng to ảnh",
+      "photoClose": "Đóng"
     }
   },
   "acc": {

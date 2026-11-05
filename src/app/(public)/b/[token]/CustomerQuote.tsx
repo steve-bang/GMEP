@@ -9,6 +9,7 @@ import { Button } from '@/ui/components/Button';
 import { newKey, postJson } from '@/ui/components/postJson';
 import { Icon } from '@/ui/components/Icon';
 import { useOnline } from '@/ui/useOnline';
+import { QuotePhotos } from './QuotePhotos';
 
 interface Line {
   kind: 'labor' | 'part';
@@ -33,6 +34,7 @@ interface Dto {
   validUntil: string | null;
   customerGivenName: string;
   items: Item[];
+  photos: { id: string; caption: string | null; kind: 'intake' | 'proposal' }[];
   policy: {
     allowDeclineRequired: boolean;
     reasons: { code: string; name: string; noteRequired: boolean }[];
@@ -168,6 +170,7 @@ export function CustomerQuote({
       {dto.validUntil ? (
         <p className="text-secondary">{fill(l.validUntil, { date: isoToVi(dto.validUntil) })}</p>
       ) : null}
+      <QuotePhotos token={token} photos={dto.photos} labels={l} />
       {!online ? (
         <div className="alert alert--warning" role="status">
           <div className="alert__body">{l.offline}</div>

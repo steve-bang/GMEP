@@ -59,6 +59,12 @@ const KEYS = [
   'errUnexpected',
   'phoneNote',
   'vehicle',
+  'photos',
+  'photosLead',
+  'photoVehicle',
+  'photoProposal',
+  'photoOpen',
+  'photoClose',
 ] as const;
 
 /**

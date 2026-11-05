@@ -271,6 +271,16 @@ export async function hidePhoto(
   );
 }
 
+/** Server-chosen storage path of a photo reference (shared with the customer-link read, FR-REC-034). */
+export const photoStoragePath = (
+  parent: PhotoParent,
+  companyId: string,
+  branchId: string,
+  id: string,
+  ref: Pick<PhotoRef, 'id' | 'contentType'>,
+): string =>
+  filePath(`rec-photos-${parent}`, companyId, branchId, `${id}_${ref.id}.${EXT[ref.contentType]}`);
+
 /** Scope-checked read of one photo (the API serves the bytes; there is no public or signed URL in this slice). */
 export async function readPhoto(
   deps: RecDeps,
@@ -285,10 +295,7 @@ export async function readPhoto(
   if (!ref) throw notFound();
   // R104: a hidden photo is served only to someone who may hide photos
   if (ref.hidden && !hasPermission(actor, 'rec-photo:update')) throw notFound();
-  const ext = EXT[ref.contentType];
-  const file = await deps.files.get(
-    filePath(`rec-photos-${parent}`, p.companyId, p.branchId, `${id}_${photoId}.${ext}`),
-  );
+  const file = await deps.files.get(photoStoragePath(parent, p.companyId, p.branchId, id, ref));
   if (!file) throw notFound();
   return file;
 }
