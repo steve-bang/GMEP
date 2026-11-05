@@ -214,6 +214,8 @@ export async function closeShift(
       if (s.status !== 'open') throw new AppError('shift_not_open', 409);
       const m = await loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, date);
       if (m.drawer.openShiftId !== s.id) throw new AppError('shift_not_open', 409);
+      // FR-ACC-004 / RULE-010: the count difference is a cash book entry of a closed day, so a closed day refuses it
+      assertDayOpen(m.dayClose);
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       // re-evaluate against the book as it is NOW (a payment may have landed since the screen was drawn)
       const v = checkVariance(m.drawer.balanceVnd, data.countedVnd, policy.varianceToleranceVnd);

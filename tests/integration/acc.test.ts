@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { getDb } from '@/infrastructure/firestore/client';
 import { DEMO_PASSWORD } from '@/infrastructure/seed/demo';
-import { recomputeAccount, type Payment } from '@/modules/acc';
+import { dayCloseId, recomputeAccount, type Payment } from '@/modules/acc';
 import { backends, createHarness, type Harness } from './harness';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1926,5 +1926,49 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       const tnNext = await h.loginAt('u_tn_q7', 'br_q7');
       expect((await post(tnNext, '/api/v1/acc/shifts', {})).status).toBe(201);
     });
+
+    // FR-ACC-004, RULE-010: a count difference is never booked into a closed day (state forced; memory backend only)
+    it.runIf(backend === 'memory')(
+      'closeShift refuses a variance entry on a closed day',
+      async () => {
+        const t = await h.loginAt('u_tn_q7', 'br_q7');
+        const ql2 = await h.loginAt('u_ql_q7', 'br_q7');
+        const date = (await get(ql2, '/api/v1/acc/day-close')).json.date as string;
+        if (!(await get(t, '/api/v1/acc/cashbook')).json.drawer.openShiftId)
+          expect((await post(t, '/api/v1/acc/shifts', {})).status).toBe(201);
+        const cb = (await get(t, '/api/v1/acc/cashbook')).json;
+        const sh = (await rows('cashShifts')).find((x) => x.id === cb.drawer.openShiftId)!;
+        const col = h.container.memory!.db.col('dayCloses');
+        const id = dayCloseId('br_q7', date);
+        col.set(id, {
+          companyId: 'cmp_demo',
+          branchId: 'br_q7',
+          businessDate: date,
+          status: 'closed',
+          closedBy: 'u_ql_q7',
+          closedByName: 'QL',
+          closedAt: new Date(),
+          closingBalanceVnd: cb.drawer.balanceVnd,
+          cashInVnd: 0,
+          cashOutVnd: 0,
+          shiftIds: [],
+          warnings: {},
+        });
+        try {
+          const r = await post(t, `/api/v1/acc/shifts/${sh.id}/close`, {
+            version: sh.version,
+            countedVnd: cb.drawer.balanceVnd + 5_000_000,
+            causeCode: 'wrong_amount',
+            explanation: 'Đếm lệch thử ngày đã chốt',
+          });
+          expect(r.status).toBe(409);
+          expect(r.json.code).toBe('day_closed');
+          const after = (await rows('cashShifts')).find((x) => x.id === sh.id)!;
+          expect(after.status).toBe('open');
+        } finally {
+          col.delete(id);
+        }
+      },
+    );
   });
 });
