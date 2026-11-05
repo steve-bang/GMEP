@@ -57,11 +57,14 @@ export async function DashboardHome(props: {
         <div className="card__body">
           <div className="dsh-filter">
             <DateFilter
+              key={d.date}
               base="/"
               fields={[{ name: 'date', label: t('date'), iso: d.date }]}
               {...(keep ? { keep } : {})}
               applyLabel={t('apply')}
               resetLabel={t('reset')}
+              pickerLabel={t('pickDate')}
+              yesterdayLabel={t('yesterday')}
             />
             <span className="text-secondary" data-testid="home-lens">
               {t(`lens_${d.lens}` as never)}

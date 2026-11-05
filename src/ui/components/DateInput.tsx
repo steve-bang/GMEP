@@ -10,12 +10,16 @@ import { maskViDate } from '../dateMask';
  */
 export function DateInput({
   defaultValue,
+  value,
   onChange,
   ...rest
 }: Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue'> & {
   defaultValue?: string;
+  /** when given, the field is controlled by the parent (e.g. a calendar picker or a shortcut button sets it) */
+  value?: string;
 }) {
-  const [v, setV] = useState(defaultValue ?? '');
+  const [inner, setV] = useState(defaultValue ?? '');
+  const v = value ?? inner;
   return (
     <input
       {...rest}

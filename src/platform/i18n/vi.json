@@ -907,6 +907,8 @@
     "date": "Ngày",
     "apply": "Áp dụng",
     "reset": "Xóa lọc",
+    "pickDate": "Chọn ngày từ lịch",
+    "yesterday": "Hôm qua",
     "asOf": "Cập nhật lúc {time}",
     "scopeOne": "Chi nhánh: {name}",
     "scopeMany": "{n} chi nhánh trong phạm vi",

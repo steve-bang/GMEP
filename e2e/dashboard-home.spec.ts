@@ -77,6 +77,40 @@ test.describe('home dashboard (/)', () => {
     }
   });
 
+  test('date filter: Hôm qua button and the calendar apply a date at once; reset returns to today', async ({
+    browser,
+  }) => {
+    test.setTimeout(120_000);
+    const ql = await as(browser, 'ql.q7');
+    try {
+      const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+      const today = fmt.format(new Date());
+      const ago = (n: number) => {
+        const d = new Date(`${today}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() - n);
+        return d.toISOString().slice(0, 10);
+      };
+      const vi = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
+      await ql.page.goto('/');
+      await ql.page.getByRole('button', { name: 'Hôm qua' }).click();
+      await expect(ql.page).toHaveURL(new RegExp(`date=${ago(1)}$`));
+      await expect(ql.page.locator('#df-date')).toHaveValue(vi(ago(1)));
+      // the calendar: the native picker is hidden behind a labelled button; choosing a date applies it
+      await expect(ql.page.getByRole('button', { name: 'Chọn ngày từ lịch' })).toBeVisible();
+      await ql.page.locator('.date-field__native').fill(ago(3));
+      await expect(ql.page).toHaveURL(new RegExp(`date=${ago(3)}$`));
+      await expect(ql.page.locator('#df-date')).toHaveValue(vi(ago(3)));
+      // the calendar does not offer future days
+      await expect(ql.page.locator('.date-field__native')).toHaveAttribute('max', today);
+      await ql.page.getByRole('button', { name: 'Xóa lọc' }).click();
+      await expect(ql.page).toHaveURL(/\/$/);
+      await expect(ql.page.locator('#df-date')).toHaveValue(vi(today));
+      expect(serious(await axe(ql.page))).toEqual([]);
+    } finally {
+      await ql.ctx.close();
+    }
+  });
+
   test('manager: dark theme keeps WCAG 2.2 AA contrast on every card and chart', async ({
     browser,
   }) => {
