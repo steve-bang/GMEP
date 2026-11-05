@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-68 · Danh mục gói – Quản trị nền tảng</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../public/ts-public.css">
+<link rel="stylesheet" href="ts-admin.css">
+</head>
+<body class="tsa-app" data-tsa-page="68">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsa-top">
+  <a class="tsa-brand" href="tsu-61.html"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a>
+  <span class="tsa-label">Quản trị nền tảng</span>
+  <span class="tsa-top__spacer"></span>
+  <div class="tsa-user"><span>Lê Thu Hà · <strong>Chủ nền tảng</strong></span><button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối"><svg class="icon"><use href="#moon"/></svg></button><a class="btn btn--ghost btn--sm" href="tsu-60.html">Đăng xuất</a></div>
+</header>
+<div class="tsa-strip" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Màn này không hiển thị dữ liệu nghiệp vụ của garage</span></div>
+<div class="tsa-body">
+  <nav class="tsa-nav" aria-label="Quản trị nền tảng">
+    <a href="tsu-61.html"><svg class="icon" aria-hidden="true"><use href="#clipboard-list"/></svg>Hàng đợi đăng ký</a>
+    <a href="tsu-64.html"><svg class="icon" aria-hidden="true"><use href="#inbox"/></svg>Khiếu nại</a>
+    <a href="tsu-65.html"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg>Lỗi cấp phát</a>
+    <a href="tsu-66.html"><svg class="icon" aria-hidden="true"><use href="#settings"/></svg>Cấu hình đăng ký</a>
+    <a href="tsu-67.html"><svg class="icon" aria-hidden="true"><use href="#file-text"/></svg>Điều khoản và DPA</a>
+    <a href="tsu-68.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#package"/></svg>Danh mục gói</a>
+  </nav>
+  <main id="main" class="tsa-main" data-error-title="Chưa tải được danh mục gói" data-offline-keep data-offline-text="Bạn đang mất kết nối mạng. Bạn vẫn xem và soạn được, nhưng chưa lưu được cho đến khi có mạng.">
+    <div data-ts-views="b0:B0 (một gói)|b1:B1 (nhiều gói, có giá)|edit:Sửa gói|retire:Ngừng cung cấp" data-ts-common="skel error offline" data-hint="TSU-68 · FR-TEN-024, 026, 044 · mọi số, giá và hạn mức là minh họa [Cần xác nhận]. Ở trạng thái mở hộp thoại, nhấn Esc để đóng." data-wide></div>
+
+    <div class="tsa-head"><div class="tsa-head__text"><h1>Danh mục gói hiển thị cho người đăng ký</h1><p class="tsa-sub">Gói đã gán cho tenant không xóa được, chỉ ngừng cung cấp. Mọi thay đổi có ngày hiệu lực và lịch sử.</p></div>
+      <div class="tsa-head__actions"><button type="button" class="btn btn--secondary" data-toast="info|Lịch sử danh mục|Lịch sử thay đổi gói hiển thị ở màn riêng (ghi theo ngày hiệu lực).">Xem lịch sử</button><button type="button" class="btn btn--primary" data-open="dlg-plan"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Thêm gói</button></div></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--info" role="status" data-show="b0" hidden><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Giai đoạn B0: một gói duy nhất</span><span>Giá và VAT chưa công bố nên cột giá được ẩn. Từ B1 hiển thị giá và việc đã gồm hay chưa gồm VAT theo cấu hình.</span></div></div>
+
+    <div data-ts-body class="tsa-stack">
+      <div class="tsa-table table-wrap table-wrap--responsive" id="wrap68">
+        <div class="table-scroll">
+          <table class="table">
+            <caption class="sr-only">Danh mục gói</caption>
+            <thead><tr><th scope="col">Tên gói và mô tả</th><th scope="col">Hạn mức</th><th scope="col" data-b1 hidden>Giá và VAT</th><th scope="col">Thuê bao khởi đầu</th><th scope="col">Thời lượng</th><th scope="col">Trạng thái</th><th scope="col">Hiệu lực từ</th><th scope="col">Hành động</th></tr></thead>
+            <tbody id="tb68"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="record-list record-list--responsive" id="cards68" aria-label="Danh sách gói"></div>
+      <div class="tsp-slot"><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận Q13]</span><span>Chiều hạn mức (số chi nhánh, người dùng, module) và giá do chủ nền tảng chốt. Prototype chỉ minh họa cấu trúc.</span></div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay overlay--drawer" id="dlg-plan" role="dialog" aria-labelledby="pl-h">
+  <form class="drawer" data-ts-form novalidate data-success-close="dlg-plan" data-success-toast="success|Đã lưu gói|Thay đổi có hiệu lực từ ngày hiệu lực đã chọn.">
+    <div class="drawer__head"><h2 id="pl-h">Thông tin gói</h2><button type="button" class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="drawer__body">
+      <div class="tsp-alerts" data-ts-alerts hidden></div>
+      <div class="field"><label class="field__label" for="pl-name">Tên gói<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="pl-name" aria-required="true" data-rule="required|len:2:60" data-label="tên gói" data-msg-len="Tên gói dài 2 đến 60 ký tự." value="Gói khởi đầu"></div>
+      <div class="field"><label class="field__label" for="pl-desc">Mô tả hiển thị<span class="field__req" aria-hidden="true">*</span></label><textarea class="textarea" id="pl-desc" rows="2" aria-required="true" data-rule="required|len:5:300" data-label="mô tả hiển thị" data-msg-len="Mô tả dài 5 đến 300 ký tự.">Đủ để chạy thử một garage từ nhận xe đến hóa đơn.</textarea></div>
+      <div class="form-grid">
+        <div class="field"><label class="field__label" for="pl-br">Số chi nhánh tối đa</label><input class="input input--num" id="pl-br" inputmode="numeric" placeholder="Sẽ công bố" aria-describedby="pl-lim-h"></div>
+        <div class="field"><label class="field__label" for="pl-us">Số người dùng tối đa</label><input class="input input--num" id="pl-us" inputmode="numeric" placeholder="Sẽ công bố" aria-describedby="pl-lim-h"></div>
+      </div>
+      <span class="field__hint" id="pl-lim-h">Để trống: hiển thị “Sẽ công bố”. Chiều hạn mức còn chờ xác nhận Q13.</span>
+      <fieldset class="tsp-fs"><legend class="field__label">Module trong gói</legend><div class="tsa-checks">
+        <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Lệnh sửa chữa và khách hàng</span></label>
+        <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Kho phụ tùng</span></label>
+        <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Hóa đơn điện tử cơ bản</span></label>
+        <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Báo cáo nâng cao</span></label></div></fieldset>
+      <div class="form-grid" data-b1 hidden>
+        <div class="field"><label class="field__label" for="pl-price">Giá mỗi tháng (đồng)</label><input class="input input--num" id="pl-price" inputmode="numeric" placeholder="Chưa công bố giá"></div>
+        <div class="field"><label class="field__label" for="pl-vat">VAT</label><select class="select" id="pl-vat"><option>Chưa gồm VAT</option><option>Đã gồm VAT</option></select></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label class="field__label" for="pl-start">Loại thuê bao khởi đầu</label><select class="select" id="pl-start"><option value="trial">Dùng thử</option><option value="none">Truy cập sớm, chưa thu phí</option></select></div>
+        <div class="field"><label class="field__label" for="pl-dur">Thời lượng dùng thử (ngày)</label><input class="input input--num" id="pl-dur" inputmode="numeric" value="30" data-rule="int" data-label="thời lượng dùng thử" data-msg-int="Nhập số ngày dùng thử lớn hơn 0."></div>
+      </div>
+      <label class="switch"><input type="checkbox" checked><span class="switch__track"></span><span>Hiển thị cho người đăng ký</span></label>
+      <div class="field"><label class="field__label" for="pl-eff">Ngày hiệu lực (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="pl-eff" inputmode="numeric" aria-required="true" data-rule="date" data-label="ngày hiệu lực" value="06/11/2026"></div>
+    </div>
+    <div class="drawer__foot"><button type="button" class="btn btn--secondary" data-close>Hủy</button><button type="submit" class="btn btn--primary" data-submit><span>Lưu gói</span><span class="btn__spinner" aria-hidden="true"></span></button></div>
+  </form>
+</div>
+
+<div class="overlay" id="dlg-pret" role="dialog" aria-labelledby="pl-ret-h">
+  <div class="dialog">
+    <div class="dialog__header"><span class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></span><div><h2 class="dialog__title" id="pl-ret-h">Ngừng cung cấp gói</h2><p class="tsa-note" id="pl-ret-t"></p></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body"><ul class="impact-list"><li>Gói không còn hiện cho người đăng ký mới.</li><li>Tenant đang dùng gói này không bị ảnh hưởng. Gói không bị xóa vì đã gán cho tenant.</li><li>Ghi nhật ký nền tảng.</li></ul></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Hủy</button><button type="button" class="btn btn--danger" id="pl-ret-ok">Ngừng cung cấp</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+<script src="ts-admin.js"></script>
+</body>
+</html>

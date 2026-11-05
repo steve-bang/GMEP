@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-42 · So sánh gói và yêu cầu đổi gói – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Gói của tôi|Đổi gói" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-03" data-on="het-trial" data-date="04/11/2026"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>So sánh gói và đổi gói</h1>
+      <p class="page-header__desc">Chọn gói phù hợp rồi gửi yêu cầu. Chưa có thanh toán trong hệ thống: nền tảng xác nhận và thu phí ngoài hệ thống</p>
+    </div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="tsu-41.html">Về Gói của tôi</a></div>
+  </div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty</span><span>· Danh mục gói và giá lấy từ cấu hình của nền tảng</span></div>
+
+  <div data-tsu-bar="b0:B0 một gói|b1:B1 nhiều gói (chưa công bố giá)|b1-co-gia:B1 có giá minh họa|het-trial:Hết dùng thử, chọn gói|da-gui:Đã gửi yêu cầu|loi-gui:Lỗi gửi yêu cầu"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <div class="alert alert--info" role="status" data-on="b0"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Hiện có một gói</span><span>Trong giai đoạn truy cập sớm chỉ có một gói. Để biết giá và các gói sắp tới, liên hệ chúng tôi.</span></div></div>
+    <div class="alert alert--success" role="status" data-on="da-gui"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã gửi yêu cầu đổi gói</span><span>Yêu cầu sang Gói Nâng cao đã gửi lúc <span class="num">09:02</span>. Trạng thái “Đang chờ nền tảng xác nhận” hiện ở Gói của tôi. Gói hiện tại vẫn dùng bình thường.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="tsu-41.html">Xem Gói của tôi</a></div></div></div>
+    <div class="alert alert--danger" role="alert" data-on="loi-gui"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được yêu cầu</span><span>Hệ thống đang gặp sự cố, không phải do bạn. Bấm gửi lại sau ít phút, hệ thống không tạo yêu cầu trùng. Mã tham chiếu <span class="code">REQ-2E90FA</span>.</span></div></div>
+
+    <div id="t42-cards" class="tsu-plans" role="radiogroup" aria-label="Chọn gói"></div>
+
+    <div class="tsu-tbl table-scroll" id="t42-tblw" data-off="b0"><table class="table table--compact">
+      <caption class="sr-only">So sánh hạn mức giữa các gói</caption>
+      <thead><tr><th scope="col">Hạn mức</th><th scope="col">Khởi đầu</th><th scope="col">Chuẩn</th><th scope="col">Nâng cao</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Chi nhánh</th><td class="num">3</td><td class="num">10</td><td class="num">30</td></tr>
+        <tr><th scope="row">Người dùng</th><td class="num">15</td><td class="num">50</td><td class="num">200</td></tr>
+        <tr><th scope="row">Dung lượng tệp</th><td class="num">2 GB</td><td class="num">5 GB</td><td class="num">20 GB</td></tr>
+        <tr><th scope="row">Giá</th><td colspan="3" id="t42-price-note">Giá chưa công bố</td></tr>
+      </tbody></table></div>
+
+    <section class="card" aria-labelledby="t42-s" data-off="b0 da-gui">
+      <div class="card__header"><h2 class="card__title" id="t42-s">Tóm tắt thay đổi</h2></div>
+      <div class="card__body tsu-stack" aria-live="polite" id="t42-sum"></div>
+      <div class="card__footer" style="gap:var(--space-3);flex-wrap:wrap"><button type="button" class="btn btn--primary" id="t42-send" aria-disabled="true">Gửi yêu cầu đổi gói</button><a class="btn btn--secondary" id="t42-down" href="tsu-43.html" hidden>Kiểm tra mức dùng để hạ gói</a><span class="tsu-reason" id="t42-why"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chọn một gói khác gói hiện tại để gửi yêu cầu. <code>STATE_INVALID</code></span></span></div>
+    </section>
+    <div class="tsu-actions" data-on="b0"><a class="btn btn--primary" href="#" data-toast="info|Liên hệ để biết giá|Kênh liên hệ (email, số điện thoại, giờ làm việc) là điểm chờ xác nhận.">Liên hệ để biết giá</a></div>
+  </div>
+
+  <div class="overlay" id="dlg-plan" role="alertdialog" aria-modal="true" aria-labelledby="dlp-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon"><svg class="icon" aria-hidden="true"><use href="#send"/></svg></div><div><h2 class="dialog__title" id="dlp-t">Gửi yêu cầu đổi gói?</h2></div></div>
+    <div class="dialog__body"><p id="dlp-b"></p></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Chưa gửi</button><button type="button" class="btn btn--primary" data-close data-tsu-go="da-gui">Gửi yêu cầu</button></div></div></div>
+  <p class="tsu-test">Truy vết: FR-TEN-024, 045; RULE-023, 030; J9, J10; UAT-TEN-17. Không có nút thanh toán ở B0/B1.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../onboarding/tsu-app.js"></script>
+<script>
+(function () {
+  var PLANS = [
+    { id: 'kd', n: 'Khởi đầu', rank: 1, d: 'Cho garage một đến ba chi nhánh.', br: 3, us: 15, gb: 2, price: '1.200.000 ₫' },
+    { id: 'ch', n: 'Chuẩn', rank: 2, d: 'Cho chuỗi nhỏ, đủ module vận hành.', br: 10, us: 50, gb: 5, price: '3.500.000 ₫' },
+    { id: 'nc', n: 'Nâng cao', rank: 3, d: 'Cho chuỗi lớn, nhiều chi nhánh.', br: 30, us: 200, gb: 20, price: '9.800.000 ₫' }
+  ];
+  var cur = 'ch', sel = null, state = '';
+  function priceHtml(p, show) { return show ? '<span class="num">' + p.price + '</span>/tháng <span class="tsu-sub">giá minh họa, chưa gồm VAT (cấu hình)</span>' : '<span class="tsu-sub">Giá chưa công bố</span>'; }
+  function render(name) {
+    state = name;
+    var host = document.getElementById('t42-cards'), html = '';
+    if (name === 'b0') {
+      host.innerHTML = '<div class="tsu-plan is-current"><div class="tsu-plan__head"><h2 class="tsu-plan__name">Gói truy cập sớm</h2><span class="badge badge--info">Đang dùng</span></div><p class="tsu-sub" style="margin:0">Dành cho giai đoạn đầu, chưa thu phí.</p><ul class="tsu-list"><li>Hạn mức chi nhánh: sẽ công bố</li><li>Hạn mức người dùng: sẽ công bố</li></ul><div>Giá: <span class="tsu-sub">Chưa công bố giá</span></div></div>';
+      return;
+    }
+    var show = name === 'b1-co-gia';
+    var expired = name === 'het-trial';
+    PLANS.forEach(function (p) {
+      var isCur = !expired && p.id === cur;
+      html += '<label class="tsu-plan' + (isCur ? ' is-current' : '') + '" data-plan="' + p.id + '"><span class="tsu-plan__head"><span class="radio"><input type="radio" name="plan" value="' + p.id + '"' + (isCur ? ' disabled' : '') + '><span class="radio__box"></span><span class="tsu-plan__name">' + p.n + '</span></span>' + (isCur ? '<span class="badge badge--info">Đang dùng</span>' : '') + '</span>' +
+        '<span class="tsu-sub">' + p.d + '</span><ul class="tsu-list"><li><span class="num">' + p.br + '</span> chi nhánh</li><li><span class="num">' + p.us + '</span> người dùng</li><li><span class="num">' + p.gb + '</span> GB tệp đính kèm</li></ul><span>' + priceHtml(p, show) + '</span><span class="tsu-sub">Dùng thử <span class="num">30</span> ngày, không cần thẻ (cấu hình)</span></label>';
+    });
+    host.innerHTML = html;
+    document.getElementById('t42-price-note').innerHTML = show ? 'Giá minh họa theo tháng, chưa gồm VAT (cấu hình)' : 'Giá chưa công bố';
+    sel = null; summary();
+  }
+  function summary() {
+    var box = document.getElementById('t42-sum'), btn = document.getElementById('t42-send'), why = document.getElementById('t42-why'), down = document.getElementById('t42-down');
+    if (!box) return;
+    var p = PLANS.filter(function (x) { return x.id === sel; })[0];
+    var c = PLANS.filter(function (x) { return x.id === cur; })[0];
+    if (!p) { box.innerHTML = '<p style="margin:0" class="tsu-sub">Chưa chọn gói nào.</p>'; btn.setAttribute('aria-disabled', 'true'); why.hidden = false; down.hidden = true; return; }
+    var isDown = p.rank < c.rank;
+    box.innerHTML = '<dl class="tsu-kv"><dt>Gói hiện tại</dt><dd>' + c.n + ' (' + c.br + ' chi nhánh, ' + c.us + ' người dùng)</dd><dt>Gói mới</dt><dd><strong>' + p.n + '</strong> (' + p.br + ' chi nhánh, ' + p.us + ' người dùng)</dd><dt>Hiệu lực</dt><dd>' + (isDown ? 'Từ ngày kỳ kế tiếp, đến lúc đó vẫn dùng gói hiện tại' : 'Ngay khi nền tảng xác nhận') + '</dd><dt>Phí</dt><dd>' + (state === 'b1-co-gia' ? 'Theo bảng giá, thu ngoài hệ thống. Màn này không thu tiền.' : 'Giá chưa công bố, nền tảng báo khi xác nhận.') + '</dd></dl>' + (isDown ? '<p class="tsu-note">Đây là hạ gói. Hệ thống kiểm tra mức dùng trước, không xóa dữ liệu.</p>' : '');
+    if (isDown) { btn.setAttribute('aria-disabled', 'true'); down.hidden = false; why.hidden = false; why.lastChild.textContent = 'Hạ gói cần kiểm tra mức dùng trước. Bấm “Kiểm tra mức dùng để hạ gói”.'; }
+    else { btn.removeAttribute('aria-disabled'); down.hidden = true; why.hidden = true; }
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.name === 'plan') {
+      sel = e.target.value; summary();
+      [].forEach.call(document.querySelectorAll('.tsu-plan'), function (l) { l.classList.toggle('is-selected', l.getAttribute('data-plan') === sel); });
+    }
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('#t42-send');
+    if (b && b.getAttribute('aria-disabled') !== 'true') {
+      var p = PLANS.filter(function (x) { return x.id === sel; })[0];
+      document.getElementById('dlp-t').textContent = 'Gửi yêu cầu đổi sang Gói ' + p.n + '?';
+      document.getElementById('dlp-b').textContent = 'Hạn mức mới: ' + p.br + ' chi nhánh, ' + p.us + ' người dùng, ' + p.gb + ' GB. Gói mới có hiệu lực ngay khi nền tảng xác nhận. Bạn không bị thu tiền tại màn này. Bấm hai lần không tạo hai yêu cầu.';
+      window.gmepOpen('dlg-plan');
+    }
+    if (b && b.getAttribute('aria-disabled') === 'true') { e.preventDefault(); }
+  });
+  document.addEventListener('tsu:state', function (e) {
+    if (['b0', 'b1', 'b1-co-gia', 'het-trial'].indexOf(e.detail) >= 0) render(e.detail);
+    else if (['da-gui', 'loi-gui'].indexOf(e.detail) >= 0 && state === 'b0') render('b1');
+  });
+  render(document.body.getAttribute('data-tsu-state'));
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

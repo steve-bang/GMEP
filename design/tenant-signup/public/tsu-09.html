@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-09 · Cần bổ sung thông tin – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu bổ sung</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="need:Thiếu tệp bắt buộc|full:Đủ yêu cầu|uploading:Đang tải tệp|fileerr:Lỗi tệp|late:Quá hạn bổ sung" data-ts-common="r429 error offline" data-hint="TSU-09 · FR-TEN-040 · tệp đi qua máy chủ, chỉ nhân viên được phân công xem."></div>
+
+  <main id="main" class="tsp-card tsp-card--xl" data-offline-text="Chưa gửi được bổ sung vì mất kết nối mạng. Các tệp bạn đã chọn và ghi chú vẫn được giữ.">
+    <div><h1>Cần bổ sung thông tin</h1><p class="tsp-lead">Mã theo dõi <strong class="num">SGN-4F7K2Q</strong> · Công ty TNHH Ô tô Minh Phát. Vui lòng nộp các mục dưới đây để chúng tôi tiếp tục xác minh.</p></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--danger" role="alert" data-show="late" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đã quá hạn bổ sung</span><span>Hạn bổ sung đã qua nên bạn không gửi thêm được. Yêu cầu có thể được chuyển sang trạng thái từ chối, bạn sẽ nhận email kết quả. Bạn có thể đăng ký lại hoặc liên hệ hỗ trợ.</span></div></div>
+    <div class="tsp-slot" data-show="late" hidden><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận QĐT-14]</span><span>Hệ quả khi quá hạn (tự chuyển từ chối hay gia hạn) do chủ nền tảng chốt.</span></div>
+
+    <div class="tsp-meta"><span><svg class="icon icon--sm" aria-hidden="true"><use href="#calendar"/></svg> Hạn bổ sung: <strong class="num">12/11/2026</strong> (minh họa, lấy từ cấu hình)</span></div>
+
+    <p class="tsp-small"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg> Chỉ nhân viên được phân công xem tệp này. Tệp không thể mở bằng liên kết công khai.</p>
+
+    <form class="tsp-form" data-ts-form novalidate data-next="tsu-08.html?state=review" data-success-toast="success|Đã gửi bổ sung|Chúng tôi sẽ email khi có kết quả.">
+      <fieldset class="tsp-fs" data-disable-in="late">
+        <legend class="sr-only">Các mục cần bổ sung</legend>
+
+        <section class="tsp-request" aria-labelledby="rq1">
+          <p class="tsp-request__title" id="rq1">1. Giấy chứng nhận đăng ký kinh doanh <span class="badge badge--danger">Bắt buộc</span></p>
+          <div class="tsp-up" data-upload data-required data-max-mb="10" data-max-files="3" id="up1">
+            <div class="tsp-up__head"><span class="field__hint" id="up1-h">PDF, JPG hoặc PNG. Tối đa 10 MB mỗi tệp, 3 tệp (tham số).</span>
+              <label class="btn btn--secondary btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#upload"/></svg>Chọn tệp<input type="file" class="tsp-up__file-input" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Chọn tệp cho mục 1: Giấy chứng nhận đăng ký kinh doanh" aria-describedby="up1-h"></label></div>
+            <ul class="tsp-files" data-files aria-label="Tệp đã chọn cho mục 1">
+              <li class="tsp-file is-done" data-show="full" hidden><div class="tsp-file__main"><span class="tsp-file__name">giay-chung-nhan-dkkd.pdf</span><span class="tsp-file__meta">1,2 MB</span></div><span class="badge badge--success">Đã tải lên</span><button type="button" class="btn-icon" data-file-remove aria-label="Xóa tệp giay-chung-nhan-dkkd.pdf"><svg class="icon"><use href="#x"/></svg></button></li>
+              <li class="tsp-file is-uploading" data-show="uploading" hidden><div class="tsp-file__main"><span class="tsp-file__name">giay-chung-nhan-dkkd.pdf</span><span class="tsp-file__meta">1,2 MB · 60%</span></div><span class="badge badge--info">Đang tải…</span><div class="progress progress--info" role="progressbar" aria-label="Tiến độ tải tệp giay-chung-nhan-dkkd.pdf" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60"><div class="progress__track"><div class="progress__bar" style="width:60%"></div></div></div></li>
+              <li class="tsp-file is-error" data-show="fileerr" hidden><div class="tsp-file__main"><span class="tsp-file__name">giay-chung-nhan-dkkd.pdf</span><span class="tsp-file__meta">Tải tệp chưa xong. Thử lại.</span></div><span class="badge badge--danger">Lỗi tải</span><button type="button" class="btn btn--secondary btn--sm" data-file-retry>Thử lại<span class="sr-only"> tải tệp giay-chung-nhan-dkkd.pdf</span></button><button type="button" class="btn-icon" data-file-remove aria-label="Xóa tệp giay-chung-nhan-dkkd.pdf"><svg class="icon"><use href="#x"/></svg></button></li>
+            </ul>
+            <span class="field__error" role="alert" data-up-err hidden></span>
+          </div>
+        </section>
+
+        <section class="tsp-request" aria-labelledby="rq2">
+          <p class="tsp-request__title" id="rq2">2. Xác nhận người đại diện <span class="badge badge--danger">Bắt buộc</span></p>
+          <div class="tsp-up" data-upload data-required data-max-mb="10" data-max-files="3" id="up2">
+            <div class="tsp-up__head"><span class="field__hint" id="up2-h">PDF, JPG hoặc PNG. Tối đa 10 MB mỗi tệp, 3 tệp (tham số).</span>
+              <label class="btn btn--secondary btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#upload"/></svg>Chọn tệp<input type="file" class="tsp-up__file-input" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Chọn tệp cho mục 2: Xác nhận người đại diện" aria-describedby="up2-h"></label></div>
+            <ul class="tsp-files" data-files aria-label="Tệp đã chọn cho mục 2">
+              <li class="tsp-file is-done" data-show="full uploading fileerr" hidden><div class="tsp-file__main"><span class="tsp-file__name">giay-uy-quyen.jpg</span><span class="tsp-file__meta">0,8 MB</span></div><span class="badge badge--success">Đã tải lên</span><button type="button" class="btn-icon" data-file-remove aria-label="Xóa tệp giay-uy-quyen.jpg"><svg class="icon"><use href="#x"/></svg></button></li>
+            </ul>
+            <span class="field__error" role="alert" data-up-err hidden></span>
+          </div>
+        </section>
+
+        <section class="tsp-request" aria-labelledby="rq3">
+          <p class="tsp-request__title" id="rq3">3. Giải thích mã số thuế đã có người đăng ký <span class="badge badge--neutral">Không bắt buộc</span></p>
+          <div class="tsp-up" data-upload data-max-mb="10" data-max-files="3" id="up3">
+            <div class="tsp-up__head"><span class="field__hint" id="up3-h">PDF, JPG hoặc PNG. Tối đa 10 MB mỗi tệp, 3 tệp (tham số).</span>
+              <label class="btn btn--secondary btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#upload"/></svg>Chọn tệp<input type="file" class="tsp-up__file-input" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Chọn tệp cho mục 3: Giải thích mã số thuế" aria-describedby="up3-h"></label></div>
+            <ul class="tsp-files" data-files aria-label="Tệp đã chọn cho mục 3"></ul>
+            <span class="field__error" role="alert" data-up-err hidden></span>
+          </div>
+        </section>
+
+        <div class="field">
+          <label class="field__label" for="note">Ghi chú gửi nền tảng</label>
+          <textarea id="note" class="textarea" rows="3" maxlength="1000" data-max="1000" data-counter-src aria-describedby="note-c"></textarea>
+          <span class="tsp-counter" id="note-c" data-counter-for="note">0/1000</span>
+        </div>
+      </fieldset>
+
+      <p class="tsp-reason" id="rsn-09"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span></span></p>
+      <div class="tsp-actions">
+        <button type="button" class="btn btn--secondary btn--lg" data-disable-in="late" data-toast="success|Đã lưu nháp|Bạn có thể quay lại hoàn tất trước hạn bổ sung.">Lưu nháp</button>
+        <button class="btn btn--primary btn--lg" type="submit" data-submit data-requires-upload data-disable-in="late" data-text-page="Đã quá hạn bổ sung, không gửi thêm được." data-text-upload="Chưa thể gửi: cần đủ tệp cho các mục bắt buộc và các tệp phải tải xong, không còn lỗi." data-reason-id="rsn-09"><span>Gửi bổ sung</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+</body>
+</html>

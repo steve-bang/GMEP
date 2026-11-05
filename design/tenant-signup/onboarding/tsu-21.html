@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-21 · W1 Công ty – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="1" data-validate-in="loi">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="dien-san:Điền sẵn từ đăng ký|trong:Trống|loi:Có lỗi|logo-loi:Lỗi tải logo"></div>
+
+  <p class="tsu-lead">Hoàn thiện hồ sơ pháp nhân. Phần lớn đã điền sẵn từ đăng ký, bạn chỉ cần kiểm tra lại. Truy vết: FR-TEN-043, 032, 004, 018.</p>
+
+  <form class="tsu-stack" novalidate onsubmit="return false" aria-label="Hồ sơ công ty">
+    <section class="card" aria-labelledby="t21-a">
+      <div class="card__header"><h2 class="card__title" id="t21-a">Pháp nhân</h2></div>
+      <div class="card__body"><div class="form-grid">
+        <div class="field span-2"><label class="field__label" for="w1-name">Tên pháp nhân<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="w1-name" class="input" autocomplete="organization" data-rule="req" data-label="Tên pháp nhân" data-min="2" data-max="200" data-fill="Công ty TNHH Ô tô Phương Nam" data-blank-in="trong loi" data-msg-req="Nhập tên doanh nghiệp hoặc hộ kinh doanh đúng như giấy đăng ký." aria-required="true" aria-describedby="w1-name-h">
+          <span class="field__hint" id="w1-name-h">Điền sẵn từ đăng ký, sửa được. Mọi thay đổi được ghi nhật ký.</span></div>
+        <div class="field"><span class="field__label" id="w1-mst-l">Mã số thuế</span>
+          <div class="tsu-ro" role="group" aria-labelledby="w1-mst-l"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span class="num">0312 345 678</span></div>
+          <span class="field__hint">Lấy từ đăng ký đã xác minh, không sửa ở đây. Cần đổi? Liên hệ hỗ trợ.</span></div>
+        <div class="field"><label class="field__label" for="w1-disp">Tên hiển thị trên chứng từ<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="w1-disp" class="input" data-rule="req" data-label="Tên hiển thị trên chứng từ" data-min="2" data-max="100" data-fill="Ô tô Phương Nam" data-blank-in="trong loi" aria-required="true" aria-describedby="w1-disp-h">
+          <span class="field__hint" id="w1-disp-h">Dùng cho mẫu in báo giá, lệnh sửa chữa, hóa đơn.</span></div>
+        <div class="field span-2"><label class="field__label" for="w1-addr">Địa chỉ trụ sở<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="w1-addr" class="input" autocomplete="street-address" data-rule="req" data-label="Địa chỉ trụ sở" data-fill="125 Nguyễn Văn Linh, Phường Tân Thuận Tây, Quận 7, TP. Hồ Chí Minh" data-blank-in="trong loi" aria-required="true"></div>
+        <div class="field"><label class="field__label" for="w1-tel">Số điện thoại<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="w1-tel" class="input" type="tel" inputmode="tel" autocomplete="tel" data-rule="req phone" data-label="Số điện thoại" data-fill="0912 345 678" data-blank-in="trong loi" data-msg-req="Nhập số điện thoại để chúng tôi liên hệ khi cần." aria-required="true"></div>
+        <div class="field"><label class="field__label" for="w1-mail">Email liên hệ</label>
+          <input id="w1-mail" class="input" type="email" autocomplete="email" data-rule="email" data-label="Email liên hệ" data-fill="hoanganh@phuongnam.vn" data-blank-in="trong"></div>
+      </div></div>
+    </section>
+
+    <section class="card" aria-labelledby="t21-l">
+      <div class="card__header"><h2 class="card__title" id="t21-l">Logo (tùy chọn)</h2></div>
+      <div class="card__body tsu-stack">
+        <div class="upload"><svg class="icon icon--lg" aria-hidden="true"><use href="#upload"/></svg>
+          <p style="margin:0">Chọn ảnh logo để xem trước trên mẫu in</p>
+          <p class="tsu-sub" style="margin:0">PNG hoặc JPG, tối đa <span class="num">2</span> MB (tham số cấu hình). Tải lên qua máy chủ.</p>
+          <div class="upload__actions"><button type="button" class="btn btn--secondary" data-toast="info|Chọn ảnh|Prototype: hộp chọn tệp của hệ điều hành mở ở đây.">Chọn ảnh</button></div></div>
+        <div class="field__error" role="alert" data-on="logo-loi"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Tệp lớn hơn 2 MB. Hãy chọn tệp nhỏ hơn. Chỉ nhận tệp PNG hoặc JPG.</span></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t21-k">
+      <div class="card__header"><h2 class="card__title" id="t21-k">Kế toán và mô hình pháp lý</h2></div>
+      <div class="card__body tsu-stack">
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="w1-fy">Tháng bắt đầu kỳ kế toán<span class="field__req" aria-hidden="true">*</span></label>
+            <select id="w1-fy" class="select" aria-describedby="w1-fy-h"><option value="1" selected>Tháng 1</option><option value="2">Tháng 2</option><option value="3">Tháng 3</option><option value="4">Tháng 4</option><option value="5">Tháng 5</option><option value="6">Tháng 6</option><option value="7">Tháng 7</option><option value="8">Tháng 8</option><option value="9">Tháng 9</option><option value="10">Tháng 10</option><option value="11">Tháng 11</option><option value="12">Tháng 12</option></select>
+            <span class="field__hint" id="w1-fy-h">Mặc định tháng 1. Kế toán của công ty xác nhận lại.</span></div>
+          <div class="field"><span class="field__label" id="w1-tz-l">Múi giờ và tiền tệ</span>
+            <div class="tsu-ro" role="group" aria-labelledby="w1-tz-l"><span>Asia/Ho_Chi_Minh · VND</span></div></div>
+        </div>
+        <fieldset style="border:0;padding:0;margin:0;min-width:0"><legend class="field__label">Mô hình pháp lý<span class="field__req" aria-hidden="true">*</span></legend>
+          <div class="tsu-stack">
+            <label class="tsu-opt"><span class="radio"><input type="radio" name="w1-legal" value="one" checked><span class="radio__box"></span><span>Một pháp nhân</span></span></label>
+            <label class="tsu-opt"><span class="radio"><input type="radio" name="w1-legal" value="many" data-tsu-legal><span class="radio__box"></span><span>Nhiều pháp nhân (thêm sau)</span></span></label>
+            <p class="tsu-note" id="w1-legal-note" hidden>Bạn thêm pháp nhân thứ hai ở Cài đặt sau khi kích hoạt.</p>
+          </div></fieldset>
+      </div>
+    </section>
+
+    <details class="card">
+      <summary class="card__header" style="cursor:pointer;min-height:44px"><span class="card__title">Khảo sát nhanh (tùy chọn)</span><svg class="icon" aria-hidden="true"><use href="#chevron-down"/></svg></summary>
+      <div class="card__body tsu-stack">
+        <p class="tsu-sub" style="margin:0">Giúp chúng tôi chuẩn bị đúng quy trình cho bạn. Có thể bỏ trống. Lưu cùng hồ sơ, theo phiên bản bộ câu hỏi 1.0 (minh họa).</p>
+        <fieldset style="border:0;padding:0;margin:0;min-width:0"><legend class="field__label">Loại dịch vụ garage cung cấp</legend>
+          <div class="tsu-grid2">
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Sửa chữa chung</span></label>
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Bảo dưỡng</span></label>
+            <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Lốp và mâm</span></label>
+            <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Đồng sơn</span></label>
+          </div></fieldset>
+        <div class="form-grid">
+          <div class="field"><label class="field__label" for="w1-hist">Số năm lịch sử cần chuyển sang hệ thống</label><select id="w1-hist" class="select"><option>Chưa quyết định</option><option>1 năm</option><option>2 năm</option><option>3 năm trở lên</option></select></div>
+          <div class="field"><label class="field__label" for="w1-prn">Máy in tại chi nhánh</label><select id="w1-prn" class="select"><option>Chưa rõ</option><option>Máy in A4</option><option>Máy in nhiệt 80 mm</option><option>Cả hai</option></select></div>
+          <div class="field span-2"><label class="field__label" for="w1-own">Người phụ trách dữ liệu (nhập Excel, danh mục)</label><input id="w1-own" class="input" placeholder="Ví dụ: Nguyễn Thị Thu Hà, quản lý chi nhánh"></div>
+        </div>
+      </div>
+    </details>
+  </form>
+  <p class="tsu-test"><span class="tsu-req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="tsu-app.js"></script>
+<script>
+document.addEventListener('change', function (e) {
+  if (e.target.name === 'w1-legal') document.getElementById('w1-legal-note').hidden = e.target.value !== 'many';
+});
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

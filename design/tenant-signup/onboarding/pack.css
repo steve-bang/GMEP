@@ -1,0 +1,161 @@
+/* Gói TSU nhóm D, E, F (onboarding + tài khoản). Chỉ dùng token của design/assets/tokens.css, không đổi token.
+   Tiền tố tsu-. Dùng chung cho design/tenant-signup/onboarding và design/tenant-signup/account. */
+
+/* ---------- Thanh "Xem thử trạng thái" (prototype) ---------- */
+.tsu-proto { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); min-width: 0; }
+.tsu-proto__label { font-weight: 600; color: var(--color-text-primary); }
+.tsu-proto__btns { display: flex; flex-wrap: wrap; gap: var(--space-1); min-width: 0; }
+.tsu-proto__note { flex-basis: 100%; font-size: var(--font-size-xs); }
+.tsu-st { min-height: 32px; padding: 0 var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--radius-full); background: var(--color-surface); color: var(--color-text-secondary); font: inherit; font-size: var(--font-size-sm); cursor: pointer; max-width: 100%; }
+.tsu-st[aria-pressed="true"] { background: var(--color-primary-subtle); border-color: var(--color-primary); color: var(--color-brand-800); font-weight: 600; }
+@media (pointer: coarse), (max-width: 1023px) { .tsu-st { min-height: 44px; } }
+
+/* ---------- Khung wizard (biến thể W của template E) ---------- */
+.tsu-wz { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-surface-sunken); }
+.tsu-top { position: sticky; top: 0; z-index: var(--z-topbar); display: flex; align-items: center; gap: var(--space-3); min-height: var(--topbar-height); padding: 0 var(--space-4); background: var(--topbar-bg); border-bottom: 1px solid var(--color-border); }
+.tsu-brand { display: flex; align-items: center; gap: var(--space-2); font-weight: 700; color: var(--color-text-primary); text-decoration: none; min-width: 0; }
+.tsu-brand__logo { width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--color-primary); color: var(--color-text-on-primary); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.tsu-top__sp { flex: 1 1 0; }
+.tsu-top__home .tsu-top__homelabel { display: none; }
+@media (min-width: 640px) { .tsu-top__home .tsu-top__homelabel { display: inline; } }
+.tsu-strip { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-2) var(--space-4); background: var(--color-info-bg); border-bottom: 1px solid var(--color-info-border); color: var(--color-text-primary); font-size: var(--font-size-sm); }
+.tsu-strip__txt { flex: 1 1 280px; min-width: 0; display: flex; gap: var(--space-2); align-items: flex-start; }
+.tsu-strip__txt .icon { color: var(--color-info-text); flex: none; margin-top: 1px; }
+.tsu-draft { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-text-secondary); font-size: var(--font-size-sm); min-width: 0; }
+.tsu-draft .icon { flex: none; }
+.tsu-draft--bad { color: var(--color-danger-text); }
+
+.tsu-wz__body { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; min-width: 0; }
+.tsu-steps { background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: var(--space-3) var(--space-4); min-width: 0; }
+.tsu-steps__toggle { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 44px; border: 1px solid var(--color-border-strong); background: var(--color-surface); border-radius: var(--radius-md); padding: 0 var(--space-3); font: inherit; font-weight: 600; color: var(--color-text-primary); cursor: pointer; text-align: left; }
+.tsu-steps__list { display: none; flex-direction: column; gap: 2px; list-style: none; margin: var(--space-2) 0 0; padding: 0; }
+.tsu-steps.is-open .tsu-steps__list { display: flex; }
+.tsu-steps__prog { margin-top: var(--space-3); }
+.tsu-step__link { display: flex; gap: var(--space-3); align-items: flex-start; width: 100%; min-height: 44px; padding: var(--space-2) var(--space-3); border: 0; border-radius: var(--radius-md); background: transparent; font: inherit; text-align: left; color: var(--color-text-primary); text-decoration: none; cursor: pointer; }
+.tsu-step__link:hover { background: var(--color-surface-subtle); text-decoration: none; }
+.tsu-step.is-doing .tsu-step__link { background: var(--color-primary-subtle); }
+.tsu-step__link[aria-disabled="true"] { color: var(--color-text-tertiary); cursor: not-allowed; }
+.tsu-step__num { flex: none; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: var(--font-size-sm); font-weight: 600; border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.tsu-step__num .icon { width: 14px; height: 14px; stroke-width: 3; }
+.tsu-step.is-done .tsu-step__num { background: var(--color-success-bg); color: var(--color-success-text); border-color: var(--color-success-border); }
+.tsu-step.is-doing .tsu-step__num { background: var(--color-primary); color: var(--color-text-on-primary); border-color: var(--color-primary); }
+.tsu-step.is-err .tsu-step__num { background: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger-border); }
+.tsu-step.is-skip .tsu-step__num { background: var(--color-neutral-bg); color: var(--color-neutral-text); border-style: dashed; }
+.tsu-step__txt { min-width: 0; display: flex; flex-direction: column; }
+.tsu-step__name { font-weight: 600; overflow-wrap: anywhere; }
+.tsu-step__meta { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.tsu-step__link[aria-disabled="true"] .tsu-step__meta { color: var(--color-text-tertiary); }
+.tsu-req { color: var(--color-danger-text); margin-left: 2px; }
+
+@media (min-width: 1024px) {
+  .tsu-wz__body { grid-template-columns: 296px minmax(0, 1fr); }
+  .tsu-wz__body--simple { grid-template-columns: minmax(0, 1fr); }
+  .tsu-steps { border-bottom: 0; border-right: 1px solid var(--color-border); padding: var(--space-6) var(--space-4); position: sticky; top: var(--topbar-height); align-self: start; max-height: calc(100vh - var(--topbar-height)); overflow: auto; }
+  .tsu-steps__toggle { display: none; }
+  .tsu-steps__list { display: flex; margin-top: 0; }
+}
+
+.tsu-wz__main { min-width: 0; display: flex; flex-direction: column; }
+.tsu-wz__content { flex: 1; width: 100%; max-width: 880px; margin: 0 auto; padding: var(--space-5) var(--space-4); display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+@media (min-width: 1024px) { .tsu-wz__content { padding: var(--space-8); } }
+.tsu-body { display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+.tsu-head { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.tsu-head h1 { overflow-wrap: anywhere; }
+.tsu-head__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.tsu-lead { margin: 0; color: var(--color-text-secondary); }
+.tsu-foot { position: sticky; bottom: 0; z-index: var(--z-sticky); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border-top: 1px solid var(--color-border); }
+.tsu-foot__sp { flex: 1 1 0; }
+.tsu-foot__reason { flex-basis: 100%; margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.tsu-foot__reason .icon { vertical-align: -3px; margin-right: 4px; }
+@media (max-width: 639px) {
+  .tsu-foot .btn { flex: 1 1 calc(50% - 8px); min-height: 44px; }
+  .tsu-foot .tsu-foot__primary { flex-basis: 100%; order: -1; }
+  .tsu-foot__sp { display: none; }
+}
+
+/* ---------- Khối nội dung dùng chung ---------- */
+.tsu-stack { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.tsu-grid2 { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.tsu-grid3 { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.tsu-card-pad { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.tsu-card-pad h2, .tsu-card-pad h3 { margin: 0; }
+.tsu-sub { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.tsu-ro { background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); min-height: 40px; display: flex; align-items: center; gap: var(--space-2); overflow-wrap: anywhere; }
+.tsu-kv { display: grid; grid-template-columns: minmax(0, max-content) minmax(0, 1fr); gap: var(--space-2) var(--space-4); margin: 0; }
+.tsu-kv dt { color: var(--color-text-secondary); }
+.tsu-kv dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 479px) { .tsu-kv { grid-template-columns: minmax(0, 1fr); gap: 0; } .tsu-kv dd { margin-bottom: var(--space-2); } }
+.tsu-list { margin: 0; padding-left: var(--space-5); display: flex; flex-direction: column; gap: var(--space-1); }
+.tsu-opt { display: block; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); background: var(--color-surface); min-width: 0; }
+.tsu-opt:has(input:checked) { border-color: var(--color-primary); background: var(--color-primary-subtle); }
+.tsu-opt .radio { align-items: flex-start; }
+.tsu-opt__sub { display: block; font-size: var(--font-size-sm); color: var(--color-text-secondary); font-weight: 400; }
+.tsu-opt__more { padding: var(--space-3) 0 0 32px; }
+.tsu-reason { display: flex; gap: var(--space-2); align-items: flex-start; font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0; }
+.tsu-reason .icon { flex: none; margin-top: 1px; }
+.tsu-reason code, .tsu-code { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+.tsu-note { font-size: var(--font-size-sm); color: var(--color-text-secondary); border-left: 3px solid var(--color-border-strong); padding-left: var(--space-3); margin: 0; }
+.tsu-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.tsu-copy { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.tsu-mono { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; word-break: break-all; font-size: var(--font-size-sm); }
+.tsu-sk { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--card-radius); }
+.tsu-sk .skeleton { height: 40px; border-radius: var(--radius-md); }
+.tsu-sk .skeleton--text { height: 14px; }
+.tsu-test { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin: 0; }
+.tsu-sum { margin: 0; padding-left: var(--space-5); }
+.tsu-sum a { font-weight: 600; }
+
+/* ---------- OnboardingChecklist ---------- */
+.tsu-cl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.tsu-cl__item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-2) var(--space-3); align-items: center; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); }
+.tsu-cl__item:last-child { border-bottom: 0; }
+.tsu-cl__ic { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); color: var(--color-text-secondary); flex: none; }
+.tsu-cl__ic .icon { width: 14px; height: 14px; stroke-width: 3; }
+.tsu-cl__item.is-done .tsu-cl__ic { background: var(--color-success-bg); color: var(--color-success-text); border-color: var(--color-success-border); }
+.tsu-cl__item.is-err .tsu-cl__ic { background: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger-border); }
+.tsu-cl__item.is-doing .tsu-cl__ic { background: var(--color-primary); color: var(--color-text-on-primary); border-color: var(--color-primary); }
+.tsu-cl__main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tsu-cl__name { font-weight: 600; overflow-wrap: anywhere; }
+.tsu-cl__meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: center; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.tsu-cl__act { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 559px) { .tsu-cl__item { grid-template-columns: auto minmax(0, 1fr); } .tsu-cl__act { grid-column: 2; justify-content: flex-start; } }
+
+/* ---------- TenantStateBanner ---------- */
+.tsu-banner { align-items: flex-start; flex-wrap: wrap; border-radius: var(--radius-md); }
+.tsu-banner > .icon { flex: none; margin-top: 2px; }
+.tsu-banner .alert__body { flex: 1 1 260px; }
+.tsu-banner__act { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
+.tsu-banner-stack { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.tsu-banner-stack:empty { display: none; }
+.tsu-bancode { font-size: var(--font-size-xs); font-weight: 600; letter-spacing: .02em; }
+
+/* ---------- UsageMeter ---------- */
+.tsu-meter { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.tsu-meter__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--space-1) var(--space-3); }
+.tsu-meter__name { font-weight: 600; }
+.tsu-meter__val { font-variant-numeric: tabular-nums; }
+.tsu-meter__track { height: 10px; border-radius: var(--radius-full); background: var(--color-surface-subtle); border: 1px solid var(--color-border); overflow: hidden; }
+.tsu-meter__track > span { display: block; height: 100%; background: var(--color-primary); border-radius: inherit; }
+.tsu-meter--warn .tsu-meter__track > span { background: var(--color-warning); }
+.tsu-meter--full .tsu-meter__track > span { background: var(--color-danger); }
+.tsu-meter__hint { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
+/* ---------- Thẻ danh sách thay bảng trên màn nhỏ ---------- */
+.tsu-cards { display: none; flex-direction: column; gap: var(--space-3); }
+@media (max-width: 767px) { .tsu-tbl { display: none; } .tsu-cards { display: flex; } }
+.tsu-rec { padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--card-radius); background: var(--color-surface); display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.tsu-rec__top { display: flex; justify-content: space-between; gap: var(--space-3); align-items: flex-start; flex-wrap: wrap; }
+.tsu-rec__title { font-weight: 600; overflow-wrap: anywhere; min-width: 0; }
+.tsu-rec__meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
+/* ---------- Xem trước khổ in (giản lược) ---------- */
+.tsu-prev { display: flex; justify-content: center; padding: var(--space-4); background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+.tsu-prev__page { display: flex; flex-direction: column; gap: var(--space-2); background: #fff; color: #111827; border: 1px solid var(--color-border-strong); box-shadow: var(--shadow-sm); padding: var(--space-3); width: min(100%, 210px); aspect-ratio: 210 / 297; }
+.tsu-prev[data-size="a5"] .tsu-prev__page { width: min(100%, 210px); aspect-ratio: 210 / 148; }
+.tsu-prev[data-size="th"] .tsu-prev__page { width: min(100%, 120px); aspect-ratio: 80 / 200; }
+.tsu-prev__l { height: 6px; background: #D1D5DB; border-radius: 2px; }
+.tsu-prev__l--s { width: 60%; }
+.tsu-prev__f { margin-top: auto; font-size: 10px; color: #4B5563; font-style: normal; }
+
+@media print { .tsu-proto, .tsu-foot, .tsu-steps { display: none; } }
+@media (prefers-reduced-motion: reduce) { .tsu-step__link, .tsu-st { transition: none; } }

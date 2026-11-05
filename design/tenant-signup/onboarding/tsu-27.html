@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-27 · W7 Nhà cung cấp hóa đơn điện tử – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="7" data-statuses="done,done,done,skip,skip,done,doing,todo,todo" data-validate-in="thieu-mau">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="chay-thu:Chạy thử|khai:Khai nhà cung cấp|dang-kiem-tra:Đang kiểm tra kết nối|ket-noi-ok:Kết nối thành công|ket-noi-loi:Kết nối lỗi|thieu-mau:Thiếu mẫu số, ký hiệu"></div>
+
+  <p class="tsu-lead">Bắt buộc chọn một: khai nhà cung cấp hóa đơn điện tử của riêng công ty, hoặc chạy thử trước và khai sau. Truy vết: FR-TEN-021, 030, 040; RULE-024, 025, 028.</p>
+
+  <form class="tsu-stack" novalidate onsubmit="return false" aria-label="Nhà cung cấp hóa đơn điện tử">
+    <fieldset style="border:0;padding:0;margin:0;min-width:0" class="tsu-stack"><legend class="sr-only">Chọn cách dùng hóa đơn điện tử</legend>
+      <div class="tsu-opt">
+        <label class="radio"><input type="radio" name="w7-mode" value="khai" data-check-in="khai dang-kiem-tra ket-noi-ok ket-noi-loi thieu-mau"><span class="radio__box"></span><span><strong>Tôi đã có nhà cung cấp hóa đơn điện tử</strong><span class="tsu-opt__sub">Khai thông tin kết nối để phát hành hóa đơn thật khi doanh nghiệp đã xác minh.</span></span></label>
+        <div class="tsu-opt__more tsu-stack" id="w7-form" data-on="khai dang-kiem-tra ket-noi-ok ket-noi-loi thieu-mau">
+          <div class="form-grid">
+            <div class="field"><label class="field__label" for="w7-prov">Nhà cung cấp<span class="field__req" aria-hidden="true">*</span></label>
+              <select id="w7-prov" class="select" aria-describedby="w7-prov-h"><option>Nhà cung cấp A (minh họa)</option><option>Nhà cung cấp B (minh họa)</option><option>Nhà cung cấp khác</option></select>
+              <span class="field__hint" id="w7-prov-h">Danh sách nhà cung cấp hỗ trợ là cấu hình.</span></div>
+            <div class="field"><label class="field__label" for="w7-mst">Mã số thuế đơn vị phát hành<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="w7-mst" class="input" inputmode="numeric" data-rule="req" data-label="Mã số thuế đơn vị phát hành" data-pattern="^[0-9 ]{10,14}$" data-msg-fmt="Mã số thuế gồm 10 hoặc 12 số. Chỉ nhập chữ số." data-fill="0312 345 678" aria-required="true"></div>
+            <div class="field"><label class="field__label" for="w7-form-no">Mẫu số hóa đơn<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="w7-form-no" class="input" data-rule="req" data-label="Mẫu số hóa đơn" data-fill="1" data-blank-in="thieu-mau" aria-required="true"></div>
+            <div class="field"><label class="field__label" for="w7-sym">Ký hiệu hóa đơn<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="w7-sym" class="input" data-rule="req" data-label="Ký hiệu hóa đơn" data-fill="C26TPN" data-blank-in="thieu-mau" autocapitalize="characters" aria-required="true"></div>
+            <div class="field"><label class="field__label" for="w7-user">Tên đăng nhập hoặc khóa API<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="w7-user" class="input" type="password" autocomplete="off" placeholder="Nhập khóa, không hiển thị lại sau khi lưu" aria-describedby="w7-user-h">
+              <span class="field__hint" id="w7-user-h">Ô bí mật: được che, không xem lại được sau khi lưu.</span></div>
+            <div class="field"><label class="field__label" for="w7-env">Môi trường</label>
+              <select id="w7-env" class="select"><option selected>Thử nghiệm (mặc định)</option><option disabled>Phát hành thật (chưa mở: chưa xác minh)</option></select></div>
+            <div class="field span-2"><span class="field__label">Chứng thư số (nếu nhà cung cấp yêu cầu)</span>
+              <div class="upload" style="padding:var(--space-4)"><p style="margin:0" class="tsu-sub">Chọn tệp chứng thư, tải lên qua máy chủ. PDF, JPG, PNG hoặc tệp chứng thư theo yêu cầu nhà cung cấp.</p><div class="upload__actions"><button type="button" class="btn btn--secondary btn--sm" data-toast="info|Chọn tệp|Prototype: hộp chọn tệp mở ở đây."><svg class="icon icon--sm" aria-hidden="true"><use href="#upload"/></svg>Chọn tệp</button></div></div></div>
+          </div>
+          <div class="tsu-actions"><button type="button" class="btn btn--secondary" data-tsu-go="dang-kiem-tra"><svg class="icon" aria-hidden="true"><use href="#refresh"/></svg>Kiểm tra kết nối</button></div>
+          <div class="alert alert--info" role="status" data-on="dang-kiem-tra"><svg class="icon" aria-hidden="true"><use href="#loader"/></svg><div class="alert__body"><span class="alert__title">Đang kiểm tra kết nối</span><span>Chúng tôi đang thử đăng nhập vào nhà cung cấp bằng thông tin bạn khai. Việc này thường mất vài giây.</span><div class="progress progress--indeterminate" aria-hidden="true"><div class="progress__track"><div class="progress__bar"></div></div></div></div></div>
+          <div class="alert alert--success" role="status" data-on="ket-noi-ok"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Kết nối thành công</span><span>Môi trường thử nghiệm đã nhận thông tin. Hóa đơn thật vẫn khóa cho đến khi doanh nghiệp được xác minh.</span></div></div>
+          <div class="alert alert--danger" role="alert" data-on="ket-noi-loi"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không kết nối được</span><span>Nhà cung cấp từ chối thông tin đăng nhập. Kiểm tra lại tên đăng nhập hoặc khóa, mã số thuế đơn vị phát hành và môi trường, rồi thử lại. Nếu vẫn lỗi, liên hệ nhà cung cấp. Mã tham chiếu <span class="code">REQ-5D40A9</span>.</span></div></div>
+        </div>
+      </div>
+      <div class="tsu-opt">
+        <label class="radio"><input type="radio" name="w7-mode" value="thu" data-check-in="chay-thu" checked><span class="radio__box"></span><span><strong>Chạy thử trước, khai sau</strong><span class="tsu-opt__sub">Hệ thống dùng chế độ chạy thử, không phát hành hóa đơn thật. Bạn khai nhà cung cấp sau ở Hóa đơn.</span></span></label>
+      </div>
+    </fieldset>
+
+    <p class="tsu-reason"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span><strong>Chưa thể chuyển sang phát hành thật:</strong> doanh nghiệp chưa hoàn tất xác minh. Việc bật phát hành thật thực hiện sau ở màn Hóa đơn, có xác nhận mức Nguy hiểm. <code>verification_required</code></span></p>
+    <p class="tsu-note">Hóa đơn do chính doanh nghiệp của bạn phát hành qua nhà cung cấp bạn chọn. GMEP không phát hành hóa đơn thay bạn.</p>
+  </form>
+  <p class="tsu-test"><span class="tsu-req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="tsu-app.js"></script>
+<script>
+document.addEventListener('change', function (e) {
+  if (e.target.name === 'w7-mode') document.getElementById('w7-form').hidden = e.target.value !== 'khai';
+});
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

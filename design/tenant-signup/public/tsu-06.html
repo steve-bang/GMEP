@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-06 · Kết quả xác thực email – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="success:Thành công|expired:Hết hạn|used:Đã dùng|invalid:Không hợp lệ|limited:Bị giới hạn|stale:Quá hạn đăng ký" data-ts-common="skel error offline" data-hint="TSU-06 · FR-TEN-039, 041 · khuôn trang kết quả giống G1-ERR-05."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide" data-error-title="Chưa kiểm tra được liên kết" data-error-text="Máy chủ gặp sự cố tạm thời nên chưa xác thực được. Liên kết của bạn vẫn còn nguyên, hãy thử lại sau ít phút." data-offline-text="Chưa kiểm tra được liên kết vì mất kết nối mạng. Kiểm tra Wi-Fi hoặc 4G rồi thử lại.">
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <h1 class="sr-only" data-show="skel error offline r429" hidden>Kết quả xác thực email</h1>
+    <div data-ts-body class="tsp-stack">
+      <section class="tsp-result" data-show="success" aria-labelledby="r-ok">
+        <span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
+        <h1 id="r-ok">Email đã được xác thực</h1>
+        <p class="tsp-lead">Cảm ơn bạn. Chúng tôi đang kiểm tra thông tin doanh nghiệp. Bạn có thể đóng trang này, chúng tôi sẽ gửi email khi có kết quả.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-08.html">Theo dõi đăng ký</a></div>
+      </section>
+
+      <section class="tsp-result" data-show="expired" hidden aria-labelledby="r-ex">
+        <span class="tsp-icon-badge tsp-icon-badge--warning" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span>
+        <h1 id="r-ex">Liên kết đã hết hạn</h1>
+        <p class="tsp-lead">Vì an toàn, liên kết xác thực chỉ có hiệu lực 72 giờ (số lấy từ cấu hình). Bạn có thể nhận liên kết mới.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-07.html?state=prefill">Gửi liên kết mới</a></div>
+      </section>
+
+      <section class="tsp-result" data-show="used" hidden aria-labelledby="r-us">
+        <span class="tsp-icon-badge tsp-icon-badge--neutral" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
+        <h1 id="r-us">Liên kết đã được sử dụng</h1>
+        <p class="tsp-lead">Email này đã được xác thực. Hãy theo dõi đăng ký hoặc đăng nhập nếu tài khoản đã sẵn sàng.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-08.html">Theo dõi đăng ký</a><a class="btn btn--secondary btn--lg" href="tsu-14.html">Đăng nhập</a></div>
+      </section>
+
+      <section class="tsp-result" data-show="invalid" hidden aria-labelledby="r-iv">
+        <span class="tsp-icon-badge tsp-icon-badge--danger" aria-hidden="true"><svg class="icon"><use href="#alert-triangle"/></svg></span>
+        <h1 id="r-iv">Liên kết không hợp lệ</h1>
+        <p class="tsp-lead">Liên kết có thể đã bị cắt bớt khi sao chép. Hãy mở lại từ email hoặc nhận liên kết mới.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-07.html">Gửi liên kết mới</a></div>
+      </section>
+
+      <section class="tsp-result" data-show="limited" hidden aria-labelledby="r-li">
+        <span class="tsp-icon-badge tsp-icon-badge--warning" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span>
+        <h1 id="r-li">Thử lại sau</h1>
+        <p class="tsp-lead">Có quá nhiều yêu cầu từ mạng của bạn. Thử lại sau <strong class="num" data-countdown="90" data-countdown-view="success">01:30</strong>.</p>
+        <div class="tsp-actions"><button type="button" class="btn btn--primary btn--lg" disabled aria-disabled="true">Thử lại</button></div>
+      </section>
+
+      <section class="tsp-result" data-show="stale" hidden aria-labelledby="r-st">
+        <span class="tsp-icon-badge tsp-icon-badge--neutral" aria-hidden="true"><svg class="icon"><use href="#history"/></svg></span>
+        <h1 id="r-st">Yêu cầu đăng ký đã hết hạn</h1>
+        <p class="tsp-lead">Yêu cầu đăng ký này đã hết hạn vì chưa được xác thực. Bạn có thể đăng ký lại, không mất gì.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-01.html">Đăng ký lại</a></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+</body>
+</html>

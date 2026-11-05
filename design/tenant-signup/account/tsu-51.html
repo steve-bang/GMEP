@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-51 · Hộp thoại chặn tạo mới – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="ro" data-crumb="Phiếu sửa chữa|Tạo mới bị chặn" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-05" data-on="restricted" data-reason="Quá hạn thanh toán" data-list="lệnh sửa chữa, chi nhánh và người dùng"></div>
+    <div data-tsu-banner="BAN-05" data-on="nv-restricted" data-view="NV"></div>
+    <div data-tsu-banner="BAN-06" data-on="quota" data-x="10" data-y="10" data-p="100"></div>
+    <div data-tsu-banner="BAN-03" data-on="trial-expired" data-date="04/11/2026"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Phiếu sửa chữa</h1>
+      <p class="page-header__desc">Màn mô phỏng để xem hộp thoại chặn tạo mới. Chỉ tạo mới bị chặn; thu tiền, giao xe, hóa đơn của chứng từ đang mở vẫn dùng được</p>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="btn btn--primary" id="t51-new" aria-disabled="true" aria-describedby="t51-why"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Tạo lệnh sửa chữa</button>
+    </div>
+  </div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Chi nhánh Quận 7</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
+
+  <div data-tsu-bar="restricted:Bị hạn chế (chủ garage)|nv-restricted:Bị hạn chế (nhân viên)|quota:Vượt hạn mức|trial-expired:Hết dùng thử"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <p class="tsu-reason" id="t51-why"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span id="t51-whytxt"></span></p>
+    <section class="card" aria-labelledby="t51-d">
+      <div class="card__header"><h2 class="card__title" id="t51-d">Bản nháp đang soạn</h2><span class="badge badge--neutral">Nháp, chưa lưu lên hệ thống</span></div>
+      <div class="card__body tsu-stack">
+        <div class="field"><label class="field__label" for="t51-note">Mô tả yêu cầu của khách</label><textarea id="t51-note" class="textarea">Xe 51H-123.45, khách báo rung vô lăng khi chạy trên 80 km/h, kiểm tra cân bằng lốp và thước lái.</textarea></div>
+        <p class="tsu-sub" style="margin:0">Nội dung đang soạn được giữ khi hộp thoại hiện ra và khi đóng hộp thoại.</p>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="t51-o">
+      <div class="card__header"><h2 class="card__title" id="t51-o">Vẫn dùng được trong lúc bị chặn tạo mới</h2></div>
+      <div class="card__body"><ul class="tsu-list"><li>Thu tiền và chốt ca cho lệnh đang mở</li><li>Giao xe và hoàn tất 3 lệnh đang mở</li><li>Phát hành hóa đơn của chứng từ đang mở, tải hóa đơn</li><li>Xuất dữ liệu</li></ul></div>
+    </section>
+  </div>
+
+  <div class="overlay" id="dlg-block" role="alertdialog" aria-modal="true" aria-labelledby="dlb-t" aria-describedby="dlb-b"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg></div><div><h2 class="dialog__title" id="dlb-t">Chưa thể tạo mới lúc này</h2></div></div>
+    <div class="dialog__body" id="dlb-b"><p id="dlb-msg"></p><p>Bạn vẫn có thể: thu tiền, giao xe và hoàn tất <span class="num">3</span> lệnh đang mở. Bản nháp đang soạn được giữ.</p></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" id="dlb-act" href="tsu-41.html">Xem gói</a></div></div></div>
+  <p class="tsu-test">Truy vết: FR-TEN-005, 025; RULE-021, 023; J3; UAT-TEN-03, 10. Nút tạo mới không ẩn: giữ aria-disabled, vẫn focus và bấm được để mở hộp thoại giải thích.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../onboarding/tsu-app.js"></script>
+<script>
+(function () {
+  var M = {
+    'restricted': { code: 'tenant_restricted', why: 'Công ty đang bị hạn chế tạo mới: quá hạn thanh toán. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.', msg: 'Công ty đang bị hạn chế tạo mới: quá hạn thanh toán.', act: ['Xem gói', 'tsu-41.html'] },
+    'nv-restricted': { code: 'tenant_restricted', why: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được.', msg: 'Công ty đang bị hạn chế tạo mới. Hãy báo cho chủ garage.', act: ['Liên hệ chủ garage', '#'] },
+    'quota': { code: 'quota_limit_reached', why: 'Gói hiện tại cho tối đa 10 chi nhánh và bạn đã dùng đủ. Xem gói hoặc ngừng bớt chi nhánh đang dùng.', msg: 'Gói hiện tại cho tối đa 10 chi nhánh.', act: ['Xem gói', 'tsu-41.html'] },
+    'trial-expired': { code: 'trial_expired', why: 'Dùng thử đã hết. Chọn gói để tiếp tục tạo mới.', msg: 'Dùng thử đã hết ngày 04/11/2026. Chọn gói để tiếp tục tạo mới.', act: ['Xem gói', 'tsu-41.html'] }
+  };
+  function render(name) {
+    var m = M[name]; if (!m) return;
+    document.getElementById('t51-whytxt').innerHTML = m.why + ' <code>' + m.code + '</code>';
+    document.getElementById('dlb-msg').textContent = m.msg;
+    var a = document.getElementById('dlb-act'); a.textContent = m.act[0]; a.setAttribute('href', m.act[1]);
+    if (m.act[1] === '#') a.setAttribute('data-toast', 'info|Liên hệ chủ garage|Hãy báo cho chủ garage của công ty bạn.'); else a.removeAttribute('data-toast');
+  }
+  document.addEventListener('tsu:state', function (e) { render(e.detail); });
+  render(document.body.getAttribute('data-tsu-state'));
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('#t51-new')) { e.preventDefault(); window.gmepOpen('dlg-block'); }
+  });
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

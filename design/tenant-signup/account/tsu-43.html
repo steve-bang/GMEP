@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-43 · Xác nhận hạ gói – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Gói của tôi|Hạ gói" data-no-scope>
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Xác nhận hạ gói</h1>
+      <p class="page-header__desc">Hạ từ Gói Chuẩn xuống Gói Khởi đầu. Hệ thống kiểm tra mức dùng trước, không xóa dữ liệu của bạn</p>
+    </div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="tsu-42.html">Quay lại so sánh gói</a></div>
+  </div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty</span><span>· Mức dùng cập nhật lúc <span class="num">09:15</span></span></div>
+
+  <div data-tsu-bar="khong-vuot:Không vượt hạn mức|vuot-chan:Vượt (chặn)|vuot-canh-bao:Vượt (chỉ cảnh báo)|da-len-lich:Đã lên lịch hạ gói"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <div class="alert alert--success" role="status" data-on="da-len-lich"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã lên lịch hạ gói</span><span>Gói Khởi đầu có hiệu lực từ <span class="num">01/12/2026</span>. Đến lúc đó bạn vẫn dùng Gói Chuẩn.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-tsu-go="khong-vuot" data-toast="info|Đã hủy lịch hạ gói|Bạn tiếp tục dùng Gói Chuẩn.">Hủy lịch hạ gói</button></div></div></div>
+    <div class="alert alert--info" role="status"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Hạ gói không xóa dữ liệu</span><span>Mọi chi nhánh, người dùng, chứng từ và tệp đính kèm hiện có được giữ nguyên. Hạ gói chỉ giới hạn việc tạo mới nếu bạn đang dùng vượt hạn mức gói mới.</span></div></div>
+
+    <section class="card" aria-labelledby="t43-u" data-off="da-len-lich">
+      <div class="card__header"><div><h2 class="card__title" id="t43-u">Mức dùng hiện tại so với Gói Khởi đầu</h2><div class="card__subtitle">Hạn mức gói mới lấy từ cấu hình</div></div></div>
+      <div class="card__body tsu-stack" id="t43-meters"></div>
+    </section>
+
+    <div class="alert alert--danger" role="alert" data-on="vuot-chan"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chưa thể hạ gói</span><span>Đang dùng 4 chi nhánh, gói mới tối đa 3. Hãy ngừng sử dụng 1 chi nhánh trước. Dữ liệu của chi nhánh không bị xóa.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="#" data-toast="info|Danh sách chi nhánh|Mở Cài đặt, Chi nhánh để ngừng sử dụng chi nhánh (đóng chi nhánh).">Mở danh sách chi nhánh</a><a class="btn btn--secondary btn--sm" href="#" data-toast="info|Danh sách người dùng|Mở Hệ thống, Người dùng để khóa tài khoản không dùng.">Mở danh sách người dùng</a></div></div></div>
+    <div class="alert alert--warning" role="status" data-on="vuot-canh-bao"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đang dùng vượt hạn mức gói mới</span><span>Bạn vẫn hạ gói được (cấu hình: cảnh báo thay vì chặn). Sau khi hạ gói, chưa tạo mới được chi nhánh và người dùng cho đến khi dùng trong hạn mức.</span></div></div>
+
+    <section class="card" aria-labelledby="t43-a" data-off="da-len-lich">
+      <div class="card__header"><h2 class="card__title" id="t43-a">Xác nhận</h2></div>
+      <div class="card__body tsu-stack">
+        <p style="margin:0" data-off="vuot-chan">Gói mới có hiệu lực từ <strong class="num">01/12/2026</strong> (ngày kỳ kế tiếp). Đến lúc đó bạn vẫn dùng gói hiện tại.</p>
+        <label class="check" data-on="vuot-canh-bao"><input type="checkbox" id="t43-ack"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Tôi hiểu sau khi hạ gói chưa tạo mới được chi nhánh và người dùng vượt hạn mức.</span></label>
+        <div class="tsu-actions">
+          <button type="button" class="btn btn--primary" id="t43-go" data-open="dlg-down" data-disable-in="vuot-chan">Hạ gói</button>
+          <a class="btn btn--secondary" href="tsu-41.html">Giữ Gói Chuẩn</a>
+        </div>
+        <p class="tsu-reason" data-on="vuot-chan"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chưa thể hạ gói: đang dùng 4 chi nhánh, gói mới tối đa 3. Hãy ngừng sử dụng 1 chi nhánh trước. <code>quota_limit_reached</code></span></p>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay" id="dlg-down" role="alertdialog" aria-modal="true" aria-labelledby="dd-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#arrow-down"/></svg></div><div><h2 class="dialog__title" id="dd-t">Xác nhận hạ gói?</h2></div></div>
+    <div class="dialog__body"><p>Gói Khởi đầu có hiệu lực từ <span class="num">01/12/2026</span>. Đến lúc đó bạn vẫn dùng gói hiện tại. Dữ liệu không bị xóa. Bạn hủy lịch hạ gói được trước ngày đó.</p></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Chưa hạ gói</button><button type="button" class="btn btn--primary" data-close data-tsu-go="da-len-lich">Xác nhận hạ gói</button></div></div></div>
+  <p class="tsu-test">Truy vết: FR-TEN-045; RULE-030, 023; J9; UAT-TEN-17. Mặc định chặn khi vượt; cấu hình cho phép chỉ cảnh báo.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../onboarding/tsu-app.js"></script>
+<script>
+(function () {
+  var U = { 'khong-vuot': [3, 12, 1.2], 'vuot-chan': [4, 22, 1.8], 'vuot-canh-bao': [4, 22, 1.8] };
+  var LIM = [3, 15, 2];
+  function num(v) { return String(v).replace('.', ','); }
+  function meter(name, x, y, unit) {
+    var p = Math.round(x / y * 100), over = x > y, cls = over ? ' tsu-meter--full' : p >= 80 ? ' tsu-meter--warn' : '';
+    var txt = over ? 'Hiện ' + num(x) + ', gói mới tối đa ' + num(y) + ', vượt ' + num(Math.round((x - y) * 10) / 10) : 'Hiện ' + num(x) + ', gói mới tối đa ' + num(y) + ', còn ' + num(Math.round((y - x) * 10) / 10);
+    return '<div class="tsu-meter' + cls + '"><div class="tsu-meter__head"><span class="tsu-meter__name">' + name + '</span><span class="tsu-meter__val">' + txt + ' ' + unit + (over ? ' <span class="tag tag--danger">Vượt hạn mức</span>' : '') + '</span></div><div class="tsu-meter__track" role="img" aria-label="' + name + ' đã dùng ' + p + '% hạn mức gói mới"><span style="width:' + Math.min(100, p) + '%"></span></div></div>';
+  }
+  function render(name) {
+    var u = U[name]; if (!u) return;
+    document.getElementById('t43-meters').innerHTML = meter('Chi nhánh', u[0], LIM[0], 'chi nhánh') + meter('Người dùng', u[1], LIM[1], 'người') + meter('Dung lượng tệp', u[2], LIM[2], 'GB');
+    var go = document.getElementById('t43-go'); go.removeAttribute('data-checked');
+  }
+  document.addEventListener('tsu:state', function (e) { render(e.detail); });
+  render(document.body.getAttribute('data-tsu-state'));
+  document.addEventListener('click', function (e) {
+    var g = e.target.closest('#t43-go');
+    if (g && document.body.getAttribute('data-tsu-state') === 'vuot-canh-bao' && !document.getElementById('t43-ack').checked) {
+      e.stopImmediatePropagation(); e.preventDefault(); document.getElementById('t43-ack').focus();
+      window.gmepToast('warning', 'Cần xác nhận trước', 'Hãy tích ô “Tôi hiểu…” rồi bấm Hạ gói.');
+    }
+  }, true);
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-20 · Chào mừng và lộ trình thiết lập – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="0" data-nosteps>
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="lan-dau:Lần đầu|co-nhap:Có nháp|xong-mot-phan:Đã xong một phần"></div>
+
+  <div class="tsu-head">
+    <h1 id="tsu-h1" tabindex="-1">Chào Hoàng Anh, hãy thiết lập GMEP cho Công ty TNHH Ô tô Phương Nam</h1>
+    <p class="tsu-lead">Thiết lập gồm 9 bước. Làm lần lượt hoặc nhảy tới bước đã mở. Thông tin ghi trên máy chủ nên bạn có thể bắt đầu trên điện thoại rồi làm tiếp trên máy tính.</p>
+  </div>
+
+  <div class="alert alert--info" role="status"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Bạn đang trong giai đoạn thiết lập</span><span>Hóa đơn điện tử chạy thử và dữ liệu thử có thể xóa. Bạn có thể thoát và quay lại bất kỳ lúc nào, tiến độ được lưu.</span></div></div>
+
+  <div class="alert alert--neutral" role="status" data-on="co-nhap"><svg class="icon" aria-hidden="true"><use href="#history"/></svg><div class="alert__body"><span class="alert__title">Bạn đang dở bước 4</span><span>Bước “Vai trò và mời người dùng”, lưu nháp lúc <span class="num">09:42</span> hôm nay.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-restart">Bắt đầu lại từ đầu</button></div></div></div>
+  <div class="alert alert--neutral" role="status" data-on="xong-mot-phan"><svg class="icon" aria-hidden="true"><use href="#history"/></svg><div class="alert__body"><span class="alert__title">Đã xong một phần: bạn đang dở bước 7</span><span>3 bước bắt buộc đã xong, 2 bước đã bỏ qua và sẽ nhắc lại ở trang chủ. Lưu lúc <span class="num">09:42</span>.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-restart">Bắt đầu lại từ đầu</button></div></div></div>
+
+  <section class="card" aria-labelledby="t20-l">
+    <div class="card__header"><div><h2 class="card__title" id="t20-l">Lộ trình 9 bước</h2><div class="card__subtitle"><span class="tsu-req" aria-hidden="true">*</span> Bước bắt buộc để kích hoạt · thời gian ước tính chỉ để tham khảo</div></div></div>
+    <div id="cl-lan-dau" data-on="lan-dau"></div>
+    <div id="cl-co-nhap" data-on="co-nhap"></div>
+    <div id="cl-xong-mot-phan" data-on="xong-mot-phan"></div>
+  </section>
+
+  <p class="tsu-note">Chỉ bước 1, 2, 3, 7 và 9 là bắt buộc để kích hoạt. Các bước còn lại bỏ qua được, hệ thống dùng thiết lập mặc định và nhắc lại ở trang chủ.</p>
+
+  <div class="overlay" id="dlg-restart" role="alertdialog" aria-modal="true" aria-labelledby="dlg-restart-t" aria-describedby="dlg-restart-b"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="dlg-restart-t">Bắt đầu lại từ đầu?</h2></div></div>
+    <div class="dialog__body" id="dlg-restart-b"><p>Bạn sẽ quay về bước 1 để xem lại từng bước. Thông tin đã lưu vẫn nằm trong bản nháp cho đến khi bạn ghi đè (giả định, chờ BA xác nhận dữ liệu đã nhập có được giữ hay xóa).</p></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Ở lại</button><button type="button" class="btn btn--primary" data-go="tsu-21.html">Bắt đầu lại</button></div></div></div>
+
+  <div class="tsu-foot" data-tsu-foot role="group" aria-label="Bắt đầu thiết lập">
+    <a class="btn btn--ghost" href="../account/tsu-40.html">Để sau, xem trang chủ</a>
+    <span class="tsu-foot__sp"></span>
+    <a class="btn btn--primary tsu-foot__primary" href="tsu-21.html" data-on="lan-dau">Bắt đầu</a>
+    <a class="btn btn--primary tsu-foot__primary" href="tsu-24.html" data-on="co-nhap">Tiếp tục từ bước 4</a>
+    <a class="btn btn--primary tsu-foot__primary" href="tsu-27.html" data-on="xong-mot-phan">Tiếp tục từ bước 7</a>
+  </div>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="tsu-app.js"></script>
+<script>
+(function () {
+  var T = window.TSU;
+  var m = { 'lan-dau': [], 'co-nhap': ['done', 'done', 'done', 'doing'], 'xong-mot-phan': ['done', 'done', 'done', 'skip', 'skip', 'done', 'doing'] };
+  Object.keys(m).forEach(function (k) { var el = document.getElementById('cl-' + k); if (el) el.innerHTML = T.checklist(m[k]); });
+  T.setState(document.body.getAttribute('data-tsu-state'), true);
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

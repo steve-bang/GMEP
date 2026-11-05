@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-02 · Đăng ký bước 1: doanh nghiệp và mã số thuế – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu đăng ký</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="empty:Trống|errmst:Lỗi mã số thuế|errmulti:Lỗi nhiều trường|draft:Có bản nháp|filled:Đã điền đủ" data-ts-common="offline" data-hint="TSU-02 · FR-TEN-039, 040 · bước này chưa gọi máy chủ."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide" data-offline-keep data-offline-text="Bạn đang mất kết nối mạng. Bạn vẫn điền tiếp được, nhưng cần có mạng khi gửi đăng ký ở bước 3. Thông tin được giữ trên thiết bị này.">
+    <nav aria-label="Các bước đăng ký">
+      <p class="tsp-stepn">Bước 1 trên 3</p>
+      <ol class="stepper tsp-stepper">
+        <li class="stepper__step is-current" aria-current="step"><span class="stepper__bar"></span><span class="stepper__label"><span class="stepper__num">1</span><span class="stepper__text">Doanh nghiệp</span></span></li>
+        <li class="stepper__step"><span class="stepper__bar"></span><span class="stepper__label"><span class="stepper__num">2</span><span class="stepper__text">Người sở hữu</span></span></li>
+        <li class="stepper__step"><span class="stepper__bar"></span><span class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Xác nhận</span></span></li>
+      </ol>
+    </nav>
+    <div><h1>Thông tin doanh nghiệp</h1><p class="tsp-lead">Chỉ cần vài thông tin cơ bản. Bạn bổ sung chi tiết khi thiết lập sau.</p></div>
+
+    <div class="alert alert--info" role="status" data-draft-banner hidden data-demo-time="09:42" data-demo='{"v":{"btype":"dn","borg":"Công ty TNHH Ô tô Minh Phát","bmst":"0312345678","bprov":"hcm","baddr":"12 Nguyễn Văn Linh, Quận 7"},"x":{"btype":"Doanh nghiệp","borg":"Công ty TNHH Ô tô Minh Phát","bmst":"0312345678","bprov":"TP. Hồ Chí Minh","baddr":"12 Nguyễn Văn Linh, Quận 7"},"t":"09:42"}'>
+      <svg class="icon" aria-hidden="true"><use href="#history"/></svg>
+      <div class="alert__body"><span class="alert__title">Tiếp tục bản nháp lúc <span data-draft-time>09:42</span>?</span><span>Bản nháp nằm trên thiết bị này. Mật khẩu không bao giờ được lưu.</span>
+        <div class="alert__actions"><button type="button" class="btn btn--primary btn--sm" data-draft-resume>Tiếp tục bản nháp</button><button type="button" class="btn btn--secondary btn--sm" data-draft-drop>Bỏ bản nháp</button></div></div>
+    </div>
+
+    <form class="tsp-form" data-ts-form novalidate data-next="tsu-03.html" data-validate-in="errmst errmulti" data-draft-group>
+      <div class="tsp-alerts" data-ts-alerts hidden></div>
+      <div class="field">
+        <span class="field__label" id="btype-l">Loại hình<span class="field__req" aria-hidden="true">*</span></span>
+        <div class="tsp-radio-group" role="radiogroup" id="btype" aria-labelledby="btype-l" aria-required="true" data-rule="choose" data-label="loại hình" data-required-field>
+          <label class="radio"><input type="radio" name="btype" value="dn" data-text="Doanh nghiệp" data-draft data-fill='{"errmst":true,"errmulti":true,"filled":true}'><span class="radio__box"></span><span>Doanh nghiệp (công ty, doanh nghiệp tư nhân)</span></label>
+          <label class="radio"><input type="radio" name="btype" value="hkd" data-text="Hộ kinh doanh" data-draft><span class="radio__box"></span><span>Hộ kinh doanh</span></label>
+        </div>
+        <span class="field__hint">Chưa hỗ trợ cá nhân chưa đăng ký kinh doanh.</span>
+      </div>
+      <div class="field">
+        <label class="field__label" for="borg">Tên doanh nghiệp hoặc hộ kinh doanh<span class="field__req" aria-hidden="true">*</span></label>
+        <input id="borg" name="borg" class="input" autocomplete="organization" aria-required="true" aria-describedby="borg-h" data-rule="required|org" data-label="tên doanh nghiệp hoặc hộ kinh doanh" data-required-field data-draft data-fill='{"errmst":"Công ty TNHH Ô tô Minh Phát","errmulti":"A","filled":"Công ty TNHH Ô tô Minh Phát"}'>
+        <span class="field__hint" id="borg-h">Đúng như giấy đăng ký kinh doanh.</span>
+      </div>
+      <div class="field">
+        <label class="field__label" for="bmst">Mã số thuế<span class="field__req" aria-hidden="true">*</span></label>
+        <input id="bmst" name="bmst" class="input" inputmode="numeric" autocomplete="off" aria-required="true" aria-describedby="bmst-h" data-rule="mst" data-label="mã số thuế" data-lens="10,12" data-required-field data-draft data-fill='{"errmst":"0312 345","errmulti":"123","filled":"0312 345 678"}'>
+        <span class="field__hint" id="bmst-h">Tự bỏ khoảng trắng và dấu gạch khi dán. <button type="button" class="btn btn--ghost btn--sm" data-open="dlg-mst">Mã số thuế ở đâu?</button></span>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label class="field__label" for="bprov">Tỉnh/thành phố trụ sở<span class="field__req" aria-hidden="true">*</span></label>
+          <select id="bprov" name="bprov" class="select" aria-required="true" data-rule="choose" data-label="tỉnh/thành phố trụ sở" data-required-field data-draft data-fill='{"errmst":"hcm","errmulti":"","filled":"hcm"}'>
+            <option value="">Chọn tỉnh/thành phố</option>
+            <option value="hn">Hà Nội</option><option value="hcm">TP. Hồ Chí Minh</option><option value="dn">Đà Nẵng</option><option value="hp">Hải Phòng</option><option value="ct">Cần Thơ</option><option value="khac">Tỉnh/thành phố khác (danh mục là cấu hình)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" for="bbr">Số chi nhánh hiện có</label>
+          <select id="bbr" name="bbr" class="select" aria-describedby="bbr-h" data-draft>
+            <option value="">Chưa chọn</option><option value="1">1</option><option value="2-3">2 đến 3</option><option value="4-10">4 đến 10</option><option value="10+">Trên 10</option>
+          </select>
+          <span class="field__hint" id="bbr-h">Không bắt buộc. Chỉ để gợi ý gói và chuẩn bị bước thiết lập.</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label" for="baddr">Địa chỉ trụ sở<span class="field__req" aria-hidden="true">*</span></label>
+        <textarea id="baddr" name="baddr" class="textarea" rows="2" autocomplete="street-address" aria-required="true" data-rule="required|len:5:250" data-label="địa chỉ trụ sở" data-msg-len="Địa chỉ cần từ 5 đến 250 ký tự." data-required-field data-draft data-fill='{"errmst":"12 Nguyễn Văn Linh, Quận 7","errmulti":"Q7","filled":"12 Nguyễn Văn Linh, Quận 7"}'></textarea>
+      </div>
+      <p class="tsp-small"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+
+      <p class="tsp-missing" id="rsn-02" hidden><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span></span></p>
+      <div class="tsp-actions">
+        <a class="btn btn--secondary btn--lg" href="tsu-01.html">Quay lại</a>
+        <button class="btn btn--primary btn--lg" type="submit" data-submit data-requires-fields data-reason-id="rsn-02"><span>Tiếp tục</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<div class="overlay" id="dlg-mst" role="dialog" aria-labelledby="dlg-mst-t">
+  <div class="dialog">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-mst-t">Mã số thuế ở đâu?</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <p>Bạn tìm thấy mã số thuế ở:</p>
+      <ul class="impact-list"><li>Giấy chứng nhận đăng ký kinh doanh hoặc giấy chứng nhận đăng ký doanh nghiệp.</li><li>Thông báo mã số thuế do cơ quan thuế gửi.</li><li>Hóa đơn bạn đã phát hành.</li></ul>
+      <p class="tsp-small">Doanh nghiệp có 10 số. Hộ kinh doanh có 12 số. Mã 13 số là của đơn vị phụ thuộc, hãy nhập mã 10 số của pháp nhân.</p>
+    </div>
+    <div class="dialog__footer"><button type="button" class="btn btn--primary" data-close>Đã hiểu</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+</body>
+</html>

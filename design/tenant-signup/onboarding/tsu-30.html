@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-30 · Hoàn tất: đã kích hoạt – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="simple" data-common="1">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="trial:Dùng thử (trial)|early:Truy cập sớm (không thu phí)|chua-khai-hdon:Chưa khai hóa đơn thật"></div>
+
+  <div class="state" style="padding-top:var(--space-4)"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#circle-check"/></svg></div>
+    <h1 class="state__title" id="tsu-h1" tabindex="-1" style="font-size:var(--font-size-2xl);line-height:32px">GMEP của Công ty TNHH Ô tô Phương Nam đã sẵn sàng</h1>
+    <p class="state__text">Công ty đã kích hoạt lúc <span class="num">10:24</span> ngày <span class="num">05/11/2026</span>. Dưới đây là tóm tắt và việc nên làm tiếp.</p></div>
+
+  <section class="tsu-grid3" aria-label="Tóm tắt thiết lập">
+    <div class="card"><div class="tsu-card-pad"><span class="tsu-sub">Chi nhánh</span><strong style="font-size:var(--font-size-2xl)" class="num">1</strong></div></div>
+    <div class="card"><div class="tsu-card-pad"><span class="tsu-sub">Kho</span><strong style="font-size:var(--font-size-2xl)" class="num">1</strong></div></div>
+    <div class="card"><div class="tsu-card-pad"><span class="tsu-sub">Người đã mời</span><strong style="font-size:var(--font-size-2xl)" class="num">2</strong></div></div>
+    <div class="card"><div class="tsu-card-pad"><span class="tsu-sub">Hóa đơn điện tử</span><strong data-off="chua-khai-hdon">Chạy thử</strong><strong data-on="chua-khai-hdon">Chạy thử, chưa khai hóa đơn thật</strong></div></div>
+  </section>
+
+  <div class="alert alert--info" role="status" data-on="trial"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Dùng thử còn <span class="num">30</span> ngày</span><span>Hết hạn <span class="num">05/12/2026</span> (thời lượng là cấu hình, số minh họa). Dữ liệu của bạn không bị xóa khi hết dùng thử.</span></div></div>
+  <div class="alert alert--info" role="status" data-on="early"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Truy cập sớm, chưa thu phí</span><span>Bạn đang dùng GMEP trong giai đoạn truy cập sớm. Chúng tôi báo trước khi có thay đổi về gói và giá.</span></div></div>
+  <div class="alert alert--warning" role="status" data-on="chua-khai-hdon"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Hóa đơn thật chưa dùng được</span><span>Hóa đơn tiếp tục chạy thử đến khi doanh nghiệp hoàn tất xác minh và bạn khai nhà cung cấp hóa đơn điện tử.</span></div></div>
+
+  <section class="card" aria-labelledby="t30-n">
+    <div class="card__header"><h2 class="card__title" id="t30-n">Việc nên làm tiếp</h2></div>
+    <ul class="tsu-cl">
+      <li class="tsu-cl__item"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#users"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Mời thêm nhân sự</span><span class="tsu-sub">Cố vấn, thủ kho, thu ngân, thợ.</span></div><div class="tsu-cl__act"><a class="btn btn--secondary btn--sm" href="tsu-24.html" aria-label="Mời thêm nhân sự">Mời người</a></div></li>
+      <li class="tsu-cl__item"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#receipt"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Khai hóa đơn thật</span><span class="tsu-sub">Chọn nhà cung cấp và bật phát hành thật sau khi xác minh.</span></div><div class="tsu-cl__act"><a class="btn btn--secondary btn--sm" href="tsu-27.html" aria-label="Khai hóa đơn thật">Khai nhà cung cấp</a></div></li>
+      <li class="tsu-cl__item"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#upload"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Nhập Excel</span><span class="tsu-sub">Khách hàng, xe, phụ tùng, tồn đầu kỳ.</span></div><div class="tsu-cl__act"><a class="btn btn--secondary btn--sm" href="tsu-28.html" aria-label="Nhập Excel">Nhập dữ liệu</a></div></li>
+    </ul>
+  </section>
+
+  <div class="tsu-actions">
+    <a class="btn btn--primary btn--lg" href="../../g1-auth-dashboard/g1-dsh-01.html">Vào trang tổng quan</a>
+    <button type="button" class="btn btn--secondary btn--lg" data-toast="info|Hướng dẫn nhanh|Prototype: mở hướng dẫn nhanh 5 bước cho chủ garage.">Xem hướng dẫn nhanh</button>
+  </div>
+  <p class="tsu-test">Truy vết: FR-TEN-004, 043, 044; J8.</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="tsu-app.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

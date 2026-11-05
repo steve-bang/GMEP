@@ -1,0 +1,109 @@
+/* Gói "Đăng ký tenant và onboarding" – quản trị nền tảng (TSU-60..68). Khung PlatformShell: khác khung tenant để không nhầm.
+   Chỉ dùng token trong ../../assets/tokens.css. Tiền tố tsa-. Dùng thêm ../public/ts-public.css cho biểu mẫu, thanh xem thử và trạng thái chung. */
+
+.tsa-app { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-page); }
+.tsa-skip { z-index: calc(var(--z-topbar) + 1); }
+
+/* Thanh trên: nền trung tính tối, không tím; nhãn cố định "Quản trị nền tảng" */
+.tsa-top { background: var(--palette-gray-900); color: var(--palette-gray-0); border-bottom: 1px solid var(--palette-gray-600); display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-2) var(--space-6); min-height: var(--topbar-height); position: sticky; top: 0; z-index: var(--z-topbar); }
+.tsa-brand { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--palette-gray-0); font-weight: 700; font-size: var(--font-size-lg); text-decoration: none; letter-spacing: .02em; }
+.tsa-brand:hover { text-decoration: none; }
+.tsa-brand__logo { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--palette-gray-0); color: var(--palette-gray-900); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.tsa-label { display: inline-flex; align-items: center; min-height: 28px; padding: 0 var(--space-3); border: 1px solid var(--palette-gray-400); border-radius: var(--radius-full); font-size: var(--font-size-sm); font-weight: 600; color: var(--palette-gray-0); }
+.tsa-top__spacer { flex: 1; }
+.tsa-user { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; color: var(--palette-gray-200); font-size: var(--font-size-sm); }
+.tsa-user strong { color: var(--palette-gray-0); font-weight: 600; }
+.tsa-user .btn-icon, .tsa-top .btn--ghost { color: var(--palette-gray-0); }
+.tsa-top .btn--ghost:hover, .tsa-user .btn-icon:hover { background: var(--palette-gray-600); color: var(--palette-gray-0); }
+.tsa-strip { background: var(--color-neutral-bg); color: var(--color-neutral-text); border-bottom: 1px solid var(--color-neutral-border); padding: var(--space-2) var(--space-6); font-size: var(--font-size-sm); display: flex; align-items: center; gap: var(--space-2); }
+.tsa-strip .icon { width: 16px; height: 16px; flex: none; }
+
+.tsa-body { flex: 1; display: grid; grid-template-columns: 240px minmax(0, 1fr); min-width: 0; }
+.tsa-nav { background: var(--color-surface); border-right: 1px solid var(--color-border); padding: var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: var(--space-1); }
+.tsa-nav a { display: flex; align-items: center; gap: var(--space-3); min-height: 44px; padding: 0 var(--space-3); border-radius: var(--radius-md); color: var(--color-text-secondary); font-weight: 500; text-decoration: none; }
+.tsa-nav a:hover { background: var(--color-surface-subtle); color: var(--color-text-primary); }
+.tsa-nav a[aria-current="page"] { background: var(--color-surface-subtle); color: var(--color-text-primary); font-weight: 700; box-shadow: inset 3px 0 0 var(--palette-gray-900); }
+[data-theme="dark"] .tsa-nav a[aria-current="page"] { box-shadow: inset 3px 0 0 var(--palette-gray-0); }
+.tsa-nav .icon { flex: none; }
+.tsa-nav__count { margin-left: auto; }
+.tsa-main { padding: var(--space-6) var(--space-8) var(--space-12); display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; max-width: 1400px; width: 100%; }
+@media (max-width: 1023px) {
+  .tsa-body { grid-template-columns: minmax(0, 1fr); }
+  .tsa-nav { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--color-border); padding: var(--space-2) var(--space-4); scrollbar-width: thin; }
+  .tsa-nav a { white-space: nowrap; flex: none; }
+  .tsa-nav a[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--palette-gray-900); }
+  [data-theme="dark"] .tsa-nav a[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--palette-gray-0); }
+  .tsa-main { padding: var(--space-5) var(--space-4) var(--space-10); }
+  .tsa-top, .tsa-strip { padding-left: var(--space-4); padding-right: var(--space-4); }
+}
+
+/* Đăng nhập quản trị (TSU-60): khung rút gọn */
+.tsa-login-body { min-height: 100vh; background: var(--color-page); display: flex; flex-direction: column; align-items: stretch; gap: var(--space-5); padding: 0 0 var(--space-6); }
+.tsa-login-body .tsp-wrap { padding: 0 var(--space-4); }
+
+.tsa-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.tsa-head h1 { font-size: var(--font-size-2xl); line-height: var(--lh-xl); margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.tsa-head__text { min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); flex: 1 1 320px; }
+.tsa-head__actions { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
+.tsa-head__actions .btn { white-space: normal; }
+.tsa-sub { color: var(--color-text-secondary); margin: 0; }
+.tsa-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
+.tsa-cols { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+@media (max-width: 1279px) { .tsa-cols { grid-template-columns: minmax(0, 1fr); } }
+.tsa-tabs { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--color-border); overflow-x: auto; scrollbar-width: none; }
+.tsa-tabs .tab[aria-current="true"] { color: var(--color-purple-text); border-bottom-color: var(--color-primary); font-weight: 600; }
+.tsa-table .table th, .tsa-table .table td { height: auto; min-height: var(--table-row-height); padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.tsa-table .table thead th { height: 44px; padding-top: 0; padding-bottom: 0; }
+.tsa-reasons { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.tsa-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.tsa-card > h2, .tsa-card > .tsa-card__head h2 { font-size: var(--font-size-lg); margin: 0; font-weight: 600; }
+.tsa-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.tsa-kv { margin: 0; display: grid; grid-template-columns: minmax(120px, 190px) minmax(0, 1fr); gap: var(--space-2) var(--space-4); }
+.tsa-kv dt { color: var(--color-text-secondary); }
+.tsa-kv dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+@media (max-width: 639px) { .tsa-kv { grid-template-columns: minmax(0, 1fr); gap: 0; } .tsa-kv dd { margin-bottom: var(--space-2); } }
+.tsa-note { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0; }
+.tsa-fix { display: flex; gap: var(--space-2); align-items: flex-start; font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0; }
+.tsa-fix .icon { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+.tsa-mono { font-variant-numeric: tabular-nums; font-family: var(--font-mono); overflow-wrap: anywhere; }
+.tsa-stack { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.tsa-wait--late { color: var(--color-danger-text); font-weight: 600; }
+
+/* Hộp thoại quyết định / drawer */
+.tsa-dlg-static { display: flex; justify-content: center; padding: var(--space-4) 0; }
+.tsa-dlg-static .dialog { box-shadow: var(--shadow-md); border: 1px solid var(--color-border); max-height: none; }
+.tsa-checks { display: flex; flex-direction: column; gap: 0; }
+.dialog__body .field__label { color: var(--color-text-primary); }
+.dialog .tsp-fs { gap: var(--space-4); }
+.drawer { max-width: 560px; }
+.drawer__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); padding: var(--space-5) var(--space-6) var(--space-3); border-bottom: 1px solid var(--color-border); }
+.drawer__head h2 { margin: 0; font-size: var(--font-size-xl); line-height: var(--lh-lg); }
+.drawer__body { padding: var(--space-5) var(--space-6); overflow: auto; flex: 1; display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.drawer__foot { display: flex; justify-content: flex-end; gap: var(--space-3); flex-wrap: wrap; padding: var(--space-4) var(--space-6); border-top: 1px solid var(--color-border); }
+.drawer__foot .btn { white-space: normal; }
+.drawer__foot .tsp-reason { flex: 1 1 100%; justify-content: flex-start; }
+
+/* Cấu hình (biến thể S) */
+.tsa-cfg { display: flex; flex-direction: column; gap: var(--space-5); }
+.tsa-param { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); align-items: start; padding: var(--space-4) 0; border-top: 1px solid var(--color-border); }
+.tsa-param:first-of-type { border-top: 0; padding-top: 0; }
+.tsa-param__name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tsa-param__name strong { font-weight: 600; }
+.tsa-param__eff { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+@media (max-width: 1023px) { .tsa-param { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); } }
+.tsa-index { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tsa-bar { position: sticky; bottom: 0; z-index: var(--z-sticky); display: flex; gap: var(--space-3); justify-content: space-between; align-items: center; flex-wrap: wrap; padding: var(--space-3) var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+.tsa-bar .btn { white-space: normal; }
+
+/* Danh sách tenant đã chấp nhận */
+.tsa-mini { width: 100%; }
+.tsa-mini th, .tsa-mini td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); }
+.tsa-mini th { color: var(--color-text-secondary); font-weight: 600; }
+
+@media (max-width: 639px) {
+  .tsa-head__actions { width: 100%; }
+  .tsa-head__actions .btn { flex: 1 1 100%; }
+  .tsa-bar .btn { flex: 1 1 100%; }
+  .drawer__head, .drawer__body, .drawer__foot { padding-left: var(--space-4); padding-right: var(--space-4); }
+}
+@media print { .tsp-proto { display: none; } }

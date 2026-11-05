@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-14 · Đăng nhập có mã công ty – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu đăng nhập</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="default:Mặc định|remembered:Đã nhớ mã công ty|wrong:Sai thông tin|locked:Khóa tạm|expired:Hết phiên|routed:Đăng nhập đúng (rẽ nhánh)" data-ts-common="r429 error offline" data-hint="TSU-14 · FR-TEN-016, 010 · thử: mật khẩu “sai” báo lỗi, “khoa” khóa tạm, “dieukhoan” sang điều khoản mới, giá trị khác ra bảng rẽ nhánh."></div>
+
+  <main id="main" class="tsp-card" data-error-title="Chưa đăng nhập được" data-offline-text="Chưa đăng nhập được. Kiểm tra Wi-Fi hoặc 4G rồi thử lại. Thông tin bạn đã nhập vẫn được giữ.">
+    <div data-hide="routed"><h1>Đăng nhập</h1><p class="tsp-lead">Nhập mã công ty và tài khoản của bạn. Mã công ty có trong email chào mừng.</p></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+
+    <div class="alert alert--danger" role="alert" data-show="wrong" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không đăng nhập được</span><span>Thông tin đăng nhập chưa đúng. Kiểm tra mã công ty, tài khoản và mật khẩu rồi thử lại.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="locked" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tạm dừng đăng nhập trên thiết bị này</span><span>Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau <strong class="num" data-countdown="900" data-countdown-view="default">15:00</strong> hoặc dùng “Quên mật khẩu” để đặt mật khẩu mới.</span></div></div>
+    <div class="alert alert--info" role="status" data-show="expired" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Phiên đăng nhập đã hết hạn</span><span>Vì an toàn, bạn cần đăng nhập lại. Nội dung chưa lưu trên thiết bị này vẫn được giữ.</span></div></div>
+
+    <form class="tsp-form" data-ts-form novalidate data-hide="routed">
+      <fieldset class="tsp-fs" data-disable-in="locked">
+        <legend class="sr-only">Thông tin đăng nhập</legend>
+        <div class="field">
+          <label class="field__label" for="lg-code">Mã công ty<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="lg-code" name="company_code" class="input" autocomplete="off" autocapitalize="none" spellcheck="false" aria-required="true" aria-describedby="lg-code-h" data-first-focus data-rule="code" data-label="mã công ty" data-prefill="code" data-fill='{"remembered":"minh-phat-7k3q","wrong":"minh-phat-7k3q","locked":"minh-phat-7k3q","expired":"minh-phat-7k3q"}'>
+          <span class="field__hint" id="lg-code-h">Chữ thường, số và dấu gạch ngang. Không phân biệt hoa thường khi nhập.
+            <span data-show="remembered" hidden> Đã nhớ trên thiết bị này. <button type="button" class="btn btn--ghost btn--sm" data-forget="lg-code">Không phải công ty này?</button></span></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="lg-id">Email hoặc mã nhân viên<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="lg-id" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" data-rule="required" data-label="email hoặc mã nhân viên" data-fill='{"wrong":"phat@minhphat.vn","locked":"phat@minhphat.vn"}'>
+        </div>
+        <div class="field">
+          <label class="field__label" for="lg-pw">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="tsp-pw"><input id="lg-pw" class="input" name="password" type="password" autocomplete="current-password" aria-required="true" aria-describedby="lg-caps" data-rule="required" data-label="mật khẩu" data-msg-required="Nhập mật khẩu của bạn."><button type="button" class="btn-icon tsp-pw__toggle" data-pw-toggle="lg-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__hint" id="lg-caps" data-caps hidden>Caps Lock đang bật. Mật khẩu phân biệt chữ hoa, chữ thường.</span>
+        </div>
+      </fieldset>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-disable-in="locked" data-reason-id="rsn-14" data-text-page="Nút đăng nhập tạm khóa vì thiết bị này đang bị tạm dừng đăng nhập."><span>Đăng nhập</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <p class="tsp-reason" id="rsn-14" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span></span></p>
+      <div class="tsp-links"><a href="tsu-15.html">Quên mật khẩu?</a><a href="tsu-17.html">Quên mã công ty?</a></div>
+      <p class="tsp-small"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+    </form>
+
+    <section class="tsp-stack" data-show="routed" hidden aria-labelledby="rt-h" data-focus-result tabindex="-1">
+      <div class="tsp-result"><span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span><h1 id="rt-h">Đăng nhập đúng (mô phỏng)</h1>
+      <p class="tsp-lead">Sau khi xác thực đúng, hệ thống rẽ theo trạng thái công ty. Các màn bên dưới chỉ hiện cho người đã xác thực.</p></div>
+      <ul class="impact-list">
+        <li>Đang thiết lập: <a href="../onboarding/">Chào mừng và lộ trình thiết lập (TSU-20)</a></li>
+        <li>Đang hoạt động: bảng điều khiển theo vai trò</li>
+        <li>Bị hạn chế: bảng điều khiển kèm banner (TSU-50)</li>
+        <li>Tạm ngưng hoặc đang chấm dứt: <a href="../account/">Trạng thái tài khoản (TSU-53, 54, 57)</a></li>
+        <li>Chưa chấp nhận điều khoản mới: <a href="tsu-18.html">Chấp nhận điều khoản mới (TSU-18)</a></li>
+      </ul>
+      <button type="button" class="btn btn--secondary" data-ts-goto="default">Quay lại màn đăng nhập</button>
+    </section>
+  </main>
+
+  <div class="tsp-below" data-hide="routed">
+    <span>Chưa có tài khoản? <a href="tsu-01.html">Đăng ký dùng thử</a></span>
+    <span>Nhân viên mới nhận lời mời qua email từ quản trị công ty, không tự đăng ký ở đây.</span>
+  </div>
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang đăng nhập cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+<script>
+/* Mô phỏng kết quả máy chủ theo mật khẩu thử. Production: máy chủ trả cùng một câu lỗi cho mọi nguyên nhân. */
+window.tsRoute = function () {
+  var p = document.getElementById('lg-pw').value;
+  if (p === 'sai') return 'wrong'; if (p === 'khoa') return 'locked'; if (p === 'dieukhoan') return 'tsu-18.html'; return 'routed';
+};
+if (/[?&]code=/.test(location.search) && window.TS && !/[?&]state=/.test(location.search)) window.TS.setView('remembered');
+</script>
+</body>
+</html>

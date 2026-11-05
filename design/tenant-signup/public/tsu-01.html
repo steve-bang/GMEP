@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-01 · Giới thiệu và chọn gói dùng thử – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsp-top">
+  <a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a>
+  <a class="btn btn--secondary" href="tsu-14.html">Đăng nhập</a>
+</header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="open:Mở đăng ký|closed:Đóng đăng ký|cap:Trần ngày đã đạt (xếp hàng)" data-ts-common="skel error offline" data-wide data-hint="TSU-01 · FR-TEN-039, 044, 024 · giá và hạn mức là cấu hình, chưa công bố."></div>
+
+  <main id="main" class="tsp-landing" data-error-title="Không tải được danh sách gói" data-error-text="Bạn vẫn có thể tiếp tục đăng ký với gói mặc định. Danh sách gói sẽ được cập nhật khi tải lại." data-offline-keep data-offline-text="Bạn đang mất kết nối mạng. Bạn vẫn xem được trang này, nhưng cần có mạng khi gửi đăng ký ở bước 3.">
+    <div class="tsp-hero">
+      <h1>Quản lý garage từ lúc nhận xe đến lúc xuất hóa đơn, trong một nơi</h1>
+      <p>Dùng thử miễn phí, không cần thẻ thanh toán. Bạn tự thiết lập chi nhánh, kho và bảng giá; khi thấy phù hợp mới chọn gói chính thức.</p>
+    </div>
+
+    <ul class="tsp-benefits" aria-label="Lợi ích chính">
+      <li class="tsp-benefit"><span class="tsp-icon-badge" aria-hidden="true"><svg class="icon"><use href="#clipboard-list"/></svg></span><h2>Lệnh sửa chữa rõ ràng</h2><p>Nhận xe, báo giá, khách duyệt, thợ làm, giao xe: mỗi xe một lệnh, ai làm gì đều có dấu vết.</p></li>
+      <li class="tsp-benefit"><span class="tsp-icon-badge" aria-hidden="true"><svg class="icon"><use href="#package"/></svg></span><h2>Kho phụ tùng không thất thoát</h2><p>Biết còn bao nhiêu, đã giữ chỗ bao nhiêu, đang về bao nhiêu và còn bán được bao nhiêu.</p></li>
+      <li class="tsp-benefit"><span class="tsp-icon-badge" aria-hidden="true"><svg class="icon"><use href="#receipt"/></svg></span><h2>Hóa đơn điện tử đúng quy định</h2><p>Phát hành từ chính lệnh sửa chữa, không gõ lại, không phát hành trùng khi bấm hai lần.</p></li>
+    </ul>
+
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--info" role="status" data-show="cap" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#info"/></svg>
+      <div class="alert__body"><span class="alert__title">Số đăng ký trong ngày đã đầy</span><span>Bạn vẫn đăng ký được. Hồ sơ sẽ xếp hàng xử lý và chúng tôi email khi đến lượt.</span></div>
+    </div>
+
+    <section class="tsp-signup-grid" aria-label="Gói dùng thử và điều kiện" data-ts-body>
+      <div data-hide="closed" class="tsp-stack">
+        <article class="tsp-plan" aria-labelledby="plan-name">
+          <div class="tsp-row"><h2 class="tsp-plan__name" id="plan-name">Gói khởi đầu</h2><span class="badge badge--purple">Gói mặc định</span></div>
+          <p class="tsp-m0 text-secondary">Đủ để chạy thử một garage từ nhận xe đến hóa đơn. Tên gói, mô tả và hạn mức lấy từ danh mục gói do nền tảng cấu hình (TSU-68).</p>
+          <p class="tsp-m0"><strong>Dùng thử 30 ngày (minh họa), không cần thẻ.</strong> Theo cấu hình, có thể hiển thị “Truy cập sớm, chưa thu phí” thay cho dùng thử.</p>
+          <ul class="tsp-plan__limits">
+            <li><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span>Số chi nhánh: <strong>sẽ công bố</strong></span></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span>Số người dùng: <strong>sẽ công bố</strong></span></li>
+          </ul>
+          <p class="tsp-plan__price tsp-m0">Chưa công bố giá</p>
+          <div class="tsp-slot"><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận]</span><span>Giá, VAT đã gồm hay chưa và hạn mức theo gói do chủ nền tảng chốt. Không hiển thị con số khi chưa được xác nhận.</span></div>
+          <a class="btn btn--primary btn--lg btn--block" href="tsu-02.html" data-hide="closed"><span>Bắt đầu dùng thử</span></a>
+        </article>
+      </div>
+
+      <div class="tsp-stack">
+        <section class="tsp-need" aria-labelledby="need-h">
+          <h2 id="need-h" class="tsp-m0">Dùng thử cần gì</h2>
+          <ul>
+            <li><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span>Không cần thẻ thanh toán.</span></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><span>Bạn tự thiết lập trong khoảng 20 phút (minh họa). Có thể thoát và quay lại bất cứ lúc nào.</span></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span>Dữ liệu của bạn không bị xóa khi hết dùng thử.</span></li>
+          </ul>
+          <p class="tsp-small">GARAGE OS dành cho doanh nghiệp và hộ kinh doanh đã có mã số thuế tại Việt Nam.</p>
+        </section>
+
+        <div class="state" data-show="closed" hidden>
+          <span class="state__icon state__icon--brand" aria-hidden="true"><svg class="icon icon--lg"><use href="#inbox"/></svg></span>
+          <h2 class="state__title">Hiện chưa mở đăng ký mới</h2>
+          <p class="state__text">Chúng tôi sẽ mở lại sớm. Nếu bạn đã có tài khoản, vẫn đăng nhập bình thường.</p>
+          <div class="state__actions"><a class="btn btn--secondary" href="tsu-14.html">Đăng nhập</a></div>
+          <div class="tsp-slot"><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận C-18]</span><span>Ô “Để lại email nhận thông báo khi mở” chỉ bật khi có quyết định về thu thập dữ liệu. Chưa bật trong bản này.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="tsp-row" style="justify-content:space-between">
+      <p class="tsp-small">Đã có tài khoản? <a href="tsu-14.html">Đăng nhập</a></p>
+      <button type="button" class="btn btn--ghost" data-open="dlg-tos">Đọc điều khoản dịch vụ</button>
+    </div>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><span>Cần hỗ trợ? Kênh hỗ trợ sẽ được công bố [Cần xác nhận].</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<div class="overlay" id="dlg-tos" role="dialog" aria-labelledby="dlg-tos-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-tos-t">Điều khoản dịch vụ</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-meta"><span>Phiên bản: v1.0 (minh họa)</span><span>Hiệu lực từ: 01/12/2026 (minh họa)</span></div>
+      <div class="tsp-doc" tabindex="0" role="region" aria-label="Nội dung điều khoản dịch vụ"><p>[Nội dung do luật sư soạn, quản lý theo phiên bản ở màn Điều khoản và DPA (TSU-67). Chưa có văn bản chính thức.]</p></div>
+      <p class="tsp-small">Đọc để tham khảo. Bạn chỉ chấp nhận điều khoản ở bước cuối của đăng ký.</p>
+    </div>
+    <div class="dialog__footer"><a class="btn btn--ghost" href="#" data-toast="info|Tải bản PDF|Liên kết tải sẽ có khi có văn bản chính thức.">Tải bản PDF</a><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript để hiển thị đầy đủ.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+</body>
+</html>
