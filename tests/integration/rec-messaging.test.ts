@@ -45,10 +45,27 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
       key: k,
       headers: { 'x-forwarded-for': `198.51.100.${(ip++ % 200) + 10}` },
     });
-  const smsOutbox = async (template: string) =>
-    (await rows('messageOutbox'))
-      .filter((r) => r.channel === 'sms' && r.template === template)
-      .sort((a, b) => +a.createdAt - +b.createdAt);
+  /** a stored date as milliseconds: Date (memory) or Firestore Timestamp */
+  const ms = (v: unknown): number =>
+    typeof v === 'object' && v !== null && 'toMillis' in v
+      ? (v as { toMillis(): number }).toMillis()
+      : +(v as Date);
+  /**
+   * The test clock stands still, so several outbox rows share one `createdAt`, and Firestore returns equal rows in
+   * document-id order, not in insertion order. The order rows were first SEEN is therefore kept here (every read
+   * registers the new rows before anything else is done), so `.at(-1)` is the newest message on both backends.
+   */
+  const seenOrder = new Map<string, number>();
+  const smsOutbox = async (template: string) => {
+    const all = (await rows('messageOutbox')).filter((r) => r.channel === 'sms');
+    for (const r of all
+      .filter((x) => !seenOrder.has(x.id))
+      .sort((a, b) => ms(a.createdAt) - ms(b.createdAt)))
+      seenOrder.set(r.id, seenOrder.size);
+    return all
+      .filter((r) => r.template === template)
+      .sort((a, b) => seenOrder.get(a.id)! - seenOrder.get(b.id)!);
+  };
   const emailOutbox = async () =>
     (await rows('emailOutbox')).filter((r) => r.template === 'quote-link');
   const tokenOf = (link: string) => link.split('/b/')[1]!;
@@ -705,7 +722,7 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
           await wrongOnThreeCodes(token);
           const row = await otpRow(q.id);
           const thirtyDays = 30 * 24 * 3_600_000;
-          expect(+row.expiresAt).toBeGreaterThanOrEqual(h.clock.now().getTime() + thirtyDays);
+          expect(ms(row.expiresAt)).toBeGreaterThanOrEqual(h.clock.now().getTime() + thirtyDays);
           // far past the code expiry + 1 day the lock still answers
           adv(2 * 24 * 3_600_000);
           expect((await approve(token, all, await lastCode())).json.code).toBe('otp_link_locked');
