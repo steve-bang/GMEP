@@ -174,7 +174,7 @@ a.dsh-row:hover {
 }
 .dsh-sw--prov {
   background: var(--color-surface);
-  border: 2px dashed var(--color-text-secondary);
+  border: 2px dashed var(--chart-series-1);
 }
 .dsh-s1 {
   background: var(--chart-series-1);

@@ -22,7 +22,7 @@ function ChartFrame(props: {
   sub?: string;
   tableLabel: string;
   table: ReactNode;
-  legend?: { name: string; series: number }[];
+  legend?: { name: string; series: number; prov?: boolean }[];
   foot?: string;
   testId?: string;
   children: ReactNode;
@@ -43,7 +43,10 @@ function ChartFrame(props: {
         <ul className="dsh-chart__legend">
           {props.legend.map((l) => (
             <li key={l.name}>
-              <span className={`dsh-sw dsh-s${l.series}`} aria-hidden="true" />
+              <span
+                className={`dsh-sw ${l.prov ? 'dsh-sw--prov' : `dsh-s${l.series}`}`}
+                aria-hidden="true"
+              />
               {l.name}
             </li>
           ))}
@@ -108,6 +111,7 @@ export function ColumnChart(props: {
   const max = Math.max(0, ...props.points.map((p) => p.value ?? 0));
   const top = max > 0 || !props.emptyTop ? niceScale(max).top : props.emptyTop;
   const axis = props.axisFormat ?? props.format;
+  const hasProv = props.points.some((p) => p.provisional);
   const ticks = [0, 1, 2, 3, 4].map((i) => i * (top / 4));
   return (
     <ChartFrame
@@ -116,7 +120,12 @@ export function ColumnChart(props: {
       unit={props.unit}
       {...(props.sub ? { sub: props.sub } : {})}
       tableLabel={props.tableLabel}
-      legend={[{ name: props.valueName, series: 1 }]}
+      legend={[
+        { name: props.valueName, series: 1 },
+        ...(hasProv && props.provisionalNote
+          ? [{ name: props.provisionalNote, series: 1, prov: true }]
+          : []),
+      ]}
       {...(props.foot ? { foot: props.foot } : {})}
       {...(props.testId ? { testId: props.testId } : {})}
       table={
@@ -147,7 +156,14 @@ export function ColumnChart(props: {
           </div>
           <ul className="dsh-cols-chart__bars">
             {props.points.map((p) => (
-              <li key={p.label}>
+              <li
+                key={p.label}
+                title={
+                  p.value === null
+                    ? `${p.label}: ${props.noDataLabel}`
+                    : `${p.label}: ${props.format(p.value)}`
+                }
+              >
                 <span className="dsh-cols-chart__col">
                   {p.value === null ? (
                     <span className="dsh-cols-chart__none">{props.noDataLabel}</span>
@@ -167,11 +183,6 @@ export function ColumnChart(props: {
           </ul>
         </div>
       </div>
-      {props.points.some((p) => p.provisional) && props.provisionalNote ? (
-        <p className="dsh-chart__foot">
-          <span className="dsh-sw dsh-sw--prov" aria-hidden="true" /> {props.provisionalNote}
-        </p>
-      ) : null}
     </ChartFrame>
   );
 }

@@ -77,6 +77,26 @@ test.describe('home dashboard (/)', () => {
     }
   });
 
+  test('manager: dark theme keeps WCAG 2.2 AA contrast on every card and chart', async ({
+    browser,
+  }) => {
+    test.setTimeout(120_000);
+    const ql = await as(browser, 'ql.q7');
+    try {
+      await ql.page.emulateMedia({ reducedMotion: 'reduce' });
+      await post(ql.page.request, '/api/v1/rpt/jobs/run-due', {});
+      await ql.page.setViewportSize({ width: 1280, height: 900 });
+      await ql.page.goto('/');
+      await ql.page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+      await expect(ql.page.getByTestId('chart-trend')).toBeVisible();
+      expect(serious(await axe(ql.page))).toEqual([]);
+      if (shots)
+        await ql.page.screenshot({ path: `${shots}/home-manager-dark.png`, fullPage: true });
+    } finally {
+      await ql.ctx.close();
+    }
+  });
+
   test('cashier: money cards only; no revenue card or revenue chart reaches the page (cut on the server)', async ({
     browser,
   }) => {
