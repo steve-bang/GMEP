@@ -205,6 +205,7 @@ const quoteFromDoc = ({ id, data: x }: StoredDoc): Quote => ({
   currentN: x.currentN,
   status: x.status,
   ...put('validUntil', opt<string>(x.validUntil)),
+  ...put('remindedFor', opt<string>(x.remindedFor)),
   totalVnd: x.totalVnd ?? 0,
   ...put('approvedTotalVnd', opt<number>(x.approvedTotalVnd)),
   createdAt: x.createdAt,

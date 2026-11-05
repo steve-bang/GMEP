@@ -19,6 +19,7 @@ import {
   requiredIndexDefs,
   type IndexDef,
 } from '@/platform/store/indexes';
+import { countByModule, ownerOf, prefixCandidates, sliceOf } from '@/platform/store/indexReport';
 import '@/infrastructure/repos/queries';
 
 if (process.argv.includes('--write')) {
@@ -40,60 +41,15 @@ if (process.argv.includes('--write')) {
   process.exit(0);
 }
 
-// Collection -> owning module, for the per-module budget table (docs/dev/index-budget.md, R68)
-const OWNER: Record<string, string> = {
-  approvals: 'SYS',
-  auditLogs: 'SYS',
-  authTokens: 'SYS',
-  branches: 'SYS',
-  configVersions: 'SYS',
-  counters: 'SYS',
-  importBatches: 'SYS',
-  notifications: 'SYS',
-  priceLists: 'SYS',
-  roleAssignments: 'SYS',
-  services: 'SYS',
-  sessions: 'SYS',
-  users: 'SYS',
-  warehouses: 'SYS',
-  consents: 'CRM',
-  customerLinks: 'CRM',
-  customerPii: 'CRM',
-  customers: 'CRM',
-  dataSubjectRequests: 'CRM',
-  vehicleHistory: 'CRM',
-  vehicleLinks: 'CRM',
-  vehicleOwnerships: 'CRM',
-  vehicles: 'CRM',
-  partCompat: 'INV',
-  parts: 'INV',
-  stockBalances: 'INV',
-  stockDocuments: 'INV',
-  stockMovements: 'INV',
-  stockReservations: 'INV',
-  intakes: 'REC',
-  partRequests: 'REC',
-  quotes: 'REC',
-  repairItems: 'REC',
-  repairOrders: 'REC',
-  cashEntries: 'ACC',
-  cashShifts: 'ACC',
-  debts: 'ACC',
-  payments: 'ACC',
-  invoices: 'EIN',
-};
-
-if (process.argv.includes('--budget')) {
+if (process.argv.includes('--budget') || process.argv.includes('--report')) {
   // Per-module table and per-index owner/queries (markdown, paste into docs/dev/index-budget.md)
   const declaredDefs = (
     JSON.parse(readFileSync('firestore.indexes.json', 'utf8')) as { indexes: IndexDef[] }
   ).indexes;
   const queries = registeredQueries();
-  const byModule = new Map<string, number>();
   const rows: string[] = [];
   for (const d of declaredDefs) {
-    const mod = OWNER[d.collectionGroup] ?? '?';
-    byModule.set(mod, (byModule.get(mod) ?? 0) + 1);
+    const mod = ownerOf(d.collectionGroup);
     const users = queries
       .filter((q) => {
         const need = requiredIndex(q);
@@ -103,29 +59,25 @@ if (process.argv.includes('--budget')) {
     const f = d.fields
       .map((x) => `${x.fieldPath}${x.order === 'DESCENDING' ? ' desc' : ''}`)
       .join(', ');
-    rows.push(`| ${mod} | ${d.collectionGroup} | ${f} | ${users.join('; ') || 'NONE (unused)'} |`);
+    rows.push(
+      `| ${mod} | ${d.collectionGroup} | ${f} | ${d.queryScope} | ${sliceOf(d.collectionGroup)} | ${users.join('; ') || 'NONE (unused)'} |`,
+    );
   }
   console.log(
     `Declared ${declaredDefs.length}/${INDEX_LIMIT} (warn ${INDEX_WARN_AT}, fail above ${INDEX_FAIL_ABOVE}).`,
   );
   console.log('| Module | Indexes |\n| --- | ---: |');
-  for (const [m, n] of [...byModule].sort((a, b) => b[1] - a[1])) console.log(`| ${m} | ${n} |`);
-  console.log('\n| Module | Collection | Fields | Queries |\n| --- | --- | --- | --- |');
+  for (const [m, n] of countByModule(declaredDefs)) console.log(`| ${m} | ${n} |`);
+  console.log(
+    '\n| Module | Collection | Fields | Scope | FR, slice | Queries |\n| --- | --- | --- | --- | --- | --- |',
+  );
   console.log(rows.sort().join('\n'));
-  // Candidates: same collection, one index's fields are a strict prefix of another's
-  for (const a of declaredDefs)
-    for (const b of declaredDefs)
-      if (
-        a !== b &&
-        a.collectionGroup === b.collectionGroup &&
-        a.fields.length < b.fields.length &&
-        a.fields.every(
-          (f, i) => b.fields[i]!.fieldPath === f.fieldPath && b.fields[i]!.order === f.order,
-        )
-      )
-        console.log(
-          `prefix-candidate: ${a.collectionGroup} (${a.fields.map((x) => x.fieldPath).join(', ')}) is a prefix of another`,
-        );
+  // Conservative merge candidates (never an automatic removal), see platform/store/indexReport.ts
+  const cands = prefixCandidates(declaredDefs);
+  console.log(`\n${cands.length} prefix candidate(s)`);
+  for (const c of cands) console.log(`prefix-candidate: ${c.reason}`);
+  const unused = rows.filter((r) => r.endsWith('NONE (unused)'));
+  console.log(`${unused.length} index(es) used by no registered query`);
   process.exit(0);
 }
 

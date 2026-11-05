@@ -1,0 +1,128 @@
+# Manual staging deploy (docs/dev/gcp-setup-runbook.md, section 11). Never runs on push or PR.
+# Build the Dockerfile image -> push to Artifact Registry -> deploy Firestore rules/indexes -> deploy Cloud Run -> smoke test.
+# Authentication is Workload Identity Federation (no key or secret in GitHub). Everything is configured through repository
+# VARIABLES (Settings > Secrets and variables > Actions > Variables). When they are missing the first job fails with a
+# clear message and nothing else runs, so the workflow is harmless in a repository without a GCP project.
+name: deploy-staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_firestore:
+        description: 'Deploy Firestore rules and indexes (runs pnpm check:indexes first)'
+        type: boolean
+        default: true
+      deploy_storage_rules:
+        description: 'Also deploy storage.rules (only if the Firebase default Storage bucket was initialised; see runbook)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  REGION: ${{ vars.GCP_REGION || 'asia-southeast1' }}
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check repository variables
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_DEPLOYER_SERVICE_ACCOUNT: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+          STAGING_APP_BASE_URL: ${{ vars.STAGING_APP_BASE_URL }}
+          STAGING_CRON_COMPANY_ID: ${{ vars.STAGING_CRON_COMPANY_ID }}
+        run: |
+          missing=0
+          for name in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER GCP_DEPLOYER_SERVICE_ACCOUNT STAGING_APP_BASE_URL STAGING_CRON_COMPANY_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing repository variable::$name is not set. See docs/dev/gcp-setup-runbook.md (section 11 and the owner checklist)."
+              missing=1
+            fi
+          done
+          case "$STAGING_APP_BASE_URL" in
+            https://*|'') ;;
+            *) echo "::error title=Invalid variable::STAGING_APP_BASE_URL must start with https:// (the __Host- session cookie needs HTTPS)."; missing=1 ;;
+          esac
+          if [ "$missing" -ne 0 ]; then
+            echo "Staging deploy is not configured yet: nothing was built or deployed."
+            exit 1
+          fi
+          echo "Repository variables present."
+
+  deploy:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: staging
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      ENV_NAME: staging
+      DRY_RUN: '0'
+      IMAGE: ${{ vars.GCP_REGION || 'asia-southeast1' }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/gmep/gmep:${{ github.sha }}
+      APP_BASE_URL: ${{ vars.STAGING_APP_BASE_URL }}
+      CRON_COMPANY_ID: ${{ vars.STAGING_CRON_COMPANY_ID }}
+      EMAIL_FROM: ${{ vars.STAGING_EMAIL_FROM }}
+      MIN_INSTANCES: ${{ vars.STAGING_MIN_INSTANCES || '0' }}
+      MAX_INSTANCES: ${{ vars.STAGING_MAX_INSTANCES || '5' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Index budget gate
+        run: pnpm check:indexes
+
+      - name: Build and push image
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          DOCKER_BUILDKIT=1 docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      # Indexes and rules go first on purpose: the new revision may query with an index that must already exist.
+      - name: Deploy Firestore rules and indexes
+        if: ${{ inputs.deploy_firestore }}
+        env:
+          DEPLOY_STORAGE_RULES: ${{ inputs.deploy_storage_rules }}
+        run: |
+          only="firestore:rules,firestore:indexes"
+          if [ "$DEPLOY_STORAGE_RULES" = "true" ]; then only="$only,storage"; fi
+          pnpm exec firebase deploy --only "$only" --project "$PROJECT_ID" --non-interactive
+
+      - name: Deploy Cloud Run service
+        run: infra/gcp/30-deploy-service.sh
+
+      - name: Smoke test
+        run: |
+          URL=$(gcloud run services describe gmep --region "$REGION" --format='value(status.url)')
+          echo "Service: $URL"
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS "$URL/api/health?ready=1" | tee /dev/stderr | grep -q '"ready":true'; then
+              echo; echo "Ready."; exit 0
+            fi
+            echo "not ready yet (attempt $i)"; sleep 10
+          done
+          echo "::error::/api/health?ready=1 never reported ready"
+          exit 1

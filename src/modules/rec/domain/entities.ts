@@ -362,6 +362,8 @@ export interface Quote {
   status: QuoteStatus;
   /** R10: end of validity of the current version once sent; lets lists derive "Hết hạn" without loading versions */
   validUntil?: string;
+  /** R10/R17: the `validUntil` the advisor was already reminded about (background job); makes the reminder once per version */
+  remindedFor?: string;
   totalVnd: number;
   /** total of the approved items once approved (tax included); the order is worth this, not `totalVnd` */
   approvedTotalVnd?: number;

@@ -152,6 +152,22 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
           ))}
         </ul>
       </section>
+      <div className="rec-actions">
+        <Link
+          className="btn btn--secondary"
+          href={`/acc/payments/${encodeURIComponent(p.id)}/print`}
+          data-testid="receipt-print-open"
+        >
+          {l.print}
+        </Link>
+        <a
+          className="btn btn--secondary"
+          href={`/api/v1/acc/payments/${encodeURIComponent(p.id)}/pdf`}
+          data-testid="receipt-pdf-open"
+        >
+          {l.downloadPdf}
+        </a>
+      </div>
       {canReverse ? (
         <ReversalPanel
           paymentId={p.id}
