@@ -165,6 +165,10 @@ Số 10 và 5 của mật khẩu lấy từ ADR §6.3 và `ba-decisions` D-03, *
 | Xác thực mạnh chưa sẵn sàng | Chưa thể xác thực hai lớp | Bước xác thực này chưa sẵn sàng trên hệ thống nên chưa thể đăng nhập. Đây không phải lỗi của bạn. Báo quản trị hệ thống kèm mã tham chiếu. | Về trang đăng nhập |
 | Chưa gán chi nhánh | Tài khoản chưa được gán chi nhánh nào | Bạn cần được gán ít nhất một chi nhánh và một vai trò mới xem được dữ liệu. Nhờ quản lý chi nhánh hoặc quản trị hệ thống gán giúp, rồi tải lại trang. | Gửi yêu cầu gán chi nhánh (`[Cần xác nhận]`) |
 
+### 2.10 Trạng thái tenant (multi-tenant)
+
+Câu chữ banner BAN-01..10, hộp thoại chặn tạo mới (TSU-51), tạm ngưng (TSU-53, 54), hết dùng thử (TSU-52) và chấm dứt (TSU-57) **nằm ở `tenant-signup-spec.md` (TSU-50..57)**, kèm mã lý do ở §3.1; không lặp lại ở đây để tránh hai nguồn. Quy tắc chung: không nêu chi tiết an ninh, số ngày và mốc lấy từ máy chủ, lỗi đăng nhập liên quan tenant dùng một câu trung lập (TSU-14).
+
 ## 3. Mã lý do khóa nút (ReasonDisabled)
 
 Máy chủ trả `can` và `reason.code` cùng bản ghi; UI tra câu chữ theo bảng này. Hiện thành chữ cạnh nút, không chỉ tooltip.
@@ -183,6 +187,22 @@ Máy chủ trả `can` và `reason.code` cùng bản ghi; UI tra câu chữ theo
 | `REQUIRES_APPROVAL` | Cần được duyệt trước ({người duyệt}). |
 | `PENDING_APPROVAL` | Đang chờ duyệt, chưa sửa được. |
 | `ALREADY_DONE` | Việc này đã hoàn tất lúc {HH:mm dd/MM/yyyy}. |
+
+### 3.1 Mã theo trạng thái tenant (gói đăng ký tenant, 05/11/2026; `tenant-signup-spec.md` QĐT-24, 25, 29, 40)
+
+Bảy mã mới. Nút bị khóa bởi các mã này có hai kiểu: kiểu "khóa thuần" chỉ đọc lý do; kiểu "khóa tạo mới" (`TENANT_RESTRICTED`, `TRIAL_EXPIRED`, `QUOTA_LIMIT_REACHED`) vẫn bấm được và **mở hộp thoại TSU-51**, không gọi API tạo, không mất bản nháp (nút dùng `aria-disabled`, không dùng `disabled`). Câu chữ có biến thể theo vai trò: CH, AD (thấy lý do và nút khắc phục) và NV (chỉ thấy câu chung và "Liên hệ chủ garage").
+
+| `reason.code` | Câu chữ |
+| --- | --- |
+| `TENANT_RESTRICTED` | CH, AD: Công ty đang bị hạn chế tạo mới: {lý do}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở. · NV: Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage. |
+| `TENANT_SUSPENDED_READONLY` | Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ. |
+| `TRIAL_EXPIRED` | CH, AD: Dùng thử đã hết. Chọn gói để tiếp tục tạo mới. · NV: Dùng thử của công ty đã hết. Liên hệ {tên CH} để chọn gói. · Biến thể truy cập sớm (`none`): Giai đoạn truy cập sớm đã kết thúc. Chọn gói để tiếp tục tạo mới. (Chỉ dùng ở nấc "hạn chế tạo mới"; nấc "chỉ đọc" dùng `TENANT_SUSPENDED_READONLY`.) |
+| `QUOTA_LIMIT_REACHED` | CH, AD: Gói hiện tại cho tối đa {y} {đối tượng}. Xem gói hoặc ngừng sử dụng bớt {đối tượng} đang dùng. · NV: Công ty đã dùng hết số {đối tượng} của gói. Liên hệ chủ garage. |
+| `TENANT_TERMINATING` | Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được{, đến {dd/MM/yyyy}}. (Bỏ cụm trong ngoặc nhọn ngoài khi chưa có ngày.) |
+| `TERMS_NOT_ACCEPTED` | CH: Cần đồng ý {tài liệu} phiên bản {v} trước khi {hành động}. · NV: Chủ garage cần đồng ý {tài liệu} phiên bản {v}. Hãy báo cho {tên CH}. (`{tài liệu}`: Điều khoản dịch vụ, Thỏa thuận xử lý dữ liệu (DPA), hoặc cả hai.) |
+| `VERIFICATION_REQUIRED` | Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}. (Ví dụ `{hành động}`: phát hành hóa đơn thật.) |
+
+Lý do `{lý do}` của hạn chế/tạm ngưng chọn từ danh mục hiển thị cho tenant (QĐT-29), không viết cứng; tạm ngưng an ninh không có lý do hiển thị (TSU-54).
 
 ## 4. Khối dữ liệu: trống, đang tải, một phần, cũ
 
