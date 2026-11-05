@@ -14,9 +14,10 @@ import type {
   MessageQueueItem,
   QuoteDelivery,
 } from '../domain/messaging';
+import { pruneQueue } from '../domain/linkLifecycle';
 import { isQuoteExpired } from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
-import { replaceQuoteLink, tokenHashOf } from './approval';
+import { activateDeliveredLink, addQuoteLink, tokenHashOf } from './approval';
 import { serviceTargetOf, type MessageTarget } from './contact';
 import {
   AppError,
@@ -32,9 +33,11 @@ import {
 } from './support';
 
 /**
- * "Send the quote link to the customer" (FR-REC-008, FR-CRM-010 consent, PDPL). The link is created for the current
- * sent version (its raw token is never stored, so a send always makes a fresh link and the previous one stops working),
- * the delivery is recorded in the same transaction as the link, and the message goes out AFTER commit through the
+ * "Send the quote link to the customer" (FR-REC-008, FR-CRM-010 consent, PDPL). Every send and every retry attempt
+ * mints an ADDITIONAL live link for the current sent version (raw token never stored, so an old link cannot be re-sent)
+ * without touching the version's current link; only when the gateway accepted the message is that link activated and
+ * the older current link revoked, so an outage never kills the link the customer already has. The delivery is recorded
+ * in the same transaction as the link, and the message goes out AFTER commit through the
  * `MessageGateway`. A delivery the gateway refused stays `pending` in the branch queue and the `messageRetry` cron job
  * sends it again (bounded attempts, backoff); the deterministic delivery id (from the Idempotency-Key) is also the
  * message id, so a repeat can never reach the customer twice. Phone and e-mail are never logged or audited in clear.
@@ -53,6 +56,8 @@ export interface SendLinkResult {
   /** masked destination, e.g. "09•• ••• 211" */
   recipient: string;
   status: 'pending' | 'sent' | 'dead';
+  /** the message only reached the dev outbox, nothing left the system */
+  simulated: boolean;
 }
 
 /** Which channels the staff screen may offer (derived from configuration, no provider names). */
@@ -62,6 +67,16 @@ export function availableMessageChannels(deps: RecDeps) {
 
 const queueOf = (q: MessageQueue | null, companyId: string, branchId: string): MessageQueue =>
   q ?? { id: branchId, companyId, branchId, items: {} };
+
+/** the queue item of a delivery (carries the delivery's expiry so the cron job can prune it, no TTL on the queue) */
+const itemOf = (
+  d: Pick<QuoteDelivery, 'attempts' | 'expiresAt'>,
+  nextAttemptAt: Date,
+): MessageQueueItem => ({
+  nextAttemptAt,
+  attempts: d.attempts,
+  expiresAt: d.expiresAt,
+});
 
 function withItem(q: MessageQueue, id: string, item: MessageQueueItem | null): MessageQueue {
   const items = { ...q.items };
@@ -124,15 +139,10 @@ export async function sendQuoteLink(
       if (cur.status !== 'sent') throw new AppError('state_invalid', 409);
       if (isQuoteExpired(cur.status, cur.validUntil, businessDate(now)))
         throw new AppError('quote_expired', 409);
-      if (Object.keys(queue?.items ?? {}).length >= deps.rec.delivery.queueMax)
-        throw rateLimited(60);
-      const { replaced } = await replaceQuoteLink(deps, tx, {
-        q,
-        cur,
-        now,
-        by: actor.userId,
-        hash: tokenHashOf(token),
-      });
+      const base = pruneQueue(queueOf(queue, q.companyId, q.branchId), now);
+      if (Object.keys(base.items).length >= deps.rec.delivery.queueMax) throw rateLimited(60);
+      const hash = tokenHashOf(token);
+      addQuoteLink(deps, tx, { q, cur, now, by: actor.userId, hash, deliveryId });
       const delivery: QuoteDelivery = {
         id: deliveryId,
         companyId: q.companyId,
@@ -145,6 +155,7 @@ export async function sendQuoteLink(
         status: 'pending',
         attempts: 0,
         maxAttempts: deps.rec.delivery.maxAttempts,
+        linkHashes: [hash],
         // the inline attempt below owns it first; the retry job takes over only if that never finishes
         nextAttemptAt: new Date(now.getTime() + deps.rec.delivery.leaseMs),
         createdAt: now,
@@ -154,21 +165,9 @@ export async function sendQuoteLink(
       deps.deliveries.create(tx, delivery);
       deps.deliveries.saveQueue(
         tx,
-        withItem(queueOf(queue, q.companyId, q.branchId), deliveryId, {
-          nextAttemptAt: delivery.nextAttemptAt,
-          attempts: 0,
-        }),
+        withItem(base, deliveryId, itemOf(delivery, delivery.nextAttemptAt)),
       );
-      deps.sys.audit.record(
-        tx,
-        auditEntry(deps.sys, actor, ctx, {
-          branchId: q.branchId,
-          entityType: 'quote',
-          entityId: q.id,
-          action: 'quote.link_issue',
-          after: { n: cur.n, link: tokenHashOf(token).slice(0, 8), replaced, via: data.channel },
-        }),
-      );
+      // the audit entry of the link (`quote.link_issue`, with the replacement) is written when it is activated
       created = true;
       return {
         status: 202,
@@ -182,6 +181,7 @@ export async function sendQuoteLink(
     await attempt(deps, actor, scope, ctx, deliveryId, {
       target,
       link: `${deps.sys.config.appBaseUrl}/b/${token}`,
+      hash: tokenHashOf(token),
     });
   const d = await deps.deliveries.get(scope, deliveryId);
   const body: SendLinkResult = {
@@ -189,6 +189,7 @@ export async function sendQuoteLink(
     channel: data.channel,
     recipient: target.masked,
     status: d?.status ?? 'pending',
+    simulated: d?.simulated ?? deps.sys.messages.isSimulated(data.channel),
   };
   return { status: body.status === 'sent' ? 200 : 202, body, replayed: done.replayed };
 }
@@ -200,7 +201,7 @@ async function attempt(
   scope: Scope,
   ctx: RequestCtx,
   deliveryId: string,
-  p: { target: MessageTarget; link: string },
+  p: { target: MessageTarget; link: string; hash: string },
 ): Promise<void> {
   let ok = false;
   let error = 'delivery_failed';
@@ -220,37 +221,68 @@ async function attempt(
       'quote link delivery failed',
     );
   }
-  await finish(deps, actor, scope, ctx, deliveryId, ok ? null : error);
+  await finish(deps, actor, scope, ctx, deliveryId, {
+    hash: p.hash,
+    error: ok ? null : error,
+    simulated: deps.sys.messages.isSimulated(p.target.channel),
+  });
 }
 
-/** Records the outcome: sent (sentVia, audit), retry later with backoff, or dead after the last attempt. */
+/**
+ * Records the outcome of one attempt: sent (link activated, sentVia, audit), retry later with backoff, or dead after the
+ * last attempt. All reads come before any write (Firestore transaction rule). A failed attempt never touches the
+ * version's links.
+ */
 async function finish(
   deps: RecDeps,
   actor: Actor,
   scope: Scope,
   ctx: RequestCtx,
   deliveryId: string,
-  error: string | null,
+  o: { hash: string; error: string | null; simulated: boolean },
 ): Promise<void> {
   await deps.sys.uow.run(async (tx) => {
     const d = await deps.deliveries.getInTx(tx, scope, deliveryId);
     if (!d || d.status !== 'pending') return;
     const queue = await deps.deliveries.getQueueInTx(tx, scope, d.branchId);
+    const q = await deps.quotes.getInTx(tx, scope, d.quoteId);
     const cur = await deps.versions.getInTx(tx, scope, versionId(d.quoteId, d.n));
     const now = deps.sys.clock.now();
     const attempts = d.attempts + 1;
-    const base = queueOf(queue, d.companyId, d.branchId);
-    if (!error) {
-      deps.deliveries.update(tx, d.id, { status: 'sent', sentAt: now, attempts });
-      deps.deliveries.saveQueue(tx, withItem(base, d.id, null));
-      // R10: `sentVia` says how the customer was told, set only once the gateway accepted the message
-      if (cur && (!cur.sentVia || cur.sentVia === 'none' || cur.sentVia === 'link'))
-        deps.versions.update(tx, cur.id, {
-          sentVia: d.channel,
-          version: cur.version + 1,
-          updatedAt: now,
-          updatedBy: actor.userId,
+    const base = pruneQueue(queueOf(queue, d.companyId, d.branchId), now);
+    if (!o.error) {
+      // R10: `sentVia` says how the customer was told, set only once the gateway accepted the message. Links change
+      // only while the version is still open; otherwise the delivery is just marked sent.
+      if (q && cur && stillOpen(q, cur, businessDate(now))) {
+        const sentVia =
+          !cur.sentVia || cur.sentVia === 'none' || cur.sentVia === 'link'
+            ? d.channel
+            : cur.sentVia;
+        const { replaced } = await activateDeliveredLink(deps, tx, {
+          cur,
+          hash: o.hash,
+          now,
+          by: actor.userId,
+          sentVia,
         });
+        deps.sys.audit.record(
+          tx,
+          auditEntry(deps.sys, actor, ctx, {
+            branchId: d.branchId,
+            entityType: 'quote',
+            entityId: d.quoteId,
+            action: 'quote.link_issue',
+            after: { n: d.n, link: o.hash.slice(0, 8), replaced, via: d.channel },
+          }),
+        );
+      }
+      deps.deliveries.update(tx, d.id, {
+        status: 'sent',
+        sentAt: now,
+        attempts,
+        simulated: o.simulated,
+      });
+      deps.deliveries.saveQueue(tx, withItem(base, d.id, null));
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {
@@ -258,18 +290,28 @@ async function finish(
           entityType: 'quote',
           entityId: d.quoteId,
           action: 'quote.link_sent',
-          after: { n: d.n, channel: d.channel, to: d.recipientMasked, deliveryId: d.id, attempts },
+          after: {
+            n: d.n,
+            channel: d.channel,
+            to: d.recipientMasked,
+            deliveryId: d.id,
+            attempts,
+            simulated: o.simulated,
+          },
         }),
       );
       return;
     }
     if (attempts >= d.maxAttempts) {
-      kill(deps, tx, actor, ctx, d, base, 'attempts_exhausted', { attempts, lastError: error });
+      kill(deps, tx, actor, ctx, d, base, 'attempts_exhausted', { attempts, lastError: o.error });
       return;
     }
     const nextAttemptAt = new Date(now.getTime() + backoffOf(deps, attempts));
-    deps.deliveries.update(tx, d.id, { attempts, lastError: error, nextAttemptAt });
-    deps.deliveries.saveQueue(tx, withItem(base, d.id, { nextAttemptAt, attempts }));
+    deps.deliveries.update(tx, d.id, { attempts, lastError: o.error, nextAttemptAt });
+    deps.deliveries.saveQueue(
+      tx,
+      withItem(base, d.id, itemOf({ attempts, expiresAt: d.expiresAt }, nextAttemptAt)),
+    );
   });
 }
 
@@ -319,8 +361,15 @@ export async function runMessageRetry(
 ): Promise<MessageRetryResult> {
   const scope = resolveScope(actor, 'quote:manage');
   const branchId = requireWorkingBranch(actor);
-  const queue = await deps.deliveries.getQueue(scope, branchId);
   const now = deps.sys.clock.now();
+  const raw = await deps.deliveries.getQueue(scope, branchId);
+  // `messageQueues` has no TTL: expired items are dropped here (and never count toward `queueMax`)
+  const queue = raw ? pruneQueue(raw, now) : null;
+  if (raw && queue !== raw)
+    await deps.sys.uow.run(async (tx) => {
+      const fresh = await deps.deliveries.getQueueInTx(tx, scope, branchId);
+      if (fresh) deps.deliveries.saveQueue(tx, pruneQueue(fresh, now));
+    });
   const due = Object.entries(queue?.items ?? {})
     .filter(([, i]) => i.nextAttemptAt <= now)
     .sort(([, a], [, b]) => a.nextAttemptAt.getTime() - b.nextAttemptAt.getTime())
@@ -335,7 +384,7 @@ export async function runMessageRetry(
   };
   for (const [id] of due) {
     try {
-      const r = await retryOne(deps, actor, scope, ctx, id);
+      const r = await retryOne(deps, actor, scope, ctx, branchId, id);
       if (r === 'sent') out.sent++;
       else if (r === 'retry') out.retryLater++;
       else if (r === 'dead') out.dead++;
@@ -353,31 +402,32 @@ async function retryOne(
   actor: Actor,
   scope: Scope,
   ctx: RequestCtx,
+  branchId: string,
   id: string,
 ): Promise<'sent' | 'retry' | 'dead' | 'skipped'> {
   // 1. claim with a lease: only a pending delivery that is due, and only one run at a time
   const claimed = await deps.sys.uow.run(async (tx) => {
     const d = await deps.deliveries.getInTx(tx, scope, id);
-    const queue = await deps.deliveries.getQueueInTx(tx, scope, d?.branchId ?? '');
+    const queue = await deps.deliveries.getQueueInTx(tx, scope, branchId);
     const now = deps.sys.clock.now();
-    if (!d || !queue) return null;
+    if (!queue) return null;
+    if (!d) {
+      // orphan: the delivery is gone (TTL or manual cleanup); drop the entry so it cannot starve real retries
+      rootLogger.warn({ deliveryId: id, branchId }, 'message queue entry without delivery removed');
+      deps.deliveries.saveQueue(tx, withItem(queue, id, null));
+      return null;
+    }
     if (d.status !== 'pending') {
       deps.deliveries.saveQueue(tx, withItem(queue, id, null));
       return null;
     }
     if (d.nextAttemptAt > now) {
-      deps.deliveries.saveQueue(
-        tx,
-        withItem(queue, id, { nextAttemptAt: d.nextAttemptAt, attempts: d.attempts }),
-      );
+      deps.deliveries.saveQueue(tx, withItem(queue, id, itemOf(d, d.nextAttemptAt)));
       return null;
     }
     const lease = new Date(now.getTime() + deps.rec.delivery.leaseMs);
     deps.deliveries.update(tx, id, { nextAttemptAt: lease });
-    deps.deliveries.saveQueue(
-      tx,
-      withItem(queue, id, { nextAttemptAt: lease, attempts: d.attempts }),
-    );
+    deps.deliveries.saveQueue(tx, withItem(queue, id, itemOf(d, lease)));
     return d;
   });
   if (!claimed) return 'skipped';
@@ -410,26 +460,32 @@ async function retryOne(
     return 'dead';
   }
 
-  // 3. a fresh link (the raw token of the first one was never stored); the failed one never reached the customer
+  // 3. one more live link for this attempt (the raw token of an earlier one was never stored). Nothing is revoked:
+  // the link is activated, and the older current link replaced, only when the gateway accepts the message.
   const token = randomBytes(deps.rec.linkTokenBytes).toString('base64url');
+  const hash = tokenHashOf(token);
   await deps.sys.uow.run(async (tx) => {
     const q2 = await deps.quotes.getInTx(tx, scope, d.quoteId);
     const cur = q2 ? await deps.versions.getInTx(tx, scope, versionId(q2.id, d.n)) : null;
-    if (!q2 || !cur || !stillOpen(q2, cur, businessDate(deps.sys.clock.now())))
+    const d2 = await deps.deliveries.getInTx(tx, scope, id);
+    if (!q2 || !cur || !d2 || !stillOpen(q2, cur, businessDate(deps.sys.clock.now())))
       throw new AppError('state_invalid', 409);
-    await replaceQuoteLink(deps, tx, {
+    addQuoteLink(deps, tx, {
       q: q2,
       cur,
       now: deps.sys.clock.now(),
       by: actor.userId,
-      hash: tokenHashOf(token),
+      hash,
+      deliveryId: id,
     });
+    deps.deliveries.update(tx, id, { linkHashes: [...d2.linkHashes, hash] });
   });
 
   // 4. send and record
   await attempt(deps, actor, scope, ctx, id, {
     target,
     link: `${deps.sys.config.appBaseUrl}/b/${token}`,
+    hash,
   });
   const after = await deps.deliveries.get(scope, id);
   return after?.status === 'sent' ? 'sent' : after?.status === 'dead' ? 'dead' : 'retry';

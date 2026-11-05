@@ -13,6 +13,8 @@ import { renderShortText } from './templates';
 /** One channel's delivery. Throws `MessageDeliveryError` when the provider did not accept the message. */
 export interface ChannelAdapter {
   send(message: OutboundMessage): Promise<void>;
+  /** true when the adapter only writes to a dev outbox and sends nothing */
+  readonly simulated?: boolean;
 }
 
 /**
@@ -24,6 +26,9 @@ export class ChannelMessageGateway implements MessageGateway {
   availableChannels(): readonly MessageChannel[] {
     return MESSAGE_CHANNELS.filter((c) => !!this.adapters[c]);
   }
+  isSimulated(channel: MessageChannel): boolean {
+    return this.adapters[channel]?.simulated === true;
+  }
   async send(message: OutboundMessage): Promise<void> {
     const adapter = this.adapters[message.channel];
     if (!adapter) throw new Error(`message channel ${message.channel} is not configured`);
@@ -33,7 +38,11 @@ export class ChannelMessageGateway implements MessageGateway {
 
 /** Email channel: reuses the existing email adapters (SMTP in production, the dev outbox otherwise). */
 export class EmailChannelAdapter implements ChannelAdapter {
-  constructor(private readonly email: EmailGateway) {}
+  /** `simulated` = the wrapped gateway is the dev outbox (no SMTP configured) */
+  constructor(
+    private readonly email: EmailGateway,
+    readonly simulated = false,
+  ) {}
   async send(m: OutboundMessage): Promise<void> {
     try {
       await this.email.send({ id: m.id, to: m.to, template: m.template, vars: m.vars });
@@ -49,6 +58,7 @@ export class EmailChannelAdapter implements ChannelAdapter {
  * production (`MESSAGE_DEV_CHANNELS`) and the collection must never be exposed. A repeat with the same id is a no-op.
  */
 export class OutboxChannelAdapter implements ChannelAdapter {
+  readonly simulated = true;
   constructor(
     private readonly channel: Exclude<MessageChannel, 'email'>,
     private readonly store: DocStore,

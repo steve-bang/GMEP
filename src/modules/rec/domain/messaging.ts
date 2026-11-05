@@ -47,6 +47,13 @@ export interface QuoteDelivery {
   lastError?: string;
   deadReason?: DeliveryDeadReason;
   sentAt?: Date;
+  /**
+   * hashes of the links minted for this delivery, one per attempt (at most `maxAttempts`). They are ADDED without
+   * touching the version's current link and only the one the gateway accepted is activated (WP-A, finding 1).
+   */
+  linkHashes: string[];
+  /** the gateway wrote to a dev outbox: nothing left the system (finding 7) */
+  simulated?: boolean;
   createdAt: Date;
   createdBy: string;
   /** Firestore TTL */
@@ -56,6 +63,8 @@ export interface QuoteDelivery {
 export interface MessageQueueItem {
   nextAttemptAt: Date;
   attempts: number;
+  /** = the delivery's `expiresAt`: `messageQueues` has no TTL, the cron job prunes expired items (finding 6) */
+  expiresAt?: Date;
 }
 
 /** Pending deliveries of ONE branch (`messageQueues/<branchId>`), the cron job reads it by key; bounded. */

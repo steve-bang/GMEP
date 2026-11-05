@@ -19,6 +19,7 @@ import {
 import { approvedLinesOf, decideApproval, type DeclineInput } from '../domain/approval';
 import { isQuoteExpired, transitionQuote } from '../domain/quoteState';
 import { otpRequired, type OtpMode } from '../domain/otp';
+import { shouldRevokeOnActivation } from '../domain/linkLifecycle';
 import { afterQuoteApproved } from './orders';
 import { consumeOtp, issueOtp, selectionHashOf, verifyOtp } from './otp';
 import { assertSupplementOrderOpen } from './supplement';
@@ -498,6 +499,55 @@ export async function replaceQuoteLink(
     updatedBy: by,
   });
   return { replaced: !!old };
+}
+
+/**
+ * Delivery links (WP-A, finding 1): stores one more live link (hash only) for a message delivery WITHOUT touching the
+ * version's current link, so a gateway failure never kills the link the customer already has. Write-only, no reads.
+ * The link becomes the current one only through `activateDeliveredLink`, once the gateway accepted the message.
+ */
+export function addQuoteLink(
+  deps: RecDeps,
+  tx: Tx,
+  a: { q: Quote; cur: QuoteVersion; now: Date; by: string; hash: string; deliveryId: string },
+): void {
+  deps.links.create(tx, {
+    id: a.hash,
+    companyId: a.q.companyId,
+    branchId: a.q.branchId,
+    quoteId: a.q.id,
+    n: a.cur.n,
+    createdAt: a.now,
+    createdBy: a.by,
+    deliveryId: a.deliveryId,
+  });
+}
+
+/**
+ * The gateway accepted the message carrying link `hash`: make it the current link, set `sentVia` to the channel (R10)
+ * and revoke the previous current link, but only if that one is older than the new link (a link staff copied meanwhile
+ * is newer and stays live). Reads the old and the new link FIRST (Firestore transaction rule), then writes once.
+ * `cur` must be the version read in this transaction.
+ */
+export async function activateDeliveredLink(
+  deps: RecDeps,
+  tx: Tx,
+  a: { cur: QuoteVersion; hash: string; now: Date; by: string; sentVia: string },
+): Promise<{ replaced: boolean }> {
+  const { cur, hash, now, by } = a;
+  const old =
+    cur.linkHash && cur.linkHash !== hash ? await deps.links.findInTx(tx, cur.linkHash) : null;
+  const fresh = await deps.links.findInTx(tx, hash);
+  const revoke = shouldRevokeOnActivation(old, fresh?.createdAt ?? now);
+  if (old && revoke) deps.links.update(tx, old.id, { revokedAt: now, revokedReason: 'replaced' });
+  deps.versions.update(tx, cur.id, {
+    linkHash: hash,
+    sentVia: a.sentVia,
+    version: cur.version + 1,
+    updatedAt: now,
+    updatedBy: by,
+  });
+  return { replaced: revoke };
 }
 
 export const issueLinkSchema = z.object({ version: z.number().int().min(1) });

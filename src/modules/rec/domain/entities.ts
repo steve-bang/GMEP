@@ -346,6 +346,8 @@ export interface QuoteLink {
   revokedReason?: string;
   /** set on the first successful decision made through it */
   usedAt?: Date;
+  /** the message delivery this link was minted for (it is live but not the version's current link until delivered) */
+  deliveryId?: string;
 }
 
 export interface Quote {
