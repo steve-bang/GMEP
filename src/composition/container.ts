@@ -59,6 +59,11 @@ import type { FileStore } from '@/platform/files/fileStore';
 import { noStrongAuth } from '@/infrastructure/auth/noStrongAuth';
 import { OutboxEmailGateway } from '@/infrastructure/email/outboxEmailGateway';
 import { SmtpEmailGateway } from '@/infrastructure/email/smtpEmailGateway';
+import {
+  ChannelMessageGateway,
+  EmailChannelAdapter,
+  OutboxChannelAdapter,
+} from '@/infrastructure/messaging/messageGateway';
 import { getDb } from '@/infrastructure/firestore/client';
 import { FirebaseIdentityProvider } from '@/infrastructure/identity/firebaseIdentity';
 import { MemoryDb, MemoryDocStore, MemoryUnitOfWork } from '@/infrastructure/store/memoryDocStore';
@@ -103,6 +108,8 @@ import {
   DocIntakeRepository,
   DocPartRequestRepository,
   DocQuoteLinkRepository,
+  DocQuoteOtpRepository,
+  DocQuoteDeliveryRepository,
   DocQuoteRepository,
   DocQuoteVersionRepository,
   DocRepairItemRepository,
@@ -192,6 +199,16 @@ function buildSys(
     env.EMAIL_SMTP_URL && env.EMAIL_FROM
       ? SmtpEmailGateway.fromConfig({ url: env.EMAIL_SMTP_URL, from: env.EMAIL_FROM })
       : new OutboxEmailGateway(store, now);
+  // A4: email always has an adapter; sms and zalo only when a (dev) adapter is configured, so the UI never offers a dead channel
+  const messages = new ChannelMessageGateway({
+    email: new EmailChannelAdapter(email),
+    ...Object.fromEntries(
+      (env.MESSAGE_DEV_CHANNELS?.split(',') ?? []).map((c) => [
+        c,
+        new OutboxChannelAdapter(c as 'sms' | 'zalo', store, now),
+      ]),
+    ),
+  });
   const state = new DocAtomicStateStore(store, uow);
   const deps: SysDeps = {
     uow,
@@ -222,6 +239,7 @@ function buildSys(
     identity,
     strongAuth: noStrongAuth,
     email,
+    messages,
     throttle: new LoginThrottle(state, now),
     limiter: new RateLimiter(state, now),
     pii: new PiiPolicy(),
@@ -289,6 +307,8 @@ function buildRec(
     quotes: new DocQuoteRepository(store),
     versions: new DocQuoteVersionRepository(store),
     links: new DocQuoteLinkRepository(store),
+    otps: new DocQuoteOtpRepository(store),
+    deliveries: new DocQuoteDeliveryRepository(store),
     orders: new DocRepairOrderRepository(store),
     items: new DocRepairItemRepository(store),
     partRequests: new DocPartRequestRepository(store),

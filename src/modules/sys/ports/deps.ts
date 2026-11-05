@@ -20,6 +20,7 @@ import type {
   CompanyRepository,
   ConfigRepository,
   EmailGateway,
+  MessageGateway,
   IdentityProvider,
   NotificationRepository,
   PriceListRepository,
@@ -116,6 +117,8 @@ export interface SysDeps {
   identity: IdentityProvider;
   strongAuth: StrongAuthPort;
   email: EmailGateway;
+  /** A4: customer messages over sms, zalo or email; availability derives from configuration */
+  messages: MessageGateway;
   throttle: LoginThrottle;
   limiter: RateLimiter;
   pii: PiiPolicy;
