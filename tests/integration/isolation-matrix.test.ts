@@ -617,6 +617,49 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
 
       // company-level records are not fenced: a tax rate is proposed while working at Q7 (kt@Q7 in the UAT-09 test)
     });
+
+    it('F1-1 / F1-3: a customer and a vehicle linked to Q7 and Thu Duc are writable from either branch; the 409 body never names the target branch', async () => {
+      // seed: cus_an and veh_an carry branchIds [br_q7, br_td] (F1-1 option A: every linked branch may edit)
+      const patch = (cookie: string, path: string, version: number, body: Row, k: string) =>
+        h.call('PATCH', path, { cookie, key: k, body: { version, ...body } });
+      for (const [who, cookie, tag] of [
+        ['ownerQ7', viewers.ownerQ7!, 'q7'],
+        ['ownerTD', viewers.ownerTD!, 'td'],
+      ] as const) {
+        const rv = await h.call('GET', '/api/v1/crm/vehicles/veh_an', { cookie });
+        const rc = await h.call('GET', '/api/v1/crm/customers/cus_an', { cookie });
+        expect([rv.status, rc.status], who).toEqual([200, 200]);
+        const v = await patch(
+          cookie,
+          '/api/v1/crm/vehicles/veh_an',
+          rv.json.version,
+          { color: 'Xanh' },
+          `f11-veh-${tag}-0001`,
+        );
+        expect(v.status, `${who} vehicle ${v.text.slice(0, 200)}`).toBe(200);
+        const c = await patch(
+          cookie,
+          '/api/v1/crm/customers/cus_an',
+          rc.json.version,
+          { labels: [] },
+          `f11-cus-${tag}-0001`,
+        );
+        expect(c.status, `${who} customer ${c.text.slice(0, 200)}`).toBe(200);
+      }
+
+      // F1-3: a record outside the working branch is refused without naming the target branch (code, name, id)
+      const refused = await patch(
+        viewers.ownerQ7!,
+        `/api/v1/crm/vehicles/${td.vehicleId}`,
+        1,
+        { color: 'Đen' },
+        'f13-body-000001',
+      );
+      expect(refused.status).toBe(409);
+      expect(refused.json.code).toBe('switch_branch_required');
+      for (const leak of ['br_td', 'Thủ Đức', 'Thu Duc', 'ZZTD'])
+        expect(refused.text, `409 body must not contain ${leak}`).not.toContain(leak);
+    });
   });
 
   describe('exports (POST) carry the viewer scope only', () => {

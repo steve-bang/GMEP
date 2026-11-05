@@ -101,3 +101,29 @@ Không mục nào thêm chỉ mục: 2a đọc rollup theo khóa, 3a đọc theo
 - Q-C (R97): khóa nhận diện khách trùng, bản ghi giữ lại, xử lý đồng ý/yêu cầu chủ dữ liệu/chủ xe, có hoàn tác được không.
 - Q-D (R94): kích thước lô thật khi di chuyển (cần mẫu Excel R93); nếu quá 2.000 dòng thì cần xử lý nền.
 - Q-E (NFR-PERF): xác nhận đo bằng số lần đọc trên emulator + k6 trên staging khi có GCP (không có số đo 4G trong CI).
+
+## Kế hoạch thêm `businessDate` cho hóa đơn EIN (chỉ lập kế hoạch, chưa đổi dữ liệu hay mã; chờ P-4)
+
+Căn cứ: `ba-spec-phase1-open-items.md` OI-2.6, P-4; `decisions-phase1-open-items.md` (P-1, mục "Việc dev cài" số 3); RULE-010, FR-EIN-012, NFR-MNT-01.
+
+Hiện trạng: `Invoice` (`src/modules/ein/domain/invoice.ts`) chỉ có `issuedAt?: Date` (nhà cung cấp trả, `dispatch.ts`) và `createdAt`; `InvoiceRequest` chưa có ngày nghiệp vụ; `businessDate(now)` chỉ dùng để tra cấu hình hiệu lực và đánh số (`issue.ts`, `retry.ts`, `corrections.ts`). RPT chưa dùng ngày hóa đơn.
+
+Chưa làm, vì: P-4 (doanh thu và giá vốn tính theo ngày giao, ngày thu hay ngày hóa đơn) và ngày hóa đơn đúng luật (NĐ 254/2026/NĐ-CP) chưa có xác nhận của kế toán và luật sư. Không chọn trước.
+
+Các bước khi P-4 được chốt:
+
+1. Miền: thêm `businessDate?: string` (yyyy-MM-dd, múi giờ Việt Nam) vào `Invoice` và `InvoiceRequest`. Hàm thuần `invoiceBusinessDate(issuedAt)` dùng `businessDate` của `src/platform/format/date.ts`, kèm test đơn vị (mốc 23:59 và 00:00 giờ Việt Nam, UTC lệch ngày).
+2. Ghi: chỉ đặt khi hóa đơn chuyển sang đã phát hành (`dispatch.ts`, chỗ gán `issuedAt`), cùng giao dịch với cập nhật trạng thái. Hóa đơn đã phát hành không sửa; điều chỉnh/thay thế mang ngày phát hành của chính nó (RULE-010). Không thêm truy vấn mới.
+3. Dữ liệu cũ: backfill idempotent, dry-run trước, suy từ `issuedAt` (hóa đơn chưa phát hành để trống). Chạy như công cụ có báo cáo, không phải script một lần; hóa đơn từ Excel di chuyển lấy ngày trong tệp.
+4. Đọc: DTO `read.ts` trả `businessDate`; RPT chỉ đổi nguồn ngày khi P-4 chọn "ngày hóa đơn", qua cấu hình có hiệu lực theo ngày, kèm ví dụ số kế toán ký.
+5. Liên quan khóa kỳ: chỉ cần khi làm FR-ACC-005 (Phase 3, quyết định P-1); điều kiện cảnh báo "lệnh đã giao chưa hóa đơn" dùng trường này.
+6. Chỉ mục: không thêm; nếu RPT cần lọc theo `businessDate` thì đọc qua rollup theo khóa, không thêm composite (hiện 193/200, fail trên 195).
+
+Test cần có: đơn vị cho hàm ngày; tích hợp phát hành với fake provider (ngày đúng, thử lại không đổi ngày, điều chỉnh có ngày riêng); backfill dry-run và chạy lại không trùng.
+
+## Rà soát điểm kiểm tra ngày chốt (05/11/2026, chỉ báo cáo)
+
+- Tiền: `requireOpenShift` (gọi `assertDayOpen`) được dùng ở thu tiền (`payments.ts`), chi (`expenses.ts`), hoàn tiền (`refunds.ts`); `executeReversal` gọi `assertDayOpen` riêng; `openShift` gọi `assertDayOpen`. Là hai hàm trong `acc/application/support.ts`, chưa phải một điểm duy nhất nhưng đều đi qua `assertDayOpen`.
+- `closeShift` ghi bút toán chênh lệch quỹ không gọi `assertDayOpen`; an toàn gián tiếp vì chốt ngày bị từ chối khi còn ca mở (`shift_open`) và mở ca bị chặn khi ngày đã chốt.
+- INV: không route ghi kho nào (`documents`, `post`, `reverse`, `cancel`, `issues`, `reservations`) kiểm tra ngày chốt. Hiện không có quy tắc BA bắt buộc khóa kho theo ngày chốt tiền; cần BA xác nhận có khóa không trước khi thêm.
+- EIN: không có khái niệm ngày chốt; xem kế hoạch `businessDate` ở trên.

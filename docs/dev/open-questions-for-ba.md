@@ -465,8 +465,36 @@ Trạng thái trả lời của BA (04/11/2026, chi tiết ở `ba-answers-for-d
 
 Dev must change (chi tiết `ba-answers-for-dev.md` §25.5): (1) nhãn khoảng ngày và test RPT tháng; (2) F-1 chú thích + test + kiểm tra ghi chéo; (3) F-2 404 đồng nhất cho vai trò không có quyền chéo (nếu đang 200 rỗng); (4) Q-D kiểm tra gửi lại lô không trùng, lô lỗi không dở; (5) Q-B điểm kiểm tra ngày chốt duy nhất.
 
-- F-1 ghi chéo (dev, 04/11/2026): CH đang chọn chi nhánh Q7 gọi PATCH xe của Thu Duc nhận 200 (BA §25 F-1(3) muốn chặn và bắt chuyển chi nhánh). Chờ quyết định có chặn không, và phạm vi (mọi route ghi hay chỉ một số).
+- F-1 ghi chéo (dev, 04/11/2026): ĐÃ GIẢI QUYẾT. Ban đầu CH đang chọn Q7 sửa được xe của Thủ Đức (200); nay chặn bằng 409 `switch_branch_required` (dòng ngay dưới). Còn lại chỉ khách/xe có `branchIds` gồm cả Q7 và Thủ Đức: sửa được ở mọi chi nhánh có liên kết (F1-1, `decisions-phase1-open-items.md`), có test trong `isolation-matrix.test.ts`.
 - F-1(3) ĐÃ LÀM (04/11/2026): ghi chéo chi nhánh bị chặn (409 `switch_branch_required`). Hỏi BA: (a) danh sách bản ghi cấp công ty không bị chặn (tổ chức, vai trò, người dùng, cấu hình, danh mục) đã đúng chưa; người dùng có vai trò theo chi nhánh nên có cần chặn không; (b) khách/xe liên kết nhiều chi nhánh: ghi được từ mọi chi nhánh có liên kết, đúng không; (c) 404 thật của người phạm vi rộng khi ghi hiện thành 409, chấp nhận không.
+
+## Câu hỏi từ đặc tả bốn mục mở của Phase 1 (BA, 05/11/2026)
+
+Chi tiết, lựa chọn và tác động ở [ba-spec-phase1-open-items.md](ba-spec-phase1-open-items.md) (mục trong cột "Nơi"). Mọi giá trị ở cột 4 là **đề xuất mặc định, chưa phải quyết định**; dev không hard-code các mục `[Cần xác nhận]`. Gửi: CDA = Chủ dự án, KT = Kế toán khách, LS = Luật sư khách, K = Khách.
+
+| # | Gửi | Câu hỏi | Đề xuất mặc định (chờ xác nhận) | Nơi |
+| --- | --- | --- | --- | --- |
+| F1-1 | CDA | F-1: khách/xe liên kết nhiều chi nhánh thì chi nhánh nào được sửa (mọi chi nhánh có liên kết, chỉ chi nhánh tạo, hay chia theo trường)? Dev đã chặn ghi chéo (409 `switch_branch_required`); khoảng trống 200 chỉ còn với bản ghi liên kết cả Q7 và Thủ Đức | Mọi chi nhánh có liên kết (như hiện tại); xem lại theo trường trước khi mở rộng chi nhánh thứ hai | §1.4 |
+| F1-2 | CDA | F-1: CH ở chế độ hợp nhất (chưa chọn chi nhánh) có được ghi bản ghi chi nhánh không | Không (`scope_merged`, như hiện tại) | §1.4 |
+| F1-3 | CDA | F-1: thông điệp 409 có nêu tên chi nhánh đích không (cần thêm một lần đọc có kiểm quyền) | Không ở pilot | §1.3, §1.4 |
+| F1-4 | CDA | F-1: danh sách ngoại lệ cấp công ty (tổ chức, vai trò, người dùng, cấu hình, danh mục) và việc gán vai trò theo chi nhánh có đúng không (trả lời cho mục (a) của F-1(3) ở trên) | Đúng như OI-1.3, OI-1.4 | §1.2, §1.4 |
+| P-1 | CDA | FR-ACC-005 khóa kỳ thuộc phase nào; FRD ghi Must nhưng FRD §13 không đưa ACC khóa kỳ vào Phase 1 | Phase 3 cùng FR-ACC-012; pilot giữ chốt ngày và mở lại ngày | §2.1, §2.3 |
+| P-2 | KT | Kỳ kế toán là tháng dương lịch theo chi nhánh hay kỳ khác; có pháp nhân riêng cần kỳ riêng không | Tháng lịch theo chi nhánh, là cấu hình có ngày hiệu lực | §2.3 |
+| P-3 | CDA | Ai khóa, ai mở lại kỳ | KT khóa (CH khóa được mọi chi nhánh); mở lại do CH duyệt, mật khẩu, lý do, hạn dùng, báo ngoại lệ | §2.3 |
+| P-4 | KT | Doanh thu và giá vốn quản trị tính theo kỳ của ngày giao xe, ngày thu hay ngày phát hành hóa đơn; hóa đơn tháng sau cho lệnh giao tháng trước thuộc kỳ nào; hóa đơn EIN cần thêm `businessDate` (hiện chỉ có `issuedAt`) | Chưa đề xuất số; cần ví dụ kế toán ký (NFR-MNT-01) | §2.2 OI-2.6, §2.3 |
+| P-5 | KT | Phần mềm kế toán đích và định dạng nhập (FR-ACC-012); có nhập thay thế được kỳ đã nhập không | Chờ khách; xuất theo phiên bản, đánh dấu lần xuất cũ "lỗi thời" | §2.2 OI-2.9, §2.3 |
+| P-6 | CDA, KT | Hạn khóa sau cuối tháng; có tự khóa khi quá hạn không | Nhắc, không tự khóa; số ngày do kế toán chọn | §2.3 |
+| M-1 | CDA | Gộp khách: khóa gợi ý trùng (MST cho doanh nghiệp, SĐT + tên cho cá nhân; không dùng biển số, số khung vì biển số duy nhất và xe đổi chủ, FR-CRM-014). Thay đổi so với §25 Q-C (loại doanh nghiệp, nêu biển số/số khung) | Như đề xuất | §3.1, §3.3 |
+| M-2 | CDA | Gộp khách: bản giữ lại (tạo sớm hơn, nhiều lịch sử hơn, hay chọn tay) | Chọn tay, mặc định bản tạo sớm hơn; bản bị gộp thành `merged`, không xóa, mã không tái dùng | §3.3 |
+| M-3 | LS | Gộp khách: đồng ý khác nhau giữa hai bên (hạn chế nhất hay hợp); có phải báo khách về việc gộp hồ sơ không | Hạn chế nhất, đồng ý quảng cáo chỉ còn khi cả hai bên có; không suy ra đồng ý mới | §3.2 OI-3.5, §3.3 |
+| M-4 | CDA | Gộp khách: ai duyệt khi công ty chỉ có một CH | QL đề xuất, CH duyệt (trong chi nhánh); xuyên chi nhánh do vai trò cấp công ty đề xuất, CH duyệt | §3.3 |
+| M-5 | CDA, LS | Gộp khách: hoàn tác 30 ngày; có chấp nhận lưu dữ liệu cá nhân bên bị gộp trong bản đồ chuyển đến hết hạn đó rồi xóa | 30 ngày, xóa dữ liệu cá nhân khi hết hạn | §3.2 OI-3.11, §3.3 |
+| M-6 | CDA | FR-CRM-003 xếp phase nào | Phase 2; pilot chỉ cảnh báo trùng SĐT trong phạm vi | §3.3 |
+| M-7 | KT | Chứng từ đã ghi sổ đổi liên kết khách (không đổi số tiền, không đổi người mua trên hóa đơn) có chấp nhận không, hay chỉ dùng liên kết chuyển hướng `mergedInto` | Chấp nhận, có nhật ký và hoàn tác | §3.3 |
+| K-1 | K, CDA | INS (BA-19): pilot có dùng kiểm tra xe số không | Danh sách kiểm tra tối thiểu trong REC (FR-REC-037 đề xuất, không video) nếu xưởng cần; không thì bỏ UAT-15 khỏi pilot | §4.3, §4.6 |
+| K-2 | K | INS: chỉ ảnh hay cần cả video | Chỉ ảnh ở pilot | §4.6 |
+| K-3 | K | INS: ai soạn mẫu kiểm tra, mỗi chi nhánh có mẫu riêng không | Trụ sở soạn một mẫu (FR-INS-001) | §4.6 |
+| K-4 | CDA | INS: ngưỡng và thời điểm xem lại để kích hoạt (sau 4 đến 6 tuần pilot) | Xem lại sau pilot; BA đề xuất ngưỡng khi có số liệu | §4.5, §4.6 |
 
 ## Đồng ý nhận tin nhắn dịch vụ (dev, 05/11/2026)
 
