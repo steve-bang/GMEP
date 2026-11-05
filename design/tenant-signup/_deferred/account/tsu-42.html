@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TSU-42 · So sánh gói và yêu cầu đổi gói – GARAGE OS</title>
-<link rel="stylesheet" href="../../assets/tokens.css">
-<link rel="stylesheet" href="../../assets/base.css">
-<link rel="stylesheet" href="../../assets/components.css">
-<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
-<link rel="stylesheet" href="../onboarding/pack.css">
-<link rel="stylesheet" href="pack.css">
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
 </head>
 <body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Gói của tôi|Đổi gói" data-no-scope>
 <div id="g1-content" hidden>
@@ -22,7 +22,7 @@
       <h1>So sánh gói và đổi gói</h1>
       <p class="page-header__desc">Chọn gói phù hợp rồi gửi yêu cầu. Chưa có thanh toán trong hệ thống: nền tảng xác nhận và thu phí ngoài hệ thống</p>
     </div>
-    <div class="page-header__actions"><a class="btn btn--secondary" href="tsu-41.html">Về Gói của tôi</a></div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="../../account/tsu-41.html">Về Gói của tôi</a></div>
   </div>
   <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty</span><span>· Danh mục gói và giá lấy từ cấu hình của nền tảng</span></div>
 
@@ -30,7 +30,7 @@
 
   <div data-tsu-main class="tsu-stack">
     <div class="alert alert--info" role="status" data-on="b0"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Hiện có một gói</span><span>Trong giai đoạn truy cập sớm chỉ có một gói. Để biết giá và các gói sắp tới, liên hệ chúng tôi.</span></div></div>
-    <div class="alert alert--success" role="status" data-on="da-gui"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã gửi yêu cầu đổi gói</span><span>Yêu cầu sang Gói Nâng cao đã gửi lúc <span class="num">09:02</span>. Trạng thái “Đang chờ nền tảng xác nhận” hiện ở Gói của tôi. Gói hiện tại vẫn dùng bình thường.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="tsu-41.html">Xem Gói của tôi</a></div></div></div>
+    <div class="alert alert--success" role="status" data-on="da-gui"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã gửi yêu cầu đổi gói</span><span>Yêu cầu sang Gói Nâng cao đã gửi lúc <span class="num">09:02</span>. Trạng thái “Đang chờ nền tảng xác nhận” hiện ở Gói của tôi. Gói hiện tại vẫn dùng bình thường.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="../../account/tsu-41.html">Xem Gói của tôi</a></div></div></div>
     <div class="alert alert--danger" role="alert" data-on="loi-gui"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được yêu cầu</span><span>Hệ thống đang gặp sự cố, không phải do bạn. Bấm gửi lại sau ít phút, hệ thống không tạo yêu cầu trùng. Mã tham chiếu <span class="code">REQ-2E90FA</span>.</span></div></div>
 
     <div id="t42-cards" class="tsu-plans" role="radiogroup" aria-label="Chọn gói"></div>
@@ -59,8 +59,8 @@
   <p class="tsu-test">Truy vết: FR-TEN-024, 045; RULE-023, 030; J9, J10; UAT-TEN-17. Không có nút thanh toán ở B0/B1.</p>
 </div>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
-<script src="../../g1-auth-dashboard/g1-shell.js"></script>
-<script src="../onboarding/tsu-app.js"></script>
+<script src="../../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../../onboarding/tsu-app.js"></script>
 <script>
 (function () {
   var PLANS = [
@@ -122,6 +122,6 @@
   render(document.body.getAttribute('data-tsu-state'));
 })();
 </script>
-<script src="../../assets/app.js"></script>
+<script src="../../../assets/app.js"></script>
 </body>
 </html>
