@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-26 · W6 Thuế, đánh số, mẫu in – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="6" data-validate-in="xoa-bat-buoc">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="mac-dinh:Dùng mặc định|da-chinh:Đã chỉnh|xoa-bat-buoc:Xóa mục bắt buộc (chặn)"></div>
+
+  <p class="tsu-lead">Mọi mục đã có mặc định, bạn bỏ qua được và chỉnh sau. Thuế suất, định dạng số chứng từ và mẫu in là cấu hình theo ngày hiệu lực, không viết cứng. Truy vết: FR-TEN-019, 020, 022; RULE-018.</p>
+
+  <form class="tsu-stack" novalidate onsubmit="return false" aria-label="Thuế, đánh số, mẫu in">
+    <section class="card" aria-labelledby="t26-t">
+      <div class="card__header"><h2 class="card__title" id="t26-t">Thuế suất mặc định</h2></div>
+      <div class="card__body tsu-stack">
+        <div class="field"><span class="field__label" id="w6-tax-l">Thuế giá trị gia tăng</span>
+          <div class="tsu-ro" role="group" aria-labelledby="w6-tax-l"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Theo danh mục pháp lý của GMEP (minh họa: 10%)</span></div>
+          <span class="field__hint">Do GMEP cập nhật theo quy định, hiệu lực từ <span class="num">01/01/2026</span> (minh họa). Công ty không tự đổi ở bước này.</span></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t26-n">
+      <div class="card__header"><h2 class="card__title" id="t26-n">Định dạng số chứng từ</h2></div>
+      <div class="card__body tsu-stack">
+        <p style="margin:0">Số chứng từ có dạng <span class="code">LOẠI-MÃCN-YYMM-STT</span>. Số thứ tự đặt lại hằng tháng, tính riêng theo từng chi nhánh.</p>
+        <dl class="tsu-kv">
+          <dt>Báo giá</dt><dd><span class="code">BG-Q7-2610-00225</span></dd>
+          <dt>Lệnh sửa chữa</dt><dd><span class="code">RO-Q7-2610-00128</span></dd>
+          <dt>Phiếu thu</dt><dd><span class="code">PT-Q7-2610-00341</span></dd>
+        </dl>
+        <p class="tsu-sub" style="margin:0">Ví dụ dùng mã chi nhánh thật “Q7” bạn vừa tạo ở bước 2. Không đổi được mã chi nhánh sau khi có chứng từ.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t26-p">
+      <div class="card__header"><h2 class="card__title" id="t26-p">Mẫu in</h2></div>
+      <div class="card__body tsu-stack">
+        <fieldset style="border:0;padding:0;margin:0;min-width:0"><legend class="field__label">Khổ in mặc định</legend>
+          <div class="tsu-actions" role="radiogroup" aria-label="Khổ in mặc định">
+            <label class="radio"><input type="radio" name="w6-size" value="a4" checked><span class="radio__box"></span><span>A4</span></label>
+            <label class="radio"><input type="radio" name="w6-size" value="a5"><span class="radio__box"></span><span>A5</span></label>
+            <label class="radio"><input type="radio" name="w6-size" value="th"><span class="radio__box"></span><span>Nhiệt 80 mm</span></label>
+          </div></fieldset>
+        <div class="form-grid">
+          <div class="field span-2"><label class="field__label" for="w6-seller">Tên người bán trên hóa đơn<span class="field__req" aria-hidden="true">*</span></label>
+            <input id="w6-seller" class="input" data-rule="req" data-label="Tên người bán trên hóa đơn" data-fill="Công ty TNHH Ô tô Phương Nam" data-blank-in="xoa-bat-buoc" data-msg-req="Mục này bắt buộc theo quy định về hóa đơn." aria-required="true" aria-describedby="w6-seller-h">
+            <span class="field__hint" id="w6-seller-h">Mục bắt buộc theo quy định về hóa đơn, không gỡ được. Mã số thuế và địa chỉ lấy từ hồ sơ công ty.</span></div>
+          <div class="field span-2"><label class="field__label" for="w6-foot">Chân trang trên mẫu in</label>
+            <input id="w6-foot" class="input" data-fill="Cảm ơn quý khách đã tin tưởng Ô tô Phương Nam" data-alt-in="da-chinh" data-alt="Bảo hành 6 tháng hoặc 10.000 km, tùy điều kiện nào đến trước" data-blank-in="xoa-bat-buoc-x"></div>
+        </div>
+        <div class="tsu-prev" id="w6-prev" data-size="a4" role="img" aria-label="Xem trước mẫu in, khổ A4">
+          <div class="tsu-prev__page"><strong>Ô tô Phương Nam</strong><span class="tsu-prev__l"></span><span class="tsu-prev__l tsu-prev__l--s"></span><span class="tsu-prev__l"></span><span class="tsu-prev__l tsu-prev__l--s"></span><em class="tsu-prev__f">Chân trang</em></div>
+        </div>
+        <p class="tsu-sub" style="margin:0">Xem trước theo khổ đã chọn. Bản xem chi tiết dùng màn xem trước in (PRT-01).</p>
+      </div>
+    </section>
+  </form>
+  <p class="tsu-test"><span class="tsu-req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="tsu-app.js"></script>
+<script>
+document.addEventListener('change', function (e) {
+  if (e.target.name === 'w6-size') {
+    var p = document.getElementById('w6-prev'); p.setAttribute('data-size', e.target.value);
+    p.setAttribute('aria-label', 'Xem trước mẫu in, khổ ' + (e.target.value === 'th' ? 'nhiệt 80 mm' : e.target.value.toUpperCase()));
+  }
+});
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

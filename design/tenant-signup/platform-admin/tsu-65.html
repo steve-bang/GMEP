@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-65 · Hàng đợi lỗi cấp phát – Quản trị nền tảng</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../public/ts-public.css">
+<link rel="stylesheet" href="ts-admin.css">
+</head>
+<body class="tsa-app" data-tsa-page="65">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsa-top">
+  <a class="tsa-brand" href="tsu-61.html"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a>
+  <span class="tsa-label">Quản trị nền tảng</span>
+  <span class="tsa-top__spacer"></span>
+  <div class="tsa-user"><span>Phạm Quốc Bảo · <strong>Quản trị nền tảng</strong></span><button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối"><svg class="icon"><use href="#moon"/></svg></button><a class="btn btn--ghost btn--sm" href="tsu-60.html">Đăng xuất</a></div>
+</header>
+<div class="tsa-strip" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Màn này không hiển thị dữ liệu nghiệp vụ của garage</span></div>
+<div class="tsa-body">
+  <nav class="tsa-nav" aria-label="Quản trị nền tảng">
+    <a href="tsu-61.html"><svg class="icon" aria-hidden="true"><use href="#clipboard-list"/></svg>Hàng đợi đăng ký</a>
+    <a href="tsu-64.html"><svg class="icon" aria-hidden="true"><use href="#inbox"/></svg>Khiếu nại</a>
+    <a href="tsu-65.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg>Lỗi cấp phát</a>
+    <a href="tsu-66.html"><svg class="icon" aria-hidden="true"><use href="#settings"/></svg>Cấu hình đăng ký</a>
+    <a href="tsu-67.html"><svg class="icon" aria-hidden="true"><use href="#file-text"/></svg>Điều khoản và DPA</a>
+    <a href="tsu-68.html"><svg class="icon" aria-hidden="true"><use href="#package"/></svg>Danh mục gói</a>
+  </nav>
+  <main id="main" class="tsa-main" data-error-title="Chưa tải được hàng đợi lỗi cấp phát">
+    <div data-ts-views="mixed:Có cả tự thử lại và cần nhân sự|staff:Chỉ cần nhân sự|empty:Trống" data-ts-common="skel error offline" data-hint="TSU-65 · FR-TEN-002, 042 · NFR-TEN-05 · UAT-TEN-15. Người đăng ký không thấy chữ “lỗi”, chỉ thấy thông báo chờ." data-wide></div>
+
+    <div class="tsa-head"><div class="tsa-head__text"><h1>Hàng đợi lỗi cấp phát</h1><p class="tsa-sub">Hồ sơ đã được duyệt nhưng việc tạo không gian làm việc chưa xong. Thử lại từng bước (an toàn khi bấm lặp) hoặc hủy và dọn khi chưa có dữ liệu thật.</p></div></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--danger" role="alert" data-show="staff" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">2 hồ sơ cần nhân sự xử lý</span><span>Hệ thống đã tự thử lại quá số lần cấu hình. Người đăng ký vẫn thấy “Việc thiết lập đang mất nhiều thời gian hơn dự kiến”.</span></div></div>
+
+    <div data-ts-body class="tsa-stack">
+      <div class="tsa-table table-wrap table-wrap--responsive" id="wrap65">
+        <div class="table-scroll">
+          <table class="table">
+            <caption class="sr-only">Hồ sơ lỗi cấp phát</caption>
+            <thead><tr><th scope="col">Mã theo dõi</th><th scope="col">Tên</th><th scope="col">Bước đang lỗi</th><th scope="col" class="col-num">Số lần tự thử lại</th><th scope="col">Lần thử cuối</th><th scope="col">Trạng thái</th><th scope="col">Hành động</th></tr></thead>
+            <tbody id="tb65"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="record-list record-list--responsive" id="cards65" aria-label="Danh sách lỗi cấp phát"></div>
+      <div class="state" id="empty65" hidden>
+        <span class="state__icon state__icon--brand" aria-hidden="true"><svg class="icon icon--lg"><use href="#circle-check"/></svg></span>
+        <h2 class="state__title">Không có hồ sơ lỗi cấp phát</h2>
+        <p class="state__text">Mọi hồ sơ đã duyệt đều được cấp phát xong.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="dlg-retry" role="dialog" aria-labelledby="pv-retry-h">
+  <div class="dialog">
+    <div class="dialog__header"><span class="dialog__icon">
+      <svg class="icon" aria-hidden="true"><use href="#refresh"/></svg></span><div><h2 class="dialog__title" id="pv-retry-h">Thử lại bước cấp phát</h2><p class="tsa-note tsa-mono" id="pv-retry-t"></p></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body"><ul class="impact-list"><li>Chỉ chạy lại bước đang lỗi, các bước đã xong được giữ nguyên.</li><li>Thao tác idempotent: bấm hai lần không tạo trùng không gian hay tài khoản.</li><li>Ghi nhật ký nền tảng.</li></ul></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Hủy</button><button type="button" class="btn btn--primary" data-pv-confirm="retry">Thử lại bước này</button></div>
+  </div>
+</div>
+<div class="overlay" id="dlg-clean" role="dialog" aria-labelledby="pv-clean-h">
+  <div class="dialog">
+    <div class="dialog__header"><span class="dialog__icon dialog__icon--danger"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></span><div><h2 class="dialog__title" id="pv-clean-h">Hủy và dọn hồ sơ cấp phát</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <ul class="impact-list"><li>Xóa phần không gian làm việc đã tạo dở. Chỉ làm được khi chưa có dữ liệu thật.</li><li>Người đăng ký nhận email và có thể đăng ký lại.</li><li>Không thể hoàn tác. Ghi nhật ký nền tảng.</li></ul>
+      <div class="field"><label class="field__label" for="pv-guard">Gõ mã theo dõi <strong class="tsa-mono" id="pv-clean-code"></strong> để mở nút</label><input class="input" id="pv-guard" data-guard-input data-word="" autocomplete="off"></div>
+    </div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Giữ lại</button><button type="button" class="btn btn--danger" data-pv-confirm="clean" data-guard-btn disabled aria-disabled="true">Hủy và dọn</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+<script src="ts-admin.js"></script>
+</body>
+</html>

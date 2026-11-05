@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-50 · Thư viện banner trạng thái tenant – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Thư viện banner trạng thái" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-05" data-on="chong" data-reason="Quá hạn thanh toán" data-list="lệnh sửa chữa, chi nhánh"></div>
+    <div data-tsu-banner="BAN-02" data-on="chong" data-n="3" data-date="08/11/2026"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Thư viện banner trạng thái tenant</h1>
+      <p class="page-header__desc">Mười banner hiển thị đầu trang theo trạng thái công ty và thuê bao. Banner là component dùng chung, không phải màn riêng</p>
+    </div>
+  </div>
+
+  <div data-tsu-bar="thu-vien:Thư viện đầy đủ|chong:Hai banner chồng nhau (đầu trang)"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <section class="card" aria-labelledby="t50-q">
+      <div class="card__header"><h2 class="card__title" id="t50-q">Quy tắc chung</h2></div>
+      <div class="card__body">
+        <ul class="tsu-list">
+          <li>Đặt dưới thanh trên, trên đường dẫn và dải phạm vi; không che nội dung.</li>
+          <li>Chỉ mức thông tin (BAN-01, BAN-10) có nút đóng. Cảnh báo và chặn không đóng được.</li>
+          <li>Tối đa hai banner chồng nhau; trạng thái công ty (tenant) ưu tiên cao hơn thuê bao.</li>
+          <li>Mỗi banner nêu điều gì xảy ra, hậu quả với việc đang làm, cách khắc phục và liên kết.</li>
+          <li>Số ngày, mốc, hạn ân hạn, lý do lấy từ dữ liệu, không viết cứng (RULE-030). Số trong prototype là minh họa. Lý do hạn chế chọn từ danh mục, không nêu chi tiết an ninh.</li>
+          <li>Không chỉ dựa vào màu: mỗi banner có biểu tượng riêng theo mức và nhãn chữ “Thông tin”, “Cảnh báo”, “Hạn chế”, “Chặn”.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div id="t50-lib" class="tsu-stack">
+      <section class="card" aria-labelledby="b01"><div class="card__header"><h2 class="card__title" id="b01">BAN-01 Đang thiết lập</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">onboarding</code></dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant</dd><dt>Mức và role</dt><dd>Thông tin, <code class="tsu-code">role="status"</code>, đóng được</dd></dl>
+        <div data-tsu-banner="BAN-01"></div></div></section>
+      <section class="card" aria-labelledby="b02"><div class="card__header"><h2 class="card__title" id="b02">BAN-02 Dùng thử sắp hết</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Dùng thử còn nhỏ hơn hoặc bằng mốc (cấu hình)</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant</dd><dt>Mức và role</dt><dd>Cảnh báo, <code class="tsu-code">role="status"</code></dd></dl>
+        <div data-tsu-banner="BAN-02" data-n="7" data-date="12/11/2026"></div></div></section>
+      <section class="card" aria-labelledby="b03"><div class="card__header"><h2 class="card__title" id="b03">BAN-03 Hết dùng thử</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Dùng thử hết hạn hoặc thuê bao <code class="tsu-code">expired</code></dd><dt>Ai thấy</dt><dd>Mọi người dùng (chủ garage có nút chọn gói; nhân viên được báo liên hệ chủ garage)</dd><dt>Mức và role</dt><dd>Cảnh báo, <code class="tsu-code">role="alert"</code></dd></dl>
+        <p class="tsu-sub" style="margin:0">Chủ garage</p><div data-tsu-banner="BAN-03" data-date="04/11/2026"></div>
+        <p class="tsu-sub" style="margin:0">Nhân viên</p><div data-tsu-banner="BAN-03" data-view="NV"></div></div></section>
+      <section class="card" aria-labelledby="b04"><div class="card__header"><h2 class="card__title" id="b04">BAN-04 Quá hạn thanh toán (giữ chỗ B2)</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Thuê bao <code class="tsu-code">past_due</code>. Chưa dùng ở B0/B1 vì chưa có thanh toán trong hệ thống</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant, kế toán nếu có quyền xem</dd><dt>Mức và role</dt><dd>Cảnh báo</dd></dl>
+        <div data-tsu-banner="BAN-04" data-period="10/2026" data-date="31/10/2026" data-grace="14/11/2026"></div></div></section>
+      <section class="card" aria-labelledby="b05"><div class="card__header"><h2 class="card__title" id="b05">BAN-05 Bị hạn chế</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">restricted</code></dd><dt>Ai thấy</dt><dd>Mọi người dùng</dd><dt>Mức và role</dt><dd>Cảnh báo, <code class="tsu-code">role="alert"</code></dd></dl>
+        <p class="tsu-sub" style="margin:0">Chủ garage</p><div data-tsu-banner="BAN-05" data-reason="Quá hạn thanh toán" data-list="lệnh sửa chữa, chi nhánh và người dùng"></div>
+        <p class="tsu-sub" style="margin:0">Nhân viên</p><div data-tsu-banner="BAN-05" data-view="NV"></div></div></section>
+      <section class="card" aria-labelledby="b06"><div class="card__header"><h2 class="card__title" id="b06">BAN-06 Chạm ngưỡng hạn mức</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Mức dùng chạm ngưỡng cảnh báo (cấu hình)</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant</dd><dt>Mức và role</dt><dd>Cảnh báo, <code class="tsu-code">role="status"</code></dd></dl>
+        <div data-tsu-banner="BAN-06" data-x="8" data-y="10" data-p="80"></div></div></section>
+      <section class="card" aria-labelledby="b07"><div class="card__header"><h2 class="card__title" id="b07">BAN-07 Tạm ngưng (chỉ đọc)</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">suspended</code></dd><dt>Ai thấy</dt><dd>Mọi người dùng (nút xuất dữ liệu chỉ cho chủ garage)</dd><dt>Mức và role</dt><dd>Chặn, <code class="tsu-code">role="alert"</code>, không đóng được</dd></dl>
+        <p class="tsu-sub" style="margin:0">Chủ garage</p><div data-tsu-banner="BAN-07"></div>
+        <p class="tsu-sub" style="margin:0">Nhân viên</p><div data-tsu-banner="BAN-07" data-view="NV"></div></div></section>
+      <section class="card" aria-labelledby="b08"><div class="card__header"><h2 class="card__title" id="b08">BAN-08 Đang chấm dứt</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">terminating</code></dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant</dd><dt>Mức và role</dt><dd>Chặn, <code class="tsu-code">role="alert"</code>, không đóng được</dd></dl>
+        <div data-tsu-banner="BAN-08" data-date="20/12/2026"></div></div></section>
+      <section class="card" aria-labelledby="b09"><div class="card__header"><h2 class="card__title" id="b09">BAN-09 Điều khoản mới chưa chấp nhận</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Có phiên bản điều khoản mới, còn thời gian ân hạn</dd><dt>Ai thấy</dt><dd>Chủ garage</dd><dt>Mức và role</dt><dd>Cảnh báo, <code class="tsu-code">role="status"</code></dd></dl>
+        <div data-tsu-banner="BAN-09" data-v="1.2" data-date="15/11/2026"></div></div></section>
+      <section class="card" aria-labelledby="b10"><div class="card__header"><h2 class="card__title" id="b10">BAN-10 Chưa xác minh nhưng đã hoạt động</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty <code class="tsu-code">active</code> nhưng chưa đạt xác minh</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant, kế toán</dd><dt>Mức và role</dt><dd>Thông tin, <code class="tsu-code">role="status"</code>, đóng được</dd></dl>
+        <div data-tsu-banner="BAN-10"></div></div></section>
+    </div>
+
+    <section class="card" aria-labelledby="t50-c">
+      <div class="card__header"><div><h2 class="card__title" id="t50-c">Mã lý do khóa nút mới (đề xuất bổ sung vào state-copy.md §3)</h2><div class="card__subtitle">Máy chủ trả mã, giao diện tra câu chữ. Hiện thành chữ cạnh nút, không chỉ tooltip</div></div></div>
+      <div class="card__body"><dl class="tsu-kv" id="t50-codes">
+        <dt><code class="tsu-code">tenant_restricted</code></dt><dd>Công ty đang bị hạn chế tạo mới: {lý do}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.</dd>
+        <dt><code class="tsu-code">tenant_suspended_readonly</code></dt><dd>Tài khoản đang tạm ngưng: chỉ xem và tải dữ liệu, không tạo hay sửa chứng từ.</dd>
+        <dt><code class="tsu-code">trial_expired</code></dt><dd>Dùng thử đã hết. Chọn gói để tiếp tục tạo mới. Nhân viên: Liên hệ chủ garage để chọn gói.</dd>
+        <dt><code class="tsu-code">quota_limit_reached</code></dt><dd>Gói hiện tại cho tối đa {y} {đối tượng}. Xem gói hoặc ngừng bớt {đối tượng} đang dùng.</dd>
+        <dt><code class="tsu-code">tenant_terminating</code></dt><dd>Dịch vụ đang chấm dứt: chỉ xem và tải dữ liệu đến {dd/MM/yyyy}.</dd>
+        <dt><code class="tsu-code">terms_not_accepted</code></dt><dd>Cần đồng ý Điều khoản dịch vụ phiên bản {v} trước khi {hành động}.</dd>
+        <dt><code class="tsu-code">verification_required</code></dt><dd>Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}, ví dụ phát hành hóa đơn thật.</dd>
+      </dl></div>
+    </section>
+  </div>
+  <p class="tsu-test">Truy vết: FR-TEN-005, 025, 044, 049; RULE-021, 023, 030; J3, J10; UAT-TEN-03, 16.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../onboarding/tsu-app.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-60 · Đăng nhập quản trị nền tảng – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../public/ts-public.css">
+<link rel="stylesheet" href="ts-admin.css">
+</head>
+<body class="tsa-login-body" data-tsa-page="60">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu đăng nhập</a>
+<header class="tsa-top">
+  <span class="tsa-brand"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</span>
+  <span class="tsa-label">Quản trị nền tảng</span>
+</header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="default:Mặc định|wrong:Sai thông tin|locked:Khóa tạm|sending:Đang xử lý" data-ts-common="r429 error offline" data-hint="TSU-60 · FR-TEN-011, 013 · tài khoản nền tảng tách khỏi tài khoản tenant. Thử: mật khẩu “sai” báo lỗi, “khoa” khóa tạm."></div>
+
+  <main id="main" class="tsp-card" data-error-title="Chưa đăng nhập được">
+    <div><h1>Đăng nhập quản trị nền tảng</h1><p class="tsp-lead">Chỉ dành cho nhân sự nền tảng. Không dùng mã công ty. Nếu bạn là người dùng garage, hãy <a href="../public/tsu-14.html">đăng nhập ở đây</a>.</p></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--danger" role="alert" data-show="wrong" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không đăng nhập được</span><span>Thông tin đăng nhập chưa đúng. Kiểm tra email và mật khẩu rồi thử lại.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="locked" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tạm dừng đăng nhập trên thiết bị này</span><span>Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau <strong class="num" data-countdown="900" data-countdown-view="default">15:00</strong>.</span></div></div>
+
+    <form class="tsp-form" data-ts-form novalidate>
+      <fieldset class="tsp-fs" data-disable-in="locked sending">
+        <legend class="sr-only">Thông tin đăng nhập</legend>
+        <div class="field">
+          <label class="field__label" for="pf-email">Email<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="pf-email" class="input" name="username" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" data-first-focus data-rule="required" data-label="email" data-fill='{"wrong":"thu.ha@nentang.example","locked":"thu.ha@nentang.example"}'>
+        </div>
+        <div class="field">
+          <label class="field__label" for="pf-pw">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+          <div class="tsp-pw"><input id="pf-pw" class="input" name="password" type="password" autocomplete="current-password" aria-required="true" aria-describedby="pf-caps" data-rule="required" data-label="mật khẩu" data-msg-required="Nhập mật khẩu của bạn."><button type="button" class="btn-icon tsp-pw__toggle" data-pw-toggle="pf-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+          <span class="field__hint" id="pf-caps" data-caps hidden>Caps Lock đang bật. Mật khẩu phân biệt chữ hoa, chữ thường.</span>
+        </div>
+        <div class="tsp-slot"><span class="tsp-slot__label">Khe xác thực mạnh (StrongAuthPort)</span><span>Để trống: xác thực nhiều lớp đang ngoài phạm vi theo quyết định của chủ dự án. Rủi ro ghi ở C-14.</span></div>
+      </fieldset>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-disable-in="locked" data-loading-in="sending" data-reason-id="rsn-60" data-text-page="Nút đăng nhập tạm khóa vì thiết bị này đang bị tạm dừng đăng nhập."><span>Đăng nhập</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <p class="tsp-reason" id="rsn-60" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span></span></p>
+      <p class="tsp-small"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+    </form>
+  </main>
+  <footer class="tsp-foot"><span>GARAGE OS · Quản trị nền tảng · Bản thiết kế thử</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang đăng nhập cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+<script>
+window.tsRoute = function () { var p = document.getElementById('pf-pw').value; if (p === 'sai') return 'wrong'; if (p === 'khoa') return 'locked'; return 'tsu-61.html'; };
+</script>
+</body>
+</html>

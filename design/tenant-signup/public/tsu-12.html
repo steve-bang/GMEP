@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-12 · Đang cấp phát tài khoản – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="run:Đang chạy|slow:Chậm hơn dự kiến|done:Hoàn thành" data-ts-common="skel error offline" data-hint="TSU-12 · FR-TEN-042, 002 · không hiện chữ “lỗi” cho người đăng ký khi cấp phát chậm."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide" data-offline-text="Chưa cập nhật được tiến độ vì mất kết nối mạng. Việc thiết lập vẫn tiếp tục trên máy chủ, bạn không cần làm lại gì.">
+    <h1 class="sr-only" data-show="skel error offline" hidden>Đang tạo không gian làm việc</h1>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div data-ts-body class="tsp-stack">
+      <div class="tsp-result">
+        <span class="tsp-icon-badge" aria-hidden="true" data-hide="done"><svg class="icon"><use href="#loader"/></svg></span>
+        <span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true" data-show="done" hidden><svg class="icon"><use href="#circle-check"/></svg></span>
+        <h1 data-hide="done">Đang tạo không gian làm việc</h1>
+        <h1 data-show="done" hidden>Không gian làm việc đã sẵn sàng</h1>
+        <p class="tsp-lead" data-hide="done">Thường mất vài phút. Bạn có thể đóng trang này, chúng tôi sẽ gửi email ngay khi xong.</p>
+        <p class="tsp-lead" data-show="done" hidden>Mã công ty và hướng dẫn đăng nhập ở bước tiếp theo.</p>
+      </div>
+
+      <div role="status" aria-live="polite" class="tsp-stack">
+        <div class="alert alert--info" data-show="slow" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang xử lý</span><span>Việc thiết lập đang mất nhiều thời gian hơn dự kiến. Chúng tôi vẫn đang xử lý và sẽ gửi email ngay khi xong. Bạn không cần đăng ký lại.</span></div></div>
+      </div>
+
+      <div class="progress" data-hide="done slow">
+        <div class="progress__head"><span>Bước 2 trên 3</span><span class="num">45%</span></div>
+        <div class="progress__track" role="progressbar" aria-label="Tiến độ tạo không gian làm việc" aria-valuemin="0" aria-valuemax="100" aria-valuenow="45"><div class="progress__bar" style="width:45%"></div></div>
+      </div>
+      <div class="progress progress--indeterminate" data-show="slow" hidden>
+        <div class="progress__head"><span>Bước 2 trên 3</span><span>Đang xử lý</span></div>
+        <div class="progress__track" role="progressbar" aria-label="Tiến độ tạo không gian làm việc, đang xử lý"><div class="progress__bar"></div></div>
+      </div>
+      <div class="progress progress--success" data-show="done" hidden>
+        <div class="progress__head"><span>Hoàn tất</span><span class="num">100%</span></div>
+        <div class="progress__track" role="progressbar" aria-label="Tiến độ tạo không gian làm việc" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="progress__bar" style="width:100%"></div></div>
+      </div>
+
+      <ol class="tsp-steps" aria-label="Các bước thiết lập">
+        <li class="is-done"><span class="tsp-dot"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Tạo không gian làm việc</span><span class="tsp-steps__state">Xong</span></li>
+        <li class="is-current" data-hide="done"><span class="tsp-dot">2</span><span>Thiết lập cấu hình mặc định</span><span class="tsp-steps__state">Đang thực hiện</span></li>
+        <li class="is-done" data-show="done" hidden><span class="tsp-dot"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Thiết lập cấu hình mặc định</span><span class="tsp-steps__state">Xong</span></li>
+        <li data-hide="done"><span class="tsp-dot">3</span><span>Tạo tài khoản chủ garage</span><span class="tsp-steps__state">Chưa tới</span></li>
+        <li class="is-done" data-show="done" hidden><span class="tsp-dot"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Tạo tài khoản chủ garage</span><span class="tsp-steps__state">Xong</span></li>
+      </ol>
+
+      <div class="tsp-slot"><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận NFR-TEN-05]</span><span>Thời gian cấp phát tối đa chưa chốt, chỉ hiển thị “Thường mất vài phút”.</span></div>
+      <div class="tsp-actions" data-show="done" hidden><span class="tsp-small">Tự chuyển sau 1 giây (tắt trong bản xem thử).</span><a class="btn btn--primary btn--lg" href="tsu-13.html">Tiếp tục</a></div>
+    </div>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+</body>
+</html>

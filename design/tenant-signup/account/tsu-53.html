@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-53 · Tạm ngưng, chỉ đọc và tải dữ liệu – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../g5-scope-auth/g5-aut-04.html" data-top-icon="log-out">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="ch-yeu-cau:Chủ garage, theo yêu cầu|ch-thuong-mai:Chủ garage, lý do thương mại|nv-vi-pham:Nhân viên, vi phạm điều khoản|phien-thu-hoi:Phiên bị thu hồi"></div>
+
+  <div class="alert alert--info" role="status" data-on="phien-thu-hoi"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Phiên làm việc đã kết thúc</span><span>Tài khoản công ty vừa bị tạm ngưng nên phiên của bạn bị thu hồi. Bản nháp đang soạn được giữ trên thiết bị. Đăng nhập lại để xem và tải dữ liệu.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="../../g5-scope-auth/g5-aut-04.html">Đăng nhập lại</a></div></div></div>
+
+  <div class="state" style="padding-top:var(--space-4)"><div class="state__icon state__icon--danger"><svg class="icon icon--lg" aria-hidden="true"><use href="#lock"/></svg></div>
+    <h1 class="state__title" id="tsu-h1" tabindex="-1" style="font-size:var(--font-size-2xl);line-height:32px">Tài khoản của Công ty TNHH Ô tô Phương Nam đang tạm ngưng</h1>
+    <p class="state__text">Lý do: <strong data-on="ch-yeu-cau phien-thu-hoi">Theo yêu cầu của chủ garage</strong><strong data-on="ch-thuong-mai">Quá hạn thanh toán</strong><strong data-on="nv-vi-pham">Vi phạm điều khoản</strong>.</p>
+    <p class="state__text">Bạn chỉ xem và tải dữ liệu được. Không thể tạo hoặc sửa chứng từ.</p></div>
+
+  <section class="card" aria-labelledby="t53-c">
+    <div class="card__header"><h2 class="card__title" id="t53-c">Bạn làm được gì lúc này</h2></div>
+    <div class="card__body tsu-stack">
+      <ul class="tsu-list"><li>Xem dữ liệu ở chế độ chỉ đọc (mọi màn hiện banner tạm ngưng).</li><li>Tải hóa đơn và chứng từ đã có.</li><li>Chủ garage xuất toàn bộ dữ liệu của công ty.</li></ul>
+      <div class="tsu-actions">
+        <a class="btn btn--primary btn--lg" href="../../g1-auth-dashboard/g1-dsh-01.html">Xem dữ liệu</a>
+        <a class="btn btn--secondary btn--lg" href="../../g4-finance/g4-ein-04.html">Tải hóa đơn và chứng từ</a>
+        <a class="btn btn--secondary btn--lg" href="tsu-55.html" data-off="nv-vi-pham">Xuất dữ liệu</a>
+        <button type="button" class="btn btn--secondary btn--lg" aria-disabled="true" data-on="nv-vi-pham" data-disable-in="nv-vi-pham">Xuất dữ liệu</button>
+        <a class="btn btn--ghost btn--lg" href="#" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ, số điện thoại và giờ làm việc là điểm chờ xác nhận.">Liên hệ hỗ trợ</a>
+      </div>
+      <p class="tsu-reason" data-on="nv-vi-pham"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage xuất được dữ liệu. Hãy báo cho Trần Hoàng Anh. <code>NO_PERMISSION</code> <code>tenant_suspended_readonly</code></span></p>
+    </div>
+  </section>
+  <p class="tsu-test">Truy vết: FR-TEN-005; RULE-020, 021, 026; UAT-TEN-03. Lý do chọn từ danh mục hiển thị cho tenant, không nêu chi tiết nhạy cảm.</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../onboarding/tsu-app.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

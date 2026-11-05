@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-55 · Trung tâm xuất dữ liệu – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Xuất dữ liệu" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-08" data-on="terminating" data-date="20/12/2026"></div>
+    <div data-tsu-banner="BAN-07" data-on="tam-ngung"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Trung tâm xuất dữ liệu</h1>
+      <p class="page-header__desc">Tạo và tải gói dữ liệu của toàn công ty. Luôn dùng được, kể cả khi hết dùng thử hoặc tạm ngưng (trừ sự cố an ninh)</p>
+    </div>
+  </div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty · mọi chi nhánh</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
+
+  <div data-tsu-bar="trong:Chưa có gói|dang-tao:Đang tạo|san-sang:Sẵn sàng|het-han:Hết hạn tải|loi-tao:Lỗi tạo gói|tam-ngung:Tạm ngưng (vẫn xuất được)|terminating:Đang chấm dứt|ad-khong-quyen:Quản trị tenant (không có quyền)"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <div class="alert alert--neutral" role="status" data-on="ad-khong-quyen"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Bạn xem được nhưng không tạo hay tải được</span><span>Chỉ chủ garage tạo và tải gói xuất dữ liệu. Hãy báo cho Trần Hoàng Anh. <code>NO_PERMISSION</code></span></div></div>
+
+    <section class="card" aria-labelledby="t55-a">
+      <div class="card__header"><h2 class="card__title" id="t55-a">Tạo gói xuất</h2></div>
+      <div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Nội dung</dt><dd>Dữ liệu nghiệp vụ, XML và PDF hóa đơn, tệp đính kèm, nhật ký, kèm danh mục và mã kiểm tra toàn vẹn</dd><dt>Phạm vi</dt><dd>Toàn công ty (mọi chi nhánh)</dd><dt>Định dạng</dt><dd>Tệp nén gồm CSV, XML, PDF (cấu hình)</dd></dl>
+        <div class="tsu-actions">
+          <button type="button" class="btn btn--primary" id="t55-make" data-tsu-go="dang-tao" data-disable-in="dang-tao ad-khong-quyen"><svg class="icon" aria-hidden="true"><use href="#download"/></svg>Tạo gói xuất</button>
+        </div>
+        <p class="tsu-reason" data-on="dang-tao"><svg class="icon icon--sm" aria-hidden="true"><use href="#loader"/></svg><span>Đang tạo gói xuất. Bấm lại không tạo gói thứ hai. Chúng tôi sẽ gửi email khi xong.</span></p>
+        <p class="tsu-reason" data-on="ad-khong-quyen"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage mới tạo được gói xuất. <code>NO_PERMISSION</code></span></p>
+      </div>
+    </section>
+
+    <section class="tsu-stack" aria-labelledby="t55-l">
+      <h2 id="t55-l" style="margin:0">Các gói đã tạo</h2>
+      <div class="state" data-on="trong"><div class="state__icon"><svg class="icon icon--lg" aria-hidden="true"><use href="#inbox"/></svg></div><h3 class="state__title">Chưa có gói xuất nào</h3><p class="state__text">Bấm “Tạo gói xuất” để chuẩn bị bản sao dữ liệu của công ty. Việc này không ảnh hưởng đến công việc đang làm.</p></div>
+      <div id="t55-list" class="tsu-stack"></div>
+    </section>
+
+    <section class="card card--attention" aria-labelledby="t55-t" data-on="terminating">
+      <div class="card__header"><h2 class="card__title" id="t55-t">Xác nhận đã nhận đủ dữ liệu</h2></div>
+      <div class="card__body tsu-stack">
+        <p style="margin:0">Chỉ bấm khi bạn đã tải và kiểm tra gói xuất. Sau khi xác nhận, công ty chuyển sang chấm dứt và không đăng nhập được. Việc xác nhận được ghi lại: người xác nhận và thời điểm.</p>
+        <div class="tsu-actions"><button type="button" class="btn btn--danger-outline" data-open="dlg-received">Tôi đã nhận đủ dữ liệu</button></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay" id="dlg-received" role="alertdialog" aria-modal="true" aria-labelledby="dr-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="DA NHAN DU LIEU">
+    <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dr-t">Xác nhận đã nhận đủ dữ liệu?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <ul class="impact-list"><li>Sau khi xác nhận, công ty chuyển sang chấm dứt và không đăng nhập được.</li><li>Gói xuất đã tạo vẫn tải được trong thời hạn tải (nếu có cổng tải lưu trữ).</li><li>Ghi nhận người xác nhận (Trần Hoàng Anh) và thời điểm xác nhận.</li></ul>
+      <div class="field"><label class="field__label" for="t55-cf">Gõ <strong>DA NHAN DU LIEU</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="t55-cf" class="input" data-confirm-input autocomplete="off"></div>
+    </div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Chưa xác nhận</button><button type="button" class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã ghi nhận|Công ty chuyển sang chấm dứt. Email xác nhận đã được gửi." disabled>Xác nhận đã nhận đủ</button></div></div></div>
+  <p class="tsu-test">Truy vết: FR-TEN-006; RULE-020, 021; J3, J4, J10; UAT-TEN-04. Chuỗi gõ xác nhận “DA NHAN DU LIEU” là đề xuất, chờ xác nhận.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../onboarding/tsu-app.js"></script>
+<script>
+(function () {
+  var BADGE = { run: ['info', 'Đang tạo'], ok: ['success', 'Sẵn sàng'], exp: ['warning', 'Hết hạn tải'], err: ['danger', 'Lỗi'] };
+  function pk(code, date, st, o) {
+    var b = BADGE[st];
+    var dis = o.denied ? ' aria-disabled="true" data-disable-in="ad-khong-quyen"' : '';
+    var act = '';
+    if (st === 'ok') act = '<button type="button" class="btn btn--primary btn--sm"' + dis + ' data-toast="info|Đang chuẩn bị liên kết tải|Liên kết tải có hiệu lực ngắn hạn (cấu hình), tạo qua máy chủ, không dùng đường dẫn cố định."><svg class="icon icon--sm" aria-hidden="true"><use href="#download"/></svg>Tải xuống</button>';
+    if (st === 'exp') act = '<button type="button" class="btn btn--secondary btn--sm" data-tsu-go="dang-tao">Tạo lại</button>';
+    if (st === 'err') act = '<button type="button" class="btn btn--secondary btn--sm" data-tsu-go="dang-tao">Thử lại</button>';
+    var body = '';
+    if (st === 'run') body = '<div class="progress progress--indeterminate" aria-hidden="true"><div class="progress__track"><div class="progress__bar"></div></div></div><p class="tsu-sub" style="margin:0">Chúng tôi sẽ email khi xong. Bạn có thể đóng trang.</p>';
+    else if (st === 'err') body = '<p class="tsu-reason" style="color:var(--color-danger-text)"><svg class="icon icon--sm" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Chưa tạo được gói xuất, không phải do bạn. Thử lại sau ít phút. Mã tham chiếu <span class="code">REQ-6C20B1</span>.</span></p>';
+    else body = '<dl class="tsu-kv"><dt>Dung lượng</dt><dd class="num">1,8 GB</dd><dt>Số bản ghi</dt><dd><span class="num">4.126</span> lệnh sửa chữa · <span class="num">3.980</span> hóa đơn · <span class="num">12.304</span> tệp đính kèm</dd><dt>Mã kiểm tra toàn vẹn</dt><dd><span class="tsu-copy"><span class="tsu-mono">sha256:9f2c4e7ab31d08c65e4f1a97d2b83c0e51f6a4d7e92b30c8a15f6d4e7b2a9c01</span><button type="button" class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép|Mã kiểm tra toàn vẹn đã được sao chép.">Sao chép</button></span></dd><dt>Hạn tải</dt><dd class="num">' + (st === 'exp' ? o.until + ' (đã qua)' : o.until) + '</dd></dl>';
+    return '<div class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title tsu-mono">' + code + '</strong><span class="badge badge--' + b[0] + '">' + b[1] + '</span></div><div class="tsu-rec__meta"><span>Tạo lúc <span class="num">' + date + '</span></span><span>Phạm vi: toàn công ty</span></div>' + body + (act ? '<div class="tsu-actions">' + act + '</div>' : '') + '</div>';
+  }
+  var S = {
+    'trong': '',
+    'dang-tao': pk('EXP-2611-0003', '09:16 05/11/2026', 'run', {}),
+    'san-sang': pk('EXP-2611-0003', '09:16 05/11/2026', 'ok', { until: '12/11/2026' }) + pk('EXP-2610-0001', '12:30 20/10/2026', 'exp', { until: '27/10/2026' }),
+    'het-han': pk('EXP-2610-0001', '12:30 20/10/2026', 'exp', { until: '27/10/2026' }),
+    'loi-tao': pk('EXP-2611-0002', '09:10 05/11/2026', 'err', {}),
+    'tam-ngung': pk('EXP-2611-0003', '09:16 05/11/2026', 'ok', { until: '12/11/2026' }),
+    'terminating': pk('EXP-2611-0003', '09:16 05/11/2026', 'ok', { until: '12/11/2026' }),
+    'ad-khong-quyen': pk('EXP-2611-0003', '09:16 05/11/2026', 'ok', { until: '12/11/2026', denied: true })
+  };
+  function render(n) { if (S[n] !== undefined) document.getElementById('t55-list').innerHTML = S[n]; }
+  document.addEventListener('tsu:state', function (e) { render(e.detail); });
+  render(document.body.getAttribute('data-tsu-state'));
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

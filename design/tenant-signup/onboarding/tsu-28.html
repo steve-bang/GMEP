@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-28 · W8 Nhập Excel – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="8" data-statuses="done,done,done,skip,skip,done,done,doing,todo" data-no-validate>
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="chua-nhap:Chưa nhập|dang-kiem-tra:Đang kiểm tra|co-loi:Có lỗi|da-xem-truoc:Đã xem trước|da-ghi:Đã ghi|da-hoan-tac:Đã hoàn tác|chua-chap-nhan:Chưa chấp nhận điều khoản"></div>
+
+  <p class="tsu-lead">Nhập khách hàng, xe, phụ tùng, tồn đầu kỳ và nhân viên từ Excel. Bước này tùy chọn. Màn nhập Excel chi tiết dùng lại màn của mục Hệ thống (SYS), đặt trong khung wizard. Truy vết: FR-TEN-029, 030; FR-SYS-007.</p>
+
+  <div class="alert alert--info" role="status"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Nên nhập theo thứ tự</span><span>Nhân viên, phụ tùng, tồn đầu kỳ, khách hàng và xe. Mỗi tệp được kiểm tra trọn vẹn trước khi ghi.</span></div></div>
+
+  <section class="card" aria-labelledby="t28-m">
+    <div class="card__header"><h2 class="card__title" id="t28-m">Dữ liệu sẽ nhập là dữ liệu nào?</h2></div>
+    <div class="card__body tsu-stack">
+      <div class="tsu-actions" role="radiogroup" aria-label="Loại dữ liệu nhập">
+        <label class="radio"><input type="radio" name="w8-kind" value="thu" checked><span class="radio__box"></span><span>Dữ liệu thử <span class="tag tag--neutral">xóa được trước khi kích hoạt</span></span></label>
+        <label class="radio"><input type="radio" name="w8-kind" value="that" data-disable-in="chua-chap-nhan"><span class="radio__box"></span><span>Dữ liệu thật</span></label>
+      </div>
+      <p class="tsu-reason" data-on="chua-chap-nhan"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Cần đồng ý Điều khoản dịch vụ trước khi nhập dữ liệu thật. <a href="#" data-toast="info|Điều khoản và DPA|Mở màn TSU-18 (nhóm C) để chấp nhận phiên bản hiện hành.">Đọc và đồng ý</a> <code>terms_not_accepted</code></span></p>
+      <p class="tsu-sub" style="margin:0" data-off="chua-chap-nhan">Cách phân biệt dữ liệu thử và thật khi nhập là điểm chờ xác nhận (C-15).</p>
+    </div>
+  </section>
+
+  <section class="tsu-stack" aria-labelledby="t28-l">
+    <h2 id="t28-l" style="margin:0">Loại dữ liệu</h2>
+    <div id="t28-lists"></div>
+  </section>
+
+  <div class="overlay" id="dlg-write" role="alertdialog" aria-modal="true" aria-labelledby="dlg-write-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="GHI LO">
+    <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dlg-write-t">Ghi lô phụ tùng vào hệ thống?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <ul class="impact-list"><li>Ghi 1.204 dòng phụ tùng từ tệp phutung-q7.xlsx.</li><li>Lô được ghi một lần, gắn nhãn dữ liệu thử hoặc thật theo lựa chọn của bạn.</li><li>Hoàn tác được theo lô; lịch sử nhập được lưu, không xóa.</li></ul>
+      <div class="field"><label class="field__label" for="w8-gl">Gõ <strong>GHI LO</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="w8-gl" class="input" data-confirm-input autocomplete="off"></div>
+    </div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Chưa ghi</button><button type="button" class="btn btn--danger" data-confirm-btn data-close data-tsu-go="da-ghi" disabled>Ghi lô</button></div></div></div>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="tsu-app.js"></script>
+<script>
+(function () {
+  var T = window.TSU;
+  var TYPES = ['Nhân viên', 'Phụ tùng', 'Tồn đầu kỳ', 'Khách hàng', 'Xe'];
+  var B = { none: ['neutral', 'Chưa nhập'], run: ['info', 'Đang kiểm tra'], err: ['danger', 'Có lỗi'], prev: ['purple', 'Đã xem trước'], done: ['success', 'Đã ghi'], undo: ['neutral', 'Đã hoàn tác'] };
+  function card(name, st, extra) {
+    var b = B[st];
+    var act = '<a class="btn btn--ghost btn--sm" href="#" data-toast="info|Tải mẫu Excel|Tệp mẫu ' + name + ' (.xlsx) có cột bắt buộc và ví dụ.">Tải mẫu Excel</a><button type="button" class="btn btn--secondary btn--sm" data-toast="info|Tải lên|Prototype: hộp chọn tệp .xlsx mở ở đây.">Tải lên</button>' + (extra && extra.act ? extra.act : '');
+    return '<div class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title">' + name + '</strong><span class="badge badge--' + b[0] + '">' + b[1] + '</span></div>' +
+      (extra && extra.msg ? '<p style="margin:0" class="' + (st === 'err' ? 'tsu-reason' : 'tsu-sub') + '">' + extra.msg + '</p>' : '') +
+      (st === 'run' ? '<div class="progress progress--indeterminate" aria-hidden="true"><div class="progress__track"><div class="progress__bar"></div></div></div>' : '') +
+      '<div class="tsu-actions">' + act + '</div></div>';
+  }
+  var WRITE = '<button type="button" class="btn btn--primary btn--sm" data-open="dlg-write">Ghi lô</button>';
+  var WRITE_OFF = '<button type="button" class="btn btn--primary btn--sm" aria-disabled="true" data-disable-in="chua-chap-nhan-x">Ghi lô</button>';
+  function set(state, spec) {
+    return '<div class="tsu-stack" data-on="' + state + '">' + TYPES.map(function (n, i) { var s = spec[i] || ['none', null]; return card(n, s[0], s[1]); }).join('') + '</div>';
+  }
+  var out = '';
+  out += set('chua-nhap', []);
+  out += set('dang-kiem-tra', [['done', { msg: '86 dòng, đã ghi lúc 09:58.' }], ['run', { msg: 'Đang kiểm tra tệp phutung-q7.xlsx…' }]]);
+  out += set('co-loi', [['done', { msg: '86 dòng, đã ghi lúc 09:58.' }], ['err', { msg: '<svg class="icon icon--sm" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Có 12 dòng lỗi. Sửa trong tệp rồi tải lại; chưa có dữ liệu nào được ghi.</span>', act: '<button type="button" class="btn btn--secondary btn--sm" data-toast="info|Tải bảng lỗi|Tệp liệt kê từng dòng lỗi và lý do.">Tải bảng lỗi</button>' }]]);
+  out += set('da-xem-truoc', [['done', { msg: '86 dòng, đã ghi lúc 09:58.' }], ['prev', { msg: 'Sẵn sàng ghi 1.204 dòng, không có dòng lỗi.', act: WRITE }]]);
+  out += set('da-ghi', [['done', { msg: '86 dòng, đã ghi lúc 09:58.' }], ['done', { msg: '1.204 dòng, lô IMP-Q7-2611-0002 ghi lúc 10:05.', act: '<button type="button" class="btn btn--ghost btn--sm" data-tsu-go="da-hoan-tac">Hoàn tác lô</button>' }]]);
+  out += set('da-hoan-tac', [['done', { msg: '86 dòng, đã ghi lúc 09:58.' }], ['undo', { msg: 'Lô IMP-Q7-2611-0002 đã hoàn tác lúc 10:12. Có thể tải lên tệp mới.' }]]);
+  out += set('chua-chap-nhan', [[ 'none', null ], ['prev', { msg: 'Sẵn sàng ghi 1.204 dòng. Ghi dữ liệu thật cần đồng ý Điều khoản trước; ghi dữ liệu thử vẫn được.', act: WRITE }]]);
+  document.getElementById('t28-lists').innerHTML = out;
+  T.setState(document.body.getAttribute('data-tsu-state'), true);
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>
