@@ -6,7 +6,13 @@
      data-nosteps   ẩn danh sách bước          data-common    "1": thêm trạng thái chung (đang tải, lỗi, mất mạng)
      data-top-label / data-top-href  liên kết góc phải (mặc định "Trang chủ" về account/tsu-40.html)
      data-strip     văn bản dải thông tin dưới thanh trên (simple)
-   Nội dung trang nằm trong <div id="tsu-content" hidden> (wizard/simple). Chỉ là prototype, không phải code production. */
+     data-wide      (simple) nội dung rộng 1040 px cho bố cục hai cột
+   Bản tối giản (docs/ui-ux/tenant-signup-simplified.md):
+     data-tsu-mode="onb"  onboarding hai bước (TSX-10, TSX-11): thanh trên + dải một hàng "Bước n/2" + chân trang dính tối đa hai hàng.
+                          data-onb-step 1|2 · data-onb-hint văn bản gợi ý bên phải dải (ẩn trên điện thoại)
+     data-by-state  trên input/select: "trạng-thái=giá trị|trạng-thái=giá trị" đặt giá trị theo trạng thái xem thử (mặc định lấy data-fill)
+   Thanh "Xem thử trạng thái" là <details>: đóng mặc định trên điện thoại, mở từ 1024 px; nhãn là tiếng Việt, không lộ khóa kỹ thuật.
+   Nội dung trang nằm trong <div id="tsu-content" hidden> (wizard/simple/onb). Chỉ là prototype, không phải code production. */
 (function () {
   'use strict';
   var D = document, B = D.body;
@@ -20,7 +26,10 @@
   var inOnb = /\/onboarding\//.test(location.pathname);
   var P_ONB = inOnb ? '' : '../onboarding/';
   var P_ACC = inOnb ? '../account/' : '';
-  var G1P = '../../g1-auth-dashboard/';
+  var deferred = /\/_deferred\//.test(location.pathname);
+  var G1P = (deferred ? '../../../' : '../../') + 'g1-auth-dashboard/';
+  /* Trang chủ sau onboarding = TSX-20 (dashboard có thẻ "Thiết lập dần") */
+  var HOME = P_ONB + 'tsx-20.html';
   var T = window.TSU = { first: 'default', dirty: false };
 
   /* ---------- 9 bước wizard (TSU-21..29) ---------- */
@@ -65,20 +74,26 @@
     if (!common) {
       /* data-fill: giá trị điền sẵn; data-blank-in: các trạng thái để trống. data-validate-in (body): trạng thái tự chạy kiểm lỗi */
       $$('[data-fill]').forEach(function (el) { el.value = hit(el.getAttribute('data-blank-in') || '', [name]) ? '' : (hit(el.getAttribute('data-alt-in') || '', [name]) ? el.getAttribute('data-alt') : el.getAttribute('data-fill')); });
+      $$('[data-by-state]').forEach(function (el) {
+        var v = el.getAttribute('data-fill') || '';
+        el.getAttribute('data-by-state').split('|').forEach(function (p) { var i = p.indexOf('='); if (i > 0 && p.slice(0, i) === name) v = p.slice(i + 1); });
+        el.value = v;
+      });
       $$('[data-check-in]').forEach(function (el) { el.checked = hit(el.getAttribute('data-check-in'), [name]); });
       $$('[data-rule]').forEach(function (el) { showErr(el, ''); });
       var sm = $('#tsu-summary'); if (sm) sm.remove();
       if (list(B.getAttribute('data-validate-in')).indexOf(name) >= 0) { var er = validateAll(); showSummary(er, true); }
     }
+    $$('[data-tsu-cur]').forEach(function (c) { c.textContent = labelOf(name); });
     var lv = $('#tsu-live'); if (lv && !silent) lv.textContent = 'Đang xem trạng thái: ' + labelOf(name);
     D.dispatchEvent(new CustomEvent('tsu:state', { detail: name }));
   }
   T.setState = setState;
 
   function barHtml(items) {
-    return '<div class="tsu-proto" role="group" aria-label="Xem thử trạng thái (prototype)"><span class="tsu-proto__label">Xem thử trạng thái</span><div class="tsu-proto__btns">' +
+    return '<details class="tsu-proto" id="tsu-proto"><summary class="tsu-proto__sum"><span class="tsu-proto__label">Xem thử trạng thái</span><span class="tsu-proto__cur" data-tsu-cur></span></summary><div class="tsu-proto__body"><div class="tsu-proto__btns" role="group" aria-label="Các trạng thái xem thử (prototype)">' +
       items.map(function (it) { return '<button type="button" class="tsu-st" data-tsu-set="' + esc(it[0]) + '" aria-pressed="false">' + esc(it[1]) + '</button>'; }).join('') +
-      '</div><span class="tsu-proto__note">Chỉ là prototype: dữ liệu mô phỏng, máy chủ quyết định thật.</span></div><span class="sr-only" role="status" id="tsu-live"></span>';
+      '</div><span class="tsu-proto__note">Chỉ là prototype: dữ liệu mô phỏng, máy chủ quyết định thật.</span></div></details><span class="sr-only" role="status" id="tsu-live"></span>';
   }
   function parseSpec(spec) {
     return spec ? spec.split('|').map(function (s) { var i = s.indexOf(':'); return [s.slice(0, i), s.slice(i + 1)]; }) : [];
@@ -103,7 +118,7 @@
     var def = esc(cfg && cfg.def ? cfg.def : (B.getAttribute('data-skip-default') || 'danh mục dịch vụ để trống, bạn thêm sau trong Cài đặt'));
     var nStep = step > 0 ? step : 5;
     var next = nextHref || (P_ONB + 'tsu-26.html');
-    var home = P_ACC + 'tsu-40.html';
+    var home = HOME;
     var h =
       dlg('dlg-skip', 'warning', 'undo', 'Bỏ qua bước “' + name + '”?', '<p>Bạn có thể quay lại làm sau. Bước này sẽ hiện trong danh sách việc cần làm ở trang chủ. Nếu bỏ qua, hệ thống dùng thiết lập mặc định: ' + def + '.</p>',
         '<button type="button" class="btn btn--secondary" data-close>Ở lại</button><button type="button" class="btn btn--primary" data-go="' + esc(next) + '">Bỏ qua bước</button>') +
@@ -146,10 +161,10 @@
 
     /* Đường đi */
     var topLabel = B.getAttribute('data-top-label') || 'Trang chủ';
-    var topHref = B.getAttribute('data-top-href') || (P_ACC + 'tsu-40.html');
+    var topHref = B.getAttribute('data-top-href') || HOME;
     var topIcon = B.getAttribute('data-top-icon') || 'layout-dashboard';
 
-    var top = '<header class="tsu-top"><a class="tsu-brand" href="' + esc(P_ACC + 'tsu-40.html') + '"><span class="tsu-brand__logo" aria-hidden="true">' + ic('wrench') + '</span><span>GARAGE OS</span></a><span class="tsu-top__sp"></span>' +
+    var top = '<header class="tsu-top"><a class="tsu-brand" href="' + esc(HOME) + '"><span class="tsu-brand__logo" aria-hidden="true">' + ic('wrench') + '</span><span>GARAGE OS</span></a><span class="tsu-top__sp"></span>' +
       '<a class="btn btn--ghost btn--sm tsu-top__home" href="' + esc(topHref) + '" data-tsu-home aria-label="' + esc(topLabel) + '">' + ic(topIcon) + '<span class="tsu-top__homelabel">' + esc(topLabel) + '</span></a>' +
       '<button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối">' + ic('moon') + '</button></header>';
 
@@ -214,7 +229,7 @@
     var barBlock = barHtml(items);
     var shell = '<div class="tsu-wz">' + top + strip +
       '<div class="tsu-wz__body' + (nosteps ? ' tsu-wz__body--simple' : '') + '">' + stepsHtml +
-      '<main class="tsu-wz__main" id="main" tabindex="-1"><div class="tsu-wz__content">' + barBlock + (withCommon ? commonBlocks() : '') + '<div class="tsu-body"' + (withCommon ? ' data-off="loading error"' : '') + '>' + head + bodyNodes + '</div></div>' + foot + '</main></div></div>';
+      '<main class="tsu-wz__main" id="main" tabindex="-1"><div class="tsu-wz__content' + (B.hasAttribute('data-wide') ? ' tsu-wz__content--wide' : '') + '">' + barBlock + (withCommon ? commonBlocks() : '') + '<div class="tsu-body"' + (withCommon ? ' data-off="loading error"' : '') + '>' + head + bodyNodes + '</div></div>' + foot + '</main></div></div>';
     var root = D.createElement('div'); root.innerHTML = shell;
     var skipLink = D.createElement('a'); skipLink.className = 'skip-link'; skipLink.href = '#main'; skipLink.textContent = 'Bỏ qua điều hướng, tới nội dung chính';
     B.insertBefore(root.firstChild, B.firstChild); B.insertBefore(skipLink, B.firstChild);
@@ -223,6 +238,42 @@
     var ref = null;
     Array.prototype.some.call(B.children, function (c) { if (c.tagName === 'SCRIPT') { ref = c; return true; } return false; });
     $$('.tsu-wz .overlay').forEach(function (o) { B.insertBefore(o, ref); });
+  }
+
+  /* ---------- Onboarding hai bước (TSX-10, TSX-11): khung rút gọn ---------- */
+  function buildOnb() {
+    var content = $('#tsu-content');
+    var cur = parseInt(B.getAttribute('data-onb-step') || '1', 10) === 2 ? 2 : 1;
+    var holder = $('[data-tsu-bar]', content);
+    var items = parseSpec(holder ? holder.getAttribute('data-tsu-bar') : '');
+    if (!items.length) items = [['default', 'Mặc định']];
+    items = items.concat(COMMON_WZ);
+    stateItems = items; T.first = items[0][0];
+    if (holder) holder.remove();
+
+    var top = '<header class="tsu-top"><span class="tsu-brand"><span class="tsu-brand__logo" aria-hidden="true">' + ic('wrench') + '</span><span>GARAGE OS</span></span><span class="tsu-top__sp"></span>' +
+      '<button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối">' + ic('moon') + '</button></header>';
+    var hint = B.getAttribute('data-onb-hint') || '';
+    var dots = '<ol class="tsu-dots" aria-label="Tiến độ thiết lập, hai bước">' +
+      '<li class="' + (cur === 1 ? 'is-cur' : 'is-done') + '"' + (cur === 1 ? ' aria-current="step"' : '') + '><span class="tsu-dots__n">' + (cur === 1 ? '1' : ic('check')) + '</span><span class="tsu-dots__t">Garage</span></li>' +
+      '<li class="' + (cur === 2 ? 'is-cur' : '') + '"' + (cur === 2 ? ' aria-current="step"' : '') + '><span class="tsu-dots__n">2</span><span class="tsu-dots__t">Thiết lập nhanh</span></li></ol>';
+    var strip = '<div class="tsu-strip tsu-strip--onb"><span class="tsu-strip__step">Bước ' + cur + '/2</span>' + dots +
+      '<span class="tsu-strip__hint" role="status">' +
+      (hint ? '<span class="tsu-strip__hint-t" data-off="saving offline error">' + esc(hint) + '</span>' : '') +
+      '<span class="tsu-draft" data-on="saving">' + ic('loader', 'icon--sm') + ' Đang lưu…</span>' +
+      '<span class="tsu-draft tsu-draft--bad" data-on="offline">' + ic('wifi-off', 'icon--sm') + ' Mất mạng</span>' +
+      '<span class="tsu-draft tsu-draft--bad" data-on="error">' + ic('alert-triangle', 'icon--sm') + ' Chưa lưu được</span></span></div>';
+
+    var foot = '';
+    var custom = $('[data-tsu-foot]', content);
+    if (custom) { custom.parentNode.removeChild(custom); foot = custom.outerHTML; }
+    var bodyNodes = content.innerHTML;
+    var shell = '<div class="tsu-wz">' + top + strip + '<div class="tsu-wz__body tsu-wz__body--simple"><main class="tsu-wz__main" id="main" tabindex="-1"><div class="tsu-wz__content">' +
+      barHtml(items) + commonBlocks() + '<div class="tsu-body" data-off="loading error">' + bodyNodes + '</div></div>' + foot + '</main></div></div>';
+    var root = D.createElement('div'); root.innerHTML = shell;
+    var skipLink = D.createElement('a'); skipLink.className = 'skip-link'; skipLink.href = '#main'; skipLink.textContent = 'Bỏ qua điều hướng, tới nội dung chính';
+    B.insertBefore(root.firstChild, B.firstChild); B.insertBefore(skipLink, B.firstChild);
+    content.remove();
   }
 
   /* ---------- Chế độ app (khung G1) ---------- */
@@ -251,31 +302,34 @@
 
   /* ---------- Banner trạng thái tenant (TSU-50) ---------- */
   var BAN = {
-    'BAN-01': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Bạn đang trong giai đoạn thiết lập. Hóa đơn điện tử chạy thử và dữ liệu thử có thể xóa. Chưa bắt đầu tính ngày dùng thử: ngày dùng thử bắt đầu khi bạn kích hoạt.', b: ['Tiếp tục thiết lập', P_ONB + 'tsu-20.html'], lab: 'Thông tin' },
-    'BAN-02': { lv: 'warning', role: 'status', icon: 'clock', t: 'Dùng thử còn {n} ngày (hết hạn {date}). Dữ liệu của bạn không bị xóa khi hết dùng thử.', b: ['Xem gói', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo' },
-    'BAN-03': { lv: 'warning', role: 'alert', icon: 'alert-triangle', t: 'Dùng thử đã hết. Bạn vẫn xem được dữ liệu, tải hóa đơn và hoàn tất các lệnh đang mở. Chọn gói để tiếp tục tạo mới.', tNV: 'Dùng thử của công ty đã hết. Liên hệ chủ garage.', b: ['Chọn gói', P_ACC + 'tsu-42.html'], onlyCH: true, lab: 'Cảnh báo' },
-    'BAN-04': { lv: 'warning', role: 'status', icon: 'alert-triangle', t: 'Khoản phí kỳ {period} quá hạn từ {date}. Công ty được tiếp tục dùng đến {grace}.', b: ['Xem chi tiết', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo (giữ chỗ B2)' },
-    'BAN-05': { lv: 'warning', role: 'alert', icon: 'alert-triangle', t: 'Tài khoản đang bị hạn chế: {reason}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở; chưa thể tạo mới {list}.', tNV: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được.', b: ['Xem lý do', '#', 'info|Lý do hạn chế|Lý do chọn từ danh mục hiển thị cho tenant (TSU-66 mở rộng), không nêu chi tiết an ninh.'], bNV: ['Liên hệ chủ garage', '#', 'info|Liên hệ chủ garage|Hãy báo cho chủ garage của công ty bạn.'], lab: 'Hạn chế' },
-    'BAN-06': { lv: 'warning', role: 'status', icon: 'alert-triangle', t: 'Bạn đã dùng {x}/{y} chi nhánh ({p}%).', b: ['Xem gói', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo' },
-    'BAN-07': { lv: 'danger', role: 'alert', icon: 'lock', t: 'Tài khoản đang tạm ngưng. Bạn chỉ xem và tải dữ liệu được.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], onlyBtnCH: true, lab: 'Chặn',
-      v: { trial: { t: 'Dùng thử đã hết và công ty đang ở chế độ chỉ đọc. Bạn xem và tải dữ liệu được; chọn gói để mở lại ngay, dữ liệu được giữ nguyên.', tNV: 'Dùng thử của công ty đã hết, công ty đang ở chế độ chỉ đọc. Liên hệ chủ garage.', b: ['Chọn gói', P_ACC + 'tsu-42.html'] } } },
-    'BAN-08': { lv: 'danger', role: 'alert', icon: 'lock', t: 'Dịch vụ đang trong giai đoạn chấm dứt. Hãy tải dữ liệu trước {date}.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], lab: 'Chặn' },
-    'BAN-09': { lv: 'warning', role: 'status', icon: 'file-text', t: 'Điều khoản dịch vụ phiên bản {v} có hiệu lực từ {date}. Hãy đọc và đồng ý.', b: ['Đọc và đồng ý', '../public/tsu-18.html'], lab: 'Cảnh báo' },
-    'BAN-10': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Hóa đơn thật chưa dùng được vì doanh nghiệp chưa hoàn tất xác minh.', b: ['Xem trạng thái', '../public/tsu-08.html?state=inapp'], lab: 'Thông tin' }
+    /* Ba biến thể (TSU-50): A dùng thử, B hạn chế/tạm ngưng/chấm dứt, C chờ xác minh để phát hành hóa đơn thật.
+       data-variant chọn câu chữ; data-view="NV" là câu dành cho nhân viên. v[...] ghi đè trường của biến thể gốc. */
+    'BAN-A': { lv: 'warning', role: 'status', icon: 'clock', t: 'Dùng thử còn {n} ngày (hết hạn {date}). Dữ liệu của bạn không bị xóa khi hết dùng thử.', hideNV: true, b: ['Xem gói', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo',
+      v: {
+        'het': { role: 'alert', icon: 'alert-triangle', t: 'Dùng thử đã hết. Bạn vẫn xem được dữ liệu, tải hóa đơn và hoàn tất các lệnh đang mở. Liên hệ để chọn gói và tiếp tục tạo mới.', tNV: 'Dùng thử của công ty đã hết. Liên hệ chủ garage.', hideNV: false, b: ['Xem gói', P_ACC + 'tsu-41.html'], noBtnNV: true },
+        'truy-cap-som': { role: 'alert', icon: 'alert-triangle', t: 'Giai đoạn truy cập sớm đã kết thúc. Bạn vẫn xem được dữ liệu và tải hóa đơn. Liên hệ để chọn gói và tiếp tục tạo mới.', tNV: 'Giai đoạn truy cập sớm của công ty đã kết thúc. Liên hệ chủ garage.', hideNV: false, b: ['Xem gói', P_ACC + 'tsu-41.html'], noBtnNV: true }
+      } },
+    'BAN-B': { lv: 'warning', role: 'alert', icon: 'alert-triangle', t: 'Tài khoản đang bị hạn chế: {reason}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở; chưa thể tạo mới {list}.', tNV: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.', b: ['Xem gói', P_ACC + 'tsu-41.html'], noBtnNV: true, lab: 'Hạn chế',
+      v: {
+        'tam-ngung': { lv: 'danger', icon: 'lock', t: 'Tài khoản đang tạm ngưng. Bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.', tNV: 'Tài khoản đang tạm ngưng. Bạn chỉ xem được dữ liệu. Liên hệ chủ garage.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], noBtnNV: true, lab: 'Chặn' },
+        'cham-dut': { lv: 'danger', icon: 'lock', t: 'Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến {date}.', tNV: 'Dịch vụ của công ty đang chấm dứt. Bạn chỉ xem được dữ liệu. Liên hệ chủ garage.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], noBtnNV: true, lab: 'Chặn' }
+      } },
+    'BAN-C': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Hóa đơn thật chưa dùng được: cần xác minh doanh nghiệp và khai nhà cung cấp hóa đơn điện tử (kết nối đạt). Hóa đơn đang chạy thử. Tạo lệnh, thu tiền, kho và báo cáo vẫn dùng bình thường.', b: ['Xem việc cần làm', P_ONB + 'tsx-20.html#state=hoa-don'], lab: 'Thông tin' }
   };
-  var BDEF = { n: '9', date: '14/11/2026', period: '10/2026', grace: '21/11/2026', reason: 'Vượt hạn mức gói', list: 'chi nhánh và người dùng', x: '8', y: '10', p: '80', v: '1.2' };
+  var BDEF = { n: '3', date: '08/11/2026', reason: 'đang xem xét tuân thủ, cần bổ sung thông tin', list: 'lệnh sửa chữa và người dùng' };
   function renderBanner(el) {
     var code = el.getAttribute('data-tsu-banner'), d = BAN[code]; if (!d) return;
     var vk = el.getAttribute('data-variant');
     if (vk && d.v && d.v[vk]) { var d2 = {}; Object.keys(d).forEach(function (k) { d2[k] = d[k]; }); Object.keys(d.v[vk]).forEach(function (k) { d2[k] = d.v[vk][k]; }); d = d2; }
     var nv = el.getAttribute('data-view') === 'NV';
+    if (nv && d.hideNV) { el.parentNode.removeChild(el); return; }
     var vars = {}; Object.keys(BDEF).forEach(function (k) { vars[k] = el.getAttribute('data-' + k) || BDEF[k]; });
     var txt = (nv && d.tNV) ? d.tNV : d.t;
     txt = txt.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] !== undefined ? '<span class="num">' + esc(vars[k]) + '</span>' : m; });
-    var b = (nv && d.bNV) ? d.bNV : d.b;
-    var showBtn = !(nv && (d.onlyCH || d.onlyBtnCH)) && !(nv && d.tNV && !d.bNV && d.onlyCH);
+    var b = d.b;
+    var showBtn = !(nv && d.noBtnNV);
     var btn = '';
-    if (showBtn && b) btn = '<a class="btn btn--secondary btn--sm" href="' + esc(b[0] === 'Xuất dữ liệu' || b[1] !== '#' ? b[1] : '#') + '"' + (b[2] ? ' data-toast="' + esc(b[2]) + '"' : '') + '>' + esc(b[0]) + '</a>';
+    if (showBtn && b) btn = '<a class="btn btn--secondary btn--sm" href="' + esc(b[1]) + '">' + esc(b[0]) + '</a>';
     var close = d.close ? '<button type="button" class="btn-icon" data-tsu-close aria-label="Đóng thông báo">' + ic('x') + '</button>' : '';
     var out = D.createElement('div');
     out.className = 'alert alert--' + d.lv + ' tsu-banner';
@@ -294,7 +348,10 @@
   function fieldMsg(inp) {
     var rules = list((inp.getAttribute('data-rule') || '').replace(/,/g, ' '));
     var v = (inp.value || '').trim(), label = inp.getAttribute('data-label') || 'thông tin này';
-    if (rules.indexOf('req') >= 0 && !v) return inp.getAttribute('data-msg-req') || ('Vui lòng nhập ' + label + '.');
+    /* data-req-if="id": chỉ kiểm khi ô có id đó đã nhập; {v} trong data-msg-req được thay bằng giá trị ô đó */
+    var dep = inp.getAttribute('data-req-if'), depV = '';
+    if (dep) { var de = D.getElementById(dep); depV = de ? (de.value || '').trim() : ''; if (!depV) return ''; }
+    if (rules.indexOf('req') >= 0 && !v) return (inp.getAttribute('data-msg-req') || ('Vui lòng nhập ' + label + '.')).replace('{v}', depV);
     if (!v) return '';
     if (rules.indexOf('phone') >= 0 && !FMT.phone(v)) return 'Số điện thoại chưa đúng. Nhập 10 số bắt đầu bằng 0, ví dụ 0912 345 678.';
     if (rules.indexOf('email') >= 0 && !FMT.email(v)) return 'Email chưa đúng định dạng. Ví dụ: ten@congty.vn.';
@@ -415,9 +472,12 @@
   };
 
   /* ---------- Khởi động ---------- */
-  if (mode === 'wizard' || mode === 'simple') { buildShell(); if (mode === 'wizard' || B.hasAttribute('data-tsu-dialogs')) buildDialogs(); }
+  if (mode === 'onb') { buildOnb(); }
+  else if (mode === 'wizard' || mode === 'simple') { buildShell(); if (mode === 'wizard' || B.hasAttribute('data-tsu-dialogs')) buildDialogs(); }
   else { buildApp(); if (B.hasAttribute('data-tsu-dialogs')) buildDialogs(); }
   $$('[data-tsu-banner]').forEach(renderBanner);
+  var protoEl = $('#tsu-proto');
+  if (protoEl && window.matchMedia && window.matchMedia('(min-width: 1024px)').matches) protoEl.open = true;
   var h = /state=([\w-]+)/.exec(location.hash || '');
   var init = (h && stateItems.some(function (i) { return i[0] === h[1]; })) ? h[1] : T.first;
   if (stateItems.length) setState(init, true);

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSX-30 · Hàng đợi ca bị cờ và hồ sơ – Quản trị nền tảng</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../public/ts-public.css">
+<link rel="stylesheet" href="ts-admin.css">
+</head>
+<body class="tsa-app" data-tsa-page="30">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsa-top">
+  <a class="tsa-brand" href="tsx-30.html"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a>
+  <span class="tsa-label">Quản trị nền tảng</span>
+  <span class="tsa-top__spacer"></span>
+  <div class="tsa-user"><span>Lê Thu Hà · <strong>Chủ nền tảng</strong></span><button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối"><svg class="icon"><use href="#moon"/></svg></button><a class="btn btn--ghost btn--sm" href="tsu-60.html">Đăng xuất</a></div>
+</header>
+<div class="tsa-strip" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Màn này không hiển thị dữ liệu nghiệp vụ của garage</span></div>
+<div class="tsa-body">
+  <nav class="tsa-nav" aria-label="Quản trị nền tảng">
+    <a href="tsx-30.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#clipboard-list"/></svg>Hàng đợi đăng ký</a>
+    <a href="tsu-66.html"><svg class="icon" aria-hidden="true"><use href="#settings"/></svg>Cấu hình đăng ký</a>
+  </nav>
+  <main id="main" class="tsa-main" data-error-title="Chưa tải được hàng đợi" data-error-text="Máy chủ gặp sự cố tạm thời. Dữ liệu trong hàng đợi không bị ảnh hưởng. Hãy thử lại.">
+    <div data-ts-views="cases:Có ca|empty:Trống|filtered:Trống do lọc|cap:Đã đạt trần ngày|detail:Mở hồ sơ|dupmst:Hồ sơ MST trùng|mismatch:Hồ sơ đối chiếu không khớp|r409:Đã có người xử lý (409)|qtn:Quản trị nền tảng (QTN)|htn:Hỗ trợ nền tảng (chỉ xem)" data-ts-common="skel error offline" data-hint="TSX-30 (thay TSU-61..65) · FR-TEN-040, 041, 042, 013 · RULE-027, 028, 032 · AC-S08, S22, S23. Chỉ ca bị cờ vào hàng đợi; ca đạt tiêu chí tự duyệt đi thẳng tới cấp phát. Dữ liệu mẫu, số điện thoại che mặc định." data-wide></div>
+
+    <div class="tsa-head">
+      <div class="tsa-head__text"><h1>Hàng đợi đăng ký</h1><p class="tsa-sub">Chỉ ca bị cờ, lỗi cấp phát và yêu cầu xem xét lại. Dữ liệu ở đây là thông tin đăng ký, không có dữ liệu nghiệp vụ garage.</p></div>
+    </div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--danger" role="alert" data-show="cap" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đã đạt trần đăng ký trong ngày</span><span>Đã dùng 50/50 lượt đăng ký mới hôm nay (cấu hình, minh họa). Đăng ký mới sẽ xếp hàng chờ cho tới khi sang ngày hoặc đổi trần ở Cấu hình đăng ký.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="tsu-66.html">Mở Cấu hình đăng ký</a></div></div></div>
+    <div class="alert alert--info" role="status" data-show="htn" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Bạn chỉ có quyền xem</span><span>Vai trò Hỗ trợ nền tảng xem được hàng đợi nhưng không duyệt, từ chối, yêu cầu bổ sung hay xử lý lỗi cấp phát.</span></div></div>
+
+    <div data-ts-body class="tsa-stack">
+      <div class="tsa-kpis">
+        <div class="kpi"><span class="kpi__label">Cần xử lý</span><span class="kpi__value num" id="k30-todo">5</span><span class="kpi__meta">Ca bị cờ chờ nhân sự</span></div>
+        <div class="kpi kpi--danger"><span class="kpi__label">Quá hạn xử lý</span><span class="kpi__value num" id="k30-late">1</span><span class="kpi__meta">Ngưỡng 24 giờ (cấu hình, minh họa)</span></div>
+        <div class="kpi"><span class="kpi__label">Lượt đăng ký mới hôm nay</span><span class="kpi__value num"><span id="k30-today">41</span>/50</span><span class="kpi__meta">Trần ngày 50 (cấu hình, minh họa). Cập nhật lúc 10:15</span></div>
+      </div>
+
+      <div class="tsx-md" id="md30" data-pane="list">
+        <section class="tsx-list-pane tsa-stack" aria-labelledby="l30-h">
+          <h2 class="sr-only" id="l30-h">Danh sách hồ sơ</h2>
+          <div class="tsa-tabs" id="tabs30" role="group" aria-label="Lọc nhanh theo nhóm"></div>
+          <div class="field"><label class="field__label" for="q30">Tìm hồ sơ</label><div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input class="input" id="q30" type="search" autocomplete="off" placeholder="Tên, mã theo dõi, chữ số cuối MST" aria-describedby="q30-h"></div><span class="field__hint" id="q30-h">Tìm theo email cần nhập đủ địa chỉ, so khớp tuyệt đối; việc tra cứu được ghi nhật ký. Không tìm theo số điện thoại.</span></div>
+          <div class="chip-row" id="chip30" hidden><span class="chip"><span data-chip-text></span><button type="button" class="chip__x" aria-label="Xóa bộ lọc từ khóa"><svg class="icon"><use href="#x"/></svg></button></span><button type="button" class="btn btn--ghost btn--sm" data-clear30>Xóa tất cả bộ lọc</button></div>
+          <p class="table-meta" id="meta30" role="status"></p>
+          <ul class="tsx-list" id="list30"></ul>
+          <div class="state" id="empty30" hidden>
+            <span class="state__icon" aria-hidden="true"><svg class="icon icon--lg"><use href="#inbox"/></svg></span>
+            <h3 class="state__title">Không có ca nào cần xử lý</h3>
+            <p class="state__text">Chỉ ca bị cờ mới vào đây.</p>
+            <div class="state__actions"><button type="button" class="btn btn--secondary" data-clear30 hidden>Xóa bộ lọc</button></div>
+          </div>
+        </section>
+
+        <section class="tsx-detail-pane tsa-stack" aria-labelledby="d30-h">
+          <button type="button" class="btn btn--secondary btn--sm tsx-back" id="back30"><svg class="icon icon--sm" aria-hidden="true"><use href="#chevron-right" style="transform:rotate(180deg)"/></svg>Quay lại danh sách</button>
+
+          <div class="state" id="d30-empty">
+            <span class="state__icon" aria-hidden="true"><svg class="icon icon--lg"><use href="#clipboard-list"/></svg></span>
+            <h2 class="state__title">Chọn một hồ sơ để xem</h2>
+            <p class="state__text">Chi tiết, kết quả kiểm tra và nút quyết định hiện ở đây.</p>
+          </div>
+
+          <div class="tsa-stack" id="d30-body" hidden>
+            <div class="alert alert--warning" role="alert" id="d30-dup" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">MST này đang gắn với một tenant đang hoạt động</span><span>Duyệt có thể tạo hai tenant cùng MST, chỉ làm khi thuộc ngoại lệ hợp lệ. Khi duyệt bạn phải chọn lý do ngoại lệ. Tên tenant đang hoạt động không được hiển thị. [Cần xác nhận Q28]</span></div></div>
+            <div class="alert alert--warning" role="alert" data-show="r409" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Hồ sơ vừa được Phạm Quốc Bảo xử lý lúc 10:12</span><span>Tải lại để xem kết quả mới nhất. Các nút quyết định tạm khóa.</span><div class="alert__actions"><button type="button" class="btn btn--secondary btn--sm" data-ts-goto="detail">Tải lại</button></div></div></div>
+
+            <div class="tsa-head">
+              <div class="tsa-head__text">
+                <h2 id="d30-h" tabindex="-1" class="tsx-h"><span class="tsa-mono" id="d30-id">SGN-4F7K2Q</span> · <span id="d30-org">Công ty TNHH Ô tô Minh Phát</span></h2>
+                <div class="tsp-row"><span id="d30-badge"></span><span class="tsa-note" id="d30-meta"></span></div>
+              </div>
+            </div>
+            <div class="tsa-reasons-row"><span class="tsa-note">Lý do vào hàng chờ:</span><span id="d30-flags" class="tsa-reasons"></span></div>
+
+            <div class="tsa-head__actions" role="group" aria-label="Quyết định">
+              <button type="button" class="btn btn--primary" id="a-approve" data-dc-open="approve" data-why="why30" aria-describedby="why30">Duyệt</button>
+              <button type="button" class="btn btn--secondary" id="a-supp" data-dc-open="supp" data-why="why30" aria-describedby="why30">Yêu cầu bổ sung</button>
+              <button type="button" class="btn btn--danger-outline" id="a-reject" data-dc-open="reject" data-why="why30" aria-describedby="why30">Từ chối</button>
+              <button type="button" class="btn btn--primary" id="a-reopen" data-dc-open="reopen" data-why="why30" aria-describedby="why30" hidden>Chuyển lại xem xét</button>
+              <button type="button" class="btn btn--secondary" id="a-retry" data-block="prov" hidden>Thử lại bước lỗi</button>
+              <button type="button" class="btn btn--danger-outline" id="a-clean" data-block="prov" hidden>Hủy và dọn</button>
+            </div>
+            <p class="tsa-fix" id="why30" tabindex="-1" data-block="case">
+              <svg class="icon" aria-hidden="true"><use href="#lock"/></svg>
+              <span data-hide="qtn htn r409">Quyết định ghi nhật ký nền tảng và không thể sửa. Duyệt, từ chối và chuyển lại xem xét chỉ dành cho Chủ nền tảng.</span>
+              <span data-show="qtn" hidden>Duyệt, Từ chối và Chuyển lại xem xét chỉ dành cho Chủ nền tảng. Bạn (Quản trị nền tảng) yêu cầu bổ sung được.</span>
+              <span data-show="htn" hidden>Hỗ trợ nền tảng chỉ xem. Các nút quyết định bị khóa vì vai trò của bạn không có quyền này.</span>
+              <span data-show="r409" hidden>Các nút quyết định bị khóa vì hồ sơ đã được xử lý.</span>
+            </p>
+            <p class="tsa-fix" id="why30p" tabindex="-1" data-block="prov" hidden></p>
+            <p class="tsa-note" id="a-reopen-note" hidden>Dùng khi người đăng ký khiếu nại qua hỗ trợ. Chúng tôi không có biểu mẫu khiếu nại riêng.</p>
+
+            <div class="tabs" role="tablist" aria-label="Nội dung hồ sơ">
+              <button type="button" class="tab" role="tab" id="d30-tb1" aria-selected="true" aria-controls="d30-tp1">Hồ sơ</button>
+              <button type="button" class="tab" role="tab" id="d30-tb2" aria-selected="false" aria-controls="d30-tp2" tabindex="-1">Kiểm tra</button>
+              <button type="button" class="tab" role="tab" id="d30-tb3" aria-selected="false" aria-controls="d30-tp3" tabindex="-1">Tệp</button>
+              <button type="button" class="tab" role="tab" id="d30-tb4" aria-selected="false" aria-controls="d30-tp4" tabindex="-1">Lịch sử</button>
+            </div>
+
+            <section class="tab-panel tsa-card" role="tabpanel" id="d30-tp1" aria-labelledby="d30-tb1">
+              <dl class="tsa-kv">
+                <dt>Garage</dt><dd id="d30-org2">Công ty TNHH Ô tô Minh Phát</dd>
+                <dt>Loại hình (suy ra từ MST)</dt><dd>Doanh nghiệp</dd>
+                <dt>Mã số thuế</dt><dd class="tsa-mono" id="d30-mst">03******12</dd>
+                <dt>Người đại diện</dt><dd>Nguyễn Văn Phát</dd>
+                <dt>Email</dt><dd class="tsa-mono" id="d30-mail">p***@minhphat.vn</dd>
+                <dt>Số điện thoại</dt><dd><span id="d30-pii" data-pii="SGN-4F7K2Q"></span><span class="tsa-note">Hỏi ở bước kích hoạt, có thể chưa có</span></dd>
+                <dt>Điều khoản dịch vụ</dt><dd>v1.0 · chấp nhận 05/11/2026 09:41</dd>
+                <dt>DPA</dt><dd>v1.0 · chấp nhận 05/11/2026 09:41</dd>
+                <dt>Bằng chứng phiên</dt><dd>05/11/2026 09:41:07 · mạng 113.161.xxx.xxx (rút gọn)</dd>
+              </dl>
+              <div class="filter-bar">
+                <div class="field"><label class="field__label" for="d30-own">Người phụ trách</label><select class="select" id="d30-own"><option>Chưa gán</option><option>Lê Thu Hà</option><option>Phạm Quốc Bảo</option></select></div>
+                <div class="field filter-bar__search"><label class="field__label" for="d30-note">Ghi chú nội bộ (không gửi người đăng ký)</label><input class="input" id="d30-note" placeholder="Ví dụ: đã gọi xác nhận với chủ doanh nghiệp"></div>
+                <div class="filter-bar__actions"><button type="button" class="btn btn--secondary" data-toast="success|Đã lưu ghi chú|Ghi chú nội bộ được ghi nhật ký nền tảng.">Lưu ghi chú</button></div>
+              </div>
+            </section>
+
+            <section class="tab-panel tsa-stack" role="tabpanel" id="d30-tp2" aria-labelledby="d30-tb2" hidden>
+              <div class="tsa-card"><div class="tsa-card__head"><h3>Đối chiếu mã số thuế</h3><span class="badge badge--success" id="d30-cmp-ok">Khớp</span><span class="badge badge--warning" id="d30-cmp-bad" hidden>Không khớp</span></div>
+                <p class="tsa-note">Nguồn tra cứu mã số thuế <span class="tsa-note">[Cần xác nhận C-S01]</span>. Nếu chưa có nguồn, ca không bị chặn dùng ứng dụng nhưng bị khóa phát hành hóa đơn thật.</p></div>
+              <div class="tsa-card"><div class="tsa-card__head"><h3>Trùng lặp</h3><span class="badge badge--success" id="d30-dup-ok">Không trùng</span><span class="badge badge--danger" id="d30-dup-bad" hidden>MST đang gắn với tenant hoạt động</span></div>
+                <p class="tsa-note">Chỉ hiển thị cờ, không nêu tên tenant (RULE-032).</p></div>
+              <div class="tsa-card"><div class="tsa-card__head"><h3>Chống lạm dụng</h3><span class="badge badge--neutral">Chi tiết quy tắc chỉ ở màn này</span></div>
+                <p class="tsa-note">Tần suất theo nguồn, email dùng một lần, danh sách chặn. Không gửi chi tiết này cho người đăng ký.</p></div>
+            </section>
+
+            <section class="tab-panel tsa-card" role="tabpanel" id="d30-tp3" aria-labelledby="d30-tb3" hidden>
+              <p class="tsa-fix"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span>Tệp xem trong khung an toàn, mỗi lần xem được ghi nhật ký.</span></p>
+              <ul class="tsp-files">
+                <li class="tsp-file"><div class="tsp-file__main"><span class="tsp-file__name">giay-chung-nhan-dkkd.pdf</span><span class="tsp-file__meta">1,2 MB · nộp 05/11/2026 10:05</span></div><button type="button" class="btn btn--secondary btn--sm" data-toast="info|Đã ghi nhật ký truy cập|Việc xem tệp giay-chung-nhan-dkkd.pdf được ghi lại.">Xem<span class="sr-only"> tệp giay-chung-nhan-dkkd.pdf</span></button></li>
+                <li class="tsp-file is-error"><div class="tsp-file__main"><span class="tsp-file__name">giay-uy-quyen.jpg</span><span class="tsp-file__meta">Không tải được tệp để xem</span></div><button type="button" class="btn btn--secondary btn--sm" data-toast="info|Đang thử lại|Đang tải lại tệp giay-uy-quyen.jpg.">Thử lại<span class="sr-only"> xem tệp giay-uy-quyen.jpg</span></button></li>
+              </ul>
+            </section>
+
+            <section class="tab-panel tsa-card" role="tabpanel" id="d30-tp4" aria-labelledby="d30-tb4" hidden>
+              <ol class="timeline">
+                <li class="timeline__item timeline__item--warning"><span class="timeline__dot"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></span><div><div class="timeline__title">Vào hàng chờ (bị cờ)</div><div class="timeline__meta">05/11/2026 09:44 · Hệ thống</div></div></li>
+                <li class="timeline__item timeline__item--success"><span class="timeline__dot"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><div><div class="timeline__title">Xác thực email</div><div class="timeline__meta">05/11/2026 09:43</div></div></li>
+                <li class="timeline__item timeline__item--info"><span class="timeline__dot"><svg class="icon" aria-hidden="true"><use href="#send"/></svg></span><div><div class="timeline__title">Gửi đăng ký</div><div class="timeline__meta">05/11/2026 09:41 · Người đăng ký</div></div></li>
+              </ol>
+            </section>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="dlg-decision" role="dialog" aria-labelledby="dc-title" data-dc-overlay><div class="dialog dialog--md"></div></div>
+<div class="overlay" id="dlg-clean30" role="dialog" aria-labelledby="clean30-t">
+  <div class="dialog">
+    <div class="dialog__header"><span class="dialog__icon dialog__icon--danger"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></span><div><h2 class="dialog__title" id="clean30-t">Hủy và dọn hồ sơ cấp phát</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body"><ul class="impact-list"><li>Xóa phần đã tạo dở của hồ sơ này. Chỉ làm được khi chưa có dữ liệu thật.</li><li>Người đăng ký nhận email và có thể đăng ký lại.</li><li>Quyết định ghi nhật ký nền tảng và không thể sửa.</li></ul></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Hủy</button><button type="button" class="btn btn--danger" id="clean30-ok">Hủy và dọn</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-common.js"></script>
+<script src="ts-admin.js"></script>
+</body>
+</html>

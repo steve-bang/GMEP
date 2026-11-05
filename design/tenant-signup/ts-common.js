@@ -22,14 +22,24 @@
   var DISPOSABLE = ['mailinator.com', 'tempmail.com', '10minutemail.com', 'guerrillamail.com', 'yopmail.com', 'trashmail.com'];
 
   /* ---------- 1. Thanh xem thử trạng thái ---------- */
-  $$('[data-ts-views]').forEach(function (h) {
+  /* Thanh xem thử: trên điện thoại (<= 639 px) thu gọn mặc định, nút "Xem thử" mở ra. Nhãn chỉ dùng chữ tiếng Việt, khóa kỹ thuật chỉ nằm trong thuộc tính data-ts-view. */
+  var narrow = !!(window.matchMedia && window.matchMedia('(max-width: 639px)').matches);
+  $$('[data-ts-views]').forEach(function (h, n) {
     var items = h.getAttribute('data-ts-views').split('|').filter(Boolean).map(function (s) { var i = s.indexOf(':'); return [s.slice(0, i), s.slice(i + 1)]; });
     (h.getAttribute('data-ts-common') || '').split(' ').filter(Boolean).forEach(function (c) { if (COMMON[c]) items.push([c, COMMON[c]]); });
     if (!DEF) DEF = items[0][0];
+    var pid = 'tsp-proto-panel-' + n;
     h.className = (h.className ? h.className + ' ' : '') + 'tsp-proto' + (h.hasAttribute('data-wide') ? ' tsp-proto--wide' : '');
-    h.innerHTML = '<span class="tsp-proto__label">Xem thử trạng thái (chỉ prototype)</span><div class="segmented" role="group" aria-label="Trạng thái màn hình để xem thử">' +
+    h.innerHTML = '<div class="tsp-proto__bar"><button type="button" class="btn btn--secondary btn--sm tsp-proto__toggle" data-proto-toggle aria-expanded="' + (!narrow) + '" aria-controls="' + pid + '">' + ic('eye', 'icon--sm') + 'Xem thử</button>' +
+      '<span class="tsp-proto__now" data-proto-now>Đang xem: ' + esc(items[0][1]) + '</span></div>' +
+      '<div class="tsp-proto__panel" id="' + pid + '"' + (narrow ? ' hidden' : '') + '><span class="tsp-proto__label">Xem thử trạng thái (chỉ prototype)</span><div class="segmented" role="group" aria-label="Trạng thái màn hình để xem thử">' +
       items.map(function (s, i) { return '<button type="button" class="segmented__item" aria-pressed="' + (i === 0) + '" data-ts-view="' + s[0] + '">' + esc(s[1]) + '</button>'; }).join('') + '</div>' +
-      (h.getAttribute('data-hint') ? '<span>' + esc(h.getAttribute('data-hint')) + '</span>' : '') + '<span class="sr-only" role="status" aria-live="polite" data-live-view></span>';
+      (h.getAttribute('data-hint') ? '<span class="tsp-proto__hint">' + esc(h.getAttribute('data-hint')) + '</span>' : '') + '</div><span class="sr-only" role="status" aria-live="polite" data-live-view></span>';
+  });
+  document.addEventListener('click', function (e) {
+    var pt = e.target.closest('[data-proto-toggle]'); if (!pt) return;
+    var pn = document.getElementById(pt.getAttribute('aria-controls')), open = pt.getAttribute('aria-expanded') !== 'true';
+    pt.setAttribute('aria-expanded', String(open)); if (pn) pn.hidden = !open;
   });
   document.addEventListener('click', function (e) {
     var v = e.target.closest('[data-ts-view],[data-ts-goto]');
@@ -98,6 +108,7 @@
     initCountdowns();
     $$('.tsp-proto [data-ts-view]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-ts-view') === v)); });
     var live = $('[data-live-view]'), on = $('[data-ts-view="' + v + '"]'); if (live) live.textContent = on ? 'Đang xem trạng thái: ' + on.textContent : '';
+    $$('[data-proto-now]').forEach(function (x) { x.textContent = on ? 'Đang xem: ' + on.textContent : ''; });
     refreshDraftBanner(); refreshSubmit();
     if (typeof window.tsOnView === 'function') window.tsOnView(v);
   }
@@ -135,14 +146,21 @@
       if (view === 'offline' && !keep) { why = 'offline'; txt = 'Nút tạm khóa vì chưa có mạng. Kết nối lại để tiếp tục.'; }
       else if (view === 'r429') { why = 'r429'; txt = 'Nút tạm khóa vì đã thử quá nhiều lần. Chờ hết thời gian đếm lùi.'; }
       else if (inList(btn, 'data-disable-in', view)) { why = 'page'; txt = btn.getAttribute('data-text-page') || ''; }
-      else if (btn.hasAttribute('data-requires') && !requiresOk(btn)) { why = 'requires'; txt = btn.getAttribute('data-text-requires') || ''; }
-      else if (btn.hasAttribute('data-requires-fields') && missingFields(form).length) { why = 'fields'; txt = 'Còn thiếu: ' + missingFields(form).join(', ') + '.'; }
+      else if (btn.hasAttribute('data-requires-fields') && missingFields(form).length) { why = 'fields'; txt = 'Chưa thể gửi: còn thiếu ' + missingFields(form).join(', ') + '.'; }
+      else if (btn.hasAttribute('data-requires') && !requiresOk(btn)) {
+        why = 'requires';
+        var ids = (btn.getAttribute('data-requires') || '').split(' ').filter(Boolean);
+        var boxesOk = ids.every(function (id) { var el = document.getElementById(id); return el && el.checked; });
+        txt = (!boxesOk ? btn.getAttribute('data-text-requires') : btn.getAttribute('data-text-bot') || btn.getAttribute('data-text-requires')) || '';
+      }
       else if (btn.hasAttribute('data-requires-upload') && !uploadsOk()) { why = 'upload'; txt = btn.getAttribute('data-text-upload') || ''; }
       var loading = inList(btn, 'data-loading-in', view) || !!btn._sending;
-      btn.disabled = !!why; if (why) btn.setAttribute('aria-disabled', 'true'); else btn.removeAttribute('aria-disabled');
+      /* Quy tắc khóa nút của spec: aria-disabled, vẫn focus được, có aria-describedby tới lý do hiện sẵn; không dùng thuộc tính disabled */
+      if (btn.disabled) btn.disabled = false;
+      if (why) btn.setAttribute('aria-disabled', 'true'); else btn.removeAttribute('aria-disabled');
       btn.classList.toggle('is-loading', loading); if (loading) btn.setAttribute('aria-busy', 'true'); else btn.removeAttribute('aria-busy');
       var rid = btn.getAttribute('data-reason-id'), r = rid && document.getElementById(rid);
-      if (r) { var t = $('span', r); if (t && txt) t.textContent = txt; r.hidden = !(why && txt); }
+      if (r) { var t = $('span', r); if (t && txt) t.textContent = txt; r.hidden = !(why && txt); r.setAttribute('tabindex', '-1'); btn.setAttribute('aria-describedby', rid); }
     });
   }
 
@@ -254,6 +272,11 @@
   document.addEventListener('submit', function (e) {
     var f = e.target.closest('[data-ts-form]'); if (!f) return;
     e.preventDefault(); if (f._sending) return;
+    var sb = $('[data-submit]', f);
+    if (sb && sb.getAttribute('aria-disabled') === 'true') {   /* nút khóa: không gửi, chỉ đưa focus tới lý do */
+      var rr = document.getElementById(sb.getAttribute('data-reason-id') || ''); if (rr && !rr.hidden) rr.focus();
+      return;
+    }
     var keep = main && main.hasAttribute('data-offline-keep');
     if (view === 'offline' && !keep) { toast('warning', 'Chưa có kết nối', 'Kiểm tra mạng rồi thử lại. Thông tin bạn nhập vẫn còn trên màn hình.'); return; }
     if (view === 'r429') return;

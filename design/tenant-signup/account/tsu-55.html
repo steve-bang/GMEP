@@ -14,8 +14,8 @@
 <body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Xuất dữ liệu" data-no-scope>
 <div id="g1-content" hidden>
   <div data-tsu-banners>
-    <div data-tsu-banner="BAN-08" data-on="terminating" data-date="20/12/2026"></div>
-    <div data-tsu-banner="BAN-07" data-on="tam-ngung"></div>
+    <div data-tsu-banner="BAN-B" data-variant="cham-dut" data-on="terminating" data-date="20/12/2026"></div>
+    <div data-tsu-banner="BAN-B" data-variant="tam-ngung" data-on="tam-ngung"></div>
   </div>
 
   <div class="page-header">
@@ -58,14 +58,14 @@
     </section>
   </div>
 
-  <div class="overlay" id="dlg-received" role="alertdialog" aria-modal="true" aria-labelledby="dr-t"><div class="dialog dialog--md" data-confirm-guard data-confirm-word="DA NHAN DU LIEU">
+  <div class="overlay" id="dlg-received" role="alertdialog" aria-modal="true" aria-labelledby="dr-t"><div class="dialog dialog--md" id="t55-dlg">
     <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="dr-t">Xác nhận đã nhận đủ dữ liệu?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
     <div class="dialog__body">
       <ul class="impact-list"><li>Sau khi xác nhận, công ty chuyển sang chấm dứt và không đăng nhập được.</li><li>Gói xuất đã tạo vẫn tải được trong thời hạn tải (nếu có cổng tải lưu trữ).</li><li>Ghi nhận người xác nhận (Trần Hoàng Anh) và thời điểm xác nhận.</li></ul>
-      <div class="field"><label class="field__label" for="t55-cf">Gõ <strong>DA NHAN DU LIEU</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="t55-cf" class="input" data-confirm-input autocomplete="off"></div>
+      <div class="field"><label class="field__label" for="t55-cf">Gõ <strong>DA NHAN DU LIEU</strong> để xác nhận<span class="field__req" aria-hidden="true">*</span></label><input id="t55-cf" class="input" autocomplete="off" aria-describedby="t55-cf-h"><span class="field__hint" id="t55-cf-h">Không phân biệt chữ hoa, chữ thường và dấu. Nút xác nhận bật khi gõ đúng.</span></div>
     </div>
-    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Chưa xác nhận</button><button type="button" class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã ghi nhận|Công ty chuyển sang chấm dứt. Email xác nhận đã được gửi." disabled>Xác nhận đã nhận đủ</button></div></div></div>
-  <p class="tsu-test">Truy vết: FR-TEN-006; RULE-020, 021; J3, J4, J10; UAT-TEN-04. Chuỗi gõ xác nhận “DA NHAN DU LIEU” là đề xuất, chờ xác nhận.</p>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Chưa xác nhận</button><button type="button" class="btn btn--danger" id="t55-ok" data-close data-toast="warning|Đã ghi nhận|Công ty chuyển sang chấm dứt. Email xác nhận đã được gửi." aria-disabled="true" aria-describedby="t55-cf-h">Xác nhận đã nhận đủ</button></div></div></div>
+  <p class="tsu-test">Truy vết: FR-TEN-006; RULE-020, 021; J3, J4, J10; UAT-TEN-04. Đây là chuỗi gõ xác nhận duy nhất của gói tối giản: “DA NHAN DU LIEU” (QĐT-26, so khớp không phân biệt hoa thường và dấu), đề xuất chờ xác nhận (C-27).</p>
 </div>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
 <script src="../../g1-auth-dashboard/g1-shell.js"></script>
@@ -97,6 +97,15 @@
     'ad-khong-quyen': pk('EXP-2611-0003', '09:16 05/11/2026', 'ok', { until: '12/11/2026', denied: true })
   };
   function render(n) { if (S[n] !== undefined) document.getElementById('t55-list').innerHTML = S[n]; }
+  /* Chuỗi gõ: bỏ dấu, không phân biệt hoa thường, bỏ khoảng trắng thừa. Nút dùng aria-disabled, không dùng disabled. */
+  function norm(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toUpperCase().replace(/\s+/g, ' ').trim(); }
+  var cf = document.getElementById('t55-cf'), ok = document.getElementById('t55-ok');
+  function chk() { ok.setAttribute('aria-disabled', String(norm(cf.value) !== 'DA NHAN DU LIEU')); }
+  cf.addEventListener('input', chk);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('#t55-ok');
+    if (b && b.getAttribute('aria-disabled') === 'true') { e.preventDefault(); e.stopImmediatePropagation(); cf.focus(); }
+  }, true);
   document.addEventListener('tsu:state', function (e) { render(e.detail); });
   render(document.body.getAttribute('data-tsu-state'));
 })();

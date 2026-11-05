@@ -2,10 +2,18 @@
    Tiền tố tsu-. Dùng chung cho design/tenant-signup/onboarding và design/tenant-signup/account. */
 
 /* ---------- Thanh "Xem thử trạng thái" (prototype) ---------- */
-.tsu-proto { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); min-width: 0; }
-.tsu-proto__label { font-weight: 600; color: var(--color-text-primary); }
+/* Thu gọn mặc định trên điện thoại (details đóng), mở sẵn từ 1024 px (tsu-app.js). */
+.tsu-proto { display: block; border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); min-width: 0; }
+.tsu-proto__sum { display: flex; align-items: center; gap: var(--space-1) var(--space-3); min-height: 36px; padding: var(--space-1) var(--space-3); cursor: pointer; list-style: none; min-width: 0; }
+.tsu-proto__sum::-webkit-details-marker { display: none; }
+.tsu-proto__sum::after { content: ""; flex: none; width: 7px; height: 7px; margin-left: auto; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
+.tsu-proto[open] > .tsu-proto__sum::after { transform: rotate(-135deg); }
+.tsu-proto__sum:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-outline-offset); border-radius: var(--radius-md); }
+.tsu-proto__label { font-weight: 600; color: var(--color-text-primary); white-space: nowrap; }
+.tsu-proto__cur { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tsu-proto__body { display: flex; flex-direction: column; gap: var(--space-2); padding: 0 var(--space-3) var(--space-3); }
 .tsu-proto__btns { display: flex; flex-wrap: wrap; gap: var(--space-1); min-width: 0; }
-.tsu-proto__note { flex-basis: 100%; font-size: var(--font-size-xs); }
+.tsu-proto__note { font-size: var(--font-size-xs); }
 .tsu-st { min-height: 32px; padding: 0 var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--radius-full); background: var(--color-surface); color: var(--color-text-secondary); font: inherit; font-size: var(--font-size-sm); cursor: pointer; max-width: 100%; }
 .tsu-st[aria-pressed="true"] { background: var(--color-primary-subtle); border-color: var(--color-primary); color: var(--color-brand-800); font-weight: 600; }
 @media (pointer: coarse), (max-width: 1023px) { .tsu-st { min-height: 44px; } }
@@ -159,3 +167,99 @@
 
 @media print { .tsu-proto, .tsu-foot, .tsu-steps { display: none; } }
 @media (prefers-reduced-motion: reduce) { .tsu-step__link, .tsu-st { transition: none; } }
+
+/* ================= Gói tối giản (TSX-10, 11, 20 và TSU-41, 53) ================= */
+
+/* Dải thông tin thu gọn của onboarding hai bước: một hàng, cao khoảng 36 px */
+.tsu-strip--onb { flex-wrap: nowrap; gap: var(--space-3); min-height: 36px; padding: var(--space-1) var(--space-4); background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.tsu-strip__step { font-weight: 600; white-space: nowrap; }
+.tsu-strip__hint { margin-left: auto; min-width: 0; display: flex; align-items: center; gap: var(--space-1); color: var(--color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tsu-dots { display: flex; align-items: center; gap: var(--space-2); list-style: none; margin: 0; padding: 0; flex: none; }
+.tsu-dots li { display: flex; align-items: center; gap: var(--space-2); color: var(--color-text-secondary); }
+.tsu-dots li + li::before { content: ""; width: 16px; height: 1px; background: var(--color-border-strong); }
+.tsu-dots__n { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); font-size: var(--font-size-xs); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tsu-dots li.is-cur { color: var(--color-text-primary); font-weight: 600; }
+.tsu-dots li.is-cur .tsu-dots__n { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-text-on-primary); }
+.tsu-dots li.is-done .tsu-dots__n { background: var(--color-success-bg); border-color: var(--color-success-border); color: var(--color-success-text); }
+@media (max-width: 639px) {
+  .tsu-dots__t { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .tsu-strip__hint-t { display: none; }
+  .tsu-strip--onb { padding: var(--space-1) var(--space-3); }
+  .tsu-dots li { position: relative; }
+}
+
+/* Chân trang dính tối đa hai hàng: hàng 1 nút chính, hàng 2 dòng thông tin/lý do + liên kết "Bỏ qua" */
+.tsu-foot--2 { flex-wrap: wrap; gap: var(--space-2) var(--space-4); padding: var(--space-2) var(--space-4) max(var(--space-2), env(safe-area-inset-bottom)); }
+.tsu-foot--2 .tsu-foot__info { flex: 1 1 0; min-width: 0; margin: 0; display: flex; align-items: flex-start; gap: var(--space-2); font-size: var(--font-size-sm); line-height: 18px; color: var(--color-text-secondary); }
+.tsu-foot--2 .tsu-foot__info .icon { flex: none; margin-top: 1px; }
+.tsu-foot--2 .tsu-foot__info.is-bad { color: var(--color-danger-text); }
+.tsu-foot__link { flex: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--space-1); font-weight: 500; color: var(--color-text-link); text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; font-size: var(--font-size-md); cursor: pointer; }
+@media (pointer: coarse), (max-width: 1023px) { .tsu-foot__link { min-height: 44px; } }
+.tsu-foot__link:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-outline-offset); border-radius: var(--radius-sm); }
+@media (max-width: 639px) {
+  .tsu-foot--2 .tsu-foot__primary { flex: 1 1 100%; order: -1; }
+  .tsu-foot--2 .tsu-foot__info { font-size: var(--font-size-xs); line-height: 16px; }
+  .tsu-foot--2 .tsu-foot__link { min-height: 44px; }
+}
+@media (min-width: 640px) { .tsu-foot--2 .tsu-foot__primary { order: 3; } .tsu-foot--2 .tsu-foot__link { order: 2; } .tsu-foot--2 .tsu-foot__info { order: 1; } }
+
+/* Nội dung rộng hơn cho màn trạng thái hai cột */
+.tsu-wz__content--wide { max-width: 1040px; }
+.tsu-onb { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.tsu-onb .tsu-wz__content { padding-top: var(--space-4); gap: var(--space-4); }
+@media (min-width: 1024px) { .tsu-wz__content { padding: var(--space-6) var(--space-8); } }
+
+/* Hai cột: thông báo + việc làm được/hành động. Không dùng .state (padding 48 px làm thẻ trôi giữa trang) */
+.tsu-two { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); align-items: start; min-width: 0; }
+@media (min-width: 900px) { .tsu-two { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--space-5); } }
+.tsu-notice { display: flex; gap: var(--space-4); align-items: flex-start; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--card-radius); min-width: 0; }
+.tsu-notice__ic { flex: none; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--color-neutral-bg); color: var(--color-neutral-text); }
+.tsu-notice__ic--danger { background: var(--color-danger-bg); color: var(--color-danger-text); }
+.tsu-notice__ic--warning { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.tsu-notice__body { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.tsu-notice__body h1, .tsu-notice__body h2 { margin: 0; font-size: var(--font-size-xl); line-height: 28px; overflow-wrap: anywhere; }
+.tsu-notice__body p { margin: 0; }
+@media (max-width: 479px) { .tsu-notice { flex-direction: column; padding: var(--space-4); } }
+
+/* Khối giữ chỗ [Cần xác nhận] */
+.tsu-tbc { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-2) var(--space-3); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0; }
+.tsu-tbc .icon { flex: none; margin-top: 1px; }
+.tsu-tbc strong { color: var(--color-text-primary); }
+
+/* TSX-11: thẻ chọn gói mẫu, dòng mời */
+.tsu-packs { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); margin: 0; padding: 0; list-style: none; }
+.tsu-pack { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); background: var(--color-surface); min-width: 0; }
+.tsu-pack:has(input:checked) { border-color: var(--color-primary); background: var(--color-primary-subtle); }
+.tsu-pack .check { align-items: flex-start; font-weight: 600; }
+.tsu-pack__sub { font-size: var(--font-size-sm); color: var(--color-text-secondary); padding-left: 32px; }
+.tsu-pack__tag { padding-left: 32px; }
+.tsu-inv { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--space-3); align-items: start; }
+@media (max-width: 639px) { .tsu-inv { grid-template-columns: minmax(0, 1fr); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); } .tsu-inv:last-of-type { border-bottom: 0; } }
+.tsu-invs { display: flex; flex-direction: column; gap: var(--space-3); }
+
+/* TSX-20: thiết lập dần */
+.tsu-setup__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); padding: var(--space-4); }
+.tsu-setup__title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tsu-setup__title h2 { margin: 0; }
+.tsu-setup__toggle { min-height: 36px; }
+.tsu-setup__sum { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: center; padding: 0 var(--space-4) var(--space-3); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.tsu-setup__body { border-top: 1px solid var(--color-border); }
+.tsu-setup__grp { margin: 0; padding: var(--space-3) var(--space-4) var(--space-2); font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); background: var(--color-surface-subtle); border-bottom: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: center; }
+.tsu-hero { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-4); align-items: center; justify-content: space-between; padding: var(--space-4); background: var(--color-primary-subtle); border-bottom: 1px solid var(--color-border); }
+.tsu-hero__t { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; flex: 1 1 260px; }
+.tsu-hero__t strong { font-size: var(--font-size-lg); }
+.tsu-hero.is-done { background: var(--color-success-bg); }
+.tsu-cl__sub { display: block; margin-top: var(--space-2); }
+.tsu-cl__item.is-skip .tsu-cl__ic { background: var(--color-neutral-bg); color: var(--color-neutral-text); border-style: dashed; }
+.tsu-cl__item.is-wait .tsu-cl__ic { background: var(--color-warning-bg); color: var(--color-warning-text); border-color: var(--color-warning-border); }
+.tsu-cl__item.has-extra { grid-template-columns: auto minmax(0, 1fr) auto; }
+.tsu-cl__extra { grid-column: 2 / -1; min-width: 0; }
+@media (max-width: 559px) { .tsu-cl__extra { grid-column: 2; } }
+.tsu-cl__extra details { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-subtle); }
+.tsu-cl__extra summary { cursor: pointer; padding: var(--space-2) var(--space-3); min-height: 36px; display: flex; align-items: center; font-weight: 500; }
+.tsu-cl__extra .tsu-xbody { padding: 0 var(--space-3) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
+.tsu-acct { display: grid; gap: var(--space-3) var(--space-5); grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); margin: 0; }
+.tsu-acct dt { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.tsu-acct dd { margin: 2px 0 0; overflow-wrap: anywhere; font-weight: 500; }
+.tsu-main2 { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); align-items: start; min-width: 0; }
+@media (min-width: 1100px) { .tsu-main2 { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); } }

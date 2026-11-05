@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSX-20 · Thiết lập dần (thẻ trên dashboard) – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="dash" data-crumb="Trang chủ" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-A" data-on="trial-sap-het" data-n="3" data-date="08/11/2026"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1 id="t20-h1">Trang chủ</h1>
+      <p class="page-header__desc" id="t20-desc">Thứ Năm, 05/11/2026 · Chủ garage · Việc nên làm để dùng trọn GMEP</p>
+    </div>
+  </div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Garage Ô tô Phương Nam</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
+
+  <div data-tsu-bar="moi-vao:Mới vào (sau Bắt đầu dùng)|dang-lam:Đã làm vài mục|hoa-don:Mở từ banner hóa đơn|cho-xm:MST cần bổ sung|bo-qua-nhieu:Đã bỏ qua nhiều mục|xong-het:Đã xong hết|thu-gon:Thẻ thu gọn|trang-day-du:Trang đầy đủ (Cài đặt)|kt-xem:Kế toán xem|trial-sap-het:Dùng thử sắp hết"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <section class="card" id="t20-acct" aria-labelledby="t20-ah" hidden>
+      <div class="card__header"><h2 class="card__title" id="t20-ah">Mã công ty và thông tin tài khoản</h2></div>
+      <div class="card__body"><dl class="tsu-acct">
+        <div><dt>Mã công ty (để đăng nhập)</dt><dd><span class="tsu-copy"><span class="tsu-mono">PHUONGNAM-7K2</span><button type="button" class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép|Mã công ty PHUONGNAM-7K2 đã được sao chép.">Sao chép</button></span></dd></div>
+        <div><dt>Garage</dt><dd>Công ty TNHH Ô tô Phương Nam</dd></div>
+        <div><dt>Mã số thuế</dt><dd class="num">0312345678</dd></div>
+        <div><dt>Email chủ garage</dt><dd>hoanganh@phuongnam.vn</dd></div>
+      </dl></div>
+    </section>
+
+    <div class="tsu-main2">
+      <section class="card" id="t20-card" aria-labelledby="t20-t">
+        <div class="tsu-setup__head">
+          <div class="tsu-setup__title"><h2 class="card__title" id="t20-t">Thiết lập dần</h2><span class="tsu-sub" id="t20-sub"></span></div>
+          <div class="tsu-actions">
+            <button type="button" class="btn btn--ghost btn--sm tsu-setup__toggle" id="t20-tg" aria-expanded="true" aria-controls="t20-body">Thu gọn</button>
+          </div>
+        </div>
+        <div class="tsu-setup__sum" id="t20-sum"></div>
+        <div class="tsu-setup__body" id="t20-body"></div>
+        <div class="card__footer" id="t20-foot" hidden>
+          <span class="tsu-sub" style="flex:1 1 220px">Thêm chi nhánh hoặc kho ở <a href="../../g4-reports-system/g4-sys-05.html">Cài đặt, Cơ cấu tổ chức</a> khi cần.</span>
+          <button type="button" class="btn btn--secondary btn--sm" id="t20-hide">Ẩn checklist</button>
+        </div>
+      </section>
+
+      <div class="tsu-stack">
+        <section class="card tsu-trialcard" aria-labelledby="t20-tr">
+          <div class="card__header"><h2 class="card__title" id="t20-tr">Dùng thử</h2><span class="badge badge--info" id="t20-trb">Dùng thử</span></div>
+          <div class="card__body tsu-stack">
+            <p style="margin:0;font-size:var(--font-size-lg)" id="t20-trt"><strong>Còn <span class="num">29</span> ngày</strong> (hết hạn <span class="num">05/12/2026</span>)</p>
+            <div class="progress" id="t20-trp"><div class="progress__head"><span>Đã dùng</span><span id="t20-trn">1/30 ngày</span></div><div class="progress__track" role="img" aria-label="Đã dùng một phần thời gian dùng thử"><div class="progress__bar" id="t20-trbar" style="width:3%"></div></div></div>
+            <p class="tsu-sub" style="margin:0">Dữ liệu của bạn không bị xóa khi hết dùng thử. Số ngày là cấu hình, số trên là minh họa.</p>
+            <div class="tsu-actions"><a class="btn btn--secondary btn--sm" href="../account/tsu-41.html">Xem gói</a></div>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="t20-k">
+          <div class="card__header"><h2 class="card__title" id="t20-k">Số liệu hoạt động</h2></div>
+          <div class="card__body"><p class="tsu-sub" style="margin:0">Chưa có số liệu. Doanh thu, lượt xe và công nợ hiện ở đây sau lệnh sửa chữa đầu tiên.</p></div>
+        </section>
+      </div>
+    </div>
+    <p class="tsu-tbc"><svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span><strong>[Cần xác nhận]</strong> C-S13: thuế suất, đánh số, tháng bắt đầu kỳ mặc định lấy từ cấu hình hiệu lực theo ngày của SYS (không viết cứng ở giao diện). C-S01: nguồn tra MST chưa cấu hình thì mục xác minh chờ xử lý tay.</span></p>
+  </div>
+  <p class="tsu-test">Truy vết: FR-TEN-052, 004, 043; RULE-024, 028; AC-S15, S17. Chỉ mục “Xác minh doanh nghiệp” và “Nhà cung cấp hóa đơn điện tử” chặn phát hành hóa đơn thật; không mục nào chặn tạo lệnh, thu tiền, kho, báo cáo.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="tsu-app.js"></script>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var P = '../../g4-reports-system/';
+  /* st: todo | done | skip | wait (đang chờ nền tảng). block: chặn phát hành hóa đơn thật. */
+  var ITEMS = [
+    { id: 'mst', block: true, name: 'Xác minh doanh nghiệp (mã số thuế)', roles: 'ch kt', act: ['Xem trạng thái', '#', 'toggle'] },
+    { id: 'ein', block: true, name: 'Nhà cung cấp hóa đơn điện tử', roles: 'ch kt', act: ['Khai nhà cung cấp', P + 'g4-sys-16.html'], act2: ['Kiểm tra kết nối', '../../g4-finance/g4-ein-07.html'] },
+    { id: 'gia', name: 'Xem lại giá dịch vụ mẫu', roles: 'ch', act: ['Xem bảng giá', P + 'g4-sys-07.html'], note: 'Nhắc một lần, trước khi in báo giá đầu tiên.' },
+    { id: 'nv', name: 'Mời nhân viên và gán vai trò', roles: 'ch', act: ['Mời nhân viên', P + 'g4-sys-02.html'], note: 'Hiện chỉ chủ garage dùng. Nhắc hằng tuần nếu chưa có nhân viên.' },
+    { id: 'thue', name: 'Thuế, đánh số chứng từ, kỳ kế toán', roles: 'ch kt', act: ['Mở cài đặt thuế', P + 'g4-sys-10.html'], note: 'Đang dùng giá trị mặc định theo cấu hình. Thuế suất cần xác nhận một lần ngay khi phát hành hóa đơn thật.' },
+    { id: 'in', name: 'Mẫu in và logo', roles: 'ch', act: ['Chỉnh mẫu in', P + 'g4-sys-12.html'], note: 'Mẫu mặc định đã có tên, địa chỉ, SĐT, MST của garage.' },
+    { id: 'xls', name: 'Nhập danh mục, khách, xe từ Excel', roles: 'ch', opt: true, act: ['Nhập từ Excel', P + 'g4-sys-20.html'], note: 'Nhắc một lần sau 7 ngày nếu chưa có dữ liệu.' },
+    { id: 'ks', name: 'Khảo sát nhanh về garage', roles: 'ch', opt: true, act: ['Trả lời', '#', 'toggle'], note: 'Tùy chọn, không nhắc.' }
+  ];
+  var S = {
+    'moi-vao': { mst: 'done', ein: 'todo', gia: 'todo', nv: 'todo', thue: 'todo', 'in': 'todo', xls: 'todo', ks: 'todo', first: 'todo' },
+    'dang-lam': { mst: 'done', ein: 'todo', gia: 'done', nv: 'done', thue: 'todo', 'in': 'skip', xls: 'todo', ks: 'todo', first: 'done' },
+    'hoa-don': { mst: 'todo', ein: 'todo', gia: 'done', nv: 'done', thue: 'todo', 'in': 'done', xls: 'todo', ks: 'skip', first: 'done' },
+    'cho-xm': { mst: 'wait', ein: 'todo', gia: 'todo', nv: 'todo', thue: 'todo', 'in': 'todo', xls: 'todo', ks: 'todo', first: 'todo' },
+    'bo-qua-nhieu': { mst: 'done', ein: 'todo', gia: 'skip', nv: 'skip', thue: 'skip', 'in': 'skip', xls: 'skip', ks: 'skip', first: 'done', remind: true },
+    'xong-het': { mst: 'done', ein: 'done', gia: 'done', nv: 'done', thue: 'done', 'in': 'done', xls: 'done', ks: 'done', first: 'done' },
+    'thu-gon': { mst: 'done', ein: 'todo', gia: 'done', nv: 'todo', thue: 'todo', 'in': 'todo', xls: 'todo', ks: 'todo', first: 'done', collapsed: true },
+    'trang-day-du': { mst: 'done', ein: 'todo', gia: 'done', nv: 'done', thue: 'todo', 'in': 'todo', xls: 'todo', ks: 'todo', first: 'done', full: true },
+    'kt-xem': { mst: 'done', ein: 'todo', gia: 'todo', nv: 'todo', thue: 'todo', 'in': 'todo', xls: 'todo', ks: 'todo', first: 'done', kt: true },
+    'trial-sap-het': { mst: 'done', ein: 'todo', gia: 'skip', nv: 'skip', thue: 'done', 'in': 'done', xls: 'skip', ks: 'skip', first: 'done' }
+  };
+  var cur = null, st = {}, hidden = false;
+  var ST = { todo: 'Chưa làm', done: 'Xong', skip: 'Đã bỏ qua', wait: 'Đang chờ xác minh' };
+  var IC = { todo: '', done: '<svg class="icon" aria-hidden="true"><use href="#check"/></svg>', skip: '<svg class="icon" aria-hidden="true"><use href="#minus"/></svg>', wait: '<svg class="icon" aria-hidden="true"><use href="#clock"/></svg>' };
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  function extra(it, s) {
+    if (it.id === 'mst') {
+      var txt = s === 'done' ? 'Đã xác minh. Hóa đơn thật không bị chặn ở mục này.' : s === 'wait' ? 'Cần bổ sung thông tin doanh nghiệp. Hạn bổ sung 7 ngày (số minh họa). Mục này chặn phát hành hóa đơn thật; các việc khác vẫn dùng bình thường.' : 'Chưa xác minh. Mục này chặn phát hành hóa đơn thật cho tới khi xong.';
+      return '<details><summary>Trạng thái xác minh</summary><div class="tsu-xbody"><dl class="tsu-kv"><dt>Mã số thuế</dt><dd class="num">0312345678</dd><dt>Kết quả</dt><dd>' + ST[s] + '</dd></dl><p class="tsu-sub" style="margin:0">' + txt + '</p>' + (s === 'wait' ? '<div class="tsu-actions"><a class="btn btn--secondary btn--sm" href="../public/tsu-08.html?state=inapp">Gửi bổ sung</a></div>' : '') + '</div></details>';
+    }
+    if (it.id === 'ks') return '<details><summary>Trả lời khảo sát (3 câu)</summary><div class="tsu-xbody"><div class="field"><label class="field__label" for="ks1">Số xe vào xưởng mỗi ngày</label><select id="ks1" class="select"><option>Dưới 10</option><option>10 đến 30</option><option>Trên 30</option></select></div><div class="field"><label class="field__label" for="ks2">Hiện đang quản lý bằng</label><select id="ks2" class="select"><option>Sổ tay</option><option>Excel</option><option>Phần mềm khác</option></select></div><div class="field"><label class="field__label" for="ks3">Điều bạn muốn GMEP giúp nhất</label><input id="ks3" class="input" placeholder="Ví dụ: theo dõi công nợ"></div><div class="tsu-actions"><button type="button" class="btn btn--primary btn--sm" data-ks>Lưu trả lời</button></div></div></details>';
+    return '';
+  }
+  function item(it) {
+    var s = st[it.id]; if (!s) return '';
+    var cls = 'tsu-cl__item is-' + s + (it.id === 'mst' || it.id === 'ks' ? ' has-extra' : '');
+    var meta = '<span>' + ST[s] + '</span>' + (it.block && s !== 'done' ? '<span class="badge badge--warning badge--nodot">Chặn phát hành hóa đơn thật</span>' : '') + (it.opt ? '<span class="badge badge--neutral badge--nodot">Tùy chọn</span>' : '');
+    var a = '';
+    if (it.act[2] === 'toggle') a = '';
+    else if (s === 'done') a = '<a class="btn btn--secondary btn--sm" href="' + it.act[1] + '" aria-label="Xem lại: ' + esc(it.name) + '">Xem lại</a>';
+    else a = '<a class="btn btn--secondary btn--sm" href="' + it.act[1] + '" aria-label="' + esc(it.act[0]) + ': ' + esc(it.name) + '">' + it.act[0] + '</a>' + (it.act2 ? '<a class="btn btn--ghost btn--sm" href="' + it.act2[1] + '">' + it.act2[0] + '</a>' : '');
+    if (!it.block && s === 'todo') a += '<button type="button" class="btn btn--ghost btn--sm" data-skip="' + it.id + '" aria-label="Bỏ qua mục: ' + esc(it.name) + '">Bỏ qua</button>';
+    if (!it.block && s === 'skip') a += '<button type="button" class="btn btn--ghost btn--sm" data-unskip="' + it.id + '">Làm mục này</button>';
+    var ex = extra(it, s);
+    return '<li class="' + cls + '"><span class="tsu-cl__ic" aria-hidden="true">' + (IC[s] || '') + '</span><div class="tsu-cl__main"><span class="tsu-cl__name">' + esc(it.name) + '</span><span class="tsu-cl__meta">' + meta + '</span>' + (it.note && s !== 'done' ? '<span class="tsu-sub">' + esc(it.note) + '</span>' : '') + '</div><div class="tsu-cl__act">' + a + '</div>' + (ex ? '<div class="tsu-cl__extra">' + ex + '</div>' : '') + '</li>';
+  }
+  function list(items) { return '<ol class="tsu-cl">' + items.map(item).join('') + '</ol>'; }
+
+  function render() {
+    var d = S[cur]; if (!d) return;
+    var kt = !!d.kt, full = !!d.full;
+    $('#t20-acct').hidden = !full;
+    $('#t20-h1').textContent = full ? 'Thiết lập dần' : 'Trang chủ';
+    $('#t20-t').textContent = 'Thiết lập dần';
+    var vis = ITEMS.filter(function (it) { return !kt || it.roles.indexOf('kt') >= 0; });
+    var blockLeft = vis.filter(function (it) { return it.block && st[it.id] !== 'done'; }).length;
+    var rest = vis.filter(function (it) { return !it.block; });
+    var restLeft = rest.filter(function (it) { return st[it.id] === 'todo'; }).length;
+    var allDone = blockLeft === 0 && restLeft === 0 && st.first === 'done';
+    var nonBlockDone = rest.every(function (it) { return st[it.id] === 'done' || st[it.id] === 'skip'; });
+    var parts = [];
+    if (blockLeft) parts.push('<strong>' + blockLeft + '</strong> việc cần để phát hành hóa đơn thật'); else parts.push('Đã đủ điều kiện phát hành hóa đơn thật');
+    if (restLeft) parts.push(restLeft + ' việc nên làm');
+    $('#t20-sum').innerHTML = parts.map(function (p) { return '<span>' + p + '</span>'; }).join('<span aria-hidden="true">·</span>');
+    $('#t20-sub').textContent = kt ? 'Kế toán chỉ thấy mục hóa đơn và thuế.' : (allDone ? 'Bạn đã xong mọi việc.' : 'Không mục nào chặn tạo lệnh, thu tiền, kho và báo cáo.');
+    var html = '';
+    if (!kt) {
+      var f = st.first;
+      html += '<div class="tsu-hero' + (f === 'done' ? ' is-done' : '') + '"><div class="tsu-hero__t"><strong>' + (f === 'done' ? 'Đã tạo lệnh sửa chữa đầu tiên' : 'Tạo lệnh sửa chữa đầu tiên') + '</strong><span class="tsu-sub">' + (f === 'done' ? 'Bạn có thể tạo thêm bất kỳ lúc nào ở Tiếp nhận.' : 'Ba bước: nhập biển số, km và yêu cầu của khách; chọn dịch vụ mẫu để báo giá; khách duyệt thì lệnh được tạo.') + '</span></div><a class="btn ' + (f === 'done' ? 'btn--secondary' : 'btn--primary') + '" href="../../g2-workshop/g2-rec-01.html">' + (f === 'done' ? 'Tiếp nhận xe mới' : 'Bắt đầu tiếp nhận') + '</a></div>';
+    }
+    html += '<h3 class="tsu-setup__grp">Cần để phát hành hóa đơn thật <span class="badge badge--warning badge--nodot">Chặn phát hành hóa đơn thật</span></h3>' + list(vis.filter(function (i) { return i.block; }));
+    var should = rest.filter(function (i) { return !i.opt; }), opt = rest.filter(function (i) { return i.opt; });
+    if (should.length) html += '<h3 class="tsu-setup__grp">Nên làm</h3>' + list(should);
+    if (opt.length) html += '<h3 class="tsu-setup__grp">Tùy chọn</h3>' + list(opt);
+    if (d.remind) html += '<p class="tsu-note" style="margin:var(--space-3) var(--space-4)">Bạn đã bỏ qua nhiều mục. Chúng tôi nhắc lại một lần mỗi tuần (tham số cấu hình).</p>';
+    $('#t20-body').innerHTML = html;
+    $('#t20-foot').hidden = !(nonBlockDone && !kt);
+    $('#t20-hide').disabled = false;
+    var collapsed = !!d.collapsed || (allDone && !full);
+    setCollapsed(collapsed);
+    $('#t20-card').hidden = hidden;
+    // thẻ dùng thử
+    var sap = cur === 'trial-sap-het';
+    $('#t20-trt').innerHTML = sap ? '<strong>Còn <span class="num">3</span> ngày</strong> (hết hạn <span class="num">08/11/2026</span>)' : '<strong>Còn <span class="num">29</span> ngày</strong> (hết hạn <span class="num">05/12/2026</span>)';
+    $('#t20-trb').className = 'badge badge--' + (sap ? 'warning' : 'info');
+    $('#t20-trn').textContent = sap ? '27/30 ngày' : '1/30 ngày';
+    $('#t20-trbar').style.width = sap ? '90%' : '3%';
+    $('#t20-trp').className = 'progress' + (sap ? ' progress--warning' : '');
+  }
+  function setCollapsed(c) {
+    $('#t20-body').hidden = c;
+    var tg = $('#t20-tg'); tg.setAttribute('aria-expanded', String(!c)); tg.textContent = c ? 'Mở rộng' : 'Thu gọn';
+  }
+  function load(name) { if (!S[name]) return; cur = name; hidden = false; st = {}; Object.keys(S[name]).forEach(function (k) { st[k] = S[name][k]; }); render(); }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target, b;
+    if ((b = t.closest('#t20-tg'))) { setCollapsed($('#t20-body').hidden ? false : true); return; }
+    if ((b = t.closest('[data-skip]'))) { st[b.getAttribute('data-skip')] = 'skip'; render(); window.gmepToast && window.gmepToast('info', 'Đã bỏ qua mục này', 'Bạn làm lại được bất kỳ lúc nào.'); return; }
+    if ((b = t.closest('[data-unskip]'))) { st[b.getAttribute('data-unskip')] = 'todo'; render(); return; }
+    if (t.closest('[data-ks]')) { st.ks = 'done'; render(); return; }
+    if (t.closest('#t20-hide')) { hidden = true; $('#t20-card').hidden = true; return; }
+  });
+  document.addEventListener('tsu:state', function (e) { if (S[e.detail]) load(e.detail); });
+  load(document.body.getAttribute('data-tsu-state') && S[document.body.getAttribute('data-tsu-state')] ? document.body.getAttribute('data-tsu-state') : 'moi-vao');
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>
