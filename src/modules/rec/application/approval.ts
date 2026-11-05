@@ -21,6 +21,7 @@ import { isQuoteExpired, transitionQuote } from '../domain/quoteState';
 import { afterQuoteApproved } from './orders';
 import { assertSupplementOrderOpen } from './supplement';
 import type { RecDeps } from '../ports/deps';
+import { loadPublicPhotoSources, toPublicPhotoDto, type PublicPhotoDto } from './publicPhotos';
 import {
   assertWritable,
   auditEntry,
@@ -551,6 +552,8 @@ export interface PublicQuoteDto {
   customerGivenName: string;
   validUntil: string | null;
   items: PublicItemDto[];
+  /** FR-REC-034: information only; shown with the items, empty when the quote shows none */
+  photos: PublicPhotoDto[];
   policy: { allowDeclineRequired: boolean; reasons: DeclineReasonOption[] };
   /** only for state = approved */
   approved: null | {
@@ -564,7 +567,7 @@ export interface PublicQuoteDto {
 
 const given = (full: string): string => full.trim().split(/\s+/).at(-1) ?? '';
 
-interface Resolved {
+export interface Resolved {
   link: NonNullable<Awaited<ReturnType<RecDeps['links']['find']>>>;
   scope: Scope;
   q: Quote;
@@ -615,7 +618,7 @@ async function throttle(
 }
 
 /** Unknown, revoked and malformed tokens look identical (404) so a token cannot be probed. */
-async function resolveLink(
+export async function resolveLink(
   deps: RecDeps,
   token: string,
   address: string,
@@ -685,6 +688,9 @@ export async function viewPublicQuote(
             taxRateBp: l.taxRateBp,
           })),
         }))
+      : [],
+    photos: showItems
+      ? (await loadPublicPhotoSources(deps, r.scope, r.q)).map(toPublicPhotoDto)
       : [],
     policy: { allowDeclineRequired: policy.allowDeclineRequired, reasons: policy.reasons },
     approved:

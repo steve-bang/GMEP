@@ -283,6 +283,8 @@ const EXEMPT: Record<string, string> = {
   'v1/rec/intakes/[id]/photos/[pid]':
     'file download, covered in rec-photos tests of rec-orders.test.ts',
   'v1/rec/orders/[id]/photos/[pid]': 'file download, covered in rec-orders.test.ts',
+  'v1/rec/public/quote/photos/[pid]':
+    'public, token-authenticated file read (no session): covered in rec-public-photos.test.ts',
   'v1/ein/connection': 'issuer connection state of the working branch, no records',
   'v1/rpt/drill': 'drill-down needs a metric and a date; scope rules are covered in rpt.test.ts',
 };
