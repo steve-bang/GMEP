@@ -51,6 +51,8 @@ import { buildEin, einInvoiceGate } from './einWiring';
 import { buildRpt } from './rptWiring';
 import type { RptDeps } from '@/modules/rpt';
 import { FakeProvider } from '@/infrastructure/einvoice/fakeProvider';
+import { PdfLibRenderer } from '@/infrastructure/pdf/pdfLibRenderer';
+import type { PdfRenderer } from '@/platform/print/types';
 import { MemoryFileStore } from '@/infrastructure/files/memoryFileStore';
 import { FirebaseFileStore } from '@/infrastructure/files/firebaseFileStore';
 import type { FileStore } from '@/platform/files/fileStore';
@@ -124,6 +126,8 @@ export interface Container {
   rpt: RptDeps;
   /** the only e-invoice adapter built; tests and the local demo script its failures */
   fakeProvider: FakeProvider;
+  /** server-side PDF of the print models (quote, receipt); pure JS, no headless browser */
+  pdf: PdfRenderer;
   store: DocStore & { stats: StoreStats };
   identity: IdentityProvider & {
     calls: { signIn: number; createCookie: number; verify: number; revoke: number };
@@ -383,6 +387,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     return {
       env,
       cronAuth,
+      pdf: new PdfLibRenderer(() => clock.now()),
       backend: 'memory',
       memory: { db, identity },
       store,
@@ -397,6 +402,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
   return {
     env,
     cronAuth,
+    pdf: new PdfLibRenderer(() => clock.now()),
     backend: 'firestore',
     store,
     identity,

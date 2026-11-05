@@ -10,6 +10,10 @@ const config: NextConfig = {
   reactStrictMode: true,
   // ADR 0001 §2: firebase-admin is server-only; never bundled for the browser.
   serverExternalPackages: ['firebase-admin', 'pino'],
+  // FR-REC-008: the PDF renderer reads its Vietnamese font files at run time; make sure the standalone output carries them
+  outputFileTracingIncludes: {
+    '/api/v1/**/pdf': ['./src/infrastructure/pdf/fonts/**/*'],
+  },
   async headers() {
     return [
       {
