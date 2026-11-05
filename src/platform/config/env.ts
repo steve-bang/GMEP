@@ -50,10 +50,42 @@ const schema = z.object({
     .string()
     .regex(/^(sms|zalo)(,(sms|zalo))*$/)
     .optional(),
+  /**
+   * Registers the in-memory FakeProvider e-invoice adapter. Default: on outside prod, off in prod; `true` in prod is refused.
+   * No real provider is chosen yet [Cần xác nhận], so in prod there is no adapter and issuing stays "not activated".
+   */
+  EINVOICE_FAKE_PROVIDER: z.enum(['true', 'false']).optional(),
   LOG_LEVEL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof schema>;
+
+/** The FakeProvider is registered only outside prod (loadEnv refuses `true` in prod, so prod is always false). */
+export function einFakeProviderEnabled(env: Env): boolean {
+  return env.GMEP_ENV !== 'prod' && env.EINVOICE_FAKE_PROVIDER !== 'false';
+}
+
+/** Production start-up checks: every missing or unsafe setting is reported at once (names only, never values). */
+function assertProdConfig(env: Env): void {
+  const problems: string[] = [];
+  if (env.EINVOICE_FAKE_PROVIDER === 'true')
+    problems.push('EINVOICE_FAKE_PROVIDER=true (fake e-invoice adapter is never allowed in prod)');
+  if (
+    env.FIRESTORE_EMULATOR_HOST ||
+    env.FIREBASE_AUTH_EMULATOR_HOST ||
+    env.FIREBASE_STORAGE_EMULATOR_HOST
+  )
+    problems.push('*_EMULATOR_HOST must not be set');
+  if (!env.GCLOUD_PROJECT || env.GCLOUD_PROJECT.startsWith('demo-'))
+    problems.push('GCLOUD_PROJECT (a real project id is required)');
+  if (env.FIREBASE_API_KEY === 'demo-api-key') problems.push('FIREBASE_API_KEY');
+  if (!env.APP_BASE_URL && !env.APP_ORIGIN) problems.push('APP_BASE_URL or APP_ORIGIN');
+  if (!env.CRON_COMPANY_ID) problems.push('CRON_COMPANY_ID');
+  if (!env.CRON_SECRET && !env.CRON_OIDC_AUDIENCE)
+    problems.push('CRON_SECRET or CRON_OIDC_AUDIENCE + CRON_OIDC_SERVICE_ACCOUNT');
+  if (problems.length)
+    throw new Error(`GMEP_ENV=prod refuses to start, fix: ${problems.join('; ')}.`);
+}
 
 export function loadEnv(source: Record<string, string | undefined> = process.env): Env {
   const env = schema.parse(source);
@@ -71,6 +103,7 @@ export function loadEnv(source: Record<string, string | undefined> = process.env
   if (env.GMEP_ENV === 'prod' && env.MESSAGE_DEV_CHANNELS) {
     throw new Error('MESSAGE_DEV_CHANNELS is for local, test and staging only (never prod).');
   }
+  if (env.GMEP_ENV === 'prod') assertProdConfig(env);
   if (env.GMEP_ENV === 'local' && env.GMEP_DATA_BACKEND === 'firestore') {
     // Safety: local runs must never reach real Google services.
     if (!env.FIRESTORE_EMULATOR_HOST || !env.FIREBASE_AUTH_EMULATOR_HOST) {

@@ -127,6 +127,7 @@ export function buildEin(
   getCrm: () => CrmDeps,
   files: FileStore,
   fake: FakeProvider,
+  fakeEnabled = true,
 ): EinDeps {
   return {
     sys,
@@ -136,8 +137,8 @@ export function buildEin(
     queue: new DocInvoiceQueueRepository(store),
     orders: recInvoiceOrders(getRec),
     buyers: crmBuyers(getCrm),
-    // no real provider is chosen yet: `fake` is the only adapter and it is test-environment only
-    providers: new StaticProviderRegistry({ fake }),
+    // no real provider is chosen yet [Cần xác nhận]: `fake` is the only adapter, test-environment only, never in prod
+    providers: new StaticProviderRegistry(fakeEnabled ? { fake } : {}),
     files,
     ein: { ...DEFAULT_EIN_CONFIG },
   };

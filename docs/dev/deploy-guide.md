@@ -159,17 +159,30 @@ gcloud scheduler jobs create http gmep-run-due --location=$REGION \
 2. Đặt `APP_BASE_URL` và `APP_ORIGIN` đúng domain (link trong email dùng `APP_BASE_URL`; kiểm tra Origin của các request ghi dùng `APP_ORIGIN`). Sai hai biến này: link email trỏ sai chỗ hoặc mọi thao tác ghi bị từ chối.
 3. Sau khi có domain, deploy lại service với hai biến đã sửa.
 
-## 8. Khởi tạo dữ liệu ban đầu — **chưa có công cụ**
+## 8. Khởi tạo dữ liệu ban đầu (`pnpm bootstrap:data`)
 
-`pnpm seed` chỉ dành cho emulator và từ chối chạy ở môi trường khác (đúng chủ ý, vì dữ liệu giả và mật khẩu demo). **Hiện chưa có script bootstrap** cho môi trường thật. Trước khi go-live cần có một script/lệnh quản trị chạy một lần, tạo:
+`pnpm seed` chỉ dành cho emulator (dữ liệu giả, mật khẩu demo). Cho staging/prod dùng `pnpm bootstrap:data` (`scripts/bootstrap-data.ts`, logic ở `src/infrastructure/seed/bootstrap.ts`). Script **idempotent** (chỉ tạo phần còn thiếu, không ghi đè; vai trò đã sửa giữ nguyên), **không dữ liệu demo**, **không nhúng mật khẩu/bí mật**, từ chối chạy khi `GMEP_ENV=local` hoặc có `*_EMULATOR_HOST`. Chạy từ máy có Application Default Credentials của project đích (ví dụ Cloud Shell), không chạy trong image.
 
-1. Công ty, chi nhánh đầu tiên, kho.
-2. 10 vai trò và ma trận quyền (dữ liệu nằm ở `src/modules/sys/domain/permissions.ts`).
-3. Tài khoản chủ (CH) trong Firebase Auth và user tương ứng trong Firestore, rồi gửi lời mời kích hoạt (cần email adapter, đã có).
-4. Cấu hình có hiệu lực theo ngày: thuế, đơn giá công, giờ chuẩn, giới hạn giảm giá, bảng giá, đánh số chứng từ, hóa đơn (`einvoice-issuer`). Giá trị thật do kế toán khách xác nhận.
-5. Import dữ liệu từ Excel (slice 1.11) sau khi khách chốt mẫu.
+Tạo: công ty (`legalEntityIds` rỗng), 1 chi nhánh, kho chính mặc định, 10 vai trò + ma trận quyền mặc định, tài khoản chủ (vai trò CH, mọi chi nhánh) ở trạng thái `invited` với mật khẩu ngẫu nhiên không ai biết. Script in **một lần** liên kết kích hoạt dùng một lần, hiệu lực 72 giờ (chỉ lưu sha256 của token); coi liên kết như bí mật, đừng dán vào chat/ticket.
 
-Đây là việc còn thiếu lớn nhất để chạy được production; nên làm thành một task riêng.
+Biến môi trường (đọc từ shell khi chạy; cùng `GMEP_ENV`, `GCLOUD_PROJECT`, `APP_BASE_URL`/`APP_ORIGIN` như service):
+
+| Biến | Bắt buộc | Ghi chú |
+| --- | --- | --- |
+| `BOOTSTRAP_CONFIRM_PROJECT` | có | Phải bằng `GCLOUD_PROJECT`, tránh ghi nhầm project |
+| `BOOTSTRAP_COMPANY_NAME` | có | Tên công ty |
+| `BOOTSTRAP_COMPANY_ID` | không | Mặc định `cmp_main`; dùng cùng giá trị cho `CRON_COMPANY_ID` |
+| `BOOTSTRAP_BRANCH_CODE`, `BOOTSTRAP_BRANCH_NAME` | có | Mã 2-4 ký tự A-Z, 0-9 |
+| `BOOTSTRAP_WAREHOUSE_CODE`, `BOOTSTRAP_WAREHOUSE_NAME` | không | Mặc định `WH-CHINH`, "Kho chính <chi nhánh>" |
+| `BOOTSTRAP_OWNER_EMAIL`, `BOOTSTRAP_OWNER_NAME` | có | Chủ dùng email này để kích hoạt |
+| `BOOTSTRAP_OWNER_CODE` | không | Mặc định `NV0001` |
+| `BOOTSTRAP_REISSUE_INVITE=1` | không | Cấp liên kết mới nếu chủ chưa kích hoạt (mất liên kết hoặc lần chạy đầu dừng giữa chừng) |
+
+Các mục **[Cần xác nhận]** chưa được giả định: một hay nhiều pháp nhân (công ty chỉ có `legalEntityIds` rỗng, cấu hình sau), nhà cung cấp hóa đơn (không đăng ký adapter nào ở prod), cơ cấu chi nhánh thật (thêm chi nhánh khác qua màn hình quản trị). Script **không** tạo cấu hình có hiệu lực theo ngày (thuế, đơn giá công, giờ chuẩn, giới hạn giảm giá, bảng giá, đánh số chứng từ, `einvoice-issuer`): kế toán khách xác nhận giá trị rồi nhập qua màn hình cấu hình. Import Excel (slice 1.11) sau khi khách chốt mẫu.
+
+### Từ chối khởi động ở `GMEP_ENV=prod` (`src/platform/config/env.ts`)
+
+App dừng ngay khi nạp cấu hình, báo **tên** mọi biến thiếu/không an toàn (không in giá trị) nếu: bật `EINVOICE_FAKE_PROVIDER=true` (FakeProvider; mặc định tắt ở prod, bật ở nơi khác trừ khi đặt `false`); đặt `MESSAGE_DEV_CHANNELS`; thiếu `EMAIL_SMTP_URL`/`EMAIL_FROM` (nếu không sẽ dùng outbox email dev); có `*_EMULATOR_HOST`; `GCLOUD_PROJECT` thiếu hoặc bắt đầu bằng `demo-`; `FIREBASE_API_KEY` là giá trị mặc định; thiếu `APP_BASE_URL`/`APP_ORIGIN`; thiếu `CRON_COMPANY_ID`; không có `CRON_SECRET` lẫn cặp `CRON_OIDC_*`; `GMEP_DATA_BACKEND=memory`. `NODE_ENV=production` một mình không kích hoạt các kiểm tra này vì CI/e2e chạy `next start` với `GMEP_ENV=local`; cờ quyết định là `GMEP_ENV=prod`. Staging giữ hành vi cũ (cho phép adapter giả để thử).
 
 ## 9. Việc còn chặn go-live (ngoài hạ tầng)
 

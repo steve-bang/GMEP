@@ -244,7 +244,7 @@ Diễn tập khôi phục ít nhất một lần trước go-live (ghi lại th�
 
 ## 13. Việc còn chặn dùng thật (ngoài hạ tầng)
 
-Giống deploy-guide §8 và §9: chưa có script bootstrap dữ liệu (công ty, chi nhánh, vai trò, tài khoản chủ, cấu hình thuế/giá); chưa chọn nhà cung cấp hóa đơn điện tử (chỉ có `FakeProvider`); MFA ngoài phạm vi theo chủ; các mục `[Cần xác nhận]` ở `docs/dev/open-questions-for-ba.md`; rà soát bảo mật `docs/dev/security-checklist-status.md`. Ngoài ra trên `master`, thiếu `FIREBASE_API_KEY` hoặc `GCLOUD_PROJECT` ở `staging`/`prod` **không làm app dừng khởi động** (rơi về `demo-api-key`/`demo-gmep`); script 30 luôn đặt cả hai nhưng nên bổ sung kiểm tra fail-fast trong `env.ts` (đề xuất cho dev).
+Giống deploy-guide §8 và §9: dữ liệu khởi tạo (công ty, chi nhánh, vai trò, tài khoản chủ) có `pnpm bootstrap:data`, còn cấu hình thuế/giá do kế toán khách xác nhận rồi nhập qua màn hình; chưa chọn nhà cung cấp hóa đơn điện tử (chỉ có `FakeProvider`, bị từ chối ở `prod`); MFA ngoài phạm vi theo chủ; các mục `[Cần xác nhận]` ở `docs/dev/open-questions-for-ba.md`; rà soát bảo mật `docs/dev/security-checklist-status.md`. Ở `GMEP_ENV=prod` app tự dừng khi thiếu `FIREBASE_API_KEY`/`GCLOUD_PROJECT`/cron/URL hoặc bật adapter giả (deploy-guide §8); `staging` vẫn rơi về `demo-*` nếu thiếu hai biến đầu, script 30 luôn đặt cả hai.
 
 ## 14. Smoke test sau lần deploy đầu
 
