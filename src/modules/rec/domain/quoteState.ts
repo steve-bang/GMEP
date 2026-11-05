@@ -6,12 +6,7 @@ import type { IntakeStatus, QuoteStatus } from './entities';
  * repair order (slice 1.6) has its own table and never shares these states.
  */
 export type QuoteEvent =
-  | 'send'
-  | 'approve_full'
-  | 'approve_partial'
-  | 'reject'
-  | 'expire'
-  | 'close';
+  'send' | 'approve_full' | 'approve_partial' | 'reject' | 'expire' | 'close';
 export const QUOTE_EVENTS: readonly QuoteEvent[] = [
   'send',
   'approve_full',

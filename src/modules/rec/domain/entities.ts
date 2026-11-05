@@ -9,12 +9,7 @@ export const INTAKE_STATUSES: readonly IntakeStatus[] = ['draft', 'completed', '
 
 /** Quote states (user-journey §7): "sent" is labelled "Chờ khách duyệt" in the UI. */
 export type QuoteStatus =
-  | 'draft'
-  | 'sent'
-  | 'approved_full'
-  | 'approved_partial'
-  | 'rejected'
-  | 'expired';
+  'draft' | 'sent' | 'approved_full' | 'approved_partial' | 'rejected' | 'expired';
 export const QUOTE_STATUSES: readonly QuoteStatus[] = [
   'draft',
   'sent',
