@@ -99,112 +99,119 @@ export async function DashboardHome(props: {
       ) : (
         <>
           {m.kpis.length > 0 ? (
-            <section className="dsh-kpis" aria-label={t('kpis')} data-testid="home-kpis">
+            <section
+              className="dsh-kpis"
+              aria-label={t('kpis')}
+              data-count={m.kpis.length}
+              data-testid="home-kpis"
+            >
               {m.kpis.map((k) => (
                 <KpiCard key={k.id} k={k} label={label} fmt={{ t, tr }} />
               ))}
             </section>
           ) : null}
-          <div className="dsh-cols">
-            <div className="dsh-stack">
-              {m.trend ? (
-                <ColumnChart
-                  id="trend"
-                  testId="chart-trend"
-                  title={t('trendTitle')}
-                  unit={t('trendUnit')}
-                  points={m.trend.map((p) => ({
-                    label: shortDay(p.date),
-                    value: p.value,
-                    provisional: p.provisional,
-                  }))}
-                  format={money}
-                  axisFormat={compactVnd}
-                  emptyTop={4_000_000}
-                  provisionalNote={t('provisional')}
-                  noDataLabel={t('noData')}
-                  tableLabel={t('chartTable')}
-                  catName={t('catDay')}
-                  valueName={t('trendValue')}
-                  foot={t('trendFoot')}
-                />
-              ) : null}
-              {m.branchBars ? (
-                <BarList
-                  id="branches"
-                  testId="chart-branches"
-                  title={t('branchTitle')}
-                  unit={t('branchUnit')}
-                  sub={t('scopeMany', { n: m.branchBars.length })}
-                  items={m.branchBars.map((b) => ({ label: b.name, value: b.value }))}
-                  format={money}
-                  tableLabel={t('chartTable')}
-                  catName={t('catBranch')}
-                  valueName={t('branchValue')}
-                  foot={
-                    missingBranches > 0
-                      ? `${t('branchFoot')} ${t('branchMissing', { n: missingBranches })}.`
-                      : t('branchFoot')
-                  }
-                />
-              ) : null}
-              <div className="rpt-two">
-                {m.orderBars ? (
-                  <BarList
-                    id="orders"
-                    testId="chart-orders"
-                    title={t('ordersTitle')}
-                    unit={t('ordersUnit')}
-                    items={m.orderBars.map((o) => ({
-                      label: t(`o_${o.key}` as never),
-                      value: o.value,
-                    }))}
-                    format={(v) => String(v)}
-                    tableLabel={t('chartTable')}
-                    catName={t('catKind')}
-                    valueName={t('ordersValue')}
-                    series={2}
-                  />
-                ) : null}
-                {m.revenueSplit ? (
-                  <BarList
-                    id="split"
-                    testId="chart-split"
-                    title={t('splitTitle')}
-                    unit={t('splitUnit')}
-                    items={m.revenueSplit.map((o) => ({
-                      label: t(`split_${o.key}` as never),
-                      value: o.value,
+          <div className={`dsh-cols${m.trend || m.branchBars ? '' : ' dsh-cols--solo'}`}>
+            {m.trend || m.branchBars ? (
+              <div className="dsh-stack">
+                {m.trend ? (
+                  <ColumnChart
+                    id="trend"
+                    testId="chart-trend"
+                    title={t('trendTitle')}
+                    unit={t('trendUnit')}
+                    points={m.trend.map((p) => ({
+                      label: shortDay(p.date),
+                      value: p.value,
+                      provisional: p.provisional,
                     }))}
                     format={money}
+                    axisFormat={compactVnd}
+                    emptyTop={4_000_000}
+                    provisionalNote={t('provisional')}
+                    noDataLabel={t('noData')}
                     tableLabel={t('chartTable')}
-                    catName={t('catKind')}
-                    valueName={t('splitValue')}
-                    series={3}
+                    catName={t('catDay')}
+                    valueName={t('trendValue')}
+                    foot={t('trendFoot')}
                   />
                 ) : null}
-                {m.methodBars ? (
+                {m.branchBars ? (
                   <BarList
-                    id="methods"
-                    testId="chart-methods"
-                    title={t('methodTitle')}
-                    unit={t('methodUnit')}
-                    items={m.methodBars.map((o) => ({
-                      label: methodLabel(t, o.key),
-                      value: o.value,
-                    }))}
+                    id="branches"
+                    testId="chart-branches"
+                    title={t('branchTitle')}
+                    unit={t('branchUnit')}
+                    sub={t('scopeMany', { n: m.branchBars.length })}
+                    items={m.branchBars.map((b) => ({ label: b.name, value: b.value }))}
                     format={money}
                     tableLabel={t('chartTable')}
-                    catName={t('catKind')}
-                    valueName={t('methodValue')}
-                    series={4}
+                    catName={t('catBranch')}
+                    valueName={t('branchValue')}
+                    foot={
+                      missingBranches > 0
+                        ? `${t('branchFoot')} ${t('branchMissing', { n: missingBranches })}.`
+                        : t('branchFoot')
+                    }
                   />
                 ) : null}
               </div>
-            </div>
+            ) : null}
             <div className="dsh-stack">
               <AlertCard d={d} t={t} tr={tr} />
             </div>
+          </div>
+          <div className="rpt-two">
+            {m.orderBars ? (
+              <BarList
+                id="orders"
+                testId="chart-orders"
+                title={t('ordersTitle')}
+                unit={t('ordersUnit')}
+                items={m.orderBars.map((o) => ({
+                  label: t(`o_${o.key}` as never),
+                  value: o.value,
+                }))}
+                format={(v) => String(v)}
+                tableLabel={t('chartTable')}
+                catName={t('catKind')}
+                valueName={t('ordersValue')}
+                series={2}
+              />
+            ) : null}
+            {m.revenueSplit ? (
+              <BarList
+                id="split"
+                testId="chart-split"
+                title={t('splitTitle')}
+                unit={t('splitUnit')}
+                items={m.revenueSplit.map((o) => ({
+                  label: t(`split_${o.key}` as never),
+                  value: o.value,
+                }))}
+                format={money}
+                tableLabel={t('chartTable')}
+                catName={t('catKind')}
+                valueName={t('splitValue')}
+                series={3}
+              />
+            ) : null}
+            {m.methodBars ? (
+              <BarList
+                id="methods"
+                testId="chart-methods"
+                title={t('methodTitle')}
+                unit={t('methodUnit')}
+                items={m.methodBars.map((o) => ({
+                  label: methodLabel(t, o.key),
+                  value: o.value,
+                }))}
+                format={money}
+                tableLabel={t('chartTable')}
+                catName={t('catKind')}
+                valueName={t('methodValue')}
+                series={4}
+              />
+            ) : null}
           </div>
         </>
       )}

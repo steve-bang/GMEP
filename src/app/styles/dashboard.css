@@ -26,11 +26,28 @@
   .dsh-cols {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* alerts are what a manager acts on: right after the KPI cards, before the charts */
+  .dsh-cols > .dsh-stack:last-child {
+    order: -1;
+  }
+}
+.dsh-cols--solo {
+  grid-template-columns: minmax(0, 1fr);
 }
 .dsh-kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-4);
+}
+/* equal-height label block so the values of one row start on the same line */
+.dsh-kpis .kpi__label {
+  min-height: 40px;
+  align-items: flex-start;
+}
+@media (min-width: 640px) {
+  .dsh-kpis[data-count='6'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 @media (max-width: 639px) {
   .dsh-kpis {
@@ -102,8 +119,8 @@ a.dsh-row:hover {
   margin: 0;
 }
 .dsh-chart__title {
-  font-size: var(--font-size-lg);
-  line-height: 24px;
+  font-size: 1.125rem;
+  line-height: 26px;
   font-weight: 600;
   margin: 0;
 }
@@ -239,6 +256,10 @@ a.dsh-row:hover {
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   min-height: 2px;
 }
+.dsh-cols-chart__bar.is-zero {
+  min-height: 0;
+  border: 0;
+}
 .dsh-cols-chart__bar.is-prov {
   background: var(--color-surface);
   border: 2px dashed var(--chart-series-1);
@@ -276,6 +297,10 @@ a.dsh-row:hover {
   .dsh-cols-chart__lbl {
     font-size: 11px;
   }
+  /* 7 labels of 30 px do not fit in 343 px: show every other day (the data table has all of them) */
+  .dsh-cols-chart__bars li:nth-child(even) .dsh-cols-chart__lbl {
+    visibility: hidden;
+  }
 }
 
 .dsh-bars {
@@ -308,7 +333,6 @@ a.dsh-row:hover {
   display: block;
   height: 100%;
   border-radius: var(--radius-sm);
-  min-width: 2px;
 }
 .dsh-bars__value {
   font-size: var(--font-size-md);

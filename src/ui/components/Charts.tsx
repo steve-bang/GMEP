@@ -155,7 +155,7 @@ export function ColumnChart(props: {
                     <>
                       <span className="dsh-cols-chart__val">{props.format(p.value)}</span>
                       <span
-                        className={`dsh-cols-chart__bar${p.provisional ? ' is-prov' : ''}`}
+                        className={`dsh-cols-chart__bar${p.provisional ? ' is-prov' : ''}${p.value === 0 ? ' is-zero' : ''}`}
                         style={{ height: `${pctOfAxis(p.value, top)}%` }}
                       />
                     </>
@@ -217,7 +217,7 @@ export function BarList(props: {
             <span className="dsh-bars__track" aria-hidden="true">
               <span
                 className={`dsh-bars__bar dsh-s${series}`}
-                style={{ width: `${pctOfAxis(i.value, max)}%` }}
+                style={{ width: `${pctOfAxis(i.value, max)}%`, minWidth: i.value > 0 ? 2 : 0 }}
               />
             </span>
             <span className="dsh-bars__value">{props.format(i.value)}</span>
