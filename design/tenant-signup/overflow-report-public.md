@@ -118,3 +118,8 @@ Tập lệnh mở từng trang ở 360, 768, 1280 px, bấm lần lượt từng
 | platform-admin/tsu-68.html | 1280 | sạch | không |
 
 Tổng số tổ hợp có vấn đề: 0
+
+
+## Đo lại sau khi áp dụng rà chéo BA (05/11/2026)
+
+Phần A (`measure-overflow.js`): 0 tổ hợp có vấn đề. Phần B (`account/measure.js --states`): 615 lượt tải, 0 lượt có vấn đề. Lỗi tải font bỏ qua như trên. Hàm `avoids` chưa kiểm thử tự động (chỉ rà logic).
