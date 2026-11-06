@@ -123,6 +123,9 @@ async function initialWorkingBranch(
  * Failure messages are generic so they do not reveal which part was wrong; unknown names feed the
  * same counters as known ones.
  */
+/** Address used for the decoy password check when the input is not an email (never an existing account). */
+const DECOY_EMAIL = 'no-such-person@gmep.invalid';
+
 export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResult> {
   const name = normalizeLoginName(input.identifier);
   if (!name || !input.password) throw invalidCredentials();
@@ -137,23 +140,26 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
   // FR-TEN-016: the identity is the email (unique platform-wide); an employee code is not a login name because it is
   // unique per tenant only (RULE-018). Unknown email, wrong password and an unusable tenant all end in the same answer.
   const email = input.identifier.trim().toLowerCase();
-  if (!email.includes('@')) return fail();
-  const all = await deps.users.findMembershipsByEmail(email);
+  const all = email.includes('@') ? await deps.users.findMembershipsByEmail(email) : [];
   const usable = await usableMemberships(deps, all);
-  if (usable.length === 0) return fail();
-  const identityId = identityOf(usable[0]!.user);
-  if (usable.some((m) => identityOf(m.user) !== identityId)) return fail(); // inconsistent data: refuse, never guess
+  const identityId = usable[0] ? identityOf(usable[0].user) : null;
+  const known = identityId !== null && usable.every((m) => identityOf(m.user) === identityId);
 
-  let signedIn: { uid: string; idToken: string };
+  // UAT-TEN-21 (a): the password check at the identity provider runs for EVERY attempt, also for an unknown email, an
+  // unusable tenant or an input that is not an email (a decoy address), so the answer time does not tell the cases
+  // apart. Whatever it returns is ignored unless the membership exists; the answer is the same neutral one.
+  let signedIn: { uid: string; idToken: string } | null = null;
   try {
-    signedIn = await deps.identity.signInWithPassword(email, input.password);
+    signedIn = await deps.identity.signInWithPassword(
+      email.includes('@') ? email : DECOY_EMAIL,
+      input.password,
+    );
   } catch (err) {
-    if (err instanceof InvalidCredentialsError) return fail();
     if (err instanceof IdentityUnavailableError)
       throw new AppError('unavailable', 503, [], { cause: err });
-    throw err;
+    if (!(err instanceof InvalidCredentialsError)) throw err;
   }
-  if (signedIn.uid !== identityId) return fail();
+  if (!known || !signedIn || signedIn.uid !== identityId) return fail();
 
   // ---- hook point for the owner-provided strong authentication (A2); MFA is deferred ----
   const requirement = await deps.strongAuth.requirementFor(usable[0]!.user);
