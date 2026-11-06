@@ -85,7 +85,7 @@ test.describe('home dashboard (/)', () => {
     return d.toISOString().slice(0, 10);
   };
   const vi = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
-  const urlHas = (qs: string) => new RegExp(`\\?${qs.replace(/[?]/g, '\\?')}$`);
+  const urlHas = (qs: string) => new RegExp(`\\?${qs.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
 
   test('range filter: presets apply at once, show what is pressed and say what is being viewed', async ({
     browser,
