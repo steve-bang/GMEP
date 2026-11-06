@@ -27,6 +27,7 @@ Cập nhật: 2026-11-05 (xem mục "Bổ sung 05/11/2026" ở cuối cho gói �
 - 0 lỗi JavaScript, 0 trang trống.
 - Desktop 1440px: 0 trang tràn ngang.
 - Mobile 390px: tràn ngang giảm từ 94 xuống 3 lượt tải; cả 3 đều là trang showcase/mục lục (`foundation/components.html`, `foundation/index.html`, `g2-workshop/index.html`), không phải màn hình sản phẩm. Chi tiết: `mobile-overflow-report.md`.
+- Mobile 320px (07/11/2026): 11 màn sản phẩm tràn ngang đã sửa trong `pack.css` của 5 gói (nguyên nhân và cách sửa từng màn ở `mobile-overflow-report.md`); **chờ điều phối đo lại** ở 320/390/768/1440.
 - Chưa có kiểm tra tự động về tương phản màu, bàn phím, trình đọc màn hình.
 
 ## Còn lại / việc cho lần làm tiếp
