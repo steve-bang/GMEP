@@ -101,9 +101,9 @@ Mỗi dòng: ràng buộc (RULE/FR) và điều kiện kiểm thử. Cách làm 
 | **Seed, dữ liệu kiểm thử** | Không giả định một tenant; có từ **hai tenant trở lên** (NFR-TEN-01) | Điều kiện phát hành |
 | **Ẩn giao diện chi nhánh/kho** (bản tối giản) | Chỉ ẩn UI; mọi bản ghi vẫn có `branch_id`, `resolveScope` vẫn chạy (RULE-033). UI nhiều chi nhánh hiện khi có từ 2 chi nhánh hoạt động | UAT-TEN-20 |
 
-## 5. Tác động chỉ mục (169/200 sau khi gộp slice 2.1, 2.5, 2.6a, trước đó 192; ngưỡng fail 195)
+## 5. Tác động chỉ mục (171/200 sau khi gộp slice 2.1, 2.5, 2.6a, 2.8b, trước đó 192; ngưỡng fail 195)
 
-- **Số liệu thực đo** (`docs/dev/index-budget.md`): 192 composite trước slice 2.1 (193 là số trước khi bỏ `users.byEmployeeCode`), nay 169 composite (2.1 giảm 24, 2.6a thêm 1), hình truy vấn theo `--report`, 0 mồ côi, 0 trùng tiền tố; còn 26 chỗ trước ngưỡng fail. Chính sách hiện hành: Phase 1 không thêm chỉ mục; Phase 2 muốn thêm phải gỡ; **không xin nâng trần** (BA trả lời câu 40).
+- **Số liệu thực đo** (`docs/dev/index-budget.md`): 192 composite trước slice 2.1 (193 là số trước khi bỏ `users.byEmployeeCode`), nay 171 composite (2.1 giảm 24, 2.6a thêm 1, 2.8b thêm 2), hình truy vấn theo `--report`, 0 mồ côi, 0 trùng tiền tố; còn 24 chỗ trước ngưỡng fail. Chính sách hiện hành: Phase 1 không thêm chỉ mục; Phase 2 muốn thêm phải gỡ; **không xin nâng trần** (BA trả lời câu 40).
 - **Quan sát của BA, dev kiểm chứng:** nhiều chỉ mục đã chứa `companyId` (ví dụ `cashEntries`: branchId, businessDate, companyId, seqKey) và `companyId` xuất hiện 929 lần trong 127 tệp của `src/`. Nếu tenant tương ứng với `companyId` hiện có thì số chỉ mục có thể không đổi; nếu `tenantId` là trường mới, mỗi chỉ mục cần thêm trường (việc xây lại, chưa chắc tăng số lượng). Với mô hình tách theo cơ sở dữ liệu hoặc dự án thì ngân sách tính riêng từng nơi. **Đây là giả thuyết, không phải kết luận; dev đo.**
 - **Ràng buộc nghiệp vụ:** không phương án nào được làm `pnpm check:indexes` fail; mọi hình truy vấn mới (MT-0: hồ sơ tenant, nhật ký nền tảng, hàng chờ xác minh ở MT-1) phải dùng lại hình sẵn có, đọc theo khóa, lọc trong bộ nhớ trên tập có giới hạn hoặc phi chuẩn hóa (chính sách mục 1 của `index-budget.md`).
 - Việc cần làm: cập nhật `index-budget.md` với phương án đã chọn; thêm slice MT-0 vào `implementation-plan.md` §7 và `status.md` (M13).
