@@ -95,8 +95,17 @@ describe.each(backends)('tenant identity and session [%s]', (backend) => {
     expect(m).toMatchObject({ status: 'invited', identityId: 'u_owner', tenantId: 'tnt_beta' });
     const peek = await peekToken(sys(), 'invite', await h.latestToken(OWNER_DEMO, 'invitation'));
     expect(peek.invitee?.existingIdentity).toBe(true);
+    expect(peek.invitee).toMatchObject({ tenantName: 'Garage Beta' });
+    // MT0-4 b: without agreeing to the inviting tenant's rules the membership stays `invited`
+    const refused = await activate(OWNER_DEMO, { consent: false });
+    expect(refused.status).toBe(422);
+    expect((await sys().users.getAnyById('own_tnt_beta'))?.status).toBe('invited');
+    expect((await sys().users.getAnyById('own_tnt_beta'))?.policyConsent).toBeUndefined();
     const r = await activate(OWNER_DEMO, { consent: true });
     expect(r.status, r.text).toBe(200);
+    const accepted = await sys().users.getAnyById('own_tnt_beta');
+    expect(accepted?.status).toBe('active');
+    expect(accepted?.policyConsent?.policyVersion).toBeTruthy();
     // the old password still works, a password sent with the invitation changed nothing
     expect((await login(OWNER_DEMO, 'Demo!Pass-2026', '10.9.0.2')).status).toBe(200);
   });

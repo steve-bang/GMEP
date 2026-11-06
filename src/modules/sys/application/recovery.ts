@@ -109,6 +109,9 @@ export interface TokenPeek {
     roles: string[];
     /** the person already has an account: the page asks for acceptance only, no password (FR-TEN-017 d) */
     existingIdentity: boolean;
+    /** whose rules are being accepted (the inviting tenant) and their version, for the consent line */
+    tenantName: string;
+    policyVersion: string;
   };
 }
 
@@ -141,6 +144,8 @@ export async function peekToken(
       displayName: user.displayName,
       email: user.email,
       existingIdentity: identityOf(user) !== user.id,
+      tenantName: (await deps.tenants.get(user.tenantId))?.name ?? '',
+      policyVersion: deps.config.consentPolicyVersion,
       branches: [...new Set(branchNames.filter(Boolean))],
       roles: roles.map((r) => r.name),
     },
@@ -268,6 +273,8 @@ async function claimToken(
     if (activate)
       deps.users.update(tx, user.id, {
         status: 'active',
+        // FR-TEN-017 / RULE-034: evidence that the person agreed to the rules of THIS tenant, per membership
+        policyConsent: { acceptedAt: now, policyVersion: deps.config.consentPolicyVersion },
         updatedAt: now,
         updatedBy: user.id,
         version: user.version + 1,
@@ -283,7 +290,9 @@ async function claimToken(
       entityId: user.id,
       action,
       before: activate ? { status: 'invited' } : null,
-      after: activate ? { status: 'active' } : null,
+      after: activate
+        ? { status: 'active', policyVersion: deps.config.consentPolicyVersion }
+        : null,
       requestId,
     });
     return user;

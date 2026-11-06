@@ -21,6 +21,11 @@ export interface User {
   /** Staff contact phone: personal data, masked by PiiPolicy in every serializer (NFR-SEC-03). */
   phone?: string;
   status: UserStatus;
+  /**
+   * FR-TEN-017 / RULE-034: the person's agreement to THIS tenant's usage rules, recorded when the membership is accepted.
+   * A membership added to an existing identity stays `invited` until it exists.
+   */
+  policyConsent?: { acceptedAt: Date; policyVersion: string };
   /** last successful sign-in (G4-SYS-01 column); absent until the first login */
   lastLoginAt?: Date;
   createdAt: Date;

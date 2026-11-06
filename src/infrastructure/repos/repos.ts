@@ -155,6 +155,7 @@ const userFromDoc = ({ id, data: x }: StoredDoc): User => ({
   displayName: x.displayName,
   ...(x.phone ? { phone: x.phone } : {}),
   status: x.status,
+  ...(x.policyConsent ? { policyConsent: x.policyConsent } : {}),
   ...(x.lastLoginAt ? { lastLoginAt: x.lastLoginAt } : {}),
   createdAt: x.createdAt,
   createdBy: x.createdBy,

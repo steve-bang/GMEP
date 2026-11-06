@@ -40,6 +40,8 @@ interface Labels {
  */
 export function PasswordSetForm(props: {
   mode: 'reset' | 'activate';
+  /** FR-TEN-017 d: the person already has a password; the page only asks to accept (no password fields) */
+  existingIdentity?: boolean;
   token: string;
   minLength: number;
   historyDepth: number;
@@ -63,13 +65,14 @@ export function PasswordSetForm(props: {
   }, [error]);
   const [key] = useState(newKey);
 
+  const joinsExisting = props.mode === 'activate' && props.existingIdentity === true;
   const lengthOk = [...pw].length >= props.minLength;
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setFieldError(null);
     setMismatch(null);
-    if (pw !== pw2) {
+    if (!joinsExisting && pw !== pw2) {
       setMismatch(L.mismatch);
       return document.getElementById('pw2')?.focus();
     }
@@ -77,7 +80,11 @@ export function PasswordSetForm(props: {
     const r = await postJson(
       props.mode === 'reset' ? '/api/v1/auth/reset-password' : '/api/v1/auth/activate',
       'POST',
-      { token: props.token, password: pw, ...(props.mode === 'activate' ? { consent: true } : {}) },
+      {
+        token: props.token,
+        ...(joinsExisting ? {} : { password: pw }),
+        ...(props.mode === 'activate' ? { consent: true } : {}),
+      },
       key,
     );
     setBusy(false);
@@ -128,62 +135,66 @@ export function PasswordSetForm(props: {
         </div>
       ) : null}
       <fieldset className="g1-fs" disabled={busy}>
-        <div className="field">
-          <label className="field__label" htmlFor="pw">
-            {L.password}
-            <span className="field__req" aria-hidden="true">
-              *
-            </span>
-          </label>
-          <PasswordInput
-            id="pw"
-            name="password"
-            autoComplete="new-password"
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-            show={show}
-            onShowChange={setShow}
-            showLabel={L.show}
-            capsLockText={L.capsLock}
-            aria-required="true"
-            aria-invalid={fieldError ? true : undefined}
-            aria-describedby={fieldError ? 'pw-rules pw-err' : 'pw-rules'}
-          />
-          <ul id="pw-rules" className="g5-contract">
-            <li className={lengthOk ? 'g5-field-ok' : ''}>{L.ruleLength}</li>
-            {L.ruleHistory ? <li>{L.ruleHistory}</li> : null}
-          </ul>
-          {fieldError ? (
-            <span className="field__error" id="pw-err" role="alert">
-              {fieldError}
-            </span>
-          ) : null}
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="pw2">
-            {L.confirm}
-            <span className="field__req" aria-hidden="true">
-              *
-            </span>
-          </label>
-          <input
-            className="input"
-            id="pw2"
-            name="confirm"
-            type={show ? 'text' : 'password'}
-            autoComplete="new-password"
-            value={pw2}
-            onChange={(e) => setPw2(e.target.value)}
-            aria-required="true"
-            aria-invalid={mismatch ? true : undefined}
-            aria-describedby={mismatch ? 'pw2-err' : undefined}
-          />
-          {mismatch ? (
-            <span className="field__error" id="pw2-err" role="alert">
-              {mismatch}
-            </span>
-          ) : null}
-        </div>
+        {joinsExisting ? null : (
+          <>
+            <div className="field">
+              <label className="field__label" htmlFor="pw">
+                {L.password}
+                <span className="field__req" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <PasswordInput
+                id="pw"
+                name="password"
+                autoComplete="new-password"
+                value={pw}
+                onChange={(e) => setPw(e.target.value)}
+                show={show}
+                onShowChange={setShow}
+                showLabel={L.show}
+                capsLockText={L.capsLock}
+                aria-required="true"
+                aria-invalid={fieldError ? true : undefined}
+                aria-describedby={fieldError ? 'pw-rules pw-err' : 'pw-rules'}
+              />
+              <ul id="pw-rules" className="g5-contract">
+                <li className={lengthOk ? 'g5-field-ok' : ''}>{L.ruleLength}</li>
+                {L.ruleHistory ? <li>{L.ruleHistory}</li> : null}
+              </ul>
+              {fieldError ? (
+                <span className="field__error" id="pw-err" role="alert">
+                  {fieldError}
+                </span>
+              ) : null}
+            </div>
+            <div className="field">
+              <label className="field__label" htmlFor="pw2">
+                {L.confirm}
+                <span className="field__req" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <input
+                className="input"
+                id="pw2"
+                name="confirm"
+                type={show ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={pw2}
+                onChange={(e) => setPw2(e.target.value)}
+                aria-required="true"
+                aria-invalid={mismatch ? true : undefined}
+                aria-describedby={mismatch ? 'pw2-err' : undefined}
+              />
+              {mismatch ? (
+                <span className="field__error" id="pw2-err" role="alert">
+                  {mismatch}
+                </span>
+              ) : null}
+            </div>
+          </>
+        )}
         {props.mode === 'activate' ? (
           <label className="check">
             <input

@@ -66,7 +66,7 @@ export interface UserRepository {
   update(
     tx: Tx,
     id: string,
-    patch: Partial<Pick<User, 'displayName' | 'phone' | 'status'>> & {
+    patch: Partial<Pick<User, 'displayName' | 'phone' | 'status' | 'policyConsent'>> & {
       updatedAt: Date;
       updatedBy: string;
       version: number;
