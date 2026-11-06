@@ -66,33 +66,57 @@ export const CRON_JOBS: readonly CronJob[] = [
   { name: 'messageRetry', run: ({ c, actor, ctx }) => runMessageRetry(c.rec, actor, ctx) },
 ];
 
+/** Tenant states in which the scheduled jobs run (a suspended or ended tenant gets no outgoing messages or reports). */
+const CRON_TENANT_STATES: ReadonlySet<string> = new Set(['onboarding', 'active', 'restricted']);
+
 /**
- * Scheduler-ready entry: per branch of the configured company, run every registered job. Jobs are idempotent, so a repeat or
- * an overlapping run is safe. One job failing never stops the other jobs, and one branch failing never stops the others.
- * Response: `{ configured, branches: [{ branchId, <job name>: result | 'failed' }] }`.
+ * Scheduler-ready entry (FR-TEN-015, M9): tenant by tenant, branch by branch, run every registered job. Jobs are idempotent,
+ * so a repeat or an overlapping run is safe. One job failing never stops the other jobs, one branch failing never stops the
+ * others, and one tenant failing (even listing its branches) never stops the other tenants. `CRON_TENANT_ID` restricts the run
+ * to one tenant. Response: `{ configured, tenants: [{ tenantId, failed?, branches }], branches }` where `branches` is the
+ * flat list with `tenantId` on each row: `{ tenantId, branchId, <job name>: result | 'failed' }`.
  */
 export async function runScheduledJobs(c: ApiCtx, jobs: readonly CronJob[] = CRON_JOBS) {
-  const tenantId = getContainer().env.CRON_TENANT_ID;
-  if (!tenantId) return { configured: false, branches: [] as unknown[] };
-  const branches = await c.sys.branches.list(allBranchesScope(tenantId));
-  const out: ({ branchId: string } & Record<string, unknown>)[] = [];
-  for (const b of branches) {
-    const input: CronJobInput = {
-      c,
-      actor: cronActor(tenantId, b.id),
-      branchId: b.id,
-      ctx: { requestId: c.requestId },
-    };
-    const row: { branchId: string } & Record<string, unknown> = { branchId: b.id };
-    for (const job of jobs) {
-      try {
-        row[job.name] = await job.run(input);
-      } catch (err) {
-        row[job.name] = 'failed';
-        c.log.error({ err, branchId: b.id, job: job.name }, 'cron job failed');
+  const only = getContainer().env.CRON_TENANT_ID;
+  const tenantIds = only
+    ? [only]
+    : (await c.sys.tenants.list(500))
+        .filter((t) => CRON_TENANT_STATES.has(t.status))
+        .map((t) => t.id);
+  if (tenantIds.length === 0) return { configured: false, tenants: [], branches: [] as unknown[] };
+  const tenants: { tenantId: string; failed?: true; branches: unknown[] }[] = [];
+  const flat: unknown[] = [];
+  for (const tenantId of tenantIds) {
+    const rows: ({ tenantId: string; branchId: string } & Record<string, unknown>)[] = [];
+    try {
+      const branches = await c.sys.branches.list(allBranchesScope(tenantId));
+      for (const b of branches) {
+        const input: CronJobInput = {
+          c,
+          actor: cronActor(tenantId, b.id),
+          branchId: b.id,
+          ctx: { requestId: c.requestId },
+        };
+        const row: { tenantId: string; branchId: string } & Record<string, unknown> = {
+          tenantId,
+          branchId: b.id,
+        };
+        for (const job of jobs) {
+          try {
+            row[job.name] = await job.run(input);
+          } catch (err) {
+            row[job.name] = 'failed';
+            c.log.error({ err, tenantId, branchId: b.id, job: job.name }, 'cron job failed');
+          }
+        }
+        rows.push(row);
       }
+      tenants.push({ tenantId, branches: rows });
+    } catch (err) {
+      c.log.error({ err, tenantId }, 'cron tenant failed');
+      tenants.push({ tenantId, failed: true, branches: rows });
     }
-    out.push(row);
+    flat.push(...rows);
   }
-  return { configured: true, branches: out };
+  return { configured: true, tenants, branches: flat };
 }

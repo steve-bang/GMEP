@@ -206,12 +206,6 @@ export const Q = {
     eq: ['email'],
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
-  userByCode: defineQuery({
-    name: 'users.byEmployeeCode',
-    collection: COL.users,
-    eq: ['employeeCode'],
-    order: { field: 'createdAt', dir: 'asc', type: 'date' },
-  }),
   sessionsByUser: defineQuery({
     name: 'sessions.byUser',
     collection: COL.sessions,

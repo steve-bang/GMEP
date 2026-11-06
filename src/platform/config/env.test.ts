@@ -58,13 +58,7 @@ describe('environment safety', () => {
     } catch (e) {
       msg = (e as Error).message;
     }
-    for (const n of [
-      'GCLOUD_PROJECT',
-      'FIREBASE_API_KEY',
-      'APP_BASE_URL',
-      'CRON_TENANT_ID',
-      'CRON_SECRET',
-    ])
+    for (const n of ['GCLOUD_PROJECT', 'FIREBASE_API_KEY', 'APP_BASE_URL', 'CRON_SECRET'])
       expect(msg).toContain(n);
     expect(msg).not.toContain('secretpw');
     expect(() => loadEnv({ ...PROD, FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080' })).toThrow(

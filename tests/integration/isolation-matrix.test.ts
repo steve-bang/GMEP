@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { getTenant, provisionTenant, transitionTenant } from '@/modules/sys';
 import { journey, newStaffUser, type Row, type Staff } from '../helpers/journey';
 import { allRouteFiles, backends, createHarness, type Harness } from './harness';
 
@@ -255,7 +256,8 @@ const ROUTES: Record<string, RouteRow> = {
 const EXEMPT: Record<string, string> = {
   health: 'liveness probe, no data',
   'v1/auth/me': 'the caller’s own session',
-  'v1/auth/tenants': 'the caller’s own memberships (FR-TEN-016); covered by tests/integration/tenant-identity.test.ts',
+  'v1/auth/tenants':
+    'the caller’s own memberships (FR-TEN-016); covered by tests/integration/tenant-identity.test.ts',
   'v1/sys/scope': 'the caller’s own selectable scope (derived from role assignments)',
   'v1/sys/roles': 'role matrix: company-level configuration, not branch data',
   'v1/sys/config/[type]':
@@ -768,6 +770,180 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         else expect([400, 403, 404, 409]).toContain(res.status);
       },
     );
+  });
+
+  /**
+   * Tenant axis (FR-TEN-009, 014; UAT-TEN-05; RULE-016, 017): the reader is the owner (role CH, every branch: the
+   * widest reader a tenant has) of ANOTHER tenant. Whatever the route, a record of tenant tnt_demo answers exactly like
+   * an id that does not exist, and no list, report or export of the outsider carries any identifier of tnt_demo.
+   */
+  describe('tenant axis: the owner of another tenant', () => {
+    let outsider = '';
+    beforeAll(async () => {
+      const cnt = {
+        kind: 'platform',
+        platformUserId: 'pf_owner',
+        role: 'CNT',
+        displayName: 'CNT',
+      } as const;
+      const email = 'owner@outsider.test';
+      const r = await provisionTenant(
+        h.container.sys,
+        cnt,
+        {
+          code: 'tnt_outsider',
+          name: 'Garage Outsider',
+          owner: { email, name: 'Chủ ngoài', employeeCode: 'CH01' },
+        },
+        { requestId: 'req-out-1', idempotencyKey: 'prov-outsider-1' },
+      );
+      expect(r.state).toBe('provisioned');
+      const t = await getTenant(h.container.sys, cnt, 'tnt_outsider');
+      await transitionTenant(
+        h.container.sys,
+        cnt,
+        'tnt_outsider',
+        { to: 'active', version: t.version },
+        { requestId: 'req-out-2' },
+      );
+      const act = await h.call('POST', '/api/v1/auth/activate', {
+        body: {
+          token: await h.latestToken(email, 'invitation'),
+          password: 'Valid-Password-2026!',
+          consent: true,
+        },
+        headers: { 'x-forwarded-for': '10.8.8.8' },
+      });
+      expect(act.status, act.text).toBe(200);
+      const login = await h.call('POST', '/api/v1/auth/login', {
+        body: { identifier: email, password: 'Valid-Password-2026!' },
+        headers: { 'x-forwarded-for': '10.8.8.9' },
+      });
+      expect(login.status, login.text).toBe(200);
+      outsider = login.headers
+        .getSetCookie()
+        .find((c) => c.startsWith('__Host-gmep_session='))!
+        .split(';')[0]!;
+    });
+
+    const everyId = () => [...Object.values(q7), ...Object.values(td), ...q7Markers, ...tdMarkers];
+
+    describe.each(Object.entries(ROUTES))('%s', (route, spec) => {
+      it(`${spec.kind}: another tenant's record answers like a missing id; lists carry nothing of tnt_demo`, async () => {
+        if (spec.kind === 'detail') {
+          const missing = await h.call('GET', spec.detail!('nope_NOPE_0000'), { cookie: outsider });
+          for (const ids of [q7, td]) {
+            const id = ids[spec.idKey!]!;
+            const res = await h.call('GET', spec.detail!(id), { cookie: outsider });
+            expect(strip(res.json), `${route} foreign id must equal a missing id`).toEqual(
+              strip(missing.json),
+            );
+            expect(res.status).toBe(missing.status);
+            expect(containsAny(res.text, everyId())).toEqual([]);
+          }
+        } else {
+          const res = await h.call('GET', spec.path(q7), { cookie: outsider });
+          expect([200, 403, 404, 409], `${route} ${res.status}`).toContain(res.status);
+          expect(containsAny(res.text, everyId()), `${route} leaks tnt_demo`).toEqual([]);
+        }
+      });
+    });
+
+    // the routes the branch matrix exempts as "company-level" are TENANT-level data: each must be closed to an outsider
+    it.each([
+      '/api/v1/sys/users/u_ql_q7',
+      '/api/v1/sys/users/u_ql_q7/sessions',
+      '/api/v1/sys/services/svc_tnt_demo_SV-DAU',
+      '/api/v1/inv/parts/part_seed_01',
+      '/api/v1/inv/parts/part_seed_01/prices',
+      '/api/v1/sys/branches/br_q7',
+      '/api/v1/sys/warehouses/wh_br_q7_WH-CHINH',
+    ])('exempt detail %s answers like a missing id', async (path) => {
+      const missing = await h.call(
+        'GET',
+        path.replace(/[^/]+(\/sessions|\/prices)?$/, (m) => m.replace(/^[^/]+/, 'nope_NOPE_0000')),
+        { cookie: outsider },
+      );
+      const res = await h.call('GET', path, { cookie: outsider });
+      expect(res.status, path).toBe(missing.status);
+      expect(strip(res.json)).toEqual(strip(missing.json));
+      expect(res.status).not.toBe(200);
+    });
+
+    it.each([
+      '/api/v1/sys/roles',
+      '/api/v1/sys/config/labor-rate',
+      '/api/v1/sys/config/tax-rate',
+      '/api/v1/sys/services?limit=100',
+      '/api/v1/sys/price-lists',
+      '/api/v1/inv/parts?limit=100',
+      '/api/v1/acc/expense-categories',
+      '/api/v1/rec/pickers/parts?q=a',
+      '/api/v1/rec/pickers/services?q=a',
+      '/api/v1/rec/service-workflows',
+      '/api/v1/ein/connection',
+      '/api/v1/sys/approvals',
+    ])('exempt list %s carries nothing of tnt_demo', async (path) => {
+      const res = await h.call('GET', path, { cookie: outsider });
+      expect([200, 400, 403, 404, 409, 422], `${path} ${res.status}`).toContain(res.status);
+      expect(res.text, path).not.toMatch(/tnt_demo|part_seed|SV-DAU|svc_tnt|Garage Demo/);
+      expect(containsAny(res.text, everyId()), path).toEqual([]);
+    });
+
+    it('availability of a part id of another tenant echoes the id and shows nothing: no quantity, no warehouse', async () => {
+      const res = await h.call('GET', '/api/v1/inv/availability?partIds=part_seed_01', {
+        cookie: outsider,
+      });
+      expect(res.status).toBe(200);
+      expect(res.json.items).toEqual([{ partId: 'part_seed_01', available: 0, warehouses: [] }]);
+    });
+
+    it.each([
+      { path: '/api/v1/crm/customers/export', body: {} },
+      { path: '/api/v1/sys/audit/export', body: { reason: 'kiểm tra cách ly' } },
+      {
+        path: '/api/v1/rpt/export',
+        body: { kind: 'monthly', month: monthOfToday(), reason: 'kiểm tra' },
+      },
+      { path: '/api/v1/rpt/export', body: { kind: 'reconcile', reason: 'kiểm tra' } },
+    ])('export $path: nothing of tnt_demo', async ({ path, body }) => {
+      const res = await h.call('POST', path, {
+        cookie: outsider,
+        key: 'exp-outsider-0000001',
+        body,
+      });
+      expect([200, 403, 409, 422]).toContain(res.status);
+      expect(containsAny(res.text, everyId())).toEqual([]);
+    });
+
+    it('search, notifications and the audit trail of the outsider carry nothing of tnt_demo', async () => {
+      for (const path of [
+        '/api/v1/crm/customers?q=ZZQ7&limit=20',
+        '/api/v1/crm/customers?q=ZZTD&limit=20',
+        '/api/v1/sys/audit?limit=100',
+        '/api/v1/sys/notifications',
+        '/api/v1/sys/users?limit=100',
+      ]) {
+        const res = await h.call('GET', path, { cookie: outsider });
+        expect([200, 403, 404]).toContain(res.status);
+        expect(containsAny(res.text, everyId()), path).toEqual([]);
+        expect(res.text).not.toContain('tnt_demo');
+      }
+    });
+
+    it('an idempotency key used in tnt_demo does not replay for the outsider (two tenants, two independent results)', async () => {
+      const key = 'shared-key-000000000001';
+      const body = { type: 'individual', name: 'Khach trung khoa', phone: '0912345678' };
+      const demo = await h.call('POST', '/api/v1/crm/customers', {
+        cookie: viewers.ownerAll,
+        key,
+        body,
+      });
+      const other = await h.call('POST', '/api/v1/crm/customers', { cookie: outsider, key, body });
+      expect(demo.headers.get('idempotent-replayed')).toBeNull();
+      expect(other.headers.get('idempotent-replayed')).toBeNull();
+      if (demo.status === 201 && other.status === 201) expect(other.json.id).not.toBe(demo.json.id);
+    });
   });
 });
 
