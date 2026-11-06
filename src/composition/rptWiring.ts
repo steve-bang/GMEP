@@ -3,6 +3,7 @@ import { decodeCursor } from '@/platform/pagination/pagination';
 import { branchesScope, scopeAllows, type Scope } from '@/platform/scope/scope';
 import { businessDate } from '@/platform/format/date';
 import type { AccDeps } from '@/modules/acc';
+import type { CrmDeps } from '@/modules/crm';
 import type { EinDeps } from '@/modules/ein';
 import { isOpenRequest } from '@/modules/ein';
 import type { InvDeps } from '@/modules/inv';
@@ -12,6 +13,7 @@ import {
   type BalanceFact,
   type Capped,
   type OrderFact,
+  type QuoteFact,
   type WorkItemFact,
   type RptDeps,
   type RptSources,
@@ -34,6 +36,7 @@ const orderFact = (o: RepairOrder): OrderFact => ({
   number: o.number,
   plate: o.plate,
   customerName: o.customerName,
+  customerId: o.customerId,
   status: o.status,
   createdAt: o.createdAt,
   ...(o.completedAt ? { completedAt: o.completedAt } : {}),
@@ -55,8 +58,45 @@ export function buildRptSources(
   getAcc: () => AccDeps,
   getEin: () => EinDeps,
   getInv: () => InvDeps,
+  getCrm?: () => CrmDeps,
 ): RptSources {
   return {
+    // FR-RPT-016: quotes created inside [since, until) of one branch, newest created first (the existing list query)
+    async quotes(scope, branchId, range, limit) {
+      const s = oneBranch(scope, branchId);
+      if (!s) return empty();
+      const items: QuoteFact[] = [];
+      let cursor: { v: string; id: string } | undefined = { v: range.until.toISOString(), id: '0' };
+      let truncated = false;
+      for (;;) {
+        const page = await getRec().quotes.list(s, { limit: 100, ...(cursor ? { cursor } : {}) });
+        let reached = false;
+        for (const q of page.items) {
+          if (q.createdAt.getTime() < range.since.getTime()) {
+            reached = true;
+            break;
+          }
+          if (items.length >= limit) {
+            truncated = true;
+            break;
+          }
+          items.push({ id: q.id, createdAt: q.createdAt, status: q.status });
+        }
+        if (truncated || reached || !page.nextCursor) break;
+        cursor = decodeCursor(page.nextCursor);
+      }
+      return { items, truncated };
+    },
+    // FR-RPT-015: customers are read by key through the scope-checked CRM batch read
+    async customerCreated(scope, ids) {
+      const out = new Map<string, Date>();
+      if (!getCrm) return out;
+      for (let i = 0; i < ids.length; i += 30) {
+        for (const c of await getCrm().customers.getMany(scope, ids.slice(i, i + 30)))
+          out.set(c.id, c.createdAt);
+      }
+      return out;
+    },
     async orders(scope, branchId, range, limit) {
       const s = oneBranch(scope, branchId);
       if (!s) return empty();
@@ -345,11 +385,12 @@ export function buildRpt(
   getAcc: () => AccDeps,
   getEin: () => EinDeps,
   getInv: () => InvDeps,
+  getCrm?: () => CrmDeps,
 ): RptDeps {
   return {
     sys,
     rollups: new DocRollupRepository(store),
-    sources: buildRptSources(getRec, getAcc, getEin, getInv),
+    sources: buildRptSources(getRec, getAcc, getEin, getInv, getCrm),
     rpt: { ...DEFAULT_RPT_CONFIG },
   };
 }

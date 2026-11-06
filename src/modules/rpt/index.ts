@@ -9,6 +9,7 @@ export const MODULE_CODE = 'RPT' as const;
 
 export * from './domain/rollup';
 export * from './domain/reports';
+export * from './domain/consolidation';
 export * from './ports/ports';
 export { DEFAULT_RPT_CONFIG } from './ports/deps';
 export type { RptDeps, RptConfig } from './ports/deps';
@@ -43,5 +44,18 @@ export type {
   WarehouseDto,
   TechniciansDto,
 } from './application/reports';
+export {
+  getRanking,
+  getCustomerReport,
+  getIndicators,
+  listBranchGroups,
+} from './application/consolidated';
+export type {
+  RankingDto,
+  RankingRowDto,
+  CustomerReportDto,
+  IndicatorsDto,
+  GroupDto,
+} from './application/consolidated';
 export { exportDaily, exportDailyCsv, exportReport, exportReportCsv } from './application/export';
 export { rptPolicyOf } from './application/support';

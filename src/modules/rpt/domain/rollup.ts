@@ -68,6 +68,14 @@ export interface OrderFact {
   promisedDate?: string;
   /** FR-RPT-014: service type code of the order (null = not set) */
   serviceType?: string | null;
+  /** FR-RPT-015 (slice 2.1): lets the rollup count customer visits; absent on legacy facts */
+  customerId?: string;
+}
+/** FR-RPT-016 (slice 2.1): a quote created inside the day, with the status it has now */
+export interface QuoteFact {
+  id: string;
+  createdAt: Date;
+  status: 'draft' | 'sent' | 'approved_full' | 'approved_partial' | 'rejected' | 'expired';
 }
 export interface LinesFact {
   /** approved lines, before tax */
@@ -143,6 +151,10 @@ export interface DayFacts {
   stockIssues: readonly StockIssueFact[];
   /** a source list hit its cap: the numbers are a lower bound and the screen says so */
   truncated: readonly string[];
+  /** slice 2.1: quotes created in the day; absent = not read (the rollup then omits `quotes`) */
+  quotes?: readonly QuoteFact[];
+  /** slice 2.1: creation time of the customers of the orders opened in the day; absent = not read */
+  customerCreated?: ReadonlyMap<string, Date>;
 }
 
 // ---- the rollup ----------------------------------------------------------------------------------------------------------
@@ -265,6 +277,20 @@ export const emptyServiceRollup = (serviceType: string | null): ServiceTypeRollu
 
 export const PAYMENT_METHOD_KEYS = ['cash', 'transfer', 'card', 'qr'] as const;
 
+export interface QuoteRollup {
+  created: number;
+  approved: number;
+  rejected: number;
+  expired: number;
+  /** sent and not decided yet */
+  pending: number;
+}
+export interface CustomerRollup {
+  visits: number;
+  newCount: number;
+  returningCount: number;
+}
+
 export interface DailyRollup {
   id: string;
   tenantId: string;
@@ -278,7 +304,7 @@ export interface DailyRollup {
    * flow of orders completed on the day without an invoice, R114). A rebuild upgrades a document; a document of an older
    * version lacks the field and reads as "not available" (never 0).
    */
-  schemaVersion: 1 | 2 | 3 | 4 | 5;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
   computedAt: Date;
   /** hash of everything below except `computedAt` and `sourceHash` (a rebuild that changes nothing writes nothing) */
   sourceHash: string;
@@ -338,6 +364,17 @@ export interface DailyRollup {
   byServiceType?: ServiceTypeRollup[];
   /** FR-RPT-014: documents not bound to an order of the scan; absent before schema 3 */
   unlinked?: UnlinkedRollup;
+  /**
+   * schema 6, FR-RPT-016: quotes CREATED on the day by their status now (an approved rate is a cohort figure:
+   * approved / decided, decided = approved + rejected + expired). Absent on older documents = n/a, never 0.
+   */
+  quotes?: QuoteRollup;
+  /**
+   * schema 6, FR-RPT-015: customer VISITS of the day = distinct customers of the orders opened that day. `newCount` =
+   * the customer record was created that day, `returningCount` = created before. Visits, not distinct people over a
+   * period (the same customer on two days counts twice). Absent on older documents = n/a.
+   */
+  customers?: CustomerRollup;
   alertCounts: Record<AlertKind, number>;
   alerts: AlertItem[];
   alertsTruncated: boolean;
@@ -371,6 +408,38 @@ const ageDaysOf = (from: Date, asOf: Date) =>
  * The daily rollup of one branch. `asOf` is the clock for age based alerts: the end of the day for a past date and
  * the current instant for today, so a rebuild of a past day is repeatable. Pure.
  */
+function quotesOf(quotes: readonly QuoteFact[], w: { from: Date; to: Date }): QuoteRollup {
+  const out: QuoteRollup = { created: 0, approved: 0, rejected: 0, expired: 0, pending: 0 };
+  for (const q of quotes) {
+    if (!inWindow(q.createdAt, w) || q.status === 'draft') continue;
+    out.created++;
+    if (q.status === 'approved_full' || q.status === 'approved_partial') out.approved++;
+    else if (q.status === 'rejected') out.rejected++;
+    else if (q.status === 'expired') out.expired++;
+    else out.pending++;
+  }
+  return out;
+}
+
+function customersOf(
+  orders: readonly OrderFact[],
+  created: ReadonlyMap<string, Date>,
+  w: { from: Date; to: Date },
+): CustomerRollup {
+  const seen = new Set<string>();
+  let newCount = 0;
+  let returningCount = 0;
+  for (const o of orders) {
+    if (!o.customerId || !inWindow(o.createdAt, w) || seen.has(o.customerId)) continue;
+    seen.add(o.customerId);
+    const at = created.get(o.customerId);
+    if (!at) continue; // unknown customer record: counted as a visit, neither new nor returning
+    if (inWindow(at, w)) newCount++;
+    else if (at.getTime() < w.from.getTime()) returningCount++;
+  }
+  return { visits: seen.size, newCount, returningCount };
+}
+
 export function computeDaily(
   key: { tenantId: string; branchId: string; date: string },
   facts: DayFacts,
@@ -637,7 +706,7 @@ export function computeDaily(
     branchId: key.branchId,
     date: key.date,
     official: facts.dayClosedAt !== null,
-    schemaVersion: 5 as const,
+    schemaVersion: 6 as const,
     orders: { opened, closed, handedOver, cancelled, openAtEnd },
     revenue: {
       orderTotalVnd: orderTotal,
@@ -677,6 +746,8 @@ export function computeDaily(
       (a.serviceType ?? '').localeCompare(b.serviceType ?? ''),
     ),
     unlinked,
+    ...(facts.quotes ? { quotes: quotesOf(facts.quotes, w) } : {}),
+    ...(facts.customerCreated ? { customers: customersOf(orders, facts.customerCreated, w) } : {}),
     alertCounts,
     alerts: alerts.sort(
       (a, b) =>

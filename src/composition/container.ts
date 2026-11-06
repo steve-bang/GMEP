@@ -413,6 +413,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       () => late.acc!,
       () => late.ein!,
       () => late.inv!,
+      () => late.crm!,
     );
     return { sys, crm, inv, rec, acc, ein, rpt, fakeProvider };
   };

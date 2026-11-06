@@ -89,6 +89,7 @@ const COMPANY_LEVEL_RESOURCES: ReadonlySet<string> = new Set([
   'numbering-series',
   'part-catalog',
   'price-list',
+  'catalog-release',
   'report-config',
   'service-catalog',
   'tax-rate',

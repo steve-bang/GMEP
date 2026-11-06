@@ -139,6 +139,91 @@ export async function resolveCatalogAt(
   return out.sort((a, b) => a.code.localeCompare(b.code));
 }
 
+/**
+ * FR-SYS-016: is a shared catalogue entry released to a branch on `date`? No release version = unrestricted. Used by the
+ * consumers of a catalogue (offer lists) and by the release screen; it never reads another tenant (the key carries the tenant).
+ */
+export async function isReleasedToBranch(
+  deps: SysDeps,
+  q: { tenantId: string; catalog: string; itemCode: string; branchId: string; date: string },
+): Promise<{ released: boolean; versionId: string | null; effectiveFrom: string | null }> {
+  const v = pickEffective(
+    await versionsOf(deps, q.tenantId, 'catalog-release', `${q.catalog}:${q.itemCode}`),
+    q.date,
+  );
+  if (!v) return { released: true, versionId: null, effectiveFrom: null };
+  const p = v.payload as { audience: 'all' | 'branches'; branchIds?: string[] };
+  return {
+    released: p.audience === 'all' || (p.branchIds ?? []).includes(q.branchId),
+    versionId: v.id,
+    effectiveFrom: v.effectiveFrom,
+  };
+}
+
+const releaseQuery = z.object({
+  catalog: z.enum(['service', 'discount', 'payment-method', 'inspection-template']),
+  itemCode: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+});
+
+export interface CatalogReleaseDto {
+  catalog: string;
+  itemCode: string;
+  date: string;
+  versionId: string | null;
+  effectiveFrom: string | null;
+  audience: 'all' | 'branches' | 'unrestricted';
+  branches: { branchId: string; code: string; name: string; released: boolean }[];
+}
+
+/** FR-SYS-016: which branches (of the actor's scope) see a catalogue entry on a date. Read only; changes go through the config proposal. */
+export async function getCatalogRelease(
+  deps: SysDeps,
+  actor: Actor,
+  raw: unknown,
+): Promise<CatalogReleaseDto> {
+  const scope = resolveScope(actor, 'catalog-release:view');
+  const q = parseInput(releaseQuery, raw);
+  const date = q.date ?? businessDateOf(deps.clock.now());
+  const branches = await deps.branches.list(scope);
+  const rows = await Promise.all(
+    branches.map(async (b) => ({
+      b,
+      r: await isReleasedToBranch(deps, {
+        tenantId: actor.tenantId,
+        catalog: q.catalog,
+        itemCode: q.itemCode,
+        branchId: b.id,
+        date,
+      }),
+    })),
+  );
+  const version = rows[0]?.r ?? { versionId: null, effectiveFrom: null };
+  const v = version.versionId
+    ? pickEffective(
+        await versionsOf(deps, actor.tenantId, 'catalog-release', `${q.catalog}:${q.itemCode}`),
+        date,
+      )
+    : null;
+  return {
+    catalog: q.catalog,
+    itemCode: q.itemCode,
+    date,
+    versionId: version.versionId,
+    effectiveFrom: version.effectiveFrom,
+    audience: v ? (v.payload as { audience: 'all' | 'branches' }).audience : 'unrestricted',
+    branches: rows.map(({ b, r }) => ({
+      branchId: b.id,
+      code: b.code,
+      name: b.name,
+      released: r.released,
+    })),
+  };
+}
+
 export function snapshotOf(v: ConfigVersion): ConfigSnapshot {
   return {
     type: v.type,

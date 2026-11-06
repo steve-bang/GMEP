@@ -43,6 +43,8 @@ export interface ShellInfo {
     alerts: boolean;
     /** FR-RPT-005: the warehouse report is gated by the stock view right (a storekeeper has no daily report) */
     warehouseReport: boolean;
+    /** slice 2.1 (Q85): branch ranking for the owner and the regional manager */
+    ranking: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -109,6 +111,7 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       dailyReport: can('report-daily:view'),
       alerts: can('report-alert:view'),
       warehouseReport: can('stock:view'),
+      ranking: can('report-ranking:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),

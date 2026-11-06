@@ -99,13 +99,15 @@ export {
   decideConfig,
   resolveConfigAt,
   resolveCatalogAt,
+  isReleasedToBranch,
+  getCatalogRelease,
   approvedChangesBetween,
   snapshotOf,
   canViewConfig,
   tenantLimitsAt,
   checkTenantLimit,
 } from './application/config';
-export type { ConfigVersionDto, LimitCheck } from './application/config';
+export type { ConfigVersionDto, LimitCheck, CatalogReleaseDto } from './application/config';
 export { allocateDocumentNumber, resolveNumberingSeries } from './application/numbering';
 export {
   notifyUsers,
@@ -176,3 +178,5 @@ export type {
   TransitionOutcome,
   PlatformCaller,
 } from './application/tenants';
+export { listLoginHistory } from './application/loginHistory';
+export type { LoginHistoryRow } from './application/loginHistory';
