@@ -34,7 +34,7 @@
     s.parentNode.replaceChild(f, s);
   }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-  function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
+  function ic(n, c) { return '<svg class="icon' + (c ? ' ' + esc(c) : '') + '" aria-hidden="true"><use href="#' + esc(n) + '"/></svg>'; }
   function list(v) { return (v || '').split(/\s+/).filter(Boolean); }
 
   var mode = B.getAttribute('data-tsu-mode') || 'app';

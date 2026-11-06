@@ -7,7 +7,7 @@
   var b = document.body;
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
-  function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
+  function ic(n, c) { return '<svg class="icon' + (c ? ' ' + esc(c) : '') + '" aria-hidden="true"><use href="#' + esc(n) + '"/></svg>'; }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
   /* Chỉ điều hướng tới địa chỉ cùng nguồn gốc (file: trong bản xem thử), chặn javascript: và trang ngoài */
   function safeGo(u) {
