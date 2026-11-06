@@ -137,3 +137,9 @@ Thay thế mô tả so sánh ở "Cập nhật 04/11/2026 (6)" (2a) và dòng Q-
 - **Đã có từ trước, nay ghi đúng:** tải mẫu nhập `.xlsx`; cột "đã xuất hóa đơn" khi lọc loại dịch vụ đã sửa ở rollup v3 và có test hồi quy sẵn ở `rpt.test.ts` ("the invoiced column stays non-zero when filtered").
 - **Còn mở:** quy ước làm tròn nửa lên chờ kế toán ký. "Lệnh phát sinh chưa hóa đơn" là trạng thái hóa đơn tại thời điểm chạy tổng hợp (không phải cuối ngày lịch sử), nên một ngày cũ chạy lại sau khi đã xuất hóa đơn sẽ đổi số; BA cần xác nhận định nghĩa này. Kỳ hiện tại thiếu ngày rollup chưa đánh dấu n/a (chỉ kỳ trước, theo R111); riêng chỉ số mới thì n/a nếu ngày có rollup nhưng thiếu trường, ở cả hai kỳ. Chưa có test trình duyệt cho màn hình mới.
 
+### Sửa theo review: n/a không bao giờ là 0 (R111)
+
+- Ngày có rollup nhưng schema < 4 không tách được theo loại dịch vụ là "không tách được" (`previousBreakdownUnavailableDates`, `currentBreakdownUnavailableDates`, `naReason = 'breakdown-unavailable'`), khác "thiếu rollup" (`previousMissingDates`); thông điệp riêng trên màn và CSV.
+- KPI "lệnh chưa hóa đơn phát sinh" hiện "n/a" kèm lý do khi kỳ này có ngày thiếu trường (schema < 5, hoặc ngày v4 khi lọc loại), có ngày không tách được theo loại, kỳ trước không đủ dữ liệu, hoặc không có kỳ so sánh (tháng tương lai): `uninvoicedNewNaReason`.
+- `previousUnlinked` chỉ có số khi có kỳ so sánh và kỳ trước đủ ngày, tách được theo loại; ngược lại `null` và `previousUnlinkedNa` (`no-comparison`, `no-data`, `missing`, `breakdown-unavailable`) hiện trên màn và dòng `unlinkedPrevious.na` trong CSV. Không thêm chỉ mục.
+- Còn mở: ngày kỳ này không tách được theo loại chỉ làm n/a riêng chỉ số lệnh chưa hóa đơn; các chỉ số khác của kỳ này vẫn là tổng các ngày còn lại (đã có ghi chú "N ngày chưa có số liệu theo loại"). Cần BA quyết định có đánh n/a cả delta các chỉ số kia không.

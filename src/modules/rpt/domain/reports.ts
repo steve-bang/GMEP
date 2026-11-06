@@ -120,6 +120,10 @@ export interface MetricComparison {
   state: CompareState;
 }
 
+export type ComparisonNaReason = 'no-data' | 'missing' | 'breakdown-unavailable';
+export type UninvoicedNaReason =
+  ComparisonNaReason | 'old-schema' | 'current-breakdown-unavailable';
+
 export interface MonthComparison {
   kind: ComparisonKind;
   /** the earlier month compared (`yyyy-MM`) */
@@ -135,8 +139,20 @@ export interface MonthComparison {
   previousPresent: number;
   /** days of the previous range with no rollup: NOT counted as zero; any of them makes every metric n/a (R111) */
   previousMissingDates: string[];
-  /** why the metrics are n/a: nothing for the whole range, or n days missing; null when comparable */
-  naReason: 'no-data' | 'missing' | null;
+  /**
+   * days of the previous range whose rollup exists but cannot be split by the filtered service type (schema < 4): not
+   * "missing", not zero; any of them makes every metric n/a (R111)
+   */
+  previousBreakdownUnavailableDates: string[];
+  /** same for the current range (those days are left out of the current figures) */
+  currentBreakdownUnavailableDates: string[];
+  /**
+   * why the metrics are n/a: nothing for the whole range, n days missing, or n days that cannot be split by service type;
+   * null when comparable
+   */
+  naReason: ComparisonNaReason | null;
+  /** why the uninvoiced flow alone is n/a (current or earlier range lacks it); null when it is a real number */
+  uninvoicedNewNaReason: UninvoicedNaReason | null;
   /**
    * days of either range whose rollup is present but lacks `uninvoicedNew` (built before schema 5): that metric alone is
    * n/a (R111, never 0) until they are rebuilt
@@ -217,6 +233,8 @@ function metricOf(current: number, previous: number | null): MetricComparison {
 export interface PreviousPeriod {
   period: ComparisonPeriod;
   rows: readonly Rolled[];
+  /** days of the range present but not splittable by the filtered service type (`forServiceType.unavailableDates`) */
+  unavailableDates?: readonly string[];
 }
 
 type Rolled = Pick<
@@ -312,19 +330,45 @@ export function computeMonthly(
   month: string,
   rows: readonly Rolled[],
   previous?: PreviousPeriod,
+  currentUnavailable: readonly string[] = [],
 ): MonthlyReport {
   const cur = sumMonth(month, rows, monthDates(month));
-  return { ...cur, comparison: previous ? compare(month, rows, previous) : null };
+  return {
+    ...cur,
+    comparison: previous ? compare(month, rows, previous, currentUnavailable) : null,
+  };
 }
 
 /** AC-RPT-002-1..6: flow figures of the current range against the earlier range; incomplete earlier range = n/a (R111). */
-function compare(month: string, rows: readonly Rolled[], prev: PreviousPeriod): MonthComparison {
+function compare(
+  month: string,
+  rows: readonly Rolled[],
+  prev: PreviousPeriod,
+  currentUnavailable: readonly string[],
+): MonthComparison {
   const { period } = prev;
   const curDates = dateRange(period.current.from, period.current.to);
   const prevDates = dateRange(period.previous.from, period.previous.to);
   const c = sumMonth(month, rows, curDates);
   const p = sumMonth(period.month, prev.rows, prevDates);
-  const complete = p.missingDates.length === 0;
+  // R111: a day that exists but cannot be split by service type is "unavailable", not "missing" (different cause, fix)
+  const inRange = (xs: readonly string[] | undefined, dates: readonly string[]) => {
+    const want = new Set(dates);
+    return (xs ?? []).filter((d) => want.has(d)).sort();
+  };
+  const prevUnavailable = inRange(prev.unavailableDates, prevDates);
+  const curUnavailable = inRange(currentUnavailable, curDates);
+  const dropped = new Set(prevUnavailable);
+  const prevMissing = p.missingDates.filter((d) => !dropped.has(d));
+  const complete = prevMissing.length === 0 && prevUnavailable.length === 0;
+  const naReason: ComparisonNaReason | null =
+    prevMissing.length > 0
+      ? p.present === 0 && prevUnavailable.length === 0
+        ? 'no-data'
+        : 'missing'
+      : prevUnavailable.length > 0
+        ? 'breakdown-unavailable'
+        : null;
   // R114/R111: the uninvoiced flow exists only on schema 5 rollups; a present day without it makes the metric n/a
   // (both ranges: a current day without it would understate the current figure)
   const lacking = (rs: readonly Rolled[], dates: readonly string[]) => {
@@ -334,14 +378,22 @@ function compare(month: string, rows: readonly Rolled[], prev: PreviousPeriod): 
       .map((r) => r.date)
       .sort();
   };
-  const uninvoicedNewMissingDates = [...lacking(rows, curDates), ...lacking(prev.rows, prevDates)];
+  const curLacking = lacking(rows, curDates);
+  const uninvoicedNewMissingDates = [...curLacking, ...lacking(prev.rows, prevDates)];
   const flowOf = (rs: readonly Rolled[], dates: readonly string[]) => {
     const want = new Set(dates);
     return sum(
       rs.filter((r) => want.has(r.date)).map((r) => r.invoices.completedWithoutInvoiceCount ?? 0),
     );
   };
-  const newOk = complete && uninvoicedNewMissingDates.length === 0;
+  // the current figure is a real number only when no current day lacks the flow (R111): never a short sum
+  const uninvoicedNewNaReason: UninvoicedNaReason | null =
+    curLacking.length > 0
+      ? 'old-schema'
+      : curUnavailable.length > 0
+        ? 'current-breakdown-unavailable'
+        : (naReason ?? (uninvoicedNewMissingDates.length > 0 ? 'old-schema' : null));
+  const newOk = uninvoicedNewNaReason === null;
   const prevValue: Record<ComparedMetric, number | null> = {
     exTaxVnd: complete ? p.revenue.exTaxVnd : null,
     closed: complete ? p.orders.closed : null,
@@ -357,8 +409,11 @@ function compare(month: string, rows: readonly Rolled[], prev: PreviousPeriod): 
     previousDays: prevDates.length,
     lengthDiffers: curDates.length !== prevDates.length,
     previousPresent: p.present,
-    previousMissingDates: p.missingDates,
-    naReason: complete ? null : p.present === 0 ? 'no-data' : 'missing',
+    previousMissingDates: prevMissing,
+    previousBreakdownUnavailableDates: prevUnavailable,
+    currentBreakdownUnavailableDates: curUnavailable,
+    naReason,
+    uninvoicedNewNaReason,
     uninvoicedNewMissingDates,
     metrics: {
       exTaxVnd: metricOf(c.revenue.exTaxVnd, prevValue.exTaxVnd),

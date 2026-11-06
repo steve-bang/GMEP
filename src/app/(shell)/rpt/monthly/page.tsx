@@ -1,7 +1,12 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { businessDate } from '@/platform/format/date';
-import { getMonthly, type MetricComparison } from '@/modules/rpt';
+import {
+  getMonthly,
+  type MetricComparison,
+  type PreviousUnlinkedNa,
+  type UninvoicedNaReason,
+} from '@/modules/rpt';
 import { listServiceTypes } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -71,14 +76,35 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
     const a = Math.abs(tenths);
     return `${tenths > 0 ? '+' : tenths < 0 ? '-' : ''}${Math.trunc(a / 10)},${a % 10}%`;
   };
+  // R111: one reason text per n/a cause (never a number that is short or 0)
+  const naText = (
+    reason: UninvoicedNaReason | PreviousUnlinkedNa | null,
+    uninvoiced = false,
+  ): string => {
+    switch (reason) {
+      case 'missing':
+        return fill(l.vsPrevNaMissing!, { n: cmp?.previousMissingDates.length ?? 0 });
+      case 'breakdown-unavailable':
+        return fill(l.vsPrevNaBreakdown!, {
+          n: cmp?.previousBreakdownUnavailableDates.length ?? 0,
+        });
+      case 'current-breakdown-unavailable':
+        return fill(l.vsPrevNaCurrentBreakdown!, {
+          n: cmp?.currentBreakdownUnavailableDates.length ?? 0,
+        });
+      case 'old-schema':
+        return fill(l.vsPrevNaOldSchema!, {
+          n: uninvoiced ? (cmp?.uninvoicedNewMissingDates.length ?? 0) : 0,
+        });
+      case 'no-comparison':
+        return l.vsPrevNone!;
+      default:
+        return l.vsPrevNaNoData!;
+    }
+  };
   const change = (m: MetricComparison | undefined, fmt: (n: number) => string): string => {
     if (!cmp || !m) return l.vsPrevNone!;
-    if (m.state === 'na')
-      return cmp.naReason === 'missing'
-        ? fill(l.vsPrevNaMissing!, { n: cmp.previousMissingDates.length })
-        : cmp.naReason === 'no-data'
-          ? l.vsPrevNaNoData!
-          : fill(l.vsPrevNaOldSchema!, { n: cmp.uninvoicedNewMissingDates.length });
+    if (m.state === 'na') return naText(cmp.naReason ?? 'no-data');
     const abs = `${sign(m.deltaAbs!)}${fmt(m.deltaAbs!)}`;
     if (m.state === 'none') return l.vsPrevBothZero!;
     if (m.state === 'new') return fill(l.vsPrevNew!, { abs });
@@ -140,6 +166,14 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
       </Note>
       {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
       {d.previousUnlinked ? <UnlinkedNote u={d.previousUnlinked} labels={l} previous /> : null}
+      {d.previousUnlinkedNa ? (
+        <Note tone="warning" testId="rpt-unlinked-previous-na">
+          <strong>{l.unlinkedPreviousTitle}</strong>{' '}
+          {naText(
+            d.previousUnlinkedNa === 'no-comparison' ? 'no-comparison' : d.previousUnlinkedNa,
+          )}
+        </Note>
+      ) : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
@@ -171,11 +205,19 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
         {d.visible.invoices ? (
           <Kpi
             label={l.kUninvoicedNew!}
-            value={String(cmp?.metrics.uninvoicedNew.current ?? 0)}
+            value={
+              cmp && cmp.uninvoicedNewNaReason === null
+                ? String(cmp.metrics.uninvoicedNew.current)
+                : l.na!
+            }
             formula={l.fUninvoicedNew!}
             meta={
               <span data-testid="m-uninvoiced-delta">
-                {change(cmp?.metrics.uninvoicedNew, String)}
+                {!cmp
+                  ? l.vsPrevNone
+                  : cmp.metrics.uninvoicedNew.state === 'na'
+                    ? naText(cmp.uninvoicedNewNaReason ?? 'no-data', true)
+                    : change(cmp.metrics.uninvoicedNew, String)}
               </span>
             }
             testId="m-uninvoiced"

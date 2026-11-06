@@ -13,6 +13,7 @@ import {
   computeWarehouse,
   MONTH_RE,
   monthDates,
+  type ComparisonNaReason,
   type MonthlyReport,
   type ReconcileReport,
   type ReconcileVisible,
@@ -57,6 +58,8 @@ const monthSchema = z.object({
   comparison: z.enum(COMPARISON_KINDS).default(DEFAULT_COMPARISON),
 });
 
+export type PreviousUnlinkedNa = 'no-comparison' | ComparisonNaReason;
+
 export interface MonthlyDto {
   branchId: string;
   branchName: string;
@@ -67,8 +70,10 @@ export interface MonthlyDto {
   breakdownUnavailableDates: string[];
   /** FR-RPT-014: documents with no order, only with a service-type filter (null otherwise) */
   unlinked: UnlinkedRollup | null;
-  /** R108 for the earlier period: with the type lines it adds up to the unfiltered figures of that period */
+  /** R108 for the earlier period: with the type lines it adds up to the unfiltered figures of that period; null (n/a) unless that period is complete and splittable by type (R111) */
   previousUnlinked: UnlinkedRollup | null;
+  /** why `previousUnlinked` is n/a: no comparison (future month) or the earlier period's no-data/missing/breakdown-unavailable; null without a filter or when it is a real figure */
+  previousUnlinkedNa: PreviousUnlinkedNa | null;
   report: MonthlyReport;
   visible: Visible;
   mayExport: boolean;
@@ -93,6 +98,24 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
   ]);
   const narrowed = q.serviceType ? forServiceType(all, q.serviceType) : null;
   const prevNarrowed = q.serviceType ? forServiceType(prevAll, q.serviceType) : null;
+  const report = computeMonthly(
+    q.month,
+    narrowed ? narrowed.rolls : all,
+    period
+      ? {
+          period,
+          rows: prevNarrowed ? prevNarrowed.rolls : prevAll,
+          unavailableDates: prevNarrowed?.unavailableDates ?? [],
+        }
+      : undefined,
+    narrowed?.unavailableDates ?? [],
+  );
+  // R111: the earlier "no order" lines are a real figure only when that whole period exists and splits by type
+  const prevNa: PreviousUnlinkedNa | null = !prevNarrowed
+    ? null
+    : !report.comparison
+      ? 'no-comparison'
+      : report.comparison.naReason;
   return {
     branchId: branch.id,
     branchName: branch.name,
@@ -100,12 +123,9 @@ export async function getMonthly(deps: RptDeps, actor: Actor, raw: unknown): Pro
     serviceType: q.serviceType ?? null,
     breakdownUnavailableDates: narrowed?.unavailableDates ?? [],
     unlinked: narrowed ? sumUnlinked(narrowed.included) : null,
-    previousUnlinked: prevNarrowed ? sumUnlinked(prevNarrowed.included) : null,
-    report: computeMonthly(
-      q.month,
-      narrowed ? narrowed.rolls : all,
-      period ? { period, rows: prevNarrowed ? prevNarrowed.rolls : prevAll } : undefined,
-    ),
+    previousUnlinked: prevNarrowed && prevNa === null ? sumUnlinked(prevNarrowed.included) : null,
+    previousUnlinkedNa: prevNa,
+    report,
     // FR-RPT-014: narrowed to a service type, money by method, receivables and stock are not attributable and not shown
     visible: q.serviceType
       ? { ...visibleOf(actor), receivables: false, cash: false }

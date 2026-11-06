@@ -189,6 +189,8 @@ describe('monthly comparison with the previous month (FR-RPT-002, AC-RPT-002-1..
       lengthDiffers: false,
       previousPresent: 2,
       previousMissingDates: [],
+      previousBreakdownUnavailableDates: [],
+      currentBreakdownUnavailableDates: [],
       naReason: null,
     });
     // exTax 2_000_000 vs 2_000_000: same, 0 bp, 0 absolute
@@ -365,6 +367,82 @@ describe('monthly comparison with the previous month (FR-RPT-002, AC-RPT-002-1..
     expect(n.rolls[1]!.invoices.completedWithoutInvoiceCount).toBeUndefined();
     const other = forServiceType([v5], 'tires');
     expect(other.rolls[0]!.invoices.completedWithoutInvoiceCount).toBe(0);
+  });
+
+  describe('R111: n/a is never a short sum or 0 (service-type breakdown, schema < 4 / < 5, future month)', () => {
+    const v = (date: string, schemaVersion: 3 | 4 | 5, completed = 0): Day =>
+      ({
+        ...day(date, { closed: 1, labor: 100_000 }),
+        schemaVersion,
+        byServiceType: [
+          { ...emptyServiceRollup('maintenance'), completedNotInvoicedCount: completed },
+        ],
+      }) as Day;
+    const period = comparisonPeriod(K, '2026-11', '2026-11-02')!;
+    const run = (curRows: Day[], prevRows: Day[]) => {
+      const c = forServiceType(curRows, 'maintenance');
+      const p = forServiceType(prevRows, 'maintenance');
+      return computeMonthly(
+        '2026-11',
+        c.rolls,
+        { period, rows: p.rolls, unavailableDates: p.unavailableDates },
+        c.unavailableDates,
+      ).comparison!;
+    };
+
+    it('a schema 4 day in the current range makes the uninvoiced flow n/a (not the short sum)', () => {
+      const c = run(
+        [v('2026-11-01', 5, 3), v('2026-11-02', 4)],
+        [v('2026-10-01', 5, 1), v('2026-10-02', 5, 1)],
+      );
+      expect(c.uninvoicedNewNaReason).toBe('old-schema');
+      expect(c.metrics.uninvoicedNew).toMatchObject({ previous: null, state: 'na' });
+      expect(c.metrics.closed.state).not.toBe('na');
+    });
+
+    it('a schema 3 day in the current range is a breakdown-unavailable day, uninvoiced flow n/a with its own reason', () => {
+      const c = run(
+        [v('2026-11-01', 5, 3), v('2026-11-02', 3)],
+        [v('2026-10-01', 5, 1), v('2026-10-02', 5, 1)],
+      );
+      expect(c.currentBreakdownUnavailableDates).toEqual(['2026-11-02']);
+      expect(c.uninvoicedNewNaReason).toBe('current-breakdown-unavailable');
+    });
+
+    it('previous range schema < 4 under a type filter: breakdown-unavailable, not missing', () => {
+      const c = run(
+        [v('2026-11-01', 5, 3), v('2026-11-02', 5, 3)],
+        [v('2026-10-01', 3), v('2026-10-02', 5, 1)],
+      );
+      expect(c.naReason).toBe('breakdown-unavailable');
+      expect(c.previousMissingDates).toEqual([]);
+      expect(c.previousBreakdownUnavailableDates).toEqual(['2026-10-01']);
+      expect(c.uninvoicedNewNaReason).toBe('breakdown-unavailable');
+      for (const k of COMPARED_METRICS) expect(c.metrics[k].state).toBe('na');
+    });
+
+    it('previous range: truly absent day stays missing, whole range empty stays no-data, mixed is missing', () => {
+      expect(run([v('2026-11-01', 5), v('2026-11-02', 5)], [v('2026-10-02', 5)]).naReason).toBe(
+        'missing',
+      );
+      expect(run([v('2026-11-01', 5)], []).naReason).toBe('no-data');
+      const mixed = run([v('2026-11-01', 5)], [v('2026-10-01', 3)]);
+      expect(mixed.naReason).toBe('missing');
+      expect(mixed.previousMissingDates).toEqual(['2026-10-02']);
+      expect(mixed.previousBreakdownUnavailableDates).toEqual(['2026-10-01']);
+    });
+
+    it('without a filter nothing is breakdown-unavailable', () => {
+      const m = computeMonthly('2026-11', cur, mk('2026-11', '2026-11-02', oct())).comparison!;
+      expect(m.previousBreakdownUnavailableDates).toEqual([]);
+      expect(m.currentBreakdownUnavailableDates).toEqual([]);
+      expect(m.uninvoicedNewNaReason).toBeNull();
+    });
+
+    it('a future month has no comparison at all', () => {
+      expect(comparisonPeriod(K, '2027-01', '2026-11-02')).toBeNull();
+      expect(computeMonthly('2027-01', []).comparison).toBeNull();
+    });
   });
 
   it('R112: both concrete ranges are present; a shorter earlier month is taken whole and labelled (March vs February)', () => {

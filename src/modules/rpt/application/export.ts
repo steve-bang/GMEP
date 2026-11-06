@@ -203,11 +203,25 @@ function comparisonRows(
   if (c.naReason === 'no-data') rows.push(row('compare.na', lbl('compare.na.noData')));
   if (c.naReason === 'missing')
     rows.push(row('compare.na', `${lbl('compare.na.missing')} ${c.previousMissingDates.length}`));
-  if (showInvoices && c.uninvoicedNewMissingDates.length > 0)
+  if (c.naReason === 'breakdown-unavailable')
+    rows.push(
+      row(
+        'compare.na',
+        `${lbl('compare.na.breakdown')} ${c.previousBreakdownUnavailableDates.length}`,
+      ),
+    );
+  if (showInvoices && c.uninvoicedNewNaReason === 'old-schema')
     rows.push(
       row(
         'compare.uninvoicedNew.na',
         `${lbl('compare.na.oldSchema')} ${c.uninvoicedNewMissingDates.length}`,
+      ),
+    );
+  if (showInvoices && c.uninvoicedNewNaReason === 'current-breakdown-unavailable')
+    rows.push(
+      row(
+        'compare.uninvoicedNew.na',
+        `${lbl('compare.na.currentBreakdown')} ${c.currentBreakdownUnavailableDates.length}`,
       ),
     );
   for (const m of COMPARED_METRICS) {
@@ -316,6 +330,23 @@ export async function exportReport(
         ...unlinkedRows(d.unlinked, row),
         // R108: the previous period adds up the same way (type lines + the lines without an order)
         ...unlinkedRows(d.previousUnlinked, row, 'unlinkedPrevious'),
+        // R111: n/a with its reason, never 0
+        ...(d.previousUnlinkedNa
+          ? [
+              row(
+                'unlinkedPrevious.na',
+                lbl(
+                  d.previousUnlinkedNa === 'no-comparison'
+                    ? 'compare.na.noComparison'
+                    : d.previousUnlinkedNa === 'no-data'
+                      ? 'compare.na.noData'
+                      : d.previousUnlinkedNa === 'missing'
+                        ? 'compare.na.missing'
+                        : 'compare.na.breakdown',
+                ),
+              ),
+            ]
+          : []),
       ];
       break;
     }
