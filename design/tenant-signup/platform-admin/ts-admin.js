@@ -5,7 +5,7 @@
   var page = document.body.getAttribute('data-tsa-page') || '';
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
-  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
   function toast(k, t, x) { if (window.gmepToast) window.gmepToast(k, t, x); }
   function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase(); }
@@ -19,7 +19,7 @@
   function fullPhone(p) { return p.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3'); }
   function renderPII(el) {
     var id = el.getAttribute('data-pii'), p = PII[id] || '0900000000';
-    el.innerHTML = '<span class="tsa-mono">' + maskPhone(p) + '</span><button type="button" class="btn btn--ghost btn--sm" data-pii-show aria-label="Hiện số điện thoại của ' + id + '">' + ic('eye', 'icon--sm') + 'Hiện</button>';
+    el.innerHTML = '<span class="tsa-mono">' + maskPhone(p) + '</span><button type="button" class="btn btn--ghost btn--sm" data-pii-show aria-label="Hiện số điện thoại của ' + esc(id) + '">' + ic('eye', 'icon--sm') + 'Hiện</button>';
     if (el._iv) { clearInterval(el._iv); el._iv = null; }
   }
   document.addEventListener('click', function (e) {
