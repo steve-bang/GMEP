@@ -119,7 +119,8 @@
     var ids = (btn.getAttribute('data-requires') || '').split(' ').filter(Boolean);
     var okc = ids.every(function (id) { var el = document.getElementById(id); return el && el.checked; });
     if (!okc) return false;
-    if (btn.hasAttribute('data-requires-bot')) { var bot = $('[data-bot]'); if (bot && bot.getAttribute('data-bot-state') !== 'ok') return false; }
+    /* Kiểm tra người thật chỉ chặn khi nó đang hiện (trạng thái nghi ngờ); gửi form bình thường không cần bấm */
+    if (btn.hasAttribute('data-requires-bot')) { var bot = $('[data-bot]'); if (bot && !bot.closest('[hidden]') && bot.getAttribute('data-bot-state') !== 'ok') return false; }
     return true;
   }
   function missingFields(form) {
@@ -205,7 +206,6 @@
       }
       else if (k === 'org') { if (v.length < 2 || v.length > 200) m = 'Nhập tên doanh nghiệp hoặc hộ kinh doanh đúng như giấy đăng ký.'; }
       else if (k === 'name') { if (v.length < 2 || v.length > 100 || !/[A-Za-zÀ-ỹ]/.test(v)) m = 'Nhập họ và tên đầy đủ của người sở hữu.'; }
-      else if (k === 'code') { v = v.toLowerCase(); i.value = v; if (!/^[a-z0-9-]{3,40}$/.test(v)) m = 'Nhập mã công ty. Mã có trong email chào mừng.'; }
       else if (k === 'len') { if (v && (v.length < +p[1] || v.length > +p[2])) m = msg(i, 'len', 'Nhập từ ' + p[1] + ' đến ' + p[2] + ' ký tự.'); }
       else if (k === 'date') { if (!v) m = msg(i, 'required', 'Chọn ngày hiệu lực.'); else if (!/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(v)) m = msg(i, 'date', 'Nhập ngày theo dạng dd/MM/yyyy, ví dụ 12/11/2026.'); }
       else if (k === 'int') { if (v && (!/^\d+$/.test(v) || +v < 1)) m = msg(i, 'int', 'Nhập số nguyên lớn hơn 0.'); }
@@ -251,7 +251,7 @@
       var m = check(i); setErr(i, m); if (m) bad.push({ id: i.id, m: m, el: i });
     });
     var bot = $('[data-bot]', f);
-    if (bot && bot.hasAttribute('data-bot-required') && bot.getAttribute('data-bot-state') !== 'ok') {
+    if (bot && bot.hasAttribute('data-bot-required') && !bot.closest('[hidden]') && bot.getAttribute('data-bot-state') !== 'ok') {
       setBot(bot, 'error'); bad.push({ id: $('[data-bot-btn]', bot).id, m: 'Chưa xác nhận được bạn là người thật. Hãy thử lại hoặc chọn cách khác.', el: $('[data-bot-btn]', bot) });
     }
     var sum = $('[data-summary]', f);
@@ -320,6 +320,9 @@
   });
   function policy(inp) {
     var v = inp.value, min = +(inp.getAttribute('data-min') || 10), low = v.toLowerCase();
+    /* Điều kiện và thanh độ mạnh chỉ hiện khi bắt đầu gõ; ô trống thì không báo gì (không X đỏ). Mục đạt chuyển xanh dần. */
+    var fld = inp.closest('.field');
+    if (fld) { $$('.tsp-rules, .tsp-strength-row', fld).forEach(function (x) { x.hidden = !v.length; }); }
     var ok = { len: v.length >= min, common: v.length > 0 && COMMON_PW.indexOf(low) < 0, avoid: v.length > 0 && !avoids(inp, low) };
     $$('.tsp-rules li[data-r]').forEach(function (li) {
       var k = li.getAttribute('data-r'); if (!(k in ok)) return;
@@ -456,12 +459,6 @@
     var lab = $('[data-copy-label]', c), old = lab ? lab.textContent : '';
     if (lab) { lab.textContent = 'Đã sao chép'; setTimeout(function () { lab.textContent = old; }, 2500); }
     toast('success', 'Đã sao chép', txt);
-  });
-  document.addEventListener('click', function (e) {
-    var f = e.target.closest('[data-forget]'); if (!f) return;
-    var t = document.getElementById(f.getAttribute('data-forget')); if (t) { t.value = ''; t.focus(); }
-    $$('[data-show~="remembered"]').forEach(function (x) { x.hidden = true; });
-    toast('info', 'Đã xóa mã công ty khỏi thiết bị này', 'Lần sau bạn cần nhập lại mã công ty.');
   });
 
   /* ---------- Khởi động ---------- */
