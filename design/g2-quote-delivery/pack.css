@@ -285,6 +285,31 @@ body.g2q-cust-page { background: var(--color-surface-subtle); font-size: 1rem; }
 .g2q-sheet--thermal .g2q-d-sign i { margin-top: 10mm; }
 .g2q-sheet--a4 .g2q-d-hide-a4 { display: none; }
 
+/* ==========================================================================
+   Chống tràn ngang ở 320px (07/11/2026, đo Playwright)
+   - Ô OTP (hộp thoại G2-QUO-05): co đều khi thiếu chỗ, tối đa 48px như cũ.
+   - fieldset mặc định min-width: min-content; đặt về 0.
+   - Dưới 360px: nút xuống dòng (G2-DLV-03 "Đề nghị duyệt giao xe còn nợ (ngoại lệ)"),
+     header thẻ xuống dòng (G2-QUO-04/05: mã báo giá + nút "Quay lại"), mã chứng từ ngắt ở dấu gạch,
+     tooltip hiện thành dải cố định phía trên bottom nav thay vì treo ngoài mép phải (G2-QUO-03),
+     dòng "Đối tượng liên quan" cho badge trạng thái xuống dòng.
+   Các quy tắc trong @media chỉ áp dụng dưới 360px nên 390/768/1440 không đổi.
+   ========================================================================== */
+.otp { max-width: 100%; }
+.otp__cell { flex: 0 1 48px; width: auto; min-width: 0; }
+fieldset { min-width: 0; }
+@media (max-width: 359px) {
+  .btn { white-space: normal; text-align: center; }
+  .table .btn, .table .code { white-space: nowrap; }
+  .code { white-space: normal; }
+  .card__header, .card__footer { flex-wrap: wrap; }
+  body { overflow-wrap: break-word; }
+  .tooltip { position: fixed; left: var(--space-4); right: var(--space-4); top: auto; bottom: 88px; transform: none; width: auto; max-width: none; }
+  .g2q-head { padding: var(--space-4); }
+  .g2q-links__item { display: flex; flex-wrap: wrap; justify-content: space-between; }
+  .g2q-links__item > :first-child { flex: 1 1 auto; min-width: 0; }
+}
+
 @media print {
   .sidebar, .topbar, .bottom-nav, .drawer-nav-backdrop, .net-banner, .breadcrumb, .page-header, .scope-banner,
   .g2q-noprint, .g2q-proto, .overlay, .toast-region, .skip-link { display: none !important; }

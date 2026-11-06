@@ -164,7 +164,7 @@ body[data-role="TN"] .g4r-tn-only { display: revert; }
 .g4r-tree ul { list-style: none; margin: 0; padding-left: var(--space-8); border-left: 1px solid var(--color-border); margin-left: var(--space-3); }
 .g4r-tree__node { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; min-height: 52px; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-border); }
 .g4r-tree__node strong { font-weight: 600; }
-.g4r-tree__node .g4r-tree__actions { margin-left: auto; display: flex; gap: var(--space-2); }
+.g4r-tree__node .g4r-tree__actions { margin-left: auto; display: flex; gap: var(--space-2); flex-wrap: wrap; max-width: 100%; }   /* 07/11/2026: cụm nút được xuống dòng (G4-SYS-05 ở 320px) */
 .g4r-diffbox { background: var(--color-surface-subtle); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); }
 .g4r-before { color: var(--color-danger-text); }
 .g4r-after { color: var(--color-success-text); }
@@ -177,3 +177,19 @@ body[data-role="TN"] .g4r-tn-only { display: revert; }
 .g4r-print--th { width: 240px; }
 .g4r-sec { display: grid; gap: var(--space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 639px) { .g4r-sec { grid-template-columns: 1fr; } }
+
+/* ===== Chống tràn ngang ở 320px (07/11/2026, đo Playwright) =====
+   G4-SYS-05: nút "Nhận lệnh mới trở lại" + "Khóa hoàn toàn…" nằm trong cây lồng 2 cấp (thụt 44px) không xuống dòng.
+   Đã cho .g4r-tree__actions xuống dòng (ở trên). Dưới 360px: giảm thụt lề cây, tag dài được xuống dòng,
+   nút/header/footer thẻ/mã chứng từ xuống dòng, tooltip thành dải cố định. Chỉ áp dụng dưới 360px. */
+fieldset { min-width: 0; }
+@media (max-width: 359px) {
+  .btn { white-space: normal; text-align: center; }
+  .table .btn, .table .code { white-space: nowrap; }
+  .code { white-space: normal; }
+  .card__header, .card__footer { flex-wrap: wrap; }
+  body { overflow-wrap: break-word; }
+  .tooltip { position: fixed; left: var(--space-4); right: var(--space-4); top: auto; bottom: 88px; transform: none; width: auto; max-width: none; }
+  .g4r-tree ul { padding-left: var(--space-4); margin-left: var(--space-2); }
+  .g4r-tree__node .tag { height: auto; min-height: 24px; white-space: normal; max-width: 100%; }
+}

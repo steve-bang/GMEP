@@ -150,4 +150,17 @@
 .g3-grow { flex: 1 1 360px; min-width: 0; }
 /* Mã lệnh trong thẻ được xuống dòng ở màn hẹp (320px), không đẩy huy hiệu dài ra ngoài */
 @media (max-width: 639px) { .record .code { white-space: normal; } .record__top { flex-wrap: wrap; } }
+/* ===== Chống tràn ngang ở 320px (07/11/2026, đo Playwright) =====
+   G3-INV-06: header thẻ yêu cầu = mã lệnh (.code, nowrap) + badge "Đang sửa chữa" trên một hàng không xuống dòng.
+   Dưới 360px: header/footer thẻ xuống dòng, mã chứng từ ngắt được ở dấu gạch, nút xuống dòng, tooltip thành dải cố định.
+   Chỉ áp dụng dưới 360px nên 390/768/1440 không đổi. */
+fieldset { min-width: 0; }
+@media (max-width: 359px) {
+  .btn { white-space: normal; text-align: center; }
+  .table .btn, .table .code { white-space: nowrap; }
+  .code { white-space: normal; }
+  .card__header, .card__footer { flex-wrap: wrap; }
+  body { overflow-wrap: break-word; }
+  .tooltip { position: fixed; left: var(--space-4); right: var(--space-4); top: auto; bottom: 88px; transform: none; width: auto; max-width: none; }
+}
 .g3-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2) var(--space-4); }

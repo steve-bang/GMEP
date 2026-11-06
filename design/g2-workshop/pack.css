@@ -213,6 +213,28 @@ a.g2w-link:hover { background: var(--color-surface-hover); text-decoration: none
 /* Hộp thoại nền (màn Dlg đứng riêng) */
 .g2w-ghost { opacity: .55; pointer-events: none; }
 
+/* ---------- Chống tràn ngang ở 320px (07/11/2026, đo Playwright) ----------
+   - Thẻ xe (.vehicle-card, G2-CRM-03, G2-REC-01): cột nội dung "1fr" có min-content = biển số + badge trên một hàng
+     (.row--nowrap) nên thẻ bị kéo rộng hơn khung. Cho cột co về 0 và cho badge xuống dòng khi thiếu chỗ
+     (khi đủ chỗ vẫn một hàng như cũ).
+   - fieldset mặc định min-width: min-content nên bảng phụ tùng bên trong (G2-REC-06, bước 4 của G2-REC-01)
+     đẩy cả trang; đặt về 0 để .table-scroll tự cuộn ngang trong khung bảng.
+   - Dưới 360px: nút, header/footer thẻ, mã chứng từ được xuống dòng; tooltip hiện thành dải cố định. */
+.vehicle-card { grid-template-columns: 56px minmax(0, 1fr); }
+.vehicle-card .row--nowrap { flex-wrap: wrap; }
+fieldset { min-width: 0; }
+/* Tên khách trên hồ sơ (G2-CRM-03) dùng chung class mã lệnh (nowrap); tên doanh nghiệp dài phải xuống dòng */
+.g2w-profile .g2w-ro-head__code { white-space: normal; overflow-wrap: break-word; }
+@media (max-width: 359px) {
+  .btn { white-space: normal; text-align: center; }
+  .table .btn, .table .code { white-space: nowrap; }
+  .code { white-space: normal; }
+  .card__header, .card__footer { flex-wrap: wrap; }
+  body { overflow-wrap: break-word; }
+  .tooltip { position: fixed; left: var(--space-4); right: var(--space-4); top: auto; bottom: 88px; transform: none; width: auto; max-width: none; }
+  .vehicle-card { gap: var(--space-3); padding: var(--space-3); }
+}
+
 /* Chữ không được nhỏ hơn 12px, vùng bấm cảm ứng ≥ 44px cho phần tử của gói */
 @media (pointer: coarse), (max-width: 1023px) {
   .g2w-appt, .g2w-fuel .chip-filter { min-height: 44px; }
