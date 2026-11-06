@@ -16,7 +16,7 @@
 | CD3 | **Bỏ MFA cho vai trò nền tảng**, tạm thời bỏ qua; rủi ro chấp nhận có thời hạn xem lại (Q36; R-TEN-13). `StrongAuthPort` vẫn là hook trống | như trên |
 | CD4 | Tên sản phẩm = **GMEP** (bỏ GARAGE OS; C-S24); `brand.name` mặc định "GMEP" | như trên |
 
-**Hệ quả của CD1 đến CD4 cho dev (mục 2A bên dưới):** một danh tính nhiều membership, phiên chọn tenant, email duy nhất toàn nền tảng, không có đồng hồ trial, không MFA nền tảng, danh tính nền tảng tách vùng. Q37 (thứ tự MT-1 so với pilot) và Q38 (điều khoản tenant số 1) **chưa quyết**: BA có khuyến nghị ở `docs/multi-tenant-open-questions.md` mục 1B, dev chưa coi là chốt.
+**Hệ quả của CD1 đến CD4 cho dev (mục 2A bên dưới):** một danh tính nhiều membership, phiên chọn tenant, email duy nhất toàn nền tảng, không có đồng hồ trial, không MFA nền tảng, danh tính nền tảng tách vùng. **Q37 và Q38 đã chốt theo ủy quyền 06/11/2026** (người điều phối chấp nhận khuyến nghị BA; phần pháp lý vẫn cần luật sư): MT-0 xong trước go-live pilot, MT-1 sau khi pilot ổn định, mở đăng ký hai nấc; tenant số 1 ký thỏa thuận đối tác thiết kế ngắn và Điều khoản/DPA bản chuẩn trước dữ liệu thật. Dev được lập kế hoạch theo đó. Câu trả lời MT0-1..7, giá trị mặc định Q40, quy tắc Q41 và **danh sách việc MT-0 còn lại theo thứ tự ưu tiên (phần bắt buộc trước go-live và phần để MT-1)**: `docs/dev/open-questions-for-ba.md`, mục "Trả lời của BA cho MT0-1 đến MT0-7".
 
 Mô hình thương mại: SaaS dùng chung (S1). Mọi thứ khác (cách cô lập, đợt, FR cụ thể) là **đề xuất BA chờ xác nhận**, đặc biệt: bản tối giản đăng ký (QĐT-S, FR-TEN-051 đến 055, RULE-033, 034) và feedback 06/11 (QĐT-S01 đến S09). Không hard-code đáp án cho câu `[Cần xác nhận]`; đưa vào cấu hình hoặc cổng/port.
 
@@ -63,6 +63,10 @@ BA chỉ nêu ràng buộc nghiệp vụ; cách mô hình hóa, lưu trữ và t
 | **Vùng danh tính nền tảng** | Nhân sự nền tảng ở vùng danh tính tách khỏi tenant; email nhân sự nền tảng không trùng email thành viên tenant (FR-TEN-011); không tài khoản nào vừa nền tảng vừa tenant | UAT-TEN-06 |
 | **Không có đồng hồ trial** | Tenant không gán gói = gói mặc định miễn phí (RULE-035): **không** trường ngày hết hạn trial, không job hết hạn trial, không trạng thái `trial`, không `expired` do hết dùng thử, không hóa đơn nền tảng. Vẫn giữ chỗ lưu gói và một điểm kiểm tra hạn mức/tính năng mặc định cho phép (hook MT-2). Giới hạn tenant miễn phí và tenant bỏ hoang là tham số cấu hình chờ Q40 | UAT-TEN-16 (viết lại) |
 | **Không MFA nền tảng** | `StrongAuthPort` giữ là hook trống cho mọi vai trò (CD3). Biện pháp bù phải có thật: hai người duyệt thao tác nhạy cảm (RULE-027), nhật ký nền tảng bất biến (FR-TEN-013), phiên hỗ trợ có đồng ý (RULE-022), tách vùng danh tính; ghi rủi ro R-TEN-13, xem lại trước MT-1 | UAT-TEN-02, 06 |
+| **Đồng ý khi vào tư cách thêm (MT0-4)** | Chấp nhận lời mời vào tư cách thêm của danh tính có sẵn phải ghi đồng ý quy định của tenant mời (người, tenant, phiên bản, thời điểm, bằng chứng phiên); chưa đồng ý thì tư cách ở `invited`. Quản trị tenant không đặt hộ mật khẩu, không đổi email của danh tính; thư báo đổi mật khẩu không liệt kê tên tenant | UAT-TEN-07 |
+| **Cổng pilot cho tenant số 1 (Q38)** | Hồ sơ tenant có bản ghi chấp thuận Điều khoản/DPA theo phiên bản (nhập thủ công); thiếu bản ghi thì chặn nhập Excel dữ liệu thật, hóa đơn `live` và bước `onboarding -> active` | UAT-TEN-01 |
+| **Khóa phạm vi cấu hình (MT0-5)** | Đổi `company` thành `tenant` trước khi có dữ liệu thật; id phiên bản cũ vẫn đọc được | UAT-TEN-08 |
+| **Hạn mức tenant miễn phí (Q40)** | Chỉ cần điểm kiểm tra mặc định cho phép ở MT-0; giá trị mặc định đề xuất và thang tenant bỏ hoang ở `dev/open-questions-for-ba.md`; tenant số 1 là ngoại lệ ghi trên hồ sơ; không thang nào xóa dữ liệu | UAT-TEN-16 |
 | **Tên hiển thị** | Mọi chuỗi tên sản phẩm lấy từ `brand.name`, mặc định "GMEP" (FR-TEN-055); không viết cứng "GARAGE OS" | UAT-TEN-22 |
 
 **Chỉ mục:** nếu danh tính/tư cách thành viên cần truy vấn mới (ví dụ tra tư cách theo email), phải dùng lại hình truy vấn sẵn có hoặc đọc theo khóa; không nâng trần 195 (mục 5).
@@ -75,7 +79,7 @@ BA chỉ nêu ràng buộc nghiệp vụ; cách mô hình hóa, lưu trữ và t
 | MT-2 Gói tùy chọn và hạn mức (14 FR; **không trial**) | Danh mục gói tùy chọn, quota, bật/tắt module, feature flag, đo mức dùng, bảng kê | Chỗ lưu gói/thuê bao, mặc định gói miễn phí; **một điểm kiểm tra hạn mức và tính năng, mặc định cho phép**; sự kiện sử dụng đếm được theo tenant |
 | MT-3 Thu tiền (5 FR) | Thanh toán gói, hóa đơn của nền tảng, dunning, tên miền, benchmark (người dùng nhiều tenant đã lên MT-0) | `restricted`/`suspended` thực thi ở lớp truy cập; thông tin người mua của tenant đã xác minh; số liệu tiền nền tảng tách khỏi sổ tenant |
 
-Điều kiện mở đăng ký cho người ngoài và điều kiện thu tiền: xem `multi-tenant-open-questions.md` mục 4 và 5. Thứ tự MT-1 so với pilot là Q37 (chủ dự án chưa quyết; BA khuyến nghị MT-0 xong và qua cổng trước go-live pilot, MT-1 build sau khi pilot ổn định, xem `multi-tenant-open-questions.md` mục 1B; dev đừng lên kế hoạch dựa trên khuyến nghị này như thể đã chốt, nhưng ước lượng MT-0 theo DEV-10 là đầu vào để chủ dự án đặt mức trễ chấp nhận).
+Điều kiện mở đăng ký cho người ngoài và điều kiện thu tiền: xem `multi-tenant-open-questions.md` mục 4 và 5. Thứ tự MT-1 so với pilot là Q37, **đã chốt theo ủy quyền 06/11/2026**: MT-0 xong và qua cổng trước go-live pilot, MT-1 build sau khi pilot ổn định (`multi-tenant-open-questions.md` mục 1A, 1B). Ước lượng MT-0 theo DEV-10 vẫn là đầu vào để chủ dự án đặt mức trễ chấp nhận.
 
 ## 4. Ràng buộc nghiệp vụ lên các lớp nền
 
@@ -169,7 +173,7 @@ Lỗi rò rỉ chặn phát hành và chặn kích hoạt tenant mới (FR-TEN-0
 
 BA không chọn thay. Chi tiết, người trả lời và khuyến nghị: `docs/multi-tenant-open-questions.md` mục 2 và mục 6.
 
-**Chờ owner/khách/luật sư/kế toán** (không dev nào tự quyết được): Q2 (số tenant), Q3 (có đòi tách vật lý), Q14 (khách đầu tiên đồng ý, sở hữu hạ tầng), Q12/Q32 và Q27 (ở mức hook), Q37 (thứ tự MT-1 so với pilot, BA đã khuyến nghị), Q38 (tenant số 1 chấp nhận điều khoản, cần luật sư), Q24 (vai trò nền tảng), Q40 (giới hạn tenant miễn phí), Q41 (quy tắc vận hành danh tính một-nhiều). Đã quyết 06/11/2026 nên **không còn chặn**: Q4/Q25/C-S14, Q21/Q34, Q36, C-S24.
+**Chờ owner/khách/luật sư/kế toán** (không dev nào tự quyết được): Q2 (số tenant), Q3 (có đòi tách vật lý), Q14 (khách đầu tiên đồng ý, sở hữu hạ tầng), Q12/Q32 và Q27 (ở mức hook), Q24 (vai trò nền tảng), Q40 (giới hạn tenant miễn phí, BA đã đề xuất mặc định), Q41 (quy tắc vận hành danh tính một-nhiều, BA đã trả lời mức nghiệp vụ). Đã quyết 06/11/2026 nên **không còn chặn**: Q4/Q25/C-S14, Q21/Q34, Q36 (mốc MFA nền tảng: trước MT-1), C-S24, Q37 và Q38 (chốt theo ủy quyền; mức trễ pilot và phần [LS] của Q38 còn mở nhưng không chặn dev).
 
 **Dev trả lời trong ADR (DEV-1 đến DEV-10):** phương án cô lập và bằng chứng theo bảy tiêu chí; ảnh hưởng chỉ mục; ánh xạ `companyId` sang tenant/Company (M1); mô hình danh tính một-nhiều (U2 đã quyết) và thu hồi phiên theo tư cách (mục 2A); cấp phát tự động idempotent (spike, Q26); giữ số chứng từ và khóa hóa đơn khi chuyển tenant số 1 (M7); URL ký và tác vụ nền theo tenant (M8, M9); phân biệt dữ liệu thử/thật (C-15); chống bot, nguồn tra MST, liên kết một lần (C-17, C-S16); kế hoạch retrofit (M13).
 
