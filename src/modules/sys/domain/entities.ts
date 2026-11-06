@@ -75,6 +75,9 @@ export interface RoleAssignmentRecord {
   createdBy: string;
 }
 
+/** Role definitions are per tenant (FR-TEN-009): the document id carries the tenant, so two tenants may use the same code. */
+export const roleDocId = (tenantId: string, code: string): string => `${tenantId}__${code}`;
+
 export const roleAssignmentId = (userId: string, roleCode: string, branchId: string): string =>
   `ra_${userId}_${roleCode}_${branchId === '*' ? 'all' : branchId}`;
 

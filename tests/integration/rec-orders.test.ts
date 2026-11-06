@@ -1169,10 +1169,11 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
       const owner = await h.login('u_owner');
       // simulate a role created before this slice: remove the new grants and forget the top-ups
       const roles = h.container.sys.roles;
-      const [cvRole] = await roles.getMany(['CV']);
+      const [cvRole] = await roles.getMany('tnt_demo', ['CV']);
       await h.container.sys.uow.run(async (tx) => {
         roles.upsert(
           tx,
+          'tnt_demo',
           {
             ...cvRole!,
             permissions: cvRole!.permissions.filter(
@@ -1189,7 +1190,7 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
       expect(r1.json.added.CV).toEqual(
         expect.arrayContaining(['quote:approve', 'repair-order:create']),
       );
-      const [after] = await roles.getMany(['CV']);
+      const [after] = await roles.getMany('tnt_demo', ['CV']);
       expect(after!.permissions).toEqual(
         expect.arrayContaining(['quote:approve', 'repair-order:update']),
       );

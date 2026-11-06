@@ -53,7 +53,7 @@ export async function loadActor(
     (a) => a.tenantId === user.tenantId,
   );
   const codes = [...new Set(assignments.map((a) => a.roleCode))];
-  const roles = await deps.roles.getMany(codes);
+  const roles = await deps.roles.getMany(user.tenantId, codes);
   const rolePermissions: Record<string, readonly string[]> = {};
   for (const r of roles) rolePermissions[r.code] = r.permissions;
   return {

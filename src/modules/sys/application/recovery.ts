@@ -115,7 +115,9 @@ export async function peekToken(
     deps.assignments.listForUser(user.id),
     deps.branches.list(allBranchesScope(user.tenantId)),
   ]);
-  const roles = await deps.roles.getMany([...new Set(assignments.map((a) => a.roleCode))]);
+  const roles = await deps.roles.getMany(user.tenantId, [
+    ...new Set(assignments.map((a) => a.roleCode)),
+  ]);
   const branchNames = assignments.map((a) =>
     a.branchId === '*'
       ? translate('shell.scopeAll')

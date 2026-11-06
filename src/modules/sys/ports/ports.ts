@@ -79,9 +79,10 @@ export interface UserRepository {
 }
 
 export interface RoleRepository {
-  getMany(codes: readonly string[]): Promise<Role[]>;
-  list(): Promise<Role[]>;
-  upsert(tx: Tx, role: Role, meta: { at: Date; by: string }): void;
+  /** Roles are per tenant (FR-TEN-009): a tenant administrator edits only the roles of its own tenant. */
+  getMany(tenantId: string, codes: readonly string[]): Promise<Role[]>;
+  list(tenantId: string): Promise<Role[]>;
+  upsert(tx: Tx, tenantId: string, role: Role, meta: { at: Date; by: string }): void;
 }
 
 export interface RoleAssignmentRepository {

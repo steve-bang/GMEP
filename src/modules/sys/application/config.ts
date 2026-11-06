@@ -327,7 +327,7 @@ export async function proposeConfig(
 }
 
 async function approverIds(deps: SysDeps, actor: Actor, permission: Permission): Promise<string[]> {
-  const roles = await deps.roles.list();
+  const roles = await deps.roles.list(actor.tenantId);
   const codes = roles.filter((r) => r.permissions.includes(permission)).map((r) => r.code);
   const ids = new Set<string>();
   for (const code of codes)

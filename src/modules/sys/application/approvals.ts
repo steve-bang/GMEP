@@ -197,7 +197,7 @@ async function approversOf(
   level: ApprovalLevel,
   kind: ApprovalKind,
 ): Promise<string[]> {
-  const roles = (await deps.roles.list()).filter((r) =>
+  const roles = (await deps.roles.list(tenantId)).filter((r) =>
     r.permissions.includes(approverPermissionFor(kind, level)),
   );
   return usersWithRole(

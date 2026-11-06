@@ -233,7 +233,7 @@ async function assertAssignable(
     throw forbidden();
   if (OWNER_APPROVED_ROLES.includes(a.roleCode) && !hasPermission(actor, 'user:approve'))
     throw new AppError('approval_required', 403); // needs the owner (BA §2.3)
-  const [role] = await deps.roles.getMany([a.roleCode]);
+  const [role] = await deps.roles.getMany(actor.tenantId, [a.roleCode]);
   if (!role)
     throw new AppError('validation_failed', 422, [{ field: 'roleCode', message: 'unknown role' }]);
   if (a.branchId !== '*') {

@@ -9,6 +9,7 @@ import type { DocData, DocStore, StoredDoc } from '@/platform/store/docStore';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import {
   normalizeEmployeeCode,
+  roleDocId,
   type AuthToken,
   type Branch,
   type Company,
@@ -268,21 +269,31 @@ export class DocUserRepository implements UserRepository {
 export class DocRoleRepository implements RoleRepository {
   constructor(private readonly store: DocStore) {}
   private from = ({ id, data: x }: StoredDoc): Role => ({
-    code: id,
+    code: x.code ?? id,
     name: x.name,
     permissions: x.permissions ?? [],
     canConsolidate: x.canConsolidate === true,
     appliedTopUps: x.appliedTopUps ?? [],
   });
-  async getMany(codes: readonly string[]) {
-    return (await this.store.getMany(COL.roles, codes)).map(this.from);
+  async getMany(tenantId: string, codes: readonly string[]) {
+    const rows = await this.store.getMany(
+      COL.roles,
+      codes.map((c) => roleDocId(tenantId, c)),
+    );
+    // defence in depth (FR-TEN-009): a document of another tenant is never returned
+    return rows.filter((d) => d.data.tenantId === tenantId).map(this.from);
   }
-  async list() {
-    const rows = await this.store.query(Q.roles.pick([], false), { limit: 200 });
+  async list(tenantId: string) {
+    const rows = await this.store.query(Q.roles.pick([], false), {
+      eq: { tenantId },
+      limit: 200,
+    });
     return rows.map(this.from);
   }
-  upsert(tx: Tx, role: Role, meta: { at: Date; by: string }) {
-    this.store.set(tx, COL.roles, role.code, {
+  upsert(tx: Tx, tenantId: string, role: Role, meta: { at: Date; by: string }) {
+    this.store.set(tx, COL.roles, roleDocId(tenantId, role.code), {
+      tenantId,
+      code: role.code,
       name: role.name,
       permissions: [...role.permissions],
       canConsolidate: role.canConsolidate,

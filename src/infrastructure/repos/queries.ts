@@ -135,10 +135,12 @@ export const Q = {
   warehouses: listFamilies(COL.warehouses, 'warehouses.list', [], 'branchId'),
   services: listFamilies(COL.services, 'services.list', ['group']),
   priceLists: listFamilies(COL.priceLists, 'priceLists.list', []),
+  /** a tenant's roles (a few tens): ordered by the equality field itself, so no composite index is needed */
   roles: defineQuery({
     name: 'roles.list',
     collection: COL.roles,
-    order: { field: 'name', dir: 'asc', type: 'string' },
+    eq: ['tenantId'],
+    order: { field: 'tenantId', dir: 'asc', type: 'string' },
   }),
   /** all branches of a company (a few tens), sorted by code; branch scopes read by id */
   branchesByTenant: defineQuery({

@@ -4,6 +4,7 @@
  */
 import {
   defaultRoleSeeds,
+  roleDocId,
   roleAssignmentId,
   warehouseId,
   type Branch,
@@ -160,7 +161,9 @@ export function demoDocs(): SeedDoc[] {
     docs.push({ collection, id, data });
   put(COL.tenants, DEMO_TENANT, { name: 'Garage Demo', legalEntityIds: [] });
   for (const r of defaultRoleSeeds())
-    put(COL.roles, r.code, {
+    put(COL.roles, roleDocId(DEMO_TENANT, r.code), {
+      tenantId: DEMO_TENANT,
+      code: r.code,
       name: r.name,
       permissions: r.permissions,
       canConsolidate: r.canConsolidate,

@@ -15,6 +15,7 @@ import { z } from 'zod';
 import {
   BRANCH_CODE_PATTERN,
   defaultRoleSeeds,
+  roleDocId,
   newOpaqueToken,
   normalizeEmployeeCode,
   roleAssignmentId,
@@ -105,7 +106,9 @@ export function bootstrapDocs(cfg: BootstrapConfig, now: Date): SeedDoc[] {
   const audit = { createdAt: now, createdBy: 'bootstrap', updatedAt: now, updatedBy: 'bootstrap' };
   put(COL.tenants, cfg.tenantId, { name: cfg.tenantName, legalEntityIds: [] });
   for (const r of defaultRoleSeeds())
-    put(COL.roles, r.code, {
+    put(COL.roles, roleDocId(cfg.tenantId, r.code), {
+      tenantId: cfg.tenantId,
+      code: r.code,
       name: r.name,
       permissions: r.permissions,
       canConsolidate: r.canConsolidate,
