@@ -1,6 +1,6 @@
 # Thiết kế: đăng nhập cho thợ không có email (P2-C, phương án A của BA)
 
-Trạng thái: **ghi chú thiết kế, chưa code. Chờ chủ dự án xác nhận** vì chạm RULE-034 và FR-TEN-016, 017 (định danh duy nhất là email). Nguồn: `docs/dev/phase-2-plan.md` mục 14.4; `ba-answers-for-dev.md` §1.6, D-03. Mã hiện tại: `src/modules/sys/application/auth.ts` (`login`), `src/modules/sys/domain/entities.ts` (`identityOf`), `src/infrastructure` (cổng `identity`, `throttle`, `strongAuth`).
+Trạng thái: **Đã duyệt, đang làm** (chủ dự án xác nhận phương án A ngày 07/11/2026, câu P2-C; nhánh `feat/worker-login`, xem `docs/dev/status.md` mục "Đăng nhập nhân viên không email"). Khác ghi chú dưới đây khi làm: địa chỉ nội bộ băm (tenant, mã NV) thay vì ghép slug (không lộ mã, không vượt 64 ký tự), không lưu mà tính lại; mật khẩu tạm do quản lý đặt (không sinh và hiện một lần, để không phải lưu hay trả mật khẩu); quyền đặt lại là `user-credential:manage`. Nguồn: `docs/dev/phase-2-plan.md` mục 14.4; `ba-answers-for-dev.md` §1.6, D-03. Mã hiện tại: `src/modules/sys/application/auth.ts` (`login`), `src/modules/sys/domain/entities.ts` (`identityOf`), `src/infrastructure` (cổng `identity`, `throttle`, `strongAuth`).
 
 ## 1. Hiện trạng và vấn đề
 
