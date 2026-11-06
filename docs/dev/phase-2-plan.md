@@ -46,7 +46,7 @@ Quy ước: "phụ thuộc cứng" là slice phải xong trước; "tenant" ngh�
 
 ## 3. Thứ tự và song song
 
-Thứ tự: **2.5 trước**; sau đó song song 2.1 và 2.6a (không chung dữ liệu); rồi 2.2, 2.7, 2.8a; rồi 2.4, 2.8b; rồi 2.3a, 2.3b, 2.6b; 2.9 cuối. Tối đa 2 agent chạy song song (CLAUDE.md, implementation-plan §3). Các cặp không nên chạy song song vì cùng sửa một lõi: 2.2 với 2.3a (cùng sổ kho, cùng loại phiếu ADJ), 2.4 với 2.7 (cùng công nợ). 2.6a và 2.5 chạm chung khái niệm "loại yêu cầu duyệt" (điều chỉnh công thủ công): 2.6a dùng cơ chế duyệt tối thiểu hiện có với một loại mới, 2.5 giữ tương thích ngược.
+Thứ tự: **2.5 trước**; sau đó song song 2.1 và 2.6a (không chung dữ liệu); **2.8b đưa lên sớm theo yêu cầu chủ dự án (07/11/2026)**: làm ngay sau 2.5/2.1/2.6a, phần không phụ thuộc 2.8a trước (lịch hẹn và công suất, tiếp nhận từ lịch, bảo hành theo cấu hình chờ Q77, gói bảo dưỡng, hạng mục bị từ chối, khách doanh nghiệp, gộp khách); REC-034/035 (nhắc báo giá hết hạn, đặt lịch trực tuyến) chỉ dùng cổng thông báo hiện có (`notifyUsers`, nhà cung cấp giả) và hoàn tất khi 2.8a xong; rồi 2.2, 2.7, 2.8a; rồi 2.4; rồi 2.3a, 2.3b, 2.6b; 2.9 cuối. Tối đa 2 agent chạy song song (CLAUDE.md, implementation-plan §3). Các cặp không nên chạy song song vì cùng sửa một lõi: 2.2 với 2.3a (cùng sổ kho, cùng loại phiếu ADJ), 2.4 với 2.7 (cùng công nợ). 2.6a và 2.5 chạm chung khái niệm "loại yêu cầu duyệt" (điều chỉnh công thủ công): 2.6a dùng cơ chế duyệt tối thiểu hiện có với một loại mới, 2.5 giữ tương thích ngược.
 
 Điều kiện chặn thật (dev vẫn làm được bằng cấu hình mặc định, nhưng slice chưa "đóng" nếu thiếu): ví dụ công thợ ký (UAT-11, Q73), bảng ví dụ giá vốn ký (UAT-25, Q66), nhà cung cấp Zalo/SMS (gửi thật, Q78), khảo sát đồng sơn (2.9, Q86), chính sách bảo hành chéo (Q77), hạn mức duyệt ban hành (Q67; trước go-live thật bắt buộc nhập, không để seed minh họa).
 
@@ -380,7 +380,7 @@ Vấn đề: ba-answers-for-dev §1.6 và D-03 quyết thợ không có email đ
 | B | Bắt buộc mọi người có email (tạo email miễn phí) | Một kiểu định danh | Không thực tế với thợ; phụ thuộc người dùng giữ hộp thư |
 | C | Thợ không có tài khoản, chỉ dùng PIN trên thiết bị xưởng | Đơn giản | Không tự xem công của mình, không đổi mật khẩu, PIN chưa có (chủ dự án cung cấp sau) |
 
-Quyết định BA theo ủy quyền: **A**. `[Cần xác nhận: Chủ dự án]` vì chạm RULE-034 (câu P2-C). Dev: **SỬA, việc riêng ngoài ba slice này**, làm trước go-live pilot: (1) tạo người dùng không email (QL cấp mật khẩu tạm); (2) màn đăng nhập nhận mã công ty + mã nhân viên; (3) test cô lập (cùng mã NV0001 ở hai tenant không lẫn), test thời gian đồng đều, test không lộ mã công ty có tồn tại hay không. Nếu pilot chưa có thợ đăng nhập (chỉ QĐ, QL, CV có email) thì không chặn pilot; ghi rõ trạng thái đó ở `status.md`.
+Quyết định: **A**, **chủ dự án đã xác nhận ngày 07/11/2026** (câu P2-C, ngoại lệ có kiểm soát của RULE-034). Dev: **SỬA, việc riêng ngoài ba slice này**, làm trước go-live pilot: (1) tạo người dùng không email (QL cấp mật khẩu tạm); (2) màn đăng nhập nhận mã công ty + mã nhân viên; (3) test cô lập (cùng mã NV0001 ở hai tenant không lẫn), test thời gian đồng đều, test không lộ mã công ty có tồn tại hay không. Nếu pilot chưa có thợ đăng nhập (chỉ QĐ, QL, CV có email) thì không chặn pilot; ghi rõ trạng thái đó ở `status.md`.
 
 ### 14.5 Danh sách thay đổi bắt buộc cho dev (tóm tắt)
 
@@ -396,7 +396,7 @@ Quyết định BA theo ủy quyền: **A**. `[Cần xác nhận: Chủ dự án
 | --- | --- | --- | --- | --- | --- |
 | P2-A (mở rộng Q68) | Chủ dự án | Các chi nhánh có hạn mức duyệt khác nhau không (ví dụ chi nhánh lớn nhận hạn mức cao hơn)? | Chung toàn tenant; theo chi nhánh | Chung ở giai đoạn 2 | Theo chi nhánh: thêm giao diện và test ghi đè chi nhánh trong 2.5 (khóa đã giữ chỗ) |
 | P2-B (mở rộng Q85) | Chủ dự án | Quản lý chi nhánh có thấy thứ hạng của mình không (không thấy chi nhánh khác)? | Không; thấy hạng của mình | Không | Thấy hạng: thêm một DTO ẩn tên, quyền riêng |
-| P2-C | Chủ dự án | Chọn phương án đăng nhập cho nhân viên không email (14.4) | A, B, C | A | B hoặc C: đổi FR-SYS-001 và luồng tạo người dùng |
+| P2-C | Chủ dự án | Chọn phương án đăng nhập cho nhân viên không email (14.4) — **ĐÃ QUYẾT 07/11/2026: A** | A, B, C | A | B hoặc C: đổi FR-SYS-001 và luồng tạo người dùng |
 | P2-D (mở rộng ba-answers-04 câu 5) | Chủ dự án | Xác nhận thêm hai vai trò NS (nhân sự) và MH (mua hàng) và thời điểm thêm | Thêm ở Phase 2; để QL và CH kiêm | Thêm: NS cùng 2.6b, MH cùng 2.4 | Kiêm nhiệm: QL xem toàn bộ dữ liệu cá nhân nhân sự chi nhánh |
 | P2-E | Khách | Thợ có làm thường xuyên ở hai chi nhánh cùng lúc (hỗ trợ cố định) không; công tính ở chi nhánh nào | Chỉ một chi nhánh hiện tại; nhiều chi nhánh | Một chi nhánh, công theo chi nhánh của lệnh | Nhiều chi nhánh: hồ sơ nhân sự có danh sách chi nhánh, ảnh hưởng 2.6b |
 | P2-F | Khách | Khách mới và khách quay lại tính theo hồ sơ tạo mới hay theo lệnh đầu tiên; tỷ lệ tính theo lượt hay theo số khách khác nhau | Hồ sơ hay lệnh đầu; lượt hay người | Hồ sơ cộng loại trừ nhập Excel, theo lượt (tạm) | Lệnh đầu hoặc theo người: thêm trường `firstOrderAt`, rollup lưu tập khách |
