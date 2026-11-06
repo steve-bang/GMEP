@@ -257,7 +257,7 @@ describe('FR-RPT-003 daily rollup math', () => {
       completedWithoutInvoiceCount: 1,
     });
     expect(r.refs.notInvoiced.map((x) => x.id)).toEqual(['3']);
-    expect(r.schemaVersion).toBe(6);
+    expect(r.schemaVersion).toBe(7);
   });
 
   it('R114: the day flow counts only orders completed ON the date; an older uninvoiced order is backlog, not flow', () => {
