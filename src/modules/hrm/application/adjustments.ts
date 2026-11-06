@@ -7,7 +7,7 @@ import { approvalLimitsOf, openApprovalInTx, type ApprovalHandler } from '@/modu
 import {
   adjustmentNeedsOwner,
   liveEarned,
-  netOf,
+  netWithAwaiting,
   type LaborLine,
   type LaborSheet,
 } from '../domain/labor';
@@ -98,7 +98,7 @@ function checkTarget(
   const adjustments = same.filter(
     (l) => l.kind === 'adjustment' && !sheet.lines.some((x) => x.reversesLineId === l.id),
   );
-  const net = netOf([...live, ...adjustments]);
+  const net = netWithAwaiting([...live, ...adjustments]);
   if (net.amountVnd + dVnd < 0 || net.convertedMinutes + dMin < 0)
     throw new AppError('adjustment_below_zero', 409);
   return line;

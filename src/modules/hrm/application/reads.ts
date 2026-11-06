@@ -3,6 +3,7 @@ import { hasPermission, resolveScope, type Actor } from '@/platform/rbac/rbac';
 import { scopeAllows } from '@/platform/scope/scope';
 import {
   netOf,
+  awaitingPaymentVnd,
   statusOf,
   type LaborLine,
   type LaborLineKind,
@@ -57,6 +58,8 @@ export interface LaborTotals {
   convertedMinutes: number;
   actualMinutes: number;
   standardMinutes: number;
+  /** 2.6a-1: percent-method lines waiting for the order to be paid in full; NOT in `amountVnd` */
+  awaitingPaymentVnd: number;
 }
 
 export interface LaborListDto {
@@ -75,7 +78,7 @@ export const laborListSchema = z.object({
   from: date.optional(),
   to: date.optional(),
   technicianId: z.string().trim().min(1).max(128).optional(),
-  status: z.enum(['recorded', 'qc_returned', 'reversed']).optional(),
+  status: z.enum(['recorded', 'awaiting_payment', 'qc_returned', 'reversed']).optional(),
 });
 
 function viewScope(deps: HrmDeps, actor: Actor) {
@@ -131,6 +134,7 @@ function totalsOf(lines: readonly LaborLine[]): LaborTotals {
   const n = netOf(lines);
   return {
     ...n,
+    awaitingPaymentVnd: awaitingPaymentVnd(lines),
     // standard minutes are counted once per earned line group of an item: the sum of the earned lines
     standardMinutes: lines
       .filter((l) => l.kind === 'earned')

@@ -9,6 +9,9 @@ import {
   liveEarned,
   methodScopeKeys,
   netOf,
+  netWithAwaiting,
+  awaitingPaymentVnd,
+  orderTechnicians,
   reverseLine,
   roundToStep,
   statusOf,
@@ -313,6 +316,21 @@ describe('FR-HRM-007/008 lines: reversal and rework keep history (RULE-010)', ()
     // no configuration: nothing is assumed, every adjustment goes to the owner
     expect(adjustmentNeedsOwner(DEFAULT_LABOR_POLICY, 1, 0)).toBe(true);
   });
+
+  it('an awaiting line is "chờ thu đủ": not in the recorded net, shown in its own figure; its reversal nets out on the same side', () => {
+    const l = line({ method: 'percent', amountVnd: 100_000, awaitingPayment: true });
+    const recorded = line({ id: 'other', amountVnd: 30_000 });
+    expect(statusOf(sheet([l, recorded]), l)).toBe('awaiting_payment');
+    expect(statusOf(sheet([l, recorded]), recorded)).toBe('recorded');
+    expect(netOf([l, recorded]).amountVnd).toBe(30_000); // what is summed and exported
+    expect(awaitingPaymentVnd([l, recorded])).toBe(100_000);
+    expect(netWithAwaiting([l, recorded]).amountVnd).toBe(130_000); // rule checks still see it
+    const r = reverseLine(l, { at: new Date(), businessDate: '2026-11-03', by: 'ql', reason: 'x' });
+    expect(r.awaitingPayment).toBe(true);
+    expect(awaitingPaymentVnd([l, r])).toBe(0);
+    expect(netOf([l, r]).amountVnd).toBe(0);
+    expect(statusOf(sheet([l, r]), l)).toBe('reversed');
+  });
 });
 
 describe('FR-HRM-001 staff record and personal data by role (Phụ lục D)', () => {
@@ -348,5 +366,32 @@ describe('FR-HRM-001 staff record and personal data by role (Phụ lục D)', ()
     const p = presentEmployeeField('reveal', 'phone', '0901234567');
     expect(p?.reveal).toBe(true);
     expect(p?.value).not.toContain('1234');
+  });
+});
+
+describe('2.6a-2 the lead technician of an item (FR-HRM-020)', () => {
+  const at = (m: number) => new Date(Date.UTC(2026, 10, 2, 8, m));
+  it('most worked time first; on equal time the technician assigned first', () => {
+    const worked = new Map([
+      ['b', 30 * 60_000],
+      ['a', 30 * 60_000],
+      ['c', 10 * 60_000],
+    ]);
+    // alphabetical order would put "a" first; "b" was assigned earlier and wins the tie
+    expect(
+      orderTechnicians(worked, [
+        { technicianId: 'b', at: at(0) },
+        { technicianId: 'a', at: at(10) },
+      ]),
+    ).toEqual(['b', 'a', 'c']);
+    expect(
+      orderTechnicians(
+        new Map([
+          ['a', 5],
+          ['b', 50],
+        ]),
+        [{ technicianId: 'a', at: at(0) }],
+      ),
+    ).toEqual(['b', 'a']);
   });
 });

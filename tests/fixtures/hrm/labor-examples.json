@@ -51,6 +51,21 @@
         { "key": "tech-a", "actualMinutes": 20, "convertedMinutes": 24, "amountVnd": 40000 },
         { "key": "tech-b", "actualMinutes": 40, "convertedMinutes": 40, "amountVnd": 66667 }
       ]
+    },
+    {
+      "id": "E7-two-positions-one-item",
+      "title": "Hai thợ khác chức danh cùng một hạng mục (minh họa, chưa ký): phương pháp của cả hạng mục chọn theo thợ làm nhiều giờ nhất (tech-a); mỗi thợ nhân giờ của mình với hệ số chức danh của mình (1,2 và 1,0)",
+      "method": { "method": "standard_hours", "hourlyRateVnd": 100000 },
+      "standardMinutes": 60,
+      "laborAmountVnd": 100000,
+      "techs": [
+        { "key": "tech-a", "actualMinutes": 45, "coefficientBp": 12000 },
+        { "key": "tech-b", "actualMinutes": 15, "coefficientBp": 10000 }
+      ],
+      "expected": [
+        { "key": "tech-a", "actualMinutes": 45, "convertedMinutes": 54, "amountVnd": 90000 },
+        { "key": "tech-b", "actualMinutes": 15, "convertedMinutes": 15, "amountVnd": 25000 }
+      ]
     }
   ]
 }

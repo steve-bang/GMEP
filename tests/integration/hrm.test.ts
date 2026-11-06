@@ -602,4 +602,145 @@ describe.each(backends)('HRM labor rule priority and versions [%s]', (backend) =
     expect(await record()).toBe(0);
     expect((await hrm.sheets.get(scope, 'ro_synthetic_norule'))!.lines).toHaveLength(1);
   });
+
+  it('2.6a-1 FR-HRM-020/021: a percent line is "chờ thu đủ": shown in its own column, not in the recorded total; 2.6a-9 the REAL cancel path (after a supplement reopens the order) reverses it', async () => {
+    await setRule(ql, 'branch:br_q7:svc:maintenance:pos:mechanic4', {
+      method: 'percent',
+      rateBp: 1_000,
+    });
+    const ro = await ready();
+    const view = (await j.get(ql, `/api/v1/hrm/labor/orders/${ro.order.id}`)).json as Row;
+    const earned = (view.lines as Row[]).filter((l) => l.kind === 'earned');
+    expect(earned.length).toBeGreaterThan(0);
+    expect(earned.every((l) => l.method === 'percent' && l.status === 'awaiting_payment')).toBe(
+      true,
+    );
+    expect(earned.every((l) => l.amountVnd > 0)).toBe(true); // computed and the rule version kept
+    expect(view.totals.amountVnd).toBe(0); // not in the recorded total
+    expect(view.totals.awaitingPaymentVnd).toBe(earned.reduce((a, l) => a + l.amountVnd, 0));
+    const list = (
+      await j.get(
+        ql,
+        `/api/v1/hrm/labor?branchId=br_q7&status=awaiting_payment&from=${today()}&to=${today()}`,
+      )
+    ).json as Row;
+    expect(list.items.some((l: Row) => l.orderId === ro.order.id)).toBe(true);
+    expect(list.totals.awaitingPaymentVnd).toBeGreaterThan(0);
+
+    // a supplementary quote approved on the passed order reopens the work (R47) ...
+    const sup = await j.post(staff.cv, `/api/v1/rec/orders/${ro.order.id}/supplement`, {
+      version: ro.order.version,
+    });
+    expect(sup.status, sup.text).toBe(201);
+    const q0 = (await j.get(staff.cv, `/api/v1/rec/quotes/${sup.json.id}`)).json as Row;
+    const edited = await j.call(staff.cv, 'PATCH', `/api/v1/rec/quotes/${sup.json.id}`, {
+      version: q0.version,
+      items: [
+        {
+          name: 'Cân chỉnh thêm',
+          necessity: 'optional',
+          lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-CANCHINH' }],
+        },
+      ],
+    });
+    const sent = await j.post(staff.cv, `/api/v1/rec/quotes/${sup.json.id}/send`, {
+      version: edited.json.version,
+    });
+    const link = await j.post(staff.cv, `/api/v1/rec/quotes/${sup.json.id}/link`, {
+      version: sent.json.version,
+    });
+    const shown = (await j.get(staff.cv, `/api/v1/rec/quotes/${sup.json.id}`)).json as Row;
+    const ok = await j.pub('/api/v1/rec/public/quote/approve', {
+      token: link.json.token,
+      selectedItemNos: shown.shown.items.map((x: Row) => x.no),
+    });
+    expect(ok.status, ok.text).toBe(200);
+    const reopened = await j.order(staff.cv, ro.order.id);
+    expect(reopened.status).toBe('in_progress');
+
+    // ... and the order is then cancelled through the real REC route: the labor gate reverses the lines
+    const c = await j.post(ql, `/api/v1/rec/orders/${ro.order.id}/cancel`, {
+      version: reopened.version,
+      reason: 'Khách hủy sau khi duyệt bổ sung',
+    });
+    expect(c.status, c.text).toBe(200);
+    const after = (await j.get(ql, `/api/v1/hrm/labor/orders/${ro.order.id}`)).json as Row;
+    expect((after.lines as Row[]).filter((l) => l.kind === 'reversal')).toHaveLength(earned.length);
+    expect(
+      (after.lines as Row[])
+        .filter((l) => l.kind === 'earned')
+        .every((l) => l.status === 'reversed'),
+    ).toBe(true);
+    expect(after.totals.amountVnd).toBe(0);
+    expect(after.totals.awaitingPaymentVnd).toBe(0); // the reversal nets the awaiting pair out
+    // replaying the same cancel adds nothing
+    const again = await j.post(ql, `/api/v1/rec/orders/${ro.order.id}/cancel`, {
+      version: reopened.version,
+      reason: 'Khách hủy sau khi duyệt bổ sung',
+    });
+    expect([200, 409]).toContain(again.status);
+    expect(
+      ((await j.get(ql, `/api/v1/hrm/labor/orders/${ro.order.id}`)).json as Row).lines,
+    ).toHaveLength((after.lines as Row[]).length);
+  });
+
+  it('2.6a-8 FR-HRM-008: the branch of a labor line is the branch of the ORDER, not the branch of the staff record (a technician helping another branch)', async () => {
+    const hrm = h.container.hrm;
+    const scope = branchesScope('tnt_demo', ['br_td']);
+    const at = new Date();
+    const t = (m: number) => new Date(at.getTime() + m * 60_000);
+    const actor = {
+      userId: 'u_ql_td',
+      tenantId: 'tnt_demo',
+      displayName: 'Quản lý Thủ Đức',
+      assignments: [],
+      rolePermissions: {},
+      canConsolidate: false,
+      workingBranchId: 'br_td',
+    } as Actor;
+    await hrm.sys.uow.run(async (tx) => {
+      const staged = await prepareQcPass(hrm, {
+        tx,
+        scope,
+        actor,
+        ctx: { requestId: 'req-helper' },
+        order: {
+          id: 'ro_synthetic_helper',
+          tenantId: 'tnt_demo',
+          branchId: 'br_td', // the order is at Thủ Đức ...
+          number: 'LSC-HELPER',
+          serviceType: 'maintenance',
+        },
+        items: [
+          {
+            itemId: 'ro_synthetic_helper__i1',
+            no: 1,
+            name: 'Hạng mục hỗ trợ chi nhánh khác',
+            status: 'done',
+            technicianId: 'u_th_q7', // ... the technician's staff record is at Quận 7
+            assignments: [{ technicianId: 'u_th_q7', at }],
+            events: [
+              { type: 'start', at: t(1) },
+              { type: 'finish', at: t(31) },
+            ],
+            standardMinutes: 30,
+            laborAmountVnd: 90_000,
+            hoursVersionIds: [],
+          },
+        ],
+        at: t(40),
+        businessDate: businessDate(t(40)),
+        qcRun: 1,
+      });
+      staged.commit();
+    });
+    const sheet = (await hrm.sheets.get(scope, 'ro_synthetic_helper'))!;
+    expect(sheet.branchId).toBe('br_td');
+    expect(sheet.lines.length).toBeGreaterThan(0);
+    expect(sheet.lines.every((l) => l.branchId === 'br_td')).toBe(true);
+    // the Quận 7 scope cannot see it (NFR-ISO-01)
+    expect(
+      await hrm.sheets.get(branchesScope('tnt_demo', ['br_q7']), 'ro_synthetic_helper'),
+    ).toBeNull();
+  });
 });

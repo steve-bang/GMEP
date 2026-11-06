@@ -53,6 +53,11 @@ export default async function LaborPage({ searchParams }: { searchParams: Search
       <div className="acc-kpis">
         {[
           { label: l.kpiAmount!, value: money(page.totals.amountVnd), id: 'kpi-labor-amount' },
+          {
+            label: l.kpiAwaiting!,
+            value: money(page.totals.awaitingPaymentVnd),
+            id: 'kpi-labor-awaiting',
+          },
           { label: l.kpiConverted!, value: hoursText(page.totals.convertedMinutes) },
           { label: l.kpiActual!, value: hoursText(page.totals.actualMinutes) },
           { label: l.kpiStandard!, value: hoursText(page.totals.standardMinutes) },

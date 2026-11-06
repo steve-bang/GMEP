@@ -136,6 +136,27 @@ export const UNASSIGNED = '';
  * the middle of a segment shares the time between the two people ("đổi thợ chia theo giờ thực").
  * Time before the first assignment entry belongs to the first assignee.
  */
+/**
+ * Technicians of one item, the lead first (2.6a-2, FR-HRM-020): most worked time first; on equal time the one assigned
+ * earlier. The lead's position selects the method of the whole item. Pure.
+ */
+export function orderTechnicians(
+  worked: ReadonlyMap<string, number>,
+  assignments: readonly AssignmentFact[],
+): string[] {
+  const firstAssigned = new Map<string, number>();
+  for (const a of assignments) {
+    if (a.technicianId === null) continue;
+    const t = a.at.getTime();
+    const cur = firstAssigned.get(a.technicianId);
+    if (cur === undefined || t < cur) firstAssigned.set(a.technicianId, t);
+  }
+  const rank = (k: string) => firstAssigned.get(k) ?? Number.MAX_SAFE_INTEGER;
+  return [...worked.keys()].sort(
+    (a, b) => worked.get(b)! - worked.get(a)! || rank(a) - rank(b) || (a < b ? -1 : 1),
+  );
+}
+
 export function workedMsByTechnician(
   events: readonly TimeEventFact[],
   assignments: readonly AssignmentFact[],
@@ -316,7 +337,7 @@ export const positionScopeKey = (code: string): string => `position:${code}`;
 export type LaborLineKind = 'earned' | 'qc_returned' | 'reversal' | 'adjustment';
 export type LaborLineWarning = 'no_rule' | 'no_technician' | 'no_profile';
 /** G3-HRM-07 / ba-answers-04 Phụ lục A: pending QC, recorded, QC returned, reversed (derived, never stored) */
-export type LaborLineStatus = 'recorded' | 'qc_returned' | 'reversed';
+export type LaborLineStatus = 'recorded' | 'awaiting_payment' | 'qc_returned' | 'reversed';
 
 export interface RuleRef {
   versionId: string;
@@ -355,6 +376,13 @@ export interface LaborLine {
   /** standard-hours versions of the labor lines of the item (FR-HRM-004) */
   hoursVersionIds: string[];
   warnings: LaborLineWarning[];
+  /**
+   * 2.6a-1 / FR-HRM-020, 021: a `percent` line is computed at QC but only EARNED when the order is paid in full
+   * (commission on collection). While true it is "chờ thu đủ": shown apart, not in the recorded totals nor the
+   * accountant export. The reversal and the adjustments copy the flag, so a pair always nets out on the same side.
+   * Setting it to false when the order is paid in full is slice 2.6b.
+   */
+  awaitingPayment?: boolean;
   reversesLineId?: string;
   /** the earlier line of the same item that a rework replaces or follows (data link for HRM-016) */
   reworkOfLineId?: string;
@@ -404,11 +432,31 @@ export function statusOf(sheet: Pick<LaborSheet, 'lines'>, line: LaborLine): Lab
   if (line.kind === 'qc_returned') return 'qc_returned';
   if (line.kind === 'earned' && sheet.lines.some((l) => l.reversesLineId === line.id))
     return 'reversed';
-  return 'recorded';
+  return line.awaitingPayment ? 'awaiting_payment' : 'recorded';
 }
 
-/** Net figures of a set of lines (earned + adjustments + reversals): what is summed and exported is the amount. */
+/**
+ * Net figures of the RECORDED lines (earned + adjustments + reversals): what is summed and exported is the amount.
+ * Lines awaiting full payment (2.6a-1) are left out; use `netWithAwaiting` for the rule checks that need them.
+ */
 export function netOf(lines: readonly LaborLine[]): {
+  amountVnd: number;
+  convertedMinutes: number;
+  actualMinutes: number;
+} {
+  return netWithAwaiting(lines.filter((l) => !l.awaitingPayment));
+}
+
+/** Value of the lines awaiting full payment, reversals included (so a reversed pair is 0): shown in its own column. */
+export function awaitingPaymentVnd(lines: readonly LaborLine[]): number {
+  return lines.reduce(
+    (s, l) => (l.awaitingPayment && l.kind !== 'qc_returned' ? s + l.amountVnd : s),
+    0,
+  );
+}
+
+/** Net of every line, awaiting ones included: the basis of "an adjustment must not drop below zero". */
+export function netWithAwaiting(lines: readonly LaborLine[]): {
   amountVnd: number;
   convertedMinutes: number;
   actualMinutes: number;

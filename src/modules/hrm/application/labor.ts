@@ -7,6 +7,7 @@ import {
   computeItemLabor,
   earnedLineId,
   liveEarned,
+  orderTechnicians,
   returnedLineId,
   reverseLine,
   workedMsByTechnician,
@@ -156,9 +157,7 @@ export async function prepareQcPass(
     if (item.status !== 'done') continue;
     if (liveEarned(sheet, item.itemId).length > 0) continue; // already recorded (rework "keep", or a replay)
     const worked = workedMsByTechnician(item.events, item.assignments);
-    const keys = [...worked.keys()].sort(
-      (a, b) => worked.get(b)! - worked.get(a)! || (a < b ? -1 : 1),
-    );
+    const keys = orderTechnicians(worked, item.assignments);
     if (keys.length === 0) keys.push(item.technicianId ?? UNASSIGNED);
     const shares: Share[] = [];
     for (const key of keys) {
@@ -232,6 +231,8 @@ export async function prepareQcPass(
         policyVersionId,
         hoursVersionIds: item.hoursVersionIds,
         warnings,
+        // 2.6a-1: commission on collection - a percent line waits for the order to be paid in full (2.6b flips it)
+        ...(rule?.payload.method === 'percent' ? { awaitingPayment: true } : {}),
         ...(prior ? { reworkOfLineId: prior.id } : {}),
         at: c.at,
         businessDate: c.businessDate,

@@ -18,6 +18,7 @@ export const EMPLOYEE_TONE: Record<string, BadgeTone> = {
 /** ba-answers-04 Phụ lục A: pending QC purple, recorded success, QC returned danger, reversed neutral. */
 export const LINE_TONE: Record<string, BadgeTone> = {
   recorded: 'success',
+  awaiting_payment: 'warning',
   qc_returned: 'danger',
   reversed: 'neutral',
   pending_qc: 'purple',
