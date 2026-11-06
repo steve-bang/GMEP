@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="../../assets/components.css">
 <link rel="stylesheet" href="pack.css">
 </head>
-<body data-tsu-mode="onb" data-onb-step="1" data-onb-hint="Dùng thử bắt đầu khi bạn bấm “Bắt đầu dùng”" data-validate-in="co-loi sai-dinh-dang">
+<body data-tsu-mode="onb" data-onb-step="1" data-onb-hint="Thời gian dùng thử bắt đầu khi bạn bấm “Bắt đầu dùng”" data-validate-in="co-loi sai-dinh-dang">
 <div id="tsu-content" hidden>
   <div data-tsu-bar="mac-dinh:Mặc định (đã điền sẵn tên và MST)|co-loi:Bỏ trống ba trường|sai-dinh-dang:Sai định dạng|da-dien:Đã điền đủ|thanh-cong:Đã bắt đầu dùng|thiet-bi-khac:Đã xác nhận ở thiết bị khác|cham:Đang tạo chậm|khong-quyen:Không phải chủ garage"></div>
 
@@ -18,7 +18,7 @@
     <p class="tsu-lead">Chúng tôi đã điền sẵn từ đăng ký. Bổ sung ba thông tin còn thiếu rồi bắt đầu dùng.</p>
   </div>
 
-  <div class="alert alert--success" role="status" data-on="thanh-cong"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Garage đã sẵn sàng</span><span>Dùng thử bắt đầu hôm nay <span class="num">05/11/2026</span> và hết hạn <span class="num">05/12/2026</span> (<span class="num">30</span> ngày, số minh họa). Đã tạo một chi nhánh và một kho cho garage của bạn.</span></div></div>
+  <div class="alert alert--success" role="status" data-on="thanh-cong"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Garage đã sẵn sàng</span><span>Dùng thử bắt đầu hôm nay <span class="num">05/11/2026</span>, còn <span class="num">30</span> ngày (đến <span class="num">05/12/2026</span>). Đã tạo một chi nhánh và một kho cho garage của bạn.</span></div></div>
   <div class="alert alert--info" role="status" data-on="thiet-bi-khac"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Garage đã được xác nhận ở thiết bị khác</span><span>Không cần làm lại. Bạn có thể tiếp tục thiết lập nhanh.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="tsx-11.html">Tiếp tục</a></div></div></div>
   <div class="alert alert--info" role="status" data-on="cham"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang tạo chậm</span><span>Việc tạo chi nhánh và kho mặc định đang mất nhiều thời gian hơn dự kiến. Bạn có thể đóng trang, chúng tôi sẽ email khi xong.</span></div></div>
   <div class="alert alert--neutral" role="status" data-on="khong-quyen"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ chủ garage bắt đầu dùng được</span><span>Hãy báo cho chủ garage mở liên kết này và bấm “Bắt đầu dùng”.</span></div></div>
@@ -35,7 +35,7 @@
         <div class="field">
           <label class="field__label" for="t10-mst">Mã số thuế</label>
           <input id="t10-mst" class="input" value="0312345678" readonly aria-describedby="t10-mst-h" inputmode="numeric">
-          <span class="field__hint" id="t10-mst-h">Lấy từ đăng ký, không sửa ở đây. Cần đổi: <a href="#" data-toast="info|Liên hệ hỗ trợ|Đổi mã số thuế qua hỗ trợ (liên quan RULE-032). Kênh hỗ trợ là điểm chờ xác nhận.">liên hệ hỗ trợ</a>.</span>
+          <span class="field__hint" id="t10-mst-h">Lấy từ đăng ký, không sửa ở đây. Cần đổi: <a href="#" data-support-call>gọi hỗ trợ</a>.</span>
         </div>
         <div class="field">
           <label class="field__label" for="t10-prov">Tỉnh/thành phố<span class="field__req" aria-hidden="true">*</span></label>
@@ -69,8 +69,8 @@
       <div class="card__body">
         <ul class="tsu-list">
           <li>GMEP tạo sẵn một chi nhánh và một kho mang tên garage. Bạn thêm chi nhánh trong Cài đặt khi cần.</li>
-          <li><span class="num">30</span> ngày dùng thử bắt đầu tính từ lúc đó (số minh họa, lấy từ cấu hình).</li>
-          <li>Hóa đơn điện tử chạy thử cho tới khi bạn khai nhà cung cấp, xem mục “Thiết lập dần”.</li>
+          <li>Thời gian dùng thử miễn phí bắt đầu tính từ lúc đó. Không cần thẻ.</li>
+          <li>Hóa đơn điện tử lúc đầu chỉ là bản nháp để thử. Khi muốn xuất hóa đơn thật, bạn cho chúng tôi biết garage dùng hóa đơn của nhà nào ở mục “Thiết lập dần”.</li>
         </ul>
       </div>
     </section>
@@ -80,7 +80,7 @@
 
   <div class="tsu-foot tsu-foot--2" data-tsu-foot role="group" aria-label="Bắt đầu dùng">
     <p class="tsu-foot__info" id="t10-info">
-      <span data-off="loading error offline saving khong-quyen cham thanh-cong thiet-bi-khac">Dùng thử <span class="num">30</span> ngày bắt đầu từ lúc bạn bấm.</span>
+      <span data-off="loading error offline saving khong-quyen cham thanh-cong thiet-bi-khac">Thời gian dùng thử bắt đầu từ lúc bạn bấm.</span>
       <span data-on="loading">Đang tải thông tin garage…</span>
       <span data-on="error">Chưa tải được thông tin garage. Hãy thử lại.</span>
       <span data-on="offline"><svg class="icon icon--sm" aria-hidden="true"><use href="#wifi-off"/></svg> Mất kết nối, chưa thể bắt đầu. Thông tin đang nhập được giữ trên thiết bị.</span>
@@ -94,6 +94,7 @@
   </div>
 </div>
 <noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../ts-config.js"></script>
 <script src="tsu-app.js"></script>
 <script src="../../assets/app.js"></script>
 </body>

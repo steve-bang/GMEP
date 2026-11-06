@@ -34,7 +34,7 @@
   </div>
   <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Garage Ô tô Phương Nam</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
 
-  <div data-tsu-bar="restricted:Bị hạn chế (chủ garage)|nv-restricted:Bị hạn chế (nhân viên)|trial-expired:Hết dùng thử (chủ garage)|nv-trial-expired:Hết dùng thử (nhân viên)|suspended:Tạm ngưng|terminating:Đang chấm dứt|xac-minh:Chưa xác minh (phát hành hóa đơn thật)"></div>
+  <div data-tsu-bar="restricted:Bị hạn chế (chủ garage)|nv-restricted:Bị hạn chế (nhân viên)|trial-expired:Hết dùng thử (chủ garage)|nv-trial-expired:Hết dùng thử (nhân viên)|suspended:Tạm ngưng|terminating:Đang chấm dứt|xac-minh:Chưa xác minh (xuất hóa đơn thật)"></div>
 
   <div data-tsu-main class="tsu-stack">
     <p class="tsu-reason" id="t51-why" tabindex="-1"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span id="t51-whytxt"></span></p>
@@ -53,25 +53,26 @@
   </div>
 
   <div class="overlay" id="dlg-block" role="alertdialog" aria-modal="true" aria-labelledby="dlb-t" aria-describedby="dlb-b"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg></div><div><h2 class="dialog__title" id="dlb-t">Chưa thể tạo mới lúc này</h2></div></div>
-    <div class="dialog__body" id="dlb-b"><p id="dlb-msg"></p><p>Bạn vẫn có thể: thu tiền, giao xe và hoàn tất <span class="num">3</span> lệnh đang mở. Bản nháp đang soạn được giữ.</p></div>
-    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" id="dlb-act" href="tsu-41.html">Xem gói</a></div></div></div>
+    <div class="dialog__body" id="dlb-b"><p id="dlb-msg"></p><p>Bạn vẫn có thể: thu tiền, giao xe và hoàn tất <span class="num">3</span> lệnh đang mở. Bản nháp đang soạn được giữ.</p><p class="ts-help" data-support="line"></p></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Đóng</button><a class="btn btn--primary" id="dlb-act" href="tsu-41.html">Xem chi tiết</a></div></div></div>
   <p class="tsu-test">Truy vết: FR-TEN-005, 025; RULE-021, 023; AC-S15, S18; UAT-TEN-03, 10. Một quy tắc: nút luôn aria-disabled, vẫn focus được. Lý do là trạng thái tenant thì bấm mở hộp thoại; lý do khác (<code>VERIFICATION_REQUIRED</code>) thì bấm chỉ đưa focus tới lý do. Không gọi máy chủ khi bấm nút khóa.</p>
 </div>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
 <script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../ts-config.js"></script>
 <script src="../onboarding/tsu-app.js"></script>
 <script>
 (function () {
-  var CH = ['Xem gói', 'tsu-41.html'], NV = ['Liên hệ chủ garage', '#'], XD = ['Xuất dữ liệu', 'tsu-55.html'];
+  var CH = ['Xem chi tiết', 'tsu-41.html'], NV = ['Liên hệ chủ garage', '#'], XD = ['Xuất dữ liệu', 'tsu-55.html'];
   /* dialog: true = lý do là trạng thái tenant (mở TSU-51); false = chỉ đưa focus tới lý do */
   var M = {
     'restricted': { code: 'TENANT_RESTRICTED', dialog: true, why: 'Công ty đang bị hạn chế tạo mới: đang xem xét tuân thủ, cần bổ sung thông tin. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.', act: CH },
     'nv-restricted': { code: 'TENANT_RESTRICTED', dialog: true, why: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.', act: NV },
-    'trial-expired': { code: 'TRIAL_EXPIRED', dialog: true, why: 'Dùng thử đã hết. Liên hệ để chọn gói và tiếp tục tạo mới.', act: CH },
-    'nv-trial-expired': { code: 'TRIAL_EXPIRED', dialog: true, why: 'Dùng thử của công ty đã hết. Liên hệ Trần Hoàng Anh để chọn gói.', act: NV },
+    'trial-expired': { code: 'TRIAL_EXPIRED', dialog: true, why: 'Dùng thử đã hết. Dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.', act: CH },
+    'nv-trial-expired': { code: 'TRIAL_EXPIRED', dialog: true, why: 'Dùng thử của công ty đã hết. Liên hệ chủ garage (Trần Hoàng Anh).', act: NV },
     'suspended': { code: 'TENANT_SUSPENDED_READONLY', dialog: true, why: 'Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.', act: XD },
     'terminating': { code: 'TENANT_TERMINATING', dialog: true, why: 'Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến 20/12/2026.', act: XD },
-    'xac-minh': { code: 'VERIFICATION_REQUIRED', dialog: false, label: 'Phát hành hóa đơn thật', why: 'Doanh nghiệp chưa hoàn tất xác minh nên chưa phát hành hóa đơn thật.', link: ['Xem việc cần làm', '../onboarding/tsx-20.html#state=hoa-don'] }
+    'xac-minh': { code: 'VERIFICATION_REQUIRED', dialog: false, label: 'Xuất hóa đơn thật', why: 'Chưa xuất được hóa đơn thật: doanh nghiệp chưa hoàn tất xác minh. Trước đó, hóa đơn chỉ là bản nháp để thử.', link: ['Xem việc cần làm', '../onboarding/tsx-20.html#state=hoa-don'] }
   };
   var cur = 'restricted';
   function render(name) {

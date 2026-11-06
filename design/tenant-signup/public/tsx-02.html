@@ -11,7 +11,7 @@
 </head>
 <body class="tsp-body">
 <a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
-<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsx-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsx-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span data-brand>GARAGE OS</span></a></header>
 
 <div class="tsp-wrap">
   <div data-ts-views="normal:Bình thường|cd:Vừa gửi lại (đang đếm lùi)|many:Gửi lại quá nhiều|queued:Xếp hàng (vượt trần ngày)" data-ts-common="skel r429 error offline" data-hint="TSX-02 (thay TSU-05, 07) · FR-TEN-039, 041 · RULE-032 · AC-S04, S06. Cùng một màn cho đăng ký mới, trùng email và trùng MST."></div>
@@ -24,7 +24,7 @@
       <section class="tsp-result" aria-labelledby="ck-h" data-hide="queued">
         <span class="tsp-icon-badge" aria-hidden="true"><svg class="icon"><use href="#mail"/></svg></span>
         <h1 id="ck-h">Kiểm tra email của bạn</h1>
-        <p class="tsp-lead">Chúng tôi đã gửi email đến <strong class="num" data-mask>t***@congty.vn</strong>. Mở email và bấm liên kết để tiếp tục. Liên kết có hiệu lực 72 giờ (số lấy từ cấu hình, minh họa).</p>
+        <p class="tsp-lead">Chúng tôi đã gửi email đến <strong class="num" data-mask>t***@congty.vn</strong>. Mở email và bấm liên kết để tiếp tục. Bấm ở điện thoại hay máy tính nào cũng được, bạn sẽ vào thẳng ứng dụng. Liên kết dùng một lần, có hiệu lực 72 giờ.</p>
         <p class="tsp-small">Nếu thông tin hợp lệ, bạn sẽ nhận được email trong vài phút. Hãy xem cả hộp thư rác.</p>
       </section>
 
@@ -49,18 +49,19 @@
           <span data-show="r429" hidden>Tạm dừng vì thử quá nhiều lần. Chờ hết thời gian đếm lùi ở trên.</span>
           <span data-show="offline" hidden>Chưa có kết nối mạng. Kết nối lại để gửi.</span>
         </span></p>
-        <div class="tsp-slot"><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận]</span><span>Kênh hỗ trợ khi không nhận được email sẽ được công bố. Chỉ yêu cầu kiểm tra người thật ở lần gửi lại khi máy chủ báo nghi ngờ.</span></div>
+        <div class="ts-help ts-help--card" data-support="card"></div>
       </div>
 
       <p class="tsp-small" style="text-align:center">Prototype: <a href="tsx-03.html">mở liên kết trong email (sang TSX-03)</a>.</p>
     </div>
   </main>
 
-  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+  <footer class="tsp-foot"><span><span data-brand>GARAGE OS</span> · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
 </div>
 
 <noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
 <script src="../../assets/app.js"></script>
+<script src="../ts-config.js"></script>
 <script src="../ts-common.js"></script>
 <script>
 /* Gửi lại ngay trên màn này (thay TSU-07): nút khóa dùng aria-disabled, vẫn focus được, bấm khi khóa chỉ đưa focus tới lý do. */

@@ -103,8 +103,21 @@
 @media (max-width: 639px) {
   .tsa-head__actions { width: 100%; }
   .tsa-head__actions .btn { flex: 1 1 100%; }
-  .tsa-bar .btn { flex: 1 1 100%; }
   .drawer__head, .drawer__body, .drawer__foot { padding-left: var(--space-4); padding-right: var(--space-4); }
+  /* Thanh trên trên điện thoại: tối đa hai hàng. Hàng 1: tên sản phẩm + nhãn "Quản trị nền tảng". Hàng 2: tên người dùng (cắt bớt nếu dài) + đổi giao diện + đăng xuất */
+  .tsa-top { gap: var(--space-1) var(--space-3); padding-top: var(--space-2); padding-bottom: var(--space-2); }
+  .tsa-top__spacer { display: none; }
+  .tsa-brand { font-size: var(--font-size-md); gap: var(--space-2); }
+  .tsa-brand__logo { width: 28px; height: 28px; }
+  .tsa-label { margin-left: auto; min-height: 24px; padding: 0 var(--space-2); font-size: var(--font-size-xs); }
+  .tsa-user { flex: 1 1 100%; flex-wrap: nowrap; gap: var(--space-2); }
+  .tsa-user > span:first-child { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tsa-user .btn-icon, .tsa-user .btn { flex: none; }
+  /* Thanh lưu dính (TSU-66): một hàng nút, dòng "n thay đổi chưa lưu" nhỏ phía trên; cao khoảng 80 px thay vì gần nửa màn */
+  .tsa-bar { gap: var(--space-1); padding: var(--space-2) var(--space-3); flex-direction: column; align-items: stretch; }
+  .tsa-bar .tsa-note { font-size: var(--font-size-xs); line-height: 16px; }
+  .tsa-bar .tsp-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); width: 100%; }
+  .tsa-bar .btn { flex: none; width: 100%; padding-left: var(--space-2); padding-right: var(--space-2); }
 }
 @media print { .tsp-proto { display: none; } }
 
