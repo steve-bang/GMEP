@@ -164,6 +164,16 @@ describe.each(backends)('SYS approvals phase 2 [%s]', (backend) => {
         });
   });
 
+  describe('configuration warnings in the queue data (2.5-2, 2.5-7)', () => {
+    it('reports no work-hours configured and the kinds without an issued limit; a kind with a limit is not listed', async () => {
+      const r = await get(ch, '/api/v1/sys/approvals?tab=toDecide');
+      expect(r.status, r.text).toBe(200);
+      expect(r.json.warnings.workHoursUnconfigured).toBe(true); // the seed has no work-hours: wall-clock time
+      expect(r.json.warnings.limitsUnissuedKinds).not.toContain('expense'); // issued in beforeAll
+      expect(r.json.warnings.limitsUnissuedKinds.length).toBeGreaterThan(0);
+    });
+  });
+
   describe('limits by tenant (FR-SYS-033, RULE-036)', () => {
     it('RULE-036: a kind with no limit in force goes to the highest level and never passes alone', async () => {
       const date = t0.slice(0, 10);
@@ -301,6 +311,23 @@ describe.each(backends)('SYS approvals phase 2 [%s]', (backend) => {
       // a level-2 request needs a delegator who holds level 2: the manager's delegation does not reach it
       const high = await seedRequest({ level: 2 });
       expect((await decide(cv, high)).status).toBe(403);
+    });
+
+    it('2.5-6 RULE-036: when a request is escalated to level 2 it leaves the delegate queue (the delegator only lends the rights held at the current level)', async () => {
+      await call(ch, 'POST', '/api/v1/sys/approvals/delegations', delegationBody());
+      const id = await seedRequest({});
+      const queue = async (cookie: string) =>
+        ((await get(cookie, '/api/v1/sys/approvals?tab=toDecide')).json.items as Row[]).map(
+          (x) => x.id,
+        );
+      expect(await queue(cv)).toContain(id); // level 1: the delegate sees it
+      await advance(130 * 60_000); // past T1 + T2
+      const run = await call(ch, 'POST', '/api/v1/sys/approvals/jobs/escalate');
+      expect(run.json.escalated).toBeGreaterThan(0);
+      expect((await detail(ch, id)).level).toBe(2);
+      expect(await queue(cv)).not.toContain(id); // gone from the delegate queue
+      expect(await queue(ch)).toContain(id); // the owner still has it
+      expect((await decide(cv, id)).status).toBe(403);
     });
 
     it('RULE-036: the delegate must see the branch data (FR-SYS-033); a delegator without the right is refused', async () => {

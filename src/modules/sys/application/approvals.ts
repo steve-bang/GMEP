@@ -12,6 +12,7 @@ import { branchesScope, scopeAllows, type Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import {
   APPROVAL_KIND_DEFS,
+  APPROVAL_KINDS,
   approvalSlotId,
   approverPermissionFor,
   INVOICE_APPROVER_PERMISSION,
@@ -585,7 +586,11 @@ export async function listApprovals(
   deps: SysDeps,
   actor: Actor,
   q: { tab: ApprovalTab; kind?: string },
-): Promise<{ items: ApprovalDto[]; counts: { toDecide: number; mine: number } }> {
+): Promise<{
+  items: ApprovalDto[];
+  counts: { toDecide: number; mine: number };
+  warnings: ApprovalQueueWarnings;
+}> {
   const scope = resolveScope(actor, 'approval:view');
   const branchId = requireWorkingBranch(actor);
   if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
@@ -638,6 +643,39 @@ export async function listApprovals(
       toDecide: decidable.filter((r) => r.requestedBy !== actor.userId).length,
       mine: mine.filter((r) => r.status === 'pending').length,
     },
+    warnings: await queueWarnings(deps, actor.tenantId, branchId),
+  };
+}
+
+/**
+ * 2.5-2, 2.5-7: two configuration gaps the approvers must see. No `work-hours` = reminders and escalation count wall
+ * clock hours ("đang tính theo giờ đồng hồ"); no approval limit in force for a kind = every request of that kind goes to
+ * the highest level (RULE-036). Data only: the banner on G4-APR-03 is the designer's.
+ */
+export interface ApprovalQueueWarnings {
+  workHoursUnconfigured: boolean;
+  limitsUnissuedKinds: ApprovalKind[];
+}
+
+async function queueWarnings(
+  deps: SysDeps,
+  tenantId: string,
+  branchId: string,
+): Promise<ApprovalQueueWarnings> {
+  const date = businessDate(deps.clock.now());
+  const unissued: ApprovalKind[] = [];
+  for (const kind of APPROVAL_KINDS) {
+    const snap = await resolveConfigAt(deps, {
+      tenantId,
+      type: 'approval-limit',
+      scopeKey: kind,
+      date,
+    });
+    if (!snap) unissued.push(kind);
+  }
+  return {
+    workHoursUnconfigured: (await workScheduleOf(deps, tenantId, branchId, date)) === null,
+    limitsUnissuedKinds: unissued,
   };
 }
 
