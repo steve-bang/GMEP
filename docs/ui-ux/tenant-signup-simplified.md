@@ -1,6 +1,7 @@
 # GMEP – Đăng ký tenant và onboarding bản tối giản (garage một chi nhánh, một kho)
 
-- **Phiên bản:** 0.1 (BA, 05/11/2026) · **Người lập:** BA · **Người nhận:** designer, dev, chủ dự án · **Trạng thái:** đề xuất, **chưa được khách hàng xác nhận**. BA tự quyết theo ủy quyền của người dùng; mọi điểm cần khách, luật sư hay kế toán chốt nằm ở mục 7.
+- **Phiên bản:** 0.2 (BA, 06/11/2026; v0.1 ngày 05/11/2026) · **Người lập:** BA · **Người nhận:** designer, dev, chủ dự án · **Trạng thái:** đề xuất, **chưa được khách hàng xác nhận**. BA tự quyết theo ủy quyền của người dùng; mọi điểm cần khách, luật sư hay kế toán chốt nằm ở mục 7 và mục 9.7.
+- **v0.2 (06/11/2026):** cập nhật theo **feedback của client (chủ garage nhỏ) sau khi đi thử luồng**: chín quyết định QĐT-S01..S09, ghi ở **mục 9**. **Khi mục 9 mâu thuẫn với mục 1 đến 8 thì mục 9 thắng**; chỗ bị thay thế trong mục 2 đến 8 có ghi chú "**[Thay thế bởi QĐT-Sxx, xem mục 9]**".
 - **Thay thế một phần:** `docs/ui-ux/tenant-signup-spec.md` v0.2 (52 màn TSU-01..68, QĐT-01..40). Bản v0.2 **giữ nguyên làm nguồn tham chiếu** cho các màn hoãn; mục 6 liệt kê QĐT nào bị thay thế, sửa hay giữ.
 - **Nguồn:** `docs/multi-tenant-analysis.md` (FR-TEN-004, 030, 032, 037, 039..045; RULE-024, 027..032; J7..J10), `docs/ui-ux/tenant-signup-spec.md`, `design/tenant-signup/README.md`, `docs/functional-requirements.md` (FR-REC-001..004), `CLAUDE.md`. Mã `FR-TEN`, `RULE-016..032`, `QĐT`, `C-xx` là mã **đề xuất**, chưa nhập vào FRD/BRD. Mọi con số thời gian, hạn, ngưỡng là **tham số cấu hình hoặc số minh họa**, không phải quyết định kinh doanh.
 - **Không đổi:** `design/`, `src/`, FRD, BRD. Danh sách việc phải sửa ở các tài liệu khác nằm ở mục 6.
@@ -124,11 +125,15 @@ Dải `StatusTracker` rút gọn còn **3 chặng**: Xác thực email → Kiể
 | `yêu cầu quá hạn` | "Yêu cầu đăng ký này đã hết hạn vì chưa được xác thực. Bạn có thể đăng ký lại, không mất gì." | "Đăng ký lại" |
 | `đang tạo chậm` (quá thời gian dự kiến, hoặc `provision_failed`) | "Việc tạo tài khoản đang mất nhiều thời gian hơn dự kiến. Bạn có thể đóng trang, chúng tôi sẽ email khi xong." Không hiện lỗi kỹ thuật | – |
 
-**Phiên sau xác thực (QĐT mới, FR-TEN-053 đề xuất):** nếu liên kết được mở **trong cùng trình duyệt đã gửi đăng ký** (khớp cookie phiên đăng ký, một lần dùng, `HttpOnly`), hệ thống tạo phiên đăng nhập cho chủ garage ngay khi cấp phát xong, không bắt đăng nhập lại. Khác trình duyệt: về TSU-14, mã công ty có trong email chào mừng. `[Cần xác nhận]` C-S03 (bảo mật). Token theo dõi giữ quy tắc QĐT-34.
+**[Thay thế bởi QĐT-S02, xem mục 9.2: liên kết một lần tự đăng nhập bất kể trình duyệt; C-S03 đã resolved; đoạn dưới giữ để đối chiếu.]**
+
+**Phiên sau xác thực (QĐT mới, FR-TEN-053 đề xuất; ĐÃ BỊ THAY THẾ):** nếu liên kết được mở **trong cùng trình duyệt đã gửi đăng ký** (khớp cookie phiên đăng ký, một lần dùng, `HttpOnly`), hệ thống tạo phiên đăng nhập cho chủ garage ngay khi cấp phát xong, không bắt đăng nhập lại. Khác trình duyệt: về TSU-14, mã công ty có trong email chào mừng. `[Cần xác nhận]` C-S03 (bảo mật). Token theo dõi giữ quy tắc QĐT-34.
 
 **Email chào mừng** (một email thay E-0x riêng lẻ): chứa mã công ty, liên kết đăng nhập, liên kết hỗ trợ. Mã công ty tự sinh như QĐT-07 và có lại ở Cài đặt (TSX-20).
 
 #### TSU-14 Đăng nhập có mã công ty (giữ, chỉnh nhẹ)
+
+**[Thay thế bởi QĐT-S01, xem mục 9.1 và 9.4: đăng nhập mặc định bằng email + mật khẩu, không có ô Mã công ty; bước "Chọn công ty" chỉ hiện sau mật khẩu đúng khi email thuộc nhiều công ty. Các gạch đầu dòng về mã công ty dưới đây không còn hiệu lực; phần rẽ nhánh sau đăng nhập đúng vẫn giữ.]**
 
 Giữ nguyên spec v0.2 TSU-14, QĐT-01 (đăng nhập U1 + mã công ty), QĐT-17 (lỗi trung lập trước khi xác thực đúng). Chỉnh:
 - Trình duyệt đã đăng nhập thành công một lần thì **nhớ mã công ty** (ô điền sẵn, có "Đổi công ty"); người dùng chỉ nhập email và mật khẩu.
@@ -137,6 +142,8 @@ Giữ nguyên spec v0.2 TSU-14, QĐT-01 (đăng nhập U1 + mã công ty), QĐT-
 - Bỏ rẽ nhánh tới TSU-18 cho tới khi có phiên bản điều khoản thứ hai (mục 5).
 
 #### TSU-15 Quên mật khẩu hoặc mã công ty (giữ, gộp TSU-17)
+
+**[Thay thế một phần bởi QĐT-S01, xem mục 9.4: chỉ còn một biểu mẫu "Quên mật khẩu" nhập email; bỏ tab "Quên mã công ty" khỏi luồng chính.]**
 
 Một biểu mẫu hai tab: "Quên mật khẩu" (email + mã công ty) và "Quên mã công ty" (chỉ email). Phản hồi trung lập giống nhau cho mọi kết quả (FR-TEN-016, 039). Trạng thái riêng: `đã gửi` (trung lập), lỗi bot, 429. V-EMAIL, V-CODE.
 
@@ -221,6 +228,8 @@ Component `OnboardingChecklist` giữ nguyên, trạng thái mỗi mục rút g�
 - **Trạng thái riêng:** `mới vào` (nhấn mạnh mục "Tạo lệnh sửa chữa đầu tiên"); `đã xong hết` (thẻ tự thu gọn); `đã bỏ qua nhiều mục` (nhắc một lần mỗi tuần, tham số).
 
 #### TSU-41 Gói của tôi (giữ, rút gọn; gộp TSU-52 hết dùng thử)
+
+**[Thay thế bởi QĐT-S04, xem mục 9.4: giai đoạn này TSU-41 chỉ còn thẻ "Dùng thử" (số ngày còn lại); tên gói, mức dùng, giá, thanh toán, "Liên hệ chọn gói" đều ẩn/hoãn.]**
 
 Theo spec v0.2 TSU-41 ở B0: tên gói, trạng thái thuê bao (`none` Truy cập sớm, `trial` Còn N ngày, `expired` Hết hạn), ngày hết hạn, mức dùng chi nhánh/người dùng, khối "Thanh toán: chưa mở". **Bỏ** biến thể "Đang thiết lập, chưa bắt đầu tính ngày" (không còn xảy ra vì dùng thử bắt đầu ở TSX-10). **Biến thể `hết hạn` thay màn TSU-52:** nêu ngày sang chế độ chỉ đọc (QĐT-25, C-23), nút "Xuất dữ liệu" (TSU-55), "Liên hệ chọn gói". Mức dùng chi nhánh hiện "1/{giới hạn}" nhưng **ẩn dòng chi nhánh** khi chỉ có 1 chi nhánh và gói không giới hạn dưới 2 (giảm nhiễu).
 
@@ -499,7 +508,7 @@ Mỗi mục ghi: ai chốt; phương án; khuyến nghị; hệ quả.
 | --- | --- | --- | --- | --- |
 | C-S01 | Chủ dự án, Dev | Nguồn tra MST và tiêu chí tự duyệt: (a) chỉ kiểm tra định dạng và trùng; (b) thêm tra cứu nguồn tin cậy; (c) luôn duyệt tay 100% | (b); nếu chưa có nguồn: (a) cho dùng ứng dụng, **khóa phát hành hóa đơn thật** cho tới khi xác minh (RULE-028) | (c) làm hàng đợi quá tải và phá mục tiêu < 10 phút; (a) tăng nguy cơ đăng ký giả nhưng chặn hóa đơn thật |
 | C-S02 | Luật sư | Gộp câu "người đại diện hợp pháp hoặc được ủy quyền" vào ô Điều khoản (một ô) hay tách ô riêng | Gộp | Tách: thêm một ô ở TSX-01 (8 trường) |
-| C-S03 | Chủ dự án, Dev | Tạo phiên tự động sau xác thực email cùng trình duyệt | Có, liên kết dùng một lần, gắn cookie phiên đăng ký | Không: thêm một lần đăng nhập, thêm khoảng 30 giây và nguy cơ bỏ cuộc |
+| C-S03 (**RESOLVED bởi QĐT-S02**, phương án mới: tự đăng nhập bất kể trình duyệt, xem mục 9.2) | Chủ dự án, Dev | Tạo phiên tự động sau xác thực email cùng trình duyệt | Có, liên kết dùng một lần, gắn cookie phiên đăng ký | Không: thêm một lần đăng nhập, thêm khoảng 30 giây và nguy cơ bỏ cuộc |
 | C-S04 | Chủ dự án, Dev | Tenant `active` ngay sau TSX-10, không có môi trường thử tách dữ liệu (đổi FR-TEN-030 cho đường tự đăng ký) | Có; hóa đơn `fake`, dữ liệu mẫu gắn cờ | Giữ môi trường thử: cần màn kích hoạt riêng và xóa dữ liệu thử (trở lại gần v0.2) |
 | C-S05 | Kế toán, Luật sư | Suy ra loại hình từ độ dài MST (10 số doanh nghiệp, 12 số hộ kinh doanh/cá nhân); QĐT-02 vẫn loại cá nhân không đăng ký kinh doanh nhưng MST 12 số của cá nhân không phân biệt được | Suy ra, rà bằng bước tra MST; hạn chế rủi ro bằng ô "người đại diện" | Quay lại ô "Loại hình" (thêm 1 trường) |
 | C-S06 | Chủ dự án | SĐT bắt buộc ở TSX-10, không OTP | Bắt buộc, không OTP | Bỏ SĐT: mất kênh liên hệ khi email lỗi; OTP: thêm chi phí SMS (R-TEN-07) |
@@ -529,7 +538,7 @@ Thay mục 6 của spec v0.2 cho các màn trong gói này; AC cũ của màn ho
 | AC-S06 | **Given** đăng ký dồn dập từ một nguồn hoặc email dùng một lần **Then** bị chặn/giới hạn theo cấu hình (429 có đếm lùi, V-EMAIL); trần ngày vượt thì TSX-02 `xếp hàng` | FR-TEN-041, UAT-TEN-14 |
 | AC-S07 | **Given** email đã xác thực, MST hợp lệ, không trùng, không cờ **When** mở liên kết **Then** không có người nào phải duyệt; tenant được cấp phát với đúng 1 Company, 1 chi nhánh, 1 kho; chạy lại không tạo bản thứ hai | FR-TEN-042, FR-TEN-051, UAT-TEN-15 |
 | AC-S08 | **Given** ca có cờ (MST trùng hoặc đối chiếu lệch hoặc cờ lạm dụng) **Then** vào TSX-30 tab Cần xử lý và NDK thấy câu trung lập `chờ duyệt`, không biết lý do cờ | RULE-032, QĐT-12 |
-| AC-S09 | **Given** liên kết xác thực mở ở cùng trình duyệt gửi đăng ký **When** cấp phát xong **Then** vào thẳng TSX-10 có phiên; **Given** khác trình duyệt hoặc liên kết bị dùng lại **Then** không có phiên, về TSU-14 | FR-TEN-053 (đề xuất) |
+| AC-S09 (**ĐÃ THAY THẾ bởi AC-S26..S29**) | **Given** liên kết xác thực mở ở cùng trình duyệt gửi đăng ký **When** cấp phát xong **Then** vào thẳng TSX-10 có phiên; **Given** khác trình duyệt hoặc liên kết bị dùng lại **Then** không có phiên, về TSU-14 | FR-TEN-053 (đề xuất) |
 | AC-S10 | **Given** TSX-10 **When** mở **Then** tên garage và MST điền sẵn, chỉ phải nhập 3 trường (tỉnh, địa chỉ, SĐT); bấm "Bắt đầu dùng" đặt tenant `active`, bắt đầu đồng hồ dùng thử, tạo đúng 1 chi nhánh và 1 kho, bấm lại không tạo thêm | FR-TEN-004, 043 |
 | AC-S11 | **Given** tenant mới `active` **Then** không thấy bộ chọn chi nhánh, nhóm chi nhánh, vai trò QV, chuyển kho liên chi nhánh; mọi bản ghi có `branch_id`; `resolveScope` vẫn chạy; kiểm thử cô lập (NFR-ISO-01) đạt | FR-TEN-051, RULE-033 |
 | AC-S12 | **Given** tạo chi nhánh thứ hai ở Cài đặt **Then** UI nhiều chi nhánh hiện, dữ liệu cũ thuộc chi nhánh đầu, người dùng cũ chưa tự thấy chi nhánh mới nếu chưa được gán | FR-TEN-051, NFR-ISO-01 |
@@ -546,3 +555,189 @@ Thay mục 6 của spec v0.2 cho các màn trong gói này; AC cũ của màn ho
 | AC-S23 | **Given** quản trị nền tảng **Then** không màn nào hiển thị dữ liệu nghiệp vụ garage; email tìm kiếm cần nhập đủ và có nhật ký tra cứu | FR-TEN-011, QĐT-32 |
 
 **Việc không đổi, phải còn đạt sau khi tối giản:** UAT-TEN-13 (đăng ký trung lập), UAT-TEN-14 (chống lạm dụng), UAT-TEN-15 (cấp phát idempotent, cô lập tenant mới) sửa theo AC-S04..S10 nhưng giữ ý đồ kiểm thử.
+
+---
+
+## 9. Cập nhật v0.2 (06/11/2026): feedback của client sau khi đi thử luồng
+
+Nguồn: phản hồi của chủ garage nhỏ khi đi thử luồng (người dùng giao BA tự quyết; **chưa được khách, luật sư, kế toán xác nhận**). Chín quyết định dưới đây **thắng** mục 1 đến 8 khi mâu thuẫn. Mã `QĐT-S01..S09`, `C-S14..`, `AC-S24..` là mã đề xuất; số cũ không đổi.
+
+### 9.1 QĐT-S01 Đăng nhập bằng email + mật khẩu (D1)
+
+**Thay thế:** QĐT-01 và QĐT-U1 (mã công ty bắt buộc ở đăng nhập), QĐT-02 phần "mã công ty bắt buộc", mục TSU-14 (mục 2.1), tab "Quên mã công ty" của TSU-15; làm nhẹ C-01 (đăng nhập có mã công ty, vẫn mở ở spec v0.2 nhưng phương án mặc định đã đổi).
+
+| Nội dung | Quyết định |
+| --- | --- |
+| Màn mặc định | Chỉ **Email** và **Mật khẩu**, "Quên mật khẩu?", liên kết "Đăng ký dùng thử" (ngoài thẻ). **Không có ô Mã công ty** |
+| Lỗi | Sai email, sai mật khẩu, tài khoản không tồn tại, tenant đã chấm dứt: **một câu trung lập, cùng mã trạng thái, cùng thời gian phản hồi** (QĐT-17 giữ). Câu: "Email hoặc mật khẩu chưa đúng." |
+| Email thuộc 1 công ty | Vào thẳng công ty đó (rẽ nhánh `onboarding`/`active`/`suspended`/`terminating` như TSU-14 cũ) |
+| Email thuộc nhiều công ty | **Chỉ sau khi mật khẩu đúng** mới hiện bước "Chọn công ty" (xem 9.4, TSU-14 biến thể `chọn công ty`). Trước đó không có dấu hiệu nào về số lượng hay tên công ty |
+| Thiết bị | Nhớ **công ty đã chọn lần trước** (chỉ lưu định danh nội bộ trên thiết bị, dùng để chọn sẵn sau khi mật khẩu đúng; không dùng để điền sẵn tên công ty trước khi xác thực). Có "Đổi công ty" trong menu tài khoản |
+| Mã công ty | **Vẫn tồn tại** nội bộ và cho hỗ trợ (tra cứu, đối chiếu), in trong email chào mừng và ở Cài đặt (TSX-20). Không còn là thứ người dùng phải nhớ; "Quên mã công ty" **không còn cần ở luồng chính** (giữ khả năng hỗ trợ tra giúp) |
+
+**Hệ quả (phải xử lý):**
+1. **Cùng một email được thuộc nhiều tenant**: nền tảng **không buộc email duy nhất toàn nền tảng cho tư cách thành viên của tenant** (khớp FR-TEN-016 "không giả định email duy nhất"; và trả lời một phần Q4 của `multi-tenant-analysis.md`: có người dùng nhiều tenant). Việc email có phải định danh duy nhất của một "người" (một thông tin đăng nhập, nhiều tư cách thành viên) hay mỗi tenant một tài khoản riêng là **quyết định kỹ thuật và an ninh, mở ở C-S14**.
+2. **Khuyến nghị C-S14:** một thông tin đăng nhập cho mỗi email (một mật khẩu), mỗi tenant là một tư cách thành viên (vai trò, chi nhánh, trạng thái) tách biệt; phiên gắn đúng **một công ty tại một thời điểm** (Scope, FR-TEN-010); đổi công ty cấp lại phiên cho công ty khác. Vai trò, chi nhánh, cô lập tenant (FR-TEN-009, NFR-ISO-01) không đổi.
+3. **Cách phân biệt tài khoản ở bước chọn:** tên garage, tỉnh/thành, MST che (3 số cuối), vai trò của người dùng ở đó, lần dùng gần nhất; công ty `suspended` hiện kèm nhãn "Tạm ngưng"; công ty `terminated` không liệt kê. Nếu mọi tư cách thành viên đều đã chấm dứt: lỗi trung lập như trên.
+4. **Chống đoán mật khẩu mạnh hơn** vì mất thêm một yếu tố: giới hạn tần suất theo email, theo nguồn và theo cặp (email, nguồn); đếm lùi do máy chủ; khóa tạm trung lập; kiểm tra người thật chỉ hiện khi nghi ngờ (QĐT-S08). Không khóa vĩnh viễn (tránh bị lợi dụng khóa tài khoản người khác).
+5. **Đăng ký một garage thứ hai bằng email đã có:** phản hồi ở TSX-01/02 vẫn trung lập (RULE-032, FR-TEN-039). **Mật khẩu gõ ở TSX-01 không được ghi đè mật khẩu của email đã tồn tại.** Email xác thực nói rõ cho chủ email: "Email này đã có tài khoản; bấm liên kết để thêm garage mới vào tài khoản hiện có" (chỉ chủ hộp thư biết). Mở ở C-S15.
+6. **Quên mật khẩu (TSU-15, TSU-16):** chỉ nhập email, phản hồi trung lập; đặt lại mật khẩu áp cho thông tin đăng nhập của email đó (mọi công ty của email, theo khuyến nghị C-S14); email nêu rõ phạm vi.
+7. **Nhân viên được mời** nhận lời mời theo email; nếu email đã có tài khoản thì tư cách thành viên mới được thêm vào, không tạo mật khẩu mới (cần C-S14).
+8. Tác động SYS/đăng nhập đã xây (một tenant, đăng nhập email + mật khẩu hiện có): phần lớn đã khớp; cần thêm bước chọn công ty và mô hình tư cách thành viên khi bật nhiều tenant (ghi 9.6, Dev ra ADR; BA không chọn công nghệ).
+
+### 9.2 QĐT-S02 Liên kết xác thực một lần, tự đăng nhập bất kể trình duyệt (D2)
+
+**Thay thế:** C-S03 (resolved), FR-TEN-053 phiên bản cũ ("cùng trình duyệt"), AC-S09, đoạn "phiên sau xác thực" ở TSX-03, nhánh "khác trình duyệt → TSU-14" ở mục 3.1 và TSX-03 mục "Ra". Lý do: mở liên kết trong trình duyệt nhúng của Gmail (hoặc ứng dụng thư khác) là trình duyệt khác với nơi đăng ký, người dùng bị bắt đăng nhập lại và bỏ cuộc.
+
+| Thông số | Quyết định (tham số cấu hình, số 72 giờ là số của client, vẫn là tham số) |
+| --- | --- |
+| Liên kết | **Dùng một lần**, hạn **72 giờ** (`signup.verify_link_hours`) |
+| Hiệu lực tự đăng nhập | **Chỉ lần xác thực đầu tiên** của yêu cầu đăng ký. Sau khi dùng hoặc hết hạn: liên kết không còn dùng được (biến thể `liên kết không hợp lệ hoặc đã dùng` / `hết hạn` của TSX-03), người dùng đăng nhập bằng email + mật khẩu |
+| Trình duyệt | **Không phụ thuộc** cookie phiên đăng ký. Mở ở trình duyệt nào, trình duyệt đó nhận phiên (cookie `__Host-`) khi cấp phát xong |
+| Vào đâu | Sẵn sàng → TSX-10. Chưa sẵn sàng (`chờ duyệt`, `cần bổ sung`, `đang tạo chậm`): trang theo dõi giữ trong trình duyệt đó; **phiên chỉ được tạo khi tài khoản sẵn sàng**. Nếu người dùng đóng trang trước đó: email chào mừng có liên kết vào app, người dùng đăng nhập bằng email + mật khẩu (liên kết một lần đã dùng cho xác thực) |
+| Quét liên kết | Một số hệ thống thư tự mở liên kết để quét an ninh và có thể "ăn" liên kết một lần. Giảm thiểu: **mở liên kết bằng GET chỉ hiện trang, việc tiêu thụ liên kết và tạo phiên là một yêu cầu POST do trang tự gửi**; có nút "Tiếp tục" dự phòng nếu tự chạy không được. `[Cần xác nhận]` kỹ thuật cho Dev ở C-S16 |
+
+**Rủi ro bảo mật và biện pháp giảm thiểu:**
+
+| Rủi ro | Giảm thiểu đề xuất |
+| --- | --- |
+| Liên kết bị chuyển tiếp hoặc lộ (hộp thư dùng chung, người khác đọc được email, nhật ký proxy) trong 72 giờ trước khi chủ dùng: người nhận được phiên đăng nhập chủ garage | (1) một lần, vô hiệu ngay khi dùng; (2) chỉ lần xác thực đầu, không dùng cho đăng nhập về sau; (3) ghi nhật ký (thời gian, nguồn, trình duyệt tóm tắt) cho cả lần thành công và lần bị từ chối; (4) **gửi email thông báo** "Tài khoản vừa được mở bằng liên kết xác thực lúc {giờ}; nếu không phải bạn, liên hệ {hỗ trợ}" tới chính email đó; (5) phiên tạo bằng liên kết **chưa đủ** để đổi email, đổi mật khẩu, xuất dữ liệu, phát hành hóa đơn thật: các thao tác này yêu cầu nhập lại mật khẩu (khuyến nghị, C-S17); (6) liên kết không chứa email hay thông tin cá nhân; (7) chữ ký số/chỉ lưu băm, không ghi liên kết đầy đủ vào nhật ký |
+| Người đăng ký nhập email của người khác | Vẫn được chặn vì chỉ chủ hộp thư nhận liên kết; mật khẩu gõ khi đăng ký không áp dụng cho email đã có tài khoản (9.1 điểm 5) |
+| Tự đăng nhập kéo theo tenant `onboarding` chưa kích hoạt | Chỉ vào được TSX-10 (QĐT-15 giữ); không quyền nghiệp vụ khác |
+| Hạn 72 giờ dài hơn mức thường dùng cho liên kết đăng nhập | Giữ theo client; giảm thiểu bằng các biện pháp trên; mức hạn là tham số, khuyến nghị xem lại (C-S17) |
+
+**Email chào mừng (thay mô tả mục 2.1, QĐT-07):** gửi **sau khi cấp phát xong**, nội dung bắt buộc: (a) **email đăng nhập đã điền sẵn** ("Email đăng nhập của bạn: {email}", không in mật khẩu); (b) **liên kết vào app** (tới màn đăng nhập, ô email điền sẵn qua tham số không nhạy cảm hoặc để trống nếu không an toàn: Dev quyết); (c) **số hỗ trợ** (hotline/Zalo/giờ làm việc lấy từ cấu hình, QĐT-S03); (d) mã công ty (dùng khi gọi hỗ trợ), ghi "bạn không cần nhớ mã này để đăng nhập"; (e) tên thương hiệu từ `brand.name`. Không nêu giá, gói (QĐT-S04).
+
+**Email xác thực (thay E-0x):** tiêu đề ngắn rõ việc cần làm; một nút chính "Xác nhận email và vào ứng dụng"; dòng nhỏ nêu hạn ({72} giờ), "dùng được một lần", "nếu không phải bạn đăng ký, bỏ qua email này"; số hỗ trợ; liên kết dự phòng dạng chữ; không nêu việc email đã có tài khoản trừ trường hợp 9.1 điểm 5 (chỉ trong email, không trên màn).
+
+**Email thông báo mở tài khoản bằng liên kết (mới):** nội dung ở bảng trên, điểm (4).
+
+### 9.3 QĐT-S03 Kênh hỗ trợ (D3)
+
+Giá trị là **cấu hình**: `support.phone`, `support.zalo`, `support.hours` (cấu hình theo nền tảng, có hiệu lực theo ngày, sửa không cần phát hành; không viết cứng trong giao diện hay email). `[Cần xác nhận]` giá trị thật và giờ làm việc (C-S18). **UI luôn có chỗ đặt khối "Cần giúp?"**; nếu giá trị chưa cấu hình, khối vẫn hiện với kênh dự phòng `support.email` (nếu không có cũng không có kênh nào thì khối hiện câu "Liên hệ nhân viên hỗ trợ của bạn" và đây là lỗi cấu hình phải cảnh báo ở TSU-66, không phát hành khi thiếu).
+
+Hiển thị ở: **TSX-01** (cuối trang), **TSX-02**, **TSX-03** (mọi biến thể, bắt buộc ở `chờ duyệt`, `cần bổ sung`, `không đạt`, `đang tạo chậm`), **TSX-20** (đầu trang), màn khóa/hết dùng thử (**TSU-41 biến thể hết hạn, TSU-51, TSU-53**), **TSU-14** (chân trang), email xác thực và chào mừng. Nút gọi dạng `tel:` và liên kết Zalo mở tab mới; nêu giờ làm việc và câu "Ngoài giờ, để lại tin nhắn Zalo". Quyền riêng tư: số hỗ trợ là thông tin công khai, không có dữ liệu cá nhân của tenant.
+
+### 9.4 QĐT-S04 Ẩn hoàn toàn giá và gói giai đoạn này (D4)
+
+**Thay thế/sửa:** QĐT-04 (phần chữ "Truy cập sớm, chưa thu phí"), QĐT-11, QĐT-25 phần câu chữ có "gói", TSX-01 dòng điều kiện, TSU-41 (mục 2.3), BAN-A (mục 2.3), mục 6.1 dòng FR-TEN-044/045. **Không phá FR-TEN về gói**: mô hình dữ liệu gói/thuê bao/hạn mức giữ nguyên ở máy chủ; chỉ **hoãn giao diện sang phase sau (billing B0 không hiển thị)**.
+
+| Hạng mục | Giai đoạn này |
+| --- | --- |
+| Giá, so sánh gói, "Đổi gói", "Hạ gói", "Lịch sử gói", nút thanh toán, thẻ gói, "Liên hệ chọn gói" | **Không có ở bất kỳ màn nào**, kể cả email và banner. Hoãn cùng TSU-42, 43, 44, 68 |
+| Trạng thái hiển thị | Chỉ **"Dùng thử"** (kèm số ngày còn lại) và các trạng thái hạn chế/tạm ngưng/chấm dứt không nêu gói |
+| Dòng ở TSX-01 | "Dùng thử {N} ngày" (bỏ "không cần thẻ thanh toán" và "Truy cập sớm, chưa thu phí" để không nói gì về tiền) |
+| TSU-41 | **Chỉ còn thẻ "Dùng thử" với số ngày còn lại** và ngày kết thúc. Bỏ: tên gói, mức dùng chi nhánh/người dùng, khối "Thanh toán". Biến thể hết hạn: câu trấn an ở dưới, nút "Xuất dữ liệu" (TSU-55), khối hỗ trợ (QĐT-S03) |
+| Câu trấn an cố định khi hết dùng thử | "Hết thời gian dùng thử, dữ liệu của bạn vẫn được giữ; bạn sẽ được liên hệ để chọn cách dùng tiếp." (không nêu giá, không nêu tên gói) |
+| Hạn mức người dùng/chi nhánh | Máy chủ vẫn giữ; khi chạm hạn mức hiện thông báo trung tính "Cần liên hệ hỗ trợ để thêm" kèm khối hỗ trợ, không nêu tên gói (BAN-06 vẫn hoãn) |
+| Chế độ chỉ đọc sau hết dùng thử | Giữ QĐT-25 (thang trial nội bộ), nhưng câu chữ bỏ từ "gói", "thuê bao", "thanh toán" |
+
+Hệ quả vận hành: câu "bạn sẽ được liên hệ" **cam kết một quy trình người liên hệ** mà tài liệu chưa có: ai theo dõi danh sách tenant sắp hết dùng thử, bằng kênh nào, trong bao lâu. Đề xuất bổ sung cho TSX-30 một lọc "Sắp hết dùng thử" (chỉ metadata, không dữ liệu nghiệp vụ, FR-TEN-011) và một nhắc việc cho đội hỗ trợ; mở ở C-S19. Luật sư xem Điều khoản có nêu việc điều kiện sử dụng sau dùng thử sẽ thỏa thuận sau không (C-S20).
+
+### 9.5 Các QĐT-S05..S09
+
+| Mã | Quyết định | Thay thế/sửa | Chi tiết |
+| --- | --- | --- | --- |
+| **QĐT-S05** (D5) | Màn thiết lập nhanh hỏi **"Bạn đang quản lý garage bằng gì?"** | Sửa TSX-11 (mục 2.2), checklist mục 8 và quy tắc hiển thị (mục 4) | Bốn thẻ chọn một: **Excel**, **Phần mềm khác**, **Sổ sách giấy**, **Chưa có**; chọn sẵn không có (không bắt buộc, bỏ qua được). **Excel** → nút nổi bật "Nhập từ Excel" dẫn tới màn nhập Excel **SYS-007 có sẵn** (FR-SYS-007), kèm giải thích ba dòng: có file mẫu để tải, file lỗi không ghi một phần, hoàn tác được theo lô; lựa chọn khác → "Bắt đầu" thẳng (không chặn). Câu trả lời lưu ở tenant (`current_tool`, dữ liệu khảo sát, không PII) để hỗ trợ và đo. Khi chọn Excel: mục **Nhập Excel** trong checklist **ghim lên đầu danh sách** (trên cả "Tạo lệnh sửa chữa đầu tiên"); khuyến nghị **tắt sẵn công tắc "Dùng danh mục mẫu"** để tránh trùng danh mục sau khi nhập (người dùng bật lại được). Đường nhập Excel **không tính** vào mục tiêu < 10 phút (đo riêng ở AC-S20). "Phần mềm khác": chỉ ghi nhận; có chuyển dữ liệu hay không là ngoài phạm vi, mở C-S21 |
+| **QĐT-S06** (D6) | Hóa đơn điện tử nói bằng tiếng thường | Sửa checklist mục 4, 5, nhãn nhóm, BAN-C, TSU-50 câu chữ, TSX-10 dòng thông tin, AC-S15 (chữ hiển thị) | Câu hỏi: **"Garage đang dùng hóa đơn điện tử của nhà nào?"** Lựa chọn: danh sách nhà cung cấp phổ biến (**cấu hình**, không viết cứng, có hiệu lực theo ngày), **"Chưa có / chưa biết"**, **"Khác"** (nhập tên). Các trường kỹ thuật (MST đơn vị phát hành, mẫu số, ký hiệu, kiểm tra kết nối) chỉ hiện **sau khi chọn**, kèm "Nhờ hỗ trợ cài giúp" (QĐT-S03). "Chưa có/chưa biết" giữ hóa đơn ở bản thử và hiện khối hỗ trợ. Nhãn nhóm "Chặn phát hành hóa đơn thật" đổi thành **"Cần để xuất hóa đơn thật"**, kèm một câu: **"Trước đó, hóa đơn chỉ là bản nháp thử."** Mã kỹ thuật `VERIFICATION_REQUIRED` chỉ là nội bộ; người dùng không thấy mã. **Rủi ro:** hóa đơn "bản nháp thử" lọt ra khách như hóa đơn thật: bản in/PDF `fake` phải mang dấu "BẢN THỬ, không có giá trị hóa đơn" (khuyến nghị, C-S22). Không đổi RULE-024, RULE-028 |
+| **QĐT-S07** (D7) | Câu đồng ý Điều khoản **rút gọn một câu**; DPA vẫn tách riêng | Sửa hai dòng chấp nhận của TSX-01 (mục 2.1), C-S02 | Ô 1: **"Tôi đồng ý với Điều khoản dịch vụ."** [Đọc]. Ô 2: **"Tôi đồng ý với Thỏa thuận xử lý dữ liệu."** [Đọc]. Phiên bản, ngày hiệu lực, chính sách lưu trữ và câu về tư cách người đại diện nằm trong **bản đầy đủ ở nút "Đọc"**; hệ thống vẫn ghi phiên bản, thời điểm, nguồn của từng lần đồng ý (RULE-029, FR-TEN-037). **Giữ yêu cầu luật sư xác nhận** (C-02, C-S02 mở lại: câu ngắn kèm bản đầy đủ có đủ giá trị bằng chứng không; tư cách người đại diện đặt ở đâu) |
+| **QĐT-S08** (D8) | Mật khẩu hiện dần; kiểm tra người thật ẩn mặc định | Sửa V-PASS hiển thị (TSX-01, TSX-02), `BotCheckSlot`, AC-S01, AC-S02 | **Mật khẩu:** điều kiện **chỉ hiện khi bắt đầu gõ**, từng điều kiện đánh dấu xanh dần khi đạt; **không hiện lỗi đỏ khi ô còn trống** (lỗi chỉ hiện sau khi bấm gửi mà chưa đạt). Không chỉ dùng màu: có biểu tượng và chữ, vùng `aria-live="polite"` không đọc từng ký tự. **Kiểm tra người thật:** **ẩn mặc định**; chỉ hiện khi hệ thống nghi ngờ (điểm rủi ro, tần suất, nguồn) hoặc khi bật cờ `bot_check.always`; vẫn giữ **honeypot** và **giới hạn tần suất**, trần ngày (FR-TEN-041). Áp cho TSX-01, TSX-02 gửi lại, TSU-14, TSU-15. Rủi ro: tăng đăng ký rác khi tắt; giảm thiểu bằng xác thực email, danh sách email dùng một lần, trần ngày, đo tỷ lệ và bật cờ khi vượt ngưỡng (C-S23) |
+| **QĐT-S09** (D9) | Giữ tên thương hiệu **"GARAGE OS"** như toàn bộ prototype; tên là **một hằng cấu hình duy nhất** (`brand.name`) | Sửa mọi chữ "GMEP" nhắm tới người dùng trong tài liệu này (TSX-10 "GMEP đã tạo sẵn...", email) thành `{brand.name}` | Dùng cho tiêu đề, email, hóa đơn thử, mẫu in. `[Cần xác nhận]` tên sản phẩm chính thức (GMEP hay GARAGE OS) **trước khi công bố** (C-S24). "GMEP" là tên dự án nội bộ, không hiển thị cho người dùng cuối |
+
+### 9.6 Cập nhật danh sách màn
+
+| Màn | Thay đổi theo v0.2 |
+| --- | --- |
+| **TSU-14** Đăng nhập | Email + mật khẩu; bỏ ô Mã công ty và "Đổi công ty" ở thẻ; biến thể mới `chọn công ty` **sau mật khẩu đúng** (danh sách thẻ: tên garage, tỉnh/thành, MST che, vai trò, lần dùng gần nhất, nhãn tạm ngưng; chọn sẵn công ty lần trước; "Dùng email khác"); lỗi trung lập; khối hỗ trợ ở chân; bot ẩn mặc định; không còn liên kết "Quên mã công ty" (QĐT-S01, S03, S08). Cùng màn: nếu người dùng mở ở trang `onboarding` thì vào TSX-10 |
+| **TSU-15** | Một biểu mẫu "Quên mật khẩu" (email); bỏ tab "Quên mã công ty"; phản hồi trung lập; bot ẩn mặc định |
+| **TSX-01** | Bỏ khối kiểm tra người thật mặc định (còn 5 trường + 2 ô); đồng ý một câu ngắn; mật khẩu hiện điều kiện khi gõ; dòng điều kiện "Dùng thử {N} ngày"; khối hỗ trợ; không giá/gói; tên thương hiệu từ cấu hình |
+| **TSX-02** | Khối hỗ trợ; gửi lại không BotCheck (trừ nghi ngờ); nội dung nói rõ "mở liên kết ở bất kỳ trình duyệt nào, bạn sẽ được đăng nhập luôn" |
+| **TSX-03** | Bỏ rẽ nhánh "khác trình duyệt"; phiên tạo khi sẵn sàng bất kể trình duyệt; khối hỗ trợ ở mọi biến thể; biến thể `liên kết đã dùng` trỏ tới "Đăng nhập bằng email" |
+| **TSX-10** | Dòng thông tin dùng `{brand.name}`; câu "hóa đơn chỉ là bản nháp thử cho tới khi khai nhà cung cấp"; bỏ nhắc "{N} ngày dùng thử" nếu hiển thị gói; đồng hồ vẫn bắt đầu ở "Bắt đầu dùng" |
+| **TSX-11** | Thêm khối 0 "Bạn đang quản lý garage bằng gì?" trên cùng (4 thẻ), nút nổi bật "Nhập từ Excel" khi chọn Excel; công tắc danh mục mẫu tắt sẵn nếu chọn Excel |
+| **TSX-20** | Khối hỗ trợ ở đầu; nhóm "Cần để xuất hóa đơn thật" (đổi tên); mục 5 thành câu hỏi nhà cung cấp tiếng thường; mục Nhập Excel ghim đầu nếu chọn Excel; bỏ "Mã công ty" thành thông tin phụ ("Mã hỗ trợ") |
+| **TSU-41** | Chỉ thẻ "Dùng thử" (số ngày); biến thể hết hạn có câu trấn an, "Xuất dữ liệu", hỗ trợ; ẩn toàn bộ gói, hạn mức, giá, thanh toán |
+| **TSU-50** | BAN-A "Dùng thử còn N ngày / đã hết" không nêu gói, giá; BAN-C đổi chữ "Cần để xuất hóa đơn thật"; không có banner nào nói về giá; khối hỗ trợ ở BAN-B |
+| **TSU-51, TSU-53** | Khối hỗ trợ; bỏ chữ "gói", "thanh toán" |
+| **TSU-66** | Thêm nhóm cấu hình `support.*`, `brand.name`, `bot_check.always`, danh sách nhà cung cấp hóa đơn phổ biến, `signup.verify_link_hours`; cảnh báo khi `support.*` rỗng (mức Thường; thay đổi `bot_check.always` và `brand.name` có nhật ký, hiệu lực theo ngày) |
+| **TSX-30** | Lọc "Sắp hết dùng thử" (C-S19) |
+| Hoãn thêm | Mọi giao diện gói, giá, thanh toán (TSU-42, 43, 44, 68 đã hoãn; TSU-41 phần gói hoãn) |
+
+Số màn **không đổi (18)**; TSU-14 có thêm biến thể `chọn công ty`, TSU-15 bớt một tab.
+
+### 9.7 QĐT cũ, C-S cũ bị thay thế; [Cần xác nhận] mới
+
+| Mã cũ | Trạng thái v0.2 |
+| --- | --- |
+| QĐT-01, QĐT-U1 (đăng nhập có mã công ty) | **Thay thế bởi QĐT-S01** |
+| QĐT-02 (phần mã công ty bắt buộc) | **Thay thế bởi QĐT-S01**; phần loại hình giữ như mục 6.3 |
+| QĐT-07 (mã công ty tự sinh) | **Giữ**, vai trò đổi: nội bộ/hỗ trợ/email chào mừng |
+| QĐT-04, 11, 25 (câu chữ gói/thuê bao) | **Sửa bởi QĐT-S04** (chỉ chữ hiển thị; mô hình giữ) |
+| QĐT-17 (lỗi trung lập) | **Giữ**, mở rộng cho email thuộc nhiều công ty |
+| QĐT-34 (token theo dõi) | **Giữ**; phiên tạo khi sẵn sàng theo QĐT-S02 |
+| C-S03 (phiên cùng trình duyệt) | **RESOLVED/thay thế bởi QĐT-S02** |
+| C-S02 (gộp câu người đại diện) | **Mở lại** theo QĐT-S07 |
+| C-01 (đăng nhập có mã công ty) | **Giải quyết một phần** bởi QĐT-S01 (mặc định không mã); còn mở: mô hình định danh (C-S14) |
+| C-S09, C-S06 | Giữ; C-S09 chịu ảnh hưởng QĐT-S05 (công tắc mẫu) |
+
+Câu hỏi mới, theo mẫu ai chốt, phương án, khuyến nghị, hệ quả:
+
+| Mã | Ai chốt | Câu hỏi và phương án | Khuyến nghị | Hệ quả nếu chọn khác |
+| --- | --- | --- | --- | --- |
+| C-S14 | Chủ dự án, Dev (ADR) | Mô hình định danh khi cùng email thuộc nhiều tenant: (a) một thông tin đăng nhập cho mỗi email, nhiều tư cách thành viên; (b) mỗi tenant một tài khoản riêng, cùng email nhưng mật khẩu riêng | (a) | (b): sau khi gõ mật khẩu có thể khớp nhiều công ty hoặc không khớp công ty nào dù đúng ở công ty khác, khó trung lập và khó đặt lại mật khẩu; thực tế phải quay lại hỏi mã công ty |
+| C-S15 | Chủ dự án, Luật sư | Email đã có tài khoản đăng ký garage mới: (a) thêm garage vào tài khoản hiện có, bỏ qua mật khẩu mới; (b) chặn, yêu cầu đăng nhập rồi thêm công ty trong app | (a) với email nói rõ cho chủ hộp thư | (b) an toàn hơn nhưng phá "một trang" và lộ sự tồn tại tài khoản nếu hiển thị trên màn |
+| C-S16 | Dev | Cách tiêu thụ liên kết một lần để quét thư không làm hỏng liên kết (GET hiện trang, POST tiêu thụ) và nơi lưu phiên chờ | Như 9.2 | Liên kết hỏng với người dùng có phần mềm quét thư; tăng tải hỗ trợ |
+| C-S17 | Chủ dự án, Bảo mật | Biện pháp bù rủi ro liên kết bị chuyển tiếp: yêu cầu nhập lại mật khẩu cho đổi email/mật khẩu, xuất dữ liệu, phát hành hóa đơn thật; có rút ngắn 72 giờ không | Có nhập lại mật khẩu; giữ 72 giờ làm tham số; xem lại sau pilot | Không bù: người nhận liên kết có thể chiếm tài khoản trong 72 giờ |
+| C-S18 | Chủ dự án | Giá trị thật `support.phone`, `support.zalo`, `support.hours`, `support.email` dự phòng; ai trực | Cung cấp trước khi mở đăng ký | Không có giá trị: khối hỗ trợ rỗng, người dùng kẹt ở `chờ duyệt` không biết gọi ai |
+| C-S19 | Chủ dự án | Quy trình "bạn sẽ được liên hệ" sau hết dùng thử: ai, kênh nào, trong bao lâu, nhắc trước hạn mấy ngày | Lọc ở TSX-30 và nhắc nội bộ trước hạn | Không có quy trình: câu trấn an trở thành cam kết không giữ được |
+| C-S20 | Luật sư | Điều khoản không nêu giá giai đoạn này: cần câu "điều kiện sử dụng sau dùng thử sẽ được thỏa thuận" và quyền xuất/giữ dữ liệu | Có | Thiếu câu: tranh chấp khi sau này áp phí |
+| C-S21 | Chủ dự án | "Phần mềm khác": chỉ ghi nhận hay có dịch vụ chuyển dữ liệu (ngoài phạm vi hiện tại) | Chỉ ghi nhận và khối hỗ trợ | Hứa chuyển dữ liệu: cần phạm vi, giá, thời gian |
+| C-S22 | Kế toán, Luật sư | Hóa đơn bản thử mang dấu "BẢN THỬ, không có giá trị hóa đơn" trên bản in/PDF/màn | Có | Không dấu: khách nhận bản thử tưởng hóa đơn thật, rủi ro pháp lý |
+| C-S23 | Chủ dự án | Ngưỡng tự bật `bot_check.always` khi tỷ lệ đăng ký bị cờ/email dùng một lần vượt mức | Đặt tham số, rà sau 2 tuần | Ngưỡng cao: đăng ký rác; thấp: trở lại bắt người thật chứng minh |
+| C-S24 | Chủ dự án | Tên sản phẩm chính thức: GARAGE OS hay GMEP, trước khi công bố; ảnh hưởng tên miền, email gửi, Điều khoản, DPA | Chốt trước khi có tenant ngoài | Đổi tên sau: sửa một hằng cấu hình nhưng Điều khoản/DPA đã chấp nhận ghi tên cũ (cần chấp nhận lại) |
+
+### 9.8 Tiêu chí chấp nhận bổ sung (Given/When/Then)
+
+| Mã | Tiêu chí | Truy vết |
+| --- | --- | --- |
+| AC-S24 (D1) | **Given** màn đăng nhập mặc định **Then** chỉ có Email, Mật khẩu, "Quên mật khẩu?", "Đăng ký dùng thử"; không ô Mã công ty. **Given** sai email, sai mật khẩu, tenant đã chấm dứt hoặc email không tồn tại **When** gửi **Then** cùng một câu, cùng mã trạng thái và thời gian phản hồi trong dung sai, không tiết lộ công ty hay tài khoản | QĐT-S01, QĐT-17, FR-TEN-016 |
+| AC-S25 (D1) | **Given** một email thuộc hai công ty **When** nhập đúng mật khẩu **Then** hiện bước "Chọn công ty" với tên garage, tỉnh/thành, MST che, vai trò; chọn công ty nào thì phiên gắn đúng công ty đó và không thấy dữ liệu công ty kia. **Given** nhập sai mật khẩu **Then** không hiện danh sách và không có khác biệt so với email chỉ có một công ty. **Given** lần đăng nhập sau trên cùng thiết bị **Then** công ty đã chọn được chọn sẵn sau khi mật khẩu đúng. **Given** email chỉ thuộc một công ty **Then** không có bước chọn | QĐT-S01, FR-TEN-009, 010, 016, NFR-ISO-01 |
+| AC-S26 (D2) | **Given** người dùng đăng ký ở trình duyệt A và mở liên kết ở trình duyệt B (ví dụ trình duyệt nhúng của Gmail) **When** tài khoản đã sẵn sàng **Then** B nhận phiên và vào TSX-10 không cần đăng nhập; A không tự có phiên nhờ việc đó | QĐT-S02, FR-TEN-053 (sửa) |
+| AC-S27 (D2) | **Given** liên kết đã dùng một lần, hoặc quá hạn (72 giờ, tham số), hoặc đã có lần đăng nhập thành công **When** mở lại (kể cả bởi người khác) **Then** không tạo phiên, hiện câu trung lập `liên kết không hợp lệ hoặc đã dùng`/`hết hạn` kèm "Đăng nhập" và "Gửi liên kết mới"; sự kiện được ghi nhật ký | QĐT-S02 |
+| AC-S28 (D2) | **Given** hệ thống thư tự mở liên kết (quét an ninh, chỉ GET, không chạy script) **Then** liên kết **chưa bị tiêu thụ** và người dùng vẫn dùng được; **Given** người dùng mở thật **Then** trang tự tiêu thụ và đăng nhập, hoặc hiện nút "Tiếp tục" nếu script không chạy | QĐT-S02, C-S16 |
+| AC-S29 (D2) | **Given** đăng nhập lần đầu bằng liên kết **Then** có một dòng nhật ký (thời gian, nguồn, thiết bị tóm tắt) và một email thông báo tới chính email đó; **Given** phiên tạo bằng liên kết **When** đổi email/mật khẩu/xuất dữ liệu/phát hành hóa đơn thật **Then** yêu cầu nhập lại mật khẩu (nếu C-S17 được chấp nhận). **Given** tài khoản còn `chờ duyệt` **Then** không có phiên cho tới khi sẵn sàng | QĐT-S02, C-S17 |
+| AC-S30 (D3) | **Given** các màn nêu ở 9.3 **Then** khối hỗ trợ có mặt và lấy hotline, Zalo, giờ làm việc từ cấu hình (không viết cứng); **Given** cấu hình rỗng **Then** khối vẫn hiện với kênh dự phòng và TSU-66 cảnh báo; thay đổi giá trị có hiệu lực không cần phát hành lại | QĐT-S03 |
+| AC-S31 (D4) | **Given** bất kỳ màn, banner, email của gói này **Then** không có giá, tên gói, so sánh gói, "Đổi gói", "Lịch sử gói", nút thanh toán; TSU-41 chỉ có thẻ "Dùng thử" với số ngày còn lại | QĐT-S04 |
+| AC-S32 (D4) | **Given** dùng thử đã hết **Then** hiện đúng câu trấn an ("dữ liệu của bạn vẫn được giữ; bạn sẽ được liên hệ để chọn cách dùng tiếp"), vẫn xem/xuất dữ liệu theo thang QĐT-25, không xóa dữ liệu (RULE-021, 023, 030); mô hình dữ liệu gói/hạn mức ở máy chủ vẫn hoạt động | QĐT-S04, FR-TEN-044 |
+| AC-S33 (D5) | **Given** TSX-11 **Then** có câu "Bạn đang quản lý garage bằng gì?" với bốn lựa chọn, không bắt buộc. **When** chọn Excel **Then** hiện nút nổi bật dẫn tới màn nhập Excel SYS-007 và ba dòng giải thích file mẫu; checklist ghim mục Nhập Excel lên đầu. **When** chọn lựa chọn khác **Then** vào thẳng, không có nút Excel nổi bật, thứ tự checklist như mục 4 | QĐT-S05, FR-SYS-007, FR-TEN-043 |
+| AC-S34 (D5) | **Given** chọn Excel **When** mở màn nhập Excel **Then** tenant dùng đúng quy tắc SYS-007 (lỗi theo dòng, không ghi một phần, hoàn tác theo lô) mà không có màn nhập mới; công tắc danh mục mẫu tắt sẵn | QĐT-S05, UAT-12 |
+| AC-S35 (D6) | **Given** mục hóa đơn điện tử **Then** câu hỏi là "Garage đang dùng hóa đơn điện tử của nhà nào?" với danh sách cấu hình, "Chưa có / chưa biết", "Khác"; nhóm tên "Cần để xuất hóa đơn thật" kèm câu "Trước đó, hóa đơn chỉ là bản nháp thử"; không chữ "Chặn phát hành" hay mã lỗi hiện cho người dùng; chọn "Chưa có/chưa biết" thì vẫn dùng bản thử và khóa nút xuất thật kèm lý do bằng tiếng thường (hành vi chặn của RULE-024, 028 không đổi) | QĐT-S06, AC-S15 |
+| AC-S36 (D7) | **Given** TSX-01 **Then** hai ô đồng ý, mỗi ô một câu ngắn, có nút "Đọc" mở bản đầy đủ; DPA vẫn tách khỏi Điều khoản và không tích sẵn; nhật ký đồng ý lưu phiên bản, thời điểm, nguồn | QĐT-S07, RULE-029 |
+| AC-S37 (D8) | **Given** ô mật khẩu còn trống **Then** không có điều kiện, không có lỗi đỏ. **When** bắt đầu gõ **Then** hiện các điều kiện, từng điều kiện đạt thì đánh dấu xanh kèm biểu tượng và chữ (không chỉ màu); chỉ khi bấm gửi mà chưa đạt mới có lỗi theo trường (`aria-invalid`, `aria-describedby`) | QĐT-S08, AC-S21 |
+| AC-S38 (D8) | **Given** hành vi bình thường **Then** không hiện kiểm tra người thật ở TSX-01, TSX-02, TSU-14, TSU-15. **Given** hệ thống nghi ngờ hoặc cờ `bot_check.always` bật **Then** `BotCheckSlot` hiện và nút gửi chờ kết quả. **Given** honeypot bị điền hoặc vượt tần suất **Then** bị từ chối/429 với phản hồi trung lập | QĐT-S08, FR-TEN-041, UAT-TEN-14 |
+| AC-S39 (D8) | **Given** tắt kiểm tra người thật mặc định **When** đo tỷ lệ đăng ký bị cờ vượt ngưỡng (C-S23) **Then** cờ bật tự động hoặc cảnh báo cho quản trị nền tảng | QĐT-S08, C-S23 |
+| AC-S40 (D9) | **Given** mọi chuỗi hiển thị tên sản phẩm (tiêu đề, email, mẫu in, hóa đơn thử) **Then** đều lấy từ một hằng cấu hình `brand.name`; đổi giá trị một nơi đổi toàn bộ; không còn "GMEP" hiển thị cho người dùng cuối | QĐT-S09 |
+| AC-S41 (D1) | **Given** email đã có tài khoản **When** đăng ký garage mới ở TSX-01 **Then** màn hình giống hệt ca email mới (TSX-02); mật khẩu vừa gõ **không** thay đổi mật khẩu cũ; chủ email nhận email nêu rõ thêm garage vào tài khoản hiện có; MST trùng vẫn theo RULE-032 | QĐT-S01, RULE-032, C-S15 |
+
+Việc kiểm tra nên chạy lại: usability test AC-S20 phải có ít nhất một ca mở liên kết trong trình duyệt nhúng của Gmail trên điện thoại.
+
+### 9.9 FR/RULE ảnh hưởng và tài liệu khác cần cập nhật (khi chủ dự án chấp nhận; lượt này chưa sửa)
+
+| FR/RULE | Điều chỉnh đề xuất |
+| --- | --- |
+| **FR-TEN-039** | Bỏ kiểm tra người thật khỏi danh sách trường mặc định (chỉ khi nghi ngờ); thêm: một câu đồng ý ngắn kèm bản đầy đủ; mật khẩu hiện điều kiện khi gõ; không chọn gói/giá; email đã có tài khoản thì không ghi đè mật khẩu (QĐT-S01, S07, S08) |
+| **FR-TEN-040** | Không đổi nội dung; thêm hiển thị hỗ trợ ở trạng thái chờ (QĐT-S03) |
+| **FR-TEN-041** | Chống lạm dụng không còn dựa vào kiểm tra người thật mặc định: bổ sung điểm rủi ro, cờ `bot_check.always`, ngưỡng tự bật (QĐT-S08) |
+| **FR-TEN-042** | Thêm: tạo thư xác thực/chào mừng đúng nội dung 9.2; xử lý email đã có tài khoản (thêm tư cách thành viên) |
+| **FR-TEN-043** | Thêm: câu hỏi "đang quản lý bằng gì", lối vào Excel, ghim checklist (QĐT-S05) |
+| **FR-TEN-016** (đăng nhập, không giả định email duy nhất) | Làm rõ: đăng nhập mặc định email + mật khẩu; chọn công ty sau mật khẩu đúng; lỗi trung lập (QĐT-S01). Trả lời một phần Q4 |
+| **FR-TEN-044/045** | Chỉ hoãn **giao diện** gói/giá; yêu cầu dữ liệu giữ nguyên (QĐT-S04) |
+| **FR-TEN-053** | **Viết lại:** liên kết một lần, 72 giờ, tự đăng nhập bất kể trình duyệt, chỉ lần đầu, có nhật ký và thông báo (QĐT-S02) |
+| **FR-TEN-054 (mới, Should)** | Kênh hỗ trợ cấu hình, hiển thị theo 9.3. AC: AC-S30 |
+| **FR-TEN-055 (mới, Could)** | Tên thương hiệu cấu hình một nơi. AC: AC-S40 |
+| **Đăng nhập SYS** (FR-SYS về đăng nhập/phiên/scope, đã xây một tenant) | Khi bật nhiều tenant: thêm tư cách thành viên và bước chọn công ty; giới hạn tần suất theo email/nguồn; nhật ký đăng nhập lần đầu qua liên kết. **Không** đổi cho chế độ một tenant hiện tại |
+| **RULE-029** | Không đổi; câu ngắn là hình thức hiển thị |
+| **RULE-024, 028** | Không đổi; chỉ đổi chữ hiển thị (QĐT-S06) |
+| **RULE-034 (đề xuất mới)** | "Một thông tin đăng nhập có thể thuộc nhiều tenant; mọi truy cập dữ liệu vẫn gắn đúng một tenant theo phiên." Gắn FR-TEN-009, 010, 016 (chờ C-S14) |
+
+Tài liệu khác cần sửa khi chấp nhận: `docs/multi-tenant-analysis.md` (FR-TEN-016, 039..044, 053; thêm 054, 055; RULE-034; Q4 trả lời một phần; UAT-TEN-13..15; J7 bước email, J9/J10 phần gói); `docs/ui-ux/tenant-signup-spec.md` (ghi chú thay thế QĐT-01, 02); `docs/ui-ux/ba-decisions.md` mục F và `01-auth-dashboard.md`, `ui-ux-flow.md` §2.7 (bỏ "ô Mã công ty"); `state-copy.md` (câu chữ đăng nhập, hết dùng thử, hóa đơn thử, hỗ trợ); `component-catalog.md` (BotCheckSlot ẩn mặc định, SupportCard mới, CompanyPicker mới); `docs/functional-requirements.md` (FR-SYS đăng nhập, chỉ khi FR-TEN vào FRD); `docs/dev/open-questions-for-ba.md` và ADR multi-tenant (mô hình định danh C-S14); `design/tenant-signup/` (designer dựng lại theo 9.6, chưa làm).
