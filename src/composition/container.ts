@@ -105,7 +105,10 @@ import {
   DocStockBalanceRepository,
   DocStockDocumentRepository,
 } from '@/infrastructure/repos/invRepos';
-import { DocApprovalRepository } from '@/infrastructure/repos/approvalRepos';
+import {
+  DocApprovalDelegationRepository,
+  DocApprovalRepository,
+} from '@/infrastructure/repos/approvalRepos';
 import { DocImportBatchRepository } from '@/infrastructure/repos/importRepos';
 import {
   DocIntakeRepository,
@@ -241,6 +244,7 @@ function buildSys(
     configs: new DocConfigRepository(store),
     notifications: new DocNotificationRepository(store),
     approvals: new DocApprovalRepository(store),
+    delegations: new DocApprovalDelegationRepository(store),
     approvalHandlers: new Map(),
     imports: new DocImportBatchRepository(store),
     importHandlers: new Map(),

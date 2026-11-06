@@ -135,6 +135,8 @@ export {
   consumeApprovalInTx,
   loadApprovalForUse,
   approvalLevelFor,
+  bulkDecideApprovals,
+  runApprovalEscalation,
   approvalLimitsOf,
   listApprovals,
   getApproval,
@@ -142,7 +144,15 @@ export {
   decideSchema,
   withdrawSchema,
 } from './application/approvals';
-export type { ApprovalDto, ApprovalTab, OpenApprovalInput } from './application/approvals';
+export type {
+  ApprovalDto,
+  ApprovalTab,
+  BulkDecideResult,
+  EscalationRunResult,
+  OpenApprovalInput,
+} from './application/approvals';
+export { createDelegation, listDelegations, revokeDelegation } from './application/delegations';
+export type { DelegationDto } from './application/delegations';
 
 export * from './domain/dataImport';
 export {

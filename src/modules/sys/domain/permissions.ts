@@ -190,6 +190,8 @@ const ACC_CV = flatten([
 const ACC_CH = [
   ...ACC_VIEW_ALL,
   ...flatten([
+    // FR-SYS-033: only the owner edits delegations; everyone with the queue may read their own (see use case)
+    g('approval-delegation', 'view', 'update'),
     g('cash-day', 'update'),
     g('approval-l1', 'approve', 'reject'),
     g('approval-l2', 'approve', 'reject'),
@@ -598,6 +600,11 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
     id: '2026-11-rec-photo-hide',
     note: 'R104: rec-photo:update (hide a wrongly uploaded photo with a reason) for QL and CH',
     grants: { CH: PHOTO_HIDE, QL: PHOTO_HIDE },
+  },
+  {
+    id: '2026-11-sys-2.5-approvals',
+    note: 'Slice 2.5: approval delegation, owner only (FR-SYS-033)',
+    grants: { CH: flatten([g('approval-delegation', 'view', 'update')]) },
   },
   {
     id: '2026-11-sys-1.11-import',

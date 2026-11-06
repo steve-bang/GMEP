@@ -64,6 +64,7 @@ export const COL = {
   // SYS approvals (FR-SYS-004) and ACC (slice 1.7)
   approvals: 'approvals',
   approvalSlots: 'approvalSlots',
+  approvalDelegations: 'approvalDelegations',
   payments: 'payments',
   paymentReversals: 'paymentReversals',
   orderAccounts: 'orderAccounts',
@@ -551,6 +552,14 @@ export const Q = {
     collection: COL.approvals,
     eq: ['tenantId', 'requestedBy'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  // FR-SYS-033 (slice 2.5): a tenant has a handful of delegations; read by tenant, filter in memory.
+  // Single-field order (like roles.list): NO composite index.
+  approvalDelegationsByTenant: defineQuery({
+    name: 'approvalDelegations.byTenant',
+    collection: COL.approvalDelegations,
+    eq: ['tenantId'],
+    order: { field: 'tenantId', dir: 'asc', type: 'string' },
   }),
   paymentsByOrder: defineQuery({
     name: 'payments.byOrder',

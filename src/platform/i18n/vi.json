@@ -665,6 +665,18 @@
       "title": "Yêu cầu đã được xử lý",
       "detail": "Yêu cầu này đã được duyệt, từ chối hoặc rút lại."
     },
+    "bulk_mixed_kinds": {
+      "title": "Chỉ duyệt hàng loạt cùng một loại",
+      "detail": "Chọn các yêu cầu cùng loại rồi duyệt lại."
+    },
+    "bulk_not_allowed": {
+      "title": "Loại yêu cầu này không duyệt hàng loạt",
+      "detail": "Cấu hình chưa cho phép duyệt hàng loạt loại này, hoặc loại này cần nhập lại mật khẩu. Duyệt từng yêu cầu."
+    },
+    "delegation_not_active": {
+      "title": "Ủy quyền không còn hiệu lực",
+      "detail": "Ủy quyền này đã bị thu hồi."
+    },
     "approval_self_decision": {
       "title": "Không tự duyệt yêu cầu của mình",
       "detail": "Cần một người khác có quyền duyệt."
@@ -1809,6 +1821,8 @@
     "qcFailed": "Lệnh {number} không đạt kiểm tra chất lượng, có hạng mục được trả lại.",
     "qcPassed": "Lệnh {number} đã đạt kiểm tra chất lượng, sẵn sàng giao xe.",
     "approvalRequested": "Có yêu cầu phê duyệt {number} ({kind}) đang chờ bạn.",
+    "approvalReminder": "Nhắc: yêu cầu phê duyệt {number} ({kind}) đã quá hạn xử lý, đang chờ bạn.",
+    "approvalEscalated": "Yêu cầu {number} ({kind}) quá hạn ở cấp dưới và đã chuyển lên cấp của bạn.",
     "approvalApproved": "Yêu cầu {number} đã được duyệt.",
     "approvalRejected": "Yêu cầu {number} bị từ chối.",
     "dayReopened": "Ngày {date} của chi nhánh đã được mở lại sau khi chốt. Chứng từ đã ghi sổ không được sửa, chỉ ghi thêm hoặc đảo.",
@@ -3437,6 +3451,10 @@
     "status_rejected": "Bị từ chối",
     "status_withdrawn": "Đã rút",
     "overdue": "Quá thời hạn xử lý",
+    "escalated": "Đã chuyển cấp",
+    "reminded": "Đã nhắc",
+    "viaDelegation": "Duyệt theo ủy quyền",
+    "onBehalfOf": "Duyệt thay",
     "used": "Đã thực hiện",
     "waitUse": "Chờ thực hiện",
     "approve": "Duyệt",

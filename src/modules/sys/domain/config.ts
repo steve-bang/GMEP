@@ -281,6 +281,17 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         validHours: z.number().int().min(1).max(168).optional(),
         /** R106: reopenings per branch per month above which the owner/accountant get an exception notice */
         maxReopensPerMonth: z.number().int().min(1).max(31).optional(),
+        /** FR-SYS-034 T2: working hours after the reminder before level 1 moves to level 2 (absent = never) */
+        escalateAfterHours: z
+          .number()
+          .int()
+          .min(1)
+          .max(24 * 30)
+          .optional(),
+        /** FR-SYS-034: bulk approval allowed for this kind (same kind only) */
+        bulkAllowed: z.boolean().optional(),
+        /** R106 as data: the decider types the password again */
+        reauthOnApprove: z.boolean().optional(),
         dueHours: z
           .number()
           .int()
@@ -289,6 +300,22 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict()
       .refine((p) => p.level1MaxVnd >= p.selfMaxVnd, 'level1MaxVnd must not be below selfMaxVnd'),
+  },
+  // FR-SYS-034: working time of a branch (days of the week and the daily window), the clock of reminders and
+  // escalation. Company default `tenant`, override `branch:<id>`. No version in force = wall-clock time.
+  'work-hours': {
+    type: 'work-hours',
+    resource: 'approval-limit',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        days: z.array(z.number().int().min(0).max(6)).min(1).max(7),
+        startMinute: z.number().int().min(0).max(1439),
+        endMinute: z.number().int().min(1).max(1440),
+      })
+      .strict()
+      .refine((p) => p.endMinute > p.startMinute, 'endMinute must be after startMinute'),
   },
   // expense categories of the cash voucher (G4-ACC-04), a company catalogue; the accountant owns the list
   'expense-category': {

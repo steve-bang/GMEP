@@ -33,6 +33,7 @@ import type {
   ImportBatchRepository,
   ImportKindHandler,
   ApprovalRepository,
+  ApprovalDelegationRepository,
   ServiceRepository,
   SessionRepository,
   StrongAuthPort,
@@ -113,6 +114,7 @@ export interface SysDeps {
   configs: ConfigRepository;
   notifications: NotificationRepository;
   approvals: ApprovalRepository;
+  delegations: ApprovalDelegationRepository;
   /** FR-SYS-004: effects of a decision, per approval kind (filled by the composition root) */
   approvalHandlers: Map<string, ApprovalHandler>;
   /** FR-SYS-007: batches and, per kind, what CRM/INV do on commit and undo (filled by the composition root) */
