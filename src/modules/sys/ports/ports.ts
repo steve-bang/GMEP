@@ -18,7 +18,7 @@ import type {
 import type { ConfigVersion } from '../domain/config';
 import type { PendingTransition, Tenant } from '../domain/tenant';
 import type { PlatformAuditEntry, PlatformIdentity } from '../domain/platform';
-import type { ApprovalRequest, ApprovalStatus } from '../domain/approval';
+import type { ApprovalDelegation, ApprovalRequest, ApprovalStatus } from '../domain/approval';
 import type { Actor } from '@/platform/rbac/rbac';
 import type {
   ColumnMapping,
@@ -444,6 +444,14 @@ export interface ApprovalRepository {
   getSlotInTx(tx: Tx, slotId: string): Promise<{ requestId: string; open: boolean } | null>;
   setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; tenantId: string }): void;
   create(tx: Tx, r: ApprovalRequest): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+/** FR-SYS-033: delegations are few per tenant (read whole, filtered in memory); every read is by tenant. */
+export interface ApprovalDelegationRepository {
+  listByTenant(tenantId: string, limit: number): Promise<ApprovalDelegation[]>;
+  getInTx(tx: Tx, tenantId: string, id: string): Promise<ApprovalDelegation | null>;
+  create(tx: Tx, d: ApprovalDelegation): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
 

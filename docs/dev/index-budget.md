@@ -18,6 +18,8 @@ Trạng thái: **168 trên 200** (cảnh báo từ 190, FAIL trên 195 theo `src
 
 **Đo tải đọc hợp nhất** (bộ nhớ, `tests/integration/consolidation.test.ts`, đếm `stats.reads`): xem `docs/dev/status.md` mục slice 2.1 (8 và 20 chi nhánh, một ngày và 31 ngày). Đã thêm chunk 200 id cho `DocRollupRepository.getMany`. Đo độ trễ thật trên Firestore chờ staging (Q63).
 
+> Slice 2.5 (phê duyệt, 06/11/2026): **0 chỉ mục mới, vẫn 192/200.** `approvalDelegations.byTenant` chỉ lọc theo `tenantId` (đơn trường, tự động); hàng chờ và việc chuyển cấp dùng lại `approvals.byBranchStatus`. Slice 2.1 song song: số liệu đầu vào là 192, còn 3 chỗ dưới ngưỡng fail 195.
+
 ## Chính sách
 
 1. Giai đoạn 1 còn lại: không phân hệ nào thêm chỉ mục. Cần truy vấn mới thì: (a) dùng lại hình truy vấn có sẵn, (b) đọc theo khóa, (c) lọc trong bộ nhớ trên tập có giới hạn, hoặc (d) phi chuẩn hóa một trường khóa (cách RPT đã làm với `rollups/<branchId>_<yyyyMMdd>`).

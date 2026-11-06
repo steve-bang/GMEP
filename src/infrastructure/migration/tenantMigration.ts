@@ -70,6 +70,7 @@ export const TENANT_COLLECTIONS = [
   'partRequests',
   'approvals',
   'approvalSlots',
+  'approvalDelegations',
   'payments',
   'paymentReversals',
   'orderAccounts',

@@ -278,6 +278,8 @@ const EXEMPT: Record<string, string> = {
   'v1/sys/notifications': 'the caller’s own notifications',
   'v1/sys/users/[id]': 'user admin, covered in admin.test.ts (assignment scope)',
   'v1/sys/users/[id]/sessions': 'user admin, covered in admin.test.ts',
+  'v1/sys/approvals/delegations':
+    'FR-SYS-033: tenant-wide (not per branch), read by tenantId; tenant axis in sys-approvals-p2.test.ts and the exempt-list check below',
   'v1/sys/approvals/[id]': 'covered by the approvals list scope and acc.test.ts approvals',
   'v1/sys/imports/[id]': 'covered in import.test.ts (batch of another branch is 404)',
   'v1/sys/imports/[id]/issues': 'covered in import.test.ts (batch of another branch is 404)',
@@ -900,6 +902,7 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
       '/api/v1/rec/service-workflows',
       '/api/v1/ein/connection',
       '/api/v1/sys/approvals',
+      '/api/v1/sys/approvals/delegations',
     ])('exempt list %s carries nothing of tnt_demo', async (path) => {
       const res = await h.call('GET', path, { cookie: outsider });
       expect([200, 400, 403, 404, 409, 422], `${path} ${res.status}`).toContain(res.status);

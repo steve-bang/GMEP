@@ -80,6 +80,7 @@ const COMPANY_LEVEL_RESOURCES: ReadonlySet<string> = new Set([
   'user',
   'acc-policy',
   'approval-limit',
+  'approval-delegation',
   'cost-method',
   'discount-limit',
   'consent-evidence',
