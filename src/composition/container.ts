@@ -114,6 +114,7 @@ import {
 import { DocImportBatchRepository } from '@/infrastructure/repos/importRepos';
 import {
   DocIntakeRepository,
+  DocAppointmentRepository,
   DocPartRequestRepository,
   DocQuoteLinkRepository,
   DocQuoteOtpRepository,
@@ -322,6 +323,7 @@ function buildRec(
     crm,
     inv,
     intakes: new DocIntakeRepository(store),
+    appointments: new DocAppointmentRepository(store),
     quotes: new DocQuoteRepository(store),
     versions: new DocQuoteVersionRepository(store),
     links: new DocQuoteLinkRepository(store),

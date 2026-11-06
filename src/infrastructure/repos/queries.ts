@@ -93,6 +93,8 @@ export const COL = {
   employeeCodes: 'employeeCodes',
   employeeUserLinks: 'employeeUserLinks',
   laborSheets: 'laborSheets',
+  // REC slice 2.8b: appointments (FR-REC-019, 027); one shape, Q.appointmentsByDate
+  appointments: 'appointments',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -644,5 +646,16 @@ export const Q = {
     eq: ['tenantId', 'branchId'],
     range: true,
     order: { field: 'recordedAt', dir: 'desc', type: 'date' },
+  }),
+  /**
+   * REC slice 2.8b (FR-REC-019, 027): the calendar of ONE branch over a date range (day or week). ONE composite index
+   * (tenantId, branchId, date); status filter and time order run in memory over the bounded window (`appointments.listMax`).
+   */
+  appointmentsByDate: defineQuery({
+    name: 'appointments.byDate',
+    collection: COL.appointments,
+    eq: ['tenantId', 'branchId'],
+    range: true,
+    order: { field: 'date', dir: 'asc', type: 'string' },
   }),
 };

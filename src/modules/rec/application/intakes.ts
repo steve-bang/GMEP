@@ -17,6 +17,8 @@ import {
   type IntakeStatus,
   type KmReason,
 } from '../domain/entities';
+import type { Scope } from '@/platform/scope/scope';
+import type { Tx } from '@/platform/tx/unitOfWork';
 import { checkKm } from '../domain/intake';
 import { allowedIntakeActions, transitionIntake } from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
@@ -69,6 +71,8 @@ export interface IntakeDto {
   customerParts: { name: string; qty: number; condition: string }[];
   internalNote: string | null;
   quoteId: string | null;
+  /** slice 2.8b: the appointment this intake was opened from ("Đã đến"), null for a walk-in */
+  appointmentId: string | null;
   cancelReason: string | null;
   createdAt: string;
   updatedAt: string;
@@ -106,6 +110,7 @@ export function toIntakeDto(i: Intake, includeHiddenPhotos = false): IntakeDto {
     customerParts: i.customerParts,
     internalNote: i.internalNote ?? null,
     quoteId: i.quoteId ?? null,
+    appointmentId: i.appointmentId ?? null,
     cancelReason: i.cancelReason ?? null,
     createdAt: i.createdAt.toISOString(),
     updatedAt: i.updatedAt.toISOString(),
@@ -217,7 +222,6 @@ export async function createIntake(
       ...(ctx.sessionId ? { sessionId: ctx.sessionId } : {}),
     },
   );
-  const owner = vehicle.owner;
   return runIdempotent(
     idemOf(deps),
     {
@@ -227,61 +231,94 @@ export async function createIntake(
       fingerprint: fingerprintOf(data),
     },
     async (tx) => {
-      const branch = await assertWritable(
-        deps,
-        tx,
-        actor,
-        scope,
-        requireWorkingBranch(actor),
-        'new_order',
-      );
-      const now = deps.sys.clock.now();
-      const id = `tx_${deps.sys.newId()}`;
-      const num = await allocateDocumentNumber(deps.sys, tx, {
-        branch,
-        docType: 'intake',
-        businessDate: businessDate(now),
-        stage: 'create',
-        documentId: id,
-        requestKey: ctx.idempotencyKey,
-      });
-      const i: Intake = {
-        id,
-        tenantId: actor.tenantId,
-        branchId: branch.id,
-        number: num.number!,
-        status: 'draft',
-        vehicleId: vehicle.id,
-        customerId: owner.id,
-        plate: vehicle.plate,
-        plateNorm: normalizePlate(vehicle.plate),
-        vehicleLabel: `${vehicle.make} ${vehicle.model} ${vehicle.year}`,
-        customerName: owner.name,
-        lastKmAtOpen: vehicle.lastKm,
-        step: 1,
-        belongings: [],
-        advisorId: actor.userId,
-        customerParts: [],
-        createdAt: now,
-        createdBy: actor.userId,
-        updatedAt: now,
-        updatedBy: actor.userId,
-        version: 1,
-      };
-      deps.intakes.create(tx, i);
-      deps.sys.audit.record(
-        tx,
-        auditEntry(deps.sys, actor, ctx, {
-          branchId: branch.id,
-          entityType: 'intake',
-          entityId: id,
-          action: 'intake.create',
-          after: { number: i.number, vehicleId: i.vehicleId },
-        }),
-      );
+      const i = await stageIntake(deps, tx, actor, scope, vehicle, ctx);
       return { status: 201, body: toIntakeDto(i) };
     },
   );
+}
+
+type VehicleOfIntake = Awaited<ReturnType<typeof getVehicle>>;
+
+/**
+ * Stages a new intake draft inside the caller's transaction (reads first: branch state, numbering; then the writes and
+ * the audit entry). Used by `createIntake` and by the appointment "Đã đến" (FR-REC-027), which pre-fills `prefill`.
+ */
+export async function stageIntake(
+  deps: RecDeps,
+  tx: Tx,
+  actor: Actor,
+  scope: Scope,
+  vehicle: VehicleOfIntake,
+  ctx: RequestCtx & { idempotencyKey: string; sessionId?: string },
+  prefill: {
+    advisorId?: string;
+    serviceType?: string;
+    customerRequest?: string;
+    appointmentId?: string;
+  } = {},
+): Promise<Intake> {
+  const owner = vehicle.owner;
+  if (!owner) throw new AppError('owner_not_visible', 409);
+  const branch = await assertWritable(
+    deps,
+    tx,
+    actor,
+    scope,
+    requireWorkingBranch(actor),
+    'new_order',
+  );
+  const now = deps.sys.clock.now();
+  const id = `tx_${deps.sys.newId()}`;
+  const num = await allocateDocumentNumber(deps.sys, tx, {
+    branch,
+    docType: 'intake',
+    businessDate: businessDate(now),
+    stage: 'create',
+    documentId: id,
+    requestKey: ctx.idempotencyKey,
+  });
+  const i: Intake = {
+    id,
+    tenantId: actor.tenantId,
+    branchId: branch.id,
+    number: num.number!,
+    status: 'draft',
+    vehicleId: vehicle.id,
+    customerId: owner.id,
+    plate: vehicle.plate,
+    plateNorm: normalizePlate(vehicle.plate),
+    vehicleLabel: `${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+    customerName: owner.name,
+    lastKmAtOpen: vehicle.lastKm,
+    step: 1,
+    belongings: [],
+    advisorId: prefill.advisorId ?? actor.userId,
+    ...(prefill.serviceType ? { serviceType: prefill.serviceType } : {}),
+    ...(prefill.customerRequest ? { customerRequest: prefill.customerRequest } : {}),
+    ...(prefill.appointmentId ? { appointmentId: prefill.appointmentId } : {}),
+    customerParts: [],
+    createdAt: now,
+    createdBy: actor.userId,
+    updatedAt: now,
+    updatedBy: actor.userId,
+    version: 1,
+  };
+  deps.intakes.create(tx, i);
+  deps.sys.audit.record(
+    tx,
+    auditEntry(deps.sys, actor, ctx, {
+      branchId: branch.id,
+      entityType: 'intake',
+      entityId: id,
+      action: 'intake.create',
+      after: {
+        number: i.number,
+        vehicleId: i.vehicleId,
+        ...(prefill.appointmentId ? { appointmentId: prefill.appointmentId } : {}),
+      },
+    }),
+  );
+  return i;
 }
 
 // ---- save a step (draft) ------------------------------------------------------------------------

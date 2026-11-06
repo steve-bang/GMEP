@@ -113,6 +113,8 @@ export interface Intake {
   customerParts: CustomerPart[];
   photos?: PhotoRef[];
   internalNote?: string;
+  /** slice 2.8b (FR-REC-027): set when the intake was opened by "Đã đến" on an appointment */
+  appointmentId?: string;
   quoteId?: string;
   cancelReason?: string;
   completedAt?: Date;

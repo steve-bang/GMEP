@@ -175,3 +175,18 @@ export {
 export type { QcChecklistDto, HandoverPrintDto } from './application/quality';
 export { systemActor } from './application/orderHelpers';
 export { recOrderAdvisors } from './application/orderAdvisors';
+
+// slice 2.8b: appointments (FR-REC-019, 027)
+export * from './domain/appointment';
+export {
+  listAppointments,
+  getAppointment,
+  createAppointment,
+  updateAppointment,
+  cancelAppointment,
+  markNoShow,
+  arriveAppointment,
+  appointmentPolicyAt,
+  toAppointmentDto,
+} from './application/appointments';
+export type { AppointmentDto, AppointmentCalendarDto } from './application/appointments';

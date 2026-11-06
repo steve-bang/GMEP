@@ -13,6 +13,7 @@ import type {
   QuoteVersion,
 } from '../domain/entities';
 import type { MessageQueue, QuoteDelivery, QuoteOtpRecord } from '../domain/messaging';
+import type { Appointment } from '../domain/appointment';
 
 type Cursor = { v: string; id: string };
 export interface PageQuery {
@@ -210,4 +211,23 @@ export interface LaborGate {
   ): Promise<LaborStaged>;
   /** the order is cancelled: labor already recorded is undone by opposite lines */
   prepareCancel(c: LaborQcCall & { reason: string }): Promise<LaborStaged>;
+}
+
+/**
+ * Appointments (slice 2.8b, FR-REC-019, 027): always read for ONE branch over a date range (the calendar of a
+ * branch), one composite index (tenantId, branchId, date). Scope is checked on every read.
+ */
+export interface AppointmentRepository {
+  /** appointments of `branchId` with `from <= date < toExclusive`, at most `limit` rows, date ascending */
+  listByDates(
+    scope: Scope,
+    branchId: string,
+    from: string,
+    toExclusive: string,
+    limit: number,
+  ): Promise<Appointment[]>;
+  get(scope: Scope, id: string): Promise<Appointment | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<Appointment | null>;
+  create(tx: Tx, a: Appointment): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }

@@ -27,6 +27,7 @@ import type {
   QuoteVersion,
   QuoteVersionRepository,
 } from '@/modules/rec';
+import type { Appointment, AppointmentRepository } from '@/modules/rec';
 import { versionId } from '@/modules/rec';
 import { COL, Q } from './queries';
 
@@ -145,6 +146,7 @@ const intakeFromDoc = ({ id, data: x }: StoredDoc): Intake => ({
   photos: x.photos ?? [],
   ...put('internalNote', opt<string>(x.internalNote)),
   ...put('quoteId', opt<string>(x.quoteId)),
+  ...put('appointmentId', opt<string>(x.appointmentId)),
   ...put('cancelReason', opt<string>(x.cancelReason)),
   ...put('completedAt', opt<Date>(x.completedAt)),
   createdAt: x.createdAt,
@@ -187,6 +189,65 @@ export class DocIntakeRepository implements IntakeRepository {
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.intakes, id, patch);
+  }
+}
+
+// ---- appointments (slice 2.8b) --------------------------------------------------------------------
+
+const appointmentFromDoc = ({ id, data: x }: StoredDoc): Appointment => ({
+  id,
+  tenantId: x.tenantId,
+  branchId: x.branchId,
+  number: x.number,
+  status: x.status,
+  date: x.date,
+  time: x.time,
+  vehicleId: x.vehicleId,
+  customerId: x.customerId,
+  plate: x.plate,
+  plateNorm: x.plateNorm,
+  vehicleLabel: x.vehicleLabel,
+  customerName: x.customerName,
+  ...put('serviceType', opt<string>(x.serviceType)),
+  ...put('advisorId', opt<string>(x.advisorId)),
+  ...put('note', opt<string>(x.note)),
+  ...put('cancelReason', opt<string>(x.cancelReason)),
+  overCapacity: x.overCapacity === true,
+  ...put('intakeId', opt<string>(x.intakeId)),
+  ...put('arrivedAt', opt<Date>(x.arrivedAt)),
+  createdAt: x.createdAt,
+  createdBy: x.createdBy,
+  updatedAt: x.updatedAt,
+  updatedBy: x.updatedBy,
+  version: x.version,
+});
+
+export class DocAppointmentRepository implements AppointmentRepository {
+  constructor(private readonly store: DocStore) {}
+  async listByDates(scope: Scope, branchId: string, from: string, to: string, limit: number) {
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return [];
+    const rows = await this.store.query(Q.appointmentsByDate.pick([], false), {
+      eq: { tenantId: scope.tenantId, branchId },
+      range: { gte: from, lt: to },
+      limit,
+    });
+    return rows.map(appointmentFromDoc);
+  }
+  async get(scope: Scope, id: string) {
+    const d = await this.store.get(COL.appointments, id);
+    const x = d ? appointmentFromDoc(d) : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
+  }
+  async getInTx(tx: Tx, scope: Scope, id: string) {
+    const d = await this.store.getInTx(tx, COL.appointments, id);
+    const x = d ? appointmentFromDoc(d) : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
+  }
+  create(tx: Tx, a: Appointment) {
+    this.store.create(tx, COL.appointments, a.id, without(a, 'id'));
+  }
+  update(tx: Tx, id: string, patch: Record<string, unknown>) {
+    this.store.update(tx, COL.appointments, id, patch);
   }
 }
 

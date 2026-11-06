@@ -1368,6 +1368,11 @@
         "lead": "Hệ số theo chức danh, có ngày hiệu lực. Giá trị mẫu chỉ để minh họa.",
         "scopeHint": "position:<mã chức danh>"
       },
+      "appointment-policy": {
+        "title": "Lịch hẹn và công suất xưởng",
+        "lead": "Bật hoặc tắt lịch hẹn của chi nhánh và số xe mỗi ngày; vượt công suất chỉ cảnh báo. Chưa khai thì lịch hẹn tắt.",
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
+      },
       "labor-policy": {
         "title": "Quy tắc làm tròn và ngưỡng điều chỉnh công",
         "lead": "Làm tròn, ngưỡng điều chỉnh thủ công cần chủ duyệt, cách xử lý làm lại. Công ty hoặc ghi đè theo chi nhánh.",
@@ -1600,6 +1605,7 @@
       "config_labor-method": "Cấu hình: Phương pháp tính công",
       "config_labor-position": "Cấu hình: Chức danh và hệ số công",
       "config_labor-policy": "Cấu hình: Quy tắc làm tròn và ngưỡng điều chỉnh công",
+      "config_appointment-policy": "Cấu hình: Lịch hẹn và công suất xưởng",
       "config_inventory-policy": "Cấu hình: Chính sách kho",
       "config_part-group": "Cấu hình: Nhóm hàng",
       "config_part-unit": "Cấu hình: Đơn vị tính",
@@ -1617,6 +1623,7 @@
       "stockDocument": "Chứng từ kho",
       "stockReservation": "Giữ chỗ phụ tùng",
       "stockBalance": "Tồn kho",
+      "appointment": "Lịch hẹn",
       "intake": "Hồ sơ tiếp nhận",
       "quote": "Báo giá",
       "repairOrder": "Lệnh sửa chữa",
@@ -1714,6 +1721,11 @@
       "stockReservation_shorten": "Giảm giữ chỗ do kiểm kê",
       "stockReservation_restore": "Khôi phục giữ chỗ do phiếu đảo",
       "stockLevel_update": "Đổi định mức tồn",
+      "appointment_create": "Đặt lịch hẹn",
+      "appointment_update": "Sửa lịch hẹn",
+      "appointment_cancel": "Hủy lịch hẹn",
+      "appointment_no_show": "Ghi nhận khách vắng hẹn",
+      "appointment_arrive": "Khách đến theo lịch hẹn, mở hồ sơ tiếp nhận",
       "intake_create": "Mở hồ sơ tiếp nhận (nháp)",
       "intake_update": "Lưu bước hồ sơ tiếp nhận",
       "intake_complete": "Hoàn tất hồ sơ tiếp nhận",

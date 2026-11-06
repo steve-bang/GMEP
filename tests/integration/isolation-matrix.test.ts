@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { getTenant, provisionTenant, transitionTenant } from '@/modules/sys';
+import { businessDate } from '@/platform/format/date';
 import { journey, newStaffUser, type Row, type Staff } from '../helpers/journey';
 import { allRouteFiles, backends, createHarness, type Harness } from './harness';
 
@@ -92,6 +93,18 @@ const ROUTES: Record<string, RouteRow> = {
   // REC
   'v1/rec/board': { kind: 'list', path: () => '/api/v1/rec/board', has: 'orderId' },
   'v1/rec/intakes': { kind: 'list', path: () => '/api/v1/rec/intakes?limit=100', has: 'intakeId' },
+  // slice 2.8b: the branch calendar (one branch per read) and an appointment (FR-REC-019, 027)
+  'v1/rec/appointments': {
+    kind: 'list',
+    path: () => '/api/v1/rec/appointments?days=7',
+    has: 'appointmentId',
+  },
+  'v1/rec/appointments/[id]': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'appointmentId',
+    detail: (id) => `/api/v1/rec/appointments/${id}`,
+  },
   'v1/rec/intakes/[id]': {
     kind: 'detail',
     path: () => '',
@@ -441,7 +454,15 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         note: 'Khách yêu cầu xóa (cách ly)',
       });
       expect(dsr.status, dsr.text).toBe(201);
+      const apt = await j.post(staff.cv, '/api/v1/rec/appointments', {
+        vehicleId: c.vehicleId,
+        date: businessDate(h.clock.now()),
+        time: '23:30',
+        acknowledgeOverCapacity: true,
+      });
+      expect(apt.status, apt.text).toBe(201);
       Object.assign(ids, {
+        appointmentId: apt.json.id,
         dsrId: dsr.json.id,
         employeeId: emp.json.id,
         customerId: c.customerId,
@@ -468,6 +489,7 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         ids.invoiceId,
         ids.docId,
         emp.json.id,
+        apt.json.id,
       ].filter(Boolean) as string[];
     };
     q7Markers = await build(

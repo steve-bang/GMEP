@@ -614,6 +614,17 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // FR-REC-019, 027 (slice 2.8b): whether a branch takes appointments at all (BRD Discovery 13 not confirmed, so no
+  // version = OFF) and the workshop capacity in cars per day (0 = none configured: no warning). Company default, branch override.
+  'appointment-policy': {
+    type: 'appointment-policy',
+    resource: 'appointment-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({ enabled: z.boolean(), dailyCapacity: z.number().int().min(0).max(10_000) })
+      .strict(),
+  },
   // FR-INV-025: maximum discount per role, in basis points of list price.
   'discount-limit': {
     type: 'discount-limit',
