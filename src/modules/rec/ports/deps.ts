@@ -7,6 +7,7 @@ import type {
   IntakeRepository,
   OrderInvoiceGate,
   PartRequestRepository,
+  LaborGate,
   PaymentGate,
   QuoteDeliveryRepository,
   QuoteLinkRepository,
@@ -141,6 +142,8 @@ export interface RecDeps {
   payments: PaymentGate;
   /** R75: EIN's answer for an order, wired by the composition root */
   invoices: OrderInvoiceGate;
+  /** slice 2.6a: HRM's labor recording around QC and cancel, wired by the composition root */
+  labor: LaborGate;
   rec: RecConfig;
   /** binary storage for photos; paths are server-chosen and Scope-prefixed */
   files: FileStore;

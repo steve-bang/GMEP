@@ -145,6 +145,22 @@ export async function runQc(
         if (!it || it.orderId !== o.id || it.status !== 'done')
           throw new AppError('item_state_invalid', 409);
       }
+      // FR-HRM-007/008 (slice 2.6a): labor is recorded in THIS transaction; every read happens before the first write
+      const allItems = await deps.items.listByOrderInTx(tx, scope, o.id, deps.rec.maxItemsPerOrder);
+      const laborCall = {
+        tx,
+        scope,
+        actor,
+        ctx,
+        order: o,
+        items: allItems,
+        at: now,
+        businessDate: businessDate(now),
+        qcRun: o.qcRuns.length + 1,
+      };
+      const labor = failed
+        ? await deps.labor.prepareQcFail({ ...laborCall, returnedItemIds: data.returnItemIds })
+        : await deps.labor.prepareQcPass(laborCall);
       const run: QcRun = {
         n: o.qcRuns.length + 1,
         at: now,
@@ -186,6 +202,7 @@ export async function runQc(
         qcRuns: [...o.qcRuns, run],
         doneCount: o.doneCount - items.length,
       });
+      labor.commit();
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {
