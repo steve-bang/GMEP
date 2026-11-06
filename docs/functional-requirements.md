@@ -4,7 +4,7 @@ Oct 30, 2026 · @Sang PHAM
 
 ## 1. Giới thiệu, phạm vi và quy ước
 
-Tài liệu này đặc tả 237 yêu cầu chức năng (FR) cho 11 phân hệ của Garage ERP (10 phân hệ nghiệp vụ và phân hệ nền tảng TEN), trong đó 126 mức Must, 99 mức Should và 12 mức Could; gồm 113 yêu cầu ban đầu, 53 yêu cầu bổ sung ở bản 0.2, 16 yêu cầu ở bản 0.3 từ câu trả lời Discovery của khách (182 FR cho 10 phân hệ nghiệp vụ: 96 Must, 78 Should, 8 Could) và 55 yêu cầu multi-tenant ở bản 0.4 (FR-TEN-001 đến 055: 30 Must, 21 Should, 4 Could; cập nhật 06/11/2026 khi FR-TEN-017 nâng lên Must). Bản 0.4 cụ thể hóa quyết định của khách ngày 05/11/2026 (thiết kế multi-tenant từ đầu, tự đăng ký và tự triển khai, gói dịch vụ thu tiền làm sau); các FR-TEN là **đề xuất BA, chờ khách xác nhận**. Mỗi FR trỏ về một yêu cầu nghiệp vụ (BR) trong tài liệu BRD và có tiêu chí nghiệm thu kiểm tra được; luồng nghiệp vụ và trạng thái nằm trong tài liệu User Journey và Business Workflow.
+Tài liệu này đặc tả 257 yêu cầu chức năng (FR) cho 11 phân hệ của Garage ERP (10 phân hệ nghiệp vụ và phân hệ nền tảng TEN), trong đó 135 mức Must, 110 mức Should và 12 mức Could; gồm 113 yêu cầu ban đầu, 53 yêu cầu bổ sung ở bản 0.2, 16 yêu cầu ở bản 0.3 từ câu trả lời Discovery của khách, 20 yêu cầu giai đoạn 2 ở bản 0.5 (INV, PUR, HRM, ACC, SYS; 9 Must, 11 Should; **đề xuất BA 06/11/2026 theo ủy quyền, chờ khách xác nhận**; kế hoạch ở `docs/dev/phase-2-plan.md`) (202 FR cho 10 phân hệ nghiệp vụ: 105 Must, 89 Should, 8 Could) và 55 yêu cầu multi-tenant ở bản 0.4 (FR-TEN-001 đến 055: 30 Must, 21 Should, 4 Could; cập nhật 06/11/2026 khi FR-TEN-017 nâng lên Must). Bản 0.4 cụ thể hóa quyết định của khách ngày 05/11/2026 (thiết kế multi-tenant từ đầu, tự đăng ký và tự triển khai, gói dịch vụ thu tiền làm sau); các FR-TEN là **đề xuất BA, chờ khách xác nhận**. Mỗi FR trỏ về một yêu cầu nghiệp vụ (BR) trong tài liệu BRD và có tiêu chí nghiệm thu kiểm tra được; luồng nghiệp vụ và trạng thái nằm trong tài liệu User Journey và Business Workflow.
 
 ### Quy ước
 
@@ -191,7 +191,7 @@ Ghi chú: (1) duyệt hoặc từ chối đăng ký là thao tác một người
 
 ## 5. FR: Kho và phụ tùng (INV)
 
-28 yêu cầu: 16 Must, 11 Should, 1 Could, gồm 19 yêu cầu ban đầu, 5 yêu cầu ở bản 0.2 (FR-INV-020 đến 024) và 4 yêu cầu ở bản 0.3 (FR-INV-025 đến 028); phân hệ mua hàng PUR nằm ở cuối mục này.
+33 yêu cầu: 19 Must, 13 Should, 1 Could, gồm 19 yêu cầu ban đầu, 5 yêu cầu ở bản 0.2 (FR-INV-020 đến 024), 4 yêu cầu ở bản 0.3 (FR-INV-025 đến 028) và 5 yêu cầu giai đoạn 2 ở bản 0.5 (FR-INV-030 đến 034; mã 029 đang được giữ chỗ cho "trạng thái yêu cầu phụ tùng của thợ" ở `docs/ui-ux/proposed-doc-changes.md`, chưa áp dụng nên bỏ trống); phân hệ mua hàng PUR nằm ở cuối mục này.
 
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
@@ -234,9 +234,23 @@ Ghi chú: (1) duyệt hoặc từ chối đăng ký là thao tác một người
 | FR-INV-027 | Giá vốn bình quân gia quyền cấu hình được; xử lý riêng xuất, trả, điều chỉnh, chuyển kho, hàng lỗi, kiểm kê \[Kế toán xác nhận\] | Must | Nhập 10 cái giá 100.000 và 20 cái giá 120.000 cho giá vốn khoảng 113.333 đồng | BR-INV-16 |
 | FR-INV-028 | Phiếu bán phụ tùng lẻ tại quầy, trừ kho và ghi nhận thanh toán, không cần lệnh sửa chữa | Should | Phiếu bán lẻ trừ kho đúng chi nhánh và vào báo cáo doanh thu | BR-INV-15 |
 
+Ghi chú bản 0.5: FR-INV-018 và FR-INV-028 cùng nói về bán lẻ tại quầy; Discovery của khách đã xác nhận có bán phụ tùng lẻ (BRD §10, "Mở rộng"), nên `[Cần xác nhận có bán lẻ]` của FR-INV-018 coi như đã trả lời; hai FR được xây một lần dưới FR-INV-028 (FR-INV-018 là bản gốc, không đổi mã).
+
+### FR-INV bổ sung ở bản 0.5 (giai đoạn 2, đề xuất BA theo ủy quyền 06/11/2026, chờ khách xác nhận)
+
+Mọi quy tắc dưới đây hiểu **trong phạm vi một tenant** (RULE-016, 017): chuyển kho, khả dụng liên chi nhánh và gợi ý lấy hàng không bao giờ vượt ranh giới tenant. Các con số là tham số cấu hình có ngày hiệu lực, không viết cứng (NFR-MNT-01).
+
+| Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
+| --- | --- | --- | --- | --- |
+| FR-INV-030 | Xử lý chênh lệch chuyển kho: bên nhận ghi biên bản nhận thiếu hoặc hỏng kèm ảnh; phần lệch treo trên hàng đang vận chuyển; kết quả xử lý chọn trong danh mục cấu hình (chờ hàng bù trong N ngày, ghi mất trong vận chuyển, hàng hỏng nhập kho lỗi hoặc chờ xử lý, điều chỉnh với bên gửi) kèm trường "bên chịu giá trị"; quản lý bên nhận đề xuất, quản lý bên gửi đồng thuận, khác vùng hoặc vượt ngưỡng cấu hình thì quản lý vùng hoặc chủ garage duyệt \[Cần xác nhận: bên chịu mặc định, Kế toán khách\] | Must (nâng từ Should ở đề xuất cũ vì FR-INV-010 và UAT-04 đã đòi biên bản và duyệt xử lý) | Phiếu chỉ đóng khi mọi chênh lệch có kết quả xử lý được duyệt; tồn thực tế kho nhận chỉ tăng đúng số xác nhận nhận; tổng (tồn thực tế + đang vận chuyển) của toàn tenant không đổi khi chuyển kho, trừ phần "ghi mất" hoặc "điều chỉnh" đã duyệt | BR-INV-05 |
+| FR-INV-031 | Hiển thị khả dụng liên chi nhánh: chỉ số "có thể cho" của chi nhánh khác trong nhóm được phép (cờ `xem_khả_dụng_liên_chi_nhánh`, mặc định bật trong cùng nhóm); không lộ tồn thực tế, giữ chỗ, đang vận chuyển, giá vốn của chi nhánh khác (phép chiếu P5, `ba-answers-for-dev.md` §10.2) | Should | Người dùng chỉ thấy chi nhánh trong nhóm được phép; danh sách trường của phép chiếu là danh sách trắng có test; tenant khác không bao giờ xuất hiện | BR-INV-05, BR-INV-14 |
+| FR-INV-032 | Quy tắc phiếu chuyển kho (CK, loại STO) và yêu cầu chuyển (YK): CK có trạng thái nháp, chờ duyệt (giá trị lớn), chờ gửi, đang vận chuyển, có chênh lệch, đã nhận, đã đóng, từ chối, hủy (chỉ trước khi gửi); chi nhánh nhận lập YK, chi nhánh gửi xác nhận mới sinh CK; khi gửi: tồn thực tế kho gửi giảm, "đang vận chuyển" gắn kho nhận tăng, không bên nào tăng khả dụng; khi nhận: tồn thực tế kho nhận tăng theo số xác nhận, "đang vận chuyển" giảm theo số đã gửi; CK đánh số theo chi nhánh gửi; giá vốn mang theo của bên gửi, không hiện cho bên nhận \[Cần xác nhận: Kế toán khách\]; chuyển giữa hai pháp nhân chưa có quy tắc chứng từ \[Cần xác nhận: Kế toán khách\] | Must | Gửi hai lần cùng `Idempotency-Key` chỉ trừ kho một lần; xác nhận nhận hai lần chỉ ghi một lần; hủy sau khi gửi bị chặn; kho nhận không tồn tại hoặc không cùng tenant bị từ chối; CK vượt ngưỡng giá trị lớn không gửi được khi chưa có duyệt; không ngừng dùng kho hoặc khóa chi nhánh khi còn CK chưa đóng | BR-INV-05, BR-INV-14 |
+| FR-INV-033 | Quy tắc kiểm kê: đếm mù là mặc định (cấu hình theo đợt); không đóng băng kho, mỗi dòng đếm ghi thời điểm đếm và chênh lệch tính trên tồn sổ sách tại thời điểm đếm (tồn lúc bắt đầu cộng trừ chứng từ đã ghi sổ trong khoảng); không chốt khi còn dòng chưa đếm (nhập 0 có chủ đích hoặc quản lý loại dòng kèm lý do); dòng lệch vượt ngưỡng phải đếm lại một lần; người duyệt khác người đếm (quản lý vừa đếm vừa duyệt thì chuyển cấp trên); mã lệch lặp lại trong cửa sổ cấu hình gắn cờ; ngưỡng giá trị và phần trăm là cấu hình \[Cần xác nhận: ngưỡng, Chủ dự án, Kế toán khách\] | Must | Tồn lúc bắt đầu 10, sau đó xuất 2 ghi sổ trước thời điểm đếm, đếm được 8 thì chênh lệch bằng 0; không nộp được đợt còn dòng chưa đếm; người đếm không tự duyệt được đợt của mình; mã lệch lần thứ hai trong cửa sổ cấu hình hiện cờ "lệch lặp lại" | BR-INV-06 |
+| FR-INV-034 | Gợi ý đặt hàng: công thức cấu hình có hiệu lực, mặc định đề xuất cần đặt = tối đa trừ (khả dụng + đã đặt chờ giao + đang vận chuyển đến), tối thiểu bằng 0; thứ tự nguồn gợi ý kho tổng, chi nhánh dư cùng nhóm, nhà cung cấp; có ngưỡng giá trị tối thiểu để chuyển kho đáng làm \[Cần xác nhận chính sách ưu tiên, Journey §4\] | Should | Tối thiểu 5, tối đa 20, khả dụng 3, đã đặt chờ giao 4, đang đến 0 thì gợi ý 13; dưới ngưỡng giá trị thì ưu tiên nhà cung cấp; "đã đặt chờ giao" không cộng vào bốn con số tồn | BR-INV-07 |
+
 ### FR-PUR: Mua hàng
 
-8 yêu cầu: 7 Should, 1 Could. Mức Should vì quy trình mua hàng của khách chưa được xác nhận \[Cần xác nhận\]; FR-INV-004 và FR-INV-015 vẫn là phần đơn mua và nhà cung cấp ở mức cơ bản.
+12 yêu cầu: 11 Should, 1 Could (8 yêu cầu ban đầu và 4 yêu cầu giai đoạn 2 ở bản 0.5: FR-PUR-009 đến 012). Mức Should vì quy trình mua hàng của khách chưa được xác nhận \[Cần xác nhận\]; FR-INV-004 và FR-INV-015 vẫn là phần đơn mua và nhà cung cấp ở mức cơ bản.
 
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
@@ -249,9 +263,20 @@ Ghi chú: (1) duyệt hoặc từ chối đăng ký là thao tác một người
 | FR-PUR-007 | Trả hàng cho nhà cung cấp | Should | Phiếu trả trừ tồn và giảm công nợ phải trả | BR-PUR-01 |
 | FR-PUR-008 | Đánh giá nhà cung cấp: giao đúng hạn, lệch số lượng, chất lượng | Could | Báo cáo theo nhà cung cấp và kỳ | BR-PUR-01 |
 
+### FR-PUR bổ sung ở bản 0.5 (giai đoạn 2, đề xuất BA theo ủy quyền 06/11/2026, chờ khách xác nhận)
+
+Quy trình mua hàng của khách vẫn chưa được xác nhận (BRD §10 câu 8, Journey §4); các FR dưới đây làm cho quy trình **cấu hình được** thay vì chốt một cách làm. Nhà cung cấp, bảng giá, đơn mua là dữ liệu của tenant, không dùng chung (RULE-016).
+
+| Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
+| --- | --- | --- | --- | --- |
+| FR-PUR-009 | Mua gấp: yêu cầu mua đánh dấu "mua gấp" cho phép mua trước và hậu duyệt trong N giờ làm việc (mẫu 24, cấu hình), tự quyết đến một giá trị cấu hình; ảnh hóa đơn bắt buộc; người đề xuất không tự duyệt; không được chấp nhận thì gắn cờ cho Kế toán \[Cần xác nhận: giá trị tự quyết và thời hạn, Chủ dự án\] | Should | Trạng thái "chờ hậu duyệt" lọc và đếm được; quá hạn thì nhắc và chuyển cấp (FR-SYS-015, FR-SYS-034); mua gấp vượt giá trị tự quyết bị chặn | BR-PUR-01 |
+| FR-PUR-010 | Trạng thái và quy tắc: yêu cầu mua (nháp, chờ duyệt, đã duyệt, từ chối, đã lập đơn, hủy); đơn mua (nháp, đã gửi, nhà cung cấp xác nhận, nhận một phần, nhận đủ, đã đóng, hủy chỉ khi còn nháp) với phiên bản và hậu tố `-vN`; đóng đơn khi chưa nhận đủ cần duyệt theo giá trị phần còn lại; "đã đặt chờ giao" là chỉ số riêng, không thuộc bốn số tồn kho | Should | Chuyển trạng thái trái bảng bị chặn; phiên bản đã gửi không bị ghi đè; đơn đóng khi chưa nhận đủ không còn nhận được hàng; số "đã đặt chờ giao" không đổi tồn khả dụng | BR-PUR-01 |
+| FR-PUR-011 | Dung sai nhận hàng và đối chiếu ba bên: đối chiếu theo "hóa đơn nhà cung cấp với tập các phiếu nhập của một đơn mua", không 1:1; dung sai lệch giá và số lượng cấu hình (mẫu: lệch giá nhận kho trên 5% cần duyệt hai chiều, dung sai ba bên 1.000 đồng mỗi đơn vị và 0 số lượng); nhận vượt đơn cần duyệt, nhận thiếu giữ đơn mở; chênh lệch chưa xử lý chặn ghi công nợ phải trả \[Cần xác nhận: các ngưỡng, Kế toán khách\] | Should | Hai phiếu nhập cho một hóa đơn khớp theo tổng; lệch trong dung sai coi là khớp; lệch ngoài dung sai vào danh sách xử lý và chưa tạo công nợ; nhận thiếu không cần duyệt và đơn còn mở | BR-PUR-01 |
+| FR-PUR-012 | Quy trình mua cấu hình theo chi nhánh trong quyền được cấp: bật hoặc tắt bước yêu cầu mua, bước duyệt, mua gấp, nhập không có đơn mua (luôn là phiếu bất thường cần duyệt), nguồn mua (kho tổng, nhà cung cấp, chi nhánh khác); mặc định mọi bước bật; dữ liệu ghi rõ bước nào bị bỏ qua \[Cần xác nhận: Khách, Q64\] | Should | Chi nhánh tắt bước yêu cầu vẫn lập được đơn mua trực tiếp; bước bị tắt hiện trong nhật ký; đổi cấu hình có ngày hiệu lực không đổi đơn đã lập | BR-PUR-01 |
+
 ## 6. FR: Nhân sự và nhân công (HRM)
 
-16 yêu cầu: 8 Must, 7 Should, 1 Could, gồm 12 yêu cầu ban đầu, 2 yêu cầu ở bản 0.2 (FR-HRM-013, 014) và 2 yêu cầu ở bản 0.3 (FR-HRM-015, 016). Hệ thống cung cấp dữ liệu công và hoa hồng, không thay phần mềm tính lương và bảo hiểm.
+21 yêu cầu: 10 Must, 10 Should, 1 Could, gồm 12 yêu cầu ban đầu, 2 yêu cầu ở bản 0.2 (FR-HRM-013, 014), 2 yêu cầu ở bản 0.3 (FR-HRM-015, 016) và 5 yêu cầu giai đoạn 2 ở bản 0.5 (FR-HRM-017 đến 021). Hệ thống cung cấp dữ liệu công và hoa hồng, không thay phần mềm tính lương và bảo hiểm.
 
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
@@ -282,9 +307,21 @@ Ghi chú: (1) duyệt hoặc từ chối đăng ký là thao tác một người
 | FR-HRM-015 | Phương pháp tính công cấu hình được theo loại việc (giờ chuẩn, khoán, giờ thực được duyệt, tỷ lệ); bảng định mức có hiệu lực áp dụng và lịch sử thay đổi; chi nhánh điều chỉnh trong quyền được cấp | Must | Thay dầu định mức 0,3 giờ chuẩn; đổi định mức có ngày hiệu lực và không làm đổi công đã tính | BR-HRM-06 |
 | FR-HRM-016 | Ghi nhận việc làm lại, gắn với thợ và hạng mục gốc | Should | Báo cáo hiện số việc làm lại theo thợ | BR-HRM-05 |
 
+### FR-HRM bổ sung ở bản 0.5 (giai đoạn 2, đề xuất BA theo ủy quyền 06/11/2026, chờ khách xác nhận)
+
+Công thức công và hoa hồng của khách **chưa chốt** (BRD §10, bảng TBD "Công thợ và hoa hồng"; rủi ro BRD §8). Các FR dưới đây quy định cơ chế, dữ liệu và ví dụ nghiệm thu; con số, hệ số, tỷ lệ do khách ký ở bảng ví dụ (UAT-11), không viết cứng. Hồ sơ nhân viên, mã nhân viên, kỳ công, quy tắc công là dữ liệu của tenant. Hệ thống chỉ cung cấp dữ liệu công và hoa hồng, không tính lương, bảo hiểm, thuế thu nhập (BRD §4).
+
+| Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
+| --- | --- | --- | --- | --- |
+| FR-HRM-017 | Chu kỳ kỳ công mặc định tháng dương lịch, cấu hình theo chi nhánh (tháng, nửa tháng, tuần, ngày chốt tùy chỉnh) có ngày hiệu lực; quản lý chi nhánh duyệt rồi khóa, chỉ từ ngày kết thúc kỳ; điều kiện khóa: không còn điều chỉnh công chờ duyệt và không còn ca thiếu giờ ra chưa xử lý; hạng mục chờ kiểm tra chất lượng không chặn khóa (công ghi vào kỳ nơi kiểm tra đạt); mở lại cần chủ garage duyệt kèm lý do, kỳ chưa khóa gắn nhãn "số tạm"; sau khi khóa chỉ điều chỉnh bằng dòng điều chỉnh \[Cần xác nhận: chu kỳ, Khách\] | Should | Kỳ đã khóa không sửa trực tiếp; khóa trước ngày kết thúc bị chặn; mở lại không có duyệt của chủ bị chặn; tệp xuất trước khóa có nhãn "số tạm", sau khóa là bản chính thức | BR-HRM-04 |
+| FR-HRM-018 | Ba chỉ số năng suất, mỗi chỉ số hiện công thức và đi sâu được: hiệu suất làm việc = giờ chuẩn bán ra chia giờ thực làm; mức sử dụng = giờ thực làm chia giờ có mặt; năng suất tổng = giờ chuẩn bán ra chia giờ có mặt; giờ có mặt lấy từ chấm công theo ca (FR-HRM-003); giờ chuẩn bán ra chỉ tính hạng mục đã qua kiểm tra chất lượng trong kỳ, làm lại không cộng hai lần; mẫu số bằng 0 hiện "–" | Should | Giờ có mặt nhân mức sử dụng nhân hiệu suất bằng giờ chuẩn bán ra (kiểm thử bằng tính chất); hiệu suất trên 100% hợp lệ; ví dụ số do khách ký (NFR-MNT-01) | BR-HRM-05 |
+| FR-HRM-019 | Nhập bù giờ công khi thợ mất mạng không ghi được mốc giờ: thợ khai giờ thực; quản đốc xác nhận (không quá ngưỡng cấu hình, mẫu 15 phút) hoặc quản lý duyệt (quá ngưỡng); thợ xác nhận lại; nhãn "nhập bù", lý do bắt buộc, nhật ký trước và sau; báo cáo số lần nhập bù theo thợ (NFR-OFF-01) | Must | Không mốc giờ nào ghi theo giờ thiết bị; mốc nhập bù không xóa được; quá ngưỡng thì cần cấp trên duyệt; ngưỡng là tham số | BR-HRM-03 |
+| FR-HRM-020 | Dòng công thợ: lưu hai đại lượng, giờ công quy đổi (khi phương pháp theo giờ) và tiền công (VND nguyên); đại lượng cộng dồn và xuất cho kế toán là tiền công, không gộp hoa hồng; phương pháp áp theo thứ tự chi nhánh với loại việc và chức danh, chi nhánh với loại việc, công ty với loại việc và chức danh, công ty với loại việc; hệ số chức danh là bảng có hiệu lực riêng; mỗi dòng giữ phiên bản quy tắc và định mức đã áp, quy tắc làm tròn cố định; trạng thái dòng: chờ kiểm tra chất lượng, đã ghi, kiểm tra trả lại, đã đảo; điều chỉnh thủ công vượt ngưỡng cấu hình cần chủ garage duyệt \[Cần xác nhận: công thức, hệ số, ngưỡng điều chỉnh, Khách\] | Must | Tối thiểu 6 ví dụ do kế toán khách ký (thay dầu 0,3 giờ chuẩn; một hạng mục khoán; một hạng mục theo phần trăm; đổi thợ giữa chừng chia theo giờ thực; làm lại sau kiểm tra; hủy lệnh sau khi đã ghi công) thành 6 ca kiểm thử tự động; đổi quy tắc có hiệu lực từ ngày D không đổi dòng công trước D; có ghi đè của chi nhánh thì chọn đúng phương pháp theo thứ tự ưu tiên | BR-HRM-03, BR-HRM-06 |
+| FR-HRM-021 | Hoa hồng cố vấn, và hoa hồng thợ khi phương pháp là tỷ lệ phần trăm: cơ sở mặc định là tiền công dịch vụ đã thu chưa VAT (tùy chọn cấu hình: gồm phụ tùng, hoặc lợi nhuận gộp); ghi nhận khi lệnh thu đủ, thu một phần thì "chưa ghi nhận"; hoàn tiền hoặc hủy sau khi đã ghi tạo dòng đảo; thợ theo khoán hoặc giờ chuẩn không chờ thu tiền; trạng thái: chưa ghi nhận, chờ duyệt, đã duyệt, đã đảo \[Cần xác nhận: cơ sở và xử lý thu một phần, Khách\] | Should | Lệnh thu một phần chưa sinh hoa hồng; thu đủ thì sinh đúng một dòng dù bấm hai lần; hoàn tiền sau khi ghi sinh dòng đảo và tổng về đúng; thợ khoán vẫn nhận công khi chưa thu | BR-HRM-04 |
+
 ## 7. FR: Doanh thu, kế toán và công nợ (ACC)
 
-20 yêu cầu: 13 Must, 6 Should, 1 Could, gồm 14 yêu cầu ban đầu, 5 yêu cầu ở bản 0.2 (FR-ACC-015 đến 019) và 1 yêu cầu ở bản 0.3 (FR-ACC-020). Hệ thống làm kế toán vận hành và hạch toán tự động; báo cáo tài chính và khai thuế do kế toán thực hiện trên phần mềm kế toán của khách \[Cần xác nhận\].
+24 yêu cầu: 16 Must, 7 Should, 1 Could, gồm 14 yêu cầu ban đầu, 5 yêu cầu ở bản 0.2 (FR-ACC-015 đến 019), 1 yêu cầu ở bản 0.3 (FR-ACC-020) và 4 yêu cầu giai đoạn 2 ở bản 0.5 (FR-ACC-022, 026, 027, 028; mã 021, 023, 024, 025 đang được giữ chỗ ở `docs/ui-ux/proposed-doc-changes.md` cho đảo bút toán, điều kiện khóa ngày, tiền thối, mở ca, chưa áp dụng vào bản này nên bỏ trống). Hệ thống làm kế toán vận hành và hạch toán tự động; báo cáo tài chính và khai thuế do kế toán thực hiện trên phần mềm kế toán của khách \[Cần xác nhận\].
 
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
@@ -318,6 +355,17 @@ Ghi chú: (1) duyệt hoặc từ chối đăng ký là thao tác một người
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
 | FR-ACC-020 | Hạn mức công nợ và kỳ thanh toán của khách doanh nghiệp; cảnh báo khi vượt | Should | Lập lệnh vượt hạn mức hiện cảnh báo theo chính sách | BR-ACC-13 |
+
+### FR-ACC bổ sung ở bản 0.5 (giai đoạn 2, đề xuất BA theo ủy quyền 06/11/2026, chờ khách xác nhận)
+
+Phạm vi giai đoạn 2 của ACC theo ủy quyền: FR-ACC-006, 007, 015, 016, 018, 019 và bốn FR dưới đây. FR-ACC-016 (hoàn tiền) đã được dựng sớm ở giai đoạn 1 (phiếu chi hoàn có duyệt); phần còn lại của giai đoạn 2 là liên kết hóa đơn điều chỉnh, nằm ở FR-EIN-007 (giai đoạn 3). Kỳ kế toán, hạn mức chi, phê duyệt, công nợ theo tenant và Company; công nợ không cộng gộp giữa tenant.
+
+| Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
+| --- | --- | --- | --- | --- |
+| FR-ACC-022 | Khoản nhận trước của khách (thu vượt thật): bù vào lệnh sau của cùng khách hoặc hoàn lại có duyệt (FR-ACC-016); không chuyển giữa khách | Should | Phần dư hiện đúng số trên hồ sơ khách; bù trừ không vượt số dư; không bù sang khách khác | BR-ACC-09 |
+| FR-ACC-026 | Tuổi nợ phải thu và nhắc nợ: số dư công nợ của khách bằng tổng nợ các lệnh còn nợ; nhóm tuổi nợ cấu hình có hiệu lực (đề xuất 0 đến 30, 31 đến 60, 61 đến 90, trên 90 ngày) tính từ hạn thanh toán, không có hạn thì từ ngày giao xe; nhắc theo hạn qua cổng thông báo, không gửi cho khách chưa đồng ý nhận tin; hạn mức công nợ doanh nghiệp (FR-ACC-020) chỉ là cờ đúng sai khi tiếp nhận ở chi nhánh khác, không lộ số dư \[Cần xác nhận: nhóm tuổi, hạn mặc định, Kế toán khách, Q70\] | Must | Số dư các nhóm tuổi bằng tổng số dư công nợ; lệnh đã thu đủ không còn trong tuổi nợ; khách có ba lệnh nợ ở ba nhóm tuổi thì mỗi nhóm đúng một lệnh; đổi nhóm tuổi có ngày hiệu lực không đổi số đã chốt | BR-ACC-02 |
+| FR-ACC-027 | Công nợ phải trả theo nhà cung cấp: phát sinh từ phiếu nhập đã ghi sổ (và đã qua đối chiếu ba bên khi bật, FR-PUR-011); mỗi lần chi gắn một hoặc nhiều phiếu nhập qua phân bổ; phiếu trả nhà cung cấp (FR-PUR-007) giảm nợ; lịch thanh toán theo điều khoản của nhà cung cấp; chi tiền đi qua FR-ACC-018 và 028; bản ghi đã ghi sổ không xóa, sửa bằng bút toán đảo (RULE-010) | Must | Số dư từng nhà cung cấp bằng tổng phiếu nhập trừ chi trừ trả hàng; một lần chi cho hai phiếu nhập phân bổ đúng; phiếu nhập có chênh lệch ba bên chưa xử lý không tạo nợ | BR-ACC-02 |
+| FR-ACC-028 | Kiểm soát hạn mức chi: hạn mức theo loại chi và cấp duyệt (quản lý chi nhánh, quản lý vùng, chủ garage) có ngày hiệu lực; người đề xuất không tự duyệt; các khoản chi cùng loại, cùng nhà cung cấp, cùng chi nhánh trong cửa sổ cấu hình được cộng dồn khi so với hạn mức để chống chia nhỏ; hạn mức chưa chốt thì chuyển lên cấp cao nhất, không cho qua; duyệt hết hạn thì không dùng được và dùng một lần \[Cần xác nhận: hạn mức, cửa sổ cộng dồn, Chủ dự án, Q67\] | Must | Hai khoản chi dưới hạn mức nhưng cộng dồn vượt hạn mức trong cửa sổ thì khoản sau cần duyệt cấp trên; hạn mức chưa cấu hình không cho tự duyệt; người đề xuất duyệt chính mình bị từ chối | BR-ACC-10 |
 
 ## 8. FR: Hóa đơn điện tử (EIN)
 
@@ -392,7 +440,7 @@ FR-RPT-002 gốc là xếp hạng nhiều chi nhánh (thuộc báo cáo hợp nh
 
 ## 10. FR: Quản trị hệ thống, đa chi nhánh, nhật ký (SYS)
 
-18 yêu cầu: 12 Must, 6 Should, gồm 10 yêu cầu ban đầu, 7 yêu cầu ở bản 0.2 (FR-SYS-011 đến 017) và 1 yêu cầu ở bản 0.3 (FR-SYS-018).
+20 yêu cầu: 13 Must, 7 Should, gồm 10 yêu cầu ban đầu, 7 yêu cầu ở bản 0.2 (FR-SYS-011 đến 017), 1 yêu cầu ở bản 0.3 (FR-SYS-018) và 2 yêu cầu giai đoạn 2 ở bản 0.5 (FR-SYS-033, 034; mã 019 đến 032 đang được giữ chỗ ở `docs/dev/ba-answers-for-dev.md` §14 và `docs/ui-ux/proposed-doc-changes.md`, chưa áp dụng nên bỏ trống).
 
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
@@ -424,6 +472,15 @@ FR-RPT-002 gốc là xếp hạng nhiều chi nhánh (thuộc báo cáo hợp nh
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
 | FR-SYS-018 | Cấu trúc Company, Branch, Warehouse; mở rộng sang nhiều pháp nhân, mỗi pháp nhân có đơn vị phát hành hóa đơn riêng | Must | Thêm pháp nhân thứ hai không phải đổi cấu trúc dữ liệu; mỗi chi nhánh thuộc đúng một pháp nhân tại một thời điểm | BR-SYS-01 |
+
+### FR-SYS bổ sung ở bản 0.5 (giai đoạn 2, đề xuất BA theo ủy quyền 06/11/2026, chờ khách xác nhận)
+
+Hai FR dưới đây làm đầy FR-SYS-004 và FR-SYS-015 (cơ chế duyệt tối thiểu đã dựng ở giai đoạn 1: người đề xuất không tự duyệt, cấp 1 và cấp 2, thực hiện một lần, hạn dùng của duyệt) và là điều kiện cho INV-012, INV-010, PUR-002, ACC-018, HRM-010. Ma trận, ủy quyền và hàng chờ là dữ liệu của tenant, không có số liệu nào viết cứng trong mã.
+
+| Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
+| --- | --- | --- | --- | --- |
+| FR-SYS-033 | Ma trận phê duyệt cấu hình và ủy quyền duyệt: mỗi loại yêu cầu (giảm giá vượt hạn mức, hủy lệnh, điều chỉnh kho, chênh lệch quỹ, chuyển kho giá trị lớn, nhập lệch, xuất nội bộ, mua hàng, chi tiền, hoàn tiền, kỳ công, mở lại ngày hoặc kỳ) có tham số, giá trị và cấp duyệt (quản lý chi nhánh, quản lý vùng, chủ garage hoặc cờ quyền) có ngày hiệu lực, theo chi nhánh, Company hoặc tenant; ủy quyền duyệt có thời hạn, phạm vi (loại, nhóm chi nhánh), người ủy quyền và người nhận, mặc định tắt, chỉ chủ garage sửa, có nhật ký; người nhận ủy quyền không duyệt yêu cầu của chính mình và không nhận ủy quyền cho dữ liệu mình không có quyền xem; loại yêu cầu chưa có dòng cấu hình thì chuyển lên cấp cao nhất \[Cần xác nhận: hạn mức và cấp, Chủ dự án, Q67, Q68\] | Must | Đổi hạn mức có ngày hiệu lực không đổi yêu cầu đã duyệt; yêu cầu vượt hạn mức chờ đúng cấp; ủy quyền hết hạn thì quyền duyệt mất ngay; người đề xuất kiêm người nhận ủy quyền vẫn không tự duyệt được; tenant khác không thấy và không dùng được ma trận này | BR-SYS-03 |
+| FR-SYS-034 | Hàng chờ phê duyệt dùng chung và chuyển cấp: một hàng chờ lọc theo người duyệt; nhắc sau T1 và chuyển cấp sau T2 (mẫu: nhắc sau 1 ngày làm việc, chuyển cấp sau thêm 2 ngày, mua gấp 2 giờ) cấu hình theo loại \[Cần xác nhận: T1, T2, Q68\]; yêu cầu đã chuyển cấp vẫn ở trạng thái "chờ duyệt" kèm cấp hiện tại; khi cấp hiện tại chỉ có người đề xuất đủ quyền thì chuyển cấp trên; duyệt hàng loạt chỉ cho các loại cấu hình cho phép và chỉ cùng loại; duyệt hết hạn dùng không được | Should | Yêu cầu quá T2 hiện ở hàng chờ của cấp trên và người duyệt nhận nhắc; chọn hai loại khác nhau để duyệt hàng loạt bị chặn; chuyển cấp ghi nhật ký người, thời điểm, lý do | BR-SYS-07 |
 
 ## 10A. FR: Multi-tenant (TEN)
 
@@ -646,17 +703,17 @@ Một giai đoạn được nghiệm thu khi mọi FR Must của giai đoạn đ
 | REC Tiếp nhận và lệnh sửa chữa | 19 | 16 | 1 | 36 | 1 |
 | INS Kiểm tra xe số | 0 | 8 | 1 | 9 | 1 |
 | CRM Khách hàng và xe | 8 | 9 | 1 | 18 | 1 |
-| INV Kho và phụ tùng | 16 | 11 | 1 | 28 | 1 và 2 |
-| PUR Mua hàng | 0 | 7 | 1 | 8 | 2 |
-| HRM Nhân sự và nhân công | 8 | 7 | 1 | 16 | 2 |
-| ACC Doanh thu và kế toán | 13 | 6 | 1 | 20 | 2 và 3 |
+| INV Kho và phụ tùng | 19 | 13 | 1 | 33 | 1 và 2 |
+| PUR Mua hàng | 0 | 11 | 1 | 12 | 2 |
+| HRM Nhân sự và nhân công | 10 | 10 | 1 | 21 | 2 |
+| ACC Doanh thu và kế toán | 16 | 7 | 1 | 24 | 2 và 3 |
 | EIN Hóa đơn điện tử | 11 | 2 | 0 | 13 | 1 (cơ bản) và 3 |
 | RPT Báo cáo và dashboard | 9 | 6 | 1 | 16 | 1 đến 4 |
-| SYS Quản trị hệ thống | 12 | 6 | 0 | 18 | 1 |
+| SYS Quản trị hệ thống | 13 | 7 | 0 | 20 | 1 (FR-SYS-033, 034 ở giai đoạn 2) |
 | TEN Multi-tenant (bản 0.4) | 30 | 21 | 4 | 55 | 1 (MT-0, 15 FR); MT-1 đến MT-3 sau giai đoạn 1 |
-| Tổng | 126 | 99 | 12 | 237 |  |
+| Tổng | 135 | 110 | 12 | 257 |  |
 
-Trong đó 182 FR của 10 phân hệ nghiệp vụ (96 Must, 78 Should, 8 Could) và 55 FR-TEN (đề xuất, chờ khách xác nhận; 06/11/2026 FR-TEN-017 nâng từ Could lên Must theo quyết định C-S14 của chủ dự án nên TEN còn 30 Must, 21 Should, 4 Could; tổng 55 và 237 không đổi). Với TEN, Must nghĩa là cần trước khi mở đăng ký tự phục vụ cho người ngoài, không phải Must của pilot; chỉ 15 FR MT-0 là điều kiện của giai đoạn 1.
+Bản 0.5 (06/11/2026) thêm 20 FR giai đoạn 2: INV-030 đến 034, PUR-009 đến 012, HRM-017 đến 021, ACC-022, 026, 027, 028, SYS-033, 034 (9 Must, 11 Should); các hàng INV, PUR, HRM, ACC, SYS ở bảng trên đã cộng các FR này. Trong đó 202 FR của 10 phân hệ nghiệp vụ (105 Must, 89 Should, 8 Could) và 55 FR-TEN (đề xuất, chờ khách xác nhận; 06/11/2026 FR-TEN-017 nâng từ Could lên Must theo quyết định C-S14 của chủ dự án nên TEN còn 30 Must, 21 Should, 4 Could; tổng TEN 55 không đổi, và tổng toàn tài liệu 237 trước bản 0.5, 257 sau bản 0.5). Với TEN, Must nghĩa là cần trước khi mở đăng ký tự phục vụ cho người ngoài, không phải Must của pilot; chỉ 15 FR MT-0 là điều kiện của giai đoạn 1.
 
 ### Phạm vi giai đoạn 1 (pilot một chi nhánh)
 
@@ -678,6 +735,45 @@ Bản 0.3 thêm vào giai đoạn 1: FR-REC-031, 032; FR-INV-025, 027; FR-SYS-01
 ### Phạm vi giai đoạn 1 bổ sung ở bản 0.4 (multi-tenant, đề xuất)
 
 Quyết định 05/11/2026 (D1) đưa phần nền multi-tenant vào giai đoạn 1: **15 FR MT-0** gồm FR-TEN-001, 002, 003, 009, 010, 011, 013, 014, 016, 017 (thêm 06/11/2026), 018, 020, 021, 029, 031, cộng phần B0 của FR-TEN-028 (chỗ lưu gói và trạng thái thuê bao; gói mặc định là miễn phí, RULE-035). Khách đầu tiên là tenant số 1. Điều kiện nghiệm thu: UAT-TEN-01, 02, 05, 06, 07, 08, 09, 11 và UAT-TEN-21 phần (a) đạt và NFR-TEN-01 (kiểm thử và seed có từ hai tenant); riêng pilot có thêm: hồ sơ chấp thuận Điều khoản/DPA của tenant số 1 đã ghi nhận (Q38, FR-TEN-037 phần tối thiểu), công cụ xuất dữ liệu một tenant chạy được (FR-TEN-006 phần tối thiểu, chỉ xuất). Ở MT-0, FR-TEN-018 chạy hai tầng (tenant, chi nhánh); tầng nền tảng cùng FR-TEN-019 sang MT-1; UAT-TEN-08 kiểm ở mức tenant. Thứ tự giữa MT-1 (21 FR, mở đăng ký cho người ngoài) và pilot **đã chốt theo ủy quyền 06/11/2026 (Q37)**: MT-0 xong trước go-live, pilot đóng, MT-1 sau khi pilot ổn định, mở đăng ký hai nấc; MT-2 (14 FR) và MT-3 (5 FR) sau giai đoạn 1 nhưng thiết kế giai đoạn 1 không được chặn đường.
+
+### Phạm vi giai đoạn 2 (bản 0.5, đề xuất BA theo ủy quyền của chủ dự án 06/11/2026, chờ khách xác nhận)
+
+Giai đoạn 2 chạy sau khi pilot đạt cổng, **theo kiểu multi-tenant ngay từ đầu** (mọi "toàn chuỗi" hiểu là trong tenant). Thứ tự slice, phụ thuộc, màn hình, định nghĩa hoàn thành và brief giao dev nằm ở `docs/dev/phase-2-plan.md`; bảng dưới là phạm vi FR.
+
+| Slice | FR trong phạm vi | Ghi chú |
+| --- | --- | --- |
+| 2.5 Phê duyệt đầy đủ (làm trước) | FR-SYS-004, 015, 033, 034 | Là điều kiện của INV-010, 012, PUR-002, ACC-018, HRM-010 |
+| 2.1 Hợp nhất đa chi nhánh, dashboard chi nhánh và vùng | FR-RPT-002 (xếp hạng), 008, 010, 015 (phần không có công nợ), 016 (phần không cần kiểm kê); FR-SYS-014, 016 | Dashboard quản lý vùng cần quyết định vai trò QV (BRD §5, Q84) |
+| 2.2 Chuyển kho liên chi nhánh, kho tổng | FR-INV-010, 013, 026, 030, 031, 032 | UAT-04 |
+| 2.3a Kiểm kê | FR-INV-011, 012, 033; FR-RPT-005 (chênh lệch kiểm kê), RPT-016 (độ chính xác tồn) | UAT-05 |
+| 2.3b Nghiệp vụ kho đặc biệt | FR-INV-016, 017, 022, 023, 018 và 028 (một lần xây); INV-024 (Could) nếu còn chỗ | |
+| 2.4 Mua hàng và công nợ phải trả | FR-PUR-001 đến 012; FR-INV-004, 014, 015, 034; FR-ACC-007, 027; FR-RPT-007 (phải trả) | UAT-16; ACC-007 chuyển về đây vì cần phiếu nhập và đối chiếu ba bên |
+| 2.6a Nhân công, lõi tính công | FR-HRM-001, 004, 005, 006, 007, 008, 015, 020 | UAT-11 cần ví dụ khách ký |
+| 2.6b Kỳ công, hoa hồng, năng suất | FR-HRM-010, 017, 019, 003, 009, 021, 011, 018, 014, 016, 002, 012; FR-HRM-013 (Could) | FR-RPT-006 chỉ kiểm được "khớp bảng công" từ đây |
+| 2.7 Công nợ phải thu, phân bổ thanh toán, chi tiền có duyệt, hoàn tiền | FR-ACC-006, 015, 016 (phần còn lại), 018, 019, 022, 026, 028; FR-RPT-007 (phải thu), RPT-015 (phần công nợ) | **Theo ủy quyền: ACC-006, 007, 016 vào giai đoạn 2** (BRD xếp ACC "2 và 3"); ACC-016 đã dựng sớm ở giai đoạn 1, liên kết hóa đơn điều chỉnh ở EIN-007 (giai đoạn 3); UAT-14 |
+| 2.8 Thông báo, nhắc, lịch hẹn, bảo hành (chỉ cổng và nhà cung cấp giả) | FR-SYS-008; FR-CRM-003, 005, 006, 007, 008, 009, 012, 015, 016, 018; FR-REC-011, 018, 019, 020, 024, 027, 029, 034, 035, 036 | UAT-24; gửi thật khi khách chọn nhà cung cấp (Q78) |
+| 2.9 Đồng sơn và quy trình theo loại dịch vụ | FR-REC-033 | Bị chặn đến khi khảo sát xưởng (Q86) |
+| Chưa xếp | FR-SYS-017 (API ngoài) | FRD §13 liệt kê ở giai đoạn 2 nhưng kế hoạch triển khai ghi giai đoạn 4; đề xuất sang giai đoạn 4 cho đến khi có hệ thống bên ngoài cần gọi (Q88) |
+
+Quyết định theo ủy quyền 06/11/2026: đưa ACC-006, 007, 016 vào giai đoạn 2; thay đổi so với kế hoạch sơ bộ của điều phối (có lý do, chờ chủ dự án xác nhận): ACC-015 và ACC-019 chuyển từ 2.5 sang 2.7 (không phải điều kiện của slice khác, 2.5 giữ nhỏ để làm sớm); INV-004 sang 2.4 (đơn mua); INV-011, 012 là kiểm kê (mã INV-015 đến 018 không phải kiểm kê: là nhà cung cấp, hàng khách mang, vật tư tiêu hao, bán lẻ); RPT-005, 006, 007, 015, 016 theo slice nguồn dữ liệu; SYS-008 sang 2.8 (kênh gửi cần cổng).
+
+### Kịch bản nghiệm thu giai đoạn 2 (UAT-P2, bản 0.5, đề xuất)
+
+Mã `UAT-P2-xx` dùng tiền tố riêng để không đụng UAT-01 đến 26, UAT-27 đến 32 tạm của dev và UAT-TEN. Mọi kịch bản chạy trên **hai tenant trở lên** (NFR-TEN-01).
+
+| Mã | Kịch bản | Điều kiện đạt | FR liên quan |
+| --- | --- | --- | --- |
+| UAT-P2-01 | Phê duyệt theo ma trận, chuyển cấp, ủy quyền | Vượt hạn mức chờ đúng cấp; quá T2 chuyển cấp trên và nhắc; ủy quyền hết hạn mất quyền; không ai tự duyệt yêu cầu của mình; hạn mức chưa cấu hình không cho qua | FR-SYS-004, 015, 033, 034 |
+| UAT-P2-02 | Chuyển kho đủ vòng, có chênh lệch | Gửi: thực tế bên gửi giảm, đang vận chuyển tăng, khả dụng cả hai không tăng; nhận thiếu: phần lệch treo; xử lý được duyệt thì đóng; tổng thực tế cộng đang vận chuyển bảo toàn; gửi hai lần cùng khóa trừ một lần | FR-INV-010, 030, 032 (mở rộng UAT-04) |
+| UAT-P2-03 | Kiểm kê có phát sinh trong lúc đếm | Chênh lệch tính trên tồn sổ sách tại thời điểm đếm; không chốt khi còn dòng chưa đếm; người đếm không tự duyệt; mã lệch lặp lại gắn cờ | FR-INV-011, 012, 033 (mở rộng UAT-05) |
+| UAT-P2-04 | Mua gấp, đơn mua nhiều phiên bản, nhận nhiều lần | Mua gấp quá giá trị tự quyết bị chặn; hậu duyệt quá hạn thì chuyển cấp; phiên bản đã gửi không bị ghi đè; đơn còn mở đến khi nhận đủ | FR-PUR-003, 004, 005, 009, 010 |
+| UAT-P2-05 | Đối chiếu ba bên và công nợ phải trả | Hai phiếu nhập một hóa đơn khớp theo tổng; lệch ngoài dung sai chặn ghi nợ; chi cho hai phiếu nhập phân bổ đúng; số dư nhà cung cấp khớp (mở rộng UAT-16) | FR-PUR-006, 011, FR-ACC-007, 027 |
+| UAT-P2-06 | Công nợ phải thu, tuổi nợ, nhắc | Số dư các nhóm tuổi bằng tổng; lệnh thu đủ ra khỏi tuổi nợ; không nhắc khách chưa đồng ý nhận tin; báo cáo khớp công nợ từng khách | FR-ACC-006, 026, FR-RPT-007 |
+| UAT-P2-07 | Khoản nhận trước và chi có hạn mức cộng dồn | Phần dư thành khoản nhận trước, bù đúng khách; hai khoản chi nhỏ cộng dồn vượt hạn mức thì khoản sau cần duyệt cấp trên (mở rộng UAT-14) | FR-ACC-015, 022, 028 |
+| UAT-P2-08 | Hoa hồng theo thu tiền | Thu một phần chưa ghi; thu đủ ghi một dòng dù bấm hai lần; hoàn tiền sau đó tạo dòng đảo | FR-HRM-009, 021 |
+| UAT-P2-09 | Kỳ công khóa, mở lại, nhập bù | Khóa trước ngày kết thúc kỳ bị chặn; kỳ khóa không sửa trực tiếp; mở lại cần chủ duyệt; nhập bù có nhãn và ngưỡng duyệt | FR-HRM-010, 017, 019 |
+| UAT-P2-10 | Hợp nhất đa chi nhánh và quản lý vùng | Quản lý vùng chỉ thấy nhóm chi nhánh được giao; xếp hạng tính trên cùng kỳ; tổng các chi nhánh bằng số toàn tenant; tenant khác không lẫn | FR-RPT-002, 010, FR-SYS-016 |
+| UAT-P2-11 | Cô lập tenant cho phân hệ giai đoạn 2 | Tenant A không chọn được kho nhận, nhà cung cấp, người duyệt, nhân sự của tenant B; mã nhân viên, số phiếu trùng giữa hai tenant không xung đột; khóa chống trùng chứa tenant | FR-TEN-009, 010, 018, 020 (mở rộng UAT-TEN-05, 08) |
 
 ### Kịch bản nghiệm thu (UAT)
 
@@ -756,13 +852,13 @@ Ma trận nối yêu cầu nghiệp vụ trong BRD với yêu cầu chức năng
 | REC | BR-REC-01 đến 14 | FR-REC-001 đến 036 | UAT-01, 03, 17 |
 | INS | BR-INS-01 | FR-INS-001 đến 009 | UAT-15 |
 | CRM | BR-CRM-01 đến 07 | FR-CRM-001 đến 018 | UAT-10, 18, 20 |
-| INV | BR-INV-01 đến 16 | FR-INV-001 đến 028 | UAT-02, 04, 05, 13 |
-| PUR | BR-PUR-01 | FR-PUR-001 đến 008 | UAT-16 |
-| HRM | BR-HRM-01 đến 06 | FR-HRM-001 đến 016 | UAT-11 |
-| ACC | BR-ACC-01 đến 13 | FR-ACC-001 đến 020 | UAT-07, 09, 14 |
+| INV | BR-INV-01 đến 16 | FR-INV-001 đến 028, 030 đến 034 | UAT-02, 04, 05, 13, 25; UAT-P2-02, 03, 11 |
+| PUR | BR-PUR-01 | FR-PUR-001 đến 012 | UAT-16; UAT-P2-04, 05 |
+| HRM | BR-HRM-01 đến 06 | FR-HRM-001 đến 021 | UAT-11; UAT-P2-08, 09 |
+| ACC | BR-ACC-01 đến 13 | FR-ACC-001 đến 020, 022, 026, 027, 028 | UAT-07, 09, 14, 26; UAT-P2-05, 06, 07 |
 | EIN | BR-EIN-01 đến 05 | FR-EIN-001 đến 013 | UAT-01, 08 |
 | RPT | BR-RPT-01 đến 04 | FR-RPT-001 đến 016 | UAT-01 |
-| SYS | BR-SYS-01 đến 07 | FR-SYS-001 đến 018 | UAT-06, 12, 19 |
+| SYS | BR-SYS-01 đến 07 | FR-SYS-001 đến 018, 033, 034 | UAT-06, 12, 19; UAT-P2-01, 10 |
 | TEN (nền) | BR-TEN-01 đến 04, 05, 07 | FR-TEN-001 đến 003, 009, 010, 011, 013, 014, 016, 017, 018, 020, 021, 029, 031 (và giá trị mặc định miễn phí của 044) | UAT-TEN-01, 02, 05, 06, 07, 08, 09, 11 |
 | TEN (đăng ký tự phục vụ, MT-1) | BR-TEN-05, 07, 09, 11 | FR-TEN-004 đến 007, 012, 015, 019, 030, 034, 036, 037, 039 đến 043, 051 đến 055 | UAT-TEN-03, 04, 12 đến 15, 20 đến 22 |
 | TEN (gói và thu tiền, MT-2 và MT-3) | BR-TEN-06, 08, 10 | FR-TEN-008, 022 đến 028, 032, 033, 035, 038, 044 đến 050 | UAT-TEN-10, 16 đến 19 |

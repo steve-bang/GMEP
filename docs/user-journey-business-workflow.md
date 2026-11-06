@@ -196,6 +196,22 @@ Mọi biến động tồn kho đều đi qua một phiếu có người lập v
 
 Phiếu chuyển chỉ đóng khi bên nhận xác nhận đủ và đúng; chênh lệch đi qua biên bản và quản lý duyệt. Chứng từ điều chuyển nội bộ giữa chi nhánh khác tỉnh phụ thuộc quy định thuế, kế toán của khách cần xác nhận.
 
+#### Luồng chuyển kho liên chi nhánh (mô tả bằng chữ, thay cho sơ đồ bị mất khi xuất tài liệu; bản 0.5, đề xuất BA, chờ khách xác nhận)
+
+Hai bên: chi nhánh nhận (cần hàng) và chi nhánh gửi (có hàng), cùng thuộc một tenant. Một điểm quyết định: duyệt giá trị lớn. Kho tổng là kho của đơn vị trụ sở nên đi cùng luồng này (FR-INV-026). Căn cứ: FR-INV-010, 026, 030, 031, 032; RULE-037; `docs/ui-ux/ba-answers-04.md` câu 11 và Phụ lục A, B, E.
+
+1. **Phát hiện thiếu hàng.** Thủ kho hoặc cố vấn thấy tồn khả dụng không đủ (lệnh chuyển sang tạm dừng "chờ phụ tùng", hoặc hàng dưới định mức). Hệ thống gợi ý nguồn theo thứ tự cấu hình: kho tổng, chi nhánh dư cùng nhóm (chỉ thấy số "có thể cho"), nhà cung cấp; dưới ngưỡng giá trị tối thiểu thì ưu tiên nhà cung cấp (FR-INV-014, 031, 034).
+2. **Yêu cầu chuyển (YK).** Quản lý hoặc thủ kho chi nhánh nhận lập YK nêu mặt hàng, số lượng, lệnh liên quan nếu có. Chi nhánh nhận không tự xuất hàng của bên gửi.
+3. **Bên gửi xác nhận.** Quản lý hoặc thủ kho chi nhánh gửi xác nhận (hoặc từ chối kèm lý do) thì hệ thống sinh phiếu chuyển CK mang số chi nhánh gửi, liên kết YK. Có thể lập CK trực tiếp không qua YK (chi nhánh gửi chủ động cấp hàng, kể cả từ kho tổng).
+4. **Duyệt giá trị lớn (điểm quyết định).** CK vượt ngưỡng giá trị cấu hình (tính theo giá vốn) chờ chủ garage hoặc quản lý vùng duyệt (khác vùng: quản lý vùng hai bên); chưa duyệt thì không gửi được. Dưới ngưỡng đi thẳng.
+5. **Gửi hàng.** Thủ kho gửi xác nhận số lượng thực gửi: tồn thực tế kho gửi giảm, "đang vận chuyển" gắn kho nhận tăng; khả dụng của cả hai bên không tăng (hàng đang đi đường không bán được ở đâu). Gửi lặp cùng khóa chỉ trừ một lần. Sau khi gửi không hủy được, chỉ xử lý qua bước nhận.
+6. **Nhận hàng.** Thủ kho bên nhận đếm và nhập số nhận: tồn thực tế kho nhận tăng đúng số nhận, "đang vận chuyển" giảm đúng số đã gửi. Nhận đủ và đúng thì phiếu đóng tự động ở trạng thái "đã nhận".
+7. **Có chênh lệch (nhận thiếu hoặc hỏng).** Bên nhận ghi biên bản kèm ảnh; phần lệch còn treo trên "đang vận chuyển"; phiếu ở "có chênh lệch". Quản lý bên nhận đề xuất kết quả (chờ hàng bù trong N ngày, ghi mất trong vận chuyển, hàng hỏng nhập kho lỗi, điều chỉnh với bên gửi) và bên chịu giá trị; quản lý bên gửi đồng thuận; khác vùng hoặc vượt ngưỡng thì quản lý vùng hoặc chủ garage duyệt.
+8. **Đóng phiếu.** Sau khi kết quả được duyệt và thực hiện, phần treo về 0 và phiếu ở "đã đóng". Kiểm tra bất biến: tổng (tồn thực tế + đang vận chuyển) của toàn tenant không đổi qua chuyển kho, trừ phần "ghi mất" hoặc "điều chỉnh" đã duyệt (có phiếu điều chỉnh ADJ).
+9. **Ngoại lệ.** Kho nhận hoặc kho gửi ngừng dùng, chi nhánh khóa khi còn CK chưa đóng: bị chặn. Chuyển giữa hai pháp nhân: chưa có quy tắc chứng từ `[Cần xác nhận: Kế toán khách, Q69]`. Giá vốn mang theo của bên gửi, không hiện cho bên nhận `[Cần xác nhận]`. Hàng đã đặt nhà cung cấp chưa giao là "đã đặt chờ giao", không thuộc bốn số tồn.
+
+Trạng thái phiếu CK: nháp, chờ duyệt, chờ gửi, đang vận chuyển, có chênh lệch, đã nhận, đã đóng, từ chối, hủy (chỉ trước khi gửi). Trạng thái YK: chờ bên gửi xác nhận, đã xác nhận (đã tạo CK), bên gửi từ chối.
+
 ### Nhập hàng từ nhà cung cấp
 
 1. Thủ kho hoặc quản lý tạo đơn mua theo gợi ý từ định mức tồn hoặc theo nhu cầu.
@@ -427,6 +443,8 @@ Ví dụ minh họa, chưa được khách xác nhận: chi phí dưới 2 tri�
 | Chuyển kho giá trị lớn | Quản lý chi nhánh gửi | Chủ garage hoặc quản lý vùng | Ngưỡng giá trị \[Cần chốt\] |
 | Hóa đơn điều chỉnh, thay thế, hủy | Kế toán | Kế toán trưởng | Ghi lý do và liên kết hóa đơn gốc |
 | Mở lại ngày hoặc kỳ đã khóa | Kế toán | Chủ garage | Ghi lý do, có nhật ký |
+
+Bổ sung bản 0.5 (giai đoạn 2, đề xuất BA 06/11/2026, chờ khách xác nhận; FR-SYS-033, 034, FR-ACC-028, RULE-036): (1) người đề xuất không tự duyệt, kể cả khi giữ quyền duyệt hoặc nhận ủy quyền; (2) ủy quyền duyệt có thời hạn, phạm vi và nhật ký, mặc định tắt, chỉ chủ garage cấu hình; (3) quá hạn thì nhắc rồi chuyển cấp (mẫu: nhắc sau 1 ngày làm việc, chuyển cấp sau thêm 2 ngày, mua gấp 2 giờ), yêu cầu đã chuyển cấp vẫn là "chờ duyệt"; (4) các khoản chi cùng loại, cùng nhà cung cấp, cùng chi nhánh trong cửa sổ cấu hình được cộng dồn khi so hạn mức; (5) hạn mức chưa được ban hành thì chuyển lên cấp cao nhất; (6) duyệt hàng loạt chỉ cùng loại. Các hành động giai đoạn 2 vào ma trận: nhập kho lệch giá hoặc số lượng, xuất dùng nội bộ, duyệt yêu cầu mua, mua gấp (hậu duyệt), đóng đơn mua khi chưa nhận đủ, xử lý chênh lệch chuyển kho, điều chỉnh công thủ công, mở lại kỳ công, chi trả nhà cung cấp; hạn mức mẫu ở `docs/ui-ux/ba-answers-04.md` Phụ lục E chỉ là minh họa.
 
 ## 8. Ngoại lệ và tình huống đặc biệt
 
