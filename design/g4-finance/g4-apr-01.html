@@ -163,13 +163,15 @@ window.G4F_PAGE = {
   document.addEventListener('click', function (e) { if (e.target.closest('[data-open="dlg-esc"]')) { $('#es-n').value = ''; G4F.resetBtn($('#es-ok')); G4F.setEnabled($('#es-ok'), false); } });
   /* Sau một quyết định: khóa cả ba nút của yêu cầu đó. Duyệt/Từ chối: dòng sang tab "Đã xử lý".
      Chuyển cấp: yêu cầu vẫn "Chờ duyệt" ở cấp mới, chỉ rời hàng "Cần tôi duyệt" của người chuyển, KHÔNG vào "Đã xử lý" (FR-SYS-034, B-04). */
+  /* Thoát ký tự HTML khi ghép chuỗi lấy từ DOM (thuộc tính, textContent) vào innerHTML */
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   document.addEventListener('g4f:done', function (e) {
     var map = { 'ap-ok': 'Đã duyệt', 'rj-ok': 'Đã từ chối', 'es-ok': 'Đã chuyển cấp' }, res = map[e.detail.id]; if (!res || !curEl) return;
     DONE[curEl] = res; drawerGate();
     var btn = G4F.$$('#tp1 tbody [data-open="drw-apr"]').filter(function (b) { return (b.getAttribute('data-title') + '|' + b.getAttribute('data-sub')) === curEl; });
     btn.forEach(function (b) {
       var tr = b.closest('tr'); if (!tr) return;
-      if (res !== 'Đã chuyển cấp') { var tb = document.querySelector('#tp3 tbody'), n = document.createElement('tr'); n.innerHTML = '<td><span class="tag tag--neutral">' + b.getAttribute('data-title') + '</span></td><td class="cell-primary">' + b.getAttribute('data-sub') + '</td><td><span class="tag ' + (res === 'Đã từ chối' ? 'tag--danger' : 'tag--success') + '">' + res + '</span></td><td>' + G4F.user() + '</td><td class="num">30/10/2026 09:16</td>'; tb.insertBefore(n, tb.firstChild); }
+      if (res !== 'Đã chuyển cấp') { var tb = document.querySelector('#tp3 tbody'), n = document.createElement('tr'); n.innerHTML = '<td><span class="tag tag--neutral">' + esc(b.getAttribute('data-title')) + '</span></td><td class="cell-primary">' + esc(b.getAttribute('data-sub')) + '</td><td><span class="tag ' + (res === 'Đã từ chối' ? 'tag--danger' : 'tag--success') + '">' + esc(res) + '</span></td><td>' + esc(G4F.user()) + '</td><td class="num">30/10/2026 09:16</td>'; tb.insertBefore(n, tb.firstChild); }
       tr.remove();
     });
     note();
@@ -177,7 +179,7 @@ window.G4F_PAGE = {
   document.addEventListener('g4f:ktt', function () { drawerGate(); flags(); });
   document.addEventListener('g4f:done', function (e) {
     if (e.detail.id !== 'bk-ok') return; var tb = document.querySelector('#tp3 tbody');
-    G4F.$$('input[data-btype]:checked').forEach(function (c) { var tr = c.closest('tr'), b = $('[data-title]', tr), n = document.createElement('tr'); n.innerHTML = '<td><span class="tag tag--neutral">' + b.getAttribute('data-title') + '</span></td><td class="cell-primary">' + b.getAttribute('data-sub') + '</td><td><span class="tag tag--success">Đã duyệt (hàng loạt)</span></td><td>' + G4F.user() + '</td><td class="num">30/10/2026 09:16</td>'; tb.insertBefore(n, tb.firstChild); tr.remove(); });
+    G4F.$$('input[data-btype]:checked').forEach(function (c) { var tr = c.closest('tr'), b = $('[data-title]', tr), n = document.createElement('tr'); n.innerHTML = '<td><span class="tag tag--neutral">' + esc(b.getAttribute('data-title')) + '</span></td><td class="cell-primary">' + esc(b.getAttribute('data-sub')) + '</td><td><span class="tag tag--success">Đã duyệt (hàng loạt)</span></td><td>' + esc(G4F.user()) + '</td><td class="num">30/10/2026 09:16</td>'; tb.insertBefore(n, tb.firstChild); tr.remove(); });
     G4F.resetBtn($('#btn-bulk')); bulk(); cards(); counts();
   });
   /* Duyệt hàng loạt: chỉ một loại mỗi lần chọn, đúng quyền, mỗi mục ghi nhật ký riêng */
@@ -199,7 +201,7 @@ window.G4F_PAGE = {
   /* Thủ kho chỉ xem số lượng ở chuyển kho và điều chỉnh tồn, không xem giá trị tiền (Q-R3 phương án a; máy chủ không trả trường này) */
   function tkMask() {
     var tk = role() === 'TK';
-    G4F.$$('.js-tkhide').forEach(function (td) { if (td._orig === undefined) td._orig = td.innerHTML; td.innerHTML = tk ? '<span class="g4f-muted">' + (td.getAttribute('data-tk') || 'Ẩn theo quyền') + '</span>' : td._orig; });
+    G4F.$$('.js-tkhide').forEach(function (td) { if (td._orig === undefined) td._orig = td.innerHTML; td.innerHTML = tk ? '<span class="g4f-muted">' + esc(td.getAttribute('data-tk') || 'Ẩn theo quyền') + '</span>' : td._orig; });
   }
   /* Thẻ trên điện thoại: sinh từ các dòng đang hiện của bảng, nên cùng bộ lọc vai trò và đủ loại */
   function cards() {
@@ -207,12 +209,12 @@ window.G4F_PAGE = {
     G4F.$$('#tp1 tbody tr').forEach(function (tr) {
       if (tr.hidden) return; var td = tr.children; if (td.length < 9) return;
       var kind = td[1].textContent.trim(), prim = $('.cell-primary', td[2]), who = td[3].firstChild ? td[3].firstChild.textContent : '', sub = $('.cell-sub', td[3]);
-      var wait = td[7].querySelector('.tag') ? td[7].innerHTML : '<span class="tag tag--warning">' + td[7].textContent + '</span>';
-      var inner = '<div class="record__top"><div><div class="record__title">' + kind + ' · <span class="code">' + (prim ? prim.textContent : '') + '</span></div><span class="t-body-sm text-secondary">' + who + (sub ? ' · ' + sub.textContent.replace(/^.*· /, '') : '') + '</span></div><span class="g4f-tags">' + wait + '</span></div>' +
+      var wait = td[7].querySelector('.tag') ? td[7].innerHTML : '<span class="tag tag--warning">' + esc(td[7].textContent) + '</span>';
+      var inner = '<div class="record__top"><div><div class="record__title">' + esc(kind) + ' · <span class="code">' + esc(prim ? prim.textContent : '') + '</span></div><span class="t-body-sm text-secondary">' + esc(who) + (sub ? ' · ' + esc(sub.textContent.replace(/^.*· /, '')) : '') + '</span></div><span class="g4f-tags">' + wait + '</span></div>' +
         '<div class="record__foot"><span class="t-body-sm">' + td[5].innerHTML.replace(/<span class="cell-sub">[\s\S]*<\/span>$/, '') + '</span><strong class="num">' + td[4].innerHTML + '</strong></div>';
       var link = $('a.btn', td[8]), b = $('[data-open="drw-apr"]', td[8]);
-      if (link) html += '<a class="record" href="' + link.getAttribute('href') + '">' + inner + '</a>';
-      else if (b) html += '<button type="button" class="record" data-open="drw-apr" data-title="' + b.getAttribute('data-title') + '" data-sub="' + b.getAttribute('data-sub') + '" style="text-align:left">' + inner + '</button>';
+      if (link) html += '<a class="record" href="' + esc(link.getAttribute('href')) + '">' + inner + '</a>';
+      else if (b) html += '<button type="button" class="record" data-open="drw-apr" data-title="' + esc(b.getAttribute('data-title')) + '" data-sub="' + esc(b.getAttribute('data-sub')) + '" style="text-align:left">' + inner + '</button>';
     });
     list.innerHTML = html || '<p class="g4f-muted">Không có yêu cầu nào cần bạn duyệt.</p>';
   }

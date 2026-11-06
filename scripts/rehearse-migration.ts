@@ -7,7 +7,8 @@
  * (must change nothing) -> rollback drill (restore the backup, equals the legacy data; migrate again, equals the original).
  * Prints a JSON report; exit code 2 when any check fails. Emulator only.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadEnv } from '@/platform/config/env';
 import { getDb } from '@/infrastructure/firestore/client';
@@ -41,8 +42,10 @@ async function main() {
     throw new Error('Emulator only: FIRESTORE_EMULATOR_HOST not set.');
   const env = loadEnv(process.env);
   const db = getDb(env);
-  const out = arg('out', '/tmp/gmep-rehearsal');
-  mkdirSync(out, { recursive: true });
+  // A fresh private directory (0700) unless --out is given: no predictable path in the shared temp dir.
+  const given = arg('out', '');
+  const out = given || mkdtempSync(join(tmpdir(), 'gmep-rehearsal-'));
+  if (given) mkdirSync(out, { recursive: true, mode: 0o700 });
   const checks: Record<string, boolean | number | string> = {};
   const t0 = Date.now();
   const lap = (l: string) => (checks[`ms.${l}`] = Date.now() - t0);
@@ -64,7 +67,7 @@ async function main() {
   const legacy = downgradeToLegacy(original, T);
   await writeDocMap(db, legacy);
   const backup = toJsonLines(await loadCollections(db, ALL_COLLECTIONS));
-  writeFileSync(join(out, 'legacy-backup.jsonl'), backup);
+  writeFileSync(join(out, 'legacy-backup.jsonl'), backup, { mode: 0o600 });
   checks.backupBytes = backup.length;
 
   const io = firestoreMigrationIo(db);
@@ -105,7 +108,7 @@ async function main() {
     moneyBefore: run.before.sums,
     moneyAfter: run.after.sums,
   };
-  writeFileSync(join(out, 'report.json'), JSON.stringify(report, null, 2));
+  writeFileSync(join(out, 'report.json'), JSON.stringify(report, null, 2), { mode: 0o600 });
   console.log(JSON.stringify(report, null, 2));
   void dry;
   const ok = [

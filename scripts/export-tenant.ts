@@ -6,7 +6,7 @@
  * file and an integrity code. `--verify` recomputes them and exits 2 on any difference. Credentials (token hashes, OTPs,
  * mail outbox) are not exported. The output holds personal data of the tenant: store and hand it over accordingly.
  */
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { loadEnv } from '@/platform/config/env';
 import { getDb } from '@/infrastructure/firestore/client';
@@ -26,10 +26,11 @@ const opt = (n: string): string | undefined => {
 function readDir(dir: string): Map<string, Uint8Array> {
   const out = new Map<string, Uint8Array>();
   const walk = (d: string) => {
-    for (const name of readdirSync(d)) {
-      const p = join(d, name);
-      if (statSync(p).isDirectory()) walk(p);
-      else out.set(relative(dir, p).split('\\').join('/'), readFileSync(p));
+    // One directory read with file types: no separate stat, so no check-then-use window.
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const p = join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.isFile()) out.set(relative(dir, p).split('\\').join('/'), readFileSync(p));
     }
   };
   walk(dir);
