@@ -1,6 +1,6 @@
 # Ngân sách chỉ mục composite Firestore (R68, việc 4a)
 
-Trạng thái: 193 trên 200 (cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`). Còn 2 chỗ trước ngưỡng fail. `docs/dev/status.md` ghi 192, lệch 1: số đúng là 193 (đếm bằng `pnpm check:indexes`). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra 197 vì có thêm 4 chính sách TTL trong `fieldOverrides` (idempotencyKeys, rateLimits, notifications, emailOutbox); TTL không tính vào hạn mức 200 composite.
+Trạng thái: **192 trên 200** (cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`). Còn 3 chỗ trước ngưỡng fail. **Đợt MT-0 (07/11/2026, ADR 0002): đo trước 193 và 194 hình truy vấn; sau khi `companyId` thành `tenantId` trong mọi hình truy vấn số chỉ mục không đổi (193, chỉ đổi tên trường); bỏ hình `users.byEmployeeCode` (đăng nhập bằng mã nhân viên không còn, vì mã chỉ duy nhất trong tenant) làm tụt còn 192; các hình mới của MT-0 (`tenants.list`, `platformAuditLogs.list`) chỉ sắp theo một trường nên không tốn chỉ mục tổng hợp.** Mọi hình truy vấn nghiệp vụ phải có `tenantId` (test `tests/unit/tenant-invariants.test.ts`, danh sách ngoại lệ có lý do). `docs/dev/status.md` ghi 192, lệch 1: số đúng là 193 (đếm bằng `pnpm check:indexes`). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra 197 vì có thêm 4 chính sách TTL trong `fieldOverrides` (idempotencyKeys, rateLimits, notifications, emailOutbox); TTL không tính vào hạn mức 200 composite.
 
 Bảng dưới sinh bằng `pnpm exec tsx --tsconfig tsconfig.json scripts/check-indexes.ts --report` (chỉ in, không ghi tệp; `--budget` là bí danh cũ). Cùng lệnh in số ứng viên trùng tiền tố và số chỉ mục không truy vấn nào dùng. Mỗi chỉ mục được ánh xạ sang các hình truy vấn trong `src/infrastructure/repos/queries.ts` mà nó phục vụ; không chỉ mục nào mồ côi và không chỉ mục nào là tiền tố của chỉ mục khác (`--report`, xem cuối bảng).
 
@@ -25,7 +25,7 @@ SYS chiếm 71 (37%), trong đó `auditLogs` 32 (bộ lọc nhật ký). REC 45,
 
 ## Kết quả rà soát (05/11/2026, task A7)
 
-- Thực đo: 193 composite, 194 hình truy vấn đăng ký (một số là đơn trường, Firestore tự lo). Tất cả phạm vi `COLLECTION`.
+- Thực đo (07/11/2026, sau MT-0): 192 composite, 195 hình truy vấn đăng ký (một số là đơn trường, Firestore tự lo). Tất cả phạm vi `COLLECTION`.
 - 0 chỉ mục mồ côi (mỗi chỉ mục được ít nhất một hình truy vấn trong `queries.ts` dùng), 0 cặp trùng tiền tố (`--report`).
 - Vì vậy không gỡ chỉ mục nào: gỡ bất kỳ chỉ mục nào ở trên đều làm một hình truy vấn đã đăng ký mất chỉ mục, tức là phải đổi truy vấn (xem "Ứng viên gộp/bỏ"), không thuộc phạm vi task này (không đổi hành vi). Còn 2 chỗ trước ngưỡng fail 195.
 - Cột "FR, slice" ánh xạ theo bộ sưu tập (mức họ FR và slice theo `implementation-plan.md` §7), chưa đối chiếu từng FR chi tiết.

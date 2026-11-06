@@ -532,3 +532,19 @@ Dev tiếp tục theo giá trị tạm trong lúc chờ; khi khách chốt khác
 | MT-3 | CDA, KH | Khách đầu tiên có đồng ý dùng chung nền tảng; ai sở hữu mã nguồn, dữ liệu, dự án GCP (Q14, ADR 0001 §12 #2) | Chưa có | ADR 0001, 0002 |
 | MT-4 | Dev | Ánh xạ `companyId` hiện có (929 lần trong 127 tệp) sang tenant và/hoặc Company; ảnh hưởng chỉ mục 193/200; giữ số chứng từ và khóa chống trùng hóa đơn khi chuyển thành tenant số 1 (M1, M7) | Yêu cầu nghiệp vụ: duy nhất trong tenant; khóa hóa đơn không hết hạn, chứa tenant | `index-budget.md`, `implementation-plan.md` §7 |
 | MT-5 | CDA | Thứ tự MT-1 so với pilot và mức trễ pilot chấp nhận khi retrofit tenant (Q37) | Chưa có | `implementation-plan.md` | Ảnh hưởng tài liệu: FRD "Làm rõ FR-RPT-002" (đã thêm), `ba-answers-for-dev.md` Q-A (BA bổ sung câu trả lời R110 đến R115 khi có), `test-plan-phase1.md` dòng RPT (thêm ca: kỳ trước thiếu ngày, chia cho 0, tháng ngắn).
+
+## MT-0 (dev, 07/11/2026): câu hỏi cho BA và chủ dự án, kèm giả định dev đã dùng
+
+Dev tiếp tục theo giả định ghi bên phải; mỗi giả định đổi được ở một chỗ.
+
+| Mã | Câu hỏi | Giả định dev đang dùng |
+| --- | --- | --- |
+| MT0-1 | Đăng nhập bằng mã nhân viên có còn không? FR-TEN-016 nói email + mật khẩu và mã nhân viên chỉ duy nhất trong tenant, nên mã không xác định được người | Bỏ: chỉ đăng nhập bằng email; mã nhân viên chỉ dùng trong tenant. Màn đăng nhập hiện còn chữ "Mã nhân viên hoặc email" cần designer sửa |
+| MT0-2 | `suspended` có cho đăng nhập (chỉ đọc) không? Analysis 5.1 nói mặc định chỉ đọc và tải dữ liệu, còn UAT-TEN-21 nói tenant "đã chấm dứt" cùng một câu lỗi | `suspended` và `terminating` đăng nhập được, chỉ đọc; `terminated`, `purged`, `cancelled`, `rejected` và các trạng thái trước `onboarding` không đăng nhập được, lỗi như sai mật khẩu. Ngưng "vì an ninh" (chặn hoàn toàn) chưa có cờ |
+| MT0-3 | Ai duyệt `proposed -> provisioning`? Analysis 5.3 ghi "Quản trị nền tảng, có duyệt của Chủ nền tảng" | Chủ nền tảng (CNT) làm một mình được (tự là người duyệt); quản trị (QTN) đề xuất và chờ CNT. Ngưng, chấm dứt, xóa: hai người khác nhau (RULE-027), người duyệt phải có quyền duyệt (chỉ CNT) |
+| MT0-4 | Q41: đổi mật khẩu có áp cho mọi tư cách không; ghi đồng ý chính sách khi chấp nhận lời mời vào tư cách thêm của danh tính đã có | Đổi mật khẩu áp cho danh tính và thu hồi mọi phiên (kể cả phiên chưa chọn tenant); chấp nhận lời mời chỉ kích hoạt tư cách, chưa ghi đồng ý chính sách cho tư cách đó |
+| MT0-5 | Cấu hình "toàn công ty" (khóa `company`) nay chính là tầng tenant. Có cần đổi nhãn và thêm tầng nền tảng (FR-TEN-018, 019) trước pilot không | Chưa làm; hai tầng (tenant, chi nhánh) như cũ, khóa `company` nghĩa là mặc định của tenant |
+| MT0-6 | Chủ garage đầu tiên của tenant do nhân sự nền tảng nhập email và mã nhân viên khi cấp phát; mã mặc định `CH01` | Giả định `CH01`; đổi được ở đầu vào cấp phát |
+| MT0-7 | Phiên nền tảng (đăng nhập, cookie riêng) làm ở MT-0 hay MT-1? FR-TEN-011 nêu vai trò, chưa nêu cách đăng nhập | Để MT-1 cùng phiên hỗ trợ; MT-0 chỉ có use case và test, chưa có tuyến API |
+
+Việc cho designer: bỏ "Mã nhân viên" khỏi nhãn ô đăng nhập; màn "Chọn công ty" (`CompanyPicker`) sau mật khẩu khi API trả `tenants` (đăng nhập trả `user: null` và danh sách `tenants`); trang kích hoạt cho lời mời vào danh tính đã có chỉ cần nút chấp nhận (không ô mật khẩu); nút đổi công ty trong shell; màn nền tảng (hồ sơ tenant, vòng đời, nhật ký nền tảng) khi có phiên nền tảng; thông báo "chỉ đọc" khi tenant ngưng.
