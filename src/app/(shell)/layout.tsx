@@ -224,6 +224,24 @@ export default async function ShellLayout({ children }: { children: React.ReactN
           },
         ]
       : []),
+    ...(can.employees || can.labor || can.laborRules
+      ? [
+          {
+            label: t('shell.nav.groupHrm'),
+            items: [
+              ...(can.employees
+                ? [item('he', '/hrm/employees', t('shell.nav.employees'), 'users', 'prefix')]
+                : []),
+              ...(can.labor
+                ? [item('hl', '/hrm/labor', t('shell.nav.labor'), 'wrench', 'prefix')]
+                : []),
+              ...(can.laborRules
+                ? [item('hr', '/hrm/rules', t('shell.nav.laborRules'), 'clipboard-list', 'prefix')]
+                : []),
+            ],
+          },
+        ]
+      : []),
     {
       label: t('shell.nav.groupInv'),
       items: [
