@@ -51,8 +51,12 @@ export function LoginForm({ next = '/' }: { next?: string }) {
         body: JSON.stringify({ identifier, password }),
       });
       if (res.ok) {
+        // two or more companies: the session reads nothing until one is chosen (FR-TEN-017)
+        const body = (await res.json().catch(() => null)) as { user?: unknown } | null;
         // Full navigation on purpose: the session cookie changed, so the server layout must re-render.
-        window.location.assign(next);
+        window.location.assign(
+          body && body.user === null ? `/login/tenant?next=${encodeURIComponent(next)}` : next,
+        );
         return;
       }
       const problem = (await res.json().catch(() => null)) as {

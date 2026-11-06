@@ -74,7 +74,7 @@ test.describe('walking skeleton: login -> list -> logout (FR-SYS-001, FR-SYS-005
   test('empty fields show inline validation without calling the server', async ({ page }) => {
     await page.goto('/login');
     await page.getByRole('button', { name: 'Đăng nhập' }).click();
-    await expect(page.getByText('Nhập email hoặc mã nhân viên.')).toBeVisible();
+    await expect(page.getByText('Nhập email.')).toBeVisible();
     await expect(page.getByText('Nhập mật khẩu của bạn.')).toBeVisible();
   });
 

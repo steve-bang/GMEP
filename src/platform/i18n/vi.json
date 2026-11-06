@@ -853,11 +853,16 @@
   "login": {
     "title": "Đăng nhập",
     "lead": "Dùng tài khoản do quản lý chi nhánh cấp.",
-    "identifier": "Email hoặc mã nhân viên",
+    "identifier": "Email",
+    "tenant": {
+      "title": "Chọn công ty",
+      "lead": "Tài khoản này thuộc nhiều công ty. Chọn công ty bạn muốn làm việc.",
+      "failed": "Không chọn được công ty này. Thử lại hoặc đăng nhập lại."
+    },
     "password": "Mật khẩu",
     "submit": "Đăng nhập",
     "required": "Bắt buộc nhập",
-    "identifierRequired": "Nhập email hoặc mã nhân viên.",
+    "identifierRequired": "Nhập email.",
     "passwordRequired": "Nhập mật khẩu của bạn.",
     "offline": "Mất kết nối mạng. Thông tin bạn đã nhập vẫn được giữ, thử lại khi có mạng.",
     "forgot": "Quên mật khẩu?",

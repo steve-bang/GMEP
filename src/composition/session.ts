@@ -26,6 +26,12 @@ export const requireSession = cache(async (): Promise<Session> => {
       if (next !== '/') qs.set('next', next);
       redirect(qs.size ? `/login?${qs}` : '/login');
     }
+    // two or more companies and none chosen yet: the "Chọn công ty" step (FR-TEN-017)
+    if (err instanceof AppError && err.code === 'tenant_selection_required') {
+      redirect(
+        `/login/tenant?next=${encodeURIComponent(safeNext((await headers()).get('x-gm-next')))}`,
+      );
+    }
     throw err;
   }
 });
