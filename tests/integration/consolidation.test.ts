@@ -107,9 +107,14 @@ describe.each(backends)('slice 2.1 consolidation, groups, history, release [%s]'
       const q7 = rows.find((x) => x.branchId === 'br_q7')!;
       const td = rows.find((x) => x.branchId === 'br_td')!;
       expect(q7.value).toBe(3_500_000);
-      expect(td.value).toBe(3_500_000); // a tie shares rank 1 (standard competition ranking)
-      expect([q7.rank, td.rank]).toEqual([1, 1]);
+      expect(td.value).toBe(3_500_000); // real figures stay visible (equal here)
+      // AC-RPT-002-10: the rank uses the common days D1 and D3 only (TD has no D2): Q7 1.5M < TD 3.5M
+      expect(r.json.commonDates).toEqual([D1, D3]);
+      expect([q7.rankValue, td.rankValue]).toEqual([1_500_000, 3_500_000]);
+      expect([q7.rank, td.rank]).toEqual([2, 1]);
       expect(td.missingDates).toEqual([D2]);
+      expect(td.missingDays).toBe(1); // "thiếu 1 ngày"
+
       expect(q7.provisional).toBe(true);
       expect(q7.provisionalDays).toBe(1);
       expect(td.provisional).toBe(false);

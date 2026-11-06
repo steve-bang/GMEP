@@ -52,9 +52,18 @@ export async function branchesOf(
   permission: Permission,
   requested?: string,
   groupId?: string,
-): Promise<{ scope: Scope; branches: { id: string; name: string; code: string }[] }> {
+): Promise<{ scope: Scope; branches: BranchRef[] }> {
   const scope = resolveWorkingScope(actor, permission);
   return narrowToBranches(deps, actor, scope, requested, groupId);
+}
+
+export interface BranchRef {
+  id: string;
+  name: string;
+  code: string;
+  /** first and last business day the branch operates: opened = created, locked = last update (AC-RPT-002-10) */
+  activeFrom: string;
+  activeTo?: string;
 }
 
 /** A group is a FILTER over the branches already in scope (never a grant). */
@@ -64,7 +73,7 @@ async function narrowToBranches(
   scope: Scope,
   requested?: string,
   groupId?: string,
-): Promise<{ scope: Scope; branches: { id: string; name: string; code: string }[] }> {
+): Promise<{ scope: Scope; branches: BranchRef[] }> {
   const all = await deps.sys.branches.list(scope);
   const members = groupId
     ? new Set((await groupOf(deps, actor.tenantId, groupId)).branchIds)
@@ -72,7 +81,13 @@ async function narrowToBranches(
   const branches = all
     .filter((b) => !requested || b.id === requested)
     .filter((b) => !members || members.has(b.id))
-    .map((b) => ({ id: b.id, name: b.name, code: b.code }));
+    .map((b) => ({
+      id: b.id,
+      name: b.name,
+      code: b.code,
+      activeFrom: businessDate(b.createdAt),
+      ...(b.status === 'locked' ? { activeTo: businessDate(b.updatedAt) } : {}),
+    }));
   if ((requested || groupId) && branches.length === 0) throw forbidden();
   return { scope, branches };
 }
@@ -87,7 +102,7 @@ export async function consolidatedBranches(
   actor: Actor,
   permission: Permission,
   groupId?: string,
-): Promise<{ scope: Scope; branches: { id: string; name: string; code: string }[] }> {
+): Promise<{ scope: Scope; branches: BranchRef[] }> {
   return narrowToBranches(deps, actor, resolveScope(actor, permission), undefined, groupId);
 }
 

@@ -2,7 +2,7 @@ import { hasPermission, type Actor, type Permission } from '@/platform/rbac/rbac
 import {
   datesBetween,
   periodOfBranch,
-  rankBranches,
+  rankOnCommonDays,
   RANK_FORMULA,
   RANK_METRICS,
   RANK_METRIC_SECTION,
@@ -16,6 +16,7 @@ import type { RptDeps } from '../ports/deps';
 import {
   AppError,
   branchGroupsOf,
+  type BranchRef,
   consolidatedBranches,
   dateSchema,
   forbidden,
@@ -53,7 +54,7 @@ const rankingQuery = periodQuery.extend({
 
 interface PeriodRead {
   dates: string[];
-  branches: { id: string; name: string; code: string }[];
+  branches: BranchRef[];
   byBranch: Map<string, DailyRollup[]>;
   /** documents read, for the load measurement */
   keys: number;
@@ -112,6 +113,8 @@ export interface RankingRowDto extends Omit<RankedRow, 'branchId'> {
   name: string;
   /** FR-RPT-010: some of the days are provisional (not closed in ACC yet): the figure is labelled, never silently official */
   provisional: boolean;
+  /** "thiếu n ngày": days of its operating period without a figure; its real value is still shown (AC-RPT-002-10) */
+  missingDays: number;
 }
 
 export interface RankingDto {
@@ -120,6 +123,8 @@ export interface RankingDto {
   metric: RankMetric;
   groupId: string | null;
   rows: RankingRowDto[];
+  /** days the rank is based on: every operating branch has a figure; empty = nobody is ranked (AC-RPT-002-10) */
+  commonDates: string[];
   /** sum (or recomputed ratio) over the branches listed; equals the tenant figure when no group is chosen and every branch is in scope */
   total: number | null;
   /** every day of every branch is present and closed */
@@ -137,16 +142,24 @@ export async function getRanking(deps: RptDeps, actor: Actor, raw: unknown): Pro
   const need = SECTION_PERMISSION[RANK_METRIC_SECTION[q.metric]];
   if (!hasPermission(actor, need)) throw forbidden();
   const read = await readPeriod(deps, actor, 'report-ranking:view', q);
-  const periods: BranchPeriod[] = read.branches.map((b) =>
-    periodOfBranch(b.id, read.dates, read.byBranch.get(b.id) ?? [], q.metric),
-  );
   const info = new Map(read.branches.map((b) => [b.id, b]));
-  const ranked = rankBranches(periods, (id) => info.get(id)?.code ?? id);
+  const { rows: ranked, commonDates } = rankOnCommonDays(
+    read.branches.map((b) => ({
+      branchId: b.id,
+      rolls: read.byBranch.get(b.id) ?? [],
+      active: { from: b.activeFrom, ...(b.activeTo ? { to: b.activeTo } : {}) },
+    })),
+    read.dates,
+    q.metric,
+    (id) => info.get(id)?.code ?? id,
+  );
+  const periods: BranchPeriod[] = ranked;
   const rows: RankingRowDto[] = ranked.map((r) => ({
     ...r,
     code: info.get(r.branchId)!.code,
     name: info.get(r.branchId)!.name,
     provisional: r.provisionalDays > 0,
+    missingDays: r.missingDates.length,
   }));
   const provisionalDays = periods.reduce((s, p) => s + p.provisionalDays, 0);
   const missingDays = periods.reduce((s, p) => s + p.missingDates.length, 0);
@@ -156,6 +169,7 @@ export async function getRanking(deps: RptDeps, actor: Actor, raw: unknown): Pro
     metric: q.metric,
     groupId: q.groupId ?? null,
     rows,
+    commonDates,
     total: totalOfRows(q.metric, periods),
     allOfficial: provisionalDays === 0 && missingDays === 0 && periods.length > 0,
     provisionalDays,
@@ -284,7 +298,10 @@ export async function getIndicators(
   for (const metric of ['avgPerOrderVnd', 'quoteApprovalBp'] as const) {
     if (!hasPermission(actor, SECTION_PERMISSION[RANK_METRIC_SECTION[metric]])) continue;
     const periods = read.branches.map((b) =>
-      periodOfBranch(b.id, read.dates, read.byBranch.get(b.id) ?? [], metric),
+      periodOfBranch(b.id, read.dates, read.byBranch.get(b.id) ?? [], metric, {
+        from: b.activeFrom,
+        ...(b.activeTo ? { to: b.activeTo } : {}),
+      }),
     );
     if (metric === 'avgPerOrderVnd')
       provisionalDays = periods.reduce((s, p) => s + p.provisionalDays, 0);

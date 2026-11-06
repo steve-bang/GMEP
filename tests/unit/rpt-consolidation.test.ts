@@ -7,6 +7,7 @@ import {
   divRound,
   periodOfBranch,
   rankBranches,
+  rankOnCommonDays,
   totalOfRows,
   type DailyRollup,
   type DayFacts,
@@ -228,5 +229,109 @@ describe('ranking (FR-RPT-002, AC-RPT-002-8)', () => {
       'returningCustomerBp',
     );
     expect(c.value).toBe(6667); // 2 / 3
+  });
+});
+
+describe('ranking on the common days (AC-RPT-002-10, FR-RPT-002)', () => {
+  const days = datesBetween('2026-11-01', '2026-11-10', addDays);
+  const all = (ids: string[], rate: number) => ids.map((d) => roll(d, { exTax: rate }));
+  const code = (id: string) => id;
+
+  it('hand example: A has 10 days at 100, B misses 3 days and has 7 days at 120; B is NOT pushed down for missing days', () => {
+    const missing = new Set(['2026-11-02', '2026-11-05', '2026-11-06']);
+    const a = all(days, 100);
+    const b = all(
+      days.filter((d) => !missing.has(d)),
+      120,
+    );
+    const r = rankOnCommonDays(
+      [
+        { branchId: 'A', rolls: a },
+        { branchId: 'B', rolls: b },
+      ],
+      days,
+      'exTaxVnd',
+      code,
+    );
+    expect(r.commonDates).toHaveLength(7);
+    const byId = Object.fromEntries(r.rows.map((x) => [x.branchId, x]));
+    // real figures stay: A 1000, B 840 with "thiếu 3 ngày"; the rank uses the 7 common days: B 840 > A 700
+    expect([byId.A!.value, byId.B!.value]).toEqual([1000, 840]);
+    expect(byId.B!.missingDates).toHaveLength(3);
+    expect([byId.B!.rank, byId.A!.rank]).toEqual([1, 2]);
+    expect([byId.B!.rankValue, byId.A!.rankValue]).toEqual([840, 700]);
+  });
+
+  it('a day before the branch opened or after it closed is not a missing day and does not shrink the common days', () => {
+    const open5 = days.filter((d) => d >= '2026-11-05');
+    const r = rankOnCommonDays(
+      [
+        { branchId: 'A', rolls: all(days, 100) },
+        { branchId: 'N', rolls: all(open5, 50), active: { from: '2026-11-05' } },
+        { branchId: 'C', rolls: all(days.slice(0, 4), 70), active: { to: '2026-11-04' } },
+      ],
+      days,
+      'exTaxVnd',
+      code,
+    );
+    const byId = Object.fromEntries(r.rows.map((x) => [x.branchId, x]));
+    expect(byId.N!.missingDates).toEqual([]);
+    expect(byId.C!.missingDates).toEqual([]);
+    expect(r.commonDates).toEqual(days); // every day has every operating branch
+    expect(byId.A!.rank).toBe(1);
+  });
+
+  it('no common day: nobody is ranked, real values are still shown; a branch with no data does not shrink the common days', () => {
+    const none = rankOnCommonDays(
+      [
+        { branchId: 'A', rolls: [roll('2026-11-01', { exTax: 10 })] },
+        { branchId: 'B', rolls: [roll('2026-11-02', { exTax: 20 })] },
+      ],
+      days,
+      'exTaxVnd',
+      code,
+    );
+    expect(none.commonDates).toEqual([]);
+    expect(none.rows.map((x) => [x.branchId, x.value, x.rank])).toEqual([
+      ['A', 10, null],
+      ['B', 20, null],
+    ]);
+    const empty = rankOnCommonDays(
+      [
+        { branchId: 'A', rolls: [roll('2026-11-01', { exTax: 10 })] },
+        { branchId: 'Z', rolls: [] },
+      ],
+      days,
+      'exTaxVnd',
+      code,
+    );
+    expect(empty.rows.map((x) => [x.branchId, x.rank])).toEqual([
+      ['A', 1],
+      ['Z', null],
+    ]);
+  });
+
+  it('a ratio is recomputed from the numerator and denominator of the common days only', () => {
+    const q = (a: number, d: number) => ({ approved: a, rejected: d - a, expired: 0, pending: 0 });
+    const r = rankOnCommonDays(
+      [
+        {
+          branchId: 'A',
+          rolls: [
+            roll('2026-11-01', { quotes: { created: 4, ...q(1, 4) } }),
+            roll('2026-11-02', { quotes: { created: 4, ...q(4, 4) } }),
+          ],
+        },
+        { branchId: 'B', rolls: [roll('2026-11-01', { quotes: { created: 2, ...q(1, 2) } })] },
+      ],
+      days,
+      'quoteApprovalBp',
+      code,
+    );
+    const byId = Object.fromEntries(r.rows.map((x) => [x.branchId, x]));
+    expect(byId.A!.value).toBe(6250); // 5/8 over its own days
+    expect(byId.A!.rankValue).toBe(2500); // 1/4 on the common day 11-01
+    expect(byId.B!.rankValue).toBe(5000);
+    expect(byId.B!.rank).toBe(1);
   });
 });

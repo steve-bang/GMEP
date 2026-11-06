@@ -53,6 +53,14 @@ export interface RankInputDay {
   rollup: DailyRollup;
 }
 
+/** Days a branch exists as an operating branch (`YYYY-MM-DD`, inclusive); an open end means "no limit". */
+export interface BranchActivity {
+  from?: string;
+  to?: string;
+}
+const isInactive = (a: BranchActivity | undefined, d: string): boolean =>
+  !!a && ((a.from !== undefined && d < a.from) || (a.to !== undefined && d > a.to));
+
 export interface BranchPeriod {
   branchId: string;
   /** days of the period with a rollup, of which provisional = not yet closed in ACC (FR-RPT-010) */
@@ -72,6 +80,7 @@ export function periodOfBranch(
   dates: readonly string[],
   rolls: readonly DailyRollup[],
   metric: RankMetric,
+  active?: BranchActivity,
 ): BranchPeriod {
   const byDate = new Map(rolls.map((r) => [r.date, r]));
   const missingDates: string[] = [];
@@ -85,7 +94,8 @@ export function periodOfBranch(
   for (const d of dates) {
     const r = byDate.get(d);
     if (!r) {
-      missingDates.push(d);
+      // FR-RPT-002 / AC-RPT-002-10: a day before the branch opened or after it closed is not a missing day
+      if (!isInactive(active, d)) missingDates.push(d);
       continue;
     }
     present++;
@@ -151,35 +161,95 @@ export function periodOfBranch(
 }
 
 export interface RankedRow extends BranchPeriod {
-  /** standard competition rank (1, 2, 2, 4); null when the branch has no value */
+  /** standard competition rank (1, 2, 2, 4) on the COMMON days; null when the branch has no value to rank */
   rank: number | null;
+  /** the value the rank is based on: the same metric over the common days only (null = not ranked) */
+  rankValue: number | null;
+}
+
+function rankBy<T extends BranchPeriod>(
+  rows: readonly T[],
+  valueOf: (r: T) => number | null,
+  codeOf: (branchId: string) => string,
+): (T & { rank: number | null; rankValue: number | null })[] {
+  const sorted = [...rows].sort((a, b) => {
+    const av = valueOf(a);
+    const bv = valueOf(b);
+    if (av === null && bv === null) return codeOf(a.branchId).localeCompare(codeOf(b.branchId));
+    if (av === null) return 1;
+    if (bv === null) return -1;
+    return bv - av || codeOf(a.branchId).localeCompare(codeOf(b.branchId));
+  });
+  let lastValue: number | null = null;
+  let lastRank = 0;
+  return sorted.map((r, i) => {
+    const v = valueOf(r);
+    if (v === null) return { ...r, rank: null, rankValue: null };
+    if (v !== lastValue) {
+      lastRank = i + 1;
+      lastValue = v;
+    }
+    return { ...r, rank: lastRank, rankValue: v };
+  });
 }
 
 /**
- * Ranks branches on the SAME period and metric. Equal values share a rank; branches without a value are listed last
- * and are not ranked. Ties and the "no value" tail are ordered by branch code so the result is deterministic.
+ * Ranks branches on their own `value` (same period for all; kept for callers that already align the days). Equal
+ * values share a rank; branches without a value are listed last and are not ranked; ties and the "no value" tail are
+ * ordered by branch code so the result is deterministic.
  */
 export function rankBranches(
   rows: readonly BranchPeriod[],
   codeOf: (branchId: string) => string,
 ): RankedRow[] {
-  const sorted = [...rows].sort((a, b) => {
-    if (a.value === null && b.value === null)
-      return codeOf(a.branchId).localeCompare(codeOf(b.branchId));
-    if (a.value === null) return 1;
-    if (b.value === null) return -1;
-    return b.value - a.value || codeOf(a.branchId).localeCompare(codeOf(b.branchId));
-  });
-  let lastValue: number | null = null;
-  let lastRank = 0;
-  return sorted.map((r, i) => {
-    if (r.value === null) return { ...r, rank: null };
-    if (r.value !== lastValue) {
-      lastRank = i + 1;
-      lastValue = r.value;
-    }
-    return { ...r, rank: lastRank };
-  });
+  return rankBy(rows, (r) => r.value, codeOf);
+}
+
+export interface RankInput {
+  branchId: string;
+  rolls: readonly DailyRollup[];
+  active?: BranchActivity;
+}
+
+/**
+ * FR-RPT-002 "on the same period", AC-RPT-002-10: the ranking compares branches on the COMMON days = days on which
+ * every branch that is operating that day has a rollup. A day before a branch opened or after it closed is not a gap.
+ * The real figure of each branch (`value`, `missingDates`) is still shown; only the rank uses the common days, so a
+ * branch missing days is not pushed down unfairly. A branch with no rollup at all in the period is listed unranked
+ * and does not shrink the common days. No common day = nobody is ranked. Ratios are recomputed from the common-day
+ * numerator and denominator. The tenant total stays the sum of every day with a figure (FR-RPT-001).
+ */
+export function rankOnCommonDays(
+  inputs: readonly RankInput[],
+  dates: readonly string[],
+  metric: RankMetric,
+  codeOf: (branchId: string) => string,
+): { rows: RankedRow[]; commonDates: string[] } {
+  const actual = inputs.map((i) => ({
+    i,
+    p: periodOfBranch(i.branchId, dates, i.rolls, metric, i.active),
+  }));
+  const withData = actual.filter((a) => a.p.presentDays > 0).map((a) => a.i);
+  const has = new Map(withData.map((i) => [i.branchId, new Set(i.rolls.map((r) => r.date))]));
+  const commonDates = dates.filter(
+    (d) =>
+      withData.some((i) => has.get(i.branchId)!.has(d)) &&
+      withData.every((i) => has.get(i.branchId)!.has(d) || isInactive(i.active, d)),
+  );
+  const common = new Map(
+    withData.map((i) => [
+      i.branchId,
+      commonDates.length
+        ? periodOfBranch(i.branchId, commonDates, i.rolls, metric, i.active)
+        : null,
+    ]),
+  );
+  const rows = rankBy(
+    actual.map((a) => a.p),
+    (p) => common.get(p.branchId)?.value ?? null,
+    codeOf,
+  );
+  return { rows, commonDates };
 }
 
 /**
