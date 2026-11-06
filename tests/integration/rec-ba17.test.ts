@@ -234,7 +234,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
     });
     it('a tax-mapping version gives parts their own rate: two rates, tax per rate', async () => {
       await config(kt, 'tax-rate', 'vat-part', { name: 'Thuế phụ tùng (mẫu)', rateBp: 1000 });
-      await config(kt, 'tax-mapping', 'company', { labor: 'vat', part: 'vat-part' });
+      await config(kt, 'tax-mapping', 'tenant', { labor: 'vat', part: 'vat-part' });
       const i = await completedIntake(cv, VEH_AN, 70000);
       const q = await quoteOf(cv, i.id, lines(labor(), part(2)));
       const [l, p] = q.shown.items[0].lines;
@@ -257,7 +257,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
     it('a mapped key with no rate in force is a configuration error, not a silent default', async () => {
       // only the mapping that names a rate nobody defined: registered directly (a future rate key typo)
       const forget = () => h.container.sys.caches.config.invalidateTag('cfg:tnt_demo:tax-mapping');
-      await patchDoc('configVersions', 'tnt_demo__tax-mapping__company__' + today(), {
+      await patchDoc('configVersions', 'tnt_demo__tax-mapping__tenant__' + today(), {
         payload: { labor: 'vat', part: 'vat-typo' },
       });
       forget();
@@ -269,7 +269,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       });
       expect(r.status).toBe(409);
       expect(r.json.code).toBe('tax_rate_missing');
-      await patchDoc('configVersions', 'tnt_demo__tax-mapping__company__' + today(), {
+      await patchDoc('configVersions', 'tnt_demo__tax-mapping__tenant__' + today(), {
         payload: { labor: 'vat', part: 'vat-part' },
       });
       forget();

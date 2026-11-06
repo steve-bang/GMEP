@@ -1206,7 +1206,7 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
         as: 'u_ad',
         key: key('cfg'),
         body: {
-          scopeKey: 'company',
+          scopeKey: 'tenant',
           effectiveFrom: eff,
           reason: 'Siết giới hạn trang khách khi đo ở staging',
           payload: {

@@ -15,7 +15,7 @@ export async function resolveCostMethod(
   const snap = await resolveConfigAt(deps.sys, {
     tenantId,
     type: 'cost-method',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
   });
   const code = (snap?.payload as { method?: string } | undefined)?.method ?? DEFAULT_COST_METHOD;
@@ -37,7 +37,7 @@ export async function resolveGrnThresholds(
   const snap = await resolveConfigAt(deps.sys, {
     tenantId,
     type: 'inventory-policy',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });

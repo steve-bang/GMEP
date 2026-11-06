@@ -252,7 +252,7 @@ async function orderPolicyOf(
     await resolveConfigAt(deps.sys, {
       tenantId,
       type: 'order-policy',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date,
       branchId,
     })

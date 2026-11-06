@@ -26,7 +26,7 @@ export async function rptPolicyOf(
   const snap = await resolveConfigAt(deps.sys, {
     tenantId,
     type: 'report-policy',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });

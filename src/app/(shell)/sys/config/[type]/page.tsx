@@ -64,7 +64,7 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
   const today = businessDateOf(deps.clock.now());
   const status = viewStatuses(items, today);
   const scopeName = (key: string) => {
-    if (key === 'company') return t('config.scopeCompany');
+    if (key === 'tenant') return t('config.scopeCompany');
     const b = /^branch:(.+)$/.exec(key);
     if (b)
       return t('config.scopeBranch', { name: branches.find((x) => x.id === b[1])?.name ?? b[1]! });
@@ -89,7 +89,7 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
   const scopeOptions =
     type === 'labor-rate' || type === 'discount-limit'
       ? [
-          { value: 'company', label: t('config.scopeCompany') },
+          { value: 'tenant', label: t('config.scopeCompany') },
           ...branches.map((b) => ({
             value: `branch:${b.id}`,
             label: t('config.scopeBranch', { name: b.name }),

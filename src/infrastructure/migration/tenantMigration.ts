@@ -7,7 +7,8 @@
  *    no-duplicate key) stays valid and no document number changes;
  *  - `companies/<id>` becomes the tenant record `tenants/<id>` (free plan, no clock, status `active`);
  *  - roles were global (id = code): they are copied to `<tenant>__<code>` and the global ones are removed;
- *  - effective-dated configuration ids get the tenant prefix (`<tenant>__<type>__<scope>__<date>`);
+ *  - effective-dated configuration ids get the tenant prefix (`<tenant>__<type>__<scope>__<date>`) and the scope key
+ *    `company` becomes `tenant` (id and field);
  *  - the email slots in `userKeys` gain `zone` and `identityId` (the first membership of an identity: id = uid).
  * The run is idempotent (documents already converted are skipped, so a second run reports zero changes), dry-run by
  * default, and prints a before/after reconciliation: record counts per collection and the sums of the money fields.
@@ -236,16 +237,22 @@ export async function migrateToTenant(
     });
   }
 
-  // 4) configuration ids carry the tenant
+  // 4) configuration ids carry the tenant, and the scope key `company` becomes `tenant` (MT0-5, FR-TEN-018)
   for (const v of await io.list('configVersions')) {
-    if (v.id.startsWith(`${tenantId}__`)) continue;
-    const to = `${tenantId}__${v.id}`;
+    const prefixed = v.id.startsWith(`${tenantId}__`) ? v.id : `${tenantId}__${v.id}`;
+    const to = prefixed.replace('__company__', '__tenant__');
+    const legacyScope = v.data.scopeKey === 'company';
+    if (to === v.id && !legacyScope) continue;
     bump(report.changed, 'configVersions.rekey');
     report.rekeyed.push({ collection: 'configVersions', from: v.id, to });
     await run(async () => {
       const data = await currentData(io, 'configVersions', v.id);
-      await io.set('configVersions', to, { ...data, tenantId });
-      await io.remove('configVersions', v.id);
+      await io.set('configVersions', to, {
+        ...data,
+        tenantId,
+        ...(legacyScope ? { scopeKey: 'tenant' } : {}),
+      });
+      if (to !== v.id) await io.remove('configVersions', v.id);
     });
   }
   const slots = (await io.list('approvalSlots')).filter(

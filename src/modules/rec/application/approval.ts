@@ -88,7 +88,7 @@ export async function approvalPolicyOf(
     await resolveConfigAt(deps.sys, {
       tenantId,
       type: 'quote-approval',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date,
       branchId,
     })
@@ -668,7 +668,7 @@ async function publicLimits(deps: RecDeps, tenantId: string) {
     await resolveConfigAt(deps.sys, {
       tenantId,
       type: 'public-rate-limit',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date: businessDate(deps.sys.clock.now()),
     })
   )?.payload as

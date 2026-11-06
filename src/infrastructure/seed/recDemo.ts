@@ -55,11 +55,11 @@ export function recDemoDocs(): SeedDoc[] {
     });
   for (const s of demoServices)
     if (s.minutes > 0) cfg('standard-hours', `service:${s.code}`, { standardMinutes: s.minutes });
-  cfg('labor-rate', 'company', { hourlyRateVnd: 300_000 });
+  cfg('labor-rate', 'tenant', { hourlyRateVnd: 300_000 });
   // sample rate in basis points; the real rate and the 1/1/2027 rule (BA-03) are the accountant's data
   cfg('tax-rate', 'vat', { name: 'Thuế GTGT (mẫu)', rateBp: 800 });
   // R2: which tax key each kind of line uses; the accountant has not answered, so both use `vat`
-  cfg('tax-mapping', 'company', { labor: 'vat', part: 'vat' });
+  cfg('tax-mapping', 'tenant', { labor: 'vat', part: 'vat' });
   // R7: the four service types of the BRD as a company catalogue (body and paint workflow not surveyed)
   for (const [code, name] of [
     ['maintenance', 'Bảo dưỡng'],
@@ -69,7 +69,7 @@ export function recDemoDocs(): SeedDoc[] {
   ] as const)
     cfg('service-type', code, { name, status: 'active' });
   // Câu 2 / FR-REC-026: approval policy (a customer may refuse a required item; no OTP until SMS exists)
-  cfg('quote-approval', 'company', {
+  cfg('quote-approval', 'tenant', {
     allowDeclineRequired: true,
     verbalApproval: true,
     otpMode: 'off',
@@ -141,14 +141,14 @@ export function recDemoDocs(): SeedDoc[] {
     ],
   });
   // FR-REC-013/017 sample execution policy: 2 minutes to undo; R44: the handover checks the payment (ACC, slice 1.7)
-  cfg('order-policy', 'company', {
+  cfg('order-policy', 'tenant', {
     undoWindowSeconds: 120,
     handoverRequiresPayment: true,
     handoverRequiresReceiver: true,
   });
   // ---- slice 1.8 (EIN) SAMPLE issuing unit: the fake provider in the TEST environment. The real provider, seller data,
   // symbol and invoice type are the client's and the accountant's [Cần xác nhận]; none of this is a legal value.
-  cfg('einvoice-issuer', 'company', {
+  cfg('einvoice-issuer', 'tenant', {
     enabled: true,
     providerCode: 'fake',
     environment: 'test',
@@ -159,7 +159,7 @@ export function recDemoDocs(): SeedDoc[] {
     invoiceType: 'vat',
     templateCode: '1',
   });
-  cfg('einvoice-policy', 'company', {
+  cfg('einvoice-policy', 'tenant', {
     lineMode: 'per-rate',
     perRateDescription: 'Dịch vụ sửa chữa, bảo dưỡng và phụ tùng theo lệnh {order}',
     issueAfter: 'qc',
@@ -171,14 +171,14 @@ export function recDemoDocs(): SeedDoc[] {
     providerTimeoutMs: 30000,
   });
   // ---- slice 1.9 (RPT) SAMPLE alert thresholds: the owner decides the real ones [Cần xác nhận]
-  cfg('report-policy', 'company', {
+  cfg('report-policy', 'tenant', {
     openOrderMaxDays: 5,
     uninvoicedAfterDays: 1,
     unpaidHandoverGraceDays: 0,
     cashVarianceAlertVnd: 0,
   });
   // ---- slice 1.7 (ACC) SAMPLE policy and limits: the client and the accountant give the real numbers [Cần xác nhận]
-  cfg('acc-policy', 'company', {
+  cfg('acc-policy', 'tenant', {
     methods: ['cash', 'transfer', 'card', 'qr'],
     nonCashReferenceRequired: true,
     receiptRequiresQc: true,
@@ -237,6 +237,6 @@ export function recDemoDocs(): SeedDoc[] {
       sourceRequirement,
       ...(depositRefund ? { depositRefund } : {}),
     });
-  cfg('discount-limit', 'company', { maxDiscountBpByRole: { CV: 500, QL: 1500, CH: 3000 } });
+  cfg('discount-limit', 'tenant', { maxDiscountBpByRole: { CV: 500, QL: 1500, CH: 3000 } });
   return docs;
 }

@@ -81,7 +81,7 @@ export async function accPolicyOf(
   const snap = await resolveConfigAt(deps.sys, {
     tenantId,
     type: 'acc-policy',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });

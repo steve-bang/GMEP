@@ -263,7 +263,7 @@ export function invDemoDocs(): SeedDoc[] {
   for (const g of SEED_PART_GROUPS) cfg('part-group', g.code, { name: g.name, status: 'active' });
   for (const u of SEED_PART_UNITS) cfg('part-unit', u.code, { name: u.name, status: 'active' });
   // FR-INV-009: the default method, as data (sample; the accountant decides)
-  cfg('cost-method', 'company', { method: 'weighted-average' });
+  cfg('cost-method', 'tenant', { method: 'weighted-average' });
 
   for (const s of stocks) {
     const wh = warehouseId(s.branch, 'WH-CHINH');

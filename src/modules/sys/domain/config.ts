@@ -54,7 +54,7 @@ export interface ConfigTypeDef {
 }
 
 const companyOrBranchKey = z.union([
-  z.literal('company'),
+  z.literal('tenant'),
   z.string().regex(/^branch:[A-Za-z0-9_-]{1,64}$/),
 ]);
 const keyed = (prefix: RegExp) => z.string().regex(prefix);
@@ -74,7 +74,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'tax-mapping': {
     type: 'tax-mapping',
     resource: 'tax-rate',
-    scopeKey: z.literal('company'),
+    scopeKey: z.literal('tenant'),
     branchOverride: false,
     payload: z
       .object({
@@ -171,7 +171,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'public-rate-limit': {
     type: 'public-rate-limit',
     resource: 'branch-config',
-    scopeKey: z.literal('company'),
+    scopeKey: z.literal('tenant'),
     branchOverride: false,
     payload: z
       .object({
@@ -455,7 +455,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'cost-method': {
     type: 'cost-method',
     resource: 'cost-method',
-    scopeKey: z.literal('company'),
+    scopeKey: z.literal('tenant'),
     branchOverride: false,
     payload: z.object({ method: z.enum(['weighted-average']) }).strict(),
   },

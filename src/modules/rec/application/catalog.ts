@@ -41,7 +41,7 @@ export async function pickServices(
   const rate = await resolveConfigAt(deps.sys, {
     tenantId: actor.tenantId,
     type: 'labor-rate',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     ...(actor.workingBranchId ? { branchId: actor.workingBranchId } : {}),
   });

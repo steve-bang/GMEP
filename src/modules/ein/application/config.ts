@@ -34,7 +34,7 @@ export async function einPolicyOf(
   const snap = await resolveConfigAt(deps.sys, {
     tenantId,
     type: 'einvoice-policy',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });
@@ -73,7 +73,7 @@ export async function issuerOf(
   const snap = await resolveConfigAt(deps.sys, {
     tenantId,
     type: 'einvoice-issuer',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });

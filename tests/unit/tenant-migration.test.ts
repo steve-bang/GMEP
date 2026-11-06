@@ -20,6 +20,11 @@ const legacy = (): Store => {
   put('payments', 'pay_2', { companyId: 'cmp_main', amountVnd: 250_000, totalVnd: 250_000 });
   put('invoices', 'inv_1', { companyId: 'cmp_main', totalVnd: 1_620_000 });
   put('configVersions', 'tax-rate__vat__2026-10-01', { companyId: 'cmp_main', type: 'tax-rate' });
+  put('configVersions', 'labor-rate__company__2026-10-01', {
+    companyId: 'cmp_main',
+    type: 'labor-rate',
+    scopeKey: 'company',
+  });
   return s;
 };
 const ioOf = (s: Store): MigrationIo => ({
@@ -76,6 +81,11 @@ describe('migrate to tenant number 1 (FR-TEN-031)', () => {
     expect(s.get('configVersions')!.has('tax-rate__vat__2026-10-01')).toBe(false);
     expect(s.get('configVersions')!.get('cmp_main__tax-rate__vat__2026-10-01')).toMatchObject({
       tenantId: 'cmp_main',
+    });
+    // MT0-5: scope key `company` becomes `tenant` in the id and the field (FR-TEN-018)
+    expect(s.get('configVersions')!.has('labor-rate__company__2026-10-01')).toBe(false);
+    expect(s.get('configVersions')!.get('cmp_main__labor-rate__tenant__2026-10-01')).toMatchObject({
+      scopeKey: 'tenant',
     });
     // the email slot becomes an identity slot (first membership: id = uid)
     expect(s.get('userKeys')!.get('email__chu@x.test')).toMatchObject({

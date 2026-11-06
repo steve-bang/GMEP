@@ -71,7 +71,7 @@ async function taxResolver(deps: RecDeps, actor: Actor, date: string): Promise<T
     await resolveConfigAt(deps.sys, {
       tenantId: actor.tenantId,
       type: 'tax-mapping',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date,
     })
   )?.payload as { labor: string; part: string; partGroups?: Record<string, string> } | undefined;
@@ -127,7 +127,7 @@ export async function buildItems(
     await resolveConfigAt(deps.sys, {
       tenantId: actor.tenantId,
       type: 'discount-limit',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date,
       branchId,
     })
@@ -136,7 +136,7 @@ export async function buildItems(
   const rate = await resolveConfigAt(deps.sys, {
     tenantId: actor.tenantId,
     type: 'labor-rate',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });

@@ -53,7 +53,7 @@ describe.each(backends)('REC public quote photos [%s]', (backend) => {
       as: 'u_ad',
       key: key('cfg'),
       body: {
-        scopeKey: 'company',
+        scopeKey: 'tenant',
         effectiveFrom: eff,
         reason: 'Đo giới hạn ảnh ở staging',
         payload,
