@@ -189,7 +189,9 @@ describe.each(backends)('FR-SYS-001 recovery, invitation and lockout [%s]', (bac
     const dev = 'device-aaaaaaaaaaaaaaaa';
     const statuses: number[] = [];
     for (let i = 0; i < 5; i++) {
-      statuses.push((await loginRaw('tk.q7@demo.gmep.test', 'wrong-password-x', '10.6.6.1', dev)).status);
+      statuses.push(
+        (await loginRaw('tk.q7@demo.gmep.test', 'wrong-password-x', '10.6.6.1', dev)).status,
+      );
       h.clock.set(new Date(h.clock.now().getTime() + 3000).toISOString()); // stay below the slow-down thresholds
     }
     expect(statuses).toEqual([401, 401, 401, 401, 401]);
@@ -197,7 +199,12 @@ describe.each(backends)('FR-SYS-001 recovery, invitation and lockout [%s]', (bac
     expect(locked.status).toBe(429);
     expect(locked.json.code).toBe('login_locked');
     // even the right password is refused on the locked device, with the same message
-    const rightButLocked = await loginRaw('tk.q7@demo.gmep.test', 'Demo!Pass-2026', '10.6.6.1', dev);
+    const rightButLocked = await loginRaw(
+      'tk.q7@demo.gmep.test',
+      'Demo!Pass-2026',
+      '10.6.6.1',
+      dev,
+    );
     expect(rightButLocked.status).toBe(429);
     // the same applies to an unknown name: identical behaviour
     for (let i = 0; i < 5; i++) {
@@ -213,7 +220,14 @@ describe.each(backends)('FR-SYS-001 recovery, invitation and lockout [%s]', (bac
     });
     // another device is not affected
     expect(
-      (await loginRaw('tk.q7@demo.gmep.test', 'Demo!Pass-2026', '10.6.6.3', 'device-bbbbbbbbbbbbbbbb')).status,
+      (
+        await loginRaw(
+          'tk.q7@demo.gmep.test',
+          'Demo!Pass-2026',
+          '10.6.6.3',
+          'device-bbbbbbbbbbbbbbbb',
+        )
+      ).status,
     ).toBe(200);
     // admin unlock (QL of the branch may unlock operative staff) clears the lock
     h.clock.set(new Date(h.clock.now().getTime() + 1000).toISOString());
@@ -223,7 +237,9 @@ describe.each(backends)('FR-SYS-001 recovery, invitation and lockout [%s]', (bac
     });
     expect(unlock.status).toBe(200);
     h.clock.set(new Date(h.clock.now().getTime() + 1000).toISOString());
-    expect((await loginRaw('tk.q7@demo.gmep.test', 'Demo!Pass-2026', '10.6.6.1', dev)).status).toBe(200);
+    expect((await loginRaw('tk.q7@demo.gmep.test', 'Demo!Pass-2026', '10.6.6.1', dev)).status).toBe(
+      200,
+    );
     // ...but a branch manager cannot unlock a manager (needs the owner, ba §1.4)
     expect(
       (await h.call('POST', '/api/v1/sys/users/u_ql_td/unlock', { as: 'u_ql_q7', body: {} }))

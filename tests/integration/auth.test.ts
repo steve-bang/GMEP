@@ -78,8 +78,12 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
   });
 
   it('S5 revoke: revoking all sessions of a user kills every cookie, other users are unaffected', async () => {
-    const c1 = parseSetCookie((await login('ql.td@demo.gmep.test', DEMO_PASSWORD)).headers.get('set-cookie'));
-    const c2 = parseSetCookie((await login('ql.td@demo.gmep.test', DEMO_PASSWORD)).headers.get('set-cookie'));
+    const c1 = parseSetCookie(
+      (await login('ql.td@demo.gmep.test', DEMO_PASSWORD)).headers.get('set-cookie'),
+    );
+    const c2 = parseSetCookie(
+      (await login('ql.td@demo.gmep.test', DEMO_PASSWORD)).headers.get('set-cookie'),
+    );
     const other = await h.login('u_owner');
     await revokeAllSessions(h.container.sys, 'u_ql_td');
     expect((await h.call('GET', '/api/v1/auth/me', { cookie: c1 })).status).toBe(401);
@@ -110,9 +114,12 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
 
   it('CSRF: login/logout reject a missing or foreign Origin and non-JSON bodies', async () => {
     expect(
-      (await login('ql.q7@demo.gmep.test', DEMO_PASSWORD, { origin: 'https://evil.example' })).json.code,
+      (await login('ql.q7@demo.gmep.test', DEMO_PASSWORD, { origin: 'https://evil.example' })).json
+        .code,
     ).toBe('bad_origin');
-    expect((await login('ql.q7@demo.gmep.test', DEMO_PASSWORD, { origin: null })).json.code).toBe('bad_origin');
+    expect((await login('ql.q7@demo.gmep.test', DEMO_PASSWORD, { origin: null })).json.code).toBe(
+      'bad_origin',
+    );
     const form = await h.call('POST', '/api/v1/auth/login', {
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'x=1',
