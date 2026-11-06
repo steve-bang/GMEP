@@ -22,7 +22,7 @@ export const isClosed = (s: RequestStatus): boolean => REQUEST_TRANSITIONS[s].le
 
 export interface DataRequest {
   id: string;
-  companyId: string;
+  tenantId: string;
   /** branch that received the request */
   branchId: string;
   code: string;

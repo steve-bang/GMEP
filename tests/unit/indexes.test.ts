@@ -42,7 +42,7 @@ describe('Firestore index coverage derived from the repository layer (ADR 0001 Â
       collectionGroup: 'warehouses',
       queryScope: 'COLLECTION',
       fields: [
-        { fieldPath: 'companyId', order: 'ASCENDING' },
+        { fieldPath: 'tenantId', order: 'ASCENDING' },
         { fieldPath: 'code', order: 'ASCENDING' },
       ],
     };

@@ -24,7 +24,7 @@ import { COL } from '../repos/queries';
 import type { SeedDoc } from './types';
 
 const AT = new Date('2026-10-01T00:00:00.000Z');
-const CMP = 'cmp_demo';
+const CMP = 'tnt_demo';
 const DAY = '2026-10-01';
 
 interface P {
@@ -191,7 +191,7 @@ export function invDemoDocs(): SeedDoc[] {
       ...new Set((p.compat ?? []).flatMap(([mk, md]) => [compatKey(mk, md), compatKey('', md)])),
     ];
     put(COL.parts, id, {
-      companyId: CMP,
+      tenantId: CMP,
       code,
       codeKey: partCodeKey(code),
       name: p.name,
@@ -210,11 +210,11 @@ export function invDemoDocs(): SeedDoc[] {
       updatedBy: 'seed',
       version: 1,
     });
-    put(COL.partCodes, `${CMP}__${partCodeKey(code)}`, { companyId: CMP, partId: id });
-    if (p.barcode) put(COL.partBarcodes, `${CMP}__${p.barcode}`, { companyId: CMP, partId: id });
+    put(COL.partCodes, `${CMP}__${partCodeKey(code)}`, { tenantId: CMP, partId: id });
+    if (p.barcode) put(COL.partBarcodes, `${CMP}__${p.barcode}`, { tenantId: CMP, partId: id });
     for (const k of keys)
       put(COL.partCompat, `${CMP}__${k}__${id}`, {
-        companyId: CMP,
+        tenantId: CMP,
         compatKey: k,
         partId: id,
         code,
@@ -223,7 +223,7 @@ export function invDemoDocs(): SeedDoc[] {
 
   // the standard price list (SYS header) and effective-dated prices for a few parts (INV-025 link)
   put(COL.priceLists, 'pl_std', {
-    companyId: CMP,
+    tenantId: CMP,
     code: 'STD',
     name: 'Bảng giá chuẩn',
     nameNorm: normalizeSearch('Bảng giá chuẩn'),
@@ -236,7 +236,7 @@ export function invDemoDocs(): SeedDoc[] {
   });
   const cfg = (type: string, scopeKey: string, payload: Record<string, unknown>) =>
     put(COL.configVersions, `${type}__${scopeKey.replace(/[:/]/g, '~')}__2026-10-01`, {
-      companyId: CMP,
+      tenantId: CMP,
       type,
       scopeKey,
       effectiveFrom: DAY,
@@ -270,7 +270,7 @@ export function invDemoDocs(): SeedDoc[] {
     const docId = `stk_seed_${s.code.toLowerCase()}_open`;
     const series = DEFAULT_NUMBERING[DOC_SERIES.ADJ]!;
     const ctx = {
-      companyId: CMP,
+      tenantId: CMP,
       branchId: s.branch,
       branchCode: s.code,
       docType: DOC_SERIES.ADJ,
@@ -279,7 +279,7 @@ export function invDemoDocs(): SeedDoc[] {
     };
     const number = formatNumber(ctx, 1);
     put(COL.counters, counterId(ctx), {
-      companyId: CMP,
+      tenantId: CMP,
       branchId: s.branch,
       docType: DOC_SERIES.ADJ,
       period: '2610',
@@ -301,7 +301,7 @@ export function invDemoDocs(): SeedDoc[] {
         };
       });
     put(COL.stockDocuments, docId, {
-      companyId: CMP,
+      tenantId: CMP,
       branchId: s.branch,
       warehouseId: wh,
       type: 'ADJ',
@@ -328,7 +328,7 @@ export function invDemoDocs(): SeedDoc[] {
       const line = lines.find((l) => l.partId === partId(r.n));
       const bal: StockBalance = {
         id: balanceId(wh, partId(r.n)),
-        companyId: CMP,
+        tenantId: CMP,
         branchId: s.branch,
         warehouseId: wh,
         partId: partId(r.n),
@@ -351,7 +351,7 @@ export function invDemoDocs(): SeedDoc[] {
       put(COL.stockBalances, id, rest);
       if (line)
         put(COL.stockMovements, `${docId}#${line.lineNo}`, {
-          companyId: CMP,
+          tenantId: CMP,
           branchId: s.branch,
           warehouseId: wh,
           partId: bal.partId,
@@ -381,7 +381,7 @@ export function invDemoDocs(): SeedDoc[] {
       if (reserved) {
         const rid = reservationId('repair-order', s.reserve!.order, bal.partId, wh);
         put(COL.stockReservations, rid, {
-          companyId: CMP,
+          tenantId: CMP,
           branchId: s.branch,
           warehouseId: wh,
           partId: bal.partId,
@@ -403,7 +403,7 @@ export function invDemoDocs(): SeedDoc[] {
           version: 1,
         });
         put(COL.stockMovements, `${rid}#1`, {
-          companyId: CMP,
+          tenantId: CMP,
           branchId: s.branch,
           warehouseId: wh,
           partId: bal.partId,

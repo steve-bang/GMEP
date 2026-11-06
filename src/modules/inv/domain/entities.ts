@@ -7,7 +7,7 @@ export type PartStatus = 'active' | 'inactive';
 
 export interface Part {
   id: string;
-  companyId: string;
+  tenantId: string;
   /** as normalised: upper-case, no spaces (unique across the chain through partCodeKey) */
   code: string;
   codeKey: string;
@@ -45,7 +45,7 @@ export const balanceId = (warehouseId: string, partId: string): string =>
  */
 export interface StockBalance {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   warehouseId: string;
   partId: string;
@@ -76,7 +76,7 @@ export type MovementKind =
 /** Append-only ledger row (RULE-009): the stock card is this list. Never updated, never deleted. */
 export interface StockMovement {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   warehouseId: string;
   partId: string;
@@ -169,7 +169,7 @@ export interface StockDocSource {
 
 export interface StockDocument {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   warehouseId: string;
   type: StockDocType;
@@ -213,7 +213,7 @@ export type ReservationStatus = 'holding' | 'fulfilled' | 'released';
 
 export interface Reservation {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   warehouseId: string;
   partId: string;

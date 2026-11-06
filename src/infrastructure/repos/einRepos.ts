@@ -21,8 +21,8 @@ const without = <T extends object>(o: T, ...keys: (keyof T)[]) => {
   for (const k of keys) delete c[k as string];
   return c as DocData;
 };
-const inScope = (scope: Scope, x: { companyId: string; branchId: string }) =>
-  scopeAllows(scope, x.companyId, x.branchId);
+const inScope = (scope: Scope, x: { tenantId: string; branchId: string }) =>
+  scopeAllows(scope, x.tenantId, x.branchId);
 /** optional fields are stored as null when cleared; the entity omits them */
 const clean = <T extends object>(x: T): T => {
   const c = { ...x } as Record<string, unknown>;
@@ -54,9 +54,9 @@ export class DocInvoiceRepository implements InvoiceRepository {
     branchId: string,
     q: { limit: number; cursor?: { v: string; id: string }; from?: Date; to?: Date },
   ): Promise<Page<Invoice>> {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return { items: [], nextCursor: null };
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return { items: [], nextCursor: null };
     const rows = await this.store.query(Q.invoicesByBranch.pick([], false), {
-      eq: { companyId: scope.companyId, branchId },
+      eq: { tenantId: scope.tenantId, branchId },
       ...(q.from || q.to
         ? { range: { ...(q.from ? { gte: q.from } : {}), ...(q.to ? { lt: q.to } : {}) } }
         : {}),

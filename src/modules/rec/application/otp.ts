@@ -30,7 +30,7 @@ import { AppError, type RequestCtx } from './support';
 /** the link as the public flow resolved it */
 interface LinkRef {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   quoteId: string;
 }
@@ -65,7 +65,7 @@ function linkAudit(
   return {
     id: deps.sys.newId(),
     at: deps.sys.clock.now(),
-    companyId: link.companyId,
+    tenantId: link.tenantId,
     branchId: link.branchId,
     actorId: `customer-link:${link.id.slice(0, 16)}`,
     actorRoles: ['customer-link'],
@@ -130,7 +130,7 @@ export async function issueOtp(
   const d0 = decide(early);
   if (d0.kind !== 'issue') return settle(d0, early);
 
-  const target = await otpTargetOf(deps, { companyId: p.link.companyId, customerId: p.customerId });
+  const target = await otpTargetOf(deps, { tenantId: p.link.tenantId, customerId: p.customerId });
   if (!target) throw new AppError('otp_unavailable', 409);
 
   // rate limiter hits stay outside the transaction: its callback can be retried and must not count twice
@@ -162,7 +162,7 @@ export async function issueOtp(
     const failedTotal = cur?.failedTotal ?? 0;
     record = {
       id: p.link.id,
-      companyId: p.link.companyId,
+      tenantId: p.link.tenantId,
       branchId: p.link.branchId,
       quoteId: p.link.quoteId,
       n: p.n,
@@ -236,7 +236,7 @@ async function maskedDestination(
   channel: 'sms' | 'zalo' | 'email',
 ): Promise<string> {
   return (
-    (await contactOf(deps, { companyId: p.link.companyId, customerId: p.customerId }, channel))
+    (await contactOf(deps, { tenantId: p.link.tenantId, customerId: p.customerId }, channel))
       ?.masked ?? ''
   );
 }

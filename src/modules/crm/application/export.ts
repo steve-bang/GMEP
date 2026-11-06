@@ -80,7 +80,7 @@ export async function exportCustomersCsv(
     'branch',
     'createdAt',
   ];
-  const piis = await Promise.all(rows.map((c) => deps.customers.getPii(actor.companyId, c.id)));
+  const piis = await Promise.all(rows.map((c) => deps.customers.getPii(actor.tenantId, c.id)));
   const lines = rows.map((c, i) => {
     const pii = piis[i];
     const personal = piiFields.map((f) =>

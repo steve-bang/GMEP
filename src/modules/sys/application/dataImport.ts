@@ -221,7 +221,7 @@ export async function previewImport(
   const scope = resolveScope(actor, 'data-import:create');
   const data = parseInput(previewSchema, input);
   const branchId = requireWorkingBranch(actor);
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   const handler = handlerOf(deps, data.kind);
   if (!importableKinds(deps, actor).includes(handler)) throw forbidden();
   if (handler.needsWarehouse && !data.warehouseId)
@@ -328,7 +328,7 @@ export async function previewImport(
       const id = `imp_${deps.newId()}`;
       const batch: ImportBatch = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         kind: data.kind,
         fileName: input.fileName.slice(0, 120),
@@ -355,8 +355,8 @@ export async function previewImport(
       };
       deps.imports.create(tx, batch);
       if (!rejected) {
-        deps.imports.setFileSlot(tx, slotId, { batchId: id, companyId: actor.companyId, branchId });
-        deps.imports.putUnits(tx, id, { companyId: actor.companyId, branchId }, units);
+        deps.imports.setFileSlot(tx, slotId, { batchId: id, tenantId: actor.tenantId, branchId });
+        deps.imports.putUnits(tx, id, { tenantId: actor.tenantId, branchId }, units);
       }
       deps.audit.record(
         tx,

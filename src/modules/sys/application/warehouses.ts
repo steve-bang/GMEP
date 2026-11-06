@@ -117,7 +117,7 @@ export async function createWarehouse(
 ): Promise<{ response: StoredResponse; replayed: boolean }> {
   const data = parseInput(createWarehouseSchema, input);
   const scope = resolveScope(actor, 'warehouse:create');
-  if (!scopeAllows(scope, actor.companyId, data.branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, data.branchId)) throw forbidden();
 
   try {
     return await runIdempotent(
@@ -141,7 +141,7 @@ export async function createWarehouse(
         const now = deps.clock.now();
         const warehouse: Warehouse = {
           id: warehouseId(data.branchId, data.code),
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           branchId: data.branchId,
           code: data.code,
           name: data.name,

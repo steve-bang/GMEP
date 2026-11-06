@@ -10,7 +10,7 @@ import type { ConfigStatus } from '@/platform/effective/effective';
 export interface ConfigVersion {
   /** deterministic: `${type}__${scopeKey}__${effectiveFrom}` (unique slot per effective date) */
   id: string;
-  companyId: string;
+  tenantId: string;
   type: string;
   scopeKey: string;
   effectiveFrom: string;

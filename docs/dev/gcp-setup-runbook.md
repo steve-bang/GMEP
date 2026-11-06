@@ -9,7 +9,7 @@
 - Tên tài nguyên **trùng với deploy-guide** để hai tài liệu không mâu thuẫn: service `gmep`, repository Artifact Registry `gmep`, service account `gmep-run` và `scheduler`, secret `gmep-firebase-api-key`, `gmep-email-smtp-url`, `gmep-cron-secret`, job `gmep-run-due`, vùng `asia-southeast1`.
 - Khác biệt có chủ ý (đều chặt hơn, không trái): (1) `storage.objectAdmin` chỉ cấp trên bucket file, không cấp toàn project; (2) `serviceAccountTokenCreator` **không** cấp mặc định vì URL ký chưa được xây (cấp khi tính năng đó có, `GRANT_URL_SIGNING=true`); (3) quyền đọc secret cấp theo từng secret; (4) Scheduler dùng OIDC (cách B của deploy-guide), `CRON_SECRET` mặc định không dùng; (5) bucket file là bucket riêng `<PROJECT_ID>-files` nên `GMEP_FILES_BUCKET` được đặt rõ ràng.
 - **Biến môi trường trên `master` khác nhánh SMTP:** nhánh `feat/email-smtp-adapter-deploy-guide` thêm `EMAIL_SMTP_URL` (secret) và `EMAIL_FROM`, và ở `GMEP_ENV=prod` bắt buộc cả hai. `master` (`src/platform/config/env.ts`) chưa có hai biến này; thiết lập chúng sớm vô hại vì schema bỏ qua biến lạ. Sau khi nhánh đó merge, bảng ở mục 6 vẫn đúng.
-- Việc **khởi tạo dữ liệu ban đầu** (công ty, chi nhánh, vai trò, tài khoản chủ, cấu hình thuế/giá) chưa có công cụ: xem deploy-guide §8. Staging chưa dùng được đầy đủ nếu chưa làm; đây là việc riêng, `CRON_COMPANY_ID` cần id công ty tạo ở đó.
+- Việc **khởi tạo dữ liệu ban đầu** (công ty, chi nhánh, vai trò, tài khoản chủ, cấu hình thuế/giá) chưa có công cụ: xem deploy-guide §8. Staging chưa dùng được đầy đủ nếu chưa làm; đây là việc riêng, `CRON_TENANT_ID` cần id công ty tạo ở đó.
 
 ## 1. Chuẩn bị và vai trò
 
@@ -124,7 +124,7 @@ Bảng đầy đủ theo `src/platform/config/env.ts` (master) và nhánh SMTP. 
 | `TRUSTED_PROXY_HOPS`                           | Env              | Script (`1`)                      | Cloud Run + Google Front End = 1. Thêm Load Balancer/Cloudflare thì tăng đúng số lớp, nếu không rate limit/lockout theo IP sai.                              |
 | `CRON_OIDC_AUDIENCE`                           | Env              | Script (URL `run.app` của service)| Phải đặt **cùng** `CRON_OIDC_SERVICE_ACCOUNT`, nếu không app không khởi động (`env.ts`). Bằng đúng `--oidc-token-audience` của Scheduler.                   |
 | `CRON_OIDC_SERVICE_ACCOUNT`                    | Env              | Script (`scheduler@...`)          | Email mà token OIDC phải mang (`cronAuth.ts` kiểm `email` và `email_verified`).                                                                             |
-| `CRON_COMPANY_ID`                                | Env              | Dev (id công ty sau khi bootstrap dữ liệu) | Công ty mà cron xử lý các chi nhánh. Một pháp nhân `[Cần xác nhận]`.                                                                         |
+| `CRON_TENANT_ID`                                | Env              | Dev (id công ty sau khi bootstrap dữ liệu) | Công ty mà cron xử lý các chi nhánh. Một pháp nhân `[Cần xác nhận]`.                                                                         |
 | `CRON_SECRET`                                  | Secret `gmep-cron-secret` (tùy chọn, bật bằng `CRON_SHARED_SECRET=true` ở cả `20-secrets.sh` và `30-deploy-service.sh`) | Dev sinh `openssl rand -base64 48` | Chỉ nếu muốn thêm kiểu shared secret (`CREATE_CRON_SECRET=true`, `CRON_SHARED_SECRET=true`). Mặc định bỏ, dùng OIDC. Tối thiểu 32 ký tự.                    |
 | `EMAIL_SMTP_URL` (nhánh SMTP)                  | **Secret** `gmep-email-smtp-url` | Chủ/nhà cung cấp mail             | `smtps://user:pass@host:465`. Chỉ gắn khi đặt `EMAIL_FROM`. Bắt buộc ở prod sau khi nhánh SMTP merge.                                                       |
 | `EMAIL_FROM` (nhánh SMTP)                      | Env              | Chủ                               | `GMEP <no-reply@domain>`. Đặt biến `STAGING_EMAIL_FROM` ở GitHub để workflow gắn cả hai. Chưa đặt: dùng outbox dev (staging) trong Firestore, **link nằm trong `emailOutbox`**. |
@@ -165,7 +165,7 @@ export IMAGE=$REGION-docker.pkg.dev/$PROJECT_ID/gmep/gmep:$(git rev-parse --shor
 DOCKER_BUILDKIT=1 docker build -t $IMAGE . && docker push $IMAGE       # hoặc: gcloud builds submit --tag $IMAGE .
 # URL run.app của service là xác định trước: https://gmep-<PROJECT_NUMBER>.asia-southeast1.run.app
 export APP_BASE_URL=https://gmep-<PROJECT_NUMBER>.asia-southeast1.run.app   # đổi sang tên miền thật ở mục 10
-export CRON_COMPANY_ID=<id công ty>
+export CRON_TENANT_ID=<id công ty>
 DRY_RUN=0 infra/gcp/30-deploy-service.sh
 ```
 
@@ -210,7 +210,7 @@ Biến repository (Settings > Secrets and variables > Actions > **Variables**). 
 | `GCP_WORKLOAD_IDENTITY_PROVIDER`                                     | in ra bởi `10-iam.sh`: `projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/github/providers/github-oidc` |
 | `GCP_DEPLOYER_SERVICE_ACCOUNT`                                       | `gmep-deployer@<PROJECT_ID>.iam.gserviceaccount.com`                                |
 | `STAGING_APP_BASE_URL`                                               | `https://...` (run.app hoặc tên miền)                                               |
-| `STAGING_CRON_COMPANY_ID`                                            | id công ty                                                                          |
+| `STAGING_CRON_TENANT_ID`                                            | id công ty                                                                          |
 | `GCP_REGION` (tùy chọn)                                              | mặc định `asia-southeast1`                                                          |
 | `STAGING_EMAIL_FROM`, `STAGING_MIN_INSTANCES`, `STAGING_MAX_INSTANCES` (tùy chọn) | xem mục 6, 8                                                           |
 
@@ -295,4 +295,4 @@ Danh sách đúng những gì dev cần từ chủ để làm hết runbook này
 **E. Quyết định `[Cần xác nhận]` ảnh hưởng hạ tầng**
 
 12. Vùng dữ liệu và pháp lý (BA-11): xác nhận `asia-southeast1` trước khi tạo Firestore prod (không đổi được).
-13. Thời hạn lưu trữ backup/log/hóa đơn; số tiền ngân sách và email nhận cảnh báo; có dùng Load Balancer/Cloud Armor hay chỉ domain mapping; nhà cung cấp mail; một hay nhiều pháp nhân (`CRON_COMPANY_ID`).
+13. Thời hạn lưu trữ backup/log/hóa đơn; số tiền ngân sách và email nhận cảnh báo; có dùng Load Balancer/Cloud Armor hay chỉ domain mapping; nhà cung cấp mail; một hay nhiều pháp nhân (`CRON_TENANT_ID`).

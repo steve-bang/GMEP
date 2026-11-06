@@ -14,7 +14,7 @@ import {
   sumUnlinked,
 } from '@/modules/rpt';
 
-const key = { companyId: 'cmp', branchId: 'br_q7', date: '2026-11-03' };
+const key = { tenantId: 'cmp', branchId: 'br_q7', date: '2026-11-03' };
 const at = (hhmm: string) => new Date(`2026-11-03T${hhmm}:00+07:00`);
 const NOW = new Date('2026-11-04T18:00:00+07:00');
 const limits = { refsMax: 60, alertsMax: 100 };

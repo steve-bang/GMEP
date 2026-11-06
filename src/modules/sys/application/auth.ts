@@ -50,7 +50,7 @@ export async function loadActor(
   workingBranchId: string | null,
 ): Promise<{ actor: Actor; roleCodes: string[] }> {
   const assignments = (await deps.assignments.listForUser(user.id)).filter(
-    (a) => a.companyId === user.companyId,
+    (a) => a.tenantId === user.tenantId,
   );
   const codes = [...new Set(assignments.map((a) => a.roleCode))];
   const roles = await deps.roles.getMany(codes);
@@ -60,7 +60,7 @@ export async function loadActor(
     roleCodes: codes,
     actor: {
       userId: user.id,
-      companyId: user.companyId,
+      tenantId: user.tenantId,
       displayName: user.displayName,
       assignments: assignments.map(({ roleCode, branchId }) => ({ roleCode, branchId })),
       rolePermissions: rolePermissions as Actor['rolePermissions'],
@@ -150,7 +150,7 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
     deps.audit.record(tx, {
       id: deps.newId(),
       at: now,
-      companyId: byLogin.companyId,
+      tenantId: byLogin.tenantId,
       branchId: null,
       actorId: byLogin.id,
       actorRoles: roleCodes,
@@ -274,7 +274,7 @@ export async function logout(
       deps.audit.record(tx, {
         id: deps.newId(),
         at: now,
-        companyId: user.companyId,
+        tenantId: user.tenantId,
         branchId: null,
         actorId: user.id,
         actorRoles: [],

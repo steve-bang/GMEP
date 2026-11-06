@@ -92,7 +92,7 @@ describe.each(backends)('FR-SYS-001 recovery, invitation and lockout [%s]', (bac
     // audit: reset is logged without secrets
     const entries = (
       await h.container.sys.audit.list(
-        (await import('@/platform/scope/scope')).allBranchesScope('cmp_demo'),
+        (await import('@/platform/scope/scope')).allBranchesScope('tnt_demo'),
         { entityType: 'user', entityId: 'u_ql_td' },
         { limit: 20 },
       )

@@ -18,11 +18,11 @@ describe.runIf(hasEmulator)('S8 emulator vs composite indexes', () => {
       >),
     );
     const col = db.collection('s8_probe');
-    await col.doc('a').set({ companyId: 'c', status: 'active', createdAt: 2 });
-    await col.doc('b').set({ companyId: 'c', status: 'active', createdAt: 1 });
+    await col.doc('a').set({ tenantId: 'c', status: 'active', createdAt: 2 });
+    await col.doc('b').set({ tenantId: 'c', status: 'active', createdAt: 1 });
     // equality on two fields + order by a third: real Firestore needs a composite index for this
     const snap = await col
-      .where('companyId', '==', 'c')
+      .where('tenantId', '==', 'c')
       .where('status', '==', 'active')
       .orderBy('createdAt', 'desc')
       .get();
@@ -32,7 +32,7 @@ describe.runIf(hasEmulator)('S8 emulator vs composite indexes', () => {
     const need = requiredIndex({
       name: 's8',
       collection: 's8_probe',
-      eq: ['companyId', 'status'],
+      eq: ['tenantId', 'status'],
       order: { field: 'createdAt', dir: 'desc', type: 'date' },
     })!;
     const declared: IndexDef[] = [];

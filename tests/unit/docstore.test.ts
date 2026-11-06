@@ -45,14 +45,14 @@ describe('H3 splitting `in` queries over 30 branches', () => {
     await uow.run(async (tx) => {
       for (let i = 0; i < 90; i++)
         store.create(tx, 'warehouses', `w${i}`, {
-          companyId: 'c',
+          tenantId: 'c',
           branchId: `b${i % 45}`,
           code: `C${String(i).padStart(3, '0')}`,
         });
     });
     const branches = Array.from({ length: 45 }, (_, i) => `b${i}`);
     const rows = await store.query(Q.warehouses['code.asc']!.pick([], true), {
-      eq: { companyId: 'c' },
+      eq: { tenantId: 'c' },
       scopeBranches: branches,
       limit: 100,
     });

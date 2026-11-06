@@ -17,7 +17,7 @@ import type {
   BranchActivityPort,
   PiiSource,
   BranchRepository,
-  CompanyRepository,
+  TenantRepository,
   ConfigRepository,
   EmailGateway,
   MessageGateway,
@@ -96,7 +96,7 @@ export interface SysDeps {
   users: UserRepository;
   roles: RoleRepository;
   assignments: RoleAssignmentRepository;
-  companies: CompanyRepository;
+  tenants: TenantRepository;
   branches: BranchRepository;
   warehouses: WarehouseRepository;
   warehouseActivity: WarehouseActivityPort;

@@ -41,7 +41,7 @@ export function auditEntry(
   return {
     id: deps.newId(),
     at: deps.clock.now(),
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId: e.branchId,
     actorId: actor.userId,
     actorRoles: roleCodesOf(actor),

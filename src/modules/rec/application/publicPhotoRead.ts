@@ -25,7 +25,7 @@ export async function readPublicQuotePhoto(
   const src = sources.find((s) => s.ref.id === photoId);
   if (!src) throw notFound();
   const file = await deps.files.get(
-    photoStoragePath(src.parent, src.companyId, src.branchId, src.parentId, src.ref),
+    photoStoragePath(src.parent, src.tenantId, src.branchId, src.parentId, src.ref),
   );
   if (!file) throw notFound();
   const first = await deps.sys.limiter.tryOnce(
@@ -38,7 +38,7 @@ export async function readPublicQuotePhoto(
     deps.sys.audit.record(tx, {
       id: deps.sys.newId(),
       at: deps.sys.clock.now(),
-      companyId: r.q.companyId,
+      tenantId: r.q.tenantId,
       branchId: r.q.branchId,
       actorId: `customer-link:${r.link.id.slice(0, 16)}`,
       actorRoles: ['customer-link'],

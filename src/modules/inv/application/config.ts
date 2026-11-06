@@ -9,11 +9,11 @@ import type { InvDeps } from '../ports/deps';
  */
 export async function resolveCostMethod(
   deps: InvDeps,
-  companyId: string,
+  tenantId: string,
   date: string,
 ): Promise<{ method: CostMethod; versionId: string | null }> {
   const snap = await resolveConfigAt(deps.sys, {
-    companyId,
+    tenantId,
     type: 'cost-method',
     scopeKey: 'company',
     date,
@@ -30,12 +30,12 @@ export interface GrnThresholds {
 /** FR-INV-005 thresholds: branch override of the effective `inventory-policy`, else documented defaults. */
 export async function resolveGrnThresholds(
   deps: InvDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<GrnThresholds> {
   const snap = await resolveConfigAt(deps.sys, {
-    companyId,
+    tenantId,
     type: 'inventory-policy',
     scopeKey: 'company',
     date,

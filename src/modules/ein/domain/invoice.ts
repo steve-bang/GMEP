@@ -36,7 +36,7 @@ export interface InvoiceBuyer {
 export interface InvoicePii {
   /** = invoice id */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   address?: string;
   email?: string;
@@ -85,7 +85,7 @@ export interface InvoiceHistoryEntry {
 
 export interface Invoice {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   orderId: string;
   orderNumber: string;
@@ -163,7 +163,7 @@ export interface RequestAttempt {
 
 export interface InvoiceRequest {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** YH-<BRANCH>-<YYMM>-<seq> (numbering series `invoice-request`, group A) */
   number: string;
@@ -200,7 +200,7 @@ export interface InvoiceRequest {
 export interface OrderInvoiceIndex {
   /** = order id */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   orderNumber: string;
   /** how many ISSUE requests were opened (a cancelled one allows the next round) */
@@ -222,8 +222,8 @@ export const correctionRequestId = (
   approvalId: string,
 ): string => `${invoiceId}__${purpose}__${approvalId}`;
 /** the provider-facing key: opaque, stable, unique per request */
-export const idempotencyKeyOf = (companyId: string, requestId: string): string =>
-  `gmep:${companyId}:${requestId}`.slice(0, 120);
+export const idempotencyKeyOf = (tenantId: string, requestId: string): string =>
+  `gmep:${tenantId}:${requestId}`.slice(0, 120);
 export const invoiceIdOf = (requestId: string): string => `inv_${requestId}`;
 
 /** Bounded queue document of a branch (R68 rule 3: read by key, never queried). */
@@ -249,7 +249,7 @@ export interface QueueItem {
 export interface InvoiceQueue {
   /** = branch id */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   items: Record<string, QueueItem>;
   updatedAt: Date;
@@ -259,7 +259,7 @@ export interface InvoiceQueue {
 export interface InvoiceArtifacts {
   /** = invoice id */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   xmlPath: string;
   pdfPath: string;

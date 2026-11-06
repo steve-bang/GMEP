@@ -9,7 +9,7 @@ import { forbidden } from '../errors/errors';
 declare const scopeBrand: unique symbol;
 
 export type Scope = Readonly<
-  { companyId: string; [scopeBrand]: true } & (
+  { tenantId: string; [scopeBrand]: true } & (
     { kind: 'all' } | { kind: 'branches'; branchIds: readonly string[] }
   )
 >;
@@ -17,18 +17,18 @@ export type Scope = Readonly<
 /** Wildcard used by roleAssignments.branchId meaning "every branch of the company". */
 export const ALL_BRANCHES = '*';
 
-export function allBranchesScope(companyId: string): Scope {
-  return Object.freeze({ companyId, kind: 'all' }) as Scope;
+export function allBranchesScope(tenantId: string): Scope {
+  return Object.freeze({ tenantId, kind: 'all' }) as Scope;
 }
 
-export function branchesScope(companyId: string, branchIds: readonly string[]): Scope {
+export function branchesScope(tenantId: string, branchIds: readonly string[]): Scope {
   const unique = [...new Set(branchIds)].sort();
   if (unique.length === 0) throw forbidden(); // an empty scope is "no permission", never "see nothing silently"
-  return Object.freeze({ companyId, kind: 'branches', branchIds: Object.freeze(unique) }) as Scope;
+  return Object.freeze({ tenantId, kind: 'branches', branchIds: Object.freeze(unique) }) as Scope;
 }
 
-export function scopeAllows(scope: Scope, companyId: string, branchId: string | null): boolean {
-  if (scope.companyId !== companyId) return false;
+export function scopeAllows(scope: Scope, tenantId: string, branchId: string | null): boolean {
+  if (scope.tenantId !== tenantId) return false;
   if (scope.kind === 'all') return true;
   return branchId !== null && scope.branchIds.includes(branchId);
 }
@@ -36,8 +36,8 @@ export function scopeAllows(scope: Scope, companyId: string, branchId: string | 
 /** Narrow a scope to a user-requested branch filter. Result may exclude everything (returns null). */
 export function narrowScope(scope: Scope, requestedBranchId: string | undefined): Scope | null {
   if (!requestedBranchId) return scope;
-  if (!scopeAllows(scope, scope.companyId, requestedBranchId)) return null;
-  return branchesScope(scope.companyId, [requestedBranchId]);
+  if (!scopeAllows(scope, scope.tenantId, requestedBranchId)) return null;
+  return branchesScope(scope.tenantId, [requestedBranchId]);
 }
 
 /** Human readable summary for the shell's visible scope indicator. */

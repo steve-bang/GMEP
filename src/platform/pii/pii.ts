@@ -130,7 +130,7 @@ export interface PiiAccessEntry {
   actorId: string;
   /** role that granted the right, for the access log (BA §7.3) */
   actorRoles: string[];
-  companyId: string;
+  tenantId: string;
   /** branch of the record */
   branchId: string | null;
   entityType: string;

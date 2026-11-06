@@ -79,7 +79,7 @@ export interface PhotoRef {
 
 export interface Intake {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** TX-<branch>-<yymm>-<seq>, allocated at creation (group A) */
   number: string;
@@ -290,7 +290,7 @@ export interface QuoteApproval {
 export interface QuoteVersion {
   id: string;
   quoteId: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   n: number;
   status: QuoteStatus;
@@ -335,7 +335,7 @@ export interface QuoteVersion {
 export interface QuoteLink {
   /** SHA-256 hex of the token */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   quoteId: string;
   n: number;
@@ -352,7 +352,7 @@ export interface QuoteLink {
 
 export interface Quote {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** BG-<branch>-<yymm>-<seq>; versions are the suffix -vN and never use a new number */
   number: string;

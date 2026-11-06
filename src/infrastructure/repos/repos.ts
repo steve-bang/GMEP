@@ -26,7 +26,7 @@ import {
   type WarehouseListQuery,
   type AuthTokenRepository,
   type BranchRepository,
-  type CompanyRepository,
+  type TenantRepository,
   type ConfigRepository,
   type NotificationRepository,
   type RoleAssignmentRepository,
@@ -85,7 +85,7 @@ export class DocAuditLog implements AuditLog {
     const optional = (['entityType', 'entityId', 'actorId', 'action'] as const).filter((k) => f[k]);
     const shape = Q.audit.pick(optional, scope.kind === 'branches');
     const rows = await this.store.query(shape, {
-      eq: { companyId: scope.companyId, ...Object.fromEntries(optional.map((k) => [k, f[k]!])) },
+      eq: { tenantId: scope.tenantId, ...Object.fromEntries(optional.map((k) => [k, f[k]!])) },
       ...scopeParams(scope),
       ...(f.from || f.to
         ? { range: { ...(f.from ? { gte: f.from } : {}), ...(f.to ? { lt: f.to } : {}) } }
@@ -100,7 +100,7 @@ export class DocAuditLog implements AuditLog {
 const auditFromDoc = ({ id, data: x }: StoredDoc): AuditEntry => ({
   id,
   at: x.at,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId ?? null,
   actorId: x.actorId,
   actorRoles: x.actorRoles ?? [],
@@ -141,7 +141,7 @@ export class DocPiiAccessLog implements PiiAccessLog {
 
 const userFromDoc = ({ id, data: x }: StoredDoc): User => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   email: x.email,
   employeeCode: x.employeeCode,
   displayName: x.displayName,
@@ -185,8 +185,8 @@ export class DocUserRepository implements UserRepository {
   }
   async list(scope: Scope, q: ListQuery<'employeeCode' | 'name'>): Promise<Page<User>> {
     if (scope.kind === 'all') {
-      const rows = await this.store.query(Q.usersByCompany.pick([], false), {
-        eq: { companyId: scope.companyId },
+      const rows = await this.store.query(Q.usersByTenant.pick([], false), {
+        eq: { tenantId: scope.tenantId },
         ...(q.cursor ? { cursor: q.cursor } : {}),
         limit: q.limit + 1,
       });
@@ -199,7 +199,7 @@ export class DocUserRepository implements UserRepository {
     let exhausted = false;
     while (order.length <= q.limit && !exhausted) {
       const rows = await this.store.query(Q.assignmentsByBranch.pick([], true), {
-        eq: { companyId: scope.companyId },
+        eq: { tenantId: scope.tenantId },
         scopeBranches: scope.branchIds,
         ...(cursor ? { cursor } : {}),
         limit: 100,
@@ -224,7 +224,7 @@ export class DocUserRepository implements UserRepository {
   create(tx: Tx, user: User): void {
     // unique keys: create() fails at commit when the email or the code (per company) exists
     this.store.create(tx, COL.userKeys, `email__${user.email.toLowerCase()}`, { userId: user.id });
-    this.store.create(tx, COL.userKeys, `code__${user.companyId}__${user.employeeCode}`, {
+    this.store.create(tx, COL.userKeys, `code__${user.tenantId}__${user.employeeCode}`, {
       userId: user.id,
     });
     this.store.create(tx, COL.users, user.id, userToDoc(user));
@@ -296,7 +296,7 @@ export class DocRoleRepository implements RoleRepository {
 const assignmentFromDoc = ({ id, data: x }: StoredDoc): RoleAssignmentRecord => ({
   id,
   userId: x.userId,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   roleCode: x.roleCode,
   branchId: x.branchId,
   employeeCode: x.employeeCode ?? '',
@@ -306,7 +306,7 @@ const assignmentFromDoc = ({ id, data: x }: StoredDoc): RoleAssignmentRecord => 
 
 export class DocRoleAssignmentRepository implements RoleAssignmentRepository {
   constructor(private readonly store: DocStore) {}
-  async listForUser(userId: string): Promise<(RoleAssignment & { companyId: string })[]> {
+  async listForUser(userId: string): Promise<(RoleAssignment & { tenantId: string })[]> {
     const rows = await this.store.query(Q.assignmentsByUser.pick([], false), {
       eq: { userId },
       limit: 200,
@@ -314,7 +314,7 @@ export class DocRoleAssignmentRepository implements RoleAssignmentRepository {
     return rows.map((r) => ({
       roleCode: r.data.roleCode,
       branchId: r.data.branchId,
-      companyId: r.data.companyId,
+      tenantId: r.data.tenantId,
     }));
   }
   async listForUserInTx(_tx: Tx, userId: string) {
@@ -333,7 +333,7 @@ export class DocRoleAssignmentRepository implements RoleAssignmentRepository {
     return rows
       .map(assignmentFromDoc)
       .filter((a) =>
-        a.branchId === '*' ? scope.kind === 'all' : scopeAllows(scope, a.companyId, a.branchId),
+        a.branchId === '*' ? scope.kind === 'all' : scopeAllows(scope, a.tenantId, a.branchId),
       );
   }
   async listAllInScope(scope: Scope) {
@@ -343,7 +343,7 @@ export class DocRoleAssignmentRepository implements RoleAssignmentRepository {
       const rows = await this.store.query(
         Q.assignmentsByBranch.pick([], scope.kind === 'branches'),
         {
-          eq: { companyId: scope.companyId },
+          eq: { tenantId: scope.tenantId },
           ...scopeParams(scope),
           ...(cursor ? { cursor } : {}),
           limit: 500,
@@ -355,9 +355,9 @@ export class DocRoleAssignmentRepository implements RoleAssignmentRepository {
       cursor = { v: tail.data.employeeCode, id: tail.id };
     }
   }
-  async listByRole(companyId: string, roleCode: string, limit: number) {
+  async listByRole(tenantId: string, roleCode: string, limit: number) {
     const rows = await this.store.query(Q.assignmentsByRole.pick([], false), {
-      eq: { companyId, roleCode },
+      eq: { tenantId, roleCode },
       limit,
     });
     return rows.map(assignmentFromDoc);
@@ -378,7 +378,7 @@ export class DocRoleAssignmentRepository implements RoleAssignmentRepository {
 
 const branchFromDoc = ({ id, data: x }: StoredDoc): Branch => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   code: x.code,
   name: x.name,
   status: x.status,
@@ -396,38 +396,38 @@ export class DocBranchRepository implements BranchRepository {
   async list(scope: Scope): Promise<Branch[]> {
     const rows =
       scope.kind === 'all'
-        ? await this.store.query(Q.branchesByCompany.pick([], false), {
-            eq: { companyId: scope.companyId },
+        ? await this.store.query(Q.branchesByTenant.pick([], false), {
+            eq: { tenantId: scope.tenantId },
             limit: 500,
           })
         : await this.store.getMany(COL.branches, scope.branchIds);
     return rows
       .map(branchFromDoc)
-      .filter((b) => scopeAllows(scope, b.companyId, b.id))
+      .filter((b) => scopeAllows(scope, b.tenantId, b.id))
       .sort((a, b) => a.code.localeCompare(b.code));
   }
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.branches, id);
     const b = d ? branchFromDoc(d) : null;
-    return b && scopeAllows(scope, b.companyId, b.id) ? b : null;
+    return b && scopeAllows(scope, b.tenantId, b.id) ? b : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.branches, id);
     const b = d ? branchFromDoc(d) : null;
-    return b && scopeAllows(scope, b.companyId, b.id) ? b : null;
+    return b && scopeAllows(scope, b.tenantId, b.id) ? b : null;
   }
   create(tx: Tx, branch: Branch) {
     this.store.create(tx, COL.branches, branch.id, without(branch, 'id'));
-    this.store.create(tx, 'branchCodes', `${branch.companyId}__${branch.code}`, {
+    this.store.create(tx, 'branchCodes', `${branch.tenantId}__${branch.code}`, {
       branchId: branch.id,
     });
   }
   update(tx: Tx, id: string, patch: Parameters<BranchRepository['update']>[2]) {
     this.store.update(tx, COL.branches, id, patch);
   }
-  async hasNumbering(companyId: string, branchId: string) {
+  async hasNumbering(tenantId: string, branchId: string) {
     const rows = await this.store.query(Q.countersByBranch.pick([], false), {
-      eq: { companyId, branchId },
+      eq: { tenantId, branchId },
       limit: 1,
     });
     return rows.length > 0;
@@ -435,17 +435,17 @@ export class DocBranchRepository implements BranchRepository {
 }
 
 /** The company document lists its branch ids (a few tens at most, NFR-SCA-01). */
-export class DocCompanyRepository implements CompanyRepository {
+export class DocTenantRepository implements TenantRepository {
   constructor(private readonly store: DocStore) {}
   async get(id: string): Promise<Company | null> {
-    const d = await this.store.get(COL.companies, id);
+    const d = await this.store.get(COL.tenants, id);
     return d ? { id, name: d.data.name, legalEntityIds: d.data.legalEntityIds ?? [] } : null;
   }
 }
 
 const warehouseFromDoc = ({ id, data: x }: StoredDoc): Warehouse => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   code: x.code,
   name: x.name,
@@ -469,7 +469,7 @@ export class DocWarehouseRepository implements WarehouseRepository {
     const shape = Q.warehouses[key]!.pick([], scope.kind === 'branches');
     const field = q.sort === 'name' ? 'nameNorm' : 'code';
     const rows = await this.store.query(shape, {
-      eq: { companyId: scope.companyId },
+      eq: { tenantId: scope.tenantId },
       ...scopeParams(scope),
       ...(q.namePrefix ? { range: { gte: q.namePrefix, lt: `${q.namePrefix}` } } : {}),
       ...(q.cursor ? { cursor: q.cursor } : {}),
@@ -482,15 +482,15 @@ export class DocWarehouseRepository implements WarehouseRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.warehouses, id);
     const w = d ? warehouseFromDoc(d) : null;
-    return w && scopeAllows(scope, w.companyId, w.branchId) ? w : null;
+    return w && scopeAllows(scope, w.tenantId, w.branchId) ? w : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.warehouses, id);
     const w = d ? warehouseFromDoc(d) : null;
-    return w && scopeAllows(scope, w.companyId, w.branchId) ? w : null;
+    return w && scopeAllows(scope, w.tenantId, w.branchId) ? w : null;
   }
   create(tx: Tx, scope: Scope, w: Warehouse) {
-    if (!scopeAllows(scope, w.companyId, w.branchId)) throw new Error('create outside scope');
+    if (!scopeAllows(scope, w.tenantId, w.branchId)) throw new Error('create outside scope');
     this.store.create(tx, COL.warehouses, w.id, warehouseToDoc(w));
   }
   update(tx: Tx, _scope: Scope, id: string, patch: Parameters<WarehouseRepository['update']>[3]) {
@@ -546,7 +546,7 @@ const tokenFromDoc = ({ id, data: x }: StoredDoc): AuthToken => ({
   id,
   kind: x.kind,
   userId: x.userId,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   createdAt: x.createdAt,
   expiresAt: x.expiresAt,
   usedAt: x.usedAt ?? null,
@@ -588,7 +588,7 @@ export class DocAuthTokenRepository implements AuthTokenRepository {
 
 const configFromDoc = ({ id, data: x }: StoredDoc): ConfigVersion => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   type: x.type,
   scopeKey: x.scopeKey,
   effectiveFrom: x.effectiveFrom,
@@ -605,15 +605,15 @@ const configFromDoc = ({ id, data: x }: StoredDoc): ConfigVersion => ({
 
 export class DocConfigRepository implements ConfigRepository {
   constructor(private readonly store: DocStore) {}
-  async listVersions(companyId: string, type: string, scopeKey: string) {
+  async listVersions(tenantId: string, type: string, scopeKey: string) {
     const rows = await this.store.query(Q.configScope.pick([], false), {
-      eq: { companyId, type, scopeKey },
+      eq: { tenantId, type, scopeKey },
       limit: 200,
     });
     return rows.map(configFromDoc);
   }
   async listByType(
-    companyId: string,
+    tenantId: string,
     type: string,
     status: ConfigVersion['status'] | undefined,
     limit: number,
@@ -621,7 +621,7 @@ export class DocConfigRepository implements ConfigRepository {
   ) {
     const shape = Q.configType.pick(status ? ['status'] : [], false);
     const rows = await this.store.query(shape, {
-      eq: { companyId, type, ...(status ? { status } : {}) },
+      eq: { tenantId, type, ...(status ? { status } : {}) },
       ...(cursor ? { cursor } : {}),
       limit: limit + 1,
     });
@@ -652,7 +652,7 @@ export class DocConfigRepository implements ConfigRepository {
 
 const notificationFromDoc = ({ id, data: x }: StoredDoc): Notification => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   userId: x.userId,
   branchId: x.branchId ?? null,
   kind: x.kind,
@@ -693,7 +693,7 @@ export class DocNotificationRepository implements NotificationRepository {
 
 const serviceFromDoc = ({ id, data: x }: StoredDoc): ServiceItem => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   code: x.code,
   name: x.name,
   nameNorm: x.nameNorm,
@@ -708,11 +708,11 @@ const serviceFromDoc = ({ id, data: x }: StoredDoc): ServiceItem => ({
 
 export class DocServiceRepository implements ServiceRepository {
   constructor(private readonly store: DocStore) {}
-  async list(companyId: string, q: ListQuery<'code' | 'name'> & { group?: string }) {
+  async list(tenantId: string, q: ListQuery<'code' | 'name'> & { group?: string }) {
     const shape = Q.services[`${q.sort}.${q.direction}`]!.pick(q.group ? ['group'] : [], false);
     const field = q.sort === 'name' ? 'nameNorm' : 'code';
     const rows = await this.store.query(shape, {
-      eq: { companyId, ...(q.group ? { group: q.group } : {}) },
+      eq: { tenantId, ...(q.group ? { group: q.group } : {}) },
       ...(q.namePrefix ? { range: { gte: q.namePrefix, lt: `${q.namePrefix}` } } : {}),
       ...(q.cursor ? { cursor: q.cursor } : {}),
       limit: q.limit + 1,
@@ -721,15 +721,15 @@ export class DocServiceRepository implements ServiceRepository {
       field === 'nameNorm' ? s.nameNorm : s.code,
     );
   }
-  async get(companyId: string, id: string) {
+  async get(tenantId: string, id: string) {
     const d = await this.store.get(COL.services, id);
     const s = d ? serviceFromDoc(d) : null;
-    return s && s.companyId === companyId ? s : null;
+    return s && s.tenantId === tenantId ? s : null;
   }
-  async getInTx(tx: Tx, companyId: string, id: string) {
+  async getInTx(tx: Tx, tenantId: string, id: string) {
     const d = await this.store.getInTx(tx, COL.services, id);
     const s = d ? serviceFromDoc(d) : null;
-    return s && s.companyId === companyId ? s : null;
+    return s && s.tenantId === tenantId ? s : null;
   }
   create(tx: Tx, s: ServiceItem) {
     this.store.create(tx, COL.services, s.id, without(s, 'id'));
@@ -741,7 +741,7 @@ export class DocServiceRepository implements ServiceRepository {
 
 const priceListFromDoc = ({ id, data: x }: StoredDoc): PriceListHeader => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   code: x.code,
   name: x.name,
   nameNorm: x.nameNorm,
@@ -755,11 +755,11 @@ const priceListFromDoc = ({ id, data: x }: StoredDoc): PriceListHeader => ({
 
 export class DocPriceListRepository implements PriceListRepository {
   constructor(private readonly store: DocStore) {}
-  async list(companyId: string, q: ListQuery<'code' | 'name'>) {
+  async list(tenantId: string, q: ListQuery<'code' | 'name'>) {
     const shape = Q.priceLists[`${q.sort}.${q.direction}`]!.pick([], false);
     const field = q.sort === 'name' ? 'nameNorm' : 'code';
     const rows = await this.store.query(shape, {
-      eq: { companyId },
+      eq: { tenantId },
       ...(q.namePrefix ? { range: { gte: q.namePrefix, lt: `${q.namePrefix}` } } : {}),
       ...(q.cursor ? { cursor: q.cursor } : {}),
       limit: q.limit + 1,
@@ -768,15 +768,15 @@ export class DocPriceListRepository implements PriceListRepository {
       field === 'nameNorm' ? p.nameNorm : p.code,
     );
   }
-  async get(companyId: string, id: string) {
+  async get(tenantId: string, id: string) {
     const d = await this.store.get(COL.priceLists, id);
     const p = d ? priceListFromDoc(d) : null;
-    return p && p.companyId === companyId ? p : null;
+    return p && p.tenantId === tenantId ? p : null;
   }
-  async getInTx(tx: Tx, companyId: string, id: string) {
+  async getInTx(tx: Tx, tenantId: string, id: string) {
     const d = await this.store.getInTx(tx, COL.priceLists, id);
     const p = d ? priceListFromDoc(d) : null;
-    return p && p.companyId === companyId ? p : null;
+    return p && p.tenantId === tenantId ? p : null;
   }
   create(tx: Tx, p: PriceListHeader) {
     this.store.create(tx, COL.priceLists, p.id, without(p, 'id'));

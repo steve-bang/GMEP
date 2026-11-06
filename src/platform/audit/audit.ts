@@ -12,7 +12,7 @@ import type { Tx } from '../tx/unitOfWork';
 export interface AuditEntry {
   id: string;
   at: Date;
-  companyId: string;
+  tenantId: string;
   /** null for events that do not belong to one branch (e.g. login). */
   branchId: string | null;
   actorId: string;

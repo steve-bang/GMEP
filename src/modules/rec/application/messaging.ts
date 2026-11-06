@@ -65,8 +65,8 @@ export function availableMessageChannels(deps: RecDeps) {
   return deps.sys.messages.availableChannels();
 }
 
-const queueOf = (q: MessageQueue | null, companyId: string, branchId: string): MessageQueue =>
-  q ?? { id: branchId, companyId, branchId, items: {} };
+const queueOf = (q: MessageQueue | null, tenantId: string, branchId: string): MessageQueue =>
+  q ?? { id: branchId, tenantId, branchId, items: {} };
 
 /** the queue item of a delivery (carries the delivery's expiry so the cron job can prune it, no TTL on the queue) */
 const itemOf = (
@@ -139,13 +139,13 @@ export async function sendQuoteLink(
       if (cur.status !== 'sent') throw new AppError('state_invalid', 409);
       if (isQuoteExpired(cur.status, cur.validUntil, businessDate(now)))
         throw new AppError('quote_expired', 409);
-      const base = pruneQueue(queueOf(queue, q.companyId, q.branchId), now);
+      const base = pruneQueue(queueOf(queue, q.tenantId, q.branchId), now);
       if (Object.keys(base.items).length >= deps.rec.delivery.queueMax) throw rateLimited(60);
       const hash = tokenHashOf(token);
       addQuoteLink(deps, tx, { q, cur, now, by: actor.userId, hash, deliveryId });
       const delivery: QuoteDelivery = {
         id: deliveryId,
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         branchId: q.branchId,
         quoteId: q.id,
         n: cur.n,
@@ -249,7 +249,7 @@ async function finish(
     const cur = await deps.versions.getInTx(tx, scope, versionId(d.quoteId, d.n));
     const now = deps.sys.clock.now();
     const attempts = d.attempts + 1;
-    const base = pruneQueue(queueOf(queue, d.companyId, d.branchId), now);
+    const base = pruneQueue(queueOf(queue, d.tenantId, d.branchId), now);
     if (!o.error) {
       // R10: `sentVia` says how the customer was told, set only once the gateway accepted the message. Links change
       // only while the version is still open; otherwise the delivery is just marked sent.
@@ -439,7 +439,7 @@ async function retryOne(
       const cur = await deps.deliveries.getInTx(tx, scope, id);
       const queue = await deps.deliveries.getQueueInTx(tx, scope, d.branchId);
       if (!cur || cur.status !== 'pending') return;
-      kill(deps, tx, actor, ctx, cur, queueOf(queue, d.companyId, d.branchId), reason);
+      kill(deps, tx, actor, ctx, cur, queueOf(queue, d.tenantId, d.branchId), reason);
     });
   const q = await deps.quotes.get(scope, d.quoteId);
   const v = q ? await deps.versions.get(scope, versionId(q.id, d.n)) : null;

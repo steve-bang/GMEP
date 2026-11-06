@@ -53,7 +53,7 @@ export class BalanceSet {
     deps: InvDeps,
     tx: Tx,
     scope: Scope,
-    w: { id: string; branchId: string; companyId: string },
+    w: { id: string; branchId: string; tenantId: string },
     parts: readonly Pick<Part, 'id' | 'code' | 'name'>[],
     actorId: string,
     date: string,
@@ -67,7 +67,7 @@ export class BalanceSet {
     unique.forEach((p, i) => {
       const b: StockBalance = found[i] ?? {
         id: balanceId(w.id, p.id),
-        companyId: w.companyId,
+        tenantId: w.tenantId,
         branchId: w.branchId,
         warehouseId: w.id,
         partId: p.id,
@@ -107,7 +107,7 @@ export class BalanceSet {
     Object.assign(after, derive(after));
     this.pending.push({
       id: meta.id,
-      companyId: before.companyId,
+      tenantId: before.tenantId,
       branchId: this.branchId,
       warehouseId: this.warehouseId,
       partId,

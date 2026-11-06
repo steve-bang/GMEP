@@ -221,7 +221,7 @@ async function taxChangeWarnings(
   const out: QuoteWarning[] = [];
   for (const t of v.taxes) {
     const changes = await approvedChangesBetween(deps.sys, {
-      companyId: actor.companyId,
+      tenantId: actor.tenantId,
       type: 'tax-rate',
       scopeKey: t.key,
       after: v.pricedOn,
@@ -357,7 +357,7 @@ export async function getQuote(
     branchName: branch?.name ?? '',
     approvalPolicy:
       mayApprove && shown.n === q.currentN && q.status === 'sent'
-        ? await approvalPolicyOf(deps, q.companyId, q.branchId, today)
+        ? await approvalPolicyOf(deps, q.tenantId, q.branchId, today)
         : null,
     versions: versions.map((v) => ({
       n: v.n,
@@ -436,7 +436,7 @@ export async function createQuote(
       });
       const q: Quote = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: branch.id,
         number: num.number!,
         intakeId: intake.id,
@@ -459,7 +459,7 @@ export async function createQuote(
       const v: QuoteVersion = {
         id: versionId(id, 1),
         quoteId: id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: branch.id,
         n: 1,
         status: 'draft',
@@ -545,7 +545,7 @@ export async function updateQuote(
       deps.versions.create(tx, {
         id: versionId(id, n),
         quoteId: id,
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         branchId: q.branchId,
         n,
         status: 'draft',

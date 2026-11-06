@@ -20,12 +20,12 @@ import type { SeedDoc } from './types';
 import type { DocData } from '@/platform/store/docStore';
 
 export const DEMO_PASSWORD = 'Demo!Pass-2026';
-export const DEMO_COMPANY = 'cmp_demo';
+export const DEMO_TENANT = 'tnt_demo';
 const SEED_TIME = new Date('2026-10-01T00:00:00.000Z');
 
 const b = (id: string, code: string, name: string, status: Branch['status']): Branch => ({
   id,
-  companyId: DEMO_COMPANY,
+  tenantId: DEMO_TENANT,
   code,
   name,
   status,
@@ -52,7 +52,7 @@ const u = (
   phone?: string,
 ): User => ({
   id,
-  companyId: DEMO_COMPANY,
+  tenantId: DEMO_TENANT,
   email,
   employeeCode: code,
   displayName: name,
@@ -96,7 +96,7 @@ for (const x of demoUsers) if (LAST_LOGIN[x.id]) x.lastLoginAt = new Date(LAST_L
 const a = (userId: string, roleCode: string, branchId: string) => ({
   id: roleAssignmentId(userId, roleCode, branchId),
   userId,
-  companyId: DEMO_COMPANY,
+  tenantId: DEMO_TENANT,
   roleCode,
   branchId,
 });
@@ -135,7 +135,7 @@ export const demoWarehouseSeeds: { branchId: string; code: string; name: string 
 export function demoWarehouses(): Warehouse[] {
   return demoWarehouseSeeds.map((w) => ({
     id: warehouseId(w.branchId, w.code),
-    companyId: DEMO_COMPANY,
+    tenantId: DEMO_TENANT,
     branchId: w.branchId,
     code: w.code,
     name: w.name,
@@ -158,7 +158,7 @@ export function demoDocs(): SeedDoc[] {
   const docs: SeedDoc[] = [];
   const put = (collection: string, id: string, data: DocData) =>
     docs.push({ collection, id, data });
-  put(COL.companies, DEMO_COMPANY, { name: 'Garage Demo', legalEntityIds: [] });
+  put(COL.tenants, DEMO_TENANT, { name: 'Garage Demo', legalEntityIds: [] });
   for (const r of defaultRoleSeeds())
     put(COL.roles, r.code, {
       name: r.name,
@@ -169,12 +169,12 @@ export function demoDocs(): SeedDoc[] {
   for (const br of demoBranches) {
     const { id, ...rest } = br;
     put(COL.branches, id, rest);
-    put('branchCodes', `${br.companyId}__${br.code}`, { branchId: id });
+    put('branchCodes', `${br.tenantId}__${br.code}`, { branchId: id });
   }
   for (const x of demoUsers) {
     put(COL.users, x.id, userToDoc(x));
     put(COL.userKeys, `email__${x.email.toLowerCase()}`, { userId: x.id });
-    put(COL.userKeys, `code__${x.companyId}__${x.employeeCode}`, { userId: x.id });
+    put(COL.userKeys, `code__${x.tenantId}__${x.employeeCode}`, { userId: x.id });
   }
   for (const x of demoAssignments) {
     const { id, ...rest } = x;

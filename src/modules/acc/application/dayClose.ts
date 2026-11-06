@@ -190,7 +190,7 @@ export async function closeDay(
       const last = entries.at(-1);
       const row: DayClose = {
         id: dayCloseId(branchId, data.date),
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         businessDate: data.date,
         status: 'closed',
@@ -273,7 +273,7 @@ export async function requestDayReopen(
   const data = parseInput(reopenRequestSchema, input);
   if (data.date !== businessDate(deps.sys.clock.now()))
     throw validationFailed([{ field: 'date', message: 'Chỉ mở lại được ngày làm việc hiện tại.' }]);
-  const limits = await approvalLimitsOf(deps.sys, actor.companyId, 'day_reopen', data.date);
+  const limits = await approvalLimitsOf(deps.sys, actor.tenantId, 'day_reopen', data.date);
   return runIdempotent(
     idemOf(deps),
     {
@@ -331,7 +331,7 @@ export async function reopenDay(
   const data = parseInput(reopenSchema, input);
   const limits = await approvalLimitsOf(
     deps.sys,
-    actor.companyId,
+    actor.tenantId,
     'day_reopen',
     businessDate(deps.sys.clock.now()),
   );
@@ -349,8 +349,8 @@ export async function reopenDay(
   );
   // recipients are read before the first write of the transaction (Firestore)
   const [managers, exceptionTo] = await Promise.all([
-    usersWithRole(deps.sys, actor.companyId, ['QL'], branchId),
-    usersWithRole(deps.sys, actor.companyId, ['CH', 'KT'], branchId),
+    usersWithRole(deps.sys, actor.tenantId, ['QL'], branchId),
+    usersWithRole(deps.sys, actor.tenantId, ['CH', 'KT'], branchId),
   ]);
   return runIdempotent(
     idemOf(deps),
@@ -413,7 +413,7 @@ export async function reopenDay(
         [managers.filter((u) => !exceptionTo.includes(u)), 'notifications.dayReopened'],
       ] as const)
         notifyUsers(deps.sys, tx, {
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           userIds,
           kind: 'acc.cash',
           titleKey,
@@ -425,7 +425,7 @@ export async function reopenDay(
       const maxPerMonth = limits.maxReopensPerMonth ?? 3;
       if (monthReopens + 1 > maxPerMonth)
         notifyUsers(deps.sys, tx, {
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           userIds: exceptionTo,
           kind: 'acc.cash',
           titleKey: 'notifications.dayReopenedRepeated',

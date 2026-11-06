@@ -60,7 +60,7 @@ function sourceLines(items: readonly RepairItem[]): SourceLine[] {
 
 const head = (o: RepairOrder) => ({
   id: o.id,
-  companyId: o.companyId,
+  tenantId: o.tenantId,
   branchId: o.branchId,
   number: o.number,
   status: o.status,
@@ -108,7 +108,7 @@ export function crmBuyers(getCrm: () => CrmDeps): BuyerSource {
       const crm = getCrm();
       const c = await crm.customers.get(scope, customerId);
       if (!c) return null;
-      const pii = await crm.customers.getPii(scope.companyId, customerId);
+      const pii = await crm.customers.getPii(scope.tenantId, customerId);
       return {
         kind: c.type === 'business' ? 'business' : 'retail',
         name: c.name,

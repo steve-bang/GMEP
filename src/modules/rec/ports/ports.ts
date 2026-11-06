@@ -33,7 +33,7 @@ export interface IntakeRepository {
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Intake | null>;
   /** C17: company-wide (retention gate), no scope: only counts, never returned to a user */
   listByCustomer(
-    companyId: string,
+    tenantId: string,
     customerId: string,
     status: IntakeStatus,
     limit: number,
@@ -54,7 +54,7 @@ export interface QuoteRepository {
   get(scope: Scope, id: string): Promise<Quote | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Quote | null>;
   listByCustomer(
-    companyId: string,
+    tenantId: string,
     customerId: string,
     status: QuoteStatus,
     limit: number,
@@ -121,9 +121,9 @@ export interface RepairOrderRepository {
   get(scope: Scope, id: string): Promise<RepairOrder | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<RepairOrder | null>;
   /** by ids, inside the company (advisor lookup for INV notices); missing ids are absent */
-  getMany(companyId: string, ids: readonly string[]): Promise<RepairOrder[]>;
+  getMany(tenantId: string, ids: readonly string[]): Promise<RepairOrder[]>;
   /** C17: company-wide retention gate, only counts */
-  listOpenByCustomer(companyId: string, customerId: string, limit: number): Promise<RepairOrder[]>;
+  listOpenByCustomer(tenantId: string, customerId: string, limit: number): Promise<RepairOrder[]>;
   create(tx: Tx, o: RepairOrder): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }

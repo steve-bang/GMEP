@@ -20,10 +20,10 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
     h = await createHarness(backend);
   });
 
-  const auditFor = (entityId: string, companyId = 'cmp_demo') =>
+  const auditFor = (entityId: string, tenantId = 'tnt_demo') =>
     auditList(
       h.container.sys.audit,
-      allBranchesScope(companyId),
+      allBranchesScope(tenantId),
       { entityType: 'warehouse', entityId },
       50,
     );
@@ -81,7 +81,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
         audit.record(tx, {
           id,
           at: clock.now(),
-          companyId: 'cmp_demo',
+          tenantId: 'tnt_demo',
           branchId: 'br_q7',
           actorId: 'u_owner',
           actorRoles: [],
@@ -96,7 +96,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
       }),
     ).rejects.toThrow('boom');
     expect(
-      await auditList(audit, allBranchesScope('cmp_demo'), { entityType: 'probe' }, 10),
+      await auditList(audit, allBranchesScope('tnt_demo'), { entityType: 'probe' }, 10),
     ).toHaveLength(0);
   });
 
@@ -113,14 +113,14 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
     expect(res.status).toBe(201);
     const q7View = await auditList(
       h.container.sys.audit,
-      branchesScope('cmp_demo', ['br_q7']),
+      branchesScope('tnt_demo', ['br_q7']),
       { entityId: res.json.id },
       10,
     );
     expect(q7View).toHaveLength(0);
     const tdView = await auditList(
       h.container.sys.audit,
-      branchesScope('cmp_demo', ['br_td']),
+      branchesScope('tnt_demo', ['br_td']),
       { entityId: res.json.id },
       10,
     );
@@ -260,7 +260,7 @@ describe.each(backends)('FR-SYS-003 audit log and Idempotency-Key [%s]', (backen
     await h.call('GET', '/api/v1/sys/warehouses/export', { as: 'u_owner' });
     const entries = await auditList(
       h.container.sys.audit,
-      allBranchesScope('cmp_demo'),
+      allBranchesScope('tnt_demo'),
       { entityType: 'warehouse', entityId: '*' },
       10,
     );

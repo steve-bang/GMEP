@@ -42,13 +42,13 @@ export interface QcChecklistDto {
 
 async function checklistOf(
   deps: RecDeps,
-  companyId: string,
+  tenantId: string,
   serviceType: string | undefined,
   date: string,
 ) {
   for (const key of [...(serviceType ? [serviceType] : []), 'default']) {
     const c = await resolveConfigAt(deps.sys, {
-      companyId,
+      tenantId,
       type: 'qc-checklist',
       scopeKey: key,
       date,
@@ -70,7 +70,7 @@ export async function getQcChecklist(
   const scope = resolveScope(actor, 'qc-record:view');
   const o = await deps.orders.get(scope, orderId);
   if (!o) throw notFound();
-  return checklistOf(deps, o.companyId, o.serviceType, businessDate(deps.sys.clock.now()));
+  return checklistOf(deps, o.tenantId, o.serviceType, businessDate(deps.sys.clock.now()));
 }
 
 export const qcSchema = z.object({
@@ -102,7 +102,7 @@ export async function runQc(
   if (!o0) throw notFound();
   const list = await checklistOf(
     deps,
-    o0.companyId,
+    o0.tenantId,
     o0.serviceType,
     businessDate(deps.sys.clock.now()),
   );
@@ -206,7 +206,7 @@ export async function runQc(
       const recipients = [...new Set(to)].filter((u) => u !== actor.userId);
       if (recipients.length)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: recipients,
           kind: 'rec.order',
           titleKey: failed ? 'notifications.qcFailed' : 'notifications.qcPassed',
@@ -244,13 +244,13 @@ interface OrderPolicy {
 
 async function orderPolicyOf(
   deps: RecDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<OrderPolicy> {
   const c = (
     await resolveConfigAt(deps.sys, {
-      companyId,
+      tenantId,
       type: 'order-policy',
       scopeKey: 'company',
       date,
@@ -333,7 +333,7 @@ export async function handoverVehicle(
   if (!o0) throw notFound();
   const policy = await orderPolicyOf(
     deps,
-    o0.companyId,
+    o0.tenantId,
     o0.branchId,
     businessDate(deps.sys.clock.now()),
   );
@@ -411,7 +411,7 @@ export async function handoverVehicle(
       const done = items0.filter((i) => i.status === 'done');
       deps.crm.history.upsert(tx, {
         id: `repair-order:${o.id}`,
-        companyId: o.companyId,
+        tenantId: o.tenantId,
         vehicleId: o.vehicleId,
         branchId: o.branchId,
         branchName: branch.name,
@@ -451,7 +451,7 @@ export async function handoverVehicle(
       );
       if (o.advisorId !== actor.userId)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: [o.advisorId],
           kind: 'rec.order',
           titleKey: 'notifications.orderDelivered',

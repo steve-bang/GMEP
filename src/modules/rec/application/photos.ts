@@ -70,7 +70,7 @@ function scopeFor(actor: Actor, perms: Permission[]): Scope {
 }
 
 interface Parent {
-  companyId: string;
+  tenantId: string;
   branchId: string;
   open: boolean;
   photos: PhotoRef[];
@@ -88,7 +88,7 @@ async function load(
     const i = tx ? await deps.intakes.getInTx(tx, scope, id) : await deps.intakes.get(scope, id);
     if (!i) throw notFound();
     return {
-      companyId: i.companyId,
+      tenantId: i.tenantId,
       branchId: i.branchId,
       open: i.status === 'draft',
       photos: i.photos ?? [],
@@ -98,7 +98,7 @@ async function load(
   const o = tx ? await deps.orders.getInTx(tx, scope, id) : await deps.orders.get(scope, id);
   if (!o) throw notFound();
   return {
-    companyId: o.companyId,
+    tenantId: o.tenantId,
     branchId: o.branchId,
     open: isOrderOpen(o.status),
     photos: o.photos ?? [],
@@ -147,7 +147,7 @@ export async function addPhoto(
   const photoId = `ph_${sha256.slice(0, 20)}`;
   const path = filePath(
     `rec-photos-${parent}`,
-    p0.companyId,
+    p0.tenantId,
     p0.branchId,
     `${id}_${photoId}.${EXT[contentType]}`,
   );
@@ -274,12 +274,12 @@ export async function hidePhoto(
 /** Server-chosen storage path of a photo reference (shared with the customer-link read, FR-REC-034). */
 export const photoStoragePath = (
   parent: PhotoParent,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   id: string,
   ref: Pick<PhotoRef, 'id' | 'contentType'>,
 ): string =>
-  filePath(`rec-photos-${parent}`, companyId, branchId, `${id}_${ref.id}.${EXT[ref.contentType]}`);
+  filePath(`rec-photos-${parent}`, tenantId, branchId, `${id}_${ref.id}.${EXT[ref.contentType]}`);
 
 /** Scope-checked read of one photo (the API serves the bytes; there is no public or signed URL in this slice). */
 export async function readPhoto(
@@ -295,7 +295,7 @@ export async function readPhoto(
   if (!ref) throw notFound();
   // R104: a hidden photo is served only to someone who may hide photos
   if (ref.hidden && !hasPermission(actor, 'rec-photo:update')) throw notFound();
-  const file = await deps.files.get(photoStoragePath(parent, p.companyId, p.branchId, id, ref));
+  const file = await deps.files.get(photoStoragePath(parent, p.tenantId, p.branchId, id, ref));
   if (!file) throw notFound();
   return file;
 }

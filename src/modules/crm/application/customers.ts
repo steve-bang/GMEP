@@ -144,7 +144,7 @@ export async function listCustomers(
   if (mode === 'phone') {
     // one extra row tells whether the bound cut the list
     ids = await deps.customers.customerIdsByPhone(
-      actor.companyId,
+      actor.tenantId,
       normalizePhone(text),
       'prefix',
       SEARCH_BOUND + 1,
@@ -178,7 +178,7 @@ export async function listCustomerDtos(
 ): Promise<SearchPage<CustomerDto>> {
   const page = await listCustomers(deps, actor, raw);
   const piis = await Promise.all(
-    page.items.map((c) => deps.customers.getPii(actor.companyId, c.id)),
+    page.items.map((c) => deps.customers.getPii(actor.tenantId, c.id)),
   );
   return {
     items: page.items.map((c, i) => toCustomerDto(deps, actor, c, piis[i] ?? null)),
@@ -200,7 +200,7 @@ export async function getCustomer(
   const scope = resolveScope(actor, 'customer:view');
   const c = await deps.customers.get(scope, id);
   if (!c) throw notFound();
-  const pii = await deps.customers.getPii(actor.companyId, id);
+  const pii = await deps.customers.getPii(actor.tenantId, id);
   const dto = toCustomerDto(deps, actor, c, pii);
   const seenFull = PII_FIELDS.filter((f) => deps.sys.pii.level(actor, f) === 'full' && !!pii?.[f]);
   if (seenFull.length)
@@ -299,7 +299,7 @@ export async function createCustomer(
       });
       const customer: Customer = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: branch.id,
         code: num.number!,
         type: data.type,
@@ -320,7 +320,7 @@ export async function createCustomer(
       };
       const pii: CustomerPii = {
         customerId: id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         ...(data.phone ? { phone: data.phone, phoneNorm: checked.phoneNorm! } : {}),
         ...(data.email ? { email: data.email } : {}),
         ...(data.address ? { address: data.address } : {}),
@@ -378,7 +378,7 @@ export async function updateCustomer(
     if (!c) throw notFound();
     if (c.status === 'anonymized') throw new AppError('customer_anonymized', 409);
     if (c.version !== data.version) throw versionConflict();
-    const pii = await deps.customers.getPiiInTx(tx, actor.companyId, id);
+    const pii = await deps.customers.getPiiInTx(tx, actor.tenantId, id);
     await writableWorkingBranch(deps, tx, actor, scope, 'edit_master');
 
     const checked = checkCustomerFields({
@@ -436,7 +436,7 @@ export async function updateCustomer(
       }),
     );
     const merged = {
-      ...(pii ?? { customerId: id, companyId: actor.companyId, createdAt: c.createdAt }),
+      ...(pii ?? { customerId: id, tenantId: actor.tenantId, createdAt: c.createdAt }),
       ...piiPatch,
     } as CustomerPii;
     return toCustomerDto(deps, actor, next, merged);

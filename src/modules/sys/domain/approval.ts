@@ -161,7 +161,7 @@ export const approverPermissionFor = (
 
 export interface ApprovalRequest {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** YC-<BRANCH>-<YYMM>-<seq> (numbering series `approval-request`) */
   number: string;

@@ -8,10 +8,10 @@ import type { ApiCtx } from './api';
 import { getContainer } from './container';
 
 /** Service actor of one branch: only the job permissions, no user behind it (audit shows actor `system:cron`). */
-function cronActor(companyId: string, branchId: string): Actor {
+function cronActor(tenantId: string, branchId: string): Actor {
   return {
     userId: 'system:cron',
-    companyId,
+    tenantId,
     displayName: 'Hệ thống (cron)',
     assignments: [{ roleCode: 'SYSTEM_CRON', branchId }],
     rolePermissions: {
@@ -72,14 +72,14 @@ export const CRON_JOBS: readonly CronJob[] = [
  * Response: `{ configured, branches: [{ branchId, <job name>: result | 'failed' }] }`.
  */
 export async function runScheduledJobs(c: ApiCtx, jobs: readonly CronJob[] = CRON_JOBS) {
-  const companyId = getContainer().env.CRON_COMPANY_ID;
-  if (!companyId) return { configured: false, branches: [] as unknown[] };
-  const branches = await c.sys.branches.list(allBranchesScope(companyId));
+  const tenantId = getContainer().env.CRON_TENANT_ID;
+  if (!tenantId) return { configured: false, branches: [] as unknown[] };
+  const branches = await c.sys.branches.list(allBranchesScope(tenantId));
   const out: ({ branchId: string } & Record<string, unknown>)[] = [];
   for (const b of branches) {
     const input: CronJobInput = {
       c,
-      actor: cronActor(companyId, b.id),
+      actor: cronActor(tenantId, b.id),
       branchId: b.id,
       ctx: { requestId: c.requestId },
     };

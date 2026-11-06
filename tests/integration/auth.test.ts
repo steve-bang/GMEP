@@ -135,7 +135,7 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
   it('FR-SYS-003: login and logout are audited without secrets', async () => {
     const entries = await auditList(
       h.container.sys.audit,
-      allBranchesScope('cmp_demo'),
+      allBranchesScope('tnt_demo'),
       { entityType: 'session' },
       100,
     );

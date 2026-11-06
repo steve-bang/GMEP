@@ -36,14 +36,14 @@ export async function readQueue(
   deps: EinDeps,
   tx: Tx,
   scope: Scope,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   now: Date,
 ): Promise<InvoiceQueue> {
   return (
     (await deps.queue.getInTx(tx, scope, branchId)) ?? {
       id: branchId,
-      companyId,
+      tenantId,
       branchId,
       items: {},
       updatedAt: now,

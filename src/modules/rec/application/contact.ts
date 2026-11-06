@@ -20,10 +20,10 @@ const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
  */
 export async function contactOf(
   deps: RecDeps,
-  q: { companyId: string; customerId: string },
+  q: { tenantId: string; customerId: string },
   channel: MessageChannel,
 ): Promise<MessageTarget | null> {
-  const pii = await deps.crm.customers.getPii(q.companyId, q.customerId);
+  const pii = await deps.crm.customers.getPii(q.tenantId, q.customerId);
   if (!pii) return null;
   if (channel === 'email') {
     const email = pii.email?.trim();
@@ -41,10 +41,10 @@ export async function contactOf(
  */
 export async function serviceTargetOf(
   deps: RecDeps,
-  q: { companyId: string; customerId: string },
+  q: { tenantId: string; customerId: string },
   channel: MessageChannel,
 ): Promise<MessageTarget> {
-  const consents = await deps.crm.consents.listByCustomer(q.companyId, q.customerId);
+  const consents = await deps.crm.consents.listByCustomer(q.tenantId, q.customerId);
   if (!canSendServiceMessage(consents, channel)) throw new AppError('message_no_consent', 409);
   const t = await contactOf(deps, q, channel);
   if (!t) throw new AppError('message_no_contact', 409);
@@ -57,7 +57,7 @@ const OTP_ORDER: readonly MessageChannel[] = ['sms', 'zalo', 'email'];
 /** First available channel that has a usable contact on file; null when the customer cannot be reached. */
 export async function otpTargetOf(
   deps: RecDeps,
-  q: { companyId: string; customerId: string },
+  q: { tenantId: string; customerId: string },
 ): Promise<MessageTarget | null> {
   const available = deps.sys.messages.availableChannels();
   for (const c of OTP_ORDER) {

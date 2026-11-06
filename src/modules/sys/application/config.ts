@@ -43,25 +43,25 @@ const idem = (deps: SysDeps) => ({
   ttlMs: deps.config.idempotencyTtlMs,
 });
 
-const cacheKeyOf = (companyId: string, type: string, scopeKey: string) =>
-  `${companyId}|${type}|${scopeKey}`;
+const cacheKeyOf = (tenantId: string, type: string, scopeKey: string) =>
+  `${tenantId}|${type}|${scopeKey}`;
 
 async function versionsOf(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   type: string,
   scopeKey: string,
 ): Promise<ConfigVersion[]> {
-  const key = cacheKeyOf(companyId, type, scopeKey);
+  const key = cacheKeyOf(tenantId, type, scopeKey);
   const hit = deps.caches.config.get(key);
   if (hit) return hit;
-  const rows = await deps.configs.listVersions(companyId, type, scopeKey);
-  deps.caches.config.set(key, rows, [`cfg:${companyId}:${type}`]);
+  const rows = await deps.configs.listVersions(tenantId, type, scopeKey);
+  deps.caches.config.set(key, rows, [`cfg:${tenantId}:${type}`]);
   return rows;
 }
 
-function invalidateConfig(deps: SysDeps, companyId: string, type: string): void {
-  deps.caches.config.invalidateTag(`cfg:${companyId}:${type}`);
+function invalidateConfig(deps: SysDeps, tenantId: string, type: string): void {
+  deps.caches.config.invalidateTag(`cfg:${tenantId}:${type}`);
 }
 
 /**
@@ -72,13 +72,13 @@ function invalidateConfig(deps: SysDeps, companyId: string, type: string): void 
  */
 export async function resolveConfigAt(
   deps: SysDeps,
-  q: { companyId: string; type: string; scopeKey: string; date: string; branchId?: string | null },
+  q: { tenantId: string; type: string; scopeKey: string; date: string; branchId?: string | null },
 ): Promise<ConfigSnapshot | null> {
   const def = configTypeOrThrow(q.type);
   const keys =
     def.branchOverride && q.branchId ? [`branch:${q.branchId}`, q.scopeKey] : [q.scopeKey];
   for (const scopeKey of keys) {
-    const v = pickEffective(await versionsOf(deps, q.companyId, q.type, scopeKey), q.date);
+    const v = pickEffective(await versionsOf(deps, q.tenantId, q.type, scopeKey), q.date);
     if (v) return snapshotOf(v);
   }
   return null;
@@ -90,10 +90,10 @@ export async function resolveConfigAt(
  */
 export async function approvedChangesBetween(
   deps: SysDeps,
-  q: { companyId: string; type: string; scopeKey: string; after: string; upTo: string },
+  q: { tenantId: string; type: string; scopeKey: string; after: string; upTo: string },
 ): Promise<ConfigSnapshot[]> {
   configTypeOrThrow(q.type);
-  return (await versionsOf(deps, q.companyId, q.type, q.scopeKey))
+  return (await versionsOf(deps, q.tenantId, q.type, q.scopeKey))
     .filter(
       (v) => v.status === 'approved' && v.effectiveFrom > q.after && v.effectiveFrom <= q.upTo,
     )
@@ -111,14 +111,14 @@ const CATALOG_MAX_PAGES = 5;
  */
 export async function resolveCatalogAt(
   deps: SysDeps,
-  q: { companyId: string; type: string; date: string },
+  q: { tenantId: string; type: string; date: string },
 ): Promise<{ code: string; payload: Record<string, unknown> }[]> {
   configTypeOrThrow(q.type);
   const byKey = new Map<string, ConfigVersion[]>();
   let cursor: { v: string; id: string } | undefined;
   for (let i = 0; i < CATALOG_MAX_PAGES; i++) {
     const page = await deps.configs.listByType(
-      q.companyId,
+      q.tenantId,
       q.type,
       'approved',
       CATALOG_PAGE,
@@ -208,16 +208,16 @@ export async function listConfigVersions(
   const q = parseInput(configListSchema, raw);
   const visible = (v: ConfigVersion) => {
     const m = /^branch:(.+)$/.exec(v.scopeKey);
-    return !m || scopeAllows(scope, v.companyId, m[1]!);
+    return !m || scopeAllows(scope, v.tenantId, m[1]!);
   };
   if (q.scopeKey) {
-    const rows = (await deps.configs.listVersions(actor.companyId, type, q.scopeKey))
+    const rows = (await deps.configs.listVersions(actor.tenantId, type, q.scopeKey))
       .filter(visible)
       .filter((v) => !q.status || v.status === q.status);
     return { items: rows.map((v) => toDto(actor, v)), nextCursor: null };
   }
   const page = await deps.configs.listByType(
-    actor.companyId,
+    actor.tenantId,
     type,
     q.status,
     q.limit,
@@ -263,7 +263,7 @@ export async function proposeConfig(
   const branch = /^branch:(.+)$/.exec(data.scopeKey);
   if (
     branch
-      ? !scopeAllows(scope, actor.companyId, branch[1]!)
+      ? !scopeAllows(scope, actor.tenantId, branch[1]!)
       : scope.kind !== 'all' && !def.proposeFromBranch
   )
     throw forbidden();
@@ -287,7 +287,7 @@ export async function proposeConfig(
       const now = deps.clock.now();
       const v: ConfigVersion = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         type,
         scopeKey: data.scopeKey,
         effectiveFrom: data.effectiveFrom,
@@ -314,7 +314,7 @@ export async function proposeConfig(
         }),
       );
       notifyUsers(deps, tx, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         userIds: approvers.filter((u) => u !== actor.userId),
         kind: 'config.pending',
         titleKey: 'notifications.configPending',
@@ -331,7 +331,7 @@ async function approverIds(deps: SysDeps, actor: Actor, permission: Permission):
   const codes = roles.filter((r) => r.permissions.includes(permission)).map((r) => r.code);
   const ids = new Set<string>();
   for (const code of codes)
-    for (const a of await deps.assignments.listByRole(actor.companyId, code, 50)) ids.add(a.userId);
+    for (const a of await deps.assignments.listByRole(actor.tenantId, code, 50)) ids.add(a.userId);
   return [...ids];
 }
 
@@ -378,7 +378,7 @@ export async function decideConfig(
     },
     async (tx) => {
       const v = await deps.configs.getInTx(tx, id);
-      if (!v || v.type !== type || v.companyId !== actor.companyId) throw notFound();
+      if (!v || v.type !== type || v.tenantId !== actor.tenantId) throw notFound();
       if (v.status !== 'pending') throw new AppError('state_invalid', 409);
 
       const own = v.proposedBy === actor.userId;
@@ -411,7 +411,7 @@ export async function decideConfig(
       );
       if (!own)
         notifyUsers(deps, tx, {
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           userIds: [v.proposedBy],
           kind: data.decision === 'approve' ? 'config.approved' : 'config.rejected',
           titleKey:
@@ -421,7 +421,7 @@ export async function decideConfig(
           params: { type },
           link: `/sys/config/${type}`,
         });
-      invalidateConfig(deps, v.companyId, type);
+      invalidateConfig(deps, v.tenantId, type);
       return {
         status: 200,
         body: toDto(actor, {

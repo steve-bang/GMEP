@@ -45,7 +45,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
     const deps = h.container.sys;
     const at = (date: string) =>
       resolveConfigAt(deps, {
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         type: 'tax-rate',
         scopeKey: 'VAT-SAMPLE',
         date,
@@ -103,7 +103,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
     const deps = h.container.sys;
     const q = (date: string) =>
       resolveConfigAt(deps, {
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         type: 'tax-rate',
         scopeKey: 'VAT-SAMPLE2',
         date,
@@ -344,7 +344,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
     const deps = h.container.sys;
     const at = (branchId: string) =>
       resolveConfigAt(deps, {
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         type: 'labor-rate',
         scopeKey: 'company',
         date: eff,

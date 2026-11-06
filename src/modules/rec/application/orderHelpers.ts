@@ -10,10 +10,10 @@ export const SYSTEM_ORDER_ACTOR = 'system:order';
  * The actor of an order opened by the customer's own approval (no staff member is present). It has no
  * permissions of its own: it only carries the branch to the INV hold and the audit line (`actorType` system).
  */
-export function systemActor(companyId: string, branchId: string): Actor {
+export function systemActor(tenantId: string, branchId: string): Actor {
   return {
     userId: SYSTEM_ORDER_ACTOR,
-    companyId,
+    tenantId,
     displayName: 'Hệ thống',
     assignments: [{ roleCode: 'SYSTEM', branchId }],
     rolePermissions: { SYSTEM: [] },

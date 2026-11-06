@@ -9,7 +9,7 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU'; // 30 min
+const SV_DAU = 'svc_tnt_demo_SV-DAU'; // 30 min
 const P_FILTER = 'part_seed_01'; // list 130.000
 const VEH_AN = 'veh_an';
 const VEH_BINH = 'veh_binh';
@@ -256,7 +256,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
     });
     it('a mapped key with no rate in force is a configuration error, not a silent default', async () => {
       // only the mapping that names a rate nobody defined: registered directly (a future rate key typo)
-      const forget = () => h.container.sys.caches.config.invalidateTag('cfg:cmp_demo:tax-mapping');
+      const forget = () => h.container.sys.caches.config.invalidateTag('cfg:tnt_demo:tax-mapping');
       await patchDoc('configVersions', 'tax-mapping__company__' + today(), {
         payload: { labor: 'vat', part: 'vat-typo' },
       });
@@ -298,7 +298,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       await patchDoc('configVersions', `tax-rate__vat__${change}`, {
         effectiveFrom: addDays(today(), 30),
       });
-      h.container.sys.caches.config.invalidateTag('cfg:cmp_demo:tax-rate');
+      h.container.sys.caches.config.invalidateTag('cfg:tnt_demo:tax-rate');
       const again = await call(cv, 'GET', `/api/v1/rec/quotes/${q2.json.id}`);
       expect(again.json.shown.warnings).toHaveLength(0);
     });
@@ -358,7 +358,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
   describe('C17 REC joins the data-retention gate', () => {
     it('blocks while an intake is open or a quote waits for the customer; stays unverified for the modules not built', async () => {
       const customer = 'cus_biz';
-      const gate = () => h.container.crm.retention.check('cmp_demo', customer);
+      const gate = () => h.container.crm.retention.check('tnt_demo', customer);
       expect((await gate()).blockers).toEqual([]);
       const c = await call(cv, 'POST', '/api/v1/rec/intakes', { vehicleId: 'veh_biz' });
       expect((await gate()).blockers.join(' ')).toMatch(/hồ sơ tiếp nhận chưa hoàn tất/);
@@ -382,7 +382,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       // the advisor also works at Thu Duc, so a Thu Duc-only vehicle is visible while working at Q7
       const asg = {
         userId: 'u_cv_q7',
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         roleCode: 'CV',
         branchId: 'br_td',
         employeeCode: 'NV0103',

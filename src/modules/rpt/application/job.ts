@@ -58,9 +58,9 @@ async function refreshDays(
   if (todo.length > 0) {
     const facts = await loadFacts(deps, scope, branchId, todo, now);
     for (const date of todo) {
-      const policy = await rptPolicyOf(deps, actor.companyId, branchId, date);
+      const policy = await rptPolicyOf(deps, actor.tenantId, branchId, date);
       const next = computeDaily(
-        { companyId: actor.companyId, branchId, date },
+        { tenantId: actor.tenantId, branchId, date },
         facts.get(date)!,
         policy,
         { refsMax: deps.rpt.refsMax, alertsMax: deps.rpt.alertsMax },
@@ -99,7 +99,7 @@ async function targetBranches(
   requested?: string,
 ): Promise<string[]> {
   if (requested) {
-    if (!scopeAllows(scope, actor.companyId, requested)) throw forbidden();
+    if (!scopeAllows(scope, actor.tenantId, requested)) throw forbidden();
     return [requested];
   }
   const list = await deps.sys.branches.list(scope);

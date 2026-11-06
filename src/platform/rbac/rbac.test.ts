@@ -5,7 +5,7 @@ import { hasPermission, resolveScope, type Actor } from './rbac';
 
 const actor = (assignments: Actor['assignments']): Actor => ({
   userId: 'u1',
-  companyId: 'c1',
+  tenantId: 'c1',
   displayName: 'Test',
   canConsolidate: false,
   workingBranchId: null,
@@ -21,7 +21,7 @@ describe('resolveScope (FR-SYS-002, FR-SYS-012, FR-SYS-013)', () => {
   it('company-wide assignment gives the all-branches scope', () => {
     expect(
       resolveScope(actor([{ roleCode: 'CH', branchId: '*' }]), 'warehouse:view'),
-    ).toMatchObject({ kind: 'all', companyId: 'c1' });
+    ).toMatchObject({ kind: 'all', tenantId: 'c1' });
   });
   it('unions branches across roles, per permission (FR-SYS-012)', () => {
     const a = actor([

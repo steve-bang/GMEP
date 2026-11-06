@@ -86,8 +86,8 @@ export function buildPartImport(getDeps: () => InvDeps): ImportKindHandler {
       const scope = resolveScope(actor, 'part:create');
       const date = today(deps);
       const [units, groups] = await Promise.all([
-        resolveCatalog(deps, actor.companyId, 'unit', date),
-        resolveCatalog(deps, actor.companyId, 'group', date),
+        resolveCatalog(deps, actor.tenantId, 'unit', date),
+        resolveCatalog(deps, actor.tenantId, 'group', date),
       ]);
       const issues: RowIssue[] = [];
       const out: ImportUnit[] = [];
@@ -175,7 +175,7 @@ export function buildPartImport(getDeps: () => InvDeps): ImportKindHandler {
     async undo(actor, refs, ctx) {
       const deps = getDeps();
       const scope = resolveScope(actor, 'part:create');
-      const all = allBranchesScope(actor.companyId);
+      const all = allBranchesScope(actor.tenantId);
       const blocked: string[] = [];
       const parts: Part[] = [];
       for (const r of refsOf(refs, 'part')) {
@@ -221,14 +221,14 @@ const OPENING_DOC_SCAN = 20_000;
 /** RULE-007/R95: part ids with a live opening-balance document (draft or posted, not reversed, not a reversal). */
 async function openedParts(
   deps: InvDeps,
-  companyId: string,
+  tenantId: string,
   warehouseId: string,
   exceptBatchId?: string,
 ) {
   const set = new Set<string>();
   for (const status of ['draft', 'posted'] as const) {
     const { docs, truncated } = await deps.documents.listAllByWarehouseStatus(
-      companyId,
+      tenantId,
       warehouseId,
       status,
       OPENING_DOC_SCAN,
@@ -274,7 +274,7 @@ export function buildOpeningStockImport(getDeps: () => InvDeps): ImportKindHandl
       const out: ImportUnit[] = [];
       const seen = new Map<string, number>();
       // R95: parts already covered by a draft or posted, not reversed, opening document of this warehouse
-      const opened = await openedParts(deps, actor.companyId, warehouseId);
+      const opened = await openedParts(deps, actor.tenantId, warehouseId);
       for (const r of rows) {
         const c = r.cells;
         const bad = (field: string, message: string) => issues.push({ row: r.row, field, message });
@@ -319,7 +319,7 @@ export function buildOpeningStockImport(getDeps: () => InvDeps): ImportKindHandl
       const deps = getDeps();
       try {
         // R95 again at write time: another batch may have been validated and written since this preview
-        const opened = await openedParts(deps, actor.companyId, ctx.warehouseId!, ctx.batchId);
+        const opened = await openedParts(deps, actor.tenantId, ctx.warehouseId!, ctx.batchId);
         if (units.some((u) => opened.has(u.data.partId as string)))
           throw new AppError('import_opening_duplicate', 409);
         const r = await createDocument(

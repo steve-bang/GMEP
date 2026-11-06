@@ -4,7 +4,7 @@ import { mayBeOtherBranch, resolveScope, type Actor, type Permission } from '@/p
 // BA §25 F-1(3): writes are fenced to the working branch; reads, company-level resources and "no working branch" are not.
 const actor = (over: Partial<Actor> = {}, branch = '*'): Actor => ({
   userId: 'u',
-  companyId: 'c',
+  tenantId: 'c',
   displayName: 'x',
   assignments: [{ roleCode: 'R', branchId: branch }],
   rolePermissions: {

@@ -62,12 +62,12 @@ export async function approvedOrder(req: APIRequestContext, vehicleId = 'veh_biz
       {
         name: 'Thay dầu',
         necessity: 'required',
-        lines: [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-DAU' }],
+        lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-DAU' }],
       },
       {
         name: 'Thay má phanh',
         necessity: 'required',
-        lines: [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-PHANH' }],
+        lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-PHANH' }],
       },
     ],
   });

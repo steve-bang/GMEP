@@ -296,7 +296,7 @@ Key mechanics already in place:
 
 ## Scheduler (cron endpoint)
 
-No scheduler infrastructure is deployed yet. `POST /api/v1/internal/cron/run-due` runs, per branch of `CRON_COMPANY_ID`, the RPT due job
+No scheduler infrastructure is deployed yet. `POST /api/v1/internal/cron/run-due` runs, per branch of `CRON_TENANT_ID`, the RPT due job
 (`runDueRollups`, FR-RPT-003) and the EIN retry job (`runDueRequests`, FR-EIN-010). Both are idempotent, so overlapping or repeated
 calls are safe; one failing branch does not stop the others (response lists each branch). Auth is the shared secret in header
 `x-cron-secret` (env `CRON_SECRET`, at least 32 characters, compared in constant time); there is no session and no Origin check on this

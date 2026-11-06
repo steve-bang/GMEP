@@ -50,12 +50,12 @@ const idem = (deps: SysDeps) => ({
 /** The limits in force for a kind on a date: the effective-dated config version, else the documented fallback. */
 export async function approvalLimitsOf(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   kind: ApprovalKind,
   date: string,
 ): Promise<ApprovalLimits> {
   const snap = await resolveConfigAt(deps, {
-    companyId,
+    tenantId,
     type: 'approval-limit',
     scopeKey: kind,
     date,
@@ -66,11 +66,11 @@ export async function approvalLimitsOf(
 /** Which level must decide `valueVnd` of `kind` (0 = no approval needed). Reads the effective-dated limits. */
 export async function approvalLevelFor(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   kind: ApprovalKind,
   valueVnd: number,
 ): Promise<{ level: 0 | ApprovalLevel; limits: ApprovalLimits }> {
-  const limits = await approvalLimitsOf(deps, companyId, kind, businessDate(deps.clock.now()));
+  const limits = await approvalLimitsOf(deps, tenantId, kind, businessDate(deps.clock.now()));
   return { level: requiredLevel(kind, valueVnd, limits), limits };
 }
 
@@ -108,7 +108,7 @@ export async function openApprovalInTx(
     // approval_expired): it must not keep the slot closed to a new request
     const old = await deps.approvals.getInTx(
       tx,
-      branchesScope(actor.companyId, [i.branch.id]),
+      branchesScope(actor.tenantId, [i.branch.id]),
       slot.requestId,
     );
     const dead =
@@ -122,7 +122,7 @@ export async function openApprovalInTx(
       );
     if (!dead) throw new AppError('approval_already_pending', 409);
   }
-  const approvers = await approversOf(deps, actor.companyId, i.branch.id, i.level, i.kind);
+  const approvers = await approversOf(deps, actor.tenantId, i.branch.id, i.level, i.kind);
   const now = deps.clock.now();
   const id = `ap_${deps.newId()}`;
   const num = await allocateDocumentNumber(deps, tx, {
@@ -135,7 +135,7 @@ export async function openApprovalInTx(
   });
   const r: ApprovalRequest = {
     id,
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId: i.branch.id,
     number: num.number!,
     kind: i.kind,
@@ -159,7 +159,7 @@ export async function openApprovalInTx(
     version: 1,
   };
   deps.approvals.create(tx, r);
-  deps.approvals.setSlot(tx, slotId, { requestId: id, open: true, companyId: actor.companyId });
+  deps.approvals.setSlot(tx, slotId, { requestId: id, open: true, tenantId: actor.tenantId });
   deps.audit.record(
     tx,
     auditEntry(deps, actor, ctx, {
@@ -178,7 +178,7 @@ export async function openApprovalInTx(
     }),
   );
   notifyUsers(deps, tx, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     userIds: approvers.filter((u) => u !== actor.userId),
     kind: 'approval',
     titleKey: 'notifications.approvalRequested',
@@ -192,7 +192,7 @@ export async function openApprovalInTx(
 /** People who may decide a request of `level` at the branch (level 2 holders also see level 1, but only the owner role is listed). */
 async function approversOf(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   level: ApprovalLevel,
   kind: ApprovalKind,
@@ -202,7 +202,7 @@ async function approversOf(
   );
   return usersWithRole(
     deps,
-    companyId,
+    tenantId,
     roles.map((r) => r.code),
     branchId,
   );
@@ -242,7 +242,7 @@ export async function decideApproval(
   )
     throw new AppError('switch_branch_required', 409);
   const decideScope = resolveScope(actor, approverPermissionFor(r0.kind, r0.level));
-  if (!scopeAllows(decideScope, actor.companyId, r0.branchId)) throw forbidden();
+  if (!scopeAllows(decideScope, actor.tenantId, r0.branchId)) throw forbidden();
   // R106: approving the reopening of a closed day needs the password again (a left-open session cannot do it)
   if (data.decision === 'approve' && REAUTH_ON_APPROVE.includes(r0.kind))
     await reauthenticate(deps, actor, data.reauthPassword);
@@ -291,7 +291,7 @@ export async function decideApproval(
         deps.approvals.setSlot(tx, approvalSlotId(r.kind, r.subjectId), {
           requestId: r.id,
           open: false,
-          companyId: r.companyId,
+          tenantId: r.tenantId,
         });
       deps.audit.record(
         tx,
@@ -306,7 +306,7 @@ export async function decideApproval(
         }),
       );
       notifyUsers(deps, tx, {
-        companyId: r.companyId,
+        tenantId: r.tenantId,
         userIds: [r.requestedBy],
         kind: 'approval',
         titleKey: approved ? 'notifications.approvalApproved' : 'notifications.approvalRejected',
@@ -355,7 +355,7 @@ export async function withdrawApproval(
       deps.approvals.setSlot(tx, approvalSlotId(r.kind, r.subjectId), {
         requestId: r.id,
         open: false,
-        companyId: r.companyId,
+        tenantId: r.tenantId,
       });
       deps.audit.record(
         tx,
@@ -414,7 +414,7 @@ export function consumeApprovalInTx(
   deps.approvals.setSlot(tx, approvalSlotId(r.kind, r.subjectId), {
     requestId: r.id,
     open: false,
-    companyId: r.companyId,
+    tenantId: r.tenantId,
   });
   deps.audit.record(
     tx,
@@ -513,7 +513,7 @@ export async function listApprovals(
 ): Promise<{ items: ApprovalDto[]; counts: { toDecide: number; mine: number } }> {
   const scope = resolveScope(actor, 'approval:view');
   const branchId = requireWorkingBranch(actor);
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   const canDecide =
     hasPermission(actor, 'approval-l1:approve') ||
     hasPermission(actor, INVOICE_APPROVER_PERMISSION);
@@ -570,7 +570,7 @@ export async function findActiveApprovalFor(
   const scope = resolveScope(actor, 'approval:view');
   const limits = await approvalLimitsOf(
     deps,
-    actor.companyId,
+    actor.tenantId,
     q.kind,
     businessDate(deps.clock.now()),
   );

@@ -36,10 +36,10 @@ const scopeParams = (scope: Scope) =>
   scope.kind === 'branches' ? { scopeBranches: scope.branchIds } : {};
 
 /** Company-level record visible to a scope through its `branchIds` relation array (BA §10.1.5). */
-function visible(scope: Scope, doc: { companyId: string; branchIds: readonly string[] }): boolean {
-  if (doc.companyId !== scope.companyId) return false;
+function visible(scope: Scope, doc: { tenantId: string; branchIds: readonly string[] }): boolean {
+  if (doc.tenantId !== scope.tenantId) return false;
   if (scope.kind === 'all') return true;
-  return doc.branchIds.some((b) => scopeAllows(scope, doc.companyId, b));
+  return doc.branchIds.some((b) => scopeAllows(scope, doc.tenantId, b));
 }
 
 /**
@@ -74,7 +74,7 @@ async function listViaLinks<E extends { id: string }>(args: {
   if (scope.kind === 'all') {
     const shape = args.direct.family.pick(optKeys, false);
     const rows = await store.query(shape, {
-      eq: { companyId: scope.companyId, ...args.direct.optionalEq },
+      eq: { tenantId: scope.tenantId, ...args.direct.optionalEq },
       ...(args.direct.range ? { range: args.direct.range } : {}),
       ...(cursor ? { cursor } : {}),
       limit: limit + 1,
@@ -93,7 +93,7 @@ async function listViaLinks<E extends { id: string }>(args: {
   const fetch = Math.min(limit * B + 1, 1000);
   const shape = args.links.family.pick(optKeys, true);
   const rows = await store.query(shape, {
-    eq: { companyId: scope.companyId, ...args.links.optionalEq },
+    eq: { tenantId: scope.tenantId, ...args.links.optionalEq },
     ...scopeParams(scope),
     ...(args.links.range ? { range: args.links.range } : {}),
     ...(cursor ? { cursor } : {}),
@@ -129,7 +129,7 @@ async function listViaLinks<E extends { id: string }>(args: {
 
 const customerFromDoc = ({ id, data: x }: StoredDoc): Customer => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   code: x.code,
   type: x.type,
@@ -203,15 +203,15 @@ export class DocCustomerRepository implements CustomerRepository {
       .map(customerFromDoc)
       .filter((c) => visible(scope, c));
   }
-  async getCompanyWide(companyId: string, id: string) {
+  async getCompanyWide(tenantId: string, id: string) {
     const d = await this.store.get(COL.customers, id);
     const c = d ? customerFromDoc(d) : null;
-    return c && c.companyId === companyId ? c : null;
+    return c && c.tenantId === tenantId ? c : null;
   }
-  async getCompanyWideInTx(tx: Tx, companyId: string, id: string) {
+  async getCompanyWideInTx(tx: Tx, tenantId: string, id: string) {
     const d = await this.store.getInTx(tx, COL.customers, id);
     const c = d ? customerFromDoc(d) : null;
-    return c && c.companyId === companyId ? c : null;
+    return c && c.tenantId === tenantId ? c : null;
   }
 
   create(tx: Tx, c: Customer, pii: CustomerPii) {
@@ -228,7 +228,7 @@ export class DocCustomerRepository implements CustomerRepository {
   }
   link(
     tx: Tx,
-    c: Pick<Customer, 'id' | 'companyId' | 'nameNorm' | 'type' | 'code'>,
+    c: Pick<Customer, 'id' | 'tenantId' | 'nameNorm' | 'type' | 'code'>,
     branchId: string,
     at: Date,
     relation: { source: RelationSource; by: string },
@@ -236,7 +236,7 @@ export class DocCustomerRepository implements CustomerRepository {
     this.store.set(tx, COL.customerLinks, customerLinkId(c.id, branchId), {
       source: relation.source,
       createdBy: relation.by,
-      companyId: c.companyId,
+      tenantId: c.tenantId,
       customerId: c.id,
       branchId,
       nameNorm: c.nameNorm,
@@ -247,7 +247,7 @@ export class DocCustomerRepository implements CustomerRepository {
   }
   relink(
     tx: Tx,
-    c: Pick<Customer, 'id' | 'companyId' | 'nameNorm' | 'type' | 'code' | 'branchIds'>,
+    c: Pick<Customer, 'id' | 'tenantId' | 'nameNorm' | 'type' | 'code' | 'branchIds'>,
   ) {
     for (const b of c.branchIds)
       this.store.update(tx, COL.customerLinks, customerLinkId(c.id, b), {
@@ -256,26 +256,26 @@ export class DocCustomerRepository implements CustomerRepository {
       });
   }
 
-  async getPii(companyId: string, customerId: string) {
+  async getPii(tenantId: string, customerId: string) {
     const d = await this.store.get(COL.customerPii, customerId);
-    return d && d.data.companyId === companyId ? piiFromDoc(d) : null;
+    return d && d.data.tenantId === tenantId ? piiFromDoc(d) : null;
   }
-  async getPiiInTx(tx: Tx, companyId: string, customerId: string) {
+  async getPiiInTx(tx: Tx, tenantId: string, customerId: string) {
     const d = await this.store.getInTx(tx, COL.customerPii, customerId);
-    return d && d.data.companyId === companyId ? piiFromDoc(d) : null;
+    return d && d.data.tenantId === tenantId ? piiFromDoc(d) : null;
   }
   setPii(tx: Tx, customerId: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.customerPii, customerId, patch);
   }
   async customerIdsByPhone(
-    companyId: string,
+    tenantId: string,
     phoneNorm: string,
     mode: 'exact' | 'prefix',
     limit: number,
   ) {
     if (!phoneNorm) return [];
     const rows = await this.store.query(Q.customerPiiByPhone.pick([], false), {
-      eq: { companyId },
+      eq: { tenantId },
       range: prefixRange(phoneNorm),
       limit: mode === 'exact' ? Math.max(limit * 4, 20) : limit,
     });
@@ -286,7 +286,7 @@ export class DocCustomerRepository implements CustomerRepository {
 
 const piiFromDoc = ({ id, data: x }: StoredDoc): CustomerPii => ({
   customerId: id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   ...(x.phone ? { phone: x.phone } : {}),
   ...(x.phoneNorm ? { phoneNorm: x.phoneNorm } : {}),
   ...(x.email ? { email: x.email } : {}),
@@ -298,7 +298,7 @@ const piiFromDoc = ({ id, data: x }: StoredDoc): CustomerPii => ({
 
 const vehicleFromDoc = ({ id, data: x }: StoredDoc): Vehicle => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   plate: x.plate,
   plateNorm: x.plateNorm,
@@ -366,50 +366,50 @@ export class DocVehicleRepository implements VehicleRepository {
       .map(vehicleFromDoc)
       .filter((v) => visible(scope, v));
   }
-  async getCompanyWide(companyId: string, id: string) {
+  async getCompanyWide(tenantId: string, id: string) {
     const d = await this.store.get(COL.vehicles, id);
     const v = d ? vehicleFromDoc(d) : null;
-    return v && v.companyId === companyId ? v : null;
+    return v && v.tenantId === tenantId ? v : null;
   }
-  async getCompanyWideInTx(tx: Tx, companyId: string, id: string) {
+  async getCompanyWideInTx(tx: Tx, tenantId: string, id: string) {
     const d = await this.store.getInTx(tx, COL.vehicles, id);
     const v = d ? vehicleFromDoc(d) : null;
-    return v && v.companyId === companyId ? v : null;
+    return v && v.tenantId === tenantId ? v : null;
   }
-  async vehicleIdByPlate(companyId: string, plateNorm: string) {
-    const d = await this.store.get(COL.vehiclePlates, plateKey(companyId, plateNorm));
+  async vehicleIdByPlate(tenantId: string, plateNorm: string) {
+    const d = await this.store.get(COL.vehiclePlates, plateKey(tenantId, plateNorm));
     return d ? (d.data.vehicleId as string) : null;
   }
-  async vehicleIdByVin(companyId: string, vin: string) {
-    const d = await this.store.get(COL.vehicleVins, vinKey(companyId, vin));
+  async vehicleIdByVin(tenantId: string, vin: string) {
+    const d = await this.store.get(COL.vehicleVins, vinKey(tenantId, vin));
     return d ? (d.data.vehicleId as string) : null;
   }
   setVin(
     tx: Tx,
-    v: Pick<Vehicle, 'id' | 'companyId'>,
+    v: Pick<Vehicle, 'id' | 'tenantId'>,
     oldVin: string | null,
     newVin: string | null,
   ) {
     if (newVin)
-      this.store.create(tx, COL.vehicleVins, vinKey(v.companyId, newVin), {
-        companyId: v.companyId,
+      this.store.create(tx, COL.vehicleVins, vinKey(v.tenantId, newVin), {
+        tenantId: v.tenantId,
         vehicleId: v.id,
       });
-    if (oldVin) this.store.delete(tx, COL.vehicleVins, vinKey(v.companyId, oldVin));
+    if (oldVin) this.store.delete(tx, COL.vehicleVins, vinKey(v.tenantId, oldVin));
   }
   create(tx: Tx, v: Vehicle) {
     // the registry slot is created, not set: a taken plate fails the whole transaction (FR-CRM-002)
-    this.store.create(tx, COL.vehiclePlates, plateKey(v.companyId, v.plateNorm), {
-      companyId: v.companyId,
+    this.store.create(tx, COL.vehiclePlates, plateKey(v.tenantId, v.plateNorm), {
+      tenantId: v.tenantId,
       vehicleId: v.id,
     });
     if (v.vin) this.setVin(tx, v, null, v.vin);
     this.store.create(tx, COL.vehicles, v.id, without(v, 'id'));
   }
-  remove(tx: Tx, v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm' | 'vin' | 'branchIds'>) {
+  remove(tx: Tx, v: Pick<Vehicle, 'id' | 'tenantId' | 'plateNorm' | 'vin' | 'branchIds'>) {
     for (const b of v.branchIds) this.store.delete(tx, COL.vehicleLinks, vehicleLinkId(v.id, b));
-    this.store.delete(tx, COL.vehiclePlates, plateKey(v.companyId, v.plateNorm));
-    if (v.vin) this.store.delete(tx, COL.vehicleVins, vinKey(v.companyId, v.vin));
+    this.store.delete(tx, COL.vehiclePlates, plateKey(v.tenantId, v.plateNorm));
+    if (v.vin) this.store.delete(tx, COL.vehicleVins, vinKey(v.tenantId, v.vin));
     this.store.delete(tx, COL.vehicles, v.id);
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
@@ -417,20 +417,20 @@ export class DocVehicleRepository implements VehicleRepository {
   }
   changePlate(
     tx: Tx,
-    v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm' | 'branchIds'>,
+    v: Pick<Vehicle, 'id' | 'tenantId' | 'plateNorm' | 'branchIds'>,
     newPlateNorm: string,
   ) {
-    this.store.create(tx, COL.vehiclePlates, plateKey(v.companyId, newPlateNorm), {
-      companyId: v.companyId,
+    this.store.create(tx, COL.vehiclePlates, plateKey(v.tenantId, newPlateNorm), {
+      tenantId: v.tenantId,
       vehicleId: v.id,
     });
-    this.store.delete(tx, COL.vehiclePlates, plateKey(v.companyId, v.plateNorm));
+    this.store.delete(tx, COL.vehiclePlates, plateKey(v.tenantId, v.plateNorm));
     for (const b of v.branchIds)
       this.store.update(tx, COL.vehicleLinks, vehicleLinkId(v.id, b), { plateNorm: newPlateNorm });
   }
-  link(tx: Tx, v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm'>, branchId: string, at: Date) {
+  link(tx: Tx, v: Pick<Vehicle, 'id' | 'tenantId' | 'plateNorm'>, branchId: string, at: Date) {
     this.store.set(tx, COL.vehicleLinks, vehicleLinkId(v.id, branchId), {
-      companyId: v.companyId,
+      tenantId: v.tenantId,
       vehicleId: v.id,
       branchId,
       plateNorm: v.plateNorm,
@@ -439,7 +439,7 @@ export class DocVehicleRepository implements VehicleRepository {
   }
   async byCustomer(scope: Scope, customerId: string, limit: number) {
     const rows = await this.store.query(Q.vehiclesByOwner.pick([], false), {
-      eq: { companyId: scope.companyId, currentOwnerId: customerId },
+      eq: { tenantId: scope.tenantId, currentOwnerId: customerId },
       limit,
     });
     return rows.map(vehicleFromDoc).filter((v) => visible(scope, v));
@@ -450,7 +450,7 @@ export class DocVehicleRepository implements VehicleRepository {
 
 const ownershipFromDoc = ({ id, data: x }: StoredDoc): Ownership => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   vehicleId: x.vehicleId,
   customerId: x.customerId,
   from: x.from,
@@ -463,21 +463,21 @@ const ownershipFromDoc = ({ id, data: x }: StoredDoc): Ownership => ({
 
 export class DocOwnershipRepository implements OwnershipRepository {
   constructor(private readonly store: DocStore) {}
-  async listByVehicle(companyId: string, vehicleId: string) {
+  async listByVehicle(tenantId: string, vehicleId: string) {
     const rows = await this.store.query(Q.ownershipsByVehicle.pick([], false), {
-      eq: { companyId, vehicleId },
+      eq: { tenantId, vehicleId },
       limit: 200,
     });
     return rows.map(ownershipFromDoc);
   }
   // Firestore queries are not transactional here: the vehicle document read in the same tx carries
   // the optimistic version, so a concurrent owner change makes this transaction retry.
-  listByVehicleInTx(_tx: Tx, companyId: string, vehicleId: string) {
-    return this.listByVehicle(companyId, vehicleId);
+  listByVehicleInTx(_tx: Tx, tenantId: string, vehicleId: string) {
+    return this.listByVehicle(tenantId, vehicleId);
   }
-  async listByCustomer(companyId: string, customerId: string, limit: number) {
+  async listByCustomer(tenantId: string, customerId: string, limit: number) {
     const rows = await this.store.query(Q.ownershipsByCustomer.pick([], false), {
-      eq: { companyId, customerId },
+      eq: { tenantId, customerId },
       limit,
     });
     return rows.map(ownershipFromDoc);
@@ -497,7 +497,7 @@ export class DocOwnershipRepository implements OwnershipRepository {
 
 const consentFromDoc = ({ id, data: x }: StoredDoc): Consent => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   customerId: x.customerId,
   purpose: x.purpose,
@@ -518,20 +518,20 @@ const consentFromDoc = ({ id, data: x }: StoredDoc): Consent => ({
 
 export class DocConsentRepository implements ConsentRepository {
   constructor(private readonly store: DocStore) {}
-  async listByCustomer(companyId: string, customerId: string) {
+  async listByCustomer(tenantId: string, customerId: string) {
     const rows = await this.store.query(Q.consentsByCustomer.pick([], false), {
-      eq: { companyId, customerId },
+      eq: { tenantId, customerId },
       limit: 200,
     });
     return rows.map(consentFromDoc);
   }
-  async get(companyId: string, id: string) {
+  async get(tenantId: string, id: string) {
     const d = await this.store.get(COL.consents, id);
-    return d && d.data.companyId === companyId ? consentFromDoc(d) : null;
+    return d && d.data.tenantId === tenantId ? consentFromDoc(d) : null;
   }
-  async getInTx(tx: Tx, companyId: string, id: string) {
+  async getInTx(tx: Tx, tenantId: string, id: string) {
     const d = await this.store.getInTx(tx, COL.consents, id);
-    return d && d.data.companyId === companyId ? consentFromDoc(d) : null;
+    return d && d.data.tenantId === tenantId ? consentFromDoc(d) : null;
   }
   create(tx: Tx, c: Consent) {
     this.store.create(tx, COL.consents, c.id, without(c, 'id'));
@@ -545,7 +545,7 @@ export class DocConsentRepository implements ConsentRepository {
 
 const requestFromDoc = ({ id, data: x }: StoredDoc): DataRequest => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   code: x.code,
   customerId: x.customerId,
@@ -576,7 +576,7 @@ export class DocDataRequestRepository implements DataRequestRepository {
     const opt = [...(q.status ? ['status'] : []), ...(q.customerId ? ['customerId'] : [])];
     const rows = await this.store.query(Q.dataRequests.pick(opt, scope.kind === 'branches'), {
       eq: {
-        companyId: scope.companyId,
+        tenantId: scope.tenantId,
         ...(q.status ? { status: q.status } : {}),
         ...(q.customerId ? { customerId: q.customerId } : {}),
       },
@@ -597,12 +597,12 @@ export class DocDataRequestRepository implements DataRequestRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.dataSubjectRequests, id);
     const r = d ? requestFromDoc(d) : null;
-    return r && scopeAllows(scope, r.companyId, r.branchId) ? r : null;
+    return r && scopeAllows(scope, r.tenantId, r.branchId) ? r : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.dataSubjectRequests, id);
     const r = d ? requestFromDoc(d) : null;
-    return r && scopeAllows(scope, r.companyId, r.branchId) ? r : null;
+    return r && scopeAllows(scope, r.tenantId, r.branchId) ? r : null;
   }
   create(tx: Tx, r: DataRequest) {
     this.store.create(tx, COL.dataSubjectRequests, r.id, without(r, 'id'));
@@ -616,7 +616,7 @@ export class DocDataRequestRepository implements DataRequestRepository {
 
 const historyFromDoc = ({ id, data: x }: StoredDoc): VehicleHistoryEntry => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   vehicleId: x.vehicleId,
   branchId: x.branchId,
   branchName: x.branchName,
@@ -635,7 +635,7 @@ export class DocVehicleHistoryRepository implements VehicleHistoryRepository {
   upsert(tx: Tx, e: VehicleHistoryEntry) {
     const {
       id,
-      companyId,
+      tenantId,
       vehicleId,
       branchId,
       branchName,
@@ -648,7 +648,7 @@ export class DocVehicleHistoryRepository implements VehicleHistoryRepository {
       projectedAt,
     } = e;
     this.store.set(tx, COL.vehicleHistory, id, {
-      companyId,
+      tenantId,
       vehicleId,
       branchId,
       branchName,
@@ -661,9 +661,9 @@ export class DocVehicleHistoryRepository implements VehicleHistoryRepository {
       projectedAt,
     });
   }
-  async listByVehicle(companyId: string, vehicleId: string, q: { limit: number; cursor?: Cur }) {
+  async listByVehicle(tenantId: string, vehicleId: string, q: { limit: number; cursor?: Cur }) {
     const rows = await this.store.query(Q.vehicleHistory.pick([], false), {
-      eq: { companyId, vehicleId },
+      eq: { tenantId, vehicleId },
       ...(q.cursor ? { cursor: q.cursor } : {}),
       limit: q.limit + 1,
     });

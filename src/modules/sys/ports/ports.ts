@@ -85,14 +85,14 @@ export interface RoleRepository {
 }
 
 export interface RoleAssignmentRepository {
-  listForUser(userId: string): Promise<(RoleAssignment & { companyId: string })[]>;
+  listForUser(userId: string): Promise<(RoleAssignment & { tenantId: string })[]>;
   listForUserInTx(tx: Tx, userId: string): Promise<RoleAssignmentRecord[]>;
   /** assignments whose branch is inside the scope, used for user administration screens */
   listInScope(scope: Scope, userId: string): Promise<RoleAssignmentRecord[]>;
   /** every assignment whose branch is inside the scope (one paged query), for user list filters */
   listAllInScope(scope: Scope): Promise<RoleAssignmentRecord[]>;
   /** users holding a role (any branch), e.g. to address approvers; capped */
-  listByRole(companyId: string, roleCode: string, limit: number): Promise<RoleAssignmentRecord[]>;
+  listByRole(tenantId: string, roleCode: string, limit: number): Promise<RoleAssignmentRecord[]>;
   add(tx: Tx, a: RoleAssignmentRecord): void;
   remove(tx: Tx, id: string): void;
   getInTx(tx: Tx, id: string): Promise<RoleAssignmentRecord | null>;
@@ -115,10 +115,10 @@ export interface BranchRepository {
     },
   ): void;
   /** true when numbering counters already exist for the branch (MÃCN then becomes immutable) */
-  hasNumbering(companyId: string, branchId: string): Promise<boolean>;
+  hasNumbering(tenantId: string, branchId: string): Promise<boolean>;
 }
 
-export interface CompanyRepository {
+export interface TenantRepository {
   get(id: string): Promise<Company | null>;
 }
 
@@ -200,10 +200,10 @@ export interface AuthTokenRepository {
 
 export interface ConfigRepository {
   /** All versions (any status) of one (type, scopeKey), newest effectiveFrom first. */
-  listVersions(companyId: string, type: string, scopeKey: string): Promise<ConfigVersion[]>;
+  listVersions(tenantId: string, type: string, scopeKey: string): Promise<ConfigVersion[]>;
   /** Versions of a type across scope keys, optionally filtered by status. */
   listByType(
-    companyId: string,
+    tenantId: string,
     type: string,
     status: ConfigVersion['status'] | undefined,
     limit: number,
@@ -234,10 +234,10 @@ export interface NotificationRepository {
 
 export interface ServiceRepository {
   list(
-    companyId: string,
+    tenantId: string,
     q: ListQuery<'code' | 'name'> & { group?: string },
   ): Promise<Page<ServiceItem>>;
-  get(companyId: string, id: string): Promise<ServiceItem | null>;
+  get(tenantId: string, id: string): Promise<ServiceItem | null>;
   create(tx: Tx, s: ServiceItem): void;
   update(
     tx: Tx,
@@ -248,12 +248,12 @@ export interface ServiceRepository {
       version: number;
     },
   ): void;
-  getInTx(tx: Tx, companyId: string, id: string): Promise<ServiceItem | null>;
+  getInTx(tx: Tx, tenantId: string, id: string): Promise<ServiceItem | null>;
 }
 
 export interface PriceListRepository {
-  list(companyId: string, q: ListQuery<'code' | 'name'>): Promise<Page<PriceListHeader>>;
-  get(companyId: string, id: string): Promise<PriceListHeader | null>;
+  list(tenantId: string, q: ListQuery<'code' | 'name'>): Promise<Page<PriceListHeader>>;
+  get(tenantId: string, id: string): Promise<PriceListHeader | null>;
   create(tx: Tx, p: PriceListHeader): void;
   update(
     tx: Tx,
@@ -264,7 +264,7 @@ export interface PriceListRepository {
       version: number;
     },
   ): void;
-  getInTx(tx: Tx, companyId: string, id: string): Promise<PriceListHeader | null>;
+  getInTx(tx: Tx, tenantId: string, id: string): Promise<PriceListHeader | null>;
 }
 
 // ---- identity -------------------------------------------------------------
@@ -402,7 +402,7 @@ export interface ApprovalRepository {
   listByRequester(scope: Scope, requesterId: string, limit: number): Promise<ApprovalRequest[]>;
   /** one slot per (kind, subject): the id of the request that is pending for it, if any */
   getSlotInTx(tx: Tx, slotId: string): Promise<{ requestId: string; open: boolean } | null>;
-  setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; companyId: string }): void;
+  setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; tenantId: string }): void;
   create(tx: Tx, r: ApprovalRequest): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
@@ -441,7 +441,7 @@ export interface ImportEntityRef {
 
 export interface ImportBatch {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   kind: ImportKind;
   fileName: string;
@@ -490,13 +490,13 @@ export interface ImportBatchRepository {
   setFileSlot(
     tx: Tx,
     slotId: string,
-    owner: { batchId: string; companyId: string; branchId: string },
+    owner: { batchId: string; tenantId: string; branchId: string },
   ): void;
   /** staged units live in chunks read by key; personal data, removed after commit or discard */
   putUnits(
     tx: Tx,
     batchId: string,
-    owner: { companyId: string; branchId: string },
+    owner: { tenantId: string; branchId: string },
     units: readonly ImportUnit[],
   ): void;
   getUnits(scope: Scope, batchId: string, chunkCount: number): Promise<ImportUnit[]>;

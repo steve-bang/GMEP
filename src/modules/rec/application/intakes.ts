@@ -126,7 +126,7 @@ export interface ServiceTypeOption {
 export async function listServiceTypes(deps: RecDeps, actor: Actor): Promise<ServiceTypeOption[]> {
   resolveScope(actor, 'intake:view');
   const rows = await resolveCatalogAt(deps.sys, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     type: 'service-type',
     date: businessDate(deps.sys.clock.now()),
   });
@@ -247,7 +247,7 @@ export async function createIntake(
       });
       const i: Intake = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: branch.id,
         number: num.number!,
         status: 'draft',

@@ -34,7 +34,7 @@ export async function revealPii(
     requestId: ctx.requestId,
     actorId: actor.userId,
     actorRoles: roleCodesOf(actor),
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     entityType: data.entityType,
     entityId: data.entityId,
     fields: [field],
@@ -79,7 +79,7 @@ export const userPiiSource = {
   async load(rawDeps: unknown, scope: import('@/platform/scope/scope').Scope, id: string) {
     const deps = rawDeps as SysDeps;
     const u = await deps.users.getById(id);
-    if (!u || u.companyId !== scope.companyId) return null;
+    if (!u || u.tenantId !== scope.tenantId) return null;
     if (scope.kind === 'branches' && (await deps.assignments.listInScope(scope, id)).length === 0)
       return null;
     return { branchId: null, values: { ...(u.phone ? { phone: u.phone } : {}) } };

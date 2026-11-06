@@ -59,7 +59,7 @@ export async function requestReversal(
   const value = p0.totalVnd + p0.applicationVnd;
   const { level, limits } = await approvalLevelFor(
     deps.sys,
-    actor.companyId,
+    actor.tenantId,
     'payment_reversal',
     value,
   );
@@ -135,7 +135,7 @@ export async function executeReversal(
       const [reversedBy, account, m, order] = await Promise.all([
         deps.payments.reversalOfInTx(tx, paymentId),
         p.orderId ? deps.accounts.getInTx(tx, scope, p.orderId) : Promise.resolve(null),
-        loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, date),
+        loadMoneyCtx(deps, tx, scope, actor.tenantId, branchId, date),
         p.orderId ? deps.orders.getInTx(tx, scope, p.orderId) : Promise.resolve(null),
       ]);
       const ok = canReverse(p, account, reversedBy !== null);
@@ -155,7 +155,7 @@ export async function executeReversal(
       });
       const rev: Payment = {
         id: reversalId,
-        companyId: p.companyId,
+        tenantId: p.tenantId,
         branchId,
         number: num.number!,
         kind: 'reversal',
@@ -184,7 +184,7 @@ export async function executeReversal(
       deps.payments.post(tx, rev);
       deps.payments.markReversed(tx, p.id, {
         reversalId,
-        companyId: p.companyId,
+        tenantId: p.tenantId,
         branchId,
         at: now,
       });

@@ -67,19 +67,19 @@ export const versionConflict = (): AppError => new AppError('version_conflict', 
 /** The branch the money screens work in: the session's working branch, which the scope must cover (NFR-ISO-01). */
 export function moneyBranch(actor: Actor, scope: Scope): string {
   const branchId = requireWorkingBranch(actor);
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   return branchId;
 }
 
 /** Effective-dated money policy of the branch (branch override, then company, then the documented fallback). */
 export async function accPolicyOf(
   deps: AccDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<AccPolicy> {
   const snap = await resolveConfigAt(deps.sys, {
-    companyId,
+    tenantId,
     type: 'acc-policy',
     scopeKey: 'company',
     date,
@@ -99,7 +99,7 @@ export async function assertWritable(
   branchId: string,
   kind: WriteKind = 'edit_open_order',
 ): Promise<Branch> {
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   const branch = await deps.sys.branches.getInTx(tx, scope, branchId);
   if (!branch) throw notFound();
   assertBranchWritable(branch.status, kind, roleCodesOf(actor), deps.sys.config.branchStateRules);
@@ -121,7 +121,7 @@ export async function loadMoneyCtx(
   deps: AccDeps,
   tx: Tx,
   scope: Scope,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<MoneyCtx> {
@@ -132,7 +132,7 @@ export async function loadMoneyCtx(
   return {
     drawer: drawer ?? {
       id: branchId,
-      companyId,
+      tenantId,
       branchId,
       balanceVnd: 0,
       seq: 0,
@@ -177,7 +177,7 @@ export function stageCash(
   const seq = drawer.seq + 1;
   const entry: CashEntry = {
     id: cashEntryId(drawer.branchId, seq),
-    companyId: drawer.companyId,
+    tenantId: drawer.tenantId,
     branchId: drawer.branchId,
     businessDate: e.date,
     seq,

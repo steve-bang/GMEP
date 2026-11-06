@@ -19,12 +19,12 @@ export const dateSchema = z
 /** Effective-dated policy (NFR-MNT-01); a missing version falls back to the documented defaults. */
 export async function rptPolicyOf(
   deps: RptDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<RptPolicy> {
   const snap = await resolveConfigAt(deps.sys, {
-    companyId,
+    tenantId,
     type: 'report-policy',
     scopeKey: 'company',
     date,
@@ -74,5 +74,5 @@ export function singleBranch(
 }
 
 export function assertBranchInScope(scope: Scope, actor: Actor, branchId: string): void {
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
 }

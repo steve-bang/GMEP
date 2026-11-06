@@ -41,8 +41,8 @@ describe('index report (R68 budget, check:indexes --report)', () => {
   });
 
   it('lists a strict prefix with the same collection, scope and directions as a candidate', () => {
-    const short = def('customers', ['companyId', 'nameNorm']);
-    const long = def('customers', ['companyId', 'nameNorm', 'createdAt']);
+    const short = def('customers', ['tenantId', 'nameNorm']);
+    const long = def('customers', ['tenantId', 'nameNorm', 'createdAt']);
     const out = prefixCandidates([long, short]);
     expect(out).toHaveLength(1);
     expect(out[0]!.shorter).toBe(short);
@@ -51,19 +51,16 @@ describe('index report (R68 budget, check:indexes --report)', () => {
   });
 
   it('does not list non-prefixes, other directions, other collections, other scopes or equal length', () => {
-    const base = def('customers', ['companyId', 'nameNorm']);
-    expect(prefixCandidates([base, def('customers', ['companyId', 'nameNorm desc', 'x'])])).toEqual(
+    const base = def('customers', ['tenantId', 'nameNorm']);
+    expect(prefixCandidates([base, def('customers', ['tenantId', 'nameNorm desc', 'x'])])).toEqual(
       [],
     );
-    expect(prefixCandidates([base, def('customers', ['nameNorm', 'companyId', 'x'])])).toEqual([]);
-    expect(prefixCandidates([base, def('vehicles', ['companyId', 'nameNorm', 'x'])])).toEqual([]);
+    expect(prefixCandidates([base, def('customers', ['nameNorm', 'tenantId', 'x'])])).toEqual([]);
+    expect(prefixCandidates([base, def('vehicles', ['tenantId', 'nameNorm', 'x'])])).toEqual([]);
     expect(
-      prefixCandidates([
-        base,
-        def('customers', ['companyId', 'nameNorm', 'x'], 'COLLECTION_GROUP'),
-      ]),
+      prefixCandidates([base, def('customers', ['tenantId', 'nameNorm', 'x'], 'COLLECTION_GROUP')]),
     ).toEqual([]);
-    expect(prefixCandidates([base, def('customers', ['companyId', 'other'])])).toEqual([]);
+    expect(prefixCandidates([base, def('customers', ['tenantId', 'other'])])).toEqual([]);
   });
 
   it('every collection with a declared index has an owner and a slice', () => {

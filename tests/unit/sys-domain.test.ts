@@ -215,7 +215,7 @@ describe('FR-SYS-003 audit never stores personal values (BA conflict resolution 
 
 describe('BA-13 numbering rules (ba-answers §6)', () => {
   const ctx = (docType: string, date: string, seqWidth?: number): NumberingContext => ({
-    companyId: 'c',
+    tenantId: 'c',
     branchId: 'b',
     branchCode: 'Q7',
     docType,
@@ -316,7 +316,7 @@ describe('H1 TtlCache', () => {
 describe('BA §4 working scope resolution', () => {
   const base = (over: Partial<Actor>): Actor => ({
     userId: 'u',
-    companyId: 'c',
+    tenantId: 'c',
     displayName: 'x',
     canConsolidate: false,
     workingBranchId: null,

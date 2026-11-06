@@ -8,7 +8,7 @@ const PROD = {
   GCLOUD_PROJECT: 'gmep-prod',
   FIREBASE_API_KEY: 'k-real',
   APP_BASE_URL: 'https://gmep.example.vn',
-  CRON_COMPANY_ID: 'cmp_main',
+  CRON_TENANT_ID: 'tnt_main',
   CRON_OIDC_AUDIENCE: 'https://gmep.example.vn',
   CRON_OIDC_SERVICE_ACCOUNT: 'cron@gmep-prod.iam.gserviceaccount.com',
 };
@@ -62,7 +62,7 @@ describe('environment safety', () => {
       'GCLOUD_PROJECT',
       'FIREBASE_API_KEY',
       'APP_BASE_URL',
-      'CRON_COMPANY_ID',
+      'CRON_TENANT_ID',
       'CRON_SECRET',
     ])
       expect(msg).toContain(n);

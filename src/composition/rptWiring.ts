@@ -24,8 +24,8 @@ const DAY_MS = 86_400_000;
 
 /** One branch of the actor's scope, or null when the scope does not cover it (the source then answers "nothing"). */
 function oneBranch(scope: Scope, branchId: string): Scope | null {
-  return scopeAllows(scope, scope.companyId, branchId)
-    ? branchesScope(scope.companyId, [branchId])
+  return scopeAllows(scope, scope.tenantId, branchId)
+    ? branchesScope(scope.tenantId, [branchId])
     : null;
 }
 

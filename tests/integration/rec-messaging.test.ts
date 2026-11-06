@@ -11,9 +11,9 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
-const SV_PHANH = 'svc_cmp_demo_SV-PHANH';
-const SV_CAN = 'svc_cmp_demo_SV-CANCHINH';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
+const SV_PHANH = 'svc_tnt_demo_SV-PHANH';
+const SV_CAN = 'svc_tnt_demo_SV-CANCHINH';
 const P_FILTER = 'part_seed_01';
 const CRON_SECRET = 'cron-secret-0123456789-abcdefghijklmnop';
 
@@ -152,7 +152,7 @@ describe.each(backends)('REC messaging and approval code [%s]', (backend) => {
       env: {
         MESSAGE_DEV_CHANNELS: 'sms,zalo',
         CRON_SECRET,
-        CRON_COMPANY_ID: 'cmp_demo',
+        CRON_TENANT_ID: 'tnt_demo',
       },
     });
     cv = await h.loginAt('u_cv_q7', 'br_q7');

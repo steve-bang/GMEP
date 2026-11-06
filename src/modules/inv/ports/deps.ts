@@ -43,7 +43,7 @@ export const DEFAULT_INV_CONFIG: InvConfig = {
  */
 export interface OrderAdvisorPort {
   advisorsOf(
-    companyId: string,
+    tenantId: string,
     sourceType: string,
     sourceIds: readonly string[],
   ): Promise<Map<string, string>>;

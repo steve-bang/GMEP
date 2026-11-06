@@ -22,8 +22,8 @@ const without = <T extends object>(o: T, ...keys: (keyof T)[]) => {
   for (const k of keys) delete c[k as string];
   return c as DocData;
 };
-const inScope = (scope: Scope, x: { companyId: string; branchId: string }) =>
-  scopeAllows(scope, x.companyId, x.branchId);
+const inScope = (scope: Scope, x: { tenantId: string; branchId: string }) =>
+  scopeAllows(scope, x.tenantId, x.branchId);
 const asEntity = <T>({ id, data }: StoredDoc): T => ({ id, ...data }) as T;
 
 // ---- payments (immutable once posted: there is no update method) ------------------------------------
@@ -42,7 +42,7 @@ export class DocPaymentRepository implements PaymentRepository {
   }
   async listByOrder(scope: Scope, orderId: string, limit: number) {
     const rows = await this.store.query(Q.paymentsByOrder.pick([], false), {
-      eq: { companyId: scope.companyId, orderId },
+      eq: { tenantId: scope.tenantId, orderId },
       limit,
     });
     return rows.map((r) => asEntity<Payment>(r)).filter((x) => inScope(scope, x));
@@ -53,9 +53,9 @@ export class DocPaymentRepository implements PaymentRepository {
     window: { from: Date; to: Date },
     limit: number,
   ) {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return [];
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return [];
     const rows = await this.store.query(Q.paymentsByBranch.pick([], false), {
-      eq: { companyId: scope.companyId, branchId },
+      eq: { tenantId: scope.tenantId, branchId },
       range: { gte: window.from, lt: window.to },
       limit,
     });
@@ -75,7 +75,7 @@ export class DocPaymentRepository implements PaymentRepository {
   markReversed(
     tx: Tx,
     paymentId: string,
-    v: { reversalId: string; companyId: string; branchId: string; at: Date },
+    v: { reversalId: string; tenantId: string; branchId: string; at: Date },
   ) {
     // create(), not set(): a second reversal of the same payment fails at commit (uniqueness guard)
     this.store.create(tx, COL.paymentReversals, paymentId, v);
@@ -126,9 +126,9 @@ export class DocCashRepository implements CashRepository {
     this.store.create(tx, COL.cashEntries, e.id, without(e, 'id'));
   }
   async entriesOfDay(scope: Scope, branchId: string, date: string, limit: number) {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return [];
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return [];
     const rows = await this.store.query(Q.cashEntriesByDay.pick([], false), {
-      eq: { companyId: scope.companyId, branchId, businessDate: date },
+      eq: { tenantId: scope.tenantId, branchId, businessDate: date },
       limit,
     });
     return rows.map((r) => asEntity<CashEntry>(r));
@@ -149,9 +149,9 @@ export class DocCashRepository implements CashRepository {
     window: { from: Date; to: Date } | null,
     limit: number,
   ) {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return [];
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return [];
     const rows = await this.store.query(Q.cashShiftsByBranch.pick([], false), {
-      eq: { companyId: scope.companyId, branchId },
+      eq: { tenantId: scope.tenantId, branchId },
       ...(window ? { range: { gte: window.from, lt: window.to } } : {}),
       limit,
     });
@@ -208,9 +208,9 @@ export class DocDebtRepository implements DebtRepository {
     return x && inScope(scope, x) ? x : null;
   }
   async listByStatus(scope: Scope, branchId: string, status: Debt['status'], limit: number) {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return [];
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return [];
     const rows = await this.store.query(Q.debtsByBranchStatus.pick([], false), {
-      eq: { companyId: scope.companyId, branchId, status },
+      eq: { tenantId: scope.tenantId, branchId, status },
       limit,
     });
     return rows.map((r) => asEntity<Debt>(r));

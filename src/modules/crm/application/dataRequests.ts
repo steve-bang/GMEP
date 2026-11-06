@@ -71,7 +71,7 @@ async function toDto(deps: CrmDeps, actor: Actor, rows: DataRequest[]): Promise<
   const assignees = new Map<string, string>();
   for (const id of new Set(rows.flatMap((r) => (r.assigneeId ? [r.assigneeId] : [])))) {
     const u = await deps.sys.users.getById(id);
-    if (u && u.companyId === actor.companyId) assignees.set(id, u.displayName);
+    if (u && u.tenantId === actor.tenantId) assignees.set(id, u.displayName);
   }
   const now = deps.sys.clock.now();
   return rows.map((r) => ({
@@ -174,7 +174,7 @@ export async function createDataRequest(
       });
       const r: DataRequest = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: branch.id,
         code: num.number!,
         customerId: customer.id,
@@ -229,7 +229,7 @@ export async function assignDataRequest(
   const scope = resolveScope(actor, 'data-request:update');
   const data = parseInput(assignSchema, input);
   const assignee = await deps.sys.users.getById(data.assigneeId);
-  if (!assignee || assignee.companyId !== actor.companyId || assignee.status !== 'active')
+  if (!assignee || assignee.tenantId !== actor.tenantId || assignee.status !== 'active')
     throw new AppError('validation_failed', 422, [
       { field: 'assigneeId', message: 'Người xử lý không hợp lệ.' },
     ]);
@@ -301,7 +301,7 @@ export async function closeDataRequest(
     let retained: string[] = [];
     if (r.type === 'delete' && data.outcome === 'completed') {
       resolveScope(actor, 'data-request:approve'); // 403 for anyone else
-      const check = await deps.retention.check(actor.companyId, r.customerId);
+      const check = await deps.retention.check(actor.tenantId, r.customerId);
       // a known blocker is reported first (C17): it tells the user what to finish
       if (check.blockers.length)
         throw new AppError(
@@ -313,7 +313,7 @@ export async function closeDataRequest(
       if (!check.verified && !deps.crm.allowUnverifiedRetention)
         throw new AppError('retention_unverified', 409);
       retained = check.retained;
-      const c = await deps.customers.getCompanyWideInTx(tx, actor.companyId, r.customerId);
+      const c = await deps.customers.getCompanyWideInTx(tx, actor.tenantId, r.customerId);
       if (!c) throw notFound();
       if (c.status !== 'anonymized') {
         const keepLegal = c.type === 'business' && retained.length > 0;

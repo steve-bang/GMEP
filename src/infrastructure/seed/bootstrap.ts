@@ -37,8 +37,8 @@ const idPart = z
 const bootstrapSchema = z.object({
   /** must equal GCLOUD_PROJECT: a typo cannot write to the wrong project */
   BOOTSTRAP_CONFIRM_PROJECT: z.string().min(1),
-  BOOTSTRAP_COMPANY_ID: idPart.default('cmp_main'),
-  BOOTSTRAP_COMPANY_NAME: z.string().trim().min(2).max(120),
+  BOOTSTRAP_TENANT_ID: idPart.default('tnt_main'),
+  BOOTSTRAP_TENANT_NAME: z.string().trim().min(2).max(120),
   BOOTSTRAP_BRANCH_CODE: z.string().trim().toUpperCase().regex(BRANCH_CODE_PATTERN),
   BOOTSTRAP_BRANCH_NAME: z.string().trim().min(2).max(120),
   BOOTSTRAP_WAREHOUSE_CODE: z
@@ -56,8 +56,8 @@ const bootstrapSchema = z.object({
 });
 
 export interface BootstrapConfig {
-  companyId: string;
-  companyName: string;
+  tenantId: string;
+  tenantName: string;
   branchCode: string;
   branchName: string;
   warehouseCode: string;
@@ -82,8 +82,8 @@ export function loadBootstrapConfig(
   if (e.BOOTSTRAP_CONFIRM_PROJECT !== gcloudProject)
     throw new Error('BOOTSTRAP_CONFIRM_PROJECT must equal GCLOUD_PROJECT (refusing to continue).');
   return {
-    companyId: e.BOOTSTRAP_COMPANY_ID,
-    companyName: e.BOOTSTRAP_COMPANY_NAME,
+    tenantId: e.BOOTSTRAP_TENANT_ID,
+    tenantName: e.BOOTSTRAP_TENANT_NAME,
     branchCode: e.BOOTSTRAP_BRANCH_CODE,
     branchName: e.BOOTSTRAP_BRANCH_NAME,
     warehouseCode: e.BOOTSTRAP_WAREHOUSE_CODE,
@@ -103,7 +103,7 @@ export function bootstrapDocs(cfg: BootstrapConfig, now: Date): SeedDoc[] {
   const put = (collection: string, id: string, data: DocData) =>
     docs.push({ collection, id, data });
   const audit = { createdAt: now, createdBy: 'bootstrap', updatedAt: now, updatedBy: 'bootstrap' };
-  put(COL.companies, cfg.companyId, { name: cfg.companyName, legalEntityIds: [] });
+  put(COL.tenants, cfg.tenantId, { name: cfg.tenantName, legalEntityIds: [] });
   for (const r of defaultRoleSeeds())
     put(COL.roles, r.code, {
       name: r.name,
@@ -113,7 +113,7 @@ export function bootstrapDocs(cfg: BootstrapConfig, now: Date): SeedDoc[] {
     });
   const branch: Branch = {
     id: `br_${cfg.branchCode.toLowerCase()}`,
-    companyId: cfg.companyId,
+    tenantId: cfg.tenantId,
     code: cfg.branchCode,
     name: cfg.branchName,
     status: 'active',
@@ -122,10 +122,10 @@ export function bootstrapDocs(cfg: BootstrapConfig, now: Date): SeedDoc[] {
   };
   const { id: branchId, ...branchRest } = branch;
   put(COL.branches, branchId, branchRest);
-  put('branchCodes', `${cfg.companyId}__${cfg.branchCode}`, { branchId });
+  put('branchCodes', `${cfg.tenantId}__${cfg.branchCode}`, { branchId });
   const wh: Warehouse = {
     id: warehouseId(branchId, cfg.warehouseCode),
-    companyId: cfg.companyId,
+    tenantId: cfg.tenantId,
     branchId,
     code: cfg.warehouseCode,
     name: cfg.warehouseName,
@@ -138,7 +138,7 @@ export function bootstrapDocs(cfg: BootstrapConfig, now: Date): SeedDoc[] {
   put(COL.warehouses, wh.id, warehouseToDoc(wh));
   const owner: User = {
     id: OWNER_USER_ID,
-    companyId: cfg.companyId,
+    tenantId: cfg.tenantId,
     email: cfg.ownerEmail,
     employeeCode: cfg.ownerCode,
     displayName: cfg.ownerName,
@@ -148,10 +148,10 @@ export function bootstrapDocs(cfg: BootstrapConfig, now: Date): SeedDoc[] {
   };
   put(COL.users, owner.id, userToDoc(owner));
   put(COL.userKeys, `email__${owner.email.toLowerCase()}`, { userId: owner.id });
-  put(COL.userKeys, `code__${owner.companyId}__${owner.employeeCode}`, { userId: owner.id });
+  put(COL.userKeys, `code__${owner.tenantId}__${owner.employeeCode}`, { userId: owner.id });
   put(COL.roleAssignments, roleAssignmentId(owner.id, 'CH', '*'), {
     userId: owner.id,
-    companyId: cfg.companyId,
+    tenantId: cfg.tenantId,
     roleCode: 'CH',
     branchId: '*',
     employeeCode: owner.employeeCode,
@@ -208,7 +208,7 @@ export async function runBootstrap(
     await io.store.create(COL.authTokens, id, {
       kind: 'invite',
       userId: OWNER_USER_ID,
-      companyId: cfg.companyId,
+      tenantId: cfg.tenantId,
       createdAt: io.now,
       expiresAt: new Date(io.now.getTime() + 72 * 3_600_000),
       usedAt: null,

@@ -10,7 +10,7 @@ import type { SeedDoc } from './types';
 import { COL } from '../repos/queries';
 
 const AT = new Date('2026-10-01T00:00:00.000Z');
-const CMP = 'cmp_demo';
+const CMP = 'tnt_demo';
 
 interface C {
   id: string;
@@ -104,7 +104,7 @@ export function crmDemoDocs(): SeedDoc[] {
   for (const c of customers) {
     const branchIds = c.id === 'cus_an' ? ['br_q7', 'br_td'] : [c.branch];
     put(COL.customers, c.id, {
-      companyId: CMP,
+      tenantId: CMP,
       branchId: c.branch,
       code: c.code,
       type: c.type,
@@ -123,7 +123,7 @@ export function crmDemoDocs(): SeedDoc[] {
       version: 1,
     });
     put(COL.customerPii, c.id, {
-      companyId: CMP,
+      tenantId: CMP,
       phone: c.phone,
       phoneNorm: c.phone,
       ...(c.email ? { email: c.email } : {}),
@@ -132,7 +132,7 @@ export function crmDemoDocs(): SeedDoc[] {
     });
     for (const b of branchIds)
       put(COL.customerLinks, customerLinkId(c.id, b), {
-        companyId: CMP,
+        tenantId: CMP,
         customerId: c.id,
         branchId: b,
         nameNorm: normalizeSearch(c.name),
@@ -144,7 +144,7 @@ export function crmDemoDocs(): SeedDoc[] {
       });
     if (c.marketing?.length)
       put(COL.consents, `con_${c.id}`, {
-        companyId: CMP,
+        tenantId: CMP,
         branchId: c.branch,
         customerId: c.id,
         purpose: 'marketing',
@@ -159,7 +159,7 @@ export function crmDemoDocs(): SeedDoc[] {
   }
   for (const v of vehicles) {
     put(COL.vehicles, v.id, {
-      companyId: CMP,
+      tenantId: CMP,
       branchId: v.branches[0],
       plate: v.plate,
       plateNorm: norm(v.plate),
@@ -178,17 +178,17 @@ export function crmDemoDocs(): SeedDoc[] {
       updatedBy: 'seed',
       version: 1,
     });
-    put(COL.vehiclePlates, plateKey(CMP, norm(v.plate)), { companyId: CMP, vehicleId: v.id });
+    put(COL.vehiclePlates, plateKey(CMP, norm(v.plate)), { tenantId: CMP, vehicleId: v.id });
     for (const b of v.branches)
       put(COL.vehicleLinks, vehicleLinkId(v.id, b), {
-        companyId: CMP,
+        tenantId: CMP,
         vehicleId: v.id,
         branchId: b,
         plateNorm: norm(v.plate),
         createdAt: AT,
       });
     put(COL.vehicleOwnerships, `own_${v.id}`, {
-      companyId: CMP,
+      tenantId: CMP,
       vehicleId: v.id,
       customerId: v.owner,
       from: '2024-01-01',
@@ -200,7 +200,7 @@ export function crmDemoDocs(): SeedDoc[] {
   }
   // cross-branch repair history of the sedan: one visit at Q7, one at Thu Duc (white-listed projection fields only)
   put(COL.vehicleHistory, 'ro:demo-1', {
-    companyId: CMP,
+    tenantId: CMP,
     vehicleId: 'veh_an',
     branchId: 'br_q7',
     branchName: 'Chi nhánh Quận 7',
@@ -216,7 +216,7 @@ export function crmDemoDocs(): SeedDoc[] {
     projectedAt: AT,
   });
   put(COL.vehicleHistory, 'ro:demo-2', {
-    companyId: CMP,
+    tenantId: CMP,
     vehicleId: 'veh_an',
     branchId: 'br_td',
     branchName: 'Chi nhánh Thủ Đức',
@@ -237,7 +237,7 @@ export function crmDemoDocs(): SeedDoc[] {
     ['other', 'Khác (ghi chú)', { noteRequired: true }],
   ] as const)
     put(COL.configVersions, `evidence-kind__${code}__2026-10-01`, {
-      companyId: CMP,
+      tenantId: CMP,
       type: 'evidence-kind',
       scopeKey: code,
       effectiveFrom: '2026-10-01',
@@ -257,7 +257,7 @@ export function crmDemoDocs(): SeedDoc[] {
     ['br_td', 1],
   ] as const)
     put(COL.counters, `${CMP}__${branch}__customer__ALL`, {
-      companyId: CMP,
+      tenantId: CMP,
       branchId: branch,
       docType: 'customer',
       period: 'ALL',

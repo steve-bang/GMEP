@@ -72,7 +72,7 @@ export async function listServices(
   resolveScope(actor, 'service-catalog:view');
   const q = parseInput(listSchema, raw);
   const namePrefix = q.q ? normalizeSearch(q.q) : undefined;
-  const page = await deps.services.list(actor.companyId, {
+  const page = await deps.services.list(actor.tenantId, {
     sort: namePrefix ? 'name' : q.sort,
     direction: q.direction,
     limit: q.limit,
@@ -85,7 +85,7 @@ export async function listServices(
 
 export async function getService(deps: SysDeps, actor: Actor, id: string): Promise<ServiceDto> {
   resolveScope(actor, 'service-catalog:view');
-  const s = await deps.services.get(actor.companyId, id);
+  const s = await deps.services.get(actor.tenantId, id);
   if (!s) throw notFound();
   return toServiceDto(s);
 }
@@ -116,8 +116,8 @@ export async function createService(
       async (tx) => {
         const now = deps.clock.now();
         const s: ServiceItem = {
-          id: `svc_${actor.companyId}_${data.code}`,
-          companyId: actor.companyId,
+          id: `svc_${actor.tenantId}_${data.code}`,
+          tenantId: actor.tenantId,
           code: data.code,
           name: data.name,
           nameNorm: normalizeSearch(data.name),
@@ -166,7 +166,7 @@ export async function updateService(
   companyWide(actor, 'service-catalog:update');
   const data = parseInput(updateServiceSchema, input);
   return deps.uow.run(async (tx) => {
-    const s = await deps.services.getInTx(tx, actor.companyId, id);
+    const s = await deps.services.getInTx(tx, actor.tenantId, id);
     if (!s) throw notFound();
     if (s.version !== data.version) throw new AppError('version_conflict', 409);
     const next = {
@@ -221,7 +221,7 @@ export async function listPriceLists(
   resolveScope(actor, 'price-list:view');
   const q = parseInput(listSchema, raw);
   const namePrefix = q.q ? normalizeSearch(q.q) : undefined;
-  const page = await deps.priceLists.list(actor.companyId, {
+  const page = await deps.priceLists.list(actor.tenantId, {
     sort: namePrefix ? 'name' : q.sort,
     direction: q.direction,
     limit: q.limit,
@@ -256,8 +256,8 @@ export async function createPriceList(
       async (tx) => {
         const now = deps.clock.now();
         const p: PriceListHeader = {
-          id: `pl_${actor.companyId}_${data.code}`,
-          companyId: actor.companyId,
+          id: `pl_${actor.tenantId}_${data.code}`,
+          tenantId: actor.tenantId,
           code: data.code,
           name: data.name,
           nameNorm: normalizeSearch(data.name),
@@ -304,7 +304,7 @@ export async function updatePriceList(
   companyWide(actor, 'price-list:update');
   const data = parseInput(updatePriceListSchema, input);
   return deps.uow.run(async (tx) => {
-    const p = await deps.priceLists.getInTx(tx, actor.companyId, id);
+    const p = await deps.priceLists.getInTx(tx, actor.tenantId, id);
     if (!p) throw notFound();
     if (p.version !== data.version) throw new AppError('version_conflict', 409);
     const next = { name: data.name ?? p.name, status: data.status ?? p.status };

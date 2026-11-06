@@ -5,7 +5,7 @@ export type UserStatus = 'invited' | 'active' | 'disabled';
 
 export interface User {
   id: string;
-  companyId: string;
+  tenantId: string;
   email: string;
   /** Mã nhân viên; unique per company, immutable (BA §1.6). Stored normalised (upper-case, no spaces). */
   employeeCode: string;
@@ -30,7 +30,7 @@ export type BranchStatus = 'active' | 'closing' | 'locked';
 
 export interface Branch {
   id: string;
-  companyId: string;
+  tenantId: string;
   /** MÃCN: 2-4 chars, immutable once documents are numbered (BA §6.2.4). */
   code: string;
   name: string;
@@ -65,7 +65,7 @@ export interface Role {
 export interface RoleAssignmentRecord {
   id: string;
   userId: string;
-  companyId: string;
+  tenantId: string;
   roleCode: string;
   /** branch id or '*' */
   branchId: string;
@@ -83,7 +83,7 @@ export type WarehouseStatus = 'active' | 'inactive';
 /** FR-SYS-005: branch configuration includes its warehouses (Company -> Branch -> Warehouse). */
 export interface Warehouse {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   code: string;
   name: string;
@@ -137,7 +137,7 @@ export interface AuthToken {
   id: string;
   kind: AuthTokenKind;
   userId: string;
-  companyId: string;
+  tenantId: string;
   createdAt: Date;
   expiresAt: Date;
   usedAt: Date | null;
@@ -164,7 +164,7 @@ export type NotificationKind =
 /** FR-SYS-009: in-system notification. Never carries personal data (names, phones, addresses). */
 export interface Notification {
   id: string;
-  companyId: string;
+  tenantId: string;
   userId: string;
   branchId: string | null;
   kind: NotificationKind;
@@ -180,7 +180,7 @@ export interface Notification {
 
 export interface ServiceItem {
   id: string;
-  companyId: string;
+  tenantId: string;
   code: string;
   name: string;
   nameNorm: string;
@@ -195,7 +195,7 @@ export interface ServiceItem {
 
 export interface PriceListHeader {
   id: string;
-  companyId: string;
+  tenantId: string;
   code: string;
   name: string;
   nameNorm: string;

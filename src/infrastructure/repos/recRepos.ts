@@ -100,7 +100,7 @@ async function listVia<T extends { id: string }>(
 ): Promise<Page<T>> {
   const { shape, range, key } = listShape(fams, scope, q);
   const rows = await store.query(shape, {
-    eq: { companyId: scope.companyId, ...(q.status ? { status: q.status } : {}) },
+    eq: { tenantId: scope.tenantId, ...(q.status ? { status: q.status } : {}) },
     ...scopeParams(scope),
     ...(range ? { range } : {}),
     ...(q.cursor ? { cursor: q.cursor } : {}),
@@ -116,7 +116,7 @@ async function listVia<T extends { id: string }>(
 
 const intakeFromDoc = ({ id, data: x }: StoredDoc): Intake => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   number: x.number,
   status: x.status,
@@ -168,16 +168,16 @@ export class DocIntakeRepository implements IntakeRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.intakes, id);
     const x = d ? intakeFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.intakes, id);
     const x = d ? intakeFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
-  async listByCustomer(companyId: string, customerId: string, status: IntakeStatus, limit: number) {
+  async listByCustomer(tenantId: string, customerId: string, status: IntakeStatus, limit: number) {
     const rows = await this.store.query(Q.intakesByCustomer.pick([], false), {
-      eq: { companyId, customerId, status },
+      eq: { tenantId, customerId, status },
       limit,
     });
     return rows.map(intakeFromDoc);
@@ -194,7 +194,7 @@ export class DocIntakeRepository implements IntakeRepository {
 
 const quoteFromDoc = ({ id, data: x }: StoredDoc): Quote => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   number: x.number,
   intakeId: x.intakeId,
@@ -234,16 +234,16 @@ export class DocQuoteRepository implements QuoteRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.quotes, id);
     const x = d ? quoteFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.quotes, id);
     const x = d ? quoteFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
-  async listByCustomer(companyId: string, customerId: string, status: QuoteStatus, limit: number) {
+  async listByCustomer(tenantId: string, customerId: string, status: QuoteStatus, limit: number) {
     const rows = await this.store.query(Q.quotesByCustomer.pick([], false), {
-      eq: { companyId, customerId, status },
+      eq: { tenantId, customerId, status },
       limit,
     });
     return rows.map(quoteFromDoc);
@@ -261,7 +261,7 @@ export class DocQuoteRepository implements QuoteRepository {
 const versionFromDoc = ({ id, data: x }: StoredDoc): QuoteVersion => ({
   id,
   quoteId: x.quoteId,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   n: x.n,
   status: x.status,
@@ -295,20 +295,18 @@ export class DocQuoteVersionRepository implements QuoteVersionRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.quoteVersions, id);
     const x = d ? versionFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.quoteVersions, id);
     const x = d ? versionFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async listByQuote(scope: Scope, quoteId: string, count: number) {
     // ids are deterministic (`<quote>__v<n>`): a bounded multi-get, no query or index needed
     const ids = Array.from({ length: count }, (_, i) => versionId(quoteId, i + 1));
     const rows = (await this.store.getMany(COL.quoteVersions, ids)).map(versionFromDoc);
-    return rows
-      .filter((v) => scopeAllows(scope, v.companyId, v.branchId))
-      .sort((a, b) => a.n - b.n);
+    return rows.filter((v) => scopeAllows(scope, v.tenantId, v.branchId)).sort((a, b) => a.n - b.n);
   }
   create(tx: Tx, v: QuoteVersion) {
     this.store.create(tx, COL.quoteVersions, v.id, without(v, 'id'));
@@ -322,7 +320,7 @@ export class DocQuoteVersionRepository implements QuoteVersionRepository {
 
 const linkFromDoc = ({ id, data: x }: StoredDoc): QuoteLink => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   quoteId: x.quoteId,
   n: x.n,
@@ -384,8 +382,8 @@ export class DocQuoteOtpRepository implements QuoteOtpRepository {
 
 export class DocQuoteDeliveryRepository implements QuoteDeliveryRepository {
   constructor(private readonly store: DocStore) {}
-  private readonly allowed = (scope: Scope, x: { companyId: string; branchId: string }) =>
-    scopeAllows(scope, x.companyId, x.branchId);
+  private readonly allowed = (scope: Scope, x: { tenantId: string; branchId: string }) =>
+    scopeAllows(scope, x.tenantId, x.branchId);
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.messageDeliveries, id);
     const x = d ? asRec<QuoteDelivery>(d) : null;
@@ -424,7 +422,7 @@ export class DocQuoteDeliveryRepository implements QuoteDeliveryRepository {
 
 const orderFromDoc = ({ id, data: x }: StoredDoc): RepairOrder => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   number: x.number,
   status: x.status,
@@ -491,7 +489,7 @@ export class DocRepairOrderRepository implements RepairOrderRepository {
         : null;
     const shape = text ? text.shape : Q.repairOrders.pick(q.status ? ['status'] : [], scoped);
     const rows = await this.store.query(shape, {
-      eq: { companyId: scope.companyId, ...(!text && q.status ? { status: q.status } : {}) },
+      eq: { tenantId: scope.tenantId, ...(!text && q.status ? { status: q.status } : {}) },
       ...scopeParams(scope),
       ...(text ? { range: prefixRange(text.range) } : {}),
       ...(q.cursor ? { cursor: q.cursor } : {}),
@@ -506,7 +504,7 @@ export class DocRepairOrderRepository implements RepairOrderRepository {
   }
   async listOpen(scope: Scope, limit: number) {
     const rows = await this.store.query(Q.repairOrdersOpen.pick([], scope.kind === 'branches'), {
-      eq: { companyId: scope.companyId, open: true },
+      eq: { tenantId: scope.tenantId, open: true },
       ...scopeParams(scope),
       limit,
     });
@@ -515,21 +513,21 @@ export class DocRepairOrderRepository implements RepairOrderRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.repairOrders, id);
     const x = d ? orderFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.repairOrders, id);
     const x = d ? orderFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
-  async getMany(companyId: string, ids: readonly string[]) {
+  async getMany(tenantId: string, ids: readonly string[]) {
     return (await this.store.getMany(COL.repairOrders, ids))
       .map(orderFromDoc)
-      .filter((o) => o.companyId === companyId);
+      .filter((o) => o.tenantId === tenantId);
   }
-  async listOpenByCustomer(companyId: string, customerId: string, limit: number) {
+  async listOpenByCustomer(tenantId: string, customerId: string, limit: number) {
     const rows = await this.store.query(Q.repairOrdersByCustomer.pick([], false), {
-      eq: { companyId, customerId, open: true },
+      eq: { tenantId, customerId, open: true },
       limit,
     });
     return rows.map(orderFromDoc);
@@ -546,7 +544,7 @@ export class DocRepairOrderRepository implements RepairOrderRepository {
 
 const itemDocFrom = ({ id, data: x }: StoredDoc): RepairItem => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   orderId: x.orderId,
   no: x.no,
@@ -583,16 +581,16 @@ export class DocRepairItemRepository implements RepairItemRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.repairItems, id);
     const x = d ? itemDocFrom(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.repairItems, id);
     const x = d ? itemDocFrom(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async listByOrder(scope: Scope, orderId: string, limit: number) {
     const rows = await this.store.query(Q.repairItemsByOrder.pick([], scope.kind === 'branches'), {
-      eq: { companyId: scope.companyId, orderId },
+      eq: { tenantId: scope.tenantId, orderId },
       ...scopeParams(scope),
       limit,
     });
@@ -606,7 +604,7 @@ export class DocRepairItemRepository implements RepairItemRepository {
     const rows = await this.store.query(
       Q.repairItemsByTechnician.pick([], scope.kind === 'branches'),
       {
-        eq: { companyId: scope.companyId, technicianId, active: true },
+        eq: { tenantId: scope.tenantId, technicianId, active: true },
         ...scopeParams(scope),
         limit,
       },
@@ -625,7 +623,7 @@ export class DocRepairItemRepository implements RepairItemRepository {
 
 const requestFromDoc = ({ id, data: x }: StoredDoc): PartRequest => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   orderId: x.orderId,
   orderNumber: x.orderNumber,
@@ -658,16 +656,16 @@ export class DocPartRequestRepository implements PartRequestRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.partRequests, id);
     const x = d ? requestFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.partRequests, id);
     const x = d ? requestFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async listByOrder(scope: Scope, orderId: string, limit: number) {
     const rows = await this.store.query(Q.partRequestsByOrder.pick([], scope.kind === 'branches'), {
-      eq: { companyId: scope.companyId, orderId },
+      eq: { tenantId: scope.tenantId, orderId },
       ...scopeParams(scope),
       limit,
     });
@@ -679,7 +677,7 @@ export class DocPartRequestRepository implements PartRequestRepository {
   async listByStatus(scope: Scope, status: PartRequestStatus, limit: number) {
     const rows = await this.store.query(
       Q.partRequestsByStatus.pick([], scope.kind === 'branches'),
-      { eq: { companyId: scope.companyId, status }, ...scopeParams(scope), limit },
+      { eq: { tenantId: scope.tenantId, status }, ...scopeParams(scope), limit },
     );
     return rows.map(requestFromDoc);
   }

@@ -12,11 +12,11 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 const DAY = 86_400_000;
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
 
 const cronActorAt = (branchId: string): Actor => ({
   userId: 'system:cron',
-  companyId: 'cmp_demo',
+  tenantId: 'tnt_demo',
   displayName: 'Hệ thống (cron)',
   assignments: [{ roleCode: 'SYSTEM_CRON', branchId }],
   rolePermissions: { SYSTEM_CRON: ['quote:manage'] },
@@ -127,7 +127,7 @@ describe('REC quote expiry job (R10, R17, FR-REC-011)', () => {
     expect(rep).toMatchObject({ expired: 0, reminded: 0, failed: 0 });
     expect(auditOf(q.id, 'quote.expire')).toHaveLength(1);
     // R17: the stored-state filter now lists it
-    const page = await h.container.rec.quotes.list(branchesScope('cmp_demo', ['br_q7']), {
+    const page = await h.container.rec.quotes.list(branchesScope('tnt_demo', ['br_q7']), {
       limit: 100,
       status: 'expired',
     });
@@ -189,7 +189,7 @@ describe('REC quote expiry job (R10, R17, FR-REC-011)', () => {
   });
 
   it('cron registry: a failing job does not stop the other jobs or other branches and is reported as failed', async () => {
-    const on = await createHarness('memory', { env: { CRON_COMPANY_ID: 'cmp_demo' } });
+    const on = await createHarness('memory', { env: { CRON_TENANT_ID: 'tnt_demo' } });
     const calls: string[] = [];
     const jobs: CronJob[] = [
       {
@@ -219,7 +219,7 @@ describe('REC quote expiry job (R10, R17, FR-REC-011)', () => {
   it('cron route keeps its contract and adds the new job results', async () => {
     const secret = 'cron-secret-0123456789-abcdefghijklmnop';
     const on = await createHarness('memory', {
-      env: { CRON_SECRET: secret, CRON_COMPANY_ID: 'cmp_demo' },
+      env: { CRON_SECRET: secret, CRON_TENANT_ID: 'tnt_demo' },
     });
     const res = await on.call('POST', '/api/v1/internal/cron/run-due', {
       origin: null,

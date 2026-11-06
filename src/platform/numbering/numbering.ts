@@ -73,7 +73,7 @@ export const DEFAULT_NUMBERING: Readonly<Record<string, NumberingSeries>> = {
 };
 
 export interface NumberingContext {
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** MÃCN, 2-4 chars */
   branchCode: string;
@@ -106,7 +106,7 @@ export function formatNumber(ctx: NumberingContext, seq: number): string {
 
 export function counterId(ctx: NumberingContext): string {
   const scope = ctx.series.scope === 'branch' ? ctx.branchId : 'LE';
-  return `${ctx.companyId}__${scope}__${ctx.docType}__${periodKey(ctx.series, ctx.businessDate)}`;
+  return `${ctx.tenantId}__${scope}__${ctx.docType}__${periodKey(ctx.series, ctx.businessDate)}`;
 }
 
 const COUNTERS = 'counters';
@@ -134,7 +134,7 @@ export class NumberingService {
   ): Promise<AssignedNumber> {
     const assignmentId = meta.requestKey
       ? createHash('sha256')
-          .update(`${ctx.companyId}\n${ctx.docType}\n${meta.requestKey}`)
+          .update(`${ctx.tenantId}\n${ctx.docType}\n${meta.requestKey}`)
           .digest('hex')
       : null;
     const cid = counterId(ctx);
@@ -147,7 +147,7 @@ export class NumberingService {
 
     const seq = ((counter?.data.last as number | undefined) ?? 0) + 1;
     this.store.set(tx, COUNTERS, cid, {
-      companyId: ctx.companyId,
+      tenantId: ctx.tenantId,
       branchId: ctx.branchId,
       docType: ctx.docType,
       period: periodKey(ctx.series, ctx.businessDate),
@@ -157,7 +157,7 @@ export class NumberingService {
     const number = formatNumber(ctx, seq);
     if (assignmentId)
       this.store.create(tx, ASSIGNMENTS, assignmentId, {
-        companyId: ctx.companyId,
+        tenantId: ctx.tenantId,
         docType: ctx.docType,
         number,
         seq,

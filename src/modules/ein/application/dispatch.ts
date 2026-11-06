@@ -150,7 +150,7 @@ export async function claimRequest(
     if (!r) throw notFound();
     const inv = await deps.invoices.getInTx(tx, scope, r.invoiceId);
     if (!inv) throw notFound();
-    const q = await readQueue(deps, tx, scope, r.companyId, r.branchId, deps.sys.clock.now());
+    const q = await readQueue(deps, tx, scope, r.tenantId, r.branchId, deps.sys.clock.now());
     const now = deps.sys.clock.now();
     let status = r.status;
     const leaseExpired = status === 'sending' && !!r.sendingUntil && r.sendingUntil <= now;
@@ -219,7 +219,7 @@ export async function runClaimed(
 ): Promise<InvoiceRequest> {
   const { request: req, invoice: inv } = claimed;
   const date = businessDate(deps.sys.clock.now());
-  const policy = await einPolicyOf(deps, req.companyId, req.branchId, date);
+  const policy = await einPolicyOf(deps, req.tenantId, req.branchId, date);
   const provider = deps.providers.get(inv.issuer.providerCode, inv.issuer.environment);
   const attempt: RequestAttempt = {
     n: req.attemptCount,
@@ -262,8 +262,8 @@ export async function runClaimed(
           policy.providerTimeoutMs,
         );
         artifacts = {
-          xmlPath: filePath('invoices', req.companyId, req.branchId, `${inv.id}.xml`),
-          pdfPath: filePath('invoices', req.companyId, req.branchId, `${inv.id}.pdf`),
+          xmlPath: filePath('invoices', req.tenantId, req.branchId, `${inv.id}.xml`),
+          pdfPath: filePath('invoices', req.tenantId, req.branchId, `${inv.id}.pdf`),
           xml: a.xml,
           pdf: a.pdf,
         };
@@ -320,7 +320,7 @@ async function recordOutcome(
 ): Promise<InvoiceRequest> {
   // people to tell when a request goes to the queue (plain read, before the transaction)
   const toNotify = failure
-    ? await usersWithRole(deps.sys, claimedReq.companyId, ['KT'], claimedReq.branchId)
+    ? await usersWithRole(deps.sys, claimedReq.tenantId, ['KT'], claimedReq.branchId)
     : [];
   return deps.sys.uow.run(async (tx) => {
     const r = await deps.requests.getInTx(tx, scope, claimedReq.id);
@@ -331,7 +331,7 @@ async function recordOutcome(
       ? await deps.invoices.getInTx(tx, scope, r.targetInvoiceId)
       : null;
     const idx = await deps.index.getInTx(tx, scope, r.orderId);
-    const q = await readQueue(deps, tx, scope, r.companyId, r.branchId, deps.sys.clock.now());
+    const q = await readQueue(deps, tx, scope, r.tenantId, r.branchId, deps.sys.clock.now());
     // a stale outcome (the lease ran out and another attempt took over) must not overwrite the newer one
     if (r.status !== 'sending' || r.attemptCount !== claimedReq.attemptCount) return r;
     const now = deps.sys.clock.now();
@@ -406,7 +406,7 @@ async function recordOutcome(
         if (artifacts) {
           deps.invoices.saveArtifacts(tx, {
             id: inv.id,
-            companyId: inv.companyId,
+            tenantId: inv.tenantId,
             branchId: inv.branchId,
             xmlPath: artifacts.xmlPath,
             pdfPath: artifacts.pdfPath,
@@ -556,7 +556,7 @@ async function recordOutcome(
     );
     // FR-EIN-010: the accountant is told every time a request lands in the queue (no personal data in the notice)
     notifyUsers(deps.sys, tx, {
-      companyId: r.companyId,
+      tenantId: r.tenantId,
       userIds: toNotify,
       kind: 'ein.issue',
       titleKey: 'notifications.einvoiceQueued',

@@ -202,7 +202,7 @@ export async function searchUsers(
 
 async function visibleUser(deps: SysDeps, scope: Scope, id: string): Promise<User> {
   const u = await deps.users.getById(id);
-  if (!u || u.companyId !== scope.companyId) throw notFound();
+  if (!u || u.tenantId !== scope.tenantId) throw notFound();
   if (scope.kind === 'branches' && (await deps.assignments.listInScope(scope, id)).length === 0)
     throw notFound(); // outside the scope == missing (NFR-ISO-01)
   return u;
@@ -229,7 +229,7 @@ async function assertAssignable(
   scope: Scope,
   a: { roleCode: string; branchId: string },
 ): Promise<void> {
-  if (a.branchId === '*' ? scope.kind !== 'all' : !scopeAllows(scope, actor.companyId, a.branchId))
+  if (a.branchId === '*' ? scope.kind !== 'all' : !scopeAllows(scope, actor.tenantId, a.branchId))
     throw forbidden();
   if (OWNER_APPROVED_ROLES.includes(a.roleCode) && !hasPermission(actor, 'user:approve'))
     throw new AppError('approval_required', 403); // needs the owner (BA §2.3)
@@ -303,7 +303,7 @@ export async function inviteUser(
         const now = deps.clock.now();
         const user: User = {
           id: userId,
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           email: data.email,
           employeeCode: data.employeeCode,
           displayName: data.displayName,
@@ -319,7 +319,7 @@ export async function inviteUser(
         const recs: RoleAssignmentRecord[] = data.assignments.map((a) => ({
           id: roleAssignmentId(userId, a.roleCode, a.branchId),
           userId,
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           roleCode: a.roleCode,
           branchId: a.branchId,
           employeeCode: data.employeeCode,
@@ -331,7 +331,7 @@ export async function inviteUser(
           id: tokenId,
           kind: 'invite',
           userId,
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           createdAt: now,
           expiresAt: new Date(now.getTime() + deps.config.inviteTokenTtlMs),
           usedAt: null,
@@ -400,7 +400,7 @@ export async function resendInvite(
       id: tokenId,
       kind: 'invite',
       userId: u.id,
-      companyId: u.companyId,
+      tenantId: u.tenantId,
       createdAt: now,
       expiresAt: new Date(now.getTime() + deps.config.inviteTokenTtlMs),
       usedAt: null,
@@ -545,7 +545,7 @@ export async function addAssignment(
       deps.assignments.add(tx, {
         id,
         userId,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         roleCode: a.roleCode,
         branchId: a.branchId,
         employeeCode: target.employeeCode,
@@ -584,7 +584,7 @@ export async function removeAssignment(
   await deps.uow.run(async (tx) => {
     const a = await deps.assignments.getInTx(tx, assignmentId);
     if (!a || a.userId !== userId) throw notFound();
-    if (a.branchId === '*' ? scope.kind !== 'all' : !scopeAllows(scope, a.companyId, a.branchId))
+    if (a.branchId === '*' ? scope.kind !== 'all' : !scopeAllows(scope, a.tenantId, a.branchId))
       throw notFound();
     deps.assignments.remove(tx, assignmentId);
     deps.audit.record(

@@ -48,7 +48,7 @@ export async function forgotPassword(
       id,
       kind: 'reset',
       userId: user.id,
-      companyId: user.companyId,
+      tenantId: user.tenantId,
       createdAt: now,
       expiresAt: new Date(now.getTime() + deps.config.resetTokenTtlMs),
       usedAt: null,
@@ -57,7 +57,7 @@ export async function forgotPassword(
     deps.audit.record(tx, {
       id: deps.newId(),
       at: now,
-      companyId: user.companyId,
+      tenantId: user.tenantId,
       branchId: null,
       actorId: user.id,
       actorRoles: [],
@@ -113,7 +113,7 @@ export async function peekToken(
   if (!user) return { state: 'invalid' };
   const [assignments, branches] = await Promise.all([
     deps.assignments.listForUser(user.id),
-    deps.branches.list(allBranchesScope(user.companyId)),
+    deps.branches.list(allBranchesScope(user.tenantId)),
   ]);
   const roles = await deps.roles.getMany([...new Set(assignments.map((a) => a.roleCode))]);
   const branchNames = assignments.map((a) =>
@@ -251,7 +251,7 @@ async function claimToken(
     deps.audit.record(tx, {
       id: deps.newId(),
       at: now,
-      companyId: user.companyId,
+      tenantId: user.tenantId,
       branchId: null,
       actorId: user.id,
       actorRoles: [],

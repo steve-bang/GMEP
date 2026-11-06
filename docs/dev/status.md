@@ -33,10 +33,10 @@ Slices 0.3, 0.4, 1.1 (foundation), 1.2 (master data), 1.3 (CRM core), 1.4 (INV s
 - Màn hoàn tiền khách (FR-ACC-016) trên `/acc/orders/[id]` và mở lại ngày (FR-ACC-005) trên `/acc/day-close`: một thành phần dùng chung `acc/ApprovedActionPanel` (gửi yêu cầu, hiện trạng thái duyệt, thực hiện một lần); hiện khi có quyền (`cash-expense:create`, `cash-day:update`) và đúng điều kiện (đã thu tiền; ngày hiện tại đã chốt). Mọi kiểm tra vẫn ở server.
 - Ảnh REC (FR-REC-003/014): `rec/PhotoPanel` trên hồ sơ tiếp nhận và lệnh (tải lên multipart có Idempotency-Key, ảnh nhỏ đọc lại qua API sau kiểm Scope).
 - Menu RPT: "Báo cáo kho" theo quyền `stock:view` (thủ kho thấy được), "Báo cáo kỹ thuật viên" theo `report-daily:view` + `repair-order:view` (`ShellInfo.can.warehouseReport`).
-- Cron: `POST /api/v1/internal/cron/run-due` (wrapper `cron()`, header `x-cron-secret` = env `CRON_SECRET`, `CRON_COMPANY_ID`; chưa đặt secret thì 404) chạy `runDueRollups` và `runDueRequests` cho từng chi nhánh bằng actor dịch vụ `system:cron`; xem README mục Scheduler. Không thêm hạ tầng lập lịch.
+- Cron: `POST /api/v1/internal/cron/run-due` (wrapper `cron()`, header `x-cron-secret` = env `CRON_SECRET`, `CRON_TENANT_ID`; chưa đặt secret thì 404) chạy `runDueRollups` và `runDueRequests` cho từng chi nhánh bằng actor dịch vụ `system:cron`; xem README mục Scheduler. Không thêm hạ tầng lập lịch.
 - Kiểm thử: `tests/integration/platform.test.ts` (cron: tắt, sai secret, đúng secret), `e2e/phase1-hardening-ui.spec.ts` (hoàn tiền gửi yêu cầu, ảnh lên lệnh, thủ kho vào báo cáo kho, không tràn ngang ở 375px).
 
-**Chưa dựng.** Xóa ảnh/làm mờ; mở lại ngày chưa có e2e đầy đủ (cần ngày đã chốt); (danh sách ảnh theo đề xuất và OIDC cho Cloud Scheduler đã xong ở cập nhật 6); `CRON_COMPANY_ID` giả định một pháp nhân [Cần xác nhận].
+**Chưa dựng.** Xóa ảnh/làm mờ; mở lại ngày chưa có e2e đầy đủ (cần ngày đã chốt); (danh sách ảnh theo đề xuất và OIDC cho Cloud Scheduler đã xong ở cập nhật 6); `CRON_TENANT_ID` giả định một pháp nhân [Cần xác nhận].
 
 ## Cập nhật 04/11/2026 (3): việc "dev must change" của BA §24.5 (R101–R106; dev)
 

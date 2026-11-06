@@ -14,7 +14,7 @@ const put = <K extends string, V>(k: K, v: V | null | undefined) =>
 
 const fromDoc = ({ id, data: x }: StoredDoc): ApprovalRequest => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   number: x.number,
   kind: x.kind,
@@ -51,33 +51,33 @@ export class DocApprovalRepository implements ApprovalRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.approvals, id);
     const x = d ? fromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.approvals, id);
     const x = d ? fromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async listByBranchStatus(scope: Scope, branchId: string, status: ApprovalStatus, limit: number) {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return [];
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return [];
     const rows = await this.store.query(Q.approvalsByBranchStatus.pick([], false), {
-      eq: { companyId: scope.companyId, branchId, status },
+      eq: { tenantId: scope.tenantId, branchId, status },
       limit,
     });
     return rows.map(fromDoc);
   }
   async listByRequester(scope: Scope, requesterId: string, limit: number) {
     const rows = await this.store.query(Q.approvalsByRequester.pick([], false), {
-      eq: { companyId: scope.companyId, requestedBy: requesterId },
+      eq: { tenantId: scope.tenantId, requestedBy: requesterId },
       limit,
     });
-    return rows.map(fromDoc).filter((x) => scopeAllows(scope, x.companyId, x.branchId));
+    return rows.map(fromDoc).filter((x) => scopeAllows(scope, x.tenantId, x.branchId));
   }
   async getSlotInTx(tx: Tx, slotId: string) {
     const d = await this.store.getInTx(tx, COL.approvalSlots, slotId);
     return d ? { requestId: d.data.requestId as string, open: d.data.open === true } : null;
   }
-  setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; companyId: string }) {
+  setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; tenantId: string }) {
     this.store.set(tx, COL.approvalSlots, slotId, v);
   }
   create(tx: Tx, r: ApprovalRequest) {

@@ -13,7 +13,7 @@ import type { SysDeps } from '../ports/deps';
 import { AlreadyExistsError } from '../ports/ports';
 import { auditEntry, parseInput, roleCodesOf, type RequestCtx } from './support';
 
-/** Organisation structure (FR-SYS-005, 011, 018): Company -> Branch -> Warehouse, legal-entity ready via companyId. */
+/** Organisation structure (FR-SYS-005, 011, 018): Company -> Branch -> Warehouse, legal-entity ready via tenantId. */
 export interface BranchDto {
   id: string;
   code: string;
@@ -82,7 +82,7 @@ export async function createBranch(
         const now = deps.clock.now();
         const branch: Branch = {
           id: `br_${data.code.toLowerCase()}`,
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           code: data.code,
           name: data.name,
           status: 'active',
@@ -241,5 +241,5 @@ export async function setBranchStatus(
 }
 
 /** Reads the whole company's branches for internal lookups (labels), never for user-facing lists. */
-export const companyBranches = (deps: SysDeps, companyId: string) =>
-  deps.branches.list(allBranchesScope(companyId));
+export const companyBranches = (deps: SysDeps, tenantId: string) =>
+  deps.branches.list(allBranchesScope(tenantId));

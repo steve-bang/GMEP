@@ -30,7 +30,7 @@ export interface DepositApplication {
 /** Posted, immutable (RULE-010). */
 export interface Payment {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** PT- (receipt, deposit, their reversals) or PC- (expense and its reversal), set when posted */
   number: string;
@@ -102,7 +102,7 @@ export interface DebtSnapshot {
 /** Aggregate per repair order, updated with every payment in the same transaction (the contention point). */
 export interface OrderAccount {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   orderId: string;
   orderNumber: string;
@@ -119,7 +119,7 @@ export interface OrderAccount {
 }
 
 export function emptyAccount(o: {
-  companyId: string;
+  tenantId: string;
   branchId: string;
   orderId: string;
   orderNumber: string;
@@ -381,7 +381,7 @@ export function applyReversal(
  * số còn nợ luôn khớp"). `reversedIds` are the payments that have a reversal entry.
  */
 export function recomputeAccount(
-  base: Pick<OrderAccount, 'companyId' | 'branchId' | 'orderId' | 'orderNumber'>,
+  base: Pick<OrderAccount, 'tenantId' | 'branchId' | 'orderId' | 'orderNumber'>,
   payments: readonly Payment[],
   reversedIds: ReadonlySet<string>,
 ): Pick<OrderAccount, 'receivedVnd' | 'depositAppliedVnd' | 'depositHeldVnd'> {

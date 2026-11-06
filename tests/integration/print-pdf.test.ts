@@ -7,9 +7,9 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
-const SV_PHANH = 'svc_cmp_demo_SV-PHANH';
-const SV_CAN = 'svc_cmp_demo_SV-CANCHINH';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
+const SV_PHANH = 'svc_tnt_demo_SV-PHANH';
+const SV_CAN = 'svc_tnt_demo_SV-CANCHINH';
 
 /**
  * FR-REC-008 / FR-ACC-001 print: the server PDF of the quote (A4) and the receipt (A5) is rendered from the same

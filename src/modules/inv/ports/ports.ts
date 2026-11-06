@@ -47,20 +47,20 @@ export interface PartRepository {
   /** FR-SYS-007 undo of an import ONLY (a part with no stock history): removes the part, its code and barcode slots and compat links */
   remove(
     tx: Tx,
-    p: Pick<Part, 'id' | 'companyId' | 'code' | 'codeKey' | 'barcode' | 'compatKeys'>,
+    p: Pick<Part, 'id' | 'tenantId' | 'code' | 'codeKey' | 'barcode' | 'compatKeys'>,
   ): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** moves the barcode slot; AlreadyExistsError when the new barcode is taken */
   rebarcode(
     tx: Tx,
-    p: Pick<Part, 'id' | 'companyId'>,
+    p: Pick<Part, 'id' | 'tenantId'>,
     from: string | undefined,
     to: string | undefined,
   ): void;
   /** rewrites the vehicle-line links used by the model search */
   relinkCompat(
     tx: Tx,
-    p: Pick<Part, 'id' | 'companyId' | 'code'>,
+    p: Pick<Part, 'id' | 'tenantId' | 'code'>,
     from: readonly string[],
     to: readonly string[],
   ): void;
@@ -82,7 +82,7 @@ export interface StockBalanceRepository {
   /** stages the full balance document (it was read in this transaction) */
   save(tx: Tx, b: StockBalance): void;
   /** true when some balance of the warehouse is not zero (guards deactivation, FR-SYS-029) */
-  hasStock(companyId: string, warehouseId: string): Promise<boolean>;
+  hasStock(tenantId: string, warehouseId: string): Promise<boolean>;
 }
 
 export interface MovementRepository {
@@ -106,21 +106,21 @@ export interface StockDocumentRepository {
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** oldest first, one warehouse and status, no branch Scope: server-side guards only (R95 opening-stock check) */
   listByWarehouseStatus(
-    companyId: string,
+    tenantId: string,
     warehouseId: string,
     status: StockDocStatus,
     limit: number,
   ): Promise<StockDocument[]>;
   /** same query read page by page up to `maxDocs`; `truncated` = more documents exist than were read (never silent) */
   listAllByWarehouseStatus(
-    companyId: string,
+    tenantId: string,
     warehouseId: string,
     status: StockDocStatus,
     maxDocs: number,
     pageSize?: number,
   ): Promise<{ docs: StockDocument[]; truncated: boolean }>;
   /** true when a draft document refers to the warehouse (guards deactivation) */
-  hasOpen(companyId: string, warehouseId: string): Promise<boolean>;
+  hasOpen(tenantId: string, warehouseId: string): Promise<boolean>;
 }
 
 export interface ReservationRepository {
@@ -149,7 +149,7 @@ export interface IssueReturnRepository {
     tx: Tx,
     id: string,
     v: {
-      companyId: string;
+      tenantId: string;
       branchId: string;
       documentId: string;
       lineNo: number;

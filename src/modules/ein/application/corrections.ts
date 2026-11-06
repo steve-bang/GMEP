@@ -143,7 +143,7 @@ export async function requestCorrection(
       const kind = KIND_OF[data.purpose];
       const limits = await approvalLimitsOf(
         deps.sys,
-        actor.companyId,
+        actor.tenantId,
         kind,
         businessDate(deps.sys.clock.now()),
       );
@@ -196,7 +196,7 @@ export async function executeCorrection(
   if (peek.status !== 'approved') throw new AppError('approval_not_approved', 409);
   if (peek.consumedAt) throw new AppError('approval_already_used', 409);
   if (kind === 'invoice_cancel') await reauthenticate(deps.sys, actor, data.password);
-  const toNotify = await usersWithRole(deps.sys, actor.companyId, ['KT'], branchId);
+  const toNotify = await usersWithRole(deps.sys, actor.tenantId, ['KT'], branchId);
   const res = await runIdempotent(
     idemOf(deps),
     {
@@ -227,10 +227,10 @@ export async function executeCorrection(
       const pii = await deps.invoices.getPiiInTx(tx, scope, orig.id);
       const idx = await deps.index.getInTx(tx, scope, orig.orderId);
       const now = deps.sys.clock.now();
-      const q = await readQueue(deps, tx, scope, actor.companyId, branchId, now);
+      const q = await readQueue(deps, tx, scope, actor.tenantId, branchId, now);
       if (Object.keys(q.items).length >= deps.ein.queueMax)
         throw new AppError('invoice_queue_full', 409);
-      const policy = await einPolicyOf(deps, actor.companyId, branchId, businessDate(now));
+      const policy = await einPolicyOf(deps, actor.tenantId, branchId, businessDate(now));
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       const requestId = correctionRequestId(orig.id, c.purpose, ap.id);
       const num = await allocateDocumentNumber(deps.sys, tx, {
@@ -318,7 +318,7 @@ export async function executeCorrection(
         };
         deps.invoices.savePii(tx, {
           id: newId,
-          companyId: orig.companyId,
+          tenantId: orig.tenantId,
           branchId: orig.branchId,
           ...(buyer.address ? { address: buyer.address } : {}),
           ...(buyer.email ? { email: buyer.email } : {}),
@@ -326,7 +326,7 @@ export async function executeCorrection(
       }
       const req: InvoiceRequest = {
         id: requestId,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         number: num.number!,
         purpose: c.purpose,
@@ -337,7 +337,7 @@ export async function executeCorrection(
         approvalId: ap.id,
         reasonCode: c.reasonCode,
         reason: c.reason,
-        idempotencyKey: idempotencyKeyOf(actor.companyId, requestId),
+        idempotencyKey: idempotencyKeyOf(actor.tenantId, requestId),
         status: 'pending',
         attemptCount: 0,
         maxAttempts: policy.maxAttempts,
@@ -383,7 +383,7 @@ export async function executeCorrection(
         }),
       );
       notifyUsers(deps.sys, tx, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         userIds: toNotify.filter((u) => u !== actor.userId),
         kind: 'ein.issue',
         titleKey: 'notifications.einvoiceCorrection',
@@ -409,7 +409,7 @@ function baseOf(
 ): Invoice {
   return {
     id,
-    companyId: orig.companyId,
+    tenantId: orig.tenantId,
     branchId: orig.branchId,
     orderId: orig.orderId,
     orderNumber: orig.orderNumber,
@@ -454,7 +454,7 @@ export async function reportInvoiceError(
   const scope = resolveScope(actor, 'invoice-report:create');
   const branchId = einBranch(actor, scope);
   const data = parseInput(reportErrorSchema, input);
-  const to = await usersWithRole(deps.sys, actor.companyId, ['KT'], branchId);
+  const to = await usersWithRole(deps.sys, actor.tenantId, ['KT'], branchId);
   return runIdempotent(
     idemOf(deps),
     {
@@ -467,7 +467,7 @@ export async function reportInvoiceError(
       const inv = await deps.invoices.getInTx(tx, scope, invoiceId);
       if (!inv || inv.branchId !== branchId) throw notFound();
       notifyUsers(deps.sys, tx, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         userIds: to,
         kind: 'ein.issue',
         titleKey: 'notifications.einvoiceReported',

@@ -62,7 +62,7 @@ export interface TechnicianOption {
 /** People who can take an item at the working branch: holders of the technician role (TH) or the foreman (QD). */
 export async function listTechnicians(deps: RecDeps, actor: Actor): Promise<TechnicianOption[]> {
   const scope = resolveWorkingScope(actor, 'repair-item:manage');
-  const ids = await usersWithRole(deps.sys, actor.companyId, ['TH', 'QD'], actor.workingBranchId);
+  const ids = await usersWithRole(deps.sys, actor.tenantId, ['TH', 'QD'], actor.workingBranchId);
   const users = await Promise.all(ids.map((id) => deps.sys.users.getById(id)));
   const open = await deps.orders.listOpen(scope, deps.rec.boardMax);
   const count = new Map<string, number>();
@@ -99,9 +99,9 @@ export async function assignTechnician(
   if (!it0) throw notFound();
   let tech: { id: string; name: string } | null = null;
   if (data.technicianId) {
-    const ok = (
-      await usersWithRole(deps.sys, actor.companyId, ['TH', 'QD'], it0.branchId)
-    ).includes(data.technicianId);
+    const ok = (await usersWithRole(deps.sys, actor.tenantId, ['TH', 'QD'], it0.branchId)).includes(
+      data.technicianId,
+    );
     const u = ok ? await deps.sys.users.getById(data.technicianId) : null;
     if (!u) throw new AppError('technician_invalid', 422);
     tech = { id: u.id, name: u.displayName };
@@ -161,7 +161,7 @@ export async function assignTechnician(
       );
       if (tech && tech.id !== actor.userId)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: [tech.id],
           kind: 'rec.order',
           titleKey: 'notifications.itemAssigned',
@@ -482,12 +482,7 @@ export async function createPartRequest(
 ) {
   const scope = resolveScope(actor, 'part-request:create');
   const data = parseInput(partRequestSchema, input);
-  const storekeepers = await usersWithRole(
-    deps.sys,
-    actor.companyId,
-    ['TK'],
-    actor.workingBranchId,
-  );
+  const storekeepers = await usersWithRole(deps.sys, actor.tenantId, ['TK'], actor.workingBranchId);
   return runIdempotent(
     idemOf(deps),
     {
@@ -526,7 +521,7 @@ export async function createPartRequest(
       const now = deps.sys.clock.now();
       const r: PartRequest = {
         id: `prq_${deps.sys.newId()}`,
-        companyId: o.companyId,
+        tenantId: o.tenantId,
         branchId: o.branchId,
         orderId: o.id,
         orderNumber: o.number,
@@ -563,7 +558,7 @@ export async function createPartRequest(
       const to = storekeepers.filter((u) => u !== actor.userId);
       if (to.length)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: to,
           kind: 'rec.order',
           titleKey: 'notifications.partRequested',
@@ -659,7 +654,7 @@ export async function decidePartRequest(
           }),
         );
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: [r.requestedBy],
           kind: 'rec.order',
           titleKey: 'notifications.partRejected',
@@ -707,7 +702,7 @@ export async function decidePartRequest(
       );
       if (r.requestedBy !== actor.userId)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: [r.requestedBy],
           kind: 'rec.order',
           titleKey: 'notifications.partIssued',

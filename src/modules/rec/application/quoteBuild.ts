@@ -69,7 +69,7 @@ interface TaxResolver {
 async function taxResolver(deps: RecDeps, actor: Actor, date: string): Promise<TaxResolver> {
   const m = (
     await resolveConfigAt(deps.sys, {
-      companyId: actor.companyId,
+      tenantId: actor.tenantId,
       type: 'tax-mapping',
       scopeKey: 'company',
       date,
@@ -85,7 +85,7 @@ async function taxResolver(deps: RecDeps, actor: Actor, date: string): Promise<T
       const have = used.get(key);
       if (have) return have;
       const t = await resolveConfigAt(deps.sys, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         type: 'tax-rate',
         scopeKey: key,
         date,
@@ -125,7 +125,7 @@ export async function buildItems(
   if (kinds.has('part')) await tax.snapshot(tax.keyFor('part'));
   const limits = (
     await resolveConfigAt(deps.sys, {
-      companyId: actor.companyId,
+      tenantId: actor.tenantId,
       type: 'discount-limit',
       scopeKey: 'company',
       date,
@@ -134,7 +134,7 @@ export async function buildItems(
   )?.payload as { maxDiscountBpByRole?: Record<string, number> } | undefined;
   const allowedBp = maxDiscountBp(limits?.maxDiscountBpByRole ?? null, roleCodesOf(actor));
   const rate = await resolveConfigAt(deps.sys, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     type: 'labor-rate',
     scopeKey: 'company',
     date,
@@ -198,7 +198,7 @@ async function laborLine(
   if (service.status !== 'active')
     return { ok: false, message: `Hạng mục ${service.code} đã ngừng dùng.` };
   const hours = await resolveConfigAt(deps.sys, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     type: 'standard-hours',
     scopeKey: `service:${service.code}`,
     date,
@@ -250,7 +250,7 @@ async function partLine(
   if (part.status !== 'active')
     return { ok: false, message: `Phụ tùng ${part.code} đã ngừng dùng.` };
   const price = await resolveConfigAt(deps.sys, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     type: 'price-item',
     scopeKey: `${deps.rec.priceListCode}:${part.code}`,
     date,

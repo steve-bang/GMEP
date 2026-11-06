@@ -8,7 +8,7 @@ import { COL } from '../repos/queries';
 import type { SeedDoc } from './types';
 
 const AT = new Date('2026-10-01T00:00:00.000Z');
-const CMP = 'cmp_demo';
+const CMP = 'tnt_demo';
 const DAY = '2026-10-01';
 
 export const demoServices = [
@@ -24,7 +24,7 @@ export function recDemoDocs(): SeedDoc[] {
     docs.push({ collection, id, data });
   for (const s of demoServices)
     put(COL.services, `svc_${CMP}_${s.code}`, {
-      companyId: CMP,
+      tenantId: CMP,
       code: s.code,
       name: s.name,
       nameNorm: normalizeSearch(s.name),
@@ -38,7 +38,7 @@ export function recDemoDocs(): SeedDoc[] {
     });
   const cfg = (type: string, scopeKey: string, payload: Record<string, unknown>) =>
     put(COL.configVersions, `${type}__${scopeKey.replace(/[:/]/g, '~')}__${DAY}`, {
-      companyId: CMP,
+      tenantId: CMP,
       type,
       scopeKey,
       effectiveFrom: DAY,

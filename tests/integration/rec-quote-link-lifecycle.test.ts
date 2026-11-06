@@ -13,7 +13,7 @@ import { createHarness, type Harness } from './harness';
 type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
 const CRON_SECRET = 'cron-secret-0123456789-abcdefghijklmnop';
 
 /**
@@ -117,7 +117,7 @@ describe('REC quote-link delivery lifecycle [memory]', () => {
 
   beforeAll(async () => {
     h = await createHarness('memory', {
-      env: { MESSAGE_DEV_CHANNELS: 'sms,zalo', CRON_SECRET, CRON_COMPANY_ID: 'cmp_demo' },
+      env: { MESSAGE_DEV_CHANNELS: 'sms,zalo', CRON_SECRET, CRON_TENANT_ID: 'tnt_demo' },
     });
     cv = await h.loginAt('u_cv_q7', 'br_q7');
     expect((await consent('cus_an', 'sms')).status).toBe(201);

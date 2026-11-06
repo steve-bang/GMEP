@@ -44,7 +44,7 @@ export async function getScopeInfo(deps: SysDeps, actor: Actor): Promise<ScopeIn
   if (actor.assignments.length === 0)
     return { mode: 'none', current: null, canConsolidate: false, mustChoose: false, options: [] };
 
-  const branches = await deps.branches.list(allBranchesScope(actor.companyId));
+  const branches = await deps.branches.list(allBranchesScope(actor.tenantId));
   const options: ScopeOption[] = branches
     .filter((b) => allRoles || rolesByBranch.has(b.id))
     .map((b) => ({

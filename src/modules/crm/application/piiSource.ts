@@ -12,7 +12,7 @@ export function customerPiiSource(crm: () => CrmDeps): PiiSource {
       const deps = crm();
       const c = await deps.customers.get(scope, id);
       if (!c || c.status !== 'active') return null;
-      const pii = await deps.customers.getPii(scope.companyId, id);
+      const pii = await deps.customers.getPii(scope.tenantId, id);
       return {
         branchId: c.branchId,
         values: {

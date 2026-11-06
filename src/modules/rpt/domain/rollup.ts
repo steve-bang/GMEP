@@ -267,7 +267,7 @@ export const PAYMENT_METHOD_KEYS = ['cash', 'transfer', 'card', 'qr'] as const;
 
 export interface DailyRollup {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   date: string;
   /** FR-RPT-010: the day is closed in ACC, so the numbers are official; otherwise provisional */
@@ -372,7 +372,7 @@ const ageDaysOf = (from: Date, asOf: Date) =>
  * the current instant for today, so a rebuild of a past day is repeatable. Pure.
  */
 export function computeDaily(
-  key: { companyId: string; branchId: string; date: string },
+  key: { tenantId: string; branchId: string; date: string },
   facts: DayFacts,
   policy: RptPolicy,
   limits: ComputeLimits,
@@ -633,7 +633,7 @@ export function computeDaily(
 
   const body = {
     id: rollupId(key.branchId, key.date),
-    companyId: key.companyId,
+    tenantId: key.tenantId,
     branchId: key.branchId,
     date: key.date,
     official: facts.dayClosedAt !== null,

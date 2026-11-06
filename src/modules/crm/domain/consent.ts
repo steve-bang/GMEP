@@ -27,7 +27,7 @@ export type ConsentBasis = (typeof CONSENT_BASES)[number];
 
 export interface Consent {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   customerId: string;
   purpose: ConsentPurpose;

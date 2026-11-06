@@ -65,14 +65,14 @@ export async function openShift(
     async (tx) => {
       const now = deps.sys.clock.now();
       const date = businessDate(now);
-      const m = await loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, date);
+      const m = await loadMoneyCtx(deps, tx, scope, actor.tenantId, branchId, date);
       await assertWritable(deps, tx, actor, scope, branchId);
       assertDayOpen(m.dayClose);
       if (m.drawer.openShiftId) throw new AppError('shift_already_open', 409);
       const id = `sh_${deps.sys.newId()}`;
       const s: CashShift = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         businessDate: date,
         status: 'open',
@@ -133,7 +133,7 @@ async function noticeStaleSourceFlags(
   date: string,
 ): Promise<string | null> {
   if (drawer.sourceFlagNoticeDate === date) return null;
-  const policy = await accPolicyOf(deps, actor.companyId, branchId, date);
+  const policy = await accPolicyOf(deps, actor.tenantId, branchId, date);
   const now = deps.sys.clock.now();
   const cutoff = new Date(now.getTime() - policy.sourceFlagNoticeDays * 86_400_000);
   const rows = await deps.payments.listByBranch(
@@ -144,9 +144,9 @@ async function noticeStaleSourceFlags(
   );
   const stale = rows.filter((p) => p.kind === 'expense' && p.sourceMissing === true).length;
   if (stale === 0) return null;
-  const to = await usersWithRole(deps.sys, actor.companyId, ['QL', 'CH'], branchId);
+  const to = await usersWithRole(deps.sys, actor.tenantId, ['QL', 'CH'], branchId);
   notifyUsers(deps.sys, tx, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     userIds: to,
     kind: 'acc.cash',
     titleKey: 'notifications.expenseSourceMissing',
@@ -178,7 +178,7 @@ export async function closeShift(
   const branchId = moneyBranch(actor, scope);
   const data = parseInput(closeShiftSchema, input);
   const now0 = deps.sys.clock.now();
-  const policy = await accPolicyOf(deps, actor.companyId, branchId, businessDate(now0));
+  const policy = await accPolicyOf(deps, actor.tenantId, branchId, businessDate(now0));
   const s0 = await deps.cash.getShift(scope, shiftId);
   if (!s0 || s0.branchId !== branchId) throw notFound();
   const v0 = checkVariance(
@@ -195,7 +195,7 @@ export async function closeShift(
   }
   if (errors.length) throw validationFailed(errors);
   const limit = v0.needsApproval
-    ? await approvalLevelFor(deps.sys, actor.companyId, 'cash_variance', Math.abs(v0.varianceVnd))
+    ? await approvalLevelFor(deps.sys, actor.tenantId, 'cash_variance', Math.abs(v0.varianceVnd))
     : null;
   return runIdempotent(
     idemOf(deps),
@@ -212,7 +212,7 @@ export async function closeShift(
       if (!s || s.branchId !== branchId) throw notFound();
       if (s.version !== data.version) throw versionConflict();
       if (s.status !== 'open') throw new AppError('shift_not_open', 409);
-      const m = await loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, date);
+      const m = await loadMoneyCtx(deps, tx, scope, actor.tenantId, branchId, date);
       if (m.drawer.openShiftId !== s.id) throw new AppError('shift_not_open', 409);
       // FR-ACC-004 / RULE-010: the count difference is a cash book entry of a closed day, so a closed day refuses it
       assertDayOpen(m.dayClose);
@@ -344,7 +344,7 @@ export async function resubmitVariance(
   if (!s0 || s0.branchId !== branchId) throw notFound();
   const limit = await approvalLevelFor(
     deps.sys,
-    actor.companyId,
+    actor.tenantId,
     'cash_variance',
     Math.abs(s0.varianceVnd ?? 0),
   );

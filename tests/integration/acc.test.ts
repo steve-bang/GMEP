@@ -9,8 +9,8 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
-const SV_PHANH = 'svc_cmp_demo_SV-PHANH';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
+const SV_PHANH = 'svc_tnt_demo_SV-PHANH';
 const P_FILTER = 'part_seed_01';
 const Q7 = 'wh_br_q7_WH-CHINH';
 
@@ -270,7 +270,7 @@ describe.each(backends)('ACC money [%s]', (backend) => {
         (p) => p.orderId === o.id,
       ) as unknown as Payment[];
       const re = recomputeAccount(
-        { companyId: 'cmp_demo', branchId: 'br_q7', orderId: o.id, orderNumber: o.number },
+        { tenantId: 'tnt_demo', branchId: 'br_q7', orderId: o.id, orderNumber: o.number },
         pays,
         new Set(),
       );
@@ -1273,7 +1273,7 @@ describe.each(backends)('ACC money [%s]', (backend) => {
           {
             name: 'Cân chỉnh thêm',
             necessity: 'optional',
-            lines: [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-CANCHINH' }],
+            lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-CANCHINH' }],
           },
         ],
       });
@@ -1429,7 +1429,7 @@ describe.each(backends)('ACC money [%s]', (backend) => {
       expect((await refund(tn, 60_000)).json.code).toBe('refund_exceeds_received');
       // reconciliation: the aggregate equals what the payments say, refund included
       const re = recomputeAccount(
-        { companyId: 'cmp_demo', branchId: 'br_q7', orderId: o.id, orderNumber: o.number },
+        { tenantId: 'tnt_demo', branchId: 'br_q7', orderId: o.id, orderNumber: o.number },
         pays as unknown as Payment[],
         new Set(),
       );
@@ -1941,7 +1941,7 @@ describe.each(backends)('ACC money [%s]', (backend) => {
         const col = h.container.memory!.db.col('dayCloses');
         const id = dayCloseId('br_q7', date);
         col.set(id, {
-          companyId: 'cmp_demo',
+          tenantId: 'tnt_demo',
           branchId: 'br_q7',
           businessDate: date,
           status: 'closed',

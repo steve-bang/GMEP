@@ -11,9 +11,9 @@ export function invWarehouseActivity(getDeps: () => InvDeps): WarehouseActivityP
     async blockers(w) {
       const deps = getDeps();
       const out: string[] = [];
-      if (await deps.balances.hasStock(w.companyId, w.id))
+      if (await deps.balances.hasStock(w.tenantId, w.id))
         out.push('Kho còn tồn thực tế, hàng giữ chỗ hoặc hàng đang vận chuyển.');
-      if (await deps.documents.hasOpen(w.companyId, w.id))
+      if (await deps.documents.hasOpen(w.tenantId, w.id))
         out.push('Kho còn chứng từ nháp chưa xử lý.');
       return out;
     },

@@ -17,8 +17,8 @@ export interface FileStore {
   delete(path: string): Promise<void>;
 }
 
-/** Server-chosen, scope-prefixed object path: `<area>/<companyId>/<branchId>/<name>` with no traversal possible. */
-export function filePath(area: string, companyId: string, branchId: string, name: string): string {
+/** Server-chosen, scope-prefixed object path: `<area>/<tenantId>/<branchId>/<name>` with no traversal possible. */
+export function filePath(area: string, tenantId: string, branchId: string, name: string): string {
   const safe = (s: string) => s.replace(/[^A-Za-z0-9._-]/g, '_');
-  return `${safe(area)}/${safe(companyId)}/${safe(branchId)}/${safe(name)}`;
+  return `${safe(area)}/${safe(tenantId)}/${safe(branchId)}/${safe(name)}`;
 }

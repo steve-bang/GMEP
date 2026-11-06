@@ -12,7 +12,7 @@ const ref = (id: string, extra: Partial<PhotoRef> = {}): PhotoRef => ({
   ...extra,
 });
 const hidden = { at: new Date(0), by: 'm', reason: 'Nhầm xe khác' };
-const own = { companyId: 'c', branchId: 'b' };
+const own = { tenantId: 'c', branchId: 'b' };
 
 describe('FR-REC-034 / R104: which photos reach the customer', () => {
   it('intake photos are shown, hidden ones never', () => {
