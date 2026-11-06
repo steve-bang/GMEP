@@ -50,3 +50,8 @@ Phần A (`measure-overflow.js`): 0 tổ hợp có vấn đề. Phần B (`accou
 ## Đo lại bản tối giản (05/11/2026, Playwright)
 
 `account/measure.js --states` (onboarding + account còn dùng): 252 lượt tải, 0 lượt có vấn đề. Chưa chạy axe.
+
+
+## Đo lại sau phản hồi client (06/11/2026, Playwright)
+
+Phần công khai và platform admin: 0 tổ hợp có vấn đề sau khi sửa tràn 16px ở thanh đầu platform admin ở 360px (TSU-66, `.tsa-user` thêm `min-width:0; max-width:100

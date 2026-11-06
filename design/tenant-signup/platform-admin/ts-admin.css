@@ -110,7 +110,7 @@
   .tsa-brand { font-size: var(--font-size-md); gap: var(--space-2); }
   .tsa-brand__logo { width: 28px; height: 28px; }
   .tsa-label { margin-left: auto; min-height: 24px; padding: 0 var(--space-2); font-size: var(--font-size-xs); }
-  .tsa-user { flex: 1 1 100%; flex-wrap: nowrap; gap: var(--space-2); }
+  .tsa-user { flex: 1 1 100%; flex-wrap: nowrap; gap: var(--space-2); min-width: 0; max-width: 100%; }
   .tsa-user > span:first-child { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tsa-user .btn-icon, .tsa-user .btn { flex: none; }
   /* Thanh lưu dính (TSU-66): một hàng nút, dòng "n thay đổi chưa lưu" nhỏ phía trên; cao khoảng 80 px thay vì gần nửa màn */
