@@ -1,16 +1,31 @@
+import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
-import { EmptyState } from '@/ui/components/States';
+import { requireSession } from '@/composition/session';
+import { first, type SearchParams } from '@/ui/components/PageParts';
+import { DashboardHome, DashboardSkeleton } from './DashboardHome';
 
-export default async function DashboardPage() {
+export const dynamic = 'force-dynamic';
+
+/** Home dashboard (G1-DSH, FR-RPT-001): header at once, the figures stream in behind a skeleton. */
+export default async function DashboardPage({ searchParams }: { searchParams: SearchParams }) {
   const t = await getTranslations('dashboard');
+  const session = await requireSession();
+  const sp = await searchParams;
+  const date = first(sp.date);
+  const from = first(sp.from);
+  const to = first(sp.to);
+  const branchId = first(sp.branchId);
   return (
-    <>
+    <div className="stack">
       <div className="page-header">
         <div className="page-header__text">
           <h1>{t('title')}</h1>
+          <p className="text-secondary">{t('lead')}</p>
         </div>
       </div>
-      <EmptyState title={t('emptyTitle')} text={t('emptyText')} />
-    </>
+      <Suspense fallback={<DashboardSkeleton label={t('loading')} />}>
+        <DashboardHome session={session} date={date} from={from} to={to} branchId={branchId} />
+      </Suspense>
+    </div>
   );
 }
