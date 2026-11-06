@@ -1,89 +1,89 @@
-# ADR 0002: Multi-tenant (nháp)
+# ADR 0002: Multi-tenant (mô hình cô lập, danh tính, cấp phát)
 
-- **Trạng thái:** Draft (kỹ thuật chưa duyệt). **Phạm vi đã đổi theo quyết định của khách ngày 05/11/2026 (xem "Cập nhật phạm vi" bên dưới): multi-tenant nằm trong phạm vi và phải thiết kế từ đầu; ADR chính thức cần viết lại và trả lời các câu chặn ở `docs/multi-tenant-open-questions.md` mục 2 và 6.** Quyết định kỹ thuật của dev (§3 phương án A/B/C, "nghiêng về B") **không bị BA thay đổi**.
-- **Ngày:** 05/11/2026 (cập nhật phạm vi 06/11/2026, BA)
-- **Người đề xuất:** dev (cập nhật phạm vi: BA)
-
-## Cập nhật phạm vi (06/11/2026, BA; không đổi phần quyết định kỹ thuật)
-
-Khách (chủ dự án) đã quyết ngày 05/11/2026: **D1** hệ thống multi-tenant **thiết kế từ đầu**; **D2** chủ garage khác **tự đăng ký và tự triển khai**; **D3** có **gói dịch vụ thu tiền, làm sau theo phase**. Mô hình kinh doanh là SaaS dùng chung. Hệ quả cho bản nháp này:
-
-| Câu trong bản nháp | Tình trạng |
-| --- | --- |
-| Trạng thái "chưa nằm trong phạm vi hiện tại; không triển khai trước khi chủ dự án duyệt" | **Hết hiệu lực.** Phần nền (đợt MT-0, nay 15 FR gồm danh tính một-nhiều FR-TEN-017 theo quyết định chủ dự án 06/11/2026, thuộc Phase 1) là bắt buộc; MT-1 đến MT-3 làm sau theo đợt |
-| §1 "dự định về sau", "hiện chỉ có một tenant" | Tenant số 1 là khách đầu tiên; tenant khác tự đăng ký (MT-1) |
-| §2 "Không mục tiêu: triển khai ngay; billing; cổng tự đăng ký" | **Billing và tự đăng ký nay là mục tiêu của chương trình multi-tenant** (đợt MT-2, MT-3 và MT-1); dev có thể tách chúng thành ADR riêng; "tùy biến giao diện" và "tên miền riêng" vẫn ngoài mục tiêu đợt đầu (Q6) |
-| §4 "Không xây tính năng tenant... `Company` là đối tượng scope cao nhất hiện có... tính theo company" | **Thay đổi:** `tenantId` là lớp ngoài cùng ngay từ MT-0; `Company` là pháp nhân **trong** tenant; đánh số, cấu hình, đường dẫn tệp, nhật ký, khóa idempotency tính theo **tenant** (M1 do dev ánh xạ từ `companyId` hiện có). Không viết slice mới theo kiểu một tenant |
-| §7 "Quyết định cần chủ dự án xác nhận" mục 4 (có billing không) | Đã quyết: có gói, thu tiền sau. Mục 1, 2, 3, 5 còn mở (Q2, Q3, Q4/Q25, Q37) |
-
-Còn mở và chặn ADR chính thức (không giả định): mô hình cô lập (Q3), số tenant (Q2), định danh khi một người thuộc nhiều tenant (Q4, Q25, C-S14), khách đầu tiên có đồng ý dùng chung nền tảng và sở hữu hạ tầng (Q14), cấp phát tự động trên Firebase/GCP (Q26), hướng thu tiền và VAT hóa đơn nền tảng (Q27, Q12). Yêu cầu nghiệp vụ ràng buộc lên ADR: `docs/dev/multi-tenant-requirements-for-dev.md` (gồm bảy tiêu chí đánh giá phương án cô lập ở mục 7 và tác động chỉ mục 193/200 ở mục 5). Nguồn: `docs/multi-tenant-analysis.md` mục 0A.
-- **Liên quan:** [ADR 0001](0001-tech-stack.md) (§2.1, §6) · `CLAUDE.md` (mục Domain model, Multi-tenant) · NFR-ISO-01, NFR-SCA-01
+- **Trạng thái:** **Accepted for MT-0** (07/11/2026, dev, theo ủy quyền quyết định của chủ dự án). Phạm vi chấp nhận: nền tảng MT-0 (15 FR, Phase 1). Các phần phụ thuộc quyết định ngoài tầm (mục 8) được thiết kế thành hook và **không** coi là chốt. Mô hình vật lý (mục 3) được xem lại trước MT-1 hoặc khi có tenant đòi tách vật lý.
+- **Ngày:** 05/11/2026 (bản nháp); viết lại 07/11/2026
+- **Người quyết:** dev (senior full-stack); chủ dự án đã ủy quyền, chưa có phản hồi riêng cho ADR này
+- **Liên quan:** [ADR 0001](0001-tech-stack.md) (§2.1, §6, §7.3) · `docs/dev/multi-tenant-requirements-for-dev.md` · `docs/multi-tenant-open-questions.md` · `docs/multi-tenant-analysis.md` mục 0A · `docs/dev/index-budget.md` · NFR-ISO-01
 
 ## 1. Bối cảnh
 
-Chủ dự án dự định về sau phục vụ **nhiều công ty khách (tenant) độc lập trên cùng một nền tảng**. Hiện chỉ có một tenant (chuỗi garage của khách đầu tiên). Mô hình dữ liệu hiện tại: Company → Branch → Warehouse; cách ly theo chi nhánh do `resolveScope` và các repository thi hành (NFR-ISO-01). BRD còn mở câu hỏi một hay nhiều pháp nhân (`[Cần xác nhận]`); đó là chuyện **trong một tenant**, khác với multi-tenant.
+Chủ dự án quyết ngày 05/11/2026 (D1 đến D3) và 06/11/2026 (CD1 đến CD4): GMEP là SaaS dùng chung, multi-tenant thiết kế từ đầu, chủ garage khác tự đăng ký về sau, gói tính tiền làm sau (gói mặc định miễn phí, không trial), một email là một danh tính nhiều tư cách thành viên, không MFA cho vai trò nền tảng, tên sản phẩm GMEP. Phân cấp: Platform → Tenant → Company (pháp nhân) → Branch → Warehouse. Tin cậy giữa tenant là tin cậy giữa người lạ: một lỗi lọc là sự cố dữ liệu cá nhân của người ngoài.
 
-Phân biệt:
+Hiện trạng đo được (06/11/2026): mọi tài liệu nghiệp vụ đã mang `companyId`; **mọi** hình truy vấn trong `queries.ts` (194 hình, 193 chỉ mục tổng hợp) đã có `companyId` làm trường cân bằng đầu tiên; mọi khóa xác định (mã nhân viên, biển số, VIN, bộ đếm số chứng từ, khóa chống trùng hóa đơn, khóa idempotency của đánh số) đã chứa `companyId`; `Scope` đã có `companyId` ngoài cùng và `resolveScope` là nơi duy nhất quyết định cô lập; dữ liệu chỉ nằm ở Emulator. Nghĩa là trên thực tế `companyId` hiện nay **là** ranh giới tenant.
 
-| Khái niệm | Ý nghĩa |
+## 2. Quyết định
+
+1. **Mô hình cô lập: phương án A có điểm đặt chỗ (placement hook).** Một database Firestore dùng chung; mọi tài liệu nghiệp vụ mang `tenantId`; mọi hình truy vấn có `tenantId` là trường cân bằng đầu; mọi khóa xác định và đường dẫn tệp chứa tenant. Hồ sơ tenant có trường `placement` (MT-0 chỉ chấp nhận `pooled`); một tenant đòi tách vật lý sau này được chuyển sang database/dự án riêng bằng cách đổi `placement` và một `DocStore` factory theo tenant, không đổi mã nghiệp vụ (tiêu chí 7).
+2. **M1: `companyId` hiện có được đổi tên thành `tenantId`** (cả tên trường, kiểu, tham số, `Scope`, `Actor`), **giữ nguyên giá trị** của dữ liệu đang có, nên mọi khóa xác định cũ vẫn đúng (M7). `Company` (pháp nhân, FR-SYS-018) là khái niệm con của tenant, chưa build: hồ sơ tenant có `legalEntityIds`; `companyId` chỉ được dùng lại về sau cho pháp nhân và chỉ là thuộc tính bổ sung, không bao giờ là ranh giới cô lập.
+3. **Danh tính một-nhiều (U2):** bộ sưu tập `identities` (id = uid nhà cung cấp danh tính, email chuẩn hóa duy nhất toàn nền tảng, trạng thái). `users` giữ nguyên là **tư cách thành viên** (membership) của một tenant (tenantId, identityId, mã nhân viên duy nhất trong tenant, vai trò qua `roleAssignments`, trạng thái, thời điểm mời/thu hồi). Quy ước cũ `user.id == uid` vẫn đúng cho tư cách đầu tiên (tenant số 1 không phải di chuyển id); tư cách thứ hai trở đi có id riêng.
+4. **Phiên gắn đúng một tenant:** bản ghi phiên lưu `userId` (id tư cách) và `tenantId`; `Actor.tenantId` luôn lấy từ tư cách, không từ dữ liệu client. Sau mật khẩu đúng: 1 tư cách đang hoạt động thì vào thẳng; từ 2 thì phiên "chưa chọn tenant" (không đọc được dữ liệu nghiệp vụ nào) cho đến khi gọi `POST /api/v1/auth/tenant` (chọn/đổi tenant = tạo phiên mới, Scope tính lại, bỏ cache, thu hồi phiên cũ).
+5. **Vai trò nền tảng tách vùng:** bộ sưu tập `platformIdentities` + `platformRoles` (CNT, QTN, HTN, VHB, ma trận FRD §2) tách hẳn `identities`; email không được trùng giữa hai vùng; không có đường nào từ phiên nền tảng tới `resolveScope` của tenant (chỉ có phiên hỗ trợ có đồng ý ở MT-1). Nhật ký nền tảng (`platformAuditLogs`) bất biến, không chứa dữ liệu cá nhân của khách tenant.
+6. **Vòng đời tenant** là state machine riêng (13 trạng thái, FR-TEN-003), bảng chuyển trạng thái là dữ liệu trong `domain`, mọi chuyển có người làm, lý do, người duyệt (bước nhạy cảm, hai người khác nhau, RULE-027), ghi nhật ký nền tảng cùng giao dịch.
+7. **Cấp phát (FR-TEN-002)** là lõi idempotent dùng chung cho thủ công (MT-0) và tự động (MT-1): `provisionTenant(requestKey)`; id tenant xác định từ khóa yêu cầu; checklist bước có sổ ghi từng bước đã xong trong hồ sơ tenant; chạy lại bỏ qua bước xong; không có bước cần người (MT-1 gọi được không cần người).
+8. **Gói/thuê bao (B0):** hồ sơ tenant có `plan` (mặc định `free`) và `subscriptionStatus` (mặc định `none`), không có trường hạn dùng thử, không job hết hạn; một điểm kiểm tra `EntitlementPort.check(tenant, feature)` mặc định cho phép (hook MT-2).
+
+## 3. Đánh giá bảy tiêu chí của BA
+
+| # | Tiêu chí | A (chọn) | B (database/tenant) | C (dự án/tenant) |
+| --- | --- | --- | --- | --- |
+| 1 | Không rò rỉ, chứng minh được | Chứng minh bằng **kiểm thử và bất biến tĩnh**, không bằng cấu trúc: `Scope` có nhãn kiểu, mọi đọc theo id so khớp `tenantId`, một test đơn vị buộc **mọi hình truy vấn** có `tenantId` (trừ danh sách trắng nền tảng/danh tính), ma trận cô lập có trục tenant (mục 6). Rủi ro còn lại: một lỗi lọc ở mã mới | Mạnh hơn: sai lọc không vượt database | Mạnh nhất |
+| 2 | Xuất/xóa/khôi phục riêng một tenant | Làm được bằng quét `where tenantId ==` từng collection (chỉ mục đơn trường tự động, không tốn chỉ mục tổng hợp); danh sách collection có cờ `tenantScoped` trong `COL`; khôi phục riêng tenant là việc MT-1 (FR-TEN-006/007/034) và khó hơn B | Dễ nhất (export/delete database) | Dễ nhất |
+| 3 | Chi phí cố định/tenant ~0 | Đạt (không tài nguyên mới) | Gần 0 nhưng mỗi database có bộ chỉ mục riêng phải triển khai | Không đạt |
+| 4 | Cấp phát tự động vài phút | Đạt (ghi vài tài liệu, giây) | Cần GCP Admin API và triển khai chỉ mục theo database (phút đến chục phút, **chưa kiểm chứng**, phụ thuộc Q26) | Chậm nhất |
+| 5 | Công bằng hiệu năng | Chưa tự bảo đảm; bù bằng giới hạn tốc độ theo tenant (đã có `RateLimiter`, thêm khóa tenant ở MT-2) và truy vấn luôn có giới hạn trang; **đo ở perf-nfr có hai tenant** | Tốt hơn | Tốt nhất |
+| 6 | Trong ngân sách chỉ mục | **Đạt, 193 không đổi**: `tenantId` thay `companyId` trong từng chỉ mục (đo bằng `pnpm check:indexes`) | Ngân sách tính riêng từng database nhưng nhân bản việc triển khai | n/a |
+| 7 | Tách ra riêng sau này | Đạt nhờ `placement` + `DocStore` factory theo tenant; chi phí di chuyển là sao chép theo `tenantId` | Sẵn | Sẵn |
+
+Vì sao không B ngay: (a) trần database mỗi dự án mặc định là hạn mức cần xác minh với tài liệu GCP và chưa biết Q2 (số tenant); (b) cấp phát tự động cần quyền Admin trên dự án GCP, chưa có dự án (CLAUDE.md: "no GCP project yet"); (c) Emulator và bộ kiểm thử hiện chạy một database, nhân đôi hạ tầng kiểm thử; (d) chi phí retrofit của A gần như bằng 0 vì `companyId` đã là ranh giới. Vì sao không giữ nhãn `companyId` cho tenant: nhầm với pháp nhân (FR-SYS-018) và với `Company` ở FR-TEN-018, 021; đổi tên bây giờ rẻ nhất (dữ liệu chỉ ở Emulator).
+
+Điều kiện xem lại sang B (cho tenant, không cho toàn nền tảng): hợp đồng đòi tách vật lý (Q3); một tenant vượt ngưỡng tải chung; số tenant nhỏ và cần cách ly mạnh hơn (Q2).
+
+## 4. Tác động chỉ mục
+
+`pnpm check:indexes` đo trước khi làm: **193 chỉ mục tổng hợp, 194 hình truy vấn**. Phương án A thay `companyId` bằng `tenantId` trong từng hình/chỉ mục: số lượng **không đổi (193)**, ngưỡng fail 195 giữ. Hình truy vấn mới của MT-0 không thêm chỉ mục: hồ sơ tenant, danh tính, tư cách thành viên, nhật ký nền tảng đều đọc theo khóa; danh sách tenant dùng một hình chỉ có sắp theo một trường (chỉ mục đơn trường tự động); tư cách theo danh tính dùng một danh sách khóa trong tài liệu `identities` (`membershipIds`), không truy vấn mới. Ghi trong `docs/dev/index-budget.md`.
+
+## 5. Trả lời DEV-1 đến DEV-10
+
+| Mã | Trả lời |
 | --- | --- |
-| Tenant | Một khách hàng của nền tảng, dữ liệu tách hoàn toàn khỏi tenant khác |
-| Company / pháp nhân | Đơn vị pháp lý trong một tenant (có thể nhiều) |
-| Branch / Warehouse | Đơn vị vận hành trong một company |
+| DEV-1 | Phương án A + `placement` (mục 2, 3); bằng chứng: ma trận cô lập chéo tenant, test bất biến mọi hình truy vấn có `tenantId`, đo chỉ mục không đổi. **Chưa spike B/C** (chờ dự án GCP) |
+| DEV-2 | Mục 4: 193 không đổi |
+| DEV-3 (M1) | `companyId` → `tenantId`, giữ giá trị; `Company` pháp nhân là con của tenant, thêm sau |
+| DEV-4 | Mục 2.3, 2.4: `identities` + `users` là membership; `POST /api/v1/auth/tenant` chọn/đổi; thu hồi theo tư cách: `revokeAllSessions` đổi từ "theo user" sang "theo tư cách" (id tư cách), không đụng tư cách khác; đổi mật khẩu thu hồi mọi phiên của danh tính (đề xuất Q41a); tenant A không đọc được danh tính ở tenant khác (API chỉ trả tư cách của chính tenant) |
+| DEV-5 | Mục 2.7. Spike cấp phát trên Firebase/GCP **không làm được ở đây** (không có dự án, Q26): MT-0 cấp phát = ghi tài liệu trong Firestore, không tạo tài nguyên GCP; bước tài nguyên GCP (nếu chọn B/C) là một `ProvisioningStep` cắm thêm sau |
+| DEV-6 (M7) | Giữ giá trị id tenant cũ nên khóa bộ đếm, khóa chống trùng hóa đơn (FR-EIN-013), khóa idempotency không đổi; công cụ di chuyển `scripts/migrate-to-tenant.ts` đổi tên trường `companyId` → `tenantId`, **dry-run mặc định**, idempotent, in đối chiếu số bản ghi và tổng tiền trước/sau, kế hoạch quay lui = chạy lại với `--reverse` hoặc khôi phục Emulator (chưa có dữ liệu thật) |
+| DEV-7 (M8) | Đường dẫn tệp `<area>/<tenantId>/<branchId>/<name>` (đã server-chọn); URL ký (khi build) kiểm tenant trước khi cấp; thêm test đường dẫn |
+| DEV-8 (M9) | Cron chạy **lần lượt theo tenant** trong trạng thái cho phép (`active`, `onboarding`, `restricted`, `suspended` cho tác vụ đồng bộ hóa đơn), lỗi tenant này không chặn tenant khác; `CRON_COMPANY_ID` bỏ, thay bằng `CRON_TENANT_ID` tùy chọn (giới hạn một tenant) |
+| DEV-9 (C-15) | Hồ sơ tenant có `environment: 'demo' \| 'live'`; hóa đơn `fake` bị từ chối khi `live` (FR-TEN-021); seed tạo tenant `demo` |
+| DEV-9b (C-17, C-S16) | Chống bot, tra MST, liên kết một lần là **MT-1**; chỉ có cổng/hook (`SignupGuardPort` sẽ đặt tên khi build), không build ở đây |
+| DEV-10 | Ước lượng MT-0 (một dev, đã gồm test): nền tên + Scope + khóa **2 ngày** (đã làm ở nhánh này, mục 7); tenant record + vòng đời + nhật ký nền tảng + cấp phát **3 ngày**; danh tính một-nhiều + phiên chọn/đổi tenant + thu hồi theo tư cách + migration tài khoản **4 ngày**; vai trò nền tảng tách vùng **1 ngày**; cấu hình/tích hợp theo tenant (FR-TEN-018, 021) **2 ngày**; ma trận cô lập trục tenant + seed hai tenant + migration tool + UAT-TEN **3 ngày**; màn hình (chọn công ty, UI nền tảng) **không tính** (chờ designer, MT-1). Tổng ~15 ngày người cho phần không giao diện. Đầu vào cho Q37: MT-0 chậm go-live pilot tối đa ~3 tuần lịch nếu một dev làm tuần tự |
 
-## 2. Mục tiêu và không mục tiêu
+## 6. Cô lập: các điểm thi hành
 
-**Mục tiêu (khi triển khai):** cách ly tuyệt đối dữ liệu giữa tenant (danh sách, tìm kiếm, báo cáo, xuất, API, media, nhật ký); cấu hình, đánh số, mẫu chứng từ, hóa đơn điện tử theo từng tenant; thêm tenant bằng quy trình cấp phát, không sửa mã.
+- `Scope.tenantId` do `resolveScope` đặt từ `Actor.tenantId`; `Actor` chỉ được tạo trong `loadActor` từ tư cách trong phiên; không có tham số/tiêu đề/đường dẫn nào đưa `tenantId` vào `Scope` (FR-TEN-010).
+- Đọc theo id: bản ghi có `tenantId` khác `scope.tenantId` trả "không tìm thấy" cùng dạng như bản ghi không tồn tại (kiểm tra ở `scopeAllows` và các repository đang gọi nó).
+- Bất biến tĩnh: test đơn vị duyệt `registeredQueries()` và buộc `eq` chứa `tenantId`, ngoại lệ là danh sách trắng ghi rõ lý do (collection nền tảng/danh tính). RULE-017: không truy vấn nghiệp vụ toàn nền tảng.
+- Khóa xác định: `tenantId` là thành phần đầu; hai tenant được trùng số (RULE-018). Khóa idempotency có thêm tenant; khóa chống trùng hóa đơn đã chứa tenant và không hết hạn (không đổi).
+- Ma trận `isolation-matrix.test.ts`: thêm trục tenant (tenant B có dữ liệu riêng, tài khoản tenant A không thấy qua danh sách, chi tiết theo id, xuất, tìm kiếm; dùng khóa idempotency của tenant khác).
 
-**Không mục tiêu của ADR này:** triển khai ngay; billing; cổng tự đăng ký; tùy biến giao diện theo tenant; tên miền riêng (trừ khi chọn ở §6).
+## 7. Kế hoạch retrofit (M13) và tiến độ
 
-## 3. Phương án cách ly dữ liệu
+Làm theo lát cắt nhỏ, mỗi lát qua `pnpm check:fast`: (1) đổi tên `companyId` → `tenantId`, `Company` → `Tenant`, cron theo tenant; (2) hồ sơ tenant, vòng đời, nhật ký nền tảng, cấp phát; (3) danh tính một-nhiều, phiên chọn/đổi tenant; (4) vai trò nền tảng tách vùng; (5) seed hai tenant, ma trận cô lập trục tenant, công cụ di chuyển. Tiến độ thực tế ghi ở `docs/dev/status.md` (mục MT-0).
 
-| # | Phương án | Ưu | Nhược |
-| --- | --- | --- | --- |
-| A | **Dùng chung database và collection, mọi tài liệu có `tenantId`**; tenant là lớp `Scope` ngoài cùng | Rẻ, một hạ tầng, vận hành đơn giản, chia sẻ ngân sách chỉ mục | Một lỗi lọc là rò rỉ chéo tenant; chỉ mục phải thêm `tenantId` (đang 193/200 chỉ mục tổng hợp, xem `docs/dev/index-budget.md`); tenant lớn ảnh hưởng tenant khác; xóa/xuất dữ liệu một tenant khó |
-| B | **Một database Firestore (named database) cho mỗi tenant** trong cùng dự án GCP | Cách ly mạnh, xuất/xóa theo tenant dễ, ngân sách chỉ mục tính riêng | Giới hạn số database mỗi dự án; Admin SDK phải chọn database theo tenant; quản lý rules, indexes, backup nhiều nơi |
-| C | **Một dự án GCP/Firebase cho mỗi tenant** | Cách ly cao nhất, hóa đơn và vùng dữ liệu theo tenant | Vận hành và triển khai phức tạp nhất, chi phí nền cao |
+## 8. Phụ thuộc quyết định ngoài tầm (không chặn, có hook)
 
-**Nghiêng về:** B (hoặc A nếu số tenant dự kiến lớn và nhỏ). Chưa chốt: phụ thuộc số tenant dự kiến, yêu cầu pháp lý/hợp đồng về tách dữ liệu, ngân sách chỉ mục. `[Cần xác nhận]` chủ dự án.
+| Chủ đề | Hook trong MT-0 | Khi có quyết định |
+| --- | --- | --- |
+| Q14 (khách đầu tiên đồng ý dùng chung nền tảng, sở hữu hạ tầng) | `placement` + factory theo tenant | Nếu khách đòi hạ tầng riêng: tenant số 1 `placement` riêng, không đổi mã |
+| Q26 (cấp phát trên GCP) | `ProvisioningStep` cắm thêm | Thêm bước tạo database/dự án nếu chọn B/C |
+| Q12, Q27, billing | `plan`/`subscriptionStatus` + `EntitlementPort` mặc định cho phép; không số liệu tiền nền tảng | MT-2/MT-3 |
+| Q24 (vai trò nền tảng) | Ma trận FRD §2 là dữ liệu cấu hình có thể đổi | Điều chỉnh bảng quyền |
+| Q37, Q38 | Không chặn | Chủ dự án quyết |
+| Q40 (giới hạn tenant miễn phí) | Chưa có giới hạn; điểm kiểm tra mặc định cho phép | Tham số cấu hình |
+| Q41 (quy tắc danh tính một-nhiều) | Theo đề xuất BA: đổi mật khẩu áp cho danh tính; tenant không thấy tenant khác | Đổi tại một chỗ nếu khác |
 
-## 4. Nguyên tắc để không chặn đường (áp dụng từ bây giờ)
+## 9. Hệ quả
 
-Không xây tính năng tenant, nhưng khi viết mã mới:
-
-1. Không hard-code một công ty; `Company` là đối tượng scope cao nhất hiện có.
-2. Mọi quyết định cách ly nằm ở `resolveScope` và `src/infrastructure/repos`; tầng khác không tự lọc dữ liệu. Khi cần, `tenantId` được thêm làm thành phần ngoài cùng của `Scope`.
-3. Đánh số chứng từ, cấu hình có hiệu lực theo ngày, mẫu tài liệu, đường dẫn Storage, nhật ký kiểm toán, khóa idempotency: tính **theo company**, không dùng bộ đếm hay khóa toàn cục.
-4. Không để mã định danh hoặc đường dẫn dùng chung toàn nền tảng làm lộ dữ liệu (ví dụ ID tuần tự, tên tệp đoán được).
-5. Cấu hình hạ tầng (vùng, bucket, nhà cung cấp hóa đơn điện tử, Zalo/SMS) đọc qua cổng/cấu hình, không nhúng cố định.
-6. Dữ liệu seed và kiểm thử không giả định một tenant duy nhất; khi triển khai, ma trận kiểm thử cách ly (`docs/dev/uat-coverage.md`) mở rộng thêm trục tenant.
-
-## 5. Các điểm cần quyết khi triển khai
-
-| Chủ đề | Câu hỏi |
-| --- | --- |
-| Xác định tenant | Từ tên miền con, từ phiên đăng nhập, hay từ tài khoản? Người dùng thuộc một hay nhiều tenant? |
-| Xác thực | Firebase Auth multi-tenancy (Identity Platform) hay tự quản tenant trong claims/session? Cookie `__Host-` và thu hồi phiên theo tenant |
-| Phân quyền | Vai trò hệ thống (siêu quản trị nền tảng) tách khỏi 10 vai trò trong tenant |
-| Cấu hình | Mặc định nền tảng → mặc định tenant → company/branch (kế thừa, có hiệu lực theo ngày) |
-| Hóa đơn điện tử | Nhà cung cấp, chứng thư, mẫu số, ký hiệu theo tenant/pháp nhân |
-| Lưu tệp | Bucket hoặc tiền tố theo tenant; URL ký phải kiểm tenant (A1 của ADR 0001) |
-| Chỉ mục | Ảnh hưởng ngân sách 200 chỉ mục nếu chọn A |
-| Sao lưu và xóa | Khôi phục, xuất và xóa dữ liệu riêng một tenant (Luật Bảo vệ dữ liệu cá nhân 2025) |
-| Cấp phát | Quy trình tạo tenant, seed cấu hình mặc định, di chuyển dữ liệu Excel |
-| Billing, hạn mức | Có hay không; theo chi nhánh, người dùng, hay gói |
-| Di chuyển tenant đầu tiên | Dữ liệu hiện có được gán `tenantId` mặc định thế nào, có downtime không |
-
-## 6. Hệ quả
-
-- Chưa có thay đổi mã. Chi phí hiện tại chỉ là kỷ luật ở §4.
-- Phương án nào cũng cần ADR chính thức (thay bản nháp này), spike kiểm chứng cách ly, và mở rộng bộ kiểm thử cách ly trước khi nhận tenant thứ hai.
-- Ảnh hưởng đến: `Scope`/`resolveScope`, `DocStore`, `repos/queries.ts` và kiểm tra chỉ mục, Storage, xác thực/phiên, đánh số, cấu hình có hiệu lực, hóa đơn điện tử, dependency-cruiser (ranh giới không đổi).
-
-## 7. Quyết định cần chủ dự án xác nhận
-
-1. Số tenant dự kiến trong 2 năm và quy mô mỗi tenant.
-2. Yêu cầu hợp đồng/pháp lý về tách dữ liệu (chung database có được không).
-3. Người dùng có thuộc nhiều tenant không.
-4. Mô hình thương mại (billing, gói, hạn mức).
-5. Thời điểm dự kiến nhận tenant thứ hai.
+- Một lần đổi tên lớn trong mã, dữ liệu và kiểm thử (`companyId` → `tenantId`); dữ liệu Emulator cũ phải qua công cụ di chuyển hoặc làm lại seed.
+- Không tenant nào được nhận (kể cả tenant số 2) trước khi ma trận cô lập chéo tenant xanh (FR-TEN-014).
+- Giới hạn đã biết của A: cô lập là bất biến của mã (ngăn bằng kiểu, test, lint tĩnh), không phải của hạ tầng; vì vậy `placement` được giữ để nâng cấp cho tenant cần cách ly mạnh.
