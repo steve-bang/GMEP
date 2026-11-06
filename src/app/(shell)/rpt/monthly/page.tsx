@@ -65,16 +65,20 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
   // absolute change; "mới" when the earlier period is 0, "—" when both are 0, "n/a" + reason when it is incomplete.
   const cmp = r.comparison;
   const sign = (n: number) => (n > 0 ? '+' : '');
+  // basis points -> one decimal of a percent, exact ties half up toward +infinity like deltaBp (R113): 5 bp = 0,05% -> 0,1%
   const pctOf = (bp: number) => {
-    const tenths = Math.round(Math.abs(bp) / 10);
-    return `${bp > 0 && tenths > 0 ? '+' : bp < 0 && tenths > 0 ? '-' : ''}${Math.trunc(tenths / 10)},${tenths % 10}%`;
+    const tenths = Math.floor((bp + 5) / 10);
+    const a = Math.abs(tenths);
+    return `${tenths > 0 ? '+' : tenths < 0 ? '-' : ''}${Math.trunc(a / 10)},${a % 10}%`;
   };
   const change = (m: MetricComparison | undefined, fmt: (n: number) => string): string => {
     if (!cmp || !m) return l.vsPrevNone!;
     if (m.state === 'na')
       return cmp.naReason === 'missing'
         ? fill(l.vsPrevNaMissing!, { n: cmp.previousMissingDates.length })
-        : l.vsPrevNaNoData!;
+        : cmp.naReason === 'no-data'
+          ? l.vsPrevNaNoData!
+          : fill(l.vsPrevNaOldSchema!, { n: cmp.uninvoicedNewMissingDates.length });
     const abs = `${sign(m.deltaAbs!)}${fmt(m.deltaAbs!)}`;
     if (m.state === 'none') return l.vsPrevBothZero!;
     if (m.state === 'new') return fill(l.vsPrevNew!, { abs });
@@ -135,6 +139,7 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
         ) : null}
       </Note>
       {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
+      {d.previousUnlinked ? <UnlinkedNote u={d.previousUnlinked} labels={l} previous /> : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
@@ -161,6 +166,19 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
             value={money(r.money.inflowVnd)}
             meta={<span data-testid="m-inflow-delta">{change(cmp?.metrics.inflowVnd, money)}</span>}
             testId="m-inflow"
+          />
+        ) : null}
+        {d.visible.invoices ? (
+          <Kpi
+            label={l.kUninvoicedNew!}
+            value={String(cmp?.metrics.uninvoicedNew.current ?? 0)}
+            formula={l.fUninvoicedNew!}
+            meta={
+              <span data-testid="m-uninvoiced-delta">
+                {change(cmp?.metrics.uninvoicedNew, String)}
+              </span>
+            }
+            testId="m-uninvoiced"
           />
         ) : null}
       </Kpis>

@@ -96,10 +96,11 @@ export const DEFAULT_COMPARISON: ComparisonKind = 'previous-month-same-days';
 
 /**
  * R114: the flow figures that have a comparison, declared in ONE place. Stock-like figures (open orders, open debt, cash,
- * stock) have none: the rollup does not keep the end-of-day state needed to rebuild them. Orders completed without an
- * invoice is a snapshot of the whole backlog in the rollup, not a flow, so it is not here [Cần xác nhận R114].
+ * stock) have none: the rollup does not keep the end-of-day state needed to rebuild them. `uninvoicedNew` is the FLOW
+ * "orders completed in the period without a valid invoice" (rollup schema 5), not the end-of-day backlog
+ * (`closedWithoutInvoiceCount`, which is a snapshot and is not compared) [Cần xác nhận R114].
  */
-export const COMPARED_METRICS = ['exTaxVnd', 'closed', 'inflowVnd'] as const;
+export const COMPARED_METRICS = ['exTaxVnd', 'closed', 'inflowVnd', 'uninvoicedNew'] as const;
 export type ComparedMetric = (typeof COMPARED_METRICS)[number];
 
 /** Percent change in basis points (1 bp = 0.01%), integer; null when the base is 0 (cannot divide) */
@@ -136,6 +137,11 @@ export interface MonthComparison {
   previousMissingDates: string[];
   /** why the metrics are n/a: nothing for the whole range, or n days missing; null when comparable */
   naReason: 'no-data' | 'missing' | null;
+  /**
+   * days of either range whose rollup is present but lacks `uninvoicedNew` (built before schema 5): that metric alone is
+   * n/a (R111, never 0) until they are rebuilt
+   */
+  uninvoicedNewMissingDates: string[];
   metrics: Record<ComparedMetric, MetricComparison>;
 }
 
@@ -182,16 +188,20 @@ export function comparisonPeriod(
 }
 
 /**
- * (current - previous) / |previous| in basis points, integer, ties away from zero (R113); null when previous is 0.
+ * (current - previous) / |previous| in basis points, integer, exact ties round half up toward +infinity (R113 "nửa lên":
+ * +312.5 -> 313, -9687.5 -> -9687) [Cần xác nhận: convention awaiting the accountant's sign-off]; null when previous is 0.
  * Exact integer arithmetic (BigInt): no float rounding on VND amounts.
  */
 export function deltaBp(current: number, previous: number): DeltaBp {
   if (previous === 0) return null;
   const num = BigInt(current - previous) * 10_000n;
   const den = BigInt(Math.abs(previous));
-  const abs = num < 0n ? -num : num;
-  const q = (2n * abs + den) / (2n * den);
-  return Number(num < 0n ? -q : q);
+  // floor((2 num + den) / (2 den)) with a true floor for negative numerators
+  const top = 2n * num + den;
+  const bot = 2n * den;
+  let q = top / bot;
+  if (top % bot !== 0n && top < 0n) q -= 1n;
+  return Number(q);
 }
 
 function metricOf(current: number, previous: number | null): MetricComparison {
@@ -211,17 +221,13 @@ export interface PreviousPeriod {
 
 type Rolled = Pick<
   DailyRollup,
-  | 'date'
-  | 'official'
-  | 'orders'
-  | 'revenue'
-  | 'money'
-  | 'receivables'
-  | 'invoices'
-  | 'stock'
-  | 'cash'
-> &
-  Partial<Pick<DailyRollup, 'byServiceType' | 'schemaVersion' | 'unlinked'>>;
+  'date' | 'official' | 'orders' | 'revenue' | 'money' | 'receivables' | 'stock' | 'cash'
+> & {
+  /** `completedWithoutInvoiceCount` is absent on a rollup older than schema 5 (read as "not available") */
+  invoices: Omit<DailyRollup['invoices'], 'completedWithoutInvoiceCount'> & {
+    completedWithoutInvoiceCount?: number | undefined;
+  };
+} & Partial<Pick<DailyRollup, 'byServiceType' | 'schemaVersion' | 'unlinked'>>;
 
 /** FR-RPT-014: sum of the "không gắn lệnh" lines over the present days. */
 export function sumUnlinked(rolls: readonly Rolled[]): UnlinkedRollup {
@@ -289,6 +295,10 @@ export function forServiceType(
         issuedVnd: e.invoicesIssuedVnd,
         closedWithoutInvoiceCount: e.notInvoicedCount,
         closedWithoutInvoiceVnd: e.notInvoicedVnd,
+        // a schema 4 day has no per-type flow: absent (n/a), not the 0 of an empty type entry
+        ...((r.schemaVersion ?? 1) >= 5
+          ? { completedWithoutInvoiceCount: e.completedNotInvoicedCount }
+          : {}),
       },
       stock: { issueDocuments: e.stockIssueDocuments, issuesWithoutSource: 0 },
       cash: { shiftsClosed: 0, shiftsWithVariance: 0, varianceVnd: 0 },
@@ -315,10 +325,28 @@ function compare(month: string, rows: readonly Rolled[], prev: PreviousPeriod): 
   const c = sumMonth(month, rows, curDates);
   const p = sumMonth(period.month, prev.rows, prevDates);
   const complete = p.missingDates.length === 0;
+  // R114/R111: the uninvoiced flow exists only on schema 5 rollups; a present day without it makes the metric n/a
+  // (both ranges: a current day without it would understate the current figure)
+  const lacking = (rs: readonly Rolled[], dates: readonly string[]) => {
+    const want = new Set(dates);
+    return rs
+      .filter((r) => want.has(r.date) && r.invoices.completedWithoutInvoiceCount === undefined)
+      .map((r) => r.date)
+      .sort();
+  };
+  const uninvoicedNewMissingDates = [...lacking(rows, curDates), ...lacking(prev.rows, prevDates)];
+  const flowOf = (rs: readonly Rolled[], dates: readonly string[]) => {
+    const want = new Set(dates);
+    return sum(
+      rs.filter((r) => want.has(r.date)).map((r) => r.invoices.completedWithoutInvoiceCount ?? 0),
+    );
+  };
+  const newOk = complete && uninvoicedNewMissingDates.length === 0;
   const prevValue: Record<ComparedMetric, number | null> = {
     exTaxVnd: complete ? p.revenue.exTaxVnd : null,
     closed: complete ? p.orders.closed : null,
     inflowVnd: complete ? p.money.inflowVnd : null,
+    uninvoicedNew: newOk ? flowOf(prev.rows, prevDates) : null,
   };
   return {
     kind: period.kind,
@@ -331,10 +359,12 @@ function compare(month: string, rows: readonly Rolled[], prev: PreviousPeriod): 
     previousPresent: p.present,
     previousMissingDates: p.missingDates,
     naReason: complete ? null : p.present === 0 ? 'no-data' : 'missing',
+    uninvoicedNewMissingDates,
     metrics: {
       exTaxVnd: metricOf(c.revenue.exTaxVnd, prevValue.exTaxVnd),
       closed: metricOf(c.orders.closed, prevValue.closed),
       inflowVnd: metricOf(c.money.inflowVnd, prevValue.inflowVnd),
+      uninvoicedNew: metricOf(flowOf(rows, curDates), prevValue.uninvoicedNew),
     },
   };
 }

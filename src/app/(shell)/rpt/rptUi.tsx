@@ -32,10 +32,19 @@ export function Note(props: {
 }
 
 /** FR-RPT-014: the documents of a filtered view that carry no order, kept in their own line. */
-export function UnlinkedNote({ u, labels }: { u: UnlinkedRollup; labels: Dict }) {
+export function UnlinkedNote({
+  u,
+  labels,
+  previous,
+}: {
+  u: UnlinkedRollup;
+  labels: Dict;
+  /** the same line for the earlier compared period (R108) */
+  previous?: boolean;
+}) {
   return (
-    <Note tone="info" testId="rpt-unlinked">
-      <strong>{labels.unlinkedTitle}</strong>
+    <Note tone="info" testId={previous ? 'rpt-unlinked-previous' : 'rpt-unlinked'}>
+      <strong>{previous ? labels.unlinkedPreviousTitle : labels.unlinkedTitle}</strong>
       <span className="text-secondary" style={{ display: 'block' }}>
         {fill(labels.unlinkedText!, {
           inflow: money(u.inflowVnd),

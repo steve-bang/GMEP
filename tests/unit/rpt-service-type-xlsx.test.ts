@@ -105,7 +105,7 @@ const roll = () => computeDaily(key, facts, DEFAULT_RPT_POLICY, limits, NOW, fin
 describe('FR-RPT-014: byServiceType in the daily rollup', () => {
   it('splits the order-bound figures by type and adds up to the day totals', () => {
     const r = roll();
-    expect(r.schemaVersion).toBe(4);
+    expect(r.schemaVersion).toBe(5);
     const by = new Map(r.byServiceType!.map((x) => [x.serviceType, x]));
     expect(by.get('maintenance')).toMatchObject({
       closed: 2,
@@ -128,6 +128,8 @@ describe('FR-RPT-014: byServiceType in the daily rollup', () => {
     expect(sum((x) => x.laborVnd)).toBe(r.revenue.laborVnd);
     expect(sum((x) => x.gapVnd)).toBe(r.money.gapVnd);
     expect(sum((x) => x.notInvoicedCount)).toBe(r.invoices.closedWithoutInvoiceCount);
+    // R114: the day flow also adds up over the types
+    expect(sum((x) => x.completedNotInvoicedCount)).toBe(r.invoices.completedWithoutInvoiceCount);
   });
 
   it('FR-RPT-014: splits money by method, issued invoices and goods issues by type; the rest is unlinked', () => {

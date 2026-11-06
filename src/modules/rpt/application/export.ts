@@ -189,6 +189,7 @@ const unlinkedRows = (
 function comparisonRows(
   c: MonthComparison | null,
   showMoney: boolean,
+  showInvoices: boolean,
   row: (code: string, v: Cell) => Cell[],
 ): Cell[][] {
   if (!c) return [];
@@ -202,8 +203,16 @@ function comparisonRows(
   if (c.naReason === 'no-data') rows.push(row('compare.na', lbl('compare.na.noData')));
   if (c.naReason === 'missing')
     rows.push(row('compare.na', `${lbl('compare.na.missing')} ${c.previousMissingDates.length}`));
+  if (showInvoices && c.uninvoicedNewMissingDates.length > 0)
+    rows.push(
+      row(
+        'compare.uninvoicedNew.na',
+        `${lbl('compare.na.oldSchema')} ${c.uninvoicedNewMissingDates.length}`,
+      ),
+    );
   for (const m of COMPARED_METRICS) {
     if (m === 'inflowVnd' && !showMoney) continue;
+    if (m === 'uninvoicedNew' && !showInvoices) continue;
     const x = c.metrics[m];
     rows.push(
       row(`compare.${m}.previous`, x.previous),
@@ -303,7 +312,7 @@ export async function exportReport(
             ]
           : []),
         ...(d.visible.stock ? [row('stock.issuesWithoutSource', r.stock.issuesWithoutSource)] : []),
-        ...comparisonRows(r.comparison, d.visible.money, row),
+        ...comparisonRows(r.comparison, d.visible.money, d.visible.invoices, row),
         ...unlinkedRows(d.unlinked, row),
         // R108: the previous period adds up the same way (type lines + the lines without an order)
         ...unlinkedRows(d.previousUnlinked, row, 'unlinkedPrevious'),

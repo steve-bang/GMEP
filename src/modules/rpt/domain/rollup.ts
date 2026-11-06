@@ -216,6 +216,8 @@ export interface ServiceTypeRollup {
   stockIssueDocuments: number;
   /** schema 4: customer refunds paid out against an order of this type (expense vouchers carrying the order, net of their reversals) */
   expenseVnd: number;
+  /** schema 5: orders of this type completed ON the date without a valid invoice (flow; see `invoices.completedWithoutInvoiceCount`) */
+  completedNotInvoicedCount: number;
 }
 
 /**
@@ -258,6 +260,7 @@ export const emptyServiceRollup = (serviceType: string | null): ServiceTypeRollu
   invoicesIssuedVnd: 0,
   stockIssueDocuments: 0,
   expenseVnd: 0,
+  completedNotInvoicedCount: 0,
 });
 
 export const PAYMENT_METHOD_KEYS = ['cash', 'transfer', 'card', 'qr'] as const;
@@ -271,9 +274,11 @@ export interface DailyRollup {
   official: boolean;
   /**
    * 1 = before the service-type breakdown; 2 = with `byServiceType` (orders only); 3 = also money by method, issued invoices
-   * and goods issues per type plus `unlinked` (FR-RPT-014). A rebuild upgrades a document.
+   * and goods issues per type plus `unlinked` (FR-RPT-014); 4 = refunds per type; 5 = `completedWithoutInvoiceCount` (the
+   * flow of orders completed on the day without an invoice, R114). A rebuild upgrades a document; a document of an older
+   * version lacks the field and reads as "not available" (never 0).
    */
-  schemaVersion: 1 | 2 | 3 | 4;
+  schemaVersion: 1 | 2 | 3 | 4 | 5;
   computedAt: Date;
   /** hash of everything below except `computedAt` and `sourceHash` (a rebuild that changes nothing writes nothing) */
   sourceHash: string;
@@ -318,8 +323,14 @@ export interface DailyRollup {
   invoices: {
     issuedCount: number;
     issuedVnd: number;
+    /** end-of-day BACKLOG: every completed order of the scan, completed by the end of the date, without a valid invoice or open request */
     closedWithoutInvoiceCount: number;
     closedWithoutInvoiceVnd: number;
+    /**
+     * schema 5, R114: FLOW of the day: the subset of the backlog above whose `completedAt` falls inside the date (same
+     * invoice test: not valid and no open request, state as at the run). Summing it over days is meaningful.
+     */
+    completedWithoutInvoiceCount: number;
   };
   stock: { issueDocuments: number; issuesWithoutSource: number };
   cash: { shiftsClosed: number; shiftsWithVariance: number; varianceVnd: number };
@@ -409,6 +420,7 @@ export function computeDaily(
   let gapOrders = 0;
   let closedWithoutInvoice = 0;
   let closedWithoutInvoiceVnd = 0;
+  let completedWithoutInvoice = 0;
   const svc = new Map<string, ServiceTypeRollup>();
   const orderById = new Map(orders.map((o) => [o.id, o]));
   const unlinked = emptyUnlinked();
@@ -489,6 +501,11 @@ export function computeDaily(
     const sv = svcOf(o);
     sv.notInvoicedCount++;
     sv.notInvoicedVnd += o.totalVnd;
+    // R114: the part of the backlog that arose on this very date
+    if (inWindow(o.completedAt, w)) {
+      completedWithoutInvoice++;
+      sv.completedNotInvoicedCount++;
+    }
     addRef('notInvoiced', orderRef(o));
     if (age >= policy.uninvoicedAfterDays) alert('not_invoiced', orderRef(o), age, o.totalVnd);
   }
@@ -620,7 +637,7 @@ export function computeDaily(
     branchId: key.branchId,
     date: key.date,
     official: facts.dayClosedAt !== null,
-    schemaVersion: 4 as const,
+    schemaVersion: 5 as const,
     orders: { opened, closed, handedOver, cancelled, openAtEnd },
     revenue: {
       orderTotalVnd: orderTotal,
@@ -652,6 +669,7 @@ export function computeDaily(
       issuedVnd,
       closedWithoutInvoiceCount: closedWithoutInvoice,
       closedWithoutInvoiceVnd,
+      completedWithoutInvoiceCount: completedWithoutInvoice,
     },
     stock: { issueDocuments: facts.stockIssues.length, issuesWithoutSource: withoutSource },
     cash: { shiftsClosed, shiftsWithVariance, varianceVnd },
@@ -739,6 +757,10 @@ export function totalsOf(rows: readonly DailyRollup[]): RollupTotals {
       issuedVnd: sum(rows.map((r) => r.invoices.issuedVnd)),
       closedWithoutInvoiceCount: sum(rows.map((r) => r.invoices.closedWithoutInvoiceCount)),
       closedWithoutInvoiceVnd: sum(rows.map((r) => r.invoices.closedWithoutInvoiceVnd)),
+      // older rollups lack the field: read as 0 here (a day total, not a comparison; the monthly report keeps n/a)
+      completedWithoutInvoiceCount: sum(
+        rows.map((r) => r.invoices.completedWithoutInvoiceCount ?? 0),
+      ),
     },
     stock: {
       issueDocuments: sum(rows.map((r) => r.stock.issueDocuments)),

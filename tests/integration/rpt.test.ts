@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { FieldValue } from 'firebase-admin/firestore';
 import { getDb } from '@/infrastructure/firestore/client';
 import { businessDate } from '@/platform/format/date';
 import { backends, createHarness, type Harness } from './harness';
@@ -161,6 +162,24 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
   }
   const rollup = async (cookie = ql, branch = 'br_q7') =>
     (await get(cookie, `/api/v1/rpt/daily?date=${today}&branchId=${branch}`)).json as Row;
+  /** rewrites a stored rollup as one built before schema 5: no `completedWithoutInvoiceCount`, version 4 */
+  const makeLegacy = async (branch: string, date: string) => {
+    const id = `${branch}_${date.replace(/-/g, '')}`;
+    if (backend === 'memory') {
+      const col = h.container.memory!.db.col<Row>('rollups');
+      const v = col.get(id)!;
+      const inv = { ...v.invoices };
+      delete inv.completedWithoutInvoiceCount;
+      // the old document was hashed without the field, so its hash differs from a rebuilt one
+      col.set(id, { ...v, schemaVersion: 4, invoices: inv, sourceHash: 'legacy-v4' });
+    } else {
+      await getDb(h.container.env).collection('rollups').doc(id).update({
+        schemaVersion: 4,
+        sourceHash: 'legacy-v4',
+        'invoices.completedWithoutInvoiceCount': FieldValue.delete(),
+      });
+    }
+  };
   const stored = async (branch = 'br_q7') =>
     (await rows('rollups')).find((r) => r.id === `${branch}_${today.replace(/-/g, '')}`);
 
@@ -268,6 +287,9 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       // invoices issued vs orders without: A has one, B does not (FR-RPT-004 minimum)
       expect(r.invoices.issuedCount).toBe(1);
       expect(r.invoices.closedWithoutInvoiceCount).toBe(1);
+      // R114: B was completed today, so the backlog of 1 is also today's flow of 1
+      expect(r.invoices.completedWithoutInvoiceCount).toBe(1);
+      expect((await stored())!.schemaVersion).toBe(5);
       // RULE-007: every goods issue has a source document
       expect(r.stock.issuesWithoutSource).toBe(0);
       expect(r.stock.issueDocuments).toBeGreaterThanOrEqual(2);
@@ -286,7 +308,11 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       const run = await post(ql, '/api/v1/rpt/jobs/run-due', {});
       expect(run.json.branches[0].days.find((d: Row) => d.date === today).result).toBe('updated');
       const incremental = await stored();
-      expect(incremental!.invoices).toMatchObject({ issuedCount: 2, closedWithoutInvoiceCount: 0 });
+      expect(incremental!.invoices).toMatchObject({
+        issuedCount: 2,
+        closedWithoutInvoiceCount: 0,
+        completedWithoutInvoiceCount: 0,
+      });
       // rebuild from nothing
       await wipeRollups();
       expect(await stored()).toBeUndefined();
@@ -762,6 +788,40 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       });
       expect(full.metrics.exTaxVnd.deltaAbs).toBe(full.metrics.exTaxVnd.current);
       expect(full.metrics.closed.state).toBe('new');
+
+      // R114: the uninvoiced flow is compared too; built days carry it (0 here), so the previous range is comparable
+      expect(full.uninvoicedNewMissingDates).toEqual([]);
+      expect(full.metrics.uninvoicedNew).toMatchObject({ previous: 0 });
+      expect(full.metrics.uninvoicedNew.state).toBe(
+        full.metrics.uninvoicedNew.current > 0 ? 'new' : 'none',
+      );
+      // a previous day stored before schema 5 (no field): that metric is n/a until rebuilt, the others still compare
+      await makeLegacy('br_q7', prevDates[0]!);
+      const legacy = (await get(ql, url)).json.report.comparison;
+      expect(legacy.uninvoicedNewMissingDates).toEqual([prevDates[0]]);
+      expect(legacy.metrics.uninvoicedNew).toMatchObject({
+        state: 'na',
+        previous: null,
+        deltaBp: null,
+      });
+      expect(legacy.metrics.closed.state).toBe('new');
+      // the export says why it is n/a
+      const legacyCsv = await post(ql, '/api/v1/rpt/export', {
+        kind: 'monthly',
+        month,
+        branchId: 'br_q7',
+      });
+      expect(legacyCsv.text).toContain('compare.uninvoicedNew.previous');
+      expect(legacyCsv.text).toContain('compare.uninvoicedNew.na');
+      // a rebuild upgrades the document (the hash differs, so it is written, not "unchanged")
+      const up = await post(ql, '/api/v1/rpt/jobs/rebuild', {
+        date: prevDates[0],
+        branchId: 'br_q7',
+      });
+      expect(up.json.branches[0].days[0].result).toBe('updated');
+      expect((await get(ql, url)).json.report.comparison.metrics.uninvoicedNew.state).not.toBe(
+        'na',
+      );
 
       // R108 for both periods: the filtered view carries the previous "không gắn lệnh" line, the unfiltered one does not
       const f = await get(ql, `${url}&serviceType=maintenance`);

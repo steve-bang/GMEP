@@ -10,6 +10,8 @@ import {
   comparisonPeriod,
   COMPARED_METRICS,
   DEFAULT_COMPARISON,
+  emptyServiceRollup,
+  forServiceType,
   type WorkItemFact,
 } from '@/modules/rpt';
 
@@ -55,6 +57,8 @@ const day = (date: string, o: Partial<Record<string, number>> = {}, official = t
     issuedVnd: 0,
     closedWithoutInvoiceCount: o.notInv ?? 0,
     closedWithoutInvoiceVnd: 0,
+    // R114: absent when the test passes `noFlow` (a rollup older than schema 5)
+    ...(o.noFlow ? {} : { completedWithoutInvoiceCount: o.newNotInv ?? 0 }),
   },
   stock: { issueDocuments: o.gin ?? 0, issuesWithoutSource: o.noSrc ?? 0 },
   cash: { shiftsClosed: 0, shiftsWithVariance: o.shiftVar ?? 0, varianceVnd: 0 },
@@ -125,7 +129,7 @@ describe('monthly comparison with the previous month (FR-RPT-002, AC-RPT-002-1..
 
   it('R110: the default kind is previous-month-same-days and the compared metrics are declared once (R114)', () => {
     expect(DEFAULT_COMPARISON).toBe('previous-month-same-days');
-    expect(COMPARED_METRICS).toEqual(['exTaxVnd', 'closed', 'inflowVnd']);
+    expect(COMPARED_METRICS).toEqual(['exTaxVnd', 'closed', 'inflowVnd', 'uninvoicedNew']);
   });
 
   it('R112: a running month compares days 1..N with 1..N; a finished month compares whole with whole (April 30, leap February 29)', () => {
@@ -157,15 +161,16 @@ describe('monthly comparison with the previous month (FR-RPT-002, AC-RPT-002-1..
     expect(previousMonth('2026-01')).toBe('2025-12');
   });
 
-  it('R113: percent in integer basis points, ties away from zero, null when the base is 0', () => {
+  it('R113: percent in integer basis points, exact ties half up toward +infinity, null when the base is 0', () => {
     expect(deltaBp(150, 100)).toBe(5000);
     expect(deltaBp(80, 100)).toBe(-2000);
     expect(deltaBp(1, 3)).toBe(-6667); // -66.666..% -> -6667 bp
     expect(deltaBp(2, 3)).toBe(-3333);
     expect(deltaBp(1, 8)).toBe(-8750);
     expect(deltaBp(1, 16)).toBe(-9375);
-    expect(deltaBp(1, 32)).toBe(-9688); // -96.875% = -9687.5 bp: tie away from zero
+    expect(deltaBp(1, 32)).toBe(-9687); // -96.875% = -9687.5 bp: tie rounds up (toward +infinity), not away from zero
     expect(deltaBp(33, 32)).toBe(313); // +3.125% = 312.5 bp
+    expect(deltaBp(31, 32)).toBe(-312); // -3.125% = -312.5 bp: tie up gives -312 (the positive twin gives +313)
     expect(deltaBp(-1, 8)).toBe(-11250);
     expect(deltaBp(5, 0)).toBeNull();
     expect(deltaBp(0, 0)).toBeNull();
@@ -290,6 +295,76 @@ describe('monthly comparison with the previous month (FR-RPT-002, AC-RPT-002-1..
       mk('2026-11', '2026-11-02', oct()),
     );
     expect(gone.comparison!.metrics.closed).toMatchObject({ deltaAbs: -4, deltaBp: -10_000 });
+  });
+
+  it('R114: orders completed without an invoice is a flow: sums the day figures, compares like the others', () => {
+    const m = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { newNotInv: 3 }), day('2026-11-02', { newNotInv: 1 })],
+      mk('2026-11', '2026-11-02', [
+        day('2026-10-01', { newNotInv: 2 }),
+        day('2026-10-02', { newNotInv: 2 }),
+      ]),
+    );
+    expect(m.comparison!.uninvoicedNewMissingDates).toEqual([]);
+    expect(m.comparison!.metrics.uninvoicedNew).toEqual({
+      current: 4,
+      previous: 4,
+      deltaAbs: 0,
+      deltaBp: 0,
+      state: 'ok',
+    });
+    const worse = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { newNotInv: 6 }), day('2026-11-02')],
+      mk('2026-11', '2026-11-02', [day('2026-10-01', { newNotInv: 4 }), day('2026-10-02')]),
+    );
+    expect(worse.comparison!.metrics.uninvoicedNew).toMatchObject({ deltaAbs: 2, deltaBp: 5000 });
+  });
+
+  it('R114/R111: a day built before schema 5 has no flow field: that metric is n/a (never 0), the others still compare', () => {
+    const m = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { newNotInv: 3 }), day('2026-11-02', { newNotInv: 1 })],
+      mk('2026-11', '2026-11-02', [
+        day('2026-10-01', { newNotInv: 2 }),
+        day('2026-10-02', { noFlow: 1, closed: 1 }),
+      ]),
+    );
+    const c = m.comparison!;
+    expect(c.naReason).toBeNull();
+    expect(c.uninvoicedNewMissingDates).toEqual(['2026-10-02']);
+    expect(c.metrics.uninvoicedNew).toMatchObject({
+      previous: null,
+      deltaAbs: null,
+      deltaBp: null,
+      state: 'na',
+      current: 4,
+    });
+    expect(c.metrics.closed.state).not.toBe('na');
+    // the same on the current side: a current day without the field would understate the figure
+    const cu = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { noFlow: 1 }), day('2026-11-02')],
+      mk('2026-11', '2026-11-02', oct()),
+    );
+    expect(cu.comparison!.uninvoicedNewMissingDates).toEqual(['2026-11-01']);
+    expect(cu.comparison!.metrics.uninvoicedNew.state).toBe('na');
+  });
+
+  it('R114 with a service type: a schema 4 day is n/a, a schema 5 day without that type is 0', () => {
+    const base = day('2026-10-01');
+    const v5 = {
+      ...base,
+      schemaVersion: 5 as const,
+      byServiceType: [{ ...emptyServiceRollup('maintenance'), completedNotInvoicedCount: 2 }],
+    };
+    const v4 = { ...base, date: '2026-10-02', schemaVersion: 4 as const, byServiceType: [] };
+    const n = forServiceType([v5, v4], 'maintenance');
+    expect(n.rolls[0]!.invoices.completedWithoutInvoiceCount).toBe(2);
+    expect(n.rolls[1]!.invoices.completedWithoutInvoiceCount).toBeUndefined();
+    const other = forServiceType([v5], 'tires');
+    expect(other.rolls[0]!.invoices.completedWithoutInvoiceCount).toBe(0);
   });
 
   it('R112: both concrete ranges are present; a shorter earlier month is taken whole and labelled (March vs February)', () => {
