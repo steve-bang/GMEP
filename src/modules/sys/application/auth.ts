@@ -20,6 +20,7 @@ import {
   type User,
 } from '../domain/entities';
 import { TENANT_ACCESS, TENANT_ID_PATTERN, type TenantStatus } from '../domain/tenant';
+import { normalizeTenantCodeInput } from '../domain/tenantCode';
 import type { CachedSession, SysDeps } from '../ports/deps';
 import { IdentityUnavailableError, InvalidCredentialsError } from '../ports/ports';
 import { normalizeLoginName, parseInput } from './support';
@@ -43,7 +44,7 @@ const cacheKey = (cookie: string) => createHash('sha256').update(cookie).digest(
 export interface LoginInput {
   /** email sign-in (FR-TEN-016) */
   identifier?: string;
-  /** P2-C employee-code sign-in: company code (= tenant code) + employee code; used when either is present */
+  /** P2-C employee-code sign-in: company code (the six-digit tenant code) + employee code; used when either is present */
   companyCode?: string;
   employeeCode?: string;
   password: string;
@@ -291,22 +292,31 @@ async function startTenantSession(
 
 // ---- employee-code sign-in (P2-C, phase-2-plan 14.4; owner decision 07/11/2026) ---------------------------------------
 
-/** Never a tenant code (TENANT_ID_PATTERN starts with a letter) nor an employee code: lookups with them find nothing. */
+/**
+ * Lookup keys that never exist: a tenant code lock (codes are six digits), a tenant id (TENANT_ID_PATTERN starts with a
+ * letter) and an employee code. A malformed or unknown input still performs the same three reads with these.
+ */
+const TENANT_CODE_DECOY = '_none_';
 const COMPANY_DECOY = '_none_';
 const CODE_DECOY = '_NONE_';
 /** a session waiting for the password change lives at most this long */
 const PASSWORD_CHANGE_SESSION_MS = 15 * 60_000;
 
-/** Lockout name of an employee-code sign-in (counters A and B); also what an unlock clears. */
+/**
+ * Lockout name of an employee-code sign-in (counters A and B); also what an unlock clears. Keyed on the company code AS
+ * TYPED (white space removed), so unknown and malformed codes feed the counters exactly like real ones.
+ */
 export const employeeLoginName = (companyCode: string, employeeCode: string): string =>
   `emp:${normalizeCompanyCode(companyCode).slice(0, 64)}|${normalizeEmployeeCode(employeeCode).slice(0, 32).toLowerCase()}`;
 
 /**
- * P2-C: company code + employee code + password, next to the email sign-in. The company code is the immutable tenant
- * code (unique platform-wide, case-insensitive); only `employee_code` accounts sign in this way and the session is bound
- * to that one membership (no "Chọn công ty"). Anti-enumeration (UAT-TEN-21 a): unknown company, unknown employee code,
- * wrong password, disabled account, unusable tenant and expired temporary password all end in the same neutral answer,
- * after the same reads and exactly one password check (a decoy address when nothing matched). Counters: device + pair
+ * P2-C: company code + employee code + password, next to the email sign-in. The company code is the tenant's six-digit
+ * `tenantCode` (owner decision 07/11/2026; unique platform-wide, reissuable by the platform), resolved through the lock
+ * document `tenantCodes/<code>` read by key (no index); the tenant id itself is no longer accepted. Only `employee_code`
+ * accounts sign in this way and the session is bound to that one membership (no "Chọn công ty"). Anti-enumeration
+ * (UAT-TEN-21 a): malformed company code, unknown company, retired (reissued) code, unknown employee code, wrong
+ * password, disabled account, unusable tenant and expired temporary password all end in the same neutral answer, after
+ * the same three reads and exactly one password check (a decoy address when nothing matched). Counters: device + pair
  * (A, hard lock), pair (B), address (C), company (D), all fed by unknown pairs exactly like known ones.
  */
 async function loginByEmployeeCode(deps: SysDeps, input: LoginInput): Promise<LoginResult> {
@@ -325,7 +335,11 @@ async function loginByEmployeeCode(deps: SysDeps, input: LoginInput): Promise<Lo
     throw invalidCredentials();
   };
 
-  const company = TENANT_ID_PATTERN.test(rawCompany) ? rawCompany : COMPANY_DECOY;
+  const tenantCode = normalizeTenantCodeInput(rawCompany);
+  const slot = await deps.tenants.getCodeSlot(tenantCode ?? TENANT_CODE_DECOY);
+  // a retired (reissued) code opens nothing, even during its holding period
+  const tenantId = slot && slot.state === 'active' ? slot.tenantId : COMPANY_DECOY;
+  const company = TENANT_ID_PATTERN.test(tenantId) ? tenantId : COMPANY_DECOY;
   const code = EMPLOYEE_CODE_PATTERN.test(rawCode) ? rawCode : CODE_DECOY;
   const [member, tenant] = await Promise.all([
     deps.users.findByEmployeeCode(company, code),
@@ -336,8 +350,11 @@ async function loginByEmployeeCode(deps: SysDeps, input: LoginInput): Promise<Lo
     member !== null &&
     member.loginKind === 'employee_code' &&
     member.status === 'active' &&
-    // a tenant record that does not exist yet (data created before MT-0) counts as a live tenant, as for email
-    (tenant === null || TENANT_ACCESS[tenant.status].signIn);
+    // the lock and the tenant record agree (a stale lock never opens a tenant), and the tenant may sign in
+    tenant !== null &&
+    tenantCode !== null &&
+    tenant.tenantCode === tenantCode &&
+    TENANT_ACCESS[tenant.status].signIn;
   const tempExpired =
     usable &&
     member.mustChangePassword === true &&

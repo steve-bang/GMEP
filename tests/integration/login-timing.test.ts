@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { login } from '@/modules/sys';
+import { DEMO_TENANT_CODE } from '@/infrastructure/seed/demo';
 import { backends, createHarness, type Harness } from './harness';
 
 /**
@@ -61,10 +62,11 @@ describe.each(backends)('login timing and neutral errors [%s]', (backend) => {
   });
 
   /**
-   * P2-C: the employee-code sign-in. Unknown company code, unknown employee code and a wrong password for an existing
-   * staff member without email: same neutral answer, medians within max(100 ms, 20 %) pairwise (200 attempts each).
+   * P2-C: the employee-code sign-in. Malformed company code (not six digits, or the old tenant id), unknown six-digit
+   * company code, unknown employee code and a wrong password for an existing staff member without email: same neutral
+   * answer, medians within max(100 ms, 20 %) pairwise (200 attempts each).
    */
-  it('P2-C UAT-TEN-21 a: unknown company, unknown employee code and wrong password answer alike and in the same time (200 each)', async () => {
+  it('P2-C UAT-TEN-21 a: malformed company code, unknown company, unknown employee code and wrong password answer alike and in the same time (200 each)', async () => {
     const created = await h.call('POST', '/api/v1/sys/users', {
       as: 'u_ql_q7',
       key: 'timing-worker-000001',
@@ -93,25 +95,36 @@ describe.each(backends)('login timing and neutral errors [%s]', (backend) => {
       );
       return { ms: performance.now() - t0, r };
     };
-    const runs = { company: [] as number[], code: [] as number[], password: [] as number[] };
+    const runs = {
+      malformed: [] as number[],
+      company: [] as number[],
+      code: [] as number[],
+      password: [] as number[],
+    };
     const answers = new Set<string>();
+    // never a valid code of a seeded tenant: 9 followed by five digits from the loop (the seeds start with 4 and 7)
+    const unknownCode = (i: number) => `9${String(10_000 + i).slice(-5)}`;
     for (let i = 0; i < N; i++) {
-      const a = await byCode(`tnt_none${i}`, 'TH-T01');
-      const b = await byCode('tnt_demo', `TH-X${i}`);
-      const c = await byCode('tnt_demo', 'TH-T01');
+      const z = await byCode(i % 2 ? `tnt_none${i}` : `${i}`.padStart(5, '0'), 'TH-T01');
+      const a = await byCode(unknownCode(i), 'TH-T01');
+      const b = await byCode(DEMO_TENANT_CODE, `TH-X${i}`);
+      const c = await byCode(DEMO_TENANT_CODE, 'TH-T01');
+      runs.malformed.push(z.ms);
       runs.company.push(a.ms);
       runs.code.push(b.ms);
       runs.password.push(c.ms);
-      for (const x of [a, b, c]) answers.add(JSON.stringify(x.r));
+      for (const x of [z, a, b, c]) answers.add(JSON.stringify(x.r));
     }
     expect(answers.size, [...answers].join(' | ')).toBe(1);
     expect([...answers][0]).toContain('invalid_credentials');
-    const m = { c: median(runs.company), e: median(runs.code), p: median(runs.password) };
-    for (const [x, y] of [
-      [m.c, m.e],
-      [m.c, m.p],
-      [m.e, m.p],
-    ] as const) {
+    const m = {
+      f: median(runs.malformed),
+      c: median(runs.company),
+      e: median(runs.code),
+      p: median(runs.password),
+    };
+    const all = Object.values(m);
+    for (const [x, y] of all.flatMap((x, i) => all.slice(i + 1).map((y) => [x, y] as const))) {
       const diff = Math.abs(x - y);
       expect(diff <= 100 || diff <= 0.2 * Math.max(x, y), JSON.stringify(m)).toBe(true);
     }
@@ -127,13 +140,24 @@ describe.each(backends)('login timing and neutral errors [%s]', (backend) => {
     const deps = { ...h.container.sys, throttle: noThrottle };
     const base = { password: 'x-wrong-pass', address: 'a', deviceId: 'd', requestId: 'r' };
     const mid = calls.signIn;
+    const reads = () => h.container.store.stats.reads + h.container.store.stats.queries;
+    const perAttempt: number[] = [];
     for (const [companyCode, employeeCode] of [
-      ['tnt_none', 'NV0001'],
-      ['tnt_demo', 'NOPE01'],
+      ['tnt_none', 'NV0001'], // the old tenant-id form: malformed now
+      ['tnt_demo', 'NV0001'],
+      ['48291', 'NV0001'], // five digits
+      ['159357', 'NV0001'], // six digits, no tenant
+      [DEMO_TENANT_CODE, 'NOPE01'],
       ['bad/code', '../..'],
-      ['tnt_demo', 'NV0101'], // an email account: decoy, never its real address
-    ])
+      [DEMO_TENANT_CODE, 'NV0101'], // an email account: decoy, never its real address
+    ]) {
+      const r0 = reads();
       await login(deps, { ...base, companyCode, employeeCode }).catch(() => undefined);
-    expect(calls.signIn - mid).toBe(4);
+      const r1 = reads();
+      perAttempt.push(r1 - r0);
+    }
+    expect(calls.signIn - mid).toBe(7);
+    // the same reads whatever was wrong: the code lock by key, the membership, the tenant record
+    expect(new Set(perAttempt).size, perAttempt.join(',')).toBe(1);
   });
 });

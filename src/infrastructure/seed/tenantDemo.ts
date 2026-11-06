@@ -19,6 +19,8 @@ import type { SeedDoc } from './types';
  */
 export const DEMO_TENANT_2 = 'tnt_demo2';
 export const DEMO_PASSWORD_2 = 'Demo!Pass-2026';
+/** fixed demo "Mã công ty" of the second tenant (owner decision 07/11/2026) */
+export const DEMO_TENANT_2_CODE = '730561';
 const SEED_TIME = new Date('2026-10-01T00:00:00.000Z');
 const audit = {
   createdAt: SEED_TIME,
@@ -53,7 +55,13 @@ export function demoTenant2Docs(): SeedDoc[] {
   const docs: SeedDoc[] = [];
   const put = (collection: string, id: string, data: SeedDoc['data']) =>
     docs.push({ collection, id, data });
+  put(COL.tenantCodes, DEMO_TENANT_2_CODE, {
+    tenantId: DEMO_TENANT_2,
+    state: 'active',
+    assignedAt: SEED_TIME,
+  });
   put(COL.tenants, DEMO_TENANT_2, {
+    tenantCode: DEMO_TENANT_2_CODE,
     name: 'Garage Demo 2',
     legalEntityIds: [],
     status: 'active',

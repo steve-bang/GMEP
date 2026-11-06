@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { demoDocs } from '@/infrastructure/seed/demo';
+import { DEMO_TENANT_CODE, demoDocs } from '@/infrastructure/seed/demo';
 import {
   migrateToTenant,
   TENANT_COLLECTIONS,
@@ -52,7 +52,10 @@ describe('FR-TEN-031 migration rehearsal (round trip)', () => {
         !(TENANT_COLLECTIONS as readonly string[]).includes(c) &&
         [...docs.values()].some((d) => d.tenantId !== undefined),
     );
-    expect(unknown.map(([c]) => c).filter((c) => c !== 'roles' && c !== 'userKeys')).toEqual([]);
+    // roles and userKeys are re-keyed by dedicated steps; tenantCodes are platform-level locks naming their tenant
+    expect(
+      unknown.map(([c]) => c).filter((c) => !['roles', 'userKeys', 'tenantCodes'].includes(c)),
+    ).toEqual([]);
     const tenantOnly = onlyTenant(build(), 'tnt_demo');
     expect(countDocs(tenantOnly)).toBeGreaterThan(600);
     const legacy = downgradeToLegacy(tenantOnly, 'tnt_demo');
@@ -79,6 +82,9 @@ describe('FR-TEN-031 migration rehearsal (round trip)', () => {
       legacy.get('invoiceRequests')!.get('ord_br_q7_00001__issue__1') as { idempotencyKey: string }
     ).idempotencyKey;
     expect(key).toBe('gmep:tnt_demo:ord_br_q7_00001__issue__1');
+    // owner decision 07/11/2026: the lock that already names the tenant is reused, no second code is drawn
+    expect(legacy.get('tenants')!.get('tnt_demo')).toMatchObject({ tenantCode: DEMO_TENANT_CODE });
+    expect([...legacy.get('tenantCodes')!.keys()]).toEqual([DEMO_TENANT_CODE]);
 
     const again = await migrateToTenant(ioOf(legacy), { tenantId: 'tnt_demo', apply: true });
     expect(Object.values(again.changed).reduce((a, b) => a + b, 0)).toBe(0);

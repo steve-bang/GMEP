@@ -183,7 +183,12 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
           <div className="stack-2" data-testid="worker-login">
             <p>
               <StatusBadge tone="neutral">{t('users.noEmail.badge')}</StatusBadge>{' '}
-              {t('users.noEmail.companyCode')}: <strong>{u.companyCode}</strong>
+              {u.companyCode ? (
+                <>
+                  {t('users.noEmail.companyCode')}:{' '}
+                  <strong data-testid="worker-company-code">{u.companyCode}</strong>
+                </>
+              ) : null}
             </p>
             {u.mustChangePassword ? (
               <p className="text-secondary">{t('users.noEmail.mustChange')}</p>

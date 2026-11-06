@@ -2,18 +2,24 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   getTenant,
   provisionTenant,
+  randomTenantCode,
+  reissueTenantCode,
   transitionTenant,
   workerLoginAddress,
   type PlatformActor,
 } from '@/modules/sys';
+import { DEMO_TENANT_CODE } from '@/infrastructure/seed/demo';
+import { DEMO_TENANT_2_CODE } from '@/infrastructure/seed/tenantDemo';
 import { backends, createHarness, parseSessionCookie, type Harness } from './harness';
 
 /**
- * P2-C (phase-2-plan 14.4, owner decision 07/11/2026): staff without email. FR-SYS-001 (creation by a manager,
+ * P2-C (phase-2-plan 14.4, owner decision 07/11/2026): staff without email. The company code is the tenant's six-digit
+ * `tenantCode` (owner decision 07/11/2026), never the tenant id. FR-SYS-001 (creation by a manager,
  * temporary password, forced change), FR-TEN-016/017 + RULE-034 (one membership, session bound to its tenant, no
  * "Chọn công ty"), UAT-TEN-21 (neutral errors), NFR-ISO-01 / UAT-TEN-07 (same employee code in two tenants).
  */
 const TEMP = 'Tam-Thoi-2026-abc';
+const CODE = DEMO_TENANT_CODE;
 const NEW_PW = 'Mat-Khau-Moi-2026!';
 const cnt: PlatformActor = {
   kind: 'platform',
@@ -75,7 +81,7 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
       employeeCode: 'TH-W01',
       email: '',
       loginKind: 'employee_code',
-      companyCode: 'tnt_demo',
+      companyCode: CODE,
       mustChangePassword: true,
       status: 'active',
     });
@@ -118,8 +124,8 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
     expect(other.status).toBe(403);
   });
 
-  it('P2-C: company code + employee code (case-insensitive) + temporary password opens a change-only session', async () => {
-    const r = await emp('TNT_DEMO', ' th-w01 ', TEMP);
+  it('P2-C: six-digit company code (spaces ignored) + employee code (case-insensitive) + temporary password opens a change-only session', async () => {
+    const r = await emp(` ${CODE.slice(0, 3)} ${CODE.slice(3)} `, ' th-w01 ', TEMP);
     expect(r.status, r.text).toBe(200);
     expect(r.json.passwordChangeRequired).toBe(true);
     expect(r.json.tenants).toBeUndefined(); // never "Chọn công ty"
@@ -153,8 +159,8 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
     expect(me.json.userId).toBe(workerId);
     // the change-only session is gone
     expect((await change(workerCookie, {})).status).toBe(401);
-    expect((await emp('tnt_demo', 'TH-W01', TEMP)).status).toBe(401);
-    const again = await emp('tnt_demo', 'TH-W01', NEW_PW);
+    expect((await emp(CODE, 'TH-W01', TEMP)).status).toBe(401);
+    const again = await emp(CODE, 'TH-W01', NEW_PW);
     expect(again.status).toBe(200);
     expect(again.json.passwordChangeRequired).toBeUndefined();
     workerCookie = parseSessionCookie(again.headers);
@@ -167,12 +173,15 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
 
   it('UAT-TEN-21: unknown company, unknown code, wrong password, an email account and a malformed code answer identically', async () => {
     const answers = [
-      await emp('tnt_nowhere', 'TH-W01', NEW_PW, '10.7.1.1'),
-      await emp('tnt_demo', 'TH-W77', NEW_PW, '10.7.1.2'),
-      await emp('tnt_demo', 'TH-W01', 'wrong-password-123', '10.7.1.3'),
-      await emp('tnt_demo', 'NV0101', 'Demo!Pass-2026', '10.7.1.4'), // an email account never signs in by code
+      await emp('159357', 'TH-W01', NEW_PW, '10.7.1.1'), // no tenant holds this code
+      await emp('tnt_demo', 'TH-W01', NEW_PW, '10.7.1.7'), // the tenant id is no company code any more
+      await emp(CODE.slice(0, 5), 'TH-W01', NEW_PW, '10.7.1.8'), // five digits
+      await emp(`${CODE}0`, 'TH-W01', NEW_PW, '10.7.1.9'), // seven digits
+      await emp(CODE, 'TH-W77', NEW_PW, '10.7.1.2'),
+      await emp(CODE, 'TH-W01', 'wrong-password-123', '10.7.1.3'),
+      await emp(CODE, 'NV0101', 'Demo!Pass-2026', '10.7.1.4'), // an email account never signs in by code
       await emp('../x/y', 'a/b', NEW_PW, '10.7.1.5'),
-      await emp('tnt_demo2', 'TH-W01', NEW_PW, '10.7.1.6'), // the same code in another tenant does not exist
+      await emp(DEMO_TENANT_2_CODE, 'TH-W01', NEW_PW, '10.7.1.6'), // the same code in another tenant does not exist
     ];
     const bodies = new Set(answers.map((a) => JSON.stringify([a.status, strip(a.json)])));
     expect([...bodies]).toHaveLength(1);
@@ -242,8 +251,8 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
     expect(ok.json.mustChangePassword).toBe(true);
     expect(ok.text).not.toContain('Tam-Moi-2026-xyz');
     expect((await h.call('GET', '/api/v1/auth/me', { cookie: workerCookie })).status).toBe(401);
-    expect((await emp('tnt_demo', 'TH-W01', NEW_PW, '10.7.3.1')).status).toBe(401);
-    const tmp = await emp('tnt_demo', 'TH-W01', 'Tam-Moi-2026-xyz', '10.7.3.2');
+    expect((await emp(CODE, 'TH-W01', NEW_PW, '10.7.3.1')).status).toBe(401);
+    const tmp = await emp(CODE, 'TH-W01', 'Tam-Moi-2026-xyz', '10.7.3.2');
     expect(tmp.status).toBe(200);
     expect(tmp.json.passwordChangeRequired).toBe(true);
     const actions = await auditActions(workerId);
@@ -264,8 +273,8 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
         statuses.push((await emp(company, code, `bad-pass-${i}-xx`, `10.7.4.${i}`)).status);
       return statuses;
     };
-    const known = await run('tnt_demo', 'TH-W01');
-    const unknown = await run('tnt_demo', 'TH-W55');
+    const known = await run(CODE, 'TH-W01');
+    const unknown = await run(CODE, 'TH-W55');
     expect(known).toEqual(unknown);
     expect(known.slice(0, 10).every((s) => s === 401)).toBe(true);
     expect(known.at(-1)).toBe(429);
@@ -279,15 +288,15 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
       },
     });
     expect(reset.status, reset.text).toBe(200);
-    expect((await emp('tnt_demo', 'TH-W01', 'Tam-Lan3-2026-q', '10.7.4.200')).status).toBe(200);
+    expect((await emp(CODE, 'TH-W01', 'Tam-Lan3-2026-q', '10.7.4.200')).status).toBe(200);
   });
 
   it('counter D: scanning employee codes of one company is slowed down without touching another company', async () => {
     let last = 0;
     for (let i = 0; i < 32; i++)
-      last = (await emp('tnt_scan', `SCAN${i}`, 'bad-pass-xx', `10.7.5.${i}`)).status;
+      last = (await emp('204816', `SCAN${i}`, 'bad-pass-xx', `10.7.5.${i}`)).status;
     expect(last).toBe(429);
-    expect((await emp('tnt_other', 'SCAN0', 'bad-pass-xx', '10.7.5.250')).status).toBe(401);
+    expect((await emp('204817', 'SCAN0', 'bad-pass-xx', '10.7.5.250')).status).toBe(401);
   });
 
   it('P2-C: a temporary password stops working after the configured time (neutral answer)', async () => {
@@ -297,8 +306,8 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
     const now = h.clock.now();
     h.clock.set(new Date(now.getTime() + ttl + 60_000).toISOString());
     try {
-      const late = await emp('tnt_demo', 'TH-W02', TEMP, '10.7.6.1');
-      const unknown = await emp('tnt_demo', 'TH-W56', TEMP, '10.7.6.2');
+      const late = await emp(CODE, 'TH-W02', TEMP, '10.7.6.1');
+      const unknown = await emp(CODE, 'TH-W56', TEMP, '10.7.6.2');
       expect(late.status).toBe(401);
       expect(strip(late.json)).toEqual(strip(unknown.json));
     } finally {
@@ -306,9 +315,25 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
     }
   });
 
+  it('anti-scan: random company codes from one address are slowed down (counter C); another address is not', async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 62; i++)
+      statuses.push((await emp(randomTenantCode(), 'NV0001', 'bad-pass-xx', '10.7.10.1')).status);
+    expect(
+      statuses.slice(0, 60).every((x) => x === 401),
+      statuses.join(','),
+    ).toBe(true);
+    expect(statuses.at(-1)).toBe(429);
+    // the right company code from that address waits too; the same attempt from another address is answered
+    expect((await emp(CODE, 'TH-W01', 'bad-pass-xx', '10.7.10.1')).status).toBe(429);
+    expect((await emp(CODE, 'TH-W01', 'bad-pass-xx', '10.7.10.2')).status).toBe(401);
+  });
+
   /** UAT-TEN-07 / NFR-ISO-01: employee codes are unique per tenant only (RULE-018); NV0001 in two tenants never mixes. */
   describe('same employee code NV0001 in two tenants', () => {
     const owners: Record<string, string> = {};
+    const codes: Record<string, string> = {};
+    let reissuedOld = '';
     beforeAll(async () => {
       for (const code of ['tnt_wka', 'tnt_wkb']) {
         const email = `owner@${code.replace('tnt_', '')}.test`;
@@ -363,7 +388,9 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
           owners[code],
         );
         expect(w.status, w.text).toBe(201);
-        expect(w.json.companyCode).toBe(code);
+        expect(w.json.companyCode).toMatch(/^\d{6}$/);
+        expect((await getTenant(h.container.sys, cnt, code)).tenantCode).toBe(w.json.companyCode);
+        codes[code] = w.json.companyCode;
       }
     });
 
@@ -371,10 +398,12 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
       expect(workerLoginAddress('tnt_wka', 'NV0001')).not.toBe(
         workerLoginAddress('tnt_wkb', 'NV0001'),
       );
-      const crossed = await emp('tnt_wka', 'NV0001', 'Tam-tnt_wkb-2026', '10.7.8.1');
+      expect(codes.tnt_wka).not.toBe(codes.tnt_wkb);
+      const crossed = await emp(codes.tnt_wka!, 'NV0001', 'Tam-tnt_wkb-2026', '10.7.8.1');
       expect(crossed.status).toBe(401);
       for (const code of ['tnt_wka', 'tnt_wkb']) {
-        const r = await emp(code, 'NV0001', `Tam-${code}-2026`, '10.7.8.2');
+        expect((await emp(code, 'NV0001', `Tam-${code}-2026`, '10.7.8.3')).status).toBe(401); // id refused
+        const r = await emp(codes[code]!, 'NV0001', `Tam-${code}-2026`, '10.7.8.2');
         expect(r.status, r.text).toBe(200);
         const ok = await change(parseSessionCookie(r.headers), {
           currentPassword: `Tam-${code}-2026`,
@@ -397,6 +426,106 @@ describe.each(backends)('P2-C staff without email [%s]', (backend) => {
         body: { temporaryPassword: 'Tam-Cheo-2026-zz', reason: 'thử chéo', version: 1 },
       });
       expect(cross.status).toBe(404);
+    });
+
+    /** Owner decision 07/11/2026: the platform reissues a leaked company code; staff keep their account and password. */
+    it('reissue (CNT/QTN): reason, idempotent, platform audit; the old code opens nothing, the new one opens the same account', async () => {
+      const sys = h.container.sys;
+      const qtn: PlatformActor = { ...cnt, platformUserId: 'pf_admin', role: 'QTN' };
+      const htn: PlatformActor = { ...cnt, platformUserId: 'pf_support', role: 'HTN' };
+      const before = await getTenant(sys, cnt, 'tnt_wka');
+      const old = before.tenantCode!;
+      expect(old).toBe(codes.tnt_wka);
+      const input = { reason: 'Mã công ty bị lộ trên mạng xã hội', version: before.version };
+      const rid = { requestId: 'req-reissue', idempotencyKey: 'reissue-wka-000001' };
+      await expect(reissueTenantCode(sys, htn, 'tnt_wka', input, rid)).rejects.toMatchObject({
+        status: 403,
+      });
+      await expect(
+        reissueTenantCode(sys, qtn, 'tnt_wka', { ...input, reason: ' ' }, rid),
+      ).rejects.toMatchObject({ status: 422 });
+      await expect(
+        reissueTenantCode(sys, qtn, 'tnt_wka', input, { requestId: 'r' }),
+      ).rejects.toMatchObject({ status: 400 });
+      const r = await reissueTenantCode(sys, qtn, 'tnt_wka', input, rid);
+      expect(r.replayed).toBe(false);
+      expect(r.previousCode).toBe(old);
+      expect(r.tenant.tenantCode).toMatch(/^\d{6}$/);
+      expect(r.tenant.tenantCode).not.toBe(old);
+      const hold = sys.config.tenantCodeHoldDays * 86_400_000;
+      expect(new Date(r.releaseAfter!).getTime()).toBe(h.clock.now().getTime() + hold);
+      // a retried call (same key) draws nothing new; another key on the old version is a conflict
+      const again = await reissueTenantCode(sys, qtn, 'tnt_wka', input, rid);
+      expect(again.replayed).toBe(true);
+      expect(again.tenant.tenantCode).toBe(r.tenant.tenantCode);
+      await expect(
+        reissueTenantCode(sys, qtn, 'tnt_wka', input, { ...rid, idempotencyKey: 'reissue-wka-2' }),
+      ).rejects.toMatchObject({ status: 409 });
+      codes.tnt_wka = r.tenant.tenantCode!;
+      reissuedOld = old;
+
+      // the internal address hashes (tenant id, employee code): same account, same password, new code only
+      const stale = await emp(old, 'NV0001', 'Moi-tnt_wka-2026!', '10.7.11.1');
+      const unknown = await emp('159357', 'NV0001', 'Moi-tnt_wka-2026!', '10.7.11.2');
+      expect(stale.status).toBe(401);
+      expect(strip(stale.json)).toEqual(strip(unknown.json));
+      const ok = await emp(codes.tnt_wka, 'NV0001', 'Moi-tnt_wka-2026!', '10.7.11.3');
+      expect(ok.status, ok.text).toBe(200);
+      expect(
+        (await h.call('GET', '/api/v1/auth/me', { cookie: parseSessionCookie(ok.headers) })).json
+          .userId,
+      ).toBeTruthy();
+      const users = await h.call('GET', '/api/v1/sys/users?limit=100', { cookie: owners.tnt_wka });
+      const w = (users.json.items as { id: string; employeeCode: string }[]).find(
+        (x) => x.employeeCode === 'NV0001',
+      )!;
+      const detail = await h.call('GET', `/api/v1/sys/users/${w.id}`, { cookie: owners.tnt_wka });
+      expect(detail.json.companyCode).toBe(codes.tnt_wka);
+
+      const oldSlot = await sys.tenants.getCodeSlot(old);
+      expect(oldSlot).toMatchObject({ tenantId: 'tnt_wka', state: 'retired' });
+      if (backend === 'memory') {
+        const line = [...h.container.memory!.db.col('platformAuditLogs').values()].find(
+          (a) => (a as { action: string }).action === 'tenant.code_reissued',
+        ) as { reason?: string; actorRole?: string; tenantId?: string };
+        expect(line).toMatchObject({
+          reason: 'Mã công ty bị lộ trên mạng xã hội',
+          actorRole: 'QTN',
+          tenantId: 'tnt_wka',
+        });
+      }
+    });
+
+    it('a reissued code is held for the configured period: no other tenant draws it before, one may after', async () => {
+      const sys = h.container.sys;
+      const old = reissuedOld;
+      expect(await sys.tenants.getCodeSlot(old)).toMatchObject({ state: 'retired' });
+      const original = sys.newTenantCode;
+      const queue = (xs: string[]) => () => xs.shift() ?? '583920';
+      const prov = (code: string) =>
+        provisionTenant(
+          sys,
+          cnt,
+          { code, name: `Garage ${code}`, environment: 'demo' },
+          { requestId: `req-${code}`, idempotencyKey: `prov-${code}-0001` },
+        );
+      const now = h.clock.now();
+      try {
+        sys.newTenantCode = queue([old, '583921']);
+        expect((await prov('tnt_wkc')).tenant.tenantCode).toBe('583921');
+        h.clock.set(
+          new Date(now.getTime() + (sys.config.tenantCodeHoldDays + 1) * 86_400_000).toISOString(),
+        );
+        sys.newTenantCode = queue([old]);
+        expect((await prov('tnt_wkd')).tenant.tenantCode).toBe(old);
+        expect(await sys.tenants.getCodeSlot(old)).toMatchObject({
+          tenantId: 'tnt_wkd',
+          state: 'active',
+        });
+      } finally {
+        sys.newTenantCode = original;
+        h.clock.set(now.toISOString());
+      }
     });
   });
 });

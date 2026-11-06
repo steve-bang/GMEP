@@ -12,6 +12,8 @@ export const COL = {
   roles: 'roles',
   roleAssignments: 'roleAssignments',
   tenants: 'tenants',
+  /** owner decision 07/11/2026: lock documents of the six-digit tenant codes, read BY KEY only (no query shape) */
+  tenantCodes: 'tenantCodes',
   // platform zone (FR-TEN-011, 013): staff identities and the immutable platform audit; never tenant business data
   platformIdentities: 'platformIdentities',
   platformAuditLogs: 'platformAuditLogs',

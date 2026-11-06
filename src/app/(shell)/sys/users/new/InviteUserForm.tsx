@@ -19,6 +19,8 @@ export function InviteUserForm(props: {
   noEmailRoles: { value: string; label: string }[];
   labels: FormLabels;
   noEmailLabels: FormLabels;
+  /** the tenant's six-digit "Mã công ty" to hand over with the employee code (null before it was assigned) */
+  companyCode: string | null;
   text: Record<
     | 'code'
     | 'name'
@@ -29,6 +31,8 @@ export function InviteUserForm(props: {
     | 'codeHint'
     | 'noEmail'
     | 'noEmailHint'
+    | 'companyCode'
+    | 'companyCodeHint'
     | 'tempPassword'
     | 'tempPasswordHint'
     | 'created'
@@ -188,6 +192,13 @@ export function InviteUserForm(props: {
         <span className="field__hint" id="noEmail-hint">
           {props.text.noEmailHint}
         </span>
+        {noEmail && props.companyCode ? (
+          <p data-testid="invite-company-code">
+            {props.text.companyCode}: <strong>{props.companyCode}</strong>
+            <br />
+            <span className="field__hint">{props.text.companyCodeHint}</span>
+          </p>
+        ) : null}
         {input('employeeCode', props.text.code, { hint: props.text.codeHint })}
         {input('displayName', props.text.name)}
         {noEmail ? (

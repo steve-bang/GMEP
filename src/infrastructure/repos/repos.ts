@@ -43,6 +43,7 @@ import type {
   PlatformIdentity,
   PlatformIdentityRepository,
   Tenant,
+  TenantCodeSlot,
 } from '@/modules/sys';
 import { COL, Q } from './queries';
 
@@ -525,6 +526,10 @@ export class DocBranchRepository implements BranchRepository {
 
 const tenantFromDoc = ({ id, data: x }: StoredDoc): Tenant => ({
   id,
+  ...(typeof x.tenantCode === 'string' ? { tenantCode: x.tenantCode } : {}),
+  ...(typeof x.tenantCodeReissueKey === 'string'
+    ? { tenantCodeReissueKey: x.tenantCodeReissueKey }
+    : {}),
   name: x.name,
   legalEntityIds: x.legalEntityIds ?? [],
   ...(x.contact ? { contact: x.contact } : {}),
@@ -574,7 +579,33 @@ export class DocTenantRepository implements TenantRepository {
     const rows = await this.store.query(Q.tenants.pick([], false), { limit });
     return rows.map(tenantFromDoc);
   }
+  async getCodeSlot(code: string) {
+    const d = await this.store.get(COL.tenantCodes, code);
+    return d ? codeSlotFromDoc(d) : null;
+  }
+  async getCodeSlotInTx(tx: Tx, code: string) {
+    const d = await this.store.getInTx(tx, COL.tenantCodes, code);
+    return d ? codeSlotFromDoc(d) : null;
+  }
+  createCodeSlot(tx: Tx, slot: TenantCodeSlot) {
+    this.store.create(tx, COL.tenantCodes, slot.code, without(slot, 'code'));
+  }
+  replaceCodeSlot(tx: Tx, slot: TenantCodeSlot) {
+    this.store.set(tx, COL.tenantCodes, slot.code, without(slot, 'code'));
+  }
+  retireCodeSlot(tx: Tx, code: string, at: Date, releaseAfter: Date) {
+    this.store.update(tx, COL.tenantCodes, code, { state: 'retired', retiredAt: at, releaseAfter });
+  }
 }
+
+const codeSlotFromDoc = ({ id, data: x }: StoredDoc): TenantCodeSlot => ({
+  code: id,
+  tenantId: x.tenantId,
+  state: x.state === 'retired' ? 'retired' : 'active',
+  assignedAt: x.assignedAt ?? new Date(0),
+  ...(x.retiredAt ? { retiredAt: x.retiredAt } : {}),
+  ...(x.releaseAfter ? { releaseAfter: x.releaseAfter } : {}),
+});
 
 export class DocPlatformIdentityRepository implements PlatformIdentityRepository {
   constructor(private readonly store: DocStore) {}

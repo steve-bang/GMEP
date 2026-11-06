@@ -18,6 +18,8 @@ import {
   roleDocId,
   newOpaqueToken,
   normalizeEmployeeCode,
+  pickTenantCode,
+  randomTenantCode,
   roleAssignmentId,
   warehouseId,
   type Branch,
@@ -183,7 +185,14 @@ export interface BootstrapResult {
 
 export async function runBootstrap(
   cfg: BootstrapConfig,
-  io: { store: BootstrapStore; identity: BootstrapIdentity; now: Date; appBaseUrl: string },
+  io: {
+    store: BootstrapStore;
+    identity: BootstrapIdentity;
+    now: Date;
+    appBaseUrl: string;
+    /** source of tenant codes (tests); default: cryptographic random */
+    newTenantCode?: () => string;
+  },
 ): Promise<BootstrapResult> {
   const created: string[] = [];
   const skipped: string[] = [];
@@ -194,6 +203,21 @@ export async function runBootstrap(
     if (await io.store.get(d.collection, d.id)) {
       skipped.push(`${d.collection}/${d.id}`);
       continue;
+    }
+    if (d.collection === COL.tenants) {
+      // owner decision 07/11/2026: the new tenant gets its six-digit code; the lock is created first (create-only)
+      const code = await pickTenantCode(
+        io.newTenantCode ?? randomTenantCode,
+        async (c) => !(await io.store.get(COL.tenantCodes, c)),
+      );
+      if (!code) throw new Error('No free tenant code found; run the bootstrap again.');
+      await io.store.create(COL.tenantCodes, code, {
+        tenantId: d.id,
+        state: 'active',
+        assignedAt: io.now,
+      });
+      created.push(`${COL.tenantCodes}/<code>`);
+      d.data = { ...d.data, tenantCode: code };
     }
     await io.store.create(d.collection, d.id, d.data);
     created.push(`${d.collection}/${d.id}`);

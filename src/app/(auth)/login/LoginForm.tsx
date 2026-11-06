@@ -123,7 +123,9 @@ export function LoginForm({ next = '/' }: { next?: string }) {
           id={`login-${k}`}
           name={k}
           className="input"
+          // company code: six digits, no suggestion or autofill of codes (owner decision 07/11/2026)
           autoComplete={k === 'identifier' || k === 'employeeCode' ? 'username' : 'off'}
+          {...(k === 'companyCode' ? { inputMode: 'numeric' as const, maxLength: 12 } : {})}
           autoCapitalize="none"
           spellCheck={false}
           aria-required="true"

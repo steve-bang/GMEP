@@ -55,8 +55,10 @@ export type LoginKind = 'email' | 'employee_code';
 export const WORKER_LOGIN_DOMAIN = 'workers.gmep.invalid';
 
 /**
- * Internal identity-provider address of an `employee_code` account: derived from (tenant code, employee code), both
- * immutable, hashed so the address reveals neither. Server-side only: never in a DTO, a log or an audit entry.
+ * Internal identity-provider address of an `employee_code` account: derived from (tenant ID, employee code), both
+ * immutable, hashed so the address reveals neither. Deliberately NOT the six-digit tenant code typed at sign-in: that
+ * code can be reissued by the platform, and the address (and so the identity account and its password) must not move
+ * when it is. Server-side only: never in a DTO, a log or an audit entry.
  */
 export function workerLoginAddress(tenantId: string, employeeCode: string): string {
   const h = createHash('sha256')
@@ -74,8 +76,12 @@ export const loginAddressOf = (
 /** Addresses nobody may register or invite: the reserved `.invalid` top-level domain (P2-C). */
 export const isReservedLoginEmail = (email: string): boolean => /\.invalid$/i.test(email.trim());
 
-/** Company code typed at the employee-code sign-in = the immutable tenant code, compared case-insensitively (FR-TEN-001). */
-export const normalizeCompanyCode = (code: string): string => code.trim().toLowerCase();
+/**
+ * Company code typed at the employee-code sign-in, as typed with white space removed (owner decision 07/11/2026: the
+ * six-digit tenant code, domain/tenantCode.ts). Used for the lockout counters, so it accepts anything.
+ */
+export const normalizeCompanyCode = (code: string): string =>
+  code.replace(/\s+/g, '').toLowerCase();
 
 /**
  * FR-SYS-011 + BA §5: `closing` = "Ngừng nhận lệnh mới", `locked` = read only. The behaviour per

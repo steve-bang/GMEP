@@ -9,12 +9,22 @@
  *  - roles were global (id = code): they are copied to `<tenant>__<code>` and the global ones are removed;
  *  - effective-dated configuration ids get the tenant prefix (`<tenant>__<type>__<scope>__<date>`) and the scope key
  *    `company` becomes `tenant` (id and field);
- *  - the email slots in `userKeys` gain `zone` and `identityId` (the first membership of an identity: id = uid).
+ *  - the email slots in `userKeys` gain `zone` and `identityId` (the first membership of an identity: id = uid);
+ *  - every tenant without a `tenantCode` (owner decision 07/11/2026: six random digits, "Mã công ty" of the employee-code
+ *    sign-in) gets one, with its lock document `tenantCodes/<code>`. An active lock that already names the tenant (an
+ *    earlier run stopped between the two writes, or a round trip) is reused, so a re-run never draws a second code.
  * The run is idempotent (documents already converted are skipped, so a second run reports zero changes), dry-run by
  * default, and prints a before/after reconciliation: record counts per collection and the sums of the money fields.
  * Rollback plan: take an export/snapshot first; nothing here can be reverted field by field (roles and configuration
  * change id), so the snapshot IS the plan (no real data exists yet: Emulator only).
  */
+import {
+  randomTenantCode,
+  pickTenantCode,
+  tenantCodeSlotFree,
+  type TenantCodeSlot,
+} from '@/modules/sys';
+
 export interface MigrationDoc {
   id: string;
   data: Record<string, unknown>;
@@ -160,7 +170,14 @@ const withoutKey = (o: Record<string, unknown>, k: string) => {
 
 export async function migrateToTenant(
   io: MigrationIo,
-  opts: { tenantId: string; apply: boolean; tenantName?: string },
+  opts: {
+    tenantId: string;
+    apply: boolean;
+    tenantName?: string;
+    /** source of tenant codes (tests inject collisions); default: cryptographic random */
+    newTenantCode?: () => string;
+    now?: Date;
+  },
 ): Promise<MigrationReport> {
   const { tenantId, apply } = opts;
   const report: MigrationReport = {
@@ -278,6 +295,9 @@ export async function migrateToTenant(
     );
   }
 
+  // 6) the six-digit tenant code of every tenant that has none (owner decision 07/11/2026)
+  await assignTenantCodes(io, opts, report, (k) => bump(report.changed, k));
+
   report.after = await reconcile(io, 'tenantId');
   report.reconciled = apply
     ? JSON.stringify(report.before.counts) === JSON.stringify(report.after.counts) &&
@@ -292,4 +312,55 @@ async function currentData(
   id: string,
 ): Promise<Record<string, unknown>> {
   return (await io.list(col)).find((d) => d.id === id)?.data ?? {};
+}
+
+/**
+ * Step 6. The migration runs on the Emulator by one operator (no transaction in MigrationIo): the taken codes are read
+ * once and every new lock is checked against them; the lock is written BEFORE the tenant field, so a stop in between
+ * leaves a lock naming the tenant, which the next run reuses.
+ */
+async function assignTenantCodes(
+  io: MigrationIo,
+  opts: { tenantId: string; apply: boolean; newTenantCode?: () => string; now?: Date },
+  report: MigrationReport,
+  count: (key: string) => void,
+): Promise<void> {
+  const now = opts.now ?? new Date();
+  const slots = new Map<string, TenantCodeSlot>();
+  for (const d of await io.list('tenantCodes'))
+    slots.set(d.id, {
+      code: d.id,
+      tenantId: String(d.data.tenantId),
+      state: d.data.state === 'retired' ? 'retired' : 'active',
+      assignedAt: (d.data.assignedAt as Date | undefined) ?? new Date(0),
+      ...(d.data.releaseAfter ? { releaseAfter: d.data.releaseAfter as Date } : {}),
+    });
+  const tenants = await io.list('tenants');
+  const targets = tenants.filter((t) => typeof t.data.tenantCode !== 'string');
+  // dry run: the tenant that step 2 would create gets a code too
+  if (
+    !opts.apply &&
+    !tenants.some((t) => t.id === opts.tenantId) &&
+    (await io.list('companies')).some((c) => c.id === opts.tenantId)
+  )
+    targets.push({ id: opts.tenantId, data: {} });
+  for (const t of targets) {
+    const held = [...slots.values()].find((s) => s.tenantId === t.id && s.state === 'active');
+    const code =
+      held?.code ??
+      (await pickTenantCode(opts.newTenantCode ?? randomTenantCode, async (c) =>
+        tenantCodeSlotFree(slots.get(c) ?? null, now),
+      ));
+    if (!code) {
+      report.warnings.push(`tenants/${t.id}: no free tenant code found (left without one)`);
+      continue;
+    }
+    count('tenantCodes');
+    const slot: TenantCodeSlot = { code, tenantId: t.id, state: 'active', assignedAt: now };
+    slots.set(code, slot);
+    if (!opts.apply) continue;
+    if (!held)
+      await io.set('tenantCodes', code, { tenantId: t.id, state: 'active', assignedAt: now });
+    await io.set('tenants', t.id, { ...t.data, tenantCode: code });
+  }
 }

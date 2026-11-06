@@ -68,7 +68,11 @@ export interface UserDto {
   status: string;
   /** P2-C: `employee_code` = no email, signs in with company code + employee code */
   loginKind: 'email' | 'employee_code';
-  /** P2-C, employee_code only: the company code to type at sign-in (= tenant code) */
+  /**
+   * P2-C, employee_code only, for managers who hand the account over (`user:create` or `user-credential:manage`): the
+   * "Mã công ty" to type at sign-in = the tenant's six-digit `tenantCode` (owner decision 07/11/2026). Not a secret, but
+   * shown only on the detail and creation answers, never in lists or on public pages.
+   */
   companyCode?: string;
   /** P2-C, employee_code only: a temporary password is waiting to be changed */
   mustChangePassword?: boolean;
@@ -83,6 +87,8 @@ function toUserDto(
   actor: Actor,
   u: User,
   assignments?: RoleAssignmentRecord[],
+  /** the tenant's six-digit code; passed only by the detail and creation answers */
+  tenantCode?: string | null,
 ): UserDto {
   const phone = deps.pii.present(actor, 'phone', u.phone);
   return {
@@ -96,7 +102,10 @@ function toUserDto(
     loginKind: u.loginKind ?? 'email',
     // the internal provider address of an employee-code account is never part of a DTO (P2-C)
     ...(u.loginKind === 'employee_code'
-      ? { companyCode: u.tenantId, mustChangePassword: u.mustChangePassword === true }
+      ? {
+          ...(tenantCode && canHandOver(actor) ? { companyCode: tenantCode } : {}),
+          mustChangePassword: u.mustChangePassword === true,
+        }
       : {}),
     lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString() : null,
     version: u.version,
@@ -232,7 +241,17 @@ export async function visibleUser(deps: SysDeps, scope: Scope, id: string): Prom
 export async function getUser(deps: SysDeps, actor: Actor, id: string): Promise<UserDto> {
   const scope = resolveScope(actor, 'user:view');
   const u = await visibleUser(deps, scope, id);
-  return toUserDto(deps, actor, u, await deps.assignments.listInScope(scope, id));
+  const code = u.loginKind === 'employee_code' ? await tenantCodeOf(deps, u.tenantId) : null;
+  return toUserDto(deps, actor, u, await deps.assignments.listInScope(scope, id), code);
+}
+
+/** Managers who create or reset staff without email see the company code to hand over (CH, QL, AD by the matrix). */
+const canHandOver = (actor: Actor): boolean =>
+  hasPermission(actor, 'user:create') || hasPermission(actor, 'user-credential:manage');
+
+/** The tenant's six-digit code (owner decision 07/11/2026), null before the migration assigned one. */
+export async function tenantCodeOf(deps: SysDeps, tenantId: string): Promise<string | null> {
+  return (await deps.tenants.get(tenantId))?.tenantCode ?? null;
 }
 
 /** A manager may only touch users who hold no owner-approved role; the owner may touch anyone. */
@@ -678,10 +697,11 @@ export async function unlockUser(
   const scope = resolveScope(actor, 'user:manage');
   const u = await visibleUser(deps, scope, id);
   await assertManageable(deps, actor, u);
+  const tenantCode = u.loginKind === 'employee_code' ? await tenantCodeOf(deps, u.tenantId) : null;
   for (const name of [
     u.email.toLowerCase(),
     u.employeeCode.toLowerCase(),
-    ...(u.loginKind === 'employee_code' ? [employeeLoginName(u.tenantId, u.employeeCode)] : []),
+    ...(tenantCode ? [employeeLoginName(tenantCode, u.employeeCode)] : []),
   ])
     if (name) await deps.throttle.unlockName(name);
   await deps.uow.run(async (tx) => {
@@ -799,6 +819,7 @@ export async function createWorkerUser(
   if (pwErrors.length) throw new AppError('validation_failed', 422, pwErrors);
   const { temporaryPassword, ...fingerprinted } = data;
   const userId = deps.newId();
+  const tenantCode = await tenantCodeOf(deps, actor.tenantId);
   let created: User | null = null;
   try {
     const result = await runIdempotent(
@@ -867,7 +888,7 @@ export async function createWorkerUser(
           }),
         );
         created = user;
-        return { status: 201, body: toUserDto(deps, actor, user, recs) };
+        return { status: 201, body: toUserDto(deps, actor, user, recs, tenantCode) };
       },
     );
     if (!result.replayed && created) {
@@ -975,6 +996,9 @@ export async function resetWorkerPassword(
     throw e;
   }
   await revokeIdentitySessions(deps, updated);
-  await deps.throttle.unlockName(employeeLoginName(updated.tenantId, updated.employeeCode));
-  return toUserDto(deps, actor, updated, await deps.assignments.listInScope(scope, id));
+  // the lockout counters are keyed on the company code as typed = the current tenant code
+  const tenantCode = await tenantCodeOf(deps, updated.tenantId);
+  if (tenantCode)
+    await deps.throttle.unlockName(employeeLoginName(tenantCode, updated.employeeCode));
+  return toUserDto(deps, actor, updated, await deps.assignments.listInScope(scope, id), tenantCode);
 }

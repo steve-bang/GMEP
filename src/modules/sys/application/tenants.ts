@@ -26,7 +26,9 @@ import {
   type TenantStatus,
   type TransitionActor,
 } from '../domain/tenant';
+import { pickTenantCode, tenantCodeSlotFree, type TenantCodeSlot } from '../domain/tenantCode';
 import type { SysDeps } from '../ports/deps';
+import { AlreadyExistsError } from '../ports/ports';
 import { sendInvitation } from './users';
 import { parseInput, type RequestCtx } from './support';
 
@@ -75,6 +77,8 @@ function audit(
 
 export interface TenantDto {
   id: string;
+  /** six-digit "Mã công ty" of the employee-code sign-in; null only before migrate-to-tenant assigned one */
+  tenantCode: string | null;
   name: string;
   status: TenantStatus;
   plan: Tenant['plan'];
@@ -116,6 +120,7 @@ const latestTerms = (t: Tenant): TenantDto['termsAcceptance'] => {
 
 const toDto = (t: Tenant): TenantDto => ({
   id: t.id,
+  tenantCode: t.tenantCode ?? null,
   name: t.name,
   status: t.status,
   plan: t.plan,
@@ -381,6 +386,124 @@ export async function decideTenantTransition(
   });
 }
 
+// ---- tenant code (owner decision 07/11/2026; domain/tenantCode.ts) ----------------------
+
+/** a draw plus whether it takes over a retired lock whose holding period is over */
+type DrawnCode = TenantCodeSlot & { takeOver: boolean };
+
+/**
+ * Draws a free six-digit code inside the transaction (reads only, before any write): a code is free when its lock
+ * `tenantCodes/<code>` does not exist, or is retired and its holding period is over. Too many taken draws in a row end in
+ * `tenant_code_unavailable` (503, retry later) instead of looping.
+ */
+async function drawTenantCode(
+  deps: SysDeps,
+  tx: Tx,
+  tenantId: string,
+  now: Date,
+): Promise<DrawnCode> {
+  const seen = new Map<string, TenantCodeSlot | null>();
+  const code = await pickTenantCode(deps.newTenantCode, async (c) => {
+    const slot = await deps.tenants.getCodeSlotInTx(tx, c);
+    seen.set(c, slot);
+    return tenantCodeSlotFree(slot, now);
+  });
+  if (!code) throw new AppError('tenant_code_unavailable', 503);
+  return { code, tenantId, state: 'active', assignedAt: now, takeOver: seen.get(code) !== null };
+}
+
+function stageCodeSlot(deps: SysDeps, tx: Tx, d: DrawnCode): void {
+  const { takeOver, ...slot } = d;
+  // create-only for a fresh code: two transactions that drew the same code cannot both commit (AlreadyExistsError)
+  if (takeOver) deps.tenants.replaceCodeSlot(tx, slot);
+  else deps.tenants.createCodeSlot(tx, slot);
+}
+
+/** A lost race for a code lock (AlreadyExistsError at commit) is retried with a fresh draw, a few times. */
+async function withCodeRace<T>(run: () => Promise<T>, attempts = 3): Promise<T> {
+  for (let i = 1; ; i++) {
+    try {
+      return await run();
+    } catch (e) {
+      if (!(e instanceof AlreadyExistsError) || i >= attempts) throw e;
+    }
+  }
+}
+
+export const reissueTenantCodeSchema = z.object({
+  reason: z.string().trim().min(3).max(500),
+  version: z.number().int().positive(),
+});
+
+export interface ReissueTenantCodeResult {
+  tenant: TenantDto;
+  /** the previous code, now retired until `releaseAfter` (null when the tenant had none) */
+  previousCode: string | null;
+  releaseAfter: string | null;
+  replayed: boolean;
+}
+
+/**
+ * Reissue of the tenant code when it leaked (owner decision 07/11/2026). Platform roles only (`tenant:code-reissue`,
+ * CNT and QTN); the tenant itself has no way to change it. Reason required, platform audit line in the same transaction,
+ * optimistic version, Idempotency-Key (a retried call returns the same result and never draws a second code). The old
+ * code is retired, not freed: no other tenant can draw it during `tenantCodeHoldDays` [Cần xác nhận] (default 90).
+ * Staff sessions and their internal sign-in address are untouched: the address hashes (tenant id, employee code), never
+ * the tenant code. Until MT-1 builds the platform session this is reached through scripts/tenant-code.ts only.
+ */
+export async function reissueTenantCode(
+  deps: SysDeps,
+  actor: PlatformActor,
+  id: string,
+  input: unknown,
+  ctx: RequestCtx,
+): Promise<ReissueTenantCodeResult> {
+  require(actor, 'tenant:code-reissue');
+  const data = parseInput(reissueTenantCodeSchema, input);
+  if (!ctx.idempotencyKey) throw new AppError('idempotency_key_required', 400);
+  const key = ctx.idempotencyKey;
+  return withCodeRace(() =>
+    deps.uow.run(async (tx) => {
+      const t = await deps.tenants.getInTx(tx, id);
+      if (!t) throw notFound();
+      if (t.tenantCodeReissueKey === key)
+        return { tenant: toDto(t), previousCode: null, releaseAfter: null, replayed: true };
+      if (t.version !== data.version) throw conflict('version_conflict');
+      const now = deps.clock.now();
+      // Firestore: every read (tenant, old lock, draws) happens before the first write
+      const old = t.tenantCode ? await deps.tenants.getCodeSlotInTx(tx, t.tenantCode) : null;
+      const next = await drawTenantCode(deps, tx, t.id, now);
+      const releaseAfter = new Date(now.getTime() + deps.config.tenantCodeHoldDays * 86_400_000);
+      stageCodeSlot(deps, tx, next);
+      if (old && old.tenantId === t.id && old.state === 'active')
+        deps.tenants.retireCodeSlot(tx, old.code, now, releaseAfter);
+      deps.tenants.update(tx, t.id, {
+        tenantCode: next.code,
+        tenantCodeReissueKey: key,
+        updatedAt: now,
+        updatedBy: actor.platformUserId,
+        version: t.version + 1,
+      });
+      audit(deps, tx, actor, ctx, {
+        action: 'tenant.code_reissued',
+        tenantId: t.id,
+        reason: data.reason,
+        before: { tenantCode: t.tenantCode ?? null },
+        after: {
+          tenantCode: next.code,
+          previousCodeReleaseAfter: old ? releaseAfter.toISOString() : null,
+        },
+      });
+      return {
+        tenant: toDto({ ...t, tenantCode: next.code, version: t.version + 1 }),
+        previousCode: t.tenantCode ?? null,
+        releaseAfter: old ? releaseAfter.toISOString() : null,
+        replayed: false,
+      };
+    }),
+  );
+}
+
 // ---- provisioning (FR-TEN-002) ---------------------------------------------------
 
 export const provisionSchema = z.object({
@@ -517,38 +640,49 @@ export async function provisionTenant(
   const key = ctx.idempotencyKey;
   const caller = asTransitionActor(actor);
 
-  // 1) the record (created once, resumed afterwards)
-  let tenant = await deps.uow.run(async (tx) => {
-    const found = await deps.tenants.getInTx(tx, data.code);
-    if (found) {
-      if (found.provisionRequestKey !== key) throw conflict('tenant_code_taken');
-      return found;
-    }
-    const now = deps.clock.now();
-    const created: Tenant = {
-      id: data.code,
-      name: data.name,
-      ...(data.contact ? { contact: data.contact } : {}),
-      ...(data.contractRef ? { contractRef: data.contractRef } : {}),
-      ...(data.owner ? { owner: data.owner } : {}),
-      status: 'proposed',
-      environment: data.environment,
-      provisionRequestKey: key,
-      ...newTenantDefaults(),
-      createdAt: now,
-      createdBy: actorId(actor),
-      updatedAt: now,
-      updatedBy: actorId(actor),
-      version: 1,
-    };
-    deps.tenants.create(tx, created);
-    audit(deps, tx, actor, ctx, {
-      action: 'tenant.created',
-      tenantId: created.id,
-      after: { status: 'proposed', environment: created.environment, plan: created.plan },
-    });
-    return created;
-  });
+  // 1) the record (created once, resumed afterwards). The six-digit tenant code is drawn in the same transaction as the
+  // record, so a re-run of the same request finds the record and never draws a second code.
+  let tenant = await withCodeRace(() =>
+    deps.uow.run(async (tx) => {
+      const found = await deps.tenants.getInTx(tx, data.code);
+      if (found) {
+        if (found.provisionRequestKey !== key) throw conflict('tenant_code_taken');
+        return found;
+      }
+      const now = deps.clock.now();
+      const slot = await drawTenantCode(deps, tx, data.code, now);
+      stageCodeSlot(deps, tx, slot);
+      const created: Tenant = {
+        id: data.code,
+        tenantCode: slot.code,
+        name: data.name,
+        ...(data.contact ? { contact: data.contact } : {}),
+        ...(data.contractRef ? { contractRef: data.contractRef } : {}),
+        ...(data.owner ? { owner: data.owner } : {}),
+        status: 'proposed',
+        environment: data.environment,
+        provisionRequestKey: key,
+        ...newTenantDefaults(),
+        createdAt: now,
+        createdBy: actorId(actor),
+        updatedAt: now,
+        updatedBy: actorId(actor),
+        version: 1,
+      };
+      deps.tenants.create(tx, created);
+      audit(deps, tx, actor, ctx, {
+        action: 'tenant.created',
+        tenantId: created.id,
+        after: {
+          status: 'proposed',
+          environment: created.environment,
+          plan: created.plan,
+          tenantCode: created.tenantCode,
+        },
+      });
+      return created;
+    }),
+  );
 
   // 2) proposed -> provisioning, or retry of a failed run
   if (tenant.status === 'proposed' || tenant.status === 'provision_failed') {

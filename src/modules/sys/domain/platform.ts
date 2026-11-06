@@ -13,6 +13,8 @@ export type PlatformPermission =
   | 'tenant:transition'
   | 'tenant:transition-approve'
   | 'tenant:terms-record'
+  /** owner decision 07/11/2026: reissue the six-digit tenant code when it leaked (reason required, platform audit) */
+  | 'tenant:code-reissue'
   | 'platform-config:manage'
   | 'plan:manage'
   | 'billing:manage'
@@ -29,6 +31,7 @@ export const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, readonly PlatformPe
     'tenant:transition',
     'tenant:transition-approve',
     'tenant:terms-record',
+    'tenant:code-reissue',
     'platform-config:manage',
     'plan:manage',
     'platform-audit:view',
@@ -39,6 +42,7 @@ export const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, readonly PlatformPe
     'tenant:provision',
     'tenant:transition',
     'tenant:terms-record',
+    'tenant:code-reissue',
     'platform-config:manage',
     'plan:manage',
     'platform-audit:view',

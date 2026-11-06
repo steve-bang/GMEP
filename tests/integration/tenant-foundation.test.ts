@@ -69,6 +69,41 @@ describe.each(backends)('tenant foundation [%s]', (backend) => {
     const actions = await auditOf('tnt_alpha');
     expect(actions.filter((x) => x === 'tenant.created')).toHaveLength(1);
     expect(actions.filter((x) => x === 'tenant.provision_step')).toHaveLength(3);
+    // owner decision 07/11/2026: a six-digit tenant code is drawn once; the re-run keeps it
+    expect(a.tenant.tenantCode).toMatch(/^\d{6}$/);
+    expect(b.tenant.tenantCode).toBe(a.tenant.tenantCode);
+    expect(await sys().tenants.getCodeSlot(a.tenant.tenantCode!)).toMatchObject({
+      tenantId: 'tnt_alpha',
+      state: 'active',
+    });
+  });
+
+  it('owner decision 07/11/2026: two tenants that draw the same code get distinct codes; endless collisions fail clearly', async () => {
+    const original = sys().newTenantCode;
+    try {
+      const taken = (await getTenant(sys(), cnt, 'tnt_alpha')).tenantCode!;
+      const seq = [taken, taken, '583920'];
+      sys().newTenantCode = () => seq.shift() ?? '583920';
+      const r = await provisionTenant(
+        sys(),
+        cnt,
+        { code: 'tnt_collide', name: 'Garage Trùng', environment: 'demo' },
+        { ...rid(), idempotencyKey: 'prov-collide-1' },
+      );
+      expect(r.tenant.tenantCode).toBe('583920');
+      sys().newTenantCode = () => taken;
+      await expect(
+        provisionTenant(
+          sys(),
+          cnt,
+          { code: 'tnt_stuck', name: 'Garage Kẹt', environment: 'demo' },
+          { ...rid(), idempotencyKey: 'prov-stuck-1' },
+        ),
+      ).rejects.toMatchObject({ code: 'tenant_code_unavailable', status: 503 });
+      expect(await sys().tenants.get('tnt_stuck')).toBeNull(); // nothing half-created
+    } finally {
+      sys().newTenantCode = original;
+    }
   });
 
   it('FR-TEN-002: the same code with another request key is a conflict, not a second tenant', async () => {

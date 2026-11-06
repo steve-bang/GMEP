@@ -17,6 +17,7 @@ import type {
 } from '../domain/entities';
 import type { ConfigVersion } from '../domain/config';
 import type { PendingTransition, Tenant } from '../domain/tenant';
+import type { TenantCodeSlot } from '../domain/tenantCode';
 import type { PlatformAuditEntry, PlatformIdentity } from '../domain/platform';
 import type { ApprovalDelegation, ApprovalRequest, ApprovalStatus } from '../domain/approval';
 import type { Actor } from '@/platform/rbac/rbac';
@@ -159,6 +160,14 @@ export interface TenantRepository {
   ): void;
   /** newest first, bounded; for platform screens and the scheduler */
   list(limit: number): Promise<Tenant[]>;
+  /** lock document `tenantCodes/<code>`, read BY KEY (no index): the employee-code sign-in resolves the tenant here */
+  getCodeSlot(code: string): Promise<TenantCodeSlot | null>;
+  getCodeSlotInTx(tx: Tx, code: string): Promise<TenantCodeSlot | null>;
+  /** create-only: fails at commit with AlreadyExistsError when the code is held (lost race) */
+  createCodeSlot(tx: Tx, slot: TenantCodeSlot): void;
+  /** takes over a retired slot whose holding period is over (read in the same transaction first) */
+  replaceCodeSlot(tx: Tx, slot: TenantCodeSlot): void;
+  retireCodeSlot(tx: Tx, code: string, at: Date, releaseAfter: Date): void;
 }
 
 /** Platform staff identities (own zone). The email is unique across the platform AND tenant zones. */

@@ -24,6 +24,8 @@ import type { DocData } from '@/platform/store/docStore';
 
 export const DEMO_PASSWORD = 'Demo!Pass-2026';
 export const DEMO_TENANT = 'tnt_demo';
+/** fixed demo "Mã công ty" (owner decision 07/11/2026); real tenants get a cryptographic random code at provisioning */
+export const DEMO_TENANT_CODE = '482913';
 const SEED_TIME = new Date('2026-10-01T00:00:00.000Z');
 
 const b = (id: string, code: string, name: string, status: Branch['status']): Branch => ({
@@ -164,7 +166,13 @@ export function demoDocs(): SeedDoc[] {
   const docs: SeedDoc[] = [];
   const put = (collection: string, id: string, data: DocData) =>
     docs.push({ collection, id, data });
+  put(COL.tenantCodes, DEMO_TENANT_CODE, {
+    tenantId: DEMO_TENANT,
+    state: 'active',
+    assignedAt: SEED_TIME,
+  });
   put(COL.tenants, DEMO_TENANT, {
+    tenantCode: DEMO_TENANT_CODE,
     name: 'Garage Demo',
     legalEntityIds: [],
     status: 'active',

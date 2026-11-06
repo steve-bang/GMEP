@@ -13,6 +13,7 @@ export * from './domain/passwordPolicy';
 export * from './domain/config';
 export * from './domain/approval';
 export * from './domain/tenant';
+export * from './domain/tenantCode';
 export * from './domain/platform';
 export * from './ports/ports';
 export type { SysDeps, SysConfig, SysCaches, CachedSession } from './ports/deps';
@@ -71,6 +72,7 @@ export {
   searchUsers,
   USER_PAGE_SIZE,
   getUser,
+  tenantCodeOf,
   inviteUser,
   resendInvite,
   updateUser,
@@ -185,8 +187,10 @@ export {
   recordTermsAcceptance,
   assertTermsAccepted,
   tenantTermsBlock,
+  reissueTenantCode,
 } from './application/tenants';
 export type {
+  ReissueTenantCodeResult,
   TenantDto,
   ProvisionResult,
   TransitionOutcome,

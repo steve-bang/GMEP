@@ -52,6 +52,11 @@ export interface SysConfig {
   inviteTokenTtlMs: number;
   /** P2-C: a temporary password set by a manager stops working after this long [Cần xác nhận: Chủ dự án] (default 72 h) */
   tempPasswordTtlMs: number;
+  /**
+   * Owner decision 07/11/2026: a reissued tenant code stays out of circulation this many days before another tenant may
+   * draw it [Cần xác nhận: Chủ dự án] (default proposal 90 days).
+   */
+  tenantCodeHoldDays: number;
   /** H1: how long a verified session / actor may be served from memory (max staleness of revocation) */
   authCacheTtlMs: number;
   /** effective-config read cache (resolveAt) */
@@ -97,6 +102,8 @@ export interface SysDeps {
   uow: UnitOfWork;
   clock: Clock;
   newId: () => string;
+  /** six-digit tenant code draw (domain/tenantCode.ts `randomTenantCode`: cryptographic random; tests inject collisions) */
+  newTenantCode: () => string;
   audit: AuditLog;
   idempotency: IdempotencyStore;
   numbering: NumberingService;

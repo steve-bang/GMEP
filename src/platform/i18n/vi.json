@@ -49,6 +49,10 @@
       "title": "Mã công ty đã tồn tại",
       "detail": "Mã công ty này đã được dùng cho một yêu cầu cấp phát khác."
     },
+    "tenant_code_unavailable": {
+      "title": "Chưa cấp được mã công ty",
+      "detail": "Hệ thống chưa tìm được mã công ty 6 chữ số còn trống sau nhiều lần thử. Vui lòng thử lại sau ít phút."
+    },
     "transition_not_allowed": {
       "title": "Không được chuyển sang trạng thái này",
       "detail": "Trạng thái hiện tại của công ty không cho phép bước chuyển này."
@@ -927,7 +931,7 @@
     "modeEmail": "Đăng nhập bằng email",
     "modeEmployee": "Đăng nhập bằng mã nhân viên",
     "companyCode": "Mã công ty",
-    "companyCodeHint": "Quản lý chi nhánh cung cấp mã này cùng mã nhân viên.",
+    "companyCodeHint": "Gồm 6 chữ số. Quản lý chi nhánh cung cấp mã này cùng mã nhân viên.",
     "employeeCode": "Mã nhân viên",
     "companyCodeRequired": "Nhập mã công ty.",
     "employeeCodeRequired": "Nhập mã nhân viên.",
@@ -1283,7 +1287,8 @@
       "created": "Đã tạo nhân viên. Mã công ty: {company} · Mã nhân viên: {code}.",
       "roleOnly": "Nhân viên không có email chỉ nhận vai trò chi nhánh (Cố vấn, Quản đốc, Thợ, Thủ kho, Thu ngân) tại một chi nhánh cụ thể.",
       "badge": "Không email",
-      "companyCode": "Mã công ty để đăng nhập",
+      "companyCode": "Mã công ty",
+      "companyCodeHint": "Giao mã công ty này cùng mã nhân viên cho nhân viên để đăng nhập.",
       "mustChange": "Đang chờ nhân viên đổi mật khẩu tạm.",
       "reset": "Đặt lại mật khẩu tạm",
       "resetLead": "Mọi phiên của nhân viên bị đăng xuất, khóa đăng nhập được gỡ, nhân viên phải đổi mật khẩu ở lần đăng nhập tới.",
@@ -1708,6 +1713,7 @@
       "tenant_transition_requested": "Đề xuất đổi trạng thái tenant",
       "tenant_transition_rejected": "Từ chối đổi trạng thái tenant",
       "tenant_provision_step": "Bước cấp phát tenant",
+      "tenant_code_reissued": "Cấp lại mã công ty",
       "config_approve": "Duyệt cấu hình",
       "config_reject": "Từ chối cấu hình",
       "priceList_create": "Tạo bảng giá",

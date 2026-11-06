@@ -73,6 +73,14 @@ export const hasTermsAcceptance = (t: Pick<Tenant, 'termsAcceptances'>): boolean
 export interface Tenant {
   /** immutable code, never deleted (FR-TEN-001) */
   id: string;
+  /**
+   * "Mã công ty" of the employee-code sign-in (owner decision 07/11/2026): six random digits, unique platform-wide
+   * (lock `tenantCodes/<code>`), see domain/tenantCode.ts. Not changeable by the tenant; a platform role may reissue it.
+   * Absent only on data written before the decision, until migrate-to-tenant assigns it.
+   */
+  tenantCode?: string;
+  /** idempotency key of the last reissue of the tenant code (a retried reissue does not draw a second code) */
+  tenantCodeReissueKey?: string;
   name: string;
   /** legal entities of the tenant (FR-SYS-018); reserved, Company is built later */
   legalEntityIds: string[];
