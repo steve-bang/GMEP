@@ -43,6 +43,10 @@ export interface ShellInfo {
     alerts: boolean;
     /** FR-RPT-005: the warehouse report is gated by the stock view right (a storekeeper has no daily report) */
     warehouseReport: boolean;
+    /** slice 2.6a: staff records, technician labor (all or only the own lines), labor rules in force */
+    employees: boolean;
+    labor: boolean;
+    laborRules: boolean;
   };
   /** nav entries the user can open but not change (shown with a "Chỉ xem" lock) */
   readOnly: Record<
@@ -109,6 +113,9 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       dailyReport: can('report-daily:view'),
       alerts: can('report-alert:view'),
       warehouseReport: can('stock:view'),
+      employees: can('employee:view'),
+      labor: can('labor:view') || can('labor-own:view'),
+      laborRules: can('labor-rule:view'),
     },
     readOnly: {
       customers: !mayChange('customer'),

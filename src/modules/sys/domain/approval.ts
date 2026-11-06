@@ -32,6 +32,8 @@ export const APPROVAL_KINDS = [
   'invoice_adjust',
   'invoice_replace',
   'invoice_cancel',
+  // FR-HRM-020 (slice 2.6a): a manual labor adjustment above the `labor-policy` threshold is decided by the owner
+  'labor_adjustment',
 ] as const;
 export type ApprovalKind = (typeof APPROVAL_KINDS)[number];
 export const isApprovalKind = (k: string): k is ApprovalKind =>
@@ -112,6 +114,11 @@ export const APPROVAL_KIND_DEFS: Readonly<Record<ApprovalKind, ApprovalKindDef>>
   cash_variance: {
     alwaysNeeded: true,
     defaults: { selfMaxVnd: 0, level1MaxVnd: 500_000, dueHours: 24 },
+  },
+  // no value tier: raised at level 2 (the owner, Phụ lục E #9); the threshold itself is the `labor-policy` config
+  labor_adjustment: {
+    alwaysNeeded: true,
+    defaults: { selfMaxVnd: 0, level1MaxVnd: 0, dueHours: 24 },
   },
 };
 
