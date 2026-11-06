@@ -46,7 +46,7 @@ Bản nháp 05/11/2026. Căn cứ: `implementation-plan.md` §5 (chiến lược
 | ACC | Sai số tiền, thu trùng, sửa ngày đã khóa | Phiếu thu, hoàn tiền, đảo phiếu (RULE-010), ca, chênh lệch quỹ, chốt ngày (UAT-07), mở lại ngày cần chủ nhập lại mật khẩu | `acc.test.ts`, `slice-1-7`, `acc-day-reopen-ui` | Thu song song khác key (tổng không vượt); đảo phiếu song song |
 | EIN | Trùng hóa đơn, sai trạng thái nhà cung cấp | Phát hành idempotent (UAT-23), hóa đơn điều chỉnh cần KT trưởng (UAT-08), hủy cần mật khẩu, lưu XML/PDF | `ein.test.ts`, `slice-1-8` | Chạy lại toàn bộ với nhà cung cấp thật trên môi trường thử khi khách chọn (đang mở) |
 | SYS | Lộ quyền, mất vết kiểm toán | 10 vai trò, nhiều vai trò (UAT-19), chọn phạm vi, đánh số, cấu hình hiệu lực (UAT-09), phê duyệt, nhật ký không sửa xóa, nhập Excel (UAT-12) | `auth`, `admin`, `config-admin`, `import*`, `audit-idempotency` | Sửa F-6 rồi chạy lại `import-undo-multirow` trên Firestore; ca "nhập lại mật khẩu khi đổi vai trò" |
-| RPT | Số báo cáo lệch sổ | Đối chiếu đơn = tiền = hóa đơn = kho; drill-down; lọc loại dịch vụ; xuất theo phạm vi | `rpt.test.ts`, `uat-journeys` | So sánh kỳ trước (FR-RPT-002) khi làm xong; hồi quy cột "đã xuất hóa đơn" |
+| RPT | Số báo cáo lệch sổ | Đối chiếu đơn = tiền = hóa đơn = kho; drill-down; lọc loại dịch vụ; xuất theo phạm vi | `rpt.test.ts`, `uat-journeys` | So sánh kỳ trước (FR-RPT-002, R110 đến R114): `rpt-reports.test.ts` (tăng, giảm, kỳ trước thiếu ngày, chia 0 "mới", hai bên 0, tháng ngắn, làm tròn), `rpt.test.ts` (n/a có lý do, "mới", CSV hai khoảng ngày, kỳ tương lai, tham số lạ); hồi quy cột "đã xuất hóa đơn" khi lọc: `rpt.test.ts` |
 
 ## 5. Dữ liệu kiểm thử
 

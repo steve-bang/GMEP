@@ -1,7 +1,12 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { businessDate } from '@/platform/format/date';
-import { getMonthly } from '@/modules/rpt';
+import {
+  getMonthly,
+  type MetricComparison,
+  type PreviousUnlinkedNa,
+  type UninvoicedNaReason,
+} from '@/modules/rpt';
 import { listServiceTypes } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -61,19 +66,49 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
     );
   const d = res.data;
   const r = d.report;
-  // FR-RPT-002: change against the same day range of the month before (basis points -> one-decimal percent)
+  // FR-RPT-002 / R111, R113: one line per compared metric: percent (one decimal, from integer basis points) and the
+  // absolute change; "mới" when the earlier period is 0, "—" when both are 0, "n/a" + reason when it is incomplete.
   const cmp = r.comparison;
-  const change = (bp: number | null | undefined): string | undefined => {
-    if (!cmp) return l.vsPrevNa;
-    if (bp === null || bp === undefined) return l.vsPrevZero;
-    // basis points -> percent with one decimal, rounded (not cut); a zero change has no sign
-    const tenths = Math.round(Math.abs(bp) / 10);
-    const pct = `${bp > 0 && tenths > 0 ? '+' : bp < 0 && tenths > 0 ? '-' : ''}${Math.trunc(tenths / 10)},${tenths % 10}%`;
-    return fill(l.vsPrev!, {
-      month: cmp.month.slice(5) + '/' + cmp.month.slice(0, 4),
-      days: cmp.days,
-      change: pct,
-    });
+  const sign = (n: number) => (n > 0 ? '+' : '');
+  // basis points -> one decimal of a percent, exact ties half up toward +infinity like deltaBp (R113): 5 bp = 0,05% -> 0,1%
+  const pctOf = (bp: number) => {
+    const tenths = Math.floor((bp + 5) / 10);
+    const a = Math.abs(tenths);
+    return `${tenths > 0 ? '+' : tenths < 0 ? '-' : ''}${Math.trunc(a / 10)},${a % 10}%`;
+  };
+  // R111: one reason text per n/a cause (never a number that is short or 0)
+  const naText = (
+    reason: UninvoicedNaReason | PreviousUnlinkedNa | null,
+    uninvoiced = false,
+  ): string => {
+    switch (reason) {
+      case 'missing':
+        return fill(l.vsPrevNaMissing!, { n: cmp?.previousMissingDates.length ?? 0 });
+      case 'breakdown-unavailable':
+        return fill(l.vsPrevNaBreakdown!, {
+          n: cmp?.previousBreakdownUnavailableDates.length ?? 0,
+        });
+      case 'current-breakdown-unavailable':
+        return fill(l.vsPrevNaCurrentBreakdown!, {
+          n: cmp?.currentBreakdownUnavailableDates.length ?? 0,
+        });
+      case 'old-schema':
+        return fill(l.vsPrevNaOldSchema!, {
+          n: uninvoiced ? (cmp?.uninvoicedNewMissingDates.length ?? 0) : 0,
+        });
+      case 'no-comparison':
+        return l.vsPrevNone!;
+      default:
+        return l.vsPrevNaNoData!;
+    }
+  };
+  const change = (m: MetricComparison | undefined, fmt: (n: number) => string): string => {
+    if (!cmp || !m) return l.vsPrevNone!;
+    if (m.state === 'na') return naText(cmp.naReason ?? 'no-data');
+    const abs = `${sign(m.deltaAbs!)}${fmt(m.deltaAbs!)}`;
+    if (m.state === 'none') return l.vsPrevBothZero!;
+    if (m.state === 'new') return fill(l.vsPrevNew!, { abs });
+    return fill(l.vsPrev!, { change: fill(l.vsPrevAbs!, { pct: pctOf(m.deltaBp!), abs }) });
   };
   return (
     <RptPage {...head}>
@@ -122,28 +157,35 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
               cur: `${dmy(cmp.currentRange.from)} - ${dmy(cmp.currentRange.to)}`,
               curDays: cmp.currentDays,
               prev: `${dmy(cmp.previousRange.from)} - ${dmy(cmp.previousRange.to)}`,
-              prevDays: cmp.days,
+              prevDays: cmp.previousDays,
             })
-          : l.vsPrevNa}
+          : l.vsPrevNone}
+        {cmp?.lengthDiffers ? (
+          <> {fill(l.vsPrevLength!, { curDays: cmp.currentDays, prevDays: cmp.previousDays })}</>
+        ) : null}
       </Note>
-      {cmp && cmp.missingDates.length > 0 ? (
-        <Note tone="warning" testId="monthly-prev-missing">
-          {fill(l.vsPrevMissing!, { n: cmp.missingDates.length })}
+      {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
+      {d.previousUnlinked ? <UnlinkedNote u={d.previousUnlinked} labels={l} previous /> : null}
+      {d.previousUnlinkedNa ? (
+        <Note tone="warning" testId="rpt-unlinked-previous-na">
+          <strong>{l.unlinkedPreviousTitle}</strong>{' '}
+          {naText(
+            d.previousUnlinkedNa === 'no-comparison' ? 'no-comparison' : d.previousUnlinkedNa,
+          )}
         </Note>
       ) : null}
-      {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
           value={money(r.revenue.exTaxVnd)}
           formula={l.fRevenue!}
-          meta={<span data-testid="m-revenue-delta">{change(cmp?.deltaBp.exTaxVnd)}</span>}
+          meta={<span data-testid="m-revenue-delta">{change(cmp?.metrics.exTaxVnd, money)}</span>}
           testId="m-revenue"
         />
         <Kpi
           label={l.kOrders!}
           value={String(r.orders.closed)}
-          meta={<span data-testid="m-closed-delta">{change(cmp?.deltaBp.closed)}</span>}
+          meta={<span data-testid="m-closed-delta">{change(cmp?.metrics.closed, String)}</span>}
           testId="m-closed"
         />
         <Kpi
@@ -153,7 +195,33 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
           testId="m-avg"
         />
         {d.visible.money ? (
-          <Kpi label={l.kInflow!} value={money(r.money.inflowVnd)} testId="m-inflow" />
+          <Kpi
+            label={l.kInflow!}
+            value={money(r.money.inflowVnd)}
+            meta={<span data-testid="m-inflow-delta">{change(cmp?.metrics.inflowVnd, money)}</span>}
+            testId="m-inflow"
+          />
+        ) : null}
+        {d.visible.invoices ? (
+          <Kpi
+            label={l.kUninvoicedNew!}
+            value={
+              cmp && cmp.uninvoicedNewNaReason === null
+                ? String(cmp.metrics.uninvoicedNew.current)
+                : l.na!
+            }
+            formula={l.fUninvoicedNew!}
+            meta={
+              <span data-testid="m-uninvoiced-delta">
+                {!cmp
+                  ? l.vsPrevNone
+                  : cmp.metrics.uninvoicedNew.state === 'na'
+                    ? naText(cmp.uninvoicedNewNaReason ?? 'no-data', true)
+                    : change(cmp.metrics.uninvoicedNew, String)}
+              </span>
+            }
+            testId="m-uninvoiced"
+          />
         ) : null}
       </Kpis>
       <div className="rpt-two">

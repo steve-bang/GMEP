@@ -254,8 +254,37 @@ describe('FR-RPT-003 daily rollup math', () => {
       issuedVnd: 3_240_000,
       closedWithoutInvoiceCount: 1,
       closedWithoutInvoiceVnd: 540_000,
+      completedWithoutInvoiceCount: 1,
     });
     expect(r.refs.notInvoiced.map((x) => x.id)).toEqual(['3']);
+    expect(r.schemaVersion).toBe(5);
+  });
+
+  it('R114: the day flow counts only orders completed ON the date; an older uninvoiced order is backlog, not flow', () => {
+    // completed the day before, never invoiced: in the end-of-day backlog, not in the day's flow
+    const f: DayFacts = {
+      ...facts(),
+      orders: [
+        ...facts().orders,
+        order('6', {
+          createdAt: at('08:00', '2026-11-02'),
+          completedAt: at('15:00', '2026-11-02'),
+          totalVnd: 700_000,
+          serviceType: 'maintenance',
+        }),
+      ],
+    };
+    const x = run(f);
+    expect(x.invoices.closedWithoutInvoiceCount).toBe(2);
+    expect(x.invoices.completedWithoutInvoiceCount).toBe(1);
+    // the flow is part of the backlog by the same test: an open request or a valid invoice removes it from both
+    (f.invoiceStates as Map<string, unknown>).set('3', { valid: false, requestOpen: true });
+    expect(run(f).invoices.completedWithoutInvoiceCount).toBe(0);
+    expect(run(f).invoices.closedWithoutInvoiceCount).toBe(1);
+    // per service type, same definition (R114 with the service-type filter)
+    const m = x.byServiceType!.find((s) => s.serviceType === 'maintenance')!;
+    expect(m.notInvoicedCount).toBe(1);
+    expect(m.completedNotInvoicedCount).toBe(0);
   });
 
   it('an order whose issue request is still in the queue is not "missing"', () => {

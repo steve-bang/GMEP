@@ -7,7 +7,11 @@ import {
   deltaBp,
   monthDates,
   previousMonth,
-  comparisonDays,
+  comparisonPeriod,
+  COMPARED_METRICS,
+  DEFAULT_COMPARISON,
+  emptyServiceRollup,
+  forServiceType,
   type WorkItemFact,
 } from '@/modules/rpt';
 
@@ -53,6 +57,8 @@ const day = (date: string, o: Partial<Record<string, number>> = {}, official = t
     issuedVnd: 0,
     closedWithoutInvoiceCount: o.notInv ?? 0,
     closedWithoutInvoiceVnd: 0,
+    // R114: absent when the test passes `noFlow` (a rollup older than schema 5)
+    ...(o.noFlow ? {} : { completedWithoutInvoiceCount: o.newNotInv ?? 0 }),
   },
   stock: { issueDocuments: o.gin ?? 0, issuesWithoutSource: o.noSrc ?? 0 },
   cash: { shiftsClosed: 0, shiftsWithVariance: o.shiftVar ?? 0, varianceVnd: 0 },
@@ -105,43 +111,49 @@ describe('monthly report (FR-RPT-002)', () => {
   });
 });
 
-describe('monthly comparison with the previous month (FR-RPT-002)', () => {
+describe('monthly comparison with the previous month (FR-RPT-002, AC-RPT-002-1..7, R110..R114)', () => {
+  const K = DEFAULT_COMPARISON;
+  const mk = (month: string, today: string, rows: Day[]) => {
+    const period = comparisonPeriod(K, month, today)!;
+    return { period, rows };
+  };
   const cur = [
-    day('2026-11-01', {
-      closed: 3,
-      labor: 1_000_000,
-      parts: 500_000,
-      total: 1_620_000,
-      cash: 900_000,
-    }),
-    day('2026-11-02', { closed: 1, labor: 500_000, parts: 0, total: 540_000, cash: 100_000 }),
+    day('2026-11-01', { closed: 3, labor: 1_000_000, parts: 500_000, cash: 900_000 }),
+    day('2026-11-02', { closed: 1, labor: 500_000, parts: 0, cash: 100_000 }),
   ];
-  const prevDays = (extra: Day[] = []) => [
-    day('2026-10-01', {
-      closed: 2,
-      labor: 800_000,
-      parts: 200_000,
-      total: 1_080_000,
-      cash: 1_000_000,
-    }),
-    day('2026-10-02', {
-      closed: 2,
-      labor: 700_000,
-      parts: 300_000,
-      total: 1_080_000,
-      cash: 500_000,
-    }),
-    // beyond throughDay: must not count
-    day('2026-10-20', { closed: 50, labor: 9_000_000, total: 9_720_000, cash: 9_000_000 }),
-    ...extra,
+  // days 1..2 of October: closed 4, exTax 2_000_000, inflow 1_500_000
+  const oct = (): Day[] => [
+    day('2026-10-01', { closed: 2, labor: 800_000, parts: 200_000, cash: 1_000_000 }),
+    day('2026-10-02', { closed: 2, labor: 700_000, parts: 300_000, cash: 500_000 }),
   ];
 
-  it('comparisonDays: running month = days elapsed, finished month = its own length (April 30, not 31), future = 0', () => {
-    expect(comparisonDays('2026-11', '2026-11-04')).toBe(4);
-    expect(comparisonDays('2026-04', '2026-05-10')).toBe(30);
-    expect(comparisonDays('2026-03', '2026-05-10')).toBe(31);
-    expect(comparisonDays('2024-02', '2026-05-10')).toBe(29);
-    expect(comparisonDays('2027-01', '2026-11-04')).toBe(0);
+  it('R110: the default kind is previous-month-same-days and the compared metrics are declared once (R114)', () => {
+    expect(DEFAULT_COMPARISON).toBe('previous-month-same-days');
+    expect(COMPARED_METRICS).toEqual(['exTaxVnd', 'closed', 'inflowVnd', 'uninvoicedNew']);
+  });
+
+  it('R112: a running month compares days 1..N with 1..N; a finished month compares whole with whole (April 30, leap February 29)', () => {
+    expect(comparisonPeriod(K, '2026-11', '2026-11-02')).toMatchObject({
+      month: '2026-10',
+      current: { from: '2026-11-01', to: '2026-11-02' },
+      previous: { from: '2026-10-01', to: '2026-10-02' },
+    });
+    expect(comparisonPeriod(K, '2026-05', '2026-06-10')).toMatchObject({
+      month: '2026-04',
+      current: { from: '2026-05-01', to: '2026-05-31' },
+      previous: { from: '2026-04-01', to: '2026-04-30' },
+    });
+    expect(comparisonPeriod(K, '2026-03', '2026-05-10')).toMatchObject({
+      previous: { from: '2026-02-01', to: '2026-02-28' },
+    });
+    expect(comparisonPeriod(K, '2028-03', '2028-05-10')!.previous.to).toBe('2028-02-29');
+    // a running month later than the earlier month is long: the earlier month is taken whole
+    expect(comparisonPeriod(K, '2026-03', '2026-03-31')).toMatchObject({
+      current: { from: '2026-03-01', to: '2026-03-31' },
+      previous: { from: '2026-02-01', to: '2026-02-28' },
+    });
+    expect(comparisonPeriod(K, '2027-01', '2026-11-04')).toBeNull();
+    expect(comparisonPeriod(K, '2026-01', '2026-01-15')!.month).toBe('2025-12');
   });
 
   it('previousMonth rolls the year over', () => {
@@ -149,117 +161,313 @@ describe('monthly comparison with the previous month (FR-RPT-002)', () => {
     expect(previousMonth('2026-01')).toBe('2025-12');
   });
 
-  it('rounds percent changes to integer basis points, away from zero, and is null when the base is 0', () => {
+  it('R113: percent in integer basis points, exact ties half up toward +infinity, null when the base is 0', () => {
     expect(deltaBp(150, 100)).toBe(5000);
     expect(deltaBp(80, 100)).toBe(-2000);
     expect(deltaBp(1, 3)).toBe(-6667); // -66.666..% -> -6667 bp
     expect(deltaBp(2, 3)).toBe(-3333);
     expect(deltaBp(1, 8)).toBe(-8750);
+    expect(deltaBp(1, 16)).toBe(-9375);
+    expect(deltaBp(1, 32)).toBe(-9687); // -96.875% = -9687.5 bp: tie rounds up (toward +infinity), not away from zero
+    expect(deltaBp(33, 32)).toBe(313); // +3.125% = 312.5 bp
+    expect(deltaBp(31, 32)).toBe(-312); // -3.125% = -312.5 bp: tie up gives -312 (the positive twin gives +313)
+    expect(deltaBp(-1, 8)).toBe(-11250);
     expect(deltaBp(5, 0)).toBeNull();
     expect(deltaBp(0, 0)).toBeNull();
-    expect(deltaBp(-1, 8)).toBe(-11250);
+    // exact on large VND amounts (no float drift)
+    expect(deltaBp(1_000_000_000_001, 1_000_000_000_000)).toBe(0);
+    expect(deltaBp(9_000_000_000_000, 3_000_000_000_000)).toBe(20_000);
   });
 
-  it('hand example: same day range only, increase and decrease', () => {
-    const m = computeMonthly('2026-11', cur, { month: '2026-10', rows: prevDays(), throughDay: 2 });
+  it('AC-002-5 hand example: increase and decrease, absolute change next to the percent', () => {
+    const m = computeMonthly('2026-11', cur, mk('2026-11', '2026-11-02', oct()));
     const c = m.comparison!;
-    expect(c).toMatchObject({ month: '2026-10', days: 2, present: 2, missingDates: [] });
-    expect(c.orders.closed).toBe(4);
-    expect(c.revenue.exTaxVnd).toBe(2_000_000);
-    expect(c.deltaBp.closed).toBe(0);
-    expect(c.deltaBp.exTaxVnd).toBe(0);
-    // total 2_160_000 -> 2_160_000
-    expect(c.deltaBp.orderTotalVnd).toBe(0);
-    // inflow 1.0M vs 1.5M = -33.33% ; avg 500_000 vs 500_000
-    expect(c.deltaBp.inflowVnd).toBe(-3333);
-    expect(c.deltaBp.avgPerOrderVnd).toBe(0);
-    const up = computeMonthly('2026-11', cur, {
+    expect(c).toMatchObject({
       month: '2026-10',
-      rows: [
-        day('2026-10-01', { closed: 2, labor: 600_000, parts: 0, total: 648_000, cash: 400_000 }),
-      ],
-      throughDay: 1,
+      currentDays: 2,
+      previousDays: 2,
+      lengthDiffers: false,
+      previousPresent: 2,
+      previousMissingDates: [],
+      previousBreakdownUnavailableDates: [],
+      currentBreakdownUnavailableDates: [],
+      naReason: null,
     });
-    // exTax 2_000_000 vs 600_000 = +233.33%; closed 4 vs 2 = +100%; avg 500_000 vs 300_000 = +66.67%
-    expect(up.comparison!.deltaBp.exTaxVnd).toBe(23_333);
-    expect(up.comparison!.deltaBp.closed).toBe(10_000);
-    expect(up.comparison!.deltaBp.avgPerOrderVnd).toBe(6667);
-  });
-
-  it('a previous month missing days in the range is reported, not counted as zero', () => {
-    const m = computeMonthly('2026-11', cur, {
-      month: '2026-10',
-      rows: [day('2026-10-02', { closed: 1, labor: 1_000_000 })],
-      throughDay: 3,
+    // exTax 2_000_000 vs 2_000_000: same, 0 bp, 0 absolute
+    expect(c.metrics.exTaxVnd).toEqual({
+      current: 2_000_000,
+      previous: 2_000_000,
+      deltaAbs: 0,
+      deltaBp: 0,
+      state: 'ok',
     });
-    expect(m.comparison!.present).toBe(1);
-    expect(m.comparison!.missingDates).toEqual(['2026-10-01', '2026-10-03']);
-  });
-
-  it('is n/a when the previous month has no rollup in the range, none was given, or the range is empty', () => {
-    expect(computeMonthly('2026-11', cur).comparison).toBeNull();
-    expect(
-      computeMonthly('2026-11', cur, { month: '2026-10', rows: [], throughDay: 5 }).comparison,
-    ).toBeNull();
-    expect(
-      computeMonthly('2026-11', cur, { month: '2026-10', rows: prevDays(), throughDay: 0 })
-        .comparison,
-    ).toBeNull();
-    // a previous month of all zeros: the base is 0, so the change is null (never a division by zero)
-    const zero = computeMonthly('2026-11', cur, {
-      month: '2026-10',
-      rows: [day('2026-10-01')],
-      throughDay: 1,
+    // closed 4 vs 4
+    expect(c.metrics.closed).toMatchObject({ deltaAbs: 0, deltaBp: 0 });
+    // inflow 1.0M vs 1.5M = -500_000 = -33.33%
+    expect(c.metrics.inflowVnd).toEqual({
+      current: 1_000_000,
+      previous: 1_500_000,
+      deltaAbs: -500_000,
+      deltaBp: -3333,
+      state: 'ok',
     });
-    expect(zero.comparison!.deltaBp.exTaxVnd).toBeNull();
-    expect(zero.comparison!.deltaBp.closed).toBeNull();
-  });
-
-  it('Q-A: both concrete date ranges are labelled; running month day 15 compares days 1..15; March (31) against February (28) takes all of February', () => {
-    const run = computeMonthly('2026-11', cur, {
-      month: '2026-10',
-      rows: prevDays(),
-      throughDay: 15,
-    });
-    expect(run.comparison).toMatchObject({
-      currentRange: { from: '2026-11-01', to: '2026-11-15' },
-      previousRange: { from: '2026-10-01', to: '2026-10-15' },
-      currentDays: 15,
-      days: 15,
-    });
-    const mar = computeMonthly(
-      '2026-03',
-      cur.map((d) => ({ ...d, date: d.date.replace('2026-11', '2026-03') })),
-      {
-        month: '2026-02',
-        rows: [day('2026-02-10', { closed: 1, labor: 100_000 })],
-        throughDay: 31,
-      },
+    const up = computeMonthly(
+      '2026-11',
+      cur,
+      mk('2026-11', '2026-11-01', [
+        day('2026-10-01', { closed: 2, labor: 600_000, parts: 0, cash: 400_000 }),
+      ]),
     );
-    expect(mar.comparison).toMatchObject({
+    // today is day 1, so only day 1 of November counts: exTax 1_500_000 vs 600_000 = +150%; closed 3 vs 2 = +50%
+    expect(up.comparison!.metrics.exTaxVnd).toMatchObject({ deltaAbs: 900_000, deltaBp: 15_000 });
+    expect(up.comparison!.metrics.closed).toMatchObject({ deltaAbs: 1, deltaBp: 5000 });
+  });
+
+  it('rollups outside the compared ranges never count (day 20 of October when the range is days 1..2)', () => {
+    const m = computeMonthly(
+      '2026-11',
+      cur,
+      mk('2026-11', '2026-11-02', [
+        ...oct(),
+        day('2026-10-20', { closed: 50, labor: 9_000_000, cash: 9_000_000 }),
+      ]),
+    );
+    expect(m.comparison!.metrics.closed.previous).toBe(4);
+  });
+
+  it('R111: a previous range missing days is n/a with the reason and the number of days, never zero and no percent', () => {
+    const m = computeMonthly(
+      '2026-11',
+      cur,
+      mk('2026-11', '2026-11-03', [day('2026-10-02', { closed: 1, labor: 1_000_000 })]),
+    );
+    const c = m.comparison!;
+    expect(c.naReason).toBe('missing');
+    expect(c.previousPresent).toBe(1);
+    expect(c.previousMissingDates).toEqual(['2026-10-01', '2026-10-03']);
+    for (const k of COMPARED_METRICS)
+      expect(c.metrics[k]).toMatchObject({
+        previous: null,
+        deltaAbs: null,
+        deltaBp: null,
+        state: 'na',
+      });
+    // the current period still shows normally
+    expect(c.metrics.exTaxVnd.current).toBe(2_000_000);
+    expect(m.revenue.exTaxVnd).toBe(2_000_000);
+  });
+
+  it('R111: no rollup at all in the previous range is n/a with reason no-data; nothing asked gives no comparison', () => {
+    const none = computeMonthly('2026-11', cur, mk('2026-11', '2026-11-05', []));
+    expect(none.comparison!.naReason).toBe('no-data');
+    expect(none.comparison!.metrics.exTaxVnd.state).toBe('na');
+    expect(computeMonthly('2026-11', cur).comparison).toBeNull();
+  });
+
+  it('R113: previous 0 with data and current > 0 is "new" (no percent, absolute kept); both 0 is "none"; never infinite', () => {
+    const zeroPrev = computeMonthly(
+      '2026-11',
+      cur,
+      mk('2026-11', '2026-11-02', [day('2026-10-01'), day('2026-10-02')]),
+    );
+    expect(zeroPrev.comparison!.metrics.exTaxVnd).toEqual({
+      current: 2_000_000,
+      previous: 0,
+      deltaAbs: 2_000_000,
+      deltaBp: null,
+      state: 'new',
+    });
+    expect(zeroPrev.comparison!.metrics.closed).toMatchObject({ deltaAbs: 4, state: 'new' });
+    const both = computeMonthly(
+      '2026-11',
+      [day('2026-11-01'), day('2026-11-02')],
+      mk('2026-11', '2026-11-02', [day('2026-10-01'), day('2026-10-02')]),
+    );
+    expect(both.comparison!.metrics.exTaxVnd).toEqual({
+      current: 0,
+      previous: 0,
+      deltaAbs: 0,
+      deltaBp: null,
+      state: 'none',
+    });
+    // current 0, previous > 0: -100.00%
+    const gone = computeMonthly(
+      '2026-11',
+      [day('2026-11-01'), day('2026-11-02')],
+      mk('2026-11', '2026-11-02', oct()),
+    );
+    expect(gone.comparison!.metrics.closed).toMatchObject({ deltaAbs: -4, deltaBp: -10_000 });
+  });
+
+  it('R114: orders completed without an invoice is a flow: sums the day figures, compares like the others', () => {
+    const m = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { newNotInv: 3 }), day('2026-11-02', { newNotInv: 1 })],
+      mk('2026-11', '2026-11-02', [
+        day('2026-10-01', { newNotInv: 2 }),
+        day('2026-10-02', { newNotInv: 2 }),
+      ]),
+    );
+    expect(m.comparison!.uninvoicedNewMissingDates).toEqual([]);
+    expect(m.comparison!.metrics.uninvoicedNew).toEqual({
+      current: 4,
+      previous: 4,
+      deltaAbs: 0,
+      deltaBp: 0,
+      state: 'ok',
+    });
+    const worse = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { newNotInv: 6 }), day('2026-11-02')],
+      mk('2026-11', '2026-11-02', [day('2026-10-01', { newNotInv: 4 }), day('2026-10-02')]),
+    );
+    expect(worse.comparison!.metrics.uninvoicedNew).toMatchObject({ deltaAbs: 2, deltaBp: 5000 });
+  });
+
+  it('R114/R111: a day built before schema 5 has no flow field: that metric is n/a (never 0), the others still compare', () => {
+    const m = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { newNotInv: 3 }), day('2026-11-02', { newNotInv: 1 })],
+      mk('2026-11', '2026-11-02', [
+        day('2026-10-01', { newNotInv: 2 }),
+        day('2026-10-02', { noFlow: 1, closed: 1 }),
+      ]),
+    );
+    const c = m.comparison!;
+    expect(c.naReason).toBeNull();
+    expect(c.uninvoicedNewMissingDates).toEqual(['2026-10-02']);
+    expect(c.metrics.uninvoicedNew).toMatchObject({
+      previous: null,
+      deltaAbs: null,
+      deltaBp: null,
+      state: 'na',
+      current: 4,
+    });
+    expect(c.metrics.closed.state).not.toBe('na');
+    // the same on the current side: a current day without the field would understate the figure
+    const cu = computeMonthly(
+      '2026-11',
+      [day('2026-11-01', { noFlow: 1 }), day('2026-11-02')],
+      mk('2026-11', '2026-11-02', oct()),
+    );
+    expect(cu.comparison!.uninvoicedNewMissingDates).toEqual(['2026-11-01']);
+    expect(cu.comparison!.metrics.uninvoicedNew.state).toBe('na');
+  });
+
+  it('R114 with a service type: a schema 4 day is n/a, a schema 5 day without that type is 0', () => {
+    const base = day('2026-10-01');
+    const v5 = {
+      ...base,
+      schemaVersion: 5 as const,
+      byServiceType: [{ ...emptyServiceRollup('maintenance'), completedNotInvoicedCount: 2 }],
+    };
+    const v4 = { ...base, date: '2026-10-02', schemaVersion: 4 as const, byServiceType: [] };
+    const n = forServiceType([v5, v4], 'maintenance');
+    expect(n.rolls[0]!.invoices.completedWithoutInvoiceCount).toBe(2);
+    expect(n.rolls[1]!.invoices.completedWithoutInvoiceCount).toBeUndefined();
+    const other = forServiceType([v5], 'tires');
+    expect(other.rolls[0]!.invoices.completedWithoutInvoiceCount).toBe(0);
+  });
+
+  describe('R111: n/a is never a short sum or 0 (service-type breakdown, schema < 4 / < 5, future month)', () => {
+    const v = (date: string, schemaVersion: 3 | 4 | 5, completed = 0): Day =>
+      ({
+        ...day(date, { closed: 1, labor: 100_000 }),
+        schemaVersion,
+        byServiceType: [
+          { ...emptyServiceRollup('maintenance'), completedNotInvoicedCount: completed },
+        ],
+      }) as Day;
+    const period = comparisonPeriod(K, '2026-11', '2026-11-02')!;
+    const run = (curRows: Day[], prevRows: Day[]) => {
+      const c = forServiceType(curRows, 'maintenance');
+      const p = forServiceType(prevRows, 'maintenance');
+      return computeMonthly(
+        '2026-11',
+        c.rolls,
+        { period, rows: p.rolls, unavailableDates: p.unavailableDates },
+        c.unavailableDates,
+      ).comparison!;
+    };
+
+    it('a schema 4 day in the current range makes the uninvoiced flow n/a (not the short sum)', () => {
+      const c = run(
+        [v('2026-11-01', 5, 3), v('2026-11-02', 4)],
+        [v('2026-10-01', 5, 1), v('2026-10-02', 5, 1)],
+      );
+      expect(c.uninvoicedNewNaReason).toBe('old-schema');
+      expect(c.metrics.uninvoicedNew).toMatchObject({ previous: null, state: 'na' });
+      expect(c.metrics.closed.state).not.toBe('na');
+    });
+
+    it('a schema 3 day in the current range is a breakdown-unavailable day, uninvoiced flow n/a with its own reason', () => {
+      const c = run(
+        [v('2026-11-01', 5, 3), v('2026-11-02', 3)],
+        [v('2026-10-01', 5, 1), v('2026-10-02', 5, 1)],
+      );
+      expect(c.currentBreakdownUnavailableDates).toEqual(['2026-11-02']);
+      expect(c.uninvoicedNewNaReason).toBe('current-breakdown-unavailable');
+    });
+
+    it('previous range schema < 4 under a type filter: breakdown-unavailable, not missing', () => {
+      const c = run(
+        [v('2026-11-01', 5, 3), v('2026-11-02', 5, 3)],
+        [v('2026-10-01', 3), v('2026-10-02', 5, 1)],
+      );
+      expect(c.naReason).toBe('breakdown-unavailable');
+      expect(c.previousMissingDates).toEqual([]);
+      expect(c.previousBreakdownUnavailableDates).toEqual(['2026-10-01']);
+      expect(c.uninvoicedNewNaReason).toBe('breakdown-unavailable');
+      for (const k of COMPARED_METRICS) expect(c.metrics[k].state).toBe('na');
+    });
+
+    it('previous range: truly absent day stays missing, whole range empty stays no-data, mixed is missing', () => {
+      expect(run([v('2026-11-01', 5), v('2026-11-02', 5)], [v('2026-10-02', 5)]).naReason).toBe(
+        'missing',
+      );
+      expect(run([v('2026-11-01', 5)], []).naReason).toBe('no-data');
+      const mixed = run([v('2026-11-01', 5)], [v('2026-10-01', 3)]);
+      expect(mixed.naReason).toBe('missing');
+      expect(mixed.previousMissingDates).toEqual(['2026-10-02']);
+      expect(mixed.previousBreakdownUnavailableDates).toEqual(['2026-10-01']);
+    });
+
+    it('without a filter nothing is breakdown-unavailable', () => {
+      const m = computeMonthly('2026-11', cur, mk('2026-11', '2026-11-02', oct())).comparison!;
+      expect(m.previousBreakdownUnavailableDates).toEqual([]);
+      expect(m.currentBreakdownUnavailableDates).toEqual([]);
+      expect(m.uninvoicedNewNaReason).toBeNull();
+    });
+
+    it('a future month has no comparison at all', () => {
+      expect(comparisonPeriod(K, '2027-01', '2026-11-02')).toBeNull();
+      expect(computeMonthly('2027-01', []).comparison).toBeNull();
+    });
+  });
+
+  it('R112: both concrete ranges are present; a shorter earlier month is taken whole and labelled (March vs February)', () => {
+    const march = cur.map((d) => ({ ...d, date: d.date.replace('2026-11', '2026-03') }));
+    const m = computeMonthly('2026-03', march, {
+      period: comparisonPeriod(K, '2026-03', '2026-03-31')!,
+      rows: [day('2026-02-10', { closed: 1, labor: 100_000 })],
+    });
+    expect(m.comparison).toMatchObject({
       currentRange: { from: '2026-03-01', to: '2026-03-31' },
       previousRange: { from: '2026-02-01', to: '2026-02-28' },
       currentDays: 31,
-      days: 28,
+      previousDays: 28,
+      lengthDiffers: true,
+      naReason: 'missing',
     });
+    expect(m.comparison!.previousMissingDates).toHaveLength(27);
   });
 
-  it('Q-A: a new branch without a previous month has no comparison (no division by zero, no infinite percent)', () => {
-    const m = computeMonthly('2026-11', cur, { month: '2026-10', rows: [], throughDay: 30 });
-    expect(m.comparison).toBeNull();
-  });
-
-  it('throughDay beyond the length of the earlier month is capped (31 days vs February)', () => {
-    const m = computeMonthly(
-      '2026-03',
-      cur.map((d) => ({ ...d, date: d.date.replace('2026-11', '2026-03') })),
-      {
-        month: '2026-02',
-        rows: [day('2026-02-28', { closed: 1, labor: 100_000 })],
-        throughDay: 31,
-      },
-    );
-    expect(m.comparison!.days).toBe(28);
+  it('R108 shape: the figures compared are the same ones the report shows, so type lines + unlinked = unfiltered holds per period', () => {
+    // the comparison reads exactly the rows it is given (narrowed or not): no extra source
+    const rows = cur;
+    const m = computeMonthly('2026-11', rows, mk('2026-11', '2026-11-02', oct()));
+    expect(m.comparison!.metrics.exTaxVnd.current).toBe(m.revenue.exTaxVnd);
+    expect(m.comparison!.metrics.inflowVnd.current).toBe(m.money.inflowVnd);
   });
 });
 

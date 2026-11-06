@@ -3,6 +3,7 @@ import { businessDate } from '@/platform/format/date';
 import { buildXlsx } from '@/platform/files/xlsxWriter';
 import { hasPermission, type Actor } from '@/platform/rbac/rbac';
 import { ALERT_KINDS, type UnlinkedRollup } from '../domain/rollup';
+import { COMPARED_METRICS, type MonthComparison } from '../domain/reports';
 import type { RptDeps } from '../ports/deps';
 import { ALERT_PERMISSION } from './read';
 import { getMonthly, getReconcile, getTechnicians, getWarehouse } from './reports';
@@ -176,7 +177,67 @@ function unlinkedFlat(u: UnlinkedRollup): Record<string, number> {
 const unlinkedRows = (
   u: UnlinkedRollup | null,
   row: (code: string, v: Cell) => Cell[],
-): Cell[][] => (u ? Object.entries(unlinkedFlat(u)).map(([k, v]) => row(k, v)) : []);
+  prefix = 'unlinked',
+): Cell[][] =>
+  u
+    ? Object.entries(unlinkedFlat(u)).map(([k, v]) =>
+        row(k.replace(/^unlinked\./, `${prefix}.`), v),
+      )
+    : [];
+
+/** FR-RPT-002 / R112: both date ranges always, then per compared metric the earlier value, absolute and percent change. */
+function comparisonRows(
+  c: MonthComparison | null,
+  showMoney: boolean,
+  showInvoices: boolean,
+  row: (code: string, v: Cell) => Cell[],
+): Cell[][] {
+  if (!c) return [];
+  const rows: Cell[][] = [
+    row('compare.month', c.month),
+    row('compare.currentRange', `${c.currentRange.from} .. ${c.currentRange.to}`),
+    row('compare.previousRange', `${c.previousRange.from} .. ${c.previousRange.to}`),
+    row('compare.days', `${c.currentDays} / ${c.previousDays}`),
+  ];
+  // R111: n/a is written with its reason, never as 0
+  if (c.naReason === 'no-data') rows.push(row('compare.na', lbl('compare.na.noData')));
+  if (c.naReason === 'missing')
+    rows.push(row('compare.na', `${lbl('compare.na.missing')} ${c.previousMissingDates.length}`));
+  if (c.naReason === 'breakdown-unavailable')
+    rows.push(
+      row(
+        'compare.na',
+        `${lbl('compare.na.breakdown')} ${c.previousBreakdownUnavailableDates.length}`,
+      ),
+    );
+  if (showInvoices && c.uninvoicedNewNaReason === 'old-schema')
+    rows.push(
+      row(
+        'compare.uninvoicedNew.na',
+        `${lbl('compare.na.oldSchema')} ${c.uninvoicedNewMissingDates.length}`,
+      ),
+    );
+  if (showInvoices && c.uninvoicedNewNaReason === 'current-breakdown-unavailable')
+    rows.push(
+      row(
+        'compare.uninvoicedNew.na',
+        `${lbl('compare.na.currentBreakdown')} ${c.currentBreakdownUnavailableDates.length}`,
+      ),
+    );
+  for (const m of COMPARED_METRICS) {
+    if (m === 'inflowVnd' && !showMoney) continue;
+    if (m === 'uninvoicedNew' && !showInvoices) continue;
+    const x = c.metrics[m];
+    rows.push(
+      row(`compare.${m}.previous`, x.previous),
+      row(`compare.${m}.deltaAbs`, x.deltaAbs),
+      // basis points (100 = 1%), integer; empty when there is no percent (R113)
+      row(`compare.${m}.deltaBp`, x.deltaBp),
+      row(`compare.${m}.state`, lbl(`compare.state.${x.state}`)),
+    );
+  }
+  return rows;
+}
 const lbl = (k: string): string => X[k] ?? k;
 // integers are written as numbers (a leading minus is not a formula); everything else is neutralised
 const cell = (v: Cell): string =>
@@ -265,25 +326,27 @@ export async function exportReport(
             ]
           : []),
         ...(d.visible.stock ? [row('stock.issuesWithoutSource', r.stock.issuesWithoutSource)] : []),
-        ...(r.comparison
+        ...comparisonRows(r.comparison, d.visible.money, d.visible.invoices, row),
+        ...unlinkedRows(d.unlinked, row),
+        // R108: the previous period adds up the same way (type lines + the lines without an order)
+        ...unlinkedRows(d.previousUnlinked, row, 'unlinkedPrevious'),
+        // R111: n/a with its reason, never 0
+        ...(d.previousUnlinkedNa
           ? [
-              row('compare.month', r.comparison.month),
               row(
-                'compare.currentRange',
-                `${r.comparison.currentRange.from} .. ${r.comparison.currentRange.to}`,
+                'unlinkedPrevious.na',
+                lbl(
+                  d.previousUnlinkedNa === 'no-comparison'
+                    ? 'compare.na.noComparison'
+                    : d.previousUnlinkedNa === 'no-data'
+                      ? 'compare.na.noData'
+                      : d.previousUnlinkedNa === 'missing'
+                        ? 'compare.na.missing'
+                        : 'compare.na.breakdown',
+                ),
               ),
-              row(
-                'compare.previousRange',
-                `${r.comparison.previousRange.from} .. ${r.comparison.previousRange.to}`,
-              ),
-              row('compare.days', r.comparison.days),
-              row('compare.closed', r.comparison.orders.closed),
-              row('compare.closed.deltaBp', r.comparison.deltaBp.closed),
-              row('compare.exTaxVnd', r.comparison.revenue.exTaxVnd),
-              row('compare.exTaxVnd.deltaBp', r.comparison.deltaBp.exTaxVnd),
             ]
           : []),
-        ...unlinkedRows(d.unlinked, row),
       ];
       break;
     }

@@ -93,6 +93,10 @@ export function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto
       issuedVnd: 0,
       closedWithoutInvoiceCount: 0,
       closedWithoutInvoiceVnd: 0,
+      // keeps "absent on an old rollup" absent so the comparison stays n/a rather than 0
+      ...(r.invoices.completedWithoutInvoiceCount === undefined
+        ? {}
+        : { completedWithoutInvoiceCount: 0 }),
     };
   if (!can('stock:view')) out.stock = { issueDocuments: 0, issuesWithoutSource: 0 };
   if (!can('cashbook:view')) out.cash = { shiftsClosed: 0, shiftsWithVariance: 0, varianceVnd: 0 };
@@ -107,7 +111,13 @@ export function redact(r: RollupDto, can: (p: Permission) => boolean): RollupDto
         : {}),
       ...(can('invoice:view')
         ? {}
-        : { notInvoicedCount: 0, notInvoicedVnd: 0, invoicesIssuedCount: 0, invoicesIssuedVnd: 0 }),
+        : {
+            notInvoicedCount: 0,
+            notInvoicedVnd: 0,
+            invoicesIssuedCount: 0,
+            invoicesIssuedVnd: 0,
+            ...(e.completedNotInvoicedCount === undefined ? {} : { completedNotInvoicedCount: 0 }),
+          }),
       ...(can('stock:view') ? {} : { stockIssueDocuments: 0 }),
     }));
   if (r.unlinked)

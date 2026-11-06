@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { FieldValue } from 'firebase-admin/firestore';
 import { getDb } from '@/infrastructure/firestore/client';
 import { businessDate } from '@/platform/format/date';
 import { backends, createHarness, type Harness } from './harness';
@@ -161,6 +162,24 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
   }
   const rollup = async (cookie = ql, branch = 'br_q7') =>
     (await get(cookie, `/api/v1/rpt/daily?date=${today}&branchId=${branch}`)).json as Row;
+  /** rewrites a stored rollup as one built before schema 5: no `completedWithoutInvoiceCount`, version 4 */
+  const makeLegacy = async (branch: string, date: string) => {
+    const id = `${branch}_${date.replace(/-/g, '')}`;
+    if (backend === 'memory') {
+      const col = h.container.memory!.db.col<Row>('rollups');
+      const v = col.get(id)!;
+      const inv = { ...v.invoices };
+      delete inv.completedWithoutInvoiceCount;
+      // the old document was hashed without the field, so its hash differs from a rebuilt one
+      col.set(id, { ...v, schemaVersion: 4, invoices: inv, sourceHash: 'legacy-v4' });
+    } else {
+      await getDb(h.container.env).collection('rollups').doc(id).update({
+        schemaVersion: 4,
+        sourceHash: 'legacy-v4',
+        'invoices.completedWithoutInvoiceCount': FieldValue.delete(),
+      });
+    }
+  };
   const stored = async (branch = 'br_q7') =>
     (await rows('rollups')).find((r) => r.id === `${branch}_${today.replace(/-/g, '')}`);
 
@@ -268,6 +287,9 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       // invoices issued vs orders without: A has one, B does not (FR-RPT-004 minimum)
       expect(r.invoices.issuedCount).toBe(1);
       expect(r.invoices.closedWithoutInvoiceCount).toBe(1);
+      // R114: B was completed today, so the backlog of 1 is also today's flow of 1
+      expect(r.invoices.completedWithoutInvoiceCount).toBe(1);
+      expect((await stored())!.schemaVersion).toBe(5);
       // RULE-007: every goods issue has a source document
       expect(r.stock.issuesWithoutSource).toBe(0);
       expect(r.stock.issueDocuments).toBeGreaterThanOrEqual(2);
@@ -286,7 +308,11 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       const run = await post(ql, '/api/v1/rpt/jobs/run-due', {});
       expect(run.json.branches[0].days.find((d: Row) => d.date === today).result).toBe('updated');
       const incremental = await stored();
-      expect(incremental!.invoices).toMatchObject({ issuedCount: 2, closedWithoutInvoiceCount: 0 });
+      expect(incremental!.invoices).toMatchObject({
+        issuedCount: 2,
+        closedWithoutInvoiceCount: 0,
+        completedWithoutInvoiceCount: 0,
+      });
       // rebuild from nothing
       await wipeRollups();
       expect(await stored()).toBeUndefined();
@@ -712,13 +738,201 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(none.json.report.invoices.issuedCount).toBe(0);
     });
 
-    it('FR-RPT-002: the comparison is n/a without rollups of the previous month and for a future month; a rebuilt previous day gives integer basis points', async () => {
+    it('FR-RPT-002 (R110..R113): n/a with a reason without previous rollups, "new" once the previous range is built and empty, both ranges in the CSV, no comparison for a future month', async () => {
       const month = today.slice(0, 7);
-      const m = await get(ql, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`);
-      expect(m.status, m.text).toBe(200);
-      expect(m.json.report.comparison).toBeNull();
+      const n = Number(today.slice(8, 10));
+      const url = `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`;
+      const first = await get(ql, url);
+      expect(first.status, first.text).toBe(200);
+      const c0 = first.json.report.comparison;
+      // R112: today is day N, so days 1..N of both months (the earlier month is taken whole when it is shorter)
+      expect(c0.kind).toBe('previous-month-same-days');
+      expect(c0.currentRange).toEqual({ from: `${month}-01`, to: today });
+      expect(c0.previousRange.from.endsWith('-01')).toBe(true);
+      expect(c0.currentDays).toBe(n);
+      // R111: nothing rebuilt in the previous month: n/a, not zero, no percent
+      expect(c0.naReason).toBe('no-data');
+      expect(c0.metrics.exTaxVnd).toMatchObject({ state: 'na', previous: null, deltaBp: null });
+      expect(first.json.report.revenue.exTaxVnd).toBeGreaterThan(0);
+      // R108/R111: an empty previous period gives no "không gắn lệnh" line for it: n/a with the reason, never 0
+      const f0 = await get(ql, `${url}&serviceType=maintenance`);
+      expect(f0.json.previousUnlinked).toBeNull();
+      expect(f0.json.previousUnlinkedNa).toBe('no-data');
+      expect((await get(ql, url)).json.previousUnlinkedNa).toBeNull();
+
+      // build the whole previous range (empty days: the demo data lives in the current month)
+      const prevDates: string[] = c0.previousRange
+        ? Array.from(
+            { length: c0.previousDays },
+            (_, i) => `${c0.previousRange.from.slice(0, 8)}${String(i + 1).padStart(2, '0')}`,
+          )
+        : [];
+      // one day missing: n/a with the number of days (R111)
+      for (const date of prevDates.slice(1)) {
+        const rb = await post(ql, '/api/v1/rpt/jobs/rebuild', { date, branchId: 'br_q7' });
+        expect(rb.status, rb.text).toBe(200);
+      }
+      const partial = (await get(ql, url)).json.report.comparison;
+      if (prevDates.length > 1) {
+        expect(partial.naReason).toBe('missing');
+        expect(partial.previousMissingDates).toEqual([prevDates[0]]);
+        expect(partial.metrics.closed.state).toBe('na');
+        const fp = await get(ql, `${url}&serviceType=maintenance`);
+        expect(fp.json.previousUnlinked).toBeNull();
+        expect(fp.json.previousUnlinkedNa).toBe('missing');
+      }
+      const rb1 = await post(ql, '/api/v1/rpt/jobs/rebuild', {
+        date: prevDates[0],
+        branchId: 'br_q7',
+      });
+      expect(rb1.status, rb1.text).toBe(200);
+      const full = (await get(ql, url)).json.report.comparison;
+      // R113: the previous range is built and 0, this month > 0: "new", percent null, absolute change kept
+      expect(full.naReason).toBeNull();
+      expect(full.metrics.exTaxVnd).toMatchObject({
+        previous: 0,
+        state: 'new',
+        deltaBp: null,
+      });
+      expect(full.metrics.exTaxVnd.deltaAbs).toBe(full.metrics.exTaxVnd.current);
+      expect(full.metrics.closed.state).toBe('new');
+
+      // R114: the uninvoiced flow is compared too; built days carry it (0 here), so the previous range is comparable
+      expect(full.uninvoicedNewMissingDates).toEqual([]);
+      expect(full.metrics.uninvoicedNew).toMatchObject({ previous: 0 });
+      expect(full.metrics.uninvoicedNew.state).toBe(
+        full.metrics.uninvoicedNew.current > 0 ? 'new' : 'none',
+      );
+      // a previous day stored before schema 5 (no field): that metric is n/a until rebuilt, the others still compare
+      await makeLegacy('br_q7', prevDates[0]!);
+      const legacy = (await get(ql, url)).json.report.comparison;
+      expect(legacy.uninvoicedNewMissingDates).toEqual([prevDates[0]]);
+      expect(legacy.metrics.uninvoicedNew).toMatchObject({
+        state: 'na',
+        previous: null,
+        deltaBp: null,
+      });
+      expect(legacy.metrics.closed.state).toBe('new');
+      // the export says why it is n/a
+      const legacyCsv = await post(ql, '/api/v1/rpt/export', {
+        kind: 'monthly',
+        month,
+        branchId: 'br_q7',
+      });
+      expect(legacyCsv.text).toContain('compare.uninvoicedNew.previous');
+      expect(legacyCsv.text).toContain('compare.uninvoicedNew.na');
+      // a rebuild upgrades the document (the hash differs, so it is written, not "unchanged")
+      const up = await post(ql, '/api/v1/rpt/jobs/rebuild', {
+        date: prevDates[0],
+        branchId: 'br_q7',
+      });
+      expect(up.json.branches[0].days[0].result).toBe('updated');
+      expect((await get(ql, url)).json.report.comparison.metrics.uninvoicedNew.state).not.toBe(
+        'na',
+      );
+
+      // R108 for both periods: the filtered view carries the previous "không gắn lệnh" line, the unfiltered one does not
+      const f = await get(ql, `${url}&serviceType=maintenance`);
+      expect(f.json.previousUnlinked).toMatchObject({ inflowVnd: 0 });
+      expect(f.json.report.comparison.metrics.inflowVnd.previous).toBe(0);
+      expect((await get(ql, url)).json.previousUnlinked).toBeNull();
+
+      // AC-RPT-002-2: the export names both ranges and keeps percent empty (no percent) for "new"
+      const csv = await post(ql, '/api/v1/rpt/export', {
+        kind: 'monthly',
+        month,
+        branchId: 'br_q7',
+      });
+      expect(csv.status, csv.text).toBe(200);
+      expect(csv.text).toContain(`${c0.currentRange.from} .. ${c0.currentRange.to}`);
+      expect(csv.text).toContain(`${c0.previousRange.from} .. ${c0.previousRange.to}`);
+
+      // a future month has no period; an unknown comparison kind is rejected
       const future = await get(ql, `/api/v1/rpt/monthly?month=2099-01&branchId=br_q7`);
       expect(future.json.report.comparison).toBeNull();
+      expect((await get(ql, `${url}&comparison=same-month-last-year`)).status).toBe(422);
+      expect((await get(ql, `${url}&comparison=previous-month-same-days`)).status).toBe(200);
+    });
+  });
+
+  describe('R111: breakdown-unavailable, schema 4 current day, future month (FR-RPT-002, 014)', () => {
+    /** stores a rollup as one built before schema 4: it cannot be split by service type */
+    const makeV3 = async (branch: string, date: string) => {
+      const id = `${branch}_${date.replace(/-/g, '')}`;
+      if (backend === 'memory') {
+        const col = h.container.memory!.db.col<Row>('rollups');
+        col.set(id, { ...col.get(id)!, schemaVersion: 3, sourceHash: 'legacy-v3' });
+      } else {
+        await getDb(h.container.env)
+          .collection('rollups')
+          .doc(id)
+          .update({ schemaVersion: 3, sourceHash: 'legacy-v3' });
+      }
+    };
+    const rebuild = async (date: string) => {
+      const r = await post(ql, '/api/v1/rpt/jobs/rebuild', { date, branchId: 'br_q7' });
+      expect(r.status, r.text).toBe(200);
+    };
+
+    it('previous schema < 4 under a type filter is breakdown-unavailable (not missing), the current schema 4 day makes the uninvoiced flow n/a, a future month has no comparison', async () => {
+      const month = today.slice(0, 7);
+      const url = `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`;
+      const fUrl = `${url}&serviceType=maintenance`;
+      const base = (await get(ql, url)).json.report.comparison;
+      const prevDates: string[] = Array.from(
+        { length: base.previousDays },
+        (_, i) => `${base.previousRange.from.slice(0, 8)}${String(i + 1).padStart(2, '0')}`,
+      );
+      for (const date of prevDates) await rebuild(date);
+      await rebuild(today);
+
+      // complete previous period: a real figure
+      const ok = (await get(ql, fUrl)).json;
+      expect(ok.previousUnlinkedNa).toBeNull();
+      expect(ok.previousUnlinked).not.toBeNull();
+
+      // previous day older than schema 4: the type cannot be split, and it is NOT reported as a missing rollup
+      await makeV3('br_q7', prevDates[0]!);
+      const v3 = (await get(ql, fUrl)).json;
+      expect(v3.report.comparison.naReason).toBe('breakdown-unavailable');
+      expect(v3.report.comparison.previousMissingDates).toEqual([]);
+      expect(v3.report.comparison.previousBreakdownUnavailableDates).toEqual([prevDates[0]]);
+      expect(v3.report.comparison.metrics.closed.state).toBe('na');
+      expect(v3.previousUnlinked).toBeNull();
+      expect(v3.previousUnlinkedNa).toBe('breakdown-unavailable');
+      const csv = await post(ql, '/api/v1/rpt/export', {
+        kind: 'monthly',
+        month,
+        branchId: 'br_q7',
+        serviceType: 'maintenance',
+      });
+      expect(csv.text).toContain('unlinkedPrevious.na');
+      expect(csv.text).toContain('compare.na');
+      expect(csv.text).not.toContain('unlinkedPrevious.inflowVnd');
+      // unfiltered figures do not depend on the split
+      const unf = (await get(ql, url)).json;
+      expect(unf.report.comparison.naReason).toBeNull();
+      expect(unf.previousUnlinkedNa).toBeNull();
+      await rebuild(prevDates[0]!);
+
+      // current day built before schema 5 (schema 4): the uninvoiced flow is n/a, unfiltered and filtered, never a short sum
+      await makeLegacy('br_q7', today);
+      for (const u of [url, fUrl]) {
+        const c = (await get(ql, u)).json.report.comparison;
+        expect(c.uninvoicedNewNaReason).toBe('old-schema');
+        expect(c.metrics.uninvoicedNew.state).toBe('na');
+        expect(c.metrics.closed.state).not.toBe('na');
+      }
+      await rebuild(today);
+      expect((await get(ql, url)).json.report.comparison.uninvoicedNewNaReason).toBeNull();
+
+      // future month: no comparison, the previous "không gắn lệnh" line is n/a with the reason
+      const future = (
+        await get(ql, `/api/v1/rpt/monthly?month=2099-01&branchId=br_q7&serviceType=maintenance`)
+      ).json;
+      expect(future.report.comparison).toBeNull();
+      expect(future.previousUnlinked).toBeNull();
+      expect(future.previousUnlinkedNa).toBe('no-comparison');
     });
   });
 

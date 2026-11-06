@@ -36,6 +36,12 @@ export type {
   Visible,
 } from './application/read';
 export { getMonthly, getReconcile, getWarehouse, getTechnicians } from './application/reports';
-export type { MonthlyDto, ReconcileDto, WarehouseDto, TechniciansDto } from './application/reports';
+export type {
+  MonthlyDto,
+  PreviousUnlinkedNa,
+  ReconcileDto,
+  WarehouseDto,
+  TechniciansDto,
+} from './application/reports';
 export { exportDaily, exportDailyCsv, exportReport, exportReportCsv } from './application/export';
 export { rptPolicyOf } from './application/support';
