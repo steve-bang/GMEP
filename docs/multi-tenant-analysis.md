@@ -1,10 +1,107 @@
 # GMEP – Phân tích nghiệp vụ Multi-tenant (BA)
 
-- **Trạng thái:** Nháp BA v2 (cập nhật 05/11/2026 theo quyết định mới của khách hàng, xem mục 0). **Multi-tenant là yêu cầu thiết kế từ đầu**: phần "nền" (đợt MT-0) thuộc Phase 1; tự đăng ký, gói dịch vụ và thu tiền làm theo các đợt MT-1 đến MT-3 (mục 17). Các mã FR-TEN chưa được nhập vào FRD/BRD và chưa build. CLAUDE.md và ADR 0002 vẫn ghi "tương lai, không build, tự đăng ký/billing ngoài mục tiêu" nên đang **lệch** với quyết định này (mục 19 M11, mục 20).
-- **Ngày:** 05/11/2026
+- **Trạng thái:** Nháp BA v3 (06/11/2026: thêm mục 0A "Quyết định hiện hành" và hợp nhất bản tối giản v0.2; nội dung v2 ngày 05/11/2026 giữ nguyên bên dưới). **Multi-tenant là yêu cầu thiết kế từ đầu**: phần "nền" (đợt MT-0) thuộc Phase 1; tự đăng ký, gói dịch vụ và thu tiền làm theo các đợt MT-1 đến MT-3 (mục 17). **Từ 06/11/2026 các mã BR-TEN, RULE-016 đến 034, FR-TEN-001 đến 055, NFR-TEN, UAT-TEN-01 đến 22 đã được nhập vào BRD/FRD** (bản 0.4, vẫn là đề xuất chờ xác nhận) và CLAUDE.md, ADR 0002 đã được ghi chú theo quyết định 05/11/2026; chưa build phần nào ngoài nền hiện có.
+- **Đọc nhanh:** chỉ cần mục 0A (khoảng 100 dòng) để biết quyết định hiện hành, số mã, màn hình giữ/hoãn và mâu thuẫn còn lại. Các mục 1 đến 23 là chi tiết; **khi mục 0A mâu thuẫn với mục 1 đến 23 thì mục 0A thắng**.
+- **Ngày:** 05/11/2026 (v2), 06/11/2026 (v3)
 - **Người viết:** BA
 - **Tài liệu liên quan:** [BRD](business-requirements.md) · [FRD](functional-requirements.md) · [User journey](user-journey-business-workflow.md) · [ADR 0002 (nháp kỹ thuật)](adr/0002-multi-tenant.md) · [ADR 0001](adr/0001-tech-stack.md) · [ba-answers-for-dev](dev/ba-answers-for-dev.md) · [open-questions-for-ba](dev/open-questions-for-ba.md)
 - **Quy ước:** mọi điểm chưa chốt ghi `[Cần xác nhận: ai]`. Tài liệu này không chọn công nghệ và không giả định đáp án cho các điểm đó. Mã `FR-TEN-xxx`, `BR-TEN-xx`, `RULE-016` đến `RULE-032`, `NFR-TEN-xx`, `UAT-TEN-xx` là **mã đề xuất**, chưa nhập vào FRD/BRD; đã kiểm tra không trùng mã hiện có (RULE hiện đến 015, UAT đến 26, FR-SYS đến 018 trong FRD; dev đã tạm dùng FR-SYS-019 đến 032 và UAT-27 đến 31 trong `ba-answers-for-dev.md`, nên nhóm mới dùng tiền tố riêng để khỏi đụng mã).
+
+## 0A. Quyết định hiện hành (06/11/2026)
+
+### 0A.1 Ai đã quyết gì
+
+Ba nhóm, **không trộn**. Mã `D1` đến `D3` là quyết định của khách ngày 05/11; mã tắt "D1 đến D9" trong `tenant-signup-simplified.md` mục 9 là feedback 06/11 (nay gọi bằng QĐT-S01 đến S09 để khỏi nhầm).
+
+| Nhóm | Nội dung | Trạng thái |
+| --- | --- | --- |
+| **A. Khách quyết 05/11/2026** | D1 multi-tenant thiết kế từ đầu; D2 chủ garage khác tự đăng ký, tự triển khai (nhân viên vẫn chỉ vào bằng lời mời); D3 có gói thu tiền, làm sau theo phase. Hệ quả: Q1 = SaaS dùng chung (S1), Q11 = tự đăng ký, Q5 quyết một phần | **Đã quyết** |
+| **B. Feedback 06/11/2026** (chủ garage nhỏ đi thử luồng; BA ghi thành đề xuất) | QĐT-S01 đăng nhập email + mật khẩu, không ô Mã công ty; S02 liên kết xác thực một lần 72 giờ tự đăng nhập bất kể trình duyệt; S03 kênh hỗ trợ cấu hình; S04 ẩn giá và gói (hoãn giao diện, giữ mô hình dữ liệu); S05 hỏi "đang quản lý garage bằng gì" + lối vào Excel; S06 hóa đơn điện tử nói bằng tiếng thường; S07 câu đồng ý rút gọn, DPA tách riêng; S08 mật khẩu hiện dần, kiểm tra người thật ẩn mặc định; S09 tên thương hiệu một hằng cấu hình | **Chưa được khách, luật sư, kế toán xác nhận chính thức**; số 72 giờ là số của client nhưng vẫn là tham số |
+| **C. BA đề xuất, chờ xác nhận** | Bản tối giản đăng ký (garage một chi nhánh một kho, 52 màn xuống 18, tự duyệt khi hợp lệ, onboarding hai màn + checklist); FR-TEN-051 đến 055; RULE-033, 034; phân đợt MT-0 đến MT-3; toàn bộ mã BR/RULE/FR/NFR/UAT | Đề xuất; đã nhập BRD/FRD ngày 06/11 kèm nhãn "chờ xác nhận" |
+| **D. Chưa quyết, BA không đoán** | Mô hình cô lập dữ liệu; định danh nhiều tenant (C-S14); cấp phát trên Firebase/GCP; nhà cung cấp thanh toán; VAT và pháp nhân hóa đơn nền tảng; thời lượng và loại dùng thử (trial hay early access); mức xác minh tenant; thứ tự MT-1 so với pilot; luật sư: DPA, click-wrap | Danh sách đầy đủ: `docs/multi-tenant-open-questions.md` |
+
+### 0A.2 Số mã hiện hành
+
+| Loại | Mã | Số lượng |
+| --- | --- | --- |
+| BR | BR-TEN-01 đến 11 | 11 (8 Must, 3 Should) |
+| RULE | RULE-016 đến 034 (033, 034 mới từ bản tối giản) | 19 |
+| FR | FR-TEN-001 đến 055 (051 đến 055 mới) | 55: 29 Must, 21 Should, 5 Could |
+| NFR | NFR-TEN-01 đến 09 | 9 |
+| UAT | UAT-TEN-01 đến 22 (20 đến 22 mới) | 22 |
+| Đợt | MT-0 nền (cùng Phase 1) 14 FR · MT-1 tự phục vụ có kiểm soát 21 FR · MT-2 gói và dùng thử 14 FR · MT-3 thu tiền 6 FR | 55 |
+
+Đã kiểm tra không trùng mã với BRD/FRD hiện có (RULE đến 015; UAT đến 26; FR-SYS đến 018) và với mã tạm của dev (FR-SYS-019 đến 032, UAT-27 đến 31). FR-TEN-054, 055 và RULE-034 trước đây chỉ có tên trong `tenant-signup-simplified.md` mục 9.9; nay có nội dung ở mục 14.2, 14.3.
+
+### 0A.3 Hợp nhất bản tối giản (simplified v0.2) vào analysis
+
+**Quy tắc ưu tiên:** bản tối giản thay thế đường **tự đăng ký** của spec `tenant-signup-spec.md` v0.2; kênh bán hàng có nhân sự (J1, mục 9.1) giữ nguyên như analysis. Khi bảng dưới mâu thuẫn với dòng FR ở mục 14.3 thì bảng dưới thắng.
+
+| FR / RULE | Thay đổi theo bản tối giản | Trạng thái |
+| --- | --- | --- |
+| FR-TEN-004 (Must) | Tự động hóa: Company, chi nhánh, kho do hệ thống tạo; đơn vị phát hành mặc định `fake`; điều khoản và chính sách lưu trữ đã xem ở lúc đăng ký (C-S11); **kích hoạt = chủ garage bấm "Bắt đầu dùng"** ở TSX-10. Giữ nguyên: phát hành hóa đơn thật cần đạt xác minh (FR-TEN-040) và khai nhà cung cấp | Đề xuất |
+| FR-TEN-016 | Đăng nhập mặc định **email + mật khẩu**, không ô Mã công ty; bước "Chọn công ty" chỉ hiện **sau mật khẩu đúng** khi email thuộc nhiều công ty; lỗi trung lập (QĐT-S01). Mã công ty còn dùng nội bộ, hỗ trợ, email chào mừng. **Trả lời một phần Q4 ở mức đề xuất** (hướng C-S14 (a)); chưa phải quyết định | Đề xuất, chờ C-S14 |
+| FR-TEN-030 | Đường tự đăng ký **không còn** `onboarding` kéo dài với dữ liệu thử tách riêng: dữ liệu tạo ra là dữ liệu thật, hóa đơn `fake` tới khi qua cổng RULE-028, dữ liệu mẫu gắn cờ `sample`. Giữ FR-TEN-030 nguyên cho kênh bán hàng | Đề xuất, chờ C-S04 |
+| FR-TEN-032 (Could) | Chuyển thành mục tùy chọn của checklist "Thiết lập dần" | Đề xuất |
+| FR-TEN-037 | Không đổi; màn chấp nhận lại (TSU-18) và quản trị phiên bản (TSU-67) hoãn tới trước khi có điều khoản bản 2 | Đề xuất (C-S08) |
+| FR-TEN-039 | Một trang; trường: tên, MST, họ tên người đại diện, email, mật khẩu, hai ô chấp nhận (một câu ngắn kèm bản đầy đủ); SĐT chuyển sang TSX-10; loại hình suy ra từ MST (C-S05); kiểm tra người thật ẩn mặc định; mật khẩu hiện dần; không chọn gói, không giá; email đã có tài khoản **không** ghi đè mật khẩu | Đề xuất |
+| FR-TEN-040 | Thêm tiêu chí tự duyệt (cấu hình hiệu lực theo ngày); xác minh **không chặn dùng ứng dụng**, chỉ chặn phát hành hóa đơn thật; hiển thị hỗ trợ ở trạng thái chờ | Đề xuất |
+| FR-TEN-041 | Không dựa vào kiểm tra người thật mặc định: điểm rủi ro, cờ `bot_check.always`, ngưỡng tự bật (C-S23) | Đề xuất |
+| FR-TEN-042 | Thêm bước tạo 1 chi nhánh và 1 kho mặc định, cờ hiển thị đơn chi nhánh; xử lý email đã có tài khoản (thêm tư cách thành viên); thư xác thực và chào mừng đúng nội dung QĐT-S02 | Đề xuất |
+| FR-TEN-043 (Should) | Viết lại: onboarding **tối đa hai màn** (TSX-10 xác nhận và kích hoạt; TSX-11 thiết lập nhanh tùy chọn: câu hỏi "đang quản lý bằng gì", dịch vụ mẫu, mời nhân viên); phần còn lại là checklist FR-TEN-052 | Đề xuất |
+| FR-TEN-044, 045 | Chỉ hoãn **giao diện** gói/giá (QĐT-S04); yêu cầu dữ liệu giữ nguyên; đồng hồ dùng thử bắt đầu ở "Bắt đầu dùng"; `onboarding_max_days` giữ làm van an toàn | Đề xuất |
+| **FR-TEN-051 (mới, Must)** | Tổ chức mặc định một chi nhánh một kho; UI nhiều chi nhánh/kho chỉ hiện khi có từ 2 chi nhánh (hoặc 2 kho) hoạt động | Đề xuất |
+| **FR-TEN-052 (mới, Should)** | Thiết lập dần: checklist, mục chặn chỉ gồm phát hành hóa đơn thật | Đề xuất |
+| **FR-TEN-053 (mới, Should, viết lại 06/11)** | Liên kết xác thực một lần, 72 giờ (tham số), tự đăng nhập bất kể trình duyệt, chỉ lần đầu, có nhật ký và email thông báo | Đề xuất (QĐT-S02) |
+| **FR-TEN-054 (mới, Should)** | Kênh hỗ trợ cấu hình (`support.*`), hiển thị ở các màn nêu ở QĐT-S03 | Đề xuất (QĐT-S03) |
+| **FR-TEN-055 (mới, Could)** | Tên thương hiệu cấu hình một nơi (`brand.name`), không viết cứng | Đề xuất (QĐT-S09, C-S24) |
+| RULE-028 | Giữ. Làm rõ: "chạy ở chế độ thử" nghĩa là hóa đơn `fake`, không phát hành thật, không gửi tin hàng loạt; không đòi trạng thái vòng đời `onboarding` kéo dài | Đề xuất |
+| **RULE-033 (mới)** | Ẩn UI chi nhánh/kho không đổi mô hình dữ liệu, Scope hay cô lập | Đề xuất |
+| **RULE-034 (mới)** | Một thông tin đăng nhập có thể thuộc nhiều tenant; mọi truy cập vẫn gắn đúng một tenant theo phiên | Đề xuất, chờ C-S14 |
+
+**QĐT của spec v0.2 (QĐT-01 đến 40) bị thay thế, sửa hoặc giữ:**
+
+| Kết quả | QĐT |
+| --- | --- |
+| **Thay thế** | QĐT-01 và QĐT-U1 (đăng nhập có mã công ty) bởi QĐT-S01; QĐT-05 (form 3 bước) bởi một trang; QĐT-09 (bước wizard bắt buộc) bởi checklist và FR-TEN-004 sửa; QĐT-23 ("Xem lại từ bước 1", xóa dữ liệu thử) bỏ |
+| **Sửa** | QĐT-02 (loại hình suy từ MST; phần mã công ty thay bởi S01); QĐT-04, 11, 25 (chữ gói/thuê bao, bởi S04; mô hình giữ); QĐT-13 (SĐT thu ở TSX-10, không OTP); QĐT-15 (chỉ CH kích hoạt); QĐT-21 (vai trò hiển thị đơn giản, QV/MH/NS ẩn); QĐT-22 (đồng hồ dùng thử bắt đầu ở "Bắt đầu dùng"); QĐT-24 (một quy tắc khóa nút); QĐT-26 (chỉ giữ `DA NHAN DU LIEU`); QĐT-27 (bỏ chuỗi gõ riêng ở bước gửi); QĐT-30 (BAN-10 thành BAN-C; BAN-09 hoãn); QĐT-35 (khiếu nại qua hỗ trợ + "Chuyển lại xem xét"); QĐT-40 (còn 5 mã lý do khóa nút); QĐT-17, 34 (mở rộng, giữ) |
+| **Giữ** | QĐT-03, 06, 07 (vai trò đổi: nội bộ, hỗ trợ, email chào mừng), 08, 10, 12, 14, 16, 18, 19, 20, 28, 29, 31 (áp ở màn EIN), 32 đến 34, 36, 38, 39; QĐT-37 hoãn cùng TSU-18 |
+
+QĐT-21 đến 40 là tiêu chí chấp nhận chi tiết của các FR tương ứng; chi tiết ở spec và bản tối giản, không chép lại ở đây (AC-S01 đến S41 ở bản tối giản mục 8 và 9.8).
+
+### 0A.4 Màn hình: giữ, gộp, hoãn (52 màn xuống 18)
+
+| Nhóm | Màn |
+| --- | --- |
+| **Giữ (11)** | TSU-14 (đăng nhập, sửa theo S01), 15 (quên mật khẩu, bỏ tab mã công ty), 16, 41 (chỉ thẻ "Dùng thử"), 50 (banner còn 3 loại: BAN-A, B, C), 51, 53, 55, 56, 60, 66 |
+| **Mới (7)** | TSX-01 đăng ký một trang; TSX-02 kiểm tra email; TSX-03 xác thực và tiến trình; TSX-10 xác nhận garage và bắt đầu dùng; TSX-11 thiết lập nhanh (tùy chọn); TSX-20 thiết lập dần; TSX-30 hàng đợi và hồ sơ nền tảng |
+| **Hoãn có điều kiện (6)** | TSU-18 chấp nhận điều khoản mới và TSU-67 quản trị điều khoản (trước khi công bố điều khoản bản 2, C-S08); TSU-42 so sánh/nâng gói, TSU-43 hạ gói, TSU-44 lịch sử gói, TSU-68 danh mục gói (billing B1, ẩn theo QĐT-S04) |
+| **Chuyển thành đường khác** | TSU-11, 64 (khiếu nại) thành hỗ trợ + nút "Chuyển lại xem xét" ở TSX-30 (C-S07); TSU-26, 27, 28 (thuế/đánh số, nhà cung cấp hóa đơn, nhập Excel) thành mục checklist trỏ tới màn SYS, EIN, SYS-007 sẵn có |
+| **Gộp hoặc bỏ (35)** | Phần còn lại của TSU-01 đến 13, 17, 20 đến 25, 29 đến 31, 40, 52, 54, 57, 61 đến 63, 65; bảng đối chiếu từng mã ở `tenant-signup-simplified.md` mục 5 |
+| **Giai đoạn** | A (trước khi mở đăng ký, 14 màn): TSX-01, 02, 03, 10, 11, 20, 30; TSU-14, 15, 16, 41, 50, 60, 66. B (trước khi tenant đầu tiên hết dùng thử hoặc bị tạm ngưng, 4 màn): TSU-51, 53, 55, 56 |
+
+Thiết kế giao diện chưa dựng lại (`design/tenant-signup/` vẫn là 52 màn v0.2); việc cho designer ở `docs/dev/multi-tenant-requirements-for-dev.md` mục 10 và `docs/ui-ux/STATUS.md`.
+
+### 0A.5 Đã nhập vào tài liệu nào (06/11/2026) và mâu thuẫn còn lại
+
+Đã nhập: BRD (mục 4, 5, 6, 7, 8, 9, 10), FRD (mục 1, 2, 10A, 11, 12, 13), CLAUDE.md (đoạn Multi-tenant và dòng liên quan), ADR 0002 (trạng thái, bối cảnh, phạm vi; phần quyết định kỹ thuật của dev giữ nguyên), `screen-inventory.md` §5 (D-01), `component-catalog.md` (§2.24), `STATUS.md`, `dev/open-questions-for-ba.md`; tạo mới `docs/multi-tenant-open-questions.md` và `docs/dev/multi-tenant-requirements-for-dev.md`. **Chưa làm:** `user-journey-business-workflow.md` (J1 đến J10, hai bộ trạng thái mới), `ba-answers-for-dev.md`, `implementation-plan.md`, `status.md`, `index-budget.md`, `tenant-signup-spec.md` (ghi chú thay thế), `state-copy.md`, `design/`.
+
+Mâu thuẫn và điểm cần chủ dự án quyết (BA không tự gỡ):
+
+| # | Mâu thuẫn | Gợi ý |
+| --- | --- | --- |
+| X1 | **Đặt tên "D1 đến D9"** của feedback 06/11 trùng mã D1 đến D3 của quyết định 05/11 | Dùng QĐT-S01 đến S09 cho feedback (đã làm ở tài liệu này) |
+| X2 | QĐT-S01 (một thông tin đăng nhập, nhiều tư cách thành viên) về thực chất là U2, nhưng FR-TEN-017 (U2) xếp Could/MT-3 và mục 17.3 nói "U1 mặc định ở MT-0" | Chủ dự án quyết C-S14. Đề xuất: mô hình dữ liệu chấp nhận nhiều tư cách ngay từ MT-0 (không buộc email duy nhất), giao diện chọn công ty chỉ hiện khi email thuộc từ 2 công ty; FR-TEN-017 còn lại là "đổi công ty khi đang đăng nhập" |
+| X3 | QĐT-S04 chỉ hiển thị "Dùng thử {N} ngày", tức đã ngầm chọn `trial`; Q21/Q34 (trial hay early access, bao nhiêu ngày) **còn mở** | Giữ `trial` ở UI là tham số; chốt Q21/Q34 trước khi mở đăng ký |
+| X4 | Bản tối giản bỏ môi trường thử tách dữ liệu (FR-TEN-030 sửa) trong khi RULE-028 trong analysis nói "chạy `onboarding`/sandbox" | Đã làm rõ RULE-028 ở bảng 0A.3; chờ C-S04 |
+| X5 | Đồng hồ dùng thử bắt đầu ở "Bắt đầu dùng" (kích hoạt), nhưng mục 5.5 và FR-TEN-044 chưa nêu mốc | FR-TEN-044 sửa ở bảng 0A.3 |
+| X6 | `companyId` đang là ranh giới ngoài cùng trong mã (929 lần/127 tệp) trong khi mô hình nay là tenant → Company (M1) | Dev (DEV-3); yêu cầu nghiệp vụ RULE-018 đã đủ |
+| X7 | Tên sản phẩm hiển thị: GARAGE OS (prototype) hay GMEP (dự án) | C-S24; dùng `brand.name` |
+| X8 | MFA ngoài phạm vi theo quyết định owner, nhưng vai trò nền tảng quyền rất cao | Q36; owner cân nhắc ngoại lệ riêng cho vai trò nền tảng |
+| X9 | Tenant số 1 (pilot) cần chấp nhận điều khoản trước dữ liệu thật (RULE-029) nhưng FR-TEN-037 thuộc MT-1 | Q38; cần trả lời trước go-live pilot |
+| X10 | `user-journey-business-workflow.md` chưa có J1 đến J10 và hai bộ trạng thái mới; `screen-inventory.md` và `component-catalog.md` chỉ mới ghi chú | Việc tiếp theo của BA |
+
+---
 
 ## 0. Quyết định mới của khách hàng (05/11/2026)
 
@@ -52,6 +149,7 @@ BR-TEN 8 → 11; RULE 12 → 17 (016 đến 032); FR-TEN 38 → 50 (Must 20 → 
 
 ## Mục lục
 
+0A. [Quyết định hiện hành (06/11/2026)](#0a-quyết-định-hiện-hành-06112026)
 0. [Quyết định mới của khách hàng (05/11/2026)](#0-quyết-định-mới-của-khách-hàng-05112026)
 1. [Tóm tắt và kết luận chính](#1-tóm-tắt-và-kết-luận-chính)
 2. [Thuật ngữ và ranh giới khái niệm](#2-thuật-ngữ-và-ranh-giới-khái-niệm)
@@ -511,11 +609,16 @@ Tiếp nối RULE-015; mọi RULE dưới đây là đề xuất, chờ xác nh�
 | RULE-031 | Mọi thao tác tiền giữa nền tảng và tenant (tính phí, thanh toán, hóa đơn nền tảng, hoàn tiền) idempotent, không xóa bản ghi đã ghi nhận, sửa bằng điều chỉnh; tách khỏi sổ và hóa đơn của tenant | FR-TEN-047, 048 | Mới (D3); song song RULE-010, 025 |
 | RULE-032 | Một mã số thuế chỉ gắn một tenant đang hoạt động; trùng thì vào hàng chờ duyệt (chống mạo danh và đăng ký lặp) | FR-TEN-040, 041 | Mới (D2); ngoại lệ hợp pháp (nhượng quyền, nhiều thương hiệu cùng pháp nhân) `[Cần xác nhận]` Q28 |
 
+| RULE-033 | Ẩn giao diện chi nhánh/kho (tenant một chi nhánh một kho) không làm thay đổi mô hình dữ liệu, Scope hay cô lập; cờ hiển thị chỉ điều khiển UI; mọi bản ghi vẫn mang `branch_id` | FR-TEN-051 | Mới (06/11/2026, bản tối giản); liên quan NFR-ISO-01 |
+| RULE-034 | Một thông tin đăng nhập có thể thuộc nhiều tenant; mọi truy cập dữ liệu vẫn gắn đúng một tenant theo phiên | FR-TEN-009, 010, 016 | Mới (06/11/2026, QĐT-S01); **chờ C-S14** (nếu chọn mỗi tenant một tài khoản riêng thì RULE-034 bỏ) |
+
 Ghi chú: quy tắc "tenant là bên kiểm soát, nền tảng là bên xử lý" **không** được đưa thành RULE vì chờ luật sư (Q8).
 
 ### 14.3 Yêu cầu chức năng đề xuất (FR-TEN)
 
 Định dạng như bảng FR hiện có, thêm cột truy vết: BR, RULE, workflow (mục 5 và 15) và UAT (mục 16). **Cập nhật 05/11/2026:** cột MoSCoW đã sửa (FR-TEN-004, 015, 019, 037 lên Must; FR-TEN-028 từ Could lên Should); FR-TEN-002, 016, 021, 031, 032 sửa nội dung; thêm FR-TEN-039 đến 050 (nhóm H và I). Cột "Đợt" nằm ở mục 17.2.
+
+**Cập nhật 06/11/2026:** các dòng FR-TEN-004, 016, 030, 032, 037, 039 đến 045 dưới đây là nội dung v2; **bảng 0A.3 ghi phần đã thay đổi theo bản tối giản và feedback 06/11 và thắng khi mâu thuẫn**. Thêm nhóm J (FR-TEN-051 đến 055) ở cuối mục này. Cột "Căn cứ" không có trong các bảng dưới; quy ước: mọi FR cụ thể hóa D1 (nền, nhóm A đến D, F, G), D2 (nhóm H), D3 (nhóm E, I) hoặc BA bổ sung theo luật và rủi ro (FR-TEN-005 đến 008, 011 đến 013, 022, 023, 033 đến 036, 038); nhóm J theo bản tối giản và feedback 06/11. Khách chỉ quyết D1 đến D3; mọi chi tiết còn lại là đề xuất BA.
 
 #### Nhóm A. Hồ sơ và vòng đời tenant
 
@@ -615,7 +718,19 @@ Ghi chú: quy tắc "tenant là bên kiểm soát, nền tảng là bên xử l�
 | FR-TEN-048 | Hóa đơn của nền tảng cho tenant: pháp nhân nền tảng (Q12) phát hành hóa đơn điện tử tiền dịch vụ theo cơ chế riêng, tách khỏi hóa đơn của tenant (RULE-025); thuế VAT theo cấu hình có hiệu lực theo ngày; thông tin người mua lấy từ hồ sơ tenant đã xác minh; idempotent; tenant xem và tải | Should (MT-3) | Hóa đơn nền tảng không lẫn với hóa đơn của tenant; không phát hành trùng; thuế suất đổi theo ngày hiệu lực không sửa hóa đơn cũ; dùng thử miễn phí không phát sinh hóa đơn | BR-TEN-10 / RULE-025, 031 / J9 / UAT-TEN-18 |
 | FR-TEN-049 | Dunning và tạm ngưng khi nợ phí: thang cấu hình nhắc, ân hạn, `restricted`, `suspended` (chỉ đọc); mỗi bước thông báo CH và AD tenant; không chặn hoàn tất chứng từ đang mở (RULE-023) và không chặn tải hóa đơn, xuất dữ liệu (RULE-021); thanh toán xong tự mở lại; có nhật ký | Should (MT-3) | Quá hạn sau ân hạn chuyển `restricted` đúng ngày và có thông báo; lệnh đang mở vẫn thu tiền và giao xe; thanh toán xong về `active`; không bước nào xóa dữ liệu | BR-TEN-10 / RULE-021, 023, 030 / J3, J9 / UAT-TEN-18 |
 
-Tổng cộng: **50 FR-TEN** (28 Must, 18 Should, 4 Could); bảng kiểm đếm theo mã ở mục 21. FR-TEN-038 nằm ở bảng riêng phía trên vì thuộc nhóm báo cáo nhưng được thêm sau; FR-TEN-039 đến 050 là nhóm H và I thêm ngày 05/11/2026 (mã mới ở cuối, không đổi mã cũ).
+#### Nhóm J. Bản tối giản và feedback 06/11/2026 (mới, đề xuất; xem mục 0A.3)
+
+| Mã | Yêu cầu | MoSCoW | Tiêu chí chấp nhận | BR / RULE / Workflow / UAT |
+| --- | --- | --- | --- | --- |
+| FR-TEN-051 | Tổ chức mặc định một chi nhánh một kho và hiển thị theo số lượng. Tenant tự đăng ký có đúng 1 chi nhánh và 1 kho; UI nhiều chi nhánh/kho (bộ chọn chi nhánh, nhóm chi nhánh, QV, chuyển kho liên chi nhánh, báo cáo hợp nhất) chỉ hiện khi có từ 2 chi nhánh (hoặc 2 kho) hoạt động; thêm ở Cài đặt | Must | Tenant mới không thấy bộ chọn chi nhánh; mọi bản ghi vẫn có `branch_id`, `resolveScope` vẫn chạy; thêm chi nhánh thứ hai làm UI nhiều chi nhánh hiện ngay và dữ liệu cũ gán đúng chi nhánh đầu; kiểm thử cô lập NFR-ISO-01 vẫn đạt | BR-TEN-07, 09 / RULE-033 / J8 / UAT-TEN-20 |
+| FR-TEN-052 | Thiết lập dần: checklist, trạng thái Chưa làm/Xong/Bỏ qua, mục chặn chỉ gồm phát hành hóa đơn thật; mặc định lấy từ cấu hình hiệu lực theo ngày | Should | Không mục nào ngoài mục chặn hóa đơn thật chặn thao tác; bỏ qua mục không chặn không mất dữ liệu; phát hành thật bị khóa tới khi mục xác minh và nhà cung cấp đạt | BR-TEN-07 / RULE-024, 028 / J8 / UAT-TEN-15 |
+| FR-TEN-053 | Liên kết xác thực email dùng một lần, hạn 72 giờ (tham số), **tự đăng nhập bất kể trình duyệt**, chỉ cho lần xác thực đầu; mở bằng GET chỉ hiện trang, tiêu thụ bằng POST; có nhật ký và email thông báo; phiên chỉ tạo khi tài khoản sẵn sàng; đổi email/mật khẩu, xuất dữ liệu, phát hành hóa đơn thật yêu cầu nhập lại mật khẩu (nếu C-S17 chấp nhận) | Should | Mở ở trình duyệt khác (kể cả trình duyệt nhúng của Gmail) vẫn nhận phiên; liên kết đã dùng, hết hạn hoặc mở bởi quét thư không tạo phiên sai; có nhật ký và email thông báo | BR-TEN-09, 11 / RULE-026, 028 / J7 / UAT-TEN-21 |
+| FR-TEN-054 | Kênh hỗ trợ cấu hình (`support.phone`, `support.zalo`, `support.hours`, `support.email` dự phòng), hiển thị ở các màn đăng ký, chờ duyệt, bổ sung, từ chối, tạo chậm, checklist, hết dùng thử, khóa; không viết cứng; cảnh báo ở cấu hình khi rỗng | Should | Cấu hình rỗng vẫn hiện khối với kênh dự phòng và cảnh báo quản trị; đổi giá trị có hiệu lực không cần phát hành lại | BR-TEN-09 / RULE-019 / J7 / UAT-TEN-22 |
+| FR-TEN-055 | Tên thương hiệu hiển thị là một hằng cấu hình (`brand.name`) dùng cho tiêu đề, email, mẫu in, hóa đơn thử; không còn tên dự án nội bộ hiển thị cho người dùng cuối | Could | Đổi một nơi đổi toàn bộ chuỗi hiển thị | BR-TEN-09 / – / – / UAT-TEN-22 |
+
+Tổng cộng: **55 FR-TEN** (29 Must, 21 Should, 5 Could); bản gốc 50 mã (28 Must, 18 Should, 4 Could) cộng 5 mã nhóm J ngày 06/11/2026; bảng kiểm đếm theo mã ở mục 21.
+
+(Dòng cũ của bản v2:) Tổng cộng: **50 FR-TEN** (28 Must, 18 Should, 4 Could); bảng kiểm đếm theo mã ở mục 21. FR-TEN-038 nằm ở bảng riêng phía trên vì thuộc nhóm báo cáo nhưng được thêm sau; FR-TEN-039 đến 050 là nhóm H và I thêm ngày 05/11/2026 (mã mới ở cuối, không đổi mã cũ).
 
 ### 14.4 Yêu cầu phi chức năng đề xuất (NFR-TEN)
 
@@ -717,6 +832,9 @@ Mã tạm, chốt khi áp dụng vào FRD; không trùng UAT-01 đến 26 và UA
 | UAT-TEN-17 | Nâng/hạ gói và feature flag | Nâng hiệu lực ngay; hạ hiệu lực kỳ sau và bị chặn hoặc cảnh báo khi vượt hạn mức; lịch sử gói đúng; flag bật cho A không ảnh hưởng B | FR-TEN-045, 046, 025, 026 |
 | UAT-TEN-18 | Thanh toán, hóa đơn nền tảng, nợ phí | Không thu hai lần; đối soát khớp; hóa đơn nền tảng tách khỏi hóa đơn tenant, không trùng; quá hạn đi theo thang, không chặn hoàn tất chứng từ đang mở; trả nợ tự mở lại | FR-TEN-047, 048, 049 |
 | UAT-TEN-19 | Hỗ trợ tự phục vụ và SLA | Yêu cầu của tenant A không hiện ở B; hàng chờ nền tảng không có bản ghi nghiệp vụ; SLA đúng gói | FR-TEN-050 |
+| UAT-TEN-20 | Một chi nhánh một kho và ẩn UI theo số lượng (mới 06/11/2026) | Tenant mới tự đăng ký có đúng 1 Company, 1 chi nhánh, 1 kho, không thấy bộ chọn chi nhánh, QV, chuyển kho liên chi nhánh; mọi bản ghi có `branch_id`; thêm chi nhánh thứ hai thì UI nhiều chi nhánh hiện, dữ liệu cũ thuộc chi nhánh đầu; kiểm thử cô lập NFR-ISO-01 vẫn đạt | FR-TEN-051, 042 (AC-S07, S10 đến S12) |
+| UAT-TEN-21 | Đăng nhập email + mật khẩu và liên kết xác thực một lần (mới 06/11/2026) | Không ô Mã công ty; sai email, sai mật khẩu, tenant đã chấm dứt cùng một câu, cùng mã trạng thái; email thuộc hai công ty thì chỉ sau mật khẩu đúng mới hiện "Chọn công ty"; liên kết mở ở trình duyệt khác vẫn tự đăng nhập, dùng lại hoặc hết hạn thì không tạo phiên; quét thư chỉ GET không làm hỏng liên kết; email đã có tài khoản đăng ký garage mới không đổi mật khẩu cũ | FR-TEN-016, 053, 039 (AC-S24 đến S29, S41) |
+| UAT-TEN-22 | Kênh hỗ trợ và tên thương hiệu cấu hình (mới 06/11/2026) | Khối hỗ trợ có mặt ở các màn nêu, lấy từ cấu hình; cấu hình rỗng vẫn hiện kênh dự phòng và cảnh báo quản trị; mọi chuỗi tên sản phẩm lấy từ `brand.name` | FR-TEN-054, 055 (AC-S30, S40) |
 
 ## 17. Phân đợt và điều kiện bắt đầu
 
@@ -734,10 +852,10 @@ Phân đợt là **đề xuất BA đã xếp lại theo quyết định 05/11/2
 | Đợt | Mục tiêu | FR | Số FR | Hình thức vận hành |
 | --- | --- | --- | --- | --- |
 | **MT-0 Nền** (cùng Phase 1) | Tenant-aware từ đầu; tenant số 1 là một tenant thật; chưa có giao diện tự phục vụ | 001, 002, 003, 009, 010, 011, 013, 014, 016, 018, 020, 021, 029, 031; cộng phần B0 của 028 | 14 | Cấp phát tenant bằng quy trình nội bộ có chạy lại được (FR-TEN-002); đăng nhập theo U1 mặc định nếu Q4 chưa quyết |
-| **MT-1 Tự phục vụ có kiểm soát** | Mở đăng ký cho người ngoài | 004, 005, 006, 007, 012, 015, 019, 030, 034, 036, 037, 039, 040, 041, 042, 043 | 16 | Tự đăng ký, xác minh, cấp phát tự động, wizard; chưa thu tiền (thuê bao `none`/early access, B0) |
+| **MT-1 Tự phục vụ có kiểm soát** | Mở đăng ký cho người ngoài | 004, 005, 006, 007, 012, 015, 019, 030, 034, 036, 037, 039, 040, 041, 042, 043; **thêm 06/11/2026:** 051, 052, 053, 054, 055 | 21 | Tự đăng ký, xác minh, cấp phát tự động, onboarding hai màn + checklist; chưa thu tiền (thuê bao `none`/`trial`, B0) |
 | **MT-2 Gói và dùng thử** | Sẵn sàng thu tiền thủ công | 008, 022, 024, 025, 026, 027, 028 (B1), 032, 033, 035, 044, 045, 046, 050 | 14 | Gói, trial, quota, flag, đo mức dùng, bảng kê, B1 |
 | **MT-3 Thu tiền và mở rộng** | Thu tiền tự động, mở rộng | 017, 023, 038, 047, 048, 049 | 6 | Thanh toán, hóa đơn nền tảng, dunning (B2); người dùng nhiều tenant, tên miền, benchmark |
-| | | **Tổng** | **50** | |
+| | | **Tổng** | **55** (50 v2 + 5 nhóm J) | |
 
 Ghi chú: MT-1 gồm toàn bộ Must còn lại và hai Should (030, 043) bắt buộc cho trải nghiệm tự phục vụ. FR-TEN-034 (khôi phục theo tenant) thuộc MT-1 nhưng **mô hình cô lập phải quyết ở MT-0** vì quyết định khả năng khôi phục riêng một tenant.
 
@@ -793,6 +911,10 @@ Cảnh báo cho dev (không phải quyết định BA): ngân sách chỉ mục 
 ## 18. Điểm `[Cần xác nhận]` và câu hỏi cho owner/khách
 
 **Cập nhật 05/11/2026:** Q1 và Q11 đã quyết, Q5 quyết một phần (mục 0.2). Các câu còn lại giữ nguyên bên dưới, kèm nhãn nếu nay chặn sớm hơn. Câu mới Q25 đến Q35 và bảng ưu tiên theo mức chặn ở **Phụ lục B**. Cột "Khuyến nghị BA" và "Ảnh hưởng" của các câu đã quyết được viết lại; các câu còn mở chưa quyết thay owner.
+
+**Danh sách gom (06/11/2026):** các câu Q, C-xx, C-Sxx còn mở của toàn chương trình multi-tenant được gom, xếp theo mức chặn (ADR 0002, build, go-live, thu tiền) và người trả lời ở `docs/multi-tenant-open-questions.md`, kèm bốn câu mới Q36 (xác thực mạnh cho vai trò nền tảng), Q37 (thứ tự MT-1 so với pilot, mức trễ pilot chấp nhận), Q38 (tenant số 1 chấp nhận điều khoản/DPA thế nào) và Q39 (xem dòng dưới). Khi hai nơi lệch nhau thì file gom thắng.
+
+- **Q39 (mới):** tách phạm vi quyết định giữa "mã công ty" nội bộ và mã người dùng thấy: QĐT-S01 bỏ ô Mã công ty ở đăng nhập nhưng giữ mã làm mã hỗ trợ; có cho tenant tự đổi mã không (C-20)? Khuyến nghị: không đổi ở giai đoạn đầu.
 
 ### 18.1 Câu hỏi quyết định (cần owner trả lời trước tiên)
 
@@ -873,7 +995,7 @@ Cảnh báo cho dev (không phải quyết định BA): ngân sách chỉ mục 
 
 ## 20. Danh sách chỉnh sửa đề xuất cho các tài liệu khác
 
-Chưa sửa các file này (lần cập nhật này chỉ sửa tài liệu phân tích; owner chỉ yêu cầu sửa file này). Sau quyết định 05/11/2026, danh sách dưới đây là **việc cần làm, không còn chờ "nếu owner duyệt"** ở phần phạm vi và ưu tiên; mã FR/BR/RULE mới chỉ nhập vào BRD/FRD khi owner xác nhận bản mã ở tài liệu này. Giữ nguyên mã hiện có; mã mới thêm vào cuối từng mục. **Thứ tự ưu tiên:** (1) CLAUDE.md (đang mâu thuẫn, ảnh hưởng mọi agent), (2) ADR 0002 viết lại, (3) implementation-plan và status, (4) BRD, FRD, user journey, (5) thiết kế giao diện.
+**Trạng thái 06/11/2026:** phần lớn danh sách dưới đã làm (xem mục 0A.5 để biết file nào đã sửa, file nào chưa: user journey, ba-answers, implementation-plan, status, index-budget còn lại). Nội dung bên dưới giữ nguyên làm nguồn truy vết. Bản gốc ghi: chưa sửa các file này (lần cập nhật đó chỉ sửa tài liệu phân tích). Sau quyết định 05/11/2026, danh sách dưới đây là **việc cần làm, không còn chờ "nếu owner duyệt"** ở phần phạm vi và ưu tiên; mã FR/BR/RULE mới chỉ nhập vào BRD/FRD khi owner xác nhận bản mã ở tài liệu này. Giữ nguyên mã hiện có; mã mới thêm vào cuối từng mục. **Thứ tự ưu tiên:** (1) CLAUDE.md (đang mâu thuẫn, ảnh hưởng mọi agent), (2) ADR 0002 viết lại, (3) implementation-plan và status, (4) BRD, FRD, user journey, (5) thiết kế giao diện.
 
 ### CLAUDE.md (ưu tiên cao nhất)
 
@@ -938,25 +1060,25 @@ Chưa sửa các file này (lần cập nhật này chỉ sửa tài liệu phâ
 | BR-TEN-04 | 022, 027 | 011, 012, 013 | 06 | FRD mục 2 (ghi chú AD), FR-SYS-025 đề xuất |
 | BR-TEN-05 | 020, 021, 029 | 005, 006, 007, 036, 037 | 03, 04, 12, 13 | NFR-DAT-01, NFR-PRI-01, FR-SYS-031 đề xuất, FR-CRM-010, 011, RULE-010 |
 | BR-TEN-06 | 023, 025, 030 | 024, 025, 026, 027, 028, 044, 045, 046 | 10, 16, 17 | NFR-SCL-01, NFR-SCA-01 |
-| BR-TEN-07 | 016, 024 | 004, 029, 030, 032, 043 | 01, 11, 15 | FR-SYS-007, BRD mục 12 |
+| BR-TEN-07 | 016, 024, 033 | 004, 029, 030, 032, 043, 051, 052 | 01, 11, 15, 20 | FR-SYS-007, BRD mục 12 |
 | BR-TEN-08 | 017 | 033, 038 | 06 | RULE-015 |
-| BR-TEN-09 | 028, 029, 032 | 004, 039, 040, 042, 043, 050 | 13, 15, 19 | FR-SYS-019 đề xuất (lời mời), ADR 0001 §2.1 |
+| BR-TEN-09 | 028, 029, 032, 033, 034 | 004, 039, 040, 042, 043, 050, 051, 052, 053, 054, 055 | 13, 15, 19, 20, 21, 22 | FR-SYS-019 đề xuất (lời mời), ADR 0001 §2.1 |
 | BR-TEN-10 | 023, 025, 030, 031 | 028, 044, 045, 047, 048, 049 | 16, 17, 18 | RULE-010, FR-EIN-003 (tách khỏi hóa đơn tenant) |
 | BR-TEN-11 | 017, 028, 032 | 009, 014, 015, 039, 040, 041 | 05, 13, 14 | NFR-ISO-01, NFR-SEC (thử xâm nhập) |
 
-Kiểm đếm FR-TEN theo ưu tiên (50 mã):
+Kiểm đếm FR-TEN theo ưu tiên (55 mã, cập nhật 06/11/2026):
 
 | MoSCoW | Số lượng | Mã |
 | --- | --- | --- |
-| Must | 28 | 001, 002, 003, 004, 005, 006, 007, 009, 010, 011, 012, 013, 014, 015, 016, 018, 019, 020, 021, 029, 031, 034, 036, 037, 039, 040, 041, 042 |
-| Should | 18 | 008, 022, 024, 025, 026, 027, 028, 030, 033, 035, 043, 044, 045, 046, 047, 048, 049, 050 |
-| Could | 4 | 017, 023, 032, 038 |
+| Must | 29 | 001, 002, 003, 004, 005, 006, 007, 009, 010, 011, 012, 013, 014, 015, 016, 018, 019, 020, 021, 029, 031, 034, 036, 037, 039, 040, 041, 042, 051 |
+| Should | 21 | 008, 022, 024, 025, 026, 027, 028, 030, 033, 035, 043, 044, 045, 046, 047, 048, 049, 050, 052, 053, 054 |
+| Could | 5 | 017, 023, 032, 038, 055 |
 
-Kiểm đếm theo đợt (mục 17.2): MT-0 14, MT-1 16, MT-2 14, MT-3 6 (tổng 50).
+Kiểm đếm theo đợt (mục 17.2): MT-0 14, MT-1 21, MT-2 14, MT-3 6 (tổng 55). BR-TEN: 8 Must (01, 02, 03, 04, 05, 07, 09, 11), 3 Should (06, 08, 10).
 
 FR thay đổi so với bản trước: **5 đổi MoSCoW** (004, 015, 019, 037 lên Must; 028 lên Should), **10 sửa nội dung hoặc đợt** (002, 004, 015, 016, 019, 021, 028, 031, 032, 037; 004, 015, 019, 028, 037 đã nằm trong nhóm đổi MoSCoW), **12 FR mới** (039 đến 050). Tổng FR bị tác động: 22 (10 cũ + 12 mới). BR: 07 đổi Must, 09 đến 11 mới. RULE: 028 đến 032 mới. NFR: 05 sửa, 07 đến 09 mới. UAT: 13 đến 19 mới. Journey: J7 đến J10 mới. Rủi ro: R-TEN-01 đến 12 mới.
 
-Số lượng đề xuất: **11 BR-TEN, 17 RULE (016 đến 032), 50 FR-TEN, 9 NFR-TEN, 19 UAT-TEN.**
+Số lượng đề xuất (v2, 05/11/2026): 11 BR-TEN, 17 RULE (016 đến 032), 50 FR-TEN, 9 NFR-TEN, 19 UAT-TEN. **Hiện hành (v3, 06/11/2026): 11 BR-TEN, 19 RULE (016 đến 034), 55 FR-TEN, 9 NFR-TEN, 22 UAT-TEN** (mục 0A.2).
 
 ---
 

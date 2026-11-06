@@ -312,6 +312,23 @@ Prototype đầy đủ trạng thái: `design/g5-scope-auth/g5-scp-01.html` (tư
 | ThreeWayMatch | Đối chiếu ba bên đơn mua–phiếu nhập–hóa đơn NCC: `g3-3way` | `g3-pur-07.html` |
 | TotalsBlock | Tổng tiền, thuế, tổng cộng: `g2q-totals`, `g2w-total`, `g3-total`, `g4r-total`, `g4f-sum` | nhiều màn |
 
+### 2.24 Component multi-tenant và đăng ký tenant · Đề xuất 06/11/2026, chưa dựng (MT-1)
+
+Nguồn: `tenant-signup-simplified.md` (v0.2) mục 2, 4, 9; `tenant-signup-spec.md` mục 0.2. Đề xuất BA chờ khách xác nhận; designer dựng lại prototype, **không đổi token** (`design-system.md`). Gói và giá hoãn (QĐT-S04), nên **không có `PlanCard`** ở giai đoạn này.
+
+| Component | Ghi chú | Quy tắc |
+| --- | --- | --- |
+| BotCheckSlot | Khe kiểm tra người thật, **ẩn mặc định**; chỉ hiện khi hệ thống nghi ngờ hoặc cờ `bot_check.always` bật (QĐT-S08); honeypot và giới hạn tần suất vẫn có; không chọn nhà cung cấp | TSX-01, 02 (gửi lại), TSU-14, 15 |
+| SupportCard (mới) | Khối "Cần giúp?" lấy `support.phone`, `support.zalo`, `support.hours` từ cấu hình, dự phòng `support.email`; nút `tel:` và liên kết Zalo (QĐT-S03) | Có ở các màn đăng ký, chờ duyệt, từ chối, tạo chậm, checklist, hết dùng thử, khóa, chân trang đăng nhập |
+| CompanyPicker (mới) | Bước "Chọn công ty" **sau mật khẩu đúng** khi email thuộc nhiều công ty: tên garage, tỉnh/thành, MST che, vai trò, lần dùng gần nhất, nhãn "Tạm ngưng"; chọn sẵn công ty lần trước (QĐT-S01, chờ C-S14) | TSU-14 biến thể `chọn công ty`; không dấu hiệu nào trước khi mật khẩu đúng |
+| TenantStateBanner | **Ba biến thể:** BAN-A dùng thử (còn N ngày hoặc đã hết, không nêu gói hay giá), BAN-B hạn chế/tạm ngưng/chấm dứt, BAN-C "Cần để xuất hóa đơn thật" (chỉ ở màn hóa đơn và checklist). Hoãn: BAN-04, 06, 09 | TSU-50 |
+| OnboardingChecklist | Trạng thái mỗi mục rút gọn **Chưa làm / Xong / Bỏ qua**; nhóm "Cần để xuất hóa đơn thật", "Nên làm", "Tùy chọn"; mục Nhập Excel ghim đầu nếu chọn Excel (QĐT-S05) | TSX-20 |
+| StatusTracker | Dải tiến trình rút còn **3 chặng**: Xác thực email, Kiểm tra doanh nghiệp, Tạo tài khoản | TSX-03 |
+| ReasonDisabled (quy tắc bổ sung) | Một quy tắc khóa nút: `aria-disabled="true"`, vẫn focus được, `aria-describedby` trỏ lý do hiện sẵn; nếu lý do là trạng thái tenant thì bấm mở TSU-51, nếu không thì đưa focus tới lý do; không dùng `disabled`; không gọi máy chủ. **Năm mã lý do:** `TENANT_RESTRICTED`, `TENANT_SUSPENDED_READONLY`, `TRIAL_EXPIRED`, `TENANT_TERMINATING`, `VERIFICATION_REQUIRED` (người dùng không thấy mã; câu chữ tiếng thường, QĐT-S06) | Mọi nút bị khóa theo trạng thái tenant |
+| PasswordField (quy tắc bổ sung) | Điều kiện mật khẩu **chỉ hiện khi bắt đầu gõ**, đánh dấu xanh dần kèm biểu tượng và chữ; không lỗi đỏ khi còn trống; vùng `aria-live="polite"` không đọc từng ký tự (QĐT-S08) | TSX-01, TSU-16 |
+
+Việc cho designer (BA không sửa `design/`): dựng lại TSX-01, 02, 03, 10, 11, 20, 30; chỉnh TSU-14, 15, 41, 50, 53, 56, 66; ghi nhãn "hoãn" hoặc "đã gộp" cho 34 màn còn lại của `design/tenant-signup/`. Danh sách màn: `multi-tenant-analysis.md` mục 0A.4.
+
 ---
 
 ## 3. Bảng ánh xạ class tiền tố gói → component chuẩn

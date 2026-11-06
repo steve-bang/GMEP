@@ -1,8 +1,22 @@
 # ADR 0002: Multi-tenant (nháp)
 
-- **Trạng thái:** Draft (chưa duyệt, chưa nằm trong phạm vi hiện tại; không triển khai trước khi chủ dự án duyệt)
-- **Ngày:** 05/11/2026
-- **Người đề xuất:** dev
+- **Trạng thái:** Draft (kỹ thuật chưa duyệt). **Phạm vi đã đổi theo quyết định của khách ngày 05/11/2026 (xem "Cập nhật phạm vi" bên dưới): multi-tenant nằm trong phạm vi và phải thiết kế từ đầu; ADR chính thức cần viết lại và trả lời các câu chặn ở `docs/multi-tenant-open-questions.md` mục 2 và 6.** Quyết định kỹ thuật của dev (§3 phương án A/B/C, "nghiêng về B") **không bị BA thay đổi**.
+- **Ngày:** 05/11/2026 (cập nhật phạm vi 06/11/2026, BA)
+- **Người đề xuất:** dev (cập nhật phạm vi: BA)
+
+## Cập nhật phạm vi (06/11/2026, BA; không đổi phần quyết định kỹ thuật)
+
+Khách (chủ dự án) đã quyết ngày 05/11/2026: **D1** hệ thống multi-tenant **thiết kế từ đầu**; **D2** chủ garage khác **tự đăng ký và tự triển khai**; **D3** có **gói dịch vụ thu tiền, làm sau theo phase**. Mô hình kinh doanh là SaaS dùng chung. Hệ quả cho bản nháp này:
+
+| Câu trong bản nháp | Tình trạng |
+| --- | --- |
+| Trạng thái "chưa nằm trong phạm vi hiện tại; không triển khai trước khi chủ dự án duyệt" | **Hết hiệu lực.** Phần nền (đợt MT-0, 14 FR, thuộc Phase 1) là bắt buộc; MT-1 đến MT-3 làm sau theo đợt |
+| §1 "dự định về sau", "hiện chỉ có một tenant" | Tenant số 1 là khách đầu tiên; tenant khác tự đăng ký (MT-1) |
+| §2 "Không mục tiêu: triển khai ngay; billing; cổng tự đăng ký" | **Billing và tự đăng ký nay là mục tiêu của chương trình multi-tenant** (đợt MT-2, MT-3 và MT-1); dev có thể tách chúng thành ADR riêng; "tùy biến giao diện" và "tên miền riêng" vẫn ngoài mục tiêu đợt đầu (Q6) |
+| §4 "Không xây tính năng tenant... `Company` là đối tượng scope cao nhất hiện có... tính theo company" | **Thay đổi:** `tenantId` là lớp ngoài cùng ngay từ MT-0; `Company` là pháp nhân **trong** tenant; đánh số, cấu hình, đường dẫn tệp, nhật ký, khóa idempotency tính theo **tenant** (M1 do dev ánh xạ từ `companyId` hiện có). Không viết slice mới theo kiểu một tenant |
+| §7 "Quyết định cần chủ dự án xác nhận" mục 4 (có billing không) | Đã quyết: có gói, thu tiền sau. Mục 1, 2, 3, 5 còn mở (Q2, Q3, Q4/Q25, Q37) |
+
+Còn mở và chặn ADR chính thức (không giả định): mô hình cô lập (Q3), số tenant (Q2), định danh khi một người thuộc nhiều tenant (Q4, Q25, C-S14), khách đầu tiên có đồng ý dùng chung nền tảng và sở hữu hạ tầng (Q14), cấp phát tự động trên Firebase/GCP (Q26), hướng thu tiền và VAT hóa đơn nền tảng (Q27, Q12). Yêu cầu nghiệp vụ ràng buộc lên ADR: `docs/dev/multi-tenant-requirements-for-dev.md` (gồm bảy tiêu chí đánh giá phương án cô lập ở mục 7 và tác động chỉ mục 193/200 ở mục 5). Nguồn: `docs/multi-tenant-analysis.md` mục 0A.
 - **Liên quan:** [ADR 0001](0001-tech-stack.md) (§2.1, §6) · `CLAUDE.md` (mục Domain model, Multi-tenant) · NFR-ISO-01, NFR-SCA-01
 
 ## 1. Bối cảnh
