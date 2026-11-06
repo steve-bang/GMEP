@@ -891,6 +891,45 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
       expect(containsAny(res.text, everyId()), path).toEqual([]);
     });
 
+    // FR-TEN-009 / UAT-TEN-05 / ADR 0001 §7.3: files are served by the API after a Scope check (no signed URL yet), and no
+    // route takes a storage path from the caller, so knowing a path or an id of tnt_demo gives an outsider nothing
+    it('a REC photo and an e-invoice file of tnt_demo are not served to the outsider, even with the exact ids and a forged path', async () => {
+      const PNG = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAHnOcQAAAAABJRU5ErkJggg==',
+        'base64',
+      );
+      const form = new FormData();
+      form.set('file', new File([new Uint8Array(PNG)], 'x.png', { type: 'image/png' }));
+      const orderId = q7.orderId!;
+      const up = await h.call('POST', `/api/v1/rec/orders/${orderId}/photos`, {
+        cookie: readers.br_q7!.cvQ7!,
+        form,
+        key: 'tenant-axis-photo-000001',
+      });
+      expect(up.status, up.text).toBeLessThan(300);
+      const own = await h.call('GET', `/api/v1/rec/orders/${orderId}/photos/${up.json.id}`, {
+        cookie: readers.br_q7!.cvQ7!,
+      });
+      expect(own.status).toBe(200);
+      const files = (h.container as { files?: { files?: Map<string, unknown> } }).files?.files;
+      const stored = files ? [...files.keys()].filter((k) => k.includes('/tnt_demo/')) : [];
+      const probes = [
+        `/api/v1/rec/orders/${orderId}/photos/${up.json.id}`,
+        `/api/v1/rec/orders/${orderId}/photos/${encodeURIComponent('../../' + (stored[0] ?? 'x'))}`,
+        `/api/v1/ein/invoices/${q7.invoiceId}/files/xml`,
+        `/api/v1/ein/invoices/${q7.invoiceId}/files/pdf`,
+      ];
+      const missing = await h.call('GET', '/api/v1/rec/orders/nope_NOPE_0000/photos/ph_none', {
+        cookie: outsider,
+      });
+      for (const path of probes) {
+        const res = await h.call('GET', path, { cookie: outsider });
+        expect(res.status, path).toBe(404);
+        expect(res.headers.get('content-type') ?? '', path).not.toMatch(/image|xml|pdf/);
+        expect(strip(res.json), path).toEqual(strip(missing.json));
+      }
+    });
+
     it('availability of a part id of another tenant echoes the id and shows nothing: no quantity, no warehouse', async () => {
       const res = await h.call('GET', '/api/v1/inv/availability?partIds=part_seed_01', {
         cookie: outsider,
