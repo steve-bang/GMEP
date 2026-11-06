@@ -98,11 +98,26 @@ BA đã trả lời Q1 đến Q12 ở `docs/dev/ba-answers-for-dev.md` (đề xu
 
 ## Bổ sung 06/11/2026: hợp nhất multi-tenant vào BRD/FRD (BA)
 
-**Đã làm:** mã BR-TEN-01..11, RULE-016..034, FR-TEN-001..055 (29 Must, 21 Should, 5 Could), NFR-TEN-01..09, UAT-TEN-01..22 **đã nhập vào `business-requirements.md` và `functional-requirements.md`** (bản 0.4, nhãn "đề xuất, chờ xác nhận"; khắc phục L-18). FRD §2 đã ghi MH, NS là vai trò riêng chưa có cột trong ma trận và thêm **ma trận quyền nền tảng** (L-13, một phần: hai vai trò quản trị trụ sở và kiểm tra chất lượng vẫn chưa có mã). CLAUDE.md và ADR 0002 đã ghi chú theo quyết định 05/11/2026 (L-09). `screen-inventory.md` §5 D-01 và `component-catalog.md` §2.24 (BotCheckSlot ẩn mặc định, SupportCard, CompanyPicker, TenantStateBanner 3 biến thể, OnboardingChecklist 3 trạng thái, 5 mã lý do khóa nút) đã cập nhật (L-16). `multi-tenant-analysis.md` có mục 0A "Quyết định hiện hành" (hợp nhất bản tối giản v0.2: QĐT nào bị thay thế, màn nào giữ/hoãn).
+**Đã làm:** mã BR-TEN-01..11, RULE-016..034, FR-TEN-001..055 (29 Must, 21 Should, 5 Could tại thời điểm nhập; từ 06/11/2026 là 30, 21, 4, xem mục cuối), NFR-TEN-01..09, UAT-TEN-01..22 **đã nhập vào `business-requirements.md` và `functional-requirements.md`** (bản 0.4, nhãn "đề xuất, chờ xác nhận"; khắc phục L-18). FRD §2 đã ghi MH, NS là vai trò riêng chưa có cột trong ma trận và thêm **ma trận quyền nền tảng** (L-13, một phần: hai vai trò quản trị trụ sở và kiểm tra chất lượng vẫn chưa có mã). CLAUDE.md và ADR 0002 đã ghi chú theo quyết định 05/11/2026 (L-09). `screen-inventory.md` §5 D-01 và `component-catalog.md` §2.24 (BotCheckSlot ẩn mặc định, SupportCard, CompanyPicker, TenantStateBanner 3 biến thể, OnboardingChecklist 3 trạng thái, 5 mã lý do khóa nút) đã cập nhật (L-16). `multi-tenant-analysis.md` có mục 0A "Quyết định hiện hành" (hợp nhất bản tối giản v0.2: QĐT nào bị thay thế, màn nào giữ/hoãn).
 
 **Tài liệu mới:** `docs/multi-tenant-open-questions.md` (câu mở xếp theo mức chặn ADR / build / go-live / thu tiền, người trả lời, khuyến nghị), `docs/dev/multi-tenant-requirements-for-dev.md` (bàn giao cho dev).
 
 **Lưu ý:** feedback 06/11 (QĐT-S01..S09) và bản tối giản vẫn là **đề xuất chưa được khách xác nhận chính thức**; mã tắt "D1..D9" của feedback không phải D1..D3 của quyết định 05/11. **Việc cho designer (chưa làm):** dựng lại TSX-01, 02, 03, 10, 11, 20, 30; chỉnh TSU-14 (email + mật khẩu, biến thể chọn công ty), 15, 41, 50, 53, 56, 66; thêm SupportCard, CompanyPicker; ghi nhãn hoãn/đã gộp cho 34 màn còn lại và cập nhật `design/tenant-signup/README.md`. **Còn mở ngoài lượt này:** `user-journey-business-workflow.md` (J1..J10, hai bộ trạng thái mới), `tenant-signup-spec.md` (ghi chú thay thế), `state-copy.md`, `ba-answers-for-dev.md`, `implementation-plan.md`, `status.md`, `index-budget.md` (xem `multi-tenant-analysis.md` mục 0A.5).
+
+## Bổ sung 06/11/2026: quyết định của chủ dự án (CD1 đến CD4) và việc cho designer
+
+**Đã quyết (chủ dự án):** (CD1) một email có thể thuộc nhiều tenant, một danh tính nhiều tư cách thành viên (C-S14 = hướng (a)); (CD2) **không có dùng thử**, tenant không gán gói là miễn phí hoàn toàn, không đếm ngày (Q21, Q34); (CD3) bỏ MFA cho vai trò nền tảng (Q36); (CD4) tên sản phẩm **GMEP**, bỏ GARAGE OS (C-S24). Hệ quả BA đã ghi: FR-TEN-017 nâng Must/MT-0 (TEN còn 30 Must, 21 Should, 4 Could; MT-0 15 FR, MT-3 5 FR), RULE-035 mới, FR-TEN-044 viết lại, UAT-TEN-16 viết lại. Số mã nay: RULE-016..035, R-TEN-01..15.
+
+**Việc cho designer (chưa làm; BA không sửa `design/`):**
+
+1. Bỏ mọi copy "Dùng thử", "Dùng thử {N} ngày", "Đăng ký dùng thử", "Tạo tài khoản dùng thử", "{N} ngày dùng thử bắt đầu khi bạn bấm Bắt đầu dùng", "Sắp hết dùng thử" ở TSX-01, 10, 30, TSU-14, 41, 50 và `design/tenant-signup/`; dùng "Đăng ký", "Tạo tài khoản". Không nêu giá, gói, hay "miễn phí vĩnh viễn" trong UI cho tới khi luật sư và chủ dự án chốt câu chữ (Q38, C-S20).
+2. TSU-41: bỏ thẻ "Dùng thử" và biến thể hết hạn; BAN-A bỏ biến thể dùng thử (còn hạn chế, tạm ngưng, khóa); bỏ câu trấn an hết dùng thử.
+3. Đổi "GARAGE OS" thành "GMEP" (hoặc `{brand.name}` mặc định "GMEP") trong toàn bộ prototype gói đăng ký tenant, README, email mẫu, hóa đơn thử. BA đã đếm bằng tìm kiếm: "GARAGE OS" xuất hiện **286 lần trong 154 tệp** (gồm `design/g1-auth-dashboard`, `g2-quote-delivery`, `g5-scope-auth`, `foundation/shell.html`, `shell` JS, `docs/design-system.md` và các tài liệu ui-ux), nên đây là đổi hàng loạt cả dashboard chứ không chỉ gói đăng ký; designer chốt cách làm (một hằng ở `shell`, hay thay thế hàng loạt) và nhờ BA/dev xem lại `docs/design-system.md` (token không được đổi, chỉ đổi chữ tên).
+4. TSU-14 và `CompanyPicker` trở thành **bắt buộc dựng** (không còn là biến thể tùy chọn): hiện sau mật khẩu đúng khi có từ hai tư cách; một tư cách vào thẳng; lối "Đổi công ty" trong phiên; danh sách chỉ gồm tư cách của chính người đó; email đặt lại mật khẩu nêu rõ áp cho mọi công ty của email.
+5. TSU-60 (đăng nhập nền tảng): không có khe MFA (CD3).
+6. Chi tiết: `docs/ui-ux/tenant-signup-simplified.md` đầu tài liệu (v0.3).
+
+**Chưa quyết, cần biết khi thiết kế:** Q37 (thứ tự MT-1 so với pilot, BA đã khuyến nghị MT-1 sau pilot ổn định) quyết thời điểm dựng lại 14 màn giai đoạn A; Q40, Q41 còn mở.
 
 ## Cách tiếp tục
 

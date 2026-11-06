@@ -11,14 +11,20 @@
 | D1 | Multi-tenant là yêu cầu thiết kế **từ đầu**, không còn "tương lai, không build" | Khách/chủ dự án, 05/11/2026 |
 | D2 | Chủ garage khác **tự đăng ký, tự triển khai** (nhân viên trong tenant vẫn chỉ vào bằng lời mời) | như trên |
 | D3 | Có **gói dịch vụ thu tiền**, làm sau theo phase | như trên |
+| CD1 | **Một email có thể thuộc nhiều tenant**: một danh tính, nhiều tư cách thành viên (U2; C-S14) | Chủ dự án, 06/11/2026 |
+| CD2 | Tenant không gán gói = **miễn phí hoàn toàn**, không trial đếm ngược; thu tiền làm sau, gói là tùy chọn về sau (Q21, Q34; RULE-035) | như trên |
+| CD3 | **Bỏ MFA cho vai trò nền tảng**, tạm thời bỏ qua; rủi ro chấp nhận có thời hạn xem lại (Q36; R-TEN-13). `StrongAuthPort` vẫn là hook trống | như trên |
+| CD4 | Tên sản phẩm = **GMEP** (bỏ GARAGE OS; C-S24); `brand.name` mặc định "GMEP" | như trên |
 
-Mô hình thương mại: SaaS dùng chung (S1). Mọi thứ khác (cách cô lập, định danh, đợt, FR cụ thể) là **đề xuất BA chờ xác nhận**, đặc biệt: bản tối giản đăng ký (QĐT-S, FR-TEN-051 đến 055, RULE-033, 034) và feedback 06/11 (QĐT-S01 đến S09). Không hard-code đáp án cho câu `[Cần xác nhận]`; đưa vào cấu hình hoặc cổng/port.
+**Hệ quả của CD1 đến CD4 cho dev (mục 2A bên dưới):** một danh tính nhiều membership, phiên chọn tenant, email duy nhất toàn nền tảng, không có đồng hồ trial, không MFA nền tảng, danh tính nền tảng tách vùng. Q37 (thứ tự MT-1 so với pilot) và Q38 (điều khoản tenant số 1) **chưa quyết**: BA có khuyến nghị ở `docs/multi-tenant-open-questions.md` mục 1B, dev chưa coi là chốt.
+
+Mô hình thương mại: SaaS dùng chung (S1). Mọi thứ khác (cách cô lập, đợt, FR cụ thể) là **đề xuất BA chờ xác nhận**, đặc biệt: bản tối giản đăng ký (QĐT-S, FR-TEN-051 đến 055, RULE-033, 034) và feedback 06/11 (QĐT-S01 đến S09). Không hard-code đáp án cho câu `[Cần xác nhận]`; đưa vào cấu hình hoặc cổng/port.
 
 Phân cấp: **Platform → Tenant → Company (pháp nhân) → Branch → Warehouse**. `Company` giữ nghĩa pháp nhân trong tenant (FR-SYS-018), không còn là "ranh giới ngoài cùng". CLAUDE.md đã sửa theo.
 
 ## 2. Phạm vi MT-0: làm ngay (thuộc Phase 1, nền không được chặn)
 
-MT-0 gồm 14 FR; chưa có giao diện tự phục vụ. Tenant số 1 là một tenant thật.
+MT-0 gồm **15 FR** (thêm FR-TEN-017 ngày 06/11/2026); chưa có giao diện tự phục vụ. Tenant số 1 là một tenant thật.
 
 | FR | Nội dung rút gọn | Ghi chú cho dev |
 | --- | --- | --- |
@@ -30,26 +36,46 @@ MT-0 gồm 14 FR; chưa có giao diện tự phục vụ. Tenant số 1 là mộ
 | FR-TEN-011 | Vai trò nền tảng tách khỏi 10 vai trò tenant; không vai trò nền tảng nào mặc định xem dữ liệu nghiệp vụ; không tài khoản nào vừa nền tảng vừa tenant | Ma trận ở FRD §2 |
 | FR-TEN-013 | Nhật ký nền tảng bất biến, tách khỏi nhật ký tenant | Không chứa dữ liệu cá nhân của khách tenant |
 | FR-TEN-014 | Bộ kiểm thử cách ly **có trục tenant**, tự động; lỗi rò rỉ chặn phát hành | Mở rộng `isolation-matrix.test.ts` |
-| FR-TEN-016 | Xác định tenant khi đăng nhập không mơ hồ; **không giả định email hay mã nhân viên duy nhất toàn nền tảng**; lỗi trung lập | Phụ thuộc Q4/Q25/C-S14; chưa quyết thì cứ không giả định |
+| FR-TEN-016 | Xác định tenant khi đăng nhập không mơ hồ; **email là danh tính duy nhất toàn nền tảng** (CD1); **mã nhân viên, mã khách chỉ duy nhất trong tenant, không giả định toàn nền tảng**; lỗi trung lập | Đã quyết; xem mục 2A |
+| FR-TEN-017 | **Mới ở MT-0 (nâng từ Could/MT-3):** một danh tính, nhiều tư cách thành viên; phiên chọn một tenant; đổi tenant là ngữ cảnh mới; thu hồi theo tư cách; tài khoản hiện có thành danh tính + tư cách thành viên của tenant số 1 | Mục 2A; UAT-TEN-07 |
 | FR-TEN-018 | Cấu hình phân tầng nền tảng, tenant, Company, Branch, hiệu lực theo ngày, hiển thị nguồn giá trị | Chứng từ đã phát hành giữ giá trị cũ (RULE-019) |
 | FR-TEN-020 | Đánh số, mã chi nhánh, mã nhân viên, mã khách **duy nhất trong tenant**; khóa dãy số chứa tenant; hai tenant được trùng số | Làm rõ FR-REC-030 |
 | FR-TEN-021 | Cấu hình tích hợp (hóa đơn, SMS/Zalo), bí mật, chứng thư **theo tenant và Company**; không dùng chung | Chưa cấu hình thì "Chưa kích hoạt"; `fake` bị từ chối ở `live` |
 | FR-TEN-029 | Nhập Excel theo tenant (lô, lỗi, hoàn tác thuộc tenant) | Mở rộng slice 1.11 |
 | FR-TEN-031 | Đưa dữ liệu hiện có thành **tenant số 1**: giữ số chứng từ, hóa đơn, khóa chống trùng, nhật ký; có kế hoạch quay lui; đối chiếu trước/sau | Hiện chỉ trên Emulator, chưa dữ liệu thật: **chi phí thấp nhất là bây giờ** (R-TEN-09) |
 
-Cộng phần B0 của FR-TEN-028 (chỗ lưu gói và trạng thái thuê bao). Đăng nhập tạm theo "một tài khoản một tenant" nếu Q4 chưa quyết, nhưng không được buộc email duy nhất toàn nền tảng.
+Cộng phần B0 của FR-TEN-028 (chỗ lưu gói và trạng thái thuê bao; **giá trị mặc định là gói miễn phí, không đồng hồ**, RULE-035, FR-TEN-044).
 
 **Quy tắc làm việc ngay từ bây giờ (chưa chờ ADR):** không viết slice mới theo kiểu một tenant. Không hard-code một công ty; mã định danh, đường dẫn, khóa idempotency, khóa đánh số có chỗ cho tenant.
+
+## 2A. Hệ quả của quyết định 06/11/2026 (CD1 đến CD4) cho dev
+
+BA chỉ nêu ràng buộc nghiệp vụ; cách mô hình hóa, lưu trữ và thư viện do dev chọn trong ADR 0002 (DEV-4). Hiện tại đăng nhập là mật khẩu + cookie `__Host-` và mã nhân viên/email gắn với `companyId`; các điểm dưới đây là chỗ cần đổi.
+
+| Chủ đề | Ràng buộc nghiệp vụ | Kiểm thử |
+| --- | --- | --- |
+| **Danh tính và tư cách thành viên** | Một danh tính theo **email duy nhất toàn nền tảng**, một mật khẩu; mỗi tenant là một tư cách thành viên riêng mang vai trò, chi nhánh được gán, trạng thái, thời điểm mời và thu hồi (RULE-034). Mã nhân viên, mã khách vẫn duy nhất **trong tenant** (RULE-018). Chuẩn hóa email (hoa/thường, khoảng trắng) để "một email" thực sự là một | Hai tenant cùng email: một danh tính, hai tư cách; mã nhân viên trùng giữa tenant không nhầm |
+| **`resolveScope`, phiên** | Phiên gắn **đúng một tenant** theo tư cách thành viên đang chọn; `tenantId` vẫn do hệ thống suy ra, không từ dữ liệu client (FR-TEN-010). Chọn hoặc đổi tenant là **ngữ cảnh mới**: tính lại Scope từ tư cách của tenant đích, bỏ quyền, chi nhánh đang chọn, dữ liệu đệm, bộ lọc của tenant cũ; quyền **không cộng gộp** (RULE-026). Phiên chưa chọn tenant (sau mật khẩu, trước "Chọn công ty") không đọc được dữ liệu nghiệp vụ nào | Phiên tenant A gửi định danh bản ghi tenant B: "không tìm thấy"; đổi A sang B không giữ quyền A |
+| **Đăng nhập** | Email + mật khẩu; chỉ **sau mật khẩu đúng** mới hiện "Chọn công ty" nếu có từ hai tư cách đang hoạt động; một tư cách thì vào thẳng; danh sách chỉ gồm tư cách của chính người đó; lỗi trung lập, cùng mã trạng thái và thời gian trong dung sai (FR-TEN-016, UAT-TEN-21). Tenant bị ngưng/chấm dứt không hiện trong danh sách chọn theo cách lộ trạng thái cho người không thuộc tenant đó | UAT-TEN-07, 21 |
+| **Thu hồi và mật khẩu** | Thu hồi/vô hiệu một tư cách ở tenant A thu hồi phiên của A, **không** đăng xuất B và không đổi dữ liệu B. Đặt lại/đổi mật khẩu áp cho danh tính, mọi tư cách (đề xuất, chờ Q41 a): thu hồi mọi phiên của danh tính. Tenant A **không thấy** danh tính đó còn thuộc tenant nào khác (Q41 c) | Thu hồi ở A, B vẫn dùng được |
+| **Lời mời** | Mời một email đã có danh tính: thêm tư cách thành viên **sau khi người đó chấp nhận**, không ghi đè mật khẩu, không tiết lộ cho người mời rằng email đã có tài khoản ở tenant khác (Q41 c, e) | Mời email có sẵn ở tenant khác |
+| **Chuyển dữ liệu hiện có** | Tài khoản hiện có của slice 0.3 đến 1.11 thành danh tính + tư cách thành viên của tenant số 1 khi chuyển (FR-TEN-031); đăng nhập vẫn chạy; kế hoạch quay lui; hai tài khoản trùng email trong dữ liệu hiện có (nếu có) phải được liệt kê và xử lý, không gộp im lặng | Đối chiếu trước/sau (UAT-TEN-11) |
+| **Vùng danh tính nền tảng** | Nhân sự nền tảng ở vùng danh tính tách khỏi tenant; email nhân sự nền tảng không trùng email thành viên tenant (FR-TEN-011); không tài khoản nào vừa nền tảng vừa tenant | UAT-TEN-06 |
+| **Không có đồng hồ trial** | Tenant không gán gói = gói mặc định miễn phí (RULE-035): **không** trường ngày hết hạn trial, không job hết hạn trial, không trạng thái `trial`, không `expired` do hết dùng thử, không hóa đơn nền tảng. Vẫn giữ chỗ lưu gói và một điểm kiểm tra hạn mức/tính năng mặc định cho phép (hook MT-2). Giới hạn tenant miễn phí và tenant bỏ hoang là tham số cấu hình chờ Q40 | UAT-TEN-16 (viết lại) |
+| **Không MFA nền tảng** | `StrongAuthPort` giữ là hook trống cho mọi vai trò (CD3). Biện pháp bù phải có thật: hai người duyệt thao tác nhạy cảm (RULE-027), nhật ký nền tảng bất biến (FR-TEN-013), phiên hỗ trợ có đồng ý (RULE-022), tách vùng danh tính; ghi rủi ro R-TEN-13, xem lại trước MT-1 | UAT-TEN-02, 06 |
+| **Tên hiển thị** | Mọi chuỗi tên sản phẩm lấy từ `brand.name`, mặc định "GMEP" (FR-TEN-055); không viết cứng "GARAGE OS" | UAT-TEN-22 |
+
+**Chỉ mục:** nếu danh tính/tư cách thành viên cần truy vấn mới (ví dụ tra tư cách theo email), phải dùng lại hình truy vấn sẵn có hoặc đọc theo khóa; không nâng trần 195 (mục 5).
 
 ## 3. Chưa làm, nhưng thiết kế không được chặn
 
 | Đợt | Nội dung | Hook cần có từ MT-0 |
 | --- | --- | --- |
 | MT-1 Tự phục vụ có kiểm soát (21 FR: 004 đến 007, 012, 015, 019, 030, 034, 036, 037, 039 đến 043, 051 đến 055) | Tự đăng ký, xác minh MST, chống lạm dụng, cấp phát tự động, onboarding hai màn + checklist, điều khoản/DPA, hạn chế/tạm ngưng/chấm dứt/xuất/xóa, hỗ trợ, khôi phục theo tenant | Trạng thái `signup_pending`/`rejected`; cấp phát gọi được không cần người; tenant chưa xác minh bị hạn chế ở lớp phát hành hóa đơn và gửi tin hàng loạt (RULE-028) |
-| MT-2 Gói và dùng thử (14 FR) | Danh mục gói, trial, quota, bật/tắt module, feature flag, đo mức dùng, bảng kê | Chỗ lưu gói/thuê bao; **một điểm kiểm tra hạn mức và tính năng, mặc định cho phép**; sự kiện sử dụng đếm được theo tenant |
-| MT-3 Thu tiền (6 FR) | Thanh toán gói, hóa đơn của nền tảng, dunning, người dùng nhiều tenant, tên miền, benchmark | `restricted`/`suspended` thực thi ở lớp truy cập; thông tin người mua của tenant đã xác minh; số liệu tiền nền tảng tách khỏi sổ tenant; không buộc email duy nhất |
+| MT-2 Gói tùy chọn và hạn mức (14 FR; **không trial**) | Danh mục gói tùy chọn, quota, bật/tắt module, feature flag, đo mức dùng, bảng kê | Chỗ lưu gói/thuê bao, mặc định gói miễn phí; **một điểm kiểm tra hạn mức và tính năng, mặc định cho phép**; sự kiện sử dụng đếm được theo tenant |
+| MT-3 Thu tiền (5 FR) | Thanh toán gói, hóa đơn của nền tảng, dunning, tên miền, benchmark (người dùng nhiều tenant đã lên MT-0) | `restricted`/`suspended` thực thi ở lớp truy cập; thông tin người mua của tenant đã xác minh; số liệu tiền nền tảng tách khỏi sổ tenant |
 
-Điều kiện mở đăng ký cho người ngoài và điều kiện thu tiền: xem `multi-tenant-open-questions.md` mục 4 và 5. Thứ tự MT-1 so với pilot là Q37 (chủ dự án chưa quyết).
+Điều kiện mở đăng ký cho người ngoài và điều kiện thu tiền: xem `multi-tenant-open-questions.md` mục 4 và 5. Thứ tự MT-1 so với pilot là Q37 (chủ dự án chưa quyết; BA khuyến nghị MT-0 xong và qua cổng trước go-live pilot, MT-1 build sau khi pilot ổn định, xem `multi-tenant-open-questions.md` mục 1B; dev đừng lên kế hoạch dựa trên khuyến nghị này như thể đã chốt, nhưng ước lượng MT-0 theo DEV-10 là đầu vào để chủ dự án đặt mức trễ chấp nhận).
 
 ## 4. Ràng buộc nghiệp vụ lên các lớp nền
 
@@ -64,7 +90,7 @@ Mỗi dòng: ràng buộc (RULE/FR) và điều kiện kiểm thử. Cách làm 
 | **Lưu trữ tệp, URL ký** | Đường dẫn và URL ký kiểm tenant **trước khi cấp** (ADR 0001 §7.3); không dùng tên tệp đoán được, ID tuần tự dùng chung | Tenant A không tải được tệp tenant B kể cả khi biết đường dẫn |
 | **Audit** | Hai luồng bất biến: nhật ký tenant (FR-SYS-003) và **nhật ký nền tảng** (FR-TEN-013); nhật ký truy cập dữ liệu cá nhân tách theo tenant; khi nhân sự nền tảng "Hiện" dữ liệu che trong phiên hỗ trợ, ghi danh tính nhân sự nền tảng | Nhật ký tenant A không chứa thao tác nền tảng nhạy cảm của tenant B |
 | **Idempotency, đặc biệt hóa đơn** | Khóa `Idempotency-Key` và khóa chống phát hành trùng hóa đơn (FR-EIN-013, UAT-23) **chứa tenant** và **không hết hạn**, bền qua mọi trạng thái vòng đời (kể cả `suspended`, kể cả khi chuyển dữ liệu thành tenant số 1: M7). Tác vụ đồng bộ trạng thái hóa đơn vẫn chạy khi tenant bị ngưng, không phát hành mới. Cấp phát tenant cũng idempotent (FR-TEN-002, 042). Mọi thao tác tiền nền tảng–tenant idempotent (RULE-031, MT-3) | Gửi hai lần cùng khóa trên hai tenant khác nhau: hai kết quả độc lập; cấp phát lặp không tạo tenant thứ hai |
-| **Phiên, đăng nhập** | Mỗi phiên thuộc **đúng một tenant** (RULE-026); thu hồi tư cách ở A không ảnh hưởng B; lỗi đăng nhập trung lập, cùng mã trạng thái và thời gian phản hồi trong dung sai (không lộ tài khoản, công ty). Cookie `__Host-` giữ nguyên | UAT-TEN-07, 21 |
+| **Phiên, đăng nhập** | Chi tiết sau CD1 ở mục 2A. Mỗi phiên thuộc **đúng một tenant** (RULE-026); thu hồi tư cách ở A không ảnh hưởng B; lỗi đăng nhập trung lập, cùng mã trạng thái và thời gian phản hồi trong dung sai (không lộ tài khoản, công ty). Cookie `__Host-` giữ nguyên | UAT-TEN-07, 21 |
 | **Tích hợp ngoài** | Nhà cung cấp hóa đơn, SMS/Zalo, khóa, chứng thư số, khóa API **của từng tenant (và Company)** (RULE-024); hóa đơn của tenant mang đơn vị phát hành của tenant, nền tảng không phát hành thay (RULE-025) | UAT-TEN-09 |
 | **Tác vụ nền, hàng đợi, thông báo** | Chạy **theo tenant**; lỗi hoặc tải nặng của tenant này không chặn tenant khác (FR-TEN-015); thông báo không gửi nhầm tenant. `CRON_COMPANY_ID` phải được xử lý (M1) | UAT-TEN-12 |
 | **Seed, dữ liệu kiểm thử** | Không giả định một tenant; có từ **hai tenant trở lên** (NFR-TEN-01) | Điều kiện phát hành |
@@ -143,12 +169,12 @@ Lỗi rò rỉ chặn phát hành và chặn kích hoạt tenant mới (FR-TEN-0
 
 BA không chọn thay. Chi tiết, người trả lời và khuyến nghị: `docs/multi-tenant-open-questions.md` mục 2 và mục 6.
 
-**Chờ owner/khách/luật sư/kế toán** (không dev nào tự quyết được): Q2 (số tenant), Q3 (có đòi tách vật lý), Q4/Q25/C-S14 (định danh, email), Q14 (khách đầu tiên đồng ý, sở hữu hạ tầng), Q12/Q32 và Q27 (ở mức hook), Q37 (thứ tự MT-1 so với pilot), Q38 (tenant số 1 chấp nhận điều khoản), Q24 và Q36 (vai trò nền tảng, xác thực mạnh).
+**Chờ owner/khách/luật sư/kế toán** (không dev nào tự quyết được): Q2 (số tenant), Q3 (có đòi tách vật lý), Q14 (khách đầu tiên đồng ý, sở hữu hạ tầng), Q12/Q32 và Q27 (ở mức hook), Q37 (thứ tự MT-1 so với pilot, BA đã khuyến nghị), Q38 (tenant số 1 chấp nhận điều khoản, cần luật sư), Q24 (vai trò nền tảng), Q40 (giới hạn tenant miễn phí), Q41 (quy tắc vận hành danh tính một-nhiều). Đã quyết 06/11/2026 nên **không còn chặn**: Q4/Q25/C-S14, Q21/Q34, Q36, C-S24.
 
-**Dev trả lời trong ADR (DEV-1 đến DEV-10):** phương án cô lập và bằng chứng theo bảy tiêu chí; ảnh hưởng chỉ mục; ánh xạ `companyId` sang tenant/Company (M1); mô hình định danh và thu hồi phiên; cấp phát tự động idempotent (spike, Q26); giữ số chứng từ và khóa hóa đơn khi chuyển tenant số 1 (M7); URL ký và tác vụ nền theo tenant (M8, M9); phân biệt dữ liệu thử/thật (C-15); chống bot, nguồn tra MST, liên kết một lần (C-17, C-S16); kế hoạch retrofit (M13).
+**Dev trả lời trong ADR (DEV-1 đến DEV-10):** phương án cô lập và bằng chứng theo bảy tiêu chí; ảnh hưởng chỉ mục; ánh xạ `companyId` sang tenant/Company (M1); mô hình danh tính một-nhiều (U2 đã quyết) và thu hồi phiên theo tư cách (mục 2A); cấp phát tự động idempotent (spike, Q26); giữ số chứng từ và khóa hóa đơn khi chuyển tenant số 1 (M7); URL ký và tác vụ nền theo tenant (M8, M9); phân biệt dữ liệu thử/thật (C-15); chống bot, nguồn tra MST, liên kết một lần (C-17, C-S16); kế hoạch retrofit (M13).
 
 Chưa có câu trả lời thì tiếp tục theo kỷ luật MT-0 và **không viết thêm slice một tenant**.
 
 ## 10. Việc cho designer (BA không sửa `design/`)
 
-Dựng lại TSX-01, 02, 03, 10, 11, 20, 30; chỉnh TSU-14 (email + mật khẩu, biến thể chọn công ty), TSU-15, 41, 50, 53, 56, 66; thêm `SupportCard`, `CompanyPicker`, `BotCheckSlot` ẩn mặc định, `TenantStateBanner` ba biến thể, `OnboardingChecklist` ba trạng thái (`component-catalog.md` §2.24). Danh sách màn giữ, gộp, hoãn: analysis mục 0A.4.
+Dựng lại TSX-01, 02, 03, 10, 11, 20, 30 (bỏ chữ "dùng thử", tên GMEP); chỉnh TSU-14 (email + mật khẩu, biến thể chọn công ty, nay là bắt buộc vì danh tính một-nhiều), TSU-15, 41 (bỏ thẻ dùng thử), 50 (bỏ BAN-A dùng thử), 53, 56, 66; thêm `SupportCard`, `CompanyPicker`, `BotCheckSlot` ẩn mặc định, `TenantStateBanner` ba biến thể, `OnboardingChecklist` ba trạng thái (`component-catalog.md` §2.24). Danh sách màn giữ, gộp, hoãn: analysis mục 0A.4.

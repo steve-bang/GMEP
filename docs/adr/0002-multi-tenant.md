@@ -10,7 +10,7 @@ Khách (chủ dự án) đã quyết ngày 05/11/2026: **D1** hệ thống multi
 
 | Câu trong bản nháp | Tình trạng |
 | --- | --- |
-| Trạng thái "chưa nằm trong phạm vi hiện tại; không triển khai trước khi chủ dự án duyệt" | **Hết hiệu lực.** Phần nền (đợt MT-0, 14 FR, thuộc Phase 1) là bắt buộc; MT-1 đến MT-3 làm sau theo đợt |
+| Trạng thái "chưa nằm trong phạm vi hiện tại; không triển khai trước khi chủ dự án duyệt" | **Hết hiệu lực.** Phần nền (đợt MT-0, nay 15 FR gồm danh tính một-nhiều FR-TEN-017 theo quyết định chủ dự án 06/11/2026, thuộc Phase 1) là bắt buộc; MT-1 đến MT-3 làm sau theo đợt |
 | §1 "dự định về sau", "hiện chỉ có một tenant" | Tenant số 1 là khách đầu tiên; tenant khác tự đăng ký (MT-1) |
 | §2 "Không mục tiêu: triển khai ngay; billing; cổng tự đăng ký" | **Billing và tự đăng ký nay là mục tiêu của chương trình multi-tenant** (đợt MT-2, MT-3 và MT-1); dev có thể tách chúng thành ADR riêng; "tùy biến giao diện" và "tên miền riêng" vẫn ngoài mục tiêu đợt đầu (Q6) |
 | §4 "Không xây tính năng tenant... `Company` là đối tượng scope cao nhất hiện có... tính theo company" | **Thay đổi:** `tenantId` là lớp ngoài cùng ngay từ MT-0; `Company` là pháp nhân **trong** tenant; đánh số, cấu hình, đường dẫn tệp, nhật ký, khóa idempotency tính theo **tenant** (M1 do dev ánh xạ từ `companyId` hiện có). Không viết slice mới theo kiểu một tenant |
