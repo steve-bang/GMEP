@@ -479,6 +479,7 @@ const tenantFromDoc = ({ id, data: x }: StoredDoc): Tenant => ({
   provisionRequestKey: x.provisionRequestKey ?? '',
   provisioning: x.provisioning ?? {},
   ...(x.pendingTransition ? { pendingTransition: x.pendingTransition } : {}),
+  ...(Array.isArray(x.termsAcceptances) ? { termsAcceptances: x.termsAcceptances } : {}),
   createdAt: x.createdAt ?? new Date(0),
   createdBy: x.createdBy ?? 'seed',
   updatedAt: x.updatedAt ?? x.createdAt ?? new Date(0),

@@ -2,7 +2,7 @@ import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import { resolveScope, type Actor } from '@/platform/rbac/rbac';
 import type { Scope } from '@/platform/scope/scope';
-import { allocateDocumentNumber, resolveConfigAt } from '@/modules/sys';
+import { allocateDocumentNumber, resolveConfigAt, tenantTermsBlock } from '@/modules/sys';
 import { buildInvoiceContent, type BuiltInvoice } from '../domain/build';
 import {
   checkEligibility,
@@ -113,8 +113,12 @@ export async function assemble(
     });
     if (snap) currentRates.set(k, Number((snap.payload as { rateBp: number }).rateBp));
   }
+  // RULE-029: a live invoice needs the tenant's recorded Terms and DPA acceptance
+  const termsBlocked =
+    issuer?.snapshot.environment === 'live' && (await tenantTermsBlock(deps.sys, order.tenantId));
   const check = checkEligibility({
     providerActive: providerActive(deps, issuer),
+    termsBlocked,
     issuerComplete: !!issuer && issuer.snapshot.sellerName.length > 1 && !!issuer.snapshot.symbol,
     order: {
       status: order.status,

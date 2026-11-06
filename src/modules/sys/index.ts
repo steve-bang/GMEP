@@ -164,6 +164,9 @@ export {
   decideTenantTransition,
   listTenants,
   getTenant,
+  recordTermsAcceptance,
+  assertTermsAccepted,
+  tenantTermsBlock,
 } from './application/tenants';
 export type {
   TenantDto,

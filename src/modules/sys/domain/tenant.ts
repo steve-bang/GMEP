@@ -47,6 +47,29 @@ export interface PendingTransition {
   requestedAt: Date;
 }
 
+/**
+ * RULE-029 / FR-TEN-037 (minimum): manual record that the tenant accepted the Terms and the DPA. Append-only: a new
+ * version is a new entry, an entry is never edited. Real data (Excel import, live e-invoice, `onboarding -> active`)
+ * waits for the first one. The signed document itself is kept outside the system; `documentRef` only points at it.
+ */
+export interface TermsAcceptance {
+  id: string;
+  termsVersion: string;
+  dpaVersion: string;
+  /** who accepted for the tenant (the tenant representative; name only, no contact data) */
+  acceptedByName: string;
+  acceptedByCapacity: string;
+  /** date the tenant accepted (yyyy-MM-dd) */
+  acceptedOn: string;
+  documentRef: string;
+  /** platform user who typed it in, and when */
+  recordedBy: string;
+  recordedAt: Date;
+}
+
+export const hasTermsAcceptance = (t: Pick<Tenant, 'termsAcceptances'>): boolean =>
+  (t.termsAcceptances ?? []).length > 0;
+
 export interface Tenant {
   /** immutable code, never deleted (FR-TEN-001) */
   id: string;
@@ -70,6 +93,8 @@ export interface Tenant {
   /** checklist steps already done: a re-run skips them (no duplicate data) */
   provisioning: Record<string, ProvisioningStepState>;
   pendingTransition?: PendingTransition;
+  /** RULE-029: manual acceptances of Terms and DPA, oldest first */
+  termsAcceptances?: TermsAcceptance[];
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -127,7 +152,11 @@ export const TENANT_TRANSITIONS: readonly TransitionRule[] = [
 ];
 
 export type TransitionRefusal =
-  'transition_not_allowed' | 'actor_not_allowed' | 'reason_required' | 'legal_hold';
+  | 'transition_not_allowed'
+  | 'actor_not_allowed'
+  | 'reason_required'
+  | 'legal_hold'
+  | 'terms_acceptance_required';
 
 export type TransitionDecision =
   { ok: true; rule: TransitionRule } | { ok: false; code: TransitionRefusal };
@@ -142,7 +171,8 @@ export function allowedTransitions(from: TenantStatus): TransitionRule[] {
 
 /** Checks a requested move against the table: edge exists, actor kind allowed, reason given, no legal hold. */
 export function decideTransition(
-  tenant: Pick<Tenant, 'status' | 'legalHold'>,
+  tenant: Pick<Tenant, 'status' | 'legalHold'> &
+    Partial<Pick<Tenant, 'termsAcceptances' | 'environment'>>,
   to: TenantStatus,
   ctx: { actor: TransitionActor; reason?: string },
 ): TransitionDecision {
@@ -152,6 +182,14 @@ export function decideTransition(
   if (rule.reasonRequired && (ctx.reason ?? '').trim().length < 3)
     return { ok: false, code: 'reason_required' };
   if (to === 'purged' && tenant.legalHold) return { ok: false, code: 'legal_hold' };
+  // RULE-029: no go-live of a real (`live`) tenant without the recorded Terms and DPA acceptance; demo tenants hold no real data
+  if (
+    rule.from === 'onboarding' &&
+    to === 'active' &&
+    tenant.environment !== 'demo' &&
+    !hasTermsAcceptance(tenant)
+  )
+    return { ok: false, code: 'terms_acceptance_required' };
   return { ok: true, rule };
 }
 

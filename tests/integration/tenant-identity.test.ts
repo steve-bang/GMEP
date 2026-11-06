@@ -55,6 +55,7 @@ describe.each(backends)('tenant identity and session [%s]', (backend) => {
       {
         code: 'tnt_alpha',
         name: 'Garage Alpha',
+        environment: 'demo',
         owner: { email: 'alpha.owner@alpha.test', name: 'Chủ Alpha', employeeCode: 'ch01' },
       },
       { ...rid(), idempotencyKey: 'prov-alpha' },
@@ -66,6 +67,7 @@ describe.each(backends)('tenant identity and session [%s]', (backend) => {
       {
         code: 'tnt_beta',
         name: 'Garage Beta',
+        environment: 'demo',
         owner: { email: OWNER_DEMO, name: 'Chủ Demo (Beta)', employeeCode: 'CH01' },
       },
       { ...rid(), idempotencyKey: 'prov-beta' },

@@ -7,6 +7,7 @@ import {
   provisionTenant,
   approveProvisioning,
   transitionTenant,
+  recordTermsAcceptance,
 } from '@/modules/sys';
 import { backends, createHarness, type Harness } from './harness';
 
@@ -193,7 +194,21 @@ describe.each(backends)('tenant foundation [%s]', (backend) => {
   });
 
   it('RULE-027: the owner who requested a two-person move cannot approve it himself', async () => {
-    const t = await getTenant(sys(), cnt, 'tnt_beta');
+    // RULE-029: a live tenant needs the recorded Terms and DPA acceptance before it goes active
+    const t = await recordTermsAcceptance(
+      sys(),
+      cnt,
+      'tnt_beta',
+      {
+        termsVersion: 'v1',
+        dpaVersion: 'v1',
+        acceptedByName: 'Người đại diện',
+        acceptedByCapacity: 'Chủ garage',
+        acceptedOn: '2026-11-06',
+        documentRef: 'HS/beta.pdf',
+      },
+      rid(),
+    );
     const a = await transitionTenant(
       sys(),
       cnt,

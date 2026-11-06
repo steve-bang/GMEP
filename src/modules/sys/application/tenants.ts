@@ -15,6 +15,7 @@ import {
   TENANT_ID_PATTERN,
   TENANT_STATUSES,
   decideTransition,
+  hasTermsAcceptance,
   newTenantDefaults,
   type Tenant,
   type TenantStatus,
@@ -77,11 +78,36 @@ export interface TenantDto {
   placement: Tenant['placement'];
   legalHold: boolean;
   contractRef: string | null;
+  /** RULE-029: latest recorded acceptance of Terms and DPA, null = none yet (real data is blocked) */
+  termsAcceptance: {
+    termsVersion: string;
+    dpaVersion: string;
+    acceptedByName: string;
+    acceptedOn: string;
+    documentRef: string;
+    recordedBy: string;
+    recordedAt: string;
+  } | null;
   pendingTransition: { to: TenantStatus; reason: string; requestedBy: string } | null;
   provisioning: string[];
   createdAt: string;
   version: number;
 }
+
+const latestTerms = (t: Tenant): TenantDto['termsAcceptance'] => {
+  const a = (t.termsAcceptances ?? []).at(-1);
+  return a
+    ? {
+        termsVersion: a.termsVersion,
+        dpaVersion: a.dpaVersion,
+        acceptedByName: a.acceptedByName,
+        acceptedOn: a.acceptedOn,
+        documentRef: a.documentRef,
+        recordedBy: a.recordedBy,
+        recordedAt: a.recordedAt.toISOString(),
+      }
+    : null;
+};
 
 const toDto = (t: Tenant): TenantDto => ({
   id: t.id,
@@ -93,6 +119,7 @@ const toDto = (t: Tenant): TenantDto => ({
   placement: t.placement,
   legalHold: t.legalHold,
   contractRef: t.contractRef ?? null,
+  termsAcceptance: latestTerms(t),
   pendingTransition: t.pendingTransition
     ? {
         to: t.pendingTransition.to,
@@ -119,6 +146,70 @@ export async function getTenant(
   const t = await deps.tenants.get(id);
   if (!t) throw notFound();
   return toDto(t);
+}
+
+// ---- terms and DPA (RULE-029, FR-TEN-037 minimum) ---------------------------------
+
+export const termsSchema = z.object({
+  termsVersion: z.string().trim().min(1).max(40),
+  dpaVersion: z.string().trim().min(1).max(40),
+  acceptedByName: z.string().trim().min(2).max(120),
+  acceptedByCapacity: z.string().trim().min(2).max(120),
+  acceptedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  documentRef: z.string().trim().min(3).max(300),
+});
+
+/** Records (appends) the tenant's acceptance of Terms and DPA. Never edits an earlier entry; audited on the platform log. */
+export async function recordTermsAcceptance(
+  deps: SysDeps,
+  actor: PlatformActor,
+  id: string,
+  input: unknown,
+  ctx: RequestCtx,
+): Promise<TenantDto> {
+  require(actor, 'tenant:terms-record');
+  const data = parseInput(termsSchema, input);
+  return deps.uow.run(async (tx) => {
+    const t = await deps.tenants.getInTx(tx, id);
+    if (!t) throw notFound();
+    const now = deps.clock.now();
+    const entry = { id: deps.newId(), ...data, recordedBy: actor.platformUserId, recordedAt: now };
+    const list = [...(t.termsAcceptances ?? []), entry];
+    deps.tenants.update(tx, t.id, {
+      termsAcceptances: list,
+      updatedAt: now,
+      updatedBy: actor.platformUserId,
+      version: t.version + 1,
+    });
+    audit(deps, tx, actor, ctx, {
+      action: 'tenant.terms_accepted',
+      tenantId: t.id,
+      before: { accepted: (t.termsAcceptances ?? []).length > 0 },
+      after: {
+        termsVersion: data.termsVersion,
+        dpaVersion: data.dpaVersion,
+        acceptedOn: data.acceptedOn,
+        documentRef: data.documentRef,
+      },
+    });
+    return toDto({ ...t, termsAcceptances: list, version: t.version + 1 });
+  });
+}
+
+/**
+ * RULE-029: real data waits for the recorded acceptance. A `demo` tenant is exempt (no real data by definition); a
+ * `live` one needs at least one record. Throws `terms_acceptance_required` (409).
+ */
+export async function assertTermsAccepted(deps: SysDeps, tenantId: string): Promise<void> {
+  const t = await deps.tenants.get(tenantId);
+  if (t && t.environment === 'live' && !hasTermsAcceptance(t))
+    throw new AppError('terms_acceptance_required', 409);
+}
+
+/** Same rule as a boolean, for checklists (the e-invoice eligibility list). */
+export async function tenantTermsBlock(deps: SysDeps, tenantId: string): Promise<boolean> {
+  const t = await deps.tenants.get(tenantId);
+  return !!t && t.environment === 'live' && !hasTermsAcceptance(t);
 }
 
 // ---- lifecycle ----------------------------------------------------------------
@@ -200,6 +291,10 @@ export async function transitionTenant(
     if (selfApproved) {
       applyTransition(deps, tx, t, data.to, actor, ctx, {
         ...(data.reason ? { reason: data.reason } : {}),
+        // MT0-3: the owner proposing and approving in one step is written out (proposer = approver), never left blank
+        ...(d.rule.approval === 'owner' && actor.kind === 'platform'
+          ? { approverId: actor.platformUserId }
+          : {}),
       });
       return { state: 'applied', tenant: toDto({ ...t, status: data.to, version: t.version + 1 }) };
     }
@@ -475,7 +570,12 @@ export async function provisionTenant(
       const t = (await deps.tenants.getInTx(tx, tenant.id))!;
       const d = decideTransition(t, 'provisioning', { actor: caller });
       if (!d.ok) throw new AppError(d.code, 422);
-      applyTransition(deps, tx, t, 'provisioning', actor, ctx);
+      applyTransition(deps, tx, t, 'provisioning', actor, ctx, {
+        // MT0-3: CNT proposing and approving provisioning alone is written out, proposer = approver
+        ...(t.status === 'proposed' && actor.kind === 'platform'
+          ? { approverId: actor.platformUserId }
+          : {}),
+      });
       return { ...t, status: 'provisioning' as const, version: t.version + 1 };
     });
   }

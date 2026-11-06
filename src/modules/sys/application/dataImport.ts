@@ -37,6 +37,7 @@ import {
 } from '../ports/ports';
 import type { SysDeps } from '../ports/deps';
 import { auditEntry, parseInput, type RequestCtx } from './support';
+import { assertTermsAccepted } from './tenants';
 
 /** Cap of issues kept on a batch and returned to the screen; the count of all of them is kept (FR-SYS-007). */
 const MAX_ISSUES = 500;
@@ -224,6 +225,8 @@ export async function previewImport(
   if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   const handler = handlerOf(deps, data.kind);
   if (!importableKinds(deps, actor).includes(handler)) throw forbidden();
+  // RULE-029: real data is not accepted before the tenant's Terms and DPA acceptance is recorded
+  await assertTermsAccepted(deps, actor.tenantId);
   if (handler.needsWarehouse && !data.warehouseId)
     throw new AppError('validation_failed', 422, [
       { field: 'warehouseId', message: 'Chọn kho nhận tồn đầu kỳ.' },
@@ -494,6 +497,7 @@ export async function commitImport(
   ctx: RequestCtx,
 ): Promise<ImportDto> {
   const scope = resolveScope(actor, 'data-import:create');
+  await assertTermsAccepted(deps, actor.tenantId); // RULE-029
   const first = await deps.imports.get(scope, id);
   if (first) await reclaimStaleCommit(deps, actor, scope, first, ctx);
   const claimed = await deps.uow.run(async (tx) => {

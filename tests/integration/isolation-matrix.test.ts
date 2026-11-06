@@ -793,6 +793,7 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         {
           code: 'tnt_outsider',
           name: 'Garage Outsider',
+          environment: 'demo',
           owner: { email, name: 'Chủ ngoài', employeeCode: 'CH01' },
         },
         { requestId: 'req-out-1', idempotencyKey: 'prov-outsider-1' },

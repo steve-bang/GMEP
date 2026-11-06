@@ -12,6 +12,7 @@ export type PlatformPermission =
   | 'tenant:provision'
   | 'tenant:transition'
   | 'tenant:transition-approve'
+  | 'tenant:terms-record'
   | 'platform-config:manage'
   | 'plan:manage'
   | 'billing:manage'
@@ -27,6 +28,7 @@ export const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, readonly PlatformPe
     'tenant:provision',
     'tenant:transition',
     'tenant:transition-approve',
+    'tenant:terms-record',
     'platform-config:manage',
     'plan:manage',
     'platform-audit:view',
@@ -36,6 +38,7 @@ export const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, readonly PlatformPe
     'tenant:view',
     'tenant:provision',
     'tenant:transition',
+    'tenant:terms-record',
     'platform-config:manage',
     'plan:manage',
     'platform-audit:view',
