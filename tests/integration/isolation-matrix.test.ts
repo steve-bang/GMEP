@@ -923,6 +923,26 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
       expect(res.status).not.toBe(200);
     });
 
+    // P2-C write route: a password reset aimed at a user of tnt_demo answers like a missing id (branch axis and
+    // same-code-in-two-tenants are covered in worker-login.test.ts)
+    it.each(['u_th_q7', 'u_ql_q7'])(
+      'reset-password of %s (tnt_demo) answers like a missing id',
+      async (id) => {
+        const body = { temporaryPassword: 'Tam-Cheo-2026-zz', reason: 'thử chéo', version: 1 };
+        const missing = await h.call('POST', '/api/v1/sys/users/nope_NOPE_0000/reset-password', {
+          cookie: outsider,
+          body,
+        });
+        const res = await h.call('POST', `/api/v1/sys/users/${id}/reset-password`, {
+          cookie: outsider,
+          body,
+        });
+        expect(res.status).toBe(404);
+        expect(res.status).toBe(missing.status);
+        expect(strip(res.json)).toEqual(strip(missing.json));
+      },
+    );
+
     it.each([
       '/api/v1/sys/roles',
       '/api/v1/sys/config/labor-rate',

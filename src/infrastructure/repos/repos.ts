@@ -200,6 +200,9 @@ const userFromDoc = ({ id, data: x }: StoredDoc): User => ({
   status: x.status,
   ...(x.policyConsent ? { policyConsent: x.policyConsent } : {}),
   ...(x.lastLoginAt ? { lastLoginAt: x.lastLoginAt } : {}),
+  ...(x.loginKind === 'employee_code' ? { loginKind: 'employee_code' as const } : {}),
+  ...(x.mustChangePassword === true ? { mustChangePassword: true } : {}),
+  ...(x.tempPasswordExpiresAt ? { tempPasswordExpiresAt: x.tempPasswordExpiresAt } : {}),
   createdAt: x.createdAt,
   createdBy: x.createdBy,
   updatedAt: x.updatedAt,
@@ -238,6 +241,19 @@ export class DocUserRepository implements UserRepository {
       (await this.store.get(COL.userKeys, `code__${tenantId}__${normalizeEmployeeCode(code)}`)) !==
       null
     );
+  }
+  /**
+   * P2-C sign-in lookup. Always exactly two document reads (code key, then the user or a decoy id) whether or not the
+   * pair exists, so the answer time does not depend on it. A user of another tenant is never returned.
+   */
+  async findByEmployeeCode(tenantId: string, code: string): Promise<User | null> {
+    const key = await this.store.get(
+      COL.userKeys,
+      `code__${tenantId}__${normalizeEmployeeCode(code)}`,
+    );
+    const id = typeof key?.data.userId === 'string' ? key.data.userId : 'no_such_user_decoy';
+    const d = await this.store.get(COL.users, id);
+    return d && key && d.data.tenantId === tenantId ? userFromDoc(d) : null;
   }
   async list(scope: Scope, q: ListQuery<'employeeCode' | 'name'>): Promise<Page<User>> {
     if (scope.kind === 'all') {
@@ -280,7 +296,8 @@ export class DocUserRepository implements UserRepository {
   create(tx: Tx, user: User, opts?: { existingIdentity?: boolean }): void {
     // unique keys: create() fails at commit when the email (once per IDENTITY) or the code (per tenant) exists. A
     // membership joining an existing identity does not touch the email slot (FR-TEN-017 d).
-    if (!opts?.existingIdentity)
+    // an employee-code account (P2-C) has no email; its uniqueness is the code key below (the provider address derives from it)
+    if (!opts?.existingIdentity && user.loginKind !== 'employee_code')
       this.store.create(tx, COL.userKeys, `email__${user.email.toLowerCase()}`, {
         zone: 'tenant',
         identityId: user.identityId ?? user.id,
@@ -662,6 +679,7 @@ const sessionFromDoc = ({ id, data: x }: StoredDoc): SessionRecord => ({
   revokedAt: x.revokedAt ?? null,
   workingBranchId: x.workingBranchId ?? null,
   device: x.device ?? '',
+  ...(x.passwordChangeRequired === true ? { passwordChangeRequired: true } : {}),
 });
 
 export class DocSessionRepository implements SessionRepository {

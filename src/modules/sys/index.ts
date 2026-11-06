@@ -25,6 +25,8 @@ export {
   revokeIdentitySessions,
   listTenantChoices,
   selectTenant,
+  changeTemporaryPassword,
+  employeeLoginName,
   assertTenantWritable,
   invalidateUser,
   invalidateRole,
@@ -78,6 +80,8 @@ export {
   unlockUser,
   listUserSessions,
   revokeUserSessions,
+  createWorkerUser,
+  resetWorkerPassword,
 } from './application/users';
 export type { UserDto, AssignmentDto, SessionDto } from './application/users';
 export { listRoles, updateRole, applyPermissionTopUps } from './application/roles';

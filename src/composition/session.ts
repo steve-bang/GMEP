@@ -32,6 +32,12 @@ export const requireSession = cache(async (): Promise<Session> => {
         `/login/tenant?next=${encodeURIComponent(safeNext((await headers()).get('x-gm-next')))}`,
       );
     }
+    // P2-C: signed in with a temporary password: the forced change comes first
+    if (err instanceof AppError && err.code === 'password_change_required') {
+      redirect(
+        `/login/change-password?next=${encodeURIComponent(safeNext((await headers()).get('x-gm-next')))}`,
+      );
+    }
     throw err;
   }
 });

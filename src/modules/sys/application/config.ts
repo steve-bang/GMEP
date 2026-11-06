@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { loginAddressOf } from '../domain/entities';
 import { AppError, forbidden, notFound } from '@/platform/errors/errors';
 import {
   decodeCursor,
@@ -534,7 +535,7 @@ export async function reauthenticate(
   const user = await deps.users.getById(actor.tenantId, actor.userId);
   if (!user) throw forbidden();
   try {
-    const r = await deps.identity.signInWithPassword(user.email, password);
+    const r = await deps.identity.signInWithPassword(loginAddressOf(user), password);
     if (r.uid !== user.id) throw forbidden();
   } catch (e) {
     if (e instanceof InvalidCredentialsError) throw new AppError('reauth_required', 403);

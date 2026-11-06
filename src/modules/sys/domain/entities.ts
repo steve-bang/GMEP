@@ -1,4 +1,5 @@
 /** SYS domain entities (FR-SYS-001, 005, 011, 012, 013). Pure data + invariants, no I/O. */
+import { createHash } from 'node:crypto';
 
 /** `invited`: created by an admin, not yet activated (cannot log in). */
 export type UserStatus = 'invited' | 'active' | 'disabled';
@@ -28,12 +29,53 @@ export interface User {
   policyConsent?: { acceptedAt: Date; policyVersion: string };
   /** last successful sign-in (G4-SYS-01 column); absent until the first login */
   lastLoginAt?: Date;
+  /**
+   * P2-C (phase-2-plan 14.4, owner decision 07/11/2026): `employee_code` = staff member without an email who signs in
+   * with company code + employee code + password. `email` is then empty, the account has exactly one membership, no
+   * self-service recovery, and the identity-provider address is {@link workerLoginAddress} (never shown). Absent = email.
+   */
+  loginKind?: LoginKind;
+  /** a manager set a temporary password: the next sign-in only allows changing it (P2-C) */
+  mustChangePassword?: boolean;
+  /** the temporary password stops working after this instant (configuration `tempPasswordTtlMs`) */
+  tempPasswordExpiresAt?: Date | null;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
   version: number;
 }
+
+export type LoginKind = 'email' | 'employee_code';
+
+/**
+ * P2-C: reserved domain of the internal sign-in address of staff without an email. `.invalid` (RFC 2606) never receives
+ * mail, so no recovery mail can ever be sent and the address can never collide with a real one.
+ */
+export const WORKER_LOGIN_DOMAIN = 'workers.gmep.invalid';
+
+/**
+ * Internal identity-provider address of an `employee_code` account: derived from (tenant code, employee code), both
+ * immutable, hashed so the address reveals neither. Server-side only: never in a DTO, a log or an audit entry.
+ */
+export function workerLoginAddress(tenantId: string, employeeCode: string): string {
+  const h = createHash('sha256')
+    .update(`${tenantId}\u0000${normalizeEmployeeCode(employeeCode)}`)
+    .digest('hex')
+    .slice(0, 40);
+  return `w-${h}@${WORKER_LOGIN_DOMAIN}`;
+}
+
+/** Address used at the identity provider for this membership. */
+export const loginAddressOf = (
+  u: Pick<User, 'tenantId' | 'email' | 'employeeCode' | 'loginKind'>,
+) => (u.loginKind === 'employee_code' ? workerLoginAddress(u.tenantId, u.employeeCode) : u.email);
+
+/** Addresses nobody may register or invite: the reserved `.invalid` top-level domain (P2-C). */
+export const isReservedLoginEmail = (email: string): boolean => /\.invalid$/i.test(email.trim());
+
+/** Company code typed at the employee-code sign-in = the immutable tenant code, compared case-insensitively (FR-TEN-001). */
+export const normalizeCompanyCode = (code: string): string => code.trim().toLowerCase();
 
 /**
  * FR-SYS-011 + BA §5: `closing` = "Ngừng nhận lệnh mới", `locked` = read only. The behaviour per
@@ -120,6 +162,9 @@ export function warehouseId(branchId: string, code: string): string {
 
 export const BRANCH_CODE_PATTERN = /^[A-Z0-9]{2,4}$/;
 
+/** Normalised employee code (upper-case, no spaces), as stored. */
+export const EMPLOYEE_CODE_PATTERN = /^[A-Z0-9._-]{2,20}$/;
+
 /** Employee codes: compared case-insensitively, whitespace stripped (BA §1.6). */
 export function normalizeEmployeeCode(code: string): string {
   return code.replace(/\s+/g, '').toUpperCase();
@@ -149,6 +194,8 @@ export interface SessionRecord {
   workingBranchId: string | null;
   /** short, non-identifying description for the admin session list */
   device: string;
+  /** P2-C: signed in with a temporary password; reads no business data until the password is changed */
+  passwordChangeRequired?: boolean;
 }
 
 export type AuthTokenKind = 'reset' | 'invite';

@@ -174,6 +174,7 @@ export function sysConfigFromEnv(env: Env): SysConfig {
     passwordPolicy: DEFAULT_PASSWORD_POLICY,
     resetTokenTtlMs: 30 * 60_000,
     inviteTokenTtlMs: 72 * 3_600_000,
+    tempPasswordTtlMs: 72 * 3_600_000,
     authCacheTtlMs: env.AUTH_CACHE_TTL_SECONDS * 1000,
     configCacheTtlMs: env.CONFIG_CACHE_TTL_SECONDS * 1000,
     sessionTouchIntervalMs: 60_000,

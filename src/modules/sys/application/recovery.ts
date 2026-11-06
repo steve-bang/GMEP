@@ -42,7 +42,8 @@ export async function forgotPassword(
   const memberships = identifier.includes('@')
     ? await deps.users.findMembershipsByEmail(identifier)
     : [];
-  const user = memberships.find((m) => m.status === 'active');
+  // P2-C: an employee-code account has no recovery channel (its manager sets a temporary password)
+  const user = memberships.find((m) => m.status === 'active' && m.loginKind !== 'employee_code');
   if (!user) return;
 
   const { raw, id } = newOpaqueToken();

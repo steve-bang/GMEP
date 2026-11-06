@@ -15,19 +15,28 @@ import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/
 import { scopeAllows, type Scope } from '@/platform/scope/scope';
 import { assertBranchWritable } from '../domain/branchState';
 import { normalizeSearch } from '@/platform/text/normalize';
-import { OWNER_APPROVED_ROLES, ROLE_CODES } from '../domain/permissions';
-import { newOpaqueToken } from '../domain/passwordPolicy';
+import { BRANCH_ASSIGNABLE_ROLES, OWNER_APPROVED_ROLES, ROLE_CODES } from '../domain/permissions';
+import { checkPasswordPolicy, hashForHistory, newOpaqueToken } from '../domain/passwordPolicy';
+import { translate } from '@/platform/i18n/messages';
 import {
+  EMPLOYEE_CODE_PATTERN,
   identityOf,
+  isReservedLoginEmail,
   normalizeEmployeeCode,
+  workerLoginAddress,
   roleAssignmentId,
   type RoleAssignmentRecord,
   type SessionRecord,
   type User,
 } from '../domain/entities';
 import type { SysDeps } from '../ports/deps';
-import { AlreadyExistsError } from '../ports/ports';
-import { invalidateUser, revokeAllSessions } from './auth';
+import { AlreadyExistsError, IdentityUnavailableError } from '../ports/ports';
+import {
+  employeeLoginName,
+  invalidateUser,
+  revokeAllSessions,
+  revokeIdentitySessions,
+} from './auth';
 import { auditEntry, parseInput, roleCodesOf, type RequestCtx } from './support';
 
 /**
@@ -57,6 +66,12 @@ export interface UserDto {
   phone?: string;
   phoneReveal: 'none' | 'plain' | 'reason';
   status: string;
+  /** P2-C: `employee_code` = no email, signs in with company code + employee code */
+  loginKind: 'email' | 'employee_code';
+  /** P2-C, employee_code only: the company code to type at sign-in (= tenant code) */
+  companyCode?: string;
+  /** P2-C, employee_code only: a temporary password is waiting to be changed */
+  mustChangePassword?: boolean;
   /** ISO instant of the last successful sign-in, null before the first one */
   lastLoginAt: string | null;
   version: number;
@@ -78,6 +93,11 @@ function toUserDto(
     ...(phone.value !== undefined ? { phone: phone.value } : {}),
     phoneReveal: phone.reveal,
     status: u.status,
+    loginKind: u.loginKind ?? 'email',
+    // the internal provider address of an employee-code account is never part of a DTO (P2-C)
+    ...(u.loginKind === 'employee_code'
+      ? { companyCode: u.tenantId, mustChangePassword: u.mustChangePassword === true }
+      : {}),
     lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString() : null,
     version: u.version,
     ...(assignments
@@ -254,15 +274,24 @@ const assignmentInput = z.object({
   branchId: z.string().trim().min(1).max(64),
 });
 
+const employeeCodeInput = z
+  .string()
+  .trim()
+  .min(2)
+  .max(20)
+  .transform(normalizeEmployeeCode)
+  .pipe(z.string().regex(EMPLOYEE_CODE_PATTERN));
+
 export const inviteUserSchema = z.object({
-  email: z.string().trim().toLowerCase().email().max(254),
-  employeeCode: z
+  email: z
     .string()
     .trim()
-    .min(2)
-    .max(20)
-    .transform(normalizeEmployeeCode)
-    .pipe(z.string().regex(/^[A-Z0-9._-]{2,20}$/)),
+    .toLowerCase()
+    .email()
+    .max(254)
+    // P2-C: the reserved `.invalid` domain of employee-code accounts can never be invited (one membership only)
+    .refine((e) => !isReservedLoginEmail(e), 'reserved address'),
+  employeeCode: employeeCodeInput,
   displayName: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(20).optional(),
   assignments: z.array(assignmentInput).min(1).max(20),
@@ -649,8 +678,12 @@ export async function unlockUser(
   const scope = resolveScope(actor, 'user:manage');
   const u = await visibleUser(deps, scope, id);
   await assertManageable(deps, actor, u);
-  for (const name of [u.email.toLowerCase(), u.employeeCode.toLowerCase()])
-    await deps.throttle.unlockName(name);
+  for (const name of [
+    u.email.toLowerCase(),
+    u.employeeCode.toLowerCase(),
+    ...(u.loginKind === 'employee_code' ? [employeeLoginName(u.tenantId, u.employeeCode)] : []),
+  ])
+    if (name) await deps.throttle.unlockName(name);
   await deps.uow.run(async (tx) => {
     deps.audit.record(
       tx,
@@ -715,4 +748,233 @@ export async function revokeUserSessions(
       }),
     );
   });
+}
+
+// ---- staff without email (P2-C, phase-2-plan 14.4; owner decision 07/11/2026) -----------------------------------------
+
+const temporaryPasswordErrors = (
+  deps: SysDeps,
+  password: string,
+  history: Parameters<typeof checkPasswordPolicy>[1] = [],
+) =>
+  checkPasswordPolicy(password, history, deps.config.passwordPolicy).map((code) => ({
+    field: 'temporaryPassword',
+    message: translate(code, { min: deps.config.passwordPolicy.minLength }),
+  }));
+
+export const createWorkerSchema = z.object({
+  loginKind: z.literal('employee_code'),
+  employeeCode: employeeCodeInput,
+  displayName: z.string().trim().min(2).max(120),
+  phone: z.string().trim().max(20).optional(),
+  assignments: z.array(assignmentInput).min(1).max(20),
+  /** set by the manager and handed over in person; never stored or echoed (only the salted history hash) */
+  temporaryPassword: z.string().min(1).max(256),
+});
+
+/**
+ * P2-C / FR-SYS-001: a manager (`user:create`) creates a staff member WITHOUT email. The account is `active` at once
+ * with the manager's temporary password, which must be changed at the first sign-in and expires after
+ * `tempPasswordTtlMs`. Exactly one membership (no email = nothing to invite into another tenant), no self-service
+ * recovery. [Đề xuất dev, chờ BA]: only branch roles (CV, QĐ, TH, TK, TN) on concrete branches; management roles keep an
+ * email. Idempotent; the fingerprint deliberately leaves the password out (it must not be derivable from stored data).
+ */
+export async function createWorkerUser(
+  deps: SysDeps,
+  actor: Actor,
+  input: unknown,
+  ctx: RequestCtx & { idempotencyKey: string },
+): Promise<{ response: StoredResponse; replayed: boolean }> {
+  const scope = resolveScope(actor, 'user:create');
+  const data = parseInput(createWorkerSchema, input);
+  const badRole = data.assignments.findIndex(
+    (a) => a.branchId === '*' || !BRANCH_ASSIGNABLE_ROLES.includes(a.roleCode),
+  );
+  if (badRole >= 0)
+    throw new AppError('validation_failed', 422, [
+      { field: `assignments.${badRole}`, message: translate('users.noEmail.roleOnly') },
+    ]);
+  for (const a of data.assignments) await assertAssignable(deps, actor, scope, a);
+  const pwErrors = temporaryPasswordErrors(deps, data.temporaryPassword);
+  if (pwErrors.length) throw new AppError('validation_failed', 422, pwErrors);
+  const { temporaryPassword, ...fingerprinted } = data;
+  const userId = deps.newId();
+  let created: User | null = null;
+  try {
+    const result = await runIdempotent(
+      idem(deps),
+      {
+        userId: actor.userId,
+        route: 'POST /api/v1/sys/users',
+        key: ctx.idempotencyKey,
+        fingerprint: fingerprintOf(fingerprinted),
+      },
+      async (tx) => {
+        // Firestore: the history read happens before the first write of the transaction
+        await deps.users.appendPasswordHistory(
+          tx,
+          userId,
+          hashForHistory(temporaryPassword),
+          deps.config.passwordPolicy.historyDepth,
+        );
+        if (await deps.users.employeeCodeTaken(actor.tenantId, data.employeeCode))
+          throw new AppError('user_exists', 409);
+        const now = deps.clock.now();
+        const user: User = {
+          id: userId,
+          tenantId: actor.tenantId,
+          email: '',
+          loginKind: 'employee_code',
+          employeeCode: data.employeeCode,
+          displayName: data.displayName,
+          ...(data.phone ? { phone: data.phone } : {}),
+          status: 'active',
+          mustChangePassword: true,
+          tempPasswordExpiresAt: new Date(now.getTime() + deps.config.tempPasswordTtlMs),
+          createdAt: now,
+          createdBy: actor.userId,
+          updatedAt: now,
+          updatedBy: actor.userId,
+          version: 1,
+        };
+        deps.users.create(tx, user);
+        const recs: RoleAssignmentRecord[] = data.assignments.map((a) => ({
+          id: roleAssignmentId(userId, a.roleCode, a.branchId),
+          userId,
+          tenantId: actor.tenantId,
+          roleCode: a.roleCode,
+          branchId: a.branchId,
+          employeeCode: data.employeeCode,
+          createdAt: now,
+          createdBy: actor.userId,
+        }));
+        for (const r of recs) deps.assignments.add(tx, { ...r });
+        deps.audit.record(
+          tx,
+          auditEntry(deps, actor, ctx, {
+            branchId: null,
+            entityType: 'user',
+            entityId: userId,
+            action: 'user.create_no_email',
+            after: {
+              employeeCode: user.employeeCode,
+              loginKind: 'employee_code',
+              phone: user.phone,
+              status: 'active',
+              mustChangePassword: true,
+              assignments: data.assignments,
+            },
+          }),
+        );
+        created = user;
+        return { status: 201, body: toUserDto(deps, actor, user, recs) };
+      },
+    );
+    if (!result.replayed && created) {
+      const u = created as User;
+      // identity account after the commit; if the provider fails, "Đặt lại mật khẩu tạm" creates it (resetWorkerPassword)
+      try {
+        await deps.identity.createUser({
+          uid: u.id,
+          email: workerLoginAddress(u.tenantId, u.employeeCode),
+          displayName: u.displayName,
+        });
+        await deps.identity.setPassword(u.id, temporaryPassword);
+      } catch (e) {
+        if (e instanceof IdentityUnavailableError)
+          throw new AppError('unavailable', 503, [], { cause: e });
+        throw e;
+      }
+    }
+    return result;
+  } catch (e) {
+    if (e instanceof AlreadyExistsError) throw new AppError('user_exists', 409);
+    throw e;
+  }
+}
+
+export const resetWorkerPasswordSchema = z.object({
+  temporaryPassword: z.string().min(1).max(256),
+  reason: z.string().trim().min(3).max(300),
+  version: z.number().int().min(1),
+});
+
+/**
+ * P2-C: the only recovery of an employee-code account. `user-credential:manage` (by action, not by role name) inside the
+ * actor's branch scope; owner-approved targets need the owner (as every user change). Sets a new temporary password
+ * (forced change, expiring), revokes every session and provider token of the account and clears its lockout. Audited
+ * with the reason; the password itself is never audited, logged or returned. Optimistic version against double submit.
+ */
+export async function resetWorkerPassword(
+  deps: SysDeps,
+  actor: Actor,
+  id: string,
+  input: unknown,
+  ctx: RequestCtx,
+): Promise<UserDto> {
+  const scope = resolveScope(actor, 'user-credential:manage');
+  const data = parseInput(resetWorkerPasswordSchema, input);
+  const target = await visibleUser(deps, scope, id);
+  await assertManageable(deps, actor, target);
+  if (target.loginKind !== 'employee_code' || target.status !== 'active')
+    throw new AppError('state_invalid', 409);
+  const history = await deps.users.passwordHistory(identityOf(target));
+  const pwErrors = temporaryPasswordErrors(deps, data.temporaryPassword, history);
+  if (pwErrors.length) throw new AppError('validation_failed', 422, pwErrors);
+  const now = deps.clock.now();
+  const updated = await deps.uow.run(async (tx) => {
+    const u = await deps.users.getByIdInTx(tx, actor.tenantId, id);
+    if (!u) throw notFound();
+    if (u.version !== data.version) throw new AppError('version_conflict', 409);
+    // Firestore: every read (user, history) happens before the first write
+    await deps.users.appendPasswordHistory(
+      tx,
+      identityOf(u),
+      hashForHistory(data.temporaryPassword),
+      deps.config.passwordPolicy.historyDepth,
+    );
+    const expires = new Date(now.getTime() + deps.config.tempPasswordTtlMs);
+    deps.users.update(tx, id, {
+      mustChangePassword: true,
+      tempPasswordExpiresAt: expires,
+      updatedAt: now,
+      updatedBy: actor.userId,
+      version: u.version + 1,
+    });
+    deps.audit.record(
+      tx,
+      auditEntry(deps, actor, ctx, {
+        branchId: null,
+        entityType: 'user',
+        entityId: id,
+        action: 'user.password_reset_by_manager',
+        before: { mustChangePassword: u.mustChangePassword === true },
+        after: { mustChangePassword: true, sessionsRevoked: true, unlocked: true },
+        reason: data.reason,
+      }),
+    );
+    return {
+      ...u,
+      mustChangePassword: true,
+      tempPasswordExpiresAt: expires,
+      version: u.version + 1,
+    };
+  });
+  try {
+    await deps.identity
+      .createUser({
+        uid: identityOf(updated),
+        email: workerLoginAddress(updated.tenantId, updated.employeeCode),
+        displayName: updated.displayName,
+      })
+      .catch(() => undefined); // exists already: fine (missing only when the creation step failed)
+    await deps.identity.setPassword(identityOf(updated), data.temporaryPassword);
+  } catch (e) {
+    if (e instanceof IdentityUnavailableError)
+      throw new AppError('unavailable', 503, [], { cause: e });
+    throw e;
+  }
+  await revokeIdentitySessions(deps, updated);
+  await deps.throttle.unlockName(employeeLoginName(updated.tenantId, updated.employeeCode));
+  return toUserDto(deps, actor, updated, await deps.assignments.listInScope(scope, id));
 }

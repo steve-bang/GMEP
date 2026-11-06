@@ -52,6 +52,11 @@ export interface UserRepository {
   getAnyById(id: string): Promise<User | null>;
   /** every membership registered with this email, any tenant (sign-in and invitation only; never shown to a tenant) */
   findMembershipsByEmail(email: string): Promise<User[]>;
+  /**
+   * P2-C pre-authentication lookup by (tenant code, employee code): a fixed number of reads whether or not the pair
+   * exists (uniform answer time). Identity data only.
+   */
+  findByEmployeeCode(tenantId: string, code: string): Promise<User | null>;
   /** employee codes are unique per tenant only (RULE-018) */
   employeeCodeTaken(tenantId: string, code: string): Promise<boolean>;
   /**
@@ -66,7 +71,17 @@ export interface UserRepository {
   update(
     tx: Tx,
     id: string,
-    patch: Partial<Pick<User, 'displayName' | 'phone' | 'status' | 'policyConsent'>> & {
+    patch: Partial<
+      Pick<
+        User,
+        | 'displayName'
+        | 'phone'
+        | 'status'
+        | 'policyConsent'
+        | 'mustChangePassword'
+        | 'tempPasswordExpiresAt'
+      >
+    > & {
       updatedAt: Date;
       updatedBy: string;
       version: number;

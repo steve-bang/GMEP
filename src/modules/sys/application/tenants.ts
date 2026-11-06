@@ -1,7 +1,12 @@
 import { z } from 'zod';
 import { AppError, conflict, forbidden, notFound } from '@/platform/errors/errors';
 import type { Tx } from '@/platform/tx/unitOfWork';
-import { identityOf, normalizeEmployeeCode, roleAssignmentId } from '../domain/entities';
+import {
+  identityOf,
+  isReservedLoginEmail,
+  normalizeEmployeeCode,
+  roleAssignmentId,
+} from '../domain/entities';
 import { defaultRoleSeeds } from '../domain/permissions';
 import {
   platformHas,
@@ -388,7 +393,13 @@ export const provisionSchema = z.object({
   /** the garage owner (role CH, every branch): invited by email once the tenant exists (FR-TEN-002, 017) */
   owner: z
     .object({
-      email: z.string().trim().toLowerCase().email().max(254),
+      email: z
+        .string()
+        .trim()
+        .toLowerCase()
+        .email()
+        .max(254)
+        .refine((e) => !isReservedLoginEmail(e), 'reserved address'),
       name: z.string().trim().min(2).max(120),
       employeeCode: z
         .string()

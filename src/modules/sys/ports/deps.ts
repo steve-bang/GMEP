@@ -50,6 +50,8 @@ export interface SysConfig {
   /** FR-SYS-001 / ADR §6.3: reset link 30 min, invitation 72 h */
   resetTokenTtlMs: number;
   inviteTokenTtlMs: number;
+  /** P2-C: a temporary password set by a manager stops working after this long [Cần xác nhận: Chủ dự án] (default 72 h) */
+  tempPasswordTtlMs: number;
   /** H1: how long a verified session / actor may be served from memory (max staleness of revocation) */
   authCacheTtlMs: number;
   /** effective-config read cache (resolveAt) */

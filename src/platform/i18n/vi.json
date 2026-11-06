@@ -33,6 +33,10 @@
       "title": "Chưa chọn công ty",
       "detail": "Bạn có tài khoản ở nhiều công ty. Hãy chọn công ty để tiếp tục."
     },
+    "password_change_required": {
+      "title": "Cần đổi mật khẩu",
+      "detail": "Bạn đang dùng mật khẩu tạm. Đổi mật khẩu để tiếp tục."
+    },
     "tenant_read_only": {
       "title": "Công ty đang ở chế độ chỉ đọc",
       "detail": "Công ty này đang tạm ngưng hoặc đang chấm dứt nên chỉ xem và tải dữ liệu được."
@@ -918,7 +922,28 @@
     "showPassword": "Hiện hoặc ẩn mật khẩu",
     "wait": "Thử lại sau {time}.",
     "expiredTitle": "Phiên làm việc đã hết hạn",
-    "expiredText": "Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị."
+    "expiredText": "Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị.",
+    "modeLabel": "Cách đăng nhập",
+    "modeEmail": "Đăng nhập bằng email",
+    "modeEmployee": "Đăng nhập bằng mã nhân viên",
+    "companyCode": "Mã công ty",
+    "companyCodeHint": "Quản lý chi nhánh cung cấp mã này cùng mã nhân viên.",
+    "employeeCode": "Mã nhân viên",
+    "companyCodeRequired": "Nhập mã công ty.",
+    "employeeCodeRequired": "Nhập mã nhân viên.",
+    "employeeForgot": "Quên mật khẩu? Nhờ quản lý chi nhánh đặt lại mật khẩu tạm.",
+    "change": {
+      "title": "Đổi mật khẩu",
+      "lead": "Bạn đang dùng mật khẩu tạm do quản lý cấp. Đặt mật khẩu của riêng bạn để bắt đầu làm việc.",
+      "current": "Mật khẩu tạm hiện tại",
+      "new": "Mật khẩu mới",
+      "confirm": "Nhập lại mật khẩu mới",
+      "mismatch": "Hai mật khẩu mới chưa khớp.",
+      "consent": "Tôi đã đọc và đồng ý với quy định sử dụng và bảo mật dữ liệu của công ty (phiên bản: {version}).",
+      "consentRequired": "Cần đồng ý quy định để tiếp tục.",
+      "submit": "Đổi mật khẩu và vào hệ thống",
+      "failed": "Không đổi được mật khẩu. Đăng nhập lại rồi thử lại."
+    }
   },
   "shell": {
     "skip": "Bỏ qua điều hướng, tới nội dung chính",
@@ -1093,7 +1118,8 @@
   "policy": {
     "password": {
       "min_length": "Mật khẩu cần ít nhất {min} ký tự.",
-      "reused": "Mật khẩu này đã dùng gần đây. Không dùng lại các mật khẩu gần nhất."
+      "reused": "Mật khẩu này đã dùng gần đây. Không dùng lại các mật khẩu gần nhất.",
+      "current_wrong": "Mật khẩu hiện tại chưa đúng."
     }
   },
   "forgot": {
@@ -1247,6 +1273,22 @@
     "dirLast": {
       "asc": "cũ nhất trước",
       "desc": "mới nhất trước"
+    },
+    "noEmail": {
+      "toggle": "Nhân viên không có email",
+      "toggleHint": "Nhân viên đăng nhập bằng mã công ty, mã nhân viên và mật khẩu tạm bạn đặt; phải đổi mật khẩu ở lần đăng nhập đầu. Không có quên mật khẩu tự phục vụ: bạn đặt lại khi cần.",
+      "temporaryPassword": "Mật khẩu tạm",
+      "temporaryPasswordHint": "Ít nhất {min} ký tự. Giao trực tiếp cho nhân viên, không gửi qua tin nhắn. Hết hạn sau {hours} giờ nếu chưa dùng.",
+      "create": "Tạo nhân viên",
+      "created": "Đã tạo nhân viên. Mã công ty: {company} · Mã nhân viên: {code}.",
+      "roleOnly": "Nhân viên không có email chỉ nhận vai trò chi nhánh (Cố vấn, Quản đốc, Thợ, Thủ kho, Thu ngân) tại một chi nhánh cụ thể.",
+      "badge": "Không email",
+      "companyCode": "Mã công ty để đăng nhập",
+      "mustChange": "Đang chờ nhân viên đổi mật khẩu tạm.",
+      "reset": "Đặt lại mật khẩu tạm",
+      "resetLead": "Mọi phiên của nhân viên bị đăng xuất, khóa đăng nhập được gỡ, nhân viên phải đổi mật khẩu ở lần đăng nhập tới.",
+      "reason": "Lý do",
+      "resetDone": "Đã đặt lại mật khẩu tạm."
     }
   },
   "pii": {
@@ -1652,6 +1694,10 @@
       "auth_tenant_select": "Chọn công ty",
       "auth_password_reset": "Đặt lại mật khẩu",
       "auth_password_reset_requested": "Yêu cầu đặt lại mật khẩu",
+      "auth_login_temporary": "Đăng nhập bằng mật khẩu tạm (chờ đổi mật khẩu)",
+      "auth_password_changed_first": "Đổi mật khẩu tạm lần đầu",
+      "user_create_no_email": "Tạo nhân viên không có email",
+      "user_password_reset_by_manager": "Quản lý đặt lại mật khẩu tạm",
       "branch_create": "Tạo chi nhánh",
       "branch_status": "Đổi trạng thái chi nhánh",
       "branch_update": "Sửa chi nhánh",

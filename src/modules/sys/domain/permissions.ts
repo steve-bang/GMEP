@@ -313,6 +313,7 @@ const HR_TH = flatten([g('labor-own', 'view')]);
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
+    g('user-credential', 'manage'),
     g('role', 'view', 'create', 'update', 'approve', 'reject'),
     g('security-policy', 'view', 'update', 'approve', 'reject'),
     g('device', 'view', 'create', 'archive'),
@@ -386,6 +387,7 @@ const matrix: Grant = {
     .concat(HR_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
+    g('user-credential', 'manage'),
     g('device', 'view', 'create', 'archive'),
     g('worker-pin', 'manage'),
     g('org', 'view'),
@@ -515,6 +517,7 @@ const matrix: Grant = {
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
+    g('user-credential', 'manage'),
     g('role', 'view', 'create', 'update'),
     g('security-policy', 'view', 'update'),
     g('device', 'view', 'create', 'archive'),
@@ -656,6 +659,15 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
     id: '2026-11-sys-2.5-approvals',
     note: 'Slice 2.5: approval delegation, owner only (FR-SYS-033)',
     grants: { CH: flatten([g('approval-delegation', 'view', 'update')]) },
+  },
+  {
+    id: '2026-11-sys-worker-login',
+    note: 'P2-C (owner decision 07/11/2026): user-credential:manage = set a temporary password for a staff member without email (CH, QL, AD)',
+    grants: {
+      CH: ['user-credential:manage'],
+      QL: ['user-credential:manage'],
+      AD: ['user-credential:manage'],
+    },
   },
   {
     id: '2026-11-sys-1.11-import',

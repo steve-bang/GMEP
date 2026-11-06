@@ -1,12 +1,28 @@
 import { createHash } from 'node:crypto';
-import { AppError, invalidCredentials, unauthenticated } from '@/platform/errors/errors';
+import { z } from 'zod';
+import {
+  AppError,
+  invalidCredentials,
+  unauthenticated,
+  validationFailed,
+} from '@/platform/errors/errors';
+import { translate } from '@/platform/i18n/messages';
+import { checkPasswordPolicy, hashForHistory } from '../domain/passwordPolicy';
 import type { Actor } from '@/platform/rbac/rbac';
 import { sessionLimitsFor } from '../domain/sessionPolicy';
-import { identityOf, type User } from '../domain/entities';
-import { TENANT_ACCESS, type TenantStatus } from '../domain/tenant';
+import {
+  EMPLOYEE_CODE_PATTERN,
+  identityOf,
+  isReservedLoginEmail,
+  loginAddressOf,
+  normalizeCompanyCode,
+  normalizeEmployeeCode,
+  type User,
+} from '../domain/entities';
+import { TENANT_ACCESS, TENANT_ID_PATTERN, type TenantStatus } from '../domain/tenant';
 import type { CachedSession, SysDeps } from '../ports/deps';
 import { IdentityUnavailableError, InvalidCredentialsError } from '../ports/ports';
-import { normalizeLoginName } from './support';
+import { normalizeLoginName, parseInput } from './support';
 
 /**
  * Cookie value = `<sid>.<provider session cookie>`. `sid` is our own random session id (record
@@ -25,7 +41,11 @@ function unpackCookie(cookie: string): { sid: string; token: string } | null {
 const cacheKey = (cookie: string) => createHash('sha256').update(cookie).digest('hex');
 
 export interface LoginInput {
-  identifier: string;
+  /** email sign-in (FR-TEN-016) */
+  identifier?: string;
+  /** P2-C employee-code sign-in: company code (= tenant code) + employee code; used when either is present */
+  companyCode?: string;
+  employeeCode?: string;
   password: string;
   requestId: string;
   /** random id from the device cookie (lockout counter A) */
@@ -48,6 +68,8 @@ export interface LoginResult {
   user: { id: string; displayName: string } | null;
   /** present exactly when `user` is null */
   tenants?: TenantChoice[];
+  /** P2-C: signed in with a temporary password; the session only allows changing it */
+  passwordChangeRequired?: true;
 }
 
 /** Active memberships of a person whose tenant is still allowed to sign in (suspended, terminated... are not offered). */
@@ -127,7 +149,9 @@ async function initialWorkingBranch(
 const DECOY_EMAIL = 'no-such-person@gmep.invalid';
 
 export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResult> {
-  const name = normalizeLoginName(input.identifier);
+  if (input.companyCode !== undefined || input.employeeCode !== undefined)
+    return loginByEmployeeCode(deps, input);
+  const name = normalizeLoginName(input.identifier ?? '');
   if (!name || !input.password) throw invalidCredentials();
   const subject = { deviceId: input.deviceId, name, address: input.address };
   await deps.throttle.assertAllowed(subject);
@@ -139,8 +163,10 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
 
   // FR-TEN-016: the identity is the email (unique platform-wide); an employee code is not a login name because it is
   // unique per tenant only (RULE-018). Unknown email, wrong password and an unusable tenant all end in the same answer.
-  const email = input.identifier.trim().toLowerCase();
-  const all = email.includes('@') ? await deps.users.findMembershipsByEmail(email) : [];
+  const email = (input.identifier ?? '').trim().toLowerCase();
+  // P2-C: the internal address of an employee-code account is never a login name (no door around the company code)
+  const isEmail = email.includes('@') && !isReservedLoginEmail(email);
+  const all = isEmail ? await deps.users.findMembershipsByEmail(email) : [];
   const usable = await usableMemberships(deps, all);
   const identityId = usable[0] ? identityOf(usable[0].user) : null;
   const known = identityId !== null && usable.every((m) => identityOf(m.user) === identityId);
@@ -150,13 +176,8 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
   // apart. Whatever it returns is ignored unless the membership exists; the answer is the same neutral one.
   let signedIn: { uid: string; idToken: string } | null = null;
   try {
-    signedIn = await deps.identity.signInWithPassword(
-      email.includes('@') ? email : DECOY_EMAIL,
-      input.password,
-    );
+    signedIn = await passwordCheck(deps, isEmail ? email : DECOY_EMAIL, input.password);
   } catch (err) {
-    if (err instanceof IdentityUnavailableError)
-      throw new AppError('unavailable', 503, [], { cause: err });
     if (!(err instanceof InvalidCredentialsError)) throw err;
   }
   if (!known || !signedIn || signedIn.uid !== identityId) return fail();
@@ -196,46 +217,198 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
     };
   }
 
-  const byLogin = usable[0]!.user;
-  const { actor, roleCodes } = await loadActor(deps, byLogin, null);
+  return startTenantSession(deps, usable[0]!.user, signedIn.idToken, {
+    memberships,
+    device,
+    requestId: input.requestId,
+    audit: true,
+  });
+}
+
+/** Password check at the identity provider; a provider outage is a 503, never a neutral "wrong password". */
+async function passwordCheck(deps: SysDeps, address: string, password: string) {
+  try {
+    return await deps.identity.signInWithPassword(address, password);
+  } catch (err) {
+    if (err instanceof IdentityUnavailableError)
+      throw new AppError('unavailable', 503, [], { cause: err });
+    throw err;
+  }
+}
+
+/** Full session bound to exactly ONE membership (RULE-026), with its audit line in a transaction (FR-SYS-003). */
+async function startTenantSession(
+  deps: SysDeps,
+  user: User,
+  idToken: string,
+  o: { memberships: string[]; device: string; requestId: string; audit: boolean },
+): Promise<LoginResult> {
+  const now = deps.clock.now();
+  const { actor, roleCodes } = await loadActor(deps, user, null);
   const limits = sessionLimitsFor(deps.config.sessionPolicy, roleCodes);
-  const token = await deps.identity.createSessionCookie(signedIn.idToken, limits.absoluteMs);
+  const token = await deps.identity.createSessionCookie(idToken, limits.absoluteMs);
   const sessionId = deps.newId();
-  const working = await initialWorkingBranch(deps, byLogin, actor);
+  const working = await initialWorkingBranch(deps, user, actor);
   await deps.sessions.create({
     id: sessionId,
-    userId: byLogin.id,
-    ...base,
-    tenantId: byLogin.tenantId,
+    userId: user.id,
+    identityId: identityOf(user),
+    memberships: o.memberships,
+    tenantId: user.tenantId,
     createdAt: now,
     expiresAt: new Date(now.getTime() + limits.absoluteMs),
     lastSeenAt: now,
     revokedAt: null,
     workingBranchId: working,
-    device,
+    device: o.device,
   });
   // a failed write of the display-only "last login" must never block a valid sign-in
-  await deps.users.recordLogin(byLogin.id, now).catch(() => undefined);
+  await deps.users.recordLogin(user.id, now).catch(() => undefined);
+  // the first password change writes its own audit line inside its own transaction
+  if (o.audit)
+    await deps.uow.run(async (tx) => {
+      deps.audit.record(tx, {
+        id: deps.newId(),
+        at: now,
+        tenantId: user.tenantId,
+        branchId: null,
+        actorId: user.id,
+        actorRoles: roleCodes,
+        entityType: 'session',
+        entityId: sessionId,
+        action: 'auth.login',
+        before: null,
+        after: user.loginKind === 'employee_code' ? { method: 'employee_code' } : null,
+        requestId: o.requestId,
+      });
+    });
+  return {
+    sessionCookie: packCookie(sessionId, token),
+    maxAgeSeconds: Math.floor(limits.absoluteMs / 1000),
+    user: { id: user.id, displayName: user.displayName },
+  };
+}
+
+// ---- employee-code sign-in (P2-C, phase-2-plan 14.4; owner decision 07/11/2026) ---------------------------------------
+
+/** Never a tenant code (TENANT_ID_PATTERN starts with a letter) nor an employee code: lookups with them find nothing. */
+const COMPANY_DECOY = '_none_';
+const CODE_DECOY = '_NONE_';
+/** a session waiting for the password change lives at most this long */
+const PASSWORD_CHANGE_SESSION_MS = 15 * 60_000;
+
+/** Lockout name of an employee-code sign-in (counters A and B); also what an unlock clears. */
+export const employeeLoginName = (companyCode: string, employeeCode: string): string =>
+  `emp:${normalizeCompanyCode(companyCode).slice(0, 64)}|${normalizeEmployeeCode(employeeCode).slice(0, 32).toLowerCase()}`;
+
+/**
+ * P2-C: company code + employee code + password, next to the email sign-in. The company code is the immutable tenant
+ * code (unique platform-wide, case-insensitive); only `employee_code` accounts sign in this way and the session is bound
+ * to that one membership (no "Chọn công ty"). Anti-enumeration (UAT-TEN-21 a): unknown company, unknown employee code,
+ * wrong password, disabled account, unusable tenant and expired temporary password all end in the same neutral answer,
+ * after the same reads and exactly one password check (a decoy address when nothing matched). Counters: device + pair
+ * (A, hard lock), pair (B), address (C), company (D), all fed by unknown pairs exactly like known ones.
+ */
+async function loginByEmployeeCode(deps: SysDeps, input: LoginInput): Promise<LoginResult> {
+  const rawCompany = normalizeCompanyCode(input.companyCode ?? '').slice(0, 64);
+  const rawCode = normalizeEmployeeCode(input.employeeCode ?? '').slice(0, 32);
+  if (!rawCompany || !rawCode || !input.password) throw invalidCredentials();
+  const subject = {
+    deviceId: input.deviceId,
+    name: employeeLoginName(rawCompany, rawCode),
+    address: input.address,
+    group: `emp:${rawCompany}`,
+  };
+  await deps.throttle.assertAllowed(subject);
+  const fail = async (): Promise<never> => {
+    await deps.throttle.recordFailure(subject);
+    throw invalidCredentials();
+  };
+
+  const company = TENANT_ID_PATTERN.test(rawCompany) ? rawCompany : COMPANY_DECOY;
+  const code = EMPLOYEE_CODE_PATTERN.test(rawCode) ? rawCode : CODE_DECOY;
+  const [member, tenant] = await Promise.all([
+    deps.users.findByEmployeeCode(company, code),
+    deps.tenants.get(company),
+  ]);
+  const now = deps.clock.now();
+  const usable =
+    member !== null &&
+    member.loginKind === 'employee_code' &&
+    member.status === 'active' &&
+    // a tenant record that does not exist yet (data created before MT-0) counts as a live tenant, as for email
+    (tenant === null || TENANT_ACCESS[tenant.status].signIn);
+  const tempExpired =
+    usable &&
+    member.mustChangePassword === true &&
+    !(member.tempPasswordExpiresAt && member.tempPasswordExpiresAt > now);
+
+  let signedIn: { uid: string; idToken: string } | null = null;
+  try {
+    signedIn = await passwordCheck(
+      deps,
+      usable ? loginAddressOf(member) : DECOY_EMAIL,
+      input.password,
+    );
+  } catch (err) {
+    if (!(err instanceof InvalidCredentialsError)) throw err;
+  }
+  if (!usable || !signedIn || signedIn.uid !== identityOf(member) || tempExpired) return fail();
+
+  const requirement = await deps.strongAuth.requirementFor(member);
+  if (requirement !== 'none') throw new AppError('strong_auth_required', 401);
+  await deps.throttle.recordSuccess(subject);
+  const device = (input.userAgent ?? '').replace(/[^\x20-\x7e]/g, '').slice(0, 80);
+  if (!member.mustChangePassword)
+    return startTenantSession(deps, member, signedIn.idToken, {
+      memberships: [member.id],
+      device,
+      requestId: input.requestId,
+      audit: true,
+    });
+
+  // temporary password: a session that reads no business data until the password is changed (like "Chọn công ty")
+  const ttl = Math.min(
+    PASSWORD_CHANGE_SESSION_MS,
+    sessionLimitsFor(deps.config.sessionPolicy, []).absoluteMs,
+  );
+  const token = await deps.identity.createSessionCookie(signedIn.idToken, ttl);
+  const sessionId = deps.newId();
+  await deps.sessions.create({
+    id: sessionId,
+    userId: member.id,
+    identityId: identityOf(member),
+    memberships: [member.id],
+    tenantId: member.tenantId,
+    createdAt: now,
+    expiresAt: new Date(now.getTime() + ttl),
+    lastSeenAt: now,
+    revokedAt: null,
+    workingBranchId: null,
+    device,
+    passwordChangeRequired: true,
+  });
   await deps.uow.run(async (tx) => {
     deps.audit.record(tx, {
       id: deps.newId(),
       at: now,
-      tenantId: byLogin.tenantId,
+      tenantId: member.tenantId,
       branchId: null,
-      actorId: byLogin.id,
-      actorRoles: roleCodes,
+      actorId: member.id,
+      actorRoles: [],
       entityType: 'session',
       entityId: sessionId,
-      action: 'auth.login',
+      action: 'auth.login_temporary',
       before: null,
-      after: null,
+      after: { method: 'employee_code' },
       requestId: input.requestId,
     });
   });
   return {
     sessionCookie: packCookie(sessionId, token),
-    maxAgeSeconds: Math.floor(limits.absoluteMs / 1000),
-    user: { id: byLogin.id, displayName: byLogin.displayName },
+    maxAgeSeconds: Math.floor(ttl / 1000),
+    user: { id: member.id, displayName: member.displayName },
+    passwordChangeRequired: true,
   };
 }
 
@@ -295,6 +468,8 @@ export async function resolveSession(
     throw unauthenticated();
   // RULE-026: signed in but no tenant chosen yet = no business data at all
   if (session.tenantId === null) throw new AppError('tenant_selection_required', 403);
+  // P2-C: signed in with a temporary password = no business data until it is changed
+  if (session.passwordChangeRequired) throw new AppError('password_change_required', 403);
   const user = await deps.users.getAnyById(session.userId);
   if (!user || user.status !== 'active') throw unauthenticated();
   // the tenant of the session is the tenant of the membership, never anything the client sent (FR-TEN-010)
@@ -392,7 +567,9 @@ export async function revokeAllSessions(deps: SysDeps, membershipId: string): Pr
  */
 export async function revokeIdentitySessions(deps: SysDeps, user: User): Promise<void> {
   const identityId = identityOf(user);
-  const all = await deps.users.findMembershipsByEmail(user.email);
+  // an employee-code account (P2-C) has no email and exactly one membership
+  const all =
+    user.loginKind === 'employee_code' ? [] : await deps.users.findMembershipsByEmail(user.email);
   const ids = new Set([
     user.id,
     ...all.filter((m) => identityOf(m) === identityId).map((m) => m.id),
@@ -435,6 +612,7 @@ export async function listTenantChoices(
   cookie: string | null | undefined,
 ): Promise<TenantChoice[]> {
   const { session } = await identitySession(deps, cookie);
+  if (session.passwordChangeRequired) throw new AppError('password_change_required', 403);
   return (await choicesOf(deps, session)).map((m) => ({
     tenantId: m.user.tenantId,
     tenantName: m.tenantName,
@@ -454,6 +632,8 @@ export async function selectTenant(
   requestId: string,
 ): Promise<LoginResult & { user: { id: string; displayName: string } }> {
   const { parts, cookie: raw, session } = await identitySession(deps, cookie);
+  // P2-C: a temporary-password session cannot become a full one by choosing its tenant
+  if (session.passwordChangeRequired) throw new AppError('password_change_required', 403);
   const target = (await choicesOf(deps, session)).find((m) => m.user.tenantId === tenantId);
   if (!target) throw new AppError('not_found', 404);
   const now = deps.clock.now();
@@ -498,6 +678,111 @@ export async function selectTenant(
     maxAgeSeconds: Math.max(1, Math.floor((session.expiresAt.getTime() - now.getTime()) / 1000)),
     user: { id: target.user.id, displayName: target.user.displayName },
   };
+}
+
+// ---- first password change after a temporary password (P2-C) ---------------------------------------------------------
+
+export const changeTemporaryPasswordSchema = z.object({
+  currentPassword: z.string().min(1).max(256),
+  newPassword: z.string().min(1).max(256),
+  /** RULE-034: the staff member accepts the tenant's usage rules here (there is no invitation for this account kind) */
+  consent: z.literal(true),
+});
+
+/**
+ * P2-C: the session opened with a temporary password changes it. Order: current password verified at the provider ->
+ * password policy (length, not one of the last N, so not the temporary one) -> new password at the provider -> flag
+ * cleared, consent and audit in one transaction -> every session and provider token of the identity revoked -> a fresh
+ * full session (no second sign-in needed). The password itself is never stored here (only the salted history hash).
+ */
+export async function changeTemporaryPassword(
+  deps: SysDeps,
+  cookie: string | null | undefined,
+  input: unknown,
+  ctx: { address: string; requestId: string },
+): Promise<LoginResult & { user: { id: string; displayName: string } }> {
+  await deps.limiter.hit('token', ctx.address);
+  const data = parseInput(changeTemporaryPasswordSchema, input);
+  const { session } = await identitySession(deps, cookie);
+  if (!session.passwordChangeRequired || !session.userId) throw new AppError('state_invalid', 409);
+  const user = await deps.users.getAnyById(session.userId);
+  if (
+    !user ||
+    user.status !== 'active' ||
+    !user.mustChangePassword ||
+    (session.tenantId !== undefined && session.tenantId !== user.tenantId)
+  )
+    throw unauthenticated();
+  const address = loginAddressOf(user);
+  let current: { uid: string } | null = null;
+  try {
+    current = await passwordCheck(deps, address, data.currentPassword);
+  } catch (err) {
+    if (!(err instanceof InvalidCredentialsError)) throw err;
+  }
+  if (!current || current.uid !== identityOf(user))
+    throw validationFailed([
+      { field: 'currentPassword', message: translate('policy.password.current_wrong') },
+    ]);
+  const history = await deps.users.passwordHistory(identityOf(user));
+  const violations = checkPasswordPolicy(data.newPassword, history, deps.config.passwordPolicy);
+  if (violations.length)
+    throw validationFailed(
+      violations.map((code) => ({
+        field: 'newPassword',
+        message: translate(code, { min: deps.config.passwordPolicy.minLength }),
+      })),
+    );
+  try {
+    await deps.identity.setPassword(identityOf(user), data.newPassword);
+  } catch (e) {
+    if (e instanceof IdentityUnavailableError)
+      throw new AppError('unavailable', 503, [], { cause: e });
+    throw e;
+  }
+  const now = deps.clock.now();
+  await deps.uow.run(async (tx) => {
+    const u = await deps.users.getByIdInTx(tx, user.tenantId, user.id);
+    if (!u) throw unauthenticated();
+    // Firestore: every read of the transaction (user, history) happens before the first write
+    await deps.users.appendPasswordHistory(
+      tx,
+      identityOf(u),
+      hashForHistory(data.newPassword),
+      deps.config.passwordPolicy.historyDepth,
+    );
+    deps.users.update(tx, u.id, {
+      mustChangePassword: false,
+      tempPasswordExpiresAt: null,
+      policyConsent: { acceptedAt: now, policyVersion: deps.config.consentPolicyVersion },
+      updatedAt: now,
+      updatedBy: u.id,
+      version: u.version + 1,
+    });
+    deps.audit.record(tx, {
+      id: deps.newId(),
+      at: now,
+      tenantId: u.tenantId,
+      branchId: null,
+      actorId: u.id,
+      actorRoles: [],
+      entityType: 'user',
+      entityId: u.id,
+      action: 'auth.password_changed_first',
+      before: { mustChangePassword: true },
+      after: { mustChangePassword: false, policyVersion: deps.config.consentPolicyVersion },
+      requestId: ctx.requestId,
+    });
+  });
+  await revokeIdentitySessions(deps, user);
+  const signedIn = await passwordCheck(deps, address, data.newPassword);
+  const r = await startTenantSession(
+    deps,
+    { ...user, mustChangePassword: false },
+    signedIn.idToken,
+    { memberships: [user.id], device: session.device, requestId: ctx.requestId, audit: true },
+  );
+  return { ...r, user: r.user! };
 }
 
 /** Writes are refused in read-only tenant states (suspended, terminating); sign-out and choosing a tenant stay open. */
