@@ -63,6 +63,8 @@ export interface Tenant {
   placement: TenantPlacement;
   /** a legal hold blocks `purged` (analysis §5.4) */
   legalHold: boolean;
+  /** the garage owner to invite while provisioning (FR-TEN-002); personal data of platform onboarding, never in a DTO */
+  owner?: { email: string; name: string; employeeCode: string };
   /** FR-TEN-002: idempotency key of the provisioning request that created the tenant */
   provisionRequestKey: string;
   /** checklist steps already done: a re-run skips them (no duplicate data) */
@@ -177,7 +179,7 @@ export const TENANT_ACCESS: Record<TenantStatus, { signIn: boolean; write: boole
 export const tenantAllowsSignIn = (status: TenantStatus): boolean => TENANT_ACCESS[status].signIn;
 
 /** Checklist of provisioning steps in execution order (FR-TEN-002). Steps are idempotent. */
-export const PROVISIONING_STEPS = ['roles'] as const;
+export const PROVISIONING_STEPS = ['roles', 'owner_membership', 'owner_invitation'] as const;
 export type ProvisioningStepName = (typeof PROVISIONING_STEPS)[number];
 
 /** Defaults of a freshly created tenant: free plan, no subscription clock (RULE-035), pooled storage. */

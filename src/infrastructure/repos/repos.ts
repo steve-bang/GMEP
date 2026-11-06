@@ -148,6 +148,7 @@ export class DocPiiAccessLog implements PiiAccessLog {
 
 const userFromDoc = ({ id, data: x }: StoredDoc): User => ({
   id,
+  ...(x.identityId ? { identityId: x.identityId } : {}),
   tenantId: x.tenantId,
   email: x.email,
   employeeCode: x.employeeCode,
@@ -181,18 +182,18 @@ export class DocUserRepository implements UserRepository {
     const d = await this.store.get(COL.users, id);
     return d ? userFromDoc(d) : null;
   }
-  async findByLogin(identifier: string): Promise<User | null> {
-    const shape = identifier.includes('@') ? Q.userByEmail : Q.userByCode;
-    const field = identifier.includes('@') ? 'email' : 'employeeCode';
-    const value = identifier.includes('@')
-      ? identifier.trim().toLowerCase()
-      : normalizeEmployeeCode(identifier);
-    const rows = await this.store.query(shape.pick([], false), {
-      eq: { [field]: value },
-      limit: 2,
+  async findMembershipsByEmail(email: string): Promise<User[]> {
+    const rows = await this.store.query(Q.userByEmail.pick([], false), {
+      eq: { email: email.trim().toLowerCase() },
+      limit: 50,
     });
-    // an employee code used in several companies is ambiguous at login: use the email instead
-    return rows.length === 1 ? userFromDoc(rows[0]!) : null;
+    return rows.map(userFromDoc);
+  }
+  async employeeCodeTaken(tenantId: string, code: string): Promise<boolean> {
+    return (
+      (await this.store.get(COL.userKeys, `code__${tenantId}__${normalizeEmployeeCode(code)}`)) !==
+      null
+    );
   }
   async list(scope: Scope, q: ListQuery<'employeeCode' | 'name'>): Promise<Page<User>> {
     if (scope.kind === 'all') {
@@ -232,9 +233,15 @@ export class DocUserRepository implements UserRepository {
     const next = order.length > q.limit && lastId ? lastAssignmentOf.get(lastId)! : null;
     return { items, nextCursor: next ? encodeCursor(next) : null };
   }
-  create(tx: Tx, user: User): void {
-    // unique keys: create() fails at commit when the email or the code (per company) exists
-    this.store.create(tx, COL.userKeys, `email__${user.email.toLowerCase()}`, { userId: user.id });
+  create(tx: Tx, user: User, opts?: { existingIdentity?: boolean }): void {
+    // unique keys: create() fails at commit when the email (once per IDENTITY) or the code (per tenant) exists. A
+    // membership joining an existing identity does not touch the email slot (FR-TEN-017 d).
+    if (!opts?.existingIdentity)
+      this.store.create(tx, COL.userKeys, `email__${user.email.toLowerCase()}`, {
+        zone: 'tenant',
+        identityId: user.identityId ?? user.id,
+        userId: user.id,
+      });
     this.store.create(tx, COL.userKeys, `code__${user.tenantId}__${user.employeeCode}`, {
       userId: user.id,
     });
@@ -461,6 +468,7 @@ const tenantFromDoc = ({ id, data: x }: StoredDoc): Tenant => ({
   legalEntityIds: x.legalEntityIds ?? [],
   ...(x.contact ? { contact: x.contact } : {}),
   ...(x.contractRef ? { contractRef: x.contractRef } : {}),
+  ...(x.owner ? { owner: x.owner } : {}),
   // tenants created before the lifecycle existed (seed, migration) are live tenants on the free plan
   status: x.status ?? 'active',
   plan: x.plan ?? 'free',
@@ -600,6 +608,9 @@ export class DocWarehouseRepository implements WarehouseRepository {
 const sessionFromDoc = ({ id, data: x }: StoredDoc): SessionRecord => ({
   id,
   userId: x.userId,
+  ...(x.identityId ? { identityId: x.identityId } : {}),
+  ...(x.tenantId !== undefined ? { tenantId: x.tenantId } : {}),
+  ...(x.memberships ? { memberships: x.memberships } : {}),
   createdAt: x.createdAt,
   expiresAt: x.expiresAt,
   lastSeenAt: x.lastSeenAt,

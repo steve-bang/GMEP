@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto';
 import { AppError, invalidCredentials, unauthenticated } from '@/platform/errors/errors';
 import type { Actor } from '@/platform/rbac/rbac';
 import { sessionLimitsFor } from '../domain/sessionPolicy';
-import type { User } from '../domain/entities';
+import { identityOf, type User } from '../domain/entities';
+import { TENANT_ACCESS, type TenantStatus } from '../domain/tenant';
 import type { CachedSession, SysDeps } from '../ports/deps';
 import { IdentityUnavailableError, InvalidCredentialsError } from '../ports/ports';
 import { normalizeLoginName } from './support';
@@ -34,10 +35,35 @@ export interface LoginInput {
   userAgent?: string;
 }
 
+/** One entry of the "Chọn công ty" step: only the signed-in person's own active memberships (FR-TEN-016). */
+export interface TenantChoice {
+  tenantId: string;
+  tenantName: string;
+}
+
 export interface LoginResult {
   sessionCookie: string;
   maxAgeSeconds: number;
-  user: { id: string; displayName: string };
+  /** null while the person still has to choose a tenant (two or more active memberships) */
+  user: { id: string; displayName: string } | null;
+  /** present exactly when `user` is null */
+  tenants?: TenantChoice[];
+}
+
+/** Active memberships of a person whose tenant is still allowed to sign in (suspended, terminated... are not offered). */
+async function usableMemberships(
+  deps: SysDeps,
+  memberships: readonly User[],
+): Promise<{ user: User; tenantName: string }[]> {
+  const out: { user: User; tenantName: string }[] = [];
+  for (const m of memberships) {
+    if (m.status !== 'active') continue;
+    const t = await deps.tenants.get(m.tenantId);
+    // a tenant record that does not exist yet (data created before MT-0) counts as a live tenant
+    if (t && !TENANT_ACCESS[t.status].signIn) continue;
+    out.push({ user: m, tenantName: t?.name ?? m.tenantId });
+  }
+  return out;
 }
 
 /**
@@ -108,27 +134,63 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
     throw invalidCredentials();
   };
 
-  const byLogin = await deps.users.findByLogin(input.identifier.trim());
-  if (!byLogin || byLogin.status !== 'active') return fail();
+  // FR-TEN-016: the identity is the email (unique platform-wide); an employee code is not a login name because it is
+  // unique per tenant only (RULE-018). Unknown email, wrong password and an unusable tenant all end in the same answer.
+  const email = input.identifier.trim().toLowerCase();
+  if (!email.includes('@')) return fail();
+  const all = await deps.users.findMembershipsByEmail(email);
+  const usable = await usableMemberships(deps, all);
+  if (usable.length === 0) return fail();
+  const identityId = identityOf(usable[0]!.user);
+  if (usable.some((m) => identityOf(m.user) !== identityId)) return fail(); // inconsistent data: refuse, never guess
 
   let signedIn: { uid: string; idToken: string };
   try {
-    signedIn = await deps.identity.signInWithPassword(byLogin.email, input.password);
+    signedIn = await deps.identity.signInWithPassword(email, input.password);
   } catch (err) {
     if (err instanceof InvalidCredentialsError) return fail();
     if (err instanceof IdentityUnavailableError)
       throw new AppError('unavailable', 503, [], { cause: err });
     throw err;
   }
-  // the provider's uid and our user id are the same by convention
-  if (signedIn.uid !== byLogin.id) return fail();
+  if (signedIn.uid !== identityId) return fail();
 
   // ---- hook point for the owner-provided strong authentication (A2); MFA is deferred ----
-  const requirement = await deps.strongAuth.requirementFor(byLogin);
+  const requirement = await deps.strongAuth.requirementFor(usable[0]!.user);
   if (requirement !== 'none') throw new AppError('strong_auth_required', 401);
 
   await deps.throttle.recordSuccess(subject);
   const now = deps.clock.now();
+  const memberships = usable.map((m) => m.user.id);
+  const base = { identityId, memberships };
+  const device = (input.userAgent ?? '').replace(/[^\x20-\x7e]/g, '').slice(0, 80);
+
+  if (usable.length > 1) {
+    // two or more tenants: a session that reads no business data until "Chọn công ty" (RULE-026)
+    const limits = sessionLimitsFor(deps.config.sessionPolicy, []);
+    const token = await deps.identity.createSessionCookie(signedIn.idToken, limits.absoluteMs);
+    const sessionId = deps.newId();
+    await deps.sessions.create({
+      id: sessionId,
+      userId: '',
+      ...base,
+      tenantId: null,
+      createdAt: now,
+      expiresAt: new Date(now.getTime() + limits.absoluteMs),
+      lastSeenAt: now,
+      revokedAt: null,
+      workingBranchId: null,
+      device,
+    });
+    return {
+      sessionCookie: packCookie(sessionId, token),
+      maxAgeSeconds: Math.floor(limits.absoluteMs / 1000),
+      user: null,
+      tenants: usable.map((m) => ({ tenantId: m.user.tenantId, tenantName: m.tenantName })),
+    };
+  }
+
+  const byLogin = usable[0]!.user;
   const { actor, roleCodes } = await loadActor(deps, byLogin, null);
   const limits = sessionLimitsFor(deps.config.sessionPolicy, roleCodes);
   const token = await deps.identity.createSessionCookie(signedIn.idToken, limits.absoluteMs);
@@ -137,12 +199,14 @@ export async function login(deps: SysDeps, input: LoginInput): Promise<LoginResu
   await deps.sessions.create({
     id: sessionId,
     userId: byLogin.id,
+    ...base,
+    tenantId: byLogin.tenantId,
     createdAt: now,
     expiresAt: new Date(now.getTime() + limits.absoluteMs),
     lastSeenAt: now,
     revokedAt: null,
     workingBranchId: working,
-    device: (input.userAgent ?? '').replace(/[^\x20-\x7e]/g, '').slice(0, 80),
+    device,
   });
   // a failed write of the display-only "last login" must never block a valid sign-in
   await deps.users.recordLogin(byLogin.id, now).catch(() => undefined);
@@ -173,12 +237,15 @@ export interface Session {
   actor: Actor;
   user: User;
   sessionId: string;
+  /** lifecycle state of the session's tenant: `suspended` and `terminating` are read-only (analysis 5.1) */
+  tenantStatus: TenantStatus;
 }
 
 const toSession = (c: CachedSession): Session => ({
   actor: c.actor,
   user: c.user,
   sessionId: c.session.id,
+  tenantStatus: c.tenantStatus,
 });
 
 /**
@@ -213,10 +280,22 @@ export async function resolveSession(
   const verified = await deps.identity.verifySessionCookie(parts.token);
   if (!verified) throw unauthenticated();
   const session = await deps.sessions.find(parts.sid);
-  if (!session || session.userId !== verified.uid || session.revokedAt || session.expiresAt <= now)
+  if (
+    !session ||
+    (session.identityId ?? session.userId) !== verified.uid ||
+    session.revokedAt ||
+    session.expiresAt <= now
+  )
     throw unauthenticated();
-  const user = await deps.users.getAnyById(verified.uid);
+  // RULE-026: signed in but no tenant chosen yet = no business data at all
+  if (session.tenantId === null) throw new AppError('tenant_selection_required', 403);
+  const user = await deps.users.getAnyById(session.userId);
   if (!user || user.status !== 'active') throw unauthenticated();
+  // the tenant of the session is the tenant of the membership, never anything the client sent (FR-TEN-010)
+  if (session.tenantId !== undefined && session.tenantId !== user.tenantId) throw unauthenticated();
+  const tenant = await deps.tenants.get(user.tenantId);
+  const tenantStatus: TenantStatus = tenant?.status ?? 'active';
+  if (!TENANT_ACCESS[tenantStatus].signIn) throw unauthenticated();
   const { actor, roleCodes } = await loadActor(deps, user, session.workingBranchId);
   const limits = sessionLimitsFor(deps.config.sessionPolicy, roleCodes);
   if (now.getTime() - session.lastSeenAt.getTime() > limits.idleMs) throw unauthenticated();
@@ -225,6 +304,7 @@ export async function resolveSession(
     session,
     user,
     actor,
+    tenantStatus,
     idleMs: limits.idleMs,
     touchedAt: session.lastSeenAt.getTime(),
   };
@@ -232,6 +312,7 @@ export async function resolveSession(
   await touchIfDue(deps, entry, now);
   deps.caches.auth.set(key, entry, [
     `user:${user.id}`,
+    `tenant:${user.tenantId}`,
     `session:${session.id}`,
     ...roleCodes.map((r) => `role:${r}`),
   ]);
@@ -268,7 +349,7 @@ export async function logout(
   deps.caches.auth.invalidateTag(`session:${session.id}`);
   const now = deps.clock.now();
   await deps.sessions.revoke(session.id, now);
-  const user = await deps.users.getAnyById(session.userId);
+  const user = session.userId ? await deps.users.getAnyById(session.userId) : null;
   if (user) {
     await deps.uow.run(async (tx) => {
       deps.audit.record(tx, {
@@ -289,10 +370,131 @@ export async function logout(
   }
 }
 
-/** Security action: kill every session of a user (provider tokens + our records) and the cache. */
-export async function revokeAllSessions(deps: SysDeps, userId: string): Promise<void> {
+/**
+ * Security action: ends every session of ONE membership (FR-TEN-017: revoking in tenant A never signs the person out of
+ * tenant B). Provider tokens are identity-wide, so they are NOT touched here; the session record is what counts.
+ */
+export async function revokeAllSessions(deps: SysDeps, membershipId: string): Promise<void> {
   const now = deps.clock.now();
-  await deps.sessions.revokeAllForUser(userId, now);
-  await deps.identity.revokeUserTokens(userId);
-  invalidateUser(deps, userId);
+  await deps.sessions.revokeAllForUser(membershipId, now);
+  invalidateUser(deps, membershipId);
+}
+
+/**
+ * Password changes belong to the identity (Q41 a, proposal): every membership's sessions and the provider tokens are
+ * revoked, so a pending "Chọn công ty" session dies too.
+ */
+export async function revokeIdentitySessions(deps: SysDeps, user: User): Promise<void> {
+  const identityId = identityOf(user);
+  const all = await deps.users.findMembershipsByEmail(user.email);
+  const ids = new Set([
+    user.id,
+    ...all.filter((m) => identityOf(m) === identityId).map((m) => m.id),
+  ]);
+  for (const id of ids) await revokeAllSessions(deps, id);
+  await deps.identity.revokeUserTokens(identityId);
+}
+
+// ---- choosing and switching the tenant (FR-TEN-016, 017; RULE-026) -------------------------------------------------
+
+/** Provider-verified, not revoked, not expired session of a person, whether or not a tenant is chosen. */
+async function identitySession(deps: SysDeps, cookie: string | null | undefined) {
+  const parts = cookie ? unpackCookie(cookie) : null;
+  if (!parts || !cookie) throw unauthenticated();
+  const verified = await deps.identity.verifySessionCookie(parts.token);
+  if (!verified) throw unauthenticated();
+  const session = await deps.sessions.find(parts.sid);
+  const now = deps.clock.now();
+  if (
+    !session ||
+    (session.identityId ?? session.userId) !== verified.uid ||
+    session.revokedAt ||
+    session.expiresAt <= now
+  )
+    throw unauthenticated();
+  return { parts, cookie, session };
+}
+
+async function choicesOf(deps: SysDeps, session: { memberships?: string[]; userId: string }) {
+  const ids = session.memberships ?? (session.userId ? [session.userId] : []);
+  const members = (await Promise.all(ids.map((id) => deps.users.getAnyById(id)))).flatMap((m) =>
+    m ? [m] : [],
+  );
+  return usableMemberships(deps, members);
+}
+
+/** The signed-in person's own tenants, and nobody else's (FR-TEN-016). */
+export async function listTenantChoices(
+  deps: SysDeps,
+  cookie: string | null | undefined,
+): Promise<TenantChoice[]> {
+  const { session } = await identitySession(deps, cookie);
+  return (await choicesOf(deps, session)).map((m) => ({
+    tenantId: m.user.tenantId,
+    tenantName: m.tenantName,
+  }));
+}
+
+/**
+ * Chooses or switches the tenant: a NEW session is created from the target membership alone (Scope recomputed, working
+ * branch, permissions and caches of the previous tenant dropped; permissions never add up across tenants, RULE-026) and the
+ * previous session is revoked. The new session does not outlive the sign-in it came from. A tenant that is not one of the
+ * person's usable memberships answers exactly like an unknown one.
+ */
+export async function selectTenant(
+  deps: SysDeps,
+  cookie: string | null | undefined,
+  tenantId: string,
+  requestId: string,
+): Promise<LoginResult & { user: { id: string; displayName: string } }> {
+  const { parts, cookie: raw, session } = await identitySession(deps, cookie);
+  const target = (await choicesOf(deps, session)).find((m) => m.user.tenantId === tenantId);
+  if (!target) throw new AppError('not_found', 404);
+  const now = deps.clock.now();
+  const { actor, roleCodes } = await loadActor(deps, target.user, null);
+  const working = await initialWorkingBranch(deps, target.user, actor);
+  const sessionId = deps.newId();
+  await deps.sessions.create({
+    id: sessionId,
+    userId: target.user.id,
+    identityId: identityOf(target.user),
+    memberships: session.memberships ?? [target.user.id],
+    tenantId: target.user.tenantId,
+    createdAt: now,
+    expiresAt: session.expiresAt,
+    lastSeenAt: now,
+    revokedAt: null,
+    workingBranchId: working,
+    device: session.device,
+  });
+  deps.caches.auth.delete(cacheKey(raw));
+  deps.caches.auth.invalidateTag(`session:${session.id}`);
+  await deps.sessions.revoke(session.id, now);
+  await deps.users.recordLogin(target.user.id, now).catch(() => undefined);
+  await deps.uow.run(async (tx) => {
+    deps.audit.record(tx, {
+      id: deps.newId(),
+      at: now,
+      tenantId: target.user.tenantId,
+      branchId: null,
+      actorId: target.user.id,
+      actorRoles: roleCodes,
+      entityType: 'session',
+      entityId: sessionId,
+      action: 'auth.tenant_select',
+      before: null,
+      after: null,
+      requestId,
+    });
+  });
+  return {
+    sessionCookie: packCookie(sessionId, parts.token),
+    maxAgeSeconds: Math.max(1, Math.floor((session.expiresAt.getTime() - now.getTime()) / 1000)),
+    user: { id: target.user.id, displayName: target.user.displayName },
+  };
+}
+
+/** Writes are refused in read-only tenant states (suspended, terminating); sign-out and choosing a tenant stay open. */
+export function assertTenantWritable(status: TenantStatus): void {
+  if (!TENANT_ACCESS[status].write) throw new AppError('tenant_read_only', 403);
 }

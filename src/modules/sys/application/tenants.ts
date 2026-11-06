@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AppError, conflict, forbidden, notFound } from '@/platform/errors/errors';
 import type { Tx } from '@/platform/tx/unitOfWork';
+import { identityOf, normalizeEmployeeCode, roleAssignmentId } from '../domain/entities';
 import { defaultRoleSeeds } from '../domain/permissions';
 import {
   platformHas,
@@ -20,6 +21,7 @@ import {
   type TransitionActor,
 } from '../domain/tenant';
 import type { SysDeps } from '../ports/deps';
+import { sendInvitation } from './users';
 import { parseInput, type RequestCtx } from './support';
 
 /**
@@ -288,6 +290,19 @@ export const provisionSchema = z.object({
   contact: z.string().trim().max(200).optional(),
   contractRef: z.string().trim().max(120).optional(),
   environment: z.enum(['demo', 'live']).default('live'),
+  /** the garage owner (role CH, every branch): invited by email once the tenant exists (FR-TEN-002, 017) */
+  owner: z
+    .object({
+      email: z.string().trim().toLowerCase().email().max(254),
+      name: z.string().trim().min(2).max(120),
+      employeeCode: z
+        .string()
+        .trim()
+        .transform(normalizeEmployeeCode)
+        .pipe(z.string().regex(/^[A-Z0-9._-]{2,20}$/))
+        .default('CH01'),
+    })
+    .optional(),
 });
 
 export interface ProvisionResult {
@@ -297,7 +312,12 @@ export interface ProvisionResult {
   failedStep?: string;
 }
 
-type StepRunner = (deps: SysDeps, tx: Tx, t: Tenant) => Promise<void>;
+interface StepRunner {
+  /** writes staged in the transaction that also records the step as done */
+  tx?: (deps: SysDeps, tx: Tx, t: Tenant) => Promise<void>;
+  /** external effects (identity provider, email): run BEFORE the step is recorded, so a failure retries the step */
+  after?: (deps: SysDeps, t: Tenant) => Promise<void>;
+}
 
 /**
  * Checklist of idempotent steps. A step is only done once: its completion is recorded on the tenant in the SAME
@@ -306,20 +326,73 @@ type StepRunner = (deps: SysDeps, tx: Tx, t: Tenant) => Promise<void>;
  */
 const STEP_RUNNERS: Record<(typeof PROVISIONING_STEPS)[number], StepRunner> = {
   // the 10 default roles, per tenant; an existing role (possibly edited by the tenant) is never overwritten
-  roles: async (deps, tx, t) => {
-    const existing = new Set(
-      (
-        await deps.roles.getMany(
-          t.id,
-          defaultRoleSeeds().map((r) => r.code),
-        )
-      ).map((r) => r.code),
-    );
-    for (const r of defaultRoleSeeds())
-      if (!existing.has(r.code))
-        deps.roles.upsert(tx, t.id, r, { at: deps.clock.now(), by: 'provisioning' });
+  roles: {
+    tx: async (deps, tx, t) => {
+      const existing = new Set(
+        (
+          await deps.roles.getMany(
+            t.id,
+            defaultRoleSeeds().map((r) => r.code),
+          )
+        ).map((r) => r.code),
+      );
+      for (const r of defaultRoleSeeds())
+        if (!existing.has(r.code))
+          deps.roles.upsert(tx, t.id, r, { at: deps.clock.now(), by: 'provisioning' });
+    },
+  },
+  // the garage owner's membership (status `invited`, role CH on every branch). An email that already has an identity
+  // gets a new membership on it, never a new password (FR-TEN-017 d). Deterministic id: a retry cannot duplicate it.
+  owner_membership: {
+    tx: async (deps, tx, t) => {
+      if (!t.owner) return;
+      const id = ownerMembershipId(t.id);
+      if (await deps.users.getByIdInTx(tx, t.id, id)) return;
+      const known = await deps.users.findMembershipsByEmail(t.owner.email);
+      if (known.some((m) => m.tenantId === t.id)) return;
+      const existing = known[0] ? identityOf(known[0]) : null;
+      const now = deps.clock.now();
+      deps.users.create(
+        tx,
+        {
+          id,
+          ...(existing ? { identityId: existing } : {}),
+          tenantId: t.id,
+          email: t.owner.email,
+          employeeCode: t.owner.employeeCode,
+          displayName: t.owner.name,
+          status: 'invited',
+          createdAt: now,
+          createdBy: 'provisioning',
+          updatedAt: now,
+          updatedBy: 'provisioning',
+          version: 1,
+        },
+        { existingIdentity: existing !== null },
+      );
+      deps.assignments.add(tx, {
+        id: roleAssignmentId(id, 'CH', '*'),
+        userId: id,
+        tenantId: t.id,
+        roleCode: 'CH',
+        branchId: '*',
+        employeeCode: t.owner.employeeCode,
+        createdAt: now,
+        createdBy: 'provisioning',
+      });
+    },
+  },
+  owner_invitation: {
+    after: async (deps, t) => {
+      if (!t.owner) return;
+      const m = await deps.users.getById(t.id, ownerMembershipId(t.id));
+      if (!m || m.status !== 'invited') return; // already active: nothing to send
+      await sendInvitation(deps, m);
+    },
   },
 };
+
+const ownerMembershipId = (tenantId: string) => `own_${tenantId}`;
 
 /**
  * Creates the tenant (status `proposed`) and drives it to `onboarding`. Idempotent on (code, request key): the same call
@@ -351,6 +424,7 @@ export async function provisionTenant(
       name: data.name,
       ...(data.contact ? { contact: data.contact } : {}),
       ...(data.contractRef ? { contractRef: data.contractRef } : {}),
+      ...(data.owner ? { owner: data.owner } : {}),
       status: 'proposed',
       environment: data.environment,
       provisionRequestKey: key,
@@ -436,10 +510,11 @@ async function runChecklist(
   for (const step of PROVISIONING_STEPS) {
     if (tenant.provisioning[step]) continue;
     try {
+      await STEP_RUNNERS[step].after?.(deps, tenant);
       tenant = await deps.uow.run(async (tx) => {
         const t = (await deps.tenants.getInTx(tx, tenant.id))!;
         if (t.provisioning[step]) return t;
-        await STEP_RUNNERS[step](deps, tx, t);
+        await STEP_RUNNERS[step].tx?.(deps, tx, t);
         const now = deps.clock.now();
         deps.tenants.update(tx, t.id, {
           provisioning: { ...t.provisioning, [step]: { doneAt: now } },

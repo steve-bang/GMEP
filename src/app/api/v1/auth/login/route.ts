@@ -33,8 +33,8 @@ export const POST = api(async ({ req, requestId, log, sys }) => {
       address: clientAddress(req),
       userAgent: req.headers.get('user-agent') ?? '',
     });
-    log.info({ userId: result.user.id }, 'login ok'); // user id only; never the identifier or password
-    const res = json({ user: result.user });
+    log.info({ userId: result.user?.id ?? null }, 'login ok'); // user id only; never the identifier or password
+    const res = json({ user: result.user, ...(result.tenants ? { tenants: result.tenants } : {}) });
     res.headers.append(
       'set-cookie',
       serializeSessionCookie(result.sessionCookie, result.maxAgeSeconds),

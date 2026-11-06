@@ -22,11 +22,15 @@ export {
   logout,
   resolveSession,
   revokeAllSessions,
+  revokeIdentitySessions,
+  listTenantChoices,
+  selectTenant,
+  assertTenantWritable,
   invalidateUser,
   invalidateRole,
   loadActor,
 } from './application/auth';
-export type { LoginInput, LoginResult, Session } from './application/auth';
+export type { LoginInput, LoginResult, Session, TenantChoice } from './application/auth';
 export { forgotPassword, resetPassword, activateAccount, peekToken } from './application/recovery';
 export type { TokenPeek, TokenState } from './application/recovery';
 export { getScopeInfo, setWorkingScope } from './application/scope';

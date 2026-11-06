@@ -255,6 +255,7 @@ const ROUTES: Record<string, RouteRow> = {
 const EXEMPT: Record<string, string> = {
   health: 'liveness probe, no data',
   'v1/auth/me': 'the caller’s own session',
+  'v1/auth/tenants': 'the caller’s own memberships (FR-TEN-016); covered by tests/integration/tenant-identity.test.ts',
   'v1/sys/scope': 'the caller’s own selectable scope (derived from role assignments)',
   'v1/sys/roles': 'role matrix: company-level configuration, not branch data',
   'v1/sys/config/[type]':

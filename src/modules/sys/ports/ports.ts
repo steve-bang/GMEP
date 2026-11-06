@@ -50,7 +50,10 @@ export interface UserRepository {
   getByIdInTx(tx: Tx, tenantId: string, id: string): Promise<User | null>;
   /** session and identity plumbing only: the tenant is read FROM the record. Never for a business lookup. */
   getAnyById(id: string): Promise<User | null>;
-  findByLogin(identifier: string): Promise<User | null>;
+  /** every membership registered with this email, any tenant (sign-in and invitation only; never shown to a tenant) */
+  findMembershipsByEmail(email: string): Promise<User[]>;
+  /** employee codes are unique per tenant only (RULE-018) */
+  employeeCodeTaken(tenantId: string, code: string): Promise<boolean>;
   /**
    * Users visible in the scope: those holding a role assignment in a scoped branch (or all users
    * of the company for 'all' scopes).
@@ -59,7 +62,7 @@ export interface UserRepository {
   /** Records the last successful sign-in outside any business transaction (not audited, not versioned). */
   recordLogin(userId: string, at: Date): Promise<void>;
   /** Stages the create plus the unique keys (email, employee code per company); AlreadyExistsError on duplicates. */
-  create(tx: Tx, user: User): void;
+  create(tx: Tx, user: User, opts?: { existingIdentity?: boolean }): void;
   update(
     tx: Tx,
     id: string,

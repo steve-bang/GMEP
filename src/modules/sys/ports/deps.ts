@@ -11,6 +11,7 @@ import type { BRANCH_STATE_RULES } from '../domain/branchState';
 import type { ConfigVersion } from '../domain/config';
 import type { PasswordPolicy } from '../domain/passwordPolicy';
 import type { SessionPolicy } from '../domain/sessionPolicy';
+import type { TenantStatus } from '../domain/tenant';
 import type { SessionRecord, User } from '../domain/entities';
 import type {
   AuthTokenRepository,
@@ -77,6 +78,7 @@ export interface CachedSession {
   session: SessionRecord;
   user: User;
   actor: Actor;
+  tenantStatus: TenantStatus;
   idleMs: number;
   /** last persisted touch, to throttle writes */
   touchedAt: number;

@@ -56,7 +56,7 @@ test.describe('walking skeleton: login -> list -> logout (FR-SYS-001, FR-SYS-005
   });
 
   test('owner sees every branch; scope indicator says so', async ({ page }) => {
-    await loginOk(page, 'NV0001');
+    await loginOk(page, 'chu@demo.gmep.test');
     await expect(page.getByTestId('branch-scope')).toContainText('Tất cả chi nhánh');
     await page.goto('/sys/warehouses');
     await expect(page.getByTestId('wh-code')).toHaveCount(6);

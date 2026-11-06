@@ -9,7 +9,7 @@ import type { RptDeps } from '@/modules/rpt';
 import type { CrmDeps } from '@/modules/crm';
 import type { InvDeps } from '@/modules/inv';
 import type { RecDeps } from '@/modules/rec';
-import type { Session, SysDeps } from '@/modules/sys';
+import { assertTenantWritable, type Session, type SysDeps } from '@/modules/sys';
 import { allowedOrigins, authenticate } from './auth';
 import { getContainer } from './container';
 
@@ -60,6 +60,13 @@ export function authed(
   return apiRoute(
     async (c) => {
       const session = await authenticate(c.req);
+      // analysis 5.1: a suspended or terminating tenant is read-only. Choosing a tenant and signing out stay possible
+      // (those routes use `api`, not `authed`); the working-branch picker only changes session state.
+      if (
+        !['GET', 'HEAD'].includes(c.req.method) &&
+        new URL(c.req.url).pathname !== '/api/v1/sys/scope'
+      )
+        assertTenantWritable(session.tenantStatus);
       try {
         return await handler({
           ...c,

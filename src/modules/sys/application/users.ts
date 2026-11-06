@@ -18,6 +18,7 @@ import { normalizeSearch } from '@/platform/text/normalize';
 import { OWNER_APPROVED_ROLES, ROLE_CODES } from '../domain/permissions';
 import { newOpaqueToken } from '../domain/passwordPolicy';
 import {
+  identityOf,
   normalizeEmployeeCode,
   roleAssignmentId,
   type RoleAssignmentRecord,
@@ -284,6 +285,7 @@ export async function inviteUser(
   const { raw, id: tokenId } = newOpaqueToken();
   const userId = deps.newId();
   let created: User | null = null;
+  let existingIdentityId: string | null = null;
   try {
     const result = await runIdempotent(
       idem(deps),
@@ -295,14 +297,19 @@ export async function inviteUser(
       },
       async (tx) => {
         // friendly early answer; the unique key documents enforce it atomically at commit
-        if (
-          (await deps.users.findByLogin(data.email)) ||
-          (await deps.users.findByLogin(data.employeeCode))
-        )
+        // FR-TEN-017 d: an email that already has an identity (in ANY tenant) gets a new membership, never a new
+        // password. The answer to the inviter is the same either way: nothing says the email exists elsewhere
+        // (Q41 c, e). Only a membership in the inviter's own tenant is reported.
+        const known = await deps.users.findMembershipsByEmail(data.email);
+        if (known.some((m) => m.tenantId === actor.tenantId))
+          throw new AppError('user_exists', 409);
+        existingIdentityId = known[0] ? identityOf(known[0]) : null;
+        if (await deps.users.employeeCodeTaken(actor.tenantId, data.employeeCode))
           throw new AppError('user_exists', 409);
         const now = deps.clock.now();
         const user: User = {
           id: userId,
+          ...(existingIdentityId ? { identityId: existingIdentityId } : {}),
           tenantId: actor.tenantId,
           email: data.email,
           employeeCode: data.employeeCode,
@@ -315,7 +322,7 @@ export async function inviteUser(
           updatedBy: actor.userId,
           version: 1,
         };
-        deps.users.create(tx, user);
+        deps.users.create(tx, user, { existingIdentity: existingIdentityId !== null });
         const recs: RoleAssignmentRecord[] = data.assignments.map((a) => ({
           id: roleAssignmentId(userId, a.roleCode, a.branchId),
           userId,
@@ -359,7 +366,9 @@ export async function inviteUser(
     );
     if (!result.replayed && created) {
       const u = created as User;
-      await deps.identity.createUser({ uid: u.id, email: u.email, displayName: u.displayName });
+      // a membership joining an existing identity creates no account and sets no password
+      if (identityOf(u) === u.id)
+        await deps.identity.createUser({ uid: u.id, email: u.email, displayName: u.displayName });
       await sendInvite(deps, u, raw, tokenId);
     }
     return result;
@@ -367,6 +376,33 @@ export async function inviteUser(
     if (e instanceof AlreadyExistsError) throw new AppError('user_exists', 409);
     throw e;
   }
+}
+
+/**
+ * Invitation without an acting user (provisioning, FR-TEN-002): a fresh 72 h token (the previous one is revoked), the
+ * identity account when the person is new, then the email. Safe to repeat.
+ */
+export async function sendInvitation(deps: SysDeps, u: User): Promise<void> {
+  const { raw, id: tokenId } = newOpaqueToken();
+  const now = deps.clock.now();
+  await deps.uow.run(async (tx) => {
+    await deps.tokens.revokeOpenForUser(tx, u.id, 'invite', now);
+    deps.tokens.create(tx, {
+      id: tokenId,
+      kind: 'invite',
+      userId: u.id,
+      tenantId: u.tenantId,
+      createdAt: now,
+      expiresAt: new Date(now.getTime() + deps.config.inviteTokenTtlMs),
+      usedAt: null,
+      revokedAt: null,
+    });
+  });
+  if (identityOf(u) === u.id)
+    await deps.identity
+      .createUser({ uid: u.id, email: u.email, displayName: u.displayName })
+      .catch(() => undefined); // exists already: fine
+  await sendInvite(deps, u, raw, tokenId);
 }
 
 async function sendInvite(deps: SysDeps, u: User, raw: string, tokenId: string): Promise<void> {
@@ -416,9 +452,10 @@ export async function resendInvite(
       }),
     );
   });
-  await deps.identity
-    .createUser({ uid: u.id, email: u.email, displayName: u.displayName })
-    .catch(() => undefined); // exists already: fine
+  if (identityOf(u) === u.id)
+    await deps.identity
+      .createUser({ uid: u.id, email: u.email, displayName: u.displayName })
+      .catch(() => undefined); // exists already: fine
   await sendInvite(deps, u, raw, tokenId);
 }
 
@@ -517,7 +554,8 @@ export async function setUserStatus(
     );
     return toUserDto(deps, actor, { ...u, status: data.status, version: u.version + 1 });
   });
-  await deps.identity.setDisabled(id, data.status === 'disabled');
+  // the membership status is checked by the application at sign-in and on every request; the identity itself stays
+  // enabled because the person may hold active memberships in other tenants (FR-TEN-017)
   if (data.status === 'disabled') await revokeAllSessions(deps, id);
   else invalidateUser(deps, id);
   return dto;

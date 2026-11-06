@@ -67,7 +67,7 @@ describe.each(backends)('tenant foundation [%s]', (backend) => {
     expect(roles).toHaveLength(10);
     const actions = await auditOf('tnt_alpha');
     expect(actions.filter((x) => x === 'tenant.created')).toHaveLength(1);
-    expect(actions.filter((x) => x === 'tenant.provision_step')).toHaveLength(1);
+    expect(actions.filter((x) => x === 'tenant.provision_step')).toHaveLength(3);
   });
 
   it('FR-TEN-002: the same code with another request key is a conflict, not a second tenant', async () => {

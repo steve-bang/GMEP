@@ -3,8 +3,16 @@
 /** `invited`: created by an admin, not yet activated (cannot log in). */
 export type UserStatus = 'invited' | 'active' | 'disabled';
 
+/**
+ * A User is a tenant MEMBERSHIP (FR-TEN-017): one identity (email + password, unique platform-wide) holds one
+ * membership per tenant, each with its own roles, branches, status and revocation. `id` is the membership id.
+ * For the first membership of an identity the id equals the identity-provider uid (and `identityId` may be absent,
+ * as in data created before MT-0); a membership added later through an invitation has its own id.
+ */
 export interface User {
   id: string;
+  /** identity-provider uid; absent = same as `id` (see {@link identityOf}) */
+  identityId?: string;
   tenantId: string;
   email: string;
   /** Mã nhân viên; unique per company, immutable (BA §1.6). Stored normalised (upper-case, no spaces). */
@@ -112,10 +120,22 @@ export function normalizeEmployeeCode(code: string): string {
   return code.replace(/\s+/g, '').toUpperCase();
 }
 
+export const identityOf = (u: Pick<User, 'id' | 'identityId'>): string => u.identityId ?? u.id;
+
 export interface SessionRecord {
   /** random session id (not derived from the cookie) */
   id: string;
+  /**
+   * Membership id the session is bound to (RULE-026: exactly one tenant). Empty while the session waits for the
+   * "Chọn công ty" step (`tenantId === null`): such a session reads no business data at all.
+   */
   userId: string;
+  /** identity-provider uid of the person; absent in sessions created before MT-0 (= userId) */
+  identityId?: string;
+  /** tenant of the membership; null = tenant not chosen yet; absent in sessions created before MT-0 */
+  tenantId?: string | null;
+  /** membership ids the person may switch to, fixed at sign-in (a membership added later needs a new sign-in) */
+  memberships?: string[];
   createdAt: Date;
   expiresAt: Date;
   lastSeenAt: Date;
