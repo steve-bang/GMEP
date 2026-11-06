@@ -168,7 +168,8 @@ export const Q = {
     name: 'auditLogs.list',
     collection: COL.auditLogs,
     eq: ['tenantId'],
-    optionalEq: ['entityType', 'entityId', 'actorId', 'action'],
+    // actorId and action are filtered in memory (DocAuditLog.list): 32 -> 8 composite indexes (slice 2.1)
+    optionalEq: ['entityType', 'entityId'],
     scopeField: 'branchId',
     range: true,
     order: { field: 'at', dir: 'desc', type: 'date' },
