@@ -16,6 +16,8 @@ import { normalizeSearch } from '@/platform/text/normalize';
 import type { PriceListHeader, ServiceItem } from '../domain/entities';
 import type { SysDeps } from '../ports/deps';
 import { AlreadyExistsError } from '../ports/ports';
+import { businessDateOf } from '@/platform/effective/effective';
+import { isReleasedToBranch } from './config';
 import { auditEntry, parseInput, type RequestCtx } from './support';
 
 /**
@@ -38,6 +40,8 @@ const listSchema = z.object({
   group: z.string().trim().max(60).optional(),
   sort: z.enum(['code', 'name']).default('code'),
   direction: z.enum(['asc', 'desc']).default('asc'),
+  /** `all` = the company catalogue (head office view); default = what the working branch is offered (FR-SYS-016) */
+  released: z.enum(['branch', 'all']).default('branch'),
 });
 const codeRe = /^[A-Z0-9][A-Z0-9._-]{1,29}$/;
 
@@ -80,7 +84,30 @@ export async function listServices(
     ...(q.group ? { group: q.group } : {}),
     ...(q.cursor ? { cursor: decodeCursor(q.cursor)! } : {}),
   });
-  return { items: page.items.map(toServiceDto), nextCursor: page.nextCursor };
+  // FR-SYS-016: a branch is offered only the services released to it on today's date (no release version = all);
+  // the company-wide catalogue view stays complete for head office. Documents already created keep their service.
+  const company = resolveScope(actor, 'service-catalog:view').kind === 'all';
+  const branchId = q.released === 'all' && company ? undefined : actor.workingBranchId;
+  const items = branchId
+    ? await offeredToBranch(deps, actor.tenantId, branchId, page.items)
+    : page.items;
+  return { items: items.map(toServiceDto), nextCursor: page.nextCursor };
+}
+
+/** FR-SYS-016: keeps the services released to `branchId` today. A page may come back shorter than `limit`. */
+export async function offeredToBranch<T extends { code: string }>(
+  deps: SysDeps,
+  tenantId: string,
+  branchId: string,
+  items: readonly T[],
+): Promise<T[]> {
+  const date = businessDateOf(deps.clock.now());
+  const flags = await Promise.all(
+    items.map((s) =>
+      isReleasedToBranch(deps, { tenantId, catalog: 'service', itemCode: s.code, branchId, date }),
+    ),
+  );
+  return items.filter((_, i) => flags[i]!.released);
 }
 
 export async function getService(deps: SysDeps, actor: Actor, id: string): Promise<ServiceDto> {

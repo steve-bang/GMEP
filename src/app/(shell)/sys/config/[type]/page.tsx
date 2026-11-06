@@ -40,7 +40,7 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
       ? await deps.branches.list(resolveScope(actor, `${def.resource}:view` as 'x:view'))
       : [];
     const services =
-      type === 'standard-hours' ? (await listServices(deps, actor, { limit: 100 })).items : [];
+      type === 'standard-hours' ? (await listServices(deps, actor, { limit: 100, released: 'all' })).items : [];
     return { versions, branches, services };
   });
   const code = t.has(`config.codes.${type}`) ? t(`config.codes.${type}`) : undefined;
