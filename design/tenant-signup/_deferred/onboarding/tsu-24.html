@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-24 · W4 Vai trò và mời người dùng – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="4" data-validate-in="loi">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="chua-gui:Có người, chưa gửi|trong:Trống|da-gui:Đã gửi|trung-email:Trùng email|loi-gui:Lỗi gửi"></div>
+
+  <p class="tsu-lead">Mời nhân sự chủ chốt và gán vai trò. Người được mời không tự đăng ký: họ nhận email có mã công ty và liên kết kích hoạt. Bước này bỏ qua được. Truy vết: FR-TEN-043; FR-SYS-019, 012.</p>
+
+  <section class="card" aria-labelledby="t24-r">
+    <details>
+      <summary class="card__header" style="cursor:pointer;min-height:44px"><span class="card__title" id="t24-r">Mỗi vai trò làm được gì</span><svg class="icon" aria-hidden="true"><use href="#chevron-down"/></svg></summary>
+      <div class="card__body tsu-stack">
+        <div class="tsu-grid2" id="t24-roles"></div>
+        <p class="tsu-sub" style="margin:0">Vai trò hiển thị theo gói và cấu hình. Chủ garage là người đăng ký nên không nằm trong danh sách mời. Quyền chi tiết xem ở ma trận quyền (G4-SYS-04).</p>
+      </div>
+    </details>
+  </section>
+
+  <div class="alert alert--danger" role="alert" data-on="loi-gui"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Chưa gửi được lời mời tới bao.pham@phuongnam.vn</span><span>Hệ thống chưa gửi được email, không phải do bạn nhập sai. Lời mời vẫn được giữ, hãy thử gửi lại sau ít phút. Mã tham chiếu <span class="code">REQ-91B27E</span>.</span></div></div>
+
+  <div class="alert alert--warning" role="status"><svg class="icon" aria-hidden="true"><use href="#users"/></svg><div class="alert__body"><span class="alert__title">Còn <span class="num">3</span> chỗ người dùng (số minh họa)</span><span>Gói tính người dùng đang hoạt động; lời mời chưa kích hoạt không tính. Bạn vẫn gửi được lời mời, nhưng kích hoạt tài khoản khi đã đủ chỗ sẽ bị chặn.</span></div></div>
+
+  <section class="tsu-stack" aria-labelledby="t24-i">
+    <div class="tsu-actions" style="justify-content:space-between"><h2 id="t24-i" style="margin:0">Danh sách mời</h2><button type="button" class="btn btn--secondary" data-toast="info|Thêm người|Prototype: thêm một dòng người được mời mới."><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Thêm người</button></div>
+    <div class="state" data-on="trong"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#users"/></svg></div><h3 class="state__title">Chưa mời ai</h3><p class="state__text">Bạn có thể mời quản lý chi nhánh, cố vấn dịch vụ, thủ kho… ngay bây giờ, hoặc bỏ qua và mời sau trong Cài đặt.</p></div>
+    <ul class="tsu-stack" style="list-style:none;margin:0;padding:0" id="t24-rows" data-off="trong"></ul>
+    <p class="tsu-sub" style="margin:0" data-off="trong">Lời mời có hiệu lực <span class="num">72</span> giờ (tham số cấu hình, minh họa). Gửi lời mời không bắt buộc để sang bước kế.</p>
+  </section>
+
+  <div class="overlay" id="dlg-revoke" role="alertdialog" aria-modal="true" aria-labelledby="dlg-revoke-t" aria-describedby="dlg-revoke-b"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon" aria-hidden="true"><use href="#undo"/></svg></div><div><h2 class="dialog__title" id="dlg-revoke-t">Thu hồi lời mời?</h2></div></div>
+    <div class="dialog__body" id="dlg-revoke-b"><p>Liên kết trong email sẽ không dùng được nữa. Muốn người này vào hệ thống, bạn cần mời lại.</p></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Ở lại</button><button type="button" class="btn btn--danger" data-close data-toast="success|Đã thu hồi lời mời|Liên kết cũ không còn dùng được.">Thu hồi lời mời</button></div></div></div>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../onboarding/tsu-app.js"></script>
+<script>
+(function () {
+  var T = window.TSU;
+  var ROLES = [
+    ['Quản lý vùng', 'Theo dõi và duyệt cho một nhóm chi nhánh (chỉ hiện khi công ty bật nhóm chi nhánh).'],
+    ['Quản lý chi nhánh', 'Điều hành một chi nhánh, duyệt trong hạn mức.'],
+    ['Cố vấn dịch vụ', 'Tiếp nhận xe, lập báo giá, theo dõi lệnh sửa chữa.'],
+    ['Quản đốc', 'Phân việc cho thợ, kiểm tra chất lượng.'],
+    ['Thợ', 'Nhận việc, bắt đầu và hoàn thành việc trên máy tính bảng.'],
+    ['Thủ kho', 'Nhập, xuất, kiểm kê phụ tùng.'],
+    ['Thu ngân', 'Thu tiền, chốt ca.'],
+    ['Kế toán', 'Công nợ, sổ quỹ, hóa đơn, báo cáo.'],
+    ['Quản trị hệ thống', 'Người dùng, vai trò, cấu hình.']
+  ];
+  var el = document.getElementById('t24-roles');
+  el.innerHTML = ROLES.map(function (r) { return '<div class="tsu-rec"><strong class="tsu-rec__title">' + r[0] + '</strong><span class="tsu-sub">' + r[1] + '</span></div>'; }).join('');
+
+  var CHECKS = ROLES.map(function (r) { return r[0]; });
+  function badge(list) { return list.map(function (b) { return '<span class="badge badge--' + b[1] + '" data-on="' + b[0] + '">' + b[2] + '</span>'; }).join(''); }
+  function row(i, nm, em, alt, sel, badges, dup) {
+    var id = 'inv' + i;
+    var checks = CHECKS.map(function (c, k) {
+      return '<label class="check"><input type="checkbox" name="role' + i + '"' + (c === sel ? ' checked' : '') + '><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>' + c + '</span></label>';
+    }).join('');
+    return '<li class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title">Người được mời ' + (i + 1) + '</strong><span>' + badge(badges) + '</span></div>' +
+      '<div class="form-grid">' +
+      '<div class="field"><label class="field__label" for="' + id + 'n">Họ và tên<span class="field__req" aria-hidden="true">*</span></label><input id="' + id + 'n" class="input" data-rule="req" data-label="Họ và tên" data-msg-req="Nhập họ và tên đầy đủ của người được mời." value="' + nm + '" data-fill="' + nm + '" aria-required="true"></div>' +
+      '<div class="field"><label class="field__label" for="' + id + 'e">Email<span class="field__req" aria-hidden="true">*</span></label><input id="' + id + 'e" class="input" type="email" autocomplete="off" data-rule="req email" data-label="Email" data-fill="' + em + '"' + (alt ? ' data-alt-in="trung-email" data-alt="' + alt + '"' : '') + ' aria-required="true"' + (dup ? ' data-invalid-on="trung-email" aria-describedby="' + id + 'x"' : '') + '>' +
+      (dup ? '<span class="field__error" id="' + id + 'x" role="alert" data-on="trung-email"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Email này đã được mời.</span></span>' : '') + '</div>' +
+      '<div class="field span-2"><span class="field__label" id="' + id + 'rl">Vai trò<span class="field__req" aria-hidden="true">*</span> (chọn một hoặc nhiều)</span><details><summary style="min-height:44px;display:flex;align-items:center;cursor:pointer" aria-labelledby="' + id + 'rl">Vai trò đang chọn: ' + sel + '</summary><div class="tsu-grid3" role="group" aria-labelledby="' + id + 'rl">' + checks + '</div></details></div>' +
+      '<div class="field span-2"><label class="field__label" for="' + id + 'b">Chi nhánh được gán<span class="field__req" aria-hidden="true">*</span></label><select id="' + id + 'b" class="select"><option>Chi nhánh Quận 7</option></select></div>' +
+      '</div>' +
+      '<div class="tsu-actions"><button type="button" class="btn btn--secondary btn--sm" data-on="chua-gui trung-email loi-gui" data-toast="success|Đã gửi lời mời|Email có mã công ty và liên kết kích hoạt đã được gửi.">Gửi lời mời</button>' +
+      '<button type="button" class="btn btn--secondary btn--sm" data-on="da-gui" data-toast="success|Đã gửi lại|Lời mời mới đã được gửi, liên kết cũ hết hiệu lực.">Gửi lại</button>' +
+      '<button type="button" class="btn btn--ghost btn--sm" data-on="da-gui" data-open="dlg-revoke">Thu hồi lời mời</button></div></li>';
+  }
+  document.getElementById('t24-rows').innerHTML =
+    row(0, 'Nguyễn Thị Thu Hà', 'thuha@phuongnam.vn', '', 'Quản lý chi nhánh', [['chua-gui trung-email loi-gui', 'neutral', 'Chưa gửi'], ['da-gui', 'info', 'Đã gửi lúc 09:40']], false) +
+    row(1, 'Phạm Quốc Bảo', 'bao.pham@phuongnam.vn', 'thuha@phuongnam.vn', 'Cố vấn dịch vụ', [['chua-gui trung-email', 'neutral', 'Chưa gửi'], ['loi-gui', 'danger', 'Lỗi gửi'], ['da-gui', 'warning', 'Hết hạn']], true);
+  T.setState(document.body.getAttribute('data-tsu-state'), true);
+})();
+</script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

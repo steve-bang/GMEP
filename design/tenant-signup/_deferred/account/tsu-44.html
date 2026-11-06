@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-44 · Lịch sử gói và mốc thông báo – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Gói của tôi|Lịch sử" data-no-scope>
+<div id="g1-content" hidden>
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Lịch sử gói và mốc thông báo</h1>
+      <p class="page-header__desc">Mọi thay đổi gói của Công ty TNHH Ô tô Phương Nam, kèm các mốc nhắc sắp tới</p>
+    </div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="../../account/tsu-41.html">Về Gói của tôi</a></div>
+  </div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
+
+  <div data-tsu-bar="co-lich-su:Có lịch sử|trong:Chưa có thay đổi"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <section class="card" aria-labelledby="t44-h">
+      <div class="card__header"><h2 class="card__title" id="t44-h">Lịch sử thay đổi gói</h2></div>
+      <div data-on="trong"><div class="state" style="padding:var(--space-6)"><div class="state__icon"><svg class="icon icon--lg" aria-hidden="true"><use href="#history"/></svg></div><h3 class="state__title">Chưa có thay đổi gói</h3><p class="state__text">Khi bạn đổi gói, hết dùng thử hoặc gia hạn, mỗi thay đổi hiện ở đây với người thực hiện và ghi chú.</p></div></div>
+      <div data-on="co-lich-su">
+        <div class="tsu-tbl table-scroll"><table class="table">
+          <caption class="sr-only">Lịch sử thay đổi gói, mới nhất ở trên</caption>
+          <thead><tr><th scope="col">Ngày hiệu lực</th><th scope="col">Gói trước</th><th scope="col">Gói sau</th><th scope="col">Hình thức</th><th scope="col">Người thực hiện</th><th scope="col">Ghi chú</th></tr></thead>
+          <tbody>
+            <tr><td class="num">05/11/2026</td><td>Khởi đầu (hết hạn)</td><td>Chuẩn</td><td><span class="badge badge--success">Nâng gói</span></td><td>Trần Hoàng Anh</td><td>Nền tảng xác nhận yêu cầu REQ-2E90FA</td></tr>
+            <tr><td class="num">04/11/2026</td><td>Khởi đầu (dùng thử)</td><td>Khởi đầu (hết hạn)</td><td><span class="badge badge--warning">Hết hạn dùng thử</span></td><td>Hệ thống</td><td>Dữ liệu được giữ nguyên</td></tr>
+            <tr><td class="num">05/10/2026</td><td>—</td><td>Khởi đầu (dùng thử)</td><td><span class="badge badge--info">Bắt đầu dùng thử</span></td><td>Hệ thống</td><td>Kích hoạt công ty</td></tr>
+          </tbody></table></div>
+        <div class="tsu-cards" style="padding:var(--space-4)">
+          <div class="tsu-rec"><div class="tsu-rec__top"><span class="tsu-rec__title">Khởi đầu (hết hạn) → Chuẩn</span><span class="badge badge--success">Nâng gói</span></div><div class="tsu-rec__meta"><span class="num">05/11/2026</span><span>Trần Hoàng Anh</span></div><span class="tsu-sub">Nền tảng xác nhận yêu cầu REQ-2E90FA</span></div>
+          <div class="tsu-rec"><div class="tsu-rec__top"><span class="tsu-rec__title">Khởi đầu (dùng thử) → hết hạn</span><span class="badge badge--warning">Hết hạn dùng thử</span></div><div class="tsu-rec__meta"><span class="num">04/11/2026</span><span>Hệ thống</span></div><span class="tsu-sub">Dữ liệu được giữ nguyên</span></div>
+          <div class="tsu-rec"><div class="tsu-rec__top"><span class="tsu-rec__title">Bắt đầu dùng thử Khởi đầu</span><span class="badge badge--info">Bắt đầu dùng thử</span></div><div class="tsu-rec__meta"><span class="num">05/10/2026</span><span>Hệ thống</span></div><span class="tsu-sub">Kích hoạt công ty</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t44-m">
+      <div class="card__header"><div><h2 class="card__title" id="t44-m">Mốc thông báo sắp tới</h2><div class="card__subtitle">Các mốc lấy từ cấu hình thang cảnh báo (RULE-030)</div></div></div>
+      <ul class="tsu-cl">
+        <li class="tsu-cl__item is-done"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#check"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Nhắc trước 7 ngày</span><span class="tsu-sub num">01/12/2026 · cho kỳ kết thúc 08/12/2026 (minh họa)</span></div><div class="tsu-cl__act"><span class="badge badge--success">Đã gửi</span></div></li>
+        <li class="tsu-cl__item"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Nhắc trước 1 ngày</span><span class="tsu-sub num">07/12/2026</span></div><div class="tsu-cl__act"><span class="badge badge--neutral">Chưa gửi</span></div></li>
+        <li class="tsu-cl__item"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Hết hạn</span><span class="tsu-sub num">08/12/2026</span></div><div class="tsu-cl__act"><span class="badge badge--neutral">Chưa gửi</span></div></li>
+      </ul>
+    </section>
+  </div>
+  <p class="tsu-test">Truy vết: FR-TEN-024, 044, 045.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../../onboarding/tsu-app.js"></script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

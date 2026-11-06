@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSX-01 · Đăng ký dùng thử (một trang) – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu đăng ký</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsx-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span data-brand>GARAGE OS</span></a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="default:Mặc định|errors:Lỗi nhiều trường|draft:Có bản nháp|ready:Đã điền đủ|sending:Đang gửi|check:Cần kiểm tra người thật|bot:Kiểm tra người thật chưa đạt|ver:Điều khoản đổi khi đang điền|early:Truy cập sớm|closed:Đóng đăng ký" data-ts-common="skel r429 error offline" data-hint="TSX-01 (thay TSU-01..04) · FR-TEN-039, 037, 041 · RULE-028, 029, 032 · AC-S01..S06. Kiểm tra người thật chỉ hiện khi hệ thống nghi ngờ (xem thử “Cần kiểm tra người thật”). Gửi và đối chiếu MST chỉ mô phỏng. Thử: gõ mã số thuế 10 hoặc 12 số để thấy loại hình suy ra."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide" data-error-title="Chưa gửi được đăng ký" data-error-text="Máy chủ gặp sự cố tạm thời. Thông tin bạn đã nhập vẫn được giữ trên thiết bị này (trừ mật khẩu). Hãy thử lại sau ít phút." data-offline-text="Chưa gửi được vì mất kết nối mạng. Thông tin bạn đã nhập vẫn được giữ trên thiết bị này (trừ mật khẩu).">
+    <h1 class="sr-only" data-show="skel" hidden>Đăng ký dùng thử</h1>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+
+    <div data-ts-body class="tsp-stack">
+      <div class="tsp-stack" data-hide="closed">
+        <div class="tsp-stack">
+          <h1>Quản lý lệnh sửa chữa, kho phụ tùng và hóa đơn điện tử cho garage của bạn</h1>
+          <p class="tsp-cond" data-hide="early"><span class="badge badge--success">Dùng thử</span><span>Dùng thử miễn phí, không cần thẻ</span></p>
+          <p class="tsp-cond" data-show="early" hidden><span class="badge badge--info">Truy cập sớm</span><span>Bạn đang đăng ký ở giai đoạn truy cập sớm, không cần thẻ</span></p>
+          <p class="tsp-small">Dành cho doanh nghiệp và hộ kinh doanh đã có mã số thuế tại Việt Nam.</p>
+        </div>
+
+        <div class="alert alert--info" role="status" data-draft-banner hidden data-demo-time="09:42" data-demo='{"v":{"sg-org":"Garage Ô tô Minh Phát","sg-mst":"0312345678","sg-name":"Nguyễn Văn Phát","sg-email":"phat@minhphat.vn"},"x":{},"t":"09:42"}'>
+          <svg class="icon" aria-hidden="true"><use href="#info"/></svg>
+          <div class="alert__body"><span class="alert__title">Tiếp tục bản nháp lúc <span data-draft-time>09:42</span>?</span><span>Bản nháp chỉ nằm trên thiết bị này. Mật khẩu không được lưu, bạn cần nhập lại.</span>
+            <div class="alert__actions"><button type="button" class="btn btn--primary btn--sm" data-draft-resume>Tiếp tục bản nháp</button><button type="button" class="btn btn--secondary btn--sm" data-draft-drop>Bỏ bản nháp</button></div></div>
+        </div>
+        <div class="alert alert--warning" role="alert" data-show="ver" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Điều khoản vừa được cập nhật</span><span>Điều khoản vừa được cập nhật. Vui lòng đọc lại và đồng ý.</span></div></div>
+
+        <form class="tsp-form" data-ts-form novalidate data-clear-draft data-validate-in="errors" aria-describedby="sg-req-note">
+          <fieldset class="tsp-fs" data-disable-in="sending">
+            <legend class="sr-only">Thông tin garage và tài khoản chủ garage</legend>
+
+            <div class="field">
+              <label class="field__label" for="sg-org">Tên garage (đúng như giấy đăng ký)<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="sg-org" name="sg-org" class="input" autocomplete="organization" aria-required="true" maxlength="200" data-first-focus data-draft data-required-field data-rule="org" data-label="tên garage"
+                data-fill='{"errors":"","ready":"Garage Ô tô Minh Phát","sending":"Garage Ô tô Minh Phát","check":"Garage Ô tô Minh Phát","bot":"Garage Ô tô Minh Phát","ver":"Garage Ô tô Minh Phát","early":""}'>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sg-mst">Mã số thuế<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="sg-mst" name="sg-mst" class="input" inputmode="numeric" autocomplete="off" aria-required="true" aria-describedby="sg-mst-h sg-mst-type" data-draft data-required-field data-rule="mst" data-lens="10,12" data-label="mã số thuế"
+                data-fill='{"errors":"031234","ready":"0312345678","sending":"0312345678","check":"0312345678","bot":"0312345678","ver":"0312345678"}'>
+              <span class="field__hint" id="sg-mst-h">Gồm 10 số (doanh nghiệp) hoặc 12 số (hộ kinh doanh). Khoảng trắng và dấu gạch được tự bỏ.</span>
+              <span class="tsp-inline-note" id="sg-mst-type" aria-live="polite"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span data-mst-type>Loại hình sẽ được xác định theo độ dài mã số thuế.</span></span>
+              <details class="tsp-details">
+                <summary>Mã số thuế ở đâu?</summary>
+                <div class="tsp-details__body">
+                  <ul class="tsp-bullets">
+                    <li>Trên giấy chứng nhận đăng ký doanh nghiệp hoặc đăng ký hộ kinh doanh.</li>
+                    <li>Trên thông báo mã số thuế của cơ quan thuế hoặc trên hóa đơn bạn đã phát hành.</li>
+                  </ul>
+                  <p class="tsp-small">Chúng tôi chỉ dùng mã số thuế để xác minh garage. Hệ thống không báo mã số thuế có thật hay không ngay ở ô này.</p>
+                </div>
+              </details>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sg-name">Họ và tên chủ garage<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="sg-name" name="sg-name" class="input" autocomplete="name" aria-required="true" maxlength="100" data-draft data-required-field data-rule="name" data-label="họ và tên"
+                data-fill='{"errors":"A","ready":"Nguyễn Văn Phát","sending":"Nguyễn Văn Phát","check":"Nguyễn Văn Phát","bot":"Nguyễn Văn Phát","ver":"Nguyễn Văn Phát"}'>
+              <span class="field__hint">Họ tên người đại diện của garage.</span>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sg-email">Email đăng nhập<span class="field__req" aria-hidden="true">*</span></label>
+              <input id="sg-email" name="sg-email" class="input" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" aria-required="true" aria-describedby="sg-email-h" data-draft data-required-field data-block-disposable data-rule="email" data-label="email"
+                data-fill='{"errors":"phat@mailinator.com","ready":"phat@minhphat.vn","sending":"phat@minhphat.vn","check":"phat@minhphat.vn","bot":"phat@minhphat.vn","ver":"phat@minhphat.vn"}'>
+              <span class="field__hint" id="sg-email-h">Chúng tôi gửi liên kết xác thực đến email này.</span>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sg-pw">Mật khẩu<span class="field__req" aria-hidden="true">*</span></label>
+              <div class="tsp-pw"><input id="sg-pw" name="sg-pw" class="input" type="password" autocomplete="new-password" aria-required="true" aria-describedby="sg-pw-rules sg-pw-caps" data-required-field data-rule="pass" data-label="mật khẩu" data-min="10" data-avoid="sg-email sg-name" data-pw-policy
+                data-fill='{"errors":"matkhau123","ready":"MayGaraRatDep#2026","sending":"MayGaraRatDep#2026","check":"MayGaraRatDep#2026","bot":"MayGaraRatDep#2026","ver":"MayGaraRatDep#2026"}'><button type="button" class="btn-icon tsp-pw__toggle" data-pw-toggle="sg-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+              <span class="field__hint" id="sg-pw-caps" data-caps hidden>Caps Lock đang bật. Mật khẩu phân biệt chữ hoa, chữ thường.</span>
+              <div class="tsp-strength-row" hidden><div class="tsp-strength" data-level="0" aria-hidden="true"><span></span><span></span><span></span></div><span class="tsp-strength-text" data-strength-text aria-live="polite">Chưa nhập</span></div>
+              <ul class="tsp-rules" id="sg-pw-rules" aria-label="Điều kiện mật khẩu" hidden>
+                <li data-r="len"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span><span class="sr-only">Chưa đạt: </span>Ít nhất 10 ký tự</span></li>
+                <li data-r="common"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span><span class="sr-only">Chưa đạt: </span>Không phải mật khẩu quá phổ biến</span></li>
+                <li data-r="avoid"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span><span class="sr-only">Chưa đạt: </span>Không chứa email hoặc họ tên của bạn</span></li>
+              </ul>
+              <span class="field__hint">Không cần nhập lại. Bấm biểu tượng con mắt để xem mật khẩu bạn gõ.</span>
+            </div>
+
+            <div class="field">
+              <span class="field__label" id="terms-l">Đồng ý để tạo tài khoản<span class="field__req" aria-hidden="true">*</span></span>
+              <div class="tsp-terms" role="group" aria-labelledby="terms-l">
+                <div class="tsp-terms__item">
+                  <label class="check"><input type="checkbox" id="sg-tos" aria-required="true" data-rule="checked" data-msg-required="Cần đồng ý Điều khoản dịch vụ để tiếp tục." data-check-in="ready sending check bot early"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đồng ý <strong>Điều khoản dịch vụ</strong></span></label>
+                  <button type="button" class="btn btn--secondary btn--sm" data-open="dlg-tos">Đọc<span class="sr-only"> Điều khoản dịch vụ</span></button>
+                </div>
+                <div class="tsp-terms__item">
+                  <label class="check"><input type="checkbox" id="sg-dpa" aria-required="true" data-rule="checked" data-msg-required="Cần đồng ý Thỏa thuận xử lý dữ liệu để tiếp tục." data-check-in="ready sending check bot early"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đồng ý <strong>Thỏa thuận xử lý dữ liệu</strong></span></label>
+                  <button type="button" class="btn btn--secondary btn--sm" data-open="dlg-dpa">Đọc<span class="sr-only"> Thỏa thuận xử lý dữ liệu</span></button>
+                </div>
+              </div>
+              <span class="tsp-small">Bạn xác nhận mình là chủ hoặc người đại diện hợp pháp của garage. Hai ô đồng ý tách riêng, không tích sẵn. <a href="#" data-open="dlg-ret">Chính sách lưu trữ dữ liệu</a></span>
+            </div>
+
+            <div class="field" data-show="check bot" hidden>
+              <span class="field__label" id="bot-l">Kiểm tra người thật<span class="field__req" aria-hidden="true">*</span></span>
+              <p class="tsp-small">Chúng tôi thấy hoạt động bất thường từ thiết bị này. Vui lòng xác nhận bạn là người thật để gửi đăng ký.</p>
+              <div class="tsp-bot" data-bot data-bot-required data-bot-state="idle" data-bot-ok-in="ready sending ver early" data-bot-error-in="bot" role="group" aria-labelledby="bot-l">
+                <div class="tsp-bot__row">
+                  <span class="tsp-bot__status" role="status"><span data-bot-icon></span><span data-bot-text>Chưa xác nhận bạn là người thật.</span></span>
+                  <button type="button" class="btn btn--secondary" id="sg-bot-btn" data-bot-btn>Tôi là người thật</button>
+                </div>
+                <button type="button" class="btn btn--ghost btn--sm" data-bot-alt-toggle aria-expanded="false" aria-controls="bot-alt" style="align-self:flex-start">Tôi cần cách khác</button>
+                <div class="tsp-bot__alt" id="bot-alt" data-bot-alt hidden>
+                  <p class="tsp-small">Chúng tôi gửi mã 6 số đến email bạn đã nhập ở trên. Không cần nhìn hình hay nghe âm thanh.</p>
+                  <div class="field"><label class="field__label" for="bot-code">Mã xác nhận 6 số</label><input class="input" id="bot-code" data-bot-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="bot-code-err"><span class="field__error" id="bot-code-err" data-bot-err hidden></span></div>
+                  <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-bot-send>Gửi mã qua email</button><button type="button" class="btn btn--primary btn--sm" data-bot-confirm>Xác nhận mã</button></div>
+                </div>
+                <input class="tsp-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+              </div>
+            </div>
+          </fieldset>
+
+          <p class="tsp-reason" id="rsn-01"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span>Chưa thể gửi: còn thiếu tên garage, mã số thuế, họ và tên, email, mật khẩu.</span></p>
+          <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-requires="sg-tos sg-dpa" data-requires-bot data-requires-fields data-loading-in="sending" data-disable-in="closed" data-reason-id="rsn-01" data-text-page="Hiện chưa mở đăng ký mới, chưa gửi được." data-text-requires="Chưa thể gửi: cần đồng ý Điều khoản dịch vụ và DPA." data-text-bot="Chưa thể gửi: cần xác nhận bạn là người thật."><span>Tạo tài khoản dùng thử</span><span class="btn__spinner" aria-hidden="true"></span></button>
+          <p class="tsp-small" id="sg-req-note"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập. Chỉ cần 5 thông tin trên. Địa chỉ và số điện thoại garage sẽ hỏi sau khi bạn vào ứng dụng.</p>
+        </form>
+      </div>
+
+      <section class="state" data-show="closed" hidden aria-labelledby="cl-h">
+        <span class="state__icon" aria-hidden="true"><svg class="icon icon--lg"><use href="#clock"/></svg></span>
+        <h1 class="state__title" id="cl-h">Hiện chưa mở đăng ký mới</h1>
+        <p class="state__text">Hiện chưa mở đăng ký mới. Vui lòng quay lại sau. Chúng tôi không thu thập email ở trạng thái này.</p>
+        <div class="state__actions"><a class="btn btn--secondary" href="tsu-14.html">Đã có tài khoản? Đăng nhập</a></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="tsp-below" data-hide="closed"><span>Đã có tài khoản? <a href="tsu-14.html">Đăng nhập</a></span></div>
+  <footer class="tsp-foot"><p class="ts-help" data-support="line"></p><span><span data-brand>GARAGE OS</span> · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận. Tên sản phẩm và số hỗ trợ là minh họa [Cần xác nhận].</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<div class="overlay" id="dlg-tos" role="dialog" aria-labelledby="dlg-tos-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-tos-t">Điều khoản dịch vụ</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-meta"><span>Phiên bản: <span data-ver>v1.0</span> (minh họa)</span><span>Hiệu lực từ: <span data-eff>01/12/2026</span> (minh họa)</span></div>
+      <div class="tsp-doc" tabindex="0" role="region" aria-label="Nội dung điều khoản dịch vụ"><p>[Nội dung do luật sư soạn, lấy từ phiên bản đang hiệu lực. Chưa có văn bản chính thức.]</p></div>
+      <p class="tsp-small">Bạn không bắt buộc phải cuộn hết văn bản để đóng hộp thoại này [Cần xác nhận Q30].</p>
+    </div>
+    <div class="dialog__footer"><a class="btn btn--ghost" href="#" data-toast="info|Tải bản PDF|Liên kết tải sẽ có khi có văn bản chính thức.">Tải bản PDF</a><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+<div class="overlay" id="dlg-dpa" role="dialog" aria-labelledby="dlg-dpa-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-dpa-t">Thỏa thuận xử lý dữ liệu (DPA)</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-meta"><span>Phiên bản: <span data-ver>v1.0</span> (minh họa)</span><span>Hiệu lực từ: <span data-eff>01/12/2026</span> (minh họa)</span></div>
+      <div class="tsp-doc" tabindex="0" role="region" aria-label="Nội dung thỏa thuận xử lý dữ liệu"><p>[Nội dung do luật sư soạn. Chưa có văn bản chính thức.]</p></div>
+    </div>
+    <div class="dialog__footer"><a class="btn btn--ghost" href="#" data-toast="info|Tải bản PDF|Liên kết tải sẽ có khi có văn bản chính thức.">Tải bản PDF</a><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+<div class="overlay" id="dlg-ret" role="dialog" aria-labelledby="dlg-ret-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-ret-t">Chính sách lưu trữ dữ liệu</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-slot"><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận C-S11]</span><span>Thời hạn lưu trữ, xuất và xóa dữ liệu do luật sư chốt. Không hard-code trong giao diện.</span></div>
+    </div>
+    <div class="dialog__footer"><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-config.js"></script>
+<script src="../ts-common.js"></script>
+<script>
+/* Loại hình suy ra từ độ dài MST (C-S05), phiên bản điều khoản đổi, đích sau khi gửi (cùng một màn cho mọi kết quả, RULE-032). */
+(function () {
+  var mst = document.getElementById('sg-mst'), out = document.querySelector('[data-mst-type]');
+  function typ() {
+    var s = mst.value.replace(/[\s.\-]/g, '');
+    out.textContent = /^\d{10}$/.test(s) ? 'Loại hình: doanh nghiệp (mã số thuế 10 số).' : /^\d{12}$/.test(s) ? 'Loại hình: hộ kinh doanh hoặc cá nhân có mã số thuế (12 số).' : 'Loại hình sẽ được xác định theo độ dài mã số thuế.';
+  }
+  mst.addEventListener('input', typ);
+  window.tsOnView = function (v) {
+    typ();
+    var nv = v === 'ver' ? 'v1.1' : 'v1.0';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ver]'), function (e) { e.textContent = nv; });
+  };
+  window.tsOnView(window.TS.getView());
+  window.tsRoute = function () { return 'tsx-02.html?e=' + encodeURIComponent(document.getElementById('sg-email').value); };
+})();
+</script>
+</body>
+</html>

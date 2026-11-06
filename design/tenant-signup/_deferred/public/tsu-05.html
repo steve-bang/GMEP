@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-05 · Đã gửi, kiểm tra email – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="normal:Bình thường|queued:Xếp hàng (vượt trần)|cooldown:Đang đếm lùi|toomany:Đã gửi lại quá nhiều" data-ts-common="r429 error offline" data-hint="TSU-05 · FR-TEN-039, 041 · RULE-032. Câu chữ trung lập, không lộ email hay MST đã tồn tại."></div>
+
+  <main id="main" class="tsp-card" data-offline-text="Chưa gửi lại được email. Kiểm tra Wi-Fi hoặc 4G rồi thử lại.">
+    <div class="tsp-result">
+      <span class="tsp-icon-badge" aria-hidden="true"><svg class="icon"><use href="#mail"/></svg></span>
+      <h1 data-hide="queued">Kiểm tra email của bạn</h1>
+      <h1 data-show="queued" hidden>Đăng ký đang xếp hàng</h1>
+      <p class="tsp-lead" data-hide="queued">Chúng tôi đã gửi email đến <strong data-sum-mask="oemail" data-sample="phat@minhphat.vn"></strong>. Mở email và bấm liên kết xác thực để tiếp tục. Liên kết có hiệu lực 72 giờ (minh họa).</p>
+      <p class="tsp-lead" data-show="queued" hidden>Đăng ký của bạn đã được ghi nhận và đang xếp hàng xử lý. Chúng tôi sẽ email khi đến lượt.</p>
+      <p class="tsp-m0"><strong>Nếu thông tin hợp lệ, bạn sẽ nhận được email trong vài phút.</strong></p>
+    </div>
+
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--warning" role="alert" data-show="toomany" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Bạn đã gửi lại nhiều lần</span><span>Bạn đã gửi lại nhiều lần. Hãy liên hệ hỗ trợ nếu vẫn chưa nhận được email.</span></div></div>
+    <div class="tsp-slot" data-show="toomany" hidden><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận]</span><span>Kênh hỗ trợ (email, điện thoại hoặc Zalo) do chủ nền tảng chốt. Chưa có kênh chính thức.</span></div>
+    <div class="tsp-slot" data-show="queued" hidden><span class="tsp-slot__label">Giữ chỗ cấu hình [Cần xác nhận NFR-TEN-07]</span><span>Thời gian chờ dự kiến chỉ hiển thị khi có cam kết. Hiện không hứa thời gian cụ thể.</span></div>
+
+    <p class="tsp-small" data-hide="queued">Không thấy email? Kiểm tra thư mục spam hoặc gửi lại.</p>
+    <div class="tsp-actions" data-hide="queued">
+      <button type="button" class="btn btn--secondary btn--lg" data-hide="cooldown toomany" data-disable-in="r429 offline" id="resend" data-ts-goto="cooldown" data-toast="success|Đã gửi lại email|Có thể gửi lại lần nữa sau khi hết thời gian chờ."><span>Gửi lại email</span></button>
+      <button type="button" class="btn btn--secondary btn--lg" disabled aria-disabled="true" data-show="cooldown toomany" hidden><span>Gửi lại email (sau <span class="num" data-countdown="45" data-countdown-view="normal">00:45</span>)</span></button>
+      <a class="btn btn--ghost btn--lg" href="tsu-03.html">Dùng email khác</a>
+    </div>
+    <div class="tsp-links">
+      <a href="tsu-08.html">Theo dõi đăng ký</a>
+      <a href="tsu-07.html">Gửi lại bằng email khác</a>
+    </div>
+    <p class="tsp-small">Liên kết “Theo dõi đăng ký” cũng có trong email xác thực. Mở bằng liên kết riêng đó để xem tiến độ.</p>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-52 · Hết dùng thử – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
+</head>
+<body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../../g1-auth-dashboard/g1-aut-01.html" data-top-icon="log-out">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="ch:Chủ garage|ad:Quản trị tenant|nv:Nhân viên|da-han-che:Đã ở chế độ hạn chế|da-chi-doc:Đã ở chế độ chỉ đọc"></div>
+
+  <div class="state" style="padding-top:var(--space-4)"><div class="state__icon state__icon--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#clock"/></svg></div>
+    <h1 class="state__title" id="tsu-h1" tabindex="-1" style="font-size:var(--font-size-2xl);line-height:32px">Thời gian dùng thử đã kết thúc</h1>
+    <p class="state__text">Thời gian dùng thử của Công ty TNHH Ô tô Phương Nam đã kết thúc ngày <span class="num">04/11/2026</span>.</p></div>
+
+  <div class="alert alert--neutral" role="status" data-on="nv"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Dùng thử của công ty đã hết</span><span>Liên hệ Trần Hoàng Anh (chủ garage) để chọn gói. Bạn vẫn xem được dữ liệu và hoàn tất các lệnh đang mở.</span></div></div>
+  <div class="alert alert--warning" role="status" data-on="da-han-che"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Công ty đang ở chế độ hạn chế tạo mới</span><span>Từ <span class="num">18/11/2026</span>: chưa tạo mới lệnh sửa chữa, chi nhánh, người dùng. Việc đang mở vẫn hoàn tất được.</span></div></div>
+  <div class="alert alert--danger" role="status" data-on="da-chi-doc"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Công ty đang ở chế độ chỉ đọc</span><span>Từ <span class="num">05/12/2026</span>: bạn chỉ xem và tải dữ liệu. Chọn gói lúc nào cũng mở lại ngay và giữ nguyên dữ liệu.</span></div></div>
+
+  <section class="card" aria-labelledby="t52-s">
+    <div class="card__header"><h2 class="card__title" id="t52-s">Dữ liệu của bạn vẫn an toàn</h2></div>
+    <div class="card__body"><ul class="tsu-list"><li>Không bị xóa.</li><li>Bạn xem và tải được hóa đơn, chứng từ.</li><li>Các lệnh đang mở vẫn hoàn tất được.</li></ul></div>
+  </section>
+
+  <section class="card" aria-labelledby="t52-n" data-off="nv">
+    <div class="card__header"><div><h2 class="card__title" id="t52-n">Tiếp theo</h2><div class="card__subtitle">Các mốc lấy từ cấu hình (RULE-030), ngày trong prototype là minh họa</div></div></div>
+    <ol class="tsu-cl">
+      <li class="tsu-cl__item is-done"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#check"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Hết dùng thử</span><span class="tsu-sub num">04/11/2026</span></div></li>
+      <li class="tsu-cl__item"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Chuyển sang hạn chế tạo mới</span><span class="tsu-sub">Từ <span class="num">18/11/2026</span>: xem, tải, thu tiền, giao xe và hoàn tất lệnh đang mở vẫn dùng được</span></div></li>
+      <li class="tsu-cl__item"><span class="tsu-cl__ic" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span><div class="tsu-cl__main"><span class="tsu-cl__name">Chuyển sang chỉ đọc</span><span class="tsu-sub">Từ <span class="num">05/12/2026</span>: chỉ xem và tải dữ liệu</span></div></li>
+    </ol>
+    <div class="card__footer"><span class="tsu-sub">Chọn gói lúc nào cũng mở lại ngay và giữ nguyên dữ liệu.</span></div>
+  </section>
+
+  <div class="tsu-actions">
+    <a class="btn btn--primary btn--lg" href="tsu-42.html" data-on="ch da-han-che da-chi-doc">Chọn gói</a>
+    <a class="btn btn--secondary btn--lg" href="../../account/tsu-55.html" data-on="ch da-han-che da-chi-doc">Xuất dữ liệu</a>
+    <button type="button" class="btn btn--primary btn--lg" aria-disabled="true" data-on="ad" data-disable-in="ad">Chọn gói</button>
+    <button type="button" class="btn btn--secondary btn--lg" aria-disabled="true" data-on="ad" data-disable-in="ad">Xuất dữ liệu</button>
+    <a class="btn btn--ghost btn--lg" href="../../../g1-auth-dashboard/g1-dsh-01.html">Vào xem dữ liệu</a>
+  </div>
+  <p class="tsu-reason" data-on="ad"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage chọn được gói và xuất dữ liệu. Hãy báo cho Trần Hoàng Anh. <code>NO_PERMISSION</code> <code>TRIAL_EXPIRED</code></span></p>
+  <p class="tsu-test">Truy vết: FR-TEN-044; RULE-021, 023, 030; J10; UAT-TEN-16. Hiện một lần mỗi phiên đăng nhập, đóng được để vào ứng dụng. Thời hạn giữ dữ liệu khi không chọn gói: chờ xác nhận (C-9).</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../onboarding/tsu-app.js"></script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

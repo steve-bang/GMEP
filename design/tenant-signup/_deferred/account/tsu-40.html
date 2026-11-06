@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-40 · Trang chủ giai đoạn đầu – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="dash" data-crumb="Trang chủ" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-01" data-on="onboarding"></div>
+    <div data-tsu-banner="BAN-02" data-on="trial-sap-het" data-n="3" data-date="08/11/2026"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Trang chủ</h1>
+      <p class="page-header__desc">Thứ Năm, 05/11/2026 · Chủ garage · Việc còn lại để thiết lập xong và tình trạng dùng thử</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--primary" href="../onboarding/tsu-20.html" data-off="da-xong early-xong">Tiếp tục thiết lập</a>
+    </div>
+  </div>
+
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty · Công ty TNHH Ô tô Phương Nam</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
+
+  <div data-tsu-bar="onboarding:Đang thiết lập (onboarding)|con-viec:Đã kích hoạt, còn việc|da-xong:Đã xong|trial-nhieu:Trial còn nhiều ngày|trial-sap-het:Trial sắp hết|early:Early access"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <div class="tsu-grid2">
+      <section class="card" aria-labelledby="t40-c" data-off="da-xong">
+        <div class="card__header"><div><h2 class="card__title" id="t40-c">Hoàn tất thiết lập</h2><div class="card__subtitle" id="t40-prog"></div></div></div>
+        <div class="card__body" style="padding-bottom:0"><div class="progress"><div class="progress__head"><span>Tiến độ</span><span id="t40-pt"></span></div><div class="progress__track" aria-hidden="true"><div class="progress__bar" id="t40-pb" style="width:0"></div></div></div></div>
+        <div id="t40-cl"></div>
+        <div class="card__footer"><a class="btn btn--primary btn--sm" href="../onboarding/tsu-20.html">Tiếp tục thiết lập</a></div>
+      </section>
+      <section class="card" aria-labelledby="t40-d" data-on="da-xong">
+        <div class="card__header"><h2 class="card__title" id="t40-d">Hoàn tất thiết lập</h2></div>
+        <div class="card__body"><div class="state" style="padding:var(--space-4)"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#circle-check"/></svg></div><h3 class="state__title">Bạn đã hoàn tất thiết lập</h3><p class="state__text">Cả 9 bước đã xong. Khối này tự ẩn ở những lần sau.</p></div></div>
+      </section>
+
+      <div class="tsu-stack">
+        <section class="card tsu-trialcard" aria-labelledby="t40-t" data-on="onboarding con-viec da-xong trial-nhieu">
+          <div class="card__header"><h2 class="card__title" id="t40-t">Dùng thử</h2><span class="badge badge--info">Dùng thử</span></div>
+          <div class="card__body tsu-stack">
+            <p style="margin:0;font-size:var(--font-size-lg)" data-on="onboarding"><strong>Chưa bắt đầu tính ngày dùng thử.</strong> <span class="num">30</span> ngày dùng thử bắt đầu khi bạn kích hoạt, hoặc tự bắt đầu vào <span class="num">19/11/2026</span> nếu chưa kích hoạt.</p>
+            <p style="margin:0;font-size:var(--font-size-lg)" data-on="con-viec da-xong trial-nhieu"><strong>Còn <span class="num">24</span> ngày</strong> dùng thử (hết hạn <span class="num">29/11/2026</span>)</p>
+            <div class="progress" data-on="con-viec da-xong trial-nhieu"><div class="progress__head"><span>Đã dùng</span><span>6/30 ngày</span></div><div class="progress__track" role="img" aria-label="Đã dùng thử một phần thời gian"><div class="progress__bar" style="width:20%"></div></div></div>
+            <p class="tsu-sub" style="margin:0">Dữ liệu của bạn không bị xóa khi hết dùng thử. Thời lượng dùng thử là cấu hình, số trên là minh họa.</p>
+            <div class="tsu-actions"><a class="btn btn--secondary btn--sm" href="../../account/tsu-41.html">Xem gói</a></div>
+          </div>
+        </section>
+        <section class="card card--attention" aria-labelledby="t40-t2" data-on="trial-sap-het">
+          <div class="card__header"><h2 class="card__title" id="t40-t2">Dùng thử sắp hết</h2><span class="badge badge--warning">Sắp hết hạn</span></div>
+          <div class="card__body tsu-stack">
+            <p style="margin:0;font-size:var(--font-size-lg)"><strong>Còn <span class="num">3</span> ngày</strong> dùng thử (hết hạn <span class="num">08/11/2026</span>)</p>
+            <div class="progress progress--warning"><div class="progress__head"><span>Đã dùng</span><span>27/30 ngày</span></div><div class="progress__track" role="img" aria-label="Đã dùng 90% thời gian dùng thử"><div class="progress__bar" style="width:90%"></div></div></div>
+            <p class="tsu-sub" style="margin:0">Hết dùng thử, bạn vẫn xem được dữ liệu, tải hóa đơn và hoàn tất lệnh đang mở. Chọn gói để tiếp tục tạo mới.</p>
+            <div class="tsu-actions"><a class="btn btn--primary btn--sm" href="tsu-42.html">Chọn gói</a><a class="btn btn--secondary btn--sm" href="../../account/tsu-41.html">Xem gói</a></div>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="t40-e" data-on="early">
+          <div class="card__header"><h2 class="card__title" id="t40-e">Truy cập sớm</h2><span class="badge badge--purple">Truy cập sớm</span></div>
+          <div class="card__body tsu-stack">
+            <p style="margin:0;font-size:var(--font-size-lg)"><strong>Bạn đang trong giai đoạn truy cập sớm, chưa thu phí.</strong></p>
+            <p class="tsu-sub" style="margin:0">Ngày kết thúc dự kiến: <span class="num">31/01/2027</span> (minh họa, nếu có). Chúng tôi báo trước khi có gói và giá.</p>
+            <div class="tsu-actions"><a class="btn btn--secondary btn--sm" href="../../account/tsu-41.html">Xem gói</a></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="t40-env" data-on="onboarding">
+          <div class="card__header"><h2 class="card__title" id="t40-env">Môi trường thử</h2></div>
+          <div class="card__body"><p style="margin:0">Hóa đơn chạy thử và dữ liệu thử có thể xóa. Khi kích hoạt, bạn chọn xóa hoặc giữ dữ liệu thử.</p></div>
+        </section>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="t40-k" data-on="onboarding con-viec early">
+      <div class="card__header"><h2 class="card__title" id="t40-k">Số liệu hoạt động</h2></div>
+      <div class="card__body"><div class="state" style="padding:var(--space-6)"><div class="state__icon"><svg class="icon icon--lg" aria-hidden="true"><use href="#inbox"/></svg></div><h3 class="state__title">Chưa có số liệu</h3><p class="state__text">Doanh thu, lượt xe và công nợ sẽ hiện ở đây sau khi có lệnh sửa chữa đầu tiên. Các khối còn lại của tổng quan chủ garage (G1-DSH-01) xem ở trang Tổng quan.</p></div></div>
+    </section>
+  </div>
+  <p class="tsu-test">Truy vết: FR-TEN-043, 044, 004; J8, J10. Chủ garage và quản trị tenant thấy khối này; vai trò khác không thấy.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../../onboarding/tsu-app.js"></script>
+<script>
+(function () {
+  var T = window.TSU;
+  var MAP = {
+    'onboarding': ['done', 'done', 'doing', 'todo', 'todo', 'todo', 'todo', 'todo', 'todo'],
+    'con-viec': ['done', 'done', 'done', 'skip', 'skip', 'done', 'done', 'skip', 'done'],
+    'trial-nhieu': ['done', 'done', 'done', 'done', 'skip', 'done', 'done', 'todo', 'done'],
+    'trial-sap-het': ['done', 'done', 'done', 'skip', 'skip', 'done', 'done', 'skip', 'done'],
+    'early': ['done', 'done', 'done', 'skip', 'done', 'done', 'done', 'skip', 'done'],
+    'da-xong': ['done', 'done', 'done', 'done', 'done', 'done', 'done', 'done', 'done']
+  };
+  function render(name) {
+    var s = MAP[name]; if (!s) return;
+    var n = s.filter(function (x) { return x === 'done'; }).length;
+    document.getElementById('t40-cl').innerHTML = T.checklist(s, { pendingOnly: true, base: '../onboarding/', hide: true });
+    document.getElementById('t40-pt').textContent = n + '/9 bước';
+    document.getElementById('t40-pb').style.width = Math.round(n / 9 * 100) + '%';
+    document.getElementById('t40-prog').textContent = (9 - n) + ' bước còn lại · bắt buộc đánh dấu *';
+  }
+  document.addEventListener('tsu:state', function (e) { if (MAP[e.detail]) render(e.detail); });
+  render(document.body.getAttribute('data-tsu-state'));
+})();
+</script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

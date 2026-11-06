@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-07 · Gửi lại liên kết xác thực – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="default:Bình thường|prefill:Điền sẵn email (từ liên kết hết hạn)|sending:Đang gửi|bot:Lỗi kiểm tra người thật" data-ts-common="r429 error offline" data-hint="TSU-07 · FR-TEN-039, 041 · phản hồi luôn trung lập."></div>
+
+  <main id="main" class="tsp-card">
+    <div><h1>Gửi lại liên kết xác thực</h1><p class="tsp-lead">Nhập email bạn đã dùng để đăng ký. Chúng tôi sẽ gửi liên kết mới nếu có đăng ký đang chờ xác thực.</p></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+
+    <form class="tsp-form" data-ts-form novalidate data-next="tsu-05.html" data-success-toast="info|Đã ghi nhận yêu cầu|Nếu email này có đăng ký đang chờ xác thực, chúng tôi đã gửi liên kết mới.">
+      <fieldset class="tsp-fs" data-disable-in="sending">
+        <legend class="sr-only">Email đã đăng ký</legend>
+        <div class="field">
+          <label class="field__label" for="rs-email">Email đã đăng ký<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="rs-email" class="input" type="email" name="email" autocomplete="email" autocapitalize="none" spellcheck="false" aria-required="true" data-first-focus data-rule="email" data-label="email" data-prefill="email" data-fill='{"prefill":"phat@minhphat.vn","sending":"phat@minhphat.vn","bot":"phat@minhphat.vn"}'>
+        </div>
+        <div class="field">
+          <span class="field__label" id="bot-l">Kiểm tra người thật<span class="field__req" aria-hidden="true">*</span></span>
+          <div class="tsp-bot" data-bot data-bot-required data-bot-state="idle" data-bot-ok-in="sending" data-bot-error-in="bot" role="group" aria-labelledby="bot-l">
+            <div class="tsp-bot__row">
+              <span class="tsp-bot__status" role="status"><span data-bot-icon></span><span data-bot-text>Chưa xác nhận bạn là người thật.</span></span>
+              <button type="button" class="btn btn--secondary" id="bot-btn" data-bot-btn>Tôi là người thật</button>
+            </div>
+            <button type="button" class="btn btn--ghost btn--sm" data-bot-alt-toggle aria-expanded="false" aria-controls="bot-alt">Tôi cần cách khác</button>
+            <div class="tsp-bot__alt" id="bot-alt" data-bot-alt hidden>
+              <p class="tsp-small">Chúng tôi gửi mã 6 số đến email bạn đã nhập ở trên.</p>
+              <div class="field"><label class="field__label" for="bot-code">Mã xác nhận 6 số</label><input class="input" id="bot-code" data-bot-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="bot-code-err"><span class="field__error" id="bot-code-err" data-bot-err hidden></span></div>
+              <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-bot-send>Gửi mã qua email</button><button type="button" class="btn btn--primary btn--sm" data-bot-confirm>Xác nhận mã</button></div>
+            </div>
+            <input class="tsp-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          </div>
+        </div>
+      </fieldset>
+      <p class="tsp-small">Nếu email này có đăng ký đang chờ xác thực, chúng tôi sẽ gửi liên kết mới. Bạn luôn thấy cùng một thông báo, dù email có đăng ký hay không.</p>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-loading-in="sending"><span>Gửi liên kết</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      <div class="tsp-links"><a href="tsu-05.html">Quay lại</a><a href="tsu-01.html">Đăng ký lại từ đầu</a></div>
+    </form>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+</body>
+</html>

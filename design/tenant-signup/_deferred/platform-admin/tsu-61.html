@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-61 · Hàng đợi đăng ký – Quản trị nền tảng</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+<link rel="stylesheet" href="../../platform-admin/ts-admin.css">
+</head>
+<body class="tsa-app" data-tsa-page="61">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsa-top">
+  <a class="tsa-brand" href="tsu-61.html"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a>
+  <span class="tsa-label">Quản trị nền tảng</span>
+  <span class="tsa-top__spacer"></span>
+  <div class="tsa-user"><span>Lê Thu Hà · <strong>Chủ nền tảng</strong></span><button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối"><svg class="icon"><use href="#moon"/></svg></button><a class="btn btn--ghost btn--sm" href="../../platform-admin/tsu-60.html">Đăng xuất</a></div>
+</header>
+<div class="tsa-strip" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Màn này không hiển thị dữ liệu nghiệp vụ của garage</span></div>
+<div class="tsa-body">
+  <nav class="tsa-nav" aria-label="Quản trị nền tảng">
+    <a href="tsu-61.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#clipboard-list"/></svg>Hàng đợi đăng ký</a>
+    <a href="tsu-64.html"><svg class="icon" aria-hidden="true"><use href="#inbox"/></svg>Khiếu nại</a>
+    <a href="tsu-65.html"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg>Lỗi cấp phát</a>
+    <a href="../../platform-admin/tsu-66.html"><svg class="icon" aria-hidden="true"><use href="#settings"/></svg>Cấu hình đăng ký</a>
+    <a href="tsu-67.html"><svg class="icon" aria-hidden="true"><use href="#file-text"/></svg>Điều khoản và DPA</a>
+    <a href="tsu-68.html"><svg class="icon" aria-hidden="true"><use href="#package"/></svg>Danh mục gói</a>
+  </nav>
+  <main id="main" class="tsa-main" data-error-title="Chưa tải được hàng đợi" data-error-text="Máy chủ gặp sự cố tạm thời. Dữ liệu trong hàng đợi không bị ảnh hưởng. Hãy thử lại.">
+    <div data-ts-views="cases:Có ca|empty:Trống|late:Quá hạn xử lý|cap:Gần trần ngày|filtered:Trống do lọc|readonly:Hỗ trợ nền tảng (chỉ xem)" data-ts-common="skel error offline" data-hint="TSU-61 · FR-TEN-040, 041, 042 · RULE-028, 032 · NFR-TEN-07. Dữ liệu mẫu; số điện thoại che theo mặc định." data-wide></div>
+
+    <div class="tsa-head">
+      <div class="tsa-head__text"><h1>Hàng đợi đăng ký</h1><p class="tsa-sub">Các đăng ký cần nhân sự nền tảng xử lý. Dữ liệu ở đây là thông tin đăng ký, không có dữ liệu nghiệp vụ garage.</p></div>
+    </div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--danger" role="alert" data-show="late" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Có ca quá thời gian duyệt tay tối đa</span><span>Ca chờ quá 24 giờ (số lấy từ cấu hình) được xếp lên đầu. Hãy xử lý hoặc gán người phụ trách.</span></div></div>
+    <div class="alert alert--warning" role="alert" data-show="cap" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Gần chạm trần đăng ký trong ngày</span><span>Đã dùng 46/50 lượt đăng ký mới hôm nay. Vượt trần, đăng ký mới sẽ xếp hàng chờ.</span></div></div>
+    <div class="alert alert--info" role="status" data-show="readonly" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Bạn chỉ có quyền xem</span><span>Vai trò Hỗ trợ nền tảng xem được hàng đợi nhưng không duyệt hay yêu cầu bổ sung.</span></div></div>
+
+    <div data-ts-body class="tsa-stack">
+      <div class="tsa-kpis">
+        <div class="kpi"><span class="kpi__label">Đang chờ xử lý</span><span class="kpi__value num">7</span><span class="kpi__meta">Gồm chờ duyệt tay, đã bổ sung và đang xếp hàng</span></div>
+        <div class="kpi kpi--danger"><span class="kpi__label">Quá thời gian duyệt tay tối đa</span><span class="kpi__value num">1</span><span class="kpi__meta">Ngưỡng 24 giờ (cấu hình)</span></div>
+        <div class="kpi"><span class="kpi__label">Lượt đăng ký mới hôm nay</span><span class="kpi__value num"><span data-today>41</span>/50</span><span class="kpi__meta">Trần ngày 50 (cấu hình, minh họa). Cập nhật lúc 10:15</span></div>
+      </div>
+
+      <div class="tsa-tabs" id="tabs61" role="group" aria-label="Lọc nhanh theo trạng thái"></div>
+
+      <div class="filter-bar">
+        <div class="field filter-bar__search"><label class="field__label" for="q61">Tìm hồ sơ</label><div class="input-group"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input class="input" id="q61" type="search" autocomplete="off" placeholder="Tên doanh nghiệp, mã theo dõi, chữ số cuối của MST" aria-describedby="q61-h"></div><span class="field__hint" id="q61-h">Tìm theo email cần nhập đủ địa chỉ. Việc tra cứu được ghi nhật ký. Không tìm theo số điện thoại.</span></div>
+      </div>
+      <div class="chip-row" id="chip61" hidden><span class="chip"><span data-chip-text></span><button type="button" class="chip__x" aria-label="Xóa bộ lọc từ khóa"><svg class="icon"><use href="#x"/></svg></button></span><button type="button" class="btn btn--ghost btn--sm" data-clear61>Xóa tất cả bộ lọc</button></div>
+
+      <div class="tsa-table table-wrap table-wrap--responsive" id="wrap61">
+        <div class="table-toolbar"><span class="table-meta" id="meta61" role="status"></span></div>
+        <div class="table-scroll">
+          <table class="table">
+            <caption class="sr-only">Hàng đợi đăng ký, sắp xếp theo thời gian chờ giảm dần</caption>
+            <thead><tr><th scope="col">Mã theo dõi</th><th scope="col">Doanh nghiệp</th><th scope="col">Lý do vào hàng chờ</th><th scope="col">Gửi lúc</th><th scope="col">Thời gian chờ</th><th scope="col">Người phụ trách</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+            <tbody id="tb61"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="record-list record-list--responsive" id="cards61" aria-label="Danh sách hồ sơ"></div>
+
+      <div class="state" id="empty61" hidden>
+        <span class="state__icon" aria-hidden="true"><svg class="icon icon--lg"><use href="#inbox"/></svg></span>
+        <h2 class="state__title">Không có đăng ký nào chờ xử lý</h2>
+        <p class="state__text">Các đăng ký cần duyệt tay sẽ hiện ở đây.</p>
+        <div class="state__actions"><button type="button" class="btn btn--secondary" data-clear61 hidden>Xóa bộ lọc</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+<script src="../../platform-admin/ts-admin.js"></script>
+</body>
+</html>

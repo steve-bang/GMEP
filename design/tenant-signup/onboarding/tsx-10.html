@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSX-10 · Xác nhận garage và bắt đầu dùng – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="onb" data-onb-step="1" data-onb-hint="Thời gian dùng thử bắt đầu khi bạn bấm “Bắt đầu dùng”" data-validate-in="co-loi sai-dinh-dang">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="mac-dinh:Mặc định (đã điền sẵn tên và MST)|co-loi:Bỏ trống ba trường|sai-dinh-dang:Sai định dạng|da-dien:Đã điền đủ|thanh-cong:Đã bắt đầu dùng|thiet-bi-khac:Đã xác nhận ở thiết bị khác|cham:Đang tạo chậm|khong-quyen:Không phải chủ garage"></div>
+
+  <div class="tsu-head">
+    <h1 id="tsu-h1" tabindex="-1">Xác nhận garage của bạn</h1>
+    <p class="tsu-lead">Chúng tôi đã điền sẵn từ đăng ký. Bổ sung ba thông tin còn thiếu rồi bắt đầu dùng.</p>
+  </div>
+
+  <div class="alert alert--success" role="status" data-on="thanh-cong"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Garage đã sẵn sàng</span><span>Dùng thử bắt đầu hôm nay <span class="num">05/11/2026</span>, còn <span class="num">30</span> ngày (đến <span class="num">05/12/2026</span>). Đã tạo một chi nhánh và một kho cho garage của bạn.</span></div></div>
+  <div class="alert alert--info" role="status" data-on="thiet-bi-khac"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Garage đã được xác nhận ở thiết bị khác</span><span>Không cần làm lại. Bạn có thể tiếp tục thiết lập nhanh.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="tsx-11.html">Tiếp tục</a></div></div></div>
+  <div class="alert alert--info" role="status" data-on="cham"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang tạo chậm</span><span>Việc tạo chi nhánh và kho mặc định đang mất nhiều thời gian hơn dự kiến. Bạn có thể đóng trang, chúng tôi sẽ email khi xong.</span></div></div>
+  <div class="alert alert--neutral" role="status" data-on="khong-quyen"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Chỉ chủ garage bắt đầu dùng được</span><span>Hãy báo cho chủ garage mở liên kết này và bấm “Bắt đầu dùng”.</span></div></div>
+
+  <form class="tsu-stack" novalidate onsubmit="return false" id="t10-form" aria-label="Xác nhận garage" data-off="thiet-bi-khac thanh-cong">
+    <section class="card" aria-labelledby="t10-c">
+      <div class="card__header"><h2 class="card__title" id="t10-c">Thông tin garage</h2></div>
+      <div class="card__body"><div class="form-grid">
+        <div class="field span-2">
+          <label class="field__label" for="t10-name">Tên garage<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="t10-name" class="input" autocomplete="organization" data-rule="req" data-label="Tên garage" data-min="2" data-max="200" data-msg-req="Nhập tên doanh nghiệp hoặc hộ kinh doanh đúng như giấy đăng ký." data-msg-fmt="Nhập tên doanh nghiệp hoặc hộ kinh doanh đúng như giấy đăng ký." data-fill="Công ty TNHH Ô tô Phương Nam" data-by-state="sai-dinh-dang=A" aria-required="true" aria-describedby="t10-name-h">
+          <span class="field__hint" id="t10-name-h">Cũng là tên chi nhánh và kho mặc định. Bạn đổi riêng được sau trong Cài đặt.</span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="t10-mst">Mã số thuế</label>
+          <input id="t10-mst" class="input" value="0312345678" readonly aria-describedby="t10-mst-h" inputmode="numeric">
+          <span class="field__hint" id="t10-mst-h">Lấy từ đăng ký, không sửa ở đây. Cần đổi: <a href="#" data-support-call>gọi hỗ trợ</a>.</span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="t10-prov">Tỉnh/thành phố<span class="field__req" aria-hidden="true">*</span></label>
+          <select id="t10-prov" class="select" data-rule="req" data-label="Tỉnh/thành phố" data-msg-req="Vui lòng chọn tỉnh/thành phố." data-fill="" data-by-state="sai-dinh-dang=TP. Hồ Chí Minh|da-dien=TP. Hồ Chí Minh|khong-quyen=TP. Hồ Chí Minh" aria-required="true">
+            <option value="">Chọn tỉnh/thành phố</option>
+            <option value="Hà Nội">Hà Nội</option>
+            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+            <option value="Đà Nẵng">Đà Nẵng</option>
+            <option value="Hải Phòng">Hải Phòng</option>
+            <option value="Cần Thơ">Cần Thơ</option>
+            <option value="Đồng Nai">Đồng Nai</option>
+            <option value="Khánh Hòa">Khánh Hòa</option>
+            <option value="Lâm Đồng">Lâm Đồng</option>
+          </select>
+        </div>
+        <div class="field span-2">
+          <label class="field__label" for="t10-addr">Địa chỉ<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="t10-addr" class="input" autocomplete="street-address" data-rule="req" data-label="Địa chỉ" data-min="5" data-max="250" data-msg-req="Vui lòng nhập địa chỉ." data-msg-fmt="Địa chỉ cần từ 5 đến 250 ký tự." data-fill="" data-by-state="sai-dinh-dang=12|da-dien=128 Nguyễn Văn Linh, phường Tân Thuận|khong-quyen=128 Nguyễn Văn Linh, phường Tân Thuận" aria-required="true" aria-describedby="t10-addr-h">
+          <span class="field__hint" id="t10-addr-h">Dùng cho chi nhánh mặc định và in trên chứng từ.</span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="t10-tel">Số điện thoại garage<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="t10-tel" class="input" type="tel" inputmode="tel" autocomplete="tel" data-rule="req phone" data-label="Số điện thoại garage" data-msg-req="Nhập số điện thoại của garage." data-fill="" data-by-state="sai-dinh-dang=0912 34|da-dien=0912 345 678|khong-quyen=0912 345 678" aria-required="true" aria-describedby="t10-tel-h">
+          <span class="field__hint" id="t10-tel-h">Ví dụ 0912 345 678. Chưa cần mã xác thực.</span>
+        </div>
+      </div></div>
+    </section>
+
+    <section class="card" aria-labelledby="t10-n">
+      <div class="card__header"><h2 class="card__title" id="t10-n">Khi bạn bấm “Bắt đầu dùng”</h2></div>
+      <div class="card__body">
+        <ul class="tsu-list">
+          <li>GMEP tạo sẵn một chi nhánh và một kho mang tên garage. Bạn thêm chi nhánh trong Cài đặt khi cần.</li>
+          <li>Thời gian dùng thử miễn phí bắt đầu tính từ lúc đó. Không cần thẻ.</li>
+          <li>Hóa đơn điện tử lúc đầu chỉ là bản nháp để thử. Khi muốn xuất hóa đơn thật, bạn cho chúng tôi biết garage dùng hóa đơn của nhà nào ở mục “Thiết lập dần”.</li>
+        </ul>
+      </div>
+    </section>
+    <p class="tsu-tbc"><svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span><strong>[Cần xác nhận]</strong> C-S06: số điện thoại bắt buộc, chưa xác thực OTP. C-S04: tenant chuyển sang hoạt động ngay, không có môi trường thử tách dữ liệu.</span></p>
+    <p class="tsu-test"><span class="tsu-req" aria-hidden="true">*</span> Bắt buộc nhập. Truy vết: FR-TEN-004, 043, 051, 052; RULE-024, 028, 029; AC-S10; UAT-TEN-15.</p>
+  </form>
+
+  <div class="tsu-foot tsu-foot--2" data-tsu-foot role="group" aria-label="Bắt đầu dùng">
+    <p class="tsu-foot__info" id="t10-info">
+      <span data-off="loading error offline saving khong-quyen cham thanh-cong thiet-bi-khac">Thời gian dùng thử bắt đầu từ lúc bạn bấm.</span>
+      <span data-on="loading">Đang tải thông tin garage…</span>
+      <span data-on="error">Chưa tải được thông tin garage. Hãy thử lại.</span>
+      <span data-on="offline"><svg class="icon icon--sm" aria-hidden="true"><use href="#wifi-off"/></svg> Mất kết nối, chưa thể bắt đầu. Thông tin đang nhập được giữ trên thiết bị.</span>
+      <span data-on="saving"><svg class="icon icon--sm" aria-hidden="true"><use href="#loader"/></svg> Đang tạo chi nhánh và kho mặc định…</span>
+      <span data-on="khong-quyen"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg> Chỉ chủ garage bắt đầu dùng được. <code>NO_PERMISSION</code></span>
+      <span data-on="cham">Đang tạo chậm, chưa bấm lại được. Chúng tôi sẽ email khi xong.</span>
+      <span data-on="thanh-cong">Đã bắt đầu dùng thử hôm nay.</span>
+    </p>
+    <button type="button" class="btn btn--primary btn--lg tsu-foot__primary" id="t10-go" data-tsu-next data-href="tsx-11.html" aria-describedby="t10-info" data-off="thanh-cong thiet-bi-khac" data-disable-in="loading error offline saving khong-quyen cham"><span data-off="saving">Bắt đầu dùng</span><span data-on="saving">Đang bắt đầu…</span></button>
+    <a class="btn btn--primary btn--lg tsu-foot__primary" href="tsx-11.html" data-on="thanh-cong">Tiếp tục thiết lập nhanh</a>
+  </div>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../ts-config.js"></script>
+<script src="tsu-app.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

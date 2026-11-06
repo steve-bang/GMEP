@@ -67,7 +67,7 @@ Người nhiều vai trò vào trang của vai trò cao nhất và đổi "Góc 
 
 ### 1.4 Cấu trúc thông tin và điều hướng
 
-**Application Shell (template A, G1-SHL-01)**: sidebar trái (248px, thu gọn 72px) + topbar 64px (chọn phạm vi chi nhánh, tìm toàn cục Ctrl+K, chuông thông báo, menu tài khoản) + breadcrumb + page header (tiêu đề, mô tả, nút chính) + **thanh phạm vi** (chi nhánh, khoảng thời gian, "Cập nhật lúc", nút làm mới) dưới tiêu đề. Màn thợ dùng shell rút gọn (menu chỉ "Việc của tôi", "Công của tôi"). Trang công khai (đăng nhập, trang khách) không có shell.
+**Application Shell (template A, G1-SHL-01)**: sidebar trái (248px, thu gọn 72px) + topbar 64px (chọn phạm vi chi nhánh, tìm toàn cục Ctrl+K, chuông thông báo, menu tài khoản) + breadcrumb + page header (tiêu đề, mô tả, nút chính) + **thanh phạm vi** (chi nhánh, khoảng thời gian, "Cập nhật lúc", nút làm mới) dưới tiêu đề. Màn thợ dùng shell rút gọn (menu chỉ "Việc của tôi", "Công của tôi"). Trang công khai (đăng nhập, trang khách, đăng ký tenant TSU-01..18) không có shell; quản trị nền tảng (TSU-60..68) dùng khung riêng PlatformShell, không có bộ chọn chi nhánh.
 
 ```mermaid
 flowchart TD
@@ -108,6 +108,7 @@ Tổng: 31 + 26 + 21 + 39 + 32 + 35 = **184** màn hình. Prototype mở bằng 
 | 5 Tài chính, phê duyệt, hóa đơn | `g4-finance/` | `05-finance-invoice.md` | 32 |
 | 6 Báo cáo và Hệ thống | `g4-reports-system/` | `06-reports-system.md` | 35 |
 | 7 Bộ chọn phạm vi và xác thực bổ sung (31/10/2026, cho slice 1.1/1.2) | `g5-scope-auth/` | `component-catalog.md`, `state-copy.md`, `STATUS.md` | 7 (không tính vào 184) |
+| 8 Đăng ký tenant và onboarding (05/11/2026, multi-tenant, MT-1/MT-2) | `tenant-signup/` (`public/`, `onboarding/`, `account/`, `platform-admin/`) | `tenant-signup-spec.md` (QĐT-01..40), `multi-tenant-analysis.md` | 52 (không tính vào 184) |
 
 ### 2.1 Gói 1 – Xác thực và Dashboard (`design/g1-auth-dashboard/`)
 
@@ -115,7 +116,7 @@ Tổng: 31 + 26 + 21 + 39 + 32 + 35 = **184** màn hình. Prototype mở bằng 
 | --- | --- | --- | --- | --- |
 | Khung | G1-SHL-01 | Khung ứng dụng theo vai trò (template A) | Mọi vai trò | P1 |
 | | G1-SHL-02 | Kết quả tìm kiếm toàn cục (lọc theo quyền và chi nhánh) | Mọi vai trò | P1 |
-| Xác thực | G1-AUT-01 | Đăng nhập (không có nút "Đăng ký", D-01) | Công khai | P1 |
+| Xác thực | G1-AUT-01 | Đăng nhập (tenant đơn: không có nút "Đăng ký" cho nhân viên, D-01; từ 05/11/2026 khi nhiều tenant dùng TSU-14 có ô **Mã công ty** và liên kết "Đăng ký dùng thử" ngoài thẻ, §2.7) | Công khai | P1 |
 | | G1-AUT-02 / 03 | MFA nhập mã / thiết lập lần đầu (wizard 4 bước) | CH, QV, QL, KT, AD bắt buộc | P1 |
 | | G1-AUT-04 / 05 | Quên mật khẩu / đặt lại qua liên kết | Công khai | P1 |
 | | G1-AUT-06 | Kích hoạt tài khoản qua lời mời (wizard 4 bước) | Người được mời | P1 |
@@ -203,6 +204,22 @@ Tổng: 31 + 26 + 21 + 39 + 32 + 35 = **184** màn hình. Prototype mở bằng 
 | Tích hợp | G4-SYS-16…18 | Hóa đơn điện tử (provider-agnostic), SMS/Zalo/email, API và khóa | P1 / P2 |
 | Dữ liệu và an toàn | G4-SYS-19…23 | Nhật ký thao tác, nhập Excel (wizard 6 bước), lịch sử lô và hoàn tác, sao lưu-khôi phục, chính sách lưu trữ-ẩn danh | P1 (19…22); P2 (23) |
 
+### 2.7 Gói 8 – Đăng ký tenant và onboarding (`design/tenant-signup/`), chỉ tóm tắt nhóm
+
+Mã `TSU-nn`; chi tiết từng màn, trạng thái, quyết định tạm (QĐT-01..40) và `[Cần xác nhận]` xem `tenant-signup-spec.md`. Gói này **thay đổi hai điều ở trên**: (1) chủ garage **tự đăng ký** tenant ở trang công khai (D2, 05/11/2026), nhân viên vẫn chỉ vào bằng lời mời; (2) đăng nhập có ô **Mã công ty** (TSU-14, QĐT-01). Phạm vi nghiệp vụ chưa nằm trong FRD/BRD (FR-TEN, RULE-016..032 là mã đề xuất của `multi-tenant-analysis.md`).
+
+| Nhóm | Mã | Nội dung | Actor | Ưu tiên |
+| --- | --- | --- | --- | --- |
+| A Đăng ký công khai (khung P) | TSU-01..07 | Giới thiệu và gói, form 3 bước (doanh nghiệp và MST, người sở hữu, điều khoản/DPA/chống bot), đã gửi, kết quả xác thực email, gửi lại liên kết | NDK | MT-1 |
+| B Theo dõi, xác minh, cấp phát | TSU-08..13 | Theo dõi đăng ký, bổ sung thông tin, bị từ chối, khiếu nại, đang cấp phát, sẵn sàng và mã công ty | NDK | MT-1 |
+| C Đăng nhập có tenant | TSU-14..18 | Đăng nhập có mã công ty, quên mật khẩu, đặt lại, quên mã công ty, chấp nhận điều khoản mới | CH, AD, NV | MT-1 |
+| D Wizard onboarding | TSU-20..31 | Chào mừng, 8 bước thiết lập, kiểm tra trước kích hoạt, hoàn tất, hộp thoại nháp | CH, AD, KT | MT-1/2 |
+| E Dashboard trial và gói | TSU-40..44 | Việc còn lại và thẻ dùng thử, gói của tôi, so sánh/nâng, hạ gói, lịch sử | CH, AD | MT-1/2 |
+| F Hạn chế, tạm ngưng, chấm dứt | TSU-50..57 | Banner trạng thái tenant, hộp thoại chặn tạo mới, hết dùng thử, tạm ngưng (chỉ đọc, an ninh), xuất dữ liệu, chấm dứt | Mọi người dùng tenant, CH | MT-1/2 |
+| G Quản trị nền tảng (PlatformShell) | TSU-60..68 | Đăng nhập nền tảng, hàng đợi đăng ký, chi tiết và quyết định, khiếu nại, lỗi cấp phát, cấu hình, điều khoản/DPA, danh mục gói | CNT, QTN, HTN | MT-1/2 |
+
+Điểm cần nhớ khi dùng tài liệu này: đồng hồ dùng thử bắt đầu lúc kích hoạt (QĐT-22); thang hết trial bốn nấc (QĐT-25); nút khóa có hai kiểu (QĐT-24); quy ước chuỗi gõ xác nhận (QĐT-26).
+
 ---
 
 ## 3. Các luồng chính end-to-end
@@ -232,7 +249,7 @@ flowchart TD
   K --> E
 ```
 
-Đăng nhập: (1) AUT-01 nhập email/mã nhân viên và mật khẩu, **không có nút "Đăng ký"** (D-01). (2) Tablet xưởng đã đăng ký: AUT-10 (chạm tên thợ, nhập PIN 6 số) thay bước 1, vào DSH-07. (3) Mật khẩu tạm hoặc bị đặt lại: AUT-07. (4) Vai trò bắt buộc MFA (CH, QV, QL, KT, AD): đã thiết lập thì AUT-02, chưa thì AUT-03 rồi AUT-02; dự phòng bằng mã khôi phục hoặc mã email; "tin cậy thiết bị" 14 ngày (không áp dụng cho KT, AD trong prototype). (5) Từ 2 chi nhánh: AUT-08 (nhớ lựa chọn gần nhất; CH/QV có "Tất cả/Nhóm chi nhánh"; chi nhánh bị khóa hiện nhãn "Chỉ xem"); 1 chi nhánh thì bỏ qua. (6) Vào dashboard: CH 01, QV 02, QL 03, CV 04, TK 05, KT 06, TH 07, TN 08, QĐ 09, AD 10; MH và NS vào Mua hàng / Nhân sự. (7) Trong phiên: cảnh báo 60 giây trước khi khóa → AUT-09 → nhập lại mật khẩu → quay về đúng màn đang làm; nháp luôn được giữ. (8) Lỗi: sai mật khẩu (thông báo trung lập, ở lại AUT-01), khóa tạm 15 phút sau 5 lần sai (thông báo thời gian mở), ERR-01 không quyền, ERR-04 mất mạng.
+Đăng nhập: (1) AUT-01 nhập email/mã nhân viên và mật khẩu; **nhân viên không có nút "Đăng ký"** (D-01). **Cập nhật 05/11/2026 (multi-tenant):** đăng nhập có thêm ô **Mã công ty** (nhớ trên thiết bị, TSU-14); liên kết "Đăng ký dùng thử" của chủ garage mới nằm **ngoài thẻ đăng nhập** kèm chữ "Nhân viên mới nhận lời mời qua email"; mọi lỗi (sai mã, sai tài khoản, sai mật khẩu, khóa, tenant đã chấm dứt) dùng một câu trung lập. Luồng đăng ký tenant: §2.7 và `tenant-signup-spec.md`. (2) Tablet xưởng đã đăng ký: AUT-10 (chạm tên thợ, nhập PIN 6 số) thay bước 1, vào DSH-07. (3) Mật khẩu tạm hoặc bị đặt lại: AUT-07. (4) Vai trò bắt buộc MFA (CH, QV, QL, KT, AD): đã thiết lập thì AUT-02, chưa thì AUT-03 rồi AUT-02; dự phòng bằng mã khôi phục hoặc mã email; "tin cậy thiết bị" 14 ngày (không áp dụng cho KT, AD trong prototype). (5) Từ 2 chi nhánh: AUT-08 (nhớ lựa chọn gần nhất; CH/QV có "Tất cả/Nhóm chi nhánh"; chi nhánh bị khóa hiện nhãn "Chỉ xem"); 1 chi nhánh thì bỏ qua. (6) Vào dashboard: CH 01, QV 02, QL 03, CV 04, TK 05, KT 06, TH 07, TN 08, QĐ 09, AD 10; MH và NS vào Mua hàng / Nhân sự. (7) Trong phiên: cảnh báo 60 giây trước khi khóa → AUT-09 → nhập lại mật khẩu → quay về đúng màn đang làm; nháp luôn được giữ. (8) Lỗi: sai mật khẩu (thông báo trung lập, ở lại AUT-01), khóa tạm 15 phút sau 5 lần sai (thông báo thời gian mở), ERR-01 không quyền, ERR-04 mất mạng.
 
 Quên mật khẩu: AUT-01 → AUT-04 (thông báo luôn giống nhau dù tài khoản có tồn tại hay không, có đếm lùi gửi lại) → email → liên kết hiệu lực 30 phút, dùng một lần → AUT-05 (≥ 10 ký tự, không dùng lại 5 mật khẩu gần nhất, thu hồi mọi phiên cũ) → AUT-01. Liên kết hết hạn: ERR-05. Nhân sự không có email (ví dụ thợ): quản lý cấp mã tạm ở SYS-03 → AUT-01 → AUT-07.
 
@@ -724,7 +741,7 @@ Mọi quyết định trong `ba-decisions.md` và `ba-answers-01…06.md` là đ
 
 | Nhóm | Quyết định |
 | --- | --- |
-| Tài khoản, bảo mật | Không tự đăng ký, chỉ lời mời 72 giờ (D-01); MFA bắt buộc CH, QV, QL, **KT**, AD, QĐ không (D-02, G-02); mật khẩu ≥ 10 ký tự, khóa 15 phút sau 5 lần sai (D-03); PIN thiết bị xưởng 6 số, tự khóa 3 phút, đăng ký lại thiết bị 90 ngày, 20 lần sai PIN/15 phút khóa thiết bị (D-04); khóa màn hình 30 phút (KT, AD, CH 15 phút), tuyệt đối 12 giờ (D-05) |
+| Tài khoản, bảo mật | **Nhân viên** không tự đăng ký, chỉ lời mời 72 giờ (D-01; **chủ garage tự đăng ký tenant ở trang công khai** theo quyết định 05/11/2026, xem `ba-decisions.md` mục F và `tenant-signup-spec.md`); đăng nhập có Mã công ty (QĐT-01, chờ C-01); MFA bắt buộc CH, QV, QL, **KT**, AD, QĐ không (D-02, G-02); mật khẩu ≥ 10 ký tự, khóa 15 phút sau 5 lần sai (D-03); PIN thiết bị xưởng 6 số, tự khóa 3 phút, đăng ký lại thiết bị 90 ngày, 20 lần sai PIN/15 phút khóa thiết bị (D-04); khóa màn hình 30 phút (KT, AD, CH 15 phút), tuyệt đối 12 giờ (D-05) |
 | Phạm vi, vai trò | Vai trò QV có tồn tại không; dashboard QĐ, AD, QV (D-09); MH, NS là vai trò riêng không dashboard; chế độ "Danh mục" của Cài đặt cho QV, CV, QĐ, TK, KT; nhóm chi nhánh mẫu của QV; KT mặc định gán Quận 7 và Thủ Đức |
 | Dữ liệu cá nhân | Ma trận che SĐT/địa chỉ (D-10, `ba-decisions` câu 8); lý do xem của KT; tự che 30 giây; quyền xuất riêng (QV ngoài nhóm, QL xuất hàng loạt cột cá nhân) |
 | Phạm vi Phase 1 | Đưa thu tiền, sổ quỹ, chốt ca/ngày, hóa đơn vào P1 (D-14, G-01); EIN-04 mức tối thiểu ở P1; cập nhật FRD §13 |

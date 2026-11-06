@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSX-11 · Thiết lập nhanh (tùy chọn) – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-tsu-mode="onb" data-onb-step="2" data-onb-hint="Tùy chọn, bỏ qua được" data-validate-in="loi-email">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="mac-dinh:Mặc định (chưa chọn cách quản lý hiện tại)|excel:Đang dùng Excel (hiện thẻ nhập Excel)|bo-chon-mau:Tắt danh mục mẫu|co-moi:Có mời nhân viên|loi-email:Lỗi email hoặc vai trò|loi-dong-moi:Một lời mời không gửi được|da-ap-dung:Đã áp dụng danh mục mẫu"></div>
+
+  <div class="tsu-head">
+    <h1 id="tsu-h1" tabindex="-1">Thiết lập nhanh</h1>
+    <p class="tsu-lead">Tùy chọn. Giữ mặc định để tạo lệnh sửa chữa đầu tiên ngay, hoặc bỏ qua và làm sau trong “Thiết lập dần”.</p>
+  </div>
+
+  <div class="alert alert--success" role="status" data-on="da-ap-dung"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Đã thêm <span class="num">28</span> dịch vụ và <span class="num">20</span> phụ tùng mẫu</span><span>Bạn sửa hoặc ngừng dùng từng mục trong Cài đặt. Hãy xem lại giá mẫu trước khi in báo giá đầu tiên.</span></div></div>
+  <div class="alert alert--warning" role="status" data-on="loi-dong-moi"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Có 1 lời mời chưa gửi được</span><span>Các dòng còn lại vẫn được gửi bình thường. Sửa dòng bị lỗi hoặc bỏ dòng đó.</span></div></div>
+
+  <form class="tsu-stack" novalidate onsubmit="return false" id="t11-form" aria-label="Thiết lập nhanh" data-off="da-ap-dung">
+    <section class="card" aria-labelledby="t11-q">
+      <div class="card__header"><div><h2 class="card__title" id="t11-q">Bạn đang quản lý garage bằng gì?</h2><div class="card__subtitle">Để chúng tôi gợi ý đúng việc cần làm tiếp. Chọn một mục.</div></div></div>
+      <div class="card__body tsu-stack">
+        <fieldset style="border:0;margin:0;padding:0;min-width:0">
+          <legend class="sr-only">Cách quản lý garage hiện tại</legend>
+          <ul class="tsu-packs">
+            <li class="tsu-pack"><label class="radio"><input type="radio" name="t11-src" value="excel" id="t11-src-xls" data-check-in="excel"><span class="radio__box"></span><span>Excel</span></label></li>
+            <li class="tsu-pack"><label class="radio"><input type="radio" name="t11-src" value="phan-mem"><span class="radio__box"></span><span>Phần mềm khác</span></label></li>
+            <li class="tsu-pack"><label class="radio"><input type="radio" name="t11-src" value="so"><span class="radio__box"></span><span>Sổ sách giấy</span></label></li>
+            <li class="tsu-pack"><label class="radio"><input type="radio" name="t11-src" value="chua"><span class="radio__box"></span><span>Chưa có gì</span></label></li>
+          </ul>
+        </fieldset>
+        <div class="tsu-feature" id="t11-xls" hidden aria-live="polite">
+          <div class="tsu-feature__t"><strong>Nhập dữ liệu từ Excel</strong><span class="tsu-sub">Đưa danh sách khách hàng, xe và phụ tùng từ file Excel của bạn vào, khỏi gõ lại từ đầu. Làm ngay hoặc để sau đều được.</span></div>
+          <div class="tsu-actions">
+            <a class="btn btn--primary" href="../../g4-reports-system/g4-sys-20.html">Nhập từ Excel</a>
+            <a class="btn btn--secondary" href="#" data-toast="success|Đã tải file mẫu|File mau-nhap-du-lieu-garage.xlsx đã được tải về (mô phỏng). Điền theo cột trong file rồi nhập lại.">Tải file mẫu</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t11-a">
+      <div class="card__header"><div><h2 class="card__title" id="t11-a">Garage bạn làm gì?</h2><div class="card__subtitle">Mỗi nhóm thêm sẵn dịch vụ và phụ tùng tiêu hao thông dụng để bạn tạo báo giá ngay.</div></div></div>
+      <div class="card__body tsu-stack">
+        <fieldset style="border:0;margin:0;padding:0;min-width:0">
+          <legend class="sr-only">Nhóm dịch vụ của garage</legend>
+          <ul class="tsu-packs">
+            <li class="tsu-pack"><label class="check"><input type="checkbox" class="t11-pack" data-n="18,12" data-check-in="mac-dinh co-moi loi-email loi-dong-moi da-ap-dung bo-chon-mau" checked><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Sửa chữa chung</span></label><span class="tsu-pack__sub"><span class="num">18</span> dịch vụ · <span class="num">12</span> phụ tùng (minh họa)</span></li>
+            <li class="tsu-pack"><label class="check"><input type="checkbox" class="t11-pack" data-n="10,8" data-check-in="mac-dinh co-moi loi-email loi-dong-moi da-ap-dung bo-chon-mau" checked><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Bảo dưỡng</span></label><span class="tsu-pack__sub"><span class="num">10</span> dịch vụ · <span class="num">8</span> phụ tùng (minh họa)</span></li>
+            <li class="tsu-pack"><label class="check"><input type="checkbox" class="t11-pack" data-n="9,6"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Lốp và mâm</span></label><span class="tsu-pack__sub"><span class="num">9</span> dịch vụ · <span class="num">6</span> phụ tùng (minh họa)</span></li>
+            <li class="tsu-pack"><label class="check"><input type="checkbox" class="t11-pack" data-n="0,0" aria-describedby="t11-ds"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Đồng sơn</span></label><span class="tsu-pack__tag"><span class="tag tag--neutral" id="t11-ds">Quy trình đồng sơn đang được hoàn thiện</span></span></li>
+          </ul>
+        </fieldset>
+        <div class="tsu-stack" style="gap:var(--space-2)">
+          <label class="switch"><input type="checkbox" id="t11-mau" role="switch" aria-describedby="t11-sum" data-check-in="mac-dinh co-moi loi-email loi-dong-moi da-ap-dung" checked><span class="switch__track"></span><span>Dùng danh mục mẫu</span></label>
+          <p class="tsu-sub" style="margin:0" id="t11-sum" role="status"></p>
+          <p class="tsu-sub" style="margin:0">Bạn có thể sửa hoặc ngừng dùng từng mục sau. Giá mẫu chỉ để minh họa, hãy chỉnh theo bảng giá của garage.</p>
+        </div>
+        <p class="tsu-tbc"><svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span><strong>[Cần xác nhận]</strong> C-S09: nội dung gói mẫu và giá minh họa do garage mẫu soạn; mặc định có giá gắn nhãn “mẫu”, nhắc xem lại trước khi in báo giá đầu tiên.</span></p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t11-b">
+      <div class="card__header"><div><h2 class="card__title" id="t11-b">Mời nhân viên <span class="tsu-sub" style="font-weight:400">(tùy chọn)</span></h2><div class="card__subtitle">Tối đa 3 người ở bước này. Nhân viên tự được gán vào garage của bạn.</div></div></div>
+      <div class="card__body tsu-stack">
+        <div class="tsu-invs">
+          <div class="tsu-inv" id="t11-r1">
+            <div class="field">
+              <label class="field__label" for="t11-e1">Email nhân viên 1</label>
+              <input id="t11-e1" class="input" type="email" inputmode="email" autocomplete="off" placeholder="ten@garage.vn" data-rule="email" data-label="Email nhân viên 1" data-fill="" data-by-state="co-moi=ha.nguyen@phuongnam.vn|loi-dong-moi=ha.nguyen@phuongnam.vn|loi-email=ha.nguyen@phuongnam" data-invalid-on="loi-dong-moi" aria-describedby="t11-e1-srv">
+              <span class="field__error" id="t11-e1-srv" data-on="loi-dong-moi"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Email này đã được mời. Dùng email khác hoặc bỏ dòng này.</span></span>
+            </div>
+            <div class="field">
+              <label class="field__label" for="t11-v1">Vai trò</label>
+              <select id="t11-v1" class="select" data-rule="req" data-req-if="t11-e1" data-label="Vai trò (nhân viên 1)" data-msg-req="Vui lòng chọn vai trò cho {v}." data-fill="" data-by-state="co-moi=Cố vấn dịch vụ|loi-dong-moi=Cố vấn dịch vụ">
+                <option value="">Chọn vai trò</option>
+                <optgroup label="Thường gặp"><option>Cố vấn dịch vụ</option><option>Thợ</option><option>Thu ngân</option><option>Thủ kho</option></optgroup>
+                <optgroup label="Vai trò khác"><option>Quản đốc</option><option>Quản lý chi nhánh</option><option>Kế toán</option><option>Quản trị hệ thống</option></optgroup>
+              </select>
+            </div>
+          </div>
+          <div class="tsu-inv" id="t11-r2" hidden data-on="co-moi loi-email loi-dong-moi">
+            <div class="field">
+              <label class="field__label" for="t11-e2">Email nhân viên 2</label>
+              <input id="t11-e2" class="input" type="email" inputmode="email" autocomplete="off" placeholder="ten@garage.vn" data-rule="email" data-label="Email nhân viên 2" data-fill="" data-by-state="co-moi=tung.do@phuongnam.vn|loi-dong-moi=tung.do@phuongnam.vn|loi-email=tung.do@phuongnam.vn">
+            </div>
+            <div class="field">
+              <label class="field__label" for="t11-v2">Vai trò</label>
+              <select id="t11-v2" class="select" data-rule="req" data-req-if="t11-e2" data-label="Vai trò (nhân viên 2)" data-msg-req="Vui lòng chọn vai trò cho {v}." data-fill="" data-by-state="co-moi=Thợ|loi-dong-moi=Thợ">
+                <option value="">Chọn vai trò</option>
+                <optgroup label="Thường gặp"><option>Cố vấn dịch vụ</option><option>Thợ</option><option>Thu ngân</option><option>Thủ kho</option></optgroup>
+                <optgroup label="Vai trò khác"><option>Quản đốc</option><option>Quản lý chi nhánh</option><option>Kế toán</option><option>Quản trị hệ thống</option></optgroup>
+              </select>
+            </div>
+          </div>
+          <div class="tsu-inv" id="t11-r3" hidden>
+            <div class="field">
+              <label class="field__label" for="t11-e3">Email nhân viên 3</label>
+              <input id="t11-e3" class="input" type="email" inputmode="email" autocomplete="off" placeholder="ten@garage.vn" data-rule="email" data-label="Email nhân viên 3" data-fill="">
+            </div>
+            <div class="field">
+              <label class="field__label" for="t11-v3">Vai trò</label>
+              <select id="t11-v3" class="select" data-rule="req" data-req-if="t11-e3" data-label="Vai trò (nhân viên 3)" data-msg-req="Vui lòng chọn vai trò cho {v}." data-fill="">
+                <option value="">Chọn vai trò</option>
+                <optgroup label="Thường gặp"><option>Cố vấn dịch vụ</option><option>Thợ</option><option>Thu ngân</option><option>Thủ kho</option></optgroup>
+                <optgroup label="Vai trò khác"><option>Quản đốc</option><option>Quản lý chi nhánh</option><option>Kế toán</option><option>Quản trị hệ thống</option></optgroup>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="tsu-actions">
+          <button type="button" class="btn btn--secondary btn--sm" id="t11-add" aria-describedby="t11-add-h">Thêm dòng</button>
+          <span class="tsu-sub" id="t11-add-h">Nhân viên nhận email mời và tự đặt mật khẩu.</span>
+        </div>
+        <p class="tsu-tbc"><svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span><strong>[Cần xác nhận]</strong> Danh sách vai trò lấy từ máy chủ (FRD §2); “Quản lý vùng”, vai trò mua hàng, nhân sự và chủ garage thứ hai được ẩn.</span></p>
+      </div>
+    </section>
+    <p class="tsu-test">Truy vết: FR-TEN-043; FR-SYS-012, 019; FR-REC-004; AC-S13, S14. Bỏ qua không thêm dữ liệu mẫu và không gửi lời mời.</p>
+  </form>
+
+  <div class="tsu-foot tsu-foot--2" data-tsu-foot role="group" aria-label="Thiết lập nhanh">
+    <p class="tsu-foot__info" id="t11-info">
+      <span data-off="loading error offline saving">Bỏ qua sẽ không thêm dịch vụ mẫu và không gửi lời mời.</span>
+      <span data-on="loading">Đang tải…</span>
+      <span data-on="error">Chưa tải được. Hãy thử lại.</span>
+      <span data-on="offline"><svg class="icon icon--sm" aria-hidden="true"><use href="#wifi-off"/></svg> Mất kết nối, chưa thể thêm dữ liệu mẫu. Bạn vẫn bỏ qua được.</span>
+      <span data-on="saving"><svg class="icon icon--sm" aria-hidden="true"><use href="#loader"/></svg> Đang thêm dữ liệu mẫu và gửi lời mời…</span>
+    </p>
+    <a class="tsu-foot__link" id="t11-skip" href="tsx-20.html#state=moi-vao">Bỏ qua, vào ứng dụng</a>
+    <button type="button" class="btn btn--primary btn--lg tsu-foot__primary" data-tsu-next data-href="../../g2-workshop/g2-rec-01.html" aria-describedby="t11-info" data-off="da-ap-dung" data-disable-in="loading error offline saving"><span data-off="saving">Tạo lệnh sửa chữa đầu tiên</span><span data-on="saving">Đang chuẩn bị…</span></button>
+    <a class="btn btn--primary btn--lg tsu-foot__primary" href="../../g2-workshop/g2-rec-01.html" data-on="da-ap-dung">Tạo lệnh sửa chữa đầu tiên</a>
+  </div>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../ts-config.js"></script>
+<script src="tsu-app.js"></script>
+<script>
+(function () {
+  var COMMON = ['loading', 'error', 'offline', 'saving'];
+  var $ = function (s) { return document.querySelector(s); };
+  var packs = Array.prototype.slice.call(document.querySelectorAll('.t11-pack'));
+  var sw = $('#t11-mau'), sum = $('#t11-sum'), add = $('#t11-add');
+  function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function summary() {
+    var on = sw.checked, dv = 0, pt = 0, sel = 0, empty = false;
+    packs.forEach(function (p) {
+      p.disabled = !on;
+      if (on && p.checked) { sel++; var n = p.getAttribute('data-n').split(','); dv += +n[0]; pt += +n[1]; if (!+n[0]) empty = true; }
+    });
+    if (!on) sum.textContent = 'Danh mục dịch vụ để trống, bạn thêm sau trong Cài đặt.';
+    else if (!sel) sum.textContent = 'Chưa chọn nhóm dịch vụ nào, sẽ không thêm dữ liệu mẫu.';
+    else sum.textContent = 'Sẽ thêm ' + fmt(dv) + ' dịch vụ và ' + fmt(pt) + ' phụ tùng mẫu (số minh họa)' + (empty ? '. Đồng sơn chưa có gói mẫu.' : '.');
+  }
+  /* Dòng 2 hiện theo trạng thái (data-on, xử lý trước khi kiểm lỗi); dòng 3 chỉ hiện khi bấm "Thêm dòng" */
+  function rows(n) {
+    if (n < 2) $('#t11-r2').hidden = true;
+    $('#t11-r3').hidden = true;
+    full();
+  }
+  function shown() { return [1, 2, 3].filter(function (i) { return !$('#t11-r' + i).hidden; }).length; }
+  function full() {
+    var f = shown() >= 3;
+    add.setAttribute('aria-disabled', String(f));
+    $('#t11-add-h').textContent = f ? 'Tối đa 3 lời mời ở bước này, mời thêm trong Cài đặt.' : 'Nhân viên nhận email mời và tự đặt mật khẩu.';
+  }
+  /* Chọn Excel thì hiện thẻ nổi bật "Nhập dữ liệu từ Excel"; chọn mục khác thì ẩn. Ghi nhớ để TSX-20 đưa mục Nhập Excel lên đầu. */
+  var srcs = Array.prototype.slice.call(document.querySelectorAll('input[name="t11-src"]'));
+  function source() {
+    var c = srcs.filter(function (r) { return r.checked; })[0], v = c ? c.value : '';
+    $('#t11-xls').hidden = v !== 'excel';
+    try { if (v) localStorage.setItem('ts-src', v); else localStorage.removeItem('ts-src'); } catch (e) {}
+  }
+  srcs.forEach(function (r) { r.addEventListener('change', source); });
+  sw.addEventListener('change', summary);
+  packs.forEach(function (p) { p.addEventListener('change', summary); });
+  add.addEventListener('click', function () {
+    if (add.getAttribute('aria-disabled') === 'true') { $('#t11-add-h').focus && $('#t11-add-h').setAttribute('tabindex', '-1'); $('#t11-add-h').focus(); return; }
+    var n = shown() + 1; rows(n); $('#t11-e' + n).focus();
+  });
+  document.addEventListener('tsu:state', function (e) {
+    if (COMMON.indexOf(e.detail) >= 0) return;
+    source();
+    summary();
+    rows(/^(co-moi|loi-email|loi-dong-moi)$/.test(e.detail) ? 2 : 1);
+  });
+  summary(); rows(1); source();
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

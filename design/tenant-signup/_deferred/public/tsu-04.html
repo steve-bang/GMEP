@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-04 · Đăng ký bước 3: điều khoản, DPA và gửi đăng ký – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới phần xác nhận</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="unchecked:Chưa tích|ready:Đủ điều kiện gửi|sending:Đang gửi|bot:Lỗi kiểm tra người thật|ver:Phiên bản điều khoản đổi|closed:Đóng đăng ký" data-ts-common="r429 error offline" data-hint="TSU-04 · FR-TEN-039, 037, 041 · RULE-028, 029, 032. Kiểm tra người thật và gửi chỉ mô phỏng."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide">
+    <nav aria-label="Các bước đăng ký">
+      <p class="tsp-stepn">Bước 3 trên 3</p>
+      <ol class="stepper tsp-stepper">
+        <li class="stepper__step is-done"><span class="stepper__bar"></span><span class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm" aria-hidden="true"><use href="#check"/></svg></span><span class="stepper__text">Doanh nghiệp<span class="sr-only"> (đã xong)</span></span></span></li>
+        <li class="stepper__step is-done"><span class="stepper__bar"></span><span class="stepper__label"><span class="stepper__num"><svg class="icon icon--sm" aria-hidden="true"><use href="#check"/></svg></span><span class="stepper__text">Người sở hữu<span class="sr-only"> (đã xong)</span></span></span></li>
+        <li class="stepper__step is-current" aria-current="step"><span class="stepper__bar"></span><span class="stepper__label"><span class="stepper__num">3</span><span class="stepper__text">Xác nhận</span></span></li>
+      </ol>
+    </nav>
+    <div><h1>Xác nhận và gửi đăng ký</h1><p class="tsp-lead">Kiểm tra lại thông tin, đồng ý điều khoản rồi gửi. Chúng tôi sẽ gửi email xác thực cho bạn.</p></div>
+
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--warning" role="alert" data-show="ver" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Điều khoản vừa được cập nhật</span><span>Điều khoản vừa được cập nhật. Vui lòng đọc lại và đồng ý.</span></div></div>
+    <div class="alert alert--info" role="status" data-show="closed" hidden><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Hiện chưa mở đăng ký mới</span><span>Thông tin bạn đã nhập vẫn được giữ trên thiết bị này. Hãy quay lại sau.</span></div></div>
+
+    <form class="tsp-form" data-ts-form novalidate data-next="tsu-05.html" data-clear-draft data-validate-in="">
+      <fieldset class="tsp-fs" data-disable-in="sending closed">
+        <legend class="sr-only">Xem lại thông tin đăng ký và đồng ý điều khoản</legend>
+        <section class="tsp-sumbox" aria-labelledby="sum1-h">
+          <div class="tsp-sumbox__head"><h2 id="sum1-h">Doanh nghiệp</h2><a href="tsu-02.html">Sửa<span class="sr-only"> thông tin doanh nghiệp</span></a></div>
+          <dl class="tsp-sum">
+            <dt>Loại hình</dt><dd data-sum="btype" data-sample="Doanh nghiệp"></dd>
+            <dt>Tên</dt><dd data-sum="borg" data-sample="Công ty TNHH Ô tô Minh Phát"></dd>
+            <dt>Mã số thuế</dt><dd data-sum="bmst" data-sample="0312345678"></dd>
+            <dt>Địa chỉ</dt><dd><span data-sum="baddr" data-sample="12 Nguyễn Văn Linh, Quận 7"></span>, <span data-sum="bprov" data-sample="TP. Hồ Chí Minh"></span></dd>
+          </dl>
+        </section>
+        <section class="tsp-sumbox" aria-labelledby="sum2-h">
+          <div class="tsp-sumbox__head"><h2 id="sum2-h">Người sở hữu</h2><a href="tsu-03.html">Sửa<span class="sr-only"> thông tin người sở hữu</span></a></div>
+          <dl class="tsp-sum">
+            <dt>Họ và tên</dt><dd data-sum="oname" data-sample="Nguyễn Văn Phát"></dd>
+            <dt>Số điện thoại</dt><dd data-sum="ophone" data-sample="0912 345 678"></dd>
+            <dt>Email</dt><dd data-sum="oemail" data-sample="phat@minhphat.vn"></dd>
+            <dt>Mật khẩu</dt><dd>Không hiển thị</dd>
+          </dl>
+        </section>
+
+        <div class="field">
+          <span class="field__label" id="terms-l">Đồng ý và xác nhận</span>
+          <div class="tsp-terms" role="group" aria-labelledby="terms-l">
+            <div class="tsp-terms__item">
+              <label class="check"><input type="checkbox" id="t-rep" aria-required="true" data-rule="checked" data-msg-required="Cần xác nhận bạn là người đại diện hợp lệ để tiếp tục." data-check-in="ready"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi là người đại diện theo pháp luật hoặc được ủy quyền hợp lệ của <strong data-sum="borg" data-sample="Công ty TNHH Ô tô Minh Phát"></strong></span></label>
+            </div>
+            <div class="tsp-terms__item">
+              <label class="check"><input type="checkbox" id="t-tos" aria-required="true" data-rule="checked" data-msg-required="Cần đồng ý Điều khoản dịch vụ để tiếp tục." data-check-in="ready"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đọc và đồng ý <strong>Điều khoản dịch vụ</strong> (phiên bản <span data-ver>v1.0</span>, hiệu lực <span data-eff>01/12/2026</span>, minh họa)</span></label>
+              <button type="button" class="btn btn--secondary btn--sm" data-open="dlg-tos">Đọc</button>
+            </div>
+            <div class="tsp-terms__item">
+              <label class="check"><input type="checkbox" id="t-dpa" aria-required="true" data-rule="checked" data-msg-required="Cần đồng ý Thỏa thuận xử lý dữ liệu (DPA) để tiếp tục." data-check-in="ready"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đọc và đồng ý <strong>Thỏa thuận xử lý dữ liệu (DPA)</strong> (phiên bản <span data-ver>v1.0</span>, minh họa)</span></label>
+              <button type="button" class="btn btn--secondary btn--sm" data-open="dlg-dpa">Đọc</button>
+            </div>
+            <div class="tsp-terms__item">
+              <label class="check"><input type="checkbox" id="t-mkt"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi muốn nhận tin tức và hướng dẫn sử dụng qua email <span class="text-secondary">(không bắt buộc)</span></span></label>
+            </div>
+          </div>
+          <span class="field__hint">Hai mục Điều khoản dịch vụ và DPA được chấp nhận riêng. Đồng ý nhận tin tức tách riêng, không gộp vào điều khoản.</span>
+        </div>
+
+        <div class="field">
+          <span class="field__label" id="bot-l">Kiểm tra người thật<span class="field__req" aria-hidden="true">*</span></span>
+          <div class="tsp-bot" data-bot data-bot-required data-bot-state="idle" data-bot-ok-in="ready sending" data-bot-error-in="bot" role="group" aria-labelledby="bot-l">
+            <div class="tsp-bot__row">
+              <span class="tsp-bot__status" role="status"><span data-bot-icon></span><span data-bot-text>Chưa xác nhận bạn là người thật.</span></span>
+              <button type="button" class="btn btn--secondary" id="bot-btn" data-bot-btn>Tôi là người thật</button>
+            </div>
+            <button type="button" class="btn btn--ghost btn--sm" data-bot-alt-toggle aria-expanded="false" aria-controls="bot-alt" style="align-self:flex-start">Tôi cần cách khác</button>
+            <div class="tsp-bot__alt" id="bot-alt" data-bot-alt hidden>
+              <p class="tsp-small">Chúng tôi gửi mã 6 số đến email bạn đã nhập ở bước 2. Không cần nhìn hình hay nghe âm thanh.</p>
+              <div class="field"><label class="field__label" for="bot-code">Mã xác nhận 6 số</label><input class="input" id="bot-code" data-bot-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="bot-code-err"><span class="field__error" id="bot-code-err" data-bot-err hidden></span></div>
+              <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-bot-send>Gửi mã qua email</button><button type="button" class="btn btn--primary btn--sm" data-bot-confirm>Xác nhận mã</button></div>
+            </div>
+            <input class="tsp-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <p class="tsp-bot__note">Vùng giữ chỗ: nhà cung cấp kiểm tra người thật chưa được chọn.</p>
+          </div>
+        </div>
+      </fieldset>
+
+      <p class="tsp-reason" id="rsn-04"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span>Chưa thể gửi: cần đồng ý Điều khoản dịch vụ và DPA, xác nhận người đại diện và kiểm tra người thật.</span></p>
+      <div class="tsp-actions">
+        <a class="btn btn--secondary btn--lg" href="tsu-03.html">Quay lại</a>
+        <button class="btn btn--primary btn--lg" type="submit" data-submit data-requires="t-rep t-tos t-dpa" data-requires-bot data-loading-in="sending" data-disable-in="closed" data-text-page="Hiện chưa mở đăng ký mới, chưa gửi được." data-text-requires="Chưa thể gửi: cần đồng ý Điều khoản dịch vụ và DPA, xác nhận người đại diện và kiểm tra người thật." data-reason-id="rsn-04"><span>Gửi đăng ký</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<div class="overlay" id="dlg-tos" role="dialog" aria-labelledby="dlg-tos-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-tos-t">Điều khoản dịch vụ</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-meta"><span>Phiên bản: <span data-ver>v1.0</span> (minh họa)</span><span>Hiệu lực từ: <span data-eff>01/12/2026</span> (minh họa)</span></div>
+      <div class="tsp-doc" tabindex="0" role="region" aria-label="Nội dung điều khoản dịch vụ"><p>[Nội dung do luật sư soạn, lấy từ phiên bản đang hiệu lực ở TSU-67. Chưa có văn bản chính thức.]</p></div>
+      <p class="tsp-small">Bạn không bắt buộc phải cuộn hết văn bản để đóng hộp thoại này [Cần xác nhận Q30].</p>
+    </div>
+    <div class="dialog__footer"><a class="btn btn--ghost" href="#" data-toast="info|Tải bản PDF|Liên kết tải sẽ có khi có văn bản chính thức.">Tải bản PDF</a><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+<div class="overlay" id="dlg-dpa" role="dialog" aria-labelledby="dlg-dpa-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-dpa-t">Thỏa thuận xử lý dữ liệu (DPA)</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-meta"><span>Phiên bản: <span data-ver>v1.0</span> (minh họa)</span><span>Hiệu lực từ: <span data-eff>01/12/2026</span> (minh họa)</span></div>
+      <div class="tsp-doc" tabindex="0" role="region" aria-label="Nội dung thỏa thuận xử lý dữ liệu"><p>[Nội dung do luật sư soạn, lấy từ phiên bản đang hiệu lực ở TSU-67. Chưa có văn bản chính thức.]</p></div>
+    </div>
+    <div class="dialog__footer"><a class="btn btn--ghost" href="#" data-toast="info|Tải bản PDF|Liên kết tải sẽ có khi có văn bản chính thức.">Tải bản PDF</a><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+<script>
+/* Mô phỏng phiên bản điều khoản đổi khi đang điền: bỏ tích hai ô điều khoản, đổi số phiên bản. */
+window.tsOnView = function (v) {
+  var nv = v === 'ver' ? 'v1.1' : 'v1.0';
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ver]'), function (e) { e.textContent = nv; });
+  if (v === 'ver') { ['t-rep', 't-tos', 't-dpa'].forEach(function (id) { document.getElementById(id).checked = false; }); window.TS.refresh(); }
+};
+</script>
+</body>
+</html>

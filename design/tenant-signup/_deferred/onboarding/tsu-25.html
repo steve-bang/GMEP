@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-25 · W5 Dịch vụ và bảng giá mẫu – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="5" data-validate-in="loi">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="mau-bat:Dùng dữ liệu mẫu|mau-tat:Tắt dữ liệu mẫu|loi:Giá trị chưa hợp lệ"></div>
+
+  <p class="tsu-lead">Chọn loại dịch vụ garage cung cấp và nạp bộ dịch vụ, bảng giá mẫu để bắt đầu nhanh. Bước này bỏ qua được. Truy vết: FR-TEN-043, 018.</p>
+
+  <form class="tsu-stack" novalidate onsubmit="return false" aria-label="Dịch vụ và bảng giá mẫu">
+    <section class="card" aria-labelledby="t25-a">
+      <div class="card__header"><h2 class="card__title" id="t25-a">Loại dịch vụ</h2></div>
+      <div class="card__body tsu-stack">
+        <fieldset style="border:0;padding:0;margin:0;min-width:0"><legend class="sr-only">Loại dịch vụ garage cung cấp</legend>
+          <div class="tsu-grid2">
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Sửa chữa chung</span></label>
+            <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Bảo dưỡng</span></label>
+            <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Lốp và mâm</span></label>
+            <label class="check"><input type="checkbox" id="w5-paint"><span class="check__box"><svg class="icon" aria-hidden="true"><use href="#check"/></svg></span><span>Đồng sơn</span></label>
+          </div></fieldset>
+        <p class="tsu-note" id="w5-paint-note" hidden>Quy trình đồng sơn riêng chưa có trong giai đoạn đầu. Bạn vẫn lập lệnh đồng sơn theo quy trình sửa chữa chung.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t25-s">
+      <div class="card__header"><h2 class="card__title" id="t25-s">Bộ dịch vụ và bảng giá mẫu</h2></div>
+      <div class="card__body tsu-stack">
+        <label class="switch"><input type="checkbox" id="w5-sample" role="switch" data-check-in="mau-bat loi" checked><span class="switch__track"></span><span>Dùng dữ liệu mẫu</span></label>
+        <p class="tsu-sub" style="margin:0">Mẫu do nền tảng cung cấp, gắn nhãn “Dữ liệu mẫu, giá minh họa”. Bạn xóa được trước khi kích hoạt.</p>
+        <div id="w5-preview" data-on="mau-bat loi">
+          <div class="tsu-tbl table-scroll"><table class="table table--compact">
+            <caption class="sr-only">Một phần bộ dịch vụ mẫu</caption>
+            <thead><tr><th scope="col">Dịch vụ</th><th scope="col" class="col-num">Giờ chuẩn</th><th scope="col" class="col-num">Giá minh họa</th><th scope="col">Nhãn</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Thay dầu động cơ và lọc dầu</th><td class="col-num num">0,5</td><td class="col-num money">350.000 ₫</td><td><span class="tag tag--info">Dữ liệu mẫu</span></td></tr>
+              <tr><th scope="row">Bảo dưỡng định kỳ 10.000 km</th><td class="col-num num">2,0</td><td class="col-num money">1.200.000 ₫</td><td><span class="tag tag--info">Dữ liệu mẫu</span></td></tr>
+              <tr><th scope="row">Cân chỉnh thước lái</th><td class="col-num num">1,0</td><td class="col-num money">450.000 ₫</td><td><span class="tag tag--info">Dữ liệu mẫu</span></td></tr>
+              <tr><th scope="row">Thay má phanh trước</th><td class="col-num num">1,5</td><td class="col-num money">600.000 ₫</td><td><span class="tag tag--info">Dữ liệu mẫu</span></td></tr>
+            </tbody></table></div>
+          <div class="tsu-cards">
+            <div class="tsu-rec"><div class="tsu-rec__top"><span class="tsu-rec__title">Thay dầu động cơ và lọc dầu</span><span class="tag tag--info">Dữ liệu mẫu</span></div><div class="tsu-rec__meta"><span>Giờ chuẩn <span class="num">0,5</span></span><span class="money">350.000 ₫</span></div></div>
+            <div class="tsu-rec"><div class="tsu-rec__top"><span class="tsu-rec__title">Bảo dưỡng định kỳ 10.000 km</span><span class="tag tag--info">Dữ liệu mẫu</span></div><div class="tsu-rec__meta"><span>Giờ chuẩn <span class="num">2,0</span></span><span class="money">1.200.000 ₫</span></div></div>
+            <div class="tsu-rec"><div class="tsu-rec__top"><span class="tsu-rec__title">Cân chỉnh thước lái</span><span class="tag tag--info">Dữ liệu mẫu</span></div><div class="tsu-rec__meta"><span>Giờ chuẩn <span class="num">1,0</span></span><span class="money">450.000 ₫</span></div></div>
+          </div>
+          <p class="tsu-sub" style="margin:var(--space-3) 0 0">Hiển thị 4 trong tổng số 48 dịch vụ mẫu (minh họa).</p>
+        </div>
+        <p class="tsu-reason" data-on="mau-tat"><svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span>Dữ liệu mẫu đang tắt: danh mục dịch vụ để trống, bạn thêm sau trong Cài đặt hoặc nhập Excel ở bước 8.</span></p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t25-g">
+      <div class="card__header"><h2 class="card__title" id="t25-g">Giá và giảm giá mặc định</h2></div>
+      <div class="card__body"><div class="form-grid">
+        <div class="field"><label class="field__label" for="w5-rate">Đơn giá giờ công mặc định</label>
+          <div class="input-group input-group--suffix"><input id="w5-rate" class="input input--num" inputmode="numeric" data-rule="req" data-label="Đơn giá giờ công" data-pattern="^[0-9.]+$" data-msg-fmt="Nhập số tiền bằng số, không có chữ, không có số lẻ. Ví dụ: 1.250.000." data-fill="1.250.000" data-alt-in="loi" data-alt="12a" aria-describedby="w5-rate-h"><span class="input-group__suffix">₫</span></div>
+          <span class="field__hint" id="w5-rate-h">Số minh họa, lấy từ cấu hình. Chỉnh theo từng chi nhánh sau.</span></div>
+        <div class="field"><label class="field__label" for="w5-disc">Hạn mức giảm giá mặc định</label>
+          <div class="input-group input-group--suffix"><input id="w5-disc" class="input input--num" inputmode="numeric" data-rule="req" data-label="Hạn mức giảm giá" data-pattern="^(100|[0-9]{1,2})$" data-msg-fmt="Hạn mức giảm giá từ 0 đến 100." data-fill="5" data-alt-in="loi" data-alt="120" aria-describedby="w5-disc-h"><span class="input-group__suffix">%</span></div>
+          <span class="field__hint" id="w5-disc-h">Cấu hình theo ngày hiệu lực. Chi nhánh chỉ giảm trong hạn mức này.</span></div>
+      </div></div>
+    </section>
+  </form>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../onboarding/tsu-app.js"></script>
+<script>
+document.addEventListener('change', function (e) {
+  if (e.target.id === 'w5-paint') document.getElementById('w5-paint-note').hidden = !e.target.checked;
+  if (e.target.id === 'w5-sample') document.getElementById('w5-preview').hidden = !e.target.checked;
+});
+</script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

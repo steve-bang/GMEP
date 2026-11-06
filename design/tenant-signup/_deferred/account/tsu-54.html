@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-54 · Tạm khóa vì lý do an toàn – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+<link rel="stylesheet" href="../../account/pack.css">
+</head>
+<body data-tsu-mode="simple" data-common="1" data-top-label="Đăng xuất" data-top-href="../../../g5-scope-auth/g5-aut-04.html" data-top-icon="log-out">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="mac-dinh:Mặc định (mọi người dùng thấy như nhau)"></div>
+
+  <div class="state" style="padding-top:var(--space-4)"><div class="state__icon state__icon--danger"><svg class="icon icon--lg" aria-hidden="true"><use href="#lock"/></svg></div>
+    <h1 class="state__title" id="tsu-h1" tabindex="-1" style="font-size:var(--font-size-2xl);line-height:32px">Tài khoản đang tạm khóa vì lý do an toàn</h1>
+    <p class="state__text">Chưa thể truy cập dữ liệu của Công ty TNHH Ô tô Phương Nam. Chúng tôi không nêu chi tiết để bảo vệ tài khoản của bạn. Vui lòng liên hệ hỗ trợ và đọc mã tham chiếu bên dưới.</p>
+    <p class="state__ref">Mã tham chiếu <span class="code" id="t54-ref">REQ-8A41C7</span> <button type="button" class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép|Mã tham chiếu REQ-8A41C7 đã được sao chép.">Sao chép</button></p></div>
+
+  <section class="card" aria-labelledby="t54-c">
+    <div class="card__header"><h2 class="card__title" id="t54-c">Liên hệ hỗ trợ</h2></div>
+    <div class="card__body tsu-stack">
+      <dl class="tsu-kv"><dt>Điện thoại</dt><dd class="num">1900 0000 (minh họa, lấy từ cấu hình)</dd><dt>Email</dt><dd>ho-tro@gmep.example (minh họa)</dd><dt>Giờ làm việc</dt><dd>Thứ Hai đến thứ Sáu, 08:00 đến 17:30 (minh họa)</dd></dl>
+      <div class="tsu-actions"><a class="btn btn--primary btn--lg" href="#" data-toast="info|Liên hệ hỗ trợ|Mở kênh hỗ trợ đã cấu hình. Kênh, số và giờ làm việc là điểm chờ xác nhận.">Liên hệ hỗ trợ</a></div>
+      <p class="tsu-note">Màn này không có “Xem dữ liệu” và “Xuất dữ liệu”: đây là ngoại lệ của quy tắc luôn cho tải dữ liệu, chỉ áp dụng khi có sự cố an ninh (RULE-021).</p>
+    </div>
+  </section>
+  <p class="tsu-test">Truy vết: FR-TEN-005 (chế độ chặn hoàn toàn); RULE-021; NFR-TEN-08. Mọi người dùng của công ty thấy như nhau.</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../onboarding/tsu-app.js"></script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

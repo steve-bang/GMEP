@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-18 · Chấp nhận điều khoản và DPA phiên bản mới – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsp-top"><span class="tsp-brand"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</span>
+  <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;justify-content:flex-end;min-width:0">
+    <span class="tsp-small" style="min-width:0;overflow-wrap:anywhere"><strong>Công ty TNHH Ô tô Minh Phát</strong> · <span data-hide="notowner">Nguyễn Văn Phát, Chủ garage</span><span data-show="notowner" hidden>Lê Minh Tuấn, Quản lý chi nhánh</span></span>
+    <a class="btn btn--ghost btn--sm" href="../../../g5-scope-auth/g5-aut-04.html"><svg class="icon icon--sm" aria-hidden="true"><use href="#log-out"/></svg>Đăng xuất</a>
+  </div></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="grace:Còn ân hạn|nograce:Hết ân hạn|notowner:Không phải chủ garage|saving:Đang lưu|already:Đã chấp nhận ở thiết bị khác" data-ts-common="error offline" data-hint="TSU-18 · FR-TEN-037, RULE-029 · chặn nhập dữ liệu thật và kích hoạt cho đến khi chấp nhận."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide" data-error-title="Chưa lưu được xác nhận của bạn" data-offline-text="Chưa lưu được xác nhận vì mất kết nối mạng. Kết nối lại rồi bấm Đồng ý và tiếp tục.">
+    <div><h1>Điều khoản đã được cập nhật</h1>
+      <p class="tsp-lead">Điều khoản dịch vụ và DPA đã cập nhật lên phiên bản <strong>v1.1</strong> (minh họa), hiệu lực từ <strong class="num">01/01/2027</strong> (minh họa).</p></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+
+    <div class="alert alert--warning" role="status" data-show="nograce" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Đã hết thời gian ân hạn</span><span>Bạn cần chấp nhận để tiếp tục nhập dữ liệu thật và kích hoạt. Chưa thể chọn “Để sau”.</span></div></div>
+    <div class="alert alert--info" role="status" data-show="already" hidden><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><div class="alert__body"><span class="alert__title">Bạn đã chấp nhận ở thiết bị khác</span><span>Phiên bản mới đã được chấp nhận trước đó. Bạn có thể tiếp tục.</span><div class="alert__actions"><a class="btn btn--primary btn--sm" href="../../public/tsu-14.html?state=routed">Tiếp tục</a></div></div></div>
+    <div class="alert alert--neutral" role="status" data-show="notowner" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Bạn chưa thể chấp nhận</span><span>Chủ garage cần chấp nhận điều khoản mới. Hãy báo cho Nguyễn Văn Phát.</span></div></div>
+
+    <section class="tsp-sumbox" aria-labelledby="chg-h">
+      <h2 id="chg-h" class="tsp-m0">Tóm tắt thay đổi</h2>
+      <p class="tsp-m0">[Tóm tắt do nền tảng nhập ở màn Điều khoản và DPA (TSU-67). Nội dung minh họa, chưa có văn bản chính thức.]</p>
+      <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-tos">Đọc toàn văn Điều khoản dịch vụ</button><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-dpa">Đọc toàn văn DPA</button></div>
+    </section>
+
+    <form class="tsp-form" data-ts-form novalidate data-next="tsu-14.html?state=routed">
+      <fieldset class="tsp-fs" data-disable-in="notowner saving already">
+        <legend class="sr-only">Đồng ý phiên bản mới</legend>
+        <div class="tsp-terms">
+          <div class="tsp-terms__item"><label class="check"><input type="checkbox" id="n-tos" aria-required="true" data-rule="checked" data-msg-required="Cần đồng ý Điều khoản dịch vụ phiên bản mới để tiếp tục." data-check-in="saving"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đọc và đồng ý <strong>Điều khoản dịch vụ</strong> phiên bản v1.1 (minh họa)</span></label></div>
+          <div class="tsp-terms__item"><label class="check"><input type="checkbox" id="n-dpa" aria-required="true" data-rule="checked" data-msg-required="Cần đồng ý Thỏa thuận xử lý dữ liệu (DPA) phiên bản mới để tiếp tục." data-check-in="saving"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã đọc và đồng ý <strong>Thỏa thuận xử lý dữ liệu (DPA)</strong> phiên bản v1.1 (minh họa)</span></label></div>
+        </div>
+      </fieldset>
+      <p class="tsp-reason" id="rsn-18" data-hide="already"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span>Chưa thể tiếp tục: cần đồng ý cả Điều khoản dịch vụ và DPA.</span></p>
+      <div class="tsp-actions" data-hide="already">
+        <button type="button" class="btn btn--ghost btn--lg" data-show="grace" data-toast="info|Đã ghi nhận “Để sau”|Bạn còn 12 ngày ân hạn (minh họa) trước khi bị chặn nhập dữ liệu thật.">Để sau (còn 12 ngày ân hạn)</button>
+        <button class="btn btn--primary btn--lg" type="submit" data-submit data-requires="n-tos n-dpa" data-loading-in="saving" data-disable-in="notowner" data-text-requires="Chưa thể tiếp tục: cần đồng ý cả Điều khoản dịch vụ và DPA." data-text-page="Chỉ chủ garage mới chấp nhận được. Hãy báo cho Nguyễn Văn Phát." data-reason-id="rsn-18"><span>Đồng ý và tiếp tục</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<div class="overlay" id="dlg-tos" role="dialog" aria-labelledby="dlg-tos-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-tos-t">Điều khoản dịch vụ</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-meta"><span>Phiên bản: v1.1 (minh họa)</span><span>Hiệu lực từ: 01/01/2027 (minh họa)</span></div>
+      <div class="tsp-doc" tabindex="0" role="region" aria-label="Nội dung điều khoản dịch vụ"><p>[Nội dung do luật sư soạn, lấy từ TSU-67. Chưa có văn bản chính thức.]</p></div>
+    </div>
+    <div class="dialog__footer"><a class="btn btn--ghost" href="#" data-toast="info|Tải bản PDF|Liên kết tải sẽ có khi có văn bản chính thức.">Tải bản PDF</a><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+<div class="overlay" id="dlg-dpa" role="dialog" aria-labelledby="dlg-dpa-t">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="dlg-dpa-t">Thỏa thuận xử lý dữ liệu (DPA)</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <div class="tsp-meta"><span>Phiên bản: v1.1 (minh họa)</span><span>Hiệu lực từ: 01/01/2027 (minh họa)</span></div>
+      <div class="tsp-doc" tabindex="0" role="region" aria-label="Nội dung thỏa thuận xử lý dữ liệu"><p>[Nội dung do luật sư soạn, lấy từ TSU-67. Chưa có văn bản chính thức.]</p></div>
+    </div>
+    <div class="dialog__footer"><a class="btn btn--ghost" href="#" data-toast="info|Tải bản PDF|Liên kết tải sẽ có khi có văn bản chính thức.">Tải bản PDF</a><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+</body>
+</html>

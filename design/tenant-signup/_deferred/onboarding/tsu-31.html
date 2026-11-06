@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-31 · Hộp thoại bỏ qua, lưu nháp, tiếp tục – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+</head>
+<body data-tsu-mode="simple" data-tsu-dialogs data-step-name="Dịch vụ và bảng giá mẫu" data-skip-default="danh mục dịch vụ để trống, bạn thêm sau trong Cài đặt">
+<div id="tsu-content" hidden>
+  <div class="tsu-head"><h1 id="tsu-h1" tabindex="-1">Hộp thoại của wizard onboarding (TSU-31)</h1><p class="tsu-lead">Năm biến thể dùng trong các bước TSU-21 đến TSU-29. Bấm “Xem hộp thoại” để thử; Esc đóng, focus quay lại nút mở. Truy vết: FR-TEN-043; ui-ux-flow §5.3, §5.4.</p></div>
+
+  <ul class="tsu-stack" style="list-style:none;margin:0;padding:0">
+    <li class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title">Bỏ qua bước</strong><span class="badge badge--info badge--nodot">Mức Thường</span></div>
+      <p style="margin:0">Bỏ qua bước “{tên bước}”? Bạn có thể quay lại làm sau. Bước này sẽ hiện trong danh sách việc cần làm ở trang chủ. Nếu bỏ qua, hệ thống dùng thiết lập mặc định.</p>
+      <div class="tsu-actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-skip">Xem hộp thoại</button></div></li>
+    <li class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title">Bước bắt buộc</strong><span class="badge badge--warning badge--nodot">Chặn</span></div>
+      <p style="margin:0">Không thể bỏ qua. Bước này cần có để kích hoạt: {lý do}. Chỉ có nút “Quay lại bước”. Cũng hiện khi bấm một bước phía sau chưa mở trên danh sách bước.</p>
+      <div class="tsu-actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-required">Xem hộp thoại</button></div></li>
+    <li class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title">Thoát và lưu nháp</strong><span class="badge badge--info badge--nodot">Mức Thường</span></div>
+      <p style="margin:0">Lưu và thoát? Tiến độ đã lưu lúc HH:mm. Bạn có thể tiếp tục từ bước {n} khi đăng nhập lại.</p>
+      <div class="tsu-actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-exit">Xem hộp thoại</button></div></li>
+    <li class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title">Rời trang chưa lưu</strong><span class="badge badge--warning badge--nodot">Cảnh báo</span></div>
+      <p style="margin:0">Có thay đổi chưa lưu. Ba lựa chọn: Lưu nháp và rời, Rời không lưu, Ở lại. Hiện khi bấm “Trang chủ” trên thanh trên sau khi đã sửa; khi đóng tab, trình duyệt hiện hộp cảnh báo riêng.</p>
+      <div class="tsu-actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-leave">Xem hộp thoại</button></div></li>
+    <li class="tsu-rec"><div class="tsu-rec__top"><strong class="tsu-rec__title">Tiếp tục từ nháp</strong><span class="badge badge--info badge--nodot">Mức Thường</span></div>
+      <p style="margin:0">Tiếp tục thiết lập? Bạn đang dở bước {n} ({tên bước}), lưu lúc HH:mm. Nút: Tiếp tục, Xem lại từ bước 1 (không xóa dữ liệu).</p>
+      <div class="tsu-actions"><button type="button" class="btn btn--secondary btn--sm" data-open="dlg-resume">Xem hộp thoại</button></div></li>
+  </ul>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../onboarding/tsu-app.js"></script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-13 · Sẵn sàng: mã công ty và đăng nhập lần đầu – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="normal:Bình thường|resent:Đã gửi lại email chào mừng" data-ts-common="skel error offline" data-hint="TSU-13 · FR-TEN-002, 016, 042 · QĐT-01: người dùng nhập mã công ty mỗi lần đăng nhập."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide" data-offline-text="Chưa gửi lại được email vì mất kết nối mạng. Mã công ty bên dưới vẫn dùng được.">
+    <h1 class="sr-only" data-show="skel error offline" hidden>Không gian làm việc đã sẵn sàng</h1>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div data-ts-body class="tsp-stack">
+      <div class="tsp-result">
+        <span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
+        <h1>Không gian làm việc đã sẵn sàng</h1>
+        <p class="tsp-lead">Không gian làm việc của <strong>Công ty TNHH Ô tô Minh Phát</strong> đã sẵn sàng.</p>
+      </div>
+
+      <div class="field">
+        <span class="field__label" id="code-l">Mã công ty</span>
+        <div class="tsp-code">
+          <code class="tsp-code__value" id="company-code">minh-phat-7k3q</code>
+          <button type="button" class="btn btn--secondary" data-copy="company-code"><svg class="icon" aria-hidden="true"><use href="#file-text"/></svg><span data-copy-label>Sao chép</span><span class="sr-only"> mã công ty</span></button>
+        </div>
+        <span class="field__hint">Bạn và nhân viên cần mã này mỗi lần đăng nhập. Chúng tôi cũng gửi mã vào email của bạn.</span>
+      </div>
+
+      <div class="alert alert--info" role="status"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Bạn đang ở giai đoạn thiết lập</span><span>Hóa đơn điện tử chạy thử, dữ liệu thử có thể xóa. Sau khi kích hoạt, hệ thống mới dùng dữ liệu thật.</span></div></div>
+      <div class="alert alert--success" role="status" data-show="resent" hidden><svg class="icon" aria-hidden="true"><use href="#mail"/></svg><div class="alert__body"><span class="alert__title">Đã gửi lại email chào mừng</span><span>Kiểm tra hộp thư của bạn, kể cả thư mục spam.</span></div></div>
+
+      <p class="tsp-small">Vì an toàn, bạn cần nhập mật khẩu đã đặt ở bước đăng ký. Chúng tôi không đăng nhập tự động bằng liên kết.</p>
+      <div class="tsp-actions">
+        <button type="button" class="btn btn--secondary btn--lg" data-ts-goto="resent" data-toast="success|Đã gửi lại email chào mừng|Kiểm tra hộp thư của bạn.">Gửi lại email chào mừng</button>
+        <a class="btn btn--primary btn--lg" href="../../public/tsu-14.html?code=minh-phat-7k3q">Đăng nhập và bắt đầu thiết lập</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+</body>
+</html>

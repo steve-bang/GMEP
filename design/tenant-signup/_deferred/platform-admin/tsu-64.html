@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-64 · Hàng đợi khiếu nại – Quản trị nền tảng</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+<link rel="stylesheet" href="../../platform-admin/ts-admin.css">
+</head>
+<body class="tsa-app" data-tsa-page="64">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsa-top">
+  <a class="tsa-brand" href="tsu-61.html"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a>
+  <span class="tsa-label">Quản trị nền tảng</span>
+  <span class="tsa-top__spacer"></span>
+  <div class="tsa-user"><span>Lê Thu Hà · <strong>Chủ nền tảng</strong></span><button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối"><svg class="icon"><use href="#moon"/></svg></button><a class="btn btn--ghost btn--sm" href="../../platform-admin/tsu-60.html">Đăng xuất</a></div>
+</header>
+<div class="tsa-strip" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Màn này không hiển thị dữ liệu nghiệp vụ của garage</span></div>
+<div class="tsa-body">
+  <nav class="tsa-nav" aria-label="Quản trị nền tảng">
+    <a href="tsu-61.html"><svg class="icon" aria-hidden="true"><use href="#clipboard-list"/></svg>Hàng đợi đăng ký</a>
+    <a href="tsu-64.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#inbox"/></svg>Khiếu nại</a>
+    <a href="tsu-65.html"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg>Lỗi cấp phát</a>
+    <a href="../../platform-admin/tsu-66.html"><svg class="icon" aria-hidden="true"><use href="#settings"/></svg>Cấu hình đăng ký</a>
+    <a href="tsu-67.html"><svg class="icon" aria-hidden="true"><use href="#file-text"/></svg>Điều khoản và DPA</a>
+    <a href="tsu-68.html"><svg class="icon" aria-hidden="true"><use href="#package"/></svg>Danh mục gói</a>
+  </nav>
+  <main id="main" class="tsa-main" data-error-title="Chưa tải được danh sách khiếu nại">
+    <div data-ts-views="list:Có khiếu nại|empty:Trống|answered:Đã trả lời (mở chi tiết ở dòng đầu)|readonly:Quản trị nền tảng (chỉ xem)" data-ts-common="skel error offline" data-hint="TSU-64 · FR-TEN-040, 013, Q28. Chỉ Chủ nền tảng quyết định khiếu nại [Cần xác nhận ai xử lý]." data-wide></div>
+
+    <div class="tsa-head"><div class="tsa-head__text"><h1>Hàng đợi khiếu nại</h1><p class="tsa-sub">Người đăng ký bị từ chối có thể khiếu nại. Bạn giữ nguyên quyết định hoặc chuyển lại hàng chờ duyệt, kèm câu trả lời gửi họ.</p></div></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--info" role="status" data-show="readonly" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Bạn chỉ có quyền xem</span><span>Chỉ Chủ nền tảng quyết định khiếu nại. Các nút quyết định trong chi tiết bị khóa.</span></div></div>
+
+    <div data-ts-body class="tsa-stack">
+      <div class="tsa-table table-wrap table-wrap--responsive" id="wrap64">
+        <div class="table-scroll">
+          <table class="table">
+            <caption class="sr-only">Danh sách khiếu nại</caption>
+            <thead><tr><th scope="col">Mã khiếu nại</th><th scope="col">Mã theo dõi</th><th scope="col">Doanh nghiệp</th><th scope="col">Lý do từ chối gốc</th><th scope="col">Ngày gửi</th><th scope="col">Người xử lý</th><th scope="col">Trạng thái</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+            <tbody id="tb64"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="record-list record-list--responsive" id="cards64" aria-label="Danh sách khiếu nại"></div>
+      <div class="state" id="empty64" hidden>
+        <span class="state__icon" aria-hidden="true"><svg class="icon icon--lg"><use href="#inbox"/></svg></span>
+        <h2 class="state__title">Chưa có khiếu nại</h2>
+        <p class="state__text">Khiếu nại của người đăng ký bị từ chối sẽ hiện ở đây.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay overlay--drawer" id="dlg-appeal" role="dialog" aria-labelledby="ap-title">
+  <div class="drawer">
+    <div class="drawer__head"><h2 id="ap-title">Khiếu nại</h2><button type="button" class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="drawer__body" id="ap-body"></div>
+    <div class="drawer__foot" id="ap-foot"></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+<script src="../../platform-admin/ts-admin.js"></script>
+</body>
+</html>

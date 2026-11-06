@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-66 · Cấu hình đăng ký – Quản trị nền tảng</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../public/ts-public.css">
+<link rel="stylesheet" href="ts-admin.css">
+</head>
+<body class="tsa-app" data-tsa-page="66">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsa-top">
+  <a class="tsa-brand" href="tsx-30.html"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span data-brand>GARAGE OS</span></a>
+  <span class="tsa-label">Quản trị nền tảng</span>
+  <span class="tsa-top__spacer"></span>
+  <div class="tsa-user"><span>Phạm Quốc Bảo · <strong>Quản trị nền tảng</strong></span><button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối"><svg class="icon"><use href="#moon"/></svg></button><a class="btn btn--ghost btn--sm" href="tsu-60.html">Đăng xuất</a></div>
+</header>
+<div class="tsa-strip" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Màn này không hiển thị dữ liệu nghiệp vụ của garage</span></div>
+<div class="tsa-body">
+  <nav class="tsa-nav" aria-label="Quản trị nền tảng">
+    <a href="tsx-30.html"><svg class="icon" aria-hidden="true"><use href="#clipboard-list"/></svg>Hàng đợi đăng ký</a>
+    <a href="tsu-66.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#settings"/></svg>Cấu hình đăng ký</a>
+  </nav>
+  <main id="main" class="tsa-main" data-error-title="Chưa tải được cấu hình" data-offline-keep data-offline-text="Bạn đang mất kết nối mạng. Bạn vẫn sửa được trên trang này nhưng chưa lưu được cho đến khi có mạng.">
+    <div data-ts-views="edit:Sửa|view:Xem (chỉ đọc)|errval:Lỗi giá trị|confirm:Xác nhận mở hoặc đóng đăng ký" data-ts-common="skel error offline" data-hint="TSU-66 (rút gọn còn 7 thẻ) · FR-TEN-018, 039, 040, 041 · QĐT-36 · mọi giá trị là cấu hình có ngày hiệu lực, số trong prototype chỉ minh họa. Ở trạng thái xác nhận, nhấn Esc để đóng hộp thoại." data-wide></div>
+
+    <div class="tsa-head"><div class="tsa-head__text"><h1>Cấu hình đăng ký</h1><p class="tsa-sub">Mỗi thẻ có ngày hiệu lực riêng, trừ “Mở hoặc đóng”, có hiệu lực ngay. Thay đổi không sửa giá trị cũ, chỉ thêm giá trị mới từ ngày bạn chọn.</p></div></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div class="alert alert--info" role="status" data-show="view" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Đang xem, chưa sửa được</span><span>Chọn trạng thái “Sửa” để thay đổi. Chỉ Quản trị nền tảng sửa được cấu hình.</span></div></div>
+
+    <div data-ts-body class="tsa-stack">
+      <div class="tabs tsa-cfgtabs" role="tablist" aria-label="Nhóm cấu hình">
+        <button type="button" class="tab" role="tab" id="ct1" aria-selected="true" aria-controls="cp1">Mở hoặc đóng</button>
+        <button type="button" class="tab" role="tab" id="ct2" aria-selected="false" aria-controls="cp2" tabindex="-1">Xác thực email</button>
+        <button type="button" class="tab" role="tab" id="ct3" aria-selected="false" aria-controls="cp3" tabindex="-1">MST và tự duyệt</button>
+        <button type="button" class="tab" role="tab" id="ct4" aria-selected="false" aria-controls="cp4" tabindex="-1">Chống lạm dụng</button>
+        <button type="button" class="tab" role="tab" id="ct5" aria-selected="false" aria-controls="cp5" tabindex="-1">Dùng thử</button>
+        <button type="button" class="tab" role="tab" id="ct6" aria-selected="false" aria-controls="cp6" tabindex="-1">Danh mục lý do</button>
+        <button type="button" class="tab" role="tab" id="ct7" aria-selected="false" aria-controls="cp7" tabindex="-1">Dịch vụ mẫu</button>
+      </div>
+
+      <form id="cfg-form" class="tsa-cfg" novalidate>
+
+        <section class="tab-panel tsa-card" role="tabpanel" id="cp1" aria-labelledby="ct1">
+          <div class="tsa-card__head"><h2>Mở hoặc đóng đăng ký và trần ngày</h2><span class="tsa-param__eff">Mở hoặc đóng có hiệu lực ngay khi xác nhận, không đặt ngày</span></div>
+          <fieldset class="tsp-fs" data-cfg-fs><legend class="sr-only">Mở hoặc đóng đăng ký và trần ngày</legend>
+            <div class="field"><span class="field__label">Đăng ký công khai</span>
+              <label class="switch"><input type="checkbox" id="cfg-open" data-cfg data-reg-toggle checked><span class="switch__track"></span><span id="cfg-open-txt">Đang mở</span></label>
+              <span class="field__hint">Đổi trạng thái cần xác nhận mức Nguy hiểm vì ảnh hưởng ngay trang đăng ký.</span></div>
+            <div class="field"><label class="field__label" for="cfg-closemsg">Thông báo khi đóng</label><textarea class="textarea" id="cfg-closemsg" data-cfg rows="2">Hiện chưa mở đăng ký mới. Vui lòng quay lại sau.</textarea></div>
+            <div class="form-grid">
+              <div class="field"><label class="field__label" for="cfg-ch">Trần đăng ký mỗi giờ</label><input class="input input--num" id="cfg-ch" data-cfg data-rule="int" data-label="trần mỗi giờ" inputmode="numeric" value="10"></div>
+              <div class="field"><label class="field__label" for="cfg-cd">Trần đăng ký mỗi ngày</label><input class="input input--num" id="cfg-cd" data-cfg data-rule="int" data-label="trần mỗi ngày" inputmode="numeric" value="50"><span class="field__hint">Vượt trần thì đăng ký xếp hàng chờ.</span></div>
+            </div>
+          </fieldset>
+        </section>
+
+        <section class="tab-panel tsa-card" role="tabpanel" id="cp2" aria-labelledby="ct2" hidden>
+          <div class="tsa-card__head"><h2>Xác thực email</h2><span class="tsa-param__eff">Đang áp dụng, hiệu lực từ 01/10/2026</span></div>
+          <fieldset class="tsp-fs" data-cfg-fs><legend class="sr-only">Xác thực email</legend>
+            <div class="form-grid">
+              <div class="field"><label class="field__label" for="cfg-linkh">Thời hạn liên kết (giờ)</label><input class="input input--num" id="cfg-linkh" data-cfg data-rule="int" data-label="thời hạn liên kết" inputmode="numeric" value="72" data-fill='{"errval":"0"}' data-fill-default></div>
+              <div class="field"><label class="field__label" for="cfg-wait">Chờ giữa hai lần gửi lại (giây)</label><input class="input input--num" id="cfg-wait" data-cfg data-rule="int" data-label="thời gian chờ" inputmode="numeric" value="60"></div>
+              <div class="field"><label class="field__label" for="cfg-maxre">Gửi lại tối đa mỗi ngày (lần)</label><input class="input input--num" id="cfg-maxre" data-cfg data-rule="int" data-label="số lần gửi lại" inputmode="numeric" value="5"></div>
+              <div class="field"><label class="field__label" for="cfg-expire">Hạn tối đa của yêu cầu chưa xác thực (ngày)</label><input class="input input--num" id="cfg-expire" data-cfg data-rule="int" data-label="hạn tối đa" inputmode="numeric" value="14"><span class="field__hint">Quá hạn thì chuyển sang “yêu cầu quá hạn”.</span></div>
+              <div class="field"><label class="field__label" for="cfg-track">Hiệu lực liên kết theo dõi (ngày)</label><input class="input input--num" id="cfg-track" data-cfg data-rule="int" data-label="hiệu lực liên kết theo dõi" inputmode="numeric" value="30"><span class="field__hint">Tính từ khi yêu cầu đạt trạng thái cuối. Dùng nhiều lần, thu hồi được.</span></div>
+            </div>
+            <div class="field"><label class="field__label" for="cfg-eff2">Ngày hiệu lực của thay đổi (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="cfg-eff2" data-cfg data-rule="date" data-label="ngày hiệu lực" inputmode="numeric" aria-required="true" value="06/11/2026"></div>
+          </fieldset>
+        </section>
+
+        <section class="tab-panel tsa-card" role="tabpanel" id="cp3" aria-labelledby="ct3" hidden>
+          <div class="tsa-card__head"><h2>Mã số thuế và tiêu chí tự duyệt</h2><span class="tsa-param__eff">Đang áp dụng, hiệu lực từ 01/10/2026</span></div>
+          <fieldset class="tsp-fs" data-cfg-fs><legend class="sr-only">Mã số thuế và tiêu chí tự duyệt</legend>
+            <div class="field"><span class="field__label" id="lens-l">Độ dài mã số thuế cho phép</span>
+              <div class="tsa-checks" role="group" aria-labelledby="lens-l">
+                <label class="check"><input type="checkbox" data-cfg checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>10 số (doanh nghiệp)</span></label>
+                <label class="check"><input type="checkbox" data-cfg checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>12 số (hộ kinh doanh)</span></label>
+                <label class="check"><input type="checkbox" data-cfg><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>13 số (đơn vị phụ thuộc)</span></label>
+              </div>
+              <span class="field__hint">[Cần xác nhận C-12, C-S05] Kế toán hoặc luật sư chốt. Loại hình suy ra từ độ dài.</span></div>
+            <div class="field"><span class="field__label">Chữ số kiểm tra</span><label class="switch"><input type="checkbox" data-cfg><span class="switch__track"></span><span>Kiểm tra chữ số kiểm tra của MST</span></label></div>
+            <div class="form-grid">
+              <div class="field"><label class="field__label" for="cfg-mode">Nguồn tra MST và chế độ xác minh</label><select class="select" id="cfg-mode" data-cfg><option>Chỉ kiểm tra định dạng và trùng</option><option selected>Thêm tra cứu nguồn tin cậy</option><option>Duyệt tay mọi ca</option></select><span class="field__hint">[Cần xác nhận C-S01] Chưa có nguồn thì chỉ khóa phát hành hóa đơn thật.</span></div>
+              <div class="field"><label class="field__label" for="cfg-man">Thời gian duyệt tay tối đa (giờ)</label><input class="input input--num" id="cfg-man" data-cfg data-rule="int" data-label="thời gian duyệt tay" inputmode="numeric" value="24"><span class="field__hint">[Cần xác nhận NFR-TEN-07]</span></div>
+              <div class="field"><label class="field__label" for="cfg-supp">Thời hạn bổ sung (ngày)</label><input class="input input--num" id="cfg-supp" data-cfg data-rule="int" data-label="thời hạn bổ sung" inputmode="numeric" value="7"><span class="field__hint">Quá hạn thì tự chuyển sang không đạt.</span></div>
+            </div>
+            <fieldset class="tsp-fs"><legend class="field__label">Vào hàng đợi khi có một trong các cờ</legend>
+              <div class="tsa-checks">
+                <label class="check"><input type="checkbox" data-cfg checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>MST trùng tenant đang hoạt động</span></label>
+                <label class="check"><input type="checkbox" data-cfg checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Đối chiếu MST không khớp</span></label>
+                <label class="check"><input type="checkbox" data-cfg checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Email dùng một lần hoặc nguồn bị chặn</span></label>
+                <label class="check"><input type="checkbox" data-cfg checked><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Cờ lạm dụng (vượt tần suất)</span></label>
+              </div>
+              <span class="field__hint">Không có cờ nào thì đi thẳng tới cấp phát, không người duyệt.</span>
+            </fieldset>
+            <div class="field"><label class="field__label" for="cfg-mstblock">Danh sách chặn MST</label><textarea class="textarea" id="cfg-mstblock" data-cfg rows="2" placeholder="Mỗi dòng một mã số thuế"></textarea></div>
+            <div class="field"><label class="field__label" for="cfg-eff3">Ngày hiệu lực của thay đổi (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="cfg-eff3" data-cfg data-rule="date" data-label="ngày hiệu lực" inputmode="numeric" aria-required="true" value="06/11/2026" data-fill='{"errval":"06-11-2026"}' data-fill-default></div>
+          </fieldset>
+        </section>
+
+        <section class="tab-panel tsa-card" role="tabpanel" id="cp4" aria-labelledby="ct4" hidden>
+          <div class="tsa-card__head"><h2>Chống lạm dụng</h2><span class="tsa-param__eff">Đang áp dụng, hiệu lực từ 01/10/2026</span></div>
+          <fieldset class="tsp-fs" data-cfg-fs><legend class="sr-only">Chống lạm dụng</legend>
+            <div class="form-grid">
+              <div class="field"><label class="field__label" for="cfg-src">Ngưỡng tần suất theo nguồn (lần mỗi giờ)</label><input class="input input--num" id="cfg-src" data-cfg data-rule="int" data-label="ngưỡng theo nguồn" inputmode="numeric" value="5"></div>
+              <div class="field"><span class="field__label">Chỉ nhận đăng ký từ Việt Nam</span><label class="switch"><input type="checkbox" data-cfg><span class="switch__track"></span><span>Bật [Cần xác nhận Q29]</span></label></div>
+              <div class="field"><label class="field__label" for="cfg-block">Danh sách chặn (email, tên miền, mạng)</label><textarea class="textarea" id="cfg-block" data-cfg rows="3" placeholder="Mỗi dòng một mục"></textarea></div>
+              <div class="field"><label class="field__label" for="cfg-allow">Danh sách cho phép</label><textarea class="textarea" id="cfg-allow" data-cfg rows="3" placeholder="Mỗi dòng một mục"></textarea></div>
+              <div class="field span-2"><label class="field__label" for="cfg-disp">Tên miền email dùng một lần</label><textarea class="textarea" id="cfg-disp" data-cfg rows="2">mailinator.com
+tempmail.com
+yopmail.com</textarea></div>
+            </div>
+            <div class="field"><label class="field__label" for="cfg-eff4">Ngày hiệu lực của thay đổi (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="cfg-eff4" data-cfg data-rule="date" data-label="ngày hiệu lực" inputmode="numeric" aria-required="true" value="06/11/2026"></div>
+          </fieldset>
+        </section>
+
+        <section class="tab-panel tsa-card" role="tabpanel" id="cp5" aria-labelledby="ct5" hidden>
+          <div class="tsa-card__head"><h2>Dùng thử</h2><span class="tsa-param__eff">Đang áp dụng, hiệu lực từ 01/10/2026</span></div>
+          <fieldset class="tsp-fs" data-cfg-fs><legend class="sr-only">Dùng thử</legend>
+            <div class="form-grid">
+              <div class="field"><label class="field__label" for="cfg-trial">Thời lượng dùng thử (ngày)</label><input class="input input--num" id="cfg-trial" data-cfg data-rule="int" data-label="thời lượng dùng thử" inputmode="numeric" value="30"><span class="field__hint">Tính từ khi chủ garage bấm “Bắt đầu dùng”.</span></div>
+              <div class="field"><label class="field__label" for="cfg-onbmax">Hạn tối đa chờ bấm “Bắt đầu dùng” (ngày)</label><input class="input input--num" id="cfg-onbmax" data-cfg data-rule="int" data-label="hạn tối đa chờ bắt đầu dùng" inputmode="numeric" value="14"><span class="field__hint">Van an toàn: quá hạn này, dùng thử tự bắt đầu.</span></div>
+              <div class="field"><label class="field__label" for="cfg-warn">Mốc cảnh báo trước khi hết (ngày)</label><input class="input" id="cfg-warn" data-cfg value="7, 3, 1" aria-describedby="cfg-warn-h"><span class="field__hint" id="cfg-warn-h">Cách nhau bằng dấu phẩy.</span></div>
+              <div class="field"><label class="field__label" for="cfg-restr">Hạn chế tạo mới sau khi hết hạn (ngày)</label><input class="input input--num" id="cfg-restr" data-cfg data-rule="int" data-label="thời gian hạn chế" inputmode="numeric" value="14"></div>
+              <div class="field"><label class="field__label" for="cfg-ro">Chỉ đọc và tải dữ liệu sau đó (ngày)</label><input class="input input--num" id="cfg-ro" data-cfg data-rule="int" data-label="thời gian chỉ đọc" inputmode="numeric" value="60"></div>
+            </div>
+            <p class="tsa-note">Thang bốn nấc (RULE-030): cảnh báo, hạn chế tạo mới (lệnh đang mở vẫn thu tiền, giao xe, hoàn tất), chỉ đọc và tải dữ liệu, chấm dứt chỉ khi hết thời hạn giữ và có người duyệt. Đổi thang cần xác nhận mức Nguy hiểm và hai người duyệt (RULE-027). Chuyển nấc chạy theo lịch, không có thao tác tay từng tenant. Mọi số là minh họa.</p>
+            <div class="field"><label class="field__label" for="cfg-eff5">Ngày hiệu lực của thay đổi (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="cfg-eff5" data-cfg data-rule="date" data-label="ngày hiệu lực" inputmode="numeric" aria-required="true" value="06/11/2026"></div>
+          </fieldset>
+        </section>
+
+        <section class="tab-panel tsa-card" role="tabpanel" id="cp6" aria-labelledby="ct6" hidden>
+          <div class="tsa-card__head"><h2>Danh mục lý do</h2><span class="tsa-param__eff">Đang áp dụng, hiệu lực từ 01/10/2026</span></div>
+          <fieldset class="tsp-fs" data-cfg-fs><legend class="sr-only">Danh mục lý do</legend>
+            <details class="tsp-details" open>
+              <summary>Lý do từ chối đăng ký (5)</summary>
+              <div class="tsp-details__body">
+                <div class="table-wrap"><div class="table-scroll"><table class="table">
+                  <caption class="sr-only">Lý do từ chối, câu hiển thị cho người đăng ký và quyền đăng ký lại</caption>
+                  <thead><tr><th scope="col">Lý do</th><th scope="col">Câu hiển thị cho người đăng ký</th><th scope="col">Cho đăng ký lại</th></tr></thead>
+                  <tbody>
+                    <tr><td>Mã số thuế không hợp lệ</td><td>Chúng tôi không đối chiếu được mã số thuế bạn cung cấp. Kiểm tra lại mã số thuế và đăng ký lại.</td><td><label class="check"><input type="checkbox" data-cfg checked aria-label="Cho đăng ký lại: mã số thuế không hợp lệ"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td></tr>
+                    <tr><td>Thông tin không khớp</td><td>Thông tin doanh nghiệp không khớp với dữ liệu đã đăng ký với cơ quan thuế.</td><td><label class="check"><input type="checkbox" data-cfg checked aria-label="Cho đăng ký lại: thông tin không khớp"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td></tr>
+                    <tr><td>Không thuộc đối tượng phục vụ</td><td><span data-brand>GARAGE OS</span> hiện phục vụ doanh nghiệp và hộ kinh doanh có mã số thuế tại Việt Nam.</td><td><label class="check"><input type="checkbox" data-cfg aria-label="Cho đăng ký lại: không thuộc đối tượng phục vụ"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td></tr>
+                    <tr><td>Hết hạn xác thực email</td><td>Yêu cầu đã hết hạn vì chưa xác thực email.</td><td><label class="check"><input type="checkbox" data-cfg checked aria-label="Cho đăng ký lại: hết hạn xác thực email"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td></tr>
+                    <tr><td>Chặn lạm dụng</td><td>Đăng ký không thể xử lý tự động. Hãy liên hệ hỗ trợ để được xem xét.</td><td><label class="check"><input type="checkbox" data-cfg aria-label="Cho đăng ký lại: chặn lạm dụng"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span></label></td></tr>
+                  </tbody></table></div></div>
+              </div>
+            </details>
+            <details class="tsp-details">
+              <summary>Mục cần bổ sung và mẫu lời nhắn (4)</summary>
+              <div class="tsp-details__body">
+                <ul class="tsp-bullets"><li>Giấy chứng nhận đăng ký kinh doanh</li><li>Xác nhận người đại diện</li><li>Giải thích mã số thuế đã có người đăng ký</li><li>Địa chỉ trụ sở khác với giấy đăng ký</li></ul>
+                <p class="tsa-note">Mẫu lời nhắn dùng cùng ngày hiệu lực. Thêm mục mới là thay đổi cấu hình, có phiên bản.</p>
+              </div>
+            </details>
+            <details class="tsp-details">
+              <summary>Lý do hạn chế tạo mới (3)</summary>
+              <div class="tsp-details__body">
+                <div class="table-wrap"><div class="table-scroll"><table class="table">
+                  <caption class="sr-only">Lý do hạn chế tạo mới và việc cần làm để mở lại</caption>
+                  <thead><tr><th scope="col">Câu hiển thị cho chủ garage</th><th scope="col">Việc cần làm để mở lại</th></tr></thead>
+                  <tbody>
+                    <tr><td>Hết thời gian dùng thử</td><td>Chúng tôi liên hệ để chủ garage chọn cách dùng tiếp.</td></tr>
+                    <tr><td>Chưa đồng ý điều khoản mới sau ân hạn</td><td>Chủ garage đọc và đồng ý phiên bản mới.</td></tr>
+                    <tr><td>Đang xem xét tuân thủ, cần bổ sung thông tin</td><td>Bổ sung thông tin theo yêu cầu của nền tảng.</td></tr>
+                  </tbody></table></div></div>
+              </div>
+            </details>
+            <details class="tsp-details">
+              <summary>Lý do tạm ngưng chỉ đọc (4)</summary>
+              <div class="tsp-details__body">
+                <div class="table-wrap"><div class="table-scroll"><table class="table">
+                  <caption class="sr-only">Lý do tạm ngưng chỉ đọc và việc cần làm để mở lại</caption>
+                  <thead><tr><th scope="col">Câu hiển thị cho chủ garage</th><th scope="col">Việc cần làm để mở lại</th></tr></thead>
+                  <tbody>
+                    <tr><td>Theo yêu cầu của chủ garage</td><td>Liên hệ hỗ trợ để mở lại.</td></tr>
+                    <tr><td>Hết thời gian dùng thử</td><td>Dữ liệu được giữ nguyên; chúng tôi liên hệ để chủ garage chọn cách dùng tiếp.</td></tr>
+                    <tr><td>Chưa tuân thủ điều khoản</td><td>Liên hệ hỗ trợ để được hướng dẫn.</td></tr>
+                    <tr><td>Đang xem xét tuân thủ, cần bổ sung thông tin</td><td>Bổ sung thông tin theo yêu cầu của nền tảng.</td></tr>
+                  </tbody></table></div></div>
+                <p class="tsa-note">Nhân viên chỉ thấy câu chung. Tạm ngưng vì an ninh không có lý do hiển thị, chỉ câu “vì lý do an toàn” kèm mã tham chiếu; lý do chi tiết nằm ở nhật ký nền tảng.</p>
+              </div>
+            </details>
+            <div class="field"><label class="field__label" for="cfg-eff6">Ngày hiệu lực của thay đổi (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="cfg-eff6" data-cfg data-rule="date" data-label="ngày hiệu lực" inputmode="numeric" aria-required="true" value="06/11/2026"></div>
+          </fieldset>
+        </section>
+
+        <section class="tab-panel tsa-card" role="tabpanel" id="cp7" aria-labelledby="ct7" hidden>
+          <div class="tsa-card__head"><h2>Danh mục dịch vụ mẫu</h2><span class="tsa-param__eff">Đang áp dụng, hiệu lực từ 01/10/2026</span></div>
+          <fieldset class="tsp-fs" data-cfg-fs><legend class="sr-only">Danh mục dịch vụ mẫu</legend>
+            <p class="tsa-note">Gói mẫu hiện ở bước “Thiết lập nhanh” của chủ garage. Bật hoặc tắt từng gói; nội dung gói do khách hàng soạn [Cần xác nhận C-S09].</p>
+            <div class="tsa-stack">
+              <label class="switch"><input type="checkbox" data-cfg checked><span class="switch__track"></span><span>Sửa chữa chung (12 dịch vụ, 20 phụ tùng tiêu hao mẫu, minh họa)</span></label>
+              <label class="switch"><input type="checkbox" data-cfg checked><span class="switch__track"></span><span>Bảo dưỡng (8 dịch vụ, 15 phụ tùng mẫu, minh họa)</span></label>
+              <label class="switch"><input type="checkbox" data-cfg checked><span class="switch__track"></span><span>Lốp và mâm (6 dịch vụ, 10 phụ tùng mẫu, minh họa)</span></label>
+              <label class="switch"><input type="checkbox" data-cfg checked><span class="switch__track"></span><span>Đồng sơn (chỉ nhận lựa chọn, gắn nhãn “Quy trình đồng sơn đang được hoàn thiện”)</span></label>
+            </div>
+            <div class="field"><span class="field__label">Giá minh họa</span><label class="switch"><input type="checkbox" data-cfg checked><span class="switch__track"></span><span>Có giá minh họa gắn nhãn “mẫu”, nhắc xem lại trước khi in báo giá đầu tiên</span></label></div>
+            <div class="field"><label class="field__label" for="cfg-eff7">Ngày hiệu lực của thay đổi (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="cfg-eff7" data-cfg data-rule="date" data-label="ngày hiệu lực" inputmode="numeric" aria-required="true" value="06/11/2026"></div>
+          </fieldset>
+        </section>
+
+        <div class="tsa-bar" role="group" aria-label="Lưu cấu hình">
+          <span id="cfg-count" role="status" class="tsa-note">Chưa có thay đổi</span>
+          <div class="tsp-row"><button type="button" class="btn btn--secondary" id="cfg-reset" disabled>Hủy thay đổi</button><button type="submit" class="btn btn--primary" id="cfg-save" disabled aria-disabled="true">Lưu thay đổi</button></div>
+        </div>
+      </form>
+      <p class="tsa-note">Câu chữ banner và thông báo do dev quản lý, không soạn tay ở màn này.</p>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="dlg-reg" role="dialog" aria-labelledby="reg-t">
+  <div class="dialog">
+    <div class="dialog__header"><span class="dialog__icon dialog__icon--danger"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></span><div><h2 class="dialog__title" id="reg-t">Đóng đăng ký công khai</h2></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body"><ul class="impact-list" id="reg-impact"></ul>
+      <div class="field"><label class="field__label" for="reg-guard">Gõ XAC NHAN để mở nút</label><input class="input" id="reg-guard" data-guard-input data-word="XAC NHAN" autocomplete="off"></div></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Hủy</button><button type="button" class="btn btn--danger" id="reg-ok" data-guard-btn data-want="0" disabled aria-disabled="true">Xác nhận đổi</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-config.js"></script>
+<script src="../ts-common.js"></script>
+<script src="ts-admin.js"></script>
+</body>
+</html>

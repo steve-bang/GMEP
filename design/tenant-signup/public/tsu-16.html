@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-16 · Đặt lại mật khẩu – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsx-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span data-brand>GARAGE OS</span></a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="valid:Liên kết hợp lệ|weak:Mật khẩu yếu|sending:Đang lưu|success:Thành công|expired:Hết hạn|used:Đã dùng" data-ts-common="skel error offline" data-hint="TSU-16 · FR-TEN-016, 010 · tên công ty chỉ hiện sau khi liên kết hợp lệ."></div>
+
+  <main id="main" class="tsp-card" data-error-title="Chưa đặt lại được mật khẩu" data-offline-text="Chưa lưu được mật khẩu mới vì mất kết nối mạng. Mật khẩu bạn nhập chỉ nằm trong trang này, không được lưu.">
+    <h1 class="sr-only" data-show="skel error offline" hidden>Đặt lại mật khẩu</h1>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+    <div data-ts-body class="tsp-stack">
+      <div class="tsp-stack" data-show="valid weak sending">
+        <div><h1>Đặt lại mật khẩu</h1><p class="tsp-lead">Chọn mật khẩu mới cho tài khoản của bạn.</p></div>
+        <p class="tsp-m0"><span class="text-secondary">Công ty:</span> <strong>Công ty TNHH Ô tô Minh Phát</strong></p>
+        <form class="tsp-form" data-ts-form novalidate data-success-view="success" data-validate-in="weak">
+          <fieldset class="tsp-fs" data-disable-in="sending">
+            <legend class="sr-only">Mật khẩu mới</legend>
+            <div class="field">
+              <label class="field__label" for="rp-pw">Mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label>
+              <div class="tsp-pw"><input id="rp-pw" class="input" name="password" type="password" autocomplete="new-password" aria-required="true" aria-describedby="rp-rules rp-caps" data-first-focus data-rule="pass" data-label="mật khẩu mới" data-min="10" data-pw-policy data-fill='{"weak":"matkhau123","sending":"MayGaraRatDep#2026"}'><button type="button" class="btn-icon tsp-pw__toggle" data-pw-toggle="rp-pw" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon"><use href="#eye"/></svg></button></div>
+              <span class="field__hint" id="rp-caps" data-caps hidden>Caps Lock đang bật. Mật khẩu phân biệt chữ hoa, chữ thường.</span>
+              <div class="tsp-strength-row" hidden><div class="tsp-strength" data-level="0" aria-hidden="true"><span></span><span></span><span></span></div><span class="tsp-strength-text" data-strength-text aria-live="polite">Chưa nhập</span></div>
+              <ul class="tsp-rules" id="rp-rules" aria-label="Điều kiện mật khẩu" hidden>
+                <li data-r="len"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span><span class="sr-only">Chưa đạt: </span>Ít nhất 10 ký tự</span></li>
+                <li data-r="common"><svg class="icon" aria-hidden="true"><use href="#circle-check"/></svg><span><span class="sr-only">Chưa đạt: </span>Không phải mật khẩu quá phổ biến</span></li>
+              </ul>
+            </div>
+            <div class="field">
+              <label class="field__label" for="rp-pw2">Nhập lại mật khẩu mới<span class="field__req" aria-hidden="true">*</span></label>
+              <div class="tsp-pw"><input id="rp-pw2" class="input" name="password2" type="password" autocomplete="new-password" aria-required="true" data-rule="match:#rp-pw" data-match-of="rp-pw" data-label="mật khẩu nhập lại" data-fill='{"weak":"matkhau123","sending":"MayGaraRatDep#2026"}'><button type="button" class="btn-icon tsp-pw__toggle" data-pw-toggle="rp-pw2" aria-pressed="false" aria-label="Hiện mật khẩu nhập lại"><svg class="icon"><use href="#eye"/></svg></button></div>
+            </div>
+          </fieldset>
+          <p class="tsp-small">Sau khi đặt lại, các thiết bị khác sẽ phải đăng nhập lại.</p>
+          <button class="btn btn--primary btn--lg btn--block" type="submit" data-submit data-loading-in="sending"><span>Lưu mật khẩu mới</span><span class="btn__spinner" aria-hidden="true"></span></button>
+        </form>
+      </div>
+
+      <section class="tsp-result" data-show="success" hidden aria-labelledby="rp-ok">
+        <span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
+        <h1 id="rp-ok">Đã đặt lại mật khẩu</h1>
+        <p class="tsp-lead">Mật khẩu mới đã được lưu. Các thiết bị khác sẽ phải đăng nhập lại.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-14.html">Đăng nhập</a></div>
+      </section>
+
+      <section class="tsp-result" data-show="expired" hidden aria-labelledby="rp-ex">
+        <span class="tsp-icon-badge tsp-icon-badge--warning" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span>
+        <h1 id="rp-ex">Liên kết đã hết hạn</h1>
+        <p class="tsp-lead">Vì an toàn, liên kết đặt lại mật khẩu chỉ có hiệu lực trong một thời gian ngắn. Bạn có thể nhận liên kết mới.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-15.html">Nhận liên kết mới</a></div>
+      </section>
+
+      <section class="tsp-result" data-show="used" hidden aria-labelledby="rp-us">
+        <span class="tsp-icon-badge tsp-icon-badge--neutral" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
+        <h1 id="rp-us">Liên kết đã được sử dụng</h1>
+        <p class="tsp-lead">Mật khẩu đã được đặt lại bằng liên kết này. Nếu không phải bạn, hãy nhận liên kết mới và báo cho quản trị công ty.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-14.html">Đăng nhập</a><a class="btn btn--secondary btn--lg" href="tsu-15.html">Nhận liên kết mới</a></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="tsp-foot"><span><span data-brand>GARAGE OS</span> · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../assets/app.js"></script>
+<script src="../ts-config.js"></script>
+<script src="../ts-common.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-11 · Khiếu nại kết quả – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+</head>
+<body class="tsp-body">
+<a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu khiếu nại</a>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsu-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+
+<div class="tsp-wrap">
+  <div data-ts-views="empty:Trống|sending:Đang gửi|done:Thành công|short:Giải trình quá ngắn|bot:Lỗi kiểm tra người thật" data-ts-common="r429 error offline" data-hint="TSU-11 · FR-TEN-040, Q28. Gửi và kiểm tra người thật chỉ mô phỏng."></div>
+
+  <main id="main" class="tsp-card tsp-card--wide" data-offline-text="Chưa gửi được khiếu nại vì mất kết nối mạng. Nội dung bạn đã viết vẫn được giữ.">
+    <div data-hide="done"><h1>Khiếu nại kết quả</h1><p class="tsp-lead">Mã theo dõi <strong class="num">SGN-4F7K2Q</strong>. Hãy mô tả vì sao bạn cho rằng kết quả cần được xem xét lại. Nhân viên sẽ phản hồi qua email.</p></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+
+    <section class="tsp-result" data-show="done" hidden aria-labelledby="ap-ok" data-focus-result tabindex="-1">
+      <span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
+      <h1 id="ap-ok">Đã nhận khiếu nại</h1>
+      <p class="tsp-lead">Đã nhận khiếu nại. Mã khiếu nại <strong class="num">KN-4H8M2P</strong>. Chúng tôi sẽ phản hồi qua email.</p>
+      <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-10.html?state=appealed">Về trạng thái đăng ký</a></div>
+    </section>
+
+    <form class="tsp-form" data-ts-form novalidate data-hide="done" data-success-view="done" data-validate-in="short">
+      <fieldset class="tsp-fs" data-disable-in="sending">
+        <legend class="sr-only">Nội dung khiếu nại</legend>
+        <div class="field">
+          <label class="field__label" for="ap-text">Nội dung giải trình<span class="field__req" aria-hidden="true">*</span></label>
+          <textarea id="ap-text" class="textarea" rows="5" maxlength="1000" data-max="1000" data-counter-src aria-required="true" aria-describedby="ap-c" data-rule="required|len:20:1000" data-label="nội dung giải trình" data-msg-len="Vui lòng mô tả ít nhất 20 ký tự để chúng tôi xem xét." data-fill='{"sending":"Mã số thuế đã đăng ký đúng, tôi gửi kèm giấy chứng nhận đăng ký doanh nghiệp bản mới nhất.","short":"Sai rồi"}'></textarea>
+          <span class="tsp-counter" id="ap-c" data-counter-for="ap-text">0/1000</span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="ap-email">Email liên hệ<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="ap-email" class="input" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="phat@minhphat.vn" aria-required="true" data-rule="email" data-label="email liên hệ">
+        </div>
+        <div class="field">
+          <span class="field__label" id="ap-up-l">Tệp minh chứng (không bắt buộc)</span>
+          <div class="tsp-up" data-upload data-max-mb="10" data-max-files="3" id="up-ap" role="group" aria-labelledby="ap-up-l">
+            <div class="tsp-up__head"><span class="field__hint" id="up-ap-h">PDF, JPG hoặc PNG. Tối đa 10 MB mỗi tệp, 3 tệp (tham số).</span>
+              <label class="btn btn--secondary btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#upload"/></svg>Chọn tệp<input type="file" class="tsp-up__file-input" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Chọn tệp minh chứng" aria-describedby="up-ap-h"></label></div>
+            <ul class="tsp-files" data-files aria-label="Tệp minh chứng đã chọn"></ul>
+            <span class="field__error" role="alert" data-up-err hidden></span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field__label" id="bot-l">Kiểm tra người thật<span class="field__req" aria-hidden="true">*</span></span>
+          <div class="tsp-bot" data-bot data-bot-required data-bot-state="idle" data-bot-ok-in="sending short" data-bot-error-in="bot" role="group" aria-labelledby="bot-l">
+            <div class="tsp-bot__row">
+              <span class="tsp-bot__status" role="status"><span data-bot-icon></span><span data-bot-text>Chưa xác nhận bạn là người thật.</span></span>
+              <button type="button" class="btn btn--secondary" id="bot-btn" data-bot-btn>Tôi là người thật</button>
+            </div>
+            <button type="button" class="btn btn--ghost btn--sm" data-bot-alt-toggle aria-expanded="false" aria-controls="bot-alt">Tôi cần cách khác</button>
+            <div class="tsp-bot__alt" id="bot-alt" data-bot-alt hidden>
+              <p class="tsp-small">Chúng tôi gửi mã 6 số đến email liên hệ ở trên.</p>
+              <div class="field"><label class="field__label" for="bot-code">Mã xác nhận 6 số</label><input class="input" id="bot-code" data-bot-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="bot-code-err"><span class="field__error" id="bot-code-err" data-bot-err hidden></span></div>
+              <div class="tsp-row"><button type="button" class="btn btn--secondary btn--sm" data-bot-send>Gửi mã qua email</button><button type="button" class="btn btn--primary btn--sm" data-bot-confirm>Xác nhận mã</button></div>
+            </div>
+            <input class="tsp-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          </div>
+        </div>
+      </fieldset>
+      <p class="tsp-small"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+      <div class="tsp-actions">
+        <a class="btn btn--secondary btn--lg" href="tsu-10.html">Quay lại</a>
+        <button class="btn btn--primary btn--lg" type="submit" data-submit data-loading-in="sending"><span>Gửi khiếu nại</span><span class="btn__spinner" aria-hidden="true"></span></button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+</body>
+</html>

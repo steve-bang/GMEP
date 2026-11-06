@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-50 · Thư viện banner trạng thái tenant – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Thư viện banner trạng thái" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-B" data-on="chong"></div>
+    <div data-tsu-banner="BAN-A" data-on="chong" data-n="3" data-date="08/11/2026"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Thư viện banner trạng thái tenant</h1>
+      <p class="page-header__desc">Ba loại banner hiển thị đầu trang theo trạng thái công ty và thuê bao. Banner là component dùng chung, không phải màn riêng</p>
+    </div>
+  </div>
+
+  <div data-tsu-bar="thu-vien:Thư viện đầy đủ|chong:Hai banner chồng nhau (đầu trang)"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <section class="card" aria-labelledby="t50-q">
+      <div class="card__header"><h2 class="card__title" id="t50-q">Quy tắc chung</h2></div>
+      <div class="card__body">
+        <ul class="tsu-list">
+          <li>Đặt dưới thanh trên, trên đường dẫn và dải phạm vi; không che nội dung.</li>
+          <li>Chỉ BAN-C có nút đóng. BAN-A và BAN-B không đóng được.</li>
+          <li>Tối đa hai banner chồng nhau; trạng thái công ty (BAN-B) ưu tiên cao hơn thuê bao (BAN-A). BAN-A mức “đã hết” đã nêu việc hạn chế nên không chồng BAN-B hạn chế.</li>
+          <li>Mỗi banner nêu điều gì xảy ra, hậu quả với việc đang làm, cách khắc phục và liên kết. Số ngày, mốc, lý do lấy từ dữ liệu, không viết cứng (RULE-030); số trong prototype là minh họa.</li>
+          <li>Không chỉ dựa vào màu: mỗi banner có biểu tượng theo mức và nhãn chữ “Thông tin”, “Cảnh báo”, “Hạn chế”, “Chặn”.</li>
+<li>Hoãn sang phase sau: các banner liên quan thanh toán, hạn mức và điều khoản mới (cùng TSU-18). BAN-01 (đang thiết lập) bỏ vì không còn giai đoạn thiết lập kéo dài.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div id="t50-lib" class="tsu-stack">
+      <section class="card" aria-labelledby="ba"><div class="card__header"><h2 class="card__title" id="ba">BAN-A Dùng thử</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Dùng thử còn nhỏ hơn hoặc bằng mốc cảnh báo (cấu hình), hoặc đã hết (nấc N2); truy cập sớm đã kết thúc</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant (sắp hết); mọi người dùng (đã hết)</dd><dt>Mức và role</dt><dd>Cảnh báo; “sắp hết” dùng <code class="tsu-code">role="status"</code>, “đã hết” dùng <code class="tsu-code">role="alert"</code></dd></dl>
+        <p class="tsu-sub" style="margin:0">Sắp hết (chủ garage, quản trị tenant)</p><div data-tsu-banner="BAN-A" data-n="3" data-date="08/11/2026"></div>
+        <p class="tsu-sub" style="margin:0">Đã hết, chủ garage</p><div data-tsu-banner="BAN-A" data-variant="het"></div>
+        <p class="tsu-sub" style="margin:0">Đã hết, nhân viên</p><div data-tsu-banner="BAN-A" data-variant="het" data-view="NV"></div>
+        <p class="tsu-sub" style="margin:0">Truy cập sớm đã kết thúc, chủ garage</p><div data-tsu-banner="BAN-A" data-variant="truy-cap-som"></div></div></section>
+      <section class="card" aria-labelledby="bb"><div class="card__header"><h2 class="card__title" id="bb">BAN-B Hạn chế, tạm ngưng, chấm dứt</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty ở trạng thái <code class="tsu-code">restricted</code>, <code class="tsu-code">suspended</code> hoặc <code class="tsu-code">terminating</code></dd><dt>Ai thấy</dt><dd>Mọi người dùng; nhân viên chỉ thấy câu chung, không thấy lý do chi tiết</dd><dt>Mức và role</dt><dd>Hạn chế: cảnh báo; tạm ngưng, chấm dứt: chặn. <code class="tsu-code">role="alert"</code>, không đóng được</dd></dl>
+        <p class="tsu-sub" style="margin:0">Hạn chế, chủ garage</p><div data-tsu-banner="BAN-B"></div>
+        <p class="tsu-sub" style="margin:0">Hạn chế, nhân viên</p><div data-tsu-banner="BAN-B" data-view="NV"></div>
+        <p class="tsu-sub" style="margin:0">Tạm ngưng, chủ garage</p><div data-tsu-banner="BAN-B" data-variant="tam-ngung"></div>
+        <p class="tsu-sub" style="margin:0">Tạm ngưng, nhân viên</p><div data-tsu-banner="BAN-B" data-variant="tam-ngung" data-view="NV"></div>
+        <p class="tsu-sub" style="margin:0">Đang chấm dứt, chủ garage</p><div data-tsu-banner="BAN-B" data-variant="cham-dut" data-date="20/12/2026"></div></div></section>
+      <section class="card" aria-labelledby="bc"><div class="card__header"><h2 class="card__title" id="bc">BAN-C Chờ xác minh để xuất hóa đơn thật</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty <code class="tsu-code">active</code> nhưng chưa xác minh hoặc chưa cho biết nhà cung cấp hóa đơn điện tử (kết nối đạt)</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant, kế toán</dd><dt>Nơi hiện</dt><dd>Chỉ ở các màn hóa đơn và checklist “Thiết lập dần”, không hiện toàn ứng dụng</dd><dt>Mức và role</dt><dd>Thông tin, <code class="tsu-code">role="status"</code>, đóng được</dd></dl>
+        <div data-tsu-banner="BAN-C"></div></div></section>
+    </div>
+
+    <section class="card" aria-labelledby="t50-r">
+      <div class="card__header"><div><h2 class="card__title" id="t50-r">Quy tắc khóa nút (một quy tắc)</h2><div class="card__subtitle">Thay hai kiểu khóa nút của bản trước</div></div></div>
+      <div class="card__body"><ul class="tsu-list">
+        <li>Nút khóa dùng <code class="tsu-code">aria-disabled="true"</code>, vẫn focus được, có <code class="tsu-code">aria-describedby</code> trỏ tới lý do hiện sẵn cạnh nút. Không dùng thuộc tính <code class="tsu-code">disabled</code>.</li>
+        <li>Nếu lý do là trạng thái tenant (<code class="tsu-code">TENANT_RESTRICTED</code>, <code class="tsu-code">TENANT_SUSPENDED_READONLY</code>, <code class="tsu-code">TRIAL_EXPIRED</code>, <code class="tsu-code">TENANT_TERMINATING</code>): bấm nút mở hộp thoại TSU-51.</li>
+        <li>Nếu lý do khác (<code class="tsu-code">VERIFICATION_REQUIRED</code>): bấm chỉ đưa focus tới lý do. Không gọi máy chủ khi bấm nút khóa.</li>
+      </ul></div>
+    </section>
+
+    <section class="card" aria-labelledby="t50-c">
+      <div class="card__header"><div><h2 class="card__title" id="t50-c">Năm mã lý do khóa nút (state-copy.md §3.1, quy ước chữ HOA)</h2><div class="card__subtitle">Máy chủ trả mã, giao diện tra câu chữ. Hiện thành chữ cạnh nút, không chỉ tooltip. Hoãn sang phase sau: mã liên quan hạn mức và điều khoản mới (cùng TSU-18)</div></div></div>
+      <div class="card__body"><dl class="tsu-kv" id="t50-codes">
+        <dt><code class="tsu-code">TENANT_RESTRICTED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị tenant:</span> Công ty đang bị hạn chế tạo mới: {lý do}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.<br><span class="tsu-sub">Nhân viên:</span> Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.</dd>
+        <dt><code class="tsu-code">TENANT_SUSPENDED_READONLY</code></dt><dd>Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.</dd>
+        <dt><code class="tsu-code">TRIAL_EXPIRED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị công ty:</span> Dùng thử đã hết. Dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.<br><span class="tsu-sub">Nhân viên:</span> Dùng thử của công ty đã hết. Liên hệ {tên chủ garage}.<br><span class="tsu-sub">Truy cập sớm đã kết thúc:</span> Giai đoạn truy cập sớm đã kết thúc. Dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.</dd>
+        <dt><code class="tsu-code">TENANT_TERMINATING</code></dt><dd>Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến {dd/MM/yyyy}. Chưa có ngày thì bỏ cụm “, đến {dd/MM/yyyy}”.</dd>
+        <dt><code class="tsu-code">VERIFICATION_REQUIRED</code></dt><dd>Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}. Với hóa đơn: “Chưa xuất được hóa đơn thật. Trước đó, hóa đơn chỉ là bản nháp để thử.”</dd>
+      </dl></div>
+    </section>
+  </div>
+  <p class="tsu-test">Truy vết: FR-TEN-005, 025, 044, 049; RULE-021, 023, 030; AC-S18, S19; UAT-TEN-03, 16.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../ts-config.js"></script>
+<script src="../onboarding/tsu-app.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

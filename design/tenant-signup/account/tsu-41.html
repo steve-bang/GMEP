@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-41 · Dùng thử của tôi – GARAGE OS</title>
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../g1-auth-dashboard/pack.css">
+<link rel="stylesheet" href="../onboarding/pack.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-g1-shell data-tsu-mode="app" data-common="1" data-role="CH" data-g1-menu="set" data-crumb="Cài đặt|Dùng thử" data-no-scope>
+<div id="g1-content" hidden>
+  <div data-tsu-banners>
+    <div data-tsu-banner="BAN-A" data-on="trial-sap-het" data-n="3" data-date="08/11/2026"></div>
+    <div data-tsu-banner="BAN-A" data-variant="het" data-on="expired"></div>
+    <div data-tsu-banner="BAN-A" data-variant="truy-cap-som" data-on="truy-cap-som-het"></div>
+  </div>
+
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1>Dùng thử</h1>
+      <p class="page-header__desc">Thời gian dùng thử của Công ty TNHH Ô tô Phương Nam</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--secondary" href="tsu-55.html"><svg class="icon" aria-hidden="true"><use href="#download"/></svg>Xuất dữ liệu</a>
+    </div>
+  </div>
+  <div class="scope-banner scope-banner--branch" role="status"><svg class="icon icon--sm" aria-hidden="true"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty</span><span>· Cập nhật lúc <span class="num">09:15</span></span></div>
+
+  <div data-tsu-bar="trial:Dùng thử|trial-sap-het:Dùng thử sắp hết (còn 3 ngày)|truy-cap-som:Truy cập sớm|truy-cap-som-het:Truy cập sớm đã kết thúc|expired:Hết dùng thử|cho-cham-dut:Chờ chấm dứt|ad-xem:Quản trị công ty xem (không phải chủ garage)"></div>
+
+  <div data-tsu-main class="tsu-stack">
+    <div class="alert alert--warning" role="status" data-on="cho-cham-dut"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Yêu cầu chấm dứt đang chờ</span><span>Bạn gửi yêu cầu lúc <span class="num">08:40</span> ngày <span class="num">05/11/2026</span>. Trong lúc chờ, công ty vẫn hoạt động bình thường.</span><div class="alert__actions"><a class="btn btn--secondary btn--sm" href="tsu-56.html">Xem yêu cầu</a></div></div></div>
+
+    <section class="tsu-two" id="t41-exp" aria-labelledby="t41-eh" data-on="expired truy-cap-som-het">
+      <div class="tsu-notice"><span class="tsu-notice__ic tsu-notice__ic--warning" aria-hidden="true"><svg class="icon icon--lg"><use href="#clock"/></svg></span>
+        <div class="tsu-notice__body"><h2 id="t41-eh"><span data-on="expired">Dùng thử đã hết</span><span data-on="truy-cap-som-het">Giai đoạn truy cập sớm đã kết thúc</span></h2>
+          <p>Hết thời gian dùng thử, dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.</p>
+          <p class="tsu-sub">Từ <span class="num">12/11/2026</span> công ty chuyển sang chế độ chỉ xem. Đến lúc đó bạn vẫn xem dữ liệu, tải hóa đơn và hoàn tất các lệnh đang mở; chưa tạo mới được.</p>
+        </div></div>
+      <div class="card"><div class="card__header"><h2 class="card__title">Bạn làm được gì lúc này</h2></div>
+        <div class="card__body tsu-stack">
+          <ul class="tsu-list"><li>Xem dữ liệu và báo cáo.</li><li>Tải hóa đơn và chứng từ đã có.</li><li>Hoàn tất lệnh sửa chữa đang mở, thu tiền.</li></ul>
+          <div class="tsu-actions"><a class="btn btn--primary" href="#" data-support-call>Gọi hỗ trợ</a><a class="btn btn--secondary" href="tsu-55.html">Xuất dữ liệu</a></div>
+          <div class="ts-help ts-help--card" data-support="card"></div>
+        </div></div>
+    </section>
+
+    <section class="card" aria-labelledby="t41-s" data-off="expired truy-cap-som-het">
+      <div class="card__header"><h2 class="card__title" id="t41-s">Dùng thử</h2><span id="t41-badge"></span></div>
+      <div class="card__body tsu-stack">
+        <dl class="tsu-kv" id="t41-kv"></dl>
+        <p class="tsu-reason" id="t41-note"><svg class="icon icon--sm" aria-hidden="true"><use href="#info"/></svg><span>Hết thời gian dùng thử, dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.</span></p>
+        <div class="tsu-actions" id="t41-act"></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t41-h" data-off="expired truy-cap-som-het">
+      <div class="card__header"><h2 class="card__title" id="t41-h">Hỗ trợ</h2></div>
+      <div class="card__body"><div class="ts-help ts-help--card" data-support="card"></div></div>
+    </section>
+  </div>
+  <p class="tsu-test">Truy vết: FR-TEN-024, 025, 044; AC-S19. Giá, gói, hạn mức và thanh toán ẩn hoàn toàn, hoãn sang phase sau. Trạng thái dùng thử và trạng thái công ty là hai badge riêng. Số ngày và các mốc lấy từ cấu hình, số trong prototype là minh họa.</p>
+</div>
+<noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../ts-config.js"></script>
+<script src="../onboarding/tsu-app.js"></script>
+<script>
+(function () {
+  /* b: badge dùng thử; left: số ngày còn lại; end: ngày kết thúc; tenant: badge trạng thái công ty */
+  var D = {
+    'trial': { b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', left: '29 ngày' },
+    'trial-sap-het': { b: ['warning', 'Dùng thử'], start: '09/10/2026', end: '08/11/2026', left: '3 ngày' },
+    'truy-cap-som': { b: ['purple', 'Truy cập sớm'], start: '01/11/2026', end: 'Chưa xác định, chúng tôi sẽ báo trước', left: 'Chưa xác định' },
+    'cho-cham-dut': { b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', left: '29 ngày' },
+    'ad-xem': { b: ['info', 'Dùng thử'], start: '05/11/2026', end: '05/12/2026', left: '29 ngày', ad: true }
+  };
+  function render(name) {
+    var d = D[name]; if (!d) return;
+    var tb = d.tenant || ['success', 'Đang hoạt động'];
+    document.getElementById('t41-badge').innerHTML = '<span class="badge badge--' + d.b[0] + '"><span class="sr-only">Trạng thái dùng thử: </span>' + d.b[1] + '</span>';
+    document.getElementById('t41-kv').innerHTML = '<dt>Còn lại</dt><dd><strong class="num">' + d.left + '</strong></dd><dt>Ngày bắt đầu</dt><dd class="num">' + d.start + '</dd><dt>Ngày kết thúc</dt><dd class="num">' + d.end + '</dd><dt>Trạng thái công ty</dt><dd><span class="badge badge--' + tb[0] + '">' + tb[1] + '</span></dd>';
+    var act = d.ad
+      ? '<button type="button" class="btn btn--ghost" aria-disabled="true" aria-describedby="t41-why">Yêu cầu chấm dứt</button><span class="tsu-reason" id="t41-why"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage gửi được yêu cầu chấm dứt. Hãy báo cho chủ garage. <code>NO_PERMISSION</code></span></span>'
+      : '<a class="btn btn--ghost" href="tsu-56.html">Yêu cầu chấm dứt</a>';
+    document.getElementById('t41-act').innerHTML = act;
+  }
+  document.addEventListener('tsu:state', function (e) { if (D[e.detail]) render(e.detail); });
+  render(document.body.getAttribute('data-tsu-state'));
+})();
+</script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

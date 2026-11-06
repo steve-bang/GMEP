@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-23 · W3 Kho – GARAGE OS</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../onboarding/pack.css">
+</head>
+<body data-tsu-mode="wizard" data-step="3" data-validate-in="loi">
+<div id="tsu-content" hidden>
+  <div data-tsu-bar="trong:Trống|loi:Thiếu thông tin|trung:Trùng tên hoặc mã|da-tao:Đã tạo (quay lại sửa)"></div>
+
+  <p class="tsu-lead">Tạo kho phụ tùng cho chi nhánh vừa tạo. Truy vết: FR-TEN-043, 004; RULE-008, 009.</p>
+
+  <div class="alert alert--info" role="status" data-on="da-tao"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Bạn đã tạo kho này</span><span>“Kho phụ tùng Chi nhánh Quận 7” đã được lưu. Sửa thông tin rồi lưu lại.</span></div></div>
+
+  <form class="tsu-stack" novalidate onsubmit="return false" aria-label="Kho">
+    <section class="card" aria-labelledby="t23-a">
+      <div class="card__header"><h2 class="card__title" id="t23-a">Thông tin kho</h2></div>
+      <div class="card__body"><div class="form-grid">
+        <div class="field span-2"><label class="field__label" for="w3-name">Tên kho<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="w3-name" class="input" data-rule="req" data-label="Tên kho" data-min="2" data-max="100" data-fill="Kho phụ tùng Chi nhánh Quận 7" data-blank-in="trong loi" aria-required="true" aria-describedby="w3-name-e" data-invalid-on="trung">
+          <span class="field__error" id="w3-name-e" role="alert" data-on="trung"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Tên kho này đã có trong chi nhánh. Hãy đặt tên khác.</span></span></div>
+        <div class="field"><label class="field__label" for="w3-code">Mã kho<span class="field__req" aria-hidden="true">*</span></label>
+          <input id="w3-code" class="input" data-rule="req" data-label="Mã kho" data-pattern="^[A-Za-z0-9-]{2,8}$" data-msg-fmt="Mã kho gồm 2 đến 8 ký tự chữ, số hoặc dấu gạch ngang. Ví dụ: KHO-Q7." data-fill="KHO-Q7" data-blank-in="trong loi" autocapitalize="characters" spellcheck="false" aria-required="true" aria-describedby="w3-code-e" data-invalid-on="trung">
+          <span class="field__error" id="w3-code-e" role="alert" data-on="trung"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><span>Mã kho này đã dùng. Chọn mã khác.</span></span></div>
+        <div class="field"><label class="field__label" for="w3-br">Thuộc chi nhánh<span class="field__req" aria-hidden="true">*</span></label>
+          <select id="w3-br" class="select"><option selected>Chi nhánh Quận 7</option></select></div>
+        <div class="field"><label class="field__label" for="w3-type">Loại kho</label>
+          <select id="w3-type" class="select"><option selected>Kho phụ tùng chính</option><option>Kho phụ</option><option>Kho quầy</option></select></div>
+      </div></div>
+    </section>
+
+    <section class="card" aria-labelledby="t23-s">
+      <div class="card__header"><div><h2 class="card__title" id="t23-s">Tồn kho gồm 4 số</h2><div class="card__subtitle">Ví dụ minh họa một mặt hàng sau khi kho hoạt động</div></div></div>
+      <div class="card__body tsu-stack">
+        <div class="stock4">
+          <div class="stock4__cell"><span class="stock4__label">Thực tế</span><span class="stock4__value num">24</span></div>
+          <div class="stock4__cell"><span class="stock4__label">Giữ chỗ</span><span class="stock4__value num">6</span></div>
+          <div class="stock4__cell"><span class="stock4__label">Đang vận chuyển</span><span class="stock4__value num">10</span></div>
+          <div class="stock4__cell stock4__cell--available"><span class="stock4__label">Khả dụng</span><span class="stock4__value num">18</span></div>
+        </div>
+        <p class="tsu-note">Cảnh báo và xuất kho so với số khả dụng, không so với tồn thực tế. Chuyển kho giữa các chi nhánh là cấu hình sau, không có ở bước này.</p>
+      </div>
+    </section>
+  </form>
+  <p class="tsu-test"><span class="tsu-req" aria-hidden="true">*</span> Bắt buộc nhập</p>
+</div>
+<noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../../onboarding/tsu-app.js"></script>
+<script src="../../../assets/app.js"></script>
+</body>
+</html>

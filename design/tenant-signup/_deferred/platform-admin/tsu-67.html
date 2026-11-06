@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSU-67 · Điều khoản dịch vụ và DPA – Quản trị nền tảng</title>
+<link rel="stylesheet" href="../../../assets/tokens.css">
+<link rel="stylesheet" href="../../../assets/base.css">
+<link rel="stylesheet" href="../../../assets/components.css">
+<link rel="stylesheet" href="../../public/ts-public.css">
+<link rel="stylesheet" href="../../platform-admin/ts-admin.css">
+</head>
+<body class="tsa-app" data-tsa-page="67">
+<a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+<header class="tsa-top">
+  <a class="tsa-brand" href="tsu-61.html"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a>
+  <span class="tsa-label">Quản trị nền tảng</span>
+  <span class="tsa-top__spacer"></span>
+  <div class="tsa-user"><span>Lê Thu Hà · <strong>Chủ nền tảng</strong></span><button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối"><svg class="icon"><use href="#moon"/></svg></button><a class="btn btn--ghost btn--sm" href="../../platform-admin/tsu-60.html">Đăng xuất</a></div>
+</header>
+<div class="tsa-strip" role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><span>Màn này không hiển thị dữ liệu nghiệp vụ của garage</span></div>
+<div class="tsa-body">
+  <nav class="tsa-nav" aria-label="Quản trị nền tảng">
+    <a href="tsu-61.html"><svg class="icon" aria-hidden="true"><use href="#clipboard-list"/></svg>Hàng đợi đăng ký</a>
+    <a href="tsu-64.html"><svg class="icon" aria-hidden="true"><use href="#inbox"/></svg>Khiếu nại</a>
+    <a href="tsu-65.html"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg>Lỗi cấp phát</a>
+    <a href="../../platform-admin/tsu-66.html"><svg class="icon" aria-hidden="true"><use href="#settings"/></svg>Cấu hình đăng ký</a>
+    <a href="tsu-67.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#file-text"/></svg>Điều khoản và DPA</a>
+    <a href="tsu-68.html"><svg class="icon" aria-hidden="true"><use href="#package"/></svg>Danh mục gói</a>
+  </nav>
+  <main id="main" class="tsa-main" data-error-title="Chưa tải được danh sách phiên bản" data-offline-keep data-offline-text="Bạn đang mất kết nối mạng. Bạn vẫn xem và soạn được, nhưng chưa đăng được phiên bản mới cho đến khi có mạng.">
+    <div data-ts-views="list:Danh sách|empty:Trống|create:Tạo bản mới|confirm:Xác nhận hiệu lực (kéo theo chấp nhận lại)" data-ts-common="skel error offline" data-hint="TSU-67 · FR-TEN-037, RULE-029 · nội dung văn bản do luật sư soạn, màn này chỉ quản lý phiên bản. Ở trạng thái mở hộp thoại, nhấn Esc để đóng." data-wide></div>
+
+    <div class="tsa-head"><div class="tsa-head__text"><h1>Điều khoản dịch vụ và DPA</h1><p class="tsa-sub">Phiên bản đã có tenant chấp nhận không sửa hay xóa, chỉ tạo bản mới. Đặt hiệu lực một bản mới sẽ yêu cầu mọi tenant chấp nhận lại.</p></div>
+      <div class="tsa-head__actions"><button type="button" class="btn btn--primary" data-open="dlg-tver"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Tạo phiên bản mới</button></div></div>
+    <div class="tsp-alerts" data-ts-alerts hidden></div>
+
+    <div data-ts-body class="tsa-stack">
+      <div class="tsa-table table-wrap table-wrap--responsive" id="wrap67">
+        <div class="table-scroll">
+          <table class="table">
+            <caption class="sr-only">Phiên bản điều khoản dịch vụ và DPA</caption>
+            <thead><tr><th scope="col">Loại</th><th scope="col">Phiên bản</th><th scope="col">Ngày hiệu lực</th><th scope="col">Trạng thái</th><th scope="col">Người đăng</th><th scope="col" class="col-num">Tenant đã chấp nhận</th><th scope="col">Hành động</th></tr></thead>
+            <tbody id="tb67"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="record-list record-list--responsive" id="cards67" aria-label="Danh sách phiên bản"></div>
+      <div class="state" id="empty67" hidden>
+        <span class="state__icon state__icon--brand" aria-hidden="true"><svg class="icon icon--lg"><use href="#file-text"/></svg></span>
+        <h2 class="state__title">Chưa có phiên bản nào</h2>
+        <p class="state__text">Hãy tạo phiên bản đầu tiên của Điều khoản dịch vụ và DPA trước khi mở đăng ký.</p>
+        <div class="state__actions"><button type="button" class="btn btn--primary" data-open="dlg-tver">Tạo phiên bản mới</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay overlay--drawer" id="dlg-tver" role="dialog" aria-labelledby="tv-h">
+  <form class="drawer" data-ts-form novalidate data-success-close="dlg-tver" data-success-toast="success|Đã lưu bản nháp phiên bản mới|Bản nháp chưa có hiệu lực. Đặt hiệu lực khi đã sẵn sàng.">
+    <div class="drawer__head"><h2 id="tv-h">Tạo phiên bản mới</h2><button type="button" class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="drawer__body">
+      <div class="tsp-alerts" data-ts-alerts hidden></div>
+      <div class="field"><label class="field__label" for="tv-type">Loại văn bản<span class="field__req" aria-hidden="true">*</span></label><select class="select" id="tv-type" aria-required="true" data-rule="choose" data-label="loại văn bản"><option value="">Chọn loại</option><option>Điều khoản dịch vụ</option><option>Thỏa thuận xử lý dữ liệu (DPA)</option></select></div>
+      <div class="field"><label class="field__label" for="tv-ver">Tên phiên bản<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="tv-ver" aria-required="true" data-rule="required|len:2:20" data-label="tên phiên bản" data-msg-required="Nhập tên phiên bản, ví dụ v1.2." data-msg-len="Tên phiên bản dài 2 đến 20 ký tự."></div>
+      <div class="field"><span class="field__label" id="tv-up-l">Tệp PDF văn bản<span class="field__req" aria-hidden="true">*</span></span>
+        <div class="tsp-up" data-upload data-required data-max-mb="20" data-max-files="1" id="tv-up" role="group" aria-labelledby="tv-up-l">
+          <div class="tsp-up__head"><span class="field__hint" id="tv-up-h">PDF. Tối đa 20 MB, 1 tệp (tham số).</span><label class="btn btn--secondary btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#upload"/></svg>Chọn tệp<input type="file" class="tsp-up__file-input" accept=".pdf" aria-label="Chọn tệp PDF văn bản" aria-describedby="tv-up-h"></label></div>
+          <ul class="tsp-files" data-files aria-label="Tệp đã chọn"></ul>
+          <span class="field__error" role="alert" data-up-err hidden></span>
+        </div></div>
+      <div class="field"><label class="field__label" for="tv-body">Nội dung hiển thị trong hộp thoại đọc<span class="field__req" aria-hidden="true">*</span></label><textarea class="textarea" id="tv-body" rows="4" aria-required="true" data-rule="required|len:10:200000" data-label="nội dung văn bản" data-msg-len="Nội dung cần ít nhất 10 ký tự."></textarea><span class="field__hint">Văn bản do luật sư soạn. Prototype không chứa nội dung pháp lý.</span></div>
+      <div class="form-grid">
+        <div class="field"><label class="field__label" for="tv-eff">Ngày hiệu lực (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="tv-eff" inputmode="numeric" aria-required="true" data-rule="date" data-label="ngày hiệu lực" value="01/01/2027"></div>
+        <div class="field"><label class="field__label" for="tv-grace">Hạn chấp nhận lại (dd/MM/yyyy)<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="tv-grace" inputmode="numeric" aria-required="true" data-rule="date" data-label="hạn chấp nhận lại" data-msg-required="Chọn hạn chấp nhận lại." value="15/01/2027" aria-describedby="tv-grace-h"><span class="field__hint" id="tv-grace-h">Hết hạn này tenant không được chọn “Để sau”.</span></div>
+      </div>
+      <div class="field"><label class="field__label" for="tv-sum">Tóm tắt thay đổi (hiển thị cho tenant ở TSU-18)<span class="field__req" aria-hidden="true">*</span></label><textarea class="textarea" id="tv-sum" rows="3" aria-required="true" data-rule="required|len:10:500" data-label="tóm tắt thay đổi" data-msg-len="Tóm tắt cần từ 10 đến 500 ký tự."></textarea></div>
+    </div>
+    <div class="drawer__foot"><p class="tsp-reason" id="rsn-67"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><span></span></p><button type="button" class="btn btn--secondary" data-close>Hủy</button><button type="submit" class="btn btn--primary" data-submit data-requires-upload data-text-upload="Chưa thể lưu: cần tải lên tệp PDF văn bản." data-reason-id="rsn-67"><span>Lưu bản nháp</span><span class="btn__spinner" aria-hidden="true"></span></button></div>
+  </form>
+</div>
+
+<div class="overlay" id="dlg-teff" role="dialog" aria-labelledby="tv-eff-h">
+  <div class="dialog">
+    <div class="dialog__header"><span class="dialog__icon dialog__icon--danger"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg></span><div><h2 class="dialog__title" id="tv-eff-h">Đặt hiệu lực phiên bản</h2><p class="tsa-note" id="tv-eff-t"></p></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body">
+      <ul class="impact-list"><li>Mọi tenant sẽ được yêu cầu chấp nhận lại khi đăng nhập.</li><li>Tenant chưa chấp nhận bị chặn nhập dữ liệu thật và kích hoạt sau thời gian ân hạn.</li><li>Sau khi có tenant chấp nhận, phiên bản không sửa hay xóa được.</li></ul>
+      <div class="field"><label class="field__label" for="tv-guard">Gõ HIEU LUC để mở nút</label><input class="input" id="tv-guard" data-guard-input data-word="HIEU LUC" autocomplete="off"></div>
+    </div>
+    <div class="dialog__footer"><button type="button" class="btn btn--secondary" data-close>Hủy</button><button type="button" class="btn btn--danger" id="tv-eff-ok" data-guard-btn disabled aria-disabled="true">Đặt hiệu lực</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-accepted" role="dialog" aria-labelledby="tv-acc-h">
+  <div class="dialog dialog--md">
+    <div class="dialog__header"><div><h2 class="dialog__title" id="tv-acc-h">Tenant đã và chưa chấp nhận</h2><p class="tsa-note">Chỉ hiển thị tên và ngày, không có dữ liệu nghiệp vụ.</p></div><button type="button" class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+    <div class="dialog__body"><div class="table-scroll"><table class="tsa-mini"><caption class="sr-only">Tenant và ngày chấp nhận</caption><thead><tr><th scope="col">Tenant</th><th scope="col">Trạng thái</th><th scope="col">Ngày</th></tr></thead><tbody>
+      <tr><td>Công ty TNHH Ô tô Việt Hưng</td><td><span class="badge badge--success">Đã chấp nhận</span></td><td class="num">04/11/2026</td></tr>
+      <tr><td>Garage Bình Minh</td><td><span class="badge badge--success">Đã chấp nhận</span></td><td class="num">02/11/2026</td></tr>
+      <tr><td>Công ty CP Ô tô Xanh</td><td><span class="badge badge--warning">Chưa chấp nhận</span></td><td class="num">Không có</td></tr>
+    </tbody></table></div></div>
+    <div class="dialog__footer"><button type="button" class="btn btn--primary" data-close>Đóng</button></div>
+  </div>
+</div>
+
+<noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
+<script src="../../../assets/app.js"></script>
+<script src="../../ts-common.js"></script>
+<script src="../../platform-admin/ts-admin.js"></script>
+</body>
+</html>
