@@ -327,7 +327,7 @@ Nhà cung cấp hóa đơn như MISA meInvoice cho tích hợp qua API hoặc SD
 | Mã | Yêu cầu chức năng | Ưu tiên | Tiêu chí nghiệm thu | BR |
 | --- | --- | --- | --- | --- |
 | FR-RPT-001 | Dashboard chủ garage: doanh thu, lợi nhuận gộp, số xe, xe trong xưởng, giá trị tồn kho, công nợ; lọc theo chi nhánh và thời gian | Must | Tổng các chi nhánh bằng số toàn chuỗi; đổi bộ lọc thì số liệu đổi theo | BR-RPT-01 |
-| FR-RPT-002 | So sánh chi nhánh theo chỉ số được chọn (xếp hạng chi nhánh); so sánh theo thời gian trên báo cáo tháng một chi nhánh xem "Làm rõ FR-RPT-002" bên dưới `[Cần xác nhận]` | Must | Bảng xếp hạng đúng thứ tự, tính trên cùng kỳ; tiêu chí so sánh theo thời gian: AC-RPT-002-1 đến 8 | BR-RPT-01 |
+| FR-RPT-002 | So sánh chi nhánh theo chỉ số được chọn (xếp hạng chi nhánh); so sánh theo thời gian trên báo cáo tháng một chi nhánh xem "Làm rõ FR-RPT-002" bên dưới `[Cần xác nhận]` | Must | Bảng xếp hạng đúng thứ tự, tính trên cùng kỳ; tiêu chí so sánh theo thời gian: AC-RPT-002-1 đến 9 | BR-RPT-01 |
 | FR-RPT-003 | Báo cáo chi nhánh theo ngày và tháng | Must | Số doanh thu ngày khớp tổng phiếu thu và công nợ phát sinh của ngày | BR-RPT-02 |
 | FR-RPT-004 | Báo cáo đối chiếu giữa lệnh sửa chữa, xuất kho, hóa đơn và thu tiền | Must | Liệt kê được lệnh thiếu một trong bốn thành phần | BR-RPT-03 |
 | FR-RPT-005 | Báo cáo kho: tồn, hàng chậm luân chuyển, hàng dưới định mức, chênh lệch kiểm kê | Should | Mỗi dòng đi sâu tới phiếu nhập, xuất | BR-RPT-02 |
@@ -362,6 +362,7 @@ FR-RPT-002 gốc là xếp hạng nhiều chi nhánh (thuộc báo cáo hợp nh
 | AC-RPT-002-6 | Chỉ số dòng chảy trong kỳ (doanh thu, số lệnh hoàn tất, tiền thu) có so sánh; chỉ số tồn tại một thời điểm (công nợ tồn, lệnh đang mở) có hoặc không có so sánh là quyết định chưa chốt | Dòng chảy: mặc định; chỉ số tồn `[Cần xác nhận]` |
 | AC-RPT-002-7 | So sánh tôn trọng bộ lọc loại dịch vụ và phạm vi quyền; tổng theo loại cộng "Không gắn lệnh" vẫn bằng tổng không lọc ở cả hai kỳ | Chốt (R108) |
 | AC-RPT-002-8 | So sánh giữa các chi nhánh (xếp hạng) thuộc báo cáo hợp nhất, ngoài phạm vi pilot | Chốt (R85) |
+| AC-RPT-002-9 | Chỉ số dẫn xuất "bình quân mỗi lệnh" = doanh thu chưa thuế / số lệnh hoàn tất cùng kỳ, VND nguyên làm tròn nửa lên, tính lại theo bộ lọc (không cộng dồn qua loại). Kỳ nào có 0 lệnh thì giá trị, chênh lệch và phần trăm đều "—" (không phải 0, không "mới"). Tổng giá trị lệnh gồm thuế và giá trị hóa đơn đã xuất không có cột so sánh ở pilot (R114) | `[Cần xác nhận]` (Chủ dự án, Kế toán) |
 
 ## 10. FR: Quản trị hệ thống, đa chi nhánh, nhật ký (SYS)
 
