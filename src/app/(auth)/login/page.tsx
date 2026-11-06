@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { safeNext } from '@/platform/http/safeNext';
 import { SESSION_COOKIE } from '@/platform/http/cookies';
 import { resolveSession } from '@/modules/sys';
 import { getContainer } from '@/composition/container';
@@ -17,13 +18,14 @@ export default async function LoginPage({
 }) {
   const t = await getTranslations();
   const sp = await searchParams;
+  const next = safeNext(sp.next);
   const cookie = (await cookies()).get(SESSION_COOKIE)?.value;
   if (cookie) {
     const ok = await resolveSession(getContainer().sys, cookie).then(
       () => true,
       () => false,
     );
-    if (ok) redirect('/');
+    if (ok) redirect(next);
   }
   return (
     <AuthLayout
@@ -41,7 +43,7 @@ export default async function LoginPage({
           </div>
         </div>
       ) : null}
-      <LoginForm />
+      <LoginForm next={next} />
       <div className="g1-auth-links">
         <Link href="/forgot-password">{t('login.forgot')}</Link>
       </div>

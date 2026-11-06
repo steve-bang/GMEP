@@ -43,7 +43,7 @@ test.describe('walking skeleton: login -> list -> logout (FR-SYS-001, FR-SYS-005
     await page.getByTestId('logout').click();
     await expect(page).toHaveURL(/\/login$/);
     await page.goto('/sys/warehouses');
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/login\?next=%2Fsys%2Fwarehouses$/);
 
     // replaying the old cookie is rejected by the API
     const replay = await page.request.get('/api/v1/auth/me', {
@@ -82,7 +82,7 @@ test.describe('walking skeleton: login -> list -> logout (FR-SYS-001, FR-SYS-005
     page,
   }) => {
     await page.goto('/sys/warehouses');
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/login\?next=%2Fsys%2Fwarehouses$/);
     await loginOk(page, 'norole@demo.gmep.test');
     await page.goto('/sys/warehouses');
     await expect(page.getByText('Bạn chưa có quyền xem mục này')).toBeVisible();

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button } from '@/ui/components/Button';
 import { Icon } from '@/ui/components/Icon';
 import {
@@ -34,13 +34,22 @@ export function ForgotForm({
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState<RetryAfter | null>(null);
   const left = useCountdown(retry);
+  const alertRef = useRef<HTMLDivElement>(null);
+  const [fieldError, setFieldError] = useState<string | null>(null);
+  useEffect(() => {
+    if (error) alertRef.current?.focus();
+  }, [error]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const identifier = String(new FormData(e.currentTarget).get('identifier') ?? '').trim();
-    if (!identifier) return setError(labels.required);
-    setBusy(true);
+    setFieldError(null);
     setError(null);
+    if (!identifier) {
+      setFieldError(labels.required);
+      return document.getElementById('forgot-identifier')?.focus();
+    }
+    setBusy(true);
     const r = await postJson('/api/v1/auth/forgot-password', 'POST', { identifier }, newKey());
     setBusy(false);
     if (r.ok) return setSent(true);
@@ -67,7 +76,7 @@ export function ForgotForm({
   return (
     <form className="g1-form" onSubmit={onSubmit} noValidate>
       {error ? (
-        <div className="alert alert--danger" role="alert">
+        <div className="alert alert--danger" role="alert" tabIndex={-1} ref={alertRef}>
           <Icon name="alert-triangle" />
           <div className="alert__body">
             <span>{error}</span>
@@ -88,7 +97,14 @@ export function ForgotForm({
             autoCapitalize="none"
             spellCheck={false}
             aria-required="true"
+            aria-invalid={fieldError ? true : undefined}
+            aria-describedby={fieldError ? 'forgot-identifier-err' : undefined}
           />
+          {fieldError ? (
+            <span className="field__error" id="forgot-identifier-err">
+              {fieldError}
+            </span>
+          ) : null}
         </div>
       </fieldset>
       <Button type="submit" variant="primary" size="lg" block loading={busy} disabled={left > 0}>
