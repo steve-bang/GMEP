@@ -4,6 +4,8 @@ Trạng thái: **192 trên 200** (đợt hai MT-0 06/11/2026 không thêm hình 
 
 Bảng dưới sinh bằng `pnpm exec tsx --tsconfig tsconfig.json scripts/check-indexes.ts --report` (chỉ in, không ghi tệp; `--budget` là bí danh cũ). Cùng lệnh in số ứng viên trùng tiền tố và số chỉ mục không truy vấn nào dùng. Mỗi chỉ mục được ánh xạ sang các hình truy vấn trong `src/infrastructure/repos/queries.ts` mà nó phục vụ; không chỉ mục nào mồ côi và không chỉ mục nào là tiền tố của chỉ mục khác (`--report`, xem cuối bảng).
 
+> Slice 2.5 (phê duyệt, 06/11/2026): **0 chỉ mục mới, vẫn 192/200.** `approvalDelegations.byTenant` chỉ lọc theo `tenantId` (đơn trường, tự động); hàng chờ và việc chuyển cấp dùng lại `approvals.byBranchStatus`. Slice 2.1 song song: số liệu đầu vào là 192, còn 3 chỗ dưới ngưỡng fail 195.
+
 ## Chính sách
 
 1. Giai đoạn 1 còn lại: không phân hệ nào thêm chỉ mục. Cần truy vấn mới thì: (a) dùng lại hình truy vấn có sẵn, (b) đọc theo khóa, (c) lọc trong bộ nhớ trên tập có giới hạn, hoặc (d) phi chuẩn hóa một trường khóa (cách RPT đã làm với `rollups/<branchId>_<yyyyMMdd>`).
