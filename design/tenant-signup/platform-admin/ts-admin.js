@@ -6,7 +6,7 @@
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-  function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
+  function ic(n, c) { return '<svg class="icon' + (c ? ' ' + esc(c) : '') + '" aria-hidden="true"><use href="#' + esc(n) + '"/></svg>'; }
   function toast(k, t, x) { if (window.gmepToast) window.gmepToast(k, t, x); }
   function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase(); }
   var sel30 = null;  /* hồ sơ đang chọn ở TSX-30 */
