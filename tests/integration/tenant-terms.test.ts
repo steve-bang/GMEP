@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
+  decideTenantTransition,
   getTenant,
   provisionTenant,
   recordTermsAcceptance,
@@ -177,5 +178,31 @@ describe.each(backends)('tenant terms acceptance [%s]', (backend) => {
     });
     expect(after.status, after.text).toBeLessThan(500);
     expect(after.status).not.toBe(409);
+  });
+
+  it('MT0-2: a suspended tenant is read-only for writes but can still export and sync invoices', async () => {
+    const ql = await h.loginAt('u_ql_q7', 'br_q7');
+    const cnt2: PlatformActor = { ...cnt, platformUserId: 'pf_owner2', displayName: 'CNT2' };
+    const t = await getTenant(sys(), cnt, 'tnt_demo');
+    await transitionTenant(
+      sys(),
+      cnt,
+      'tnt_demo',
+      { to: 'suspended', reason: 'Kiểm thử chỉ đọc', version: t.version },
+      rid(),
+    );
+    await decideTenantTransition(sys(), cnt2, 'tnt_demo', { decision: 'approve' }, rid());
+    const write = await h.call('POST', '/api/v1/crm/customers', {
+      cookie: ql,
+      key: 'ro-write-00000000000001',
+      body: { name: 'Khách thử' },
+    });
+    expect(write.status).toBe(403);
+    expect(JSON.stringify(write.json)).toMatch(/tenant_read_only/);
+    // export and invoice sync are not stopped by the read-only gate (the body may still be refused on its own merits)
+    const exp = await h.call('POST', '/api/v1/rpt/export', { cookie: ql, body: {} });
+    expect(JSON.stringify(exp.json ?? {})).not.toMatch(/tenant_read_only/);
+    const sync = await h.call('POST', '/api/v1/ein/invoices/inv_none/sync', { cookie: ql });
+    expect(JSON.stringify(sync.json ?? {})).not.toMatch(/tenant_read_only/);
   });
 });

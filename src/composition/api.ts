@@ -53,6 +53,18 @@ export function api(handler: (c: ApiCtx) => Promise<Response>) {
   );
 }
 
+/**
+ * MT0-2: what a read-only tenant (`suspended`, `terminating`) may still POST: the working-branch picker (session state
+ * only), data exports (the tenant's right to take its data out) and the invoice status sync with the provider.
+ */
+const READ_ONLY_ALLOWED = [
+  /^\/api\/v1\/sys\/scope$/,
+  /\/export$/,
+  /^\/api\/v1\/ein\/invoices\/[^/]+\/sync$/,
+];
+const readOnlyAllowed = (pathname: string): boolean =>
+  READ_ONLY_ALLOWED.some((r) => r.test(pathname));
+
 export function authed(
   handler: (c: AuthedCtx) => Promise<Response>,
   options: { multipart?: boolean } = {},
@@ -62,10 +74,7 @@ export function authed(
       const session = await authenticate(c.req);
       // analysis 5.1: a suspended or terminating tenant is read-only. Choosing a tenant and signing out stay possible
       // (those routes use `api`, not `authed`); the working-branch picker only changes session state.
-      if (
-        !['GET', 'HEAD'].includes(c.req.method) &&
-        new URL(c.req.url).pathname !== '/api/v1/sys/scope'
-      )
+      if (!['GET', 'HEAD'].includes(c.req.method) && !readOnlyAllowed(new URL(c.req.url).pathname))
         assertTenantWritable(session.tenantStatus);
       try {
         return await handler({
