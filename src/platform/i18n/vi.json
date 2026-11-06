@@ -37,6 +37,10 @@
       "title": "Công ty đang ở chế độ chỉ đọc",
       "detail": "Công ty này đang tạm ngưng hoặc đang chấm dứt nên chỉ xem và tải dữ liệu được."
     },
+    "terms_acceptance_required": {
+      "title": "Chưa ghi nhận điều khoản và DPA",
+      "detail": "Công ty chưa có bản ghi chấp thuận Điều khoản sử dụng và Thỏa thuận xử lý dữ liệu, nên chưa nhập dữ liệu thật, phát hành hóa đơn thật hoặc đưa vào vận hành."
+    },
     "tenant_code_taken": {
       "title": "Mã công ty đã tồn tại",
       "detail": "Mã công ty này đã được dùng cho một yêu cầu cấp phát khác."
@@ -1573,6 +1577,7 @@
       "config_propose": "Đề xuất cấu hình",
       "tenant_created": "Tạo tenant",
       "tenant_status_changed": "Đổi trạng thái tenant",
+      "tenant_terms_accepted": "Ghi nhận chấp thuận điều khoản và DPA",
       "tenant_transition_requested": "Đề xuất đổi trạng thái tenant",
       "tenant_transition_rejected": "Từ chối đổi trạng thái tenant",
       "tenant_provision_step": "Bước cấp phát tenant",
@@ -3573,6 +3578,7 @@
       "existing": "Lệnh này đã có hóa đơn hợp lệ. Nếu cần sửa, dùng điều chỉnh hoặc thay thế.",
       "warnTax": "Thuế suất {key} đã đổi từ {from} sang {to} kể từ báo giá. Kế toán cần xác nhận thuế suất áp dụng.",
       "issue_provider_not_activated": "Chưa chọn nhà cung cấp hóa đơn điện tử.",
+      "issue_terms_not_accepted": "Công ty chưa có bản ghi chấp thuận Điều khoản và DPA nên chưa phát hành hóa đơn thật.",
       "issue_issuer_incomplete": "Đơn vị phát hành của chi nhánh chưa đủ thông tin.",
       "issue_order_not_eligible": "Lệnh chưa qua kiểm tra chất lượng.",
       "issue_order_cancelled": "Lệnh đã hủy.",
