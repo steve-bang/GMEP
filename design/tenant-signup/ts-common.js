@@ -8,7 +8,14 @@
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
-  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+  /* Chỉ điều hướng tới địa chỉ cùng nguồn gốc (file: trong bản xem thử), chặn javascript: và trang ngoài */
+  function safeGo(u) {
+    try {
+      var x = new URL(String(u), location.href);
+      if (x.protocol === location.protocol && (location.protocol === 'file:' || x.origin === location.origin)) location.href = x.href;
+    } catch (err) { /* địa chỉ không hợp lệ: bỏ qua */ }
+  }
   function toast(k, t, x) { if (window.gmepToast) window.gmepToast(k, t, x); }
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -288,11 +295,11 @@
       if (f.hasAttribute('data-clear-draft')) lsDel('tsu-draft');
       var sv = f.getAttribute('data-success-view');
       var rt = typeof window.tsRoute === 'function' ? window.tsRoute(f) : '';   /* mô phỏng kết quả máy chủ theo giá trị thử */
-      if (rt) { if (rt.indexOf('.html') >= 0) location.href = rt; else { setView(rt); var rf = $('[data-focus-in-' + rt + ']') || $$('[data-alert-focus]').filter(function (x) { return x.offsetParent !== null; })[0]; if (rf) rf.focus(); } refreshSubmit(); return; }
+      if (rt) { if (rt.indexOf('.html') >= 0) safeGo(rt); else { setView(rt); var rf = $('[data-focus-in-' + rt + ']') || $$('[data-alert-focus]').filter(function (x) { return x.offsetParent !== null; })[0]; if (rf) rf.focus(); } refreshSubmit(); return; }
       var sc = f.getAttribute('data-success-close'); if (sc && window.gmepClose) window.gmepClose(document.getElementById(sc));
       if (f.getAttribute('data-success-toast')) { var p = f.getAttribute('data-success-toast').split('|'); toast(p[0], p[1], p[2]); }
       if (sv) { setView(sv); var r = $$('[data-focus-result]').filter(function (x) { return x.offsetParent !== null; })[0]; if (r) r.focus(); }
-      else { var nx = f.getAttribute('data-next'); if (nx) setTimeout(function () { location.href = nx; }, f.getAttribute('data-success-toast') ? 900 : 0); else refreshSubmit(); }
+      else { var nx = f.getAttribute('data-next'); if (nx) setTimeout(function () { safeGo(nx); }, f.getAttribute('data-success-toast') ? 900 : 0); else refreshSubmit(); }
     }, 700);
   });
   document.addEventListener('focusout', function (e) {

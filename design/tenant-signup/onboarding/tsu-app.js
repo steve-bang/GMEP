@@ -18,7 +18,22 @@
   var D = document, B = D.body;
   function $(s, r) { return (r || D).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || D).querySelectorAll(s)); }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  /* Chỉ điều hướng tới địa chỉ cùng nguồn gốc (file: trong bản xem thử), chặn javascript: và trang ngoài */
+  function safeGo(u) {
+    try {
+      var x = new URL(String(u), location.href);
+      if (x.protocol === location.protocol && (location.protocol === 'file:' || x.origin === location.origin)) location.href = x.href;
+    } catch (err) { /* địa chỉ không hợp lệ: bỏ qua */ }
+  }
+  /* Thay <template data-slot=name> bằng chính các node đã có, giữ nguyên listener và không đi qua innerHTML */
+  function fillSlot(root, name, src, childrenOnly) {
+    var s = root.querySelector('template[data-slot="' + name + '"]'); if (!s) return;
+    var f = D.createDocumentFragment();
+    if (src && childrenOnly) { while (src.firstChild) f.appendChild(src.firstChild); }
+    else if (src) f.appendChild(src);
+    s.parentNode.replaceChild(f, s);
+  }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
   function list(v) { return (v || '').split(/\s+/).filter(Boolean); }
 
@@ -217,22 +232,21 @@
     /* Chân trang dính */
     var foot = '';
     var custom = $('[data-tsu-foot]', content);
-    if (custom) { custom.parentNode.removeChild(custom); foot = custom.outerHTML; }
+    if (custom) { custom.parentNode.removeChild(custom); foot = '<template data-slot="foot"></template>'; }
     else if (step >= 1 && step <= 8) {
       var skip = !cfg.req ? '<button type="button" class="btn btn--secondary" data-open="dlg-skip" data-disable-in="loading saving">Bỏ qua bước này</button>' : '';
-      foot = '<div class="tsu-foot" role="group" aria-label="Điều hướng bước"><a class="btn btn--secondary" href="' + prevHref + '">Quay lại</a>' +
+      foot = '<div class="tsu-foot" role="group" aria-label="Điều hướng bước"><a class="btn btn--secondary" href="' + esc(prevHref) + '">Quay lại</a>' +
         '<button type="button" class="btn btn--ghost" data-open="dlg-exit">Lưu nháp và thoát</button><span class="tsu-foot__sp"></span>' + skip +
         '<button type="button" class="btn btn--primary tsu-foot__primary" data-tsu-next data-disable-in="offline loading saving"><span>Lưu và tiếp tục</span></button>' +
         '<p class="tsu-foot__reason" data-on="offline">' + ic('wifi-off', 'icon--sm') + 'Đang mất kết nối: thao tác này cần mạng. Nháp được giữ trên thiết bị.</p></div>';
     }
 
-    var tmp = D.createElement('div'); tmp.innerHTML = content.innerHTML;
-    var bodyNodes = tmp.innerHTML;
     var barBlock = barHtml(items);
     var shell = '<div class="tsu-wz">' + top + strip +
       '<div class="tsu-wz__body' + (nosteps ? ' tsu-wz__body--simple' : '') + '">' + stepsHtml +
-      '<main class="tsu-wz__main" id="main" tabindex="-1"><div class="tsu-wz__content' + (B.hasAttribute('data-wide') ? ' tsu-wz__content--wide' : '') + '">' + barBlock + (withCommon ? commonBlocks() : '') + '<div class="tsu-body"' + (withCommon ? ' data-off="loading error"' : '') + '>' + head + bodyNodes + '</div></div>' + foot + '</main></div></div>';
+      '<main class="tsu-wz__main" id="main" tabindex="-1"><div class="tsu-wz__content' + (B.hasAttribute('data-wide') ? ' tsu-wz__content--wide' : '') + '">' + barBlock + (withCommon ? commonBlocks() : '') + '<div class="tsu-body"' + (withCommon ? ' data-off="loading error"' : '') + '>' + head + '<template data-slot="body"></template></div></div>' + foot + '</main></div></div>';
     var root = D.createElement('div'); root.innerHTML = shell;
+    fillSlot(root, 'foot', custom, false); fillSlot(root, 'body', content, true);
     var skipLink = D.createElement('a'); skipLink.className = 'skip-link'; skipLink.href = '#main'; skipLink.textContent = 'Bỏ qua điều hướng, tới nội dung chính';
     B.insertBefore(root.firstChild, B.firstChild); B.insertBefore(skipLink, B.firstChild);
     content.remove();
@@ -268,11 +282,11 @@
 
     var foot = '';
     var custom = $('[data-tsu-foot]', content);
-    if (custom) { custom.parentNode.removeChild(custom); foot = custom.outerHTML; }
-    var bodyNodes = content.innerHTML;
+    if (custom) { custom.parentNode.removeChild(custom); foot = '<template data-slot="foot"></template>'; }
     var shell = '<div class="tsu-wz">' + top + strip + '<div class="tsu-wz__body tsu-wz__body--simple"><main class="tsu-wz__main" id="main" tabindex="-1"><div class="tsu-wz__content">' +
-      barHtml(items) + commonBlocks() + '<div class="tsu-body" data-off="loading error">' + bodyNodes + '</div></div>' + foot + '</main></div></div>';
+      barHtml(items) + commonBlocks() + '<div class="tsu-body" data-off="loading error"><template data-slot="body"></template></div></div>' + foot + '</main></div></div>';
     var root = D.createElement('div'); root.innerHTML = shell;
+    fillSlot(root, 'foot', custom, false); fillSlot(root, 'body', content, true);
     var skipLink = D.createElement('a'); skipLink.className = 'skip-link'; skipLink.href = '#main'; skipLink.textContent = 'Bỏ qua điều hướng, tới nội dung chính';
     B.insertBefore(root.firstChild, B.firstChild); B.insertBefore(skipLink, B.firstChild);
     content.remove();
@@ -440,13 +454,13 @@
     }
     var home = t.closest('[data-tsu-home]');
     if (home && mode === 'wizard' && T.dirty && window.gmepOpen) { e.preventDefault(); window.gmepOpen('dlg-leave'); return; }
-    var go = t.closest('[data-go]'); if (go) { location.href = go.getAttribute('data-go'); return; }
+    var go = t.closest('[data-go]'); if (go) { safeGo(go.getAttribute('data-go')); return; }
     var nx = t.closest('[data-tsu-next]');
     if (nx) {
       e.preventDefault();
       if (!nx.hasAttribute('data-no-validate') && !T.validate()) return;
       var dest = nx.getAttribute('data-href') || nextHref;
-      setState('saving'); setTimeout(function () { location.href = dest; }, 700);
+      setState('saving'); setTimeout(function () { safeGo(dest); }, 700);
     }
   });
   D.addEventListener('focusout', function (e) {
