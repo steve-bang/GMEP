@@ -1,12 +1,12 @@
 # Ngân sách chỉ mục composite Firestore (R68, việc 4a)
 
-Trạng thái: **168 trên 200** (cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`; còn 27 chỗ trước ngưỡng fail). Số đúng đo bằng `pnpm check:indexes`: **trước slice 2.1 là 192** (các tài liệu từng ghi 191, 192, 193 do lệch từng đợt: 193 là số trước khi bỏ `users.byEmployeeCode` ở MT-0; CLAUDE.md, tài liệu này và `multi-tenant-requirements-for-dev.md` §5 nay cùng ghi số đo thật). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra nhiều hơn vì có thêm 7 chính sách TTL trong `fieldOverrides`; TTL không tính vào hạn mức 200 composite. Mọi hình truy vấn nghiệp vụ phải có `tenantId` (test `tests/unit/tenant-invariants.test.ts`).
+Trạng thái: **169 trên 200 sau khi gộp các slice 2.1, 2.5, 2.6a** (cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`; còn 26 chỗ trước ngưỡng fail). Slice 2.1 giảm 192 xuống 168 (`auditLogs` 32 xuống 8), 2.6a thêm `laborSheets.byBranch` (+1), 2.5 không thêm. Số đúng đo bằng `pnpm check:indexes`: **trước slice 2.1 là 192** (các tài liệu từng ghi 191, 192, 193 do lệch từng đợt: 193 là số trước khi bỏ `users.byEmployeeCode` ở MT-0; CLAUDE.md, tài liệu này và `multi-tenant-requirements-for-dev.md` §5 nay cùng ghi số đo thật). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra nhiều hơn vì có thêm 7 chính sách TTL trong `fieldOverrides`; TTL không tính vào hạn mức 200 composite. Mọi hình truy vấn nghiệp vụ phải có `tenantId` (test `tests/unit/tenant-invariants.test.ts`).
 
 ## Đề xuất giải ngân sách của slice 2.1 (đã làm)
 
 | | Trước | Sau |
 | --- | ---: | ---: |
-| Composite | 192 | **168** |
+| Composite | 192 | **168** (169 sau khi gộp 2.6a) |
 | Hình truy vấn đăng ký | 195 | 171 |
 | `auditLogs` | 32 | 8 |
 
@@ -18,7 +18,7 @@ Trạng thái: **168 trên 200** (cảnh báo từ 190, FAIL trên 195 theo `src
 
 **Đo tải đọc hợp nhất** (bộ nhớ, `tests/integration/consolidation.test.ts`, đếm `stats.reads`): xem `docs/dev/status.md` mục slice 2.1 (8 và 20 chi nhánh, một ngày và 31 ngày). Đã thêm chunk 200 id cho `DocRollupRepository.getMany`. Đo độ trễ thật trên Firestore chờ staging (Q63).
 
-> Slice 2.5 (phê duyệt, 06/11/2026): **0 chỉ mục mới, vẫn 192/200.** `approvalDelegations.byTenant` chỉ lọc theo `tenantId` (đơn trường, tự động); hàng chờ và việc chuyển cấp dùng lại `approvals.byBranchStatus`. Slice 2.1 song song: số liệu đầu vào là 192, còn 3 chỗ dưới ngưỡng fail 195.
+> Slice 2.5 (phê duyệt, 06/11/2026): **0 chỉ mục mới.** `approvalDelegations.byTenant` chỉ lọc theo `tenantId` (đơn trường, tự động); hàng chờ và việc chuyển cấp dùng lại `approvals.byBranchStatus`. 
 
 ## Chính sách
 
@@ -29,7 +29,7 @@ Trạng thái: **168 trên 200** (cảnh báo từ 190, FAIL trên 195 theo `src
 
 ## Phân bổ theo phân hệ
 
-SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1 (tổng 168).
+SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng 169).
 
 ## Ứng viên gộp/bỏ (chỉ đề xuất, chưa làm; gỡ chỉ mục đòi đổi truy vấn)
 
@@ -57,6 +57,7 @@ SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1 (tổng 168).
 | CRM | 32 |
 | ACC | 5 |
 | EIN | 1 |
+| HRM | 1 |
 
 | Module | Collection | Fields | Scope | FR, slice | Queries |
 | --- | --- | --- | --- | --- | --- |
@@ -98,6 +99,7 @@ SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1 (tổng 168).
 | CRM | vehicles | tenantId, plateNorm desc | COLLECTION | FR-CRM, 1.3 | vehicles.list.plate.desc |
 | CRM | vehicles | tenantId, plateNorm | COLLECTION | FR-CRM, 1.3 | vehicles.list.plate.asc |
 | EIN | invoices | branchId, tenantId, createdAt desc | COLLECTION | FR-EIN, 1.8 | invoices.byBranch |
+| HRM | laborSheets | branchId, tenantId, recordedAt desc | COLLECTION | FR-HRM-007, 020, 2.6a | laborSheets.byBranch |
 | INV | partCompat | compatKey, tenantId, code | COLLECTION | FR-INV, 1.4 | partCompat.byModel |
 | INV | parts | group, status, tenantId, code | COLLECTION | FR-INV, 1.4 | parts.list.code[group,status] |
 | INV | parts | group, status, tenantId, nameNorm | COLLECTION | FR-INV, 1.4 | parts.list.name[group,status] |

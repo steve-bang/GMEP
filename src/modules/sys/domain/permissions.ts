@@ -285,6 +285,31 @@ const RPT_KT = flatten([
  */
 const IMP_FULL = flatten([g('data-import', 'view', 'create', 'archive')]);
 
+/**
+ * HRM slice 2.6a (staff records and technician labor; FR-HRM-001, 006, 007, 008, 015, 020) default grants
+ * [Đề xuất dev - chờ xác nhận: BA/Khách], from ba-answers-04 Phụ lục C and D. The proposed "NS" (nhân sự) role is not in
+ * the ten-role matrix, so its duties fall to QL (own branch) and CH until the BA decides how it is realised.
+ *  - `employee`: view (personal data still masked by role, Phụ lục D), create and update = the staff record and its
+ *    leaving date (QL in the working branch, CH). QD sees names and positions only (the PII policy hides the rest).
+ *  - `labor:view` = every technician's labor in the scope; `labor-own:view` = a technician's own lines only.
+ *  - `labor-adjustment:create` = a manual adjustment line (above the configured threshold the owner approves it).
+ *  - `labor-rule`: view the rules in force, update = propose a new version (QL: its own branch only), approve/reject = CH.
+ */
+const HR_VIEW = flatten([g('employee', 'view'), g('labor', 'view'), g('labor-rule', 'view')]);
+const HR_QL = flatten([
+  g('employee', 'view', 'create', 'update'),
+  g('labor', 'view'),
+  g('labor-adjustment', 'create'),
+  g('labor-rule', 'view', 'update'),
+]);
+const HR_CH = flatten([
+  g('employee', 'view', 'create', 'update'),
+  g('labor', 'view'),
+  g('labor-rule', 'view', 'update', 'approve', 'reject'),
+]);
+const HR_QD = flatten([g('employee', 'view')]);
+const HR_TH = flatten([g('labor-own', 'view')]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -324,6 +349,7 @@ const CH = [
   ...RPT_RANKING,
   ...CATALOG_RELEASE,
   ...IMP_FULL,
+  ...HR_CH,
 ];
 
 const matrix: Grant = {
@@ -356,7 +382,8 @@ const matrix: Grant = {
     .concat(EIN_VIEW)
     .concat(RPT_QV)
     .concat(RPT_RANKING)
-    .concat(flatten([g('catalog-release', 'view')])),
+    .concat(flatten([g('catalog-release', 'view')]))
+    .concat(HR_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -393,7 +420,8 @@ const matrix: Grant = {
     .concat(ACC_QL)
     .concat(EIN_VIEW)
     .concat(RPT_QL)
-    .concat(IMP_FULL),
+    .concat(IMP_FULL)
+    .concat(HR_QL),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -429,8 +457,9 @@ const matrix: Grant = {
   ])
     .concat(REC_VIEW_ALL)
     .concat(ORD_QD)
-    .concat(RPT_BASIC),
-  TH: ORD_TH,
+    .concat(RPT_BASIC)
+    .concat(HR_QD),
+  TH: ORD_TH.concat(HR_TH),
   TK: flatten([
     g('warehouse', 'view'),
     g('price-list', 'view'),
@@ -481,7 +510,8 @@ const matrix: Grant = {
     .concat(flatten([g('repair-order', 'view')]))
     .concat(ACC_KT)
     .concat(EIN_KT)
-    .concat(RPT_KT),
+    .concat(RPT_KT)
+    .concat(HR_VIEW),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -603,6 +633,11 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
       TN: RPT_BASIC,
       KT: RPT_KT,
     },
+  },
+  {
+    id: '2026-11-hrm-2.6a-labor',
+    note: 'Slice 2.6a: staff records, technician labor, manual adjustment, labor rules (FR-HRM-001, 006, 007, 008, 015, 020)',
+    grants: { CH: HR_CH, QV: HR_VIEW, QL: HR_QL, QD: HR_QD, TH: HR_TH, KT: HR_VIEW },
   },
   {
     id: '2026-11-rec-photo-hide',

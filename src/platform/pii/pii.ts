@@ -135,7 +135,8 @@ export interface PiiAccessEntry {
   branchId: string | null;
   entityType: string;
   entityId: string;
-  fields: PiiField[];
+  /** field names; staff data (slice 2.6a) adds national id and birth date to the customer fields */
+  fields: string[];
   purpose: 'open_record' | 'reveal' | 'export' | 'search_by_phone' | 'denied';
   result: 'allowed' | 'denied';
   reasonCode?: string;

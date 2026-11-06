@@ -1,4 +1,5 @@
 import type { Page } from '@/platform/pagination/pagination';
+import type { Actor } from '@/platform/rbac/rbac';
 import type { Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import type { PartRequest, PartRequestStatus, RepairItem, RepairOrder } from '../domain/order';
@@ -176,4 +177,37 @@ export interface PaymentGate {
  */
 export interface OrderInvoiceGate {
   hasValidInvoice(scope: Scope, orderId: string): Promise<boolean>;
+}
+
+// ---- slice 2.6a: technician labor (HRM) as REC sees it ---------------------------------------------------------
+
+/**
+ * FR-HRM-007, 008: labor is recorded around the quality check, in REC's own transaction. HRM is never imported by REC:
+ * the composition root bridges this port to HRM. Each `prepare*` does its READS and returns a `commit()` that stages the
+ * writes, so REC calls every prepare before its first write (Firestore) and then commits (same pattern as stock release).
+ * The bridge never refuses a QC for a missing rule: the labor line carries a warning instead.
+ */
+export interface LaborStaged {
+  commit(): void;
+}
+export interface LaborQcCall {
+  tx: Tx;
+  scope: Scope;
+  actor: Actor;
+  ctx: { requestId: string; idempotencyKey?: string };
+  order: RepairOrder;
+  /** every item of the order */
+  items: readonly RepairItem[];
+  at: Date;
+  businessDate: string;
+}
+export interface LaborGate {
+  /** QC passed: labor of the finished items */
+  prepareQcPass(c: LaborQcCall & { qcRun: number }): Promise<LaborStaged>;
+  /** QC failed: markers for the returned items (no labor is earned) */
+  prepareQcFail(
+    c: LaborQcCall & { qcRun: number; returnedItemIds: readonly string[] },
+  ): Promise<LaborStaged>;
+  /** the order is cancelled: labor already recorded is undone by opposite lines */
+  prepareCancel(c: LaborQcCall & { reason: string }): Promise<LaborStaged>;
 }

@@ -86,6 +86,13 @@ export const COL = {
   importUnits: 'importUnits',
   // RPT slice 1.9 (R68 rule 3): daily rollups, read BY KEY (`<branchId>_<yyyyMMdd>`), no query shape, no index
   rollups: 'rollups',
+  // HRM slice 2.6a: staff records and their personal data, the unique-code and account-link slots (read BY KEY), and one
+  // labor sheet per repair order (id = order id). Only two shapes are queried (see Q.employees, Q.laborSheetsByBranch)
+  employees: 'employees',
+  employeePii: 'employeePii',
+  employeeCodes: 'employeeCodes',
+  employeeUserLinks: 'employeeUserLinks',
+  laborSheets: 'laborSheets',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -618,5 +625,24 @@ export const Q = {
     collection: COL.importBatches,
     eq: ['tenantId', 'branchId', 'status'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  // ---- HRM slice 2.6a (index budget: ONE composite index for the whole slice) ----
+  /** a tenant's staff (a few hundred): ordered by the equality field itself, so no composite index; cut to the scope in memory */
+  employees: defineQuery({
+    name: 'employees.byTenant',
+    collection: COL.employees,
+    eq: ['tenantId'],
+    order: { field: 'tenantId', dir: 'asc', type: 'string' },
+  }),
+  /**
+   * Labor sheets (one per order) of ONE branch whose last line is at or after a date, newest first. The technician,
+   * status and exact period filters run in memory over the lines of this bounded window; by order it is a read by key.
+   */
+  laborSheetsByBranch: defineQuery({
+    name: 'laborSheets.byBranch',
+    collection: COL.laborSheets,
+    eq: ['tenantId', 'branchId'],
+    range: true,
+    order: { field: 'recordedAt', dir: 'desc', type: 'date' },
   }),
 };

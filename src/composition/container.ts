@@ -15,6 +15,7 @@ import type { DocStore, StoreStats } from '@/platform/store/docStore';
 import { systemClock, type Clock } from '@/platform/time/clock';
 import type { UnitOfWork } from '@/platform/tx/unitOfWork';
 import { accApprovalHandlers, type AccDeps } from '@/modules/acc';
+import { hrmApprovalHandlers, type HrmDeps } from '@/modules/hrm';
 import type { EinDeps } from '@/modules/ein';
 import {
   buildCustomerImport,
@@ -47,6 +48,7 @@ import {
   type SysDeps,
 } from '@/modules/sys';
 import { accPaymentGate, buildAcc } from './accWiring';
+import { buildHrm, hrmLaborGate } from './hrmWiring';
 import { buildEin, einInvoiceGate } from './einWiring';
 import { buildRpt } from './rptWiring';
 import type { RptDeps } from '@/modules/rpt';
@@ -136,6 +138,7 @@ export interface Container {
   inv: InvDeps;
   rec: RecDeps;
   acc: AccDeps;
+  hrm: HrmDeps;
   ein: EinDeps;
   rpt: RptDeps;
   /** the only e-invoice adapter built; tests and the local demo script its failures */
@@ -310,6 +313,7 @@ function buildRec(
   inv: InvDeps,
   store: DocStore,
   getAcc: () => AccDeps,
+  getHrm: () => HrmDeps,
   invoices: RecDeps['invoices'],
   files: FileStore,
 ): RecDeps {
@@ -327,6 +331,7 @@ function buildRec(
     items: new DocRepairItemRepository(store),
     partRequests: new DocPartRequestRepository(store),
     payments: accPaymentGate(getAcc),
+    labor: hrmLaborGate(getHrm),
     invoices,
     files,
     rec: { ...DEFAULT_REC_CONFIG, approval: { ...DEFAULT_REC_CONFIG.approval } },
@@ -354,6 +359,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
   const late: {
     inv?: InvDeps;
     acc?: AccDeps;
+    hrm?: HrmDeps;
     rec?: RecDeps;
     crm?: CrmDeps;
     ein?: EinDeps;
@@ -380,6 +386,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     inv: InvDeps;
     rec: RecDeps;
     acc: AccDeps;
+    hrm: HrmDeps;
     ein: EinDeps;
     rpt: RptDeps;
     fakeProvider: FakeProvider;
@@ -389,8 +396,18 @@ export function createContainer(opts: ContainerOptions = {}): Container {
     const invoiceGate = einInvoiceGate(() => late.ein!);
     const inv = (late.inv = buildInv(sys, store, env, invoiceGate));
     const crm = (late.crm = buildCrm(sys, store));
-    const rec = (late.rec = buildRec(sys, crm, inv, store, () => late.acc!, invoiceGate, files));
+    const rec = (late.rec = buildRec(
+      sys,
+      crm,
+      inv,
+      store,
+      () => late.acc!,
+      () => late.hrm!,
+      invoiceGate,
+      files,
+    ));
     const acc = (late.acc = buildAcc(sys, store, () => late.rec!, invoiceGate));
+    const hrm = (late.hrm = buildHrm(sys, store, () => late.rec!));
     // FR-SYS-007: the module that owns a kind of imported data registers what commit and undo do
     for (const h of [
       buildCustomerImport(() => late.crm!),
@@ -400,6 +417,8 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       sys.importHandlers.set(h.kind, h);
     // FR-SYS-004: the module that owns an approval kind registers what a decision does (same transaction)
     for (const [kind, h] of Object.entries(accApprovalHandlers(() => late.acc!)))
+      sys.approvalHandlers.set(kind, h);
+    for (const [kind, h] of Object.entries(hrmApprovalHandlers(() => late.hrm!)))
       sys.approvalHandlers.set(kind, h);
     const ein = (late.ein = buildEin(
       sys,
@@ -419,7 +438,7 @@ export function createContainer(opts: ContainerOptions = {}): Container {
       () => late.inv!,
       () => late.crm!,
     );
-    return { sys, crm, inv, rec, acc, ein, rpt, fakeProvider };
+    return { sys, crm, inv, rec, acc, hrm, ein, rpt, fakeProvider };
   };
 
   if (env.GMEP_DATA_BACKEND === 'memory') {

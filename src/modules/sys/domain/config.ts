@@ -269,6 +269,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       'invoice_adjust',
       'invoice_replace',
       'invoice_cancel',
+      'labor_adjustment',
     ]),
     branchOverride: false,
     payload: z
@@ -529,6 +530,87 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
           .int()
           .min(1)
           .max(24 * 60),
+      })
+      .strict(),
+  },
+  // FR-HRM-006, 015, 020 (slice 2.6a, RULE-038): how technician labor is computed, per (service type x position x
+  // branch). Scope keys, most specific first: `branch:<id>:svc:<type>:pos:<code>`, `branch:<id>:svc:<type>`,
+  // `svc:<type>:pos:<code>`, `svc:<type>`. The client's formula is not fixed (Q73): the numbers are data, the sample
+  // rows are marked "minh họa". Which fields a method needs is checked here, so a half-filled rule cannot be approved.
+  'labor-method': {
+    type: 'labor-method',
+    resource: 'labor-rule',
+    scopeKey: z
+      .string()
+      .regex(
+        /^(?:branch:[A-Za-z0-9_-]{1,64}:)?svc:[a-z][a-z0-9_-]{0,29}(?::pos:[a-z][a-z0-9_-]{0,29})?$/,
+      ),
+    branchOverride: false,
+    payload: z
+      .object({
+        method: z.enum(['standard_hours', 'approved_actual', 'flat', 'percent', 'fixed_bonus']),
+        hourlyRateVnd: vnd.optional(),
+        capBp: z.number().int().min(0).max(100_000).optional(),
+        amountVnd: vnd.optional(),
+        rateBp: z.number().int().min(0).max(100_000).optional(),
+        fixedVnd: vnd.optional(),
+        bonusVnd: vnd.optional(),
+        bonusMaxActualBp: z.number().int().min(0).max(100_000).optional(),
+      })
+      .strict()
+      .superRefine((p, ctx) => {
+        const need: Record<string, string[]> = {
+          standard_hours: ['hourlyRateVnd'],
+          approved_actual: ['hourlyRateVnd'],
+          flat: ['amountVnd'],
+          percent: ['rateBp'],
+          fixed_bonus: ['fixedVnd', 'bonusVnd', 'bonusMaxActualBp'],
+        };
+        const allowed: Record<string, string[]> = {
+          ...need,
+          approved_actual: ['hourlyRateVnd', 'capBp'],
+        };
+        const rec = p as Record<string, unknown>;
+        for (const f of need[p.method]!)
+          if (rec[f] === undefined)
+            ctx.addIssue({ code: 'custom', path: [f], message: 'required' });
+        for (const f of Object.keys(rec))
+          if (f !== 'method' && !allowed[p.method]!.includes(f))
+            ctx.addIssue({ code: 'custom', path: [f], message: 'not used by this method' });
+      }) as unknown as z.ZodType<Record<string, unknown>>,
+  },
+  // FR-HRM-020: the position coefficient table has its own effective dates; it is also the position catalogue.
+  'labor-position': {
+    type: 'labor-position',
+    resource: 'labor-rule',
+    scopeKey: z.string().regex(/^position:[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(60),
+        status: z.enum(['active', 'inactive']),
+        coefficientBp: z.number().int().min(0).max(100_000),
+      })
+      .strict(),
+  },
+  // FR-HRM-020 "quy tắc làm tròn cố định", FR-HRM-008 rework, HRM-07 adjustment threshold: company default with a branch override.
+  'labor-policy': {
+    type: 'labor-policy',
+    resource: 'labor-rule',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        roundingMode: z.enum(['half_up', 'down', 'up']),
+        moneyStepVnd: z.number().int().min(1).max(1_000_000),
+        minutesStep: z.number().int().min(1).max(60),
+        adjustThresholdMinutes: z
+          .number()
+          .int()
+          .min(0)
+          .max(24 * 60),
+        adjustThresholdVnd: vnd,
+        reworkMode: z.enum(['keep_original', 'reverse_original']),
       })
       .strict(),
   },

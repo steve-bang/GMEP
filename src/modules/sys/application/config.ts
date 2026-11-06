@@ -295,7 +295,7 @@ export async function listConfigVersions(
   const scope = resolveScope(actor, perm(def.resource, 'view'));
   const q = parseInput(configListSchema, raw);
   const visible = (v: ConfigVersion) => {
-    const m = /^branch:(.+)$/.exec(v.scopeKey);
+    const m = /^branch:([^:]+)(?::.*)?$/.exec(v.scopeKey);
     return !m || scopeAllows(scope, v.tenantId, m[1]!);
   };
   if (q.scopeKey) {
@@ -348,7 +348,7 @@ export async function proposeConfig(
           }))),
     ]);
   // branch overrides need the update right in that branch; company-wide keys need a company-wide scope
-  const branch = /^branch:(.+)$/.exec(data.scopeKey);
+  const branch = /^branch:([^:]+)(?::.*)?$/.exec(data.scopeKey);
   if (
     branch
       ? !scopeAllows(scope, actor.tenantId, branch[1]!)
@@ -484,7 +484,7 @@ export async function decideConfig(
         decidedAt: now,
         decisionNote: data.note ?? null,
       });
-      const branch = /^branch:(.+)$/.exec(v.scopeKey);
+      const branch = /^branch:([^:]+)(?::.*)?$/.exec(v.scopeKey);
       deps.audit.record(
         tx,
         auditEntry(deps, actor, ctx, {

@@ -4,6 +4,7 @@ import { mayBeOtherBranch } from '@/platform/rbac/rbac';
 import { apiRoute, json, type RouteContext } from '@/platform/http/route';
 import { parseIdempotencyKey } from '@/platform/idempotency/idempotency';
 import type { AccDeps } from '@/modules/acc';
+import type { HrmDeps } from '@/modules/hrm';
 import type { EinDeps } from '@/modules/ein';
 import type { RptDeps } from '@/modules/rpt';
 import type { CrmDeps } from '@/modules/crm';
@@ -24,6 +25,7 @@ export interface ApiCtx extends RouteContext {
   inv: InvDeps;
   rec: RecDeps;
   acc: AccDeps;
+  hrm: HrmDeps;
   ein: EinDeps;
   rpt: RptDeps;
 }
@@ -44,6 +46,7 @@ export function api(handler: (c: ApiCtx) => Promise<Response>) {
         inv: getContainer().inv,
         rec: getContainer().rec,
         acc: getContainer().acc,
+        hrm: getContainer().hrm,
         ein: getContainer().ein,
         rpt: getContainer().rpt,
       }),
@@ -84,6 +87,7 @@ export function authed(
           inv: getContainer().inv,
           rec: getContainer().rec,
           acc: getContainer().acc,
+          hrm: getContainer().hrm,
           ein: getContainer().ein,
           rpt: getContainer().rpt,
           session,
@@ -139,6 +143,7 @@ export function cron(handler: (c: ApiCtx) => Promise<Response>) {
         inv: getContainer().inv,
         rec: getContainer().rec,
         acc: getContainer().acc,
+        hrm: getContainer().hrm,
         ein: getContainer().ein,
         rpt: getContainer().rpt,
       });

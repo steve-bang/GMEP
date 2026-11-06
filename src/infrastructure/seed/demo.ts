@@ -17,6 +17,7 @@ import { COL } from '../repos/queries';
 import { crmDemoDocs } from './crmDemo';
 import { demoTenant2Docs, demoTenant2Users } from './tenantDemo';
 import { invDemoDocs } from './invDemo';
+import { hrmDemoDocs } from './hrmDemo';
 import { recDemoDocs } from './recDemo';
 import type { SeedDoc } from './types';
 import type { DocData } from '@/platform/store/docStore';
@@ -216,6 +217,7 @@ export function demoDocs(): SeedDoc[] {
   docs.push(...crmDemoDocs());
   docs.push(...invDemoDocs());
   docs.push(...recDemoDocs());
+  docs.push(...hrmDemoDocs());
   docs.push(...demoTenant2Docs());
   return docs;
 }

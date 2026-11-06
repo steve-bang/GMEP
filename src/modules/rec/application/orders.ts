@@ -1127,7 +1127,20 @@ export async function cancelOrder(
         o.id,
         deps.rec.maxPartRequestsPerOrder,
       );
+      // FR-HRM-008: labor already recorded for the order is undone by opposite lines (reads first, then commit)
+      const labor = await deps.labor.prepareCancel({
+        tx,
+        scope: scopeAny,
+        actor,
+        ctx,
+        order: o,
+        items,
+        at: now,
+        businessDate: businessDate(now),
+        reason: data.reason,
+      });
       release?.commit();
+      labor.commit();
       supplements.commit(actor, ctx, now);
       for (const it of items)
         deps.items.update(tx, it.id, {

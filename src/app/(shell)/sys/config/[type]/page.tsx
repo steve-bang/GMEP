@@ -65,7 +65,7 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
   const status = viewStatuses(items, today);
   const scopeName = (key: string) => {
     if (key === 'tenant') return t('config.scopeCompany');
-    const b = /^branch:(.+)$/.exec(key);
+    const b = /^branch:([^:]+)(?::.*)?$/.exec(key);
     if (b)
       return t('config.scopeBranch', { name: branches.find((x) => x.id === b[1])?.name ?? b[1]! });
     const s = /^service:(.+)$/.exec(key);

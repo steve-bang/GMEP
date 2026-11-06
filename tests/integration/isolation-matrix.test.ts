@@ -260,6 +260,25 @@ const ROUTES: Record<string, RouteRow> = {
     path: () => `/api/v1/rpt/indicators?from=${isoToday()}&to=${isoToday()}`,
   },
   'v1/rpt/groups': { kind: 'report', path: () => '/api/v1/rpt/groups' },
+  // HRM slice 2.6a: staff records and technician labor are branch records (labor of an order is read by key)
+  'v1/hrm/employees': {
+    kind: 'list',
+    path: () => '/api/v1/hrm/employees',
+    has: 'employeeId',
+  },
+  'v1/hrm/employees/[id]': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'employeeId',
+    detail: (id) => `/api/v1/hrm/employees/${id}`,
+  },
+  'v1/hrm/labor': { kind: 'list', path: () => '/api/v1/hrm/labor', has: 'orderId' },
+  'v1/hrm/labor/orders/[id]': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'orderId',
+    detail: (id) => `/api/v1/hrm/labor/orders/${id}`,
+  },
 };
 
 /** GET routes that carry no branch data. A new GET route must be classified in ROUTES or here, with the reason. */
@@ -307,6 +326,8 @@ const EXEMPT: Record<string, string> = {
     'own sign-in history, or another person inside the permission scope (audited); covered in consolidation.test.ts',
   'v1/sys/catalog-releases':
     'catalogue release of the tenant (branches of the scope only); covered in consolidation.test.ts',
+  'v1/hrm/labor/rules':
+    'labor rules in force: effective-dated configuration, company-level with branch overrides filtered by scope (covered in hrm.test.ts)',
   'v1/rpt/drill': 'drill-down needs a metric and a date; scope rules are covered in rpt.test.ts',
 };
 
@@ -402,6 +423,17 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         lines: [{ partId: 'part_seed_01', qty: 11, unitCostVnd: 85_000 }],
       });
       expect(grn.status, grn.text).toBe(201);
+      const emp = await j.post(
+        branch === 'br_q7' ? viewers.qlQ7! : viewers.qlTD!,
+        '/api/v1/hrm/employees',
+        {
+          code: `E${tag}`,
+          fullName: `Nhan su ${tag}`,
+          positionCode: 'mechanic3',
+          joinedOn: '2024-01-01',
+        },
+      );
+      expect(emp.status, emp.text).toBe(201);
       const dsr = await j.post(staff.cv, '/api/v1/crm/data-requests', {
         customerId: c.customerId,
         type: 'delete',
@@ -411,6 +443,7 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
       expect(dsr.status, dsr.text).toBe(201);
       Object.assign(ids, {
         dsrId: dsr.json.id,
+        employeeId: emp.json.id,
         customerId: c.customerId,
         vehicleId: c.vehicleId,
         intakeId: ro.intakeId,
@@ -434,6 +467,7 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         ids.paymentId,
         ids.invoiceId,
         ids.docId,
+        emp.json.id,
       ].filter(Boolean) as string[];
     };
     q7Markers = await build(
