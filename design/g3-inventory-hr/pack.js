@@ -16,7 +16,7 @@
     hrm: { label: 'Nhân sự & Công thợ', tabs: ['01', '04', '05', '07', '09', '10', '08', '06'] }
   };
   /* Tên nền tảng GMEP (quyết định CD4, 06/11/2026) cho khung ứng dụng ở mọi màn. Phiếu in, hóa đơn bán lẻ, tin gửi NCC dùng tên garage của tenant (mẫu: "Garage A – Chi nhánh Quận 7"; B-17). */
-  var BRAND = window.G3_BRAND || 'GMEP';
+  var BRAND = esc(window.G3_BRAND || 'GMEP');
   var A = 'CH QV QL TK KT';
   /* [mã, tên, tab cha, ưu tiên, FR, vai trò mở được] */
   var R = [

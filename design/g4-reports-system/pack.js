@@ -13,7 +13,8 @@
   };
   window.G4R_CFG = CFG;
   /* Tên nền tảng GMEP (quyết định CD4, 06/11/2026) dùng ở khung ứng dụng, mọi màn. Chứng từ in, tệp xuất, tin gửi khách/NCC dùng tên garage của tenant (B-17). */
-  var BRAND = script.getAttribute('data-brand') || 'GMEP';
+  /* Tên hiển thị lấy từ thuộc tính: thoát HTML vì được ghép vào khung trang */
+  var BRAND = esc(script.getAttribute('data-brand') || 'GMEP');
 
   var ROLE_NAME = { CH: 'Chủ garage', QV: 'Quản lý vùng', QL: 'Quản lý chi nhánh', CV: 'Cố vấn dịch vụ', QD: 'Quản đốc', TH: 'Thợ', TK: 'Thủ kho', TN: 'Thu ngân', KT: 'Kế toán', AD: 'Quản trị hệ thống' };
 
@@ -35,7 +36,7 @@
   };
 
   function ico(id, cls) { return '<svg class="icon' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#' + id + '"/></svg>'; }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
   /* ---------- Shell (khớp design/foundation/shell.html) ---------- */
   function navItem(menu, icon, label, href, extra) {
