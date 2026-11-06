@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { businessDate } from '@/platform/format/date';
-import { getMonthly } from '@/modules/rpt';
+import { getMonthly, type MetricComparison } from '@/modules/rpt';
 import { listServiceTypes } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -61,19 +61,24 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
     );
   const d = res.data;
   const r = d.report;
-  // FR-RPT-002: change against the same day range of the month before (basis points -> one-decimal percent)
+  // FR-RPT-002 / R111, R113: one line per compared metric: percent (one decimal, from integer basis points) and the
+  // absolute change; "mới" when the earlier period is 0, "—" when both are 0, "n/a" + reason when it is incomplete.
   const cmp = r.comparison;
-  const change = (bp: number | null | undefined): string | undefined => {
-    if (!cmp) return l.vsPrevNa;
-    if (bp === null || bp === undefined) return l.vsPrevZero;
-    // basis points -> percent with one decimal, rounded (not cut); a zero change has no sign
+  const sign = (n: number) => (n > 0 ? '+' : '');
+  const pctOf = (bp: number) => {
     const tenths = Math.round(Math.abs(bp) / 10);
-    const pct = `${bp > 0 && tenths > 0 ? '+' : bp < 0 && tenths > 0 ? '-' : ''}${Math.trunc(tenths / 10)},${tenths % 10}%`;
-    return fill(l.vsPrev!, {
-      month: cmp.month.slice(5) + '/' + cmp.month.slice(0, 4),
-      days: cmp.days,
-      change: pct,
-    });
+    return `${bp > 0 && tenths > 0 ? '+' : bp < 0 && tenths > 0 ? '-' : ''}${Math.trunc(tenths / 10)},${tenths % 10}%`;
+  };
+  const change = (m: MetricComparison | undefined, fmt: (n: number) => string): string => {
+    if (!cmp || !m) return l.vsPrevNone!;
+    if (m.state === 'na')
+      return cmp.naReason === 'missing'
+        ? fill(l.vsPrevNaMissing!, { n: cmp.previousMissingDates.length })
+        : l.vsPrevNaNoData!;
+    const abs = `${sign(m.deltaAbs!)}${fmt(m.deltaAbs!)}`;
+    if (m.state === 'none') return l.vsPrevBothZero!;
+    if (m.state === 'new') return fill(l.vsPrevNew!, { abs });
+    return fill(l.vsPrev!, { change: fill(l.vsPrevAbs!, { pct: pctOf(m.deltaBp!), abs }) });
   };
   return (
     <RptPage {...head}>
@@ -122,28 +127,26 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
               cur: `${dmy(cmp.currentRange.from)} - ${dmy(cmp.currentRange.to)}`,
               curDays: cmp.currentDays,
               prev: `${dmy(cmp.previousRange.from)} - ${dmy(cmp.previousRange.to)}`,
-              prevDays: cmp.days,
+              prevDays: cmp.previousDays,
             })
-          : l.vsPrevNa}
+          : l.vsPrevNone}
+        {cmp?.lengthDiffers ? (
+          <> {fill(l.vsPrevLength!, { curDays: cmp.currentDays, prevDays: cmp.previousDays })}</>
+        ) : null}
       </Note>
-      {cmp && cmp.missingDates.length > 0 ? (
-        <Note tone="warning" testId="monthly-prev-missing">
-          {fill(l.vsPrevMissing!, { n: cmp.missingDates.length })}
-        </Note>
-      ) : null}
       {d.unlinked ? <UnlinkedNote u={d.unlinked} labels={l} /> : null}
       <Kpis>
         <Kpi
           label={l.kRevenue!}
           value={money(r.revenue.exTaxVnd)}
           formula={l.fRevenue!}
-          meta={<span data-testid="m-revenue-delta">{change(cmp?.deltaBp.exTaxVnd)}</span>}
+          meta={<span data-testid="m-revenue-delta">{change(cmp?.metrics.exTaxVnd, money)}</span>}
           testId="m-revenue"
         />
         <Kpi
           label={l.kOrders!}
           value={String(r.orders.closed)}
-          meta={<span data-testid="m-closed-delta">{change(cmp?.deltaBp.closed)}</span>}
+          meta={<span data-testid="m-closed-delta">{change(cmp?.metrics.closed, String)}</span>}
           testId="m-closed"
         />
         <Kpi
@@ -153,7 +156,12 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
           testId="m-avg"
         />
         {d.visible.money ? (
-          <Kpi label={l.kInflow!} value={money(r.money.inflowVnd)} testId="m-inflow" />
+          <Kpi
+            label={l.kInflow!}
+            value={money(r.money.inflowVnd)}
+            meta={<span data-testid="m-inflow-delta">{change(cmp?.metrics.inflowVnd, money)}</span>}
+            testId="m-inflow"
+          />
         ) : null}
       </Kpis>
       <div className="rpt-two">

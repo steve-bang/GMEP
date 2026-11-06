@@ -712,13 +712,78 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(none.json.report.invoices.issuedCount).toBe(0);
     });
 
-    it('FR-RPT-002: the comparison is n/a without rollups of the previous month and for a future month; a rebuilt previous day gives integer basis points', async () => {
+    it('FR-RPT-002 (R110..R113): n/a with a reason without previous rollups, "new" once the previous range is built and empty, both ranges in the CSV, no comparison for a future month', async () => {
       const month = today.slice(0, 7);
-      const m = await get(ql, `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`);
-      expect(m.status, m.text).toBe(200);
-      expect(m.json.report.comparison).toBeNull();
+      const n = Number(today.slice(8, 10));
+      const url = `/api/v1/rpt/monthly?month=${month}&branchId=br_q7`;
+      const first = await get(ql, url);
+      expect(first.status, first.text).toBe(200);
+      const c0 = first.json.report.comparison;
+      // R112: today is day N, so days 1..N of both months (the earlier month is taken whole when it is shorter)
+      expect(c0.kind).toBe('previous-month-same-days');
+      expect(c0.currentRange).toEqual({ from: `${month}-01`, to: today });
+      expect(c0.previousRange.from.endsWith('-01')).toBe(true);
+      expect(c0.currentDays).toBe(n);
+      // R111: nothing rebuilt in the previous month: n/a, not zero, no percent
+      expect(c0.naReason).toBe('no-data');
+      expect(c0.metrics.exTaxVnd).toMatchObject({ state: 'na', previous: null, deltaBp: null });
+      expect(first.json.report.revenue.exTaxVnd).toBeGreaterThan(0);
+
+      // build the whole previous range (empty days: the demo data lives in the current month)
+      const prevDates: string[] = c0.previousRange
+        ? Array.from(
+            { length: c0.previousDays },
+            (_, i) => `${c0.previousRange.from.slice(0, 8)}${String(i + 1).padStart(2, '0')}`,
+          )
+        : [];
+      // one day missing: n/a with the number of days (R111)
+      for (const date of prevDates.slice(1)) {
+        const rb = await post(ql, '/api/v1/rpt/jobs/rebuild', { date, branchId: 'br_q7' });
+        expect(rb.status, rb.text).toBe(200);
+      }
+      const partial = (await get(ql, url)).json.report.comparison;
+      if (prevDates.length > 1) {
+        expect(partial.naReason).toBe('missing');
+        expect(partial.previousMissingDates).toEqual([prevDates[0]]);
+        expect(partial.metrics.closed.state).toBe('na');
+      }
+      const rb1 = await post(ql, '/api/v1/rpt/jobs/rebuild', {
+        date: prevDates[0],
+        branchId: 'br_q7',
+      });
+      expect(rb1.status, rb1.text).toBe(200);
+      const full = (await get(ql, url)).json.report.comparison;
+      // R113: the previous range is built and 0, this month > 0: "new", percent null, absolute change kept
+      expect(full.naReason).toBeNull();
+      expect(full.metrics.exTaxVnd).toMatchObject({
+        previous: 0,
+        state: 'new',
+        deltaBp: null,
+      });
+      expect(full.metrics.exTaxVnd.deltaAbs).toBe(full.metrics.exTaxVnd.current);
+      expect(full.metrics.closed.state).toBe('new');
+
+      // R108 for both periods: the filtered view carries the previous "không gắn lệnh" line, the unfiltered one does not
+      const f = await get(ql, `${url}&serviceType=maintenance`);
+      expect(f.json.previousUnlinked).toMatchObject({ inflowVnd: 0 });
+      expect(f.json.report.comparison.metrics.inflowVnd.previous).toBe(0);
+      expect((await get(ql, url)).json.previousUnlinked).toBeNull();
+
+      // AC-RPT-002-2: the export names both ranges and keeps percent empty (no percent) for "new"
+      const csv = await post(ql, '/api/v1/rpt/export', {
+        kind: 'monthly',
+        month,
+        branchId: 'br_q7',
+      });
+      expect(csv.status, csv.text).toBe(200);
+      expect(csv.text).toContain(`${c0.currentRange.from} .. ${c0.currentRange.to}`);
+      expect(csv.text).toContain(`${c0.previousRange.from} .. ${c0.previousRange.to}`);
+
+      // a future month has no period; an unknown comparison kind is rejected
       const future = await get(ql, `/api/v1/rpt/monthly?month=2099-01&branchId=br_q7`);
       expect(future.json.report.comparison).toBeNull();
+      expect((await get(ql, `${url}&comparison=same-month-last-year`)).status).toBe(422);
+      expect((await get(ql, `${url}&comparison=previous-month-same-days`)).status).toBe(200);
     });
   });
 

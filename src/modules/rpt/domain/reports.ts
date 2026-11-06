@@ -80,38 +80,63 @@ export interface MonthlyReport {
     closedWithoutInvoiceVnd: number;
   };
   series: MonthDayRow[];
-  /** FR-RPT-002: against the month before, same day range; null = "n/a" (no rollup of the previous month in that range) */
+  /** FR-RPT-002: against the earlier period; null only when there is no period (future month) or none was asked for */
   comparison: MonthComparison | null;
 }
+
+// ---- comparison with an earlier period (FR-RPT-002, AC-RPT-002-1..7; R110..R114 provisional decisions) ---------------------
+
+/**
+ * R110: the comparison kind is a parameter. Only `previous-month-same-days` is built; another kind (whole previous month,
+ * same period last year) is one more branch in `comparisonPeriod`, it does not change the result of this one.
+ */
+export const COMPARISON_KINDS = ['previous-month-same-days'] as const;
+export type ComparisonKind = (typeof COMPARISON_KINDS)[number];
+export const DEFAULT_COMPARISON: ComparisonKind = 'previous-month-same-days';
+
+/**
+ * R114: the flow figures that have a comparison, declared in ONE place. Stock-like figures (open orders, open debt, cash,
+ * stock) have none: the rollup does not keep the end-of-day state needed to rebuild them. Orders completed without an
+ * invoice is a snapshot of the whole backlog in the rollup, not a flow, so it is not here [Cần xác nhận R114].
+ */
+export const COMPARED_METRICS = ['exTaxVnd', 'closed', 'inflowVnd'] as const;
+export type ComparedMetric = (typeof COMPARED_METRICS)[number];
 
 /** Percent change in basis points (1 bp = 0.01%), integer; null when the base is 0 (cannot divide) */
 export type DeltaBp = number | null;
 
+/** ok = both periods have data and the base is not 0; new = base 0, now > 0; none = both 0; na = earlier period incomplete */
+export type CompareState = 'ok' | 'new' | 'none' | 'na';
+
+export interface MetricComparison {
+  current: number;
+  /** null when the earlier period is incomplete (state na): a missing day is not a zero */
+  previous: number | null;
+  /** current - previous, integer; null only for state na (kept for state new: the absolute change still shows) */
+  deltaAbs: number | null;
+  /** null for na, new and none: never a division by 0, never +infinity */
+  deltaBp: DeltaBp;
+  state: CompareState;
+}
+
 export interface MonthComparison {
+  kind: ComparisonKind;
   /** the earlier month compared (`yyyy-MM`) */
   month: string;
-  /** the two concrete date ranges compared (inclusive, yyyy-MM-dd); both are shown on screen and in the export */
+  /** the two concrete date ranges compared (inclusive, yyyy-MM-dd); both are shown on screen and in the export (AC-002-2) */
   currentRange: { from: string; to: string };
   previousRange: { from: string; to: string };
-  /** days of the current month inside `currentRange` (can differ from `days` when the months have different length) */
   currentDays: number;
-  /** days compared: 1..days of that month, equal to the day range the current month covers (capped by its length) */
-  days: number;
-  present: number;
-  /** days of the range with no rollup: NOT counted as zero, so the change may be understated */
-  missingDates: string[];
-  orders: { closed: number };
-  revenue: { orderTotalVnd: number; exTaxVnd: number; avgPerOrderVnd: number };
-  money: { inflowVnd: number };
-  invoices: { issuedVnd: number };
-  deltaBp: {
-    closed: DeltaBp;
-    orderTotalVnd: DeltaBp;
-    exTaxVnd: DeltaBp;
-    avgPerOrderVnd: DeltaBp;
-    inflowVnd: DeltaBp;
-    invoicesIssuedVnd: DeltaBp;
-  };
+  previousDays: number;
+  /** the two ranges differ in length (R112: the shorter earlier month is taken whole and labelled) */
+  lengthDiffers: boolean;
+  /** days of the previous range with a rollup */
+  previousPresent: number;
+  /** days of the previous range with no rollup: NOT counted as zero; any of them makes every metric n/a (R111) */
+  previousMissingDates: string[];
+  /** why the metrics are n/a: nothing for the whole range, or n days missing; null when comparable */
+  naReason: 'no-data' | 'missing' | null;
+  metrics: Record<ComparedMetric, MetricComparison>;
 }
 
 /** The `yyyy-MM` month before `month`. */
@@ -123,28 +148,65 @@ export function previousMonth(month: string): string {
     : `${String(y).padStart(4, '0')}-${String(m - 1).padStart(2, '0')}`;
 }
 
-/**
- * FR-RPT-002: how many days from the 1st of the earlier month are compared: the days elapsed in the running month,
- * the whole length of `month` once it is over (not 31: April is 30 days), nothing for a future month.
- */
-export function comparisonDays(month: string, today: string): number {
-  const cur = today.slice(0, 7);
-  if (month > cur) return 0;
-  return month === cur ? Number(today.slice(8, 10)) : monthDates(month).length;
+export interface ComparisonPeriod {
+  kind: ComparisonKind;
+  month: string;
+  current: { from: string; to: string };
+  previous: { from: string; to: string };
 }
 
-/** (current - previous) / previous in basis points, rounded half away from zero; null when previous is 0 (FR-RPT-002). */
+/**
+ * R110/R112: the two date ranges of a comparison, `null` for a future month (nothing to compare yet).
+ * previous-month-same-days: running month = day 1..N of both months (N = today's day; an earlier month shorter than N is
+ * taken whole); a finished month = the whole month against the whole earlier month.
+ */
+export function comparisonPeriod(
+  kind: ComparisonKind,
+  month: string,
+  today: string,
+): ComparisonPeriod | null {
+  const cur = today.slice(0, 7);
+  if (month > cur) return null;
+  const prev = previousMonth(month);
+  const curDates = monthDates(month);
+  const prevDates = monthDates(prev);
+  const n = month === cur ? Number(today.slice(8, 10)) : curDates.length;
+  const c = curDates.slice(0, n);
+  const p = prevDates.slice(0, month === cur ? n : prevDates.length);
+  return {
+    kind,
+    month: prev,
+    current: { from: c[0]!, to: c.at(-1)! },
+    previous: { from: p[0]!, to: p.at(-1)! },
+  };
+}
+
+/**
+ * (current - previous) / |previous| in basis points, integer, ties away from zero (R113); null when previous is 0.
+ * Exact integer arithmetic (BigInt): no float rounding on VND amounts.
+ */
 export function deltaBp(current: number, previous: number): DeltaBp {
   if (previous === 0) return null;
-  const x = ((current - previous) * 10_000) / Math.abs(previous);
-  return Math.sign(x) * Math.round(Math.abs(x));
+  const num = BigInt(current - previous) * 10_000n;
+  const den = BigInt(Math.abs(previous));
+  const abs = num < 0n ? -num : num;
+  const q = (2n * abs + den) / (2n * den);
+  return Number(num < 0n ? -q : q);
 }
 
-/** The earlier period handed to `computeMonthly`: its rollups and how many days from the 1st are compared. */
+function metricOf(current: number, previous: number | null): MetricComparison {
+  if (previous === null)
+    return { current, previous: null, deltaAbs: null, deltaBp: null, state: 'na' };
+  const deltaAbs = current - previous;
+  if (previous === 0)
+    return { current, previous, deltaAbs, deltaBp: null, state: current === 0 ? 'none' : 'new' };
+  return { current, previous, deltaAbs, deltaBp: deltaBp(current, previous), state: 'ok' };
+}
+
+/** The earlier period handed to `computeMonthly`: the period and the rollups read for its range. */
 export interface PreviousPeriod {
-  month: string;
+  period: ComparisonPeriod;
   rows: readonly Rolled[];
-  throughDay: number;
 }
 
 type Rolled = Pick<
@@ -242,42 +304,37 @@ export function computeMonthly(
   previous?: PreviousPeriod,
 ): MonthlyReport {
   const cur = sumMonth(month, rows, monthDates(month));
-  return { ...cur, comparison: compare(cur, previous) };
+  return { ...cur, comparison: previous ? compare(month, rows, previous) : null };
 }
 
-/** FR-RPT-002: figures of the same day range of the earlier month; compared with the full current figures. */
-function compare(
-  c: Omit<MonthlyReport, 'comparison'>,
-  prev: PreviousPeriod | undefined,
-): MonthComparison | null {
-  if (!prev || prev.throughDay < 1) return null;
-  const dates = monthDates(prev.month).slice(0, prev.throughDay);
-  const p = sumMonth(prev.month, prev.rows, dates);
-  if (p.present === 0) return null;
-  const curDates = monthDates(c.month).slice(0, prev.throughDay);
+/** AC-RPT-002-1..6: flow figures of the current range against the earlier range; incomplete earlier range = n/a (R111). */
+function compare(month: string, rows: readonly Rolled[], prev: PreviousPeriod): MonthComparison {
+  const { period } = prev;
+  const curDates = dateRange(period.current.from, period.current.to);
+  const prevDates = dateRange(period.previous.from, period.previous.to);
+  const c = sumMonth(month, rows, curDates);
+  const p = sumMonth(period.month, prev.rows, prevDates);
+  const complete = p.missingDates.length === 0;
+  const prevValue: Record<ComparedMetric, number | null> = {
+    exTaxVnd: complete ? p.revenue.exTaxVnd : null,
+    closed: complete ? p.orders.closed : null,
+    inflowVnd: complete ? p.money.inflowVnd : null,
+  };
   return {
-    month: prev.month,
-    currentRange: { from: curDates[0] ?? '', to: curDates.at(-1) ?? '' },
-    previousRange: { from: dates[0]!, to: dates.at(-1)! },
+    kind: period.kind,
+    month: period.month,
+    currentRange: period.current,
+    previousRange: period.previous,
     currentDays: curDates.length,
-    days: dates.length,
-    present: p.present,
-    missingDates: p.missingDates,
-    orders: { closed: p.orders.closed },
-    revenue: {
-      orderTotalVnd: p.revenue.orderTotalVnd,
-      exTaxVnd: p.revenue.exTaxVnd,
-      avgPerOrderVnd: p.revenue.avgPerOrderVnd,
-    },
-    money: { inflowVnd: p.money.inflowVnd },
-    invoices: { issuedVnd: p.invoices.issuedVnd },
-    deltaBp: {
-      closed: deltaBp(c.orders.closed, p.orders.closed),
-      orderTotalVnd: deltaBp(c.revenue.orderTotalVnd, p.revenue.orderTotalVnd),
-      exTaxVnd: deltaBp(c.revenue.exTaxVnd, p.revenue.exTaxVnd),
-      avgPerOrderVnd: deltaBp(c.revenue.avgPerOrderVnd, p.revenue.avgPerOrderVnd),
-      inflowVnd: deltaBp(c.money.inflowVnd, p.money.inflowVnd),
-      invoicesIssuedVnd: deltaBp(c.invoices.issuedVnd, p.invoices.issuedVnd),
+    previousDays: prevDates.length,
+    lengthDiffers: curDates.length !== prevDates.length,
+    previousPresent: p.present,
+    previousMissingDates: p.missingDates,
+    naReason: complete ? null : p.present === 0 ? 'no-data' : 'missing',
+    metrics: {
+      exTaxVnd: metricOf(c.revenue.exTaxVnd, prevValue.exTaxVnd),
+      closed: metricOf(c.orders.closed, prevValue.closed),
+      inflowVnd: metricOf(c.money.inflowVnd, prevValue.inflowVnd),
     },
   };
 }

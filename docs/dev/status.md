@@ -123,3 +123,16 @@ Tám phát hiện của `/code-review medium` trên PR #10. Kiểm bằng `pnpm 
 - **Hoãn:** token xác định bằng HMAC, ảnh ký ngắn hạn và cache ảnh, khóa OTP tăng dần, lịch Cloud Scheduler cho `messageRetry`, kiểm đồng ý cho OTP.
 
 - **Phase-1 hardening 1 (05/11/2026, nhánh `chore/phase1-hardening-1`):** CI bảo mật (gitleaks, CodeQL, Renovate, checklist 9 và 15); ESLint `react/no-danger` (checklist 7); `closeShift` gọi `assertDayOpen` trước bút toán chênh lệch (FR-ACC-004, RULE-010; test `acc.test.ts` "closeShift refuses a variance entry on a closed day", chỉ backend bộ nhớ); `pnpm bootstrap:data` (công ty, chi nhánh, kho, 10 vai trò, chủ ở trạng thái `invited`, không mật khẩu, idempotent) và `GMEP_ENV=prod` từ chối khởi động khi bật `EINVOICE_FAKE_PROVIDER`/`MESSAGE_DEV_CHANNELS`, thiếu SMTP, có emulator, `GCLOUD_PROJECT`/`FIREBASE_API_KEY` demo, thiếu URL hoặc cron (deploy-guide §8). Chưa chạy trên GCP thật. Vẫn `[Cần xác nhận]`: số pháp nhân, nhà cung cấp hóa đơn.
+
+## Cập nhật 06/11/2026: so sánh kỳ trước theo R110 đến R115 (dev, nhánh `feat/rpt-period-comparison`)
+
+Thay thế mô tả so sánh ở "Cập nhật 04/11/2026 (6)" (2a) và dòng Q-A phía trên; vẫn là giá trị tạm chờ BA/khách (R110 đến R115, AC-RPT-002-1 đến 8).
+
+- **Đã làm (FR-RPT-002 nửa sau):** báo cáo tháng một chi nhánh có `comparison` tính qua `comparisonPeriod(kind, month, today)` (`rpt/domain/reports.ts`); tham số `comparison` ở API `monthly` (R110, chỉ `previous-month-same-days`, mặc định; giá trị khác là 422). Tháng đang chạy so ngày 1..N với 1..N của tháng trước (ngắn hơn thì lấy hết, `lengthDiffers` + nhãn); tháng đã qua so cả tháng với cả tháng; tháng tương lai không có kỳ (R112). Màn hình và CSV/xlsx luôn ghi hai khoảng ngày.
+- **n/a và phần trăm:** kỳ trước thiếu rollup (một phần hoặc toàn bộ) thì mọi chỉ số "n/a" kèm lý do (chưa có dữ liệu / thiếu n ngày), không coi là 0, không tính % (R111). Kỳ trước 0 và kỳ này > 0: `deltaBp = null`, vẫn có chênh lệch tuyệt đối, nhãn "mới"; cả hai 0: "—" (R113). `deltaBp` là điểm cơ bản số nguyên, làm tròn xa số 0 khi đúng một nửa, tính bằng BigInt (không float). Ví dụ tay kế toán cần ký ở `tests/unit/rpt-reports.test.ts`.
+- **Chỉ số có so sánh (R114):** hằng `COMPARED_METRICS` = doanh thu chưa thuế, số lệnh hoàn tất, tiền thu. Không có so sánh cho chỉ số tồn.
+- **R108 hai kỳ:** API trả `previousUnlinked` (dòng "Không gắn lệnh" của kỳ trước, chỉ khi lọc loại dịch vụ) và có trong CSV (`unlinkedPrevious.*`); chưa hiện ở màn hình.
+- **Không làm:** so sánh giữa chi nhánh (R115). Không chỉ mục mới, đọc rollup theo khóa; chỉ mục thực tế vẫn 193/200 (`pnpm check:indexes`).
+- **Đã có từ trước, nay ghi đúng:** tải mẫu nhập `.xlsx`; cột "đã xuất hóa đơn" khi lọc loại dịch vụ đã sửa ở rollup v3 và có test hồi quy sẵn ở `rpt.test.ts` ("the invoiced column stays non-zero when filtered").
+- **Còn mở:** "lệnh chưa hóa đơn phát sinh" trong R114 không so được: rollup chỉ lưu tồn đọng cuối ngày (`closedWithoutInvoiceCount`), không lưu số phát sinh trong ngày, nên cần thêm trường vào rollup (đổi `schemaVersion`) nếu BA vẫn muốn; tạm không đưa vào. Quy ước làm tròn nửa (xa số 0 hay lên) cần kế toán xác nhận. Kỳ hiện tại thiếu ngày chưa được đánh dấu n/a (chỉ kỳ trước, theo R111).
+
