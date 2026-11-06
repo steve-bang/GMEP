@@ -9,6 +9,9 @@ export class MemoryFileStore implements FileStore {
   async delete(path: string): Promise<void> {
     this.files.delete(path);
   }
+  async list(prefix: string): Promise<string[]> {
+    return [...this.files.keys()].filter((k) => k.startsWith(prefix));
+  }
   async get(path: string): Promise<StoredFile | null> {
     const f = this.files.get(path);
     return f ? { bytes: new Uint8Array(f.bytes), contentType: f.contentType } : null;

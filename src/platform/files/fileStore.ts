@@ -15,6 +15,8 @@ export interface FileStore {
   get(path: string): Promise<StoredFile | null>;
   /** removes the file; no error when it is missing (cleanup of a write whose transaction failed) */
   delete(path: string): Promise<void>;
+  /** object paths starting with `prefix` (names only); for the tenant export (FR-TEN-006) */
+  list(prefix: string): Promise<string[]>;
 }
 
 /** Server-chosen, scope-prefixed object path: `<area>/<tenantId>/<branchId>/<name>` with no traversal possible. */

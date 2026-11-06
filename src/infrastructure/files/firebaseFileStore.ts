@@ -23,6 +23,10 @@ export class FirebaseFileStore implements FileStore {
   async delete(path: string): Promise<void> {
     await this.bucket().file(path).delete({ ignoreNotFound: true });
   }
+  async list(prefix: string): Promise<string[]> {
+    const [files] = await this.bucket().getFiles({ prefix });
+    return files.map((f) => f.name);
+  }
   async get(path: string): Promise<StoredFile | null> {
     const f = this.bucket().file(path);
     const [exists] = await f.exists();
