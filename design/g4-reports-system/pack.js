@@ -12,6 +12,8 @@
     own: (script.getAttribute('data-own') || '').split(' ').filter(Boolean)
   };
   window.G4R_CFG = CFG;
+  /* Tên hiển thị: màn mới đặt data-brand="GMEP" trên thẻ script (quyết định CD4, 06/11/2026); màn cũ giữ nguyên. */
+  var BRAND = script.getAttribute('data-brand') || 'GMEP';
 
   var ROLE_NAME = { CH: 'Chủ garage', QV: 'Quản lý vùng', QL: 'Quản lý chi nhánh', CV: 'Cố vấn dịch vụ', QD: 'Quản đốc', TH: 'Thợ', TK: 'Thủ kho', TN: 'Thu ngân', KT: 'Kế toán', AD: 'Quản trị hệ thống' };
 
@@ -52,7 +54,7 @@
     return [
       '<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>',
       '<div class="app" id="app">',
-      '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ico('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ico('x') + '</button></div>',
+      '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ico('wrench') + '</span><span class="sidebar__brand-name">' + BRAND + '</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ico('x') + '</button></div>',
       '<nav class="sidebar__nav"><div class="sidebar__group">Workspace</div>',
       navItem('dash', 'layout-dashboard', 'Tổng quan', '#'),
       navItem('ro', 'clipboard-list', 'Phiếu sửa chữa', '#'),
@@ -100,7 +102,7 @@
       '<div class="menu-sep"></div><div class="menu-label">Xem thử theo vai trò (chỉ prototype)</div>' + roleItems + '</div></div></header>',
       '<main class="main" id="main"><div class="main__inner">',
       '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ico('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể lưu cấu hình, xuất tệp hay nhập lô dữ liệu cho tới khi có mạng.</span></div></div>',
-      '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="#">GARAGE OS</a>' + ico('chevron-right') + crumbs + '</nav></div>'
+      '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="#">' + BRAND + '</a>' + ico('chevron-right') + crumbs + '</nav></div>'
     ].join('');
   }
 

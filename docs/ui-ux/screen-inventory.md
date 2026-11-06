@@ -492,3 +492,15 @@ Cài đặt dùng template S (danh sách + form, có ngày hiệu lực và lị
 5. Không có màn hình sửa tồn trực tiếp, xóa chứng từ tài chính đã ghi sổ, hoặc xuất kho không chứng từ: nếu thấy cần, báo lại BA.
 6. Màn hình thuộc nhiều gói (ví dụ G2-REC-04 liên kết tới G3 và G4) dùng chung component; đề nghị 4 designer thống nhất component "Approval Panel", "Repair Order Card", "Vehicle Card", "Parts Item", "Inspection Checklist" trước khi chia tay làm (design-system §6).
 7. Khi phát hiện thiếu yêu cầu, chuyển lại BA thay vì tự suy đoán; các điểm D-01…D-14 và G-01…G-10 là danh sách mở để chủ dự án xác nhận.
+
+## 10. Bổ sung giai đoạn 2 (06/11/2026, designer)
+
+Kết quả đối chiếu slice 2.1 đến 2.8 với prototype: bảng khoảng trống ở [`phase-2-gaps.md`](phase-2-gaps.md). Các màn dưới đây là **màn mới thêm** (không tính vào 184; tổng prototype thành 187 với 3 màn mới), dùng tên hiển thị **GMEP** (quyết định CD4). Màn cũ giữ chữ "GARAGE OS" trong khung cho tới khi có quyết định đổi hàng loạt (cờ `brand`/`G3_BRAND`/`data-brand` trong ba `pack.js`).
+
+| Mã | Tên · Template · Thiết bị | Vai trò | FR / RULE | Dữ liệu / thành phần chính | Hành động (chính / phụ / NH) | Trạng thái thêm | Ưu tiên |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| G4-APR-04 | Chi tiết phê duyệt kho và mua hàng (chuyển kho giá trị lớn, điều chỉnh tồn sau kiểm kê, yêu cầu mua vượt hạn mức) · D · **D** T | Người duyệt theo ma trận: QV, CH (chuyển kho); CH (điều chỉnh tồn); QL, QV, CH (mua); người đề xuất xem | FR-SYS-004, 015; FR-INV-010, 012; FR-PUR-002; RULE-011, RULE-007 | Dòng hàng, so với hạn mức, bản ghi gốc, lịch sử gồm nhắc trước hạn và tự chuyển cấp; giá vốn ẩn với TK | Chính: Duyệt. **NH:** Từ chối (lý do), Chuyển cấp (ghi chú) | đang chờ tôi; đã tự chuyển cấp (cấp trước bị khóa kèm lý do); người lập không tự duyệt; cấp không đủ quyền | P2 (slice 2.5) |
+| G4-RPT-12 | Hợp nhất chuỗi: kiểm tra đủ và khớp · C · **D** M | CH (kiểm tra khớp toàn chuỗi); QV, KT trong phạm vi được giao | FR-RPT-001, 002, 010, 011; RULE-015 | Chi nhánh nào vào số hợp nhất, số ngày chưa chốt (số tạm), thời điểm cập nhật; bảng tổng chi nhánh so với số toàn chuỗi (doanh thu, tiền thu, số lệnh, tồn, công nợ) | Chính: đi sâu tới chứng từ gốc. Phụ: xuất, báo lỗi dữ liệu cho quản trị. **NH:** không có nút sửa số | có chỉ số chưa khớp (liệt kê chứng từ gây lệch); chỉ có một chi nhánh; QV/KT không thấy kiểm tra toàn chuỗi | P2 (slice 2.1) |
+| G3-HRM-11 | Chi tiết công một nhân viên trong kỳ · D · **D** T | NS, QL, KT, CH, QV (X); TH (Xn) | FR-HRM-007, 008, 009, 010; FR-RPT-011 | Các dòng công cấu thành số ở G3-HRM-08: lệnh, hạng mục, giờ chuẩn/thực, công, tiền công (mẫu), dòng đảo và điều chỉnh, dòng chưa tính kỳ này | Chính: về bảng công. Phụ: Điều chỉnh công (G3-HRM-07). **NH:** không có sửa dòng đã ghi | kỳ đang mở (số tạm); kỳ đã khóa (chỉ đọc); tổng dòng = Bảng công | P2 (slice 2.6) |
+
+Chỉnh màn có sẵn: G4-APR-01 thêm 3 loại yêu cầu (chuyển kho, điều chỉnh tồn, yêu cầu mua) và liên kết tới G4-APR-04; G4-APR-03 thêm 3 dòng ma trận (yêu cầu mua, nhập không đơn mua, điều chỉnh công thủ công) với ngưỡng "Chưa chốt"; G3-HRM-08 có liên kết tên nhân viên tới G3-HRM-11.

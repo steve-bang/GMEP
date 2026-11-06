@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-APR-04 · Chi tiết phê duyệt kho và mua hàng (giai đoạn 2) · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body>
+<div id="g4f-body">
+  <div data-g4f-actions><a class="btn btn--secondary" href="g4-apr-01.html"><svg class="icon"><use href="#chevron-left"/></svg>Về hàng chờ</a></div>
+
+  <div class="g4f-demo" role="group" aria-label="Xem thử (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ LOẠI</span>
+    <div class="segmented" role="group" aria-label="Loại yêu cầu"><button class="segmented__item" data-g4f-var="xfer" data-vg="t" aria-pressed="true">Chuyển kho giá trị lớn</button><button class="segmented__item" data-g4f-var="adj" data-vg="t" aria-pressed="false">Điều chỉnh tồn sau kiểm kê</button><button class="segmented__item" data-g4f-var="buy" data-vg="t" aria-pressed="false">Yêu cầu mua vượt hạn mức</button></div>
+    <span class="g4f-demo__label">TÌNH TRẠNG</span>
+    <div class="segmented" role="group" aria-label="Tình trạng"><button class="segmented__item" data-g4f-var="pending" data-vg="s" aria-pressed="true">Đang chờ tôi</button><button class="segmented__item" data-g4f-var="esc" data-vg="s" aria-pressed="false">Đã tự chuyển cấp</button></div></div>
+
+  <div class="alert alert--warning" data-vg="s" data-v="esc" hidden role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title" data-vg="t" data-v="xfer">Quá hạn xử lý 24 giờ ở cấp Quản lý vùng, đã tự chuyển lên Chủ garage lúc 07:15 31/10/2026</span><span class="alert__title" data-vg="t" data-v="adj" hidden>Quá hạn xử lý 24 giờ ở cấp Quản lý chi nhánh, đã tự chuyển lên Chủ garage lúc 07:15 31/10/2026</span><span class="alert__title" data-vg="t" data-v="buy" hidden>Quá hạn xử lý 24 giờ ở cấp Quản lý chi nhánh, đã tự chuyển lên Quản lý vùng lúc 07:15 31/10/2026</span><span>Người ở cấp trước vẫn xem được nhưng không còn duyệt được. Thời hạn lấy từ ma trận G4-APR-03.</span></div></div>
+
+  <div class="g4f-two">
+    <section class="card" aria-labelledby="h-ap">
+      <div class="card__header"><div><h2 class="card__title" id="h-ap">
+        <span data-vg="t" data-v="xfer">Chuyển kho giá trị lớn</span><span data-vg="t" data-v="adj" hidden>Điều chỉnh tồn sau kiểm kê</span><span data-vg="t" data-v="buy" hidden>Yêu cầu mua vượt hạn mức</span></h2>
+        <div class="card__subtitle">Yêu cầu <span data-vg="t" data-v="xfer">YC-Q7-2610-00071</span><span data-vg="t" data-v="adj" hidden>YC-Q7-2610-00072</span><span data-vg="t" data-v="buy" hidden>YC-Q7-2610-00073</span> · gửi lúc 07:15 30/10/2026</div></div>
+        <span class="tag tag--warning" data-vg="s" data-v="pending">Chờ duyệt</span><span class="tag tag--info" data-vg="s" data-v="esc" hidden>Đã chuyển cấp</span></div>
+      <div class="card__body stack">
+        <dl class="g4f-kv g4f-kv--wide">
+          <div><dt>Người đề xuất</dt><dd><span data-vg="t" data-v="xfer">Võ Minh Quân (Quản lý chi nhánh)</span><span data-vg="t" data-v="adj buy" hidden>Hoàng Thị Mai (Thủ kho<span data-vg="t" data-v="adj" hidden>, người đếm</span>)</span></dd></div>
+          <div><dt>Chi nhánh</dt><dd><span data-vg="t" data-v="xfer">Chi nhánh Quận 7 → Chi nhánh Biên Hòa</span><span data-vg="t" data-v="adj buy" hidden>Chi nhánh Quận 7</span></dd></div>
+          <div><dt>Đối tượng</dt><dd><a href="#" class="code"><span data-vg="t" data-v="xfer">STO-Q7-2610-00014</span><span data-vg="t" data-v="adj" hidden>KK-Q7-2610-00003</span><span data-vg="t" data-v="buy" hidden>YM-Q7-2610-00004</span></a></dd></div>
+          <div><dt>Giá trị</dt><dd class="num" style="font-weight:700;font-size:18px"><span data-vg="t" data-v="xfer">62.400.000 ₫</span><span data-vg="t" data-v="adj" hidden>−4.320.000 ₫ <span class="t-body-sm text-secondary" style="font-weight:400">(thiếu so với sổ)</span></span><span data-vg="t" data-v="buy" hidden>21.360.000 ₫</span></dd></div>
+        </dl>
+        <div class="field"><span class="field__label"><span data-vg="t" data-v="adj" hidden>Giải trình của người đếm</span><span data-vg="t" data-v="xfer buy">Lý do của người đề xuất</span></span>
+          <p style="margin:0" data-vg="t" data-v="xfer">Chi nhánh Biên Hòa sắp hết má phanh, ắc quy và lọc dầu; Quận 7 đang dư theo khả dụng. Không phải chờ nhà cung cấp 5 ngày.</p>
+          <p style="margin:0" data-vg="t" data-v="adj" hidden>Dầu nhớt 5W-30 thiếu 6 can: nghi bán lẻ chưa lập phiếu. Má phanh và lọc dầu thiếu 3 mỗi loại, chưa rõ nguyên nhân. Đã đếm lại lần hai, số không đổi.</p>
+          <p style="margin:0" data-vg="t" data-v="buy" hidden>Má phanh và dầu nhớt xuống dưới định mức theo khả dụng; Quận 7 không còn kho dư để chuyển. Nhà cung cấp quen giá tốt hơn 4% nếu lấy đủ 3 mặt hàng một lần.</p></div>
+
+        <div>
+          <div class="row row--between t-body-sm"><strong>So với hạn mức</strong><span class="g4f-sample">Giá trị minh họa, lấy từ cấu hình G4-APR-03</span></div>
+          <div data-vg="t" data-v="xfer"><div class="g4f-limit" role="img" aria-label="62.400.000 so với hạn mức cấp Quản lý 50.000.000, vượt, cần Quản lý vùng"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:80%"></span></div><div class="g4f-limit__cap"><span>Đề xuất 62.400.000 ₫</span><span>Hạn mức Quản lý 50.000.000 ₫ · cần Quản lý vùng</span></div></div>
+          <div data-vg="t" data-v="adj" hidden><div class="g4f-limit" role="img" aria-label="4.320.000 so với hạn mức cấp Quản lý 3.000.000, vượt, cần Chủ garage"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:69%"></span></div><div class="g4f-limit__cap"><span>Chênh lệch 4.320.000 ₫</span><span>Hạn mức Quản lý 3.000.000 ₫ · cần Chủ garage</span></div></div>
+          <div data-vg="t" data-v="buy" hidden><div class="g4f-limit" role="img" aria-label="21.360.000 so với hạn mức cấp Quản lý 20.000.000, vượt 1.360.000"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:94%"></span></div><div class="g4f-limit__cap"><span>Đề xuất 21.360.000 ₫</span><span>Hạn mức Quản lý 20.000.000 ₫ · cần Quản lý vùng hoặc Chủ garage</span></div></div>
+        </div>
+
+        <div class="table-wrap"><div class="table-scroll">
+          <table class="table table--compact" data-vg="t" data-v="xfer"><caption class="sr-only">Dòng hàng chuyển kho</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Số lượng</th><th class="col-num">Giá vốn bình quân</th><th class="col-num">Giá trị</th></tr></thead><tbody>
+            <tr><td>Lọc dầu Toyota<span class="cell-sub">Khả dụng sau chuyển: 38</span></td><td class="col-num">120</td><td class="col-num js-cost" data-cost="85.000 ₫">85.000 ₫</td><td class="col-num">10.200.000 ₫</td></tr>
+            <tr><td>Má phanh trước Accent<span class="cell-sub">Khả dụng sau chuyển: 14</span></td><td class="col-num">60</td><td class="col-num js-cost" data-cost="540.000 ₫">540.000 ₫</td><td class="col-num">32.400.000 ₫</td></tr>
+            <tr><td>Ắc quy 12V 60Ah<span class="cell-sub">Khả dụng sau chuyển: 6</span></td><td class="col-num">8</td><td class="col-num js-cost" data-cost="2.475.000 ₫">2.475.000 ₫</td><td class="col-num">19.800.000 ₫</td></tr></tbody><tfoot><tr><td colspan="3">Tổng 3 mặt hàng</td><td class="col-num">62.400.000 ₫</td></tr></tfoot></table>
+          <table class="table table--compact" data-vg="t" data-v="adj" hidden><caption class="sr-only">Dòng chênh lệch kiểm kê</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Sổ sách</th><th class="col-num">Đếm</th><th class="col-num">Chênh lệch</th><th class="col-num">Giá trị</th></tr></thead><tbody>
+            <tr><td>Má phanh trước Accent</td><td class="col-num">24</td><td class="col-num">21</td><td class="col-num">−3</td><td class="col-num">−1.620.000 ₫</td></tr>
+            <tr><td>Lọc dầu Toyota</td><td class="col-num">60</td><td class="col-num">57</td><td class="col-num">−3</td><td class="col-num">−255.000 ₫</td></tr>
+            <tr><td>Dầu nhớt 5W-30 4L<span class="cell-sub"><span class="tag tag--warning">Lệch lặp lại: lần thứ 3 trong 90 ngày</span></span></td><td class="col-num">30</td><td class="col-num">24</td><td class="col-num">−6</td><td class="col-num">−2.445.000 ₫</td></tr></tbody><tfoot><tr><td colspan="4">Tổng chênh lệch</td><td class="col-num">−4.320.000 ₫</td></tr></tfoot></table>
+          <table class="table table--compact" data-vg="t" data-v="buy" hidden><caption class="sr-only">Dòng hàng yêu cầu mua</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Số lượng</th><th class="col-num">Đơn giá dự kiến</th><th class="col-num">Giá trị</th></tr></thead><tbody>
+            <tr><td>Má phanh trước Accent</td><td class="col-num">20</td><td class="col-num">540.000 ₫</td><td class="col-num">10.800.000 ₫</td></tr>
+            <tr><td>Dầu nhớt 5W-30 4L</td><td class="col-num">24</td><td class="col-num">407.500 ₫</td><td class="col-num">9.780.000 ₫</td></tr>
+            <tr><td>Lọc gió động cơ</td><td class="col-num">12</td><td class="col-num">65.000 ₫</td><td class="col-num">780.000 ₫</td></tr></tbody><tfoot><tr><td colspan="3">Tổng 3 mặt hàng</td><td class="col-num">21.360.000 ₫</td></tr></tfoot></table>
+        </div></div>
+
+        <div class="alert alert--neutral" data-vg="t" data-v="xfer"><svg class="icon"><use href="#info"/></svg><div class="alert__body">Duyệt chỉ cho phép gửi hàng. Hàng chuyển sang “Đang vận chuyển”, chưa tính vào khả dụng của cả hai chi nhánh cho tới khi bên nhận xác nhận (G3-INV-14).</div></div>
+        <div class="alert alert--neutral" data-vg="t" data-v="adj" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body">Duyệt tạo phiếu điều chỉnh ADJ và ghi vào thẻ kho; tồn chỉ đổi sau khi duyệt. Người đếm không được duyệt chính đợt mình đếm. Từ chối thì tồn sổ sách giữ nguyên và đợt kiểm kê quay lại “Cần đếm lại”.</div></div>
+        <div class="alert alert--neutral" data-vg="t" data-v="buy" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body">Duyệt cho phép lập đơn mua từ yêu cầu này (G3-PUR-05). Không có chứng từ nhập hay công nợ phát sinh ở bước duyệt.</div></div>
+
+        <div>
+          <h3 class="g4f-section-title" style="font-size:16px">Lịch sử xử lý</h3>
+          <div class="timeline">
+            <div class="timeline__item timeline__item--warning" data-vg="s" data-v="pending"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Chờ duyệt: <span data-vg="t" data-v="xfer">Quản lý vùng</span><span data-vg="t" data-v="adj" hidden>Chủ garage</span><span data-vg="t" data-v="buy" hidden>Quản lý chi nhánh</span></div><div class="timeline__meta">Hạn xử lý 24 giờ theo cấu hình; quá hạn sẽ tự chuyển cấp</div></div></div>
+            <div class="timeline__item timeline__item--warning" data-vg="s" data-v="esc" hidden><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Chờ duyệt: <span data-vg="t" data-v="xfer adj">Chủ garage</span><span data-vg="t" data-v="buy" hidden>Quản lý vùng</span></div><div class="timeline__meta">Hạn xử lý mới 24 giờ từ 07:15 31/10/2026</div></div></div>
+            <div class="timeline__item timeline__item--brand" data-vg="s" data-v="esc" hidden><div class="timeline__dot"><svg class="icon"><use href="#arrow-right"/></svg></div><div><div class="timeline__title">Tự động chuyển cấp (quá hạn 24 giờ)</div><div class="timeline__meta">Hệ thống · 07:15 31/10/2026 · nhắc trước hạn đã gửi 19:15 30/10/2026</div></div></div>
+            <div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi yêu cầu duyệt</div><div class="timeline__meta">07:15 30/10/2026</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card__footer" style="flex-wrap:wrap">
+        <button class="btn btn--danger-outline" id="btn-rej" data-open="dlg-reject">Từ chối</button>
+        <button class="btn btn--secondary" id="btn-esc" data-open="dlg-escalate" data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền mới chuyển cấp.">Chuyển cấp</button>
+        <p class="g4f-why" id="appr-why" role="status" style="flex-basis:100%;margin:0"></p>
+        <button class="btn btn--primary btn--lg" id="btn-appr" data-open="dlg-approve" data-g4f-online>Duyệt</button>
+      </div>
+    </section>
+
+    <aside class="g4f-aside">
+      <section class="card">
+        <div class="card__header"><div><h2 class="card__title">Bản ghi gốc</h2><div class="card__subtitle">Số liệu hiện tại, mở màn nguồn để kiểm tra</div></div></div>
+        <div class="card__body"><dl class="g4f-sum" data-vg="t" data-v="xfer">
+          <div><dt>Phiếu chuyển</dt><dd class="code">STO-Q7-2610-00014</dd></div><div><dt>Trạng thái phiếu</dt><dd><span class="badge badge--warning">Chờ duyệt</span></dd></div><div><dt>Khả dụng Quận 7 sau chuyển</dt><dd>đủ cả 3 mặt hàng</dd></div></dl>
+          <dl class="g4f-sum" data-vg="t" data-v="adj" hidden>
+          <div><dt>Đợt kiểm kê</dt><dd class="code">KK-Q7-2610-00003</dd></div><div><dt>Phạm vi</dt><dd>Nhóm Phanh và dầu nhớt</dd></div><div><dt>Người đếm</dt><dd>Hoàng Thị Mai</dd></div><div><dt>Trạng thái đợt</dt><dd><span class="badge badge--warning">Chờ duyệt chênh lệch</span></dd></div></dl>
+          <dl class="g4f-sum" data-vg="t" data-v="buy" hidden>
+          <div><dt>Yêu cầu mua</dt><dd class="code">YM-Q7-2610-00004</dd></div><div><dt>Trạng thái</dt><dd><span class="badge badge--warning">Chờ duyệt</span></dd></div><div><dt>Nhà cung cấp gợi ý</dt><dd>1 nhà cung cấp</dd></div></dl>
+          <a class="btn btn--secondary btn--sm" href="#" style="margin-top:12px">Mở chứng từ gốc<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="overlay" id="dlg-approve" role="alertdialog" aria-modal="true" aria-labelledby="ap-t"><div class="dialog" data-g4f-gate>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="ap-t">Duyệt yêu cầu này?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><dl class="g4f-sum"><div><dt>Loại yêu cầu</dt><dd id="ap-type">Chuyển kho giá trị lớn</dd></div><div class="is-total"><dt>Giá trị</dt><dd id="ap-val">62.400.000 ₫</dd></div></dl><p>Bạn duyệt với tên <strong id="ap-who"></strong>. Hệ thống thực hiện ngay hành động đã đề xuất và ghi nhật ký (người duyệt, thời điểm, giá trị). Bấm hai lần không duyệt hai lần.</p>
+    <div class="field"><label class="field__label" for="ap-n">Ghi chú (không bắt buộc)</label><input id="ap-n" class="input"></div>
+    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem dòng hàng, giá trị và so với hạn mức.</span></label></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" id="ap-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-appr" data-busy="Đang duyệt…" data-done-label="Đã duyệt" data-done-toast="success|Đã duyệt yêu cầu|Người đề xuất được thông báo; ghi nhật ký." disabled>Duyệt</button></div></div></div>
+
+<div class="overlay" id="dlg-reject" role="alertdialog" aria-modal="true" aria-labelledby="rj-t"><div class="dialog" data-confirm-guard>
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#circle-x"/></svg></div><div><h2 class="dialog__title" id="rj-t">Từ chối yêu cầu</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><p class="t-body-sm text-secondary">Người đề xuất sẽ nhận lý do này. Hành động đề xuất không được thực hiện.</p><div class="field"><label class="field__label" for="rj-r">Lý do từ chối<span class="field__req" aria-hidden="true">*</span></label><textarea id="rj-r" class="textarea" data-confirm-reason></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" id="rj-ok" data-confirm-btn data-g4f-submit data-lock="#btn-rej" data-busy="Đang từ chối…" data-done-label="Đã từ chối" data-done-toast="warning|Đã từ chối yêu cầu|Lý do được gửi cho người đề xuất." disabled>Từ chối</button></div></div></div>
+
+<div class="overlay" id="dlg-escalate" role="dialog" aria-modal="true" aria-labelledby="es-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="es-t">Chuyển lên cấp trên</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack"><div class="field"><label class="field__label" for="es-p">Chuyển tới<span class="field__req" aria-hidden="true">*</span></label><select id="es-p" class="select"><option>Quản lý vùng Miền Nam</option><option>Chủ garage</option></select><span class="field__hint">Danh sách lấy từ ma trận phê duyệt (G4-APR-03).</span></div><div class="field"><label class="field__label" for="es-r">Lý do chuyển cấp<span class="field__req" aria-hidden="true">*</span></label><textarea id="es-r" class="textarea" style="min-height:64px"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="es-ok" data-g4f-submit data-lock="#btn-esc" data-busy="Đang chuyển cấp…" data-done-label="Đã chuyển cấp" data-done-toast="info|Đã chuyển cấp|Người nhận được thông báo." data-g4f-online disabled>Chuyển cấp</button></div></div></div>
+
+<script>
+window.G4F_PAGE = {
+  code: 'G4-APR-04', brand: 'GMEP', title: 'Chi tiết phê duyệt kho và mua hàng', desc: 'Chuyển kho giá trị lớn, điều chỉnh tồn sau kiểm kê, yêu cầu mua vượt hạn mức; trạng thái tự chuyển cấp khi quá hạn.',
+  menu: 'fin', role: 'QV', allow: ['CH', 'QV', 'QL', 'KT', 'TK'], updated: '09:15', time: 'yêu cầu mở lúc 07:15',
+  states: ['data', 'loading', 'error', 'denied']
+};
+</script>
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var P = { xfer: 'Võ Minh Quân', adj: 'Hoàng Thị Mai', buy: 'Hoàng Thị Mai' }, type = 'xfer', st = 'pending', decided = null;
+  var VAL = { xfer: 62400000, adj: 4320000, buy: 21360000 }, NAME = { xfer: 'Chuyển kho giá trị lớn', adj: 'Điều chỉnh tồn sau kiểm kê', buy: 'Yêu cầu mua vượt hạn mức' };
+  /* Sau khi tự chuyển cấp, chỉ cấp mới được duyệt (cấp trước bị khóa kèm lý do) */
+  var ESC = { xfer: ['CH', 'Chủ garage'], adj: ['CH', 'Chủ garage'], buy: ['QV CH', 'Quản lý vùng hoặc Chủ garage'] };
+  function role() { return document.body.getAttribute('data-role'); }
+  function gate() {
+    var r = G4F.canApprove(type, role(), P[type]);
+    if (r.ok && st === 'esc' && ESC[type][0].split(' ').indexOf(role()) < 0) r = { ok: false, why: 'Yêu cầu đã tự chuyển lên ' + ESC[type][1] + ' do quá hạn xử lý; cấp của bạn không còn duyệt được.' };
+    var ok = r.ok && !decided;
+    ['btn-appr', 'btn-rej', 'btn-esc'].forEach(function (i) { G4F.setEnabled(document.getElementById(i), ok); });
+    document.getElementById('appr-why').textContent = decided ? 'Đã xử lý: ' + decided + '. Không quyết định ngược trên yêu cầu này.' : (r.ok ? '' : 'Nút Duyệt, Từ chối, Chuyển cấp bị khóa: ' + r.why);
+    document.getElementById('ap-type').textContent = NAME[type]; document.getElementById('ap-val').textContent = G4F.fmt(VAL[type]); document.getElementById('ap-who').textContent = G4F.user();
+    document.getElementById('ap-ok').textContent = 'Duyệt ' + G4F.fmt(VAL[type]);
+    /* Giá vốn bình quân chỉ hiện với vai trò có quyền xem giá vốn (CH, QV, QL, KT) */
+    G4F.$$('.js-cost').forEach(function (td) { td.textContent = ['TK'].indexOf(role()) >= 0 ? 'Ẩn theo quyền' : td.getAttribute('data-cost'); });
+  }
+  document.addEventListener('g4f:done', function (e) { var m = { 'ap-ok': 'Đã duyệt', 'rj-ok': 'Đã từ chối', 'es-ok': 'Đã chuyển cấp' }[e.detail.id]; if (m) { decided = m; gate(); } });
+  document.addEventListener('input', function (e) { if (e.target.id === 'es-r') G4F.setEnabled(document.getElementById('es-ok'), e.target.value.trim().length >= 5); });
+  G4F.setEnabled(document.getElementById('es-ok'), false);
+  document.addEventListener('g4f:var', function (e) {
+    if (e.detail.group === 't') type = e.detail.v; if (e.detail.group === 's') st = e.detail.v;
+    decided = null; ['btn-appr', 'btn-rej', 'btn-esc'].forEach(function (i) { G4F.resetBtn(document.getElementById(i)); }); gate();
+  });
+  document.addEventListener('g4f:ktt', gate);
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(gate, 5); });
+  G4F.applyVar('t', 'xfer'); G4F.applyVar('s', 'pending');
+})();
+</script>
+</body>
+</html>

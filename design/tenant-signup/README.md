@@ -73,7 +73,7 @@ Các quyết định D1 đến D9 (đề xuất, chờ khách hàng xác nhận;
 | D6 | Hóa đơn điện tử nói bằng tiếng thường: "Garage đang dùng hóa đơn điện tử của nhà nào?" (Nhà cung cấp A/B/C là dữ liệu minh họa cấu hình được, "Khác", "Chưa có / chưa biết"). "Chặn phát hành hóa đơn thật" thành "Cần để xuất hóa đơn thật", kèm "Trước đó, hóa đơn chỉ là bản nháp để thử." | TSX-10, 20, banner BAN-C, TSU-50, 51 |
 | D7 | Đồng ý Điều khoản rút thành một câu ngắn kèm nút "Đọc"; ý "đại diện hợp pháp" chuyển thành chú nhỏ dưới ô; ô DPA vẫn tách riêng | TSX-01 |
 | D8 | Mật khẩu: điều kiện và thanh độ mạnh chỉ hiện khi bắt đầu gõ, chưa đạt là chấm trung tính, đạt thì dấu tích xanh, không X đỏ. "Kiểm tra người thật" ẩn mặc định, chỉ hiện ở trạng thái xem thử "Cần kiểm tra người thật"; gửi bình thường không cần bấm | TSX-01, TSU-15, 16 |
-| D9 | Thương hiệu "GARAGE OS" là một hằng duy nhất `TS_CONFIG.brand` trong `ts-config.js`; chỗ hiện tên dùng `<span data-brand>`; tiêu đề tab được thay theo. **[Cần xác nhận] tên sản phẩm "GARAGE OS" chưa được chủ dự án chốt.** | tất cả màn |
+| D9 | Thương hiệu "GMEP" là một hằng duy nhất `TS_CONFIG.brand` trong `ts-config.js`; chỗ hiện tên dùng `<span data-brand>`; tiêu đề tab được thay theo. **[Cần xác nhận] tên sản phẩm "GMEP" chưa được chủ dự án chốt.** | tất cả màn |
 
 Dọn thêm: thanh quản trị nền tảng trên điện thoại còn tối đa hai hàng (tên sản phẩm và nhãn, rồi tên người dùng, đổi giao diện, đăng xuất); thanh lưu dính của TSU-66 trên điện thoại gọn một hàng nút, dòng "n thay đổi chưa lưu" nhỏ phía trên.
 

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G4-RPT-12 – Hợp nhất chuỗi: kiểm tra đủ và khớp · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="CH">
+<noscript><div class="g4r-noscript" role="alert">Bản prototype này cần bật JavaScript để hiển thị khung ứng dụng và nội dung (khung được ghép bằng script).</div></noscript>
+<script src="pack.js" data-code="G4-RPT-12" data-menu="rpt" data-brand="GMEP" data-crumbs="Báo cáo|Hợp nhất chuỗi: kiểm tra đủ và khớp" data-allow="CH QV KT"></script>
+<script>
+g4rPage({
+  title: 'Hợp nhất chuỗi: kiểm tra đủ và khớp',
+  desc: 'Trước khi đọc số hợp nhất: chi nhánh nào đã vào số, ngày nào còn là số tạm, và tổng các chi nhánh có bằng số toàn chuỗi không (FR-RPT-001, 010; RULE-015).',
+  prio: 'P2 (slice 2.1)',
+  period: 'Tháng 10/2026 (01–30/10/2026)',
+  asof: 'Cập nhật lúc 09:15 30/10/2026 · gồm 1 ngày chưa chốt (30/10)',
+  sample: 'số mẫu, chờ khách chốt',
+  actions: g4rExportBtn(),
+  states: ['data', 'loading', 'empty', 'error', 'denied'],
+  extraStates: [['mismatch', 'Có chỉ số chưa khớp'], ['single', 'Chỉ có 1 chi nhánh']],
+  empty: { title: 'Chưa có chi nhánh nào vào số hợp nhất', text: 'Chọn kỳ khác hoặc kiểm tra chi nhánh đã bắt đầu dùng hệ thống ở Cài đặt, Cơ cấu tổ chức.' }
+});
+g4rFilters({ fields: ['period'], sel: { period: 2 }, chips: ['Tháng này (01–30/10/2026)'] });
+</script>
+
+<div class="alert alert--info" data-legal hidden role="note"><svg class="icon" aria-hidden="true"><use href="#info"/></svg><div class="alert__body"><strong>Nhiều pháp nhân:</strong> số chính thức tính theo từng pháp nhân, không cộng gộp giữa các pháp nhân. Kiểm tra “tổng chi nhánh = toàn chuỗi” chỉ áp dụng trong cùng một pháp nhân.</div></div>
+<div class="alert alert--neutral g4r-kt-only" role="note"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body">Bạn chỉ thấy các chi nhánh được gán (Quận 7, Thủ Đức). Chi nhánh khác không hiện trong bảng và không vào số bạn xem.</div></div>
+
+<section class="grid grid--4" aria-label="Tóm tắt kiểm tra">
+  <div class="card kpi"><span class="kpi__label">Chi nhánh vào số hợp nhất<span class="g4r-formula">Chi nhánh trong phạm vi có dữ liệu trong kỳ</span></span><span class="kpi__value"><span class="g4r-v-ch">5 / 5</span><span class="g4r-v-qv">4 / 4</span><span class="g4r-v-kt">2 / 2</span></span><span class="kpi__meta">Không có chi nhánh bị loại khỏi số</span><span class="kpi__scope" data-scope-label>Phạm vi theo bộ chọn · 01–30/10/2026</span></div>
+  <div class="card kpi kpi--warning"><span class="kpi__label">Chi nhánh còn ngày chưa chốt<span class="g4r-formula">Có ít nhất một ngày trong kỳ chưa khóa (số tạm)</span></span><span class="kpi__value"><span class="g4r-v-ch">3</span><span class="g4r-v-qv">3</span><span class="g4r-v-kt">1</span></span><span class="kpi__meta">Số của các ngày này có nhãn “Số tạm”</span><span class="kpi__scope" data-scope-label>01–30/10/2026</span></div>
+  <div class="card kpi kpi--success"><span class="kpi__label">Kiểm tra khớp<span class="g4r-formula">Tổng các chi nhánh so với số tính độc lập từ sổ</span></span><span class="kpi__value">5 / 5<span class="kpi__unit">chỉ số khớp</span></span><span class="kpi__meta">Chênh lệch 0 ₫ ở mọi chỉ số</span><span class="kpi__scope" data-scope-label>01–30/10/2026</span></div>
+  <div class="card kpi"><span class="kpi__label">Dữ liệu cũ nhất<span class="g4r-formula">Lần cập nhật gần nhất của chi nhánh chậm nhất</span></span><span class="kpi__value"><span class="g4r-v-ch">08:42</span><span class="g4r-v-qv">08:42</span><span class="g4r-v-kt">09:15</span></span><span class="kpi__meta"><span class="g4r-v-ch">Chi nhánh Biên Hòa</span><span class="g4r-v-qv">Chi nhánh Biên Hòa</span><span class="g4r-v-kt">Chi nhánh Quận 7</span></span><span class="kpi__scope">hôm nay 30/10/2026</span></div>
+</section>
+
+<section class="table-wrap" aria-label="Tình trạng dữ liệu theo chi nhánh">
+  <div class="table-toolbar"><strong>Tình trạng dữ liệu theo chi nhánh</strong><span class="table-meta" style="margin-left:auto">Bấm số ngày chưa chốt để mở danh sách ngày (G4-ACC-09)</span></div>
+  <div class="table-scroll"><table class="table">
+    <caption class="sr-only">Chi nhánh, trạng thái, ngày chốt gần nhất, số ngày chưa chốt và thời điểm cập nhật dữ liệu</caption>
+    <thead><tr><th>Chi nhánh</th><th>Trạng thái chi nhánh</th><th>Ngày chốt gần nhất</th><th class="col-num">Ngày chưa chốt trong kỳ</th><th>Cập nhật lúc</th><th>Trong số hợp nhất</th></tr></thead>
+    <tbody>
+      <tr><td><a href="g4-rpt-03.html">Chi nhánh Quận 7</a></td><td><span class="badge badge--success">Đang hoạt động</span></td><td class="num">29/10/2026</td><td class="col-num"><a href="#">1 ngày</a></td><td class="num">09:15</td><td><span class="badge badge--success">Có</span> <span class="tag tag--warning">Gồm số tạm 30/10</span></td></tr>
+      <tr class="g4r-notkt"><td><a href="#">Chi nhánh Quận 1</a></td><td><span class="badge badge--success">Đang hoạt động</span></td><td class="num">30/10/2026</td><td class="col-num">0</td><td class="num">09:14</td><td><span class="badge badge--success">Có</span> <span class="tag tag--success">Chính thức</span></td></tr>
+      <tr><td><a href="#">Chi nhánh Thủ Đức</a></td><td><span class="badge badge--success">Đang hoạt động</span></td><td class="num">28/10/2026</td><td class="col-num"><a href="#">2 ngày</a></td><td class="num">09:10</td><td><span class="badge badge--success">Có</span> <span class="tag tag--warning">Gồm số tạm 29, 30/10</span></td></tr>
+      <tr class="g4r-notkt g4r-notqv"><td><a href="#">Chi nhánh Đà Nẵng</a></td><td><span class="badge badge--info">Ngừng nhận lệnh mới</span></td><td class="num">30/10/2026</td><td class="col-num">0</td><td class="num">09:12</td><td><span class="badge badge--success">Có</span> <span class="tag tag--success">Chính thức</span></td></tr>
+      <tr class="g4r-notkt"><td><a href="#">Chi nhánh Biên Hòa</a></td><td><span class="badge badge--success">Đang hoạt động</span></td><td class="num">29/10/2026</td><td class="col-num"><a href="#">1 ngày</a></td><td class="num">08:42<span class="cell-sub">chậm hơn 33 phút so với chi nhánh khác</span></td><td><span class="badge badge--success">Có</span> <span class="tag tag--warning">Gồm số tạm 30/10</span></td></tr>
+    </tbody></table></div>
+  <div class="table-footer"><span class="table-meta">Số tạm chuyển thành chính thức khi chi nhánh khóa ngày (G4-ACC-09). Chi nhánh đã khóa hoặc đóng vẫn hiện nếu có phát sinh trong kỳ; có tính vào số hợp nhất hay không là câu hỏi mở cho BA (xem phase-2-gaps.md, Q-2.1-02).</span></div>
+</section>
+
+<section class="table-wrap" data-show-roles="CH" aria-label="Kiểm tra khớp toàn chuỗi">
+  <div class="table-toolbar"><strong>Kiểm tra: tổng các chi nhánh = số toàn chuỗi</strong><span class="table-meta" style="margin-left:auto">Số toàn chuỗi tính độc lập từ sổ cái nghiệp vụ, không cộng từ bảng trên</span></div>
+  <div class="table-scroll"><table class="table">
+    <caption class="sr-only">So sánh tổng các chi nhánh với số toàn chuỗi cho từng chỉ số</caption>
+    <thead><tr><th>Chỉ số</th><th class="col-num">Tổng 5 chi nhánh</th><th class="col-num">Số toàn chuỗi</th><th class="col-num">Chênh lệch</th><th>Kết quả</th><th><span class="sr-only">Đi sâu</span></th></tr></thead>
+    <tbody>
+      <tr><td>Doanh thu chưa thuế<span class="g4r-formula">Lệnh Hoàn tất trong kỳ, sau giảm giá</span></td><td class="col-num">2.228.500.000 ₫</td><td class="col-num">2.228.500.000 ₫</td><td class="col-num">0 ₫</td><td><span class="badge badge--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#check"/></svg>Khớp</span></td><td><a href="g4-rpt-10.html">Chứng từ gốc</a></td></tr>
+      <tr><td>Tiền đã thu<span class="g4r-formula">Tổng phiếu thu trong kỳ, trừ hoàn tiền</span></td><td class="col-num">2.391.870.000 ₫</td><td class="col-num">2.391.870.000 ₫</td><td class="col-num">0 ₫</td><td><span class="badge badge--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#check"/></svg>Khớp</span></td><td><a href="g4-rpt-10.html">Chứng từ gốc</a></td></tr>
+      <tr><td>Số lệnh hoàn tất<span class="g4r-formula">Không tính lệnh Đã hủy</span></td><td class="col-num">752</td><td class="col-num">752</td><td class="col-num">0</td><td><span class="badge badge--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#check"/></svg>Khớp</span></td><td><a href="g4-rpt-10.html">Chứng từ gốc</a></td></tr>
+      <tr><td>Giá trị tồn kho<span class="g4r-formula">Giá vốn bình quân × tồn thực tế, cuối ngày 29/10 (ngày chốt chung gần nhất)</span></td><td class="col-num">4.812.360.000 ₫</td><td class="col-num">4.812.360.000 ₫</td><td class="col-num">0 ₫</td><td><span class="badge badge--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#check"/></svg>Khớp</span></td><td><a href="g4-rpt-06.html">Báo cáo kho</a></td></tr>
+      <tr><td>Công nợ phải thu<span class="g4r-formula">Dư nợ khách cuối ngày 29/10</span></td><td class="col-num">386.240.000 ₫</td><td class="col-num">386.240.000 ₫</td><td class="col-num">0 ₫</td><td><span class="badge badge--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#check"/></svg>Khớp</span></td><td><a href="g4-acc-10.html">Tuổi nợ</a></td></tr>
+    </tbody></table></div>
+  <div class="table-footer"><span class="table-meta">Hàng đang vận chuyển giữa chi nhánh được tính một lần, ở hàng “Đang vận chuyển” (không vào tồn của cả hai bên). Khi lệch, màn hình hiện chứng từ gây lệch; không có nút sửa số.</span></div>
+</section>
+<div class="alert alert--neutral" data-show-roles="QV KT" role="note"><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kiểm tra khớp toàn chuỗi chỉ dành cho Chủ garage</span>Kiểm tra này cần số của các chi nhánh ngoài phạm vi bạn được giao. Trong phạm vi của bạn, hệ thống đã kiểm tra và các chỉ số đều khớp.</div></div>
+
+<script>
+g4rEnd(
+  '<div data-state="mismatch" hidden class="stack">' +
+    '<div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">1 trong 5 chỉ số chưa khớp: Giá trị tồn kho chênh 1.240.000 ₫</span><span>Số hợp nhất đang hiển thị kèm nhãn “Chưa đối chiếu được”. Không dùng số tồn kho hợp nhất cho tới khi xử lý. Các chỉ số còn lại vẫn khớp.</span></div></div>' +
+    '<div class="table-wrap"><div class="table-toolbar"><strong>Chứng từ gây chênh lệch (Giá trị tồn kho)</strong></div><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Chứng từ gây chênh lệch</caption><thead><tr><th>Chi nhánh</th><th>Chứng từ</th><th>Loại</th><th class="col-num">Giá trị</th><th>Ghi chú hệ thống</th></tr></thead><tbody>' +
+    '<tr><td>Chi nhánh Thủ Đức</td><td><a class="code" href="#">STO-TD-2610-00011</a></td><td><span class="tag tag--info">Đang vận chuyển</span></td><td class="col-num">1.240.000 ₫</td><td>Có trong tồn kho chuỗi, không có trong tổng chi nhánh</td></tr>' +
+    '<tr><td colspan="5" class="text-secondary">Bản ghi đối chiếu được lưu cùng nhật ký; dữ liệu gốc không bị sửa tự động.</td></tr></tbody></table></div><div class="table-footer"><button class="btn btn--secondary btn--sm" data-toast="info|Đã gửi báo lỗi dữ liệu|Quản trị hệ thống nhận mã đối chiếu; ghi nhật ký.">Gửi báo lỗi dữ liệu cho quản trị</button><span class="table-meta">Hiện thời điểm kiểm tra: 09:15 30/10/2026.</span></div></div>' +
+  '</div>' +
+  '<div data-state="single" hidden><div class="table-wrap"><div class="state"><div class="state__icon state__icon--brand"><svg class="icon icon--lg" aria-hidden="true"><use href="#map-pin"/></svg></div><div class="state__title">Chưa có gì để hợp nhất</div><p class="state__text">Hệ thống mới có một chi nhánh đang hoạt động, nên không có số hợp nhất để kiểm tra. Màn hình này tự ẩn khỏi menu cho tới khi có chi nhánh thứ hai.</p><div class="state__actions"><a class="btn btn--secondary" href="g4-sys-05.html">Mở Cơ cấu tổ chức</a></div></div></div></div>'
+)
+</script>
+</body>
+</html>

@@ -25,7 +25,7 @@
     { k: 'close', label: 'Chốt ca, ngày, kỳ', href: 'g4-acc-08.html', roles: 'CH QV QL KT TN', ids: ['acc-08', 'acc-09', 'acc-17'] },
     { k: 'profit', label: 'Giá vốn và lãi lỗ', href: 'g4-acc-14.html', roles: 'CH QV QL KT', ids: ['acc-14', 'acc-15', 'acc-19', 'acc-20'] },
     { k: 'bank', label: 'Ngân hàng và kết xuất', href: 'g4-acc-16.html', roles: 'KT CH QV', ids: ['acc-16', 'acc-18'] },
-    { k: 'apr', label: 'Phê duyệt', href: 'g4-apr-01.html', roles: 'CH QV QL KT TN CV TK', ids: ['apr-01', 'apr-02', 'apr-03'], pill: '7' },
+    { k: 'apr', label: 'Phê duyệt', href: 'g4-apr-01.html', roles: 'CH QV QL KT TN CV TK', ids: ['apr-01', 'apr-02', 'apr-03', 'apr-04'], pill: '7' },
     { k: 'ein', label: 'Hóa đơn điện tử', href: 'g4-ein-01.html', roles: 'CH QV QL KT TN AD', ids: ['ein-01', 'ein-02', 'ein-03', 'ein-04', 'ein-05', 'ein-06', 'ein-07', 'ein-08'] }
   ];
   var curId = (P.code || '').replace(/^G4-/i, '').toLowerCase();
@@ -43,7 +43,7 @@
   var roleItems = ROLES.map(function (r) { return '<button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="' + r[0] + '" data-role-name="' + r[1] + '" aria-checked="' + (r[0] === role) + '">' + r[1] + '</button>'; }).join('');
   var shell =
     '<div class="app" id="app">' +
-    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div>' +
+    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">' + esc(P.brand || 'GMEP') + '</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div>' +
     '<nav class="sidebar__nav"><div class="sidebar__group">Workspace</div>' +
     navItem('dash', 'layout-dashboard', 'Tổng quan', '../foundation/shell.html') + navItem('ro', 'clipboard-list', 'Phiếu sửa chữa', '#') + navItem('appt', 'calendar', 'Lịch hẹn', '#') + navItem('cust', 'car-front', 'Khách hàng & Xe', '#') +
     '<div class="sidebar__group">Kho &amp; mua hàng</div>' + navItem('inv', 'warehouse', 'Kho phụ tùng', '#') + navItem('pur', 'shopping-cart', 'Mua hàng', '#') +
@@ -104,7 +104,7 @@
   var timeTxt = P.time || 'hôm nay 30/10/2026';
   var head =
     '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). <strong>Chưa thể ghi nhận thanh toán, chi tiền, chốt ca/ngày hoặc phát hành hóa đơn</strong>: các nút này tạm khóa để tránh ghi trùng. Xem số liệu cũ vẫn được, ghi “Cập nhật lúc 09:15”.</span></div></div>' +
-    '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="../foundation/shell.html">GARAGE OS</a>' + ic('chevron-right') + '<a href="' + (P.menu === 'einv' ? 'g4-ein-01.html' : 'g4-acc-02.html') + '">' + crumbGroup + '</a>' + ic('chevron-right') + '<span aria-current="page">' + esc(P.title) + '</span></nav></div>' +
+    '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="../foundation/shell.html">' + esc(P.brand || 'GMEP') + '</a>' + ic('chevron-right') + '<a href="' + (P.menu === 'einv' ? 'g4-ein-01.html' : 'g4-acc-02.html') + '">' + crumbGroup + '</a>' + ic('chevron-right') + '<span aria-current="page">' + esc(P.title) + '</span></nav></div>' +
     '<div class="page-header"><div class="page-header__text"><h1>' + esc(P.title) + '</h1><p class="page-header__desc">' + esc(P.desc || '') + (P.code ? ' <span class="t-caption text-tertiary">(' + esc(P.code) + ')</span>' : '') + '</p></div><div class="page-header__actions">' + actionsHTML + '</div></div>' +
     subnavHTML() +
     '<div class="scope-banner" role="status">' + ic('map-pin', 'icon--sm') + '<span><strong>Phạm vi:</strong> <span data-scope-text>Tất cả chi nhánh</span></span><span data-legal hidden>· <strong>Pháp nhân:</strong> Tất cả pháp nhân được xem (không cộng gộp trong báo cáo chính thức)</span><span>· <strong>Thời gian:</strong> ' + esc(timeTxt) + '</span><span>· Cập nhật lúc ' + esc(P.updated || '09:15') + '</span>' + (P.scopeExtra ? '<span>· ' + P.scopeExtra + '</span>' : '') + '<button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16.">' + ic('refresh', 'icon--sm') + 'Làm mới</button></div>' +
@@ -216,7 +216,9 @@
   }
   function setEnabled(el, ok) { el._ok = !!ok; refreshBtn(el); }
   /* Quyền duyệt theo (loại yêu cầu, vai trò) và người lập khác người duyệt (F5-02). Cấp duyệt thật lấy từ G4-APR-03. */
-  var APPR = { disc: ['QL CH QV', 'Quản lý chi nhánh trở lên'], diff: ['QL CH QV', 'Quản lý chi nhánh trở lên'], refund: ['QL CH QV', 'Quản lý chi nhánh (CH/QV khi vượt hạn mức)'], spend: ['QV CH', 'Quản lý vùng hoặc Chủ garage (vượt hạn mức cấp Quản lý)'], cancel: ['QL CH QV', 'Quản lý chi nhánh'], inv: ['KTT CH', 'Kế toán trưởng (cờ quyền) hoặc Chủ garage'], reopen: ['CH', 'Chủ garage'] };
+  var APPR = { disc: ['QL CH QV', 'Quản lý chi nhánh trở lên'], diff: ['QL CH QV', 'Quản lý chi nhánh trở lên'], refund: ['QL CH QV', 'Quản lý chi nhánh (CH/QV khi vượt hạn mức)'], spend: ['QV CH', 'Quản lý vùng hoặc Chủ garage (vượt hạn mức cấp Quản lý)'], cancel: ['QL CH QV', 'Quản lý chi nhánh'], inv: ['KTT CH', 'Kế toán trưởng (cờ quyền) hoặc Chủ garage'], reopen: ['CH', 'Chủ garage'],
+    /* Giai đoạn 2 (slice 2.5): cấp duyệt lấy theo mẫu G4-APR-03; ngưỡng chưa chốt */
+    xfer: ['QV CH', 'Quản lý vùng hoặc Chủ garage (chuyển kho vượt hạn mức cấp Quản lý chi nhánh)'], adj: ['CH', 'Chủ garage (điều chỉnh tồn vượt hạn mức cấp Quản lý chi nhánh)'], buy: ['QL CH QV', 'Quản lý chi nhánh (Quản lý vùng hoặc Chủ garage khi vượt hạn mức)'] };
   function canApprove(type, role, proposer) {
     var cfg = APPR[type]; if (!cfg) return { ok: false, why: 'Loại yêu cầu chưa có trong ma trận.' };
     if (proposer && proposer === USER[role]) return { ok: false, why: 'Bạn là người đề xuất yêu cầu này; người lập không tự duyệt.' };

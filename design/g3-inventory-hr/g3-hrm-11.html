@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3-HRM-11 · Chi tiết công một nhân viên trong kỳ – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+<script>window.G3_BRAND = 'GMEP';</script>
+<script src="pack.js"></script>
+</head>
+<body data-role="QL">
+<noscript><div class="g3-noscript"><strong>Cần bật JavaScript.</strong> Khung ứng dụng, tab phân hệ và trạng thái xem thử của prototype này được dựng bằng script (<code>pack.js</code>). Hãy bật JavaScript hoặc mở bằng trình duyệt thông thường.</div></noscript>
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<script>G3.shell('hr')</script>
+<main class="main" id="main"><div class="main__inner">
+<script>G3.top('HRM-11')</script>
+
+<div class="page-header">
+  <div class="page-header__text"><h1>Chi tiết công: Lê Minh Tuấn</h1><p class="page-header__desc">Từng dòng cấu thành giờ công, tiền công và hoa hồng của một nhân viên trong kỳ. Tổng các dòng bằng số ở Bảng công theo kỳ (FR-RPT-011). Hệ thống không tính lương.</p></div>
+  <div class="page-header__actions">
+    <a class="btn btn--secondary" href="g3-hrm-08.html"><svg class="icon" aria-hidden="true"><use href="#chevron-left"/></svg>Về bảng công</a>
+    <a class="btn btn--secondary" href="g3-hrm-07.html" data-g3-need="QL" data-g3-why="Chỉ Quản lý chi nhánh điều chỉnh công thủ công."><svg class="icon" aria-hidden="true"><use href="#pencil"/></svg>Điều chỉnh công…</a></div>
+</div>
+<div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chỉ Chi nhánh Quận 7</span></span><span>· <strong>Kỳ:</strong> 16/10/2026 – 31/10/2026</span><span class="badge badge--info">Đang mở</span><span class="badge badge--warning">Số tạm</span><span>· Cập nhật lúc 09:15</span></div>
+
+<div id="g3-body" data-noun="dòng công" data-cols="8" data-g3-states="data:Kỳ đang mở;locked:Kỳ đã khóa;loading;empty;error;denied" data-empty-icon="calendar" data-empty-text="Nhân viên này chưa có dòng công nào trong kỳ. Công phát sinh khi hạng mục đạt kiểm tra chất lượng.">
+<div data-g3-state="data" class="stack">
+  <div class="alert alert--info" data-g3-roles="TH" role="status"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Bạn chỉ thấy công của chính mình.</span></div></div>
+
+  <section class="grid grid--4" aria-label="Tổng của kỳ">
+    <div class="card kpi"><span class="kpi__label">Giờ ca<span class="g3-formula">Từ chấm công vào/ra theo ca</span></span><span class="kpi__value">88,0<span class="kpi__unit">giờ</span></span><span class="kpi__meta">Thợ máy bậc 4</span></div>
+    <div class="card kpi"><span class="kpi__label">Giờ thực<span class="g3-formula">Tổng khoảng đang làm, trừ tạm dừng</span></span><span class="kpi__value">74,6<span class="kpi__unit">giờ</span></span><span class="kpi__meta">Mức sử dụng 84,8% giờ ca</span></div>
+    <div class="card kpi"><span class="kpi__label">Công đã ghi<span class="g3-formula">Chỉ hạng mục đạt QC; theo quy tắc hiệu lực</span></span><span class="kpi__value">76,2<span class="kpi__unit">giờ công</span></span><span class="kpi__meta"><span class="badge badge--success">Khớp Bảng công</span></span></div>
+    <div class="card kpi"><span class="kpi__label">Tiền công<span class="g3-formula">Theo quy tắc hiệu lực (giá trị mẫu)</span></span><span class="kpi__value">6.858.000<span class="kpi__unit">₫</span></span><span class="kpi__meta">Hoa hồng đã ghi nhận: 0 ₫</span></div>
+  </section>
+
+  <div class="alert alert--warning" role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Kỳ này còn 1 điều chỉnh công chờ duyệt và 1 hạng mục chờ QC</span><span>Điều chỉnh chờ duyệt chưa vào công và chặn khóa kỳ. Hạng mục chờ QC không chặn khóa: công ghi vào kỳ nơi QC đạt.</span></div></div>
+
+  <div class="filter-bar" role="search" data-g3-hide="TH">
+    <div class="field filter-bar__search"><label class="field__label" for="h11-q">Tìm lệnh, hạng mục</label><div class="input-group"><svg class="icon"><use href="#search"/></svg><input id="h11-q" class="input" placeholder="Ví dụ: RO-Q7-2610-00128 hoặc thay dau"></div></div>
+    <div class="field"><label class="field__label" for="h11-s">Loại dòng</label><select id="h11-s" class="select"><option>Tất cả</option><option>Công đã ghi</option><option>Đảo công</option><option>Điều chỉnh</option><option>Chưa tính kỳ này</option></select></div>
+    <div class="filter-bar__actions"><button class="btn btn--ghost">Đặt lại</button><button class="btn btn--primary">Áp dụng</button></div></div>
+
+  <div class="table-wrap"><div class="table-scroll"><table class="table" data-g3-cards>
+    <caption class="sr-only">Các dòng công của Lê Minh Tuấn trong kỳ 16/10 đến 31/10/2026</caption>
+    <thead><tr><th data-card="meta">Ngày ghi</th><th data-card="title">Lệnh</th><th data-card="sub">Hạng mục</th><th class="col-num" data-card="meta">Giờ chuẩn</th><th class="col-num" data-card="meta">Giờ thực</th><th class="col-num" data-card="meta">Công (giờ công)</th><th class="col-num" data-card="meta">Tiền công (₫)</th><th data-card="badge">Loại dòng</th></tr></thead>
+    <tbody>
+      <tr><td class="num">29/10/2026</td><td><a class="code" href="g3-hrm-07.html">RO-Q7-2610-00128</a></td><td>Thay dầu động cơ và lọc dầu<span class="cell-sub">Giờ chuẩn · QC đạt 15:40</span></td><td class="col-num">0,30</td><td class="col-num">0,40<span class="cell-sub">đã trừ tạm dừng 0,20</span></td><td class="col-num"><strong>0,30</strong></td><td class="col-num">27.000 ₫</td><td><span class="badge badge--success">Đã ghi</span></td></tr>
+      <tr><td class="num">29/10/2026</td><td><a class="code" href="g3-hrm-07.html">RO-Q7-2610-00124</a></td><td>Cân chỉnh độ chụm bánh xe<span class="cell-sub">Giờ chuẩn · QC đạt 11:05</span></td><td class="col-num">1,20</td><td class="col-num">1,00</td><td class="col-num"><strong>1,20</strong></td><td class="col-num">108.000 ₫</td><td><span class="badge badge--success">Đã ghi</span></td></tr>
+      <tr><td class="num">28/10/2026</td><td><a class="code" href="g3-hrm-07.html">RO-Q7-2610-00121</a></td><td>Thay bộ ly hợp<span class="cell-sub">Khoán 380.000 ₫ · QC đạt 16:20</span></td><td class="col-num">4,00</td><td class="col-num">4,50</td><td class="col-num"><strong>4,00</strong></td><td class="col-num">380.000 ₫</td><td><span class="badge badge--success">Đã ghi</span></td></tr>
+      <tr><td class="num">27/10/2026</td><td><a class="code" href="g3-hrm-07.html">RO-Q7-2610-00115</a></td><td>Thay lọc gió động cơ<span class="cell-sub">Giờ chuẩn</span></td><td class="col-num">0,30</td><td class="col-num">0,25</td><td class="col-num">0,30</td><td class="col-num">27.000 ₫</td><td><span class="badge badge--success">Đã ghi</span></td></tr>
+      <tr><td class="num">30/10/2026</td><td><a class="code" href="g3-hrm-07.html">RO-Q7-2610-00115</a></td><td>Thay lọc gió động cơ<span class="cell-sub">Lệnh hủy 30/10: đảo công bằng dòng mới, dòng gốc 27/10 giữ nguyên</span></td><td class="col-num">0,30</td><td class="col-num">–</td><td class="col-num"><strong>−0,30</strong></td><td class="col-num">−27.000 ₫</td><td><span class="badge badge--neutral">Đã đảo</span></td></tr>
+      <tr><td class="num">30/10/2026</td><td><span class="code">Điều chỉnh</span></td><td>RO-Q7-2610-00127 · Thay má phanh trước Accent<span class="cell-sub">Lý do: đo lại giờ làm với xe có bu lông gỉ · Quản lý Võ Minh Quân đề xuất</span></td><td class="col-num">–</td><td class="col-num">–</td><td class="col-num text-secondary">+0,50<span class="cell-sub">chưa tính</span></td><td class="col-num text-secondary">chưa tính</td><td><span class="badge badge--warning">Điều chỉnh chờ duyệt</span></td></tr>
+      <tr><td class="num text-secondary">–</td><td><a class="code" href="g3-hrm-07.html">RO-Q7-2610-00128</a></td><td>Kiểm tra hệ thống phanh<span class="cell-sub">Ghi vào kỳ nơi QC đạt</span></td><td class="col-num">0,50</td><td class="col-num">0,45</td><td class="col-num text-secondary">–</td><td class="col-num text-secondary">–</td><td><span class="badge badge--purple">Chờ QC · chưa tính kỳ này</span></td></tr>
+    </tbody></table></div>
+    <div class="table-footer"><span class="table-meta">Hiển thị 7 trong 43 dòng. Tổng 43 dòng đã ghi trong kỳ = 76,2 giờ công, bằng số ở <a href="g3-hrm-08.html">Bảng công theo kỳ</a>. Điều chỉnh chờ duyệt (+0,50) và hạng mục chờ QC chưa nằm trong tổng. Tiền công và đơn giá là giá trị mẫu, chờ khách chốt công thức (<a href="g3-hrm-06.html">Quy tắc tính công</a>).</span></div></div>
+
+  <section class="card" aria-labelledby="h11-hh" data-g3-hide="TH">
+    <div class="card__header"><div><h2 class="card__title" id="h11-hh">Hoa hồng trong kỳ</h2><div class="card__subtitle">Ghi nhận khi lệnh được thu đủ (FR-HRM-009). Thợ thường không có hoa hồng; hiện khi quy tắc của chi nhánh có.</div></div></div>
+    <div class="card__body"><p class="t-body-sm" style="margin:0">Không có hoa hồng phát sinh cho nhân viên này trong kỳ. <a href="g3-hrm-09.html">Mở Hoa hồng cố vấn và thợ</a>.</p></div>
+  </section>
+</div>
+
+<div data-g3-state="locked" class="stack" hidden>
+  <div class="row"><span class="badge badge--neutral"><svg class="icon icon--sm"><use href="#lock"/></svg>Đã khóa</span><span class="t-body-sm text-secondary">Kỳ 01/10/2026 – 15/10/2026 · chỉ đọc · Lê Minh Tuấn</span></div>
+  <div class="alert alert--neutral" role="status"><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Kỳ đã khóa lúc 16/10/2026 08:45 bởi Đặng Hữu Phúc</span><span>Không sửa trực tiếp. Sai sót xử lý bằng dòng điều chỉnh ở kỳ đang mở hoặc yêu cầu mở lại kỳ ở <a href="g3-hrm-08.html">Bảng công theo kỳ</a>.</span></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only">Các dòng công kỳ 01/10 đến 15/10/2026 đã khóa</caption><thead><tr><th>Ngày ghi</th><th>Lệnh</th><th>Hạng mục</th><th class="col-num">Công (giờ công)</th><th class="col-num">Tiền công (₫)</th></tr></thead><tbody>
+    <tr><td class="num">14/10/2026</td><td class="code">RO-Q7-2610-00098</td><td>Thay dầu hộp số</td><td class="col-num">0,60</td><td class="col-num">54.000 ₫</td></tr>
+    <tr><td class="num">13/10/2026</td><td class="code">RO-Q7-2610-00094</td><td>Thay bố thắng sau</td><td class="col-num">0,90</td><td class="col-num">81.000 ₫</td></tr></tbody><tfoot><tr><td colspan="3">Tổng kỳ (41 dòng, hiển thị 2)</td><td class="col-num">72,0</td><td class="col-num">6.480.000 ₫</td></tr></tfoot></table></div></div>
+</div>
+</div>
+
+</div></main>
+<script>G3.tail()</script>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>G3.init()</script>
+</body>
+</html>

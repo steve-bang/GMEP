@@ -15,6 +15,8 @@
     pur: { label: 'Mua hàng', tabs: ['01', '04', '07', '08', '09'] },
     hrm: { label: 'Nhân sự & Công thợ', tabs: ['01', '04', '05', '07', '09', '10', '08', '06'] }
   };
+  /* Tên hiển thị: màn hình mới (từ 06/11/2026, quyết định CD4) đặt window.G3_BRAND = 'GMEP' trước khi nạp file này; màn cũ giữ nguyên tới khi có quyết định đổi hàng loạt. */
+  var BRAND = window.G3_BRAND || 'GMEP';
   var A = 'CH QV QL TK KT';
   /* [mã, tên, tab cha, ưu tiên, FR, vai trò mở được] */
   var R = [
@@ -56,7 +58,8 @@
     ['HRM-07', 'Công thợ theo lệnh và hạng mục', '', 'P2', 'FR-HRM-005, 007, 008, 016', 'CH QV QL KT TH CV'],
     ['HRM-08', 'Bảng công theo kỳ', '', 'P2', 'FR-HRM-010', 'CH QV QL KT'],
     ['HRM-09', 'Hoa hồng cố vấn và thợ', '', 'P2', 'FR-HRM-009', 'CH QV QL KT TH CV'],
-    ['HRM-10', 'Năng suất kỹ thuật viên', '', 'P2', 'FR-HRM-011, 016; FR-RPT-006', 'CH QV QL QD KT TH']
+    ['HRM-10', 'Năng suất kỹ thuật viên', '', 'P2', 'FR-HRM-011, 016; FR-RPT-006', 'CH QV QL QD KT TH'],
+    ['HRM-11', 'Chi tiết công một nhân viên trong kỳ', '08', 'P2', 'FR-HRM-007, 008, 009, 010; FR-RPT-011', 'CH QV QL KT NS TH']
   ];
   var REG = {};
   R.forEach(function (r) { REG[r[0]] = { code: 'G3-' + r[0], id: r[0], mod: r[0].slice(0, 3).toLowerCase(), num: r[0].slice(4), title: r[1], tab: r[2] || r[0].slice(4), prio: r[3], fr: r[4], roles: r[5] }; });
@@ -83,7 +86,7 @@
       return '<a class="nav-item" href="' + href + '" data-menu="' + key + '" title="' + label + '"' + (menu === key ? ' aria-current="page"' : '') + '>' + ic(icon) + '<span class="nav-item__label">' + label + '</span>' + (extra || '') + '</a>';
     }
     var h = '';
-    h += '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div><nav class="sidebar__nav">';
+    h += '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">' + BRAND + '</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div><nav class="sidebar__nav">';
     h += '<div class="sidebar__group">Workspace</div>';
     h += nav('dash', 'layout-dashboard', 'Tổng quan', '#') + nav('ro', 'clipboard-list', 'Phiếu sửa chữa', '#', '<span class="count-pill count-pill--warning" aria-label="8 báo giá chờ khách duyệt" title="8 báo giá chờ khách duyệt">8</span>') + nav('appt', 'calendar', 'Lịch hẹn', '#') + nav('cust', 'car-front', 'Khách hàng &amp; Xe', '#');
     h += '<div class="sidebar__group">Kho &amp; mua hàng</div>';
@@ -127,7 +130,7 @@
     var parent = s.tab !== s.num ? REG[s.id.slice(0, 3) + '-' + s.tab] : null;
     var offMsg = { inv: 'Chưa thể ghi sổ kho, gửi duyệt hay chốt số đếm cho đến khi có mạng.', pur: 'Chưa thể gửi duyệt, gửi đơn mua hay ghi nhận hóa đơn cho đến khi có mạng.', hrm: 'Chưa thể ghi giờ vào/ra ca, duyệt hay khóa kỳ công cho đến khi có mạng; không ghi giờ giả.' }[s.mod];
     var h = '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). ' + offMsg + '</span></div></div>';
-    h += '<nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a>' + ic('chevron-right') + '<a href="' + file(s.mod.toUpperCase() + '-' + MOD[s.mod].tabs[0]) + '">' + MOD[s.mod].label + '</a>';
+    h += '<nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">' + BRAND + '</a>' + ic('chevron-right') + '<a href="' + file(s.mod.toUpperCase() + '-' + MOD[s.mod].tabs[0]) + '">' + MOD[s.mod].label + '</a>';
     if (parent) h += ic('chevron-right') + '<a href="' + file(parent.id) + '">' + parent.title + '</a>';
     h += ic('chevron-right') + '<span aria-current="page">' + s.title + '</span></nav>';
     h += '<div class="g3-meta"><span class="code">' + s.code + '</span><span>Ưu tiên ' + s.prio + '</span><span>' + s.fr + '</span></div>';

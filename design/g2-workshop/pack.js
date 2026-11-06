@@ -20,7 +20,7 @@
     return '<a class="nav-item" href="' + HREF[key] + '" data-menu="' + key + '" title="' + label + '"><svg class="icon"><use href="#' + icon + '"/></svg><span class="nav-item__label">' + label + '</span>' + (extra || '') + '</a>';
   }
   var SIDEBAR =
-    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span class="sidebar__brand-name">GARAGE OS</span>' +
+    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span class="sidebar__brand-name">GMEP</span>' +
     '<button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto"><svg class="icon"><use href="#x"/></svg></button></div>' +
     '<nav class="sidebar__nav"><div class="sidebar__group">Workspace</div>' +
     nav('dash', 'layout-dashboard', 'Tổng quan') +

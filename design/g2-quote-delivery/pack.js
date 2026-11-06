@@ -47,7 +47,7 @@
     var u = USERS[role];
     techMode = (role === 'TH');
     var html = ('<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a><div class="app" id="app">' +
-      '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span>' +
+      '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GMEP</span>' +
       '<button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div><nav class="sidebar__nav">' +
       '<div class="sidebar__group">Workspace</div>' +
       nav('dash', 'layout-dashboard', 'Tổng quan', '#', active) +
@@ -95,7 +95,7 @@
   };
 
   g.header = function (o) {
-    var c = '<a href="#">GARAGE OS</a>';
+    var c = '<a href="#">GMEP</a>';
     (o.crumbs || []).forEach(function (x, i, a) { c += ic('chevron-right') + (i === a.length - 1 ? '<span aria-current="page">' + x[0] + '</span>' : '<a href="' + (x[1] || '#') + '">' + x[0] + '</a>'); });
     w('<div><nav class="breadcrumb" aria-label="Đường dẫn">' + c + '</nav></div><div class="page-header"><div class="page-header__text"><h1>' + o.title + '</h1>' +
       (o.desc ? '<p class="page-header__desc">' + o.desc + '</p>' : '') + '</div><div class="page-header__actions">' + (o.actions || '') +

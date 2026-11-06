@@ -119,6 +119,16 @@ BA đã trả lời Q1 đến Q12 ở `docs/dev/ba-answers-for-dev.md` (đề xu
 
 **Chưa quyết, cần biết khi thiết kế:** Q37 (thứ tự MT-1 so với pilot, BA đã khuyến nghị MT-1 sau pilot ổn định) quyết thời điểm dựng lại 14 màn giai đoạn A; Q40, Q41 còn mở.
 
+## Bổ sung 06/11/2026: giai đoạn 2 khởi động (designer)
+
+Đối chiếu slice 2.1 đến 2.8 với prototype: **184 màn hiện có đã phủ gần hết**; khoảng trống thật là chi tiết nối giữa các màn. Bảng đầy đủ, màn đã dựng và 14 câu hỏi cho BA: [`phase-2-gaps.md`](phase-2-gaps.md). Không đụng đồng sơn (2.9).
+
+- **Màn mới (3, không tính vào 184):** G4-APR-04 `design/g4-finance/g4-apr-04.html` (slice 2.5, phê duyệt chuyển kho giá trị lớn, điều chỉnh tồn sau kiểm kê, yêu cầu mua vượt hạn mức, trạng thái tự chuyển cấp); G4-RPT-12 `design/g4-reports-system/g4-rpt-12.html` (slice 2.1, kiểm tra chi nhánh vào số hợp nhất và tổng chi nhánh = toàn chuỗi); G3-HRM-11 `design/g3-inventory-hr/g3-hrm-11.html` (slice 2.6, chi tiết công một nhân viên trong kỳ). Danh mục: `screen-inventory.md` §10.
+- **Chỉnh màn có sẵn:** G4-APR-01 (thêm 3 loại yêu cầu), G4-APR-03 (thêm 3 dòng ma trận với ngưỡng "Chưa chốt"), G3-HRM-08 (liên kết tới HRM-11), ba `index.html`.
+- **Tên GMEP:** màn mới hiện "GMEP"; ba `pack.js` có điểm đổi tên (`P.brand`, `window.G3_BRAND`, `data-brand`) nên màn cũ chưa đổi. Đổi hàng loạt các gói còn lại vẫn chờ chốt cách làm (mục "Việc cho designer" của 06/11 phía trên).
+- **Chưa dựng (chờ BA):** ủy quyền duyệt theo cá nhân, báo cáo theo dõi thời hạn duyệt (Q-2.5-01, 02), hàng chờ cấp của kho tổng (Q-2.2-01).
+- **Kiểm tra tự động: chưa chạy.** Môi trường lượt này không có shell nên chưa đo Playwright (tràn ngang 390px, lỗi JS) cho 3 màn mới và 4 màn đã chỉnh; danh sách trang và cách đo ở `phase-2-gaps.md` §3. Việc đầu tiên của lượt sau.
+
 ## Cách tiếp tục
 
 Đọc `ui-ux-flow.md` trước, sau đó `STATUS.md` (file này), rồi tài liệu gói liên quan. Giới hạn: tối đa 2 agent chạy cùng lúc.
