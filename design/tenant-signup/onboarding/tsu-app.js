@@ -62,6 +62,8 @@
     { n: 'Kiểm tra trước kích hoạt', t: 'Bắt buộc', req: true, m: 2, f: 'tsu-29.html', why: 'cần có để kích hoạt' }
   ];
   var ST = { done: 'Xong', doing: 'Đang làm', todo: 'Chưa làm', skip: 'Đã bỏ qua', err: 'Có lỗi' };
+  /* Chỉ nhận trạng thái bước nằm trong danh sách cho phép; khóa trả về lấy từ ST, không dùng chuỗi từ thuộc tính */
+  function statusKey(v) { var out = 'todo'; Object.keys(ST).forEach(function (k) { if (k === v) out = k; }); return out; }
   T.STEPS = STEPS;
   var statuses = [];
   var step = parseInt(B.getAttribute('data-step') || '0', 10) || 0;
@@ -162,7 +164,7 @@
     var given = list((B.getAttribute('data-statuses') || '').replace(/,/g, ' '));
     for (i = 0; i < 9; i++) {
       s = given[i] || (step > 0 ? (i < step - 1 ? 'done' : i === step - 1 ? 'doing' : 'todo') : 'todo');
-      statuses.push(s);
+      statuses.push(statusKey(s));
     }
     nextHref = step >= 1 && step < 9 ? STEPS[step].f : (step === 9 ? 'tsu-30.html' : STEPS[0].f);
     prevHref = step > 1 ? STEPS[step - 2].f : 'tsu-20.html';
