@@ -289,6 +289,11 @@ th[aria-sort="ascending"] .th-sort .icon, th[aria-sort="descending"] .th-sort .i
 .filter-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--card-radius); }
 .filter-bar .field { min-width: 160px; }
 .filter-bar__search { flex: 1 1 280px; }
+.filter-bar__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); min-width: 0; }
+.filter-bar__row .field { min-width: 160px; }
+@media (max-width: 639px) { .filter-bar__row .field { flex: 1 1 100%; } .filter-bar__row .btn { flex: 1 1 0; } }
+.date-field { position: relative; display: flex; align-items: center; gap: var(--space-1); }
+.date-field__native { position: absolute; right: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; border: 0; padding: 0; }
 .filter-bar__actions { margin-left: auto; display: flex; gap: var(--space-2); }
 .chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); }
 .chip { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 4px 0 12px; border-radius: var(--radius-full); background: var(--color-primary-subtle); color: var(--color-brand-800); border: 1px solid var(--color-brand-200); font-size: var(--font-size-sm); font-weight: 500; }

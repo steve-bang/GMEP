@@ -510,6 +510,8 @@ export const Q = {
     collection: COL.repairItems,
     eq: ['companyId', 'technicianId', 'active'],
     scopeField: 'branchId',
+    // "Công hôm nay": finished items of a technician since a date (same index, range on the order field)
+    range: true,
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   partRequestsByOrder: defineQuery({

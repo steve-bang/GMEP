@@ -133,12 +133,14 @@ test.describe('slice 1.6 REC: executing the order', () => {
     await card.getByTestId('work-start').click();
     await expect(card).toHaveAttribute('data-status', 'in_progress');
     await card.getByTestId('work-finish').click(); // tap 1
-    await expect(th.getByTestId('work-card').filter({ hasText: 'Thay dầu và lọc' })).toHaveCount(0);
+    // G1-DSH-07: the finished card stays for the undo window, marked done
+    await expect(card).toHaveAttribute('data-status', 'done');
+    await expect(card.getByTestId('work-undo')).toBeVisible();
     const brake = th.getByTestId('work-card').filter({ hasText: 'Thay má phanh' }).first();
     await brake.getByTestId('work-start').click();
     await expect(brake).toHaveAttribute('data-status', 'in_progress');
     await brake.getByTestId('work-finish').click();
-    await expect(th.getByTestId('work-card')).toHaveCount(0);
+    await expect(brake).toHaveAttribute('data-status', 'done');
     // the technician cannot open the order screens of the foreman
     expect((await th.request.get('/api/v1/rec/orders')).status()).toBe(403);
 

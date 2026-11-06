@@ -61,6 +61,9 @@ export function pickLabels(
         km: '{km}',
         amount: '{amount}',
         due: '{due}',
+        h: '{h}',
+        date: '{date}',
+        list: '{list}',
       }),
     ]),
   );

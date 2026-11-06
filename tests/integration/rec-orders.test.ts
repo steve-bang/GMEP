@@ -406,6 +406,63 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
       expect(other.status).toBe('not_started');
     });
 
+    it('G1-DSH-07 / FR-REC-013: card data without personal data, today summary, undo window, own proposals locked, isolation', async () => {
+      const o = await assignAll(await openedOrder());
+      const work = async (cookie: string, q = '') =>
+        (await call(cookie, 'GET', `/api/v1/rec/work${q}`)).json as Row;
+      const mine = (w: Row) => w.items.filter((x: Row) => x.orderId === o.id);
+      const w0 = await work(th);
+      expect(mine(w0).length).toBeGreaterThan(0);
+      for (const c of mine(w0)) {
+        expect(c.customerShort.length).toBeGreaterThan(0);
+        expect(c.customerShort).not.toMatch(/\d/);
+        expect(c.blockedReason).toBeNull();
+      }
+      // a short name only: neither the full name, a phone nor an address leaves the server
+      expect(JSON.stringify(w0)).not.toMatch(/Nguyễn Văn|0900000|"customerName"|phone|address/i);
+      expect(w0.day).toBe(businessDate(h.clock.now()));
+
+      // finish one item: hours and counts of today move, and the finished card stays for the undo window only
+      const it1 = item(await order(o.id), 1);
+      expect((await tap(th, o, 1, 'start')).status).toBe(200);
+      h.clock.set(new Date(h.clock.now().getTime() + 10 * 60_000).toISOString());
+      expect((await tap(th, o, 1, 'finish')).status).toBe(200);
+      const w1 = await work(th);
+      expect(w1.summary.doneCount).toBe(w0.summary.doneCount + 1);
+      expect(w1.summary.standardDoneMinutes).toBe(
+        w0.summary.standardDoneMinutes + it1.approvedMinutes,
+      );
+      expect(w1.summary.workedMinutes).toBe(w0.summary.workedMinutes + 10);
+      expect(w1.summary).not.toHaveProperty('commission');
+      const fin = mine(w1).find((x: Row) => x.id === it1.id);
+      expect(fin).toMatchObject({ status: 'done', canUndo: true });
+      h.clock.set(new Date(h.clock.now().getTime() + 5 * 60_000).toISOString());
+      const w2 = await work(th);
+      expect(mine(w2).some((x: Row) => x.id === it1.id)).toBe(false);
+      expect(w2.summary.doneCount).toBe(w1.summary.doneCount);
+
+      // the technician's own proposal waits as a locked card: not startable, not shown to anyone else
+      const cur = await order(o.id);
+      const p = await act(th, `/api/v1/rec/orders/${o.id}/proposals`, {
+        version: cur.version,
+        title: 'Rò dầu hộp số',
+      });
+      expect(p.status, p.text).toBe(201);
+      const lock = (await work(th)).locked.filter((x: Row) => x.orderId === o.id);
+      expect(lock).toMatchObject([{ title: 'Rò dầu hộp số', stage: 'open' }]);
+      expect((await work(qd)).locked.some((x: Row) => x.orderId === o.id)).toBe(false);
+
+      // isolation (NFR-ISO-01): a technician cannot ask for a colleague's list; the other branch sees nothing
+      const asTh = await work(th, '?technicianId=u_qd_q7');
+      expect(asTh.items.every((x: Row) => x.technicianId === 'u_th_q7')).toBe(true);
+      expect(mine(await work(qd)).length).toBe(0);
+      expect(mine(await work(qd, '?technicianId=u_th_q7')).length).toBeGreaterThan(0);
+      const other = await call(qlTd, 'GET', '/api/v1/rec/work?technicianId=u_th_q7');
+      expect([200, 403]).toContain(other.status);
+      if (other.status === 200)
+        expect(other.json.items.filter((x: Row) => x.orderId === o.id)).toEqual([]);
+    });
+
     it('FR-REC-013 / FR-REC-015: start, pause, finish write time events; the first start opens the order; hours come from the events', async () => {
       const o = await assignAll(await openedOrder());
       expect(o.status).toBe('approved');
@@ -980,6 +1037,12 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
         type: 'return',
         reason: expect.stringContaining('rò'),
       });
+      // G1-DSH-07: the returned card carries the QC result for the technician
+      const back = (await call(th, 'GET', '/api/v1/rec/work')).json.items.find(
+        (x: Row) => x.id === item(cur, 1).id,
+      );
+      expect(back).toMatchObject({ status: 'returned', allowedEvents: ['start'] });
+      expect(back.qcReturn.failedChecks.join(' ')).toMatch(/rò/);
       // the technician redoes it, the order goes back to QC and passes
       expect((await tap(th, o, 1, 'start')).status).toBe(200);
       expect((await tap(th, o, 1, 'finish')).status).toBe(200);

@@ -9,6 +9,7 @@ export const MODULE_CODE = 'RPT' as const;
 
 export * from './domain/rollup';
 export * from './domain/reports';
+export * from './domain/range';
 export * from './ports/ports';
 export { DEFAULT_RPT_CONFIG } from './ports/deps';
 export type { RptDeps, RptConfig } from './ports/deps';
@@ -35,6 +36,8 @@ export type {
   Lens,
   Visible,
 } from './application/read';
+export { resolveRange } from './application/range';
+export type { DashboardRange } from './application/range';
 export { getMonthly, getReconcile, getWarehouse, getTechnicians } from './application/reports';
 export type { MonthlyDto, ReconcileDto, WarehouseDto, TechniciansDto } from './application/reports';
 export { exportDaily, exportDailyCsv, exportReport, exportReportCsv } from './application/export';

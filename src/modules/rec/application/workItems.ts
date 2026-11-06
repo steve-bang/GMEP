@@ -12,9 +12,11 @@ import {
   checkUndo,
   workedMsOf,
   type PartRequest,
+  type QcRun,
   type RepairItem,
   type TimeEvent,
   type TimeEventType,
+  type WorkProposal,
 } from '../domain/order';
 import {
   PAUSE_REASONS,
@@ -26,6 +28,8 @@ import {
   type ItemEvent,
   type OrderStatus,
 } from '../domain/orderState';
+import { businessDate } from '@/platform/format/date';
+import { shortCustomerName, summariseDay, type DaySummary } from '../domain/workDay';
 import type { RecDeps } from '../ports/deps';
 import { orderPatch } from './orderHelpers';
 import { toItemDto, toPartRequestDto, type ItemDto, type PartRequestDto } from './orders';
@@ -190,6 +194,14 @@ export interface WorkItemDto extends ItemDto {
   allowedEvents: ItemEvent[];
   /** the last action can still be undone by the caller */
   canUndo: boolean;
+  /** shortened customer name only; never a phone or an address (PDPL, G1-DSH-07) */
+  customerShort: string;
+  /** promised delivery date `yyyy-MM-dd` of the order */
+  promisedDate: string | null;
+  /** why the start is locked right now, from the server's own rules; null = not locked */
+  blockedReason: 'waiting_parts' | 'order_paused' | 'order_not_active' | null;
+  /** QC sent this item back: the note and the checks that failed (G1-DSH-07, FR-REC-016) */
+  qcReturn: { at: string; note: string | null; failedChecks: string[] } | null;
   /** approved part lines of the item with what was asked and issued so far (G2-TEC-03) */
   partLines: {
     lineKey: string;
@@ -203,6 +215,8 @@ export interface WorkItemDto extends ItemDto {
   }[];
 }
 
+const isWorkable = (s: OrderStatus): boolean => s === 'approved' || s === 'in_progress';
+
 function ctxOf(it: RepairItem, orderStatus: OrderStatus): ItemCtx {
   return {
     orderStatus,
@@ -212,26 +226,109 @@ function ctxOf(it: RepairItem, orderStatus: OrderStatus): ItemCtx {
   };
 }
 
-/** "Việc được giao": the active items assigned to the caller, or to `technicianId` for roles that manage the floor. */
-export async function listMyWork(
-  deps: RecDeps,
-  actor: Actor,
-  raw: unknown,
-): Promise<{ items: WorkItemDto[] }> {
+/** Work the technician proposed that the customer has not yet approved: shown locked, never startable (RULE-005/006). */
+export interface LockedProposalDto {
+  proposalId: string;
+  orderId: string;
+  orderNumber: string;
+  plate: string;
+  vehicleLabel: string;
+  customerShort: string;
+  title: string;
+  /** `open` = the advisor has not quoted it yet; `quoted` = the supplementary quote waits for the customer */
+  stage: 'open' | 'quoted';
+}
+
+export interface MyWorkDto {
+  items: WorkItemDto[];
+  locked: LockedProposalDto[];
+  /** today's hours and counts; never a commission figure */
+  summary: DaySummary;
+  /** server clock, `yyyy-MM-dd` (Asia/Ho_Chi_Minh), the day the summary is for */
+  day: string;
+}
+
+const ITEM_ORDER: Record<string, number> = {
+  in_progress: 0,
+  returned: 1,
+  not_started: 2,
+  paused: 3,
+  done: 4,
+};
+
+/** Start of the business day (UTC+7, no daylight saving) for `yyyy-MM-dd`. */
+const dayStart = (day: string): Date => new Date(`${day}T00:00:00+07:00`);
+
+/**
+ * "Việc được giao": the active items assigned to the caller, or to `technicianId` for roles that manage the floor,
+ * plus the items finished inside the undo window (so "Hoàn tác" stays reachable), the technician's own pending
+ * proposals and today's summary (FR-REC-013, G1-DSH-07). No new query shape: the same by-technician query serves
+ * the active and the finished side.
+ */
+export async function listMyWork(deps: RecDeps, actor: Actor, raw: unknown): Promise<MyWorkDto> {
   const scope = resolveWorkingScope(actor, 'repair-item:view');
   const q = parseInput(z.object({ technicianId: z.string().trim().max(128).optional() }), raw);
   const who = !onlyMine(actor) && q.technicianId ? q.technicianId : actor.userId;
-  const rows = await deps.items.listActiveByTechnician(scope, who, 100);
   const now = deps.sys.clock.now();
-  const orders = new Map<string, { status: OrderStatus; version: number }>();
+  const day = businessDate(now);
+  const from = dayStart(day);
+  const to = new Date(from.getTime() + 24 * 3_600_000);
+  const lookback = new Date(now.getTime() - deps.rec.myWorkLookbackDays * 24 * 3_600_000);
+  const [active, finished] = await Promise.all([
+    deps.items.listActiveByTechnician(scope, who, 100),
+    deps.items.listFinishedByTechnicianSince(scope, who, lookback, deps.rec.myWorkFinishedMax),
+  ]);
+  const summary = summariseDay([...active, ...finished], from, to);
+  // finished items stay on the list only while the caller can still undo the finish
+  const undoable = finished.filter(
+    (it) => checkUndo(it.events, now, actor.userId, deps.rec.undoWindowMs).ok,
+  );
+  const rows = [...active, ...undoable].sort(
+    (a, b) =>
+      (ITEM_ORDER[a.status] ?? 9) - (ITEM_ORDER[b.status] ?? 9) ||
+      a.createdAt.getTime() - b.createdAt.getTime(),
+  );
+  const orders = new Map<
+    string,
+    {
+      status: OrderStatus;
+      version: number;
+      customerShort: string;
+      promisedDate: string | null;
+      qcRuns: QcRun[];
+      proposals: WorkProposal[];
+      supplementQuoteIds: Set<string>;
+      plate: string;
+      vehicleLabel: string;
+      number: string;
+    }
+  >();
   const allRequests = new Map<string, PartRequest[]>();
   const out: WorkItemDto[] = [];
   for (const it of rows) {
     if (!orders.has(it.orderId)) {
       const o = await deps.orders.get(scope, it.orderId);
-      orders.set(it.orderId, { status: o?.status ?? 'cancelled', version: o?.version ?? 0 });
+      orders.set(it.orderId, {
+        status: o?.status ?? 'cancelled',
+        version: o?.version ?? 0,
+        customerShort: shortCustomerName(o?.customerName ?? ''),
+        promisedDate: o?.promisedDate ?? null,
+        qcRuns: o?.qcRuns ?? [],
+        proposals: o?.proposals ?? [],
+        supplementQuoteIds: new Set((o?.supplements ?? []).map((x) => x.quoteId)),
+        plate: o?.plate ?? it.plate,
+        vehicleLabel: o?.vehicleLabel ?? it.vehicleLabel,
+        number: o?.number ?? it.orderNumber,
+      });
     }
-    const { status: st, version: orderVersion } = orders.get(it.orderId)!;
+    const ord = orders.get(it.orderId)!;
+    const { status: st, version: orderVersion } = ord;
+    const allowed = allowedItemEvents(it.status, ctxOf(it, st)).filter(
+      (e) => e === 'start' || e === 'pause' || e === 'finish',
+    );
+    const lastQc = [...ord.qcRuns]
+      .reverse()
+      .find((r) => r.result === 'fail' && r.returnedItemIds.includes(it.id));
     if (!allRequests.has(it.orderId))
       allRequests.set(
         it.orderId,
@@ -246,9 +343,27 @@ export async function listMyWork(
       vehicleLabel: it.vehicleLabel,
       orderStatus: st,
       orderVersion,
-      allowedEvents: allowedItemEvents(it.status, ctxOf(it, st)).filter(
-        (e) => e === 'start' || e === 'pause' || e === 'finish',
-      ),
+      allowedEvents: allowed,
+      customerShort: ord.customerShort,
+      promisedDate: ord.promisedDate,
+      blockedReason:
+        it.status === 'done' || allowed.includes('start')
+          ? null
+          : st === 'paused'
+            ? 'order_paused'
+            : !isWorkable(st)
+              ? 'order_not_active'
+              : it.waitingParts
+                ? 'waiting_parts'
+                : null,
+      qcReturn:
+        it.status === 'returned' && lastQc
+          ? {
+              at: lastQc.at.toISOString(),
+              note: lastQc.note ?? null,
+              failedChecks: lastQc.checks.filter((c) => !c.ok).map((c) => c.name),
+            }
+          : null,
       canUndo: checkUndo(it.events, now, actor.userId, deps.rec.undoWindowMs).ok,
       partLines: it.lines
         .filter((l) => l.kind === 'part' && l.partId)
@@ -270,7 +385,26 @@ export async function listMyWork(
         })),
     });
   }
-  return { items: out };
+  const locked: LockedProposalDto[] = [];
+  for (const [orderId, ord] of orders) {
+    if (!isOrderOpen(ord.status)) continue;
+    for (const p of ord.proposals) {
+      if (p.proposedBy !== who || p.status === 'dismissed') continue;
+      // a quoted proposal whose supplementary quote was approved is a real item now
+      if (p.status === 'quoted' && p.quoteId && ord.supplementQuoteIds.has(p.quoteId)) continue;
+      locked.push({
+        proposalId: p.id,
+        orderId,
+        orderNumber: ord.number,
+        plate: ord.plate,
+        vehicleLabel: ord.vehicleLabel,
+        customerShort: ord.customerShort,
+        title: p.title,
+        stage: p.status === 'quoted' ? 'quoted' : 'open',
+      });
+    }
+  }
+  return { items: out, locked, summary, day };
 }
 
 export const itemActionSchema = z.object({

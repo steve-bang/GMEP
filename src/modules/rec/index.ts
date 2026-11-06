@@ -40,6 +40,7 @@ export { decideApproval, splitGross, approvedLinesOf, lineKeyOf } from './domain
 export type { ApprovalDecision, DeclineInput, GrossSplit, ItemGross } from './domain/approval';
 export * from './domain/order';
 export * from './domain/orderState';
+export * from './domain/workDay';
 export { checkKm } from './domain/intake';
 export * from './ports/ports';
 export { DEFAULT_REC_CONFIG } from './ports/deps';
