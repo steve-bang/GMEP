@@ -37,7 +37,7 @@
           <li>Tối đa hai banner chồng nhau; trạng thái công ty (BAN-B) ưu tiên cao hơn thuê bao (BAN-A). BAN-A mức “đã hết” đã nêu việc hạn chế nên không chồng BAN-B hạn chế.</li>
           <li>Mỗi banner nêu điều gì xảy ra, hậu quả với việc đang làm, cách khắc phục và liên kết. Số ngày, mốc, lý do lấy từ dữ liệu, không viết cứng (RULE-030); số trong prototype là minh họa.</li>
           <li>Không chỉ dựa vào màu: mỗi banner có biểu tượng theo mức và nhãn chữ “Thông tin”, “Cảnh báo”, “Hạn chế”, “Chặn”.</li>
-          <li>Hoãn: BAN-04 (quá hạn thanh toán, B2), BAN-06 (hạn mức, B1), BAN-09 (điều khoản mới, cùng TSU-18). BAN-01 (đang thiết lập) bỏ vì không còn giai đoạn thiết lập kéo dài.</li>
+<li>Hoãn sang phase sau: các banner liên quan thanh toán, hạn mức và điều khoản mới (cùng TSU-18). BAN-01 (đang thiết lập) bỏ vì không còn giai đoạn thiết lập kéo dài.</li>
         </ul>
       </div>
     </section>
@@ -56,8 +56,8 @@
         <p class="tsu-sub" style="margin:0">Tạm ngưng, chủ garage</p><div data-tsu-banner="BAN-B" data-variant="tam-ngung"></div>
         <p class="tsu-sub" style="margin:0">Tạm ngưng, nhân viên</p><div data-tsu-banner="BAN-B" data-variant="tam-ngung" data-view="NV"></div>
         <p class="tsu-sub" style="margin:0">Đang chấm dứt, chủ garage</p><div data-tsu-banner="BAN-B" data-variant="cham-dut" data-date="20/12/2026"></div></div></section>
-      <section class="card" aria-labelledby="bc"><div class="card__header"><h2 class="card__title" id="bc">BAN-C Chờ xác minh để phát hành hóa đơn thật</h2></div><div class="card__body tsu-stack">
-        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty <code class="tsu-code">active</code> nhưng chưa xác minh hoặc chưa khai nhà cung cấp (kết nối đạt)</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant, kế toán</dd><dt>Nơi hiện</dt><dd>Chỉ ở các màn hóa đơn và checklist “Thiết lập dần”, không hiện toàn ứng dụng</dd><dt>Mức và role</dt><dd>Thông tin, <code class="tsu-code">role="status"</code>, đóng được</dd></dl>
+      <section class="card" aria-labelledby="bc"><div class="card__header"><h2 class="card__title" id="bc">BAN-C Chờ xác minh để xuất hóa đơn thật</h2></div><div class="card__body tsu-stack">
+        <dl class="tsu-kv"><dt>Điều kiện</dt><dd>Công ty <code class="tsu-code">active</code> nhưng chưa xác minh hoặc chưa cho biết nhà cung cấp hóa đơn điện tử (kết nối đạt)</dd><dt>Ai thấy</dt><dd>Chủ garage, quản trị tenant, kế toán</dd><dt>Nơi hiện</dt><dd>Chỉ ở các màn hóa đơn và checklist “Thiết lập dần”, không hiện toàn ứng dụng</dd><dt>Mức và role</dt><dd>Thông tin, <code class="tsu-code">role="status"</code>, đóng được</dd></dl>
         <div data-tsu-banner="BAN-C"></div></div></section>
     </div>
 
@@ -71,13 +71,13 @@
     </section>
 
     <section class="card" aria-labelledby="t50-c">
-      <div class="card__header"><div><h2 class="card__title" id="t50-c">Năm mã lý do khóa nút (state-copy.md §3.1, quy ước chữ HOA)</h2><div class="card__subtitle">Máy chủ trả mã, giao diện tra câu chữ. Hiện thành chữ cạnh nút, không chỉ tooltip. Hoãn: <code class="tsu-code">QUOTA_LIMIT_REACHED</code> (B1), <code class="tsu-code">TERMS_NOT_ACCEPTED</code> (cùng TSU-18)</div></div></div>
+      <div class="card__header"><div><h2 class="card__title" id="t50-c">Năm mã lý do khóa nút (state-copy.md §3.1, quy ước chữ HOA)</h2><div class="card__subtitle">Máy chủ trả mã, giao diện tra câu chữ. Hiện thành chữ cạnh nút, không chỉ tooltip. Hoãn sang phase sau: mã liên quan hạn mức và điều khoản mới (cùng TSU-18)</div></div></div>
       <div class="card__body"><dl class="tsu-kv" id="t50-codes">
         <dt><code class="tsu-code">TENANT_RESTRICTED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị tenant:</span> Công ty đang bị hạn chế tạo mới: {lý do}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở.<br><span class="tsu-sub">Nhân viên:</span> Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.</dd>
         <dt><code class="tsu-code">TENANT_SUSPENDED_READONLY</code></dt><dd>Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.</dd>
-        <dt><code class="tsu-code">TRIAL_EXPIRED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị tenant:</span> Dùng thử đã hết. Liên hệ để chọn gói và tiếp tục tạo mới.<br><span class="tsu-sub">Nhân viên:</span> Dùng thử của công ty đã hết. Liên hệ {tên chủ garage} để chọn gói.<br><span class="tsu-sub">Truy cập sớm đã kết thúc:</span> Giai đoạn truy cập sớm đã kết thúc. Liên hệ để chọn gói và tiếp tục tạo mới.</dd>
+        <dt><code class="tsu-code">TRIAL_EXPIRED</code></dt><dd><span class="tsu-sub">Chủ garage, quản trị công ty:</span> Dùng thử đã hết. Dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.<br><span class="tsu-sub">Nhân viên:</span> Dùng thử của công ty đã hết. Liên hệ {tên chủ garage}.<br><span class="tsu-sub">Truy cập sớm đã kết thúc:</span> Giai đoạn truy cập sớm đã kết thúc. Dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.</dd>
         <dt><code class="tsu-code">TENANT_TERMINATING</code></dt><dd>Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến {dd/MM/yyyy}. Chưa có ngày thì bỏ cụm “, đến {dd/MM/yyyy}”.</dd>
-        <dt><code class="tsu-code">VERIFICATION_REQUIRED</code></dt><dd>Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}.</dd>
+        <dt><code class="tsu-code">VERIFICATION_REQUIRED</code></dt><dd>Doanh nghiệp chưa hoàn tất xác minh nên chưa {hành động}. Với hóa đơn: “Chưa xuất được hóa đơn thật. Trước đó, hóa đơn chỉ là bản nháp để thử.”</dd>
       </dl></div>
     </section>
   </div>
@@ -85,6 +85,7 @@
 </div>
 <noscript><div class="g1-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
 <script src="../../g1-auth-dashboard/g1-shell.js"></script>
+<script src="../ts-config.js"></script>
 <script src="../onboarding/tsu-app.js"></script>
 <script src="../../assets/app.js"></script>
 </body>

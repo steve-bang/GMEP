@@ -22,11 +22,11 @@
       <div class="tsu-notice__body">
         <h1 id="tsu-h1" tabindex="-1"><span data-off="an-toan">Tài khoản của Công ty TNHH Ô tô Phương Nam đang tạm ngưng</span><span data-on="an-toan">Tài khoản đang tạm khóa vì lý do an toàn</span></h1>
         <p data-on="ch-yeu-cau phien-thu-hoi">Lý do: <strong>Theo yêu cầu của chủ garage</strong>.</p>
-        <p data-on="ch-het-han">Lý do: <strong>Hết thời gian dùng thử hoặc gói</strong>.</p>
+        <p data-on="ch-het-han">Lý do: <strong>Hết thời gian dùng thử</strong>.</p>
         <p data-on="nv">Tài khoản công ty đang tạm ngưng. Liên hệ chủ garage.</p>
         <p data-off="an-toan">Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.</p>
-        <p data-on="ch-yeu-cau phien-thu-hoi">Để mở lại: liên hệ hỗ trợ.</p>
-        <p data-on="ch-het-han">Để mở lại: liên hệ chọn gói, dữ liệu được giữ nguyên.</p>
+        <p data-on="ch-yeu-cau phien-thu-hoi">Để mở lại: gọi hoặc nhắn Zalo cho hỗ trợ.</p>
+        <p data-on="ch-het-han">Hết thời gian dùng thử, dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp.</p>
         <p data-on="an-toan">Chưa thể truy cập dữ liệu của Công ty TNHH Ô tô Phương Nam. Chúng tôi không nêu chi tiết để bảo vệ tài khoản của bạn. Vui lòng liên hệ hỗ trợ và đọc mã tham chiếu bên dưới.</p>
         <p data-on="an-toan" class="state__ref">Mã tham chiếu <span class="code">REQ-8A41C7</span> <button type="button" class="btn btn--ghost btn--sm" data-toast="success|Đã sao chép|Mã tham chiếu REQ-8A41C7 đã được sao chép.">Sao chép</button></p>
       </div>
@@ -40,25 +40,24 @@
           <a class="btn btn--primary" href="../../g1-auth-dashboard/g1-dsh-01.html">Xem dữ liệu</a>
           <a class="btn btn--secondary" href="../../g4-finance/g4-ein-04.html">Tải hóa đơn và chứng từ</a>
           <a class="btn btn--secondary" href="tsu-55.html" data-off="nv">Xuất dữ liệu</a>
-          <button type="button" class="btn btn--secondary" aria-disabled="true" aria-describedby="t53-why" data-on="nv" data-disable-in="nv">Xuất dữ liệu</button>
-          <a class="btn btn--ghost" href="#" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ, số điện thoại và giờ làm việc là điểm chờ xác nhận.">Liên hệ hỗ trợ</a>
-        </div>
+          <button type="button" class="btn btn--secondary" aria-disabled="true" aria-describedby="t53-why" data-on="nv" data-disable-in="nv">Xuất dữ liệu</button>        </div>
         <p class="tsu-reason" id="t53-why" data-on="nv"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg><span>Chỉ chủ garage xuất được dữ liệu. Hãy báo cho Trần Hoàng Anh. <code>NO_PERMISSION</code> <code>TENANT_SUSPENDED_READONLY</code></span></p>
       </div>
     </section>
 
-    <section class="card" aria-labelledby="t53-s" data-on="an-toan">
+    <section class="card" aria-labelledby="t53-s">
       <div class="card__header"><h2 class="card__title" id="t53-s">Liên hệ hỗ trợ</h2></div>
       <div class="card__body tsu-stack">
-        <dl class="tsu-kv"><dt>Điện thoại</dt><dd class="num">1900 0000 (minh họa, lấy từ cấu hình)</dd><dt>Email</dt><dd>ho-tro@gmep.example (minh họa)</dd><dt>Giờ làm việc</dt><dd>Thứ Hai đến thứ Sáu, 08:00 đến 17:30 (minh họa)</dd></dl>
-        <div class="tsu-actions"><a class="btn btn--primary" href="#" data-toast="info|Liên hệ hỗ trợ|Mở kênh hỗ trợ đã cấu hình. Kênh, số và giờ làm việc là điểm chờ xác nhận.">Liên hệ hỗ trợ</a></div>
-        <p class="tsu-note">Biến thể này không có “Xem dữ liệu” và “Xuất dữ liệu”: ngoại lệ của quy tắc luôn cho tải dữ liệu, chỉ áp dụng khi có sự cố an ninh (RULE-021). Mọi người dùng của công ty thấy như nhau.</p>
+        <div class="ts-help ts-help--card" data-support="card"></div>
+        <div class="tsu-actions"><a class="btn btn--primary" href="#" data-support-call>Gọi hỗ trợ</a></div>
+        <p class="tsu-note" data-on="an-toan">Biến thể này không có “Xem dữ liệu” và “Xuất dữ liệu”: ngoại lệ của quy tắc luôn cho tải dữ liệu, chỉ áp dụng khi có sự cố an ninh (RULE-021). Mọi người dùng của công ty thấy như nhau.</p>
       </div>
     </section>
   </div>
   <p class="tsu-test">Truy vết: FR-TEN-005; RULE-020, 021, 026; AC-S19; UAT-TEN-03. Gộp tạm ngưng chỉ đọc và tạm ngưng an toàn (TSU-54 cũ). Lý do chọn từ danh mục hiển thị cho tenant (QĐT-29); nhân viên chỉ thấy câu chung; tạm ngưng an ninh không có lý do hiển thị.</p>
 </div>
 <noscript><div style="padding:16px"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại.</div></noscript>
+<script src="../ts-config.js"></script>
 <script src="../onboarding/tsu-app.js"></script>
 <script src="../../assets/app.js"></script>
 </body>

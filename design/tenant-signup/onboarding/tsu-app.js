@@ -31,6 +31,8 @@
   /* Trang chủ sau onboarding = TSX-20 (dashboard có thẻ "Thiết lập dần") */
   var HOME = P_ONB + 'tsx-20.html';
   var T = window.TSU = { first: 'default', dirty: false };
+  /* Tên sản phẩm lấy từ ../ts-config.js (một chỗ duy nhất); nạp ts-config.js trước tsu-app.js */
+  var BRAND = (window.TS_CONFIG && window.TS_CONFIG.brand) || 'GARAGE OS';
 
   /* ---------- 9 bước wizard (TSU-21..29) ---------- */
   var STEPS = [
@@ -164,7 +166,7 @@
     var topHref = B.getAttribute('data-top-href') || HOME;
     var topIcon = B.getAttribute('data-top-icon') || 'layout-dashboard';
 
-    var top = '<header class="tsu-top"><a class="tsu-brand" href="' + esc(HOME) + '"><span class="tsu-brand__logo" aria-hidden="true">' + ic('wrench') + '</span><span>GARAGE OS</span></a><span class="tsu-top__sp"></span>' +
+    var top = '<header class="tsu-top"><a class="tsu-brand" href="' + esc(HOME) + '"><span class="tsu-brand__logo" aria-hidden="true">' + ic('wrench') + '</span><span data-brand>' + esc(BRAND) + '</span></a><span class="tsu-top__sp"></span>' +
       '<a class="btn btn--ghost btn--sm tsu-top__home" href="' + esc(topHref) + '" data-tsu-home aria-label="' + esc(topLabel) + '">' + ic(topIcon) + '<span class="tsu-top__homelabel">' + esc(topLabel) + '</span></a>' +
       '<button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối">' + ic('moon') + '</button></header>';
 
@@ -251,7 +253,7 @@
     stateItems = items; T.first = items[0][0];
     if (holder) holder.remove();
 
-    var top = '<header class="tsu-top"><span class="tsu-brand"><span class="tsu-brand__logo" aria-hidden="true">' + ic('wrench') + '</span><span>GARAGE OS</span></span><span class="tsu-top__sp"></span>' +
+    var top = '<header class="tsu-top"><span class="tsu-brand"><span class="tsu-brand__logo" aria-hidden="true">' + ic('wrench') + '</span><span data-brand>' + esc(BRAND) + '</span></span><span class="tsu-top__sp"></span>' +
       '<button type="button" class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng hoặc tối">' + ic('moon') + '</button></header>';
     var hint = B.getAttribute('data-onb-hint') || '';
     var dots = '<ol class="tsu-dots" aria-label="Tiến độ thiết lập, hai bước">' +
@@ -304,17 +306,17 @@
   var BAN = {
     /* Ba biến thể (TSU-50): A dùng thử, B hạn chế/tạm ngưng/chấm dứt, C chờ xác minh để phát hành hóa đơn thật.
        data-variant chọn câu chữ; data-view="NV" là câu dành cho nhân viên. v[...] ghi đè trường của biến thể gốc. */
-    'BAN-A': { lv: 'warning', role: 'status', icon: 'clock', t: 'Dùng thử còn {n} ngày (hết hạn {date}). Dữ liệu của bạn không bị xóa khi hết dùng thử.', hideNV: true, b: ['Xem gói', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo',
+    'BAN-A': { lv: 'warning', role: 'status', icon: 'clock', t: 'Dùng thử còn {n} ngày (hết hạn {date}). Dữ liệu của bạn không bị xóa khi hết dùng thử.', hideNV: true, b: ['Xem chi tiết', P_ACC + 'tsu-41.html'], lab: 'Cảnh báo',
       v: {
-        'het': { role: 'alert', icon: 'alert-triangle', t: 'Dùng thử đã hết. Bạn vẫn xem được dữ liệu, tải hóa đơn và hoàn tất các lệnh đang mở. Liên hệ để chọn gói và tiếp tục tạo mới.', tNV: 'Dùng thử của công ty đã hết. Liên hệ chủ garage.', hideNV: false, b: ['Xem gói', P_ACC + 'tsu-41.html'], noBtnNV: true },
-        'truy-cap-som': { role: 'alert', icon: 'alert-triangle', t: 'Giai đoạn truy cập sớm đã kết thúc. Bạn vẫn xem được dữ liệu và tải hóa đơn. Liên hệ để chọn gói và tiếp tục tạo mới.', tNV: 'Giai đoạn truy cập sớm của công ty đã kết thúc. Liên hệ chủ garage.', hideNV: false, b: ['Xem gói', P_ACC + 'tsu-41.html'], noBtnNV: true }
+        'het': { role: 'alert', icon: 'alert-triangle', t: 'Dùng thử đã hết. Dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp. Bạn vẫn xem dữ liệu, tải hóa đơn và hoàn tất các lệnh đang mở.', tNV: 'Dùng thử của công ty đã hết. Liên hệ chủ garage.', hideNV: false, b: ['Xem chi tiết', P_ACC + 'tsu-41.html'], noBtnNV: true },
+        'truy-cap-som': { role: 'alert', icon: 'alert-triangle', t: 'Giai đoạn truy cập sớm đã kết thúc. Dữ liệu của bạn vẫn được giữ; chúng tôi sẽ liên hệ để bạn chọn cách dùng tiếp. Bạn vẫn xem dữ liệu và tải hóa đơn.', tNV: 'Giai đoạn truy cập sớm của công ty đã kết thúc. Liên hệ chủ garage.', hideNV: false, b: ['Xem chi tiết', P_ACC + 'tsu-41.html'], noBtnNV: true }
       } },
-    'BAN-B': { lv: 'warning', role: 'alert', icon: 'alert-triangle', t: 'Tài khoản đang bị hạn chế: {reason}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở; chưa thể tạo mới {list}.', tNV: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.', b: ['Xem gói', P_ACC + 'tsu-41.html'], noBtnNV: true, lab: 'Hạn chế',
+    'BAN-B': { lv: 'warning', role: 'alert', icon: 'alert-triangle', t: 'Tài khoản đang bị hạn chế: {reason}. Bạn vẫn thu tiền, giao xe và hoàn tất lệnh đang mở; chưa thể tạo mới {list}.', tNV: 'Công ty đang bị hạn chế tạo mới. Việc đang làm vẫn hoàn tất được. Liên hệ chủ garage.', b: ['Xem chi tiết', P_ACC + 'tsu-41.html'], noBtnNV: true, lab: 'Hạn chế',
       v: {
         'tam-ngung': { lv: 'danger', icon: 'lock', t: 'Tài khoản đang tạm ngưng. Bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.', tNV: 'Tài khoản đang tạm ngưng. Bạn chỉ xem được dữ liệu. Liên hệ chủ garage.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], noBtnNV: true, lab: 'Chặn' },
         'cham-dut': { lv: 'danger', icon: 'lock', t: 'Dịch vụ đang chấm dứt: bạn chỉ xem và tải dữ liệu được, đến {date}.', tNV: 'Dịch vụ của công ty đang chấm dứt. Bạn chỉ xem được dữ liệu. Liên hệ chủ garage.', b: ['Xuất dữ liệu', P_ACC + 'tsu-55.html'], noBtnNV: true, lab: 'Chặn' }
       } },
-    'BAN-C': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Hóa đơn thật chưa dùng được: cần xác minh doanh nghiệp và khai nhà cung cấp hóa đơn điện tử (kết nối đạt). Hóa đơn đang chạy thử. Tạo lệnh, thu tiền, kho và báo cáo vẫn dùng bình thường.', b: ['Xem việc cần làm', P_ONB + 'tsx-20.html#state=hoa-don'], lab: 'Thông tin' }
+    'BAN-C': { lv: 'info', role: 'status', icon: 'info', close: true, t: 'Chưa xuất được hóa đơn thật. Cần xác minh doanh nghiệp và cho chúng tôi biết garage dùng hóa đơn điện tử của nhà nào. Trước đó, hóa đơn chỉ là bản nháp để thử. Tạo lệnh, thu tiền, kho và báo cáo vẫn dùng bình thường.', b: ['Xem việc cần làm', P_ONB + 'tsx-20.html#state=hoa-don'], lab: 'Thông tin' }
   };
   var BDEF = { n: '3', date: '08/11/2026', reason: 'đang xem xét tuân thủ, cần bổ sung thông tin', list: 'lệnh sửa chữa và người dùng' };
   function renderBanner(el) {
@@ -335,7 +337,7 @@
     out.className = 'alert alert--' + d.lv + ' tsu-banner';
     out.setAttribute('role', d.role); out.setAttribute('data-code', code);
     ['data-on', 'data-off'].forEach(function (a) { if (el.hasAttribute(a)) out.setAttribute(a, el.getAttribute(a)); });
-    out.innerHTML = ic(d.icon) + '<div class="alert__body"><span><strong class="tsu-bancode">' + esc(d.lab) + ' · ' + code + '.</strong> ' + txt + '</span></div><div class="tsu-banner__act">' + btn + close + '</div>';
+    out.innerHTML = ic(d.icon) + '<div class="alert__body"><span><strong class="tsu-bancode">' + esc(d.lab) + '.</strong> ' + txt + '</span></div><div class="tsu-banner__act">' + btn + close + '</div>';
     el.parentNode.replaceChild(out, el);
   }
   T.banners = BAN;
@@ -476,6 +478,7 @@
   else if (mode === 'wizard' || mode === 'simple') { buildShell(); if (mode === 'wizard' || B.hasAttribute('data-tsu-dialogs')) buildDialogs(); }
   else { buildApp(); if (B.hasAttribute('data-tsu-dialogs')) buildDialogs(); }
   $$('[data-tsu-banner]').forEach(renderBanner);
+  if (window.TS_CONFIG) window.TS_CONFIG.apply();   /* tên sản phẩm và kênh hỗ trợ sau khi khung đã dựng */
   var protoEl = $('#tsu-proto');
   if (protoEl && window.matchMedia && window.matchMedia('(min-width: 1024px)').matches) protoEl.open = true;
   var h = /state=([\w-]+)/.exec(location.hash || '');

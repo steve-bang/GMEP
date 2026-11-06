@@ -13,7 +13,7 @@
 <body class="tsa-login-body" data-tsa-page="60">
 <a class="skip-link" href="#main">Bỏ qua, tới biểu mẫu đăng nhập</a>
 <header class="tsa-top">
-  <span class="tsa-brand"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</span>
+  <span class="tsa-brand"><span class="tsa-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span data-brand>GARAGE OS</span></span>
   <span class="tsa-label">Quản trị nền tảng</span>
 </header>
 
@@ -21,7 +21,7 @@
   <div data-ts-views="default:Mặc định|wrong:Sai thông tin|locked:Khóa tạm|sending:Đang xử lý" data-ts-common="r429 error offline" data-hint="TSU-60 · FR-TEN-011, 013 · tài khoản nền tảng tách khỏi tài khoản tenant. Thử: mật khẩu “sai” báo lỗi, “khoa” khóa tạm."></div>
 
   <main id="main" class="tsp-card" data-error-title="Chưa đăng nhập được">
-    <div><h1>Đăng nhập quản trị nền tảng</h1><p class="tsp-lead">Chỉ dành cho nhân sự nền tảng. Không dùng mã công ty. Nếu bạn là người dùng garage, hãy <a href="../public/tsu-14.html">đăng nhập ở đây</a>.</p></div>
+    <div><h1>Đăng nhập quản trị nền tảng</h1><p class="tsp-lead">Chỉ dành cho nhân sự nền tảng. Nếu bạn là người dùng garage, hãy <a href="../public/tsu-14.html">đăng nhập ở đây</a>.</p></div>
     <div class="tsp-alerts" data-ts-alerts hidden></div>
     <div class="alert alert--danger" role="alert" data-show="wrong" hidden><svg class="icon" aria-hidden="true"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Không đăng nhập được</span><span>Thông tin đăng nhập chưa đúng. Kiểm tra email và mật khẩu rồi thử lại.</span></div></div>
     <div class="alert alert--warning" role="alert" data-show="locked" hidden><svg class="icon" aria-hidden="true"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Tạm dừng đăng nhập trên thiết bị này</span><span>Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau <strong class="num" data-countdown="900" data-countdown-view="default">15:00</strong>.</span></div></div>
@@ -45,11 +45,12 @@
       <p class="tsp-small"><span class="field__req" aria-hidden="true">*</span> Bắt buộc nhập</p>
     </form>
   </main>
-  <footer class="tsp-foot"><span>GARAGE OS · Quản trị nền tảng · Bản thiết kế thử</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+  <footer class="tsp-foot"><span><span data-brand>GARAGE OS</span> · Quản trị nền tảng · Bản thiết kế thử</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
 </div>
 
 <noscript><div class="tsp-noscript"><strong>Trang đăng nhập cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
 <script src="../../assets/app.js"></script>
+<script src="../ts-config.js"></script>
 <script src="../ts-common.js"></script>
 <script>
 window.tsRoute = function () { var p = document.getElementById('pf-pw').value; if (p === 'sai') return 'wrong'; if (p === 'khoa') return 'locked'; return 'tsx-30.html'; };

@@ -11,10 +11,10 @@
 </head>
 <body class="tsp-body">
 <a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
-<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsx-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span>GARAGE OS</a></header>
+<header class="tsp-top tsp-top--center"><a class="tsp-brand" href="tsx-01.html"><span class="tsp-brand__logo" aria-hidden="true"><svg class="icon"><use href="#wrench"/></svg></span><span data-brand>GARAGE OS</span></a></header>
 
 <div class="tsp-wrap">
-  <div data-ts-views="verifying:Đang kiểm tra|ready:Sẵn sàng (cùng trình duyệt)|readyx:Sẵn sàng (trình duyệt khác)|review:Chờ duyệt|needinfo:Cần bổ sung|rejected:Không đạt|slow:Đang tạo chậm|expired:Liên kết hết hạn|invalid:Liên kết không dùng được|lapsed:Yêu cầu quá hạn" data-ts-common="skel error offline" data-hint="TSX-03 (thay TSU-06, 08, 09, 10, 12, 13) · FR-TEN-039, 040, 042 · RULE-028, 032 · AC-S07..S09. Không nêu lý do gắn cờ cho người đăng ký; câu ở “Chờ duyệt” giống nhau cho mọi ca."></div>
+  <div data-ts-views="verifying:Đang kiểm tra|ready:Đã xác thực, vào thẳng ứng dụng|readyx:Bấm liên kết ở máy hoặc trình duyệt khác|review:Chờ duyệt|needinfo:Cần bổ sung|rejected:Không đạt|slow:Đang tạo chậm|expired:Liên kết hết hạn|invalid:Liên kết đã dùng|lapsed:Yêu cầu quá hạn" data-ts-common="skel error offline" data-hint="TSX-03 (thay TSU-06, 08, 09, 10, 12, 13) · FR-TEN-039, 040, 042 · RULE-028, 032 · AC-S07..S09. Liên kết xác thực tự đăng nhập ở bất kỳ trình duyệt nào, một lần, hạn 72 giờ. Không nêu lý do gắn cờ cho người đăng ký; câu ở “Chờ duyệt” giống nhau cho mọi ca."></div>
 
   <main id="main" class="tsp-card tsp-card--xl" data-error-title="Chưa tải được trạng thái đăng ký" data-error-text="Máy chủ gặp sự cố tạm thời. Đăng ký của bạn không bị ảnh hưởng. Hãy thử lại sau ít phút." data-offline-text="Chưa cập nhật được trạng thái vì mất kết nối mạng. Đăng ký của bạn vẫn được xử lý bình thường.">
     <h1 class="sr-only" data-show="skel" hidden>Xác thực và tiến trình đăng ký</h1>
@@ -47,15 +47,15 @@
           <section class="tsp-result" data-show="ready" hidden aria-labelledby="rd-h" data-focus-result tabindex="-1">
             <span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
             <h2 id="rd-h">Tài khoản đã sẵn sàng</h2>
-            <p class="tsp-lead">Tự chuyển vào ứng dụng sau 2 giây. Nếu không tự chuyển, bấm nút bên dưới.</p>
+            <p class="tsp-lead">Email đã xác thực và bạn đã được đăng nhập. Bấm nút bên dưới để vào ứng dụng.</p>
             <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="../onboarding/tsx-10.html">Vào ứng dụng</a></div>
           </section>
 
-          <section class="tsp-result" data-show="readyx" hidden aria-labelledby="rx-h">
+          <section class="tsp-result" data-show="readyx" hidden aria-labelledby="rx-h" data-focus-result tabindex="-1">
             <span class="tsp-icon-badge tsp-icon-badge--success" aria-hidden="true"><svg class="icon"><use href="#circle-check"/></svg></span>
             <h2 id="rx-h">Tài khoản đã sẵn sàng</h2>
-            <p class="tsp-lead">Bạn mở liên kết ở trình duyệt khác với nơi đăng ký, nên cần đăng nhập. Mã công ty có trong email chào mừng chúng tôi vừa gửi.</p>
-            <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsu-14.html">Đăng nhập</a></div>
+            <p class="tsp-lead">Bạn bấm liên kết ở một điện thoại, máy tính hoặc trình duyệt khác với nơi đăng ký. Không sao, bạn vẫn được đăng nhập thẳng, không cần nhập mật khẩu.</p>
+            <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="../onboarding/tsx-10.html">Vào ứng dụng</a></div>
           </section>
 
           <div class="alert alert--info" data-show="review" hidden data-focus-result tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Chúng tôi cần kiểm tra thêm</span><span>Chúng tôi cần kiểm tra thêm thông tin doanh nghiệp. Bạn sẽ nhận email khi có kết quả.</span>
@@ -63,21 +63,21 @@
 
           <div class="alert alert--warning" data-show="slow" hidden><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Đang tạo tài khoản, lâu hơn dự kiến</span><span>Việc tạo tài khoản đang mất nhiều thời gian hơn dự kiến. Bạn có thể đóng trang, chúng tôi sẽ email khi xong.</span></div></div>
 
-          <div class="alert alert--danger" data-show="rejected" hidden><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Đăng ký chưa được chấp nhận</span><span>Mã số thuế không khớp thông tin đăng ký. <span class="text-secondary">(Lý do lấy từ danh mục, minh họa.)</span></span>
-            <ul class="tsp-bullets"><li>Kiểm tra lại mã số thuế và tên garage rồi đăng ký lại.</li><li>Cần xem xét lại: liên hệ hỗ trợ và nêu mã theo dõi. Chúng tôi không có biểu mẫu khiếu nại riêng.</li></ul>
-            <div class="alert__actions"><a class="btn btn--primary btn--sm" href="tsx-01.html">Đăng ký lại</a><button type="button" class="btn btn--secondary btn--sm" data-toast="info|Liên hệ hỗ trợ|Kênh hỗ trợ sẽ được công bố. Hãy nêu mã theo dõi SGN-4F7K2Q.">Liên hệ hỗ trợ</button></div></div></div>
+          <div class="alert alert--danger" data-show="rejected" hidden><svg class="icon" aria-hidden="true"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Đăng ký chưa được chấp nhận</span><span>Mã số thuế không khớp thông tin đăng ký.</span>
+            <ul class="tsp-bullets"><li>Kiểm tra lại mã số thuế và tên garage rồi đăng ký lại.</li><li>Cần xem xét lại: gọi hoặc nhắn Zalo cho hỗ trợ và đọc mã theo dõi SGN-4F7K2Q.</li></ul>
+            <div class="alert__actions"><a class="btn btn--primary btn--sm" href="tsx-01.html">Đăng ký lại</a><a class="btn btn--secondary btn--sm" href="#" data-support-call>Gọi hỗ trợ</a></div></div></div>
         </div>
 
         <form class="tsp-form" data-ts-form novalidate data-show="needinfo" hidden data-success-view="review" data-success-toast="success|Đã gửi bổ sung|Chúng tôi sẽ email khi có kết quả." aria-labelledby="ni-h">
           <h2 id="ni-h">Chúng tôi cần thêm thông tin</h2>
-          <p class="tsp-meta"><span><svg class="icon icon--sm" aria-hidden="true"><use href="#calendar"/></svg> Hạn bổ sung: <strong class="num">12/11/2026</strong> (cấu hình, minh họa)</span></p>
+          <p class="tsp-meta"><span><svg class="icon icon--sm" aria-hidden="true"><use href="#calendar"/></svg> Hạn bổ sung: <strong class="num">12/11/2026</strong></span></p>
           <fieldset class="tsp-fs">
             <legend class="sr-only">Mục cần bổ sung</legend>
             <section class="tsp-request" aria-labelledby="rq1">
               <p class="tsp-request__title" id="rq1">Giấy chứng nhận đăng ký kinh doanh <span class="badge badge--danger">Bắt buộc</span></p>
-              <p class="tsp-small">Lý do: cần giấy tờ để đối chiếu thông tin doanh nghiệp (lấy từ danh mục, minh họa).</p>
+              <p class="tsp-small">Lý do: cần giấy tờ để đối chiếu thông tin doanh nghiệp.</p>
               <div class="tsp-up" data-upload data-required data-max-mb="10" data-max-files="3" id="up1">
-                <div class="tsp-up__head"><span class="field__hint" id="up1-h">PDF, JPG hoặc PNG. Tối đa 10 MB mỗi tệp, 3 tệp (tham số).</span>
+                <div class="tsp-up__head"><span class="field__hint" id="up1-h">PDF, JPG hoặc PNG. Tối đa 10 MB mỗi tệp, 3 tệp.</span>
                   <label class="btn btn--secondary btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#upload"/></svg>Chọn tệp<input type="file" class="tsp-up__file-input" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Chọn tệp giấy chứng nhận đăng ký kinh doanh" aria-describedby="up1-h"></label></div>
                 <ul class="tsp-files" data-files aria-label="Tệp đã chọn"></ul>
                 <span class="field__error" role="alert" data-up-err hidden></span>
@@ -110,15 +110,15 @@
       <section class="tsp-result" data-show="expired" hidden aria-labelledby="ex-h">
         <span class="tsp-icon-badge tsp-icon-badge--warning" aria-hidden="true"><svg class="icon"><use href="#clock"/></svg></span>
         <h1 id="ex-h">Liên kết đã hết hạn</h1>
-        <p class="tsp-lead">Vì an toàn, liên kết chỉ có hiệu lực 72 giờ (số lấy từ cấu hình, minh họa). Bạn có thể nhận liên kết mới.</p>
-        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsx-02.html">Gửi liên kết mới</a></div>
+        <p class="tsp-lead">Vì an toàn, liên kết chỉ có hiệu lực 72 giờ. Bạn có thể nhận liên kết mới, hoặc đăng nhập bằng email và mật khẩu nếu đã có.</p>
+        <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsx-02.html">Gửi liên kết mới</a><a class="btn btn--secondary btn--lg" href="tsu-14.html">Đăng nhập bằng email</a></div>
       </section>
 
       <section class="tsp-result" data-show="invalid" hidden aria-labelledby="iv-h">
         <span class="tsp-icon-badge tsp-icon-badge--neutral" aria-hidden="true"><svg class="icon"><use href="#search"/></svg></span>
-        <h1 id="iv-h">Liên kết không còn dùng được</h1>
-        <p class="tsp-lead">Liên kết không còn dùng được. Nếu đã có tài khoản, hãy đăng nhập; nếu chưa, hãy nhận liên kết mới.</p>
-        <div class="tsp-actions"><a class="btn btn--secondary btn--lg" href="tsx-02.html">Gửi liên kết mới</a><a class="btn btn--primary btn--lg" href="tsu-14.html">Đăng nhập</a></div>
+        <h1 id="iv-h">Liên kết này đã được dùng</h1>
+        <p class="tsp-lead">Mỗi liên kết chỉ dùng được một lần. Nếu bạn đã xác thực email, hãy đăng nhập bằng email và mật khẩu. Nếu chưa, hãy nhận liên kết mới.</p>
+        <div class="tsp-actions"><a class="btn btn--secondary btn--lg" href="tsx-02.html">Gửi liên kết mới</a><a class="btn btn--primary btn--lg" href="tsu-14.html">Đăng nhập bằng email</a></div>
       </section>
 
       <section class="tsp-result" data-show="lapsed" hidden aria-labelledby="lp-h">
@@ -127,14 +127,17 @@
         <p class="tsp-lead">Yêu cầu đăng ký này đã hết hạn vì chưa được xác thực. Bạn có thể đăng ký lại, không mất gì.</p>
         <div class="tsp-actions"><a class="btn btn--primary btn--lg" href="tsx-01.html">Đăng ký lại</a></div>
       </section>
+
+      <div class="ts-help ts-help--card" data-support="card"></div>
     </div>
   </main>
 
-  <footer class="tsp-foot"><span>GARAGE OS · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
+  <footer class="tsp-foot"><span><span data-brand>GARAGE OS</span> · Bản thiết kế thử, đề xuất chưa được khách hàng xác nhận. Số hỗ trợ là minh họa [Cần xác nhận].</span><button type="button" class="btn btn--ghost btn--sm" data-theme-toggle>Đổi giao diện sáng hoặc tối</button></footer>
 </div>
 
 <noscript><div class="tsp-noscript"><strong>Trang này cần JavaScript.</strong> Bật JavaScript trong trình duyệt rồi tải lại trang.</div></noscript>
 <script src="../../assets/app.js"></script>
+<script src="../ts-config.js"></script>
 <script src="../ts-common.js"></script>
 </body>
 </html>
