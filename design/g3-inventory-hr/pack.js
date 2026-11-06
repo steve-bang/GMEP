@@ -76,7 +76,7 @@
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   function role() { return document.body.getAttribute('data-role') || 'CH'; }
   function has(list, r) { return (' ' + list + ' ').indexOf(' ' + r + ' ') >= 0; }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
   var cur = null;       /* mã màn hình hiện tại, ví dụ INV-01 */
 
@@ -293,14 +293,14 @@
         var tds = $$('td', tr), top = '', sub = '', badge = '', meta = '', foot = '', s4 = '', href = tr.getAttribute('data-href');
         /* Thẻ là <a> khi dòng có data-href: bỏ <a> lồng bên trong (HTML không hợp lệ, hai điểm dừng Tab) */
         function inner(td) { var c = td.cloneNode(true); if (href) $$('a', c).forEach(function (a) { a.replaceWith.apply(a, Array.prototype.slice.call(a.childNodes)); }); return c.innerHTML; }
-        function gate(td) { return (td.hasAttribute('data-g3-hide') ? ' data-g3-hide="' + td.getAttribute('data-g3-hide') + '"' : '') + (td.hasAttribute('data-g3-roles') ? ' data-g3-roles="' + td.getAttribute('data-g3-roles') + '"' : ''); }
+        function gate(td) { return (td.hasAttribute('data-g3-hide') ? ' data-g3-hide="' + esc(td.getAttribute('data-g3-hide')) + '"' : '') + (td.hasAttribute('data-g3-roles') ? ' data-g3-roles="' + esc(td.getAttribute('data-g3-roles')) + '"' : ''); }
         tds.forEach(function (td, i) {
           var c = map[i], label = ths[i] ? ths[i].textContent.replace(/\s+/g, ' ').trim() : '';
           if (ths[i] && ths[i].querySelector('.cell-sub')) label = ths[i].childNodes[0].textContent.trim() || label;
           if (c === 'title') top = '<div class="record__title code">' + inner(td) + '</div>';
           else if (c === 'sub') sub = '<div>' + inner(td) + '</div>';
           else if (c === 'badge') badge = '<div class="g3-chip-badges">' + inner(td) + '</div>';
-          else if (c === 'meta') meta += '<span' + gate(td) + '>' + (label ? label + ': ' : '') + inner(td) + '</span>';
+          else if (c === 'meta') meta += '<span' + gate(td) + '>' + (label ? esc(label) + ': ' : '') + inner(td) + '</span>';
           else if (c === 'foot') foot += '<span class="num"' + gate(td) + '>' + inner(td) + '</span>';
           else if (c === 'stock4' && tr.hasAttribute('data-s')) s4 = stock4HTML(parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered')));   /* ô Thực tế, Giữ chỗ tự ẩn theo vai trò (MH chỉ còn Đang vận chuyển và Khả dụng) */   /* đủ bốn số tồn trên thẻ (F4-02) */
         });
@@ -336,7 +336,7 @@
     var q = $('.qty__input', row), name = $('[data-name]', row);
     if (q) q.value = (parseInt(q.value || '0', 10) || 0) + 1;
     $$('.g3-hit', tbl).forEach(function (x) { x.classList.remove('g3-hit'); }); row.classList.add('g3-hit'); row.scrollIntoView({ block: 'nearest' });
-    msg.innerHTML = '<div class="alert alert--success">' + ic('circle-check') + '<div class="alert__body"><span><strong>Đã quét:</strong> ' + (name ? name.textContent : code) + (q ? '· số đếm ' + q.value : '') + '</span></div></div>';
+    msg.innerHTML = '<div class="alert alert--success">' + ic('circle-check') + '<div class="alert__body"><span><strong>Đã quét:</strong> ' + esc(name ? name.textContent : code) + (q ? '· số đếm ' + esc(q.value) : '') + '</span></div></div>';
     document.dispatchEvent(new CustomEvent('g3:scan', { detail: { code: code } }));
   }
   document.addEventListener('click', function (e) {
