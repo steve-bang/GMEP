@@ -1378,6 +1378,11 @@
         "lead": "Cho chi nhánh mở bảo hành trên lệnh của chi nhánh khác và bên chịu chi phí được ghi nhận (chưa chốt, Q77). Chưa khai thì chỉ bảo hành lệnh của chính chi nhánh.",
         "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
       },
+      "service-package": {
+        "title": "Gói bảo dưỡng",
+        "lead": "Danh mục gói gồm hạng mục và dòng công, phụ tùng; chọn gói thì báo giá thêm đủ các dòng. Giá cố định của gói chưa áp dụng (chờ xác nhận).",
+        "scopeHint": "Mã gói, chữ thường không dấu, ví dụ bd-10000"
+      },
       "appointment-policy": {
         "title": "Lịch hẹn và công suất xưởng",
         "lead": "Bật hoặc tắt lịch hẹn của chi nhánh và số xe mỗi ngày; vượt công suất chỉ cảnh báo. Chưa khai thì lịch hẹn tắt.",
@@ -1616,6 +1621,7 @@
       "config_labor-position": "Cấu hình: Chức danh và hệ số công",
       "config_labor-policy": "Cấu hình: Quy tắc làm tròn và ngưỡng điều chỉnh công",
       "config_appointment-policy": "Cấu hình: Lịch hẹn và công suất xưởng",
+      "config_service-package": "Cấu hình: Gói bảo dưỡng",
       "config_warranty-term": "Cấu hình: Thời hạn bảo hành",
       "config_warranty-policy": "Cấu hình: Chính sách bảo hành chéo chi nhánh",
       "config_inventory-policy": "Cấu hình: Chính sách kho",

@@ -46,5 +46,26 @@ export function recP2DemoDocs(): SeedDoc[] {
   // FR-REC-036: Thủ Đức may open warranty work on another branch's order (sample only; the company default stays
   // strict because no tenant-level version exists), recording the origin branch as the cost bearer
   cfg('warranty-policy', 'branch:br_td', { crossBranchOpen: true, costBearer: 'origin_branch' });
+  // FR-REC-020: one sample maintenance package (lines priced by the normal quote pricing)
+  cfg('service-package', 'bd-10000', {
+    name: 'Gói bảo dưỡng 10.000 km (minh họa)',
+    status: 'active',
+    serviceType: 'maintenance',
+    items: [
+      {
+        name: 'Thay dầu và lọc dầu',
+        necessity: 'required',
+        lines: [
+          { kind: 'labor', serviceId: 'svc_tnt_demo_SV-DAU' },
+          { kind: 'part', partId: 'part_seed_01', qty: 1 },
+        ],
+      },
+      {
+        name: 'Kiểm tra phanh',
+        necessity: 'optional',
+        lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-PHANH' }],
+      },
+    ],
+  });
   return docs;
 }

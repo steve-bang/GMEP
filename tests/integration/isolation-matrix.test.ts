@@ -105,6 +105,13 @@ const ROUTES: Record<string, RouteRow> = {
     idKey: 'appointmentId',
     detail: (id) => `/api/v1/rec/appointments/${id}`,
   },
+  // slice 2.8b: refused items of earlier quotes of a vehicle (FR-REC-024), quotes in the reader's scope only
+  'v1/rec/declined-items': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'vehicleId',
+    detail: (id) => `/api/v1/rec/declined-items?vehicleId=${id}`,
+  },
   // slice 2.8b: warranty coverage of a vehicle (P4 inside the tenant; the vehicle must be in the reader's scope)
   'v1/rec/warranties': {
     kind: 'detail',
@@ -333,6 +340,8 @@ const EXEMPT: Record<string, string> = {
   'v1/acc/expense-categories': 'expense category catalogue, company-level',
   'v1/rec/pickers/parts': 'catalogue picker, company-level',
   'v1/rec/pickers/services': 'catalogue picker, company-level',
+  'v1/rec/pickers/packages':
+    'maintenance package catalogue (FR-REC-020), company-level configuration',
   'v1/rec/service-workflows': 'workflow catalogue, company-level',
   'v1/rec/intakes/[id]/photos/[pid]':
     'file download, covered in rec-photos tests of rec-orders.test.ts',

@@ -200,3 +200,9 @@ export {
   warrantyPolicyAt,
 } from './application/warranty';
 export type { WarrantyRecordDto, WarrantyItemDto } from './application/warranty';
+
+// slice 2.8b: declined items (FR-REC-024) and maintenance packages (FR-REC-020)
+export { listDeclinedItems } from './application/declined';
+export type { DeclinedItemDto } from './application/declined';
+export { listServicePackages } from './application/packages';
+export type { ServicePackageDto } from './application/packages';
