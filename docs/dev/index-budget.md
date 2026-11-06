@@ -1,6 +1,6 @@
 # Ngân sách chỉ mục composite Firestore (R68, việc 4a)
 
-Trạng thái: **169 trên 200 sau khi gộp các slice 2.1, 2.5, 2.6a** (cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`; còn 26 chỗ trước ngưỡng fail). Slice 2.1 giảm 192 xuống 168 (`auditLogs` 32 xuống 8), 2.6a thêm `laborSheets.byBranch` (+1), 2.5 không thêm. Số đúng đo bằng `pnpm check:indexes`: **trước slice 2.1 là 192** (các tài liệu từng ghi 191, 192, 193 do lệch từng đợt: 193 là số trước khi bỏ `users.byEmployeeCode` ở MT-0; CLAUDE.md, tài liệu này và `multi-tenant-requirements-for-dev.md` §5 nay cùng ghi số đo thật). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra nhiều hơn vì có thêm 7 chính sách TTL trong `fieldOverrides`; TTL không tính vào hạn mức 200 composite. Mọi hình truy vấn nghiệp vụ phải có `tenantId` (test `tests/unit/tenant-invariants.test.ts`).
+Trạng thái: **171 trên 200 sau slice 2.8b** (169 sau khi gộp các slice 2.1, 2.5, 2.6a; 2.8b thêm `appointments.byDate` và `warranties.byVehicle`; cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`; còn 24 chỗ trước ngưỡng fail). Slice 2.1 giảm 192 xuống 168 (`auditLogs` 32 xuống 8), 2.6a thêm `laborSheets.byBranch` (+1), 2.5 không thêm. Số đúng đo bằng `pnpm check:indexes`: **trước slice 2.1 là 192** (các tài liệu từng ghi 191, 192, 193 do lệch từng đợt: 193 là số trước khi bỏ `users.byEmployeeCode` ở MT-0; CLAUDE.md, tài liệu này và `multi-tenant-requirements-for-dev.md` §5 nay cùng ghi số đo thật). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra nhiều hơn vì có thêm 7 chính sách TTL trong `fieldOverrides`; TTL không tính vào hạn mức 200 composite. Mọi hình truy vấn nghiệp vụ phải có `tenantId` (test `tests/unit/tenant-invariants.test.ts`).
 
 ## Đề xuất giải ngân sách của slice 2.1 (đã làm)
 
@@ -29,7 +29,7 @@ Trạng thái: **169 trên 200 sau khi gộp các slice 2.1, 2.5, 2.6a** (cảnh
 
 ## Phân bổ theo phân hệ
 
-SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng 169).
+SYS 46 (`auditLogs` còn 8), REC 47, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng 171 sau slice 2.8b).
 
 ## Ứng viên gộp/bỏ (chỉ đề xuất, chưa làm; gỡ chỉ mục đòi đổi truy vấn)
 
@@ -52,7 +52,7 @@ SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng
 | Module | Indexes |
 | --- | ---: |
 | SYS | 46 |
-| REC | 45 |
+| REC | 47 |
 | INV | 39 |
 | CRM | 32 |
 | ACC | 5 |
@@ -139,6 +139,7 @@ SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng
 | INV | stockReservations | partId, tenantId, updatedAt desc | COLLECTION | FR-INV, 1.4 | stockReservations.byPart |
 | INV | stockReservations | sourceId, sourceType, tenantId, createdAt | COLLECTION | FR-INV, 1.4 | stockReservations.bySource |
 | INV | stockReservations | status, tenantId, createdAt | COLLECTION | FR-INV, 1.4 | stockReservations.open |
+| REC | appointments | branchId, tenantId, date | COLLECTION | FR-REC-019, 027, 2.8b | appointments.byDate |
 | REC | intakes | branchId, status, tenantId, createdAt desc | COLLECTION | FR-REC, 1.5 | intakes.list[status]@scope |
 | REC | intakes | branchId, status, tenantId, number | COLLECTION | FR-REC, 1.5 | intakes.byNumber[status]@scope |
 | REC | intakes | branchId, status, tenantId, plateNorm | COLLECTION | FR-REC, 1.5 | intakes.byPlate[status]@scope |
@@ -184,6 +185,7 @@ SYS 46 (`auditLogs` còn 8), REC 45, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng
 | REC | repairOrders | tenantId, createdAt desc | COLLECTION | FR-REC, 1.6 | repairOrders.list |
 | REC | repairOrders | tenantId, number | COLLECTION | FR-REC, 1.6 | repairOrders.byNumber |
 | REC | repairOrders | tenantId, plateNorm | COLLECTION | FR-REC, 1.6 | repairOrders.byPlate |
+| REC | warranties | tenantId, vehicleId, startDate desc | COLLECTION | FR-REC-018, 036, 2.8b | warranties.byVehicle |
 | SYS | approvals | branchId, status, tenantId, createdAt desc | COLLECTION | FR-SYS-004, 1.1/1.7 | approvals.byBranchStatus |
 | SYS | approvals | requestedBy, tenantId, createdAt desc | COLLECTION | FR-SYS-004, 1.1/1.7 | approvals.byRequester |
 | SYS | auditLogs | branchId, entityId, entityType, tenantId, at desc | COLLECTION | FR-SYS-003, 1.1 | auditLogs.list[entityId,entityType]@scope |

@@ -1,7 +1,8 @@
 /** CRM entities (FR-CRM-001, 002, 004). Company-level records; branch access goes through links (BA §10). */
 
 export type CustomerType = 'individual' | 'business';
-export type CustomerStatus = 'active' | 'anonymized';
+/** `merged` (FR-CRM-003, slice 2.8b): the record was merged into `mergedInto`; it is kept, never deleted */
+export type CustomerStatus = 'active' | 'anonymized' | 'merged';
 
 /** Customer labels offered in the UI (G2-CRM-01 filter). Free-form labels are not allowed. */
 export const CUSTOMER_LABELS = ['vip', 'contract', 'no_marketing'] as const;
@@ -32,6 +33,11 @@ export interface Customer {
   /** `import` = created by the Excel import (SYS-007); RPT counts such a customer as returning, never as new (2.1-4) */
   origin?: 'import';
   anonymizedAt?: Date;
+  /** FR-CRM-003: set on a merged (source) record */
+  mergedInto?: string;
+  mergedAt?: Date;
+  /** FR-CRM-003: records merged into this one, oldest first */
+  mergedFrom?: string[];
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -68,6 +74,8 @@ export const RELATION_SOURCES = [
   'repair_order',
   /** C24: the vehicle arrived and an intake file was opened for it (REC) */
   'intake',
+  /** FR-CRM-003: inherited from a record merged into this one */
+  'merge',
 ] as const;
 export type RelationSource = (typeof RELATION_SOURCES)[number];
 

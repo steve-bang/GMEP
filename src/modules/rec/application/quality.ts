@@ -11,6 +11,8 @@ import { notifyUsers, resolveConfigAt } from '@/modules/sys';
 import type { Handover, HandoverPayment, QcCheckResult, QcRun, TimeEvent } from '../domain/order';
 import type { OrderPaymentSnapshot } from '../ports/ports';
 import { prepareCloseSupplements } from './supplement';
+import { buildWarrantyRecord } from '../domain/warranty';
+import { warrantyTermAt } from './warranty';
 import { transitionOrder } from '../domain/orderState';
 import type { RecDeps } from '../ports/deps';
 import { orderPatch } from './orderHelpers';
@@ -359,6 +361,13 @@ export async function handoverVehicle(
   if (data.confirmation === 'paper' && !data.paperRef && policy.handoverRequiresReceiver)
     throw validationFailed([{ field: 'paperRef', message: 'Ghi mã biên bản giấy đã ký.' }]);
   const items0 = await deps.items.listByOrder(scope, orderId, deps.rec.maxItemsPerOrder);
+  // slice 2.8b (FR-REC-018): the warranty term in force on the handover day, copied onto the record (RULE-019)
+  const warrantyTerm = await warrantyTermAt(
+    deps,
+    o0.tenantId,
+    o0.serviceType ?? null,
+    businessDate(deps.sys.clock.now()),
+  );
   return runIdempotent(
     idemOf(deps),
     {
@@ -444,6 +453,24 @@ export async function handoverVehicle(
         totalVnd: done.reduce((s, i) => s + i.subtotalVnd, 0),
         projectedAt: now,
       });
+      // slice 2.8b (FR-REC-018, 036): the warranty record, projection P4 (white-listed fields, deterministic id)
+      deps.warranties.upsert(
+        tx,
+        buildWarrantyRecord({
+          tenantId: o.tenantId,
+          vehicleId: o.vehicleId,
+          branchId: o.branchId,
+          branchName: branch.name,
+          orderId: o.id,
+          orderCode: o.number,
+          serviceType: o.serviceType ?? null,
+          startDate: businessDate(now),
+          startKm: data.km ?? o.km ?? null,
+          items: done,
+          term: warrantyTerm,
+          createdAt: now,
+        }),
+      );
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {

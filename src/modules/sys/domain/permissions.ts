@@ -310,6 +310,28 @@ const HR_CH = flatten([
 const HR_QD = flatten([g('employee', 'view')]);
 const HR_TH = flatten([g('labor-own', 'view')]);
 
+/**
+ * REC slice 2.8b (appointments, warranty; FR-REC-018, 019, 027, 036) default grants [Đề xuất dev - chờ xác nhận: BA/Khách],
+ * from G2-APT-01/02 (CV = S, QL; CH, QV = X) and G2-DLV-05/06 (CV, QL = S; CH, QV = X).
+ *  - `appointment`: view the branch calendar; create = book; update = move, change advisor, cancel, no-show, "Đã đến".
+ *  - `appointment-policy`: the effective-dated on/off switch and daily capacity (QL proposes for its branch, CH approves).
+ */
+const APT_S = flatten([g('appointment', 'view', 'create', 'update')]);
+const APT_VIEW = flatten([g('appointment', 'view')]);
+const APT_POLICY_CH = flatten([g('appointment-policy', 'view', 'update', 'approve', 'reject')]);
+const APT_POLICY_QL = flatten([g('appointment-policy', 'view', 'update')]);
+/**
+ *  - `warranty`: view = warranty coverage of a vehicle (own branch in full, other branches through projection P4);
+ *    create = open warranty work (a warranty intake linked to the origin order).
+ *  - `warranty-policy`: the warranty terms and the cross-branch policy (CH approves; KT reads).
+ */
+const WAR_S = flatten([g('warranty', 'view', 'create')]);
+const WAR_VIEW = flatten([g('warranty', 'view')]);
+const WAR_POLICY_CH = flatten([g('warranty-policy', 'view', 'update', 'approve', 'reject')]);
+const WAR_POLICY_VIEW = flatten([g('warranty-policy', 'view')]);
+/** FR-CRM-003: merging two customer records (kept, audited, never deleted): CH and QL in the working branch. */
+const CRM_MERGE = flatten([g('customer-merge', 'create')]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
@@ -351,6 +373,11 @@ const CH = [
   ...CATALOG_RELEASE,
   ...IMP_FULL,
   ...HR_CH,
+  ...APT_S,
+  ...APT_POLICY_CH,
+  ...WAR_S,
+  ...WAR_POLICY_CH,
+  ...CRM_MERGE,
 ];
 
 const matrix: Grant = {
@@ -384,7 +411,8 @@ const matrix: Grant = {
     .concat(RPT_QV)
     .concat(RPT_RANKING)
     .concat(flatten([g('catalog-release', 'view')]))
-    .concat(HR_VIEW),
+    .concat(HR_VIEW)
+    .concat(APT_VIEW, WAR_VIEW, WAR_POLICY_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('user-credential', 'manage'),
@@ -423,7 +451,8 @@ const matrix: Grant = {
     .concat(EIN_VIEW)
     .concat(RPT_QL)
     .concat(IMP_FULL)
-    .concat(HR_QL),
+    .concat(HR_QL)
+    .concat(APT_S, APT_POLICY_QL, WAR_S, WAR_POLICY_VIEW, CRM_MERGE),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -446,7 +475,8 @@ const matrix: Grant = {
     .concat(REC_S)
     .concat(ORD_CV)
     .concat(ACC_CV)
-    .concat(RPT_BASIC),
+    .concat(RPT_BASIC)
+    .concat(APT_S, WAR_S),
   QD: flatten([
     g('device', 'view'),
     g('worker-pin', 'manage'),
@@ -460,7 +490,8 @@ const matrix: Grant = {
     .concat(REC_VIEW_ALL)
     .concat(ORD_QD)
     .concat(RPT_BASIC)
-    .concat(HR_QD),
+    .concat(HR_QD)
+    .concat(APT_VIEW, WAR_VIEW),
   TH: ORD_TH.concat(HR_TH),
   TK: flatten([
     g('warehouse', 'view'),
@@ -487,7 +518,8 @@ const matrix: Grant = {
     .concat(ORD_TN)
     .concat(ACC_TN)
     .concat(EIN_TN)
-    .concat(RPT_BASIC),
+    .concat(RPT_BASIC)
+    .concat(APT_VIEW),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -513,7 +545,8 @@ const matrix: Grant = {
     .concat(ACC_KT)
     .concat(EIN_KT)
     .concat(RPT_KT)
-    .concat(HR_VIEW),
+    .concat(HR_VIEW)
+    .concat(WAR_VIEW, WAR_POLICY_VIEW),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -673,6 +706,19 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
     id: '2026-11-sys-1.11-import',
     note: 'Slice 1.11: Excel data import, dry run, commit and undo (FR-SYS-007)',
     grants: { CH: IMP_FULL, QL: IMP_FULL, TK: IMP_FULL },
+  },
+  {
+    id: '2026-11-rec-2.8b-appointments',
+    note: 'Slice 2.8b: appointment calendar and capacity policy, warranty coverage and policy, customer merge (FR-REC-018, 019, 027, 036, FR-CRM-003)',
+    grants: {
+      CH: [...APT_S, ...APT_POLICY_CH, ...WAR_S, ...WAR_POLICY_CH, ...CRM_MERGE],
+      QV: [...APT_VIEW, ...WAR_VIEW, ...WAR_POLICY_VIEW],
+      QL: [...APT_S, ...APT_POLICY_QL, ...WAR_S, ...WAR_POLICY_VIEW, ...CRM_MERGE],
+      CV: [...APT_S, ...WAR_S],
+      QD: [...APT_VIEW, ...WAR_VIEW],
+      TN: APT_VIEW,
+      KT: [...WAR_VIEW, ...WAR_POLICY_VIEW],
+    },
   },
 ];
 

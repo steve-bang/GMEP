@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { getTenant, provisionTenant, transitionTenant } from '@/modules/sys';
+import { businessDate } from '@/platform/format/date';
 import { journey, newStaffUser, type Row, type Staff } from '../helpers/journey';
 import { allRouteFiles, backends, createHarness, type Harness } from './harness';
 
@@ -52,6 +53,13 @@ const ROUTES: Record<string, RouteRow> = {
     idKey: 'customerId',
     detail: (id) => `/api/v1/crm/customers/${id}/consents`,
   },
+  // slice 2.8b: merge suggestions (FR-CRM-003)
+  'v1/crm/customers/[id]/duplicates': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'customerId',
+    detail: (id) => `/api/v1/crm/customers/${id}/duplicates`,
+  },
   'v1/crm/customers/[id]/vehicles': {
     kind: 'detail',
     path: () => '',
@@ -92,6 +100,32 @@ const ROUTES: Record<string, RouteRow> = {
   // REC
   'v1/rec/board': { kind: 'list', path: () => '/api/v1/rec/board', has: 'orderId' },
   'v1/rec/intakes': { kind: 'list', path: () => '/api/v1/rec/intakes?limit=100', has: 'intakeId' },
+  // slice 2.8b: the branch calendar (one branch per read) and an appointment (FR-REC-019, 027)
+  'v1/rec/appointments': {
+    kind: 'list',
+    path: () => '/api/v1/rec/appointments?days=7',
+    has: 'appointmentId',
+  },
+  'v1/rec/appointments/[id]': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'appointmentId',
+    detail: (id) => `/api/v1/rec/appointments/${id}`,
+  },
+  // slice 2.8b: refused items of earlier quotes of a vehicle (FR-REC-024), quotes in the reader's scope only
+  'v1/rec/declined-items': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'vehicleId',
+    detail: (id) => `/api/v1/rec/declined-items?vehicleId=${id}`,
+  },
+  // slice 2.8b: warranty coverage of a vehicle (P4 inside the tenant; the vehicle must be in the reader's scope)
+  'v1/rec/warranties': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'vehicleId',
+    detail: (id) => `/api/v1/rec/warranties?vehicleId=${id}`,
+  },
   'v1/rec/intakes/[id]': {
     kind: 'detail',
     path: () => '',
@@ -313,6 +347,8 @@ const EXEMPT: Record<string, string> = {
   'v1/acc/expense-categories': 'expense category catalogue, company-level',
   'v1/rec/pickers/parts': 'catalogue picker, company-level',
   'v1/rec/pickers/services': 'catalogue picker, company-level',
+  'v1/rec/pickers/packages':
+    'maintenance package catalogue (FR-REC-020), company-level configuration',
   'v1/rec/service-workflows': 'workflow catalogue, company-level',
   'v1/rec/intakes/[id]/photos/[pid]':
     'file download, covered in rec-photos tests of rec-orders.test.ts',
@@ -441,7 +477,15 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         note: 'Khách yêu cầu xóa (cách ly)',
       });
       expect(dsr.status, dsr.text).toBe(201);
+      const apt = await j.post(staff.cv, '/api/v1/rec/appointments', {
+        vehicleId: c.vehicleId,
+        date: businessDate(h.clock.now()),
+        time: '23:30',
+        acknowledgeOverCapacity: true,
+      });
+      expect(apt.status, apt.text).toBe(201);
       Object.assign(ids, {
+        appointmentId: apt.json.id,
         dsrId: dsr.json.id,
         employeeId: emp.json.id,
         customerId: c.customerId,
@@ -468,6 +512,7 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         ids.invoiceId,
         ids.docId,
         emp.json.id,
+        apt.json.id,
       ].filter(Boolean) as string[];
     };
     q7Markers = await build(

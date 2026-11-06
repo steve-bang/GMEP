@@ -4,6 +4,8 @@ import type { InvDeps } from '@/modules/inv';
 import type { SysDeps } from '@/modules/sys';
 import type { OtpMode, OtpSettings } from '../domain/otp';
 import type {
+  AppointmentRepository,
+  WarrantyRepository,
   IntakeRepository,
   OrderInvoiceGate,
   PartRequestRepository,
@@ -81,6 +83,17 @@ export interface RecConfig {
   boardMax: number;
   /** a handover may only happen after the QC passed (FR-REC-016); payment is checked in slice 1.7 */
   requireHandoverReceiverName: boolean;
+  /** slice 2.8b (FR-REC-019, 027): technical bounds of the calendar (not business rules) */
+  appointments: {
+    /** rows one calendar read returns (a week of one branch) */
+    listMax: number;
+    /** longest range of one calendar read, in days (the week view) */
+    maxRangeDays: number;
+    /** how far ahead an appointment may be booked, in days */
+    horizonDays: number;
+  };
+  /** warranty records one vehicle read returns */
+  warrantyListMax: number;
 }
 
 export const DEFAULT_REC_CONFIG: RecConfig = {
@@ -123,6 +136,8 @@ export const DEFAULT_REC_CONFIG: RecConfig = {
   maxPhotosPerRecord: 30,
   boardMax: 300,
   requireHandoverReceiverName: true,
+  appointments: { listMax: 500, maxRangeDays: 7, horizonDays: 180 },
+  warrantyListMax: 50,
 };
 
 export interface RecDeps {
@@ -130,6 +145,10 @@ export interface RecDeps {
   crm: CrmDeps;
   inv: InvDeps;
   intakes: IntakeRepository;
+  /** slice 2.8b: appointments (FR-REC-019, 027) */
+  appointments: AppointmentRepository;
+  /** slice 2.8b: warranty records, projection P4 (FR-REC-018, 036) */
+  warranties: WarrantyRepository;
   quotes: QuoteRepository;
   versions: QuoteVersionRepository;
   links: QuoteLinkRepository;

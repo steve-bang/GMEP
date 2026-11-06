@@ -281,6 +281,7 @@ export async function createVehicle(
         const customer = await deps.customers.getInTx(tx, cscope, data.customerId);
         if (!customer) throw notFound();
         if (customer.status === 'anonymized') throw new AppError('customer_anonymized', 409);
+        if (customer.status === 'merged') throw new AppError('customer_merged', 409);
         const branch = await writableWorkingBranch(deps, tx, actor, scope);
         // friendly early answer; the registry slot created below is the race-proof guard
         if (await deps.vehicles.vehicleIdByPlate(actor.tenantId, checked.plateNorm!))
@@ -622,6 +623,7 @@ export async function changeOwner(
       const next = await deps.customers.getInTx(tx, cscope, data.newCustomerId);
       if (!next) throw notFound();
       if (next.status === 'anonymized') throw new AppError('customer_anonymized', 409);
+      if (next.status === 'merged') throw new AppError('customer_merged', 409);
       const branch = await writableWorkingBranch(deps, tx, actor, scope, 'edit_master');
       const now = deps.sys.clock.now();
       const today = businessDate(now);

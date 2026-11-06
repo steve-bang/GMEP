@@ -98,6 +98,57 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       .object({ name: z.string().trim().min(1).max(60), status: z.enum(['active', 'inactive']) })
       .strict(),
   },
+  // FR-REC-020 (slice 2.8b): maintenance packages, a company catalogue of items and lines added to a quote in one step.
+  // Lines are priced like any other line (list price, standard hours, discount limit). How a FIXED package price is
+  // represented (discount within the limit, package line, tax) is not specified yet [Cần xác nhận: BA/Kế toán khách].
+  'service-package': {
+    type: 'service-package',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        serviceType: z
+          .string()
+          .regex(/^[a-z][a-z0-9_-]{0,29}$/)
+          .optional(),
+        items: z
+          .array(
+            z
+              .object({
+                name: z.string().trim().min(1).max(160),
+                necessity: z.enum(['required', 'optional']),
+                lines: z
+                  .array(
+                    z.union([
+                      z
+                        .object({
+                          kind: z.literal('labor'),
+                          serviceId: z.string().trim().min(1).max(100),
+                          minutes: z.number().int().min(1).max(7200).optional(),
+                        })
+                        .strict(),
+                      z
+                        .object({
+                          kind: z.literal('part'),
+                          partId: z.string().trim().min(1).max(100),
+                          qty: z.number().int().min(1).max(100_000),
+                        })
+                        .strict(),
+                    ]),
+                  )
+                  .min(1)
+                  .max(30),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(30),
+      })
+      .strict(),
+  },
   // C23 (BA §17): kinds of consent evidence the counter can pick from; the lawyer and the client decide the list.
   'evidence-kind': {
     type: 'evidence-kind',
@@ -611,6 +662,49 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
           .max(24 * 60),
         adjustThresholdVnd: vnd,
         reworkMode: z.enum(['keep_original', 'reverse_original']),
+      })
+      .strict(),
+  },
+  // FR-REC-019, 027 (slice 2.8b): whether a branch takes appointments at all (BRD Discovery 13 not confirmed, so no
+  // version = OFF) and the workshop capacity in cars per day (0 = none configured: no warning). Company default, branch override.
+  'appointment-policy': {
+    type: 'appointment-policy',
+    resource: 'appointment-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({ enabled: z.boolean(), dailyCapacity: z.number().int().min(0).max(10_000) })
+      .strict(),
+  },
+  // FR-REC-018, 036 (slice 2.8b): warranty term per service type (`svc:<type>`, or `default`), days and/or km (0 = no
+  // limit of that kind). The term in force on the handover day is copied onto the warranty record [Cần xác nhận: Khách, Q77].
+  'warranty-term': {
+    type: 'warranty-term',
+    resource: 'warranty-policy',
+    scopeKey: z.string().regex(/^(default|svc:[a-z][a-z0-9_-]{0,29})$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        days: z.number().int().min(0).max(3650),
+        km: z.number().int().min(0).max(1_000_000),
+        conditions: z.string().trim().max(500).optional(),
+      })
+      .strict()
+      .refine((p) => p.days > 0 || p.km > 0, { message: 'days or km' }) as unknown as z.ZodType<
+      Record<string, unknown>
+    >,
+  },
+  // FR-REC-036 / Q77 (open): may a branch open warranty work on another branch's order, and which bearer is RECORDED.
+  // No version = strict (own orders only, performing branch records the cost); no automatic allocation either way.
+  'warranty-policy': {
+    type: 'warranty-policy',
+    resource: 'warranty-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        crossBranchOpen: z.boolean(),
+        costBearer: z.enum(['performing_branch', 'origin_branch', 'company']),
       })
       .strict(),
   },

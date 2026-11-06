@@ -13,6 +13,8 @@ import type {
   QuoteVersion,
 } from '../domain/entities';
 import type { MessageQueue, QuoteDelivery, QuoteOtpRecord } from '../domain/messaging';
+import type { Appointment } from '../domain/appointment';
+import type { WarrantyRecord } from '../domain/warranty';
 
 type Cursor = { v: string; id: string };
 export interface PageQuery {
@@ -210,4 +212,35 @@ export interface LaborGate {
   ): Promise<LaborStaged>;
   /** the order is cancelled: labor already recorded is undone by opposite lines */
   prepareCancel(c: LaborQcCall & { reason: string }): Promise<LaborStaged>;
+}
+
+/**
+ * Appointments (slice 2.8b, FR-REC-019, 027): always read for ONE branch over a date range (the calendar of a
+ * branch), one composite index (tenantId, branchId, date). Scope is checked on every read.
+ */
+export interface AppointmentRepository {
+  /** appointments of `branchId` with `from <= date < toExclusive`, at most `limit` rows, date ascending */
+  listByDates(
+    scope: Scope,
+    branchId: string,
+    from: string,
+    toExclusive: string,
+    limit: number,
+  ): Promise<Appointment[]>;
+  get(scope: Scope, id: string): Promise<Appointment | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<Appointment | null>;
+  create(tx: Tx, a: Appointment): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+/**
+ * Warranty records (slice 2.8b, FR-REC-018, 036): the P4 projection, company-wide by vehicle INSIDE the tenant. The
+ * application decides what a reader of another branch may see (white-listed type, no origin-order link).
+ */
+export interface WarrantyRepository {
+  /** newest first, within the tenant only */
+  listByVehicle(tenantId: string, vehicleId: string, limit: number): Promise<WarrantyRecord[]>;
+  getCompanyWide(tenantId: string, id: string): Promise<WarrantyRecord | null>;
+  /** deterministic id: a replayed handover rewrites the same record */
+  upsert(tx: Tx, r: WarrantyRecord): void;
 }

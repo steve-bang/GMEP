@@ -19,6 +19,7 @@ import { demoTenant2Docs, demoTenant2Users } from './tenantDemo';
 import { invDemoDocs } from './invDemo';
 import { hrmDemoDocs } from './hrmDemo';
 import { recDemoDocs } from './recDemo';
+import { recP2DemoDocs } from './recP2Demo';
 import type { SeedDoc } from './types';
 import type { DocData } from '@/platform/store/docStore';
 
@@ -226,6 +227,7 @@ export function demoDocs(): SeedDoc[] {
   docs.push(...invDemoDocs());
   docs.push(...recDemoDocs());
   docs.push(...hrmDemoDocs());
+  docs.push(...recP2DemoDocs());
   docs.push(...demoTenant2Docs());
   return docs;
 }

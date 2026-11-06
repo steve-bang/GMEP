@@ -74,13 +74,16 @@ export function marketingChannelsOf(consents: readonly Consent[]): ContactChanne
 
 export interface AudienceDecision {
   eligible: string[];
-  excluded: { customerId: string; reason: 'no_consent' | 'anonymized' | 'not_found' }[];
+  excluded: { customerId: string; reason: 'no_consent' | 'anonymized' | 'merged' | 'not_found' }[];
 }
 
 /** Pure marketing filter over a customer snapshot (`marketing` = active advertising channels). */
 export function filterMarketingAudience(
   customerIds: readonly string[],
-  snapshots: ReadonlyMap<string, { status: 'active' | 'anonymized'; marketing: readonly string[] }>,
+  snapshots: ReadonlyMap<
+    string,
+    { status: 'active' | 'anonymized' | 'merged'; marketing: readonly string[] }
+  >,
   channel: ContactChannel,
 ): AudienceDecision {
   const eligible: string[] = [];
@@ -89,6 +92,8 @@ export function filterMarketingAudience(
     const c = snapshots.get(id);
     if (!c) excluded.push({ customerId: id, reason: 'not_found' });
     else if (c.status === 'anonymized') excluded.push({ customerId: id, reason: 'anonymized' });
+    // FR-CRM-003: a merged record is never messaged; its consents stay as evidence on it
+    else if (c.status === 'merged') excluded.push({ customerId: id, reason: 'merged' });
     else if (!c.marketing.includes(channel))
       excluded.push({ customerId: id, reason: 'no_consent' });
     else eligible.push(id);
