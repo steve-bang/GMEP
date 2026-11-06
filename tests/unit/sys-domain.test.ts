@@ -59,7 +59,9 @@ describe('FR-SYS-013 / ba-answers §2 role matrix seed', () => {
     );
     expect(roles.QL!.permissions).not.toContain('audit-log:export');
     // TH (Xn): only their own work on the floor (FR-REC-013), nothing about customers, stock or money
+    // plus their own labor lines (slice 2.6a, G3-HRM-07 "Bạn chỉ thấy công của mình")
     expect(roles.TH!.permissions).toEqual([
+      'labor-own:view',
       'part-request:create',
       'part-request:view',
       'repair-item:update',

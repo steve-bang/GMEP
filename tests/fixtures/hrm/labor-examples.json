@@ -1,0 +1,56 @@
+{
+  "label": "minh họa",
+  "note": "Ví dụ MINH HỌA do dev dựng để kiểm thử cơ chế tính công (Q73). Con số không phải của khách. Khi kế toán khách ký ví dụ thật, điền signedOffBy và signedAt rồi thay số; UAT-11 chỉ đóng khi đó (NFR-MNT-01).",
+  "signedOffBy": null,
+  "signedAt": null,
+  "examples": [
+    {
+      "id": "E1-oil-change-standard-hours",
+      "title": "Thay dầu 0,3 giờ chuẩn, tính theo giờ chuẩn (thợ làm lâu hơn chuẩn vẫn nhận theo giờ chuẩn)",
+      "method": { "method": "standard_hours", "hourlyRateVnd": 100000 },
+      "standardMinutes": 18,
+      "laborAmountVnd": 30000,
+      "techs": [{ "key": "tech-a", "actualMinutes": 24, "coefficientBp": 10000 }],
+      "expected": [
+        { "key": "tech-a", "actualMinutes": 24, "convertedMinutes": 18, "amountVnd": 30000 }
+      ]
+    },
+    {
+      "id": "E2-flat",
+      "title": "Hạng mục khoán: số tiền cố định, không phụ thuộc giờ",
+      "method": { "method": "flat", "amountVnd": 20000 },
+      "standardMinutes": 60,
+      "laborAmountVnd": 150000,
+      "techs": [{ "key": "tech-a", "actualMinutes": 95, "coefficientBp": 10000 }],
+      "expected": [
+        { "key": "tech-a", "actualMinutes": 95, "convertedMinutes": null, "amountVnd": 20000 }
+      ]
+    },
+    {
+      "id": "E3-percent",
+      "title": "Hạng mục theo phần trăm tiền công đã duyệt (20% của 500.000)",
+      "method": { "method": "percent", "rateBp": 2000 },
+      "standardMinutes": 120,
+      "laborAmountVnd": 500000,
+      "techs": [{ "key": "tech-a", "actualMinutes": 110, "coefficientBp": 10000 }],
+      "expected": [
+        { "key": "tech-a", "actualMinutes": 110, "convertedMinutes": null, "amountVnd": 100000 }
+      ]
+    },
+    {
+      "id": "E4-technician-change",
+      "title": "Đổi thợ giữa chừng: chia theo giờ thực (20 phút và 40 phút), hệ số chức danh từng người",
+      "method": { "method": "standard_hours", "hourlyRateVnd": 100000 },
+      "standardMinutes": 60,
+      "laborAmountVnd": 100000,
+      "techs": [
+        { "key": "tech-a", "actualMinutes": 20, "coefficientBp": 12000 },
+        { "key": "tech-b", "actualMinutes": 40, "coefficientBp": 10000 }
+      ],
+      "expected": [
+        { "key": "tech-a", "actualMinutes": 20, "convertedMinutes": 24, "amountVnd": 40000 },
+        { "key": "tech-b", "actualMinutes": 40, "convertedMinutes": 40, "amountVnd": 66667 }
+      ]
+    }
+  ]
+}
