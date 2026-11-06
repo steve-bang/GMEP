@@ -23,6 +23,8 @@ import type {
   MessageGateway,
   IdentityProvider,
   NotificationRepository,
+  PlatformAuditLog,
+  PlatformIdentityRepository,
   PriceListRepository,
   RoleAssignmentRepository,
   RoleRepository,
@@ -97,6 +99,8 @@ export interface SysDeps {
   roles: RoleRepository;
   assignments: RoleAssignmentRepository;
   tenants: TenantRepository;
+  platformIdentities: PlatformIdentityRepository;
+  platformAudit: PlatformAuditLog;
   branches: BranchRepository;
   warehouses: WarehouseRepository;
   warehouseActivity: WarehouseActivityPort;

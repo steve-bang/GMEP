@@ -6,7 +6,6 @@ import type { HashedPassword } from '../domain/passwordPolicy';
 import type {
   AuthToken,
   Branch,
-  Company,
   Notification,
   PriceListHeader,
   Role,
@@ -17,6 +16,8 @@ import type {
   Warehouse,
 } from '../domain/entities';
 import type { ConfigVersion } from '../domain/config';
+import type { PendingTransition, Tenant } from '../domain/tenant';
+import type { PlatformAuditEntry, PlatformIdentity } from '../domain/platform';
 import type { ApprovalRequest, ApprovalStatus } from '../domain/approval';
 import type { Actor } from '@/platform/rbac/rbac';
 import type {
@@ -119,8 +120,40 @@ export interface BranchRepository {
   hasNumbering(tenantId: string, branchId: string): Promise<boolean>;
 }
 
+/**
+ * Tenant records (FR-TEN-001). Platform-level data: the only repository that is not scoped to a tenant. There is no
+ * delete (a tenant is never removed, only moved along its lifecycle).
+ */
 export interface TenantRepository {
-  get(id: string): Promise<Company | null>;
+  get(id: string): Promise<Tenant | null>;
+  getInTx(tx: Tx, id: string): Promise<Tenant | null>;
+  /** fails at commit with AlreadyExistsError when the code exists */
+  create(tx: Tx, tenant: Tenant): void;
+  update(
+    tx: Tx,
+    id: string,
+    patch: Partial<Omit<Tenant, 'id' | 'pendingTransition'>> & {
+      pendingTransition?: PendingTransition | null;
+    },
+  ): void;
+  /** newest first, bounded; for platform screens and the scheduler */
+  list(limit: number): Promise<Tenant[]>;
+}
+
+/** Platform staff identities (own zone). The email is unique across the platform AND tenant zones. */
+export interface PlatformIdentityRepository {
+  getById(id: string): Promise<PlatformIdentity | null>;
+  create(tx: Tx, identity: PlatformIdentity): void;
+}
+
+/** FR-TEN-013: append-only platform audit, separate from tenant audit. No update, no delete. */
+export interface PlatformAuditLog {
+  record(tx: Tx, entry: PlatformAuditEntry): void;
+  /** newest first; `tenantId` narrows within the returned window (no composite index, bounded) */
+  list(
+    page: { limit: number; cursor?: { v: string; id: string } },
+    tenantId?: string,
+  ): Promise<Page<PlatformAuditEntry>>;
 }
 
 export type WarehouseSortField = 'code' | 'name';

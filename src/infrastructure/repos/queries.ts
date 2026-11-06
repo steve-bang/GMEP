@@ -12,6 +12,9 @@ export const COL = {
   roles: 'roles',
   roleAssignments: 'roleAssignments',
   tenants: 'tenants',
+  // platform zone (FR-TEN-011, 013): staff identities and the immutable platform audit; never tenant business data
+  platformIdentities: 'platformIdentities',
+  platformAuditLogs: 'platformAuditLogs',
   branches: 'branches',
   warehouses: 'warehouses',
   sessions: 'sessions',
@@ -135,6 +138,18 @@ export const Q = {
   warehouses: listFamilies(COL.warehouses, 'warehouses.list', [], 'branchId'),
   services: listFamilies(COL.services, 'services.list', ['group']),
   priceLists: listFamilies(COL.priceLists, 'priceLists.list', []),
+  /** platform screens and the scheduler: tenants are few; ordered by creation, no equality field, no composite index */
+  tenants: defineQuery({
+    name: 'tenants.list',
+    collection: COL.tenants,
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  /** FR-TEN-013: newest first; the tenant filter is applied in memory on the bounded window (no composite index) */
+  platformAudit: defineQuery({
+    name: 'platformAuditLogs.list',
+    collection: COL.platformAuditLogs,
+    order: { field: 'at', dir: 'desc', type: 'date' },
+  }),
   /** a tenant's roles (a few tens): ordered by the equality field itself, so no composite index is needed */
   roles: defineQuery({
     name: 'roles.list',

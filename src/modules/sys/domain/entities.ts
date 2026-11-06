@@ -45,13 +45,6 @@ export interface Branch {
   version: number;
 }
 
-export interface Company {
-  id: string;
-  name: string;
-  /** legal-entity ready: branches may later map to several legal entities (FR-SYS-018). */
-  legalEntityIds: string[];
-}
-
 export interface Role {
   code: string;
   name: string;

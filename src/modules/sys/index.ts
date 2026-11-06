@@ -12,6 +12,8 @@ export * from './domain/sessionPolicy';
 export * from './domain/passwordPolicy';
 export * from './domain/config';
 export * from './domain/approval';
+export * from './domain/tenant';
+export * from './domain/platform';
 export * from './ports/ports';
 export type { SysDeps, SysConfig, SysCaches, CachedSession } from './ports/deps';
 
@@ -150,3 +152,18 @@ export {
   discardAbandonedImports,
 } from './application/dataImport';
 export type { ImportDto, ImportIssuePage } from './application/dataImport';
+
+export {
+  provisionTenant,
+  approveProvisioning,
+  transitionTenant,
+  decideTenantTransition,
+  listTenants,
+  getTenant,
+} from './application/tenants';
+export type {
+  TenantDto,
+  ProvisionResult,
+  TransitionOutcome,
+  PlatformCaller,
+} from './application/tenants';

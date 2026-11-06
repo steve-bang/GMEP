@@ -12,7 +12,6 @@ import {
   roleDocId,
   type AuthToken,
   type Branch,
-  type Company,
   type ConfigVersion,
   type ListQuery,
   type Notification,
@@ -37,7 +36,14 @@ import {
   type UserRepository,
   type WarehouseRepository,
 } from '@/modules/sys';
-import type { HashedPassword } from '@/modules/sys';
+import type {
+  HashedPassword,
+  PlatformAuditEntry,
+  PlatformAuditLog,
+  PlatformIdentity,
+  PlatformIdentityRepository,
+  Tenant,
+} from '@/modules/sys';
 import { COL, Q } from './queries';
 
 type Cur = { v: string; id: string } | undefined;
@@ -445,12 +451,88 @@ export class DocBranchRepository implements BranchRepository {
   }
 }
 
-/** The company document lists its branch ids (a few tens at most, NFR-SCA-01). */
+const tenantFromDoc = ({ id, data: x }: StoredDoc): Tenant => ({
+  id,
+  name: x.name,
+  legalEntityIds: x.legalEntityIds ?? [],
+  ...(x.contact ? { contact: x.contact } : {}),
+  ...(x.contractRef ? { contractRef: x.contractRef } : {}),
+  // tenants created before the lifecycle existed (seed, migration) are live tenants on the free plan
+  status: x.status ?? 'active',
+  plan: x.plan ?? 'free',
+  subscriptionStatus: x.subscriptionStatus ?? 'none',
+  environment: x.environment ?? 'live',
+  placement: x.placement ?? 'pooled',
+  legalHold: x.legalHold === true,
+  provisionRequestKey: x.provisionRequestKey ?? '',
+  provisioning: x.provisioning ?? {},
+  ...(x.pendingTransition ? { pendingTransition: x.pendingTransition } : {}),
+  createdAt: x.createdAt ?? new Date(0),
+  createdBy: x.createdBy ?? 'seed',
+  updatedAt: x.updatedAt ?? x.createdAt ?? new Date(0),
+  updatedBy: x.updatedBy ?? x.createdBy ?? 'seed',
+  version: x.version ?? 1,
+});
+
+/** Tenant records: platform-level, read by key (the code), never deleted (FR-TEN-001). */
 export class DocTenantRepository implements TenantRepository {
   constructor(private readonly store: DocStore) {}
-  async get(id: string): Promise<Company | null> {
+  async get(id: string) {
     const d = await this.store.get(COL.tenants, id);
-    return d ? { id, name: d.data.name, legalEntityIds: d.data.legalEntityIds ?? [] } : null;
+    return d ? tenantFromDoc(d) : null;
+  }
+  async getInTx(tx: Tx, id: string) {
+    const d = await this.store.getInTx(tx, COL.tenants, id);
+    return d ? tenantFromDoc(d) : null;
+  }
+  create(tx: Tx, tenant: Tenant) {
+    this.store.create(tx, COL.tenants, tenant.id, without(tenant, 'id'));
+  }
+  update(tx: Tx, id: string, patch: Parameters<TenantRepository['update']>[2]) {
+    const { pendingTransition, ...rest } = patch;
+    // a null pendingTransition clears the field; the store's partial update keeps unknown keys, so write an explicit null
+    this.store.update(tx, COL.tenants, id, {
+      ...rest,
+      ...(pendingTransition !== undefined ? { pendingTransition } : {}),
+    });
+  }
+  async list(limit: number) {
+    const rows = await this.store.query(Q.tenants.pick([], false), { limit });
+    return rows.map(tenantFromDoc);
+  }
+}
+
+export class DocPlatformIdentityRepository implements PlatformIdentityRepository {
+  constructor(private readonly store: DocStore) {}
+  async getById(id: string) {
+    const d = await this.store.get(COL.platformIdentities, id);
+    return d ? ({ id, ...(d.data as Omit<PlatformIdentity, 'id'>) } as PlatformIdentity) : null;
+  }
+  create(tx: Tx, identity: PlatformIdentity) {
+    // the shared email slot makes a platform email and a tenant member email mutually exclusive (FR-TEN-011)
+    this.store.create(tx, COL.userKeys, `email__${identity.email.toLowerCase()}`, {
+      zone: 'platform',
+      userId: identity.id,
+    });
+    this.store.create(tx, COL.platformIdentities, identity.id, without(identity, 'id'));
+  }
+}
+
+export class DocPlatformAuditLog implements PlatformAuditLog {
+  constructor(private readonly store: DocStore) {}
+  record(tx: Tx, entry: PlatformAuditEntry) {
+    const { id, ...rest } = entry;
+    this.store.create(tx, COL.platformAuditLogs, id, rest);
+  }
+  async list(page: { limit: number; cursor?: Cur }, tenantId?: string) {
+    const rows = await this.store.query(Q.platformAudit.pick([], false), {
+      ...(page.cursor ? { cursor: page.cursor } : {}),
+      limit: page.limit + 1,
+    });
+    const items = rows
+      .filter((r) => !tenantId || r.data.tenantId === tenantId)
+      .map(({ id, data }) => ({ id, ...data }) as PlatformAuditEntry);
+    return toPage(items, page.limit, (e) => e.at.toISOString());
   }
 }
 

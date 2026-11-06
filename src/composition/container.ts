@@ -75,6 +75,8 @@ import {
   DocAuthTokenRepository,
   DocBranchRepository,
   DocTenantRepository,
+  DocPlatformAuditLog,
+  DocPlatformIdentityRepository,
   DocConfigRepository,
   DocIdempotencyStore,
   DocNotificationRepository,
@@ -227,6 +229,8 @@ function buildSys(
     roles: new DocRoleRepository(store),
     assignments: new DocRoleAssignmentRepository(store),
     tenants: new DocTenantRepository(store),
+    platformIdentities: new DocPlatformIdentityRepository(store),
+    platformAudit: new DocPlatformAuditLog(store),
     branches: new DocBranchRepository(store),
     warehouses: new DocWarehouseRepository(store),
     // INV owns the facts a warehouse is deactivated on (late-bound: SYS is built first)
