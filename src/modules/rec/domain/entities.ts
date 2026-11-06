@@ -1,3 +1,5 @@
+import type { WarrantyLink } from './warranty';
+
 /**
  * REC domain entities (slice 1.5, first part): intake (hồ sơ tiếp nhận) and quote. A quote, a repair
  * order, a repair item, a payment and an invoice are FIVE objects with FIVE state sets; nothing here
@@ -115,6 +117,8 @@ export interface Intake {
   internalNote?: string;
   /** slice 2.8b (FR-REC-027): set when the intake was opened by "Đã đến" on an appointment */
   appointmentId?: string;
+  /** slice 2.8b (FR-REC-018, 036): warranty work linked to the origin order and items */
+  warranty?: WarrantyLink;
   quoteId?: string;
   cancelReason?: string;
   completedAt?: Date;

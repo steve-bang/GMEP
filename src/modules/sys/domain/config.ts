@@ -625,6 +625,38 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       .object({ enabled: z.boolean(), dailyCapacity: z.number().int().min(0).max(10_000) })
       .strict(),
   },
+  // FR-REC-018, 036 (slice 2.8b): warranty term per service type (`svc:<type>`, or `default`), days and/or km (0 = no
+  // limit of that kind). The term in force on the handover day is copied onto the warranty record [Cần xác nhận: Khách, Q77].
+  'warranty-term': {
+    type: 'warranty-term',
+    resource: 'warranty-policy',
+    scopeKey: z.string().regex(/^(default|svc:[a-z][a-z0-9_-]{0,29})$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        days: z.number().int().min(0).max(3650),
+        km: z.number().int().min(0).max(1_000_000),
+        conditions: z.string().trim().max(500).optional(),
+      })
+      .strict()
+      .refine((p) => p.days > 0 || p.km > 0, { message: 'days or km' }) as unknown as z.ZodType<
+      Record<string, unknown>
+    >,
+  },
+  // FR-REC-036 / Q77 (open): may a branch open warranty work on another branch's order, and which bearer is RECORDED.
+  // No version = strict (own orders only, performing branch records the cost); no automatic allocation either way.
+  'warranty-policy': {
+    type: 'warranty-policy',
+    resource: 'warranty-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        crossBranchOpen: z.boolean(),
+        costBearer: z.enum(['performing_branch', 'origin_branch', 'company']),
+      })
+      .strict(),
+  },
   // FR-INV-025: maximum discount per role, in basis points of list price.
   'discount-limit': {
     type: 'discount-limit',

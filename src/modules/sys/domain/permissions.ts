@@ -320,6 +320,15 @@ const APT_S = flatten([g('appointment', 'view', 'create', 'update')]);
 const APT_VIEW = flatten([g('appointment', 'view')]);
 const APT_POLICY_CH = flatten([g('appointment-policy', 'view', 'update', 'approve', 'reject')]);
 const APT_POLICY_QL = flatten([g('appointment-policy', 'view', 'update')]);
+/**
+ *  - `warranty`: view = warranty coverage of a vehicle (own branch in full, other branches through projection P4);
+ *    create = open warranty work (a warranty intake linked to the origin order).
+ *  - `warranty-policy`: the warranty terms and the cross-branch policy (CH approves; KT reads).
+ */
+const WAR_S = flatten([g('warranty', 'view', 'create')]);
+const WAR_VIEW = flatten([g('warranty', 'view')]);
+const WAR_POLICY_CH = flatten([g('warranty-policy', 'view', 'update', 'approve', 'reject')]);
+const WAR_POLICY_VIEW = flatten([g('warranty-policy', 'view')]);
 
 const CH = [
   ...flatten([
@@ -363,6 +372,8 @@ const CH = [
   ...HR_CH,
   ...APT_S,
   ...APT_POLICY_CH,
+  ...WAR_S,
+  ...WAR_POLICY_CH,
 ];
 
 const matrix: Grant = {
@@ -397,7 +408,7 @@ const matrix: Grant = {
     .concat(RPT_RANKING)
     .concat(flatten([g('catalog-release', 'view')]))
     .concat(HR_VIEW)
-    .concat(APT_VIEW),
+    .concat(APT_VIEW, WAR_VIEW, WAR_POLICY_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -436,7 +447,7 @@ const matrix: Grant = {
     .concat(RPT_QL)
     .concat(IMP_FULL)
     .concat(HR_QL)
-    .concat(APT_S, APT_POLICY_QL),
+    .concat(APT_S, APT_POLICY_QL, WAR_S, WAR_POLICY_VIEW),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -460,7 +471,7 @@ const matrix: Grant = {
     .concat(ORD_CV)
     .concat(ACC_CV)
     .concat(RPT_BASIC)
-    .concat(APT_S),
+    .concat(APT_S, WAR_S),
   QD: flatten([
     g('device', 'view'),
     g('worker-pin', 'manage'),
@@ -475,7 +486,7 @@ const matrix: Grant = {
     .concat(ORD_QD)
     .concat(RPT_BASIC)
     .concat(HR_QD)
-    .concat(APT_VIEW),
+    .concat(APT_VIEW, WAR_VIEW),
   TH: ORD_TH.concat(HR_TH),
   TK: flatten([
     g('warehouse', 'view'),
@@ -529,7 +540,8 @@ const matrix: Grant = {
     .concat(ACC_KT)
     .concat(EIN_KT)
     .concat(RPT_KT)
-    .concat(HR_VIEW),
+    .concat(HR_VIEW)
+    .concat(WAR_VIEW, WAR_POLICY_VIEW),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
@@ -682,14 +694,15 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
   },
   {
     id: '2026-11-rec-2.8b-appointments',
-    note: 'Slice 2.8b: appointment calendar and capacity policy (FR-REC-019, 027)',
+    note: 'Slice 2.8b: appointment calendar and capacity policy, warranty coverage and policy (FR-REC-018, 019, 027, 036)',
     grants: {
-      CH: [...APT_S, ...APT_POLICY_CH],
-      QV: APT_VIEW,
-      QL: [...APT_S, ...APT_POLICY_QL],
-      CV: APT_S,
-      QD: APT_VIEW,
+      CH: [...APT_S, ...APT_POLICY_CH, ...WAR_S, ...WAR_POLICY_CH],
+      QV: [...APT_VIEW, ...WAR_VIEW, ...WAR_POLICY_VIEW],
+      QL: [...APT_S, ...APT_POLICY_QL, ...WAR_S, ...WAR_POLICY_VIEW],
+      CV: [...APT_S, ...WAR_S],
+      QD: [...APT_VIEW, ...WAR_VIEW],
       TN: APT_VIEW,
+      KT: [...WAR_VIEW, ...WAR_POLICY_VIEW],
     },
   },
 ];

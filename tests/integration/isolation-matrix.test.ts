@@ -105,6 +105,13 @@ const ROUTES: Record<string, RouteRow> = {
     idKey: 'appointmentId',
     detail: (id) => `/api/v1/rec/appointments/${id}`,
   },
+  // slice 2.8b: warranty coverage of a vehicle (P4 inside the tenant; the vehicle must be in the reader's scope)
+  'v1/rec/warranties': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'vehicleId',
+    detail: (id) => `/api/v1/rec/warranties?vehicleId=${id}`,
+  },
   'v1/rec/intakes/[id]': {
     kind: 'detail',
     path: () => '',

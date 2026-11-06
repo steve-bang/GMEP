@@ -36,5 +36,15 @@ export function recP2DemoDocs(): SeedDoc[] {
   // FR-REC-019, 027: appointments on for the demo company (20 cars a day), Quận 7 overrides with a small capacity
   cfg('appointment-policy', 'tenant', { enabled: true, dailyCapacity: 20 });
   cfg('appointment-policy', 'branch:br_q7', { enabled: true, dailyCapacity: 2 });
+  // FR-REC-018: sample warranty terms (Q77 open): maintenance 90 days or 5,000 km, anything else 30 days or 1,000 km
+  cfg('warranty-term', 'svc:maintenance', {
+    days: 90,
+    km: 5000,
+    conditions: 'Minh họa: không áp dụng khi xe sửa ở nơi khác',
+  });
+  cfg('warranty-term', 'default', { days: 30, km: 1000 });
+  // FR-REC-036: Thủ Đức may open warranty work on another branch's order (sample only; the company default stays
+  // strict because no tenant-level version exists), recording the origin branch as the cost bearer
+  cfg('warranty-policy', 'branch:br_td', { crossBranchOpen: true, costBearer: 'origin_branch' });
   return docs;
 }

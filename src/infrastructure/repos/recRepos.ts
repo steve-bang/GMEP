@@ -27,7 +27,12 @@ import type {
   QuoteVersion,
   QuoteVersionRepository,
 } from '@/modules/rec';
-import type { Appointment, AppointmentRepository } from '@/modules/rec';
+import type {
+  Appointment,
+  AppointmentRepository,
+  WarrantyRecord,
+  WarrantyRepository,
+} from '@/modules/rec';
 import { versionId } from '@/modules/rec';
 import { COL, Q } from './queries';
 
@@ -147,6 +152,7 @@ const intakeFromDoc = ({ id, data: x }: StoredDoc): Intake => ({
   ...put('internalNote', opt<string>(x.internalNote)),
   ...put('quoteId', opt<string>(x.quoteId)),
   ...put('appointmentId', opt<string>(x.appointmentId)),
+  ...put('warranty', opt<Intake['warranty']>(x.warranty)),
   ...put('cancelReason', opt<string>(x.cancelReason)),
   ...put('completedAt', opt<Date>(x.completedAt)),
   createdAt: x.createdAt,
@@ -248,6 +254,42 @@ export class DocAppointmentRepository implements AppointmentRepository {
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.appointments, id, patch);
+  }
+}
+
+// ---- warranties (slice 2.8b, projection P4) ----------------------------------------------------------
+
+const warrantyFromDoc = ({ id, data: x }: StoredDoc): WarrantyRecord => ({
+  id,
+  tenantId: x.tenantId,
+  vehicleId: x.vehicleId,
+  branchId: x.branchId,
+  branchName: x.branchName,
+  orderId: x.orderId,
+  orderCode: x.orderCode,
+  serviceType: x.serviceType ?? null,
+  startDate: x.startDate,
+  startKm: x.startKm ?? null,
+  items: x.items ?? [],
+  createdAt: x.createdAt,
+});
+
+export class DocWarrantyRepository implements WarrantyRepository {
+  constructor(private readonly store: DocStore) {}
+  async listByVehicle(tenantId: string, vehicleId: string, limit: number) {
+    const rows = await this.store.query(Q.warrantiesByVehicle.pick([], false), {
+      eq: { tenantId, vehicleId },
+      limit,
+    });
+    return rows.map(warrantyFromDoc);
+  }
+  async getCompanyWide(tenantId: string, id: string) {
+    const d = await this.store.get(COL.warranties, id);
+    const x = d ? warrantyFromDoc(d) : null;
+    return x && x.tenantId === tenantId ? x : null;
+  }
+  upsert(tx: Tx, r: WarrantyRecord) {
+    this.store.set(tx, COL.warranties, r.id, without(r, 'id'));
   }
 }
 

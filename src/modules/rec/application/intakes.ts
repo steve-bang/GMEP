@@ -20,6 +20,7 @@ import {
 import type { Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import { checkKm } from '../domain/intake';
+import type { WarrantyLink } from '../domain/warranty';
 import { allowedIntakeActions, transitionIntake } from '../domain/quoteState';
 import type { RecDeps } from '../ports/deps';
 import {
@@ -73,6 +74,8 @@ export interface IntakeDto {
   quoteId: string | null;
   /** slice 2.8b: the appointment this intake was opened from ("Đã đến"), null for a walk-in */
   appointmentId: string | null;
+  /** slice 2.8b: warranty work linked to the origin order (FR-REC-018, 036), null otherwise */
+  warranty: (Omit<WarrantyLink, 'originOrderId'> & { originOrderId: string | null }) | null;
   cancelReason: string | null;
   createdAt: string;
   updatedAt: string;
@@ -111,6 +114,12 @@ export function toIntakeDto(i: Intake, includeHiddenPhotos = false): IntakeDto {
     internalNote: i.internalNote ?? null,
     quoteId: i.quoteId ?? null,
     appointmentId: i.appointmentId ?? null,
+    // P4: an intake of another branch's warranty shows the origin order code, never its id or item ids
+    warranty: i.warranty
+      ? i.warranty.crossBranch
+        ? { ...i.warranty, originOrderId: null, itemIds: [] }
+        : i.warranty
+      : null,
     cancelReason: i.cancelReason ?? null,
     createdAt: i.createdAt.toISOString(),
     updatedAt: i.updatedAt.toISOString(),
@@ -255,6 +264,7 @@ export async function stageIntake(
     serviceType?: string;
     customerRequest?: string;
     appointmentId?: string;
+    warranty?: WarrantyLink;
   } = {},
 ): Promise<Intake> {
   const owner = vehicle.owner;
@@ -296,6 +306,7 @@ export async function stageIntake(
     ...(prefill.serviceType ? { serviceType: prefill.serviceType } : {}),
     ...(prefill.customerRequest ? { customerRequest: prefill.customerRequest } : {}),
     ...(prefill.appointmentId ? { appointmentId: prefill.appointmentId } : {}),
+    ...(prefill.warranty ? { warranty: prefill.warranty } : {}),
     customerParts: [],
     createdAt: now,
     createdBy: actor.userId,

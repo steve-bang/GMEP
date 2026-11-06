@@ -95,6 +95,7 @@ export const TENANT_COLLECTIONS = [
   'employeeUserLinks',
   'laborSheets',
   'appointments',
+  'warranties',
   'messageOutbox',
   'quoteOtps',
   'messageDeliveries',

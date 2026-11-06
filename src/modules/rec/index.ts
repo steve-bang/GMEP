@@ -190,3 +190,13 @@ export {
   toAppointmentDto,
 } from './application/appointments';
 export type { AppointmentDto, AppointmentCalendarDto } from './application/appointments';
+
+// slice 2.8b: warranty (FR-REC-018, 036; projection P4)
+export * from './domain/warranty';
+export {
+  listVehicleWarranties,
+  openWarranty,
+  warrantyTermAt,
+  warrantyPolicyAt,
+} from './application/warranty';
+export type { WarrantyRecordDto, WarrantyItemDto } from './application/warranty';

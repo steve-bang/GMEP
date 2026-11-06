@@ -95,6 +95,8 @@ export const COL = {
   laborSheets: 'laborSheets',
   // REC slice 2.8b: appointments (FR-REC-019, 027); one shape, Q.appointmentsByDate
   appointments: 'appointments',
+  // REC slice 2.8b: warranty records (projection P4, one per delivered order); one shape, Q.warrantiesByVehicle
+  warranties: 'warranties',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -657,5 +659,12 @@ export const Q = {
     eq: ['tenantId', 'branchId'],
     range: true,
     order: { field: 'date', dir: 'asc', type: 'string' },
+  }),
+  /** REC slice 2.8b (FR-REC-018, 036): warranty records of one vehicle in the tenant, newest first (projection P4) */
+  warrantiesByVehicle: defineQuery({
+    name: 'warranties.byVehicle',
+    collection: COL.warranties,
+    eq: ['tenantId', 'vehicleId'],
+    order: { field: 'startDate', dir: 'desc', type: 'string' },
   }),
 };

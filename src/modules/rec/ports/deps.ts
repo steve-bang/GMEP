@@ -5,6 +5,7 @@ import type { SysDeps } from '@/modules/sys';
 import type { OtpMode, OtpSettings } from '../domain/otp';
 import type {
   AppointmentRepository,
+  WarrantyRepository,
   IntakeRepository,
   OrderInvoiceGate,
   PartRequestRepository,
@@ -91,6 +92,8 @@ export interface RecConfig {
     /** how far ahead an appointment may be booked, in days */
     horizonDays: number;
   };
+  /** warranty records one vehicle read returns */
+  warrantyListMax: number;
 }
 
 export const DEFAULT_REC_CONFIG: RecConfig = {
@@ -134,6 +137,7 @@ export const DEFAULT_REC_CONFIG: RecConfig = {
   boardMax: 300,
   requireHandoverReceiverName: true,
   appointments: { listMax: 500, maxRangeDays: 7, horizonDays: 180 },
+  warrantyListMax: 50,
 };
 
 export interface RecDeps {
@@ -143,6 +147,8 @@ export interface RecDeps {
   intakes: IntakeRepository;
   /** slice 2.8b: appointments (FR-REC-019, 027) */
   appointments: AppointmentRepository;
+  /** slice 2.8b: warranty records, projection P4 (FR-REC-018, 036) */
+  warranties: WarrantyRepository;
   quotes: QuoteRepository;
   versions: QuoteVersionRepository;
   links: QuoteLinkRepository;

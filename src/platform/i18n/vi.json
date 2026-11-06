@@ -1368,6 +1368,16 @@
         "lead": "Hệ số theo chức danh, có ngày hiệu lực. Giá trị mẫu chỉ để minh họa.",
         "scopeHint": "position:<mã chức danh>"
       },
+      "warranty-term": {
+        "title": "Thời hạn bảo hành",
+        "lead": "Số ngày và số km bảo hành theo loại dịch vụ; áp theo ngày giao xe. Chưa khai thì không có bảo hành.",
+        "scopeHint": "svc:<loại dịch vụ> hoặc default"
+      },
+      "warranty-policy": {
+        "title": "Bảo hành chéo chi nhánh",
+        "lead": "Cho chi nhánh mở bảo hành trên lệnh của chi nhánh khác và bên chịu chi phí được ghi nhận (chưa chốt, Q77). Chưa khai thì chỉ bảo hành lệnh của chính chi nhánh.",
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
+      },
       "appointment-policy": {
         "title": "Lịch hẹn và công suất xưởng",
         "lead": "Bật hoặc tắt lịch hẹn của chi nhánh và số xe mỗi ngày; vượt công suất chỉ cảnh báo. Chưa khai thì lịch hẹn tắt.",
@@ -1606,6 +1616,8 @@
       "config_labor-position": "Cấu hình: Chức danh và hệ số công",
       "config_labor-policy": "Cấu hình: Quy tắc làm tròn và ngưỡng điều chỉnh công",
       "config_appointment-policy": "Cấu hình: Lịch hẹn và công suất xưởng",
+      "config_warranty-term": "Cấu hình: Thời hạn bảo hành",
+      "config_warranty-policy": "Cấu hình: Chính sách bảo hành chéo chi nhánh",
       "config_inventory-policy": "Cấu hình: Chính sách kho",
       "config_part-group": "Cấu hình: Nhóm hàng",
       "config_part-unit": "Cấu hình: Đơn vị tính",
@@ -1727,6 +1739,7 @@
       "appointment_no_show": "Ghi nhận khách vắng hẹn",
       "appointment_arrive": "Khách đến theo lịch hẹn, mở hồ sơ tiếp nhận",
       "intake_create": "Mở hồ sơ tiếp nhận (nháp)",
+      "intake_warranty_open": "Mở hồ sơ tiếp nhận bảo hành gắn lệnh gốc",
       "intake_update": "Lưu bước hồ sơ tiếp nhận",
       "intake_complete": "Hoàn tất hồ sơ tiếp nhận",
       "intake_cancel": "Hủy hồ sơ tiếp nhận",
