@@ -53,6 +53,13 @@ const ROUTES: Record<string, RouteRow> = {
     idKey: 'customerId',
     detail: (id) => `/api/v1/crm/customers/${id}/consents`,
   },
+  // slice 2.8b: merge suggestions (FR-CRM-003)
+  'v1/crm/customers/[id]/duplicates': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'customerId',
+    detail: (id) => `/api/v1/crm/customers/${id}/duplicates`,
+  },
   'v1/crm/customers/[id]/vehicles': {
     kind: 'detail',
     path: () => '',

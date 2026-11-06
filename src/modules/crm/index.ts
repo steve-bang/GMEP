@@ -63,3 +63,8 @@ export type { DataRequestDto } from './application/dataRequests';
 export { exportCustomersCsv } from './application/export';
 export { customerPiiSource } from './application/piiSource';
 export { buildCustomerImport, CUSTOMER_IMPORT_COLUMNS } from './application/importer';
+
+// slice 2.8b: duplicate suggestions and merge (FR-CRM-003)
+export { checkMerge, mergedBranchIds } from './domain/merge';
+export type { MergeRefusal } from './domain/merge';
+export { listDuplicateCandidates, mergeCustomers } from './application/merge';

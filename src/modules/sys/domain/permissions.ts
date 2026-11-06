@@ -329,6 +329,8 @@ const WAR_S = flatten([g('warranty', 'view', 'create')]);
 const WAR_VIEW = flatten([g('warranty', 'view')]);
 const WAR_POLICY_CH = flatten([g('warranty-policy', 'view', 'update', 'approve', 'reject')]);
 const WAR_POLICY_VIEW = flatten([g('warranty-policy', 'view')]);
+/** FR-CRM-003: merging two customer records (kept, audited, never deleted): CH and QL in the working branch. */
+const CRM_MERGE = flatten([g('customer-merge', 'create')]);
 
 const CH = [
   ...flatten([
@@ -374,6 +376,7 @@ const CH = [
   ...APT_POLICY_CH,
   ...WAR_S,
   ...WAR_POLICY_CH,
+  ...CRM_MERGE,
 ];
 
 const matrix: Grant = {
@@ -447,7 +450,7 @@ const matrix: Grant = {
     .concat(RPT_QL)
     .concat(IMP_FULL)
     .concat(HR_QL)
-    .concat(APT_S, APT_POLICY_QL, WAR_S, WAR_POLICY_VIEW),
+    .concat(APT_S, APT_POLICY_QL, WAR_S, WAR_POLICY_VIEW, CRM_MERGE),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -694,11 +697,11 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
   },
   {
     id: '2026-11-rec-2.8b-appointments',
-    note: 'Slice 2.8b: appointment calendar and capacity policy, warranty coverage and policy (FR-REC-018, 019, 027, 036)',
+    note: 'Slice 2.8b: appointment calendar and capacity policy, warranty coverage and policy, customer merge (FR-REC-018, 019, 027, 036, FR-CRM-003)',
     grants: {
-      CH: [...APT_S, ...APT_POLICY_CH, ...WAR_S, ...WAR_POLICY_CH],
+      CH: [...APT_S, ...APT_POLICY_CH, ...WAR_S, ...WAR_POLICY_CH, ...CRM_MERGE],
       QV: [...APT_VIEW, ...WAR_VIEW, ...WAR_POLICY_VIEW],
-      QL: [...APT_S, ...APT_POLICY_QL, ...WAR_S, ...WAR_POLICY_VIEW],
+      QL: [...APT_S, ...APT_POLICY_QL, ...WAR_S, ...WAR_POLICY_VIEW, ...CRM_MERGE],
       CV: [...APT_S, ...WAR_S],
       QD: [...APT_VIEW, ...WAR_VIEW],
       TN: APT_VIEW,

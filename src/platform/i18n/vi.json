@@ -1711,6 +1711,8 @@
       "customer_create": "Tạo khách hàng",
       "customer_update": "Sửa khách hàng",
       "customer_relate": "Gắn khách với chi nhánh",
+      "customer_merge": "Gộp hồ sơ khách trùng vào hồ sơ này",
+      "customer_merged_into": "Hồ sơ khách được gộp vào hồ sơ khác",
       "customer_export": "Xuất danh sách khách",
       "customer_anonymize": "Ẩn danh khách hàng",
       "vehicle_create": "Tạo xe",

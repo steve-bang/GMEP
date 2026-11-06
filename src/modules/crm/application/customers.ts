@@ -53,6 +53,9 @@ export interface CustomerDto {
   branchIds: string[];
   createdAt: string;
   version: number;
+  /** FR-CRM-003: the record this one was merged into (null unless merged) and the records merged into it */
+  mergedInto: string | null;
+  mergedFrom: string[];
   phone: PresentedPii;
   email: PresentedPii;
   address: PresentedPii;
@@ -83,6 +86,8 @@ export function toCustomerDto(
     branchIds: c.branchIds,
     createdAt: c.createdAt.toISOString(),
     version: c.version,
+    mergedInto: c.mergedInto ?? null,
+    mergedFrom: c.mergedFrom ?? [],
     phone: deps.sys.pii.present(actor, 'phone', pii?.phone),
     email: deps.sys.pii.present(actor, 'email', pii?.email),
     address: deps.sys.pii.present(actor, 'address', pii?.address),
@@ -377,6 +382,7 @@ export async function updateCustomer(
     const c = await deps.customers.getInTx(tx, scope, id);
     if (!c) throw notFound();
     if (c.status === 'anonymized') throw new AppError('customer_anonymized', 409);
+    if (c.status === 'merged') throw new AppError('customer_merged', 409);
     if (c.version !== data.version) throw versionConflict();
     const pii = await deps.customers.getPiiInTx(tx, actor.tenantId, id);
     await writableWorkingBranch(deps, tx, actor, scope, 'edit_master');
