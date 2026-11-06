@@ -12,7 +12,7 @@
     own: (script.getAttribute('data-own') || '').split(' ').filter(Boolean)
   };
   window.G4R_CFG = CFG;
-  /* Tên hiển thị: màn mới đặt data-brand="GMEP" trên thẻ script (quyết định CD4, 06/11/2026); màn cũ giữ nguyên. */
+  /* Tên nền tảng GMEP (quyết định CD4, 06/11/2026) dùng ở khung ứng dụng, mọi màn. Chứng từ in, tệp xuất, tin gửi khách/NCC dùng tên garage của tenant (B-17). */
   var BRAND = script.getAttribute('data-brand') || 'GMEP';
 
   var ROLE_NAME = { CH: 'Chủ garage', QV: 'Quản lý vùng', QL: 'Quản lý chi nhánh', CV: 'Cố vấn dịch vụ', QD: 'Quản đốc', TH: 'Thợ', TK: 'Thủ kho', TN: 'Thu ngân', KT: 'Kế toán', AD: 'Quản trị hệ thống' };
@@ -252,7 +252,7 @@
       '<div class="alert alert--warning" id="dx-warn" hidden>' + ico('alert-triangle') + '<div class="alert__body"><div class="alert__title">Xuất dữ liệu cá nhân</div>Thao tác được ghi nhật ký (người xuất, thời điểm, phạm vi, số dòng). Chỉ dùng cho mục đích công việc; không chia sẻ tệp ra ngoài công ty.<div class="field" style="margin-top:8px"><label class="field__label" for="dx-reason">Lý do xuất<span class="field__req">*</span></label><textarea class="textarea" id="dx-reason" style="min-height:56px" placeholder="Ví dụ: Gửi bảng kê công nợ cho khách"></textarea></div><div class="field" style="margin-top:8px"><label class="field__label" for="dx-pw">Nhập lại mật khẩu của bạn<span class="field__req">*</span></label><input class="input" id="dx-pw" type="password" autocomplete="current-password"><span class="field__hint">Xuất danh sách có dữ liệu cá nhân luôn hỏi lại mật khẩu (D-02).</span></div></div></div>',
       '<p class="t-body-sm text-secondary" style="margin:0">Ước tính 234 dòng (tối đa 50.000 dòng mỗi tệp; tệp lớn xử lý ở nền). Tệp tải về giữ 7 ngày; lịch sử các lần xuất của bạn giữ 12 tháng (hai thời hạn khác nhau).</p>',
       '<div class="alert alert--neutral" role="note" data-g4r-noexport>' + ico('lock') + '<div class="alert__body">Vai trò hiện tại <strong>chưa có quyền xuất dữ liệu</strong> (FR-SYS-013). Hộp thoại này sẽ bị ẩn nút Xuất; xin quyền với Chủ garage.</div></div>',
-      '<div class="t-body-sm text-secondary"><strong>Xem trước dòng đầu tệp:</strong><div class="g4r-mono" style="margin-top:4px">GMEP · Phạm vi: <span data-branch-label>Tất cả chi nhánh</span> · Kỳ: 01/10/2026–30/10/2026 · Xuất lúc: 09:15 30/10/2026 · Người xuất: Trần Hoàng Anh</div></div>',
+      '<div class="t-body-sm text-secondary"><strong>Xem trước dòng đầu tệp:</strong><div class="g4r-mono" style="margin-top:4px">Garage A (tên garage của tenant) · Phạm vi: <span data-branch-label>Tất cả chi nhánh</span> · Kỳ: 01/10/2026–30/10/2026 · Xuất lúc: 09:15 30/10/2026 · Người xuất: Trần Hoàng Anh</div></div>',
       '<div class="progress progress--info" id="dx-prog" hidden><div class="progress__head"><span>Đang tạo tệp ở nền (tệp lớn)…</span><span class="num">42%</span></div><div class="progress__track" role="progressbar" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ tạo tệp"><span class="progress__bar" style="width:42%"></span></div></div>',
       '</div>',
       '<div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="dx-go" data-toast="success|Đang tạo tệp|Tệp lớn được xử lý ở nền, thông báo khi xong.">' + ico('download') + 'Xuất tệp</button></div>',

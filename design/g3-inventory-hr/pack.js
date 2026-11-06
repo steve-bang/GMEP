@@ -15,7 +15,7 @@
     pur: { label: 'Mua hàng', tabs: ['01', '04', '07', '08', '09'] },
     hrm: { label: 'Nhân sự & Công thợ', tabs: ['01', '04', '05', '07', '09', '10', '08', '06'] }
   };
-  /* Tên hiển thị: màn hình mới (từ 06/11/2026, quyết định CD4) đặt window.G3_BRAND = 'GMEP' trước khi nạp file này; màn cũ giữ nguyên tới khi có quyết định đổi hàng loạt. */
+  /* Tên nền tảng GMEP (quyết định CD4, 06/11/2026) cho khung ứng dụng ở mọi màn. Phiếu in, hóa đơn bán lẻ, tin gửi NCC dùng tên garage của tenant (mẫu: "Garage A – Chi nhánh Quận 7"; B-17). */
   var BRAND = window.G3_BRAND || 'GMEP';
   var A = 'CH QV QL TK KT';
   /* [mã, tên, tab cha, ưu tiên, FR, vai trò mở được] */
@@ -59,7 +59,7 @@
     ['HRM-08', 'Bảng công theo kỳ', '', 'P2', 'FR-HRM-010', 'CH QV QL KT'],
     ['HRM-09', 'Hoa hồng cố vấn và thợ', '', 'P2', 'FR-HRM-009', 'CH QV QL KT TH CV'],
     ['HRM-10', 'Năng suất kỹ thuật viên', '', 'P2', 'FR-HRM-011, 016; FR-RPT-006', 'CH QV QL QD KT TH'],
-    ['HRM-11', 'Chi tiết công một nhân viên trong kỳ', '08', 'P2', 'FR-HRM-007, 008, 009, 010; FR-RPT-011', 'CH QV QL KT NS TH']
+    ['HRM-11', 'Chi tiết công một nhân viên trong kỳ', '08', 'P2', 'FR-HRM-007, 008, 009, 010, 020, 021; FR-RPT-011; RULE-038', 'CH QV QL KT NS TH']
   ];
   var REG = {};
   R.forEach(function (r) { REG[r[0]] = { code: 'G3-' + r[0], id: r[0], mod: r[0].slice(0, 3).toLowerCase(), num: r[0].slice(4), title: r[1], tab: r[2] || r[0].slice(4), prio: r[3], fr: r[4], roles: r[5] }; });

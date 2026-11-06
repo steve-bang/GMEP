@@ -4,7 +4,7 @@ Cập nhật: 2026-11-05 (xem mục "Bổ sung 05/11/2026" ở cuối cho gói �
 
 ## Kết quả
 
-- **184 màn hình** trong 6 gói (`design/g1-…` đến `design/g4-…`), cộng khung ứng dụng và thư viện component (`design/assets`, `design/foundation`). Danh mục: `screen-inventory.md`.
+- **184 màn hình** (187 nếu tính 3 màn giai đoạn 2: G4-APR-04, G4-RPT-12, G3-HRM-11) trong 6 gói (`design/g1-…` đến `design/g4-…`), cộng khung ứng dụng và thư viện component (`design/assets`, `design/foundation`). Danh mục: `screen-inventory.md`.
 - Mô tả UI/UX flow tổng hợp: **`ui-ux-flow.md`** (sơ đồ điều hướng, luồng chính, trạng thái, mẫu giao diện, vai trò, responsive, accessibility, handoff, quyết định còn mở).
 - Mỗi gói có tài liệu riêng `01`…`06-*.md` (bảng màn hình, flow, bảng "Finding → đã xử lý ở đâu") và các file `review-0N-*`, `ba-answers-0N.md`.
 - Chuẩn bắt buộc: `docs/design-system.md` (token không đổi). Quyết định BA: `ba-decisions.md` (đề xuất, chờ xác nhận).
@@ -125,9 +125,19 @@ BA đã trả lời Q1 đến Q12 ở `docs/dev/ba-answers-for-dev.md` (đề xu
 
 - **Màn mới (3, không tính vào 184):** G4-APR-04 `design/g4-finance/g4-apr-04.html` (slice 2.5, phê duyệt chuyển kho giá trị lớn, điều chỉnh tồn sau kiểm kê, yêu cầu mua vượt hạn mức, trạng thái tự chuyển cấp); G4-RPT-12 `design/g4-reports-system/g4-rpt-12.html` (slice 2.1, kiểm tra chi nhánh vào số hợp nhất và tổng chi nhánh = toàn chuỗi); G3-HRM-11 `design/g3-inventory-hr/g3-hrm-11.html` (slice 2.6, chi tiết công một nhân viên trong kỳ). Danh mục: `screen-inventory.md` §10.
 - **Chỉnh màn có sẵn:** G4-APR-01 (thêm 3 loại yêu cầu), G4-APR-03 (thêm 3 dòng ma trận với ngưỡng "Chưa chốt"), G3-HRM-08 (liên kết tới HRM-11), ba `index.html`.
-- **Tên GMEP:** màn mới hiện "GMEP"; ba `pack.js` có điểm đổi tên (`P.brand`, `window.G3_BRAND`, `data-brand`) nên màn cũ chưa đổi. Đổi hàng loạt các gói còn lại vẫn chờ chốt cách làm (mục "Việc cho designer" của 06/11 phía trên).
+- **Tên GMEP:** đã đổi trong toàn bộ `design/` (khung ứng dụng). Chứng từ in, hóa đơn bán lẻ, phiếu kho, tin gửi khách, cột giá NCC, dòng đầu tệp xuất dùng tên garage mẫu "Garage A · Chi nhánh Quận 7" (B-17).
 - **Chưa dựng (chờ BA):** ủy quyền duyệt theo cá nhân, báo cáo theo dõi thời hạn duyệt (Q-2.5-01, 02), hàng chờ cấp của kho tổng (Q-2.2-01).
 - **Kiểm tra tự động: chưa chạy.** Môi trường lượt này không có shell nên chưa đo Playwright (tràn ngang 390px, lỗi JS) cho 3 màn mới và 4 màn đã chỉnh; danh sách trang và cách đo ở `phase-2-gaps.md` §3. Việc đầu tiên của lượt sau.
+
+### Sửa theo review BA (06/11/2026, designer)
+
+BA review 33 lỗi (`phase-2-review-ba.md`, có cột trạng thái từng lỗi). Điều phối chốt theo ủy quyền chủ dự án: Q-R1 = (c), Q-R2 = (a), Q-R3 = (a). Đã sửa 2/2 Cao, 15/15 TB, 15/16 Thấp (B-33 là việc dev). Điểm chính:
+
+- **Phê duyệt (APR-01, 03, 04, `g4-finance/pack.js`):** `canApprove(type, role, proposer, level)` xét cấp hiện tại; yêu cầu vượt hạn mức cấp 1 chờ cấp 2, Quản lý chi nhánh bị khóa kèm lý do. APR-04 viết lại: dữ liệu theo (loại × tình huống), 6 tình huống (chờ cấp 2, chờ cấp 1, đã tự chuyển cấp 1 → 2, xung đột 409, hết hạn, đã duyệt theo ủy quyền), nhập lại mật khẩu theo cờ, cộng dồn, Thủ kho không thấy giá trị tiền; mở thẳng bằng `#loai-tinhhuong` (ví dụ `g4-apr-04.html#adj-esc`). APR-01: thẻ di động sinh từ các dòng đã lọc theo vai trò, thêm dòng cấp 1 và dòng đã chuyển cấp (vẫn "Chờ duyệt"), chuyển cấp không vào "Đã xử lý", số đếm theo vai trò. APR-03: cột T1, T2, Duyệt hàng loạt, Nhập lại mật khẩu; hệ quả "Chưa chốt"; cửa sổ cộng dồn; thêm Xuất dùng nội bộ, Khóa/mở lại kỳ công; bỏ MFA.
+- **RPT-12:** kiểm tra rollup từng chi nhánh so với chứng từ gốc, Kế toán xem trong phạm vi, KPI Kế toán khớp bảng; tồn kho, công nợ ghi "chờ slice 2.3a/2.7".
+- **HRM-11, HRM-08:** dòng khoán không có giờ công, đại lượng đối chiếu là tiền công, số mẫu cộng khớp; Thợ không thấy lối vào HRM-08.
+- **Việc cho dev:** API chuyển cấp tay (nút trong prototype gắn "cần API"), phép chiếu ẩn giá trị cho Thủ kho, job đối chiếu rollup và quyền xem cho Kế toán, mã màn riêng cho xếp hạng.
+- **Vẫn cần đo Playwright** cho các trang đã sửa (APR-01/03/04, RPT-12, HRM-08/11, ACC-05, PRT-01, INV-07/09/18, CRM-10, PUR-10), nhất là APR-04 và thẻ APR-01 ở 320px và 390px.
 
 ## Cách tiếp tục
 

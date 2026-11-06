@@ -146,4 +146,8 @@
 .g3-chip-badges { flex-wrap: wrap; max-width: 100%; min-width: 0; }
 .g3-chip-badges .badge, .g3-chip-badges .tag { max-width: 100%; height: auto; min-height: 24px; white-space: normal; }
 .record__top > div { min-width: 0; }
+.g3-field-period { min-width: 240px; }
+.g3-grow { flex: 1 1 360px; min-width: 0; }
+/* Mã lệnh trong thẻ được xuống dòng ở màn hẹp (320px), không đẩy huy hiệu dài ra ngoài */
+@media (max-width: 639px) { .record .code { white-space: normal; } .record__top { flex-wrap: wrap; } }
 .g3-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2) var(--space-4); }

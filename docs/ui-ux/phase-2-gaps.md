@@ -6,7 +6,7 @@ Cập nhật: 06/11/2026 · Người lập: designer · Không sửa FRD/BRD, kh
 
 - Nguồn: `screen-inventory.md` (§4, §8), mã FR/RULE trong FRD, và nội dung file `design/`. **Đọc sâu file** cho slice 2.5, 2.1, 2.6 (dev bắt đầu ở đó). Các slice 2.2, 2.3, 2.4, 2.7, 2.8 chỉ đối chiếu theo danh mục và sự tồn tại của file; cột "Cần kiểm khi dev tới" ghi điều chưa mở file kiểm.
 - Kết luận chung: giai đoạn 1 của thiết kế đã phủ **toàn bộ 184 màn** gồm cả kho, mua hàng, nhân sự, công nợ, phê duyệt (đã dựng trước dưới nhãn P2). Khoảng trống thật nhỏ và nằm ở **chi tiết nối giữa các màn** (loại yêu cầu duyệt mới, drill-down, kiểm tra khớp hợp nhất), cộng với các câu hỏi nghiệp vụ chưa có đáp án.
-- Màn mới dùng tên **GMEP** trong khung. Màn cũ vẫn ghi "GARAGE OS" (xem §4, mục đổi tên).
+- Toàn bộ `design/` đã đổi sang tên nền tảng **GMEP** trong khung ứng dụng (quyết định CD4, 06/11/2026). Chứng từ in, hóa đơn bán lẻ, phiếu kho, tin gửi khách, tệp xuất mang **tên garage của tenant** (mẫu "Garage A · Chi nhánh Quận 7"), không mang tên nền tảng (B-17, `phase-2-review-ba.md`).
 
 ## 1. Bảng khoảng trống theo slice
 
@@ -55,9 +55,10 @@ Số tiền, hạn mức, đơn giá, hạn xử lý trong màn mới là **giá
 
 ## 4. Việc cho dev và quyết định cho chủ dự án
 
-1. Đổi tên "GARAGE OS" thành "GMEP" cho toàn bộ màn cũ: ba `pack.js` đã có điểm đổi (`P.brand` ở `g4-finance`, `window.G3_BRAND` ở `g3-inventory-hr`, `data-brand` ở `g4-reports-system`); đổi giá trị mặc định thành 'GMEP' là sửa một dòng mỗi gói, nhưng các gói `g1`, `g2`, `g5`, `foundation` còn chữ cứng. Chờ chủ dự án chốt cách làm hàng loạt (mục việc của designer ở `STATUS.md`).
-2. `docs/design-system.md` không sửa (token không đổi); không thêm CSS mới cho màn mới.
-3. G4-APR-04 và ma trận APR-03 dùng ba mã loại yêu cầu mới (`xfer`, `adj`, `buy`) trong `pack.js`; dev ánh xạ sang `approval type` thật của slice 2.5.
+1. Đổi tên "GARAGE OS" thành "GMEP": đã xong trong toàn bộ `design/` (khung ứng dụng). Trong sản phẩm thật, tên trên chứng từ, tin nhắn, tệp xuất lấy từ cấu hình tên garage của tenant (mẫu in G4-SYS-12), không lấy `brand.name`.
+2. `docs/design-system.md`, `tokens.css`, `components.css` không sửa (token không đổi). Sau review BA chỉ thêm vài class bố cục trong `pack.css` của gói (`g4f-amount`, `g4f-accum`, `g4f-tags`, `g4r-push`, `g3-grow`…) để thay style inline.
+3. G4-APR-04 và ma trận APR-03 dùng ba mã loại yêu cầu mới (`xfer`, `adj`, `buy`) trong `pack.js`, mỗi loại có cấp 1 và cấp 2 (`APPR[type][2]`); `canApprove(type, role, proposer, level)` nhận cấp hiện tại của yêu cầu. Dev ánh xạ sang `approval type` và `requiredLevel` thật của slice 2.5.
+4. Việc dev sau review BA (06/11/2026): API chuyển cấp thủ công lên cấp kế tiếp kèm lý do (Q-R2 a); phép chiếu ẩn giá trị tiền cho Thủ kho ở điều chỉnh tồn và chuyển kho (Q-R3 a); job đối chiếu rollup từng chi nhánh với chứng từ gốc cho G4-RPT-12 và cấp quyền xem cho Kế toán trong phạm vi được gán (Q-R1 c); mã màn riêng cho xếp hạng chi nhánh.
 
 ## 5. Câu hỏi cho BA (designer không tự quyết)
 
@@ -65,12 +66,12 @@ Số tiền, hạn mức, đơn giá, hạn xử lý trong màn mới là **giá
 | --- | --- | --- | --- |
 | Q-2.1-01 | 2.1 | Nhóm chi nhánh (Miền Nam, Miền Trung) ai định nghĩa? Một chi nhánh thuộc một hay nhiều nhóm? Vai trò Quản lý vùng có tồn tại chính thức không (BRD §5 vẫn `[Cần xác nhận]`)? | DSH-02, RPT-12, ScopePicker, APR-03 ủy quyền theo nhóm |
 | Q-2.1-02 | 2.1 | Chi nhánh đã khóa hoặc đóng có tính vào số hợp nhất của kỳ còn phát sinh không? Chi nhánh có ngày chưa chốt: số hợp nhất gộp số tạm (như thiết kế) hay chỉ gộp ngày đã chốt? | RPT-12, DSH-01 |
-| Q-2.1-03 | 2.1 | Khi có nhiều pháp nhân: kiểm tra "tổng chi nhánh = toàn chuỗi" làm theo từng pháp nhân (thiết kế đang ghi như vậy). Đồng ý không? | RPT-12 |
+| Q-2.1-03 | 2.1 | Khi có nhiều pháp nhân: kiểm tra khớp và số hợp nhất làm theo từng pháp nhân? (Sau Q-R1 = c, kiểm tra là rollup từng chi nhánh so với chứng từ gốc; câu này còn lại phần cách cộng số hợp nhất khi nhiều pháp nhân. RPT-12 gắn `[Cần xác nhận]`.) | RPT-12 |
 | Q-2.2-01 | 2.2 | Kho tổng là kho của một chi nhánh, hay đơn vị riêng không có xe vào? Ai tạo phiếu cấp: kho tổng chủ động hay chi nhánh xin? Chi phí vận chuyển ghi ở đâu? Chuyển kho giữa hai pháp nhân khác nhau có cần hóa đơn không? | Hàng chờ cấp của kho tổng (chưa dựng), INV-12..14 |
 | Q-2.3-01 | 2.3 | Khi một mã lệch quá ngưỡng, có buộc đếm lại lần hai (người khác đếm) trước khi trình duyệt không? Ngưỡng chênh lệch cần chuyển CH/QV là bao nhiêu (đã dùng 3.000.000 ₫ minh họa)? Có khóa xuất nhập kho của mã đang kiểm kê không? | INV-16, INV-17, APR-04 |
 | Q-2.4-01 | 2.4 | Yêu cầu mua: ngưỡng cấp Quản lý và cấp trên (đang minh họa 20.000.000 ₫); sửa đơn mua phiên bản mới có phải nhà cung cấp xác nhận lại không; dung sai ba bên cho phép bao nhiêu trước khi chặn ghi công nợ; trả NCC nhận tiền hoàn hay giấy giảm trừ? | PUR-03, PUR-05..08, APR-03, APR-04 |
 | Q-2.5-01 | 2.5 | Có cần ủy quyền duyệt tạm thời theo cá nhân (người duyệt vắng mặt, có ngày bắt đầu và kết thúc) không, hay chỉ có chuyển cấp tự động và ủy quyền Quản lý vùng theo nhóm như APR-03 hiện có? Nếu có: người nhận ủy quyền phải cùng cấp hay thấp hơn? Người ủy quyền có thấy việc đã duyệt thay? | APR-01..03, màn mới nếu có |
-| Q-2.5-02 | 2.5 | Chuyển cấp tự động: có nhắc trước hạn (thiết kế minh họa nhắc ở nửa thời hạn, 12 giờ trên 24 giờ) hay không; sau cấp cuối mà vẫn quá hạn thì hết hiệu lực hay giữ chờ; có cần báo cáo theo dõi thời hạn duyệt (số quá hạn, thời gian chờ) cho CH/QV không? | APR-04, APR-01 |
+| Q-2.5-02 | 2.5 | (Đã rõ theo API 2.5: nhắc sau T1, chuyển cấp 1 → 2 sau thêm T2; chuyển cấp tay chốt theo Q-R2 a.) Còn mở: sau cấp cuối mà vẫn quá hạn thì hết hiệu lực, chuyển tiếp lên Chủ garage hay giữ chờ; có cần báo cáo theo dõi thời hạn duyệt (số quá hạn, thời gian chờ) cho CH/QV không? | APR-04, APR-01, APR-03 |
 | Q-2.5-03 | 2.5 | Khi chỉ một người có quyền duyệt nhưng chính người đó lập yêu cầu (ví dụ Quản lý chi nhánh đề xuất chuyển kho): chuyển cấp ngay hay chờ hết hạn? | APR-04, APR-02 |
 | Q-2.6-01 | 2.6 | Quy tắc tính công khi thợ đổi chi nhánh giữa kỳ: công theo chi nhánh lúc phát sinh (thiết kế đang theo). Làm lại: tính công thế nào (cấu hình, nhưng cần ví dụ để màn quy tắc minh họa đúng)? | HRM-06, HRM-07, HRM-11 |
 | Q-2.6-02 | 2.6 | Thợ có xem tiền công của chính mình trên HRM-11 không (thiết kế giả định có, chỉ xem công của mình); Nhân sự có xem tiền công không hay chỉ giờ? Hoa hồng chia cho nhiều người trên một lệnh và hoàn tiền sau khi đã ghi hoa hồng thì đảo thế nào? | HRM-08, HRM-09, HRM-11 |

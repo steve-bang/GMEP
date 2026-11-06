@@ -25,7 +25,7 @@
   var view = '', DEF = '', booted = false;
   var main = $('main');
   var COMMON = { skel: 'Đang tải', error: 'Lỗi máy chủ', offline: 'Mất mạng', r429: 'Quá nhiều lần thử (429)' };
-  var COMMON_PW = ['1234567890', '0123456789', 'matkhau123', 'matkhau1234', 'password123', 'garage12345', 'garageos123', 'qwertyuiop', '12345678910', 'abcd123456'];
+  var COMMON_PW = ['1234567890', '0123456789', 'matkhau123', 'matkhau1234', 'password123', 'garage12345', 'garageos123', 'gmep123456', 'gmep12345678', 'gmep@123456', 'qwertyuiop', '12345678910', 'abcd123456'];
   var DISPOSABLE = ['mailinator.com', 'tempmail.com', '10minutemail.com', 'guerrillamail.com', 'yopmail.com', 'trashmail.com'];
 
   /* ---------- 1. Thanh xem thử trạng thái ---------- */
