@@ -1,6 +1,11 @@
 import { getTranslations } from 'next-intl/server';
 import { hasPermission, resolveScope } from '@/platform/rbac/rbac';
-import { OWNER_APPROVED_ROLES, ROLE_CODES, ROLE_NAMES } from '@/modules/sys';
+import {
+  BRANCH_ASSIGNABLE_ROLES,
+  OWNER_APPROVED_ROLES,
+  ROLE_CODES,
+  ROLE_NAMES,
+} from '@/modules/sys';
 import { formLabels } from '@/composition/labels';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
@@ -42,7 +47,12 @@ export default async function InviteUserPage() {
         <InviteUserForm
           branches={res.data.map((b) => ({ value: b.id, label: b.name }))}
           roles={roles.map((r) => ({ value: r, label: ROLE_NAMES[r] }))}
+          noEmailRoles={ROLE_CODES.filter((r) => BRANCH_ASSIGNABLE_ROLES.includes(r)).map((r) => ({
+            value: r,
+            label: ROLE_NAMES[r],
+          }))}
           labels={formLabels(t, 'users.sendInvite')}
+          noEmailLabels={formLabels(t, 'users.noEmail.create')}
           text={{
             code: t('users.colCode'),
             name: t('users.colName'),
@@ -51,6 +61,17 @@ export default async function InviteUserPage() {
             role: t('users.role'),
             branch: t('users.branch'),
             codeHint: t('users.codeHint'),
+            noEmail: t('users.noEmail.toggle'),
+            noEmailHint: t('users.noEmail.toggleHint'),
+            tempPassword: t('users.noEmail.temporaryPassword'),
+            tempPasswordHint: t('users.noEmail.temporaryPasswordHint', {
+              min: getContainer().sys.config.passwordPolicy.minLength,
+              hours: Math.round(getContainer().sys.config.tempPasswordTtlMs / 3_600_000),
+            }),
+            // placeholders filled in the browser with the created account's codes
+            created: t('users.noEmail.created', { company: '{company}', code: '{code}' }),
+            show: t('login.showPassword'),
+            capsLock: t('login.capsLock'),
           }}
         />
       </div>
