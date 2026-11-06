@@ -57,6 +57,13 @@
 .tsp-rules li { display: flex; align-items: flex-start; gap: var(--space-2); color: var(--color-text-secondary); }
 .tsp-rules li.is-ok { color: var(--color-success-text); }
 .tsp-rules li .icon { width: 16px; height: 16px; flex: none; margin-top: 1px; }
+/* Điều kiện mật khẩu: chưa đạt là chấm trung tính (không X đỏ), đạt thì hiện dấu tích xanh; ô trống thì cả khối ẩn */
+.tsp-rules[hidden], .tsp-strength-row[hidden] { display: none; }
+.tsp-rules li .icon { display: none; }
+.tsp-rules li.is-ok .icon { display: block; }
+.tsp-rules li:not(.is-ok)::before { content: ""; width: 12px; height: 12px; margin: 3px 2px 0; flex: none; border: 2px solid var(--color-border-strong); border-radius: 50%; box-sizing: border-box; }
+.tsp-rules li, .tsp-rules li .icon { transition: color .2s; }
+@media (prefers-reduced-motion: reduce) { .tsp-rules li, .tsp-rules li .icon { transition: none; } }
 .tsp-strength { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-1); }
 .tsp-strength span { height: 6px; border-radius: var(--radius-full); background: var(--color-border-strong); }
 .tsp-strength[data-level="1"] span:nth-child(-n+1) { background: var(--color-danger); }
@@ -177,9 +184,19 @@ ol.stepper { list-style: none; margin: 0; padding: 0; }
 .tsp-steps .icon { width: 16px; height: 16px; }
 .tsp-steps__state { margin-left: auto; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 
-/* ---------- Mã công ty (TSU-13) ---------- */
-.tsp-code { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; padding: var(--space-4); border: 1px solid var(--color-brand-300); background: var(--color-primary-subtle); border-radius: var(--radius-lg); }
-.tsp-code__value { font-family: var(--font-mono); font-size: var(--font-size-2xl); font-weight: 700; color: var(--color-purple-text); letter-spacing: .04em; overflow-wrap: anywhere; min-width: 0; }
+/* ---------- Kênh hỗ trợ (ts-config.js đổ nội dung vào [data-support]) ---------- */
+.ts-help { margin: 0; font-size: var(--font-size-sm); line-height: var(--lh-body-sm); color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.ts-help a { font-weight: 600; }
+.ts-help--card { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-subtle); color: var(--color-text-primary); font-size: var(--font-size-md); }
+.ts-help__t { font-weight: 600; }
+.ts-help__h { color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+
+/* Chọn công ty sau khi đăng nhập (TSU-14, chỉ khi email thuộc nhiều công ty) */
+.tsp-co { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.tsp-co .radio { display: flex; align-items: flex-start; gap: var(--space-3); min-height: 56px; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); background: var(--color-surface); cursor: pointer; }
+.tsp-co .radio:has(input:checked) { border-color: var(--color-primary); background: var(--color-primary-subtle); }
+.tsp-co__name { display: block; font-weight: 600; overflow-wrap: anywhere; }
+.tsp-co__sub { display: block; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 
 /* ---------- Tệp đính kèm (FileUpload) ---------- */
 .tsp-up { display: flex; flex-direction: column; gap: var(--space-2); border: 1px dashed var(--control-border); border-radius: var(--radius-lg); padding: var(--space-4); background: var(--color-surface); min-width: 0; }
