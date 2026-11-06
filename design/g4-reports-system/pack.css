@@ -115,6 +115,7 @@ body[data-role="TN"] .g4r-tn-only { display: revert; }
 .g4r-miss { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--color-danger-text); font-weight: 600; font-size: var(--font-size-sm); }
 .g4r-ok { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--color-success-text); font-size: var(--font-size-sm); }
 .g4r-ok .icon, .g4r-miss .icon { width: 16px; height: 16px; }
+.g4r-push { margin-left: auto; }
 .g4r-formula { display: block; font-size: var(--font-size-xs); line-height: 16px; color: var(--color-text-secondary); }
 .g4r-total-row td { font-weight: 700; background: var(--color-surface-subtle); }
 .g4r-meter { display: flex; align-items: center; gap: var(--space-2); min-width: 120px; }

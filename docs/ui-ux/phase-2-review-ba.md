@@ -23,6 +23,8 @@ Kết luận ngắn:
   - Trên điện thoại, hàng chờ duyệt không có 3 loại mới và không lọc theo vai trò (B-02).
   - Nhiều chỗ prototype lệch API slice 2.5: chuyển cấp, thời hạn T1/T2, hạn mức chưa ban hành, cộng dồn, nhập lại mật khẩu, duyệt theo ủy quyền.
 
+> **Cập nhật 06/11/2026 (designer):** trạng thái sửa từng lỗi ở §6. Đã sửa 2/2 Cao, 15/15 TB, 15/16 Thấp; B-33 là việc của dev. Ba câu Q-R1..Q-R3 ở §4 đã được điều phối chốt theo ủy quyền chủ dự án, theo khuyến nghị BA.
+
 ## 2. Bảng lỗi
 
 Ai sửa: designer (prototype), dev (ứng dụng), BA (quyết định yêu cầu). "Lệch API" nghĩa là prototype khác hành vi dev đã build ở slice 2.1, 2.5, 2.6a.
@@ -83,9 +85,55 @@ Ai sửa: designer (prototype), dev (ứng dụng), BA (quyết định yêu c�
 
 Các câu Q-2.5-01..03 và Q-2.1-01..03 ở `phase-2-gaps.md` §5 vẫn mở. B-03 phụ thuộc Q-2.5-02.
 
+**Đã chốt 06/11/2026** (điều phối, theo ủy quyền chủ dự án, theo khuyến nghị BA): Q-R1 = (c), Kế toán xem trong phạm vi được gán, xếp hạng là mã màn riêng; Q-R2 = (a), chuyển cấp tay kèm lý do chỉ lên cấp kế tiếp (dev thêm API; prototype giữ nút, gắn "cần API"); Q-R3 = (a), Thủ kho chỉ xem số lượng ở điều chỉnh tồn và chuyển kho. Cần đưa vào FRD (ma trận quyền, FR-SYS-034, FR-RPT-001) ở lượt BA kế tiếp.
+
 ## 5. Phần không kiểm được
 
 - Không đo được tràn ngang, lỗi JS, console, bàn phím, axe hay tương phản thực tế: môi trường lần này không có shell. Điều phối sẽ chạy Playwright. Tương phản chỉ xét theo tên token (`--color-*-text` trên `--color-*-bg`), không thấy cặp nào đáng ngờ.
 - Không mở hết các màn cũ sau khi thay "GMEP" hàng loạt. Chỉ tìm theo mẫu chuỗi, và đã soát kỹ các chỗ "GMEP" nằm ngoài `<title>` và ngoài khung ứng dụng.
 - Không đối chiếu được `screen-inventory.md` §10 và `docs/ui-ux/05-finance-invoice.md` với từng dòng màn mới.
 - Hành vi API chỉ đọc từ `docs/dev/status.md` của worktree, không chạy ứng dụng.
+
+## 6. Trạng thái sửa (designer, 06/11/2026)
+
+Chưa đo Playwright sau khi sửa (môi trường không có shell); điều phối đo sau. Số tiền, giờ T1/T2, cửa sổ cộng dồn vẫn là giá trị minh họa.
+
+| Mã | Mức | Trạng thái | Đã làm / lý do |
+| --- | --- | --- | --- |
+| B-01 | Cao | Đã sửa | `APPR` của `xfer`, `adj`, `buy` có cấp 1 và cấp 2; `canApprove(type, role, proposer, level)` xét cấp hiện tại. Yêu cầu vượt hạn mức cấp 1 mở thẳng ở cấp 2; QL bị khóa kèm "Giá trị vượt hạn mức cấp của bạn…". APR-01: dòng mua 21.360.000 ₫ chỉ hiện cho CH, QV (và người đề xuất TK); thêm biến thể dưới hạn mức YM-Q7-2610-00005 (15.960.000 ₫, cấp 1, QL duyệt được). |
+| B-02 | Cao | Đã sửa | Thẻ dưới 640px sinh từ chính các dòng đang hiện của bảng (đã lọc vai trò), đủ mọi loại; thẻ loại kho/mua là liên kết tới APR-04. TN, CV, TK chỉ thấy yêu cầu của mình. |
+| B-03 | TB | Đã sửa | Chỉ chuyển cấp 1 → 2. Ví dụ "đã tự chuyển cấp" dùng yêu cầu ban đầu ở cấp 1 (giá trị dưới hạn mức). Cấp 2 ghi "đã ở cấp cuối, không tự chuyển tiếp (Q-2.5-02)". Chuyển kho: cấp 1 QL, cấp 2 QV, Thủ kho là người lập. |
+| B-04 | TB | Đã sửa | Tag "Chờ duyệt" + thẻ phụ "Đã chuyển cấp". Tab "Đã xử lý" chỉ còn Đã duyệt/Từ chối; chuyển cấp chỉ đưa dòng ra khỏi "Cần tôi duyệt" của người chuyển. |
+| B-05 | TB | Đã sửa | Theo Q-R2 (a): nút giữ lại, chỉ lên cấp kế tiếp (không chọn người), bắt buộc lý do, gắn "cần API". APR-04 chỉ hiện nút khi yêu cầu ở cấp 1 và người xem duyệt được cấp 1. |
+| B-06 | TB | Đã sửa | APR-03 thay cột thời hạn bằng "Nhắc sau (T1)", "Chuyển cấp 1 → 2 sau thêm (T2)", "Duyệt hàng loạt", "Nhập lại mật khẩu khi duyệt". APR-04 lấy T1/T2 từ ma trận, gắn nhãn "minh họa"; dòng yêu cầu mua có giá trị minh họa (hết mâu thuẫn "Chưa chốt" với 24 giờ). |
+| B-07 | TB | Đã sửa | APR-03 thêm tham số "Cửa sổ cộng dồn" (7 ngày, `[Cần xác nhận: Q67]`). APR-01 (dòng chi), ACC-05 và APR-04 (yêu cầu mua) hiện "khoản này X + đã cộng dồn Y trong N ngày = Z". Bộ cộng dồn thật thuộc slice 2.7. |
+| B-08 | TB | Đã sửa | Banner và từng ô "Chưa chốt" ghi hệ quả "lên cấp cao nhất" (ô giờ: "dùng giờ kỹ thuật mặc định"). Không làm biến thể xem thử riêng vì banner đã mô tả đúng trạng thái hiện tại (chưa ban hành). |
+| B-09 | TB | Đã sửa | "qua nhập lại mật khẩu (theo cấu hình …)", bỏ MFA. |
+| B-10 | TB | Đã sửa | Thêm "Xuất dùng nội bộ" và "Khóa và mở lại kỳ công" (mở lại: Chủ garage `[Cần xác nhận]`). Điều chỉnh công: "Tự quyết (QL ghi kèm lý do) đến ngưỡng · vượt: Chủ garage". |
+| B-11 | TB | Đã sửa | Theo Q-R3 (a): với TK, APR-04 ẩn giá vốn, mọi cột giá trị, tổng, số trên thanh hạn mức và số trong hộp thoại ở chuyển kho và điều chỉnh tồn; APR-01 ẩn giá trị và cột so hạn mức của hai loại này. Yêu cầu mua vẫn hiện giá (TK thuộc nhóm xem giá mua của G3). |
+| B-12 | TB | Đã sửa | APR-04 thêm tình huống xung đột 409 (có nút tải lại), hết hạn (`approval_expired`), đã duyệt theo ủy quyền (`decidedOnBehalfOf`), ô nhập lại mật khẩu khi loại bật cờ (cổng nút Duyệt cần cả ô tích và mật khẩu). APR-01 tab "Đã xử lý" có dòng "Duyệt theo ủy quyền". |
+| B-13 | TB | Đã sửa | Theo Q-R1 (c): bảng kiểm tra theo từng chi nhánh (rollup so với chứng từ gốc), tổng các chi nhánh = số hợp nhất, KT/QV xem trong phạm vi; bỏ "số toàn chuỗi tính độc lập". Tồn kho, công nợ ghi "chờ slice 2.3a và 2.7". Xếp hạng ghi là màn riêng. |
+| B-14 | TB | Đã sửa | KT: 2 chi nhánh chưa chốt, dữ liệu cũ nhất Thủ Đức 09:10. |
+| B-15 | TB | Đã sửa | (a) gắn `[Cần xác nhận: Q-2.1-03]`; (b) "theo phương pháp giá vốn đã cấu hình"; (c) bỏ tham chiếu tài liệu nội bộ khỏi câu chữ trên màn. |
+| B-16 | TB | Đã sửa | Dòng khoán: giờ chuẩn và giờ công "–" kèm "khoán". KPI giờ công chỉ dòng theo giờ (72,2); huy hiệu "Khớp Bảng công" đặt ở tiền công. HRM-08 ghi rõ tiền công là đại lượng đối chiếu, số Lê Minh Tuấn và tổng cập nhật khớp. |
+| B-17 | TB | Đã sửa | PRT-01 (3 chỗ), INV-18, INV-07, INV-09: "Garage A – Chi nhánh Quận 7" (khớp pháp nhân "Công ty TNHH Garage A" ở PRT-01 và EIN). CRM-10: biến {Tên garage} {Chi nhánh} và xem trước "Garage A". PUR-10: "Giá bán cho garage". Dòng đầu tệp xuất (`g4-reports-system/pack.js`): "Garage A (tên garage của tenant)". Còn lệch: G4-SYS-05/06/12 dùng "Garage ABC", chưa đổi (ngoài danh sách B-17, cần chọn một tên mẫu chung). |
+| B-18 | Thấp | Đã sửa | APR-04 dùng class mới trong `g4-finance/pack.css` (`g4f-amount`, `g4f-p`, `g4f-footer-wrap`, `g4f-tags`, `g4f-accum`). Còn `width`/`left` inline của thanh hạn mức vì là giá trị dữ liệu. |
+| B-19 | Thấp | Đã sửa | RPT-12 dùng `g4r-push`; HRM-08 dùng `g3-field-period`, `g3-grow`. |
+| B-20 | Thấp | Đã sửa | `data-cols="8"`. |
+| B-21 | Thấp | Đã sửa | Số đếm tab, dòng tóm tắt, thanh bên, topbar, điều hướng con tính theo vai trò (`G4F.setPending`); dòng điều chỉnh tồn có tag "Quá hạn" (quá T1); mô tả trang và nội dung trống nhắc 3 loại mới. |
+| B-22 | Thấp | Đã sửa | Thay danh sách bằng cột "Duyệt hàng loạt" ở ma trận. |
+| B-23 | Thấp | Đã sửa | APR 4 màn, G4-finance 33; RPT 12/36; G3 40, HRM 11; STATUS ghi 184 (187 tính cả 3 màn giai đoạn 2). |
+| B-24 | Thấp | Một phần | Đã sửa chú thích ở 2 `pack.js`, `ts-config.js`, `phase-2-gaps.md`, `STATUS.md`; thêm `gmep123456`, `gmep12345678`, `gmep@123456` vào danh sách mật khẩu yếu (`g1-auth.js`, `ts-common.js`). Chưa sửa `docs/ui-ux/screenshots/README.md` (33 chỗ "GARAGE OS"): tài liệu mô tả ảnh chụp cũ có đúng chữ đó, nên đổi khi chụp lại ảnh. |
+| B-25 | Thấp | Đã sửa | APR-04: "Đối tượng" và "Mở chứng từ gốc" trỏ `g3-inv-13` (phiếu chuyển, nơi Thủ kho bấm Gửi; BA gợi ý INV-14 là màn nhận hàng), `g3-inv-17`, `g3-pur-03`. RPT-12: số ngày chưa chốt trỏ `../g4-finance/g4-acc-09.html`. |
+| B-26 | Thấp | Đã sửa | "Duyệt xong, phiếu ở Chờ gửi. Khi Thủ kho bấm Gửi, hàng chuyển sang Đang vận chuyển…". |
+| B-27 | Thấp | Đã sửa | Không còn danh sách chọn người; đích là cấp kế tiếp theo loại; ở cấp cuối nút bị ẩn. |
+| B-28 | Thấp | Đã sửa | "Duyệt chênh lệch −4.320.000 ₫", giá trị trong hộp thoại ghi "(thiếu)". |
+| B-29 | Thấp | Đã sửa | Bỏ câu "Đang vận chuyển" (tồn kho chưa vào kiểm tra). |
+| B-30 | Thấp | Đã sửa | (a) `aria-hidden` cho icon scope banner (HRM-11, HRM-08); (b) nút "Xem thêm 20 dòng"; (c) số mẫu: 72,2 × 90.000 = 6.498.000 + khoán 380.000 = 6.878.000 ₫. |
+| B-31 | Thấp | Đã sửa | Với Thợ: ẩn "Về bảng công", "Điều chỉnh công…", liên kết HRM-08 và HRM-06 ở cuối bảng; thêm FR-HRM-020, 021, RULE-038 vào danh mục; nhãn "Thợ xem tiền công: giả định Q-2.6-02". |
+| B-32 | Thấp | Đã sửa | Thêm "1 điều chỉnh chờ duyệt" vào cột Kiểm tra của Lê Minh Tuấn. |
+| B-33 | Thấp | Không thuộc designer | Ghi chú phụ thuộc cho dev (HRM-11 cần rollup theo kỳ của slice 2.6b). |
+
+Ngoài danh sách: mã `.code` trong thẻ được xuống dòng dưới 640px (`g4-finance/pack.css`, `g3-inventory-hr/pack.css`) để giảm rủi ro tràn ở 320px tại HRM-11 và APR-04/APR-01; cần đo xác nhận.
+
+Việc cho dev phát sinh: (1) API chuyển cấp thủ công lên cấp kế tiếp kèm lý do, ghi nhật ký người, thời điểm, lý do; (2) phép chiếu ẩn giá vốn và giá trị tiền cho Thủ kho ở điều chỉnh tồn và chuyển kho (danh sách, chi tiết, hàng chờ); (3) job đối chiếu rollup từng chi nhánh với chứng từ gốc cho RPT-12 và quyền xem cho Kế toán trong phạm vi; (4) mã màn và quyền riêng cho xếp hạng chi nhánh (`report-ranking:view`). Giả định cần BA xác nhận: người duyệt cấp 2 cũng duyệt được yêu cầu đang ở cấp 1; "hiệu lực một lượt duyệt" (validHours) hiển thị như thời hạn của yêu cầu.

@@ -1,6 +1,6 @@
 /* Cấu hình dùng chung của gói "Đăng ký tenant và onboarding" (chỉ prototype). Nạp TRƯỚC ts-common.js và tsu-app.js.
    - brand: tên sản phẩm, một chỗ duy nhất. Đổi ở đây là mọi màn đổi theo (thẻ có data-brand, tiêu đề tab, khung wizard).
-     [Cần xác nhận] tên sản phẩm "GMEP" chưa được chủ dự án chốt.
+     Tên sản phẩm "GMEP" đã được chủ dự án chốt ngày 06/11/2026 (brand.name, CD4).
    - support: kênh hỗ trợ (hotline, Zalo, giờ làm việc). Giá trị minh họa [Cần xác nhận], thật ra lấy từ cấu hình support.phone, support.zalo.
    Cách dùng trong HTML:
      <span data-brand>GMEP</span>              chữ thay bằng brand

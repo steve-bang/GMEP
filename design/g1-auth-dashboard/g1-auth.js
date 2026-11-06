@@ -9,7 +9,7 @@
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
   function toast(k, t, x) { if (window.gmepToast) window.gmepToast(k, t, x); }
   var view = 'default';
-  var COMMON = ['1234567890', '0123456789', 'matkhau123', 'matkhau1234', 'password123', 'garage12345', 'garageos123', 'qwertyuiop'];
+  var COMMON = ['1234567890', '0123456789', 'matkhau123', 'matkhau1234', 'password123', 'garage12345', 'garageos123', 'gmep123456', 'gmep12345678', 'gmep@123456', 'qwertyuiop'];
 
   /* ---------- 1. Trạng thái xem thử ---------- */
   function inList(el, attr, v) { var a = el.getAttribute(attr); return a !== null && a.split(' ').indexOf(v) >= 0; }

@@ -10,74 +10,55 @@
 <link rel="stylesheet" href="pack.css">
 </head>
 <body>
+<!-- Nội dung biến đổi theo (loại, tình huống) được dựng bằng script bên dưới từ một bảng dữ liệu mẫu, để số tiền, dòng hàng,
+     cấp chờ và dòng thời gian luôn khớp nhau. Cấp hiện tại là dữ liệu của YÊU CẦU (máy chủ chọn theo giá trị so với hạn mức,
+     slice 2.5 requiredLevel), không do giao diện tính. Mở thẳng một tình huống: g4-apr-04.html#adj-esc (loại-tình huống). -->
 <div id="g4f-body">
   <div data-g4f-actions><a class="btn btn--secondary" href="g4-apr-01.html"><svg class="icon"><use href="#chevron-left"/></svg>Về hàng chờ</a></div>
 
   <div class="g4f-demo" role="group" aria-label="Xem thử (chỉ prototype)"><span class="g4f-demo__label">XEM THỬ LOẠI</span>
-    <div class="segmented" role="group" aria-label="Loại yêu cầu"><button class="segmented__item" data-g4f-var="xfer" data-vg="t" aria-pressed="true">Chuyển kho giá trị lớn</button><button class="segmented__item" data-g4f-var="adj" data-vg="t" aria-pressed="false">Điều chỉnh tồn sau kiểm kê</button><button class="segmented__item" data-g4f-var="buy" data-vg="t" aria-pressed="false">Yêu cầu mua vượt hạn mức</button></div>
-    <span class="g4f-demo__label">TÌNH TRẠNG</span>
-    <div class="segmented" role="group" aria-label="Tình trạng"><button class="segmented__item" data-g4f-var="pending" data-vg="s" aria-pressed="true">Đang chờ tôi</button><button class="segmented__item" data-g4f-var="esc" data-vg="s" aria-pressed="false">Đã tự chuyển cấp</button></div></div>
+    <div class="segmented" role="group" aria-label="Loại yêu cầu"><button class="segmented__item" data-g4f-var="xfer" data-vg="t" aria-pressed="true">Chuyển kho giá trị lớn</button><button class="segmented__item" data-g4f-var="adj" data-vg="t" aria-pressed="false">Điều chỉnh tồn sau kiểm kê</button><button class="segmented__item" data-g4f-var="buy" data-vg="t" aria-pressed="false">Yêu cầu mua</button></div>
+    <span class="g4f-demo__label">TÌNH HUỐNG</span>
+    <div class="segmented" role="group" aria-label="Tình huống"><button class="segmented__item" data-g4f-var="l2" data-vg="s" aria-pressed="true">Chờ cấp 2 (vượt hạn mức cấp 1)</button><button class="segmented__item" data-g4f-var="l1" data-vg="s" aria-pressed="false">Chờ cấp 1 (trong hạn mức)</button><button class="segmented__item" data-g4f-var="esc" data-vg="s" aria-pressed="false">Đã tự chuyển cấp 1 → 2</button><button class="segmented__item" data-g4f-var="conflict" data-vg="s" aria-pressed="false">Người khác vừa xử lý (409)</button><button class="segmented__item" data-g4f-var="expired" data-vg="s" aria-pressed="false">Hết hạn</button><button class="segmented__item" data-g4f-var="deleg" data-vg="s" aria-pressed="false">Đã duyệt theo ủy quyền</button></div></div>
 
-  <div class="alert alert--warning" data-vg="s" data-v="esc" hidden role="status"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title" data-vg="t" data-v="xfer">Quá hạn xử lý 24 giờ ở cấp Quản lý vùng, đã tự chuyển lên Chủ garage lúc 07:15 31/10/2026</span><span class="alert__title" data-vg="t" data-v="adj" hidden>Quá hạn xử lý 24 giờ ở cấp Quản lý chi nhánh, đã tự chuyển lên Chủ garage lúc 07:15 31/10/2026</span><span class="alert__title" data-vg="t" data-v="buy" hidden>Quá hạn xử lý 24 giờ ở cấp Quản lý chi nhánh, đã tự chuyển lên Quản lý vùng lúc 07:15 31/10/2026</span><span>Người ở cấp trước vẫn xem được nhưng không còn duyệt được. Thời hạn lấy từ ma trận G4-APR-03.</span></div></div>
+  <div class="alert" id="sit-alert" role="status" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title" id="sit-t"></span><span id="sit-x"></span></div><div class="alert__actions" id="sit-act" hidden><button class="btn btn--secondary btn--sm" data-toast="info|Đã tải lại|Hiển thị trạng thái mới nhất của yêu cầu.">Tải lại yêu cầu</button></div></div>
 
   <div class="g4f-two">
     <section class="card" aria-labelledby="h-ap">
-      <div class="card__header"><div><h2 class="card__title" id="h-ap">
-        <span data-vg="t" data-v="xfer">Chuyển kho giá trị lớn</span><span data-vg="t" data-v="adj" hidden>Điều chỉnh tồn sau kiểm kê</span><span data-vg="t" data-v="buy" hidden>Yêu cầu mua vượt hạn mức</span></h2>
-        <div class="card__subtitle">Yêu cầu <span data-vg="t" data-v="xfer">YC-Q7-2610-00071</span><span data-vg="t" data-v="adj" hidden>YC-Q7-2610-00072</span><span data-vg="t" data-v="buy" hidden>YC-Q7-2610-00073</span> · gửi lúc 07:15 30/10/2026</div></div>
-        <span class="tag tag--warning" data-vg="s" data-v="pending">Chờ duyệt</span><span class="tag tag--info" data-vg="s" data-v="esc" hidden>Đã chuyển cấp</span></div>
+      <div class="card__header"><div><h2 class="card__title" id="h-ap"></h2>
+        <div class="card__subtitle">Yêu cầu <span class="code" id="f-id"></span> · gửi lúc <span id="f-sent">07:15 30/10/2026</span></div></div>
+        <div class="g4f-tags" id="f-tags"></div></div>
       <div class="card__body stack">
         <dl class="g4f-kv g4f-kv--wide">
-          <div><dt>Người đề xuất</dt><dd><span data-vg="t" data-v="xfer">Võ Minh Quân (Quản lý chi nhánh)</span><span data-vg="t" data-v="adj buy" hidden>Hoàng Thị Mai (Thủ kho<span data-vg="t" data-v="adj" hidden>, người đếm</span>)</span></dd></div>
-          <div><dt>Chi nhánh</dt><dd><span data-vg="t" data-v="xfer">Chi nhánh Quận 7 → Chi nhánh Biên Hòa</span><span data-vg="t" data-v="adj buy" hidden>Chi nhánh Quận 7</span></dd></div>
-          <div><dt>Đối tượng</dt><dd><a href="#" class="code"><span data-vg="t" data-v="xfer">STO-Q7-2610-00014</span><span data-vg="t" data-v="adj" hidden>KK-Q7-2610-00003</span><span data-vg="t" data-v="buy" hidden>YM-Q7-2610-00004</span></a></dd></div>
-          <div><dt>Giá trị</dt><dd class="num" style="font-weight:700;font-size:18px"><span data-vg="t" data-v="xfer">62.400.000 ₫</span><span data-vg="t" data-v="adj" hidden>−4.320.000 ₫ <span class="t-body-sm text-secondary" style="font-weight:400">(thiếu so với sổ)</span></span><span data-vg="t" data-v="buy" hidden>21.360.000 ₫</span></dd></div>
+          <div><dt>Người đề xuất</dt><dd id="f-who"></dd></div>
+          <div><dt>Chi nhánh</dt><dd id="f-branch"></dd></div>
+          <div><dt>Đối tượng</dt><dd><a class="code" id="f-obj" href="#"></a></dd></div>
+          <div><dt>Giá trị</dt><dd class="num g4f-amount" id="f-val"></dd></div>
+          <div><dt>Cấp đang chờ</dt><dd id="f-level"></dd></div>
         </dl>
-        <div class="field"><span class="field__label"><span data-vg="t" data-v="adj" hidden>Giải trình của người đếm</span><span data-vg="t" data-v="xfer buy">Lý do của người đề xuất</span></span>
-          <p style="margin:0" data-vg="t" data-v="xfer">Chi nhánh Biên Hòa sắp hết má phanh, ắc quy và lọc dầu; Quận 7 đang dư theo khả dụng. Không phải chờ nhà cung cấp 5 ngày.</p>
-          <p style="margin:0" data-vg="t" data-v="adj" hidden>Dầu nhớt 5W-30 thiếu 6 can: nghi bán lẻ chưa lập phiếu. Má phanh và lọc dầu thiếu 3 mỗi loại, chưa rõ nguyên nhân. Đã đếm lại lần hai, số không đổi.</p>
-          <p style="margin:0" data-vg="t" data-v="buy" hidden>Má phanh và dầu nhớt xuống dưới định mức theo khả dụng; Quận 7 không còn kho dư để chuyển. Nhà cung cấp quen giá tốt hơn 4% nếu lấy đủ 3 mặt hàng một lần.</p></div>
+        <div class="field"><span class="field__label" id="f-reason-l"></span><p class="g4f-p" id="f-reason"></p></div>
 
         <div>
           <div class="row row--between t-body-sm"><strong>So với hạn mức</strong><span class="g4f-sample">Giá trị minh họa, lấy từ cấu hình G4-APR-03</span></div>
-          <div data-vg="t" data-v="xfer"><div class="g4f-limit" role="img" aria-label="62.400.000 so với hạn mức cấp Quản lý 50.000.000, vượt, cần Quản lý vùng"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:80%"></span></div><div class="g4f-limit__cap"><span>Đề xuất 62.400.000 ₫</span><span>Hạn mức Quản lý 50.000.000 ₫ · cần Quản lý vùng</span></div></div>
-          <div data-vg="t" data-v="adj" hidden><div class="g4f-limit" role="img" aria-label="4.320.000 so với hạn mức cấp Quản lý 3.000.000, vượt, cần Chủ garage"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:69%"></span></div><div class="g4f-limit__cap"><span>Chênh lệch 4.320.000 ₫</span><span>Hạn mức Quản lý 3.000.000 ₫ · cần Chủ garage</span></div></div>
-          <div data-vg="t" data-v="buy" hidden><div class="g4f-limit" role="img" aria-label="21.360.000 so với hạn mức cấp Quản lý 20.000.000, vượt 1.360.000"><span class="g4f-limit__bar is-over" style="width:100%"></span><span class="g4f-limit__mark" style="left:94%"></span></div><div class="g4f-limit__cap"><span>Đề xuất 21.360.000 ₫</span><span>Hạn mức Quản lý 20.000.000 ₫ · cần Quản lý vùng hoặc Chủ garage</span></div></div>
+          <div id="f-limit"></div>
+          <p class="g4f-accum" id="f-accum"></p>
         </div>
 
-        <div class="table-wrap"><div class="table-scroll">
-          <table class="table table--compact" data-vg="t" data-v="xfer"><caption class="sr-only">Dòng hàng chuyển kho</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Số lượng</th><th class="col-num">Giá vốn bình quân</th><th class="col-num">Giá trị</th></tr></thead><tbody>
-            <tr><td>Lọc dầu Toyota<span class="cell-sub">Khả dụng sau chuyển: 38</span></td><td class="col-num">120</td><td class="col-num js-cost" data-cost="85.000 ₫">85.000 ₫</td><td class="col-num">10.200.000 ₫</td></tr>
-            <tr><td>Má phanh trước Accent<span class="cell-sub">Khả dụng sau chuyển: 14</span></td><td class="col-num">60</td><td class="col-num js-cost" data-cost="540.000 ₫">540.000 ₫</td><td class="col-num">32.400.000 ₫</td></tr>
-            <tr><td>Ắc quy 12V 60Ah<span class="cell-sub">Khả dụng sau chuyển: 6</span></td><td class="col-num">8</td><td class="col-num js-cost" data-cost="2.475.000 ₫">2.475.000 ₫</td><td class="col-num">19.800.000 ₫</td></tr></tbody><tfoot><tr><td colspan="3">Tổng 3 mặt hàng</td><td class="col-num">62.400.000 ₫</td></tr></tfoot></table>
-          <table class="table table--compact" data-vg="t" data-v="adj" hidden><caption class="sr-only">Dòng chênh lệch kiểm kê</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Sổ sách</th><th class="col-num">Đếm</th><th class="col-num">Chênh lệch</th><th class="col-num">Giá trị</th></tr></thead><tbody>
-            <tr><td>Má phanh trước Accent</td><td class="col-num">24</td><td class="col-num">21</td><td class="col-num">−3</td><td class="col-num">−1.620.000 ₫</td></tr>
-            <tr><td>Lọc dầu Toyota</td><td class="col-num">60</td><td class="col-num">57</td><td class="col-num">−3</td><td class="col-num">−255.000 ₫</td></tr>
-            <tr><td>Dầu nhớt 5W-30 4L<span class="cell-sub"><span class="tag tag--warning">Lệch lặp lại: lần thứ 3 trong 90 ngày</span></span></td><td class="col-num">30</td><td class="col-num">24</td><td class="col-num">−6</td><td class="col-num">−2.445.000 ₫</td></tr></tbody><tfoot><tr><td colspan="4">Tổng chênh lệch</td><td class="col-num">−4.320.000 ₫</td></tr></tfoot></table>
-          <table class="table table--compact" data-vg="t" data-v="buy" hidden><caption class="sr-only">Dòng hàng yêu cầu mua</caption><thead><tr><th>Phụ tùng</th><th class="col-num">Số lượng</th><th class="col-num">Đơn giá dự kiến</th><th class="col-num">Giá trị</th></tr></thead><tbody>
-            <tr><td>Má phanh trước Accent</td><td class="col-num">20</td><td class="col-num">540.000 ₫</td><td class="col-num">10.800.000 ₫</td></tr>
-            <tr><td>Dầu nhớt 5W-30 4L</td><td class="col-num">24</td><td class="col-num">407.500 ₫</td><td class="col-num">9.780.000 ₫</td></tr>
-            <tr><td>Lọc gió động cơ</td><td class="col-num">12</td><td class="col-num">65.000 ₫</td><td class="col-num">780.000 ₫</td></tr></tbody><tfoot><tr><td colspan="3">Tổng 3 mặt hàng</td><td class="col-num">21.360.000 ₫</td></tr></tfoot></table>
-        </div></div>
+        <div class="table-wrap"><div class="table-scroll"><table class="table table--compact"><caption class="sr-only" id="f-cap"></caption><thead id="f-head"></thead><tbody id="f-rows"></tbody><tfoot id="f-foot"></tfoot></table></div></div>
+        <p class="g4f-why" id="f-cost-note" hidden>Thủ kho chỉ xem số lượng ở điều chỉnh tồn và chuyển kho; giá vốn và giá trị tiền bị ẩn theo quyền (quyết định Q-R3). Máy chủ không trả các trường này cho vai trò Thủ kho.</p>
 
-        <div class="alert alert--neutral" data-vg="t" data-v="xfer"><svg class="icon"><use href="#info"/></svg><div class="alert__body">Duyệt chỉ cho phép gửi hàng. Hàng chuyển sang “Đang vận chuyển”, chưa tính vào khả dụng của cả hai chi nhánh cho tới khi bên nhận xác nhận (G3-INV-14).</div></div>
-        <div class="alert alert--neutral" data-vg="t" data-v="adj" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body">Duyệt tạo phiếu điều chỉnh ADJ và ghi vào thẻ kho; tồn chỉ đổi sau khi duyệt. Người đếm không được duyệt chính đợt mình đếm. Từ chối thì tồn sổ sách giữ nguyên và đợt kiểm kê quay lại “Cần đếm lại”.</div></div>
-        <div class="alert alert--neutral" data-vg="t" data-v="buy" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body">Duyệt cho phép lập đơn mua từ yêu cầu này (G3-PUR-05). Không có chứng từ nhập hay công nợ phát sinh ở bước duyệt.</div></div>
+        <div class="alert alert--neutral"><svg class="icon"><use href="#info"/></svg><div class="alert__body" id="f-effect"></div></div>
 
         <div>
-          <h3 class="g4f-section-title" style="font-size:16px">Lịch sử xử lý</h3>
-          <div class="timeline">
-            <div class="timeline__item timeline__item--warning" data-vg="s" data-v="pending"><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Chờ duyệt: <span data-vg="t" data-v="xfer">Quản lý vùng</span><span data-vg="t" data-v="adj" hidden>Chủ garage</span><span data-vg="t" data-v="buy" hidden>Quản lý chi nhánh</span></div><div class="timeline__meta">Hạn xử lý 24 giờ theo cấu hình; quá hạn sẽ tự chuyển cấp</div></div></div>
-            <div class="timeline__item timeline__item--warning" data-vg="s" data-v="esc" hidden><div class="timeline__dot"><svg class="icon"><use href="#clock"/></svg></div><div><div class="timeline__title">Chờ duyệt: <span data-vg="t" data-v="xfer adj">Chủ garage</span><span data-vg="t" data-v="buy" hidden>Quản lý vùng</span></div><div class="timeline__meta">Hạn xử lý mới 24 giờ từ 07:15 31/10/2026</div></div></div>
-            <div class="timeline__item timeline__item--brand" data-vg="s" data-v="esc" hidden><div class="timeline__dot"><svg class="icon"><use href="#arrow-right"/></svg></div><div><div class="timeline__title">Tự động chuyển cấp (quá hạn 24 giờ)</div><div class="timeline__meta">Hệ thống · 07:15 31/10/2026 · nhắc trước hạn đã gửi 19:15 30/10/2026</div></div></div>
-            <div class="timeline__item timeline__item--brand"><div class="timeline__dot"><svg class="icon"><use href="#send"/></svg></div><div><div class="timeline__title">Gửi yêu cầu duyệt</div><div class="timeline__meta">07:15 30/10/2026</div></div></div>
-          </div>
+          <h3 class="g4f-section-title">Lịch sử xử lý</h3>
+          <div class="timeline" id="f-timeline"></div>
+          <p class="g4f-why">Mốc nhắc (T1) và chuyển cấp (T2, tính thêm sau T1) theo giờ làm việc của chi nhánh; số giờ là <span class="g4f-sample">minh họa</span> lấy từ G4-APR-03.</p>
         </div>
       </div>
-      <div class="card__footer" style="flex-wrap:wrap">
+      <div class="card__footer g4f-footer-wrap">
         <button class="btn btn--danger-outline" id="btn-rej" data-open="dlg-reject">Từ chối</button>
-        <button class="btn btn--secondary" id="btn-esc" data-open="dlg-escalate" data-g4f-need="CH QV QL KT" data-g4f-why="Chỉ cấp có thẩm quyền mới chuyển cấp.">Chuyển cấp</button>
-        <p class="g4f-why" id="appr-why" role="status" style="flex-basis:100%;margin:0"></p>
+        <button class="btn btn--secondary" id="btn-esc" data-open="dlg-escalate">Chuyển lên cấp 2</button>
+        <p class="g4f-why" id="appr-why" role="status"></p>
         <button class="btn btn--primary btn--lg" id="btn-appr" data-open="dlg-approve" data-g4f-online>Duyệt</button>
       </div>
     </section>
@@ -85,13 +66,8 @@
     <aside class="g4f-aside">
       <section class="card">
         <div class="card__header"><div><h2 class="card__title">Bản ghi gốc</h2><div class="card__subtitle">Số liệu hiện tại, mở màn nguồn để kiểm tra</div></div></div>
-        <div class="card__body"><dl class="g4f-sum" data-vg="t" data-v="xfer">
-          <div><dt>Phiếu chuyển</dt><dd class="code">STO-Q7-2610-00014</dd></div><div><dt>Trạng thái phiếu</dt><dd><span class="badge badge--warning">Chờ duyệt</span></dd></div><div><dt>Khả dụng Quận 7 sau chuyển</dt><dd>đủ cả 3 mặt hàng</dd></div></dl>
-          <dl class="g4f-sum" data-vg="t" data-v="adj" hidden>
-          <div><dt>Đợt kiểm kê</dt><dd class="code">KK-Q7-2610-00003</dd></div><div><dt>Phạm vi</dt><dd>Nhóm Phanh và dầu nhớt</dd></div><div><dt>Người đếm</dt><dd>Hoàng Thị Mai</dd></div><div><dt>Trạng thái đợt</dt><dd><span class="badge badge--warning">Chờ duyệt chênh lệch</span></dd></div></dl>
-          <dl class="g4f-sum" data-vg="t" data-v="buy" hidden>
-          <div><dt>Yêu cầu mua</dt><dd class="code">YM-Q7-2610-00004</dd></div><div><dt>Trạng thái</dt><dd><span class="badge badge--warning">Chờ duyệt</span></dd></div><div><dt>Nhà cung cấp gợi ý</dt><dd>1 nhà cung cấp</dd></div></dl>
-          <a class="btn btn--secondary btn--sm" href="#" style="margin-top:12px">Mở chứng từ gốc<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
+        <div class="card__body stack"><dl class="g4f-sum" id="f-src"></dl>
+          <a class="btn btn--secondary btn--sm" id="f-src-link" href="#">Mở chứng từ gốc<svg class="icon icon--sm"><use href="#arrow-right"/></svg></a></div>
       </section>
     </aside>
   </div>
@@ -99,9 +75,10 @@
 
 <div class="overlay" id="dlg-approve" role="alertdialog" aria-modal="true" aria-labelledby="ap-t"><div class="dialog" data-g4f-gate>
   <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#check"/></svg></div><div><h2 class="dialog__title" id="ap-t">Duyệt yêu cầu này?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body stack"><dl class="g4f-sum"><div><dt>Loại yêu cầu</dt><dd id="ap-type">Chuyển kho giá trị lớn</dd></div><div class="is-total"><dt>Giá trị</dt><dd id="ap-val">62.400.000 ₫</dd></div></dl><p>Bạn duyệt với tên <strong id="ap-who"></strong>. Hệ thống thực hiện ngay hành động đã đề xuất và ghi nhật ký (người duyệt, thời điểm, giá trị). Bấm hai lần không duyệt hai lần.</p>
+  <div class="dialog__body stack"><dl class="g4f-sum"><div><dt>Loại yêu cầu</dt><dd id="ap-type"></dd></div><div><dt>Cấp</dt><dd id="ap-level"></dd></div><div class="is-total"><dt>Giá trị</dt><dd id="ap-val"></dd></div></dl><p class="g4f-p">Bạn duyệt với tên <strong id="ap-who"></strong>. Hệ thống thực hiện ngay hành động đã đề xuất và ghi nhật ký (người duyệt, thời điểm, giá trị). Bấm hai lần không duyệt hai lần.</p>
     <div class="field"><label class="field__label" for="ap-n">Ghi chú (không bắt buộc)</label><input id="ap-n" class="input"></div>
-    <label class="check"><input type="checkbox" data-g4f-gate-check><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem dòng hàng, giá trị và so với hạn mức.</span></label></div>
+    <div class="field" id="ap-pwf" hidden><label class="field__label" for="ap-pw">Nhập lại mật khẩu của bạn để duyệt<span class="field__req" aria-hidden="true">*</span></label><input class="input" id="ap-pw" type="password" autocomplete="current-password"><span class="field__hint">Loại yêu cầu này bật “Nhập lại mật khẩu khi duyệt” ở G4-APR-03 (cờ reauthOnApprove). Sai mật khẩu thì không duyệt, không khóa yêu cầu.</span></div>
+    <label class="check"><input type="checkbox" data-g4f-gate-check id="ap-chk"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi đã xem dòng hàng, giá trị và so với hạn mức.</span></label></div>
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Quay lại</button><button class="btn btn--primary" id="ap-ok" data-g4f-gate-btn data-g4f-submit data-lock="#btn-appr" data-busy="Đang duyệt…" data-done-label="Đã duyệt" data-done-toast="success|Đã duyệt yêu cầu|Người đề xuất được thông báo; ghi nhật ký." disabled>Duyệt</button></div></div></div>
 
 <div class="overlay" id="dlg-reject" role="alertdialog" aria-modal="true" aria-labelledby="rj-t"><div class="dialog" data-confirm-guard>
@@ -110,14 +87,18 @@
   <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--danger" id="rj-ok" data-confirm-btn data-g4f-submit data-lock="#btn-rej" data-busy="Đang từ chối…" data-done-label="Đã từ chối" data-done-toast="warning|Đã từ chối yêu cầu|Lý do được gửi cho người đề xuất." disabled>Từ chối</button></div></div></div>
 
 <div class="overlay" id="dlg-escalate" role="dialog" aria-modal="true" aria-labelledby="es-t"><div class="dialog">
-  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="es-t">Chuyển lên cấp trên</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body stack"><div class="field"><label class="field__label" for="es-p">Chuyển tới<span class="field__req" aria-hidden="true">*</span></label><select id="es-p" class="select"><option>Quản lý vùng Miền Nam</option><option>Chủ garage</option></select><span class="field__hint">Danh sách lấy từ ma trận phê duyệt (G4-APR-03).</span></div><div class="field"><label class="field__label" for="es-r">Lý do chuyển cấp<span class="field__req" aria-hidden="true">*</span></label><textarea id="es-r" class="textarea" style="min-height:64px"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="es-ok" data-g4f-submit data-lock="#btn-esc" data-busy="Đang chuyển cấp…" data-done-label="Đã chuyển cấp" data-done-toast="info|Đã chuyển cấp|Người nhận được thông báo." data-g4f-online disabled>Chuyển cấp</button></div></div></div>
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#arrow-right"/></svg></div><div><h2 class="dialog__title" id="es-t">Chuyển lên cấp kế tiếp</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body stack">
+    <dl class="g4f-sum"><div><dt>Chuyển tới</dt><dd id="es-to"></dd></div></dl>
+    <p class="t-body-sm text-secondary g4f-p">Chỉ chuyển lên cấp kế tiếp theo ma trận G4-APR-03, không chọn người khác. Yêu cầu vẫn ở “Chờ duyệt”, kèm thẻ “Đã chuyển cấp”; nhật ký ghi người chuyển, thời điểm, lý do (FR-SYS-034).</p>
+    <div class="field"><label class="field__label" for="es-r">Lý do chuyển cấp<span class="field__req" aria-hidden="true">*</span></label><textarea id="es-r" class="textarea"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div>
+    <p class="g4f-why g4f-p"><span class="g4f-sample">cần API</span> Chuyển cấp thủ công đã chốt (Q-R2 phương án a); slice 2.5 mới có chuyển cấp tự động, dev bổ sung API.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="es-ok" data-g4f-submit data-lock="#btn-esc" data-busy="Đang chuyển cấp…" data-done-label="Đã chuyển cấp" data-done-toast="info|Đã chuyển lên cấp 2|Yêu cầu vẫn chờ duyệt; người nhận được thông báo." data-g4f-online disabled>Chuyển cấp</button></div></div></div>
 
 <script>
 window.G4F_PAGE = {
-  code: 'G4-APR-04', brand: 'GMEP', title: 'Chi tiết phê duyệt kho và mua hàng', desc: 'Chuyển kho giá trị lớn, điều chỉnh tồn sau kiểm kê, yêu cầu mua vượt hạn mức; trạng thái tự chuyển cấp khi quá hạn.',
-  menu: 'fin', role: 'QV', allow: ['CH', 'QV', 'QL', 'KT', 'TK'], updated: '09:15', time: 'yêu cầu mở lúc 07:15',
+  code: 'G4-APR-04', title: 'Chi tiết phê duyệt kho và mua hàng', desc: 'Chuyển kho giá trị lớn, điều chỉnh tồn sau kiểm kê, yêu cầu mua; cấp chờ theo giá trị so với hạn mức, nhắc và tự chuyển cấp 1 → 2.',
+  menu: 'fin', role: 'QV', allow: ['CH', 'QV', 'QL', 'KT', 'TK'], updated: '09:15', time: 'yêu cầu mở lúc 07:15 30/10/2026',
   states: ['data', 'loading', 'error', 'denied']
 };
 </script>
@@ -125,32 +106,149 @@ window.G4F_PAGE = {
 <script src="../assets/app.js"></script>
 <script>
 (function () {
-  var P = { xfer: 'Võ Minh Quân', adj: 'Hoàng Thị Mai', buy: 'Hoàng Thị Mai' }, type = 'xfer', st = 'pending', decided = null;
-  var VAL = { xfer: 62400000, adj: 4320000, buy: 21360000 }, NAME = { xfer: 'Chuyển kho giá trị lớn', adj: 'Điều chỉnh tồn sau kiểm kê', buy: 'Yêu cầu mua vượt hạn mức' };
-  /* Sau khi tự chuyển cấp, chỉ cấp mới được duyệt (cấp trước bị khóa kèm lý do) */
-  var ESC = { xfer: ['CH', 'Chủ garage'], adj: ['CH', 'Chủ garage'], buy: ['QV CH', 'Quản lý vùng hoặc Chủ garage'] };
+  var $ = G4F.$, fmt = G4F.fmt;
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  /* Dữ liệu mẫu (minh họa). full: giá trị vượt hạn mức cấp 1 nên máy chủ mở thẳng ở cấp 2; small: trong hạn mức cấp 1. */
+  var MAIL = 'Hoàng Thị Mai (Thủ kho)';
+  var T = {
+    xfer: { name: 'Chuyển kho giá trị lớn', cap1: 50000000, t1: 8, t2: 16, reauth: true, hideForTK: true, proposer: 'Hoàng Thị Mai', who: MAIL, branch: 'Chi nhánh Quận 7 → Chi nhánh Biên Hòa', src: '../g3-inventory-hr/g3-inv-13.html',
+      head: ['Phụ tùng', 'Số lượng', 'Giá vốn bình quân', 'Giá trị'], reasonL: 'Lý do của người đề xuất',
+      effect: 'Duyệt xong, phiếu ở “Chờ gửi”. Khi Thủ kho bấm Gửi, hàng chuyển sang “Đang vận chuyển”, không tính vào khả dụng của cả hai chi nhánh cho tới khi bên nhận xác nhận (G3-INV-14, RULE-037).',
+      full: { id: 'YC-Q7-2610-00071', obj: 'STO-Q7-2610-00014', reason: 'Chi nhánh Biên Hòa sắp hết má phanh, ắc quy và lọc dầu; Quận 7 đang dư theo khả dụng. Không phải chờ nhà cung cấp 5 ngày.',
+        rows: [['Lọc dầu Toyota', 'Khả dụng sau chuyển: 38', 120, 85000], ['Má phanh trước Accent', 'Khả dụng sau chuyển: 14', 60, 540000], ['Ắc quy 12V 60Ah', 'Khả dụng sau chuyển: 6', 8, 2475000]] },
+      small: { id: 'YC-Q7-2610-00081', obj: 'STO-Q7-2610-00016', reason: 'Chi nhánh Biên Hòa sắp hết má phanh và lọc dầu; Quận 7 đang dư theo khả dụng.',
+        rows: [['Lọc dầu Toyota', 'Khả dụng sau chuyển: 38', 120, 85000], ['Má phanh trước Accent', 'Khả dụng sau chuyển: 14', 60, 540000]] } },
+    adj: { name: 'Điều chỉnh tồn sau kiểm kê', cap1: 3000000, t1: 8, t2: 16, reauth: true, hideForTK: true, neg: true, proposer: 'Hoàng Thị Mai', who: 'Hoàng Thị Mai (Thủ kho, người đếm)', branch: 'Chi nhánh Quận 7', src: '../g3-inventory-hr/g3-inv-17.html',
+      head: ['Phụ tùng', 'Sổ sách', 'Đếm', 'Chênh lệch', 'Giá trị'], reasonL: 'Giải trình của người đếm',
+      effect: 'Duyệt tạo phiếu điều chỉnh ADJ và ghi vào thẻ kho; tồn chỉ đổi sau khi duyệt. Người đếm không được duyệt chính đợt mình đếm. Từ chối thì tồn sổ sách giữ nguyên và đợt kiểm kê quay lại “Cần đếm lại”.',
+      full: { id: 'YC-Q7-2610-00072', obj: 'KK-Q7-2610-00003', reason: 'Dầu nhớt 5W-30 thiếu 6 can: nghi bán lẻ chưa lập phiếu. Má phanh và lọc dầu thiếu 3 mỗi loại, chưa rõ nguyên nhân. Đã đếm lại lần hai, số không đổi.',
+        rows: [['Má phanh trước Accent', '', 24, 21, 540000], ['Lọc dầu Toyota', '', 60, 57, 85000], ['Dầu nhớt 5W-30 4L', 'Lệch lặp lại: lần thứ 3 trong 90 ngày', 30, 24, 407500]] },
+      small: { id: 'YC-Q7-2610-00082', obj: 'KK-Q7-2610-00005', reason: 'Má phanh và lọc dầu thiếu 3 mỗi loại, chưa rõ nguyên nhân. Đã đếm lại lần hai, số không đổi.',
+        rows: [['Má phanh trước Accent', '', 24, 21, 540000], ['Lọc dầu Toyota', '', 60, 57, 85000]] } },
+    buy: { name: 'Yêu cầu mua', cap1: 20000000, t1: 8, t2: 16, reauth: false, hideForTK: false, accum: true, proposer: 'Hoàng Thị Mai', who: MAIL, branch: 'Chi nhánh Quận 7', src: '../g3-inventory-hr/g3-pur-03.html',
+      head: ['Phụ tùng', 'Số lượng', 'Đơn giá dự kiến', 'Giá trị'], reasonL: 'Lý do của người đề xuất',
+      effect: 'Duyệt cho phép lập đơn mua từ yêu cầu này (G3-PUR-05). Không có chứng từ nhập hay công nợ phát sinh ở bước duyệt.',
+      full: { id: 'YC-Q7-2610-00073', obj: 'YM-Q7-2610-00004', reason: 'Má phanh và dầu nhớt xuống dưới định mức theo khả dụng; Quận 7 không còn kho dư để chuyển. Nhà cung cấp quen giá tốt hơn 4% nếu lấy đủ 3 mặt hàng một lần.',
+        rows: [['Má phanh trước Accent', '', 20, 540000], ['Dầu nhớt 5W-30 4L', '', 24, 407500], ['Lọc gió động cơ', '', 12, 65000]] },
+      small: { id: 'YC-Q7-2610-00083', obj: 'YM-Q7-2610-00005', reason: 'Má phanh và dầu nhớt xuống dưới định mức theo khả dụng; Quận 7 không còn kho dư để chuyển.',
+        rows: [['Má phanh trước Accent', '', 10, 540000], ['Dầu nhớt 5W-30 4L', '', 24, 407500], ['Lọc gió động cơ', '', 12, 65000]] } }
+  };
+  var type = 'xfer', st = 'l2', decided = null;
   function role() { return document.body.getAttribute('data-role'); }
-  function gate() {
-    var r = G4F.canApprove(type, role(), P[type]);
-    if (r.ok && st === 'esc' && ESC[type][0].split(' ').indexOf(role()) < 0) r = { ok: false, why: 'Yêu cầu đã tự chuyển lên ' + ESC[type][1] + ' do quá hạn xử lý; cấp của bạn không còn duyệt được.' };
-    var ok = r.ok && !decided;
-    ['btn-appr', 'btn-rej', 'btn-esc'].forEach(function (i) { G4F.setEnabled(document.getElementById(i), ok); });
-    document.getElementById('appr-why').textContent = decided ? 'Đã xử lý: ' + decided + '. Không quyết định ngược trên yêu cầu này.' : (r.ok ? '' : 'Nút Duyệt, Từ chối, Chuyển cấp bị khóa: ' + r.why);
-    document.getElementById('ap-type').textContent = NAME[type]; document.getElementById('ap-val').textContent = G4F.fmt(VAL[type]); document.getElementById('ap-who').textContent = G4F.user();
-    document.getElementById('ap-ok').textContent = 'Duyệt ' + G4F.fmt(VAL[type]);
-    /* Giá vốn bình quân chỉ hiện với vai trò có quyền xem giá vốn (CH, QV, QL, KT) */
-    G4F.$$('.js-cost').forEach(function (td) { td.textContent = ['TK'].indexOf(role()) >= 0 ? 'Ẩn theo quyền' : td.getAttribute('data-cost'); });
+  /* 'esc-manual': yêu cầu cấp 1 vừa được người xem chuyển cấp tay lên cấp 2 (vẫn Chờ duyệt) */
+  function variant() { return (st === 'l1' || st === 'esc' || st === 'esc-manual') ? 'small' : 'full'; }
+  function level() { return st === 'l1' ? 1 : 2; }
+  function rowVal(r) { return type === 'adj' ? (r[3] - r[2]) * r[4] : r[2] * r[3]; }
+  function total() { return T[type][variant()].rows.reduce(function (s, r) { return s + rowVal(r); }, 0); }
+  function hideMoney() { return T[type].hideForTK && role() === 'TK'; }
+  function money(v) { return hideMoney() ? 'Ẩn theo quyền' : fmt(v); }
+  function lv() { return G4F.levelInfo(type); }
+
+  function render() {
+    var c = T[type], d = c[variant()], L = lv(), v = total(), abs = Math.abs(v), hm = hideMoney();
+    $('#h-ap').textContent = c.name; $('#f-id').textContent = d.id; $('#f-who').textContent = c.who; $('#f-branch').textContent = c.branch;
+    var o = $('#f-obj'); o.textContent = d.obj; o.href = c.src; $('#f-src-link').href = c.src;
+    $('#f-val').innerHTML = hm ? '<span class="g4f-amount__sub">Ẩn theo quyền (chỉ xem số lượng)</span>' : esc(fmt(v)) + (c.neg ? ' <span class="g4f-amount__sub">(thiếu so với sổ)</span>' : '');
+    $('#f-level').textContent = 'Cấp ' + level() + ' · ' + L[level() - 1][1];
+    $('#f-reason-l').textContent = c.reasonL; $('#f-reason').textContent = d.reason;
+    /* Thanh so hạn mức: vạch là hạn mức cấp 1; vượt thì thanh đỏ và cấp 2 */
+    var over = abs > c.cap1, pct = Math.min(100, Math.round(abs / Math.max(abs, c.cap1) * 100)), mark = Math.round(c.cap1 / Math.max(abs, c.cap1) * 100);
+    var lbl = (c.neg ? 'Chênh lệch ' : 'Đề xuất ') + fmt(abs) + ' so với hạn mức cấp 1 (' + L[0][1] + ') ' + fmt(c.cap1) + (over ? ', vượt, chờ cấp 2 ' + L[1][1] : ', trong hạn mức, chờ cấp 1');
+    $('#f-limit').innerHTML = hm
+      ? '<p class="g4f-p t-body-sm">' + (over ? 'Vượt hạn mức cấp 1, chờ cấp 2: ' + esc(L[1][1]) : 'Trong hạn mức cấp 1: ' + esc(L[0][1])) + '. Số tiền ẩn theo quyền.</p>'
+      : '<div class="g4f-limit" role="img" aria-label="' + esc(lbl) + '"><span class="g4f-limit__bar' + (over ? ' is-over' : '') + '" style="width:' + pct + '%"></span><span class="g4f-limit__mark" style="left:' + mark + '%"></span></div>' +
+        '<div class="g4f-limit__cap"><span>' + (c.neg ? 'Chênh lệch ' : 'Đề xuất ') + esc(fmt(abs)) + '</span><span>Cấp 1 duyệt đến ' + esc(fmt(c.cap1)) + ' · ' + (over ? 'vượt: cấp 2 ' + esc(L[1][1]) : 'trong hạn mức') + '</span></div>';
+    /* Cộng dồn chống chia nhỏ (RULE-036, FR-ACC-028): máy chủ trả accumulatedVnd; bộ cộng dồn thật thuộc slice 2.7 */
+    var acc = $('#f-accum');
+    if (c.accum && !hm) { var a = 0; acc.hidden = false; acc.innerHTML = 'Cộng dồn chống chia nhỏ: khoản này <strong>' + fmt(abs) + '</strong> + đã cộng dồn cùng loại, cùng nhà cung cấp, cùng chi nhánh trong 7 ngày <strong>' + fmt(a) + '</strong> = <strong>' + fmt(abs + a) + '</strong> / hạn mức cấp 1 ' + fmt(c.cap1) + ' <span class="g4f-sample">cửa sổ 7 ngày minh họa · Q67</span>'; }
+    else acc.hidden = true;
+    /* Bảng dòng hàng */
+    $('#f-cap').textContent = 'Dòng hàng: ' + c.name;
+    $('#f-head').innerHTML = '<tr>' + c.head.map(function (h, i) { return '<th' + (i ? ' class="col-num"' : '') + '>' + h + '</th>'; }).join('') + '</tr>';
+    $('#f-rows').innerHTML = d.rows.map(function (r) {
+      var sub = r[1] ? (type === 'adj' ? '<span class="cell-sub"><span class="tag tag--warning">' + esc(r[1]) + '</span></span>' : '<span class="cell-sub">' + esc(r[1]) + '</span>') : '';
+      if (type === 'adj') return '<tr><td>' + esc(r[0]) + sub + '</td><td class="col-num">' + r[2] + '</td><td class="col-num">' + r[3] + '</td><td class="col-num">−' + (r[2] - r[3]) + '</td><td class="col-num">' + money(rowVal(r)) + '</td></tr>';
+      return '<tr><td>' + esc(r[0]) + sub + '</td><td class="col-num">' + r[2] + '</td><td class="col-num">' + money(r[3]) + '</td><td class="col-num">' + money(rowVal(r)) + '</td></tr>';
+    }).join('');
+    $('#f-foot').innerHTML = '<tr><td colspan="' + (c.head.length - 1) + '">' + (type === 'adj' ? 'Tổng chênh lệch' : 'Tổng ' + d.rows.length + ' mặt hàng') + '</td><td class="col-num">' + money(v) + '</td></tr>';
+    $('#f-cost-note').hidden = !hm;
+    $('#f-effect').textContent = c.effect;
+    /* Bản ghi gốc */
+    $('#f-src').innerHTML = type === 'xfer' ? '<div><dt>Phiếu chuyển</dt><dd class="code">' + d.obj + '</dd></div><div><dt>Trạng thái phiếu</dt><dd><span class="badge badge--warning">Chờ duyệt</span></dd></div><div><dt>Khả dụng Quận 7 sau chuyển</dt><dd>đủ cả ' + d.rows.length + ' mặt hàng</dd></div>'
+      : type === 'adj' ? '<div><dt>Đợt kiểm kê</dt><dd class="code">' + d.obj + '</dd></div><div><dt>Phạm vi</dt><dd>Nhóm Phanh và dầu nhớt</dd></div><div><dt>Người đếm</dt><dd>Hoàng Thị Mai</dd></div><div><dt>Trạng thái đợt</dt><dd><span class="badge badge--warning">Chờ duyệt chênh lệch</span></dd></div>'
+      : '<div><dt>Yêu cầu mua</dt><dd class="code">' + d.obj + '</dd></div><div><dt>Trạng thái</dt><dd><span class="badge badge--warning">Chờ duyệt</span></dd></div><div><dt>Nhà cung cấp gợi ý</dt><dd>1 nhà cung cấp</dd></div>';
+    renderStatus();
   }
-  document.addEventListener('g4f:done', function (e) { var m = { 'ap-ok': 'Đã duyệt', 'rj-ok': 'Đã từ chối', 'es-ok': 'Đã chuyển cấp' }[e.detail.id]; if (m) { decided = m; gate(); } });
-  document.addEventListener('input', function (e) { if (e.target.id === 'es-r') G4F.setEnabled(document.getElementById('es-ok'), e.target.value.trim().length >= 5); });
-  G4F.setEnabled(document.getElementById('es-ok'), false);
+
+  /* Trạng thái yêu cầu: luôn là "Chờ duyệt" khi chưa quyết định; "Đã chuyển cấp" chỉ là thẻ phụ (FR-SYS-034, cờ escalated) */
+  function renderStatus() {
+    var c = T[type], L = lv(), tags = '', a = $('#sit-alert');
+    var item = function (kind, icon, title, meta) { return '<div class="timeline__item timeline__item--' + kind + '"><div class="timeline__dot"><svg class="icon"><use href="#' + icon + '"/></svg></div><div><div class="timeline__title">' + title + '</div><div class="timeline__meta">' + meta + '</div></div></div>'; };
+    var sent = item('brand', 'send', 'Gửi yêu cầu duyệt', esc(c.proposer) + (st === 'esc' ? ' · 07:15 28/10/2026' : ' · 07:15 30/10/2026')), tl = '';
+    var res = decided;
+    if (st === 'deleg' && !res) res = 'deleg';
+    if (res === 'Đã duyệt') { tags = '<span class="tag tag--success">Đã duyệt</span>'; tl = item('success', 'check', 'Đã duyệt', esc(G4F.user()) + ' · 09:16 30/10/2026'); }
+    else if (res === 'Đã từ chối') { tags = '<span class="tag tag--danger">Từ chối</span>'; tl = item('danger', 'circle-x', 'Đã từ chối', esc(G4F.user()) + ' · 09:16 30/10/2026'); }
+    else if (res === 'deleg') { tags = '<span class="tag tag--success">Đã duyệt</span><span class="tag tag--info">Duyệt theo ủy quyền</span>'; tl = item('success', 'check', 'Đã duyệt theo ủy quyền', 'Lê Thanh Sơn (Quản lý vùng) duyệt thay Trần Hoàng Anh (Chủ garage) · ủy quyền UQ-2610-0002, hiệu lực đến 15/11/2026 · 08:40 30/10/2026 · Chủ garage đã được thông báo'); }
+    else {
+      tags = '<span class="tag tag--warning">Chờ duyệt</span>' + (st === 'esc' || st === 'esc-manual' ? '<span class="tag tag--info">Đã chuyển cấp</span>' : '');
+      if (st === 'esc-manual') tl = item('warning', 'clock', 'Chờ duyệt: cấp 2 · ' + esc(L[1][1]), 'Đã ở cấp cuối, không tự chuyển tiếp (Q-2.5-02)') + item('brand', 'arrow-right', 'Chuyển cấp thủ công 1 → 2', esc(G4F.user()) + ' · 09:16 30/10/2026 · lý do đã ghi nhật ký');
+      else if (st === 'l1') tl = item('warning', 'clock', 'Chờ duyệt: cấp 1 · ' + esc(L[0][1]), 'Nhắc sau T1 = ' + c.t1 + ' giờ làm việc; chưa xử lý thêm T2 = ' + c.t2 + ' giờ thì tự chuyển lên cấp 2 (' + esc(L[1][1]) + '), vẫn ở “Chờ duyệt”');
+      else if (st === 'esc') tl = item('warning', 'clock', 'Chờ duyệt: cấp 2 · ' + esc(L[1][1]), 'Nhắc sau T1 = ' + c.t1 + ' giờ làm việc · đã ở cấp cuối, không tự chuyển tiếp (Q-2.5-02)') +
+        item('brand', 'arrow-right', 'Tự động chuyển cấp 1 → 2 (quá T1 + T2 = ' + (c.t1 + c.t2) + ' giờ làm việc)', 'Hệ thống · 16:00 29/10/2026 · từ Quản lý chi nhánh') +
+        item('info', 'bell', 'Nhắc người duyệt cấp 1 (quá T1 = ' + c.t1 + ' giờ làm việc)', 'Hệ thống · 16:00 28/10/2026 · gửi Võ Minh Quân (Quản lý chi nhánh)');
+      else tl = item('warning', 'clock', 'Chờ duyệt: cấp 2 · ' + esc(L[1][1]), 'Mở thẳng ở cấp 2 vì giá trị vượt hạn mức cấp 1 · nhắc sau T1 = ' + c.t1 + ' giờ làm việc · đã ở cấp cuối, không tự chuyển tiếp (Q-2.5-02)');
+    }
+    $('#f-tags').innerHTML = tags; $('#f-timeline').innerHTML = tl + sent; $('#f-sent').textContent = st === 'esc' ? '07:15 28/10/2026' : '07:15 30/10/2026';
+    /* Thông báo theo tình huống */
+    var A = { esc: ['alert--info', 'Đã tự chuyển cấp 1 → 2 lúc 16:00 29/10/2026', 'Quá T1 + T2 ở cấp 1 (Quản lý chi nhánh) mà chưa xử lý. Yêu cầu vẫn “Chờ duyệt”, nay ở cấp 2 (' + L[1][1] + '). Quản lý chi nhánh vẫn xem được nhưng không còn duyệt được.'],
+      conflict: ['alert--danger', 'Yêu cầu đã được người khác xử lý hoặc dữ liệu đã thay đổi', 'Trần Hoàng Anh (Chủ garage) vừa duyệt yêu cầu này lúc 09:15, hoặc người đề xuất đã sửa dòng hàng. Quyết định của bạn chưa được ghi. Tải lại để xem trạng thái mới nhất (lỗi 409, phiên bản không khớp).'],
+      expired: ['alert--warning', 'Yêu cầu đã hết hạn, không duyệt được nữa', 'Quá thời gian hiệu lực của yêu cầu (validHours theo cấu hình G4-APR-03, minh họa). Người đề xuất lập lại yêu cầu với số liệu mới; yêu cầu cũ giữ trong lịch sử (lỗi 409 approval_expired).'],
+      deleg: ['alert--info', 'Yêu cầu đã được duyệt theo ủy quyền', 'Bản ghi duyệt ghi người duyệt thật và người ủy quyền (decidedOnBehalfOf). Ủy quyền hết hạn hoặc bị thu hồi thì mất quyền ngay; người nhận ủy quyền không duyệt yêu cầu của chính mình hoặc của người ủy quyền.'] }[decided ? '' : st];
+    a.hidden = !A; if (A) { a.className = 'alert ' + A[0]; $('#sit-t').textContent = A[1]; $('#sit-x').textContent = A[2]; $('#sit-act').hidden = st !== 'conflict'; }
+    gate();
+  }
+
+  function gate() {
+    var c = T[type], L = lv(), r = G4F.canApprove(type, role(), c.proposer, level());
+    if (r.ok && st === 'esc' && L[1][0].split(' ').indexOf(role()) < 0) r = { ok: false, why: 'Yêu cầu đã tự chuyển lên cấp 2 (' + L[1][1] + ') do quá hạn; cấp của bạn không còn duyệt được.' };
+    if (r.ok && st === 'esc-manual' && L[1][0].split(' ').indexOf(role()) < 0) r = { ok: false, why: 'Bạn đã chuyển yêu cầu lên cấp 2 (' + L[1][1] + '); cấp của bạn không còn duyệt được.' };
+    if (st === 'conflict') r = { ok: false, why: 'Yêu cầu đã được người khác xử lý hoặc dữ liệu đã đổi. Tải lại yêu cầu.' };
+    if (st === 'expired') r = { ok: false, why: 'Yêu cầu đã hết hạn; người đề xuất cần lập lại.' };
+    var done = decided || st === 'deleg';
+    var ok = r.ok && !done;
+    ['btn-appr', 'btn-rej'].forEach(function (i) { G4F.setEnabled(document.getElementById(i), ok); });
+    /* Chuyển cấp tay: chỉ khi yêu cầu ở cấp 1 và người xem duyệt được cấp 1; ở cấp cuối thì ẩn (không có cấp kế tiếp) */
+    var e = $('#btn-esc'), canEsc = level() === 1 && L[0][0].split(' ').indexOf(role()) >= 0;
+    e.hidden = level() !== 1 || done; G4F.setEnabled(e, ok && canEsc);
+    if (!e.hidden && ok && !canEsc) e.title = 'Chỉ người duyệt cấp 1 chuyển cấp tay.';
+    $('#es-to').textContent = 'Cấp 2 · ' + L[1][1];
+    $('#appr-why').textContent = decided ? 'Đã xử lý: ' + decided + '. Không quyết định ngược trên yêu cầu này.' : st === 'deleg' ? 'Yêu cầu đã được duyệt; chỉ xem.' : (r.ok ? '' : 'Nút Duyệt, Từ chối bị khóa: ' + r.why);
+    var v = total();
+    $('#ap-type').textContent = c.name; $('#ap-level').textContent = 'Cấp ' + level() + ' · ' + L[level() - 1][1];
+    $('#ap-val').textContent = money(v) + (c.neg && !hideMoney() ? ' (thiếu)' : ''); $('#ap-who').textContent = G4F.user();
+    $('#ap-ok').textContent = hideMoney() ? 'Duyệt' : (c.neg ? 'Duyệt chênh lệch ' + fmt(v) : 'Duyệt ' + fmt(v));
+    $('#ap-pwf').hidden = !c.reauth;
+  }
+  /* Cổng nút Duyệt trong hộp thoại: ô tích + mật khẩu (nếu loại bật reauthOnApprove) */
+  function apGate() { var b = $('#ap-ok'); b._gate = $('#ap-chk').checked && (!T[type].reauth || $('#ap-pw').value.length > 0); G4F.refreshBtn(b); }
+  document.addEventListener('change', function (e) { if (e.target.id === 'ap-chk') apGate(); });
+  document.addEventListener('input', function (e) { if (e.target.id === 'ap-pw') apGate(); if (e.target.id === 'es-r') G4F.setEnabled($('#es-ok'), e.target.value.trim().length >= 5); });
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-open="dlg-approve"]')) { $('#ap-pw').value = ''; setTimeout(apGate, 0); } });
+  document.addEventListener('g4f:done', function (e) {
+    var id = e.detail.id;
+    if (id === 'es-ok') { st = 'esc-manual'; decided = null; ['btn-appr', 'btn-rej'].forEach(function (i) { G4F.resetBtn(document.getElementById(i)); }); render(); return; }
+    var m = { 'ap-ok': 'Đã duyệt', 'rj-ok': 'Đã từ chối' }[id]; if (m) { decided = m; renderStatus(); }
+  });
+  G4F.setEnabled($('#es-ok'), false);
   document.addEventListener('g4f:var', function (e) {
     if (e.detail.group === 't') type = e.detail.v; if (e.detail.group === 's') st = e.detail.v;
-    decided = null; ['btn-appr', 'btn-rej', 'btn-esc'].forEach(function (i) { G4F.resetBtn(document.getElementById(i)); }); gate();
+    decided = null; ['btn-appr', 'btn-rej', 'btn-esc'].forEach(function (i) { G4F.resetBtn(document.getElementById(i)); }); render();
   });
   document.addEventListener('g4f:ktt', gate);
-  document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(gate, 5); });
-  G4F.applyVar('t', 'xfer'); G4F.applyVar('s', 'pending');
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-role-switch]')) setTimeout(render, 5); });
+  var h = (location.hash || '').replace('#', '').split('-');
+  G4F.applyVar('t', T[h[0]] ? h[0] : 'xfer'); G4F.applyVar('s', ['l2', 'l1', 'esc', 'conflict', 'expired', 'deleg'].indexOf(h[1]) >= 0 ? h[1] : 'l2');
 })();
 </script>
 </body>

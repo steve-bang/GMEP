@@ -184,6 +184,18 @@ fieldset.card { display: block; margin: 0; }
   .g4f-printing .g4f-receipt { border: 0; }
 }
 
+/* ---------- Chi tiết phê duyệt G4-APR-04 (thay style inline, B-18) ---------- */
+.g4f-amount { font-weight: 700; font-size: var(--font-size-xl); line-height: 28px; font-variant-numeric: tabular-nums; }
+.g4f-amount__sub { font-weight: 400; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.g4f-p { margin: 0; }
+.g4f-footer-wrap { flex-wrap: wrap; }
+.g4f-footer-wrap .g4f-why { flex-basis: 100%; margin: 0; }
+.g4f-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.g4f-accum { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: var(--space-2) 0 0; }
+.g4f-accum strong { color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+/* Mã chứng từ được phép xuống dòng ở màn hẹp (320px) thay vì tràn ngang */
+@media (max-width: 639px) { .g4f-kv .code, .record .code { white-space: normal; overflow-wrap: anywhere; } }
+
 /* Chống tràn ngang 390px (đo bằng Playwright): dt cũng phải xuống dòng được, không chỉ dd */
 .g4f-sum dt { white-space: normal; overflow-wrap: break-word; }
 .g4f-sum dd:not(.num) { white-space: normal !important; }
