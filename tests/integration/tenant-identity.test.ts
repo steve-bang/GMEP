@@ -184,6 +184,20 @@ describe.each(backends)('tenant identity and session [%s]', (backend) => {
     expect((await h.call('GET', '/api/v1/auth/me', { cookie: demo })).status).toBe(200);
   });
 
+  it('NFR-TEN-01 / RULE-018: the seeded second tenant reuses employee code NV0001 and branch code Q7 without any clash and sees nothing of the first', async () => {
+    const two = await h.login('u_owner_b');
+    const me = await h.call('GET', '/api/v1/auth/me', { cookie: two });
+    expect(me.status).toBe(200);
+    const users = await h.call('GET', '/api/v1/sys/users?limit=100', { cookie: two });
+    expect(users.json.items.map((u: { employeeCode: string }) => u.employeeCode)).toEqual([
+      'NV0001',
+    ]);
+    const branches = await h.call('GET', '/api/v1/sys/branches', { cookie: two });
+    expect(branches.json.items.map((b: { id: string }) => b.id)).toEqual(['br_d2_q7']);
+    const first = await h.call('GET', '/api/v1/sys/branches/br_q7', { cookie: two });
+    expect(first.status).toBe(404);
+  });
+
   it('FR-TEN-016 / UAT-TEN-21: wrong password, unknown email and a terminated or suspended tenant all end in the same answer', async () => {
     const wrong = await login('alpha.owner@alpha.test', 'wrong-password-x', '10.9.1.1');
     const unknown = await login('nobody@nowhere.test', 'wrong-password-x', '10.9.1.2');

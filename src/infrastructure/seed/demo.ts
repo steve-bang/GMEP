@@ -15,6 +15,7 @@ import { normalizeSearch } from '@/platform/text/normalize';
 import { userToDoc, warehouseToDoc } from '../repos/repos';
 import { COL } from '../repos/queries';
 import { crmDemoDocs } from './crmDemo';
+import { demoTenant2Docs, demoTenant2Users } from './tenantDemo';
 import { invDemoDocs } from './invDemo';
 import { recDemoDocs } from './recDemo';
 import type { SeedDoc } from './types';
@@ -152,6 +153,9 @@ export function demoWarehouses(): Warehouse[] {
   }));
 }
 
+/** Every demo account of every demo tenant (identity provider seeding, test logins). */
+export const allDemoUsers: User[] = [...demoUsers, ...demoTenant2Users];
+
 export type { SeedDoc };
 
 /** Every demo document, backend independent (memory and Firestore are seeded from the same list). */
@@ -159,7 +163,23 @@ export function demoDocs(): SeedDoc[] {
   const docs: SeedDoc[] = [];
   const put = (collection: string, id: string, data: DocData) =>
     docs.push({ collection, id, data });
-  put(COL.tenants, DEMO_TENANT, { name: 'Garage Demo', legalEntityIds: [] });
+  put(COL.tenants, DEMO_TENANT, {
+    name: 'Garage Demo',
+    legalEntityIds: [],
+    status: 'active',
+    plan: 'free',
+    subscriptionStatus: 'none',
+    environment: 'demo',
+    placement: 'pooled',
+    legalHold: false,
+    provisionRequestKey: 'seed',
+    provisioning: {},
+    createdAt: SEED_TIME,
+    createdBy: 'seed',
+    updatedAt: SEED_TIME,
+    updatedBy: 'seed',
+    version: 1,
+  });
   for (const r of defaultRoleSeeds())
     put(COL.roles, roleDocId(DEMO_TENANT, r.code), {
       tenantId: DEMO_TENANT,
@@ -176,7 +196,11 @@ export function demoDocs(): SeedDoc[] {
   }
   for (const x of demoUsers) {
     put(COL.users, x.id, userToDoc(x));
-    put(COL.userKeys, `email__${x.email.toLowerCase()}`, { userId: x.id });
+    put(COL.userKeys, `email__${x.email.toLowerCase()}`, {
+      zone: 'tenant',
+      identityId: x.id,
+      userId: x.id,
+    });
     put(COL.userKeys, `code__${x.tenantId}__${x.employeeCode}`, { userId: x.id });
   }
   for (const x of demoAssignments) {
@@ -192,5 +216,6 @@ export function demoDocs(): SeedDoc[] {
   docs.push(...crmDemoDocs());
   docs.push(...invDemoDocs());
   docs.push(...recDemoDocs());
+  docs.push(...demoTenant2Docs());
   return docs;
 }
