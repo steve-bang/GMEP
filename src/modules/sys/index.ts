@@ -102,8 +102,10 @@ export {
   approvedChangesBetween,
   snapshotOf,
   canViewConfig,
+  tenantLimitsAt,
+  checkTenantLimit,
 } from './application/config';
-export type { ConfigVersionDto } from './application/config';
+export type { ConfigVersionDto, LimitCheck } from './application/config';
 export { allocateDocumentNumber, resolveNumberingSeries } from './application/numbering';
 export {
   notifyUsers,

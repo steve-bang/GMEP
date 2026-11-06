@@ -359,6 +359,26 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // FR-TEN-044, RULE-035 (MT-0 hook for MT-2): limits of a tenant. Effective-dated like every other rule. NOT enforced yet:
+  // `checkTenantLimit` only reports. No trial or expiry field exists (the free plan has no clock). Written by the
+  // platform (MT-1 platform tier), never by the tenant's own roles: the resource below is granted to no tenant role.
+  'tenant-limits': {
+    type: 'tenant-limits',
+    resource: 'tenant-limits',
+    scopeKey: z.literal('tenant'),
+    branchOverride: false,
+    payload: z
+      .object({
+        activeBranches: z.number().int().min(1).max(1000),
+        users: z.number().int().min(1).max(100_000),
+        photoStorageMb: z.number().int().min(1).max(100_000_000),
+        apiPerMinute: z.number().int().min(1).max(1_000_000),
+        backgroundJobs: z.number().int().min(1).max(1000),
+        importRowsPerDay: z.number().int().min(1).max(10_000_000),
+        exportRowsPerRun: z.number().int().min(1).max(10_000_000),
+      })
+      .strict(),
+  },
   // FR-RPT-003/008 (slice 1.9): the thresholds of the exception alerts. Every value is a default
   // [Đề xuất dev - chờ xác nhận: Chủ garage/Quản lý]; none is a legal rule.
   'report-policy': {
@@ -544,3 +564,35 @@ export const COST_VISIBLE_ROLES: readonly string[] = ['CH', 'QV', 'QL', 'KT'];
 
 /** Roles allowed to approve their own proposal (with password re-entry + audit), BA §2.2 rule 5. */
 export const SELF_APPROVE_ROLES: readonly string[] = ['CH'];
+
+/**
+ * Q40 proposal (BA, 06/11/2026; [Cần xác nhận: Chủ dự án]): default limits of a tenant on the free plan. Parameters, not
+ * code paths: a tenant-limits config version replaces them from its effective date. The API rate (300 per minute) is not
+ * yet verified against the platform quota (120 was the earlier figure).
+ */
+export interface TenantLimits {
+  activeBranches: number;
+  users: number;
+  photoStorageMb: number;
+  apiPerMinute: number;
+  backgroundJobs: number;
+  importRowsPerDay: number;
+  exportRowsPerRun: number;
+}
+export type TenantLimitMetric = keyof TenantLimits;
+
+export const DEFAULT_TENANT_LIMITS: TenantLimits = {
+  activeBranches: 3,
+  users: 25,
+  photoStorageMb: 10 * 1024,
+  apiPerMinute: 300,
+  backgroundJobs: 2,
+  importRowsPerDay: 20_000,
+  exportRowsPerRun: 5_000,
+};
+
+/** The first client (tenant number 1) is an exception to the proposed defaults: 25 branches, 350 users (Q40). */
+export const FIRST_TENANT_LIMIT_EXCEPTION: Pick<TenantLimits, 'activeBranches' | 'users'> = {
+  activeBranches: 25,
+  users: 350,
+};

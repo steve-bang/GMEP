@@ -21,10 +21,13 @@ import { hasPermission, resolveScope, type Actor, type Permission } from '@/plat
 import { scopeAllows } from '@/platform/scope/scope';
 import {
   COST_VISIBLE_ROLES,
+  DEFAULT_TENANT_LIMITS,
   SELF_APPROVE_ROLES,
   configTypeOrThrow,
   configVersionId,
   type ConfigVersion,
+  type TenantLimitMetric,
+  type TenantLimits,
 } from '../domain/config';
 import type { SysDeps } from '../ports/deps';
 import { InvalidCredentialsError } from '../ports/ports';
@@ -456,4 +459,46 @@ export async function reauthenticate(
 
 export function canViewConfig(actor: Actor, type: string): boolean {
   return hasPermission(actor, perm(configTypeOrThrow(type).resource, 'view'));
+}
+
+// ---- tenant limits hook (FR-TEN-044, RULE-035; MT-2 enforces, MT-0 only reports) ------------------------------
+
+export async function tenantLimitsAt(
+  deps: SysDeps,
+  tenantId: string,
+  date: string,
+): Promise<TenantLimits> {
+  const snap = await resolveConfigAt(deps, {
+    tenantId,
+    type: 'tenant-limits',
+    scopeKey: 'tenant',
+    date,
+  });
+  return { ...DEFAULT_TENANT_LIMITS, ...((snap?.payload ?? {}) as Partial<TenantLimits>) };
+}
+
+export interface LimitCheck {
+  metric: TenantLimitMetric;
+  limit: number;
+  current: number;
+  /** over the configured limit (informational) */
+  exceeded: boolean;
+  /** MT-0: always true, nothing is blocked. MT-2 turns this into `!exceeded` where the plan says so. */
+  allowed: true;
+}
+
+/**
+ * The check point callers can already use: it reads the effective limit and says whether `current + adding` would exceed it,
+ * but it NEVER blocks (`allowed` is always true) until MT-2 switches enforcement on by configuration.
+ */
+export async function checkTenantLimit(
+  deps: SysDeps,
+  tenantId: string,
+  metric: TenantLimitMetric,
+  current: number,
+  date: string,
+  adding = 1,
+): Promise<LimitCheck> {
+  const limit = (await tenantLimitsAt(deps, tenantId, date))[metric];
+  return { metric, limit, current, exceeded: current + adding > limit, allowed: true };
 }
