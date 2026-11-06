@@ -132,4 +132,4 @@ Phần công khai và platform admin (`measure-overflow.js`): 0 tổ hợp có v
 
 ## Đo lại sau phản hồi client (06/11/2026, Playwright)
 
-Phần công khai và platform admin: 0 tổ hợp có vấn đề sau khi sửa tràn 16px ở thanh đầu platform admin ở 360px (TSU-66, `.tsa-user` thêm `min-width:0; max-width:100
+Phần công khai và platform admin: 0 tổ hợp có vấn đề sau khi sửa tràn 16px ở thanh đầu platform admin ở 360px (TSU-66, `.tsa-user` thêm `min-width:0; max-width:100%`). Phần onboarding và account (`account/measure.js --states`): 252 lượt tải, 0 lượt có vấn đề. Kiểm tra link: 687 liên kết, 4 báo nhầm (chuỗi mẫu JS). Chưa chạy axe.
