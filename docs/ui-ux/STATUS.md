@@ -92,6 +92,10 @@ BA đã trả lời Q1 đến Q12 ở `docs/dev/ba-answers-for-dev.md` (đề xu
 
 Đề xuất của BA ở `tenant-signup-simplified.md` (chưa được khách xác nhận) thu **52 màn TSU xuống 18** (11 giữ mã TSU, 7 mã TSX mới; 14 màn giai đoạn A, 4 màn giai đoạn B, 6 màn hoãn có điều kiện): đăng ký một trang (7 trường), tự duyệt khi MST hợp lệ và email xác thực, tự tạo 1 chi nhánh + 1 kho, onboarding 1 màn bắt buộc + 1 màn tùy chọn, phần còn lại thành checklist "Thiết lập dần" chỉ chặn phát hành hóa đơn thật (RULE-028). Đề xuất FR-TEN-051..053, RULE-033; thay thế/sửa QĐT-05, 09, 15, 21..24, 26, 27, 30, 35, 40; `[Cần xác nhận]` mới C-S01..C-S13. **Chưa sửa** `design/tenant-signup/` (designer cần dựng lại TSX-01, 02, 03, 10, 11, 20, 30 và chỉnh TSU-14, 15, 41, 50, 53, 56), `multi-tenant-analysis.md` và spec v0.2 (giữ làm nguồn cho màn hoãn).
 
+## Bổ sung 06/11/2026: feedback client cho bản tối giản đăng ký tenant (v0.2)
+
+`tenant-signup-simplified.md` v0.2 mục 9 ghi **QĐT-S01..S09** theo feedback của chủ garage nhỏ (BA tự quyết, chưa được khách xác nhận): đăng nhập email + mật khẩu không mã công ty (chọn công ty chỉ sau mật khẩu đúng); liên kết xác thực một lần 72 giờ tự đăng nhập bất kể trình duyệt; kênh hỗ trợ cấu hình; ẩn hoàn toàn giá và gói (hoãn giao diện); câu hỏi "đang quản lý bằng gì" + lối vào Excel; hóa đơn điện tử nói bằng tiếng thường; câu đồng ý rút gọn; mật khẩu hiện dần, kiểm tra người thật ẩn mặc định; giữ tên "GARAGE OS" qua `brand.name`. Thay thế QĐT-01/U1, C-S03, AC-S09; `[Cần xác nhận]` mới **C-S14..C-S24** (quan trọng nhất: C-S14 mô hình định danh khi một email thuộc nhiều tenant, C-S17 rủi ro liên kết bị chuyển tiếp). **Chưa sửa** `design/tenant-signup/` và các tài liệu khác (danh sách ở mục 9.9); mô tả "ô Mã công ty" ở các mục 05/11 phía trên không còn là mặc định.
+
 ## Cách tiếp tục
 
 Đọc `ui-ux-flow.md` trước, sau đó `STATUS.md` (file này), rồi tài liệu gói liên quan. Giới hạn: tối đa 2 agent chạy cùng lúc.
