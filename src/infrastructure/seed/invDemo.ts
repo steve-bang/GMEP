@@ -16,7 +16,7 @@ import {
   reservationId,
   type StockBalance,
 } from '@/modules/inv';
-import { warehouseId } from '@/modules/sys';
+import { configVersionId, warehouseId } from '@/modules/sys';
 import { counterId, formatNumber } from '@/platform/numbering/numbering';
 import { DEFAULT_NUMBERING } from '@/platform/numbering/numbering';
 import { normalizeSearch } from '@/platform/text/normalize';
@@ -235,7 +235,7 @@ export function invDemoDocs(): SeedDoc[] {
     version: 1,
   });
   const cfg = (type: string, scopeKey: string, payload: Record<string, unknown>) =>
-    put(COL.configVersions, `${type}__${scopeKey.replace(/[:/]/g, '~')}__2026-10-01`, {
+    put(COL.configVersions, configVersionId(CMP, type, scopeKey, '2026-10-01'), {
       tenantId: CMP,
       type,
       scopeKey,

@@ -201,8 +201,8 @@ export async function searchUsers(
 }
 
 async function visibleUser(deps: SysDeps, scope: Scope, id: string): Promise<User> {
-  const u = await deps.users.getById(id);
-  if (!u || u.tenantId !== scope.tenantId) throw notFound();
+  const u = await deps.users.getById(scope.tenantId, id);
+  if (!u) throw notFound();
   if (scope.kind === 'branches' && (await deps.assignments.listInScope(scope, id)).length === 0)
     throw notFound(); // outside the scope == missing (NFR-ISO-01)
   return u;
@@ -441,7 +441,7 @@ export async function updateUser(
   const target = await visibleUser(deps, scope, id);
   if (target.id !== actor.userId) await assertManageable(deps, actor, target);
   return deps.uow.run(async (tx) => {
-    const u = await deps.users.getByIdInTx(tx, id);
+    const u = await deps.users.getByIdInTx(tx, actor.tenantId, id);
     if (!u) throw notFound();
     if (u.version !== data.version) throw new AppError('version_conflict', 409);
     const now = deps.clock.now();
@@ -493,7 +493,7 @@ export async function setUserStatus(
   const target = await visibleUser(deps, scope, id);
   await assertManageable(deps, actor, target);
   const dto = await deps.uow.run(async (tx) => {
-    const u = await deps.users.getByIdInTx(tx, id);
+    const u = await deps.users.getByIdInTx(tx, actor.tenantId, id);
     if (!u) throw notFound();
     if (u.version !== data.version) throw new AppError('version_conflict', 409);
     if (u.status === 'invited' || u.status === data.status)

@@ -109,7 +109,7 @@ export async function peekToken(
   const t = raw ? await deps.tokens.find(hashToken(raw)) : null;
   const state = stateOf(t, kind, deps.clock.now());
   if (state !== 'valid' || kind !== 'invite' || !t) return { state };
-  const user = await deps.users.getById(t.userId);
+  const user = await deps.users.getById(t.tenantId, t.userId);
   if (!user) return { state: 'invalid' };
   const [assignments, branches] = await Promise.all([
     deps.assignments.listForUser(user.id),
@@ -220,7 +220,7 @@ async function claimToken(
     const state = stateOf(t, kind, now);
     if (state !== 'valid' || !t)
       throw new AppError(TOKEN_ERRORS[state === 'valid' ? 'invalid' : state], 410);
-    const user = await deps.users.getByIdInTx(tx, t.userId);
+    const user = await deps.users.getByIdInTx(tx, t.tenantId, t.userId);
     if (!user || (kind === 'reset' ? user.status !== 'active' : user.status !== 'invited'))
       throw new AppError('token_invalid', 410);
     const history = await deps.users.passwordHistory(user.id);

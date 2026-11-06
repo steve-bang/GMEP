@@ -4,6 +4,7 @@
  * Q7 knows An and the business customer, Thu Duc knows Binh; the sedan 51H-123.45 also has a repair
  * history at Thu Duc (cross-branch projection).
  */
+import { configVersionId } from '@/modules/sys';
 import { customerLinkId, plateKey, vehicleLinkId } from '@/modules/crm';
 import { normalizeSearch } from '@/platform/text/normalize';
 import type { SeedDoc } from './types';
@@ -236,7 +237,7 @@ export function crmDemoDocs(): SeedDoc[] {
     ['email', 'Email', { referenceLabel: 'Mã email' }],
     ['other', 'Khác (ghi chú)', { noteRequired: true }],
   ] as const)
-    put(COL.configVersions, `evidence-kind__${code}__2026-10-01`, {
+    put(COL.configVersions, configVersionId(CMP, 'evidence-kind', code, '2026-10-01'), {
       tenantId: CMP,
       type: 'evidence-kind',
       scopeKey: code,

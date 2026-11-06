@@ -285,9 +285,12 @@ describe('FR-SYS-004 effective-dated configuration rules', () => {
         .success,
     ).toBe(false);
   });
-  it('version ids are deterministic per (type, scope, date)', () => {
-    expect(configVersionId('labor-rate', 'branch:br_q7', '2027-01-01')).toBe(
-      'labor-rate__branch~br_q7__2027-01-01',
+  it('version ids are deterministic per (tenant, type, scope, date); two tenants never share a slot (FR-TEN-009)', () => {
+    expect(configVersionId('tnt_a', 'labor-rate', 'branch:br_q7', '2027-01-01')).toBe(
+      'tnt_a__labor-rate__branch~br_q7__2027-01-01',
+    );
+    expect(configVersionId('tnt_b', 'labor-rate', 'branch:br_q7', '2027-01-01')).not.toBe(
+      configVersionId('tnt_a', 'labor-rate', 'branch:br_q7', '2027-01-01'),
     );
   });
 });

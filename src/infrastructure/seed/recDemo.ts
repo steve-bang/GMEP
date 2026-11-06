@@ -3,6 +3,7 @@
  * the demo, NOT signed off by the accountant (NFR-MNT-01); real values arrive through the approved
  * configuration screens. They are config versions like any other: nothing in code reads these numbers.
  */
+import { configVersionId } from '@/modules/sys';
 import { normalizeSearch } from '@/platform/text/normalize';
 import { COL } from '../repos/queries';
 import type { SeedDoc } from './types';
@@ -37,7 +38,7 @@ export function recDemoDocs(): SeedDoc[] {
       version: 1,
     });
   const cfg = (type: string, scopeKey: string, payload: Record<string, unknown>) =>
-    put(COL.configVersions, `${type}__${scopeKey.replace(/[:/]/g, '~')}__${DAY}`, {
+    put(COL.configVersions, configVersionId(CMP, type, scopeKey, DAY), {
       tenantId: CMP,
       type,
       scopeKey,

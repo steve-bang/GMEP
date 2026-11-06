@@ -599,7 +599,7 @@ describe.each(backends)('REC quote approval [%s]', (backend) => {
         expect(l.priceVersionId).toBeTruthy();
       }
       expect(ap.json.lines.find((l: Row) => l.kind === 'part').priceVersionId).toMatch(
-        /^price-item__STD~LOC-DAU-TY01__/,
+        /^tnt_demo__price-item__STD~LOC-DAU-TY01__/,
       );
       expect(ap.json).toMatchObject({
         mode: 'partial',

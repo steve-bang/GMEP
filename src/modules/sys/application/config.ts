@@ -280,7 +280,7 @@ export async function proposeConfig(
       fingerprint: fingerprintOf(data),
     },
     async (tx) => {
-      const id = configVersionId(type, data.scopeKey, data.effectiveFrom);
+      const id = configVersionId(actor.tenantId, type, data.scopeKey, data.effectiveFrom);
       const existing = await deps.configs.getInTx(tx, id);
       // one slot per effective date; a rejected proposal frees it
       if (existing && existing.status !== 'rejected') throw new AppError('config_slot_taken', 409);
@@ -443,7 +443,7 @@ export async function reauthenticate(
   password: string | undefined,
 ): Promise<void> {
   if (!password) throw new AppError('reauth_required', 403);
-  const user = await deps.users.getById(actor.userId);
+  const user = await deps.users.getById(actor.tenantId, actor.userId);
   if (!user) throw forbidden();
   try {
     const r = await deps.identity.signInWithPassword(user.email, password);

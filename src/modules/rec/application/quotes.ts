@@ -296,7 +296,8 @@ async function toVersionDto(
           v.approval,
           // staff display name only (no contact data) for "who recorded it"
           v.approval.recordedBy
-            ? ((await deps.sys.users.getById(v.approval.recordedBy))?.displayName ?? null)
+            ? ((await deps.sys.users.getById(actor.tenantId, v.approval.recordedBy))?.displayName ??
+                null)
             : null,
         )
       : null,

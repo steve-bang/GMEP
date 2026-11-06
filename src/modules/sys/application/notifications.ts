@@ -61,7 +61,7 @@ export async function usersWithRole(
     for (const a of await deps.assignments.listByRole(tenantId, code, 100))
       if (branchId === null || a.branchId === '*' || a.branchId === branchId) ids.add(a.userId);
   // a disabled or not yet activated account has nobody behind it to read the notice
-  const users = await Promise.all([...ids].map((id) => deps.users.getById(id)));
+  const users = await Promise.all([...ids].map((id) => deps.users.getById(tenantId, id)));
   return users.flatMap((u) =>
     u && u.tenantId === tenantId && u.status === 'active' ? [u.id] : [],
   );

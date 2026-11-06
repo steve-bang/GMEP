@@ -78,7 +78,7 @@ export const userPiiSource = {
   permission: 'user:view' as const,
   async load(rawDeps: unknown, scope: import('@/platform/scope/scope').Scope, id: string) {
     const deps = rawDeps as SysDeps;
-    const u = await deps.users.getById(id);
+    const u = await deps.users.getById(scope.tenantId, id);
     if (!u || u.tenantId !== scope.tenantId) return null;
     if (scope.kind === 'branches' && (await deps.assignments.listInScope(scope, id)).length === 0)
       return null;

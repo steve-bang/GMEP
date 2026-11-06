@@ -63,7 +63,7 @@ export interface TechnicianOption {
 export async function listTechnicians(deps: RecDeps, actor: Actor): Promise<TechnicianOption[]> {
   const scope = resolveWorkingScope(actor, 'repair-item:manage');
   const ids = await usersWithRole(deps.sys, actor.tenantId, ['TH', 'QD'], actor.workingBranchId);
-  const users = await Promise.all(ids.map((id) => deps.sys.users.getById(id)));
+  const users = await Promise.all(ids.map((id) => deps.sys.users.getById(actor.tenantId, id)));
   const open = await deps.orders.listOpen(scope, deps.rec.boardMax);
   const count = new Map<string, number>();
   for (const o of open)
@@ -102,7 +102,7 @@ export async function assignTechnician(
     const ok = (await usersWithRole(deps.sys, actor.tenantId, ['TH', 'QD'], it0.branchId)).includes(
       data.technicianId,
     );
-    const u = ok ? await deps.sys.users.getById(data.technicianId) : null;
+    const u = ok ? await deps.sys.users.getById(actor.tenantId, data.technicianId) : null;
     if (!u) throw new AppError('technician_invalid', 422);
     tech = { id: u.id, name: u.displayName };
   }

@@ -215,7 +215,7 @@ export async function resolveSession(
   const session = await deps.sessions.find(parts.sid);
   if (!session || session.userId !== verified.uid || session.revokedAt || session.expiresAt <= now)
     throw unauthenticated();
-  const user = await deps.users.getById(verified.uid);
+  const user = await deps.users.getAnyById(verified.uid);
   if (!user || user.status !== 'active') throw unauthenticated();
   const { actor, roleCodes } = await loadActor(deps, user, session.workingBranchId);
   const limits = sessionLimitsFor(deps.config.sessionPolicy, roleCodes);
@@ -268,7 +268,7 @@ export async function logout(
   deps.caches.auth.invalidateTag(`session:${session.id}`);
   const now = deps.clock.now();
   await deps.sessions.revoke(session.id, now);
-  const user = await deps.users.getById(session.userId);
+  const user = await deps.users.getAnyById(session.userId);
   if (user) {
     await deps.uow.run(async (tx) => {
       deps.audit.record(tx, {

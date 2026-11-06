@@ -81,7 +81,8 @@ export async function createBranch(
       async (tx) => {
         const now = deps.clock.now();
         const branch: Branch = {
-          id: `br_${data.code.toLowerCase()}`,
+          // FR-TEN-009/020: the id carries the tenant, so two tenants may both own a branch coded `Q7` (documents key on branchId)
+          id: `br_${actor.tenantId}_${data.code.toLowerCase()}`,
           tenantId: actor.tenantId,
           code: data.code,
           name: data.name,

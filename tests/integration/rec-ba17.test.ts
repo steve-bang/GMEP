@@ -210,7 +210,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       expect(ok.status, ok.text).toBe(200);
       expect(ok.json.serviceType).toBe('inspection');
       // retire body_paint: it stays readable but cannot be chosen again
-      await patchDoc('configVersions', 'service-type__body_paint__2026-10-01', {
+      await patchDoc('configVersions', 'tnt_demo__service-type__body_paint__2026-10-01', {
         payload: { name: 'Đồng sơn', status: 'inactive' },
       });
       const retired = await set('body_paint', ok.json.version);
@@ -227,7 +227,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
         expect(l).toMatchObject({
           taxKey: 'vat',
           taxRateBp: 800,
-          taxVersionId: 'tax-rate__vat__2026-10-01',
+          taxVersionId: 'tnt_demo__tax-rate__vat__2026-10-01',
         });
       expect(q.shown.taxes).toHaveLength(1);
       expect(q.shown.tax).toMatchObject({ key: 'vat', rateBp: 800 });
@@ -257,7 +257,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
     it('a mapped key with no rate in force is a configuration error, not a silent default', async () => {
       // only the mapping that names a rate nobody defined: registered directly (a future rate key typo)
       const forget = () => h.container.sys.caches.config.invalidateTag('cfg:tnt_demo:tax-mapping');
-      await patchDoc('configVersions', 'tax-mapping__company__' + today(), {
+      await patchDoc('configVersions', 'tnt_demo__tax-mapping__company__' + today(), {
         payload: { labor: 'vat', part: 'vat-typo' },
       });
       forget();
@@ -269,7 +269,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       });
       expect(r.status).toBe(409);
       expect(r.json.code).toBe('tax_rate_missing');
-      await patchDoc('configVersions', 'tax-mapping__company__' + today(), {
+      await patchDoc('configVersions', 'tnt_demo__tax-mapping__company__' + today(), {
         payload: { labor: 'vat', part: 'vat-part' },
       });
       forget();
@@ -295,7 +295,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
         items: lines(labor()),
       });
       expect(e2.json.shown.warnings).toHaveLength(1); // same change, still inside this validity
-      await patchDoc('configVersions', `tax-rate__vat__${change}`, {
+      await patchDoc('configVersions', `tnt_demo__tax-rate__vat__${change}`, {
         effectiveFrom: addDays(today(), 30),
       });
       h.container.sys.caches.config.invalidateTag('cfg:tnt_demo:tax-rate');

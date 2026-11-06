@@ -56,7 +56,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Se
       ? (await listWarehouses(sys, actor, { limit: 50 } as never)).items
       : [];
     const ids = [...new Set(page.items.map((d) => d.createdBy))];
-    const users = await Promise.all(ids.map((id) => sys.users.getById(id)));
+    const users = await Promise.all(ids.map((id) => sys.users.getById(actor.tenantId, id)));
     return {
       page,
       warehouses,

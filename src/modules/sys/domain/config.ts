@@ -8,7 +8,7 @@ import type { ConfigStatus } from '@/platform/effective/effective';
  * or price is written in code; BA-03 (the 1/1/2027 VAT rule) is just data in a `tax-rate` version.
  */
 export interface ConfigVersion {
-  /** deterministic: `${type}__${scopeKey}__${effectiveFrom}` (unique slot per effective date) */
+  /** deterministic: `${tenantId}__${type}__${scopeKey}__${effectiveFrom}` (unique slot per effective date) */
   id: string;
   tenantId: string;
   type: string;
@@ -25,8 +25,13 @@ export interface ConfigVersion {
   version: number;
 }
 
-export const configVersionId = (type: string, scopeKey: string, effectiveFrom: string): string =>
-  `${type}__${scopeKey.replace(/[:/]/g, '~')}__${effectiveFrom}`;
+/** FR-TEN-009: the tenant is part of the slot, so two tenants proposing the same (type, scope, date) never share a document. */
+export const configVersionId = (
+  tenantId: string,
+  type: string,
+  scopeKey: string,
+  effectiveFrom: string,
+): string => `${tenantId}__${type}__${scopeKey.replace(/[:/]/g, '~')}__${effectiveFrom}`;
 
 const bp = z.number().int().min(0).max(10_000); // basis points: 8% = 800 (no floats)
 const vnd = z.number().int().min(0).max(1_000_000_000_000);

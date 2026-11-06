@@ -45,8 +45,11 @@ export interface ListQuery<S extends string = string> {
  * return identity data only, never business records.
  */
 export interface UserRepository {
-  getById(id: string): Promise<User | null>;
-  getByIdInTx(tx: Tx, id: string): Promise<User | null>;
+  /** FR-TEN-009: a user (membership) of another tenant answers null, exactly like a missing id. */
+  getById(tenantId: string, id: string): Promise<User | null>;
+  getByIdInTx(tx: Tx, tenantId: string, id: string): Promise<User | null>;
+  /** session and identity plumbing only: the tenant is read FROM the record. Never for a business lookup. */
+  getAnyById(id: string): Promise<User | null>;
   findByLogin(identifier: string): Promise<User | null>;
   /**
    * Users visible in the scope: those holding a role assignment in a scoped branch (or all users

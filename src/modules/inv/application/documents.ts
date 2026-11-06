@@ -311,7 +311,7 @@ async function build(
       { field: 'receiverUserId', message: 'Cần ghi người nhận phụ tùng (thợ).' },
     ]);
   if (data.receiverUserId) {
-    const u = await deps.sys.users.getByIdInTx(tx, data.receiverUserId);
+    const u = await deps.sys.users.getByIdInTx(tx, actor.tenantId, data.receiverUserId);
     if (!u || u.tenantId !== actor.tenantId)
       throw validationFailed([{ field: 'receiverUserId', message: 'Không tìm thấy người nhận.' }]);
   }

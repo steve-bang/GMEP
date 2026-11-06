@@ -70,7 +70,7 @@ async function toDto(deps: CrmDeps, actor: Actor, rows: DataRequest[]): Promise<
     : new Map<string, string>();
   const assignees = new Map<string, string>();
   for (const id of new Set(rows.flatMap((r) => (r.assigneeId ? [r.assigneeId] : [])))) {
-    const u = await deps.sys.users.getById(id);
+    const u = await deps.sys.users.getById(actor.tenantId, id);
     if (u && u.tenantId === actor.tenantId) assignees.set(id, u.displayName);
   }
   const now = deps.sys.clock.now();
@@ -228,7 +228,7 @@ export async function assignDataRequest(
 ): Promise<DataRequestDto> {
   const scope = resolveScope(actor, 'data-request:update');
   const data = parseInput(assignSchema, input);
-  const assignee = await deps.sys.users.getById(data.assigneeId);
+  const assignee = await deps.sys.users.getById(actor.tenantId, data.assigneeId);
   if (!assignee || assignee.tenantId !== actor.tenantId || assignee.status !== 'active')
     throw new AppError('validation_failed', 422, [
       { field: 'assigneeId', message: 'Người xử lý không hợp lệ.' },

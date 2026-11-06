@@ -169,12 +169,16 @@ export const userToDoc = (u: User): DocData => ({
 
 export class DocUserRepository implements UserRepository {
   constructor(private readonly store: DocStore) {}
-  async getById(id: string) {
+  async getById(tenantId: string, id: string) {
     const d = await this.store.get(COL.users, id);
-    return d ? userFromDoc(d) : null;
+    return d && d.data.tenantId === tenantId ? userFromDoc(d) : null;
   }
-  async getByIdInTx(tx: Tx, id: string) {
+  async getByIdInTx(tx: Tx, tenantId: string, id: string) {
     const d = await this.store.getInTx(tx, COL.users, id);
+    return d && d.data.tenantId === tenantId ? userFromDoc(d) : null;
+  }
+  async getAnyById(id: string) {
+    const d = await this.store.get(COL.users, id);
     return d ? userFromDoc(d) : null;
   }
   async findByLogin(identifier: string): Promise<User | null> {

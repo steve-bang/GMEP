@@ -225,7 +225,7 @@ describe.each(backends)('EIN invoices [%s]', (backend) => {
       expect(inv.totalVnd).toBe(o.totalVnd);
       expect(inv.netVnd + inv.taxVnd).toBe(inv.totalVnd);
       expect(inv.taxSummary[0]).toMatchObject({ rateBp: 800, taxKey: 'vat' });
-      expect(inv.taxSummary[0].taxVersionId).toMatch(/^tax-rate__vat__/);
+      expect(inv.taxSummary[0].taxVersionId).toMatch(/^tnt_demo__tax-rate__vat__/);
       // the order has its own status: the invoice never writes to it
       expect((await order(o.id)).status).toBe('ready_for_delivery');
       // FR-EIN-006: files
