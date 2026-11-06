@@ -289,7 +289,7 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(r.invoices.closedWithoutInvoiceCount).toBe(1);
       // R114: B was completed today, so the backlog of 1 is also today's flow of 1
       expect(r.invoices.completedWithoutInvoiceCount).toBe(1);
-      expect((await stored())!.schemaVersion).toBe(5);
+      expect((await stored())!.schemaVersion).toBe(6);
       // RULE-007: every goods issue has a source document
       expect(r.stock.issuesWithoutSource).toBe(0);
       expect(r.stock.issueDocuments).toBeGreaterThanOrEqual(2);

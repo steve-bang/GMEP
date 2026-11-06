@@ -105,7 +105,7 @@ const roll = () => computeDaily(key, facts, DEFAULT_RPT_POLICY, limits, NOW, fin
 describe('FR-RPT-014: byServiceType in the daily rollup', () => {
   it('splits the order-bound figures by type and adds up to the day totals', () => {
     const r = roll();
-    expect(r.schemaVersion).toBe(5);
+    expect(r.schemaVersion).toBe(6);
     const by = new Map(r.byServiceType!.map((x) => [x.serviceType, x]));
     expect(by.get('maintenance')).toMatchObject({
       closed: 2,

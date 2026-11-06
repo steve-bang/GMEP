@@ -117,6 +117,14 @@
       "title": "Dịch vụ tạm thời không sẵn sàng",
       "detail": "Thử lại sau ít phút."
     },
+    "unknown_group": {
+      "title": "Không có nhóm chi nhánh này",
+      "detail": "Nhóm chi nhánh không tồn tại hoặc chưa được cấu hình. Chọn nhóm khác hoặc bỏ lọc nhóm."
+    },
+    "period_too_long": {
+      "title": "Khoảng thời gian quá dài",
+      "detail": "Chọn khoảng không quá 93 ngày."
+    },
     "scope_required": {
       "title": "Chọn một chi nhánh",
       "detail": "Bạn được gán nhiều chi nhánh. Chọn một chi nhánh làm việc ở thanh trên rồi thử lại."
@@ -933,6 +941,9 @@
       "reconcile": "Đối chiếu bốn bên",
       "warehouseReport": "Báo cáo kho",
       "technicianReport": "Báo cáo kỹ thuật viên",
+      "ranking": "Xếp hạng chi nhánh",
+      "indicators": "Khách và chỉ số",
+      "loginHistory": "Lịch sử đăng nhập",
       "alerts": "Cảnh báo ngoại lệ",
       "imports": "Nhập dữ liệu từ Excel"
     },
@@ -1397,6 +1408,16 @@
         "lead": "Số ngày lệnh mở quá lâu, số ngày lệnh hoàn tất chưa hóa đơn, thời gian chờ thu tiền sau giao xe và mức chênh lệch quỹ cần cảnh báo. Đặt qua API; theo công ty hoặc từng chi nhánh.",
         "scopeHint": "company hoặc branch:<mã chi nhánh>"
       },
+      "branch-groups": {
+        "title": "Nhóm chi nhánh (vùng)",
+        "lead": "Đặt tên nhóm chi nhánh để lọc xếp hạng, bảng điều khiển và cảnh báo theo vùng. Nhóm chỉ là bộ lọc trong phạm vi người dùng đã có, không cấp thêm quyền. Đặt qua API; toàn công ty.",
+        "scopeHint": "tenant"
+      },
+      "catalog-release": {
+        "title": "Phát hành danh mục cho chi nhánh",
+        "lead": "Trụ sở chọn chi nhánh được dùng một mục danh mục dùng chung (dịch vụ mẫu, giảm giá, hình thức thanh toán, mẫu kiểm tra) từ một ngày. Chưa phát hành nghĩa là mọi chi nhánh dùng được; chứng từ cũ giữ phiên bản đã dùng. Đặt qua API; chờ duyệt.",
+        "scopeHint": "loại:mã, ví dụ service:SV-DAU"
+      },
       "einvoice-policy": {
         "title": "Chính sách hóa đơn điện tử",
         "lead": "Cách lập dòng hóa đơn (theo thuế suất hoặc theo dòng), thời điểm cho phép phát hành, bắt buộc địa chỉ người mua doanh nghiệp, xử lý khi thuế suất đổi, số lần thử lại và thời gian chờ nhà cung cấp. Đặt qua API; theo công ty hoặc từng chi nhánh.",
@@ -1592,6 +1613,7 @@
       "user_invite": "Mời người dùng",
       "user_invite_resend": "Gửi lại lời mời",
       "user_sessions_revoked": "Đăng xuất mọi phiên",
+      "user_login_history_viewed": "Xem lịch sử đăng nhập của người khác",
       "user_unlock": "Mở khóa đăng nhập",
       "user_update": "Sửa người dùng",
       "user_disable": "Khóa tài khoản",
@@ -3944,6 +3966,68 @@
       "hint_stock_without_source": "Phiếu xuất không gắn chứng từ gốc (kỳ vọng bằng 0, RULE-007).",
       "kind_reconcile_gap": "Thu vượt tổng lệnh",
       "hint_reconcile_gap": "Tiền đã thu vượt tổng giá trị lệnh."
+    },
+    "ranking": {
+      "title": "Xếp hạng chi nhánh",
+      "lead": "So các chi nhánh trong phạm vi của bạn trên cùng một kỳ. Ngày chưa có số liệu được liệt kê và không tính là 0; ngày chưa chốt là số tạm.",
+      "metric": "Chỉ số",
+      "group": "Nhóm chi nhánh (vùng)",
+      "allGroups": "Tất cả chi nhánh trong phạm vi",
+      "colRank": "Hạng",
+      "colBranch": "Chi nhánh",
+      "colValue": "Giá trị",
+      "colDays": "Ngày có số liệu",
+      "colMissing": "Thiếu ngày",
+      "colState": "Trạng thái",
+      "noRank": "Chưa có số liệu",
+      "total": "Tổng",
+      "provisionalNote": "Có {n} ngày là số tạm (chưa chốt ngày); số sẽ thành chính thức sau khi chốt.",
+      "missingNote": "Thiếu {n} ngày chưa có bản tổng hợp; các ngày này không được tính là 0.",
+      "official": "Chính thức",
+      "provisional": "Số tạm",
+      "formula": "Công thức",
+      "emptyTitle": "Không có chi nhánh để so",
+      "emptyText": "Chưa có chi nhánh nào trong phạm vi hoặc nhóm đã chọn.",
+      "metric_exTaxVnd": "Doanh thu chưa thuế",
+      "metric_orderTotalVnd": "Doanh thu có thuế",
+      "metric_ordersClosed": "Số lệnh hoàn tất",
+      "metric_avgPerOrderVnd": "Bình quân mỗi lệnh",
+      "metric_inflowVnd": "Tiền thu",
+      "metric_quoteApprovalBp": "Tỷ lệ báo giá được duyệt",
+      "metric_returningCustomerBp": "Tỷ lệ khách quay lại"
+    },
+    "indicators": {
+      "title": "Khách và chỉ số",
+      "lead": "Lượt khách mới và quay lại, bình quân mỗi lệnh, tỷ lệ báo giá được duyệt. Công nợ theo khách và độ chính xác tồn kho chưa có (cần các phần sau).",
+      "colBranch": "Chi nhánh",
+      "colVisits": "Lượt khách",
+      "colNew": "Khách mới",
+      "colReturning": "Khách quay lại",
+      "colReturningRate": "Tỷ lệ quay lại",
+      "colAvg": "Bình quân mỗi lệnh",
+      "colApproval": "Tỷ lệ báo giá được duyệt",
+      "customersTitle": "Khách hàng",
+      "avgTitle": "Bình quân mỗi lệnh",
+      "approvalTitle": "Báo giá được duyệt",
+      "total": "Toàn bộ",
+      "unavailable": "{n} ngày ghi trước khi có chỉ số này nên không được tính (cần dựng lại).",
+      "visitsNote": "Lượt khách tính theo ngày: một khách đến hai ngày được tính hai lượt.",
+      "provisionalNote": "Có {n} ngày là số tạm.",
+      "noReceivables": "Công nợ theo khách chưa có trong báo cáo này."
+    },
+    "loginHistory": {
+      "title": "Lịch sử đăng nhập",
+      "lead": "Các lần đăng nhập thành công của tài khoản, mới nhất trước. Không lưu địa chỉ IP.",
+      "colAt": "Thời điểm",
+      "colDevice": "Thiết bị",
+      "colState": "Trạng thái",
+      "colLastSeen": "Hoạt động cuối",
+      "state_active": "Đang đăng nhập",
+      "state_ended": "Đã đăng xuất",
+      "state_expired": "Hết hạn",
+      "emptyTitle": "Chưa có lần đăng nhập nào",
+      "emptyText": "Chưa ghi nhận phiên nào của tài khoản này.",
+      "failedNote": "Lần đăng nhập sai chưa được ghi theo tài khoản."
     },
     "rep": {
       "print": "In báo cáo",

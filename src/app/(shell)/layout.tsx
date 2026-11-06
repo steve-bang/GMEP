@@ -217,6 +217,20 @@ export default async function ShellLayout({ children }: { children: React.ReactN
                     ),
                   ]
                 : []),
+              ...(can.ranking
+                ? [
+                    item(
+                      'rk',
+                      '/rpt/ranking',
+                      t('shell.nav.ranking'),
+                      'chart-no-axes-combined',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+              ...(can.dailyReport
+                ? [item('ri', '/rpt/indicators', t('shell.nav.indicators'), 'users', 'prefix')]
+                : []),
               ...(can.alerts
                 ? [item('ra', '/rpt/alerts', t('shell.nav.alerts'), 'alert-triangle', 'prefix')]
                 : []),
@@ -326,6 +340,7 @@ export default async function ShellLayout({ children }: { children: React.ReactN
             ]
           : []),
         ...(can.audit ? [item('au', '/sys/audit', t('shell.nav.audit'), 'history')] : []),
+        item('lh', '/sys/login-history', t('shell.nav.loginHistory'), 'clock'),
       ],
     },
   ].filter((g) => g.items.length > 0);

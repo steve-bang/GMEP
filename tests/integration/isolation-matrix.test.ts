@@ -250,6 +250,16 @@ const ROUTES: Record<string, RouteRow> = {
   'v1/rpt/warehouse': { kind: 'report', path: () => '/api/v1/rpt/warehouse' },
   'v1/rpt/technicians': { kind: 'report', path: () => '/api/v1/rpt/technicians' },
   'v1/rpt/alerts': { kind: 'report', path: () => '/api/v1/rpt/alerts' },
+  // slice 2.1: consolidated reads cover the whole permission scope (the working branch does not narrow a comparison); the outsider sees nothing of tnt_demo
+  'v1/rpt/customers': {
+    kind: 'report',
+    path: () => `/api/v1/rpt/customers?from=${isoToday()}&to=${isoToday()}`,
+  },
+  'v1/rpt/indicators': {
+    kind: 'report',
+    path: () => `/api/v1/rpt/indicators?from=${isoToday()}&to=${isoToday()}`,
+  },
+  'v1/rpt/groups': { kind: 'report', path: () => '/api/v1/rpt/groups' },
 };
 
 /** GET routes that carry no branch data. A new GET route must be classified in ROUTES or here, with the reason. */
@@ -289,6 +299,12 @@ const EXEMPT: Record<string, string> = {
   'v1/rec/public/quote/photos/[pid]':
     'public, token-authenticated file read (no session): covered in rec-public-photos.test.ts',
   'v1/ein/connection': 'issuer connection state of the working branch, no records',
+  'v1/rpt/ranking':
+    'consolidated by nature: branch-bound roles are refused (403); owner, region group and tenant axis are covered in consolidation.test.ts',
+  'v1/sys/login-history':
+    'own sign-in history, or another person inside the permission scope (audited); covered in consolidation.test.ts',
+  'v1/sys/catalog-releases':
+    'catalogue release of the tenant (branches of the scope only); covered in consolidation.test.ts',
   'v1/rpt/drill': 'drill-down needs a metric and a date; scope rules are covered in rpt.test.ts',
 };
 
@@ -987,6 +1003,9 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
   });
 });
 
+function isoToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 function monthOfToday(): string {
   return new Date().toISOString().slice(0, 7);
 }

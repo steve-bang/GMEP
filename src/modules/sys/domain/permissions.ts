@@ -254,6 +254,10 @@ const RPT_CH = flatten([
   g('report-job', 'manage'),
   g('report-config', 'view', 'update', 'approve', 'reject'),
 ]);
+/** Slice 2.1, Q85 default: the branch ranking is for the owner and the regional manager; a branch manager sees only their own branch's reports. */
+const RPT_RANKING = flatten([g('report-ranking', 'view')]);
+/** FR-SYS-016: head office releases shared catalogues to chosen branches; effective-dated config, so proposals need a second approver. */
+const CATALOG_RELEASE = flatten([g('catalog-release', 'view', 'update', 'approve', 'reject')]);
 const RPT_QV = flatten([
   g('report-dashboard', 'view'),
   g('report-alert', 'view'),
@@ -315,6 +319,8 @@ const CH = [
   ...ACC_CH,
   ...EIN_CH,
   ...RPT_CH,
+  ...RPT_RANKING,
+  ...CATALOG_RELEASE,
   ...IMP_FULL,
 ];
 
@@ -346,7 +352,9 @@ const matrix: Grant = {
     .concat(ORD_VIEW)
     .concat(ACC_VIEW_ALL)
     .concat(EIN_VIEW)
-    .concat(RPT_QV),
+    .concat(RPT_QV)
+    .concat(RPT_RANKING)
+    .concat(flatten([g('catalog-release', 'view')])),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
     g('device', 'view', 'create', 'archive'),
@@ -598,6 +606,14 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
     id: '2026-11-rec-photo-hide',
     note: 'R104: rec-photo:update (hide a wrongly uploaded photo with a reason) for QL and CH',
     grants: { CH: PHOTO_HIDE, QL: PHOTO_HIDE },
+  },
+  {
+    id: '2026-11-rpt-2.1-consolidation',
+    note: 'Slice 2.1: branch ranking for CH and QV (Q85 default); catalogue release from head office for CH (FR-SYS-016)',
+    grants: {
+      CH: [...RPT_RANKING, ...CATALOG_RELEASE],
+      QV: [...RPT_RANKING, 'catalog-release:view'],
+    },
   },
   {
     id: '2026-11-sys-1.11-import',

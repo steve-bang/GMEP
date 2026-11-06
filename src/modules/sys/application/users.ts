@@ -201,7 +201,7 @@ export async function searchUsers(
   };
 }
 
-async function visibleUser(deps: SysDeps, scope: Scope, id: string): Promise<User> {
+export async function visibleUser(deps: SysDeps, scope: Scope, id: string): Promise<User> {
   const u = await deps.users.getById(scope.tenantId, id);
   if (!u) throw notFound();
   if (scope.kind === 'branches' && (await deps.assignments.listInScope(scope, id)).length === 0)

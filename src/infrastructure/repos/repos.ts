@@ -67,6 +67,10 @@ function toPage<T extends { id: string }>(
   };
 }
 
+/** documents read per round trip and per request when `actorId` or `action` is filtered in memory */
+const AUDIT_SCAN_BATCH = 100;
+const AUDIT_SCAN_MAX = 1000;
+
 const scopeParams = (scope: Scope) =>
   scope.kind === 'branches' ? { scopeBranches: scope.branchIds } : {};
 
@@ -84,23 +88,62 @@ export class DocAuditLog implements AuditLog {
       ...(clean.piiChanged.length ? { piiChanged: clean.piiChanged } : {}),
     });
   }
+  /**
+   * `entityType` and `entityId` are served by the index (history of one record). `actorId` and `action` are secondary
+   * filters applied in memory over the newest-first stream, at most AUDIT_SCAN_MAX documents per request (slice 2.1,
+   * index budget): a page that is not full but has a cursor means "scan limit reached, continue from here".
+   */
   async list(
     scope: Scope,
     f: AuditFilter,
     page: { limit: number; cursor?: Cur },
   ): Promise<Page<AuditEntry>> {
-    const optional = (['entityType', 'entityId', 'actorId', 'action'] as const).filter((k) => f[k]);
+    const optional = (['entityType', 'entityId'] as const).filter((k) => f[k]);
     const shape = Q.audit.pick(optional, scope.kind === 'branches');
-    const rows = await this.store.query(shape, {
-      eq: { tenantId: scope.tenantId, ...Object.fromEntries(optional.map((k) => [k, f[k]!])) },
-      ...scopeParams(scope),
-      ...(f.from || f.to
-        ? { range: { ...(f.from ? { gte: f.from } : {}), ...(f.to ? { lt: f.to } : {}) } }
-        : {}),
-      ...(page.cursor ? { cursor: page.cursor } : {}),
-      limit: page.limit + 1,
-    });
-    return toPage(rows.map(auditFromDoc), page.limit, (e) => e.at.toISOString());
+    const matches = (e: AuditEntry) =>
+      (!f.actorId || e.actorId === f.actorId) && (!f.action || e.action === f.action);
+    const memoryFiltered = Boolean(f.actorId || f.action);
+    const found: AuditEntry[] = [];
+    let cursor = page.cursor;
+    let scanned = 0;
+    let lastScanned: AuditEntry | undefined;
+    let exhausted = false;
+    while (found.length <= page.limit && scanned < AUDIT_SCAN_MAX) {
+      const batchSize = memoryFiltered ? AUDIT_SCAN_BATCH : page.limit + 1;
+      const rows = await this.store.query(shape, {
+        eq: { tenantId: scope.tenantId, ...Object.fromEntries(optional.map((k) => [k, f[k]!])) },
+        ...scopeParams(scope),
+        ...(f.from || f.to
+          ? { range: { ...(f.from ? { gte: f.from } : {}), ...(f.to ? { lt: f.to } : {}) } }
+          : {}),
+        ...(cursor ? { cursor } : {}),
+        limit: batchSize,
+      });
+      const entries = rows.map(auditFromDoc);
+      scanned += entries.length;
+      for (const e of entries) {
+        if (matches(e)) found.push(e);
+        lastScanned = e;
+        if (found.length > page.limit) break;
+      }
+      if (entries.length < batchSize) {
+        exhausted = true;
+        break;
+      }
+      if (!memoryFiltered) break;
+      const tail = entries.at(-1)!;
+      cursor = { v: tail.at.toISOString(), id: tail.id };
+    }
+    if (found.length > page.limit) return toPage(found, page.limit, (e) => e.at.toISOString());
+    // not more than a page: continue only when the scan stopped on its cap (never on the end of the data)
+    const items = found.slice(0, page.limit);
+    const more = !exhausted && lastScanned && memoryFiltered;
+    return {
+      items,
+      nextCursor: more
+        ? encodeCursor({ v: lastScanned!.at.toISOString(), id: lastScanned!.id })
+        : null,
+    };
   }
 }
 

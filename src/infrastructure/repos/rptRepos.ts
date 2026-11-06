@@ -31,7 +31,10 @@ export class DocRollupRepository implements RollupRepository {
       .filter((k) => scopeAllows(scope, scope.tenantId, k.branchId))
       .map((k) => rollupId(k.branchId, k.date));
     if (ids.length === 0) return [];
-    const docs = await this.store.getMany(COL.rollups, ids);
+    // a consolidated period read can name more than a thousand documents (20 branches x 93 days): chunked, in parallel
+    const chunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += 200) chunks.push(ids.slice(i, i + 200));
+    const docs = (await Promise.all(chunks.map((c) => this.store.getMany(COL.rollups, c)))).flat();
     return docs.map(asEntity).filter((x) => inScope(scope, x));
   }
   save(tx: Tx, r: DailyRollup) {

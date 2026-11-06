@@ -399,6 +399,61 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // Slice 2.1, Q84 [Cần xác nhận]: named groups of branches (regions) for consolidated views. Pure configuration: a group is
+  // a FILTER over the branches a user may already read, it never grants access, and no "regional manager" role is hard-coded.
+  'branch-groups': {
+    type: 'branch-groups',
+    resource: 'report-config',
+    scopeKey: z.literal('tenant'),
+    branchOverride: false,
+    payload: z
+      .object({
+        groups: z
+          .array(
+            z
+              .object({
+                code: z.string().regex(/^[a-z][a-z0-9_-]{0,29}$/),
+                name: z.string().trim().min(1).max(80),
+                branchIds: z
+                  .array(z.string().regex(/^[A-Za-z0-9_-]{1,64}$/))
+                  .min(1)
+                  .max(500),
+              })
+              .strict(),
+          )
+          .max(50),
+      })
+      .strict()
+      .refine((p) => new Set(p.groups.map((g) => g.code)).size === p.groups.length, {
+        message: 'duplicate group code',
+      }) as unknown as z.ZodType<Record<string, unknown>>,
+  },
+  // FR-SYS-016 (slice 2.1): head office releases a shared catalogue entry to chosen branches from a date. One scope key per
+  // entry `<catalog>:<code>`; a newer version replaces the older (a withdrawal is audience 'branches' with fewer branches).
+  // An entry with NO release version is unrestricted (backward compatible). Documents keep the version they used, so a
+  // change here never rewrites an old document. Which catalogues exist as entities is [Cần xác nhận] (inspection templates need INS).
+  'catalog-release': {
+    type: 'catalog-release',
+    resource: 'catalog-release',
+    scopeKey: z
+      .string()
+      .regex(
+        /^(service|discount|payment-method|inspection-template):[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/,
+      ),
+    branchOverride: false,
+    payload: z
+      .object({
+        audience: z.enum(['all', 'branches']),
+        branchIds: z
+          .array(z.string().regex(/^[A-Za-z0-9_-]{1,64}$/))
+          .max(500)
+          .optional(),
+      })
+      .strict()
+      .refine((p) => p.audience === 'all' || (p.branchIds?.length ?? 0) > 0, {
+        message: 'branchIds required for audience branches',
+      }) as unknown as z.ZodType<Record<string, unknown>>,
+  },
   // FR-REC-032 / BR-REC-13: the steps of a service type (a repair order gets the set of its type).
   // The item states and the responsible person are applied when the repair item exists (slice 1.6).
   'service-workflow': {

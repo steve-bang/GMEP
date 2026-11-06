@@ -9,6 +9,7 @@ import type {
   MoneyFact,
   OrderFact,
   PaymentFact,
+  QuoteFact,
   ShiftFact,
   StockIssueFact,
 } from '../domain/rollup';
@@ -75,6 +76,15 @@ export interface RptSources {
     window: { from: Date; to: Date },
     opts: { lookbackDays: number; maxOrders: number; serviceType?: string },
   ): Promise<Capped<WorkItemFact>>;
+  /** FR-RPT-016 (slice 2.1): quotes created in [since, until) of the branch, newest first; optional so a source set without REC quotes still works */
+  quotes?(
+    scope: Scope,
+    branchId: string,
+    range: { since: Date; until: Date },
+    limit: number,
+  ): Promise<Capped<QuoteFact>>;
+  /** FR-RPT-015 (slice 2.1): creation time of the customers (scope-checked; unknown ids are absent) */
+  customerCreated?(scope: Scope, customerIds: readonly string[]): Promise<Map<string, Date>>;
   /** posted goods issues (GIN) of the business date */
   stockIssues(
     scope: Scope,
