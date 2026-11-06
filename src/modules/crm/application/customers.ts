@@ -272,7 +272,7 @@ export async function createCustomer(
   deps: CrmDeps,
   actor: Actor,
   input: unknown,
-  ctx: RequestCtx & { idempotencyKey: string },
+  ctx: RequestCtx & { idempotencyKey: string; origin?: 'import' },
 ) {
   const scope = resolveScope(actor, 'customer:create');
   const data = parseInput(createCustomerSchema, input);
@@ -312,6 +312,7 @@ export async function createCustomer(
         vehicleCount: 0,
         marketing: [],
         branchIds: [branch.id],
+        ...(ctx.origin ? { origin: ctx.origin } : {}),
         createdAt: now,
         createdBy: actor.userId,
         updatedAt: now,

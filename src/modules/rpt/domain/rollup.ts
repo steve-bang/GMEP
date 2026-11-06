@@ -304,7 +304,7 @@ export interface DailyRollup {
    * flow of orders completed on the day without an invoice, R114). A rebuild upgrades a document; a document of an older
    * version lacks the field and reads as "not available" (never 0).
    */
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   computedAt: Date;
   /** hash of everything below except `computedAt` and `sourceHash` (a rebuild that changes nothing writes nothing) */
   sourceHash: string;
@@ -706,7 +706,7 @@ export function computeDaily(
     branchId: key.branchId,
     date: key.date,
     official: facts.dayClosedAt !== null,
-    schemaVersion: 6 as const,
+    schemaVersion: 7 as const,
     orders: { opened, closed, handedOver, cancelled, openAtEnd },
     revenue: {
       orderTotalVnd: orderTotal,

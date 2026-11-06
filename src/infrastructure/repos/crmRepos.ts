@@ -142,6 +142,7 @@ const customerFromDoc = ({ id, data: x }: StoredDoc): Customer => ({
   vehicleCount: x.vehicleCount ?? 0,
   marketing: x.marketing ?? [],
   branchIds: x.branchIds ?? [],
+  ...(x.origin === 'import' ? { origin: 'import' as const } : {}),
   ...(x.anonymizedAt ? { anonymizedAt: x.anonymizedAt } : {}),
   createdAt: x.createdAt,
   createdBy: x.createdBy,

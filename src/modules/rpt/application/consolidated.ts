@@ -11,6 +11,7 @@ import {
   type RankedRow,
   type RankMetric,
 } from '../domain/consolidation';
+import { allBranchesScope } from '@/platform/scope/scope';
 import { addDays, type DailyRollup } from '../domain/rollup';
 import type { RptDeps } from '../ports/deps';
 import {
@@ -58,6 +59,15 @@ interface PeriodRead {
   byBranch: Map<string, DailyRollup[]>;
   /** documents read, for the load measurement */
   keys: number;
+  /** the chosen group covered only in part by the actor's scope (2.1-1); null = no group chosen */
+  group: GroupCoverage | null;
+}
+
+/** 2.1-1: a group is a filter; when it is only partly inside the actor's scope the figures say so. */
+export interface GroupCoverage {
+  inScope: number;
+  total: number;
+  partial: boolean;
 }
 
 async function readPeriod(
@@ -74,7 +84,21 @@ async function readPeriod(
   const docs = await deps.rollups.getMany(scope, keys);
   const byBranch = new Map<string, DailyRollup[]>(branches.map((b) => [b.id, []]));
   for (const r of docs) byBranch.get(r.branchId)?.push(r);
-  return { dates, branches, byBranch, keys: keys.length };
+  let group: GroupCoverage | null = null;
+  if (q.groupId) {
+    const g = (await branchGroupsOf(deps, actor.tenantId)).find((x) => x.code === q.groupId);
+    if (g) {
+      const real = await tenantBranchIds(deps, actor.tenantId);
+      const total = g.branchIds.filter((id) => real.has(id)).length;
+      group = { inScope: branches.length, total, partial: branches.length < total };
+    }
+  }
+  return { dates, branches, byBranch, keys: keys.length, group };
+}
+
+/** ids of every branch of the tenant: used only to COUNT the members of a group, never returned (2.1-1) */
+async function tenantBranchIds(deps: RptDeps, tenantId: string): Promise<Set<string>> {
+  return new Set((await deps.sys.branches.list(allBranchesScope(tenantId))).map((b) => b.id));
 }
 
 // ---- groups (Q84: configuration, never a hard-coded role) -------------------------------------------------------------------
@@ -84,6 +108,10 @@ export interface GroupDto {
   name: string;
   /** branches of the group that the actor may read (the others are not revealed) */
   branchCount: number;
+  /** branches of the whole group (a count only, no names): "gồm n trên m chi nhánh" (2.1-1) */
+  totalCount: number;
+  /** the actor's assignments cover only part of the group: figures are NOT the group total */
+  partial: boolean;
 }
 
 /** Groups that contain at least one branch the actor may read; a group never widens the scope. */
@@ -94,12 +122,15 @@ export async function listBranchGroups(
   const { branches } = await consolidatedBranches(deps, actor, 'report-dashboard:view');
   const mine = new Set(branches.map((b) => b.id));
   const groups = await branchGroupsOf(deps, actor.tenantId);
+  const real = await tenantBranchIds(deps, actor.tenantId);
   return {
     items: groups
       .map((g) => ({
         code: g.code,
         name: g.name,
         branchCount: g.branchIds.filter((id) => mine.has(id)).length,
+        totalCount: g.branchIds.filter((id) => real.has(id)).length,
+        partial: g.branchIds.some((id) => real.has(id) && !mine.has(id)),
       }))
       .filter((g) => g.branchCount > 0),
   };
@@ -123,6 +154,8 @@ export interface RankingDto {
   metric: RankMetric;
   groupId: string | null;
   rows: RankingRowDto[];
+  /** 2.1-1: set when a group is chosen; `partial` = "chỉ phần trong phạm vi của bạn" */
+  group: GroupCoverage | null;
   /** days the rank is based on: every operating branch has a figure; empty = nobody is ranked (AC-RPT-002-10) */
   commonDates: string[];
   /** sum (or recomputed ratio) over the branches listed; equals the tenant figure when no group is chosen and every branch is in scope */
@@ -169,6 +202,7 @@ export async function getRanking(deps: RptDeps, actor: Actor, raw: unknown): Pro
     metric: q.metric,
     groupId: q.groupId ?? null,
     rows,
+    group: read.group,
     commonDates,
     total: totalOfRows(q.metric, periods),
     allOfficial: provisionalDays === 0 && missingDays === 0 && periods.length > 0,
@@ -185,6 +219,7 @@ export interface CustomerReportDto {
   from: string;
   to: string;
   groupId: string | null;
+  group: GroupCoverage | null;
   rows: {
     branchId: string;
     code: string;
@@ -200,6 +235,8 @@ export interface CustomerReportDto {
   }[];
   total: { visits: number; newCount: number; returningCount: number; returningBp: number | null };
   provisionalDays: number;
+  /** 2.1-4: figures count VISITS (a customer on two days counts twice), not distinct customers of the period */
+  countedBy: 'visit';
   /** debt per customer is NOT here: it depends on the receivables slice (2.7) */
   receivablesIncluded: false;
   formula: string;
@@ -258,6 +295,7 @@ export async function getCustomerReport(
     from: q.from,
     to: q.to,
     groupId: q.groupId ?? null,
+    group: read.group,
     rows,
     total: {
       ...t,
@@ -265,6 +303,7 @@ export async function getCustomerReport(
         known > 0 ? Math.floor((2 * t.returningCount * 10_000 + known) / (2 * known)) : null,
     },
     provisionalDays,
+    countedBy: 'visit',
     receivablesIncluded: false,
     formula: RANK_FORMULA.returningCustomerBp,
   };
@@ -274,12 +313,22 @@ export interface IndicatorsDto {
   from: string;
   to: string;
   groupId: string | null;
+  group: GroupCoverage | null;
   /** only the indicators that do not need a stocktake: stock accuracy, shrinkage and turnover wait for slice 2.3 */
   indicators: {
     metric: 'avgPerOrderVnd' | 'quoteApprovalBp';
     formula: string;
     total: number | null;
-    rows: { branchId: string; code: string; value: number | null; num: number; den: number }[];
+    rows: {
+      branchId: string;
+      code: string;
+      value: number | null;
+      num: number;
+      den: number;
+      /** 2.1-5: sent, not decided yet (outside the denominator) */
+      pending: number;
+    }[];
+    pendingTotal: number;
     unavailableDates: number;
     missingDates: number;
   }[];
@@ -316,10 +365,19 @@ export async function getIndicators(
         value: p.value,
         num: p.parts?.num ?? 0,
         den: p.parts?.den ?? 0,
+        pending: p.pending,
       })),
+      pendingTotal: periods.reduce((s, p) => s + p.pending, 0),
       unavailableDates: periods.reduce((s, p) => s + p.unavailableDates.length, 0),
       missingDates: periods.reduce((s, p) => s + p.missingDates.length, 0),
     });
   }
-  return { from: q.from, to: q.to, groupId: q.groupId ?? null, indicators: out, provisionalDays };
+  return {
+    from: q.from,
+    to: q.to,
+    groupId: q.groupId ?? null,
+    group: read.group,
+    indicators: out,
+    provisionalDays,
+  };
 }

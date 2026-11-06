@@ -188,6 +188,7 @@ describe.each(backends)('slice 2.1 consolidation, groups, history, release [%s]'
             { code: 'south', name: 'Miền Nam', branchIds: ['br_q7', 'br_td', 'br_d2_q7'] },
             { code: 'td-only', name: 'Thủ Đức', branchIds: ['br_td'] },
             { code: 'foreign', name: 'Ngoài', branchIds: ['br_d2_q7'] },
+            { code: 'mixed', name: 'Một phần', branchIds: ['br_q7', 'br_lk'] },
           ],
         },
         proposedBy: 'seed',
@@ -203,8 +204,9 @@ describe.each(backends)('slice 2.1 consolidation, groups, history, release [%s]'
 
     it('a group is a filter over the branches already in scope: another tenant branch in the list adds nothing', async () => {
       const g = (await get(owner, '/api/v1/rpt/groups')).json.items as Row[];
-      expect(g.map((x) => x.code).sort()).toEqual(['south', 'td-only']);
+      expect(g.map((x) => x.code).sort()).toEqual(['mixed', 'south', 'td-only']);
       expect(g.find((x) => x.code === 'south')!.branchCount).toBe(2); // not 3: the foreign id is not a branch of this tenant
+      expect(g.find((x) => x.code === 'south')).toMatchObject({ totalCount: 2, partial: false });
       const r = await get(owner, `/api/v1/rpt/ranking?${range}&groupId=south`);
       expect(r.status, r.text).toBe(200);
       expect(r.json.rows.map((x: Row) => x.branchId).sort()).toEqual(['br_q7', 'br_td']);
@@ -217,8 +219,18 @@ describe.each(backends)('slice 2.1 consolidation, groups, history, release [%s]'
     it('the regional manager sees only the group inside the assigned branches; a group outside the assignment is refused; unknown group 422', async () => {
       const mine = await get(qv, `/api/v1/rpt/ranking?${range}&groupId=south`);
       expect(mine.json.rows.map((x: Row) => x.branchId).sort()).toEqual(['br_q7', 'br_td']);
+      expect(mine.json.group).toEqual({ inScope: 2, total: 2, partial: false });
       expect((await get(qv, `/api/v1/rpt/ranking?${range}&groupId=foreign`)).status).toBe(403);
       expect((await get(qv, `/api/v1/rpt/ranking?${range}&groupId=nope`)).status).toBe(422);
+      // 2.1-1: a group only partly inside the assignment says so (counts only, no names of the other branches)
+      const part = await get(qv, `/api/v1/rpt/ranking?${range}&groupId=mixed`);
+      expect(part.json.rows.map((x: Row) => x.branchId)).toEqual(['br_q7']);
+      expect(part.json.group).toEqual({ inScope: 1, total: 2, partial: true });
+      expect(part.text).not.toContain('br_lk');
+      const gl = ((await get(qv, '/api/v1/rpt/groups')).json.items as Row[]).find(
+        (x) => x.code === 'mixed',
+      );
+      expect(gl).toMatchObject({ branchCount: 1, totalCount: 2, partial: true });
       // the dashboard and the alerts take the group too
       const d = (await get(qv, `/api/v1/rpt/dashboard?date=${D1}&groupId=td-only`)).json;
       expect(d.rows.map((x: Row) => x.branchId)).toEqual(['br_td']);
@@ -274,7 +286,9 @@ describe.each(backends)('slice 2.1 consolidation, groups, history, release [%s]'
         value: 6250, // 5 / (5 + 2 + 1)
         num: 5,
         den: 8,
+        pending: 2, // 2.1-5: sent and undecided, outside the denominator
       });
+      expect(approval.pendingTotal).toBe(4);
       expect(approval.total).toBe(6000); // (5 + 1) / (8 + 2)
       expect(approval.formula).toContain('approved');
       const avg = r.indicators.find((x: Row) => x.metric === 'avgPerOrderVnd');

@@ -118,6 +118,16 @@ export default async function RankingPage({ searchParams }: { searchParams: Sear
           {fill(l.provisionalNote!, { n: d.provisionalDays })}
         </Note>
       ) : null}
+      {d.group?.partial ? (
+        <Note tone="info" testId="rank-group-partial">
+          {fill(l.groupPartialNote!, { n: d.group.inScope, m: d.group.total })}
+        </Note>
+      ) : null}
+      {d.commonDates.length > 0 ? (
+        <Note tone="info" testId="rank-common-days">
+          {fill(l.commonDaysNote!, { n: d.commonDates.length })}
+        </Note>
+      ) : null}
       {d.missingDays > 0 ? (
         <Note tone="info" testId="rank-missing">
           {fill(l.missingNote!, { n: d.missingDays })}

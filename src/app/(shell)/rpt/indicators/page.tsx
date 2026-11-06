@@ -175,6 +175,7 @@ export default async function IndicatorsPage({ searchParams }: { searchParams: S
                 numeric: true,
                 render: (x) => pctOf(x.value),
               },
+              { key: 'p', header: l.colPending!, numeric: true, render: (x) => x.pending },
             ]}
           />
           <p className="text-secondary" data-testid="approval-total">

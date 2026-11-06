@@ -287,6 +287,7 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
           const c = await createCustomer(deps, actor, d.customer, {
             idempotencyKey: `${base}-c`,
             requestId: ctx.requestId,
+            origin: 'import',
           });
           const customerId = (c.response.body as { id: string }).id;
           refs.push({ type: 'customer', id: customerId, row: u.row });

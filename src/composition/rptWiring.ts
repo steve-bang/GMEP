@@ -93,7 +93,8 @@ export function buildRptSources(
       if (!getCrm) return out;
       for (let i = 0; i < ids.length; i += 30) {
         for (const c of await getCrm().customers.getMany(scope, ids.slice(i, i + 30)))
-          out.set(c.id, c.createdAt);
+          // 2.1-4: an imported customer is always "returning" (else the import day shows a spike of new customers)
+          out.set(c.id, c.origin === 'import' ? new Date(0) : c.createdAt);
       }
       return out;
     },

@@ -40,7 +40,7 @@ export const RANK_FORMULA: Record<RankMetric, string> = {
     'round-half-up(sum(exTaxVnd) / sum(orders completed)); n/a when no order was completed',
   inflowVnd: 'sum(receipts + deposits - reversals) by payment date',
   quoteApprovalBp:
-    'approved / (approved + rejected + expired) over quotes created in the period, in basis points; n/a when none was decided',
+    'approved / (approved + rejected + expired) over quotes created in the period, counted by quote code (not by version), in basis points; sent-and-undecided quotes are shown apart and are not in the denominator; n/a when none was decided',
   returningCustomerBp:
     'returning visits / (new + returning visits), in basis points; visits = distinct customers per day (a customer on two days counts twice)',
 };
@@ -72,6 +72,8 @@ export interface BranchPeriod {
   value: number | null;
   /** numerator and denominator of a ratio metric, for the drill-down text */
   parts: { num: number; den: number } | null;
+  /** quotes sent and not decided yet: shown next to the approval rate, never in its denominator (2.1-5) */
+  pending: number;
 }
 
 /** Per-metric accumulation of one branch's rollups for the dates of the period. */
@@ -91,6 +93,7 @@ export function periodOfBranch(
   let num = 0;
   let den = 0;
   let answered = 0;
+  let pending = 0;
   for (const d of dates) {
     const r = byDate.get(d);
     if (!r) {
@@ -127,6 +130,7 @@ export function periodOfBranch(
           unavailableDates.push(d);
           break;
         }
+        pending += r.quotes.pending;
         num += r.quotes.approved;
         den += r.quotes.approved + r.quotes.rejected + r.quotes.expired;
         answered++;
@@ -157,6 +161,7 @@ export function periodOfBranch(
     unavailableDates,
     value,
     parts: ratio ? { num, den } : null,
+    pending,
   };
 }
 

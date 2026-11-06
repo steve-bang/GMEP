@@ -55,7 +55,7 @@ const run = (facts: DayFacts) =>
 describe('rollup schema 6: quotes and customer visits (FR-RPT-016, FR-RPT-015)', () => {
   it('omits both sections when the facts were not read (n/a, never 0)', () => {
     const r = run(empty);
-    expect(r.schemaVersion).toBe(6);
+    expect(r.schemaVersion).toBe(7);
     expect(r.quotes).toBeUndefined();
     expect(r.customers).toBeUndefined();
   });
@@ -220,6 +220,8 @@ describe('ranking (FR-RPT-002, AC-RPT-002-8)', () => {
       'quoteApprovalBp',
     );
     expect(p.value).toBe(5000);
+    expect(p.pending).toBe(2); // 2.1-5: sent and undecided, outside the denominator (1 / (1 + 1))
+    expect(p.parts).toEqual({ num: 1, den: 2 });
     expect(p.unavailableDates).toEqual(['2026-11-02']);
     expect(p.missingDates).toEqual(['2026-11-03']);
     const c = periodOfBranch(

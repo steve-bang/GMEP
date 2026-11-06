@@ -29,6 +29,8 @@ export interface Customer {
   marketing: string[];
   /** branches with a relation to this customer (links), BA §10.1.5 */
   branchIds: string[];
+  /** `import` = created by the Excel import (SYS-007); RPT counts such a customer as returning, never as new (2.1-4) */
+  origin?: 'import';
   anonymizedAt?: Date;
   createdAt: Date;
   createdBy: string;
