@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhật ký thao tác – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: 112px minmax(0, 1fr) minmax(0, 1.5fr) 150px; }
+</style>
+</head>
+<body>
+<div class="preview" role="group" aria-label="Xem thử trạng thái (chỉ có trong prototype)">
+  <div class="preview__row"><span class="preview__label">Xem thử</span>
+    <button class="chip" type="button" data-view="ok">Chủ garage, toàn chuỗi</button>
+    <button class="chip" type="button" data-view="ql">Quản lý Quận 7</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="empty">Không khớp bộ lọc</button>
+    <button class="chip" type="button" data-view="error">Lỗi tải</button>
+    <button class="chip" type="button" data-view="noperm">Không có quyền</button>
+  </div>
+  <p class="preview__hint">Hộp thoại “Trước và sau” mở bằng nút ở mỗi dòng (hoặc <span class="code">#dlg=d-diff</span>).</p>
+</div>
+<div class="wrap">
+  <p class="crumbs">GMEP › Cài đặt và quản trị › Nhật ký thao tác</p>
+  <nav class="subnav" aria-label="Cài đặt và quản trị">
+    <a href="audit.html" aria-current="page">Nhật ký thao tác</a><a href="import.html">Nhập từ Excel</a><a href="einvoice.html">Hóa đơn điện tử</a><a href="messaging.html">Tin nhắn</a><a href="tax.html">Thuế suất</a><a href="security.html">Bảo mật và phiên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Nhật ký thao tác</h1><p>Ai làm gì, khi nào, giá trị trước và sau (FR-SYS-003). Nhật ký chỉ ghi thêm: không sửa, không xóa. Sai thì làm thao tác đảo hoặc điều chỉnh, thao tác đó có dòng nhật ký riêng (RULE-010).</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" data-vx="ql noperm" data-toast="Đã tạo tệp CSV 1.248 dòng. Việc xuất này cũng được ghi nhật ký.">Xuất nhật ký (CSV)</button>
+      <button class="b b--primary" type="button" aria-disabled="true" aria-describedby="w-exp" data-v="ql">Xuất nhật ký (CSV)</button>
+      <span class="why why--block" id="w-exp" data-v="ql">Chưa bấm được: vai trò Quản lý chưa có quyền xuất nhật ký. Nhờ Chủ garage xuất giúp [Cần xác nhận quyền xuất].</span>
+    </div>
+  </header>
+
+  <div class="scope" role="status">
+    <span data-vx="ql noperm"><b>Phạm vi:</b> Toàn chuỗi (hợp nhất 8 chi nhánh)</span>
+    <span data-v="ql"><b>Phạm vi:</b> Chi nhánh Quận 7 · bạn là Võ Minh Quân, Quản lý</span>
+    <span data-v="noperm"><b>Phạm vi:</b> Chi nhánh Quận 7 · bạn là Nguyễn Hoàng Yến, Cố vấn</span>
+    <span><b>Khoảng:</b> 01/11/2026 đến 07/11/2026</span><span>Cập nhật 09:15 07/11/2026</span>
+    <span data-v="ql">Số điện thoại và địa chỉ khách hiện che theo vai trò</span>
+  </div>
+
+  <div data-vx="noperm">
+  <div class="tabsline" role="tablist" aria-label="Loại nhật ký">
+    <button type="button" role="tab" data-tab="nv">Thao tác nghiệp vụ<span class="cnt" data-vx="ql">1.248</span><span class="cnt" data-v="ql">412</span></button>
+    <button type="button" role="tab" data-tab="cfg">Cấu hình và phân quyền<span class="cnt cnt--warn" data-vx="ql">37</span><span class="cnt cnt--warn" data-v="ql">9</span></button>
+    <button type="button" role="tab" data-tab="login">Đăng nhập và phiên<span class="cnt" data-vx="ql">212</span><span class="cnt" data-v="ql">64</span></button>
+    <button type="button" role="tab" data-tab="exp">Xuất dữ liệu<span class="cnt" data-vx="ql">9</span><span class="cnt" data-v="ql">2</span></button>
+  </div>
+  <div class="find">
+    <div class="search"><label class="sr" for="q">Tìm trong nhật ký</label><input id="q" type="search" placeholder="Tìm mã chứng từ, biển số, tên người thao tác" autocomplete="off"></div>
+    <div class="sel"><label class="sr" for="f-actor">Người thao tác</label><select id="f-actor"><option>Mọi người thao tác</option><option>Nguyễn Hoàng Yến</option><option>Võ Minh Quân</option><option>Phạm Thị Lan</option></select></div>
+    <div class="sel"><label class="sr" for="f-act">Hành động</label><select id="f-act"><option>Mọi hành động</option><option>Tạo</option><option>Sửa</option><option>Duyệt, từ chối</option><option>Ghi sổ, đảo</option><option>Đổi cấu hình</option></select></div>
+    <div class="chips" role="group" aria-label="Khoảng thời gian"><button type="button" class="chip" aria-pressed="false">Hôm nay</button><button type="button" class="chip" aria-pressed="true">7 ngày</button><button type="button" class="chip" aria-pressed="false">Tháng này</button><button type="button" class="chip" aria-pressed="false">Chọn ngày…</button></div>
+  </div>
+
+  <section class="card list" aria-label="Dòng nhật ký" aria-live="polite">
+    <div data-v="loading"><div class="item"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="item"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="item"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+
+    <div data-v="ok ql">
+      <!-- Nghiệp vụ -->
+      <div data-t="nv">
+        <div class="item"><div class="col"><span class="t1">09:12</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Nguyễn Hoàng Yến</span><span class="t2">Cố vấn · Quận 7</span></div><div class="col"><span><span class="badge badge--neutral">Sửa</span> Hồ sơ khách Lê Quốc Huy</span><span class="t2">KH-Q7-00231 · trường đổi: số điện thoại, ghi chú, địa chỉ</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+        <div class="item"><div class="col"><span class="t1">08:58</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Võ Minh Quân</span><span class="t2">Quản lý · Quận 7</span></div><div class="col"><span><span class="badge badge--success">Duyệt</span> Giảm giá 12%</span><span class="t2"><span class="plate">51K-482.19</span> RO-Q7-2611-00129</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+        <div class="item"><div class="col"><span class="t1">08:40</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Phạm Thị Lan</span><span class="t2">Thu ngân · Quận 7</span></div><div class="col"><span><span class="badge badge--info">Ghi sổ</span> Phiếu thu 1.250.000 ₫</span><span class="t2"><span class="plate">30H-912.06</span> PT-Q7-2611-00041</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+        <div class="item item--flag"><div class="col"><span class="t1">08:05</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Trần Hoàng Anh</span><span class="t2">Chủ garage · toàn chuỗi</span></div><div class="col"><span><span class="badge badge--purple">Đảo</span> Phiếu thu 800.000 ₫ ghi nhầm khách</span><span class="t2">PT-Q7-2611-00036 giữ nguyên, thêm phiếu đảo PT-Q7-2611-00044 · lý do bắt buộc</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+        <div class="item" data-vx="ql"><div class="col"><span class="t1">17:30</span><span class="t2">06/11/2026</span></div><div class="col"><span class="t1">Đặng Thu Hà</span><span class="t2">Kế toán · Thủ Đức</span></div><div class="col"><span><span class="badge badge--info">Ghi sổ</span> Ngày 05/11/2026 đã chốt</span><span class="t2">Chi nhánh Thủ Đức · mở lại ngày cần Chủ garage duyệt</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+        <div class="item" data-vx="ql"><div class="col"><span class="t1">16:02</span><span class="t2">06/11/2026</span></div><div class="col"><span class="t1">Hoàng Thị Mai</span><span class="t2">Thủ kho · Biên Hòa</span></div><div class="col"><span><span class="badge badge--warning">Điều chỉnh tồn</span> Phiếu kiểm kê KK-BH-2611-00002</span><span class="t2">Chi nhánh Biên Hòa · 3 mã lệch</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+      </div>
+      <!-- Cấu hình -->
+      <div data-t="cfg">
+        <div class="item item--flag"><div class="col"><span class="t1">16:40</span><span class="t2">06/11/2026</span></div><div class="col"><span class="t1">Trần Hoàng Anh</span><span class="t2">Chủ garage</span></div><div class="col"><span><span class="badge badge--warning">Đổi cấu hình</span> Thuế suất: thêm phiên bản mới</span><span class="t2">Hiệu lực từ ngày chọn · phiên bản cũ giữ nguyên</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+        <div class="item"><div class="col"><span class="t1">14:20</span><span class="t2">05/11/2026</span></div><div class="col"><span class="t1">Trần Hoàng Anh</span><span class="t2">Chủ garage</span></div><div class="col"><span><span class="badge badge--warning">Đổi quyền</span> Thêm vai trò Thủ kho cho Hoàng Thị Mai</span><span class="t2">Chi nhánh Quận 7</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem trước và sau</button></div></div>
+        <div class="item"><div class="col"><span class="t1">10:05</span><span class="t2">04/11/2026</span></div><div class="col"><span class="t1">Trần Hoàng Anh</span><span class="t2">Chủ garage</span></div><div class="col"><span><span class="badge badge--warning">Đổi khóa tích hợp</span> Hóa đơn điện tử: thay khóa bí mật</span><span class="t2">Giá trị khóa không bao giờ lưu trong nhật ký, chỉ ghi “đã thay”</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-secret">Xem trước và sau</button></div></div>
+      </div>
+      <!-- Đăng nhập -->
+      <div data-t="login">
+        <div class="item"><div class="col"><span class="t1">07:48</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Võ Minh Quân</span><span class="t2">Quản lý · Quận 7</span></div><div class="col"><span><span class="badge badge--success">Đăng nhập</span> Phiên đang mở</span><span class="t2">Máy quầy Q7 · Chrome · IP 113.161.•••.•••</span></div><div class="act"><span class="hint">Không có giá trị trước và sau</span></div></div>
+        <div class="item"><div class="col"><span class="t1">17:55</span><span class="t2">06/11/2026</span></div><div class="col"><span class="t1">Phạm Thị Lan</span><span class="t2">Thu ngân · Quận 7</span></div><div class="col"><span><span class="badge badge--neutral">Hết phiên</span> Hết thời gian rảnh</span><span class="t2">Điện thoại · Safari · IP 27.64.•••.•••</span></div><div class="act"><span class="hint">Không có giá trị trước và sau</span></div></div>
+        <div class="item"><div class="col full"><span class="t2">Lần đăng nhập sai không ghi theo từng tài khoản (tránh lộ email có tồn tại, FR-SYS-014). Thời hạn lưu và việc lưu IP: [Cần xác nhận: Chủ dự án, luật sư].</span></div></div>
+      </div>
+      <!-- Xuất -->
+      <div data-t="exp">
+        <div class="item"><div class="col"><span class="t1">18:10</span><span class="t2">06/11/2026</span></div><div class="col"><span class="t1">Trần Hoàng Anh</span><span class="t2">Chủ garage</span></div><div class="col"><span><span class="badge badge--neutral">Xuất</span> Danh sách khách, 2.114 dòng</span><span class="t2">Có số điện thoại · lý do: gửi nhắc đăng kiểm</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem chi tiết</button></div></div>
+        <div class="item"><div class="col"><span class="t1">17:20</span><span class="t2">05/11/2026</span></div><div class="col"><span class="t1">Đặng Thu Hà</span><span class="t2">Kế toán · Thủ Đức</span></div><div class="col"><span><span class="badge badge--neutral">Xuất</span> Báo cáo doanh thu tháng 10</span><span class="t2">Phạm vi: Thủ Đức</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-diff">Xem chi tiết</button></div></div>
+      </div>
+    </div>
+
+    <div class="empty" data-v="empty"><h2>Không có dòng nhật ký khớp bộ lọc</h2><p>Trong khoảng và phạm vi đã chọn chưa có thao tác nào khớp. Thử bỏ bộ lọc hoặc mở rộng khoảng ngày.</p><button class="b b--secondary" type="button" data-view-go="ok">Xóa bộ lọc</button></div>
+    <div class="empty" data-v="error"><h2>Không tải được nhật ký</h2><p>Kết nối bị gián đoạn, không phải do không có dữ liệu. Nhật ký đã ghi không bị mất. Mã tham chiếu <span class="code">REQ-5C21A8</span>.</p><button class="b b--secondary" type="button" data-view-go="ok">Thử lại</button></div>
+    <div class="rowfoot" data-v="ok ql">Hiển thị 6 trong 1.248 dòng, mới nhất trước · nhật ký chỉ ghi thêm, không có nút sửa hay xóa (FR-SYS-003). Giá trị tiền hiện đủ vì người xem có quyền xem giá vốn [Cần xác nhận theo vai trò].</div>
+  </section>
+  </div>
+
+  <section class="card sec" data-v="noperm" aria-label="Không có quyền">
+    <div class="alert alert--warn" role="alert"><strong>Bạn chưa có quyền xem nhật ký thao tác</strong><span>Vai trò Cố vấn không xem được nhật ký. Muốn xem, nhờ Chủ garage hoặc Quản lý cấp quyền. Mã lý do <span class="code">NO_PERMISSION</span>.</span></div>
+    <div><button class="b b--primary" type="button" aria-disabled="true" aria-describedby="w-req">Gửi yêu cầu cấp quyền</button><p class="why why--block" id="w-req">Chưa bấm được: chưa có quy trình xin quyền trong hệ thống [Cần xác nhận]. Hãy báo trực tiếp cho Quản lý chi nhánh.</p></div>
+  </section>
+
+  <div class="alert alert--info state" data-vx="noperm" style="margin-top:var(--space-4)" role="note"><strong>Che dữ liệu cá nhân theo vai trò</strong><span>Số điện thoại và địa chỉ khách chỉ hiện đủ với vai trò được phép xem; các vai trò khác thấy dạng che ở cả danh sách, bản xem trước/sau và tệp xuất (Luật Bảo vệ dữ liệu cá nhân 2025). Vai trò nào xem đủ: [Cần xác nhận].</span></div>
+</div>
+
+<dialog id="d-diff" aria-labelledby="d-diff-h">
+  <div class="dlg">
+    <div><h2 id="d-diff-h">Sửa hồ sơ khách · KH-Q7-00231</h2><p class="hint">07/11/2026 09:12 · Nguyễn Hoàng Yến (Cố vấn) · Quận 7 · máy quầy Q7 · mã nhật ký <span class="code">AUD-2611-0098124</span></p></div>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th>Trường</th><th>Trước</th><th>Sau</th></tr></thead><tbody>
+      <tr><td>Số điện thoại</td><td><span class="from" data-vx="ql">0903 456 712</span><span class="masked" data-v="ql">0903 ••• •12</span></td><td><span class="to" data-vx="ql">0903 456 789</span><span class="masked" data-v="ql">0903 ••• •89</span></td></tr>
+      <tr><td>Địa chỉ</td><td><span class="from" data-vx="ql">12 Nguyễn Thị Thập, Q7</span><span class="masked" data-v="ql">•••••• (ẩn theo vai trò)</span></td><td><span class="to" data-vx="ql">45 Huỳnh Tấn Phát, Q7</span><span class="masked" data-v="ql">•••••• (ẩn theo vai trò)</span></td></tr>
+      <tr><td>Ghi chú</td><td><span class="from">Khách quen</span></td><td><span class="to">Khách quen, ưu tiên lịch buổi sáng</span></td></tr>
+    </tbody></table></div>
+    <div class="alert alert--info"><strong>Dòng này không sửa, không xóa được</strong><span>Nếu thông tin vẫn sai, sửa lại hồ sơ khách: lần sửa mới có dòng nhật ký riêng. Với phiếu tiền, dùng thao tác “Đảo”.</span></div>
+    <div class="bar2"><button class="b b--secondary" type="button" data-close="">Đóng</button><a class="b b--primary" href="#">Mở hồ sơ khách</a></div>
+  </div>
+</dialog>
+<dialog id="d-secret" aria-labelledby="d-secret-h">
+  <div class="dlg">
+    <div><h2 id="d-secret-h">Thay khóa tích hợp hóa đơn điện tử</h2><p class="hint">04/11/2026 10:05 · Trần Hoàng Anh (Chủ garage) · mã nhật ký <span class="code">AUD-2611-0091377</span></p></div>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th>Trường</th><th>Trước</th><th>Sau</th></tr></thead><tbody>
+      <tr><td>Khóa bí mật</td><td><span class="masked">••••••••••</span></td><td><span class="masked">••••••••••</span></td></tr>
+      <tr><td>Thời điểm thay</td><td>—</td><td>04/11/2026 10:05</td></tr>
+    </tbody></table></div>
+    <p class="hint">Bí mật và khóa API luôn che, kể cả trong nhật ký, ở mọi vai trò kể cả Chủ garage.</p>
+    <div class="bar2"><button class="b b--secondary" type="button" data-close="">Đóng</button></div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="ops.js"></script>
+</body>
+</html>

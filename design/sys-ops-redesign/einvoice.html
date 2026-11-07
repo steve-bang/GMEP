@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tích hợp hóa đơn điện tử – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .q { --cols: minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 1fr) 200px; }
+  .lg { --cols: 150px minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); }
+</style>
+</head>
+<body>
+<div class="preview" role="group" aria-label="Xem thử trạng thái (chỉ có trong prototype)">
+  <div class="preview__row"><span class="preview__label">Xem thử</span>
+    <button class="chip" type="button" data-view="ok">Chủ garage, bình thường</button>
+    <button class="chip" type="button" data-view="testok">Kiểm tra kết nối đạt</button>
+    <button class="chip" type="button" data-view="fail">Kiểm tra kết nối lỗi</button>
+    <button class="chip" type="button" data-view="ro">Quản lý (chỉ xem)</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Hộp thoại: <span class="code">#dlg=d-key</span> (thay khóa), <span class="code">#dlg=d-prod</span> (chạy thật bị chặn). Tab: <span class="code">#tab=issuer</span>, <span class="code">queue</span>, <span class="code">log</span>.</p>
+</div>
+<div class="wrap">
+  <p class="crumbs">GMEP › Cài đặt và quản trị › Hóa đơn điện tử</p>
+  <nav class="subnav" aria-label="Cài đặt và quản trị">
+    <a href="audit.html">Nhật ký thao tác</a><a href="import.html">Nhập từ Excel</a><a href="einvoice.html" aria-current="page">Hóa đơn điện tử</a><a href="messaging.html">Tin nhắn</a><a href="tax.html">Thuế suất</a><a href="security.html">Bảo mật và phiên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Tích hợp hóa đơn điện tử</h1><p>Kết nối với nhà cung cấp hóa đơn qua lớp tích hợp trung lập, thay nhà cung cấp không đổi nghiệp vụ (FR-EIN-004). Trạng thái hóa đơn do nhà cung cấp trả về.</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" data-vx="ro offline" data-view-go="testok">Kiểm tra kết nối</button>
+      <button class="b b--primary" type="button" data-v="ro" aria-disabled="true" aria-describedby="w-t1">Kiểm tra kết nối</button><span class="why why--block" id="w-t1" data-v="ro">Chưa bấm được: chỉ Chủ garage và Kế toán trưởng cấu hình tích hợp [Cần xác nhận vai trò].</span>
+      <button class="b b--primary" type="button" data-v="offline" aria-disabled="true" aria-describedby="w-t2">Kiểm tra kết nối</button><span class="why why--block" id="w-t2" data-v="offline">Chưa bấm được: đang mất kết nối.</span>
+    </div>
+  </header>
+
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Công ty (cấu hình dùng chung mọi chi nhánh; đơn vị phát hành đặt riêng từng chi nhánh)</span><span>Môi trường: <b>Thử</b></span><span>Cập nhật 09:15 07/11/2026</span><span data-v="ro">Bạn là Võ Minh Quân, Quản lý</span></div>
+
+  <div class="alert alert--warn state" role="alert" data-v="offline"><strong>Mất kết nối</strong><span>Thay đổi chưa lưu được và chưa gửi gì. Hóa đơn đang chờ vẫn nằm trong hàng chờ, không mất.</span></div>
+  <div class="alert alert--ok state" role="status" data-v="testok"><strong>Kết nối thử thành công lúc 09:20</strong><span>Nhà cung cấp giả lập phản hồi trong 420 ms. Ghi vào nhật ký thao tác.</span></div>
+  <div class="alert alert--danger state" role="alert" data-v="fail"><strong>Chưa kết nối được nhà cung cấp</strong><span>Nhà cung cấp từ chối xác thực. Kiểm tra mã tài khoản và thay khóa bí mật. Hóa đơn đang chờ không bị ảnh hưởng. Mã tham chiếu <span class="code">REQ-3E7B10</span>.</span><div class="act2"><button class="b b--secondary b--sm" type="button" data-open="d-key" data-vx="ro">Thay khóa bí mật</button></div></div>
+
+  <div class="tabsline" role="tablist" aria-label="Hóa đơn điện tử">
+    <button type="button" role="tab" data-tab="conn">Kết nối</button>
+    <button type="button" role="tab" data-tab="issuer">Đơn vị phát hành<span class="cnt cnt--warn">2</span></button>
+    <button type="button" role="tab" data-tab="queue">Hàng chờ gửi lại<span class="cnt cnt--danger">3</span></button>
+    <button type="button" role="tab" data-tab="log">Nhật ký gọi</button>
+  </div>
+
+  <!-- Kết nối -->
+  <div data-t="conn" class="pair">
+    <div class="stack">
+      <section class="card sec" aria-label="Nhà cung cấp và môi trường">
+        <h2>Nhà cung cấp và môi trường</h2>
+        <div class="alert alert--info"><strong>Hiện chỉ có nhà cung cấp giả lập</strong><span>Hóa đơn phát hành lúc này chỉ để thử, không gửi lên cơ quan thuế và không có giá trị pháp lý. Nhà cung cấp thật: [Cần xác nhận: khách đã có nhà cung cấp, chưa chốt tên].</span></div>
+        <div class="field" data-vx="ro"><label for="prov">Nhà cung cấp</label><select id="prov"><option>Giả lập (thử nghiệm)</option><option disabled>Nhà cung cấp thật (chưa kết nối)</option></select></div>
+        <dl data-v="ro"><dt>Nhà cung cấp</dt><dd>Giả lập (thử nghiệm)</dd></dl>
+        <div class="field"><span class="lbl" id="env-l">Môi trường</span>
+          <div class="seg" role="group" aria-labelledby="env-l"><button type="button" aria-pressed="true">Thử</button><button type="button" aria-pressed="false" aria-disabled="true" aria-describedby="w-env" data-vx="ro">Chạy thật</button><button type="button" aria-pressed="false" aria-disabled="true" aria-describedby="w-env" data-v="ro">Chạy thật</button></div>
+          <span class="why why--block" id="w-env">Chưa bấm được: chưa có nhà cung cấp thật và kế toán chưa xác nhận ký hiệu, loại hóa đơn.</span> <button class="b b--secondary b--sm" type="button" data-open="d-prod">Xem còn thiếu gì</button></div>
+      </section>
+      <section class="card sec" aria-label="Thông tin đăng nhập nhà cung cấp">
+        <h2>Thông tin đăng nhập nhà cung cấp</h2>
+        <dl>
+          <dt>Mã tài khoản</dt><dd><span class="code">gmep-thu-nghiem</span></dd>
+          <dt>Khóa bí mật</dt><dd><span class="masked" aria-label="Đã che">••••••••••••••••</span> <span class="badge badge--success">Đã thiết lập</span></dd>
+          <dt>Đặt lần cuối</dt><dd>04/11/2026 10:05 · Trần Hoàng Anh</dd>
+        </dl>
+        <p class="hint">Khóa bí mật chỉ nhập một lần và không hiển thị lại, kể cả với Chủ garage. Quên khóa thì thay khóa mới. Mọi lần thay đều ghi nhật ký, không ghi giá trị khóa.</p>
+        <div><button class="b b--secondary" type="button" data-vx="ro" data-open="d-key">Thay khóa bí mật</button><button class="b b--secondary" type="button" data-v="ro" aria-disabled="true" aria-describedby="w-k">Thay khóa bí mật</button><p class="why why--block" id="w-k" data-v="ro">Chưa bấm được: chỉ Chủ garage và Kế toán trưởng thay khóa [Cần xác nhận vai trò].</p></div>
+      </section>
+    </div>
+    <aside class="stack" aria-label="Cách hoạt động">
+      <section class="card sec"><h2>Cách hoạt động</h2>
+        <p class="t2">Bấm xuất hai lần hoặc nhà cung cấp phản hồi chậm không tạo hóa đơn trùng.</p>
+        <p class="t2">Lỗi mạng hay lỗi nhà cung cấp không làm mất yêu cầu xuất: hóa đơn vào hàng chờ, thử lại được và kế toán được báo (FR-EIN-010).</p>
+        <p class="t2">Đổi nhà cung cấp không đổi hóa đơn đã phát hành: bản XML và PDF lưu trong hệ thống.</p>
+      </section>
+      <section class="card sec"><h2>Thay đổi gần đây</h2>
+        <p class="t2">04/11/2026 10:05 · Thay khóa bí mật · Trần Hoàng Anh</p>
+        <p class="t2">01/11/2026 09:00 · Tạo kết nối giả lập · Trần Hoàng Anh</p>
+        <a href="audit.html#tab=cfg">Xem trong nhật ký thao tác</a>
+      </section>
+    </aside>
+  </div>
+
+  <!-- Đơn vị phát hành -->
+  <div data-t="issuer" class="stack">
+    <div class="alert alert--warn" role="note"><strong>Chi nhánh chưa cấu hình thì chưa xuất được hóa đơn</strong><span>Nút “Xuất hóa đơn” ở lệnh sửa chữa bị khóa kèm lý do “thiếu đơn vị phát hành” (FR-EIN-011).</span></div>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th>Chi nhánh</th><th>Đơn vị phát hành (pháp nhân)</th><th>Ký hiệu</th><th>Loại hóa đơn</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+      <tr><td>Quận 7</td><td>Pháp nhân của chi nhánh [Cần xác nhận số pháp nhân]</td><td><span class="hint">[Kế toán nhập]</span></td><td><span class="hint">[Cần xác nhận]</span></td><td><span class="badge badge--warning">Chưa đủ</span></td><td><button class="b b--secondary b--sm" type="button" data-vx="ro" data-toast="Mở form cấu hình đơn vị phát hành">Cấu hình</button></td></tr>
+      <tr><td>Thủ Đức</td><td>Pháp nhân của chi nhánh [Cần xác nhận]</td><td><span class="hint">[Kế toán nhập]</span></td><td><span class="hint">[Cần xác nhận]</span></td><td><span class="badge badge--warning">Chưa đủ</span></td><td><button class="b b--secondary b--sm" type="button" data-vx="ro" data-toast="Mở form cấu hình đơn vị phát hành">Cấu hình</button></td></tr>
+    </tbody></table></div>
+    <p class="hint">Ký hiệu và loại hóa đơn (giá trị gia tăng hoặc bán hàng) do kế toán của khách cung cấp theo quy định hiện hành (Nghị định 254/2026/NĐ-CP). Đây là cấu hình có ngày hiệu lực, không viết cứng trong mã.</p>
+  </div>
+
+  <!-- Hàng chờ -->
+  <div data-t="queue" class="stack">
+    <section class="card list" aria-label="Hàng chờ gửi lại">
+      <div class="item q item--bad"><div class="col"><span class="badge badge--danger">Lỗi dữ liệu</span><span class="plate">51K-482.19</span><span class="t2">RO-Q7-2611-00129</span></div><div class="col"><span class="t1">Thiếu mã số thuế người mua</span><span class="t2">Khách doanh nghiệp thiếu mã số thuế thì chặn gửi (FR-EIN-002)</span></div><div class="col"><span class="t1">Chưa gửi</span><span class="t2">chờ 1 giờ</span></div><div class="act"><button class="b b--primary b--sm" type="button" aria-disabled="true" aria-describedby="w-q1">Thử lại</button><span class="why why--block" id="w-q1">Chưa bấm được: chưa bổ sung mã số thuế của khách.</span></div></div>
+      <div class="item q item--flag"><div class="col"><span class="badge badge--warning">Nhà cung cấp lỗi</span><span class="plate">30H-912.06</span><span class="t2">RO-Q7-2611-00124</span></div><div class="col"><span class="t1">Hết thời gian chờ phản hồi</span><span class="t2">Chưa biết hóa đơn đã được tạo hay chưa; hệ thống kiểm tra lại trước khi gửi, không tạo trùng</span></div><div class="col"><span class="t1">Thử lần 2</span><span class="t2">còn thử tự động [Cần xác nhận số lần và giãn cách]</span></div><div class="act"><button class="b b--primary b--sm" type="button" data-vx="ro" data-toast="Đã đưa vào hàng gửi lại">Thử lại ngay</button><span class="hint" data-v="ro">Chỉ Kế toán thử lại</span></div></div>
+      <div class="item q"><div class="col"><span class="badge badge--info">Đang chờ nhà cung cấp</span><span class="plate">51A-228.47</span><span class="t2">RO-Q7-2611-00131</span></div><div class="col"><span class="t1">Nhà cung cấp đã nhận, chưa trả mã</span><span class="t2">Trạng thái cập nhật khi nhà cung cấp phản hồi</span></div><div class="col"><span class="t1">Lúc 09:02</span><span class="t2">chờ 18 phút</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-toast="Đã hỏi lại trạng thái">Hỏi lại trạng thái</button></div></div>
+      <div class="rowfoot">Kế toán nhận thông báo khi có hóa đơn lỗi. Hóa đơn đã phát hành không xóa; sai thì lập hóa đơn điều chỉnh, thay thế hoặc hủy và cần kế toán trưởng duyệt (FR-EIN-007, giai đoạn 3, chưa thiết kế ở màn này).</div>
+    </section>
+  </div>
+
+  <!-- Nhật ký gọi -->
+  <div data-t="log" class="stack">
+    <section class="card list" aria-label="Nhật ký gọi nhà cung cấp">
+      <div class="item lg"><div class="col"><span class="t1">09:20:04</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Kiểm tra kết nối</span><span class="t2">Giả lập · môi trường Thử</span></div><div class="col"><span class="badge badge--success">Thành công</span><span class="t2">420 ms</span></div><div class="col"><span class="code">REQ-3E7B0F</span><span class="t2">Trần Hoàng Anh</span></div></div>
+      <div class="item lg item--flag"><div class="col"><span class="t1">09:02:41</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Gửi hóa đơn RO-Q7-2611-00124</span><span class="t2">Giả lập · khóa chống trùng <span class="code">inv-Q7-00124</span></span></div><div class="col"><span class="badge badge--warning">Hết thời gian</span><span class="t2">30.000 ms</span></div><div class="col"><span class="code">REQ-3E7A91</span><span class="t2">Hệ thống</span></div></div>
+      <div class="rowfoot">Nhật ký chỉ ghi loại lời gọi, kết quả, thời gian và mã tham chiếu. Không lưu khóa bí mật; thông tin người mua trong nội dung gói tin che theo vai trò.</div>
+    </section>
+  </div>
+</div>
+
+<dialog id="d-key" aria-labelledby="d-key-h"><div class="dlg">
+  <h2 id="d-key-h">Thay khóa bí mật</h2>
+  <div class="field"><label for="nk">Khóa bí mật mới</label><input id="nk" type="password" autocomplete="off" placeholder="Dán khóa từ nhà cung cấp"><span class="hint">Chỉ nhập một lần. Sau khi lưu sẽ hiện “Đã thiết lập”, không xem lại được.</span></div>
+  <label class="check"><input type="checkbox" data-gates="b-key"><span>Tôi đã lưu khóa này ở nơi an toàn nếu cần dùng lại.</span></label>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Hủy</button><div class="act"><button class="b b--primary" id="b-key" type="button" aria-disabled="true" aria-describedby="b-key-why" data-close="Đã thay khóa. Nhật ký ghi người thay, không ghi giá trị khóa.">Lưu khóa</button><span class="why" id="b-key-why">Chưa bấm được: chưa tích ô xác nhận.</span></div></div>
+</div></dialog>
+<dialog id="d-prod" aria-labelledby="d-prod-h"><div class="dlg">
+  <h2 id="d-prod-h">Chưa chuyển sang chạy thật được</h2>
+  <div class="alert alert--warn"><strong>Còn thiếu</strong><span>1) Chưa có kết nối nhà cung cấp thật. 2) Ký hiệu và loại hóa đơn của 2 chi nhánh chưa nhập. 3) Kế toán chưa xác nhận các điều kiện theo Nghị định 254/2026/NĐ-CP.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Đóng</button></div>
+</div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="ops.js"></script>
+</body>
+</html>

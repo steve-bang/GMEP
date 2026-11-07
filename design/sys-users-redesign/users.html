@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Người dùng và lời mời – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(0, 1fr) auto; }
+  @media (max-width: 1023px) { .item { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-2); } }
+  .act { display: grid; gap: var(--space-1); justify-items: end; }
+  @media (max-width: 1023px) { .act { justify-items: start; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+<div class="preview">
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="admin">Quản trị hệ thống</button>
+    <button class="chip" type="button" data-view="ch">Chủ garage (thấy SĐT đầy đủ)</button>
+    <button class="chip" type="button" data-view="ql">Quản lý chi nhánh Quận 7</button>
+    <button class="chip" type="button" data-view="cv">Cố vấn (không có quyền)</button>
+    <button class="chip" type="button" data-view="readonly">Công ty tạm ngưng (chỉ đọc)</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="empty">Mới có chủ garage</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Số liệu, tên, email, số điện thoại trong prototype là dữ liệu mẫu. Việc che số điện thoại do máy chủ quyết theo vai trò, giao diện không tự che.</p>
+  <div class="preview__nav"><a href="users.html" aria-current="page">Người dùng và lời mời</a><a href="user.html">Chi tiết người dùng và phiên</a><a href="roles.html">Vai trò và quyền</a><a href="org.html">Cơ cấu tổ chức</a><a href="branch.html">Cấu hình chi nhánh</a><a href="discounts.html">Hạn mức giảm giá</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline"><strong>Mất kết nối.</strong> Chưa thể mời hay gửi lại lời mời. Nội dung đang nhập trong hộp thoại mời được giữ lại trên máy này; tự thử lại khi có mạng.</div>
+
+<div class="wrap" id="main">
+  <p class="crumbs">Cài đặt và quản trị › Người dùng</p>
+  <header class="head">
+    <div><h1>Người dùng</h1><p>Ai được vào hệ thống, với vai trò nào ở chi nhánh nào. Mời người mới, theo dõi lời mời đang chờ, tạm khóa hoặc thu hồi quyền (FR-SYS-001, 002, 012).</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" data-open="dInvite" data-dis-in="cv readonly offline loading" aria-describedby="wInv">Mời người dùng</button>
+      <p class="why why--block" id="wInv" data-v="cv">Chưa bấm được: cần quyền Quản lý người dùng. Nhờ Quản trị hệ thống hoặc Chủ garage.</p>
+      <p class="why why--block" id="wInv2" data-v="readonly">Chưa bấm được: công ty đang tạm ngưng nên chỉ xem. Liên hệ Chủ garage hoặc hỗ trợ GMEP.</p>
+      <p class="why why--block" data-v="offline">Chưa bấm được: đang mất kết nối.</p>
+      <p class="why" data-v="ql">Bạn chỉ mời được vào Chi nhánh Quận 7 và vai trò thấp hơn Quản lý chi nhánh.</p>
+    </div>
+  </header>
+
+  <div class="scope" role="status">
+    <span data-v="admin ch readonly offline empty"><b>Phạm vi:</b> Garage Minh Phát, toàn bộ 8 chi nhánh (người dùng thuộc cấp công ty)</span>
+    <span data-v="ql"><b>Phạm vi:</b> Chi nhánh Quận 7 (chỉ người dùng có vai trò ở chi nhánh này)</span>
+    <span data-v="cv loading error"><b>Phạm vi:</b> Garage Minh Phát</span>
+    <span>Cập nhật 07/11/2026 09:12</span>
+    <span data-v="readonly"><span class="badge badge--warning">Công ty tạm ngưng</span></span>
+  </div>
+
+  <div class="alert alert--warn state" role="status" data-v="readonly"><b>Công ty đang tạm ngưng: chỉ xem.</b><span>Bạn xem được danh sách nhưng không mời, khóa hay đổi vai trò. Đăng nhập của người dùng vẫn hoạt động ở chế độ chỉ đọc.</span></div>
+
+  <!-- Có dữ liệu -->
+  <div data-v="admin ch ql readonly offline">
+    <div class="tabsline" role="tablist" aria-label="Nhóm người dùng" id="tabs">
+      <button role="tab" aria-selected="true" data-st="active">Đang hoạt động<span class="cnt" id="n-active">0</span></button>
+      <button role="tab" aria-selected="false" data-st="invited">Chờ chấp nhận lời mời<span class="cnt cnt--warn" id="n-invited">0</span></button>
+      <button role="tab" aria-selected="false" data-st="locked">Tạm khóa<span class="cnt" id="n-locked">0</span></button>
+      <button role="tab" aria-selected="false" data-st="revoked">Đã thu hồi quyền<span class="cnt" id="n-revoked">0</span></button>
+    </div>
+    <div class="find">
+      <div class="search"><label class="sr" for="q">Tìm người dùng</label><input id="q" type="search" placeholder="Tìm theo tên, mã nhân viên, email (không cần gõ dấu)" autocomplete="off"></div>
+      <label class="sr" for="fb">Chi nhánh</label><select id="fb"><option value="">Mọi chi nhánh</option><option>Quận 7</option><option>Thủ Đức</option><option>Bình Tân</option></select>
+      <label class="sr" for="fr">Vai trò</label><select id="fr"><option value="">Mọi vai trò</option><option>Chủ garage</option><option>Quản lý vùng</option><option>Quản lý chi nhánh</option><option>Cố vấn dịch vụ</option><option>Quản đốc</option><option>Thợ</option><option>Thủ kho</option><option>Thu ngân</option><option>Kế toán</option></select>
+      <button class="linkbtn" type="button" id="clr" hidden>Xóa bộ lọc</button>
+    </div>
+    <section class="card list" aria-label="Danh sách người dùng"><div id="rows"></div>
+      <div class="empty" id="none" hidden><h2>Không có người dùng khớp</h2><p>Thử bỏ bớt bộ lọc hoặc gõ ít từ hơn.</p><button class="b b--secondary" type="button" id="clr2">Xóa bộ lọc</button></div>
+      <div class="rowfoot"><span id="foot"></span> Người bị thu hồi vẫn nằm trong danh sách để truy vết, không xóa được (FR-SYS-003). Số điện thoại hiện theo quyền của bạn; xem đầy đủ sẽ ghi nhật ký.</div></section>
+  </div>
+
+  <!-- Trạng thái khác -->
+  <section class="card" data-v="loading" aria-busy="true" aria-label="Đang tải danh sách"><div class="sec"><span class="sk" style="width:40%"></span><span class="sk"></span><span class="sk"></span><span class="sk" style="width:80%"></span><span class="sk"></span></div></section>
+  <section class="card empty" data-v="empty"><h2>Chưa có ai ngoài chủ garage</h2><p>Mời người đầu tiên bằng email. Họ nhận liên kết kích hoạt, tự tạo mật khẩu và vào đúng chi nhánh được gán. Nhân viên không có email dùng mã nhân viên, nhờ quản lý tạo tài khoản.</p><button class="b b--primary" type="button" data-open="dInvite">Mời người dùng</button></section>
+  <section class="card empty" data-v="cv"><h2>Bạn chưa có quyền xem danh sách này</h2><p>Danh sách người dùng chỉ dành cho Chủ garage, Quản lý và Quản trị hệ thống. Cần xem, nhờ họ cấp quyền.</p></section>
+  <section class="card empty" data-v="error" role="alert"><h2>Không tải được danh sách</h2><p>Lỗi từ hệ thống, không phải do danh sách trống. Mã sự cố GM-7F3A92 (gửi cho hỗ trợ nếu lặp lại).</p><button class="b b--primary" type="button">Thử lại</button></section>
+</div>
+
+<dialog id="dInvite" aria-labelledby="iT"><form method="dialog" id="fInv" novalidate>
+  <h2 id="iT">Mời người dùng</h2>
+  <p style="margin:0" class="hint">Người được mời nhận email có liên kết kích hoạt. Liên kết có hạn [Cần xác nhận: thời hạn lời mời]. Kết quả luôn cùng một câu dù email đã có tài khoản GMEP ở nơi khác hay chưa.</p>
+  <div class="field"><label for="iE">Email <span class="req">*</span></label><input id="iE" type="email" autocomplete="off" placeholder="ten@congty.vn"><span class="err" id="iEe" hidden>Nhập đúng dạng email, ví dụ ten@congty.vn.</span></div>
+  <div class="field"><label for="iN">Họ và tên</label><input id="iN" autocomplete="off"><span class="hint">Không bắt buộc. Người được mời có thể tự điền khi kích hoạt.</span></div>
+  <div class="field"><label for="iC">Mã nhân viên</label><input id="iC" autocomplete="off" placeholder="NV0063"><span class="hint">Dùng để đăng nhập bằng mã nhân viên và làm việc trên máy xưởng.</span></div>
+  <div class="field"><label for="iR">Vai trò <span class="req">*</span></label><select id="iR"><option value="">Chọn vai trò</option><option>Quản lý chi nhánh</option><option>Cố vấn dịch vụ</option><option>Quản đốc</option><option>Thợ</option><option>Thủ kho</option><option>Thu ngân</option><option>Kế toán</option></select><span class="hint" id="iRh">Một người có thể có nhiều vai trò; thêm sau ở trang chi tiết.</span></div>
+  <div class="field"><span class="lbl" id="iBl">Chi nhánh <span class="req">*</span></span><div class="checks" role="group" aria-labelledby="iBl" id="iB"><label><input type="checkbox" value="Quận 7">Quận 7</label><label><input type="checkbox" value="Thủ Đức">Thủ Đức</label><label><input type="checkbox" value="Bình Tân" disabled>Bình Tân (đã khóa)</label></div><span class="hint">Chi nhánh đã khóa không gán được.</span></div>
+  <div><button class="b b--primary" type="button" id="iGo" aria-disabled="true" aria-describedby="iWhy" style="width:100%">Gửi lời mời</button><p class="why" id="iWhy" style="margin-top:var(--space-1)"></p></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Đóng</button></div>
+</form></dialog>
+
+<script src="sys.js"></script>
+<script>
+  // [tên, mã, email, [[vai trò, chi nhánh]], trạng thái, ghi chú, SĐT đầy đủ]
+  const U = [
+    ['Nguyễn Thị Hà', 'NV0001', 'ha.nguyen@minhphat.vn', [['Chủ garage', 'Toàn công ty']], 'active', 'Đăng nhập gần nhất 07/11/2026 08:41', '0903 112 482'],
+    ['Lê Thanh Sơn', 'NV0007', 'son.le@minhphat.vn', [['Quản lý vùng', 'Quận 7'], ['Quản lý vùng', 'Thủ Đức']], 'active', 'Đăng nhập gần nhất 06/11/2026 17:20', '0912 665 031'],
+    ['Trần Quốc Bảo', 'NV0012', 'bao.tran@minhphat.vn', [['Quản lý chi nhánh', 'Quận 7']], 'active', 'Đăng nhập gần nhất 07/11/2026 07:55', '0938 204 117'],
+    ['Phạm Thu Trang', 'NV0023', 'trang.pham@minhphat.vn', [['Thu ngân', 'Quận 7'], ['Cố vấn dịch vụ', 'Quận 7']], 'active', 'Đăng nhập gần nhất 07/11/2026 07:58', '0977 410 928'],
+    ['Võ Minh Khang', 'NV0031', 'khang.vo@minhphat.vn', [['Thủ kho', 'Quận 7'], ['Thu ngân', 'Thủ Đức']], 'active', 'Đăng nhập gần nhất 06/11/2026 16:02', '0865 300 774'],
+    ['Đặng Văn Tài', 'NV0044', null, [['Thợ', 'Quận 7']], 'active', 'Đăng nhập gần nhất 07/11/2026 07:30 (máy xưởng)', '0909 551 236'],
+    ['Hoàng Gia Huy', 'NV0052', 'huy.hoang@minhphat.vn', [['Quản đốc', 'Thủ Đức']], 'locked', 'Khóa tay bởi Trần Quốc Bảo ngày 05/11/2026', '0918 773 450'],
+    ['Bùi Ngọc Lan', '', 'lan.bui@kt-minhphat.vn', [['Kế toán', 'Toàn công ty']], 'invited', 'Mời ngày 05/11/2026 bởi Nguyễn Thị Hà · chưa kích hoạt', ''],
+    ['Ngô Anh Thư', '', 'thu.ngo@gmail.com', [['Cố vấn dịch vụ', 'Quận 7']], 'invited', 'Mời ngày 06/11/2026 bởi Trần Quốc Bảo · chưa kích hoạt', ''],
+    ['Lý Văn Đức', 'NV0019', 'duc.ly@minhphat.vn', [['Thợ', 'Bình Tân']], 'revoked', 'Thu hồi ngày 30/10/2026 bởi Nguyễn Thị Hà (nghỉ việc)', '0932 880 615'],
+  ];
+  const ST = { active: ['success', 'Đang hoạt động'], invited: ['info', 'Chờ chấp nhận'], locked: ['warning', 'Tạm khóa'], revoked: ['neutral', 'Đã thu hồi'] };
+  let tab = 'active';
+  function inScope(u, v) { return v !== 'ql' || u[3].some((r) => r[1] === 'Quận 7'); }
+  function render() {
+    const v = curView(), q = fold($('#q').value), fb = $('#fb').value, fr = $('#fr').value;
+    $('#fb').hidden = v === 'ql';
+    const base = U.filter((u) => inScope(u, v));
+    ['active', 'invited', 'locked', 'revoked'].forEach((s) => { $('#n-' + s).textContent = base.filter((u) => u[4] === s).length; });
+    const rows = base.filter((u) => u[4] === tab && (!q || fold([u[0], u[1], u[2] || ''].join(' ')).includes(q)) && (!fb || u[3].some((r) => r[1] === fb || r[1] === 'Toàn công ty')) && (!fr || u[3].some((r) => r[0] === fr)));
+    const full = v === 'ch';
+    $('#rows').innerHTML = rows.map((u) => {
+      const roles = u[3].slice(0, 2).map((r) => `<span class="badge badge--neutral">${r[0]} · ${r[1]}</span>`).join('') + (u[3].length > 2 ? `<span class="badge badge--neutral">+${u[3].length - 2}</span>` : '');
+      const act = u[4] === 'invited' ? `<button class="b b--secondary b--sm" type="button" data-toast="Đã gửi lại lời mời tới ${u[2]}." data-dis-in="readonly offline">Gửi lại lời mời</button><button class="linkbtn" type="button" data-toast="Đã thu hồi lời mời tới ${u[2]}. Liên kết cũ không còn dùng được." data-undo="1" data-dis-in="readonly offline">Thu hồi lời mời</button>` : `<a class="b b--secondary b--sm" href="user.html">Xem</a>`;
+      const phone = u[6] ? (full ? `SĐT ${u[6]}` : `SĐT <span class="masked">${u[6].slice(0, 2)}•• ••• ${u[6].slice(-3)}</span> <span class="t2">(đã che theo vai trò)</span>`) : '';
+      return `<div class="item${u[4] === 'locked' ? ' item--flag' : ''}"><div><a class="t1" href="user.html" style="color:inherit">${u[0]}</a><div class="t2">${u[1] || 'Chưa có mã nhân viên'} · ${u[2] || 'Không có email (đăng nhập bằng mã nhân viên)'}</div><div class="t2">${phone}</div></div><div class="badges">${roles}</div><div><span class="badge badge--${ST[u[4]][0]}">${ST[u[4]][1]}</span><div class="t2">${u[5]}</div></div><div class="act">${act}</div></div>`;
+    }).join('');
+    $('#none').hidden = rows.length > 0;
+    $('#foot').textContent = `Hiển thị ${rows.length} trên ${base.filter((u) => u[4] === tab).length} người`;
+    const f = q || fb || fr; $('#clr').hidden = !f;
+    $$('[data-dis-in]').forEach((b) => b.setAttribute('aria-disabled', String(b.dataset.disIn.split(' ').includes(v))));
+  }
+  $$('#tabs [data-st]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.st; $$('#tabs [data-st]').forEach((x) => x.setAttribute('aria-selected', String(x === b))); render(); }));
+  ['q', 'fb', 'fr'].forEach((id) => $('#' + id).addEventListener('input', render));
+  const clr = () => { $('#q').value = ''; $('#fb').value = ''; $('#fr').value = ''; render(); };
+  $('#clr').onclick = clr; $('#clr2').onclick = clr;
+  document.addEventListener('viewchange', render); render();
+  // hộp thoại mời: nút bị chặn nêu thiếu gì
+  function chk() {
+    const e = $('#iE').value.trim(), okE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e), r = $('#iR').value, b = $$('#iB input:checked').length;
+    $('#iEe').hidden = !e || okE;
+    const miss = []; if (!okE) miss.push('email hợp lệ'); if (!r) miss.push('vai trò'); if (!b) miss.push('ít nhất một chi nhánh');
+    $('#iGo').setAttribute('aria-disabled', String(miss.length > 0));
+    $('#iWhy').textContent = miss.length ? 'Chưa bấm được: còn thiếu ' + miss.join(', ') + '.' : '';
+  }
+  ['iE', 'iR'].forEach((id) => $('#' + id).addEventListener('input', chk)); $('#iB').addEventListener('change', chk); chk();
+  $('#iGo').onclick = () => { if ($('#iGo').getAttribute('aria-disabled') === 'true') return; $('#dInvite').close(); toast('Đã gửi lời mời. Nếu email đã có tài khoản GMEP, người đó chỉ được thêm vào công ty sau khi chấp nhận.'); };
+</script>
+</body>
+</html>

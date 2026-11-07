@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vai trò và quyền – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  @media (max-width: 767px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+  .role-pick { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; margin-bottom: var(--space-3); }
+  .role-pick .field { flex: 1 1 240px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+<div class="preview">
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="ad">Quản trị hệ thống (xem)</button>
+    <button class="chip" type="button" data-view="edit">Đang sửa quyền Thủ kho</button>
+    <button class="chip" type="button" data-view="ql">Quản lý chi nhánh (chỉ đọc)</button>
+    <button class="chip" type="button" data-view="cv">Cố vấn (không có quyền)</button>
+    <button class="chip" type="button" data-view="readonly">Công ty tạm ngưng</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Mười vai trò của một công ty (không gồm vai trò nền tảng). Ô quyền theo hành động là dữ liệu mẫu để dựng giao diện; bản thật đọc từ máy chủ.</p>
+  <div class="preview__nav"><a href="users.html">Người dùng và lời mời</a><a href="user.html">Chi tiết người dùng và phiên</a><a href="roles.html" aria-current="page">Vai trò và quyền</a><a href="org.html">Cơ cấu tổ chức</a><a href="branch.html">Cấu hình chi nhánh</a><a href="discounts.html">Hạn mức giảm giá</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline"><strong>Mất kết nối.</strong> Chưa thể lưu thay đổi quyền. Bảng đang xem là bản lúc 09:12.</div>
+
+<div class="wrap" id="main">
+  <p class="crumbs">Cài đặt và quản trị › Vai trò và quyền</p>
+  <header class="head">
+    <div><h1>Vai trò và quyền</h1><p>Mỗi vai trò được làm gì: xem, tạo, sửa, lưu trữ, duyệt, từ chối, xuất dữ liệu, quản lý. Quyền của một người là phần hợp các vai trò của họ ở từng chi nhánh (FR-SYS-002, 012, 013).</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" id="bEdit" data-dis-in="ql cv readonly offline loading edit" aria-describedby="wE">Sửa quyền của một vai trò</button>
+      <p class="why why--block" id="wE" data-v="ql">Chưa bấm được: chỉ Quản trị hệ thống và Chủ garage sửa quyền. Bạn xem ở chế độ chỉ đọc.</p>
+      <p class="why why--block" data-v="readonly">Chưa bấm được: công ty đang tạm ngưng nên chỉ xem.</p>
+      <p class="why why--block" data-v="offline">Chưa bấm được: đang mất kết nối.</p>
+      <p class="why" data-v="edit">Đang sửa. Lưu ở thanh phía dưới.</p>
+    </div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Garage Minh Phát, áp dụng cho mọi chi nhánh của công ty</span><span>Quyền theo chi nhánh gán ở trang người dùng</span><span>Cập nhật 07/11/2026 09:12</span><span data-v="readonly"><span class="badge badge--warning">Công ty tạm ngưng</span></span></div>
+  <div class="alert alert--info state" role="status" data-v="edit"><b>Đang sửa quyền vai trò Thủ kho.</b><span>12 người đang giữ vai trò này sẽ nhận quyền mới ở lần tải trang kế tiếp. Chưa lưu thì chưa ai bị ảnh hưởng.</span></div>
+
+  <div data-v="ad edit ql readonly offline">
+    <div class="tabsline" role="tablist" aria-label="Quyền">
+      <button role="tab" aria-selected="true" data-tab="mx">Ma trận theo chức năng<span class="cnt">12</span></button>
+      <button role="tab" aria-selected="false" data-tab="ac" id="tAc">Quyền theo hành động<span class="cnt">7</span></button>
+      <button role="tab" aria-selected="false" data-tab="lg">Lịch sử thay đổi quyền<span class="cnt">4</span></button>
+    </div>
+
+    <section class="card" data-panel="mx" aria-label="Ma trận vai trò và chức năng">
+      <div class="sec" style="padding-bottom:0"><div class="role-pick"><div class="field"><label for="fcol">Xem cột</label><select id="fcol"></select></div><p class="hint" style="margin:0;flex:1 1 280px">Mỗi ô: Sửa (tạo và sửa), Duyệt (kèm xem), Xem, Phần mình (chỉ phần của mình). Quản trị hệ thống cấu hình được nhưng không xem dữ liệu nhạy cảm của khách.</p></div></div>
+      <div class="tblwrap"><table class="t" id="mx"></table></div>
+      <div class="rowfoot">Bảng là tóm tắt tính từ quyền theo hành động, chỉ đọc. Muốn đổi, sửa ở tab Quyền theo hành động. Quản lý vùng có phạm vi theo phân công chi nhánh, không phải một quyền toàn công ty.</div>
+    </section>
+
+    <section data-panel="ac" hidden>
+      <div class="role-pick"><div class="field"><label for="rsel">Vai trò</label><select id="rsel"><option>Thủ kho</option><option>Thu ngân</option><option>Cố vấn dịch vụ</option><option>Quản lý chi nhánh</option></select></div>
+        <div class="badges" id="rmeta"><span class="badge badge--neutral">12 người đang giữ</span></div></div>
+      <div class="alert alert--warn state" role="alert" id="lastAdmin" hidden><b>Cần ít nhất một người giữ quyền Quản lý người dùng.</b><span>Bỏ ô này khiến không ai quản lý được người dùng. Hệ thống không cho lưu. [Cần xác nhận: có chặn như vậy không]</span></div>
+      <div class="grid2" id="perms"></div>
+      <p class="hint">Hành động nhạy cảm (xuất dữ liệu khách, duyệt vượt hạn mức) cần có quyền riêng; có Xem không kéo theo có Xuất. Hạn mức duyệt theo số tiền nằm ở <a href="../apr-redesign/matrix.html" style="color:var(--color-text-link)">Ma trận hạn mức phê duyệt</a>, không ở đây.</p>
+    </section>
+
+    <section class="card sec" data-panel="lg" aria-label="Lịch sử thay đổi quyền" hidden>
+      <ul class="tl">
+        <li class="now"><b>Nguyễn Thị Hà</b> thêm quyền Xuất dữ liệu cho vai trò Kế toán<span class="t2">28/10/2026 14:20 · lý do: kế toán cần xuất sổ quỹ cuối tháng</span></li>
+        <li><b>Quản trị hệ thống Phan Văn Nam</b> bỏ quyền Duyệt khỏi vai trò Cố vấn dịch vụ<span class="t2">12/09/2026 09:03</span></li>
+        <li><b>Hoàn tác</b> thay đổi trên bởi Quản trị hệ thống Phan Văn Nam<span class="t2">12/09/2026 09:05 · bút toán ngược, dòng cũ giữ nguyên</span></li>
+        <li><b>Hệ thống</b> tạo 10 vai trò mặc định cho công ty<span class="t2">01/03/2026</span></li>
+      </ul>
+      <p class="hint" style="margin:0">Nhật ký chỉ thêm, không sửa, không xóa (FR-SYS-003).</p>
+    </section>
+    <div class="stickybar" data-v="edit"><span><b id="nchg">2 thay đổi chưa lưu</b> · ảnh hưởng 12 người giữ vai trò Thủ kho</span><span style="display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:flex-end;flex:0 1 auto"><button class="b b--secondary" type="button" data-view="ad" id="bCancel">Bỏ thay đổi</button><button class="b b--primary" type="button" data-open="dSave" id="bSave" aria-describedby="wS">Xem tác động và lưu</button></span><span class="why" id="wS" style="flex-basis:100%"></span></div>
+  </div>
+
+  <section class="card" data-v="loading" aria-busy="true"><div class="sec"><span class="sk" style="width:40%"></span><span class="sk"></span><span class="sk"></span><span class="sk"></span><span class="sk" style="width:60%"></span></div></section>
+  <section class="card empty" data-v="cv"><h2>Bạn chưa có quyền xem vai trò và quyền</h2><p>Trang này dành cho Chủ garage, Quản lý và Quản trị hệ thống. Cần biết mình được làm gì, hỏi quản lý chi nhánh.</p></section>
+  <section class="card empty" data-v="error" role="alert"><h2>Không tải được ma trận quyền</h2><p>Lỗi từ hệ thống, mã sự cố GM-91B0E2.</p><button class="b b--primary" type="button">Thử lại</button></section>
+</div>
+
+<dialog id="dSave" aria-labelledby="sT"><form method="dialog">
+  <h2 id="sT">Lưu thay đổi quyền vai trò Thủ kho</h2>
+  <div class="alert alert--warn"><b>Tác động</b><span>Thêm: Xuất dữ liệu (kho). Bỏ: Duyệt (chuyển kho). 12 người, 3 chi nhánh. Phiên đang mở nhận quyền mới ở lần tải trang kế tiếp [Cần xác nhận: hay cần đăng nhập lại].</span></div>
+  <div class="field"><label for="sW">Lý do <span class="req">*</span></label><textarea id="sW"></textarea><span class="hint">Từ 5 ký tự. Ghi vào nhật ký cùng giá trị trước và sau.</span></div>
+  <div><button class="b b--primary" type="button" id="sGo" aria-disabled="true" style="width:100%" aria-describedby="sWhy">Lưu thay đổi</button><p class="why" id="sWhy" style="margin-top:var(--space-1)">Chưa bấm được: nhập lý do từ 5 ký tự.</p></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Quay lại sửa</button></div>
+</form></dialog>
+
+<script src="sys.js"></script>
+<script>
+  const ROLES = ['Chủ garage', 'Quản lý vùng', 'Quản lý chi nhánh', 'Cố vấn dịch vụ', 'Quản đốc', 'Thợ', 'Thủ kho', 'Thu ngân', 'Kế toán', 'Quản trị hệ thống'];
+  const MX = [
+    ['Hồ sơ khách và xe', 'X X S S X Xn - X X -'], ['Báo giá và lệnh sửa chữa', 'X X D S X Xn X X X -'], ['Phân thợ, kiểm tra chất lượng', 'X X D X S Xn - - - -'],
+    ['Danh mục phụ tùng và bảng giá', 'D X X X - - S - X -'], ['Nhập, xuất, kiểm kê kho', 'X X D - - - S - X -'], ['Chuyển kho liên chi nhánh', 'D D S - - - S - X -'],
+    ['Công thợ và hoa hồng', 'X X D Xn X Xn - - X -'], ['Thu tiền và sổ quỹ', 'X X D X - - - S X -'], ['Công nợ và giá vốn', 'X X X - - - - - S -'],
+    ['Hóa đơn điện tử', 'X X X - - - - S S -'], ['Báo cáo và dashboard', 'X X X Xn Xn Xn Xn Xn X -'], ['Người dùng, phân quyền, cấu hình', 'D - S - - - - - - S'],
+  ].map((r) => [r[0], r[1].split(' ')]);
+  const SY = { S: ['info', 'Sửa'], D: ['purple', 'Duyệt'], X: ['neutral', 'Xem'], Xn: ['neutral', 'Phần mình'] };
+  $('#fcol').innerHTML = '<option value="">Cả 10 vai trò</option>' + ROLES.map((r, i) => `<option value="${i}">${r}</option>`).join('');
+  function mx() {
+    const f = $('#fcol').value, cols = ROLES.map((r, i) => i).filter((i) => f === '' || +f === i);
+    $('#mx').innerHTML = `<thead><tr><th scope="col">Chức năng</th>${cols.map((i) => `<th scope="col" class="c">${ROLES[i]}</th>`).join('')}</tr></thead><tbody>${MX.map((r) => `<tr><th scope="row" style="font-weight:var(--fw-medium)">${r[0]}</th>${cols.map((i) => { const c = r[1][i]; return `<td class="c">${c === '-' ? '<span class="t2">Không</span>' : `<span class="badge badge--${SY[c][0]}">${SY[c][1]}</span>`}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+  }
+  $('#fcol').onchange = mx; mx();
+  // Quyền theo hành động
+  const ACT = ['Xem', 'Tạo', 'Sửa', 'Lưu trữ', 'Duyệt', 'Từ chối', 'Xuất dữ liệu', 'Quản lý'];
+  const GR = ['Kho và phụ tùng', 'Chuyển kho liên chi nhánh', 'Báo giá và lệnh sửa chữa', 'Thu tiền và sổ quỹ', 'Hồ sơ khách', 'Báo cáo', 'Người dùng và cấu hình'];
+  const BASE = { 'Thủ kho': ['11110011', '11100000', '10000000', '00000000', '10000000', '10000000', '00000000'] };
+  const DEF = ['10000000', '10000000', '10000000', '10000000', '10000000', '10000000', '00000000'];
+  const orig = { '0:6': false, '1:4': true }; const chg = new Set(); // giá trị gốc của hai thay đổi mẫu
+  function perms() {
+    const role = $('#rsel').value, bits = BASE[role] || DEF, ed = curView() === 'edit' && role === 'Thủ kho';
+    $('#perms').innerHTML = GR.map((g, gi) => `<fieldset class="perm${chg.has(gi) && ed ? ' chg' : ''}"><legend>${g}</legend><div class="checks">${ACT.map((a, ai) => `<label><input type="checkbox" data-g="${gi}" data-a="${ai}" ${bits[gi][ai] === '1' ? 'checked' : ''} ${ed ? '' : 'disabled'}>${a}</label>`).join('')}</div></fieldset>`).join('');
+    $('#rmeta').innerHTML = `<span class="badge badge--neutral">${role === 'Thủ kho' ? 12 : role === 'Thu ngân' ? 9 : 14} người đang giữ</span>${ed ? '' : '<span class="badge badge--neutral">Chỉ đọc</span>'}`;
+  }
+  $('#rsel').onchange = perms;
+  $('#perms').addEventListener('change', (e) => {
+    const t = e.target, g = +t.dataset.g, a = +t.dataset.a, key = g + ':' + a; if (!(key in orig)) orig[key] = !t.checked;
+    if (orig[key] === t.checked) { delete orig[key]; }
+    const keys = Object.keys(orig).filter((k) => $$('[data-g]').find((x) => x.dataset.g + ':' + x.dataset.a === k).checked !== orig[k]);
+    chg.clear(); keys.forEach((k) => chg.add(+k.split(':')[0]));
+    $('#nchg').textContent = keys.length + ' thay đổi chưa lưu'; $('#bSave').setAttribute('aria-disabled', String(keys.length === 0)); $('#wS').textContent = keys.length ? '' : 'Chưa bấm được: chưa có thay đổi nào.';
+    $('#lastAdmin').hidden = !(g === 6 && a === 7 && !t.checked);
+    t.closest('fieldset').classList.toggle('chg', keys.some((k) => +k.split(':')[0] === g));
+  });
+  document.addEventListener('viewchange', (e) => {
+    if (e.detail === 'edit') { $('#tAc').click(); $('#rsel').value = 'Thủ kho'; $('#nchg').textContent = '2 thay đổi chưa lưu'; $('#bSave').setAttribute('aria-disabled', 'false'); $('#wS').textContent = ''; $('#rsel').disabled = true; }
+    else { $('#rsel').disabled = false; $('#lastAdmin').hidden = true; }
+    perms();
+    if (e.detail === 'edit') { chg.clear(); chg.add(1); chg.add(0); $$('#perms fieldset')[0].classList.add('chg'); $$('#perms fieldset')[1].classList.add('chg'); }
+  });
+  perms();
+  $('#bEdit').onclick = () => { if ($('#bEdit').getAttribute('aria-disabled') === 'true') return; history.replaceState(null, '', '#edit'); window.dispatchEvent(new HashChangeEvent('hashchange')); };
+  $('#sW').oninput = () => { const ok = $('#sW').value.trim().length >= 5; $('#sGo').setAttribute('aria-disabled', String(!ok)); $('#sWhy').textContent = ok ? '' : 'Chưa bấm được: nhập lý do từ 5 ký tự.'; };
+  $('#sGo').onclick = () => { if ($('#sGo').getAttribute('aria-disabled') === 'true') return; $('#dSave').close(); history.replaceState(null, '', '#ad'); window.dispatchEvent(new HashChangeEvent('hashchange')); toast('Đã lưu quyền vai trò Thủ kho. Hoàn tác tạo bút toán ngược trong nhật ký.', 1); };
+</script>
+</body>
+</html>

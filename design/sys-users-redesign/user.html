@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết người dùng và phiên – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .row3 { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 1fr) auto; }
+  .row2 { grid-template-columns: minmax(0, 1fr) auto; }
+  @media (max-width: 1023px) { .row3 { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-2); } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+<div class="preview">
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="admin">Quản trị xem người khác</button>
+    <button class="chip" type="button" data-view="self">Xem chính mình</button>
+    <button class="chip" type="button" data-view="locked">Tài khoản tạm khóa</button>
+    <button class="chip" type="button" data-view="outside">QL xem người ngoài chi nhánh</button>
+    <button class="chip" type="button" data-view="readonly">Công ty tạm ngưng (chỉ đọc)</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Mỗi tab có đếm. Thu hồi phiên có hiệu lực ngay và không hoàn tác được (người đó đăng nhập lại là có phiên mới); thay đổi vai trò có Hoàn tác bằng bút toán ngược trong nhật ký.</p>
+  <div class="preview__nav"><a href="users.html">Người dùng và lời mời</a><a href="user.html" aria-current="page">Chi tiết người dùng và phiên</a><a href="roles.html">Vai trò và quyền</a><a href="org.html">Cơ cấu tổ chức</a><a href="branch.html">Cấu hình chi nhánh</a><a href="discounts.html">Hạn mức giảm giá</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline"><strong>Mất kết nối.</strong> Chưa thể đổi vai trò hay thu hồi phiên. Danh sách bên dưới là bản lúc 09:12, có thể cũ.</div>
+
+<div class="wrap" id="main">
+  <p class="crumbs"><a href="users.html">Người dùng</a> › <span data-nv="outside">Phạm Thu Trang · NV0023</span><span data-v="outside">Không tìm thấy</span></p>
+
+  <section class="card empty" data-v="outside"><h2>Không tìm thấy người dùng này</h2><p>Người dùng không tồn tại hoặc nằm ngoài chi nhánh bạn được xem. Hệ thống dùng cùng một câu cho cả hai trường hợp.</p><a class="b b--secondary" href="users.html">Về danh sách người dùng</a></section>
+  <section class="card" data-v="loading" aria-busy="true"><div class="sec"><span class="sk" style="width:35%"></span><span class="sk"></span><span class="sk"></span><span class="sk" style="width:70%"></span></div></section>
+  <section class="card empty" data-v="error" role="alert"><h2>Không tải được hồ sơ người dùng</h2><p>Lỗi từ hệ thống, mã sự cố GM-4C21D8.</p><button class="b b--primary" type="button">Thử lại</button></section>
+
+  <div data-nv="outside loading error">
+    <header class="head">
+      <div><h1>Phạm Thu Trang <span class="badge badge--success" data-nv="locked">Đang hoạt động</span><span class="badge badge--warning" data-v="locked">Tạm khóa</span></h1><p>NV0023 · Thu ngân và Cố vấn dịch vụ tại Chi nhánh Quận 7 · tạo ngày 01/03/2026 bởi Trần Quốc Bảo.</p></div>
+      <div class="head__actions">
+        <button class="b b--primary" type="button" data-open="dRole" data-dis-in="self readonly offline" aria-describedby="wRole">Thêm vai trò</button>
+        <p class="why why--block" id="wRole" data-v="self">Chưa bấm được: không tự cấp quyền cho chính mình. Nhờ Quản trị hệ thống hoặc Chủ garage. [Cần xác nhận]</p>
+        <p class="why why--block" data-v="readonly">Chưa bấm được: công ty đang tạm ngưng nên chỉ xem.</p>
+        <p class="why why--block" data-v="offline">Chưa bấm được: đang mất kết nối.</p>
+        <span style="display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:flex-end"><button class="b b--secondary b--sm" type="button" data-open="dLock" data-nv="locked" data-dis-in="self readonly offline">Tạm khóa tài khoản</button><button class="b b--secondary b--sm" type="button" data-toast="Đã mở khóa tài khoản. Người dùng đăng nhập lại được ngay." data-undo="1" data-v="locked">Mở khóa</button></span>
+      </div>
+    </header>
+    <div class="scope" role="status"><span><b>Phạm vi:</b> Garage Minh Phát · hồ sơ cấp công ty, vai trò theo từng chi nhánh</span><span>Cập nhật 07/11/2026 09:12</span><span data-v="readonly"><span class="badge badge--warning">Công ty tạm ngưng</span></span></div>
+    <div class="alert alert--warn state" role="status" data-v="locked"><b>Tài khoản đang tạm khóa.</b><span>Khóa tay bởi Trần Quốc Bảo ngày 05/11/2026, lý do: &quot;nghỉ phép dài ngày&quot;. Mọi phiên đang mở đã bị thu hồi. Khóa tạm do nhập sai mật khẩu tự mở sau thời gian máy chủ đặt, không nằm ở đây.</span></div>
+    <div class="alert alert--info state" role="status" data-v="self"><b>Đây là tài khoản của bạn.</b><span>Bạn xem được phiên và lịch sử của mình. Muốn đổi vai trò hay khóa, nhờ người có quyền khác.</span></div>
+    <div class="alert alert--ok state" role="status" id="okmsg" hidden></div>
+
+    <div class="pair">
+      <div>
+        <div class="tabsline" role="tablist" aria-label="Thông tin người dùng">
+          <button role="tab" aria-selected="true" data-tab="roles">Vai trò và chi nhánh<span class="cnt">2</span></button>
+          <button role="tab" aria-selected="false" data-tab="sess">Phiên đăng nhập<span class="cnt cnt--warn" id="nSess">2</span></button>
+          <button role="tab" aria-selected="false" data-tab="hist">Lịch sử đăng nhập<span class="cnt">5</span></button>
+          <button role="tab" aria-selected="false" data-tab="aud">Nhật ký thay đổi<span class="cnt">3</span></button>
+        </div>
+
+        <section class="card list" data-panel="roles" aria-label="Vai trò theo chi nhánh">
+          <div class="item row2"><div><span class="t1">Thu ngân</span> <span class="badge badge--neutral">Chi nhánh Quận 7</span><div class="t2">Gán ngày 01/03/2026 bởi Trần Quốc Bảo</div></div><button class="b b--secondary b--sm" type="button" data-toast="Đã gỡ vai trò Thu ngân tại Quận 7. Quyền áp dụng ở lần tải trang kế tiếp của người dùng." data-undo="1" data-dis-in="self readonly offline">Gỡ vai trò</button></div>
+          <div class="item row2"><div><span class="t1">Cố vấn dịch vụ</span> <span class="badge badge--neutral">Chi nhánh Quận 7</span><div class="t2">Gán ngày 14/06/2026 bởi Nguyễn Thị Hà</div></div><button class="b b--secondary b--sm" type="button" data-toast="Đã gỡ vai trò Cố vấn dịch vụ tại Quận 7." data-undo="1" data-dis-in="self readonly offline">Gỡ vai trò</button></div>
+          <div class="rowfoot"><b>Quyền thực tế là phần hợp của các vai trò theo từng chi nhánh</b>, không hơn (FR-SYS-012). Xem chi tiết quyền ở <a href="roles.html" style="color:var(--color-text-link)">Vai trò và quyền</a>. Mỗi thay đổi ghi nhật ký kèm người làm, thời điểm và giá trị trước, sau.</div>
+        </section>
+
+        <section class="card list" data-panel="sess" aria-label="Phiên đăng nhập đang mở" hidden>
+          <div class="item row3" id="s1"><div><span class="t1">Chrome trên Windows · máy quầy Quận 7</span> <span class="badge badge--info" data-v="self">Phiên này</span><div class="t2">Đăng nhập 07/11/2026 07:58</div></div><div><span class="t2">Hoạt động gần nhất</span><div>5 phút trước</div></div><div><span class="badge badge--success" id="b1">Đang đăng nhập</span></div><div><button class="b b--secondary b--sm" type="button" data-open="dRev" data-s="s1" data-dis-in="self readonly offline" aria-describedby="w1">Thu hồi phiên</button><p class="why" id="w1" data-v="self">Chưa bấm được: đây là phiên bạn đang dùng. Muốn rời, chọn Đăng xuất.</p></div></div>
+          <div class="item row3" id="s2"><div><span class="t1">Safari trên iPhone</span><div class="t2">Đăng nhập 06/11/2026 18:40</div></div><div><span class="t2">Hoạt động gần nhất</span><div>16 giờ trước</div></div><div><span class="badge badge--success" id="b2">Đang đăng nhập</span></div><div><button class="b b--secondary b--sm" type="button" data-open="dRev" data-s="s2" data-dis-in="readonly offline">Thu hồi phiên</button></div></div>
+          <div class="rowfoot">Chỉ liệt kê thiết bị và thời điểm; không hiện địa chỉ IP [Cần xác nhận: IP và thời hạn lưu, luật sư]. Thu hồi phiên có hiệu lực ngay, người dùng phải đăng nhập lại, và ghi nhật ký <code>session.revoked</code>. <button class="linkbtn" type="button" data-open="dRevAll" data-dis-in="readonly offline">Thu hồi mọi phiên khác</button></div>
+        </section>
+
+        <section class="card list" data-panel="hist" aria-label="Lịch sử đăng nhập" hidden>
+          <div class="item row2"><div><span class="t1">07/11/2026 07:58</span> · Chrome trên Windows<div class="t2">Máy quầy Quận 7</div></div><span class="badge badge--success">Đang đăng nhập</span></div>
+          <div class="item row2"><div><span class="t1">06/11/2026 18:40</span> · Safari trên iPhone</div><span class="badge badge--success">Đang đăng nhập</span></div>
+          <div class="item row2"><div><span class="t1">06/11/2026 07:51</span> · Chrome trên Windows</div><span class="badge badge--neutral">Đã đăng xuất</span></div>
+          <div class="item row2"><div><span class="t1">05/11/2026 07:49</span> · Chrome trên Windows</div><span class="badge badge--neutral">Hết hạn</span></div>
+          <div class="item row2"><div><span class="t1">04/11/2026 07:52</span> · Chrome trên Windows</div><span class="badge badge--neutral">Đã đăng xuất</span></div>
+          <div class="rowfoot">Chỉ có lần đăng nhập thành công. Lần nhập sai không ghi theo tài khoản vì sẽ lộ email có tồn tại hay không (FR-SYS-014, RULE-034) [Cần xác nhận BA: có cần ghi lần sai]. Xem lịch sử của người khác bị ghi nhật ký <code>user.login_history_viewed</code>.</div>
+        </section>
+
+        <section class="card sec" data-panel="aud" aria-label="Nhật ký thay đổi" hidden>
+          <ul class="tl">
+            <li class="now"><b>Nguyễn Thị Hà</b> thêm vai trò Cố vấn dịch vụ tại Quận 7<span class="t2">14/06/2026 10:02 · trước: Thu ngân · sau: Thu ngân, Cố vấn dịch vụ</span></li>
+            <li><b>Trần Quốc Bảo</b> gán vai trò Thu ngân tại Quận 7<span class="t2">01/03/2026 09:15 · tạo tài khoản</span></li>
+            <li><b>Trần Quốc Bảo</b> gửi lời mời kích hoạt<span class="t2">01/03/2026 09:14</span></li>
+          </ul>
+          <p class="hint" style="margin:0">Nhật ký chỉ thêm, không sửa, không xóa (FR-SYS-003). Hoàn tác một thay đổi quyền tạo thêm một dòng mới, không xóa dòng cũ.</p>
+        </section>
+      </div>
+
+      <aside class="card sec" aria-label="Thông tin tài khoản"><h2>Thông tin</h2>
+        <dl><dt>Mã nhân viên</dt><dd>NV0023</dd>
+          <dt>Email đăng nhập</dt><dd>trang.pham@minhphat.vn</dd>
+          <dt>Số điện thoại</dt><dd><span class="masked" id="ph">09•• ••• 928</span><br><button class="linkbtn" type="button" id="phb" data-dis-in="offline">Hiện số đầy đủ (ghi nhật ký)</button><br><span class="hint" id="phn">Đã che theo vai trò của bạn.</span></dd>
+          <dt>Trạng thái</dt><dd><span data-nv="locked">Đang hoạt động</span><span data-v="locked">Tạm khóa</span></dd>
+          <dt>Đăng nhập bằng</dt><dd>Email và mật khẩu; có thể đăng nhập bằng mã nhân viên</dd></dl>
+        <p class="hint" style="margin:0">Hệ thống không hiện người này có tài khoản ở công ty khác hay không.</p>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<dialog id="dRole" aria-labelledby="rT"><form method="dialog">
+  <h2 id="rT">Thêm vai trò cho Phạm Thu Trang</h2>
+  <div class="field"><label for="rR">Vai trò <span class="req">*</span></label><select id="rR"><option value="">Chọn vai trò</option><option>Thủ kho</option><option>Quản đốc</option><option>Kế toán</option></select></div>
+  <div class="field"><span class="lbl" id="rBl">Chi nhánh <span class="req">*</span></span><div class="checks" role="group" aria-labelledby="rBl" id="rB"><label><input type="checkbox">Quận 7</label><label><input type="checkbox">Thủ Đức</label></div></div>
+  <div class="field"><label for="rW">Lý do</label><textarea id="rW" placeholder="Ví dụ: kiêm thủ kho khi anh Khang nghỉ phép"></textarea><span class="hint">Ghi vào nhật ký cùng thay đổi. Không bắt buộc [Cần xác nhận].</span></div>
+  <div class="alert alert--info" id="rEff" aria-live="polite">Chọn vai trò và chi nhánh để xem quyền sẽ có thêm.</div>
+  <div><button class="b b--primary" type="button" id="rGo" aria-disabled="true" style="width:100%" aria-describedby="rWhy">Thêm vai trò</button><p class="why" id="rWhy" style="margin-top:var(--space-1)">Chưa bấm được: còn thiếu vai trò và ít nhất một chi nhánh.</p></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Đóng</button></div>
+</form></dialog>
+
+<dialog id="dLock" aria-labelledby="lT"><form method="dialog">
+  <h2 id="lT">Tạm khóa tài khoản?</h2>
+  <p style="margin:0">Phạm Thu Trang sẽ không đăng nhập được và mọi phiên đang mở bị thu hồi ngay. Dữ liệu và lịch sử giữ nguyên. Mở khóa lại được bất cứ lúc nào.</p>
+  <div class="field"><label for="lW">Lý do <span class="req">*</span></label><textarea id="lW"></textarea><span class="hint">Từ 5 ký tự. Hiện cho người xem nhật ký.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Không khóa</button><button class="b b--danger" type="button" id="lGo" aria-disabled="true">Tạm khóa</button></div>
+  <p class="why" id="lWhy">Chưa bấm được: nhập lý do từ 5 ký tự.</p>
+</form></dialog>
+
+<dialog id="dRev" aria-labelledby="vT"><form method="dialog">
+  <h2 id="vT">Thu hồi phiên này?</h2>
+  <p style="margin:0">Thiết bị đó bị đăng xuất ngay. Việc này không hoàn tác được; người dùng đăng nhập lại để có phiên mới. Bản nháp chưa lưu trên thiết bị đó có thể mất.</p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Giữ phiên</button><button class="b b--danger" type="button" id="vGo">Thu hồi phiên</button></div>
+</form></dialog>
+<dialog id="dRevAll" aria-labelledby="aT"><form method="dialog">
+  <h2 id="aT">Thu hồi mọi phiên khác?</h2>
+  <p style="margin:0">Mọi thiết bị khác của người này bị đăng xuất, trừ phiên bạn đang xem hồ sơ. Không hoàn tác được.</p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Không thu hồi</button><button class="b b--danger" type="button" id="aGo">Thu hồi tất cả</button></div>
+</form></dialog>
+
+<script src="sys.js"></script>
+<script>
+  let cur = 's1';
+  const okmsg = (t) => { const a = $('#okmsg'); a.hidden = false; a.textContent = t; };
+  const revoke = (id) => { $('#b' + id.slice(1)).className = 'badge badge--neutral'; $('#b' + id.slice(1)).textContent = 'Đã thu hồi'; const btn = $('#' + id + ' button'); btn.setAttribute('aria-disabled', 'true'); btn.textContent = 'Đã thu hồi'; $('#nSess').textContent = $$('#s1 .badge--success, #s2 .badge--success').length; };
+  $$('[data-open="dRev"]').forEach((b) => b.addEventListener('click', () => { cur = b.dataset.s; }));
+  $('#vGo').onclick = () => { revoke(cur); $('#dRev').close(); okmsg('Đã thu hồi phiên. Nhật ký ghi: ai thu hồi, phiên nào, lúc nào.'); };
+  $('#aGo').onclick = () => { revoke('s2'); $('#dRevAll').close(); okmsg('Đã thu hồi mọi phiên khác.'); };
+  const roleFx = { 'Thủ kho': 'xem và tạo phiếu nhập, xuất, kiểm kê; không tự duyệt phiếu bất thường', 'Quản đốc': 'phân thợ và kiểm tra chất lượng', 'Kế toán': 'xem thu chi, công nợ, hóa đơn' };
+  function chkRole() {
+    const r = $('#rR').value, b = $$('#rB input:checked').length;
+    $('#rEff').textContent = r ? `Thêm quyền: ${roleFx[r]}. Quyền hiện có giữ nguyên; quyền thực tế là phần hợp, mỗi chi nhánh tính riêng.` : 'Chọn vai trò và chi nhánh để xem quyền sẽ có thêm.';
+    const miss = []; if (!r) miss.push('vai trò'); if (!b) miss.push('ít nhất một chi nhánh');
+    $('#rGo').setAttribute('aria-disabled', String(miss.length > 0)); $('#rWhy').textContent = miss.length ? 'Chưa bấm được: còn thiếu ' + miss.join(' và ') + '.' : '';
+  }
+  $('#rR').oninput = chkRole; $('#rB').onchange = chkRole;
+  $('#rGo').onclick = () => { if ($('#rGo').getAttribute('aria-disabled') === 'true') return; $('#dRole').close(); toast('Đã thêm vai trò. Quyền áp dụng ở lần tải trang kế tiếp của người dùng.', 1); };
+  $('#lW').oninput = () => { const ok = $('#lW').value.trim().length >= 5; $('#lGo').setAttribute('aria-disabled', String(!ok)); $('#lWhy').textContent = ok ? '' : 'Chưa bấm được: nhập lý do từ 5 ký tự.'; };
+  $('#lGo').onclick = () => { if ($('#lGo').getAttribute('aria-disabled') === 'true') return; $('#dLock').close(); toast('Đã tạm khóa tài khoản và thu hồi mọi phiên.', 1); };
+  // Hiện số đầy đủ: máy chủ trả số thật và ghi nhật ký; ở đây chỉ minh họa
+  $('#phb').onclick = () => { if ($('#phb').getAttribute('aria-disabled') === 'true') return; $('#ph').textContent = '0977 410 928'; $('#ph').className = ''; $('#phn').textContent = 'Đã ghi nhật ký: bạn xem số đầy đủ lúc 09:14. Số tự che lại sau 30 giây [Cần xác nhận].'; $('#phb').hidden = true; };
+  document.addEventListener('viewchange', () => { $('#ph').textContent = '09•• ••• 928'; $('#ph').className = 'masked'; $('#phb').hidden = false; $('#phn').textContent = 'Đã che theo vai trò của bạn.'; });
+</script>
+</body>
+</html>

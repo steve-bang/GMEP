@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập dữ liệu từ Excel – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .hist { --cols: minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1.2fr) 190px; }
+  .kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .kind { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .kind input { width: 20px; height: 20px; margin-top: 2px; }
+  .kind--off { background: var(--color-surface-subtle); color: var(--color-text-tertiary); }
+  @media (max-width: 767px) { .kinds { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="preview" role="group" aria-label="Xem thử trạng thái (chỉ có trong prototype)">
+  <div class="preview__row"><span class="preview__label">Xem thử (tab Nhập mới)</span>
+    <button class="chip" type="button" data-view="tep">Bước 1: chọn tệp</button>
+    <button class="chip" type="button" data-view="anhxa">Bước 2: ánh xạ cột</button>
+    <button class="chip" type="button" data-view="loi">Bước 3: có lỗi</button>
+    <button class="chip" type="button" data-view="sach">Bước 3: sẵn sàng ghi</button>
+    <button class="chip" type="button" data-view="ghi">Bước 4: đang ghi</button>
+    <button class="chip" type="button" data-view="dung">Dừng giữa chừng</button>
+    <button class="chip" type="button" data-view="trung">Tệp trùng</button>
+    <button class="chip" type="button" data-view="mang">Mất mạng</button>
+    <button class="chip" type="button" data-view="noperm">Không có quyền</button>
+  </div>
+  <p class="preview__hint">Hộp thoại: <span class="code">#dlg=d-commit</span>, <span class="code">d-undo</span>, <span class="code">d-blocked</span>. Tab Lịch sử lô: <span class="code">#tab=hist</span>.</p>
+</div>
+<div class="wrap">
+  <p class="crumbs">GMEP › Cài đặt và quản trị › Nhập từ Excel</p>
+  <nav class="subnav" aria-label="Cài đặt và quản trị">
+    <a href="audit.html">Nhật ký thao tác</a><a href="import.html" aria-current="page">Nhập từ Excel</a><a href="einvoice.html">Hóa đơn điện tử</a><a href="messaging.html">Tin nhắn</a><a href="tax.html">Thuế suất</a><a href="security.html">Bảo mật và phiên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Nhập dữ liệu từ Excel</h1><p>Nhập theo mẫu, chạy thử trước khi ghi, báo lỗi theo từng dòng. Tệp có lỗi thì không ghi gì cả; mỗi lần ghi là một lô và hoàn tác được theo lô (FR-SYS-007, UAT-12).</p></div>
+    <div class="head__actions" data-t="new" data-vx="noperm">
+      <button class="b b--primary" type="button" data-v="tep" aria-disabled="true" aria-describedby="w-a">Chạy thử tệp</button><span class="why why--block" id="w-a" data-v="tep">Chưa bấm được: chưa chọn loại dữ liệu và tệp.</span>
+      <button class="b b--primary" type="button" data-v="anhxa" aria-disabled="true" aria-describedby="w-b">Chạy thử (không ghi dữ liệu)</button><span class="why why--block" id="w-b" data-v="anhxa">Chưa bấm được: cột bắt buộc “Biển số” chưa ánh xạ.</span>
+      <button class="b b--primary" type="button" data-v="loi" data-tab-go="new" aria-disabled="true" aria-describedby="w-c">Ghi vào hệ thống</button><span class="why why--block" id="w-c" data-v="loi">Chưa bấm được: tệp còn 3 dòng lỗi. Sửa tệp rồi tải lại.</span>
+      <button class="b b--primary" type="button" data-v="sach" data-open="d-commit">Ghi 214 dòng vào Quận 7</button>
+      <button class="b b--primary" type="button" data-v="ghi" aria-disabled="true" aria-describedby="w-d">Đang ghi…</button><span class="why" id="w-d" data-v="ghi">Đang ghi 120/214 dòng. Chưa hoàn tác được cho tới khi ghi xong hoặc dừng.</span>
+      <button class="b b--primary" type="button" data-v="dung" data-toast="Đang ghi tiếp 94 dòng còn lại…">Ghi tiếp 94 dòng còn lại</button>
+      <button class="b b--primary" type="button" data-v="trung" aria-disabled="true" aria-describedby="w-e">Chạy thử tệp</button><span class="why why--block" id="w-e" data-v="trung">Chưa bấm được: tệp này đã được ghi vào lô IM-Q7-2611-0003.</span>
+      <button class="b b--primary" type="button" data-v="mang" aria-disabled="true" aria-describedby="w-f">Chạy thử tệp</button><span class="why why--block" id="w-f" data-v="mang">Chưa bấm được: mất kết nối. Tệp đang chọn vẫn được giữ trong trang.</span>
+    </div>
+  </header>
+
+  <div class="scope" role="status"><span><b>Nhập vào:</b> Chi nhánh Quận 7 (đổi chi nhánh ở bộ chọn phạm vi trước khi nhập)</span><span data-vx="noperm">Giới hạn hiện tại: 5 MB và 2.000 dòng mỗi tệp (cấu hình)</span><span>Cập nhật 09:15 07/11/2026</span></div>
+
+  <div class="alert alert--warn state" role="alert" data-v="mang"><strong>Mất kết nối</strong><span>Chưa gửi gì lên hệ thống. Khi có mạng lại, bấm “Chạy thử tệp”. Nếu đang ghi dở, lô vẫn an toàn và ghi tiếp được từ Lịch sử lô.</span></div>
+
+  <div data-vx="noperm">
+  <div class="tabsline" role="tablist" aria-label="Nhập dữ liệu">
+    <button type="button" role="tab" data-tab="new">Nhập mới</button>
+    <button type="button" role="tab" data-tab="hist">Lịch sử lô<span class="cnt cnt--warn">12</span></button>
+  </div>
+
+  <!-- ===== Nhập mới ===== -->
+  <div data-t="new" class="stack">
+    <ol class="steps" aria-label="Các bước nhập" data-v="tep trung"><li aria-current="step"><i>1</i>Chọn loại và tệp</li><li><i>2</i>Ánh xạ cột</li><li><i>3</i>Chạy thử và xem trước</li><li><i>4</i>Ghi vào hệ thống</li></ol>
+    <ol class="steps" aria-label="Các bước nhập" data-v="anhxa"><li class="done"><i>✓</i>Chọn loại và tệp</li><li aria-current="step"><i>2</i>Ánh xạ cột</li><li><i>3</i>Chạy thử và xem trước</li><li><i>4</i>Ghi vào hệ thống</li></ol>
+    <ol class="steps" aria-label="Các bước nhập" data-v="loi sach mang"><li class="done"><i>✓</i>Chọn loại và tệp</li><li class="done"><i>✓</i>Ánh xạ cột</li><li aria-current="step"><i>3</i>Chạy thử và xem trước</li><li><i>4</i>Ghi vào hệ thống</li></ol>
+    <ol class="steps" aria-label="Các bước nhập" data-v="ghi dung"><li class="done"><i>✓</i>Chọn loại và tệp</li><li class="done"><i>✓</i>Ánh xạ cột</li><li class="done"><i>✓</i>Chạy thử và xem trước</li><li aria-current="step"><i>4</i>Ghi vào hệ thống</li></ol>
+
+    <!-- bước 1 -->
+    <section class="card sec" data-v="tep trung mang" aria-label="Chọn loại và tệp">
+      <h2>Bạn nhập loại dữ liệu nào?</h2>
+      <div class="kinds" role="radiogroup" aria-label="Loại dữ liệu">
+        <label class="kind"><input type="radio" name="k" checked><span><span class="t1">Khách và xe</span><br><span class="t2">Tạo hồ sơ khách và xe cùng lúc</span></span></label>
+        <label class="kind"><input type="radio" name="k"><span><span class="t1">Phụ tùng</span><br><span class="t2">Danh mục phụ tùng, chưa có tồn</span></span></label>
+        <label class="kind"><input type="radio" name="k"><span><span class="t1">Tồn đầu kỳ</span><br><span class="t2">Tạo phiếu điều chỉnh nháp; một người khác duyệt mới ghi sổ</span></span></label>
+        <div class="kind kind--off"><input type="radio" disabled aria-describedby="k-off"><span><span class="t1">Công nợ, nhân sự, bảng giá, lịch sử sửa chữa</span><br><span class="t2" id="k-off">Chưa có: chưa xây ở bản này [Cần xác nhận phạm vi và số năm lịch sử cần chuyển]</span></span></div>
+      </div>
+      <div class="drop" data-vx="trung">
+        <p>Kéo thả tệp .xlsx hoặc .csv vào đây, hoặc chọn từ máy</p>
+        <button class="b b--secondary" type="button" data-toast="Đã chọn khach_q7_2.xlsx (214 dòng)">Chọn tệp</button>
+        <p class="hint" style="margin-top:var(--space-3)">Chưa có mẫu? <a href="#" data-toast="Đã tải mau_khach_xe.xlsx">Tải mẫu .xlsx</a> · <a href="#" data-toast="Đã tải mau_khach_xe.csv">Tải mẫu CSV</a></p>
+      </div>
+      <div class="alert alert--warn" role="alert" data-v="trung"><strong>Tệp này đã được ghi vào Chi nhánh Quận 7</strong><span>Lô <span class="code">IM-Q7-2611-0003</span>, ngày 05/11/2026, 214 dòng, người ghi Võ Minh Quân. Để tránh ghi trùng, hệ thống không cho chạy thử lại cùng nội dung.</span><div class="act2"><button class="b b--secondary b--sm" type="button" data-tab-go="hist">Xem lô đó</button></div></div>
+      <p class="hint">Tệp lỗi không ghi một phần. Báo cáo lỗi chỉ nêu số dòng, tên cột và loại lỗi, không chép lại giá trị trong ô (tránh lộ số điện thoại, địa chỉ).</p>
+    </section>
+
+    <!-- bước 2 -->
+    <section class="card sec" data-v="anhxa" aria-label="Ánh xạ cột">
+      <h2>Ghép cột trong tệp với trường của hệ thống</h2>
+      <p class="hint">Tệp khach_q7_2.xlsx · 214 dòng · hệ thống đã tự ghép những cột trùng tên; bạn chọn lại được.</p>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>Cột trong tệp</th><th>Trường hệ thống</th><th>Bắt buộc</th><th>Kiểm tra</th></tr></thead><tbody>
+        <tr><td>Họ tên KH</td><td><div class="field"><label class="sr" for="m1">Trường cho Họ tên KH</label><select id="m1"><option>Họ tên khách</option></select></div></td><td>Có</td><td><span class="badge badge--success">Đã ghép</span></td></tr>
+        <tr><td>SĐT</td><td><div class="field"><label class="sr" for="m2">Trường cho SĐT</label><select id="m2"><option>Số điện thoại</option></select></div></td><td>Có</td><td><span class="badge badge--success">Đã ghép</span></td></tr>
+        <tr><td>Bien so xe</td><td><div class="field" data-err><label class="sr" for="m3">Trường cho Bien so xe</label><select id="m3" aria-invalid="true" aria-describedby="m3e"><option>Chưa chọn</option><option>Biển số</option></select><span class="err" id="m3e">Chọn trường “Biển số”.</span></div></td><td>Có</td><td><span class="badge badge--danger">Thiếu</span></td></tr>
+        <tr><td>Hãng</td><td><div class="field"><label class="sr" for="m4">Trường cho Hãng</label><select id="m4"><option>Hãng xe</option></select></div></td><td>Không</td><td><span class="badge badge--success">Đã ghép</span></td></tr>
+        <tr><td>Ghi chú nội bộ</td><td><div class="field"><label class="sr" for="m5">Trường cho Ghi chú nội bộ</label><select id="m5"><option>Bỏ qua cột này</option></select></div></td><td>Không</td><td><span class="badge badge--neutral">Bỏ qua</span></td></tr>
+      </tbody></table></div>
+      <div class="bar2"><button class="b b--secondary" type="button" data-view-go="tep">Quay lại chọn tệp</button></div>
+    </section>
+
+    <!-- bước 3 có lỗi -->
+    <section class="card sec" data-v="loi" aria-label="Kết quả chạy thử có lỗi">
+      <div class="fact"><div><span class="l">Dòng đã đọc</span><span class="v">214</span></div><div><span class="l">Hợp lệ</span><span class="v ok">211</span></div><div><span class="l">Lỗi</span><span class="v late">3</span></div><div><span class="l">Cảnh báo</span><span class="v">0</span></div></div>
+      <div class="alert alert--danger" role="alert"><strong>Chưa ghi gì vào hệ thống</strong><span>Tệp có 3 dòng lỗi nên không dòng nào được ghi, kể cả 211 dòng hợp lệ. Sửa trong Excel rồi tải lại; lô này chỉ lưu báo cáo lỗi.</span></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th class="num">Dòng</th><th>Cột</th><th>Lỗi</th><th>Cách sửa</th></tr></thead><tbody>
+        <tr><td class="num">18</td><td>Bien so xe</td><td>Biển số không đúng định dạng</td><td>Ví dụ 51K-482.19 hoặc 30H-912.06</td></tr>
+        <tr><td class="num">42</td><td>SĐT</td><td>Thiếu số điện thoại</td><td>Nhập đủ số, không chứa chữ</td></tr>
+        <tr><td class="num">97</td><td>Bien so xe</td><td>Trùng với dòng 61 trong cùng tệp</td><td>Xóa một trong hai dòng</td></tr>
+      </tbody></table></div>
+      <div class="bar2"><span class="hint" style="align-self:center">Hiển thị 3 lỗi. Từ 500 lỗi trở lên chỉ hiện “ít nhất 500 lỗi”, có nút Trước/Sau.</span><button class="b b--secondary" type="button" data-toast="Đã tải bao_cao_loi.csv">Tải báo cáo lỗi (CSV)</button><button class="b b--secondary" type="button" data-view-go="tep">Tải lại tệp đã sửa</button></div>
+    </section>
+
+    <!-- bước 3 sạch -->
+    <section class="card sec" data-v="sach" aria-label="Sẵn sàng ghi">
+      <div class="fact"><div><span class="l">Dòng đã đọc</span><span class="v">214</span></div><div><span class="l">Sẽ tạo khách</span><span class="v">198</span></div><div><span class="l">Sẽ tạo xe</span><span class="v">214</span></div><div><span class="l">Cảnh báo</span><span class="v">2</span></div></div>
+      <div class="alert alert--ok"><strong>Chạy thử xong: không có lỗi</strong><span>Chưa có gì được ghi. Xem lại số liệu rồi bấm “Ghi 214 dòng vào Quận 7” ở đầu trang.</span></div>
+      <div class="alert alert--warn"><strong>2 cảnh báo (không chặn ghi)</strong><span>Dòng 33 và 150 có số điện thoại trùng khách đã có. Hệ thống sẽ tạo khách mới, chưa có tính năng gộp khách trùng ở bản này (xem “Chưa xây”).</span></div>
+      <p class="hint">Xem trước 5 dòng đầu: dữ liệu cá nhân được che theo vai trò của bạn.</p>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th class="num">Dòng</th><th>Họ tên</th><th>Số điện thoại</th><th>Biển số</th><th>Hãng</th></tr></thead><tbody>
+        <tr><td class="num">2</td><td>Lê Quốc Huy</td><td><span class="masked">0903 ••• •89</span></td><td><span class="plate">51K-482.19</span></td><td>Toyota</td></tr>
+        <tr><td class="num">3</td><td>Nguyễn Thị Hồng</td><td><span class="masked">0912 ••• •45</span></td><td><span class="plate">30H-912.06</span></td><td>Honda</td></tr>
+        <tr><td class="num">4</td><td>Công ty TNHH Vận tải Nam Việt</td><td><span class="masked">0286 ••• •01</span></td><td><span class="plate">51D-228.47</span></td><td>Hyundai</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <!-- bước 4 -->
+    <section class="card sec" data-v="ghi" aria-label="Đang ghi">
+      <h2>Đang ghi vào Chi nhánh Quận 7</h2>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="214" aria-valuenow="120" aria-label="Tiến độ ghi"><i style="width:56%"></i></div>
+      <p class="t2">120/214 dòng · ghi theo bước nhỏ. Nếu đóng trang, vào Lịch sử lô để ghi tiếp; bấm hai lần không ghi trùng.</p>
+    </section>
+    <section class="card sec" data-v="dung" aria-label="Dừng giữa chừng">
+      <div class="alert alert--danger" role="alert"><strong>Lô dừng ở dòng 121 do lỗi hệ thống</strong><span>120 dòng đã ghi vẫn được giữ, 94 dòng chưa ghi. Không phải lỗi do tệp. Mã tham chiếu <span class="code">REQ-9D40E2</span>.</span></div>
+      <div class="bar2"><button class="b b--secondary" type="button" data-open="d-undo">Hoàn tác phần đã ghi</button></div>
+    </section>
+  </div>
+
+  <!-- ===== Lịch sử ===== -->
+  <div data-t="hist" class="stack">
+    <div class="find"><div class="search"><label class="sr" for="qh">Tìm lô</label><input id="qh" type="search" placeholder="Tìm mã lô, tên tệp, người nhập"></div><div class="chips" role="group" aria-label="Lọc trạng thái lô"><button class="chip" type="button" aria-pressed="true">Tất cả</button><button class="chip" type="button" aria-pressed="false">Cần xử lý 1</button><button class="chip" type="button" aria-pressed="false">Đã ghi</button><button class="chip" type="button" aria-pressed="false">Đã hoàn tác</button></div></div>
+    <section class="card list" aria-label="Lịch sử lô nhập">
+      <div class="item hist item--flag"><div class="col"><span class="t1 code">IM-Q7-2611-0004</span><span class="t2">07/11/2026 08:30 · Võ Minh Quân</span></div><div class="col"><span class="t1">Khách và xe</span><span class="t2">khach_q7_2.xlsx</span></div><div class="col"><span class="badge badge--warning">Dừng giữa chừng</span><span class="t2">120/214 dòng đã ghi</span></div><div class="act"><button class="b b--primary b--sm" type="button" data-tab-go="new" data-view-go="dung">Ghi tiếp</button><button class="b b--secondary b--sm" type="button" data-open="d-undo">Hoàn tác</button></div></div>
+      <div class="item hist"><div class="col"><span class="t1 code">IM-Q7-2611-0003</span><span class="t2">05/11/2026 16:10 · Võ Minh Quân</span></div><div class="col"><span class="t1">Khách và xe</span><span class="t2">khach_q7_1.xlsx</span></div><div class="col"><span class="badge badge--success">Đã ghi</span><span class="t2">198 khách, 214 xe</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-blocked">Hoàn tác lô</button><span class="why">Nếu vướng dữ liệu phát sinh, hệ thống báo trước khi xóa.</span></div></div>
+      <div class="item hist"><div class="col"><span class="t1 code">IM-Q7-2611-0002</span><span class="t2">05/11/2026 09:45 · Hoàng Thị Mai</span></div><div class="col"><span class="t1">Tồn đầu kỳ</span><span class="t2">tonkho_q7.xlsx</span></div><div class="col"><span class="badge badge--success">Đã ghi</span><span class="t2">Phiếu điều chỉnh nháp chờ duyệt</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-undo">Hoàn tác lô</button></div></div>
+      <div class="item hist"><div class="col"><span class="t1 code">IM-Q7-2611-0001</span><span class="t2">04/11/2026 15:02 · Võ Minh Quân</span></div><div class="col"><span class="t1">Phụ tùng</span><span class="t2">phutung_q7.xlsx</span></div><div class="col"><span class="badge badge--danger">Bị từ chối</span><span class="t2">3 dòng lỗi · không ghi gì</span></div><div class="act"><span class="hint">Không có gì để hoàn tác</span></div></div>
+      <div class="item hist"><div class="col"><span class="t1 code">IM-Q7-2610-0007</span><span class="t2">29/10/2026 11:20 · Võ Minh Quân</span></div><div class="col"><span class="t1">Phụ tùng</span><span class="t2">phutung_q7_cu.xlsx</span></div><div class="col"><span class="badge badge--neutral">Đã hoàn tác</span><span class="t2">30/10/2026 08:05 · Trần Hoàng Anh</span></div><div class="act"><span class="hint">Lô giữ lại để tra cứu</span></div></div>
+      <div class="rowfoot">Hiển thị 5 trong 12 lô. Lô không bị xóa khỏi lịch sử, kể cả khi đã hoàn tác (nhật ký thao tác ghi người hoàn tác).</div>
+    </section>
+  </div>
+  </div>
+
+  <section class="card sec" data-v="noperm" aria-label="Không có quyền">
+    <div class="alert alert--warn" role="alert"><strong>Bạn chưa có quyền nhập dữ liệu</strong><span>Chỉ Chủ garage, Quản lý và Thủ kho nhập dữ liệu từ Excel (quyền data-import). Mã lý do <span class="code">NO_PERMISSION</span>.</span></div>
+    <p class="why">Cố vấn không dùng màn này. Cần nhập dữ liệu, nhờ Quản lý chi nhánh.</p>
+  </section>
+</div>
+
+<dialog id="d-commit" aria-labelledby="d-commit-h"><div class="dlg">
+  <h2 id="d-commit-h">Ghi 214 dòng vào Chi nhánh Quận 7?</h2>
+  <dl><dt>Loại</dt><dd>Khách và xe</dd><dt>Sẽ tạo</dt><dd>198 khách, 214 xe</dd><dt>Tệp</dt><dd>khach_q7_2.xlsx</dd></dl>
+  <div class="alert alert--info"><span>Ghi xong sẽ thành một lô có mã, hoàn tác được theo lô nếu dữ liệu chưa phát sinh gì thêm.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Hủy</button><button class="b b--primary" type="button" data-close="Đang ghi lô IM-Q7-2611-0005…">Ghi vào hệ thống</button></div>
+</div></dialog>
+<dialog id="d-undo" aria-labelledby="d-undo-h"><div class="dlg">
+  <h2 id="d-undo-h">Hoàn tác lô IM-Q7-2611-0004?</h2>
+  <p class="t2">Hệ thống kiểm tra trước toàn bộ; nếu vướng một bản ghi sẽ không xóa gì cả.</p>
+  <ul style="margin:0;padding-left:var(--space-5);display:grid;gap:var(--space-2)">
+    <li>Khách và xe còn nguyên (chưa sửa, chưa có lệnh): <strong>xóa hẳn</strong>.</li>
+    <li>Phụ tùng chưa có lịch sử kho: <strong>xóa</strong>.</li>
+    <li>Tồn đầu kỳ: phiếu nháp thì <strong>hủy</strong>; phiếu đã ghi sổ thì <strong>tạo phiếu đảo</strong>, không xóa (RULE-010).</li>
+  </ul>
+  <label class="check"><input type="checkbox" data-gates="b-undo"><span>Tôi hiểu dữ liệu của lô này sẽ bị gỡ khỏi hệ thống.</span></label>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Không hoàn tác</button><div class="act"><button class="b b--danger" id="b-undo" type="button" aria-disabled="true" aria-describedby="b-undo-why" data-close="Đã hoàn tác lô. Nhật ký ghi người thực hiện.">Hoàn tác lô</button><span class="why" id="b-undo-why">Chưa bấm được: chưa tích ô xác nhận.</span></div></div>
+</div></dialog>
+<dialog id="d-blocked" aria-labelledby="d-blocked-h"><div class="dlg">
+  <h2 id="d-blocked-h">Chưa hoàn tác được lô IM-Q7-2611-0003</h2>
+  <div class="alert alert--danger" role="alert"><strong>Không có gì bị xóa</strong><span>Mã <span class="code">import_undo_blocked</span>: 3 bản ghi đã phát sinh dữ liệu sau khi nhập.</span></div>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Bản ghi</th><th>Vướng</th></tr></thead><tbody>
+    <tr><td>Khách Lê Quốc Huy (KH-Q7-00231)</td><td>Đã có lệnh sửa chữa</td></tr>
+    <tr><td>Xe 51K-482.19</td><td>Đã có lệnh sửa chữa</td></tr>
+    <tr><td>Khách Nguyễn Thị Hồng</td><td>Hồ sơ đã được sửa (phiên bản 2)</td></tr>
+  </tbody></table></div>
+  <p class="t2">Cách xử lý: giữ dữ liệu đã dùng; xóa tay phần chưa dùng sau khi quản lý xem lại, hoặc lưu trữ hồ sơ. Việc hoàn tác một phần cho lô [Cần xác nhận].</p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Đóng</button></div>
+</div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="ops.js"></script>
+</body>
+</html>
