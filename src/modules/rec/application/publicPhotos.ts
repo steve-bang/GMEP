@@ -20,7 +20,7 @@ export interface PublicPhotoSource {
   parent: PhotoParent;
   /** id of the intake or order that owns the photo */
   parentId: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   kind: PublicPhotoDto['kind'];
   ref: PhotoRef;
@@ -28,7 +28,7 @@ export interface PublicPhotoSource {
 
 interface PhotoOwner {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   photos?: readonly PhotoRef[];
 }
@@ -48,7 +48,7 @@ export function publicPhotoSources(input: {
         out.push({
           parent: 'intake',
           parentId: intake.id,
-          companyId: intake.companyId,
+          tenantId: intake.tenantId,
           branchId: intake.branchId,
           kind: 'intake',
           ref,
@@ -62,7 +62,7 @@ export function publicPhotoSources(input: {
         out.push({
           parent: 'order',
           parentId: order.id,
-          companyId: order.companyId,
+          tenantId: order.tenantId,
           branchId: order.branchId,
           kind: 'proposal',
           ref,

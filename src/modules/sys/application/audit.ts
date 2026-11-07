@@ -99,7 +99,7 @@ export async function listAudit(
   });
   const names = new Map<string, string>();
   for (const id of new Set(page.items.map((e) => e.actorId))) {
-    const u = await deps.users.getById(id);
+    const u = await deps.users.getById(actor.tenantId, id);
     if (u) names.set(id, u.displayName);
   }
   return {

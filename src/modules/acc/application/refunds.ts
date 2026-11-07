@@ -69,7 +69,7 @@ async function judge(
     (await deps.accounts.getInTx(tx, scope, order.id)) ??
     emptyAccount({ ...order, orderId: order.id, orderNumber: order.number });
   const date = businessDate(deps.sys.clock.now());
-  const policy = await accPolicyOf(deps, actor.companyId, branchId, date);
+  const policy = await accPolicyOf(deps, actor.tenantId, branchId, date);
   const errors = validateLines(
     [
       {
@@ -97,7 +97,7 @@ export async function requestRefund(
   const data = parseInput(refundSchema, input);
   const { level, limits } = await approvalLevelFor(
     deps.sys,
-    actor.companyId,
+    actor.tenantId,
     'customer_refund',
     data.amountVnd,
   );
@@ -160,7 +160,7 @@ export async function payApprovedRefund(
   // R106 pattern: an approved refund is only good for `validHours` (config, default 24 h); after that it is asked for again
   const limits = await approvalLimitsOf(
     deps.sys,
-    actor.companyId,
+    actor.tenantId,
     'customer_refund',
     businessDate(deps.sys.clock.now()),
   );
@@ -191,7 +191,7 @@ export async function payApprovedRefund(
       const e = parsed.data;
       const j = await judge(deps, tx, actor, scope, branchId, e);
       const now = deps.sys.clock.now();
-      const m = await loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, j.date);
+      const m = await loadMoneyCtx(deps, tx, scope, actor.tenantId, branchId, j.date);
       const shiftId = requireOpenShift(m);
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       const paymentId = `pay_${deps.sys.newId()}`;
@@ -205,7 +205,7 @@ export async function payApprovedRefund(
       });
       const p: Payment = {
         id: paymentId,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         number: num.number!,
         kind: 'expense',

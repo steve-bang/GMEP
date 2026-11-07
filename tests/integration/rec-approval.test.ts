@@ -19,9 +19,9 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU'; // 30 min = 150.000 at 300.000/h
-const SV_PHANH = 'svc_cmp_demo_SV-PHANH'; // 90 min = 450.000
-const SV_CAN = 'svc_cmp_demo_SV-CANCHINH'; // 60 min = 300.000
+const SV_DAU = 'svc_tnt_demo_SV-DAU'; // 30 min = 150.000 at 300.000/h
+const SV_PHANH = 'svc_tnt_demo_SV-PHANH'; // 90 min = 450.000
+const SV_CAN = 'svc_tnt_demo_SV-CANCHINH'; // 60 min = 300.000
 const P_FILTER = 'part_seed_01'; // list 130.000
 const VEH_AN = 'veh_an';
 const VEH_BIZ = 'veh_biz';
@@ -599,7 +599,7 @@ describe.each(backends)('REC quote approval [%s]', (backend) => {
         expect(l.priceVersionId).toBeTruthy();
       }
       expect(ap.json.lines.find((l: Row) => l.kind === 'part').priceVersionId).toMatch(
-        /^price-item__STD~LOC-DAU-TY01__/,
+        /^tnt_demo__price-item__STD~LOC-DAU-TY01__/,
       );
       expect(ap.json).toMatchObject({
         mode: 'partial',
@@ -649,7 +649,7 @@ describe.each(backends)('REC quote approval [%s]', (backend) => {
   describe('order code and workflow (FR-REC-030, FR-REC-032)', () => {
     it('FR-REC-030: order codes are unique per company, branch-prefixed and idempotent per request key', async () => {
       const rec = h.container.rec;
-      const all = allBranchesScope('cmp_demo');
+      const all = allBranchesScope('tnt_demo');
       const q7 = await h.container.sys.branches.get(all, 'br_q7');
       const td = await h.container.sys.branches.get(all, 'br_td');
       const alloc = (branch: typeof q7, orderId: string, requestKey: string) =>

@@ -1,7 +1,7 @@
 {
   "indexes": [
     {
-      "collectionGroup": "approvals",
+      "collectionGroup": "appointments",
       "queryScope": "COLLECTION",
       "fields": [
         {
@@ -9,7 +9,21 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "approvals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
           "order": "ASCENDING"
         },
         {
@@ -17,6 +31,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
         }
@@ -27,11 +45,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "requestedBy",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "requestedBy",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -45,75 +63,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
           "order": "ASCENDING"
         },
         {
@@ -125,521 +75,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "action",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "actorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -657,7 +93,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "entityId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -675,11 +115,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "entityType",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "entityId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -697,9 +137,19 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
+        {
+          "fieldPath": "at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "auditLogs",
+      "queryScope": "COLLECTION",
+      "fields": [
         {
           "fieldPath": "entityId",
           "order": "ASCENDING"
@@ -709,25 +159,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -740,48 +172,12 @@
       "collectionGroup": "auditLogs",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "entityId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "at",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "entityType",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -795,11 +191,25 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "entityType",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "entityType",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "auditLogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -831,7 +241,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -853,7 +263,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -871,7 +281,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -885,11 +295,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "scopeKey",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "scopeKey",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -906,15 +316,15 @@
       "collectionGroup": "configVersions",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "type",
           "order": "ASCENDING"
         },
@@ -929,7 +339,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -947,11 +357,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "customerId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "customerId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -969,7 +379,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -987,7 +397,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1005,7 +415,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1023,7 +433,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1045,7 +455,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1063,7 +473,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1077,7 +487,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1091,7 +501,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1109,7 +519,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1127,7 +537,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1141,7 +551,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1155,7 +565,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1169,7 +579,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1187,7 +597,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1209,11 +619,15 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "customerId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "customerId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1231,15 +645,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "customerId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1257,7 +667,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1275,11 +689,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1292,28 +702,6 @@
       "collectionGroup": "dataSubjectRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "customerId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "receivedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "dataSubjectRequests",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "customerId",
           "order": "ASCENDING"
@@ -1323,17 +711,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "receivedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "dataSubjectRequests",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1347,11 +725,43 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "customerId",
           "order": "ASCENDING"
         },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "receivedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "dataSubjectRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
         {
           "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "receivedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "dataSubjectRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1369,11 +779,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1391,7 +801,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1409,7 +823,21 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "intakes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
           "order": "ASCENDING"
         },
         {
@@ -1417,21 +845,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "intakes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1449,7 +863,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1467,7 +885,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1485,11 +907,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1507,11 +925,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1529,11 +943,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1546,24 +956,6 @@
       "collectionGroup": "intakes",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "intakes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "customerId",
           "order": "ASCENDING"
@@ -1573,6 +965,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
         }
@@ -1583,7 +979,29 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "intakes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1597,7 +1015,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1611,11 +1033,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1629,11 +1047,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1647,11 +1061,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1669,11 +1079,29 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "laborSheets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "recordedAt",
           "order": "DESCENDING"
         }
       ]
@@ -1697,14 +1125,14 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "compatKey",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "code",
           "order": "ASCENDING"
         }
@@ -1719,11 +1147,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "orderId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "orderId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1741,11 +1169,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1758,15 +1186,15 @@
       "collectionGroup": "partRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "orderId",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
@@ -1777,11 +1205,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1795,7 +1223,15 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "group",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1809,29 +1245,15 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "group",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "code",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "parts",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "group",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1845,15 +1267,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "group",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1867,15 +1285,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "group",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1889,25 +1303,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "nameNorm",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "parts",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1921,11 +1321,39 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nameNorm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "code",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1943,7 +1371,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1957,14 +1385,14 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "orderId",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
@@ -1975,7 +1403,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -1989,7 +1417,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2003,7 +1431,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2017,7 +1445,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2035,7 +1463,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2053,7 +1485,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2071,7 +1507,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2089,11 +1529,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2111,11 +1547,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2133,11 +1565,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2150,24 +1578,6 @@
       "collectionGroup": "quotes",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "quotes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "customerId",
           "order": "ASCENDING"
@@ -2177,6 +1587,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
         }
@@ -2187,7 +1601,29 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "quotes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2201,7 +1637,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2215,11 +1655,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2233,11 +1669,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2251,11 +1683,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2277,11 +1705,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "technicianId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "technicianId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2299,11 +1727,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "technicianId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "technicianId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2321,11 +1749,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "orderId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "orderId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2339,11 +1767,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "orderId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "orderId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2361,7 +1789,33 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "open",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2379,7 +1833,25 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2397,29 +1869,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "open",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "repairOrders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2432,46 +1882,6 @@
       "collectionGroup": "repairOrders",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "repairOrders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "repairOrders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "customerId",
           "order": "ASCENDING"
@@ -2481,6 +1891,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
         }
@@ -2491,7 +1905,57 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "open",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "repairOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2505,48 +1969,12 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "open",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "repairOrders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "plateNorm",
           "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "repairOrders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
         }
       ]
     },
@@ -2559,7 +1987,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2572,30 +2000,30 @@
       "collectionGroup": "roleAssignments",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "employeeCode",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "roleAssignments",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "roleCode",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "roleAssignments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "employeeCode",
           "order": "ASCENDING"
         }
       ]
@@ -2619,7 +2047,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "group",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2632,44 +2064,12 @@
       "collectionGroup": "services",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "code",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "group",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "code",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "group",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2683,11 +2083,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "group",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "group",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2701,11 +2101,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "group",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "group",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2719,7 +2119,35 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "code",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "services",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "code",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "services",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2733,7 +2161,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2765,11 +2193,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "lowStock",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "lowStock",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2787,11 +2215,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "lowStock",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "lowStock",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2810,28 +2238,6 @@
       "fields": [
         {
           "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "partCodeNorm",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "stockBalances",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
           "order": "ASCENDING"
         },
         {
@@ -2839,6 +2245,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "warehouseId",
           "order": "ASCENDING"
         }
@@ -2853,7 +2263,25 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partCodeNorm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "stockBalances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2871,11 +2299,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "lowStock",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "lowStock",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2889,11 +2317,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "lowStock",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "lowStock",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2910,15 +2338,15 @@
       "collectionGroup": "stockBalances",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "nonZero",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "warehouseId",
           "order": "ASCENDING"
         },
@@ -2932,29 +2360,15 @@
       "collectionGroup": "stockBalances",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "partCodeNorm",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "stockBalances",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "partId",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "warehouseId",
           "order": "ASCENDING"
         }
@@ -2965,7 +2379,21 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partCodeNorm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "stockBalances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -2987,7 +2415,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3005,33 +2437,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "stockDocuments",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3053,7 +2463,25 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "stockDocuments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3071,7 +2499,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3085,29 +2517,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "stockDocuments",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3125,11 +2539,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3147,7 +2561,21 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "stockDocuments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3169,11 +2597,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "partId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "partId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3191,11 +2619,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "partId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "partId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3217,10 +2645,6 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "partId",
           "order": "ASCENDING"
         },
@@ -3229,6 +2653,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "updatedAt",
           "order": "DESCENDING"
         }
@@ -3240,10 +2668,6 @@
       "fields": [
         {
           "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
           "order": "ASCENDING"
         },
         {
@@ -3251,6 +2675,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "updatedAt",
           "order": "DESCENDING"
         }
@@ -3262,10 +2690,6 @@
       "fields": [
         {
           "fieldPath": "branchId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "companyId",
           "order": "ASCENDING"
         },
         {
@@ -3277,6 +2701,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
@@ -3291,11 +2719,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "status",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3309,10 +2737,6 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "partId",
           "order": "ASCENDING"
         },
@@ -3321,6 +2745,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "updatedAt",
           "order": "DESCENDING"
         }
@@ -3330,15 +2758,15 @@
       "collectionGroup": "stockReservations",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "partId",
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "updatedAt",
           "order": "DESCENDING"
         }
@@ -3348,10 +2776,6 @@
       "collectionGroup": "stockReservations",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "sourceId",
           "order": "ASCENDING"
@@ -3361,6 +2785,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
@@ -3371,29 +2799,15 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "employeeCode",
+          "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
       ]
@@ -3417,11 +2831,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "employeeCode",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "createdAt",
+          "fieldPath": "employeeCode",
           "order": "ASCENDING"
         }
       ]
@@ -3431,7 +2845,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3453,7 +2867,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3471,7 +2885,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3485,7 +2899,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3499,7 +2913,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3513,11 +2927,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "customerId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "customerId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3531,7 +2945,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3549,25 +2963,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "currentOwnerId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "plateNorm",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "vehicles",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3581,7 +2981,21 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "plateNorm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3599,7 +3013,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3617,7 +3031,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3635,7 +3049,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3653,7 +3067,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3667,7 +3081,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3681,7 +3095,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3695,7 +3109,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
@@ -3709,11 +3123,29 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "companyId",
+          "fieldPath": "tenantId",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "nameNorm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "warranties",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tenantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startDate",
           "order": "DESCENDING"
         }
       ]

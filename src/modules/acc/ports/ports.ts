@@ -9,7 +9,7 @@ import type { OrderAccount, Payment } from '../domain/payment';
  */
 export interface PayableOrder {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   number: string;
   /** REC order status code, informational */
@@ -28,7 +28,7 @@ export interface PayableOrder {
 export interface OrderSource {
   get(scope: Scope, orderId: string): Promise<PayableOrder | null>;
   getInTx(tx: Tx, scope: Scope, orderId: string): Promise<PayableOrder | null>;
-  getMany(companyId: string, ids: readonly string[]): Promise<PayableOrder[]>;
+  getMany(tenantId: string, ids: readonly string[]): Promise<PayableOrder[]>;
   /** open orders of the scope (day close, cash handover list) */
   listOpen(scope: Scope, limit: number): Promise<PayableOrder[]>;
 }
@@ -52,7 +52,7 @@ export interface PaymentRepository {
   markReversed(
     tx: Tx,
     paymentId: string,
-    v: { reversalId: string; companyId: string; branchId: string; at: Date },
+    v: { reversalId: string; tenantId: string; branchId: string; at: Date },
   ): void;
 }
 

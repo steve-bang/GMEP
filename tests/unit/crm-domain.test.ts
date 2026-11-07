@@ -33,7 +33,7 @@ import { defaultRoleSeeds } from '@/modules/sys';
 const own = (
   o: Partial<Ownership> & Pick<Ownership, 'id' | 'customerId' | 'from' | 'to'>,
 ): Ownership => ({
-  companyId: 'c',
+  tenantId: 'c',
   vehicleId: 'v',
   branchId: 'b',
   createdAt: new Date(0),
@@ -42,7 +42,7 @@ const own = (
 });
 const consent = (o: Partial<Consent>): Consent => ({
   id: 'x',
-  companyId: 'c',
+  tenantId: 'c',
   branchId: 'b',
   customerId: 'k',
   purpose: 'marketing',
@@ -193,7 +193,7 @@ describe('FR-CRM-011 data-subject request state machine', () => {
 describe('FR-CRM-004 history projection', () => {
   const e: VehicleHistoryEntry = {
     id: 'ro:1',
-    companyId: 'c',
+    tenantId: 'c',
     vehicleId: 'v',
     branchId: 'b',
     branchName: 'Q7',

@@ -1,12 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { formatDateTime } from '@/platform/format/date';
-import {
-  listApprovals,
-  REAUTH_ON_APPROVE,
-  type ApprovalDto,
-  type ApprovalTab,
-} from '@/modules/sys';
+import { listApprovals, type ApprovalDto, type ApprovalTab } from '@/modules/sys';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -106,6 +101,8 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Se
                 <>
                   {formatDateTime(new Date(a.requestedAt))}
                   {a.overdue ? <span className="tag tag--danger">{l.overdue}</span> : null}
+                  {a.escalated ? <span className="tag tag--warning">{l.escalated}</span> : null}
+                  {a.viaDelegation ? <span className="tag">{l.viaDelegation}</span> : null}
                 </>
               ),
             },
@@ -133,7 +130,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Se
                     id={a.id}
                     version={a.version}
                     canDecide={a.actions.decide.allowed}
-                    reauth={REAUTH_ON_APPROVE.includes(a.kind)}
+                    reauth={a.reauth}
                     canWithdraw={a.actions.withdraw.allowed}
                     selfNote={a.actions.decide.reasonCode === 'approval_self_decision'}
                     switchNote={a.actions.decide.reasonCode === 'switch_branch_required'}

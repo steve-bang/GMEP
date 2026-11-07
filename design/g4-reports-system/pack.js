@@ -12,6 +12,9 @@
     own: (script.getAttribute('data-own') || '').split(' ').filter(Boolean)
   };
   window.G4R_CFG = CFG;
+  /* Tên nền tảng GMEP (quyết định CD4, 06/11/2026) dùng ở khung ứng dụng, mọi màn. Chứng từ in, tệp xuất, tin gửi khách/NCC dùng tên garage của tenant (B-17). */
+  /* Tên hiển thị lấy từ thuộc tính: thoát HTML vì được ghép vào khung trang */
+  var BRAND = esc(script.getAttribute('data-brand') || 'GMEP');
 
   var ROLE_NAME = { CH: 'Chủ garage', QV: 'Quản lý vùng', QL: 'Quản lý chi nhánh', CV: 'Cố vấn dịch vụ', QD: 'Quản đốc', TH: 'Thợ', TK: 'Thủ kho', TN: 'Thu ngân', KT: 'Kế toán', AD: 'Quản trị hệ thống' };
 
@@ -33,7 +36,7 @@
   };
 
   function ico(id, cls) { return '<svg class="icon' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#' + id + '"/></svg>'; }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
   /* ---------- Shell (khớp design/foundation/shell.html) ---------- */
   function navItem(menu, icon, label, href, extra) {
@@ -52,7 +55,7 @@
     return [
       '<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>',
       '<div class="app" id="app">',
-      '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ico('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ico('x') + '</button></div>',
+      '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ico('wrench') + '</span><span class="sidebar__brand-name">' + BRAND + '</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ico('x') + '</button></div>',
       '<nav class="sidebar__nav"><div class="sidebar__group">Workspace</div>',
       navItem('dash', 'layout-dashboard', 'Tổng quan', '#'),
       navItem('ro', 'clipboard-list', 'Phiếu sửa chữa', '#'),
@@ -100,7 +103,7 @@
       '<div class="menu-sep"></div><div class="menu-label">Xem thử theo vai trò (chỉ prototype)</div>' + roleItems + '</div></div></header>',
       '<main class="main" id="main"><div class="main__inner">',
       '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ico('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể lưu cấu hình, xuất tệp hay nhập lô dữ liệu cho tới khi có mạng.</span></div></div>',
-      '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="#">GARAGE OS</a>' + ico('chevron-right') + crumbs + '</nav></div>'
+      '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="#">' + BRAND + '</a>' + ico('chevron-right') + crumbs + '</nav></div>'
     ].join('');
   }
 
@@ -250,7 +253,7 @@
       '<div class="alert alert--warning" id="dx-warn" hidden>' + ico('alert-triangle') + '<div class="alert__body"><div class="alert__title">Xuất dữ liệu cá nhân</div>Thao tác được ghi nhật ký (người xuất, thời điểm, phạm vi, số dòng). Chỉ dùng cho mục đích công việc; không chia sẻ tệp ra ngoài công ty.<div class="field" style="margin-top:8px"><label class="field__label" for="dx-reason">Lý do xuất<span class="field__req">*</span></label><textarea class="textarea" id="dx-reason" style="min-height:56px" placeholder="Ví dụ: Gửi bảng kê công nợ cho khách"></textarea></div><div class="field" style="margin-top:8px"><label class="field__label" for="dx-pw">Nhập lại mật khẩu của bạn<span class="field__req">*</span></label><input class="input" id="dx-pw" type="password" autocomplete="current-password"><span class="field__hint">Xuất danh sách có dữ liệu cá nhân luôn hỏi lại mật khẩu (D-02).</span></div></div></div>',
       '<p class="t-body-sm text-secondary" style="margin:0">Ước tính 234 dòng (tối đa 50.000 dòng mỗi tệp; tệp lớn xử lý ở nền). Tệp tải về giữ 7 ngày; lịch sử các lần xuất của bạn giữ 12 tháng (hai thời hạn khác nhau).</p>',
       '<div class="alert alert--neutral" role="note" data-g4r-noexport>' + ico('lock') + '<div class="alert__body">Vai trò hiện tại <strong>chưa có quyền xuất dữ liệu</strong> (FR-SYS-013). Hộp thoại này sẽ bị ẩn nút Xuất; xin quyền với Chủ garage.</div></div>',
-      '<div class="t-body-sm text-secondary"><strong>Xem trước dòng đầu tệp:</strong><div class="g4r-mono" style="margin-top:4px">GMEP · Phạm vi: <span data-branch-label>Tất cả chi nhánh</span> · Kỳ: 01/10/2026–30/10/2026 · Xuất lúc: 09:15 30/10/2026 · Người xuất: Trần Hoàng Anh</div></div>',
+      '<div class="t-body-sm text-secondary"><strong>Xem trước dòng đầu tệp:</strong><div class="g4r-mono" style="margin-top:4px">Garage A (tên garage của tenant) · Phạm vi: <span data-branch-label>Tất cả chi nhánh</span> · Kỳ: 01/10/2026–30/10/2026 · Xuất lúc: 09:15 30/10/2026 · Người xuất: Trần Hoàng Anh</div></div>',
       '<div class="progress progress--info" id="dx-prog" hidden><div class="progress__head"><span>Đang tạo tệp ở nền (tệp lớn)…</span><span class="num">42%</span></div><div class="progress__track" role="progressbar" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ tạo tệp"><span class="progress__bar" style="width:42%"></span></div></div>',
       '</div>',
       '<div class="dialog__footer"><button class="btn btn--secondary" data-close>Hủy</button><button class="btn btn--primary" id="dx-go" data-toast="success|Đang tạo tệp|Tệp lớn được xử lý ở nền, thông báo khi xong.">' + ico('download') + 'Xuất tệp</button></div>',

@@ -16,12 +16,12 @@ import { resolveConfigAt } from './config';
  */
 export async function resolveNumberingSeries(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   docType: string,
   businessDate: string,
 ): Promise<NumberingSeries> {
   const snap = await resolveConfigAt(deps, {
-    companyId,
+    tenantId,
     type: 'numbering-series',
     scopeKey: docType,
     date: businessDate,
@@ -52,7 +52,7 @@ export async function allocateDocumentNumber(
     requestKey?: string;
   },
 ): Promise<{ number: string | null; draftRef: string | null; assigned: AssignedNumber | null }> {
-  const series = await resolveNumberingSeries(deps, p.branch.companyId, p.docType, p.businessDate);
+  const series = await resolveNumberingSeries(deps, p.branch.tenantId, p.docType, p.businessDate);
   const numberNow = series.group === 'A' ? p.stage === 'create' : p.stage === 'post';
   if (!numberNow) {
     return {
@@ -64,7 +64,7 @@ export async function allocateDocumentNumber(
   const assigned = await deps.numbering.assign(
     tx,
     {
-      companyId: p.branch.companyId,
+      tenantId: p.branch.tenantId,
       branchId: p.branch.id,
       branchCode: p.branch.code,
       docType: p.docType,

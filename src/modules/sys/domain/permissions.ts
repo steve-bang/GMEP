@@ -190,6 +190,8 @@ const ACC_CV = flatten([
 const ACC_CH = [
   ...ACC_VIEW_ALL,
   ...flatten([
+    // FR-SYS-033: only the owner edits delegations; everyone with the queue may read their own (see use case)
+    g('approval-delegation', 'view', 'update'),
     g('cash-day', 'update'),
     g('approval-l1', 'approve', 'reject'),
     g('approval-l2', 'approve', 'reject'),
@@ -254,6 +256,10 @@ const RPT_CH = flatten([
   g('report-job', 'manage'),
   g('report-config', 'view', 'update', 'approve', 'reject'),
 ]);
+/** Slice 2.1, Q85 default: the branch ranking is for the owner and the regional manager; a branch manager sees only their own branch's reports. */
+const RPT_RANKING = flatten([g('report-ranking', 'view')]);
+/** FR-SYS-016: head office releases shared catalogues to chosen branches; effective-dated config, so proposals need a second approver. */
+const CATALOG_RELEASE = flatten([g('catalog-release', 'view', 'update', 'approve', 'reject')]);
 const RPT_QV = flatten([
   g('report-dashboard', 'view'),
   g('report-alert', 'view'),
@@ -279,9 +285,57 @@ const RPT_KT = flatten([
  */
 const IMP_FULL = flatten([g('data-import', 'view', 'create', 'archive')]);
 
+/**
+ * HRM slice 2.6a (staff records and technician labor; FR-HRM-001, 006, 007, 008, 015, 020) default grants
+ * [Đề xuất dev - chờ xác nhận: BA/Khách], from ba-answers-04 Phụ lục C and D. The proposed "NS" (nhân sự) role is not in
+ * the ten-role matrix, so its duties fall to QL (own branch) and CH until the BA decides how it is realised.
+ *  - `employee`: view (personal data still masked by role, Phụ lục D), create and update = the staff record and its
+ *    leaving date (QL in the working branch, CH). QD sees names and positions only (the PII policy hides the rest).
+ *  - `labor:view` = every technician's labor in the scope; `labor-own:view` = a technician's own lines only.
+ *  - `labor-adjustment:create` = a manual adjustment line (above the configured threshold the owner approves it).
+ *  - `labor-rule`: view the rules in force, update = propose a new version (QL: its own branch only), approve/reject = CH.
+ */
+const HR_VIEW = flatten([g('employee', 'view'), g('labor', 'view'), g('labor-rule', 'view')]);
+const HR_QL = flatten([
+  g('employee', 'view', 'create', 'update'),
+  g('labor', 'view'),
+  g('labor-adjustment', 'create'),
+  g('labor-rule', 'view', 'update'),
+]);
+const HR_CH = flatten([
+  g('employee', 'view', 'create', 'update'),
+  g('labor', 'view'),
+  g('labor-rule', 'view', 'update', 'approve', 'reject'),
+]);
+const HR_QD = flatten([g('employee', 'view')]);
+const HR_TH = flatten([g('labor-own', 'view')]);
+
+/**
+ * REC slice 2.8b (appointments, warranty; FR-REC-018, 019, 027, 036) default grants [Đề xuất dev - chờ xác nhận: BA/Khách],
+ * from G2-APT-01/02 (CV = S, QL; CH, QV = X) and G2-DLV-05/06 (CV, QL = S; CH, QV = X).
+ *  - `appointment`: view the branch calendar; create = book; update = move, change advisor, cancel, no-show, "Đã đến".
+ *  - `appointment-policy`: the effective-dated on/off switch and daily capacity (QL proposes for its branch, CH approves).
+ */
+const APT_S = flatten([g('appointment', 'view', 'create', 'update')]);
+const APT_VIEW = flatten([g('appointment', 'view')]);
+const APT_POLICY_CH = flatten([g('appointment-policy', 'view', 'update', 'approve', 'reject')]);
+const APT_POLICY_QL = flatten([g('appointment-policy', 'view', 'update')]);
+/**
+ *  - `warranty`: view = warranty coverage of a vehicle (own branch in full, other branches through projection P4);
+ *    create = open warranty work (a warranty intake linked to the origin order).
+ *  - `warranty-policy`: the warranty terms and the cross-branch policy (CH approves; KT reads).
+ */
+const WAR_S = flatten([g('warranty', 'view', 'create')]);
+const WAR_VIEW = flatten([g('warranty', 'view')]);
+const WAR_POLICY_CH = flatten([g('warranty-policy', 'view', 'update', 'approve', 'reject')]);
+const WAR_POLICY_VIEW = flatten([g('warranty-policy', 'view')]);
+/** FR-CRM-003: merging two customer records (kept, audited, never deleted): CH and QL in the working branch. */
+const CRM_MERGE = flatten([g('customer-merge', 'create')]);
+
 const CH = [
   ...flatten([
     g('user', 'view', 'create', 'update', 'archive', 'approve', 'reject', 'manage', 'export'),
+    g('user-credential', 'manage'),
     g('role', 'view', 'create', 'update', 'approve', 'reject'),
     g('security-policy', 'view', 'update', 'approve', 'reject'),
     g('device', 'view', 'create', 'archive'),
@@ -315,7 +369,15 @@ const CH = [
   ...ACC_CH,
   ...EIN_CH,
   ...RPT_CH,
+  ...RPT_RANKING,
+  ...CATALOG_RELEASE,
   ...IMP_FULL,
+  ...HR_CH,
+  ...APT_S,
+  ...APT_POLICY_CH,
+  ...WAR_S,
+  ...WAR_POLICY_CH,
+  ...CRM_MERGE,
 ];
 
 const matrix: Grant = {
@@ -346,9 +408,14 @@ const matrix: Grant = {
     .concat(ORD_VIEW)
     .concat(ACC_VIEW_ALL)
     .concat(EIN_VIEW)
-    .concat(RPT_QV),
+    .concat(RPT_QV)
+    .concat(RPT_RANKING)
+    .concat(flatten([g('catalog-release', 'view')]))
+    .concat(HR_VIEW)
+    .concat(APT_VIEW, WAR_VIEW, WAR_POLICY_VIEW),
   QL: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
+    g('user-credential', 'manage'),
     g('device', 'view', 'create', 'archive'),
     g('worker-pin', 'manage'),
     g('org', 'view'),
@@ -383,7 +450,9 @@ const matrix: Grant = {
     .concat(ACC_QL)
     .concat(EIN_VIEW)
     .concat(RPT_QL)
-    .concat(IMP_FULL),
+    .concat(IMP_FULL)
+    .concat(HR_QL)
+    .concat(APT_S, APT_POLICY_QL, WAR_S, WAR_POLICY_VIEW, CRM_MERGE),
   CV: flatten([
     g('service-catalog', 'view'),
     g('price-list', 'view'),
@@ -406,7 +475,8 @@ const matrix: Grant = {
     .concat(REC_S)
     .concat(ORD_CV)
     .concat(ACC_CV)
-    .concat(RPT_BASIC),
+    .concat(RPT_BASIC)
+    .concat(APT_S, WAR_S),
   QD: flatten([
     g('device', 'view'),
     g('worker-pin', 'manage'),
@@ -419,8 +489,10 @@ const matrix: Grant = {
   ])
     .concat(REC_VIEW_ALL)
     .concat(ORD_QD)
-    .concat(RPT_BASIC),
-  TH: ORD_TH,
+    .concat(RPT_BASIC)
+    .concat(HR_QD)
+    .concat(APT_VIEW, WAR_VIEW),
+  TH: ORD_TH.concat(HR_TH),
   TK: flatten([
     g('warehouse', 'view'),
     g('price-list', 'view'),
@@ -446,7 +518,8 @@ const matrix: Grant = {
     .concat(ORD_TN)
     .concat(ACC_TN)
     .concat(EIN_TN)
-    .concat(RPT_BASIC),
+    .concat(RPT_BASIC)
+    .concat(APT_VIEW),
   KT: flatten([
     g('warehouse', 'view'),
     g('service-catalog', 'view'),
@@ -471,10 +544,13 @@ const matrix: Grant = {
     .concat(flatten([g('repair-order', 'view')]))
     .concat(ACC_KT)
     .concat(EIN_KT)
-    .concat(RPT_KT),
+    .concat(RPT_KT)
+    .concat(HR_VIEW)
+    .concat(WAR_VIEW, WAR_POLICY_VIEW),
   // AD has no approve/reject and no customer data (BA §2.4)
   AD: flatten([
     g('user', 'view', 'create', 'update', 'archive', 'manage'),
+    g('user-credential', 'manage'),
     g('role', 'view', 'create', 'update'),
     g('security-policy', 'view', 'update'),
     g('device', 'view', 'create', 'archive'),
@@ -595,14 +671,54 @@ export const PERMISSION_TOPUPS: readonly PermissionTopUp[] = [
     },
   },
   {
+    id: '2026-11-hrm-2.6a-labor',
+    note: 'Slice 2.6a: staff records, technician labor, manual adjustment, labor rules (FR-HRM-001, 006, 007, 008, 015, 020)',
+    grants: { CH: HR_CH, QV: HR_VIEW, QL: HR_QL, QD: HR_QD, TH: HR_TH, KT: HR_VIEW },
+  },
+  {
     id: '2026-11-rec-photo-hide',
     note: 'R104: rec-photo:update (hide a wrongly uploaded photo with a reason) for QL and CH',
     grants: { CH: PHOTO_HIDE, QL: PHOTO_HIDE },
   },
   {
+    id: '2026-11-rpt-2.1-consolidation',
+    note: 'Slice 2.1: branch ranking for CH and QV (Q85 default); catalogue release from head office for CH (FR-SYS-016)',
+    grants: {
+      CH: [...RPT_RANKING, ...CATALOG_RELEASE],
+      QV: [...RPT_RANKING, 'catalog-release:view'],
+    },
+  },
+  {
+    id: '2026-11-sys-2.5-approvals',
+    note: 'Slice 2.5: approval delegation, owner only (FR-SYS-033)',
+    grants: { CH: flatten([g('approval-delegation', 'view', 'update')]) },
+  },
+  {
+    id: '2026-11-sys-worker-login',
+    note: 'P2-C (owner decision 07/11/2026): user-credential:manage = set a temporary password for a staff member without email (CH, QL, AD)',
+    grants: {
+      CH: ['user-credential:manage'],
+      QL: ['user-credential:manage'],
+      AD: ['user-credential:manage'],
+    },
+  },
+  {
     id: '2026-11-sys-1.11-import',
     note: 'Slice 1.11: Excel data import, dry run, commit and undo (FR-SYS-007)',
     grants: { CH: IMP_FULL, QL: IMP_FULL, TK: IMP_FULL },
+  },
+  {
+    id: '2026-11-rec-2.8b-appointments',
+    note: 'Slice 2.8b: appointment calendar and capacity policy, warranty coverage and policy, customer merge (FR-REC-018, 019, 027, 036, FR-CRM-003)',
+    grants: {
+      CH: [...APT_S, ...APT_POLICY_CH, ...WAR_S, ...WAR_POLICY_CH, ...CRM_MERGE],
+      QV: [...APT_VIEW, ...WAR_VIEW, ...WAR_POLICY_VIEW],
+      QL: [...APT_S, ...APT_POLICY_QL, ...WAR_S, ...WAR_POLICY_VIEW, ...CRM_MERGE],
+      CV: [...APT_S, ...WAR_S],
+      QD: [...APT_VIEW, ...WAR_VIEW],
+      TN: APT_VIEW,
+      KT: [...WAR_VIEW, ...WAR_POLICY_VIEW],
+    },
   },
 ];
 

@@ -9,10 +9,10 @@ import {
   newOpaqueToken,
   type PasswordViolation,
 } from '../domain/passwordPolicy';
-import type { AuthToken, User } from '../domain/entities';
+import { identityOf, type AuthToken, type User } from '../domain/entities';
 import type { SysDeps } from '../ports/deps';
 import { IdentityUnavailableError } from '../ports/ports';
-import { revokeAllSessions } from './auth';
+import { revokeIdentitySessions } from './auth';
 import { normalizeLoginName, parseInput } from './support';
 
 /**
@@ -37,8 +37,14 @@ export async function forgotPassword(
   await deps.limiter.hit('forgot-ip', ctx.address);
   await deps.limiter.hit('forgot-name', name);
 
-  const user = await deps.users.findByLogin(identifier);
-  if (!user || user.status !== 'active') return; // neutral: nothing happens, nothing is said
+  // the identity is the email; with several memberships the link is tied to the first usable one and the new password
+  // applies to the identity (Q41 a, proposal). Neutral when nothing matches: nothing happens, nothing is said.
+  const memberships = identifier.includes('@')
+    ? await deps.users.findMembershipsByEmail(identifier)
+    : [];
+  // P2-C: an employee-code account has no recovery channel (its manager sets a temporary password)
+  const user = memberships.find((m) => m.status === 'active' && m.loginKind !== 'employee_code');
+  if (!user) return;
 
   const { raw, id } = newOpaqueToken();
   const now = deps.clock.now();
@@ -48,7 +54,7 @@ export async function forgotPassword(
       id,
       kind: 'reset',
       userId: user.id,
-      companyId: user.companyId,
+      tenantId: user.tenantId,
       createdAt: now,
       expiresAt: new Date(now.getTime() + deps.config.resetTokenTtlMs),
       usedAt: null,
@@ -57,7 +63,7 @@ export async function forgotPassword(
     deps.audit.record(tx, {
       id: deps.newId(),
       at: now,
-      companyId: user.companyId,
+      tenantId: user.tenantId,
       branchId: null,
       actorId: user.id,
       actorRoles: [],
@@ -97,7 +103,17 @@ function stateOf(t: AuthToken | null, kind: AuthToken['kind'], now: Date): Token
 export interface TokenPeek {
   state: TokenState;
   /** invitation only: read-only facts shown on the activation page (G5-AUT-03) */
-  invitee?: { displayName: string; email: string; branches: string[]; roles: string[] };
+  invitee?: {
+    displayName: string;
+    email: string;
+    branches: string[];
+    roles: string[];
+    /** the person already has an account: the page asks for acceptance only, no password (FR-TEN-017 d) */
+    existingIdentity: boolean;
+    /** whose rules are being accepted (the inviting tenant) and their version, for the consent line */
+    tenantName: string;
+    policyVersion: string;
+  };
 }
 
 /** Read-only look for the pages; never changes state. Callers rate-limit by address. */
@@ -109,13 +125,15 @@ export async function peekToken(
   const t = raw ? await deps.tokens.find(hashToken(raw)) : null;
   const state = stateOf(t, kind, deps.clock.now());
   if (state !== 'valid' || kind !== 'invite' || !t) return { state };
-  const user = await deps.users.getById(t.userId);
+  const user = await deps.users.getById(t.tenantId, t.userId);
   if (!user) return { state: 'invalid' };
   const [assignments, branches] = await Promise.all([
     deps.assignments.listForUser(user.id),
-    deps.branches.list(allBranchesScope(user.companyId)),
+    deps.branches.list(allBranchesScope(user.tenantId)),
   ]);
-  const roles = await deps.roles.getMany([...new Set(assignments.map((a) => a.roleCode))]);
+  const roles = await deps.roles.getMany(user.tenantId, [
+    ...new Set(assignments.map((a) => a.roleCode)),
+  ]);
   const branchNames = assignments.map((a) =>
     a.branchId === '*'
       ? translate('shell.scopeAll')
@@ -126,6 +144,9 @@ export async function peekToken(
     invitee: {
       displayName: user.displayName,
       email: user.email,
+      existingIdentity: identityOf(user) !== user.id,
+      tenantName: (await deps.tenants.get(user.tenantId))?.name ?? '',
+      policyVersion: deps.config.consentPolicyVersion,
       branches: [...new Set(branchNames.filter(Boolean))],
       roles: roles.map((r) => r.name),
     },
@@ -170,14 +191,15 @@ export async function resetPassword(
     'auth.password_reset',
   );
   await applyNewPassword(deps, user, data.password, tokenId);
-  await revokeAllSessions(deps, user.id);
+  await revokeIdentitySessions(deps, user);
   for (const name of [user.email.toLowerCase(), user.employeeCode.toLowerCase()])
     await deps.throttle.unlockName(name);
 }
 
 export const activateSchema = z.object({
   token: z.string().min(16).max(200),
-  password: z.string().min(1).max(256),
+  /** required for a new identity; ignored when the invitation adds a membership to an existing identity (FR-TEN-017 d) */
+  password: z.string().min(1).max(256).optional(),
   consent: z.literal(true),
 });
 
@@ -199,51 +221,61 @@ export async function activateAccount(
     'user.activate',
     true,
   );
-  await applyNewPassword(deps, user, data.password, tokenId);
+  // joining an existing identity: the person already has a password, which is never overwritten by an invitation
+  if (identityOf(user) === user.id && data.password)
+    await applyNewPassword(deps, user, data.password, tokenId);
 }
 
 async function claimToken(
   deps: SysDeps,
   kind: AuthToken['kind'],
   tokenId: string,
-  password: string,
+  password: string | undefined,
   requestId: string,
   action: string,
   activate = false,
 ): Promise<User> {
-  const entry = hashForHistory(password);
   return deps.uow.run(async (tx) => {
     const t = await deps.tokens.findInTx(tx, tokenId);
     const now = deps.clock.now();
     const state = stateOf(t, kind, now);
     if (state !== 'valid' || !t)
       throw new AppError(TOKEN_ERRORS[state === 'valid' ? 'invalid' : state], 410);
-    const user = await deps.users.getByIdInTx(tx, t.userId);
+    const user = await deps.users.getByIdInTx(tx, t.tenantId, t.userId);
     if (!user || (kind === 'reset' ? user.status !== 'active' : user.status !== 'invited'))
       throw new AppError('token_invalid', 410);
-    const history = await deps.users.passwordHistory(user.id);
-    const violations = checkPasswordPolicy(password, history, deps.config.passwordPolicy);
-    if (violations.length)
-      throw new AppError(
-        'validation_failed',
-        422,
-        passwordFields(violations, deps.config.passwordPolicy.minLength),
+    // the password belongs to the identity; a membership added to an existing identity sets none
+    const joinsExisting = activate && identityOf(user) !== user.id;
+    if (!joinsExisting) {
+      if (!password)
+        throw new AppError('validation_failed', 422, [{ field: 'password', message: 'required' }]);
+      const history = await deps.users.passwordHistory(identityOf(user));
+      const violations = checkPasswordPolicy(password, history, deps.config.passwordPolicy);
+      if (violations.length)
+        throw new AppError(
+          'validation_failed',
+          422,
+          passwordFields(violations, deps.config.passwordPolicy.minLength),
+        );
+    }
+    // Firestore: every read of the transaction (history) happens before the first write
+    if (!joinsExisting)
+      await deps.users.appendPasswordHistory(
+        tx,
+        identityOf(user),
+        hashForHistory(password!),
+        deps.config.passwordPolicy.historyDepth,
+        activate
+          ? { consent: { acceptedAt: now, policyVersion: deps.config.consentPolicyVersion } }
+          : undefined,
       );
-
-    await deps.users.appendPasswordHistory(
-      tx,
-      user.id,
-      entry,
-      deps.config.passwordPolicy.historyDepth,
-      activate
-        ? { consent: { acceptedAt: now, policyVersion: deps.config.consentPolicyVersion } }
-        : undefined,
-    );
     // Firestore: every read of the transaction (history) happens before the first write
     deps.tokens.markUsed(tx, tokenId, now);
     if (activate)
       deps.users.update(tx, user.id, {
         status: 'active',
+        // FR-TEN-017 / RULE-034: evidence that the person agreed to the rules of THIS tenant, per membership
+        policyConsent: { acceptedAt: now, policyVersion: deps.config.consentPolicyVersion },
         updatedAt: now,
         updatedBy: user.id,
         version: user.version + 1,
@@ -251,7 +283,7 @@ async function claimToken(
     deps.audit.record(tx, {
       id: deps.newId(),
       at: now,
-      companyId: user.companyId,
+      tenantId: user.tenantId,
       branchId: null,
       actorId: user.id,
       actorRoles: [],
@@ -259,7 +291,9 @@ async function claimToken(
       entityId: user.id,
       action,
       before: activate ? { status: 'invited' } : null,
-      after: activate ? { status: 'active' } : null,
+      after: activate
+        ? { status: 'active', policyVersion: deps.config.consentPolicyVersion }
+        : null,
       requestId,
     });
     return user;
@@ -273,7 +307,7 @@ async function applyNewPassword(
   tokenId: string,
 ): Promise<void> {
   try {
-    await deps.identity.setPassword(user.id, password);
+    await deps.identity.setPassword(identityOf(user), password);
   } catch (e) {
     // release the claim so the (still valid) link can be used again
     await deps.uow.run(async (tx) => {

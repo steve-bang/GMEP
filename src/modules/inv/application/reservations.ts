@@ -126,7 +126,7 @@ function applyHold(
   const heldQty = (r?.heldQty ?? 0) + plan.heldDelta;
   const next: Reservation = {
     id: rid,
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId: w.branchId,
     warehouseId: w.id,
     partId: part.id,
@@ -429,7 +429,7 @@ export async function prepareRelease(
       deps,
       tx,
       scope,
-      { id: warehouseId, branchId: first.branchId, companyId: first.companyId },
+      { id: warehouseId, branchId: first.branchId, tenantId: first.tenantId },
       rs.map((r) => ({ id: r.partId, code: r.partCode, name: r.partCode })),
       actor.userId,
       today(deps),

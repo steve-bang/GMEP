@@ -24,7 +24,7 @@ import type { DocStore } from '@/platform/store/docStore';
  */
 const toPayable = (o: RepairOrder): PayableOrder => ({
   id: o.id,
-  companyId: o.companyId,
+  tenantId: o.tenantId,
   branchId: o.branchId,
   number: o.number,
   status: o.status,
@@ -47,8 +47,8 @@ export function recOrderSource(getRec: () => RecDeps): OrderSource {
       const o = await getRec().orders.getInTx(tx, scope, id);
       return o ? toPayable(o) : null;
     },
-    async getMany(companyId: string, ids: readonly string[]) {
-      return (await getRec().orders.getMany(companyId, ids)).map(toPayable);
+    async getMany(tenantId: string, ids: readonly string[]) {
+      return (await getRec().orders.getMany(tenantId, ids)).map(toPayable);
     },
     async listOpen(scope: Scope, limit: number) {
       return (await getRec().orders.listOpen(scope, limit)).map(toPayable);

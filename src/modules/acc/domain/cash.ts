@@ -7,7 +7,7 @@ export type CashEntryKind = 'receipt' | 'expense' | 'reversal' | 'variance';
 
 export interface CashEntry {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   businessDate: string;
   /** position in the branch's drawer, 1.. */
@@ -29,7 +29,7 @@ export interface CashEntry {
 /** One document per branch: the book balance and the shift on the counter. Contention point of cash writes. */
 export interface CashDrawer {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   balanceVnd: number;
   seq: number;
@@ -39,9 +39,9 @@ export interface CashDrawer {
   updatedAt: Date;
 }
 
-export const emptyDrawer = (companyId: string, branchId: string): CashDrawer => ({
+export const emptyDrawer = (tenantId: string, branchId: string): CashDrawer => ({
   id: branchId,
-  companyId,
+  tenantId,
   branchId,
   balanceVnd: 0,
   seq: 0,
@@ -67,7 +67,7 @@ export type VarianceCause = (typeof VARIANCE_CAUSES)[number];
 
 export interface CashShift {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   businessDate: string;
   status: 'open' | 'closed';
@@ -122,7 +122,7 @@ export function checkVariance(
 
 export interface DayClose {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   businessDate: string;
   /** `reopened` = the owner reopened it (FR-ACC-005); it reads as an open day until it is closed again */
@@ -196,7 +196,7 @@ export function agingKey(
 
 export interface Debt {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   orderId: string;
   orderNumber: string;

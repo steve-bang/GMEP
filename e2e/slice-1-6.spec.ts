@@ -52,14 +52,14 @@ async function approvedOrder(req: APIRequestContext): Promise<Row> {
         name: 'Thay dầu và lọc',
         necessity: 'required',
         lines: [
-          { kind: 'labor', serviceId: 'svc_cmp_demo_SV-DAU' },
+          { kind: 'labor', serviceId: 'svc_tnt_demo_SV-DAU' },
           { kind: 'part', partId: 'part_seed_04', qty: 1 },
         ],
       },
       {
         name: 'Thay má phanh',
         necessity: 'required',
-        lines: [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-PHANH' }],
+        lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-PHANH' }],
       },
     ],
   });

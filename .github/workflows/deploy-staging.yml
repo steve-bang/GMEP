@@ -38,10 +38,10 @@ jobs:
           GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           GCP_DEPLOYER_SERVICE_ACCOUNT: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
           STAGING_APP_BASE_URL: ${{ vars.STAGING_APP_BASE_URL }}
-          STAGING_CRON_COMPANY_ID: ${{ vars.STAGING_CRON_COMPANY_ID }}
+          STAGING_CRON_TENANT_ID: ${{ vars.STAGING_CRON_TENANT_ID }}
         run: |
           missing=0
-          for name in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER GCP_DEPLOYER_SERVICE_ACCOUNT STAGING_APP_BASE_URL STAGING_CRON_COMPANY_ID; do
+          for name in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER GCP_DEPLOYER_SERVICE_ACCOUNT STAGING_APP_BASE_URL STAGING_CRON_TENANT_ID; do
             if [ -z "${!name}" ]; then
               echo "::error title=Missing repository variable::$name is not set. See docs/dev/gcp-setup-runbook.md (section 11 and the owner checklist)."
               missing=1
@@ -71,7 +71,7 @@ jobs:
       DRY_RUN: '0'
       IMAGE: ${{ vars.GCP_REGION || 'asia-southeast1' }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/gmep/gmep:${{ github.sha }}
       APP_BASE_URL: ${{ vars.STAGING_APP_BASE_URL }}
-      CRON_COMPANY_ID: ${{ vars.STAGING_CRON_COMPANY_ID }}
+      CRON_TENANT_ID: ${{ vars.STAGING_CRON_TENANT_ID }}
       EMAIL_FROM: ${{ vars.STAGING_EMAIL_FROM }}
       MIN_INSTANCES: ${{ vars.STAGING_MIN_INSTANCES || '0' }}
       MAX_INSTANCES: ${{ vars.STAGING_MAX_INSTANCES || '5' }}

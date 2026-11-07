@@ -141,11 +141,11 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
     await page.getByRole('link', { name: 'Quên mật khẩu?' }).click();
     await expect(page).toHaveURL(/\/forgot-password$/);
     await expect(page.getByRole('heading', { name: 'Quên mật khẩu' })).toBeVisible();
-    await page.getByLabel('Email hoặc mã nhân viên').fill('khong.ton.tai@demo.gmep.test');
+    await page.getByLabel(/^Email/).fill('khong.ton.tai@demo.gmep.test');
     await page.getByRole('button', { name: 'Gửi hướng dẫn' }).click();
     const neutral = await page.getByTestId('forgot-sent').innerText();
     await page.goto('/forgot-password');
-    await page.getByLabel('Email hoặc mã nhân viên').fill('tn.q7@demo.gmep.test');
+    await page.getByLabel(/^Email/).fill('tn.q7@demo.gmep.test');
     await page.getByRole('button', { name: 'Gửi hướng dẫn' }).click();
     expect(await page.getByTestId('forgot-sent').innerText()).toBe(neutral); // same answer for a real account
 
@@ -199,7 +199,7 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
     await page.getByText('Tôi đã đọc và đồng ý').click();
     await page.getByRole('button', { name: 'Kích hoạt tài khoản' }).click();
     await expect(page.getByTestId('password-done')).toBeVisible();
-    await login(page, 'NV9001', 'mat-khau-kich-hoat-1');
+    await login(page, 'moi.e2e@demo.gmep.test', 'mat-khau-kich-hoat-1');
     await page.waitForURL((u) => u.pathname === '/');
   });
 
@@ -208,7 +208,7 @@ test.describe('slice 1.1/1.2 journey: login -> scope pick -> create warehouse/br
   }) => {
     await page.goto('/login');
     for (let i = 0; i < 5; i++) {
-      await page.getByLabel('Email hoặc mã nhân viên').fill('tk.q7@demo.gmep.test');
+      await page.getByLabel(/^Email/).fill('tk.q7@demo.gmep.test');
       await page.getByLabel(/^Mật khẩu/).fill('sai-mat-khau-1');
       await page.getByRole('button', { name: 'Đăng nhập' }).click();
       await expect(page.locator('.alert--danger')).toBeVisible();

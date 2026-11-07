@@ -70,7 +70,7 @@ export async function sentQuote(
     version: filled.version,
   });
   const q = await post(req, '/api/v1/rec/quotes', { intakeId: done.id });
-  const lines: Row[] = [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-DAU' }];
+  const lines: Row[] = [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-DAU' }];
   if (opts.expensive) lines.push({ kind: 'part', partId: 'part_seed_03', qty: 10 });
   const e = await patch(req, `/api/v1/rec/quotes/${q.id}`, {
     version: q.version,

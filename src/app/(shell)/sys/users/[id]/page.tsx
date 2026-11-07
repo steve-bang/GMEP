@@ -6,7 +6,7 @@ import { formLabels } from '@/composition/labels';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
-import { ActionButton } from '@/ui/components/ResourceForm';
+import { ActionButton, ResourceForm } from '@/ui/components/ResourceForm';
 import { StatusBadge } from '@/ui/components/StatusBadge';
 import { SettingsPage } from '../../SettingsPage';
 import { ErrorFor } from '@/ui/components/PageParts';
@@ -45,6 +45,11 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   const canManage = hasPermission(actor, 'user:manage') && u.id !== actor.userId;
   const canArchive =
     hasPermission(actor, 'user:archive') && u.id !== actor.userId && u.status !== 'invited';
+  const canResetPassword =
+    hasPermission(actor, 'user-credential:manage') &&
+    u.id !== actor.userId &&
+    u.loginKind === 'employee_code' &&
+    u.status === 'active';
   const isOwner = hasPermission(actor, 'user:approve');
   const roles = ROLE_CODES.filter((r) => isOwner || !OWNER_APPROVED_ROLES.includes(r));
   return (
@@ -174,6 +179,52 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             />
           ) : null}
         </div>
+        {u.loginKind === 'employee_code' ? (
+          <div className="stack-2" data-testid="worker-login">
+            <p>
+              <StatusBadge tone="neutral">{t('users.noEmail.badge')}</StatusBadge>{' '}
+              {u.companyCode ? (
+                <>
+                  {t('users.noEmail.companyCode')}:{' '}
+                  <strong data-testid="worker-company-code">{u.companyCode}</strong>
+                </>
+              ) : null}
+            </p>
+            {u.mustChangePassword ? (
+              <p className="text-secondary">{t('users.noEmail.mustChange')}</p>
+            ) : null}
+            {canResetPassword ? (
+              <>
+                <h3>{t('users.noEmail.reset')}</h3>
+                <p className="text-secondary">{t('users.noEmail.resetLead')}</p>
+                <ResourceForm
+                  testId="worker-reset"
+                  endpoint={`/api/v1/sys/users/${u.id}/reset-password`}
+                  extra={{ version: u.version }}
+                  labels={formLabels(t, 'users.noEmail.reset', false)}
+                  fields={[
+                    {
+                      name: 'temporaryPassword',
+                      label: t('users.noEmail.temporaryPassword'),
+                      type: 'password',
+                      required: true,
+                      hint: t('users.noEmail.temporaryPasswordHint', {
+                        min: deps.config.passwordPolicy.minLength,
+                        hours: Math.round(deps.config.tempPasswordTtlMs / 3_600_000),
+                      }),
+                    },
+                    {
+                      name: 'reason',
+                      label: t('users.noEmail.reason'),
+                      required: true,
+                      maxLength: 300,
+                    },
+                  ]}
+                />
+              </>
+            ) : null}
+          </div>
+        ) : null}
       </section>
     </SettingsPage>
   );

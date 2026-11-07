@@ -9,7 +9,7 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
 const P_FILTER = 'part_seed_01';
 const Q7 = 'wh_br_q7_WH-CHINH';
 
@@ -289,7 +289,7 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
       expect(r.invoices.closedWithoutInvoiceCount).toBe(1);
       // R114: B was completed today, so the backlog of 1 is also today's flow of 1
       expect(r.invoices.completedWithoutInvoiceCount).toBe(1);
-      expect((await stored())!.schemaVersion).toBe(5);
+      expect((await stored())!.schemaVersion).toBe(7);
       // RULE-007: every goods issue has a source document
       expect(r.stock.issuesWithoutSource).toBe(0);
       expect(r.stock.issueDocuments).toBeGreaterThanOrEqual(2);
@@ -470,7 +470,7 @@ describe.each(backends)('RPT single-branch reports [%s]', (backend) => {
     it('the rollup repository drops documents of other branches even when asked by id (defence in depth)', async () => {
       const scoped = await h.container.rpt.rollups.get(
         // a Thu Duc scope asking for the Quan 7 document by key
-        (await import('@/platform/scope/scope')).branchesScope('cmp_demo', ['br_td']),
+        (await import('@/platform/scope/scope')).branchesScope('tnt_demo', ['br_td']),
         'br_q7',
         today,
       );

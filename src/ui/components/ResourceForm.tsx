@@ -110,7 +110,11 @@ export function ResourceForm(props: {
     const body: Record<string, unknown> = { ...(props.extra ?? {}) };
     for (const f of props.fields) {
       const raw =
-        f.type === 'checkbox' ? form.get(f.name) === 'on' : String(form.get(f.name) ?? '').trim();
+        f.type === 'checkbox'
+          ? form.get(f.name) === 'on'
+          : f.type === 'password'
+            ? String(form.get(f.name) ?? '') // a password is sent exactly as typed
+            : String(form.get(f.name) ?? '').trim();
       if (f.type === 'checkbox') body[f.name] = raw;
       else if (f.parse === 'pairs')
         body[f.name] = String(raw)

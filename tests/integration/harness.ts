@@ -2,7 +2,7 @@ import { loadEnv } from '@/platform/config/env';
 import { fixedClock } from '@/platform/time/clock';
 import { createContainer, setContainerForTests, type Container } from '@/composition/container';
 import { seedFirestoreEmulator, seedMemory } from '@/infrastructure/seed/seed';
-import { DEMO_PASSWORD, demoUsers } from '@/infrastructure/seed/demo';
+import { DEMO_PASSWORD, allDemoUsers as demoUsers } from '@/infrastructure/seed/demo';
 import { getDb } from '@/infrastructure/firestore/client';
 
 export type Backend = 'memory' | 'firestore';

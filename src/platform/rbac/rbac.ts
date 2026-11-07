@@ -33,7 +33,7 @@ export interface RoleAssignment {
 
 export interface Actor {
   userId: string;
-  companyId: string;
+  tenantId: string;
   displayName: string;
   assignments: readonly RoleAssignment[];
   /** roleCode -> permissions, loaded from the roles collection. */
@@ -80,6 +80,7 @@ const COMPANY_LEVEL_RESOURCES: ReadonlySet<string> = new Set([
   'user',
   'acc-policy',
   'approval-limit',
+  'approval-delegation',
   'cost-method',
   'discount-limit',
   'consent-evidence',
@@ -89,6 +90,7 @@ const COMPANY_LEVEL_RESOURCES: ReadonlySet<string> = new Set([
   'numbering-series',
   'part-catalog',
   'price-list',
+  'catalog-release',
   'report-config',
   'service-catalog',
   'tax-rate',
@@ -116,8 +118,8 @@ function resolvePermissionScope(actor: Actor, permission: Permission): Scope {
     if (a.branchId === ALL_BRANCHES) all = true;
     else branchIds.add(a.branchId);
   }
-  if (all) return allBranchesScope(actor.companyId);
-  return branchesScope(actor.companyId, [...branchIds]); // throws forbidden() when empty
+  if (all) return allBranchesScope(actor.tenantId);
+  return branchesScope(actor.tenantId, [...branchIds]); // throws forbidden() when empty
 }
 
 /**
@@ -160,9 +162,9 @@ export function requireWorkingBranch(actor: Actor): string {
 export function assignedScope(actor: Actor): Scope | null {
   if (actor.assignments.length === 0) return null;
   if (actor.assignments.some((a) => a.branchId === ALL_BRANCHES))
-    return allBranchesScope(actor.companyId);
+    return allBranchesScope(actor.tenantId);
   return branchesScope(
-    actor.companyId,
+    actor.tenantId,
     actor.assignments.map((a) => a.branchId),
   );
 }

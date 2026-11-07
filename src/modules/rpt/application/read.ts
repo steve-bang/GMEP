@@ -174,6 +174,11 @@ export function lensOf(actor: Actor): Lens {
 const dashboardQuery = z.object({
   date: dateSchema.optional(),
   branchId: z.string().max(64).optional(),
+  /** slice 2.1: a region = a configured group of branches; a FILTER inside the actor's scope (Q84) */
+  groupId: z
+    .string()
+    .regex(/^[a-z][a-z0-9_-]{0,29}$/)
+    .optional(),
 });
 
 export interface BranchRow {
@@ -195,6 +200,10 @@ export interface DashboardDto {
   totals: RollupTotals;
   /** all branches of the view are official (day closed) */
   allOfficial: boolean;
+  /** FR-RPT-010: branches whose figure for the day is provisional (day not closed) and branches with no document yet */
+  provisionalBranches: number;
+  missingBranches: number;
+  groupId: string | null;
   /** previous day's exTax revenue, for the comparison line; null when not available */
   previousExTaxVnd: number | null;
   lastComputedAt: string | null;
@@ -210,7 +219,13 @@ export async function getDashboard(
 ): Promise<DashboardDto> {
   const q = parseInput(dashboardQuery, raw ?? {});
   const date = q.date ?? todayOf(deps);
-  const { scope, branches } = await branchesOf(deps, actor, 'report-dashboard:view', q.branchId);
+  const { scope, branches } = await branchesOf(
+    deps,
+    actor,
+    'report-dashboard:view',
+    q.branchId,
+    q.groupId,
+  );
   const can = canOf(actor);
   const keys = branches.flatMap((b) => [
     { branchId: b.id, date },
@@ -251,6 +266,9 @@ export async function getDashboard(
     totals,
     allOfficial:
       present.length > 0 && present.every((r) => r.official) && present.length === rows.length,
+    provisionalBranches: present.filter((r) => !r.official).length,
+    missingBranches: rows.filter((r) => r.missing).length,
+    groupId: q.groupId ?? null,
     previousExTaxVnd:
       can('report-daily:view') && prev.length > 0
         ? prev.reduce((s, r) => s + r.revenue.exTaxVnd, 0)
@@ -382,7 +400,13 @@ export interface AlertsDto {
 export async function listAlerts(deps: RptDeps, actor: Actor, raw: unknown): Promise<AlertsDto> {
   const q = parseInput(dashboardQuery, raw ?? {});
   const date = q.date ?? todayOf(deps);
-  const { scope, branches } = await branchesOf(deps, actor, 'report-alert:view', q.branchId);
+  const { scope, branches } = await branchesOf(
+    deps,
+    actor,
+    'report-alert:view',
+    q.branchId,
+    q.groupId,
+  );
   const can = canOf(actor);
   const docs = await deps.rollups.getMany(
     scope,

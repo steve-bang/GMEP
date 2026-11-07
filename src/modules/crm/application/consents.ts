@@ -68,7 +68,7 @@ export async function listConsents(
 ): Promise<ConsentDto[]> {
   const scope = resolveScope(actor, 'consent:view');
   if (!(await deps.customers.get(scope, customerId))) throw notFound();
-  return (await deps.consents.listByCustomer(actor.companyId, customerId)).map(toConsentDto);
+  return (await deps.consents.listByCustomer(actor.tenantId, customerId)).map(toConsentDto);
 }
 
 export const recordConsentSchema = z.object({
@@ -99,7 +99,7 @@ export async function listEvidenceKinds(
 ): Promise<EvidenceKindOption[]> {
   resolveScope(actor, 'consent:view');
   const rows = await resolveCatalogAt(deps.sys, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     type: 'evidence-kind',
     date: businessDate(deps.sys.clock.now()),
   });
@@ -139,8 +139,8 @@ async function checkEvidence(
 }
 
 /** Re-derives the advertising channels from all records of the customer (inside the customer's tx read). */
-async function marketingOf(deps: CrmDeps, companyId: string, customerId: string, extra?: Consent) {
-  const all = await deps.consents.listByCustomer(companyId, customerId);
+async function marketingOf(deps: CrmDeps, tenantId: string, customerId: string, extra?: Consent) {
+  const all = await deps.consents.listByCustomer(tenantId, customerId);
   const merged = extra ? [...all.filter((c) => c.id !== extra.id), extra] : all;
   return marketingChannelsOf(merged);
 }
@@ -189,7 +189,7 @@ export async function recordConsent(
       if (customer.status === 'anonymized') throw new AppError('customer_anonymized', 409);
       await checkEvidence(deps, actor, data);
       const branch = await writableWorkingBranch(deps, tx, actor, scope);
-      const existing = await deps.consents.listByCustomer(actor.companyId, customerId);
+      const existing = await deps.consents.listByCustomer(actor.tenantId, customerId);
       if (
         existing.some(
           (c) =>
@@ -203,7 +203,7 @@ export async function recordConsent(
       const now = deps.sys.clock.now();
       const c: Consent = {
         id: `con_${deps.sys.newId()}`,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: branch.id,
         customerId,
         purpose: data.purpose,
@@ -220,7 +220,7 @@ export async function recordConsent(
       };
       deps.consents.create(tx, c);
       deps.customers.update(tx, customerId, {
-        marketing: await marketingOf(deps, actor.companyId, customerId, c),
+        marketing: await marketingOf(deps, actor.tenantId, customerId, c),
       });
       deps.sys.audit.record(
         tx,
@@ -265,7 +265,7 @@ export async function withdrawConsent(
       { field: 'reason', message: 'Không ghi số điện thoại hoặc email vào lý do rút.' },
     ]);
   return deps.sys.uow.run(async (tx) => {
-    const c = await deps.consents.getInTx(tx, actor.companyId, consentId);
+    const c = await deps.consents.getInTx(tx, actor.tenantId, consentId);
     if (!c) throw notFound();
     const customer = await deps.customers.getInTx(tx, cscope, c.customerId); // out of scope looks missing
     if (!customer) throw notFound();
@@ -289,7 +289,7 @@ export async function withdrawConsent(
       version: next.version,
     });
     deps.customers.update(tx, c.customerId, {
-      marketing: await marketingOf(deps, actor.companyId, c.customerId, next),
+      marketing: await marketingOf(deps, actor.tenantId, c.customerId, next),
     });
     deps.sys.audit.record(
       tx,

@@ -53,7 +53,7 @@ export default async function ActivatePage({
       brand={t('app.name')}
       skip={t('shell.skip')}
       title={t('activate.title')}
-      lead={t('activate.lead')}
+      lead={t(inv.existingIdentity ? 'activate.leadExisting' : 'activate.lead')}
       footer={footer}
       wide
     >
@@ -78,13 +78,14 @@ export default async function ActivatePage({
       <p className="text-secondary">{t('activate.readonlyNote')}</p>
       <PasswordSetForm
         mode="activate"
+        existingIdentity={inv.existingIdentity}
         token={token}
         minLength={deps.config.passwordPolicy.minLength}
         historyDepth={deps.config.passwordPolicy.historyDepth}
         labels={{
           password: t('reset.password'),
           confirm: t('reset.confirm'),
-          submit: t('activate.submit'),
+          submit: t(inv.existingIdentity ? 'activate.submitExisting' : 'activate.submit'),
           ruleLength: t('reset.ruleLength', { min: deps.config.passwordPolicy.minLength }),
           ruleHistory: '',
           mismatch: t('reset.mismatch'),
@@ -96,7 +97,10 @@ export default async function ActivatePage({
           offline: t('login.offline'),
           wait: t('forgot.wait'),
           unexpected: t('common.unexpected'),
-          consent: t('activate.consent', { version: deps.config.consentPolicyVersion }),
+          consent: t('activate.consent', {
+            version: inv.policyVersion,
+            tenant: inv.tenantName,
+          }),
           consentLink: t('activate.consentLink'),
         }}
       />

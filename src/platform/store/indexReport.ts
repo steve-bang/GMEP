@@ -5,7 +5,7 @@ import type { IndexDef } from './indexes';
  * and conservative merge candidates. Reporting only; nothing here removes an index.
  */
 
-/** Collection -> owning module (SYS, CRM, INV, REC, ACC, EIN). Unknown collections report as '?'. */
+/** Collection -> owning module (SYS, CRM, INV, REC, ACC, EIN, HRM). Unknown collections report as '?'. */
 export const COLLECTION_OWNER: Readonly<Record<string, string>> = {
   approvals: 'SYS',
   auditLogs: 'SYS',
@@ -14,6 +14,7 @@ export const COLLECTION_OWNER: Readonly<Record<string, string>> = {
   configVersions: 'SYS',
   counters: 'SYS',
   importBatches: 'SYS',
+  laborSheets: 'HRM',
   notifications: 'SYS',
   priceLists: 'SYS',
   roleAssignments: 'SYS',
@@ -37,6 +38,8 @@ export const COLLECTION_OWNER: Readonly<Record<string, string>> = {
   stockMovements: 'INV',
   stockReservations: 'INV',
   intakes: 'REC',
+  appointments: 'REC',
+  warranties: 'REC',
   partRequests: 'REC',
   quotes: 'REC',
   repairItems: 'REC',
@@ -64,6 +67,7 @@ export const COLLECTION_SLICE: Readonly<Record<string, string>> = {
   services: 'FR-SYS, 1.2',
   priceLists: 'FR-SYS, 1.2',
   importBatches: 'FR-SYS-007, 1.11',
+  laborSheets: 'FR-HRM-007, 020, 2.6a',
   consents: 'FR-CRM, 1.3',
   customerLinks: 'FR-CRM, 1.3',
   customerPii: 'FR-CRM, 1.3',
@@ -80,6 +84,8 @@ export const COLLECTION_SLICE: Readonly<Record<string, string>> = {
   stockMovements: 'FR-INV, 1.4',
   stockReservations: 'FR-INV, 1.4',
   intakes: 'FR-REC, 1.5',
+  appointments: 'FR-REC-019, 027, 2.8b',
+  warranties: 'FR-REC-018, 036, 2.8b',
   partRequests: 'FR-REC, 1.6',
   quotes: 'FR-REC, 1.5',
   repairItems: 'FR-REC, 1.6',

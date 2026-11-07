@@ -6,7 +6,6 @@ import type { HashedPassword } from '../domain/passwordPolicy';
 import type {
   AuthToken,
   Branch,
-  Company,
   Notification,
   PriceListHeader,
   Role,
@@ -17,7 +16,10 @@ import type {
   Warehouse,
 } from '../domain/entities';
 import type { ConfigVersion } from '../domain/config';
-import type { ApprovalRequest, ApprovalStatus } from '../domain/approval';
+import type { PendingTransition, Tenant } from '../domain/tenant';
+import type { TenantCodeSlot } from '../domain/tenantCode';
+import type { PlatformAuditEntry, PlatformIdentity } from '../domain/platform';
+import type { ApprovalDelegation, ApprovalRequest, ApprovalStatus } from '../domain/approval';
 import type { Actor } from '@/platform/rbac/rbac';
 import type {
   ColumnMapping,
@@ -44,9 +46,20 @@ export interface ListQuery<S extends string = string> {
  * return identity data only, never business records.
  */
 export interface UserRepository {
-  getById(id: string): Promise<User | null>;
-  getByIdInTx(tx: Tx, id: string): Promise<User | null>;
-  findByLogin(identifier: string): Promise<User | null>;
+  /** FR-TEN-009: a user (membership) of another tenant answers null, exactly like a missing id. */
+  getById(tenantId: string, id: string): Promise<User | null>;
+  getByIdInTx(tx: Tx, tenantId: string, id: string): Promise<User | null>;
+  /** session and identity plumbing only: the tenant is read FROM the record. Never for a business lookup. */
+  getAnyById(id: string): Promise<User | null>;
+  /** every membership registered with this email, any tenant (sign-in and invitation only; never shown to a tenant) */
+  findMembershipsByEmail(email: string): Promise<User[]>;
+  /**
+   * P2-C pre-authentication lookup by (tenant code, employee code): a fixed number of reads whether or not the pair
+   * exists (uniform answer time). Identity data only.
+   */
+  findByEmployeeCode(tenantId: string, code: string): Promise<User | null>;
+  /** employee codes are unique per tenant only (RULE-018) */
+  employeeCodeTaken(tenantId: string, code: string): Promise<boolean>;
   /**
    * Users visible in the scope: those holding a role assignment in a scoped branch (or all users
    * of the company for 'all' scopes).
@@ -55,11 +68,21 @@ export interface UserRepository {
   /** Records the last successful sign-in outside any business transaction (not audited, not versioned). */
   recordLogin(userId: string, at: Date): Promise<void>;
   /** Stages the create plus the unique keys (email, employee code per company); AlreadyExistsError on duplicates. */
-  create(tx: Tx, user: User): void;
+  create(tx: Tx, user: User, opts?: { existingIdentity?: boolean }): void;
   update(
     tx: Tx,
     id: string,
-    patch: Partial<Pick<User, 'displayName' | 'phone' | 'status'>> & {
+    patch: Partial<
+      Pick<
+        User,
+        | 'displayName'
+        | 'phone'
+        | 'status'
+        | 'policyConsent'
+        | 'mustChangePassword'
+        | 'tempPasswordExpiresAt'
+      >
+    > & {
       updatedAt: Date;
       updatedBy: string;
       version: number;
@@ -79,20 +102,21 @@ export interface UserRepository {
 }
 
 export interface RoleRepository {
-  getMany(codes: readonly string[]): Promise<Role[]>;
-  list(): Promise<Role[]>;
-  upsert(tx: Tx, role: Role, meta: { at: Date; by: string }): void;
+  /** Roles are per tenant (FR-TEN-009): a tenant administrator edits only the roles of its own tenant. */
+  getMany(tenantId: string, codes: readonly string[]): Promise<Role[]>;
+  list(tenantId: string): Promise<Role[]>;
+  upsert(tx: Tx, tenantId: string, role: Role, meta: { at: Date; by: string }): void;
 }
 
 export interface RoleAssignmentRepository {
-  listForUser(userId: string): Promise<(RoleAssignment & { companyId: string })[]>;
+  listForUser(userId: string): Promise<(RoleAssignment & { tenantId: string })[]>;
   listForUserInTx(tx: Tx, userId: string): Promise<RoleAssignmentRecord[]>;
   /** assignments whose branch is inside the scope, used for user administration screens */
   listInScope(scope: Scope, userId: string): Promise<RoleAssignmentRecord[]>;
   /** every assignment whose branch is inside the scope (one paged query), for user list filters */
   listAllInScope(scope: Scope): Promise<RoleAssignmentRecord[]>;
   /** users holding a role (any branch), e.g. to address approvers; capped */
-  listByRole(companyId: string, roleCode: string, limit: number): Promise<RoleAssignmentRecord[]>;
+  listByRole(tenantId: string, roleCode: string, limit: number): Promise<RoleAssignmentRecord[]>;
   add(tx: Tx, a: RoleAssignmentRecord): void;
   remove(tx: Tx, id: string): void;
   getInTx(tx: Tx, id: string): Promise<RoleAssignmentRecord | null>;
@@ -115,11 +139,51 @@ export interface BranchRepository {
     },
   ): void;
   /** true when numbering counters already exist for the branch (MÃCN then becomes immutable) */
-  hasNumbering(companyId: string, branchId: string): Promise<boolean>;
+  hasNumbering(tenantId: string, branchId: string): Promise<boolean>;
 }
 
-export interface CompanyRepository {
-  get(id: string): Promise<Company | null>;
+/**
+ * Tenant records (FR-TEN-001). Platform-level data: the only repository that is not scoped to a tenant. There is no
+ * delete (a tenant is never removed, only moved along its lifecycle).
+ */
+export interface TenantRepository {
+  get(id: string): Promise<Tenant | null>;
+  getInTx(tx: Tx, id: string): Promise<Tenant | null>;
+  /** fails at commit with AlreadyExistsError when the code exists */
+  create(tx: Tx, tenant: Tenant): void;
+  update(
+    tx: Tx,
+    id: string,
+    patch: Partial<Omit<Tenant, 'id' | 'pendingTransition'>> & {
+      pendingTransition?: PendingTransition | null;
+    },
+  ): void;
+  /** newest first, bounded; for platform screens and the scheduler */
+  list(limit: number): Promise<Tenant[]>;
+  /** lock document `tenantCodes/<code>`, read BY KEY (no index): the employee-code sign-in resolves the tenant here */
+  getCodeSlot(code: string): Promise<TenantCodeSlot | null>;
+  getCodeSlotInTx(tx: Tx, code: string): Promise<TenantCodeSlot | null>;
+  /** create-only: fails at commit with AlreadyExistsError when the code is held (lost race) */
+  createCodeSlot(tx: Tx, slot: TenantCodeSlot): void;
+  /** takes over a retired slot whose holding period is over (read in the same transaction first) */
+  replaceCodeSlot(tx: Tx, slot: TenantCodeSlot): void;
+  retireCodeSlot(tx: Tx, code: string, at: Date, releaseAfter: Date): void;
+}
+
+/** Platform staff identities (own zone). The email is unique across the platform AND tenant zones. */
+export interface PlatformIdentityRepository {
+  getById(id: string): Promise<PlatformIdentity | null>;
+  create(tx: Tx, identity: PlatformIdentity): void;
+}
+
+/** FR-TEN-013: append-only platform audit, separate from tenant audit. No update, no delete. */
+export interface PlatformAuditLog {
+  record(tx: Tx, entry: PlatformAuditEntry): void;
+  /** newest first; `tenantId` narrows within the returned window (no composite index, bounded) */
+  list(
+    page: { limit: number; cursor?: { v: string; id: string } },
+    tenantId?: string,
+  ): Promise<Page<PlatformAuditEntry>>;
 }
 
 export type WarehouseSortField = 'code' | 'name';
@@ -200,10 +264,10 @@ export interface AuthTokenRepository {
 
 export interface ConfigRepository {
   /** All versions (any status) of one (type, scopeKey), newest effectiveFrom first. */
-  listVersions(companyId: string, type: string, scopeKey: string): Promise<ConfigVersion[]>;
+  listVersions(tenantId: string, type: string, scopeKey: string): Promise<ConfigVersion[]>;
   /** Versions of a type across scope keys, optionally filtered by status. */
   listByType(
-    companyId: string,
+    tenantId: string,
     type: string,
     status: ConfigVersion['status'] | undefined,
     limit: number,
@@ -234,10 +298,10 @@ export interface NotificationRepository {
 
 export interface ServiceRepository {
   list(
-    companyId: string,
+    tenantId: string,
     q: ListQuery<'code' | 'name'> & { group?: string },
   ): Promise<Page<ServiceItem>>;
-  get(companyId: string, id: string): Promise<ServiceItem | null>;
+  get(tenantId: string, id: string): Promise<ServiceItem | null>;
   create(tx: Tx, s: ServiceItem): void;
   update(
     tx: Tx,
@@ -248,12 +312,12 @@ export interface ServiceRepository {
       version: number;
     },
   ): void;
-  getInTx(tx: Tx, companyId: string, id: string): Promise<ServiceItem | null>;
+  getInTx(tx: Tx, tenantId: string, id: string): Promise<ServiceItem | null>;
 }
 
 export interface PriceListRepository {
-  list(companyId: string, q: ListQuery<'code' | 'name'>): Promise<Page<PriceListHeader>>;
-  get(companyId: string, id: string): Promise<PriceListHeader | null>;
+  list(tenantId: string, q: ListQuery<'code' | 'name'>): Promise<Page<PriceListHeader>>;
+  get(tenantId: string, id: string): Promise<PriceListHeader | null>;
   create(tx: Tx, p: PriceListHeader): void;
   update(
     tx: Tx,
@@ -264,7 +328,7 @@ export interface PriceListRepository {
       version: number;
     },
   ): void;
-  getInTx(tx: Tx, companyId: string, id: string): Promise<PriceListHeader | null>;
+  getInTx(tx: Tx, tenantId: string, id: string): Promise<PriceListHeader | null>;
 }
 
 // ---- identity -------------------------------------------------------------
@@ -402,8 +466,16 @@ export interface ApprovalRepository {
   listByRequester(scope: Scope, requesterId: string, limit: number): Promise<ApprovalRequest[]>;
   /** one slot per (kind, subject): the id of the request that is pending for it, if any */
   getSlotInTx(tx: Tx, slotId: string): Promise<{ requestId: string; open: boolean } | null>;
-  setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; companyId: string }): void;
+  setSlot(tx: Tx, slotId: string, v: { requestId: string; open: boolean; tenantId: string }): void;
   create(tx: Tx, r: ApprovalRequest): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+/** FR-SYS-033: delegations are few per tenant (read whole, filtered in memory); every read is by tenant. */
+export interface ApprovalDelegationRepository {
+  listByTenant(tenantId: string, limit: number): Promise<ApprovalDelegation[]>;
+  getInTx(tx: Tx, tenantId: string, id: string): Promise<ApprovalDelegation | null>;
+  create(tx: Tx, d: ApprovalDelegation): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
 
@@ -441,7 +513,7 @@ export interface ImportEntityRef {
 
 export interface ImportBatch {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   kind: ImportKind;
   fileName: string;
@@ -490,13 +562,13 @@ export interface ImportBatchRepository {
   setFileSlot(
     tx: Tx,
     slotId: string,
-    owner: { batchId: string; companyId: string; branchId: string },
+    owner: { batchId: string; tenantId: string; branchId: string },
   ): void;
   /** staged units live in chunks read by key; personal data, removed after commit or discard */
   putUnits(
     tx: Tx,
     batchId: string,
-    owner: { companyId: string; branchId: string },
+    owner: { tenantId: string; branchId: string },
     units: readonly ImportUnit[],
   ): void;
   getUnits(scope: Scope, batchId: string, chunkCount: number): Promise<ImportUnit[]>;

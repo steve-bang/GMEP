@@ -2,7 +2,7 @@
 # Step 4: deploy (or update) the Cloud Run service. This file is THE service definition: the owner/dev runs it by hand
 # for the first deploy and .github/workflows/deploy-staging.yml runs it for every later one. Idempotent. Dry-run by default.
 #
-# Required: IMAGE (full Artifact Registry reference), APP_BASE_URL, CRON_COMPANY_ID.
+# Required: IMAGE (full Artifact Registry reference), APP_BASE_URL, CRON_TENANT_ID.
 # Env vars follow src/platform/config/env.ts on master. EMAIL_* only exist on branch feat/email-smtp-adapter-deploy-guide
 # (an unknown variable is ignored by master, so setting them early is harmless).
 set -euo pipefail
@@ -11,7 +11,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 banner "deploy service"
 require_var IMAGE
 require_var APP_BASE_URL
-require_var CRON_COMPANY_ID
+require_var CRON_TENANT_ID
 
 if [[ "$DRY_RUN" != "1" ]]; then
   # Fail early and clearly instead of a Cloud Run revision that cannot start.
@@ -25,7 +25,7 @@ CRON_AUDIENCE="${CRON_OIDC_AUDIENCE:-$(service_url)}"
 
 # '^|^' makes '|' the list delimiter so values may contain commas, spaces and '@' (service account e-mails, EMAIL_FROM).
 env_vars="^|^GMEP_ENV=${ENV_NAME}|GMEP_DATA_BACKEND=firestore|GCLOUD_PROJECT=${PROJECT_ID}|GMEP_FILES_BUCKET=${FILES_BUCKET}"
-env_vars+="|TRUSTED_PROXY_HOPS=1|APP_BASE_URL=${APP_BASE_URL}|APP_ORIGIN=${APP_BASE_URL}|CRON_COMPANY_ID=${CRON_COMPANY_ID}"
+env_vars+="|TRUSTED_PROXY_HOPS=1|APP_BASE_URL=${APP_BASE_URL}|APP_ORIGIN=${APP_BASE_URL}|CRON_TENANT_ID=${CRON_TENANT_ID}"
 env_vars+="|CRON_OIDC_AUDIENCE=${CRON_AUDIENCE}|CRON_OIDC_SERVICE_ACCOUNT=${SCHEDULER_SA}"
 secrets="FIREBASE_API_KEY=${SECRET_API_KEY}:latest"
 if [[ -n "${EMAIL_FROM:-}" ]]; then

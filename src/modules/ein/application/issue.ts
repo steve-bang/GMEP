@@ -2,7 +2,7 @@ import { businessDate } from '@/platform/format/date';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import { resolveScope, type Actor } from '@/platform/rbac/rbac';
 import type { Scope } from '@/platform/scope/scope';
-import { allocateDocumentNumber, resolveConfigAt } from '@/modules/sys';
+import { allocateDocumentNumber, resolveConfigAt, tenantTermsBlock } from '@/modules/sys';
 import { buildInvoiceContent, type BuiltInvoice } from '../domain/build';
 import {
   checkEligibility,
@@ -81,8 +81,8 @@ export async function assemble(
   if (!order) throw notFound();
   const date = businessDate(deps.sys.clock.now());
   const [issuer, policy] = await Promise.all([
-    issuerOf(deps, order.companyId, order.branchId, date),
-    einPolicyOf(deps, order.companyId, order.branchId, date),
+    issuerOf(deps, order.tenantId, order.branchId, date),
+    einPolicyOf(deps, order.tenantId, order.branchId, date),
   ]);
   const cust = await deps.buyers.get(scope, order.customerId);
   const buyer = mergeBuyer(cust ?? { kind: 'retail', name: order.customerName }, override);
@@ -106,15 +106,19 @@ export async function assemble(
   const currentRates = new Map<string, number>();
   for (const k of keys) {
     const snap = await resolveConfigAt(deps.sys, {
-      companyId: order.companyId,
+      tenantId: order.tenantId,
       type: 'tax-rate',
       scopeKey: k,
       date,
     });
     if (snap) currentRates.set(k, Number((snap.payload as { rateBp: number }).rateBp));
   }
+  // RULE-029: a live invoice needs the tenant's recorded Terms and DPA acceptance
+  const termsBlocked =
+    issuer?.snapshot.environment === 'live' && (await tenantTermsBlock(deps.sys, order.tenantId));
   const check = checkEligibility({
     providerActive: providerActive(deps, issuer),
+    termsBlocked,
     issuerComplete: !!issuer && issuer.snapshot.sellerName.length > 1 && !!issuer.snapshot.symbol,
     order: {
       status: order.status,
@@ -272,7 +276,7 @@ export async function issueInvoice(
       const built = a.built!;
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       const now = deps.sys.clock.now();
-      const q = await readQueue(deps, tx, scope, actor.companyId, branchId, now);
+      const q = await readQueue(deps, tx, scope, actor.tenantId, branchId, now);
       if (Object.keys(q.items).length >= deps.ein.queueMax)
         throw new AppError('invoice_queue_full', 409);
       const rounds = (a.index?.rounds ?? 0) + 1;
@@ -288,14 +292,14 @@ export async function issueInvoice(
       });
       const req: InvoiceRequest = {
         id: requestId,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         number: num.number!,
         purpose: 'issue',
         orderId,
         orderNumber: a.order.number,
         invoiceId,
-        idempotencyKey: idempotencyKeyOf(actor.companyId, requestId),
+        idempotencyKey: idempotencyKeyOf(actor.tenantId, requestId),
         status: 'pending',
         attemptCount: 0,
         maxAttempts: a.policy.maxAttempts,
@@ -310,7 +314,7 @@ export async function issueInvoice(
       };
       const inv: Invoice = {
         id: invoiceId,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         orderId,
         orderNumber: a.order.number,
@@ -347,14 +351,14 @@ export async function issueInvoice(
       deps.invoices.create(tx, inv);
       deps.invoices.savePii(tx, {
         id: invoiceId,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         ...(a.buyer.address ? { address: a.buyer.address } : {}),
         ...(a.buyer.email ? { email: a.buyer.email } : {}),
       });
       deps.index.save(tx, {
         id: orderId,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         orderNumber: a.order.number,
         rounds,

@@ -29,7 +29,7 @@ export const versionConflict = (): AppError => new AppError('version_conflict', 
 /** Invoices are issued and queued in the session's working branch, which the scope must cover (NFR-ISO-01). */
 export function einBranch(actor: Actor, scope: Scope): string {
   const branchId = requireWorkingBranch(actor);
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   return branchId;
 }
 
@@ -41,7 +41,7 @@ export async function assertWritable(
   scope: Scope,
   branchId: string,
 ): Promise<Branch> {
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   const branch = await deps.sys.branches.getInTx(tx, scope, branchId);
   if (!branch) throw notFound();
   assertBranchWritable(
@@ -66,7 +66,7 @@ export function accessEntry(
     requestId,
     actorId: actor.userId,
     actorRoles: roleCodesOf(actor),
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId: null,
     result: 'allowed',
     ...e,

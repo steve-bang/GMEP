@@ -18,7 +18,7 @@ export function notifyUsers(
   deps: SysDeps,
   tx: Tx,
   n: {
-    companyId: string;
+    tenantId: string;
     userIds: readonly string[];
     kind: NotificationKind;
     titleKey: string;
@@ -31,7 +31,7 @@ export function notifyUsers(
   for (const userId of new Set(n.userIds)) {
     deps.notifications.create(tx, {
       id: deps.newId(),
-      companyId: n.companyId,
+      tenantId: n.tenantId,
       userId,
       branchId: n.branchId ?? null,
       kind: n.kind,
@@ -52,18 +52,18 @@ export function notifyUsers(
  */
 export async function usersWithRole(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   roleCodes: readonly string[],
   branchId: string | null,
 ): Promise<string[]> {
   const ids = new Set<string>();
   for (const code of roleCodes)
-    for (const a of await deps.assignments.listByRole(companyId, code, 100))
+    for (const a of await deps.assignments.listByRole(tenantId, code, 100))
       if (branchId === null || a.branchId === '*' || a.branchId === branchId) ids.add(a.userId);
   // a disabled or not yet activated account has nobody behind it to read the notice
-  const users = await Promise.all([...ids].map((id) => deps.users.getById(id)));
+  const users = await Promise.all([...ids].map((id) => deps.users.getById(tenantId, id)));
   return users.flatMap((u) =>
-    u && u.companyId === companyId && u.status === 'active' ? [u.id] : [],
+    u && u.tenantId === tenantId && u.status === 'active' ? [u.id] : [],
   );
 }
 

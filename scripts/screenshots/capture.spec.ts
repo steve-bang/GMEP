@@ -63,12 +63,12 @@ test('seed rich data and capture every built screen', async ({ browser }) => {
         {
           name: 'Thay dầu động cơ',
           necessity: 'required',
-          lines: [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-DAU' }],
+          lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-DAU' }],
         },
         {
           name: 'Thay má phanh',
           necessity: 'optional',
-          lines: [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-PHANH' }],
+          lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-PHANH' }],
         },
       ],
     });

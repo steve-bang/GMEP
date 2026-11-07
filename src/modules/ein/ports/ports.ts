@@ -58,7 +58,7 @@ export interface InvoiceQueueRepository {
 /** The order as the invoice layer needs it. REC owns the order; EIN never recomputes its total (RULE-005). */
 export interface InvoiceableOrder {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   number: string;
   status: string;

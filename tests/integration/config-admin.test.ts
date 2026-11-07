@@ -45,7 +45,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
     const deps = h.container.sys;
     const at = (date: string) =>
       resolveConfigAt(deps, {
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         type: 'tax-rate',
         scopeKey: 'VAT-SAMPLE',
         date,
@@ -103,7 +103,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
     const deps = h.container.sys;
     const q = (date: string) =>
       resolveConfigAt(deps, {
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         type: 'tax-rate',
         scopeKey: 'VAT-SAMPLE2',
         date,
@@ -311,7 +311,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
         await propose(
           'u_ql_q7',
           'labor-rate',
-          { scopeKey: 'company', effectiveFrom: eff, payload: { hourlyRateVnd: 1 }, reason: 'xxx' },
+          { scopeKey: 'tenant', effectiveFrom: eff, payload: { hourlyRateVnd: 1 }, reason: 'xxx' },
           'cfg-lab-0003-aaaa',
         )
       ).status,
@@ -327,7 +327,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
       'u_owner',
       'labor-rate',
       {
-        scopeKey: 'company',
+        scopeKey: 'tenant',
         effectiveFrom: eff,
         payload: { hourlyRateVnd: 200000 },
         reason: 'giá giờ công ty',
@@ -344,9 +344,9 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
     const deps = h.container.sys;
     const at = (branchId: string) =>
       resolveConfigAt(deps, {
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         type: 'labor-rate',
-        scopeKey: 'company',
+        scopeKey: 'tenant',
         date: eff,
         branchId,
       });
@@ -358,9 +358,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
     expect(tdList.json.items.some((v: { scopeKey: string }) => v.scopeKey === 'branch:br_q7')).toBe(
       false,
     );
-    expect(tdList.json.items.some((v: { scopeKey: string }) => v.scopeKey === 'company')).toBe(
-      true,
-    );
+    expect(tdList.json.items.some((v: { scopeKey: string }) => v.scopeKey === 'tenant')).toBe(true);
   });
 
   it('price items keep cost and list price separate; cost is hidden from roles that may not see it (ba-answers-04)', async () => {
@@ -404,7 +402,7 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
       'u_owner',
       'discount-limit',
       {
-        scopeKey: 'company',
+        scopeKey: 'tenant',
         effectiveFrom: inDays(4),
         payload: { maxDiscountBpByRole: { CV: 500, QL: 1500 } },
         reason: 'mẫu',

@@ -12,23 +12,31 @@ import { branchesScope, scopeAllows, type Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import {
   APPROVAL_KIND_DEFS,
+  APPROVAL_KINDS,
   approvalSlotId,
   approverPermissionFor,
   INVOICE_APPROVER_PERMISSION,
   checkDecision,
+  delegationCovers,
   isApprovalExpired,
   isApprovalKind,
-  REAUTH_ON_APPROVE,
+  escalationAction,
   isOverdue,
+  reauthRequired,
   requiredLevel,
   type ApprovalKind,
   type ApprovalLevel,
   type ApprovalLimits,
   type ApprovalRequest,
+  type WorkSchedule,
+  unconfiguredLimits,
+  workingMinutesBetween,
 } from '../domain/approval';
+import { TENANT_ACCESS } from '../domain/tenant';
 import type { Branch } from '../domain/entities';
 import type { SysDeps } from '../ports/deps';
 import { reauthenticate, resolveConfigAt } from './config';
+import { delegationsOfDelegate, findDelegationFor } from './delegations';
 import { allocateDocumentNumber } from './numbering';
 import { notifyUsers, usersWithRole } from './notifications';
 import { auditEntry, parseInput, roleCodesOf, type RequestCtx } from './support';
@@ -47,31 +55,36 @@ const idem = (deps: SysDeps) => ({
   ttlMs: deps.config.idempotencyTtlMs,
 });
 
-/** The limits in force for a kind on a date: the effective-dated config version, else the documented fallback. */
+/**
+ * The limits in force for a kind on a date: the effective-dated config version of the TENANT. None in force =
+ * `unconfiguredLimits` (RULE-036, FR-SYS-033): the request goes to the highest level and nothing passes alone.
+ */
 export async function approvalLimitsOf(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   kind: ApprovalKind,
   date: string,
 ): Promise<ApprovalLimits> {
   const snap = await resolveConfigAt(deps, {
-    companyId,
+    tenantId,
     type: 'approval-limit',
     scopeKey: kind,
     date,
   });
-  return snap ? (snap.payload as unknown as ApprovalLimits) : APPROVAL_KIND_DEFS[kind].defaults;
+  return snap ? (snap.payload as unknown as ApprovalLimits) : unconfiguredLimits(kind);
 }
 
 /** Which level must decide `valueVnd` of `kind` (0 = no approval needed). Reads the effective-dated limits. */
 export async function approvalLevelFor(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   kind: ApprovalKind,
   valueVnd: number,
+  /** RULE-036: what the kind's accumulator already counted in its window (slice 2.7 supplies it); default 0 */
+  accumulatedVnd = 0,
 ): Promise<{ level: 0 | ApprovalLevel; limits: ApprovalLimits }> {
-  const limits = await approvalLimitsOf(deps, companyId, kind, businessDate(deps.clock.now()));
-  return { level: requiredLevel(kind, valueVnd, limits), limits };
+  const limits = await approvalLimitsOf(deps, tenantId, kind, businessDate(deps.clock.now()));
+  return { level: requiredLevel(kind, valueVnd, limits, accumulatedVnd), limits };
 }
 
 export interface OpenApprovalInput {
@@ -108,7 +121,7 @@ export async function openApprovalInTx(
     // approval_expired): it must not keep the slot closed to a new request
     const old = await deps.approvals.getInTx(
       tx,
-      branchesScope(actor.companyId, [i.branch.id]),
+      branchesScope(actor.tenantId, [i.branch.id]),
       slot.requestId,
     );
     const dead =
@@ -122,7 +135,14 @@ export async function openApprovalInTx(
       );
     if (!dead) throw new AppError('approval_already_pending', 409);
   }
-  const approvers = await approversOf(deps, actor.companyId, i.branch.id, i.level, i.kind);
+  let level = i.level;
+  let approvers = await approversOf(deps, actor.tenantId, i.branch.id, level, i.kind);
+  // FR-SYS-034: when the only person with the level-1 right is the requester, the request goes to level 2
+  const noOther = level === 1 && approvers.filter((u) => u !== actor.userId).length === 0;
+  if (noOther) {
+    level = 2;
+    approvers = await approversOf(deps, actor.tenantId, i.branch.id, 2, i.kind);
+  }
   const now = deps.clock.now();
   const id = `ap_${deps.newId()}`;
   const num = await allocateDocumentNumber(deps, tx, {
@@ -135,11 +155,11 @@ export async function openApprovalInTx(
   });
   const r: ApprovalRequest = {
     id,
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId: i.branch.id,
     number: num.number!,
     kind: i.kind,
-    level: i.level,
+    level,
     subjectType: i.subjectType,
     subjectId: i.subjectId,
     subjectLabel: i.subjectLabel,
@@ -152,6 +172,13 @@ export async function openApprovalInTx(
     requestedByRole: roleCodesOf(actor).join(','),
     requestedAt: now,
     dueAt: new Date(now.getTime() + i.limits.dueHours * 3_600_000),
+    ...(noOther
+      ? {
+          escalatedAt: now,
+          escalatedFrom: 1 as ApprovalLevel,
+          escalationReason: 'no_eligible_approver',
+        }
+      : {}),
     createdAt: now,
     createdBy: actor.userId,
     updatedAt: now,
@@ -159,7 +186,7 @@ export async function openApprovalInTx(
     version: 1,
   };
   deps.approvals.create(tx, r);
-  deps.approvals.setSlot(tx, slotId, { requestId: id, open: true, companyId: actor.companyId });
+  deps.approvals.setSlot(tx, slotId, { requestId: id, open: true, tenantId: actor.tenantId });
   deps.audit.record(
     tx,
     auditEntry(deps, actor, ctx, {
@@ -171,6 +198,7 @@ export async function openApprovalInTx(
         number: r.number,
         kind: r.kind,
         level: r.level,
+        ...(noOther ? { escalatedFrom: 1, escalationReason: 'no_eligible_approver' } : {}),
         subject: i.subjectLabel,
         valueVnd: i.valueVnd,
       },
@@ -178,7 +206,7 @@ export async function openApprovalInTx(
     }),
   );
   notifyUsers(deps, tx, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     userIds: approvers.filter((u) => u !== actor.userId),
     kind: 'approval',
     titleKey: 'notifications.approvalRequested',
@@ -192,17 +220,17 @@ export async function openApprovalInTx(
 /** People who may decide a request of `level` at the branch (level 2 holders also see level 1, but only the owner role is listed). */
 async function approversOf(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   level: ApprovalLevel,
   kind: ApprovalKind,
 ): Promise<string[]> {
-  const roles = (await deps.roles.list()).filter((r) =>
+  const roles = (await deps.roles.list(tenantId)).filter((r) =>
     r.permissions.includes(approverPermissionFor(kind, level)),
   );
   return usersWithRole(
     deps,
-    companyId,
+    tenantId,
     roles.map((r) => r.code),
     branchId,
   );
@@ -234,17 +262,29 @@ export async function decideApproval(
   const viewScope = resolveScope(actor, 'approval:view');
   const r0 = await deps.approvals.get(viewScope, id);
   if (!r0) throw notFound();
+  const perm = approverPermissionFor(r0.kind, r0.level);
   // BA §25 F-1(3): deciding is a write, fenced to the working branch; say so instead of a bare 403
-  if (
-    actor.workingBranchId &&
-    r0.branchId !== actor.workingBranchId &&
-    hasPermission(actor, approverPermissionFor(r0.kind, r0.level))
-  )
-    throw new AppError('switch_branch_required', 409);
-  const decideScope = resolveScope(actor, approverPermissionFor(r0.kind, r0.level));
-  if (!scopeAllows(decideScope, actor.companyId, r0.branchId)) throw forbidden();
-  // R106: approving the reopening of a closed day needs the password again (a left-open session cannot do it)
-  if (data.decision === 'approve' && REAUTH_ON_APPROVE.includes(r0.kind))
+  if (actor.workingBranchId && r0.branchId !== actor.workingBranchId)
+    if (hasPermission(actor, perm) || (await delegationsOfDelegate(deps, actor)).length > 0)
+      throw new AppError('switch_branch_required', 409);
+  // own right first; otherwise a delegation in force (FR-SYS-033, RULE-036)
+  let decideScope = viewScope;
+  let via: Awaited<ReturnType<typeof findDelegationFor>> = null;
+  const ownScope = hasPermission(actor, perm) ? resolveScope(actor, perm) : null;
+  if (ownScope && scopeAllows(ownScope, actor.tenantId, r0.branchId)) decideScope = ownScope;
+  else {
+    via = await findDelegationFor(deps, actor, r0, await delegationsOfDelegate(deps, actor));
+    if (!via) throw forbidden();
+  }
+  const limits = await approvalLimitsOf(
+    deps,
+    actor.tenantId,
+    r0.kind,
+    businessDate(deps.clock.now()),
+  );
+  // R106: approving the reopening of a closed day needs the password again (a left-open session cannot do it);
+  // which kinds need it is configuration (`reauthOnApprove`), the legacy list only when the config is silent
+  if (data.decision === 'approve' && reauthRequired(r0.kind, limits))
     await reauthenticate(deps, actor, data.reauthPassword);
   const { reauthPassword: _pw, ...decision } = data;
   void _pw;
@@ -262,6 +302,13 @@ export async function decideApproval(
       if (r.version !== data.version) throw new AppError('version_conflict', 409);
       const ok = checkDecision(r, actor.userId);
       if (!ok.ok) throw new AppError(ok.reason, 409);
+      // the level may have changed (escalation) after the checks above: the right must still fit the request
+      if (r.level !== r0.level) throw new AppError('version_conflict', 409);
+      // the delegation is read again inside the transaction: revoked or expired a moment ago means no right
+      if (via) {
+        const dd = await deps.delegations.getInTx(tx, actor.tenantId, via.id);
+        if (!dd || !delegationCovers(dd, r, deps.clock.now())) throw forbidden();
+      }
       const now = deps.clock.now();
       const approved = data.decision === 'approve';
       const handler = deps.approvalHandlers.get(r.kind);
@@ -282,6 +329,7 @@ export async function decideApproval(
         decidedByName: actor.displayName,
         decidedAt: now,
         ...(data.note ? { decisionNote: data.note } : {}),
+        ...(via ? { decidedOnBehalfOf: via.delegatorId, delegationId: via.id } : {}),
         ...(consumed ? { consumedAt: now, consumedBy: actor.userId } : {}),
         updatedAt: now,
         updatedBy: actor.userId,
@@ -291,7 +339,7 @@ export async function decideApproval(
         deps.approvals.setSlot(tx, approvalSlotId(r.kind, r.subjectId), {
           requestId: r.id,
           open: false,
-          companyId: r.companyId,
+          tenantId: r.tenantId,
         });
       deps.audit.record(
         tx,
@@ -301,12 +349,17 @@ export async function decideApproval(
           entityId: r.id,
           action: approved ? 'approval.approve' : 'approval.reject',
           before: { status: r.status },
-          after: { status: approved ? 'approved' : 'rejected', kind: r.kind, valueVnd: r.valueVnd },
+          after: {
+            status: approved ? 'approved' : 'rejected',
+            kind: r.kind,
+            valueVnd: r.valueVnd,
+            ...(via ? { onBehalfOf: via.delegatorId, delegationId: via.id } : {}),
+          },
           ...(data.note ? { reason: data.note } : {}),
         }),
       );
       notifyUsers(deps, tx, {
-        companyId: r.companyId,
+        tenantId: r.tenantId,
         userIds: [r.requestedBy],
         kind: 'approval',
         titleKey: approved ? 'notifications.approvalApproved' : 'notifications.approvalRejected',
@@ -355,7 +408,7 @@ export async function withdrawApproval(
       deps.approvals.setSlot(tx, approvalSlotId(r.kind, r.subjectId), {
         requestId: r.id,
         open: false,
-        companyId: r.companyId,
+        tenantId: r.tenantId,
       });
       deps.audit.record(
         tx,
@@ -414,7 +467,7 @@ export function consumeApprovalInTx(
   deps.approvals.setSlot(tx, approvalSlotId(r.kind, r.subjectId), {
     requestId: r.id,
     open: false,
-    companyId: r.companyId,
+    tenantId: r.tenantId,
   });
   deps.audit.record(
     tx,
@@ -449,13 +502,29 @@ export interface ApprovalDto {
   decidedAt: string | null;
   decisionNote: string | null;
   consumed: boolean;
+  /** FR-SYS-034: moved up a level (still pending); `escalatedFrom` is the level it came from */
+  escalated: boolean;
+  escalatedFrom: ApprovalLevel | null;
+  escalationReason: string | null;
+  reminded: boolean;
+  /** FR-SYS-033: the request was decided by a delegate for this person, or the viewer may decide it by delegation */
+  decidedOnBehalfOf: string | null;
+  viaDelegation: boolean;
+  /** R106: approving needs the password again (configuration, else the legacy list) */
+  reauth: boolean;
   version: number;
   payload: Record<string, unknown>;
   actions: Record<'decide' | 'withdraw', { allowed: boolean; reasonCode?: string }>;
 }
 
-function toDto(deps: SysDeps, actor: Actor, r: ApprovalRequest): ApprovalDto {
-  const may = hasPermission(actor, approverPermissionFor(r.kind, r.level));
+function toDto(
+  deps: SysDeps,
+  actor: Actor,
+  r: ApprovalRequest,
+  delegated = false,
+  reauth = false,
+): ApprovalDto {
+  const may = hasPermission(actor, approverPermissionFor(r.kind, r.level)) || delegated;
   const otherBranch = !!actor.workingBranchId && r.branchId !== actor.workingBranchId;
   const decide = !may
     ? { allowed: false, reasonCode: 'no_permission' }
@@ -487,6 +556,13 @@ function toDto(deps: SysDeps, actor: Actor, r: ApprovalRequest): ApprovalDto {
     decidedAt: r.decidedAt?.toISOString() ?? null,
     decisionNote: r.decisionNote ?? null,
     consumed: !!r.consumedAt,
+    escalated: !!r.escalatedAt,
+    escalatedFrom: r.escalatedFrom ?? null,
+    escalationReason: r.escalationReason ?? null,
+    reminded: !!r.remindedAt,
+    decidedOnBehalfOf: r.decidedOnBehalfOf ?? null,
+    reauth,
+    viaDelegation: delegated && !hasPermission(actor, approverPermissionFor(r.kind, r.level)),
     version: r.version,
     payload: r.payload,
     actions: {
@@ -510,19 +586,33 @@ export async function listApprovals(
   deps: SysDeps,
   actor: Actor,
   q: { tab: ApprovalTab; kind?: string },
-): Promise<{ items: ApprovalDto[]; counts: { toDecide: number; mine: number } }> {
+): Promise<{
+  items: ApprovalDto[];
+  counts: { toDecide: number; mine: number };
+  warnings: ApprovalQueueWarnings;
+}> {
   const scope = resolveScope(actor, 'approval:view');
   const branchId = requireWorkingBranch(actor);
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
+  const myDelegations = await delegationsOfDelegate(deps, actor);
   const canDecide =
     hasPermission(actor, 'approval-l1:approve') ||
-    hasPermission(actor, INVOICE_APPROVER_PERMISSION);
+    hasPermission(actor, INVOICE_APPROVER_PERMISSION) ||
+    myDelegations.length > 0;
   const pending = canDecide
     ? await deps.approvals.listByBranchStatus(scope, branchId, 'pending', LIST_MAX)
     : [];
-  const decidable = pending.filter((r) =>
-    hasPermission(actor, approverPermissionFor(r.kind, r.level)),
-  );
+  // a request the actor may decide: by own right at its level, or by a delegation in force (RULE-036)
+  const cache = new Map<string, boolean>();
+  const viaOf = new Map<string, boolean>();
+  const decidable: ApprovalRequest[] = [];
+  for (const r of pending) {
+    if (hasPermission(actor, approverPermissionFor(r.kind, r.level))) decidable.push(r);
+    else if (await findDelegationFor(deps, actor, r, myDelegations, cache)) {
+      viaOf.set(r.id, true);
+      decidable.push(r);
+    }
+  }
   const mine = await deps.approvals.listByRequester(scope, actor.userId, LIST_MAX);
   let rows: ApprovalRequest[];
   if (q.tab === 'toDecide') rows = decidable;
@@ -536,12 +626,56 @@ export async function listApprovals(
       : mine.filter((r) => r.branchId === branchId && r.status !== 'pending');
   }
   if (q.kind) rows = rows.filter((r) => r.kind === q.kind);
+  const reauthOf = new Map<ApprovalKind, boolean>();
+  for (const k of new Set(rows.map((r) => r.kind)))
+    reauthOf.set(
+      k,
+      reauthRequired(
+        k,
+        await approvalLimitsOf(deps, actor.tenantId, k, businessDate(deps.clock.now())),
+      ),
+    );
   return {
-    items: rows.slice(0, LIST_MAX).map((r) => toDto(deps, actor, r)),
+    items: rows
+      .slice(0, LIST_MAX)
+      .map((r) => toDto(deps, actor, r, viaOf.get(r.id) === true, reauthOf.get(r.kind) === true)),
     counts: {
       toDecide: decidable.filter((r) => r.requestedBy !== actor.userId).length,
       mine: mine.filter((r) => r.status === 'pending').length,
     },
+    warnings: await queueWarnings(deps, actor.tenantId, branchId),
+  };
+}
+
+/**
+ * 2.5-2, 2.5-7: two configuration gaps the approvers must see. No `work-hours` = reminders and escalation count wall
+ * clock hours ("đang tính theo giờ đồng hồ"); no approval limit in force for a kind = every request of that kind goes to
+ * the highest level (RULE-036). Data only: the banner on G4-APR-03 is the designer's.
+ */
+export interface ApprovalQueueWarnings {
+  workHoursUnconfigured: boolean;
+  limitsUnissuedKinds: ApprovalKind[];
+}
+
+async function queueWarnings(
+  deps: SysDeps,
+  tenantId: string,
+  branchId: string,
+): Promise<ApprovalQueueWarnings> {
+  const date = businessDate(deps.clock.now());
+  const unissued: ApprovalKind[] = [];
+  for (const kind of APPROVAL_KINDS) {
+    const snap = await resolveConfigAt(deps, {
+      tenantId,
+      type: 'approval-limit',
+      scopeKey: kind,
+      date,
+    });
+    if (!snap) unissued.push(kind);
+  }
+  return {
+    workHoursUnconfigured: (await workScheduleOf(deps, tenantId, branchId, date)) === null,
+    limitsUnissuedKinds: unissued,
   };
 }
 
@@ -549,13 +683,20 @@ export async function getApproval(deps: SysDeps, actor: Actor, id: string): Prom
   const scope = resolveScope(actor, 'approval:view');
   const r = await deps.approvals.get(scope, id);
   if (!r) throw notFound();
-  // a requester sees their own; a decider sees the branch's; nobody else
-  if (
-    r.requestedBy !== actor.userId &&
-    !hasPermission(actor, approverPermissionFor(r.kind, r.level))
-  )
-    throw notFound();
-  return toDto(deps, actor, r);
+  // a requester sees their own; a decider (own right or delegation) sees the branch's; nobody else
+  const own = hasPermission(actor, approverPermissionFor(r.kind, r.level));
+  const delegated =
+    !own && r.requestedBy !== actor.userId
+      ? !!(await findDelegationFor(deps, actor, r, await delegationsOfDelegate(deps, actor)))
+      : false;
+  if (r.requestedBy !== actor.userId && !own && !delegated) throw notFound();
+  const limits = await approvalLimitsOf(
+    deps,
+    actor.tenantId,
+    r.kind,
+    businessDate(deps.clock.now()),
+  );
+  return toDto(deps, actor, r, delegated, reauthRequired(r.kind, limits));
 }
 
 /**
@@ -570,7 +711,7 @@ export async function findActiveApprovalFor(
   const scope = resolveScope(actor, 'approval:view');
   const limits = await approvalLimitsOf(
     deps,
-    actor.companyId,
+    actor.tenantId,
     q.kind,
     businessDate(deps.clock.now()),
   );
@@ -594,4 +735,178 @@ export async function findActiveApprovalFor(
           ))),
   );
   return r ? toDto(deps, actor, r) : null;
+}
+
+// ---- reminders and escalation by working time (FR-SYS-015, FR-SYS-034) --------------------------------
+
+/** Working time of the branch on a date: the branch override, else the tenant default; none = wall-clock time. */
+async function workScheduleOf(
+  deps: SysDeps,
+  tenantId: string,
+  branchId: string,
+  date: string,
+): Promise<WorkSchedule | null> {
+  const snap = await resolveConfigAt(deps, {
+    tenantId,
+    type: 'work-hours',
+    scopeKey: 'tenant',
+    date,
+    branchId,
+  });
+  return snap ? (snap.payload as unknown as WorkSchedule) : null;
+}
+
+export interface EscalationRunResult {
+  skipped?: 'tenant_read_only';
+  scanned: number;
+  reminded: number;
+  escalated: number;
+}
+
+/**
+ * Background job for ONE tenant (the caller's), safe to run any number of times: a reminder or an escalation is
+ * decided from the request document INSIDE its own transaction (`remindedAt`, `escalatedAt` and `status` are re-read),
+ * so a repeat or a concurrent run changes nothing (idempotent per tenant, request and level). A tenant that is read
+ * only (suspended, terminating) is skipped. An escalated request stays `pending` at level 2. No scheduler yet: Cloud
+ * Scheduler or the approval screen calls the route. Needs the level-2 right (owner).
+ */
+export async function runApprovalEscalation(
+  deps: SysDeps,
+  actor: Actor,
+  ctx: RequestCtx,
+): Promise<EscalationRunResult> {
+  if (!hasPermission(actor, 'approval-l2:approve')) throw forbidden();
+  const out: EscalationRunResult = { scanned: 0, reminded: 0, escalated: 0 };
+  const tenant = await deps.tenants.get(actor.tenantId);
+  if (!tenant || !TENANT_ACCESS[tenant.status].write)
+    return { ...out, skipped: 'tenant_read_only' };
+  const scope = resolveScope(actor, 'approval:view');
+  const date = businessDate(deps.clock.now());
+  const limitsCache = new Map<ApprovalKind, ApprovalLimits>();
+  for (const branch of await deps.branches.list(scope)) {
+    const schedule = await workScheduleOf(deps, actor.tenantId, branch.id, date);
+    const pending = await deps.approvals.listByBranchStatus(scope, branch.id, 'pending', LIST_MAX);
+    for (const r of pending) {
+      out.scanned++;
+      let limits = limitsCache.get(r.kind);
+      if (!limits) {
+        limits = await approvalLimitsOf(deps, actor.tenantId, r.kind, date);
+        limitsCache.set(r.kind, limits);
+      }
+      const lim = limits;
+      const decide = (x: ApprovalRequest) =>
+        escalationAction(x, lim, workingMinutesBetween(x.requestedAt, deps.clock.now(), schedule));
+      if (decide(r) === 'none') continue;
+      const action = await deps.uow.run(async (tx) => {
+        const cur = await deps.approvals.getInTx(tx, scope, r.id);
+        if (!cur) return 'none' as const;
+        const act = decide(cur);
+        if (act === 'none') return act;
+        const now = deps.clock.now();
+        const toLevel: ApprovalLevel = act === 'escalate' ? 2 : cur.level;
+        const approvers = (
+          await approversOf(deps, actor.tenantId, cur.branchId, toLevel, cur.kind)
+        ).filter((u) => u !== cur.requestedBy);
+        deps.approvals.update(tx, cur.id, {
+          remindedAt: cur.remindedAt ?? now,
+          ...(act === 'escalate'
+            ? { level: 2, escalatedAt: now, escalatedFrom: cur.level, escalationReason: 'overdue' }
+            : {}),
+          updatedAt: now,
+          updatedBy: actor.userId,
+          version: cur.version + 1,
+        });
+        deps.audit.record(
+          tx,
+          auditEntry(deps, actor, ctx, {
+            branchId: cur.branchId,
+            entityType: 'approval',
+            entityId: cur.id,
+            action: act === 'escalate' ? 'approval.escalate' : 'approval.remind',
+            before: { status: 'pending', level: cur.level },
+            after: { status: 'pending', level: toLevel },
+            reason: act === 'escalate' ? 'overdue' : 'reminder',
+          }),
+        );
+        notifyUsers(deps, tx, {
+          tenantId: actor.tenantId,
+          userIds: approvers,
+          kind: 'approval',
+          titleKey:
+            act === 'escalate'
+              ? 'notifications.approvalEscalated'
+              : 'notifications.approvalReminder',
+          params: { number: cur.number, kind: cur.kind },
+          link: '/approvals',
+          branchId: cur.branchId,
+        });
+        return act;
+      });
+      if (action === 'remind') out.reminded++;
+      if (action === 'escalate') out.escalated++;
+    }
+  }
+  return out;
+}
+
+// ---- bulk decision (FR-SYS-034) ----------------------------------------------------------------------
+
+const BULK_MAX = 50;
+export const bulkDecideSchema = z.object({
+  decision: z.enum(['approve', 'reject']),
+  note: z.string().trim().max(300).optional(),
+  items: z
+    .array(z.object({ id: z.string().min(1).max(80), version: z.number().int().min(1) }))
+    .min(1)
+    .max(BULK_MAX),
+});
+
+export interface BulkDecideResult {
+  results: { id: string; ok: boolean; code?: string }[];
+}
+
+/**
+ * Decides several requests of the SAME kind, only for kinds whose limit config has `bulkAllowed` and that do not
+ * ask for the password again. The whole call is refused (422) for a mix of kinds or a kind that does not allow it;
+ * otherwise each request is decided on its own (own transaction, own checks: right, branch, not one's own, version),
+ * and the answer lists the outcome of each. A repeated call with the same Idempotency-Key replays each item.
+ */
+export async function bulkDecideApprovals(
+  deps: SysDeps,
+  actor: Actor,
+  input: unknown,
+  ctx: RequestCtx & { idempotencyKey: string },
+): Promise<BulkDecideResult> {
+  const data = parseInput(bulkDecideSchema, input);
+  if (data.decision === 'reject' && (data.note ?? '').length < 5)
+    throw validationFailed([{ field: 'note', message: 'Ghi lý do từ chối (tối thiểu 5 ký tự).' }]);
+  const ids = [...new Set(data.items.map((i) => i.id))];
+  if (ids.length !== data.items.length)
+    throw validationFailed([{ field: 'items', message: 'bulk_duplicate_items' }]);
+  const scope = resolveScope(actor, 'approval:view');
+  const rows = await Promise.all(ids.map((id) => deps.approvals.get(scope, id)));
+  if (rows.some((r) => !r)) throw notFound();
+  const kinds = new Set(rows.map((r) => r!.kind));
+  if (kinds.size !== 1) throw new AppError('bulk_mixed_kinds', 422);
+  const kind = [...kinds][0]!;
+  const limits = await approvalLimitsOf(deps, actor.tenantId, kind, businessDate(deps.clock.now()));
+  if (!limits.bulkAllowed || reauthRequired(kind, limits))
+    throw new AppError('bulk_not_allowed', 422);
+  const results: BulkDecideResult['results'] = [];
+  for (const it of data.items) {
+    try {
+      await decideApproval(
+        deps,
+        actor,
+        it.id,
+        { version: it.version, decision: data.decision, ...(data.note ? { note: data.note } : {}) },
+        { requestId: ctx.requestId, idempotencyKey: `${ctx.idempotencyKey}:${it.id}` },
+      );
+      results.push({ id: it.id, ok: true });
+    } catch (e) {
+      if (!(e instanceof AppError)) throw e;
+      results.push({ id: it.id, ok: false, code: e.code });
+    }
+  }
+  return { results };
 }

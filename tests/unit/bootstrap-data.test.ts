@@ -9,7 +9,7 @@ import {
 
 const SRC = {
   BOOTSTRAP_CONFIRM_PROJECT: 'gmep-staging',
-  BOOTSTRAP_COMPANY_NAME: 'Garage Test',
+  BOOTSTRAP_TENANT_NAME: 'Garage Test',
   BOOTSTRAP_BRANCH_CODE: 'q7',
   BOOTSTRAP_BRANCH_NAME: 'Chi nhánh Quận 7',
   BOOTSTRAP_OWNER_EMAIL: 'Chu@Example.vn',
@@ -42,13 +42,13 @@ function memory() {
 
 describe('bootstrap data (security checklist 9; FR-SYS-001/002)', () => {
   it('needs every required variable and a matching project confirmation', () => {
-    expect(() => loadBootstrapConfig({}, 'gmep-staging')).toThrow(/BOOTSTRAP_COMPANY_NAME/);
+    expect(() => loadBootstrapConfig({}, 'gmep-staging')).toThrow(/BOOTSTRAP_TENANT_NAME/);
     expect(() => loadBootstrapConfig(SRC, 'gmep-prod')).toThrow(/CONFIRM_PROJECT/);
     const c = loadBootstrapConfig(SRC, 'gmep-staging');
     expect(c).toMatchObject({
       branchCode: 'Q7',
       ownerEmail: 'chu@example.vn',
-      companyId: 'cmp_main',
+      tenantId: 'tnt_main',
     });
   });
 
@@ -60,7 +60,7 @@ describe('bootstrap data (security checklist 9; FR-SYS-001/002)', () => {
       [
         'branchCodes',
         'branches',
-        'companies',
+        'tenants',
         'roleAssignments',
         'roles',
         'userKeys',

@@ -151,7 +151,7 @@ function toDocumentDto(d: StockDocument, actor: Actor, reasons = d.approvalReaso
 
 function can(actor: Actor, permission: Permission, branchId: string): boolean {
   try {
-    return scopeAllows(resolveScope(actor, permission), actor.companyId, branchId);
+    return scopeAllows(resolveScope(actor, permission), actor.tenantId, branchId);
   } catch {
     return false;
   }
@@ -177,7 +177,7 @@ function postScope(actor: Actor): Scope {
   const all = scopes.find((s) => s.kind === 'all');
   if (all) return all;
   return branchesScope(
-    actor.companyId,
+    actor.tenantId,
     scopes.flatMap((s) => (s.kind === 'branches' ? [...s.branchIds] : [])),
   );
 }
@@ -311,8 +311,8 @@ async function build(
       { field: 'receiverUserId', message: 'Cần ghi người nhận phụ tùng (thợ).' },
     ]);
   if (data.receiverUserId) {
-    const u = await deps.sys.users.getByIdInTx(tx, data.receiverUserId);
-    if (!u || u.companyId !== actor.companyId)
+    const u = await deps.sys.users.getByIdInTx(tx, actor.tenantId, data.receiverUserId);
+    if (!u || u.tenantId !== actor.tenantId)
       throw validationFailed([{ field: 'receiverUserId', message: 'Không tìm thấy người nhận.' }]);
   }
   const partIds = [...new Set(lines.map((l) => l.partId))];
@@ -361,7 +361,7 @@ async function build(
     }
     original = o;
   }
-  const th = await resolveGrnThresholds(deps, actor.companyId, branch.id, today(deps));
+  const th = await resolveGrnThresholds(deps, actor.tenantId, branch.id, today(deps));
   const reasons = approvalReasons({
     type,
     source,
@@ -408,7 +408,7 @@ export async function createDocument(
       const id = `stk_${deps.sys.newId()}`;
       const doc: StockDocument = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: branch.id,
         warehouseId: w.id,
         type: data.type,
@@ -838,7 +838,7 @@ async function postDocumentInTx(
     throw forbidden();
   }
   const date = today(deps);
-  const { method } = await resolveCostMethod(deps, actor.companyId, date);
+  const { method } = await resolveCostMethod(deps, actor.tenantId, date);
   const set = await BalanceSet.load(
     deps,
     tx,
@@ -921,9 +921,9 @@ async function postDocumentInTx(
   if (cuts.length)
     try {
       recipients = {
-        managers: await usersWithRole(deps.sys, actor.companyId, ['QL'], d.branchId),
+        managers: await usersWithRole(deps.sys, actor.tenantId, ['QL'], d.branchId),
         advisors: await deps.advisors.advisorsOf(
-          actor.companyId,
+          actor.tenantId,
           'repair-order',
           cuts.map((c) => c.sourceId),
         ),
@@ -939,7 +939,7 @@ async function postDocumentInTx(
     if (to.length === 0) continue;
     try {
       notifyUsers(deps.sys, tx, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         userIds: to,
         kind: 'stock.reservation_shortened',
         titleKey: 'notifications.reservationShortened',
@@ -967,7 +967,7 @@ async function postDocumentInTx(
   }
   for (const t of applied.tallies)
     deps.returns.save(tx, t.id, {
-      companyId: d.companyId,
+      tenantId: d.tenantId,
       branchId: d.branchId,
       documentId: t.documentId,
       lineNo: t.lineNo,
@@ -1087,7 +1087,7 @@ export async function issueForOrderInTx(
   const now = deps.sys.clock.now();
   const doc: StockDocument = {
     id,
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId: branch.id,
     warehouseId: w.id,
     type: 'GIN',
@@ -1121,12 +1121,12 @@ async function postPreparedGin(
   ctx: RequestCtx,
 ): Promise<DocumentDto> {
   const date = today(deps);
-  const { method } = await resolveCostMethod(deps, actor.companyId, date);
+  const { method } = await resolveCostMethod(deps, actor.tenantId, date);
   const set = await BalanceSet.load(
     deps,
     tx,
     scope,
-    { id: d.warehouseId, branchId: d.branchId, companyId: d.companyId },
+    { id: d.warehouseId, branchId: d.branchId, tenantId: d.tenantId },
     d.lines.map((l) => built.parts.get(l.partId)!),
     actor.userId,
     date,
@@ -1381,7 +1381,7 @@ export async function reverseDocument(
       if (o.type === 'RTN' && o.originalDocumentId)
         for (const [lineNo, qty] of tallies)
           deps.returns.save(tx, issueReturnId(o.originalDocumentId, lineNo), {
-            companyId: o.companyId,
+            tenantId: o.tenantId,
             branchId: o.branchId,
             documentId: o.originalDocumentId,
             lineNo,

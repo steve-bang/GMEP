@@ -14,7 +14,7 @@ import {
   sumUnlinked,
 } from '@/modules/rpt';
 
-const key = { companyId: 'cmp', branchId: 'br_q7', date: '2026-11-03' };
+const key = { tenantId: 'cmp', branchId: 'br_q7', date: '2026-11-03' };
 const at = (hhmm: string) => new Date(`2026-11-03T${hhmm}:00+07:00`);
 const NOW = new Date('2026-11-04T18:00:00+07:00');
 const limits = { refsMax: 60, alertsMax: 100 };
@@ -105,7 +105,7 @@ const roll = () => computeDaily(key, facts, DEFAULT_RPT_POLICY, limits, NOW, fin
 describe('FR-RPT-014: byServiceType in the daily rollup', () => {
   it('splits the order-bound figures by type and adds up to the day totals', () => {
     const r = roll();
-    expect(r.schemaVersion).toBe(5);
+    expect(r.schemaVersion).toBe(7);
     const by = new Map(r.byServiceType!.map((x) => [x.serviceType, x]));
     expect(by.get('maintenance')).toMatchObject({
       closed: 2,

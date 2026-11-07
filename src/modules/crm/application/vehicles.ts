@@ -147,7 +147,7 @@ export async function listVehicleOwnerships(
   const scope = resolveScope(actor, 'vehicle:view');
   const v = await deps.vehicles.get(scope, vehicleId);
   if (!v) throw notFound();
-  const rows = await deps.ownerships.listByVehicle(actor.companyId, vehicleId);
+  const rows = await deps.ownerships.listByVehicle(actor.tenantId, vehicleId);
   const visible = new Map(
     (
       await deps.customers.getMany(resolveScope(actor, 'customer:view'), [
@@ -208,7 +208,7 @@ async function vinConflict(deps: CrmDeps, actor: Actor, vehicleId: string): Prom
   const inScope = await deps.vehicles.get(resolveScope(actor, 'vehicle:view'), vehicleId);
   if (inScope) return vinExists({ existingVehicleId: inScope.id });
   if (!hasPermission(actor, 'customer-lookup:view')) return vinExists();
-  const v = await deps.vehicles.getCompanyWide(actor.companyId, vehicleId);
+  const v = await deps.vehicles.getCompanyWide(actor.tenantId, vehicleId);
   return v
     ? vinExists({
         outOfScope: true,
@@ -223,13 +223,13 @@ async function vinConflict(deps: CrmDeps, actor: Actor, vehicleId: string): Prom
  */
 async function mapRegistryConflict(
   deps: CrmDeps,
-  companyId: string,
+  tenantId: string,
   plateNorm: string | undefined,
   e: unknown,
 ): Promise<unknown> {
   if (!(e instanceof AlreadyExistsError)) return e;
   if (plateNorm === undefined) return vinExists();
-  return (await deps.vehicles.vehicleIdByPlate(companyId, plateNorm))
+  return (await deps.vehicles.vehicleIdByPlate(tenantId, plateNorm))
     ? new AppError('plate_exists', 409)
     : vinExists();
 }
@@ -281,13 +281,14 @@ export async function createVehicle(
         const customer = await deps.customers.getInTx(tx, cscope, data.customerId);
         if (!customer) throw notFound();
         if (customer.status === 'anonymized') throw new AppError('customer_anonymized', 409);
+        if (customer.status === 'merged') throw new AppError('customer_merged', 409);
         const branch = await writableWorkingBranch(deps, tx, actor, scope);
         // friendly early answer; the registry slot created below is the race-proof guard
-        if (await deps.vehicles.vehicleIdByPlate(actor.companyId, checked.plateNorm!))
+        if (await deps.vehicles.vehicleIdByPlate(actor.tenantId, checked.plateNorm!))
           throw new AppError('plate_exists', 409);
         // C11: a VIN identifies one vehicle company-wide; the answer never names a branch
         if (checked.vin) {
-          const taken = await deps.vehicles.vehicleIdByVin(actor.companyId, checked.vin);
+          const taken = await deps.vehicles.vehicleIdByVin(actor.tenantId, checked.vin);
           if (taken) throw await vinConflict(deps, actor, taken);
         }
         const now = deps.sys.clock.now();
@@ -295,7 +296,7 @@ export async function createVehicle(
         const id = `veh_${deps.sys.newId()}`;
         const v: Vehicle = {
           id,
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           branchId: branch.id,
           plate: data.plate.trim().toUpperCase(),
           plateNorm: checked.plateNorm!,
@@ -317,7 +318,7 @@ export async function createVehicle(
         };
         const own: Ownership = {
           id: `own_${deps.sys.newId()}`,
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           vehicleId: id,
           customerId: customer.id,
           from: data.ownedFrom ?? today,
@@ -358,7 +359,7 @@ export async function createVehicle(
       },
     );
   } catch (e) {
-    throw await mapRegistryConflict(deps, actor.companyId, checked.plateNorm, e);
+    throw await mapRegistryConflict(deps, actor.tenantId, checked.plateNorm, e);
   }
 }
 
@@ -445,7 +446,7 @@ async function updateVehicleTx(
     // VIN uniqueness (C11): the slot moves with the value
     const newVin = data.vin === undefined ? (v.vin ?? null) : (checked.vin ?? null);
     if (newVin !== (v.vin ?? null)) {
-      const taken = newVin ? await deps.vehicles.vehicleIdByVin(actor.companyId, newVin) : null;
+      const taken = newVin ? await deps.vehicles.vehicleIdByVin(actor.tenantId, newVin) : null;
       if (taken && taken !== v.id) throw await vinConflict(deps, actor, taken);
       deps.vehicles.setVin(tx, v, v.vin ?? null, newVin);
     }
@@ -542,7 +543,7 @@ export async function changePlate(
         throw validationFailed([
           { field: 'plate', message: 'Biển số mới trùng biển số hiện tại.' },
         ]);
-      if (await deps.vehicles.vehicleIdByPlate(actor.companyId, plateNorm!))
+      if (await deps.vehicles.vehicleIdByPlate(actor.tenantId, plateNorm!))
         throw new AppError('plate_exists', 409);
       const now = deps.sys.clock.now();
       const plate = data.plate.trim().toUpperCase();
@@ -622,6 +623,7 @@ export async function changeOwner(
       const next = await deps.customers.getInTx(tx, cscope, data.newCustomerId);
       if (!next) throw notFound();
       if (next.status === 'anonymized') throw new AppError('customer_anonymized', 409);
+      if (next.status === 'merged') throw new AppError('customer_merged', 409);
       const branch = await writableWorkingBranch(deps, tx, actor, scope, 'edit_master');
       const now = deps.sys.clock.now();
       const today = businessDate(now);
@@ -629,10 +631,10 @@ export async function changeOwner(
         throw validationFailed([
           { field: 'effectiveDate', message: 'Ngày chuyển chủ không được ở tương lai.' },
         ]);
-      const history = await deps.ownerships.listByVehicleInTx(tx, actor.companyId, id);
+      const history = await deps.ownerships.listByVehicleInTx(tx, actor.tenantId, id);
       const prev = currentOwnership(history);
       const prevCustomer = prev
-        ? await deps.customers.getCompanyWideInTx(tx, actor.companyId, prev.customerId)
+        ? await deps.customers.getCompanyWideInTx(tx, actor.tenantId, prev.customerId)
         : null;
       const planned = planOwnerChange(history, data);
       if (!planned.ok) throw new AppError(`owner_${planned.error}`, 422);
@@ -640,7 +642,7 @@ export async function changeOwner(
       deps.ownerships.close(tx, plan.closeId, plan.closeTo);
       const own: Ownership = {
         id: `own_${deps.sys.newId()}`,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         vehicleId: id,
         customerId: next.id,
         from: plan.openFrom,

@@ -176,7 +176,7 @@ Data Table (cốt lõi cho kế toán, thủ kho, quản lý, cố vấn): tìm 
 
 ## 7. Visual direction & layout chuẩn
 
-Shell: Sidebar trái (logo "GARAGE OS", WORKSPACE: Tổng quan, Phiếu sửa chữa, Lịch hẹn, Khách hàng, Kho phụ tùng, Tài chính, Báo cáo), Topbar (chọn chi nhánh, tìm kiếm, thông báo, tài khoản), Breadcrumb, Page header (tiêu đề, mô tả ngắn, primary action).
+Shell: Sidebar trái (logo "GMEP", WORKSPACE: Tổng quan, Phiếu sửa chữa, Lịch hẹn, Khách hàng, Kho phụ tùng, Tài chính, Báo cáo), Topbar (chọn chi nhánh, tìm kiếm, thông báo, tài khoản), Breadcrumb, Page header (tiêu đề, mô tả ngắn, primary action).
 
 Dashboard mẫu: "Tổng quan — Thứ Sáu, 30 tháng 10 · Tất cả chi nhánh"; KPI: Doanh thu 128,5 tr, Xe đang sửa 42, Chờ duyệt 08, Trễ hẹn 03; "Công việc cần chú ý": Chờ duyệt báo giá 08, Xe chờ phụ tùng 04, Chờ kiểm tra QC 06.
 

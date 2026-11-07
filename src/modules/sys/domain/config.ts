@@ -8,9 +8,9 @@ import type { ConfigStatus } from '@/platform/effective/effective';
  * or price is written in code; BA-03 (the 1/1/2027 VAT rule) is just data in a `tax-rate` version.
  */
 export interface ConfigVersion {
-  /** deterministic: `${type}__${scopeKey}__${effectiveFrom}` (unique slot per effective date) */
+  /** deterministic: `${tenantId}__${type}__${scopeKey}__${effectiveFrom}` (unique slot per effective date) */
   id: string;
-  companyId: string;
+  tenantId: string;
   type: string;
   scopeKey: string;
   effectiveFrom: string;
@@ -25,8 +25,13 @@ export interface ConfigVersion {
   version: number;
 }
 
-export const configVersionId = (type: string, scopeKey: string, effectiveFrom: string): string =>
-  `${type}__${scopeKey.replace(/[:/]/g, '~')}__${effectiveFrom}`;
+/** FR-TEN-009: the tenant is part of the slot, so two tenants proposing the same (type, scope, date) never share a document. */
+export const configVersionId = (
+  tenantId: string,
+  type: string,
+  scopeKey: string,
+  effectiveFrom: string,
+): string => `${tenantId}__${type}__${scopeKey.replace(/[:/]/g, '~')}__${effectiveFrom}`;
 
 const bp = z.number().int().min(0).max(10_000); // basis points: 8% = 800 (no floats)
 const vnd = z.number().int().min(0).max(1_000_000_000_000);
@@ -49,7 +54,7 @@ export interface ConfigTypeDef {
 }
 
 const companyOrBranchKey = z.union([
-  z.literal('company'),
+  z.literal('tenant'),
   z.string().regex(/^branch:[A-Za-z0-9_-]{1,64}$/),
 ]);
 const keyed = (prefix: RegExp) => z.string().regex(prefix);
@@ -69,7 +74,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'tax-mapping': {
     type: 'tax-mapping',
     resource: 'tax-rate',
-    scopeKey: z.literal('company'),
+    scopeKey: z.literal('tenant'),
     branchOverride: false,
     payload: z
       .object({
@@ -91,6 +96,57 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
     proposeFromBranch: true,
     payload: z
       .object({ name: z.string().trim().min(1).max(60), status: z.enum(['active', 'inactive']) })
+      .strict(),
+  },
+  // FR-REC-020 (slice 2.8b): maintenance packages, a company catalogue of items and lines added to a quote in one step.
+  // Lines are priced like any other line (list price, standard hours, discount limit). How a FIXED package price is
+  // represented (discount within the limit, package line, tax) is not specified yet [Cần xác nhận: BA/Kế toán khách].
+  'service-package': {
+    type: 'service-package',
+    resource: 'service-catalog',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        serviceType: z
+          .string()
+          .regex(/^[a-z][a-z0-9_-]{0,29}$/)
+          .optional(),
+        items: z
+          .array(
+            z
+              .object({
+                name: z.string().trim().min(1).max(160),
+                necessity: z.enum(['required', 'optional']),
+                lines: z
+                  .array(
+                    z.union([
+                      z
+                        .object({
+                          kind: z.literal('labor'),
+                          serviceId: z.string().trim().min(1).max(100),
+                          minutes: z.number().int().min(1).max(7200).optional(),
+                        })
+                        .strict(),
+                      z
+                        .object({
+                          kind: z.literal('part'),
+                          partId: z.string().trim().min(1).max(100),
+                          qty: z.number().int().min(1).max(100_000),
+                        })
+                        .strict(),
+                    ]),
+                  )
+                  .min(1)
+                  .max(30),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(30),
+      })
       .strict(),
   },
   // C23 (BA §17): kinds of consent evidence the counter can pick from; the lawyer and the client decide the list.
@@ -166,7 +222,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'public-rate-limit': {
     type: 'public-rate-limit',
     resource: 'branch-config',
-    scopeKey: z.literal('company'),
+    scopeKey: z.literal('tenant'),
     branchOverride: false,
     payload: z
       .object({
@@ -264,6 +320,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       'invoice_adjust',
       'invoice_replace',
       'invoice_cancel',
+      'labor_adjustment',
     ]),
     branchOverride: false,
     payload: z
@@ -276,6 +333,17 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         validHours: z.number().int().min(1).max(168).optional(),
         /** R106: reopenings per branch per month above which the owner/accountant get an exception notice */
         maxReopensPerMonth: z.number().int().min(1).max(31).optional(),
+        /** FR-SYS-034 T2: working hours after the reminder before level 1 moves to level 2 (absent = never) */
+        escalateAfterHours: z
+          .number()
+          .int()
+          .min(1)
+          .max(24 * 30)
+          .optional(),
+        /** FR-SYS-034: bulk approval allowed for this kind (same kind only) */
+        bulkAllowed: z.boolean().optional(),
+        /** R106 as data: the decider types the password again */
+        reauthOnApprove: z.boolean().optional(),
         dueHours: z
           .number()
           .int()
@@ -284,6 +352,22 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict()
       .refine((p) => p.level1MaxVnd >= p.selfMaxVnd, 'level1MaxVnd must not be below selfMaxVnd'),
+  },
+  // FR-SYS-034: working time of a branch (days of the week and the daily window), the clock of reminders and
+  // escalation. Company default `tenant`, override `branch:<id>`. No version in force = wall-clock time.
+  'work-hours': {
+    type: 'work-hours',
+    resource: 'approval-limit',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        days: z.array(z.number().int().min(0).max(6)).min(1).max(7),
+        startMinute: z.number().int().min(0).max(1439),
+        endMinute: z.number().int().min(1).max(1440),
+      })
+      .strict()
+      .refine((p) => p.endMinute > p.startMinute, 'endMinute must be after startMinute'),
   },
   // expense categories of the cash voucher (G4-ACC-04), a company catalogue; the accountant owns the list
   'expense-category': {
@@ -354,6 +438,26 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // FR-TEN-044, RULE-035 (MT-0 hook for MT-2): limits of a tenant. Effective-dated like every other rule. NOT enforced yet:
+  // `checkTenantLimit` only reports. No trial or expiry field exists (the free plan has no clock). Written by the
+  // platform (MT-1 platform tier), never by the tenant's own roles: the resource below is granted to no tenant role.
+  'tenant-limits': {
+    type: 'tenant-limits',
+    resource: 'tenant-limits',
+    scopeKey: z.literal('tenant'),
+    branchOverride: false,
+    payload: z
+      .object({
+        activeBranches: z.number().int().min(1).max(1000),
+        users: z.number().int().min(1).max(100_000),
+        photoStorageMb: z.number().int().min(1).max(100_000_000),
+        apiPerMinute: z.number().int().min(1).max(1_000_000),
+        backgroundJobs: z.number().int().min(1).max(1000),
+        importRowsPerDay: z.number().int().min(1).max(10_000_000),
+        exportRowsPerRun: z.number().int().min(1).max(10_000_000),
+      })
+      .strict(),
+  },
   // FR-RPT-003/008 (slice 1.9): the thresholds of the exception alerts. Every value is a default
   // [Đề xuất dev - chờ xác nhận: Chủ garage/Quản lý]; none is a legal rule.
   'report-policy': {
@@ -373,6 +477,61 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
         cashVarianceAlertVnd: vnd,
       })
       .strict(),
+  },
+  // Slice 2.1, Q84 [Cần xác nhận]: named groups of branches (regions) for consolidated views. Pure configuration: a group is
+  // a FILTER over the branches a user may already read, it never grants access, and no "regional manager" role is hard-coded.
+  'branch-groups': {
+    type: 'branch-groups',
+    resource: 'report-config',
+    scopeKey: z.literal('tenant'),
+    branchOverride: false,
+    payload: z
+      .object({
+        groups: z
+          .array(
+            z
+              .object({
+                code: z.string().regex(/^[a-z][a-z0-9_-]{0,29}$/),
+                name: z.string().trim().min(1).max(80),
+                branchIds: z
+                  .array(z.string().regex(/^[A-Za-z0-9_-]{1,64}$/))
+                  .min(1)
+                  .max(500),
+              })
+              .strict(),
+          )
+          .max(50),
+      })
+      .strict()
+      .refine((p) => new Set(p.groups.map((g) => g.code)).size === p.groups.length, {
+        message: 'duplicate group code',
+      }) as unknown as z.ZodType<Record<string, unknown>>,
+  },
+  // FR-SYS-016 (slice 2.1): head office releases a shared catalogue entry to chosen branches from a date. One scope key per
+  // entry `<catalog>:<code>`; a newer version replaces the older (a withdrawal is audience 'branches' with fewer branches).
+  // An entry with NO release version is unrestricted (backward compatible). Documents keep the version they used, so a
+  // change here never rewrites an old document. Which catalogues exist as entities is [Cần xác nhận] (inspection templates need INS).
+  'catalog-release': {
+    type: 'catalog-release',
+    resource: 'catalog-release',
+    scopeKey: z
+      .string()
+      .regex(
+        /^(service|discount|payment-method|inspection-template):[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/,
+      ),
+    branchOverride: false,
+    payload: z
+      .object({
+        audience: z.enum(['all', 'branches']),
+        branchIds: z
+          .array(z.string().regex(/^[A-Za-z0-9_-]{1,64}$/))
+          .max(500)
+          .optional(),
+      })
+      .strict()
+      .refine((p) => p.audience === 'all' || (p.branchIds?.length ?? 0) > 0, {
+        message: 'branchIds required for audience branches',
+      }) as unknown as z.ZodType<Record<string, unknown>>,
   },
   // FR-REC-032 / BR-REC-13: the steps of a service type (a repair order gets the set of its type).
   // The item states and the responsible person are applied when the repair item exists (slice 1.6).
@@ -425,6 +584,130 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
       })
       .strict(),
   },
+  // FR-HRM-006, 015, 020 (slice 2.6a, RULE-038): how technician labor is computed, per (service type x position x
+  // branch). Scope keys, most specific first: `branch:<id>:svc:<type>:pos:<code>`, `branch:<id>:svc:<type>`,
+  // `svc:<type>:pos:<code>`, `svc:<type>`. The client's formula is not fixed (Q73): the numbers are data, the sample
+  // rows are marked "minh họa". Which fields a method needs is checked here, so a half-filled rule cannot be approved.
+  'labor-method': {
+    type: 'labor-method',
+    resource: 'labor-rule',
+    scopeKey: z
+      .string()
+      .regex(
+        /^(?:branch:[A-Za-z0-9_-]{1,64}:)?svc:[a-z][a-z0-9_-]{0,29}(?::pos:[a-z][a-z0-9_-]{0,29})?$/,
+      ),
+    branchOverride: false,
+    payload: z
+      .object({
+        method: z.enum(['standard_hours', 'approved_actual', 'flat', 'percent', 'fixed_bonus']),
+        hourlyRateVnd: vnd.optional(),
+        capBp: z.number().int().min(0).max(100_000).optional(),
+        amountVnd: vnd.optional(),
+        rateBp: z.number().int().min(0).max(100_000).optional(),
+        fixedVnd: vnd.optional(),
+        bonusVnd: vnd.optional(),
+        bonusMaxActualBp: z.number().int().min(0).max(100_000).optional(),
+      })
+      .strict()
+      .superRefine((p, ctx) => {
+        const need: Record<string, string[]> = {
+          standard_hours: ['hourlyRateVnd'],
+          approved_actual: ['hourlyRateVnd'],
+          flat: ['amountVnd'],
+          percent: ['rateBp'],
+          fixed_bonus: ['fixedVnd', 'bonusVnd', 'bonusMaxActualBp'],
+        };
+        const allowed: Record<string, string[]> = {
+          ...need,
+          approved_actual: ['hourlyRateVnd', 'capBp'],
+        };
+        const rec = p as Record<string, unknown>;
+        for (const f of need[p.method]!)
+          if (rec[f] === undefined)
+            ctx.addIssue({ code: 'custom', path: [f], message: 'required' });
+        for (const f of Object.keys(rec))
+          if (f !== 'method' && !allowed[p.method]!.includes(f))
+            ctx.addIssue({ code: 'custom', path: [f], message: 'not used by this method' });
+      }) as unknown as z.ZodType<Record<string, unknown>>,
+  },
+  // FR-HRM-020: the position coefficient table has its own effective dates; it is also the position catalogue.
+  'labor-position': {
+    type: 'labor-position',
+    resource: 'labor-rule',
+    scopeKey: z.string().regex(/^position:[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(60),
+        status: z.enum(['active', 'inactive']),
+        coefficientBp: z.number().int().min(0).max(100_000),
+      })
+      .strict(),
+  },
+  // FR-HRM-020 "quy tắc làm tròn cố định", FR-HRM-008 rework, HRM-07 adjustment threshold: company default with a branch override.
+  'labor-policy': {
+    type: 'labor-policy',
+    resource: 'labor-rule',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        roundingMode: z.enum(['half_up', 'down', 'up']),
+        moneyStepVnd: z.number().int().min(1).max(1_000_000),
+        minutesStep: z.number().int().min(1).max(60),
+        adjustThresholdMinutes: z
+          .number()
+          .int()
+          .min(0)
+          .max(24 * 60),
+        adjustThresholdVnd: vnd,
+        reworkMode: z.enum(['keep_original', 'reverse_original']),
+      })
+      .strict(),
+  },
+  // FR-REC-019, 027 (slice 2.8b): whether a branch takes appointments at all (BRD Discovery 13 not confirmed, so no
+  // version = OFF) and the workshop capacity in cars per day (0 = none configured: no warning). Company default, branch override.
+  'appointment-policy': {
+    type: 'appointment-policy',
+    resource: 'appointment-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({ enabled: z.boolean(), dailyCapacity: z.number().int().min(0).max(10_000) })
+      .strict(),
+  },
+  // FR-REC-018, 036 (slice 2.8b): warranty term per service type (`svc:<type>`, or `default`), days and/or km (0 = no
+  // limit of that kind). The term in force on the handover day is copied onto the warranty record [Cần xác nhận: Khách, Q77].
+  'warranty-term': {
+    type: 'warranty-term',
+    resource: 'warranty-policy',
+    scopeKey: z.string().regex(/^(default|svc:[a-z][a-z0-9_-]{0,29})$/),
+    branchOverride: false,
+    payload: z
+      .object({
+        days: z.number().int().min(0).max(3650),
+        km: z.number().int().min(0).max(1_000_000),
+        conditions: z.string().trim().max(500).optional(),
+      })
+      .strict()
+      .refine((p) => p.days > 0 || p.km > 0, { message: 'days or km' }) as unknown as z.ZodType<
+      Record<string, unknown>
+    >,
+  },
+  // FR-REC-036 / Q77 (open): may a branch open warranty work on another branch's order, and which bearer is RECORDED.
+  // No version = strict (own orders only, performing branch records the cost); no automatic allocation either way.
+  'warranty-policy': {
+    type: 'warranty-policy',
+    resource: 'warranty-policy',
+    scopeKey: companyOrBranchKey,
+    branchOverride: true,
+    payload: z
+      .object({
+        crossBranchOpen: z.boolean(),
+        costBearer: z.enum(['performing_branch', 'origin_branch', 'company']),
+      })
+      .strict(),
+  },
   // FR-INV-025: maximum discount per role, in basis points of list price.
   'discount-limit': {
     type: 'discount-limit',
@@ -450,7 +733,7 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
   'cost-method': {
     type: 'cost-method',
     resource: 'cost-method',
-    scopeKey: z.literal('company'),
+    scopeKey: z.literal('tenant'),
     branchOverride: false,
     payload: z.object({ method: z.enum(['weighted-average']) }).strict(),
   },
@@ -539,3 +822,35 @@ export const COST_VISIBLE_ROLES: readonly string[] = ['CH', 'QV', 'QL', 'KT'];
 
 /** Roles allowed to approve their own proposal (with password re-entry + audit), BA §2.2 rule 5. */
 export const SELF_APPROVE_ROLES: readonly string[] = ['CH'];
+
+/**
+ * Q40 proposal (BA, 06/11/2026; [Cần xác nhận: Chủ dự án]): default limits of a tenant on the free plan. Parameters, not
+ * code paths: a tenant-limits config version replaces them from its effective date. The API rate (300 per minute) is not
+ * yet verified against the platform quota (120 was the earlier figure).
+ */
+export interface TenantLimits {
+  activeBranches: number;
+  users: number;
+  photoStorageMb: number;
+  apiPerMinute: number;
+  backgroundJobs: number;
+  importRowsPerDay: number;
+  exportRowsPerRun: number;
+}
+export type TenantLimitMetric = keyof TenantLimits;
+
+export const DEFAULT_TENANT_LIMITS: TenantLimits = {
+  activeBranches: 3,
+  users: 25,
+  photoStorageMb: 10 * 1024,
+  apiPerMinute: 300,
+  backgroundJobs: 2,
+  importRowsPerDay: 20_000,
+  exportRowsPerRun: 5_000,
+};
+
+/** The first client (tenant number 1) is an exception to the proposed defaults: 25 branches, 350 users (Q40). */
+export const FIRST_TENANT_LIMIT_EXCEPTION: Pick<TenantLimits, 'activeBranches' | 'users'> = {
+  activeBranches: 25,
+  users: 350,
+};

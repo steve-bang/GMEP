@@ -39,9 +39,9 @@ export async function pickServices(
   const date = businessDate(deps.sys.clock.now());
   const page = await listServices(deps.sys, actor, { q, limit: deps.rec.pickerMax });
   const rate = await resolveConfigAt(deps.sys, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     type: 'labor-rate',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     ...(actor.workingBranchId ? { branchId: actor.workingBranchId } : {}),
   });
@@ -51,7 +51,7 @@ export async function pickServices(
       .filter((s) => s.status === 'active')
       .map(async (s) => {
         const h = await resolveConfigAt(deps.sys, {
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           type: 'standard-hours',
           scopeKey: `service:${s.code}`,
           date,
@@ -87,7 +87,7 @@ export async function pickParts(deps: RecDeps, actor: Actor, raw: unknown): Prom
   return Promise.all(
     page.items.map(async (p) => {
       const price = await resolveConfigAt(deps.sys, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         type: 'price-item',
         scopeKey: `${deps.rec.priceListCode}:${p.code}`,
         date,

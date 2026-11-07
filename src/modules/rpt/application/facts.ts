@@ -4,6 +4,7 @@ import {
   dayWindow,
   type DayFacts,
   type OrderFact,
+  type QuoteFact,
   type StockIssueFact,
 } from '../domain/rollup';
 import type { RptDeps } from '../ports/deps';
@@ -44,10 +45,26 @@ export async function loadFacts(
   const completedIds = orders
     .filter((o) => o.completedAt && o.completedAt.getTime() < spanTo)
     .map((o) => o.id);
-  const [lines, money, invoiceStates] = await Promise.all([
+  const spanOrderCustomers = [
+    ...new Set(
+      orders.flatMap((o) =>
+        o.customerId && o.createdAt.getTime() >= spanFrom && o.createdAt.getTime() < spanTo
+          ? [o.customerId]
+          : [],
+      ),
+    ),
+  ];
+  const [lines, money, invoiceStates, quoteScan, customerCreated] = await Promise.all([
     deps.sources.orderLines(scope, closedIds),
     deps.sources.orderMoney(scope, closedIds),
     deps.sources.invoiceStates(scope, completedIds),
+    deps.sources.quotes?.(
+      scope,
+      branchId,
+      { since: dayWindow(first).from, until },
+      deps.rpt.scanMax,
+    ),
+    deps.sources.customerCreated?.(scope, spanOrderCustomers),
   ]);
 
   const out = new Map<string, DayFacts>();
@@ -65,7 +82,7 @@ export async function loadFacts(
       deps.sources.invoicesIssued(scope, branchId, w, deps.rpt.scanMax),
       deps.sources.stockIssues(scope, branchId, date, deps.rpt.scanMax),
     ]);
-    const truncated = [
+    const truncated: string[] = [
       ...(scan.truncated ? ['orders'] : []),
       ...(open.truncated ? ['openOrders'] : []),
       ...(debts.truncated ? ['debts'] : []),
@@ -85,7 +102,9 @@ export async function loadFacts(
       dayClosedAt: closedAt,
       invoicesIssued: invoices.items,
       stockIssues: issues.items as StockIssueFact[],
-      truncated,
+      ...(quoteScan ? { quotes: quoteScan.items as QuoteFact[] } : {}),
+      ...(customerCreated ? { customerCreated } : {}),
+      truncated: [...truncated, ...(quoteScan?.truncated ? ['quotes'] : [])],
     });
   }
   return out;

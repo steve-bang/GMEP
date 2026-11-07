@@ -48,14 +48,14 @@ export async function requestDebt(
   const branchId = moneyBranch(actor, scope);
   const data = parseInput(debtRequestSchema, input);
   const today = businessDate(deps.sys.clock.now());
-  const policy = await accPolicyOf(deps, actor.companyId, branchId, today);
+  const policy = await accPolicyOf(deps, actor.tenantId, branchId, today);
   if (data.dueDate < today || data.dueDate > addDays(today, policy.debtMaxDays))
     throw validationFailed([
       { field: 'dueDate', message: `Hạn trả từ hôm nay đến tối đa ${policy.debtMaxDays} ngày.` },
     ]);
   const { level, limits } = await approvalLevelFor(
     deps.sys,
-    actor.companyId,
+    actor.tenantId,
     'debt_handover',
     data.amountVnd,
   );
@@ -105,7 +105,7 @@ export function accApprovalHandlers(getDeps: () => AccDeps): Record<string, Appr
       async onDecided({ tx, request: r, decision, actor, ctx }) {
         if (decision !== 'approved') return;
         const deps = getDeps();
-        const scope = branchesScope(r.companyId, [r.branchId]);
+        const scope = branchesScope(r.tenantId, [r.branchId]);
         const p = r.payload as { orderId: string; amountVnd: number; dueDate: string };
         const order = await deps.orders.getInTx(tx, scope, p.orderId);
         if (!order || order.cancelled) throw new AppError('approval_stale', 409);
@@ -119,7 +119,7 @@ export function accApprovalHandlers(getDeps: () => AccDeps): Record<string, Appr
         const id = `debt_${r.id}`;
         const debt: Debt = {
           id,
-          companyId: r.companyId,
+          tenantId: r.tenantId,
           branchId: r.branchId,
           orderId: order.id,
           orderNumber: order.number,
@@ -178,7 +178,7 @@ export function accApprovalHandlers(getDeps: () => AccDeps): Record<string, Appr
     cash_variance: {
       async onDecided({ tx, request: r, decision, actor }) {
         const deps = getDeps();
-        const scope = branchesScope(r.companyId, [r.branchId]);
+        const scope = branchesScope(r.tenantId, [r.branchId]);
         const shift = await deps.cash.getShiftInTx(
           tx,
           scope,
@@ -227,7 +227,7 @@ export async function listDebts(deps: AccDeps, actor: Actor): Promise<DebtListDt
   const debts = await deps.debts.listByStatus(scope, branchId, 'open', deps.acc.listMax);
   const ids = debts.map((d) => d.orderId);
   const [orders, accounts] = await Promise.all([
-    deps.orders.getMany(actor.companyId, ids),
+    deps.orders.getMany(actor.tenantId, ids),
     deps.accounts.getMany(scope, ids),
   ]);
   const oById = new Map(orders.map((o) => [o.id, o]));

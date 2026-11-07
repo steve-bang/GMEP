@@ -9,8 +9,8 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
-const SV_PHANH = 'svc_cmp_demo_SV-PHANH';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
+const SV_PHANH = 'svc_tnt_demo_SV-PHANH';
 const P_FILTER = 'part_seed_01'; // Q7: 20 on hand, 2 held by the demo order
 const P_SCARCE = 'part_seed_03'; // Q7: 3 on hand
 const VEH_AN = 'veh_an';
@@ -1169,10 +1169,11 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
       const owner = await h.login('u_owner');
       // simulate a role created before this slice: remove the new grants and forget the top-ups
       const roles = h.container.sys.roles;
-      const [cvRole] = await roles.getMany(['CV']);
+      const [cvRole] = await roles.getMany('tnt_demo', ['CV']);
       await h.container.sys.uow.run(async (tx) => {
         roles.upsert(
           tx,
+          'tnt_demo',
           {
             ...cvRole!,
             permissions: cvRole!.permissions.filter(
@@ -1189,7 +1190,7 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
       expect(r1.json.added.CV).toEqual(
         expect.arrayContaining(['quote:approve', 'repair-order:create']),
       );
-      const [after] = await roles.getMany(['CV']);
+      const [after] = await roles.getMany('tnt_demo', ['CV']);
       expect(after!.permissions).toEqual(
         expect.arrayContaining(['quote:approve', 'repair-order:update']),
       );
@@ -1205,7 +1206,7 @@ describe.each(backends)('REC repair orders [%s]', (backend) => {
         as: 'u_ad',
         key: key('cfg'),
         body: {
-          scopeKey: 'company',
+          scopeKey: 'tenant',
           effectiveFrom: eff,
           reason: 'Siết giới hạn trang khách khi đo ở staging',
           payload: {

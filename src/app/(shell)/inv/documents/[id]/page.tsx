@@ -34,7 +34,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
     const ids = [
       ...new Set([doc.createdBy, doc.postedBy, doc.receiverUserId].flatMap((x) => (x ? [x] : []))),
     ];
-    const users = await Promise.all(ids.map((u) => sys.users.getById(u)));
+    const users = await Promise.all(ids.map((u) => sys.users.getById(actor.tenantId, u)));
     return {
       doc,
       warehouses,

@@ -11,7 +11,12 @@ export const COL = {
   userSecurity: 'userSecurity',
   roles: 'roles',
   roleAssignments: 'roleAssignments',
-  companies: 'companies',
+  tenants: 'tenants',
+  /** owner decision 07/11/2026: lock documents of the six-digit tenant codes, read BY KEY only (no query shape) */
+  tenantCodes: 'tenantCodes',
+  // platform zone (FR-TEN-011, 013): staff identities and the immutable platform audit; never tenant business data
+  platformIdentities: 'platformIdentities',
+  platformAuditLogs: 'platformAuditLogs',
   branches: 'branches',
   warehouses: 'warehouses',
   sessions: 'sessions',
@@ -61,6 +66,7 @@ export const COL = {
   // SYS approvals (FR-SYS-004) and ACC (slice 1.7)
   approvals: 'approvals',
   approvalSlots: 'approvalSlots',
+  approvalDelegations: 'approvalDelegations',
   payments: 'payments',
   paymentReversals: 'paymentReversals',
   orderAccounts: 'orderAccounts',
@@ -82,6 +88,17 @@ export const COL = {
   importUnits: 'importUnits',
   // RPT slice 1.9 (R68 rule 3): daily rollups, read BY KEY (`<branchId>_<yyyyMMdd>`), no query shape, no index
   rollups: 'rollups',
+  // HRM slice 2.6a: staff records and their personal data, the unique-code and account-link slots (read BY KEY), and one
+  // labor sheet per repair order (id = order id). Only two shapes are queried (see Q.employees, Q.laborSheetsByBranch)
+  employees: 'employees',
+  employeePii: 'employeePii',
+  employeeCodes: 'employeeCodes',
+  employeeUserLinks: 'employeeUserLinks',
+  laborSheets: 'laborSheets',
+  // REC slice 2.8b: appointments (FR-REC-019, 027); one shape, Q.appointmentsByDate
+  appointments: 'appointments',
+  // REC slice 2.8b: warranty records (projection P4, one per delivered order); one shape, Q.warrantiesByVehicle
+  warranties: 'warranties',
 } as const;
 
 type Dir = 'asc' | 'desc';
@@ -100,7 +117,7 @@ const listFamilies = (
       out[`${key}.${dir}`] = defineQuery({
         name: `${name}.${field}.${dir}`,
         collection,
-        eq: ['companyId'],
+        eq: ['tenantId'],
         optionalEq,
         ...(scopeField ? { scopeField } : {}),
         range: field === 'nameNorm',
@@ -122,7 +139,7 @@ function dirFamilies(
     out[dir] = defineQuery({
       name: `${name}.${dir}`,
       collection,
-      eq: ['companyId'],
+      eq: ['tenantId'],
       optionalEq,
       ...(scopeField ? { scopeField } : {}),
       range: true,
@@ -135,46 +152,61 @@ export const Q = {
   warehouses: listFamilies(COL.warehouses, 'warehouses.list', [], 'branchId'),
   services: listFamilies(COL.services, 'services.list', ['group']),
   priceLists: listFamilies(COL.priceLists, 'priceLists.list', []),
+  /** platform screens and the scheduler: tenants are few; ordered by creation, no equality field, no composite index */
+  tenants: defineQuery({
+    name: 'tenants.list',
+    collection: COL.tenants,
+    order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  /** FR-TEN-013: newest first; the tenant filter is applied in memory on the bounded window (no composite index) */
+  platformAudit: defineQuery({
+    name: 'platformAuditLogs.list',
+    collection: COL.platformAuditLogs,
+    order: { field: 'at', dir: 'desc', type: 'date' },
+  }),
+  /** a tenant's roles (a few tens): ordered by the equality field itself, so no composite index is needed */
   roles: defineQuery({
     name: 'roles.list',
     collection: COL.roles,
-    order: { field: 'name', dir: 'asc', type: 'string' },
+    eq: ['tenantId'],
+    order: { field: 'tenantId', dir: 'asc', type: 'string' },
   }),
   /** all branches of a company (a few tens), sorted by code; branch scopes read by id */
-  branchesByCompany: defineQuery({
-    name: 'branches.byCompany',
+  branchesByTenant: defineQuery({
+    name: 'branches.byTenant',
     collection: COL.branches,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     order: { field: 'code', dir: 'asc', type: 'string' },
   }),
   audit: defineQuery({
     name: 'auditLogs.list',
     collection: COL.auditLogs,
-    eq: ['companyId'],
-    optionalEq: ['entityType', 'entityId', 'actorId', 'action'],
+    eq: ['tenantId'],
+    // actorId and action are filtered in memory (DocAuditLog.list): 32 -> 8 composite indexes (slice 2.1)
+    optionalEq: ['entityType', 'entityId'],
     scopeField: 'branchId',
     range: true,
     order: { field: 'at', dir: 'desc', type: 'date' },
   }),
   /** users of a company ordered by employee code (company-wide scope) */
-  usersByCompany: defineQuery({
-    name: 'users.byCompany',
+  usersByTenant: defineQuery({
+    name: 'users.byTenant',
     collection: COL.users,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     order: { field: 'employeeCode', dir: 'asc', type: 'string' },
   }),
   /** role assignments inside a branch scope, ordered by the (immutable) employee code of the user */
   assignmentsByBranch: defineQuery({
     name: 'roleAssignments.byBranch',
     collection: COL.roleAssignments,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     scopeField: 'branchId',
     order: { field: 'employeeCode', dir: 'asc', type: 'string' },
   }),
   assignmentsByRole: defineQuery({
     name: 'roleAssignments.byRole',
     collection: COL.roleAssignments,
-    eq: ['companyId', 'roleCode'],
+    eq: ['tenantId', 'roleCode'],
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   assignmentsByUser: defineQuery({
@@ -187,12 +219,6 @@ export const Q = {
     name: 'users.byEmail',
     collection: COL.users,
     eq: ['email'],
-    order: { field: 'createdAt', dir: 'asc', type: 'date' },
-  }),
-  userByCode: defineQuery({
-    name: 'users.byEmployeeCode',
-    collection: COL.users,
-    eq: ['employeeCode'],
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   sessionsByUser: defineQuery({
@@ -210,13 +236,13 @@ export const Q = {
   configScope: defineQuery({
     name: 'configVersions.byScope',
     collection: COL.configVersions,
-    eq: ['companyId', 'type', 'scopeKey'],
+    eq: ['tenantId', 'type', 'scopeKey'],
     order: { field: 'effectiveFrom', dir: 'desc', type: 'string' },
   }),
   configType: defineQuery({
     name: 'configVersions.byType',
     collection: COL.configVersions,
-    eq: ['companyId', 'type'],
+    eq: ['tenantId', 'type'],
     optionalEq: ['status'],
     order: { field: 'effectiveFrom', dir: 'desc', type: 'string' },
   }),
@@ -229,7 +255,7 @@ export const Q = {
   countersByBranch: defineQuery({
     name: 'counters.byBranch',
     collection: COL.counters,
-    eq: ['companyId', 'branchId'],
+    eq: ['tenantId', 'branchId'],
     order: { field: 'updatedAt', dir: 'desc', type: 'date' },
   }),
   // ---- CRM (slice 1.3) ----
@@ -247,7 +273,7 @@ export const Q = {
   customerPiiByPhone: defineQuery({
     name: 'customerPii.byPhone',
     collection: COL.customerPii,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     range: true,
     order: { field: 'phoneNorm', dir: 'asc', type: 'string' },
   }),
@@ -262,31 +288,31 @@ export const Q = {
   vehiclesByOwner: defineQuery({
     name: 'vehicles.byOwner',
     collection: COL.vehicles,
-    eq: ['companyId', 'currentOwnerId'],
+    eq: ['tenantId', 'currentOwnerId'],
     order: { field: 'plateNorm', dir: 'asc', type: 'string' },
   }),
   ownershipsByVehicle: defineQuery({
     name: 'vehicleOwnerships.byVehicle',
     collection: COL.vehicleOwnerships,
-    eq: ['companyId', 'vehicleId'],
+    eq: ['tenantId', 'vehicleId'],
     order: { field: 'from', dir: 'desc', type: 'string' },
   }),
   ownershipsByCustomer: defineQuery({
     name: 'vehicleOwnerships.byCustomer',
     collection: COL.vehicleOwnerships,
-    eq: ['companyId', 'customerId'],
+    eq: ['tenantId', 'customerId'],
     order: { field: 'from', dir: 'desc', type: 'string' },
   }),
   consentsByCustomer: defineQuery({
     name: 'consents.byCustomer',
     collection: COL.consents,
-    eq: ['companyId', 'customerId'],
+    eq: ['tenantId', 'customerId'],
     order: { field: 'grantedAt', dir: 'desc', type: 'date' },
   }),
   dataRequests: defineQuery({
     name: 'dataSubjectRequests.list',
     collection: COL.dataSubjectRequests,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status', 'customerId'],
     scopeField: 'branchId',
     order: { field: 'receivedAt', dir: 'desc', type: 'date' },
@@ -294,7 +320,7 @@ export const Q = {
   vehicleHistory: defineQuery({
     name: 'vehicleHistory.byVehicle',
     collection: COL.vehicleHistory,
-    eq: ['companyId', 'vehicleId'],
+    eq: ['tenantId', 'vehicleId'],
     order: { field: 'date', dir: 'desc', type: 'string' },
   }),
   // ---- INV (slice 1.4) ----
@@ -302,7 +328,7 @@ export const Q = {
   partsByCode: defineQuery({
     name: 'parts.list.code',
     collection: COL.parts,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['group', 'status'],
     range: true,
     order: { field: 'code', dir: 'asc', type: 'string' },
@@ -310,7 +336,7 @@ export const Q = {
   partsByName: defineQuery({
     name: 'parts.list.name',
     collection: COL.parts,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['group', 'status'],
     range: true,
     order: { field: 'nameNorm', dir: 'asc', type: 'string' },
@@ -319,14 +345,14 @@ export const Q = {
   partCompatByModel: defineQuery({
     name: 'partCompat.byModel',
     collection: COL.partCompat,
-    eq: ['companyId', 'compatKey'],
+    eq: ['tenantId', 'compatKey'],
     order: { field: 'code', dir: 'asc', type: 'string' },
   }),
   /** stock list and reorder list: balances of the scope ordered by part code */
   stockByPart: defineQuery({
     name: 'stockBalances.list.code',
     collection: COL.stockBalances,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['warehouseId', 'lowStock'],
     scopeField: 'branchId',
     range: true,
@@ -336,7 +362,7 @@ export const Q = {
   stockOfPart: defineQuery({
     name: 'stockBalances.byPart',
     collection: COL.stockBalances,
-    eq: ['companyId', 'partId'],
+    eq: ['tenantId', 'partId'],
     scopeField: 'branchId',
     order: { field: 'warehouseId', dir: 'asc', type: 'string' },
   }),
@@ -344,21 +370,21 @@ export const Q = {
   stockNonZero: defineQuery({
     name: 'stockBalances.nonZero',
     collection: COL.stockBalances,
-    eq: ['companyId', 'warehouseId', 'nonZero'],
+    eq: ['tenantId', 'warehouseId', 'nonZero'],
     order: { field: 'partCodeNorm', dir: 'asc', type: 'string' },
   }),
   /** the stock card of one warehouse x part, newest first */
   movementsByBalance: defineQuery({
     name: 'stockMovements.byBalance',
     collection: COL.stockMovements,
-    eq: ['companyId', 'warehouseId', 'partId'],
+    eq: ['tenantId', 'warehouseId', 'partId'],
     scopeField: 'branchId',
     order: { field: 'seqKey', dir: 'desc', type: 'string' },
   }),
   stockDocuments: defineQuery({
     name: 'stockDocuments.list',
     collection: COL.stockDocuments,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['type', 'status'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
@@ -367,27 +393,27 @@ export const Q = {
   stockDocumentsOpen: defineQuery({
     name: 'stockDocuments.openByWarehouse',
     collection: COL.stockDocuments,
-    eq: ['companyId', 'warehouseId', 'status'],
+    eq: ['tenantId', 'warehouseId', 'status'],
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   reservationsBySource: defineQuery({
     name: 'stockReservations.bySource',
     collection: COL.stockReservations,
-    eq: ['companyId', 'sourceType', 'sourceId'],
+    eq: ['tenantId', 'sourceType', 'sourceId'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   reservationsOpen: defineQuery({
     name: 'stockReservations.open',
     collection: COL.stockReservations,
-    eq: ['companyId', 'status'],
+    eq: ['tenantId', 'status'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   reservationsByPart: defineQuery({
     name: 'stockReservations.byPart',
     collection: COL.stockReservations,
-    eq: ['companyId', 'partId'],
+    eq: ['tenantId', 'partId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     order: { field: 'updatedAt', dir: 'desc', type: 'date' },
@@ -396,7 +422,7 @@ export const Q = {
   intakes: defineQuery({
     name: 'intakes.list',
     collection: COL.intakes,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
@@ -404,7 +430,7 @@ export const Q = {
   intakesByPlate: defineQuery({
     name: 'intakes.byPlate',
     collection: COL.intakes,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     range: true,
@@ -413,7 +439,7 @@ export const Q = {
   intakesByNumber: defineQuery({
     name: 'intakes.byNumber',
     collection: COL.intakes,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     range: true,
@@ -423,19 +449,19 @@ export const Q = {
   intakesByCustomer: defineQuery({
     name: 'intakes.byCustomer',
     collection: COL.intakes,
-    eq: ['companyId', 'customerId', 'status'],
+    eq: ['tenantId', 'customerId', 'status'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
   quotesByCustomer: defineQuery({
     name: 'quotes.byCustomer',
     collection: COL.quotes,
-    eq: ['companyId', 'customerId', 'status'],
+    eq: ['tenantId', 'customerId', 'status'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
   quotes: defineQuery({
     name: 'quotes.list',
     collection: COL.quotes,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
@@ -443,7 +469,7 @@ export const Q = {
   quotesByPlate: defineQuery({
     name: 'quotes.byPlate',
     collection: COL.quotes,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     range: true,
@@ -452,7 +478,7 @@ export const Q = {
   quotesByNumber: defineQuery({
     name: 'quotes.byNumber',
     collection: COL.quotes,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     range: true,
@@ -462,7 +488,7 @@ export const Q = {
   repairOrders: defineQuery({
     name: 'repairOrders.list',
     collection: COL.repairOrders,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     optionalEq: ['status'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
@@ -470,7 +496,7 @@ export const Q = {
   repairOrdersByNumber: defineQuery({
     name: 'repairOrders.byNumber',
     collection: COL.repairOrders,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     scopeField: 'branchId',
     range: true,
     order: { field: 'number', dir: 'asc', type: 'string' },
@@ -478,7 +504,7 @@ export const Q = {
   repairOrdersByPlate: defineQuery({
     name: 'repairOrders.byPlate',
     collection: COL.repairOrders,
-    eq: ['companyId'],
+    eq: ['tenantId'],
     scopeField: 'branchId',
     range: true,
     order: { field: 'plateNorm', dir: 'asc', type: 'string' },
@@ -487,7 +513,7 @@ export const Q = {
   repairOrdersOpen: defineQuery({
     name: 'repairOrders.open',
     collection: COL.repairOrders,
-    eq: ['companyId', 'open'],
+    eq: ['tenantId', 'open'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
@@ -495,34 +521,34 @@ export const Q = {
   repairOrdersByCustomer: defineQuery({
     name: 'repairOrders.byCustomer',
     collection: COL.repairOrders,
-    eq: ['companyId', 'customerId', 'open'],
+    eq: ['tenantId', 'customerId', 'open'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
   repairItemsByOrder: defineQuery({
     name: 'repairItems.byOrder',
     collection: COL.repairItems,
-    eq: ['companyId', 'orderId'],
+    eq: ['tenantId', 'orderId'],
     scopeField: 'branchId',
     order: { field: 'seqKey', dir: 'asc', type: 'string' },
   }),
   repairItemsByTechnician: defineQuery({
     name: 'repairItems.byTechnician',
     collection: COL.repairItems,
-    eq: ['companyId', 'technicianId', 'active'],
+    eq: ['tenantId', 'technicianId', 'active'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   partRequestsByOrder: defineQuery({
     name: 'partRequests.byOrder',
     collection: COL.partRequests,
-    eq: ['companyId', 'orderId'],
+    eq: ['tenantId', 'orderId'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   partRequestsByStatus: defineQuery({
     name: 'partRequests.byStatus',
     collection: COL.partRequests,
-    eq: ['companyId', 'status'],
+    eq: ['tenantId', 'status'],
     scopeField: 'branchId',
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
@@ -532,45 +558,53 @@ export const Q = {
   approvalsByBranchStatus: defineQuery({
     name: 'approvals.byBranchStatus',
     collection: COL.approvals,
-    eq: ['companyId', 'branchId', 'status'],
+    eq: ['tenantId', 'branchId', 'status'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
   approvalsByRequester: defineQuery({
     name: 'approvals.byRequester',
     collection: COL.approvals,
-    eq: ['companyId', 'requestedBy'],
+    eq: ['tenantId', 'requestedBy'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  // FR-SYS-033 (slice 2.5): a tenant has a handful of delegations; read by tenant, filter in memory.
+  // Single-field order (like roles.list): NO composite index.
+  approvalDelegationsByTenant: defineQuery({
+    name: 'approvalDelegations.byTenant',
+    collection: COL.approvalDelegations,
+    eq: ['tenantId'],
+    order: { field: 'tenantId', dir: 'asc', type: 'string' },
   }),
   paymentsByOrder: defineQuery({
     name: 'payments.byOrder',
     collection: COL.payments,
-    eq: ['companyId', 'orderId'],
+    eq: ['tenantId', 'orderId'],
     order: { field: 'createdAt', dir: 'asc', type: 'date' },
   }),
   paymentsByBranch: defineQuery({
     name: 'payments.byBranch',
     collection: COL.payments,
-    eq: ['companyId', 'branchId'],
+    eq: ['tenantId', 'branchId'],
     range: true,
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
   cashEntriesByDay: defineQuery({
     name: 'cashEntries.byDay',
     collection: COL.cashEntries,
-    eq: ['companyId', 'branchId', 'businessDate'],
+    eq: ['tenantId', 'branchId', 'businessDate'],
     order: { field: 'seqKey', dir: 'asc', type: 'string' },
   }),
   cashShiftsByBranch: defineQuery({
     name: 'cashShifts.byBranch',
     collection: COL.cashShifts,
-    eq: ['companyId', 'branchId'],
+    eq: ['tenantId', 'branchId'],
     range: true,
     order: { field: 'openedAt', dir: 'desc', type: 'date' },
   }),
   debtsByBranchStatus: defineQuery({
     name: 'debts.byBranchStatus',
     collection: COL.debts,
-    eq: ['companyId', 'branchId', 'status'],
+    eq: ['tenantId', 'branchId', 'status'],
     order: { field: 'dueDate', dir: 'asc', type: 'string' },
   }),
   // ---- EIN slice 1.8 (R68): ONE query shape and ONE index for the whole slice. Everything else is read by document id:
@@ -580,7 +614,7 @@ export const Q = {
   invoicesByBranch: defineQuery({
     name: 'invoices.byBranch',
     collection: COL.invoices,
-    eq: ['companyId', 'branchId'],
+    eq: ['tenantId', 'branchId'],
     range: true,
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
@@ -588,14 +622,51 @@ export const Q = {
   importBatchesByBranch: defineQuery({
     name: 'importBatches.byBranch',
     collection: COL.importBatches,
-    eq: ['companyId', 'branchId'],
+    eq: ['tenantId', 'branchId'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
   }),
   /** FR-SYS-007 R99: batches of ONE branch in one status (the abandoned-dry-run purge), newest first */
   importBatchesByBranchStatus: defineQuery({
     name: 'importBatches.byBranchStatus',
     collection: COL.importBatches,
-    eq: ['companyId', 'branchId', 'status'],
+    eq: ['tenantId', 'branchId', 'status'],
     order: { field: 'createdAt', dir: 'desc', type: 'date' },
+  }),
+  // ---- HRM slice 2.6a (index budget: ONE composite index for the whole slice) ----
+  /** a tenant's staff (a few hundred): ordered by the equality field itself, so no composite index; cut to the scope in memory */
+  employees: defineQuery({
+    name: 'employees.byTenant',
+    collection: COL.employees,
+    eq: ['tenantId'],
+    order: { field: 'tenantId', dir: 'asc', type: 'string' },
+  }),
+  /**
+   * Labor sheets (one per order) of ONE branch whose last line is at or after a date, newest first. The technician,
+   * status and exact period filters run in memory over the lines of this bounded window; by order it is a read by key.
+   */
+  laborSheetsByBranch: defineQuery({
+    name: 'laborSheets.byBranch',
+    collection: COL.laborSheets,
+    eq: ['tenantId', 'branchId'],
+    range: true,
+    order: { field: 'recordedAt', dir: 'desc', type: 'date' },
+  }),
+  /**
+   * REC slice 2.8b (FR-REC-019, 027): the calendar of ONE branch over a date range (day or week). ONE composite index
+   * (tenantId, branchId, date); status filter and time order run in memory over the bounded window (`appointments.listMax`).
+   */
+  appointmentsByDate: defineQuery({
+    name: 'appointments.byDate',
+    collection: COL.appointments,
+    eq: ['tenantId', 'branchId'],
+    range: true,
+    order: { field: 'date', dir: 'asc', type: 'string' },
+  }),
+  /** REC slice 2.8b (FR-REC-018, 036): warranty records of one vehicle in the tenant, newest first (projection P4) */
+  warrantiesByVehicle: defineQuery({
+    name: 'warranties.byVehicle',
+    collection: COL.warranties,
+    eq: ['tenantId', 'vehicleId'],
+    order: { field: 'startDate', dir: 'desc', type: 'string' },
   }),
 };

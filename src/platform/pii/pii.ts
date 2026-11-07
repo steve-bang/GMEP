@@ -130,12 +130,13 @@ export interface PiiAccessEntry {
   actorId: string;
   /** role that granted the right, for the access log (BA §7.3) */
   actorRoles: string[];
-  companyId: string;
+  tenantId: string;
   /** branch of the record */
   branchId: string | null;
   entityType: string;
   entityId: string;
-  fields: PiiField[];
+  /** field names; staff data (slice 2.6a) adds national id and birth date to the customer fields */
+  fields: string[];
   purpose: 'open_record' | 'reveal' | 'export' | 'search_by_phone' | 'denied';
   result: 'allowed' | 'denied';
   reasonCode?: string;

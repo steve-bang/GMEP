@@ -37,7 +37,7 @@
   var pillInv = ['CH', 'QV', 'QL', 'TK'].indexOf(role) >= 0 ? '<span class="count-pill count-pill--danger" aria-label="5 mặt hàng sắp hết" title="5 mặt hàng sắp hết">5</span><span class="nav-item__dot" aria-hidden="true"></span>' : '';
 
   var sidebar =
-    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span>' +
+    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GMEP</span>' +
     '<button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div><nav class="sidebar__nav">' +
     '<div class="sidebar__group">Workspace</div>' + nav('dash', 'Tổng quan', 'layout-dashboard') + nav('ro', 'Phiếu sửa chữa', 'clipboard-list', pillRo) + nav('appt', 'Lịch hẹn', 'calendar') + nav('cust', 'Khách hàng &amp; Xe', 'car-front') +
     '<div class="sidebar__group">Kho &amp; mua hàng</div>' + nav('inv', 'Kho phụ tùng', 'warehouse', pillInv) + nav('pur', 'Mua hàng', 'shopping-cart') +
@@ -96,7 +96,7 @@
     '<div class="topbar__spacer"></div><a class="btn-icon topbar__search-btn" href="g1-shl-02.html" aria-label="Tìm kiếm">' + ic('search') + '</a>' + notifDd + userDd + '</header>';
 
   var crumbs = (b.getAttribute('data-crumb') || 'Tổng quan').split('|');
-  var crumbHtml = '<nav class="breadcrumb" aria-label="Đường dẫn"><a href="' + G1.HOME[role] + '">GARAGE OS</a>' + crumbs.map(function (c, i) {
+  var crumbHtml = '<nav class="breadcrumb" aria-label="Đường dẫn"><a href="' + G1.HOME[role] + '">GMEP</a>' + crumbs.map(function (c, i) {
     return ic('chevron-right') + (i === crumbs.length - 1 ? '<span aria-current="page">' + c + '</span>' : '<a href="#">' + c + '</a>');
   }).join('') + '</nav>';
 
@@ -136,7 +136,7 @@
   /* Hộp thoại dùng chung (đặt trực tiếp dưới body để app.js đặt inert đúng) */
   var dlgs = document.createElement('div');
   dlgs.innerHTML =
-    '<div class="overlay" id="dlg-logout" role="alertdialog" aria-modal="true" aria-labelledby="dl-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning">' + ic('log-out') + '</div><div><h2 class="dialog__title" id="dl-t">Đăng xuất khỏi GARAGE OS?</h2></div></div>' +
+    '<div class="overlay" id="dlg-logout" role="alertdialog" aria-modal="true" aria-labelledby="dl-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning">' + ic('log-out') + '</div><div><h2 class="dialog__title" id="dl-t">Đăng xuất khỏi GMEP?</h2></div></div>' +
     '<div class="dialog__body"><p>Phiên làm việc trên thiết bị này sẽ kết thúc.</p><p data-draft-only hidden><strong>Bạn đang soạn một chứng từ chưa lưu.</strong> Bản nháp được giữ trên thiết bị và hiện lại khi bạn đăng nhập lại bằng cùng tài khoản. Bạn nên chọn “Ở lại” rồi lưu nháp lên hệ thống trước.</p></div>' +
     '<div class="dialog__footer"><button class="btn btn--secondary" data-close>Ở lại</button><a class="btn btn--primary" href="g1-aut-01.html">Đăng xuất</a></div></div></div>' +
     '<div class="overlay" id="dlg-scope" role="alertdialog" aria-modal="true" aria-labelledby="ds-t"><div class="dialog"><div class="dialog__header"><div class="dialog__icon dialog__icon--warning">' + ic('pencil') + '</div><div><h2 class="dialog__title" id="ds-t">Lưu nháp trước khi đổi phạm vi?</h2></div></div>' +

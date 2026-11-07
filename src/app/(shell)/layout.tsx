@@ -217,8 +217,40 @@ export default async function ShellLayout({ children }: { children: React.ReactN
                     ),
                   ]
                 : []),
+              ...(can.ranking
+                ? [
+                    item(
+                      'rk',
+                      '/rpt/ranking',
+                      t('shell.nav.ranking'),
+                      'chart-no-axes-combined',
+                      'prefix',
+                    ),
+                  ]
+                : []),
+              ...(can.dailyReport
+                ? [item('ri', '/rpt/indicators', t('shell.nav.indicators'), 'users', 'prefix')]
+                : []),
               ...(can.alerts
                 ? [item('ra', '/rpt/alerts', t('shell.nav.alerts'), 'alert-triangle', 'prefix')]
+                : []),
+            ],
+          },
+        ]
+      : []),
+    ...(can.employees || can.labor || can.laborRules
+      ? [
+          {
+            label: t('shell.nav.groupHrm'),
+            items: [
+              ...(can.employees
+                ? [item('he', '/hrm/employees', t('shell.nav.employees'), 'users', 'prefix')]
+                : []),
+              ...(can.labor
+                ? [item('hl', '/hrm/labor', t('shell.nav.labor'), 'wrench', 'prefix')]
+                : []),
+              ...(can.laborRules
+                ? [item('hr', '/hrm/rules', t('shell.nav.laborRules'), 'clipboard-list', 'prefix')]
                 : []),
             ],
           },
@@ -326,6 +358,7 @@ export default async function ShellLayout({ children }: { children: React.ReactN
             ]
           : []),
         ...(can.audit ? [item('au', '/sys/audit', t('shell.nav.audit'), 'history')] : []),
+        item('lh', '/sys/login-history', t('shell.nav.loginHistory'), 'clock'),
       ],
     },
   ].filter((g) => g.items.length > 0);

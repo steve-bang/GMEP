@@ -106,7 +106,7 @@ describe('QUO-04/05 one-time code', () => {
 describe('FR-CRM-010 service message consent (any granted service consent, per-channel withdrawal)', () => {
   const c = (over: Partial<Consent>): Consent => ({
     id: 'c1',
-    companyId: 'cmp',
+    tenantId: 'cmp',
     branchId: 'br',
     customerId: 'cus',
     purpose: 'service',

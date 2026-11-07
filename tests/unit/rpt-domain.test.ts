@@ -16,7 +16,7 @@ import {
  * Slice 1.9 rollup math (FR-RPT-001, 003, 004, 011, 013): pure, no I/O. Amounts are integer VND; the sample figures are
  * NOT accountant sign-off (revenue here is "approved labor + parts before tax", an assumption listed in the open questions).
  */
-const key = { companyId: 'cmp', branchId: 'br_q7', date: '2026-11-03' };
+const key = { tenantId: 'cmp', branchId: 'br_q7', date: '2026-11-03' };
 const at = (hhmm: string, day = '2026-11-03') => new Date(`${day}T${hhmm}:00+07:00`);
 const NOW = at('18:00', '2026-11-04'); // the next day: the 3rd is a past day, asOf = end of the 3rd
 const limits = { refsMax: 60, alertsMax: 100 };
@@ -257,7 +257,7 @@ describe('FR-RPT-003 daily rollup math', () => {
       completedWithoutInvoiceCount: 1,
     });
     expect(r.refs.notInvoiced.map((x) => x.id)).toEqual(['3']);
-    expect(r.schemaVersion).toBe(5);
+    expect(r.schemaVersion).toBe(7);
   });
 
   it('R114: the day flow counts only orders completed ON the date; an older uninvoiced order is backlog, not flow', () => {

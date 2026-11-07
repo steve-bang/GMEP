@@ -24,7 +24,7 @@ describe.each(backends)('FR-REC-030 / BA-13 document numbering service [%s]', (b
   beforeAll(async () => {
     h = await createHarness(backend);
   });
-  const branch = { id: 'br_q7', companyId: 'cmp_demo', code: 'Q7' } as never;
+  const branch = { id: 'br_q7', tenantId: 'tnt_demo', code: 'Q7' } as never;
   const alloc = (
     docType: string,
     businessDate: string,
@@ -271,7 +271,7 @@ describe.each(backends)('NFR-SEC-03 PII masking, reveal and access log [%s]', (b
     });
     const entries = (
       await h.container.sys.audit.list(
-        allBranchesScope('cmp_demo'),
+        allBranchesScope('tnt_demo'),
         { entityType: 'user', entityId: 'u_cv_q7' },
         { limit: 10 },
       )
@@ -362,7 +362,7 @@ describe.each(backends)(
       ).toBe(404);
       const secret = 'cron-secret-0123456789-abcdefghijklmnop';
       const on = await createHarness(backend, {
-        env: { CRON_SECRET: secret, CRON_COMPANY_ID: 'cmp_demo' },
+        env: { CRON_SECRET: secret, CRON_TENANT_ID: 'tnt_demo' },
       });
       const bad = await on.call('POST', '/api/v1/internal/cron/run-due', {
         origin: null,
@@ -393,7 +393,7 @@ describe.each(backends)(
         env: {
           CRON_OIDC_AUDIENCE: audience,
           CRON_OIDC_SERVICE_ACCOUNT: sa,
-          CRON_COMPANY_ID: 'cmp_demo',
+          CRON_TENANT_ID: 'tnt_demo',
         },
       });
       const withKeys = createContainer({ env: h.container.env, clock: h.clock, cronKeys: keys });
@@ -444,7 +444,7 @@ describe.each(backends)(
           CRON_SECRET: secret,
           CRON_OIDC_AUDIENCE: audience,
           CRON_OIDC_SERVICE_ACCOUNT: sa,
-          CRON_COMPANY_ID: 'cmp_demo',
+          CRON_TENANT_ID: 'tnt_demo',
         },
       });
       both.container.cronAuth = createContainer({
@@ -592,7 +592,7 @@ describe.runIf(hasEmulator)('H3 `in` queries over 30 branches on the Firestore e
     for (let b = 0; b < BR; b++)
       for (let k = 0; k < 2; k++)
         batch.set(db.collection('warehouses').doc(`wh_chunk_${b}_${k}`), {
-          companyId: 'c-chunk',
+          tenantId: 'c-chunk',
           branchId: `bx${b}`,
           code: `K${String((b * 7 + k * 13) % 150).padStart(3, '0')}-${b}${k}`,
           nameNorm: `n${b}${k}`,
@@ -600,7 +600,7 @@ describe.runIf(hasEmulator)('H3 `in` queries over 30 branches on the Firestore e
         });
     // an unrelated branch that must never appear
     batch.set(db.collection('warehouses').doc('wh_chunk_other'), {
-      companyId: 'c-chunk',
+      tenantId: 'c-chunk',
       branchId: 'other',
       code: 'ZZZ',
       nameNorm: 'zzz',
@@ -615,7 +615,7 @@ describe.runIf(hasEmulator)('H3 `in` queries over 30 branches on the Firestore e
     let pages = 0;
     for (;;) {
       const rows = await store.query(shape, {
-        eq: { companyId: 'c-chunk' },
+        eq: { tenantId: 'c-chunk' },
         scopeBranches: scope,
         limit: 21,
         ...(cursor ? { cursor } : {}),
@@ -632,7 +632,7 @@ describe.runIf(hasEmulator)('H3 `in` queries over 30 branches on the Firestore e
     expect(seen).not.toContain('wh_chunk_other');
     expect(pages).toBe(8);
     const dbCodes = (
-      await db.collection('warehouses').where('companyId', '==', 'c-chunk').get()
+      await db.collection('warehouses').where('tenantId', '==', 'c-chunk').get()
     ).docs
       .filter((d) => d.data().branchId !== 'other')
       .map((d) => `${d.data().code}|${d.id}`)

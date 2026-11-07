@@ -27,6 +27,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: Sea
   const res = await load(() =>
     listServices(getContainer().sys, actor, {
       limit: 25,
+      released: 'all',
       ...(q ? { q } : {}),
       ...(cursor ? { cursor } : {}),
     }),

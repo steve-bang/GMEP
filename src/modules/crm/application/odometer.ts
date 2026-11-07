@@ -18,7 +18,7 @@ export async function abnormalDropRecipients(
   actor: Actor,
   branchId: string,
 ): Promise<string[]> {
-  return usersWithRole(deps.sys, actor.companyId, ['QL'], branchId);
+  return usersWithRole(deps.sys, actor.tenantId, ['QL'], branchId);
 }
 
 export function stageAbnormalDropNotice(
@@ -33,7 +33,7 @@ export function stageAbnormalDropNotice(
 ): void {
   if (recipients.length === 0) return;
   notifyUsers(deps.sys, tx, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     userIds: recipients,
     kind: 'crm.odometer_abnormal',
     titleKey: 'notifications.odometerAbnormal',

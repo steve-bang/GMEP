@@ -136,7 +136,7 @@ async function applyOne(
       }),
     );
     notifyUsers(deps.sys, tx, {
-      companyId: q.companyId,
+      tenantId: q.tenantId,
       userIds: [q.advisorId],
       kind: 'rec.quote_expiring',
       titleKey: 'notifications.quoteExpiringSoon',

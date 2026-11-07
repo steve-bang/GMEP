@@ -80,10 +80,10 @@ export async function fixBuyer(
       if (!inv || r.purpose === 'cancel') throw notFound();
       if (r.status !== 'failed_data') throw new AppError('request_not_fixable', 409);
       const pii = await deps.invoices.getPiiInTx(tx, scope, inv.id);
-      const q = await readQueue(deps, tx, scope, r.companyId, r.branchId, deps.sys.clock.now());
+      const q = await readQueue(deps, tx, scope, r.tenantId, r.branchId, deps.sys.clock.now());
       const now = deps.sys.clock.now();
       const date = businessDate(now);
-      const policy = await einPolicyOf(deps, r.companyId, r.branchId, date);
+      const policy = await einPolicyOf(deps, r.tenantId, r.branchId, date);
       const buyer = mergeBuyer(
         {
           kind: inv.buyer.kind,
@@ -152,7 +152,7 @@ export async function fixBuyer(
       });
       deps.invoices.savePii(tx, {
         id: inv.id,
-        companyId: inv.companyId,
+        tenantId: inv.tenantId,
         branchId: inv.branchId,
         ...(buyer.address ? { address: buyer.address } : {}),
         ...(buyer.email ? { email: buyer.email } : {}),
@@ -233,7 +233,7 @@ export async function cancelRequest(
       const inv = await deps.invoices.getInTx(tx, scope, r.invoiceId);
       if (!inv) throw notFound();
       const idx = await deps.index.getInTx(tx, scope, r.orderId);
-      const q = await readQueue(deps, tx, scope, r.companyId, r.branchId, deps.sys.clock.now());
+      const q = await readQueue(deps, tx, scope, r.tenantId, r.branchId, deps.sys.clock.now());
       const t = transitionRequest(r.status, 'cancel');
       if (!t.ok) throw new AppError('request_transition_not_allowed', 409);
       const now = deps.sys.clock.now();
@@ -351,8 +351,8 @@ async function storeArtifacts(
   const provider = deps.providers.get(inv.issuer.providerCode, inv.issuer.environment);
   if (!provider || !inv.providerInvoiceId) return;
   const a = await provider.fetchArtifacts(inv.providerInvoiceId);
-  const xmlPath = filePath('invoices', inv.companyId, inv.branchId, `${inv.id}.xml`);
-  const pdfPath = filePath('invoices', inv.companyId, inv.branchId, `${inv.id}.pdf`);
+  const xmlPath = filePath('invoices', inv.tenantId, inv.branchId, `${inv.id}.xml`);
+  const pdfPath = filePath('invoices', inv.tenantId, inv.branchId, `${inv.id}.pdf`);
   await deps.files.put(xmlPath, {
     bytes: new TextEncoder().encode(a.xml),
     contentType: 'application/xml',
@@ -365,7 +365,7 @@ async function storeArtifacts(
     const now = deps.sys.clock.now();
     deps.invoices.saveArtifacts(tx, {
       id: inv.id,
-      companyId: inv.companyId,
+      tenantId: inv.tenantId,
       branchId: inv.branchId,
       xmlPath,
       pdfPath,

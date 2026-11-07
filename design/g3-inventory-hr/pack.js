@@ -15,6 +15,8 @@
     pur: { label: 'Mua hàng', tabs: ['01', '04', '07', '08', '09'] },
     hrm: { label: 'Nhân sự & Công thợ', tabs: ['01', '04', '05', '07', '09', '10', '08', '06'] }
   };
+  /* Tên nền tảng GMEP (quyết định CD4, 06/11/2026) cho khung ứng dụng ở mọi màn. Phiếu in, hóa đơn bán lẻ, tin gửi NCC dùng tên garage của tenant (mẫu: "Garage A – Chi nhánh Quận 7"; B-17). */
+  var BRAND = esc(window.G3_BRAND || 'GMEP');
   var A = 'CH QV QL TK KT';
   /* [mã, tên, tab cha, ưu tiên, FR, vai trò mở được] */
   var R = [
@@ -56,7 +58,8 @@
     ['HRM-07', 'Công thợ theo lệnh và hạng mục', '', 'P2', 'FR-HRM-005, 007, 008, 016', 'CH QV QL KT TH CV'],
     ['HRM-08', 'Bảng công theo kỳ', '', 'P2', 'FR-HRM-010', 'CH QV QL KT'],
     ['HRM-09', 'Hoa hồng cố vấn và thợ', '', 'P2', 'FR-HRM-009', 'CH QV QL KT TH CV'],
-    ['HRM-10', 'Năng suất kỹ thuật viên', '', 'P2', 'FR-HRM-011, 016; FR-RPT-006', 'CH QV QL QD KT TH']
+    ['HRM-10', 'Năng suất kỹ thuật viên', '', 'P2', 'FR-HRM-011, 016; FR-RPT-006', 'CH QV QL QD KT TH'],
+    ['HRM-11', 'Chi tiết công một nhân viên trong kỳ', '08', 'P2', 'FR-HRM-007, 008, 009, 010, 020, 021; FR-RPT-011; RULE-038', 'CH QV QL KT NS TH']
   ];
   var REG = {};
   R.forEach(function (r) { REG[r[0]] = { code: 'G3-' + r[0], id: r[0], mod: r[0].slice(0, 3).toLowerCase(), num: r[0].slice(4), title: r[1], tab: r[2] || r[0].slice(4), prio: r[3], fr: r[4], roles: r[5] }; });
@@ -73,7 +76,7 @@
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   function role() { return document.body.getAttribute('data-role') || 'CH'; }
   function has(list, r) { return (' ' + list + ' ').indexOf(' ' + r + ' ') >= 0; }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
   function ic(n, c) { return '<svg class="icon' + (c ? ' ' + c : '') + '" aria-hidden="true"><use href="#' + n + '"/></svg>'; }
   var cur = null;       /* mã màn hình hiện tại, ví dụ INV-01 */
 
@@ -83,7 +86,7 @@
       return '<a class="nav-item" href="' + href + '" data-menu="' + key + '" title="' + label + '"' + (menu === key ? ' aria-current="page"' : '') + '>' + ic(icon) + '<span class="nav-item__label">' + label + '</span>' + (extra || '') + '</a>';
     }
     var h = '';
-    h += '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div><nav class="sidebar__nav">';
+    h += '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">' + BRAND + '</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div><nav class="sidebar__nav">';
     h += '<div class="sidebar__group">Workspace</div>';
     h += nav('dash', 'layout-dashboard', 'Tổng quan', '#') + nav('ro', 'clipboard-list', 'Phiếu sửa chữa', '#', '<span class="count-pill count-pill--warning" aria-label="8 báo giá chờ khách duyệt" title="8 báo giá chờ khách duyệt">8</span>') + nav('appt', 'calendar', 'Lịch hẹn', '#') + nav('cust', 'car-front', 'Khách hàng &amp; Xe', '#');
     h += '<div class="sidebar__group">Kho &amp; mua hàng</div>';
@@ -127,7 +130,7 @@
     var parent = s.tab !== s.num ? REG[s.id.slice(0, 3) + '-' + s.tab] : null;
     var offMsg = { inv: 'Chưa thể ghi sổ kho, gửi duyệt hay chốt số đếm cho đến khi có mạng.', pur: 'Chưa thể gửi duyệt, gửi đơn mua hay ghi nhận hóa đơn cho đến khi có mạng.', hrm: 'Chưa thể ghi giờ vào/ra ca, duyệt hay khóa kỳ công cho đến khi có mạng; không ghi giờ giả.' }[s.mod];
     var h = '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). ' + offMsg + '</span></div></div>';
-    h += '<nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GARAGE OS</a>' + ic('chevron-right') + '<a href="' + file(s.mod.toUpperCase() + '-' + MOD[s.mod].tabs[0]) + '">' + MOD[s.mod].label + '</a>';
+    h += '<nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">' + BRAND + '</a>' + ic('chevron-right') + '<a href="' + file(s.mod.toUpperCase() + '-' + MOD[s.mod].tabs[0]) + '">' + MOD[s.mod].label + '</a>';
     if (parent) h += ic('chevron-right') + '<a href="' + file(parent.id) + '">' + parent.title + '</a>';
     h += ic('chevron-right') + '<span aria-current="page">' + s.title + '</span></nav>';
     h += '<div class="g3-meta"><span class="code">' + s.code + '</span><span>Ưu tiên ' + s.prio + '</span><span>' + s.fr + '</span></div>';
@@ -290,14 +293,14 @@
         var tds = $$('td', tr), top = '', sub = '', badge = '', meta = '', foot = '', s4 = '', href = tr.getAttribute('data-href');
         /* Thẻ là <a> khi dòng có data-href: bỏ <a> lồng bên trong (HTML không hợp lệ, hai điểm dừng Tab) */
         function inner(td) { var c = td.cloneNode(true); if (href) $$('a', c).forEach(function (a) { a.replaceWith.apply(a, Array.prototype.slice.call(a.childNodes)); }); return c.innerHTML; }
-        function gate(td) { return (td.hasAttribute('data-g3-hide') ? ' data-g3-hide="' + td.getAttribute('data-g3-hide') + '"' : '') + (td.hasAttribute('data-g3-roles') ? ' data-g3-roles="' + td.getAttribute('data-g3-roles') + '"' : ''); }
+        function gate(td) { return (td.hasAttribute('data-g3-hide') ? ' data-g3-hide="' + esc(td.getAttribute('data-g3-hide')) + '"' : '') + (td.hasAttribute('data-g3-roles') ? ' data-g3-roles="' + esc(td.getAttribute('data-g3-roles')) + '"' : ''); }
         tds.forEach(function (td, i) {
           var c = map[i], label = ths[i] ? ths[i].textContent.replace(/\s+/g, ' ').trim() : '';
           if (ths[i] && ths[i].querySelector('.cell-sub')) label = ths[i].childNodes[0].textContent.trim() || label;
           if (c === 'title') top = '<div class="record__title code">' + inner(td) + '</div>';
           else if (c === 'sub') sub = '<div>' + inner(td) + '</div>';
           else if (c === 'badge') badge = '<div class="g3-chip-badges">' + inner(td) + '</div>';
-          else if (c === 'meta') meta += '<span' + gate(td) + '>' + (label ? label + ': ' : '') + inner(td) + '</span>';
+          else if (c === 'meta') meta += '<span' + gate(td) + '>' + (label ? esc(label) + ': ' : '') + inner(td) + '</span>';
           else if (c === 'foot') foot += '<span class="num"' + gate(td) + '>' + inner(td) + '</span>';
           else if (c === 'stock4' && tr.hasAttribute('data-s')) s4 = stock4HTML(parseS(tr.getAttribute('data-s'), tr.getAttribute('data-min'), tr.getAttribute('data-ordered')));   /* ô Thực tế, Giữ chỗ tự ẩn theo vai trò (MH chỉ còn Đang vận chuyển và Khả dụng) */   /* đủ bốn số tồn trên thẻ (F4-02) */
         });
@@ -333,7 +336,7 @@
     var q = $('.qty__input', row), name = $('[data-name]', row);
     if (q) q.value = (parseInt(q.value || '0', 10) || 0) + 1;
     $$('.g3-hit', tbl).forEach(function (x) { x.classList.remove('g3-hit'); }); row.classList.add('g3-hit'); row.scrollIntoView({ block: 'nearest' });
-    msg.innerHTML = '<div class="alert alert--success">' + ic('circle-check') + '<div class="alert__body"><span><strong>Đã quét:</strong> ' + (name ? name.textContent : code) + (q ? '· số đếm ' + q.value : '') + '</span></div></div>';
+    msg.innerHTML = '<div class="alert alert--success">' + ic('circle-check') + '<div class="alert__body"><span><strong>Đã quét:</strong> ' + esc(name ? name.textContent : code) + (q ? '· số đếm ' + esc(q.value) : '') + '</span></div></div>';
     document.dispatchEvent(new CustomEvent('g3:scan', { detail: { code: code } }));
   }
   document.addEventListener('click', function (e) {

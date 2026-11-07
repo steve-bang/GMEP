@@ -3,7 +3,7 @@ import type { Env } from '@/platform/config/env';
 import { getAdminApp, getDb } from '../firestore/client';
 import type { MemoryDb } from '../store/memoryDocStore';
 import type { MemoryIdentityProvider } from '../memory/memoryIdentity';
-import { DEMO_PASSWORD, demoDocs, demoUsers } from './demo';
+import { DEMO_PASSWORD, allDemoUsers, demoDocs } from './demo';
 
 /** Seeds the Emulator Suite. Refuses to run unless both emulator hosts are configured. */
 export async function seedFirestoreEmulator(env: Env): Promise<void> {
@@ -14,7 +14,7 @@ export async function seedFirestoreEmulator(env: Env): Promise<void> {
   }
   const db = getDb(env);
   const auth = getAuth(getAdminApp(env));
-  for (const u of demoUsers) {
+  for (const u of allDemoUsers) {
     try {
       await auth.deleteUser(u.id);
     } catch {
@@ -38,7 +38,7 @@ export async function seedFirestoreEmulator(env: Env): Promise<void> {
 }
 
 export function seedMemory(mem: { db: MemoryDb; identity: MemoryIdentityProvider }): void {
-  for (const u of demoUsers)
+  for (const u of allDemoUsers)
     mem.identity.addAccount(u.email, u.id, DEMO_PASSWORD, u.status === 'disabled');
   for (const d of demoDocs()) mem.db.col(d.collection).set(d.id, structuredClone(d.data));
 }

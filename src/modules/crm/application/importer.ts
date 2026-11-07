@@ -253,11 +253,11 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
       }
       // clashes with data already in the system (plate and VIN are unique in the whole company)
       for (const [pn, row] of plates) {
-        if (await deps.vehicles.vehicleIdByPlate(actor.companyId, pn))
+        if (await deps.vehicles.vehicleIdByPlate(actor.tenantId, pn))
           issues.push({ row, field: 'plate', message: 'Biển số đã có trong hệ thống.' });
       }
       for (const [vin, row] of vins) {
-        if (await deps.vehicles.vehicleIdByVin(actor.companyId, vin))
+        if (await deps.vehicles.vehicleIdByVin(actor.tenantId, vin))
           issues.push({ row, field: 'vin', message: 'Số khung đã gắn với một xe khác.' });
       }
       const cScope = resolveScope(actor, 'customer:create');
@@ -265,7 +265,7 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
         const phone = u.data.customer.phone;
         // R97/NFR-ISO-01: warn only about customers the importer may see; a hit outside the scope stays silent
         const hits = phone
-          ? await deps.customers.customerIdsByPhone(actor.companyId, phone, 'exact', 5)
+          ? await deps.customers.customerIdsByPhone(actor.tenantId, phone, 'exact', 5)
           : [];
         if (hits.length && (await deps.customers.getMany(cScope, hits)).length)
           warnings.push({
@@ -287,6 +287,7 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
           const c = await createCustomer(deps, actor, d.customer, {
             idempotencyKey: `${base}-c`,
             requestId: ctx.requestId,
+            origin: 'import',
           });
           const customerId = (c.response.body as { id: string }).id;
           refs.push({ type: 'customer', id: customerId, row: u.row });
@@ -316,7 +317,7 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
       for (const r of refs.filter((x) => x.type === 'vehicle')) {
         const v = await deps.vehicles.get(vScope, r.id);
         if (!v) continue;
-        const own = await deps.ownerships.listByVehicle(actor.companyId, v.id);
+        const own = await deps.ownerships.listByVehicle(actor.tenantId, v.id);
         if (v.version !== 1 || own.length !== 1 || v.branchIds.length !== 1)
           blocked.push(`Dòng ${r.row}: xe đã được sửa hoặc đổi chủ sau khi nhập.`);
         vehicleOwner.set(v.id, v.currentOwnerId ?? '');
@@ -327,7 +328,7 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
       for (const r of refs.filter((x) => x.type === 'customer')) {
         const c = await deps.customers.get(cScope, r.id);
         if (!c) continue;
-        const check = await deps.retention.check(actor.companyId, c.id);
+        const check = await deps.retention.check(actor.tenantId, c.id);
         if (
           c.version !== 1 ||
           c.branchIds.length !== 1 ||
@@ -359,7 +360,7 @@ export function buildCustomerImport(getDeps: () => CrmDeps): ImportKindHandler {
             found.push({
               id,
               v,
-              own: await deps.ownerships.listByVehicleInTx(tx, actor.companyId, id),
+              own: await deps.ownerships.listByVehicleInTx(tx, actor.tenantId, id),
             });
           }
           for (const { id, v, own } of found) {

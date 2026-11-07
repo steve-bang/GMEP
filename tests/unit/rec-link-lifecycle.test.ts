@@ -22,7 +22,7 @@ describe('shouldRevokeOnActivation (finding 1)', () => {
 describe('pruneQueue (finding 6)', () => {
   const q: MessageQueue = {
     id: 'b',
-    companyId: 'c',
+    tenantId: 'c',
     branchId: 'b',
     items: {
       live: { nextAttemptAt: t(1), attempts: 1, expiresAt: t(100) },

@@ -205,8 +205,8 @@ export async function createPart(
     ]);
   const barcode = checkBarcode(data.barcode);
   const compat = compatOf(data.compat);
-  await assertInCatalog(deps, actor.companyId, 'unit', data.unit, undefined);
-  await assertInCatalog(deps, actor.companyId, 'group', data.group, undefined);
+  await assertInCatalog(deps, actor.tenantId, 'unit', data.unit, undefined);
+  await assertInCatalog(deps, actor.tenantId, 'group', data.group, undefined);
   try {
     return await runIdempotent(
       idemOf(deps),
@@ -225,7 +225,7 @@ export async function createPart(
         const id = `part_${deps.sys.newId()}`;
         const p: Part = {
           id,
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           code,
           codeKey: partCodeKey(code),
           name: data.name,
@@ -275,13 +275,13 @@ export async function createPart(
  */
 async function assertInCatalog(
   deps: InvDeps,
-  companyId: string,
+  tenantId: string,
   kind: CatalogKind,
   value: string,
   current: string | undefined,
 ): Promise<void> {
   if (value === current) return;
-  const entry = (await resolveCatalog(deps, companyId, kind, today(deps))).find(
+  const entry = (await resolveCatalog(deps, tenantId, kind, today(deps))).find(
     (e) => e.code === value,
   );
   if (!entry || !entry.active)
@@ -338,11 +338,11 @@ export async function updatePart(
       if (p.version !== data.version) throw versionConflict();
       if (barcode && barcode !== p.barcode && (await deps.parts.idByBarcode(scope, barcode)))
         throw new AppError('part_barcode_exists', 409);
-      if (data.unit) await assertInCatalog(deps, actor.companyId, 'unit', data.unit, p.unit);
-      if (data.group) await assertInCatalog(deps, actor.companyId, 'group', data.group, p.group);
+      if (data.unit) await assertInCatalog(deps, actor.tenantId, 'unit', data.unit, p.unit);
+      if (data.group) await assertInCatalog(deps, actor.tenantId, 'group', data.group, p.group);
       // I4: the scale is fixed once the part has any stock record (every integer in the ledger depends on it)
       if (data.quantityScale !== undefined && data.quantityScale !== p.quantityScale) {
-        const any = await deps.balances.listByPart(allBranchesScope(actor.companyId), id, 1);
+        const any = await deps.balances.listByPart(allBranchesScope(actor.tenantId), id, 1);
         if (any.length > 0) throw new AppError('scale_locked', 409);
       }
       const now = deps.sys.clock.now();
@@ -463,7 +463,7 @@ export async function getPartPrices(
   const scope = resolveScope(actor, 'part:view');
   const part = await deps.parts.get(scope, partId);
   if (!part) throw notFound();
-  const lists = await deps.sys.priceLists.list(actor.companyId, {
+  const lists = await deps.sys.priceLists.list(actor.tenantId, {
     sort: 'code',
     direction: 'asc',
     limit: 20,
@@ -473,7 +473,7 @@ export async function getPartPrices(
   return Promise.all(
     lists.items.map(async (pl) => {
       const snap = await resolveConfigAt(deps.sys, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         type: 'price-item',
         scopeKey: `${pl.code}:${part.code}`,
         date,

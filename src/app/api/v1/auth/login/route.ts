@@ -14,12 +14,25 @@ import { api, clientAddress } from '@/composition/api';
 
 export const runtime = 'nodejs';
 
-const bodySchema = z.object({
-  identifier: z.string().min(1).max(254),
-  password: z.string().min(1).max(256),
-});
+const bodySchema = z.union([
+  z.object({
+    identifier: z.string().min(1).max(254),
+    password: z.string().min(1).max(256),
+  }),
+  // P2-C: staff without email sign in with company code + employee code (exactly these keys, no identifier)
+  z
+    .object({
+      companyCode: z.string().min(1).max(64),
+      employeeCode: z.string().min(1).max(32),
+      password: z.string().min(1).max(256),
+    })
+    .strict(),
+]);
 
-/** FR-SYS-001. Device id comes from a random cookie (lockout counter A); network address from the edge. */
+/**
+ * FR-SYS-001, P2-C. Device id comes from a random cookie (lockout counter A); network address from the edge. A malformed
+ * body answers like wrong credentials, whichever sign-in form it imitates.
+ */
 export const POST = api(async ({ req, requestId, log, sys }) => {
   const parsed = bodySchema.safeParse(await readJson(req));
   if (!parsed.success) throw new AppError('invalid_credentials', 401);
@@ -33,8 +46,12 @@ export const POST = api(async ({ req, requestId, log, sys }) => {
       address: clientAddress(req),
       userAgent: req.headers.get('user-agent') ?? '',
     });
-    log.info({ userId: result.user.id }, 'login ok'); // user id only; never the identifier or password
-    const res = json({ user: result.user });
+    log.info({ userId: result.user?.id ?? null }, 'login ok'); // user id only; never the identifier or password
+    const res = json({
+      user: result.user,
+      ...(result.tenants ? { tenants: result.tenants } : {}),
+      ...(result.passwordChangeRequired ? { passwordChangeRequired: true } : {}),
+    });
     res.headers.append(
       'set-cookie',
       serializeSessionCookie(result.sessionCookie, result.maxAgeSeconds),

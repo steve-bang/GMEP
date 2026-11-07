@@ -100,7 +100,7 @@ export async function collectPayment(
   const branchId = moneyBranch(actor, scope);
   const data = parseInput(collectSchema, input);
   const now0 = deps.sys.clock.now();
-  const policy = await accPolicyOf(deps, actor.companyId, branchId, businessDate(now0));
+  const policy = await accPolicyOf(deps, actor.tenantId, branchId, businessDate(now0));
   const errors = validateLines(data.lines, policy, {
     allowEmpty: data.kind === 'receipt' && data.applyDeposits,
   });
@@ -125,7 +125,7 @@ export async function collectPayment(
       if (!order || order.branchId !== branchId) throw notFound();
       const [account0, m] = await Promise.all([
         deps.accounts.getInTx(tx, scope, orderId),
-        loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, date),
+        loadMoneyCtx(deps, tx, scope, actor.tenantId, branchId, date),
       ]);
       const branch = await assertWritable(deps, tx, actor, scope, branchId);
       if (order.cancelled) throw new AppError('order_cancelled', 409);
@@ -167,7 +167,7 @@ export async function collectPayment(
       const cash = cashOf(data.lines);
       const p: Payment = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId,
         number: num.number!,
         kind: data.kind,
@@ -370,7 +370,7 @@ export async function getOrderMoney(
   const balance = toBalanceDto(order, account);
   const policy = await accPolicyOf(
     deps,
-    order.companyId,
+    order.tenantId,
     order.branchId,
     businessDate(deps.sys.clock.now()),
   );

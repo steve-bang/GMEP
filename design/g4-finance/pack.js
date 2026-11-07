@@ -1,4 +1,4 @@
-/* GMEP – Gói 5 (G4 Tài chính & hóa đơn): dựng Application Shell dùng chung, bộ chuyển trạng thái xem thử,
+/* GMEP – Gói 5 (G4 Tài chính & hóa đơn). Khung ứng dụng mang tên nền tảng GMEP (CD4); chứng từ in mang tên garage. Dựng Application Shell dùng chung, bộ chuyển trạng thái xem thử,
    khóa hành động theo vai trò / mất kết nối, khóa chống bấm đúp, wizard. Chỉ phục vụ prototype (không phải code production).
    Mỗi trang khai báo window.G4F_PAGE trước khi nạp file này, và đặt nội dung trong <div id="g4f-body">. Nạp TRƯỚC ../assets/app.js. */
 (function () {
@@ -25,14 +25,14 @@
     { k: 'close', label: 'Chốt ca, ngày, kỳ', href: 'g4-acc-08.html', roles: 'CH QV QL KT TN', ids: ['acc-08', 'acc-09', 'acc-17'] },
     { k: 'profit', label: 'Giá vốn và lãi lỗ', href: 'g4-acc-14.html', roles: 'CH QV QL KT', ids: ['acc-14', 'acc-15', 'acc-19', 'acc-20'] },
     { k: 'bank', label: 'Ngân hàng và kết xuất', href: 'g4-acc-16.html', roles: 'KT CH QV', ids: ['acc-16', 'acc-18'] },
-    { k: 'apr', label: 'Phê duyệt', href: 'g4-apr-01.html', roles: 'CH QV QL KT TN CV TK', ids: ['apr-01', 'apr-02', 'apr-03'], pill: '7' },
+    { k: 'apr', label: 'Phê duyệt', href: 'g4-apr-01.html', roles: 'CH QV QL KT TN CV TK', ids: ['apr-01', 'apr-02', 'apr-03', 'apr-04'], pill: '7' },
     { k: 'ein', label: 'Hóa đơn điện tử', href: 'g4-ein-01.html', roles: 'CH QV QL KT TN AD', ids: ['ein-01', 'ein-02', 'ein-03', 'ein-04', 'ein-05', 'ein-06', 'ein-07', 'ein-08'] }
   ];
   var curId = (P.code || '').replace(/^G4-/i, '').toLowerCase();
   function subnavHTML() {
     return '<nav class="g4f-subnav" aria-label="Nhóm màn hình Tài chính và Hóa đơn">' + SUB.map(function (s) {
       var on = s.ids.indexOf(curId) >= 0;
-      return '<a href="' + s.href + '" data-roles="' + s.roles + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(s.label) + (s.pill ? '<span class="count-pill count-pill--warning" aria-label="' + s.pill + ' yêu cầu chờ duyệt">' + s.pill + '</span>' : '') + '</a>';
+      return '<a href="' + s.href + '" data-roles="' + s.roles + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(s.label) + (s.pill ? '<span class="count-pill count-pill--warning" data-g4f-pending aria-label="' + s.pill + ' yêu cầu chờ duyệt">' + s.pill + '</span>' : '') + '</a>';
     }).join('') + '</nav>';
   }
 
@@ -43,12 +43,12 @@
   var roleItems = ROLES.map(function (r) { return '<button class="menu-item" role="menuitemradio" data-keep-open data-role-switch="' + r[0] + '" data-role-name="' + r[1] + '" aria-checked="' + (r[0] === role) + '">' + r[1] + '</button>'; }).join('');
   var shell =
     '<div class="app" id="app">' +
-    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">GARAGE OS</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div>' +
+    '<aside class="sidebar" aria-label="Điều hướng chính"><div class="sidebar__brand"><span class="sidebar__logo" aria-hidden="true">' + ic('wrench') + '</span><span class="sidebar__brand-name">' + esc(P.brand || 'GMEP') + '</span><button class="btn-icon menu-btn" data-nav-close aria-label="Đóng menu" style="margin-left:auto">' + ic('x') + '</button></div>' +
     '<nav class="sidebar__nav"><div class="sidebar__group">Workspace</div>' +
     navItem('dash', 'layout-dashboard', 'Tổng quan', '../foundation/shell.html') + navItem('ro', 'clipboard-list', 'Phiếu sửa chữa', '#') + navItem('appt', 'calendar', 'Lịch hẹn', '#') + navItem('cust', 'car-front', 'Khách hàng & Xe', '#') +
     '<div class="sidebar__group">Kho &amp; mua hàng</div>' + navItem('inv', 'warehouse', 'Kho phụ tùng', '#') + navItem('pur', 'shopping-cart', 'Mua hàng', '#') +
     '<div class="sidebar__group">Nhân sự &amp; tài chính</div>' + navItem('hr', 'id-card', 'Nhân sự & Công thợ', '#') +
-    navItem('fin', 'wallet', 'Tài chính', 'g4-acc-02.html', '<span class="count-pill count-pill--warning" aria-label="7 yêu cầu chờ duyệt" title="7 yêu cầu chờ duyệt">7</span><span class="nav-item__dot" aria-hidden="true"></span>') +
+    navItem('fin', 'wallet', 'Tài chính', 'g4-acc-02.html', '<span class="count-pill count-pill--warning" data-g4f-pending aria-label="7 yêu cầu chờ duyệt" title="7 yêu cầu chờ duyệt">7</span><span class="nav-item__dot" aria-hidden="true"></span>') +
     navItem('einv', 'receipt', 'Hóa đơn', 'g4-ein-01.html', '<span class="count-pill count-pill--danger" aria-label="2 hóa đơn lỗi phát hành" title="2 hóa đơn lỗi phát hành">2</span><span class="nav-item__dot" aria-hidden="true"></span>') +
     '<div class="sidebar__group">Phân tích</div>' + navItem('rpt', 'chart-no-axes-combined', 'Báo cáo', '#') + '</nav>' +
     '<div class="sidebar__footer">' + navItem('set', 'settings', 'Cài đặt', '#') +
@@ -71,7 +71,7 @@
     '<div class="menu-sep"></div><p class="t-body-sm text-secondary" style="padding:8px 12px" data-multi-note hidden>Tài khoản của bạn chỉ xem được các chi nhánh được gán. Xem hợp nhất dành cho Chủ garage và Quản lý vùng. Đổi phạm vi khi đang soạn chứng từ sẽ hỏi lưu nháp trước.</p></div></div>' +
     '<div class="topbar__search">' + ic('search') + '<input class="input" data-global-search type="search" placeholder="Tìm phiếu thu, hóa đơn, khách, lệnh…" aria-label="Tìm kiếm toàn hệ thống"><span class="kbd" aria-hidden="true">Ctrl K</span></div>' +
     '<div class="topbar__spacer"></div><button class="btn-icon topbar__search-btn" aria-label="Tìm kiếm">' + ic('search') + '</button>' +
-    '<a class="btn btn--secondary btn--sm" href="g4-apr-01.html" data-show-roles="CH QV QL KT TN CV TK" style="margin-right:4px">' + ic('clipboard-check', 'icon--sm') + 'Chờ duyệt<span class="count-pill count-pill--warning">7</span></a>' +
+    '<a class="btn btn--secondary btn--sm" href="g4-apr-01.html" data-show-roles="CH QV QL KT TN CV TK" style="margin-right:4px">' + ic('clipboard-check', 'icon--sm') + 'Chờ duyệt<span class="count-pill count-pill--warning" data-g4f-pending>7</span></a>' +
     '<button class="btn-icon" data-theme-toggle aria-label="Đổi giao diện sáng/tối (bản nháp, không thuộc phạm vi phát hành)" title="Dark mode: bản nháp, chưa phát hành">' + ic('moon') + '</button>' +
     '<div class="dropdown"><button class="btn-icon" aria-haspopup="menu" aria-expanded="false" aria-label="Thông báo, 3 chưa đọc">' + ic('bell') + '<span class="btn-icon__dot" aria-hidden="true">3</span></button>' +
     '<div class="dropdown__menu dropdown__menu--right notif-panel" role="menu" data-keep-open><div class="notif-panel__head"><strong>Thông báo</strong><button class="btn btn--ghost btn--sm">Đánh dấu đã đọc</button></div>' +
@@ -104,7 +104,7 @@
   var timeTxt = P.time || 'hôm nay 30/10/2026';
   var head =
     '<div class="alert alert--warning alert--banner net-banner" role="alert">' + ic('wifi-off') + '<div class="alert__body"><span><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). <strong>Chưa thể ghi nhận thanh toán, chi tiền, chốt ca/ngày hoặc phát hành hóa đơn</strong>: các nút này tạm khóa để tránh ghi trùng. Xem số liệu cũ vẫn được, ghi “Cập nhật lúc 09:15”.</span></div></div>' +
-    '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="../foundation/shell.html">GARAGE OS</a>' + ic('chevron-right') + '<a href="' + (P.menu === 'einv' ? 'g4-ein-01.html' : 'g4-acc-02.html') + '">' + crumbGroup + '</a>' + ic('chevron-right') + '<span aria-current="page">' + esc(P.title) + '</span></nav></div>' +
+    '<div><nav class="breadcrumb" aria-label="Đường dẫn"><a href="../foundation/shell.html">' + esc(P.brand || 'GMEP') + '</a>' + ic('chevron-right') + '<a href="' + (P.menu === 'einv' ? 'g4-ein-01.html' : 'g4-acc-02.html') + '">' + crumbGroup + '</a>' + ic('chevron-right') + '<span aria-current="page">' + esc(P.title) + '</span></nav></div>' +
     '<div class="page-header"><div class="page-header__text"><h1>' + esc(P.title) + '</h1><p class="page-header__desc">' + esc(P.desc || '') + (P.code ? ' <span class="t-caption text-tertiary">(' + esc(P.code) + ')</span>' : '') + '</p></div><div class="page-header__actions">' + actionsHTML + '</div></div>' +
     subnavHTML() +
     '<div class="scope-banner" role="status">' + ic('map-pin', 'icon--sm') + '<span><strong>Phạm vi:</strong> <span data-scope-text>Tất cả chi nhánh</span></span><span data-legal hidden>· <strong>Pháp nhân:</strong> Tất cả pháp nhân được xem (không cộng gộp trong báo cáo chính thức)</span><span>· <strong>Thời gian:</strong> ' + esc(timeTxt) + '</span><span>· Cập nhật lúc ' + esc(P.updated || '09:15') + '</span>' + (P.scopeExtra ? '<span>· ' + P.scopeExtra + '</span>' : '') + '<button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16.">' + ic('refresh', 'icon--sm') + 'Làm mới</button></div>' +
@@ -215,11 +215,29 @@
     el._t = keep || net;
   }
   function setEnabled(el, ok) { el._ok = !!ok; refreshBtn(el); }
-  /* Quyền duyệt theo (loại yêu cầu, vai trò) và người lập khác người duyệt (F5-02). Cấp duyệt thật lấy từ G4-APR-03. */
-  var APPR = { disc: ['QL CH QV', 'Quản lý chi nhánh trở lên'], diff: ['QL CH QV', 'Quản lý chi nhánh trở lên'], refund: ['QL CH QV', 'Quản lý chi nhánh (CH/QV khi vượt hạn mức)'], spend: ['QV CH', 'Quản lý vùng hoặc Chủ garage (vượt hạn mức cấp Quản lý)'], cancel: ['QL CH QV', 'Quản lý chi nhánh'], inv: ['KTT CH', 'Kế toán trưởng (cờ quyền) hoặc Chủ garage'], reopen: ['CH', 'Chủ garage'] };
-  function canApprove(type, role, proposer) {
+  /* Số yêu cầu chờ duyệt ở thanh bên, topbar, điều hướng con: trang hàng chờ tính theo vai trò đang xem (B-21) */
+  function setPending(n) {
+    $$('[data-g4f-pending]').forEach(function (p) { p.textContent = String(n); p.hidden = !n; p.setAttribute('aria-label', n + ' yêu cầu chờ duyệt'); p.title = n + ' yêu cầu chờ duyệt'; });
+  }
+  /* Quyền duyệt theo (loại yêu cầu, vai trò, CẤP HIỆN TẠI của yêu cầu) và người lập khác người duyệt (F5-02, RULE-036).
+     [vai trò duyệt được ở cấp bất kỳ, mô tả, cấp theo ma trận G4-APR-03: [[vai trò cấp 1, tên], [vai trò cấp 2, tên]]].
+     Cấp hiện tại do máy chủ chọn theo giá trị + cộng dồn so với hạn mức (requiredLevel, slice 2.5) hoặc do chuyển cấp 1 → 2;
+     giao diện chỉ hiển thị, không tự tính. Yêu cầu ở cấp 2 thì vai trò chỉ có cấp 1 bị khóa kèm lý do (B-01). */
+  var APPR = { disc: ['QL CH QV', 'Quản lý chi nhánh trở lên'], diff: ['QL CH QV', 'Quản lý chi nhánh trở lên'], refund: ['QL CH QV', 'Quản lý chi nhánh (CH/QV khi vượt hạn mức)'], spend: ['QV CH', 'Quản lý vùng hoặc Chủ garage (vượt hạn mức cấp Quản lý)'], cancel: ['QL CH QV', 'Quản lý chi nhánh'], inv: ['KTT CH', 'Kế toán trưởng (cờ quyền) hoặc Chủ garage'], reopen: ['CH', 'Chủ garage'],
+    /* Giai đoạn 2 (slice 2.5): cấp theo mẫu G4-APR-03, giá trị minh họa */
+    xfer: ['QL QV CH', 'Quản lý chi nhánh (cấp 1) hoặc Quản lý vùng (cấp 2)', [['QL', 'Quản lý chi nhánh'], ['QV CH', 'Quản lý vùng']]],
+    adj: ['QL CH', 'Quản lý chi nhánh (cấp 1) hoặc Chủ garage (cấp 2)', [['QL', 'Quản lý chi nhánh'], ['CH', 'Chủ garage']]],
+    buy: ['QL QV CH', 'Quản lý chi nhánh (cấp 1) hoặc Quản lý vùng/Chủ garage (cấp 2)', [['QL', 'Quản lý chi nhánh'], ['QV CH', 'Quản lý vùng hoặc Chủ garage']]] };
+  function levelInfo(type) { var c = APPR[type]; return c && c[2] ? c[2] : null; }
+  function canApprove(type, role, proposer, level) {
     var cfg = APPR[type]; if (!cfg) return { ok: false, why: 'Loại yêu cầu chưa có trong ma trận.' };
     if (proposer && proposer === USER[role]) return { ok: false, why: 'Bạn là người đề xuất yêu cầu này; người lập không tự duyệt.' };
+    if (level && cfg[2]) {
+      var L = cfg[2], at = (level === 2 ? L[1][0] : L[0][0] + ' ' + L[1][0]).split(' ');
+      if (at.indexOf(role) >= 0) return { ok: true };
+      if (level === 2 && L[0][0].split(' ').indexOf(role) >= 0) return { ok: false, why: 'Giá trị vượt hạn mức cấp của bạn (cấp 1: ' + L[0][1] + '). Yêu cầu đang chờ cấp 2: ' + L[1][1] + '.' };
+      return { ok: false, why: 'Vai trò “' + ROLE_NAME[role] + '” không duyệt loại này. Cấp 1: ' + L[0][1] + '; cấp 2: ' + L[1][1] + '.' };
+    }
     var roles = cfg[0].split(' ');
     if (roles.indexOf(role) >= 0) return { ok: true };
     if (role === 'KT' && roles.indexOf('KTT') >= 0 && window.G4F && G4F.ktt) return { ok: true };
@@ -344,7 +362,7 @@
     if (window.gmepToast) window.gmepToast('info', on ? 'Giả lập: Kế toán có cờ Kế toán trưởng' : 'Giả lập: Kế toán không có cờ Kế toán trưởng', 'Người lập vẫn không tự duyệt yêu cầu của mình.');
     document.dispatchEvent(new CustomEvent('g4f:ktt')); applyAccess();
   });
-  window.G4F = { fmt: fmt, num: num, wizard: wizard, applyVar: applyVar, refresh: applyAccess, setEnabled: setEnabled, refreshBtn: refreshBtn, resetBtn: resetBtn, canApprove: canApprove, user: function () { return USER[curRole()]; }, ktt: (function () { try { return sessionStorage.getItem('g4f-ktt') === '1'; } catch (x) { return false; } })(), $: $, $$: $$ };
+  window.G4F = { fmt: fmt, num: num, wizard: wizard, applyVar: applyVar, refresh: applyAccess, setEnabled: setEnabled, refreshBtn: refreshBtn, resetBtn: resetBtn, canApprove: canApprove, levelInfo: levelInfo, setPending: setPending, roleName: function (r) { return ROLE_NAME[r]; }, user: function () { return USER[curRole()]; }, ktt: (function () { try { return sessionStorage.getItem('g4f-ktt') === '1'; } catch (x) { return false; } })(), $: $, $$: $$ };
   $$('[data-g4f-ktt]').forEach(function (k) { k.setAttribute('aria-checked', String(G4F.ktt)); });
   applyAccess();
 })();

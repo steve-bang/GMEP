@@ -8,9 +8,17 @@ export const GET = authed(async ({ sys: d, session, query }) =>
   json(await mod.listUsers(d, session.actor, query())),
 );
 
-/** Creates the user as `invited` and sends the invitation (72 h single-use link). */
+/**
+ * Creates the user as `invited` and sends the invitation (72 h single-use link); with `loginKind: 'employee_code'`
+ * (P2-C) creates a staff member without email, active with the manager's temporary password.
+ */
 export const POST = authed(async ({ req, sys: d, session, requestId, idempotencyKey }) => {
-  const r = await mod.inviteUser(d, session.actor, await readJson(req), {
+  const body = await readJson(req);
+  const create =
+    (body as { loginKind?: unknown } | null)?.loginKind === 'employee_code'
+      ? mod.createWorkerUser
+      : mod.inviteUser;
+  const r = await create(d, session.actor, body, {
     requestId,
     idempotencyKey: idempotencyKey(),
   });

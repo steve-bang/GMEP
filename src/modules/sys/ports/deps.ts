@@ -11,18 +11,21 @@ import type { BRANCH_STATE_RULES } from '../domain/branchState';
 import type { ConfigVersion } from '../domain/config';
 import type { PasswordPolicy } from '../domain/passwordPolicy';
 import type { SessionPolicy } from '../domain/sessionPolicy';
+import type { TenantStatus } from '../domain/tenant';
 import type { SessionRecord, User } from '../domain/entities';
 import type {
   AuthTokenRepository,
   BranchActivityPort,
   PiiSource,
   BranchRepository,
-  CompanyRepository,
+  TenantRepository,
   ConfigRepository,
   EmailGateway,
   MessageGateway,
   IdentityProvider,
   NotificationRepository,
+  PlatformAuditLog,
+  PlatformIdentityRepository,
   PriceListRepository,
   RoleAssignmentRepository,
   RoleRepository,
@@ -30,6 +33,7 @@ import type {
   ImportBatchRepository,
   ImportKindHandler,
   ApprovalRepository,
+  ApprovalDelegationRepository,
   ServiceRepository,
   SessionRepository,
   StrongAuthPort,
@@ -46,6 +50,13 @@ export interface SysConfig {
   /** FR-SYS-001 / ADR §6.3: reset link 30 min, invitation 72 h */
   resetTokenTtlMs: number;
   inviteTokenTtlMs: number;
+  /** P2-C: a temporary password set by a manager stops working after this long [Cần xác nhận: Chủ dự án] (default 72 h) */
+  tempPasswordTtlMs: number;
+  /**
+   * Owner decision 07/11/2026: a reissued tenant code stays out of circulation this many days before another tenant may
+   * draw it [Cần xác nhận: Chủ dự án] (default proposal 90 days).
+   */
+  tenantCodeHoldDays: number;
   /** H1: how long a verified session / actor may be served from memory (max staleness of revocation) */
   authCacheTtlMs: number;
   /** effective-config read cache (resolveAt) */
@@ -75,6 +86,7 @@ export interface CachedSession {
   session: SessionRecord;
   user: User;
   actor: Actor;
+  tenantStatus: TenantStatus;
   idleMs: number;
   /** last persisted touch, to throttle writes */
   touchedAt: number;
@@ -90,13 +102,17 @@ export interface SysDeps {
   uow: UnitOfWork;
   clock: Clock;
   newId: () => string;
+  /** six-digit tenant code draw (domain/tenantCode.ts `randomTenantCode`: cryptographic random; tests inject collisions) */
+  newTenantCode: () => string;
   audit: AuditLog;
   idempotency: IdempotencyStore;
   numbering: NumberingService;
   users: UserRepository;
   roles: RoleRepository;
   assignments: RoleAssignmentRepository;
-  companies: CompanyRepository;
+  tenants: TenantRepository;
+  platformIdentities: PlatformIdentityRepository;
+  platformAudit: PlatformAuditLog;
   branches: BranchRepository;
   warehouses: WarehouseRepository;
   warehouseActivity: WarehouseActivityPort;
@@ -107,6 +123,7 @@ export interface SysDeps {
   configs: ConfigRepository;
   notifications: NotificationRepository;
   approvals: ApprovalRepository;
+  delegations: ApprovalDelegationRepository;
   /** FR-SYS-004: effects of a decision, per approval kind (filled by the composition root) */
   approvalHandlers: Map<string, ApprovalHandler>;
   /** FR-SYS-007: batches and, per kind, what CRM/INV do on commit and undo (filled by the composition root) */

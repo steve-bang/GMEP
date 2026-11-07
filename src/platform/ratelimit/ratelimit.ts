@@ -160,7 +160,9 @@ export function retryAfterOf(err: unknown): number | null {
  *  B normalised name on any device: never a hard lock (would let anybody lock a colleague out);
  *    after `maxFailures` in `windowMs` each further attempt is slowed progressively.
  *  C network address: higher threshold than A (branches share addresses), same slow-down.
- * [Đề xuất BA - chờ xác nhận: Khách]; counter C numbers [Cần xác nhận: Chủ dự án].
+ *  D group (P2-C: the company code of an employee-code sign-in): slow-down only, against scanning the employee codes
+ *    of one company; counted for unknown company codes exactly like known ones. Absent for email sign-ins.
+ * [Đề xuất BA - chờ xác nhận: Khách]; counter C and D numbers [Cần xác nhận: Chủ dự án].
  */
 export interface LockoutConfig {
   device: {
@@ -171,6 +173,7 @@ export interface LockoutConfig {
   };
   name: { maxFailures: number; windowMs: number; baseDelayMs: number; maxDelayMs: number };
   network: { maxFailures: number; windowMs: number; baseDelayMs: number; maxDelayMs: number };
+  group: { maxFailures: number; windowMs: number; baseDelayMs: number; maxDelayMs: number };
 }
 
 export const DEFAULT_LOCKOUT: LockoutConfig = {
@@ -182,6 +185,7 @@ export const DEFAULT_LOCKOUT: LockoutConfig = {
   },
   name: { maxFailures: 10, windowMs: 15 * 60_000, baseDelayMs: 2_000, maxDelayMs: 60_000 },
   network: { maxFailures: 60, windowMs: 15 * 60_000, baseDelayMs: 1_000, maxDelayMs: 30_000 },
+  group: { maxFailures: 30, windowMs: 15 * 60_000, baseDelayMs: 1_000, maxDelayMs: 30_000 },
 };
 
 interface DeviceState extends Record<string, unknown> {
@@ -204,6 +208,8 @@ export interface LoginSubject {
   name: string;
   /** network address (any string; hashed here) */
   address: string;
+  /** counter D (P2-C): normalised company code of an employee-code sign-in; hashed here */
+  group?: string;
 }
 
 export class LoginThrottle {
@@ -218,6 +224,7 @@ export class LoginThrottle {
       a: hashKey('login-dev', s.deviceId, s.name),
       b: hashKey('login-name', s.name),
       c: hashKey('login-net', s.address),
+      d: s.group === undefined ? null : hashKey('login-grp', s.group),
     };
   }
 
@@ -233,10 +240,11 @@ export class LoginThrottle {
     const now = this.now();
     const t = now.getTime();
     const k = this.keys(s);
-    const [a, b, c] = await Promise.all([
+    const [a, b, c, d] = await Promise.all([
       this.store.read<DeviceState>(k.a, now),
       this.store.read<SlowState>(k.b, now),
       this.store.read<SlowState>(k.c, now),
+      k.d ? this.store.read<SlowState>(k.d, now) : Promise.resolve(null),
     ]);
     // an unlock (admin or completed password reset) clears a lock made before it
     const unlockedAt = b?.unlockedAt ?? 0;
@@ -245,6 +253,7 @@ export class LoginThrottle {
       lockedUntil - t,
       this.delayFor(b, this.cfg.name, t),
       this.delayFor(c, this.cfg.network, t),
+      this.delayFor(d, this.cfg.group, t),
     ];
     const wait = Math.max(...waits);
     if (wait > 0) throw rateLimited(Math.ceil(wait / 1000), 'login_locked');
@@ -285,6 +294,7 @@ export class LoginThrottle {
     };
     await this.store.update<SlowState>(k.b, now, slow(this.cfg.name));
     await this.store.update<SlowState>(k.c, now, slow(this.cfg.network));
+    if (k.d) await this.store.update<SlowState>(k.d, now, slow(this.cfg.group));
   }
 
   async recordSuccess(s: LoginSubject): Promise<void> {

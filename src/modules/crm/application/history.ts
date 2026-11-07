@@ -61,10 +61,10 @@ export async function listVehicleHistory(
     const viaLookup =
       hasPermission(actor, 'customer-lookup:view') &&
       hasPermission(actor, 'vehicle-history-cross:view');
-    const v = viaLookup ? await deps.vehicles.getCompanyWide(actor.companyId, vehicleId) : null;
+    const v = viaLookup ? await deps.vehicles.getCompanyWide(actor.tenantId, vehicleId) : null;
     if (!v) throw notFound();
   }
-  const page = await deps.history.listByVehicle(actor.companyId, vehicleId, {
+  const page = await deps.history.listByVehicle(actor.tenantId, vehicleId, {
     limit: q.limit,
     ...(q.cursor ? { cursor: decodeCursor(q.cursor)! } : {}),
   });

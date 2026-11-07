@@ -100,12 +100,12 @@ function approvedVersionOf(versions: QuoteVersion[]): QuoteVersion | null {
  */
 export async function openOrderForQuote(
   deps: RecDeps,
-  quote: Pick<Quote, 'id' | 'companyId' | 'branchId'>,
+  quote: Pick<Quote, 'id' | 'tenantId' | 'branchId'>,
   actor: Actor | null,
   ctx: RequestCtx,
 ): Promise<OpenedOrder> {
-  const scope = branchesScope(quote.companyId, [quote.branchId]);
-  const by = actor ?? systemActor(quote.companyId, quote.branchId);
+  const scope = branchesScope(quote.tenantId, [quote.branchId]);
+  const by = actor ?? systemActor(quote.tenantId, quote.branchId);
   const q = await deps.quotes.get(scope, quote.id);
   if (!q) throw notFound();
   if (q.supplementOfOrderId) return appendSupplement(deps, q, actor, ctx);
@@ -121,7 +121,7 @@ export async function openOrderForQuote(
   const intake = await deps.intakes.get(scope, q.intakeId);
   const workflow = intake?.serviceType
     ? await resolveConfigAt(deps.sys, {
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         type: 'service-workflow',
         scopeKey: intake.serviceType,
         date: businessDate(approval.decidedAt),
@@ -138,7 +138,7 @@ export async function openOrderForQuote(
   const partLines = approval.lines.filter((l) => l.kind === 'part' && l.partId && l.qty);
   const warehouseId = partLines.length ? await holdWarehouse(deps, scope, q.branchId) : null;
   if (partLines.length && !warehouseId) throw new AppError('warehouse_missing', 409);
-  const managers = await usersWithRole(deps.sys, q.companyId, ['QL'], q.branchId);
+  const managers = await usersWithRole(deps.sys, q.tenantId, ['QL'], q.branchId);
   const recipients = [...new Set([q.advisorId, ...managers])].filter((id) => id !== by.userId);
 
   return deps.sys.uow.run(async (tx) => {
@@ -176,7 +176,7 @@ export async function openOrderForQuote(
       const waiting = s.lines.some((l) => unmet.has(l.lineKey));
       return {
         id: itemId(orderId, no),
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         branchId: q.branchId,
         orderId,
         no,
@@ -211,7 +211,7 @@ export async function openOrderForQuote(
     });
     const order: RepairOrder = {
       id: orderId,
-      companyId: q.companyId,
+      tenantId: q.tenantId,
       branchId: q.branchId,
       number,
       status: 'approved',
@@ -273,7 +273,7 @@ export async function openOrderForQuote(
     );
     if (recipients.length)
       notifyUsers(deps.sys, tx, {
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         userIds: recipients,
         kind: 'rec.order',
         titleKey: unmet.size ? 'notifications.orderCreatedShort' : 'notifications.orderCreated',
@@ -292,7 +292,7 @@ export async function openOrderForQuote(
  */
 export async function afterQuoteApproved(
   deps: RecDeps,
-  quote: Pick<Quote, 'id' | 'companyId' | 'branchId' | 'number' | 'supplementOfOrderId'>,
+  quote: Pick<Quote, 'id' | 'tenantId' | 'branchId' | 'number' | 'supplementOfOrderId'>,
   actor: Actor | null,
   ctx: RequestCtx,
 ): Promise<OpenedOrder | null> {
@@ -300,11 +300,11 @@ export async function afterQuoteApproved(
     return await openOrderForQuote(deps, quote, actor, ctx);
   } catch (e) {
     try {
-      const managers = await usersWithRole(deps.sys, quote.companyId, ['QL'], quote.branchId);
+      const managers = await usersWithRole(deps.sys, quote.tenantId, ['QL'], quote.branchId);
       if (managers.length)
         await deps.sys.uow.run(async (tx) => {
           notifyUsers(deps.sys, tx, {
-            companyId: quote.companyId,
+            tenantId: quote.tenantId,
             userIds: managers,
             kind: 'rec.order',
             titleKey:
@@ -911,7 +911,7 @@ export async function submitForQc(
   const data = parseInput(versionOnly, input);
   const qcStaff = await usersWithRole(
     deps.sys,
-    actor.companyId,
+    actor.tenantId,
     ['QD', 'QL'],
     actor.workingBranchId,
   );
@@ -949,7 +949,7 @@ export async function submitForQc(
       const to = qcStaff.filter((u) => u !== actor.userId);
       if (to.length)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: to,
           kind: 'rec.order',
           titleKey: 'notifications.orderAwaitingQc',
@@ -1127,7 +1127,20 @@ export async function cancelOrder(
         o.id,
         deps.rec.maxPartRequestsPerOrder,
       );
+      // FR-HRM-008: labor already recorded for the order is undone by opposite lines (reads first, then commit)
+      const labor = await deps.labor.prepareCancel({
+        tx,
+        scope: scopeAny,
+        actor,
+        ctx,
+        order: o,
+        items,
+        at: now,
+        businessDate: businessDate(now),
+        reason: data.reason,
+      });
       release?.commit();
+      labor.commit();
       supplements.commit(actor, ctx, now);
       for (const it of items)
         deps.items.update(tx, it.id, {
@@ -1165,7 +1178,7 @@ export async function cancelOrder(
       const recipients = [o.advisorId].filter((u) => u !== actor.userId);
       if (recipients.length)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: recipients,
           kind: 'rec.order',
           titleKey: 'notifications.orderCancelled',
@@ -1195,7 +1208,7 @@ export async function issuedNet(
   _actor: Actor,
   o: RepairOrder,
 ): Promise<{ everIssued: boolean; netIssuedQty: number }> {
-  const scope = branchesScope(o.companyId, [o.branchId]);
+  const scope = branchesScope(o.tenantId, [o.branchId]);
   const requests = await deps.partRequests.listByOrder(
     scope,
     o.id,

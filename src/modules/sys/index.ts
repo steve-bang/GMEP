@@ -12,6 +12,9 @@ export * from './domain/sessionPolicy';
 export * from './domain/passwordPolicy';
 export * from './domain/config';
 export * from './domain/approval';
+export * from './domain/tenant';
+export * from './domain/tenantCode';
+export * from './domain/platform';
 export * from './ports/ports';
 export type { SysDeps, SysConfig, SysCaches, CachedSession } from './ports/deps';
 
@@ -20,11 +23,17 @@ export {
   logout,
   resolveSession,
   revokeAllSessions,
+  revokeIdentitySessions,
+  listTenantChoices,
+  selectTenant,
+  changeTemporaryPassword,
+  employeeLoginName,
+  assertTenantWritable,
   invalidateUser,
   invalidateRole,
   loadActor,
 } from './application/auth';
-export type { LoginInput, LoginResult, Session } from './application/auth';
+export type { LoginInput, LoginResult, Session, TenantChoice } from './application/auth';
 export { forgotPassword, resetPassword, activateAccount, peekToken } from './application/recovery';
 export type { TokenPeek, TokenState } from './application/recovery';
 export { getScopeInfo, setWorkingScope } from './application/scope';
@@ -63,6 +72,7 @@ export {
   searchUsers,
   USER_PAGE_SIZE,
   getUser,
+  tenantCodeOf,
   inviteUser,
   resendInvite,
   updateUser,
@@ -72,6 +82,8 @@ export {
   unlockUser,
   listUserSessions,
   revokeUserSessions,
+  createWorkerUser,
+  resetWorkerPassword,
 } from './application/users';
 export type { UserDto, AssignmentDto, SessionDto } from './application/users';
 export { listRoles, updateRole, applyPermissionTopUps } from './application/roles';
@@ -93,11 +105,15 @@ export {
   decideConfig,
   resolveConfigAt,
   resolveCatalogAt,
+  isReleasedToBranch,
+  getCatalogRelease,
   approvedChangesBetween,
   snapshotOf,
   canViewConfig,
+  tenantLimitsAt,
+  checkTenantLimit,
 } from './application/config';
-export type { ConfigVersionDto } from './application/config';
+export type { ConfigVersionDto, LimitCheck, CatalogReleaseDto } from './application/config';
 export { allocateDocumentNumber, resolveNumberingSeries } from './application/numbering';
 export {
   notifyUsers,
@@ -127,6 +143,8 @@ export {
   consumeApprovalInTx,
   loadApprovalForUse,
   approvalLevelFor,
+  bulkDecideApprovals,
+  runApprovalEscalation,
   approvalLimitsOf,
   listApprovals,
   getApproval,
@@ -134,7 +152,15 @@ export {
   decideSchema,
   withdrawSchema,
 } from './application/approvals';
-export type { ApprovalDto, ApprovalTab, OpenApprovalInput } from './application/approvals';
+export type {
+  ApprovalDto,
+  ApprovalTab,
+  BulkDecideResult,
+  EscalationRunResult,
+  OpenApprovalInput,
+} from './application/approvals';
+export { createDelegation, listDelegations, revokeDelegation } from './application/delegations';
+export type { DelegationDto } from './application/delegations';
 
 export * from './domain/dataImport';
 export {
@@ -150,3 +176,25 @@ export {
   discardAbandonedImports,
 } from './application/dataImport';
 export type { ImportDto, ImportIssuePage } from './application/dataImport';
+
+export {
+  provisionTenant,
+  approveProvisioning,
+  transitionTenant,
+  decideTenantTransition,
+  listTenants,
+  getTenant,
+  recordTermsAcceptance,
+  assertTermsAccepted,
+  tenantTermsBlock,
+  reissueTenantCode,
+} from './application/tenants';
+export type {
+  ReissueTenantCodeResult,
+  TenantDto,
+  ProvisionResult,
+  TransitionOutcome,
+  PlatformCaller,
+} from './application/tenants';
+export { listLoginHistory } from './application/loginHistory';
+export type { LoginHistoryRow } from './application/loginHistory';

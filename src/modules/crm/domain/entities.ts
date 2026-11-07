@@ -1,7 +1,8 @@
 /** CRM entities (FR-CRM-001, 002, 004). Company-level records; branch access goes through links (BA §10). */
 
 export type CustomerType = 'individual' | 'business';
-export type CustomerStatus = 'active' | 'anonymized';
+/** `merged` (FR-CRM-003, slice 2.8b): the record was merged into `mergedInto`; it is kept, never deleted */
+export type CustomerStatus = 'active' | 'anonymized' | 'merged';
 
 /** Customer labels offered in the UI (G2-CRM-01 filter). Free-form labels are not allowed. */
 export const CUSTOMER_LABELS = ['vip', 'contract', 'no_marketing'] as const;
@@ -9,7 +10,7 @@ export type CustomerLabel = (typeof CUSTOMER_LABELS)[number];
 
 export interface Customer {
   id: string;
-  companyId: string;
+  tenantId: string;
   /** branch where the record was created (every business record carries its branch) */
   branchId: string;
   /** KH-<branch>-<seq>, never reused */
@@ -29,7 +30,14 @@ export interface Customer {
   marketing: string[];
   /** branches with a relation to this customer (links), BA §10.1.5 */
   branchIds: string[];
+  /** `import` = created by the Excel import (SYS-007); RPT counts such a customer as returning, never as new (2.1-4) */
+  origin?: 'import';
   anonymizedAt?: Date;
+  /** FR-CRM-003: set on a merged (source) record */
+  mergedInto?: string;
+  mergedAt?: Date;
+  /** FR-CRM-003: records merged into this one, oldest first */
+  mergedFrom?: string[];
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -40,7 +48,7 @@ export interface Customer {
 /** Contact data lives in its own document so it can be anonymised without touching the business record (DM-8). */
 export interface CustomerPii {
   customerId: string;
-  companyId: string;
+  tenantId: string;
   phone?: string;
   phoneNorm?: string;
   email?: string;
@@ -52,10 +60,10 @@ export const customerLinkId = (customerId: string, branchId: string): string =>
   `${customerId}~${branchId}`;
 export const vehicleLinkId = (vehicleId: string, branchId: string): string =>
   `${vehicleId}~${branchId}`;
-export const plateKey = (companyId: string, plateNorm: string): string =>
-  `${companyId}__${plateNorm}`;
+export const plateKey = (tenantId: string, plateNorm: string): string =>
+  `${tenantId}__${plateNorm}`;
 /** C11: VIN registry slot, unique per company */
-export const vinKey = (companyId: string, vin: string): string => `${companyId}__${vin}`;
+export const vinKey = (tenantId: string, vin: string): string => `${tenantId}__${vin}`;
 
 /** How a branch came to have a relation with a customer (C2): kept for later access reviews. */
 export const RELATION_SOURCES = [
@@ -66,13 +74,15 @@ export const RELATION_SOURCES = [
   'repair_order',
   /** C24: the vehicle arrived and an intake file was opened for it (REC) */
   'intake',
+  /** FR-CRM-003: inherited from a record merged into this one */
+  'merge',
 ] as const;
 export type RelationSource = (typeof RELATION_SOURCES)[number];
 
 /** Which branches may see a customer in lists (relation = created at, or appointment/quote/order there). It never expires. */
 export interface CustomerLink {
   id: string;
-  companyId: string;
+  tenantId: string;
   customerId: string;
   branchId: string;
   nameNorm: string;
@@ -86,7 +96,7 @@ export interface CustomerLink {
 
 export interface Vehicle {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** as typed, upper-case */
   plate: string;
@@ -116,7 +126,7 @@ export interface Vehicle {
 
 export interface VehicleLink {
   id: string;
-  companyId: string;
+  tenantId: string;
   vehicleId: string;
   branchId: string;
   plateNorm: string;
@@ -131,7 +141,7 @@ export interface VehicleLink {
 export interface VehicleHistoryEntry {
   /** `${sourceType}:${sourceId}`, deterministic so projection updates are idempotent */
   id: string;
-  companyId: string;
+  tenantId: string;
   vehicleId: string;
   branchId: string;
   branchName: string;

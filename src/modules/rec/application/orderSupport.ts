@@ -65,7 +65,7 @@ export async function getServiceWorkflow(
 ): Promise<ServiceWorkflowDto | null> {
   resolveScope(actor, 'intake:view');
   const c = await resolveConfigAt(deps.sys, {
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     type: 'service-workflow',
     scopeKey: serviceType,
     date,
@@ -86,6 +86,6 @@ export async function listServiceWorkflows(
 ): Promise<{ serviceType: string; steps: WorkflowStep[] }[]> {
   resolveScope(actor, 'intake:view');
   return (
-    await resolveCatalogAt(deps.sys, { companyId: actor.companyId, type: 'service-workflow', date })
+    await resolveCatalogAt(deps.sys, { tenantId: actor.tenantId, type: 'service-workflow', date })
   ).map((r) => ({ serviceType: r.code, steps: (r.payload as { steps: WorkflowStep[] }).steps }));
 }

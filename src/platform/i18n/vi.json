@@ -29,6 +29,54 @@
       "title": "Dữ liệu chưa hợp lệ",
       "detail": "Kiểm tra các trường được đánh dấu rồi gửi lại."
     },
+    "tenant_selection_required": {
+      "title": "Chưa chọn công ty",
+      "detail": "Bạn có tài khoản ở nhiều công ty. Hãy chọn công ty để tiếp tục."
+    },
+    "password_change_required": {
+      "title": "Cần đổi mật khẩu",
+      "detail": "Bạn đang dùng mật khẩu tạm. Đổi mật khẩu để tiếp tục."
+    },
+    "tenant_read_only": {
+      "title": "Công ty đang ở chế độ chỉ đọc",
+      "detail": "Công ty này đang tạm ngưng hoặc đang chấm dứt nên chỉ xem và tải dữ liệu được."
+    },
+    "terms_acceptance_required": {
+      "title": "Chưa ghi nhận điều khoản và DPA",
+      "detail": "Công ty chưa có bản ghi chấp thuận Điều khoản sử dụng và Thỏa thuận xử lý dữ liệu, nên chưa nhập dữ liệu thật, phát hành hóa đơn thật hoặc đưa vào vận hành."
+    },
+    "tenant_code_taken": {
+      "title": "Mã công ty đã tồn tại",
+      "detail": "Mã công ty này đã được dùng cho một yêu cầu cấp phát khác."
+    },
+    "tenant_code_unavailable": {
+      "title": "Chưa cấp được mã công ty",
+      "detail": "Hệ thống chưa tìm được mã công ty 6 chữ số còn trống sau nhiều lần thử. Vui lòng thử lại sau ít phút."
+    },
+    "transition_not_allowed": {
+      "title": "Không được chuyển sang trạng thái này",
+      "detail": "Trạng thái hiện tại của công ty không cho phép bước chuyển này."
+    },
+    "actor_not_allowed": {
+      "title": "Không đủ quyền thực hiện bước chuyển",
+      "detail": "Vai trò của bạn không được thực hiện bước chuyển trạng thái này."
+    },
+    "reason_required": {
+      "title": "Thiếu lý do",
+      "detail": "Bước chuyển này cần ghi lý do."
+    },
+    "legal_hold": {
+      "title": "Đang giữ pháp lý",
+      "detail": "Công ty đang bị giữ pháp lý nên chưa thể xóa."
+    },
+    "approver_same_as_requester": {
+      "title": "Người duyệt trùng người đề xuất",
+      "detail": "Bước này cần một người thứ hai duyệt."
+    },
+    "no_pending_transition": {
+      "title": "Không có đề xuất chờ duyệt",
+      "detail": "Công ty này không có bước chuyển nào đang chờ duyệt."
+    },
     "idempotency_key_required": {
       "title": "Thiếu khóa chống trùng",
       "detail": "Thao tác này cần tiêu đề Idempotency-Key."
@@ -76,6 +124,14 @@
     "unavailable": {
       "title": "Dịch vụ tạm thời không sẵn sàng",
       "detail": "Thử lại sau ít phút."
+    },
+    "unknown_group": {
+      "title": "Không có nhóm chi nhánh này",
+      "detail": "Nhóm chi nhánh không tồn tại hoặc chưa được cấu hình. Chọn nhóm khác hoặc bỏ lọc nhóm."
+    },
+    "period_too_long": {
+      "title": "Khoảng thời gian quá dài",
+      "detail": "Chọn khoảng không quá 93 ngày."
     },
     "scope_required": {
       "title": "Chọn một chi nhánh",
@@ -625,6 +681,18 @@
       "title": "Yêu cầu đã được xử lý",
       "detail": "Yêu cầu này đã được duyệt, từ chối hoặc rút lại."
     },
+    "bulk_mixed_kinds": {
+      "title": "Chỉ duyệt hàng loạt cùng một loại",
+      "detail": "Chọn các yêu cầu cùng loại rồi duyệt lại."
+    },
+    "bulk_not_allowed": {
+      "title": "Loại yêu cầu này không duyệt hàng loạt",
+      "detail": "Cấu hình chưa cho phép duyệt hàng loạt loại này, hoặc loại này cần nhập lại mật khẩu. Duyệt từng yêu cầu."
+    },
+    "delegation_not_active": {
+      "title": "Ủy quyền không còn hiệu lực",
+      "detail": "Ủy quyền này đã bị thu hồi."
+    },
     "approval_self_decision": {
       "title": "Không tự duyệt yêu cầu của mình",
       "detail": "Cần một người khác có quyền duyệt."
@@ -801,6 +869,30 @@
       "title": "Lệnh đã có tiền thu",
       "detail": "Đảo phiếu thu hoặc hoàn cọc trước khi hủy lệnh."
     },
+    "employee_code_exists": {
+      "title": "Mã nhân viên đã có",
+      "detail": "Mã nhân viên phải duy nhất trong công ty. Chọn mã khác."
+    },
+    "employee_user_linked": {
+      "title": "Tài khoản đã gắn với hồ sơ khác",
+      "detail": "Mỗi tài khoản đăng nhập chỉ gắn với một hồ sơ nhân sự."
+    },
+    "employee_left": {
+      "title": "Nhân sự đã nghỉ",
+      "detail": "Hồ sơ đã ghi ngày nghỉ nên không sửa được."
+    },
+    "labor_sheet_full": {
+      "title": "Bảng công của lệnh đã đầy",
+      "detail": "Lệnh có quá nhiều dòng công. Báo quản lý chi nhánh."
+    },
+    "labor_line_reversed": {
+      "title": "Dòng công đã đảo",
+      "detail": "Không điều chỉnh được dòng công đã bị đảo."
+    },
+    "adjustment_below_zero": {
+      "title": "Điều chỉnh làm công âm",
+      "detail": "Công của thợ ở hạng mục này không thể nhỏ hơn 0 sau điều chỉnh."
+    },
     "date_in_future": {
       "title": "Ngày chưa tới",
       "detail": "Chỉ dựng được tổng hợp cho hôm nay hoặc ngày đã qua."
@@ -817,11 +909,16 @@
   "login": {
     "title": "Đăng nhập",
     "lead": "Dùng tài khoản do quản lý chi nhánh cấp.",
-    "identifier": "Email hoặc mã nhân viên",
+    "identifier": "Email",
+    "tenant": {
+      "title": "Chọn công ty",
+      "lead": "Tài khoản này thuộc nhiều công ty. Chọn công ty bạn muốn làm việc.",
+      "failed": "Không chọn được công ty này. Thử lại hoặc đăng nhập lại."
+    },
     "password": "Mật khẩu",
     "submit": "Đăng nhập",
     "required": "Bắt buộc nhập",
-    "identifierRequired": "Nhập email hoặc mã nhân viên.",
+    "identifierRequired": "Nhập email.",
     "passwordRequired": "Nhập mật khẩu của bạn.",
     "offline": "Mất kết nối mạng. Thông tin bạn đã nhập vẫn được giữ, thử lại khi có mạng.",
     "forgot": "Quên mật khẩu?",
@@ -829,7 +926,28 @@
     "showPassword": "Hiện hoặc ẩn mật khẩu",
     "wait": "Thử lại sau {time}.",
     "expiredTitle": "Phiên làm việc đã hết hạn",
-    "expiredText": "Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị."
+    "expiredText": "Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị.",
+    "modeLabel": "Cách đăng nhập",
+    "modeEmail": "Email",
+    "modeEmployee": "Mã nhân viên",
+    "companyCode": "Mã công ty",
+    "companyCodeHint": "Gồm 6 chữ số. Quản lý chi nhánh cung cấp mã này cùng mã nhân viên.",
+    "employeeCode": "Mã nhân viên",
+    "companyCodeRequired": "Nhập mã công ty.",
+    "employeeCodeRequired": "Nhập mã nhân viên.",
+    "employeeForgot": "Quên mật khẩu? Nhờ quản lý chi nhánh đặt lại mật khẩu tạm.",
+    "change": {
+      "title": "Đổi mật khẩu",
+      "lead": "Bạn đang dùng mật khẩu tạm do quản lý cấp. Đặt mật khẩu của riêng bạn để bắt đầu làm việc.",
+      "current": "Mật khẩu tạm hiện tại",
+      "new": "Mật khẩu mới",
+      "confirm": "Nhập lại mật khẩu mới",
+      "mismatch": "Hai mật khẩu mới chưa khớp.",
+      "consent": "Tôi đã đọc và đồng ý với quy định sử dụng và bảo mật dữ liệu của công ty (phiên bản: {version}).",
+      "consentRequired": "Cần đồng ý quy định để tiếp tục.",
+      "submit": "Đổi mật khẩu và vào hệ thống",
+      "failed": "Không đổi được mật khẩu. Đăng nhập lại rồi thử lại."
+    }
   },
   "shell": {
     "skip": "Bỏ qua điều hướng, tới nội dung chính",
@@ -888,7 +1006,14 @@
       "reconcile": "Đối chiếu bốn bên",
       "warehouseReport": "Báo cáo kho",
       "technicianReport": "Báo cáo kỹ thuật viên",
+      "ranking": "Xếp hạng chi nhánh",
+      "indicators": "Khách và chỉ số",
+      "loginHistory": "Lịch sử đăng nhập",
       "alerts": "Cảnh báo ngoại lệ",
+      "groupHrm": "Nhân sự và công",
+      "employees": "Nhân sự",
+      "labor": "Công thợ",
+      "laborRules": "Quy tắc tính công",
       "imports": "Nhập dữ liệu từ Excel"
     },
     "notifications": "Thông báo",
@@ -997,7 +1122,8 @@
   "policy": {
     "password": {
       "min_length": "Mật khẩu cần ít nhất {min} ký tự.",
-      "reused": "Mật khẩu này đã dùng gần đây. Không dùng lại các mật khẩu gần nhất."
+      "reused": "Mật khẩu này đã dùng gần đây. Không dùng lại các mật khẩu gần nhất.",
+      "current_wrong": "Mật khẩu hiện tại chưa đúng."
     }
   },
   "forgot": {
@@ -1038,8 +1164,10 @@
     "title": "Kích hoạt tài khoản",
     "lead": "Bạn được mời tham gia hệ thống. Kiểm tra thông tin, đặt mật khẩu và đồng ý quy định để bắt đầu làm việc.",
     "readonlyNote": "Thông tin do quản lý gán, bạn không tự sửa. Sai tên hoặc chi nhánh? Dừng lại và báo quản lý trước khi kích hoạt.",
+    "leadExisting": "Bạn đã có tài khoản GMEP. Lời mời này thêm một công ty vào tài khoản đó: kiểm tra thông tin và đồng ý quy định của công ty mời. Mật khẩu hiện có của bạn không thay đổi.",
     "submit": "Kích hoạt tài khoản",
-    "consent": "Tôi đã đọc và đồng ý với quy định sử dụng và bảo mật dữ liệu (phiên bản: {version}).",
+    "submitExisting": "Chấp nhận lời mời",
+    "consent": "Tôi đã đọc và đồng ý với quy định sử dụng và bảo mật dữ liệu của {tenant} (phiên bản: {version}).",
     "consentLink": "Đọc quy định đầy đủ",
     "doneTitle": "Tài khoản đã được kích hoạt",
     "doneText": "Bạn có thể đăng nhập bằng email và mật khẩu vừa đặt.",
@@ -1149,6 +1277,23 @@
     "dirLast": {
       "asc": "cũ nhất trước",
       "desc": "mới nhất trước"
+    },
+    "noEmail": {
+      "toggle": "Nhân viên không có email",
+      "toggleHint": "Nhân viên đăng nhập bằng mã công ty, mã nhân viên và mật khẩu tạm bạn đặt; phải đổi mật khẩu ở lần đăng nhập đầu. Không có quên mật khẩu tự phục vụ: bạn đặt lại khi cần.",
+      "temporaryPassword": "Mật khẩu tạm",
+      "temporaryPasswordHint": "Ít nhất {min} ký tự. Giao trực tiếp cho nhân viên, không gửi qua tin nhắn. Hết hạn sau {hours} giờ nếu chưa dùng.",
+      "create": "Tạo nhân viên",
+      "created": "Đã tạo nhân viên. Mã công ty: {company} · Mã nhân viên: {code}.",
+      "roleOnly": "Nhân viên không có email chỉ nhận vai trò chi nhánh (Cố vấn, Quản đốc, Thợ, Thủ kho, Thu ngân) tại một chi nhánh cụ thể.",
+      "badge": "Không email",
+      "companyCode": "Mã công ty",
+      "companyCodeHint": "Giao mã công ty này cùng mã nhân viên cho nhân viên để đăng nhập.",
+      "mustChange": "Đang chờ nhân viên đổi mật khẩu tạm.",
+      "reset": "Đặt lại mật khẩu tạm",
+      "resetLead": "Mọi phiên của nhân viên bị đăng xuất, khóa đăng nhập được gỡ, nhân viên phải đổi mật khẩu ở lần đăng nhập tới.",
+      "reason": "Lý do",
+      "resetDone": "Đã đặt lại mật khẩu tạm."
     }
   },
   "pii": {
@@ -1260,6 +1405,41 @@
         "lead": "Một phương pháp cho mỗi kỳ, theo ngày hiệu lực",
         "scopeHint": "Toàn công ty (company)"
       },
+      "labor-method": {
+        "title": "Phương pháp tính công",
+        "lead": "Theo loại việc, chức danh và chi nhánh; có ngày hiệu lực. Giá trị mẫu chỉ để minh họa, chờ khách ký ví dụ.",
+        "scopeHint": "svc:<loại việc>, svc:<loại việc>:pos:<chức danh>, hoặc thêm tiền tố branch:<chi nhánh>:"
+      },
+      "labor-position": {
+        "title": "Chức danh và hệ số công",
+        "lead": "Hệ số theo chức danh, có ngày hiệu lực. Giá trị mẫu chỉ để minh họa.",
+        "scopeHint": "position:<mã chức danh>"
+      },
+      "warranty-term": {
+        "title": "Thời hạn bảo hành",
+        "lead": "Số ngày và số km bảo hành theo loại dịch vụ; áp theo ngày giao xe. Chưa khai thì không có bảo hành.",
+        "scopeHint": "svc:<loại dịch vụ> hoặc default"
+      },
+      "warranty-policy": {
+        "title": "Bảo hành chéo chi nhánh",
+        "lead": "Cho chi nhánh mở bảo hành trên lệnh của chi nhánh khác và bên chịu chi phí được ghi nhận (chưa chốt, Q77). Chưa khai thì chỉ bảo hành lệnh của chính chi nhánh.",
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
+      },
+      "service-package": {
+        "title": "Gói bảo dưỡng",
+        "lead": "Danh mục gói gồm hạng mục và dòng công, phụ tùng; chọn gói thì báo giá thêm đủ các dòng. Giá cố định của gói chưa áp dụng (chờ xác nhận).",
+        "scopeHint": "Mã gói, chữ thường không dấu, ví dụ bd-10000"
+      },
+      "appointment-policy": {
+        "title": "Lịch hẹn và công suất xưởng",
+        "lead": "Bật hoặc tắt lịch hẹn của chi nhánh và số xe mỗi ngày; vượt công suất chỉ cảnh báo. Chưa khai thì lịch hẹn tắt.",
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
+      },
+      "labor-policy": {
+        "title": "Quy tắc làm tròn và ngưỡng điều chỉnh công",
+        "lead": "Làm tròn, ngưỡng điều chỉnh thủ công cần chủ duyệt, cách xử lý làm lại. Công ty hoặc ghi đè theo chi nhánh.",
+        "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
+      },
       "part-group": {
         "title": "Nhóm hàng",
         "lead": "Danh mục nhóm hàng phụ tùng của công ty. Không xóa, chỉ ngừng dùng.",
@@ -1333,7 +1513,7 @@
       "approval-limit": {
         "title": "Hạn mức phê duyệt",
         "lead": "Số tiền cấp thu ngân tự quyết và hạn mức cấp quản lý chi nhánh cho từng loại yêu cầu; vượt hạn mức quản lý thì chủ garage duyệt. Số liệu minh họa cho tới khi khách ban hành. Đặt qua API.",
-        "scopeHint": "payment_reversal, expense, deposit_refund, customer_refund, day_reopen, debt_handover, cash_variance, invoice_adjust, invoice_replace hoặc invoice_cancel"
+        "scopeHint": "payment_reversal, expense, deposit_refund, customer_refund, day_reopen, debt_handover, cash_variance, invoice_adjust, invoice_replace, invoice_cancel hoặc labor_adjustment"
       },
       "expense-category": {
         "title": "Loại chi phí",
@@ -1349,6 +1529,16 @@
         "title": "Ngưỡng cảnh báo báo cáo",
         "lead": "Số ngày lệnh mở quá lâu, số ngày lệnh hoàn tất chưa hóa đơn, thời gian chờ thu tiền sau giao xe và mức chênh lệch quỹ cần cảnh báo. Đặt qua API; theo công ty hoặc từng chi nhánh.",
         "scopeHint": "company hoặc branch:<mã chi nhánh>"
+      },
+      "branch-groups": {
+        "title": "Nhóm chi nhánh (vùng)",
+        "lead": "Đặt tên nhóm chi nhánh để lọc xếp hạng, bảng điều khiển và cảnh báo theo vùng. Nhóm chỉ là bộ lọc trong phạm vi người dùng đã có, không cấp thêm quyền. Đặt qua API; toàn công ty.",
+        "scopeHint": "tenant"
+      },
+      "catalog-release": {
+        "title": "Phát hành danh mục cho chi nhánh",
+        "lead": "Trụ sở chọn chi nhánh được dùng một mục danh mục dùng chung (dịch vụ mẫu, giảm giá, hình thức thanh toán, mẫu kiểm tra) từ một ngày. Chưa phát hành nghĩa là mọi chi nhánh dùng được; chứng từ cũ giữ phiên bản đã dùng. Đặt qua API; chờ duyệt.",
+        "scopeHint": "loại:mã, ví dụ service:SV-DAU"
       },
       "einvoice-policy": {
         "title": "Chính sách hóa đơn điện tử",
@@ -1474,6 +1664,13 @@
       "config_discount-limit": "Cấu hình: Hạn mức giảm giá",
       "config_price-item": "Cấu hình: Giá theo mặt hàng",
       "config_cost-method": "Cấu hình: Phương pháp giá vốn",
+      "config_labor-method": "Cấu hình: Phương pháp tính công",
+      "config_labor-position": "Cấu hình: Chức danh và hệ số công",
+      "config_labor-policy": "Cấu hình: Quy tắc làm tròn và ngưỡng điều chỉnh công",
+      "config_appointment-policy": "Cấu hình: Lịch hẹn và công suất xưởng",
+      "config_service-package": "Cấu hình: Gói bảo dưỡng",
+      "config_warranty-term": "Cấu hình: Thời hạn bảo hành",
+      "config_warranty-policy": "Cấu hình: Chính sách bảo hành chéo chi nhánh",
       "config_inventory-policy": "Cấu hình: Chính sách kho",
       "config_part-group": "Cấu hình: Nhóm hàng",
       "config_part-unit": "Cấu hình: Đơn vị tính",
@@ -1491,11 +1688,14 @@
       "stockDocument": "Chứng từ kho",
       "stockReservation": "Giữ chỗ phụ tùng",
       "stockBalance": "Tồn kho",
+      "appointment": "Lịch hẹn",
       "intake": "Hồ sơ tiếp nhận",
       "quote": "Báo giá",
       "repairOrder": "Lệnh sửa chữa",
       "repairItem": "Hạng mục sửa chữa",
       "partRequest": "Yêu cầu phụ tùng",
+      "employee": "Hồ sơ nhân sự",
+      "laborSheet": "Bảng công của lệnh",
       "config_public-rate-limit": "Cấu hình: Giới hạn trang khách",
       "config_qc-checklist": "Cấu hình: Danh sách kiểm tra chất lượng",
       "config_order-policy": "Cấu hình: Chính sách thực hiện lệnh",
@@ -1521,12 +1721,24 @@
       "audit_export": "Xuất nhật ký",
       "auth_login": "Đăng nhập",
       "auth_logout": "Đăng xuất",
+      "auth_tenant_select": "Chọn công ty",
       "auth_password_reset": "Đặt lại mật khẩu",
       "auth_password_reset_requested": "Yêu cầu đặt lại mật khẩu",
+      "auth_login_temporary": "Đăng nhập bằng mật khẩu tạm (chờ đổi mật khẩu)",
+      "auth_password_changed_first": "Đổi mật khẩu tạm lần đầu",
+      "user_create_no_email": "Tạo nhân viên không có email",
+      "user_password_reset_by_manager": "Quản lý đặt lại mật khẩu tạm",
       "branch_create": "Tạo chi nhánh",
       "branch_status": "Đổi trạng thái chi nhánh",
       "branch_update": "Sửa chi nhánh",
       "config_propose": "Đề xuất cấu hình",
+      "tenant_created": "Tạo tenant",
+      "tenant_status_changed": "Đổi trạng thái tenant",
+      "tenant_terms_accepted": "Ghi nhận chấp thuận điều khoản và DPA",
+      "tenant_transition_requested": "Đề xuất đổi trạng thái tenant",
+      "tenant_transition_rejected": "Từ chối đổi trạng thái tenant",
+      "tenant_provision_step": "Bước cấp phát tenant",
+      "tenant_code_reissued": "Cấp lại mã công ty",
       "config_approve": "Duyệt cấu hình",
       "config_reject": "Từ chối cấu hình",
       "priceList_create": "Tạo bảng giá",
@@ -1538,6 +1750,7 @@
       "user_invite": "Mời người dùng",
       "user_invite_resend": "Gửi lại lời mời",
       "user_sessions_revoked": "Đăng xuất mọi phiên",
+      "user_login_history_viewed": "Xem lịch sử đăng nhập của người khác",
       "user_unlock": "Mở khóa đăng nhập",
       "user_update": "Sửa người dùng",
       "user_disable": "Khóa tài khoản",
@@ -1550,6 +1763,8 @@
       "customer_create": "Tạo khách hàng",
       "customer_update": "Sửa khách hàng",
       "customer_relate": "Gắn khách với chi nhánh",
+      "customer_merge": "Gộp hồ sơ khách trùng vào hồ sơ này",
+      "customer_merged_into": "Hồ sơ khách được gộp vào hồ sơ khác",
       "customer_export": "Xuất danh sách khách",
       "customer_anonymize": "Ẩn danh khách hàng",
       "vehicle_create": "Tạo xe",
@@ -1578,7 +1793,13 @@
       "stockReservation_shorten": "Giảm giữ chỗ do kiểm kê",
       "stockReservation_restore": "Khôi phục giữ chỗ do phiếu đảo",
       "stockLevel_update": "Đổi định mức tồn",
+      "appointment_create": "Đặt lịch hẹn",
+      "appointment_update": "Sửa lịch hẹn",
+      "appointment_cancel": "Hủy lịch hẹn",
+      "appointment_no_show": "Ghi nhận khách vắng hẹn",
+      "appointment_arrive": "Khách đến theo lịch hẹn, mở hồ sơ tiếp nhận",
       "intake_create": "Mở hồ sơ tiếp nhận (nháp)",
+      "intake_warranty_open": "Mở hồ sơ tiếp nhận bảo hành gắn lệnh gốc",
       "intake_update": "Lưu bước hồ sơ tiếp nhận",
       "intake_complete": "Hoàn tất hồ sơ tiếp nhận",
       "intake_cancel": "Hủy hồ sơ tiếp nhận",
@@ -1606,6 +1827,13 @@
       "repairOrder_resume": "Tiếp tục lệnh",
       "repairOrder_submit_qc": "Gửi lệnh đi kiểm tra chất lượng",
       "repairOrder_cancel": "Hủy lệnh",
+      "employee_create": "Tạo hồ sơ nhân sự",
+      "employee_update": "Sửa hồ sơ nhân sự",
+      "employee_leave": "Ghi ngày nghỉ việc",
+      "labor_record": "Ghi công khi hạng mục đạt kiểm tra chất lượng",
+      "labor_return": "Ghi nhận hạng mục bị trả lại kiểm tra chất lượng",
+      "labor_reverse": "Đảo công",
+      "labor_adjust": "Điều chỉnh công thủ công",
       "repairOrder_recheck_parts": "Kiểm tra lại phụ tùng của lệnh",
       "repairOrder_qc_pass": "Lệnh đạt kiểm tra chất lượng",
       "repairOrder_qc_fail": "Lệnh không đạt kiểm tra chất lượng",
@@ -1628,6 +1856,10 @@
       "approval_reject": "Từ chối yêu cầu",
       "approval_withdraw": "Rút yêu cầu",
       "approval_consume": "Thực hiện yêu cầu đã duyệt",
+      "approval_remind": "Nhắc duyệt yêu cầu",
+      "approval_escalate": "Chuyển cấp duyệt",
+      "approval_delegation_create": "Tạo ủy quyền duyệt",
+      "approval_delegation_revoke": "Thu hồi ủy quyền duyệt",
       "invoice_request": "Tạo yêu cầu phát hành hóa đơn",
       "invoice_attempt": "Gửi nhà cung cấp hóa đơn",
       "invoice_processing": "Nhà cung cấp đang xử lý hóa đơn",
@@ -1755,6 +1987,8 @@
     "qcFailed": "Lệnh {number} không đạt kiểm tra chất lượng, có hạng mục được trả lại.",
     "qcPassed": "Lệnh {number} đã đạt kiểm tra chất lượng, sẵn sàng giao xe.",
     "approvalRequested": "Có yêu cầu phê duyệt {number} ({kind}) đang chờ bạn.",
+    "approvalReminder": "Nhắc: yêu cầu phê duyệt {number} ({kind}) đã quá hạn xử lý, đang chờ bạn.",
+    "approvalEscalated": "Yêu cầu {number} ({kind}) quá hạn ở cấp dưới và đã chuyển lên cấp của bạn.",
     "approvalApproved": "Yêu cầu {number} đã được duyệt.",
     "approvalRejected": "Yêu cầu {number} bị từ chối.",
     "dayReopened": "Ngày {date} của chi nhánh đã được mở lại sau khi chốt. Chứng từ đã ghi sổ không được sửa, chỉ ghi thêm hoặc đảo.",
@@ -2315,6 +2549,32 @@
     "apply": "Áp dụng",
     "prev": "Trang trước",
     "next": "Trang sau",
+    "appointments": {
+      "title": "Lịch hẹn",
+      "lead": "Lịch hẹn của chi nhánh theo ngày hoặc tuần, công suất xưởng theo số xe mỗi ngày. Vượt công suất chỉ cảnh báo.",
+      "walkIn": "+ Tiếp nhận xe vãng lai",
+      "day": "Ngày",
+      "week": "Tuần",
+      "from": "Từ ngày",
+      "disabled": "Chi nhánh chưa bật lịch hẹn (cấu hình Lịch hẹn và công suất xưởng). Xe vẫn tiếp nhận trực tiếp được.",
+      "truncated": "Danh sách bị cắt ở giới hạn đọc; số xe hẹn là mức tối thiểu.",
+      "capacity": "{booked}/{capacity} xe",
+      "noCapacity": "{booked} xe (chưa khai công suất)",
+      "over": "Vượt công suất",
+      "full": "Đủ chỗ",
+      "emptyTitle": "Chưa có lịch hẹn",
+      "emptyText": "Không có lịch hẹn trong khoảng ngày đã chọn.",
+      "colTime": "Giờ",
+      "colNumber": "Mã lịch",
+      "colService": "Dịch vụ",
+      "colAdvisor": "Cố vấn",
+      "colIntake": "Hồ sơ tiếp nhận",
+      "overFlag": "Đặt khi vượt công suất",
+      "status_pending": "Chờ",
+      "status_arrived": "Đã đến",
+      "status_cancelled": "Đã hủy",
+      "status_no_show": "Vắng"
+    },
     "intakes": {
       "title": "Tiếp nhận xe",
       "lead": "Hồ sơ tiếp nhận theo 5 bước. Bản nháp tự lưu sau mỗi bước; mã lệnh chỉ có khi khách duyệt báo giá.",
@@ -2998,6 +3258,131 @@
       "photoFailed": "Không tải được ảnh. Vui lòng thử lại sau ít phút."
     }
   },
+  "hrm": {
+    "common": {
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "apply": "Áp dụng",
+      "reset": "Đặt lại"
+    },
+    "employees": {
+      "title": "Nhân sự",
+      "lead": "Hồ sơ phục vụ phân thợ và ghi giờ công. Hệ thống không tính lương, bảo hiểm hay thuế và không lưu tài khoản ngân hàng.",
+      "emptyTitle": "Chưa có nhân sự",
+      "emptyText": "Chi nhánh này chưa có hồ sơ nhân sự nào.",
+      "truncated": "Danh sách bị cắt ở mức tối đa; thu hẹp theo chi nhánh để xem đủ.",
+      "count": "{n} nhân sự",
+      "colCode": "Mã",
+      "colName": "Họ tên",
+      "colPosition": "Chức danh",
+      "colStatus": "Trạng thái",
+      "colJoined": "Vào làm",
+      "colPhone": "Điện thoại",
+      "colAccount": "Tài khoản",
+      "status_active": "Đang làm",
+      "status_on_leave": "Nghỉ phép",
+      "status_left": "Đã nghỉ",
+      "linked": "Đã liên kết",
+      "notLinked": "Chưa liên kết"
+    },
+    "detail": {
+      "title": "Hồ sơ nhân sự",
+      "personal": "Dữ liệu cá nhân",
+      "personalNote": "Che theo vai trò. Mở hồ sơ và bấm Hiện đều được ghi nhật ký truy cập; giá trị đầy đủ chỉ gửi xuống khi bạn có quyền.",
+      "field_phone": "Điện thoại",
+      "field_nationalId": "Số căn cước",
+      "field_address": "Địa chỉ thường trú",
+      "field_birthDate": "Ngày sinh",
+      "hidden": "Không hiển thị với vai trò của bạn",
+      "reveal": "Hiện",
+      "hide": "Ẩn",
+      "revealFailed": "Không hiện được giá trị này.",
+      "joined": "Ngày vào làm",
+      "left": "Ngày nghỉ việc",
+      "account": "Tài khoản đăng nhập",
+      "history": "Chức danh theo thời gian",
+      "historyNote": "Đổi chức danh đóng dòng cũ và mở dòng mới; lịch sử không bị sửa. Công đã ghi vẫn mang chức danh lúc phát sinh.",
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "current": "Hiện tại",
+      "certificates": "Chứng chỉ nghề",
+      "certName": "Chứng chỉ",
+      "certIssuer": "Cấp bởi",
+      "certExpires": "Hết hạn"
+    },
+    "labor": {
+      "title": "Công thợ theo lệnh và hạng mục",
+      "lead": "Giờ thực chỉ tính thời gian đang làm, trừ khoảng tạm dừng. Công chỉ được ghi sau khi hạng mục đạt kiểm tra chất lượng. Tiền công là đại lượng cộng dồn; hoa hồng không nằm ở đây.",
+      "sampleNote": "Quy tắc tính công chưa được khách chốt: các con số đang hiển thị là giá trị minh họa cho đến khi kế toán khách ký ví dụ (UAT-11).",
+      "truncated": "Danh sách bị cắt ở mức tối đa; các con số là mức tối thiểu. Thu hẹp khoảng ngày để xem đủ.",
+      "emptyTitle": "Chưa có dòng công",
+      "emptyText": "Không có dòng công nào trong khoảng ngày đã chọn.",
+      "count": "{n} dòng công",
+      "kpiAmount": "Tiền công đã ghi (₫)",
+      "kpiAwaiting": "Chờ thu đủ (₫, chưa tính vào tổng)",
+      "kpiConverted": "Giờ công quy đổi",
+      "kpiActual": "Giờ thực",
+      "kpiStandard": "Giờ chuẩn",
+      "colOrder": "Lệnh",
+      "colItem": "Hạng mục",
+      "colTechnician": "Thợ",
+      "colStandard": "Giờ chuẩn",
+      "colActual": "Giờ thực",
+      "colConverted": "Giờ công quy đổi",
+      "colAmount": "Tiền công",
+      "colStatus": "Trạng thái",
+      "colWhen": "Ghi lúc",
+      "status_recorded": "Đã ghi",
+      "status_awaiting_payment": "Chờ thu đủ",
+      "status_qc_returned": "QC trả lại",
+      "status_reversed": "Đã đảo",
+      "status_pending_qc": "Chờ QC",
+      "kind_adjustment": "Điều chỉnh",
+      "kind_reversal": "Dòng đảo",
+      "warning_no_rule": "Chưa có quy tắc",
+      "warning_no_technician": "Chưa gán thợ",
+      "warning_no_profile": "Thợ chưa có hồ sơ nhân sự"
+    },
+    "rules": {
+      "title": "Quy tắc tính công",
+      "lead": "Phương pháp tính công theo loại việc, chức danh và chi nhánh, đang hiệu lực hôm nay. Chỉ xem: đổi quy tắc bằng cách đề xuất phiên bản mới có ngày hiệu lực, chủ garage duyệt; công đã ghi không đổi.",
+      "edit": "Đề xuất phiên bản mới",
+      "sampleTitle": "Công thức chưa được khách chốt.",
+      "sampleText": "Mọi số liệu là giá trị minh họa; mỗi phương pháp cần ví dụ do kế toán khách ký trước khi dùng thật (NFR-MNT-01, UAT-11).",
+      "emptyTitle": "Chưa có quy tắc nào",
+      "emptyText": "Chưa khai báo phương pháp tính công. Công vẫn được ghi nhưng ở mức 0 kèm cảnh báo cho đến khi có quy tắc.",
+      "methods": "Phương pháp theo loại việc",
+      "priority": "Thứ tự áp dụng: chi nhánh với loại việc và chức danh, chi nhánh với loại việc, công ty với loại việc và chức danh, công ty với loại việc.",
+      "colScope": "Phạm vi",
+      "colMethod": "Phương pháp",
+      "colParams": "Tham số",
+      "branchOverride": "Ghi đè chi nhánh",
+      "method_standard_hours": "Giờ chuẩn",
+      "method_approved_actual": "Giờ thực được duyệt",
+      "method_flat": "Khoán cố định",
+      "method_percent": "Tỷ lệ % tiền công",
+      "method_fixed_bonus": "Cố định cộng thưởng",
+      "desc_standard_hours": "Giờ chuẩn × hệ số chức danh × {rate} mỗi giờ công",
+      "desc_approved_actual": "Giờ thực × hệ số chức danh × {rate} mỗi giờ công",
+      "desc_approved_actual_cap": "Giờ thực (tối đa {cap} giờ chuẩn) × hệ số chức danh × {rate} mỗi giờ công",
+      "desc_flat": "{amount} mỗi hạng mục",
+      "desc_percent": "{rate} tiền công đã duyệt của hạng mục (chưa thuế)",
+      "desc_fixed_bonus": "{fixed} cố định, cộng {bonus} khi giờ thực không quá {within} giờ chuẩn",
+      "positions": "Chức danh và hệ số công",
+      "colPosition": "Chức danh",
+      "colCoefficient": "Hệ số",
+      "colStatus": "Trạng thái",
+      "status_active": "Đang dùng",
+      "status_inactive": "Ngừng dùng",
+      "rounding_half_up": "làm tròn nửa lên",
+      "rounding_down": "làm tròn xuống",
+      "rounding_up": "làm tròn lên",
+      "rework_keep_original": "làm lại: giữ công đã ghi",
+      "rework_reverse_original": "làm lại: đảo công đã ghi",
+      "policySummary": "Làm tròn: {rounding}, bước {step}. Điều chỉnh thủ công cần chủ duyệt khi trên {minutes} phút hoặc {vnd}. Xử lý {rework}.",
+      "policyDefault": "(chưa cấu hình, dùng giá trị trung tính; mọi điều chỉnh cần chủ duyệt)"
+    }
+  },
   "acc": {
     "common": {
       "amount": "Số tiền",
@@ -3376,6 +3761,7 @@
     "kind_invoice_adjust": "Điều chỉnh hóa đơn",
     "kind_invoice_replace": "Thay thế hóa đơn",
     "kind_invoice_cancel": "Hủy hóa đơn",
+    "kind_labor_adjustment": "Điều chỉnh công thợ",
     "level1": "Quản lý chi nhánh",
     "level2": "Chủ garage",
     "status_pending": "Chờ duyệt",
@@ -3383,6 +3769,10 @@
     "status_rejected": "Bị từ chối",
     "status_withdrawn": "Đã rút",
     "overdue": "Quá thời hạn xử lý",
+    "escalated": "Đã chuyển cấp",
+    "reminded": "Đã nhắc",
+    "viaDelegation": "Duyệt theo ủy quyền",
+    "onBehalfOf": "Duyệt thay",
     "used": "Đã thực hiện",
     "waitUse": "Chờ thực hiện",
     "approve": "Duyệt",
@@ -3524,6 +3914,7 @@
       "existing": "Lệnh này đã có hóa đơn hợp lệ. Nếu cần sửa, dùng điều chỉnh hoặc thay thế.",
       "warnTax": "Thuế suất {key} đã đổi từ {from} sang {to} kể từ báo giá. Kế toán cần xác nhận thuế suất áp dụng.",
       "issue_provider_not_activated": "Chưa chọn nhà cung cấp hóa đơn điện tử.",
+      "issue_terms_not_accepted": "Công ty chưa có bản ghi chấp thuận Điều khoản và DPA nên chưa phát hành hóa đơn thật.",
       "issue_issuer_incomplete": "Đơn vị phát hành của chi nhánh chưa đủ thông tin.",
       "issue_order_not_eligible": "Lệnh chưa qua kiểm tra chất lượng.",
       "issue_order_cancelled": "Lệnh đã hủy.",
@@ -3889,6 +4280,71 @@
       "hint_stock_without_source": "Phiếu xuất không gắn chứng từ gốc (kỳ vọng bằng 0, RULE-007).",
       "kind_reconcile_gap": "Thu vượt tổng lệnh",
       "hint_reconcile_gap": "Tiền đã thu vượt tổng giá trị lệnh."
+    },
+    "ranking": {
+      "title": "Xếp hạng chi nhánh",
+      "lead": "So các chi nhánh trong phạm vi của bạn trên cùng một kỳ. Ngày chưa có số liệu được liệt kê và không tính là 0; ngày chưa chốt là số tạm.",
+      "metric": "Chỉ số",
+      "group": "Nhóm chi nhánh (vùng)",
+      "allGroups": "Tất cả chi nhánh trong phạm vi",
+      "colRank": "Hạng",
+      "colBranch": "Chi nhánh",
+      "colValue": "Giá trị",
+      "colDays": "Ngày có số liệu",
+      "colMissing": "Thiếu ngày",
+      "colState": "Trạng thái",
+      "noRank": "Chưa có số liệu",
+      "groupPartialNote": "Nhóm gồm {n} trên {m} chi nhánh, chỉ phần trong phạm vi của bạn; đây không phải tổng của cả nhóm.",
+      "commonDaysNote": "Hạng tính trên {n} ngày chung (mọi chi nhánh đang hoạt động đều có số). Giá trị thực của từng chi nhánh vẫn hiển thị; chi nhánh thiếu ngày ghi \"thiếu n ngày\".",
+      "total": "Tổng",
+      "provisionalNote": "Có {n} ngày là số tạm (chưa chốt ngày); số sẽ thành chính thức sau khi chốt.",
+      "missingNote": "Thiếu {n} ngày chưa có bản tổng hợp; các ngày này không được tính là 0.",
+      "official": "Chính thức",
+      "provisional": "Số tạm",
+      "formula": "Công thức",
+      "emptyTitle": "Không có chi nhánh để so",
+      "emptyText": "Chưa có chi nhánh nào trong phạm vi hoặc nhóm đã chọn.",
+      "metric_exTaxVnd": "Doanh thu chưa thuế",
+      "metric_orderTotalVnd": "Doanh thu có thuế",
+      "metric_ordersClosed": "Số lệnh hoàn tất",
+      "metric_avgPerOrderVnd": "Bình quân mỗi lệnh",
+      "metric_inflowVnd": "Tiền thu",
+      "metric_quoteApprovalBp": "Tỷ lệ báo giá được duyệt",
+      "metric_returningCustomerBp": "Tỷ lệ khách quay lại (theo lượt)"
+    },
+    "indicators": {
+      "title": "Khách và chỉ số",
+      "lead": "Lượt khách mới và quay lại, bình quân mỗi lệnh, tỷ lệ báo giá được duyệt. Công nợ theo khách và độ chính xác tồn kho chưa có (cần các phần sau).",
+      "colBranch": "Chi nhánh",
+      "colVisits": "Lượt khách",
+      "colNew": "Khách mới (theo lượt)",
+      "colReturning": "Khách quay lại (theo lượt)",
+      "colReturningRate": "Tỷ lệ quay lại (theo lượt)",
+      "colAvg": "Bình quân mỗi lệnh",
+      "colApproval": "Tỷ lệ báo giá được duyệt",
+      "colPending": "Đã gửi, chưa quyết (ngoài mẫu số)",
+      "customersTitle": "Khách hàng",
+      "avgTitle": "Bình quân mỗi lệnh",
+      "approvalTitle": "Báo giá được duyệt",
+      "total": "Toàn bộ",
+      "unavailable": "{n} ngày ghi trước khi có chỉ số này nên không được tính (cần dựng lại).",
+      "visitsNote": "Lượt khách tính theo ngày: một khách đến hai ngày được tính hai lượt, không phải số khách khác nhau trong kỳ. Khách nhập từ Excel luôn tính là quay lại.",
+      "provisionalNote": "Có {n} ngày là số tạm.",
+      "noReceivables": "Công nợ theo khách chưa có trong báo cáo này."
+    },
+    "loginHistory": {
+      "title": "Lịch sử đăng nhập",
+      "lead": "Các lần đăng nhập thành công của tài khoản, mới nhất trước. Không lưu địa chỉ IP.",
+      "colAt": "Thời điểm",
+      "colDevice": "Thiết bị",
+      "colState": "Trạng thái",
+      "colLastSeen": "Hoạt động cuối",
+      "state_active": "Đang đăng nhập",
+      "state_ended": "Đã đăng xuất",
+      "state_expired": "Hết hạn",
+      "emptyTitle": "Chưa có lần đăng nhập nào",
+      "emptyText": "Chưa ghi nhận phiên nào của tài khoản này.",
+      "failedNote": "Lần đăng nhập sai chưa được ghi theo tài khoản."
     },
     "rep": {
       "print": "In báo cáo",

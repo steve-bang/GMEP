@@ -34,7 +34,7 @@ import {
 } from '@/modules/sys';
 
 const AT = new Date('2026-11-04T03:00:00Z');
-const base = { companyId: 'c', branchId: 'b', orderId: 'ro1', orderNumber: 'RO-1' };
+const base = { tenantId: 'c', branchId: 'b', orderId: 'ro1', orderNumber: 'RO-1' };
 const policy = {
   methods: ['cash', 'transfer', 'card', 'qr'] as const,
   nonCashReferenceRequired: true,
@@ -390,7 +390,7 @@ describe('expense approval need (RULE-011, R57, R58, R64)', () => {
 
 describe('customer refund (FR-ACC-016, RULE-010)', () => {
   const base = (): OrderAccount => ({
-    ...emptyAccount({ companyId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' }),
+    ...emptyAccount({ tenantId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' }),
     receivedVnd: 1_200_000,
   });
 
@@ -422,14 +422,14 @@ describe('customer refund (FR-ACC-016, RULE-010)', () => {
     expect(applyReversal(after, refund, at).receivedVnd).toBe(1_200_000);
     const receipt = { id: 'p1', kind: 'receipt', totalVnd: 1_200_000, applicationVnd: 0 };
     const re = recomputeAccount(
-      { companyId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' },
+      { tenantId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' },
       [receipt, { ...refund }] as unknown as Payment[],
       new Set(),
     );
     expect(re.receivedVnd).toBe(1_050_000);
     expect(
       recomputeAccount(
-        { companyId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' },
+        { tenantId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'RO-1' },
         [receipt, { ...refund }] as unknown as Payment[],
         new Set(['p2']),
       ).receivedVnd,

@@ -4,7 +4,7 @@ export const PASSWORD = 'Demo!Pass-2026';
 
 export async function login(page: Page, identifier: string, password = PASSWORD) {
   await page.goto('/login');
-  await page.getByLabel('Email hoặc mã nhân viên').fill(identifier);
+  await page.getByLabel(/^Email/).fill(identifier);
   await page.getByLabel(/^Mật khẩu/).fill(password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
 }

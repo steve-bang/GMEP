@@ -4,6 +4,7 @@
  */
 import {
   defaultRoleSeeds,
+  roleDocId,
   roleAssignmentId,
   warehouseId,
   type Branch,
@@ -14,18 +15,23 @@ import { normalizeSearch } from '@/platform/text/normalize';
 import { userToDoc, warehouseToDoc } from '../repos/repos';
 import { COL } from '../repos/queries';
 import { crmDemoDocs } from './crmDemo';
+import { demoTenant2Docs, demoTenant2Users } from './tenantDemo';
 import { invDemoDocs } from './invDemo';
+import { hrmDemoDocs } from './hrmDemo';
 import { recDemoDocs } from './recDemo';
+import { recP2DemoDocs } from './recP2Demo';
 import type { SeedDoc } from './types';
 import type { DocData } from '@/platform/store/docStore';
 
 export const DEMO_PASSWORD = 'Demo!Pass-2026';
-export const DEMO_COMPANY = 'cmp_demo';
+export const DEMO_TENANT = 'tnt_demo';
+/** fixed demo "Mã công ty" (owner decision 07/11/2026); real tenants get a cryptographic random code at provisioning */
+export const DEMO_TENANT_CODE = '482913';
 const SEED_TIME = new Date('2026-10-01T00:00:00.000Z');
 
 const b = (id: string, code: string, name: string, status: Branch['status']): Branch => ({
   id,
-  companyId: DEMO_COMPANY,
+  tenantId: DEMO_TENANT,
   code,
   name,
   status,
@@ -52,7 +58,7 @@ const u = (
   phone?: string,
 ): User => ({
   id,
-  companyId: DEMO_COMPANY,
+  tenantId: DEMO_TENANT,
   email,
   employeeCode: code,
   displayName: name,
@@ -96,7 +102,7 @@ for (const x of demoUsers) if (LAST_LOGIN[x.id]) x.lastLoginAt = new Date(LAST_L
 const a = (userId: string, roleCode: string, branchId: string) => ({
   id: roleAssignmentId(userId, roleCode, branchId),
   userId,
-  companyId: DEMO_COMPANY,
+  tenantId: DEMO_TENANT,
   roleCode,
   branchId,
 });
@@ -135,7 +141,7 @@ export const demoWarehouseSeeds: { branchId: string; code: string; name: string 
 export function demoWarehouses(): Warehouse[] {
   return demoWarehouseSeeds.map((w) => ({
     id: warehouseId(w.branchId, w.code),
-    companyId: DEMO_COMPANY,
+    tenantId: DEMO_TENANT,
     branchId: w.branchId,
     code: w.code,
     name: w.name,
@@ -151,6 +157,9 @@ export function demoWarehouses(): Warehouse[] {
   }));
 }
 
+/** Every demo account of every demo tenant (identity provider seeding, test logins). */
+export const allDemoUsers: User[] = [...demoUsers, ...demoTenant2Users];
+
 export type { SeedDoc };
 
 /** Every demo document, backend independent (memory and Firestore are seeded from the same list). */
@@ -158,9 +167,33 @@ export function demoDocs(): SeedDoc[] {
   const docs: SeedDoc[] = [];
   const put = (collection: string, id: string, data: DocData) =>
     docs.push({ collection, id, data });
-  put(COL.companies, DEMO_COMPANY, { name: 'Garage Demo', legalEntityIds: [] });
+  put(COL.tenantCodes, DEMO_TENANT_CODE, {
+    tenantId: DEMO_TENANT,
+    state: 'active',
+    assignedAt: SEED_TIME,
+  });
+  put(COL.tenants, DEMO_TENANT, {
+    tenantCode: DEMO_TENANT_CODE,
+    name: 'Garage Demo',
+    legalEntityIds: [],
+    status: 'active',
+    plan: 'free',
+    subscriptionStatus: 'none',
+    environment: 'demo',
+    placement: 'pooled',
+    legalHold: false,
+    provisionRequestKey: 'seed',
+    provisioning: {},
+    createdAt: SEED_TIME,
+    createdBy: 'seed',
+    updatedAt: SEED_TIME,
+    updatedBy: 'seed',
+    version: 1,
+  });
   for (const r of defaultRoleSeeds())
-    put(COL.roles, r.code, {
+    put(COL.roles, roleDocId(DEMO_TENANT, r.code), {
+      tenantId: DEMO_TENANT,
+      code: r.code,
       name: r.name,
       permissions: r.permissions,
       canConsolidate: r.canConsolidate,
@@ -169,12 +202,16 @@ export function demoDocs(): SeedDoc[] {
   for (const br of demoBranches) {
     const { id, ...rest } = br;
     put(COL.branches, id, rest);
-    put('branchCodes', `${br.companyId}__${br.code}`, { branchId: id });
+    put('branchCodes', `${br.tenantId}__${br.code}`, { branchId: id });
   }
   for (const x of demoUsers) {
     put(COL.users, x.id, userToDoc(x));
-    put(COL.userKeys, `email__${x.email.toLowerCase()}`, { userId: x.id });
-    put(COL.userKeys, `code__${x.companyId}__${x.employeeCode}`, { userId: x.id });
+    put(COL.userKeys, `email__${x.email.toLowerCase()}`, {
+      zone: 'tenant',
+      identityId: x.id,
+      userId: x.id,
+    });
+    put(COL.userKeys, `code__${x.tenantId}__${x.employeeCode}`, { userId: x.id });
   }
   for (const x of demoAssignments) {
     const { id, ...rest } = x;
@@ -189,5 +226,8 @@ export function demoDocs(): SeedDoc[] {
   docs.push(...crmDemoDocs());
   docs.push(...invDemoDocs());
   docs.push(...recDemoDocs());
+  docs.push(...hrmDemoDocs());
+  docs.push(...recP2DemoDocs());
+  docs.push(...demoTenant2Docs());
   return docs;
 }

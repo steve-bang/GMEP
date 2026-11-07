@@ -4,7 +4,7 @@ Cập nhật: 2026-11-05 (xem mục "Bổ sung 05/11/2026" ở cuối cho gói �
 
 ## Kết quả
 
-- **184 màn hình** trong 6 gói (`design/g1-…` đến `design/g4-…`), cộng khung ứng dụng và thư viện component (`design/assets`, `design/foundation`). Danh mục: `screen-inventory.md`.
+- **184 màn hình** (187 nếu tính 3 màn giai đoạn 2: G4-APR-04, G4-RPT-12, G3-HRM-11) trong 6 gói (`design/g1-…` đến `design/g4-…`), cộng khung ứng dụng và thư viện component (`design/assets`, `design/foundation`). Danh mục: `screen-inventory.md`.
 - Mô tả UI/UX flow tổng hợp: **`ui-ux-flow.md`** (sơ đồ điều hướng, luồng chính, trạng thái, mẫu giao diện, vai trò, responsive, accessibility, handoff, quyết định còn mở).
 - Mỗi gói có tài liệu riêng `01`…`06-*.md` (bảng màn hình, flow, bảng "Finding → đã xử lý ở đâu") và các file `review-0N-*`, `ba-answers-0N.md`.
 - Chuẩn bắt buộc: `docs/design-system.md` (token không đổi). Quyết định BA: `ba-decisions.md` (đề xuất, chờ xác nhận).
@@ -27,6 +27,7 @@ Cập nhật: 2026-11-05 (xem mục "Bổ sung 05/11/2026" ở cuối cho gói �
 - 0 lỗi JavaScript, 0 trang trống.
 - Desktop 1440px: 0 trang tràn ngang.
 - Mobile 390px: tràn ngang giảm từ 94 xuống 3 lượt tải; cả 3 đều là trang showcase/mục lục (`foundation/components.html`, `foundation/index.html`, `g2-workshop/index.html`), không phải màn hình sản phẩm. Chi tiết: `mobile-overflow-report.md`.
+- Mobile 320px (07/11/2026): 11 màn sản phẩm tràn ngang đã sửa trong `pack.css` của 5 gói (nguyên nhân và cách sửa từng màn ở `mobile-overflow-report.md`); **chờ điều phối đo lại** ở 320/390/768/1440.
 - Chưa có kiểm tra tự động về tương phản màu, bàn phím, trình đọc màn hình.
 
 ## Còn lại / việc cho lần làm tiếp
@@ -95,6 +96,49 @@ BA đã trả lời Q1 đến Q12 ở `docs/dev/ba-answers-for-dev.md` (đề xu
 ## Bổ sung 06/11/2026: feedback client cho bản tối giản đăng ký tenant (v0.2)
 
 `tenant-signup-simplified.md` v0.2 mục 9 ghi **QĐT-S01..S09** theo feedback của chủ garage nhỏ (BA tự quyết, chưa được khách xác nhận): đăng nhập email + mật khẩu không mã công ty (chọn công ty chỉ sau mật khẩu đúng); liên kết xác thực một lần 72 giờ tự đăng nhập bất kể trình duyệt; kênh hỗ trợ cấu hình; ẩn hoàn toàn giá và gói (hoãn giao diện); câu hỏi "đang quản lý bằng gì" + lối vào Excel; hóa đơn điện tử nói bằng tiếng thường; câu đồng ý rút gọn; mật khẩu hiện dần, kiểm tra người thật ẩn mặc định; giữ tên "GARAGE OS" qua `brand.name`. Thay thế QĐT-01/U1, C-S03, AC-S09; `[Cần xác nhận]` mới **C-S14..C-S24** (quan trọng nhất: C-S14 mô hình định danh khi một email thuộc nhiều tenant, C-S17 rủi ro liên kết bị chuyển tiếp). **Chưa sửa** `design/tenant-signup/` và các tài liệu khác (danh sách ở mục 9.9); mô tả "ô Mã công ty" ở các mục 05/11 phía trên không còn là mặc định.
+
+## Bổ sung 06/11/2026: hợp nhất multi-tenant vào BRD/FRD (BA)
+
+**Đã làm:** mã BR-TEN-01..11, RULE-016..034, FR-TEN-001..055 (29 Must, 21 Should, 5 Could tại thời điểm nhập; từ 06/11/2026 là 30, 21, 4, xem mục cuối), NFR-TEN-01..09, UAT-TEN-01..22 **đã nhập vào `business-requirements.md` và `functional-requirements.md`** (bản 0.4, nhãn "đề xuất, chờ xác nhận"; khắc phục L-18). FRD §2 đã ghi MH, NS là vai trò riêng chưa có cột trong ma trận và thêm **ma trận quyền nền tảng** (L-13, một phần: hai vai trò quản trị trụ sở và kiểm tra chất lượng vẫn chưa có mã). CLAUDE.md và ADR 0002 đã ghi chú theo quyết định 05/11/2026 (L-09). `screen-inventory.md` §5 D-01 và `component-catalog.md` §2.24 (BotCheckSlot ẩn mặc định, SupportCard, CompanyPicker, TenantStateBanner 3 biến thể, OnboardingChecklist 3 trạng thái, 5 mã lý do khóa nút) đã cập nhật (L-16). `multi-tenant-analysis.md` có mục 0A "Quyết định hiện hành" (hợp nhất bản tối giản v0.2: QĐT nào bị thay thế, màn nào giữ/hoãn).
+
+**Tài liệu mới:** `docs/multi-tenant-open-questions.md` (câu mở xếp theo mức chặn ADR / build / go-live / thu tiền, người trả lời, khuyến nghị), `docs/dev/multi-tenant-requirements-for-dev.md` (bàn giao cho dev).
+
+**Lưu ý:** feedback 06/11 (QĐT-S01..S09) và bản tối giản vẫn là **đề xuất chưa được khách xác nhận chính thức**; mã tắt "D1..D9" của feedback không phải D1..D3 của quyết định 05/11. **Việc cho designer (chưa làm):** dựng lại TSX-01, 02, 03, 10, 11, 20, 30; chỉnh TSU-14 (email + mật khẩu, biến thể chọn công ty), 15, 41, 50, 53, 56, 66; thêm SupportCard, CompanyPicker; ghi nhãn hoãn/đã gộp cho 34 màn còn lại và cập nhật `design/tenant-signup/README.md`. **Còn mở ngoài lượt này:** `user-journey-business-workflow.md` (J1..J10, hai bộ trạng thái mới), `tenant-signup-spec.md` (ghi chú thay thế), `state-copy.md`, `ba-answers-for-dev.md`, `implementation-plan.md`, `status.md`, `index-budget.md` (xem `multi-tenant-analysis.md` mục 0A.5).
+
+## Bổ sung 06/11/2026: quyết định của chủ dự án (CD1 đến CD4) và việc cho designer
+
+**Đã quyết (chủ dự án):** (CD1) một email có thể thuộc nhiều tenant, một danh tính nhiều tư cách thành viên (C-S14 = hướng (a)); (CD2) **không có dùng thử**, tenant không gán gói là miễn phí hoàn toàn, không đếm ngày (Q21, Q34); (CD3) bỏ MFA cho vai trò nền tảng (Q36); (CD4) tên sản phẩm **GMEP**, bỏ GARAGE OS (C-S24). Hệ quả BA đã ghi: FR-TEN-017 nâng Must/MT-0 (TEN còn 30 Must, 21 Should, 4 Could; MT-0 15 FR, MT-3 5 FR), RULE-035 mới, FR-TEN-044 viết lại, UAT-TEN-16 viết lại. Số mã nay: RULE-016..035, R-TEN-01..15.
+
+**Việc cho designer (chưa làm; BA không sửa `design/`):**
+
+1. Bỏ mọi copy "Dùng thử", "Dùng thử {N} ngày", "Đăng ký dùng thử", "Tạo tài khoản dùng thử", "{N} ngày dùng thử bắt đầu khi bạn bấm Bắt đầu dùng", "Sắp hết dùng thử" ở TSX-01, 10, 30, TSU-14, 41, 50 và `design/tenant-signup/`; dùng "Đăng ký", "Tạo tài khoản". Không nêu giá, gói, hay "miễn phí vĩnh viễn" trong UI cho tới khi luật sư và chủ dự án chốt câu chữ (Q38, C-S20).
+2. TSU-41: bỏ thẻ "Dùng thử" và biến thể hết hạn; BAN-A bỏ biến thể dùng thử (còn hạn chế, tạm ngưng, khóa); bỏ câu trấn an hết dùng thử.
+3. Đổi "GARAGE OS" thành "GMEP" (hoặc `{brand.name}` mặc định "GMEP") trong toàn bộ prototype gói đăng ký tenant, README, email mẫu, hóa đơn thử. BA đã đếm bằng tìm kiếm: "GARAGE OS" xuất hiện **286 lần trong 154 tệp** (gồm `design/g1-auth-dashboard`, `g2-quote-delivery`, `g5-scope-auth`, `foundation/shell.html`, `shell` JS, `docs/design-system.md` và các tài liệu ui-ux), nên đây là đổi hàng loạt cả dashboard chứ không chỉ gói đăng ký; designer chốt cách làm (một hằng ở `shell`, hay thay thế hàng loạt) và nhờ BA/dev xem lại `docs/design-system.md` (token không được đổi, chỉ đổi chữ tên).
+4. TSU-14 và `CompanyPicker` trở thành **bắt buộc dựng** (không còn là biến thể tùy chọn): hiện sau mật khẩu đúng khi có từ hai tư cách; một tư cách vào thẳng; lối "Đổi công ty" trong phiên; danh sách chỉ gồm tư cách của chính người đó; email đặt lại mật khẩu nêu rõ áp cho mọi công ty của email.
+5. TSU-60 (đăng nhập nền tảng): không có khe MFA (CD3).
+6. Chi tiết: `docs/ui-ux/tenant-signup-simplified.md` đầu tài liệu (v0.3).
+
+**Chưa quyết, cần biết khi thiết kế:** Q37 (thứ tự MT-1 so với pilot, BA đã khuyến nghị MT-1 sau pilot ổn định) quyết thời điểm dựng lại 14 màn giai đoạn A; Q40, Q41 còn mở.
+
+## Bổ sung 06/11/2026: giai đoạn 2 khởi động (designer)
+
+Đối chiếu slice 2.1 đến 2.8 với prototype: **184 màn hiện có đã phủ gần hết**; khoảng trống thật là chi tiết nối giữa các màn. Bảng đầy đủ, màn đã dựng và 14 câu hỏi cho BA: [`phase-2-gaps.md`](phase-2-gaps.md). Không đụng đồng sơn (2.9).
+
+- **Màn mới (3, không tính vào 184):** G4-APR-04 `design/g4-finance/g4-apr-04.html` (slice 2.5, phê duyệt chuyển kho giá trị lớn, điều chỉnh tồn sau kiểm kê, yêu cầu mua vượt hạn mức, trạng thái tự chuyển cấp); G4-RPT-12 `design/g4-reports-system/g4-rpt-12.html` (slice 2.1, kiểm tra chi nhánh vào số hợp nhất và tổng chi nhánh = toàn chuỗi); G3-HRM-11 `design/g3-inventory-hr/g3-hrm-11.html` (slice 2.6, chi tiết công một nhân viên trong kỳ). Danh mục: `screen-inventory.md` §10.
+- **Chỉnh màn có sẵn:** G4-APR-01 (thêm 3 loại yêu cầu), G4-APR-03 (thêm 3 dòng ma trận với ngưỡng "Chưa chốt"), G3-HRM-08 (liên kết tới HRM-11), ba `index.html`.
+- **Tên GMEP:** đã đổi trong toàn bộ `design/` (khung ứng dụng). Chứng từ in, hóa đơn bán lẻ, phiếu kho, tin gửi khách, cột giá NCC, dòng đầu tệp xuất dùng tên garage mẫu "Garage A · Chi nhánh Quận 7" (B-17).
+- **Chưa dựng (chờ BA):** ủy quyền duyệt theo cá nhân, báo cáo theo dõi thời hạn duyệt (Q-2.5-01, 02), hàng chờ cấp của kho tổng (Q-2.2-01).
+- **Kiểm tra tự động: chưa chạy.** Môi trường lượt này không có shell nên chưa đo Playwright (tràn ngang 390px, lỗi JS) cho 3 màn mới và 4 màn đã chỉnh; danh sách trang và cách đo ở `phase-2-gaps.md` §3. Việc đầu tiên của lượt sau.
+
+### Sửa theo review BA (06/11/2026, designer)
+
+BA review 33 lỗi (`phase-2-review-ba.md`, có cột trạng thái từng lỗi). Điều phối chốt theo ủy quyền chủ dự án: Q-R1 = (c), Q-R2 = (a), Q-R3 = (a). Đã sửa 2/2 Cao, 15/15 TB, 15/16 Thấp (B-33 là việc dev). Điểm chính:
+
+- **Phê duyệt (APR-01, 03, 04, `g4-finance/pack.js`):** `canApprove(type, role, proposer, level)` xét cấp hiện tại; yêu cầu vượt hạn mức cấp 1 chờ cấp 2, Quản lý chi nhánh bị khóa kèm lý do. APR-04 viết lại: dữ liệu theo (loại × tình huống), 6 tình huống (chờ cấp 2, chờ cấp 1, đã tự chuyển cấp 1 → 2, xung đột 409, hết hạn, đã duyệt theo ủy quyền), nhập lại mật khẩu theo cờ, cộng dồn, Thủ kho không thấy giá trị tiền; mở thẳng bằng `#loai-tinhhuong` (ví dụ `g4-apr-04.html#adj-esc`). APR-01: thẻ di động sinh từ các dòng đã lọc theo vai trò, thêm dòng cấp 1 và dòng đã chuyển cấp (vẫn "Chờ duyệt"), chuyển cấp không vào "Đã xử lý", số đếm theo vai trò. APR-03: cột T1, T2, Duyệt hàng loạt, Nhập lại mật khẩu; hệ quả "Chưa chốt"; cửa sổ cộng dồn; thêm Xuất dùng nội bộ, Khóa/mở lại kỳ công; bỏ MFA.
+- **RPT-12:** kiểm tra rollup từng chi nhánh so với chứng từ gốc, Kế toán xem trong phạm vi, KPI Kế toán khớp bảng; tồn kho, công nợ ghi "chờ slice 2.3a/2.7".
+- **HRM-11, HRM-08:** dòng khoán không có giờ công, đại lượng đối chiếu là tiền công, số mẫu cộng khớp; Thợ không thấy lối vào HRM-08.
+- **Việc cho dev:** API chuyển cấp tay (nút trong prototype gắn "cần API"), phép chiếu ẩn giá trị cho Thủ kho, job đối chiếu rollup và quyền xem cho Kế toán, mã màn riêng cho xếp hạng.
+- **Vẫn cần đo Playwright** cho các trang đã sửa (APR-01/03/04, RPT-12, HRM-08/11, ACC-05, PRT-01, INV-07/09/18, CRM-10, PUR-10), nhất là APR-04 và thẻ APR-01 ở 320px và 390px.
 
 ## Cách tiếp tục
 

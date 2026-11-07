@@ -10,6 +10,6 @@ export const runtime = 'nodejs';
 export const GET = authed(async ({ acc, session }) => {
   resolveScope(session.actor, 'cash-expense:view');
   return json({
-    items: await expenseCategories(acc, session.actor.companyId, businessDate(acc.sys.clock.now())),
+    items: await expenseCategories(acc, session.actor.tenantId, businessDate(acc.sys.clock.now())),
   });
 });

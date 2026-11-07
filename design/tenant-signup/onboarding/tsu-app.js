@@ -47,7 +47,7 @@
   var HOME = P_ONB + 'tsx-20.html';
   var T = window.TSU = { first: 'default', dirty: false };
   /* Tên sản phẩm lấy từ ../ts-config.js (một chỗ duy nhất); nạp ts-config.js trước tsu-app.js */
-  var BRAND = (window.TS_CONFIG && window.TS_CONFIG.brand) || 'GARAGE OS';
+  var BRAND = (window.TS_CONFIG && window.TS_CONFIG.brand) || 'GMEP';
 
   /* ---------- 9 bước wizard (TSU-21..29) ---------- */
   var STEPS = [

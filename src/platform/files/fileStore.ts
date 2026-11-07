@@ -15,10 +15,12 @@ export interface FileStore {
   get(path: string): Promise<StoredFile | null>;
   /** removes the file; no error when it is missing (cleanup of a write whose transaction failed) */
   delete(path: string): Promise<void>;
+  /** object paths starting with `prefix` (names only); for the tenant export (FR-TEN-006) */
+  list(prefix: string): Promise<string[]>;
 }
 
-/** Server-chosen, scope-prefixed object path: `<area>/<companyId>/<branchId>/<name>` with no traversal possible. */
-export function filePath(area: string, companyId: string, branchId: string, name: string): string {
+/** Server-chosen, scope-prefixed object path: `<area>/<tenantId>/<branchId>/<name>` with no traversal possible. */
+export function filePath(area: string, tenantId: string, branchId: string, name: string): string {
   const safe = (s: string) => s.replace(/[^A-Za-z0-9._-]/g, '_');
-  return `${safe(area)}/${safe(companyId)}/${safe(branchId)}/${safe(name)}`;
+  return `${safe(area)}/${safe(tenantId)}/${safe(branchId)}/${safe(name)}`;
 }

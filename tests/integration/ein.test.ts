@@ -8,8 +8,8 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU';
-const SV_PHANH = 'svc_cmp_demo_SV-PHANH';
+const SV_DAU = 'svc_tnt_demo_SV-DAU';
+const SV_PHANH = 'svc_tnt_demo_SV-PHANH';
 const P_FILTER = 'part_seed_01';
 const Q7 = 'wh_br_q7_WH-CHINH';
 
@@ -225,7 +225,7 @@ describe.each(backends)('EIN invoices [%s]', (backend) => {
       expect(inv.totalVnd).toBe(o.totalVnd);
       expect(inv.netVnd + inv.taxVnd).toBe(inv.totalVnd);
       expect(inv.taxSummary[0]).toMatchObject({ rateBp: 800, taxKey: 'vat' });
-      expect(inv.taxSummary[0].taxVersionId).toMatch(/^tax-rate__vat__/);
+      expect(inv.taxSummary[0].taxVersionId).toMatch(/^tnt_demo__tax-rate__vat__/);
       // the order has its own status: the invoice never writes to it
       expect((await order(o.id)).status).toBe('ready_for_delivery');
       // FR-EIN-006: files

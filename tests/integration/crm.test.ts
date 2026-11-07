@@ -594,7 +594,7 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       const now = new Date();
       const lk = {
         id: 'veh_lk_c20',
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         branchId: 'br_lk',
         plate: '77Z99999',
         plateNorm: '77Z99999',
@@ -635,7 +635,7 @@ describe.each(backends)('CRM core [%s]', (backend) => {
       await h.container.crm.sys.uow.run(async (tx) => {
         h.container.crm.history.upsert(tx, {
           id: 'ro:leak',
-          companyId: 'cmp_demo',
+          tenantId: 'tnt_demo',
           vehicleId: 'veh_biz',
           branchId: 'br_q7',
           branchName: 'Chi nhánh Quận 7',

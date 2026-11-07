@@ -11,6 +11,8 @@ import { notifyUsers, resolveConfigAt } from '@/modules/sys';
 import type { Handover, HandoverPayment, QcCheckResult, QcRun, TimeEvent } from '../domain/order';
 import type { OrderPaymentSnapshot } from '../ports/ports';
 import { prepareCloseSupplements } from './supplement';
+import { buildWarrantyRecord } from '../domain/warranty';
+import { warrantyTermAt } from './warranty';
 import { transitionOrder } from '../domain/orderState';
 import type { RecDeps } from '../ports/deps';
 import { orderPatch } from './orderHelpers';
@@ -42,13 +44,13 @@ export interface QcChecklistDto {
 
 async function checklistOf(
   deps: RecDeps,
-  companyId: string,
+  tenantId: string,
   serviceType: string | undefined,
   date: string,
 ) {
   for (const key of [...(serviceType ? [serviceType] : []), 'default']) {
     const c = await resolveConfigAt(deps.sys, {
-      companyId,
+      tenantId,
       type: 'qc-checklist',
       scopeKey: key,
       date,
@@ -70,7 +72,7 @@ export async function getQcChecklist(
   const scope = resolveScope(actor, 'qc-record:view');
   const o = await deps.orders.get(scope, orderId);
   if (!o) throw notFound();
-  return checklistOf(deps, o.companyId, o.serviceType, businessDate(deps.sys.clock.now()));
+  return checklistOf(deps, o.tenantId, o.serviceType, businessDate(deps.sys.clock.now()));
 }
 
 export const qcSchema = z.object({
@@ -102,7 +104,7 @@ export async function runQc(
   if (!o0) throw notFound();
   const list = await checklistOf(
     deps,
-    o0.companyId,
+    o0.tenantId,
     o0.serviceType,
     businessDate(deps.sys.clock.now()),
   );
@@ -145,6 +147,22 @@ export async function runQc(
         if (!it || it.orderId !== o.id || it.status !== 'done')
           throw new AppError('item_state_invalid', 409);
       }
+      // FR-HRM-007/008 (slice 2.6a): labor is recorded in THIS transaction; every read happens before the first write
+      const allItems = await deps.items.listByOrderInTx(tx, scope, o.id, deps.rec.maxItemsPerOrder);
+      const laborCall = {
+        tx,
+        scope,
+        actor,
+        ctx,
+        order: o,
+        items: allItems,
+        at: now,
+        businessDate: businessDate(now),
+        qcRun: o.qcRuns.length + 1,
+      };
+      const labor = failed
+        ? await deps.labor.prepareQcFail({ ...laborCall, returnedItemIds: data.returnItemIds })
+        : await deps.labor.prepareQcPass(laborCall);
       const run: QcRun = {
         n: o.qcRuns.length + 1,
         at: now,
@@ -186,6 +204,7 @@ export async function runQc(
         qcRuns: [...o.qcRuns, run],
         doneCount: o.doneCount - items.length,
       });
+      labor.commit();
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {
@@ -206,7 +225,7 @@ export async function runQc(
       const recipients = [...new Set(to)].filter((u) => u !== actor.userId);
       if (recipients.length)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: recipients,
           kind: 'rec.order',
           titleKey: failed ? 'notifications.qcFailed' : 'notifications.qcPassed',
@@ -244,15 +263,15 @@ interface OrderPolicy {
 
 async function orderPolicyOf(
   deps: RecDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<OrderPolicy> {
   const c = (
     await resolveConfigAt(deps.sys, {
-      companyId,
+      tenantId,
       type: 'order-policy',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date,
       branchId,
     })
@@ -333,7 +352,7 @@ export async function handoverVehicle(
   if (!o0) throw notFound();
   const policy = await orderPolicyOf(
     deps,
-    o0.companyId,
+    o0.tenantId,
     o0.branchId,
     businessDate(deps.sys.clock.now()),
   );
@@ -342,6 +361,13 @@ export async function handoverVehicle(
   if (data.confirmation === 'paper' && !data.paperRef && policy.handoverRequiresReceiver)
     throw validationFailed([{ field: 'paperRef', message: 'Ghi mã biên bản giấy đã ký.' }]);
   const items0 = await deps.items.listByOrder(scope, orderId, deps.rec.maxItemsPerOrder);
+  // slice 2.8b (FR-REC-018): the warranty term in force on the handover day, copied onto the record (RULE-019)
+  const warrantyTerm = await warrantyTermAt(
+    deps,
+    o0.tenantId,
+    o0.serviceType ?? null,
+    businessDate(deps.sys.clock.now()),
+  );
   return runIdempotent(
     idemOf(deps),
     {
@@ -411,7 +437,7 @@ export async function handoverVehicle(
       const done = items0.filter((i) => i.status === 'done');
       deps.crm.history.upsert(tx, {
         id: `repair-order:${o.id}`,
-        companyId: o.companyId,
+        tenantId: o.tenantId,
         vehicleId: o.vehicleId,
         branchId: o.branchId,
         branchName: branch.name,
@@ -427,6 +453,24 @@ export async function handoverVehicle(
         totalVnd: done.reduce((s, i) => s + i.subtotalVnd, 0),
         projectedAt: now,
       });
+      // slice 2.8b (FR-REC-018, 036): the warranty record, projection P4 (white-listed fields, deterministic id)
+      deps.warranties.upsert(
+        tx,
+        buildWarrantyRecord({
+          tenantId: o.tenantId,
+          vehicleId: o.vehicleId,
+          branchId: o.branchId,
+          branchName: branch.name,
+          orderId: o.id,
+          orderCode: o.number,
+          serviceType: o.serviceType ?? null,
+          startDate: businessDate(now),
+          startKm: data.km ?? o.km ?? null,
+          items: done,
+          term: warrantyTerm,
+          createdAt: now,
+        }),
+      );
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {
@@ -451,7 +495,7 @@ export async function handoverVehicle(
       );
       if (o.advisorId !== actor.userId)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: [o.advisorId],
           kind: 'rec.order',
           titleKey: 'notifications.orderDelivered',

@@ -36,8 +36,8 @@ const schema = z.object({
   /** Cloud Scheduler OIDC: expected `aud` and the scheduler service-account email; both set = Bearer tokens accepted */
   CRON_OIDC_AUDIENCE: z.string().min(1).optional(),
   CRON_OIDC_SERVICE_ACCOUNT: z.string().email().optional(),
-  /** company whose branches the cron endpoint processes (single legal entity today [Cần xác nhận]) */
-  CRON_COMPANY_ID: z.string().min(1).optional(),
+  /** optional: restrict the cron endpoint to ONE tenant (default: every runnable tenant, FR-TEN-015, M9) */
+  CRON_TENANT_ID: z.string().min(1).optional(),
   /** SMTP url of the transactional email provider (secret). Unset outside prod = dev outbox collection */
   EMAIL_SMTP_URL: z.string().min(1).optional(),
   /** sender, e.g. "GMEP <no-reply@example.vn>" */
@@ -80,7 +80,6 @@ function assertProdConfig(env: Env): void {
     problems.push('GCLOUD_PROJECT (a real project id is required)');
   if (env.FIREBASE_API_KEY === 'demo-api-key') problems.push('FIREBASE_API_KEY');
   if (!env.APP_BASE_URL && !env.APP_ORIGIN) problems.push('APP_BASE_URL or APP_ORIGIN');
-  if (!env.CRON_COMPANY_ID) problems.push('CRON_COMPANY_ID');
   if (!env.CRON_SECRET && !env.CRON_OIDC_AUDIENCE)
     problems.push('CRON_SECRET or CRON_OIDC_AUDIENCE + CRON_OIDC_SERVICE_ACCOUNT');
   if (problems.length)

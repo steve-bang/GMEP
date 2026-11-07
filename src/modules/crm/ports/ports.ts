@@ -34,9 +34,9 @@ export interface CustomerRepository {
   /** scope-checked batch read, order not guaranteed */
   getMany(scope: Scope, ids: readonly string[]): Promise<Customer[]>;
   /** company-wide read for a service that already authorised the access (projections, anonymisation) */
-  getCompanyWide(companyId: string, id: string): Promise<Customer | null>;
+  getCompanyWide(tenantId: string, id: string): Promise<Customer | null>;
   /** same, inside the transaction (counters of a previous owner outside the actor's scope) */
-  getCompanyWideInTx(tx: Tx, companyId: string, id: string): Promise<Customer | null>;
+  getCompanyWideInTx(tx: Tx, tenantId: string, id: string): Promise<Customer | null>;
   create(tx: Tx, c: Customer, pii: CustomerPii): void;
   /** FR-SYS-007 undo of an import ONLY: removes the customer, its contact document and its branch links */
   remove(tx: Tx, c: Pick<Customer, 'id' | 'branchIds'>): void;
@@ -44,7 +44,7 @@ export interface CustomerRepository {
   /** adds the link row for (customer, branch); idempotent */
   link(
     tx: Tx,
-    c: Pick<Customer, 'id' | 'companyId' | 'nameNorm' | 'type' | 'code'>,
+    c: Pick<Customer, 'id' | 'tenantId' | 'nameNorm' | 'type' | 'code'>,
     branchId: string,
     at: Date,
     relation: { source: RelationSource; by: string },
@@ -52,14 +52,14 @@ export interface CustomerRepository {
   /** keeps denormalised link columns in sync when name/type change */
   relink(
     tx: Tx,
-    c: Pick<Customer, 'id' | 'companyId' | 'nameNorm' | 'type' | 'code' | 'branchIds'>,
+    c: Pick<Customer, 'id' | 'tenantId' | 'nameNorm' | 'type' | 'code' | 'branchIds'>,
   ): void;
-  getPii(companyId: string, customerId: string): Promise<CustomerPii | null>;
-  getPiiInTx(tx: Tx, companyId: string, customerId: string): Promise<CustomerPii | null>;
+  getPii(tenantId: string, customerId: string): Promise<CustomerPii | null>;
+  getPiiInTx(tx: Tx, tenantId: string, customerId: string): Promise<CustomerPii | null>;
   setPii(tx: Tx, customerId: string, patch: Record<string, unknown>): void;
   /** exact normalised phone, company-wide (cross-branch lookup P1 and phone search); at most `limit` ids */
   customerIdsByPhone(
-    companyId: string,
+    tenantId: string,
     phoneNorm: string,
     mode: 'exact' | 'prefix',
     limit: number,
@@ -74,44 +74,39 @@ export interface VehicleRepository {
   get(scope: Scope, id: string): Promise<Vehicle | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Vehicle | null>;
   getMany(scope: Scope, ids: readonly string[]): Promise<Vehicle[]>;
-  getCompanyWide(companyId: string, id: string): Promise<Vehicle | null>;
-  getCompanyWideInTx(tx: Tx, companyId: string, id: string): Promise<Vehicle | null>;
+  getCompanyWide(tenantId: string, id: string): Promise<Vehicle | null>;
+  getCompanyWideInTx(tx: Tx, tenantId: string, id: string): Promise<Vehicle | null>;
   /** vehicleId that holds a plate in the company (uniqueness registry) or null */
-  vehicleIdByPlate(companyId: string, plateNorm: string): Promise<string | null>;
+  vehicleIdByPlate(tenantId: string, plateNorm: string): Promise<string | null>;
   /** C11: vehicleId holding the VIN in the company, or null */
-  vehicleIdByVin(companyId: string, vin: string): Promise<string | null>;
+  vehicleIdByVin(tenantId: string, vin: string): Promise<string | null>;
   /** moves the VIN registry slot (create new, free old); fails with AlreadyExistsError when taken */
   setVin(
     tx: Tx,
-    v: Pick<Vehicle, 'id' | 'companyId'>,
+    v: Pick<Vehicle, 'id' | 'tenantId'>,
     oldVin: string | null,
     newVin: string | null,
   ): void;
   /** fails the transaction with AlreadyExistsError when the plate (or VIN) is taken */
   create(tx: Tx, v: Vehicle): void;
   /** FR-SYS-007 undo of an import ONLY: removes the vehicle, its plate and VIN slots and its branch links */
-  remove(tx: Tx, v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm' | 'vin' | 'branchIds'>): void;
+  remove(tx: Tx, v: Pick<Vehicle, 'id' | 'tenantId' | 'plateNorm' | 'vin' | 'branchIds'>): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
   /** moves the plate registry slot and the link columns */
   changePlate(
     tx: Tx,
-    v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm' | 'branchIds'>,
+    v: Pick<Vehicle, 'id' | 'tenantId' | 'plateNorm' | 'branchIds'>,
     newPlateNorm: string,
   ): void;
-  link(
-    tx: Tx,
-    v: Pick<Vehicle, 'id' | 'companyId' | 'plateNorm'>,
-    branchId: string,
-    at: Date,
-  ): void;
+  link(tx: Tx, v: Pick<Vehicle, 'id' | 'tenantId' | 'plateNorm'>, branchId: string, at: Date): void;
   byCustomer(scope: Scope, customerId: string, limit: number): Promise<Vehicle[]>;
 }
 
 export interface OwnershipRepository {
   /** newest first; authorisation is the caller's (it has already resolved the vehicle/customer in scope) */
-  listByVehicle(companyId: string, vehicleId: string): Promise<Ownership[]>;
-  listByVehicleInTx(tx: Tx, companyId: string, vehicleId: string): Promise<Ownership[]>;
-  listByCustomer(companyId: string, customerId: string, limit: number): Promise<Ownership[]>;
+  listByVehicle(tenantId: string, vehicleId: string): Promise<Ownership[]>;
+  listByVehicleInTx(tx: Tx, tenantId: string, vehicleId: string): Promise<Ownership[]>;
+  listByCustomer(tenantId: string, customerId: string, limit: number): Promise<Ownership[]>;
   create(tx: Tx, o: Ownership): void;
   /** FR-SYS-007 undo of an import ONLY */
   remove(tx: Tx, id: string): void;
@@ -120,9 +115,9 @@ export interface OwnershipRepository {
 
 export interface ConsentRepository {
   /** newest first */
-  listByCustomer(companyId: string, customerId: string): Promise<Consent[]>;
-  get(companyId: string, id: string): Promise<Consent | null>;
-  getInTx(tx: Tx, companyId: string, id: string): Promise<Consent | null>;
+  listByCustomer(tenantId: string, customerId: string): Promise<Consent[]>;
+  get(tenantId: string, id: string): Promise<Consent | null>;
+  getInTx(tx: Tx, tenantId: string, id: string): Promise<Consent | null>;
   create(tx: Tx, c: Consent): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
@@ -146,7 +141,7 @@ export interface DataRequestRepository {
 export interface VehicleHistoryRepository {
   upsert(tx: Tx, e: VehicleHistoryEntry): void;
   listByVehicle(
-    companyId: string,
+    tenantId: string,
     vehicleId: string,
     q: PageQuery,
   ): Promise<Page<VehicleHistoryEntry>>;
@@ -154,5 +149,5 @@ export interface VehicleHistoryRepository {
 
 /** Blockers to deleting a customer (open orders, debts, warranty): REC/ACC implement it later; stub returns none. */
 export interface CustomerRetentionPort {
-  check(companyId: string, customerId: string): Promise<RetentionCheck>;
+  check(tenantId: string, customerId: string): Promise<RetentionCheck>;
 }

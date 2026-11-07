@@ -7,7 +7,7 @@ import { addDays } from './normalize';
  */
 export interface Ownership {
   id: string;
-  companyId: string;
+  tenantId: string;
   vehicleId: string;
   customerId: string;
   from: string;

@@ -27,7 +27,7 @@ const MAX_PAGES = 5;
  */
 export async function resolveCatalog(
   deps: InvDeps,
-  companyId: string,
+  tenantId: string,
   kind: CatalogKind,
   date: string,
 ): Promise<CatalogEntry[]> {
@@ -35,7 +35,7 @@ export async function resolveCatalog(
   const byKey = new Map<string, ConfigVersion[]>();
   let cursor: { v: string; id: string } | undefined;
   for (let i = 0; i < MAX_PAGES; i++) {
-    const page = await deps.sys.configs.listByType(companyId, type, 'approved', PAGE, cursor);
+    const page = await deps.sys.configs.listByType(tenantId, type, 'approved', PAGE, cursor);
     for (const v of page.items) byKey.set(v.scopeKey, [...(byKey.get(v.scopeKey) ?? []), v]);
     if (!page.nextCursor) break;
     cursor = decodeCursor(page.nextCursor) ?? undefined;
@@ -58,8 +58,8 @@ export async function getPartCatalogs(
   resolveScope(actor, 'part:view');
   const date = today(deps);
   const [groups, units] = await Promise.all([
-    resolveCatalog(deps, actor.companyId, 'group', date),
-    resolveCatalog(deps, actor.companyId, 'unit', date),
+    resolveCatalog(deps, actor.tenantId, 'group', date),
+    resolveCatalog(deps, actor.tenantId, 'unit', date),
   ]);
   return { groups, units };
 }

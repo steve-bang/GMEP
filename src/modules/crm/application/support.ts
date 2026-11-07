@@ -31,7 +31,7 @@ export async function writableWorkingBranch(
   kind: 'new_master' | 'edit_master' = 'new_master',
 ) {
   const branchId = requireWorkingBranch(actor);
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   const branch = await deps.sys.branches.getInTx(tx, scope, branchId);
   if (!branch) throw notFound();
   assertBranchWritable(branch.status, kind, roleCodesOf(actor), deps.sys.config.branchStateRules);
@@ -53,7 +53,7 @@ export function accessEntry(
     requestId,
     actorId: actor.userId,
     actorRoles: roleCodesOf(actor),
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId: null,
     result: 'allowed',
     ...(sessionId ? { sessionId } : {}),

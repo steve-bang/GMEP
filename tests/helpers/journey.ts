@@ -4,8 +4,8 @@ import type { Harness } from '../integration/harness';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Row = Record<string, any>;
 
-export const SV_DAU = 'svc_cmp_demo_SV-DAU';
-export const SV_PHANH = 'svc_cmp_demo_SV-PHANH';
+export const SV_DAU = 'svc_tnt_demo_SV-DAU';
+export const SV_PHANH = 'svc_tnt_demo_SV-PHANH';
 export const P_FILTER = 'part_seed_01';
 
 let seq = 0;

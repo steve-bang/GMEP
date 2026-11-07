@@ -1,4 +1,4 @@
-# Prototype HTML/CSS của GARAGE OS (`design/`)
+# Prototype HTML/CSS của GMEP (`design/`)
 
 Mở trực tiếp bằng trình duyệt (cần bật JavaScript). Mỗi gói có `index.html` riêng. Token và component chuẩn: `assets/` (không sửa `tokens.css`, `components.css`). Tài liệu: `docs/design-system.md`, `docs/ui-ux/ui-ux-flow.md`, `docs/ui-ux/STATUS.md`.
 

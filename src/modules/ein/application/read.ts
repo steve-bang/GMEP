@@ -536,12 +536,7 @@ export async function getConnection(deps: EinDeps, actor: Actor): Promise<Connec
     ? resolveScope(actor, 'invoice:view')
     : resolveScope(actor, 'einvoice-config:view');
   const branchId = einBranch(actor, scope);
-  const issuer = await issuerOf(
-    deps,
-    actor.companyId,
-    branchId,
-    businessDate(deps.sys.clock.now()),
-  );
+  const issuer = await issuerOf(deps, actor.tenantId, branchId, businessDate(deps.sys.clock.now()));
   const q = hasPermission(actor, 'invoice-queue:view')
     ? await deps.queue.get(scope, branchId)
     : null;

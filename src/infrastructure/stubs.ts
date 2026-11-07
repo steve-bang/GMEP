@@ -15,8 +15,8 @@ export const stubBranchActivity: BranchActivityPort = { blockers: async () => []
  */
 export function combineRetention(...parts: CustomerRetentionPort[]): CustomerRetentionPort {
   return {
-    async check(companyId, customerId) {
-      const rs = await Promise.all(parts.map((p) => p.check(companyId, customerId)));
+    async check(tenantId, customerId) {
+      const rs = await Promise.all(parts.map((p) => p.check(tenantId, customerId)));
       return {
         verified: rs.every((r) => r.verified),
         blockers: rs.flatMap((r) => r.blockers),

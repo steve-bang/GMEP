@@ -121,7 +121,7 @@ export async function createProposal(
       );
       if (advisor !== actor.userId)
         notifyUsers(deps.sys, tx, {
-          companyId: o.companyId,
+          tenantId: o.tenantId,
           userIds: [advisor],
           kind: 'rec.order',
           titleKey: 'notifications.proposalNew',
@@ -227,7 +227,7 @@ export async function createSupplementaryQuote(
       });
       const q: Quote = {
         id,
-        companyId: o.companyId,
+        tenantId: o.tenantId,
         branchId: o.branchId,
         number: num.number!,
         intakeId: o.intakeId,
@@ -251,7 +251,7 @@ export async function createSupplementaryQuote(
       const v: QuoteVersion = {
         id: versionId(id, 1),
         quoteId: id,
-        companyId: o.companyId,
+        tenantId: o.tenantId,
         branchId: o.branchId,
         n: 1,
         status: 'draft',
@@ -307,12 +307,12 @@ export async function createSupplementaryQuote(
  */
 export async function appendSupplement(
   deps: RecDeps,
-  quote: Pick<Quote, 'id' | 'companyId' | 'branchId'>,
+  quote: Pick<Quote, 'id' | 'tenantId' | 'branchId'>,
   actor: Actor | null,
   ctx: RequestCtx,
 ) {
-  const scope = branchesScope(quote.companyId, [quote.branchId]);
-  const by = actor ?? systemActor(quote.companyId, quote.branchId);
+  const scope = branchesScope(quote.tenantId, [quote.branchId]);
+  const by = actor ?? systemActor(quote.tenantId, quote.branchId);
   const q = await deps.quotes.get(scope, quote.id);
   if (!q?.supplementOfOrderId) throw notFound();
   const versions = await deps.versions.listByQuote(scope, q.id, q.currentN);
@@ -325,7 +325,7 @@ export async function appendSupplement(
     (no) => v.items.find((i) => i.no === no)?.necessity ?? 'optional',
   );
   const partLines = approval.lines.filter((l) => l.kind === 'part' && l.partId && l.qty);
-  const managers = await usersWithRole(deps.sys, q.companyId, ['QL'], q.branchId);
+  const managers = await usersWithRole(deps.sys, q.tenantId, ['QL'], q.branchId);
   const recipients = [...new Set([q.advisorId, ...managers])].filter((id) => id !== by.userId);
 
   return deps.sys.uow.run(async (tx) => {
@@ -359,7 +359,7 @@ export async function appendSupplement(
       const waiting = s.lines.some((l) => unmet.has(l.lineKey));
       return {
         id: itemId(orderId, no),
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         branchId: q.branchId,
         orderId,
         no,
@@ -454,7 +454,7 @@ export async function appendSupplement(
     );
     if (recipients.length)
       notifyUsers(deps.sys, tx, {
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         userIds: recipients,
         kind: 'rec.order',
         titleKey: 'notifications.supplementApproved',

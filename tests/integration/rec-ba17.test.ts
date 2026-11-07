@@ -9,7 +9,7 @@ type Row = Record<string, any>;
 let seq = 0;
 const key = (p: string) => `${p}-${String(++seq).padStart(6, '0')}-xxxxxxxx`;
 
-const SV_DAU = 'svc_cmp_demo_SV-DAU'; // 30 min
+const SV_DAU = 'svc_tnt_demo_SV-DAU'; // 30 min
 const P_FILTER = 'part_seed_01'; // list 130.000
 const VEH_AN = 'veh_an';
 const VEH_BINH = 'veh_binh';
@@ -210,7 +210,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       expect(ok.status, ok.text).toBe(200);
       expect(ok.json.serviceType).toBe('inspection');
       // retire body_paint: it stays readable but cannot be chosen again
-      await patchDoc('configVersions', 'service-type__body_paint__2026-10-01', {
+      await patchDoc('configVersions', 'tnt_demo__service-type__body_paint__2026-10-01', {
         payload: { name: 'Đồng sơn', status: 'inactive' },
       });
       const retired = await set('body_paint', ok.json.version);
@@ -227,14 +227,14 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
         expect(l).toMatchObject({
           taxKey: 'vat',
           taxRateBp: 800,
-          taxVersionId: 'tax-rate__vat__2026-10-01',
+          taxVersionId: 'tnt_demo__tax-rate__vat__2026-10-01',
         });
       expect(q.shown.taxes).toHaveLength(1);
       expect(q.shown.tax).toMatchObject({ key: 'vat', rateBp: 800 });
     });
     it('a tax-mapping version gives parts their own rate: two rates, tax per rate', async () => {
       await config(kt, 'tax-rate', 'vat-part', { name: 'Thuế phụ tùng (mẫu)', rateBp: 1000 });
-      await config(kt, 'tax-mapping', 'company', { labor: 'vat', part: 'vat-part' });
+      await config(kt, 'tax-mapping', 'tenant', { labor: 'vat', part: 'vat-part' });
       const i = await completedIntake(cv, VEH_AN, 70000);
       const q = await quoteOf(cv, i.id, lines(labor(), part(2)));
       const [l, p] = q.shown.items[0].lines;
@@ -256,8 +256,8 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
     });
     it('a mapped key with no rate in force is a configuration error, not a silent default', async () => {
       // only the mapping that names a rate nobody defined: registered directly (a future rate key typo)
-      const forget = () => h.container.sys.caches.config.invalidateTag('cfg:cmp_demo:tax-mapping');
-      await patchDoc('configVersions', 'tax-mapping__company__' + today(), {
+      const forget = () => h.container.sys.caches.config.invalidateTag('cfg:tnt_demo:tax-mapping');
+      await patchDoc('configVersions', 'tnt_demo__tax-mapping__tenant__' + today(), {
         payload: { labor: 'vat', part: 'vat-typo' },
       });
       forget();
@@ -269,7 +269,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       });
       expect(r.status).toBe(409);
       expect(r.json.code).toBe('tax_rate_missing');
-      await patchDoc('configVersions', 'tax-mapping__company__' + today(), {
+      await patchDoc('configVersions', 'tnt_demo__tax-mapping__tenant__' + today(), {
         payload: { labor: 'vat', part: 'vat-part' },
       });
       forget();
@@ -295,10 +295,10 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
         items: lines(labor()),
       });
       expect(e2.json.shown.warnings).toHaveLength(1); // same change, still inside this validity
-      await patchDoc('configVersions', `tax-rate__vat__${change}`, {
+      await patchDoc('configVersions', `tnt_demo__tax-rate__vat__${change}`, {
         effectiveFrom: addDays(today(), 30),
       });
-      h.container.sys.caches.config.invalidateTag('cfg:cmp_demo:tax-rate');
+      h.container.sys.caches.config.invalidateTag('cfg:tnt_demo:tax-rate');
       const again = await call(cv, 'GET', `/api/v1/rec/quotes/${q2.json.id}`);
       expect(again.json.shown.warnings).toHaveLength(0);
     });
@@ -358,7 +358,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
   describe('C17 REC joins the data-retention gate', () => {
     it('blocks while an intake is open or a quote waits for the customer; stays unverified for the modules not built', async () => {
       const customer = 'cus_biz';
-      const gate = () => h.container.crm.retention.check('cmp_demo', customer);
+      const gate = () => h.container.crm.retention.check('tnt_demo', customer);
       expect((await gate()).blockers).toEqual([]);
       const c = await call(cv, 'POST', '/api/v1/rec/intakes', { vehicleId: 'veh_biz' });
       expect((await gate()).blockers.join(' ')).toMatch(/hồ sơ tiếp nhận chưa hoàn tất/);
@@ -382,7 +382,7 @@ describe.each(backends)('REC after BA §17 [%s]', (backend) => {
       // the advisor also works at Thu Duc, so a Thu Duc-only vehicle is visible while working at Q7
       const asg = {
         userId: 'u_cv_q7',
-        companyId: 'cmp_demo',
+        tenantId: 'tnt_demo',
         roleCode: 'CV',
         branchId: 'br_td',
         employeeCode: 'NV0103',

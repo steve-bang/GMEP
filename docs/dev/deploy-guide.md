@@ -93,7 +93,7 @@ gcloud run deploy gmep --image $IMAGE --region $REGION \
   --service-account $SA --port 8080 \
   --allow-unauthenticated \
   --min-instances 1 --max-instances 10 --cpu 1 --memory 1Gi \
-  --set-env-vars GMEP_ENV=prod,GMEP_DATA_BACKEND=firestore,GCLOUD_PROJECT=$PROJECT,TRUSTED_PROXY_HOPS=1,APP_BASE_URL=$APP_URL,APP_ORIGIN=$APP_URL,EMAIL_FROM='GMEP <no-reply@example.vn>',CRON_COMPANY_ID=<id công ty> \
+  --set-env-vars GMEP_ENV=prod,GMEP_DATA_BACKEND=firestore,GCLOUD_PROJECT=$PROJECT,TRUSTED_PROXY_HOPS=1,APP_BASE_URL=$APP_URL,APP_ORIGIN=$APP_URL,EMAIL_FROM='GMEP <no-reply@example.vn>',CRON_TENANT_ID=<id công ty> \
   --set-secrets FIREBASE_API_KEY=gmep-firebase-api-key:latest,EMAIL_SMTP_URL=gmep-email-smtp-url:latest,CRON_SECRET=gmep-cron-secret:latest
 ```
 
@@ -151,7 +151,7 @@ gcloud scheduler jobs create http gmep-run-due --location=$REGION \
 
 **Cách B: OIDC** (khuyến nghị, không phải lưu secret trong Scheduler): tạo service account `scheduler@...`, đặt `CRON_OIDC_AUDIENCE=$URL` và `CRON_OIDC_SERVICE_ACCOUNT=scheduler@$PROJECT.iam.gserviceaccount.com` (phải đặt cả hai), rồi tạo job với `--oidc-service-account-email` và `--oidc-token-audience=$URL`.
 
-`CRON_COMPANY_ID` là công ty mà các chi nhánh được xử lý (hiện giả định một pháp nhân, `[Cần xác nhận]`).
+`CRON_TENANT_ID` là công ty mà các chi nhánh được xử lý (hiện giả định một pháp nhân, `[Cần xác nhận]`).
 
 ## 7. Domain và HTTPS
 
@@ -170,8 +170,8 @@ Biến môi trường (đọc từ shell khi chạy; cùng `GMEP_ENV`, `GCLOUD_P
 | Biến | Bắt buộc | Ghi chú |
 | --- | --- | --- |
 | `BOOTSTRAP_CONFIRM_PROJECT` | có | Phải bằng `GCLOUD_PROJECT`, tránh ghi nhầm project |
-| `BOOTSTRAP_COMPANY_NAME` | có | Tên công ty |
-| `BOOTSTRAP_COMPANY_ID` | không | Mặc định `cmp_main`; dùng cùng giá trị cho `CRON_COMPANY_ID` |
+| `BOOTSTRAP_TENANT_NAME` | có | Tên công ty |
+| `BOOTSTRAP_TENANT_ID` | không | Mặc định `tnt_main`; dùng cùng giá trị cho `CRON_TENANT_ID` |
 | `BOOTSTRAP_BRANCH_CODE`, `BOOTSTRAP_BRANCH_NAME` | có | Mã 2-4 ký tự A-Z, 0-9 |
 | `BOOTSTRAP_WAREHOUSE_CODE`, `BOOTSTRAP_WAREHOUSE_NAME` | không | Mặc định `WH-CHINH`, "Kho chính <chi nhánh>" |
 | `BOOTSTRAP_OWNER_EMAIL`, `BOOTSTRAP_OWNER_NAME` | có | Chủ dùng email này để kích hoạt |
@@ -182,7 +182,7 @@ Các mục **[Cần xác nhận]** chưa được giả định: một hay nhi�
 
 ### Từ chối khởi động ở `GMEP_ENV=prod` (`src/platform/config/env.ts`)
 
-App dừng ngay khi nạp cấu hình, báo **tên** mọi biến thiếu/không an toàn (không in giá trị) nếu: bật `EINVOICE_FAKE_PROVIDER=true` (FakeProvider; mặc định tắt ở prod, bật ở nơi khác trừ khi đặt `false`); đặt `MESSAGE_DEV_CHANNELS`; thiếu `EMAIL_SMTP_URL`/`EMAIL_FROM` (nếu không sẽ dùng outbox email dev); có `*_EMULATOR_HOST`; `GCLOUD_PROJECT` thiếu hoặc bắt đầu bằng `demo-`; `FIREBASE_API_KEY` là giá trị mặc định; thiếu `APP_BASE_URL`/`APP_ORIGIN`; thiếu `CRON_COMPANY_ID`; không có `CRON_SECRET` lẫn cặp `CRON_OIDC_*`; `GMEP_DATA_BACKEND=memory`. `NODE_ENV=production` một mình không kích hoạt các kiểm tra này vì CI/e2e chạy `next start` với `GMEP_ENV=local`; cờ quyết định là `GMEP_ENV=prod`. Staging giữ hành vi cũ (cho phép adapter giả để thử).
+App dừng ngay khi nạp cấu hình, báo **tên** mọi biến thiếu/không an toàn (không in giá trị) nếu: bật `EINVOICE_FAKE_PROVIDER=true` (FakeProvider; mặc định tắt ở prod, bật ở nơi khác trừ khi đặt `false`); đặt `MESSAGE_DEV_CHANNELS`; thiếu `EMAIL_SMTP_URL`/`EMAIL_FROM` (nếu không sẽ dùng outbox email dev); có `*_EMULATOR_HOST`; `GCLOUD_PROJECT` thiếu hoặc bắt đầu bằng `demo-`; `FIREBASE_API_KEY` là giá trị mặc định; thiếu `APP_BASE_URL`/`APP_ORIGIN`; thiếu `CRON_TENANT_ID`; không có `CRON_SECRET` lẫn cặp `CRON_OIDC_*`; `GMEP_DATA_BACKEND=memory`. `NODE_ENV=production` một mình không kích hoạt các kiểm tra này vì CI/e2e chạy `next start` với `GMEP_ENV=local`; cờ quyết định là `GMEP_ENV=prod`. Staging giữ hành vi cũ (cho phép adapter giả để thử).
 
 ## 9. Việc còn chặn go-live (ngoài hạ tầng)
 

@@ -25,8 +25,8 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
     extra: { origin?: string | null; headers?: Record<string, string> } = {},
   ) => h.call('POST', '/api/v1/auth/login', { body: { identifier, password }, ...extra });
 
-  it('logs in by email or employee code and sets a hardened __Host- session cookie', async () => {
-    for (const identifier of ['ql.q7@demo.gmep.test', 'NV0101', 'nv0101']) {
+  it('FR-TEN-016: logs in by email (any case); an employee code is not a login name (unique per tenant only) and fails like a wrong password; sets a hardened __Host- session cookie', async () => {
+    for (const identifier of ['ql.q7@demo.gmep.test', ' QL.Q7@demo.gmep.test ']) {
       const res = await login(identifier, DEMO_PASSWORD);
       expect(res.status, identifier).toBe(200);
       const setCookie = res.headers.get('set-cookie')!;
@@ -37,6 +37,9 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
       expect(res.json.user).toMatchObject({ id: 'u_ql_q7' });
       expect(res.text).not.toContain(DEMO_PASSWORD);
     }
+    const byCode = await login('NV0101', DEMO_PASSWORD);
+    expect(byCode.status).toBe(401);
+    expect(byCode.json.code).toBe('invalid_credentials');
   });
 
   it('wrong password, unknown user and disabled user are indistinguishable (no enumeration)', async () => {
@@ -75,15 +78,19 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
   });
 
   it('S5 revoke: revoking all sessions of a user kills every cookie, other users are unaffected', async () => {
-    const c1 = parseSetCookie((await login('NV0201', DEMO_PASSWORD)).headers.get('set-cookie'));
-    const c2 = parseSetCookie((await login('NV0201', DEMO_PASSWORD)).headers.get('set-cookie'));
+    const c1 = parseSetCookie(
+      (await login('ql.td@demo.gmep.test', DEMO_PASSWORD)).headers.get('set-cookie'),
+    );
+    const c2 = parseSetCookie(
+      (await login('ql.td@demo.gmep.test', DEMO_PASSWORD)).headers.get('set-cookie'),
+    );
     const other = await h.login('u_owner');
     await revokeAllSessions(h.container.sys, 'u_ql_td');
     expect((await h.call('GET', '/api/v1/auth/me', { cookie: c1 })).status).toBe(401);
     expect((await h.call('GET', '/api/v1/auth/me', { cookie: c2 })).status).toBe(401);
     expect((await h.call('GET', '/api/v1/auth/me', { cookie: other })).status).toBe(200);
     // logging in again after a revoke works
-    expect((await login('NV0201', DEMO_PASSWORD)).status).toBe(200);
+    expect((await login('ql.td@demo.gmep.test', DEMO_PASSWORD)).status).toBe(200);
   });
 
   it('idle timeout: a session unused longer than SESSION_IDLE_MINUTES is rejected', async () => {
@@ -107,9 +114,12 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
 
   it('CSRF: login/logout reject a missing or foreign Origin and non-JSON bodies', async () => {
     expect(
-      (await login('NV0101', DEMO_PASSWORD, { origin: 'https://evil.example' })).json.code,
+      (await login('ql.q7@demo.gmep.test', DEMO_PASSWORD, { origin: 'https://evil.example' })).json
+        .code,
     ).toBe('bad_origin');
-    expect((await login('NV0101', DEMO_PASSWORD, { origin: null })).json.code).toBe('bad_origin');
+    expect((await login('ql.q7@demo.gmep.test', DEMO_PASSWORD, { origin: null })).json.code).toBe(
+      'bad_origin',
+    );
     const form = await h.call('POST', '/api/v1/auth/login', {
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'x=1',
@@ -121,7 +131,7 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
     const original = h.container.sys.strongAuth;
     h.container.sys.strongAuth = { requirementFor: async () => 'totp', verify: async () => false };
     try {
-      const res = await login('NV0101', DEMO_PASSWORD);
+      const res = await login('ql.q7@demo.gmep.test', DEMO_PASSWORD);
       expect(res.status).toBe(401);
       expect(res.json.code).toBe('strong_auth_required');
       expect(res.headers.getSetCookie().some((c) => c.startsWith('__Host-gmep_session'))).toBe(
@@ -135,7 +145,7 @@ describe.each(backends)('FR-SYS-001 password login and server session [%s]', (ba
   it('FR-SYS-003: login and logout are audited without secrets', async () => {
     const entries = await auditList(
       h.container.sys.audit,
-      allBranchesScope('cmp_demo'),
+      allBranchesScope('tnt_demo'),
       { entityType: 'session' },
       100,
     );

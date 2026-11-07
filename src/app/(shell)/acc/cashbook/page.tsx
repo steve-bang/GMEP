@@ -32,7 +32,7 @@ export default async function CashbookPage({ searchParams }: { searchParams: Sea
     const acc = getContainer().acc;
     const cb = await getCashbook(acc, actor, date);
     const cats = hasPermission(actor, 'cash-expense:view')
-      ? await expenseCategories(acc, actor.companyId, today)
+      ? await expenseCategories(acc, actor.tenantId, today)
       : [];
     const mine = hasPermission(actor, 'approval:view')
       ? await listApprovals(getContainer().sys, actor, { tab: 'mine' }).catch(() => null)

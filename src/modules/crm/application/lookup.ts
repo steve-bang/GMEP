@@ -80,12 +80,12 @@ const lookupSchema = z
 async function noticeLookupLimit(deps: CrmDeps, actor: Actor): Promise<void> {
   try {
     await deps.sys.limiter.hit('customer-lookup-notice', actor.userId);
-    let to = await usersWithRole(deps.sys, actor.companyId, ['CH'], null);
-    if (to.length === 0) to = await usersWithRole(deps.sys, actor.companyId, ['QV'], null);
+    let to = await usersWithRole(deps.sys, actor.tenantId, ['CH'], null);
+    if (to.length === 0) to = await usersWithRole(deps.sys, actor.tenantId, ['QV'], null);
     if (to.length === 0) return;
     await deps.sys.uow.run(async (tx) => {
       notifyUsers(deps.sys, tx, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         userIds: to,
         kind: 'crm.lookup_limit',
         titleKey: 'notifications.lookupLimit',
@@ -134,7 +134,7 @@ export async function lookupExact(
     }
     throw e;
   }
-  const companyId = actor.companyId;
+  const tenantId = actor.tenantId;
   const mine = (() => {
     try {
       return resolveWorkingScope(actor, 'customer:view');
@@ -143,7 +143,7 @@ export async function lookupExact(
     }
   })();
   const branchNames = new Map(
-    (await deps.sys.branches.list(allBranchesScope(companyId))).map((b) => [b.id, b.name] as const),
+    (await deps.sys.branches.list(allBranchesScope(tenantId))).map((b) => [b.id, b.name] as const),
   );
   const relatedTo = (branchIds: readonly string[]) =>
     !!mine &&
@@ -151,12 +151,12 @@ export async function lookupExact(
       branchIds.some((b) => mine.kind === 'branches' && mine.branchIds.includes(b)));
 
   const projectCustomer = async (c: Customer): Promise<CustomerProjection> => {
-    const owned = (await deps.ownerships.listByCustomer(companyId, c.id, 30)).filter(
+    const owned = (await deps.ownerships.listByCustomer(tenantId, c.id, 30)).filter(
       (o) => o.to === null,
     );
     const vs: Vehicle[] = [];
     for (const o of owned) {
-      const v = await deps.vehicles.getCompanyWide(companyId, o.vehicleId);
+      const v = await deps.vehicles.getCompanyWide(tenantId, o.vehicleId);
       if (v) vs.push(v);
     }
     return {
@@ -181,11 +181,11 @@ export async function lookupExact(
     const plateNorm = normalizePlate(data.plate);
     if (!isPlausiblePlate(plateNorm))
       throw validationFailed([{ field: 'plate', message: 'Biển số chưa đúng.' }]);
-    const id = await deps.vehicles.vehicleIdByPlate(companyId, plateNorm);
-    const v = id ? await deps.vehicles.getCompanyWide(companyId, id) : null;
+    const id = await deps.vehicles.vehicleIdByPlate(tenantId, plateNorm);
+    const v = id ? await deps.vehicles.getCompanyWide(tenantId, id) : null;
     if (!v) return { vehicles: [], customers: [] };
     const owner = v.currentOwnerId
-      ? await deps.customers.getCompanyWide(companyId, v.currentOwnerId)
+      ? await deps.customers.getCompanyWide(tenantId, v.currentOwnerId)
       : null;
     const vp: VehicleProjection = {
       id: v.id,
@@ -208,14 +208,14 @@ export async function lookupExact(
   if (!isPlausiblePhone(phoneNorm))
     throw validationFailed([{ field: 'phone', message: 'Nhập đủ số điện thoại.' }]);
   const ids = await deps.customers.customerIdsByPhone(
-    companyId,
+    tenantId,
     phoneNorm,
     'exact',
     deps.crm.lookupMaxResults,
   );
   const customers: CustomerProjection[] = [];
   for (const id of ids) {
-    const c = await deps.customers.getCompanyWide(companyId, id);
+    const c = await deps.customers.getCompanyWide(tenantId, id);
     if (c && c.status === 'active') customers.push(await projectCustomer(c));
   }
   // BA §7.3 event 4: every phone search is logged (without the number)
@@ -265,19 +265,19 @@ export async function relateToWorkingBranch(
       fingerprint: fingerprintOf({ customerId }),
     },
     async (tx) => {
-      const c = await deps.customers.getCompanyWideInTx(tx, actor.companyId, customerId);
+      const c = await deps.customers.getCompanyWideInTx(tx, actor.tenantId, customerId);
       if (!c || c.status !== 'active') throw notFound();
       const branch = await writableWorkingBranch(deps, tx, actor, scope);
       if (c.branchIds.includes(branch.id))
         return { status: 200, body: { id: c.id, related: true, changed: false } };
       const now = deps.sys.clock.now();
       // Firestore transactions: every read comes before the first write
-      const owned = (await deps.ownerships.listByCustomer(actor.companyId, c.id, 100)).filter(
+      const owned = (await deps.ownerships.listByCustomer(actor.tenantId, c.id, 100)).filter(
         (o) => o.to === null,
       );
       const vehicles = (
         await Promise.all(
-          owned.map((o) => deps.vehicles.getCompanyWideInTx(tx, actor.companyId, o.vehicleId)),
+          owned.map((o) => deps.vehicles.getCompanyWideInTx(tx, actor.tenantId, o.vehicleId)),
         )
       ).flatMap((v) => (v && !v.branchIds.includes(branch.id) ? [v] : []));
       deps.customers.update(tx, c.id, { branchIds: [...c.branchIds, branch.id] });

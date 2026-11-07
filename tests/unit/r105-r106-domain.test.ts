@@ -3,7 +3,7 @@ import { emptyAccount, receiptMethodsOf, refundableVnd, type Payment } from '@/m
 import { APPROVAL_KIND_DEFS, isApprovalExpired, REAUTH_ON_APPROVE } from '@/modules/sys';
 
 const acct = (o: Partial<ReturnType<typeof emptyAccount>> = {}) => ({
-  ...emptyAccount({ companyId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'LSC-1' }),
+  ...emptyAccount({ tenantId: 'c', branchId: 'b', orderId: 'o', orderNumber: 'LSC-1' }),
   ...o,
 });
 const receipt = (id: string, method: string): Payment =>

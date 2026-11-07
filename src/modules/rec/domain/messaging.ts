@@ -11,7 +11,7 @@ export type MessageChannelCode = 'sms' | 'zalo' | 'email';
 export interface QuoteOtpRecord extends OtpState {
   /** the link hash (token SHA-256) */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   quoteId: string;
   channel: MessageChannelCode;
@@ -31,7 +31,7 @@ export type DeliveryDeadReason =
 export interface QuoteDelivery {
   /** deterministic from the Idempotency-Key of the request: the key that makes a resend impossible */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   quoteId: string;
   n: number;
@@ -71,7 +71,7 @@ export interface MessageQueueItem {
 export interface MessageQueue {
   /** the branch id */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   items: Record<string, MessageQueueItem>;
 }

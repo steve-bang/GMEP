@@ -12,13 +12,13 @@ const LIMIT = 50;
 
 export function recCustomerRetention(getDeps: () => RecDeps): CustomerRetentionPort {
   return {
-    async check(companyId, customerId) {
+    async check(tenantId, customerId) {
       const d = getDeps();
       const [drafts, sent, orders] = await Promise.all([
-        d.intakes.listByCustomer(companyId, customerId, 'draft', LIMIT),
-        d.quotes.listByCustomer(companyId, customerId, 'sent', LIMIT),
+        d.intakes.listByCustomer(tenantId, customerId, 'draft', LIMIT),
+        d.quotes.listByCustomer(tenantId, customerId, 'sent', LIMIT),
         // slice 1.6: a repair order that is not finished or cancelled is the source document of work in progress
-        d.orders.listOpenByCustomer(companyId, customerId, LIMIT),
+        d.orders.listOpenByCustomer(tenantId, customerId, LIMIT),
       ]);
       const blockers = [
         ...(drafts.length ? [`Có ${drafts.length} hồ sơ tiếp nhận chưa hoàn tất.`] : []),

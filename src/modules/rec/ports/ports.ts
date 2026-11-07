@@ -1,4 +1,5 @@
 import type { Page } from '@/platform/pagination/pagination';
+import type { Actor } from '@/platform/rbac/rbac';
 import type { Scope } from '@/platform/scope/scope';
 import type { Tx } from '@/platform/tx/unitOfWork';
 import type { PartRequest, PartRequestStatus, RepairItem, RepairOrder } from '../domain/order';
@@ -12,6 +13,8 @@ import type {
   QuoteVersion,
 } from '../domain/entities';
 import type { MessageQueue, QuoteDelivery, QuoteOtpRecord } from '../domain/messaging';
+import type { Appointment } from '../domain/appointment';
+import type { WarrantyRecord } from '../domain/warranty';
 
 type Cursor = { v: string; id: string };
 export interface PageQuery {
@@ -33,7 +36,7 @@ export interface IntakeRepository {
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Intake | null>;
   /** C17: company-wide (retention gate), no scope: only counts, never returned to a user */
   listByCustomer(
-    companyId: string,
+    tenantId: string,
     customerId: string,
     status: IntakeStatus,
     limit: number,
@@ -54,7 +57,7 @@ export interface QuoteRepository {
   get(scope: Scope, id: string): Promise<Quote | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Quote | null>;
   listByCustomer(
-    companyId: string,
+    tenantId: string,
     customerId: string,
     status: QuoteStatus,
     limit: number,
@@ -121,9 +124,9 @@ export interface RepairOrderRepository {
   get(scope: Scope, id: string): Promise<RepairOrder | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<RepairOrder | null>;
   /** by ids, inside the company (advisor lookup for INV notices); missing ids are absent */
-  getMany(companyId: string, ids: readonly string[]): Promise<RepairOrder[]>;
+  getMany(tenantId: string, ids: readonly string[]): Promise<RepairOrder[]>;
   /** C17: company-wide retention gate, only counts */
-  listOpenByCustomer(companyId: string, customerId: string, limit: number): Promise<RepairOrder[]>;
+  listOpenByCustomer(tenantId: string, customerId: string, limit: number): Promise<RepairOrder[]>;
   create(tx: Tx, o: RepairOrder): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
 }
@@ -176,4 +179,68 @@ export interface PaymentGate {
  */
 export interface OrderInvoiceGate {
   hasValidInvoice(scope: Scope, orderId: string): Promise<boolean>;
+}
+
+// ---- slice 2.6a: technician labor (HRM) as REC sees it ---------------------------------------------------------
+
+/**
+ * FR-HRM-007, 008: labor is recorded around the quality check, in REC's own transaction. HRM is never imported by REC:
+ * the composition root bridges this port to HRM. Each `prepare*` does its READS and returns a `commit()` that stages the
+ * writes, so REC calls every prepare before its first write (Firestore) and then commits (same pattern as stock release).
+ * The bridge never refuses a QC for a missing rule: the labor line carries a warning instead.
+ */
+export interface LaborStaged {
+  commit(): void;
+}
+export interface LaborQcCall {
+  tx: Tx;
+  scope: Scope;
+  actor: Actor;
+  ctx: { requestId: string; idempotencyKey?: string };
+  order: RepairOrder;
+  /** every item of the order */
+  items: readonly RepairItem[];
+  at: Date;
+  businessDate: string;
+}
+export interface LaborGate {
+  /** QC passed: labor of the finished items */
+  prepareQcPass(c: LaborQcCall & { qcRun: number }): Promise<LaborStaged>;
+  /** QC failed: markers for the returned items (no labor is earned) */
+  prepareQcFail(
+    c: LaborQcCall & { qcRun: number; returnedItemIds: readonly string[] },
+  ): Promise<LaborStaged>;
+  /** the order is cancelled: labor already recorded is undone by opposite lines */
+  prepareCancel(c: LaborQcCall & { reason: string }): Promise<LaborStaged>;
+}
+
+/**
+ * Appointments (slice 2.8b, FR-REC-019, 027): always read for ONE branch over a date range (the calendar of a
+ * branch), one composite index (tenantId, branchId, date). Scope is checked on every read.
+ */
+export interface AppointmentRepository {
+  /** appointments of `branchId` with `from <= date < toExclusive`, at most `limit` rows, date ascending */
+  listByDates(
+    scope: Scope,
+    branchId: string,
+    from: string,
+    toExclusive: string,
+    limit: number,
+  ): Promise<Appointment[]>;
+  get(scope: Scope, id: string): Promise<Appointment | null>;
+  getInTx(tx: Tx, scope: Scope, id: string): Promise<Appointment | null>;
+  create(tx: Tx, a: Appointment): void;
+  update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+}
+
+/**
+ * Warranty records (slice 2.8b, FR-REC-018, 036): the P4 projection, company-wide by vehicle INSIDE the tenant. The
+ * application decides what a reader of another branch may see (white-listed type, no origin-order link).
+ */
+export interface WarrantyRepository {
+  /** newest first, within the tenant only */
+  listByVehicle(tenantId: string, vehicleId: string, limit: number): Promise<WarrantyRecord[]>;
+  getCompanyWide(tenantId: string, id: string): Promise<WarrantyRecord | null>;
+  /** deterministic id: a replayed handover rewrites the same record */
+  upsert(tx: Tx, r: WarrantyRecord): void;
 }

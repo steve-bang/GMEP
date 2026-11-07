@@ -90,7 +90,7 @@ describe.each(backends)('UAT journeys [%s]', (backend) => {
         {
           name: 'Thay lọc gió',
           necessity: 'optional',
-          lines: [{ kind: 'labor', serviceId: 'svc_cmp_demo_SV-DAU' }],
+          lines: [{ kind: 'labor', serviceId: 'svc_tnt_demo_SV-DAU' }],
         },
       ],
     });

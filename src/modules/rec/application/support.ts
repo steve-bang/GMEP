@@ -46,7 +46,7 @@ export async function assertWritable(
   branchId: string,
   kind: WriteKind,
 ): Promise<Branch> {
-  if (!scopeAllows(scope, actor.companyId, branchId)) throw forbidden();
+  if (!scopeAllows(scope, actor.tenantId, branchId)) throw forbidden();
   const branch = await deps.sys.branches.getInTx(tx, scope, branchId);
   if (!branch) throw notFound();
   assertBranchWritable(branch.status, kind, roleCodesOf(actor), deps.sys.config.branchStateRules);

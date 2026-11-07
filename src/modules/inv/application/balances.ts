@@ -234,7 +234,7 @@ export async function setStockLevels(
       const now = deps.sys.clock.now();
       const base: StockBalance = cur ?? {
         id: balanceId(w.id, part.id),
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         branchId: w.branchId,
         warehouseId: w.id,
         partId: part.id,

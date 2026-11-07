@@ -4,12 +4,13 @@ import { mayBeOtherBranch } from '@/platform/rbac/rbac';
 import { apiRoute, json, type RouteContext } from '@/platform/http/route';
 import { parseIdempotencyKey } from '@/platform/idempotency/idempotency';
 import type { AccDeps } from '@/modules/acc';
+import type { HrmDeps } from '@/modules/hrm';
 import type { EinDeps } from '@/modules/ein';
 import type { RptDeps } from '@/modules/rpt';
 import type { CrmDeps } from '@/modules/crm';
 import type { InvDeps } from '@/modules/inv';
 import type { RecDeps } from '@/modules/rec';
-import type { Session, SysDeps } from '@/modules/sys';
+import { assertTenantWritable, type Session, type SysDeps } from '@/modules/sys';
 import { allowedOrigins, authenticate } from './auth';
 import { getContainer } from './container';
 
@@ -24,6 +25,7 @@ export interface ApiCtx extends RouteContext {
   inv: InvDeps;
   rec: RecDeps;
   acc: AccDeps;
+  hrm: HrmDeps;
   ein: EinDeps;
   rpt: RptDeps;
 }
@@ -44,6 +46,7 @@ export function api(handler: (c: ApiCtx) => Promise<Response>) {
         inv: getContainer().inv,
         rec: getContainer().rec,
         acc: getContainer().acc,
+        hrm: getContainer().hrm,
         ein: getContainer().ein,
         rpt: getContainer().rpt,
       }),
@@ -53,6 +56,18 @@ export function api(handler: (c: ApiCtx) => Promise<Response>) {
   );
 }
 
+/**
+ * MT0-2: what a read-only tenant (`suspended`, `terminating`) may still POST: the working-branch picker (session state
+ * only), data exports (the tenant's right to take its data out) and the invoice status sync with the provider.
+ */
+const READ_ONLY_ALLOWED = [
+  /^\/api\/v1\/sys\/scope$/,
+  /\/export$/,
+  /^\/api\/v1\/ein\/invoices\/[^/]+\/sync$/,
+];
+const readOnlyAllowed = (pathname: string): boolean =>
+  READ_ONLY_ALLOWED.some((r) => r.test(pathname));
+
 export function authed(
   handler: (c: AuthedCtx) => Promise<Response>,
   options: { multipart?: boolean } = {},
@@ -60,6 +75,10 @@ export function authed(
   return apiRoute(
     async (c) => {
       const session = await authenticate(c.req);
+      // analysis 5.1: a suspended or terminating tenant is read-only. Choosing a tenant and signing out stay possible
+      // (those routes use `api`, not `authed`); the working-branch picker only changes session state.
+      if (!['GET', 'HEAD'].includes(c.req.method) && !readOnlyAllowed(new URL(c.req.url).pathname))
+        assertTenantWritable(session.tenantStatus);
       try {
         return await handler({
           ...c,
@@ -68,6 +87,7 @@ export function authed(
           inv: getContainer().inv,
           rec: getContainer().rec,
           acc: getContainer().acc,
+          hrm: getContainer().hrm,
           ein: getContainer().ein,
           rpt: getContainer().rpt,
           session,
@@ -123,6 +143,7 @@ export function cron(handler: (c: ApiCtx) => Promise<Response>) {
         inv: getContainer().inv,
         rec: getContainer().rec,
         acc: getContainer().acc,
+        hrm: getContainer().hrm,
         ein: getContainer().ein,
         rpt: getContainer().rpt,
       });

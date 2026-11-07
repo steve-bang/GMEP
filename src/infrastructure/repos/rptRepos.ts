@@ -5,8 +5,8 @@ import { rollupId, type DailyRollup, type RollupRepository } from '@/modules/rpt
 import { COL } from './queries';
 
 const asEntity = ({ id, data }: StoredDoc): DailyRollup => ({ id, ...data }) as DailyRollup;
-const inScope = (scope: Scope, x: { companyId: string; branchId: string }) =>
-  scopeAllows(scope, x.companyId, x.branchId);
+const inScope = (scope: Scope, x: { tenantId: string; branchId: string }) =>
+  scopeAllows(scope, x.tenantId, x.branchId);
 
 /**
  * Rollups are addressed by id only: a branch outside the scope is "not found" before the document is even read, and a
@@ -15,23 +15,26 @@ const inScope = (scope: Scope, x: { companyId: string; branchId: string }) =>
 export class DocRollupRepository implements RollupRepository {
   constructor(private readonly store: DocStore) {}
   async get(scope: Scope, branchId: string, date: string) {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return null;
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return null;
     const d = await this.store.get(COL.rollups, rollupId(branchId, date));
     const x = d ? asEntity(d) : null;
     return x && inScope(scope, x) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, branchId: string, date: string) {
-    if (!scopeAllows(scope, scope.companyId, branchId)) return null;
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return null;
     const d = await this.store.getInTx(tx, COL.rollups, rollupId(branchId, date));
     const x = d ? asEntity(d) : null;
     return x && inScope(scope, x) ? x : null;
   }
   async getMany(scope: Scope, keys: readonly { branchId: string; date: string }[]) {
     const ids = keys
-      .filter((k) => scopeAllows(scope, scope.companyId, k.branchId))
+      .filter((k) => scopeAllows(scope, scope.tenantId, k.branchId))
       .map((k) => rollupId(k.branchId, k.date));
     if (ids.length === 0) return [];
-    const docs = await this.store.getMany(COL.rollups, ids);
+    // a consolidated period read can name more than a thousand documents (20 branches x 93 days): chunked, in parallel
+    const chunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += 200) chunks.push(ids.slice(i, i + 200));
+    const docs = (await Promise.all(chunks.map((c) => this.store.getMany(COL.rollups, c)))).flat();
     return docs.map(asEntity).filter((x) => inScope(scope, x));
   }
   save(tx: Tx, r: DailyRollup) {

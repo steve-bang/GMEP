@@ -1,3 +1,5 @@
+import type { WarrantyLink } from './warranty';
+
 /**
  * REC domain entities (slice 1.5, first part): intake (hồ sơ tiếp nhận) and quote. A quote, a repair
  * order, a repair item, a payment and an invoice are FIVE objects with FIVE state sets; nothing here
@@ -79,7 +81,7 @@ export interface PhotoRef {
 
 export interface Intake {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** TX-<branch>-<yymm>-<seq>, allocated at creation (group A) */
   number: string;
@@ -113,6 +115,10 @@ export interface Intake {
   customerParts: CustomerPart[];
   photos?: PhotoRef[];
   internalNote?: string;
+  /** slice 2.8b (FR-REC-027): set when the intake was opened by "Đã đến" on an appointment */
+  appointmentId?: string;
+  /** slice 2.8b (FR-REC-018, 036): warranty work linked to the origin order and items */
+  warranty?: WarrantyLink;
   quoteId?: string;
   cancelReason?: string;
   completedAt?: Date;
@@ -290,7 +296,7 @@ export interface QuoteApproval {
 export interface QuoteVersion {
   id: string;
   quoteId: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   n: number;
   status: QuoteStatus;
@@ -335,7 +341,7 @@ export interface QuoteVersion {
 export interface QuoteLink {
   /** SHA-256 hex of the token */
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   quoteId: string;
   n: number;
@@ -352,7 +358,7 @@ export interface QuoteLink {
 
 export interface Quote {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** BG-<branch>-<yymm>-<seq>; versions are the suffix -vN and never use a new number */
   number: string;

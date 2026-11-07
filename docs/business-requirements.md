@@ -15,7 +15,8 @@ Excel không lưu lịch sử chỉnh sửa, không biết ai sửa gì, và ch�
 | Người dùng chính | Chủ garage, quản lý chi nhánh, cố vấn dịch vụ, thợ, thủ kho, kế toán, thu ngân |
 | Nền tảng | Web responsive: máy tính tại quầy, tablet tại xưởng, điện thoại cho quản lý |
 | Khung pháp lý áp dụng | Nghị định 254/2026/NĐ-CP (hóa đơn), Thông tư 99/2025/TT-BTC hoặc 152/2025/TT-BTC (kế toán), Luật Bảo vệ dữ liệu cá nhân 2025 |
-| Trạng thái tài liệu | Bản nháp 0.3, chưa phải BRD đã được khách xác nhận (có thêm câu trả lời Discovery của khách, mục 10); dựa trên nghiên cứu thị trường, benchmark quốc tế, tài liệu BA tham khảo và pháp lý đến 30/10/2026. Chưa có file Excel thực tế của khách, nên các mục đánh dấu \[Cần xác nhận\] phải chốt với chủ garage |
+| Multi-tenant (bản 0.4, 06/11/2026) | Khách quyết ngày 05/11/2026: hệ thống thiết kế **multi-tenant từ đầu** (nền tảng SaaS dùng chung), chủ garage khác **tự đăng ký và tự triển khai**, có **gói dịch vụ thu tiền, làm sau theo phase**. Chủ dự án quyết thêm ngày 06/11/2026: một email thuộc nhiều tenant (RULE-034), tenant không gán gói là miễn phí hoàn toàn không trial (RULE-035), bỏ MFA cho vai trò nền tảng (R-TEN-13), tên sản phẩm GMEP. Các BR-TEN, RULE-016 đến 035 bên dưới là cách BA cụ thể hóa các quyết định này, **chờ khách xác nhận** (trừ các điểm vừa nêu); chi tiết ở `docs/multi-tenant-analysis.md` |
+| Trạng thái tài liệu | Bản nháp 0.3 (cộng bổ sung multi-tenant bản 0.4), chưa phải BRD đã được khách xác nhận (có thêm câu trả lời Discovery của khách, mục 10); dựa trên nghiên cứu thị trường, benchmark quốc tế, tài liệu BA tham khảo và pháp lý đến 30/10/2026. Chưa có file Excel thực tế của khách, nên các mục đánh dấu \[Cần xác nhận\] phải chốt với chủ garage |
 
 ## 2. Bối cảnh và vấn đề hiện tại
 
@@ -125,6 +126,19 @@ Hai phân hệ dưới đây tách ra từ REC và INV của bản 0.1 để d�
 | INS | Kiểm tra xe số | Mẫu kiểm tra, ảnh và video, mức xanh vàng đỏ, chuyển lỗi thành dòng báo giá | 1 |
 | PUR | Mua hàng | Yêu cầu mua, phê duyệt, đơn mua, nhận hàng nhiều lần, hóa đơn và trả hàng nhà cung cấp | 2 |
 
+### Multi-tenant (bản 0.4, quyết định của khách 05/11/2026)
+
+Multi-tenant **thuộc phạm vi**, không còn nằm ngoài phạm vi. Nền tảng là một hệ thống dùng chung; mỗi khách hàng độc lập là một **tenant** với dữ liệu, cấu hình, người dùng tách hẳn. Phân cấp: Nền tảng → Tenant → Công ty (pháp nhân) → Chi nhánh → Kho. Khác với "nhiều pháp nhân" (FR-SYS-018, chuyện trong một tenant).
+
+| Mã | Nội dung | Đợt | Giai đoạn |
+| --- | --- | --- | --- |
+| TEN, MT-0 Nền | Mã tenant là lớp phạm vi ngoài cùng; hồ sơ và vòng đời tenant; vai trò nền tảng tách riêng; cấu hình tích hợp theo tenant; kiểm thử cô lập có trục tenant; đưa dữ liệu hiện có thành tenant số 1; một danh tính, nhiều tư cách thành viên (FR-TEN-017, nâng từ MT-3 ngày 06/11/2026) (15 FR) | MT-0 | **Giai đoạn 1 (cùng pilot), bắt buộc** |
+| TEN, MT-1 Tự phục vụ có kiểm soát | Tự đăng ký, xác minh doanh nghiệp, chống lạm dụng, cấp phát tự động, onboarding gọn, điều khoản và thỏa thuận xử lý dữ liệu, hạn chế/tạm ngưng/chấm dứt/xuất/xóa, hỗ trợ (21 FR) | MT-1 | Sau pilot ổn định (**đã chốt theo ủy quyền 06/11/2026**, Q37; mở đăng ký hai nấc); là điều kiện mở đăng ký cho người ngoài |
+| TEN, MT-2 Gói tùy chọn và hạn mức | Gói mặc định miễn phí (không trial, không đếm ngược; quyết định 06/11/2026), danh mục gói tùy chọn, hạn mức, bật/tắt module, đo mức dùng (14 FR) | MT-2 | Sau; nền không được chặn |
+| TEN, MT-3 Thu tiền | Thanh toán gói, hóa đơn của nền tảng, xử lý nợ phí (5 FR) | MT-3 | Sau; nền không được chặn |
+
+Ngoài phạm vi của multi-tenant ở đợt đầu: tenant ngoài Việt Nam (ngôn ngữ, tiền tệ khác), tùy biến giao diện sâu (đổi màu; design tokens bắt buộc giữ nguyên), mã riêng theo từng tenant (chỉ cấu hình), chia sẻ dữ liệu giữa tenant, chuyển bản ghi trực tiếp giữa tenant. Các điểm này là đề xuất của BA, chờ chủ dự án xác nhận (Q6, Q15, Q17, Q19, Q22).
+
 ### Ngoài phạm vi giai đoạn đầu
 
 - Quản lý hồ sơ giám định bảo hiểm và bồi thường phức tạp (tách thành giai đoạn 4 nếu khách có nhu cầu).
@@ -143,11 +157,11 @@ Các hạng mục sau cũng ngoài phạm vi và cần đánh giá riêng khi kh
 
 ## 5. Các bên liên quan và vai trò người dùng
 
-Có 10 nhóm người dùng nội bộ và 4 bên ngoài; chủ garage là người ra quyết định, còn cố vấn dịch vụ và thợ quyết định hệ thống có được dùng thật hay không.
+Có 10 nhóm người dùng nội bộ **trong mỗi tenant**, 4 vai trò **nền tảng** (bản 0.4) và 4 bên ngoài; chủ garage là người ra quyết định, còn cố vấn dịch vụ và thợ quyết định hệ thống có được dùng thật hay không.
 
 | Vai trò | Mô tả | Quan tâm chính | Phạm vi dữ liệu |
 | --- | --- | --- | --- |
-| Chủ garage | Người ra quyết định, nhà tài trợ dự án | Lãi lỗ từng chi nhánh, thất thoát, dòng tiền | Toàn chuỗi |
+| Chủ garage | Người ra quyết định, nhà tài trợ dự án; với tenant khác là người đăng ký và ký điều khoản với nền tảng | Lãi lỗ từng chi nhánh, thất thoát, dòng tiền | Toàn chuỗi (trong tenant của mình) |
 | Quản lý vùng / giám đốc vận hành | Giám sát nhiều chi nhánh \[Cần xác nhận có hay không\] | So sánh hiệu quả chi nhánh | Nhóm chi nhánh được giao |
 | Quản lý chi nhánh | Điều hành một cửa hàng | Doanh thu ngày, tiến độ xe, tồn kho, nhân sự | Một chi nhánh |
 | Cố vấn dịch vụ | Tiếp khách, báo giá, theo dõi tiến độ | Báo giá nhanh, chính xác, giữ chân khách | Chi nhánh của mình |
@@ -156,7 +170,11 @@ Có 10 nhóm người dùng nội bộ và 4 bên ngoài; chủ garage là ngư�
 | Thủ kho | Nhập, xuất, kiểm kê phụ tùng | Tồn chính xác, phiếu rõ ràng | Kho chi nhánh |
 | Thu ngân | Thu tiền, in phiếu | Thu đúng, đối chiếu quỹ | Chi nhánh của mình |
 | Kế toán | Công nợ, giá vốn, hóa đơn, chốt sổ | Chứng từ đủ, hóa đơn đúng luật | Theo phân công, có thể toàn chuỗi |
-| Quản trị hệ thống | Cấu hình, phân quyền, hỗ trợ | Vận hành ổn định, bảo mật | Toàn hệ thống, không xem số liệu nhạy cảm |
+| Quản trị hệ thống (quản trị tenant) | Cấu hình, phân quyền, hỗ trợ trong tenant | Vận hành ổn định, bảo mật | **Toàn tenant** (không phải toàn nền tảng), không xem số liệu nhạy cảm |
+| Chủ nền tảng (CNT) | Chịu trách nhiệm kinh doanh nền tảng; duyệt ca đăng ký bị cờ, ngưỡng, chấm dứt tenant | Tăng số tenant, rủi ro lạm dụng, tuân thủ | Chỉ hồ sơ, trạng thái, số liệu tổng hợp; **không xem dữ liệu nghiệp vụ tenant** |
+| Quản trị nền tảng (QTN) | Vận hành kỹ thuật, cấp phát, cấu hình mặc định và danh mục pháp lý dùng chung | Cấp phát đúng, nền tảng ổn định | Như trên; không đăng nhập thay người dùng tenant |
+| Hỗ trợ nền tảng (HTN) | Hỗ trợ tenant | Giải quyết nhanh, đúng quyền | Hồ sơ và trạng thái; xem dữ liệu chỉ trong **phiên hỗ trợ** có lý do, thời hạn, đồng ý của tenant |
+| Vận hành billing nền tảng (VHB) | Lập kỳ thanh toán, theo dõi công nợ phí (MT-2, MT-3) | Thu đúng, không thu trùng | Gói, mức dùng, công nợ; không xem dữ liệu nghiệp vụ |
 | Khách hàng | Chủ xe | Báo giá minh bạch, biết tiến độ, nhận hóa đơn | Chỉ xem thông tin xe của mình qua liên kết |
 | Nhà cung cấp phụ tùng | Giao hàng, đối chiếu công nợ | Đơn đặt rõ ràng, thanh toán đúng hạn | Không truy cập hệ thống |
 | Nhà cung cấp hóa đơn điện tử | Cổng phát hành hóa đơn | Tích hợp đúng chuẩn | Qua API |
@@ -166,7 +184,7 @@ Bản 0.2 bổ sung bốn vai trò: quản trị trụ sở, nhân viên kiểm 
 
 ## 6. Yêu cầu nghiệp vụ (BR)
 
-Có 74 yêu cầu nghiệp vụ: 45 mức Must, 26 mức Should, 3 mức Could, gồm 52 yêu cầu ban đầu, 14 yêu cầu bổ sung ở bản 0.2 và 8 yêu cầu ở bản 0.3; mỗi BR được chi tiết hóa thành yêu cầu chức năng (FR) trong tài liệu Functional Requirements. Mức ưu tiên theo MoSCoW và cần khách xác nhận.
+Có 85 yêu cầu nghiệp vụ: 53 mức Must, 29 mức Should, 3 mức Could, gồm 52 yêu cầu ban đầu, 14 yêu cầu bổ sung ở bản 0.2, 8 yêu cầu ở bản 0.3 và 11 yêu cầu multi-tenant ở bản 0.4 (BR-TEN-01 đến 11: 8 Must, 3 Should); mỗi BR được chi tiết hóa thành yêu cầu chức năng (FR) trong tài liệu Functional Requirements. Mức ưu tiên theo MoSCoW và cần khách xác nhận.
 
 | Mã | Yêu cầu nghiệp vụ | Ưu tiên |
 | --- | --- | --- |
@@ -259,6 +277,24 @@ Có 74 yêu cầu nghiệp vụ: 45 mức Must, 26 mức Should, 3 mức Could, 
 | BR-ACC-13 | Khách doanh nghiệp: hạn mức công nợ, kỳ thanh toán, người liên hệ, nhiều xe thuộc một doanh nghiệp | Should |
 | BR-HRM-06 | Phương pháp tính công cấu hình được (giờ chuẩn, khoán, giờ thực, tỷ lệ) với bảng định mức, hiệu lực áp dụng và lịch sử thay đổi | Must |
 
+### Yêu cầu nghiệp vụ bổ sung ở bản 0.4 (multi-tenant)
+
+11 yêu cầu: 8 Must, 3 Should. Nền từ quyết định của khách ngày 05/11/2026 (D1 thiết kế từ đầu, D2 tự đăng ký và tự triển khai, D3 gói thu tiền làm sau); cách cụ thể hóa là đề xuất của BA, **chờ khách xác nhận**. MoSCoW tính tương đối với chương trình multi-tenant: Must là cần trước khi mở đăng ký cho người ngoài, trong đó phần nền MT-0 thuộc giai đoạn 1.
+
+| Mã | Yêu cầu nghiệp vụ | Ưu tiên | Căn cứ |
+| --- | --- | --- | --- |
+| BR-TEN-01 | Phục vụ nhiều khách hàng độc lập trên một nền tảng mà dữ liệu của khách này không bao giờ lộ cho khách khác | Must | D1 |
+| BR-TEN-02 | Có quy trình cấp phát, kích hoạt, tạm ngưng, chấm dứt và xóa dữ liệu tenant có kiểm soát và có nhật ký | Must | D1 |
+| BR-TEN-03 | Mỗi tenant cấu hình riêng đánh số, thuế, mẫu in, hóa đơn điện tử, kênh thông báo mà không sửa mã nguồn | Must | D1 |
+| BR-TEN-04 | Nhân sự nền tảng không truy cập dữ liệu nghiệp vụ của tenant trừ khi có lý do, thời hạn, sự đồng ý và nhật ký | Must | BA (luật dữ liệu cá nhân) |
+| BR-TEN-05 | Tuân thủ luật bảo vệ dữ liệu cá nhân và nghĩa vụ lưu trữ hóa đơn, chứng từ của từng tenant, kể cả khi chấm dứt dịch vụ | Must | BA (luật) |
+| BR-TEN-06 | Có gói dịch vụ, hạn mức và theo dõi sử dụng để vận hành thương mại (nền có chỗ cho gói từ đầu; thu tiền làm sau) | Should | D3 |
+| BR-TEN-07 | Chủ garage mới tự triển khai nhanh nhờ onboarding gọn, checklist, nhập Excel mà không cần nhân sự nền tảng | Must | D2 |
+| BR-TEN-08 | Chủ nền tảng thấy sức khỏe và mức sử dụng của các tenant mà không thấy dữ liệu nghiệp vụ | Should | BA |
+| BR-TEN-09 | Chủ garage bên ngoài tự đăng ký, được xác minh và tự triển khai mà không cần nhân sự nền tảng cho ca bình thường | Must | D2 |
+| BR-TEN-10 | Thương mại hóa theo phase: gói dịch vụ, thu tiền, hóa đơn của nền tảng cho tenant, xử lý nợ phí; làm sau nhưng nền không bị chặn | Should | D3 |
+| BR-TEN-11 | Tin cậy giữa các tenant lạ nhau và bảo vệ nền tảng: chống lạm dụng đăng ký, chống mạo danh doanh nghiệp, cô lập, kiểm soát chi phí của tenant chưa trả tiền | Must | D2 (hệ quả) |
+
 ### Quy tắc nghiệp vụ (RULE)
 
 RULE là quy tắc cấp doanh nghiệp mà hệ thống phải tuân thủ, không chỉ là chức năng; các quy tắc WF trong tài liệu Workflow là quy tắc ở mức luồng. Cột cuối chỉ FR thực thi chính.
@@ -280,6 +316,31 @@ RULE là quy tắc cấp doanh nghiệp mà hệ thống phải tuân thủ, kh�
 | RULE-013 | Mọi thay đổi giá bán, chiết khấu, tồn kho và thanh toán đều được ghi nhận | FR-SYS-003 |
 | RULE-014 | Lệnh đã hoàn tất vẫn tra cứu được lịch sử | FR-REC-015 |
 | RULE-015 | Báo cáo nêu rõ thời điểm và phạm vi chi nhánh | FR-RPT-010 |
+| RULE-016 | Mỗi bản ghi thuộc đúng một tenant, bất biến sau khi tạo; không chuyển bản ghi giữa tenant, chỉ xuất rồi nhập có duyệt (mở rộng RULE-012) | FR-TEN-009, 010 |
+| RULE-017 | Không có truy cập, tìm kiếm, tổng hợp chéo tenant; nền tảng chỉ cộng gộp dữ liệu nghiệp vụ của tenant khi có đồng ý và đã ẩn danh | FR-TEN-009, 033, 038 |
+| RULE-018 | Số chứng từ, mã và khóa chống trùng duy nhất **trong tenant**; không có bộ đếm toàn nền tảng; hai tenant được phép trùng số (làm rõ RULE-002, RULE-001) | FR-TEN-020 |
+| RULE-019 | Cấu hình kế thừa nền tảng, tenant, Company, Branch và có hiệu lực theo ngày; đổi cấu hình tầng trên không sửa chứng từ đã phát hành | FR-TEN-018, 019 |
+| RULE-020 | Tạm ngưng không xóa dữ liệu; chấm dứt không xóa ngay; chỉ xóa hoặc ẩn danh sau khi trả dữ liệu, hết thời hạn giữ theo luật và hợp đồng, không có giữ pháp lý, và có người duyệt | FR-TEN-005, 006, 007 |
+| RULE-021 | Khi hạn chế, tạm ngưng hoặc chấm dứt (trừ sự cố an ninh) tenant vẫn truy xuất và tải được hóa đơn, chứng từ thuộc thời hạn lưu | FR-TEN-005, 006 |
+| RULE-022 | Truy cập hỗ trợ của nhân sự nền tảng cần lý do, thời hạn, phạm vi tối thiểu, sự đồng ý của tenant (trừ khẩn cấp có duyệt và báo lại), và hiển thị cho tenant | FR-TEN-012 |
+| RULE-023 | Vượt hạn mức hoặc hạn chế thương mại không được chặn hoàn tất chứng từ đang mở (thu tiền, giao xe, phát hành hóa đơn); chỉ chặn tạo mới theo chính sách | FR-TEN-005, 025 |
+| RULE-024 | Tích hợp bên ngoài, bí mật, chứng thư số và khóa API là của từng tenant (và Company); không dùng chung giữa tenant | FR-TEN-021 |
+| RULE-025 | Hóa đơn của tenant phát hành dưới đơn vị phát hành của tenant; nền tảng không phát hành thay; hóa đơn nền tảng thu phí tenant nằm ngoài hệ thống hóa đơn của tenant | FR-TEN-021, 048 |
+| RULE-026 | Mỗi phiên làm việc thuộc đúng một tenant; đổi tenant là ngữ cảnh mới; tạm ngưng hoặc thu hồi tư cách thu hồi phiên theo cấu hình | FR-TEN-010, 016, 017 |
+| RULE-027 | Mọi thao tác cấp nền tảng ghi nhật ký nền tảng bất biến kèm lý do; thao tác nhạy cảm (ngưng, chấm dứt, xóa, truy cập khẩn cấp) cần hai người: người đề xuất và người duyệt. Duyệt hoặc từ chối đăng ký tự phục vụ nằm ngoài danh sách này | FR-TEN-003, 013 |
+| RULE-028 | Tenant tự đăng ký chưa đạt mức xác minh (cấu hình được) chỉ chạy ở chế độ thử: không phát hành hóa đơn thật, không gửi SMS/Zalo hàng loạt, không dùng API ngoài có ghi dữ liệu; mức xác minh không chặn dùng ứng dụng nói chung | FR-TEN-004, 040, 041 |
+| RULE-029 | Không nhập dữ liệu thật trước khi người đại diện tenant chấp nhận phiên bản hiện hành của điều khoản dịch vụ và thỏa thuận xử lý dữ liệu; lưu ai, khi nào, phiên bản nào, bằng chứng phiên | FR-TEN-037, 039 |
+| RULE-030 | Gói, thuê bao và công nợ phí **không bao giờ xóa dữ liệu**; nợ phí, hạ gói hoặc tenant không hoạt động chỉ đưa tenant qua thang cảnh báo, ân hạn, hạn chế, chỉ đọc (thời hạn cấu hình); xóa chỉ theo RULE-020 (06/11/2026: bỏ "hết dùng thử", không còn trial) | FR-TEN-044, 049 |
+| RULE-031 | Mọi thao tác tiền giữa nền tảng và tenant idempotent, không xóa bản ghi đã ghi nhận, sửa bằng điều chỉnh; tách khỏi sổ và hóa đơn của tenant (song song RULE-010, 025) | FR-TEN-047, 048 |
+| RULE-032 | Một mã số thuế chỉ gắn một tenant đang hoạt động; trùng thì vào hàng chờ duyệt (ngoại lệ hợp pháp `[Cần xác nhận]`) | FR-TEN-040, 041 |
+| RULE-033 | Ẩn giao diện chi nhánh/kho (tenant một chi nhánh một kho) không làm thay đổi mô hình dữ liệu, Scope hay cô lập; cờ hiển thị chỉ điều khiển UI | FR-TEN-051 |
+| RULE-034 | Một thông tin đăng nhập (email, duy nhất toàn nền tảng) có thể có nhiều tư cách thành viên ở nhiều tenant; vai trò, chi nhánh, trạng thái, thu hồi tách riêng theo từng tư cách; quyền không cộng gộp; mọi truy cập dữ liệu vẫn gắn đúng một tenant theo phiên. **Đã quyết 06/11/2026 (chủ dự án, C-S14)** | FR-TEN-009, 010, 016, 017 |
+| RULE-035 | Tenant không gán gói là **gói mặc định miễn phí hoàn toàn**: không đồng hồ dùng thử, không hết hạn, không hóa đơn nền tảng; thu phí chỉ áp khi tenant chủ động chọn gói trả phí (làm sau) và gói trả phí không bao giờ tự gán. Giới hạn chống lạm dụng của tenant miễn phí vẫn áp (FR-TEN-015, 041) dưới dạng tham số cấu hình có ngày hiệu lực; BA đã đề xuất giá trị mặc định (06/11/2026, `docs/dev/open-questions-for-ba.md`), không bao giờ xóa dữ liệu và không chặn tenant số 1 `[Cần xác nhận: Q40, chủ dự án]`. **Quyết định 06/11/2026 (chủ dự án, Q21/Q34)** | FR-TEN-001, 028 (B0), 044 |
+| RULE-036 | Người đề xuất không tự duyệt yêu cầu của mình, kể cả khi giữ quyền duyệt hoặc nhận ủy quyền; ủy quyền chỉ có hiệu lực ở cấp mà người ủy quyền đang giữ đối với yêu cầu tại thời điểm duyệt (bản 0.6); các khoản chi cùng loại, cùng nhà cung cấp, cùng chi nhánh trong cửa sổ cấu hình được cộng dồn khi so với hạn mức; hạn mức chưa được ban hành thì chuyển lên cấp cao nhất, không cho qua (làm rõ RULE-011; bản 0.5, đề xuất BA 06/11/2026) `[Cần xác nhận: Chủ dự án, Q67]` | FR-SYS-033, 034, FR-ACC-028 |
+| RULE-037 | Hàng đang chuyển giữa hai kho thuộc chứng từ chuyển, chưa thuộc tồn bán được của kho nào; chỉ tăng tồn kho nhận theo số bên nhận xác nhận; phần lệch treo trên hàng đang vận chuyển đến khi có kết quả xử lý được duyệt; chuyển kho không bao giờ vượt ranh giới tenant (bản 0.5, đề xuất BA) | FR-INV-010, 026, 030, 032 |
+| RULE-038 | Công thợ và hoa hồng là dữ liệu tính từ quy tắc và định mức có hiệu lực tại thời điểm phát sinh; mỗi dòng giữ phiên bản quy tắc đã áp; kỳ công đã khóa không sửa trực tiếp, điều chỉnh bằng dòng điều chỉnh có duyệt; công và hoa hồng không phải lương (BRD §4) (bản 0.5, đề xuất BA) `[Cần xác nhận: công thức, Khách, Q73, Q74]` | FR-HRM-006, 015, 017, 020, 021 |
+
+RULE-016 đến 035 là đề xuất multi-tenant (bản 0.4), chờ khách xác nhận; riêng RULE-034 và ý chính của RULE-035 (gói mặc định miễn phí) là quyết định của chủ dự án ngày 06/11/2026. Quy tắc "tenant là bên kiểm soát, nền tảng là bên xử lý dữ liệu cá nhân" **chưa** thành RULE vì chờ luật sư (Q8). RULE-036 đến 038 là đề xuất giai đoạn 2 (bản 0.5, 06/11/2026), chờ khách xác nhận.
 
 Quy tắc về tồn kho cần đặc biệt chú ý: tồn thực tế, tồn giữ chỗ và tồn khả dụng là ba con số khác nhau, nếu chỉ hiển thị tồn thực tế thì nhân viên có thể dùng số hàng đã dành cho lệnh khác.
 
@@ -334,6 +395,21 @@ Nguồn: [Kế toán Anpha, theo Thông tư 30/2026/TT-BXD](https://ketoananpha.
 - Hóa đơn đã lập theo quy định cũ vẫn được điều chỉnh hoặc thay thế theo Nghị định 254 và Thông tư 91 ([MISA eShop](https://www.misaeshop.vn/44493/thong-tu-91-2026-tt-btc-huong-dan-nghi-dinh-254-2026-nd-cp/)).
 - Báo giá và lệnh sửa chữa không phải hóa đơn điện tử: hệ thống lưu thành đối tượng riêng, chỉ coi là hóa đơn khi nhà cung cấp hóa đơn trả trạng thái hợp lệ.
 
+### Bổ sung ở bản 0.4 (multi-tenant): điểm pháp lý cần luật sư và kế toán của chủ nền tảng
+
+Khi phục vụ nhiều khách hàng độc lập, nền tảng không chỉ là công cụ của một doanh nghiệp. Các điểm dưới đây **chưa có câu trả lời**, không được hard-code; mọi mốc, thời hạn, thuế suất là cấu hình có hiệu lực theo ngày.
+
+| Chủ đề | Câu hỏi cho luật sư hoặc kế toán | Mã |
+| --- | --- | --- |
+| Vai trò dữ liệu cá nhân | Tenant là bên kiểm soát, nền tảng là bên xử lý? Thỏa thuận xử lý dữ liệu theo phiên bản; thông báo sự cố; chuyển dữ liệu ra nước ngoài (dữ liệu đặt tại Singapore mới được chấp nhận cho khách đầu tiên, ADR 0001 A3) | Q8 |
+| Điều khoản và thỏa thuận chấp nhận điện tử | Hiệu lực của chấp nhận điện tử (click-wrap), người có thẩm quyền chấp nhận cho tenant, bằng chứng lưu, đổi điều khoản một phía, luật áp dụng, giới hạn trách nhiệm | Q30 |
+| Lưu hóa đơn, chứng từ khi chấm dứt | Nghĩa vụ lưu thuộc tenant hay nền tảng; thời hạn lưu; xóa/ẩn danh sau khi trả dữ liệu; giữ pháp lý | Q7, Q20 |
+| Hóa đơn của nền tảng thu phí tenant | Pháp nhân phát hành, thuế GTGT cho dịch vụ phần mềm trực tuyến, thời điểm lập, hộ kinh doanh (gói mặc định miễn phí không phát sinh hóa đơn, RULE-035) | Q12, Q32 |
+| Xác minh tenant | Nguồn tra mã số thuế, đối tượng nhận (doanh nghiệp, hộ kinh doanh, cá nhân), ngoại lệ một mã số thuế nhiều tenant | Q28, C-S05 |
+| Dữ liệu của người đại diện tenant | Hồ sơ xác minh (MST, người đại diện) là dữ liệu cá nhân: mục đích, thời hạn giữ, ai xem | FR-TEN-040 |
+
+Chi tiết và người trả lời: `docs/multi-tenant-open-questions.md`.
+
 ## 8. Giả định, ràng buộc, rủi ro
 
 Rủi ro lớn nhất không nằm ở công nghệ mà ở dữ liệu Excel cũ và việc thợ, thủ kho chịu dùng hệ thống hằng ngày.
@@ -342,7 +418,7 @@ Rủi ro lớn nhất không nằm ở công nghệ mà ở dữ liệu Excel c�
 
 - Khách đã có file Excel mô tả danh mục phụ tùng, khách, công nợ; chưa được kiểm tra \[Cần xác nhận\].
 - Mỗi chi nhánh có kết nối Internet ổn định; nếu không, cần thêm chế độ chịu mất mạng ngắn hạn.
-- Dùng chung một hệ thống cho toàn chuỗi, dữ liệu tách theo chi nhánh bằng phân quyền.
+- Dùng chung một hệ thống cho toàn chuỗi, dữ liệu tách theo chi nhánh bằng phân quyền. Từ bản 0.4: một nền tảng dùng chung cho nhiều tenant, dữ liệu tách theo tenant trước, rồi theo chi nhánh (RULE-016, 017); cách cô lập vật lý (dùng chung hay tách) **chưa quyết**, dev đề xuất trong ADR 0002.
 - Hệ thống chạy trên web; thợ dùng tablet hoặc máy dùng chung tại xưởng.
 - Phí và tích hợp nhà cung cấp hóa đơn điện tử do khách chọn và chịu \[Cần xác nhận\].
 
@@ -359,6 +435,26 @@ Rủi ro lớn nhất không nằm ở công nghệ mà ở dữ liệu Excel c�
 | Khách chưa thống nhất cách tính công thợ và hoa hồng giữa các chi nhánh | Phải làm lại phân hệ nhân công | Chốt quy tắc trong giai đoạn khám phá; cho phép cấu hình quy tắc theo chi nhánh |
 | Nghẽn mạng hoặc hệ thống ngừng tại chi nhánh | Xưởng đứng, không giao xe được | Phương án dự phòng giấy cho lệnh sửa chữa; nhập bổ sung khi có mạng; theo dõi uptime |
 
+### Rủi ro multi-tenant (bản 0.4)
+
+| Mã | Rủi ro | Mức | Giảm thiểu (FR/RULE/NFR) |
+| --- | --- | --- | --- |
+| R-TEN-01 | Lạm dụng đăng ký: bot, đăng ký hàng loạt tốn chi phí hạ tầng, dùng nền tảng gửi tin hoặc lập hóa đơn giả | Cao | FR-TEN-040, 041, 015; RULE-028, 032; NFR-TEN-07 |
+| R-TEN-02 | Cô lập giữa tenant lạ nhau: mọi lỗi lọc là sự cố dữ liệu cá nhân của người ngoài | Cao | FR-TEN-009, 010, 014; RULE-016, 017; NFR-TEN-08 |
+| R-TEN-03 | Pháp lý bên xử lý dữ liệu cho tenant tự đăng ký; hiệu lực click-wrap; dữ liệu đặt ở Singapore | Cao | FR-TEN-036, 037; RULE-029; Q8, Q30 |
+| R-TEN-04 | Hóa đơn điện tử theo từng tenant: nhiều nhà cung cấp, chứng thư số của tenant do nền tảng giữ, sai đơn vị phát hành, bị hiểu nhầm là phát hành thay | Cao | FR-TEN-021, 040; RULE-024, 025; Q31 |
+| R-TEN-05 | Hỗ trợ và SLA: kỳ vọng hỗ trợ khi chưa có hợp đồng, khối lượng tăng theo số tenant | Trung bình đến cao | FR-TEN-050, 012, 035; Q9, Q33 |
+| R-TEN-06 | Khách đầu tiên không đồng ý dùng chung nền tảng hoặc quyền sở hữu hạ tầng chưa rõ | Cao | Q14 trước ADR 0002 và trước mở đăng ký |
+| R-TEN-07 | Chi phí hạ tầng không có doanh thu: **mọi tenant miễn phí và không đồng hồ** (06/11/2026), nên chi phí tăng theo số tenant mà không có doanh thu hay hạn chót tự nhiên | Trung bình đến cao | FR-TEN-015, 041, 044; NFR-TEN-07; RULE-035; Q29, Q40 |
+| R-TEN-08 | Thuế và hóa đơn nền tảng chưa rõ khi bắt đầu thu tiền | Trung bình | FR-TEN-048; RULE-031; Q12 |
+| R-TEN-09 | Làm nền muộn: retrofit mã tenant vào dữ liệu, chỉ mục, đánh số sau khi có dữ liệu thật rất đắt; ngân sách chỉ mục 193/200 | Cao nếu trễ | MT-0 cùng giai đoạn 1; FR-TEN-031 |
+| R-TEN-10 | Phạm vi phình, trễ pilot của khách đầu tiên khi làm cùng lúc nền multi-tenant | Trung bình | Phân đợt; chỉ MT-0 vào giai đoạn 1; thứ tự đã chốt theo ủy quyền 06/11/2026 (Q37); chủ dự án còn phải đặt mức trễ chấp nhận sau ước lượng của dev |
+| R-TEN-11 | Tranh chấp khi áp phí về sau, nợ phí, chấm dứt: giữ dữ liệu làm con tin hoặc xóa quá sớm so với nghĩa vụ lưu trữ hóa đơn | Trung bình | RULE-020, 021, 030, 035; Q7 |
+| R-TEN-12 | Mạo danh doanh nghiệp (dùng mã số thuế của người khác) | Cao | FR-TEN-040; RULE-028, 032; Q28 |
+| R-TEN-13 | **Rủi ro chấp nhận có thời hạn xem lại (06/11/2026):** vai trò nền tảng có quyền rất cao nhưng không có MFA (nhất quán quyết định MFA ngoài phạm vi). Một tài khoản nền tảng bị chiếm có thể cấp phát, ngưng, truy cập khẩn cấp | Cao nếu không xem lại | Biện pháp bù: hai người duyệt thao tác nhạy cảm (RULE-027), nhật ký nền tảng bất biến (FR-TEN-013), phiên hỗ trợ cần đồng ý (RULE-022), không vai trò nền tảng nào xem dữ liệu nghiệp vụ mặc định (FR-TEN-011); **xem lại trước khi mở đăng ký cho người ngoài (MT-1)**; mốc là điều kiện cổng "trước MT-1", không đặt ngày (chốt 06/11/2026 theo ủy quyền) |
+| R-TEN-14 | Tenant miễn phí bỏ hoang hoặc lạm dụng tài nguyên (SMS/Zalo, ảnh, nhập xuất) vì không có hạn mức hay hạn chót | Trung bình | FR-TEN-015, 025, 041; RULE-023, 030, 035; Q40 |
+| R-TEN-15 | Một danh tính nhiều tư cách thành viên: lộ quan hệ giữa các tenant, đặt lại mật khẩu hay thu hồi ảnh hưởng nhầm tenant, tài khoản nền tảng trùng email tenant | Trung bình | FR-TEN-011, 016, 017; RULE-026, 034; Q41; UAT-TEN-07, 21 |
+
 ## 9. Lộ trình triển khai theo giai đoạn
 
 Triển khai theo bốn giai đoạn sau một giai đoạn khám phá, mỗi giai đoạn chỉ mở khi qua cổng kiểm soát; mốc thời gian sẽ chốt sau khi khách trả lời các câu hỏi ở mục 10.
@@ -366,6 +462,10 @@ Triển khai theo bốn giai đoạn sau một giai đoạn khám phá, mỗi gi
 &#91;embedded content: lộ trình · 5 giai đoạn, 4 cổng kiểm soát\]
 
 Giai đoạn 1 chạy ở một chi nhánh để kiểm chứng các chỉ số ở mục 3 trước khi nhân ra toàn chuỗi.
+
+**Giai đoạn 2 (quyết định theo ủy quyền của chủ dự án, 06/11/2026, chờ khách xác nhận):** khởi động theo kiểu multi-tenant ngay từ đầu; đưa công nợ phải thu (FR-ACC-006), công nợ phải trả (FR-ACC-007) và hoàn tiền (FR-ACC-016, đã dựng sớm ở giai đoạn 1) vào giai đoạn 2 thay vì để đến giai đoạn 3; làm phê duyệt đầy đủ (FR-SYS-033, 034) trước các slice cần nó. Phạm vi FR theo slice nằm ở FRD mục 13 và `docs/dev/phase-2-plan.md`; các quyết định còn mở (giá vốn, công thức công và hoa hồng, hạn mức duyệt, quy trình mua hàng, bảo hành chéo, ngưỡng kiểm kê) và câu hỏi cho khách số 64 trở đi nằm ở `docs/dev/phase-2-plan.md`; mọi giá trị mặc định là cấu hình có ngày hiệu lực, không viết cứng.
+
+**Multi-tenant (bản 0.4, đề xuất chờ xác nhận):** chạy song song với các giai đoạn trên theo bốn đợt riêng. **MT-0 "nền"** (15 FR, gồm danh tính một-nhiều FR-TEN-017 từ 06/11/2026) thuộc giai đoạn 1 và bắt buộc, vì sửa sau khi có dữ liệu thật đắt hơn nhiều; khách đầu tiên là tenant số 1. **MT-1** (tự đăng ký có kiểm soát, 21 FR) là điều kiện mở đăng ký cho người ngoài; thứ tự so với pilot **đã chốt theo ủy quyền 06/11/2026 (Q37)**: MT-0 xong trước go-live pilot, pilot đóng như đối tác thiết kế, MT-1 build sau khi pilot ổn định, mở đăng ký hai nấc; tenant số 1 ký thỏa thuận đối tác thiết kế ngắn và chấp nhận Điều khoản/DPA bản chuẩn trước dữ liệu thật (Q38; **phần pháp lý vẫn cần luật sư xác nhận**). **MT-2** (gói tùy chọn và hạn mức, 14 FR; gói mặc định là miễn phí, không trial) và **MT-3** (thu tiền, hóa đơn nền tảng, 5 FR) làm sau, nhưng thiết kế giai đoạn 1 không được chặn đường. Chi tiết: FRD mục 10A và mục 13, `docs/multi-tenant-analysis.md` mục 17.
 
 Tài liệu BA tham khảo đề xuất phân kỳ khác: giai đoạn 1 chỉ gồm vận hành xưởng và chưa có kho; giai đoạn 2 gồm kho, mua hàng, hóa đơn và tài chính; giai đoạn 3 gồm nhân sự nâng cao, lương và hoa hồng, tích hợp kế toán nâng cao, CRM, tự động phê duyệt và báo cáo nhiều chi nhánh nâng cao. Bản này đưa kho cơ bản và hóa đơn cơ bản vào giai đoạn 1 vì pilot không kiểm soát được thất thoát nếu phụ tùng xuất ngoài lệnh, và hóa đơn là nghĩa vụ ngay khi chi nhánh pilot vận hành thật. Nếu khách muốn pilot nhẹ hơn thì hoãn kho sang giai đoạn 2, đổi lại phụ tùng trong lệnh chỉ được ghi nhận mà chưa trừ kho; đây là quyết định cần chốt ở Discovery Workshop. Cả hai phương án chỉ là thứ tự ưu tiên, chưa phải lịch đã ước tính.
 
@@ -391,6 +491,14 @@ Mười lăm câu hỏi dưới đây và phiếu khảo sát Discovery ở cu�
 * [ ] 15\. Có khách doanh nghiệp cần công nợ theo kỳ hoặc thanh toán gộp nhiều hóa đơn không?
 
 Nếu có file Excel đang dùng (danh mục phụ tùng, danh sách khách, phiếu sửa chữa mẫu), gửi sớm giúp thiết kế bám thực tế hơn.
+
+### Multi-tenant: đã quyết và còn mở (bản 0.4)
+
+**Đã quyết (khách, 05/11/2026):** D1 multi-tenant thiết kế từ đầu; D2 chủ garage khác tự đăng ký và tự triển khai; D3 có gói dịch vụ thu tiền, làm sau. Hệ quả: mô hình kinh doanh là SaaS dùng chung (Q1), tự đăng ký (Q11), Q5 quyết một phần.
+
+**Đã quyết (chủ dự án, 06/11/2026):** (1) một email có thể thuộc nhiều tenant, một danh tính nhiều tư cách thành viên (C-S14; RULE-034, FR-TEN-016, 017); (2) tenant không gán gói là miễn phí hoàn toàn, không trial đếm ngược, thu tiền làm sau (Q21, Q34; RULE-035, FR-TEN-044); (3) bỏ MFA cho vai trò nền tảng, rủi ro chấp nhận có thời hạn xem lại (Q36; R-TEN-13); (4) tên sản phẩm là GMEP (C-S24). **Đã chốt theo ủy quyền của chủ dự án cho người điều phối (06/11/2026), vẫn cần luật sư xác nhận phần pháp lý:** (5) thứ tự MT-0, pilot, MT-1 (Q37): MT-0 xong trước go-live pilot, MT-1 sau khi pilot ổn định, mở đăng ký hai nấc; (6) tenant số 1 ký thỏa thuận đối tác thiết kế ngắn và chấp nhận Điều khoản/DPA bản chuẩn có phiên bản trước dữ liệu thật (Q38); (7) mốc xem lại MFA nền tảng là "trước khi mở MT-1".
+
+**Còn mở, chặn thiết kế (ADR 0002):** mô hình cô lập dữ liệu (Q3), quy mô số tenant (Q2), khách đầu tiên có đồng ý dùng chung nền tảng và ai sở hữu hạ tầng (Q14), cấp phát tự động (Q26), quy tắc vận hành danh tính một-nhiều (Q41; BA đã trả lời mức nghiệp vụ, còn [LS] và chờ chủ dự án xác nhận). **Đã chốt theo ủy quyền, còn phần việc của chủ dự án và luật sư:** mức trễ pilot chấp nhận (Q37), nội dung pháp lý của thỏa thuận và DPA tenant số 1 (Q38). **Còn mở, chặn mở đăng ký:** luật sư về dữ liệu cá nhân và điều khoản (Q8, Q30), mức xác minh (Q28), chống lạm dụng (Q29), hỗ trợ và SLA (Q9, Q33), giới hạn tenant miễn phí và tenant bỏ hoang (Q40). **Còn mở, chặn thu tiền:** giá và hạn mức gói tùy chọn (Q13), VAT và pháp nhân hóa đơn nền tảng (Q12, Q32), cổng thanh toán (Q27). Danh sách gom đầy đủ, người trả lời và khuyến nghị: `docs/multi-tenant-open-questions.md`.
 
 ### Phiếu khảo sát Discovery
 

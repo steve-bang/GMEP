@@ -9,6 +9,7 @@ import type { BuiltInvoice, SourceLine } from './build';
 
 export type IssueCode =
   | 'provider_not_activated'
+  | 'terms_not_accepted'
   | 'issuer_incomplete'
   | 'order_not_eligible'
   | 'order_cancelled'
@@ -70,6 +71,8 @@ export interface OrderFacts {
 
 export interface EligibilityInput {
   providerActive: boolean;
+  /** RULE-029: a `live` issuer of a tenant without the recorded Terms and DPA acceptance cannot issue */
+  termsBlocked?: boolean;
   issuerComplete: boolean;
   order: OrderFacts;
   buyer: InvoiceBuyer & { address?: string; email?: string };
@@ -93,6 +96,7 @@ export function checkEligibility(i: EligibilityInput): EligibilityResult {
   const warnings: EligibilityWarning[] = [];
   const add = (code: IssueCode, field?: EligibilityIssue['field']) =>
     issues.push({ code, ...(field ? { field } : {}) });
+  if (i.termsBlocked) add('terms_not_accepted');
   if (!i.providerActive) add('provider_not_activated');
   else if (!i.issuerComplete) add('issuer_incomplete');
   if (i.order.cancelled) add('order_cancelled');

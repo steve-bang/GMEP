@@ -1,4 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { getTenant, provisionTenant, transitionTenant } from '@/modules/sys';
+import { businessDate } from '@/platform/format/date';
 import { journey, newStaffUser, type Row, type Staff } from '../helpers/journey';
 import { allRouteFiles, backends, createHarness, type Harness } from './harness';
 
@@ -51,6 +53,13 @@ const ROUTES: Record<string, RouteRow> = {
     idKey: 'customerId',
     detail: (id) => `/api/v1/crm/customers/${id}/consents`,
   },
+  // slice 2.8b: merge suggestions (FR-CRM-003)
+  'v1/crm/customers/[id]/duplicates': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'customerId',
+    detail: (id) => `/api/v1/crm/customers/${id}/duplicates`,
+  },
   'v1/crm/customers/[id]/vehicles': {
     kind: 'detail',
     path: () => '',
@@ -91,6 +100,32 @@ const ROUTES: Record<string, RouteRow> = {
   // REC
   'v1/rec/board': { kind: 'list', path: () => '/api/v1/rec/board', has: 'orderId' },
   'v1/rec/intakes': { kind: 'list', path: () => '/api/v1/rec/intakes?limit=100', has: 'intakeId' },
+  // slice 2.8b: the branch calendar (one branch per read) and an appointment (FR-REC-019, 027)
+  'v1/rec/appointments': {
+    kind: 'list',
+    path: () => '/api/v1/rec/appointments?days=7',
+    has: 'appointmentId',
+  },
+  'v1/rec/appointments/[id]': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'appointmentId',
+    detail: (id) => `/api/v1/rec/appointments/${id}`,
+  },
+  // slice 2.8b: refused items of earlier quotes of a vehicle (FR-REC-024), quotes in the reader's scope only
+  'v1/rec/declined-items': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'vehicleId',
+    detail: (id) => `/api/v1/rec/declined-items?vehicleId=${id}`,
+  },
+  // slice 2.8b: warranty coverage of a vehicle (P4 inside the tenant; the vehicle must be in the reader's scope)
+  'v1/rec/warranties': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'vehicleId',
+    detail: (id) => `/api/v1/rec/warranties?vehicleId=${id}`,
+  },
   'v1/rec/intakes/[id]': {
     kind: 'detail',
     path: () => '',
@@ -249,12 +284,43 @@ const ROUTES: Record<string, RouteRow> = {
   'v1/rpt/warehouse': { kind: 'report', path: () => '/api/v1/rpt/warehouse' },
   'v1/rpt/technicians': { kind: 'report', path: () => '/api/v1/rpt/technicians' },
   'v1/rpt/alerts': { kind: 'report', path: () => '/api/v1/rpt/alerts' },
+  // slice 2.1: consolidated reads cover the whole permission scope (the working branch does not narrow a comparison); the outsider sees nothing of tnt_demo
+  'v1/rpt/customers': {
+    kind: 'report',
+    path: () => `/api/v1/rpt/customers?from=${isoToday()}&to=${isoToday()}`,
+  },
+  'v1/rpt/indicators': {
+    kind: 'report',
+    path: () => `/api/v1/rpt/indicators?from=${isoToday()}&to=${isoToday()}`,
+  },
+  'v1/rpt/groups': { kind: 'report', path: () => '/api/v1/rpt/groups' },
+  // HRM slice 2.6a: staff records and technician labor are branch records (labor of an order is read by key)
+  'v1/hrm/employees': {
+    kind: 'list',
+    path: () => '/api/v1/hrm/employees',
+    has: 'employeeId',
+  },
+  'v1/hrm/employees/[id]': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'employeeId',
+    detail: (id) => `/api/v1/hrm/employees/${id}`,
+  },
+  'v1/hrm/labor': { kind: 'list', path: () => '/api/v1/hrm/labor', has: 'orderId' },
+  'v1/hrm/labor/orders/[id]': {
+    kind: 'detail',
+    path: () => '',
+    idKey: 'orderId',
+    detail: (id) => `/api/v1/hrm/labor/orders/${id}`,
+  },
 };
 
 /** GET routes that carry no branch data. A new GET route must be classified in ROUTES or here, with the reason. */
 const EXEMPT: Record<string, string> = {
   health: 'liveness probe, no data',
   'v1/auth/me': 'the caller’s own session',
+  'v1/auth/tenants':
+    'the caller’s own memberships (FR-TEN-016); covered by tests/integration/tenant-identity.test.ts',
   'v1/sys/scope': 'the caller’s own selectable scope (derived from role assignments)',
   'v1/sys/roles': 'role matrix: company-level configuration, not branch data',
   'v1/sys/config/[type]':
@@ -265,6 +331,8 @@ const EXEMPT: Record<string, string> = {
   'v1/sys/notifications': 'the caller’s own notifications',
   'v1/sys/users/[id]': 'user admin, covered in admin.test.ts (assignment scope)',
   'v1/sys/users/[id]/sessions': 'user admin, covered in admin.test.ts',
+  'v1/sys/approvals/delegations':
+    'FR-SYS-033: tenant-wide (not per branch), read by tenantId; tenant axis in sys-approvals-p2.test.ts and the exempt-list check below',
   'v1/sys/approvals/[id]': 'covered by the approvals list scope and acc.test.ts approvals',
   'v1/sys/imports/[id]': 'covered in import.test.ts (batch of another branch is 404)',
   'v1/sys/imports/[id]/issues': 'covered in import.test.ts (batch of another branch is 404)',
@@ -279,6 +347,8 @@ const EXEMPT: Record<string, string> = {
   'v1/acc/expense-categories': 'expense category catalogue, company-level',
   'v1/rec/pickers/parts': 'catalogue picker, company-level',
   'v1/rec/pickers/services': 'catalogue picker, company-level',
+  'v1/rec/pickers/packages':
+    'maintenance package catalogue (FR-REC-020), company-level configuration',
   'v1/rec/service-workflows': 'workflow catalogue, company-level',
   'v1/rec/intakes/[id]/photos/[pid]':
     'file download, covered in rec-photos tests of rec-orders.test.ts',
@@ -286,6 +356,14 @@ const EXEMPT: Record<string, string> = {
   'v1/rec/public/quote/photos/[pid]':
     'public, token-authenticated file read (no session): covered in rec-public-photos.test.ts',
   'v1/ein/connection': 'issuer connection state of the working branch, no records',
+  'v1/rpt/ranking':
+    'consolidated by nature: branch-bound roles are refused (403); owner, region group and tenant axis are covered in consolidation.test.ts',
+  'v1/sys/login-history':
+    'own sign-in history, or another person inside the permission scope (audited); covered in consolidation.test.ts',
+  'v1/sys/catalog-releases':
+    'catalogue release of the tenant (branches of the scope only); covered in consolidation.test.ts',
+  'v1/hrm/labor/rules':
+    'labor rules in force: effective-dated configuration, company-level with branch overrides filtered by scope (covered in hrm.test.ts)',
   'v1/rpt/drill': 'drill-down needs a metric and a date; scope rules are covered in rpt.test.ts',
 };
 
@@ -381,6 +459,17 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         lines: [{ partId: 'part_seed_01', qty: 11, unitCostVnd: 85_000 }],
       });
       expect(grn.status, grn.text).toBe(201);
+      const emp = await j.post(
+        branch === 'br_q7' ? viewers.qlQ7! : viewers.qlTD!,
+        '/api/v1/hrm/employees',
+        {
+          code: `E${tag}`,
+          fullName: `Nhan su ${tag}`,
+          positionCode: 'mechanic3',
+          joinedOn: '2024-01-01',
+        },
+      );
+      expect(emp.status, emp.text).toBe(201);
       const dsr = await j.post(staff.cv, '/api/v1/crm/data-requests', {
         customerId: c.customerId,
         type: 'delete',
@@ -388,8 +477,17 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         note: 'Khách yêu cầu xóa (cách ly)',
       });
       expect(dsr.status, dsr.text).toBe(201);
+      const apt = await j.post(staff.cv, '/api/v1/rec/appointments', {
+        vehicleId: c.vehicleId,
+        date: businessDate(h.clock.now()),
+        time: '23:30',
+        acknowledgeOverCapacity: true,
+      });
+      expect(apt.status, apt.text).toBe(201);
       Object.assign(ids, {
+        appointmentId: apt.json.id,
         dsrId: dsr.json.id,
+        employeeId: emp.json.id,
         customerId: c.customerId,
         vehicleId: c.vehicleId,
         intakeId: ro.intakeId,
@@ -413,6 +511,8 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
         ids.paymentId,
         ids.invoiceId,
         ids.docId,
+        emp.json.id,
+        apt.json.id,
       ].filter(Boolean) as string[];
     };
     q7Markers = await build(
@@ -768,8 +868,246 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
       },
     );
   });
+
+  /**
+   * Tenant axis (FR-TEN-009, 014; UAT-TEN-05; RULE-016, 017): the reader is the owner (role CH, every branch: the
+   * widest reader a tenant has) of ANOTHER tenant. Whatever the route, a record of tenant tnt_demo answers exactly like
+   * an id that does not exist, and no list, report or export of the outsider carries any identifier of tnt_demo.
+   */
+  describe('tenant axis: the owner of another tenant', () => {
+    let outsider = '';
+    beforeAll(async () => {
+      const cnt = {
+        kind: 'platform',
+        platformUserId: 'pf_owner',
+        role: 'CNT',
+        displayName: 'CNT',
+      } as const;
+      const email = 'owner@outsider.test';
+      const r = await provisionTenant(
+        h.container.sys,
+        cnt,
+        {
+          code: 'tnt_outsider',
+          name: 'Garage Outsider',
+          environment: 'demo',
+          owner: { email, name: 'Chủ ngoài', employeeCode: 'CH01' },
+        },
+        { requestId: 'req-out-1', idempotencyKey: 'prov-outsider-1' },
+      );
+      expect(r.state).toBe('provisioned');
+      const t = await getTenant(h.container.sys, cnt, 'tnt_outsider');
+      await transitionTenant(
+        h.container.sys,
+        cnt,
+        'tnt_outsider',
+        { to: 'active', version: t.version },
+        { requestId: 'req-out-2' },
+      );
+      const act = await h.call('POST', '/api/v1/auth/activate', {
+        body: {
+          token: await h.latestToken(email, 'invitation'),
+          password: 'Valid-Password-2026!',
+          consent: true,
+        },
+        headers: { 'x-forwarded-for': '10.8.8.8' },
+      });
+      expect(act.status, act.text).toBe(200);
+      const login = await h.call('POST', '/api/v1/auth/login', {
+        body: { identifier: email, password: 'Valid-Password-2026!' },
+        headers: { 'x-forwarded-for': '10.8.8.9' },
+      });
+      expect(login.status, login.text).toBe(200);
+      outsider = login.headers
+        .getSetCookie()
+        .find((c) => c.startsWith('__Host-gmep_session='))!
+        .split(';')[0]!;
+    });
+
+    const everyId = () => [...Object.values(q7), ...Object.values(td), ...q7Markers, ...tdMarkers];
+
+    describe.each(Object.entries(ROUTES))('%s', (route, spec) => {
+      it(`${spec.kind}: another tenant's record answers like a missing id; lists carry nothing of tnt_demo`, async () => {
+        if (spec.kind === 'detail') {
+          const missing = await h.call('GET', spec.detail!('nope_NOPE_0000'), { cookie: outsider });
+          for (const ids of [q7, td]) {
+            const id = ids[spec.idKey!]!;
+            const res = await h.call('GET', spec.detail!(id), { cookie: outsider });
+            expect(strip(res.json), `${route} foreign id must equal a missing id`).toEqual(
+              strip(missing.json),
+            );
+            expect(res.status).toBe(missing.status);
+            expect(containsAny(res.text, everyId())).toEqual([]);
+          }
+        } else {
+          const res = await h.call('GET', spec.path(q7), { cookie: outsider });
+          expect([200, 403, 404, 409], `${route} ${res.status}`).toContain(res.status);
+          expect(containsAny(res.text, everyId()), `${route} leaks tnt_demo`).toEqual([]);
+        }
+      });
+    });
+
+    // the routes the branch matrix exempts as "company-level" are TENANT-level data: each must be closed to an outsider
+    it.each([
+      '/api/v1/sys/users/u_ql_q7',
+      '/api/v1/sys/users/u_ql_q7/sessions',
+      '/api/v1/sys/services/svc_tnt_demo_SV-DAU',
+      '/api/v1/inv/parts/part_seed_01',
+      '/api/v1/inv/parts/part_seed_01/prices',
+      '/api/v1/sys/branches/br_q7',
+      '/api/v1/sys/warehouses/wh_br_q7_WH-CHINH',
+    ])('exempt detail %s answers like a missing id', async (path) => {
+      const missing = await h.call(
+        'GET',
+        path.replace(/[^/]+(\/sessions|\/prices)?$/, (m) => m.replace(/^[^/]+/, 'nope_NOPE_0000')),
+        { cookie: outsider },
+      );
+      const res = await h.call('GET', path, { cookie: outsider });
+      expect(res.status, path).toBe(missing.status);
+      expect(strip(res.json)).toEqual(strip(missing.json));
+      expect(res.status).not.toBe(200);
+    });
+
+    // P2-C write route: a password reset aimed at a user of tnt_demo answers like a missing id (branch axis and
+    // same-code-in-two-tenants are covered in worker-login.test.ts)
+    it.each(['u_th_q7', 'u_ql_q7'])(
+      'reset-password of %s (tnt_demo) answers like a missing id',
+      async (id) => {
+        const body = { temporaryPassword: 'Tam-Cheo-2026-zz', reason: 'thử chéo', version: 1 };
+        const missing = await h.call('POST', '/api/v1/sys/users/nope_NOPE_0000/reset-password', {
+          cookie: outsider,
+          body,
+        });
+        const res = await h.call('POST', `/api/v1/sys/users/${id}/reset-password`, {
+          cookie: outsider,
+          body,
+        });
+        expect(res.status).toBe(404);
+        expect(res.status).toBe(missing.status);
+        expect(strip(res.json)).toEqual(strip(missing.json));
+      },
+    );
+
+    it.each([
+      '/api/v1/sys/roles',
+      '/api/v1/sys/config/labor-rate',
+      '/api/v1/sys/config/tax-rate',
+      '/api/v1/sys/services?limit=100',
+      '/api/v1/sys/price-lists',
+      '/api/v1/inv/parts?limit=100',
+      '/api/v1/acc/expense-categories',
+      '/api/v1/rec/pickers/parts?q=a',
+      '/api/v1/rec/pickers/services?q=a',
+      '/api/v1/rec/service-workflows',
+      '/api/v1/ein/connection',
+      '/api/v1/sys/approvals',
+      '/api/v1/sys/approvals/delegations',
+    ])('exempt list %s carries nothing of tnt_demo', async (path) => {
+      const res = await h.call('GET', path, { cookie: outsider });
+      expect([200, 400, 403, 404, 409, 422], `${path} ${res.status}`).toContain(res.status);
+      expect(res.text, path).not.toMatch(/tnt_demo|part_seed|SV-DAU|svc_tnt|Garage Demo/);
+      expect(containsAny(res.text, everyId()), path).toEqual([]);
+    });
+
+    // FR-TEN-009 / UAT-TEN-05 / ADR 0001 §7.3: files are served by the API after a Scope check (no signed URL yet), and no
+    // route takes a storage path from the caller, so knowing a path or an id of tnt_demo gives an outsider nothing
+    it('a REC photo and an e-invoice file of tnt_demo are not served to the outsider, even with the exact ids and a forged path', async () => {
+      const PNG = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAHnOcQAAAAABJRU5ErkJggg==',
+        'base64',
+      );
+      const form = new FormData();
+      form.set('file', new File([new Uint8Array(PNG)], 'x.png', { type: 'image/png' }));
+      const orderId = q7.orderId!;
+      const up = await h.call('POST', `/api/v1/rec/orders/${orderId}/photos`, {
+        cookie: readers.br_q7!.cvQ7!,
+        form,
+        key: 'tenant-axis-photo-000001',
+      });
+      expect(up.status, up.text).toBeLessThan(300);
+      const own = await h.call('GET', `/api/v1/rec/orders/${orderId}/photos/${up.json.id}`, {
+        cookie: readers.br_q7!.cvQ7!,
+      });
+      expect(own.status).toBe(200);
+      const files = (h.container as { files?: { files?: Map<string, unknown> } }).files?.files;
+      const stored = files ? [...files.keys()].filter((k) => k.includes('/tnt_demo/')) : [];
+      const probes = [
+        `/api/v1/rec/orders/${orderId}/photos/${up.json.id}`,
+        `/api/v1/rec/orders/${orderId}/photos/${encodeURIComponent('../../' + (stored[0] ?? 'x'))}`,
+        `/api/v1/ein/invoices/${q7.invoiceId}/files/xml`,
+        `/api/v1/ein/invoices/${q7.invoiceId}/files/pdf`,
+      ];
+      const missing = await h.call('GET', '/api/v1/rec/orders/nope_NOPE_0000/photos/ph_none', {
+        cookie: outsider,
+      });
+      for (const path of probes) {
+        const res = await h.call('GET', path, { cookie: outsider });
+        expect(res.status, path).toBe(404);
+        expect(res.headers.get('content-type') ?? '', path).not.toMatch(/image|xml|pdf/);
+        expect(strip(res.json), path).toEqual(strip(missing.json));
+      }
+    });
+
+    it('availability of a part id of another tenant echoes the id and shows nothing: no quantity, no warehouse', async () => {
+      const res = await h.call('GET', '/api/v1/inv/availability?partIds=part_seed_01', {
+        cookie: outsider,
+      });
+      expect(res.status).toBe(200);
+      expect(res.json.items).toEqual([{ partId: 'part_seed_01', available: 0, warehouses: [] }]);
+    });
+
+    it.each([
+      { path: '/api/v1/crm/customers/export', body: {} },
+      { path: '/api/v1/sys/audit/export', body: { reason: 'kiểm tra cách ly' } },
+      {
+        path: '/api/v1/rpt/export',
+        body: { kind: 'monthly', month: monthOfToday(), reason: 'kiểm tra' },
+      },
+      { path: '/api/v1/rpt/export', body: { kind: 'reconcile', reason: 'kiểm tra' } },
+    ])('export $path: nothing of tnt_demo', async ({ path, body }) => {
+      const res = await h.call('POST', path, {
+        cookie: outsider,
+        key: 'exp-outsider-0000001',
+        body,
+      });
+      expect([200, 403, 409, 422]).toContain(res.status);
+      expect(containsAny(res.text, everyId())).toEqual([]);
+    });
+
+    it('search, notifications and the audit trail of the outsider carry nothing of tnt_demo', async () => {
+      for (const path of [
+        '/api/v1/crm/customers?q=ZZQ7&limit=20',
+        '/api/v1/crm/customers?q=ZZTD&limit=20',
+        '/api/v1/sys/audit?limit=100',
+        '/api/v1/sys/notifications',
+        '/api/v1/sys/users?limit=100',
+      ]) {
+        const res = await h.call('GET', path, { cookie: outsider });
+        expect([200, 403, 404]).toContain(res.status);
+        expect(containsAny(res.text, everyId()), path).toEqual([]);
+        expect(res.text).not.toContain('tnt_demo');
+      }
+    });
+
+    it('an idempotency key used in tnt_demo does not replay for the outsider (two tenants, two independent results)', async () => {
+      const key = 'shared-key-000000000001';
+      const body = { type: 'individual', name: 'Khach trung khoa', phone: '0912345678' };
+      const demo = await h.call('POST', '/api/v1/crm/customers', {
+        cookie: viewers.ownerAll,
+        key,
+        body,
+      });
+      const other = await h.call('POST', '/api/v1/crm/customers', { cookie: outsider, key, body });
+      expect(demo.headers.get('idempotent-replayed')).toBeNull();
+      expect(other.headers.get('idempotent-replayed')).toBeNull();
+      if (demo.status === 201 && other.status === 201) expect(other.json.id).not.toBe(demo.json.id);
+    });
+  });
 });
 
+function isoToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 function monthOfToday(): string {
   return new Date().toISOString().slice(0, 7);
 }

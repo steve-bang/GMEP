@@ -27,14 +27,14 @@ export const DEFAULT_EIN_POLICY: EinPolicy = {
 
 export async function einPolicyOf(
   deps: EinDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<EinPolicy> {
   const snap = await resolveConfigAt(deps.sys, {
-    companyId,
+    tenantId,
     type: 'einvoice-policy',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });
@@ -43,7 +43,7 @@ export async function einPolicyOf(
   // issuer so a changed tax rate is never issued silently, `warn` for the test environment.
   let taxChangePolicy = payload.taxChangePolicy;
   if (!taxChangePolicy) {
-    const issuer = await issuerOf(deps, companyId, branchId, date);
+    const issuer = await issuerOf(deps, tenantId, branchId, date);
     taxChangePolicy = defaultTaxChangePolicy(issuer?.snapshot);
   }
   return { ...DEFAULT_EIN_POLICY, ...payload, taxChangePolicy };
@@ -66,14 +66,14 @@ export interface IssuerConfig {
 /** null = no issuing unit configured for the branch: the provider is "not activated". */
 export async function issuerOf(
   deps: EinDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<IssuerConfig | null> {
   const snap = await resolveConfigAt(deps.sys, {
-    companyId,
+    tenantId,
     type: 'einvoice-issuer',
-    scopeKey: 'company',
+    scopeKey: 'tenant',
     date,
     branchId,
   });

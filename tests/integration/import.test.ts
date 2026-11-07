@@ -490,7 +490,7 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     const PH = 'Mã phụ tùng,Tên phụ tùng,Đơn vị tính,Nhóm hàng';
     const SH = 'Mã phụ tùng,Số lượng tồn,Đơn giá vốn (VND)';
     const before = (
-      await h.container.inv.documents.listAllByWarehouseStatus('cmp_demo', WH, 'draft', 1000)
+      await h.container.inv.documents.listAllByWarehouseStatus('tnt_demo', WH, 'draft', 1000)
     ).docs.length;
     for (const c of ['PG-1', 'PG-2', 'PG-3']) {
       const p = await upload(tk, 'parts', csv(PH, `${c},Hàng phân trang,piece,other`));
@@ -502,11 +502,11 @@ describe.each(backends)('Excel import [%s]', (backend) => {
       );
     }
     const docs = h.container.inv.documents;
-    const all = await docs.listAllByWarehouseStatus('cmp_demo', WH, 'draft', 1000, 1); // one document per page
+    const all = await docs.listAllByWarehouseStatus('tnt_demo', WH, 'draft', 1000, 1); // one document per page
     expect(all.truncated).toBe(false);
     expect(all.docs.length).toBe(before + 3);
     expect(new Set(all.docs.map((d) => d.id)).size).toBe(all.docs.length); // no page overlap or gap
-    const cut = await docs.listAllByWarehouseStatus('cmp_demo', WH, 'draft', before + 2, 2);
+    const cut = await docs.listAllByWarehouseStatus('tnt_demo', WH, 'draft', before + 2, 2);
     expect(cut).toMatchObject({ truncated: true });
     expect(cut.docs).toHaveLength(before + 2);
   });
@@ -516,8 +516,8 @@ describe.each(backends)('Excel import [%s]', (backend) => {
     const v = await upload(tk, 'parts', csv(head, 'SCOPE-1,Hàng thử phạm vi,piece,other'));
     expect(v.json.status).toBe('validated');
     const repo = h.container.sys.imports;
-    const q7 = branchesScope('cmp_demo', ['br_q7']);
-    const td = branchesScope('cmp_demo', ['br_td']);
+    const q7 = branchesScope('tnt_demo', ['br_q7']);
+    const td = branchesScope('tnt_demo', ['br_td']);
     expect(await repo.getUnits(q7, v.json.id, 1)).toHaveLength(1);
     expect(await repo.getUnits(td, v.json.id, 1)).toEqual([]);
     expect(await repo.getUnits(branchesScope('other_company', ['br_q7']), v.json.id, 1)).toEqual(
@@ -581,7 +581,7 @@ describe.each(backends)('Excel import [%s]', (backend) => {
   it('R99: the internal cron purges abandoned dry runs of the branch even when nobody uploads again', async () => {
     const secret = 'cron-secret-0123456789-abcdefghijklmnop';
     const on = await createHarness(backend, {
-      env: { CRON_SECRET: secret, CRON_COMPANY_ID: 'cmp_demo' },
+      env: { CRON_SECRET: secret, CRON_TENANT_ID: 'tnt_demo' },
     });
     const as = await on.loginAt('u_tk_q7', 'br_q7');
     const form = new FormData();

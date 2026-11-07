@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { loginAddressOf } from '../domain/entities';
 import { AppError, forbidden, notFound } from '@/platform/errors/errors';
 import {
   decodeCursor,
@@ -21,10 +22,13 @@ import { hasPermission, resolveScope, type Actor, type Permission } from '@/plat
 import { scopeAllows } from '@/platform/scope/scope';
 import {
   COST_VISIBLE_ROLES,
+  DEFAULT_TENANT_LIMITS,
   SELF_APPROVE_ROLES,
   configTypeOrThrow,
   configVersionId,
   type ConfigVersion,
+  type TenantLimitMetric,
+  type TenantLimits,
 } from '../domain/config';
 import type { SysDeps } from '../ports/deps';
 import { InvalidCredentialsError } from '../ports/ports';
@@ -43,25 +47,25 @@ const idem = (deps: SysDeps) => ({
   ttlMs: deps.config.idempotencyTtlMs,
 });
 
-const cacheKeyOf = (companyId: string, type: string, scopeKey: string) =>
-  `${companyId}|${type}|${scopeKey}`;
+const cacheKeyOf = (tenantId: string, type: string, scopeKey: string) =>
+  `${tenantId}|${type}|${scopeKey}`;
 
 async function versionsOf(
   deps: SysDeps,
-  companyId: string,
+  tenantId: string,
   type: string,
   scopeKey: string,
 ): Promise<ConfigVersion[]> {
-  const key = cacheKeyOf(companyId, type, scopeKey);
+  const key = cacheKeyOf(tenantId, type, scopeKey);
   const hit = deps.caches.config.get(key);
   if (hit) return hit;
-  const rows = await deps.configs.listVersions(companyId, type, scopeKey);
-  deps.caches.config.set(key, rows, [`cfg:${companyId}:${type}`]);
+  const rows = await deps.configs.listVersions(tenantId, type, scopeKey);
+  deps.caches.config.set(key, rows, [`cfg:${tenantId}:${type}`]);
   return rows;
 }
 
-function invalidateConfig(deps: SysDeps, companyId: string, type: string): void {
-  deps.caches.config.invalidateTag(`cfg:${companyId}:${type}`);
+function invalidateConfig(deps: SysDeps, tenantId: string, type: string): void {
+  deps.caches.config.invalidateTag(`cfg:${tenantId}:${type}`);
 }
 
 /**
@@ -72,13 +76,13 @@ function invalidateConfig(deps: SysDeps, companyId: string, type: string): void 
  */
 export async function resolveConfigAt(
   deps: SysDeps,
-  q: { companyId: string; type: string; scopeKey: string; date: string; branchId?: string | null },
+  q: { tenantId: string; type: string; scopeKey: string; date: string; branchId?: string | null },
 ): Promise<ConfigSnapshot | null> {
   const def = configTypeOrThrow(q.type);
   const keys =
     def.branchOverride && q.branchId ? [`branch:${q.branchId}`, q.scopeKey] : [q.scopeKey];
   for (const scopeKey of keys) {
-    const v = pickEffective(await versionsOf(deps, q.companyId, q.type, scopeKey), q.date);
+    const v = pickEffective(await versionsOf(deps, q.tenantId, q.type, scopeKey), q.date);
     if (v) return snapshotOf(v);
   }
   return null;
@@ -90,10 +94,10 @@ export async function resolveConfigAt(
  */
 export async function approvedChangesBetween(
   deps: SysDeps,
-  q: { companyId: string; type: string; scopeKey: string; after: string; upTo: string },
+  q: { tenantId: string; type: string; scopeKey: string; after: string; upTo: string },
 ): Promise<ConfigSnapshot[]> {
   configTypeOrThrow(q.type);
-  return (await versionsOf(deps, q.companyId, q.type, q.scopeKey))
+  return (await versionsOf(deps, q.tenantId, q.type, q.scopeKey))
     .filter(
       (v) => v.status === 'approved' && v.effectiveFrom > q.after && v.effectiveFrom <= q.upTo,
     )
@@ -111,14 +115,14 @@ const CATALOG_MAX_PAGES = 5;
  */
 export async function resolveCatalogAt(
   deps: SysDeps,
-  q: { companyId: string; type: string; date: string },
+  q: { tenantId: string; type: string; date: string },
 ): Promise<{ code: string; payload: Record<string, unknown> }[]> {
   configTypeOrThrow(q.type);
   const byKey = new Map<string, ConfigVersion[]>();
   let cursor: { v: string; id: string } | undefined;
   for (let i = 0; i < CATALOG_MAX_PAGES; i++) {
     const page = await deps.configs.listByType(
-      q.companyId,
+      q.tenantId,
       q.type,
       'approved',
       CATALOG_PAGE,
@@ -134,6 +138,91 @@ export async function resolveCatalogAt(
     if (v) out.push({ code, payload: v.payload });
   }
   return out.sort((a, b) => a.code.localeCompare(b.code));
+}
+
+/**
+ * FR-SYS-016: is a shared catalogue entry released to a branch on `date`? No release version = unrestricted. Used by the
+ * consumers of a catalogue (offer lists) and by the release screen; it never reads another tenant (the key carries the tenant).
+ */
+export async function isReleasedToBranch(
+  deps: SysDeps,
+  q: { tenantId: string; catalog: string; itemCode: string; branchId: string; date: string },
+): Promise<{ released: boolean; versionId: string | null; effectiveFrom: string | null }> {
+  const v = pickEffective(
+    await versionsOf(deps, q.tenantId, 'catalog-release', `${q.catalog}:${q.itemCode}`),
+    q.date,
+  );
+  if (!v) return { released: true, versionId: null, effectiveFrom: null };
+  const p = v.payload as { audience: 'all' | 'branches'; branchIds?: string[] };
+  return {
+    released: p.audience === 'all' || (p.branchIds ?? []).includes(q.branchId),
+    versionId: v.id,
+    effectiveFrom: v.effectiveFrom,
+  };
+}
+
+const releaseQuery = z.object({
+  catalog: z.enum(['service', 'discount', 'payment-method', 'inspection-template']),
+  itemCode: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+});
+
+export interface CatalogReleaseDto {
+  catalog: string;
+  itemCode: string;
+  date: string;
+  versionId: string | null;
+  effectiveFrom: string | null;
+  audience: 'all' | 'branches' | 'unrestricted';
+  branches: { branchId: string; code: string; name: string; released: boolean }[];
+}
+
+/** FR-SYS-016: which branches (of the actor's scope) see a catalogue entry on a date. Read only; changes go through the config proposal. */
+export async function getCatalogRelease(
+  deps: SysDeps,
+  actor: Actor,
+  raw: unknown,
+): Promise<CatalogReleaseDto> {
+  const scope = resolveScope(actor, 'catalog-release:view');
+  const q = parseInput(releaseQuery, raw);
+  const date = q.date ?? businessDateOf(deps.clock.now());
+  const branches = await deps.branches.list(scope);
+  const rows = await Promise.all(
+    branches.map(async (b) => ({
+      b,
+      r: await isReleasedToBranch(deps, {
+        tenantId: actor.tenantId,
+        catalog: q.catalog,
+        itemCode: q.itemCode,
+        branchId: b.id,
+        date,
+      }),
+    })),
+  );
+  const version = rows[0]?.r ?? { versionId: null, effectiveFrom: null };
+  const v = version.versionId
+    ? pickEffective(
+        await versionsOf(deps, actor.tenantId, 'catalog-release', `${q.catalog}:${q.itemCode}`),
+        date,
+      )
+    : null;
+  return {
+    catalog: q.catalog,
+    itemCode: q.itemCode,
+    date,
+    versionId: version.versionId,
+    effectiveFrom: version.effectiveFrom,
+    audience: v ? (v.payload as { audience: 'all' | 'branches' }).audience : 'unrestricted',
+    branches: rows.map(({ b, r }) => ({
+      branchId: b.id,
+      code: b.code,
+      name: b.name,
+      released: r.released,
+    })),
+  };
 }
 
 export function snapshotOf(v: ConfigVersion): ConfigSnapshot {
@@ -207,17 +296,17 @@ export async function listConfigVersions(
   const scope = resolveScope(actor, perm(def.resource, 'view'));
   const q = parseInput(configListSchema, raw);
   const visible = (v: ConfigVersion) => {
-    const m = /^branch:(.+)$/.exec(v.scopeKey);
-    return !m || scopeAllows(scope, v.companyId, m[1]!);
+    const m = /^branch:([^:]+)(?::.*)?$/.exec(v.scopeKey);
+    return !m || scopeAllows(scope, v.tenantId, m[1]!);
   };
   if (q.scopeKey) {
-    const rows = (await deps.configs.listVersions(actor.companyId, type, q.scopeKey))
+    const rows = (await deps.configs.listVersions(actor.tenantId, type, q.scopeKey))
       .filter(visible)
       .filter((v) => !q.status || v.status === q.status);
     return { items: rows.map((v) => toDto(actor, v)), nextCursor: null };
   }
   const page = await deps.configs.listByType(
-    actor.companyId,
+    actor.tenantId,
     type,
     q.status,
     q.limit,
@@ -260,10 +349,10 @@ export async function proposeConfig(
           }))),
     ]);
   // branch overrides need the update right in that branch; company-wide keys need a company-wide scope
-  const branch = /^branch:(.+)$/.exec(data.scopeKey);
+  const branch = /^branch:([^:]+)(?::.*)?$/.exec(data.scopeKey);
   if (
     branch
-      ? !scopeAllows(scope, actor.companyId, branch[1]!)
+      ? !scopeAllows(scope, actor.tenantId, branch[1]!)
       : scope.kind !== 'all' && !def.proposeFromBranch
   )
     throw forbidden();
@@ -280,14 +369,14 @@ export async function proposeConfig(
       fingerprint: fingerprintOf(data),
     },
     async (tx) => {
-      const id = configVersionId(type, data.scopeKey, data.effectiveFrom);
+      const id = configVersionId(actor.tenantId, type, data.scopeKey, data.effectiveFrom);
       const existing = await deps.configs.getInTx(tx, id);
       // one slot per effective date; a rejected proposal frees it
       if (existing && existing.status !== 'rejected') throw new AppError('config_slot_taken', 409);
       const now = deps.clock.now();
       const v: ConfigVersion = {
         id,
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         type,
         scopeKey: data.scopeKey,
         effectiveFrom: data.effectiveFrom,
@@ -314,7 +403,7 @@ export async function proposeConfig(
         }),
       );
       notifyUsers(deps, tx, {
-        companyId: actor.companyId,
+        tenantId: actor.tenantId,
         userIds: approvers.filter((u) => u !== actor.userId),
         kind: 'config.pending',
         titleKey: 'notifications.configPending',
@@ -327,11 +416,11 @@ export async function proposeConfig(
 }
 
 async function approverIds(deps: SysDeps, actor: Actor, permission: Permission): Promise<string[]> {
-  const roles = await deps.roles.list();
+  const roles = await deps.roles.list(actor.tenantId);
   const codes = roles.filter((r) => r.permissions.includes(permission)).map((r) => r.code);
   const ids = new Set<string>();
   for (const code of codes)
-    for (const a of await deps.assignments.listByRole(actor.companyId, code, 50)) ids.add(a.userId);
+    for (const a of await deps.assignments.listByRole(actor.tenantId, code, 50)) ids.add(a.userId);
   return [...ids];
 }
 
@@ -378,7 +467,7 @@ export async function decideConfig(
     },
     async (tx) => {
       const v = await deps.configs.getInTx(tx, id);
-      if (!v || v.type !== type || v.companyId !== actor.companyId) throw notFound();
+      if (!v || v.type !== type || v.tenantId !== actor.tenantId) throw notFound();
       if (v.status !== 'pending') throw new AppError('state_invalid', 409);
 
       const own = v.proposedBy === actor.userId;
@@ -396,7 +485,7 @@ export async function decideConfig(
         decidedAt: now,
         decisionNote: data.note ?? null,
       });
-      const branch = /^branch:(.+)$/.exec(v.scopeKey);
+      const branch = /^branch:([^:]+)(?::.*)?$/.exec(v.scopeKey);
       deps.audit.record(
         tx,
         auditEntry(deps, actor, ctx, {
@@ -411,7 +500,7 @@ export async function decideConfig(
       );
       if (!own)
         notifyUsers(deps, tx, {
-          companyId: actor.companyId,
+          tenantId: actor.tenantId,
           userIds: [v.proposedBy],
           kind: data.decision === 'approve' ? 'config.approved' : 'config.rejected',
           titleKey:
@@ -421,7 +510,7 @@ export async function decideConfig(
           params: { type },
           link: `/sys/config/${type}`,
         });
-      invalidateConfig(deps, v.companyId, type);
+      invalidateConfig(deps, v.tenantId, type);
       return {
         status: 200,
         body: toDto(actor, {
@@ -443,10 +532,10 @@ export async function reauthenticate(
   password: string | undefined,
 ): Promise<void> {
   if (!password) throw new AppError('reauth_required', 403);
-  const user = await deps.users.getById(actor.userId);
+  const user = await deps.users.getById(actor.tenantId, actor.userId);
   if (!user) throw forbidden();
   try {
-    const r = await deps.identity.signInWithPassword(user.email, password);
+    const r = await deps.identity.signInWithPassword(loginAddressOf(user), password);
     if (r.uid !== user.id) throw forbidden();
   } catch (e) {
     if (e instanceof InvalidCredentialsError) throw new AppError('reauth_required', 403);
@@ -456,4 +545,46 @@ export async function reauthenticate(
 
 export function canViewConfig(actor: Actor, type: string): boolean {
   return hasPermission(actor, perm(configTypeOrThrow(type).resource, 'view'));
+}
+
+// ---- tenant limits hook (FR-TEN-044, RULE-035; MT-2 enforces, MT-0 only reports) ------------------------------
+
+export async function tenantLimitsAt(
+  deps: SysDeps,
+  tenantId: string,
+  date: string,
+): Promise<TenantLimits> {
+  const snap = await resolveConfigAt(deps, {
+    tenantId,
+    type: 'tenant-limits',
+    scopeKey: 'tenant',
+    date,
+  });
+  return { ...DEFAULT_TENANT_LIMITS, ...((snap?.payload ?? {}) as Partial<TenantLimits>) };
+}
+
+export interface LimitCheck {
+  metric: TenantLimitMetric;
+  limit: number;
+  current: number;
+  /** over the configured limit (informational) */
+  exceeded: boolean;
+  /** MT-0: always true, nothing is blocked. MT-2 turns this into `!exceeded` where the plan says so. */
+  allowed: true;
+}
+
+/**
+ * The check point callers can already use: it reads the effective limit and says whether `current + adding` would exceed it,
+ * but it NEVER blocks (`allowed` is always true) until MT-2 switches enforcement on by configuration.
+ */
+export async function checkTenantLimit(
+  deps: SysDeps,
+  tenantId: string,
+  metric: TenantLimitMetric,
+  current: number,
+  date: string,
+  adding = 1,
+): Promise<LimitCheck> {
+  const limit = (await tenantLimitsAt(deps, tenantId, date))[metric];
+  return { metric, limit, current, exceeded: current + adding > limit, allowed: true };
 }

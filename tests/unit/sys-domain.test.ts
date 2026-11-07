@@ -59,7 +59,9 @@ describe('FR-SYS-013 / ba-answers §2 role matrix seed', () => {
     );
     expect(roles.QL!.permissions).not.toContain('audit-log:export');
     // TH (Xn): only their own work on the floor (FR-REC-013), nothing about customers, stock or money
+    // plus their own labor lines (slice 2.6a, G3-HRM-07 "Bạn chỉ thấy công của mình")
     expect(roles.TH!.permissions).toEqual([
+      'labor-own:view',
       'part-request:create',
       'part-request:view',
       'repair-item:update',
@@ -215,7 +217,7 @@ describe('FR-SYS-003 audit never stores personal values (BA conflict resolution 
 
 describe('BA-13 numbering rules (ba-answers §6)', () => {
   const ctx = (docType: string, date: string, seqWidth?: number): NumberingContext => ({
-    companyId: 'c',
+    tenantId: 'c',
     branchId: 'b',
     branchCode: 'Q7',
     docType,
@@ -285,9 +287,12 @@ describe('FR-SYS-004 effective-dated configuration rules', () => {
         .success,
     ).toBe(false);
   });
-  it('version ids are deterministic per (type, scope, date)', () => {
-    expect(configVersionId('labor-rate', 'branch:br_q7', '2027-01-01')).toBe(
-      'labor-rate__branch~br_q7__2027-01-01',
+  it('version ids are deterministic per (tenant, type, scope, date); two tenants never share a slot (FR-TEN-009)', () => {
+    expect(configVersionId('tnt_a', 'labor-rate', 'branch:br_q7', '2027-01-01')).toBe(
+      'tnt_a__labor-rate__branch~br_q7__2027-01-01',
+    );
+    expect(configVersionId('tnt_b', 'labor-rate', 'branch:br_q7', '2027-01-01')).not.toBe(
+      configVersionId('tnt_a', 'labor-rate', 'branch:br_q7', '2027-01-01'),
     );
   });
 });
@@ -316,7 +321,7 @@ describe('H1 TtlCache', () => {
 describe('BA §4 working scope resolution', () => {
   const base = (over: Partial<Actor>): Actor => ({
     userId: 'u',
-    companyId: 'c',
+    tenantId: 'c',
     displayName: 'x',
     canConsolidate: false,
     workingBranchId: null,

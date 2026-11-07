@@ -112,7 +112,7 @@ export interface HandoverPayment {
 
 export interface RepairOrder {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   /** RO-<BRANCH>-<YYMM>-<seq5>, allocated when the order is created (R35) */
   number: string;
@@ -194,7 +194,7 @@ export interface AssignmentEntry {
 
 export interface RepairItem {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   orderId: string;
   /** shown number on the order, 1.. */
@@ -238,7 +238,7 @@ export interface RepairItem {
 export type PartRequestStatus = 'requested' | 'issued' | 'rejected' | 'cancelled';
 export interface PartRequest {
   id: string;
-  companyId: string;
+  tenantId: string;
   branchId: string;
   orderId: string;
   orderNumber: string;

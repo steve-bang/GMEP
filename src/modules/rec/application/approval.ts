@@ -80,20 +80,20 @@ export interface ApprovalPolicy {
 /** Branch override, then company, then the documented default (Câu 2: the customer may refuse a required item). */
 export async function approvalPolicyOf(
   deps: RecDeps,
-  companyId: string,
+  tenantId: string,
   branchId: string,
   date: string,
 ): Promise<ApprovalPolicy> {
   const cfg = (
     await resolveConfigAt(deps.sys, {
-      companyId,
+      tenantId,
       type: 'quote-approval',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date,
       branchId,
     })
   )?.payload as Partial<ApprovalPolicy> | undefined;
-  const rows = await resolveCatalogAt(deps.sys, { companyId, type: 'decline-reason', date });
+  const rows = await resolveCatalogAt(deps.sys, { tenantId, type: 'decline-reason', date });
   return {
     allowDeclineRequired: cfg?.allowDeclineRequired ?? deps.rec.approval.allowDeclineRequired,
     verbalApproval: cfg?.verbalApproval ?? deps.rec.approval.verbalApproval,
@@ -263,7 +263,7 @@ function applyApproval(deps: RecDeps, tx: Tx, c: CoreInput) {
   deps.sys.audit.record(tx, entry);
   if (c.recipients.length > 0)
     notifyUsers(deps.sys, tx, {
-      companyId: q.companyId,
+      tenantId: q.tenantId,
       userIds: c.recipients,
       kind: 'rec.quote_decided',
       titleKey: c.extra.exception
@@ -315,7 +315,7 @@ function decisionAudit(
   return {
     id: deps.sys.newId(),
     at: c.now,
-    companyId: c.q.companyId,
+    tenantId: c.q.tenantId,
     branchId: c.q.branchId,
     actorId: `customer-link:${c.link!.id.slice(0, 16)}`,
     actorRoles: ['customer-link'],
@@ -331,7 +331,7 @@ function decisionAudit(
 
 /** Advisor and branch managers, minus the person acting; read before the transaction's first write. */
 async function recipientsOf(deps: RecDeps, q: Quote, exceptId: string | null): Promise<string[]> {
-  const managers = await usersWithRole(deps.sys, q.companyId, ['QL'], q.branchId);
+  const managers = await usersWithRole(deps.sys, q.tenantId, ['QL'], q.branchId);
   return [...new Set([q.advisorId, ...managers])].filter((id) => id !== exceptId);
 }
 
@@ -366,7 +366,7 @@ export async function approveQuote(
   const head = await deps.quotes.get(scope, id);
   if (!head) throw notFound();
   const today = businessDate(deps.sys.clock.now());
-  const policy = await approvalPolicyOf(deps, actor.companyId, head.branchId, today);
+  const policy = await approvalPolicyOf(deps, actor.tenantId, head.branchId, today);
   const errors: { field: string; message: string }[] = [];
   if (data.method === 'counter_signature' && !data.signerName)
     errors.push({ field: 'signerName', message: 'Ghi họ tên người ký.' });
@@ -485,7 +485,7 @@ export async function replaceQuoteLink(
     deps.links.update(tx, old.id, { revokedAt: now, revokedReason: 'replaced' });
   deps.links.create(tx, {
     id: hash,
-    companyId: q.companyId,
+    tenantId: q.tenantId,
     branchId: q.branchId,
     quoteId: q.id,
     n: cur.n,
@@ -514,7 +514,7 @@ export function addQuoteLink(
 ): void {
   deps.links.create(tx, {
     id: a.hash,
-    companyId: a.q.companyId,
+    tenantId: a.q.tenantId,
     branchId: a.q.branchId,
     quoteId: a.q.id,
     n: a.cur.n,
@@ -663,12 +663,12 @@ export interface Resolved {
 }
 
 /** R34: the limits come from the `public-rate-limit` config when one is in force, else the built-in defaults. */
-async function publicLimits(deps: RecDeps, companyId: string) {
+async function publicLimits(deps: RecDeps, tenantId: string) {
   const c = (
     await resolveConfigAt(deps.sys, {
-      companyId,
+      tenantId,
       type: 'public-rate-limit',
-      scopeKey: 'company',
+      scopeKey: 'tenant',
       date: businessDate(deps.sys.clock.now()),
     })
   )?.payload as
@@ -711,11 +711,11 @@ async function throttle(
   address: string,
   hash: string,
   decide: boolean,
-  companyId: string | null,
+  tenantId: string | null,
 ) {
   // per address (generous: a counter's Wi-Fi shares one address) and per token; a decision is also tight per token
-  const lim = companyId
-    ? await publicLimits(deps, companyId)
+  const lim = tenantId
+    ? await publicLimits(deps, tenantId)
     : { view: undefined, decide: undefined };
   await deps.sys.limiter.hit('customer-link', `ip:${address}`, lim.view);
   await deps.sys.limiter.hit('customer-link', `tok:${hash.slice(0, 24)}`, lim.view);
@@ -734,7 +734,7 @@ export async function resolveLink(
   const wellFormed = TOKEN_PATTERN.test(token);
   const link = wellFormed ? await deps.links.find(hash) : null;
   // the same throttle applies to unknown and known tokens so a token cannot be probed (R34: numbers from config)
-  await throttle(deps, address, hash, decide, link?.companyId ?? null);
+  await throttle(deps, address, hash, decide, link?.tenantId ?? null);
   return loadResolved(deps, link, decide);
 }
 
@@ -751,7 +751,7 @@ export async function resolvePhotoLink(
   const hash = tokenHashOf(token);
   const link = TOKEN_PATTERN.test(token) ? await deps.links.find(hash) : null;
   const lim = link
-    ? (await publicLimits(deps, link.companyId)).photo
+    ? (await publicLimits(deps, link.tenantId)).photo
     : { token: undefined, address: undefined };
   await deps.sys.limiter.hit('customer-link-photo-ip', `ip:${address}`, lim.address);
   await deps.sys.limiter.hit('customer-link-photo', `tok:${hash.slice(0, 24)}`, lim.token);
@@ -764,7 +764,7 @@ async function loadResolved(
   decide: boolean,
 ): Promise<Resolved> {
   if (!link || link.revokedAt) throw notFound();
-  const scope = branchesScope(link.companyId, [link.branchId]);
+  const scope = branchesScope(link.tenantId, [link.branchId]);
   const q = await deps.quotes.get(scope, link.quoteId);
   if (!q) throw notFound();
   const cur = await deps.versions.get(scope, versionId(q.id, link.n));
@@ -792,7 +792,7 @@ export async function viewPublicQuote(
   const r = await resolveLink(deps, token, ctx.address);
   const today = businessDate(deps.sys.clock.now());
   const branch = await deps.sys.branches.get(r.scope, r.q.branchId);
-  const policy = await approvalPolicyOf(deps, r.q.companyId, r.q.branchId, today);
+  const policy = await approvalPolicyOf(deps, r.q.tenantId, r.q.branchId, today);
   // a superseded / expired / decided link reveals no content beyond what the customer already saw
   const showItems = r.state === 'open' || r.state === 'approved';
   const a = r.cur.approval;
@@ -867,7 +867,7 @@ export async function approveViaLink(
   const r0 = await resolveLink(deps, token, ctx.address, true);
   const policy = await approvalPolicyOf(
     deps,
-    r0.q.companyId,
+    r0.q.tenantId,
     r0.q.branchId,
     businessDate(deps.sys.clock.now()),
   );
@@ -968,7 +968,7 @@ export async function requestQuoteOtp(
   if (r.state !== 'open') throw notFound();
   const policy = await approvalPolicyOf(
     deps,
-    r.q.companyId,
+    r.q.tenantId,
     r.q.branchId,
     businessDate(deps.sys.clock.now()),
   );
@@ -1070,7 +1070,7 @@ export async function rejectViaLink(
       deps.sys.audit.record(tx, {
         id: deps.sys.newId(),
         at: now,
-        companyId: q.companyId,
+        tenantId: q.tenantId,
         branchId: q.branchId,
         actorId: `customer-link:${link.id.slice(0, 16)}`,
         actorRoles: ['customer-link'],
@@ -1085,7 +1085,7 @@ export async function rejectViaLink(
       });
       if (recipients.length > 0)
         notifyUsers(deps.sys, tx, {
-          companyId: q.companyId,
+          tenantId: q.tenantId,
           userIds: recipients,
           kind: 'rec.quote_decided',
           titleKey: 'notifications.quoteRejected',

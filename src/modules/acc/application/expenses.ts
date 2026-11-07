@@ -70,7 +70,7 @@ type ExpenseInput = z.infer<typeof expenseSchema>;
 
 export async function expenseCategories(
   deps: AccDeps,
-  companyId: string,
+  tenantId: string,
   date: string,
 ): Promise<
   {
@@ -80,7 +80,7 @@ export async function expenseCategories(
     sourceRequirement: 'required' | 'optional';
   }[]
 > {
-  const rows = await resolveCatalogAt(deps.sys, { companyId, type: 'expense-category', date });
+  const rows = await resolveCatalogAt(deps.sys, { tenantId, type: 'expense-category', date });
   return rows
     .filter((r) => r.payload.status === 'active')
     .map((r) => ({
@@ -139,7 +139,7 @@ async function judgeExpense(
 ) {
   const now = deps.sys.clock.now();
   const date = businessDate(now);
-  const cats = await expenseCategories(deps, actor.companyId, date);
+  const cats = await expenseCategories(deps, actor.tenantId, date);
   const cat = cats.find((c) => c.code === e.categoryCode);
   if (!cat) throw new AppError('expense_category_unknown', 422);
   const sourceMissing = !hasExpenseSource(e);
@@ -154,7 +154,7 @@ async function judgeExpense(
         message: 'Ghi lý do thiếu chứng từ gốc (tối thiểu 5 ký tự).',
       },
     ]);
-  const policy = await accPolicyOf(deps, actor.companyId, branchId, date);
+  const policy = await accPolicyOf(deps, actor.tenantId, branchId, date);
   const errors = validateLines(
     [
       {
@@ -166,11 +166,11 @@ async function judgeExpense(
     policy,
   );
   if (errors.length) throw validationFailed(errors);
-  const m = await loadMoneyCtx(deps, tx, scope, actor.companyId, branchId, date);
+  const m = await loadMoneyCtx(deps, tx, scope, actor.tenantId, branchId, date);
   const shiftId = requireOpenShift(m);
   const shift = await deps.cash.getShiftInTx(tx, scope, shiftId);
   const kind: ApprovalKind = cat.depositRefund ? 'deposit_refund' : 'expense';
-  const limits = await approvalLimitsOf(deps.sys, actor.companyId, kind, date);
+  const limits = await approvalLimitsOf(deps.sys, actor.tenantId, kind, date);
   const need = expenseApprovalNeed({
     depositRefund: cat.depositRefund,
     sourceMissing,
@@ -251,7 +251,7 @@ async function postExpense(
   });
   const p: Payment = {
     id: paymentId,
-    companyId: actor.companyId,
+    tenantId: actor.tenantId,
     branchId,
     number: num.number!,
     kind: 'expense',

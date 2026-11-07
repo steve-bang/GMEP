@@ -23,7 +23,9 @@ const toDto = (r: Role): RoleDto => ({
 
 export async function listRoles(deps: SysDeps, actor: Actor): Promise<RoleDto[]> {
   resolveScope(actor, 'role:view');
-  return (await deps.roles.list()).map(toDto).sort((a, b) => a.code.localeCompare(b.code));
+  return (await deps.roles.list(actor.tenantId))
+    .map(toDto)
+    .sort((a, b) => a.code.localeCompare(b.code));
 }
 
 export const updateRoleSchema = z.object({
@@ -55,7 +57,7 @@ export async function updateRole(
       unknown.map((p) => ({ field: 'permissions', message: p })),
     );
   const mine = new Set<string>(Object.values(actor.rolePermissions).flat());
-  const [role] = await deps.roles.getMany([code]);
+  const [role] = await deps.roles.getMany(actor.tenantId, [code]);
   if (!role) throw notFound();
   if (role.code === 'CH' && !mine.has('role:approve')) throw new AppError('forbidden', 403);
   const added = data.permissions.filter((p) => !role.permissions.includes(p));
@@ -67,7 +69,7 @@ export async function updateRole(
     canConsolidate: data.canConsolidate ?? role.canConsolidate,
   };
   await deps.uow.run(async (tx) => {
-    deps.roles.upsert(tx, next, { at: deps.clock.now(), by: actor.userId });
+    deps.roles.upsert(tx, actor.tenantId, next, { at: deps.clock.now(), by: actor.userId });
     deps.audit.record(
       tx,
       auditEntry(deps, actor, ctx, {
@@ -104,7 +106,7 @@ export async function applyPermissionTopUps(
   ctx: RequestCtx,
 ): Promise<TopUpResult> {
   resolveScope(actor, 'role:approve');
-  const roles = await deps.roles.list();
+  const roles = await deps.roles.list(actor.tenantId);
   const result: TopUpResult = { added: {}, applied: [] };
   const changed: string[] = [];
   await deps.uow.run(async (tx) => {
@@ -130,7 +132,7 @@ export async function applyPermissionTopUps(
         permissions: [...perms].sort(),
         appliedTopUps: [...done].sort(),
       };
-      deps.roles.upsert(tx, next, { at: deps.clock.now(), by: actor.userId });
+      deps.roles.upsert(tx, actor.tenantId, next, { at: deps.clock.now(), by: actor.userId });
       deps.audit.record(
         tx,
         auditEntry(deps, actor, ctx, {

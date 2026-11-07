@@ -47,7 +47,7 @@ function pageOf<T extends { id: string }>(
 
 const partFromDoc = ({ id, data: x }: StoredDoc): Part => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   code: x.code,
   codeKey: x.codeKey,
   name: x.name,
@@ -67,9 +67,9 @@ const partFromDoc = ({ id, data: x }: StoredDoc): Part => ({
   version: x.version,
 });
 
-const codeSlot = (companyId: string, codeKey: string) => `${companyId}__${codeKey}`;
-const compatLinkId = (companyId: string, key: string, partId: string) =>
-  `${companyId}__${key.replace(/[/]/g, '~')}__${partId}`;
+const codeSlot = (tenantId: string, codeKey: string) => `${tenantId}__${codeKey}`;
+const compatLinkId = (tenantId: string, key: string, partId: string) =>
+  `${tenantId}__${key.replace(/[/]/g, '~')}__${partId}`;
 
 export class DocPartRepository implements PartRepository {
   constructor(private readonly store: DocStore) {}
@@ -91,7 +91,7 @@ export class DocPartRepository implements PartRepository {
     const shape = family.pick(optional, false);
     const rows = await this.store.query(shape, {
       eq: {
-        companyId: scope.companyId,
+        tenantId: scope.tenantId,
         ...(q.group ? { group: q.group } : {}),
         ...(q.status ? { status: q.status } : {}),
       },
@@ -109,28 +109,28 @@ export class DocPartRepository implements PartRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.parts, id);
     const p = d ? partFromDoc(d) : null;
-    return p && p.companyId === scope.companyId ? p : null;
+    return p && p.tenantId === scope.tenantId ? p : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.parts, id);
     const p = d ? partFromDoc(d) : null;
-    return p && p.companyId === scope.companyId ? p : null;
+    return p && p.tenantId === scope.tenantId ? p : null;
   }
   async getMany(scope: Scope, ids: readonly string[]) {
     const docs = await this.store.getMany(COL.parts, [...new Set(ids)]);
-    return docs.map(partFromDoc).filter((p) => p.companyId === scope.companyId);
+    return docs.map(partFromDoc).filter((p) => p.tenantId === scope.tenantId);
   }
   async idByCodeKey(scope: Scope, codeKey: string) {
-    const d = await this.store.get(COL.partCodes, codeSlot(scope.companyId, codeKey));
+    const d = await this.store.get(COL.partCodes, codeSlot(scope.tenantId, codeKey));
     return d ? (d.data.partId as string) : null;
   }
   async idByBarcode(scope: Scope, barcode: string) {
-    const d = await this.store.get(COL.partBarcodes, codeSlot(scope.companyId, barcode));
+    const d = await this.store.get(COL.partBarcodes, codeSlot(scope.tenantId, barcode));
     return d ? (d.data.partId as string) : null;
   }
   async listByCompat(scope: Scope, compatKey: string, limit: number) {
     const rows = await this.store.query(Q.partCompatByModel.pick([], false), {
-      eq: { companyId: scope.companyId, compatKey },
+      eq: { tenantId: scope.tenantId, compatKey },
       limit,
     });
     return this.getMany(
@@ -140,24 +140,21 @@ export class DocPartRepository implements PartRepository {
   }
   create(tx: Tx, p: Part) {
     // uniqueness slots are CREATED: a second part with the same code key or barcode fails the transaction (FR-INV-002)
-    this.store.create(tx, COL.partCodes, codeSlot(p.companyId, p.codeKey), {
-      companyId: p.companyId,
+    this.store.create(tx, COL.partCodes, codeSlot(p.tenantId, p.codeKey), {
+      tenantId: p.tenantId,
       partId: p.id,
     });
     if (p.barcode)
-      this.store.create(tx, COL.partBarcodes, codeSlot(p.companyId, p.barcode), {
-        companyId: p.companyId,
+      this.store.create(tx, COL.partBarcodes, codeSlot(p.tenantId, p.barcode), {
+        tenantId: p.tenantId,
         partId: p.id,
       });
     this.store.create(tx, COL.parts, p.id, without(p, 'id'));
   }
-  remove(
-    tx: Tx,
-    p: Pick<Part, 'id' | 'companyId' | 'code' | 'codeKey' | 'barcode' | 'compatKeys'>,
-  ) {
+  remove(tx: Tx, p: Pick<Part, 'id' | 'tenantId' | 'code' | 'codeKey' | 'barcode' | 'compatKeys'>) {
     this.relinkCompat(tx, p, p.compatKeys, []);
-    if (p.barcode) this.store.delete(tx, COL.partBarcodes, codeSlot(p.companyId, p.barcode));
-    this.store.delete(tx, COL.partCodes, codeSlot(p.companyId, p.codeKey));
+    if (p.barcode) this.store.delete(tx, COL.partBarcodes, codeSlot(p.tenantId, p.barcode));
+    this.store.delete(tx, COL.partCodes, codeSlot(p.tenantId, p.codeKey));
     this.store.delete(tx, COL.parts, p.id);
   }
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
@@ -165,30 +162,29 @@ export class DocPartRepository implements PartRepository {
   }
   rebarcode(
     tx: Tx,
-    p: Pick<Part, 'id' | 'companyId'>,
+    p: Pick<Part, 'id' | 'tenantId'>,
     from: string | undefined,
     to: string | undefined,
   ) {
-    if (from) this.store.delete(tx, COL.partBarcodes, codeSlot(p.companyId, from));
+    if (from) this.store.delete(tx, COL.partBarcodes, codeSlot(p.tenantId, from));
     if (to)
-      this.store.create(tx, COL.partBarcodes, codeSlot(p.companyId, to), {
-        companyId: p.companyId,
+      this.store.create(tx, COL.partBarcodes, codeSlot(p.tenantId, to), {
+        tenantId: p.tenantId,
         partId: p.id,
       });
   }
   relinkCompat(
     tx: Tx,
-    p: Pick<Part, 'id' | 'companyId' | 'code'>,
+    p: Pick<Part, 'id' | 'tenantId' | 'code'>,
     from: readonly string[],
     to: readonly string[],
   ) {
     for (const k of from)
-      if (!to.includes(k))
-        this.store.delete(tx, COL.partCompat, compatLinkId(p.companyId, k, p.id));
+      if (!to.includes(k)) this.store.delete(tx, COL.partCompat, compatLinkId(p.tenantId, k, p.id));
     for (const k of to)
       if (!from.includes(k))
-        this.store.set(tx, COL.partCompat, compatLinkId(p.companyId, k, p.id), {
-          companyId: p.companyId,
+        this.store.set(tx, COL.partCompat, compatLinkId(p.tenantId, k, p.id), {
+          tenantId: p.tenantId,
           compatKey: k,
           partId: p.id,
           code: p.code,
@@ -200,7 +196,7 @@ export class DocPartRepository implements PartRepository {
 
 const balanceFromDoc = ({ id, data: x }: StoredDoc): StockBalance => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   warehouseId: x.warehouseId,
   partId: x.partId,
@@ -240,7 +236,7 @@ export class DocStockBalanceRepository implements StockBalanceRepository {
     ];
     const rows = await this.store.query(Q.stockByPart.pick(optional, scope.kind === 'branches'), {
       eq: {
-        companyId: scope.companyId,
+        tenantId: scope.tenantId,
         ...(q.lowStock ? { lowStock: true } : {}),
         ...(q.warehouseId ? { warehouseId: q.warehouseId } : {}),
       },
@@ -253,7 +249,7 @@ export class DocStockBalanceRepository implements StockBalanceRepository {
   }
   async listByPart(scope: Scope, partId: string, limit: number) {
     const rows = await this.store.query(Q.stockOfPart.pick([], scope.kind === 'branches'), {
-      eq: { companyId: scope.companyId, partId },
+      eq: { tenantId: scope.tenantId, partId },
       ...scopeParams(scope),
       limit,
     });
@@ -262,19 +258,19 @@ export class DocStockBalanceRepository implements StockBalanceRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.stockBalances, id);
     const b = d ? balanceFromDoc(d) : null;
-    return b && scopeAllows(scope, b.companyId, b.branchId) ? b : null;
+    return b && scopeAllows(scope, b.tenantId, b.branchId) ? b : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.stockBalances, id);
     const b = d ? balanceFromDoc(d) : null;
-    return b && scopeAllows(scope, b.companyId, b.branchId) ? b : null;
+    return b && scopeAllows(scope, b.tenantId, b.branchId) ? b : null;
   }
   save(tx: Tx, b: StockBalance) {
     this.store.set(tx, COL.stockBalances, b.id, without(b, 'id'));
   }
-  async hasStock(companyId: string, warehouseId: string) {
+  async hasStock(tenantId: string, warehouseId: string) {
     const rows = await this.store.query(Q.stockNonZero.pick([], false), {
-      eq: { companyId, warehouseId, nonZero: true },
+      eq: { tenantId, warehouseId, nonZero: true },
       limit: 1,
     });
     return rows.length > 0;
@@ -285,7 +281,7 @@ export class DocStockBalanceRepository implements StockBalanceRepository {
 
 const movementFromDoc = ({ id, data: x }: StoredDoc): StockMovement => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   warehouseId: x.warehouseId,
   partId: x.partId,
@@ -328,7 +324,7 @@ export class DocMovementRepository implements MovementRepository {
     q: { limit: number; cursor?: Cur; warehouseId: string; partId: string },
   ) {
     const rows = await this.store.query(Q.movementsByBalance.pick([], scope.kind === 'branches'), {
-      eq: { companyId: scope.companyId, warehouseId: q.warehouseId, partId: q.partId },
+      eq: { tenantId: scope.tenantId, warehouseId: q.warehouseId, partId: q.partId },
       ...scopeParams(scope),
       ...(q.cursor ? { cursor: q.cursor } : {}),
       limit: q.limit + 1,
@@ -341,7 +337,7 @@ export class DocMovementRepository implements MovementRepository {
 
 const documentFromDoc = ({ id, data: x }: StoredDoc): StockDocument => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   warehouseId: x.warehouseId,
   type: x.type,
@@ -385,7 +381,7 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
       Q.stockDocuments.pick(optional, scope.kind === 'branches'),
       {
         eq: {
-          companyId: scope.companyId,
+          tenantId: scope.tenantId,
           ...(q.type ? { type: q.type } : {}),
           ...(q.status ? { status: q.status } : {}),
         },
@@ -399,12 +395,12 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.stockDocuments, id);
     const x = d ? documentFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.stockDocuments, id);
     const x = d ? documentFromDoc(d) : null;
-    return x && scopeAllows(scope, x.companyId, x.branchId) ? x : null;
+    return x && scopeAllows(scope, x.tenantId, x.branchId) ? x : null;
   }
   create(tx: Tx, d: StockDocument) {
     this.store.create(tx, COL.stockDocuments, d.id, without(d, 'id'));
@@ -413,19 +409,19 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
     this.store.update(tx, COL.stockDocuments, id, patch);
   }
   async listByWarehouseStatus(
-    companyId: string,
+    tenantId: string,
     warehouseId: string,
     status: StockDocument['status'],
     limit: number,
   ) {
     const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
-      eq: { companyId, warehouseId, status },
+      eq: { tenantId, warehouseId, status },
       limit,
     });
     return rows.map(documentFromDoc);
   }
   async listAllByWarehouseStatus(
-    companyId: string,
+    tenantId: string,
     warehouseId: string,
     status: StockDocument['status'],
     maxDocs: number,
@@ -435,7 +431,7 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
     let cursor: { v: string; id: string } | undefined;
     for (;;) {
       const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
-        eq: { companyId, warehouseId, status },
+        eq: { tenantId, warehouseId, status },
         ...(cursor ? { cursor } : {}),
         limit: PAGE + 1,
       });
@@ -449,9 +445,9 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
       cursor = { v: isoOf(last.createdAt), id: last.id };
     }
   }
-  async hasOpen(companyId: string, warehouseId: string) {
+  async hasOpen(tenantId: string, warehouseId: string) {
     const rows = await this.store.query(Q.stockDocumentsOpen.pick([], false), {
-      eq: { companyId, warehouseId, status: 'draft' },
+      eq: { tenantId, warehouseId, status: 'draft' },
       limit: 1,
     });
     return rows.length > 0;
@@ -462,7 +458,7 @@ export class DocStockDocumentRepository implements StockDocumentRepository {
 
 const reservationFromDoc = ({ id, data: x }: StoredDoc): Reservation => ({
   id,
-  companyId: x.companyId,
+  tenantId: x.tenantId,
   branchId: x.branchId,
   warehouseId: x.warehouseId,
   partId: x.partId,
@@ -489,18 +485,18 @@ export class DocReservationRepository implements ReservationRepository {
   async get(scope: Scope, id: string) {
     const d = await this.store.get(COL.stockReservations, id);
     const r = d ? reservationFromDoc(d) : null;
-    return r && scopeAllows(scope, r.companyId, r.branchId) ? r : null;
+    return r && scopeAllows(scope, r.tenantId, r.branchId) ? r : null;
   }
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.stockReservations, id);
     const r = d ? reservationFromDoc(d) : null;
-    return r && scopeAllows(scope, r.companyId, r.branchId) ? r : null;
+    return r && scopeAllows(scope, r.tenantId, r.branchId) ? r : null;
   }
   async listBySource(scope: Scope, sourceType: string, sourceId: string, limit: number) {
     const rows = await this.store.query(
       Q.reservationsBySource.pick([], scope.kind === 'branches'),
       {
-        eq: { companyId: scope.companyId, sourceType, sourceId },
+        eq: { tenantId: scope.tenantId, sourceType, sourceId },
         ...scopeParams(scope),
         limit,
       },
@@ -515,7 +511,7 @@ export class DocReservationRepository implements ReservationRepository {
       Q.reservationsByPart.pick(q.status ? ['status'] : [], scope.kind === 'branches'),
       {
         eq: {
-          companyId: scope.companyId,
+          tenantId: scope.tenantId,
           partId: q.partId,
           ...(q.status ? { status: q.status } : {}),
         },
@@ -528,7 +524,7 @@ export class DocReservationRepository implements ReservationRepository {
   }
   async listOpen(scope: Scope, limit: number) {
     const rows = await this.store.query(Q.reservationsOpen.pick([], scope.kind === 'branches'), {
-      eq: { companyId: scope.companyId, status: 'holding' },
+      eq: { tenantId: scope.tenantId, status: 'holding' },
       ...scopeParams(scope),
       limit,
     });
@@ -548,14 +544,14 @@ export class DocIssueReturnRepository implements IssueReturnRepository {
   constructor(private readonly store: DocStore) {}
   async getInTx(tx: Tx, scope: Scope, id: string) {
     const d = await this.store.getInTx(tx, COL.issueReturns, id);
-    if (!d || !scopeAllows(scope, d.data.companyId, d.data.branchId)) return null;
+    if (!d || !scopeAllows(scope, d.data.tenantId, d.data.branchId)) return null;
     return { returnedQty: d.data.returnedQty as number };
   }
   save(
     tx: Tx,
     id: string,
     v: {
-      companyId: string;
+      tenantId: string;
       branchId: string;
       documentId: string;
       lineNo: number;
