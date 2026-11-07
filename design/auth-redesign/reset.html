@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đặt mật khẩu mới – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="preview" data-preview>
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="form">Đặt mật khẩu mới</button>
+    <button class="chip" type="button" data-view="temp">Đổi mật khẩu tạm (lần đầu)</button>
+    <button class="chip" type="button" data-view="policy">Vi phạm chính sách</button>
+    <button class="chip" type="button" data-view="loading">Đang lưu</button>
+    <button class="chip" type="button" data-view="success">Đã đổi xong</button>
+    <button class="chip" type="button" data-view="expired">Liên kết hết hạn</button>
+    <button class="chip" type="button" data-view="used">Liên kết đã dùng</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+  </div>
+  <p class="preview__hint">Hai luồng: (1) từ liên kết trong email quên mật khẩu; (2) nhân viên đăng nhập bằng mật khẩu tạm do quản lý đặt, buộc đổi ngay (phiên chỉ đổi mật khẩu). Thử gõ “passwordpassword” để xem lỗi chính sách.</p>
+  <div class="preview__nav"><a href="login.html">Đăng nhập</a><a href="choose.html">Chọn công ty và phạm vi</a><a href="forgot.html">Quên mật khẩu</a><a href="reset.html">Đặt mật khẩu mới</a><a href="invite.html">Lời mời</a><a href="states.html">Thư viện trạng thái</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline" hidden><strong>Mất kết nối mạng.</strong> Chưa lưu được. Mật khẩu bạn nhập vẫn được giữ trong trang này, chưa lưu ở đâu khác.</div>
+
+<main class="auth" id="main">
+  <a class="brand" href="login.html"><span class="brand__mark" aria-hidden="true">G</span>GMEP</a>
+
+  <section class="acard" aria-labelledby="t" data-v="form temp policy loading offline error">
+    <div>
+      <h1 id="t"><span data-nv="temp">Đặt mật khẩu mới</span><span data-v="temp" hidden>Đổi mật khẩu tạm</span></h1>
+      <p class="lead" data-nv="temp">Chọn mật khẩu mới cho tài khoản của bạn. Sau khi đổi, mọi thiết bị đang đăng nhập sẽ phải đăng nhập lại.</p>
+      <p class="lead" data-v="temp" hidden>Bạn đang dùng mật khẩu tạm do quản lý đặt. Đổi ngay để tiếp tục. Phiên này chỉ dùng được để đổi mật khẩu và hết hạn sau ít phút.</p>
+    </div>
+    <div class="note note--danger" role="alert" data-v="policy" hidden><strong>Mật khẩu chưa đạt yêu cầu</strong><span>Mật khẩu này đã dùng gần đây. Chọn một mật khẩu khác chưa từng dùng.</span></div>
+    <div class="note note--danger" role="alert" data-v="error" hidden><strong>Chưa lưu được mật khẩu</strong><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Mật khẩu cũ vẫn dùng được. Thử lại sau ít phút, mã tham chiếu <span class="code">REQ-7F3A92</span>.</span></div>
+    <form class="form" id="f" novalidate>
+      <div class="field" data-v="temp" hidden>
+        <label for="cur">Mật khẩu tạm hiện tại<span class="req" aria-hidden="true"> *</span></label>
+        <div class="pw"><input id="cur" type="password" autocomplete="current-password" aria-required="true"><button type="button" data-pw="cur" aria-pressed="false" aria-label="Hiện hoặc ẩn mật khẩu tạm">Hiện</button></div>
+        <span class="err" id="cur-e" hidden>Nhập mật khẩu tạm quản lý đã đặt cho bạn.</span>
+      </div>
+      <div class="field">
+        <label for="n1">Mật khẩu mới<span class="req" aria-hidden="true"> *</span></label>
+        <div class="pw"><input id="n1" type="password" autocomplete="new-password" aria-required="true" aria-describedby="rules"><button type="button" data-pw="n1" aria-pressed="false" aria-label="Hiện hoặc ẩn mật khẩu mới">Hiện</button></div>
+        <ul class="rules" id="rules" aria-label="Yêu cầu mật khẩu">
+          <li id="r-len">Ít nhất 10 ký tự. Gợi ý: một cụm từ dễ nhớ, ví dụ garage-quan7-mua-thu.</li>
+          <li id="r-reuse">Không trùng các mật khẩu gần nhất (hệ thống kiểm tra khi lưu).</li>
+        </ul>
+      </div>
+      <div class="field">
+        <label for="n2">Nhập lại mật khẩu mới<span class="req" aria-hidden="true"> *</span></label>
+        <div class="pw"><input id="n2" type="password" autocomplete="new-password" aria-required="true"><button type="button" data-pw="n2" aria-pressed="false" aria-label="Hiện hoặc ẩn mật khẩu nhập lại">Hiện</button></div>
+        <span class="err" id="n2-e" hidden>Hai mật khẩu chưa giống nhau. Nhập lại đúng mật khẩu ở ô trên.</span>
+      </div>
+      <label class="check" data-v="temp" hidden><input type="checkbox" id="ag"><span>Tôi đã đọc và đồng ý <a href="#" style="color:var(--color-text-link)">quy định sử dụng hệ thống</a>.</span></label>
+      <button class="b b--primary b--lg b--block" type="submit" id="go" data-dis="loading offline" aria-describedby="why-o"><span class="spin" data-v="loading" hidden aria-hidden="true"></span><span data-nv="loading">Lưu mật khẩu mới</span><span data-v="loading" hidden>Đang lưu…</span></button>
+      <p class="why" id="why-o" data-v="offline" hidden>Đang mất kết nối: thao tác này cần mạng.</p>
+      <p class="why" id="why-a" hidden>Đánh dấu đồng ý quy định sử dụng để tiếp tục.</p>
+    </form>
+  </section>
+
+  <section class="acard" aria-labelledby="ts" data-v="success" hidden role="status">
+    <div class="state"><div class="state__code" aria-hidden="true">✓</div>
+      <h1 id="ts" tabindex="-1">Đã đổi mật khẩu</h1>
+      <p>Mật khẩu mới có hiệu lực ngay. Các thiết bị khác đang đăng nhập đã bị đăng xuất. Nếu không phải bạn thực hiện, báo quản lý chi nhánh.</p>
+      <div class="state__act"><a class="b b--primary b--lg" href="login.html">Đăng nhập</a></div></div>
+  </section>
+
+  <section class="acard" aria-labelledby="te" data-v="expired" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">!</div>
+      <h1 id="te" tabindex="-1">Liên kết đã hết hạn</h1>
+      <p>Liên kết đặt lại mật khẩu chỉ có hiệu lực trong thời gian ngắn. Hãy yêu cầu một liên kết mới; liên kết cũ không dùng được nữa.</p>
+      <div class="state__act"><a class="b b--primary" href="forgot.html">Yêu cầu liên kết mới</a></div></div>
+  </section>
+
+  <section class="acard" aria-labelledby="tu" data-v="used" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">!</div>
+      <h1 id="tu" tabindex="-1">Liên kết này đã được dùng</h1>
+      <p>Mỗi liên kết chỉ dùng một lần. Nếu bạn đã đặt mật khẩu mới, hãy đăng nhập. Nếu không phải bạn đã dùng, yêu cầu liên kết mới và báo quản lý chi nhánh.</p>
+      <div class="state__act"><a class="b b--primary" href="login.html">Đăng nhập</a><a class="b b--secondary" href="forgot.html">Yêu cầu liên kết mới</a></div></div>
+  </section>
+
+  <details class="spec"><summary>Ghi chú cho dev và BA</summary>
+    <ul>
+      <li>Truy vết: FR-SYS-001, RULE-034, P2-C (mật khẩu tạm: phiên “chỉ đổi mật khẩu” tối đa 15 phút, route khác trả 403 <span class="code">password_change_required</span>; đổi xong thu hồi mọi phiên và ghi đồng ý quy định).</li>
+      <li>Ba trạng thái liên kết (hết hạn, đã dùng, không hợp lệ) dùng câu trung lập theo state-copy §2.9; không nêu tài khoản. “Không hợp lệ” dùng câu của “đã dùng”.</li>
+      <li>Đạt yêu cầu: dòng độ dài đổi sang dấu ✓ khi đủ (không chỉ đổi màu). Lỗi trùng mật khẩu cũ chỉ biết khi máy chủ trả (<span class="code">policy.password.reused</span>).</li>
+      <li>Ô đồng ý quy định chỉ hiện ở luồng mật khẩu tạm; nút bị chặn nêu lý do cho đến khi đánh dấu.</li>
+      <li><span class="tag">[Cần xác nhận]</span> Chính sách mật khẩu: số ký tự tối thiểu (10 và 5 mật khẩu gần nhất lấy từ ADR §6.3, chưa có trong FR-SYS-001, phải đọc từ cấu hình), chặn mật khẩu phổ biến và chứa tên/email/mã NV (BA đề xuất). Hết hạn mật khẩu tạm (hiện 72 giờ). Có yêu cầu đăng nhập lại ngay sau đổi hay vào thẳng.</li>
+    </ul>
+  </details>
+</main>
+
+<script src="auth.js"></script>
+<script>
+(function () {
+  var n1 = document.getElementById('n1'), n2 = document.getElementById('n2');
+  function agree() {
+    var temp = document.body.dataset.view === 'temp', ok = !temp || document.getElementById('ag').checked;
+    var go = document.getElementById('go'), v = document.body.dataset.view;
+    if (v !== 'loading' && v !== 'offline') go.setAttribute('aria-disabled', String(!ok));
+    document.getElementById('why-a').hidden = ok || v !== 'temp';
+    go.setAttribute('aria-describedby', 'why-o why-a');
+  }
+  document.addEventListener('view', agree); agree();
+  document.getElementById('ag').addEventListener('change', agree);
+  n1.addEventListener('input', function () { document.getElementById('r-len').className = n1.value.length >= 10 ? 'ok' : ''; });
+  document.getElementById('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var bad = n1.value !== n2.value || n1.value.length < 10; document.getElementById('n2-e').hidden = n1.value === n2.value; n2.setAttribute('aria-invalid', String(n1.value !== n2.value));
+    if (bad) { (n1.value.length < 10 ? n1 : n2).focus(); return; }
+    if (n1.value === 'passwordpassword') { authSet('policy'); return; }
+    authSet('loading'); setTimeout(function () { authSet('success'); }, 600);
+  });
+})();
+</script>
+</body>
+</html>

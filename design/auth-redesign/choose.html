@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chọn công ty và phạm vi – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+<div class="preview" data-preview>
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="multi">Chọn công ty (nhiều tư cách)</button>
+    <button class="chip" type="button" data-view="scope">Chọn chi nhánh (quản lý)</button>
+    <button class="chip" type="button" data-view="owner">Chủ garage (được hợp nhất)</button>
+    <button class="chip" type="button" data-view="nobranch">Chưa gán chi nhánh</button>
+    <button class="chip" type="button" data-view="empty">Không có công ty dùng được</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+    <button class="chip" type="button" data-view="switch">Đổi công ty trong phiên</button>
+  </div>
+  <p class="preview__hint">Một tư cách thành viên: bỏ qua bước chọn công ty, vào thẳng bước chọn chi nhánh (hoặc vào thẳng ứng dụng nếu chỉ có một chi nhánh, vì khi đó không có bộ chọn).</p>
+  <div class="preview__nav"><a href="login.html">Đăng nhập</a><a href="choose.html">Chọn công ty và phạm vi</a><a href="forgot.html">Quên mật khẩu</a><a href="reset.html">Đặt mật khẩu mới</a><a href="invite.html">Lời mời</a><a href="states.html">Thư viện trạng thái</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline" hidden><strong>Mất kết nối.</strong> Chưa thể tải hoặc đổi phạm vi. Đang thử kết nối lại…</div>
+
+<main class="auth" id="main">
+  <a class="brand" href="login.html"><span class="brand__mark" aria-hidden="true">G</span>GMEP</a>
+
+  <!-- Bước 1: CompanyPicker -->
+  <section class="acard acard--wide" aria-labelledby="t1" data-v="multi offline">
+    <div><h1 id="t1">Chọn công ty để tiếp tục</h1><p class="lead">Email này thuộc nhiều công ty. Mỗi lần làm việc chỉ trong một công ty; dữ liệu các công ty không lẫn vào nhau.</p></div>
+    <div class="who"><span>Đang đăng nhập: <b>ha.nguyen@garage.vn</b></span><a class="linkbtn" href="login.html">Không phải bạn? Đăng xuất</a></div>
+    <ul class="opts" role="radiogroup" aria-label="Công ty" id="orgs">
+      <li><button type="button" class="opt" role="radio" aria-checked="false" data-org="Garage Minh Phát"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Garage Minh Phát</b><span>Chủ garage · 8 chi nhánh</span></span><span class="opt__r"><span class="badge badge--success">Đang hoạt động</span></span></button></li>
+      <li><button type="button" class="opt" role="radio" aria-checked="false" data-org="Trung tâm Ô tô Hòa Bình"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Trung tâm Ô tô Hòa Bình</b><span>Quản lý chi nhánh · 3 chi nhánh</span></span><span class="opt__r"><span class="badge badge--success">Đang hoạt động</span></span></button></li>
+      <li><button type="button" class="opt" role="radio" aria-checked="false" data-org="Gara Sài Gòn Xanh" data-ro="1"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Gara Sài Gòn Xanh</b><span>Cố vấn dịch vụ · 1 chi nhánh</span></span><span class="opt__r"><span class="badge badge--warning">Tạm ngưng</span><span class="badge badge--neutral">Chỉ xem</span></span></button></li>
+    </ul>
+    <div class="note note--warning" id="ro" role="status" hidden><strong>Công ty này đang tạm ngưng</strong><span>Bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.</span></div>
+    <button class="b b--primary b--lg b--block" type="button" id="next1" aria-disabled="true" aria-describedby="why1" data-dis-offline="1">Tiếp tục</button>
+    <p class="why" id="why1">Chọn một công ty để tiếp tục.</p>
+    <p class="small" style="margin:0">Không thấy công ty cần vào? Nhờ quản lý hoặc chủ garage gửi lời mời tới đúng email này.</p>
+  </section>
+
+  <!-- Bước 2: bộ chọn phạm vi -->
+  <section class="acard acard--wide" aria-labelledby="t2" data-v="scope owner">
+    <div><h1 id="t2">Chọn phạm vi dữ liệu</h1><p class="lead">Mọi số liệu, báo cáo và tệp xuất sẽ ghi rõ phạm vi này. Có thể đổi ở thanh trên cùng bất cứ lúc nào.</p></div>
+    <div class="who"><span>Công ty: <b data-v="scope" id="co1">Trung tâm Ô tô Hòa Bình</b><b data-v="owner" hidden>Garage Minh Phát</b></span><a class="linkbtn" href="choose.html#switch" data-v="scope owner">Đổi công ty</a></div>
+    <div class="seg" role="radiogroup" aria-label="Kiểu xem" id="kind">
+      <button type="button" role="radio" aria-checked="true" data-kind="one">Một chi nhánh</button>
+      <button type="button" role="radio" aria-checked="false" data-kind="all" data-dis="scope" aria-describedby="why-m">Hợp nhất</button>
+    </div>
+    <p class="why" id="why-m" data-v="scope" hidden>Xem hợp nhất chưa dùng được với vai trò của bạn. Số liệu hợp nhất dành cho Chủ garage và Quản lý vùng. Cần xem nhiều chi nhánh, nhờ quản trị cấp quyền.</p>
+    <ul class="opts" role="radiogroup" aria-label="Chi nhánh" id="brs">
+      <li><button type="button" class="opt" role="radio" aria-checked="false" data-br="Chi nhánh Quận 7"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Chi nhánh Quận 7</b><span>Nguyễn Thị Thập, Quận 7</span></span><span class="opt__r"><span class="badge badge--success">Đang nhận lệnh</span></span></button></li>
+      <li><button type="button" class="opt" role="radio" aria-checked="false" data-br="Chi nhánh Thủ Đức"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Chi nhánh Thủ Đức</b><span>Võ Văn Ngân, TP Thủ Đức</span></span><span class="opt__r"><span class="badge badge--warning">Ngừng nhận lệnh mới</span></span></button></li>
+      <li><button type="button" class="opt" role="radio" aria-checked="false" aria-disabled="true" aria-describedby="why-lock"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Chi nhánh Bình Tân</b><span id="why-lock">Đã khóa: chỉ xem lịch sử, không tạo hay sửa chứng từ.</span></span><span class="opt__r"><span class="badge badge--neutral">Đã khóa</span></span></button></li>
+    </ul>
+    <p class="small" id="allnote" style="margin:0" hidden>Hợp nhất 8 chi nhánh. Tạo phiếu mới thì chọn một chi nhánh, vì mỗi chứng từ gắn với đúng một chi nhánh.</p>
+    <button class="b b--primary b--lg b--block" type="button" id="enter" aria-disabled="true" aria-describedby="why2">Vào hệ thống</button>
+    <p class="why" id="why2">Chọn một chi nhánh để vào.</p>
+  </section>
+
+  <section class="acard" aria-labelledby="t3" data-v="nobranch">
+    <div class="state"><div class="state__code" aria-hidden="true">0</div>
+      <h1 id="t3" tabindex="-1">Tài khoản chưa được gán chi nhánh nào</h1>
+      <p>Bạn cần được gán ít nhất một chi nhánh và một vai trò mới xem được dữ liệu. Nhờ quản lý chi nhánh hoặc quản trị hệ thống gán giúp, rồi tải lại trang.</p>
+      <div class="state__act"><button type="button" class="b b--primary" onclick="location.reload()">Tải lại</button><a class="b b--secondary" href="login.html">Đăng xuất</a></div>
+      <p class="small"><span class="tag">[Cần xác nhận]</span> Nút “Gửi yêu cầu gán chi nhánh” chỉ thêm khi có quy trình và người nhận.</p></div>
+  </section>
+
+  <section class="acard" aria-labelledby="t4" data-v="empty">
+    <div class="state"><div class="state__code" aria-hidden="true">0</div>
+      <h1 id="t4" tabindex="-1">Chưa có công ty nào dùng được</h1>
+      <p>Tài khoản này chưa được gán vào công ty nào đang hoạt động. Nhờ quản lý hoặc chủ garage gửi lời mời tới đúng email này, rồi đăng nhập lại.</p>
+      <div class="state__act"><button type="button" class="b b--primary" onclick="location.reload()">Tải lại</button><a class="b b--secondary" href="login.html">Đăng xuất</a></div></div>
+  </section>
+
+  <section class="acard acard--wide" aria-label="Đang tải danh sách công ty" aria-busy="true" data-v="loading"><h1>Đang tải danh sách công ty</h1><div class="sk"></div><div class="sk"></div><div class="sk"></div></section>
+
+  <section class="acard" aria-labelledby="t5" data-v="error">
+    <div class="note note--danger" role="alert"><strong id="t5">Không tải được danh sách công ty</strong><span>Đây không phải lỗi của bạn. Thử lại sau ít phút. Nếu vẫn lỗi, báo quản lý kèm mã tham chiếu <span class="code">REQ-7F3A92</span>.</span><div class="note__act"><button type="button" class="b b--secondary b--sm" data-copy>Sao chép mã</button><button type="button" class="b b--primary b--sm" onclick="authSet('multi')">Thử lại</button></div></div>
+  </section>
+
+  <!-- Đổi công ty trong phiên -->
+  <div class="mini" data-v="switch">
+    <div class="mini__bar"><span><b>Garage Minh Phát</b> · Phạm vi: Chi nhánh Quận 7</span><span class="badge badge--neutral">Thanh trên cùng</span></div>
+    <div class="mini__body">
+      <h2 style="color:var(--color-text-primary)">Đổi công ty</h2>
+      <div class="note note--warning" role="status"><strong>Có 1 bản nháp báo giá chưa gửi</strong><span>Bản nháp được giữ trên thiết bị và chỉ hiện lại khi bạn quay về Garage Minh Phát. Sau khi đổi, màn hình hiện tại đóng lại.</span></div>
+      <ul class="opts">
+        <li><button type="button" class="opt" aria-current="true" aria-disabled="true"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Garage Minh Phát</b><span>Đang làm việc ở đây</span></span><span class="opt__r"><span class="badge badge--info">Hiện tại</span></span></button></li>
+        <li><button type="button" class="opt" onclick="location.hash='scope';authSet('scope')"><span class="opt__dot" aria-hidden="true"></span><span class="opt__t"><b>Trung tâm Ô tô Hòa Bình</b><span>Quản lý chi nhánh · 3 chi nhánh</span></span><span class="opt__r"><span class="badge badge--success">Đang hoạt động</span></span></button></li>
+      </ul>
+      <p class="small" style="margin:0"><span class="tag">[Cần xác nhận]</span> Số phiên: đổi công ty là đăng nhập lại vào tư cách khác (phiên gắn đúng một công ty, RULE-034), hay giữ hai phiên cùng lúc.</p>
+    </div>
+  </div>
+
+  <details class="spec"><summary>Ghi chú cho dev và BA</summary>
+    <ul>
+      <li>Truy vết: FR-SYS-002, FR-SYS-011/012, FR-TEN-016/017, RULE-015, RULE-034. CompanyPicker chính thức thay trang tối giản đã build; hiện chỉ trang chọn công ty tối giản (status.md MT-0).</li>
+      <li>Danh sách chỉ gồm tư cách của chính email này. Tên công ty, vai trò, số chi nhánh và trạng thái lấy từ máy chủ; không hiện mã công ty, giá, gói hay dùng thử.</li>
+      <li>Tư cách bị tạm ngưng vẫn chọn được và vào ở chế độ chỉ xem (mã lý do <span class="code">TENANT_SUSPENDED_READONLY</span>). <span class="tag">[Cần xác nhận]</span> tư cách đã chấm dứt hoặc bị thu hồi thì ẩn hay hiện mờ.</li>
+      <li>Nút Hợp nhất bị chặn kèm lý do cạnh nút (không chỉ tooltip). Chi nhánh khóa sổ không chọn được, nêu lý do. Chọn xong lưu để lần sau mở lại đúng phạm vi.</li>
+      <li>Đổi phạm vi khi mất mạng: nút Áp dụng tắt, giữ phạm vi hiện tại (state-copy §2.8).</li>
+      <li>Phím: danh sách là radiogroup, mũi tên di chuyển, Enter xác nhận; focus vào tiêu đề khi đổi bước.</li>
+    </ul>
+  </details>
+</main>
+
+<script src="auth.js"></script>
+<script>
+(function () {
+  var org = null, br = null, kind = 'one';
+  function enableNext() {
+    var n = document.getElementById('next1'), w = document.getElementById('why1');
+    var off = document.body.dataset.view === 'offline';
+    var ok = org && !off;
+    n.setAttribute('aria-disabled', String(!ok));
+    w.hidden = ok; w.textContent = off ? 'Đang mất kết nối: thao tác này cần mạng.' : 'Chọn một công ty để tiếp tục.';
+  }
+  [].forEach.call(document.querySelectorAll('[data-org]'), function (b) {
+    b.addEventListener('click', function () {
+      [].forEach.call(document.querySelectorAll('[data-org]'), function (x) { x.setAttribute('aria-checked', 'false'); });
+      b.setAttribute('aria-checked', 'true'); org = b.dataset.org; document.getElementById('ro').hidden = !b.dataset.ro; enableNext();
+    });
+  });
+  document.getElementById('next1').addEventListener('click', function () { if (org) { document.getElementById('co1').textContent = org; authSet('scope'); } });
+  function enableEnter() {
+    var e = document.getElementById('enter'), w = document.getElementById('why2');
+    var ok = kind === 'all' || br; e.setAttribute('aria-disabled', String(!ok)); w.hidden = !!ok;
+    document.getElementById('allnote').hidden = kind !== 'all';
+    document.getElementById('brs').hidden = kind === 'all';
+  }
+  [].forEach.call(document.querySelectorAll('[data-br]'), function (b) {
+    b.addEventListener('click', function () { [].forEach.call(document.querySelectorAll('[data-br]'), function (x) { x.setAttribute('aria-checked', 'false'); }); b.setAttribute('aria-checked', 'true'); br = b.dataset.br; enableEnter(); });
+  });
+  [].forEach.call(document.querySelectorAll('[data-kind]'), function (b) {
+    b.addEventListener('click', function () { kind = b.dataset.kind; [].forEach.call(document.querySelectorAll('[data-kind]'), function (x) { x.setAttribute('aria-checked', String(x === b)); }); enableEnter(); });
+  });
+  document.addEventListener('view', function (e) {
+    kind = 'one'; br = null;
+    [].forEach.call(document.querySelectorAll('[data-kind]'), function (x) { x.setAttribute('aria-checked', String(x.dataset.kind === 'one')); });
+    [].forEach.call(document.querySelectorAll('[data-br]'), function (x) { x.setAttribute('aria-checked', 'false'); });
+    var all = document.querySelector('[data-kind="all"]');
+    if (e.detail === 'owner') all.setAttribute('aria-disabled', 'false');
+    enableEnter(); enableNext();
+  });
+})();
+</script>
+</body>
+</html>
