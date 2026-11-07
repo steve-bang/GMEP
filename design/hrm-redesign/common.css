@@ -1,0 +1,21 @@
+/* Nhóm 4 (lịch hẹn, bảo hành, nhân sự). Dùng chung phần nền với ../rpt-redesign/common.css (bản sao mở rộng của ../rec-redesign/common.css, giá trị token giữ nguyên từ ../assets/tokens.css). Phần dưới là bổ sung riêng của HRM. */
+@import url("../rpt-redesign/common.css");
+
+.wrap--tablet { max-width: 820px; }
+.menu { position: relative; }
+.menu summary { list-style: none; cursor: pointer; }
+.menu summary::-webkit-details-marker { display: none; }
+.menu .pop { position: absolute; right: 0; top: calc(100% + 4px); z-index: var(--z-dropdown); min-width: 180px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); padding: var(--space-1); display: grid; }
+.menu .pop button { text-align: left; min-height: 40px; padding: 0 var(--space-3); border: 0; background: none; font: inherit; font-size: var(--font-size-md); border-radius: var(--radius-sm); cursor: pointer; color: var(--color-text-primary); }
+.menu .pop button:hover { background: var(--color-surface-hover); }
+.menu .pop button[aria-disabled="true"] { color: var(--color-text-disabled); cursor: not-allowed; }
+@media (max-width: 1023px) { .menu .pop { left: 0; right: auto; } }
+.reasons { display: grid; gap: var(--space-2); }
+.reasons label, .opt { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-target); padding: 0 var(--space-4); border: 1px solid var(--control-border); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-md); background: var(--color-surface); }
+.reasons input, .opt input { width: 20px; height: 20px; accent-color: var(--color-primary); flex: none; }
+.reasons label:has(input:checked), .opt:has(input:checked) { background: var(--color-primary-subtle); border-color: var(--color-border-selected); font-weight: var(--fw-medium); }
+.err { color: var(--color-danger-text); font-size: var(--font-size-sm); }
+.err[hidden] { display: none; }
+.hint { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin: 0; }
+.mini { display: flex; flex-wrap: wrap; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.mini span { background: var(--color-surface-subtle); padding: 2px var(--space-2); border-radius: var(--radius-xs); }

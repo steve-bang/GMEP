@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bảo hành – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: 40px minmax(0, 1.3fr) minmax(0, 1.4fr) minmax(0, 1.3fr) 190px; }
+  .item input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--color-primary); }
+  .vcard { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-4); align-items: center; padding: var(--space-4) var(--space-5); margin-bottom: var(--space-4); }
+  .vcard .plate { height: 40px; font-size: var(--font-size-xl); padding: 0 var(--space-4); }
+  .vcard dl { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-2) var(--space-4); }
+  .vcard dl div { display: grid; gap: 0; }
+  .sticky { position: sticky; bottom: 0; z-index: var(--z-sticky); display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-5); background: var(--color-surface); border-top: 1px solid var(--color-border); box-shadow: 0 -4px 12px rgba(16,24,40,.06); margin-top: var(--space-4); border-radius: var(--radius-lg); }
+  .row-off { background: var(--color-surface-subtle); }
+  .row-off .t1 { color: var(--color-text-secondary); }
+  @media (max-width: 599px) { .vcard { grid-template-columns: 1fr; } .item { grid-template-columns: 32px minmax(0, 1fr); } .item > :nth-child(n+3) { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình nhóm lịch hẹn, bảo hành, nhân sự">
+    <a href="appointments.html">Lịch hẹn</a><a href="warranty.html" aria-current="page">Bảo hành</a><a href="timeclock.html">Chấm công và giờ công (tablet)</a><a href="timesheet.html">Bảng công nhân viên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Bảo hành</h1><p>Nhập biển số để xem hạng mục còn bảo hành, rồi mở hồ sơ bảo hành gắn với lệnh gốc. Hạn tính theo ngày và số km hiện tại của xe.</p></div>
+  </header>
+
+  <form class="find" role="search" id="f" onsubmit="return false"><div class="search"><label for="q" style="position:absolute;left:-9999px">Biển số xe</label><input id="q" type="search" value="51H-123.45" placeholder="Nhập biển số, ví dụ 51H-123.45" autocomplete="off"></div><button class="b b--primary" type="submit" style="min-height:var(--input-height-touch)">Tra bảo hành</button></form>
+  <p class="why" style="margin-bottom:var(--space-4)">Mẫu để thử: 51H-123.45 (có đủ trường hợp), 29A-678.90 (chưa có bảo hành). Biển khác cho trạng thái không tìm thấy.</p>
+
+  <div id="out"></div>
+</div>
+<script src="ui.js"></script>
+<script>
+  // DỮ LIỆU MẪU. Hạn, km và ngày giao là minh họa; cấu hình warranty-term/warranty-policy thật chưa có số của khách (Q77 mở).
+  const V = { '51H123.45': { pl: '51H-123.45', car: 'Toyota Vios 1.5G 2019', who: 'Nguyễn Văn An', km: 48320, kmAt: '03/11/2026' } };
+  const R = [
+    { k: 'a1', it: 'Thay má phanh trước', ro: 'RO-Q7-2610-00031', br: 'Quận 7', own: true, d: '18/10/2026', km: 46100, term: '6 tháng hoặc 10.000 km', until: '18/04/2027 hoặc 56.100 km', left: 'Còn 162 ngày hoặc 7.780 km', ok: true, tech: 'Trần Văn Bình' },
+    { k: 'a2', it: 'Thay dầu động cơ', ro: 'RO-Q7-2610-00031', br: 'Quận 7', own: true, d: '18/10/2026', km: 46100, term: '3 tháng hoặc 5.000 km', until: '18/01/2027 hoặc 51.100 km', left: 'Còn 72 ngày hoặc 2.780 km', ok: true, tech: 'Bùi Minh Nhật' },
+    { k: 'a3', it: 'Thay bugi', ro: 'RO-Q7-2606-00112', br: 'Quận 7', own: true, d: '02/06/2026', km: 41200, term: '6 tháng hoặc 10.000 km', until: '02/12/2026 hoặc 51.200 km', left: 'Còn 25 ngày hoặc 2.880 km', ok: true, tech: 'Lê Minh Tuấn' },
+    { k: 'a4', it: 'Cân chỉnh thước lái', ro: 'RO-Q7-2604-00077', br: 'Quận 7', own: true, d: '15/04/2026', km: 38900, term: '3 tháng, không giới hạn km', until: '15/07/2026', left: 'Hết hạn từ 15/07/2026 (115 ngày)', ok: false, tech: 'Phạm Quốc Việt' },
+    { k: 'a5', it: 'Thay bình ắc quy', ro: 'RO-TD-2605-00201', br: 'Thủ Đức', own: false, d: '20/05/2026', km: 40050, term: '12 tháng, không giới hạn km', until: '20/05/2027', left: 'Còn 194 ngày', ok: true },
+  ];
+  const TABS = [['valid', 'Còn hạn', (r) => r.own && r.ok], ['exp', 'Hết hạn', (r) => r.own && !r.ok], ['other', 'Chi nhánh khác', (r) => !r.own], ['all', 'Tất cả', () => true]];
+  const CROSS_OPEN = false; // warranty-policy.crossBranchOpen: không có phiên bản = chặt
+  let tab = 'valid', picked = new Set(), v = null;
+  const keyOf = (s) => s.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/^(\d{2}[A-Z]\d?)(\d+)$/, '$1$2');
+  function lookup() {
+    const raw = document.getElementById('q').value.trim(), o = document.getElementById('out'); picked.clear();
+    const k = raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!k) { o.innerHTML = '<div class="card empty"><h2>Nhập biển số để tra bảo hành</h2><p>Tìm theo biển số, ví dụ 51H-123.45.</p></div>'; return; }
+    if (k === '51H12345') { v = V['51H123.45']; return draw(); }
+    if (k === '29A67890') { o.innerHTML = '<div class="card vcard"><span class="plate">29A-678.90</span><dl><div><dt>Xe</dt><dd>Honda City 2022</dd></div><div><dt>Chủ xe</dt><dd>Lê Quốc Hùng</dd></div></dl></div><div class="card empty"><h2>Xe này chưa có bảo hành</h2><p>Chưa có lệnh đã giao với hạng mục có bảo hành, hoặc loại dịch vụ chưa cấu hình thời hạn bảo hành.</p></div>'; return; }
+    o.innerHTML = `<div class="card empty"><h2>Không tìm thấy xe ${raw.replace(/</g, '&lt;')}</h2><p>Kiểm tra lại biển số. Xe chưa có hồ sơ thì thêm ở màn Khách hàng và xe.</p></div>`;
+  }
+  function draw() {
+    const o = document.getElementById('out'), f = TABS.find((t) => t[0] === tab)[2], rs = R.filter(f);
+    const roSel = picked.size ? R.find((r) => r.k === [...picked][0]).ro : null;
+    o.innerHTML = `<section class="card vcard" aria-label="Xe đang tra"><span class="plate">${v.pl}</span><dl><div><dt>Xe</dt><dd>${v.car}</dd></div><div><dt>Chủ xe</dt><dd>${v.who}</dd></div><div><dt>Số km hiện tại</dt><dd>${num(v.km)} km <span class="t2">(cập nhật ${v.kmAt})</span></dd></div><div><dt>Hôm nay</dt><dd>07/11/2026</dd></div></dl></section>
+    <div class="banner banner--info" role="note">Chính sách bảo hành chéo chi nhánh đang <b>tắt</b>: chi nhánh khác chỉ xem thông tin tối thiểu, chưa mở được hồ sơ. Bên chịu chi phí mặc định: chi nhánh thực hiện. <span>[Cần xác nhận] Q77</span></div>
+    <div class="tabsline" role="tablist" aria-label="Nhóm bảo hành" id="tabs">${TABS.map(([k, l, ff]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt">${R.filter(ff).length}</span></button>`).join('')}</div>
+    <section class="card list" aria-label="Hạng mục bảo hành">${rs.length ? rs.map((r) => {
+      const sel = r.own && r.ok, other = sel && roSel && roSel !== r.ro, dis = !sel || other;
+      const why = !r.own ? (CROSS_OPEN ? '' : 'Chưa mở được: chính sách chưa cho phép mở bảo hành trên lệnh của chi nhánh khác.') : !r.ok ? 'Đã hết hạn bảo hành. Luồng duyệt ngoài hạn chưa có đặc tả.' : other ? 'Mỗi hồ sơ bảo hành gắn một lệnh gốc: bỏ chọn hạng mục của lệnh kia trước.' : '';
+      return `<div class="item ${!sel ? 'row-off' : ''}"><span>${sel ? `<input type="checkbox" id="c${r.k}" data-k="${r.k}" ${picked.has(r.k) ? 'checked' : ''} ${other ? 'disabled' : ''} aria-label="Chọn ${r.it}">` : ''}</span><label for="c${r.k}" style="${sel && !other ? 'cursor:pointer' : ''}"><span class="t1">${r.it}</span><br><span class="t2">${r.own ? 'Thợ gốc: ' + r.tech : 'Thông tin tối thiểu, chi nhánh khác'}</span></label><span><span class="t1">${r.ro}</span> <span class="t2">· ${r.br}</span><br><span class="t2">Giao ${r.d} · ${num(r.km)} km</span></span><span>${r.term}<br><span class="t2">Đến ${r.until}</span></span><span>${r.ok ? '<span class="badge badge--success">Còn hạn</span>' : '<span class="badge badge--neutral">Hết hạn</span>'}${!r.own ? ' <span class="badge badge--purple">Chi nhánh ' + r.br + '</span>' : ''}<br><span class="${r.ok ? 't2' : 'late'}">${r.left}</span>${why ? `<br><span class="why">${why}</span>` : ''}</span></div>`;
+    }).join('') + `<div class="rowfoot">${rs.length} hạng mục · tra theo ngày 07/11/2026 và ${num(v.km)} km</div>` : '<div class="empty"><h2>Không có hạng mục</h2><p>Không có hạng mục thuộc nhóm này.</p></div>'}</section>
+    <div class="sticky"><span id="sel">${picked.size ? `Đã chọn <b>${picked.size}</b> hạng mục của lệnh ${roSel}` : '<span class="why">Chọn ít nhất một hạng mục còn hạn để mở hồ sơ bảo hành.</span>'}</span><button class="b b--primary" type="button" id="open" ${picked.size ? '' : 'aria-disabled="true"'}>Mở hồ sơ bảo hành${picked.size ? ' (' + picked.size + ')' : ''}</button></div>`;
+  }
+  document.getElementById('out').addEventListener('click', (e) => {
+    const t = e.target.closest('[data-k]');
+    if (t && t.matches('button')) { tab = t.dataset.k; draw(); return; }
+    if (t && t.matches('input')) { t.checked ? picked.add(t.dataset.k) : picked.delete(t.dataset.k); draw(); return; }
+    if (e.target.closest('#open')) { if (!picked.size) return; toast(`Đã mở hồ sơ tiếp nhận bảo hành gắn lệnh ${R.find((r) => r.k === [...picked][0]).ro} (${picked.size} hạng mục). Chi phí ghi nhận cho chi nhánh thực hiện.`); }
+  });
+  document.getElementById('f').addEventListener('submit', lookup);
+  lookup();
+</script>
+</body>
+</html>

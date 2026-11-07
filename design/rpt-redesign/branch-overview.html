@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tổng quan chi nhánh – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: 150px minmax(0, 1.3fr) minmax(0, 1.5fr) 190px; }
+  .stl { display: grid; gap: var(--space-2); }
+  .stl .r { display: grid; grid-template-columns: minmax(0, 1fr) 28px; gap: var(--space-3); align-items: center; font-size: var(--font-size-md); }
+  .stl a { color: inherit; text-decoration: none; display: grid; gap: var(--space-1); padding: var(--space-2) 0; }
+  .stl a:hover b { text-decoration: underline; }
+  .stl .top { display: flex; justify-content: space-between; gap: var(--space-2); }
+  .stl .top b { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình dashboard và báo cáo">
+    <a href="branch-overview.html" aria-current="page">Tổng quan chi nhánh</a><a href="group-overview.html">Tổng quan chuỗi</a><a href="revenue.html">Doanh thu</a><a href="capacity.html">Công suất xưởng</a><a href="inventory-report.html">Tồn kho</a>
+  </nav>
+  <header class="head">
+    <div><h1>Tổng quan chi nhánh</h1><p>Việc cần xử lý trước, rồi đến con số của ngày. Mỗi con số mở được danh sách chứng từ cấu thành.</p></div>
+    <div class="head__actions"><a class="b b--secondary" href="revenue.html">Báo cáo doanh thu</a></div>
+  </header>
+
+  <section class="scope" aria-label="Phạm vi số liệu">
+    <span class="it"><span>Chi nhánh</span><b>Quận 7 (CN-Q7)</b></span>
+    <span class="it"><span>Kỳ</span><b>Hôm nay, 07/11/2026</b></span>
+    <span class="it"><span>Độ chính thức</span><b>Số tạm, ngày chưa chốt</b></span>
+    <span class="it"><span>Cập nhật lúc</span><b>14:32</b></span>
+    <span class="sw-wrap">
+      <span class="seg" role="group" aria-label="Phạm vi xem"><button type="button" aria-pressed="true">Chi nhánh Quận 7</button><button type="button" aria-disabled="true" aria-describedby="whyall">Toàn chuỗi</button></span>
+      <span class="why" id="whyall">Toàn chuỗi chỉ dành cho Chủ garage. <a href="group-overview.html">Xem màn của Chủ garage</a></span>
+    </span>
+  </section>
+
+  <div class="demo" aria-label="Xem thử trạng thái khối">Xem thử: <button class="chip" data-demo="ok" aria-pressed="true">Bình thường</button><button class="chip" data-demo="loading" aria-pressed="false">Đang tải</button><button class="chip" data-demo="error" aria-pressed="false">Lỗi một khối</button></div>
+
+  <h2 class="sec">Việc cần xử lý <span class="cnt cnt--danger" id="totalCnt">0</span></h2>
+  <div class="blk">
+    <div class="tabsline" role="tablist" aria-label="Nhóm việc cần xử lý" id="tabs"></div>
+    <section class="card list" id="list" aria-label="Danh sách việc cần xử lý"></section>
+  </div>
+
+  <h2 class="sec">Số liệu hôm nay</h2>
+  <div class="kpis blk" id="kpis"></div>
+
+  <div class="cols2">
+    <section class="card chart blk" aria-labelledby="chT">
+      <div class="chart__head"><h2 id="chT">Doanh thu 7 ngày gần nhất</h2><span class="seg" role="group" aria-label="Cách xem"><button type="button" data-v="chart" aria-pressed="true">Biểu đồ</button><button type="button" data-v="table" aria-pressed="false">Bảng</button></span></div>
+      <p class="chart__sub">Chi nhánh Quận 7, 01/11 đến 07/11/2026. Tổng <b>128.450.000 ₫</b>. Ngày 07/11 là số tạm (đến 14:32), vẽ vằn.</p>
+      <div id="vChart"><div class="plot" id="plot"></div>
+        <div class="legend"><span><i class="k s1"></i>Doanh thu đã chốt</span><span><i class="k k--prov"></i>Số tạm</span></div></div>
+      <div class="tblwrap" id="vTable" hidden><table class="t"><thead><tr><th>Ngày</th><th class="num">Doanh thu</th><th>Trạng thái số liệu</th></tr></thead><tbody id="tb"></tbody></table></div>
+    </section>
+    <section class="card chart blk" aria-labelledby="stT">
+      <div class="chart__head"><h2 id="stT">Xe trong xưởng</h2><a class="b b--secondary b--sm" href="../rec-redesign/board.html">Bảng điều phối</a></div>
+      <p class="chart__sub">9 xe, theo trạng thái lệnh sửa chữa.</p>
+      <div class="stl" id="stl"></div>
+    </section>
+  </div>
+</div>
+<script src="charts.js"></script>
+<script>
+  // DỮ LIỆU MẪU, không phải số thật.
+  const TABS = [['all', 'Tất cả'], ['late', 'Trễ hẹn giao'], ['inv', 'Chưa có hóa đơn'], ['part', 'Chờ phụ tùng'], ['apt', 'Lịch hẹn trễ']];
+  const ROWS = [
+    { t: 'late', plate: '51H-123.45', who: 'Nguyễn Văn An', car: 'Toyota Vios 1.5G 2019', info: '<span class="late">Trễ 2 giờ 32 phút</span><br><span class="t2">Hẹn giao 07/11/2026 12:00 · Đang sửa, 0/2 hạng mục xong</span>', act: 'Mở lệnh', href: '../rec-redesign/order-detail.html' },
+    { t: 'late', plate: '59A1-367.08', who: 'Trần Thị Mai', car: 'Honda City 2022', info: '<span class="late">Trễ 1 giờ 32 phút</span><br><span class="t2">Hẹn giao 07/11/2026 13:00 · Chờ kiểm tra chất lượng</span>', act: 'Mở lệnh', href: '../rec-redesign/order-detail.html' },
+    { t: 'inv', plate: '29A-678.90', who: 'Lê Quốc Hùng', car: 'Honda City 2022', info: 'Đã giao 06/11/2026, đã thu <b>3.450.000 ₫</b><br><span class="t2">Chưa có hóa đơn điện tử</span>', act: 'Xuất hóa đơn', href: '#' },
+    { t: 'inv', plate: '51D-999.88', who: 'Công ty TNHH Vận tải Demo', car: 'Hyundai Porter H150 2020', info: 'Đã giao 06/11/2026, đã thu <b>6.820.000 ₫</b><br><span class="t2">Chưa có hóa đơn điện tử</span>', act: 'Xuất hóa đơn', block: 'Chưa xuất được: khách doanh nghiệp thiếu mã số thuế.' },
+    { t: 'inv', plate: '60A-135.79', who: 'Nguyễn Hoàng Phúc', car: 'Toyota Innova 2020', info: 'Đã giao 05/11/2026, đã thu <b>1.980.000 ₫</b><br><span class="t2">Chưa có hóa đơn điện tử</span>', act: 'Xuất hóa đơn', href: '#' },
+    { t: 'part', plate: '51K-905.31', who: 'Phạm Đức', car: 'Kia Morning 2018', info: 'Thiếu <b>Lọc gió động cơ</b> × 1<br><span class="t2">Yêu cầu từ 06/11/2026 · có thể bán: 0</span>', act: 'Xem yêu cầu', href: '../rec-redesign/part-requests.html' },
+    { t: 'part', plate: '29B-246.80', who: 'Võ Thanh Hải', car: 'Mitsubishi Xpander 2021', info: 'Thiếu <b>Má phanh sau</b> × 1<br><span class="t2">Yêu cầu từ 07/11/2026 · có thể bán: 0, đang chuyển: 2</span>', act: 'Xem yêu cầu', href: '../rec-redesign/part-requests.html' },
+    { t: 'apt', plate: '51F-234.56', who: 'Nguyễn Thị Hoa', car: 'Mazda 3 2020', info: '<span class="late">Trễ 1 giờ 2 phút</span><br><span class="t2">Hẹn 07/11/2026 13:30 · Bảo dưỡng 20.000 km</span>', act: 'Gọi khách', href: '../hrm-redesign/appointments.html' },
+    { t: 'apt', plate: '30G-456.78', who: 'Trần Văn Nam', car: 'Ford Ranger 2019', info: '<span class="late">Trễ 32 phút</span><br><span class="t2">Hẹn 07/11/2026 14:00 · Kiểm tra phanh</span>', act: 'Gọi khách', href: '../hrm-redesign/appointments.html' },
+    { t: 'apt', plate: '59C1-789.01', who: 'Lê Thị Thu', car: 'Hyundai Accent 2018', info: '<span class="late">Trễ 2 ngày</span><br><span class="t2">Hẹn 05/11/2026 09:00 · Thay lốp</span>', act: 'Mở lịch hẹn', href: '../hrm-redesign/appointments.html' },
+  ];
+  const LBL = { late: 'Trễ hẹn giao', inv: 'Chưa có hóa đơn', part: 'Chờ phụ tùng', apt: 'Lịch hẹn trễ' };
+  let tab = 'all';
+  const cnt = (k) => (k === 'all' ? ROWS.length : ROWS.filter((r) => r.t === k).length);
+  function renderList() {
+    document.getElementById('totalCnt').textContent = ROWS.length;
+    document.getElementById('tabs').innerHTML = TABS.map(([k, l]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt ${k !== 'all' ? 'cnt--warn' : ''}">${cnt(k)}</span></button>`).join('');
+    const rs = ROWS.filter((r) => tab === 'all' || r.t === tab);
+    document.getElementById('list').innerHTML = rs.length ? rs.map((r, i) => `<div class="item"><span class="plate">${r.plate}</span><span><span class="t1">${r.who}</span><br><span class="t2">${r.car}</span>${tab === 'all' ? `<br><span class="badge badge--neutral" style="margin-top:4px">${LBL[r.t]}</span>` : ''}</span><span>${r.info}</span><span class="act">${r.block ? `<span class="b b--primary b--sm" role="button" aria-disabled="true" tabindex="0" aria-describedby="w${i}">${r.act}</span><span class="why" id="w${i}">${r.block}</span>` : `<a class="b b--primary b--sm" href="${r.href}">${r.act}</a>`}</span></div>`).join('') + `<div class="rowfoot">${rs.length} việc · Chi nhánh Quận 7 · cập nhật 14:32</div>` : '<div class="empty"><h2>Không có việc tồn đọng</h2><p>Tất cả xe, hóa đơn, phụ tùng và lịch hẹn của chi nhánh đã được xử lý.</p></div>';
+  }
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; renderList(); } });
+  renderList();
+
+  document.getElementById('kpis').innerHTML = [
+    ['Doanh thu hôm nay (tạm)', '12.450.000 ₫', '<span class="d--bad">▼ 16,9%</span> so với Thứ Bảy 31/10/2026 (14.980.000 ₫)', 'Doanh thu = tiền đã thu + ghi nợ phát sinh trong ngày (FR-RPT-003). Số tạm đến 14:32, đổi thành chính thức sau khi chốt ngày.', 'revenue.html', 'Xem 9 lệnh và phiếu thu'],
+    ['Lợi nhuận gộp quản trị (tạm)', '4.730.000 ₫', '38,0% doanh thu · giá vốn: <b>bình quân gia quyền</b> (chờ kế toán xác nhận)', 'Doanh thu trừ giá vốn phụ tùng và nhân công trực tiếp. Không phải lợi nhuận sau thuế (FR-RPT-013).', 'revenue.html', 'Xem cách tính'],
+    ['Xe vào hôm nay', '9 xe', '<span class="d--bad">▼ 3 xe</span> so với Thứ Bảy 31/10/2026 (12 xe)', 'Số hồ sơ tiếp nhận tạo trong ngày, kể cả hồ sơ bị hủy trước giờ chốt.', '../rec-redesign/intakes.html', 'Xem 9 hồ sơ'],
+    ['Xe đang trong xưởng', '9 xe', '<span class="late">2 xe trễ hẹn giao</span>', 'Lệnh sửa chữa chưa giao xe. Khớp với bảng điều phối (FR-RPT-012).', '../rec-redesign/board.html', 'Mở bảng điều phối'],
+    ['Phải thu', '42.180.000 ₫', '6 lệnh còn nợ · cũ nhất 12 ngày', 'Số dư công nợ phải thu của khách tại chi nhánh Quận 7 đến 14:32.', 'revenue.html', 'Xem 6 lệnh'],
+  ].map(([k, v, d, how, href, link]) => `<article class="card kpi"><span class="k">${k}<details class="how"><summary aria-label="Cách tính: ${k}">i</summary><p>${how}</p></details></span><span class="v">${v}</span><span class="d">${d}</span><a class="t2" href="${href}" style="color:var(--color-text-link)">${link} →</a></article>`).join('');
+
+  // 7 ngày của CN-Q7, tổng 128.450.000 ₫ (mẫu)
+  const Q7 = [11.8, 21.4, 23.1, 24.6, 19.2, 15.9, 12.45].map((x) => Math.round(x * 1e6));
+  const LB = ['CN 01', 'T2 02', 'T3 03', 'T4 04', 'T5 05', 'T6 06', 'T7 07'];
+  const FD = ['Chủ nhật 01/11/2026', 'Thứ Hai 02/11/2026', 'Thứ Ba 03/11/2026', 'Thứ Tư 04/11/2026', 'Thứ Năm 05/11/2026', 'Thứ Sáu 06/11/2026', 'Thứ Bảy 07/11/2026'];
+  cols(document.getElementById('plot'), { series: [{ cls: 's1' }], niceTo: 5e6, fmtAxis: tr, data: Q7.map((v, i) => ({ label: LB[i], vals: [v], prov: i === 6, tip: `<b>${FD[i]}</b><br>${vnd(v)}<br>${i === 6 ? 'Số tạm đến 14:32' : 'Số chính thức'}` })) });
+  document.getElementById('tb').innerHTML = Q7.map((v, i) => `<tr><td>${FD[i]}</td><td class="num">${vnd(v)}</td><td>${i === 6 ? '<span class="badge badge--warning">Số tạm</span>' : '<span class="badge badge--success">Đã chốt</span>'}</td></tr>`).join('');
+  document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); document.getElementById('vChart').hidden = b.dataset.v !== 'chart'; document.getElementById('vTable').hidden = b.dataset.v !== 'table'; }));
+
+  const ST = [['Đã duyệt', 1], ['Đang sửa', 4], ['Tạm dừng', 2], ['Chờ kiểm tra', 1], ['Sẵn sàng giao', 1]];
+  document.getElementById('stl').innerHTML = ST.map(([l, n]) => `<a href="../rec-redesign/board.html"><span class="top"><span>${l}</span><b>${n}</b></span><span class="bar"><i style="width:${(n / 4) * 100}%"></i></span></a>`).join('');
+  blocks();
+</script>
+</body>
+</html>
