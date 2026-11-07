@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mua hàng – đề xuất và yêu cầu mua – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.6fr) minmax(0, 1fr) 210px; }
+  .item.ym { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) 170px 210px; }
+  .dl { display: grid; grid-template-columns: minmax(0, 1fr) 84px 100px; gap: var(--space-3); align-items: center; }
+  .dl input { text-align: right; width: 100%; min-height: var(--input-height-touch); border: 1px solid var(--input-border); border-radius: var(--input-radius); font: inherit; font-size: var(--font-size-lg); padding: 0 var(--space-2); background: var(--input-bg); color: var(--color-text-primary); }
+  .dl input:focus { border-color: var(--input-border-focus); box-shadow: var(--shadow-focus); outline: none; }
+  @media (max-width: 1199px) { .item, .item.ym { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .item > :first-child { grid-column: 1 / -1; } .item > .act { grid-column: 1 / -1; } }
+  @media (max-width: 599px) { .item, .item.ym { grid-template-columns: minmax(0, 1fr); } .dl { grid-template-columns: minmax(0, 1fr) 70px 86px; gap: var(--space-2); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">GMEP › Mua hàng</p>
+  <nav class="subnav" aria-label="Màn hình mua hàng"><a href="requests.html" aria-current="page">Đề xuất và yêu cầu mua</a><a href="orders.html">Đơn mua và giao hàng</a><a href="suppliers.html">Nhà cung cấp và bảng giá</a><a href="payables.html">Công nợ nhà cung cấp</a><a href="urgent.html">Mua gấp, hậu duyệt</a></nav>
+  <header class="head">
+    <div><h1>Đề xuất và yêu cầu mua</h1><p>Mặt hàng có Có thể bán thấp hơn mức đặt lại hiện ở tab đầu để chọn mua. Yêu cầu đi qua duyệt theo hạn mức rồi mới lập đơn mua (FR-PUR-001, 002, 003; RULE-008).</p></div>
+    <div class="head__actions"><a class="b b--secondary" href="urgent.html">Mua gấp cho xe đang nằm xưởng</a></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chi nhánh Quận 7 · Kho Quận 7</span><span>Số liệu tồn tính lúc 09:15 07/11/2026</span><span>Mua hàng theo chi nhánh, chưa gộp nhiều chi nhánh [Cần xác nhận: nguồn mua kho tổng, FR-PUR-012]</span></div>
+
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" aria-selected="true" data-s="need">Cần đề xuất<span class="cnt cnt--warn" id="c-need"></span></button>
+    <button role="tab" aria-selected="false" data-s="wait">Nháp và chờ duyệt<span class="cnt" id="c-wait"></span></button>
+    <button role="tab" aria-selected="false" data-s="order">Đã duyệt, chờ lập đơn<span class="cnt cnt--warn" id="c-order"></span></button>
+    <button role="tab" aria-selected="false" data-s="done">Đã xong<span class="cnt" id="c-done"></span></button>
+  </div>
+  <div class="find"><div class="search"><label class="sr" for="q">Tìm</label><input id="q" type="search" placeholder="Tìm mã phụ tùng, tên, mã yêu cầu" autocomplete="off"></div></div>
+
+  <section class="card list" aria-label="Danh sách" aria-live="polite"><div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2 id="eh"></h2><p id="ep"></p></div>
+    <div class="rowfoot" id="foot"></div>
+    <div class="stickybar" id="bar" hidden><span id="barT"></span><button class="b b--primary" id="mk">Tạo yêu cầu mua</button></div></section>
+  <p class="hint" style="margin-top:var(--space-3)">Hạn mức tự quyết 5.000.000 ₫ và cấp 1 đến 20.000.000 ₫ là số minh họa, chưa ban hành (xem <a href="../apr-redesign/matrix.html">ma trận hạn mức</a>). Chưa ban hành thì mọi yêu cầu lên cấp cao nhất.</p>
+</div>
+
+<dialog id="dY" aria-labelledby="yT"><form method="dialog" id="fY">
+  <h2 id="yT">Tạo yêu cầu mua</h2>
+  <div id="yL" style="display:grid;gap:var(--space-3)"></div>
+  <div class="ln tot" style="grid-template-columns:minmax(0,1fr) auto"><span>Tổng ước tính</span><span class="num" id="yS"></span></div>
+  <div class="alert alert--info" id="yA"></div>
+  <div class="field"><label for="yR">Lý do <span class="req" aria-hidden="true">*</span></label><input id="yR" autocomplete="off" value="Có thể bán dưới mức đặt lại"><span class="hint">Người duyệt thấy lý do này.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Để sau</button><button class="b b--primary" type="submit" id="yOk">Gửi yêu cầu</button></div>
+</form></dialog>
+<dialog id="dO" aria-labelledby="oT"><form method="dialog" id="fO">
+  <h2 id="oT">Lập đơn mua</h2><p class="hint" style="margin:0" id="oV"></p>
+  <div class="field"><label for="oN">Nhà cung cấp</label><select id="oN"><option>Công ty CP Lốp Việt Tín · công nợ 30 ngày</option><option>Công ty TNHH Phụ tùng Hoàng Long · công nợ 30 ngày · chưa có giá cho mặt hàng này</option></select><span class="hint">Chỉ nhà cung cấp có giá hiệu lực mới chọn được. Giá lấy từ bảng giá; sửa giá trên đơn phải kèm lý do (FR-INV-015).</span></div>
+  <div class="dl"><span>Lốp Michelin Primacy 4<br><span class="t2">giá 1.780.000 ₫ hiệu lực từ 01/10/2026</span></span><span class="t2" style="text-align:right">SL</span><input value="8" aria-label="Số lượng lốp" disabled></div>
+  <div class="field"><label for="oD">Ngày giao dự kiến <span class="req" aria-hidden="true">*</span></label><input id="oD" value="12/11/2026" inputmode="numeric"><span class="hint">dd/MM/yyyy</span></div>
+  <div class="alert alert--info">Đơn tạo ở trạng thái Nháp (v1), chưa gửi nhà cung cấp. Nháp huỷ được; đơn đã gửi thì không huỷ mà đóng hoặc tạo phiên bản mới.</div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Để sau</button><button class="b b--primary" type="submit">Tạo đơn nháp</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase();
+  const TU = 5000000, C1 = 20000000;
+  // Mặt hàng dưới mức đặt lại: o onhand, r reserved, t in-transit, min mức đặt lại, ord đã đặt chờ giao (chỉ số riêng, không thuộc 4 số)
+  const P = [
+    { id: 'PT-0002', n: 'Má phanh trước Hyundai Accent', u: 'bộ', o: 6, r: 4, t: 0, min: 8, sug: 6, price: 410000, ncc: 'Công ty TNHH Phụ tùng Hoàng Long', bội: 2, other: 'Chi nhánh Thủ Đức đang dư 5 bộ' },
+    { id: 'PT-0001', n: 'Lọc dầu động cơ Toyota Vios', u: 'cái', o: 3, r: 3, t: 0, min: 12, sug: 12, price: 119600, ncc: 'Công ty TNHH Phụ tùng Hoàng Long', bội: 1 },
+    { id: 'PT-0010', n: 'Dầu nhớt Castrol 5W-30 (can 4 lít)', u: 'can', o: 2, r: 2, t: 0, min: 24, sug: 24, price: 890000, ncc: 'Công ty CP Dầu nhớt Đại Phát', bội: 1 },
+    { id: 'PT-0004', n: 'Bugi Denso Iridium Honda City (bộ 4)', u: 'bộ', o: 9, r: 2, t: 0, min: 10, sug: 0, price: 520000, ncc: 'Công ty TNHH Phụ tùng Hoàng Long', bội: 1, ord: 8, ordC: 'DM-Q7-2611-00014', block: 'Đã đặt chờ giao 8 bộ (DM-Q7-2611-00014), đủ bù mức đặt lại nếu tính cả hàng chờ giao [Cần xác nhận: có tính hàng chờ giao khi gợi ý không]' },
+    { id: 'PT-0013', n: 'Dây curoa tổng Kia Morning', u: 'sợi', o: 2, r: 1, t: 0, min: 6, sug: 5, noPrice: 1, block: 'Chưa có nhà cung cấp nào có giá hiệu lực cho mặt hàng này. Thêm giá ở Nhà cung cấp và bảng giá trước' },
+  ];
+  const Y = [
+    { id: 'YM-Q7-2611-00008', k: 'wait', sum: 'Dây curoa tổng Kia Morning ×6', by: 'Hoàng Thị Mai', val: 990000, st: ['neutral', 'Nháp'], note: 'Chưa gửi duyệt', a: 'send' },
+    { id: 'YM-Q7-2611-00005', k: 'wait', sum: 'Lọc gió, má phanh, bugi (3 mặt hàng)', by: 'Hoàng Thị Mai', val: 15960000, st: ['warning', 'Chờ duyệt · cấp 1'], note: 'Chờ Quản lý chi nhánh · 40 phút', a: 'apr1' },
+    { id: 'YM-Q7-2611-00004', k: 'wait', sum: 'Dầu nhớt Castrol 5W-30 và 2 mặt hàng khác', by: 'Hoàng Thị Mai', val: 21360000, st: ['warning', 'Chờ duyệt · cấp 2'], note: 'Vượt cấp 1, chờ Quản lý vùng hoặc Chủ garage · 1 giờ', a: 'apr2' },
+    { id: 'YM-Q7-2611-00003', k: 'order', sum: 'Lốp Michelin Primacy 4 ×8', by: 'Hoàng Thị Mai', val: 14240000, st: ['success', 'Đã duyệt'], note: 'Duyệt 05/11 bởi Võ Minh Quân · chưa có đơn mua', a: 'order' },
+    { id: 'YM-Q7-2611-00002', k: 'done', sum: 'Má phanh Accent ×20, Bugi Denso ×8', by: 'Hoàng Thị Mai', val: 12360000, st: ['info', 'Đã lập đơn'], note: 'Đơn mua DM-Q7-2611-00014 v2', a: 'view' },
+    { id: 'YM-Q7-2611-00001', k: 'done', sum: 'Dung dịch rửa phanh ×12', by: 'Võ Thanh Sơn', val: 936000, st: ['danger', 'Từ chối'], note: 'Lý do: dùng tồn nội bộ trước', a: 'view' },
+  ];
+  const sel = new Set(); let tab = new URLSearchParams(location.search).get('tab') || 'need', q = '', seq = 9, cur;
+  const avail = (p) => p.o - p.r;
+  const lvl = (v) => v <= TU ? ['ok', 'Trong mức tự quyết (5.000.000 ₫, minh họa): không cần duyệt, tạo xong lập đơn được ngay.'] : v <= C1 ? ['info', 'Vượt mức tự quyết: cần Quản lý chi nhánh duyệt (cấp 1).'] : ['warn', 'Vượt hạn mức cấp 1 (20.000.000 ₫, minh họa): mở thẳng ở cấp 2, Quản lý vùng hoặc Chủ garage duyệt.'];
+  const skuRow = (p) => {
+    const a = avail(p), bl = p.block, picked = sel.has(p.id);
+    const act = bl ? `<button class="b b--primary b--sm" disabled aria-describedby="w-${p.id}">Thêm vào yêu cầu</button><span class="why why--block" id="w-${p.id}">${bl}</span>${p.noPrice ? '<a class="t2" href="suppliers.html">Mở bảng giá nhà cung cấp</a>' : p.ordC ? '<a class="t2" href="orders.html?tab=wait">Xem đơn chờ giao</a>' : ''}` : `<button class="b ${picked ? 'b--secondary' : 'b--primary'} b--sm" data-p="${p.id}" aria-pressed="${picked}">${picked ? 'Bỏ khỏi yêu cầu' : 'Thêm vào yêu cầu'}</button>${p.other ? `<a class="t2" href="../inv-redesign/transfers.html">${p.other}: xem chuyển kho trước</a>` : ''}`;
+    return `<div class="item${a <= 0 ? ' item--flag' : ''}"><div><span class="t1">${p.n}</span><br><span class="codeid">${p.id}</span><br><span class="t2">${p.noPrice ? 'Chưa có nhà cung cấp có giá' : p.ncc + ' · ' + vnd(p.price) + '/' + p.u}</span></div><div><div class="n4"><div><span class="l">Tồn thực</span><span class="v">${p.o}</span></div><div><span class="l">Đã giữ</span><span class="v">${p.r}</span></div><div><span class="l">Đang đi đường</span><span class="v">${p.t}</span></div><div><span class="l">Có thể bán</span><span class="v av${a <= 0 ? ' zero' : ''}">${a}</span></div></div><span class="t2">Mức đặt lại ${p.min}${p.ord ? ` · đã đặt chờ giao ${p.ord} (chỉ số riêng, không đổi Có thể bán)` : ''}</span></div><div>${p.sug ? `<span class="t1">Gợi ý mua ${p.sug} ${p.u}</span><br><span class="t2">${p.noPrice ? 'chưa tính được tiền' : vnd(p.sug * p.price)}${p.bội > 1 ? ` · làm tròn lên bội số ${p.bội}` : ''}</span>` : '<span class="t2">Không gợi ý</span>'}</div><div class="act">${act}</div></div>`;
+  };
+  const ymRow = (y) => {
+    const A = { send: '<button class="b b--primary b--sm" data-send>Gửi duyệt</button>', apr1: '<a class="b b--secondary b--sm" href="../apr-redesign/request.html?s=cap1&r=ql">Mở ở Phê duyệt</a><span class="why">Người duyệt quyết định tại Phê duyệt.</span>', apr2: '<a class="b b--secondary b--sm" href="../apr-redesign/request.html?s=cap2&r=ch">Mở ở Phê duyệt</a><span class="why">Người duyệt quyết định tại Phê duyệt.</span>', order: `<button class="b b--primary b--sm" data-o="${y.id}">Lập đơn mua</button>`, view: '<button class="b b--secondary b--sm" type="button">Xem yêu cầu</button>' }[y.a];
+    return `<div class="item ym"><div><span class="t1">${y.id}</span><br><span class="t2">${y.sum}</span></div><div><span class="t1 num" style="text-align:left">${vnd(y.val)}</span><br><span class="t2">${y.by} · ${y.note}</span></div><div><span class="badge badge--${y.st[0]}">${y.st[1]}</span></div><div class="act">${A}</div></div>`;
+  };
+  const EMP = { need: ['Không có mặt hàng nào dưới mức đặt lại', 'Có thể bán của mọi mặt hàng đang đủ trên mức đặt lại ở Kho Quận 7.'], wait: ['Không có yêu cầu nháp hay chờ duyệt', 'Yêu cầu bạn tạo sẽ hiện ở đây cho tới khi có kết quả.'], order: ['Không có yêu cầu nào chờ lập đơn', 'Yêu cầu được duyệt sẽ hiện ở đây.'], done: ['Chưa có yêu cầu đã xong', 'Yêu cầu đã lập đơn, từ chối hoặc hủy hiện ở đây.'] };
+  function render() {
+    const f = (t) => (x) => !q || norm((x.id + ' ' + (x.n || x.sum))).includes(norm(q));
+    const lists = { need: P.filter(f()), wait: Y.filter((y) => y.k === 'wait').filter(f()), order: Y.filter((y) => y.k === 'order').filter(f()), done: Y.filter((y) => y.k === 'done').filter(f()) };
+    $('#c-need').textContent = P.filter((p) => avail(p) < p.min).length; $('#c-wait').textContent = Y.filter((y) => y.k === 'wait').length; $('#c-order').textContent = Y.filter((y) => y.k === 'order').length; $('#c-done').textContent = Y.filter((y) => y.k === 'done').length;
+    $$('[role=tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.s === tab)));
+    const l = lists[tab];
+    $('#rows').innerHTML = l.map(tab === 'need' ? skuRow : ymRow).join('');
+    $('#empty').hidden = l.length > 0;
+    if (!l.length) { const had = (q && true); $('#eh').textContent = had ? 'Không có kết quả khớp' : EMP[tab][0]; $('#ep').textContent = had ? 'Thử từ khóa khác; tìm không phân biệt dấu.' : EMP[tab][1]; }
+    $('#foot').textContent = l.length ? `Hiển thị ${l.length} dòng` + (tab === 'need' ? ' · so sánh Có thể bán với mức đặt lại, không so tồn thực (RULE-008)' : '') : '';
+    const tot = [...sel].reduce((a, id) => { const p = P.find((x) => x.id === id); return a + p.sug * p.price; }, 0), n = sel.size, L = lvl(tot);
+    $('#bar').hidden = tab !== 'need' || !n; $('#barT').innerHTML = `<b>${n}</b> mặt hàng · tổng ước tính <b>${vnd(tot)}</b><br><span class="t2">${L[1]}</span>`;
+  }
+  let tm; const toast = (m, fn) => { const t = $('#toast'); t.innerHTML = '<span></span>' + (fn ? '<button type="button" id="tU">Hoàn tác</button>' : ''); t.firstChild.textContent = m; t.hidden = false; if (fn) $('#tU').onclick = () => { fn(); t.hidden = true; }; clearTimeout(tm); tm = setTimeout(() => { t.hidden = true; }, 10000); };
+  $$('[role=tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.s; render(); }));
+  $('#q').addEventListener('input', (e) => { q = e.target.value; render(); });
+  $('#rows').addEventListener('click', (e) => {
+    const p = e.target.closest('[data-p]'), o = e.target.closest('[data-o]'), s = e.target.closest('[data-send]');
+    if (p) { sel.has(p.dataset.p) ? sel.delete(p.dataset.p) : sel.add(p.dataset.p); render(); }
+    if (s) { const y = Y.find((x) => x.id === 'YM-Q7-2611-00008'); y.st = ['warning', 'Chờ duyệt · cấp 1']; y.note = 'Chờ Quản lý chi nhánh · vừa gửi'; y.a = 'apr1'; render(); toast('Đã gửi YM-Q7-2611-00008 cho Quản lý chi nhánh duyệt.'); }
+    if (o) { cur = Y.find((x) => x.id === o.dataset.o); $('#oV').textContent = `${cur.id} · ${vnd(cur.val)} · đã duyệt`; $('#dO').showModal(); }
+  });
+  $('#mk').onclick = () => {
+    const ps = [...sel].map((id) => P.find((x) => x.id === id));
+    $('#yL').innerHTML = ps.map((p) => `<div class="dl"><span>${p.n}<br><span class="t2">${vnd(p.price)}/${p.u} · ${p.ncc}</span></span><span class="t2" style="text-align:right">${p.u}</span><input data-id="${p.id}" inputmode="numeric" value="${p.sug}" aria-label="Số lượng ${p.n}"></div>`).join('');
+    sumY(); $('#dY').showModal();
+  };
+  function sumY() { const t = $$('#yL input').reduce((a, i) => { const p = P.find((x) => x.id === i.dataset.id); return a + (+i.value.replace(/\D/g, '') || 0) * p.price; }, 0), L = lvl(t); $('#yS').textContent = vnd(t); $('#yA').className = 'alert alert--' + L[0]; $('#yA').textContent = L[1]; $('#yOk').disabled = t <= 0 || $('#yR').value.trim().length < 3; return t; }
+  $('#yL').addEventListener('input', sumY); $('#yR').addEventListener('input', sumY);
+  $$('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#fY').addEventListener('submit', () => {
+    const t = sumY(), ids = [...sel], id = 'YM-Q7-2611-' + String(seq++).padStart(5, '0'), auto = t <= TU;
+    const y = { id, k: auto ? 'order' : 'wait', sum: ids.length + ' mặt hàng', by: 'Hoàng Thị Mai', val: t, st: auto ? ['success', 'Đã duyệt (trong mức tự quyết)'] : ['warning', t <= C1 ? 'Chờ duyệt · cấp 1' : 'Chờ duyệt · cấp 2'], note: auto ? 'Không cần duyệt, lập đơn được ngay' : 'Vừa gửi', a: auto ? 'order' : (t <= C1 ? 'apr1' : 'apr2') };
+    Y.unshift(y); sel.clear(); tab = auto ? 'order' : 'wait'; render(); toast(`Đã tạo ${id}.`, () => { Y.splice(Y.indexOf(y), 1); render(); });
+  });
+  $('#fO').addEventListener('submit', () => { const old = { k: cur.k, st: cur.st, note: cur.note, a: cur.a }; cur.k = 'done'; cur.st = ['info', 'Đã lập đơn']; cur.note = 'Đơn mua DM-Q7-2611-00018 (nháp, v1)'; cur.a = 'view'; tab = 'done'; render(); toast('Đã tạo đơn mua nháp DM-Q7-2611-00018. Chưa gửi nhà cung cấp.', () => { Object.assign(cur, old); tab = 'order'; render(); }); });
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mua hàng – đơn mua và giao hàng – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) 180px 210px; }
+  .linkbtn { background: none; border: 0; padding: 0; font: inherit; font-weight: var(--fw-medium); color: var(--color-text-link); cursor: pointer; text-align: left; min-height: 24px; overflow-wrap: anywhere; }
+  @media (max-width: 1199px) { .item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .item > :first-child, .item > .act { grid-column: 1 / -1; } }
+  @media (max-width: 599px) { .item { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">GMEP › Mua hàng</p>
+  <nav class="subnav" aria-label="Màn hình mua hàng"><a href="requests.html">Đề xuất và yêu cầu mua</a><a href="orders.html" aria-current="page">Đơn mua và giao hàng</a><a href="suppliers.html">Nhà cung cấp và bảng giá</a><a href="payables.html">Công nợ nhà cung cấp</a><a href="urgent.html">Mua gấp, hậu duyệt</a></nav>
+  <header class="head">
+    <div><h1>Đơn mua và theo dõi giao hàng</h1><p>Việc cần làm theo từng bước: gửi nhà cung cấp, chờ xác nhận, chờ giao, nhận một phần. Nhận hàng vào kho làm ở màn nhập kho (FR-PUR-003, 004, 005, 010).</p></div>
+    <div class="head__actions"><a class="b b--secondary" href="requests.html?tab=order">Lập đơn từ yêu cầu đã duyệt</a></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chi nhánh Quận 7 · giao về Kho Quận 7</span><span>Cập nhật 09:15 07/11/2026</span><span>“Đã đặt chờ giao” là chỉ số riêng, không đổi Có thể bán (FR-PUR-010)</span></div>
+
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" data-s="draft">Cần gửi<span class="cnt cnt--warn" id="c-draft"></span></button>
+    <button role="tab" data-s="sent">Chờ NCC xác nhận<span class="cnt" id="c-sent"></span></button>
+    <button role="tab" data-s="wait">Chờ giao<span class="cnt" id="c-wait"></span></button>
+    <button role="tab" data-s="late">Trễ hạn giao<span class="cnt cnt--danger" id="c-late"></span></button>
+    <button role="tab" data-s="part">Nhận một phần<span class="cnt" id="c-part"></span></button>
+    <button role="tab" data-s="done">Đã xong<span class="cnt" id="c-done"></span></button>
+  </div>
+  <div class="find"><div class="search"><label class="sr" for="q">Tìm</label><input id="q" type="search" placeholder="Tìm mã đơn, nhà cung cấp, mặt hàng" autocomplete="off"></div></div>
+  <section class="card list" aria-label="Đơn mua" aria-live="polite"><div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2 id="eh"></h2><p id="ep"></p></div><div class="rowfoot" id="foot"></div></section>
+</div>
+
+<dialog id="dD" aria-labelledby="dT"><form method="dialog" onsubmit="return false">
+  <h2 id="dT"></h2><p class="hint" style="margin:0" id="dS"></p>
+  <div id="dL"></div>
+  <div class="sub"><h3>Các lần nhận hàng</h3><div id="dR"></div></div>
+  <div class="sub"><h3>Phiên bản</h3><div id="dV"></div></div>
+  <div id="dC" hidden class="alert alert--warn"></div>
+  <div id="dCf" hidden style="display:grid;gap:var(--space-3)"><div class="field"><label for="cr">Lý do đóng đơn <span class="req" aria-hidden="true">*</span></label><input id="cr" autocomplete="off"><span class="hint">Ít nhất 5 ký tự. Đơn đóng không nhận hàng được nữa.</span></div></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Đóng cửa sổ</button><button class="b b--secondary" type="button" id="dNew">Tạo phiên bản mới</button><button class="b b--secondary" type="button" id="dCl" style="color:var(--color-danger-text);border-color:var(--color-danger-border)">Đóng đơn khi chưa nhận đủ</button><button class="b b--danger" type="button" id="dClOk" hidden disabled>Gửi duyệt đóng đơn</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase();
+  const O = [
+    { id: 'DM-Q7-2611-00017', v: 1, ncc: 'Công ty CP Dầu nhớt Đại Phát', src: 'Đơn trực tiếp (chi nhánh tắt bước yêu cầu, ghi nhật ký)', k: 'draft', st: ['neutral', 'Nháp'], lines: [['PT-0013 Dây curoa tổng Kia Morning', 6, 0, null], ['PT-0010 Dầu nhớt Castrol 5W-30 (can 4 lít)', 24, 0, 890000]], eta: 'chưa gửi', block: 'Chưa gửi được: dòng PT-0013 chưa có giá hiệu lực trong bảng giá nhà cung cấp', blockLink: ['suppliers.html', 'Thêm giá'] },
+    { id: 'DM-Q7-2611-00018', v: 1, ncc: 'Công ty CP Lốp Việt Tín', src: 'Từ yêu cầu YM-Q7-2611-00003', k: 'draft', st: ['neutral', 'Nháp'], lines: [['Lốp Michelin Primacy 4', 8, 0, 1780000]], eta: 'dự kiến 12/11/2026' },
+    { id: 'DM-Q7-2611-00015', v: 1, ncc: 'Công ty CP Dầu nhớt Đại Phát', src: 'Từ yêu cầu YM-Q7-2611-00006', k: 'sent', st: ['info', 'Đã gửi'], lines: [['Nước làm mát Prestone 1 lít', 40, 0, 45000]], eta: 'gửi 06/11 16:00, chờ xác nhận' },
+    { id: 'DM-Q7-2611-00013', v: 1, ncc: 'Công ty TNHH Phụ tùng Hoàng Long', src: 'Từ yêu cầu YM-Q7-2611-00009', k: 'wait', st: ['info', 'NCC đã xác nhận'], lines: [['Lọc gió động cơ Mazda CX-5', 20, 0, 210000]], eta: 'giao dự kiến 08/11/2026, còn 1 ngày', rcv: [] },
+    { id: 'DM-Q7-2611-00012', v: 1, ncc: 'Công ty TNHH Phụ tùng Hoàng Long', src: 'Từ yêu cầu YM-Q7-2611-00007', k: 'part', st: ['warning', 'Nhận một phần'], lines: [['Bugi Denso Iridium Honda City (bộ 4)', 8, 4, 520000]], eta: 'giao dự kiến 09/11/2026, còn 2 ngày', rcv: [['PN-Q7-2611-00040', '05/11/2026', 4, ['success', 'Đã ghi sổ']]] },
+    { id: 'DM-Q7-2611-00014', v: 2, ncc: 'Công ty TNHH Phụ tùng Hoàng Long', src: 'Từ yêu cầu YM-Q7-2611-00002', k: 'late', st: ['warning', 'Nhận một phần'], lines: [['PT-0002 Má phanh trước Hyundai Accent', 20, 10, 410000], ['PT-0004 Bugi Denso Iridium Honda City (bộ 4)', 8, 0, 520000]], eta: 'giao dự kiến 05/11/2026, trễ 2 ngày', late: 1, rcv: [['PN-Q7-2611-00031', '24/10/2026', 10, ['success', 'Đã ghi sổ']], ['PN-Q7-2611-00034', '29/10/2026', 14, ['warning', 'Chờ duyệt · lệch giá']]], vers: ['v2 (hiện hành): dời ngày giao 27/10 sang 05/11 · Trần Thị Mai Anh · 22/10 · NCC đã xác nhận', 'v1: gửi nhà cung cấp · 20/10'] },
+    { id: 'DM-Q7-2610-00031', v: 1, ncc: 'Công ty CP Lốp Việt Tín', src: 'Từ yêu cầu YM-Q7-2610-00003', k: 'done', st: ['success', 'Nhận đủ'], lines: [['Lốp Michelin Primacy 4', 8, 8, 1780000]], eta: 'nhận đủ 28/10/2026', rcv: [['PN-Q7-2610-00029', '28/10/2026', 8, ['success', 'Đã ghi sổ']]] },
+    { id: 'DM-Q7-2610-00027', v: 1, ncc: 'Công ty CP Dầu nhớt Đại Phát', src: 'Từ yêu cầu YM-Q7-2610-00001', k: 'done', st: ['neutral', 'Đã đóng'], lines: [['Dung dịch rửa phanh', 12, 6, 78000]], eta: 'đóng 20/10/2026 khi nhận 6/12: NCC hết hàng', rcv: [['PN-Q7-2610-00022', '15/10/2026', 6, ['success', 'Đã ghi sổ']]] },
+  ];
+  const f = { draft: (o) => o.k === 'draft', sent: (o) => o.k === 'sent', wait: (o) => o.k === 'wait' && !o.late, late: (o) => o.late && o.k !== 'done', part: (o) => o.k === 'part' && !o.late, done: (o) => o.k === 'done' };
+  let tab = new URLSearchParams(location.search).get('tab') || 'draft', q = '', cur;
+  const rest = (o) => o.lines.reduce((a, l) => a + (l[1] - l[2]) * (l[3] || 0), 0), tot = (o) => o.lines.reduce((a, l) => a + l[1] * (l[3] || 0), 0);
+  const qty = (o) => [o.lines.reduce((a, l) => a + l[2], 0), o.lines.reduce((a, l) => a + l[1], 0)];
+  const lvl = (v) => v <= 5000000 ? 'Trong mức tự quyết (minh họa 5.000.000 ₫)' : v <= 20000000 ? 'Cần Quản lý chi nhánh duyệt (cấp 1, minh họa)' : 'Vượt cấp 1: mở thẳng ở cấp 2';
+  function act(o) {
+    if (o.k === 'draft') return o.block ? `<button class="b b--primary b--sm" disabled aria-describedby="w-${o.id}">Gửi nhà cung cấp</button><span class="why why--block" id="w-${o.id}">${o.block}</span><a class="t2" href="${o.blockLink[0]}">${o.blockLink[1]}</a>` : `<button class="b b--primary b--sm" data-send="${o.id}">Gửi nhà cung cấp</button>`;
+    if (o.k === 'sent') return `<button class="b b--primary b--sm" data-conf="${o.id}">Ghi nhận NCC xác nhận</button>`;
+    if (o.k === 'done') return `<button class="b b--secondary b--sm" data-d="${o.id}">Xem đơn</button>`;
+    return `<a class="b b--primary b--sm" href="../inv-redesign/receipt.html">Nhận hàng</a><span class="why">Nhận vào kho ở màn nhập kho theo đơn mua.</span>`;
+  }
+  function row(o) {
+    const [r, t] = qty(o), pc = t ? Math.round(r / t * 100) : 0;
+    return `<div class="item${o.late ? ' item--flag' : ''}"><div><button class="linkbtn" data-d="${o.id}">${o.id}${o.v > 1 ? '-v' + o.v : ''}</button><br><span class="t1">${o.ncc}</span><br><span class="t2">${o.src}</span></div><div><span class="t1">${o.lines[0][0]}${o.lines.length > 1 ? ' và ' + (o.lines.length - 1) + ' mặt hàng khác' : ''}</span><br><span class="t2">${vnd(tot(o))} · đã nhận ${r}/${t}</span><div class="bar" style="margin:4px 0" role="img" aria-label="Đã nhận ${pc}%"><i style="width:${pc}%"></i></div><span class="t2 ${o.late ? 'late' : ''}">${o.eta}</span></div><div style="display:grid;gap:4px;justify-items:start"><span class="badge badge--${o.st[0]}">${o.st[1]}</span>${o.v > 1 ? `<span class="badge badge--neutral">v${o.v}</span>` : ''}${o.late ? '<span class="badge badge--danger">Trễ hạn giao</span>' : ''}</div><div class="act">${act(o)}</div></div>`;
+  }
+  const EMP = { draft: 'Không có đơn nháp cần gửi', sent: 'Không có đơn đang chờ nhà cung cấp xác nhận', wait: 'Không có đơn đang chờ giao', late: 'Không có đơn trễ hạn giao', part: 'Không có đơn nhận một phần', done: 'Chưa có đơn đã xong' };
+  function render() {
+    for (const k in f) $('#c-' + k).textContent = O.filter(f[k]).length;
+    $$('[role=tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.s === tab)));
+    const l = O.filter(f[tab]).filter((o) => !q || norm(o.id + ' ' + o.ncc + ' ' + o.lines.map((x) => x[0]).join(' ')).includes(norm(q)));
+    $('#rows').innerHTML = l.map(row).join(''); $('#empty').hidden = l.length > 0;
+    if (!l.length) { $('#eh').textContent = q ? 'Không có kết quả khớp' : EMP[tab]; $('#ep').textContent = q ? 'Thử từ khóa khác; tìm không phân biệt dấu.' : 'Việc mới sẽ hiện ở đây khi có đơn đến bước này.'; }
+    $('#foot').textContent = l.length ? `Hiển thị ${l.length} đơn` : '';
+  }
+  let tm; const toast = (m, fn) => { const t = $('#toast'); t.innerHTML = '<span></span>' + (fn ? '<button type="button" id="tU">Hoàn tác</button>' : ''); t.firstChild.textContent = m; t.hidden = false; if (fn) $('#tU').onclick = () => { fn(); t.hidden = true; }; clearTimeout(tm); tm = setTimeout(() => { t.hidden = true; }, 10000); };
+  $$('[role=tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.s; render(); }));
+  $('#q').addEventListener('input', (e) => { q = e.target.value; render(); });
+  $('#rows').addEventListener('click', (e) => {
+    const s = e.target.closest('[data-send]'), c = e.target.closest('[data-conf]'), d = e.target.closest('[data-d]');
+    if (s) { const o = O.find((x) => x.id === s.dataset.send); o.k = 'sent'; o.st = ['info', 'Đã gửi']; o.eta = 'gửi 07/11 09:20, chờ xác nhận'; render(); toast(`Đã gửi ${o.id} cho ${o.ncc}. Bản đã gửi không bị ghi đè; muốn đổi thì tạo phiên bản mới.`); }
+    if (c) { const o = O.find((x) => x.id === c.dataset.conf), old = { k: o.k, st: o.st, eta: o.eta }; o.k = 'wait'; o.st = ['info', 'NCC đã xác nhận']; o.eta = 'giao dự kiến 12/11/2026, còn 5 ngày'; render(); toast(`Đã ghi nhận ${o.id} được nhà cung cấp xác nhận.`, () => { Object.assign(o, old); render(); }); }
+    if (d) openD(O.find((x) => x.id === d.dataset.d));
+  });
+  function openD(o) {
+    cur = o; $('#dT').textContent = o.id + (o.v > 1 ? '-v' + o.v : ''); $('#dS').textContent = `${o.ncc} · ${o.src}`;
+    $('#dL').innerHTML = '<div class="ln" style="grid-template-columns:minmax(0,1fr) 56px 56px 56px"><span class="t2">Phụ tùng</span><span class="t2 num">Đặt</span><span class="t2 num">Nhận</span><span class="t2 num">Còn</span></div>' + o.lines.map((l) => `<div class="ln" style="grid-template-columns:minmax(0,1fr) 56px 56px 56px"><span>${l[0]}<br><span class="t2">${l[3] ? vnd(l[3]) : 'chưa có giá'}</span></span><span class="num">${l[1]}</span><span class="num">${l[2]}</span><span class="num ${l[1] > l[2] ? 'late' : ''}">${l[1] - l[2]}</span></div>`).join('');
+    $('#dR').innerHTML = (o.rcv && o.rcv.length ? o.rcv.map((r) => `<div class="ln" style="grid-template-columns:minmax(0,1fr) auto"><span>${r[0]} · ${r[1]} · ${r[2]} đơn vị</span><span class="badge badge--${r[3][0]}">${r[3][1]}</span></div>`).join('') : '<span class="t2">Chưa nhận lần nào.</span>');
+    $('#dV').innerHTML = (o.vers || ['v1 (hiện hành)']).map((v) => `<div class="t2" style="font-size:var(--font-size-md)">${v}</div>`).join('');
+    const canClose = ['wait', 'part', 'late'].includes(o.k), canNew = !['done'].includes(o.k);
+    $('#dCl').hidden = !canClose; $('#dNew').hidden = !canNew || o.k === 'draft'; $('#dC').hidden = true; $('#dCf').hidden = true; $('#dClOk').hidden = true; $('#cr').value = '';
+    $('#dD').showModal();
+  }
+  $('#dCl').onclick = () => { const v = rest(cur); $('#dC').hidden = false; $('#dC').innerHTML = `<b>Phần còn lại chưa nhận: ${vnd(v)}</b><span>${lvl(v)}. Đóng đơn khi chưa nhận đủ cần duyệt theo giá trị phần còn lại (FR-PUR-010). Cho tới khi duyệt, đơn vẫn nhận hàng được. Ngưỡng dùng chung dòng “Yêu cầu mua” của ma trận [Cần xác nhận].</span>`; $('#dCf').hidden = false; $('#dClOk').hidden = false; $('#dCl').hidden = true; };
+  $('#cr').oninput = () => { $('#dClOk').disabled = $('#cr').value.trim().length < 5; };
+  $('#dClOk').onclick = () => { $('#dD').close(); toast(`Đã gửi duyệt đóng ${cur.id}. Đơn vẫn mở và nhận hàng được tới khi có quyết định.`, () => toast('Đã rút yêu cầu đóng đơn.')); };
+  $('#dNew').onclick = () => { $('#dD').close(); toast('Phiên bản mới được tạo từ bản hiện hành; bản đã gửi giữ nguyên, hậu tố -vN tăng 1 (màn sửa đơn chưa thiết kế).'); };
+  $$('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  render();
+</script>
+</body>
+</html>

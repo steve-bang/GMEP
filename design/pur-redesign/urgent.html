@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mua hàng – mua gấp, hậu duyệt – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) 190px 220px; }
+  .item .plate { justify-self: start; height: 32px; padding: 0 var(--space-3); font-size: var(--font-size-lg); }
+  @media (max-width: 1199px) { .item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .item > :first-child, .item > .act { grid-column: 1 / -1; } }
+  @media (max-width: 599px) { .item { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">GMEP › Mua hàng</p>
+  <nav class="subnav" aria-label="Màn hình mua hàng"><a href="requests.html">Đề xuất và yêu cầu mua</a><a href="orders.html">Đơn mua và giao hàng</a><a href="suppliers.html">Nhà cung cấp và bảng giá</a><a href="payables.html">Công nợ nhà cung cấp</a><a href="urgent.html" aria-current="page">Mua gấp, hậu duyệt</a></nav>
+  <header class="head">
+    <div><h1>Mua gấp và hậu duyệt</h1><p>Xe đang nằm xưởng thiếu phụ tùng: mua trước, gửi ảnh hóa đơn, quản lý hậu duyệt trong hạn. Người đề xuất không tự hậu duyệt (FR-PUR-009).</p></div>
+    <div class="head__actions"><button class="b b--primary" id="bNew">Tạo mua gấp</button></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chi nhánh Quận 7</span><span>Cập nhật 09:15 07/11/2026</span><span>Hạn hậu duyệt 24 giờ làm việc và giá trị tự quyết 2.000.000 ₫ là số mẫu [Cần xác nhận: Chủ dự án]</span>
+    <span>Xem thử vai trò: <span class="seg" role="group" aria-label="Vai trò xem"><button aria-pressed="true" data-r="mh">Mua hàng</button><button aria-pressed="false" data-r="ql">Quản lý Q7</button></span></span></div>
+
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" data-s="post">Chờ hậu duyệt<span class="cnt cnt--warn" id="c-post"></span></button>
+    <button role="tab" data-s="late">Quá hạn hậu duyệt<span class="cnt cnt--danger" id="c-late"></span></button>
+    <button role="tab" data-s="ok">Đã hậu duyệt<span class="cnt" id="c-ok"></span></button>
+    <button role="tab" data-s="flag">Cờ cho Kế toán<span class="cnt" id="c-flag"></span></button>
+  </div>
+  <section class="card list" aria-label="Mua gấp" aria-live="polite"><div id="rows"></div><div class="empty" id="empty" hidden><h2 id="eh"></h2><p id="ep"></p></div><div class="rowfoot" id="foot"></div></section>
+  <p class="hint" style="margin-top:var(--space-3)">Quá hạn: nhắc người duyệt rồi chuyển cấp (FR-SYS-015, 034). Không chấp nhận: khoản đã chi gắn cờ cho Kế toán xử lý, hàng đã mua vẫn nhập kho. Cách Kế toán xử lý cờ (thu lại từ người mua, ghi chi phí khác) chưa có trong FR [Cần xác nhận].</p>
+</div>
+
+<dialog id="dN" aria-labelledby="nT"><form method="dialog" id="fN">
+  <h2 id="nT">Tạo mua gấp</h2>
+  <div class="field"><label for="nI">Mặt hàng đã hoặc sắp mua <span class="req" aria-hidden="true">*</span></label><input id="nI" autocomplete="off" placeholder="Ví dụ: Má phanh trước Hyundai Accent ×2"></div>
+  <div class="field"><label for="nO">Lệnh sửa chữa đang chờ phụ tùng</label><select id="nO"><option>RO-Q7-2611-00126 · 51F-640.12 · nằm xưởng</option><option>RO-Q7-2611-00131 · 30A-198.77</option><option>Không gắn lệnh</option></select></div>
+  <div class="field"><label for="nV">Tổng tiền mua (₫) <span class="req" aria-hidden="true">*</span></label><input id="nV" inputmode="numeric" autocomplete="off" placeholder="820.000"><span class="hint" id="nVh">Nhập tổng tiền theo hóa đơn.</span></div>
+  <div class="field"><label for="nP">Ảnh hóa đơn <span class="req" aria-hidden="true">*</span></label><input id="nP" type="file" accept="image/*" capture="environment"><span class="hint" id="nPh">Bắt buộc với mua gấp. Chụp bằng camera hoặc chọn ảnh.</span></div>
+  <div class="field"><label for="nR">Lý do mua gấp <span class="req" aria-hidden="true">*</span></label><input id="nR" autocomplete="off"></div>
+  <div class="alert alert--danger" id="nA" hidden></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--secondary" type="button" id="nDr" disabled>Lưu nháp, chưa gửi</button><button class="b b--primary" type="submit" id="nOk" disabled>Gửi hậu duyệt</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const LIM = 2000000;
+  const U = [
+    { id: 'YM-Q7-2611-00006', k: 'post', plate: '51F-640.12', ro: 'RO-Q7-2611-00126', sum: 'Má phanh trước Hyundai Accent ×2', where: 'Cửa hàng Ba Hưng, 06/11 15:40', by: 'Trần Thị Mai Anh', byR: 'mh', val: 820000, photo: 1, left: 'còn 7 giờ', st: ['warning', 'Chờ hậu duyệt'] },
+    { id: 'YM-Q7-2611-00010', k: 'late', plate: '30A-198.77', ro: 'RO-Q7-2611-00131', sum: 'Bóng đèn pha Toyota Vios ×2', where: 'Cửa hàng Ba Hưng, 05/11 10:20', by: 'Hoàng Thị Mai', byR: 'tk', val: 380000, photo: 1, left: 'quá hạn 3 giờ, đã nhắc', st: ['danger', 'Quá hạn hậu duyệt'], late: 1 },
+    { id: 'YM-Q7-2611-00011', k: 'post', plate: '51H-902.31', ro: 'RO-Q7-2611-00133', sum: 'Cảm biến ABS bánh trước Mazda CX-5 ×1', where: 'Cửa hàng Ba Hưng, 07/11 08:50', by: 'Trần Thị Mai Anh', byR: 'mh', val: 1450000, photo: 0, left: 'chưa gửi hậu duyệt', st: ['neutral', 'Nháp, thiếu ảnh hóa đơn'], draft: 1 },
+    { id: 'YM-Q7-2611-00007', k: 'ok', plate: '51A-228.47', ro: 'RO-Q7-2611-00120', sum: 'Dây curoa tổng Kia Morning ×1', where: 'Cửa hàng Ba Hưng, 04/11 14:00', by: 'Trần Thị Mai Anh', byR: 'mh', val: 165000, photo: 1, left: 'hậu duyệt 05/11 08:30 bởi Võ Minh Quân', st: ['success', 'Đã hậu duyệt'] },
+    { id: 'YM-Q7-2610-00040', k: 'flag', plate: '30G-557.80', ro: 'RO-Q7-2610-00119', sum: 'Nước làm mát Prestone ×6', where: 'Cửa hàng Ba Hưng, 28/10 09:10', by: 'Hoàng Thị Mai', byR: 'tk', val: 270000, photo: 1, left: 'Không chấp nhận 29/10: có sẵn ở kho Thủ Đức', st: ['danger', 'Không chấp nhận'], flagKt: 'Chờ Kế toán xử lý khoản đã chi' },
+  ];
+  let role = 'mh', tab = new URLSearchParams(location.search).get('tab') || 'post', seq = 12;
+  const f = { post: (u) => u.k === 'post', late: (u) => u.k === 'late', ok: (u) => u.k === 'ok', flag: (u) => u.k === 'flag' };
+  function act(u) {
+    if (u.k === 'ok') return '<button class="b b--secondary b--sm" type="button" data-ni>Xem</button>';
+    if (u.k === 'flag') return `<button class="b b--secondary b--sm" type="button" data-ni>Xem cờ</button><span class="why">${u.flagKt}</span>`;
+    if (u.draft) return role === 'mh' ? `<button class="b b--primary b--sm" data-ph="${u.id}">Bổ sung ảnh hóa đơn</button><span class="why">Có ảnh mới gửi hậu duyệt được.</span>` : `<button class="b b--primary b--sm" disabled aria-describedby="w-${u.id}">Hậu duyệt</button><span class="why why--block" id="w-${u.id}">Hóa đơn chưa có ảnh: người đề xuất cần bổ sung trước.</span>`;
+    if (role === 'ql') return `<a class="b b--primary b--sm" href="../apr-redesign/request.html?s=urgent&r=ql">Xem và hậu duyệt</a><span class="why">Quyết định ở màn Phê duyệt.</span>`;
+    return `<button class="b b--primary b--sm" disabled aria-describedby="w-${u.id}">Hậu duyệt</button><span class="why why--block" id="w-${u.id}">${u.byR === 'mh' ? 'Bạn là người đề xuất, không tự hậu duyệt (FR-PUR-009).' : 'Chỉ Quản lý chi nhánh hậu duyệt.'}</span>`;
+  }
+  function row(u) {
+    return `<div class="item${u.late ? ' item--flag' : ''}"><div style="display:grid;gap:4px;justify-items:start"><span class="plate">${u.plate}</span><span class="codeid">${u.id} · lệnh ${u.ro}</span><span class="badge badge--purple">Mua gấp</span></div><div><span class="t1">${u.sum}</span><br><span class="t1 num" style="text-align:left">${vnd(u.val)}</span><br><span class="t2">${u.where} · ${u.by}</span><br><span class="t2">${u.photo ? 'Ảnh hóa đơn: đã có' : '<span class="late">Ảnh hóa đơn: chưa có</span>'}</span></div><div style="display:grid;gap:4px;justify-items:start"><span class="badge badge--${u.st[0]}">${u.st[1]}</span><span class="t2 ${u.late ? 'late' : ''}">${u.left}</span></div><div class="act">${act(u)}</div></div>`;
+  }
+  const EMP = { post: 'Không có mua gấp nào chờ hậu duyệt', late: 'Không có mua gấp nào quá hạn hậu duyệt', ok: 'Chưa có mua gấp nào được hậu duyệt', flag: 'Không có mua gấp nào bị gắn cờ cho Kế toán' };
+  function render() {
+    for (const k in f) $('#c-' + k).textContent = U.filter(f[k]).length;
+    $$('[role=tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.s === tab))); $$('[data-r]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.r === role)));
+    const l = U.filter(f[tab]); $('#rows').innerHTML = l.map(row).join(''); $('#empty').hidden = l.length > 0;
+    if (!l.length) { $('#eh').textContent = EMP[tab]; $('#ep').textContent = 'Mục mới hiện ở đây khi có người tạo mua gấp.'; }
+    $('#foot').textContent = l.length ? `Hiển thị ${l.length} mua gấp` : '';
+  }
+  let tm; const toast = (m, fn) => { const t = $('#toast'); t.innerHTML = '<span></span>' + (fn ? '<button type="button" id="tU">Hoàn tác</button>' : ''); t.firstChild.textContent = m; t.hidden = false; if (fn) $('#tU').onclick = () => { fn(); t.hidden = true; }; clearTimeout(tm); tm = setTimeout(() => { t.hidden = true; }, 10000); };
+  $$('[role=tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.s; render(); }));
+  $$('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; render(); }));
+  $('#rows').addEventListener('click', (e) => {
+    if (e.target.closest('[data-ni]')) toast('Màn xem chi tiết và xử lý cờ của Kế toán chưa thiết kế ở bản này.');
+    const p = e.target.closest('[data-ph]'); if (p) { const u = U.find((x) => x.id === p.dataset.ph); u.photo = 1; u.draft = 0; u.st = ['warning', 'Chờ hậu duyệt']; u.left = 'còn 24 giờ'; render(); toast(`Đã bổ sung ảnh và gửi ${u.id} hậu duyệt. Hạn 24 giờ làm việc.`); }
+  });
+  $('#bNew').onclick = () => { ['#nI', '#nV', '#nR'].forEach((s) => ($(s).value = '')); $('#nP').value = ''; chk(); $('#dN').showModal(); };
+  const val = () => +$('#nV').value.replace(/\D/g, '') || 0;
+  function chk() {
+    const v = val(), over = v > LIM, base = $('#nI').value.trim().length > 2 && v > 0 && $('#nR').value.trim().length > 2, ph = $('#nP').files.length > 0;
+    $('#nA').hidden = !over; $('#nA').innerHTML = over ? `<b>Vượt giá trị tự quyết mua gấp (${vnd(LIM)}, số mẫu)</b><span>Không được mua trước. Tạo yêu cầu mua thường để được duyệt trước khi mua. <a href="requests.html" style="color:inherit">Tạo yêu cầu mua</a></span>` : '';
+    $('#nVh').textContent = v ? `Giá trị ${vnd(v)}${over ? '' : ', trong mức tự quyết mua gấp'}` : 'Nhập tổng tiền theo hóa đơn.';
+    $('#nPh').textContent = ph ? 'Đã chọn ảnh.' : 'Bắt buộc với mua gấp. Chưa có ảnh thì chỉ lưu nháp được.';
+    $('#nOk').disabled = over || !base || !ph; $('#nDr').disabled = over || !base;
+  }
+  ['#nI', '#nV', '#nR'].forEach((s) => $(s).addEventListener('input', chk)); $('#nP').addEventListener('change', chk);
+  $$('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  function add(draft) { const id = 'YM-Q7-2611-' + String(seq++).padStart(5, '0'), u = { id, k: 'post', plate: '51F-640.12', ro: 'RO-Q7-2611-00126', sum: $('#nI').value.trim(), where: 'Cửa hàng Ba Hưng, 07/11 09:20', by: 'Trần Thị Mai Anh', byR: 'mh', val: val(), photo: draft ? 0 : 1, left: draft ? 'chưa gửi hậu duyệt' : 'còn 24 giờ', st: draft ? ['neutral', 'Nháp, thiếu ảnh hóa đơn'] : ['warning', 'Chờ hậu duyệt'], draft: draft ? 1 : 0 }; U.unshift(u); tab = 'post'; render(); $('#dN').close(); toast(draft ? `Đã lưu nháp ${id}. Cần ảnh hóa đơn trước khi gửi hậu duyệt.` : `Đã gửi ${id} hậu duyệt trong 24 giờ làm việc.`, () => { U.splice(U.indexOf(u), 1); render(); }); }
+  $('#fN').addEventListener('submit', (e) => { e.preventDefault(); add(false); }); $('#nDr').onclick = () => add(true);
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phê duyệt – hàng chờ – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr) minmax(0, 1.1fr) 170px 210px; }
+  .skel { height: 16px; border-radius: var(--radius-sm); background: var(--color-surface-subtle); }
+  @media (max-width: 1199px) { .item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 190px; } .item > :nth-child(1) { grid-column: 1 / -1; } }
+  @media (max-width: 767px) { .item { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-2); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">GMEP › Phê duyệt</p>
+  <nav class="subnav" aria-label="Màn hình phê duyệt"><a href="queue.html" aria-current="page">Hàng chờ</a><a href="request.html">Chi tiết yêu cầu (mẫu)</a><a href="matrix.html">Ma trận hạn mức</a></nav>
+  <header class="head">
+    <div><h1>Phê duyệt</h1><p>Mọi yêu cầu cần người có thẩm quyền quyết định. Bạn chỉ thấy yêu cầu đang chờ đúng cấp của bạn, yêu cầu bạn đã chuyển lên, và yêu cầu do bạn đề xuất (FR-SYS-033, 034; RULE-036).</p></div>
+    <div class="head__actions"><a class="b b--secondary" href="matrix.html">Xem ma trận hạn mức</a></div>
+  </header>
+
+  <div class="scope" role="status"><span id="sc"></span><span>Cập nhật 09:15 07/11/2026</span>
+    <span>Xem thử với vai trò:
+      <span class="seg" role="group" aria-label="Xem thử vai trò"><button aria-pressed="true" data-r="ql">Quản lý Q7</button><button aria-pressed="false" data-r="ch">Chủ garage</button><button aria-pressed="false" data-r="tk">Thủ kho</button></span></span></div>
+
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" aria-selected="true" data-t="mine">Cần tôi duyệt<span class="cnt cnt--warn" id="c-mine"></span></button>
+    <button role="tab" aria-selected="false" data-t="up">Đã chuyển lên cấp trên<span class="cnt" id="c-up"></span></button>
+    <button role="tab" aria-selected="false" data-t="own">Tôi đề xuất<span class="cnt" id="c-own"></span></button>
+    <button role="tab" aria-selected="false" data-t="done">Đã xử lý<span class="cnt" id="c-done"></span></button>
+  </div>
+  <div class="find">
+    <div class="search"><label class="sr" for="q">Tìm yêu cầu</label><input id="q" type="search" placeholder="Tìm mã chứng từ, biển số, người đề xuất" autocomplete="off"></div>
+    <div class="chips" role="group" aria-label="Nhóm yêu cầu">
+      <button class="chip" aria-pressed="true" data-g="">Tất cả</button><button class="chip" aria-pressed="false" data-g="tien">Tiền</button><button class="chip" aria-pressed="false" data-g="kho">Kho</button><button class="chip" aria-pressed="false" data-g="mua">Mua hàng</button><button class="chip" aria-pressed="false" data-g="khac">Khác</button>
+    </div>
+  </div>
+
+  <section class="card list" aria-label="Yêu cầu phê duyệt" aria-live="polite">
+    <div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2 id="eh"></h2><p id="ep"></p></div>
+    <div class="empty" id="err" hidden><h2>Không tải được hàng chờ</h2><p>Kết nối bị gián đoạn. Dữ liệu đang xem có thể đã cũ; chưa có yêu cầu nào bị mất.</p><button class="b b--secondary" id="retry">Thử lại</button></div>
+    <div class="rowfoot" id="foot"></div>
+  </section>
+  <p class="hint" style="margin-top:var(--space-3)">Xem thử trạng thái màn hình: <span class="seg" role="group" aria-label="Xem thử trạng thái"><button aria-pressed="true" data-v="ok">Có dữ liệu</button><button aria-pressed="false" data-v="load">Đang tải</button><button aria-pressed="false" data-v="err">Lỗi tải</button></span></p>
+  <p class="hint" style="margin-top:var(--space-3)">Giá trị và hạn mức là số minh họa, chưa ban hành (xem ma trận). “Quá nhắc” là đã qua mốc nhắc T1; sau T2 yêu cầu tự chuyển cấp 1 lên cấp 2 và vẫn là Chờ duyệt.</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => (n < 0 ? '−' : '') + Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase();
+  const TY = { disc: ['warning', 'Giảm giá', 'tien'], diff: ['danger', 'Chênh lệch quỹ', 'tien'], refund: ['info', 'Hoàn tiền', 'tien'], spend: ['warning', 'Chi vượt hạn mức', 'tien'], cancel: ['danger', 'Hủy lệnh sau xuất kho', 'khac'], xfer: ['info', 'Chuyển kho', 'kho'], adj: ['danger', 'Điều chỉnh tồn', 'kho'], buy: ['warning', 'Yêu cầu mua', 'mua'], reopen: ['neutral', 'Mở lại ngày', 'khac'] };
+  // lim: [văn bản hạn mức, % so với hạn mức cấp đang chờ]; hide: Thủ kho không thấy tiền (Q-R3)
+  const M = {
+    a1: { ty: 'disc', code: 'RO-Q7-2611-00129', plate: '51K-482.19', sub: 'Giảm 12% cho khách quen Lê Quốc Huy', by: 'Nguyễn Hoàng Yến', rl: 'Cố vấn', br: 'Quận 7', val: 1560000, lim: ['12% giá trị lệnh, cấp 1 đến 15%', 80], age: '2 giờ', st: ['warning', 'Chờ cấp 1'], s: 'cap1' },
+    a2: { ty: 'diff', code: 'Ca sáng 06/11/2026', sub: 'Đã giải trình: thiếu tiền thối khách', by: 'Phạm Thị Lan', rl: 'Thu ngân', br: 'Quận 7', val: -150000, lim: ['Cấp 1 đến 200.000 ₫', 75], age: '20 phút', st: ['warning', 'Chờ cấp 1'], s: 'cap1' },
+    a3: { ty: 'refund', code: 'PT-Q7-2611-00041', plate: '30H-912.06', sub: 'Khách hủy hạng mục · đã có hóa đơn nên cần điều chỉnh hóa đơn', by: 'Phạm Thị Lan', rl: 'Thu ngân', br: 'Quận 7', val: 1250000, lim: ['Cấp 1 đến 5.000.000 ₫', 25], age: '45 phút', st: ['warning', 'Chờ cấp 1'], s: 'cap1' },
+    a4: { ty: 'buy', code: 'YM-Q7-2611-00005', sub: '3 mặt hàng, trong hạn mức cấp 1', by: 'Hoàng Thị Mai', rl: 'Thủ kho', br: 'Quận 7', val: 15960000, lim: ['Cấp 1 đến 20.000.000 ₫', 80], age: '40 phút', st: ['warning', 'Chờ cấp 1'], s: 'cap1' },
+    a5: { ty: 'cancel', code: 'RO-Q7-2611-00119', plate: '30G-557.80', sub: 'Khách bỏ xe, đã xuất 2 phụ tùng', by: 'Nguyễn Hoàng Yến', rl: 'Cố vấn', br: 'Quận 7', val: 2140000, lim: ['Luôn cần duyệt, một cấp', 0], age: '5 giờ', st: ['danger', 'Quá nhắc T1'], s: 'cap1' },
+    u1: { ty: 'adj', code: 'KK-Q7-2611-00005', sub: 'Chênh lệch kiểm kê, 2 mã · trong hạn mức cấp 1 nhưng quá T1 + T2', by: 'Hoàng Thị Mai', rl: 'Thủ kho', br: 'Quận 7', val: -1875000, qty: '2 mã lệch, −3 sản phẩm', hide: 1, lim: ['Cấp 1 đến 3.000.000 ₫', 62], age: '2 ngày 2 giờ', st: ['info', 'Đã tự chuyển cấp 2'], s: 'auto', up: 'Chờ Chủ garage' },
+    u2: { ty: 'refund', code: 'PT-Q7-2611-00038', plate: '51A-228.47', sub: 'Quản lý chuyển cấp: khách đòi hoàn toàn bộ, cần chủ quyết', by: 'Phạm Thị Lan', rl: 'Thu ngân', br: 'Quận 7', val: 1900000, lim: ['Cấp 1 đến 5.000.000 ₫', 38], age: '3 giờ', st: ['info', 'Đã chuyển cấp 2'], s: 'auto', up: 'Chờ Chủ garage' },
+    o1: { ty: 'spend', code: 'Sửa máy nén khí xưởng', sub: 'Cộng dồn: khoản này 6.800.000 + đã chi cùng loại, cùng NCC, cùng chi nhánh trong 7 ngày 2.400.000 = 9.200.000 ₫ (RULE-036)', by: 'Võ Minh Quân', rl: 'Quản lý', br: 'Quận 7', val: 6800000, lim: ['9.200.000 / cấp 1 đến 5.000.000 ₫', 100], age: '1 ngày 3 giờ', st: ['danger', 'Chờ cấp 2 · Quá nhắc'], s: 'own' },
+    x1: { ty: 'xfer', code: 'STO-Q7-2611-00014', sub: 'Quận 7 → Biên Hòa, 3 mặt hàng', by: 'Hoàng Thị Mai', rl: 'Thủ kho', br: 'Quận 7', val: 62400000, qty: '3 mặt hàng, 24 sản phẩm', hide: 1, lim: ['Cấp 1 đến 50.000.000 ₫: vượt, chờ cấp 2', 100], age: '3 giờ', st: ['warning', 'Chờ cấp 2'], s: 'reauth' },
+    x2: { ty: 'adj', code: 'KK-Q7-2611-00003', sub: 'Chênh lệch kiểm kê, 3 mã', by: 'Hoàng Thị Mai', rl: 'Thủ kho', br: 'Quận 7', val: -4320000, qty: '3 mã lệch, −7 sản phẩm', hide: 1, lim: ['Cấp 1 đến 3.000.000 ₫: vượt, chờ cấp 2', 100], age: '1 ngày 2 giờ', st: ['danger', 'Chờ cấp 2 · Quá nhắc'], flag: 'Lệch lặp lại', s: 'cap2' },
+    x3: { ty: 'buy', code: 'YM-Q7-2611-00004', sub: '3 mặt hàng, vượt hạn mức cấp 1', by: 'Hoàng Thị Mai', rl: 'Thủ kho', br: 'Quận 7', val: 21360000, lim: ['Cấp 1 đến 20.000.000 ₫: vượt, chờ cấp 2', 100], age: '1 giờ', st: ['warning', 'Chờ cấp 2'], s: 'cap2' },
+    x4: { ty: 'reopen', code: 'Ngày 04/11/2026', sub: 'Điều chỉnh phiếu thu nhập sai', by: 'Đặng Thu Hà', rl: 'Kế toán', br: 'Thủ Đức', val: null, lim: ['Luôn cần Chủ garage duyệt', 0], age: '1 giờ', st: ['warning', 'Chờ Chủ garage'], s: 'reauth' },
+    d1: { ty: 'diff', code: 'Ca chiều 05/11/2026', sub: 'Thiếu 80.000 ₫, đã giải trình', by: 'Phạm Thị Lan', rl: 'Thu ngân', br: 'Quận 7', val: -80000, lim: ['', 0], age: '05/11 19:02', st: ['success', 'Đã duyệt'], by2: 'Võ Minh Quân', s: 'cap1' },
+    d2: { ty: 'disc', code: 'RO-Q7-2611-00117', plate: '51G-307.55', sub: 'Từ chối: vượt mức, khách không phải thân quen', by: 'Nguyễn Hoàng Yến', rl: 'Cố vấn', br: 'Quận 7', val: 2250000, lim: ['', 0], age: '05/11 14:20', st: ['danger', 'Từ chối'], by2: 'Võ Minh Quân', s: 'cap1' },
+    d3: { ty: 'spend', code: 'Mua dụng cụ nâng xe', sub: 'Đã duyệt sau khi tự chuyển cấp 1 → 2 (quá T1 + T2 ở Quản lý chi nhánh)', by: 'Võ Minh Quân', rl: 'Quản lý', br: 'Quận 7', val: 7400000, lim: ['', 0], age: '04/11 09:40', st: ['success', 'Đã duyệt'], by2: 'Lê Thanh Sơn', s: 'auto' },
+    d4: { ty: 'reopen', code: 'Ngày 03/11/2026', sub: 'Đã duyệt thay Trần Hoàng Anh (Chủ garage), ủy quyền UQ-2611-0001', by: 'Đặng Thu Hà', rl: 'Kế toán', br: 'Biên Hòa', val: null, lim: ['', 0], age: '04/11 08:15', st: ['success', 'Đã duyệt'], by2: 'Lê Thanh Sơn · theo ủy quyền', s: 'proxy' },
+  };
+  const V = {
+    ql: { sc: '<b>Phạm vi:</b> Chi nhánh Quận 7 · bạn là Võ Minh Quân, Quản lý chi nhánh', mine: ['a1', 'a2', 'a3', 'a4', 'a5'], up: ['u1', 'u2'], own: ['o1'], done: ['d1', 'd2', 'd3', 'd4'] },
+    ch: { sc: '<b>Phạm vi:</b> Toàn chuỗi (đang xem hợp nhất 8 chi nhánh) · bạn là Trần Hoàng Anh, Chủ garage', mine: ['x1', 'x2', 'x3', 'o1', 'u1', 'x4'], up: [], own: [], done: ['d1', 'd2', 'd3', 'd4'] },
+    tk: { sc: '<b>Phạm vi:</b> Chi nhánh Quận 7 · bạn là Hoàng Thị Mai, Thủ kho (không duyệt yêu cầu nào)', mine: [], up: [], own: ['x1', 'x2', 'u1', 'x3', 'a4'], done: [] },
+  };
+  const EMP = { mine: ['Không có yêu cầu nào chờ bạn duyệt', 'Yêu cầu mới đúng cấp của bạn sẽ hiện ở đây và có thông báo.'], up: ['Chưa có yêu cầu nào đã chuyển lên', 'Chủ garage là cấp cao nhất nên không có cấp trên.'], own: ['Bạn chưa đề xuất yêu cầu nào đang chờ', 'Yêu cầu bạn lập sẽ hiện ở đây cho tới khi có kết quả.'], done: ['Chưa có yêu cầu đã xử lý', 'Yêu cầu đã duyệt hoặc từ chối hiện ở đây.'] };
+  let role = 'ql', tab = 'mine', grp = '', q = '', view = 'ok';
+  const hr = (m) => `request.html?s=${m.s}&r=${role}`;
+  const lead = (m) => m.plate ? `<span class="plate">${m.plate}</span><span class="t2"><a href="${hr(m)}" style="color:inherit">${m.code}</a></span>` : `<span class="t1"><a href="${hr(m)}" style="color:inherit">${m.code}</a></span>`;
+  function row(id) {
+    const m = M[id], ty = TY[m.ty], hide = role === 'tk' && m.hide;
+    const money = hide ? `<span class="t1 masked" aria-label="Ẩn theo quyền">•••••••</span><span class="t2">${m.qty}. Thủ kho chỉ xem số lượng, không xem giá trị tiền.</span>` : `<span class="t1 num" style="text-align:left">${m.val === null ? 'Không theo giá trị' : vnd(m.val)}</span><span class="t2">${m.lim[0]}</span>${m.lim[1] ? `<span class="bar" role="img" aria-label="${m.lim[1]}% hạn mức"><i style="width:${Math.min(100, m.lim[1])}%"></i></span>` : ''}`;
+    const st = `<span class="badge badge--${m.st[0]}">${m.st[1]}</span><span class="t2">${tab === 'done' ? m.age : 'chờ ' + m.age}</span>${m.flag ? `<span class="badge badge--warning">${m.flag}</span>` : ''}${m.up && tab === 'up' ? `<span class="t2">${m.up}</span>` : ''}`;
+    let a;
+    if (tab === 'mine') a = `<a class="b b--primary b--sm" href="${hr(m)}">Xem và quyết định</a>`;
+    else if (tab === 'done') a = `<a class="b b--secondary b--sm" href="${hr(m)}">Xem</a><span class="t2">${m.by2}</span>`;
+    else { const w = tab === 'up' ? 'Đã ở cấp 2 (' + m.up.replace('Chờ ', '') + '): bạn chỉ xem, không duyệt được.' : 'Bạn là người đề xuất, không tự duyệt yêu cầu của mình (RULE-036).'; a = `<button class="b b--primary b--sm" disabled aria-describedby="w-${id}">Duyệt</button><span class="why why--block" id="w-${id}">${w}</span>`; }
+    return `<div class="item${m.st[0] === 'danger' && tab !== 'done' ? ' item--flag' : ''}" data-id="${id}"><div style="display:grid;gap:4px;justify-items:start"><span class="badge badge--${ty[0]}">${ty[1]}</span>${lead(m)}<span class="t2">${m.sub}</span></div><div><span class="t1">${m.by}</span><br><span class="t2">${m.rl} · Chi nhánh ${m.br}</span></div><div style="display:grid;gap:4px">${money}</div><div style="display:grid;gap:4px;justify-items:start">${st}</div><div class="act">${a}</div></div>`;
+  }
+  function render() {
+    $('#sc').innerHTML = V[role].sc;
+    for (const k of ['mine', 'up', 'own', 'done']) $('#c-' + k).textContent = V[role][k].length;
+    const all = V[role][tab], l = all.filter((id) => (!grp || TY[M[id].ty][2] === grp) && (!q || norm([M[id].code, M[id].plate || '', M[id].by, M[id].sub].join(' ')).includes(norm(q))));
+    const showRows = view === 'ok';
+    $('#rows').innerHTML = view === 'load' ? [1, 2, 3].map(() => '<div class="item"><div class="skel" style="width:60%"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:50%"></div><div class="skel" style="width:60%"></div><div class="skel" style="width:70%"></div></div>').join('') : showRows ? l.map(row).join('') : '';
+    $('#err').hidden = view !== 'err';
+    const none = showRows && !l.length; $('#empty').hidden = !none;
+    if (none) { const filtered = all.length > 0; $('#eh').textContent = filtered ? 'Không có yêu cầu khớp bộ lọc' : EMP[tab][0]; $('#ep').textContent = filtered ? 'Thử bỏ bộ lọc nhóm hoặc xóa từ khóa tìm kiếm.' : (role === 'tk' && tab === 'mine' ? 'Thủ kho không duyệt yêu cầu nào; xem yêu cầu bạn đề xuất ở tab Tôi đề xuất.' : EMP[tab][1]); }
+    $('#foot').textContent = showRows && l.length ? `Hiển thị ${l.length} yêu cầu` + (tab === 'mine' ? ' · mỗi yêu cầu duyệt riêng để đọc kỹ (duyệt hàng loạt chưa thiết kế ở bản này)' : '') : '';
+  }
+  $$('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; $$('[data-r]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); render(); }));
+  $$('[role=tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.t; $$('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === b))); render(); }));
+  $$('[data-g]').forEach((b) => b.addEventListener('click', () => { grp = b.dataset.g; $$('[data-g]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); render(); }));
+  $$('[data-v]').forEach((b) => b.addEventListener('click', () => { view = b.dataset.v; $$('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); render(); }));
+  $('#q').addEventListener('input', (e) => { q = e.target.value; render(); });
+  $('#retry').addEventListener('click', () => { view = 'ok'; $$('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === 'ok'))); render(); });
+  render();
+</script>
+</body>
+</html>

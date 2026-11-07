@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mua hàng – công nợ nhà cung cấp – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.3fr) 170px 220px; }
+  .strike { text-decoration: line-through; color: var(--color-text-tertiary); }
+  .opt { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .opt input { width: 24px; height: 24px; margin: 0; flex: none; }
+  @media (max-width: 1199px) { .item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .item > :first-child, .item > .act { grid-column: 1 / -1; } }
+  @media (max-width: 599px) { .item { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">GMEP › Mua hàng</p>
+  <nav class="subnav" aria-label="Màn hình mua hàng"><a href="requests.html">Đề xuất và yêu cầu mua</a><a href="orders.html">Đơn mua và giao hàng</a><a href="suppliers.html">Nhà cung cấp và bảng giá</a><a href="payables.html" aria-current="page">Công nợ nhà cung cấp</a><a href="urgent.html">Mua gấp, hậu duyệt</a></nav>
+  <header class="head">
+    <div><h1>Công nợ nhà cung cấp</h1><p>Đối chiếu ba bên đơn mua, phiếu nhập, hóa đơn nhà cung cấp trước khi ghi công nợ; rồi theo dõi hạn trả và chi tiền (FR-PUR-006, 011; FR-ACC-007, 027).</p></div>
+    <div class="head__actions"><a class="b b--secondary" href="../acc-redesign/cashbook.html">Mở sổ quỹ</a></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chi nhánh Quận 7 · chỉ Kế toán, Quản lý chi nhánh, Chủ garage xem (Thủ kho và Cố vấn không có màn này)</span><span>Số liệu tính lúc 09:15 07/11/2026</span></div>
+  <section class="card sec" style="margin-bottom:var(--space-4)" aria-label="Tóm tắt"><div class="n4"><div><span class="l">Tổng phải trả</span><span class="v av">11.830.000 ₫</span></div><div><span class="l">Quá hạn</span><span class="v av zero">5.100.000 ₫</span></div><div><span class="l">Đến hạn trong 7 ngày</span><span class="v">3.580.000 ₫</span></div><div><span class="l">Đang bị chặn ghi nợ</span><span class="v">1 bộ chứng từ</span></div></div>
+    <p class="hint" style="margin:0">Phải trả chỉ gồm khoản đã ghi công nợ. Hóa đơn còn lệch hoặc chưa đối chiếu chưa nằm trong số này.</p></section>
+
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" data-s="recon">Cần đối chiếu<span class="cnt cnt--warn" id="c-recon"></span></button>
+    <button role="tab" data-s="due">Đến hạn trả<span class="cnt cnt--danger" id="c-due"></span></button>
+    <button role="tab" data-s="posted">Đã ghi và đã trả<span class="cnt" id="c-posted"></span></button>
+  </div>
+  <div class="find"><div class="search"><label class="sr" for="q">Tìm</label><input id="q" type="search" placeholder="Tìm nhà cung cấp, số hóa đơn, mã đơn mua" autocomplete="off"></div></div>
+  <section class="card list" aria-label="Công nợ" aria-live="polite"><div id="rows"></div><div class="empty" id="empty" hidden><h2 id="eh"></h2><p id="ep"></p></div><div class="rowfoot" id="foot"></div></section>
+  <p class="hint" style="margin-top:var(--space-3)">Dung sai lệch giá 1.000 ₫ mỗi đơn vị và 0 về số lượng là số mẫu [Cần xác nhận: Kế toán khách]. Trả hàng nhà cung cấp (FR-PUR-007) và nhập hóa đơn nhà cung cấp chưa thiết kế ở bản này.</p>
+</div>
+
+<dialog id="dX" aria-labelledby="xT"><form method="dialog" id="fX">
+  <h2 id="xT">Xử lý chênh lệch</h2><p class="hint" style="margin:0" id="xV"></p>
+  <div class="alert alert--danger" id="xA"></div>
+  <label class="opt"><input type="radio" name="o" value="exc" checked><span><b>Gửi duyệt chi kèm ngoại lệ</b><br><span class="t2">Ghi công nợ theo giá hóa đơn. Luôn cần duyệt, tối thiểu Quản lý chi nhánh (ma trận: “Chi kèm ngoại lệ”).</span></span></label>
+  <label class="opt"><input type="radio" name="o" value="fix"><span><b>Giữ chặn, yêu cầu nhà cung cấp phát hành lại hóa đơn</b><br><span class="t2">Chưa ghi công nợ. Ghi chú gửi nhà cung cấp, đối chiếu lại khi có hóa đơn mới.</span></span></label>
+  <div class="field"><label for="xR">Ghi chú <span class="req" aria-hidden="true">*</span></label><input id="xR" autocomplete="off"><span class="hint">Ít nhất 5 ký tự. Tùy chọn trên là đề xuất cách xử lý, chưa có trong FR [Cần xác nhận].</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Để sau</button><button class="b b--primary" type="submit" id="xOk" disabled>Xác nhận</button></div>
+</form></dialog>
+<dialog id="dP" aria-labelledby="pT"><form method="dialog" id="fP">
+  <h2 id="pT">Ghi công nợ phải trả</h2><dl id="pS"></dl>
+  <div class="alert alert--warn">Ghi công nợ là bút toán: không sửa, không xóa. Ghi nhầm thì đảo bút toán kèm lý do (RULE-010), nên không có Hoàn tác.</div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Quay lại</button><button class="b b--primary" type="submit">Ghi công nợ</button></div>
+</form></dialog>
+<dialog id="dV" aria-labelledby="vT"><form method="dialog" id="fV">
+  <h2 id="vT">Đảo ghi nợ</h2><p class="hint" style="margin:0" id="vS"></p>
+  <div class="alert alert--info">Hệ thống tạo một bút toán đảo có mã riêng; ghi nợ gốc giữ nguyên, gạch ngang và gắn “Đã bị đảo bởi …”. Bút toán đảo không đảo tiếp.</div>
+  <div class="field"><label for="vR">Lý do đảo <span class="req" aria-hidden="true">*</span></label><input id="vR" autocomplete="off"><span class="hint">Ít nhất 5 ký tự. Đảo với kỳ đã khóa cần mở kỳ: [Cần xác nhận].</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--danger" type="submit" id="vOk" disabled>Đảo ghi nợ</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase();
+  const D = [
+    { id: 'r1', k: 'recon', dm: 'DM-Q7-2611-00014-v2', ncc: 'Công ty TNHH Phụ tùng Hoàng Long', inv: '0004821 · 28/10/2026', val: 4150000, res: ['danger', 'Lệch giá ngoài dung sai'], note: 'Má phanh Accent: đơn 410.000, hóa đơn 415.000, +5.000 × 10 = +50.000 ₫ (+1,2%) vượt 1.000 ₫/đơn vị. Chỉ phủ lần nhận 1; PN-Q7-2611-00034 chưa ghi sổ nên chưa đưa vào đối chiếu.', diff: 50000, block: 'Chưa ghi công nợ được: chênh lệch +50.000 ₫ chưa xử lý (FR-PUR-011)' },
+    { id: 'r2', k: 'recon', dm: 'DM-Q7-2611-00012', ncc: 'Công ty TNHH Phụ tùng Hoàng Long', inv: '0004790 · 05/11/2026', val: 2080000, res: ['success', 'Khớp ba bên'], note: 'Bugi ×4: đơn, phiếu nhập PN-Q7-2611-00040 và hóa đơn cùng 520.000 ₫. Hạn trả 05/12/2026 (30 ngày kể từ ngày nhận).', due: '05/12/2026' },
+    { id: 'r3', k: 'recon', dm: 'DM-Q7-2611-00011', ncc: 'Công ty CP Dầu nhớt Đại Phát', inv: 'Chưa có hóa đơn', val: 0, res: ['warning', 'Chờ hóa đơn'], note: 'Đã nhận 30/10, phiếu nhập PN-Q7-2611-00038 đã ghi sổ; chờ hóa đơn nhà cung cấp.', noInv: 1 },
+    { id: 'p1', k: 'open', dm: 'DM-Q7-2610-00029', ncc: 'Công ty CP Dầu nhớt Đại Phát', inv: '0002934 · 13/10/2026', val: 3580000, res: ['info', 'Đã ghi công nợ'], note: 'Hạn trả 12/11/2026, còn 5 ngày. Phiếu chi 3.580.000 ₫ vượt mức tự chi tại quầy 500.000 ₫ (minh họa) nên chờ duyệt cấp 1 (RULE-011).' },
+    { id: 'p2', k: 'open', dm: 'DM-Q7-2610-00018', ncc: 'Công ty TNHH Phụ tùng Hoàng Long', inv: '0004702 · 04/10/2026', val: 5100000, res: ['danger', 'Quá hạn trả'], note: 'Hạn trả 03/11/2026, quá 4 ngày.', late: 1 },
+    { id: 'p3', k: 'open', dm: 'DM-Q7-2610-00024', ncc: 'Công ty TNHH Phụ tùng Hoàng Long', inv: '0004755 · 16/10/2026', val: 3150000, res: ['info', 'Đã ghi công nợ'], note: 'Hạn trả 15/11/2026, còn 8 ngày.' },
+    { id: 'h1', k: 'paid', dm: 'DM-Q7-2610-00031', ncc: 'Công ty CP Lốp Việt Tín', inv: '0001188 · 28/10/2026', val: 14240000, res: ['success', 'Đã trả'], note: 'Trả 03/11/2026, phiếu chi PC-Q7-2611-00031.' },
+    { id: 'h2', k: 'rev', dm: 'DM-Q7-2610-00022', ncc: 'Công ty CP Dầu nhớt Đại Phát', inv: '0002871 · 05/10/2026', val: 936000, res: ['neutral', 'Đã bị đảo bởi ĐB-Q7-2611-00003'], note: 'Đảo 02/11/2026 bởi Đặng Thu Hà: ghi nhầm hóa đơn của chi nhánh khác.', rev: 1 },
+  ];
+  const f = { recon: (d) => d.k === 'recon', due: (d) => d.k === 'open', posted: (d) => ['open', 'paid', 'rev'].includes(d.k) };
+  let tab = new URLSearchParams(location.search).get('tab') || 'recon', q = '', cur;
+  function act(d) {
+    if (d.k === 'recon') {
+      if (d.pend) return d.pend === 'exc' ? `<a class="b b--secondary b--sm" href="../apr-redesign/queue.html">Xem ở Phê duyệt</a><span class="why">Chưa ghi công nợ cho tới khi duyệt ngoại lệ.</span>` : `<button class="b b--primary b--sm" data-ni>Nhập hóa đơn NCC mới</button><span class="why">Chờ nhà cung cấp phát hành lại hóa đơn; chưa ghi công nợ.</span>`;
+      if (d.block) return `<button class="b b--primary b--sm" data-x="${d.id}" aria-describedby="w-${d.id}">Xử lý chênh lệch</button><span class="why why--block" id="w-${d.id}">${d.block}</span>`;
+      if (d.noInv) return `<button class="b b--primary b--sm" data-ni>Nhập hóa đơn NCC</button><span class="why">Chưa ghi công nợ được khi chưa có hóa đơn.</span>`;
+      return `<button class="b b--primary b--sm" data-p="${d.id}">Ghi công nợ</button>`;
+    }
+    if (d.k === 'open') return tab === 'due' ? `<a class="b b--primary b--sm" href="../acc-redesign/cashbook.html">Lập phiếu chi</a><span class="why">Chi trả ở sổ quỹ, theo hạn mức chi.</span>` : `<button class="b b--secondary b--sm" data-v="${d.id}">Đảo ghi nợ</button>`;
+    if (d.k === 'paid') return '<button class="b b--secondary b--sm" type="button" data-ni>Xem phiếu chi</button>';
+    return '<span class="why">Bút toán đảo không đảo tiếp.</span>';
+  }
+  function row(d) {
+    return `<div class="item${d.late || d.block ? ' item--flag' : ''}"><div><span class="t1">${d.ncc}</span><br><span class="t2">Đơn mua ${d.dm}</span><br><span class="t2">Hóa đơn NCC ${d.inv}</span></div><div><span class="t1 num ${d.rev ? 'strike' : ''}" style="text-align:left">${d.val ? vnd(d.val) : 'Chưa có số tiền'}</span><br><span class="t2">${d.note}</span></div><div><span class="badge badge--${d.res[0]}">${d.res[1]}</span></div><div class="act">${act(d)}</div></div>`;
+  }
+  const EMP = { recon: ['Không còn chứng từ chờ đối chiếu', 'Hóa đơn nhà cung cấp mới sẽ hiện ở đây khi có phiếu nhập.'], due: ['Không có khoản nào đến hạn trả', 'Khoản đã ghi công nợ và chưa trả sẽ hiện ở đây.'], posted: ['Chưa có công nợ nào được ghi', 'Công nợ đã ghi, đã trả hoặc đã đảo hiện ở đây.'] };
+  function render() {
+    for (const k in f) $('#c-' + k).textContent = D.filter(f[k]).length;
+    $$('[role=tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.s === tab)));
+    const l = D.filter(f[tab]).filter((d) => !q || norm(d.ncc + ' ' + d.inv + ' ' + d.dm).includes(norm(q)));
+    $('#rows').innerHTML = l.map(row).join(''); $('#empty').hidden = l.length > 0;
+    if (!l.length) { $('#eh').textContent = q ? 'Không có kết quả khớp' : EMP[tab][0]; $('#ep').textContent = q ? 'Thử từ khóa khác; tìm không phân biệt dấu.' : EMP[tab][1]; }
+    $('#foot').textContent = l.length ? `Hiển thị ${l.length} dòng` : '';
+  }
+  let tm; const toast = (m, fn) => { const t = $('#toast'); t.innerHTML = '<span></span>' + (fn ? '<button type="button" id="tU">Hoàn tác</button>' : ''); t.firstChild.textContent = m; t.hidden = false; if (fn) $('#tU').onclick = () => { fn(); t.hidden = true; }; clearTimeout(tm); tm = setTimeout(() => { t.hidden = true; }, 10000); };
+  $$('[role=tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.s; render(); }));
+  $('#q').addEventListener('input', (e) => { q = e.target.value; render(); });
+  $('#rows').addEventListener('click', (e) => {
+    const x = e.target.closest('[data-x]'), p = e.target.closest('[data-p]'), v = e.target.closest('[data-v]');
+    if (e.target.closest('[data-ni]')) toast('Màn nhập hóa đơn nhà cung cấp và xem phiếu chi chưa thiết kế ở bản này.');
+    if (x) { cur = D.find((d) => d.id === x.dataset.x); $('#xV').textContent = `${cur.dm} · hóa đơn ${cur.inv}`; $('#xA').textContent = cur.note; $('#xR').value = ''; $('#xOk').disabled = true; $('#dX').showModal(); }
+    if (p) { cur = D.find((d) => d.id === p.dataset.p); $('#pS').innerHTML = `<dt>Nhà cung cấp</dt><dd>${cur.ncc}</dd><dt>Hóa đơn</dt><dd>${cur.inv}</dd><dt>Số tiền</dt><dd><b>${vnd(cur.val)}</b></dd><dt>Hạn trả</dt><dd>${cur.due}</dd>`; $('#dP').showModal(); }
+    if (v) { cur = D.find((d) => d.id === v.dataset.v); $('#vS').textContent = `${cur.ncc} · hóa đơn ${cur.inv} · ${vnd(cur.val)}`; $('#vR').value = ''; $('#vOk').disabled = true; $('#dV').showModal(); }
+  });
+  $('#xR').oninput = () => { $('#xOk').disabled = $('#xR').value.trim().length < 5; }; $('#vR').oninput = () => { $('#vOk').disabled = $('#vR').value.trim().length < 5; };
+  $$('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#fX').addEventListener('submit', () => { const o = new FormData($('#fX')).get('o'), old = { block: cur.block, res: cur.res, note: cur.note, pend: undefined }; delete cur.block; cur.pend = o; if (o === 'exc') { cur.res = ['warning', 'Chờ duyệt chi kèm ngoại lệ']; cur.note = 'Đã gửi Quản lý chi nhánh duyệt ngoại lệ lệch giá +50.000 ₫. Chưa ghi công nợ cho tới khi duyệt.'; } else { cur.res = ['warning', 'Chờ NCC phát hành lại hóa đơn']; cur.note = 'Đã ghi chú gửi nhà cung cấp phát hành lại hóa đơn đúng giá 410.000 ₫.'; } render(); toast(o === 'exc' ? 'Đã gửi duyệt ngoại lệ. Quyết định ở màn Phê duyệt.' : 'Đã ghi chú yêu cầu nhà cung cấp sửa hóa đơn.', () => { Object.assign(cur, old); render(); }); });
+  $('#fP').addEventListener('submit', () => { cur.k = 'open'; cur.res = ['info', 'Đã ghi công nợ']; cur.note = `Ghi 07/11/2026 bởi Đặng Thu Hà. Hạn trả ${cur.due}.`; tab = 'due'; render(); toast('Đã ghi công nợ. Không có Hoàn tác: nếu sai, dùng Đảo ghi nợ ở tab Đã ghi và đã trả.'); });
+  $('#fV').addEventListener('submit', () => { cur.k = 'rev'; cur.rev = 1; cur.res = ['neutral', 'Đã bị đảo bởi ĐB-Q7-2611-00004']; cur.note = 'Đảo 07/11/2026 bởi Đặng Thu Hà. Bút toán gốc giữ nguyên.'; render(); toast('Đã đảo ghi nợ bằng bút toán ĐB-Q7-2611-00004. Bút toán gốc không bị xóa.'); });
+  render();
+</script>
+</body>
+</html>
