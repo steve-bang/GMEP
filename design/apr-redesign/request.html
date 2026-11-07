@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phê duyệt – chi tiết yêu cầu – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .photo { height: 120px; border: 1px dashed var(--color-border-strong, var(--color-border)); border-radius: var(--radius-md); background: var(--color-surface-subtle); display: grid; place-items: center; color: var(--color-text-tertiary); font-size: var(--font-size-sm); text-align: center; padding: var(--space-3); }
+  .decide { display: grid; gap: var(--space-3); }
+  .decide .blk { display: grid; gap: var(--space-1); }
+  .decide .b { width: 100%; }
+  .preview { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .preview select { min-height: 36px; border: 1px solid var(--input-border); border-radius: var(--input-radius); background: var(--input-bg); font: inherit; color: var(--color-text-primary); padding: 0 var(--space-2); max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="queue.html">Phê duyệt</a> › <span id="bc"></span></p>
+  <nav class="subnav" aria-label="Màn hình phê duyệt"><a href="queue.html">Hàng chờ</a><a href="request.html" aria-current="page">Chi tiết yêu cầu (mẫu)</a><a href="matrix.html">Ma trận hạn mức</a></nav>
+  <header class="head">
+    <div><h1 id="h1"></h1><p id="hp"></p></div>
+    <div class="head__actions" id="hb"></div>
+  </header>
+  <div class="scope" role="status"><span id="sc"></span><span>Cập nhật 09:15 07/11/2026</span></div>
+  <div class="preview"><label for="sel">Xem thử tình huống:</label><select id="sel"></select>
+    <span>Vai trò xem:</span><span class="seg" role="group" aria-label="Vai trò xem"><button aria-pressed="false" data-r="ql">Quản lý Q7</button><button aria-pressed="false" data-r="ch">Chủ garage</button><button aria-pressed="false" data-r="tk">Thủ kho</button></span></div>
+  <div id="banner"></div>
+
+  <div class="pair">
+    <div style="display:grid;gap:var(--space-4)">
+      <section class="card sec" aria-labelledby="s1"><h2 id="s1">Yêu cầu</h2><dl id="kv"></dl></section>
+      <section class="card sec" aria-labelledby="s2"><h2 id="s2">So với hạn mức</h2><div id="lim"></div><p class="hint" id="limn"></p></section>
+      <section class="card sec" id="secLines" aria-labelledby="s3"><h2 id="s3">Dòng hàng</h2><div id="lines"></div></section>
+      <section class="card sec" aria-labelledby="s4"><h2 id="s4">Điều gì xảy ra nếu duyệt</h2><p id="eff" style="margin:0"></p></section>
+      <section class="card sec" aria-labelledby="s5"><h2 id="s5">Lịch sử xử lý</h2><ol class="tl" id="tl"></ol><p class="hint">Mốc nhắc T1 và chuyển cấp T2 tính theo giờ làm việc của chi nhánh; số giờ lấy từ ma trận và là số minh họa.</p></section>
+    </div>
+    <aside style="display:grid;gap:var(--space-4);position:sticky;top:var(--space-4)">
+      <section class="card sec" aria-labelledby="sd"><h2 id="sd">Quyết định</h2><p class="hint" id="who" style="margin:0"></p><div class="decide" id="dec"></div></section>
+      <section class="card sec" aria-labelledby="sg"><h2 id="sg">Chứng từ gốc</h2><div id="src"></div></section>
+    </aside>
+  </div>
+</div>
+
+<dialog id="dA" aria-labelledby="aT"><form method="dialog" id="fA">
+  <h2 id="aT">Duyệt yêu cầu này?</h2>
+  <dl id="aS"></dl>
+  <p class="hint" style="margin:0">Hệ thống thực hiện ngay hành động đã đề xuất và ghi nhật ký (người duyệt, giá trị, thời điểm). Bấm hai lần không duyệt hai lần. Duyệt xong không hoàn tác được; nếu sai thì đảo bằng chứng từ mới (RULE-010).</p>
+  <div class="field"><label for="aN">Ghi chú (không bắt buộc)</label><input id="aN" autocomplete="off"></div>
+  <div class="field" id="aPw" hidden><label for="aP">Nhập lại mật khẩu của bạn để duyệt <span class="req" aria-hidden="true">*</span></label><input id="aP" type="password" autocomplete="current-password"><span class="hint" id="aPh">Loại yêu cầu này bật “Nhập lại mật khẩu khi duyệt” ở ma trận. Thử nhập “sai” để xem lỗi: sai mật khẩu thì không duyệt và không khóa yêu cầu.</span></div>
+  <label style="display:flex;gap:var(--space-3);align-items:flex-start"><input type="checkbox" id="aC" style="width:24px;height:24px;margin-top:2px"><span>Tôi đã xem giá trị, dòng hàng và so với hạn mức.</span></label>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Quay lại</button><button class="b b--primary" type="submit" id="aOk" disabled>Duyệt</button></div>
+</form></dialog>
+<dialog id="dR" aria-labelledby="rT"><form method="dialog" id="fR">
+  <h2 id="rT">Từ chối yêu cầu</h2>
+  <p class="hint" style="margin:0" id="rH">Người đề xuất nhận lý do này. Hành động đề xuất không được thực hiện.</p>
+  <div class="field"><label for="rN">Lý do từ chối <span class="req" aria-hidden="true">*</span></label><textarea id="rN"></textarea><span class="hint">Ít nhất 5 ký tự.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--danger" type="submit" id="rOk" disabled>Từ chối</button></div>
+</form></dialog>
+<dialog id="dE" aria-labelledby="eT"><form method="dialog" id="fE">
+  <h2 id="eT">Chuyển lên cấp kế tiếp</h2>
+  <dl><dt>Chuyển tới</dt><dd id="eTo"></dd></dl>
+  <p class="hint" style="margin:0">Chỉ chuyển lên cấp kế tiếp theo ma trận, không chọn người khác. Yêu cầu vẫn là Chờ duyệt kèm thẻ Đã chuyển cấp; nhật ký ghi người chuyển, lý do (FR-SYS-034).</p>
+  <div class="field"><label for="eN">Lý do chuyển cấp <span class="req" aria-hidden="true">*</span></label><textarea id="eN"></textarea><span class="hint">Ít nhất 5 ký tự. Chuyển cấp thủ công là quyết định Q-R2(a), dev cần thêm API [chưa xây].</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--primary" type="submit" id="eOk" disabled>Chuyển cấp</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => (n < 0 ? '−' : '') + Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const ROLE = { ql: ['Võ Minh Quân', 'Quản lý chi nhánh'], ch: ['Trần Hoàng Anh', 'Chủ garage'], tk: ['Hoàng Thị Mai', 'Thủ kho'] };
+  const SRC = { cancel: ['Lệnh sửa chữa liên quan', '../rec-redesign/order-detail.html'], disc: ['Báo giá và lệnh liên quan', '../rec-redesign/order-detail.html'], refund: ['Phiếu thu PT-Q7-2611-00041 trong sổ quỹ', '../acc-redesign/cashbook.html'], xfer: ['Phiếu chuyển STO-Q7-2611-00014', '../inv-redesign/transfers.html'], adj: ['Phiếu kiểm kê KK-Q7-2611-…', '../inv-redesign/stocktake.html'], buy: ['Yêu cầu mua', '../pur-redesign/requests.html'], urgent: ['Mua gấp chờ hậu duyệt', '../pur-redesign/urgent.html'], reopen: ['Chốt ngày', '../acc-redesign/day-close.html'], spend: ['Sổ quỹ, phiếu chi', '../acc-redesign/cashbook.html'] };
+  const P = { yen: ['Nguyễn Hoàng Yến', 'Cố vấn · Chi nhánh Quận 7'], lan: ['Phạm Thị Lan', 'Thu ngân · Chi nhánh Quận 7'], mai: ['Hoàng Thị Mai', 'Thủ kho · Chi nhánh Quận 7'], quan: ['Võ Minh Quân', 'Quản lý · Chi nhánh Quận 7'], ha: ['Đặng Thu Hà', 'Kế toán · Chi nhánh Biên Hòa'], anh: ['Trần Thị Mai Anh', 'Mua hàng · Chi nhánh Quận 7'] };
+  const XL = [['Ắc quy GS 100Ah', '12 × 2.800.000 ₫', 33600000, 12], ['Lốp Michelin Primacy 4', '8 × 1.780.000 ₫', 14240000, 8], ['Bộ ly hợp Hyundai Accent', '4 × 3.640.000 ₫', 14560000, 4]];
+  const AX = [['Má phanh trước Hyundai Accent', 'lệch −4 × 410.000 ₫', -1640000, 4], ['Bugi Denso Iridium Honda City (bộ 4)', 'lệch −2 × 520.000 ₫', -1040000, 2], ['Giảm xóc trước Kia Morning', 'lệch −1 × 1.640.000 ₫', -1640000, 1]];
+  const S = {
+    cap1: { label: '1. Chờ cấp 1, bạn duyệt được', ty: 'refund', t: 'Hoàn tiền cho khách', code: 'PT-Q7-2611-00041', plate: '30H-912.06', pr: 'lan', pRole: 'tn', def: 'ql', allow: ['ql'], level: 1, val: 1250000, lim: ['Hoàn tiền', 1250000, 5000000, 500000, 'Cấp 1 (Quản lý chi nhánh) duyệt đến 5.000.000 ₫; tự quyết tại quầy đến 500.000 ₫'], age: '45 phút', why: 'Khách hủy hạng mục “Thay má phanh sau” sau khi đã thu tiền', lines: [['Hoàn một phần phiếu thu PT-Q7-2611-00041', 'Khách hủy hạng mục', 1250000]], eff: 'Duyệt xong: tạo phiếu chi hoàn tiền 1.250.000 ₫ (đảo một phần phiếu thu, phiếu gốc không bị sửa) và chuyển yêu cầu điều chỉnh hóa đơn C26TAA-0000412 cho Kế toán trưởng. Chưa duyệt thì chưa chi tiền.', tl: [['now', 'Chờ cấp 1 · Quản lý chi nhánh<br><span class="t2">Mốc nhắc T1 sau 2 giờ, tự chuyển cấp 2 sau thêm 2 giờ (minh họa)</span>'], ['', 'Phạm Thị Lan đề xuất · 07/11/2026 08:30<br><span class="t2">Lý do: khách hủy hạng mục</span>']], next: 'Chủ garage' },
+    cap2: { label: '2. Chờ cấp 2, Quản lý chỉ xem', ty: 'adj', t: 'Điều chỉnh tồn sau kiểm kê', code: 'KK-Q7-2611-00003', pr: 'mai', pRole: 'tk', def: 'ql', allow: ['ch'], level: 2, val: -4320000, hide: 1, lim: ['Điều chỉnh tồn', 4320000, 3000000, 0, 'Cấp 1 duyệt đến 3.000.000 ₫, cấp 2 không giới hạn. Vượt cấp 1 nên yêu cầu mở thẳng ở cấp 2'], age: '1 ngày 2 giờ', flag: 'Lệch lặp lại: cùng mã lệch trong lần kiểm kê trước', lines: AX, eff: 'Duyệt xong: ghi phiếu điều chỉnh tồn giảm 7 sản phẩm của 3 mã cho Kho Quận 7 (ghi vào sổ kho, không sửa số cũ). Bản ghi gốc kiểm kê giữ nguyên.', tl: [['now', 'Chờ cấp 2 · Chủ garage · đã quá nhắc T1<br><span class="t2">Không tự chuyển tiếp: đã ở cấp cuối (Q-2.5-02)</span>'], ['', 'Hoàng Thị Mai (Thủ kho) đề xuất · 06/11/2026 07:05<br><span class="t2">Mở thẳng ở cấp 2 vì 4.320.000 ₫ vượt hạn mức cấp 1</span>']], next: null },
+    auto: { label: '3. Đã tự chuyển cấp 1 lên 2', ty: 'adj', t: 'Điều chỉnh tồn sau kiểm kê', code: 'KK-Q7-2611-00005', pr: 'mai', pRole: 'tk', def: 'ch', allow: ['ch'], level: 2, val: -1875000, hide: 1, lim: ['Điều chỉnh tồn', 1875000, 3000000, 0, 'Trong hạn mức cấp 1 (3.000.000 ₫), nhưng quá T1 + T2 nên đã chuyển lên cấp 2'], age: '2 ngày 2 giờ', lines: [['Bugi Denso Iridium Honda City (bộ 4)', 'lệch −2 × 520.000 ₫', -1040000, 2], ['Cảm biến oxy Honda City', 'lệch −1 × 835.000 ₫', -835000, 1]], eff: 'Duyệt xong: ghi phiếu điều chỉnh tồn giảm 3 sản phẩm của 2 mã cho Kho Quận 7.', banner: ['info', 'Yêu cầu đã tự chuyển cấp', 'Quản lý chi nhánh không xử lý trong T1 (8 giờ) + T2 (16 giờ) làm việc nên hệ thống chuyển lên cấp 2. Yêu cầu vẫn là Chờ duyệt, không phải Đã xử lý (FR-SYS-034).'], tl: [['now', 'Chờ cấp 2 · Chủ garage<br><span class="t2">Đã ở cấp cuối, không chuyển tiếp</span>'], ['', '<span class="badge badge--info">Tự chuyển cấp</span> 1 → 2 · 06/11/2026 16:00<br><span class="t2">Quá T1 + T2 ở Quản lý chi nhánh, không ai xử lý</span>'], ['', 'Nhắc lần 1 gửi Võ Minh Quân · 05/11/2026 16:00 (T1)'], ['', 'Hoàng Thị Mai đề xuất · 05/11/2026 08:00']], next: null },
+    reauth: { label: '4. Cần nhập lại mật khẩu', ty: 'xfer', t: 'Chuyển kho giá trị lớn', code: 'STO-Q7-2611-00014', pr: 'mai', pRole: 'tk', def: 'ch', allow: ['ch'], level: 2, val: 62400000, hide: 1, reauth: 1, lim: ['Chuyển kho', 62400000, 50000000, 10000000, 'Cấp 1 duyệt đến 50.000.000 ₫, cấp 2 (Quản lý vùng hoặc Chủ garage) không giới hạn'], age: '3 giờ', route: 'Chi nhánh Quận 7 → Chi nhánh Biên Hòa', lines: XL, eff: 'Duyệt xong phiếu ở Chờ gửi. Khi Thủ kho bấm Gửi, hàng chuyển sang Đang vận chuyển và Biên Hòa xác nhận khi nhận (RULE-037). Duyệt không làm hàng đi đường ngay.', banner: ['warn', 'Loại yêu cầu này cần nhập lại mật khẩu khi duyệt', 'Ma trận bật “Nhập lại mật khẩu khi duyệt” cho chuyển kho giá trị lớn. Không có xác thực hai lớp (MFA) ở phạm vi hiện tại.'], tl: [['now', 'Chờ cấp 2 · Quản lý vùng hoặc Chủ garage'], ['', 'Hoàng Thị Mai đề xuất · 07/11/2026 06:20<br><span class="t2">62.400.000 ₫ vượt 50.000.000 ₫ của cấp 1 nên mở thẳng ở cấp 2</span>']], next: null },
+    conflict: { label: '5. Xung đột 409: đã có người xử lý', ty: 'disc', t: 'Giảm giá vượt hạn mức', code: 'RO-Q7-2611-00129', plate: '51K-482.19', pr: 'yen', pRole: 'cv', def: 'ql', allow: ['ql'], level: 1, val: 1560000, lim: ['Giảm giá', 12, 15, 5, 'Cấp 1 duyệt đến 15% giá trị lệnh; Cố vấn tự quyết đến 5%'], pct: 1, age: '2 giờ', lines: [['Giảm 12% giá trị lệnh 13.000.000 ₫', 'Khách quen 4 năm, xe thứ 3 trong nhà', 1560000]], eff: 'Duyệt xong: giá lệnh giảm 1.560.000 ₫, bản báo giá giữ nguyên phiên bản giá cũ.', final: 'conflict', banner: ['danger', 'Yêu cầu đã được người khác xử lý hoặc dữ liệu đã đổi (409)', 'Lê Thanh Sơn đã từ chối lúc 09:12. Bạn chưa duyệt gì; không có thay đổi nào được ghi. Tải lại để xem trạng thái mới.'], tl: [['bad', 'Từ chối bởi Lê Thanh Sơn (Quản lý vùng) · 07/11/2026 09:12<br><span class="t2">Lý do: vượt mức, khách không phải thân quen</span>'], ['', 'Nguyễn Hoàng Yến đề xuất · 07/11/2026 07:15']], next: null },
+    expired: { label: '6. Lượt duyệt đã hết hạn', ty: 'cancel', t: 'Hủy lệnh sau xuất kho', code: 'RO-Q7-2611-00119', plate: '30G-557.80', pr: 'yen', pRole: 'cv', def: 'ql', allow: ['ql'], level: 0, val: 2140000, lim: ['Hủy lệnh', 0, 0, 0, 'Luôn cần duyệt, một cấp (Quản lý chi nhánh), không theo giá trị'], age: '1 ngày 2 giờ', lines: [['Hủy lệnh RO-Q7-2611-00119', 'Khách bỏ xe, đã xuất 2 phụ tùng', 2140000]], eff: 'Duyệt xong: lệnh chuyển Hủy; hai phụ tùng đã xuất được hoàn kho hoặc ghi hao hụt theo quyết định của bạn.', final: 'expired', banner: ['danger', 'Lượt duyệt đã hết hạn (approval_expired)', 'Yêu cầu quá thời gian hiệu lực của một lượt duyệt (2 giờ, tham số kỹ thuật) mà chưa ai xử lý. Người đề xuất cần lập lại; bạn không thể duyệt yêu cầu này nữa.'], tl: [['bad', 'Hết hạn · 07/11/2026 09:15<br><span class="t2">Không còn Chờ duyệt, không thực hiện hành động đã đề xuất</span>'], ['', 'Nhắc T1 gửi Võ Minh Quân · 06/11/2026 11:00'], ['', 'Nguyễn Hoàng Yến đề xuất · 06/11/2026 09:00']], next: null },
+    proxy: { label: '7. Đã duyệt theo ủy quyền', ty: 'reopen', t: 'Mở lại ngày đã khóa', code: 'Ngày 03/11/2026 · Chi nhánh Biên Hòa', pr: 'ha', pRole: 'kt', def: 'ch', allow: ['ch'], level: 0, val: null, lim: ['Mở lại ngày', 0, 0, 0, 'Luôn cần Chủ garage duyệt kèm lý do'], age: '', lines: [['Mở lại ngày 03/11/2026', 'Điều chỉnh phiếu thu nhập sai số tiền', null]], eff: 'Ngày 03/11/2026 của Biên Hòa được mở để ghi phiếu đảo; sau khi xong phải chốt lại.', final: 'done', banner: ['ok', 'Đã duyệt theo ủy quyền', 'Lê Thanh Sơn (Quản lý vùng) duyệt thay Trần Hoàng Anh (Chủ garage), ủy quyền UQ-2611-0001, còn hiệu lực đến 31/12/2026 [ngày mẫu]. Chủ garage đã được báo. Ủy quyền chỉ với tới cấp người ủy quyền đang giữ.'], tl: [['now', '<span class="badge badge--success">Đã duyệt</span> <span class="badge badge--info">Duyệt theo ủy quyền</span><br>Lê Thanh Sơn thay Trần Hoàng Anh · 04/11/2026 08:15'], ['', 'Đặng Thu Hà đề xuất · 04/11/2026 07:30<br><span class="t2">Lý do: nhập sai số tiền phiếu thu PT-BH-2611-00211</span>']], next: null },
+    own: { label: '8. Yêu cầu do chính bạn lập', ty: 'spend', t: 'Chi vượt hạn mức', code: 'Sửa máy nén khí xưởng', pr: 'quan', pRole: 'ql', def: 'ql', allow: ['ch'], level: 2, val: 6800000, lim: ['Chi tiền', 9200000, 5000000, 500000, 'Cộng dồn 9.200.000 ₫ so với cấp 1 duyệt đến 5.000.000 ₫, nên chờ cấp 2'], age: '1 ngày 3 giờ', lines: [['Khoản này: sửa máy nén khí xưởng', 'Công ty Cơ khí Tân Phát', 6800000], ['Đã chi cùng loại, cùng NCC, cùng chi nhánh trong 7 ngày', 'cửa sổ cộng dồn 7 ngày [Cần xác nhận: Q67]', 2400000], ['Cộng dồn để so hạn mức', '', 9200000]], eff: 'Duyệt xong: phiếu chi 6.800.000 ₫ được phép chi tại quầy. Cộng dồn chống chia nhỏ khoản chi để tránh qua mặt hạn mức (RULE-036).', tl: [['now', 'Chờ cấp 2 · Quản lý vùng · đã quá nhắc T1'], ['', 'Võ Minh Quân đề xuất · 06/11/2026 06:00<br><span class="t2">Mở thẳng ở cấp 2: người duy nhất có quyền cấp 1 là người đề xuất</span>']], next: null },
+    store: { label: '9. Thủ kho xem: giá trị tiền bị ẩn', ty: 'xfer', t: 'Chuyển kho giá trị lớn', code: 'STO-Q7-2611-00014', pr: 'mai', pRole: 'tk', def: 'tk', allow: ['ch'], level: 2, val: 62400000, hide: 1, lim: ['Chuyển kho', 62400000, 50000000, 10000000, ''], age: '3 giờ', route: 'Chi nhánh Quận 7 → Chi nhánh Biên Hòa', lines: XL, eff: 'Duyệt xong phiếu ở Chờ gửi; khi bạn bấm Gửi, hàng chuyển sang Đang vận chuyển.', tl: [['now', 'Chờ cấp 2 · Quản lý vùng hoặc Chủ garage'], ['', 'Hoàng Thị Mai đề xuất · 07/11/2026 06:20']], next: null },
+    offline: { label: '10. Mất kết nối, giữ nháp', ty: 'refund', t: 'Hoàn tiền cho khách', code: 'PT-Q7-2611-00041', plate: '30H-912.06', pr: 'lan', pRole: 'tn', def: 'ql', allow: ['ql'], level: 1, val: 1250000, lim: ['Hoàn tiền', 1250000, 5000000, 500000, 'Cấp 1 duyệt đến 5.000.000 ₫'], age: '45 phút', lines: [['Hoàn một phần phiếu thu PT-Q7-2611-00041', 'Khách hủy hạng mục', 1250000]], eff: 'Duyệt xong: tạo phiếu chi hoàn tiền 1.250.000 ₫.', final: 'offline', banner: ['warn', 'Mất kết nối', 'Chưa gửi được quyết định. Lý do và ghi chú bạn đã nhập được giữ nháp trên máy này (lưu lúc 09:14). Nút Duyệt, Từ chối, Chuyển cấp tạm khóa vì quyết định phải được máy chủ ghi nhận; tự bật lại khi có mạng.'], tl: [['now', 'Chờ cấp 1 · Quản lý chi nhánh'], ['', 'Phạm Thị Lan đề xuất · 07/11/2026 08:30']], next: 'Chủ garage' },
+    urgent: { label: '11. Mua gấp chờ hậu duyệt', ty: 'urgent', t: 'Hậu duyệt mua gấp', code: 'YM-Q7-2611-00006', pr: 'anh', pRole: 'mh', def: 'ql', allow: ['ql'], level: 1, val: 820000, lim: ['Mua gấp', 820000, 2000000, 0, 'Giá trị tự quyết của mua gấp 2.000.000 ₫ là số mẫu [Cần xác nhận: Chủ dự án]; vượt thì không được mua trước'], age: '17 giờ', route: 'Mua tại cửa hàng Ba Hưng, ngày 06/11/2026', lines: [['Má phanh trước Hyundai Accent', '2 × 410.000 ₫ · cho lệnh RO-Q7-2611-00126', 820000]], photo: 1, eff: 'Hậu duyệt chấp nhận: ghi nhận chi phí và nhập kho 2 má phanh. Không chấp nhận: gắn cờ cho Kế toán xử lý khoản đã chi, hàng đã mua vẫn nằm trong kho (FR-PUR-009).', banner: ['warn', 'Còn 7 giờ làm việc để hậu duyệt', 'Hạn hậu duyệt 24 giờ làm việc là số mẫu cấu hình [Cần xác nhận]. Quá hạn thì nhắc, rồi chuyển cấp (FR-SYS-015, 034).'], tl: [['now', 'Chờ hậu duyệt · Quản lý chi nhánh · hạn 07/11/2026 16:30'], ['', 'Trần Thị Mai Anh mua và gửi ảnh hóa đơn · 06/11/2026 15:40<br><span class="t2">Lý do: xe RO-Q7-2611-00126 đang nằm xưởng</span>']], next: 'Chủ garage' },
+  };
+  const q = new URLSearchParams(location.search);
+  let key = S[q.get('s')] ? q.get('s') : 'cap1', role = ROLE[q.get('r')] ? q.get('r') : S[key].def, state = null, undo = null;
+  $('#sel').innerHTML = Object.keys(S).map((k) => `<option value="${k}">${S[k].label}</option>`).join('');
+  function decide(s) {
+    if (state === 'done') return { can: false, why: s.final === 'done' ? 'Yêu cầu đã được xử lý, không còn quyết định nào.' : 'Bạn đã duyệt. Duyệt không hoàn tác được; nếu sai, đảo bằng chứng từ mới.', dead: true };
+    if (state === 'rejected') return { can: false, why: 'Yêu cầu đã bị từ chối.', dead: true };
+    if (state === 'esc') return { can: false, why: 'Đã chuyển lên cấp 2; không còn ở hàng chờ của bạn.', dead: true };
+    if (s.final === 'conflict') return { can: false, why: 'Cần tải lại yêu cầu trước khi quyết định.', conflict: 1 };
+    if (s.final === 'expired') return { can: false, why: 'Lượt duyệt đã hết hạn; người đề xuất lập lại.', dead: true };
+    if (s.final === 'offline') return { can: false, why: 'Cần kết nối mạng để quyết định. Nháp ghi chú được giữ.', off: 1 };
+    if (s.final === 'done') return { can: false, why: 'Yêu cầu đã được xử lý.', dead: true };
+    if (role === 'tk' && s.pRole === 'tk') return { can: false, why: 'Bạn là người lập yêu cầu này, không tự duyệt (RULE-036). Thủ kho cũng không duyệt yêu cầu nào.' };
+    if (role === 'ql' && s.pRole === 'ql') return { can: false, why: 'Bạn là người đề xuất, không tự duyệt yêu cầu của mình (RULE-036). Yêu cầu chờ cấp 2.' };
+    if (role === 'tk') return { can: false, why: 'Thủ kho không có quyền duyệt.' };
+    if (!s.allow.includes(role)) {
+      if (role === 'ql') return { can: false, why: `Giá trị vượt hạn mức cấp 1 của bạn (${s.lim[2] ? vnd(s.lim[2]) : ''}). Yêu cầu đã ở cấp 2, chờ cấp trên.` };
+      return { can: false, why: 'Yêu cầu đang ở cấp 1, chờ Quản lý chi nhánh. Chủ garage có duyệt thay cấp 1 hay không: [Cần xác nhận].' };
+    }
+    return { can: true };
+  }
+  function render() {
+    const s = S[key], d = decide(s), tk = role === 'tk' && s.hide, hide = tk;
+    try { history.replaceState(null, '', `?s=${key}&r=${role}`); } catch (e) { /* file:// có thể chặn */ }
+    $('#sel').value = key; $$('[data-r]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.r === role)));
+    $('#bc').textContent = s.t + ' · ' + s.code;
+    $('#h1').innerHTML = `${s.plate ? `<span class="plate" style="height:36px;font-size:var(--font-size-xl)">${s.plate}</span> ` : ''}${s.t}<br><span class="codeid" style="font-size:var(--font-size-lg)">${s.code}</span>`;
+    const stBadge = state === 'done' || s.final === 'done' ? ['success', 'Đã duyệt'] : state === 'rejected' ? ['danger', 'Từ chối'] : state === 'esc' ? ['info', 'Chờ duyệt · Đã chuyển cấp 2'] : s.final === 'expired' ? ['neutral', 'Hết hạn'] : s.final === 'conflict' ? ['danger', 'Từ chối bởi người khác'] : ['warning', s.level === 2 ? 'Chờ duyệt · cấp 2' : s.level === 1 ? 'Chờ duyệt · cấp 1' : 'Chờ duyệt'];
+    $('#hp').innerHTML = `Trạng thái yêu cầu phê duyệt (không phải trạng thái ${s.ty === 'refund' ? 'thanh toán' : s.ty === 'xfer' || s.ty === 'adj' ? 'phiếu kho' : 'chứng từ gốc'}): <span class="badge badge--${stBadge[0]}">${stBadge[1]}</span>${s.age ? ' · chờ ' + s.age : ''}`;
+    $('#hb').innerHTML = '<a class="b b--secondary" href="queue.html">Về hàng chờ</a>';
+    $('#sc').innerHTML = role === 'ch' ? '<b>Phạm vi:</b> Toàn chuỗi · Chủ garage' : '<b>Phạm vi:</b> Chi nhánh Quận 7';
+    $('#who').textContent = `Bạn quyết định với tên ${ROLE[role][0]} (${ROLE[role][1]}).`;
+    let b = s.banner ? `<div class="alert alert--${s.banner[0]} state" role="${s.banner[0] === 'danger' ? 'alert' : 'status'}"><b>${s.banner[1]}</b><span>${s.banner[2]}</span></div>` : '';
+    if (s.flag) b += `<div class="alert alert--warn state"><b>Cờ rủi ro</b><span>${s.flag}.</span></div>`;
+    if (hide) b += '<div class="alert alert--info state"><b>Giá trị tiền bị ẩn theo quyền</b><span>Thủ kho chỉ xem số lượng ở điều chỉnh tồn và chuyển kho; máy chủ không trả giá trị hay giá vốn cho vai trò này (quyết định Q-R3).</span></div>';
+    $('#banner').innerHTML = b;
+    const valTxt = s.val === null ? 'Không theo giá trị' : hide ? '<span class="masked" aria-label="Ẩn theo quyền">•••••••</span>' : vnd(s.val);
+    $('#kv').innerHTML = `<dt>Người đề xuất</dt><dd>${P[s.pr][0]}<br><span class="t2">${P[s.pr][1]}</span></dd>${s.route ? `<dt>Tuyến</dt><dd>${s.route}</dd>` : ''}<dt>Giá trị</dt><dd style="font-weight:var(--fw-semibold)">${valTxt}</dd>${s.why ? `<dt>Lý do</dt><dd>${s.why}</dd>` : ''}<dt>Cấp đang chờ</dt><dd>${s.level === 2 ? 'Cấp 2' : s.level === 1 ? 'Cấp 1' : 'Một cấp'}</dd>`;
+    if (hide) { $('#lim').innerHTML = '<p class="hint" style="margin:0">Không hiển thị so sánh hạn mức vì suy ra được giá trị tiền.</p>'; $('#limn').textContent = ''; }
+    else if (s.lim[2]) {
+      const pc = Math.min(100, s.lim[1] / Math.max(s.lim[1], s.lim[2]) * 100), mk = s.lim[2] / Math.max(s.lim[1], s.lim[2]) * 100, unit = s.ty === 'disc' ? '%' : ' ₫', f = (n) => unit === '%' ? n + '%' : vnd(n);
+      $('#lim').innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>${s.lim[0]}</span><b class="num">${f(s.lim[1])} / hạn mức cấp 1 ${f(s.lim[2])}</b></div><div class="lim" role="img" aria-label="${f(s.lim[1])} so với hạn mức ${f(s.lim[2])}"><i class="${s.lim[1] > s.lim[2] ? 'over' : ''}" style="width:${pc}%"></i><u style="left:${mk}%"></u></div><div class="limcap"><span>0</span><span>Vạch đen là hạn mức cấp 1</span><span>${f(Math.max(s.lim[1], s.lim[2]))}</span></div>`;
+      $('#limn').textContent = s.lim[4] + '. Số hạn mức là minh họa, chưa ban hành chính thức; chưa ban hành thì mọi yêu cầu lên cấp cao nhất.';
+    } else { $('#lim').innerHTML = `<p style="margin:0">${s.lim[4]}.</p>`; $('#limn').textContent = ''; }
+    $('#lines').innerHTML = s.lines.map((l, i) => `<div class="ln${i === s.lines.length - 1 && s.lines.length > 2 ? ' tot' : ''}"><span>${l[0]}${l[1] ? `<br><span class="t2">${hide && l[3] ? 'lệch ' + (l[2] < 0 ? '−' : '') + l[3] + ' sản phẩm' : l[1]}</span>` : ''}</span>${hide ? (l[3] ? `<span class="num t2">${l[3]} sp</span>` : '<span></span>') + '<span class="masked num">•••••</span>' : `<span></span><span class="num">${l[2] === null ? '' : vnd(l[2])}</span>`}</div>`).join('') + (s.photo ? '<div class="photo" role="img" aria-label="Ảnh hóa đơn mua gấp">Ảnh hóa đơn cửa hàng Ba Hưng (bắt buộc với mua gấp)</div>' : '');
+    $('#eff').textContent = s.eff;
+    let tl = s.tl.slice();
+    if (state === 'done') tl.unshift(['now', `<span class="badge badge--success">Đã duyệt</span> bởi ${ROLE[role][0]} · 07/11/2026 09:16`]);
+    if (state === 'rejected') tl.unshift(['bad', `<span class="badge badge--danger">Từ chối</span> bởi ${ROLE[role][0]} · 07/11/2026 09:16<br><span class="t2">Lý do: ${undo ? undo.note : ''}</span>`]);
+    if (state === 'esc') tl.unshift(['now', `<span class="badge badge--info">Đã chuyển cấp 2</span> bởi ${ROLE[role][0]} · 07/11/2026 09:16<br><span class="t2">Lý do: ${undo ? undo.note : ''}</span>`]);
+    $('#tl').innerHTML = tl.map((x) => `<li class="${x[0]}">${x[1]}</li>`).join('');
+    const sr = SRC[s.ty]; $('#src').innerHTML = `<p class="t2" style="margin:0 0 8px">${hide ? 'Số liệu gốc, giá trị tiền ẩn với Thủ kho.' : 'Số liệu hiện tại; mở chứng từ gốc để kiểm tra.'}</p><a class="b b--secondary b--sm" href="${sr[1]}">${sr[0]}</a>`;
+    // Quyết định
+    const escOk = d.can && s.level === 1 && s.next, escWhy = d.can ? (s.level === 2 ? 'Đã ở cấp cuối (cấp 2), không chuyển tiếp.' : !s.next ? 'Loại này chỉ có một cấp, không chuyển cấp.' : '') : '';
+    const w = (id, t) => t ? `<span class="why why--block" id="${id}" style="max-width:none">${t}</span>` : '';
+    const dis = d.can ? '' : 'disabled';
+    if (d.dead) $('#dec').innerHTML = `<div class="alert alert--ok"><b>${state === 'rejected' ? 'Đã từ chối' : state === 'esc' ? 'Đã chuyển cấp' : s.final === 'expired' ? 'Hết hạn' : 'Đã xử lý'}</b><span>${d.why}</span></div>` + (state === 'rejected' || state === 'esc' ? '<button class="b b--secondary" id="bUndo">Hoàn tác</button><span class="hint">Hoàn tác trong 10 giây: yêu cầu về lại Chờ duyệt và người đề xuất chưa nhận thông báo [Cần xác nhận].</span>' : '');
+    else if (d.conflict) $('#dec').innerHTML = `<button class="b b--primary" id="bReload">Tải lại yêu cầu</button>${w('w0', d.why)}<button class="b b--primary" disabled aria-describedby="w0">Duyệt</button>`;
+    else $('#dec').innerHTML = `<div class="blk"><button class="b b--primary" id="bA" ${dis} ${d.can ? '' : 'aria-describedby="w1"'}>${s.ty === 'urgent' ? 'Duyệt hậu kiểm (chấp nhận)' : 'Duyệt'}</button>${d.can ? '' : w('w1', d.why)}${d.can && s.reauth ? '<span class="hint">Sẽ hỏi nhập lại mật khẩu.</span>' : ''}</div>
+      <div class="blk"><button class="b b--secondary" id="bE" ${d.can && escOk ? '' : 'disabled'} aria-describedby="w2">Chuyển lên cấp 2${s.next ? ' · ' + s.next : ''}</button>${w('w2', d.can ? escWhy : (d.why ? 'Chỉ người có quyền duyệt cấp hiện tại mới chuyển cấp.' : ''))}</div>
+      <div class="blk"><button class="b b--secondary" id="bR" ${dis} ${d.can ? '' : 'aria-describedby="w3"'} style="${d.can ? 'color:var(--color-danger-text);border-color:var(--color-danger-border)' : ''}">${s.ty === 'urgent' ? 'Không chấp nhận (gắn cờ Kế toán)' : 'Từ chối'}</button>${d.can ? '' : w('w3', 'Cần quyền duyệt để từ chối.')}</div>`;
+    $('#secLines h2') && ($('#s3').textContent = s.ty === 'xfer' ? 'Dòng hàng chuyển' : s.ty === 'adj' ? 'Dòng hàng lệch' : s.ty === 'urgent' ? 'Hàng đã mua' : 'Nội dung đề nghị');
+    bind(s);
+  }
+  let tm; const toast = (m, undoFn) => { const t = $('#toast'); t.innerHTML = `<span></span>${undoFn ? '<button type="button" id="tU">Hoàn tác</button>' : ''}`; t.firstChild.textContent = m; t.hidden = false; if (undoFn) $('#tU').onclick = () => { undoFn(); t.hidden = true; }; clearTimeout(tm); tm = setTimeout(() => { t.hidden = true; undo = null; }, 10000); };
+  function bind(s) {
+    const g = (id) => $(id);
+    g('#bA') && (g('#bA').onclick = () => { $('#aS').innerHTML = `<dt>Yêu cầu</dt><dd>${s.t} · ${s.code}</dd><dt>Giá trị</dt><dd>${s.val === null ? 'Không theo giá trị' : vnd(s.val)}</dd><dt>Cấp</dt><dd>${s.level === 2 ? 'Cấp 2' : 'Cấp 1'}</dd>`; $('#aPw').hidden = !s.reauth; $('#aP').value = ''; $('#aC').checked = false; $('#aN').value = ''; chkA(); $('#dA').showModal(); });
+    g('#bR') && (g('#bR').onclick = () => { $('#rN').value = ''; chkR(); $('#rH').textContent = s.ty === 'urgent' ? 'Không chấp nhận: khoản đã mua gắn cờ cho Kế toán xử lý (FR-PUR-009). Người đề xuất nhận lý do này.' : 'Người đề xuất nhận lý do này. Hành động đề xuất không được thực hiện.'; $('#dR').showModal(); });
+    g('#bE') && (g('#bE').onclick = () => { $('#eTo').textContent = 'Cấp 2 · ' + s.next; $('#eN').value = ''; chkE(); $('#dE').showModal(); });
+    g('#bReload') && (g('#bReload').onclick = () => { toast('Đã tải lại: yêu cầu đã bị từ chối bởi Lê Thanh Sơn lúc 09:12.'); S.conflict.final = 'done'; S.conflict.banner = ['danger', 'Yêu cầu đã bị từ chối bởi Lê Thanh Sơn', 'Không còn quyết định nào ở bạn. Lý do: vượt mức, khách không phải thân quen.']; render(); });
+    g('#bUndo') && (g('#bUndo').onclick = () => { state = null; toast('Đã hoàn tác: yêu cầu về lại Chờ duyệt.'); render(); });
+  }
+  const chkA = () => { $('#aOk').disabled = !($('#aC').checked && (!S[key].reauth || $('#aP').value.length > 0)); };
+  const chkR = () => { $('#rOk').disabled = $('#rN').value.trim().length < 5; };
+  const chkE = () => { $('#eOk').disabled = $('#eN').value.trim().length < 5; };
+  $('#aC').onchange = chkA; $('#aP').oninput = chkA; $('#rN').oninput = chkR; $('#eN').oninput = chkE;
+  $$('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#fA').addEventListener('submit', (e) => {
+    if (S[key].reauth && $('#aP').value.trim() === 'sai') { e.preventDefault(); $('#aPh').textContent = 'Mật khẩu chưa đúng. Yêu cầu không bị duyệt và không bị khóa; thử lại.'; $('#aPh').style.color = 'var(--color-danger-text)'; return; }
+    $('#aOk').disabled = true; state = 'done'; render(); toast('Đã duyệt. Người đề xuất được thông báo; nhật ký đã ghi. Không hoàn tác được: sai thì đảo bằng chứng từ mới.');
+  });
+  $('#fR').addEventListener('submit', () => { undo = { note: $('#rN').value.trim() }; state = 'rejected'; render(); toast('Đã từ chối. Lý do sẽ gửi cho người đề xuất.', () => { state = null; render(); }); });
+  $('#fE').addEventListener('submit', () => { undo = { note: $('#eN').value.trim() }; state = 'esc'; render(); toast('Đã chuyển lên cấp 2. Người nhận được thông báo kèm lý do.', () => { state = null; render(); }); });
+  $('#sel').onchange = (e) => { key = e.target.value; role = S[key].def; state = null; render(); };
+  $$('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; state = null; render(); }));
+  render();
+</script>
+</body>
+</html>

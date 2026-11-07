@@ -1,0 +1,39 @@
+# Thiết kế lại nhóm "Mua hàng" (prototype)
+
+Prototype HTML cho 5 màn hình của nhóm Mua hàng (PUR), làm theo cách của `../rec-redesign`, `../inv-redesign`, `../acc-redesign` (token trong `../assets/tokens.css`, không đổi giá trị token). Mở trực tiếp bằng trình duyệt, bắt đầu từ `requests.html`; các trang liên kết bằng dòng điều hướng ở đầu trang. Nhập kho theo đơn mua đã có ở `../inv-redesign/receipt.html` nên không lặp lại; nút Nhận hàng ở đây trỏ sang đó. Thay thế (về cách trình bày) `../g3-inventory-hr/g3-pur-01..10.html`; bản cũ giữ nguyên.
+
+| Màn hình | File | FR / RULE |
+| --- | --- | --- |
+| Đề xuất và yêu cầu mua: tab Cần đề xuất (mặt hàng có Có thể bán dưới mức đặt lại), Nháp và chờ duyệt, Đã duyệt chờ lập đơn, Đã xong; tạo yêu cầu; lập đơn mua | `requests.html` | FR-PUR-001, 002, 003, 012; FR-INV-014; RULE-008 |
+| Đơn mua và theo dõi giao hàng: tab Cần gửi, Chờ NCC xác nhận, Chờ giao, Trễ hạn giao, Nhận một phần, Đã xong; chi tiết, phiên bản, đóng đơn | `orders.html` | FR-PUR-003, 004, 005, 010 |
+| Nhà cung cấp và bảng giá có ngày hiệu lực; xem thử vai trò Mua hàng, Kế toán, Cố vấn | `suppliers.html` | FR-INV-015; FR-PUR-003, 008 (chưa) |
+| Công nợ nhà cung cấp: Cần đối chiếu ba bên, Đến hạn trả, Đã ghi và đã trả; xử lý chênh lệch; ghi công nợ; đảo ghi nợ | `payables.html` | FR-PUR-006, 011; FR-ACC-007, 027; RULE-010, 011 |
+| Mua gấp và hậu duyệt: Chờ hậu duyệt, Quá hạn, Đã hậu duyệt, Cờ cho Kế toán; tạo mua gấp | `urgent.html` | FR-PUR-009; FR-SYS-015, 034 |
+
+Các màn hình nhận `?tab=<khóa>` trên địa chỉ để mở sẵn một tab. `common.css` dùng chung (dựa trên `acc-redesign/common.css`). `measure.js` chụp 1440px (`-d`) và 390px (`-m`) vào `screenshots/`, đo tràn ngang và lỗi JS cho từng trang và từng tab.
+
+## Ý tưởng chính
+- Đề xuất bắt đầu từ cảnh báo tồn: mỗi dòng cho đủ bốn số (Tồn thực, Đã giữ, Đang đi đường, Có thể bán) và so Có thể bán, không so Tồn thực, với mức đặt lại (RULE-008). "Đã đặt chờ giao" là chỉ số riêng, ghi rõ không đổi Có thể bán (FR-PUR-010). Gợi ý số lượng làm tròn lên bội số của nhà cung cấp, kèm nhà cung cấp và giá hiệu lực; nhắc chi nhánh khác đang dư trước khi mua (FR-INV-014).
+- Một nút mỗi dòng. Nút bị chặn nêu lý do ngay dưới nút: không có nhà cung cấp có giá (kèm liên kết sang bảng giá), đã có đơn chờ giao, đơn thiếu giá nên chưa gửi được, hóa đơn lệch chưa ghi công nợ được, thiếu ảnh hóa đơn mua gấp, người đề xuất không tự hậu duyệt.
+- Thanh dưới màn Cần đề xuất cho biết yêu cầu sẽ cần duyệt cấp nào theo tổng ước tính (trong mức tự quyết, cấp 1, cấp 2), cùng số liệu với ma trận ở `../apr-redesign/matrix.html`.
+- Trạng thái riêng cho từng đối tượng: yêu cầu mua (Nháp, Chờ duyệt cấp 1 hoặc 2, Đã duyệt, Đã lập đơn, Từ chối), đơn mua (Nháp, Đã gửi, NCC đã xác nhận, Nhận một phần, Nhận đủ, Đã đóng, hậu tố -vN), hóa đơn nhà cung cấp và kết quả đối chiếu (Khớp, Lệch giá, Chờ hóa đơn), công nợ (Đã ghi, Quá hạn, Đã trả, Đã bị đảo). Không dùng một trạng thái chung.
+- Đơn mua: thanh tiến độ nhận hàng, ngày giao dự kiến với "trễ n ngày" nổi bật, mỗi lần nhận là một phiếu nhập; phiên bản đã gửi không bị ghi đè; đóng đơn khi chưa nhận đủ hiện giá trị phần còn lại và cấp duyệt, đơn vẫn nhận hàng được tới khi duyệt.
+- Công nợ: chênh lệch ngoài dung sai chặn ghi công nợ và dẫn tới hai cách xử lý (duyệt chi kèm ngoại lệ, hoặc giữ chặn chờ nhà cung cấp sửa hóa đơn). Ghi công nợ không có Hoàn tác; sai thì "Đảo ghi nợ" kèm lý do, bút toán gốc gạch ngang, gắn "Đã bị đảo bởi …", bút toán đảo không đảo tiếp (RULE-010). Không có Sửa hoặc Xóa với tiền.
+- Mua gấp: ảnh hóa đơn bắt buộc để gửi hậu duyệt (thiếu thì chỉ lưu nháp), vượt giá trị tự quyết thì chặn mua trước và dẫn về yêu cầu mua thường, hạn hậu duyệt hiện còn bao nhiêu giờ, quá hạn nhắc rồi chuyển cấp, không chấp nhận thì gắn cờ cho Kế toán. Quyết định hậu duyệt làm ở `../apr-redesign/request.html?s=urgent`.
+- Hoàn tác: các thao tác chưa ra ngoài hệ thống (tạo yêu cầu, tạo đơn nháp, ghi nhận NCC xác nhận, cập nhật giá có ngày hiệu lực, tạo mua gấp) có Hoàn tác 10 giây (hủy nháp, rút lại). Gửi đơn cho nhà cung cấp và ghi công nợ không có.
+- Phân quyền hiện ra: giá mua che với vai trò không có quyền (theo bộ quyền của gói G3 cũ: xem giá mua CH, QV, QL, KT, TK, MH), điện thoại nhà cung cấp che với Cố vấn, nút sửa bị khóa kèm lý do, màn Công nợ chỉ Kế toán, Quản lý, Chủ garage.
+- Mọi màn nêu phạm vi chi nhánh và thời điểm tính số liệu (RULE-015). Tiền là số nguyên VND, định dạng vi-VN, ngày dd/MM/yyyy, tìm không phân biệt dấu, biển số là định danh chính ở mua gấp (xe đang nằm xưởng).
+
+## Chưa xác nhận / chưa xây
+- **Dữ liệu là dữ liệu mẫu**: nhà cung cấp, mã số thuế, điện thoại, mã YM, DM, PN, PC, số hóa đơn, giá, tồn.
+- **Chưa chạy gì**: chưa mở bằng trình duyệt, chưa chạy `measure.js`, chưa kiểm tra bàn phím, tương phản, dark mode. Chưa thử tràn ngang ở 390px.
+- **Quy trình mua của khách chưa được xác nhận** (FRD ghi mức Should [Cần xác nhận]). Bước yêu cầu và bước duyệt tắt theo chi nhánh (FR-PUR-012, Q64) chưa có màn cấu hình; prototype chỉ có một đơn trực tiếp ghi "bước yêu cầu tắt". Nguồn mua kho tổng, chi nhánh khác chưa thiết kế.
+- **Ngưỡng và hạn mức**: tự quyết 5.000.000 ₫, cấp 1 đến 20.000.000 ₫, mức tự quyết mua gấp 2.000.000 ₫, hạn hậu duyệt 24 giờ làm việc, dung sai lệch giá 1.000 ₫ mỗi đơn vị và số lượng 0 đều là số mẫu hoặc minh họa, chưa ban hành (FR-PUR-009, 011, ma trận APR) [Cần xác nhận: Chủ dự án, Kế toán khách]. Chưa ban hành thì yêu cầu lên cấp cao nhất.
+- **Gợi ý số lượng** là thiết kế của designer (bù đến mức đặt lại, làm tròn lên bội số); công thức thật (có trừ hàng chờ giao hay không, mức đặt lại tính thế nào) chưa có trong FR [Cần xác nhận]. Dòng Bugi chặn vì đã có hàng chờ giao là một giả định cần BA chốt.
+- **Đóng đơn khi chưa nhận đủ**: FR-PUR-010 nói duyệt theo giá trị phần còn lại nhưng không nêu hạn mức riêng; prototype dùng chung dòng "Yêu cầu mua" của ma trận [Cần xác nhận]. Hoàn tác "rút yêu cầu đóng đơn" là đề xuất.
+- **Xử lý chênh lệch ba bên**: hai cách (duyệt ngoại lệ, chờ nhà cung cấp sửa hóa đơn) là đề xuất; FR-PUR-011 chỉ nói chênh lệch vào danh sách xử lý và chặn ghi công nợ. Chưa có trường hợp nhận vượt đơn (cần duyệt) và nhận thiếu thì nhận đủ hay đóng.
+- **Chưa thiết kế**: nhập hóa đơn nhà cung cấp, trả hàng nhà cung cấp (FR-PUR-007), đánh giá nhà cung cấp (FR-PUR-008, Could), màn sửa đơn mua tạo phiên bản mới (chỉ có thông báo), biểu mẫu thêm nhà cung cấp, thêm giá hàng loạt, xem phiếu chi, màn Kế toán xử lý cờ mua gấp, gửi đơn qua email hoặc Zalo, bản in đơn mua A4 và A5, phân bổ một lần chi cho nhiều hóa đơn, tuổi nợ theo nhóm ngày. Mốc thanh toán theo điều khoản của nhà cung cấp tính từ ngày nhận là giả định [Cần xác nhận].
+- **Trạng thái loading, lỗi, mất kết nối và lưu nháp** chỉ có ở một số chỗ (trống, lọc không ra, nút chặn); chưa đủ các màn. Mất kết nối ở form tạo yêu cầu, tạo mua gấp chưa thiết kế riêng.
+- **Phân quyền** mới thể hiện ở màn nhà cung cấp và mua gấp (xem thử vai trò); các màn còn lại chưa có chế độ chỉ xem. Quyền xem công nợ nhà cung cấp theo vai trò chưa có trong ma trận quyền FRD [Cần xác nhận].
+- **Ngân sách index (172/200)**: ước lượng thêm khoảng 8 đến 10 index tổ hợp: yêu cầu mua theo chi nhánh và trạng thái (1); đơn mua theo chi nhánh và trạng thái, theo ngày giao dự kiến để lọc trễ hạn (2); bảng giá theo nhà cung cấp, phụ tùng, ngày hiệu lực (1); công nợ nhà cung cấp theo chi nhánh, trạng thái, hạn trả (2); hóa đơn nhà cung cấp theo đơn mua hoặc trạng thái đối chiếu (1); mua gấp theo trạng thái và hạn hậu duyệt (1); danh sách mặt hàng dưới mức đặt lại đã có ở tồn kho (so Có thể bán, có thể tính sẵn, nên 0 đến 1). Cộng ước 180 đến 182, dưới ngưỡng cảnh báo 195. Chưa đếm bằng `pnpm check:indexes`, chưa đối chiếu `repos/queries.ts`. Số đếm trên tab nên là số tính sẵn hoặc lọc phía client trong một chi nhánh để không tốn index.
+- Font Be Vietnam Pro chưa có file trong `design/assets/fonts`, ảnh chụp dùng font dự phòng.

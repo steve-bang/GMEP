@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quên mật khẩu – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="preview" data-preview>
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="form">Nhập email</button>
+    <button class="chip" type="button" data-view="nomail">Không có email</button>
+    <button class="chip" type="button" data-view="loading">Đang gửi</button>
+    <button class="chip" type="button" data-view="sent">Đã gửi (trung tính)</button>
+    <button class="chip" type="button" data-view="rate">Gửi quá nhiều (429)</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+  </div>
+  <p class="preview__hint">Thông báo sau khi gửi luôn giống nhau dù email có tài khoản hay không. Thử gõ “loi” rồi gửi để xem lỗi hệ thống.</p>
+  <div class="preview__nav"><a href="login.html">Đăng nhập</a><a href="choose.html">Chọn công ty và phạm vi</a><a href="forgot.html">Quên mật khẩu</a><a href="reset.html">Đặt mật khẩu mới</a><a href="invite.html">Lời mời</a><a href="states.html">Thư viện trạng thái</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline" hidden><strong>Mất kết nối mạng.</strong> Chưa gửi được. Kiểm tra Wi-Fi hoặc 4G rồi bấm lại. Thông tin bạn nhập vẫn được giữ.</div>
+
+<main class="auth" id="main">
+  <a class="brand" href="login.html"><span class="brand__mark" aria-hidden="true">G</span>GMEP</a>
+
+  <section class="acard" aria-labelledby="t" data-nv="sent nomail">
+    <div><h1 id="t">Quên mật khẩu</h1><p class="lead">Nhập email đăng nhập. Nếu khớp một tài khoản, chúng tôi gửi liên kết đặt mật khẩu mới vào email đó.</p></div>
+    <div class="note note--warning" role="alert" data-v="rate" hidden><strong>Bạn đã yêu cầu quá nhiều lần</strong><span>Vì an toàn, hãy thử lại sau <b class="num" data-count="900">15:00</b>. Cần vào gấp: nhờ quản lý chi nhánh cấp mã tạm.</span></div>
+    <div class="note note--danger" role="alert" data-v="error" hidden><strong>Chưa gửi được yêu cầu</strong><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Thử lại sau ít phút. Nếu vẫn lỗi, báo quản lý chi nhánh kèm mã tham chiếu <span class="code">REQ-7F3A92</span>.</span><div class="note__act"><button type="button" class="b b--secondary b--sm" onclick="authSet('form')">Thử lại</button></div></div>
+    <form class="form" id="f" novalidate>
+      <div class="field">
+        <label for="em">Email<span class="req" aria-hidden="true"> *</span></label>
+        <input id="em" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" aria-describedby="em-h" placeholder="ha.nguyen@garage.vn">
+        <span class="hint" id="em-h">Nhân viên đăng nhập bằng mã nhân viên: xem hướng dẫn ở mục “Không có email”.</span>
+        <span class="err" id="em-e" hidden>Email chưa đúng định dạng. Ví dụ: ha.nguyen@garage.vn.</span>
+      </div>
+      <button class="b b--primary b--lg b--block" type="submit" data-dis="rate offline loading" aria-describedby="why-r why-o"><span class="spin" data-v="loading" hidden aria-hidden="true"></span><span data-nv="loading">Gửi liên kết đặt lại</span><span data-v="loading" hidden>Đang gửi…</span></button>
+      <p class="why" id="why-r" data-v="rate" hidden>Đã yêu cầu quá nhiều lần. Thử lại sau <span class="num" data-count="900">15:00</span>.</p>
+      <p class="why" id="why-o" data-v="offline" hidden>Đang mất kết nối: thao tác này cần mạng.</p>
+      <div class="links"><a href="login.html">Quay lại đăng nhập</a><a href="forgot.html#nomail">Không có email?</a></div>
+    </form>
+  </section>
+
+  <section class="acard" aria-labelledby="t2" data-v="nomail" hidden>
+    <div><h1 id="t2">Quên mật khẩu hoặc mã nhân viên</h1><p class="lead">Tài khoản đăng nhập bằng mã nhân viên không có email, nên hệ thống không gửi liên kết tự động.</p></div>
+    <ol class="rules" style="list-style:decimal;padding-left:var(--space-5);gap:var(--space-2);font-size:var(--font-size-md)">
+      <li style="list-style:decimal">Nhờ quản lý chi nhánh đặt mật khẩu tạm cho bạn.</li>
+      <li style="list-style:decimal">Đăng nhập bằng mã công ty, mã nhân viên và mật khẩu tạm đó.</li>
+      <li style="list-style:decimal">Đặt mật khẩu mới ngay lần đầu. Mật khẩu tạm có thời hạn; hết hạn thì nhờ quản lý đặt lại.</li>
+    </ol>
+    <a class="b b--primary b--lg b--block" href="login.html#code">Về đăng nhập bằng mã nhân viên</a>
+    <p class="small" style="margin:0">Quên cả mã công ty hoặc mã nhân viên: hỏi quản lý chi nhánh. Hệ thống không hiển thị lại các mã này.</p>
+  </section>
+
+  <section class="acard" aria-labelledby="t3" data-v="sent" hidden role="status">
+    <div class="state"><div class="state__code" aria-hidden="true">@</div>
+      <h1 id="t3" tabindex="-1">Kiểm tra email của bạn</h1>
+      <p>Nếu thông tin vừa nhập khớp một tài khoản, hướng dẫn đặt lại mật khẩu đã được gửi. Liên kết có hiệu lực trong thời gian ghi trong email và chỉ dùng một lần.</p>
+      <p>Chưa thấy email? Xem mục thư rác. Có thể gửi lại sau <b class="num" data-count="60" data-done="again">01:00</b>.</p>
+      <div class="state__act"><button type="button" class="b b--secondary" id="again" aria-disabled="true" aria-describedby="why-a">Gửi lại</button><a class="b b--ghost" href="login.html">Quay lại đăng nhập</a></div>
+      <p class="why" id="why-a" style="justify-content:center">Chờ hết thời gian đếm lùi mới gửi lại được.</p>
+      <p class="small">Prototype: <a href="reset.html" style="color:var(--color-text-link)">mở liên kết trong email (giả lập)</a>.</p></div>
+  </section>
+
+  <details class="spec"><summary>Ghi chú cho dev và BA</summary>
+    <ul>
+      <li>Truy vết: FR-SYS-001, RULE-034. Câu chữ theo state-copy §2.6, 2.9. Kết quả “đã gửi” giống hệt cho mọi email, kể cả email không có tài khoản hoặc nhiều tư cách (một liên kết cho danh tính; sau đặt lại vẫn qua CompanyPicker nếu cần).</li>
+      <li>Đã build: tài khoản mã nhân viên không nhận email, quên mật khẩu không gửi gì; quản lý đặt mật khẩu tạm (<span class="code">user-credential:manage</span>), tối đa 72 giờ. Vì vậy tab “Không có email” chỉ hướng dẫn, không có biểu mẫu.</li>
+      <li>Thời gian đếm lùi và giới hạn do máy chủ trả; 15:00 và 01:00 chỉ minh họa. Nút Gửi lại bị chặn kèm lý do đến hết đếm lùi.</li>
+      <li><span class="tag">[Cần xác nhận]</span> Thời hạn liên kết đặt lại (hiện email ghi); kênh nhận lại mã công ty cho người quên (TSU-15 cũ gộp “mã công ty” nhưng bản P2-C không có lối tra mã).</li>
+    </ul>
+  </details>
+</main>
+
+<script src="auth.js"></script>
+<script>
+(function () {
+  document.addEventListener('countdone', function (e) { if (e.detail === 'again') document.getElementById('again').setAttribute('aria-disabled', 'false'); });
+  document.addEventListener('view', function (e) { if (e.detail === 'sent') document.getElementById('again').setAttribute('aria-disabled', 'true'); });
+  document.getElementById('again').addEventListener('click', function () { this.textContent = 'Đã gửi lại'; });
+  document.getElementById('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var i = document.getElementById('em'), v = i.value.trim(), bad = !/^\S+@\S+\.\S+$/.test(v) && v !== 'loi';
+    i.setAttribute('aria-invalid', String(bad)); document.getElementById('em-e').hidden = !bad;
+    if (bad) { i.focus(); return; }
+    if (v === 'loi') { authSet('error'); return; }
+    authSet('loading'); setTimeout(function () { authSet('sent'); }, 600);
+  });
+})();
+</script>
+</body>
+</html>

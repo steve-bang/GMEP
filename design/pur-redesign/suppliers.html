@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mua hàng – nhà cung cấp và bảng giá – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr) minmax(0, .9fr) 150px 190px; }
+  .pr { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); }
+  @media (max-width: 1199px) { .item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .item > :first-child, .item > .act { grid-column: 1 / -1; } .pr { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .pr > :first-child { grid-column: 1 / -1; } }
+  @media (max-width: 599px) { .item, .pr { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">GMEP › Mua hàng</p>
+  <nav class="subnav" aria-label="Màn hình mua hàng"><a href="requests.html">Đề xuất và yêu cầu mua</a><a href="orders.html">Đơn mua và giao hàng</a><a href="suppliers.html" aria-current="page">Nhà cung cấp và bảng giá</a><a href="payables.html">Công nợ nhà cung cấp</a><a href="urgent.html">Mua gấp, hậu duyệt</a></nav>
+  <header class="head">
+    <div><h1>Nhà cung cấp và bảng giá</h1><p>Hồ sơ nhà cung cấp, điều khoản thanh toán và giá mua có ngày hiệu lực. Giá trên đơn mua lấy từ đây (FR-INV-015, FR-PUR-003).</p></div>
+    <div class="head__actions"><button class="b b--primary" id="bNew" aria-describedby="wNew">Thêm nhà cung cấp</button></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> hồ sơ và bảng giá dùng chung toàn chuỗi; dư nợ tính cho Chi nhánh Quận 7</span><span>Cập nhật 09:15 07/11/2026</span>
+    <span>Xem thử vai trò: <span class="seg" role="group" aria-label="Vai trò xem"><button aria-pressed="true" data-r="mh">Mua hàng</button><button aria-pressed="false" data-r="kt">Kế toán</button><button aria-pressed="false" data-r="cv">Cố vấn</button></span></span></div>
+  <div class="alert alert--info state" id="ro" role="status" hidden></div>
+  <span class="why why--block" id="wNew" style="max-width:none" hidden></span>
+
+  <div class="find"><div class="search"><label class="sr" for="q">Tìm nhà cung cấp</label><input id="q" type="search" placeholder="Tìm tên, mã số thuế, mặt hàng" autocomplete="off"></div></div>
+  <section class="card list" aria-label="Nhà cung cấp" aria-live="polite"><div id="rows"></div><div class="empty" id="empty" hidden><h2>Không có nhà cung cấp khớp</h2><p>Thử từ khóa khác; tìm không phân biệt dấu. Hoặc thêm nhà cung cấp mới.</p></div><div class="rowfoot" id="foot"></div></section>
+
+  <section class="card sec" style="margin-top:var(--space-4)" aria-labelledby="hp"><div style="display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:space-between;align-items:center"><h2 id="hp">Bảng giá</h2><div class="act" style="justify-items:start"><button class="b b--secondary b--sm" id="bPrice" aria-describedby="wPrice">Cập nhật giá</button><span class="why why--block" id="wPrice" style="max-width:none" hidden></span></div></div>
+    <p class="hint" style="margin:0" id="ps"></p><div id="prices"></div>
+    <p class="hint" style="margin:0">Bội số đặt (mặc định 1): gợi ý đặt hàng làm tròn lên bội số gần nhất. Số lượng tối thiểu của nhà cung cấp chỉ cảnh báo, người mua quyết định. Giá không bị sửa đè: đổi giá là thêm một dòng mới có ngày hiệu lực.</p></section>
+  <p class="hint" style="margin-top:var(--space-3)">Đánh giá nhà cung cấp (giao đúng hạn, lệch số lượng, chất lượng; FR-PUR-008, mức Could) và quy cách đặt chi tiết chưa thiết kế ở bản này.</p>
+</div>
+
+<dialog id="dP" aria-labelledby="pT"><form method="dialog" id="fP">
+  <h2 id="pT">Cập nhật giá mua</h2><p class="hint" style="margin:0" id="pV"></p>
+  <div class="field"><label for="pp">Phụ tùng</label><select id="pp"></select></div>
+  <div class="field"><label for="pg">Giá mua mới (₫) <span class="req" aria-hidden="true">*</span></label><input id="pg" inputmode="numeric" autocomplete="off"><span class="hint" id="pgh"></span></div>
+  <div class="field"><label for="pd">Có hiệu lực từ ngày <span class="req" aria-hidden="true">*</span></label><input id="pd" value="01/12/2026" inputmode="numeric"><span class="hint">dd/MM/yyyy. Đơn mua đã lập giữ giá cũ.</span></div>
+  <div class="field"><label for="pr">Lý do <span class="req" aria-hidden="true">*</span></label><input id="pr" autocomplete="off" value="Nhà cung cấp báo giá mới"></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Để sau</button><button class="b b--primary" type="submit" id="pOk" disabled>Lưu dòng giá mới</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase();
+  // Quyền theo gói G3 cũ: xem giá mua: CH QV QL KT TK MH; sửa hồ sơ và giá: TK QL MH
+  const RL = { mh: { buy: 1, edit: 1, name: 'Mua hàng' }, kt: { buy: 1, edit: 0, name: 'Kế toán' }, cv: { buy: 0, edit: 0, name: 'Cố vấn' } };
+  const N = [
+    { id: 'NCC-001', n: 'Công ty TNHH Phụ tùng Hoàng Long', mst: '0312345678', ct: 'Lâm Quốc Hùng', ph: '0903 112 321', term: 'Công nợ 30 ngày', debt: 8250000, st: ['success', 'Đang hợp tác'], p: [['PT-0001', 'Lọc dầu động cơ Toyota Vios', 119600, '15/10/2026', 1, 0, ''], ['PT-0002', 'Má phanh trước Hyundai Accent', 410000, '01/10/2026', 2, 4, 'Đóng hộp 2 bộ'], ['PT-0004', 'Bugi Denso Iridium Honda City (bộ 4)', 520000, '01/10/2026', 1, 0, 'Sắp hiệu lực: 535.000 ₫ từ 01/12/2026'], ['PT-0007', 'Lọc gió động cơ Mazda CX-5', 210000, '01/09/2026', 1, 0, '']] },
+    { id: 'NCC-002', n: 'Công ty CP Dầu nhớt Đại Phát', mst: '0301234567', ct: 'Phan Thị Hạnh', ph: '0908 445 902', term: 'Công nợ 30 ngày', debt: 3580000, st: ['success', 'Đang hợp tác'], p: [['PT-0010', 'Dầu nhớt Castrol 5W-30 (can 4 lít)', 890000, '01/10/2026', 1, 0, ''], ['PT-0011', 'Nước làm mát Prestone 1 lít', 45000, '01/10/2026', 6, 12, 'Thùng 6 chai'], ['PT-0001', 'Lọc dầu động cơ Toyota Vios', 125000, '01/10/2026', 1, 0, '']] },
+    { id: 'NCC-003', n: 'Công ty CP Lốp Việt Tín', mst: '0309876543', ct: 'Đỗ Minh Khôi', ph: '0912 778 340', term: 'Công nợ 15 ngày', debt: 0, st: ['success', 'Đang hợp tác'], p: [['PT-0020', 'Lốp Michelin Primacy 4', 1780000, '01/10/2026', 1, 4, 'NCC chỉ nhận đơn từ 4 lốp']] },
+    { id: 'NCC-009', n: 'Cửa hàng phụ tùng Ba Hưng (mua lẻ, mua gấp)', mst: '', ct: 'Ba Hưng', ph: '0937 220 118', term: 'Thanh toán ngay khi nhận', debt: 0, st: ['neutral', 'Tạm ngừng'], p: [['PT-0002', 'Má phanh trước Hyundai Accent', 450000, '01/10/2026', 1, 0, 'Giá lẻ, dùng cho mua gấp'], ['PT-0001', 'Lọc dầu động cơ Toyota Vios', 130000, '01/10/2026', 1, 0, '']] },
+  ];
+  let role = 'mh', sel = 'NCC-001', q = '';
+  const best = (id) => Math.min(...N.filter((x) => x.st[1] !== 'Tạm ngừng').flatMap((x) => x.p.filter((r) => r[0] === id).map((r) => r[2])));
+  const mask = (v, what) => `<span class="masked" title="Bạn chưa có quyền xem ${what}" aria-label="Không có quyền xem ${what}">•••••</span>`;
+  function render() {
+    const R = RL[role], l = N.filter((x) => !q || norm(x.n + ' ' + x.mst + ' ' + x.p.map((r) => r[1]).join(' ')).includes(norm(q)));
+    $('#rows').innerHTML = l.map((x) => `<div class="item"><div><span class="t1">${x.n}</span><br><span class="t2">${x.id}${x.mst ? ' · MST ' + x.mst : ' · chưa có mã số thuế'}</span></div><div><span class="t1">${x.term}</span><br><span class="t2">${x.ct} · ${role === 'cv' ? '0•••• ••• ' + x.ph.slice(-3) : x.ph}</span></div><div><span class="t2">Dư nợ tại Quận 7</span><br><span class="t1 num" style="text-align:left">${role === 'cv' ? mask(0, 'công nợ') : vnd(x.debt)}</span>${x.debt && role !== 'cv' ? '<br><a class="t2" href="payables.html">Mở công nợ</a>' : ''}</div><div><span class="badge badge--${x.st[0]}">${x.st[1]}</span></div><div class="act"><button class="b ${x.id === sel ? 'b--secondary' : 'b--primary'} b--sm" data-s="${x.id}" aria-pressed="${x.id === sel}">${x.id === sel ? 'Đang xem bảng giá' : 'Xem bảng giá'}</button></div></div>`).join('');
+    $('#empty').hidden = l.length > 0; $('#foot').textContent = l.length ? `Hiển thị ${l.length} nhà cung cấp · điện thoại bị che với vai trò không có quyền` : '';
+    const s = N.find((x) => x.id === sel);
+    $('#hp').textContent = 'Bảng giá · ' + s.n; $('#ps').textContent = R.buy ? 'Giá bán cho garage, theo ngày hiệu lực. “Thấp nhất” so với các nhà cung cấp đang hợp tác.' : 'Bạn chưa có quyền xem giá mua; chỉ xem tên mặt hàng.';
+    $('#prices').innerHTML = s.p.map((r) => `<div class="item pr" style="padding-left:0;padding-right:0"><div><span class="t1">${r[1]}</span><br><span class="codeid">${r[0]}</span></div><div><span class="t1 num" style="text-align:left">${R.buy ? vnd(r[2]) : mask(0, 'giá mua')}</span><br><span class="t2">từ ${r[3]}</span></div><div><span class="t2">Bội số đặt</span> ${r[4]}<br><span class="t2">Tối thiểu NCC</span> ${r[5] || 'không'}</div><div style="display:grid;gap:4px;justify-items:start">${R.buy && r[2] === best(r[0]) && s.st[1] !== 'Tạm ngừng' ? '<span class="badge badge--success">Thấp nhất</span>' : ''}${r[6] ? `<span class="t2">${r[6]}</span>` : ''}</div></div>`).join('');
+    $('#bNew').disabled = !R.edit; $('#wNew').hidden = R.edit; $('#wNew').textContent = 'Chỉ Mua hàng, Thủ kho và Quản lý chi nhánh thêm nhà cung cấp.';
+    $('#bPrice').disabled = !R.edit || s.st[1] === 'Tạm ngừng'; $('#wPrice').hidden = !(!R.edit || s.st[1] === 'Tạm ngừng'); $('#wPrice').textContent = !R.edit ? 'Chỉ Mua hàng, Thủ kho và Quản lý chi nhánh cập nhật giá.' : 'Nhà cung cấp đang tạm ngừng hợp tác: mở lại trước khi nhập giá mới.';
+    $('#ro').hidden = R.edit; $('#ro').textContent = R.buy ? 'Chỉ xem: Kế toán xem giá và công nợ, không sửa hồ sơ hay bảng giá.' : 'Chỉ xem một phần: Cố vấn không xem giá mua, công nợ và số điện thoại đầy đủ của nhà cung cấp.';
+    $$('[data-r]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.r === role)));
+  }
+  $$('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; render(); }));
+  $('#q').addEventListener('input', (e) => { q = e.target.value; render(); });
+  $('#rows').addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (b) { sel = b.dataset.s; render(); $('#hp').scrollIntoView({ block: 'nearest' }); } });
+  let tm; const toast = (m, fn) => { const t = $('#toast'); t.innerHTML = '<span></span>' + (fn ? '<button type="button" id="tU">Hoàn tác</button>' : ''); t.firstChild.textContent = m; t.hidden = false; if (fn) $('#tU').onclick = () => { fn(); t.hidden = true; }; clearTimeout(tm); tm = setTimeout(() => { t.hidden = true; }, 10000); };
+  $('#bPrice').onclick = () => { const s = N.find((x) => x.id === sel); $('#pV').textContent = s.n; $('#pp').innerHTML = s.p.map((r, i) => `<option value="${i}">${r[0]} ${r[1]}</option>`).join(''); $('#pg').value = ''; chkP(); $('#dP').showModal(); };
+  const chkP = () => { const s = N.find((x) => x.id === sel), r = s.p[+$('#pp').value || 0], v = +$('#pg').value.replace(/\D/g, '') || 0; $('#pgh').textContent = v && r ? `Giá hiện hành ${vnd(r[2])}, thay đổi ${v > r[2] ? '+' : ''}${((v - r[2]) / r[2] * 100).toFixed(1).replace('.', ',')}%` : ''; $('#pOk').disabled = !v || $('#pr').value.trim().length < 3; };
+  $('#pp').onchange = chkP; $('#pg').oninput = chkP; $('#pr').oninput = chkP;
+  $$('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#fP').addEventListener('submit', () => { const s = N.find((x) => x.id === sel), i = +$('#pp').value, r = s.p[i], old = r[6], v = +$('#pg').value.replace(/\D/g, ''); r[6] = `Sắp hiệu lực: ${vnd(v)} từ ${$('#pd').value}`; render(); toast(`Đã thêm dòng giá ${vnd(v)} từ ${$('#pd').value}. Giá hiện hành giữ nguyên tới ngày đó.`, () => { r[6] = old; render(); }); });
+  $('#bNew').onclick = () => toast('Biểu mẫu thêm nhà cung cấp chưa thiết kế ở bản này.');
+  render();
+</script>
+</body>
+</html>

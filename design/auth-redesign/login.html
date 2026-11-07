@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng nhập – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="preview" data-preview>
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="email">Email</button>
+    <button class="chip" type="button" data-view="code">Mã nhân viên</button>
+    <button class="chip" type="button" data-view="wrong">Sai thông tin</button>
+    <button class="chip" type="button" data-view="locked">Khóa tạm</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+    <button class="chip" type="button" data-view="loading">Đang gửi</button>
+    <button class="chip" type="button" data-view="expired">Hết phiên</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+  </div>
+  <p class="preview__hint">Thử nhập: mật khẩu “sai” để xem lỗi trung lập, “khoa” để xem khóa tạm, “tam” (ở tab mã nhân viên) để vào bước đổi mật khẩu tạm. Email có chữ “nhieu” sẽ qua bước chọn công ty.</p>
+  <div class="preview__nav"><a href="login.html">Đăng nhập</a><a href="choose.html">Chọn công ty và phạm vi</a><a href="forgot.html">Quên mật khẩu</a><a href="reset.html">Đặt mật khẩu mới</a><a href="invite.html">Lời mời</a><a href="states.html">Thư viện trạng thái</a></div>
+</div>
+
+<div class="banner" role="alert" data-v="offline" hidden><strong>Mất kết nối mạng.</strong> Chưa gửi được. Kiểm tra Wi-Fi hoặc 4G rồi bấm lại. Thông tin bạn nhập vẫn được giữ.</div>
+
+<main class="auth" id="main">
+  <a class="brand" href="login.html"><span class="brand__mark" aria-hidden="true">G</span>GMEP</a>
+
+  <section class="acard" aria-labelledby="t">
+    <div><h1 id="t">Đăng nhập</h1><p class="lead">Quản lý garage: tiếp nhận, kho, thu chi và báo cáo trong một nơi.</p></div>
+
+    <div class="note note--info" role="status" data-v="expired" hidden><strong>Phiên làm việc đã hết hạn</strong><span>Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị và hiện lại sau khi bạn đăng nhập bằng cùng tài khoản.</span></div>
+    <div class="note note--danger" role="alert" data-v="wrong" hidden><strong>Không đăng nhập được</strong><span>Email, mã nhân viên hoặc mật khẩu chưa đúng. Kiểm tra phím Caps Lock rồi nhập lại, hoặc chọn “Quên mật khẩu”. Nếu vẫn không vào được, liên hệ quản lý chi nhánh.</span></div>
+    <div class="note note--warning" role="alert" data-v="locked" hidden><strong>Tạm dừng đăng nhập trên thiết bị này</strong><span>Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau <b class="num" data-count="872">14:32</b> hoặc dùng “Quên mật khẩu” để đặt mật khẩu mới. Quản lý chi nhánh cũng có thể mở khóa giúp bạn.</span></div>
+    <div class="note note--danger" role="alert" data-v="error" hidden><strong>Chưa đăng nhập được</strong><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Thử lại sau ít phút. Nếu vẫn lỗi, báo quản lý chi nhánh kèm mã tham chiếu <span class="code">REQ-7F3A92</span>.</span><div class="note__act"><button type="button" class="b b--secondary b--sm" data-copy>Sao chép mã</button><button type="button" class="b b--secondary b--sm" data-view-go="email">Thử lại</button></div></div>
+
+    <div class="seg" role="group" aria-label="Cách đăng nhập" id="mode">
+      <button type="button" data-mode="email" aria-pressed="true">Bằng email</button>
+      <button type="button" data-mode="code" aria-pressed="false">Bằng mã nhân viên</button>
+    </div>
+
+    <form class="form" id="f" novalidate>
+      <div class="field" data-m="email">
+        <label for="em">Email<span class="req" aria-hidden="true"> *</span></label>
+        <input id="em" name="email" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" aria-required="true" placeholder="ha.nguyen@garage.vn">
+        <span class="err" id="em-e" hidden>Nhập email. Ví dụ: ha.nguyen@garage.vn.</span>
+      </div>
+      <div class="field codeinput" data-m="code" hidden>
+        <label for="cc">Mã công ty<span class="req" aria-hidden="true"> *</span></label>
+        <input id="cc" name="company" inputmode="numeric" autocomplete="off" maxlength="7" aria-required="true" aria-describedby="cc-h" placeholder="6 chữ số">
+        <span class="hint" id="cc-h">Quản lý chi nhánh cung cấp mã này khi tạo tài khoản cho bạn. Hệ thống không gợi ý hay nhớ mã.</span>
+        <span class="err" id="cc-e" hidden>Mã công ty gồm đúng 6 chữ số.</span>
+      </div>
+      <div class="field" data-m="code" hidden>
+        <label for="ec">Mã nhân viên<span class="req" aria-hidden="true"> *</span></label>
+        <input id="ec" name="employee" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-required="true" placeholder="Ví dụ: NV0123">
+        <span class="err" id="ec-e" hidden>Nhập mã nhân viên. Ví dụ: NV0123.</span>
+      </div>
+      <div class="field">
+        <label for="pw">Mật khẩu<span class="req" aria-hidden="true"> *</span></label>
+        <div class="pw"><input id="pw" name="password" type="password" autocomplete="current-password" aria-required="true"><button type="button" data-pw="pw" aria-pressed="false" aria-label="Hiện hoặc ẩn mật khẩu">Hiện</button></div>
+        <span class="err" id="pw-e" hidden>Nhập mật khẩu.</span>
+      </div>
+
+      <button class="b b--primary b--lg b--block" type="submit" id="go" data-dis="locked offline loading" aria-describedby="why-l why-o"><span class="spin" data-v="loading" hidden aria-hidden="true"></span><span data-nv="loading">Đăng nhập</span><span data-v="loading" hidden>Đang đăng nhập…</span></button>
+      <p class="why" id="why-l" data-v="locked" hidden>Đang tạm dừng trên thiết bị này. Thử lại sau <span class="num" data-count="872">14:32</span>.</p>
+      <p class="why" id="why-o" data-v="offline" hidden>Đang mất kết nối: thao tác này cần mạng.</p>
+
+      <div class="links">
+        <a href="forgot.html" data-m="email">Quên mật khẩu</a>
+        <a href="forgot.html#nomail" data-m="code" hidden>Quên mật khẩu hoặc mã?</a>
+        <span class="small"><span class="req" aria-hidden="true" style="color:var(--color-danger-text)">*</span> Bắt buộc nhập</span>
+      </div>
+    </form>
+  </section>
+
+  <p class="foot">GMEP · Chưa có tài khoản? Tài khoản nhân viên chỉ tạo bằng lời mời từ quản lý hoặc chủ garage. Cần hỗ trợ: liên hệ quản lý chi nhánh của bạn.</p>
+
+  <details class="spec"><summary>Ghi chú cho dev và BA</summary>
+    <ul>
+      <li>Truy vết: FR-SYS-001, FR-TEN-016/017, RULE-034, P2-C (đăng nhập mã công ty + mã nhân viên, đã build). Không có MFA; không có màn mã xác thực (StrongAuthPort chỉ là hook).</li>
+      <li>Câu chữ lấy nguyên từ <span class="code">docs/ui-ux/state-copy.md</span> §2.1, 2.9. Lỗi, khóa tạm và mất mạng dùng cùng một câu cho mọi thông tin nhập (không lộ tài khoản, công ty hay mã có tồn tại không).</li>
+      <li>Số lần thử, thời gian khóa và đếm lùi do máy chủ trả (<span class="code">Retry-After</span>); 14:32 chỉ minh họa. Mật khẩu giữ trong bộ nhớ trang, các ô khác được giữ khi lỗi.</li>
+      <li>Ô mã công ty: <span class="code">autocomplete=off</span>, không nhớ, không điền sẵn (đúng bản đã build, khác TSU-14 cũ có nhớ mã).</li>
+      <li>Sau mật khẩu đúng: nhiều tư cách thành viên thì sang CompanyPicker, một tư cách thì vào thẳng; tài khoản mã nhân viên chỉ có một tư cách, vào thẳng. Mật khẩu tạm thì chuyển sang bước đổi mật khẩu (reset.html#temp).</li>
+      <li><span class="tag">[Cần xác nhận]</span> Thời hạn phiên (rảnh và tuyệt đối) theo vai trò (Q5); có tùy chọn “ghi nhớ thiết bị” hay không; chính sách mật khẩu (xem reset.html).</li>
+    </ul>
+  </details>
+</main>
+
+<script src="auth.js"></script>
+<script>
+(function () {
+  var mode = 'email';
+  function setMode(m) {
+    mode = m;
+    [].forEach.call(document.querySelectorAll('[data-m]'), function (e) { e.hidden = e.dataset.m !== m; });
+    [].forEach.call(document.querySelectorAll('#mode button'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === m)); });
+  }
+  [].forEach.call(document.querySelectorAll('#mode button'), function (b) { b.addEventListener('click', function () { setMode(b.dataset.mode); }); });
+  document.addEventListener('view', function (e) { if (e.detail === 'code') setMode('code'); else if (e.detail === 'email') setMode('email'); });
+  [].forEach.call(document.querySelectorAll('[data-view-go]'), function (b) { b.addEventListener('click', function () { authSet(b.dataset.viewGo); }); });
+  document.getElementById('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var need = mode === 'email' ? ['em', 'pw'] : ['cc', 'ec', 'pw'], first = null;
+    ['em', 'cc', 'ec', 'pw'].forEach(function (id) { var i = document.getElementById(id), er = document.getElementById(id + '-e'); if (need.indexOf(id) < 0) { er.hidden = true; return; } var bad = !i.value.trim() || (id === 'cc' && !/^\d{3}\s?\d{3}$/.test(i.value.trim())); i.setAttribute('aria-invalid', String(bad)); er.hidden = !bad; if (bad && !first) first = i; });
+    if (first) { first.focus(); return; }
+    var p = document.getElementById('pw').value, em = document.getElementById('em').value;
+    if (p === 'sai') { authSet('wrong'); return; }
+    if (p === 'khoa') { authSet('locked'); return; }
+    authSet('loading');
+    setTimeout(function () { location.href = mode === 'code' ? (p === 'tam' ? 'reset.html#temp' : 'choose.html#scope') : (/nhieu/.test(em) ? 'choose.html#multi' : 'choose.html#scope'); }, 700);
+  });
+})();
+</script>
+</body>
+</html>

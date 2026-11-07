@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thư viện trạng thái hệ thống – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+<div class="preview" data-preview>
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="s401">401 Hết phiên</button>
+    <button class="chip" type="button" data-view="lock">Khóa tạm đăng nhập</button>
+    <button class="chip" type="button" data-view="s403">403 Không có quyền</button>
+    <button class="chip" type="button" data-view="s404">404 Không tìm thấy</button>
+    <button class="chip" type="button" data-view="s429">429 Quá nhanh</button>
+    <button class="chip" type="button" data-view="s500">500 Lỗi hệ thống</button>
+    <button class="chip" type="button" data-view="s503">503 Bảo trì</button>
+    <button class="chip" type="button" data-view="off">Mất kết nối</button>
+    <button class="chip" type="button" data-view="why">Mã lý do khóa nút</button>
+  </div>
+  <p class="preview__hint">Mỗi trạng thái dùng đúng một câu cho mọi người dùng. Số phút, số lần thử và mã tham chiếu là số minh họa, máy chủ trả giá trị thật.</p>
+  <div class="preview__nav"><a href="login.html">Đăng nhập</a><a href="choose.html">Chọn công ty và phạm vi</a><a href="forgot.html">Quên mật khẩu</a><a href="reset.html">Đặt mật khẩu mới</a><a href="invite.html">Lời mời</a><a href="states.html">Thư viện trạng thái</a></div>
+</div>
+<div class="banner" role="alert" data-v="off" hidden><strong>Mất kết nối.</strong> Bản nháp được lưu trên thiết bị (lúc 09:14). Chưa thể xuất kho, thu tiền, xuất hóa đơn. Đang thử kết nối lại…</div>
+
+<main class="auth" id="main">
+  <a class="brand" href="login.html" data-nv="why"><span class="brand__mark" aria-hidden="true">G</span>GMEP</a>
+
+  <section class="acard" aria-labelledby="a1" data-v="s401">
+    <div class="state"><div class="state__code" aria-hidden="true">401</div>
+      <h1 id="a1" tabindex="-1">Phiên làm việc đã hết hạn</h1>
+      <p>Vì an toàn, bạn cần đăng nhập lại. Bản nháp đang soạn được giữ trên thiết bị và hiện lại sau khi bạn đăng nhập bằng cùng tài khoản.</p></div>
+    <p class="small" style="margin:0;text-align:center">Trong ứng dụng, đây là màn khóa phiên đặt trên màn hình đang làm: nhập mật khẩu là quay lại đúng chỗ.</p>
+    <div class="field"><label for="lp">Mật khẩu cho ha.nguyen@garage.vn</label><div class="pw"><input id="lp" type="password" autocomplete="current-password"><button type="button" data-pw="lp" aria-pressed="false" aria-label="Hiện hoặc ẩn mật khẩu">Hiện</button></div></div>
+    <button class="b b--primary b--lg b--block" type="button">Đăng nhập lại</button>
+    <div class="links"><a href="login.html">Đăng nhập bằng tài khoản khác</a></div>
+  </section>
+
+  <section class="acard" aria-labelledby="a2" data-v="lock" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">429</div>
+      <h1 id="a2" tabindex="-1">Tạm dừng đăng nhập trên thiết bị này</h1>
+      <p>Đã có nhiều lần đăng nhập chưa thành công. Thử lại sau <b class="num" data-count="872">14:32</b> hoặc dùng “Quên mật khẩu” để đặt mật khẩu mới. Quản lý chi nhánh cũng có thể mở khóa giúp bạn.</p>
+      <p class="small">Câu này giống nhau cho mọi thông tin đăng nhập, kể cả tài khoản không tồn tại hoặc bị khóa; lý do thật chỉ quản lý và quản trị thấy ở màn quản lý người dùng.</p>
+      <div class="state__act"><button type="button" class="b b--primary" aria-disabled="true" aria-describedby="wl">Thử lại</button><a class="b b--secondary" href="forgot.html">Quên mật khẩu</a></div>
+      <p class="why" id="wl" style="justify-content:center">Thử lại sau <span class="num" data-count="872">14:32</span>.</p></div>
+  </section>
+
+  <section class="acard" aria-labelledby="a3" data-v="s403" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">403</div>
+      <h1 id="a3" tabindex="-1">Bạn không có quyền xem trang này</h1>
+      <p>Vai trò hiện tại của bạn (Cố vấn dịch vụ) chưa được cấp quyền xem mục này. Nếu bạn cần dùng, nhờ quản lý chi nhánh hoặc quản trị hệ thống cấp quyền.</p>
+      <div class="state__act"><a class="b b--primary" href="choose.html#scope">Về trang chủ</a></div>
+      <span class="ref">Mã tham chiếu <span class="code">REQ-7F3A92</span> <button type="button" class="b b--ghost b--sm" data-copy>Sao chép</button></span>
+      <p class="small"><span class="tag">[Cần xác nhận]</span> Nút “Gửi yêu cầu cấp quyền” chỉ thêm khi có quy trình và người nhận. 403 chỉ dùng cho mục người dùng đã biết là có (menu, đường dẫn công khai trong tổ chức).</p></div>
+  </section>
+
+  <section class="acard" aria-labelledby="a4" data-v="s404" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">404</div>
+      <h1 id="a4" tabindex="-1">Không tìm thấy nội dung này</h1>
+      <p>Liên kết có thể đã cũ, nội dung đã được lưu trữ, hoặc bạn không có quyền xem. Kiểm tra lại mã chứng từ hoặc quay về danh sách để tìm.</p>
+      <div class="state__act"><a class="b b--primary" href="choose.html#scope">Về danh sách</a><button type="button" class="b b--secondary">Tìm kiếm (Ctrl+K)</button></div>
+      <p class="small">Cùng một câu, cùng mã trạng thái và kích thước phản hồi cho bản ghi không tồn tại và bản ghi ngoài phạm vi của bạn. Không nêu “chi nhánh khác” hay “không có quyền với chi nhánh X”.</p></div>
+  </section>
+
+  <section class="acard" aria-labelledby="a5" data-v="s429" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">429</div>
+      <h1 id="a5" tabindex="-1">Bạn thao tác hơi nhanh</h1>
+      <p>Hệ thống tạm giới hạn số lần thử để bảo vệ tài khoản và dữ liệu. Thử lại sau <b class="num" data-count="45">00:45</b>. Nội dung bạn đã nhập vẫn được giữ.</p>
+      <div class="state__act"><button type="button" class="b b--primary" aria-disabled="true" aria-describedby="w5">Thử lại</button></div>
+      <p class="why" id="w5" style="justify-content:center">Thử lại sau <span class="num" data-count="45">00:45</span>. Đếm lùi lấy từ Retry-After.</p></div>
+  </section>
+
+  <section class="acard" aria-labelledby="a6" data-v="s500" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">500</div>
+      <h1 id="a6" tabindex="-1">Hệ thống đang gặp sự cố</h1>
+      <p>Đây không phải lỗi của bạn và dữ liệu đã lưu không bị ảnh hưởng. Thử lại sau ít phút. Nếu vẫn lỗi, báo quản lý kèm mã tham chiếu bên dưới.</p>
+      <div class="state__act"><button type="button" class="b b--primary">Thử lại</button><a class="b b--secondary" href="choose.html#scope">Về trang chủ</a></div>
+      <span class="ref">Mã tham chiếu <span class="code">REQ-7F3A92</span> <button type="button" class="b b--ghost b--sm" data-copy>Sao chép</button></span></div>
+  </section>
+
+  <section class="acard" aria-labelledby="a7" data-v="s503" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">503</div>
+      <h1 id="a7" tabindex="-1">Hệ thống đang bảo trì</h1>
+      <p>GMEP đang được bảo trì theo kế hoạch. Dữ liệu của bạn an toàn. Thời gian dự kiến xong do máy chủ trả; hãy quay lại sau.</p>
+      <div class="state__act"><button type="button" class="b b--primary">Tải lại</button></div>
+      <p class="small"><span class="tag">[Cần xác nhận]</span> Hướng dẫn ghi giấy cho thợ khi mất mạng hoặc bảo trì (BA-08); chưa đổi câu chữ khi chưa có quyết định.</p></div>
+  </section>
+
+  <section class="mini" data-v="off" hidden aria-label="Ví dụ màn hình khi mất kết nối">
+    <div class="mini__bar"><span><b>Garage Minh Phát</b> · Chi nhánh Quận 7</span><span class="small">Dữ liệu cập nhật lúc 09:15</span></div>
+    <div class="mini__body">
+      <div class="note note--info" role="status"><strong>Toast khi có lại mạng</strong><span>Đã kết nối lại. Bản nháp đã được đồng bộ lúc 09:21. Nếu đồng bộ gặp xung đột, mở hộp thoại 409 (bản mới nhất của người khác).</span></div>
+      <div class="note note--warning"><strong>Nút cần mạng bị chặn, kèm lý do</strong><div class="note__act"><button type="button" class="b b--primary" aria-disabled="true" aria-describedby="wo">Thu tiền</button></div><span class="why" id="wo">Đang mất kết nối: thao tác này cần mạng.</span></div>
+      <p class="small" style="margin:0">Dữ liệu đã tải vẫn xem được, ghi rõ thời điểm cập nhật. Chỉ cảnh báo và lưu nháp, không phải offline đầy đủ. Trang công khai (đăng nhập, quên mật khẩu) dùng câu: “Chưa gửi được. Kiểm tra Wi-Fi hoặc 4G rồi bấm lại. Thông tin bạn nhập vẫn được giữ.”</p>
+    </div>
+  </section>
+
+  <section class="lib" data-v="why" hidden aria-labelledby="wh">
+    <div><h1 id="wh" style="margin:0;font-size:var(--font-size-2xl)">Mã lý do khóa nút</h1><p class="lead">Máy chủ trả <span class="code">can</span> và <span class="code">reason.code</span>; giao diện hiện lý do thành chữ cạnh nút, không chỉ tooltip. Nút dùng <span class="code">aria-disabled</span> để vẫn đọc được lý do bằng bàn phím.</p></div>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th scope="col">Mã</th><th scope="col">Câu chữ hiển thị</th><th scope="col">Ví dụ nút</th></tr></thead><tbody>
+      <tr><td><span class="code">NO_PERMISSION</span></td><td>Bạn chưa có quyền duyệt giảm giá. Liên hệ Quản lý chi nhánh.</td><td><button type="button" class="b b--secondary b--sm" aria-disabled="true">Duyệt giảm giá</button></td></tr>
+      <tr><td><span class="code">SCOPE_MERGED</span></td><td>Chọn một chi nhánh để tạo phiếu. Mỗi chứng từ gắn với đúng một chi nhánh.</td><td><button type="button" class="b b--secondary b--sm" aria-disabled="true">Tạo phiếu</button></td></tr>
+      <tr><td><span class="code">BRANCH_LOCKED</span></td><td>Chi nhánh đã khóa: chỉ xem lịch sử, không tạo hay sửa chứng từ.</td><td><button type="button" class="b b--secondary b--sm" aria-disabled="true">Sửa lệnh</button></td></tr>
+      <tr><td><span class="code">OFFLINE</span></td><td>Đang mất kết nối: thao tác này cần mạng.</td><td><button type="button" class="b b--secondary b--sm" aria-disabled="true">Xuất hóa đơn</button></td></tr>
+      <tr><td><span class="code">TENANT_SUSPENDED_READONLY</span></td><td>Tài khoản đang tạm ngưng: bạn chỉ xem và tải dữ liệu được, không tạo hay sửa chứng từ.</td><td><button type="button" class="b b--secondary b--sm" aria-disabled="true">Tạo báo giá</button></td></tr>
+      <tr><td><span class="code">STATE_INVALID</span></td><td>Trạng thái hiện tại (Chờ QC) không cho phép thêm hạng mục.</td><td><button type="button" class="b b--secondary b--sm" aria-disabled="true">Thêm hạng mục</button></td></tr>
+    </tbody></table></div>
+    <p class="small" style="margin:0">Danh mục đầy đủ và mã tenant khác (<span class="code">TERMS_NOT_ACCEPTED</span>, <span class="code">TENANT_TERMINATING</span>…): <span class="code">docs/ui-ux/state-copy.md</span> §3. Không hiện mã liên quan gói, giá hay dùng thử trong nhóm màn này.</p>
+  </section>
+
+  <details class="spec"><summary>Ghi chú cho dev và BA</summary>
+    <ul>
+      <li>Nguồn câu chữ: state-copy §1 đến §3. Khóa chuỗi ổn định (<span class="code">errors.401.title</span>…), ICU MessageFormat cho biến; không ghép câu từ nhiều mảnh.</li>
+      <li>Focus: 401, 403, 404 đưa focus vào tiêu đề; 429 và 500 dùng <span class="code">role=alert</span>, đếm lùi không đọc từng giây.</li>
+      <li>401 trong ứng dụng: không tự chuyển trang nếu còn nháp chưa lưu cục bộ; quay về <span class="code">next</span> chỉ khi cùng nguồn gốc, không đặt thông tin tài khoản vào URL.</li>
+      <li><span class="tag">[Cần xác nhận]</span> Thời hạn phiên rảnh và tuyệt đối theo vai trò (Q5) và cảnh báo 60 giây trước khi khóa; số lần, thời gian khóa (Q6). Giao diện chỉ hiển thị giá trị máy chủ trả.</li>
+      <li>Đã build ở <span class="code">src/</span> (chỉ đọc, chưa đối chiếu từng trang): khóa tạm, lỗi trung lập, phiên hết hạn. Trang 403, 404, 5xx và màn khóa phiên chính thức là việc của dev dựng từ tài liệu này.</li>
+    </ul>
+  </details>
+</main>
+<script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kích hoạt lời mời – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới biểu mẫu</a>
+<div class="preview" data-preview>
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="new">Chưa có tài khoản</button>
+    <button class="chip" type="button" data-view="existing">Đã có tài khoản GMEP</button>
+    <button class="chip" type="button" data-view="loading">Đang kích hoạt</button>
+    <button class="chip" type="button" data-view="done">Kích hoạt xong</button>
+    <button class="chip" type="button" data-view="expired">Lời mời hết hạn</button>
+    <button class="chip" type="button" data-view="revoked">Lời mời bị thu hồi</button>
+    <button class="chip" type="button" data-view="used">Đã kích hoạt trước đó</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+  </div>
+  <p class="preview__hint">Lời mời tới email. Nhân viên không có email không nhận lời mời: quản lý tạo tài khoản và đặt mật khẩu tạm (xem forgot.html#nomail).</p>
+  <div class="preview__nav"><a href="login.html">Đăng nhập</a><a href="choose.html">Chọn công ty và phạm vi</a><a href="forgot.html">Quên mật khẩu</a><a href="reset.html">Đặt mật khẩu mới</a><a href="invite.html">Lời mời</a><a href="states.html">Thư viện trạng thái</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline" hidden><strong>Mất kết nối mạng.</strong> Chưa kích hoạt được. Kiểm tra Wi-Fi hoặc 4G rồi bấm lại. Thông tin bạn nhập vẫn được giữ.</div>
+
+<main class="auth" id="main">
+  <a class="brand" href="login.html"><span class="brand__mark" aria-hidden="true">G</span>GMEP</a>
+
+  <section class="acard" aria-labelledby="t" data-v="new existing loading offline error">
+    <div><h1 id="t">Bạn được mời vào Garage Minh Phát</h1><p class="lead">Kích hoạt để bắt đầu làm việc. Lời mời gửi tới email bên dưới và chỉ dùng được một lần.</p></div>
+    <dl class="inv">
+      <div><dt>Công ty</dt><dd>Garage Minh Phát</dd></div>
+      <div><dt>Vai trò</dt><dd>Cố vấn dịch vụ</dd></div>
+      <div><dt>Chi nhánh</dt><dd>Chi nhánh Quận 7</dd></div>
+      <div><dt>Người mời</dt><dd>Nguyễn Văn An, Chủ garage</dd></div>
+    </dl>
+    <div class="note note--info" role="status" data-v="existing" hidden><strong>Email này đã có tài khoản GMEP</strong><span>Đăng nhập bằng mật khẩu hiện có để thêm công ty này vào tài khoản. Bạn sẽ chọn công ty mỗi lần đăng nhập. Không tạo tài khoản mới.</span></div>
+    <div class="note note--danger" role="alert" data-v="error" hidden><strong>Chưa kích hoạt được</strong><span>Hệ thống đang gặp sự cố, không phải do bạn nhập sai. Lời mời vẫn còn hiệu lực. Thử lại sau ít phút, mã tham chiếu <span class="code">REQ-7F3A92</span>.</span></div>
+    <form class="form" id="f" novalidate>
+      <div class="field"><label for="em">Email được mời</label><input id="em" type="email" value="ha.nguyen@garage.vn" readonly aria-describedby="em-h"><span class="hint" id="em-h">Không đổi được. Muốn dùng email khác, nhờ người mời gửi lại.</span></div>
+      <div class="field" data-v="new loading offline error">
+        <label for="nm">Họ và tên<span class="req" aria-hidden="true"> *</span></label>
+        <input id="nm" autocomplete="name" aria-required="true" placeholder="Nguyễn Thị Thu Hà">
+        <span class="err" id="nm-e" hidden>Nhập họ và tên. Ví dụ: Nguyễn Thị Thu Hà.</span>
+      </div>
+      <div class="field">
+        <label for="p1"><span data-v="existing" hidden>Mật khẩu hiện tại</span><span data-nv="existing">Tạo mật khẩu</span><span class="req" aria-hidden="true"> *</span></label>
+        <div class="pw"><input id="p1" type="password" autocomplete="new-password" aria-required="true" aria-describedby="p1-h"><button type="button" data-pw="p1" aria-pressed="false" aria-label="Hiện hoặc ẩn mật khẩu">Hiện</button></div>
+        <span class="hint" id="p1-h" data-nv="existing">Ít nhất 10 ký tự. Gợi ý: một cụm từ dễ nhớ, ví dụ garage-quan7-mua-thu.</span>
+        <span class="err" id="p1-e" hidden>Nhập mật khẩu.</span>
+      </div>
+      <label class="check"><input type="checkbox" id="ag"><span>Tôi đã đọc và đồng ý <a href="#" style="color:var(--color-text-link)">quy định sử dụng hệ thống</a> khi làm việc tại Garage Minh Phát.</span></label>
+      <button class="b b--primary b--lg b--block" type="submit" id="go" data-dis="loading offline" aria-describedby="why-a why-o"><span class="spin" data-v="loading" hidden aria-hidden="true"></span><span data-nv="loading">Kích hoạt và vào hệ thống</span><span data-v="loading" hidden>Đang kích hoạt…</span></button>
+      <p class="why" id="why-a">Đánh dấu đồng ý quy định sử dụng để kích hoạt.</p>
+      <p class="why" id="why-o" data-v="offline" hidden>Đang mất kết nối: thao tác này cần mạng.</p>
+      <div class="links"><a href="login.html">Về trang đăng nhập</a></div>
+    </form>
+  </section>
+
+  <section class="acard" aria-labelledby="td" data-v="done" hidden role="status">
+    <div class="state"><div class="state__code" aria-hidden="true">✓</div>
+      <h1 id="td" tabindex="-1">Đã kích hoạt tài khoản</h1>
+      <p>Bạn đã được thêm vào Garage Minh Phát với vai trò Cố vấn dịch vụ tại Chi nhánh Quận 7.</p>
+      <div class="state__act"><a class="b b--primary b--lg" href="choose.html#scope">Vào hệ thống</a></div></div>
+  </section>
+  <section class="acard" aria-labelledby="tx" data-v="expired" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">!</div>
+      <h1 id="tx" tabindex="-1">Lời mời đã hết hạn</h1>
+      <p>Lời mời chỉ có hiệu lực trong thời gian giới hạn. Nhờ quản lý chi nhánh gửi lại lời mời mới, rồi mở liên kết trong email mới.</p>
+      <div class="state__act"><a class="b b--primary" href="login.html">Về trang đăng nhập</a></div></div>
+  </section>
+  <section class="acard" aria-labelledby="tr" data-v="revoked" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">!</div>
+      <h1 id="tr" tabindex="-1">Lời mời không còn hiệu lực</h1>
+      <p>Lời mời này đã bị thu hồi trước khi bạn kích hoạt. Liên hệ quản lý chi nhánh để được xác nhận lại.</p>
+      <div class="state__act"><a class="b b--primary" href="login.html">Về trang đăng nhập</a></div></div>
+  </section>
+  <section class="acard" aria-labelledby="tu" data-v="used" hidden>
+    <div class="state"><div class="state__code" aria-hidden="true">!</div>
+      <h1 id="tu" tabindex="-1">Liên kết này đã được dùng</h1>
+      <p>Mỗi lời mời chỉ kích hoạt một lần. Nếu bạn đã kích hoạt, hãy đăng nhập. Nếu không phải bạn, báo quản lý chi nhánh.</p>
+      <div class="state__act"><a class="b b--primary" href="login.html">Đăng nhập</a></div></div>
+  </section>
+
+  <details class="spec"><summary>Ghi chú cho dev và BA</summary>
+    <ul>
+      <li>Truy vết: FR-SYS-001, FR-TEN-016/017, RULE-034 (đồng ý quy định theo từng tư cách, ghi nhận riêng). Nhân viên chỉ vào bằng lời mời hoặc do quản lý tạo mã nhân viên; không có đăng ký tự do ở đây.</li>
+      <li>Hai biến thể: email chưa có danh tính (tạo mật khẩu) và email đã có danh tính (đăng nhập mật khẩu hiện có, thêm tư cách thứ hai; email là duy nhất toàn nền tảng). Trang kích hoạt cho danh tính có sẵn được dev ghi nhận là việc của designer (status.md MT-0).</li>
+      <li>Lời mời hết hạn, bị thu hồi và đã dùng dùng câu riêng theo state-copy §2.9 nhưng không nêu thêm gì về tài khoản. <span class="tag">[Cần xác nhận]</span> Có gộp ba trạng thái thành một câu trung lập như TSU-13 không (bản này giữ ba câu của state-copy vì lời mời gửi tới đúng người nhận).</li>
+      <li>Thông tin người mời, vai trò và chi nhánh chỉ hiện sau khi token hợp lệ. Họ tên có sẵn từ lời mời thì điền sẵn (ở đây để trống làm ví dụ). Sau kích hoạt: một tư cách vào thẳng, nhiều tư cách qua CompanyPicker.</li>
+      <li>Nút kích hoạt bị chặn kèm lý do cho đến khi đồng ý quy định. <span class="tag">[Cần xác nhận]</span> Chính sách mật khẩu như reset.html; nội dung và phiên bản quy định (luật sư rà soát, RULE-029).</li>
+    </ul>
+  </details>
+</main>
+<style>.inv { display: grid; gap: var(--space-2); margin: 0; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-subtle); font-size: var(--font-size-md); } .inv div { display: grid; grid-template-columns: 96px 1fr; gap: var(--space-3); } .inv dt { color: var(--color-text-tertiary); } .inv dd { margin: 0; font-weight: var(--fw-medium); overflow-wrap: anywhere; }</style>
+<script src="auth.js"></script>
+<script>
+(function () {
+  var ag = document.getElementById('ag'), go = document.getElementById('go'), wa = document.getElementById('why-a');
+  function sync() { var v = document.body.dataset.view; wa.hidden = ag.checked; if (v !== 'loading' && v !== 'offline') go.setAttribute('aria-disabled', String(!ag.checked)); }
+  ag.addEventListener('change', sync); document.addEventListener('view', sync); sync();
+  document.getElementById('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var need = document.body.dataset.view === 'existing' ? ['p1'] : ['nm', 'p1'], first = null;
+    ['nm', 'p1'].forEach(function (id) { var i = document.getElementById(id), er = document.getElementById(id + '-e'), bad = need.indexOf(id) >= 0 && !i.value.trim(); i.setAttribute('aria-invalid', String(bad)); er.hidden = !bad; if (bad && !first) first = i; });
+    if (first) { first.focus(); return; }
+    authSet('loading'); setTimeout(function () { authSet('done'); }, 600);
+  });
+})();
+</script>
+</body>
+</html>

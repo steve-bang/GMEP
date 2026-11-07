@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phê duyệt – ma trận hạn mức – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) minmax(0, .9fr); align-items: start; }
+  .item .n4 .v { font-size: var(--font-size-md); }
+  .unk { color: var(--color-warning-text); font-weight: var(--fw-medium); }
+  .calc { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--space-4); align-items: end; }
+  @media (max-width: 1023px) { .item { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-2); } .calc { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="queue.html">Phê duyệt</a> › Ma trận hạn mức</p>
+  <nav class="subnav" aria-label="Màn hình phê duyệt"><a href="queue.html">Hàng chờ</a><a href="request.html">Chi tiết yêu cầu (mẫu)</a><a href="matrix.html" aria-current="page">Ma trận hạn mức</a></nav>
+  <header class="head">
+    <div><h1>Ma trận hạn mức phê duyệt</h1><p>Hành động nào cần duyệt, đến bao nhiêu thì ai duyệt, nhắc và chuyển cấp sau bao lâu. Mọi màn hình khác đọc từ đây, không có số cố định trong giao diện (FR-SYS-033).</p></div>
+    <div class="head__actions" style="display:grid;justify-items:end;gap:4px"><button class="b b--primary" id="bEdit" aria-describedby="wEdit">Chỉnh sửa ma trận</button><span class="why why--block" id="wEdit" style="max-width:none"></span></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Toàn chuỗi (mặc định cho mọi chi nhánh)</span><span>T1, T2 tính theo giờ làm việc của chi nhánh</span><span>Xem thử vai trò: <span class="seg" role="group" aria-label="Vai trò xem"><button aria-pressed="true" data-r="ql">Quản lý</button><button aria-pressed="false" data-r="ch">Chủ garage</button></span></span></div>
+
+  <div class="alert alert--warn state" role="status"><b>Hạn mức chưa được ban hành chính thức</b><span>Số bên dưới là giá trị minh họa để dựng giao diện; hạn mức cụ thể do khách chốt và Chủ garage ban hành [Cần xác nhận, D-11].</span><span><b>Hệ quả khi chưa ban hành:</b> hệ thống không dùng số minh họa; mọi yêu cầu lên cấp cao nhất của loại đó (cấp 2), không yêu cầu nào tự qua (RULE-036, FR-SYS-033). Ô “Chưa chốt” có cùng hệ quả cho riêng ô đó.</span></div>
+
+  <section class="card sec" aria-labelledby="hc" style="margin-bottom:var(--space-4)"><h2 id="hc">Thử một giá trị</h2>
+    <div class="calc">
+      <div class="field"><label for="ca">Hành động</label><select id="ca"></select></div>
+      <div class="field"><label for="cv" id="cl">Giá trị (₫)</label><input id="cv" inputmode="numeric" value="21.360.000" autocomplete="off"></div>
+      <div class="alert alert--info" id="cr" role="status" aria-live="polite" style="margin:0"></div>
+    </div>
+    <p class="hint">Cộng dồn chống chia nhỏ (RULE-036): khoản chi được cộng với các khoản cùng loại, cùng nhà cung cấp, cùng chi nhánh trong 7 ngày trước khi so hạn mức; cửa sổ 7 ngày [Cần xác nhận: Q67]. Ô thử này chỉ minh họa quy tắc, chưa tính cộng dồn.</p></section>
+
+  <section class="card list" aria-label="Ma trận phê duyệt"><div id="rows"></div>
+    <div class="rowfoot">T1: nhắc người duyệt một lần sau số giờ này. T2: nếu vẫn chưa xử lý, sau thêm số giờ này yêu cầu tự chuyển từ cấp 1 lên cấp 2 và vẫn là Chờ duyệt (FR-SYS-015, 034). Loại một cấp không tự chuyển tiếp; việc chuyển lên Chủ garage sau cấp cuối là câu hỏi Q-2.5-02 [Cần xác nhận]. Duyệt hàng loạt chỉ cho loại bật “Có” và tắt “Nhập lại mật khẩu”.</div></section>
+
+  <div class="pair" style="margin-top:var(--space-4)">
+    <section class="card sec" aria-labelledby="hd"><h2 id="hd">Ủy quyền duyệt</h2>
+      <p class="hint" style="margin:0">Chỉ Chủ garage ban hành; có ngày hiệu lực và nhật ký. Mặc định tắt. Bật thì phải có ngày hết hạn.</p>
+      <div class="item" style="grid-template-columns:minmax(0,1fr) auto;padding:var(--space-2) 0"><div><span class="t1">Nhóm Miền Nam · mở lại ngày</span><br><span class="t2">Quản lý vùng Lê Thanh Sơn duyệt thay · hết hạn 31/12/2026 (ngày mẫu)</span></div><span class="badge badge--success">Đang bật</span></div>
+      <div class="item" style="grid-template-columns:minmax(0,1fr) auto;padding:var(--space-2) 0"><div><span class="t1">Nhóm Miền Nam · mở lại kỳ</span><br><span class="t2">Mặc định không ủy quyền</span></div><span class="badge badge--neutral">Tắt</span></div>
+      <p class="hint" style="margin:0">Ủy quyền chỉ với tới cấp người ủy quyền đang giữ; người nhận không duyệt yêu cầu của chính mình hoặc của người ủy quyền. Mỗi lần duyệt theo ủy quyền được ghi nhật ký và báo Chủ garage.</p></section>
+    <section class="card sec" aria-labelledby="hp"><h2 id="hp">Tham số kỹ thuật</h2>
+      <dl><dt>Cờ rủi ro</dt><dd>Yêu cầu lặp cho cùng đối tượng trong 24 giờ <span class="badge badge--neutral">tham số</span></dd><dt>Cộng dồn</dt><dd>7 ngày <span class="badge badge--warning">Cần xác nhận Q67</span></dd><dt>Hiệu lực một lượt duyệt</dt><dd>2 giờ, quá thì hết hạn <span class="badge badge--neutral">tham số kỹ thuật</span></dd><dt>Kế toán trưởng</dt><dd>Là cờ quyền trên vai trò Kế toán, không phải vai trò mới. Không tự duyệt yêu cầu mình lập.</dd></dl></section>
+  </div>
+</div>
+
+<dialog id="dE" aria-labelledby="eT"><form method="dialog">
+  <h2 id="eT">Chỉnh sửa ma trận</h2>
+  <p style="margin:0">Mọi thay đổi có <b>ngày hiệu lực</b>. Yêu cầu đang chờ giữ ngưỡng cũ; từ ngày hiệu lực dùng ngưỡng mới. Bước “Xem tác động và lưu” cho biết bao nhiêu yêu cầu đang chờ bị ảnh hưởng.</p>
+  <div class="field"><label for="ef">Có hiệu lực từ ngày</label><input id="ef" value="08/11/2026" inputmode="numeric"><span class="hint">dd/MM/yyyy</span></div>
+  <div class="alert alert--warn">Bảng sửa từng ô chưa thiết kế ở bản này.</div>
+  <div class="bar2"><button class="b b--secondary" value="x">Đóng</button></div>
+</form></dialog>
+<script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const vnd = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' ₫';
+  const U = null; // Chưa chốt
+  // [tên, chuỗi cấp, đv, tự quyết, cấp1, cấp2, T1, T2, hàng loạt, nhập lại MK, ghi chú]
+  const R = [
+    ['Giảm giá', 'Cố vấn → Quản lý → Chủ garage', '%', 5, 15, 'kg', '2 giờ', '2 giờ', 1, 0],
+    ['Hoàn tiền cho khách', 'Thu ngân → Quản lý → Chủ garage', '₫', 500000, 5000000, 'kg', '2 giờ', '2 giờ', 0, 0],
+    ['Chi tiền (sau cộng dồn)', 'Thu ngân hoặc Kế toán → Quản lý → Quản lý vùng', '₫', 500000, 5000000, 20000000, '8 giờ', '16 giờ', 1, 0],
+    ['Chênh lệch quỹ ca hoặc ngày', 'Giải trình → Quản lý → Chủ garage', '₫', 50000, 200000, 'kg', '4 giờ', '8 giờ', 1, 0],
+    ['Chênh lệch đối soát ngân hàng', 'Kế toán trưởng (cờ quyền) → Chủ garage', '₫', 20000, U, U, '8 giờ', '16 giờ', 0, 0],
+    ['Điều chỉnh tồn sau kiểm kê', 'Thủ kho đếm → Quản lý → Chủ garage', '₫', 0, 3000000, 'kg', '8 giờ', '16 giờ', 0, 1],
+    ['Chuyển kho giá trị lớn', 'Thủ kho lập → Quản lý → Quản lý vùng', '₫', 10000000, 50000000, 'kg', '8 giờ', '16 giờ', 0, 1],
+    ['Yêu cầu mua hàng', 'Thủ kho hoặc Mua hàng → Quản lý → Quản lý vùng hoặc Chủ garage', '₫', 5000000, 20000000, 'kg', '8 giờ', '16 giờ', 0, 0],
+    ['Xuất dùng nội bộ', 'Quản lý → Chủ garage', '₫', U, U, 'kg', U, U, 0, 0],
+    ['Chi kèm ngoại lệ (lệch ba bên)', 'Luôn duyệt, tối thiểu Quản lý; vượt hạn mức Quản lý thì theo dòng Chi tiền', '', 'luôn', 'luôn', 'luôn', '8 giờ', '16 giờ', 0, 0],
+    ['Nhập kho không có đơn mua', 'Quản lý chi nhánh (một cấp)', '', 'luôn', 'luôn', 'luôn', U, 'một cấp', 0, 0],
+    ['Hủy lệnh sau khi xuất kho', 'Quản lý chi nhánh (một cấp)', '', 'luôn', 'luôn', 'luôn', '2 giờ', 'một cấp', 0, 0],
+    ['Hóa đơn điều chỉnh, thay thế, hủy', 'Kế toán trưởng (một cấp)', '', 'luôn', 'luôn', 'luôn', '4 giờ', 'một cấp', 0, 0],
+    ['Mở lại ngày hoặc kỳ đã khóa', 'Chủ garage kèm lý do (một cấp)', '', 'luôn', 'luôn', 'luôn', '8 giờ', 'một cấp', 0, 1],
+    ['Mua gấp, hậu duyệt', 'Quản lý chi nhánh → Chủ garage; tự quyết mua gấp đến một giá trị cấu hình', '₫', U, U, U, U, U, 0, 0],
+  ];
+  const cell = (v, u) => v === U ? '<span class="unk">Chưa chốt</span><span class="t2" style="display:block">chưa ban hành: lên cấp cao nhất</span>' : v === 'kg' ? 'Không giới hạn' : v === 'luôn' ? 'Luôn cần duyệt' : u === '%' ? v + '%' : vnd(v);
+  const tcell = (v) => v === U ? '<span class="unk">Chưa chốt</span><span class="t2" style="display:block">dùng giờ kỹ thuật mặc định</span>' : v;
+  $('#rows').innerHTML = R.map((r, i) => `<div class="item"><div><span class="t1">${r[0]}</span><br><span class="t2">${r[1]}</span></div><div class="n4"><div><span class="l">Tự quyết đến</span><span class="v">${cell(r[3], r[2])}</span></div><div><span class="l">Cấp 1 đến</span><span class="v">${cell(r[4], r[2])}</span></div><div><span class="l">Cấp 2 đến</span><span class="v">${cell(r[5], r[2])}</span></div><div><span class="l">Nhắc T1 · chuyển T2</span><span class="v">${tcell(r[6])} · ${r[7] === U ? '<span class="unk">Chưa chốt</span>' : r[7]}</span></div></div><div style="display:grid;gap:4px;justify-items:start"><span class="badge badge--${r[8] ? 'success' : 'neutral'}">Duyệt hàng loạt: ${r[8] ? 'có' : 'không'}</span><span class="badge badge--${r[9] ? 'info' : 'neutral'}">Nhập lại mật khẩu: ${r[9] ? 'bật' : 'tắt'}</span></div></div>`).join('');
+  const calcRows = R.map((r, i) => [r, i]).filter(([r]) => r[2]);
+  $('#ca').innerHTML = calcRows.map(([r, i]) => `<option value="${i}">${r[0]}</option>`).join('');
+  $('#ca').value = 7;
+  function calc() {
+    const r = R[+$('#ca').value], pct = r[2] === '%', raw = +$('#cv').value.replace(/\D/g, '') || 0;
+    $('#cl').textContent = pct ? 'Giá trị (%)' : 'Giá trị (₫)';
+    const unk = [r[3], r[4]].includes(U), top = r[1].includes('Quản lý vùng') ? 'Quản lý vùng' : 'Chủ garage';
+    let t, c = 'info';
+    if (r[3] === U || r[4] === U) { t = `Hạn mức loại này chưa ban hành: yêu cầu lên cấp cao nhất (cấp 2, ${top}).`; c = 'warn'; }
+    else if (raw <= r[3]) t = 'Người thực hiện tự quyết, không cần duyệt.';
+    else if (raw <= r[4]) t = `Chờ cấp 1 (${r[1].split(' → ')[1] || 'Quản lý'}). Nhắc sau ${r[6]}, tự chuyển cấp 2 sau thêm ${r[7]}.`;
+    else t = `Vượt hạn mức cấp 1 (${pct ? r[4] + '%' : vnd(r[4])}): mở thẳng ở cấp 2 (${top}). Không tự chuyển tiếp.`;
+    $('#cr').className = 'alert alert--' + c; $('#cr').textContent = t;
+  }
+  $('#ca').onchange = calc; $('#cv').oninput = calc; calc();
+  let role = 'ql';
+  function rl() { const ch = role === 'ch'; $('#bEdit').disabled = !ch; $('#wEdit').textContent = ch ? '' : 'Chỉ Chủ garage ban hành hạn mức; Quản trị hệ thống chỉ hỗ trợ kỹ thuật. Bạn xem ở chế độ chỉ đọc.'; $$('[data-r]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.r === role))); }
+  $$('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; rl(); }));
+  $('#bEdit').onclick = () => $('#dE').showModal();
+  rl();
+</script>
+</body>
+</html>
