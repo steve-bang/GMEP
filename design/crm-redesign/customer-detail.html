@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nguyễn Văn An – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .id { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-top: var(--space-2); color: var(--color-text-secondary); font-size: var(--font-size-md); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); align-items: start; }
+  .tabs { display: flex; gap: var(--space-6); padding: 0 var(--space-6); border-bottom: 1px solid var(--color-border); overflow-x: auto; }
+  .tabs button { height: 48px; border: 0; background: none; font: inherit; font-size: var(--font-size-md); color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .tabs button[aria-selected="true"] { color: var(--color-brand-700); font-weight: var(--fw-medium); border-bottom-color: var(--color-primary); }
+  .count { display: inline-block; min-width: 20px; margin-left: var(--space-1); padding: 0 6px; border-radius: var(--radius-full); background: var(--color-surface-subtle); font-size: var(--font-size-xs); line-height: 20px; text-align: center; }
+  .panel { padding: var(--space-5) var(--space-6); }
+  .panel[hidden] { display: none; }
+  .veh > * { min-width: 0; }
+  .veh { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-4); align-items: center; padding: var(--space-4) 0; border-top: 1px solid var(--color-border); }
+  .veh:first-child { border-top: 0; padding-top: 0; }
+  .veh .plate { justify-self: start; height: 36px; font-size: var(--font-size-lg); padding: 0 var(--space-3); }
+  .veh__t { font-weight: var(--fw-medium); }
+  .veh__s { color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .note { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin: var(--space-4) 0 0; }
+  .active { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; background: var(--color-info-bg); border: 1px solid var(--color-info-border); color: var(--color-info-text); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
+  .active strong { font-weight: var(--fw-semibold); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--font-size-md); }
+  th { text-align: left; font-weight: var(--fw-medium); color: var(--color-text-secondary); background: var(--table-head-bg); padding: var(--space-3); }
+  td { padding: var(--space-3); border-top: 1px solid var(--color-border); }
+  .tw { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+  .side { padding: var(--card-padding); position: sticky; top: var(--space-4); }
+  .side h2 { margin: 0 0 var(--space-4); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); font-weight: var(--fw-semibold); }
+  .pii { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+  .pii__v { overflow-wrap: anywhere; }
+  .log { margin: var(--space-4) 0 0; font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .tag { display: inline-flex; align-items: center; height: 24px; padding: 0 var(--space-2); border-radius: var(--radius-xs); background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .side dl { grid-template-columns: 96px 1fr; }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .side { position: static; order: -1; } }
+  @media (max-width: 599px) { :root { --page-padding-x: var(--space-4); } .panel, .tabs { padding-left: var(--space-4); padding-right: var(--space-4); } .veh { grid-template-columns: 1fr auto; } .veh > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="customers.html">Khách hàng</a> / Nguyễn Văn An</p>
+  <header class="head">
+    <div>
+      <h1>Nguyễn Văn An</h1>
+      <div class="id">
+        <span style="font-variant-numeric:tabular-nums">KH-Q7-00001</span>
+        <span>Cá nhân</span>
+        <span class="badge badge--success">Hoạt động</span>
+        <span class="tag">VIP</span>
+      </div>
+    </div>
+    <div class="head__actions">
+      <a class="b b--secondary" href="#">Thêm xe</a>
+      <a class="b b--secondary" href="#">Sửa khách</a>
+      <a class="b b--primary" href="#">Tiếp nhận xe</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <div class="active" role="status">
+        <span><strong>Đang có 1 lệnh sửa chữa</strong> cho 51H-123.45, chờ QC từ 09:40</span>
+        <a class="b b--secondary b--sm" href="#">Mở lệnh</a>
+      </div>
+
+      <section class="card" aria-label="Thông tin khách">
+        <div class="tabs" role="tablist" aria-label="Thông tin khách">
+          <button role="tab" id="t1" aria-controls="p1" aria-selected="true">Xe<span class="count">1</span></button>
+          <button role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">Đồng ý dữ liệu<span class="count">1</span></button>
+          <button role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">Yêu cầu chủ dữ liệu<span class="count">0</span></button>
+        </div>
+
+        <div class="panel" id="p1" role="tabpanel" aria-labelledby="t1">
+          <div class="veh">
+            <a class="plate" href="#">51H-123.45</a>
+            <div><div class="veh__t">Toyota Vios 1.5G 2019</div><div class="veh__s">Lần ghé gần nhất 01/10/2026</div></div>
+            <span class="badge badge--purple">Chờ QC</span>
+          </div>
+          <p class="note">Chỉ liệt kê xe khách đang sở hữu. Xe đã chuyển chủ nằm trong lịch sử sở hữu của xe.</p>
+        </div>
+
+        <div class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+          <div class="tw">
+            <table>
+              <thead><tr><th>Mục đích</th><th>Kênh</th><th>Ngày đồng ý</th><th>Trạng thái</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Nhắc bảo dưỡng, đăng kiểm, bảo hiểm</td><td>Zalo</td><td>01/10/2026</td><td><span class="badge badge--success">Đang đồng ý</span></td><td><a class="b b--secondary b--sm" href="#">Rút lại</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note"><a class="b b--secondary b--sm" href="#">Ghi nhận đồng ý mới</a></p>
+        </div>
+
+        <div class="panel" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+          <p style="margin:0;font-weight:var(--fw-medium)">Chưa có yêu cầu nào</p>
+          <p class="note" style="margin:var(--space-1) 0 var(--space-4)">Khi khách muốn xem, sửa hoặc xóa dữ liệu của mình, tạo yêu cầu để theo dõi hạn xử lý.</p>
+          <a class="b b--secondary" href="#">Tạo yêu cầu</a>
+        </div>
+      </section>
+    </main>
+
+    <aside class="card side" aria-labelledby="ch">
+      <h2 id="ch">Thông tin liên hệ</h2>
+      <dl>
+        <dt>Điện thoại</dt>
+        <dd><span class="pii"><span class="pii__v" data-full="0900 000 211">09•• ••• 211</span><button class="b b--secondary b--sm" type="button" data-reveal>Hiện</button></span></dd>
+        <dt>Email</dt>
+        <dd><span class="pii"><span class="pii__v" data-full="an.nguyen@example.test">a•••@example.test</span><button class="b b--secondary b--sm" type="button" data-reveal>Hiện</button></span></dd>
+        <dt>Địa chỉ</dt>
+        <dd><span class="pii"><span class="pii__v" data-full="12 Nguyễn Thị Thập, Quận 7, TP.HCM">••••••, Quận 7, TP.HCM</span><button class="b b--secondary b--sm" type="button" data-reveal>Hiện</button></span></dd>
+        <dt>Ngày tạo</dt><dd>01/10/2026</dd>
+      </dl>
+      <p class="log" id="log">Mỗi lần bấm Hiện đều được ghi vào nhật ký truy cập.</p>
+    </aside>
+  </div>
+</div>
+<script>
+  const tabs = [...document.querySelectorAll('[role=tab]')];
+  const select = (t) => tabs.forEach((x) => {
+    const on = x === t;
+    x.setAttribute('aria-selected', String(on));
+    x.tabIndex = on ? 0 : -1;
+    document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+  });
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', (e) => {
+      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      const n = tabs[(i + d + tabs.length) % tabs.length];
+      select(n); n.focus();
+    });
+  });
+  document.querySelectorAll('[data-reveal]').forEach((b) => b.addEventListener('click', () => {
+    const v = b.previousElementSibling;
+    v.textContent = v.dataset.full;
+    b.remove();
+    document.getElementById('log').textContent = 'Đã ghi nhật ký: bạn vừa xem thông tin liên hệ đầy đủ.';
+  }));
+</script>
+</body>
+</html>

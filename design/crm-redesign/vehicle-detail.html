@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>51H-123.45 – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .plate--xl { height: 48px; padding: 0 var(--space-4); font-size: var(--font-size-3xl); line-height: 1; border-width: 2px; }
+  .titleRow { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+  .model { font-size: var(--font-size-xl); line-height: var(--lh-lg); font-weight: var(--fw-semibold); }
+  .prev { margin-top: var(--space-2); color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .prev .plate { height: 22px; font-size: var(--font-size-xs); border-width: 1px; color: var(--color-text-secondary); border-color: var(--color-border-strong); }
+  .menu { position: relative; }
+  .menu__list { position: absolute; right: 0; top: calc(100% + 4px); min-width: 200px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--dropdown-radius); box-shadow: var(--dropdown-shadow); padding: var(--space-1); z-index: var(--z-dropdown); }
+  .menu__list[hidden] { display: none; }
+  .menu__list button { display: block; width: 100%; text-align: left; border: 0; background: none; font: inherit; font-size: var(--font-size-md); padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); cursor: pointer; color: var(--color-text-primary); }
+  .menu__list button:hover { background: var(--color-surface-hover); }
+  .strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: var(--space-6); }
+  .strip > div { padding: var(--space-4) var(--space-5); border-left: 1px solid var(--color-border); }
+  .strip > div:first-child { border-left: 0; }
+  .strip dt { font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .strip dd { margin: var(--space-1) 0 0; font-size: var(--font-size-xl); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+  .strip small { display: block; font-size: var(--font-size-sm); font-weight: var(--fw-regular); color: var(--color-text-tertiary); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--space-6); align-items: start; }
+  section.card { padding: var(--card-padding); }
+  section.card h2 { margin: 0 0 var(--space-1); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); font-weight: var(--fw-semibold); }
+  .lead { margin: 0 0 var(--space-4); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .tw { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--font-size-md); }
+  th { text-align: left; font-weight: var(--fw-medium); color: var(--color-text-secondary); background: var(--table-head-bg); padding: var(--space-3); white-space: nowrap; }
+  td { padding: var(--space-3); border-top: 1px solid var(--color-border); vertical-align: top; }
+  .r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .own { display: grid; gap: var(--space-4); }
+  .own li { list-style: none; position: relative; padding-left: var(--space-5); }
+  .own ul { margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  .own li::before { content: ""; position: absolute; left: 0; top: 7px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--color-border-strong); background: var(--color-surface); }
+  .own li.now::before { border-color: var(--color-primary); background: var(--color-primary); }
+  .own .when { color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .own a { color: var(--color-text-link); }
+  .side dl { grid-template-columns: 104px 1fr; }
+  .foot { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin-top: var(--space-6); }
+  dialog { border: 0; border-radius: var(--dialog-radius); box-shadow: var(--dialog-shadow); padding: 0; width: min(var(--dialog-width-sm), calc(100vw - 32px)); color: var(--color-text-primary); }
+  dialog::backdrop { background: var(--color-surface-overlay); }
+  dialog form { padding: var(--space-6); display: grid; gap: var(--space-4); }
+  dialog h2 { margin: 0; font-size: var(--font-size-xl); line-height: var(--lh-lg); }
+  dialog .lead { margin: 0; }
+  .bar { display: flex; justify-content: flex-end; gap: var(--space-2); }
+
+  .gal { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--space-4); }
+  .gal__main { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-surface-subtle); padding: 0; cursor: zoom-in; display: block; width: 100%; }
+  .gal__main img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+  .gal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); align-content: start; }
+  .gal__grid button, .gal__add { padding: 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface-subtle); cursor: zoom-in; position: relative; }
+  .gal__grid img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+  .gal__add { aspect-ratio: 4 / 3; display: grid; place-items: center; border-style: dashed; border-color: var(--control-border); background: var(--color-surface); color: var(--color-text-secondary); font: inherit; font-size: var(--font-size-sm); cursor: pointer; text-align: center; padding: var(--space-2); }
+  .gal__add:hover { background: var(--color-surface-hover); }
+  .cap { position: absolute; left: var(--space-2); bottom: var(--space-2); padding: 2px var(--space-2); border-radius: var(--radius-xs); background: var(--color-surface); font-size: var(--font-size-xs); color: var(--color-text-primary); }
+  .gal__bar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; justify-content: space-between; margin-bottom: var(--space-4); }
+  .gal__bar > div { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .gal__note { margin: var(--space-3) 0 0; font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  dialog.lb { width: min(960px, calc(100vw - 32px)); background: var(--color-surface); }
+  dialog.lb .body { display: grid; grid-template-columns: minmax(0, 1fr) 260px; }
+  dialog.lb img { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; }
+  dialog.lb .info { padding: var(--space-5); display: grid; gap: var(--space-3); align-content: start; }
+  dialog.lb .info dl { grid-template-columns: 76px 1fr; font-size: var(--font-size-sm); }
+  dialog.lb .nav { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-5); border-top: 1px solid var(--color-border); justify-content: space-between; align-items: center; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  @media (max-width: 719px) { .gal { grid-template-columns: minmax(0, 1fr); } dialog.lb .body { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .strip > div:nth-child(3) { border-left: 0; } .strip > div:nth-child(n+3) { border-top: 1px solid var(--color-border); } }
+  @media (max-width: 599px) { :root { --page-padding-x: var(--space-4); } section.card { padding: var(--space-4); } .plate--xl { font-size: var(--font-size-2xl); height: 40px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="vehicles.html">Xe</a> / 51H-123.45</p>
+  <header class="head">
+    <div>
+      <div class="titleRow">
+        <span class="plate plate--xl">51H-123.45</span>
+        <span class="model">Toyota Vios 1.5G 2019</span>
+      </div>
+      <div class="prev">Biển số cũ: <span class="plate">51H-120.01</span> đến 15/03/2022</div>
+    </div>
+    <div class="head__actions">
+      <a class="b b--primary" href="#">Tiếp nhận xe</a>
+      <div class="menu">
+        <button class="b b--secondary" type="button" id="mb" aria-haspopup="true" aria-expanded="false">Thao tác khác</button>
+        <div class="menu__list" id="ml" hidden>
+          <button type="button" data-open="dOwner">Chuyển chủ xe</button>
+          <button type="button" data-open="dPlate">Đổi biển số</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <dl class="card strip" aria-label="Tóm tắt xe">
+    <div><dt>Số km gần nhất</dt><dd>3.100.100<small>cập nhật 12/07/2026</small></dd></div>
+    <div><dt>Lần sửa gần nhất</dt><dd>12/07/2026<small>Chi nhánh Quận 7</small></dd></div>
+    <div><dt>Số lần sửa</dt><dd>2<small>ở 2 chi nhánh</small></dd></div>
+    <div><dt>Chủ hiện tại</dt><dd style="font-size:var(--font-size-lg)"><a href="customer-detail.html" style="color:var(--color-text-link)">Nguyễn Văn An</a><small>từ 01/01/2024</small></dd></div>
+  </dl>
+
+  <div class="layout">
+    <main style="display:grid;gap:var(--space-6);grid-template-columns:minmax(0,1fr)">
+      <section class="card" aria-labelledby="gh">
+        <div class="gal__bar">
+          <h2 id="gh" style="margin:0">Hình ảnh xe <span style="color:var(--color-text-tertiary);font-weight:var(--fw-regular)" id="gcount">5</span></h2>
+          <div role="group" aria-label="Lọc ảnh">
+            <button class="chip" type="button" aria-pressed="true" data-g="all">Tất cả</button>
+            <button class="chip" type="button" aria-pressed="false" data-g="ext">Ngoại thất</button>
+            <button class="chip" type="button" aria-pressed="false" data-g="int">Nội thất</button>
+            <button class="chip" type="button" aria-pressed="false" data-g="damage">Hư hỏng</button>
+            <button class="chip" type="button" aria-pressed="false" data-g="doc">Giấy tờ</button>
+          </div>
+        </div>
+        <div class="gal" id="gal"></div>
+        <p class="gal__note">Ảnh giấy tờ chứa thông tin cá nhân nên chỉ hiện với vai trò được phép. Mỗi lần xem ảnh giấy tờ được ghi vào nhật ký truy cập. Hỗ trợ JPG, PNG, WebP, tối đa 10 MB mỗi ảnh.</p>
+        <input id="gfile" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+      </section>
+
+      <section class="card" aria-labelledby="hh">
+        <h2 id="hh">Lịch sử sửa chữa</h2>
+        <p class="lead">Hiển thị lần sửa ở mọi chi nhánh. Chỉ có ngày, chi nhánh, hạng mục, phụ tùng, số km và giá; không mở được lệnh của chi nhánh khác.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Ngày</th><th>Chi nhánh</th><th>Mã lệnh</th><th>Hạng mục</th><th>Phụ tùng</th><th class="r">Số km</th><th class="r">Giá</th></tr></thead>
+            <tbody>
+              <tr><td>12/07/2026</td><td>Chi nhánh Quận 7</td><td>RO-Q7-2607-00093</td><td>Bảo dưỡng định kỳ 60.000 km</td><td>Lọc dầu ×1, Dầu động cơ 4L ×1</td><td class="r">58.000</td><td class="r">2.150.000 ₫</td></tr>
+              <tr><td>03/03/2026</td><td>Chi nhánh Thủ Đức</td><td>RO-TD-2603-00041</td><td>Cân chỉnh thước lái, Thay lốp</td><td>Lốp 185/60R15 ×2</td><td class="r">52.100</td><td class="r">3.400.000 ₫</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <aside style="display:grid;gap:var(--space-6);grid-template-columns:minmax(0,1fr)">
+      <section class="card side" aria-labelledby="ph">
+        <h2 id="ph" style="margin-bottom:var(--space-4)">Hồ sơ xe</h2>
+        <dl>
+          <dt>Số khung</dt><dd>—</dd>
+          <dt>Số máy</dt><dd>—</dd>
+          <dt>Loại hình</dt><dd>Xe cá nhân</dd>
+        </dl>
+      </section>
+      <section class="card own" aria-labelledby="oh">
+        <h2 id="oh" style="margin-bottom:var(--space-4)">Lịch sử sở hữu</h2>
+        <ul>
+          <li class="now"><a href="customer-detail.html">Nguyễn Văn An</a><div class="when">01/01/2024 đến nay</div></li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+  <p class="foot">Tạo ngày 01/10/2026</p>
+</div>
+
+<dialog class="lb" id="lb" aria-label="Xem ảnh">
+  <div class="body">
+    <img id="lbImg" alt="">
+    <div class="info">
+      <strong id="lbTag"></strong>
+      <dl><dt>Ngày chụp</dt><dd id="lbDate"></dd><dt>Nguồn</dt><dd id="lbSrc"></dd><dt>Người tải</dt><dd>Chủ Garage Demo</dd></dl>
+      <button class="b b--secondary b--sm" type="button" id="lbCover">Đặt làm ảnh đại diện</button>
+      <button class="b b--secondary b--sm" type="button" style="color:var(--color-danger-text)">Xóa ảnh</button>
+    </div>
+  </div>
+  <div class="nav"><button class="b b--secondary b--sm" type="button" id="lbPrev">Ảnh trước</button><span id="lbPos"></span><button class="b b--secondary b--sm" type="button" id="lbNext">Ảnh sau</button><button class="b b--primary b--sm" type="button" id="lbClose">Đóng</button></div>
+</dialog>
+<dialog id="dOwner" aria-labelledby="dOwnerT">
+  <form method="dialog">
+    <h2 id="dOwnerT">Chuyển chủ xe</h2>
+    <p class="lead">Lịch sử sửa chữa của xe được giữ nguyên. Chủ cũ được đóng vào ngày trước ngày chuyển.</p>
+    <div class="field"><label for="no">Chủ mới <span class="req" aria-hidden="true">*</span></label><input id="no" placeholder="Tìm theo tên, mã khách hoặc số điện thoại" autocomplete="off"><span class="hint">Gõ ít nhất 2 chữ, hoặc 4 số của số điện thoại.</span></div>
+    <div class="field"><label for="nd">Ngày chuyển chủ <span class="req" aria-hidden="true">*</span></label><input id="nd" type="date" value="2026-11-07"></div>
+    <div class="field"><label for="nn">Ghi chú</label><input id="nn" maxlength="200"></div>
+    <div class="bar"><button class="b b--secondary" value="cancel">Hủy</button><button class="b b--primary" value="ok">Chuyển chủ</button></div>
+  </form>
+</dialog>
+<dialog id="dPlate" aria-labelledby="dPlateT">
+  <form method="dialog">
+    <h2 id="dPlateT">Đổi biển số</h2>
+    <p class="lead">Biển số cũ vẫn được lưu trong hồ sơ xe.</p>
+    <div class="field"><label for="np">Biển số mới <span class="req" aria-hidden="true">*</span></label><input id="np" placeholder="Ví dụ 51H-123.45" autocomplete="off"></div>
+    <div class="field"><label for="nr">Lý do đổi <span class="req" aria-hidden="true">*</span></label><input id="nr" maxlength="200"><span class="hint">Ít nhất 5 ký tự.</span></div>
+    <div class="bar"><button class="b b--secondary" value="cancel">Hủy</button><button class="b b--primary" value="ok">Đổi biển số</button></div>
+  </form>
+</dialog>
+<script src="photos.js"></script>
+<script>
+  const mb = document.getElementById('mb'), ml = document.getElementById('ml');
+  const close = () => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); };
+  mb.addEventListener('click', () => { ml.hidden = !ml.hidden; mb.setAttribute('aria-expanded', String(!ml.hidden)); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.menu')) close(); });
+  document.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => { close(); document.getElementById(b.dataset.open).showModal(); }));
+
+  const photos = [
+    { hue: 205, tag: 'ext', label: 'Ngoại thất', date: '12/07/2026', src: 'Lệnh RO-Q7-2607-00093, lúc nhận xe' },
+    { hue: 205, tag: 'ext', label: 'Ngoại thất', date: '03/03/2026', src: 'Lệnh RO-TD-2603-00041, lúc nhận xe' },
+    { hue: 28, tag: 'int', label: 'Nội thất', date: '03/03/2026', src: 'Lệnh RO-TD-2603-00041, lúc nhận xe' },
+    { hue: 0, tag: 'damage', label: 'Hư hỏng', date: '12/07/2026', src: 'Lệnh RO-Q7-2607-00093, trầy cản trước' },
+    { hue: 150, tag: 'doc', label: 'Giấy tờ', date: '01/10/2026', src: 'Tải lên trực tiếp, đăng ký xe' },
+  ];
+  let filt = 'all', cur = 0, shown = [];
+  const gal = document.getElementById('gal');
+  function renderGal() {
+    shown = photos.filter((p) => filt === 'all' || p.tag === filt);
+    document.getElementById('gcount').textContent = photos.length;
+    const img = (p, i) => `<img src="${ph(p.hue, p.tag)}" alt="${p.label}, ${p.date}">`;
+    const main = shown[0] ? `<button class="gal__main" type="button" data-i="0" aria-label="Xem ảnh ${shown[0].label}, ${shown[0].date}">${img(shown[0])}<span class="cap">${shown[0].label}, ${shown[0].date}</span></button>` : '<p style="grid-column:1/-1;margin:0;color:var(--color-text-secondary)">Chưa có ảnh nào ở nhóm này.</p>';
+    const rest = shown.slice(1).map((p, i) => `<button type="button" data-i="${i + 1}" aria-label="Xem ảnh ${p.label}, ${p.date}">${img(p)}<span class="cap">${p.label}</span></button>`).join('');
+    gal.innerHTML = main + `<div class="gal__grid">${rest}<button class="gal__add" type="button" id="gadd">Thêm ảnh<br>chụp hoặc chọn từ máy</button></div>`;
+    document.getElementById('gadd').addEventListener('click', () => document.getElementById('gfile').click());
+  }
+  gal.addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (b) openLb(+b.dataset.i); });
+  document.querySelectorAll('[data-g]').forEach((c) => c.addEventListener('click', () => {
+    filt = c.dataset.g; document.querySelectorAll('[data-g]').forEach((x) => x.setAttribute('aria-pressed', String(x === c))); renderGal();
+  }));
+  function openLb(i) {
+    cur = (i + shown.length) % shown.length; const p = shown[cur];
+    document.getElementById('lbImg').src = ph(p.hue, p.tag); document.getElementById('lbImg').alt = p.label;
+    document.getElementById('lbTag').textContent = p.label; document.getElementById('lbDate').textContent = p.date; document.getElementById('lbSrc').textContent = p.src;
+    document.getElementById('lbPos').textContent = `${cur + 1} / ${shown.length}`;
+    const d = document.getElementById('lb'); if (!d.open) d.showModal();
+  }
+  document.getElementById('lbPrev').addEventListener('click', () => openLb(cur - 1));
+  document.getElementById('lbNext').addEventListener('click', () => openLb(cur + 1));
+  document.getElementById('lbClose').addEventListener('click', () => document.getElementById('lb').close());
+  document.getElementById('lb').addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') openLb(cur + 1); if (e.key === 'ArrowLeft') openLb(cur - 1); });
+  renderGal();
+</script>
+</body>
+</html>

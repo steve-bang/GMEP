@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khách hàng – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<style>
+  body { background: var(--color-page); color: var(--color-text-primary); font-family: var(--font-sans); margin: 0; }
+  .wrap { max-width: var(--content-max-width); margin: 0 auto; padding: var(--page-padding-y) var(--page-padding-x) var(--space-12); }
+  .head { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-end; justify-content: space-between; margin-bottom: var(--space-6); }
+  .head h1 { font-size: var(--font-size-2xl); line-height: var(--lh-xl); font-weight: var(--fw-semibold); margin: 0; }
+  .head p { margin: var(--space-1) 0 0; color: var(--color-text-secondary); font-size: var(--font-size-md); max-width: 62ch; }
+  .head__actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .b { min-height: var(--btn-height-md); padding: 0 var(--btn-px); border-radius: var(--btn-radius); font: inherit; font-weight: var(--fw-medium); font-size: var(--font-size-md); cursor: pointer; border: 1px solid transparent; display: inline-flex; align-items: center; }
+  .b--primary { background: var(--btn-primary-bg); color: var(--btn-primary-fg); }
+  .b--primary:hover { background: var(--btn-primary-bg-hover); }
+  .b--secondary { background: var(--btn-secondary-bg); border-color: var(--btn-secondary-border); color: var(--btn-secondary-fg); }
+  .b:focus-visible, .row:focus-visible, .seg button:focus-visible, .search input:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-outline-offset); }
+
+  /* Tìm kiếm là hành động đầu tiên ở quầy */
+  .find { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-4); }
+  .search { flex: 1 1 360px; position: relative; }
+  .search input { width: 100%; height: var(--input-height-touch); padding: 0 var(--space-4); border: 1px solid var(--input-border); border-radius: var(--input-radius); background: var(--input-bg); font: inherit; font-size: var(--font-size-lg); color: var(--color-text-primary); }
+  .search input::placeholder { color: var(--input-placeholder); }
+  .seg { display: inline-flex; border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--color-surface); overflow: hidden; }
+  .seg button { height: calc(var(--input-height-touch) - 2px); padding: 0 var(--space-4); border: 0; background: transparent; font: inherit; font-size: var(--font-size-md); color: var(--color-text-secondary); cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--color-border); }
+  .seg button[aria-pressed="true"] { background: var(--color-primary-subtle); color: var(--color-brand-700); font-weight: var(--fw-medium); }
+  .scope { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin: 0 0 var(--space-3); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--space-6); align-items: start; }
+  .list { background: var(--color-surface); border: 1px solid var(--card-border); border-radius: var(--card-radius); box-shadow: var(--card-shadow); overflow: hidden; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) 150px 120px; gap: var(--space-4); align-items: center; padding: var(--space-3) var(--space-5); min-height: var(--table-row-height-lg); border: 0; border-top: 1px solid var(--color-border); background: transparent; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  .row:first-child { border-top: 0; }
+  .row:hover { background: var(--color-surface-hover); }
+  .row[aria-selected="true"] { background: var(--color-surface-selected); box-shadow: inset 3px 0 0 var(--color-primary); }
+  .cname { font-weight: var(--fw-medium); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); }
+  .ccode { color: var(--color-text-tertiary); font-size: var(--font-size-sm); font-variant-numeric: tabular-nums; }
+  .plates { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .plate { display: inline-flex; align-items: center; height: 28px; padding: 0 var(--space-2); border: 1.5px solid var(--color-text-primary); border-radius: var(--radius-xs); background: var(--color-surface); font-weight: var(--fw-semibold); font-size: var(--font-size-md); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+  .plate--none { border: 1px dashed var(--control-border); color: var(--color-text-tertiary); font-weight: var(--fw-regular); letter-spacing: 0; }
+  .visit { font-size: var(--font-size-md); }
+  .visit small { display: block; color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .badge { display: inline-flex; align-items: center; height: var(--badge-height); padding: 0 var(--badge-px); border-radius: var(--badge-radius); font-size: var(--font-size-sm); font-weight: var(--fw-medium); border: 1px solid; }
+  .badge--info { background: var(--color-info-bg); color: var(--color-info-text); border-color: var(--color-info-border); }
+  .badge--success { background: var(--color-success-bg); color: var(--color-success-text); border-color: var(--color-success-border); }
+  .badge--neutral { background: var(--color-neutral-bg); color: var(--color-neutral-text); border-color: var(--color-neutral-border); }
+  .rowfoot { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-5); border-top: 1px solid var(--color-border); background: var(--table-head-bg); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+
+  /* Xem nhanh: trả lời "khách này đang ở đâu trong quy trình?" */
+  .peek { background: var(--color-surface); border: 1px solid var(--card-border); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: var(--card-padding); position: sticky; top: var(--space-4); }
+  .peek h2 { margin: 0; font-size: var(--font-size-xl); line-height: var(--lh-lg); font-weight: var(--fw-semibold); }
+  .peek .sub { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin: var(--space-1) 0 var(--space-4); }
+  .now { background: var(--color-info-bg); border: 1px solid var(--color-info-border); color: var(--color-info-text); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); font-size: var(--font-size-md); }
+  .now strong { display: block; font-weight: var(--fw-semibold); }
+  dl { margin: 0; display: grid; grid-template-columns: 112px 1fr; gap: var(--space-3) var(--space-4); font-size: var(--font-size-md); }
+  dt { color: var(--color-text-tertiary); }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .peek__actions { display: flex; gap: var(--space-2); margin-top: var(--space-6); }
+  .peek__actions .b { flex: 1; justify-content: center; }
+
+  @media (max-width: 1023px) { .layout { grid-template-columns: 1fr; } .peek { position: static; } }
+  @media (max-width: 719px) {
+    :root { --page-padding-x: var(--space-4); }
+    .row { grid-template-columns: 1fr auto; row-gap: var(--space-2); }
+    .row > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+    .row > :nth-child(3) { display: none; }
+    .row > :nth-child(4) { grid-column: 2; grid-row: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1>Khách hàng</h1>
+      <p>Hồ sơ khách dùng chung giữa các chi nhánh trong phạm vi quyền của bạn. Số điện thoại được che theo vai trò.</p>
+    </div>
+    <div class="head__actions">
+      <button class="b b--secondary" type="button">Tra cứu toàn chuỗi</button>
+      <button class="b b--secondary" type="button">Xuất danh sách</button>
+      <button class="b b--primary" type="button">Thêm khách</button>
+    </div>
+  </header>
+
+  <form class="find" role="search" onsubmit="return false">
+    <div class="search">
+      <label class="visually-hidden" for="q" style="position:absolute;left:-9999px">Tìm khách</label>
+      <input id="q" type="search" placeholder="Nhập biển số, số điện thoại hoặc tên khách" autocomplete="off">
+    </div>
+    <div class="seg" role="group" aria-label="Loại khách">
+      <button type="button" aria-pressed="true">Tất cả</button>
+      <button type="button" aria-pressed="false">Cá nhân</button>
+      <button type="button" aria-pressed="false">Doanh nghiệp</button>
+    </div>
+  </form>
+  <p class="scope">Phạm vi: Chi nhánh Quận 7</p>
+
+  <div class="layout">
+    <section class="list" aria-label="Danh sách khách hàng">
+      <button class="row" type="button" aria-selected="true">
+        <span><span class="cname">Công ty TNHH Vận tải Demo</span><br><span class="ccode">KH-Q7-00002 · Doanh nghiệp</span></span>
+        <span class="plates"><span class="plate">51D-482.19</span><span class="plate">51D-482.20</span></span>
+        <span class="visit">Hôm nay<small>Đang sửa chữa</small></span>
+        <span><span class="badge badge--info">Đang sửa</span></span>
+      </button>
+      <button class="row" type="button" aria-selected="false">
+        <span><span class="cname">Nguyễn Văn An</span><br><span class="ccode">KH-Q7-00001 · Cá nhân</span></span>
+        <span class="plates"><span class="plate">59A1-367.08</span></span>
+        <span class="visit">01/10/2026<small>Đã bàn giao</small></span>
+        <span><span class="badge badge--success">Hoạt động</span></span>
+      </button>
+      <button class="row" type="button" aria-selected="false">
+        <span><span class="cname">Trần Thị Mai</span><br><span class="ccode">KH-Q7-00003 · Cá nhân</span></span>
+        <span class="plates"><span class="plate">51K-905.31</span></span>
+        <span class="visit">18/09/2026<small>Đã bàn giao</small></span>
+        <span><span class="badge badge--success">Hoạt động</span></span>
+      </button>
+      <button class="row" type="button" aria-selected="false">
+        <span><span class="cname">Lê Quốc Hùng</span><br><span class="ccode">KH-Q7-00004 · Cá nhân</span></span>
+        <span class="plates"><span class="plate plate--none">Chưa có xe</span></span>
+        <span class="visit">Chưa có lần ghé<small>Mới thêm</small></span>
+        <span><span class="badge badge--neutral">Chưa phát sinh</span></span>
+      </button>
+      <div class="rowfoot"><span>Hiển thị 4 khách</span><span>Trang 1</span></div>
+    </section>
+
+    <aside class="peek" aria-label="Xem nhanh khách đã chọn">
+      <h2>Công ty TNHH Vận tải Demo</h2>
+      <p class="sub">KH-Q7-00002</p>
+      <div class="now"><strong>Đang có 1 lệnh sửa chữa</strong>51D-482.19, chờ QC từ 09:40</div>
+      <dl>
+        <dt>Loại khách</dt><dd>Doanh nghiệp</dd>
+        <dt>Điện thoại</dt><dd>09•• ••• 233</dd>
+        <dt>Số xe</dt><dd>2 xe</dd>
+        <dt>Lần ghé gần nhất</dt><dd>Hôm nay</dd>
+        <dt>Ngày tạo</dt><dd>01/10/2026</dd>
+      </dl>
+      <div class="peek__actions">
+        <button class="b b--primary" type="button">Tiếp nhận xe</button>
+        <button class="b b--secondary" type="button">Mở hồ sơ</button>
+      </div>
+    </aside>
+  </div>
+</div>
+</body>
+</html>
