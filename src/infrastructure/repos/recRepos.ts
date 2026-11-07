@@ -29,7 +29,10 @@ import type {
 } from '@/modules/rec';
 import type {
   Appointment,
+  AppointmentCancellation,
+  AppointmentReschedule,
   AppointmentRepository,
+  AppointmentStatus,
   WarrantyRecord,
   WarrantyRepository,
 } from '@/modules/rec';
@@ -218,6 +221,8 @@ const appointmentFromDoc = ({ id, data: x }: StoredDoc): Appointment => ({
   ...put('advisorId', opt<string>(x.advisorId)),
   ...put('note', opt<string>(x.note)),
   ...put('cancelReason', opt<string>(x.cancelReason)),
+  ...put('cancellation', opt<AppointmentCancellation>(x.cancellation)),
+  ...put('reschedules', opt<AppointmentReschedule[]>(x.reschedules)),
   overCapacity: x.overCapacity === true,
   ...put('intakeId', opt<string>(x.intakeId)),
   ...put('arrivedAt', opt<Date>(x.arrivedAt)),
@@ -235,6 +240,22 @@ export class DocAppointmentRepository implements AppointmentRepository {
     const rows = await this.store.query(Q.appointmentsByDate.pick([], false), {
       eq: { tenantId: scope.tenantId, branchId },
       range: { gte: from, lt: to },
+      limit,
+    });
+    return rows.map(appointmentFromDoc);
+  }
+  async listByStatus(
+    scope: Scope,
+    branchId: string,
+    status: AppointmentStatus,
+    from: string | null,
+    toExclusive: string,
+    limit: number,
+  ) {
+    if (!scopeAllows(scope, scope.tenantId, branchId)) return [];
+    const rows = await this.store.query(Q.appointmentsByStatus.pick([], false), {
+      eq: { tenantId: scope.tenantId, branchId, status },
+      range: { ...(from ? { gte: from } : {}), lt: toExclusive },
       limit,
     });
     return rows.map(appointmentFromDoc);

@@ -350,6 +350,8 @@ const EXEMPT: Record<string, string> = {
   'v1/rec/pickers/packages':
     'maintenance package catalogue (FR-REC-020), company-level configuration',
   'v1/rec/service-workflows': 'workflow catalogue, company-level',
+  'v1/rec/appointment-reasons':
+    'FR-REC-045/046: tenant catalogue of cancel/reschedule reasons (company-level); tenant axis below and in rec-appointments.test.ts',
   'v1/rec/intakes/[id]/photos/[pid]':
     'file download, covered in rec-photos tests of rec-orders.test.ts',
   'v1/rec/orders/[id]/photos/[pid]': 'file download, covered in rec-orders.test.ts',
@@ -999,6 +1001,8 @@ describe.each(backends)('FR-SYS-002 / UAT-06 generated isolation matrix [%s]', (
       '/api/v1/rec/pickers/parts?q=a',
       '/api/v1/rec/pickers/services?q=a',
       '/api/v1/rec/service-workflows',
+      '/api/v1/rec/appointment-reasons?kind=cancel',
+      '/api/v1/rec/appointment-reasons?kind=reschedule',
       '/api/v1/ein/connection',
       '/api/v1/sys/approvals',
       '/api/v1/sys/approvals/delegations',

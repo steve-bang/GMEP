@@ -13,7 +13,7 @@ import type {
   QuoteVersion,
 } from '../domain/entities';
 import type { MessageQueue, QuoteDelivery, QuoteOtpRecord } from '../domain/messaging';
-import type { Appointment } from '../domain/appointment';
+import type { Appointment, AppointmentStatus } from '../domain/appointment';
 import type { WarrantyRecord } from '../domain/warranty';
 
 type Cursor = { v: string; id: string };
@@ -224,6 +224,15 @@ export interface AppointmentRepository {
     scope: Scope,
     branchId: string,
     from: string,
+    toExclusive: string,
+    limit: number,
+  ): Promise<Appointment[]>;
+  /** FR-REC-044: one branch, one status, `from` (inclusive, null = no lower bound) <= date < `toExclusive`, date ascending */
+  listByStatus(
+    scope: Scope,
+    branchId: string,
+    status: AppointmentStatus,
+    from: string | null,
     toExclusive: string,
     limit: number,
   ): Promise<Appointment[]>;

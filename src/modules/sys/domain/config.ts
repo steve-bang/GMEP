@@ -673,7 +673,52 @@ export const CONFIG_TYPES: Record<string, ConfigTypeDef> = {
     scopeKey: companyOrBranchKey,
     branchOverride: true,
     payload: z
-      .object({ enabled: z.boolean(), dailyCapacity: z.number().int().min(0).max(10_000) })
+      .object({
+        enabled: z.boolean(),
+        dailyCapacity: z.number().int().min(0).max(10_000),
+        // FR-REC-044..046 (BA appointments-improvements-ba.md 5.1 D3); absent = the documented default
+        overdueGraceMinutes: z.number().int().min(0).max(1440).optional(),
+        staleDays: z.number().int().min(1).max(365).optional(),
+        maxReschedules: z.number().int().min(0).max(50).optional(),
+        lateRescheduleMinutes: z.number().int().min(0).max(1440).optional(),
+        noteMinLength: z.number().int().min(1).max(100).optional(),
+      })
+      .strict(),
+  },
+  // FR-REC-045 (Q94): reasons for CANCELLING an appointment: a tenant catalogue, effective-dated, stable code, the name
+  // is copied onto the appointment when it is cancelled. `other` is the system code (always offered, note mandatory).
+  // QL proposes, CH approves (same resource as `appointment-policy`). SAMPLES are seeded in the demo tenant only.
+  'appointment-cancel-reason': {
+    type: 'appointment-cancel-reason',
+    resource: 'appointment-policy',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        party: z.enum(['customer', 'garage', 'other']),
+        noteRequired: z.boolean().optional(),
+        order: z.number().int().min(0).max(999).optional(),
+      })
+      .strict(),
+  },
+  // FR-REC-046 (Q95): reasons for RESCHEDULING (own catalogue; `party` is only the suggested requester)
+  'appointment-reschedule-reason': {
+    type: 'appointment-reschedule-reason',
+    resource: 'appointment-policy',
+    scopeKey: keyed(/^[a-z][a-z0-9_-]{0,29}$/),
+    branchOverride: false,
+    proposeFromBranch: true,
+    payload: z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        status: z.enum(['active', 'inactive']),
+        party: z.enum(['customer', 'garage', 'other']),
+        noteRequired: z.boolean().optional(),
+        order: z.number().int().min(0).max(999).optional(),
+      })
       .strict(),
   },
   // FR-REC-018, 036 (slice 2.8b): warranty term per service type (`svc:<type>`, or `default`), days and/or km (0 = no

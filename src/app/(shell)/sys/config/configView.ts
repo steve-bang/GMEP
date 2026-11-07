@@ -114,6 +114,8 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
       });
     }
     case 'decline-reason':
+    case 'appointment-cancel-reason':
+    case 'appointment-reschedule-reason':
     case 'evidence-kind':
     case 'service-type':
     case 'part-group':
@@ -191,6 +193,18 @@ export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
   'decline-reason': [
     { name: 'name', kind: 'text' },
     { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+  ],
+  'appointment-cancel-reason': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+    { name: 'party', kind: 'select', options: ['customer', 'garage', 'other'] },
+    { name: 'order', kind: 'int' },
+  ],
+  'appointment-reschedule-reason': [
+    { name: 'name', kind: 'text' },
+    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
+    { name: 'party', kind: 'select', options: ['customer', 'garage', 'other'] },
+    { name: 'order', kind: 'int' },
   ],
   'evidence-kind': [
     { name: 'name', kind: 'text' },

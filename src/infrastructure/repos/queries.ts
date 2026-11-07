@@ -662,6 +662,18 @@ export const Q = {
     range: true,
     order: { field: 'date', dir: 'asc', type: 'string' },
   }),
+  /**
+   * REC slice 2.8b / FR-REC-044: appointments of ONE branch in ONE status over a date range, date ascending. Feeds the
+   * "Trễ hẹn" tab (pending, every day up to today, not bounded by the viewed day). ONE composite index
+   * (tenantId, branchId, status, date); the overdue minute test runs in memory over the bounded window.
+   */
+  appointmentsByStatus: defineQuery({
+    name: 'appointments.byStatus',
+    collection: COL.appointments,
+    eq: ['tenantId', 'branchId', 'status'],
+    range: true,
+    order: { field: 'date', dir: 'asc', type: 'string' },
+  }),
   /** REC slice 2.8b (FR-REC-018, 036): warranty records of one vehicle in the tenant, newest first (projection P4) */
   warrantiesByVehicle: defineQuery({
     name: 'warranties.byVehicle',

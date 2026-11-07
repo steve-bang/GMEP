@@ -17,5 +17,15 @@ export function renderShortText(template: MessageTemplate, vars: Record<string, 
       if (!/^\d{4,8}$/.test(code)) throw new Error('message template: code must be digits');
       return `GMEP: Mã xác nhận duyệt báo giá là ${code}, hiệu lực ${vars.expiresMinutes ?? '5'} phút. Không chia sẻ mã này cho ai.`;
     }
+    // FR-REC-045/046: customer notice of a rescheduled or cancelled appointment (no internal reason, dd/MM/yyyy dates)
+    case 'appointment-notice': {
+      const no = vars.number ?? '';
+      if (!/^[A-Z0-9-]{4,40}$/.test(no)) throw new Error('message template: appointment number');
+      if (vars.kind === 'cancel')
+        return `GMEP: Lịch hẹn ${no} của bạn đã được hủy. Vui lòng liên hệ garage nếu cần đặt lại.`;
+      if (!/^\d{2}\/\d{2}\/\d{4}$/.test(vars.date ?? '') || !/^\d{2}:\d{2}$/.test(vars.time ?? ''))
+        throw new Error('message template: appointment date');
+      return `GMEP: Lịch hẹn ${no} của bạn đã được dời sang ${vars.time} ngày ${vars.date}.`;
+    }
   }
 }

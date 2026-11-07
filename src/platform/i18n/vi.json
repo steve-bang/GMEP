@@ -1348,6 +1348,8 @@
     },
     "fields": {
       "name": "Tên",
+      "party": "Bên liên quan",
+      "order": "Thứ tự hiển thị",
       "labor": "Mã thuế dòng công",
       "part": "Mã thuế dòng phụ tùng",
       "rateBp": "Thuế suất (%)",
@@ -1433,8 +1435,18 @@
       },
       "appointment-policy": {
         "title": "Lịch hẹn và công suất xưởng",
-        "lead": "Bật hoặc tắt lịch hẹn của chi nhánh và số xe mỗi ngày; vượt công suất chỉ cảnh báo. Chưa khai thì lịch hẹn tắt.",
+        "lead": "Bật hoặc tắt lịch hẹn của chi nhánh, số xe mỗi ngày, thời gian châm chước trễ hẹn (mặc định 0 phút), số ngày tồn đọng, số lần dời tối đa và cửa sổ dời sát giờ; vượt công suất chỉ cảnh báo. Chưa khai thì lịch hẹn tắt.",
         "scopeHint": "Công ty hoặc ghi đè riêng cho một chi nhánh"
+      },
+      "appointment-cancel-reason": {
+        "title": "Lý do hủy lịch hẹn",
+        "lead": "Danh mục lý do khi hủy lịch hẹn; tên lý do được ghi vào lịch lúc hủy. Mã khác luôn có và bắt buộc ghi chú. Không xóa, chỉ ngừng dùng.",
+        "scopeHint": "Mã lý do, chữ thường không dấu, ví dụ customer_busy"
+      },
+      "appointment-reschedule-reason": {
+        "title": "Lý do dời lịch hẹn",
+        "lead": "Danh mục lý do khi dời lịch hẹn; tên lý do được ghi vào lịch sử dời. Mã khác luôn có và bắt buộc ghi chú. Không xóa, chỉ ngừng dùng.",
+        "scopeHint": "Mã lý do, chữ thường không dấu, ví dụ customer_busy"
       },
       "labor-policy": {
         "title": "Quy tắc làm tròn và ngưỡng điều chỉnh công",
@@ -1558,6 +1570,11 @@
         "active": "Đang dùng",
         "inactive": "Ngừng dùng"
       },
+      "party": {
+        "customer": "Khách",
+        "garage": "Xưởng",
+        "other": "Khác"
+      },
       "costMethod": {
         "weighted-average": "Bình quân gia quyền"
       },
@@ -1669,6 +1686,8 @@
       "config_labor-position": "Cấu hình: Chức danh và hệ số công",
       "config_labor-policy": "Cấu hình: Quy tắc làm tròn và ngưỡng điều chỉnh công",
       "config_appointment-policy": "Cấu hình: Lịch hẹn và công suất xưởng",
+      "config_appointment-cancel-reason": "Cấu hình: Lý do hủy lịch hẹn",
+      "config_appointment-reschedule-reason": "Cấu hình: Lý do dời lịch hẹn",
       "config_service-package": "Cấu hình: Gói bảo dưỡng",
       "config_warranty-term": "Cấu hình: Thời hạn bảo hành",
       "config_warranty-policy": "Cấu hình: Chính sách bảo hành chéo chi nhánh",
@@ -1798,6 +1817,7 @@
       "appointment_update": "Sửa lịch hẹn",
       "appointment_cancel": "Hủy lịch hẹn",
       "appointment_no_show": "Ghi nhận khách vắng hẹn",
+      "appointment_reschedule": "Dời lịch hẹn",
       "appointment_arrive": "Khách đến theo lịch hẹn, mở hồ sơ tiếp nhận",
       "intake_create": "Mở hồ sơ tiếp nhận (nháp)",
       "intake_warranty_open": "Mở hồ sơ tiếp nhận bảo hành gắn lệnh gốc",

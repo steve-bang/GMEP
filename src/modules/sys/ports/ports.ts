@@ -396,7 +396,7 @@ export const MESSAGE_CHANNELS = ['sms', 'zalo', 'email'] as const;
 export type MessageChannel = (typeof MESSAGE_CHANNELS)[number];
 
 /** Template ids of the customer messages; wording lives in the adapters' template files, never in the callers. */
-export type MessageTemplate = 'quote-link' | 'approval-otp';
+export type MessageTemplate = 'quote-link' | 'approval-otp' | 'appointment-notice';
 
 export interface OutboundMessage {
   /** idempotency key: a retry with the same id must never reach the customer twice */

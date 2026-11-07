@@ -1,6 +1,6 @@
 # Ngân sách chỉ mục composite Firestore (R68, việc 4a)
 
-Trạng thái: **171 trên 200 sau slice 2.8b** (169 sau khi gộp các slice 2.1, 2.5, 2.6a; 2.8b thêm `appointments.byDate` và `warranties.byVehicle`; cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`; còn 24 chỗ trước ngưỡng fail). Slice 2.1 giảm 192 xuống 168 (`auditLogs` 32 xuống 8), 2.6a thêm `laborSheets.byBranch` (+1), 2.5 không thêm. Số đúng đo bằng `pnpm check:indexes`: **trước slice 2.1 là 192** (các tài liệu từng ghi 191, 192, 193 do lệch từng đợt: 193 là số trước khi bỏ `users.byEmployeeCode` ở MT-0; CLAUDE.md, tài liệu này và `multi-tenant-requirements-for-dev.md` §5 nay cùng ghi số đo thật). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra nhiều hơn vì có thêm 7 chính sách TTL trong `fieldOverrides`; TTL không tính vào hạn mức 200 composite. Mọi hình truy vấn nghiệp vụ phải có `tenantId` (test `tests/unit/tenant-invariants.test.ts`).
+Trạng thái: **172 trên 200 sau màn Lịch hẹn v2** (FR-REC-044 thêm `appointments.byStatus` (tenantId, branchId, status, date) cho tab Trễ hẹn, +1; còn 23 chỗ trước ngưỡng fail 195). Trước đó 171 sau slice 2.8b (169 sau khi gộp các slice 2.1, 2.5, 2.6a; 2.8b thêm `appointments.byDate` và `warranties.byVehicle`; cảnh báo từ 190, FAIL trên 195 theo `src/platform/store/indexBudget.ts`; còn 24 chỗ trước ngưỡng fail). Slice 2.1 giảm 192 xuống 168 (`auditLogs` 32 xuống 8), 2.6a thêm `laborSheets.byBranch` (+1), 2.5 không thêm. Số đúng đo bằng `pnpm check:indexes`: **trước slice 2.1 là 192** (các tài liệu từng ghi 191, 192, 193 do lệch từng đợt: 193 là số trước khi bỏ `users.byEmployeeCode` ở MT-0; CLAUDE.md, tài liệu này và `multi-tenant-requirements-for-dev.md` §5 nay cùng ghi số đo thật). Đếm chuỗi `collectionGroup` trong `firestore.indexes.json` ra nhiều hơn vì có thêm 7 chính sách TTL trong `fieldOverrides`; TTL không tính vào hạn mức 200 composite. Mọi hình truy vấn nghiệp vụ phải có `tenantId` (test `tests/unit/tenant-invariants.test.ts`).
 
 ## Đề xuất giải ngân sách của slice 2.1 (đã làm)
 
@@ -29,7 +29,7 @@ Trạng thái: **171 trên 200 sau slice 2.8b** (169 sau khi gộp các slice 2.
 
 ## Phân bổ theo phân hệ
 
-SYS 46 (`auditLogs` còn 8), REC 47, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng 171 sau slice 2.8b).
+SYS 46 (`auditLogs` còn 8), REC 48, INV 39, CRM 32, ACC 5, EIN 1, HRM 1 (tổng 172 sau màn Lịch hẹn v2; 171 sau slice 2.8b).
 
 ## Ứng viên gộp/bỏ (chỉ đề xuất, chưa làm; gỡ chỉ mục đòi đổi truy vấn)
 
