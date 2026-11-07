@@ -19,6 +19,18 @@
   .card2 .top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
   .card2 .plate { height: 28px; }
   .card2 .m { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .view { display: inline-flex; border: 1px solid var(--control-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); }
+  .view button { height: 32px; padding: 0 var(--space-3); border: 0; background: none; font: inherit; font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; }
+  .view button + button { border-left: 1px solid var(--color-border); }
+  .view button[aria-pressed="true"] { background: var(--color-primary-subtle); color: var(--color-brand-700); font-weight: var(--fw-medium); }
+  .car { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+  .car__img { width: 76px; height: 57px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--color-border); background: var(--color-surface-subtle); display: grid; place-items: center; text-align: center; font-size: var(--font-size-xs); line-height: 1.2; color: var(--color-text-disabled); }
+  .car__t { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.35; }
+  .car__t b { color: var(--color-text-primary); font-weight: var(--fw-medium); }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--color-border-strong); vertical-align: -1px; margin-right: 4px; }
+  .compact .car { grid-template-columns: minmax(0, 1fr); }
+  .compact .car__img { display: none; }
+  .compact .car__t .x { display: none; }
   .none { color: var(--color-text-tertiary); font-size: var(--font-size-sm); padding: var(--space-2); }
   .filters { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); align-items: center; }
   .live { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin-left: auto; }
@@ -32,56 +44,50 @@
     <button class="chip" type="button" aria-pressed="false" data-f="late">Xe trễ hẹn <span class="cnt cnt--danger">1</span></button>
     <button class="chip" type="button" aria-pressed="false" data-f="part">Xe chờ phụ tùng <span class="cnt cnt--warn">1</span></button>
     <button class="chip" type="button" aria-pressed="false" data-f="t7">Thợ Quận 7 <span class="cnt">2</span></button>
+    <span class="view" role="group" aria-label="Kiểu thẻ"><button type="button" aria-pressed="true" data-v="full">Có ảnh</button><button type="button" aria-pressed="false" data-v="compact">Gọn</button></span>
     <span class="live">Cập nhật lúc 14:05</span>
   </div>
 
-  <div class="cols" id="cols">
-    <section class="col" aria-labelledby="c1"><h2 id="c1">Đã duyệt <span class="cnt">1</span></h2>
-      <a class="card2" href="order-detail.html" data-tags="">
-        <div class="top"><span class="plate">51D-999.88</span><span class="t2">RO-…00002</span></div>
-        <span class="t1" style="font-size:var(--font-size-md)">Công ty TNHH Vận tải Demo</span>
-        <div class="m"><span class="badge badge--warning">2 hạng mục chưa có thợ</span></div>
-        <div class="m"><span>Hẹn 17:00 hôm nay</span></div>
-      </a></section>
-    <section class="col" aria-labelledby="c2"><h2 id="c2">Đang sửa <span class="cnt">2</span></h2>
-      <a class="card2 late" href="order-detail.html" data-tags="late t7">
-        <div class="top"><span class="plate">51H-123.45</span><span class="t2">RO-…00001</span></div>
-        <span class="t1" style="font-size:var(--font-size-md)">Nguyễn Văn An</span>
-        <div class="bar"><i style="width:8%"></i></div>
-        <div class="m"><span class="late">Trễ 2 giờ</span><span style="display:flex;align-items:center;gap:var(--space-2)"><span class="av">T7</span>0/2 xong</span></div>
-      </a>
-      <a class="card2" href="order-detail.html" data-tags="t7">
-        <div class="top"><span class="plate">29A-678.90</span><span class="t2">RO-…00007</span></div>
-        <span class="t1" style="font-size:var(--font-size-md)">Lê Quốc Hùng</span>
-        <div class="bar"><i style="width:50%"></i></div>
-        <div class="m"><span>Hẹn 16:30</span><span style="display:flex;align-items:center;gap:var(--space-2)"><span class="av">T7</span>1/2 xong</span></div>
-      </a></section>
-    <section class="col" aria-labelledby="c3"><h2 id="c3">Tạm dừng <span class="cnt">1</span></h2>
-      <a class="card2" href="order-detail.html" data-tags="part">
-        <div class="top"><span class="plate">51K-905.31</span><span class="t2">RO-…00008</span></div>
-        <span class="t1" style="font-size:var(--font-size-md)">Phạm Đức</span>
-        <div class="m"><span class="badge badge--warning">Tạm dừng: chờ lọc gió</span></div>
-        <div class="m"><span>Hẹn ngày mai 09:00</span></div>
-      </a></section>
-    <section class="col" aria-labelledby="c4"><h2 id="c4">Chờ kiểm tra <span class="cnt">0</span></h2><p class="none">Chưa có xe chờ kiểm tra chất lượng.</p></section>
-    <section class="col" aria-labelledby="c5"><h2 id="c5">Sẵn sàng giao <span class="cnt cnt--warn">2</span></h2>
-      <a class="card2" href="order-detail.html" data-tags="">
-        <div class="top"><span class="plate">51D-999.88</span><span class="t2">RO-…00003</span></div>
-        <span class="t1" style="font-size:var(--font-size-md)">Công ty TNHH Vận tải Demo</span>
-        <div class="m"><span>Xong 14:40</span><span class="badge badge--success">Chờ khách nhận</span></div>
-      </a>
-      <a class="card2" href="order-detail.html" data-tags="">
-        <div class="top"><span class="plate">51D-999.88</span><span class="t2">RO-…00006</span></div>
-        <span class="t1" style="font-size:var(--font-size-md)">Công ty TNHH Vận tải Demo</span>
-        <div class="m"><span>Xong 14:10</span><span class="badge badge--success">Chờ khách nhận</span></div>
-      </a></section>
-  </div>
+  <div class="cols" id="cols"></div>
 </div>
+<script src="photos.js"></script>
 <script>
-  const act = new Set(); const cards = [...document.querySelectorAll('.card2')];
+  // Dữ liệu mẫu. Màu xe là trường MỚI (hồ sơ xe hiện chưa có); ảnh lấy từ ảnh đại diện của xe nếu có.
+  const COLORS = { white: ['Trắng', '#ffffff'], black: ['Đen', '#111827'], silver: ['Bạc', '#c0c4cc'], red: ['Đỏ', '#dc2626'], blue: ['Xanh dương', '#2563eb'], gray: ['Xám', '#6b7280'] };
+  const COLS = [
+    ['Đã duyệt', [
+      { plate: '51D-999.88', ro: '00002', cus: 'Công ty TNHH Vận tải Demo', car: 'Hyundai Porter H150', yr: 2020, color: 'white', hue: 205, warn: '2 hạng mục chưa có thợ', due: 'Hẹn 17:00 hôm nay', tags: '' }]],
+    ['Đang sửa', [
+      { plate: '51H-123.45', ro: '00001', cus: 'Nguyễn Văn An', car: 'Toyota Vios 1.5G', yr: 2019, color: 'silver', hue: 215, late: 'Trễ 2 giờ', prog: 8, tech: 'T7', done: '0/2 xong', tags: 'late t7' },
+      { plate: '29A-678.90', ro: '00007', cus: 'Lê Quốc Hùng', car: 'Honda City', yr: 2022, color: 'white', hue: 28, prog: 50, due: 'Hẹn 16:30', tech: 'T7', done: '1/2 xong', tags: 't7' }]],
+    ['Tạm dừng', [
+      { plate: '51K-905.31', ro: '00008', cus: 'Phạm Đức', car: 'Kia Morning', yr: 2018, color: 'red', hue: 0, warn: 'Tạm dừng: chờ lọc gió', due: 'Hẹn ngày mai 09:00', tags: 'part' }]],
+    ['Chờ kiểm tra', []],
+    ['Sẵn sàng giao', [
+      { plate: '51D-999.88', ro: '00003', cus: 'Công ty TNHH Vận tải Demo', car: 'Hyundai Porter H150', yr: 2020, color: 'white', hue: 205, ok: 'Chờ khách nhận', due: 'Xong 14:40', tags: '' },
+      { plate: '59A1-367.08', ro: '00006', cus: 'Trần Thị Mai', car: 'Honda City', yr: 2022, color: 'black', hue: null, ok: 'Chờ khách nhận', due: 'Xong 14:10', tags: '' }]],
+  ];
+  const card = (c) => {
+    const [cn, hex] = COLORS[c.color];
+    const img = c.hue === null ? '<span class="car__img" role="img" aria-label="Chưa có ảnh">Chưa có ảnh</span>' : `<img class="car__img" src="${ph(c.hue)}" alt="Ảnh ${c.car}">`;
+    const bar = c.prog !== undefined ? `<div class="bar"><i style="width:${c.prog}%"></i></div>` : '';
+    let foot;
+    if (c.tech) foot = `<div class="m"><span class="${c.late ? 'late' : ''}">${c.late || c.due}</span><span style="display:flex;align-items:center;gap:var(--space-2)"><span class="av">${c.tech}</span>${c.done}</span></div>`;
+    else foot = `${c.warn ? `<div class="m"><span class="badge badge--warning">${c.warn}</span></div>` : ''}<div class="m"><span>${c.due}</span>${c.ok ? `<span class="badge badge--success">${c.ok}</span>` : ''}</div>`;
+    return `<a class="card2${c.late ? ' late' : ''}" href="order-detail.html" data-tags="${c.tags}">
+      <div class="top"><span class="plate">${c.plate}</span><span class="t2">RO-…${c.ro}</span></div>
+      <div class="car">${img}<div class="car__t"><b>${c.car}</b><span class="x"> ${c.yr}</span><br><span class="sw" style="background:${hex}" aria-hidden="true"></span>${cn}<span class="x"><br>${c.cus}</span></div></div>
+      ${bar}${foot}</a>`;
+  };
+  document.getElementById('cols').innerHTML = COLS.map(([t, list], i) => `<section class="col" aria-labelledby="c${i}"><h2 id="c${i}">${t} <span class="cnt">${list.length}</span></h2>${list.length ? list.map(card).join('') : '<p class="none">Chưa có xe chờ kiểm tra chất lượng.</p>'}</section>`).join('');
+  const act = new Set(); const cards = () => [...document.querySelectorAll('.card2')];
   document.querySelectorAll('[data-f]').forEach((b) => b.addEventListener('click', () => {
     const f = b.dataset.f; act.has(f) ? act.delete(f) : act.add(f); b.setAttribute('aria-pressed', String(act.has(f)));
-    cards.forEach((c) => { c.hidden = act.size > 0 && ![...act].every((a) => c.dataset.tags.includes(a)); });
+    cards().forEach((c) => { c.hidden = act.size > 0 && ![...act].every((x) => c.dataset.tags.includes(x)); });
+  }));
+  document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    document.getElementById('cols').classList.toggle('compact', b.dataset.v === 'compact');
   }));
 </script>
 </body>

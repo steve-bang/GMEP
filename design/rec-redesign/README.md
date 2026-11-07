@@ -23,9 +23,10 @@ Prototype HTML cho 11 màn hình của nhóm sidebar Tiếp nhận và báo giá
 - Danh sách có tab theo việc cần làm, đếm số lượng, và một nút hành động cho từng dòng.
 - Dải hành trình (hồ sơ, báo giá, lệnh, thanh toán) ở các trang chi tiết là điều hướng giữa các chứng từ. Mỗi chứng từ giữ huy hiệu trạng thái riêng, không có trạng thái chung (CLAUDE.md: năm đối tượng, năm bộ trạng thái).
 - Chi tiết lệnh: hạng mục là nội dung chính, thanh toán và hóa đơn ở cột phụ, sửa lỗi chữ đè trong lịch sử trạng thái.
-- Bảng điều phối cuộn ngang, đủ 5 trạng thái lệnh, thẻ có cảnh báo trễ hẹn và thợ phụ trách.
+- Bảng điều phối cuộn ngang, đủ 5 trạng thái lệnh, thẻ có ảnh xe, hãng và dòng, năm, màu xe, cảnh báo trễ hẹn và thợ phụ trách. Nút "Có ảnh / Gọn" đổi mật độ thẻ khi xưởng đông xe.
 
 ## Chưa xác nhận / chưa xây
+- **Màu xe là trường mới**: hồ sơ xe hiện chưa có màu, nên cần thêm vào form Thêm xe và Sửa xe, bảng dữ liệu và nhập từ Excel. Ảnh xe lấy từ ảnh đại diện của xe, còn phụ thuộc phần đọc ảnh qua signed URL chưa xây. Ảnh trong prototype là ảnh giả, màu không khớp tên màu.
 - Dữ liệu là dữ liệu mẫu. "Trễ hẹn", số bước nháp, thợ phụ trách, số lượng trên tab và số có thể bán cần dữ liệu mà các trang hiện tại chưa lấy; có thể phát sinh query mới và tốn ngân sách index.
 - Hạng mục tùy chọn tính lại tổng tiền ở `quote-detail.html` chỉ là demo; thuế 8% là mẫu theo cấu hình hiện có.
 - Việc tạm dừng, hoàn tác và đồng hồ ở `work.html` chỉ là demo giao diện.
