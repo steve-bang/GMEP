@@ -113,9 +113,16 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
         names: steps.map((x) => x.name ?? '').join(', '),
       });
     }
-    case 'decline-reason':
     case 'appointment-cancel-reason':
     case 'appointment-reschedule-reason':
+      return [
+        str('name'),
+        enumLabel('status', str('status')),
+        p.noteRequired === true ? t('config.fields.noteRequired') : null,
+      ]
+        .filter(Boolean)
+        .join(' · ');
+    case 'decline-reason':
     case 'evidence-kind':
     case 'service-type':
     case 'part-group':
@@ -135,7 +142,7 @@ export function describeValue(t: T, type: string, p: Record<string, unknown>): s
 
 export interface FieldDef {
   name: string;
-  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select';
+  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select' | 'bool';
   /** select options; label keys resolve under config.enums.<name> */
   options?: string[];
 }
@@ -198,12 +205,16 @@ export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
     { name: 'name', kind: 'text' },
     { name: 'status', kind: 'select', options: ['active', 'inactive'] },
     { name: 'party', kind: 'select', options: ['customer', 'garage', 'other'] },
+    // FR-REC-045/046: the schema and checkReason support it; without this field a proposed version silently drops it
+    { name: 'noteRequired', kind: 'bool' },
     { name: 'order', kind: 'int' },
   ],
   'appointment-reschedule-reason': [
     { name: 'name', kind: 'text' },
     { name: 'status', kind: 'select', options: ['active', 'inactive'] },
     { name: 'party', kind: 'select', options: ['customer', 'garage', 'other'] },
+    // FR-REC-045/046: the schema and checkReason support it; without this field a proposed version silently drops it
+    { name: 'noteRequired', kind: 'bool' },
     { name: 'order', kind: 'int' },
   ],
   'evidence-kind': [

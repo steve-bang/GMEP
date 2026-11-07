@@ -11,7 +11,7 @@ import { newKey, postJson, type FormLabels } from '@/ui/components/ResourceForm'
 
 export interface F {
   name: string;
-  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select';
+  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select' | 'bool';
   options?: { value: string; label: string }[];
 }
 
@@ -62,7 +62,8 @@ export function ProposeConfigForm(props: {
           x.kind === 'vnd' ? parseVndInput(raw) : /^\d{1,9}$/.test(raw) ? Number(raw) : null;
         if (n === null || n < 0) errs[x.name] = props.text.numberInvalid;
         payload[x.name] = n;
-      } else payload[x.name] = raw;
+      } else if (x.kind === 'bool') payload[x.name] = raw === 'true';
+      else payload[x.name] = raw;
     }
     if (Object.keys(errs).length) {
       setFe(errs);
@@ -156,7 +157,7 @@ export function ProposeConfigForm(props: {
           field(
             x.name,
             props.text.fields[x.name] ?? x.name,
-            x.kind === 'select' ? (
+            x.kind === 'select' || x.kind === 'bool' ? (
               <select className="select" id={`${uid}-${x.name}`} name={x.name}>
                 {x.options?.map((o) => (
                   <option key={o.value} value={o.value}>

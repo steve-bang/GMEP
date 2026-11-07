@@ -1349,6 +1349,7 @@
     "fields": {
       "name": "Tên",
       "party": "Bên liên quan",
+      "noteRequired": "Bắt buộc ghi chú khi chọn lý do này",
       "order": "Thứ tự hiển thị",
       "labor": "Mã thuế dòng công",
       "part": "Mã thuế dòng phụ tùng",
@@ -1566,6 +1567,10 @@
     "widthValue": "STT {width} chữ số",
     "grnVariance": "Lệch giá tối đa {price} · nhận vượt đơn tối đa {qty}",
     "enums": {
+      "noteRequired": {
+        "false": "Không",
+        "true": "Có"
+      },
       "status": {
         "active": "Đang dùng",
         "inactive": "Ngừng dùng"
