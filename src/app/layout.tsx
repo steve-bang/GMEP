@@ -22,7 +22,7 @@ import './styles/acc.css';
 import './styles/rpt.css';
 import './styles/ein.css';
 
-export const metadata: Metadata = { title: 'GARAGE OS', robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: 'GMEP', robots: { index: false, follow: false } };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

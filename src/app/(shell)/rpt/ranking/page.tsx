@@ -173,7 +173,7 @@ export default async function RankingPage({ searchParams }: { searchParams: Sear
         <strong>{l.total}:</strong> {show(d.total)}
       </p>
       <p className="text-secondary">
-        {l.formula}: {d.formula}
+        {l.formula}: {l[`formula_${d.metric}`]}
       </p>
     </RptPage>
   );
