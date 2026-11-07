@@ -8,48 +8,129 @@
 <link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="common.css">
 <style>
-  .item { grid-template-columns: 150px minmax(0, 1.4fr) 110px 150px 150px 220px; }
-  .stock { font-size: var(--font-size-sm); }
-  .stock .ok { color: var(--color-success-text); } .stock .low { color: var(--color-danger-text); font-weight: var(--fw-medium); }
-  .acts { display: flex; gap: var(--space-2); justify-self: end; }
-  @media (max-width: 1023px) { .item { grid-template-columns: auto 1fr auto; row-gap: var(--space-2); } .item > :nth-child(2) { grid-column: 2 / -1; } .acts { justify-self: start; grid-column: 1 / -1; } }
+  .wrap { max-width: 1100px; }
+  .grp { margin-bottom: var(--space-4); overflow: hidden; }
+  .grp[hidden] { display: none; }
+  .gh { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: var(--space-4); align-items: center; padding: var(--space-3) var(--space-5); background: var(--table-head-bg); border-bottom: 1px solid var(--color-border); }
+  .gh img, .gh .nophoto { width: 64px; height: 48px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--color-border); background: var(--color-surface-subtle); display: grid; place-items: center; font-size: var(--font-size-xs); color: var(--color-text-disabled); text-align: center; line-height: 1.2; }
+  .gh .plate { height: 30px; font-size: var(--font-size-lg); padding: 0 var(--space-3); }
+  .gh .f { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-top: var(--space-1); }
+  .sw { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--color-border-strong); vertical-align: -1px; margin-right: 3px; }
+  .gh .r { display: grid; gap: var(--space-1); justify-items: end; text-align: right; font-size: var(--font-size-sm); }
+  .ln { display: grid; grid-template-columns: minmax(0, 1.5fr) 90px minmax(0, 1.1fr) minmax(0, 1.4fr) 230px; gap: var(--space-4); align-items: center; padding: var(--space-3) var(--space-5); border-top: 1px solid var(--color-border); }
+  .gh + .ln { border-top: 0; }
+  .ln[hidden] { display: none; }
+  .part b { font-weight: var(--fw-medium); }
+  .code { color: var(--color-text-tertiary); font-size: var(--font-size-sm); font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums; font-weight: var(--fw-medium); text-align: right; }
+  .stock { font-size: var(--font-size-sm); display: grid; gap: 2px; }
+  .stock .ok { color: var(--color-success-text); font-weight: var(--fw-medium); }
+  .stock .low { color: var(--color-danger-text); font-weight: var(--fw-medium); }
+  .by { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .acts { display: flex; gap: var(--space-2); justify-content: flex-end; flex-wrap: wrap; }
+  .gf { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-5); border-top: 1px solid var(--color-border); background: var(--color-surface); }
+  .gf .hint { margin: 0; }
+  .hint { color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .b[disabled] { background: var(--btn-disabled-bg); color: var(--btn-disabled-fg); border-color: var(--color-border); cursor: not-allowed; }
+  .done { padding: var(--space-3) var(--space-5); display: grid; grid-template-columns: minmax(0, 1.4fr) 110px minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-4); border-top: 1px solid var(--color-border); font-size: var(--font-size-md); align-items: center; }
+  .done:first-of-type { border-top: 0; }
+  .rej { color: var(--color-danger-text); }
+  .empty { padding: var(--space-10) var(--space-6); text-align: center; }
+  .empty h2 { margin: 0 0 var(--space-1); font-size: var(--font-size-lg); }
+  .empty p { margin: 0 auto; color: var(--color-text-secondary); max-width: 52ch; font-size: var(--font-size-md); }
+  .empty[hidden] { display: none; }
+  .panel[hidden] { display: none; }
+  dialog { border: 0; border-radius: var(--dialog-radius); box-shadow: var(--dialog-shadow); padding: 0; width: min(480px, calc(100vw - 24px)); color: var(--color-text-primary); }
+  dialog::backdrop { background: var(--color-surface-overlay); }
+  dialog form { padding: var(--space-6); display: grid; gap: var(--space-4); }
+  dialog h2 { margin: 0; font-size: var(--font-size-xl); line-height: var(--lh-lg); }
+  .quick { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .bar2 { display: flex; gap: var(--space-2); justify-content: flex-end; }
+  .toast { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); background: var(--color-text-primary); color: var(--color-text-inverse); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: var(--z-toast); font-size: var(--font-size-md); max-width: calc(100vw - 24px); }
+  .toast[hidden] { display: none; }
+  @media (max-width: 1023px) { .ln { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-2); } .ln > :nth-child(3), .ln > :nth-child(4), .ln > :nth-child(5) { grid-column: 1 / -1; } .acts { justify-content: flex-start; } .done { grid-template-columns: 1fr 1fr; } .gh { grid-template-columns: 56px minmax(0, 1fr); } .gh .r { grid-column: 1 / -1; justify-items: start; text-align: left; } }
+  @media (max-width: 599px) { :root { --page-padding-x: var(--space-4); } .gh, .ln, .gf { padding-left: var(--space-4); padding-right: var(--space-4); } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="head"><div><h1>Yêu cầu phụ tùng</h1><p>Yêu cầu của thợ cho các dòng phụ tùng đã được khách duyệt. Xuất kho tạo phiếu xuất theo lệnh.</p></div></header>
+  <header class="head"><div><h1>Yêu cầu phụ tùng</h1><p>Yêu cầu của thợ cho các dòng phụ tùng khách đã duyệt. Xuất kho tạo phiếu xuất theo lệnh. Chỉ so với số có thể bán, đã trừ hàng giữ cho lệnh khác.</p></div></header>
+
   <div class="tabsline" role="tablist" aria-label="Trạng thái yêu cầu">
-    <button role="tab" aria-selected="true" data-s="wait">Chờ xuất<span class="cnt cnt--warn">3</span></button>
-    <button role="tab" aria-selected="false" data-s="out">Đã xuất<span class="cnt">5</span></button>
-    <button role="tab" aria-selected="false" data-s="no">Đã từ chối<span class="cnt">0</span></button>
+    <button role="tab" aria-selected="true" data-t="wait">Chờ xuất<span class="cnt cnt--warn" id="cw">4</span></button>
+    <button role="tab" aria-selected="false" data-t="out">Đã xuất<span class="cnt">3</span></button>
+    <button role="tab" aria-selected="false" data-t="no">Đã từ chối<span class="cnt">1</span></button>
   </div>
-  <section class="card list" aria-label="Yêu cầu phụ tùng">
-    <div class="item" data-s="wait">
-      <span class="plate">51H-123.45</span>
-      <span><span class="t1">Má phanh trước Toyota Vios</span><br><span class="t2">RO-Q7-2611-00001, yêu cầu bởi Thợ Quận 7, 10 phút trước</span></span>
-      <span class="num t1">× 1 bộ</span>
-      <span class="stock"><span class="ok">Còn 4 bộ có thể bán</span></span>
-      <span><span class="badge badge--warning">Chờ xuất</span></span>
-      <span class="acts"><button class="b b--secondary b--sm" type="button">Từ chối</button><button class="b b--primary b--sm" type="button">Xuất kho</button></span>
-    </div>
-    <div class="item" data-s="wait">
-      <span class="plate">51K-905.31</span>
-      <span><span class="t1">Lọc gió động cơ Kia Morning</span><br><span class="t2">RO-Q7-2611-00008, yêu cầu bởi Thợ Quận 7, 1 giờ trước</span></span>
-      <span class="num t1">× 1 cái</span>
-      <span class="stock"><span class="low">Hết hàng, có thể bán 0</span><br><span class="t2">Chuyển kho từ Thủ Đức: 3</span></span>
-      <span><span class="badge badge--danger" style="background:var(--color-danger-bg);color:var(--color-danger-text);border-color:var(--color-danger-border)">Thiếu hàng</span></span>
-      <span class="acts"><button class="b b--secondary b--sm" type="button">Từ chối</button><button class="b b--secondary b--sm" type="button">Yêu cầu chuyển kho</button></span>
-    </div>
-    <div class="item" data-s="wait">
-      <span class="plate">29A-678.90</span>
-      <span><span class="t1">Dầu động cơ 5W-30</span><br><span class="t2">RO-Q7-2611-00007, yêu cầu bởi Thợ Quận 7, 2 giờ trước</span></span>
-      <span class="num t1">× 4 lít</span>
-      <span class="stock"><span class="ok">Còn 28 lít có thể bán</span></span>
-      <span><span class="badge badge--warning">Chờ xuất</span></span>
-      <span class="acts"><button class="b b--secondary b--sm" type="button">Từ chối</button><button class="b b--primary b--sm" type="button">Xuất kho</button></span>
-    </div>
-    <div class="rowfoot">Chỉ so sánh với số có thể bán, không phải số tồn thực tế. Số có thể bán đã trừ hàng giữ cho lệnh khác.</div>
-  </section>
+
+  <div class="panel" id="pw">
+    <div id="groups"></div>
+    <div class="card empty" id="emptyW" hidden><h2>Đã xử lý hết yêu cầu</h2><p>Yêu cầu phụ tùng mới của thợ sẽ hiện ở đây.</p></div>
+  </div>
+
+  <div class="panel" id="po" hidden>
+    <section class="card" aria-label="Yêu cầu đã xuất" style="overflow:hidden">
+      <div class="done"><span><b>Dầu động cơ 5W-30</b> × 4 lít<br><span class="code">29A-678.90, RO-Q7-2611-00007</span></span><span class="num t2">PX-Q7-2611-00012</span><span class="by">Thủ kho Quận 7<br>Hôm nay 13:40</span><span class="by">Yêu cầu bởi Thợ Quận 7</span></div>
+      <div class="done"><span><b>Lọc dầu</b> × 1 cái<br><span class="code">51H-123.45, RO-Q7-2611-00001</span></span><span class="num t2">PX-Q7-2611-00011</span><span class="by">Thủ kho Quận 7<br>Hôm nay 09:15</span><span class="by">Yêu cầu bởi Thợ Quận 7</span></div>
+      <div class="done"><span><b>Dầu động cơ 5W-30</b> × 4 lít<br><span class="code">51D-999.88, RO-Q7-2611-00003</span></span><span class="num t2">PX-Q7-2611-00010</span><span class="by">Thủ kho Quận 7<br>Hôm qua 16:50</span><span class="by">Yêu cầu bởi Thợ Quận 7</span></div>
+    </section>
+  </div>
+
+  <div class="panel" id="pn" hidden>
+    <section class="card" aria-label="Yêu cầu đã từ chối" style="overflow:hidden">
+      <div class="done"><span><b>Bugi Iridium</b> × 4 cái<br><span class="code">59A1-367.08, RO-Q7-2611-00006</span></span><span class="num t2">Từ chối</span><span class="by">Thủ kho Quận 7<br>Hôm qua 11:05</span><span class="rej">Lý do: khách chưa duyệt dòng này trong báo giá</span></div>
+    </section>
+  </div>
 </div>
+
+<dialog id="dRej" aria-labelledby="drT"><form method="dialog" id="fRej">
+  <h2 id="drT">Từ chối yêu cầu</h2>
+  <p class="hint" id="drV" style="margin:0"></p>
+  <div class="quick" role="group" aria-label="Lý do thường dùng"><button class="chip" type="button">Hết hàng, chưa có ngày về</button><button class="chip" type="button">Khách chưa duyệt dòng này</button><button class="chip" type="button">Yêu cầu trùng</button></div>
+  <div class="field"><label for="rr">Lý do từ chối <span class="req" aria-hidden="true">*</span></label><input id="rr" maxlength="300" autocomplete="off"><span class="hint">Thợ nhìn thấy lý do này. Ít nhất 3 ký tự.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Giữ lại</button><button class="b b--primary" type="submit" id="rOk" style="background:var(--btn-danger-bg)" disabled>Xác nhận từ chối</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="photos.js"></script>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const CAR = { vios: { make: 'Toyota Vios 1.5G', plate: '51H-123.45', color: ['Bạc', '#c0c4cc'], hue: 215 }, mor: { make: 'Kia Morning', plate: '51K-905.31', color: ['Đỏ', '#dc2626'], hue: null }, city: { make: 'Honda City', plate: '29A-678.90', color: ['Trắng', '#ffffff'], hue: 28 } };
+  // avail = số có thể bán; other = có ở kho khác (đề xuất)
+  const G = [
+    { car: 'vios', ro: 'RO-Q7-2611-00001', late: 'Trễ 2 giờ', who: 'Thợ Quận 7', lines: [
+      { id: 'a', n: 'Má phanh trước Toyota Vios', code: 'MP-VIOS-F', q: '1 bộ', qn: 1, avail: 4, age: '10 phút trước', st: 'req' },
+      { id: 'b', n: 'Dầu phanh DOT4', code: 'DP-DOT4', q: '1 chai', qn: 1, avail: 12, age: '10 phút trước', st: 'req' } ] },
+    { car: 'mor', ro: 'RO-Q7-2611-00008', due: 'Hẹn ngày mai 09:00', who: 'Thợ Quận 7', lines: [
+      { id: 'c', n: 'Lọc gió động cơ Kia Morning', code: 'LG-MOR', q: '1 cái', qn: 1, avail: 0, other: 'Chi nhánh Thủ Đức còn 3', age: '1 giờ trước', st: 'req' } ] },
+    { car: 'city', ro: 'RO-Q7-2611-00007', due: 'Hẹn 16:30', who: 'Thợ Quận 7', lines: [
+      { id: 'd', n: 'Lọc dầu Honda City', code: 'LD-CITY', q: '1 cái', qn: 1, avail: 6, age: '2 giờ trước', st: 'req' } ] },
+  ];
+  const veh = (g) => { const c = CAR[g.car]; return `${c.hue === null ? '<span class="nophoto" role="img" aria-label="Chưa có ảnh">Chưa có ảnh</span>' : `<img src="${ph(c.hue)}" alt="Ảnh ${c.make}">`}<div><span class="plate">${c.plate}</span><div class="f"><b>${c.make}</b>, <span class="sw" style="background:${c.color[1]}" aria-hidden="true"></span>${c.color[0]}</div></div>`; };
+  const open = (g) => g.lines.filter((l) => l.st === 'req');
+  function render() {
+    const gs = G.filter((g) => open(g).length);
+    $('#groups').innerHTML = gs.map((g, gi) => {
+      const L = open(g), ready = L.filter((l) => l.avail >= l.qn);
+      return `<section class="card grp" aria-label="Lệnh ${g.ro}"><div class="gh">${veh(g)}<div class="r"><span class="t2">${g.ro}</span>${g.late ? `<span class="late">${g.late}</span>` : `<span>${g.due}</span>`}</div></div>
+      ${L.map((l) => `<div class="ln"><div class="part"><b>${l.n}</b><br><span class="code">${l.code}</span></div><div class="num">${l.q}</div><div class="stock">${l.avail >= l.qn ? `<span class="ok">Còn ${l.avail} có thể bán</span>` : `<span class="low">Thiếu hàng, có thể bán ${l.avail}</span>${l.other ? `<span class="t2">${l.other}</span>` : ''}`}</div><div class="by">${g.who}<br>${l.age}</div><div class="acts"><button class="b b--secondary b--sm" type="button" data-rej="${g.ro}|${l.id}">Từ chối</button>${l.avail >= l.qn ? `<button class="b b--primary b--sm" type="button" data-iss="${g.ro}|${l.id}">Xuất kho</button>` : `<button class="b b--secondary b--sm" type="button">Yêu cầu chuyển kho</button>`}</div></div>`).join('')}
+      ${L.length > 1 ? `<div class="gf"><span class="hint">${ready.length}/${L.length} dòng đủ hàng để xuất ngay</span><button class="b b--primary b--sm" type="button" data-all="${g.ro}" ${ready.length ? '' : 'disabled'}>Xuất tất cả ${ready.length} dòng đủ hàng</button></div>` : ''}</section>`;
+    }).join('');
+    const n = G.reduce((a, g) => a + open(g).length, 0); $('#cw').textContent = n; $('#emptyW').hidden = n > 0;
+  }
+  let cur = null, tm;
+  const toast = (m) => { $('#toast').textContent = m; $('#toast').hidden = false; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 5000); };
+  const find = (k) => { const [ro, id] = k.split('|'); const g = G.find((x) => x.ro === ro); return [g, g.lines.find((l) => l.id === id)]; };
+  $('#pw').addEventListener('click', (e) => {
+    const i = e.target.closest('[data-iss]'), r = e.target.closest('[data-rej]'), a = e.target.closest('[data-all]');
+    if (i) { const [g, l] = find(i.dataset.iss); l.st = 'iss'; render(); toast(`Đã xuất ${l.n} × ${l.q}. Phiếu xuất tạo theo lệnh ${g.ro}.`); }
+    if (a) { const g = G.find((x) => x.ro === a.dataset.all); const rd = open(g).filter((l) => l.avail >= l.qn); rd.forEach((l) => { l.st = 'iss'; }); render(); toast(`Đã xuất ${rd.length} dòng cho lệnh ${g.ro}.`); }
+    if (r) { [cur] = [find(r.dataset.rej)]; $('#drV').textContent = `${cur[1].n} × ${cur[1].q}, lệnh ${cur[0].ro}`; $('#rr').value = ''; $('#rOk').disabled = true; $('#dRej').showModal(); }
+  });
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  document.querySelectorAll('.quick .chip').forEach((c) => c.addEventListener('click', () => { $('#rr').value = c.textContent; $('#rOk').disabled = false; }));
+  $('#rr').addEventListener('input', () => { $('#rOk').disabled = $('#rr').value.trim().length < 3; });
+  $('#fRej').addEventListener('submit', () => { cur[1].st = 'rej'; render(); toast('Đã từ chối. Thợ sẽ thấy lý do.'); });
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); $('#pw').hidden = t.dataset.t !== 'wait'; $('#po').hidden = t.dataset.t !== 'out'; $('#pn').hidden = t.dataset.t !== 'no'; }));
+  render();
+</script>
 </body>
 </html>

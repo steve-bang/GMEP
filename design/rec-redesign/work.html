@@ -8,60 +8,178 @@
 <link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="common.css">
 <style>
-  .wrap { max-width: 760px; }
-  .now { padding: var(--space-6); display: grid; gap: var(--space-4); border: 2px solid var(--color-primary); }
-  .veh { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
-  .veh .plate { height: 40px; font-size: var(--font-size-xl); padding: 0 var(--space-3); }
-  .veh span.m { color: var(--color-text-secondary); font-size: var(--font-size-md); }
-  .job { font-size: var(--font-size-2xl); line-height: var(--lh-xl); font-weight: var(--fw-semibold); margin: 0; }
+  .wrap { max-width: 820px; }
+  .head p { max-width: 60ch; }
+  .sum { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-5); }
+  .pill { display: inline-flex; align-items: center; gap: var(--space-2); height: 36px; padding: 0 var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-surface); font-size: var(--font-size-md); }
+  .pill b { font-variant-numeric: tabular-nums; }
+  .live { margin-left: auto; color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .live::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); margin-right: var(--space-2); }
+  h2.sec { font-size: var(--font-size-lg); margin: var(--space-6) 0 var(--space-3); display: flex; gap: var(--space-2); align-items: center; }
+  h2.sec:first-of-type { margin-top: 0; }
+  .j { display: grid; gap: var(--space-4); padding: var(--space-5); margin-bottom: var(--space-3); }
+  .j--run { border: 2px solid var(--color-primary); }
+  .j--ret { border: 2px solid var(--color-danger-border); background: var(--color-surface); }
+  .j--hold { border-left: 4px solid var(--color-warning); }
+  .veh { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+  .veh img, .veh .nophoto { width: 72px; height: 54px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--color-border); background: var(--color-surface-subtle); display: grid; place-items: center; font-size: var(--font-size-xs); color: var(--color-text-disabled); text-align: center; line-height: 1.2; }
+  .veh .plate { height: 32px; font-size: var(--font-size-lg); padding: 0 var(--space-3); }
+  .veh .f { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-top: var(--space-1); }
+  .sw { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--color-border-strong); vertical-align: -1px; margin-right: 3px; }
+  .name { margin: 0; font-size: var(--font-size-2xl); line-height: var(--lh-xl); font-weight: var(--fw-semibold); }
+  .name--sm { font-size: var(--font-size-xl); line-height: var(--lh-lg); }
   .clock { display: flex; align-items: baseline; gap: var(--space-3); font-variant-numeric: tabular-nums; }
   .clock b { font-size: var(--font-size-3xl); line-height: 1; }
   .clock span { color: var(--color-text-secondary); font-size: var(--font-size-md); }
   .bar { height: 10px; }
+  .bar--over > i { background: var(--color-warning); }
   .btns { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-3); }
   .btn-xl { min-height: var(--btn-height-xl); font-size: var(--font-size-lg); }
   .links { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-  .q { padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-3); }
-  .q h3 { margin: 0; font-size: var(--font-size-lg); }
-  .q .btn-xl { width: 100%; }
-  h2.sec { font-size: var(--font-size-lg); margin: var(--space-6) 0 var(--space-3); }
-  .toast { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); background: var(--color-text-primary); color: var(--color-text-inverse); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: var(--z-toast); font-size: var(--font-size-md); }
+  .links .b { min-height: var(--touch-target); }
+  .note { border: 1px solid var(--color-danger-border); background: var(--color-danger-bg); color: var(--color-danger-text); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--font-size-md); }
+  .hold { border: 1px solid var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--font-size-md); }
+  .partline { display: flex; flex-wrap: wrap; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .partline span { background: var(--color-surface-subtle); padding: 2px var(--space-2); border-radius: var(--radius-xs); }
+  details.done { border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+  details.done summary { cursor: pointer; padding: var(--space-4) var(--space-5); font-weight: var(--fw-medium); min-height: var(--touch-target); }
+  details.done .row { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-5); border-top: 1px solid var(--color-border); font-size: var(--font-size-md); }
+  .empty { padding: var(--space-8) var(--space-6); text-align: center; color: var(--color-text-secondary); }
+  .empty h3 { margin: 0 0 var(--space-1); color: var(--color-text-primary); font-size: var(--font-size-lg); }
+  /* sheets */
+  dialog { border: 0; border-radius: var(--dialog-radius); box-shadow: var(--dialog-shadow); padding: 0; width: min(520px, calc(100vw - 24px)); color: var(--color-text-primary); }
+  dialog::backdrop { background: var(--color-surface-overlay); }
+  dialog form { padding: var(--space-6); display: grid; gap: var(--space-4); }
+  dialog h2 { margin: 0; font-size: var(--font-size-xl); line-height: var(--lh-lg); }
+  .reasons { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+  .reasons label { display: flex; align-items: center; gap: var(--space-3); min-height: var(--btn-height-xl); padding: 0 var(--space-4); border: 1px solid var(--control-border); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-md); background: var(--color-surface); }
+  .reasons input { width: 20px; height: 20px; accent-color: var(--color-primary); }
+  .reasons label:has(input:checked) { background: var(--color-primary-subtle); border-color: var(--color-border-selected); font-weight: var(--fw-medium); }
+  .bar2 { display: flex; gap: var(--space-2); justify-content: flex-end; }
+  .bar2 .b { min-height: var(--btn-height-lg); }
+  .b[disabled] { background: var(--btn-disabled-bg); color: var(--btn-disabled-fg); border-color: var(--color-border); cursor: not-allowed; }
+  .pl { display: grid; gap: var(--space-2); }
+  .pl label { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border: 1px solid var(--control-border); border-radius: var(--radius-md); cursor: pointer; }
+  .pl label:has(input:checked) { background: var(--color-primary-subtle); border-color: var(--color-border-selected); }
+  .pl .t { display: flex; gap: var(--space-3); align-items: center; font-weight: var(--fw-medium); }
+  .pl input { width: 20px; height: 20px; accent-color: var(--color-primary); }
+  .pl small { color: var(--color-text-tertiary); font-size: var(--font-size-sm); padding-left: calc(20px + var(--space-3)); }
+  .step { display: flex; align-items: center; gap: var(--space-3); }
+  .step button { width: var(--touch-target); height: var(--touch-target); border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--color-surface); font: inherit; font-size: var(--font-size-xl); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font-size: var(--font-size-xl); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+  .photos { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .photos .add { width: 96px; height: 72px; border: 1.5px dashed var(--control-border); border-radius: var(--radius-md); background: var(--color-surface); font: inherit; font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; }
+  .photos img { width: 96px; height: 72px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+  .err { color: var(--color-danger-text); font-size: var(--font-size-sm); }
+  .err[hidden] { display: none; }
+  .hint { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin: 0; }
+  .toast { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); display: flex; align-items: center; gap: var(--space-4); background: var(--color-text-primary); color: var(--color-text-inverse); padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: var(--z-toast); font-size: var(--font-size-md); max-width: calc(100vw - 24px); }
   .toast[hidden] { display: none; }
-  .toast button { margin-left: var(--space-4); background: none; border: 0; color: var(--color-brand-300); font: inherit; font-weight: var(--fw-medium); cursor: pointer; min-height: var(--touch-target); }
-  @media (max-width: 599px) { .btns { grid-template-columns: 1fr; } .now { padding: var(--space-4); } }
+  .toast button { background: none; border: 0; color: var(--color-brand-300); font: inherit; font-weight: var(--fw-medium); cursor: pointer; min-height: var(--touch-target); padding: 0 var(--space-3); }
+  @media (max-width: 599px) { :root { --page-padding-x: var(--space-4); } .btns, .reasons { grid-template-columns: 1fr; } .j { padding: var(--space-4); } .live { margin-left: 0; width: 100%; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="head"><div><h1>Việc của tôi</h1><p>Việc được giao cho bạn. Bấm một lần để bắt đầu hoặc kết thúc.</p></div></header>
-
-  <h2 class="sec" style="margin-top:0">Đang làm</h2>
-  <section class="card now" id="now" aria-label="Việc đang làm">
-    <div class="veh"><span class="plate">51H-123.45</span><span class="m">Toyota Vios 1.5G 2019, RO-Q7-2611-00001</span></div>
-    <p class="job">Thay dầu</p>
-    <div class="clock"><b id="el">00:01</b><span>đã làm, duyệt 30 phút</span></div>
-    <div class="bar"><i id="pg" style="width:3%"></i></div>
-    <div class="btns"><button class="b b--primary btn-xl" type="button" id="fin">Kết thúc</button><button class="b b--secondary btn-xl" type="button" id="pause">Tạm dừng</button></div>
-    <div class="links"><button class="b b--secondary b--sm" type="button">Báo việc phát sinh</button><button class="b b--secondary b--sm" type="button">Xin phụ tùng</button><button class="b b--secondary b--sm" type="button" id="undo">Hoàn tác</button></div>
-  </section>
-
-  <h2 class="sec">Việc tiếp theo</h2>
-  <section class="card q" aria-label="Việc tiếp theo">
-    <div class="veh"><span class="plate" style="height:32px;font-size:var(--font-size-lg)">51H-123.45</span><span class="badge badge--neutral">Chưa làm</span></div>
-    <h3>Thay má phanh</h3>
-    <span class="t2">Duyệt 1 giờ 30 phút. Làm sau khi xong việc đang làm.</span>
-    <button class="b b--secondary btn-xl" type="button" disabled aria-describedby="why">Bắt đầu</button>
-    <span class="t2" id="why">Kết thúc việc đang làm để bắt đầu việc này.</span>
-  </section>
+  <header class="head"><div><h1>Việc của tôi</h1><p>Các hạng mục được giao cho bạn. Bấm một lần để bắt đầu hoặc kết thúc.</p></div></header>
+  <div class="sum" id="sum" aria-live="polite"></div>
+  <div id="board"></div>
 </div>
-<div class="toast" id="toast" role="status" hidden>Đã tạm dừng. <button type="button" id="resume">Làm tiếp</button></div>
+
+<dialog id="dPause" aria-labelledby="dpT"><form method="dialog" id="fPause">
+  <h2 id="dpT">Tạm dừng: <span id="dpN"></span></h2>
+  <div class="reasons" role="radiogroup" aria-label="Lý do tạm dừng">
+    <label><input type="radio" name="pr" value="Chờ phụ tùng" checked> Chờ phụ tùng</label>
+    <label><input type="radio" name="pr" value="Chờ khách"> Chờ khách</label>
+    <label><input type="radio" name="pr" value="Chờ khách duyệt thêm"> Chờ khách duyệt thêm</label>
+    <label><input type="radio" name="pr" value="Nghỉ"> Nghỉ</label>
+    <label><input type="radio" name="pr" value="Lý do khác"> Lý do khác</label>
+  </div>
+  <div class="field" id="pnWrap" hidden><label for="pn">Ghi chú lý do <span class="req" aria-hidden="true">*</span></label><input id="pn" maxlength="200" autocomplete="off"><span class="hint">Bắt buộc khi chọn lý do khác.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--primary" type="submit" id="pOk">Tạm dừng</button></div>
+</form></dialog>
+
+<dialog id="dParts" aria-labelledby="dpaT"><form method="dialog" id="fParts">
+  <h2 id="dpaT">Xin phụ tùng: <span id="dpaN"></span></h2>
+  <p class="hint">Chỉ xin được các dòng phụ tùng khách đã duyệt trong báo giá.</p>
+  <div class="pl" id="plist" role="radiogroup" aria-label="Dòng phụ tùng đã duyệt"></div>
+  <div class="field"><span style="font-weight:var(--fw-medium);font-size:var(--font-size-md)">Số lượng</span><div class="step"><button type="button" id="qm" aria-label="Giảm">−</button><output id="qv">1</output><button type="button" id="qp" aria-label="Tăng">+</button><span class="hint" id="qmax"></span></div></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--primary" type="submit">Gửi yêu cầu cho thủ kho</button></div>
+</form></dialog>
+
+<dialog id="dProp" aria-labelledby="dprT"><form method="dialog" id="fProp">
+  <h2 id="dprT">Báo việc phát sinh</h2>
+  <p class="hint" id="dprV"></p>
+  <div class="field"><label for="pt">Hạng mục phát sinh <span class="req" aria-hidden="true">*</span></label><input id="pt" maxlength="120" autocomplete="off" placeholder="Ví dụ: Thay lọc gió động cơ"></div>
+  <div class="field"><label for="pd">Mô tả hư hỏng <span class="req" aria-hidden="true">*</span></label><textarea id="pd" maxlength="500" placeholder="Nói rõ hư gì, ở đâu, vì sao cần làm thêm"></textarea></div>
+  <div class="field"><span style="font-weight:var(--fw-medium);font-size:var(--font-size-md)">Ảnh chỗ hư hỏng</span><div class="photos" id="pp"><button class="add" type="button" id="padd">Chụp ảnh</button></div><input id="pf" type="file" accept="image/*" capture="environment" multiple hidden><span class="hint">Ảnh giúp cố vấn lập báo giá bổ sung và khách dễ duyệt.</span></div>
+  <span class="err" id="propErr" role="alert" hidden>Nhập tên hạng mục và mô tả hư hỏng để gửi.</span>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--primary" type="submit">Gửi cho cố vấn</button></div>
+</form></dialog>
+
+<div class="toast" id="toast" role="status" hidden><span id="tmsg"></span><button type="button" id="tundo" hidden>Hoàn tác</button></div>
+<script src="photos.js"></script>
 <script>
-  let sec = 60, paused = false; const el = document.getElementById('el'), pg = document.getElementById('pg');
-  const draw = () => { el.textContent = String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); pg.style.width = Math.min(100, sec / 18) + '%'; };
-  setInterval(() => { if (!paused) { sec++; draw(); } }, 1000);
-  document.getElementById('pause').addEventListener('click', () => { paused = true; document.getElementById('toast').hidden = false; });
-  document.getElementById('resume').addEventListener('click', () => { paused = false; document.getElementById('toast').hidden = true; });
-  document.getElementById('fin').addEventListener('click', () => { document.getElementById('toast').hidden = false; document.getElementById('toast').firstChild.textContent = 'Đã kết thúc việc Thay dầu. '; document.getElementById('resume').textContent = 'Hoàn tác'; });
+  const $ = (s) => document.querySelector(s);
+  const CAR = { vios: { make: 'Toyota Vios 1.5G', plate: '51H-123.45', color: ['Bạc', '#c0c4cc'], hue: 215 }, city: { make: 'Honda City', plate: '29A-678.90', color: ['Trắng', '#ffffff'], hue: 28 }, mor: { make: 'Kia Morning', plate: '51K-905.31', color: ['Đỏ', '#dc2626'], hue: null } };
+  // st: ret | run | hold | todo | done
+  const J = [
+    { id: 1, car: 'vios', name: 'Thay dầu', ro: 'RO-Q7-2611-00001', st: 'run', min: 30, sec: 60, parts: [] },
+    { id: 2, car: 'vios', name: 'Thay má phanh', ro: 'RO-Q7-2611-00001', st: 'todo', min: 90, sec: 0, parts: [{ k: 'p1', n: 'Má phanh trước', ap: 1, rq: 0, is: 0 }] },
+    { id: 3, car: 'city', name: 'Cân chỉnh thước lái', ro: 'RO-Q7-2611-00007', st: 'ret', min: 45, sec: 2400, fault: 'Kiểm tra chất lượng không đạt: vô lăng còn lệch, làm lại', parts: [] },
+    { id: 4, car: 'mor', name: 'Thay lọc gió', ro: 'RO-Q7-2611-00008', st: 'hold', min: 20, sec: 300, why: 'Chờ phụ tùng', parts: [{ k: 'p2', n: 'Lọc gió động cơ', ap: 1, rq: 1, is: 0 }] },
+    { id: 5, car: 'city', name: 'Rửa khoang máy', ro: 'RO-Q7-2611-00007', st: 'done', min: 30, sec: 1500, parts: [] },
+  ];
+  const mmss = (s) => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  const dur = (m) => (m >= 60 ? Math.floor(m / 60) + ' giờ' + (m % 60 ? ' ' + (m % 60) + ' phút' : '') : m + ' phút');
+  const veh = (j) => { const c = CAR[j.car]; return `<div class="veh">${c.hue === null ? '<span class="nophoto" role="img" aria-label="Chưa có ảnh">Chưa có ảnh</span>' : `<img src="${ph(c.hue)}" alt="Ảnh ${c.make}">`}<div><span class="plate">${c.plate}</span><div class="f"><b>${c.make}</b>, <span class="sw" style="background:${c.color[1]}" aria-hidden="true"></span>${c.color[0]}, ${j.ro}</div></div></div>`; };
+  const partInfo = (j) => j.parts.length ? `<div class="partline">${j.parts.map((p) => `<span>${p.n}: duyệt ${p.ap}, đã yêu cầu ${p.rq}, đã xuất ${p.is}</span>`).join('')}</div>` : '';
+  const links = (j, undo) => `<div class="links">${j.parts.length ? `<button class="b b--secondary" type="button" data-a="parts" data-id="${j.id}">Xin phụ tùng</button>` : ''}<button class="b b--secondary" type="button" data-a="prop" data-id="${j.id}">Báo việc phát sinh</button>${undo ? `<button class="b b--secondary" type="button" data-a="undo" data-id="${j.id}">Hoàn tác</button>` : ''}</div>`;
+  function card(j) {
+    if (j.st === 'run') { const over = j.sec > j.min * 60; return `<section class="card j j--run" aria-label="Việc đang làm">${veh(j)}<p class="name">${j.name}</p><div class="clock"><b data-t="${j.id}">${mmss(j.sec)}</b><span>đã làm, duyệt ${dur(j.min)}</span></div><div class="bar ${over ? 'bar--over' : ''}"><i data-p="${j.id}" style="width:${Math.min(100, j.sec / (j.min * 6e-1))}%"></i></div>${partInfo(j)}<div class="btns"><button class="b b--primary btn-xl" type="button" data-a="finish" data-id="${j.id}">Kết thúc</button><button class="b b--secondary btn-xl" type="button" data-a="pause" data-id="${j.id}">Tạm dừng</button></div>${links(j, true)}</section>`; }
+    if (j.st === 'ret') return `<section class="card j j--ret" aria-label="Việc trả lại để sửa">${veh(j)}<p class="name name--sm">${j.name}</p><div class="note" role="note">${j.fault}</div><button class="b b--primary btn-xl" type="button" data-a="start" data-id="${j.id}">Bắt đầu làm lại</button>${links(j)}</section>`;
+    if (j.st === 'hold') return `<section class="card j j--hold" aria-label="Việc đang tạm dừng">${veh(j)}<p class="name name--sm">${j.name}</p><div class="hold" role="note">Tạm dừng: ${j.why}</div>${partInfo(j)}<button class="b b--primary btn-xl" type="button" data-a="start" data-id="${j.id}">Tiếp tục</button>${links(j)}</section>`;
+    return `<section class="card j" aria-label="Việc chưa làm">${veh(j)}<p class="name name--sm">${j.name}</p><span class="hint">Duyệt ${dur(j.min)}</span>${partInfo(j)}<button class="b b--primary btn-xl" type="button" data-a="start" data-id="${j.id}">Bắt đầu</button>${links(j)}</section>`;
+  }
+  function render() {
+    const by = (s) => J.filter((j) => j.st === s);
+    $('#sum').innerHTML = `<span class="pill">Đang làm <b>${by('run').length}</b></span><span class="pill">Chờ làm <b>${by('todo').length + by('hold').length}</b></span><span class="pill">Cần làm lại <b>${by('ret').length}</b></span><span class="pill">Xong hôm nay <b>${by('done').length}</b></span><span class="live">Tự cập nhật mỗi 30 giây</span>`;
+    const sec = (t, l) => (l.length ? `<h2 class="sec">${t} <span class="cnt">${l.length}</span></h2>${l.map(card).join('')}` : '');
+    const open = by('ret').length + by('run').length + by('hold').length + by('todo').length;
+    $('#board').innerHTML = (open ? sec('Cần làm lại', by('ret')) + sec('Đang làm', by('run')) + sec('Đang tạm dừng', by('hold')) + sec('Việc tiếp theo', by('todo')) : '<div class="card empty"><h3>Hết việc được giao</h3><p style="margin:0">Khi quản đốc phân việc mới, hạng mục sẽ hiện ở đây.</p></div>')
+      + (by('done').length ? `<h2 class="sec">Đã xong hôm nay</h2><details class="done"><summary>${by('done').length} việc đã hoàn thành</summary>${by('done').map((j) => `<div class="row"><span>${CAR[j.car].plate}, ${j.name}</span><span class="t2">${dur(Math.round(j.sec / 60))} / duyệt ${dur(j.min)}</span></div>`).join('')}</details>` : '');
+  }
+  setInterval(() => { J.filter((j) => j.st === 'run').forEach((j) => { j.sec++; const t = document.querySelector(`[data-t="${j.id}"]`), p = document.querySelector(`[data-p="${j.id}"]`); if (t) t.textContent = mmss(j.sec); if (p) p.style.width = Math.min(100, j.sec / (j.min * 0.6)) + '%'; }); }, 1000);
+  let last = null, tm;
+  function toast(msg, undoFn) { $('#tmsg').textContent = msg; $('#toast').hidden = false; $('#tundo').hidden = !undoFn; last = undoFn; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 6000); }
+  $('#tundo').addEventListener('click', () => { if (last) last(); $('#toast').hidden = true; });
+  let cur = null;
+  $('#board').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-a]'); if (!b) return; const j = J.find((x) => x.id === +b.dataset.id), a = b.dataset.a; cur = j;
+    if (a === 'start') { const prev = j.st; j.st = 'run'; render(); toast(`Đã bắt đầu: ${j.name}`, () => { j.st = prev; render(); }); }
+    if (a === 'finish') { j.st = 'done'; render(); toast(`Đã kết thúc: ${j.name}`, () => { j.st = 'run'; render(); }); }
+    if (a === 'undo') { j.st = 'todo'; j.sec = 0; render(); toast(`Đã hoàn tác: ${j.name}`); }
+    if (a === 'pause') { $('#dpN').textContent = j.name; $('#pn').value = ''; $('#dPause').showModal(); chk(); }
+    if (a === 'parts') openParts(j);
+    if (a === 'prop') { $('#dprV').textContent = `${CAR[j.car].plate}, ${j.ro}`; $('#propErr').hidden = true; $('#dProp').showModal(); }
+  });
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  function chk() { const o = document.querySelector('[name=pr]:checked').value === 'Lý do khác'; $('#pnWrap').hidden = !o; $('#pOk').disabled = o && !$('#pn').value.trim(); }
+  document.querySelectorAll('[name=pr]').forEach((r) => r.addEventListener('change', chk)); $('#pn').addEventListener('input', chk);
+  $('#fPause').addEventListener('submit', () => { const r = document.querySelector('[name=pr]:checked').value; cur.st = 'hold'; cur.why = r === 'Lý do khác' ? 'Lý do khác: ' + $('#pn').value : r; render(); toast(`Đã tạm dừng: ${cur.name}`, () => { cur.st = 'run'; render(); }); });
+  let pl = null, qty = 1;
+  function openParts(j) {
+    $('#dpaN').textContent = j.name; $('#plist').innerHTML = j.parts.map((p, i) => `<label><span class="t"><input type="radio" name="pp" value="${p.k}" ${i === 0 ? 'checked' : ''}> ${p.n}</span><small>Duyệt ${p.ap}, đã yêu cầu ${p.rq}, đã xuất ${p.is}</small></label>`).join('');
+    document.querySelectorAll('[name=pp]').forEach((r) => r.addEventListener('change', pick)); pick(); $('#dParts').showModal();
+  }
+  function pick() { const k = document.querySelector('[name=pp]:checked').value; pl = cur.parts.find((p) => p.k === k); const room = pl.ap - pl.rq; qty = Math.min(1, room); $('#qmax').textContent = room > 0 ? `Còn xin được tối đa ${room}` : 'Đã yêu cầu đủ số lượng đã duyệt'; $('#qv').textContent = qty; $('#fParts button[type=submit]').disabled = room <= 0; }
+  $('#qm').addEventListener('click', () => { qty = Math.max(1, qty - 1); $('#qv').textContent = qty; });
+  $('#qp').addEventListener('click', () => { qty = Math.min(pl.ap - pl.rq, qty + 1); $('#qv').textContent = qty; });
+  $('#fParts').addEventListener('submit', () => { pl.rq += qty; render(); toast(`Đã gửi yêu cầu ${pl.n} × ${qty} cho thủ kho`); });
+  let np = 0; $('#padd').addEventListener('click', () => $('#pf').click());
+  $('#pf').addEventListener('change', (e) => { for (const f of e.target.files) { const i = document.createElement('img'); i.src = URL.createObjectURL(f); i.alt = 'Ảnh hư hỏng ' + (++np); $('#pp').insertBefore(i, $('#padd')); } e.target.value = ''; });
+  $('#fProp').addEventListener('submit', (e) => { if (!$('#pt').value.trim() || !$('#pd').value.trim()) { e.preventDefault(); $('#propErr').hidden = false; return; } toast('Đã gửi việc phát sinh cho cố vấn'); $('#pt').value = ''; $('#pd').value = ''; });
+  render();
 </script>
 </body>
 </html>
