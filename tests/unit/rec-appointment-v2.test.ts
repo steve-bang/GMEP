@@ -7,6 +7,9 @@ import {
   isoWeekOf,
   isoWeekStart,
   isoWeekday,
+  viDayShort,
+  viDayTitle,
+  viWeekTitle,
   viToIso,
 } from '@/platform/format/date';
 import { renderShortText } from '@/infrastructure/messaging/templates';
@@ -149,6 +152,14 @@ describe('FR-REC-047 dates: ISO week from Monday, dd/MM/yyyy, no ISO text for pe
     expect(isoWeekStart('2026-01-01')).toBe('2025-12-29');
     expect(addIsoDays('2025-12-29', 6)).toBe('2026-01-04');
     expect(isoWeekOf('2027-01-01')).toEqual({ week: 53, year: 2026 });
+  });
+  it('AC-24/25: day and week titles', () => {
+    expect(viDayTitle('2026-11-05')).toBe('Thứ Năm, 05/11/2026');
+    expect(viDayTitle('2026-11-06')).toBe('Thứ Sáu, 06/11/2026');
+    expect(viDayShort('2026-10-30')).toBe('T6, 30/10/2026');
+    expect(viDayTitle('2026-11-08')).toBe('Chủ nhật, 08/11/2026');
+    expect(viWeekTitle('2026-11-05')).toBe('Tuần 45 (02/11 – 08/11/2026)');
+    expect(viWeekTitle('2026-01-01')).toBe('Tuần 1 (29/12/2025 – 04/01/2026)');
   });
   it('AC-27: 31/02/2026 does not exist; dates shown to people are dd/MM/yyyy', () => {
     expect(viToIso('31/02/2026')).toBeNull();

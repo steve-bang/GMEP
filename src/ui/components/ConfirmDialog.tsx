@@ -14,6 +14,8 @@ export function ConfirmDialog(props: {
   busy?: boolean;
   confirmDisabled?: boolean;
   tone?: 'primary' | 'danger';
+  /** wider dialog (`dialog--md`) for forms */
+  size?: 'md';
   onConfirm: () => void;
   onCancel: () => void;
   testId?: string;
@@ -65,7 +67,7 @@ export function ConfirmDialog(props: {
     <div className={`overlay${open ? ' is-open' : ''}`} role="presentation" hidden={!open}>
       <div
         ref={dialog}
-        className="dialog"
+        className={`dialog${props.size === 'md' ? ' dialog--md' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${id}-t`}

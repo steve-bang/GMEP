@@ -124,10 +124,11 @@ export function AppointmentForm(props: {
 
   async function submit(acknowledge: boolean) {
     const e: Record<string, string> = {};
-    const date = viToIso(dateEl()?.value);
+    // FR-REC-046: an existing appointment is moved only by the reschedule action; the edit screen has no date or time
+    const date = edit ? edit.date : viToIso(dateEl()?.value);
     if (!edit && !picked) e.vehicle = l.f_reqVehicle ?? '';
-    if (!date) e.date = l.f_reqDate ?? '';
-    if (!time) e.time = l.f_reqTime ?? '';
+    if (!edit && !date) e.date = l.f_reqDate ?? '';
+    if (!edit && !time) e.time = l.f_reqTime ?? '';
     setErrors(e);
     setBanner(null);
     if (Object.keys(e).length) return;
@@ -139,7 +140,6 @@ export function AppointmentForm(props: {
     const body = edit
       ? {
           version: edit.version,
-          ...common,
           serviceType: service || null,
           advisorId: advisor || null,
           note: note.trim() || null,
@@ -329,49 +329,74 @@ export function AppointmentForm(props: {
         )}
 
         <div className="form-grid">
-          <div className="field">
-            <label className="field__label" htmlFor="apt-date">
-              {l.f_date}
-              <span className="field__req" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <DateInput
-              id="apt-date"
-              defaultValue={isoToVi(edit?.date ?? props.defaultDate)}
-              aria-describedby="apt-date-e"
-              aria-invalid={err('date') ? true : undefined}
-            />
-            <span className="field__error" id="apt-date-e" role={err('date') ? 'alert' : undefined}>
-              {err('date')}
-            </span>
-          </div>
-          <div className="field">
-            <label className="field__label" htmlFor="apt-time">
-              {l.f_time}
-              <span className="field__req" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <select
-              id="apt-time"
-              className="select"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              aria-describedby="apt-time-e"
-              aria-invalid={err('time') ? true : undefined}
-            >
-              <option value="" />
-              {(time && !SLOTS.includes(time) ? [...SLOTS, time].sort() : SLOTS).map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            <span className="field__error" id="apt-time-e" role={err('time') ? 'alert' : undefined}>
-              {err('time')}
-            </span>
-          </div>
+          {edit ? (
+            <div className="field" data-testid="apt-moved-hint">
+              <span className="field__label">{l.kv_at}</span>
+              <p>
+                {(l.editMove ?? '').replace('{at}', `${isoToVi(edit.date)} ${edit.time}`)}{' '}
+                <Link
+                  href={`/rec/appointments?from=${edit.date}&resched=${encodeURIComponent(edit.id)}`}
+                  data-testid="apt-go-resched"
+                >
+                  {l.editGoResched}
+                </Link>
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="field">
+                <label className="field__label" htmlFor="apt-date">
+                  {l.f_date}
+                  <span className="field__req" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <DateInput
+                  id="apt-date"
+                  defaultValue={isoToVi(props.defaultDate)}
+                  aria-describedby="apt-date-e"
+                  aria-invalid={err('date') ? true : undefined}
+                />
+                <span
+                  className="field__error"
+                  id="apt-date-e"
+                  role={err('date') ? 'alert' : undefined}
+                >
+                  {err('date')}
+                </span>
+              </div>
+              <div className="field">
+                <label className="field__label" htmlFor="apt-time">
+                  {l.f_time}
+                  <span className="field__req" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <select
+                  id="apt-time"
+                  className="select"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  aria-describedby="apt-time-e"
+                  aria-invalid={err('time') ? true : undefined}
+                >
+                  <option value="" />
+                  {(time && !SLOTS.includes(time) ? [...SLOTS, time].sort() : SLOTS).map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <span
+                  className="field__error"
+                  id="apt-time-e"
+                  role={err('time') ? 'alert' : undefined}
+                >
+                  {err('time')}
+                </span>
+              </div>
+            </>
+          )}
           <div className="field">
             <label className="field__label" htmlFor="apt-service">
               {l.f_service}

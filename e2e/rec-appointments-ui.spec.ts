@@ -57,11 +57,11 @@ test.describe('FR-REC-019, 027 appointment screens', () => {
 
       await book('E2E lịch 1');
       await expect(page).toHaveURL(new RegExp(`/rec/appointments\\?from=${d.iso}`));
-      await expect(page.getByTestId(`apt-day-${d.iso}`)).toContainText('1/2 xe');
-      await expect(page.getByRole('cell', { name: '09:00' })).toBeVisible();
+      await expect(page.getByTestId(`apt-day-${d.iso}`)).toContainText('1/2');
+      await expect(page.getByTestId(/^apt-row-/).first()).toContainText('09:00');
       await book('E2E lịch 2');
       await expect(page).toHaveURL(new RegExp(`/rec/appointments\\?from=${d.iso}`));
-      await expect(page.getByTestId(`apt-day-${d.iso}`)).toContainText('2/2 xe');
+      await expect(page.getByTestId(`apt-day-${d.iso}`)).toContainText('2/2');
 
       // third booking on a full day: warning with the figures, then confirm
       await book('E2E lịch 3');
@@ -75,25 +75,30 @@ test.describe('FR-REC-019, 027 appointment screens', () => {
       expect(serious(await axe(page))).toEqual([]);
       await noHorizontalOverflow(page);
 
-      // edit: change the time
-      await page.getByTestId('apt-edit').first().click();
+      // edit: the screen no longer moves the date (FR-REC-046); it points to Dời lịch and still saves the note
+      await page.getByTestId('apt-open').first().click();
+      await page.getByTestId('apt-edit').click();
       await expect(page.getByRole('heading', { name: 'Sửa lịch hẹn', level: 1 })).toBeVisible();
-      await page.getByLabel(/^Khung giờ/).selectOption('10:30');
+      await expect(page.getByLabel(/^Ngày hẹn/)).toHaveCount(0);
+      await expect(page.getByLabel(/^Khung giờ/)).toHaveCount(0);
+      await expect(page.getByTestId('apt-go-resched')).toBeVisible();
+      await page.getByLabel('Ghi chú').fill('E2E sửa ghi chú');
       await page.getByTestId('apt-save').click();
       await expect(page).toHaveURL(new RegExp(`/rec/appointments\\?from=${d.iso}`));
-      await expect(page.getByRole('cell', { name: '10:30' })).toBeVisible();
 
-      // cancel needs a reason
+      // cancel needs a reason from the catalogue (the dialog is shared by the rows, the button names carry the number)
       await page.getByTestId('apt-cancel').last().click();
-      // one dialog per pending row exists in the page, only the opened one is visible
-      const dlg = page.locator('[data-testid="apt-cancel-dialog"]:visible');
+      const dlg = page.getByTestId('apt-cancel-dialog');
       await expect(dlg).toBeVisible();
       await expect(dlg.getByTestId('apt-cancel-dialog-go')).toBeDisabled();
-      await dlg.getByLabel(/^Lý do hủy/).fill('Khách báo bận');
+      await dlg.locator('label.radio', { hasText: 'Khách yêu cầu hủy' }).click();
       await dlg.getByTestId('apt-cancel-dialog-go').click();
-      await expect(page.getByText('Đã hủy', { exact: true })).toBeVisible();
+      await expect(page.getByTestId('apt-flash')).toBeVisible();
+      await page.goto(`/rec/appointments?tab=cancelled&from=${d.iso}`);
+      await expect(page.getByTestId('apt-cancel-info').first()).toContainText('Khách yêu cầu hủy');
 
       // arrive opens the pre-filled intake
+      await page.goto(`/rec/appointments?from=${d.iso}`);
       await page.getByTestId('apt-arrive').first().click();
       await expect(page).toHaveURL(/\/rec\/intakes\/[^/]+$/);
     } finally {
