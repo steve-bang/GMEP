@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chốt ngày – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: 36px minmax(0, 1.6fr) 150px 210px; }
+  .ico { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: var(--fw-semibold); font-size: var(--font-size-sm); border: 1.5px solid; }
+  .ico--ok { background: var(--color-success-bg); color: var(--color-success-text); border-color: var(--color-success-border); }
+  .ico--block { background: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger-border); }
+  .ico--warn { background: var(--color-warning-bg); color: var(--color-warning-text); border-color: var(--color-warning-border); }
+  .sub { margin: var(--space-1) 0 0; color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .kp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+  .kp > div { padding: var(--space-3) var(--space-4); display: grid; gap: 2px; }
+  .kp .l { font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .kp .v { font-size: var(--font-size-xl); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+  @media (max-width: 1023px) { .kp { grid-template-columns: repeat(2, minmax(0, 1fr)); } .item { grid-template-columns: 36px minmax(0, 1fr); row-gap: var(--space-2); } .item > :nth-child(n+3) { grid-column: 2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="cashier.html">Thu tiền</a> › Chốt ngày</p>
+  <header class="head">
+    <div><h1>Chốt ngày 07/11/2026</h1><p>Hệ thống liệt kê những gì còn dang dở. Việc chặn chốt phải xử lý xong; việc cảnh báo thì xem rồi xác nhận. Sau khi chốt, ngày bị khóa (FR-ACC-004).</p></div>
+    <div class="head__actions"><div class="seg" role="group" aria-label="Xem thử trạng thái"><button type="button" aria-pressed="true" data-v="block">Chưa đủ điều kiện</button><button type="button" aria-pressed="false" data-v="ready">Đủ điều kiện</button><button type="button" aria-pressed="false" data-v="locked">Đã chốt</button></div></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span>Số liệu tính đến 17:40 07/11/2026</span></div>
+
+  <section class="kp" aria-label="Tóm tắt ngày">
+    <div class="card"><span class="l">Doanh thu đã thu</span><span class="v">12.150.000 ₫</span></div>
+    <div class="card"><span class="l">Tiền mặt dự kiến cuối ngày</span><span class="v">9.900.000 ₫</span></div>
+    <div class="card"><span class="l">Lệnh hoàn tất hôm nay</span><span class="v">6</span></div>
+    <div class="card"><span class="l">Còn phải thu</span><span class="v">4.230.000 ₫</span></div>
+  </section>
+
+  <div id="locked" class="alert alert--ok state" hidden><b>Ngày 07/11/2026 đã chốt lúc 17:55 bởi Quản lý Quận 7.</b><span>Phiếu thu, phiếu chi và lệnh trong ngày không sửa trực tiếp. Sai sót ghi bằng phiếu đảo ở Sổ quỹ. Mở lại ngày cần chủ garage duyệt kèm lý do.</span></div>
+
+  <section class="card list" aria-label="Điều kiện chốt ngày"><div id="rows"></div>
+    <div class="stickybar"><div><b id="sum"></b><br><span class="why" id="why"></span></div><button class="b b--primary" type="button" id="go" disabled>Chốt ngày 07/11/2026</button></div>
+  </section>
+  <p class="hint" style="margin-top:var(--space-3)">Việc nào chặn chốt và việc nào chỉ cảnh báo là đề xuất, chờ BA xác nhận. Hiện FR-ACC-004 chỉ nêu rõ chặn khi còn chênh lệch quỹ chưa giải trình.</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  // t: block = chặn chốt, warn = cảnh báo cần xác nhận. [Cần xác nhận] phân loại chặn/cảnh báo.
+  const C = (v) => [
+    { t: 'block', done: v !== 'block', n: v === 'block' ? 'Ca chiều chưa chốt' : 'Cả 2 ca đã chốt', s: v === 'block' ? 'Ca sáng đã chốt 12:10. Ca chiều mở 12:30 vẫn đang mở.' : 'Ca sáng chốt 12:10, ca chiều chốt 17:35.', a: v === 'block' ? ['Mở ca chiều', 'shift.html'] : null },
+    { t: 'block', done: true, n: 'Chênh lệch quỹ đều đã giải trình', s: 'Ca sáng khớp. Ca chiều không có chênh lệch.', a: null },
+    { t: 'warn', done: v !== 'block', ack: true, n: '2 lệnh hoàn tất chưa thu đủ tiền', s: '29A-678.90 còn 1.280.000 ₫; 51H-123.45 còn 2.950.000 ₫.', a: ['Mở Thu tiền', 'cashier.html'] },
+    { t: 'warn', done: v !== 'block', ack: true, n: '3 lệnh hoàn tất chưa có hóa đơn', s: 'Cảnh báo cuối ngày theo FR-EIN-009. Phát hành hôm nay hoặc ghi chú lý do.', a: ['Mở Hóa đơn', 'invoices.html'] },
+    { t: 'warn', done: v !== 'block', ack: true, n: '4 lệnh còn đang sửa, chuyển sang ngày mai', s: 'Không ảnh hưởng quỹ. Chỉ để quản lý nắm.', a: null },
+  ];
+  let view = 'block';
+  function render() {
+    const c = C(view), blk = c.filter((x) => x.t === 'block' && !x.done), wrn = c.filter((x) => x.t === 'warn' && !x.done && view !== 'ready' && view !== 'locked');
+    $('#rows').innerHTML = c.map((x) => { const st = x.done ? 'ok' : x.t === 'block' ? 'block' : 'warn'; return `<div class="item"><span class="ico ico--${st}" aria-hidden="true">${st === 'ok' ? '✓' : st === 'block' ? '!' : '?'}</span><div><span class="t1">${x.n}</span><p class="sub">${x.s}</p></div><div>${x.done ? '<span class="badge badge--success">Xong</span>' : x.t === 'block' ? '<span class="badge badge--danger">Chặn chốt ngày</span>' : '<span class="badge badge--warning">Cảnh báo</span>'}</div><div class="act">${!x.done && x.a ? `<a class="b b--secondary b--sm" href="${x.a[1]}">${x.a[0]}</a>` : ''}</div></div>`; }).join('');
+    $('#locked').hidden = view !== 'locked';
+    const go = $('#go'); go.disabled = blk.length > 0 || view === 'locked';
+    $('#sum').textContent = view === 'locked' ? 'Ngày đã khóa' : blk.length ? `${blk.length} việc chặn chốt` : wrn.length ? `Không có việc chặn, ${wrn.length} cảnh báo` : 'Sẵn sàng chốt';
+    $('#why').textContent = view === 'locked' ? 'Chỉ chủ garage mở lại được, kèm lý do.' : blk.length ? 'Chưa chốt được: ' + blk.map((x) => x.n.toLowerCase()).join('; ') : 'Chốt sẽ khóa phiếu thu, phiếu chi và lệnh của ngày.';
+  }
+  document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { view = b.dataset.v; document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); render(); }));
+  $('#go').addEventListener('click', () => { view = 'locked'; document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === 'locked'))); render(); $('#toast').textContent = 'Đã chốt ngày 07/11/2026.'; $('#toast').hidden = false; setTimeout(() => { $('#toast').hidden = true; }, 5000); });
+  render();
+</script>
+</body>
+</html>

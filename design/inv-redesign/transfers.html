@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chuyển kho – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) 170px 230px; }
+  .route { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: center; }
+  .route .arr { color: var(--color-text-tertiary); }
+  .dl { display: grid; grid-template-columns: minmax(0, 1fr) 80px 100px; gap: var(--space-3); align-items: center; }
+  .dl input { text-align: right; width: 100%; min-height: var(--input-height-touch); border: 1px solid var(--input-border); border-radius: var(--input-radius); font: inherit; font-size: var(--font-size-lg); padding: 0 var(--space-2); background: var(--input-bg); color: var(--color-text-primary); }
+  .dl input:focus { border-color: var(--input-border-focus); box-shadow: var(--shadow-focus); outline: none; }
+  @media (max-width: 1023px) { .item { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-2); } }
+  @media (max-width: 599px) { .dl { grid-template-columns: minmax(0, 1fr) 64px 80px; gap: var(--space-2); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="stock.html">Tồn kho</a> › Chuyển kho</p>
+  <header class="head">
+    <div><h1>Chuyển kho giữa chi nhánh</h1><p>Hai bước: bên gửi gửi hàng, bên nhận xác nhận. Hàng đang đi đường không tính vào số có thể bán của cả hai chi nhánh (FR-INV-010).</p></div>
+    <div class="head__actions"><a class="b b--primary" href="stock.html">Tạo phiếu chuyển từ tồn kho</a></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chi nhánh Quận 7 (gửi và nhận)</span><span>Cập nhật 09:15 07/11/2026</span></div>
+
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" aria-selected="true" data-s="in">Cần nhận<span class="cnt cnt--warn" id="c-in"></span></button>
+    <button role="tab" aria-selected="false" data-s="out">Cần gửi<span class="cnt" id="c-out"></span></button>
+    <button role="tab" aria-selected="false" data-s="closed">Đã đóng<span class="cnt" id="c-closed"></span></button>
+    <button role="tab" aria-selected="false" data-s="all">Tất cả<span class="cnt" id="c-all"></span></button>
+  </div>
+  <section class="card list" aria-label="Phiếu chuyển kho"><div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2>Không có phiếu cần xử lý</h2><p>Phiếu mới sẽ hiện ở đây khi chi nhánh khác gửi hàng tới hoặc khi bạn tạo phiếu chuyển.</p></div>
+    <div class="rowfoot" id="foot"></div></section>
+</div>
+
+<dialog id="dRc" aria-labelledby="rcT"><form method="dialog" id="fRc">
+  <h2 id="rcT">Xác nhận nhận hàng</h2>
+  <p class="hint" id="rcV" style="margin:0"></p>
+  <div id="rcL" style="display:grid;gap:var(--space-3)"></div>
+  <div id="rcS"></div>
+  <div class="field" id="rcR" hidden><label for="rcn">Lý do chênh lệch <span class="req" aria-hidden="true">*</span></label><input id="rcn" autocomplete="off" maxlength="300"><span class="hint">Tạo biên bản chênh lệch gửi cả hai chi nhánh. Ít nhất 3 ký tự.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Để sau</button><button class="b b--primary" type="submit" id="rcOk">Xác nhận đã nhận đủ</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const T = [
+    { id: 'PCK-Q7-2611-00004', k: 'in', from: 'Chi nhánh Thủ Đức', to: 'Chi nhánh Quận 7', lines: [['Má phanh trước Hyundai Accent', 4, 'bộ']], st: ['purple', 'Đang đi đường'], note: 'Gửi 06/11 16:30, dự kiến về hôm nay' },
+    { id: 'PCK-Q7-2611-00003', k: 'in', from: 'Kho tổng', to: 'Chi nhánh Quận 7', lines: [['Dây curoa tổng Kia Morning', 6, 'sợi'], ['Lọc dầu động cơ Toyota Vios', 10, 'cái']], st: ['purple', 'Đang đi đường'], note: 'Gửi 06/11 09:00, dự kiến về 08/11' },
+    { id: 'PCK-Q7-2611-00005', k: 'out', from: 'Chi nhánh Quận 7', to: 'Chi nhánh Gò Vấp', lines: [['Lọc dầu động cơ Toyota Vios', 3, 'cái']], st: ['info', 'Chờ gửi (đã duyệt)'], note: 'Duyệt 07/11 08:10 bởi Quản lý Quận 7' },
+    { id: 'PCK-Q7-2611-00006', k: 'out', from: 'Chi nhánh Quận 7', to: 'Chi nhánh Thủ Đức', lines: [['Bugi Denso Iridium Honda City (bộ 4)', 2, 'bộ']], st: ['warning', 'Chờ duyệt'], note: 'Chờ Quản lý Quận 7 duyệt', block: 'Chưa gửi được: phiếu đang chờ Quản lý Quận 7 duyệt' },
+    { id: 'PCK-Q7-2610-00019', k: 'closed', from: 'Chi nhánh Thủ Đức', to: 'Chi nhánh Quận 7', lines: [['Lọc gió động cơ Mazda CX-5', 2, 'cái']], st: ['success', 'Đã nhận đủ'], note: 'Nhận 30/10 14:20' },
+    { id: 'PCK-Q7-2610-00015', k: 'closed', from: 'Chi nhánh Gò Vấp', to: 'Chi nhánh Quận 7', lines: [['Nước làm mát Prestone 1 lít', 10, 'chai']], st: ['danger', 'Đóng, có chênh lệch'], note: 'Nhận 8/10 chai, biên bản BB-Q7-2610-00002' },
+  ];
+  const f = { in: (t) => t.k === 'in', out: (t) => t.k === 'out', closed: (t) => t.k === 'closed', all: () => true };
+  let tab = 'in', cur;
+  const sum = (t) => t.lines[0][0] + (t.lines.length > 1 ? ` và ${t.lines.length - 1} mặt hàng khác` : '') + ` · ${t.lines.reduce((a, l) => a + l[1], 0)} sản phẩm`;
+  const act = (t) => t.k === 'in' ? `<button class="b b--primary b--sm" data-rc="${t.id}">Xác nhận nhận hàng</button>` : t.k === 'out' ? (t.block ? `<button class="b b--primary b--sm" disabled aria-describedby="w-${t.id}">Gửi hàng</button><span class="why why--block" id="w-${t.id}">${t.block}</span>` : `<button class="b b--primary b--sm" data-sd="${t.id}">Gửi hàng</button>`) : `<button class="b b--secondary b--sm" type="button">Xem phiếu</button>`;
+  function render() {
+    const l = T.filter(f[tab]);
+    $('#rows').innerHTML = l.map((t) => `<div class="item"><div><span class="t1">${t.id}</span><br><span class="route"><span>${t.from}</span><span class="arr" aria-label="đến">→</span><span>${t.to}</span></span></div><div><span class="t1">${sum(t)}</span><br><span class="t2">${t.note}</span></div><div><span class="badge badge--${t.st[0]}">${t.st[1]}</span></div><div class="act">${act(t)}</div></div>`).join('');
+    $('#empty').hidden = l.length > 0; $('#foot').textContent = l.length ? `Hiển thị ${l.length} phiếu` : '';
+    for (const k in f) $('#c-' + k).textContent = T.filter(f[k]).length;
+  }
+  let tm; const toast = (m) => { $('#toast').textContent = m; $('#toast').hidden = false; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 5000); };
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.s; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); render(); }));
+  $('#rows').addEventListener('click', (e) => {
+    const r = e.target.closest('[data-rc]'), s = e.target.closest('[data-sd]');
+    if (s) { const t = T.find((x) => x.id === s.dataset.sd); t.k = 'in'; t.st = ['purple', 'Đang đi đường']; t.note = 'Đã gửi 07/11 09:20, chờ bên nhận xác nhận'; render(); toast(`Đã gửi ${t.id}. Hàng chuyển sang Đang đi đường, tồn thực của kho gửi giảm.`); }
+    if (r) { cur = T.find((x) => x.id === r.dataset.rc); $('#rcV').textContent = `${cur.id}, từ ${cur.from}`; $('#rcL').innerHTML = cur.lines.map((l, i) => `<div class="dl"><span>${l[0]}<br><span class="t2">gửi ${l[1]} ${l[2]}</span></span><span class="t2" style="text-align:right">Nhận</span><input inputmode="numeric" data-i="${i}" aria-label="Số nhận, ${l[0]}" value="${l[1]}"></div>`).join(''); $('#rcn').value = ''; chk(); $('#dRc').showModal(); }
+  });
+  function chk() {
+    const d = [...document.querySelectorAll('#rcL input')].map((i) => (+i.value.replace(/\D/g, '') || 0) - cur.lines[i.dataset.i][1]).some((x) => x !== 0);
+    $('#rcR').hidden = !d; $('#rcS').innerHTML = d ? '<div class="alert alert--warn">Số nhận khác số gửi. Phiếu đóng kèm biên bản chênh lệch, cần lý do.</div>' : '';
+    $('#rcOk').textContent = d ? 'Xác nhận và lập biên bản chênh lệch' : 'Xác nhận đã nhận đủ';
+    $('#rcOk').disabled = d && $('#rcn').value.trim().length < 3;
+  }
+  $('#rcL').addEventListener('input', chk); $('#rcn').addEventListener('input', chk);
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#fRc').addEventListener('submit', () => { const d = !$('#rcR').hidden; cur.k = 'closed'; cur.st = d ? ['danger', 'Đóng, có chênh lệch'] : ['success', 'Đã nhận đủ']; cur.note = 'Nhận 07/11 09:30'; render(); toast(d ? `Đã nhận ${cur.id} kèm biên bản chênh lệch.` : `Đã nhận ${cur.id}. Tồn thực Kho Quận 7 đã tăng.`); });
+  render();
+</script>
+</body>
+</html>

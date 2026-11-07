@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ quỹ tiền mặt – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: 60px minmax(0, 1.2fr) minmax(0, 1.4fr) 130px 130px 150px; }
+  .item.h { min-height: 0; padding-top: var(--space-2); padding-bottom: var(--space-2); background: var(--table-head-bg); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .kp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+  .kp > div { padding: var(--space-3) var(--space-4); display: grid; gap: 2px; }
+  .kp .l { font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .kp .v { font-size: var(--font-size-xl); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+  .amt { font-weight: var(--fw-medium); } .amt.in { color: var(--color-success-text); }
+  .rev .t1, .rev .amt { color: var(--color-text-tertiary); text-decoration: line-through; text-decoration-color: var(--color-border-strong); }
+  @media (max-width: 1023px) { .kp { grid-template-columns: repeat(2, minmax(0, 1fr)); } .item.h { display: none; } .item { grid-template-columns: 56px minmax(0, 1fr) auto; row-gap: var(--space-2); } .item > :nth-child(3) { grid-column: 2 / -1; } .item > :nth-child(5) { display: none; } .item > :nth-child(6) { grid-column: 2 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="cashier.html">Thu tiền</a> › Sổ quỹ</p>
+  <header class="head">
+    <div><h1>Sổ quỹ tiền mặt</h1><p>Mọi dòng thu chi đều giữ lại. Ghi sai thì đảo bút toán, không có nút sửa hay xóa (RULE-010).</p></div>
+    <div class="head__actions"><button class="b b--primary" type="button" id="newExp">Lập phiếu chi</button></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Quỹ:</b> Tiền mặt tại quầy</span><span><b>Ngày:</b> 07/11/2026, chưa chốt</span><a href="day-close.html">Chốt ngày</a></div>
+
+  <section class="kp" aria-label="Tóm tắt quỹ"><div class="card"><span class="l">Đầu ngày</span><span class="v" id="k0"></span></div><div class="card"><span class="l">Thu (đã trừ phiếu đảo)</span><span class="v" id="k1"></span></div><div class="card"><span class="l">Chi (đã trừ phiếu đảo)</span><span class="v" id="k2"></span></div><div class="card"><span class="l">Cuối ngày (dự kiến)</span><span class="v" id="k3"></span></div></section>
+
+  <div class="tabsline" role="tablist" aria-label="Loại dòng">
+    <button role="tab" aria-selected="true" data-s="all">Tất cả<span class="cnt" id="c-all"></span></button>
+    <button role="tab" aria-selected="false" data-s="in">Thu<span class="cnt" id="c-in"></span></button>
+    <button role="tab" aria-selected="false" data-s="out">Chi<span class="cnt" id="c-out"></span></button>
+    <button role="tab" aria-selected="false" data-s="rev">Đã đảo<span class="cnt" id="c-rev"></span></button>
+  </div>
+  <section class="card list" aria-label="Dòng sổ quỹ, mới nhất ở trên">
+    <div class="item h" aria-hidden="true"><span>Giờ</span><span>Phiếu</span><span>Diễn giải</span><span class="num">Số tiền</span><span class="num">Số dư sau</span><span></span></div>
+    <div id="rows"></div>
+    <div class="rowfoot" id="foot"></div>
+  </section>
+</div>
+
+<dialog id="dRv" aria-labelledby="rvT"><form method="dialog" id="fRv">
+  <h2 id="rvT">Đảo bút toán</h2>
+  <p class="hint" id="rvV" style="margin:0"></p>
+  <div class="alert alert--info">Phiếu gốc giữ nguyên, gạch ngang trên sổ. Hệ thống ghi một phiếu đảo ngược chiều, số dư quỹ cập nhật theo.</div>
+  <div class="field"><label for="rr">Lý do đảo <span class="req" aria-hidden="true">*</span></label><input id="rr" maxlength="300" autocomplete="off"><span class="hint">Ghi vào nhật ký, ít nhất 3 ký tự. Sau khi đảo, nhập lại phiếu đúng ở bước tiếp theo.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Giữ nguyên</button><button class="b b--danger" type="submit" id="rOk" disabled>Đảo bút toán</button></div>
+</form></dialog>
+<dialog id="dEx" aria-labelledby="exT"><form method="dialog" id="fEx">
+  <h2 id="exT">Lập phiếu chi tiền mặt</h2>
+  <div class="field"><label for="ct">Loại chi phí <span class="req" aria-hidden="true">*</span></label><select id="ct"><option value="">Chọn loại</option><option>Vật tư văn phòng</option><option>Vệ sinh xưởng</option><option>Vận chuyển</option><option>Tiếp khách</option><option>Khác</option></select></div>
+  <div class="field"><label for="ea">Số tiền (₫) <span class="req" aria-hidden="true">*</span></label><input id="ea" inputmode="numeric" autocomplete="off"><span class="hint" id="eaH"></span></div>
+  <div class="field"><label for="ed">Diễn giải <span class="req" aria-hidden="true">*</span></label><input id="ed" maxlength="200" autocomplete="off"></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--primary" type="submit" id="eOk" disabled>Ghi phiếu chi</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const vnd = (n) => n.toLocaleString('vi-VN') + ' ₫', num = (s) => +String(s).replace(/\D/g, '') || 0;
+  const LIMIT = 500000; // Hạn mức chi MẪU, [Cần xác nhận] (FR-ACC-018, RULE-011)
+  const OPEN = 2000000;
+  const R = [
+    { t: '08:10', id: 'PT-Q7-2611-00027', k: 'in', d: 'Thu tiền lệnh RO-Q7-2611-00005', p: '51F-246.80', a: 1200000 },
+    { t: '09:05', id: 'PC-Q7-2611-00011', k: 'out', d: 'Chi: Vật tư văn phòng, mua dụng cụ vệ sinh', a: -200000 },
+    { t: '09:40', id: 'PT-Q7-2611-00031', k: 'in', d: 'Thu tiền lệnh RO-Q7-2611-00006', p: '59A1-367.08', a: 2150000 },
+    { t: '10:20', id: 'PC-Q7-2611-00012', k: 'out', d: 'Chi: Vệ sinh xưởng, mua nước rửa xe', a: -150000 },
+    { t: '10:50', id: 'PT-Q7-2611-00032', k: 'in', d: 'Thu tiền lệnh RO-Q7-2611-00007', p: '29A-678.90', a: 800000, rev: 'DT-Q7-2611-00001' },
+    { t: '11:05', id: 'DT-Q7-2611-00001', k: 'rev', d: 'Đảo PT-Q7-2611-00032. Lý do: nhập nhầm số tiền, thực thu 80.000 ₫', p: '29A-678.90', a: -800000, of: 'PT-Q7-2611-00032' },
+    { t: '11:07', id: 'PT-Q7-2611-00033', k: 'in', d: 'Thu tiền lệnh RO-Q7-2611-00007', p: '29A-678.90', a: 80000 },
+  ];
+  let tab = 'all', cur, tm, seq = 2;
+  const F = { all: () => true, in: (r) => r.a > 0 && !r.of, out: (r) => r.a < 0 && !r.of, rev: (r) => r.rev || r.of };
+  const toast = (m) => { $('#toast').textContent = m; $('#toast').hidden = false; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 5000); };
+  function render() {
+    let bal = OPEN; const withBal = R.map((r) => ({ ...r, b: (bal += r.a) }));
+    const l = withBal.filter(F[tab]).reverse();
+    $('#rows').innerHTML = l.map((r) => `<div class="item${r.rev ? ' rev' : ''}"><span class="t2">${r.t}</span><span><span class="t1">${r.id}</span><br>${r.k === 'rev' ? '<span class="badge badge--purple">Phiếu đảo</span>' : r.k === 'in' ? '<span class="badge badge--success">Thu</span>' : '<span class="badge badge--warning">Chi</span>'}${r.rev ? ' <span class="badge badge--danger">Đã bị đảo bởi ' + r.rev + '</span>' : ''}</span><span>${r.p ? `<span class="plate">${r.p}</span> ` : ''}<span class="t2">${r.d}</span></span><span class="num amt ${r.a > 0 ? 'in' : ''}">${r.a > 0 ? '+' : '−'}${vnd(Math.abs(r.a))}</span><span class="num">${vnd(r.b)}</span><span class="act">${!r.rev && !r.of ? `<button class="b b--secondary b--sm" type="button" data-rv="${r.id}">Đảo bút toán</button>` : r.of ? '<span class="why">Không đảo tiếp phiếu đảo</span>' : ''}</span></div>`).join('');
+    $('#foot').textContent = `Hiển thị ${l.length} dòng. Số dư là số học trên sổ, chưa phải tiền đếm thực tế.`;
+    const live = R.filter((r) => !r.rev && !r.of);
+    const th = live.filter((r) => r.a > 0).reduce((a, r) => a + r.a, 0), ch = -live.filter((r) => r.a < 0).reduce((a, r) => a + r.a, 0);
+    $('#k0').textContent = vnd(OPEN); $('#k1').textContent = vnd(th); $('#k2').textContent = vnd(ch); $('#k3').textContent = vnd(bal);
+    for (const k in F) $('#c-' + k).textContent = R.filter(F[k]).length;
+  }
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.s; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); render(); }));
+  $('#rows').addEventListener('click', (e) => { const b = e.target.closest('[data-rv]'); if (!b) return; cur = R.find((r) => r.id === b.dataset.rv); $('#rvV').textContent = `${cur.id}, ${cur.a > 0 ? 'thu' : 'chi'} ${vnd(Math.abs(cur.a))}${cur.p ? ', ' + cur.p : ''}`; $('#rr').value = ''; $('#rOk').disabled = true; $('#dRv').showModal(); });
+  $('#rr').addEventListener('input', () => { $('#rOk').disabled = $('#rr').value.trim().length < 3; });
+  $('#fRv').addEventListener('submit', () => { const id = `DT-Q7-2611-${String(seq++).padStart(5, '0')}`; cur.rev = id; R.push({ t: new Date().toTimeString().slice(0, 5), id, k: 'rev', d: `Đảo ${cur.id}. Lý do: ${$('#rr').value.trim()}`, p: cur.p, a: -cur.a, of: cur.id }); render(); toast(`Đã ghi ${id}. Phiếu ${cur.id} giữ nguyên trên sổ.`); });
+  function chkEx() { const a = num($('#ea').value), over = a > LIMIT; $('#eaH').textContent = over ? `Vượt hạn mức chi ${vnd(LIMIT)}: cần quản lý duyệt trước khi chi tiền.` : `Hạn mức tự chi tại quầy ${vnd(LIMIT)} (mẫu).`; $('#eOk').textContent = over ? 'Gửi duyệt chi' : 'Ghi phiếu chi'; $('#eOk').disabled = !($('#ct').value && a > 0 && $('#ed').value.trim().length >= 3); }
+  $('#newExp').addEventListener('click', () => { $('#ct').value = ''; $('#ea').value = ''; $('#ed').value = ''; chkEx(); $('#dEx').showModal(); });
+  ['#ct', '#ea', '#ed'].forEach((s) => $(s).addEventListener('input', chkEx));
+  $('#fEx').addEventListener('submit', () => { const a = num($('#ea').value); if (a > LIMIT) { toast('Đã gửi quản lý duyệt chi. Tiền chưa ra khỏi quỹ.'); return; } R.push({ t: new Date().toTimeString().slice(0, 5), id: 'PC-Q7-2611-00013', k: 'out', d: `Chi: ${$('#ct').value}, ${$('#ed').value.trim()}`, a: -a }); render(); toast('Đã ghi phiếu chi PC-Q7-2611-00013.'); });
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  render();
+</script>
+</body>
+</html>

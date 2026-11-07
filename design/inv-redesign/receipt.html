@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập kho theo đơn mua – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .ln { display: grid; grid-template-columns: minmax(0, 1.5fr) 96px 96px 120px 150px minmax(0, 1fr); gap: var(--space-4); align-items: center; padding: var(--space-3) var(--space-5); border-top: 1px solid var(--color-border); }
+  .ln.h { border-top: 0; background: var(--table-head-bg); font-size: var(--font-size-sm); color: var(--color-text-secondary); padding-top: var(--space-2); padding-bottom: var(--space-2); }
+  .ln input { width: 100%; min-height: var(--input-height-touch); padding: 0 var(--space-2); border: 1px solid var(--input-border); border-radius: var(--input-radius); font: inherit; font-size: var(--font-size-lg); text-align: right; font-variant-numeric: tabular-nums; background: var(--input-bg); color: var(--color-text-primary); }
+  .ln input:focus { border-color: var(--input-border-focus); box-shadow: var(--shadow-focus); outline: none; }
+  .ln .dv { display: grid; gap: var(--space-1); }
+  .lab { display: none; font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .sumr { display: grid; gap: var(--space-2); font-variant-numeric: tabular-nums; }
+  .sumr div { display: flex; justify-content: space-between; gap: var(--space-3); }
+  .tot { font-size: var(--font-size-xl); font-weight: var(--fw-semibold); }
+  ul.need { margin: 0; padding-left: var(--space-5); font-size: var(--font-size-sm); display: grid; gap: var(--space-1); }
+  @media (max-width: 1023px) { .ln.h { display: none; } .ln { grid-template-columns: 1fr 1fr; row-gap: var(--space-2); } .ln > :first-child, .ln > :last-child { grid-column: 1 / -1; } .lab { display: block; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="stock.html">Tồn kho</a> › Nhập kho › PO-Q7-2611-00006</p>
+  <header class="head">
+    <div><h1>Nhập kho từ đơn mua PO-Q7-2611-00006</h1><p>Nhà cung cấp Mobis Việt Nam. Đối chiếu số lượng và giá với đơn mua; lệch quá ngưỡng thì quản lý duyệt rồi mới ghi tồn (FR-INV-005).</p></div>
+    <div class="head__actions"><span class="badge badge--warning">Đơn mua: nhận một phần</span></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Kho nhận:</b> Kho Quận 7</span><span>Ngày nhận 07/11/2026</span></div>
+
+  <div class="pair">
+    <section class="card list" aria-label="Dòng hàng của đơn mua">
+      <div class="ln h" aria-hidden="true"><span>Phụ tùng</span><span class="num">Đặt</span><span class="num">Còn chờ</span><span class="num">Nhận lần này</span><span class="num">Giá nhập (₫)</span><span>Đối chiếu</span></div>
+      <div id="rows"></div>
+      <div class="rowfoot"><button class="b b--secondary b--sm" type="button" id="all">Nhận đủ phần còn chờ</button> <button class="b b--secondary b--sm" type="button" id="scan">Quét mã vạch bằng camera</button> <span class="hint">Quét mã sẽ điền đúng dòng hàng (FR-INV-011 dùng chung bộ quét).</span></div>
+    </section>
+
+    <aside class="card sec" aria-label="Tóm tắt phiếu nhập">
+      <h2>Phiếu GRN-Q7-2611-… (chưa ghi)</h2>
+      <div class="sumr"><div><span>Số dòng nhận</span><b id="sl">0</b></div><div><span>Giá trị nhập (chưa thuế)</span><b class="tot" id="sv">0 ₫</b></div></div>
+      <div id="state"></div>
+      <div class="field"><label for="note">Ghi chú / số phiếu giao hàng</label><input id="note" autocomplete="off" placeholder="Ví dụ: PGH 2611/087"></div>
+      <button class="b b--primary" type="button" id="go" disabled>Ghi nhập kho</button>
+      <ul class="need" id="need"></ul>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const vnd = (n) => n.toLocaleString('vi-VN') + ' ₫';
+  // Ngưỡng lệch giá 5% là DỮ LIỆU MẪU; ngưỡng thật do cấu hình (FR-INV-005, [Cần xác nhận])
+  const TH = 0.05;
+  const L = [
+    { c: 'PT-0002', n: 'Má phanh trước Hyundai Accent', u: 'bộ', o: 10, got: 0, p: 410000, q: '', pr: 410000 },
+    { c: 'PT-0003', n: 'Dầu nhớt Castrol 5W-30 (can 4 lít)', u: 'can', o: 12, got: 6, p: 890000, q: '', pr: 890000 },
+    { c: 'PT-0008', n: 'Dây curoa tổng Kia Morning', u: 'sợi', o: 6, got: 0, p: 165000, q: '', pr: 165000 },
+  ];
+  const left = (l) => l.o - l.got;
+  const dev = (l) => { const d = []; const q = +l.q || 0; if (q > left(l)) d.push(`Nhận vượt ${q - left(l)} ${l.u}`); if (q > 0 && Math.abs(l.pr - l.p) / l.p > TH) d.push(`Giá lệch ${l.pr > l.p ? '+' : '−'}${Math.round(Math.abs(l.pr - l.p) / l.p * 100)}% so với đơn`); return d; };
+  function render1(l) { const d = dev(l), q = +l.q || 0; return !q ? '<span class="t2">Chưa nhận</span>' : d.length ? d.map((x) => `<span class="badge badge--warning">${x}</span>`).join('') : q < left(l) ? '<span class="badge badge--info">Nhận một phần, còn ' + (left(l) - q) + '</span>' : '<span class="badge badge--success">Khớp đơn mua</span>'; }
+  function draw() {
+    $('#rows').innerHTML = L.map((l, i) => { return `<div class="ln"><div><span class="t1">${l.n}</span><br><span class="t2">${l.c} · đã nhận trước ${l.got}</span></div><div class="num"><span class="lab">Đặt</span>${l.o}</div><div class="num"><span class="lab">Còn chờ</span>${left(l)}</div><div><span class="lab">Nhận lần này</span><input inputmode="numeric" aria-label="Số ${l.u} nhận, ${l.n}" data-q="${i}" value="${l.q}" placeholder="0"></div><div><span class="lab">Giá nhập (₫)</span><input inputmode="numeric" aria-label="Giá nhập, ${l.n}" data-p="${i}" value="${l.pr.toLocaleString('vi-VN')}"></div><div class="dv">${render1(l)}</div></div>`; }).join('');
+    sum();
+  }
+  function sum() {
+    const act = L.filter((l) => +l.q > 0), bad = act.filter((l) => dev(l).length);
+    $('#sl').textContent = act.length; $('#sv').textContent = vnd(act.reduce((a, l) => a + l.q * l.pr, 0));
+    const need = [];
+    if (!act.length) need.push('Nhập số lượng nhận ít nhất một dòng');
+    $('#need').innerHTML = need.map((x) => `<li class="why why--block">${x}</li>`).join('');
+    const go = $('#go'); go.disabled = !act.length;
+    if (bad.length) { go.textContent = 'Gửi quản lý duyệt lệch'; $('#state').innerHTML = `<div class="alert alert--warn"><b>${bad.length} dòng lệch vượt ngưỡng</b><span>Chưa ghi tồn. Phiếu ở trạng thái Chờ duyệt; quản lý duyệt xong thủ kho mới ghi nhập.</span></div>`; }
+    else { go.textContent = 'Ghi nhập kho'; $('#state').innerHTML = act.length ? '<div class="alert alert--ok">Khớp đơn mua. Ghi nhập sẽ tăng tồn thực và tạo phiếu GRN không sửa được.</div>' : ''; }
+  }
+  // Cập nhật tại chỗ, không vẽ lại ô nhập để không mất con trỏ
+  $('#rows').addEventListener('input', (e) => { const t = e.target, i = t.dataset.q ?? t.dataset.p; if (t.dataset.q !== undefined) L[i].q = t.value.replace(/\D/g, ''); else L[i].pr = +t.value.replace(/\D/g, '') || 0; const tmp = document.createElement('div'); tmp.innerHTML = `<div id="x">${render1(L[i])}</div>`; t.closest('.ln').querySelector('.dv').innerHTML = tmp.firstChild.innerHTML; sum(); });
+  $('#all').addEventListener('click', () => { L.forEach((l) => { l.q = String(left(l)); }); draw(); });
+  $('#scan').addEventListener('click', () => { L[0].q = String((+L[0].q || 0) + 1); draw(); toast('Đã quét PT-0002: cộng 1 bộ vào dòng Má phanh trước Hyundai Accent.'); });
+  let tm; const toast = (m) => { $('#toast').textContent = m; $('#toast').hidden = false; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 5000); };
+  $('#go').addEventListener('click', () => toast($('#go').textContent === 'Ghi nhập kho' ? 'Đã ghi phiếu nhập GRN-Q7-2611-00010. Tồn thực đã tăng.' : 'Đã gửi quản lý duyệt lệch. Tồn chưa đổi.'));
+  draw();
+</script>
+</body>
+</html>

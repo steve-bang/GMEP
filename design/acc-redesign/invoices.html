@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hóa đơn điện tử – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: 150px minmax(0, 1.2fr) 140px minmax(0, 1.3fr) 230px; }
+  .ck { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); font-size: var(--font-size-md); }
+  .ck li { display: flex; gap: var(--space-2); align-items: baseline; }
+  .ck .y { color: var(--color-success-text); font-weight: var(--fw-semibold); }
+  .ck .x { color: var(--color-danger-text); font-weight: var(--fw-semibold); }
+  .key { font-family: var(--font-mono, monospace); font-size: var(--font-size-sm); color: var(--color-text-secondary); word-break: break-all; }
+  @media (max-width: 1023px) { .item { grid-template-columns: auto minmax(0, 1fr); row-gap: var(--space-2); } .item > * { grid-column: 1 / -1; } .item > :first-child { grid-column: 1; } .item > :nth-child(2) { grid-column: 2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="cashier.html">Thu tiền</a> › Hóa đơn điện tử</p>
+  <header class="head">
+    <div><h1>Hóa đơn điện tử</h1><p>Trạng thái hóa đơn lấy từ nhà cung cấp, không tự đoán. Phát hành chỉ tạo một hóa đơn dù bấm nhiều lần hoặc mạng chập chờn (FR-EIN-013). Hóa đơn sai thì điều chỉnh hoặc thay thế, không xóa.</p></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Đơn vị phát hành:</b> Công ty TNHH Garage Demo, ký hiệu 1C26TAA</span><span><b>Nhà cung cấp:</b> môi trường thử (giả lập)</span></div>
+
+  <form class="find" role="search" onsubmit="return false"><div class="search"><label for="q" class="sr">Tìm hóa đơn</label><input id="q" type="search" placeholder="Biển số, mã lệnh, tên khách hoặc số hóa đơn" autocomplete="off"></div></form>
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" aria-selected="true" data-s="todo">Cần phát hành<span class="cnt cnt--warn" id="c-todo"></span></button>
+    <button role="tab" aria-selected="false" data-s="wait">Đang gửi<span class="cnt" id="c-wait"></span></button>
+    <button role="tab" aria-selected="false" data-s="err">Gửi lỗi<span class="cnt cnt--danger" id="c-err"></span></button>
+    <button role="tab" aria-selected="false" data-s="done">Đã phát hành<span class="cnt" id="c-done"></span></button>
+    <button role="tab" aria-selected="false" data-s="adj">Điều chỉnh, thay thế<span class="cnt" id="c-adj"></span></button>
+  </div>
+  <section class="card list" aria-label="Hóa đơn"><div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2>Không có hóa đơn ở nhóm này</h2><p>Lệnh hoàn tất chưa có hóa đơn hợp lệ sẽ hiện ở tab Cần phát hành.</p></div>
+    <div class="rowfoot" id="foot"></div></section>
+</div>
+
+<dialog id="dIs" aria-labelledby="isT"><form method="dialog" id="fIs">
+  <h2 id="isT">Phát hành hóa đơn</h2>
+  <p class="hint" id="isV" style="margin:0"></p>
+  <ul class="ck" aria-label="Kiểm tra trước khi phát hành"><li><span class="y" aria-hidden="true">✓</span>Người mua: <span id="isB"></span></li><li><span class="y" aria-hidden="true">✓</span>Thuế suất 8% theo cấu hình hiện hành (mẫu)</li><li><span class="y" aria-hidden="true">✓</span>Đơn vị phát hành và ký hiệu 1C26TAA</li></ul>
+  <div><span class="hint">Khóa chống trùng của yêu cầu này</span><br><span class="key" id="isK"></span></div>
+  <div class="alert alert--info">Bấm một lần là đủ. Nếu mạng lỗi, hệ thống hỏi nhà cung cấp trạng thái trước khi gửi lại, không tạo hóa đơn thứ hai.</div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--primary" type="submit" id="isOk">Phát hành</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const vnd = (n) => n.toLocaleString('vi-VN') + ' ₫';
+  const norm = (x) => x.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9 ]/g, '');
+  // Trạng thái hóa đơn dưới đây là MẪU: tên và mã thật do nhà cung cấp quyết định ([Cần xác nhận])
+  const I = [
+    { p: '59A1-367.08', who: 'Trần Thị Mai', buyer: 'Khách lẻ', ro: 'RO-Q7-2611-00006', amt: 2150000, k: 'todo', ik: 'EIN-Q7-RO-2611-00006-v1' },
+    { p: '51D-999.88', who: 'Công ty TNHH Vận tải Demo', buyer: 'Doanh nghiệp', ro: 'RO-Q7-2611-00003', amt: 8640000, k: 'todo', miss: 'Thiếu mã số thuế của người mua' },
+    { p: '29A-678.90', who: 'Lê Quốc Hùng', buyer: 'Khách lẻ', ro: 'RO-Q7-2611-00007', amt: 1280000, k: 'wait', since: 'Gửi lúc 16:41, đã chờ 6 phút', ik: 'EIN-Q7-RO-2611-00007-v1' },
+    { p: '51K-905.31', who: 'Phạm Đức', buyer: 'Khách lẻ', ro: 'RO-Q7-2611-00008', amt: 1600000, k: 'err', err: 'Nhà cung cấp không phản hồi (hết thời gian chờ) lúc 16:12', ik: 'EIN-Q7-RO-2611-00008-v1' },
+    { p: '51H-123.45', who: 'Nguyễn Văn An', buyer: 'Khách lẻ', ro: 'RO-Q7-2611-00001', amt: 3450000, k: 'done', no: '1C26TAA-000123', cqt: 'Đã được cơ quan thuế cấp mã', at: '07/11/2026 15:02' },
+    { p: '30G-456.78', who: 'Hoàng Gia Bảo', buyer: 'Khách lẻ', ro: 'RO-Q7-2610-00219', amt: 2790000, k: 'adj', no: '1C26TAA-000119', adjNo: 'Điều chỉnh giảm 190.000 ₫ cho 1C26TAA-000119', st: 'Chờ kế toán trưởng duyệt' },
+  ];
+  const ST = { todo: ['neutral', 'Chưa phát hành'], wait: ['info', 'Đang gửi'], err: ['danger', 'Gửi lỗi'], done: ['success', 'Đã phát hành'], adj: ['warning', 'Chờ duyệt điều chỉnh'] };
+  const F = (k) => (i) => i.k === k;
+  let tab = 'todo', cur, tm;
+  const toast = (m) => { $('#toast').textContent = m; $('#toast').hidden = false; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 5000); };
+  function info(i) {
+    if (i.k === 'todo') return i.miss ? `<span class="why why--block">${i.miss}</span>` : '<span class="t2">Đủ điều kiện phát hành</span>';
+    if (i.k === 'wait') return `<span class="t2">${i.since}</span><br><span class="t2">Không bấm gửi lại, đang chờ nhà cung cấp</span>`;
+    if (i.k === 'err') return `<span class="why why--block">${i.err}</span><br><span class="t2">Yêu cầu vẫn được giữ, không mất</span>`;
+    if (i.k === 'done') return `<span class="t1">${i.no}</span><br><span class="t2">${i.cqt} · ${i.at}</span>`;
+    return `<span class="t1">${i.adjNo}</span><br><span class="t2">${i.st}, gốc ${i.no}</span>`;
+  }
+  function action(i) {
+    if (i.k === 'todo') return i.miss ? `<button class="b b--primary b--sm" disabled aria-describedby="m-${i.ro}">Phát hành</button><a class="why" id="m-${i.ro}" style="color:var(--color-text-link)" href="#" onclick="return false">Bổ sung mã số thuế ở hồ sơ khách</a>` : `<button class="b b--primary b--sm" type="button" data-is="${i.ro}">Phát hành</button>`;
+    if (i.k === 'wait') return `<button class="b b--secondary b--sm" type="button" data-chk="${i.ro}">Kiểm tra trạng thái</button>`;
+    if (i.k === 'err') return `<button class="b b--primary b--sm" type="button" data-rt="${i.ro}">Kiểm tra rồi thử lại</button><span class="why">Hỏi nhà cung cấp trước, tránh phát hành trùng</span>`;
+    if (i.k === 'done') return `<button class="b b--secondary b--sm" type="button" data-pdf="1">Mở hóa đơn PDF</button>`;
+    return `<button class="b b--secondary b--sm" type="button" disabled>Duyệt điều chỉnh</button><span class="why why--block">Chỉ kế toán trưởng được duyệt</span>`;
+  }
+  function render() {
+    const n = norm($('#q').value).trim(), l = I.filter((i) => F(tab)(i) && (!n || norm(i.p + ' ' + i.ro + ' ' + i.who + ' ' + (i.no || '')).includes(n)));
+    $('#rows').innerHTML = l.map((i) => `<div class="item"><span class="plate">${i.p}</span><span><span class="t1">${i.who}</span><br><span class="t2">${i.buyer} · ${i.ro}</span></span><span class="num t1" style="text-align:left">${vnd(i.amt)}<br><span class="badge badge--${ST[i.k][0]}">${ST[i.k][1]}</span></span><span>${info(i)}</span><span class="act">${action(i)}</span></div>`).join('');
+    $('#empty').hidden = l.length > 0; $('#foot').textContent = l.length ? `Hiển thị ${l.length} hóa đơn · trạng thái từ nhà cung cấp, cập nhật 16:47` : '';
+    for (const k in ST) $('#c-' + k).textContent = I.filter(F(k)).length;
+  }
+  $('#q').addEventListener('input', render);
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.s; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); render(); }));
+  $('#rows').addEventListener('click', (e) => {
+    const a = e.target.closest('[data-is]'), c = e.target.closest('[data-chk]'), r = e.target.closest('[data-rt]');
+    if (a) { cur = I.find((x) => x.ro === a.dataset.is); $('#isV').textContent = `${cur.p} · ${cur.ro} · ${vnd(cur.amt)}`; $('#isB').textContent = `${cur.who} (${cur.buyer.toLowerCase()})`; $('#isK').textContent = cur.ik; $('#isOk').disabled = false; $('#dIs').showModal(); }
+    if (c) { const i = I.find((x) => x.ro === c.dataset.chk); i.k = 'done'; i.no = '1C26TAA-000124'; i.cqt = 'Đã được cơ quan thuế cấp mã'; i.at = '07/11/2026 16:48'; render(); toast('Nhà cung cấp báo hóa đơn đã phát hành. Không cần gửi lại.'); }
+    if (r) { const i = I.find((x) => x.ro === r.dataset.rt); i.k = 'wait'; i.since = 'Nhà cung cấp chưa có hóa đơn này, đã gửi lại lúc 16:48'; render(); toast('Đã hỏi nhà cung cấp: chưa có hóa đơn, gửi lại với cùng khóa chống trùng.'); }
+    if (e.target.closest('[data-pdf]')) toast('Mở bản PDF đã lưu trong hệ thống (XML và PDF lưu cục bộ).');
+  });
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#fIs').addEventListener('submit', () => { $('#isOk').disabled = true; cur.k = 'wait'; cur.since = 'Gửi lúc 16:48, đang chờ nhà cung cấp'; render(); toast(`Đã gửi yêu cầu phát hành ${cur.ro}. Mỗi yêu cầu chỉ tạo một hóa đơn.`); });
+  render();
+</script>
+</body>
+</html>
