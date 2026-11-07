@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết phụ tùng và sổ kho – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .big { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+  .big > div { padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-1); }
+  .big .l { font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .big .v { font-size: var(--font-size-2xl); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .big .s { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .big .main { border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
+  .lg { display: grid; grid-template-columns: 130px minmax(0, 1.2fr) minmax(0, 1.4fr) 80px 80px 130px; gap: var(--space-4); }
+  .lg.item { min-height: 56px; }
+  .lg.h { padding: var(--space-2) var(--space-5); background: var(--table-head-bg); border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .in { color: var(--color-success-text); font-weight: var(--fw-medium); } .out { color: var(--color-text-primary); font-weight: var(--fw-medium); }
+  .rev .t1 { color: var(--color-text-tertiary); text-decoration: line-through; text-decoration-color: var(--color-border-strong); }
+  .panel[hidden] { display: none; }
+  .mini { display: grid; grid-template-columns: 150px minmax(0, 1fr) 120px 150px; gap: var(--space-4); }
+  @media (max-width: 1023px) { .big { grid-template-columns: repeat(2, minmax(0, 1fr)); } .lg.h { display: none; } .lg, .mini { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-2); } .lg > :nth-child(n+3), .mini > :nth-child(n+3) { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="stock.html">Tồn kho</a> › PT-0002</p>
+  <header class="head">
+    <div>
+      <h1>Má phanh trước Hyundai Accent</h1>
+      <p><span class="codeid">PT-0002 · Mobis · Nhóm Phanh · Hyundai Accent 2018–2023 · đơn vị bộ · mã vạch 8935001230029</span></p>
+    </div>
+    <div class="head__actions"><span class="badge badge--warning">Dưới định mức (tối thiểu 6)</span></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Kho:</b> Kho Quận 7</span><span>Tồn tính đến 09:15 07/11/2026</span></div>
+
+  <section class="big" aria-label="Bốn số tồn kho">
+    <div class="card"><span class="l">Tồn thực</span><span class="v">5</span><span class="s">đang nằm trong kho</span></div>
+    <div class="card"><span class="l">Đã giữ</span><span class="v">2</span><span class="s">cho 2 lệnh, trừ khi xuất</span></div>
+    <div class="card"><span class="l">Đang chuyển về</span><span class="v">+4</span><span class="s">chưa tính, chờ xác nhận nhận</span></div>
+    <div class="card main"><span class="l">Có thể bán</span><span class="v">3</span><span class="s">= 5 − 2; lệnh khác chỉ thấy số này</span></div>
+  </section>
+
+  <section class="card sec" style="margin-bottom:var(--space-4)" aria-label="Bước tiếp theo">
+    <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center;justify-content:space-between">
+      <div><h2>Bước tiếp theo: chờ hàng về</h2><p class="why" style="margin:var(--space-1) 0 0">Phiếu chuyển PCK-Q7-2611-00004 gửi 06/11 từ Chi nhánh Thủ Đức, dự kiến về chiều nay. Sau khi nhận đủ 4 bộ, số có thể bán lên 7.</p></div>
+      <div class="act"><a class="b b--primary" href="transfers.html">Theo dõi phiếu chuyển</a><button class="b b--secondary b--sm" type="button" disabled>Điều chỉnh tồn</button><span class="why why--block">Tồn chỉ đổi qua chứng từ: nhập, xuất, chuyển, kiểm kê (FR-INV-021)</span></div>
+    </div>
+  </section>
+
+  <div class="tabsline" role="tablist" aria-label="Chi tiết tồn">
+    <button role="tab" aria-selected="true" data-p="pl">Sổ kho<span class="cnt">6</span></button>
+    <button role="tab" aria-selected="false" data-p="ph">Đang giữ chỗ<span class="cnt cnt--warn">2</span></button>
+    <button role="tab" aria-selected="false" data-p="pt">Đang chuyển<span class="cnt">1</span></button>
+  </div>
+
+  <div class="panel" id="pl">
+    <section class="card list" aria-label="Sổ kho, mới nhất ở trên">
+      <div class="lg h" aria-hidden="true"><span>Thời điểm</span><span>Chứng từ</span><span>Gắn với</span><span class="num">Số lượng</span><span class="num">Tồn sau</span><span></span></div>
+      <div class="lg item"><span class="t2">04/11/2026 15:42</span><span><span class="t1">ADJ-Q7-2611-00002</span><br><span class="badge badge--purple">Phiếu đảo</span></span><span class="t2">Đảo GRN-Q7-2611-00009 · duyệt bởi Quản lý Quận 7 · lý do: nhập nhầm 3 bộ</span><span class="num out">−3</span><span class="num">5</span><span class="act"></span></div>
+      <div class="lg item rev"><span class="t2">04/11/2026 15:20</span><span><span class="t1">GRN-Q7-2611-00009</span><br><span class="badge badge--neutral">Nhập kho</span> <span class="badge badge--danger">Đã bị đảo</span></span><span class="t2">Nhà cung cấp Mobis, nhập nhầm số lượng</span><span class="num in">+3</span><span class="num">8</span><span class="act"></span></div>
+      <div class="lg item"><span class="t2">02/11/2026 10:05</span><span><span class="t1">RTN-Q7-2611-00001</span><br><span class="badge badge--info">Trả hàng</span></span><span><span class="plate">59A1-367.08</span> <span class="t2">RO-Q7-2610-00212</span><br><span class="t2">Khách trả, chưa lắp</span></span><span class="num in">+1</span><span class="num">5</span><span class="act"><button class="b b--secondary b--sm" type="button" data-rv="RTN-Q7-2611-00001">Đảo phiếu</button></span></div>
+      <div class="lg item"><span class="t2">30/10/2026 16:12</span><span><span class="t1">GIN-Q7-2610-00044</span><br><span class="badge badge--warning">Xuất kho</span></span><span><span class="plate">30G-456.78</span> <span class="t2">RO-Q7-2610-00219</span><br><span class="t2">Người nhận: Thợ Quận 7</span></span><span class="num out">−4</span><span class="num">4</span><span class="act"><button class="b b--secondary b--sm" type="button" data-rv="GIN-Q7-2610-00044">Đảo phiếu</button></span></div>
+      <div class="lg item"><span class="t2">28/10/2026 09:30</span><span><span class="t1">GIN-Q7-2610-00040</span><br><span class="badge badge--warning">Xuất kho</span></span><span><span class="plate">59A1-367.08</span> <span class="t2">RO-Q7-2610-00212</span></span><span class="num out">−2</span><span class="num">8</span><span class="act"></span></div>
+      <div class="lg item"><span class="t2">25/10/2026 14:00</span><span><span class="t1">GRN-Q7-2610-00018</span><br><span class="badge badge--neutral">Nhập kho</span></span><span class="t2">Nhà cung cấp Mobis · đơn mua PO-Q7-2610-00007</span><span class="num in">+10</span><span class="num">10</span><span class="act"></span></div>
+      <div class="rowfoot">Không có Sửa hoặc Xóa: sai thì tạo phiếu đảo, phiếu gốc vẫn giữ trong sổ (RULE-009, RULE-010). Đảo phiếu cần quản lý duyệt.</div>
+    </section>
+  </div>
+
+  <div class="panel" id="ph" hidden>
+    <section class="card list" aria-label="Lệnh đang giữ hàng">
+      <div class="mini item"><span><span class="plate">51F-246.80</span></span><span><span class="t1">RO-Q7-2611-00005</span><br><span class="t2">Khách duyệt báo giá 06/11/2026 11:20</span></span><span class="num t1">1 bộ</span><span class="act"><span class="badge badge--info">Đã giữ</span></span></div>
+      <div class="mini item"><span><span class="plate">30G-456.78</span></span><span><span class="t1">RO-Q7-2611-00010</span><br><span class="t2">Khách duyệt báo giá 07/11/2026 08:05</span></span><span class="num t1">1 bộ</span><span class="act"><span class="badge badge--info">Đã giữ</span></span></div>
+      <div class="rowfoot">Giữ chỗ tự nhả khi lệnh hủy, báo giá bị từ chối hoặc phụ tùng được xuất (FR-INV-020).</div>
+    </section>
+  </div>
+
+  <div class="panel" id="pt" hidden>
+    <section class="card list" aria-label="Hàng đang chuyển về">
+      <div class="mini item"><span class="t1">PCK-Q7-2611-00004</span><span><span class="t1">Từ Chi nhánh Thủ Đức</span><br><span class="t2">Gửi 06/11/2026 16:30, dự kiến về 07/11 chiều</span></span><span class="num t1">4 bộ</span><span class="act"><span class="badge badge--purple">Đang đi đường</span></span></div>
+    </section>
+  </div>
+</div>
+
+<dialog id="dRv" aria-labelledby="rvT"><form method="dialog" id="fRv">
+  <h2 id="rvT">Đảo phiếu kho</h2>
+  <p class="hint" id="rvV" style="margin:0"></p>
+  <div class="alert alert--info">Phiếu gốc không bị sửa hay xóa. Hệ thống tạo phiếu điều chỉnh ngược chiều, gửi quản lý duyệt; tồn chỉ đổi sau khi duyệt.</div>
+  <div class="field"><label for="rr">Lý do đảo <span class="req" aria-hidden="true">*</span></label><input id="rr" maxlength="300" autocomplete="off"><span class="hint">Ít nhất 3 ký tự. Ghi vào nhật ký.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Giữ nguyên</button><button class="b b--primary" type="submit" id="rOk" disabled>Gửi duyệt phiếu đảo</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); ['pl', 'ph', 'pt'].forEach((k) => { $('#' + k).hidden = t.dataset.p !== k; }); }));
+  document.querySelectorAll('[data-rv]').forEach((b) => b.addEventListener('click', () => { $('#rvV').textContent = 'Phiếu ' + b.dataset.rv; $('#rr').value = ''; $('#rOk').disabled = true; $('#dRv').showModal(); }));
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#rr').addEventListener('input', () => { $('#rOk').disabled = $('#rr').value.trim().length < 3; });
+  $('#fRv').addEventListener('submit', () => { $('#toast').textContent = 'Đã gửi phiếu đảo cho quản lý duyệt. Tồn chưa đổi.'; $('#toast').hidden = false; setTimeout(() => { $('#toast').hidden = true; }, 5000); });
+</script>
+</body>
+</html>

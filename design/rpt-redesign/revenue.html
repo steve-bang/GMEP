@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo cáo doanh thu – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: 150px minmax(0, 1.2fr) minmax(0, 1fr) 170px 150px; }
+  .formula { margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-4); border-left: 3px solid var(--color-border-selected); background: var(--color-surface); border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .hb { display: grid; gap: var(--space-3); padding: var(--space-4) var(--space-5); }
+  .hb .r { display: grid; grid-template-columns: minmax(0, 12em) minmax(0, 1fr) minmax(0, 9em); gap: var(--space-3); align-items: center; font-size: var(--font-size-md); }
+  .hb .bar { height: 12px; }
+  @media (max-width: 599px) { .hb .r { grid-template-columns: minmax(0, 1fr) auto; } .hb .r .bar { grid-column: 1 / -1; order: 3; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình dashboard và báo cáo">
+    <a href="branch-overview.html">Tổng quan chi nhánh</a><a href="group-overview.html">Tổng quan chuỗi</a><a href="revenue.html" aria-current="page">Doanh thu</a><a href="capacity.html">Công suất xưởng</a><a href="inventory-report.html">Tồn kho</a>
+  </nav>
+  <header class="head">
+    <div><h1>Báo cáo doanh thu</h1><p>Doanh thu theo ngày, theo nhóm và theo loại dịch vụ. Từ mỗi dòng mở được lệnh và phiếu thu cấu thành.</p></div>
+    <div class="head__actions"><button class="b b--secondary" type="button" data-exp="Excel">Xuất Excel</button><button class="b b--secondary" type="button" data-exp="PDF">Xuất PDF</button></div>
+  </header>
+
+  <section class="scope" aria-label="Phạm vi số liệu">
+    <span class="it"><span>Chi nhánh</span><b>Quận 7 (CN-Q7)</b></span>
+    <span class="it"><span>Kỳ</span><b>01/11 đến 07/11/2026</b></span>
+    <span class="it"><span>Độ chính thức</span><b>Đến 06/11 đã chốt, 07/11 số tạm</b></span>
+    <span class="it"><span>Cập nhật lúc</span><b>14:32</b></span>
+    <span class="sw-wrap"><span class="seg" role="group" aria-label="Phạm vi xem"><button type="button" aria-pressed="true">Chi nhánh Quận 7</button><button type="button" aria-disabled="true" aria-describedby="w1">Toàn chuỗi</button></span><span class="why" id="w1">Toàn chuỗi chỉ dành cho Chủ garage.</span></span>
+  </section>
+
+  <form class="find" onsubmit="return false" aria-label="Bộ lọc báo cáo">
+    <span class="seg" role="group" aria-label="Kỳ"><button type="button" aria-pressed="false">Hôm nay</button><button type="button" aria-pressed="true">7 ngày</button><button type="button" aria-pressed="false">Tháng 11/2026</button><button type="button" aria-pressed="false">Tùy chọn</button></span>
+    <span class="chips" role="group" aria-label="Nhóm doanh thu" id="grpChips"></span>
+    <button class="chip" type="button" id="reset" hidden>Xóa lọc nhóm</button>
+  </form>
+
+  <p class="formula"><b>Cách tính.</b> Doanh thu = tiền đã thu + ghi nợ phát sinh trong ngày (FR-RPT-003). Chưa trừ giá vốn. Có hay không có VAT: <b>[Cần xác nhận]</b>, hiện mẫu theo số chưa VAT.</p>
+
+  <div class="demo">Xem thử: <button class="chip" data-demo="ok" aria-pressed="true">Bình thường</button><button class="chip" data-demo="loading" aria-pressed="false">Đang tải</button><button class="chip" data-demo="error" aria-pressed="false">Lỗi một khối</button></div>
+
+  <section class="card chart blk" aria-labelledby="chT" style="margin-bottom:var(--space-4)">
+    <div class="chart__head"><h2 id="chT">Doanh thu theo ngày và nhóm</h2><span class="seg" role="group" aria-label="Cách xem"><button type="button" data-v="chart" aria-pressed="true">Biểu đồ</button><button type="button" data-v="table" aria-pressed="false">Bảng</button></span></div>
+    <p class="chart__sub" id="sub"></p>
+    <div id="vChart"><div class="plot" id="plot"></div><div class="legend" id="legend"></div></div>
+    <div class="tblwrap" id="vTable" hidden><table class="t"><thead><tr><th>Ngày</th><th class="num">Số lệnh</th><th class="num">Đã thu</th><th class="num">Ghi nợ phát sinh</th><th class="num">Doanh thu</th></tr></thead><tbody id="tb"></tbody><tfoot id="tf"></tfoot></table></div>
+  </section>
+
+  <div class="tabsline" role="tablist" aria-label="Chiều xem" id="tabs"></div>
+  <div class="blk"><div id="panel"></div></div>
+</div>
+<script src="charts.js"></script>
+<script>
+  // DỮ LIỆU MẪU. Tỷ lệ nhóm (công 38%, phụ tùng 55%, khác phần còn lại) và tỷ lệ đã thu 82% chỉ để minh họa.
+  const T = [11.8, 21.4, 23.1, 24.6, 19.2, 15.9, 12.45].map((x) => Math.round(x * 1e6));
+  const LN = [6, 12, 13, 15, 11, 9, 7];
+  const LB = ['CN 01', 'T2 02', 'T3 03', 'T4 04', 'T5 05', 'T6 06', 'T7 07'];
+  const FD = ['Chủ nhật 01/11/2026', 'Thứ Hai 02/11/2026', 'Thứ Ba 03/11/2026', 'Thứ Tư 04/11/2026', 'Thứ Năm 05/11/2026', 'Thứ Sáu 06/11/2026', 'Thứ Bảy 07/11/2026'];
+  const D = T.map((t, i) => { const cong = Math.round((t * 0.38) / 1000) * 1000, pt = Math.round((t * 0.55) / 1000) * 1000, thu = Math.round((t * 0.82) / 1000) * 1000; return { fd: FD[i], lb: LB[i], t, n: LN[i], g: [cong, pt, t - cong - pt], thu, no: t - thu, prov: i === 6 }; });
+  const G = [['Tiền công', 's1'], ['Phụ tùng', 's2'], ['Dịch vụ khác', 's4']];
+  let on = [true, true, true], tab = 'day', day = 4;
+  const sel = () => on.map((o, i) => (o ? i : -1)).filter((i) => i >= 0);
+  function chips() {
+    document.getElementById('grpChips').innerHTML = '<span class="t2" style="align-self:center">Nhóm doanh thu</span>' + G.map(([n], i) => `<button class="chip" type="button" aria-pressed="${on[i]}" data-g="${i}">${n}</button>`).join('');
+    document.getElementById('reset').hidden = on.every(Boolean);
+  }
+  function chart() {
+    const s = sel();
+    if (!s.length) { on = [true, true, true]; return render(); }
+    const tot = (d) => s.reduce((a, i) => a + d.g[i], 0);
+    document.getElementById('sub').innerHTML = `Chi nhánh Quận 7, 01/11 đến 07/11/2026, nhóm: ${s.map((i) => G[i][0]).join(', ')}. Tổng <b>${vnd(D.reduce((a, d) => a + tot(d), 0))}</b>. Ngày 07/11 là số tạm, vẽ vằn.`;
+    cols(document.getElementById('plot'), { series: s.map((i) => ({ cls: G[i][1] })), niceTo: 5e6, fmtAxis: tr, data: D.map((d) => ({ label: d.lb, vals: s.map((i) => d.g[i]), prov: d.prov, tip: `<b>${d.fd}</b>${s.map((i) => `<br>${G[i][0]}: ${vnd(d.g[i])}`).join('')}<br><b>Tổng: ${vnd(tot(d))}</b>${d.prov ? '<br>Số tạm đến 14:32' : ''}` })) });
+    document.getElementById('legend').innerHTML = s.map((i) => `<span><i class="k ${G[i][1]}"></i>${G[i][0]}</span>`).join('') + '<span><i class="k k--prov"></i>Số tạm</span>';
+    document.getElementById('tb').innerHTML = D.map((d) => `<tr><td>${d.fd} ${d.prov ? '<span class="badge badge--warning">Số tạm</span>' : ''}</td><td class="num">${d.n}</td><td class="num">${vnd(d.thu)}</td><td class="num">${vnd(d.no)}</td><td class="num">${vnd(d.t)}</td></tr>`).join('');
+    const sm = (f) => D.reduce((a, d) => a + f(d), 0);
+    document.getElementById('tf').innerHTML = `<tr><td>Tổng</td><td class="num">${sm((d) => d.n)}</td><td class="num">${vnd(sm((d) => d.thu))}</td><td class="num">${vnd(sm((d) => d.no))}</td><td class="num">${vnd(sm((d) => d.t))}</td></tr>`;
+  }
+  const SV = [['Sửa chữa chung', 47250000], ['Bảo dưỡng', 38600000], ['Lốp và mâm', 24100000], ['Đồng sơn', 18500000]];
+  const DOCS = [
+    ['51H-123.45', 'Nguyễn Văn An', 'Toyota Vios 2019', 'RO-Q7-2611-00001', 1620000, 'Đã thu đủ'],
+    ['51K-905.31', 'Phạm Đức', 'Kia Morning 2018', 'RO-Q7-2611-00008', 2480000, 'Thu một phần'],
+    ['59A1-367.08', 'Trần Thị Mai', 'Honda City 2022', 'RO-Q7-2611-00006', 3450000, 'Đã thu đủ'],
+    ['51D-999.88', 'Công ty TNHH Vận tải Demo', 'Hyundai Porter H150 2020', 'RO-Q7-2611-00003', 6820000, 'Ghi nợ đã duyệt'],
+  ];
+  const PB = { 'Đã thu đủ': 'badge--success', 'Thu một phần': 'badge--warning', 'Ghi nợ đã duyệt': 'badge--info' };
+  function panel() {
+    const cd = D[day - 1];
+    const tabs = [['day', 'Theo ngày', 7], ['svc', 'Theo loại dịch vụ', 4], ['doc', 'Chứng từ ngày ' + cd.fd.split(' ').pop().slice(0, 5), DOCS.length]];
+    document.getElementById('tabs').innerHTML = tabs.map(([k, l, n]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt">${n}</span></button>`).join('');
+    const p = document.getElementById('panel');
+    if (tab === 'day') p.innerHTML = `<section class="card list" aria-label="Doanh thu theo ngày">${D.map((d, i) => `<div class="item"><span class="t1">${d.fd.split(' ').slice(0, -1).join(' ')}<br><span class="t2">${d.fd.split(' ').pop()}</span></span><span><b>${vnd(d.t)}</b><br><span class="t2">${d.n} lệnh${d.prov ? ' · số tạm' : ''}</span></span><span class="t2">Thu ${vnd(d.thu)}<br>Ghi nợ ${vnd(d.no)}</span><span>${d.prov ? '<span class="badge badge--warning">Số tạm, chưa chốt ngày</span>' : '<span class="badge badge--success">Đã chốt ngày</span>'}</span><span class="act"><button class="b b--secondary b--sm" type="button" data-doc="${i + 1}">Xem chứng từ</button></span></div>`).join('')}<div class="rowfoot">7 ngày · Chi nhánh Quận 7 · cập nhật 14:32</div></section>`;
+    if (tab === 'svc') { const mx = Math.max(...SV.map((s) => s[1])), tt = SV.reduce((a, s) => a + s[1], 0); p.innerHTML = `<section class="card hb" aria-label="Doanh thu theo loại dịch vụ">${SV.map(([n, v]) => `<div class="r"><span class="t1">${n}</span><span class="bar" role="img" aria-label="${n}: ${pct((v / tt) * 100)} tổng"><i style="width:${(v / mx) * 100}%"></i></span><span class="num"><b>${vnd(v)}</b><br><span class="t2">${pct((v / tt) * 100)}</span></span></div>`).join('')}<p class="why">Tổng ${vnd(tt)}. Đồng sơn <b>[Cần xác nhận]</b>: luồng và cách ghi nhận theo công đoạn chưa khảo sát (FR-REC-033).</p></section>`; }
+    if (tab === 'doc') p.innerHTML = `<section class="card list" aria-label="Chứng từ cấu thành"><div class="rowfoot" style="border-top:0;border-bottom:1px solid var(--color-border)">Chứng từ của ${cd.fd}. ${cd.n} lệnh; bên dưới là 4 dòng mẫu.</div>${DOCS.map(([pl, who, car, ro, amt, st]) => `<div class="item"><span class="plate">${pl}</span><span><span class="t1">${who}</span><br><span class="t2">${car}</span></span><span class="t2">${ro}</span><span><b>${vnd(amt)}</b><br><span class="badge ${PB[st]}" style="margin-top:4px">${st}</span></span><span class="act"><a class="b b--secondary b--sm" href="../rec-redesign/order-detail.html">Mở lệnh</a></span></div>`).join('')}</section>`;
+  }
+  function render() { chips(); chart(); panel(); }
+  document.getElementById('grpChips').addEventListener('click', (e) => { const b = e.target.closest('[data-g]'); if (!b) return; const i = +b.dataset.g; if (on[i] && sel().length === 1) { toast('Cần chọn ít nhất một nhóm.'); return; } on[i] = !on[i]; render(); });
+  document.getElementById('reset').addEventListener('click', () => { on = [true, true, true]; render(); });
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; panel(); } });
+  document.getElementById('panel').addEventListener('click', (e) => { const b = e.target.closest('[data-doc]'); if (b) { day = +b.dataset.doc; tab = 'doc'; panel(); } });
+  document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); document.getElementById('vChart').hidden = b.dataset.v !== 'chart'; document.getElementById('vTable').hidden = b.dataset.v !== 'table'; }));
+  document.querySelectorAll('[data-exp]').forEach((b) => b.addEventListener('click', () => toast(`Xuất ${b.dataset.exp}: Chi nhánh Quận 7, 01/11 đến 07/11/2026, nhóm ${sel().map((i) => G[i][0]).join(', ')}, tạo lúc 14:32. Tệp ghi cả phạm vi này (demo).`)));
+  render(); blocks();
+</script>
+</body>
+</html>

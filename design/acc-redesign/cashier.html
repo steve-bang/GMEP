@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thu tiền theo lệnh – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: 150px minmax(0, 1.2fr) minmax(0, 1.3fr) 170px 210px; }
+  .mny { display: grid; gap: 2px; font-variant-numeric: tabular-nums; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .mny b { font-size: var(--font-size-lg); color: var(--color-text-primary); font-weight: var(--fw-semibold); }
+  .mny .rm { color: var(--color-danger-text); font-weight: var(--fw-medium); }
+  .pm { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .pm button { min-height: 44px; padding: 0 var(--space-4); border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--color-surface); font: inherit; font-size: var(--font-size-md); cursor: pointer; color: var(--color-text-primary); }
+  .pm button[aria-pressed="true"] { background: var(--color-primary-subtle); border-color: var(--color-border-selected); color: var(--color-brand-700); font-weight: var(--fw-medium); }
+  @media (max-width: 1023px) { .item { grid-template-columns: auto minmax(0, 1fr); row-gap: var(--space-2); } .item > * { grid-column: 1 / -1; } .item > :first-child { grid-column: 1; } .item > :nth-child(2) { grid-column: 2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">Thu ngân và tài chính › Thu tiền · <a href="shift.html">Ca thu ngân</a> · <a href="day-close.html">Chốt ngày</a> · <a href="cashbook.html">Sổ quỹ</a> · <a href="invoices.html">Hóa đơn điện tử</a></p>
+  <header class="head">
+    <div><h1>Thu tiền theo lệnh</h1><p>Mọi khoản thu gắn với một lệnh sửa chữa. Thu nhiều lần, nhiều hình thức; số còn nợ của lệnh luôn khớp tổng các lần thu (FR-ACC-001).</p></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Ca:</b> Ca sáng, thu ngân Nguyễn Thị Hoa, mở 07:30</span><a href="shift.html">Xem ca</a><span>Ngày 07/11/2026</span></div>
+
+  <form class="find" role="search" onsubmit="return false"><div class="search"><label for="q" class="sr">Tìm lệnh</label><input id="q" type="search" placeholder="Biển số, mã lệnh hoặc tên khách" autocomplete="off"></div></form>
+  <div class="tabsline" role="tablist" aria-label="Việc cần làm">
+    <button role="tab" aria-selected="true" data-s="due">Chờ thu<span class="cnt cnt--warn" id="c-due"></span></button>
+    <button role="tab" aria-selected="false" data-s="debt">Công nợ<span class="cnt" id="c-debt"></span></button>
+    <button role="tab" aria-selected="false" data-s="paid">Đã thu hôm nay<span class="cnt" id="c-paid"></span></button>
+    <button role="tab" aria-selected="false" data-s="all">Tất cả<span class="cnt" id="c-all"></span></button>
+  </div>
+  <section class="card list" aria-label="Lệnh cần thu tiền"><div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2>Không có lệnh phù hợp</h2><p>Lệnh hoàn tất chờ thu sẽ hiện ở đây. Xe chưa có lệnh thì tiếp nhận ở nhóm Tiếp nhận và báo giá.</p></div>
+    <div class="rowfoot" id="foot"></div></section>
+</div>
+
+<dialog id="dPay" aria-labelledby="pT"><form method="dialog" id="fPay">
+  <h2 id="pT">Thu tiền</h2>
+  <p class="hint" id="pV" style="margin:0"></p>
+  <div class="field"><span style="font-weight:var(--fw-medium)" id="pmL">Hình thức</span><div class="pm" role="group" aria-labelledby="pmL"><button type="button" aria-pressed="true" data-m="Tiền mặt">Tiền mặt</button><button type="button" aria-pressed="false" data-m="Chuyển khoản">Chuyển khoản</button><button type="button" aria-pressed="false" data-m="Thẻ">Thẻ</button><button type="button" aria-pressed="false" data-m="Ví">Ví</button></div></div>
+  <div class="field"><label for="amt">Số tiền thu (₫) <span class="req" aria-hidden="true">*</span></label><input id="amt" inputmode="numeric" autocomplete="off"><span class="hint" id="amtH"></span></div>
+  <div class="field" id="refW" hidden><label for="ref">Mã giao dịch <span class="req" aria-hidden="true">*</span></label><input id="ref" autocomplete="off" maxlength="40"><span class="hint">Mã trên biên lai chuyển khoản, thẻ hoặc ví. Dùng để đối soát ngân hàng.</span></div>
+  <div class="field" id="cashW"><label for="tend">Khách đưa (₫)</label><input id="tend" inputmode="numeric" autocomplete="off"><span class="hint" id="chg"></span></div>
+  <div class="alert alert--info">Phiếu thu không sửa hoặc xóa được sau khi ghi. Thu nhầm thì đảo bút toán ở Sổ quỹ.</div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy</button><button class="b b--primary" type="submit" id="pOk" disabled>Ghi phiếu thu</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const vnd = (n) => n.toLocaleString('vi-VN') + ' ₫';
+  const num = (s) => +String(s).replace(/\D/g, '') || 0;
+  const norm = (x) => x.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9 ]/g, '');
+  // Trạng thái thanh toán là bộ riêng, không trộn với trạng thái lệnh (ghi ở dòng phụ)
+  const O = [
+    { p: '51H-123.45', who: 'Nguyễn Văn An', car: 'Toyota Vios 1.5G 2019', ro: 'RO-Q7-2611-00001', ros: 'Hoàn tất, chờ giao xe', tot: 3450000, paid: 500000, dep: true, recs: [] },
+    { p: '29A-678.90', who: 'Lê Quốc Hùng', car: 'Mazda CX-5 2021', ro: 'RO-Q7-2611-00007', ros: 'Hoàn tất, chờ giao xe', tot: 1280000, paid: 0, recs: [] },
+    { p: '51D-999.88', who: 'Công ty TNHH Vận tải Demo', car: 'Hyundai Porter H150 2020', ro: 'RO-Q7-2611-00003', ros: 'Đã giao xe', tot: 8640000, paid: 0, debt: 'Ghi nợ đã duyệt, hạn 21/11/2026', recs: [] },
+    { p: '59A1-367.08', who: 'Trần Thị Mai', car: 'Honda City 2022', ro: 'RO-Q7-2611-00006', ros: 'Đã giao xe', tot: 2150000, paid: 2150000, recs: ['PT-Q7-2611-00031 · Tiền mặt · 09:40'] },
+    { p: '51K-905.31', who: 'Phạm Đức', car: 'Kia Morning 2018', ro: 'RO-Q7-2611-00008', ros: 'Đang sửa chữa', tot: 1600000, paid: 0, open: true, recs: [] },
+  ];
+  const rem = (o) => o.tot - o.paid;
+  const pst = (o) => o.paid >= o.tot ? ['success', 'Đã thu đủ'] : o.debt && !o.paid ? ['purple', 'Ghi nợ đã duyệt'] : o.paid ? ['warning', 'Thu một phần'] : ['neutral', 'Chưa thu'];
+  const F = { due: (o) => rem(o) > 0 && !o.debt, debt: (o) => o.debt && rem(o) > 0, paid: (o) => o.recs.length > 0, all: () => true };
+  let tab = 'due', cur, seq = 32, tm;
+  const toast = (m) => { $('#toast').textContent = m; $('#toast').hidden = false; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 5000); };
+  function action(o) {
+    if (rem(o) <= 0) return '<button class="b b--secondary b--sm" type="button" data-pr="1">In phiếu thu</button>';
+    if (o.open) return `<button class="b b--secondary b--sm" type="button" data-pay="${o.ro}">Thu đặt cọc</button><span class="why">Lệnh đang sửa, chỉ thu được cọc</span>`;
+    if (o.debt) return `<button class="b b--secondary b--sm" type="button" data-pay="${o.ro}">Thu một phần nợ</button><span class="why">${o.debt}</span>`;
+    return `<button class="b b--primary b--sm" type="button" data-pay="${o.ro}">Thu tiền</button>`;
+  }
+  function render() {
+    const n = norm($('#q').value).trim(), l = O.filter((o) => F[tab](o) && (!n || norm(o.p + ' ' + o.ro + ' ' + o.who).includes(n)));
+    $('#rows').innerHTML = l.map((o) => { const b = pst(o); return `<div class="item"><span class="plate">${o.p}</span><span><span class="t1">${o.who}</span><br><span class="t2">${o.car}</span></span><span class="mny"><span>Tổng <b>${vnd(o.tot)}</b></span><span>Đã thu ${vnd(o.paid)}${o.dep ? ' (gồm cọc)' : ''}${rem(o) > 0 ? ` · <span class="rm">còn ${vnd(rem(o))}</span>` : ''}</span></span><span><span class="badge badge--${b[0]}">${b[1]}</span><br><span class="t2">${o.ro} · ${o.ros}</span>${o.recs.map((r) => `<br><span class="t2">${r}</span>`).join('')}</span><span class="act">${action(o)}</span></div>`; }).join('');
+    $('#empty').hidden = l.length > 0; $('#foot').textContent = l.length ? `Hiển thị ${l.length} lệnh · tiền hiển thị theo VND` : '';
+    for (const k in F) $('#c-' + k).textContent = O.filter(F[k]).length;
+  }
+  $('#q').addEventListener('input', render);
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.s; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); render(); }));
+  let method = 'Tiền mặt';
+  function chk() {
+    const a = num($('#amt').value), r = rem(cur);
+    $('#refW').hidden = method === 'Tiền mặt'; $('#cashW').hidden = method !== 'Tiền mặt';
+    $('#amtH').textContent = a > r ? `Vượt số còn nợ ${vnd(r)}. Phần dư là khoản nhận trước, chưa hỗ trợ ở màn này.` : `Còn nợ ${vnd(r)}. Thu đủ sẽ đóng công nợ lệnh.`;
+    const t = num($('#tend').value); $('#chg').textContent = method === 'Tiền mặt' && t ? (t >= a ? `Trả lại khách ${vnd(t - a)}` : `Khách đưa thiếu ${vnd(a - t)}`) : '';
+    $('#pOk').disabled = !(a > 0 && a <= r && (method === 'Tiền mặt' || $('#ref').value.trim().length >= 3) && (method !== 'Tiền mặt' || !t || t >= a));
+  }
+  $('#rows').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-pay]'); if (e.target.closest('[data-pr]')) toast('Đã gửi lệnh in phiếu thu (A5 hoặc khổ nhiệt 80 mm).');
+    if (!b) return; cur = O.find((o) => o.ro === b.dataset.pay); method = 'Tiền mặt';
+    document.querySelectorAll('.pm button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.m === method)));
+    $('#pV').textContent = `${cur.p} · ${cur.ro} · còn nợ ${vnd(rem(cur))}`; $('#amt').value = rem(cur).toLocaleString('vi-VN'); $('#ref').value = ''; $('#tend').value = ''; chk(); $('#dPay').showModal();
+  });
+  document.querySelectorAll('.pm button').forEach((b) => b.addEventListener('click', () => { method = b.dataset.m; document.querySelectorAll('.pm button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); chk(); }));
+  ['#amt', '#ref', '#tend'].forEach((s) => $(s).addEventListener('input', chk));
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('#fPay').addEventListener('submit', () => { const a = num($('#amt').value), id = `PT-Q7-2611-${String(seq++).padStart(5, '0')}`; cur.paid += a; cur.recs.push(`${id} · ${method} · ${new Date().toTimeString().slice(0, 5)}`); render(); toast(`Đã ghi ${id}: ${vnd(a)} (${method}). ${rem(cur) > 0 ? 'Còn nợ ' + vnd(rem(cur)) + '.' : 'Lệnh đã thu đủ.'}`); });
+  render();
+</script>
+</body>
+</html>

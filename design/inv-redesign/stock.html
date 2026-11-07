@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tồn kho – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.6fr) 170px 190px; }
+  .item .n4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .adv .item { grid-template-columns: minmax(0, 1.5fr) 140px 170px 190px; }
+  .adv .n4 { grid-template-columns: 1fr; }
+  .adv .n4 > div:not(.avl) { display: none; }
+  .item .st { display: grid; gap: var(--space-1); justify-items: start; }
+  .headrow { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.6fr) 170px 190px; gap: var(--space-4); padding: var(--space-2) var(--space-5); background: var(--table-head-bg); border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .adv .headrow { grid-template-columns: minmax(0, 1.5fr) 140px 170px 190px; }
+  .headrow .n4 > div { text-align: left; }
+  .adv .headrow .n4 > div:not(.avl) { display: none; }
+  @media (max-width: 1023px) { .headrow { display: none; } .item, .adv .item { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-3); } .act { justify-items: start; text-align: left; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs">Kho và phụ tùng › Tồn kho · <a href="part-detail.html">Chi tiết và sổ kho</a> · <a href="receipt.html">Nhập kho</a> · <a href="transfers.html">Chuyển kho</a> · <a href="stocktake.html">Kiểm kê</a></p>
+  <header class="head">
+    <div>
+      <h1>Tồn kho</h1>
+      <p>Quyết định theo số có thể bán, không theo tồn thực: hàng đã giữ cho lệnh và hàng đang chuyển chưa dùng được (RULE-008).</p>
+    </div>
+    <div class="head__actions">
+      <div class="seg" role="group" aria-label="Xem thử theo vai trò"><button type="button" aria-pressed="true" data-r="tk">Thủ kho</button><button type="button" aria-pressed="false" data-r="cv">Cố vấn</button></div>
+    </div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Kho:</b> Kho Quận 7</span><span>Tồn tính đến 09:15 07/11/2026</span></div>
+
+  <form class="find" role="search" onsubmit="return false">
+    <div class="search"><label for="q" class="sr">Tìm phụ tùng</label><input id="q" type="search" placeholder="Mã, tên, mã vạch hoặc dòng xe (gõ không dấu cũng được)" autocomplete="off"></div>
+  </form>
+
+  <div class="tabsline" role="tablist" aria-label="Nhóm phụ tùng">
+    <button role="tab" aria-selected="true" data-s="act">Cần xử lý<span class="cnt cnt--warn" id="c-act"></span></button>
+    <button role="tab" aria-selected="false" data-s="trn">Đang chuyển về<span class="cnt" id="c-trn"></span></button>
+    <button role="tab" aria-selected="false" data-s="hold">Có giữ chỗ<span class="cnt" id="c-hold"></span></button>
+    <button role="tab" aria-selected="false" data-s="all">Tất cả<span class="cnt" id="c-all"></span></button>
+  </div>
+
+  <section class="card list" id="list" aria-label="Tồn kho theo phụ tùng">
+    <div class="headrow" aria-hidden="true"><span>Phụ tùng</span><span class="n4"><div>Tồn thực</div><div>Đã giữ</div><div>Đang chuyển</div><div class="avl">Có thể bán</div></span><span>Trạng thái</span><span></span></div>
+    <div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2>Không có phụ tùng phù hợp</h2><p>Thử gõ mã hoặc tên khác, hoặc chuyển sang tab Tất cả. Hàng mới chưa có trong danh mục thì thêm ở Danh mục phụ tùng.</p></div>
+    <div class="rowfoot" id="foot"></div>
+  </section>
+  <p class="hint" style="margin-top:var(--space-3)">Có thể bán = Tồn thực − Đã giữ. Hàng đang chuyển và hàng đã đặt nhà cung cấp chưa tính vào Có thể bán. Giá vốn không hiện ở màn này.</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  // Dữ liệu mẫu: [mã, tên, nhóm, thực, giữ, chuyển, định mức, ghi chú]
+  const P = [
+    ['PT-0003', 'Dầu nhớt Castrol 5W-30 (can 4 lít)', 'Dầu nhớt', 2, 2, 0, 6, { other: 'Chi nhánh Thủ Đức có thể cho 8' }],
+    ['PT-0002', 'Má phanh trước Hyundai Accent', 'Phanh', 5, 2, 4, 6, { eta: 'PCK-Q7-2611-00004, về chiều nay' }],
+    ['PT-0008', 'Dây curoa tổng Kia Morning', 'Dây curoa', 0, 0, 6, 3, { eta: 'PCK-Q7-2611-00003, về 08/11' }],
+    ['PT-0009', 'Má phanh trước Toyota Vios', 'Phanh', 5, 1, 0, 4, {}],
+    ['PT-0001', 'Lọc dầu động cơ Toyota Vios', 'Lọc', 26, 2, 0, 10, {}],
+    ['PT-0004', 'Bugi Denso Iridium Honda City (bộ 4)', 'Điện', 14, 0, 0, 8, {}],
+    ['PT-0005', 'Lốp Michelin Primacy 4 205/55R16', 'Lốp', 8, 4, 0, 4, {}],
+    ['PT-0007', 'Lọc gió động cơ Mazda CX-5', 'Lọc', 9, 1, 0, 4, {}],
+    ['PT-0006', 'Nước làm mát Prestone 1 lít', 'Hóa chất', 12, 0, 0, null, {}],
+  ];
+  const av = (p) => p[3] - p[4];
+  const needs = (p) => p[6] !== null && av(p) < p[6];
+  const norm = (x) => x.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
+  let tab = 'act', role = 'tk';
+  const match = { act: needs, trn: (p) => p[5] > 0, hold: (p) => p[4] > 0, all: () => true };
+  function status(p) {
+    if (p[6] === null) return '<span class="badge badge--neutral">Chưa đặt định mức</span>';
+    if (av(p) === 0) return '<span class="badge badge--danger">Hết hàng</span>';
+    if (av(p) < p[6]) return '<span class="badge badge--warning">Dưới định mức</span>';
+    return '<span class="badge badge--success">Đủ hàng</span>';
+  }
+  function action(p) {
+    const id = p[0], o = p[7];
+    if (role === 'cv') return `<a class="b b--secondary b--sm" href="part-detail.html">Xem chi tiết</a><span class="why">Cố vấn không đặt hoặc chuyển hàng</span>`;
+    if (p[6] === null) return `<a class="b b--secondary b--sm" href="part-detail.html">Xem sổ kho</a><span class="why">Chưa có định mức, chưa cảnh báo</span>`;
+    if (needs(p) && p[5] > 0) return `<a class="b b--secondary b--sm" href="transfers.html">Theo dõi phiếu chuyển</a><span class="why">${o.eta}</span>`;
+    if (needs(p) && o.other) return `<button class="b b--primary b--sm" type="button" data-t="Đã tạo yêu cầu chuyển kho ${id} từ Chi nhánh Thủ Đức (bản nháp).">Yêu cầu chuyển kho</button><span class="why">${o.other}</span>`;
+    if (needs(p)) return `<button class="b b--primary b--sm" type="button" data-t="Đã tạo yêu cầu mua ${id} (bản nháp).">Tạo yêu cầu mua</button><span class="why">Không có chi nhánh nào dư</span>`;
+    return `<a class="b b--secondary b--sm" href="part-detail.html">Xem sổ kho</a>`;
+  }
+  function render() {
+    const n = norm($('#q').value).trim();
+    const list = P.filter((p) => match[tab](p) && (!n || norm(p[0] + ' ' + p[1] + ' ' + p[2]).includes(n)));
+    $('#rows').innerHTML = list.map((p) => `<div class="item"><div><a class="t1" href="part-detail.html" style="color:inherit">${p[1]}</a><br><span class="t2">${p[0]} · ${p[2]}${p[6] !== null ? ' · định mức tối thiểu ' + p[6] : ''}</span></div>
+      <div class="n4"><div><span class="l">Tồn thực</span><span class="v">${p[3]}</span></div><div><span class="l">Đã giữ</span><span class="v">${p[4]}</span></div><div><span class="l">Đang chuyển</span><span class="v">${p[5] ? '+' + p[5] : '0'}</span></div><div class="avl"><span class="l">Có thể bán</span><span class="v av${av(p) === 0 ? ' zero' : ''}">${av(p)}</span></div></div>
+      <div class="st">${status(p)}${p[4] ? `<span class="t2">${p[4]} đang giữ cho lệnh</span>` : ''}</div><div class="act">${action(p)}</div></div>`).join('');
+    $('#empty').hidden = list.length > 0;
+    $('#foot').textContent = list.length ? `Hiển thị ${list.length} phụ tùng · cập nhật 09:15` : '';
+    for (const k in match) $('#c-' + k).textContent = P.filter(match[k]).length;
+  }
+  $('#q').addEventListener('input', render);
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.s; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); render(); }));
+  document.querySelectorAll('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; document.querySelectorAll('[data-r]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); document.body.classList.toggle('adv', role === 'cv'); render(); }));
+  let tm; $('#rows').addEventListener('click', (e) => { const b = e.target.closest('[data-t]'); if (!b) return; $('#toast').textContent = b.dataset.t; $('#toast').hidden = false; clearTimeout(tm); tm = setTimeout(() => { $('#toast').hidden = true; }, 5000); });
+  render();
+</script>
+</body>
+</html>

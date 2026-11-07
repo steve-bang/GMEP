@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tổng quan chuỗi (chủ garage) – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: minmax(0, 1.4fr) minmax(0, 1.8fr) 90px 100px 150px 150px; }
+  .rowhead { display: grid; grid-template-columns: var(--cols); gap: var(--space-4); padding: var(--space-3) var(--space-5); background: var(--table-head-bg); border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); font-weight: var(--fw-medium); color: var(--color-text-secondary); }
+  .rowhead, .item { --cols: minmax(0, 1.4fr) minmax(0, 1.8fr) 90px 100px 150px 150px; }
+  .brn { display: grid; gap: 2px; }
+  .brn .t1 { font-size: var(--font-size-lg); }
+  .rev { display: grid; gap: var(--space-1); }
+  .rev .l { display: flex; justify-content: space-between; gap: var(--space-2); font-variant-numeric: tabular-nums; }
+  .al { display: grid; gap: 0; }
+  .al .item { --cols: minmax(0, 1fr) auto; padding: var(--space-3) var(--space-4); }
+  .cell-l { display: none; }
+  @media (max-width: 1023px) {
+    .rowhead { display: none; }
+    .cell-l { display: inline; color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin-right: var(--space-2); }
+    .item .num { text-align: left; }
+    .al .item { --cols: minmax(0, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình dashboard và báo cáo">
+    <a href="branch-overview.html">Tổng quan chi nhánh</a><a href="group-overview.html" aria-current="page">Tổng quan chuỗi</a><a href="revenue.html">Doanh thu</a><a href="capacity.html">Công suất xưởng</a><a href="inventory-report.html">Tồn kho</a>
+  </nav>
+  <header class="head">
+    <div><h1>Tổng quan chuỗi</h1><p>Dành cho Chủ garage. Mỗi chi nhánh là một dòng; bấm vào chi nhánh để xem riêng.</p></div>
+    <div class="head__actions"><button class="b b--secondary" type="button" id="exp">Xuất Excel</button></div>
+  </header>
+
+  <section class="scope" aria-label="Phạm vi số liệu">
+    <span class="it"><span>Phạm vi</span><b>Toàn chuỗi, 8 chi nhánh</b></span>
+    <span class="it"><span>Kỳ</span><b>01/11 đến 07/11/2026</b></span>
+    <span class="it"><span>So với</span><b>25/10 đến 31/10/2026</b></span>
+    <span class="it"><span>Độ chính thức</span><b>Đến 06/11 đã chốt, 07/11 là số tạm</b></span>
+    <span class="it"><span>Cập nhật lúc</span><b>14:32</b></span>
+    <span class="sw-wrap">
+      <span class="seg" role="group" aria-label="Phạm vi xem"><button type="button" aria-pressed="true">Toàn chuỗi (8)</button><button type="button" id="oneBr" aria-pressed="false">Một chi nhánh</button></span>
+      <span class="why">Muốn xem một chi nhánh, chọn ở bảng bên dưới. Mọi tệp xuất ghi phạm vi và thời điểm này.</span>
+    </span>
+  </section>
+
+  <div class="demo">Xem thử: <button class="chip" data-demo="ok" aria-pressed="true">Bình thường</button><button class="chip" data-demo="loading" aria-pressed="false">Đang tải</button><button class="chip" data-demo="error" aria-pressed="false">Lỗi một khối</button></div>
+
+  <div class="kpis blk" id="kpis"></div>
+
+  <h2 class="sec">Chi nhánh <span class="cnt" id="nb"></span></h2>
+  <div class="blk">
+    <div class="tabsline" role="tablist" aria-label="Lọc chi nhánh" id="tabs"></div>
+    <div class="chips" style="margin-bottom:var(--space-3)" role="group" aria-label="Xếp theo" id="sortChips"></div>
+    <section class="card list" aria-label="Xếp hạng chi nhánh">
+      <div class="rowhead" aria-hidden="true"><span>Chi nhánh</span><span>Doanh thu (so kỳ trước)</span><span class="num">Xe vào</span><span class="num">Xe trễ hẹn giao</span><span class="num">Phải thu</span><span></span></div>
+      <div id="rows"></div>
+      <div class="rowfoot" id="foot"></div>
+    </section>
+  </div>
+
+  <div class="cols2" style="margin-top:var(--space-6)">
+    <section class="card chart blk" aria-labelledby="chT">
+      <div class="chart__head"><h2 id="chT">Doanh thu toàn chuỗi theo ngày</h2><span class="seg" role="group" aria-label="Cách xem"><button type="button" data-v="chart" aria-pressed="true">Biểu đồ</button><button type="button" data-v="table" aria-pressed="false">Bảng</button></span></div>
+      <p class="chart__sub">Toàn chuỗi 8 chi nhánh, 01/11 đến 07/11/2026. Tổng <b>681.020.000 ₫</b>.</p>
+      <div id="vChart"><div class="plot" id="plot"></div><div class="legend"><span><i class="k s1"></i>Đã chốt</span><span><i class="k k--prov"></i>Số tạm (07/11, đến 14:32)</span></div></div>
+      <div class="tblwrap" id="vTable" hidden><table class="t"><thead><tr><th>Ngày</th><th class="num">Doanh thu</th><th>Số liệu</th></tr></thead><tbody id="tb"></tbody></table></div>
+    </section>
+    <section class="card blk" aria-labelledby="alT">
+      <div class="chart" style="padding-bottom:0"><div class="chart__head"><h2 id="alT">Cảnh báo toàn chuỗi</h2><span class="cnt cnt--danger" style="margin:0">3</span></div></div>
+      <div class="al list">
+        <div class="item"><span><span class="t1">Lệch quỹ cuối ca</span><br><span class="t2">Gò Vấp · 06/11/2026 · lệch <b class="late">−150.000 ₫</b></span></span><a class="b b--secondary b--sm" href="#">Xem phiếu quỹ</a></div>
+        <div class="item"><span><span class="t1">Chưa chốt ngày 06/11/2026</span><br><span class="t2">Đà Nẵng · số vẫn là số tạm</span></span><a class="b b--secondary b--sm" href="#">Xem chi nhánh</a></div>
+        <div class="item"><span><span class="t1">Lệnh đã giao chưa có hóa đơn</span><br><span class="t2">14 lệnh ở 5 chi nhánh</span></span><a class="b b--secondary b--sm" href="#">Xem 14 lệnh</a></div>
+      </div>
+    </section>
+  </div>
+</div>
+<script src="charts.js"></script>
+<script>
+  // DỮ LIỆU MẪU. Tên chi nhánh là mẫu. Tổng khớp: doanh thu 681.020.000, kỳ trước 724.600.000, xe 336 (kỳ trước 351), phải thu 318.640.000.
+  const B = [
+    { n: 'Quận 7', c: 'CN-Q7', rev: 128450000, prev: 131200000, cars: 62, late: 2, recv: 42180000 },
+    { n: 'Thủ Đức', c: 'CN-TD', rev: 112300000, prev: 109800000, cars: 55, late: 0, recv: 36900000 },
+    { n: 'Bình Thạnh', c: 'CN-BT', rev: 96780000, prev: 108900000, cars: 47, late: 4, recv: 61750000 },
+    { n: 'Tân Bình', c: 'CN-TB', rev: 88150000, prev: 85400000, cars: 44, late: 1, recv: 28400000 },
+    { n: 'Gò Vấp', c: 'CN-GV', rev: 74920000, prev: 80100000, cars: 38, late: 3, recv: 52600000 },
+    { n: 'Biên Hòa', c: 'CN-BH', rev: 69340000, prev: 66200000, cars: 35, late: 0, recv: 33150000 },
+    { n: 'Cầu Giấy (Hà Nội)', c: 'CN-CG', rev: 61210000, prev: 75600000, cars: 31, late: 1, recv: 24900000 },
+    { n: 'Đà Nẵng', c: 'CN-DN', rev: 49870000, prev: 67400000, cars: 24, late: 5, recv: 38760000 },
+  ];
+  const sum = (k) => B.reduce((a, b) => a + b[k], 0);
+  const R = sum('rev'), P = sum('prev'), C = sum('cars'), L = sum('late');
+  const ch = (a, b) => ((a - b) / b) * 100;
+  const arrow = (x, goodUp = true) => `<span class="${(x >= 0) === goodUp ? 'd--good' : 'd--bad'}">${x >= 0 ? '▲' : '▼'} ${pct(Math.abs(x))}</span>`;
+  document.getElementById('kpis').innerHTML = [
+    ['Doanh thu', vnd(R), `${arrow(ch(R, P))} so với kỳ trước (${vnd(P)})`, 'Tiền đã thu cộng ghi nợ phát sinh, tổng 8 chi nhánh. Tổng các chi nhánh bằng số toàn chuỗi (FR-RPT-001).'],
+    ['Lợi nhuận gộp quản trị (tạm)', '260.150.000 ₫', '38,2% doanh thu · giá vốn chờ kế toán xác nhận', 'Doanh thu trừ giá vốn phụ tùng và nhân công trực tiếp. Không phải lợi nhuận sau thuế (FR-RPT-013).'],
+    ['Xe vào xưởng', num(C) + ' xe', `${arrow(ch(C, 351))} so với kỳ trước (351 xe)`, 'Số hồ sơ tiếp nhận trong kỳ, tổng các chi nhánh.'],
+    ['Xe trễ hẹn giao', L + ' xe', '6 chi nhánh có xe trễ', 'Lệnh chưa giao xe quá giờ hẹn giao tại thời điểm cập nhật.'],
+    ['Phải thu', vnd(sum('recv')), '31 lệnh còn nợ', 'Số dư công nợ phải thu của khách, tổng các chi nhánh.'],
+    ['Giá trị tồn kho', '2.846.300.000 ₫', 'Theo giá vốn bình quân, đến 14:32', 'Tổng tồn thực tế nhân giá vốn, mọi kho. Giá vốn bình quân gia quyền là hướng chọn, chờ kế toán khách xác nhận.'],
+  ].map(([k, v, d, how]) => `<article class="card kpi"><span class="k">${k}<details class="how"><summary aria-label="Cách tính: ${k}">i</summary><p>${how}</p></details></span><span class="v">${v}</span><span class="d">${d}</span></article>`).join('');
+
+  let tab = 'all', sort = 'rev';
+  const TB = [['all', 'Tất cả', () => true, ''], ['down', 'Doanh thu giảm so kỳ trước', (b) => b.rev < b.prev, 'cnt--warn'], ['late', 'Có xe trễ hẹn giao', (b) => b.late > 0, 'cnt--warn']];
+  const SO = [['rev', 'Doanh thu', (a, b) => b.rev - a.rev], ['cars', 'Xe vào', (a, b) => b.cars - a.cars], ['recv', 'Phải thu', (a, b) => b.recv - a.recv], ['late', 'Xe trễ hẹn', (a, b) => b.late - a.late]];
+  function render() {
+    document.getElementById('nb').textContent = B.length;
+    document.getElementById('tabs').innerHTML = TB.map(([k, l, f, c]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt ${c}">${B.filter(f).length}</span></button>`).join('');
+    document.getElementById('sortChips').innerHTML = '<span class="t2" style="align-self:center">Xếp theo</span>' + SO.map(([k, l]) => `<button class="chip" aria-pressed="${k === sort}" data-s="${k}">${l}</button>`).join('');
+    const f = TB.find((t) => t[0] === tab)[2], s = SO.find((x) => x[0] === sort)[2];
+    const max = Math.max(...B.map((b) => b.rev));
+    const rs = B.filter(f).sort(s);
+    document.getElementById('rows').innerHTML = rs.length ? rs.map((b) => { const x = ch(b.rev, b.prev); return `<div class="item"><span class="brn"><span class="t1">${b.n}</span><span class="t2">${b.c}</span></span><span class="rev"><span class="l"><b>${vnd(b.rev)}</b>${arrow(x)}</span><span class="bar" role="img" aria-label="Doanh thu bằng ${pct((b.rev / max) * 100, 0)} chi nhánh cao nhất"><i style="width:${(b.rev / max) * 100}%"></i></span></span><span class="num"><span class="cell-l">Xe vào</span>${b.cars}</span><span class="num ${b.late ? 'late' : ''}"><span class="cell-l">Xe trễ hẹn giao</span>${b.late || '–'}</span><span class="num"><span class="cell-l">Phải thu</span>${vnd(b.recv)}</span><span class="act"><a class="b b--secondary b--sm" href="branch-overview.html">Xem chi nhánh</a></span></div>`; }).join('') : '<div class="empty"><h2>Không có chi nhánh phù hợp</h2><p>Mọi chi nhánh đều không thuộc nhóm này trong kỳ đang xem.</p></div>';
+    document.getElementById('foot').textContent = `${rs.length}/8 chi nhánh · tổng dòng đang lọc: ${vnd(rs.reduce((a, b) => a + b.rev, 0))} · phạm vi toàn chuỗi, 01/11 đến 07/11/2026`;
+  }
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; render(); } });
+  document.getElementById('sortChips').addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (b) { sort = b.dataset.s; render(); } });
+  render();
+
+  const FD = ['Chủ nhật 01/11/2026', 'Thứ Hai 02/11/2026', 'Thứ Ba 03/11/2026', 'Thứ Tư 04/11/2026', 'Thứ Năm 05/11/2026', 'Thứ Sáu 06/11/2026', 'Thứ Bảy 07/11/2026'];
+  const LB = ['CN 01', 'T2 02', 'T3 03', 'T4 04', 'T5 05', 'T6 06', 'T7 07'];
+  const V = [41.5, 118.3, 122.6, 125.9, 109.4, 85.3, 78.02].map((x) => Math.round(x * 1e6));
+  cols(document.getElementById('plot'), { series: [{ cls: 's1' }], niceTo: 25e6, fmtAxis: tr, data: V.map((v, i) => ({ label: LB[i], vals: [v], prov: i === 6, tip: `<b>${FD[i]}</b><br>${vnd(v)}<br>${i === 6 ? 'Số tạm đến 14:32' : 'Số chính thức'}` })) });
+  document.getElementById('tb').innerHTML = V.map((v, i) => `<tr><td>${FD[i]}</td><td class="num">${vnd(v)}</td><td>${i === 6 ? '<span class="badge badge--warning">Số tạm</span>' : '<span class="badge badge--success">Đã chốt</span>'}</td></tr>`).join('');
+  document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); document.getElementById('vChart').hidden = b.dataset.v !== 'chart'; document.getElementById('vTable').hidden = b.dataset.v !== 'table'; }));
+  document.getElementById('oneBr').addEventListener('click', () => toast('Chọn một chi nhánh ở bảng bên dưới để xem riêng.'));
+  document.getElementById('exp').addEventListener('click', () => toast('Tệp xuất ghi: Toàn chuỗi, 8 chi nhánh, 01/11 đến 07/11/2026, tạo lúc 14:32 (demo).'));
+  blocks();
+</script>
+</body>
+</html>

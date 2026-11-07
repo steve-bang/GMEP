@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Công suất xưởng – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: minmax(0, 1.2fr) minmax(0, 1.6fr) minmax(0, 1.2fr) 150px; }
+  .who { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+  .ld { display: grid; gap: var(--space-1); }
+  .ld .bar { height: 10px; }
+  .formulas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+  .formulas .card { padding: var(--space-3) var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .formulas b { display: block; color: var(--color-text-primary); font-size: var(--font-size-md); }
+  @media (max-width: 767px) { .formulas { grid-template-columns: minmax(0, 1fr); } }
+  .t td:first-child { min-width: 190px; }
+  .hl { background: var(--color-primary-subtle); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình dashboard và báo cáo">
+    <a href="branch-overview.html">Tổng quan chi nhánh</a><a href="group-overview.html">Tổng quan chuỗi</a><a href="revenue.html">Doanh thu</a><a href="capacity.html" aria-current="page">Công suất xưởng</a><a href="inventory-report.html">Tồn kho</a>
+  </nav>
+  <header class="head">
+    <div><h1>Công suất xưởng</h1><p>Hôm nay ai còn nhận được việc, ai đang quá tải; trong tuần mỗi thợ tạo ra bao nhiêu giờ chuẩn so với giờ có mặt.</p></div>
+    <div class="head__actions"><a class="b b--secondary" href="../rec-redesign/board.html">Bảng điều phối</a></div>
+  </header>
+
+  <section class="scope" aria-label="Phạm vi số liệu">
+    <span class="it"><span>Chi nhánh</span><b>Quận 7 (CN-Q7)</b></span>
+    <span class="it"><span>Kỳ</span><b id="scKy">Hôm nay, Thứ Bảy 07/11/2026</b></span>
+    <span class="it"><span>Độ chính thức</span><b id="scDo">Tải việc theo lệnh đang mở, tức thời</b></span>
+    <span class="it"><span>Cập nhật lúc</span><b>14:32</b></span>
+    <span class="sw-wrap"><span class="seg" role="group" aria-label="Chiều xem" id="view"><button type="button" data-w="load" aria-pressed="true">Tải việc hôm nay</button><button type="button" data-w="prod" aria-pressed="false">Năng suất tuần</button></span></span>
+  </section>
+
+  <div class="demo">Xem thử: <button class="chip" data-demo="ok" aria-pressed="true">Bình thường</button><button class="chip" data-demo="loading" aria-pressed="false">Đang tải</button><button class="chip" data-demo="error" aria-pressed="false">Lỗi một khối</button></div>
+
+  <div id="load">
+    <div class="blk">
+      <div class="tabsline" role="tablist" aria-label="Lọc theo tải việc" id="tabs"></div>
+      <section class="card list" id="list" aria-label="Tải việc từng thợ hôm nay"></section>
+    </div>
+    <p class="why" style="margin-top:var(--space-3)">Giờ chuẩn đã giao so với giờ khả dụng của ca (FR-HRM-014). Giờ khả dụng 8,0 giờ mỗi người là mẫu, lấy theo ca thật khi có cấu hình. Ngưỡng "Còn trống từ 3 giờ" <b>[Cần xác nhận]</b>.</p>
+  </div>
+
+  <div id="prod" hidden>
+    <div class="formulas" aria-label="Công thức ba chỉ số">
+      <div class="card"><b>Hiệu suất làm việc</b>Giờ chuẩn bán ra chia giờ thực làm. Trên 100% là hợp lệ (làm nhanh hơn định mức).</div>
+      <div class="card"><b>Mức sử dụng</b>Giờ thực làm chia giờ có mặt (từ chấm công theo ca).</div>
+      <div class="card"><b>Năng suất tổng</b>Giờ chuẩn bán ra chia giờ có mặt. Bằng hiệu suất nhân mức sử dụng.</div>
+    </div>
+    <div class="blk">
+      <div class="chips" style="margin-bottom:var(--space-3)" role="group" aria-label="Xếp theo" id="sortChips"></div>
+      <section class="card" aria-label="Năng suất từng thợ trong tuần"><div class="tblwrap"><table class="t">
+        <thead><tr><th>Thợ</th><th class="num">Giờ có mặt</th><th class="num">Giờ thực làm</th><th class="num">Giờ chuẩn bán ra</th><th class="num">Hiệu suất</th><th class="num">Mức sử dụng</th><th class="num">Năng suất tổng</th><th></th></tr></thead>
+        <tbody id="tb"></tbody><tfoot id="tf"></tfoot></table></div>
+        <div class="rowfoot">Tuần 45 (02/11 đến 08/11/2026), số tạm đến 07/11. Giờ chuẩn bán ra chỉ tính hạng mục đã qua kiểm tra chất lượng trong kỳ, làm lại không cộng hai lần. Mẫu số bằng 0 hiện "–".</div>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="charts.js"></script>
+<script>
+  // DỮ LIỆU MẪU. Giờ khả dụng 8,0 giờ/người/ngày và giờ trong tuần là số minh họa.
+  const W = [
+    { n: 'Trần Văn Bình', r: 'Thợ máy chính', asg: 9.0, cur: ['51H-123.45', 'Thay má phanh trước'], S: 41.5, A: 36.0, P: 46.0 },
+    { n: 'Lê Minh Tuấn', r: 'Thợ máy', asg: 7.5, cur: ['29A-678.90', 'Cân chỉnh thước lái'], S: 38.0, A: 40.5, P: 47.5 },
+    { n: 'Phạm Quốc Việt', r: 'Thợ máy', asg: 5.0, cur: ['51K-905.31', 'Thay lọc gió (tạm dừng)'], S: 29.0, A: 35.0, P: 48.0 },
+    { n: 'Nguyễn Hữu Phước', r: 'Thợ gầm', asg: 8.0, cur: ['59A1-367.08', 'Thay lốp'], S: 44.5, A: 41.0, P: 46.5 },
+    { n: 'Võ Thanh Sang', r: 'Thợ gầm', asg: 4.5, cur: null, S: 33.0, A: 30.5, P: 45.0 },
+    { n: 'Đặng Văn Khoa', r: 'Thợ điện', asg: 8.5, cur: ['51D-999.88', 'Kiểm tra hệ thống điện'], S: 36.5, A: 38.0, P: 47.0 },
+    { n: 'Huỳnh Tấn Lộc', r: 'Thợ phụ', asg: 3.0, cur: null, S: 24.0, A: 31.5, P: 44.0 },
+    { n: 'Bùi Minh Nhật', r: 'Thợ máy', asg: 6.5, cur: ['60A-135.79', 'Thay dầu động cơ'], S: 40.0, A: 37.0, P: 46.0 },
+    { n: 'Nguyễn Khánh Duy', r: 'Thợ máy (nghỉ phép cả tuần)', asg: null, cur: null, S: 0, A: 0, P: 0 },
+  ];
+  const AV = 8.0, hrs = (x) => dec(x, 1) + ' giờ';
+  const FILT = [['all', 'Tất cả', () => true, ''], ['over', 'Quá tải', (w) => w.asg > AV, 'cnt--danger'], ['free', 'Còn trống từ 3 giờ', (w) => AV - w.asg >= 3, 'cnt--warn']];
+  const LD = W.filter((w) => w.asg !== null);
+  let tab = 'over', sort = 'tot';
+  const ini = (n) => n.split(' ').slice(-2).map((x) => x[0]).join('');
+  function renderLoad() {
+    document.getElementById('tabs').innerHTML = FILT.map(([k, l, f, c]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt ${c}">${LD.filter(f).length}</span></button>`).join('');
+    const f = FILT.find((x) => x[0] === tab)[2];
+    const rs = LD.filter(f).sort((a, b) => b.asg - a.asg);
+    document.getElementById('list').innerHTML = rs.length ? rs.map((w) => {
+      const p = (w.asg / AV) * 100, over = w.asg > AV, free = AV - w.asg >= 3;
+      const act = over ? '<a class="b b--primary b--sm" href="../rec-redesign/board.html">Phân lại việc</a>' : free ? '<a class="b b--primary b--sm" href="../rec-redesign/board.html">Giao việc</a>' : '<a class="b b--secondary b--sm" href="../rec-redesign/board.html">Xem việc</a>';
+      return `<div class="item"><span class="who"><span class="av">${ini(w.n)}</span><span><span class="t1">${w.n}</span><br><span class="t2">${w.r}</span></span></span><span class="ld"><span><b>${hrs(w.asg)}</b> đã giao / ${hrs(AV)} khả dụng · ${pct(p)} ${over ? `<span class="badge badge--danger">Quá tải ${hrs(w.asg - AV)}</span>` : free ? `<span class="badge badge--warning">Trống ${hrs(AV - w.asg)}</span>` : '<span class="badge badge--success">Vừa tải</span>'}</span><span class="bar ${over ? 'bar--warn' : ''}" role="img" aria-label="${pct(p, 0)} giờ khả dụng"><i style="width:${Math.min(100, p)}%"></i></span></span><span>${w.cur ? `<span class="plate" style="height:28px;font-size:var(--font-size-md)">${w.cur[0]}</span><br><span class="t2">${w.cur[1]}</span>` : '<span class="t2">Không có việc đang làm</span>'}</span><span class="act">${act}</span></div>`;
+    }).join('') + `<div class="rowfoot">${rs.length} thợ · Chi nhánh Quận 7 · cập nhật 14:32</div>` : '<div class="empty"><h2>Không có thợ thuộc nhóm này</h2><p>Chọn "Tất cả" để xem toàn bộ thợ của chi nhánh.</p></div>';
+  }
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; renderLoad(); } });
+  const r3 = (w) => ({ hs: w.A ? (w.S / w.A) * 100 : null, su: w.P ? (w.A / w.P) * 100 : null, nt: w.P ? (w.S / w.P) * 100 : null });
+  const pc = (x) => (x === null ? '–' : pct(x));
+  const SO = [['tot', 'Năng suất tổng', 'nt'], ['hs', 'Hiệu suất', 'hs'], ['su', 'Mức sử dụng', 'su']];
+  function renderProd() {
+    document.getElementById('sortChips').innerHTML = '<span class="t2" style="align-self:center">Xếp theo</span>' + SO.map(([k, l]) => `<button class="chip" aria-pressed="${k === sort}" data-s="${k}">${l}</button>`).join('');
+    const key = SO.find((x) => x[0] === sort)[2];
+    const rs = W.map((w) => ({ w, m: r3(w) })).sort((a, b) => (b.m[key] ?? -1) - (a.m[key] ?? -1));
+    document.getElementById('tb').innerHTML = rs.map(({ w, m }) => `<tr><td><span class="t1">${w.n}</span><span class="t2">${w.r}</span></td><td class="num">${w.P ? hrs(w.P) : '–'}</td><td class="num">${w.P ? hrs(w.A) : '–'}</td><td class="num">${w.P ? hrs(w.S) : '–'}</td><td class="num ${key === 'hs' ? 'hl' : ''}">${pc(m.hs)}</td><td class="num ${key === 'su' ? 'hl' : ''}">${pc(m.su)}</td><td class="num ${key === 'nt' ? 'hl' : ''}">${pc(m.nt)}</td><td><a class="b b--secondary b--sm" href="../hrm-redesign/timesheet.html">Bảng công</a></td></tr>`).join('');
+    const S = W.reduce((a, w) => a + w.S, 0), A = W.reduce((a, w) => a + w.A, 0), P = W.reduce((a, w) => a + w.P, 0);
+    document.getElementById('tf').innerHTML = `<tr><td>Toàn chi nhánh</td><td class="num">${hrs(P)}</td><td class="num">${hrs(A)}</td><td class="num">${hrs(S)}</td><td class="num">${pct((S / A) * 100)}</td><td class="num">${pct((A / P) * 100)}</td><td class="num">${pct((S / P) * 100)}</td><td></td></tr>`;
+  }
+  document.getElementById('sortChips').addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (b) { sort = b.dataset.s; renderProd(); } });
+  document.getElementById('view').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-w]'); if (!b) return; const p = b.dataset.w === 'prod';
+    document.querySelectorAll('#view button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    document.getElementById('load').hidden = p; document.getElementById('prod').hidden = !p;
+    document.getElementById('scKy').textContent = p ? 'Tuần 45 (02/11 – 08/11/2026)' : 'Hôm nay, Thứ Bảy 07/11/2026';
+    document.getElementById('scDo').textContent = p ? 'Số tạm đến 07/11, kỳ công chưa khóa' : 'Tải việc theo lệnh đang mở, tức thời';
+  });
+  renderLoad(); renderProd(); blocks();
+</script>
+</body>
+</html>

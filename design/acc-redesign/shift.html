@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ca thu ngân – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .rec { display: grid; gap: var(--space-2); font-variant-numeric: tabular-nums; }
+  .rec > div { display: flex; justify-content: space-between; gap: var(--space-3); }
+  .rec .sub { color: var(--color-text-secondary); font-size: var(--font-size-md); }
+  .rec .line { border-top: 1px solid var(--color-border); padding-top: var(--space-2); font-weight: var(--fw-semibold); font-size: var(--font-size-lg); }
+  .diff { font-size: var(--font-size-2xl); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+  .diff.neg { color: var(--color-danger-text); } .diff.ok { color: var(--color-success-text); }
+  .mini { display: grid; grid-template-columns: 70px minmax(0, 1fr) 110px 120px; gap: var(--space-3); align-items: center; }
+  .mini.item { min-height: 52px; padding-top: var(--space-2); padding-bottom: var(--space-2); }
+  .sw { display: none; }
+  @media (max-width: 599px) { .mini { grid-template-columns: 56px minmax(0, 1fr) auto; } .mini > :nth-child(3) { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="cashier.html">Thu tiền</a> › Ca thu ngân</p>
+  <header class="head">
+    <div><h1>Ca sáng, 07/11/2026</h1><p>Đếm tiền mặt trong két, đối chiếu với số hệ thống rồi chốt ca. Chênh lệch phải có giải trình mới chốt được (FR-ACC-004).</p></div>
+    <div class="head__actions"><div class="seg" role="group" aria-label="Xem thử trạng thái ca"><button type="button" aria-pressed="true" data-v="open">Đang mở</button><button type="button" aria-pressed="false" data-v="closed">Đã chốt</button></div></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Thu ngân:</b> Nguyễn Thị Hoa</span><span>Mở 07:30 · số liệu tính đến <span id="now">12:05</span></span></div>
+
+  <div class="pair">
+    <div style="display:grid;gap:var(--space-4);min-width:0">
+      <section class="card sec" aria-label="Đối chiếu tiền mặt">
+        <h2>Đối chiếu tiền mặt</h2>
+        <div class="rec">
+          <div><span class="sub">Quỹ đầu ca (bàn giao từ ca trước)</span><span>2.000.000 ₫</span></div>
+          <div><span class="sub">Thu tiền mặt trong ca (7 phiếu)</span><span>+6.250.000 ₫</span></div>
+          <div><span class="sub">Chi tiền mặt trong ca (2 phiếu)</span><span>−350.000 ₫</span></div>
+          <div class="line"><span>Hệ thống dự kiến trong két</span><span>7.900.000 ₫</span></div>
+        </div>
+        <div class="field"><label for="cnt">Tiền đếm thực tế (₫) <span class="req" aria-hidden="true">*</span></label><input id="cnt" inputmode="numeric" autocomplete="off" placeholder="Nhập sau khi đếm két"><span class="hint">Đếm xong mới thấy chênh lệch.</span></div>
+        <div id="dv"></div>
+        <div class="field" id="rsW" hidden><label for="rs">Giải trình chênh lệch <span class="req" aria-hidden="true">*</span></label><textarea id="rs" maxlength="300"></textarea><span class="hint">Ví dụ: thối nhầm tiền cho khách lệnh RO-Q7-2611-00006. Quản lý chi nhánh xem lại khi chốt ngày.</span></div>
+      </section>
+      <section class="card sec" aria-label="Thu không phải tiền mặt">
+        <h2>Thu không phải tiền mặt</h2>
+        <div class="rec"><div><span class="sub">Chuyển khoản (3 phiếu)</span><span>4.100.000 ₫</span></div><div><span class="sub">Thẻ (2 phiếu)</span><span>1.800.000 ₫</span></div><div><span class="sub">Ví (0 phiếu)</span><span>0 ₫</span></div></div>
+        <p class="hint" style="margin:0">Không đếm két. Đối soát với sao kê và máy POS ở Giao dịch ngân hàng.</p>
+      </section>
+    </div>
+
+    <aside class="card sec" aria-label="Chốt ca">
+      <h2>Chốt ca</h2>
+      <span id="stBadge"><span class="badge badge--info">Ca đang mở</span></span>
+      <div id="alert"></div>
+      <button class="b b--primary" type="button" id="go" disabled>Chốt ca</button>
+      <ul id="need" style="margin:0;padding-left:var(--space-5);display:grid;gap:var(--space-1)"></ul>
+      <p class="hint" style="margin:0">Sau khi chốt, phiếu thu và phiếu chi của ca không sửa được. Sai sót ghi bằng phiếu đảo ở Sổ quỹ.</p>
+    </aside>
+  </div>
+
+  <h2 style="font-size:var(--font-size-lg);margin:var(--space-6) 0 var(--space-3)">Phiếu thu và chi gần nhất trong ca</h2>
+  <section class="card list" aria-label="Phiếu trong ca">
+    <div class="mini item"><span class="t2">11:48</span><span><span class="plate">59A1-367.08</span> <span class="t2">PT-Q7-2611-00031</span></span><span class="t2">Tiền mặt</span><span class="num t1">+2.150.000 ₫</span></div>
+    <div class="mini item"><span class="t2">10:20</span><span><span class="t1">Mua nước rửa xe</span> <span class="t2">PC-Q7-2611-00012</span></span><span class="t2">Tiền mặt</span><span class="num t1">−150.000 ₫</span></div>
+    <div class="mini item"><span class="t2">09:55</span><span><span class="plate">51H-123.45</span> <span class="t2">PT-Q7-2611-00029 · cọc</span></span><span class="t2">Chuyển khoản</span><span class="num t1">+500.000 ₫</span></div>
+    <div class="rowfoot"><a href="cashbook.html" style="color:var(--color-text-link)">Mở Sổ quỹ để xem đủ và đảo bút toán</a></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const EXP = 7900000, vnd = (n) => n.toLocaleString('vi-VN') + ' ₫';
+  let closed = false;
+  function chk() {
+    const raw = $('#cnt').value.replace(/\D/g, ''), has = raw !== '', c = +raw, d = c - EXP;
+    $('#dv').innerHTML = has ? `<div><span class="hint">Chênh lệch</span><br><span class="diff ${d === 0 ? 'ok' : 'neg'}">${d === 0 ? 'Khớp, 0 ₫' : (d > 0 ? '+' : '−') + vnd(Math.abs(d))}</span> ${d === 0 ? '<span class="badge badge--success">Khớp</span>' : d < 0 ? '<span class="badge badge--danger">Thiếu tiền</span>' : '<span class="badge badge--warning">Thừa tiền</span>'}</div>` : '';
+    $('#rsW').hidden = !(has && d !== 0);
+    const need = []; if (!has) need.push('Chưa nhập tiền đếm thực tế'); if (has && d !== 0 && $('#rs').value.trim().length < 5) need.push('Chênh lệch chưa có giải trình (ít nhất 5 ký tự)');
+    $('#need').innerHTML = need.map((x) => `<li class="why why--block">${x}</li>`).join('');
+    $('#go').disabled = need.length > 0 || closed;
+    $('#alert').innerHTML = has && d !== 0 && !need.length ? '<div class="alert alert--warn">Chốt kèm chênh lệch đã giải trình. Quản lý sẽ thấy ở bước chốt ngày.</div>' : '';
+  }
+  $('#cnt').addEventListener('input', () => { const r = $('#cnt').value.replace(/\D/g, ''); $('#cnt').value = r ? (+r).toLocaleString('vi-VN') : ''; chk(); });
+  $('#rs').addEventListener('input', chk);
+  $('#go').addEventListener('click', () => { closed = true; document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === 'closed'))); view(); $('#toast').textContent = 'Đã chốt ca sáng. Phiếu trong ca đã khóa.'; $('#toast').hidden = false; setTimeout(() => { $('#toast').hidden = true; }, 5000); });
+  function view() {
+    $('#cnt').disabled = closed; $('#rs').disabled = closed; $('#go').hidden = closed; $('#need').hidden = closed;
+    $('#stBadge').innerHTML = closed ? '<span class="badge badge--success">Ca đã chốt 12:10</span>' : '<span class="badge badge--info">Ca đang mở</span>';
+    if (closed) { if (!$('#cnt').value) { $('#cnt').value = '7.900.000'; } chk(); $('#alert').innerHTML = '<div class="alert alert--ok">Ca đã khóa. Muốn sửa phải tạo phiếu đảo; ngày đã chốt chỉ mở lại khi chủ garage duyệt.</div>'; }
+    else chk();
+  }
+  document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { closed = b.dataset.v === 'closed'; document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); view(); }));
+  chk();
+</script>
+</body>
+</html>

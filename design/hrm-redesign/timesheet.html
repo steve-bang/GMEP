@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bảng công một nhân viên – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: 150px minmax(0, 1.5fr) minmax(0, 1fr) 140px minmax(0, 1.4fr); }
+  .emp { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+  .emp .av { width: 44px; height: 44px; font-size: var(--font-size-md); }
+  .emp b { font-size: var(--font-size-lg); }
+  .pc { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-3); padding: var(--space-4) var(--space-5); }
+  .pc div { display: grid; gap: 2px; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .pc b { font-size: var(--font-size-lg); color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+  .strike { text-decoration: line-through; color: var(--color-text-tertiary); }
+  .prov { color: var(--color-text-tertiary); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  @media (max-width: 599px) { .two { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình nhóm lịch hẹn, bảo hành, nhân sự">
+    <a href="appointments.html">Lịch hẹn</a><a href="warranty.html">Bảo hành</a><a href="timeclock.html">Chấm công và giờ công (tablet)</a><a href="timesheet.html" aria-current="page">Bảng công nhân viên</a>
+  </nav>
+  <p class="crumbs"><a href="../rpt-redesign/capacity.html">Công suất xưởng</a> › Bảng công › Trần Văn Bình</p>
+  <header class="head">
+    <div class="emp"><span class="av">TB</span><div><h1 style="font-size:var(--font-size-2xl)">Trần Văn Bình</h1><span class="t2">Thợ máy chính · Chi nhánh Quận 7 · NV-Q7-014</span></div></div>
+    <div class="head__actions"><button class="b b--secondary" type="button" id="exp">Xuất bảng công</button></div>
+  </header>
+
+  <section class="scope" aria-label="Phạm vi số liệu">
+    <span class="it"><span>Nhân viên</span><b>Trần Văn Bình</b></span>
+    <span class="it"><span>Chi nhánh</span><b>Quận 7 (CN-Q7)</b></span>
+    <span class="it"><span>Kỳ công</span><b>Tháng 11/2026 (01/11 đến 30/11)</b></span>
+    <span class="it"><span>Độ chính thức</span><b id="scDo"></b></span>
+    <span class="it"><span>Cập nhật lúc</span><b>14:32, 07/11/2026</b></span>
+  </section>
+
+  <div class="demo">Xem thử vai trò: <button class="chip" data-r="tho" aria-pressed="false">Thợ (xem của mình)</button><button class="chip" data-r="ql" aria-pressed="true">Quản lý chi nhánh</button>
+    <span style="margin-left:var(--space-3)">Kỳ:</span><button class="chip" data-p="tam" aria-pressed="true">Số tạm</button><button class="chip" data-p="khoa" aria-pressed="false">Đã khóa</button></div>
+  <div class="banner banner--info" id="bTho" role="note" hidden>Bạn chỉ xem bảng công của mình. Điều chỉnh, duyệt và khóa kỳ thuộc Quản lý chi nhánh.</div>
+  <div class="banner banner--info" id="bKhoa" role="note" hidden>Kỳ đã khóa: không sửa trực tiếp. Sai sót sửa bằng dòng điều chỉnh, không xóa hay ghi đè dòng cũ.</div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="card pc" aria-label="Duyệt và khóa kỳ" id="period"></section>
+
+  <h2 class="sec">Dòng công trong kỳ</h2>
+  <div class="tabsline" role="tablist" aria-label="Trạng thái dòng công" id="tabs"></div>
+  <section class="card list" id="list" aria-label="Dòng công"></section>
+
+  <h2 class="sec">Hoa hồng và công theo tỷ lệ</h2>
+  <section class="card" style="padding:var(--space-4) var(--space-5);display:grid;gap:var(--space-3)">
+    <div class="chips"><span class="badge badge--warning">Chưa ghi nhận: 1 (256.000 ₫)</span><span class="badge badge--neutral">Chờ duyệt: 0</span><span class="badge badge--success">Đã duyệt: 0</span><span class="badge badge--neutral">Đã đảo: 0</span></div>
+    <p class="why">Chỉ phương pháp tỷ lệ phần trăm chờ thu tiền: ghi nhận khi lệnh thu đủ, thu một phần thì "chưa ghi nhận". Thợ tính theo giờ chuẩn hoặc khoán nhận công ngay khi qua kiểm tra chất lượng. Cơ sở mặc định: tiền công dịch vụ đã thu, chưa VAT. <b>[Cần xác nhận]</b> cơ sở và cách xử lý thu một phần (Khách).</p>
+  </section>
+</div>
+
+<dialog id="dAdj" aria-labelledby="daT"><form method="dialog" id="fAdj">
+  <h2 id="daT">Điều chỉnh công</h2>
+  <p class="hint" id="daWho"></p>
+  <div class="dlgnote" style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);background:var(--color-info-bg);color:var(--color-info-text);border:1px solid var(--color-info-border);font-size:var(--font-size-sm)">Tạo thêm một dòng điều chỉnh gắn với dòng gốc. Dòng gốc giữ nguyên, không sửa và không xóa.</div>
+  <div class="two"><div class="field"><label for="aAmt">Số tiền điều chỉnh (₫) <span class="req" aria-hidden="true">*</span></label><input id="aAmt" inputmode="numeric" placeholder="Ví dụ: -24000 hoặc 30000" autocomplete="off"></div><div class="field"><span class="lbl">Dòng gốc</span><div id="aBase" style="min-height:var(--input-height-touch);display:flex;align-items:center;font-variant-numeric:tabular-nums"></div></div></div>
+  <div class="field"><label for="aWhy">Lý do <span class="req" aria-hidden="true">*</span></label><textarea id="aWhy" maxlength="300" placeholder="Nói rõ vì sao điều chỉnh"></textarea></div>
+  <p class="hint" id="aThr"></p>
+  <p class="why" id="aMiss"></p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy bỏ</button><button class="b b--primary" type="submit" id="aOk" aria-disabled="true">Tạo dòng điều chỉnh</button></div>
+</form></dialog>
+
+<script src="ui.js"></script>
+<script>
+  // DỮ LIỆU MẪU rút gọn (tuần đầu của kỳ). Đơn giá 80.000 ₫/giờ chuẩn, khoán 150.000 ₫ và tỷ lệ 8% KHÔNG phải số của khách (công thức công chưa chốt, FR-HRM-020).
+  const L = [
+    { pl: '51H-123.45', n: 'Thay dầu động cơ', d: '07/11/2026', m: 'Theo giờ chuẩn', std: 0.3, real: 0.4, amt: 24000, st: 'rec', ro: 'RO-Q7-2611-00001' },
+    { pl: '29A-678.90', n: 'Cân chỉnh thước lái', d: '07/11/2026', m: 'Theo giờ chuẩn', std: 1.0, real: 1.6, amt: 0, st: 'ret', ro: 'RO-Q7-2611-00007', why: 'Kiểm tra chất lượng không đạt: vô lăng còn lệch.' },
+    { pl: '59A1-367.08', n: 'Thay lốp (4 bánh)', d: '07/11/2026', m: 'Khoán', std: 1.0, real: 0.9, amt: 150000, st: 'qc', ro: 'RO-Q7-2611-00006' },
+    { pl: '51K-905.31', n: 'Thay lọc gió', d: '07/11/2026', m: 'Theo giờ chuẩn', std: 0.3, real: 0.7, amt: 24000, st: 'qc', ro: 'RO-Q7-2611-00008' },
+    { pl: '60A-135.79', n: 'Thay má phanh sau', d: '04/11/2026', m: 'Theo giờ chuẩn', std: 1.5, real: 1.3, amt: 120000, st: 'rec', ro: 'RO-Q7-2611-00004' },
+    { pl: '59C1-789.01', n: 'Thay lốp (4 bánh)', d: '03/11/2026', m: 'Khoán', std: 1.0, real: 0.9, amt: 150000, st: 'rec', ro: 'RO-Q7-2611-00003' },
+    { pl: '51D-999.88', n: 'Đại tu hộp số', d: '02/11/2026', m: 'Tỷ lệ 8% tiền công đã thu', std: 6.0, real: 6.5, amt: 256000, st: 'wait', ro: 'RO-Q7-2611-00002', why: 'Lệnh còn nợ 1.200.000 ₫, chưa thu đủ.' },
+    { pl: '30G-456.78', n: 'Thay dầu hộp số', d: '02/11/2026', m: 'Theo giờ chuẩn', std: 0.5, real: 0.5, amt: 40000, st: 'rev', ro: 'RO-Q7-2611-00005', why: 'Đã đảo 06/11/2026: hạng mục bị hủy.' },
+  ];
+  const SB = { rec: ['Đã ghi', 'badge--success'], qc: ['Chờ kiểm tra chất lượng', 'badge--warning'], ret: ['Kiểm tra trả lại', 'badge--danger'], wait: ['Chờ thu đủ', 'badge--info'], rev: ['Đã đảo', 'badge--neutral'] };
+  const TB = [['all', 'Tất cả'], ['rec', 'Đã ghi'], ['qc', 'Chờ kiểm tra chất lượng'], ['wait', 'Chờ thu đủ'], ['ret', 'Trả lại'], ['rev', 'Đã đảo']];
+  let role = 'ql', per = 'tam', tab = 'all', cur = null;
+  const cnt = (k) => (k === 'all' ? L.length : L.filter((l) => l.st === k).length);
+  const sum = (k) => L.filter((l) => l.st === k).reduce((a, l) => a + l.amt, 0);
+  const hs = (k) => L.filter((l) => l.st === k).reduce((a, l) => a + l.std, 0);
+  function head() {
+    document.getElementById('scDo').textContent = per === 'tam' ? 'Số tạm, kỳ chưa khóa' : 'Chính thức, kỳ đã khóa';
+    document.getElementById('bTho').hidden = role !== 'tho'; document.getElementById('bKhoa').hidden = per !== 'khoa';
+    document.getElementById('kpis').innerHTML = [
+      ['Tiền công đã ghi', vnd(sum('rec')), `${cnt('rec')} dòng · đã vào cộng dồn và tệp xuất cho kế toán`, 'Chỉ dòng đã qua kiểm tra chất lượng. Không gộp hoa hồng (FR-HRM-020).'],
+      ['Giờ chuẩn đã ghi', dec(hs('rec')) + ' giờ', `Giờ thực của các dòng này: ${dec(L.filter((l) => l.st === 'rec').reduce((a, l) => a + l.real, 0))} giờ`, 'Giờ chuẩn bán ra của hạng mục đã qua kiểm tra chất lượng trong kỳ.'],
+      ['Chờ kiểm tra chất lượng', vnd(sum('qc')), `${cnt('qc')} hạng mục · chưa vào cộng dồn`, 'Công ghi vào kỳ nơi kiểm tra đạt; hạng mục chờ kiểm tra không chặn khóa kỳ (FR-HRM-017).'],
+      ['Chờ thu đủ', vnd(sum('wait')), `${cnt('wait')} lệnh · tỷ lệ phần trăm`, 'Dòng theo tỷ lệ phần trăm chỉ vào cộng dồn khi lệnh thu đủ (FR-HRM-021).'],
+    ].map(([k, v, d, how]) => `<article class="card kpi"><span class="k">${k}<details class="how"><summary aria-label="Cách tính: ${k}">i</summary><p>${how}</p></details></span><span class="v">${v}</span><span class="d">${d}</span></article>`).join('');
+    const P = document.getElementById('period');
+    if (role === 'tho') { P.innerHTML = `<div><span>Trạng thái kỳ</span><b>${per === 'tam' ? 'Số tạm' : 'Đã khóa'}</b></div><div><span>Dòng chờ xử lý</span><b>${cnt('ret')} trả lại, ${cnt('qc')} chờ kiểm tra</b></div>`; return; }
+    const reasons = ['kỳ chỉ khóa được từ 01/12/2026 (sau ngày kết thúc 30/11/2026)', 'còn 1 ca thiếu giờ ra chưa xử lý (06/11/2026)', 'còn 1 điều chỉnh chờ duyệt'];
+    P.innerHTML = per === 'tam' ? `<div><span>Trạng thái kỳ</span><b><span class="badge badge--warning">Số tạm</span></b></div><div><span>Điều kiện khóa</span><b>3 điều kiện chưa đạt</b></div><div style="grid-column:1/-1"><button class="b b--secondary" type="button" id="bApprove">Duyệt bảng công</button> <button class="b b--primary" type="button" aria-disabled="true" aria-describedby="kWhy">Khóa kỳ</button><p class="why" id="kWhy" style="margin-top:var(--space-2)">Chưa khóa được: ${reasons.join('; ')}.</p></div>`
+      : `<div><span>Trạng thái kỳ</span><b><span class="badge badge--success">Đã khóa</span></b></div><div><span>Khóa bởi</span><b>Quản lý Hải, 01/12/2026</b></div><div style="grid-column:1/-1"><button class="b b--secondary" type="button" aria-disabled="true" aria-describedby="oWhy">Mở lại kỳ</button><p class="why" id="oWhy" style="margin-top:var(--space-2)">Mở lại cần Chủ garage duyệt kèm lý do. Quản lý chi nhánh chỉ tạo dòng điều chỉnh. <a href="#" id="askOpen" style="color:var(--color-text-link)">Xin Chủ garage mở lại</a></p></div>`;
+  }
+  function list() {
+    document.getElementById('tabs').innerHTML = TB.map(([k, l]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt ${k === 'ret' && cnt(k) ? 'cnt--danger' : ''}">${cnt(k)}</span></button>`).join('');
+    const rs = L.filter((l) => tab === 'all' || l.st === tab);
+    document.getElementById('list').innerHTML = rs.length ? rs.map((l, i) => {
+      const money = l.st === 'rev' ? `<span class="strike">${vnd(l.amt)}</span>` : l.st === 'ret' ? '–' : l.st === 'qc' ? `<span class="prov">${vnd(l.amt)}</span><br><span class="t2">dự kiến</span>` : vnd(l.amt);
+      const adj = role === 'ql' && (l.st === 'rec' || l.st === 'rev');
+      const act = l.st === 'ret' ? '<a class="b b--secondary b--sm" href="../rec-redesign/qc.html">Xem lỗi kiểm tra</a>' : adj && l.st === 'rec' ? `<button class="b b--secondary b--sm" type="button" data-adj="${L.indexOf(l)}">${per === 'khoa' ? 'Điều chỉnh sau khóa' : 'Điều chỉnh'}</button>` : `<a class="b b--secondary b--sm" href="../rec-redesign/order-detail.html">Mở lệnh</a>`;
+      return `<div class="item"><span class="plate">${l.pl}</span><span><span class="t1">${l.n}</span><br><span class="t2">${l.d} · ${l.m} · ${l.ro}</span>${l.why ? `<br><span class="${l.st === 'ret' ? 'late' : 't2'}">${l.why}</span>` : ''}</span><span>Giờ chuẩn <b>${dec(l.std)}</b><br><span class="t2">Thực ${dec(l.real)} giờ</span></span><span class="num">${money}</span><span class="act"><span class="badge ${SB[l.st][1]}">${SB[l.st][0]}</span>${act}</span></div>`;
+    }).join('') + `<div class="rowfoot">${rs.length} dòng · Trần Văn Bình · Tháng 11/2026, đến 07/11 · ${per === 'tam' ? 'số tạm' : 'chính thức'}</div>` : '<div class="empty"><h2>Không có dòng công</h2><p>Không có dòng ở trạng thái này trong kỳ.</p></div>';
+  }
+  const render = () => { head(); list(); };
+  document.querySelectorAll('[data-r]').forEach((c) => c.addEventListener('click', () => { role = c.dataset.r; document.querySelectorAll('[data-r]').forEach((x) => x.setAttribute('aria-pressed', String(x === c))); render(); }));
+  document.querySelectorAll('[data-p]').forEach((c) => c.addEventListener('click', () => { per = c.dataset.p; document.querySelectorAll('[data-p]').forEach((x) => x.setAttribute('aria-pressed', String(x === c))); render(); }));
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; list(); } });
+  document.getElementById('period').addEventListener('click', (e) => { if (e.target.id === 'bApprove') toast('Đã duyệt bảng công số tạm. Chưa khóa kỳ.'); if (e.target.id === 'askOpen') { e.preventDefault(); toast('Đã gửi yêu cầu mở lại kỳ cho Chủ garage (cần lý do).'); } });
+  document.getElementById('list').addEventListener('click', (e) => { const b = e.target.closest('[data-adj]'); if (!b) return; cur = L[+b.dataset.adj]; document.getElementById('daWho').textContent = `${cur.pl}, ${cur.n}, ${cur.d}`; document.getElementById('aBase').textContent = vnd(cur.amt); document.getElementById('aAmt').value = ''; document.getElementById('aWhy').value = ''; aChk(); document.getElementById('dAdj').showModal(); });
+  const THR = 50000; // ngưỡng mẫu
+  function aChk() {
+    const v = document.getElementById('aAmt').value.trim().replace(/[−–]/g, '-'), n = /^-?\d+$/.test(v) ? +v : null, why = document.getElementById('aWhy').value.trim(), miss = [];
+    if (n === null || n === 0) miss.push('số tiền nguyên khác 0'); if (!why) miss.push('lý do');
+    if (n !== null && cur.amt + n < 0) miss.push('số tiền không làm dòng âm');
+    const over = n !== null && Math.abs(n) > THR;
+    document.getElementById('aThr').textContent = over ? `Vượt ngưỡng ${vnd(THR)} (mẫu): dòng điều chỉnh chờ Chủ garage duyệt trước khi vào cộng dồn. [Cần xác nhận] ngưỡng.` : `Điều chỉnh đến ${vnd(THR)} (ngưỡng mẫu) có hiệu lực ngay; vượt ngưỡng cần Chủ garage duyệt.`;
+    document.getElementById('aMiss').textContent = miss.length ? 'Chưa tạo được, còn thiếu: ' + miss.join(', ') + '.' : '';
+    document.getElementById('aOk').setAttribute('aria-disabled', String(miss.length > 0)); return { ok: !miss.length, n, over };
+  }
+  document.getElementById('dAdj').addEventListener('input', aChk);
+  document.getElementById('fAdj').addEventListener('submit', (e) => { const r = aChk(); if (!r.ok) { e.preventDefault(); return; } toast(r.over ? `Đã tạo dòng điều chỉnh ${vnd(r.n)}, chờ Chủ garage duyệt. Dòng gốc giữ nguyên.` : `Đã tạo dòng điều chỉnh ${vnd(r.n)}. Dòng gốc giữ nguyên.`); });
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  document.getElementById('exp').addEventListener('click', () => toast(`Xuất bảng công: Trần Văn Bình, Chi nhánh Quận 7, Tháng 11/2026, ${per === 'tam' ? 'nhãn "số tạm"' : 'bản chính thức'}, tạo lúc 14:32 (demo).`));
+  render();
+</script>
+</body>
+</html>

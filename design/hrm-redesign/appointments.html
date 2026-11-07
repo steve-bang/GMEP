@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lịch hẹn – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: 150px minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(0, 1.5fr); }
+  .dnav { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; margin-bottom: var(--space-3); }
+  .dnav .b { min-height: var(--touch-target); }
+  .dnav h2 { margin: 0; font-size: var(--font-size-xl); line-height: var(--lh-lg); display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+  .capline { display: grid; grid-template-columns: auto minmax(120px, 280px); gap: var(--space-3); align-items: center; margin-bottom: var(--space-4); font-size: var(--font-size-md); }
+  .skel { height: 14px; border-radius: var(--radius-sm); background: linear-gradient(90deg, var(--color-surface-subtle) 25%, var(--color-border) 50%, var(--color-surface-subtle) 75%) 0 0 / 200% 100%; animation: shim 1.4s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+  .a-row .b { min-height: 36px; }
+  #list { overflow: visible; }
+  #list .rowfoot:last-child { border-radius: 0 0 var(--card-radius) var(--card-radius); }
+  .a-row { align-items: flex-start; }
+  .dlgnote { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+  .dlgnote--warn { background: var(--color-warning-bg); color: var(--color-warning-text); border: 1px solid var(--color-warning-border); }
+  .dlgnote--info { background: var(--color-info-bg); color: var(--color-info-text); border: 1px solid var(--color-info-border); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  @media (max-width: 599px) { .two { grid-template-columns: 1fr; } .capline { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình nhóm lịch hẹn, bảo hành, nhân sự">
+    <a href="appointments.html" aria-current="page">Lịch hẹn</a><a href="warranty.html">Bảo hành</a><a href="timeclock.html">Chấm công và giờ công (tablet)</a><a href="timesheet.html">Bảng công nhân viên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Lịch hẹn</h1><p>Chi nhánh Quận 7. Việc cần xử lý nằm ở tab Trễ hẹn; mỗi lịch có hành động chính ngay trên dòng.</p></div>
+    <div class="head__actions"><a class="b b--primary" href="#" id="newApt">Tạo lịch hẹn</a></div>
+  </header>
+
+  <div class="demo" aria-label="Xem thử">Xem thử vai trò: <button class="chip" data-role="cv" aria-pressed="true">Cố vấn</button><button class="chip" data-role="ql" aria-pressed="false">Quản lý</button><button class="chip" data-role="view" aria-pressed="false">Chỉ xem (Thợ, Thủ kho)</button>
+    <span style="margin-left:var(--space-3)">Trạng thái:</span> <button class="chip" data-st="ok" aria-pressed="true">Bình thường</button><button class="chip" data-st="loading" aria-pressed="false">Đang tải</button><button class="chip" data-st="error" aria-pressed="false">Lỗi</button><button class="chip" data-st="offline" aria-pressed="false">Mất mạng</button></div>
+
+  <div class="banner banner--danger" id="bErr" role="alert" hidden>Không tải được lịch hẹn. Mã lỗi ERR-APT-503 (mẫu). <button class="b b--secondary b--sm" type="button" data-st="ok">Thử lại</button></div>
+  <div class="banner" id="bOff" role="status" hidden>Mất kết nối. Đang hiện dữ liệu lúc 14:32; các thao tác ghi tạm khóa, nội dung đang nhập trong hộp thoại được giữ lại.</div>
+  <div class="banner banner--info" id="bView" role="note" hidden>Bạn chỉ xem lịch. Thao tác Đã đến, Dời lịch, Hủy, Vắng dành cho Cố vấn, Quản lý, Chủ garage. Số điện thoại khách được ẩn.</div>
+  <div class="banner" id="bLate" role="status" hidden><span><b id="bLateN"></b> lịch trễ hẹn chưa xử lý.</span> <a href="#" id="goLate">Xem tab Trễ hẹn</a></div>
+
+  <div class="dnav">
+    <button class="b b--secondary" type="button" id="prev" aria-label="Ngày trước">‹</button>
+    <button class="b b--secondary" type="button" id="today">Hôm nay</button>
+    <button class="b b--secondary" type="button" id="next" aria-label="Ngày sau">›</button>
+    <h2 id="title" aria-live="polite"></h2>
+    <span class="seg" role="group" aria-label="Kiểu xem" style="margin-left:auto"><button type="button" data-m="day" aria-pressed="true">Ngày</button><button type="button" data-m="week" aria-pressed="false">Tuần</button></span>
+  </div>
+  <div class="capline"><span id="capTxt"></span><span class="bar" id="capBar" role="img"><i></i></span></div>
+
+  <div class="tabsline" role="tablist" aria-label="Nhóm lịch hẹn" id="tabs"></div>
+  <p class="why" id="tabNote" style="margin:calc(-1 * var(--space-2)) 0 var(--space-3)"></p>
+  <section class="card list" id="list" aria-label="Danh sách lịch hẹn"></section>
+</div>
+
+<dialog id="dCancel" aria-labelledby="dcT"><form method="dialog" id="fCancel">
+  <h2 id="dcT">Hủy lịch hẹn</h2>
+  <p class="hint" id="dcWho"></p>
+  <div class="reasons" role="radiogroup" aria-label="Lý do hủy" id="cReasons"></div>
+  <div class="dlgnote dlgnote--info" id="cTip" hidden>Khách chỉ muốn đổi ngày giờ? Dùng Dời lịch để giữ mã lịch và lịch sử.</div>
+  <div class="field" id="cNoteW"><label for="cNote">Ghi chú <span class="req" id="cReq" aria-hidden="true" hidden>*</span></label><textarea id="cNote" maxlength="300" placeholder="Chi tiết nếu cần"></textarea><span class="hint" id="cNoteH">Không ghi số điện thoại hay địa chỉ vào ghi chú.</span><span class="err" id="cErr" role="alert" hidden>Lý do Khác cần ghi chú tối thiểu 3 ký tự.</span></div>
+  <label class="opt"><input type="checkbox" id="cCalled"> Đã gọi điện báo khách</label>
+  <p class="hint">Gửi tin tự động cho khách chưa dùng được: cổng tin nhắn chưa bật (phụ thuộc slice 2.8a).</p>
+  <p class="why" id="cWhy">Chọn lý do để hủy lịch.</p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Giữ lịch</button><button class="b b--primary" type="submit" id="cOk" aria-disabled="true">Hủy lịch</button></div>
+</form></dialog>
+
+<dialog id="dMove" aria-labelledby="dmT"><form method="dialog" id="fMove">
+  <h2 id="dmT">Dời lịch hẹn</h2>
+  <p class="hint" id="dmWho"></p>
+  <div class="two">
+    <div class="field"><label for="mDate">Ngày mới <span class="req" aria-hidden="true">*</span></label><input id="mDate" inputmode="numeric" placeholder="dd/MM/yyyy" autocomplete="off"><span class="err" id="mDateErr" role="alert" hidden></span></div>
+    <div class="field"><label for="mTime">Giờ mới <span class="req" aria-hidden="true">*</span></label><select id="mTime"></select></div>
+  </div>
+  <div class="dlgnote dlgnote--warn" id="mCap" role="alert" hidden></div>
+  <label class="opt" id="mCapOk" hidden><input type="checkbox" id="mCapChk"> Vẫn dời vào ngày đã đủ chỗ</label>
+  <div class="dlgnote dlgnote--warn" id="mLate" hidden>Dời sát giờ hẹn (trong 120 phút). Vẫn dời được; lịch sử ghi nhãn "Dời sát giờ".</div>
+  <div class="field"><label for="mReason">Lý do dời <span class="req" aria-hidden="true">*</span></label><select id="mReason"><option value="">Chọn lý do</option><option value="customer_busy" data-p="c">Khách bận</option><option value="customer_late" data-p="c">Khách báo đến trễ</option><option value="vehicle_not_ready" data-p="c">Xe chưa sẵn sàng</option><option value="garage_reschedule" data-p="g">Xưởng đổi lịch</option><option value="weather_incident" data-p="g">Thời tiết hoặc sự cố</option><option value="other">Khác</option></select></div>
+  <div class="field"><span class="lbl">Bên đề nghị <span class="req" aria-hidden="true">*</span></span><div class="reasons" role="radiogroup" aria-label="Bên đề nghị" style="grid-template-columns:1fr 1fr"><label><input type="radio" name="mBy" value="c"> Khách đề nghị</label><label><input type="radio" name="mBy" value="g"> Xưởng đề nghị</label></div></div>
+  <div class="field"><label for="mNote">Ghi chú <span class="req" id="mReq" aria-hidden="true" hidden>*</span></label><textarea id="mNote" maxlength="300"></textarea></div>
+  <div class="dlgnote dlgnote--warn" id="mLim" hidden></div>
+  <label class="opt"><input type="checkbox" id="mCalled"> Đã gọi điện báo khách</label>
+  <p class="why" id="mWhy"></p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Hủy bỏ</button><button class="b b--primary" type="submit" id="mOk" aria-disabled="true">Dời lịch</button></div>
+</form></dialog>
+
+<dialog id="dVang" aria-labelledby="dvT"><form method="dialog" id="fVang">
+  <h2 id="dvT">Đánh dấu khách vắng</h2>
+  <p id="dvTxt"></p>
+  <p class="hint">Vắng là kết quả cuối: lịch không dời, hủy hay đánh dấu đã đến được nữa. Khách quay lại thì tạo lịch mới.</p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Không đánh dấu</button><button class="b b--primary" type="submit">Đánh dấu vắng</button></div>
+</form></dialog>
+
+<script src="ui.js"></script>
+<script>
+  // DỮ LIỆU MẪU. "Bây giờ" cố định 07/11/2026 14:32 để prototype lặp lại được; bản thật dùng giờ máy chủ Asia/Ho_Chi_Minh.
+  const NOW = { d: '2026-11-07', m: 14 * 60 + 32 };
+  const TODAY = '2026-11-07', CAPACITY = 20, GRACE = 0, MAXMOVE = 3;
+  const A = [
+    { id: 1, pl: '51F-234.56', who: 'Nguyễn Thị Hoa', car: 'Mazda 3 2020', svc: 'Bảo dưỡng 20.000 km', adv: 'Yến', d: '2026-11-07', t: '13:30', st: 'pending', ph: '0903 *** 421', mv: 0 },
+    { id: 2, pl: '30G-456.78', who: 'Trần Văn Nam', car: 'Ford Ranger 2019', svc: 'Kiểm tra phanh', adv: 'Yến', d: '2026-11-07', t: '14:00', st: 'pending', ph: '0912 *** 088', mv: 0 },
+    { id: 3, pl: '59C1-789.01', who: 'Lê Thị Thu', car: 'Hyundai Accent 2018', svc: 'Thay lốp', adv: 'Hải', d: '2026-11-05', t: '09:00', st: 'pending', ph: '0987 *** 305', mv: 3, orig: '2026-11-02 09:00' },
+    { id: 4, pl: '51A-888.66', who: 'Phạm Minh Khôi', car: 'Toyota Fortuner 2021', svc: 'Thay dầu', adv: 'Yến', d: '2026-11-07', t: '15:00', st: 'pending', ph: '0938 *** 912', mv: 0 },
+    { id: 5, pl: '51G-567.89', who: 'Đỗ Thị Lan', car: 'Kia Seltos 2022', svc: 'Cân chỉnh thước lái', adv: 'Hải', d: '2026-11-07', t: '15:30', st: 'pending', ph: '0977 *** 640', mv: 0 },
+    { id: 6, pl: '51K-905.31', who: 'Phạm Đức', car: 'Kia Morning 2018', svc: 'Máy nóng khi chạy chậm', adv: 'Yến', d: '2026-11-07', t: '16:00', st: 'pending', ph: '0908 *** 217', mv: 1, orig: '2026-11-06 09:00' },
+    { id: 7, pl: '59A1-367.08', who: 'Trần Thị Mai', car: 'Honda City 2022', svc: 'Thay lốp trước', adv: 'Hải', d: '2026-11-07', t: '16:30', st: 'pending', ph: '0966 *** 503', mv: 0 },
+    { id: 8, pl: '51D-999.88', who: 'Công ty TNHH Vận tải Demo', car: 'Hyundai Porter H150 2020', svc: 'Bảo dưỡng định kỳ', adv: 'Yến', d: '2026-11-07', t: '17:00', st: 'pending', ph: '028 *** 7714', mv: 0 },
+    { id: 9, pl: '51H-123.45', who: 'Nguyễn Văn An', car: 'Toyota Vios 1.5G 2019', svc: 'Kiểm tra phanh, thay dầu', adv: 'Yến', d: '2026-11-07', t: '08:00', st: 'arrived', at: '08:05' },
+    { id: 10, pl: '29A-678.90', who: 'Lê Quốc Hùng', car: 'Honda City 2022', svc: 'Cân chỉnh thước lái', adv: 'Hải', d: '2026-11-07', t: '09:00', st: 'arrived', at: '09:10' },
+    { id: 11, pl: '60A-135.79', who: 'Nguyễn Hoàng Phúc', car: 'Toyota Innova 2020', svc: 'Thay dầu động cơ', adv: 'Yến', d: '2026-11-07', t: '10:30', st: 'arrived', at: '10:40' },
+    { id: 12, pl: '51N-246.80', who: 'Vũ Thị Nga', car: 'Mazda CX-5 2021', svc: 'Bảo dưỡng 40.000 km', adv: 'Yến', d: '2026-11-07', t: '10:00', st: 'cancelled', why: 'Khách bận hoặc đổi kế hoạch', by: 'Yến', ts: '06/11/2026 16:20' },
+    { id: 13, pl: '29B-246.80', who: 'Võ Thanh Hải', car: 'Mitsubishi Xpander 2021', svc: 'Thay má phanh sau', adv: 'Hải', d: '2026-11-07', t: '11:00', st: 'cancelled', why: 'Xe đã sửa ở nơi khác', by: 'Hải', ts: '05/11/2026 09:12' },
+    { id: 14, pl: '51L-135.79', who: 'Hồ Văn Tín', car: 'Suzuki Ertiga 2019', svc: 'Kiểm tra điều hòa', adv: 'Hải', d: '2026-11-07', t: '08:30', st: 'no_show', by: 'Quản lý Hải', ts: '07/11/2026 14:10' },
+  ];
+  const WD = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+  const isoVi = (s) => s.slice(8, 10) + '/' + s.slice(5, 7) + '/' + s.slice(0, 4);
+  const addDays = (iso, n) => { const x = new Date(iso + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+  const wd = (iso) => WD[new Date(iso + 'T00:00:00Z').getUTCDay()];
+  const mins = (t) => +t.slice(0, 2) * 60 + +t.slice(3, 5);
+  const day2min = (iso) => Math.round((Date.parse(iso + 'T00:00:00Z') - Date.parse(TODAY + 'T00:00:00Z')) / 6e4);
+  const lateMin = (a) => NOW.m - mins(a.t) - GRACE + (day2min(NOW.d) - day2min(a.d)); // phút trễ, > 0 là trễ hẹn
+  const isOver = (a) => a.st === 'pending' && lateMin(a) > 0;
+  const lateTxt = (m) => (m < 60 ? `Trễ ${m} phút` : m < 1440 ? `Trễ ${Math.floor(m / 60)} giờ${m % 60 ? ' ' + (m % 60) + ' phút' : ''}` : `Trễ ${Math.floor(m / 1440)} ngày`);
+  let shown = TODAY, mode = 'day', tab = 'up', role = 'cv', stt = 'ok', cur = null;
+  const TABS = [['up', 'Sắp tới', (a) => a.st === 'pending' && !isOver(a) && a.d === shown], ['over', 'Trễ hẹn', (a) => isOver(a)], ['arr', 'Đã đến', (a) => a.st === 'arrived' && a.d === shown], ['can', 'Đã hủy', (a) => a.st === 'cancelled' && a.d === shown], ['no', 'Vắng', (a) => a.st === 'no_show' && a.d === shown]];
+  const EMPTY = { up: ['Chưa có lịch hẹn trong khoảng này', 'Tạo lịch hẹn mới, hoặc tiếp nhận xe vãng lai.'], over: ['Không có lịch trễ hẹn', 'Tất cả lịch đã được xử lý.'], arr: ['Chưa có lịch nào được tiếp nhận trong khoảng này', ''], can: ['Không có lịch bị hủy trong khoảng này', ''], no: ['Không có khách vắng trong khoảng này', ''] };
+  const can = () => role !== 'view' && stt !== 'offline';
+  const whyOff = () => (role === 'view' ? 'Bạn chỉ xem lịch.' : stt === 'offline' ? 'Đang mất mạng, tạm khóa thao tác ghi.' : '');
+  const btn = (txt, act, id, primary, extra = '') => { const off = !can() || extra; const reason = !can() ? whyOff() : extra; const k = `r${id}${act}`; return `<span style="display:grid;gap:2px;justify-items:end"><button class="b b--sm ${primary ? 'b--primary' : 'b--secondary'}" type="button" data-a="${act}" data-id="${id}" ${off ? `aria-disabled="true" aria-describedby="${k}"` : ''}>${txt}</button>${off ? `<span class="why" id="${k}" style="max-width:24ch;text-align:right">${reason}</span>` : ''}</span>`; };
+  function rowHtml(a) {
+    const over = isOver(a), moved = a.mv ? `<span class="badge badge--neutral">Đã dời ${a.mv} lần</span> ` : '';
+    const orig = a.orig ? `<span class="t2">Hẹn ban đầu ${isoVi(a.orig.slice(0, 10))} ${a.orig.slice(11)}</span>` : '';
+    const when = `<span class="t1">${isoVi(a.d)} ${a.t}</span><br>${a.st === 'pending' ? (over ? `<span class="badge badge--warning">Trễ hẹn</span> <span class="late">${lateTxt(lateMin(a))}</span>` : '<span class="badge badge--info">Đã hẹn</span>') : a.st === 'arrived' ? `<span class="badge badge--success">Đã đến</span> <span class="t2">lúc ${a.at}</span>` : a.st === 'cancelled' ? '<span class="badge badge--neutral">Đã hủy</span>' : '<span class="badge badge--neutral">Vắng</span>'} ${moved}<br>${orig}`;
+    const mid = a.st === 'cancelled' ? `<span>Lý do: <b>${a.why}</b></span><br><span class="t2">${a.by}, ${a.ts}</span>` : a.st === 'no_show' ? `<span class="t2">Đánh dấu bởi ${a.by}, ${a.ts}</span>` : `<span>${a.svc}</span><br><span class="t2">Cố vấn ${a.adv}${a.ph ? ' · ' + (role === 'view' ? 'Số điện thoại bị ẩn' : a.ph) : ''}</span>`;
+    let act = '';
+    if (a.st === 'pending') {
+      const lim = a.mv >= MAXMOVE && role === 'cv' ? `Đã dời ${a.mv} lần, cần Quản lý ghi đè.` : '';
+      const moreItems = over ? [['Đã đến', 'arrive'], ['Hủy lịch', 'cancel']] : [['Sửa cố vấn, dịch vụ, ghi chú', 'edit'], ['Hủy lịch', 'cancel']];
+      const more = `<details class="menu"><summary class="b b--secondary b--sm" role="button" aria-label="Thêm thao tác cho ${a.pl}">Khác ▾</summary><div class="pop">${moreItems.map(([t, k]) => `<button type="button" data-a="${k}" data-id="${a.id}" ${can() ? '' : 'aria-disabled="true"'}>${t}</button>`).join('')}</div></details>`;
+      act = over
+        ? `<div class="a-row">${can() ? `<a class="b b--sm b--primary" href="tel:0900000000" data-a="call" data-id="${a.id}">Gọi khách</a>` : btn('Gọi khách', 'call', a.id, true)}${btn('Dời lịch', 'move', a.id, false, lim)}${btn('Đánh dấu vắng', 'vang', a.id, false)}${more}</div>`
+        : `<div class="a-row">${btn('Đã đến', 'arrive', a.id, true)}${btn('Dời lịch', 'move', a.id, false, lim)}${more}</div>`;
+    } else if (a.st === 'arrived') act = '<a class="b b--secondary b--sm" href="../rec-redesign/intake-detail.html">Mở hồ sơ tiếp nhận</a>';
+    else act = '<span class="t2">Chỉ xem. Khách quay lại thì tạo lịch mới.</span>';
+    return `<div class="item"><span class="plate">${a.pl}</span><span><span class="t1">${a.who}</span><br><span class="t2">${a.car}</span></span><span>${mid}</span><span>${when}</span><span class="act">${act}</span></div>`;
+  }
+  function render() {
+    document.getElementById('bErr').hidden = stt !== 'error'; document.getElementById('bOff').hidden = stt !== 'offline'; document.getElementById('bView').hidden = role !== 'view';
+    const wk = mode === 'week', iso = shown, mon = addDays(iso, -((new Date(iso + 'T00:00:00Z').getUTCDay() + 6) % 7));
+    const chip = iso === TODAY ? 'Hôm nay' : iso === addDays(TODAY, 1) ? 'Ngày mai' : iso === addDays(TODAY, -1) ? 'Hôm qua' : '';
+    document.getElementById('title').innerHTML = wk ? `Tuần 45 (${isoVi(mon).slice(0, 5)} – ${isoVi(addDays(mon, 6))}) ${shown >= mon && TODAY >= mon && TODAY <= addDays(mon, 6) ? '<span class="badge badge--info">Tuần này</span>' : ''}` : `${wd(iso)}, ${isoVi(iso)} ${chip ? `<span class="badge badge--info">${chip}</span>` : ''}`;
+    document.getElementById('today').setAttribute('aria-disabled', String(iso === TODAY));
+    const used = A.filter((a) => a.d === iso && a.st !== 'cancelled').length;
+    document.getElementById('capTxt').innerHTML = `${iso === TODAY ? 'Công suất hôm nay' : 'Công suất ' + wd(iso) + ', ' + isoVi(iso)}: <b>${used}/${CAPACITY}</b> xe`;
+    document.getElementById('capBar').innerHTML = `<i style="width:${(used / CAPACITY) * 100}%"></i>`; document.getElementById('capBar').setAttribute('aria-label', `${used} trên ${CAPACITY} xe`);
+    const n = A.filter(TABS[1][2]).length;
+    document.getElementById('bLate').hidden = !(n > 0 && tab !== 'over' && stt !== 'error'); document.getElementById('bLateN').textContent = n;
+    document.getElementById('tabs').innerHTML = TABS.map(([k, l, f]) => { const c = A.filter(f).length; return `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt ${k === 'over' && c ? 'cnt--warn' : ''}">${c}</span></button>`; }).join('');
+    document.getElementById('tabNote').textContent = tab === 'over' ? 'Không phụ thuộc ngày đang xem. Hiện mọi lịch quá giờ hẹn mà khách chưa đến, lâu nhất lên đầu.' : tab === 'up' ? 'Theo ngày đang xem. Lịch quá giờ hẹn chuyển sang tab Trễ hẹn.' : '';
+    const L = document.getElementById('list');
+    if (stt === 'loading') { L.innerHTML = [1, 2, 3].map(() => '<div class="item" style="--cols:1fr"><span class="skel" style="width:30%"></span><span class="skel" style="width:70%"></span><span class="skel" style="width:50%"></span></div>').join(''); return; }
+    if (stt === 'error') { L.innerHTML = '<div class="empty"><h2>Không tải được danh sách</h2><p>Dữ liệu chưa hiển thị. Bấm Thử lại ở thông báo phía trên.</p></div>'; return; }
+    let rs = A.filter(TABS.find((t) => t[0] === tab)[2]);
+    rs = tab === 'over' ? rs.sort((a, b) => lateMin(b) - lateMin(a)) : tab === 'up' ? rs.sort((a, b) => (a.d + a.t).localeCompare(b.d + b.t)) : rs;
+    L.innerHTML = rs.length ? rs.map(rowHtml).join('') + `<div class="rowfoot">${rs.length} lịch · Chi nhánh Quận 7 · cập nhật 14:32</div>` : `<div class="empty"><h2>${EMPTY[tab][0]}</h2><p>${EMPTY[tab][1]}</p>${tab === 'up' ? '<a class="b b--primary" href="#">Tạo lịch hẹn</a>' : ''}</div>`;
+  }
+  const go = (n) => { shown = addDays(shown, mode === 'week' ? 7 * n : n); render(); };
+  document.getElementById('prev').addEventListener('click', () => go(-1)); document.getElementById('next').addEventListener('click', () => go(1));
+  document.getElementById('today').addEventListener('click', () => { shown = TODAY; render(); });
+  document.querySelectorAll('[data-m]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.m; document.querySelectorAll('[data-m]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); render(); }));
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; render(); } });
+  document.getElementById('goLate').addEventListener('click', (e) => { e.preventDefault(); tab = 'over'; render(); });
+  document.querySelectorAll('[data-role]').forEach((c) => c.addEventListener('click', () => { role = c.dataset.role; document.querySelectorAll('[data-role]').forEach((x) => x.setAttribute('aria-pressed', String(x === c))); render(); }));
+  document.addEventListener('click', (e) => { const c = e.target.closest('[data-st]'); if (c) { stt = c.dataset.st; document.querySelectorAll('.chip[data-st]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.st === stt))); render(); } });
+  document.getElementById('newApt').addEventListener('click', (e) => { e.preventDefault(); toast('Mở màn Tạo lịch hẹn (G2-APT-02, không thiết kế lại ở đợt này).'); });
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+
+  // ---- thao tác trên dòng ----
+  document.getElementById('list').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-a]'); if (!b) return; const a = A.find((x) => x.id === +b.dataset.id), k = b.dataset.a;
+    if (b.getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
+    b.closest('details')?.removeAttribute('open'); cur = a;
+    if (k === 'call') { e.preventDefault(); toast(`Gọi ${a.who}: ${a.ph} (số đầy đủ chỉ hiện với Cố vấn và Quản lý, demo không gọi thật).`); }
+    if (k === 'arrive') { a.st = 'arrived'; a.at = '14:32'; render(); toast(`Đã mở hồ sơ tiếp nhận nháp cho ${a.pl}. Lịch chuyển sang Đã đến (không hoàn tác: hồ sơ tiếp nhận đã được tạo).`); }
+    if (k === 'edit') toast('Mở form sửa cố vấn, dịch vụ, ghi chú. Ngày giờ đổi bằng Dời lịch.');
+    if (k === 'vang') { document.getElementById('dvTxt').innerHTML = `Khách <b>${a.who}</b>, xe <b>${a.pl}</b>, hẹn ${isoVi(a.d)} ${a.t}, không đến.`; document.getElementById('dVang').showModal(); }
+    if (k === 'cancel') openCancel(a);
+    if (k === 'move') openMove(a);
+  });
+  document.getElementById('fVang').addEventListener('submit', () => { cur.st = 'no_show'; cur.by = role === 'ql' ? 'Quản lý' : 'Cố vấn'; cur.ts = '07/11/2026 14:32'; render(); toast(`Đã đánh dấu vắng: ${cur.pl}. Lịch chuyển sang tab Vắng.`); });
+
+  // ---- hủy lịch ----
+  const CR = [['Khách', [['customer_request', 'Khách yêu cầu hủy'], ['customer_busy', 'Khách bận hoặc đổi kế hoạch'], ['fixed_elsewhere', 'Xe đã sửa ở nơi khác'], ['not_needed', 'Xe không còn cần dịch vụ'], ['unreachable', 'Không liên lạc được với khách']]], ['Xưởng', [['duplicate_or_mistake', 'Trùng lịch hoặc đặt nhầm'], ['garage_unable', 'Xưởng không nhận được (hết công suất, thiếu thợ)']]], ['Khác', [['other', 'Khác (cần ghi chú)']]]];
+  function openCancel(a) {
+    document.getElementById('dcWho').textContent = `${a.pl}, ${a.who}, hẹn ${isoVi(a.d)} ${a.t}`;
+    document.getElementById('cReasons').innerHTML = CR.map(([g, l]) => `<span class="t2" style="padding-top:var(--space-1)">${g}</span>` + l.map(([c, t]) => `<label><input type="radio" name="cr" value="${c}" data-t="${t}"> ${t}</label>`).join('')).join('');
+    document.getElementById('cNote').value = ''; document.getElementById('cCalled').checked = false; cChk(); document.getElementById('dCancel').showModal();
+  }
+  function cChk() {
+    const r = document.querySelector('[name=cr]:checked'), v = r ? r.value : '', note = document.getElementById('cNote').value.trim();
+    document.getElementById('cTip').hidden = v !== 'customer_busy'; document.getElementById('cReq').hidden = v !== 'other';
+    const bad = v === 'other' && note.length < 3; document.getElementById('cErr').hidden = !(bad && document.getElementById('cNote').value.length > 0);
+    const ok = !!v && !bad && stt !== 'offline';
+    document.getElementById('cOk').setAttribute('aria-disabled', String(!ok));
+    document.getElementById('cWhy').textContent = stt === 'offline' ? 'Đang mất mạng: chưa hủy được, nội dung đã nhập được giữ lại.' : !v ? 'Chọn lý do để hủy lịch.' : bad ? 'Lý do Khác cần ghi chú tối thiểu 3 ký tự.' : '';
+    return ok;
+  }
+  document.getElementById('dCancel').addEventListener('input', cChk);
+  document.getElementById('fCancel').addEventListener('submit', (e) => { if (!cChk()) { e.preventDefault(); return; } const r = document.querySelector('[name=cr]:checked'); cur.st = 'cancelled'; cur.why = r.dataset.t; cur.by = role === 'ql' ? 'Quản lý' : 'Cố vấn'; cur.ts = '07/11/2026 14:32'; render(); toast(`Đã hủy lịch ${cur.pl}: ${r.dataset.t}. Hủy là kết quả cuối, không hoàn tác được.`); });
+
+  // ---- dời lịch ----
+  const SLOTS = []; for (let m = 7 * 60 + 30; m <= 17 * 60 + 30; m += 30) SLOTS.push(String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'));
+  document.getElementById('mTime').innerHTML = SLOTS.map((s) => `<option>${s}</option>`).join('');
+  const parseVi = (s) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim()); if (!m) return null; const iso = `${m[3]}-${m[2]}-${m[1]}`, d = new Date(iso + 'T00:00:00Z'); return d.toISOString().slice(0, 10) === iso ? iso : null; };
+  const usedOn = (iso) => (iso === '2026-11-09' ? 20 : A.filter((a) => a.d === iso && a.st !== 'cancelled').length + (iso === TODAY ? 0 : 5));
+  function openMove(a) {
+    document.getElementById('dmWho').textContent = `${a.pl}, ${a.who}, đang hẹn ${isoVi(a.d)} ${a.t}`;
+    ['mDate', 'mNote'].forEach((i) => (document.getElementById(i).value = '')); document.getElementById('mReason').value = ''; document.querySelectorAll('[name=mBy]').forEach((r) => (r.checked = false)); document.getElementById('mCalled').checked = false; document.getElementById('mCapChk').checked = false;
+    const lim = a.mv >= MAXMOVE; const el = document.getElementById('mLim'); el.hidden = !lim; if (lim) el.textContent = `Lịch đã dời ${a.mv} lần (giới hạn ${MAXMOVE}). Quản lý được vượt giới hạn kèm ghi chú; nhật ký đánh dấu "vượt giới hạn".`;
+    mChk(); document.getElementById('dMove').showModal();
+  }
+  function mChk() {
+    const a = cur, miss = [], dv = document.getElementById('mDate').value, iso = parseVi(dv), t = document.getElementById('mTime').value, rs = document.getElementById('mReason').value, by = document.querySelector('[name=mBy]:checked'), note = document.getElementById('mNote').value.trim();
+    const de = document.getElementById('mDateErr'); de.hidden = true;
+    if (!dv) miss.push('ngày mới'); else if (!iso) { de.hidden = false; de.textContent = 'Ngày không có thật hoặc sai định dạng dd/MM/yyyy.'; miss.push('ngày hợp lệ'); }
+    let past = false, near = false, full = false;
+    if (iso) { const diff = (day2min(iso) - day2min(NOW.d)) + mins(t) - NOW.m; past = diff <= 0; near = !past && diff <= 120; const u = usedOn(iso); full = iso !== a.d && u >= CAPACITY; if (past) { de.hidden = false; de.textContent = 'Giờ mới phải sau thời điểm hiện tại (07/11/2026 14:32).'; miss.push('thời điểm sau hiện tại'); } if (iso === a.d && t === a.t) miss.push('ngày hoặc giờ khác lịch hiện tại'); const c = document.getElementById('mCap'); c.hidden = !full; if (full) c.textContent = `Ngày ${isoVi(iso)} đã có ${u}/${CAPACITY} xe. Cảnh báo, không chặn: tick xác nhận để vẫn dời.`; }
+    else document.getElementById('mCap').hidden = true;
+    document.getElementById('mCapOk').hidden = !full; document.getElementById('mLate').hidden = !near;
+    if (full && !document.getElementById('mCapChk').checked) miss.push('xác nhận ngày đã đủ chỗ');
+    if (!rs) miss.push('lý do dời'); else { document.getElementById('mReq').hidden = rs !== 'other'; const p = document.querySelector('#mReason option:checked').dataset.p; if (p && !by && !document.getElementById('mReason').dataset.touched) { document.querySelector(`[name=mBy][value=${p}]`).checked = true; } }
+    if (!document.querySelector('[name=mBy]:checked')) miss.push('bên đề nghị');
+    if (rs === 'other' && note.length < 3) miss.push('ghi chú (tối thiểu 3 ký tự)');
+    const lim = a.mv >= MAXMOVE; if (lim && role === 'cv') miss.push('Quản lý ghi đè (đã vượt giới hạn dời)'); if (lim && role === 'ql' && note.length < 3) miss.push('ghi chú vượt giới hạn');
+    if (stt === 'offline') miss.push('kết nối mạng');
+    const ok = miss.length === 0; document.getElementById('mOk').setAttribute('aria-disabled', String(!ok));
+    document.getElementById('mWhy').textContent = ok ? '' : 'Chưa dời được, còn thiếu: ' + miss.join(', ') + '.';
+    return ok;
+  }
+  document.getElementById('dMove').addEventListener('input', mChk); document.getElementById('dMove').addEventListener('change', mChk);
+  document.getElementById('fMove').addEventListener('submit', (e) => { if (!mChk()) { e.preventDefault(); return; } const iso = parseVi(document.getElementById('mDate').value), t = document.getElementById('mTime').value; cur.orig = cur.orig || cur.d + ' ' + cur.t; cur.d = iso; cur.t = t; cur.mv++; render(); toast(`Đã dời lịch ${cur.pl} sang ${isoVi(iso)} ${t}. Mã lịch giữ nguyên, lịch sử dời ghi đủ lý do, bên đề nghị và người dời.`); });
+  document.querySelectorAll('#cOk,#mOk').forEach((b) => b.addEventListener('click', (e) => { if (b.getAttribute('aria-disabled') === 'true') e.preventDefault(); }));
+  render();
+</script>
+</body>
+</html>

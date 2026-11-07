@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiểm kê – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.4fr) 110px 190px 110px minmax(0, 1.3fr); }
+  .step { display: inline-grid; grid-template-columns: 44px 72px 44px; gap: var(--space-1); }
+  .step button { min-height: 44px; border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--color-surface); font: inherit; font-size: var(--font-size-xl); cursor: pointer; color: var(--color-text-primary); }
+  .step input { min-height: 44px; width: 100%; text-align: center; border: 1px solid var(--input-border); border-radius: var(--input-radius); font: inherit; font-size: var(--font-size-lg); font-variant-numeric: tabular-nums; background: var(--input-bg); color: var(--color-text-primary); }
+  .step input:focus { border-color: var(--input-border-focus); box-shadow: var(--shadow-focus); outline: none; }
+  .d { font-variant-numeric: tabular-nums; font-weight: var(--fw-semibold); font-size: var(--font-size-lg); }
+  .d.neg { color: var(--color-danger-text); } .d.pos { color: var(--color-warning-text); }
+  .scanrow { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; margin-bottom: var(--space-3); }
+  .scanrow .field { flex: 1 1 260px; }
+  .hl { background: var(--color-primary-subtle); }
+  @media (max-width: 1023px) { .item { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-2); } .item > :nth-child(3), .item > :nth-child(5) { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="stock.html">Tồn kho</a> › Kiểm kê › KK-Q7-2611-00001</p>
+  <header class="head">
+    <div><h1>Kiểm kê nhóm Phanh và Lọc</h1><p>Đếm từng mã, hệ thống tính chênh lệch với tồn lúc bắt đầu. Tồn chỉ đổi sau khi quản lý duyệt phiếu điều chỉnh (FR-INV-011, 012).</p></div>
+    <div class="head__actions"><span class="badge badge--info">Đợt kiểm kê: đang đếm</span></div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Chỉ Chi nhánh Quận 7</span><span><b>Kho:</b> Kho Quận 7</span><span>Chụp tồn lúc 07:30 07/11/2026</span><span>Người đếm: Thủ kho Quận 7</span></div>
+
+  <div class="scanrow">
+    <div class="field"><label for="sc">Quét hoặc gõ mã vạch</label><input id="sc" inputmode="numeric" autocomplete="off" placeholder="Ví dụ: 8935001230029 (mỗi lần quét cộng 1)"><span class="hint" id="sch">Máy ảnh điện thoại hoặc máy quét; quét đúng mã sẽ cộng 1 vào dòng đó.</span></div>
+    <button class="b b--secondary" type="button" id="cam">Mở camera</button>
+  </div>
+
+  <div class="tabsline" role="tablist" aria-label="Trạng thái đếm">
+    <button role="tab" aria-selected="true" data-s="todo">Chưa đếm<span class="cnt cnt--warn" id="c-todo"></span></button>
+    <button role="tab" aria-selected="false" data-s="diff">Lệch<span class="cnt cnt--danger" id="c-diff"></span></button>
+    <button role="tab" aria-selected="false" data-s="ok">Khớp<span class="cnt" id="c-ok"></span></button>
+    <button role="tab" aria-selected="false" data-s="all">Tất cả<span class="cnt" id="c-all"></span></button>
+  </div>
+  <section class="card list" aria-label="Các mã cần kiểm kê">
+    <div id="rows"></div>
+    <div class="empty" id="empty" hidden><h2>Không có dòng nào ở nhóm này</h2><p>Chuyển tab để xem các mã khác.</p></div>
+    <div class="stickybar"><div><b id="prog"></b> <span class="hint" id="why"></span></div><button class="b b--primary" type="button" id="go" disabled>Gửi duyệt điều chỉnh</button></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const R = ['Đếm nhầm lần trước', 'Hàng hư hỏng', 'Xuất không ghi phiếu', 'Chưa rõ, cần kiểm tra lại'];
+  // Lý do chênh lệch là danh sách MẪU: [Cần xác nhận] danh mục lý do và ngưỡng cần quản lý cấp cao duyệt.
+  const L = [
+    { c: 'PT-0002', n: 'Má phanh trước Hyundai Accent', b: '8935001230029', s: 5, q: 5, r: '' },
+    { c: 'PT-0009', n: 'Má phanh trước Toyota Vios', b: '8935001230098', s: 5, q: 4, r: '' },
+    { c: 'PT-0001', n: 'Lọc dầu động cơ Toyota Vios', b: '8935001230012', s: 26, q: 26, r: '' },
+    { c: 'PT-0007', n: 'Lọc gió động cơ Mazda CX-5', b: '8935001230074', s: 9, q: null, r: '' },
+    { c: 'PT-0003', n: 'Dầu nhớt Castrol 5W-30 (can 4 lít)', b: '8935001230036', s: 2, q: null, r: '' },
+    { c: 'PT-0005', n: 'Lốp Michelin Primacy 4 205/55R16', b: '8935001230050', s: 8, q: null, r: '' },
+  ];
+  const st = (l) => l.q === null ? 'todo' : l.q === l.s ? 'ok' : 'diff';
+  let tab = 'todo', hl = null;
+  const f = { todo: (l) => st(l) === 'todo', diff: (l) => st(l) === 'diff', ok: (l) => st(l) === 'ok', all: () => true };
+  function render() {
+    const l = L.filter(f[tab]);
+    $('#rows').innerHTML = l.map((x) => { const i = L.indexOf(x), s = st(x), d = s === 'todo' ? null : x.q - x.s; return `<div class="item${hl === i ? ' hl' : ''}"><div><span class="t1">${x.n}</span><br><span class="t2">${x.c} · ${x.b}</span></div><div class="num"><span class="t2">Tồn lúc bắt đầu</span><br><b>${x.s}</b></div><div><div class="step" role="group" aria-label="Số đếm ${x.n}"><button type="button" data-m="${i}" aria-label="Giảm 1">−</button><input inputmode="numeric" data-i="${i}" value="${x.q ?? ''}" placeholder="–" aria-label="Số đã đếm"><button type="button" data-p="${i}" aria-label="Tăng 1">+</button></div></div><div>${s === 'todo' ? '<span class="badge badge--neutral">Chưa đếm</span>' : s === 'ok' ? '<span class="badge badge--success">Khớp</span>' : `<span class="d ${d < 0 ? 'neg' : 'pos'}">${d > 0 ? '+' : '−'}${Math.abs(d)}</span> <span class="badge badge--danger">Lệch</span>`}</div><div>${s === 'diff' ? `<div class="chips" role="group" aria-label="Lý do lệch">${R.map((r) => `<button class="chip" type="button" aria-pressed="${x.r === r}" data-r="${i}|${r}">${r}</button>`).join('')}</div>` : ''}</div></div>`; }).join('');
+    $('#empty').hidden = l.length > 0;
+    for (const k in f) $('#c-' + k).textContent = L.filter(f[k]).length;
+    const todo = L.filter(f.todo).length, diff = L.filter(f.diff), noR = diff.filter((x) => !x.r).length;
+    $('#prog').textContent = `Đã đếm ${L.length - todo}/${L.length} mã`;
+    const why = []; if (todo) why.push(`còn ${todo} mã chưa đếm`); if (noR) why.push(`${noR} dòng lệch chưa chọn lý do`);
+    $('#why').textContent = why.length ? 'Chưa gửi được: ' + why.join(', ') : diff.length ? `Sẵn sàng: ${diff.length} dòng lệch gửi quản lý duyệt` : 'Tất cả khớp: có thể đóng đợt không cần điều chỉnh';
+    $('#go').disabled = why.length > 0; $('#go').textContent = diff.length ? `Gửi duyệt điều chỉnh (${diff.length} dòng)` : 'Đóng đợt kiểm kê';
+  }
+  const set = (i, v) => { L[i].q = v === null ? null : Math.max(0, v); if (st(L[i]) !== 'diff') L[i].r = ''; render(); };
+  $('#rows').addEventListener('click', (e) => { const p = e.target.closest('[data-p]'), m = e.target.closest('[data-m]'), r = e.target.closest('[data-r]');
+    if (p) set(+p.dataset.p, (L[p.dataset.p].q ?? 0) + 1); if (m) set(+m.dataset.m, (L[m.dataset.m].q ?? 1) - 1); if (r) { const [i, t] = r.dataset.r.split('|'); L[i].r = t; render(); } });
+  $('#rows').addEventListener('change', (e) => { const t = e.target; if (t.dataset.i !== undefined) set(+t.dataset.i, t.value.trim() === '' ? null : +t.value.replace(/\D/g, '')); });
+  $('#sc').addEventListener('keydown', (e) => { if (e.key !== 'Enter') return; e.preventDefault(); const v = $('#sc').value.trim(), i = L.findIndex((x) => x.b === v); if (i < 0) { $('#sch').textContent = `Mã ${v} không thuộc đợt kiểm kê này. Kiểm tra lại hoặc thêm mã vào đợt.`; $('#sch').style.color = 'var(--color-danger-text)'; } else { $('#sch').textContent = `Đã cộng 1 cho ${L[i].n}.`; $('#sch').style.color = ''; hl = i; L[i].q = (L[i].q ?? 0) + 1; tab = 'all'; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x.dataset.s === 'all'))); render(); } $('#sc').value = ''; });
+  $('#cam').addEventListener('click', () => { $('#sc').value = '8935001230074'; $('#sc').focus(); $('#sch').textContent = 'Demo: đã điền mã Lọc gió Mazda CX-5, nhấn Enter để cộng 1.'; });
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.s; hl = null; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); render(); }));
+  $('#go').addEventListener('click', () => { $('#toast').textContent = 'Đã gửi phiếu điều chỉnh ADJ cho quản lý duyệt. Tồn chưa đổi cho đến khi duyệt.'; $('#toast').hidden = false; setTimeout(() => { $('#toast').hidden = true; }, 5000); });
+  render();
+</script>
+</body>
+</html>

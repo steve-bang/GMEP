@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo cáo tồn kho – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: minmax(0, 1.3fr) minmax(0, 2fr) minmax(0, 1.1fr) 170px; }
+  .nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
+  .n { display: grid; gap: 2px; font-size: var(--font-size-lg); font-variant-numeric: tabular-nums; }
+  .n small { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .n--key { font-weight: var(--fw-semibold); }
+  .n--bad { color: var(--color-danger-text); }
+  @media (max-width: 599px) { .nums { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .fx { margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-4); border-left: 3px solid var(--color-border-selected); background: var(--color-surface); border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="subnav" aria-label="Màn hình dashboard và báo cáo">
+    <a href="branch-overview.html">Tổng quan chi nhánh</a><a href="group-overview.html">Tổng quan chuỗi</a><a href="revenue.html">Doanh thu</a><a href="capacity.html">Công suất xưởng</a><a href="inventory-report.html" aria-current="page">Tồn kho</a>
+  </nav>
+  <header class="head">
+    <div><h1>Báo cáo tồn kho</h1><p>Hàng cần xử lý trước: dưới định mức, chậm luân chuyển, chênh lệch kiểm kê. Mọi so sánh với định mức dùng số có thể bán, không dùng tồn thực.</p></div>
+    <div class="head__actions"><button class="b b--secondary" type="button" id="exp">Xuất Excel</button></div>
+  </header>
+
+  <section class="scope" aria-label="Phạm vi số liệu">
+    <span class="it"><span>Chi nhánh</span><b>Quận 7 (CN-Q7)</b></span>
+    <span class="it"><span>Kho</span><b>Kho chính (1 kho)</b></span>
+    <span class="it"><span>Thời điểm</span><b>Tồn tại 14:32, 07/11/2026</b></span>
+    <span class="it"><span>Độ chính thức</span><b>Tức thời, theo sổ kho</b></span>
+    <span class="sw-wrap"><span class="seg" role="group" aria-label="Phạm vi xem"><button type="button" aria-pressed="true">Chi nhánh Quận 7</button><button type="button" aria-disabled="true" aria-describedby="w1">Toàn chuỗi</button></span><span class="why" id="w1">Toàn chuỗi chỉ dành cho Chủ garage.</span></span>
+  </section>
+
+  <div class="kpis" id="kpis"></div>
+
+  <p class="fx"><b>Bốn số.</b> Tồn thực, Đã giữ (cho lệnh đã duyệt), Đang chuyển (về kho này), Có thể bán = Tồn thực trừ Đã giữ. Hàng đang chuyển chưa tính vào Có thể bán. Công thức này <b>[Cần xác nhận]</b> với BA/kế toán khách.</p>
+
+  <form class="find" role="search" onsubmit="return false"><div class="search"><label for="q" style="position:absolute;left:-9999px">Tìm phụ tùng</label><input id="q" type="search" placeholder="Tên hoặc mã phụ tùng, không cần gõ dấu" autocomplete="off"></div></form>
+
+  <div class="demo">Xem thử: <button class="chip" data-demo="ok" aria-pressed="true">Bình thường</button><button class="chip" data-demo="loading" aria-pressed="false">Đang tải</button><button class="chip" data-demo="error" aria-pressed="false">Lỗi một khối</button></div>
+
+  <div class="blk">
+    <div class="tabsline" role="tablist" aria-label="Nhóm hàng cần xử lý" id="tabs"></div>
+    <section class="card list" id="list" aria-label="Danh sách phụ tùng"></section>
+  </div>
+</div>
+<script src="charts.js"></script>
+<script>
+  // DỮ LIỆU MẪU. Định mức tối thiểu, ngưỡng 90 ngày chậm luân chuyển, giá trị là số minh họa.
+  const LOW = [
+    { n: 'Má phanh trước Toyota Vios', c: 'PT-BR-0412', oh: 6, rs: 4, tr: 0, mn: 5, act: ['Đề nghị mua'] },
+    { n: 'Lọc gió động cơ Kia Morning', c: 'PT-AF-0231', oh: 1, rs: 1, tr: 0, mn: 4, act: ['Đã đề nghị', 'Đã có đề nghị mua ĐN-2611-014 chờ duyệt từ 06/11/2026.'] },
+    { n: 'Dầu động cơ 5W-30 (can 4 lít)', c: 'PT-OL-0530', oh: 14, rs: 6, tr: 0, mn: 12, act: ['Đề nghị mua'], note: 'Tồn thực vẫn trên định mức, nhưng 6 can đã giữ cho lệnh đã duyệt.' },
+    { n: 'Má phanh sau Mitsubishi Xpander', c: 'PT-BR-0577', oh: 2, rs: 0, tr: 2, mn: 3, act: ['Xem phiếu chuyển'], note: '2 cái đang chuyển từ Thủ Đức, chưa tính vào Có thể bán.' },
+    { n: 'Lọc dầu Toyota Vios', c: 'PT-OF-0118', oh: 3, rs: 0, tr: 0, mn: 6, act: ['Đề nghị mua'] },
+    { n: 'Nước làm mát (can 1 lít)', c: 'PT-CL-0070', oh: 5, rs: 2, tr: 0, mn: 10, act: ['Đề nghị mua'] },
+  ];
+  const SLOW = [
+    { n: 'Gioăng nắp máy Toyota Fortuner', c: 'PT-GK-0044', oh: 4, val: 3200000, last: '12/05/2026', d: 179 },
+    { n: 'Cảm biến oxy Hyundai Accent', c: 'PT-O2-0310', oh: 2, val: 2740000, last: '20/07/2026', d: 110 },
+    { n: 'Bình ắc quy 60Ah', c: 'PT-BT-0060', oh: 3, val: 5850000, last: '02/08/2026', d: 97 },
+  ];
+  const DIFF = [
+    { n: 'Dây curoa cam Honda City', c: 'PT-TB-0221', bk: 10, ct: 9, val: -185000, kk: 'KK-Q7-2611-00002', dt: '05/11/2026' },
+    { n: 'Gạt mưa 24 inch', c: 'PT-WP-0024', bk: 6, ct: 7, val: 62000, kk: 'KK-Q7-2611-00002', dt: '05/11/2026' },
+  ];
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase();
+  let tab = 'low', q = '';
+  const av = (r) => r.oh - r.rs;
+  document.getElementById('kpis').innerHTML = [
+    ['Giá trị tồn kho', '612.480.000 ₫', 'Tồn thực nhân giá vốn bình quân, Kho chính', 'Giá vốn bình quân gia quyền là hướng chọn, chờ kế toán khách xác nhận.'],
+    ['Dưới định mức', LOW.length + ' mã', 'So sánh Có thể bán với định mức tối thiểu', 'Mã có Có thể bán nhỏ hơn định mức tối thiểu (RULE-008).'],
+    ['Chậm luân chuyển', SLOW.length + ' mã', 'Không xuất quá 90 ngày [Cần xác nhận]', 'Ngưỡng ngày là cấu hình, chưa chốt với khách.'],
+    ['Chênh lệch kiểm kê', DIFF.length + ' mã', 'Phiếu kiểm kê gần nhất 05/11/2026', 'Chênh giữa sổ sách và số đếm. Sửa bằng phiếu điều chỉnh, không sửa sổ cũ (RULE-010).'],
+  ].map(([k, v, d, how]) => `<article class="card kpi"><span class="k">${k}<details class="how"><summary aria-label="Cách tính: ${k}">i</summary><p>${how}</p></details></span><span class="v">${v}</span><span class="d">${d}</span></article>`).join('');
+
+  function rowLow(r, i) {
+    const a = av(r), short = r.mn - a;
+    const act = r.act[1] ? `<span class="b b--secondary b--sm" role="button" aria-disabled="true" tabindex="0" aria-describedby="x${i}">${r.act[0]}</span><span class="why" id="x${i}">${r.act[1]}</span>` : `<a class="b b--primary b--sm" href="#">${r.act[0]}</a>`;
+    return `<div class="item" data-t="${norm(r.n + ' ' + r.c)}" style="--cols:minmax(0,1.3fr) minmax(0,2fr) minmax(0,1.1fr) 170px"><span><span class="t1">${r.n}</span><br><span class="t2">${r.c}</span></span><span class="nums"><span class="n"><small>Tồn thực</small>${r.oh}</span><span class="n"><small>Đã giữ</small>${r.rs}</span><span class="n"><small>Đang chuyển</small>${r.tr}</span><span class="n n--key ${a < r.mn ? 'n--bad' : ''}"><small>Có thể bán</small>${a}</span></span><span><span class="badge badge--warning">Thiếu ${short} so với định mức ${r.mn}</span>${r.note ? `<br><span class="t2">${r.note}</span>` : ''}</span><span class="act">${act}</span></div>`;
+  }
+  const rowSlow = (r) => `<div class="item" data-t="${norm(r.n + ' ' + r.c)}" style="--cols:minmax(0,1.3fr) minmax(0,2fr) minmax(0,1.1fr) 170px"><span><span class="t1">${r.n}</span><br><span class="t2">${r.c}</span></span><span class="nums"><span class="n"><small>Tồn thực</small>${r.oh}</span><span class="n"><small>Giá trị tồn</small>${vnd(r.val)}</span><span class="n"><small>Xuất gần nhất</small>${r.last}</span><span class="n n--key"><small>Số ngày</small>${r.d}</span></span><span><span class="badge badge--neutral">Chậm luân chuyển</span></span><span class="act"><a class="b b--secondary b--sm" href="#">Xem thẻ kho</a></span></div>`;
+  const rowDiff = (r) => `<div class="item" data-t="${norm(r.n + ' ' + r.c)}" style="--cols:minmax(0,1.3fr) minmax(0,2fr) minmax(0,1.1fr) 170px"><span><span class="t1">${r.n}</span><br><span class="t2">${r.c}</span></span><span class="nums"><span class="n"><small>Sổ sách</small>${r.bk}</span><span class="n"><small>Số đếm</small>${r.ct}</span><span class="n n--key ${r.ct < r.bk ? 'n--bad' : ''}"><small>Chênh lệch</small>${r.ct - r.bk > 0 ? '+' : '−'}${Math.abs(r.ct - r.bk)}</span><span class="n"><small>Giá trị</small>${vnd(r.val)}</span></span><span><span class="t2">${r.kk}, ${r.dt}</span></span><span class="act"><a class="b b--secondary b--sm" href="#">Mở phiếu kiểm kê</a></span></div>`;
+  function render() {
+    const T = [['low', 'Dưới định mức', LOW, rowLow, 'cnt--warn'], ['slow', 'Chậm luân chuyển', SLOW, rowSlow, ''], ['diff', 'Chênh lệch kiểm kê', DIFF, rowDiff, 'cnt--warn']];
+    const m = (r) => !q || norm(r.n + ' ' + r.c).includes(norm(q));
+    document.getElementById('tabs').innerHTML = T.map(([k, l, a, , c]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt ${c}">${a.filter(m).length}</span></button>`).join('');
+    const [, , arr, fn] = T.find((t) => t[0] === tab);
+    let rs = arr.filter(m);
+    if (tab === 'low') rs = rs.sort((a, b) => av(a) - a.mn - (av(b) - b.mn));
+    document.getElementById('list').innerHTML = rs.length ? rs.map(fn).join('') + `<div class="rowfoot">${rs.length} mã · Kho chính, Chi nhánh Quận 7 · tồn tại 14:32${tab === 'low' ? ' · xếp theo mức thiếu nhiều nhất' : ''}</div>` : `<div class="empty"><h2>${q ? 'Không tìm thấy phụ tùng' : 'Không có mã nào'}</h2><p>${q ? 'Thử tên hoặc mã khác, không cần gõ dấu.' : 'Không có mã thuộc nhóm này tại thời điểm 14:32.'}</p></div>`;
+  }
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; render(); } });
+  document.getElementById('q').addEventListener('input', (e) => { q = e.target.value; render(); });
+  document.getElementById('exp').addEventListener('click', () => toast('Tệp xuất ghi: Chi nhánh Quận 7, Kho chính, tồn tại 14:32 07/11/2026, nhóm ' + document.querySelector('[aria-selected=true]').firstChild.textContent + ' (demo).'));
+  render(); blocks();
+</script>
+</body>
+</html>

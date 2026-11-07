@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chấm công và giờ công (tablet) – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { --cols: 150px minmax(0, 1.4fr) minmax(0, 1.2fr) 170px; }
+  .shift { display: grid; gap: var(--space-4); padding: var(--space-5); margin-bottom: var(--space-4); }
+  .shift .who { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: center; justify-content: space-between; }
+  .shift .st { font-size: var(--font-size-2xl); line-height: var(--lh-xl); font-weight: var(--fw-semibold); margin: 0; }
+  .shift .st small { display: block; font-size: var(--font-size-md); color: var(--color-text-secondary); font-weight: var(--fw-regular); }
+  .btn-xl { min-height: var(--btn-height-xl); font-size: var(--font-size-lg); width: 100%; }
+  .nums3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+  .nums3 .kpi { padding: var(--space-3) var(--space-4); }
+  .nums3 .kpi .v { font-size: var(--font-size-xl); line-height: var(--lh-lg); }
+  .off-card { display: grid; gap: var(--space-3); padding: var(--space-5); margin-bottom: var(--space-4); border: 2px solid var(--color-warning-border); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  @media (max-width: 599px) { .nums3 { grid-template-columns: minmax(0, 1fr); } .two { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap wrap--tablet">
+  <nav class="subnav" aria-label="Màn hình nhóm lịch hẹn, bảo hành, nhân sự">
+    <a href="appointments.html">Lịch hẹn</a><a href="warranty.html">Bảo hành</a><a href="timeclock.html" aria-current="page">Chấm công và giờ công (tablet)</a><a href="timesheet.html">Bảng công nhân viên</a>
+  </nav>
+  <header class="head"><div><h1>Ca làm và giờ công</h1><p>Chấm công vào, ra ca tách khỏi đồng hồ từng việc. Mọi mốc giờ lấy theo giờ máy chủ, không theo đồng hồ tablet.</p></div></header>
+
+  <div class="demo">Xem thử: <button class="chip" data-s="none" aria-pressed="false">Chưa vào ca</button><button class="chip" data-s="in" aria-pressed="true">Đang trong ca</button><button class="chip" data-s="run" aria-pressed="false">Ra ca khi còn việc chạy</button><button class="chip" data-s="out" aria-pressed="false">Đã ra ca</button><button class="chip" data-s="off" aria-pressed="false">Mất mạng</button></div>
+
+  <div class="banner" id="bOff" role="alert" hidden>Mất kết nối. Mốc giờ không ghi được lúc này và <b>không ghi theo giờ tablet</b>. Khai giờ thực ở phần "Nhập bù giờ công" bên dưới; bản nháp được giữ trên máy.</div>
+  <div class="banner banner--info" id="bYes" role="note"><span>Ca hôm qua (06/11/2026) thiếu giờ ra. Kỳ công chưa khóa được khi còn ca thiếu giờ ra chưa xử lý.</span> <button class="b b--secondary b--sm" type="button" id="yBtn">Báo quản đốc xử lý</button></div>
+
+  <section class="card shift" aria-label="Ca hôm nay">
+    <div class="who"><span><b>Trần Văn Bình</b> · Thợ máy chính · Chi nhánh Quận 7</span><span class="t2">Thứ Bảy, 07/11/2026 · giờ máy chủ <b id="clk">14:32</b></span></div>
+    <p class="st" id="st" aria-live="polite"></p>
+    <div id="act"></div>
+    <p class="why" id="actWhy"></p>
+    <p class="hint">Bấm nhầm? Mốc giờ không xóa được; báo quản đốc để sửa kèm lý do (FR-HRM-003).</p>
+  </section>
+
+  <section class="card off-card" id="makeup" aria-label="Nhập bù giờ công" hidden>
+    <h2 style="margin:0;font-size:var(--font-size-lg)">Nhập bù giờ công</h2>
+    <p class="hint">Dùng khi mất mạng nên không ghi được mốc bắt đầu hoặc kết thúc. Quản đốc xác nhận nếu chênh không quá 15 phút (ngưỡng mẫu); quá ngưỡng cần Quản lý duyệt. Dòng nhập bù có nhãn "nhập bù" và không xóa được.</p>
+    <div class="field"><label for="mJob">Hạng mục</label><select id="mJob"><option>51H-123.45, Thay má phanh trước</option><option>59A1-367.08, Thay lốp (4 bánh)</option><option>51K-905.31, Thay lọc gió</option></select></div>
+    <div class="two"><div class="field"><label for="mFrom">Giờ bắt đầu thực tế <span class="req" aria-hidden="true">*</span></label><input id="mFrom" type="time"></div><div class="field"><label for="mTo">Giờ kết thúc thực tế <span class="req" aria-hidden="true">*</span></label><input id="mTo" type="time"></div></div>
+    <div class="field"><label for="mWhy">Lý do <span class="req" aria-hidden="true">*</span></label><input id="mWhy" maxlength="200" placeholder="Ví dụ: wifi xưởng mất lúc 10:20"></div>
+    <p class="why" id="mMiss">Chưa gửi được, còn thiếu: giờ bắt đầu, giờ kết thúc, lý do.</p>
+    <button class="b b--primary btn-xl" type="button" id="mSend" aria-disabled="true">Lưu nháp và gửi quản đốc xác nhận</button>
+  </section>
+
+  <h2 class="sec">Giờ công hôm nay</h2>
+  <div class="nums3">
+    <article class="card kpi"><span class="k">Có mặt<details class="how"><summary aria-label="Cách tính: Có mặt">i</summary><p>Từ giờ vào ca đến bây giờ (hoặc giờ ra ca), theo chấm công. Là mẫu số của mức sử dụng.</p></details></span><span class="v" id="vP">6 giờ 34 phút</span><span class="d" id="vP2">Vào ca 07:58</span></article>
+    <article class="card kpi"><span class="k">Giờ thực làm<details class="how"><summary aria-label="Cách tính: Giờ thực làm">i</summary><p>Tổng các khoảng làm việc của hạng mục, trừ các khoảng tạm dừng (FR-HRM-005).</p></details></span><span class="v">4 giờ 50 phút</span><span class="d">5 hạng mục</span></article>
+    <article class="card kpi"><span class="k">Giờ chuẩn đã ghi<details class="how"><summary aria-label="Cách tính: Giờ chuẩn đã ghi">i</summary><p>Chỉ hạng mục đã qua kiểm tra chất lượng mới ghi công (FR-HRM-007). Hạng mục chờ kiểm tra hoặc bị trả lại chưa tính.</p></details></span><span class="v">0,3 giờ</span><span class="d">Chờ kiểm tra: 1,3 giờ chuẩn</span></article>
+  </div>
+
+  <div class="tabsline" role="tablist" aria-label="Trạng thái công" id="tabs"></div>
+  <section class="card list" id="list" aria-label="Hạng mục hôm nay"></section>
+</div>
+<script src="ui.js"></script>
+<script>
+  // DỮ LIỆU MẪU. Giờ chuẩn từng hạng mục là định mức minh họa. Ngưỡng nhập bù 15 phút là mẫu theo FR-HRM-019.
+  const J = [
+    { pl: '51H-123.45', n: 'Thay dầu động cơ', real: '0 giờ 24 phút', std: '0,3', st: 'rec' },
+    { pl: '51H-123.45', n: 'Thay má phanh trước', real: '1 giờ 12 phút (đang chạy)', std: '1,5', st: 'run' },
+    { pl: '29A-678.90', n: 'Cân chỉnh thước lái', real: '1 giờ 36 phút', std: '1,0', st: 'ret', why: 'Kiểm tra chất lượng không đạt: vô lăng còn lệch, làm lại.' },
+    { pl: '59A1-367.08', n: 'Thay lốp (4 bánh)', real: '0 giờ 54 phút', std: '1,0', st: 'qc' },
+    { pl: '51K-905.31', n: 'Thay lọc gió', real: '0 giờ 44 phút', std: '0,3', st: 'qc' },
+  ];
+  const SB = { rec: ['Đã ghi công', 'badge--success'], run: ['Đang làm', 'badge--info'], ret: ['Kiểm tra trả lại', 'badge--danger'], qc: ['Chờ kiểm tra chất lượng', 'badge--warning'] };
+  const TB = [['all', 'Tất cả'], ['qc', 'Chờ kiểm tra'], ['ret', 'Trả lại'], ['run', 'Đang làm'], ['rec', 'Đã ghi công']];
+  let s = 'in', tab = 'all';
+  function shift() {
+    const off = s === 'off', run = s === 'run' || s === 'in';
+    document.getElementById('bOff').hidden = !off; document.getElementById('makeup').hidden = !off;
+    document.querySelectorAll('.demo .chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.s === s)));
+    const st = document.getElementById('st'), act = document.getElementById('act'), w = document.getElementById('actWhy');
+    document.getElementById('vP').textContent = s === 'none' ? '0 giờ 00 phút' : '6 giờ 34 phút';
+    document.getElementById('vP2').textContent = s === 'none' ? 'Chưa vào ca' : s === 'out' ? 'Vào ca 07:58, ra ca 14:32' : 'Vào ca 07:58';
+    if (s === 'none') { st.innerHTML = 'Chưa vào ca<small>Bấm một lần để ghi giờ vào.</small>'; act.innerHTML = '<button class="b b--primary btn-xl" type="button" data-a="in">Vào ca</button>'; w.textContent = ''; }
+    else if (s === 'out') { st.innerHTML = 'Đã ra ca lúc 14:32<small>Vào ca 07:58, ra ca 14:32. Mốc giờ đã ghi, không xóa được.</small>'; act.innerHTML = '<button class="b b--primary btn-xl" type="button" aria-disabled="true" aria-describedby="actWhy">Vào ca</button>'; w.textContent = 'Đã hết ca hôm nay. Ca mới bắt đầu vào ngày làm việc kế tiếp.'; }
+    else if (off) { st.innerHTML = 'Mất kết nối<small>Chưa ghi được giờ vào hoặc giờ ra.</small>'; act.innerHTML = '<button class="b b--primary btn-xl" type="button" aria-disabled="true" aria-describedby="actWhy">Ra ca</button>'; w.textContent = 'Chưa ghi được: đang mất mạng. Dùng phần Nhập bù giờ công bên dưới.'; }
+    else { st.innerHTML = 'Đang trong ca<small>Vào ca lúc 07:58 · đã có mặt 6 giờ 34 phút</small>'; if (s === 'run') { act.innerHTML = '<button class="b b--primary btn-xl" type="button" aria-disabled="true" aria-describedby="actWhy">Ra ca</button>'; w.innerHTML = 'Chưa ra ca được: còn việc đang làm <b>51H-123.45, Thay má phanh trước</b>. Kết thúc hoặc tạm dừng việc trước. <a href="../rec-redesign/work.html" style="color:var(--color-text-link)">Mở Việc của tôi</a>'; } else { act.innerHTML = '<button class="b b--primary btn-xl" type="button" data-a="out">Ra ca</button>'; w.textContent = ''; } }
+  }
+  function list() {
+    const c = (k) => (k === 'all' ? J.length : J.filter((j) => j.st === k).length);
+    document.getElementById('tabs').innerHTML = TB.map(([k, l]) => `<button role="tab" aria-selected="${k === tab}" data-k="${k}">${l}<span class="cnt ${k === 'ret' && c(k) ? 'cnt--danger' : ''}">${c(k)}</span></button>`).join('');
+    const rs = J.filter((j) => tab === 'all' || j.st === tab);
+    document.getElementById('list').innerHTML = rs.length ? rs.map((j) => `<div class="item"><span class="plate">${j.pl}</span><span><span class="t1">${j.n}</span>${j.why ? `<br><span class="late">${j.why}</span>` : ''}</span><span>Thực làm ${j.real}<br><span class="t2">Giờ chuẩn ${j.std}${j.st === 'rec' ? ' (đã ghi công)' : ' (chưa ghi công)'}</span></span><span class="act"><span class="badge ${SB[j.st][1]}">${SB[j.st][0]}</span>${j.st === 'ret' ? '<a class="b b--primary b--sm" href="../rec-redesign/work.html">Làm lại</a>' : j.st === 'run' ? '<a class="b b--secondary b--sm" href="../rec-redesign/work.html">Mở việc</a>' : ''}</span></div>`).join('') + `<div class="rowfoot">${rs.length} hạng mục · Trần Văn Bình · 07/11/2026</div>` : '<div class="empty"><h2>Không có hạng mục</h2><p>Không có hạng mục ở trạng thái này hôm nay.</p></div>';
+  }
+  document.querySelector('.demo').addEventListener('click', (e) => { const c = e.target.closest('[data-s]'); if (c) { s = c.dataset.s; shift(); } });
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { tab = b.dataset.k; list(); } });
+  document.getElementById('act').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-a]'); if (!b) return;
+    if (b.dataset.a === 'in') { s = 'in'; shift(); toast('Đã ghi giờ vào ca: 14:32 (giờ máy chủ).'); }
+    if (b.dataset.a === 'out') document.getElementById('dOut').showModal();
+  });
+  document.getElementById('yBtn').addEventListener('click', () => toast('Đã gửi yêu cầu xử lý ca 06/11/2026 cho quản đốc.'));
+  const mc = () => { const miss = []; if (!mFrom.value) miss.push('giờ bắt đầu'); if (!mTo.value) miss.push('giờ kết thúc'); if (mFrom.value && mTo.value && mTo.value <= mFrom.value) miss.push('giờ kết thúc sau giờ bắt đầu'); if (!mWhy.value.trim()) miss.push('lý do'); mSend.setAttribute('aria-disabled', String(miss.length > 0)); document.getElementById('mMiss').textContent = miss.length ? 'Chưa gửi được, còn thiếu: ' + miss.join(', ') + '.' : 'Dòng sẽ gắn nhãn "nhập bù", chờ quản đốc xác nhận.'; return !miss.length; };
+  [mFrom, mTo, mWhy].forEach((i) => i.addEventListener('input', mc));
+  mSend.addEventListener('click', () => { if (mc()) toast('Đã lưu nháp trên thiết bị, tự gửi khi có mạng. Chưa ghi vào bảng công cho đến khi quản đốc xác nhận.'); });
+  shift(); list(); mc();
+</script>
+<dialog id="dOut" aria-labelledby="doT"><form method="dialog" id="fOut">
+  <h2 id="doT">Ra ca lúc 14:32?</h2>
+  <p>Giờ ra ghi theo giờ máy chủ và <b>không xóa được</b>. Sửa chỉ qua quản đốc, kèm lý do.</p>
+  <p class="hint">Có mặt hôm nay: 6 giờ 34 phút. Không còn việc đang chạy.</p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close style="min-height:var(--btn-height-xl)">Chưa ra ca</button><button class="b b--primary" type="submit" style="min-height:var(--btn-height-xl)">Ra ca</button></div>
+</form></dialog>
+<script>
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  document.getElementById('fOut').addEventListener('submit', () => { s = 'out'; shift(); toast('Đã ghi giờ ra ca: 14:32 (giờ máy chủ).'); });
+</script>
+</body>
+</html>
