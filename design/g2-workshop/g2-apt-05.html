@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G2-APT-05 – Danh mục lý do hủy, dời lịch và tham số lịch hẹn · GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="pack.css">
+</head>
+<body data-role="QL" data-nav="set" data-g2w-deny="CV QV QD TH TK TN KT AD">
+<noscript><p style="padding:16px;background:#fff;color:#111">Prototype cần bật JavaScript để dựng khung ứng dụng và khóa/ẩn theo vai trò. Bản sản phẩm render khung và phân quyền ở máy chủ.</p></noscript>
+<a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
+<div class="app" id="app">
+<main class="main" id="main"><div class="main__inner">
+<div class="g2w-stack" data-state-group>
+
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GMEP</a><svg class="icon"><use href="#chevron-right"/></svg><span>Cài đặt</span><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Lý do hủy, dời lịch hẹn</span></nav>
+  <div class="page-header">
+    <div class="page-header__text"><h1>Lý do hủy, dời lịch hẹn và tham số</h1><p class="page-header__desc">Danh mục của cả công ty (mọi chi nhánh dùng chung), có ngày hiệu lực. Đổi tên hay ngừng dùng không làm đổi lịch đã hủy hoặc đã dời trước đó (RULE-019).</p></div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="g2-apt-01.html">Về Lịch hẹn</a></div>
+  </div>
+  <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> Toàn công ty, mọi chi nhánh (tham số có thể ghi đè theo chi nhánh)</span><span>· <strong>Hiệu lực:</strong> tính theo ngày, hôm nay 30/10/2026</span><span class="tag tag--neutral">Giá trị mẫu, chờ khách xác nhận (Q94 đến Q98)</span></div>
+  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Danh mục trống|error:Lỗi|denied:Không có quyền"></div>
+  <div data-g2w-proto="offline"></div>
+
+  <div data-state="data" class="g2w-stack g2w-stack--tight">
+    <div class="alert alert--info" data-g2w-roles="QL" role="note"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Quản lý chi nhánh đề xuất thay đổi; thay đổi chỉ có hiệu lực sau khi Chủ garage duyệt. Mọi thay đổi có nhật ký.</span></div></div>
+
+    <div class="tabs" role="tablist" aria-label="Danh mục lịch hẹn">
+      <button class="tab" role="tab" id="t-cancel" aria-controls="p-cancel" aria-selected="true">Lý do hủy <span class="count-pill">9</span></button>
+      <button class="tab" role="tab" id="t-resch" aria-controls="p-resch" aria-selected="false" tabindex="-1">Lý do dời <span class="count-pill">6</span></button>
+      <button class="tab" role="tab" id="t-param" aria-controls="p-param" aria-selected="false" tabindex="-1">Tham số</button>
+    </div>
+
+    <div role="tabpanel" id="p-cancel" aria-labelledby="t-cancel" tabindex="0" class="g2w-stack g2w-stack--tight">
+      <div class="table-toolbar"><span class="g2w-muted">Hiện ở hộp thoại Hủy lịch theo thứ tự này, nhóm theo bên.</span><button class="btn btn--primary" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh (đề xuất) và Chủ garage chỉnh danh mục."><svg class="icon"><use href="#plus"/></svg>Thêm lý do hủy</button></div>
+      <div class="table-wrap"><div class="table-scroll"><table class="table">
+        <caption class="sr-only">Danh mục lý do hủy lịch hẹn</caption>
+        <thead><tr><th scope="col">Thứ tự</th><th scope="col">Mã (không đổi)</th><th scope="col">Tên hiển thị</th><th scope="col">Bên</th><th scope="col">Ghi chú bắt buộc</th><th scope="col">Hiệu lực từ</th><th scope="col">Trạng thái</th><th scope="col" class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td><span class="code">customer_request</span></td><td>Khách yêu cầu hủy</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">2</td><td><span class="code">customer_busy</span></td><td>Khách bận hoặc đổi kế hoạch</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">3</td><td><span class="code">fixed_elsewhere</span></td><td>Xe đã sửa ở nơi khác</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--neutral">Ngừng dùng từ 15/10/2026</span><span class="cell-sub">Lịch cũ vẫn hiện đúng tên</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-g2w-lock="QL CH">Dùng lại</button></td></tr>
+          <tr><td class="num">4</td><td><span class="code">not_needed</span></td><td>Xe không còn cần dịch vụ</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">5</td><td><span class="code">unreachable</span></td><td>Không liên lạc được với khách</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">6</td><td><span class="code">duplicate_or_mistake</span></td><td>Trùng lịch hoặc đặt nhầm</td><td><span class="tag tag--info">Xưởng</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">7</td><td><span class="code">garage_unable</span></td><td>Xưởng không nhận được (hết công suất, thiếu thợ)</td><td><span class="tag tag--info">Xưởng</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">8</td><td><span class="code">customer_moved</span></td><td>Khách chuyển sang chi nhánh khác</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">Chờ duyệt</td><td><span class="badge badge--warning">Chờ Chủ garage duyệt</span><span class="cell-sub">Đề xuất bởi Trần Quốc Việt, 29/10/2026</span></td><td class="col-actions"><button class="btn btn--primary btn--sm" data-g2w-lock="CH" data-g2w-why="Chỉ Chủ garage duyệt đề xuất." data-toast="success|Đã duyệt lý do hủy|Có hiệu lực từ 01/11/2026, ghi nhật ký.">Duyệt</button><button class="btn btn--ghost btn--sm" data-g2w-lock="CH" data-g2w-why="Chỉ Chủ garage duyệt đề xuất.">Từ chối</button></td></tr>
+          <tr><td class="num">9</td><td><span class="code">other</span></td><td>Khác</td><td><span class="tag tag--neutral">Khác</span></td><td>Có, tối thiểu 3 ký tự</td><td class="num">01/01/2026</td><td><span class="badge badge--info"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Mã hệ thống</span><span class="cell-sub">Luôn có, không ngừng dùng được, luôn bắt buộc ghi chú</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa tên</button><button class="btn btn--ghost btn--sm" disabled aria-disabled="true" title="Mã hệ thống “other” luôn có và không ngừng dùng được.">Ngừng dùng</button></td></tr>
+        </tbody></table></div></div>
+    </div>
+
+    <div role="tabpanel" id="p-resch" aria-labelledby="t-resch" tabindex="0" class="g2w-stack g2w-stack--tight" hidden>
+      <div class="table-toolbar"><span class="g2w-muted">“Bên đề nghị” là trường riêng khi dời; cột “Bên gợi ý” chỉ là giá trị chọn sẵn.</span><button class="btn btn--primary" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh (đề xuất) và Chủ garage chỉnh danh mục."><svg class="icon"><use href="#plus"/></svg>Thêm lý do dời</button></div>
+      <div class="table-wrap"><div class="table-scroll"><table class="table">
+        <caption class="sr-only">Danh mục lý do dời lịch hẹn</caption>
+        <thead><tr><th scope="col">Thứ tự</th><th scope="col">Mã (không đổi)</th><th scope="col">Tên hiển thị</th><th scope="col">Bên gợi ý</th><th scope="col">Ghi chú bắt buộc</th><th scope="col">Hiệu lực từ</th><th scope="col">Trạng thái</th><th scope="col" class="col-actions"><span class="sr-only">Thao tác</span></th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td><span class="code">customer_busy</span></td><td>Khách bận</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">2</td><td><span class="code">customer_late</span></td><td>Khách báo đến trễ</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">3</td><td><span class="code">vehicle_not_ready</span></td><td>Xe chưa sẵn sàng</td><td><span class="tag">Khách</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">4</td><td><span class="code">garage_reschedule</span></td><td>Xưởng đổi lịch</td><td><span class="tag tag--info">Xưởng</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">5</td><td><span class="code">weather_incident</span></td><td>Thời tiết hoặc sự cố</td><td><span class="tag tag--info">Xưởng</span></td><td>Không</td><td class="num">01/01/2026</td><td><span class="badge badge--success">Đang dùng</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa</button><button class="btn btn--ghost btn--sm" data-open="dlg-stop" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Ngừng dùng</button></td></tr>
+          <tr><td class="num">6</td><td><span class="code">other</span></td><td>Khác</td><td><span class="tag tag--neutral">Không gợi ý</span></td><td>Có, tối thiểu 3 ký tự</td><td class="num">01/01/2026</td><td><span class="badge badge--info"><svg class="icon icon--sm" aria-hidden="true"><use href="#lock"/></svg>Mã hệ thống</span><span class="cell-sub">Luôn có, không ngừng dùng được</span></td><td class="col-actions"><button class="btn btn--secondary btn--sm" data-open="dlg-reason" data-g2w-lock="QL CH" data-g2w-why="Chỉ Quản lý chi nhánh và Chủ garage chỉnh danh mục.">Sửa tên</button><button class="btn btn--ghost btn--sm" disabled aria-disabled="true" title="Mã hệ thống “other” luôn có và không ngừng dùng được.">Ngừng dùng</button></td></tr>
+        </tbody></table></div></div>
+    </div>
+
+    <div role="tabpanel" id="p-param" aria-labelledby="t-param" tabindex="0" class="g2w-stack g2w-stack--tight" hidden>
+      <section class="card" style="max-width:860px" aria-labelledby="h-param">
+        <div class="card__header"><div><h2 class="card__title" id="h-param">Tham số lịch hẹn</h2><div class="card__subtitle">Mặc định công ty; ghi đè riêng cho một chi nhánh nếu cần. Đổi tham số không sửa lịch đã tạo.</div></div></div>
+        <form class="card__body stack" novalidate onsubmit="return false">
+          <div class="field"><label class="field__label" for="pm-scope">Áp dụng cho</label><select id="pm-scope" class="select"><option>Mặc định cả công ty</option><option>Chi nhánh Quận 7 (ghi đè)</option><option>Chi nhánh Thủ Đức (ghi đè)</option></select></div>
+          <div class="form-grid">
+            <div class="field"><label class="field__label" for="pm-grace">Thời gian châm chước trễ hẹn (phút)<span class="field__req" aria-hidden="true">*</span></label><input id="pm-grace" class="input num" inputmode="numeric" value="0" aria-describedby="pm-grace-h"><span class="field__hint" id="pm-grace-h">0 phút: lịch hẹn 08:00 thành “Trễ hẹn” từ 08:01. Tính khi mở màn, theo giờ chi nhánh, không chờ hết ngày.</span></div>
+            <div class="field"><label class="field__label" for="pm-stale">Gắn “Tồn đọng” sau (ngày)</label><input id="pm-stale" class="input num" inputmode="numeric" value="30" aria-describedby="pm-stale-h"><span class="field__hint" id="pm-stale-h">Lịch trễ hẹn lâu hơn số ngày này được đánh dấu để dọn. <span class="tag tag--warning">Cần xác nhận (Q92)</span></span></div>
+            <div class="field"><label class="field__label" for="pm-max">Số lần dời tối đa mỗi lịch</label><input id="pm-max" class="input num" inputmode="numeric" value="3" aria-describedby="pm-max-h"><span class="field__hint" id="pm-max-h">Vượt thì Cố vấn bị chặn; Quản lý hoặc Chủ garage ghi đè kèm ghi chú. <span class="tag tag--warning">Cần xác nhận (Q95)</span></span></div>
+            <div class="field"><label class="field__label" for="pm-late">Dời sát giờ: trong vòng (phút) trước giờ hẹn</label><input id="pm-late" class="input num" inputmode="numeric" value="120" aria-describedby="pm-late-h"><span class="field__hint" id="pm-late-h">Chỉ gắn nhãn “Dời sát giờ” để thống kê, không chặn. <span class="tag tag--warning">Cần xác nhận (Q95)</span></span></div>
+            <div class="field"><label class="field__label" for="pm-note">Ghi chú tối thiểu khi chọn “Khác” (ký tự)</label><input id="pm-note" class="input num" inputmode="numeric" value="3" aria-describedby="pm-note-h"><span class="field__hint" id="pm-note-h">Áp dụng cho cả hủy và dời. Tối đa 300 ký tự.</span></div>
+            <div class="field"><label class="field__label" for="pm-eff">Hiệu lực từ<span class="field__req" aria-hidden="true">*</span></label><div class="datepicker-host" data-datepicker="single" data-lock-until="2026-10-29"><div class="input-group date-field"><input id="pm-eff" class="input" value="31/10/2026" placeholder="dd/MM/yyyy" inputmode="numeric"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div></div>
+          </div>
+          <div class="alert alert--info" role="note"><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span>Công suất xưởng theo ngày và giờ làm việc vẫn cấu hình ở G4-SYS-06.</span></div></div>
+        </form>
+        <div class="card__footer"><button class="btn btn--secondary" type="button">Đặt lại về giá trị đang dùng</button><button class="btn btn--primary" data-g2w-roles="QL" data-toast="info|Đã gửi Chủ garage duyệt|Tham số có hiệu lực từ 31/10/2026 sau khi được duyệt.">Gửi duyệt</button><button class="btn btn--primary" data-g2w-roles="CH" data-toast="success|Đã lưu tham số|Có hiệu lực từ 31/10/2026, ghi nhật ký.">Lưu và áp dụng</button></div>
+      </section>
+      <section class="card" style="max-width:860px" aria-labelledby="h-hist"><div class="card__header"><div><h2 class="card__title" id="h-hist">Lịch sử thay đổi</h2></div></div>
+        <div class="card__body"><ul class="g2w-rhist"><li><strong>Châm chước trễ hẹn: 30 phút → 0 phút</strong><span class="g2w-muted">Hiệu lực từ 07/11/2026 · Chủ garage duyệt · đề xuất bởi Trần Quốc Việt · 07/11/2026 08:40 (giá trị mẫu)</span></li><li><strong>Số lần dời tối đa: chưa giới hạn → 3</strong><span class="g2w-muted">Hiệu lực từ 01/01/2026 · khởi tạo (giá trị mẫu)</span></li></ul></div></section>
+    </div>
+  </div>
+
+  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--block" style="height:48px"></span><span class="skeleton skeleton--block" style="height:48px"></span><span class="skeleton skeleton--block" style="height:48px"></span></div></div><p class="g2w-muted" role="status">Đang tải danh mục…</p></div>
+  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="clipboard-list" data-title="Chưa có lý do nào ngoài mã hệ thống “Khác”" data-text="Thêm lý do để nhân viên chọn nhanh khi hủy hoặc dời lịch. Mã “other” luôn có sẵn." data-cta="Thêm lý do" data-href="#"></div>
+  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được danh mục lý do" data-ref="ERR-APT-5005"></div>
+  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền chỉnh danh mục lịch hẹn" data-text="Danh mục này dành cho Quản lý chi nhánh (đề xuất) và Chủ garage (duyệt)."></div>
+</div>
+</div></main>
+</div>
+
+<div class="overlay" id="dlg-reason" role="dialog" aria-modal="true" aria-labelledby="rz-t"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#pencil"/></svg></div><div><h2 class="dialog__title" id="rz-t">Thêm / sửa lý do</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <div class="form-grid">
+      <div class="field"><label class="field__label" for="rz-code">Mã<span class="field__req" aria-hidden="true">*</span></label><input id="rz-code" class="input" value="customer_moved" aria-describedby="rz-code-h"><span class="field__hint" id="rz-code-h">Chữ thường, số, gạch dưới. Không đổi sau khi lưu và không dùng lại.</span></div>
+      <div class="field"><label class="field__label" for="rz-name">Tên hiển thị<span class="field__req" aria-hidden="true">*</span></label><input id="rz-name" class="input" value="Khách chuyển sang chi nhánh khác"></div>
+      <div class="field"><label class="field__label" for="rz-party">Bên</label><select id="rz-party" class="select"><option>Khách</option><option>Xưởng</option><option>Khác</option></select></div>
+      <div class="field"><label class="field__label" for="rz-ord">Thứ tự</label><input id="rz-ord" class="input num" inputmode="numeric" value="8"></div>
+    </div>
+    <label class="check"><input type="checkbox"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Bắt buộc ghi chú khi chọn lý do này</span></label>
+    <div class="field"><label class="field__label" for="rz-eff">Hiệu lực từ<span class="field__req" aria-hidden="true">*</span></label><input id="rz-eff" class="input" value="01/11/2026" placeholder="dd/MM/yyyy" inputmode="numeric"></div>
+    <ul class="impact-list"><li>Tên mới và thứ tự chỉ áp dụng cho lịch hủy hoặc dời từ ngày hiệu lực. Lịch cũ giữ tên lúc hủy hoặc dời.</li><li data-g2w-roles="QL">Thay đổi gửi Chủ garage duyệt trước khi có hiệu lực.</li></ul>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" data-close data-g2w-roles="QL" data-toast="info|Đã gửi Chủ garage duyệt|Lý do có hiệu lực từ 01/11/2026 sau khi được duyệt.">Gửi duyệt</button><button class="btn btn--primary" data-close data-g2w-roles="CH" data-toast="success|Đã lưu lý do|Có hiệu lực từ 01/11/2026, ghi nhật ký.">Lưu</button></div></div></div>
+
+<div class="overlay" id="dlg-stop" role="alertdialog" aria-modal="true" aria-labelledby="st-t"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="st-t">Ngừng dùng lý do này?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Lý do không còn trong danh sách chọn ở lịch mới, từ ngày hiệu lực.</li><li>Lịch đã hủy hoặc dời với lý do này vẫn hiện đúng tên cũ; không xóa dữ liệu (RULE-010).</li><li>Có thể dùng lại sau.</li></ul></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ nguyên</button><button class="btn btn--danger" data-close data-toast="warning|Đã ngừng dùng lý do|Có hiệu lực từ 31/10/2026, lịch cũ giữ nguyên tên.">Ngừng dùng</button></div></div></div>
+
+<script src="pack.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

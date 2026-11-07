@@ -3,109 +3,141 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>G2-APT-01 – Lịch hẹn (ngày / tuần) · GMEP</title>
+<title>G2-APT-01 – Lịch hẹn (tab theo nhóm, ngày / tuần) · GMEP</title>
 <link rel="stylesheet" href="../assets/tokens.css">
 <link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="../assets/components.css">
 <link rel="stylesheet" href="pack.css">
 </head>
-<body data-role="CV" data-nav="appt" data-g2w-deny="QD TH TK TN KT AD">
-<noscript><p style="padding:16px;background:#fff;color:#111">Prototype cần bật JavaScript để dựng khung ứng dụng và khóa/ẩn theo vai trò. Bản sản phẩm render khung và phân quyền ở máy chủ.</p></noscript>
+<body data-role="CV" data-nav="appt" data-g2w-deny="TH TK KT AD">
+<noscript><p style="padding:16px;background:#fff;color:#111">Prototype cần bật JavaScript để dựng khung ứng dụng, danh sách và khóa/ẩn theo vai trò. Bản sản phẩm render khung, danh sách và phân quyền ở máy chủ.</p></noscript>
 <a class="skip-link" href="#main">Bỏ qua điều hướng, tới nội dung chính</a>
 <div class="app" id="app">
 <main class="main" id="main"><div class="main__inner">
-<div class="g2w-stack" data-state-group>
+<div class="g2w-stack g2w-stack--tight" id="apt-root">
 
   <nav class="breadcrumb" aria-label="Đường dẫn"><a href="index.html">GMEP</a><svg class="icon"><use href="#chevron-right"/></svg><span aria-current="page">Lịch hẹn</span></nav>
   <div class="page-header">
-    <div class="page-header__text"><h1>Lịch hẹn</h1><p class="page-header__desc">Lịch theo ngày hoặc tuần, công suất xưởng theo số xe mỗi ngày. Khách không hẹn trước vẫn tiếp nhận ngay được.</p></div>
-    <div class="page-header__actions"><a class="btn btn--secondary" href="g2-apt-03.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#inbox"/></svg>Chờ xác nhận <span class="count-pill count-pill--warning">3</span></a><a class="btn btn--primary" href="g2-apt-02.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#plus"/></svg>Tạo lịch hẹn</a></div>
+    <div class="page-header__text"><h1>Lịch hẹn</h1><p class="page-header__desc">Lịch theo nhóm: sắp tới, trễ hẹn, đã đến, đã hủy, vắng. Công suất xưởng tính theo số xe mỗi ngày. Khách không hẹn trước vẫn tiếp nhận ngay được.</p></div>
+    <div class="page-header__actions"><a class="btn btn--secondary" href="g2-apt-03.html" data-g2w-lock-link="CV QL CH"><svg class="icon"><use href="#inbox"/></svg>Chờ xác nhận <span class="count-pill count-pill--warning">3</span></a><a class="btn btn--primary" href="g2-apt-02.html" data-g2w-lock-link="CV QL CH"><svg class="icon"><use href="#plus"/></svg>Tạo lịch hẹn</a></div>
   </div>
-  <div data-g2w-scope data-time="Thứ Sáu 30/10/2026" data-asof="09:16"></div>
+
+  <div class="scope-banner" role="status"><svg class="icon icon--sm"><use href="#map-pin"/></svg><span><strong>Phạm vi:</strong> <span data-scope-text>Chi nhánh Quận 7</span></span><span>· <strong>Thời gian:</strong> <span id="apt-scope-time">Thứ Sáu, 30/10/2026</span></span><span>· Cập nhật lúc 09:16</span><span class="tag tag--neutral">Số liệu minh họa</span><button class="btn btn--ghost btn--sm" style="margin-left:auto" data-toast="info|Đang làm mới|Dữ liệu cập nhật lúc 09:16."><svg class="icon icon--sm"><use href="#refresh"/></svg>Làm mới</button></div>
   <div data-g2w-proto="offline"></div>
-  <div data-g2w-states="data:Có dữ liệu|loading:Đang tải|empty:Ngày không có lịch|error:Lỗi|denied:Không có quyền"></div>
-  <div data-g2w-variants="day:Ngày|week:Tuần" hidden></div>
+  <div class="g2w-proto" id="apt-proto"><span class="g2w-proto__lbl">Xem thử trạng thái:</span>
+    <div class="segmented" role="group" aria-label="Trạng thái của tab đang xem">
+      <button class="segmented__item" data-apt-state="data" aria-pressed="true">Có dữ liệu</button><button class="segmented__item" data-apt-state="loading" aria-pressed="false">Đang tải</button><button class="segmented__item" data-apt-state="empty" aria-pressed="false">Rỗng</button><button class="segmented__item" data-apt-state="error" aria-pressed="false">Lỗi</button><button class="segmented__item" data-apt-state="denied" aria-pressed="false">Không quyền</button><button class="segmented__item" data-apt-state="off" aria-pressed="false">Lịch hẹn tắt</button></div>
+    <button class="chip-filter" data-apt-flag="trunc" aria-pressed="false">Đếm bị cắt (500+)</button><button class="chip-filter" data-apt-flag="consent" aria-pressed="false">Khách chưa đồng ý nhận tin</button>
+    <span class="g2w-muted">Mở hộp thoại:</span><button class="btn btn--secondary btn--sm" data-apt-act="open-demo" data-which="cancel">Hủy lịch</button><button class="btn btn--secondary btn--sm" data-apt-act="open-demo" data-which="resched">Dời lịch</button><button class="btn btn--secondary btn--sm" data-apt-act="open-demo" data-which="absent">Đánh dấu vắng</button></div>
 
-  <div data-state="data" class="g2w-stack g2w-stack--tight">
-    <div class="alert alert--info" data-g2w-roles="CH QV" role="status"><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span>Bạn chỉ xem lịch. Tạo, đổi, hủy lịch do Cố vấn và Quản lý chi nhánh thực hiện.</span></div></div>
+  <!-- Chi nhánh chưa bật lịch hẹn -->
+  <div id="apt-off" hidden><div class="table-wrap"><div class="state"><div class="state__icon state__icon--warning"><svg class="icon icon--lg"><use href="#calendar"/></svg></div><div class="state__title">Chi nhánh Quận 7 chưa bật lịch hẹn</div><p class="state__text">Bật lịch hẹn trong cấu hình chi nhánh (G4-SYS-06) để nhận lịch. Khách không hẹn trước vẫn tiếp nhận ngay được.</p><div class="state__actions"><a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL CH"><svg class="icon"><use href="#car-front"/></svg>Tiếp nhận xe vãng lai</a><a class="btn btn--secondary" href="#" data-g2w-lock-link="QL CH AD">Mở cấu hình chi nhánh</a></div></div></div></div>
 
-    <div class="g2w-walkin"><div><strong>Xe vãng lai, không có lịch hẹn?</strong><div class="g2w-muted">Tiếp nhận ngay, không cần tạo lịch trước (FR-REC-027).</div></div><a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#car-front"/></svg>Tiếp nhận xe vãng lai</a></div>
+  <div class="g2w-stack g2w-stack--tight" id="apt-main">
+    <div class="alert alert--info" id="apt-ro" role="status" hidden><svg class="icon"><use href="#eye"/></svg><div class="alert__body"><span>Bạn chỉ xem lịch. Tạo, dời, hủy, đánh dấu vắng do Cố vấn, Quản lý chi nhánh và Chủ garage thực hiện.</span></div></div>
+    <div id="apt-od-alert"></div>
 
-    <div class="filter-bar">
-      <div class="field"><span class="field__label" id="v-l">Kiểu xem</span><div class="segmented" role="group" aria-labelledby="v-l"><button class="segmented__item" data-g2w-var="day" aria-pressed="true">Ngày</button><button class="segmented__item" data-g2w-var="week" aria-pressed="false">Tuần</button></div></div>
-      <div class="field"><span class="field__label" id="n-l">Chuyển ngày</span><div class="row" role="group" aria-labelledby="n-l"><button class="btn-icon btn-icon--outline" aria-label="Ngày trước"><svg class="icon"><use href="#chevron-left"/></svg></button>
-        <div class="datepicker-host" data-datepicker="single"><div class="input-group date-field"><input id="a-dt" class="input" value="30/10/2026" aria-label="Ngày xem" style="max-width:160px"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div>
-        <button class="btn-icon btn-icon--outline" aria-label="Ngày sau"><svg class="icon"><use href="#chevron-right"/></svg></button><button class="btn btn--secondary btn--sm">Hôm nay</button></div></div>
-      <div class="field"><label class="field__label" for="a-cv">Cố vấn</label><select id="a-cv" class="select"><option>Tất cả cố vấn</option><option>Nguyễn Hoàng Yến</option><option>Phan Thanh Tùng</option></select></div>
-      <div class="field g2w-capacity"><span class="field__label" id="cap-l">Công suất hôm nay</span><div class="progress progress--warning"><div class="progress__head"><span><strong>14/20</strong> xe</span><span>70%</span></div><div class="progress__track" role="progressbar" aria-labelledby="cap-l" aria-valuenow="14" aria-valuemin="0" aria-valuemax="20"><div class="progress__bar" style="width:70%"></div></div></div></div>
+    <div class="g2w-walkin"><div><strong>Xe vãng lai, không có lịch hẹn?</strong><div class="g2w-muted">Tiếp nhận ngay, không cần tạo lịch trước (FR-REC-027).</div></div><a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL CH"><svg class="icon"><use href="#car-front"/></svg>Tiếp nhận xe vãng lai</a></div>
+
+    <div class="tabs" role="tablist" aria-label="Nhóm lịch hẹn" id="apt-tabs">
+      <button class="tab" role="tab" id="tab-upcoming" aria-controls="pnl-upcoming" aria-selected="true" data-apt-tab="upcoming">Sắp tới <span class="count-pill" id="tc-upcoming">0</span></button>
+      <button class="tab" role="tab" id="tab-overdue" aria-controls="pnl-overdue" aria-selected="false" tabindex="-1" data-apt-tab="overdue">Trễ hẹn <span class="count-pill" id="tc-overdue">0</span></button>
+      <button class="tab" role="tab" id="tab-arrived" aria-controls="pnl-arrived" aria-selected="false" tabindex="-1" data-apt-tab="arrived">Đã đến <span class="count-pill" id="tc-arrived">0</span></button>
+      <button class="tab" role="tab" id="tab-cancelled" aria-controls="pnl-cancelled" aria-selected="false" tabindex="-1" data-apt-tab="cancelled">Đã hủy <span class="count-pill" id="tc-cancelled">0</span></button>
+      <button class="tab" role="tab" id="tab-no_show" aria-controls="pnl-no_show" aria-selected="false" tabindex="-1" data-apt-tab="no_show">Vắng <span class="count-pill" id="tc-no_show">0</span></button>
     </div>
 
-    <!-- NGÀY -->
-    <div class="g2w-cal-wrap" data-g2w-vshow="day">
-      <div class="g2w-cal g2w-cal--day" role="grid" aria-label="Lịch hẹn Thứ Sáu 30/10/2026">
-        <div class="g2w-cal__head" role="columnheader"><span class="sr-only">Giờ</span></div><div class="g2w-cal__head is-today" role="columnheader">Thứ Sáu 30/10/2026 <span class="g2w-muted" style="font-weight:400">14 lịch · 2 chờ xác nhận</span></div>
-        <div class="g2w-cal__time">08:00</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--done" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51H-123.45</strong><span class="badge badge--success">Đã tiếp nhận</span></span><span>Nguyễn Văn An · Bảo dưỡng 50.000 km</span><span class="g2w-muted">Cố vấn Yến · RO-Q7-2610-00128</span></button></div>
-        <div class="g2w-cal__time">09:00</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51L-222.33</strong><span class="badge badge--neutral">Chờ tiếp nhận</span></span><span>Hoàng Văn Thái · Sửa chữa chung (kêu gầm)</span><span class="g2w-muted">Khách đã đến 08:55 · Cố vấn Tùng</span></button></div>
-        <div class="g2w-cal__time">10:00</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">59-S1 4567</strong><span class="badge badge--info">Đã hẹn</span></span><span>Lý Thị Mỹ · Xe máy Honda Wave, thay nhớt</span><span class="g2w-muted">Cố vấn Yến</span></button><button class="g2w-appt g2w-appt--wait" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51C-909.09</strong><span class="badge badge--warning">Chờ xác nhận</span></span><span>Mai Văn Lộc · Đặt trực tuyến, Bảo dưỡng</span><span class="g2w-muted">Chưa phân cố vấn</span></button></div>
-        <div class="g2w-cal__time">11:00</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--cancel" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">60A-123.45</strong><span class="badge badge--danger">Đã hủy</span></span><span>Bùi Thị Hạnh · Lốp &amp; mâm</span><span class="g2w-muted">Khách báo bận 08:30</span></button></div>
-        <div class="g2w-cal__time">12:00</div><div class="g2w-cal__cell is-closed"><span class="g2w-muted" style="padding:var(--space-2)">Nghỉ trưa (cấu hình giờ làm việc)</span></div>
-        <div class="g2w-cal__time">13:30</div><div class="g2w-cal__cell"><span class="g2w-muted" style="padding:var(--space-2)">Chưa có lịch · <a href="g2-apt-02.html">Tạo lịch hẹn</a></span></div>
-        <div class="g2w-cal__time">14:00</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--cancel" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51A-246.80</strong><span class="badge badge--neutral">Không đến</span></span><span>Võ Thanh Sơn · Bảo dưỡng 25.000 km</span><span class="g2w-muted">Quá giờ 40 phút, chưa liên lạc được</span></button></div>
-        <div class="g2w-cal__time">15:00</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><span class="g2w-appt__t"><strong class="plate">51K-987.65</strong><span class="badge badge--info">Đã hẹn</span></span><span>Công ty TNHH Vận tải Hòa Phát… · Kiểm tra trước đăng kiểm</span><span class="g2w-muted">Cố vấn Tùng</span></button></div>
+    <!-- Thanh chọn ngày: ẩn ở tab Trễ hẹn (tab này không phụ thuộc ngày) -->
+    <section class="g2w-dbar" id="datebar" aria-label="Chọn ngày xem">
+      <div class="g2w-dbar__block">
+        <div class="g2w-dbar__title" aria-live="polite"><h2 id="d-title">Thứ Sáu, 30/10/2026</h2><span class="badge badge--info badge--nodot" id="d-chip">Hôm nay</span></div>
+        <div class="g2w-dbar__nav" role="group" aria-label="Điều hướng ngày">
+          <button class="btn-icon btn-icon--outline" id="d-prev" aria-label="Ngày trước"><svg class="icon"><use href="#chevron-left"/></svg></button>
+          <button class="btn btn--secondary" id="d-today">Hôm nay</button>
+          <button class="btn-icon btn-icon--outline" id="d-next" aria-label="Ngày sau"><svg class="icon"><use href="#chevron-right"/></svg></button>
+          <div class="datepicker-host" id="d-dp" data-datepicker="single"><div class="input-group date-field"><input id="d-input" class="input" value="30/10/2026" placeholder="dd/MM/yyyy" inputmode="numeric" aria-label="Chọn ngày, định dạng dd/MM/yyyy" aria-describedby="d-err"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày"></div></div>
+          <div class="segmented" role="group" aria-label="Kiểu xem"><button class="segmented__item" data-apt-view="day" aria-pressed="true">Ngày</button><button class="segmented__item" data-apt-view="week" aria-pressed="false">Tuần</button></div>
+        </div>
+        <span class="field__error" id="d-err" hidden></span>
       </div>
-    </div>
+      <div class="g2w-dbar__cap" id="d-cap"></div>
+    </section>
 
-    <!-- TUẦN -->
-    <div class="g2w-cal-wrap" data-g2w-vshow="week" hidden style="overflow-x:auto">
-      <div class="g2w-cal g2w-cal--week" role="grid" aria-label="Lịch hẹn tuần 26/10 – 31/10/2026">
-        <div class="g2w-cal__head" role="columnheader"><span class="sr-only">Khung giờ</span></div>
-        <div class="g2w-cal__head" role="columnheader">Thứ 2 · 26/10<span class="tag">12/20 xe</span></div>
-        <div class="g2w-cal__head" role="columnheader">Thứ 3 · 27/10<span class="tag tag--danger">22/20 · vượt công suất</span></div>
-        <div class="g2w-cal__head" role="columnheader">Thứ 4 · 28/10<span class="tag">9/20 xe</span></div>
-        <div class="g2w-cal__head" role="columnheader">Thứ 5 · 29/10<span class="tag">15/20 xe</span></div>
-        <div class="g2w-cal__head is-today" role="columnheader">Thứ 6 · 30/10 (hôm nay)<span class="tag tag--warning">14/20 xe</span></div>
-        <div class="g2w-cal__head" role="columnheader">Thứ 7 · 31/10<span class="tag">6/20 xe</span></div>
-        <div class="g2w-cal__time">08:00 – 10:00</div><div class="g2w-cal__cell">4 lịch</div><div class="g2w-cal__cell is-full">9 lịch</div><div class="g2w-cal__cell">3 lịch</div><div class="g2w-cal__cell">5 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--done" data-open="drw-appt"><strong class="plate">51H-123.45</strong><span>Đã tiếp nhận</span></button><button class="g2w-appt" data-open="drw-appt"><strong class="plate">51L-222.33</strong><span>Chờ tiếp nhận</span></button></div><div class="g2w-cal__cell">3 lịch</div>
-        <div class="g2w-cal__time">10:00 – 12:00</div><div class="g2w-cal__cell">3 lịch</div><div class="g2w-cal__cell is-full">8 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell">4 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--wait" data-open="drw-appt"><strong class="plate">51C-909.09</strong><span>Chờ xác nhận</span></button><span class="g2w-muted">+ 2 lịch khác</span></div><div class="g2w-cal__cell">2 lịch</div>
-        <div class="g2w-cal__time">13:30 – 15:00</div><div class="g2w-cal__cell">3 lịch</div><div class="g2w-cal__cell is-full">3 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell">4 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt g2w-appt--cancel" data-open="drw-appt"><strong class="plate">51A-246.80</strong><span>Không đến</span></button></div><div class="g2w-cal__cell is-closed">Nghỉ chiều T7</div>
-        <div class="g2w-cal__time">15:00 – 17:00</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell is-full">2 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell">2 lịch</div><div class="g2w-cal__cell"><button class="g2w-appt" data-open="drw-appt"><strong class="plate">51K-987.65</strong><span>Đã hẹn</span></button></div><div class="g2w-cal__cell is-closed">Nghỉ chiều T7</div>
-      </div>
-      <p class="g2w-muted" style="margin-top:8px">Ô nền vàng nhạt là ngày vượt công suất (kèm nhãn chữ “vượt công suất” ở đầu cột). Công suất mỗi ngày và giờ làm việc là cấu hình theo chi nhánh.</p>
-    </div>
-
-    <!-- Mobile: danh sách theo giờ -->
-    <div class="g2w-agenda" aria-label="Lịch hẹn hôm nay dạng danh sách">
-      <div class="scope-line"><svg class="icon icon--sm"><use href="#map-pin"/></svg>Thứ Sáu 30/10/2026 · 14/20 xe</div>
-      <button class="record" data-open="drw-appt"><div class="record__top"><div><div class="record__title num">08:00 · 51H-123.45</div>Nguyễn Văn An · Bảo dưỡng</div><span class="badge badge--success">Đã tiếp nhận</span></div></button>
-      <button class="record" data-open="drw-appt"><div class="record__top"><div><div class="record__title num">09:00 · 51L-222.33</div>Hoàng Văn Thái · Sửa chữa chung</div><span class="badge badge--neutral">Chờ tiếp nhận</span></div></button>
-      <button class="record" data-open="drw-appt"><div class="record__top"><div><div class="record__title num">10:00 · 51C-909.09</div>Mai Văn Lộc · đặt trực tuyến</div><span class="badge badge--warning">Chờ xác nhận</span></div></button>
-    </div>
+    <div role="tabpanel" id="pnl-upcoming" aria-labelledby="tab-upcoming" tabindex="0" class="g2w-stack g2w-stack--tight"></div>
+    <div role="tabpanel" id="pnl-overdue" aria-labelledby="tab-overdue" tabindex="0" class="g2w-stack g2w-stack--tight" hidden></div>
+    <div role="tabpanel" id="pnl-arrived" aria-labelledby="tab-arrived" tabindex="0" class="g2w-stack g2w-stack--tight" hidden></div>
+    <div role="tabpanel" id="pnl-cancelled" aria-labelledby="tab-cancelled" tabindex="0" class="g2w-stack g2w-stack--tight" hidden></div>
+    <div role="tabpanel" id="pnl-no_show" aria-labelledby="tab-no_show" tabindex="0" class="g2w-stack g2w-stack--tight" hidden></div>
   </div>
-
-  <div data-state="loading" hidden aria-busy="true"><div class="card"><div class="card__body stack"><span class="skeleton skeleton--block" style="height:60px"></span><span class="skeleton skeleton--block" style="height:60px"></span><span class="skeleton skeleton--block" style="height:60px"></span></div></div><p class="g2w-muted" role="status">Đang tải lịch hẹn…</p></div>
-  <div data-state="empty" hidden data-g2w-tpl="empty" data-icon="calendar" data-title="Chưa có lịch hẹn nào trong ngày" data-text="Tạo lịch hẹn để giữ chỗ cho khách, hoặc tiếp nhận xe vãng lai ngay." data-cta="Tạo lịch hẹn" data-href="g2-apt-02.html"></div>
-  <div data-state="error" hidden data-g2w-tpl="error" data-title="Không tải được lịch hẹn" data-ref="ERR-APT-5001"></div>
-  <div data-state="denied" hidden data-g2w-tpl="denied" data-title="Bạn chưa có quyền xem lịch hẹn" data-text="Lịch hẹn dành cho Cố vấn, Quản lý và Chủ garage."></div>
 </div>
 </div></main>
 </div>
 
-<!-- Chi tiết lịch (drawer) -->
+<!-- Chi tiết lịch (ngăn bên) -->
 <div class="overlay overlay--drawer" id="drw-appt" role="dialog" aria-modal="true" aria-labelledby="ap-t"><aside class="drawer">
-  <div class="card__header"><div><h2 class="card__title" id="ap-t">Lịch hẹn 09:00 · 51L-222.33</h2><div class="card__subtitle">Hoàng Văn Thái · Kia Seltos 2022 · LH-Q7-2610-00040</div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="card__header"><div><h2 class="card__title" id="ap-t">Lịch hẹn</h2><div class="card__subtitle" id="ap-sub"></div></div><button class="btn-icon" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
   <div class="card__body stack">
-    <div class="row"><span class="badge badge--neutral">Chờ tiếp nhận</span><span class="g2w-muted">Khách bấm đã đến lúc 08:55</span></div>
-    <dl class="g2w-kv"><dt>Dịch vụ</dt><dd>Sửa chữa chung (kêu gầm khi qua gờ)</dd><dt>Điện thoại</dt><dd><span class="g2w-pii" data-id="c12"></span></dd><dt>Cố vấn</dt><dd>Phan Thanh Tùng</dd><dt>Ghi chú</dt><dd>Xe chạy 31.000 km, đã bảo dưỡng ở Thủ Đức</dd></dl>
-    <div class="field"><label class="field__label" for="ap-cv">Chuyển cố vấn</label><select id="ap-cv" class="select" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh chuyển cố vấn."><option>Phan Thanh Tùng</option><option>Nguyễn Hoàng Yến</option></select></div>
+    <div class="row" id="ap-badges" style="flex-wrap:wrap"></div>
+    <dl class="g2w-kv" id="ap-kv"></dl>
+    <section id="ap-hist" class="stack" aria-label="Lịch sử dời"></section>
   </div>
-  <div class="card__footer" style="margin-top:auto;flex-wrap:wrap"><button class="btn btn--danger-outline" data-open="dlg-cancel" data-g2w-lock="CV QL" data-g2w-why="Chỉ Cố vấn và Quản lý chi nhánh hủy lịch."><svg class="icon"><use href="#x"/></svg>Hủy lịch…</button><a class="btn btn--secondary" href="g2-apt-02.html" data-g2w-lock-link="CV QL">Sửa lịch</a><a class="btn btn--primary" href="g2-rec-01.html" data-g2w-lock-link="CV QL"><svg class="icon"><use href="#check"/></svg>Đã đến, tiếp nhận</a></div></aside></div>
+  <div class="card__footer" style="margin-top:auto;flex-wrap:wrap"><p class="g2w-why" id="ap-why" role="status" hidden style="width:100%"></p><div class="row" id="ap-foot" style="flex-wrap:wrap"></div></div></aside></div>
 
-<div class="overlay" id="dlg-cancel" role="alertdialog" aria-modal="true" aria-labelledby="ca-t"><div class="dialog dialog--md" data-confirm-guard>
-  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="ca-t">Hủy lịch hẹn 09:00 của 51L-222.33?</h2></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
-  <div class="dialog__body stack"><ul class="impact-list"><li>Lịch chuyển “Đã hủy”, giải phóng một chỗ trong công suất ngày.</li><li>Khách có thể nhận tin báo hủy nếu đã đồng ý nhận qua kênh tin nhắn.</li></ul><div class="field"><label class="field__label" for="ca-r">Lý do hủy<span class="field__req" aria-hidden="true">*</span></label><textarea id="ca-r" class="textarea" data-confirm-reason placeholder="Ví dụ: Khách báo bận, đổi sang tuần sau"></textarea><span class="field__hint">Tối thiểu 5 ký tự.</span></div></div>
-  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ lịch</button><button class="btn btn--danger" data-confirm-btn data-close data-toast="warning|Đã hủy lịch hẹn|Lý do được lưu vào lịch sử." disabled>Hủy lịch</button></div></div></div>
+<!-- Hộp thoại HỦY LỊCH -->
+<div class="overlay" id="dlg-cancel" role="alertdialog" aria-modal="true" aria-labelledby="ca-t" aria-describedby="ca-sub"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--danger"><svg class="icon"><use href="#alert-triangle"/></svg></div><div><h2 class="dialog__title" id="ca-t">Hủy lịch hẹn</h2><p class="g2w-muted" id="ca-sub" style="margin:0"></p></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <div class="g2w-proto g2w-dlg-proto" id="ca-proto"></div>
+    <div class="alert alert--danger" role="alert" data-apt-show="error" hidden><svg class="icon"><use href="#circle-x"/></svg><div class="alert__body"><span class="alert__title">Không hủy được lịch</span><span>Máy chủ chưa phản hồi. Lịch chưa bị hủy và lý do bạn chọn vẫn được giữ. Thử lại.</span></div><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-apt-act="retry-save">Thử lại</button></div></div>
+    <div class="alert alert--warning" role="alert" data-apt-show="conflict" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Lịch vừa được người khác sửa</span><span>Có người đã dời hoặc đổi lịch này (xung đột phiên bản). Tải lại để xem bản mới; lý do và ghi chú bạn nhập vẫn được giữ.</span></div><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-apt-act="reload">Tải lại lịch</button></div></div>
+    <div data-apt-ro class="stack">
+      <div class="field"><div class="field__label" id="ca-rl">Lý do hủy<span class="field__req" aria-hidden="true">*</span></div><div class="g2w-reasons" id="ca-reasons" role="radiogroup" aria-labelledby="ca-rl" aria-required="true"></div></div>
+      <div class="alert alert--info" id="ca-hint" role="note" hidden><svg class="icon"><use href="#info"/></svg><div class="alert__body"><span class="alert__title">Khách chỉ muốn đổi giờ?</span><span>Dùng Dời lịch để giữ mã lịch và lịch sử, đừng hủy rồi tạo lại.</span></div><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-apt-act="to-resched">Chuyển sang Dời lịch</button></div></div>
+      <div class="field"><label class="field__label" for="ca-note">Ghi chú<span class="field__req" id="ca-req" aria-hidden="true" hidden>*</span></label><textarea id="ca-note" class="textarea" maxlength="300" style="min-height:64px" aria-describedby="ca-note-h ca-note-e"></textarea><span class="field__hint" id="ca-note-h"></span><span class="field__error" id="ca-note-e" hidden></span></div>
+      <div class="stack" id="ca-notify"></div>
+    </div>
+    <ul class="impact-list"><li id="ca-impact"></li></ul>
+    <p class="g2w-why" id="ca-why" role="status" hidden></p>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Giữ lịch</button><button class="btn btn--danger" id="ca-ok" data-apt-act="submit-cancel" data-apt-loadbtn disabled>Hủy lịch</button></div></div></div>
+
+<!-- Hộp thoại DỜI LỊCH -->
+<div class="overlay" id="dlg-resched" role="dialog" aria-modal="true" aria-labelledby="rs-t" aria-describedby="rs-sub"><div class="dialog dialog--md">
+  <div class="dialog__header"><div class="dialog__icon"><svg class="icon"><use href="#calendar"/></svg></div><div><h2 class="dialog__title" id="rs-t">Dời lịch hẹn</h2><p class="g2w-muted" id="rs-sub" style="margin:0"></p></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body">
+    <div class="g2w-proto g2w-dlg-proto" id="rs-proto"></div><div class="g2w-proto g2w-dlg-proto" id="rs-proto2"></div>
+    <div class="alert alert--warning" role="alert" data-apt-show="conflict" hidden><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Lịch vừa được người khác sửa</span><span>Có người đã đổi lịch này (xung đột phiên bản, mã 409). Tải lại để xem ngày giờ mới nhất; thông tin bạn nhập vẫn được giữ.</span></div><div class="alert__actions"><button class="btn btn--secondary btn--sm" data-apt-act="reload">Tải lại lịch</button></div></div>
+    <div class="alert alert--success" role="status" data-apt-show="done" hidden><svg class="icon"><use href="#check"/></svg><div class="alert__body"><span class="alert__title">Đã dời lịch</span><span id="rs-done-t"></span><span>Lịch sử dời và nhật ký đã ghi. Công suất ngày cũ và ngày mới đã cập nhật.</span></div></div>
+
+    <div class="stack" data-apt-show="default saving conflict" data-apt-ro>
+      <div class="g2w-delta" aria-label="Ngày giờ hiện tại và ngày giờ mới"><div><span class="g2w-delta__lbl">Hiện tại</span><strong id="rs-from"></strong></div><svg class="icon" aria-hidden="true"><use href="#arrow-right"/></svg><div><span class="g2w-delta__lbl">Mới</span><strong id="rs-to"></strong></div></div>
+      <div class="g2w-two">
+        <div class="field"><label class="field__label" for="rs-date">Ngày mới<span class="field__req" aria-hidden="true">*</span></label><div class="datepicker-host" id="rs-dp" data-datepicker="single"><div class="input-group date-field"><input id="rs-date" class="input" value="31/10/2026" placeholder="dd/MM/yyyy" inputmode="numeric" aria-describedby="rs-date-e"><button type="button" class="btn-icon input-group__btn" data-dp-toggle aria-expanded="false" aria-label="Mở lịch chọn ngày" style="right:2px;width:40px;height:36px"><svg class="icon" style="position:static;color:inherit"><use href="#calendar"/></svg></button></div><div class="datepicker" role="dialog" aria-label="Chọn ngày mới"></div></div><span class="field__error" id="rs-date-e" hidden></span></div>
+        <div class="field"><label class="field__label" for="rs-time">Giờ mới<span class="field__req" aria-hidden="true">*</span></label><select id="rs-time" class="select" aria-describedby="rs-time-h rs-time-e"></select><span class="field__hint" id="rs-time-h">Công suất tính theo ngày, không theo khung giờ.</span><span class="field__error" id="rs-time-e" hidden></span></div>
+      </div>
+      <p class="g2w-muted" id="rs-cap-info" role="status" hidden></p>
+      <div id="rs-cap-warn" class="stack" hidden><div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title" id="rs-cap-warn-t"></span><span>Vẫn dời được, lịch sẽ ghi nhận “vượt công suất”. Hoặc chọn ngày còn chỗ: 04/11/2026 (12/20), 05/11/2026 (9/20).</span></div></div><label class="check"><input type="checkbox" id="rs-ov-cap"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Tôi xác nhận vẫn dời sang ngày đã đủ công suất</span></label></div>
+      <div class="alert alert--info" id="rs-late" role="note" hidden><svg class="icon"><use href="#clock"/></svg><div class="alert__body"><span class="alert__title">Dời sát giờ</span><span id="rs-late-t"></span></div></div>
+      <div class="alert alert--danger" id="rs-limit-block" role="alert" hidden><svg class="icon"><use href="#lock"/></svg><div class="alert__body"><span class="alert__title">Đã dời đủ số lần cho phép</span><span id="rs-limit-block-t"></span></div></div>
+      <div id="rs-limit-ovr" class="stack" hidden><div class="alert alert--warning" role="alert"><svg class="icon"><use href="#alert-triangle"/></svg><div class="alert__body"><span class="alert__title">Vượt giới hạn số lần dời</span><span id="rs-limit-ovr-t"></span></div></div><label class="check"><input type="checkbox" id="rs-ovr"><span class="check__box"><svg class="icon"><use href="#check"/></svg></span><span>Ghi đè giới hạn (ghi chú bắt buộc)</span></label></div>
+
+      <div class="field"><div class="field__label" id="rs-rl">Lý do dời<span class="field__req" aria-hidden="true">*</span></div><div class="g2w-reasons" id="rs-reasons" role="radiogroup" aria-labelledby="rs-rl" aria-required="true"></div></div>
+      <div class="field"><div class="field__label" id="rs-pl">Bên đề nghị dời<span class="field__req" aria-hidden="true">*</span></div><div class="g2w-party" id="rs-party" role="radiogroup" aria-labelledby="rs-pl" aria-required="true"></div><span class="field__hint" id="rs-pt-hint" hidden>Gợi ý theo lý do đã chọn, bạn có thể đổi.</span></div>
+      <div class="field"><label class="field__label" for="rs-note">Ghi chú<span class="field__req" id="rs-req" aria-hidden="true" hidden>*</span></label><textarea id="rs-note" class="textarea" maxlength="300" style="min-height:64px" aria-describedby="rs-note-h rs-note-e"></textarea><span class="field__hint" id="rs-note-h"></span><span class="field__error" id="rs-note-e" hidden></span></div>
+      <div class="stack" id="rs-notify"></div>
+      <p class="g2w-why" id="rs-why" role="status" hidden></p>
+    </div>
+  </div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Đóng</button><button class="btn btn--primary" id="rs-ok" data-apt-act="submit-resched" data-apt-show="default saving conflict" data-apt-loadbtn disabled>Dời lịch</button></div></div></div>
+
+<!-- Hộp thoại ĐÁNH DẤU VẮNG -->
+<div class="overlay" id="dlg-absent" role="alertdialog" aria-modal="true" aria-labelledby="ab-t" aria-describedby="ab-sub"><div class="dialog">
+  <div class="dialog__header"><div class="dialog__icon dialog__icon--warning"><svg class="icon"><use href="#circle-x"/></svg></div><div><h2 class="dialog__title" id="ab-t">Đánh dấu khách vắng?</h2><p class="g2w-muted" id="ab-sub" style="margin:0"></p></div><button class="btn-icon dialog__close" data-close aria-label="Đóng"><svg class="icon"><use href="#x"/></svg></button></div>
+  <div class="dialog__body"><ul class="impact-list"><li>Lịch chuyển sang trạng thái “Vắng” và kết thúc: không dời, không hủy, không đánh dấu đã đến được nữa.</li><li>Khách quay lại thì tạo lịch mới. Lịch này tính vào tỷ lệ khách vắng.</li></ul><p class="g2w-muted">Chưa chắc khách bỏ lịch? Gọi khách hoặc dời lịch trước.</p></div>
+  <div class="dialog__footer"><button class="btn btn--secondary" data-close>Chưa, giữ trong Trễ hẹn</button><button class="btn btn--danger" data-apt-act="submit-absent">Đánh dấu vắng</button></div></div></div>
 
 <script src="pack.js"></script>
 <script src="../assets/app.js"></script>
+<script src="apt.js"></script>
 </body>
 </html>
