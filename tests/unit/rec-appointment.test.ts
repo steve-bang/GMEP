@@ -20,7 +20,7 @@ describe('FR-REC-027 appointment state machine (its own object, not an intake or
     });
     for (const s of ['arrived', 'cancelled', 'no_show'] as const) {
       expect(allowedAppointmentActions(s)).toEqual([]);
-      for (const e of ['arrive', 'cancel', 'no_show', 'edit'] as const)
+      for (const e of ['arrive', 'cancel', 'no_show', 'edit', 'reschedule'] as const)
         expect(transitionAppointment(s, e, { hasReason: true, dayStarted: true }).ok).toBe(false);
     }
   });

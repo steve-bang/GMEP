@@ -36,6 +36,44 @@ export function recP2DemoDocs(): SeedDoc[] {
   // FR-REC-019, 027: appointments on for the demo company (20 cars a day), Quận 7 overrides with a small capacity
   cfg('appointment-policy', 'tenant', { enabled: true, dailyCapacity: 20 });
   cfg('appointment-policy', 'branch:br_q7', { enabled: true, dailyCapacity: 2 });
+  // FR-REC-045 / Q94: SAMPLE cancel reasons (BA appointments-improvements-ba.md 2.2); the client confirms the list
+  for (const [i, [code, name, party, noteRequired]] of (
+    [
+      ['customer_request', 'Khách yêu cầu hủy', 'customer', false],
+      ['customer_busy', 'Khách bận hoặc đổi kế hoạch', 'customer', false],
+      ['fixed_elsewhere', 'Xe đã sửa ở nơi khác', 'customer', false],
+      ['not_needed', 'Xe không còn cần dịch vụ', 'customer', false],
+      ['unreachable', 'Không liên lạc được với khách', 'customer', false],
+      ['duplicate_or_mistake', 'Trùng lịch hoặc đặt nhầm', 'garage', false],
+      ['garage_unable', 'Xưởng không nhận được (hết công suất, thiếu thợ)', 'garage', false],
+      ['other', 'Khác', 'other', true],
+    ] as const
+  ).entries())
+    cfg('appointment-cancel-reason', code, {
+      name,
+      status: 'active',
+      party,
+      order: (i + 1) * 10,
+      ...(noteRequired ? { noteRequired } : {}),
+    });
+  // FR-REC-046 / Q95: SAMPLE reschedule reasons (BA 3.3)
+  for (const [i, [code, name, party, noteRequired]] of (
+    [
+      ['customer_busy', 'Khách bận', 'customer', false],
+      ['customer_late', 'Khách báo đến trễ', 'customer', false],
+      ['vehicle_not_ready', 'Xe chưa sẵn sàng', 'customer', false],
+      ['garage_reschedule', 'Xưởng đổi lịch', 'garage', false],
+      ['weather_incident', 'Thời tiết hoặc sự cố', 'garage', false],
+      ['other', 'Khác', 'other', true],
+    ] as const
+  ).entries())
+    cfg('appointment-reschedule-reason', code, {
+      name,
+      status: 'active',
+      party,
+      order: (i + 1) * 10,
+      ...(noteRequired ? { noteRequired } : {}),
+    });
   // FR-REC-018: sample warranty terms (Q77 open): maintenance 90 days or 5,000 km, anything else 30 days or 1,000 km
   cfg('warranty-term', 'svc:maintenance', {
     days: 90,

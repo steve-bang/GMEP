@@ -28,6 +28,8 @@ export interface ShellInfo {
     /** the technician's own tablet list (repair-item view without managing the floor) */
     myWork: boolean;
     partRequests: boolean;
+    /** slice 2.8b: the branch appointment calendar */
+    appointments: boolean;
     /** slice 1.7 */
     payments: boolean;
     cashbook: boolean;
@@ -103,6 +105,7 @@ export async function getShellInfo(deps: SysDeps, actor: Actor): Promise<ShellIn
       orders: can('repair-order:view'),
       myWork: can('repair-item:view'),
       partRequests: can('part-request:view'),
+      appointments: can('appointment:view'),
       payments: can('payment:view'),
       cashbook: can('cashbook:view'),
       dayClose: can('cash-day:view'),

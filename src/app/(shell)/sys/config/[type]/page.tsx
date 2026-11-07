@@ -84,9 +84,11 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
     kind: f.kind,
     ...(f.name === 'role'
       ? { options: ROLE_CODES.map((r) => ({ value: r, label: ROLE_NAMES[r] })) }
-      : f.options
-        ? { options: enumOptions(f.name, f.options) }
-        : {}),
+      : f.kind === 'bool'
+        ? { options: enumOptions(f.name, ['false', 'true']) }
+        : f.options
+          ? { options: enumOptions(f.name, f.options) }
+          : {}),
   }));
   const scopeOptions =
     type === 'labor-rate' || type === 'discount-limit'

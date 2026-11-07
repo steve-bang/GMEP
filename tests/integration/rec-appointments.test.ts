@@ -155,7 +155,7 @@ describe.each(backends)('REC appointments [%s]', (backend) => {
     const c = await h.call('POST', `/api/v1/rec/appointments/${r.json.id}/cancel`, {
       cookie: cv,
       key: uniqueKey('c'),
-      body: { version: a1.json.appointment.version, reason: 'Khách đổi ý' },
+      body: { version: a1.json.appointment.version, reasonCode: 'customer_request' },
     });
     expect(c.status, c.text).toBe(409);
     // walk-in: an intake without appointment
@@ -182,23 +182,39 @@ describe.each(backends)('REC appointments [%s]', (backend) => {
       body: { version: r.json.version, advisorId: 'u_th_q7' },
     });
     expect(badAdvisor.status, badAdvisor.text).toBe(422);
+    // FR-REC-046: PATCH no longer moves date or time (that is the reschedule action)
+    const patchDate = await h.call('PATCH', `/api/v1/rec/appointments/${r.json.id}`, {
+      cookie: cv,
+      key: uniqueKey('p'),
+      body: { version: r.json.version, date: today, time: '16:00' },
+    });
+    expect(patchDate.status, patchDate.text).toBe(422);
     const moved = await h.call('PATCH', `/api/v1/rec/appointments/${r.json.id}`, {
       cookie: cv,
       key: uniqueKey('p'),
-      body: { version: r.json.version, date: today, time: '16:00', advisorId: 'u_cv_q7' },
+      body: { version: r.json.version, advisorId: 'u_cv_q7' },
     });
     expect(moved.status, moved.text).toBe(200);
-    expect(moved.json).toMatchObject({ date: today, time: '16:00', advisorId: 'u_cv_q7' });
+    expect(moved.json).toMatchObject({ date: future, time: '14:00', advisorId: 'u_cv_q7' });
     const noReason = await h.call('POST', `/api/v1/rec/appointments/${r.json.id}/cancel`, {
       cookie: cv,
       key: uniqueKey('c'),
       body: { version: moved.json.version },
     });
     expect(noReason.status).toBe(422);
-    const ns2 = await h.call('POST', `/api/v1/rec/appointments/${r.json.id}/no-show`, {
+    // no-show works from the appointment day on: book one for today
+    const vToday = await vehicle();
+    const rToday = await book(cv, {
+      vehicleId: vToday.vehicleId,
+      date: today,
+      time: '23:59',
+      acknowledgeOverCapacity: true,
+    });
+    expect(rToday.status, rToday.text).toBe(201);
+    const ns2 = await h.call('POST', `/api/v1/rec/appointments/${rToday.json.id}/no-show`, {
       cookie: cv,
       key: uniqueKey('ns'),
-      body: { version: moved.json.version },
+      body: { version: rToday.json.version },
     });
     expect(ns2.status, ns2.text).toBe(200);
     expect(ns2.json.status).toBe('no_show');
@@ -208,10 +224,13 @@ describe.each(backends)('REC appointments [%s]', (backend) => {
     const c = await h.call('POST', `/api/v1/rec/appointments/${r2.json.id}/cancel`, {
       cookie: cv,
       key: uniqueKey('c'),
-      body: { version: r2.json.version, reason: 'Khách bận việc' },
+      body: { version: r2.json.version, reasonCode: 'customer_busy' },
     });
     expect(c.status, c.text).toBe(200);
-    expect(c.json).toMatchObject({ status: 'cancelled', cancelReason: 'Khách bận việc' });
+    expect(c.json).toMatchObject({
+      status: 'cancelled',
+      cancellation: { reasonCode: 'customer_busy', reasonName: 'Khách bận hoặc đổi kế hoạch' },
+    });
     // a past date cannot be booked
     const past = await book(cv, {
       vehicleId: v2.vehicleId,
@@ -233,7 +252,7 @@ describe.each(backends)('REC appointments [%s]', (backend) => {
     const tdCancel = await h.call('POST', `/api/v1/rec/appointments/${r.json.id}/cancel`, {
       cookie: qlTd,
       key: uniqueKey('c'),
-      body: { version: 1, reason: 'Thử chéo chi nhánh' },
+      body: { version: 1, reasonCode: 'customer_request' },
     });
     expect(tdCancel.status).toBe(404);
     expect((await j.get(ownerB, `/api/v1/rec/appointments/${r.json.id}`)).status).toBe(404);

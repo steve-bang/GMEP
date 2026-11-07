@@ -183,13 +183,22 @@ export {
   getAppointment,
   createAppointment,
   updateAppointment,
+  rescheduleAppointment,
+  listAppointmentReasons,
   cancelAppointment,
   markNoShow,
   arriveAppointment,
+  listAppointmentAdvisors,
   appointmentPolicyAt,
   toAppointmentDto,
 } from './application/appointments';
-export type { AppointmentDto, AppointmentCalendarDto } from './application/appointments';
+export type {
+  AppointmentDto,
+  AppointmentCalendarDto,
+  RescheduleDto,
+  CancellationDto,
+  TabCount,
+} from './application/appointments';
 
 // slice 2.8b: warranty (FR-REC-018, 036; projection P4)
 export * from './domain/warranty';

@@ -97,6 +97,8 @@ export const COL = {
   laborSheets: 'laborSheets',
   // REC slice 2.8b: appointments (FR-REC-019, 027); one shape, Q.appointmentsByDate
   appointments: 'appointments',
+  // REC: per (tenant, branch, day) lock/counter document read BY KEY when booking (FR-REC-019); never queried
+  appointmentDays: 'appointmentDays',
   // REC slice 2.8b: warranty records (projection P4, one per delivered order); one shape, Q.warrantiesByVehicle
   warranties: 'warranties',
 } as const;
@@ -659,6 +661,18 @@ export const Q = {
     name: 'appointments.byDate',
     collection: COL.appointments,
     eq: ['tenantId', 'branchId'],
+    range: true,
+    order: { field: 'date', dir: 'asc', type: 'string' },
+  }),
+  /**
+   * REC slice 2.8b / FR-REC-044: appointments of ONE branch in ONE status over a date range, date ascending. Feeds the
+   * "Trễ hẹn" tab (pending, every day up to today, not bounded by the viewed day). ONE composite index
+   * (tenantId, branchId, status, date); the overdue minute test runs in memory over the bounded window.
+   */
+  appointmentsByStatus: defineQuery({
+    name: 'appointments.byStatus',
+    collection: COL.appointments,
+    eq: ['tenantId', 'branchId', 'status'],
     range: true,
     order: { field: 'date', dir: 'asc', type: 'string' },
   }),

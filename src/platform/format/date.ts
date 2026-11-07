@@ -49,3 +49,87 @@ export function viToIso(vi: string | undefined | null): string | null {
   const d = new Date(`${iso}T00:00:00Z`);
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === iso ? iso : null;
 }
+
+/** HH:mm (24 h) of the instant in the given timezone: the wall-clock minute used by "Trễ hẹn" (FR-REC-044). */
+export function businessTime(date: Date, timeZone: string = DEFAULT_TIME_ZONE): string {
+  const p = parts(date, timeZone, true);
+  return `${p.hour}:${p.minute}`;
+}
+
+/** yyyy-MM-dd plus n days (calendar arithmetic, no timezone involved). */
+export function addIsoDays(iso: string, n: number): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/** 1 (Monday) .. 7 (Sunday) of a business date. */
+export function isoWeekday(iso: string): number {
+  const d = new Date(`${iso}T00:00:00Z`).getUTCDay();
+  return d === 0 ? 7 : d;
+}
+
+/** Monday of the ISO 8601 week containing the date (FR-REC-047, Q98). */
+export function isoWeekStart(iso: string): string {
+  return addIsoDays(iso, 1 - isoWeekday(iso));
+}
+
+/** ISO 8601 week number and the week-based year (29/12/2025 belongs to week 1 of 2026). */
+export function isoWeekOf(iso: string): { week: number; year: number } {
+  const thursday = addIsoDays(iso, 4 - isoWeekday(iso));
+  const year = Number(thursday.slice(0, 4));
+  const jan1 = `${year}-01-01`;
+  const days = Math.round(
+    (new Date(`${thursday}T00:00:00Z`).getTime() - new Date(`${jan1}T00:00:00Z`).getTime()) /
+      86_400_000,
+  );
+  return { week: Math.floor(days / 7) + 1, year };
+}
+
+const WEEKDAY_FULL = [
+  'Thứ Hai',
+  'Thứ Ba',
+  'Thứ Tư',
+  'Thứ Năm',
+  'Thứ Sáu',
+  'Thứ Bảy',
+  'Chủ nhật',
+] as const;
+const WEEKDAY_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] as const;
+
+/** "Thứ Sáu, 30/10/2026" (FR-REC-047): the full weekday name, then dd/MM/yyyy. */
+export function viDayTitle(iso: string): string {
+  return `${WEEKDAY_FULL[isoWeekday(iso) - 1]}, ${isoToVi(iso)}`;
+}
+
+/** "T6, 30/10/2026": the short form for phones and grid columns. */
+export function viDayShort(iso: string): string {
+  return `${WEEKDAY_SHORT[isoWeekday(iso) - 1]}, ${isoToVi(iso)}`;
+}
+
+/** "T6 30/10": a day inside a week strip. */
+export function viDayChip(iso: string): string {
+  return `${WEEKDAY_SHORT[isoWeekday(iso) - 1]} ${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+}
+
+/** Whole days from `b` to `a` (a - b). */
+export function daysBetween(a: string, b: string): number {
+  return Math.round(
+    (new Date(`${a}T00:00:00Z`).getTime() - new Date(`${b}T00:00:00Z`).getTime()) / 86_400_000,
+  );
+}
+
+/**
+ * "Tuần 45 (02/11 – 08/11/2026)", Monday to Sunday, ISO 8601 numbering; a week across two years shows both years:
+ * "Tuần 1 (29/12/2025 – 04/01/2026)" (FR-REC-047, Q98).
+ */
+export function viWeekTitle(iso: string): string {
+  const start = isoWeekStart(iso);
+  const end = addIsoDays(start, 6);
+  const { week } = isoWeekOf(iso);
+  const from =
+    start.slice(0, 4) === end.slice(0, 4)
+      ? `${start.slice(8, 10)}/${start.slice(5, 7)}`
+      : isoToVi(start);
+  return `Tuần ${week} (${from} – ${isoToVi(end)})`;
+}

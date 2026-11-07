@@ -226,6 +226,11 @@ export class DocUserRepository implements UserRepository {
     const d = await this.store.getInTx(tx, COL.users, id);
     return d && d.data.tenantId === tenantId ? userFromDoc(d) : null;
   }
+  async getMany(tenantId: string, ids: readonly string[]) {
+    if (ids.length === 0) return [];
+    const docs = await this.store.getMany(COL.users, [...new Set(ids)]);
+    return docs.filter((d) => d.data.tenantId === tenantId).map(userFromDoc);
+  }
   async getAnyById(id: string) {
     const d = await this.store.get(COL.users, id);
     return d ? userFromDoc(d) : null;

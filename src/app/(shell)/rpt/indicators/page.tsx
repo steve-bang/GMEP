@@ -156,7 +156,8 @@ export default async function IndicatorsPage({ searchParams }: { searchParams: S
             ]}
           />
           <p className="text-secondary" data-testid="avg-total">
-            {l.total}: {avg.total === null ? '—' : money(avg.total)} · {avg.formula}
+            {l.total}: {avg.total === null ? '—' : money(avg.total)} ·{' '}
+            {rptLabels('ranking')[`formula_${avg.metric}`]}
           </p>
         </>
       ) : null}
@@ -179,7 +180,8 @@ export default async function IndicatorsPage({ searchParams }: { searchParams: S
             ]}
           />
           <p className="text-secondary" data-testid="approval-total">
-            {l.total}: {pctOf(approval.total)} · {approval.formula}
+            {l.total}: {pctOf(approval.total)} ·{' '}
+            {rptLabels('ranking')[`formula_${approval.metric}`]}
           </p>
         </>
       ) : null}

@@ -13,7 +13,7 @@ import type {
   QuoteVersion,
 } from '../domain/entities';
 import type { MessageQueue, QuoteDelivery, QuoteOtpRecord } from '../domain/messaging';
-import type { Appointment } from '../domain/appointment';
+import type { Appointment, AppointmentStatus } from '../domain/appointment';
 import type { WarrantyRecord } from '../domain/warranty';
 
 type Cursor = { v: string; id: string };
@@ -227,10 +227,26 @@ export interface AppointmentRepository {
     toExclusive: string,
     limit: number,
   ): Promise<Appointment[]>;
+  /** FR-REC-044: one branch, one status, `from` (inclusive, null = no lower bound) <= date < `toExclusive`, date ascending */
+  listByStatus(
+    scope: Scope,
+    branchId: string,
+    status: AppointmentStatus,
+    from: string | null,
+    toExclusive: string,
+    limit: number,
+  ): Promise<Appointment[]>;
   get(scope: Scope, id: string): Promise<Appointment | null>;
   getInTx(tx: Tx, scope: Scope, id: string): Promise<Appointment | null>;
   create(tx: Tx, a: Appointment): void;
   update(tx: Tx, id: string, patch: Record<string, unknown>): void;
+  /**
+   * FR-REC-019: per (tenant, branch, day) counter document used as a lock. A booking into a day reads it first and bumps
+   * it on commit, so two bookings of the same day contend on one document (Firestore retries the loser, which then counts
+   * the winner's booking). Read before any write of the transaction.
+   */
+  readDayLock(tx: Tx, tenantId: string, branchId: string, date: string): Promise<number>;
+  bumpDayLock(tx: Tx, tenantId: string, branchId: string, date: string, seq: number): void;
 }
 
 /**

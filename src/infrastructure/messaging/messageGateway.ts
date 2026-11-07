@@ -45,6 +45,8 @@ export class EmailChannelAdapter implements ChannelAdapter {
   ) {}
   async send(m: OutboundMessage): Promise<void> {
     try {
+      // the appointment notice has short-message channels only (no e-mail template yet)
+      if (m.template === 'appointment-notice') throw new Error('no e-mail template');
       await this.email.send({ id: m.id, to: m.to, template: m.template, vars: m.vars });
     } catch (e) {
       throw new MessageDeliveryError('email', e);
