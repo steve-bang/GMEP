@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xe – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .find { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-3); }
+  .search { flex: 1 1 360px; }
+  .search input { width: 100%; height: var(--input-height-touch); padding: 0 var(--space-4); border: 1px solid var(--input-border); border-radius: var(--input-radius); background: var(--input-bg); font: inherit; font-size: var(--font-size-lg); color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+  .search input:focus { border-color: var(--input-border-focus); box-shadow: var(--shadow-focus); outline: none; }
+  .seg button { padding: 0 var(--space-4); }
+  .tip { margin: 0 0 var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-tertiary); min-height: 20px; }
+  .tip strong { color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+  .list { overflow: hidden; }
+  .row { display: grid; grid-template-columns: 64px 170px minmax(0, 1.2fr) minmax(0, 1fr) 130px 150px; gap: var(--space-4); align-items: center; padding: var(--space-3) var(--space-5); min-height: var(--table-row-height-lg); border-top: 1px solid var(--color-border); color: inherit; text-decoration: none; }
+  .row:first-child { border-top: 0; }
+  .row[hidden] { display: none; }
+  .row:hover { background: var(--color-surface-hover); }
+  .row .plate { justify-self: start; height: 32px; padding: 0 var(--space-3); font-size: var(--font-size-lg); }
+  .model { font-weight: var(--fw-medium); }
+  .sub { color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .owner { color: var(--color-text-link); }
+  .tag { display: inline-flex; height: 20px; align-items: center; padding: 0 6px; border-radius: var(--radius-xs); background: var(--color-surface-subtle); color: var(--color-text-secondary); font-size: var(--font-size-xs); margin-left: var(--space-2); vertical-align: middle; }
+  .rowfoot { padding: var(--space-3) var(--space-5); border-top: 1px solid var(--color-border); background: var(--table-head-bg); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .empty { padding: var(--space-10) var(--space-6); text-align: center; }
+  .empty[hidden] { display: none; }
+  .empty h2 { margin: 0 0 var(--space-1); font-size: var(--font-size-lg); }
+  .empty p { margin: 0 auto var(--space-4); color: var(--color-text-secondary); max-width: 52ch; font-size: var(--font-size-md); }
+  @media (max-width: 899px) { .row { grid-template-columns: 64px auto 1fr; row-gap: var(--space-1); } .row > :nth-child(3) { grid-column: 3 / -1; } .row > :nth-child(4) { grid-column: 1 / 3; grid-row: 2; } .row > :nth-child(5) { grid-column: 3; grid-row: 2; } .row > :nth-child(6) { grid-column: 1 / -1; grid-row: 3; text-align: left; } }
+  @media (max-width: 599px) { :root { --page-padding-x: var(--space-4); } .row { padding: var(--space-3) var(--space-4); } }
+.nophoto { display: grid; place-items: center; color: var(--color-text-disabled); font-size: var(--font-size-xs); }
+  .nophoto::after { content: 'Chưa có ảnh'; text-align: center; line-height: 1.2; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1>Xe</h1>
+      <p>Hồ sơ xe dùng chung giữa các chi nhánh trong phạm vi quyền của bạn. Biển số là duy nhất trong cả hệ thống.</p>
+    </div>
+    <div class="head__actions">
+      <button class="b b--secondary" type="button">Tra cứu toàn chuỗi</button>
+      <a class="b b--primary" href="vehicle-new.html">Thêm xe</a>
+    </div>
+  </header>
+
+  <form class="find" role="search" onsubmit="return false">
+    <div class="search">
+      <label for="q" style="position:absolute;left:-9999px">Tìm biển số</label>
+      <input id="q" type="search" placeholder="Nhập biển số, ví dụ 51h12345" autocomplete="off">
+    </div>
+    <div class="seg" role="group" aria-label="Lọc xe">
+      <button type="button" aria-pressed="true" data-f="all">Tất cả</button>
+      <button type="button" aria-pressed="false" data-f="repair">Đang sửa</button>
+      <button type="button" aria-pressed="false" data-f="biz">Kinh doanh vận tải</button>
+    </div>
+  </form>
+  <p class="tip" id="tip">Gõ biển số không cần dấu chấm, gạch ngang hay chữ hoa.</p>
+
+  <section class="card list" aria-label="Danh sách xe" id="list">
+    <a class="row" href="vehicle-detail.html" data-plate="51D99988" data-tags="repair biz">
+      <img class="thumb" alt="" data-ph="205"><span class="plate">51D-999.88</span>
+      <span><span class="model">Hyundai Porter H150</span><span class="tag">Kinh doanh vận tải</span><br><span class="sub">Đời 2020</span></span>
+      <span class="owner">Công ty TNHH Vận tải Demo</span>
+      <span class="num">3.100.600 km<br><span class="sub">cập nhật 01/10/2026</span></span>
+      <span><span class="badge badge--info">Đang sửa chữa</span></span>
+    </a>
+    <a class="row" href="vehicle-detail.html" data-plate="51H12345" data-tags="">
+      <span class="thumb nophoto" aria-label="Chưa có ảnh"></span><span class="plate">51H-123.45</span>
+      <span><span class="model">Toyota Vios 1.5G</span><br><span class="sub">Đời 2019</span></span>
+      <span class="owner">Nguyễn Văn An</span>
+      <span class="num">3.100.100 km<br><span class="sub">cập nhật 12/07/2026</span></span>
+      <span><span class="badge badge--neutral">Không có lệnh mở</span></span>
+    </a>
+    <div class="empty" id="empty" hidden>
+      <h2>Không tìm thấy xe phù hợp</h2>
+      <p>Kiểm tra lại biển số. Xe của chi nhánh khác chỉ tra được ở mục Tra cứu toàn chuỗi.</p>
+      <button class="b b--secondary" type="button">Tra cứu toàn chuỗi</button>
+    </div>
+    <div class="rowfoot" id="foot">Hiển thị 2 xe</div>
+  </section>
+</div>
+<script src="photos.js"></script>
+<script>
+  document.querySelectorAll('[data-ph]').forEach((i) => { i.src = ph(i.dataset.ph); });
+  const rows = [...document.querySelectorAll('.row')], q = document.getElementById('q');
+  let f = 'all';
+  const norm = (s) => s.toUpperCase().replace(/[^0-9A-Z]/g, '');
+  function apply() {
+    const n = norm(q.value);
+    let shown = 0;
+    rows.forEach((r) => {
+      const ok = (!n || r.dataset.plate.includes(n)) && (f === 'all' || r.dataset.tags.includes(f));
+      r.hidden = !ok; if (ok) shown++;
+    });
+    document.getElementById('empty').hidden = shown > 0;
+    document.getElementById('foot').textContent = shown ? `Hiển thị ${shown} xe` : '';
+    document.getElementById('tip').innerHTML = n ? `Đang tìm biển số <strong>${n}</strong>` : 'Gõ biển số không cần dấu chấm, gạch ngang hay chữ hoa.';
+  }
+  q.addEventListener('input', apply);
+  document.querySelectorAll('[data-f]').forEach((b) => b.addEventListener('click', () => {
+    f = b.dataset.f;
+    document.querySelectorAll('[data-f]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    apply();
+  }));
+</script>
+</body>
+</html>
