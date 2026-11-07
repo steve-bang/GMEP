@@ -397,7 +397,10 @@ describe.each(backends)('REC appointments v2 [%s]', (backend) => {
       (x) => x.entityId === a.id && x.action === 'appointment.reschedule',
     );
     expect(audit).toHaveLength(4);
-    expect(JSON.stringify(audit.at(-1)!.after)).toContain('"overLimit":true');
+    // Firestore returns rows by id, not by write order: pick by content, never by position
+    const flagged = audit.filter((x) => JSON.stringify(x.after).includes('"overLimit":true'));
+    expect(flagged).toHaveLength(1);
+    expect(JSON.stringify(flagged[0]!.after)).toContain('"count":4');
   });
 
   it('FR-REC-046 AC-20 and NFR-ISO-01: only a pending appointment moves; another branch or tenant gets 404', async () => {
