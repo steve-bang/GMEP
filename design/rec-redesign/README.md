@@ -11,7 +11,7 @@ Prototype HTML cho 11 màn hình của nhóm sidebar Tiếp nhận và báo giá
 | Báo giá | Danh sách | `quotes.html` |
 | | Chi tiết và soạn báo giá | `quote-detail.html` |
 | Lệnh sửa chữa | Danh sách | `orders.html` |
-| | Chi tiết lệnh | `order-detail.html` |
+| | Chi tiết lệnh (đích của thẻ trên bảng điều phối; có nút chọn trạng thái để xem thử) | `order-detail.html` |
 | Bảng điều phối | Bảng theo trạng thái lệnh | `board.html` |
 | Việc của tôi | Màn hình tablet cho thợ | `work.html` |
 | Yêu cầu phụ tùng | Danh sách và xuất kho | `part-requests.html` |
@@ -22,7 +22,7 @@ Prototype HTML cho 11 màn hình của nhóm sidebar Tiếp nhận và báo giá
 - Biển số là định danh chính của mọi dòng; mã chứng từ chỉ là thông tin phụ.
 - Danh sách có tab theo việc cần làm, đếm số lượng, và một nút hành động cho từng dòng.
 - Dải hành trình (hồ sơ, báo giá, lệnh, thanh toán) ở các trang chi tiết là điều hướng giữa các chứng từ. Mỗi chứng từ giữ huy hiệu trạng thái riêng, không có trạng thái chung (CLAUDE.md: năm đối tượng, năm bộ trạng thái).
-- Chi tiết lệnh: hạng mục là nội dung chính, thanh toán và hóa đơn ở cột phụ, sửa lỗi chữ đè trong lịch sử trạng thái.
+- Chi tiết lệnh: thẻ xe (ảnh, hãng và dòng, năm, màu, chủ xe, số km lúc nhận) ở đầu trang; khung "Bước tiếp theo" cho một việc chính theo trạng thái, kèm lý do khi chưa làm được (chưa xong hạng mục, thiếu phụ tùng, còn nợ); hạng mục có thợ phụ trách, tiến độ và phụ tùng thiếu; việc phát sinh chờ duyệt; thanh toán và hóa đơn ở cột phụ; sửa lỗi chữ đè trong lịch sử trạng thái.
 - Bảng điều phối cuộn ngang, đủ 5 trạng thái lệnh, thẻ có ảnh xe, hãng và dòng, năm, màu xe, cảnh báo trễ hẹn và thợ phụ trách. Nút "Có ảnh / Gọn" đổi mật độ thẻ khi xưởng đông xe.
 
 ## Chưa xác nhận / chưa xây
