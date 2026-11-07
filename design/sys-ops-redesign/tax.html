@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thuế suất theo ngày hiệu lực – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .tx { --cols: minmax(0, 1.4fr) 110px minmax(0, 1.2fr) minmax(0, 1fr) 190px; }
+</style>
+</head>
+<body>
+<div class="preview" role="group" aria-label="Xem thử trạng thái (chỉ có trong prototype)">
+  <div class="preview__row"><span class="preview__label">Xem thử</span>
+    <button class="chip" type="button" data-view="ok">Kế toán, có dữ liệu</button>
+    <button class="chip" type="button" data-view="empty">Chưa cấu hình</button>
+    <button class="chip" type="button" data-view="ro">Quản lý (chỉ xem)</button>
+    <button class="chip" type="button" data-view="error">Lỗi tải</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Hộp thoại: <span class="code">#dlg=d-new</span> (thêm phiên bản có xem trước), <span class="code">#dlg=d-conflict</span> (ngày hiệu lực không hợp lệ). Tab: <span class="code">#tab=next</span>, <span class="code">#tab=past</span>.</p>
+</div>
+<div class="wrap">
+  <p class="crumbs">GMEP › Cài đặt và quản trị › Thuế suất</p>
+  <nav class="subnav" aria-label="Cài đặt và quản trị">
+    <a href="audit.html">Nhật ký thao tác</a><a href="import.html">Nhập từ Excel</a><a href="einvoice.html">Hóa đơn điện tử</a><a href="messaging.html">Tin nhắn</a><a href="tax.html" aria-current="page">Thuế suất</a><a href="security.html">Bảo mật và phiên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Thuế suất theo ngày hiệu lực</h1><p>Quy tắc theo luật là cấu hình có ngày hiệu lực, không nằm trong mã (FR-SYS-006). Đổi mức thuế bằng cách thêm phiên bản mới; phiên bản đã dùng không sửa, không xóa.</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" data-vx="ro offline error" data-open="d-new">Thêm phiên bản mới</button>
+      <button class="b b--primary" type="button" data-v="ro" aria-disabled="true" aria-describedby="w-n1">Thêm phiên bản mới</button><span class="why why--block" id="w-n1" data-v="ro">Chưa bấm được: chỉ Kế toán trưởng và Chủ garage đổi thuế suất [Cần xác nhận vai trò].</span>
+      <button class="b b--primary" type="button" data-v="offline error" aria-disabled="true" aria-describedby="w-n2">Thêm phiên bản mới</button><span class="why why--block" id="w-n2" data-v="offline error">Chưa bấm được: chưa tải được danh sách hiện tại, tránh trùng ngày hiệu lực.</span>
+    </div>
+  </header>
+
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Công ty (áp dụng mọi chi nhánh)</span><span>Hôm nay: <b>07/11/2026</b></span><span>Cập nhật 09:15 07/11/2026</span><span data-v="ro">Bạn là Võ Minh Quân, Quản lý</span></div>
+  <div class="alert alert--warn state" role="note"><strong>Số liệu trong prototype là minh họa</strong><span>Mức thuế, tên nhóm, ngày hiệu lực và số văn bản chưa được kế toán của khách xác nhận [Cần xác nhận]. Màn này không quyết thuế suất; người có thẩm quyền nhập theo văn bản hiện hành.</span></div>
+  <div class="alert alert--warn state" role="alert" data-v="offline"><strong>Mất kết nối</strong><span>Chưa lưu được thay đổi. Nội dung đang nhập được giữ trong trang.</span></div>
+
+  <div data-vx="empty error">
+  <div class="tabsline" role="tablist" aria-label="Phiên bản thuế suất">
+    <button type="button" role="tab" data-tab="now">Đang hiệu lực<span class="cnt">3</span></button>
+    <button type="button" role="tab" data-tab="next">Sắp hiệu lực<span class="cnt cnt--warn">1</span></button>
+    <button type="button" role="tab" data-tab="past">Đã hết hiệu lực<span class="cnt">4</span></button>
+  </div>
+
+  <section class="card list" data-t="now" aria-label="Thuế suất đang hiệu lực">
+    <div class="item tx"><div class="col"><span class="t1">GTGT · phụ tùng bán kèm lệnh</span><span class="t2">Mã nhóm TS-PT</span></div><div class="num t1">8 %</div><div class="col"><span class="t1">Từ 01/07/2026</span><span class="t2">Chưa có ngày kết thúc</span></div><div class="col"><span class="t2">Căn cứ: [số văn bản, kế toán nhập]</span><span class="t2">Đã dùng trong 1.912 chứng từ</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-vx="ro" data-open="d-new">Thêm phiên bản mới</button><button class="b b--secondary b--sm" type="button" data-tab-go="past">Xem lịch sử</button></div></div>
+    <div class="item tx"><div class="col"><span class="t1">GTGT · công sửa chữa</span><span class="t2">Mã nhóm TS-CL</span></div><div class="num t1">8 %</div><div class="col"><span class="t1">Từ 01/07/2026</span><span class="t2">Chưa có ngày kết thúc</span></div><div class="col"><span class="t2">Căn cứ: [số văn bản, kế toán nhập]</span><span class="t2">Đã dùng trong 1.640 chứng từ</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-vx="ro" data-open="d-new">Thêm phiên bản mới</button><button class="b b--secondary b--sm" type="button" data-tab-go="past">Xem lịch sử</button></div></div>
+    <div class="item tx"><div class="col"><span class="t1">Không chịu thuế · phí dịch vụ ngoài</span><span class="t2">Mã nhóm TS-KCT</span></div><div class="num t1">0 %</div><div class="col"><span class="t1">Từ 01/01/2025</span><span class="t2">Chưa có ngày kết thúc</span></div><div class="col"><span class="t2">Căn cứ: [số văn bản, kế toán nhập]</span><span class="t2">Đã dùng trong 23 chứng từ</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-vx="ro" data-open="d-new">Thêm phiên bản mới</button><button class="b b--secondary b--sm" type="button" data-tab-go="past">Xem lịch sử</button></div></div>
+    <div class="rowfoot">Chứng từ lấy mức thuế theo ngày của chính chứng từ và giữ lại mức đã dùng; đổi cấu hình không làm đổi hóa đơn hoặc phiếu đã ghi sổ (RULE-010). Thiếu thuế suất thì hóa đơn bị chặn xuất (FR-EIN-011).</div>
+  </section>
+
+  <section class="card list" data-t="next" aria-label="Thuế suất sắp hiệu lực">
+    <div class="item tx item--flag"><div class="col"><span class="t1">GTGT · phụ tùng bán kèm lệnh</span><span class="badge badge--warning">Sắp hiệu lực</span></div><div class="num t1">10 %</div><div class="col"><span class="t1">Từ 01/01/2027</span><span class="t2">Còn 55 ngày</span></div><div class="col"><span class="t2">Căn cứ: [số văn bản, kế toán nhập]</span><span class="t2">Thêm bởi Đặng Thu Hà 06/11/2026</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-vx="ro" data-open="d-new">Xem trước tác động</button><button class="b b--secondary b--sm" type="button" data-vx="ro" data-toast="Đã bỏ phiên bản chưa hiệu lực. Nhật ký ghi người bỏ.">Bỏ phiên bản này</button><span class="hint">Bỏ được vì chưa dùng cho chứng từ nào</span></div></div>
+  </section>
+
+  <section class="card list" data-t="past" aria-label="Thuế suất đã hết hiệu lực">
+    <div class="item tx"><div class="col"><span class="t1">GTGT · phụ tùng bán kèm lệnh</span><span class="badge badge--neutral">Đã thay</span></div><div class="num t1">10 %</div><div class="col"><span class="t1">01/01/2025 đến 30/06/2026</span></div><div class="col"><span class="t2">Căn cứ: [số văn bản]</span><span class="t2">Đã dùng trong 4.108 chứng từ</span></div><div class="act"><span class="hint">Không sửa, không xóa</span></div></div>
+    <div class="item tx"><div class="col"><span class="t1">GTGT · công sửa chữa</span><span class="badge badge--neutral">Đã thay</span></div><div class="num t1">10 %</div><div class="col"><span class="t1">01/01/2025 đến 30/06/2026</span></div><div class="col"><span class="t2">Căn cứ: [số văn bản]</span><span class="t2">Đã dùng trong 3.570 chứng từ</span></div><div class="act"><span class="hint">Không sửa, không xóa</span></div></div>
+    <div class="rowfoot">Hiển thị 2 trong 4 phiên bản. Phiên bản đã dùng giữ mãi để tra cứu chứng từ cũ.</div>
+  </section>
+  </div>
+
+  <section class="card empty" data-v="empty" aria-label="Chưa cấu hình"><h2>Chưa có thuế suất nào</h2><p>Khi chưa có thuế suất, hóa đơn của mọi chi nhánh bị chặn xuất (thiếu điều kiện). Người có quyền nhập theo văn bản hiện hành của kế toán.</p><button class="b b--primary" type="button" data-open="d-new">Thêm thuế suất đầu tiên</button></section>
+  <section class="card empty" data-v="error" aria-label="Lỗi tải"><h2>Không tải được thuế suất</h2><p>Kết nối bị gián đoạn, không phải do chưa cấu hình. Mã tham chiếu <span class="code">REQ-2B8D61</span>.</p><button class="b b--secondary" type="button" data-view-go="ok">Thử lại</button></section>
+</div>
+
+<dialog id="d-new" aria-labelledby="d-new-h"><div class="dlg">
+  <h2 id="d-new-h">Thêm phiên bản thuế suất</h2>
+  <div class="grid2">
+    <div class="field"><label for="g">Nhóm</label><select id="g"><option>GTGT · phụ tùng bán kèm lệnh</option><option>GTGT · công sửa chữa</option></select></div>
+    <div class="field"><label for="r">Mức mới (%)</label><input id="r" type="text" inputmode="decimal" value="10"></div>
+    <div class="field"><label for="d">Hiệu lực từ ngày</label><input id="d" type="text" inputmode="numeric" value="01/01/2027" aria-describedby="d-h"><span class="hint" id="d-h">dd/MM/yyyy, phải sau ngày hôm nay và sau ngày hiệu lực của phiên bản trước.</span></div>
+    <div class="field"><label for="c">Căn cứ (số văn bản)</label><input id="c" type="text" placeholder="Nhập số văn bản"><span class="hint">Bắt buộc, ghi vào nhật ký.</span></div>
+  </div>
+  <div class="field"><span class="lbl">Xem trước tác động (ví dụ một dòng phụ tùng 1.000.000 ₫)</span>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th></th><th class="num">Trước 01/01/2027</th><th class="num">Từ 01/01/2027</th></tr></thead><tbody>
+      <tr><td>Tiền hàng</td><td class="num">1.000.000 ₫</td><td class="num">1.000.000 ₫</td></tr>
+      <tr><td>Thuế</td><td class="num">80.000 ₫ (8 %)</td><td class="num">100.000 ₫ (10 %)</td></tr>
+      <tr><td><strong>Cộng</strong></td><td class="num">1.080.000 ₫</td><td class="num"><strong>1.100.000 ₫</strong></td></tr>
+    </tbody></table></div>
+    <span class="hint">Chứng từ đã ghi sổ không đổi. Báo giá đang mở (ví dụ 14 báo giá) và lệnh chưa lập hóa đơn qua ngày hiệu lực: tính theo mức nào [Cần xác nhận: kế toán]. Quy tắc làm tròn: [Cần xác nhận: kế toán].</span></div>
+  <label class="check"><input type="checkbox" data-gates="b-new"><span>Tôi đã xem trước tác động và căn cứ đúng văn bản hiện hành.</span></label>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Hủy</button><div class="act"><button class="b b--primary" id="b-new" type="button" aria-disabled="true" aria-describedby="b-new-why" data-close="Đã thêm phiên bản. Nhật ký ghi giá trị trước và sau.">Lưu phiên bản</button><span class="why why--block" id="b-new-why">Chưa bấm được: chưa tích ô xác nhận và chưa nhập căn cứ.</span></div></div>
+</div></dialog>
+<dialog id="d-conflict" aria-labelledby="d-conflict-h"><div class="dlg">
+  <h2 id="d-conflict-h">Chưa lưu được: ngày hiệu lực không hợp lệ</h2>
+  <div class="field" data-err><label for="d2">Hiệu lực từ ngày</label><input id="d2" type="text" value="15/09/2026" aria-invalid="true" aria-describedby="d2e"><span class="err" id="d2e">Ngày 15/09/2026 đã qua và đã có 312 chứng từ dùng mức hiện tại. Chọn ngày sau 07/11/2026.</span></div>
+  <p class="t2">Sửa hồi tố không làm đổi chứng từ đã ghi sổ. Nếu một chứng từ đã dùng sai mức thuế, xử lý bằng điều chỉnh hoặc đảo chứng từ, không sửa cấu hình lùi ngày [Cần xác nhận: kế toán].</p>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Đóng</button></div>
+</div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="ops.js"></script>
+</body>
+</html>

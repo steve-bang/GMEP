@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tích hợp tin nhắn – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .ch { --cols: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.2fr) 200px; }
+  .ev { --cols: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr) 150px; }
+  .lg { --cols: 150px minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); }
+</style>
+</head>
+<body>
+<div class="preview" role="group" aria-label="Xem thử trạng thái (chỉ có trong prototype)">
+  <div class="preview__row"><span class="preview__label">Xem thử</span>
+    <button class="chip" type="button" data-view="ok">Chủ garage, bình thường</button>
+    <button class="chip" type="button" data-view="sent">Gửi thử xong</button>
+    <button class="chip" type="button" data-view="fail">Gửi thử lỗi</button>
+    <button class="chip" type="button" data-view="ro">Quản lý (chỉ xem)</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Hộp thoại sửa mẫu: <span class="code">#dlg=d-tpl</span>. Tab: <span class="code">#tab=ev</span>, <span class="code">#tab=log</span>.</p>
+</div>
+<div class="wrap">
+  <p class="crumbs">GMEP › Cài đặt và quản trị › Tin nhắn</p>
+  <nav class="subnav" aria-label="Cài đặt và quản trị">
+    <a href="audit.html">Nhật ký thao tác</a><a href="import.html">Nhập từ Excel</a><a href="einvoice.html">Hóa đơn điện tử</a><a href="messaging.html" aria-current="page">Tin nhắn</a><a href="tax.html">Thuế suất</a><a href="security.html">Bảo mật và phiên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Tích hợp tin nhắn</h1><p>Chọn kênh, sự kiện và mẫu tin gửi khách và nhân viên (FR-SYS-008). Nhà cung cấp Zalo và SMS chưa chốt, hiện chỉ có cổng giả lập: tin “gửi” không tới điện thoại thật.</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" data-vx="ro offline" data-view-go="sent">Gửi thử cho tôi</button>
+      <button class="b b--primary" type="button" data-v="ro" aria-disabled="true" aria-describedby="w-s1">Gửi thử cho tôi</button><span class="why why--block" id="w-s1" data-v="ro">Chưa bấm được: chỉ Chủ garage đổi cấu hình tin nhắn [Cần xác nhận vai trò].</span>
+      <button class="b b--primary" type="button" data-v="offline" aria-disabled="true" aria-describedby="w-s2">Gửi thử cho tôi</button><span class="why why--block" id="w-s2" data-v="offline">Chưa bấm được: đang mất kết nối.</span>
+    </div>
+  </header>
+
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Công ty (mẫu và kênh dùng chung; sự kiện bật tắt theo chi nhánh)</span><span>Cổng: <b>Giả lập</b></span><span>Cập nhật 09:15 07/11/2026</span><span data-v="ro">Bạn là Võ Minh Quân, Quản lý</span></div>
+
+  <div class="alert alert--warn state" role="alert" data-v="offline"><strong>Mất kết nối</strong><span>Thay đổi mẫu tin đang soạn được giữ trong trang, chưa lưu lên hệ thống.</span></div>
+  <div class="alert alert--ok state" role="status" data-v="sent"><strong>Đã gửi thử qua cổng giả lập lúc 09:21</strong><span>Tin xuất hiện ở tab Nhật ký gửi; không có tin nào tới điện thoại thật.</span></div>
+  <div class="alert alert--danger state" role="alert" data-v="fail"><strong>Gửi thử không thành công</strong><span>Cổng giả lập trả lỗi tạm thời. Không có tin nào đi ra ngoài. Mã tham chiếu <span class="code">REQ-6A19C4</span>.</span><div class="act2"><button class="b b--secondary b--sm" type="button" data-view-go="sent">Thử lại</button></div></div>
+
+  <div class="tabsline" role="tablist" aria-label="Tin nhắn">
+    <button type="button" role="tab" data-tab="ch">Kênh</button>
+    <button type="button" role="tab" data-tab="ev">Sự kiện và mẫu tin<span class="cnt">6</span></button>
+    <button type="button" role="tab" data-tab="log">Nhật ký gửi<span class="cnt cnt--danger">1</span></button>
+  </div>
+
+  <div data-t="ch" class="stack">
+    <section class="card list" aria-label="Kênh gửi tin">
+      <div class="item ch"><div class="col"><span class="t1">Trong hệ thống</span><span class="t2">Chuông thông báo trên web, luôn bật</span></div><div class="col"><span class="badge badge--success">Đang dùng</span><span class="t2">Không cần nhà cung cấp</span></div><div class="col"><span class="t2">Người nhận chỉ thấy thông báo trong phạm vi quyền của mình</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-vx="ro" data-toast="Đã gửi thử trong hệ thống">Gửi thử</button></div></div>
+      <div class="item ch"><div class="col"><span class="t1">Email</span><span class="t2">Thông báo cho nhân viên và khách có email</span></div><div class="col"><span class="badge badge--info">Cổng giả lập</span><span class="t2">Máy chủ gửi thư thật: [Cần xác nhận]</span></div><div class="col"><span class="t2">Khách chỉ nhận khi đã đồng ý nhận tin</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-vx="ro" data-toast="Đã gửi thử qua cổng giả lập">Gửi thử</button></div></div>
+      <div class="item ch item--flag"><div class="col"><span class="t1">Zalo</span><span class="t2">Tin cho khách</span></div><div class="col"><span class="badge badge--neutral">Chưa chọn nhà cung cấp</span><span class="t2">[Cần xác nhận Q78]</span></div><div class="col"><span class="t2">Chưa có tin nào đi qua kênh này</span></div><div class="act"><button class="b b--secondary b--sm" type="button" aria-disabled="true" aria-describedby="w-z">Gửi thử</button><span class="why why--block" id="w-z">Chưa bấm được: chưa chọn nhà cung cấp Zalo.</span></div></div>
+      <div class="item ch item--flag"><div class="col"><span class="t1">SMS</span><span class="t2">Tin cho khách, có tính phí theo nhà cung cấp</span></div><div class="col"><span class="badge badge--neutral">Chưa chọn nhà cung cấp</span><span class="t2">[Cần xác nhận Q78]</span></div><div class="col"><span class="t2">Chưa có tin nào đi qua kênh này</span></div><div class="act"><button class="b b--secondary b--sm" type="button" aria-disabled="true" aria-describedby="w-sm">Gửi thử</button><span class="why why--block" id="w-sm">Chưa bấm được: chưa chọn nhà cung cấp SMS.</span></div></div>
+      <div class="rowfoot">Khi chọn nhà cung cấp thật, khóa và mật khẩu nhập một lần, luôn che, không hiển thị lại, mọi thay đổi ghi nhật ký thao tác. Nhà cung cấp thay được mà không đổi sự kiện hay mẫu tin.</div>
+    </section>
+    <div class="alert alert--info"><strong>Tin cho khách cần sự đồng ý của khách</strong><span>Hệ thống chỉ gửi tin nhắc cho khách đã đồng ý nhận (lưu ở hồ sơ khách). Khách chưa đồng ý bị chặn kèm lý do trong Nhật ký gửi. Giờ không gửi (ban đêm) và thời hạn lưu đồng ý: [Cần xác nhận, luật sư].</span></div>
+  </div>
+
+  <div data-t="ev" class="stack">
+    <section class="card list" aria-label="Sự kiện và mẫu tin">
+      <div class="item ev"><div class="col"><span class="t1">Nhắc lịch hẹn</span><span class="badge badge--info">Gửi khách</span></div><div class="col"><div class="bubble">Garage Minh Phát xin nhắc: lịch hẹn xe {biển_số} lúc {giờ_hẹn} tại {chi_nhánh}.</div></div><div class="col"><span class="chips"><span class="badge badge--success">Trong hệ thống</span><span class="badge badge--info">Email</span></span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-tpl">Xem và sửa mẫu</button></div></div>
+      <div class="item ev"><div class="col"><span class="t1">Xe sẵn sàng bàn giao</span><span class="badge badge--info">Gửi khách</span></div><div class="col"><div class="bubble">Xe {biển_số} của anh/chị đã sửa xong, mời nhận xe tại {chi_nhánh}.</div></div><div class="col"><span class="chips"><span class="badge badge--info">Email</span></span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-tpl">Xem và sửa mẫu</button></div></div>
+      <div class="item ev"><div class="col"><span class="t1">Nhắc đăng kiểm</span><span class="badge badge--info">Gửi khách</span></div><div class="col"><div class="bubble">Xe {biển_số} sắp đến hạn đăng kiểm ngày {hạn_đăng_kiểm}.</div><span class="t2">Chu kỳ nhắc là cấu hình có ngày hiệu lực, không đặt ở đây</span></div><div class="col"><span class="badge badge--neutral">Chưa bật kênh nào</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-tpl">Xem và sửa mẫu</button></div></div>
+      <div class="item ev"><div class="col"><span class="t1">Yêu cầu phê duyệt mới</span><span class="badge badge--purple">Gửi nhân viên</span></div><div class="col"><div class="bubble">Có yêu cầu {loại_yêu_cầu} chờ bạn duyệt tại {chi_nhánh}.</div><span class="t2">Chỉ gửi người có quyền duyệt đúng cấp</span></div><div class="col"><span class="chips"><span class="badge badge--success">Trong hệ thống</span></span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-open="d-tpl">Xem và sửa mẫu</button></div></div>
+      <div class="rowfoot">Hiển thị 4 trong 6 sự kiện. Mỗi người dùng tự chọn sự kiện muốn nhận trong phạm vi quyền của mình.</div>
+    </section>
+  </div>
+
+  <div data-t="log" class="stack">
+    <section class="card list" aria-label="Nhật ký gửi">
+      <div class="item lg"><div class="col"><span class="t1">09:21</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Gửi thử · Email</span><span class="t2">Đến Trần Hoàng Anh</span></div><div class="col"><span class="badge badge--success">Đã gửi (giả lập)</span></div><div class="col"><span class="code">MSG-2611-000412</span></div></div>
+      <div class="item lg"><div class="col"><span class="t1">08:30</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Nhắc lịch hẹn · <span class="plate">51K-482.19</span></span><span class="t2">Khách <span class="masked">0903 ••• •89</span></span></div><div class="col"><span class="badge badge--warning">Chặn</span><span class="t2">Khách chưa đồng ý nhận tin</span></div><div class="col"><span class="code">MSG-2611-000398</span></div></div>
+      <div class="item lg item--bad"><div class="col"><span class="t1">08:05</span><span class="t2">07/11/2026</span></div><div class="col"><span class="t1">Xe sẵn sàng · <span class="plate">30H-912.06</span></span><span class="t2">Khách <span class="masked">ha•••@mail.com</span></span></div><div class="col"><span class="badge badge--danger">Lỗi gửi</span><span class="t2">Địa chỉ email không hợp lệ</span><button class="b b--secondary b--sm" type="button" aria-disabled="true" aria-describedby="w-r">Gửi lại</button><span class="why why--block" id="w-r">Chưa bấm được: sửa email trong hồ sơ khách trước.</span></div><div class="col"><span class="code">MSG-2611-000391</span></div></div>
+      <div class="rowfoot">Nhật ký không lưu nội dung đầy đủ của khách; số điện thoại và email che theo vai trò.</div>
+    </section>
+  </div>
+</div>
+
+<dialog id="d-tpl" aria-labelledby="d-tpl-h"><div class="dlg">
+  <h2 id="d-tpl-h">Mẫu tin: Nhắc lịch hẹn</h2>
+  <div class="field"><label for="tp">Nội dung</label><textarea id="tp">Garage Minh Phát xin nhắc: lịch hẹn xe {biển_số} lúc {giờ_hẹn} tại {chi_nhánh}.</textarea><span class="hint">93 ký tự. Tin SMS có dấu tiếng Việt thường tính theo 70 ký tự một tin, nên mẫu này khoảng 2 tin [ước tính, nhà cung cấp quyết định].</span></div>
+  <div class="field"><span class="lbl">Biến dùng được</span><div class="vars"><span class="code">{tên_khách}</span><span class="code">{biển_số}</span><span class="code">{giờ_hẹn}</span><span class="code">{chi_nhánh}</span></div></div>
+  <div class="field"><span class="lbl">Xem trước với dữ liệu mẫu</span><div class="bubble">Garage Minh Phát xin nhắc: lịch hẹn xe 51K-482.19 lúc 08:30 ngày 08/11/2026 tại Chi nhánh Quận 7.</div></div>
+  <div class="field"><label for="tf">Áp dụng từ ngày</label><input id="tf" type="text" inputmode="numeric" value="08/11/2026"><span class="hint">Mẫu là cấu hình có ngày hiệu lực; tin đã gửi giữ nguyên nội dung cũ.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Hủy</button><button class="b b--primary" type="button" data-close="Đã lưu mẫu. Nhật ký ghi bản trước và sau.">Lưu mẫu</button></div>
+</div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="ops.js"></script>
+</body>
+</html>

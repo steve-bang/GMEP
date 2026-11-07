@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cơ cấu tổ chức – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .head-co { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); }
+  .head-co > div { min-width: 0; flex: 1 1 260px; }
+  .br { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) auto; padding-left: 0; padding-right: 0; }
+  @media (max-width: 1023px) { .br { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-2); } }
+  .lvl { font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-tertiary); }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+<div class="preview">
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="one">Một pháp nhân, 4 chi nhánh</button>
+    <button class="chip" type="button" data-view="two">Hai pháp nhân</button>
+    <button class="chip" type="button" data-view="new">Mới tạo, chưa có chi nhánh</button>
+    <button class="chip" type="button" data-view="ql">Quản lý chi nhánh (chỉ đọc)</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Cấp trên cùng là công ty khách hàng của GMEP (tenant). Pháp nhân, chi nhánh, kho là cấu hình, thêm không cần sửa mã nguồn (FR-SYS-005, 011, 018).</p>
+  <div class="preview__nav"><a href="users.html">Người dùng và lời mời</a><a href="user.html">Chi tiết người dùng và phiên</a><a href="roles.html">Vai trò và quyền</a><a href="org.html" aria-current="page">Cơ cấu tổ chức</a><a href="branch.html">Cấu hình chi nhánh</a><a href="discounts.html">Hạn mức giảm giá</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline"><strong>Mất kết nối.</strong> Chưa thể thêm hay khóa chi nhánh. Cơ cấu đang xem là bản lúc 09:12.</div>
+
+<div class="wrap" id="main">
+  <p class="crumbs">Cài đặt và quản trị › Cơ cấu tổ chức</p>
+  <header class="head">
+    <div><h1>Cơ cấu tổ chức</h1><p>Công ty, pháp nhân, chi nhánh và kho. Chi nhánh bị khóa vẫn tra cứu được lịch sử nhưng không tạo chứng từ mới. Mỗi chi nhánh thuộc đúng một pháp nhân tại một thời điểm.</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" data-open="dAdd" data-dis-in="ql offline loading" aria-describedby="wA">Thêm chi nhánh</button>
+      <p class="why why--block" id="wA" data-v="ql">Chưa bấm được: chỉ Chủ garage và Quản trị hệ thống thêm chi nhánh. [Cần xác nhận: Quản lý có được thêm không]</p>
+      <p class="why why--block" data-v="offline">Chưa bấm được: đang mất kết nối.</p>
+    </div>
+  </header>
+  <div class="scope" role="status"><span><b>Phạm vi:</b> Garage Minh Phát, cấp công ty (không phụ thuộc chi nhánh đang chọn ở thanh trên)</span><span data-v="ql">Bạn thấy đầy đủ cơ cấu nhưng chỉ cấu hình được chi nhánh của mình</span><span>Cập nhật 07/11/2026 09:12</span></div>
+
+  <div data-v="one two ql offline">
+    <div class="node">
+      <section class="card head-co" aria-label="Công ty">
+        <div><span class="lvl">Công ty (tenant)</span><div class="t1" style="font-size:var(--font-size-lg)">Garage Minh Phát</div><div class="t2">Mã công ty 482915 · tạo 01/03/2026</div></div>
+        <span class="badge badge--success">Đang hoạt động</span>
+      </section>
+
+      <div class="node node--co">
+        <section class="card" aria-label="Pháp nhân Công ty TNHH Minh Phát">
+          <div class="head-co"><div><span class="lvl">Pháp nhân</span><div class="t1">Công ty TNHH Ô tô Minh Phát</div><div class="t2">MST 0312345678 (số mẫu) · đơn vị phát hành hóa đơn: Minh Phát, ký hiệu theo cấu hình hóa đơn</div></div><span class="badge badge--info">Trụ sở: Quận 7</span></div>
+          <div class="list">
+            <div class="item br" style="padding-left:var(--space-5);padding-right:var(--space-5)"><div><a class="t1" href="branch.html" style="color:inherit">Chi nhánh Quận 7</a><div class="t2">Nguyễn Thị Thập, Quận 7</div></div><div><div class="badges"><span class="badge badge--neutral">Kho chính</span><span class="badge badge--neutral">Kho phụ tùng nhanh</span></div><div class="t2">2 kho · 18 người dùng</div></div><div><span class="badge badge--success">Đang nhận lệnh</span></div><a class="b b--secondary b--sm" href="branch.html">Cấu hình</a></div>
+            <div class="item br" style="padding-left:var(--space-5);padding-right:var(--space-5)"><div><a class="t1" href="branch.html" style="color:inherit">Chi nhánh Thủ Đức</a><div class="t2">Võ Văn Ngân, TP Thủ Đức</div></div><div><div class="badges"><span class="badge badge--neutral">Kho chính</span></div><div class="t2">1 kho · 11 người dùng</div></div><div><span class="badge badge--warning">Ngừng nhận lệnh mới</span></div><a class="b b--secondary b--sm" href="branch.html" data-nv="ql">Cấu hình</a><span class="why" data-v="ql" style="max-width:26ch">Không phải chi nhánh của bạn: chỉ xem.</span></div>
+            <div class="item br item--flag" style="padding-left:var(--space-5);padding-right:var(--space-5)"><div><a class="t1" href="branch.html#locked" style="color:inherit">Chi nhánh Bình Tân</a><div class="t2">Khóa ngày 30/10/2026 bởi Nguyễn Thị Hà</div></div><div><div class="badges"><span class="badge badge--neutral">Kho chính</span></div><div class="t2">1 kho · 3 người dùng (chỉ xem lịch sử)</div></div><div><span class="badge badge--neutral">Đã khóa</span></div><button class="b b--secondary b--sm" type="button" data-toast="Đã mở khóa Chi nhánh Bình Tân. Có thể tạo chứng từ mới từ bây giờ." data-undo="1" data-dis-in="ql offline">Mở khóa</button></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="node node--co" data-v="two">
+        <section class="card" aria-label="Pháp nhân thứ hai">
+          <div class="head-co"><div><span class="lvl">Pháp nhân</span><div class="t1">Công ty TNHH Minh Phát Miền Trung</div><div class="t2">MST 0401234567 (số mẫu) · đơn vị phát hành hóa đơn riêng</div></div><span class="badge badge--neutral">Mới</span></div>
+          <div class="list"><div class="item br" style="padding-left:var(--space-5);padding-right:var(--space-5)"><div><a class="t1" href="branch.html" style="color:inherit">Chi nhánh Đà Nẵng</a><div class="t2">Nguyễn Hữu Thọ, Đà Nẵng</div></div><div><div class="badges"><span class="badge badge--neutral">Kho chính</span></div><div class="t2">1 kho · 6 người dùng</div></div><div><span class="badge badge--success">Đang nhận lệnh</span></div><a class="b b--secondary b--sm" href="branch.html">Cấu hình</a></div></div>
+        </section>
+        <p class="hint" style="margin:0">Hóa đơn của chi nhánh dùng đơn vị phát hành của pháp nhân chứa nó. Chuyển chi nhánh sang pháp nhân khác chưa thiết kế [Cần xác nhận: có cho phép, có ngày hiệu lực không].</p>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:var(--space-3)">Thêm pháp nhân thứ hai là cấu hình (FR-SYS-018); màn thêm pháp nhân chưa thiết kế ở bản này [Cần xác nhận: nhu cầu của khách].</p>
+  </div>
+
+  <section class="card empty" data-v="new"><h2>Chưa có chi nhánh nào</h2><p>Thêm chi nhánh đầu tiên: tên, địa chỉ và pháp nhân. Hệ thống tạo sẵn một kho chính; giờ làm việc, bảng giá và hóa đơn đặt ở bước cấu hình chi nhánh.</p><button class="b b--primary" type="button" data-open="dAdd">Thêm chi nhánh</button></section>
+  <section class="card" data-v="loading" aria-busy="true"><div class="sec"><span class="sk" style="width:30%"></span><span class="sk"></span><span class="sk"></span><span class="sk" style="width:70%"></span></div></section>
+  <section class="card empty" data-v="error" role="alert"><h2>Không tải được cơ cấu tổ chức</h2><p>Lỗi từ hệ thống, mã sự cố GM-58AA10.</p><button class="b b--primary" type="button">Thử lại</button></section>
+</div>
+
+<dialog id="dAdd" aria-labelledby="aT"><form method="dialog">
+  <h2 id="aT">Thêm chi nhánh</h2>
+  <div class="field"><label for="aN">Tên chi nhánh <span class="req">*</span></label><input id="aN" autocomplete="off" placeholder="Chi nhánh Biên Hòa"></div>
+  <div class="field"><label for="aC">Mã chi nhánh <span class="req">*</span></label><input id="aC" autocomplete="off" placeholder="BH"><span class="hint">Dùng trong số chứng từ. Không đổi được sau khi có chứng từ đầu tiên [Cần xác nhận].</span></div>
+  <div class="field"><label for="aA">Địa chỉ</label><input id="aA" autocomplete="off"></div>
+  <div class="field"><label for="aP">Pháp nhân <span class="req">*</span></label><select id="aP"><option value="">Chọn pháp nhân</option><option>Công ty TNHH Ô tô Minh Phát</option></select></div>
+  <div class="field"><label for="aS">Sao chép cấu hình từ</label><select id="aS"><option value="">Không sao chép</option><option>Chi nhánh Quận 7</option><option>Chi nhánh Thủ Đức</option></select><span class="hint">Chỉ sao chép giờ làm việc, bảng giá và hạn mức; không sao chép người dùng hay tồn kho.</span></div>
+  <div><button class="b b--primary" type="button" id="aGo" aria-disabled="true" style="width:100%" aria-describedby="aW">Tạo chi nhánh</button><p class="why" id="aW" style="margin-top:var(--space-1)"></p></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Đóng</button></div>
+</form></dialog>
+
+<script src="sys.js"></script>
+<script>
+  function chk() {
+    const miss = []; if (!$('#aN').value.trim()) miss.push('tên'); if (!$('#aC').value.trim()) miss.push('mã'); if (!$('#aP').value) miss.push('pháp nhân');
+    $('#aGo').setAttribute('aria-disabled', String(miss.length > 0)); $('#aW').textContent = miss.length ? 'Chưa bấm được: còn thiếu ' + miss.join(', ') + '.' : '';
+  }
+  ['aN', 'aC', 'aP'].forEach((id) => $('#' + id).addEventListener('input', chk)); chk();
+  $('#aGo').onclick = () => { if ($('#aGo').getAttribute('aria-disabled') === 'true') return; $('#dAdd').close(); toast('Đã tạo chi nhánh với một kho chính. Tiếp theo: đặt giờ làm việc và bảng giá.'); };
+</script>
+</body>
+</html>

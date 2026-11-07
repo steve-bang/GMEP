@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hạn mức giảm giá – GMEP</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: minmax(0, 1.3fr) minmax(0, .8fr) minmax(0, .8fr) minmax(0, 1.4fr) auto; }
+  .calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-4); align-items: end; }
+  @media (max-width: 1023px) { .item { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-2); } .calc { grid-template-columns: minmax(0, 1fr); } }
+  .pct { font-size: var(--font-size-lg); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+<div class="preview">
+  <div class="preview__row"><span class="preview__label">Xem thử trạng thái</span>
+    <button class="chip" type="button" data-view="ch">Chủ garage (toàn chuỗi)</button>
+    <button class="chip" type="button" data-view="ql">Quản lý Quận 7 (chỉ đọc)</button>
+    <button class="chip" type="button" data-view="cv">Cố vấn (chỉ thấy mức của mình)</button>
+    <button class="chip" type="button" data-view="empty">Chưa ban hành mức nào</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="error">Lỗi hệ thống</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Mọi số phần trăm là số mẫu để dựng giao diện, chưa phải mức do khách ban hành. Mức giảm tối đa là cấu hình có ngày hiệu lực, không nằm trong mã (FR-TEN-018, RULE-019).</p>
+  <div class="preview__nav"><a href="users.html">Người dùng và lời mời</a><a href="user.html">Chi tiết người dùng và phiên</a><a href="roles.html">Vai trò và quyền</a><a href="org.html">Cơ cấu tổ chức</a><a href="branch.html">Cấu hình chi nhánh</a><a href="discounts.html" aria-current="page">Hạn mức giảm giá</a></div>
+</div>
+<div class="banner" role="alert" data-v="offline"><strong>Mất kết nối.</strong> Chưa thể đặt mức mới. Số liệu là bản lúc 09:12.</div>
+
+<div class="wrap" id="main">
+  <p class="crumbs">Cài đặt và quản trị › Hạn mức giảm giá</p>
+  <header class="head">
+    <div><h1>Hạn mức giảm giá</h1><p>Mức giảm tối đa trên công và trên phụ tùng, theo chi nhánh. Chi nhánh không ghi đè thì dùng mặc định toàn công ty. Báo giá giữ mức tại thời điểm lập.</p></div>
+    <div class="head__actions">
+      <button class="b b--primary" type="button" data-open="dNew" data-dis-in="ql cv offline loading" aria-describedby="wN">Đặt mức mới</button>
+      <p class="why why--block" id="wN" data-v="ql">Chưa bấm được: chỉ Chủ garage đặt hạn mức giảm giá. Bạn xem ở chế độ chỉ đọc. [Cần xác nhận: Quản lý có được đặt cho chi nhánh mình không]</p>
+      <p class="why why--block" data-v="cv">Chưa bấm được: cần quyền Quản lý cấu hình.</p>
+      <p class="why why--block" data-v="offline">Chưa bấm được: đang mất kết nối.</p>
+    </div>
+  </header>
+  <div class="scope" role="status"><span data-v="ch empty offline loading error"><b>Phạm vi:</b> Garage Minh Phát, toàn chuỗi (mặc định cộng 3 chi nhánh)</span><span data-v="ql cv"><b>Phạm vi:</b> Chi nhánh Quận 7 và mặc định toàn công ty</span><span>Hôm nay 07/11/2026</span><span>Cập nhật 09:12</span></div>
+
+  <div data-v="ch ql cv offline">
+    <section class="card sec gap" aria-labelledby="hv"><h2 id="hv">Xem trước hiệu lực</h2>
+      <div class="calc"><div class="field"><label for="pd">Xem mức có hiệu lực vào ngày</label><input id="pd" inputmode="numeric" value="07/11/2026" autocomplete="off"><span class="err" id="pde" hidden>Ngày không hợp lệ. Nhập dạng dd/MM/yyyy.</span></div>
+        <div class="alert alert--info" id="pr" role="status" aria-live="polite" style="margin:0"></div></div>
+      <div class="chips" style="display:flex;flex-wrap:wrap;gap:var(--space-2)"><button class="chip" type="button" data-pd="07/11/2026" aria-pressed="true">Hôm nay</button><button class="chip" type="button" data-pd="01/12/2026" aria-pressed="false">01/12/2026 (có bản mới)</button><button class="chip" type="button" data-pd="01/03/2026" aria-pressed="false">01/03/2026 (quá khứ)</button></div>
+    </section>
+
+    <section class="card list" aria-label="Mức giảm tối đa"><div id="rows"></div>
+      <div class="rowfoot">Mức giảm tối đa là trần cứng: vượt trần thì không tạo được. Dưới trần nhưng trên ngưỡng tự quyết của vai trò thì chờ duyệt theo <a href="../apr-redesign/matrix.html" style="color:var(--color-text-link)">Ma trận hạn mức phê duyệt</a>. Quan hệ giữa hai bảng này [Cần xác nhận BA]. Chi nhánh Bình Tân đã khóa nên không đặt mức mới.</div></section>
+
+    <section class="card sec" style="margin-top:var(--space-4)" aria-labelledby="hh"><h2 id="hh">Lịch sử: <span id="hn">Chi nhánh Quận 7</span></h2>
+      <ul class="tl" id="hist"></ul>
+      <p class="hint" style="margin:0">Phiên bản chỉ thêm, không sửa, không xóa. Bản đã hiệu lực thay bằng bản mới; bản chưa hiệu lực hủy được và ghi nhật ký.</p></section>
+  </div>
+
+  <section class="card empty" data-v="empty"><h2>Chưa ban hành mức giảm tối đa</h2><p>Chưa có mức mặc định toàn công ty nên hệ thống không dùng số nào. Hệ quả khi chưa có mức (chặn mọi giảm giá, hay lên cấp cao nhất duyệt) [Cần xác nhận BA]. Đặt mặc định toàn công ty trước, sau đó ghi đè cho từng chi nhánh nếu cần.</p><button class="b b--primary" type="button" data-open="dNew">Đặt mức mặc định</button></section>
+  <section class="card" data-v="loading" aria-busy="true"><div class="sec"><span class="sk" style="width:35%"></span><span class="sk"></span><span class="sk"></span><span class="sk" style="width:60%"></span></div></section>
+  <section class="card empty" data-v="error" role="alert"><h2>Không tải được hạn mức</h2><p>Lỗi từ hệ thống, mã sự cố GM-A3D104.</p><button class="b b--primary" type="button">Thử lại</button></section>
+</div>
+
+<dialog id="dNew" aria-labelledby="nT"><form method="dialog">
+  <h2 id="nT">Đặt mức giảm tối đa mới</h2>
+  <div class="field"><label for="nS">Áp dụng cho <span class="req">*</span></label><select id="nS"><option value="">Chọn</option><option>Mặc định toàn công ty</option><option>Chi nhánh Quận 7</option><option>Chi nhánh Thủ Đức</option></select></div>
+  <div class="two"><div class="field"><label for="nL">Trên công (%) <span class="req">*</span></label><input id="nL" inputmode="numeric" autocomplete="off" placeholder="0 đến 100"></div><div class="field"><label for="nP">Trên phụ tùng (%) <span class="req">*</span></label><input id="nP" inputmode="numeric" autocomplete="off" placeholder="0 đến 100"></div></div>
+  <span class="err" id="nE" hidden>Nhập số nguyên từ 0 đến 100 [Cần xác nhận: có cho số lẻ không].</span>
+  <div class="field"><label for="nD">Có hiệu lực từ ngày <span class="req">*</span></label><input id="nD" inputmode="numeric" value="01/12/2026" autocomplete="off"><span class="hint">dd/MM/yyyy, từ hôm nay trở đi.</span><span class="err" id="nDe" hidden>Ngày không hợp lệ hoặc đã qua.</span></div>
+  <div class="field"><label for="nR">Lý do <span class="req">*</span></label><textarea id="nR"></textarea><span class="hint">Từ 5 ký tự. Ghi vào nhật ký.</span></div>
+  <div class="alert alert--warn"><b>Xem tác động</b><span>3 báo giá đang mở có mức giảm cao hơn mức mới. Các báo giá đó giữ mức đã lập; mức mới áp cho báo giá và lệnh tạo từ ngày hiệu lực [Cần xác nhận: báo giá còn hạn nhưng chưa duyệt dùng mức nào].</span></div>
+  <div><button class="b b--primary" type="button" id="nGo" aria-disabled="true" style="width:100%" aria-describedby="nW">Đặt mức mới</button><p class="why" id="nW" style="margin-top:var(--space-1)"></p></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close>Đóng</button></div>
+</form></dialog>
+
+<script src="sys.js"></script>
+<script>
+  const TODAY = new Date(2026, 10, 7);
+  const d = (dd, mm, yy) => new Date(yy, mm - 1, dd);
+  // [khóa, tên, bị khóa, [[từ, công %, phụ tùng %, người đặt]]]; chi nhánh không có phiên bản = kế thừa
+  const S = [
+    ['def', 'Mặc định toàn công ty', false, [[d(1, 1, 2026), 10, 5, 'Nguyễn Thị Hà']]],
+    ['q7', 'Chi nhánh Quận 7', false, [[d(1, 3, 2026), 15, 5, 'Nguyễn Thị Hà'], [d(1, 12, 2026), 12, 5, 'Nguyễn Thị Hà']]],
+    ['td', 'Chi nhánh Thủ Đức', false, []],
+    ['bt', 'Chi nhánh Bình Tân', true, []],
+  ];
+  const f = (x) => ('0' + x.getDate()).slice(-2) + '/' + ('0' + (x.getMonth() + 1)).slice(-2) + '/' + x.getFullYear();
+  const parse = (s) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim()); if (!m) return null; const x = d(+m[1], +m[2], +m[3]); return x.getDate() === +m[1] ? x : null; };
+  const at = (vs, dt) => vs.filter((v) => v[0] <= dt).sort((a, b) => b[0] - a[0])[0];
+  let sel = 'q7', pd = TODAY;
+  function eff(s, dt) { const own = at(s[3], dt); return own ? { v: own, src: 'Ghi đè' } : { v: at(S[0][3], dt), src: 'Kế thừa' }; }
+  function render() {
+    const v = curView(), vis = S.filter((s) => v === 'ql' || v === 'cv' ? s[0] === 'def' || s[0] === 'q7' : true);
+    $('#rows').innerHTML = vis.map((s) => {
+      const e = eff(s, pd), nxt = s[3].filter((x) => x[0] > TODAY)[0];
+      const val = e.v ? `<div class="pct">${e.v[1]}%</div>` : '<span class="unk">Chưa ban hành</span>';
+      const val2 = e.v ? `<div class="pct">${e.v[2]}%</div>` : '<span class="unk">Chưa ban hành</span>';
+      return `<div class="item${s[0] === sel ? '' : ''}"><div><span class="t1">${s[1]}</span>${s[2] ? ' <span class="badge badge--neutral">Đã khóa</span>' : ''}<div class="t2">${s[0] === 'def' ? 'Áp cho chi nhánh không ghi đè' : ''}</div></div><div><span class="t2">Trên công</span>${val}</div><div><span class="t2">Trên phụ tùng</span>${val2}</div><div class="badges"><span class="badge badge--${e.src === 'Ghi đè' || s[0] === 'def' ? 'info' : 'neutral'}">${s[0] === 'def' ? 'Mặc định' : e.src}</span>${e.v ? `<span class="t2" style="align-self:center">từ ${f(e.v[0])}</span>` : ''}${nxt && pd < nxt[0] ? `<span class="badge badge--warning">Sắp hiệu lực ${f(nxt[0])}: công ${nxt[1]}%</span>` : ''}</div><button class="b b--secondary b--sm" type="button" data-sel="${s[0]}" aria-pressed="${s[0] === sel}">Xem lịch sử</button></div>`;
+    }).join('');
+    const sc = S.find((s) => s[0] === sel) || S[1];
+    $('#hn').textContent = sc[1];
+    const own = sc[3].slice().sort((a, b) => b[0] - a[0]);
+    $('#hist').innerHTML = own.length ? own.map((x) => `<li class="${x[0] > TODAY ? 'next' : at(sc[3], TODAY) === x ? 'now' : ''}"><b>${x[0] > TODAY ? 'Sắp hiệu lực' : at(sc[3], TODAY) === x ? 'Đang áp dụng' : 'Đã thay thế'} từ ${f(x[0])}</b> · công ${x[1]}%, phụ tùng ${x[2]}%<span class="t2">Đặt bởi ${x[3]}</span></li>`).join('') : '<li>Không ghi đè: dùng mặc định toàn công ty. Chưa có phiên bản riêng.</li>';
+    const e = eff(S.find((s) => s[0] === 'q7'), pd);
+    $('#pr').textContent = `Vào ngày ${f(pd)}, Chi nhánh Quận 7 giảm tối đa ${e.v ? e.v[1] : '—'}% trên công và ${e.v ? e.v[2] : '—'}% trên phụ tùng (${e.src.toLowerCase()}). Báo giá lập trước ngày này giữ mức lúc lập.`;
+  }
+  $('#rows').addEventListener('click', (e) => { const b = e.target.closest('[data-sel]'); if (b) { sel = b.dataset.sel; render(); } });
+  function setPd(s) { const x = parse(s); $('#pde').hidden = !!x || !s; if (x) { pd = x; render(); } $$('[data-pd]').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.pd === s))); }
+  $('#pd').addEventListener('input', () => setPd($('#pd').value));
+  $$('[data-pd]').forEach((c) => c.addEventListener('click', () => { $('#pd').value = c.dataset.pd; setPd(c.dataset.pd); }));
+  document.addEventListener('viewchange', render); render();
+  // hộp thoại đặt mức mới
+  function chk() {
+    const L = $('#nL').value.trim(), P = $('#nP').value.trim(), ok = (x) => /^\d{1,3}$/.test(x) && +x <= 100, dx = parse($('#nD').value), okD = dx && dx >= TODAY;
+    $('#nE').hidden = !((L && !ok(L)) || (P && !ok(P))); $('#nDe').hidden = !$('#nD').value || !!okD;
+    const miss = []; if (!$('#nS').value) miss.push('đối tượng áp dụng'); if (!ok(L) || !ok(P)) miss.push('hai mức hợp lệ'); if (!okD) miss.push('ngày hiệu lực hợp lệ'); if ($('#nR').value.trim().length < 5) miss.push('lý do từ 5 ký tự');
+    $('#nGo').setAttribute('aria-disabled', String(miss.length > 0)); $('#nW').textContent = miss.length ? 'Chưa bấm được: còn thiếu ' + miss.join(', ') + '.' : '';
+  }
+  ['nS', 'nL', 'nP', 'nD', 'nR'].forEach((id) => $('#' + id).addEventListener('input', chk)); chk();
+  $('#nGo').onclick = () => { if ($('#nGo').getAttribute('aria-disabled') === 'true') return; $('#dNew').close(); toast('Đã đặt mức mới, có hiệu lực từ ' + $('#nD').value + '. Hủy được tới ngày đó.', 1); };
+</script>
+</body>
+</html>

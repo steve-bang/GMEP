@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bảo mật và phiên – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .ss { --cols: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) 200px; }
+  .pol { --cols: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.4fr); }
+</style>
+</head>
+<body>
+<div class="preview" role="group" aria-label="Xem thử trạng thái (chỉ có trong prototype)">
+  <div class="preview__row"><span class="preview__label">Xem thử</span>
+    <button class="chip" type="button" data-view="ok">Nhân viên, nhiều thiết bị</button>
+    <button class="chip" type="button" data-view="one">Chỉ một thiết bị</button>
+    <button class="chip" type="button" data-view="ch">Chủ garage xem người khác</button>
+    <button class="chip" type="button" data-view="loading">Đang tải</button>
+    <button class="chip" type="button" data-view="error">Lỗi tải</button>
+    <button class="chip" type="button" data-view="offline">Mất mạng</button>
+  </div>
+  <p class="preview__hint">Hộp thoại: <span class="code">#dlg=d-all</span>. Tab: <span class="code">#tab=hist</span>, <span class="code">#tab=policy</span>.</p>
+</div>
+<div class="wrap">
+  <p class="crumbs">GMEP › Cài đặt và quản trị › Bảo mật và phiên</p>
+  <nav class="subnav" aria-label="Cài đặt và quản trị">
+    <a href="audit.html">Nhật ký thao tác</a><a href="import.html">Nhập từ Excel</a><a href="einvoice.html">Hóa đơn điện tử</a><a href="messaging.html">Tin nhắn</a><a href="tax.html">Thuế suất</a><a href="security.html" aria-current="page">Bảo mật và phiên</a>
+  </nav>
+  <header class="head">
+    <div><h1>Bảo mật và phiên</h1><p>Xem nơi tài khoản đang đăng nhập, đăng xuất thiết bị lạ và xem lịch sử đăng nhập (FR-SYS-001, 014). Đăng nhập bằng mật khẩu; không có xác thực hai bước.</p></div>
+    <div class="head__actions" data-t="mine">
+      <button class="b b--primary" type="button" data-vx="one offline loading error" data-open="d-all">Đăng xuất mọi thiết bị khác</button>
+      <button class="b b--primary" type="button" data-v="one" aria-disabled="true" aria-describedby="w-o">Đăng xuất mọi thiết bị khác</button><span class="why why--block" id="w-o" data-v="one">Chưa bấm được: không có thiết bị nào khác đang đăng nhập.</span>
+      <button class="b b--primary" type="button" data-v="offline loading error" aria-disabled="true" aria-describedby="w-p">Đăng xuất mọi thiết bị khác</button><span class="why why--block" id="w-p" data-v="offline loading error">Chưa bấm được: chưa tải được danh sách phiên hoặc đang mất kết nối.</span>
+    </div>
+  </header>
+
+  <div class="scope" role="status"><span data-vx="ch"><b>Tài khoản:</b> Hoàng Thị Mai · Thủ kho · Chi nhánh Quận 7</span><span data-v="ch"><b>Phạm vi:</b> Chủ garage xem nhân viên toàn chuỗi</span><span>Cập nhật 09:15 07/11/2026</span></div>
+  <div class="alert alert--warn state" role="alert" data-v="offline"><strong>Mất kết nối</strong><span>Danh sách phiên có thể đã cũ. Bản nháp đang soạn được giữ trong trang.</span></div>
+
+  <div class="tabsline" role="tablist" aria-label="Bảo mật">
+    <button type="button" role="tab" data-tab="mine">Phiên đang mở<span class="cnt" data-vx="one">3</span><span class="cnt" data-v="one">1</span></button>
+    <button type="button" role="tab" data-tab="hist">Lịch sử đăng nhập</button>
+    <button type="button" role="tab" data-tab="policy">Chính sách<span class="cnt cnt--warn">4</span></button>
+  </div>
+
+  <!-- Phiên đang mở -->
+  <section class="card list" data-t="mine" aria-label="Phiên đang mở" aria-live="polite">
+    <div data-v="loading"><div class="item ss"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="item ss"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+    <div data-vx="loading error">
+      <div class="item ss"><div class="col"><span class="t1">Máy quầy Q7 · Chrome, Windows</span><span class="badge badge--success">Thiết bị này</span></div><div class="col"><span class="t2">IP 113.161.•••.•••</span></div><div class="col"><span class="t1">Đang hoạt động</span><span class="t2">đăng nhập 07:48 hôm nay</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-toast="Đã đăng xuất. Nhật ký ghi sự kiện.">Đăng xuất</button></div></div>
+      <div class="item ss" data-vx="one"><div class="col"><span class="t1">Điện thoại · Safari, iPhone</span></div><div class="col"><span class="t2">IP 27.64.•••.•••</span></div><div class="col"><span class="t1">12 phút trước</span><span class="t2">đăng nhập 06/11/2026 18:02</span></div><div class="act"><button class="b b--secondary b--sm" type="button" data-toast="Đã đăng xuất thiết bị này.">Đăng xuất thiết bị này</button></div></div>
+      <div class="item ss item--flag" data-vx="one"><div class="col"><span class="t1">Máy tính · Firefox, Linux</span><span class="badge badge--warning">Chưa từng thấy</span></div><div class="col"><span class="t2">IP 14.232.•••.•••</span></div><div class="col"><span class="t1">2 giờ trước</span><span class="t2">đăng nhập 07/11/2026 07:05</span></div><div class="act"><button class="b b--danger b--sm" type="button" data-open="d-all">Không phải tôi</button><span class="why">Đăng xuất và nên đổi mật khẩu</span></div></div>
+    </div>
+    <div class="empty" data-v="error"><h2>Không tải được danh sách phiên</h2><p>Kết nối bị gián đoạn, không phải do không có phiên nào. Mã tham chiếu <span class="code">REQ-8F02D5</span>.</p><button class="b b--secondary" type="button" data-view-go="ok">Thử lại</button></div>
+    <div class="rowfoot" data-vx="loading error">Đổi mật khẩu sẽ đăng xuất mọi thiết bị khác. <a href="#" data-toast="Chuyển tới trang đổi mật khẩu">Đổi mật khẩu</a></div>
+  </section>
+
+  <!-- Lịch sử -->
+  <div data-t="hist" class="stack">
+    <div class="find" data-v="ch"><div class="sel"><label class="sr" for="u">Người dùng</label><select id="u"><option>Hoàng Thị Mai</option><option>Phạm Thị Lan</option><option>Võ Minh Quân</option></select></div></div>
+    <div class="chips" role="group" aria-label="Khoảng thời gian"><button type="button" class="chip" aria-pressed="false">7 ngày</button><button type="button" class="chip" aria-pressed="true">30 ngày</button><button type="button" class="chip" aria-pressed="false">Chọn ngày…</button></div>
+    <section class="card list" aria-label="Lịch sử đăng nhập">
+      <div class="item ss"><div class="col"><span class="t1">07/11/2026 07:48</span><span class="t2">Máy quầy Q7 · Chrome</span></div><div class="col"><span class="badge badge--success">Đang đăng nhập</span></div><div class="col"><span class="t2">IP 113.161.•••.•••</span></div><div class="act"><span class="hint">Phiên hiện tại</span></div></div>
+      <div class="item ss"><div class="col"><span class="t1">06/11/2026 18:02</span><span class="t2">Điện thoại · Safari</span></div><div class="col"><span class="badge badge--success">Đang đăng nhập</span></div><div class="col"><span class="t2">IP 27.64.•••.•••</span></div><div class="act"><span class="hint">Đăng xuất ở tab Phiên đang mở</span></div></div>
+      <div class="item ss"><div class="col"><span class="t1">06/11/2026 07:51</span><span class="t2">Máy quầy Q7 · Chrome</span></div><div class="col"><span class="badge badge--neutral">Đã đăng xuất</span><span class="t2">17:45 cùng ngày</span></div><div class="col"><span class="t2">IP 113.161.•••.•••</span></div><div class="act"></div></div>
+      <div class="item ss"><div class="col"><span class="t1">05/11/2026 07:49</span><span class="t2">Máy quầy Q7 · Chrome</span></div><div class="col"><span class="badge badge--neutral">Hết phiên</span><span class="t2">sau thời gian rảnh</span></div><div class="col"><span class="t2">IP 113.161.•••.•••</span></div><div class="act"></div></div>
+      <div class="rowfoot">Chỉ ghi các lần đăng nhập thành công. Lần nhập sai không ghi theo tài khoản để không lộ email có tồn tại (FR-SYS-014). Thời hạn lưu và việc lưu địa chỉ IP: [Cần xác nhận: Chủ dự án, luật sư]. Địa chỉ IP che nửa sau.</div>
+    </section>
+  </div>
+
+  <!-- Chính sách -->
+  <div data-t="policy" class="stack">
+    <div class="alert alert--info" role="note"><strong>Chỉ xem, các giá trị do người có thẩm quyền chốt</strong><span>Màn này hiện chính sách đang áp dụng. “Chưa chốt” giữ nguyên là chưa chốt, không có giá trị mặc định ngầm.</span></div>
+    <section class="card list" aria-label="Chính sách bảo mật">
+      <div class="item pol"><div class="col"><span class="t1">Thời gian rảnh trước khi hết phiên</span><span class="t2">Theo vai trò</span></div><div class="col"><span class="badge badge--warning">Chưa chốt</span></div><div class="col"><span class="t2">[Cần xác nhận Q5] Hết phiên có cảnh báo trước và giữ bản nháp.</span></div></div>
+      <div class="item pol"><div class="col"><span class="t1">Thời hạn phiên tuyệt đối</span><span class="t2">Theo vai trò</span></div><div class="col"><span class="badge badge--warning">Chưa chốt</span></div><div class="col"><span class="t2">[Cần xác nhận Q5]</span></div></div>
+      <div class="item pol"><div class="col"><span class="t1">Khóa tạm khi nhập sai mật khẩu</span><span class="t2">Số lần, thời gian khóa</span></div><div class="col"><span class="badge badge--warning">Chưa chốt</span></div><div class="col"><span class="t2">[Cần xác nhận Q6] Thông báo khóa dùng một câu trung lập.</span></div></div>
+      <div class="item pol"><div class="col"><span class="t1">Mật khẩu</span><span class="t2">Độ dài, không trùng mật khẩu cũ</span></div><div class="col"><span class="badge badge--info">Đề xuất</span><span class="t2">Tối thiểu 10 ký tự, không trùng 5 mật khẩu gần nhất</span></div><div class="col"><span class="t2">Lấy từ quyết định kỹ thuật, chưa nằm trong FR-SYS-001 [Cần xác nhận].</span></div></div>
+      <div class="rowfoot"><button class="b b--secondary b--sm" type="button" aria-disabled="true" aria-describedby="w-ed">Chỉnh chính sách</button> <span class="why why--block" id="w-ed">Chưa bấm được: giá trị chưa được chủ dự án duyệt nên chưa có gì để chỉnh.</span></div>
+    </section>
+  </div>
+</div>
+
+<dialog id="d-all" aria-labelledby="d-all-h"><div class="dlg">
+  <h2 id="d-all-h">Đăng xuất 2 thiết bị khác?</h2>
+  <ul style="margin:0;padding-left:var(--space-5);display:grid;gap:var(--space-2)"><li>Điện thoại · Safari, iPhone</li><li>Máy tính · Firefox, Linux</li></ul>
+  <div class="alert alert--warn"><strong>Hậu quả</strong><span>Phiên trên các thiết bị đó kết thúc ngay. Bản nháp chưa lưu trên các thiết bị đó có thể không còn. Thiết bị này không bị đăng xuất.</span></div>
+  <div class="bar2"><button class="b b--secondary" type="button" data-close="">Hủy</button><button class="b b--danger" type="button" data-close="Đã đăng xuất 2 thiết bị. Nhật ký ghi sự kiện.">Đăng xuất 2 thiết bị</button></div>
+</div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="ops.js"></script>
+</body>
+</html>
