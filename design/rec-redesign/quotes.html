@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo giá – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: 150px minmax(0, 1.3fr) 150px 170px 140px 130px; }
+  .act { justify-self: end; }
+  @media (max-width: 1023px) { .item { grid-template-columns: auto 1fr auto; row-gap: var(--space-2); } .item > :nth-child(2) { grid-column: 2 / -1; } .item > :nth-child(n+3) { grid-column: auto; } .act { justify-self: start; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div><h1>Báo giá</h1><p>Báo giá có phiên bản riêng. Chỉ dòng khách đã duyệt mới chuyển thành lệnh sửa chữa. Số tiền đã gồm thuế.</p></div>
+  </header>
+  <form class="find" role="search" onsubmit="return false"><div class="search"><label for="q" style="position:absolute;left:-9999px">Tìm báo giá</label><input id="q" type="search" placeholder="Biển số, mã báo giá hoặc tên khách" autocomplete="off"></div></form>
+  <div class="tabsline" role="tablist" aria-label="Trạng thái báo giá">
+    <button role="tab" aria-selected="true" data-s="all">Tất cả<span class="cnt">4</span></button>
+    <button role="tab" aria-selected="false" data-s="draft">Nháp<span class="cnt">1</span></button>
+    <button role="tab" aria-selected="false" data-s="sent">Chờ khách duyệt<span class="cnt cnt--warn">1</span></button>
+    <button role="tab" aria-selected="false" data-s="ok">Đã duyệt<span class="cnt">2</span></button>
+  </div>
+  <section class="card list" aria-label="Danh sách báo giá">
+    <a class="item" href="quote-detail.html" data-s="draft" data-t="51d99988 cong ty tnhh van tai demo">
+      <span class="plate">51D-999.88</span>
+      <span><span class="t1">Công ty TNHH Vận tải Demo</span><br><span class="t2">BG-Q7-2611-00001, phiên bản v1</span></span>
+      <span><span class="badge badge--neutral">Nháp</span></span>
+      <span class="t2">Cập nhật 04/11/2026 16:22</span>
+      <span class="num t1">648.000 ₫</span>
+      <span class="act"><span class="b b--secondary b--sm">Tiếp tục soạn</span></span>
+    </a>
+    <a class="item" href="quote-detail.html" data-s="sent" data-t="51h12345 nguyen van an">
+      <span class="plate">51H-123.45</span>
+      <span><span class="t1">Nguyễn Văn An</span><br><span class="t2">BG-Q7-2611-00002, phiên bản v1</span></span>
+      <span><span class="badge badge--warning">Chờ khách duyệt</span></span>
+      <span class="t2">Đã gửi 2 giờ trước</span>
+      <span class="num t1">648.000 ₫</span>
+      <span class="act"><span class="b b--secondary b--sm">Gửi lại link</span></span>
+    </a>
+    <a class="item" href="quote-detail.html" data-s="ok" data-t="51d99988 cong ty tnhh van tai demo">
+      <span class="plate">51D-999.88</span>
+      <span><span class="t1">Công ty TNHH Vận tải Demo</span><br><span class="t2">BG-Q7-2611-00004, phiên bản v1</span></span>
+      <span><span class="badge badge--success">Duyệt toàn phần</span></span>
+      <span class="t2">2/2 dòng được duyệt</span>
+      <span class="num t1">648.000 ₫</span>
+      <span class="act"><span class="b b--secondary b--sm">Xem lệnh sửa chữa</span></span>
+    </a>
+    <a class="item" href="quote-detail.html" data-s="ok" data-t="59a136708 tran thi mai">
+      <span class="plate">59A1-367.08</span>
+      <span><span class="t1">Trần Thị Mai</span><br><span class="t2">BG-Q7-2611-00006, phiên bản v2</span></span>
+      <span><span class="badge badge--info">Duyệt một phần</span></span>
+      <span class="t2">1/2 dòng được duyệt</span>
+      <span class="num t1">1.320.000 ₫</span>
+      <span class="act"><span class="b b--secondary b--sm">Xem lệnh sửa chữa</span></span>
+    </a>
+    <div class="empty" id="empty" hidden><h2>Không có báo giá phù hợp</h2><p>Thử gõ biển số hoặc đổi nhóm trạng thái.</p></div>
+    <div class="rowfoot" id="foot"></div>
+  </section>
+</div>
+<script>
+  const items = [...document.querySelectorAll('.item')], q = document.getElementById('q'); let s = 'all';
+  const norm = (x) => x.toLowerCase().replace(/[^a-z0-9 ]/g, '');
+  function apply() { const n = norm(q.value).trim(); let c = 0; items.forEach((i) => { const ok = (s === 'all' || i.dataset.s === s) && (!n || i.dataset.t.includes(n)); i.hidden = !ok; if (ok) c++; }); document.getElementById('empty').hidden = c > 0; document.getElementById('foot').textContent = c ? `Hiển thị ${c} báo giá` : ''; }
+  q.addEventListener('input', apply);
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { s = t.dataset.s; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); apply(); }));
+  apply();
+</script>
+</body>
+</html>

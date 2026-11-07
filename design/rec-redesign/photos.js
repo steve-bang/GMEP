@@ -1,0 +1,5 @@
+// Ảnh giả cho prototype: SVG hình xe, đổi tông theo `hue`. Thay bằng signed URL khi có API.
+function ph(hue, tag) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><rect width="320" height="240" fill="hsl(${hue} 22% 90%)"/><rect y="170" width="320" height="70" fill="hsl(${hue} 14% 78%)"/><g fill="hsl(${hue} 30% 38%)"><path d="M52 160c0-14 8-22 20-26l28-34c6-7 12-10 22-10h66c10 0 17 3 24 10l30 32c14 3 26 10 26 28v10H52z"/></g><g fill="hsl(${hue} 22% 90%)"><path d="M112 108h52v26h-76zM176 108h28l26 26h-54z"/></g><g fill="#1f2937"><circle cx="112" cy="172" r="20"/><circle cx="232" cy="172" r="20"/></g><g fill="#e5e7eb"><circle cx="112" cy="172" r="9"/><circle cx="232" cy="172" r="9"/></g>${tag === 'damage' ? '<path d="M196 118l22 12-10 8 18 14" stroke="#dc2626" stroke-width="5" fill="none" stroke-linecap="round"/>' : ''}${tag === 'doc' ? '<rect x="70" y="40" width="180" height="150" rx="8" fill="#fff" stroke="#9ca3af"/><g stroke="#9ca3af" stroke-width="6" stroke-linecap="round"><path d="M92 70h110M92 94h136M92 118h90M92 142h120"/></g>' : ''}</svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}

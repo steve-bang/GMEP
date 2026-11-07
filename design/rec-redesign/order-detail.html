@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lệnh sửa chữa – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); align-items: start; }
+  .layout > * { min-width: 0; }
+  section.card { padding: var(--card-padding); }
+  section.card h2 { margin: 0 0 var(--space-4); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); }
+  .ji { display: grid; grid-template-columns: 1fr auto; gap: var(--space-2) var(--space-4); padding: var(--space-4) 0; border-top: 1px solid var(--color-border); align-items: center; }
+  .ji:first-of-type { border-top: 0; padding-top: 0; }
+  .ji h3 { margin: 0; font-size: var(--font-size-md); font-weight: var(--fw-semibold); }
+  .ji .m { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .ji .m .bar { width: 120px; }
+  .tl { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  .tl li { position: relative; padding-left: var(--space-6); font-size: var(--font-size-md); }
+  .tl li::before { content: ""; position: absolute; left: 4px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--color-border-strong); }
+  .tl li:first-child::before { background: var(--color-primary); }
+  .tl li::after { content: ""; position: absolute; left: 8px; top: 18px; bottom: calc(-1 * var(--space-4) + 2px); width: 2px; background: var(--color-border); }
+  .tl li:last-child::after { display: none; }
+  .tl time { display: block; color: var(--color-text-tertiary); font-size: var(--font-size-sm); font-variant-numeric: tabular-nums; }
+  .side { display: grid; gap: var(--space-4); position: sticky; top: var(--space-4); }
+  .side .box { padding: var(--card-padding-compact) var(--card-padding); display: grid; gap: var(--space-3); }
+  .side h2 { margin: 0; font-size: var(--font-size-lg); }
+  .side .ln { display: flex; justify-content: space-between; font-size: var(--font-size-md); font-variant-numeric: tabular-nums; }
+  .side .ln span:first-child { color: var(--color-text-secondary); }
+  .side .b { width: 100%; }
+  dl { grid-template-columns: 110px 1fr; }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .side { position: static; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="orders.html">Lệnh sửa chữa</a> / RO-Q7-2611-00001</p>
+  <header class="head">
+    <div>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center"><span class="plate" style="height:44px;font-size:var(--font-size-2xl);padding:0 var(--space-4);border-width:2px">51H-123.45</span><h1 style="font-size:var(--font-size-xl)">Toyota Vios 1.5G 2019</h1></div>
+      <p>Lệnh RO-Q7-2611-00001 của Nguyễn Văn An. <span class="late">Trễ hẹn 2 giờ</span> (hẹn 07/11 10:00).</p>
+    </div>
+    <div class="head__actions"><span class="badge badge--warning" style="align-self:center">Đang sửa</span></div>
+  </header>
+
+  <ol class="journey" aria-label="Các chứng từ của lượt xe này">
+    <li><span class="k">Hồ sơ tiếp nhận</span><a href="intake-detail.html">TX-Q7-2611-00003</a><span class="badge badge--success">Đã hoàn tất</span></li>
+    <li><span class="k">Báo giá</span><a href="quote-detail.html">BG-Q7-2611-00003</a><span class="badge badge--success">Duyệt toàn phần</span></li>
+    <li class="cur"><span class="k">Lệnh sửa chữa</span><a href="#">RO-Q7-2611-00001</a><span class="badge badge--warning">Đang sửa</span></li>
+    <li class="todo"><span class="k">Thanh toán và hóa đơn</span><span>Đã thu 0 ₫ trên 648.000 ₫</span></li>
+  </ol>
+
+  <div class="layout">
+    <main style="display:grid;gap:var(--space-6);grid-template-columns:minmax(0,1fr)">
+      <section class="card" aria-labelledby="hi">
+        <h2 id="hi">Hạng mục <span style="color:var(--color-text-tertiary);font-weight:var(--fw-regular)">0/2 xong</span></h2>
+        <div class="ji"><h3>1. Thay dầu</h3><strong style="font-variant-numeric:tabular-nums">150.000 ₫</strong>
+          <div class="m"><span class="badge badge--warning">Đang làm</span><span class="av" title="Thợ Quận 7">T7</span><span>Thợ Quận 7</span><span>Đã làm 1 phút / duyệt 30 phút</span><span class="bar"><i style="width:3%"></i></span></div></div>
+        <div class="ji"><h3>2. Thay má phanh</h3><strong style="font-variant-numeric:tabular-nums">450.000 ₫</strong>
+          <div class="m"><span class="badge badge--neutral">Chưa làm</span><span class="av" title="Thợ Quận 7">T7</span><span>Thợ Quận 7</span><span>Đã làm 0 phút / duyệt 1 giờ 30 phút</span><span class="bar"><i style="width:0"></i></span></div></div>
+      </section>
+      <section class="card" aria-labelledby="hs">
+        <h2 id="hs">Lịch sử trạng thái</h2>
+        <ol class="tl"><li>Bắt đầu làm, chuyển sang Đang sửa<time>04/11/2026 16:22</time></li><li>Mở lệnh, chuyển sang Đã duyệt<time>04/11/2026 16:22</time></li></ol>
+      </section>
+    </main>
+    <aside class="side" aria-label="Thao tác, thanh toán và hóa đơn">
+      <div class="card box"><h2>Thao tác</h2>
+        <button class="b b--primary" type="button" disabled>Chuyển kiểm tra chất lượng</button>
+        <p class="hint" style="margin:0;color:var(--color-text-tertiary);font-size:var(--font-size-sm)">Cần hoàn tất cả 2 hạng mục trước khi kiểm tra chất lượng.</p>
+        <a class="b b--secondary" href="#">Yêu cầu phụ tùng</a>
+        <a class="b b--secondary" href="#">Thêm việc phát sinh</a>
+      </div>
+      <div class="card box"><h2>Thanh toán</h2>
+        <div class="ln"><span>Giá trị lệnh</span><strong>648.000 ₫</strong></div>
+        <div class="ln"><span>Đã thu</span><span>0 ₫</span></div>
+        <div class="bar"><i style="width:0"></i></div>
+        <a class="b b--secondary" href="#">Mở màn thu tiền</a>
+      </div>
+      <div class="card box"><h2>Hóa đơn điện tử</h2><p style="margin:0;color:var(--color-text-secondary);font-size:var(--font-size-md)">Chưa có hóa đơn. Xuất hóa đơn được sau khi giao xe.</p></div>
+      <div class="card box"><h2>Thông tin</h2><dl><dt>Khách hàng</dt><dd>Nguyễn Văn An</dd><dt>Hẹn giao</dt><dd>07/11/2026 10:00</dd><dt>Từ báo giá</dt><dd><a href="quote-detail.html" style="color:var(--color-text-link)">BG-Q7-2611-00003</a></dd></dl></div>
+    </aside>
+  </div>
+</div>
+</body>
+</html>

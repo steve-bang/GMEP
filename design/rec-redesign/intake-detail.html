@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hồ sơ tiếp nhận – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--space-6); align-items: start; }
+  .layout > * { min-width: 0; }
+  section.card { padding: var(--card-padding); }
+  section.card h2 { margin: 0 0 var(--space-4); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); }
+  .quote { font-size: var(--font-size-lg); line-height: var(--lh-body-lg); margin: 0; padding-left: var(--space-4); border-left: 3px solid var(--color-brand-300); }
+  .quote small { display: block; margin-top: var(--space-2); color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  dl { grid-template-columns: 130px 1fr; }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .tag { display: inline-flex; height: 28px; align-items: center; padding: 0 var(--space-3); border-radius: var(--radius-xs); background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: var(--space-3); }
+  .photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+  .next { padding: var(--card-padding); display: grid; gap: var(--space-3); position: sticky; top: var(--space-4); }
+  .next h2 { margin: 0; font-size: var(--font-size-lg); }
+  .next p { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-md); }
+  .next .b { width: 100%; }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .next { position: static; order: -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="intakes.html">Tiếp nhận xe</a> / TX-Q7-2611-00001</p>
+  <header class="head">
+    <div>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center"><span class="plate" style="height:44px;font-size:var(--font-size-2xl);padding:0 var(--space-4);border-width:2px">51D-999.88</span><h1 style="font-size:var(--font-size-xl)">Hyundai Porter H150 2020</h1></div>
+      <p>Hồ sơ tiếp nhận TX-Q7-2611-00001, <span class="badge badge--success">Đã hoàn tất</span></p>
+    </div>
+    <div class="head__actions"><a class="b b--secondary" href="#">In phiếu tiếp nhận</a></div>
+  </header>
+
+  <ol class="journey" aria-label="Các chứng từ của lượt xe này">
+    <li><span class="k">Hồ sơ tiếp nhận</span><a href="#">TX-Q7-2611-00001</a><span class="badge badge--success">Đã hoàn tất</span></li>
+    <li class="cur"><span class="k">Báo giá</span><strong>Chưa lập</strong></li>
+    <li class="todo"><span class="k">Lệnh sửa chữa</span><span>Có khi khách duyệt báo giá</span></li>
+    <li class="todo"><span class="k">Thanh toán và hóa đơn</span><span>Sau khi giao xe</span></li>
+  </ol>
+
+  <div class="layout">
+    <main style="display:grid;gap:var(--space-6);grid-template-columns:minmax(0,1fr)">
+      <section class="card" aria-labelledby="h1">
+        <h2 id="h1">Yêu cầu của khách</h2>
+        <p class="quote">Xe rung khi phanh, kiểm tra hệ thống phanh và thay dầu<small>Ghi theo lời khách lúc tiếp nhận</small></p>
+      </section>
+      <section class="card" aria-labelledby="h2">
+        <h2 id="h2">Hiện trạng lúc nhận</h2>
+        <dl>
+          <dt>Số km</dt><dd>3.090.010 km</dd>
+          <dt>Nhiên liệu</dt><dd>1/2</dd>
+          <dt>Bên ngoài, bên trong</dt><dd>Trầy cản trước bên phải</dd>
+          <dt>Đồ đạc để lại</dt><dd><span class="tags"><span class="tag">Bảo hiểm</span><span class="tag">Kích và dụng cụ</span></span></dd>
+        </dl>
+      </section>
+      <section class="card" aria-labelledby="h3">
+        <h2 id="h3">Ảnh hiện trạng <span style="color:var(--color-text-tertiary);font-weight:var(--fw-regular)">4</span></h2>
+        <div class="photos" id="ph"></div>
+      </section>
+    </main>
+    <aside class="card next" aria-label="Bước tiếp theo">
+      <h2>Bước tiếp theo</h2>
+      <p>Hồ sơ đã đủ thông tin. Lập báo giá để khách duyệt.</p>
+      <a class="b b--primary" href="quote-detail.html">Lập báo giá</a>
+      <dl style="margin-top:var(--space-2)">
+        <dt>Khách hàng</dt><dd><a href="#" style="color:var(--color-text-link)">Công ty TNHH Vận tải Demo</a></dd>
+        <dt>Loại dịch vụ</dt><dd>Bảo dưỡng</dd>
+        <dt>Hẹn giao</dt><dd>08/11/2026 17:00</dd>
+        <dt>Cố vấn</dt><dd>Chủ Garage Demo</dd>
+        <dt>Cập nhật</dt><dd>04/11/2026 16:22</dd>
+      </dl>
+    </aside>
+  </div>
+</div>
+<script src="photos.js"></script>
+<script>document.getElementById('ph').innerHTML = [205, 205, 205, 0].map((h, i) => `<img src="${ph(h, i === 3 ? 'damage' : 'ext')}" alt="Ảnh hiện trạng ${i + 1}">`).join('');</script>
+</body>
+</html>

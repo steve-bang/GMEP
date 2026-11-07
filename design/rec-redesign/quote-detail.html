@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo giá – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); align-items: start; }
+  .layout > * { min-width: 0; }
+  .job { padding: var(--card-padding); display: grid; gap: var(--space-4); }
+  .job__h { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+  .job__h h2 { margin: 0; font-size: var(--font-size-lg); }
+  .sel { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-target); }
+  .sel input { width: 22px; height: 22px; accent-color: var(--color-primary); }
+  .sel input:disabled { opacity: 1; }
+  .tw { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--font-size-md); }
+  th { text-align: left; font-weight: var(--fw-medium); color: var(--color-text-secondary); background: var(--table-head-bg); padding: var(--space-3); white-space: nowrap; }
+  td { padding: var(--space-3); border-top: 1px solid var(--color-border); }
+  .r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sum { padding: var(--card-padding); display: grid; gap: var(--space-3); position: sticky; top: var(--space-4); }
+  .sum h2 { margin: 0; font-size: var(--font-size-lg); }
+  .sum .ln { display: flex; justify-content: space-between; font-size: var(--font-size-md); font-variant-numeric: tabular-nums; }
+  .sum .ln span:first-child { color: var(--color-text-secondary); }
+  .sum .tot { border-top: 1px solid var(--color-border); padding-top: var(--space-3); font-size: var(--font-size-xl); font-weight: var(--fw-bold); }
+  .sum .tot span:first-child { color: var(--color-text-primary); }
+  .sum .b { width: 100%; }
+  .hint { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin: 0; }
+  .ver { display: flex; gap: var(--space-2); align-items: center; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .sum { position: static; order: -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="quotes.html">Báo giá</a> / BG-Q7-2611-00002</p>
+  <header class="head">
+    <div>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center"><span class="plate" style="height:40px;font-size:var(--font-size-xl);padding:0 var(--space-3)">51H-123.45</span><h1 style="font-size:var(--font-size-xl)">Toyota Vios 1.5G 2019</h1></div>
+      <p>Nguyễn Văn An, tính giá ngày 04/11/2026. Mỗi lần sửa sau khi đã gửi tạo một phiên bản mới; bản đã gửi giữ nguyên giá lúc gửi.</p>
+    </div>
+    <div class="ver"><span>Phiên bản v1</span><span class="badge badge--warning">Chờ khách duyệt</span></div>
+  </header>
+
+  <ol class="journey" aria-label="Các chứng từ của lượt xe này">
+    <li><span class="k">Hồ sơ tiếp nhận</span><a href="intake-detail.html">TX-Q7-2611-00003</a><span class="badge badge--success">Đã hoàn tất</span></li>
+    <li class="cur"><span class="k">Báo giá</span><a href="#">BG-Q7-2611-00002</a><span class="badge badge--warning">Chờ khách duyệt</span></li>
+    <li class="todo"><span class="k">Lệnh sửa chữa</span><span>Có khi khách duyệt</span></li>
+    <li class="todo"><span class="k">Thanh toán và hóa đơn</span><span>Sau khi giao xe</span></li>
+  </ol>
+
+  <div class="layout">
+    <main style="display:grid;gap:var(--space-4);grid-template-columns:minmax(0,1fr)">
+      <section class="card job" aria-labelledby="j1">
+        <div class="job__h"><h2 id="j1">1. Thay dầu động cơ</h2><span style="display:flex;gap:var(--space-3);align-items:center"><span class="badge badge--info">Bắt buộc, khuyến nghị an toàn</span><strong class="r" style="font-size:var(--font-size-lg)">150.000 ₫</strong></span></div>
+        <div class="tw"><table><thead><tr><th>Dòng</th><th class="r">Phút / SL</th><th class="r">Giá niêm yết</th><th class="r">Giá thực tế</th><th class="r">Thành tiền</th></tr></thead><tbody>
+          <tr><td>Bảo dưỡng dầu động cơ và lọc dầu<br><span class="hint">SV-DAU</span></td><td class="r">30 phút</td><td class="r">300.000 ₫</td><td class="r">300.000 ₫</td><td class="r">150.000 ₫</td></tr>
+        </tbody></table></div>
+        <label class="sel"><input type="checkbox" checked disabled data-v="150000" aria-describedby="j1h"><span>Khách đã chọn hạng mục này</span></label><p class="hint" id="j1h" style="margin-top:calc(-1 * var(--space-3))">Hạng mục bắt buộc được chọn sẵn.</p>
+      </section>
+      <section class="card job" aria-labelledby="j2">
+        <div class="job__h"><h2 id="j2">2. Thay má phanh</h2><span style="display:flex;gap:var(--space-3);align-items:center"><span class="badge badge--neutral">Tùy chọn</span><strong class="r" style="font-size:var(--font-size-lg)">450.000 ₫</strong></span></div>
+        <div class="tw"><table><thead><tr><th>Dòng</th><th class="r">Phút / SL</th><th class="r">Giá niêm yết</th><th class="r">Giá thực tế</th><th class="r">Thành tiền</th></tr></thead><tbody>
+          <tr><td>Phanh trước: má phanh<br><span class="hint">SV-PHANH</span></td><td class="r">1 giờ 30 phút</td><td class="r">300.000 ₫</td><td class="r">300.000 ₫</td><td class="r">450.000 ₫</td></tr>
+        </tbody></table></div>
+        <label class="sel"><input type="checkbox" data-v="450000" id="opt"><span>Khách đồng ý hạng mục này</span></label>
+        <p class="hint" style="margin-top:calc(-1 * var(--space-3))">Hạng mục tùy chọn chỉ chọn khi khách đã yêu cầu. Lựa chọn của khách được ghi khi khách duyệt.</p>
+      </section>
+    </main>
+
+    <aside class="card sum" aria-label="Tổng tiền và thao tác">
+      <h2>Tổng tiền</h2>
+      <div class="ln"><span>Hạng mục đang chọn</span><span id="s1">150.000 ₫</span></div>
+      <div class="ln"><span>Thuế GTGT (mẫu) 8%</span><span id="s2">12.000 ₫</span></div>
+      <div class="ln tot"><span>Tổng cộng</span><span id="s3">162.000 ₫</span></div>
+      <p class="hint">Tổng toàn bộ báo giá khi khách duyệt hết: <strong id="all">648.000 ₫</strong></p>
+      <a class="b b--primary" href="#">Gửi khách duyệt</a>
+      <a class="b b--secondary" href="#">In báo giá</a>
+      <a class="b b--secondary" href="#">Khách duyệt tại quầy</a>
+      <p class="hint">Tạo lệnh sửa chữa được khi khách đã duyệt ít nhất một dòng.</p>
+    </aside>
+  </div>
+</div>
+<script>
+  const f = (n) => n.toLocaleString('vi-VN') + ' ₫';
+  function calc() { const sub = [...document.querySelectorAll('[data-v]')].filter((c) => c.checked).reduce((a, c) => a + +c.dataset.v, 0); const vat = Math.round(sub * 0.08); s1.textContent = f(sub); s2.textContent = f(vat); s3.textContent = f(sub + vat); }
+  opt.addEventListener('change', calc);
+</script>
+</body>
+</html>

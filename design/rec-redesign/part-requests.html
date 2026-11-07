@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yêu cầu phụ tùng – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: 150px minmax(0, 1.4fr) 110px 150px 150px 220px; }
+  .stock { font-size: var(--font-size-sm); }
+  .stock .ok { color: var(--color-success-text); } .stock .low { color: var(--color-danger-text); font-weight: var(--fw-medium); }
+  .acts { display: flex; gap: var(--space-2); justify-self: end; }
+  @media (max-width: 1023px) { .item { grid-template-columns: auto 1fr auto; row-gap: var(--space-2); } .item > :nth-child(2) { grid-column: 2 / -1; } .acts { justify-self: start; grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head"><div><h1>Yêu cầu phụ tùng</h1><p>Yêu cầu của thợ cho các dòng phụ tùng đã được khách duyệt. Xuất kho tạo phiếu xuất theo lệnh.</p></div></header>
+  <div class="tabsline" role="tablist" aria-label="Trạng thái yêu cầu">
+    <button role="tab" aria-selected="true" data-s="wait">Chờ xuất<span class="cnt cnt--warn">3</span></button>
+    <button role="tab" aria-selected="false" data-s="out">Đã xuất<span class="cnt">5</span></button>
+    <button role="tab" aria-selected="false" data-s="no">Đã từ chối<span class="cnt">0</span></button>
+  </div>
+  <section class="card list" aria-label="Yêu cầu phụ tùng">
+    <div class="item" data-s="wait">
+      <span class="plate">51H-123.45</span>
+      <span><span class="t1">Má phanh trước Toyota Vios</span><br><span class="t2">RO-Q7-2611-00001, yêu cầu bởi Thợ Quận 7, 10 phút trước</span></span>
+      <span class="num t1">× 1 bộ</span>
+      <span class="stock"><span class="ok">Còn 4 bộ có thể bán</span></span>
+      <span><span class="badge badge--warning">Chờ xuất</span></span>
+      <span class="acts"><button class="b b--secondary b--sm" type="button">Từ chối</button><button class="b b--primary b--sm" type="button">Xuất kho</button></span>
+    </div>
+    <div class="item" data-s="wait">
+      <span class="plate">51K-905.31</span>
+      <span><span class="t1">Lọc gió động cơ Kia Morning</span><br><span class="t2">RO-Q7-2611-00008, yêu cầu bởi Thợ Quận 7, 1 giờ trước</span></span>
+      <span class="num t1">× 1 cái</span>
+      <span class="stock"><span class="low">Hết hàng, có thể bán 0</span><br><span class="t2">Chuyển kho từ Thủ Đức: 3</span></span>
+      <span><span class="badge badge--danger" style="background:var(--color-danger-bg);color:var(--color-danger-text);border-color:var(--color-danger-border)">Thiếu hàng</span></span>
+      <span class="acts"><button class="b b--secondary b--sm" type="button">Từ chối</button><button class="b b--secondary b--sm" type="button">Yêu cầu chuyển kho</button></span>
+    </div>
+    <div class="item" data-s="wait">
+      <span class="plate">29A-678.90</span>
+      <span><span class="t1">Dầu động cơ 5W-30</span><br><span class="t2">RO-Q7-2611-00007, yêu cầu bởi Thợ Quận 7, 2 giờ trước</span></span>
+      <span class="num t1">× 4 lít</span>
+      <span class="stock"><span class="ok">Còn 28 lít có thể bán</span></span>
+      <span><span class="badge badge--warning">Chờ xuất</span></span>
+      <span class="acts"><button class="b b--secondary b--sm" type="button">Từ chối</button><button class="b b--primary b--sm" type="button">Xuất kho</button></span>
+    </div>
+    <div class="rowfoot">Chỉ so sánh với số có thể bán, không phải số tồn thực tế. Số có thể bán đã trừ hàng giữ cho lệnh khác.</div>
+  </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Việc của tôi – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .wrap { max-width: 760px; }
+  .now { padding: var(--space-6); display: grid; gap: var(--space-4); border: 2px solid var(--color-primary); }
+  .veh { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+  .veh .plate { height: 40px; font-size: var(--font-size-xl); padding: 0 var(--space-3); }
+  .veh span.m { color: var(--color-text-secondary); font-size: var(--font-size-md); }
+  .job { font-size: var(--font-size-2xl); line-height: var(--lh-xl); font-weight: var(--fw-semibold); margin: 0; }
+  .clock { display: flex; align-items: baseline; gap: var(--space-3); font-variant-numeric: tabular-nums; }
+  .clock b { font-size: var(--font-size-3xl); line-height: 1; }
+  .clock span { color: var(--color-text-secondary); font-size: var(--font-size-md); }
+  .bar { height: 10px; }
+  .btns { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-3); }
+  .btn-xl { min-height: var(--btn-height-xl); font-size: var(--font-size-lg); }
+  .links { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .q { padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-3); }
+  .q h3 { margin: 0; font-size: var(--font-size-lg); }
+  .q .btn-xl { width: 100%; }
+  h2.sec { font-size: var(--font-size-lg); margin: var(--space-6) 0 var(--space-3); }
+  .toast { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); background: var(--color-text-primary); color: var(--color-text-inverse); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: var(--z-toast); font-size: var(--font-size-md); }
+  .toast[hidden] { display: none; }
+  .toast button { margin-left: var(--space-4); background: none; border: 0; color: var(--color-brand-300); font: inherit; font-weight: var(--fw-medium); cursor: pointer; min-height: var(--touch-target); }
+  @media (max-width: 599px) { .btns { grid-template-columns: 1fr; } .now { padding: var(--space-4); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head"><div><h1>Việc của tôi</h1><p>Việc được giao cho bạn. Bấm một lần để bắt đầu hoặc kết thúc.</p></div></header>
+
+  <h2 class="sec" style="margin-top:0">Đang làm</h2>
+  <section class="card now" id="now" aria-label="Việc đang làm">
+    <div class="veh"><span class="plate">51H-123.45</span><span class="m">Toyota Vios 1.5G 2019, RO-Q7-2611-00001</span></div>
+    <p class="job">Thay dầu</p>
+    <div class="clock"><b id="el">00:01</b><span>đã làm, duyệt 30 phút</span></div>
+    <div class="bar"><i id="pg" style="width:3%"></i></div>
+    <div class="btns"><button class="b b--primary btn-xl" type="button" id="fin">Kết thúc</button><button class="b b--secondary btn-xl" type="button" id="pause">Tạm dừng</button></div>
+    <div class="links"><button class="b b--secondary b--sm" type="button">Báo việc phát sinh</button><button class="b b--secondary b--sm" type="button">Xin phụ tùng</button><button class="b b--secondary b--sm" type="button" id="undo">Hoàn tác</button></div>
+  </section>
+
+  <h2 class="sec">Việc tiếp theo</h2>
+  <section class="card q" aria-label="Việc tiếp theo">
+    <div class="veh"><span class="plate" style="height:32px;font-size:var(--font-size-lg)">51H-123.45</span><span class="badge badge--neutral">Chưa làm</span></div>
+    <h3>Thay má phanh</h3>
+    <span class="t2">Duyệt 1 giờ 30 phút. Làm sau khi xong việc đang làm.</span>
+    <button class="b b--secondary btn-xl" type="button" disabled aria-describedby="why">Bắt đầu</button>
+    <span class="t2" id="why">Kết thúc việc đang làm để bắt đầu việc này.</span>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" hidden>Đã tạm dừng. <button type="button" id="resume">Làm tiếp</button></div>
+<script>
+  let sec = 60, paused = false; const el = document.getElementById('el'), pg = document.getElementById('pg');
+  const draw = () => { el.textContent = String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); pg.style.width = Math.min(100, sec / 18) + '%'; };
+  setInterval(() => { if (!paused) { sec++; draw(); } }, 1000);
+  document.getElementById('pause').addEventListener('click', () => { paused = true; document.getElementById('toast').hidden = false; });
+  document.getElementById('resume').addEventListener('click', () => { paused = false; document.getElementById('toast').hidden = true; });
+  document.getElementById('fin').addEventListener('click', () => { document.getElementById('toast').hidden = false; document.getElementById('toast').firstChild.textContent = 'Đã kết thúc việc Thay dầu. '; document.getElementById('resume').textContent = 'Hoàn tác'; });
+</script>
+</body>
+</html>
