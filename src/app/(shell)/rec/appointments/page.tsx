@@ -2,7 +2,6 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import {
   addIsoDays,
-  businessDate,
   daysBetween,
   isoToVi,
   isoWeekStart,
@@ -57,29 +56,34 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   const container = getContainer();
   const canUpdate = hasPermission(actor, 'appointment:update');
   const canCreate = hasPermission(actor, 'appointment:create');
-  const serverToday = businessDate(new Date());
-  const anchor = viToIso(first(sp.from)) ?? serverToday;
-  const listFrom = view === 'week' ? isoWeekStart(anchor) : anchor;
+  // "today" is the server clock the list itself uses (cal.now), never a second `new Date()` of this page (FR-REC-047)
+  const explicitFrom = viToIso(first(sp.from));
   const reschedId = first(sp.resched);
-  const res = await load(async () => ({
-    cal: await listAppointments(container.rec, actor, {
-      from: listFrom,
-      days: view === 'week' ? '7' : '1',
+  const res = await load(async () => {
+    const cal = await listAppointments(container.rec, actor, {
+      ...(explicitFrom ? { from: explicitFrom } : {}),
+      view,
       tab,
-    }),
-    advisors: await listAppointmentAdvisors(container.rec, actor).catch(() => []),
-    services: await listServiceTypes(container.rec, actor).catch(() => []),
-    cancelReasons: canUpdate
-      ? await listAppointmentReasons(container.rec, actor, 'cancel').catch(() => null)
-      : null,
-    reschedReasons: canUpdate
-      ? await listAppointmentReasons(container.rec, actor, 'reschedule').catch(() => null)
-      : null,
-    auto:
-      canUpdate && reschedId
-        ? await getAppointment(container.rec, actor, reschedId).catch(() => null)
-        : null,
-  }));
+    });
+    // the note length of the dialogs is the policy of the branch whose calendar is shown (FR-REC-045, 046)
+    const reasons = (kind: 'cancel' | 'reschedule') =>
+      canUpdate
+        ? listAppointmentReasons(container.rec, actor, kind, { branchId: cal.branchId }).catch(
+            () => null,
+          )
+        : null;
+    return {
+      cal,
+      advisors: await listAppointmentAdvisors(container.rec, actor).catch(() => []),
+      services: await listServiceTypes(container.rec, actor).catch(() => []),
+      cancelReasons: await reasons('cancel'),
+      reschedReasons: await reasons('reschedule'),
+      auto:
+        canUpdate && reschedId
+          ? await getAppointment(container.rec, actor, reschedId).catch(() => null)
+          : null,
+    };
+  });
   const k = (key: string, v?: Record<string, string | number>) => fill(l[key], v ?? {});
   const actions = (
     <>
@@ -104,6 +108,7 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
     );
   const { cal, advisors } = res.data;
   const today = cal.now.date;
+  const anchor = explicitFrom ?? today;
   const addr = (over: { tab?: AppointmentTab; from?: string; view?: 'day' | 'week' }) => {
     const q = new URLSearchParams();
     const tb = over.tab ?? tab;

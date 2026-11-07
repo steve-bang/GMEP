@@ -97,6 +97,8 @@ export const COL = {
   laborSheets: 'laborSheets',
   // REC slice 2.8b: appointments (FR-REC-019, 027); one shape, Q.appointmentsByDate
   appointments: 'appointments',
+  // REC: per (tenant, branch, day) lock/counter document read BY KEY when booking (FR-REC-019); never queried
+  appointmentDays: 'appointmentDays',
   // REC slice 2.8b: warranty records (projection P4, one per delivered order); one shape, Q.warrantiesByVehicle
   warranties: 'warranties',
 } as const;

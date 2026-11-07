@@ -1,4 +1,4 @@
-import { businessDate, businessTime, isoToVi } from '@/platform/format/date';
+import { businessDate, businessTime, isoToVi, isoWeekStart } from '@/platform/format/date';
 import { rootLogger } from '@/platform/logging/logger';
 import { fingerprintOf, runIdempotent } from '@/platform/idempotency/idempotency';
 import { hasPermission, resolveScope, resolveWorkingScope, type Actor } from '@/platform/rbac/rbac';
@@ -221,13 +221,9 @@ async function namesOf(
     for (const r of a.reschedules ?? []) ids.add(r.by);
     if (a.cancellation) ids.add(a.cancellation.cancelledBy);
   }
+  // one batched read for the whole list (not one per row, not one per id)
   const m = new Map<string, string>();
-  await Promise.all(
-    [...ids].map(async (id) => {
-      const u = await deps.sys.users.getById(tenantId, id);
-      if (u) m.set(id, u.displayName);
-    }),
-  );
+  for (const u of await deps.sys.users.getMany(tenantId, [...ids])) m.set(u.id, u.displayName);
   return m;
 }
 
@@ -347,6 +343,8 @@ const listSchema = z.object({
   status: z.enum(['pending', 'arrived', 'cancelled', 'no_show']).optional(),
   /** FR-REC-044: the five tabs; the list and its counter use the same rule */
   tab: z.enum(APPOINTMENT_TABS).optional(),
+  /** `week`: the range is the ISO week (from Monday) holding `from`, `from` defaulting to the SERVER today */
+  view: z.enum(['day', 'week']).optional(),
 });
 
 export interface TabCount {
@@ -376,6 +374,56 @@ export interface AppointmentCalendarDto {
 const byDateTime = (x: Appointment, y: Appointment) =>
   `${x.date} ${x.time}`.localeCompare(`${y.date} ${y.time}`);
 
+/**
+ * FR-REC-044: the overdue set of a branch, bounded by the exact overdue condition: status `pending` and date <= today
+ * (index tenantId, branchId, status, date; the minute test of today runs in memory). Two reads so that an old backlog
+ * can never push today's late appointments out of the list or the counter:
+ *   recent  = [today - staleDays, today]   (complete unless it alone exceeds `max`)
+ *   backlog = date < today - staleDays     (the "Tồn đọng" ones, oldest first)
+ * When more than `max` are overdue the list keeps ALL recent ones and the oldest backlog fills the rest; the counter then
+ * reads "max+" (`more`), never a wrong exact figure. Oldest first, as the BA spec asks.
+ */
+async function readOverdue(
+  deps: RecDeps,
+  scope: Scope,
+  branchId: string,
+  now: { date: string; time: string },
+  policy: AppointmentPolicy,
+  max: number,
+): Promise<{ rows: Appointment[]; more: boolean }> {
+  const cut = addDays(now.date, -policy.staleDays);
+  const [recent, backlog] = await Promise.all([
+    deps.appointments.listByStatus(scope, branchId, 'pending', cut, addDays(now.date, 1), max + 1),
+    deps.appointments.listByStatus(scope, branchId, 'pending', null, cut, max + 1),
+  ]);
+  let recentRows = recent.slice(0, max);
+  if (recent.length > max) {
+    // even the 30-day window overflows: today's late ones are at its end, so read today on its own and keep them
+    const today = await deps.appointments.listByStatus(
+      scope,
+      branchId,
+      'pending',
+      now.date,
+      addDays(now.date, 1),
+      max + 1,
+    );
+    const todayRows = today.slice(0, max);
+    const ids = new Set(todayRows.map((a) => a.id));
+    recentRows = [
+      ...recent.filter((a) => !ids.has(a.id)).slice(0, Math.max(0, max - todayRows.length)),
+      ...todayRows,
+    ];
+  }
+  const recentOver = recentRows.filter((a) => lateViewOf(a, now, policy).overdue).sort(byDateTime);
+  const backlogOver = backlog.slice(0, max).sort(byDateTime);
+  const rows = [...backlogOver.slice(0, Math.max(0, max - recentOver.length)), ...recentOver];
+  return {
+    rows,
+    more:
+      recent.length > max || backlog.length > max || recentOver.length + backlogOver.length > max,
+  };
+}
+
 /** FR-REC-027, 044: the calendar of one branch by day or week, with the capacity of each day (FR-REC-019) and the tabs. */
 export async function listAppointments(
   deps: RecDeps,
@@ -388,9 +436,10 @@ export async function listAppointments(
   if (!branchId) throw new AppError('scope_required', 409);
   // NFR-ISO-01: a branch outside the scope reads as an empty calendar would leak nothing, but we refuse it plainly
   if (!scopeAllows(scope, actor.tenantId, branchId)) throw notFound();
-  const span = Math.min(q.days, deps.rec.appointments.maxRangeDays);
   const now = nowOf(deps);
-  const from = q.from ?? now.date;
+  const week = q.view === 'week';
+  const span = week ? 7 : Math.min(q.days, deps.rec.appointments.maxRangeDays);
+  const from = week ? isoWeekStart(q.from ?? now.date) : (q.from ?? now.date);
   const to = addDays(from, span);
   const policy = await appointmentPolicyAt(deps, actor.tenantId, branchId, from);
   // the overdue threshold is the one in force today, whatever day is viewed
@@ -413,19 +462,14 @@ export async function listAppointments(
     );
   const lateOf = (a: Appointment) => lateViewOf(a, now, todayPolicy);
   // FR-REC-044: "Trễ hẹn" = pending and past the time (+ grace), every day up to today, not bounded by the viewed range
-  const pendingUpToToday = await deps.appointments.listByStatus(
+  const { rows: overdueRows, more: overdueMore } = await readOverdue(
+    deps,
     scope,
     branchId,
-    'pending',
-    null,
-    addDays(now.date, 1),
-    max + 1,
+    now,
+    todayPolicy,
+    max,
   );
-  const overdueMore = pendingUpToToday.length > max;
-  const overdueRows = pendingUpToToday
-    .slice(0, max)
-    .filter((a) => lateOf(a).overdue)
-    .sort(byDateTime);
   const inTab = (t: AppointmentTab) =>
     kept.filter((a) => appointmentTabOf(a.status, lateOf(a)) === t);
   const counts = {
@@ -563,19 +607,26 @@ async function loadReasons(
   return out;
 }
 
-/** Active reasons offered by the dialogs (cancel or reschedule). */
+/**
+ * Active reasons offered by the dialogs (cancel or reschedule) and the note length that applies. The length is the policy
+ * of the branch the appointment belongs to (the one cancel and reschedule enforce), so the caller names that branch;
+ * without one the working branch is used. A branch outside the scope is a 404 (NFR-ISO-01).
+ */
 export async function listAppointmentReasons(
   deps: RecDeps,
   actor: Actor,
   kind: ReasonKind,
-): Promise<{ items: AppointmentReason[]; noteMinLength: number }> {
-  resolveScope(actor, 'appointment:view');
+  opts: { branchId?: string } = {},
+): Promise<{ items: AppointmentReason[]; noteMinLength: number; branchId: string | null }> {
+  const scope = resolveScope(actor, 'appointment:view');
+  const branchId = opts.branchId ?? actor.workingBranchId ?? null;
+  if (branchId && !scopeAllows(scope, actor.tenantId, branchId)) throw notFound();
   const now = nowOf(deps);
   const reasons = (await loadReasons(deps, actor.tenantId, kind, now.date)).filter((r) => r.active);
-  const pol = actor.workingBranchId
-    ? await appointmentPolicyAt(deps, actor.tenantId, actor.workingBranchId, now.date)
+  const pol = branchId
+    ? await appointmentPolicyAt(deps, actor.tenantId, branchId, now.date)
     : { ...APPOINTMENTS_OFF, versionId: null };
-  return { items: reasons, noteMinLength: pol.noteMinLength };
+  return { items: reasons, noteMinLength: pol.noteMinLength, branchId };
 }
 
 // ---- notifying the customer (FR-REC-046 3.7, FR-REC-045; RULE-024/028) ---------------------------------------
@@ -680,7 +731,8 @@ export async function createAppointment(
   // the vehicle and its current owner come from CRM; not visible in scope = not found
   const vehicle = await getVehicle(deps.crm, actor, data.vehicleId);
   if (!vehicle.owner) throw new AppError('owner_not_visible', 409);
-  const over = await checkCapacity(
+  // fast fail before any side effect; judged again under the day lock inside the transaction
+  await checkCapacity(
     deps,
     scope,
     branchId,
@@ -711,7 +763,17 @@ export async function createAppointment(
       fingerprint: fingerprintOf(data),
     },
     async (tx) => {
+      // FR-REC-019: lock of the day first (a transactional read), then the capacity is judged again on what is committed
+      const daySeq = await deps.appointments.readDayLock(tx, actor.tenantId, branchId, data.date);
       const branch = await assertWritable(deps, tx, actor, scope, branchId, 'new_order');
+      const over = await checkCapacity(
+        deps,
+        scope,
+        branchId,
+        data.date,
+        policy,
+        data.acknowledgeOverCapacity === true,
+      );
       const now = deps.sys.clock.now();
       const id = `apt_${deps.sys.newId()}`;
       const num = await allocateDocumentNumber(deps.sys, tx, {
@@ -747,6 +809,7 @@ export async function createAppointment(
         version: 1,
       };
       deps.appointments.create(tx, a);
+      deps.appointments.bumpDayLock(tx, actor.tenantId, branchId, data.date, daySeq);
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {
@@ -894,7 +957,9 @@ export async function rescheduleAppointment(
   const replayKey = `${actor.userId}:${ctx.idempotencyKey}`;
   // a repeat of a request that already went through: answer from the stored response, do not re-validate the new state
   const isReplay = (cur.reschedules ?? []).some((x) => x.idem === replayKey);
-  const prepareReschedule = async () => {
+  // runs INSIDE the transaction on the document read there (FR-REC-046 / 019: limit, reason and capacity are judged on
+  // the state that is written, under the day lock below, and never on a stale pre-read)
+  const prepareReschedule = async (cur: Appointment) => {
     if (cur.status !== 'pending') throw new AppError('appointment_state_invalid', 409);
     const newPolicy = await appointmentPolicyAt(deps, actor.tenantId, cur.branchId, data.date);
     if (!newPolicy.enabled || !todayPolicy.enabled)
@@ -966,7 +1031,7 @@ export async function rescheduleAppointment(
     );
     return { rc, over, late, overLimit, plan, dateChanged };
   };
-  const prep = isReplay ? null : await prepareReschedule();
+  const held: { plan?: NoticePlan } = {};
   const r = await runIdempotent(
     idemOf(deps),
     {
@@ -977,14 +1042,21 @@ export async function rescheduleAppointment(
     },
     async (tx) => {
       // the stored response expired but the history still has this key: the client must reload and decide again
-      if (!prep) throw versionConflict();
-      const { rc, over, late, overLimit, plan, dateChanged } = prep;
+      if (isReplay) throw versionConflict();
+      // every transactional read first (Firestore): the appointment, the lock of the target day, the branch
       const a = await deps.appointments.getInTx(tx, scope, id);
       if (!a) throw notFound();
-      if (a.version !== data.version) throw versionConflict();
       const t = transitionAppointment(a.status, 'reschedule');
       if (!t.ok) throw new AppError(t.reason, 409);
+      if (a.version !== data.version) throw versionConflict();
+      const daySeq =
+        data.date !== a.date
+          ? await deps.appointments.readDayLock(tx, a.tenantId, a.branchId, data.date)
+          : null;
       await assertWritable(deps, tx, actor, scope, a.branchId, 'edit_open_order');
+      const prep = await prepareReschedule(a);
+      held.plan = prep.plan;
+      const { rc, over, late, overLimit, plan, dateChanged } = prep;
       const at = deps.sys.clock.now();
       const entry: AppointmentReschedule = {
         fromDate: a.date,
@@ -1016,6 +1088,8 @@ export async function rescheduleAppointment(
         updatedBy: actor.userId,
         version: a.version + 1,
       });
+      if (daySeq !== null)
+        deps.appointments.bumpDayLock(tx, a.tenantId, a.branchId, data.date, daySeq);
       deps.sys.audit.record(
         tx,
         auditEntry(deps.sys, actor, ctx, {
@@ -1059,8 +1133,8 @@ export async function rescheduleAppointment(
       };
     },
   );
-  if (!r.replayed && prep)
-    await sendNotice(deps, prep.plan, `apt-rs-${ctx.idempotencyKey}`, {
+  if (!r.replayed && held.plan)
+    await sendNotice(deps, held.plan, `apt-rs-${ctx.idempotencyKey}`, {
       kind: 'reschedule',
       number: cur.number,
       date: isoToVi(data.date),
@@ -1092,27 +1166,28 @@ export async function cancelAppointment(
   const data = parseInput(cancelAppointmentSchema, input);
   const cur = await deps.appointments.get(scope, id);
   if (!cur) throw notFound();
-  const now0 = nowOf(deps);
-  const pol = await appointmentPolicyAt(deps, actor.tenantId, cur.branchId, now0.date);
-  const reasons = await loadReasons(deps, actor.tenantId, 'cancel', now0.date);
-  const rc = checkReason(reasons, data.reasonCode, data.note, pol.noteMinLength);
-  if (!rc.ok)
-    throw validationFailed([
-      {
-        field: rc.field,
-        message:
-          rc.field === 'note'
-            ? `Ghi chú lý do ít nhất ${pol.noteMinLength} ký tự.`
-            : 'Chọn lý do hủy.',
-      },
-    ]);
-  const plan = await planNotice(
-    deps,
-    actor.tenantId,
-    cur.customerId,
-    data.notice,
-    data.noticeChannel,
-  );
+  // The reason and the notice are checked INSIDE runIdempotent, after the stored response was looked up: a repeat of a
+  // request that went through replays the stored answer instead of being re-validated against today's catalogue,
+  // consents or channels (same rule as the reschedule).
+  let plan: NoticePlan = { recorded: 'none' };
+  const prepare = async () => {
+    const now0 = nowOf(deps);
+    const pol = await appointmentPolicyAt(deps, actor.tenantId, cur.branchId, now0.date);
+    const reasons = await loadReasons(deps, actor.tenantId, 'cancel', now0.date);
+    const checked = checkReason(reasons, data.reasonCode, data.note, pol.noteMinLength);
+    if (!checked.ok)
+      throw validationFailed([
+        {
+          field: checked.field,
+          message:
+            checked.field === 'note'
+              ? `Ghi chú lý do ít nhất ${pol.noteMinLength} ký tự.`
+              : 'Chọn lý do hủy.',
+        },
+      ]);
+    plan = await planNotice(deps, actor.tenantId, cur.customerId, data.notice, data.noticeChannel);
+    return checked;
+  };
   const r = await runIdempotent(
     idemOf(deps),
     {
@@ -1127,6 +1202,7 @@ export async function cancelAppointment(
       if (a.version !== data.version) throw versionConflict();
       const t = transitionAppointment(a.status, 'cancel', { hasReason: true });
       if (!t.ok) throw new AppError(t.reason, 409);
+      const rc = await prepare();
       await assertWritable(deps, tx, actor, scope, a.branchId, 'edit_open_order');
       const at = deps.sys.clock.now();
       const cancellation: AppointmentCancellation = {

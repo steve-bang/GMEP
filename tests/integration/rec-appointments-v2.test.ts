@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { getDb } from '@/infrastructure/firestore/client';
+import { COL } from '@/infrastructure/repos/queries';
+import { configVersionId } from '@/modules/sys';
 import { businessDate } from '@/platform/format/date';
 import { journey, type Row, uniqueKey } from '../helpers/journey';
 import { backends, createHarness, type Harness } from './harness';
@@ -462,5 +464,199 @@ describe.each(backends)('REC appointments v2 [%s]', (backend) => {
     const msgs = JSON.stringify((warn.json.errors as Row[]).map((e) => e.message));
     expect(msgs).toContain(`${full.slice(8)}/${full.slice(5, 7)}/${full.slice(0, 4)}`);
     expect(msgs).not.toMatch(ISO);
+  });
+  // ---- review fixes of PR #19 -----------------------------------------------------------------------------
+
+  /** an approved, already effective config version written straight to the store (the approval flow has its own tests) */
+  const putCfg = async (
+    type: string,
+    scopeKey: string,
+    payload: Row,
+    effectiveFrom: string,
+  ): Promise<void> => {
+    await h.container.store.createNow(
+      COL.configVersions,
+      configVersionId('tnt_demo', type, scopeKey, effectiveFrom),
+      {
+        tenantId: 'tnt_demo',
+        type,
+        scopeKey,
+        effectiveFrom,
+        status: 'approved',
+        payload,
+        proposedBy: 'test',
+        proposedAt: new Date('2026-10-01T00:00:00.000Z'),
+        reason: 'test',
+        decidedBy: 'test',
+        decidedAt: new Date('2026-10-01T00:00:00.000Z'),
+        decisionNote: null,
+        version: 1,
+      },
+    );
+    h.container.sys.caches.config.invalidateTag(`cfg:tnt_demo:${type}`);
+  };
+
+  it('FR-REC-044 review 1: an old backlog longer than the read limit never hides what became late today; the counter says "N+"', async () => {
+    const rc = h.container.rec as unknown as {
+      rec: { appointments: { listMax: number } };
+    };
+    const prev = rc.rec;
+    rc.rec = { ...prev, appointments: { ...prev.appointments, listMax: 3 } };
+    try {
+      await at(today, '06:00');
+      for (const hhmm of ['07:00', '07:10', '07:20', '07:30', '07:40']) await book(today, hhmm);
+      const later = plusDays(today, 40); // those are now "Tồn đọng" (older than staleDays)
+      await at(later, '06:00');
+      const fresh = await book(later, '08:00');
+      const upcoming = await book(later, '16:00'); // pending but not late yet: must not take a place
+      await at(later, '10:00');
+      const r = await list(cv, 'tab=overdue');
+      expect(r.status, r.text).toBe(200);
+      const ids = (r.json.items as Row[]).map((x) => x.id);
+      expect(ids).toContain(fresh.id);
+      expect(ids).not.toContain(upcoming.id);
+      expect(ids.length).toBeLessThanOrEqual(3);
+      // oldest first among what is kept
+      const keys = (r.json.items as Row[]).map((x) => `${x.date} ${x.time}`);
+      expect([...keys].sort()).toEqual(keys);
+      expect(r.json.counts.overdue.more).toBe(true);
+      expect(r.json.counts.overdue.n).toBe(3);
+      // the figure is never a wrong exact one: below the limit it equals the list again
+      const other = await list(qlTd, 'tab=overdue');
+      expect(other.json.counts.overdue).toEqual({ n: 0, more: false });
+    } finally {
+      rc.rec = prev;
+      await at(today, '06:00');
+    }
+  });
+
+  it('FR-REC-044 review 7: a calendar read costs a bounded number of queries, whatever the tab', async () => {
+    await at(today, '10:00');
+    const cost = async (tab: string) => {
+      const q0 = h.container.store.stats.queries;
+      const r = await list(cv, `tab=${tab}&from=${today}&days=1`);
+      expect(r.status, r.text).toBe(200);
+      return h.container.store.stats.queries - q0;
+    };
+    // the day, the recent overdue window, the old backlog (+ one query of the session): the same for every tab
+    const upcoming = await cost('upcoming');
+    expect(upcoming).toBeLessThanOrEqual(4);
+    expect(await cost('overdue')).toBe(upcoming);
+    expect(await cost('arrived')).toBe(upcoming);
+    const users = await h.container.sys.users.getMany('tnt_demo', ['u_cv_q7', 'u_ql_q7', 'nope']);
+    expect(users.map((u) => u.id).sort()).toEqual(['u_cv_q7', 'u_ql_q7']);
+    expect(await h.container.sys.users.getMany('tnt_demo', [])).toEqual([]);
+  });
+
+  it('FR-REC-045 review 2: repeating a cancel with the same Idempotency-Key replays the stored answer even after the reason was switched off', async () => {
+    await at(today, '10:00');
+    const a = await book(plusDays(today, 30), '10:00');
+    const key = uniqueKey('cx');
+    const body = { version: a.version, reasonCode: 'not_needed' };
+    const r1 = await post(cv, a.id as string, 'cancel', body, key);
+    expect(r1.status, r1.text).toBe(200);
+    await putCfg(
+      'appointment-cancel-reason',
+      'not_needed',
+      { name: 'Xe không còn cần dịch vụ', status: 'inactive', party: 'customer', order: 40 },
+      today,
+    );
+    const r2 = await post(cv, a.id as string, 'cancel', body, key);
+    expect(r2.status, r2.text).toBe(200);
+    expect(r2.json.version).toBe(r1.json.version);
+    // a NEW cancel with the switched-off reason is refused
+    const b = await book(plusDays(today, 30), '11:00');
+    const r3 = await post(cv, b.id as string, 'cancel', {
+      version: b.version,
+      reasonCode: 'not_needed',
+    });
+    expect(r3.status, r3.text).toBe(422);
+    expect(
+      (await rows('auditLogs')).filter(
+        (x) => x.entityId === a.id && x.action === 'appointment.cancel',
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('FR-REC-046 / FR-REC-019 review 3: two moves into the last free place of a day cannot both pass', async () => {
+    await at(today, '10:00');
+    const day = plusDays(today, 33);
+    await book(day, '08:00'); // capacity of Quận 7 is 2: one place left
+    const a1 = await book(plusDays(today, 34), '09:00');
+    const a2 = await book(plusDays(today, 35), '09:00');
+    const mv = (cookie: string, a: Row) =>
+      post(cookie, a.id as string, 'reschedule', {
+        version: a.version,
+        date: day,
+        time: '14:00',
+        reasonCode: 'customer_busy',
+        requestedBy: 'customer',
+      });
+    const [x, y] = await Promise.all([mv(cv, a1), mv(ql, a2)]);
+    expect([x.status, y.status].sort(), `${x.text} ${y.text}`).toEqual([200, 409]);
+    const loser = x.status === 409 ? x : y;
+    expect(loser.text).toContain('capacity_exceeded');
+    const cal = await list(cv, `from=${day}&days=1`);
+    expect(cal.json.days[0]).toMatchObject({ booked: 2, capacity: 2 });
+    // the same race on one appointment: the version decides (409), never two history entries
+    const c = await book(plusDays(today, 36), '09:00');
+    const mv2 = (cookie: string) =>
+      post(cookie, c.id as string, 'reschedule', {
+        version: c.version,
+        date: plusDays(today, 37),
+        time: '09:00',
+        reasonCode: 'customer_busy',
+        requestedBy: 'customer',
+      });
+    const [p, q] = await Promise.all([mv2(cv), mv2(ql)]);
+    expect([p.status, q.status].sort()).toEqual([200, 409]);
+    const got = await j.get(cv, `/api/v1/rec/appointments/${c.id}`);
+    expect(got.json.reschedules).toHaveLength(1);
+  });
+
+  it('FR-REC-046 review 5 and 6: the note length of the dialogs is the policy of the branch of the appointment; "hôm nay" is the server clock at midnight', async () => {
+    // 6: 23:50 and 00:10 either side of midnight (Asia/Ho_Chi_Minh): the default range follows the injected clock
+    const d0 = plusDays(today, 50);
+    await at(d0, '23:50');
+    const before = await list(cv, '');
+    expect(before.json.now).toMatchObject({ date: d0, time: '23:50' });
+    expect(before.json.from).toBe(d0);
+    await at(plusDays(d0, 1), '00:10');
+    const after = await list(cv, '');
+    expect(after.json.now.date).toBe(plusDays(d0, 1));
+    expect(after.json.from).toBe(plusDays(d0, 1));
+    const wk = await list(cv, 'view=week');
+    expect(wk.json.days).toHaveLength(7);
+    expect(wk.json.days[0].date <= plusDays(d0, 1)).toBe(true);
+    expect(wk.json.days[6].date >= plusDays(d0, 1)).toBe(true);
+    // 5: Quận 7 asks for 10 characters; the owner works at another branch
+    await at(today, '10:00');
+    await putCfg(
+      'appointment-policy',
+      'branch:br_q7',
+      { enabled: true, dailyCapacity: 2, noteMinLength: 10 },
+      today,
+    );
+    const owner = await h.loginAt('u_owner', 'br_td');
+    const mine = await j.get(owner, '/api/v1/rec/appointment-reasons?kind=cancel');
+    expect(mine.json.noteMinLength).toBe(3);
+    const q7 = await j.get(owner, '/api/v1/rec/appointment-reasons?kind=cancel&branchId=br_q7');
+    expect(q7.json).toMatchObject({ noteMinLength: 10, branchId: 'br_q7' });
+    expect(
+      (await j.get(cv, '/api/v1/rec/appointment-reasons?kind=reschedule&branchId=br_td')).status,
+    ).toBe(404);
+    const a = await book(plusDays(today, 38), '10:00');
+    const short = await post(cv, a.id as string, 'cancel', {
+      version: a.version,
+      reasonCode: 'other',
+      note: 'xe hỏng',
+    });
+    expect(short.status, short.text).toBe(422);
+    const ok = await post(cv, a.id as string, 'cancel', {
+      version: a.version,
+      reasonCode: 'other',
+      note: 'xe hỏng nặng, khách đổi ý',
+    });
+    expect(ok.status, ok.text).toBe(200);
   });
 });

@@ -49,6 +49,8 @@ export interface UserRepository {
   /** FR-TEN-009: a user (membership) of another tenant answers null, exactly like a missing id. */
   getById(tenantId: string, id: string): Promise<User | null>;
   getByIdInTx(tx: Tx, tenantId: string, id: string): Promise<User | null>;
+  /** one batched read; only users of `tenantId`, unknown ids are left out */
+  getMany(tenantId: string, ids: readonly string[]): Promise<User[]>;
   /** session and identity plumbing only: the tenant is read FROM the record. Never for a business lookup. */
   getAnyById(id: string): Promise<User | null>;
   /** every membership registered with this email, any tenant (sign-in and invitation only; never shown to a tenant) */

@@ -276,6 +276,22 @@ export class DocAppointmentRepository implements AppointmentRepository {
   update(tx: Tx, id: string, patch: Record<string, unknown>) {
     this.store.update(tx, COL.appointments, id, patch);
   }
+  async readDayLock(tx: Tx, tenantId: string, branchId: string, date: string) {
+    const d = await this.store.getInTx(
+      tx,
+      COL.appointmentDays,
+      `${tenantId}__${branchId}__${date}`,
+    );
+    return d && d.data.tenantId === tenantId ? Number(d.data.seq ?? 0) : 0;
+  }
+  bumpDayLock(tx: Tx, tenantId: string, branchId: string, date: string, seq: number) {
+    this.store.set(tx, COL.appointmentDays, `${tenantId}__${branchId}__${date}`, {
+      tenantId,
+      branchId,
+      date,
+      seq: seq + 1,
+    });
+  }
 }
 
 // ---- warranties (slice 2.8b, projection P4) ----------------------------------------------------------
