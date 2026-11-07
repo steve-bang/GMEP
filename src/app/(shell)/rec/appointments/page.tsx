@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { businessDate } from '@/platform/format/date';
 import { hasPermission } from '@/platform/rbac/rbac';
-import { listAppointments, type AppointmentDto } from '@/modules/rec';
+import { listAppointmentAdvisors, listAppointments, type AppointmentDto } from '@/modules/rec';
 import { load } from '@/composition/pageData';
 import { requireSession } from '@/composition/session';
 import { getContainer } from '@/composition/container';
@@ -12,6 +12,8 @@ import { ErrorFor, first, type SearchParams } from '@/ui/components/PageParts';
 import { EmptyState } from '@/ui/components/States';
 import { StatusBadge, type BadgeTone } from '@/ui/components/StatusBadge';
 import { RecPage } from '../RecPage';
+import { AppointmentActions } from './AppointmentActions';
+import { aptLabels } from './labels';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,8 +26,9 @@ const TONE: Record<string, BadgeTone> = {
 const viDate = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 
 /**
- * G2-APT-01 (read view) / FR-REC-019, 027: the calendar of the working branch by day or week with the capacity of each
- * day. Actions (book, "Đã đến", cancel, no-show) are API-only in this slice; the walk-in shortcut opens the intake.
+ * G2-APT-01 / FR-REC-019, 027: the calendar of the working branch by day or week with the capacity of each day and the
+ * card actions (Đã đến opens the pre-filled intake, edit, change advisor, cancel with a reason, no-show). Booking is
+ * offered only when the branch has appointments on; the walk-in shortcut opens the intake.
  */
 export default async function AppointmentsPage({ searchParams }: { searchParams: SearchParams }) {
   const t = await getTranslations();
@@ -33,26 +36,41 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   const { actor } = await requireSession();
   const from = first(sp.from) ?? businessDate(new Date());
   const days = first(sp.view) === 'week' ? 7 : 1;
-  const res = await load(() =>
-    listAppointments(getContainer().rec, actor, { from, days: String(days) }),
-  );
+  const container = getContainer();
+  const res = await load(async () => ({
+    cal: await listAppointments(container.rec, actor, { from, days: String(days) }),
+    advisors: await listAppointmentAdvisors(container.rec, actor).catch(() => []),
+  }));
   const k = (key: string, v?: Record<string, string | number>) => t(`rec.appointments.${key}`, v);
-  const head = {
-    title: k('title'),
-    desc: k('lead'),
-    actions: hasPermission(actor, 'intake:create') ? (
-      <Link className="btn btn--secondary" href="/rec/intakes/new" data-testid="walk-in">
-        {k('walkIn')}
-      </Link>
-    ) : undefined,
-  };
+  const canCreate = hasPermission(actor, 'appointment:create');
+  const actions = (
+    <>
+      {canCreate && res.data?.cal.enabled ? (
+        <Link className="btn btn--primary" href="/rec/appointments/new" data-testid="apt-new">
+          {k('newAction')}
+        </Link>
+      ) : null}
+      {hasPermission(actor, 'intake:create') ? (
+        <Link className="btn btn--secondary" href="/rec/intakes/new" data-testid="walk-in">
+          {k('walkIn')}
+        </Link>
+      ) : null}
+    </>
+  );
+  const head = { title: k('title'), desc: k('lead'), actions };
   if (res.error)
     return (
       <RecPage {...head}>
         <ErrorFor error={res.error} t={t} />
       </RecPage>
     );
-  const cal = res.data;
+  const { cal, advisors } = res.data;
+  const l = aptLabels();
+  const today = businessDate(new Date());
+  const canUpdate = hasPermission(actor, 'appointment:update');
+  const canArrive = canUpdate && hasPermission(actor, 'intake:create');
+  const advisorName = (id: string | null) =>
+    id ? (advisors.find((a) => a.id === id)?.name ?? '–') : k('advisorNone');
   const viewLink = (view: 'day' | 'week') =>
     `/rec/appointments?from=${cal.from}${view === 'week' ? '&view=week' : ''}`;
   return (
@@ -133,6 +151,11 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
             { key: 'customer', header: t('rec.customer'), render: (x) => x.customerName },
             { key: 'service', header: k('colService'), render: (x) => x.serviceType ?? '–' },
             {
+              key: 'advisor',
+              header: k('colAdvisor'),
+              render: (x) => advisorName(x.advisorId),
+            },
+            {
               key: 'status',
               header: t('rec.status'),
               render: (x) => (
@@ -158,6 +181,30 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
                   '–'
                 ),
             },
+            ...(canUpdate || canArrive
+              ? [
+                  {
+                    key: 'actions',
+                    header: k('colActions'),
+                    render: (x: AppointmentDto) =>
+                      x.status === 'pending' ? (
+                        <AppointmentActions
+                          labels={l}
+                          id={x.id}
+                          number={x.number}
+                          version={x.version}
+                          advisorId={x.advisorId}
+                          advisors={advisors}
+                          canUpdate={canUpdate}
+                          canArrive={canArrive}
+                          due={x.date <= today}
+                        />
+                      ) : (
+                        '–'
+                      ),
+                  },
+                ]
+              : []),
           ]}
         />
       )}

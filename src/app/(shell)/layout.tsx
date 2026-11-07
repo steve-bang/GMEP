@@ -89,6 +89,9 @@ export default async function ShellLayout({ children }: { children: React.ReactN
               ),
             ]
           : []),
+        ...(can.appointments
+          ? [item('ap', '/rec/appointments', t('shell.nav.appointments'), 'calendar', 'prefix')]
+          : []),
         ...(can.quotes
           ? [
               item(

@@ -186,6 +186,7 @@ export {
   cancelAppointment,
   markNoShow,
   arriveAppointment,
+  listAppointmentAdvisors,
   appointmentPolicyAt,
   toAppointmentDto,
 } from './application/appointments';

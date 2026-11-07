@@ -261,6 +261,21 @@ export async function getAppointment(
   return toAppointmentDto(a);
 }
 
+/** FR-REC-027: who can be named advisor of an appointment at the working branch (CV and QL, the same rule as the write). */
+export async function listAppointmentAdvisors(
+  deps: RecDeps,
+  actor: Actor,
+): Promise<{ id: string; name: string }[]> {
+  resolveScope(actor, 'appointment:view');
+  const branchId = actor.workingBranchId;
+  if (!branchId) return [];
+  const ids = await usersWithRole(deps.sys, actor.tenantId, ['CV', 'QL'], branchId);
+  const users = await Promise.all(ids.map((id) => deps.sys.users.getById(actor.tenantId, id)));
+  return users
+    .flatMap((u) => (u ? [{ id: u.id, name: u.displayName }] : []))
+    .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+}
+
 // ---- create ---------------------------------------------------------------------------------------------
 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
