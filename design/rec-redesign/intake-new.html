@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiếp nhận xe mới – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .stage { max-width: 680px; margin: var(--space-6) auto 0; display: grid; gap: var(--space-4); }
+  .big { display: flex; gap: var(--space-3); }
+  .big input { flex: 1; height: 64px; padding: 0 var(--space-5); border: 2px solid var(--input-border); border-radius: var(--radius-lg); font: inherit; font-size: var(--font-size-3xl); font-weight: var(--fw-semibold); letter-spacing: .03em; text-transform: uppercase; font-variant-numeric: tabular-nums; background: var(--input-bg); color: var(--color-text-primary); min-width: 0; }
+  .big input:focus { border-color: var(--input-border-focus); box-shadow: var(--shadow-focus); outline: none; }
+  .big .b { height: 64px; padding: 0 var(--space-6); font-size: var(--font-size-lg); }
+  .hint { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin: 0; }
+  .res { padding: var(--card-padding); display: grid; gap: var(--space-4); }
+  .res[hidden] { display: none; }
+  .res h2 { margin: 0; font-size: var(--font-size-lg); }
+  .vh { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+  .vh .plate { height: 40px; font-size: var(--font-size-xl); padding: 0 var(--space-3); }
+  dl { grid-template-columns: 120px 1fr; }
+  .note { background: var(--color-warning-bg); border: 1px solid var(--color-warning-border); color: var(--color-warning-text); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--font-size-md); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .acts { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  @media (max-width: 599px) { .big { flex-direction: column; } .big input { font-size: var(--font-size-2xl); height: 56px; } .big .b { height: 52px; } .row2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="intakes.html">Tiếp nhận xe</a> / Tiếp nhận xe mới</p>
+  <header class="head"><div><h1>Tiếp nhận xe mới</h1><p>Nhập biển số. Xe và chủ xe đã có sẽ tự điền.</p></div></header>
+
+  <div class="stage">
+    <form class="big" id="f" onsubmit="return false">
+      <label for="plate" style="position:absolute;left:-9999px">Biển số xe</label>
+      <input id="plate" autocomplete="off" autocapitalize="characters" inputmode="text" placeholder="51H12345" aria-describedby="h" autofocus>
+      <button class="b b--primary" type="submit" id="go">Tìm xe</button>
+    </form>
+    <p class="hint" id="h">Gõ liền, không cần dấu chấm hay gạch ngang. Thử: 51H12345 (xe có sẵn), 30F55555 (xe ở chi nhánh khác), hoặc biển bất kỳ (xe mới).</p>
+
+    <section class="card res" id="found" hidden aria-live="polite">
+      <div class="vh"><span class="plate">51H-123.45</span><strong style="font-size:var(--font-size-lg)">Toyota Vios 1.5G 2019</strong></div>
+      <dl><dt>Chủ xe</dt><dd>Nguyễn Văn An, KH-Q7-00001</dd><dt>Số km lần trước</dt><dd>3.100.100 km, 12/07/2026</dd><dt>Lần sửa gần nhất</dt><dd>Chi nhánh Quận 7</dd></dl>
+      <div class="acts"><a class="b b--primary" href="intake-wizard.html">Tiếp nhận xe này</a></div>
+    </section>
+
+    <section class="card res" id="other" hidden aria-live="polite">
+      <div class="vh"><span class="plate">30F-555.55</span><strong style="font-size:var(--font-size-lg)">Ford Ranger 2020</strong></div>
+      <div class="note"><strong>Xe có hồ sơ ở Chi nhánh Thủ Đức.</strong> Dùng hồ sơ này để giữ lịch sử sửa chữa và chủ xe.</div>
+      <div class="acts"><a class="b b--primary" href="intake-wizard.html">Dùng hồ sơ này và tiếp nhận</a><button class="b b--secondary" type="button" id="toNew">Đây là xe khác</button></div>
+    </section>
+
+    <section class="card res" id="fresh" hidden aria-live="polite">
+      <h2>Xe mới: <span id="pl" style="font-variant-numeric:tabular-nums"></span></h2>
+      <p class="hint" style="margin-top:calc(-1 * var(--space-2))">Biển số này chưa có trong hệ thống. Hồ sơ xe được tạo cùng lúc với tiếp nhận.</p>
+      <div class="field"><label for="own">Chủ xe <span class="req" aria-hidden="true">*</span></label><input id="own" placeholder="Tìm theo tên, mã khách hoặc số điện thoại" autocomplete="off"><span class="hint">Chưa có khách? <a href="customer-new.html" style="color:var(--color-text-link)">Thêm khách mới</a></span></div>
+      <div class="row2">
+        <div class="field"><label for="mk">Hãng xe <span class="req" aria-hidden="true">*</span></label><input id="mk" list="mks"></div>
+        <div class="field"><label for="md">Dòng xe <span class="req" aria-hidden="true">*</span></label><input id="md"></div>
+      </div>
+      <datalist id="mks"><option>Toyota</option><option>Hyundai</option><option>Honda</option><option>Kia</option><option>Mazda</option><option>Ford</option><option>VinFast</option></datalist>
+      <div class="field" style="max-width:200px"><label for="yr">Năm sản xuất <span class="req" aria-hidden="true">*</span></label><input id="yr" type="number" inputmode="numeric"></div>
+      <div class="acts"><a class="b b--primary" href="intake-wizard.html">Tạo xe và tiếp nhận</a></div>
+    </section>
+  </div>
+</div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const show = (id) => ['found', 'other', 'fresh'].forEach((x) => { $('#' + x).hidden = x !== id; });
+  const norm = (s) => s.toUpperCase().replace(/[^0-9A-Z]/g, '');
+  function fmt(n) { const m = n.match(/^(\d{2}[A-Z]{1,2}\d?)(\d{3})(\d{2})$/); return m ? `${m[1]}-${m[2]}.${m[3]}` : n; }
+  function go() {
+    const n = norm($('#plate').value); if (!n) return;
+    if (n === '51H12345') show('found'); else if (n === '30F55555') show('other'); else { $('#pl').textContent = fmt(n); show('fresh'); }
+  }
+  $('#f').addEventListener('submit', go);
+  $('#toNew').addEventListener('click', () => { $('#pl').textContent = fmt(norm($('#plate').value)); show('fresh'); });
+  $('#plate').addEventListener('input', () => show(''));
+</script>
+</body>
+</html>

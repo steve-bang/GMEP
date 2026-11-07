@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giao xe – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .demo { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-4); padding: var(--space-2) var(--space-3); border: 1px dashed var(--control-border); border-radius: var(--radius-md); font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .demo button { height: 28px; padding: 0 var(--space-3); border: 1px solid var(--control-border); border-radius: var(--radius-full); background: var(--color-surface); font: inherit; font-size: var(--font-size-sm); cursor: pointer; color: var(--color-text-secondary); }
+  .demo button[aria-pressed="true"] { background: var(--color-primary-subtle); border-color: var(--color-border-selected); color: var(--color-brand-700); }
+  .veh { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: var(--space-4); align-items: center; padding: var(--space-3) var(--space-5); margin-bottom: var(--space-6); }
+  .veh img { width: 96px; height: 72px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid var(--color-border); }
+  .veh .plate { height: 36px; font-size: var(--font-size-xl); padding: 0 var(--space-3); border-width: 2px; }
+  .veh .f { color: var(--color-text-secondary); font-size: var(--font-size-md); margin-top: var(--space-1); }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--color-border-strong); vertical-align: -1px; margin-right: 4px; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--space-6); align-items: start; }
+  .layout > * { min-width: 0; }
+  section.card { padding: var(--card-padding); }
+  section.card h2 { margin: 0 0 var(--space-1); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); }
+  .lead { margin: 0 0 var(--space-4); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .grid { display: grid; gap: var(--space-5); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); align-items: start; }
+  .seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+  .seg2 label { display: flex; gap: var(--space-3); align-items: center; min-height: var(--btn-height-xl); padding: 0 var(--space-4); border: 1px solid var(--control-border); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-md); background: var(--color-surface); }
+  .seg2 input { width: 20px; height: 20px; accent-color: var(--color-primary); }
+  .seg2 label:has(input:checked) { background: var(--color-primary-subtle); border-color: var(--color-border-selected); font-weight: var(--fw-medium); }
+  .warn { border: 1px solid var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); display: grid; gap: var(--space-3); font-size: var(--font-size-md); }
+  .warn[hidden] { display: none; }
+  .tick { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3) var(--space-4); border: 1px solid var(--control-border); border-radius: var(--radius-md); cursor: pointer; background: var(--color-surface); }
+  .tick input { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--color-primary); }
+  .tick:has(input:checked) { background: var(--color-primary-subtle); border-color: var(--color-border-selected); }
+  .tick b { display: block; font-weight: var(--fw-medium); font-size: var(--font-size-md); }
+  .tick small { color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .err { color: var(--color-danger-text); font-size: var(--font-size-sm); }
+  .err[hidden] { display: none; }
+  .hint { margin: 0; color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .side { position: sticky; top: var(--space-4); display: grid; gap: var(--space-4); }
+  .box { padding: var(--card-padding); display: grid; gap: var(--space-3); }
+  .box h2 { margin: 0; font-size: var(--font-size-lg); }
+  .ln { display: flex; justify-content: space-between; font-size: var(--font-size-md); font-variant-numeric: tabular-nums; }
+  .ln span:first-child { color: var(--color-text-secondary); }
+  .gate { border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--font-size-md); border: 1px solid; }
+  .gate--bad { border-color: var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); }
+  .gate--ok { border-color: var(--color-success-border); background: var(--color-success-bg); color: var(--color-success-text); }
+  .gate--debt { border-color: var(--color-info-border); background: var(--color-info-bg); color: var(--color-info-text); }
+  .box .b { width: 100%; }
+  .go { display: grid; gap: var(--space-2); }
+  .go .b { min-height: var(--btn-height-xl); font-size: var(--font-size-lg); }
+  .b[disabled] { background: var(--btn-disabled-bg); color: var(--btn-disabled-fg); border-color: var(--color-border); cursor: not-allowed; }
+  .missing { margin: 0; padding-left: var(--space-5); color: var(--color-text-secondary); font-size: var(--font-size-sm); display: grid; gap: 2px; }
+  .recap dt { color: var(--color-text-tertiary); } .recap { grid-template-columns: 110px 1fr; }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .tag { display: inline-flex; height: 26px; align-items: center; padding: 0 var(--space-2); border-radius: var(--radius-xs); background: var(--color-surface-subtle); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  /* Sau khi giao */
+  #done[hidden], #formWrap[hidden] { display: none; }
+  .ok { text-align: center; padding: var(--space-8) var(--space-6); display: grid; gap: var(--space-3); justify-items: center; }
+  .ok .ic { width: 56px; height: 56px; border-radius: 50%; background: var(--color-success-bg); color: var(--color-success-text); display: grid; place-items: center; font-size: var(--font-size-2xl); font-weight: var(--fw-bold); }
+  .ok h2 { margin: 0; font-size: var(--font-size-xl); }
+  .ok p { margin: 0; color: var(--color-text-secondary); max-width: 52ch; }
+  .recpt { text-align: left; width: 302px; max-width: 100%; margin: 0 auto; background: #fff; color: #111; border: 1px solid var(--color-border-strong); padding: var(--space-4); font-size: 12px; line-height: 1.5; box-shadow: var(--shadow-md); }
+  .recpt h3 { margin: 0 0 var(--space-2); text-align: center; font-size: 14px; }
+  .recpt hr { border: 0; border-top: 1px dashed #999; margin: var(--space-2) 0; }
+  .recpt .r { display: flex; justify-content: space-between; gap: var(--space-2); }
+  .recpt .sig { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); text-align: center; margin-top: var(--space-4); }
+  .recpt .sig i { display: block; margin-top: 28px; font-size: 11px; color: #666; }
+  .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .side { position: static; order: -1; } }
+  @media (max-width: 599px) { :root { --page-padding-x: var(--space-4); } .veh { grid-template-columns: 72px minmax(0, 1fr); } .veh img { width: 72px; height: 54px; } .veh > :last-child { grid-column: 1 / -1; } .row2, .seg2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="board.html">Bảng điều phối</a> / <a href="order-detail.html">Lệnh RO-Q7-2611-00001</a> / Giao xe</p>
+  <header class="head"><div><h1>Giao xe</h1><p>Ghi người nhận xe và xác nhận của khách. Giao xe hoàn tất lệnh.</p></div></header>
+
+  <div class="demo" role="group" aria-label="Chọn tình huống thanh toán để xem thử (chỉ có trong prototype)">
+    <span>Xem thử thanh toán:</span>
+    <button type="button" aria-pressed="true" data-pay="owe">Còn nợ</button>
+    <button type="button" aria-pressed="false" data-pay="debt">Ghi nợ đã duyệt</button>
+    <button type="button" aria-pressed="false" data-pay="paid">Đã thu đủ</button>
+  </div>
+
+  <section class="card veh" aria-label="Xe giao">
+    <img id="img" alt="Ảnh xe Toyota Vios">
+    <div><span class="plate">51H-123.45</span><div class="f"><strong>Toyota Vios 1.5G 2019</strong>, <span class="sw" style="background:#c0c4cc" aria-hidden="true"></span>Bạc, chủ xe Nguyễn Văn An</div></div>
+    <div style="display:grid;gap:var(--space-1);justify-items:end"><span class="badge badge--success" id="vb">Sẵn sàng giao</span><span class="t2" id="vt">Kiểm tra chất lượng: Đạt</span></div>
+  </section>
+
+  <div class="layout" id="formWrap">
+    <main style="grid-template-columns:minmax(0,1fr)" class="grid">
+      <section class="card grid" aria-labelledby="h1">
+        <div><h2 id="h1">Người nhận xe</h2><p class="lead" style="margin:0">Chỉ ghi họ tên, không ghi số điện thoại hay địa chỉ.</p></div>
+        <div class="field"><label for="rcv">Họ tên người nhận <span class="req" aria-hidden="true">*</span></label><input id="rcv" maxlength="120" autocomplete="off"></div>
+        <div class="field"><span id="cfl" style="font-weight:var(--fw-medium);font-size:var(--font-size-md)">Xác nhận của khách</span>
+          <div class="seg2" role="radiogroup" aria-labelledby="cfl"><label><input type="radio" name="cf" value="screen" checked> Xác nhận trên màn hình</label><label><input type="radio" name="cf" value="paper"> Ký trên biên bản giấy</label></div></div>
+        <div class="field" id="paperF" hidden><label for="pr">Mã biên bản giấy <span class="req" aria-hidden="true">*</span></label><input id="pr" maxlength="40" autocomplete="off"></div>
+      </section>
+
+      <section class="card grid" aria-labelledby="h2">
+        <div><h2 id="h2">Số km khi giao xe</h2><p class="lead" style="margin:0">Số km gần nhất: 3.100.100</p></div>
+        <div class="field"><label for="km">Số km hiện tại <span class="req" aria-hidden="true">*</span></label><input id="km" inputmode="numeric" autocomplete="off" style="max-width:240px;font-size:var(--font-size-2xl);font-weight:var(--fw-semibold)"></div>
+        <div class="warn" id="kmW" hidden role="status"><strong>Số km nhỏ hơn lần trước (3.100.100)</strong><div class="field"><label for="kr">Lý do</label><select id="kr" style="min-height:var(--input-height-touch);padding:0 var(--input-px);border:1px solid var(--input-border);border-radius:var(--input-radius);font:inherit;background:var(--input-bg)"><option value="">Chọn lý do</option><option>Nhập nhầm lần trước</option><option>Đã thay đồng hồ</option><option>Lý do khác</option></select></div></div>
+      </section>
+
+      <section class="card grid" aria-labelledby="h3">
+        <div><h2 id="h3">Trả đồ cho khách</h2><p class="lead" style="margin:0">Đối chiếu với hồ sơ tiếp nhận trước khi giao.</p></div>
+        <label class="tick"><input type="checkbox" id="t1"><span><b>Đã trả đồ đạc của khách</b><small>Lúc nhận: Bảo hiểm, Kích và dụng cụ</small></span></label>
+        <label class="tick"><input type="checkbox" id="t2"><span><b>Đã trả hoặc cho khách xem phụ tùng cũ</b><small>Má phanh trước (cũ), lọc dầu (cũ)</small></span></label>
+        <div class="field"><label for="nt">Ghi chú</label><input id="nt" maxlength="500"></div>
+      </section>
+    </main>
+
+    <aside class="side" aria-label="Thanh toán và xác nhận giao xe">
+      <div class="card box" aria-labelledby="hp"><h2 id="hp">Thanh toán của lệnh</h2>
+        <div class="ln"><span>Phải thu</span><strong>648.000 ₫</strong></div>
+        <div class="ln"><span>Đã thu</span><span id="rec">0 ₫</span></div>
+        <div class="ln"><span>Còn nợ</span><strong id="owe">648.000 ₫</strong></div>
+        <div class="gate" id="gate" role="status"></div>
+        <div id="payActs" style="display:grid;gap:var(--space-2)"><a class="b b--secondary" href="#">Thu tiền</a><a class="b b--secondary" href="#">Đề nghị ghi nợ</a></div>
+      </div>
+      <div class="card box go">
+        <button class="b b--primary" type="button" id="go" disabled>Giao xe</button>
+        <ul class="missing" id="missing"></ul>
+        <p class="hint">Giao xe hoàn tất lệnh và không hoàn tác được.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div id="done" hidden>
+    <section class="card ok" role="status">
+      <span class="ic" aria-hidden="true">✓</span>
+      <h2>Đã giao xe 51H-123.45</h2>
+      <p>Lệnh RO-Q7-2611-00001 đã hoàn tất. In biên bản giao xe cho khách ký giữ một bản.</p>
+      <div class="recpt" aria-label="Xem trước biên bản giao xe, khổ nhiệt 80 mm">
+        <h3>Biên bản giao xe</h3>
+        <hr>
+        <div class="r"><span>Mã lệnh</span><b>RO-Q7-2611-00001</b></div>
+        <div class="r"><span>Biển số</span><b>51H-123.45</b></div>
+        <div class="r"><span>Xe</span><span>Toyota Vios 1.5G 2019</span></div>
+        <div class="r"><span>Khách hàng</span><span>Nguyễn Văn An</span></div>
+        <div class="r"><span>Số km giao</span><span id="pKm">—</span></div>
+        <hr>
+        <b>Công việc đã làm</b>
+        <div class="r"><span>Thay dầu</span><span>150.000 ₫</span></div>
+        <div class="r"><span>Thay má phanh</span><span>450.000 ₫</span></div>
+        <hr>
+        <div class="r"><b>Tổng cộng</b><b>648.000 ₫</b></div>
+        <div>[x] Đã trả đồ đạc của khách<br>[x] Đã trả phụ tùng cũ</div>
+        <div class="sig"><div>Người nhận xe<i id="pRcv">(ký, ghi rõ họ tên)</i></div><div>Nhân viên giao xe<i>(ký, ghi rõ họ tên)</i></div></div>
+      </div>
+      <div class="acts"><button class="b b--primary" type="button">In biên bản</button><a class="b b--secondary" href="board.html">Về bảng điều phối</a><a class="b b--secondary" href="#">Xuất hóa đơn</a></div>
+      <p class="hint">In lại cần ghi lý do; bản in lại được đánh dấu "BẢN IN LẠI".</p>
+    </section>
+  </div>
+</div>
+<script src="photos.js"></script>
+<script>
+  const $ = (s) => document.querySelector(s);
+  $('#img').src = ph(215);
+  const num = (s) => +String(s).replace(/\D/g, '');
+  const LAST = 3100100; let pay = 'owe';
+  const PAY = {
+    owe: { rec: '0 ₫', owe: '648.000 ₫', cls: 'gate--bad', txt: 'Còn nợ 648.000 ₫. Thu đủ tiền hoặc xin quản lý duyệt ghi nợ trước khi giao xe.', acts: true, ok: false },
+    debt: { rec: '0 ₫', owe: '648.000 ₫', cls: 'gate--debt', txt: 'Có ghi nợ đã được quản lý duyệt (648.000 ₫, hạn 30/11/2026). Có thể giao xe.', acts: false, ok: true },
+    paid: { rec: '648.000 ₫', owe: '0 ₫', cls: 'gate--ok', txt: 'Đã thu đủ, có thể giao xe.', acts: false, ok: true },
+  };
+  function check() {
+    const p = PAY[pay], km = num($('#km').value), paper = document.querySelector('[name=cf]:checked').value === 'paper', low = km && km < LAST;
+    $('#paperF').hidden = !paper; $('#kmW').hidden = !low;
+    const miss = [];
+    if (!p.ok) miss.push('Thanh toán: thu đủ tiền hoặc có ghi nợ được duyệt');
+    if (!$('#rcv').value.trim()) miss.push('Họ tên người nhận xe');
+    if (paper && !$('#pr').value.trim()) miss.push('Mã biên bản giấy');
+    if (!km) miss.push('Số km khi giao xe'); else if (low && !$('#kr').value) miss.push('Lý do số km nhỏ hơn lần trước');
+    $('#missing').innerHTML = miss.length ? '<li style="list-style:none;margin-left:calc(-1 * var(--space-5));color:var(--color-text-primary);font-weight:var(--fw-medium)">Còn thiếu:</li>' + miss.map((m) => `<li>${m}</li>`).join('') : '';
+    $('#go').disabled = miss.length > 0;
+  }
+  function setPay(k) { pay = k; const p = PAY[k]; $('#rec').textContent = p.rec; $('#owe').textContent = p.owe; $('#gate').className = 'gate ' + p.cls; $('#gate').textContent = p.txt; $('#payActs').hidden = !p.acts; document.querySelectorAll('[data-pay]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pay === k))); check(); }
+  document.querySelectorAll('[data-pay]').forEach((b) => b.addEventListener('click', () => setPay(b.dataset.pay)));
+  $('#km').addEventListener('input', (e) => { const n = num(e.target.value); e.target.value = n ? n.toLocaleString('vi-VN') : ''; check(); });
+  ['#rcv', '#pr', '#kr'].forEach((s) => $(s).addEventListener('input', check));
+  $('#kr').addEventListener('change', check);
+  document.querySelectorAll('[name=cf]').forEach((r) => r.addEventListener('change', check));
+  $('#go').addEventListener('click', () => { $('#pKm').textContent = $('#km').value + ' km'; $('#pRcv').textContent = $('#rcv').value; $('#vb').textContent = 'Hoàn tất'; $('#vb').className = 'badge badge--neutral'; $('#vt').textContent = 'Đã giao xe'; $('#formWrap').hidden = true; $('#done').hidden = false; window.scrollTo({ top: 0 }); });
+  setPay('owe');
+</script>
+</body>
+</html>

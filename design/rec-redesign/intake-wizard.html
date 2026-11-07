@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập hồ sơ tiếp nhận – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .car { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; padding: var(--space-3) var(--space-5); margin-bottom: var(--space-4); }
+  .car .plate { height: 36px; font-size: var(--font-size-lg); padding: 0 var(--space-3); }
+  .car span.m { color: var(--color-text-secondary); font-size: var(--font-size-md); }
+  .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2); margin: 0 0 var(--space-6); padding: 0; list-style: none; }
+  .steps li { display: grid; gap: var(--space-1); font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .steps li::before { content: ""; height: 4px; border-radius: var(--radius-full); background: var(--color-border-strong); }
+  .steps li.done::before { background: var(--color-primary); }
+  .steps li.cur::before { background: var(--color-primary); }
+  .steps li.cur { color: var(--color-text-primary); font-weight: var(--fw-medium); }
+  .steps li.done { color: var(--color-text-secondary); }
+  .body { max-width: 720px; }
+  .panel { padding: var(--card-padding); display: grid; gap: var(--space-5); }
+  .panel[hidden] { display: none; }
+  .panel h2 { margin: 0; font-size: var(--font-size-xl); line-height: var(--lh-lg); }
+  .field select { width: 100%; min-height: var(--input-height-touch); padding: 0 var(--input-px); border: 1px solid var(--input-border); border-radius: var(--input-radius); background: var(--input-bg); font: inherit; font-size: var(--font-size-lg); color: var(--color-text-primary); }
+  .kmrow { display: flex; align-items: center; gap: var(--space-3); }
+  .kmrow input { max-width: 240px; font-size: var(--font-size-2xl); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+  .warn { border: 1px solid var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); display: grid; gap: var(--space-3); font-size: var(--font-size-md); }
+  .warn[hidden] { display: none; }
+  .fuel { display: inline-flex; border: 1px solid var(--control-border); border-radius: var(--radius-md); overflow: hidden; }
+  .fuel button { min-width: 64px; height: var(--input-height-touch); border: 0; background: var(--color-surface); font: inherit; font-size: var(--font-size-md); cursor: pointer; color: var(--color-text-secondary); }
+  .fuel button + button { border-left: 1px solid var(--color-border); }
+  .fuel button[aria-pressed="true"] { background: var(--color-primary-subtle); color: var(--color-brand-700); font-weight: var(--fw-medium); }
+  .quick { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-2); }
+  .checks label { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-target); padding: 0 var(--space-3); border: 1px solid var(--control-border); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-md); }
+  .checks input { width: 20px; height: 20px; accent-color: var(--color-primary); }
+  .checks label:has(input:checked) { background: var(--color-primary-subtle); border-color: var(--color-border-selected); }
+  .photos { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .photos .add { width: 112px; height: 84px; border: 1.5px dashed var(--control-border); border-radius: var(--radius-md); background: var(--color-surface); font: inherit; font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; }
+  .photos img { width: 112px; height: 84px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); align-items: start; }
+  .review dl { grid-template-columns: 150px 1fr; }
+  .err { color: var(--color-danger-text); font-size: var(--font-size-sm); }
+  .err[hidden] { display: none; }
+  .foot { max-width: 720px; margin-top: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+  .foot .l, .foot .r { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+  .saved { color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  @media (max-width: 599px) { .row2 { grid-template-columns: 1fr; } .steps li span { display: none; } .steps li.cur span { display: inline; grid-column: 1 / -1; } .steps { grid-template-columns: repeat(5, 1fr); } .foot .b { flex: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="intakes.html">Tiếp nhận xe</a> / TX-Q7-2611-00009</p>
+  <header class="head"><div><h1>Hồ sơ tiếp nhận TX-Q7-2611-00009</h1><p>Bản nháp tự lưu sau mỗi bước, nên bạn có thể dừng và quay lại sau.</p></div><div class="head__actions"><button class="b b--secondary" type="button">Hủy hồ sơ</button></div></header>
+
+  <div class="card car"><span class="plate">51H-123.45</span><strong>Toyota Vios 1.5G 2019</strong><span class="m">Chủ xe: Nguyễn Văn An</span><span class="m">Cố vấn: Chủ Garage Demo</span></div>
+
+  <ol class="steps" aria-label="Các bước tiếp nhận" id="steps">
+    <li class="done"><span>1. Xe và khách</span></li>
+    <li class="cur" data-n="2"><span>2. Hiện trạng</span></li>
+    <li data-n="3"><span>3. Đồ đạc trong xe</span></li>
+    <li data-n="4"><span>4. Dịch vụ và hẹn giao</span></li>
+    <li data-n="5"><span>5. Xem lại</span></li>
+  </ol>
+
+  <div class="body">
+    <section class="card panel" data-p="2" aria-label="Hiện trạng">
+      <h2>Hiện trạng xe</h2>
+      <div class="field">
+        <label for="km">Số km hiện tại <span class="req" aria-hidden="true">*</span></label>
+        <div class="kmrow"><input id="km" inputmode="numeric" autocomplete="off" aria-describedby="kmh"><span>km</span></div>
+        <span class="hint" id="kmh">Lần trước 3.100.100 km. Nhập số trên đồng hồ.</span>
+        <span class="err" id="kmErr" role="alert" hidden>Nhập số km trên đồng hồ để tiếp tục.</span>
+      </div>
+      <div class="warn" id="kmWarn" hidden role="status">
+        <strong>Số km thấp hơn lần sửa trước (3.100.100)</strong>
+        <span>Có thể nhập nhầm hoặc đã thay đồng hồ. Chọn lý do để tiếp tục.</span>
+        <div class="field"><label for="kmr">Lý do</label><select id="kmr"><option>Nhập nhầm</option><option>Đã thay đồng hồ</option><option>Lý do khác</option></select></div>
+      </div>
+      <div class="field"><span id="fl" style="font-weight:var(--fw-medium);font-size:var(--font-size-md)">Mức nhiên liệu</span>
+        <div class="fuel" role="group" aria-labelledby="fl"><button type="button" aria-pressed="false">Cạn</button><button type="button" aria-pressed="false">1/4</button><button type="button" aria-pressed="true">1/2</button><button type="button" aria-pressed="false">3/4</button><button type="button" aria-pressed="false">Đầy</button></div></div>
+      <div class="field">
+        <label for="rq">Yêu cầu của khách (theo lời khách) <span class="req" aria-hidden="true">*</span></label>
+        <textarea id="rq" placeholder="Ghi đúng lời khách, ví dụ: xe kêu cọt kẹt khi đạp phanh"></textarea>
+        <div class="quick" aria-label="Gợi ý nhanh"><button class="chip" type="button">Bảo dưỡng định kỳ</button><button class="chip" type="button">Thay dầu</button><button class="chip" type="button">Kiểm tra phanh</button><button class="chip" type="button">Xe rung, lệch lái</button><button class="chip" type="button">Đèn báo lỗi</button></div>
+        <span class="err" id="rqErr" role="alert" hidden>Ghi yêu cầu của khách để tiếp tục.</span>
+      </div>
+      <div class="field"><label for="cd">Hiện trạng bên ngoài và bên trong</label><textarea id="cd" placeholder="Ví dụ: trầy cản trước bên phải, ghế lái bẩn"></textarea></div>
+      <div class="field"><span style="font-weight:var(--fw-medium);font-size:var(--font-size-md)">Ảnh hiện trạng</span>
+        <div class="photos" id="photos"><button class="add" type="button" id="padd">Chụp hoặc chọn ảnh</button></div>
+        <input id="pf" type="file" accept="image/*" capture="environment" multiple hidden>
+        <span class="hint">Chụp bốn góc xe và chỗ hư hỏng sẵn có để tránh tranh cãi khi giao xe.</span></div>
+    </section>
+
+    <section class="card panel" data-p="3" aria-label="Đồ đạc trong xe" hidden>
+      <h2>Đồ đạc trong xe</h2>
+      <div class="checks" role="group" aria-label="Tài sản để lại trong xe">
+        <label><input type="checkbox"> Giấy đăng ký xe</label><label><input type="checkbox" checked> Bảo hiểm</label><label><input type="checkbox"> Lốp dự phòng</label><label><input type="checkbox"> Kích và dụng cụ</label><label><input type="checkbox"> Thẻ thu phí tự động</label><label><input type="checkbox"> Camera hành trình</label>
+      </div>
+      <div class="field"><label for="bo">Đồ khác, vật có giá trị</label><input id="bo"><span class="hint">Dặn khách mang theo vật có giá trị nếu có thể.</span></div>
+    </section>
+
+    <section class="card panel" data-p="4" aria-label="Dịch vụ và hẹn giao" hidden>
+      <h2>Dịch vụ và hẹn giao</h2>
+      <div class="field"><label for="sv">Loại dịch vụ</label><select id="sv"><option>Bảo dưỡng</option><option>Sửa chữa chung</option><option>Lốp và mâm</option><option>Đồng sơn</option></select></div>
+      <div class="row2">
+        <div class="field"><label for="pd">Ngày hẹn giao <span class="req" aria-hidden="true">*</span></label><input id="pd" type="date" value="2026-11-08"></div>
+        <div class="field"><label for="pt">Giờ hẹn giao</label><input id="pt" type="time" value="17:00"></div>
+      </div>
+      <div class="field"><label for="cp">Phụ tùng khách mang đến</label><input id="cp" placeholder="Ví dụ: Lọc dầu x1, còn mới"><span class="hint">Ghi rõ để không tính vào báo giá và tránh nhầm khi giao xe.</span></div>
+    </section>
+
+    <section class="card panel review" data-p="5" aria-label="Xem lại" hidden>
+      <h2>Xem lại trước khi hoàn tất</h2>
+      <dl>
+        <dt>Xe</dt><dd>51H-123.45, Toyota Vios 1.5G 2019</dd>
+        <dt>Số km</dt><dd id="rvKm">—</dd>
+        <dt>Yêu cầu của khách</dt><dd id="rvRq">—</dd>
+        <dt>Ảnh hiện trạng</dt><dd id="rvPh">0 ảnh</dd>
+        <dt>Đồ đạc để lại</dt><dd>Bảo hiểm</dd>
+        <dt>Dịch vụ</dt><dd>Bảo dưỡng</dd>
+        <dt>Hẹn giao</dt><dd>08/11/2026 17:00</dd>
+      </dl>
+      <p class="hint" style="margin:0">Sau khi hoàn tất, bạn lập báo giá cho khách. Mã lệnh sửa chữa chỉ có khi khách duyệt báo giá.</p>
+    </section>
+
+    <div class="stickybar foot" role="group" aria-label="Điều hướng bước">
+      <div class="l"><button class="b b--secondary" type="button" id="back">Quay lại</button></div>
+      <div class="r"><span class="saved" id="saved" role="status"></span><button class="b b--secondary" type="button" id="draft">Lưu nháp</button><button class="b b--primary" type="button" id="next">Tiếp tục</button></div>
+    </div>
+  </div>
+</div>
+<script src="photos.js"></script>
+<script>
+  const $ = (s) => document.querySelector(s); let step = 2;
+  const LAST = 3100100;
+  const lis = [...document.querySelectorAll('#steps li')];
+  function render() {
+    document.querySelectorAll('[data-p]').forEach((p) => { p.hidden = +p.dataset.p !== step; });
+    lis.forEach((li, i) => { li.classList.toggle('done', i + 1 < step); li.classList.toggle('cur', i + 1 === step); if (i + 1 === step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+    $('#back').style.visibility = step > 2 ? 'visible' : 'hidden';
+    $('#next').textContent = step === 5 ? 'Hoàn tất tiếp nhận' : 'Tiếp tục';
+    window.scrollTo({ top: 0 });
+  }
+  const num = (s) => +String(s).replace(/\D/g, '');
+  $('#km').addEventListener('input', (e) => { const n = num(e.target.value); e.target.value = n ? n.toLocaleString('vi-VN') : ''; $('#kmWarn').hidden = !(n && n < LAST); $('#kmErr').hidden = true; });
+  $('#rq').addEventListener('input', () => { $('#rqErr').hidden = true; });
+  document.querySelectorAll('.quick .chip').forEach((c) => c.addEventListener('click', () => { const r = $('#rq'); r.value = (r.value ? r.value.replace(/\s*$/, ', ') : '') + c.textContent.toLowerCase(); $('#rqErr').hidden = true; r.focus(); }));
+  document.querySelectorAll('.fuel button').forEach((b) => b.addEventListener('click', () => document.querySelectorAll('.fuel button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)))));
+  $('#padd').addEventListener('click', () => $('#pf').click());
+  let n = 0;
+  $('#pf').addEventListener('change', (e) => { for (const f of e.target.files) { const i = document.createElement('img'); i.src = URL.createObjectURL(f); i.alt = 'Ảnh hiện trạng ' + (++n); $('#photos').insertBefore(i, $('#padd')); } e.target.value = ''; });
+  function valid() {
+    if (step !== 2) return true; let ok = true;
+    if (!num($('#km').value)) { $('#kmErr').hidden = false; ok = false; }
+    if (!$('#rq').value.trim()) { $('#rqErr').hidden = false; ok = false; }
+    if (!ok) (num($('#km').value) ? $('#rq') : $('#km')).focus();
+    return ok;
+  }
+  const stamp = () => { $('#saved').textContent = 'Đã lưu nháp lúc ' + new Date().toTimeString().slice(0, 5); };
+  $('#draft').addEventListener('click', stamp);
+  $('#back').addEventListener('click', () => { step--; render(); });
+  $('#next').addEventListener('click', () => {
+    if (!valid()) return;
+    if (step === 5) { location.href = 'intake-detail.html'; return; }
+    stamp(); step++;
+    if (step === 5) { $('#rvKm').textContent = ($('#km').value || '—') + ' km'; $('#rvRq').textContent = $('#rq').value || '—'; $('#rvPh').textContent = n + ' ảnh'; }
+    render();
+  });
+  render();
+</script>
+</body>
+</html>

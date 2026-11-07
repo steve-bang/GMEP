@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiểm tra chất lượng – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .veh { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: var(--space-4); align-items: center; padding: var(--space-3) var(--space-5); margin-bottom: var(--space-6); }
+  .veh img { width: 96px; height: 72px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid var(--color-border); }
+  .veh .plate { height: 36px; font-size: var(--font-size-xl); padding: 0 var(--space-3); border-width: 2px; }
+  .veh .f { color: var(--color-text-secondary); font-size: var(--font-size-md); margin-top: var(--space-1); }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--color-border-strong); vertical-align: -1px; margin-right: 4px; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); align-items: start; }
+  .layout > * { min-width: 0; }
+  section.card { padding: var(--card-padding); }
+  section.card h2 { margin: 0 0 var(--space-1); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); }
+  .lead { margin: 0 0 var(--space-4); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .tools { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+  .chk { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); display: grid; gap: var(--space-3); background: var(--color-surface); }
+  .chk + .chk { margin-top: var(--space-2); }
+  .chk.bad { border-color: var(--color-danger-border); background: var(--color-danger-bg); }
+  .chk.pass { border-color: var(--color-success-border); }
+  .chk__r { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+  .chk__n { font-size: var(--font-size-lg); font-weight: var(--fw-medium); }
+  .yn { display: inline-flex; border: 1px solid var(--control-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); }
+  .yn button { min-width: 112px; height: var(--btn-height-lg); border: 0; background: none; font: inherit; font-size: var(--font-size-md); color: var(--color-text-secondary); cursor: pointer; }
+  .yn button + button { border-left: 1px solid var(--color-border); }
+  .yn button[aria-pressed="true"].ok { background: var(--color-success-bg); color: var(--color-success-text); font-weight: var(--fw-semibold); }
+  .yn button[aria-pressed="true"].no { background: var(--color-danger-bg); color: var(--color-danger-text); font-weight: var(--fw-semibold); }
+  .field select, .field input { width: 100%; }
+  .err { color: var(--color-danger-text); font-size: var(--font-size-sm); }
+  .err[hidden], .chk .fault[hidden] { display: none; }
+  .ret { display: grid; gap: var(--space-2); }
+  .ret label { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-target); padding: 0 var(--space-3); border: 1px solid var(--control-border); border-radius: var(--radius-md); cursor: pointer; background: var(--color-surface); font-size: var(--font-size-md); }
+  .ret input { width: 22px; height: 22px; accent-color: var(--color-primary); }
+  .ret label:has(input:checked) { background: var(--color-primary-subtle); border-color: var(--color-border-selected); }
+  .done { display: grid; gap: var(--space-4); }
+  .job { display: grid; gap: var(--space-1); padding: var(--space-3) 0; border-top: 1px solid var(--color-border); font-size: var(--font-size-md); }
+  .job:first-of-type { border-top: 0; padding-top: 0; }
+  .job .s { color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .side { position: sticky; top: var(--space-4); display: grid; gap: var(--space-4); }
+  .res { padding: var(--card-padding); display: grid; gap: var(--space-3); }
+  .res h2 { margin: 0; font-size: var(--font-size-lg); }
+  .res .big { font-size: var(--font-size-xl); font-weight: var(--fw-semibold); }
+  .res .b { width: 100%; min-height: var(--btn-height-xl); font-size: var(--font-size-lg); }
+  .res .b[disabled] { background: var(--btn-disabled-bg); color: var(--btn-disabled-fg); border-color: var(--color-border); cursor: not-allowed; }
+  .res .b--fail { background: var(--btn-danger-bg); color: #fff; }
+  .hint { margin: 0; color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  .toast { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); background: var(--color-text-primary); color: var(--color-text-inverse); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: var(--z-toast); }
+  .toast[hidden] { display: none; }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .side { position: static; } }
+  @media (max-width: 599px) { :root { --page-padding-x: var(--space-4); } .veh { grid-template-columns: 72px minmax(0, 1fr); } .veh img { width: 72px; height: 54px; } .veh > :last-child { grid-column: 1 / -1; } .yn { width: 100%; } .yn button { flex: 1; min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="board.html">Bảng điều phối</a> / <a href="order-detail.html">Lệnh RO-Q7-2611-00001</a> / Kiểm tra chất lượng</p>
+  <header class="head"><div><h1>Kiểm tra chất lượng</h1><p>Đánh giá từng mục trước khi giao xe. Mục không đạt phải ghi lỗi và trả hạng mục về cho thợ.</p></div></header>
+
+  <section class="card veh" aria-label="Xe đang kiểm tra">
+    <img id="img" alt="Ảnh xe Toyota Vios">
+    <div><span class="plate">51H-123.45</span><div class="f"><strong>Toyota Vios 1.5G 2019</strong>, <span class="sw" style="background:#c0c4cc" aria-hidden="true"></span>Bạc, chủ xe Nguyễn Văn An</div></div>
+    <div style="display:grid;gap:var(--space-1);justify-items:end"><span class="badge badge--info">Chờ kiểm tra</span><span class="t2">Kiểm tra lần 1</span></div>
+  </section>
+
+  <div class="layout">
+    <main style="display:grid;gap:var(--space-6);grid-template-columns:minmax(0,1fr)">
+      <section class="card" aria-labelledby="hw">
+        <h2 id="hw">Công việc đã làm</h2>
+        <p class="lead">Đối chiếu với yêu cầu của khách: <em>"Xe rung khi phanh, kiểm tra hệ thống phanh và thay dầu"</em></p>
+        <div class="job"><strong>1. Thay dầu</strong><span class="s">Thợ Quận 7, 28 phút / duyệt 30 phút</span></div>
+        <div class="job"><strong>2. Thay má phanh</strong><span class="s">Thợ Quận 7, 1 giờ 35 phút / duyệt 1 giờ 30 phút, phụ tùng: má phanh trước × 1 bộ</span></div>
+      </section>
+
+      <section class="card" aria-labelledby="hc">
+        <div class="tools"><div><h2 id="hc">Danh sách kiểm tra: Bảo dưỡng</h2><p class="lead" style="margin:0" id="prog">Đã đánh giá 0/6 mục</p></div><button class="b b--secondary" type="button" id="all">Đạt tất cả các mục</button></div>
+        <div id="list"></div>
+      </section>
+
+      <section class="card" id="retBox" aria-labelledby="hr" hidden>
+        <h2 id="hr">Trả hạng mục về cho thợ</h2>
+        <p class="lead">Chọn hạng mục cần làm lại. Thợ nhận lại việc và lệnh quay về Đang sửa.</p>
+        <div class="ret" role="group" aria-label="Hạng mục trả lại">
+          <label><input type="checkbox" class="rt"> 1. Thay dầu, Thợ Quận 7</label>
+          <label><input type="checkbox" class="rt"> 2. Thay má phanh, Thợ Quận 7</label>
+        </div>
+        <span class="err" id="retErr" role="alert" style="display:block;margin-top:var(--space-2)" hidden>Chọn ít nhất một hạng mục để trả lại.</span>
+      </section>
+
+      <section class="card" aria-labelledby="hn"><h2 id="hn">Ghi chú</h2><div class="field"><label for="nt" style="position:absolute;left:-9999px">Ghi chú</label><textarea id="nt" maxlength="500" placeholder="Ví dụ: đã chạy thử 5 km, phanh ăn đều"></textarea></div></section>
+    </main>
+
+    <aside class="side" aria-label="Kết quả kiểm tra">
+      <div class="card res">
+        <h2>Kết quả</h2>
+        <div class="big" id="rtxt">Chưa đủ mục để kết luận</div>
+        <p class="hint" id="rhint">Đánh giá hết 6 mục để ghi kết quả.</p>
+        <button class="b b--primary" type="button" id="go" disabled>Ghi kết quả</button>
+        <p class="hint" id="why"></p>
+      </div>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="photos.js"></script>
+<script>
+  const $ = (s) => document.querySelector(s);
+  $('#img').src = ph(215);
+  const CHECKS = ['Đèn, còi và đồng hồ báo hoạt động bình thường', 'Phanh ăn đều, chạy thử không rung', 'Không rò rỉ dầu, nước làm mát', 'Dầu động cơ đúng mức, nắp đã siết', 'Xe sạch, không để lại dấu tay, dụng cụ', 'Đồ đạc của khách còn nguyên trong xe'];
+  const st = CHECKS.map(() => ({ v: null, note: '' }));
+  function draw() {
+    $('#list').innerHTML = CHECKS.map((c, i) => {
+      const s = st[i]; const cls = s.v === false ? 'bad' : s.v === true ? 'pass' : '';
+      return `<div class="chk ${cls}"><div class="chk__r"><span class="chk__n">${i + 1}. ${c}</span><span class="yn" role="group" aria-label="Kết quả mục ${i + 1}"><button type="button" class="ok" data-i="${i}" data-v="1" aria-pressed="${s.v === true}">Đạt</button><button type="button" class="no" data-i="${i}" data-v="0" aria-pressed="${s.v === false}">Không đạt</button></span></div>
+        ${s.v === false ? `<div class="field fault"><label for="f${i}">Lỗi phát hiện <span class="req" aria-hidden="true">*</span></label><input id="f${i}" data-n="${i}" maxlength="300" value="${s.note}" placeholder="Ví dụ: má phanh trước bên trái kêu"><span class="err" ${s.note.trim() ? 'hidden' : ''} role="alert">Ghi lỗi để thợ biết cần làm lại gì.</span></div>` : ''}</div>`;
+    }).join('');
+    const done = st.filter((s) => s.v !== null).length, bad = st.filter((s) => s.v === false);
+    $('#prog').textContent = `Đã đánh giá ${done}/${CHECKS.length} mục`;
+    $('#retBox').hidden = !bad.length;
+    const allDone = done === CHECKS.length, notesOk = bad.every((s) => s.note.trim()), ret = [...document.querySelectorAll('.rt')].some((x) => x.checked);
+    let ok = false, why = '';
+    if (!allDone) { $('#rtxt').textContent = 'Chưa đủ mục để kết luận'; $('#rhint').textContent = `Còn ${CHECKS.length - done} mục chưa đánh giá.`; $('#go').textContent = 'Ghi kết quả'; $('#go').className = 'b b--primary'; why = 'Đánh giá hết các mục để ghi kết quả.'; }
+    else if (!bad.length) { $('#rtxt').innerHTML = '<span style="color:var(--color-success-text)">Đạt</span>'; $('#rhint').textContent = 'Lệnh chuyển sang Sẵn sàng giao.'; $('#go').textContent = 'Đạt, sẵn sàng giao xe'; $('#go').className = 'b b--primary'; ok = true; }
+    else { $('#rtxt').innerHTML = `<span style="color:var(--color-danger-text)">Không đạt (${bad.length} mục)</span>`; $('#rhint').textContent = 'Lệnh quay về Đang sửa, thợ nhận lại hạng mục.'; $('#go').textContent = 'Không đạt, trả lại thợ'; $('#go').className = 'b b--fail'; ok = notesOk && ret; why = !notesOk ? 'Ghi lỗi cho từng mục không đạt.' : !ret ? 'Chọn hạng mục cần trả lại thợ.' : ''; }
+    $('#go').disabled = !ok; $('#why').textContent = why;
+  }
+  $('#list').addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (!b) return; st[+b.dataset.i].v = b.dataset.v === '1'; draw(); const nx = document.querySelector(`#f${b.dataset.i}`); if (nx) nx.focus(); });
+  $('#list').addEventListener('input', (e) => { if (e.target.dataset.n === undefined) return; st[+e.target.dataset.n].note = e.target.value; const er = e.target.parentElement.querySelector('.err'); er.hidden = !!e.target.value.trim(); const bad = st.filter((s) => s.v === false), ret = [...document.querySelectorAll('.rt')].some((x) => x.checked); $('#go').disabled = !(bad.every((s) => s.note.trim()) && ret); $('#why').textContent = !bad.every((s) => s.note.trim()) ? 'Ghi lỗi cho từng mục không đạt.' : !ret ? 'Chọn hạng mục cần trả lại thợ.' : ''; });
+  document.querySelectorAll('.rt').forEach((x) => x.addEventListener('change', draw));
+  $('#all').addEventListener('click', () => { st.forEach((s) => { s.v = true; s.note = ''; }); document.querySelectorAll('.rt').forEach((x) => { x.checked = false; }); draw(); });
+  $('#go').addEventListener('click', () => { const bad = st.some((s) => s.v === false); $('#toast').textContent = bad ? 'Đã ghi không đạt, hạng mục được trả về cho thợ.' : 'Đã ghi đạt. Lệnh sẵn sàng giao xe.'; $('#toast').hidden = false; setTimeout(() => { location.href = bad ? 'order-detail.html' : 'handover.html'; }, 900); });
+  draw();
+</script>
+</body>
+</html>

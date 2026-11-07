@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lệnh sửa chữa – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .demo { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-4); padding: var(--space-2) var(--space-3); border: 1px dashed var(--control-border); border-radius: var(--radius-md); font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+  .demo button { height: 28px; padding: 0 var(--space-3); border: 1px solid var(--control-border); border-radius: var(--radius-full); background: var(--color-surface); font: inherit; font-size: var(--font-size-sm); cursor: pointer; color: var(--color-text-secondary); }
+  .demo button[aria-pressed="true"] { background: var(--color-primary-subtle); border-color: var(--color-border-selected); color: var(--color-brand-700); }
+  /* Xe: ảnh, hãng và dòng, màu, chủ xe */
+  .hero { display: grid; grid-template-columns: 168px minmax(0, 1fr) auto; gap: var(--space-5); align-items: center; padding: var(--space-4) var(--space-5); margin-bottom: var(--space-4); }
+  .hero__img { width: 168px; height: 126px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid var(--color-border); background: var(--color-surface-subtle); display: grid; place-items: center; font-size: var(--font-size-sm); color: var(--color-text-disabled); }
+  .hero .plate { height: 44px; font-size: var(--font-size-2xl); padding: 0 var(--space-4); border-width: 2px; }
+  .hero h1 { margin: var(--space-2) 0 var(--space-1); font-size: var(--font-size-xl); line-height: var(--lh-lg); font-weight: var(--fw-semibold); }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--color-border-strong); vertical-align: -1px; margin-right: 4px; }
+  .facts { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); color: var(--color-text-secondary); font-size: var(--font-size-md); }
+  .facts a { color: var(--color-text-link); text-decoration: none; }
+  .hero__st { display: grid; gap: var(--space-2); justify-items: end; text-align: right; }
+  .hero__st .due { font-size: var(--font-size-sm); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+  /* Bước tiếp theo: một việc chính cho từng trạng thái */
+  .next { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); margin-bottom: var(--space-6); border: 1px solid var(--color-info-border); background: var(--color-info-bg); color: var(--color-info-text); border-radius: var(--radius-lg); }
+  .next--warn { border-color: var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); }
+  .next--ok { border-color: var(--color-success-border); background: var(--color-success-bg); color: var(--color-success-text); }
+  .next strong { display: block; font-size: var(--font-size-lg); line-height: var(--lh-body-lg); }
+  .next span.d { font-size: var(--font-size-md); }
+  .next .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .b[disabled] { background: var(--btn-disabled-bg); color: var(--btn-disabled-fg); border-color: var(--color-border); cursor: not-allowed; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); align-items: start; }
+  .layout > * { min-width: 0; }
+  section.card { padding: var(--card-padding); }
+  section.card h2 { margin: 0 0 var(--space-4); font-size: var(--font-size-lg); line-height: var(--lh-body-lg); }
+  .ji { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2) var(--space-4); padding: var(--space-4) 0; border-top: 1px solid var(--color-border); align-items: center; }
+  .ji:first-of-type { border-top: 0; padding-top: 0; }
+  .ji h3 { margin: 0; font-size: var(--font-size-md); font-weight: var(--fw-semibold); }
+  .ji .m { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+  .ji .m .bar { width: 120px; }
+  .ji select { height: 36px; padding: 0 var(--space-3); border: 1px solid var(--input-border); border-radius: var(--radius-md); background: var(--input-bg); font: inherit; font-size: var(--font-size-sm); color: var(--color-text-primary); }
+  .part { display: inline-flex; gap: var(--space-2); align-items: center; padding: 2px var(--space-2); border-radius: var(--radius-xs); background: var(--color-surface-subtle); font-size: var(--font-size-sm); }
+  .prop { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-warning-border); border-radius: var(--radius-md); background: var(--color-warning-bg); color: var(--color-warning-text); font-size: var(--font-size-md); }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: var(--space-3); }
+  .photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+  .tl { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  .tl li { position: relative; padding-left: var(--space-6); font-size: var(--font-size-md); }
+  .tl li::before { content: ""; position: absolute; left: 4px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--color-border-strong); }
+  .tl li:first-child::before { background: var(--color-primary); }
+  .tl li::after { content: ""; position: absolute; left: 8px; top: 18px; bottom: calc(-1 * var(--space-4) + 2px); width: 2px; background: var(--color-border); }
+  .tl li:last-child::after { display: none; }
+  .tl time { display: block; color: var(--color-text-tertiary); font-size: var(--font-size-sm); font-variant-numeric: tabular-nums; }
+  .side { display: grid; gap: var(--space-4); position: sticky; top: var(--space-4); }
+  .side .box { padding: var(--card-padding-compact) var(--card-padding); display: grid; gap: var(--space-3); }
+  .side h2 { margin: 0; font-size: var(--font-size-lg); }
+  .ln { display: flex; justify-content: space-between; font-size: var(--font-size-md); font-variant-numeric: tabular-nums; }
+  .ln span:first-child { color: var(--color-text-secondary); }
+  .side .b { width: 100%; }
+  .hint { margin: 0; color: var(--color-text-tertiary); font-size: var(--font-size-sm); }
+  dl { grid-template-columns: 110px 1fr; }
+  @media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); } .side { position: static; } .hero { grid-template-columns: 120px minmax(0, 1fr); } .hero__img { width: 120px; height: 90px; } .hero__st { grid-column: 1 / -1; justify-items: start; text-align: left; } }
+  @media (max-width: 599px) { .hero { grid-template-columns: minmax(0, 1fr); } .hero__img { width: 100%; height: 160px; } .hero .plate { font-size: var(--font-size-xl); height: 40px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="crumbs"><a href="board.html">Bảng điều phối</a> / <a href="orders.html">Lệnh sửa chữa</a> / RO-Q7-2611-00001</p>
+
+  <div class="demo" role="group" aria-label="Chọn trạng thái để xem thử (chỉ có trong prototype)">
+    <span>Xem thử trạng thái lệnh:</span>
+    <button type="button" aria-pressed="true" data-st="work">Đang sửa</button>
+    <button type="button" aria-pressed="false" data-st="paused">Tạm dừng</button>
+    <button type="button" aria-pressed="false" data-st="qc">Chờ kiểm tra</button>
+    <button type="button" aria-pressed="false" data-st="ready">Sẵn sàng giao</button>
+  </div>
+
+  <section class="card hero" aria-label="Thông tin xe">
+    <img class="hero__img" id="img" alt="Ảnh xe Toyota Vios">
+    <div>
+      <span class="plate">51H-123.45</span>
+      <h1>Toyota Vios 1.5G 2019</h1>
+      <div class="facts">
+        <span><span class="sw" style="background:#c0c4cc" aria-hidden="true"></span>Bạc</span>
+        <span>Chủ xe: <a href="customer-detail.html">Nguyễn Văn An</a></span>
+        <span>Số km lúc nhận: 3.100.100</span>
+        <span>Lệnh RO-Q7-2611-00001</span>
+      </div>
+    </div>
+    <div class="hero__st"><span class="badge" id="stBadge"></span><span class="due" id="due"></span></div>
+  </section>
+
+  <ol class="journey" aria-label="Các chứng từ của lượt xe này">
+    <li><span class="k">Hồ sơ tiếp nhận</span><a href="intake-detail.html">TX-Q7-2611-00003</a><span class="badge badge--success">Đã hoàn tất</span></li>
+    <li><span class="k">Báo giá</span><a href="quote-detail.html">BG-Q7-2611-00003</a><span class="badge badge--success">Duyệt toàn phần</span></li>
+    <li class="cur"><span class="k">Lệnh sửa chữa</span><a href="#">RO-Q7-2611-00001</a><span class="badge" id="jBadge"></span></li>
+    <li class="todo"><span class="k">Thanh toán và hóa đơn</span><span id="jPay">Đã thu 0 ₫ trên 648.000 ₫</span></li>
+  </ol>
+
+  <div class="next" id="next" role="status"></div>
+
+  <div class="layout">
+    <main style="display:grid;gap:var(--space-6);grid-template-columns:minmax(0,1fr)">
+      <section class="card" aria-labelledby="hi">
+        <h2 id="hi">Hạng mục <span style="color:var(--color-text-tertiary);font-weight:var(--fw-regular)" id="hcnt"></span></h2>
+        <div id="items"></div>
+      </section>
+      <section class="card" id="propBox" aria-labelledby="hp" hidden>
+        <h2 id="hp">Việc phát sinh chờ duyệt</h2>
+        <div class="prop"><span><strong>Thay lọc gió động cơ</strong>, thợ đề xuất 10 phút trước. Cần báo giá bổ sung và khách duyệt.</span><span style="display:flex;gap:var(--space-2)"><button class="b b--secondary b--sm" type="button">Từ chối</button><button class="b b--primary b--sm" type="button">Lập báo giá bổ sung</button></span></div>
+      </section>
+      <section class="card" aria-labelledby="hq" id="qcBox" hidden>
+        <h2 id="hq">Kiểm tra chất lượng</h2>
+        <p style="margin:0;font-size:var(--font-size-md)"><strong>Lần 1, 04/11/2026 16:22</strong> <span class="badge badge--success">Đạt</span></p>
+      </section>
+      <section class="card" aria-labelledby="hph">
+        <h2 id="hph">Ảnh của lệnh <span style="color:var(--color-text-tertiary);font-weight:var(--fw-regular)">4</span></h2>
+        <div class="photos" id="ph"></div>
+        <p class="hint" style="margin-top:var(--space-3)">Ảnh không bị xóa vì là bằng chứng hiện trạng xe. Ảnh gắn được với việc phát sinh.</p>
+      </section>
+      <section class="card" aria-labelledby="hs">
+        <h2 id="hs">Lịch sử trạng thái</h2>
+        <ol class="tl" id="tl"></ol>
+      </section>
+    </main>
+
+    <aside class="side" aria-label="Thanh toán, hóa đơn và thao tác khác">
+      <div class="card box"><h2>Thanh toán</h2>
+        <div class="ln"><span>Giá trị lệnh</span><strong>648.000 ₫</strong></div>
+        <div class="ln"><span>Đã thu</span><span>0 ₫</span></div>
+        <div class="bar"><i style="width:0"></i></div>
+        <a class="b b--secondary" href="#">Mở màn thu tiền</a>
+      </div>
+      <div class="card box"><h2>Hóa đơn điện tử</h2><p class="hint" style="font-size:var(--font-size-md);color:var(--color-text-secondary)">Chưa có hóa đơn. Xuất hóa đơn được sau khi giao xe.</p></div>
+      <div class="card box"><h2>Thao tác khác</h2>
+        <button class="b b--secondary" type="button" id="aPause">Tạm dừng lệnh</button>
+        <a class="b b--secondary" href="#">Yêu cầu phụ tùng</a>
+        <a class="b b--secondary" href="#">Thêm việc phát sinh</a>
+        <button class="b b--secondary" type="button" style="color:var(--color-danger-text)">Hủy lệnh</button>
+      </div>
+      <div class="card box"><h2>Thông tin</h2><dl><dt>Khách hàng</dt><dd>Nguyễn Văn An</dd><dt>Loại dịch vụ</dt><dd>Bảo dưỡng</dd><dt>Cố vấn</dt><dd>Chủ Garage Demo</dd><dt>Từ báo giá</dt><dd><a href="quote-detail.html" style="color:var(--color-text-link)">BG-Q7-2611-00003</a></dd></dl></div>
+    </aside>
+  </div>
+</div>
+<script src="photos.js"></script>
+<script>
+  const $ = (s) => document.querySelector(s);
+  $('#img').src = ph(215);
+  $('#ph').innerHTML = [[215, 'ext'], [215, 'ext'], [28, 'int'], [0, 'damage']].map(([h, t], i) => `<img src="${ph(h, t)}" alt="Ảnh ${i + 1}">`).join('');
+  const THO = '<select aria-label="Thợ chịu trách nhiệm"><option>Thợ Quận 7</option><option>Thợ Quận 7 (2)</option><option>Chưa phân thợ</option></select>';
+  const item = (n, name, price, badge, extra, bar) => `<div class="ji"><h3>${n}. ${name}</h3><strong style="font-variant-numeric:tabular-nums">${price}</strong><div class="m">${badge}${THO}${extra}${bar ? `<span class="bar"><i style="width:${bar}%"></i></span>` : ''}</div></div>`;
+  const B = { warn: (t) => `<span class="badge badge--warning">${t}</span>`, ok: (t) => `<span class="badge badge--success">${t}</span>`, neu: (t) => `<span class="badge badge--neutral">${t}</span>`, info: (t) => `<span class="badge badge--info">${t}</span>` };
+  const TL = { start: ['Bắt đầu làm, chuyển sang Đang sửa', '04/11/2026 16:22'], open: ['Mở lệnh, chuyển sang Đã duyệt', '04/11/2026 16:22'] };
+  const S = {
+    work: { cls: 'warning', label: 'Đang sửa', due: 'Hẹn 07/11 10:00, trễ 2 giờ', cnt: '0/2 xong', nextCls: '', title: 'Đang sửa: còn 2 hạng mục chưa xong', desc: 'Khi cả hai hạng mục xong, chuyển lệnh sang kiểm tra chất lượng.', acts: '<button class="b b--primary" type="button" disabled>Chuyển kiểm tra chất lượng</button>',
+      items: item(1, 'Thay dầu', '150.000 ₫', B.warn('Đang làm'), '<span>Đã làm 1 phút / duyệt 30 phút</span>', 3) + item(2, 'Thay má phanh', '450.000 ₫', B.neu('Chưa làm'), '<span>Đã làm 0 phút / duyệt 1 giờ 30 phút</span>', 0), prop: false, qc: false, pause: true,
+      tl: [TL.start, TL.open] },
+    paused: { cls: 'neutral', label: 'Tạm dừng', due: 'Hẹn 07/11 10:00, trễ 2 giờ', cnt: '1/2 xong', nextCls: 'next--warn', title: 'Tạm dừng: chờ lọc gió', desc: 'Có 1 dòng phụ tùng chưa đủ hàng để giữ chỗ. Khi hàng về, bấm Kiểm tra lại phụ tùng để làm tiếp.', acts: '<a class="b b--secondary" href="part-requests.html">Xem yêu cầu phụ tùng</a><button class="b b--primary" type="button">Kiểm tra lại phụ tùng</button>',
+      items: item(1, 'Thay dầu', '150.000 ₫', B.ok('Hoàn thành'), '<span>Đã làm 28 phút / duyệt 30 phút</span>', 100) + item(2, 'Thay má phanh', '450.000 ₫', B.warn('Tạm dừng'), '<span class="part">Má phanh trước × 1 bộ: <strong>thiếu hàng</strong></span>', 20), prop: true, qc: false, pause: false,
+      tl: [['Tạm dừng: chờ phụ tùng', '04/11/2026 17:05'], TL.start, TL.open] },
+    qc: { cls: 'info', label: 'Chờ kiểm tra', due: 'Hẹn 07/11 10:00', cnt: '2/2 xong', nextCls: '', title: 'Chờ kiểm tra chất lượng', desc: 'Hai hạng mục đã xong. Đánh giá từng mục; mục không đạt phải ghi lỗi và trả về cho thợ.', acts: '<a class="b b--primary" href="#">Kiểm tra chất lượng</a>',
+      items: item(1, 'Thay dầu', '150.000 ₫', B.ok('Hoàn thành'), '<span>Đã làm 28 phút / duyệt 30 phút</span>', 100) + item(2, 'Thay má phanh', '450.000 ₫', B.ok('Hoàn thành'), '<span>Đã làm 1 giờ 35 phút / duyệt 1 giờ 30 phút</span>', 100), prop: false, qc: false, pause: false,
+      tl: [['Hoàn tất hạng mục, chuyển sang Chờ kiểm tra', '04/11/2026 18:10'], TL.start, TL.open] },
+    ready: { cls: 'success', label: 'Sẵn sàng giao', due: 'Hẹn 07/11 10:00', cnt: '2/2 xong', nextCls: 'next--warn', title: 'Sẵn sàng giao, còn nợ 648.000 ₫', desc: 'Thu đủ tiền hoặc xin quản lý duyệt ghi nợ trước khi giao xe.', acts: '<a class="b b--secondary" href="#">Thu tiền</a><button class="b b--secondary" type="button">Xin duyệt ghi nợ</button><button class="b b--primary" type="button" disabled>Giao xe</button>',
+      items: item(1, 'Thay dầu', '150.000 ₫', B.ok('Hoàn thành'), '<span>Đã làm 28 phút / duyệt 30 phút</span>', 100) + item(2, 'Thay má phanh', '450.000 ₫', B.ok('Hoàn thành'), '<span>Đã làm 1 giờ 35 phút / duyệt 1 giờ 30 phút</span>', 100), prop: false, qc: true, pause: false,
+      tl: [['Kiểm tra đạt, chuyển sang Sẵn sàng giao', '04/11/2026 18:30'], ['Hoàn tất hạng mục, chuyển sang Chờ kiểm tra', '04/11/2026 18:10'], TL.start, TL.open] },
+  };
+  function show(k) {
+    const s = S[k];
+    $('#stBadge').className = 'badge badge--' + s.cls; $('#stBadge').textContent = s.label;
+    $('#jBadge').className = 'badge badge--' + s.cls; $('#jBadge').textContent = s.label;
+    $('#due').textContent = s.due; $('#hcnt').textContent = s.cnt;
+    $('#next').className = 'next ' + s.nextCls;
+    $('#next').innerHTML = `<div><strong>${s.title}</strong><span class="d">${s.desc}</span></div><div class="acts">${s.acts}</div>`;
+    $('#items').innerHTML = s.items;
+    $('#propBox').hidden = !s.prop; $('#qcBox').hidden = !s.qc; $('#aPause').hidden = !s.pause;
+    $('#tl').innerHTML = s.tl.map(([t, d]) => `<li>${t}<time>${d}</time></li>`).join('');
+    document.querySelectorAll('[data-st]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.st === k)));
+  }
+  document.querySelectorAll('[data-st]').forEach((b) => b.addEventListener('click', () => show(b.dataset.st)));
+  show('work');
+</script>
+</body>
+</html>

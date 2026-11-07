@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bảng điều phối – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .cols { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(260px, 1fr); gap: var(--space-4); overflow-x: auto; padding-bottom: var(--space-4); align-items: start; scroll-snap-type: x proximity; }
+  .col { background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-3); display: grid; gap: var(--space-3); scroll-snap-align: start; }
+  .col--empty { opacity: 1; }
+  .col h2 { margin: 0; display: flex; justify-content: space-between; align-items: center; font-size: var(--font-size-md); font-weight: var(--fw-semibold); padding: var(--space-1) var(--space-2); }
+  .card2 { display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--color-surface); border: 1px solid var(--card-border); border-radius: var(--radius-md); box-shadow: var(--card-shadow); color: inherit; text-decoration: none; }
+  .card2:hover { border-color: var(--color-border-strong); }
+  .card2[hidden] { display: none; }
+  .card2.late { border-left: 4px solid var(--color-danger); }
+  .card2 .top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+  .card2 .plate { height: 28px; }
+  .card2 .m { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .view { display: inline-flex; border: 1px solid var(--control-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); }
+  .view button { height: 32px; padding: 0 var(--space-3); border: 0; background: none; font: inherit; font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; }
+  .view button + button { border-left: 1px solid var(--color-border); }
+  .view button[aria-pressed="true"] { background: var(--color-primary-subtle); color: var(--color-brand-700); font-weight: var(--fw-medium); }
+  .car { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+  .car__img { width: 76px; height: 57px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--color-border); background: var(--color-surface-subtle); display: grid; place-items: center; text-align: center; font-size: var(--font-size-xs); line-height: 1.2; color: var(--color-text-disabled); }
+  .car__t { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.35; }
+  .car__t b { color: var(--color-text-primary); font-weight: var(--fw-medium); }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--color-border-strong); vertical-align: -1px; margin-right: 4px; }
+  .compact .car { grid-template-columns: minmax(0, 1fr); }
+  .compact .car__img { display: none; }
+  .compact .car__t .x { display: none; }
+  .none { color: var(--color-text-tertiary); font-size: var(--font-size-sm); padding: var(--space-2); }
+  .filters { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); align-items: center; }
+  .live { color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin-left: auto; }
+  .live::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); margin-right: var(--space-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head"><div><h1>Bảng điều phối</h1><p>Xe đang trong xưởng theo trạng thái lệnh. Tự cập nhật; lọc theo thợ, xe trễ hẹn, xe chờ phụ tùng.</p></div></header>
+  <div class="filters" role="group" aria-label="Lọc">
+    <button class="chip" type="button" aria-pressed="false" data-f="late">Xe trễ hẹn <span class="cnt cnt--danger">1</span></button>
+    <button class="chip" type="button" aria-pressed="false" data-f="part">Xe chờ phụ tùng <span class="cnt cnt--warn">1</span></button>
+    <button class="chip" type="button" aria-pressed="false" data-f="t7">Thợ Quận 7 <span class="cnt">2</span></button>
+    <span class="view" role="group" aria-label="Kiểu thẻ"><button type="button" aria-pressed="true" data-v="full">Có ảnh</button><button type="button" aria-pressed="false" data-v="compact">Gọn</button></span>
+    <span class="live">Cập nhật lúc 14:05</span>
+  </div>
+
+  <div class="cols" id="cols"></div>
+</div>
+<script src="photos.js"></script>
+<script>
+  // Dữ liệu mẫu. Màu xe là trường MỚI (hồ sơ xe hiện chưa có); ảnh lấy từ ảnh đại diện của xe nếu có.
+  const COLORS = { white: ['Trắng', '#ffffff'], black: ['Đen', '#111827'], silver: ['Bạc', '#c0c4cc'], red: ['Đỏ', '#dc2626'], blue: ['Xanh dương', '#2563eb'], gray: ['Xám', '#6b7280'] };
+  const COLS = [
+    ['Đã duyệt', [
+      { plate: '51D-999.88', ro: '00002', cus: 'Công ty TNHH Vận tải Demo', car: 'Hyundai Porter H150', yr: 2020, color: 'white', hue: 205, warn: '2 hạng mục chưa có thợ', due: 'Hẹn 17:00 hôm nay', tags: '' }]],
+    ['Đang sửa', [
+      { plate: '51H-123.45', ro: '00001', cus: 'Nguyễn Văn An', car: 'Toyota Vios 1.5G', yr: 2019, color: 'silver', hue: 215, late: 'Trễ 2 giờ', prog: 8, tech: 'T7', done: '0/2 xong', tags: 'late t7' },
+      { plate: '29A-678.90', ro: '00007', cus: 'Lê Quốc Hùng', car: 'Honda City', yr: 2022, color: 'white', hue: 28, prog: 50, due: 'Hẹn 16:30', tech: 'T7', done: '1/2 xong', tags: 't7' }]],
+    ['Tạm dừng', [
+      { plate: '51K-905.31', ro: '00008', cus: 'Phạm Đức', car: 'Kia Morning', yr: 2018, color: 'red', hue: 0, warn: 'Tạm dừng: chờ lọc gió', due: 'Hẹn ngày mai 09:00', tags: 'part' }]],
+    ['Chờ kiểm tra', []],
+    ['Sẵn sàng giao', [
+      { plate: '51D-999.88', ro: '00003', cus: 'Công ty TNHH Vận tải Demo', car: 'Hyundai Porter H150', yr: 2020, color: 'white', hue: 205, ok: 'Chờ khách nhận', due: 'Xong 14:40', tags: '' },
+      { plate: '59A1-367.08', ro: '00006', cus: 'Trần Thị Mai', car: 'Honda City', yr: 2022, color: 'black', hue: null, ok: 'Chờ khách nhận', due: 'Xong 14:10', tags: '' }]],
+  ];
+  const card = (c) => {
+    const [cn, hex] = COLORS[c.color];
+    const img = c.hue === null ? '<span class="car__img" role="img" aria-label="Chưa có ảnh">Chưa có ảnh</span>' : `<img class="car__img" src="${ph(c.hue)}" alt="Ảnh ${c.car}">`;
+    const bar = c.prog !== undefined ? `<div class="bar"><i style="width:${c.prog}%"></i></div>` : '';
+    let foot;
+    if (c.tech) foot = `<div class="m"><span class="${c.late ? 'late' : ''}">${c.late || c.due}</span><span style="display:flex;align-items:center;gap:var(--space-2)"><span class="av">${c.tech}</span>${c.done}</span></div>`;
+    else foot = `${c.warn ? `<div class="m"><span class="badge badge--warning">${c.warn}</span></div>` : ''}<div class="m"><span>${c.due}</span>${c.ok ? `<span class="badge badge--success">${c.ok}</span>` : ''}</div>`;
+    return `<a class="card2${c.late ? ' late' : ''}" href="order-detail.html" data-tags="${c.tags}">
+      <div class="top"><span class="plate">${c.plate}</span><span class="t2">RO-…${c.ro}</span></div>
+      <div class="car">${img}<div class="car__t"><b>${c.car}</b><span class="x"> ${c.yr}</span><br><span class="sw" style="background:${hex}" aria-hidden="true"></span>${cn}<span class="x"><br>${c.cus}</span></div></div>
+      ${bar}${foot}</a>`;
+  };
+  document.getElementById('cols').innerHTML = COLS.map(([t, list], i) => `<section class="col" aria-labelledby="c${i}"><h2 id="c${i}">${t} <span class="cnt">${list.length}</span></h2>${list.length ? list.map(card).join('') : '<p class="none">Chưa có xe chờ kiểm tra chất lượng.</p>'}</section>`).join('');
+  const act = new Set(); const cards = () => [...document.querySelectorAll('.card2')];
+  document.querySelectorAll('[data-f]').forEach((b) => b.addEventListener('click', () => {
+    const f = b.dataset.f; act.has(f) ? act.delete(f) : act.add(f); b.setAttribute('aria-pressed', String(act.has(f)));
+    cards().forEach((c) => { c.hidden = act.size > 0 && ![...act].every((x) => c.dataset.tags.includes(x)); });
+  }));
+  document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    document.getElementById('cols').classList.toggle('compact', b.dataset.v === 'compact');
+  }));
+</script>
+</body>
+</html>

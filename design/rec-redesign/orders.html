@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lệnh sửa chữa – thiết kế lại</title>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .item { grid-template-columns: 150px minmax(0, 1.2fr) 170px 150px 150px 130px; }
+  .prog { display: grid; gap: var(--space-1); font-size: var(--font-size-sm); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+  @media (max-width: 1023px) { .item { grid-template-columns: auto 1fr auto; row-gap: var(--space-2); } .item > :nth-child(2) { grid-column: 2 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div><h1>Lệnh sửa chữa</h1><p>Lệnh được mở khi khách duyệt báo giá và chỉ gồm các hạng mục đã duyệt. Mã lệnh theo chi nhánh và tháng.</p></div>
+    <div class="head__actions"><a class="b b--secondary" href="board.html">Bảng điều phối</a></div>
+  </header>
+  <form class="find" role="search" onsubmit="return false"><div class="search"><label for="q" style="position:absolute;left:-9999px">Tìm lệnh</label><input id="q" type="search" placeholder="Biển số, mã lệnh hoặc tên khách" autocomplete="off"></div></form>
+  <div class="tabsline" role="tablist" aria-label="Trạng thái lệnh">
+    <button role="tab" aria-selected="true" data-s="all">Đang xử lý<span class="cnt">4</span></button>
+    <button role="tab" aria-selected="false" data-s="late">Trễ hẹn<span class="cnt cnt--danger">1</span></button>
+    <button role="tab" aria-selected="false" data-s="ready">Sẵn sàng giao<span class="cnt">2</span></button>
+    <button role="tab" aria-selected="false" data-s="done">Đã hoàn tất<span class="cnt">2</span></button>
+  </div>
+  <section class="card list" aria-label="Danh sách lệnh sửa chữa">
+    <a class="item" href="order-detail.html" data-s="late work" data-t="51h12345 nguyen van an">
+      <span class="plate">51H-123.45</span>
+      <span><span class="t1">Nguyễn Văn An</span><br><span class="t2">RO-Q7-2611-00001, Toyota Vios 1.5G</span></span>
+      <span><span class="badge badge--warning">Đang sửa</span></span>
+      <span class="prog"><span>0/2 hạng mục xong</span><span class="bar"><i style="width:8%"></i></span></span>
+      <span><span class="late">Trễ 2 giờ</span><br><span class="t2">Hẹn 07/11 10:00</span></span>
+      <span class="num t1">648.000 ₫</span>
+    </a>
+    <a class="item" href="order-detail.html" data-s="work" data-t="51d99988 cong ty tnhh van tai demo">
+      <span class="plate">51D-999.88</span>
+      <span><span class="t1">Công ty TNHH Vận tải Demo</span><br><span class="t2">RO-Q7-2611-00002, Hyundai Porter H150</span></span>
+      <span><span class="badge badge--info">Đã duyệt</span></span>
+      <span class="prog"><span>0/2 hạng mục xong</span><span class="bar"><i style="width:0"></i></span></span>
+      <span><span class="t1">Hôm nay 17:00</span><br><span class="t2">Còn 6 giờ</span></span>
+      <span class="num t1">648.000 ₫</span>
+    </a>
+    <a class="item" href="order-detail.html" data-s="ready" data-t="51d99988 cong ty tnhh van tai demo">
+      <span class="plate">51D-999.88</span>
+      <span><span class="t1">Công ty TNHH Vận tải Demo</span><br><span class="t2">RO-Q7-2611-00003, Hyundai Porter H150</span></span>
+      <span><span class="badge badge--success">Sẵn sàng giao</span></span>
+      <span class="prog"><span>2/2 hạng mục xong</span><span class="bar bar--ok"><i style="width:100%"></i></span></span>
+      <span><span class="t1">Hôm nay 15:00</span><br><span class="t2">Chờ khách nhận</span></span>
+      <span class="num t1">648.000 ₫</span>
+    </a>
+    <a class="item" href="order-detail.html" data-s="ready" data-t="51d99988 cong ty tnhh van tai demo">
+      <span class="plate">51D-999.88</span>
+      <span><span class="t1">Công ty TNHH Vận tải Demo</span><br><span class="t2">RO-Q7-2611-00006, Hyundai Porter H150</span></span>
+      <span><span class="badge badge--success">Sẵn sàng giao</span></span>
+      <span class="prog"><span>2/2 hạng mục xong</span><span class="bar bar--ok"><i style="width:100%"></i></span></span>
+      <span><span class="t1">Hôm nay 16:00</span><br><span class="t2">Chờ khách nhận</span></span>
+      <span class="num t1">648.000 ₫</span>
+    </a>
+    <a class="item" href="order-detail.html" data-s="done" data-t="51d99988 cong ty tnhh van tai demo">
+      <span class="plate">51D-999.88</span>
+      <span><span class="t1">Công ty TNHH Vận tải Demo</span><br><span class="t2">RO-Q7-2611-00004, Hyundai Porter H150</span></span>
+      <span><span class="badge badge--neutral">Hoàn tất</span></span>
+      <span class="prog"><span>2/2 hạng mục xong</span><span class="bar bar--ok"><i style="width:100%"></i></span></span>
+      <span><span class="t1">Giao 06/11</span><br><span class="t2">Đã thu đủ</span></span>
+      <span class="num t1">648.000 ₫</span>
+    </a>
+    <div class="empty" id="empty" hidden><h2>Không có lệnh phù hợp</h2><p>Thử gõ biển số hoặc đổi nhóm trạng thái.</p></div>
+    <div class="rowfoot" id="foot"></div>
+  </section>
+</div>
+<script>
+  const items = [...document.querySelectorAll('.item')], q = document.getElementById('q'); let s = 'all';
+  const norm = (x) => x.toLowerCase().replace(/[^a-z0-9 ]/g, '');
+  function apply() { const n = norm(q.value).trim(); let c = 0; items.forEach((i) => { const tags = i.dataset.s; const ok = (s === 'all' ? /work|late|ready/.test(tags) : tags.includes(s)) && (!n || i.dataset.t.includes(n)); i.hidden = !ok; if (ok) c++; }); document.getElementById('empty').hidden = c > 0; document.getElementById('foot').textContent = c ? `Hiển thị ${c} lệnh` : ''; }
+  q.addEventListener('input', apply);
+  document.querySelectorAll('[role=tab]').forEach((t) => t.addEventListener('click', () => { s = t.dataset.s; document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t))); apply(); }));
+  apply();
+</script>
+</body>
+</html>
