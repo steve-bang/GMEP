@@ -1,6 +1,7 @@
 import { formatVnd } from '@/platform/format/vnd';
 import { formatBp } from '@/platform/format/percent';
 import type { PayloadShape } from '@/platform/config/payloadShape';
+import type { FormFieldSpec } from '@/platform/config/formValues';
 import { ROLE_NAMES } from './permissions';
 
 /**
@@ -25,11 +26,10 @@ export const CONFIG_GROUPS = [
 ] as const;
 export type ConfigGroup = (typeof CONFIG_GROUPS)[number];
 
-export interface FieldDef {
-  name: string;
-  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select' | 'bool';
-  /** select options; label keys resolve under config.enums.<name> */
+export interface FieldDef extends FormFieldSpec {
+  /** select / multi options; label keys resolve under config.enums.<optionsGroup ?? name> */
   options?: string[];
+  optionsGroup?: string;
 }
 
 export interface ConfigDescriptor {
@@ -227,6 +227,11 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'order-policy': {
     group: 'service',
+    fields: [
+      { name: 'undoWindowSeconds', kind: 'int' },
+      { name: 'handoverRequiresPayment', kind: 'bool' },
+      { name: 'handoverRequiresReceiver', kind: 'bool' },
+    ],
     describe: (t, p) =>
       parts(
         t('config.value.undoWindow', { sec: int(num(p, 'undoWindowSeconds')) }),
@@ -236,6 +241,15 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'appointment-policy': {
     group: 'appointment',
+    fields: [
+      { name: 'enabled', kind: 'bool' },
+      { name: 'dailyCapacity', kind: 'int' },
+      { name: 'overdueGraceMinutes', kind: 'int', optional: true },
+      { name: 'staleDays', kind: 'int', optional: true },
+      { name: 'maxReschedules', kind: 'int', optional: true },
+      { name: 'lateRescheduleMinutes', kind: 'int', optional: true },
+      { name: 'noteMinLength', kind: 'int', optional: true },
+    ],
     describe: (t, p) => {
       const cap = num(p, 'dailyCapacity');
       const opt = (k: string, key: string) =>
@@ -280,6 +294,14 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'warranty-policy': {
     group: 'appointment',
+    fields: [
+      { name: 'crossBranchOpen', kind: 'bool' },
+      {
+        name: 'costBearer',
+        kind: 'select',
+        options: ['performing_branch', 'origin_branch', 'company'],
+      },
+    ],
     describe: (t, p) =>
       parts(
         t('config.value.crossBranchOpen', { v: yn(t, p.crossBranchOpen) }),
@@ -333,6 +355,18 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'work-hours': {
     group: 'labor',
+    fields: [
+      {
+        name: 'days',
+        kind: 'multi',
+        numeric: true,
+        optionsGroup: 'weekday',
+        // Monday first; 0 = Sunday (Date#getDay)
+        options: ['1', '2', '3', '4', '5', '6', '0'],
+      },
+      { name: 'startMinute', kind: 'time' },
+      { name: 'endMinute', kind: 'time' },
+    ],
     describe: (t, p) => {
       // 0 = Sunday (Date#getDay); shown Monday first
       const days = arr<number>(p, 'days');
@@ -346,6 +380,19 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'acc-policy': {
     group: 'finance',
+    fields: [
+      {
+        name: 'methods',
+        kind: 'multi',
+        optionsGroup: 'payMethod',
+        options: ['cash', 'transfer', 'card', 'qr'],
+      },
+      { name: 'nonCashReferenceRequired', kind: 'bool' },
+      { name: 'receiptRequiresQc', kind: 'bool' },
+      { name: 'varianceToleranceVnd', kind: 'vnd' },
+      { name: 'debtMaxDays', kind: 'int', optional: true },
+      { name: 'sourceFlagNoticeDays', kind: 'int', optional: true },
+    ],
     describe: (t, p) =>
       parts(
         t('config.value.payMethods', {
@@ -417,6 +464,17 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'einvoice-policy': {
     group: 'finance',
+    fields: [
+      { name: 'lineMode', kind: 'select', options: ['per-rate', 'per-line'] },
+      { name: 'perRateDescription', kind: 'text' },
+      { name: 'issueAfter', kind: 'select', options: ['qc', 'handover'] },
+      { name: 'businessAddressRequired', kind: 'bool' },
+      { name: 'retailNameRequired', kind: 'bool' },
+      { name: 'taxChangePolicy', kind: 'select', options: ['warn', 'block'] },
+      { name: 'maxAttempts', kind: 'int' },
+      { name: 'retryBackoffMinutes', kind: 'intList' },
+      { name: 'providerTimeoutMs', kind: 'int' },
+    ],
     describe: (t, p) => {
       const ms = num(p, 'providerTimeoutMs');
       return parts(
@@ -500,6 +558,14 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'public-rate-limit': {
     group: 'system',
+    fields: [
+      { name: 'viewLimit', kind: 'int' },
+      { name: 'viewWindowSeconds', kind: 'int' },
+      { name: 'decideLimit', kind: 'int' },
+      { name: 'decideWindowMinutes', kind: 'int' },
+      { name: 'photoViewLimit', kind: 'int', optional: true },
+      { name: 'photoViewWindowSeconds', kind: 'int', optional: true },
+    ],
     describe: (t, p) =>
       parts(
         t('config.value.viewLimit', {
@@ -540,6 +606,12 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
   },
   'report-policy': {
     group: 'system',
+    fields: [
+      { name: 'openOrderMaxDays', kind: 'int' },
+      { name: 'uninvoicedAfterDays', kind: 'int' },
+      { name: 'unpaidHandoverGraceDays', kind: 'int' },
+      { name: 'cashVarianceAlertVnd', kind: 'vnd' },
+    ],
     describe: (t, p) =>
       parts(
         t('config.value.openOrderMaxDays', { n: int(num(p, 'openOrderMaxDays')) }),

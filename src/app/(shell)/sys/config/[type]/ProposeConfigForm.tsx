@@ -2,18 +2,22 @@
 
 import { useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
-import { applyPayloadShape, type PayloadShape } from '@/platform/config/payloadShape';
+import {
+  buildConfigPayload,
+  type FieldErrorKind,
+  type FormFieldSpec,
+} from '@/platform/config/formValues';
+import type { PayloadShape } from '@/platform/config/payloadShape';
 import { viToIso } from '@/platform/format/date';
-import { parsePercentToBp } from '@/platform/format/percent';
-import { parseVndInput } from '@/platform/format/vnd';
 import { Button } from '@/ui/components/Button';
 import { DateInput } from '@/ui/components/DateInput';
+import { Icon } from '@/ui/components/Icon';
 import { newKey, postJson, type FormLabels } from '@/ui/components/ResourceForm';
 
-export interface F {
-  name: string;
-  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select' | 'bool';
+export interface F extends FormFieldSpec {
   options?: { value: string; label: string }[];
+  /** unit and example (and, for an optional box, the system default), already translated by the page */
+  hint?: string;
 }
 
 /** FR-SYS-004: proposes a PENDING version. Payload shape per type is validated by the server schema. */
@@ -34,6 +38,9 @@ export function ProposeConfigForm(props: {
     dateInvalid: string;
     percentInvalid: string;
     numberInvalid: string;
+    timeInvalid: string;
+    listInvalid: string;
+    pickInvalid: string;
     percentHint: string;
     pick: string;
     fields: Record<string, string>;
@@ -53,26 +60,23 @@ export function ProposeConfigForm(props: {
     const errs: Record<string, string> = {};
     const effectiveFrom = viToIso(v('effectiveFrom'));
     if (!effectiveFrom) errs.effectiveFrom = props.text.dateInvalid;
-    const values: Record<string, unknown> = {};
-    for (const x of props.fields) {
-      const raw = v(x.name);
-      if (x.kind === 'percent') {
-        const bp = parsePercentToBp(raw);
-        if (bp === null) errs[x.name] = props.text.percentInvalid;
-        values[x.name] = bp;
-      } else if (x.kind === 'vnd' || x.kind === 'int') {
-        const n =
-          x.kind === 'vnd' ? parseVndInput(raw) : /^\d{1,9}$/.test(raw) ? Number(raw) : null;
-        if (n === null || n < 0) errs[x.name] = props.text.numberInvalid;
-        values[x.name] = n;
-      } else if (x.kind === 'bool') values[x.name] = raw === 'true';
-      else values[x.name] = raw;
-    }
+    const raw: Record<string, string | string[]> = {};
+    for (const x of props.fields)
+      raw[x.name] = x.kind === 'multi' ? f.getAll(x.name).map(String) : v(x.name);
+    const built = buildConfigPayload(props.fields, raw, props.payloadShape);
+    const message: Record<FieldErrorKind, string> = {
+      percent: props.text.percentInvalid,
+      number: props.text.numberInvalid,
+      time: props.text.timeInvalid,
+      list: props.text.listInvalid,
+      pick: props.text.pickInvalid,
+    };
+    for (const [n, k] of Object.entries(built.errors)) errs[n] = message[k];
     if (Object.keys(errs).length) {
       setFe(errs);
       return;
     }
-    const payload = applyPayloadShape(props.payloadShape, values);
+    const payload = built.payload;
     setBusy(true);
     setError(null);
     setFe({});
@@ -85,17 +89,38 @@ export function ProposeConfigForm(props: {
     setBusy(false);
     if (r.ok) return router.refresh();
     const map: Record<string, string> = {};
-    for (const x of r.problem?.errors ?? []) map[x.field.replace(/^payload\./, '')] ??= x.message;
+    for (const x of r.problem?.errors ?? []) {
+      const path = x.field.replace(/^payload\./, '');
+      map[path] ??= x.message;
+      map[path.split('.')[0]!] ??= x.message; // an array element error shows on its field
+    }
     setFe(map);
     setError(r.problem?.detail ?? props.labels.unexpected);
   }
-  const field = (name: string, label: string, el: React.ReactNode, hint?: string) => (
-    <div className="field" key={name}>
-      <label className="field__label" htmlFor={`${uid}-${name}`}>
+  const field = (
+    name: string,
+    label: string,
+    el: React.ReactNode,
+    hint?: string,
+    optional?: boolean,
+    group?: boolean,
+  ) => (
+    <div
+      className="field"
+      key={name}
+      {...(group ? { role: 'group', 'aria-labelledby': `${uid}-${name}-lbl` } : {})}
+    >
+      <label
+        className="field__label"
+        id={`${uid}-${name}-lbl`}
+        htmlFor={group ? undefined : `${uid}-${name}`}
+      >
         {label}
-        <span className="field__req" aria-hidden="true">
-          *
-        </span>
+        {optional ? null : (
+          <span className="field__req" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       {el}
       {hint && !fe[name] ? (
@@ -158,7 +183,24 @@ export function ProposeConfigForm(props: {
           field(
             x.name,
             props.text.fields[x.name] ?? x.name,
-            x.kind === 'select' || x.kind === 'bool' ? (
+            x.kind === 'multi' ? (
+              <div className="g1-checks">
+                {x.options?.map((o) => (
+                  <label className="check" key={o.value}>
+                    <input
+                      type="checkbox"
+                      name={x.name}
+                      value={o.value}
+                      aria-describedby={describedBy(x.name)}
+                    />
+                    <span className="check__box" aria-hidden="true">
+                      <Icon name="check" size="sm" />
+                    </span>
+                    <span>{o.label}</span>
+                  </label>
+                ))}
+              </div>
+            ) : x.kind === 'select' || x.kind === 'bool' ? (
               <select className="select" id={`${uid}-${x.name}`} name={x.name}>
                 {x.options?.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -172,15 +214,23 @@ export function ProposeConfigForm(props: {
                 id={`${uid}-${x.name}`}
                 name={x.name}
                 inputMode={
-                  x.kind === 'text' ? undefined : x.kind === 'percent' ? 'decimal' : 'numeric'
+                  x.kind === 'text'
+                    ? undefined
+                    : x.kind === 'percent'
+                      ? 'decimal'
+                      : x.kind === 'time' || x.kind === 'intList'
+                        ? 'text'
+                        : 'numeric'
                 }
                 autoComplete="off"
-                aria-required="true"
+                aria-required={x.optional ? undefined : 'true'}
                 aria-invalid={fe[x.name] ? true : undefined}
                 aria-describedby={describedBy(x.name)}
               />
             ),
-            x.kind === 'percent' ? props.text.percentHint : undefined,
+            x.hint ?? (x.kind === 'percent' ? props.text.percentHint : undefined),
+            x.optional,
+            x.kind === 'multi',
           ),
         )}
         {field(

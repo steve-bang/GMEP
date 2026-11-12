@@ -21,8 +21,15 @@ import { StatusBadge } from '@/ui/components/StatusBadge';
 import { EmptyState } from '@/ui/components/States';
 import { ErrorFor } from '@/ui/components/PageParts';
 import { SettingsPage } from '../../SettingsPage';
-import { PAYLOAD_FIELDS, STATUS_TONE, describeValue, viewStatuses } from '../configView';
+import {
+  PAYLOAD_FIELDS,
+  STATUS_TONE,
+  describeValue,
+  viewStatuses,
+  type FieldDef,
+} from '../configView';
 import { ProposeConfigForm, type F } from './ProposeConfigForm';
+import { OPTIONAL_DEFAULTS } from './optionalDefaults';
 import { DecideButtons } from './DecideButtons';
 
 export const dynamic = 'force-dynamic';
@@ -80,19 +87,33 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
   };
   const enumOptions = (name: string, values: string[]) =>
     values.map((v) => ({ value: v, label: t(`config.enums.${name}.${v}`) }));
+  const fieldHint = (f: FieldDef): string | undefined => {
+    const unit = t.has(`config.hints.${f.name}`) ? t(`config.hints.${f.name}`) : '';
+    const def = OPTIONAL_DEFAULTS[type]?.[f.name];
+    const dflt = !f.optional
+      ? ''
+      : def === undefined
+        ? t('config.hintDefaultUnknown')
+        : t('config.hintDefault', { value: new Intl.NumberFormat('vi-VN').format(def) });
+    return [unit, dflt].filter(Boolean).join(' ') || undefined;
+  };
   const fields: F[] = (PAYLOAD_FIELDS[type] ?? []).map((f) => ({
     name: f.name,
     kind: f.kind,
+    ...(f.optional ? { optional: true } : {}),
+    ...(f.numeric ? { numeric: true } : {}),
+    ...(fieldHint(f) ? { hint: fieldHint(f)! } : {}),
     ...(f.name === 'role'
       ? { options: ROLE_CODES.map((r) => ({ value: r, label: ROLE_NAMES[r] })) }
       : f.kind === 'bool'
         ? { options: enumOptions(f.name, ['false', 'true']) }
         : f.options
-          ? { options: enumOptions(f.name, f.options) }
+          ? { options: enumOptions(f.optionsGroup ?? f.name, f.options) }
           : {}),
   }));
   const scopeOptions =
-    type === 'labor-rate' || type === 'discount-limit'
+    // a type that a branch may override picks company or one of the branches the actor may see
+    def.branchOverride
       ? [
           { value: 'tenant', label: t('config.scopeCompany') },
           ...branches.map((b) => ({
@@ -100,9 +121,12 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
             label: t('config.scopeBranch', { name: b.name }),
           })),
         ]
-      : type === 'standard-hours'
-        ? services.map((s) => ({ value: `service:${s.code}`, label: `${s.code} · ${s.name}` }))
-        : undefined;
+      : type === 'public-rate-limit'
+        ? // company-wide only (the schema accepts the key `tenant` and nothing else): no typing of a key
+          [{ value: 'tenant', label: t('config.scopeCompany') }]
+        : type === 'standard-hours'
+          ? services.map((s) => ({ value: `service:${s.code}`, label: `${s.code} · ${s.name}` }))
+          : undefined;
   return (
     <SettingsPage {...head}>
       <div className="alert alert--warning" role="note">
@@ -207,6 +231,9 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
               dateInvalid: t('common.dateInvalid'),
               percentInvalid: t('config.percentInvalid'),
               numberInvalid: t('config.numberInvalid'),
+              timeInvalid: t('config.timeInvalid'),
+              listInvalid: t('config.listInvalid'),
+              pickInvalid: t('config.pickInvalid'),
               percentHint: t('config.percentHint'),
               pick: t('config.pickScope'),
               fields: Object.fromEntries(fields.map((f) => [f.name, t(`config.fields.${f.name}`)])),

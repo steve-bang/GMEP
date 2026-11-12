@@ -13,6 +13,7 @@
 .g1-fs { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--space-4); }
 .g1-fs:disabled { opacity: .6; }
 .g1-form { display: flex; flex-direction: column; gap: var(--space-5); }
+.g1-checks { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); }
 .g1-pw { position: relative; }
 .g1-pw .input { padding-right: 52px; }
 .g1-pw__toggle { position: absolute; right: 2px; top: 2px; }

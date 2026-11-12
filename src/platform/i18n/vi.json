@@ -1371,7 +1371,47 @@
       "gapPolicy": "Chính sách lỗ số",
       "scope": "Phạm vi dãy",
       "period": "Kỳ đặt lại",
-      "seqWidth": "Số chữ số của STT"
+      "seqWidth": "Số chữ số của STT",
+      "viewLimit": "Lượt xem trang tối đa",
+      "viewWindowSeconds": "Khoảng đếm lượt xem (giây)",
+      "decideLimit": "Lượt duyệt hoặc từ chối tối đa",
+      "decideWindowMinutes": "Khoảng đếm lượt duyệt (phút)",
+      "photoViewLimit": "Lượt xem ảnh tối đa",
+      "photoViewWindowSeconds": "Khoảng đếm lượt xem ảnh (giây)",
+      "undoWindowSeconds": "Thời gian thợ được hoàn tác (giây)",
+      "handoverRequiresPayment": "Chỉ giao xe khi đã thu đủ tiền",
+      "handoverRequiresReceiver": "Bắt buộc ghi tên người nhận xe",
+      "methods": "Hình thức thanh toán được dùng",
+      "nonCashReferenceRequired": "Bắt buộc mã giao dịch khi không dùng tiền mặt",
+      "receiptRequiresQc": "Chỉ thu tiền cuối sau khi qua kiểm tra chất lượng",
+      "varianceToleranceVnd": "Chênh lệch quỹ không cần duyệt (VND)",
+      "debtMaxDays": "Hạn ghi nợ tối đa (ngày)",
+      "sourceFlagNoticeDays": "Báo thiếu chứng từ sau (ngày)",
+      "days": "Ngày làm việc trong tuần",
+      "startMinute": "Giờ bắt đầu",
+      "endMinute": "Giờ kết thúc",
+      "openOrderMaxDays": "Lệnh mở quá lâu sau (ngày)",
+      "uninvoicedAfterDays": "Lệnh hoàn tất chưa có hóa đơn sau (ngày)",
+      "unpaidHandoverGraceDays": "Chờ thu tiền sau khi giao xe (ngày)",
+      "cashVarianceAlertVnd": "Cảnh báo chênh lệch quỹ trên (VND)",
+      "lineMode": "Cách lập dòng hóa đơn",
+      "perRateDescription": "Mô tả dòng khi lập theo thuế suất",
+      "issueAfter": "Cho phép phát hành",
+      "businessAddressRequired": "Bắt buộc địa chỉ người mua doanh nghiệp",
+      "retailNameRequired": "Bắt buộc tên người mua lẻ",
+      "taxChangePolicy": "Khi thuế suất đổi giữa báo giá và hóa đơn",
+      "maxAttempts": "Số lần thử phát hành tối đa",
+      "retryBackoffMinutes": "Khoảng chờ giữa các lần thử (phút)",
+      "providerTimeoutMs": "Thời gian chờ nhà cung cấp (mili giây)",
+      "enabled": "Nhận lịch hẹn",
+      "dailyCapacity": "Công suất xưởng (xe mỗi ngày)",
+      "overdueGraceMinutes": "Châm chước trễ hẹn (phút)",
+      "staleDays": "Lịch hẹn tồn đọng sau (ngày)",
+      "maxReschedules": "Số lần dời hẹn tối đa",
+      "lateRescheduleMinutes": "Dời sát giờ hẹn trong (phút)",
+      "noteMinLength": "Độ dài tối thiểu của ghi chú (ký tự)",
+      "crossBranchOpen": "Cho mở bảo hành trên lệnh của chi nhánh khác",
+      "costBearer": "Bên chịu chi phí được ghi nhận"
     },
     "index": {
       "search": "Tìm loại cấu hình",
@@ -1610,8 +1650,8 @@
       },
       "public-rate-limit": {
         "title": "Giới hạn tốc độ trang khách",
-        "lead": "Số lượt xem và quyết định tối đa của trang báo giá cho khách, tính theo địa chỉ và theo liên kết. Đặt qua API; chưa khai thì dùng số mặc định.",
-        "scopeHint": "Toàn công ty (company)"
+        "lead": "Số lượt xem và quyết định tối đa của trang báo giá cho khách, tính theo địa chỉ và theo liên kết. Chưa khai thì dùng số mặc định.",
+        "scopeHint": "Chỉ áp dụng cho toàn công ty"
       },
       "qc-checklist": {
         "title": "Danh sách kiểm tra chất lượng",
@@ -1620,13 +1660,13 @@
       },
       "order-policy": {
         "title": "Chính sách thực hiện lệnh",
-        "lead": "Thời gian hoàn tác thao tác của thợ và điều kiện giao xe. Đặt qua API; theo công ty hoặc từng chi nhánh.",
-        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+        "lead": "Thời gian hoàn tác thao tác của thợ và điều kiện giao xe. Theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "Toàn công ty hoặc ghi đè riêng cho một chi nhánh"
       },
       "acc-policy": {
         "title": "Chính sách thu chi",
-        "lead": "Hình thức thanh toán được dùng, bắt buộc mã giao dịch, chặn thu trước kiểm tra chất lượng, ngưỡng chênh lệch quỹ cần duyệt, hạn ghi nợ tối đa. Đặt qua API; theo công ty hoặc từng chi nhánh.",
-        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+        "lead": "Hình thức thanh toán được dùng, bắt buộc mã giao dịch, chặn thu trước kiểm tra chất lượng, ngưỡng chênh lệch quỹ cần duyệt, hạn ghi nợ tối đa. Theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "Toàn công ty hoặc ghi đè riêng cho một chi nhánh"
       },
       "approval-limit": {
         "title": "Hạn mức phê duyệt",
@@ -1635,8 +1675,8 @@
       },
       "work-hours": {
         "title": "Giờ làm việc",
-        "lead": "Ngày làm việc trong tuần và khung giờ mỗi ngày của chi nhánh; là đồng hồ để tính nhắc việc và chuyển cấp duyệt. Chưa có phiên bản thì tính theo giờ thực. Đặt qua API.",
-        "scopeHint": "tenant (mặc định toàn công ty) hoặc branch:<mã chi nhánh>"
+        "lead": "Ngày làm việc trong tuần và khung giờ mỗi ngày của chi nhánh; là đồng hồ để tính nhắc việc và chuyển cấp duyệt. Chưa có phiên bản thì tính theo giờ thực.",
+        "scopeHint": "Toàn công ty hoặc ghi đè riêng cho một chi nhánh"
       },
       "tenant-limits": {
         "title": "Giới hạn của công ty",
@@ -1655,8 +1695,8 @@
       },
       "report-policy": {
         "title": "Ngưỡng cảnh báo báo cáo",
-        "lead": "Số ngày lệnh mở quá lâu, số ngày lệnh hoàn tất chưa hóa đơn, thời gian chờ thu tiền sau giao xe và mức chênh lệch quỹ cần cảnh báo. Đặt qua API; theo công ty hoặc từng chi nhánh.",
-        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+        "lead": "Số ngày lệnh mở quá lâu, số ngày lệnh hoàn tất chưa hóa đơn, thời gian chờ thu tiền sau giao xe và mức chênh lệch quỹ cần cảnh báo. Theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "Toàn công ty hoặc ghi đè riêng cho một chi nhánh"
       },
       "branch-groups": {
         "title": "Nhóm chi nhánh (vùng)",
@@ -1670,8 +1710,8 @@
       },
       "einvoice-policy": {
         "title": "Chính sách hóa đơn điện tử",
-        "lead": "Cách lập dòng hóa đơn (theo thuế suất hoặc theo dòng), thời điểm cho phép phát hành, bắt buộc địa chỉ người mua doanh nghiệp, xử lý khi thuế suất đổi, số lần thử lại và thời gian chờ nhà cung cấp. Đặt qua API; theo công ty hoặc từng chi nhánh.",
-        "scopeHint": "company hoặc branch:<mã chi nhánh>"
+        "lead": "Cách lập dòng hóa đơn (theo thuế suất hoặc theo dòng), thời điểm cho phép phát hành, bắt buộc địa chỉ người mua doanh nghiệp, xử lý khi thuế suất đổi, số lần thử lại và thời gian chờ nhà cung cấp. Theo công ty hoặc từng chi nhánh.",
+        "scopeHint": "Toàn công ty hoặc ghi đè riêng cho một chi nhánh"
       }
     },
     "perHour": "{amount} / giờ",
@@ -1737,6 +1777,15 @@
       "method": {
         "weighted-average": "Bình quân gia quyền"
       },
+      "handoverRequiresPayment": { "false": "Không", "true": "Có" },
+      "handoverRequiresReceiver": { "false": "Không", "true": "Có" },
+      "nonCashReferenceRequired": { "false": "Không", "true": "Có" },
+      "receiptRequiresQc": { "false": "Không", "true": "Có" },
+      "businessAddressRequired": { "false": "Không", "true": "Có" },
+      "retailNameRequired": { "false": "Không", "true": "Có" },
+      "crossBranchOpen": { "false": "Không", "true": "Có" },
+      "enabled": { "false": "Tắt", "true": "Bật" },
+      "taxChangePolicy": { "warn": "Cảnh báo và liệt kê", "block": "Chặn phát hành" },
       "noteRequired": {
         "false": "Không",
         "true": "Có"
@@ -1821,7 +1870,42 @@
     "otpOff": "tắt",
     "otpAlways": "luôn bật",
     "otpAbove": "khi tổng trên {amount}",
-    "stepsValue": "{n} bước: {names}"
+    "stepsValue": "{n} bước: {names}",
+    "hints": {
+      "viewLimit": "Số lượt xem trang trong một khoảng đếm, tính theo địa chỉ và theo liên kết.",
+      "viewWindowSeconds": "Đơn vị giây.",
+      "decideLimit": "Số lần duyệt hoặc từ chối trong một khoảng đếm, tính theo liên kết.",
+      "decideWindowMinutes": "Đơn vị phút.",
+      "photoViewLimit": "Số lượt xem ảnh trong một khoảng đếm, tính theo liên kết.",
+      "photoViewWindowSeconds": "Đơn vị giây.",
+      "undoWindowSeconds": "Đơn vị giây; 0 là không cho hoàn tác.",
+      "methods": "Tick các hình thức quầy thu ngân được ghi nhận.",
+      "varianceToleranceVnd": "Số tiền nguyên, đơn vị VND, ví dụ 50.000.",
+      "debtMaxDays": "Đơn vị ngày.",
+      "sourceFlagNoticeDays": "Đơn vị ngày.",
+      "days": "Tick các ngày chi nhánh làm việc.",
+      "startMinute": "Giờ:phút theo 24 giờ, ví dụ 07:45.",
+      "endMinute": "Giờ:phút theo 24 giờ, phải sau giờ bắt đầu; 24:00 là hết ngày.",
+      "openOrderMaxDays": "Đơn vị ngày.",
+      "uninvoicedAfterDays": "Đơn vị ngày; 0 là báo ngay khi hoàn tất.",
+      "unpaidHandoverGraceDays": "Đơn vị ngày; 0 là báo ngay sau khi giao xe.",
+      "cashVarianceAlertVnd": "Số tiền nguyên, đơn vị VND, ví dụ 100.000.",
+      "perRateDescription": "Chữ in trên dòng hóa đơn khi lập một dòng cho mỗi thuế suất.",
+      "maxAttempts": "Số lần, gồm lần phát hành đầu.",
+      "retryBackoffMinutes": "Các số phút cách nhau bằng dấu phẩy, ví dụ 5, 15, 60.",
+      "providerTimeoutMs": "Đơn vị mili giây (1000 mili giây là 1 giây).",
+      "dailyCapacity": "Số xe mỗi ngày; 0 là không đặt công suất (không cảnh báo).",
+      "overdueGraceMinutes": "Đơn vị phút.",
+      "staleDays": "Đơn vị ngày.",
+      "maxReschedules": "Đơn vị lần; 0 là không cho dời.",
+      "lateRescheduleMinutes": "Đơn vị phút trước giờ hẹn.",
+      "noteMinLength": "Đơn vị ký tự."
+    },
+    "hintDefault": "Để trống thì dùng mặc định của hệ thống: {value}.",
+    "hintDefaultUnknown": "Để trống thì dùng mặc định của hệ thống.",
+    "timeInvalid": "Nhập giờ theo dạng giờ:phút, ví dụ 07:45.",
+    "listInvalid": "Nhập các số nguyên cách nhau bằng dấu phẩy.",
+    "pickInvalid": "Chọn ít nhất một mục."
   },
   "audit": {
     "title": "Nhật ký thao tác",

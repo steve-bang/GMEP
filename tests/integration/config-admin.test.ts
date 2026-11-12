@@ -1,7 +1,28 @@
+import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { resolveConfigAt } from '@/modules/sys';
+import { CONFIG_DESCRIPTORS, CONFIG_TYPES, resolveConfigAt, type DescribeT } from '@/modules/sys';
+import { buildConfigPayload } from '@/platform/config/formValues';
 import { businessDateOf } from '@/platform/effective/effective';
 import { backends, createHarness, type Harness } from './harness';
+
+const viJson = JSON.parse(readFileSync('src/platform/i18n/vi.json', 'utf8')) as Record<
+  string,
+  unknown
+>;
+const lookupVi = (key: string): string | undefined => {
+  let cur: unknown = viJson;
+  for (const part of key.split('.')) {
+    if (typeof cur !== 'object' || cur === null || !(part in cur)) return undefined;
+    cur = (cur as Record<string, unknown>)[part];
+  }
+  return typeof cur === 'string' ? cur : undefined;
+};
+/** a plain translator over vi.json, enough to run a descriptor's describe */
+const tVi: DescribeT = Object.assign(
+  (key: string, values: Record<string, string | number> = {}) =>
+    (lookupVi(key) ?? key).replace(/\{(\w+)\}/g, (_m, k: string) => String(values[k] ?? '')),
+  { has: (key: string) => lookupVi(key) !== undefined },
+);
 
 const inDays = (n: number) => businessDateOf(new Date(Date.now() + n * 86_400_000));
 
@@ -449,4 +470,77 @@ describe.each(backends)('FR-SYS-004 configuration framework and approval [%s]', 
       ).status,
     ).toBe(200); // accountant approves templates (BA §2.3)
   });
+
+  // Phase 3a: flat types proposed with the payload the FORM builds (buildConfigPayload + descriptor), read back through the API.
+  it.each([
+    {
+      type: 'appointment-policy',
+      raw: { enabled: 'true', dailyCapacity: '12', staleDays: '20', overdueGraceMinutes: '' },
+      absent: ['overdueGraceMinutes', 'maxReschedules'],
+      text: ['Nhận lịch hẹn', '12'],
+    },
+    {
+      type: 'work-hours',
+      raw: { days: ['1', '2', '3'], startMinute: '07:45', endMinute: '17:30' },
+      absent: [],
+      text: ['07:45', '17:30'],
+    },
+    {
+      type: 'acc-policy',
+      raw: {
+        methods: ['cash', 'qr'],
+        nonCashReferenceRequired: 'true',
+        receiptRequiresQc: 'false',
+        varianceToleranceVnd: '50.000',
+        debtMaxDays: '',
+        sourceFlagNoticeDays: '',
+      },
+      absent: ['debtMaxDays', 'sourceFlagNoticeDays'],
+      text: ['Tiền mặt', 'QR'],
+    },
+    {
+      type: 'einvoice-policy',
+      raw: {
+        lineMode: 'per-rate',
+        perRateDescription: 'Dịch vụ sửa chữa',
+        issueAfter: 'qc',
+        businessAddressRequired: 'true',
+        retailNameRequired: 'false',
+        taxChangePolicy: 'warn',
+        maxAttempts: '5',
+        retryBackoffMinutes: '5, 15',
+        providerTimeoutMs: '30000',
+      },
+      absent: [],
+      text: ['Dịch vụ sửa chữa'],
+    },
+  ])(
+    'flat type $type: proposed from the form payload, pending, read back with its description',
+    async (c) => {
+      const d = CONFIG_DESCRIPTORS[c.type]!;
+      const built = buildConfigPayload(d.fields!, c.raw, d.payloadShape);
+      expect(built.errors).toEqual({});
+      expect(CONFIG_TYPES[c.type]!.payload.safeParse(built.payload).success).toBe(true);
+      const p = await propose(
+        'u_owner',
+        c.type,
+        {
+          scopeKey: 'tenant',
+          effectiveFrom: inDays(30),
+          payload: built.payload,
+          reason: 'Dữ liệu mẫu cho test',
+        },
+        `cfg-flat-${c.type}-aaaa`,
+      );
+      expect(p.status).toBe(201);
+      expect(p.json.status).toBe('pending');
+      const list = await h.call('GET', `/api/v1/sys/config/${c.type}`, { as: 'u_owner' });
+      const row = list.json.items.find((v: { id: string }) => v.id === p.json.id);
+      expect(row.payload).toEqual(built.payload);
+      for (const k of c.absent) expect(Object.keys(row.payload)).not.toContain(k);
+      const shown = d.describe!(tVi, row.payload);
+      for (const x of c.text) expect(shown, `${c.type}: ${shown}`).toContain(x);
+      expect(shown).not.toMatch(/[{}]|undefined|NaN/);
+    },
+  );
 });
