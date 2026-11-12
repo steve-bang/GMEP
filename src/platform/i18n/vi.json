@@ -1373,6 +1373,13 @@
       "period": "Kỳ đặt lại",
       "seqWidth": "Số chữ số của STT"
     },
+    "index": {
+      "search": "Tìm loại cấu hình",
+      "placeholder": "Ví dụ: thuế, giờ công, kho",
+      "noMatch": "Không có loại cấu hình nào khớp.",
+      "pending": "{n} chờ duyệt",
+      "upcoming": "Có bản sắp hiệu lực"
+    },
     "groups": {
       "pricing": "Thuế và giá",
       "service": "Dịch vụ và quy trình",

@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { hasPermission } from '@/platform/rbac/rbac';
 import { formatDateTime } from '@/platform/format/date';
-import { canViewConfig } from '@/modules/sys';
+import { CONFIG_DESCRIPTORS, CONFIG_GROUPS, canViewConfig } from '@/modules/sys';
 import { getContainer } from '@/composition/container';
 import { requireSession } from '@/composition/session';
 import { SettingsFrame, SettingsNav, type SettingsNavGroup } from '@/ui/components/SettingsFrame';
@@ -65,24 +65,7 @@ export async function SettingsPage(props: {
         ...(can('price-list:view')
           ? [{ key: 'priceLists', href: '/sys/price-lists', label: t('shell.nav.priceLists') }]
           : []),
-        ...[
-          'tax-rate',
-          'tax-mapping',
-          'labor-rate',
-          'standard-hours',
-          'discount-limit',
-          'price-item',
-          'service-type',
-        ].flatMap(cfg),
       ],
-    },
-    {
-      label: t('settings.groups.inventory'),
-      items: ['part-group', 'part-unit', 'cost-method', 'inventory-policy'].flatMap(cfg),
-    },
-    {
-      label: t('settings.groups.docs'),
-      items: ['doc-template', 'numbering-series'].flatMap(cfg),
     },
     {
       label: t('settings.groups.data'),
@@ -93,9 +76,14 @@ export async function SettingsPage(props: {
         ...(can('data-import:view')
           ? [{ key: 'imports', href: '/sys/imports', label: t('shell.nav.imports') }]
           : []),
-        ...['evidence-kind'].flatMap(cfg),
       ],
     },
+    ...CONFIG_GROUPS.map((g) => ({
+      label: t(`config.groups.${g}`),
+      items: Object.keys(CONFIG_DESCRIPTORS)
+        .filter((type) => CONFIG_DESCRIPTORS[type]!.group === g)
+        .flatMap(cfg),
+    })),
   ].filter((g) => g.items.length > 0);
   const firstHref = groups[0]?.items[0]?.href ?? '/';
   const asOf = formatDateTime(getContainer().sys.clock.now());
