@@ -1373,6 +1373,15 @@
       "period": "Kỳ đặt lại",
       "seqWidth": "Số chữ số của STT"
     },
+    "groups": {
+      "pricing": "Thuế và giá",
+      "service": "Dịch vụ và quy trình",
+      "appointment": "Lịch hẹn và bảo hành",
+      "labor": "Nhân công",
+      "finance": "Tài chính và phê duyệt",
+      "inventory": "Kho",
+      "system": "Chứng từ, hệ thống"
+    },
     "types": {
       "tax-rate": {
         "title": "Thuế suất",
@@ -1528,6 +1537,16 @@
         "title": "Hạn mức phê duyệt",
         "lead": "Số tiền cấp thu ngân tự quyết và hạn mức cấp quản lý chi nhánh cho từng loại yêu cầu; vượt hạn mức quản lý thì chủ garage duyệt. Số liệu minh họa cho tới khi khách ban hành. Đặt qua API.",
         "scopeHint": "payment_reversal, expense, deposit_refund, customer_refund, day_reopen, debt_handover, cash_variance, invoice_adjust, invoice_replace, invoice_cancel hoặc labor_adjustment"
+      },
+      "work-hours": {
+        "title": "Giờ làm việc",
+        "lead": "Ngày làm việc trong tuần và khung giờ mỗi ngày của chi nhánh; là đồng hồ để tính nhắc việc và chuyển cấp duyệt. Chưa có phiên bản thì tính theo giờ thực. Đặt qua API.",
+        "scopeHint": "tenant (mặc định toàn công ty) hoặc branch:<mã chi nhánh>"
+      },
+      "tenant-limits": {
+        "title": "Giới hạn của công ty",
+        "lead": "Giới hạn số chi nhánh, người dùng, dung lượng ảnh và lưu lượng của một công ty trên nền tảng. Chưa áp dụng chặn, chỉ báo cáo. Chỉ vai trò nền tảng đặt được.",
+        "scopeHint": "tenant"
       },
       "expense-category": {
         "title": "Loại chi phí",

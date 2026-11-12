@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
+import { applyPayloadShape, type PayloadShape } from '@/platform/config/payloadShape';
 import { viToIso } from '@/platform/format/date';
 import { parsePercentToBp } from '@/platform/format/percent';
 import { parseVndInput } from '@/platform/format/vnd';
@@ -19,6 +20,8 @@ export interface F {
 export function ProposeConfigForm(props: {
   type: string;
   fields: F[];
+  /** from the type's descriptor: how the typed values become the API payload */
+  payloadShape?: PayloadShape;
   /** when set the scope key is picked from a list (company / branch / service) instead of typed */
   scopeOptions?: { value: string; label: string }[];
   labels: FormLabels;
@@ -50,28 +53,26 @@ export function ProposeConfigForm(props: {
     const errs: Record<string, string> = {};
     const effectiveFrom = viToIso(v('effectiveFrom'));
     if (!effectiveFrom) errs.effectiveFrom = props.text.dateInvalid;
-    let payload: Record<string, unknown> = {};
+    const values: Record<string, unknown> = {};
     for (const x of props.fields) {
       const raw = v(x.name);
       if (x.kind === 'percent') {
         const bp = parsePercentToBp(raw);
         if (bp === null) errs[x.name] = props.text.percentInvalid;
-        payload[x.name] = bp;
+        values[x.name] = bp;
       } else if (x.kind === 'vnd' || x.kind === 'int') {
         const n =
           x.kind === 'vnd' ? parseVndInput(raw) : /^\d{1,9}$/.test(raw) ? Number(raw) : null;
         if (n === null || n < 0) errs[x.name] = props.text.numberInvalid;
-        payload[x.name] = n;
-      } else if (x.kind === 'bool') payload[x.name] = raw === 'true';
-      else payload[x.name] = raw;
+        values[x.name] = n;
+      } else if (x.kind === 'bool') values[x.name] = raw === 'true';
+      else values[x.name] = raw;
     }
     if (Object.keys(errs).length) {
       setFe(errs);
       return;
     }
-    if (props.type === 'discount-limit')
-      payload = { maxDiscountBpByRole: { [String(payload.role)]: payload.maxBp } };
-    if (props.type === 'numbering-series') payload = { ...payload, reversalSameSeries: true };
+    const payload = applyPayloadShape(props.payloadShape, values);
     setBusy(true);
     setError(null);
     setFe({});
