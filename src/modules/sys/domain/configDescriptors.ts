@@ -71,6 +71,20 @@ const reasonValue: ConfigDescriptor['describe'] = (t, p) =>
     .filter(Boolean)
     .join(' · ');
 
+/** Joins the non-empty pieces of a value description. */
+const parts = (...xs: string[]) => xs.filter(Boolean).join(' · ');
+const int = (n: number | null): string =>
+  n === null ? '' : new Intl.NumberFormat('vi-VN').format(n);
+const vnd = (n: number | null): string => (n === null ? '' : formatVnd(n));
+const arr = <T>(p: Record<string, unknown>, k: string): T[] =>
+  Array.isArray(p[k]) ? (p[k] as T[]) : [];
+const yn = (t: DescribeT, v: unknown) => t(v === true ? 'config.value.yes' : 'config.value.no');
+/** minute of the day -> HH:MM (1440 = 24:00) */
+const clock = (m: number | null): string =>
+  m === null
+    ? ''
+    : `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
 function num(p: Record<string, unknown>, k: string): number | null {
   return typeof p[k] === 'number' ? (p[k] as number) : null;
 }
@@ -157,7 +171,24 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
       num(p, 'standardMinutes') !== null ? hours(num(p, 'standardMinutes')!) : '',
   },
   'service-type': { group: 'service', fields: active, describe: nameStatus },
-  'service-package': { group: 'service' },
+  'service-package': {
+    group: 'service',
+    describe: (t, p) => {
+      const items = arr<{ necessity?: string; lines?: unknown[] }>(p, 'items');
+      return parts(
+        str(p, 'name'),
+        enumLabel(t, 'status', str(p, 'status')),
+        str(p, 'serviceType')
+          ? t('config.value.serviceTypeOf', { code: str(p, 'serviceType') })
+          : '',
+        t('config.value.servicePackage', {
+          items: int(items.length),
+          required: int(items.filter((x) => x.necessity === 'required').length),
+          lines: int(items.reduce((n, x) => n + (Array.isArray(x.lines) ? x.lines.length : 0), 0)),
+        }),
+      );
+    },
+  },
   'service-workflow': {
     group: 'service',
     describe: (t, p) => {
@@ -168,7 +199,16 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
       });
     },
   },
-  'qc-checklist': { group: 'service' },
+  'qc-checklist': {
+    group: 'service',
+    describe: (t, p) => {
+      const checks = arr<{ name?: string }>(p, 'checks');
+      return t('config.value.qcChecklist', {
+        n: int(checks.length),
+        names: checks.map((x) => x.name ?? '').join(', '),
+      });
+    },
+  },
   'evidence-kind': { group: 'service', fields: active, describe: nameStatus },
   'decline-reason': { group: 'service', fields: active, describe: nameStatus },
   'quote-approval': {
@@ -185,8 +225,32 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
               : t('config.otpOff'),
       }),
   },
-  'order-policy': { group: 'service' },
-  'appointment-policy': { group: 'appointment' },
+  'order-policy': {
+    group: 'service',
+    describe: (t, p) =>
+      parts(
+        t('config.value.undoWindow', { sec: int(num(p, 'undoWindowSeconds')) }),
+        t('config.value.handoverRequiresPayment', { v: yn(t, p.handoverRequiresPayment) }),
+        t('config.value.handoverRequiresReceiver', { v: yn(t, p.handoverRequiresReceiver) }),
+      ),
+  },
+  'appointment-policy': {
+    group: 'appointment',
+    describe: (t, p) => {
+      const cap = num(p, 'dailyCapacity');
+      const opt = (k: string, key: string) =>
+        num(p, k) !== null ? t(`config.value.${key}`, { n: int(num(p, k)) }) : '';
+      return parts(
+        t(p.enabled === true ? 'config.value.appointmentsOn' : 'config.value.appointmentsOff'),
+        cap ? t('config.value.dailyCapacity', { n: int(cap) }) : t('config.value.noCapacity'),
+        opt('overdueGraceMinutes', 'overdueGrace'),
+        opt('staleDays', 'staleDays'),
+        opt('maxReschedules', 'maxReschedules'),
+        opt('lateRescheduleMinutes', 'lateReschedule'),
+        opt('noteMinLength', 'noteMinLength'),
+      );
+    },
+  },
   'appointment-cancel-reason': {
     group: 'appointment',
     fields: reasonFields,
@@ -197,17 +261,185 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
     fields: reasonFields,
     describe: reasonValue,
   },
-  'warranty-term': { group: 'appointment' },
-  'warranty-policy': { group: 'appointment' },
-  'labor-method': { group: 'labor' },
-  'labor-position': { group: 'labor' },
-  'labor-policy': { group: 'labor' },
-  'work-hours': { group: 'labor' },
-  'acc-policy': { group: 'finance' },
-  'approval-limit': { group: 'finance' },
-  'expense-category': { group: 'finance' },
-  'einvoice-issuer': { group: 'finance' },
-  'einvoice-policy': { group: 'finance' },
+  'warranty-term': {
+    group: 'appointment',
+    describe: (t, p) => {
+      const days = num(p, 'days');
+      const km = num(p, 'km');
+      const cond = str(p, 'conditions');
+      return parts(
+        days ? t('config.value.warrantyDays', { n: int(days) }) : t('config.value.noDayLimit'),
+        km ? t('config.value.warrantyKm', { n: int(km) }) : t('config.value.noKmLimit'),
+        cond
+          ? t('config.value.conditions', {
+              text: cond.length > 80 ? `${cond.slice(0, 80)}…` : cond,
+            })
+          : '',
+      );
+    },
+  },
+  'warranty-policy': {
+    group: 'appointment',
+    describe: (t, p) =>
+      parts(
+        t('config.value.crossBranchOpen', { v: yn(t, p.crossBranchOpen) }),
+        t('config.value.costBearer', { v: enumLabel(t, 'costBearer', str(p, 'costBearer')) }),
+      ),
+  },
+  'labor-method': {
+    group: 'labor',
+    describe: (t, p) => {
+      const m = str(p, 'method');
+      const bp = (k: string) => (num(p, k) === null ? '' : formatBp(num(p, k)!));
+      return parts(
+        t(`config.value.laborMethod.${m}`, {
+          rate: vnd(num(p, 'hourlyRateVnd')),
+          amount: vnd(num(p, 'amountVnd')),
+          share: bp('rateBp'),
+          fixed: vnd(num(p, 'fixedVnd')),
+          bonus: vnd(num(p, 'bonusVnd')),
+          within: bp('bonusMaxActualBp'),
+        }),
+        m === 'approved_actual' && num(p, 'capBp') !== null
+          ? t('config.value.laborCap', { share: bp('capBp') })
+          : '',
+      );
+    },
+  },
+  'labor-position': {
+    group: 'labor',
+    describe: (t, p) =>
+      parts(
+        str(p, 'name'),
+        enumLabel(t, 'status', str(p, 'status')),
+        num(p, 'coefficientBp') !== null
+          ? t('config.value.coefficient', { v: formatBp(num(p, 'coefficientBp')!) })
+          : '',
+      ),
+  },
+  'labor-policy': {
+    group: 'labor',
+    describe: (t, p) =>
+      parts(
+        t('config.value.rounding', { v: enumLabel(t, 'rounding', str(p, 'roundingMode')) }),
+        t('config.value.moneyStep', { amount: vnd(num(p, 'moneyStepVnd')) }),
+        t('config.value.minutesStep', { n: int(num(p, 'minutesStep')) }),
+        t('config.value.adjustThreshold', {
+          n: int(num(p, 'adjustThresholdMinutes')),
+          amount: vnd(num(p, 'adjustThresholdVnd')),
+        }),
+        t('config.value.rework', { v: enumLabel(t, 'rework', str(p, 'reworkMode')) }),
+      ),
+  },
+  'work-hours': {
+    group: 'labor',
+    describe: (t, p) => {
+      // 0 = Sunday (Date#getDay); shown Monday first
+      const days = arr<number>(p, 'days');
+      const shown = [1, 2, 3, 4, 5, 6, 0].filter((d) => days.includes(d));
+      return t('config.value.workHours', {
+        days: shown.map((d) => enumLabel(t, 'weekday', String(d))).join(', '),
+        from: clock(num(p, 'startMinute')),
+        to: clock(num(p, 'endMinute')),
+      });
+    },
+  },
+  'acc-policy': {
+    group: 'finance',
+    describe: (t, p) =>
+      parts(
+        t('config.value.payMethods', {
+          list: arr<string>(p, 'methods')
+            .map((m) => enumLabel(t, 'payMethod', m))
+            .join(', '),
+        }),
+        t('config.value.nonCashReference', { v: yn(t, p.nonCashReferenceRequired) }),
+        t('config.value.receiptRequiresQc', { v: yn(t, p.receiptRequiresQc) }),
+        t('config.value.varianceTolerance', { amount: vnd(num(p, 'varianceToleranceVnd')) }),
+        num(p, 'debtMaxDays') !== null
+          ? t('config.value.debtMaxDays', { n: int(num(p, 'debtMaxDays')) })
+          : '',
+        num(p, 'sourceFlagNoticeDays') !== null
+          ? t('config.value.sourceFlagNoticeDays', { n: int(num(p, 'sourceFlagNoticeDays')) })
+          : '',
+      ),
+  },
+  'approval-limit': {
+    group: 'finance',
+    describe: (t, p) =>
+      parts(
+        t('config.value.selfMax', { amount: vnd(num(p, 'selfMaxVnd')) }),
+        t('config.value.level1Max', { amount: vnd(num(p, 'level1MaxVnd')) }),
+        num(p, 'shiftCapVnd') !== null
+          ? t('config.value.shiftCap', { amount: vnd(num(p, 'shiftCapVnd')) })
+          : '',
+        t('config.value.dueHours', { n: int(num(p, 'dueHours')) }),
+        num(p, 'validHours') !== null
+          ? t('config.value.validHours', { n: int(num(p, 'validHours')) })
+          : '',
+        num(p, 'maxReopensPerMonth') !== null
+          ? t('config.value.maxReopensPerMonth', { n: int(num(p, 'maxReopensPerMonth')) })
+          : '',
+        num(p, 'escalateAfterHours') !== null
+          ? t('config.value.escalateAfterHours', { n: int(num(p, 'escalateAfterHours')) })
+          : '',
+        p.bulkAllowed === true ? t('config.value.bulkAllowed') : '',
+        p.reauthOnApprove === true ? t('config.value.reauthOnApprove') : '',
+      ),
+  },
+  'expense-category': {
+    group: 'finance',
+    describe: (t, p) =>
+      parts(
+        str(p, 'name'),
+        enumLabel(t, 'status', str(p, 'status')),
+        p.depositRefund === true ? t('config.value.depositRefund') : '',
+        t('config.value.sourceRequirement', {
+          v: enumLabel(t, 'sourceRequirement', str(p, 'sourceRequirement') || 'optional'),
+        }),
+        str(p, 'accountCode') ? t('config.value.accountCode', { code: str(p, 'accountCode') }) : '',
+      ),
+  },
+  'einvoice-issuer': {
+    group: 'finance',
+    // no key or password lives in this payload (secrets are per-tenant integration config); nothing secret is shown
+    describe: (t, p) =>
+      parts(
+        t(p.enabled === true ? 'config.value.enabledOn' : 'config.value.enabledOff'),
+        t('config.value.provider', { code: str(p, 'providerCode') }),
+        enumLabel(t, 'environment', str(p, 'environment')),
+        str(p, 'sellerName'),
+        t('config.value.taxCode', { code: str(p, 'sellerTaxCode') }),
+        t('config.value.symbol', { code: str(p, 'symbol') }),
+        enumLabel(t, 'invoiceType', str(p, 'invoiceType')),
+        t('config.value.templateCode', { code: str(p, 'templateCode') }),
+      ),
+  },
+  'einvoice-policy': {
+    group: 'finance',
+    describe: (t, p) => {
+      const ms = num(p, 'providerTimeoutMs');
+      return parts(
+        enumLabel(t, 'lineMode', str(p, 'lineMode')),
+        p.lineMode === 'per-rate' && str(p, 'perRateDescription')
+          ? t('config.value.perRateDescription', { text: str(p, 'perRateDescription') })
+          : '',
+        t('config.value.issueAfter', { v: enumLabel(t, 'issueAfter', str(p, 'issueAfter')) }),
+        t('config.value.taxChange', { v: enumLabel(t, 'taxChange', str(p, 'taxChangePolicy')) }),
+        t('config.value.businessAddressRequired', { v: yn(t, p.businessAddressRequired) }),
+        t('config.value.retailNameRequired', { v: yn(t, p.retailNameRequired) }),
+        t('config.value.retry', {
+          n: int(num(p, 'maxAttempts')),
+          list: arr<number>(p, 'retryBackoffMinutes').map(int).join(', '),
+        }),
+        ms === null
+          ? ''
+          : ms % 1000 === 0
+            ? t('config.value.timeoutSeconds', { n: int(ms / 1000) })
+            : t('config.value.timeoutMs', { n: int(ms) }),
+      );
+    },
+  },
   'inventory-policy': {
     group: 'inventory',
     fields: [
@@ -266,9 +498,79 @@ export const CONFIG_DESCRIPTORS: Record<string, ConfigDescriptor> = {
         t('config.widthValue', { width: num(p, 'seqWidth') ?? 0 }),
       ].join(' · '),
   },
-  'public-rate-limit': { group: 'system' },
-  'tenant-limits': { group: 'system' },
-  'report-policy': { group: 'system' },
-  'branch-groups': { group: 'system' },
-  'catalog-release': { group: 'system' },
+  'public-rate-limit': {
+    group: 'system',
+    describe: (t, p) =>
+      parts(
+        t('config.value.viewLimit', {
+          n: int(num(p, 'viewLimit')),
+          sec: int(num(p, 'viewWindowSeconds')),
+        }),
+        t('config.value.decideLimit', {
+          n: int(num(p, 'decideLimit')),
+          min: int(num(p, 'decideWindowMinutes')),
+        }),
+        num(p, 'photoViewLimit') !== null
+          ? t('config.value.photoViewLimit', {
+              n: int(num(p, 'photoViewLimit')),
+              sec: int(num(p, 'photoViewWindowSeconds')),
+            })
+          : '',
+      ),
+  },
+  'tenant-limits': {
+    group: 'system',
+    describe: (t, p) => {
+      const mb = num(p, 'photoStorageMb');
+      return t('config.value.tenantLimits', {
+        branches: int(num(p, 'activeBranches')),
+        users: int(num(p, 'users')),
+        storage:
+          mb === null
+            ? ''
+            : mb % 1024 === 0
+              ? t('config.value.gb', { n: int(mb / 1024) })
+              : t('config.value.mb', { n: int(mb) }),
+        api: int(num(p, 'apiPerMinute')),
+        jobs: int(num(p, 'backgroundJobs')),
+        imp: int(num(p, 'importRowsPerDay')),
+        exp: int(num(p, 'exportRowsPerRun')),
+      });
+    },
+  },
+  'report-policy': {
+    group: 'system',
+    describe: (t, p) =>
+      parts(
+        t('config.value.openOrderMaxDays', { n: int(num(p, 'openOrderMaxDays')) }),
+        t('config.value.uninvoicedAfterDays', { n: int(num(p, 'uninvoicedAfterDays')) }),
+        t('config.value.unpaidHandoverGraceDays', { n: int(num(p, 'unpaidHandoverGraceDays')) }),
+        t('config.value.cashVarianceAlert', { amount: vnd(num(p, 'cashVarianceAlertVnd')) }),
+      ),
+  },
+  'branch-groups': {
+    group: 'system',
+    describe: (t, p) => {
+      const groups = arr<{ name?: string; branchIds?: unknown[] }>(p, 'groups');
+      if (groups.length === 0) return t('config.value.noGroups');
+      return t('config.value.branchGroups', {
+        n: int(groups.length),
+        list: groups
+          .map((g) =>
+            t('config.value.groupItem', {
+              name: g.name ?? '',
+              n: int(Array.isArray(g.branchIds) ? g.branchIds.length : 0),
+            }),
+          )
+          .join(', '),
+      });
+    },
+  },
+  'catalog-release': {
+    group: 'system',
+    describe: (t, p) =>
+      p.audience === 'branches'
+        ? t('config.value.releaseBranches', { n: int(arr<string>(p, 'branchIds').length) })
+        : t('config.value.releaseAll'),
+  },
 };

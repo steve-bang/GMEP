@@ -15,28 +15,7 @@ const lookup = (key: string): string | undefined => {
 };
 
 /** Types whose describe is not written yet (shrinks to empty in the phase that writes them). */
-const KNOWN_MISSING_DESCRIBE: readonly string[] = [
-  'service-package',
-  'public-rate-limit',
-  'qc-checklist',
-  'order-policy',
-  'acc-policy',
-  'approval-limit',
-  'work-hours',
-  'expense-category',
-  'einvoice-issuer',
-  'einvoice-policy',
-  'tenant-limits',
-  'report-policy',
-  'branch-groups',
-  'catalog-release',
-  'labor-method',
-  'labor-position',
-  'labor-policy',
-  'appointment-policy',
-  'warranty-term',
-  'warranty-policy',
-];
+const KNOWN_MISSING_DESCRIBE: readonly string[] = [];
 
 const types = Object.keys(CONFIG_TYPES);
 
