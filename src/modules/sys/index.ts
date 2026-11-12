@@ -11,6 +11,7 @@ export * from './domain/branchState';
 export * from './domain/sessionPolicy';
 export * from './domain/passwordPolicy';
 export * from './domain/config';
+export * from './domain/configDescriptors';
 export * from './domain/approval';
 export * from './domain/tenant';
 export * from './domain/tenantCode';

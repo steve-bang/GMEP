@@ -1,10 +1,9 @@
-import { formatVnd } from '@/platform/format/vnd';
-import { formatBp } from '@/platform/format/percent';
-import { ROLE_NAMES, type ConfigVersionDto } from '@/modules/sys';
-
-type T = ((key: string, values?: Record<string, string | number>) => string) & {
-  has: (key: string) => boolean;
-};
+import {
+  CONFIG_DESCRIPTORS,
+  type ConfigVersionDto,
+  type DescribeT,
+  type FieldDef,
+} from '@/modules/sys';
 
 export type ViewStatus = 'pending' | 'rejected' | 'current' | 'upcoming' | 'superseded';
 
@@ -45,193 +44,14 @@ export const STATUS_TONE: Record<
   superseded: 'neutral',
 };
 
-const hours = (min: number) => {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return h && m ? `${h} giờ ${m} phút` : h ? `${h} giờ` : `${m} phút`;
-};
-
-/** Human-readable value of a version payload: never raw JSON. */
-export function describeValue(t: T, type: string, p: Record<string, unknown>): string {
-  const num = (k: string) => (typeof p[k] === 'number' ? (p[k] as number) : null);
-  const str = (k: string) => (typeof p[k] === 'string' ? (p[k] as string) : '');
-  const enumLabel = (group: string, v: string) =>
-    t.has(`config.enums.${group}.${v}`) ? t(`config.enums.${group}.${v}`) : v;
-  switch (type) {
-    case 'tax-rate':
-      return `${str('name')} · ${num('rateBp') !== null ? formatBp(num('rateBp')!) : ''}`;
-    case 'labor-rate':
-      return num('hourlyRateVnd') !== null
-        ? t('config.perHour', { amount: formatVnd(num('hourlyRateVnd')!) })
-        : '';
-    case 'standard-hours':
-      return num('standardMinutes') !== null ? hours(num('standardMinutes')!) : '';
-    case 'discount-limit': {
-      const m = (p.maxDiscountBpByRole ?? {}) as Record<string, number>;
-      return Object.entries(m)
-        .map(([r, bp]) => `${ROLE_NAMES[r as keyof typeof ROLE_NAMES] ?? r}: ${formatBp(bp)}`)
-        .join('; ');
-    }
-    case 'price-item':
-      return [
-        str('name'),
-        num('costVnd') !== null ? t('config.cost', { amount: formatVnd(num('costVnd')!) }) : null,
-        num('listPriceVnd') !== null
-          ? t('config.listPrice', { amount: formatVnd(num('listPriceVnd')!) })
-          : null,
-      ]
-        .filter(Boolean)
-        .join(' · ');
-    case 'doc-template':
-      return `${str('name')} · ${enumLabel('kind', str('kind'))} · ${enumLabel('paper', str('paper'))}`;
-    case 'numbering-series':
-      return [
-        t('config.prefixValue', { prefix: str('prefix') }),
-        enumLabel('group', str('group')),
-        enumLabel('gapPolicy', str('gapPolicy')),
-        enumLabel('scope', str('scope')),
-        enumLabel('period', str('period')),
-        t('config.widthValue', { width: num('seqWidth') ?? 0 }),
-      ].join(' · ');
-    case 'tax-mapping':
-      return `${t('config.fields.labor')}: ${str('labor')} · ${t('config.fields.part')}: ${str('part')}`;
-    case 'quote-approval':
-      return t('config.quoteApprovalValue', {
-        decline: t(p.allowDeclineRequired === false ? 'config.no' : 'config.yes'),
-        verbal: t(p.verbalApproval === false ? 'config.no' : 'config.yes'),
-        otp:
-          p.otpMode === 'always'
-            ? t('config.otpAlways')
-            : p.otpMode === 'above_threshold'
-              ? t('config.otpAbove', { amount: formatVnd(num('otpThresholdVnd') ?? 0) })
-              : t('config.otpOff'),
-      });
-    case 'service-workflow': {
-      const steps = Array.isArray(p.steps) ? (p.steps as { name?: string }[]) : [];
-      return t('config.stepsValue', {
-        n: steps.length,
-        names: steps.map((x) => x.name ?? '').join(', '),
-      });
-    }
-    case 'appointment-cancel-reason':
-    case 'appointment-reschedule-reason':
-      return [
-        str('name'),
-        enumLabel('status', str('status')),
-        p.noteRequired === true ? t('config.fields.noteRequired') : null,
-      ]
-        .filter(Boolean)
-        .join(' · ');
-    case 'decline-reason':
-    case 'evidence-kind':
-    case 'service-type':
-    case 'part-group':
-    case 'part-unit':
-      return `${str('name')} · ${enumLabel('status', str('status'))}`;
-    case 'cost-method':
-      return enumLabel('costMethod', str('method'));
-    case 'inventory-policy':
-      return t('config.grnVariance', {
-        price: num('grnPriceVarianceBp') !== null ? formatBp(num('grnPriceVarianceBp')!) : '',
-        qty: num('grnQtyVarianceBp') !== null ? formatBp(num('grnQtyVarianceBp')!) : '',
-      });
-    default:
-      return '';
-  }
+/** Human-readable value of a version payload: never raw JSON. Reads the type's descriptor. */
+export function describeValue(t: DescribeT, type: string, p: Record<string, unknown>): string {
+  return CONFIG_DESCRIPTORS[type]?.describe?.(t, p) ?? '';
 }
 
-export interface FieldDef {
-  name: string;
-  kind: 'text' | 'vnd' | 'int' | 'percent' | 'select' | 'bool';
-  /** select options; label keys resolve under config.enums.<name> */
-  options?: string[];
-}
+export type { FieldDef };
 
-/** Payload fields per type (the server validates with the type's zod schema). */
-export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = {
-  'tax-rate': [
-    { name: 'name', kind: 'text' },
-    { name: 'rateBp', kind: 'percent' },
-  ],
-  'labor-rate': [{ name: 'hourlyRateVnd', kind: 'vnd' }],
-  'standard-hours': [{ name: 'standardMinutes', kind: 'int' }],
-  'discount-limit': [
-    { name: 'role', kind: 'select' }, // options = role codes, filled by the page
-    { name: 'maxBp', kind: 'percent' },
-  ],
-  'price-item': [
-    { name: 'name', kind: 'text' },
-    { name: 'costVnd', kind: 'vnd' },
-    { name: 'listPriceVnd', kind: 'vnd' },
-  ],
-  'doc-template': [
-    { name: 'name', kind: 'text' },
-    {
-      name: 'kind',
-      kind: 'select',
-      options: [
-        'quote',
-        'repair-order',
-        'receipt',
-        'stock-doc',
-        'handover',
-        'notification',
-        'other',
-      ],
-    },
-    { name: 'paper', kind: 'select', options: ['A4', 'A5', 'thermal80', 'thermal58'] },
-  ],
-  'part-group': [
-    { name: 'name', kind: 'text' },
-    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
-  ],
-  'part-unit': [
-    { name: 'name', kind: 'text' },
-    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
-  ],
-  'tax-mapping': [
-    { name: 'labor', kind: 'text' },
-    { name: 'part', kind: 'text' },
-  ],
-  'service-type': [
-    { name: 'name', kind: 'text' },
-    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
-  ],
-  'decline-reason': [
-    { name: 'name', kind: 'text' },
-    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
-  ],
-  'appointment-cancel-reason': [
-    { name: 'name', kind: 'text' },
-    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
-    { name: 'party', kind: 'select', options: ['customer', 'garage', 'other'] },
-    // FR-REC-045/046: the schema and checkReason support it; without this field a proposed version silently drops it
-    { name: 'noteRequired', kind: 'bool' },
-    { name: 'order', kind: 'int' },
-  ],
-  'appointment-reschedule-reason': [
-    { name: 'name', kind: 'text' },
-    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
-    { name: 'party', kind: 'select', options: ['customer', 'garage', 'other'] },
-    // FR-REC-045/046: the schema and checkReason support it; without this field a proposed version silently drops it
-    { name: 'noteRequired', kind: 'bool' },
-    { name: 'order', kind: 'int' },
-  ],
-  'evidence-kind': [
-    { name: 'name', kind: 'text' },
-    { name: 'status', kind: 'select', options: ['active', 'inactive'] },
-  ],
-  'cost-method': [{ name: 'method', kind: 'select', options: ['weighted-average'] }],
-  'inventory-policy': [
-    { name: 'grnPriceVarianceBp', kind: 'percent' },
-    { name: 'grnQtyVarianceBp', kind: 'percent' },
-  ],
-  'numbering-series': [
-    { name: 'prefix', kind: 'text' },
-    { name: 'group', kind: 'select', options: ['A', 'B'] },
-    { name: 'gapPolicy', kind: 'select', options: ['strict', 'relaxed'] },
-    { name: 'scope', kind: 'select', options: ['branch', 'legalEntity'] },
-    { name: 'period', kind: 'select', options: ['month', 'year', 'none'] },
-    { name: 'seqWidth', kind: 'int' },
-  ],
-};
+/** Payload fields per type (the server validates with the type's zod schema); derived from the descriptors. */
+export const PAYLOAD_FIELDS: Record<string, FieldDef[]> = Object.fromEntries(
+  Object.entries(CONFIG_DESCRIPTORS).flatMap(([type, d]) => (d.fields ? [[type, d.fields]] : [])),
+);

@@ -4,6 +4,7 @@ import { hasPermission, resolveScope } from '@/platform/rbac/rbac';
 import { businessDateOf } from '@/platform/effective/effective';
 import { isoToVi } from '@/platform/format/date';
 import {
+  CONFIG_DESCRIPTORS,
   CONFIG_TYPES,
   ROLE_CODES,
   ROLE_NAMES,
@@ -192,6 +193,9 @@ export default async function ConfigTypePage({ params }: { params: Promise<{ typ
           <ProposeConfigForm
             type={type}
             fields={fields}
+            {...(CONFIG_DESCRIPTORS[type]?.payloadShape
+              ? { payloadShape: CONFIG_DESCRIPTORS[type]!.payloadShape! }
+              : {})}
             {...(scopeOptions ? { scopeOptions } : {})}
             labels={formLabels(t, 'config.submit', false)}
             text={{

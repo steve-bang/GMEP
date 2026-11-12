@@ -1373,6 +1373,103 @@
       "period": "Kỳ đặt lại",
       "seqWidth": "Số chữ số của STT"
     },
+    "groups": {
+      "pricing": "Thuế và giá",
+      "service": "Dịch vụ và quy trình",
+      "appointment": "Lịch hẹn và bảo hành",
+      "labor": "Nhân công",
+      "finance": "Tài chính và phê duyệt",
+      "inventory": "Kho",
+      "system": "Chứng từ, hệ thống"
+    },
+    "value": {
+      "yes": "có",
+      "no": "không",
+      "enabledOn": "Đang bật",
+      "enabledOff": "Đang tắt",
+      "serviceTypeOf": "loại dịch vụ {code}",
+      "servicePackage": "{items} hạng mục ({required} bắt buộc), {lines} dòng",
+      "viewLimit": "Xem trang: {n} lần mỗi {sec} giây",
+      "decideLimit": "Duyệt hoặc từ chối: {n} lần mỗi {min} phút",
+      "photoViewLimit": "Xem ảnh: {n} lần mỗi {sec} giây",
+      "qcChecklist": "{n} mục kiểm tra: {names}",
+      "undoWindow": "Hoàn tác trong {sec} giây",
+      "handoverRequiresPayment": "Bàn giao khi đã thu đủ: {v}",
+      "handoverRequiresReceiver": "Ghi tên người nhận xe: {v}",
+      "payMethods": "Hình thức thu: {list}",
+      "nonCashReference": "Bắt buộc mã giao dịch khi không thu tiền mặt: {v}",
+      "receiptRequiresQc": "Thu cuối cần qua kiểm tra chất lượng: {v}",
+      "varianceTolerance": "Lệch két trong ±{amount} chỉ cần giải trình",
+      "debtMaxDays": "Công nợ tối đa {n} ngày",
+      "sourceFlagNoticeDays": "Nhắc thiếu chứng từ sau {n} ngày",
+      "selfMax": "Tự quyết đến {amount}",
+      "level1Max": "Quản lý chi nhánh duyệt đến {amount}",
+      "shiftCap": "Trần mỗi ca {amount}",
+      "dueHours": "Hạn xử lý {n} giờ",
+      "validHours": "Dùng được {n} giờ sau khi duyệt",
+      "maxReopensPerMonth": "Báo bất thường khi mở lại quá {n} lần mỗi tháng",
+      "escalateAfterHours": "Chuyển cấp sau {n} giờ làm việc",
+      "bulkAllowed": "Cho duyệt hàng loạt",
+      "reauthOnApprove": "Nhập lại mật khẩu khi duyệt",
+      "workHours": "{days} · {from} đến {to}",
+      "depositRefund": "Hoàn cọc khách",
+      "sourceRequirement": "Chứng từ gốc: {v}",
+      "accountCode": "Mã tài khoản {code}",
+      "provider": "Nhà cung cấp {code}",
+      "taxCode": "MST {code}",
+      "symbol": "Ký hiệu {code}",
+      "templateCode": "Mẫu số {code}",
+      "perRateDescription": "Tên dòng gộp «{text}»",
+      "issueAfter": "Phát hành {v}",
+      "taxChange": "Khi đổi thuế suất: {v}",
+      "businessAddressRequired": "Bắt buộc địa chỉ đơn vị mua: {v}",
+      "retailNameRequired": "Bắt buộc tên khách lẻ: {v}",
+      "retry": "Thử lại tối đa {n} lần, cách {list} phút",
+      "timeoutSeconds": "Chờ nhà cung cấp {n} giây",
+      "timeoutMs": "Chờ nhà cung cấp {n} ms",
+      "tenantLimits": "{branches} chi nhánh · {users} người dùng · ảnh {storage} · API {api} lượt mỗi phút · {jobs} tác vụ nền · nhập {imp} dòng mỗi ngày · xuất {exp} dòng mỗi lần",
+      "gb": "{n} GB",
+      "mb": "{n} MB",
+      "openOrderMaxDays": "Lệnh mở quá {n} ngày bị liệt kê",
+      "uninvoicedAfterDays": "Lệnh xong chưa có hóa đơn từ {n} ngày",
+      "unpaidHandoverGraceDays": "Đã bàn giao còn nợ quá {n} ngày",
+      "cashVarianceAlert": "Lệch két trên {amount}",
+      "noGroups": "Chưa có nhóm chi nhánh",
+      "branchGroups": "{n} nhóm: {list}",
+      "groupItem": "{name} ({n} chi nhánh)",
+      "releaseAll": "Phát hành cho mọi chi nhánh",
+      "releaseBranches": "Chỉ phát hành cho {n} chi nhánh",
+      "laborMethod": {
+        "standard_hours": "Giờ chuẩn × {rate} mỗi giờ",
+        "approved_actual": "Giờ thực tế đã duyệt × {rate} mỗi giờ",
+        "flat": "Khoán {amount} mỗi hạng mục",
+        "percent": "{share} tiền công của hạng mục",
+        "fixed_bonus": "Cố định {fixed} + thưởng {bonus} nếu giờ thực tế không quá {within} giờ chuẩn"
+      },
+      "laborCap": "giờ duyệt tối đa {share} giờ chuẩn",
+      "coefficient": "Hệ số {v}",
+      "rounding": "Làm tròn: {v}",
+      "moneyStep": "Tiền làm tròn theo bậc {amount}",
+      "minutesStep": "Phút làm tròn theo bậc {n}",
+      "adjustThreshold": "Ngưỡng điều chỉnh {n} phút hoặc {amount}",
+      "rework": "Làm lại: {v}",
+      "appointmentsOn": "Nhận lịch hẹn",
+      "appointmentsOff": "Không nhận lịch hẹn",
+      "dailyCapacity": "Sức chứa {n} xe mỗi ngày",
+      "noCapacity": "Chưa đặt sức chứa",
+      "overdueGrace": "Quá hẹn tính sau {n} phút",
+      "staleDays": "Lịch tồn đọng sau {n} ngày",
+      "maxReschedules": "Dời tối đa {n} lần",
+      "lateReschedule": "Dời sát giờ khi còn dưới {n} phút",
+      "noteMinLength": "Ghi chú tối thiểu {n} ký tự",
+      "warrantyDays": "{n} ngày",
+      "noDayLimit": "Không giới hạn ngày",
+      "warrantyKm": "{n} km",
+      "noKmLimit": "Không giới hạn km",
+      "conditions": "Điều kiện: {text}",
+      "crossBranchOpen": "Mở bảo hành ở chi nhánh khác: {v}",
+      "costBearer": "Ghi nhận chi phí cho: {v}"
+    },
     "types": {
       "tax-rate": {
         "title": "Thuế suất",
@@ -1529,6 +1626,16 @@
         "lead": "Số tiền cấp thu ngân tự quyết và hạn mức cấp quản lý chi nhánh cho từng loại yêu cầu; vượt hạn mức quản lý thì chủ garage duyệt. Số liệu minh họa cho tới khi khách ban hành. Đặt qua API.",
         "scopeHint": "payment_reversal, expense, deposit_refund, customer_refund, day_reopen, debt_handover, cash_variance, invoice_adjust, invoice_replace, invoice_cancel hoặc labor_adjustment"
       },
+      "work-hours": {
+        "title": "Giờ làm việc",
+        "lead": "Ngày làm việc trong tuần và khung giờ mỗi ngày của chi nhánh; là đồng hồ để tính nhắc việc và chuyển cấp duyệt. Chưa có phiên bản thì tính theo giờ thực. Đặt qua API.",
+        "scopeHint": "tenant (mặc định toàn công ty) hoặc branch:<mã chi nhánh>"
+      },
+      "tenant-limits": {
+        "title": "Giới hạn của công ty",
+        "lead": "Giới hạn số chi nhánh, người dùng, dung lượng ảnh và lưu lượng của một công ty trên nền tảng. Chưa áp dụng chặn, chỉ báo cáo. Chỉ vai trò nền tảng đặt được.",
+        "scopeHint": "tenant"
+      },
       "expense-category": {
         "title": "Loại chi phí",
         "lead": "Danh mục loại chi phí của phiếu chi. Mỗi loại có thuộc tính bắt buộc chứng từ gốc hay không (bắt buộc thì chặn lưu khi thiếu). Không xóa, chỉ ngừng dùng. Đặt qua API.",
@@ -1567,6 +1674,62 @@
     "widthValue": "STT {width} chữ số",
     "grnVariance": "Lệch giá tối đa {price} · nhận vượt đơn tối đa {qty}",
     "enums": {
+      "payMethod": {
+        "cash": "Tiền mặt",
+        "transfer": "Chuyển khoản",
+        "card": "Thẻ",
+        "qr": "QR"
+      },
+      "lineMode": {
+        "per-rate": "Một dòng mỗi thuế suất",
+        "per-line": "Một dòng mỗi hạng mục"
+      },
+      "issueAfter": {
+        "qc": "từ khi qua kiểm tra chất lượng",
+        "handover": "sau khi bàn giao xe"
+      },
+      "taxChange": {
+        "warn": "cảnh báo và liệt kê",
+        "block": "chặn phát hành"
+      },
+      "environment": {
+        "test": "Môi trường thử",
+        "live": "Môi trường thật"
+      },
+      "invoiceType": {
+        "vat": "Hóa đơn GTGT",
+        "sales": "Hóa đơn bán hàng"
+      },
+      "rounding": {
+        "half_up": "nửa lên",
+        "down": "xuống",
+        "up": "lên"
+      },
+      "rework": {
+        "keep_original": "giữ công gốc",
+        "reverse_original": "đảo công gốc"
+      },
+      "costBearer": {
+        "performing_branch": "chi nhánh thực hiện",
+        "origin_branch": "chi nhánh gốc",
+        "company": "công ty"
+      },
+      "sourceRequirement": {
+        "required": "bắt buộc",
+        "optional": "không bắt buộc"
+      },
+      "weekday": {
+        "0": "CN",
+        "1": "T2",
+        "2": "T3",
+        "3": "T4",
+        "4": "T5",
+        "5": "T6",
+        "6": "T7"
+      },
+      "method": {
+        "weighted-average": "Bình quân gia quyền"
+      },
       "noteRequired": {
         "false": "Không",
         "true": "Có"
